@@ -156,6 +156,8 @@
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
+    // A blank or unreadable field takes the fallback; a typed 0 stays 0 (`|| d` would turn 0 into d).
+    const numOr = (s, d) => { const t = String(s ?? "").trim(); const n = parseFloat(t); return t === "" || !Number.isFinite(n) ? d : n; };
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     let last = null;
@@ -169,7 +171,7 @@
     const opts = () => ({
       agency: $("#agency").value.trim() || "Your agency", producerCode: $("#producer").value.trim(),
       periodStart: $("#period-start").value, periodEnd: $("#period-end").value,
-      lagDays: Math.max(0, parseInt($("#lag").value, 10) || 30), rateTol: Math.max(0, parseFloat($("#rate-tol").value) || 0.25),
+      lagDays: Math.max(0, Math.trunc(numOr($("#lag").value, 30))), rateTol: Math.max(0, numOr($("#rate-tol").value, 0.25)),
     });
     const showLetter = () => { const c = $("#letter-pick").value; $("#letter").textContent = last && c ? disputeLetter(last, c) : "Nothing to ask this carrier about."; };
 

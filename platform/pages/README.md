@@ -7,6 +7,7 @@ that lists and searches them.
 ```
 node platform/pages/build.mjs                    # build into platform/pages/dist
 node platform/pages/check.mjs                    # check that artifact (--dist=DIR for another)
+node platform/pages/served-copy.mjs <slug>      # one product as the deploy writes it, in under a second
 cd platform/pages && node --test "*.test.mjs"   # what CI runs
 ```
 

@@ -126,6 +126,48 @@ class DirectionalTests(unittest.TestCase):
             c, _ = _mosaic(flat, (0, 1, 1, 2))
             self.assertLess(float(np.max(np.abs(directional(c, (0, 1, 1, 2), laplace=lap) - flat))), 1e-6, lap)
 
+    def test_adaptive_laplace(self):
+        """laplace="adaptive" (eval/bayer-adaptive-laplace-2026-11-16.md): the per-sensel weight stays in
+        [1/8, 1/4]; on the tuning sheet luma is nearer the truth than the fixed 3/16 on every phase; flat
+        fields stay flat; each sensel keeps its own value; the C path refuses it and an unknown name is
+        refused."""
+
+        import numpy as np
+
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+        from xtrans_demosaic_check import synthetic_sheet
+
+        from shootflow import bayer_demosaic as bd
+
+        truth = synthetic_sheet(192)
+        lum = lambda a: 0.2126 * a[..., 0] + 0.7152 * a[..., 1] + 0.0722 * a[..., 2]  # noqa: E731
+        inner = (slice(12, -12), slice(12, -12))
+        for pat in PHASES:
+            c, cm = _mosaic(truth, pat)
+            err = {lap: float(np.mean((lum(bd.directional(c, pat, laplace=lap))[inner] - lum(truth)[inner]) ** 2))
+                   for lap in ("adaptive", 0.1875)}
+            self.assertLess(err["adaptive"], err[0.1875], pat)
+            out = bd.directional(c, pat, laplace="adaptive")
+            own = np.take_along_axis(out, cm[..., None].astype(np.int64), axis=2)[..., 0]
+            self.assertTrue(np.allclose(own, c, atol=1e-6), pat)
+        c, cm = _mosaic(truth, (0, 1, 1, 2))
+        c = c.astype(np.float32)
+        sh = bd._sh
+        sign = np.where(cm == 1, np.float32(1), np.float32(-1))
+        w = bd._laplace_map(c, sign, (sh(c, 0, -1) + sh(c, 0, 1)) / 2, 2 * c - sh(c, 0, -2) - sh(c, 0, 2),
+                            (sh(c, -1, 0) + sh(c, 1, 0)) / 2, 2 * c - sh(c, -2, 0) - sh(c, 2, 0),
+                            bd.ADAPTIVE_LAPLACE, np.float32(1e-6))
+        self.assertGreaterEqual(float(w.min()), 0.125)
+        self.assertLessEqual(float(w.max()), 0.25)
+        self.assertGreater(float(np.std(w)), 0.01)  # it does vary
+        flat = np.ones((20, 26, 3)) * np.array([0.6, 0.4, 0.25])
+        c, _ = _mosaic(flat, (0, 1, 1, 2))
+        self.assertLess(float(np.max(np.abs(bd.directional(c, (0, 1, 1, 2), laplace="adaptive") - flat))), 1e-6)
+        with self.assertRaises(ValueError):
+            bd.directional(c, (0, 1, 1, 2), laplace="auto")
+        with self.assertRaises(RuntimeError):
+            bd.directional(c, (0, 1, 1, 2), laplace="adaptive", native=True)
+
     def test_bands_equal_one_piece(self):
         import numpy as np
 
@@ -133,7 +175,7 @@ class DirectionalTests(unittest.TestCase):
 
         rng = np.random.default_rng(4)
         c = rng.random((75, 41)).astype(np.float32) * 3.0
-        for kw in ({}, {"median_passes": 1}, {"rb": "simple"}):
+        for kw in ({}, {"median_passes": 1}, {"rb": "simple"}, {"laplace": "adaptive"}):
             whole = directional(c, (0, 1, 1, 2), band=1000, **kw)
             for band in (16, 17, 40):
                 for threads in (1, 3):

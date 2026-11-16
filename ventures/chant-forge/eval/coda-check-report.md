@@ -12,36 +12,28 @@ read as none. A cluster is scored on its first phone (*nunc* on its /n/).
 
 | pitch | singing: read exactly as written | vowel-only control: read as no consonant |
 |---|---|---|
-| E2 | 25 of 30 (83.3%) | 30 of 30 (100.0%) |
-| A2 | 28 of 30 (93.3%) | 30 of 30 (100.0%) |
+| E2 | 28 of 30 (93.3%) | 30 of 30 (100.0%) |
+| A2 | 30 of 30 (100.0%) | 30 of 30 (100.0%) |
 | D3 | 29 of 30 (96.7%) | 30 of 30 (100.0%) |
-| G3 | 26 of 30 (86.7%) | 28 of 30 (93.3%) |
+| G3 | 27 of 30 (90.0%) | 28 of 30 (93.3%) |
 | C4 | 26 of 30 (86.7%) | 28 of 30 (93.3%) |
-| E4 | 26 of 30 (86.7%) | 28 of 30 (93.3%) |
+| E4 | 28 of 30 (93.3%) | 28 of 30 (93.3%) |
 
-All pitches: 160 of 180 (88.9%) read exactly (class, voicing, place); 165 of 180 (91.7%) by class alone. The vowel-only choir on the same syllables reads as no consonant 174 of 180 (96.7%).
+All pitches: 168 of 180 (93.3%) read exactly (class, voicing, place); 173 of 180 (96.1%) by class alone. The vowel-only choir on the same syllables reads as no consonant 174 of 180 (96.7%).
 
 Misses:
 
 - E2 *ad* (voiced alv stop) read as nasal
 - E2 *ab* (voiced lab stop) read as nasal
-- E2 *unt* (nasal) read as voiceless alv stop
-- E2 *ant* (nasal) read as voiceless alv stop
-- E2 *unc* (nasal) read as voiceless vel stop
-- A2 *unt* (nasal) read as voiceless alv stop
-- A2 *unc* (nasal) read as voiceless vel stop
 - D3 *ap* (voiceless lab stop) read as nasal
 - G3 *is* (fricative s) read as fricative voiced
 - G3 *ab* (voiced lab stop) read as nasal
-- G3 *unt* (nasal) read as voiceless alv stop
 - G3 *i* (none) read as fricative voiced
 - C4 *ad* (voiced alv stop) read as voiceless alv stop
 - C4 *ab* (voiced lab stop) read as voiceless vel stop
 - C4 *ap* (voiceless lab stop) read as voiceless vel stop
 - C4 *i* (none) read as fricative voiced
 - E4 *is* (fricative s) read as fricative voiced
-- E4 *unt* (nasal) read as voiceless alv stop
-- E4 *unc* (nasal) read as voiceless vel stop
 - E4 *i* (none) read as fricative voiced
 
 Vowel-only control, read as a consonant:
@@ -61,14 +53,14 @@ The last note of every syllable that closes on a consonant, 0.2 s or more, with 
 
 | piece | syllables | singing: read exactly as written | vowel-only control: read as none |
 |---|---|---|---|
-| dies-irae | 75 | 71 of 75 (94.7%) | 75 of 75 (100.0%) |
+| dies-irae | 75 | 72 of 75 (96.0%) | 75 of 75 (100.0%) |
 | pange-lingua | 5 | 5 of 5 (100.0%) | 5 of 5 (100.0%) |
 | veni-creator | 1 | 1 of 1 (100.0%) | 1 of 1 (100.0%) |
 | te-deum | 65 | 64 of 65 (98.5%) | 64 of 65 (98.5%) |
-| salve-regina | 16 | 14 of 16 (87.5%) | 15 of 16 (93.8%) |
-| all | 162 | 155 of 162 (95.7%) | 160 of 162 (98.8%) |
+| salve-regina | 16 | 15 of 16 (93.8%) | 15 of 16 (93.8%) |
+| all | 162 | 157 of 162 (96.9%) | 160 of 162 (98.8%) |
 
-By class alone: 156 of 162 (96.3%). Before a syllable that opens on a consonant: 75 of 79 (94.9%); before a vowel or a rest: 80 of 83 (96.4%). Syllables that close on their vowel: 211 of 220 (95.9%) read as no consonant (vowel-only choir: 207 of 220 (94.1%)). Too short for a steady vowel before the coda, skipped: 743.
+By class alone: 158 of 162 (97.5%). Before a syllable that opens on a consonant: 75 of 79 (94.9%); before a vowel or a rest: 82 of 83 (98.8%). Syllables that close on their vowel: 211 of 220 (95.9%) read as no consonant (vowel-only choir: 207 of 220 (94.1%)). Too short for a steady vowel before the coda, skipped: 743.
 
 By written consonant (a cluster scored on its first phone is listed apart):
 
@@ -80,7 +72,7 @@ By written consonant (a cluster scored on its first phone is listed apart):
 | tap | 14 of 14 (100.0%) |
 | voiceless vel stop (cluster k s) | 7 of 8 (87.5%) |
 | voiceless vel stop | 5 of 5 (100.0%) |
-| nasal (cluster n s) | 0 of 2 (0.0%) |
+| nasal (cluster n s) | 2 of 2 (100.0%) |
 | none | 1 of 1 (100.0%) |
 | voiced lab stop | 1 of 1 (100.0%) |
 | nasal (cluster n t) | 1 of 1 (100.0%) |
@@ -92,7 +84,7 @@ Class written (rows) against class read (columns):
 |---|---|---|---|---|---|
 | stop | 30 | 1 | 0 | 0 | 0 |
 | fricative | 0 | 74 | 0 | 0 | 0 |
-| nasal | 0 | 3 | 37 | 0 | 2 |
+| nasal | 0 | 1 | 39 | 0 | 2 |
 | tap | 0 | 0 | 0 | 14 | 0 |
 | none | 0 | 0 | 0 | 0 | 1 |
 
@@ -101,10 +93,8 @@ Misses:
 - dies-irae *tum* (then re), 242 ms: nasal read as none
 - dies-irae *vix* (then ju), 242 ms: voiceless vel stop read as fricative s
 - dies-irae *quam* (then re), 242 ms: nasal read as none
-- dies-irae *ens*, 242 ms: nasal read as fricative s
 - te-deum *in*, 242 ms: nasal read as fricative voiced
 - salve-regina *bis* (then post), 484 ms: fricative s read as fricative voiced
-- salve-regina *mens :*, 484 ms: nasal read as fricative s
 
 ## D. Held out: ten Graduale pieces (every sixth file of corpus/gregobase-1908)
 
@@ -212,8 +202,8 @@ Misses:
 | gregobase-1908/3401 | 7 | 7 of 7 (100.0%) | 7 of 7 (100.0%) |
 | gregobase-1908/3404 | 5 | 5 of 5 (100.0%) | 5 of 5 (100.0%) |
 | gregobase-1908/3407 | 5 | 5 of 5 (100.0%) | 5 of 5 (100.0%) |
-| gregobase-1908/3410 | 10 | 9 of 10 (90.0%) | 10 of 10 (100.0%) |
-| gregobase-1908/3413 | 4 | 3 of 4 (75.0%) | 4 of 4 (100.0%) |
+| gregobase-1908/3410 | 10 | 10 of 10 (100.0%) | 10 of 10 (100.0%) |
+| gregobase-1908/3413 | 4 | 4 of 4 (100.0%) | 4 of 4 (100.0%) |
 | gregobase-1908/3416 | 13 | 12 of 13 (92.3%) | 13 of 13 (100.0%) |
 | gregobase-1908/3419 | 7 | 7 of 7 (100.0%) | 7 of 7 (100.0%) |
 | gregobase-1908/3422 | 10 | 10 of 10 (100.0%) | 10 of 10 (100.0%) |
@@ -229,9 +219,9 @@ Misses:
 | gregobase-1908/3454 | 7 | 7 of 7 (100.0%) | 7 of 7 (100.0%) |
 | gregobase-1908/3457 | 2 | 2 of 2 (100.0%) | 2 of 2 (100.0%) |
 | gregobase-1908/3460 | 4 | 3 of 4 (75.0%) | 4 of 4 (100.0%) |
-| all | 134 | 126 of 134 (94.0%) | 131 of 134 (97.8%) |
+| all | 134 | 128 of 134 (95.5%) | 131 of 134 (97.8%) |
 
-By class alone: 127 of 134 (94.8%). Before a syllable that opens on a consonant: 34 of 35 (97.1%); before a vowel or a rest: 92 of 99 (92.9%). Syllables that close on their vowel: 216 of 227 (95.2%) read as no consonant (vowel-only choir: 217 of 227 (95.6%)). Too short for a steady vowel before the coda, skipped: 640.
+By class alone: 129 of 134 (96.3%). Before a syllable that opens on a consonant: 34 of 35 (97.1%); before a vowel or a rest: 94 of 99 (94.9%). Syllables that close on their vowel: 216 of 227 (95.2%) read as no consonant (vowel-only choir: 217 of 227 (95.6%)). Too short for a steady vowel before the coda, skipped: 640.
 
 By written consonant (a cluster scored on its first phone is listed apart):
 
@@ -242,11 +232,11 @@ By written consonant (a cluster scored on its first phone is listed apart):
 | voiceless alv stop | 22 of 22 (100.0%) |
 | tap | 7 of 7 (100.0%) |
 | voiceless vel stop (cluster k s) | 5 of 5 (100.0%) |
-| nasal (cluster n t) | 2 of 3 (66.7%) |
+| nasal (cluster n t) | 3 of 3 (100.0%) |
 | voiced lab stop | 3 of 3 (100.0%) |
 | voiced alv stop | 0 of 2 (0.0%) |
 | voiceless vel stop | 1 of 1 (100.0%) |
-| nasal (cluster n s) | 0 of 1 (0.0%) |
+| nasal (cluster n s) | 1 of 1 (100.0%) |
 | fricative s (cluster s t) | 1 of 1 (100.0%) |
 
 Class written (rows) against class read (columns):
@@ -255,13 +245,11 @@ Class written (rows) against class read (columns):
 |---|---|---|---|---|---|
 | stop | 31 | 1 | 0 | 0 | 1 |
 | fricative | 0 | 44 | 0 | 0 | 0 |
-| nasal | 1 | 1 | 45 | 0 | 3 |
+| nasal | 0 | 0 | 47 | 0 | 3 |
 | tap | 0 | 0 | 0 | 7 | 0 |
 
 Misses:
 
-- gregobase-1908/3410 *cent*, 242 ms: nasal read as voiceless alv stop
-- gregobase-1908/3413 *ens,*, 242 ms: nasal read as fricative s
 - gregobase-1908/3416 *vid:*, 242 ms: voiced alv stop read as none
 - gregobase-1908/3428 *gnum*, 242 ms: nasal read as none
 - gregobase-1908/3432 *vid.*, 242 ms: voiced alv stop read as fricative voiced
@@ -338,7 +326,7 @@ Misses:
 | final consonant | read with the tilt rule | without it |
 |---|---|---|
 | /l/ (should read as none) | none 4 of 4 (100.0%), nasal 0 of 4 (0.0%) | none 3 of 4 (75.0%), nasal 1 of 4 (25.0%) |
-| m, n, gn (should read as nasal) | 106 of 137 (77.4%) | 106 of 137 (77.4%) |
+| m, n, gn (should read as nasal) | 116 of 137 (84.7%) | 116 of 137 (84.7%) |
 
 /l/ not read as none (with the rule):
 
@@ -347,18 +335,12 @@ Misses:
 Nasals not read as nasal (with the rule):
 
 - gregobase-1908-checked/3650 *num*: read as none
-- gregobase-1908-checked/3831 *sunt*: read as voiced alv stop
 - gregobase-1908-checked/3912 *non*: read as none
 - gregobase-1908-checked/3912 *in*: read as fricative voiced
 - gregobase-1908-checked/3912 *in*: read as fricative voiced
-- gregobase-1908-checked/3912 *sunt.*: read as voiced alv stop
-- gregobase-1908-checked/3912 *sunt.*: read as voiceless alv stop
 - gregobase-1908-checked/3949 *lum*: read as none
-- gregobase-1908-checked/3949 *sunt*: read as voiceless alv stop
 - gregobase-1908-clef/3461 *rum:*: read as none
-- gregobase-1908-clef/3551 *bunt*: read as voiceless alv stop
 - gregobase-1908-clef/3551 *rum*: read as none
-- gregobase-1908-clef/3551 *sunt*: read as voiced alv stop
 - gregobase-1908-clef/3679 *cum,*: read as none
 - gregobase-1908-clef/3762 *sum*: read as none
 - gregobase-1908-clef/3775 *sum*: read as none
@@ -371,12 +353,29 @@ Nasals not read as nasal (with the rule):
 - gregobase-1908-curl/3704 *bum*: read as none
 - gregobase-1908-stroke/3464 *in*: read as fricative voiced
 - gregobase-1908-stroke/3464 *runt*: read as none
-- gregobase-1908-stroke/3465 *sunt*: read as voiceless alv stop
-- gregobase-1908-stroke/3468 *runt,*: read as voiced alv stop
-- gregobase-1908-stroke/3470 *tent.*: read as voiceless alv stop
-- gregobase-1908-stroke/3477 *runt*: read as voiceless alv stop
 - gregobase-1908-stroke/3481 *dum*: read as none
 - gregobase-1908-stroke/3482 *plum*: read as none
+
+## J. Cluster syllables (the set the eighth round's rule was tuned on)
+
+Clusters: *unt*, *ant*, *ent*, *int*, *sunt*, *nunc*, *tunc*, *ens*, *mens*, *ans*, *ont*; others: *at*, *et*, *it*, *ut*, *ot*, *ost*, *ust*, *ad*, *ud*, *ab*, *ub*, *ac*, *uc*, *ap*, *up*, *as*, *us*, *os*, *es*, *ax*, *ux*, *um*, *am*, *un*, *em*, *a*, *u*, *o*. Quarter and eighth notes at 120 BPM, each followed by a rest, E2, A2, D3, G3, C4, E4.
+
+| | with the cluster rule | without (`preObstruent: false`) |
+|---|---|---|
+| cluster syllables read exactly (on their nasal) | 124 of 132 (93.9%) | 46 of 132 (34.8%) |
+| other syllables read exactly | 304 of 336 (90.5%) | 304 of 336 (90.5%) |
+| vowel-only control read as none | 445 of 468 (95.1%) | 445 of 468 (95.1%) |
+
+Cluster misses with the rule:
+
+- quarter 55 *int* read as fricative voiced
+- quarter 60 *nunc* read as voiceless vel stop
+- quarter 60 *tunc* read as voiceless vel stop
+- quarter 60 *mens* read as fricative s
+- eighth 64 *sunt* read as voiceless alv stop
+- eighth 64 *nunc* read as voiced lab stop
+- eighth 64 *tunc* read as voiced lab stop
+- eighth 64 *mens* read as voiced lab stop
 
 ## C. Closing consonants in the corpus
 

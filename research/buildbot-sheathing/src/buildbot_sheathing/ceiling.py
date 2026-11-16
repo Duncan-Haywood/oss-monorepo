@@ -42,8 +42,17 @@ EDGE_SPAN = float(Z_JOINT[-1] - Z_JOINT[0])      # two edge reads for the shim, 
 
 def theta_draw(ledger=True, panel=True, rock_draw=None, shim=None, s_edge=S_EDGE):
     """Tilt draw (rng, n) -> rad. ``shim`` (a corner-height residual, m) replaces ledger and
-    panel tilt by what a plumbing shim leaves: two edge reads' slope error plus s_shim / W."""
+    panel tilt by what a plumbing shim leaves: two edge reads' slope error plus s_shim / W. A
+    callable ``shim`` (milestone 28) maps each sheet's needed corner lift (m) to the height left."""
     def f(rng, n):
+        if callable(shim):                    # milestone 28: a residual set by the tilt itself
+            t = np.zeros(n)
+            if panel:
+                t = t + (L.panel_tilt(rng, n) if rock_draw is None else B.panel_tilt(rng, n, rock_draw))
+            if ledger:
+                t = t + L.ledger_tilt(rng, n)
+            t = np.sign(t) * shim(np.abs(t) * L.W) / L.W
+            return t + (rng.normal(0, math.sqrt(2) * s_edge / EDGE_SPAN, n) if s_edge > 0 else 0.0)
         if shim is not None:
             t = rng.normal(0, math.sqrt(2) * s_edge / EDGE_SPAN, n) if s_edge > 0 else np.zeros(n)
             return t + (rng.normal(0, shim / L.W, n) if shim > 0 else 0.0)

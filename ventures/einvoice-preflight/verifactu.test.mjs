@@ -291,3 +291,25 @@ test("VF-047: the Generador block of a cancellation (1224-1231, 1258, 1259)", ()
   assert.deepEqual(codes47(anul(gen("T", "<sum1:NIF>A3920001</sum1:NIF>"))), ["1258"]);
   assert.ok(recordFindings(one(anul(gen("T", otro("FR", "09")))), { now: NOW }).some((f) => f.rule === "VF-043" && /1231/.test(f.fix)));
 });
+
+// The AEAT's validation document (v1.1.5, 2 October 2025), rules 13, 15.5, 15.6 and 15.6.8:
+// IGIC (Canary Islands) lines take E7 and E8, ClaveRegimen 21, and no 21% lease rule.
+test("IGIC lines: E7/E8 (1182), regime 21 (1246), regime 11 at 7% (1206); 1156 NIF-IVA buyer", () => {
+  const igic = (line, o = {}) => rec({ cuota: line.cuota ?? "7.00", importe: (100 + Number(line.cuota ?? "7.00")).toFixed(2), line: { tax: "03", rate: "7.00", cuota: "7.00", ...line }, ...o });
+  assert.deepEqual(at(igic({})), [], "a plain IGIC line at 7% is clean");
+  assert.deepEqual(at(igic({ exempt: "E7", rate: null, cuota: "0" }, { cuota: "0", importe: "100.00" }).replace("<sum1:CuotaRepercutida>0</sum1:CuotaRepercutida>", "")), [], "E7 is an IGIC exemption");
+  assert.deepEqual(at(igic({ exempt: "E8", rate: null, cuota: "0" }, { cuota: "0", importe: "100.00" }).replace("<sum1:CuotaRepercutida>0</sum1:CuotaRepercutida>", "")), []);
+  const vatE7 = recordFindings(one(rec({ cuota: "0", importe: "100.00", line: { exempt: "E7", rate: null, cuota: null } })), { now: NOW });
+  assert.ok(vatE7.some((f) => f.rule === "VF-038" && /1182/.test(f.fix)), "E7 under VAT is 1182");
+  assert.ok(!vatE7.some((f) => f.rule === "VF-027"), "E7 is a known value, not an unknown qualification");
+  assert.deepEqual(at(igic({ regime: "21" })), [], "regime 21 is in L8B");
+  const vat21 = recordFindings(one(rec({ line: { regime: "21" } })), { now: NOW });
+  assert.ok(vat21.some((f) => f.rule === "VF-038" && /1246/.test(f.fix)), "regime 21 under VAT is 1246");
+  assert.ok(!vat21.some((f) => f.rule === "VF-043"), "21 is in the later schema's list");
+  assert.deepEqual(at(igic({ regime: "11" })), [], "rule 15.6.8 (21% leases) is VAT-only");
+  assert.ok(at(rec({ line: { regime: "11", rate: "10.00", cuota: "10.00" }, cuota: "10.00", importe: "110.00" })).includes("VF-038"));
+  const f2 = recordFindings(one(rec({ type: "F2", dest: buyer("FR", "02", "FR12345678901") })), { now: NOW });
+  assert.ok(f2.some((f) => f.rule === "VF-039" && /1156/.test(f.fix)));
+  assert.ok(!at(rec({ dest: buyer("FR", "02", "FR12345678901") })).includes("VF-039"), "an F1 may name a NIF-IVA buyer");
+  assert.deepEqual(at(rec({ dest: buyer("RE", "04", "123") })), [], "RE is in the later schema's country list");
+});

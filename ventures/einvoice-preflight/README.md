@@ -427,7 +427,17 @@ rules, not AEAT replies to every code. Two MIT libraries' copies of the list are
 replies; the offline-checkable codes listed here then landed as VF-043 to VF-047 (next
 section).
 
-## VERI*FACTU: the AEAT's VAT and surcharge rate lists (2026-11-15, latest)
+## VERI*FACTU: Canary Islands (IGIC) records stop failing (2026-11-16, latest)
+
+The AEAT's validation document itself (v1.1.5, a text extraction found by code search)
+and the later schema (adds ClaveRegimen 21 and country RE) showed three false errors on
+valid IGIC records: E7/E8 exemptions read as unknown, regime 21 read as off-list, and the
+21% lease rule (1206) applied to IGIC. Fixed; E7/E8 and 21 on a VAT line are now 1182 and
+1246, and a NIF-IVA buyer on an F2/R5 is 1156. The document has no IGIC or IPSI rate
+list, so those rates are rightly not checked. Record coverage 143 of 203 (123 fully).
+Measured in eval/verifactu-igic-rules-2026-11-16.md.
+
+## VERI*FACTU: the AEAT's VAT and surcharge rate lists (2026-11-15)
 
 The AEAT's validation document ("Validaciones y errores del servicio") refused this
 session's proxy again, but two independent projects quote its section 3.1.3 rule 15
@@ -445,8 +455,8 @@ AEAT's text is used; and eloi24/verifactu-sdk, MIT, citing v1.2.2). So:
   name the rate, and 4% is the one old rate outside the list).
 
 Record coverage: **142 of 203** codes (122 fully, 20 in part; was 140, 120 and 20).
-Measured in eval/verifactu-rate-lists-2026-11-15.md. Not done: the PDF itself, IGIC and
-IPSI rate lists, an AEAT reply for any of these codes.
+Measured in eval/verifactu-rate-lists-2026-11-15.md. Not done: an AEAT reply for any of
+these codes (IGIC and IPSI rates: the document lists none, see the 2026-11-16 section).
 
 ## VERI*FACTU: code lists, dates, VAT rates by date, Generador (2026-11-15, later)
 
@@ -471,7 +481,7 @@ eval/verifactu-offline-codes-2026-11-15.md.
   1194/1235/1236 does not name the rate; the rule infers it from the surcharge codes
   that cover the same windows (1166-1169). A rate outside 0, 2, 4, 5, 7.5, 10, 21 is a
   warning (1124), since the AEAT's list itself is in its validation PDF, which this
-  session could not fetch. IGIC and IPSI rates are not checked.
+  session could not fetch. IGIC and IPSI rates are not checked (the AEAT's document lists none).
 - **VF-046, Brexit prefixes**: a VAT number (IDType 02) starting XI on an operation
   before 2021 (1254) or GB from 1 February 2021 (1255).
 - **VF-047, the Generador block** of a cancellation: GeneradoPor and Generador together

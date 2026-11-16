@@ -181,6 +181,7 @@ def main():
     ap.add_argument("--solver", default="cd15")
     ap.add_argument("--starters", type=int, default=1, help="starters to try: the patterned one, then random ones")
     ap.add_argument("--seed", type=int, default=1)
+    ap.add_argument("--random-only", action="store_true", help="skip the patterned starter (random ones only)")
     args = ap.parse_args()
     n, courts, times = args.n, args.courts, args.times
     assert n % 2 == 1
@@ -189,7 +190,7 @@ def main():
     t_all = time.time()
     for k in range(args.starters):
         global STARTER
-        STARTER = patterned(n) if k == 0 else random_starter(n, rng)
+        STARTER = patterned(n) if k == 0 and not args.random_only else random_starter(n, rng)
         head = search(args, n, courts, times)
         head["starter_index"] = k
         head["starter"] = STARTER

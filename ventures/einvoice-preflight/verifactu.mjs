@@ -53,7 +53,9 @@ const INVOICE_TYPES = {
 };
 const SUBJECT = new Set(["S1", "S2"]);
 const NON_SUBJECT = new Set(["N1", "N2"]);
-const EXEMPT = new Set(["E1", "E2", "E3", "E4", "E5", "E6"]);
+// E7 and E8 exist for IGIC only (validation document v1.1.5, rule 15.5: "Si Impuesto = 03 (IGIC),
+// ... lista L10 y adicionalmente podrá contener los valores E7 y E8").
+const EXEMPT = new Set(["E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8"]);
 
 const local = (name) => String(name || "").replace(/^[^:]*:/, "");
 const kids = (node, name) => (node?.children || []).filter((c) => local(c.name) === name);
@@ -397,14 +399,14 @@ export function recordFindings(r, { now = new Date() } = {}) {
   r.lines.forEach((l, i) => {
     const p = `/Desglose/DetalleDesglose[${i + 1}]`;
     const q = l.qualification || l.exempt || "";
-    if (!l.qualification && !l.exempt) push("VF-027", `breakdown line ${i + 1} has neither CalificacionOperacion nor OperacionExenta.`, "Say whether the line is subject (S1, S2), not subject (N1, N2) or exempt (OperacionExenta E1-E6).", p);
+    if (!l.qualification && !l.exempt) push("VF-027", `breakdown line ${i + 1} has neither CalificacionOperacion nor OperacionExenta.`, "Say whether the line is subject (S1, S2), not subject (N1, N2) or exempt (OperacionExenta E1-E6, E7-E8 under IGIC).", p);
     if (l.qualification && l.exempt) push("VF-027", `breakdown line ${i + 1} has both CalificacionOperacion and OperacionExenta.`, "Keep one.", p);
     if (SUBJECT.has(q)) {
       if (l.rate === null || l.cuota === null) push("VF-018", `breakdown line ${i + 1} is subject (${q}) but lacks ${l.rate === null ? "TipoImpositivo" : "CuotaRepercutida"}.`, "A subject line carries its tax rate and tax amount.", p);
     } else if (NON_SUBJECT.has(q) || EXEMPT.has(q)) {
       if (l.rate !== null || l.cuota !== null || l.surcharge !== null || l.surchargeRate !== null) push("VF-018", `breakdown line ${i + 1} is ${EXEMPT.has(q) ? "exempt" : "not subject"} (${q}) yet carries a tax rate or amount.`, "Remove TipoImpositivo, CuotaRepercutida and the surcharge from a non-subject or exempt line.", p);
     } else if (q) {
-      push("VF-027", `breakdown line ${i + 1} has an unknown qualification "${q}".`, "Use S1, S2, N1, N2 or E1-E6.", p);
+      push("VF-027", `breakdown line ${i + 1} has an unknown qualification "${q}".`, "Use S1, S2, N1, N2 or E1-E6 (E7, E8 under IGIC).", p);
     }
     const c18 = l.regime === "18";
     if (l.tax === "01" && l.regime && SUBJECT.has(q)) {
@@ -499,6 +501,8 @@ function aeatRecordRules(r, push) {
     const t = d.other?.type;
     if (r.type === "R3" && d.other && t !== "07") push("VF-039", `is an R3 (bad-debt correction) whose recipient ${i + 1} is identified by IDOtro type ${t ?? "?"}.`, "An R3 names the buyer by NIF or IDType 07 (not in the census) only (AEAT code 1191).", p);
     if (r.type === "R2" && d.other && !["02", "07"].includes(t)) push("VF-039", `is an R2 (insolvency correction) whose recipient ${i + 1} is identified by IDOtro type ${t ?? "?"}.`, "An R2 names the buyer by NIF, IDType 02 (VAT number) or 07 (not in the census) only (AEAT code 1192).", p);
+    // Rule 13: a recipient by IDOtro IDType 02 (NIF-IVA) only on F1, F3, R1-R4 (1156).
+    if (t === "02" && r.type && !["F1", "F3", "R1", "R2", "R3", "R4"].includes(r.type)) push("VF-039", `is a ${r.type} whose recipient ${i + 1} is identified by an EU VAT number (IDOtro type 02).`, "A recipient identified by NIF-IVA goes on an F1, F3 or R1-R4 only (AEAT code 1156).", p);
     if (d.nif && r.id?.issuer && d.nif.toUpperCase() === r.id.issuer.toUpperCase()) push("VF-040", `recipient ${i + 1}'s NIF is the issuer's own (${d.nif}).`, "The buyer's NIF must differ from the issuer's (AEAT code 1193).", `${p}/NIF`);
   });
   // Issued by a third party or the recipient (1151, 1155, 1158, 1159, 1186, 1187, 1188, 1211).
@@ -523,6 +527,10 @@ function aeatRecordRules(r, push) {
     if (!vatLike && l.tax !== "02" && l.regime) reg("1260", `ClaveRegimen ${l.regime} on tax ${l.tax}, which takes none.`, "Write ClaveRegimen only on VAT (01) or IGIC (03) lines");
     if (l.tax === "02" && !l.regime) push("VF-038", `breakdown line ${i + 1}: IPSI (tax 02) with no ClaveRegimen.`, "Write ClaveRegimen on an IPSI line; AEAT accepts the record but asks for a correction (AEAT code 2009).", p, { severity: "warning" });
     if (l.regime === "02" && vatLike && q) reg("1286", `regime 02 (export) with CalificacionOperacion ${q}.`, "A regime 02 VAT or IGIC line is exempt: write OperacionExenta, not CalificacionOperacion");
+    // Rule 15.5: E7 and E8 are IGIC-only exemptions; on VAT (01 or no Impuesto) the list is L10, E1-E6.
+    if (["E7", "E8"].includes(e) && l.tax === "01") reg("1182", `exemption ${e} on tax ${l.tax}; E7 and E8 exist only under IGIC (03).`, "Under VAT use E1-E6; E7 and E8 are Canary Islands IGIC exemptions");
+    // Rule 15.6: VAT takes list L8A, IGIC L8B plus 20 and 21; 21 (simplified regime) is in L8B only.
+    if (l.regime === "21" && l.tax === "01") reg("1246", `ClaveRegimen 21 on tax ${l.tax}; 21 (simplified regime) is an IGIC key.`, "Under VAT the simplified regime is ClaveRegimen 20; 21 goes only on IGIC (03) lines");
     if (l.regime === "20" && q !== "N2") reg("1293", `regime 20 with ${q || e || "no qualification"}.`, "Regime 20 lines carry CalificacionOperacion N2");
     if (e === "E5" && l.tax === "01" && r.recipients.some((d) => d.nif)) reg("1289", "exemption E5 (intra-EU supply) with a recipient identified by Spanish NIF.", "An E5 line's buyer is identified by IDOtro only");
     if (l.regime === "01" && vatLike && ["E2", "E3"].includes(e)) reg("1199", `general regime (01) with exemption ${e} (an export).`, "Exports (E2, E3) go under ClaveRegimen 02, not 01");
@@ -539,7 +547,7 @@ function aeatRecordRules(r, push) {
       if (r.type !== "F1") reg("1205", `regime 10 on an invoice of type ${r.type}.`, "Regime 10 goes on an F1");
       if (!r.recipients.some((d) => d.nif)) reg("1205", "regime 10 with no recipient identified by NIF.", "Regime 10 names the buyer by NIF");
     }
-    if (l.regime === "11" && q === "S1" && rate !== null && rate !== 21) reg("1206", `regime 11 (business premises lease) at ${l.rate}%.`, "Regime 11 lines are taxed at 21%");
+    if (l.regime === "11" && l.tax === "01" && q === "S1" && rate !== null && rate !== 21) reg("1206", `regime 11 (business premises lease) at ${l.rate}%.`, "Regime 11 lines are taxed at 21%");
     if (l.regime === "14") {
       if (r.type && !["F1", "R1", "R2", "R3", "R4"].includes(r.type)) reg("1148", `regime 14 (public works certification) on an invoice of type ${r.type}.`, "Regime 14 goes on F1 or R1-R4");
       const od = iso(r.operationDate);

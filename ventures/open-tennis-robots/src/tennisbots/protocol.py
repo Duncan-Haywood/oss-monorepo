@@ -19,6 +19,7 @@ SET_WHEELS = 0x10     # int16 rpm_top, int16 rpm_bottom
 SET_AIM = 0x11        # int16 elevation_cdeg, int16 azimuth_cdeg
 FEED = 0x12           # uint8 balls
 SET_BASE = 0x13       # int16 target_y_mm, uint16 max_speed_mm_s
+RESET_LIFT_HUB = 0x14  # uint16 key (RESET_LIFT_HUB_KEY): the lift's slip hub was re-set on the bench; restart its jam count
 DRIVE = 0x20          # int16 left_mm_s, int16 right_mm_s
 PICKUP = 0x21         # uint8 on
 TELEMETRY = 0x80      # uint16 flags, int16 base_y_mm, int16 rpm_top, int16 rpm_bottom, uint16 battery_mv,
@@ -32,6 +33,7 @@ FORMATS = {
     SET_AIM: "<hh",
     FEED: "<B",
     SET_BASE: "<hH",
+    RESET_LIFT_HUB: "<H",
     DRIVE: "<hh",
     PICKUP: "<B",
     TELEMETRY: "<HhhhHB",
@@ -41,7 +43,8 @@ FORMATS = {
 FLAG_ESTOP = 1
 FLAG_WATCHDOG = 2       # stopped because heartbeats stopped
 FLAG_BUMPER = 4
-FLAG_HOPPER_EMPTY = 8
+FLAG_HOPPER_EMPTY = 8     # feeder: the last feed stroke put no ball through the wheels (their speed did not drop: an empty
+                          # pocket, so an empty tub, a bridged outlet or a stuck ball); cleared by the next FEED (2026-11-16)
 FLAG_HOPPER_FULL = 16
 FLAG_LOW_BATTERY = 32
 FLAG_AZ_UNHOMED = 64     # azimuth stepper has no position yet (homing, or lost after an abrupt stop)
@@ -50,6 +53,11 @@ FLAG_ELEV_FAULT = 256    # elevation actuator stopped: feedback lost or stalled;
 FLAG_WHEELS_SETTLING = 512  # launcher wheels not yet held within 3% of target for 150 ms (or stopped): the gate waits
 FLAG_BUS_OFF = 1024       # switched bus not up (contactor open, or closed under CONTACTOR_SETTLE_MS ago): motors unpowered
 FLAG_LIFT_JAM = 2048      # ball lift stalled again after its retries and is off: clear the jam, press and release the e-stop
+FLAG_LIFT_HUB_DUE = 4096  # the lift has cut LIFT_SLIP_JAMS jams since its slip hub was last set (or the count in flash is
+                          # unreadable): re-set the hub on the bench, then send RESET_LIFT_HUB. The lift still runs.
+
+# RESET_LIFT_HUB's payload must be this, so a stray or mistyped command cannot zero the count.
+RESET_LIFT_HUB_KEY = 0x4855
 
 
 def crc8(data):

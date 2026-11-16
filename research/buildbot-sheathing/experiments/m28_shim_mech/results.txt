@@ -1,0 +1,99 @@
+# Milestone 28: the shim as a mechanism, a shim stack or a driven wedge (buildbot-sheathing)
+sheet 21.8 kg, 48 x 96 in, turning about its high bottom corner; wedge 8 in long, 0.0625 to 0.3125 in (slope 1:32); stack step 0.0625 in (1.587 mm); press F_n 50 N
+
+## A. Corner lift that plumbs a seated sheet (mm): |ledger tilt + panel tilt| x W, 200,000 draws
+panel draw          | mean   median  p90    p99    max    share below half a 1/16 in step
+PS 2 bow (m5)       | 1.447  1.215  3.028  4.709  6.981  0.337
+Drake rock (m6b)    | 1.058  0.946  2.091  3.018  4.717  0.427
+
+## B. Height left by a shim stack: the lift rounded to whole steps (the rock draws of A)
+step               | rms (mm)  step/sqrt12 (mm)  p95 |e| (mm)  max |e| (mm)
+1/32 in (shim stock) |    0.229             0.229         0.377        0.397
+1/16 in (horseshoe) |    0.458             0.458         0.754        0.794
+1/8 in (horseshoe) |    0.934             0.917         1.513        1.587
+(lifts under half a step get no shim and leave the lift itself, which lies in the same +/- half-step band,
+ so the rms matches step / sqrt 12)
+
+## C. Driving the wedge (quasi-static, every face at mu; press F_n at rho x W from the pivot)
+mu   rho | load V (N)  push in (N)  H into wall (N) | back out (N, - = pull)  self-locking
+0.2  0.0 |     112.1        48.5            26.1 |                -39.3  yes
+0.2  0.5 |     117.4        50.8            27.3 |                -37.5  yes
+0.2  1.0 |     122.6        53.1            28.5 |                -35.6  yes
+0.3  0.0 |     118.9        75.4            39.7 |                -60.5  yes
+0.3  0.5 |     127.2        80.7            42.5 |                -56.3  yes
+0.3  1.0 |     135.5        86.0            45.3 |                -52.1  yes
+0.4  0.0 |     129.6       108.4            56.6 |                -81.7  yes
+0.4  0.5 |     141.7       118.5            61.9 |                -74.1  yes
+0.4  1.0 |     153.8       128.7            67.2 |                -66.4  yes
+0.5  0.0 |     146.4       152.3            79.0 |               -102.8  yes
+0.5  0.5 |     163.6       170.1            88.3 |                -90.8  yes
+0.5  1.0 |     180.7       187.9            97.5 |                -78.8  yes
+0.6  0.0 |     174.1       216.5           112.0 |               -123.9  yes
+0.6  0.5 |     198.6       246.9           127.7 |               -106.5  yes
+0.6  1.0 |     223.0       277.3           143.5 |                -89.1  yes
+a low-friction ledger face (mu2 0.15, others 0.4, rho 0.5): push in 83.1 N
+
+Stock robots at the wedge (hands at x 0.35 m, both hands pushing into the wall, milestone 3b's whole-body check: joint torque limits, foot slip at 0.6, feet planted)
+robot z_m | largest push (N)  limit          | one hand's effective mass (kg) | largest mu it can drive (rho 0.5)
+g1    0.35 |            40.6  waist_pitch_joint |                          0.782 | 0.161
+g1    0.50 |            65.6  waist_pitch_joint |                          0.857 | 0.252
+g1    0.70 |           118.0  left_wrist_pitch_joint |                          1.173 | 0.399
+h1    0.35 |           135.2  right_elbow    |                          0.803 | 0.436
+h1    0.50 |           132.0  right_elbow    |                          0.906 | 0.430
+h1    0.70 |           129.7  left_elbow     |                          0.970 | 0.425
+(the sheet's turning inertia adds 35 g along the wedge's travel)
+
+## D. Setting the height with the wedge: 2000 sheets from A's rock draws, both corners on wedges and the low one driven; taps in or out until within max(0.02 mm, half the last tap); breakaway varies 10% a tap
+robot mu_s ratio tau_ms | one tap: travel (mm) lift (mm) | rms height left (mm)  p95 |e| (mm)  taps mean  p95  capped | note
+g1     0.4   0.5      2 |                1.17     0.037 |               0.011         0.020      28.04    65   0.000 | 
+g1     0.4   0.5     10 |               12.26     0.383 |               0.112         0.211       3.10     7   0.000 | 
+g1     0.4   0.5     20 |               43.31     1.353 |               0.349         0.679       1.85     4   0.000 | 
+g1     0.4   0.5     50 |              262.44     8.201 |               1.338         2.451       2.93     5   0.000 | one tap > half the wedge's 8 in: not feasible
+g1     0.4   0.5    100 |             1122.20    35.069 |               5.928        10.704       3.00     5   0.000 | one tap > half the wedge's 8 in: not feasible
+g1     0.4   0.8      2 |                0.46     0.014 |               0.013         0.019      70.31   165   0.000 | 
+g1     0.4   0.8     10 |                3.77     0.118 |               0.041         0.078       8.97    21   0.000 | 
+g1     0.4   0.8     20 |               12.70     0.397 |               0.132         0.259       3.20     7   0.000 | 
+g1     0.4   0.8     50 |               76.26     2.383 |               0.578         1.153       2.41     5   0.000 | 
+g1     0.4   0.8    100 |              336.91    10.528 |               2.099         4.034       3.02     6   0.000 | one tap > half the wedge's 8 in: not feasible
+g1     0.4   0.9      2 |                0.30     0.010 |               0.015         0.020     105.21   243   0.000 | 
+g1     0.4   0.9     10 |                2.01     0.063 |               0.026         0.052      16.01    37   0.000 | 
+g1     0.4   0.9     20 |                6.48     0.203 |               0.082         0.168       5.54    13   0.000 | 
+g1     0.4   0.9     50 |               39.03     1.220 |               0.384         0.784       2.30     5   0.000 | 
+g1     0.4   0.9    100 |              180.73     5.648 |               1.330         2.687       2.81     5   0.000 | one tap > half the wedge's 8 in: not feasible
+h1     0.4   0.8      2 |                0.45     0.014 |               0.013         0.019      72.02   169   0.000 | 
+h1     0.4   0.8     10 |                3.61     0.113 |               0.039         0.077       9.35    21   0.000 | 
+h1     0.4   0.8     20 |               12.11     0.378 |               0.127         0.251       3.35     8   0.000 | 
+h1     0.4   0.8     50 |               72.47     2.265 |               0.553         1.095       2.35     5   0.000 | 
+h1     0.4   0.8    100 |              319.75     9.992 |               1.976         3.737       3.05     6   0.000 | one tap > half the wedge's 8 in: not feasible
+g1     0.2   0.8     20 |                5.26     0.164 |               0.058         0.110       6.44    15   0.000 | 
+g1     0.3   0.8     20 |                8.13     0.254 |               0.089         0.171       4.40    10   0.000 | 
+g1     0.6   0.8     20 |               36.53     1.142 |               0.294         0.622       2.98     9   0.000 | 
+sensitivity, G1, mu_s 0.4, ratio 0.8, tau 20 ms: one tap's travel (mm) by detection threshold and ramp
+  d_det 0.05 mm: ramp 100 N/s  11.49  ramp 200 N/s  11.89  ramp 500 N/s  13.14
+  d_det 0.10 mm: ramp 100 N/s  12.26  ramp 200 N/s  12.70  ramp 500 N/s  14.07
+  d_det 0.20 mm: ramp 100 N/s  13.39  ramp 200 N/s  13.89  ramp 500 N/s  15.44
+
+## E. Milestone 12's best single-2x stack (measured studs, per-nail reads, mid push) by shim mechanism
+check: slide 0.5 mm, shim 0.5 mm gives 0.7707 (milestone 12: 0.7707)
+slide below: milestone 27's loop at 20 ms, mu_s 0.4, ratio 0.8, rms 0.262 mm
+shim                                    | clean   [95%]            vs shim 0.5 mm (points)
+shim 0.5 mm (assumed)                   | 0.7912 [0.7855, 0.7967]
+no shim residual                        | 0.8059 [0.8004, 0.8113]
+stack 1/32 in (shim stock)              | 0.8042 [0.7986, 0.8096]
+stack 1/32 in (shim stock) as Gaussian  | 0.8006 [0.7951, 0.8061]
+stack 1/16 in (horseshoe)               | 0.7964 [0.7908, 0.8019]
+stack 1/16 in (horseshoe) as Gaussian   | 0.7926 [0.7869, 0.7982]
+stack 1/8 in (horseshoe)                | 0.7653 [0.7594, 0.7711]
+stack 1/8 in (horseshoe) as Gaussian    | 0.7636 [0.7577, 0.7694]
+wedge g1 20 ms (Gaussian at D's rms)    | 0.8023 [0.7967, 0.8078]
+wedge g1 50 ms (Gaussian at D's rms)    | 0.7872 [0.7814, 0.7928]
+wedge g1 100 ms (Gaussian at D's rms)   | 0.6208 [0.6141, 0.6275]
+wedge h1 20 ms (Gaussian at D's rms)    | 0.8022 [0.7966, 0.8077]
+changes against the first row (points): no shim residual +1.47, stack 1/32 in (shim stock) +1.31, stack 1/32 in (shim stock) as Gaussian +0.95, stack 1/16 in (horseshoe) +0.52, stack 1/16 in (horseshoe) as Gaussian +0.14, stack 1/8 in (horseshoe) -2.59, stack 1/8 in (horseshoe) as Gaussian -2.76, wedge g1 20 ms (Gaussian at D's rms) +1.11, wedge g1 50 ms (Gaussian at D's rms) -0.40, wedge g1 100 ms (Gaussian at D's rms) -17.04, wedge h1 20 ms (Gaussian at D's rms) +1.11
+
+## F. Hypotheses (registered in LOG.md before this run)
+H106 (1/16 in stack within 2 points of shim 0.5 mm, slide 0.262 mm): 0.7964 against 0.7912 (+0.52 points) -> held
+H107 (G1 can drive the wedge at mu 0.4, rho 0.5, ledger at z 0.5 m): needs 118.5 N, G1 gives 65.6 N -> refuted
+H108 (wedge rms < 0.1 mm, G1 mass, 20 ms, ratio 0.8): 0.132 mm -> refuted
+
+(run time 25 s; python 3.13.18, numpy 2.5.3, mujoco 4.0.1)

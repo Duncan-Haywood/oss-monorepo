@@ -1,0 +1,61 @@
+Milestone 6zzn: forced local-summer shifts of single-year learned corrections at the high-amplitude points, 2005 to 2014 (50 W)
+lag g: scoring L learns from 2010 - g, scoring E from 2009 + g; G{g}{s}{d}: lag g, local season s (s summer, w winter) ratios x (1 + d%)
+high-amplitude points: P-60, P-30, P+50, P+60, A-50, A+50, A+60, North-Sea, Gulf-of-Alaska (9)
+
+Check against 6zzi (d = 0 is LC_g): LC_2 153 (6zzi 153), LC_3 1 (6zzi 1), LC_4 124 (6zzi 124)  ok
+
+Dominance counts: hi168 (pooled over the 9 points, 21 shapes x 2 halves x 4 packs), hireal8 (real shape pooled), pp72 (real shape, per point); failing hi168 cells by mode
+  rule        hi168  hireal8  pp72   km-only  dark-only  both
+  AT_90          25        1    43       143          0     0
+  G2s-3         128        6    49        40          0     0
+  G2s-2         151        8    49        16          1     0
+  G2s-1         153        7    49         4         11     0
+  G2s-0.5       154        7    48         3         11     0
+  G2s0          153        7    48         1         14     0
+  G2s+0.5       152        7    48         0         16     0
+  G2s+1         152        7    48         0         16     0
+  G2s+2         148        7    46         0         20     0
+  G2s+3         142        7    44         0         26     0
+  G3s-3           0        0    42       168          0     0
+  G3s-2           0        0    42       168          0     0
+  G3s-1           0        0    42       168          0     0
+  G3s-0.5         0        0    42       168          0     0
+  G3s0            1        0    42       167          0     0
+  G3s+0.5         2        0    42       166          0     0
+  G3s+1           4        0    42       164          0     0
+  G3s+2          10        0    43       158          0     0
+  G3s+3          32        2    44       136          0     0
+  G4s-3          63        3    45       105          0     0
+  G4s-1         105        5    48        63          0     0
+  G4s0          124        6    49        44          0     0
+  G4s+1         126        6    49        42          0     0
+  G4s+3         146        7    50        21          1     0
+  G2w-3         153        7    48         1         14     0
+  G2w+3         155        7    48         1         12     0
+
+Real shape pooled over the 9 points: lag 2, local summer shifted by d; km/B (ex/B) per half and pack
+  half C kWh |           -3%           -2%           -1%         -0.5%            0%         +0.5%           +1%           +2%           +3%
+  E      2.5 |  0.9831 (0.49)  1.0058 (0.52)  1.0254 (0.54)  1.0359 (0.56)  1.0448 (0.58)  1.0545 (0.60)  1.0654 (0.61)  1.0851 (0.65)  1.1026 (0.69)
+  E      5.0 |  1.1628 (0.65)  1.1944 (0.68)  1.2179 (0.70)  1.2317 (0.72)  1.2439 (0.74)  1.2587 (0.76)  1.2706 (0.77)  1.2939 (0.81)  1.3138 (0.85)
+  E     10.0 |  1.4613 (0.71)  1.5325 (0.75)  1.5901 (0.78)  1.6233 (0.81)  1.6537 (0.83)  1.6778 (0.85)  1.7022 (0.88)  1.7491 (0.93)  1.7937 (0.97)
+  E     20.0 |  1.0536 (0.61)  1.1083 (0.65)  1.1508 (0.69)  1.1796 (0.71)  1.1995 (0.74)  1.2245 (0.76)  1.2499 (0.78)  1.2909 (0.83)  1.3302 (0.88)
+  L      2.5 |  1.0650 (0.58)  1.0869 (0.65)  1.1000 (0.71)  1.1069 (0.73)  1.1128 (0.74)  1.1189 (0.75)  1.1254 (0.78)  1.1325 (0.81)  1.1454 (0.87)
+  L      5.0 |  1.2617 (0.88)  1.2973 (0.98)  1.3194 (1.06)  1.3269 (1.06)  1.3367 (1.09)  1.3505 (1.11)  1.3630 (1.17)  1.3770 (1.26)  1.3949 (1.41)
+  L     10.0 |  1.3634 (0.49)  1.4551 (0.57)  1.5271 (0.67)  1.5519 (0.71)  1.5799 (0.74)  1.6091 (0.76)  1.6376 (0.80)  1.6676 (0.82)  1.7036 (0.91)
+  L     20.0 |  0.9831 (0.44)  1.0454 (0.50)  1.1013 (0.58)  1.1237 (0.60)  1.1420 (0.61)  1.1609 (0.62)  1.1899 (0.66)  1.2233 (0.69)  1.2591 (0.78)
+
+hi168 by d (summer shift): -3% -2% -1% -0.5% 0% +0.5% +1% +2% +3%
+  lag 2: -3%:128 -2%:151 -1%:153 -0.5%:154 0%:153 +0.5%:152 +1%:152 +2%:148 +3%:142
+  lag 3: -3%:0 -2%:0 -1%:0 -0.5%:0 0%:1 +0.5%:2 +1%:4 +2%:10 +3%:32
+  lag 4: -3%:63 -1%:105 0%:124 +1%:126 +3%:146
+  d at which lag 3 >= lag 2: none in DS
+
+Predictions
+F1 LC_2 real-shape km/B non-increasing in d in all 8 series: refuted (0 of 8)
+F2 LC_2 hi168 non-increasing over d = 0..+3%: held (153 / 152 / 152 / 148 / 142)
+F3 G2s+1 hi168 <= 102: refuted (152)
+F4 G2s+3 hi168 <= 25: refuted (142)
+F5 G3s-1 hi168 >= 52: refuted (0)
+F6 G2w+3 >= 140 and G2s+3 < 103: refuted (winter +3% 155, summer +3% 142)
+F7 G2s-3 failures mostly involve dark hours: refuted (dark only 0 + both 0 vs km only 40)
+F8 G4s+3 < G4s0: refuted (146 vs 124)

@@ -163,7 +163,7 @@ node cli.mjs --compare</code></pre>
       const key = $("#pattern").value, crew = $("#crew").value;
       const anchor = $("#anchor").value.trim() || today;
       const from = $("#from").value.trim() || anchor;
-      const count = Math.min(Math.max(parseInt($("#count").value, 10) || 56, 1), 730);
+      const count = Math.min(Math.max(parseInt($("#count").value, 10) || 56, 1), 730); /* zero-default: a 0-day schedule is empty; the clamp below is 1 */
       return { key, crew, anchor, from, count };
     }
 

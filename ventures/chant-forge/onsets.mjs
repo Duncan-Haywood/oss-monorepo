@@ -54,12 +54,13 @@ export function frameFeatures(x, i0, rate, len = 0.02) {
   const L = Math.round(len * rate), re = new Float64Array(N), im = new Float64Array(N);
   for (let i = 0; i < L && i < N; i++) re[i] = (x[i0 + i] || 0) * (0.5 - 0.5 * Math.cos((2 * Math.PI * i) / (L - 1)));
   fft(re, im);
-  const df = rate / N; let tot = 0, low = 0, hi = 0, hi1 = 0, mid = 0, cw = 0, best = 0, peakHz = 0;
+  const df = rate / N; let tot = 0, low = 0, lowMid = 0, hi = 0, hi1 = 0, mid = 0, cw = 0, best = 0, peakHz = 0;
   const bands = new Float64Array(8); // 500 Hz bands from 1 to 5 kHz
   for (let k = 1; k < N / 2; k++) {
     const f = k * df, p = re[k] * re[k] + im[k] * im[k];
     tot += p;
     if (f < 500) low += p;
+    else if (f < 1000) lowMid += p;
     if (f > 1000) hi1 += p;
     if (f > 2500) hi += p;
     if (f >= 1000 && f <= 11000) { mid += p; cw += p * f; }
@@ -73,7 +74,7 @@ export function frameFeatures(x, i0, rate, len = 0.02) {
     let q = 0; for (let k = k0; k < k0 + w; k++) q += re[k] * re[k] + im[k] * im[k];
     if (q > slide) { slide = q; slideHz = (k0 + w / 2) * df; }
   }
-  return { tot, low, hi1, peakHz, lowR: tot ? low / tot : 0, hiR: tot ? hi / tot : 0, centroid: mid ? cw / mid : 0, compact: mid ? best / mid : 0, compactAny: mid ? slide / mid : 0, compactHz: slideHz };
+  return { tot, low, lowMid, hi1, peakHz, lowR: tot ? low / tot : 0, hiR: tot ? hi / tot : 0, centroid: mid ? cw / mid : 0, compact: mid ? best / mid : 0, compactAny: mid ? slide / mid : 0, compactHz: slideHz };
 }
 
 // see readCoda's note on the murmur's own tilt
@@ -82,6 +83,9 @@ export const MURMUR_TILT = 28;
 export const DARK_BY = 10;
 // readCoda's murmur against the vowel just before it (see its note); chosen on eval/coda-check.mjs A, B and I
 export const NEAR = { dark: 8, lo: -18, hi: 0, hold: 4, tiltHold: 4 };
+// readCoda's murmur just before the obstruent of an n-t, n-s or n-k cluster (see its note); chosen on the
+// synthetic syllables of eval/coda-check.mjs A and J only
+export const PRE = { dark: 6, step: 8, lo: -18, hi: 4, minMs: 40, gap: 5 };
 const db = (a, b) => 10 * Math.log10((a + 1e-20) / (b + 1e-20));
 const median = (v) => { const s = [...v].sort((p, q) => p - q); return s.length ? s[Math.floor(s.length / 2)] : NaN; };
 
@@ -201,7 +205,7 @@ export function expectedRead(ph) {
 // keeps its F2 and F3. Measured on the sung syllables E2-E4 (README "Final consonants, fourth round"):
 // /l/ 12-25 dB, /m/ and /n/ 38-54 dB. Without it every final *al* read as a nasal (its F1 falls under
 // 500 Hz, which brightens the low band against the vowel's). `murmurTilt: 0` turns the check off.
-export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {} } = {}) {
+export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {} } = {}) {
   const hop = Math.round(0.005 * rate), a = Math.round((vowelAt + 0.06) * rate), z = Math.round((tEnd - 0.02) * rate), zEnd = Math.round(tEnd * rate);
   const ref = [];
   for (let i = Math.round(vowelAt * rate); i < a; i += hop) ref.push(frameFeatures(x, i, rate));
@@ -317,7 +321,36 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
     return out.find((r) => !vowelAgain(r)) || null;
   };
   const near = nearRun();
-  const nas = [runs(nasal, 30).find((r) => (msOf(r) >= 45 || !next.some((k) => k >= r[1] && k - r[1] <= 3)) && !vowelAgain(r) && murmur(r)), step, near]
+  // Before the obstruent of a cluster (2026-11-16, README "-unt read on its stop"): the n of *sunt*, *ant*,
+  // *mens* is a murmur of 40-70 ms (codaPlan) that the obstruent's closure or noise ends, so none of the
+  // rules above, which want it quieter (nasal), stepped down under 500 Hz (step) or holding its darkness
+  // within 4 dB (near), need see it: with five beating voices it sits 2 to 4 dB under its vowel at E2 and
+  // A2 and its darkness wobbles by 6 dB. What it does is stay dark right up to the closure. So a run counts
+  // when every frame is PRE.dark dB or more darker than the vowel 25-45 ms before it, from PRE.lo to PRE.hi
+  // dB of its level, dark in itself (murmurTilt), PRE.minMs long, and ends at most PRE.gap frames before a
+  // stop's closure or a fricative. A vowel only darkens into a closure as a ramp over its last 20-30 ms
+  // (F1 falling), mostly brighter than murmurTilt; with no obstruent after it (the vowel-only choir, a
+  // final -m) this rule cannot fire. `preObstruent: false` is the reader before.
+  const PR = { ...PRE, ...preOpts };
+  const preRun = () => {
+    if (!preObstruent) return null;
+    const obs = [stopRun, fric, vfric].filter(Boolean).map((r) => r[0]);
+    if (!obs.length) return null;
+    for (let k = 9; k < fr.length; k++) {
+      const pre = fr.slice(k - 9, k - 4), pl = median(pre.map((f) => f.lvl)), pt = median(pre.map(tiltOf));
+      const ok = (f) => tiltOf(f) <= pt - PR.dark && f.lvl - pl >= PR.lo && f.lvl - pl <= PR.hi && tiltOf(f) <= -murmurTilt;
+      if (!ok(fr[k])) continue;
+      let e = k; while (e < fr.length && ok(fr[e])) e++;
+      const r = [k, e - 1];
+      // entered by a step: some 5 ms hop from two frames before the run to two into it darkens by PR.step dB
+      let jump = 0; for (let i = Math.max(1, k - 2); i <= Math.min(e - 1, k + 2); i++) jump = Math.max(jump, tiltOf(fr[i - 1]) - tiltOf(fr[i]));
+      if (jump < PR.step) continue;
+      if (msOf(r) >= PR.minMs && obs.some((o) => o > r[1] && o - r[1] <= PR.gap)) return r;
+    }
+    return null;
+  };
+  const pre = preRun();
+  const nas = [runs(nasal, 30).find((r) => (msOf(r) >= 45 || !next.some((k) => k >= r[1] && k - r[1] <= 3)) && !vowelAgain(r) && murmur(r)), step, near, pre]
     .filter((r) => r && !intoTap(r)).sort((p, q) => p[0] - q[0])[0];
   const cands = [['closure', stopRun], ['fricative', fric], ['vfricative', vfric], ['nasal', nas], ['tap', tap]]
     .filter(([, r]) => r).sort((p, q) => p[1][0] - q[1][0]);

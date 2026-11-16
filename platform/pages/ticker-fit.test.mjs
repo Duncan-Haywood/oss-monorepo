@@ -4,15 +4,12 @@
 // and shrank by a line every few seconds, moving the search box, the stats and
 // the hero's backdrop (CLS 0.087 on a throttled load of the hub).
 // Browser tests skip when Playwright cannot load (PLAYWRIGHT, as in sticky-fit.test.mjs).
+import { loadPlaywright } from './load-playwright.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { HOME_MOTION_CSS, HOME_MOTION_SCRIPT, longestWord } from './showcase.mjs';
 
-let chromium = null;
-try {
-  const mod = await import(process.env.PLAYWRIGHT || 'playwright');
-  chromium = mod.chromium ?? mod.default?.chromium;
-} catch { /* skipped below */ }
+const chromium = (await loadPlaywright())?.chromium ?? null;
 const skip = !chromium && 'playwright not installed';
 
 const WORDS = ['Roofers', 'HVAC contractors', 'Plumbers', 'Pool & hot tub pros', 'Amazon sellers & KDP authors', 'Resellers'];

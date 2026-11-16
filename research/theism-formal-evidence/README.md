@@ -225,6 +225,22 @@ worlds the separable pairs are exactly E21's 36 block-algebra failures; at 4 wor
 against E23's 14,688 for general collections. A definition-level check passes at all 11,628
 separable cases up to 4 worlds ([results](experiments/e24_block_separation/results.md)).
 
+**M2 (part), separability has no closed-form condition: it is NP-complete (E27, 2026-11-15).**
+E24's condition quantifies over two sets of worlds. Is there a simple graph test for it, as
+there is (E23's back witness, polynomial) when properties need not have complements? No, unless
+P = NP. A hypergraph becomes a serial frame (w sees v; v sees one world per edge; each edge world
+sees v and its points; each point sees only itself), and v is separable from w **iff** the
+hypergraph can be 2-coloured with no one-coloured edge (`NP.sep_iff`,
+`lean/TheismFormal/AndersonNP.lean`, no `sorry`). That problem is NP-complete (set splitting,
+Garey &amp; Johnson SP4), so deciding separability is NP-complete and deciding whether
+GodIsEssential holds at w in every block-algebra model is coNP-complete. Complements change not
+only the condition but its complexity. Checks: a new decider matches exhaustive search on every
+serial relation up to 4 worlds (11,628 separable triples, E24's count) and 2-colourability on
+all 2,046 hypergraphs with up to 4 points and 4 edges; the Fano plane gives a 16-world frame where
+GodIsEssential holds in every block-algebra model but not in every general one. Open: whether
+hardness survives in reflexive or transitive frames
+([results](experiments/e27_separability_np/results.md)).
+
 **M2 (part), Swinburne's 0.97 reproduced (E25, 2026-11-15).** Swinburne's Bayesian case for the
 incarnation and resurrection (*The Resurrection of God Incarnate*, 2003) has four inputs, quoted
 with the book's page numbers in Otte's NDPR review: P(theism) = 1/2, P(divided incarnation | God)
@@ -261,9 +277,9 @@ matched to the Blackwell pages.
 - `src/logic.py`: decision procedures (S5 exact, K/T/B/S4 by certified countermodels, monadic first-order exact), minimal inconsistent and maximal consistent subsets.
 - `src/arguments.py`: the 11 arguments, each with its published source.
 - `src/ledger.py`, `src/bayes.py`: hypotheses, priors, the 13 evidence items, and the posterior arithmetic.
-- `lean/`: Lean 4 (core library only) theorems for every argument, the B/T frame results, the S4 countermodel, and E10's and E11's theorems on Anderson's emendation (`TheismFormal/Anderson.lean`) E12's varying-domain theorems (`TheismFormal/Varying.lean`) E13's actualist ones (`TheismFormal/Actualist.lean`) E14's plain-necessity ones (`TheismFormal/Plain.lean`) E15's closure condition and 8-cell countermodel (`TheismFormal/Closure.lean`) E16's model characterisations (`TheismFormal/Models.lean`) E17's theorems on Fitting's variant (`TheismFormal/Fitting.lean`) E18's K-logic corollaries (`TheismFormal/AFP.lean`) E19's frame-condition theorems for Anderson's variant (`TheismFormal/AndersonK.lean`) E20's separating-algebra theorems and certified S4 countermodel (`TheismFormal/AndersonFull.lean`) E21's frame-condition theorems (`TheismFormal/AndersonFrames.lean`) E22's countermodel and exact characterisation (`TheismFormal/AndersonTransient.lean`) E23's no-A4a characterisation (`TheismFormal/AndersonHorn.lean`) and E24's block-algebra one (`TheismFormal/AndersonSep.lean`). `lean/build.sh` fetches the pinned toolchain if needed, builds, and prints each headline theorem's axioms.
-- `experiments/e1_arguments/run.py`, `experiments/e2_ledger/run.py`, `experiments/e3_leave_one_out/run.py`, `experiments/e4_godel_scott/run.py`, `experiments/e5_shared_cause/run.py`, `experiments/e6_shermer_check/run.py`, `experiments/e7_anderson/run.py`, `experiments/e8_restricted/run.py`, `experiments/e9_restricted_larger/run.py`, `experiments/e10_theorem/run.py`, `experiments/e11_anderson_a2/run.py`, `experiments/e12_varying_domains/run.py`, `experiments/e13_actualist_necessity/run.py`, `experiments/e14_plain_necessity/run.py`, `experiments/e15_a5z_not_a5/run.py`, `experiments/e17_fitting/run.py`, `experiments/e18_afp_crosscheck/run.py`, `experiments/e19_afp_anderson/run.py`, `experiments/e20_full_semantics/run.py`, `experiments/e21_frame_characterisation/run.py`, `experiments/e22_transient_countermodel/run.py`, `experiments/e23_horn_countermodel/run.py`, `experiments/e25_swinburne/run.py`, `experiments/e26_mcgrew/run.py`: these regenerate `results.md` and `results.json`.
-- `test_theism.py`: 35 tests (textbook modal axioms per system, genuine countermodels, the church positions, Unwin's reproduction, posterior identities). Stdlib only: `python3 test_theism.py`.
+- `lean/`: Lean 4 (core library only) theorems for every argument, the B/T frame results, the S4 countermodel, and E10's and E11's theorems on Anderson's emendation (`TheismFormal/Anderson.lean`) E12's varying-domain theorems (`TheismFormal/Varying.lean`) E13's actualist ones (`TheismFormal/Actualist.lean`) E14's plain-necessity ones (`TheismFormal/Plain.lean`) E15's closure condition and 8-cell countermodel (`TheismFormal/Closure.lean`) E16's model characterisations (`TheismFormal/Models.lean`) E17's theorems on Fitting's variant (`TheismFormal/Fitting.lean`) E18's K-logic corollaries (`TheismFormal/AFP.lean`) E19's frame-condition theorems for Anderson's variant (`TheismFormal/AndersonK.lean`) E20's separating-algebra theorems and certified S4 countermodel (`TheismFormal/AndersonFull.lean`) E21's frame-condition theorems (`TheismFormal/AndersonFrames.lean`) E22's countermodel and exact characterisation (`TheismFormal/AndersonTransient.lean`) E23's no-A4a characterisation (`TheismFormal/AndersonHorn.lean`), E24's block-algebra one (`TheismFormal/AndersonSep.lean`) and E27's NP-hardness reduction (`TheismFormal/AndersonNP.lean`). `lean/build.sh` fetches the pinned toolchain if needed, builds, and prints each headline theorem's axioms.
+- `experiments/e1_arguments/run.py`, `experiments/e2_ledger/run.py`, `experiments/e3_leave_one_out/run.py`, `experiments/e4_godel_scott/run.py`, `experiments/e5_shared_cause/run.py`, `experiments/e6_shermer_check/run.py`, `experiments/e7_anderson/run.py`, `experiments/e8_restricted/run.py`, `experiments/e9_restricted_larger/run.py`, `experiments/e10_theorem/run.py`, `experiments/e11_anderson_a2/run.py`, `experiments/e12_varying_domains/run.py`, `experiments/e13_actualist_necessity/run.py`, `experiments/e14_plain_necessity/run.py`, `experiments/e15_a5z_not_a5/run.py`, `experiments/e17_fitting/run.py`, `experiments/e18_afp_crosscheck/run.py`, `experiments/e19_afp_anderson/run.py`, `experiments/e20_full_semantics/run.py`, `experiments/e21_frame_characterisation/run.py`, `experiments/e22_transient_countermodel/run.py`, `experiments/e23_horn_countermodel/run.py`, `experiments/e25_swinburne/run.py`, `experiments/e26_mcgrew/run.py`: these regenerate `results.md` and `results.json`. `experiments/e27_separability_np/run.py` (35 s) regenerates `results.json`; its `results.md` is written by hand from it.
+- `test_theism.py`: 36 tests (textbook modal axioms per system, genuine countermodels, the church positions, Unwin's reproduction, posterior identities). Stdlib only: `python3 test_theism.py`.
 
 ## Run
 
@@ -276,6 +292,7 @@ python3 research/theism-formal-evidence/experiments/e4_godel_scott/run.py
 python3 research/theism-formal-evidence/experiments/e5_shared_cause/run.py
 python3 research/theism-formal-evidence/experiments/e6_shermer_check/run.py
 python3 research/theism-formal-evidence/experiments/e26_mcgrew/run.py
+python3 research/theism-formal-evidence/experiments/e27_separability_np/run.py   # about 35 s
 python3 research/theism-formal-evidence/experiments/e10_theorem/run.py   # about 6 s
 python3 research/theism-formal-evidence/experiments/e11_anderson_a2/run.py   # about 5 s
 python3 research/theism-formal-evidence/experiments/e12_varying_domains/run.py   # about 2 min

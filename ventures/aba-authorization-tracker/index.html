@@ -133,6 +133,8 @@
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
+    // A blank or unreadable field takes the fallback; a typed 0 stays 0 (`|| d` would turn 0 into d).
+    const numOr = (s, d) => { const t = String(s ?? "").trim(); const n = parseFloat(t); return t === "" || !Number.isFinite(n) ? d : n; };
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const today = () => Math.floor(Date.now() / DAY);
@@ -148,7 +150,7 @@
 
     function run(text) {
       const asOf = parseDate($("#asof").value) ?? today();
-      const r = calculate(text, { asOf, leadDays: parseFloat($("#lead").value) || 45, lowPct: parseFloat($("#low").value) || 85 });
+      const r = calculate(text, { asOf, leadDays: numOr($("#lead").value, 45), lowPct: numOr($("#low").value, 85) });
       last = r;
       const s = r.summary;
       if (r.errors.length && !r.rows.length) { status.textContent = r.errors[0]; report.hidden = true; return; }

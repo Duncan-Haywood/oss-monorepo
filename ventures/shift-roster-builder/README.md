@@ -2994,3 +2994,42 @@ search of the same neighbourhood on 80 small weeks and equals it on at least hal
 `buildRoster` reports `floorSkipped` and `floorReached`). Not claimed: generated weeks only, three starts or three search seeds
 each, one cloud machine. Next: whether a repair reserve pays at 20-60 people, or a flow floor per dead-shift node (a cheaper bound
 inside the search than a full flow, which the measurements above did not need).
+
+## The repair reserve at 30-60 people (2026-11-16)
+
+"The repair's neighbourhood under a flow bound" ended on a question: does a time reserve for the flow-bounded repair pay at 20-60
+people, where the plateau walks leave more of the 20 s budget than on the 350-400 copy weeks? **Measured first**
+(`sh eval/repair-reserve-small.sh`, `eval/repair-reserve-small.out.txt`): twelve bench weeks, 30 x 84, 40 x 112, 50 x 140 and
+60 x 168, weeks 0-2 each (121-245 copies), search seeds 4-6, no reserve against a 500 ms and a 2 s reserve, two builds at a time.
+(20 x 56 weeks were left out: they prove in about a second, README "The exact check end to end".)
+
+| 36 builds | open hours in all | at the proven floor | repair ran | repair gains |
+|---|---|---|---|---|
+| no reserve (the default) | 7,575 | 36 | 15 | 0 |
+| 500 ms reserve | 7,575 | 36 | 15 | 0 |
+| 2 s reserve | 7,575 | 36 | 15 | 0 |
+
+**No: every build at this size already reaches its proven open-hours floor**, with or without a reserve, so there is nothing for
+the repair to close. The reserve stays off by default, and the question stays where it was asked: the 350-400 copy weeks.
+
+The same table showed a waste. On 15 of the 36 builds (40 x 112 week 2, 50 x 140 weeks 1 and 2, 60 x 168 weeks 0 and 2) the repair
+still ran, for 0.04-1.8 s, on a roster whose open hours already equalled the floor the clique LP or the flow bound had proven. It
+cannot cover more there; all it could do is trade to fewer open shifts at equal hours, and it found that on none of them.
+
+**What landed:** the repair is skipped when the roster's open hours already equal a proven floor (`ctx.openFloor`), and
+`optimality.coverRepair` then reports `{ skippedAtFloor: true }`. Only when the repair is on by default: `coverRepair: true`, a priced
+`openShiftWeight` (CLI `--open-shift-hours`, where fewer open shifts is what was asked for) or `coverRepairAtFloor: true` runs it as
+before.
+
+| check (`eval/repair-at-floor.out.txt`) | result |
+|---|---|
+| the 15 bench builds above, rebuilt (`sh eval/repair-at-floor-bench.sh`) | same open hours on 15 of 15, skipped on all 15; 261.0 s to 241.4 s of build time, **1.31 s a build** back (up to 1.9 s on 40 x 112 week 2) |
+| 60 small seeded weeks, no budget (`node eval/repair-at-floor-small.mjs`) | identical open hours, open shifts, score and pay on 60 of 60; skipped on 16 |
+
+Tests: `repair-flow.test.mjs` (on 12 seeded weeks a skip happens only where the roster's open hours equal the reported floor, running
+the repair anyway never covers more, and `coverRepair: true` always runs it; the tests that read the repair's own report pass
+`coverRepairAtFloor: true`). Not claimed: generated weeks only, three search seeds each, one cloud machine with two builds at a
+time; on the bench builds pay was not recorded, only open hours (the repair found nothing on any of them, so the roster it would
+have handed back was the one it was given). Next: the 2 s reserve test belongs to the 350-400 copy weeks, where builds end above
+the floor (README "The repair's neighbourhood under a flow bound": 6 of 8 differing builds ahead, p = 0.29); more seeds there would
+settle it.

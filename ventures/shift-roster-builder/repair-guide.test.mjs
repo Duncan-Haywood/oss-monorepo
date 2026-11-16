@@ -78,8 +78,8 @@ test("guided and unguided repairs keep every rule, report their open hours and n
 
 test("buildRoster reports the repair, unguided unless repairGuide: true", () => {
   const { staff, slots } = seededWeek(7, 6, 22);
-  const on = buildRoster(staff, slots, { exact: true, deferCover: false, repairGuide: true });
-  const off = buildRoster(staff, slots, { exact: true, deferCover: false });
+  const on = buildRoster(staff, slots, { exact: true, deferCover: false, repairGuide: true, coverRepairAtFloor: true });
+  const off = buildRoster(staff, slots, { exact: true, deferCover: false, coverRepairAtFloor: true });
   assert.equal(on.optimality.coverRepair.guided, true);
   assert.ok(on.optimality.coverRepair.guidedRounds > 0);
   assert.equal(off.optimality.coverRepair.guided, false);

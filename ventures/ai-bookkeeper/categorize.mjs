@@ -1085,7 +1085,7 @@ export function suggest(txn, model) {
 // name a line's payee starts with. Money out only, for review only (confidence under every
 // auto-post threshold), after the keywords, the card code and the bank's own category.
 export const BRAND = { confidence: 0.5, maxTokens: 5, version: BRANDS_VERSION };
-const BRAND_LABEL = { "6130": "a food shop, cafe or restaurant", "6120": "a hotel, car hire or travel agent", "6160": "a fuel station or car service", "6100": "a hardware, DIY or trade store", "6070": "a stationer, copy shop or post office", "6180": "a carrier", "6140": "a phone or internet provider", "6030": "an insurer", "6080": "a coworking or self-storage operator" };
+const BRAND_LABEL = { "6130": "a food shop, cafe or restaurant", "6120": "a hotel, car hire, travel agent or public transport service", "6160": "a fuel station or car service", "6100": "a hardware, DIY or trade store", "6070": "a stationer, copy shop or post office", "6180": "a carrier", "6140": "a phone or internet provider", "6030": "an insurer", "6080": "a coworking or self-storage operator" };
 const BRAND_FINANCE = /^(financial|finance|financing|credit|capital|bank|banking|loans?|lease|leasing|insurance|mortgage)$/;
 let BRAND_INDEX = null;
 const BRAND_PERSON = new Set(BRAND_PERSON_NAMES);

@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { buildProblem, changedPostPaths, checkProblems, COUNT_CHECKS, countProblem, inheritedKeysProblem, launchedProblems, placementProblems, postProblem, routerProblem, SITE_BUILD_TESTS, siteTestFiles, siteTestProblem, touchesRouterInputs, treeCheckProblem } from './venture-preflight.mjs';
+import { buildProblem, localOnlyFiles, splitLocalOnly, changedPostPaths, checkProblems, COUNT_CHECKS, countProblem, inheritedKeysProblem, launchedProblems, placementProblems, postProblem, routerProblem, SITE_BUILD_TESTS, siteTestFiles, siteTestProblem, touchesRouterInputs, treeCheckProblem } from './venture-preflight.mjs';
 
 async function fixture(launched) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-'));
@@ -141,4 +141,32 @@ test('treeCheckProblem is silent on exit 0 and lists each red check with its tai
 
 test('treeCheckProblem falls back to the output tail when no block parses', () => {
   assert.match(treeCheckProblem(2, 'Traceback\nboom', 'x'), /boom/);
+});
+
+// Git-ignored files the local build publishes but CI's checkout lacks (run record 2026-11-15:
+// changepoint-detector's fetched utsa-data/ held a .ppt that failed check.mjs only locally).
+test('localOnlyFiles keeps ignored publishable files, drops CI build outputs and what copyTree skips', async () => {
+  const { copiesDir, isPublishable } = await import('./build.mjs');
+  const rules = [
+    'ventures/v/.gitignore:1:utsa-data/\tventures/v/utsa-data/',
+    '.gitignore:2:*.log\tventures/v/run.log',
+    '.gitignore:15:__pycache__/\tventures/v/__pycache__/',
+    '.gitignore:40:ventures/v/browser/\tventures/v/browser/',
+    '.gitignore:2:*.log\tventures/other/x.log',
+  ].join('\n');
+  const dirs = { 'ventures/v/utsa-data/': ['ventures/v/utsa-data/a.ppt', 'ventures/v/utsa-data/fetch.py', 'ventures/v/utsa-data/.cache/z.json'] };
+  const files = localOnlyFiles(rules, 'v', { copiesDir, isPublishable, listDir: (rel) => dirs[rel] ?? assert.fail(`walked ${rel}`) });
+  assert.deepEqual(files, ['ventures/v/run.log', 'ventures/v/utsa-data/a.ppt']);
+});
+
+test('splitLocalOnly demotes check.mjs lines on a local-only file, also under a published subdir', () => {
+  const lines = [
+    'v/utsa-data/a.ppt: nothing says how the site should type ".ppt".',
+    'v/index.html: carries no disclaimer, so it must not ship',
+    'v/data/b.ppt: nothing says how the site should type ".ppt".',
+  ];
+  const { real, local } = splitLocalOnly(lines, 'v', ['ventures/v/utsa-data/a.ppt', 'ventures/v/site/data/b.ppt']);
+  assert.deepEqual(real, [lines[1]]);
+  assert.deepEqual(local, [lines[0], lines[2]]);
+  assert.deepEqual(splitLocalOnly(lines, 'v', []).real, lines);
 });

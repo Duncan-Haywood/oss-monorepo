@@ -22,7 +22,7 @@ A SoQL group-by on each feed's status field, over permits with an issue date and
 | Seattle | 33,077 | 41% "expired", 31% "completed" (no date), 25% "issued" |
 | Austin | 199,042 | 58% "expired", 26% "void", 14% "active" |
 
-In Austin "active" is 0 to 2% of each issue year up to 2021. It rises to 15% for 2024 and 92% for 2026, which is what real builds still running look like. Seattle's "completed with no date" is mostly 2010 to 2015 (56 to 84% of each of those years), about 10,000 finished builds whose completion date is simply missing. In San Francisco an abandoned permit and a running one look the same.
+In Austin "active" is 0 to 2% of each issue year up to 2021. It rises to 15% for 2024 and 92% for 2026, which is what real builds still running look like. Seattle's "completed with no date" is mostly 2010 to 2015 (56 to 84% of each of those years), about 10,000 finished builds whose completion date is simply missing. *(Correction, 16 November 2026: they are not. 71% of those issued 2010 to 2022 say "Closed as Incomplete" in their description, so they were closed at expiry, not finished; see [the label audit](2026-11-16-build-data-completion-dates-are-builds-not-closures.md).)* In San Francisco an abandoned permit and a running one look the same.
 
 So two of the three feeds already say which open permits are dead, and one also holds finished builds that the data treats as open. There is a catch. The status is the status *today*, not on the forecast date, so a model trained on it learns from the future. It is safe only on permits old enough that their status would already have settled by the forecast date.
 

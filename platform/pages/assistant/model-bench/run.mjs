@@ -11,6 +11,7 @@
 //
 // --isolated sends the cross-origin isolation headers that wllama needs for
 // threads. GitHub Pages cannot send them, so the live site runs on one thread.
+import { requirePlaywright } from '../../load-playwright.mjs';
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -38,7 +39,7 @@ const server = http.createServer((req, res) => {
   res.writeHead(200, h);
   fs.createReadStream(p).pipe(res);
 }).listen(0);
-const { chromium } = await import(process.env.PLAYWRIGHT || 'playwright');
+const { chromium } = await requirePlaywright();
 const browser = await chromium.launch();
 try {
   const page = await browser.newPage();

@@ -96,6 +96,9 @@ python3 experiments/measured_volume_ratio.py <Short_Y_cycle_data.mat>  # milesto
 python3 experiments/measured_pump_size.py <Short_Y_cycle_data.mat>  # milestone 5w (numpy, scipy)
 python3 experiments/measured_fuel_time.py <Short_Y_cycle_data.mat>  # milestone 5x, 20 s (numpy, scipy)
 python3 experiments/fuel_time_figure.py                      # figure for 5x
+python3 experiments/pump_size_figure.py                      # figure for 5w (experiments/trade_pump_size.svg)
+python3 experiments/breakeven_geometry_figure.py             # figure for 6c (experiments/breakeven_geometry.svg)
+python3 experiments/threshold_screening_figure.py            # figure for 6d (experiments/threshold_decision_curve.svg)
 python3 paper/check_numbers.py                               # milestone 6: every number in paper/draft.md against its results file
 python3 paper/build_tex.py --pdf                             # milestone 6: draft.md as a two-column LaTeX paper with BibTeX (paper/build/main.pdf)
 python3 paper/check_numbers.py --paper manuscript.md          # milestone 6s: the venue-length manuscript's claims, and no orphan numbers

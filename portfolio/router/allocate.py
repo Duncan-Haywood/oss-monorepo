@@ -581,14 +581,22 @@ def next_task(v: Venture) -> str:
                 f"outside input ({v.flagship_inputs_only}). Take it only if you hold one; "
                 "otherwise take a Deepen row above. Full list: portfolio/flagships.yaml."
             )
+        # A slice taken from `buildable:` is rewritten there, not in `next:`;
+        # saying only `next:` cost a run a retry (run records, 2026-11-14 and -16).
+        buildable_edit = ""
         if v.flagship_buildable:
             milestone = f"BUILDABLE HERE: {v.flagship_buildable} -- Context: {milestone}"
+            buildable_edit = (
+                " If you landed a BUILDABLE HERE item, rewrite it in `buildable:` instead "
+                "(same tool with `--field buildable`; drop the field when nothing buildable is left)."
+            )
         return (
             f"Deepen (flagship {v.flagship_rank + 1}): {milestone} "
             "Land a working slice, then rewrite this venture's `next:` in portfolio/flagships.yaml "
             f"(now {next_budget(v)}, validate.py's cap: replace what you landed, don't append; "
             f"`portfolio/router/flagship_field.py {v.name} --replace OLD NEW` edits it across line breaks; "
             "`--park ITEM` moves an open item to the venture's NEXT.md when there is no room)."
+            + buildable_edit
         )
     if not v.measured:
         claim = v.untested_hypothesis

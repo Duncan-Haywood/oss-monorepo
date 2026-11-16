@@ -778,6 +778,8 @@ class FlagshipTests(unittest.TestCase):
         self.assertIn("Context: Long history", task)
         self.assertIn("buildable here: (1) a second reader", venture_report("deep", [v]))
         self.assertNotIn("BUILDABLE", next_task(self.flag("plain", 1, "x")))
+        self.assertIn("--field buildable", task)
+        self.assertNotIn("--field buildable", next_task(self.flag("plain", 1, "x")))
 
     def test_row_hosts_reads_the_hosts_field_then_the_prose(self):
         v = self.flag("deep", 0, "Scans on archive.org; see README.md and calc.mjs, eval/x.jsonl.")

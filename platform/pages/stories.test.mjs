@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { loadFiction, renderStoriesPage, STORIES_PATH } from './stories.mjs';
+import { loadFiction, longDate, renderStoriesPage, STORIES_PATH } from './stories.mjs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadAudio as loadStoryAudio } from '../../ventures/hearth-and-horizon/generate.mjs';
@@ -68,4 +68,28 @@ test('minutes is the venture audio manifest length in seconds over 60, rounded',
     }
   }
   assert.ok(checked > 0, 'some audio exists to check');
+});
+
+test('a card leads with its hook: title, summary, then a one-line setting and a date/audio row', () => {
+  const shelf = {
+    id: 'demo', title: 'Demo', tagline: 't', description: 'd', audience: 'a', href: 'demo/', feed: 'demo/feed.xml',
+    count: 2, withAudio: 1,
+    items: [
+      { title: 'Heard', href: 'demo/heard.html', summary: 'Hook one.', meta: 'Kilnavarra (invented), Ireland, 2049', published: '2026-11-15', minutes: 8 },
+      { title: 'Read', href: 'demo/read.html', summary: 'Hook two.', meta: 'Episode 3', published: '2026-01-02', minutes: null },
+    ],
+  };
+  const html = renderStoriesPage([shelf]);
+  const card = html.slice(html.indexOf('>Heard</a>'), html.indexOf('</li>', html.indexOf('>Heard</a>')));
+  assert.ok(card.indexOf('Hook one.') < card.indexOf('class="where"'), 'hook comes before the setting');
+  assert.match(card, /<div class="where" title="Kilnavarra \(invented\), Ireland, 2049">/);
+  assert.match(card, /<time datetime="2026-11-15">15 November 2026<\/time><span class="audio">Audio, about 8 min<\/span>/);
+  const read = html.slice(html.indexOf('>Read</a>'));
+  assert.doesNotMatch(read.slice(0, read.indexOf('</li>')), /· text|class="audio"/, 'no "text" label and no audio badge without audio');
+});
+
+test('longDate writes ISO dates long and leaves anything else alone', () => {
+  assert.equal(longDate('2026-11-05'), '5 November 2026');
+  assert.equal(longDate('2026-13-05'), '2026-13-05');
+  assert.equal(longDate('soon'), 'soon');
 });
