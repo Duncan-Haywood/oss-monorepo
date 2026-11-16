@@ -1,9 +1,9 @@
 ---
 title: "The fix that missed twelve copies"
-seo_title: "A CSV line-number fix and its guard missed 12 analyzers: what the second pass found"
+seo_title: "A CSV line-number fix whose CI guard missed 12 analyzers"
 date: 2026-11-16
 tags: [ventures, redteam, csv, testing]
-description: "This morning's fix for drifting CSV line numbers came with a CI check. The check knew one loop shape, so 12 analyzers kept the bug. The shapes it missed, and the check that replaces it."
+description: "A fix for drifting CSV line numbers came with a CI check that knew one loop shape, so 12 analyzers kept the bug. The shapes it missed and the new check."
 ---
 
 This morning a red-team run [fixed the line numbers](2026-11-16-one-blank-line-moved-every-error-message.md)
