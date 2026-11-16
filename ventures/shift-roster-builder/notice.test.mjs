@@ -364,3 +364,69 @@ test("the hub under Oregon: join the standby list in writing, ask it on a call-o
   assert.doesNotMatch(await (await serve(sea, new Request("https://hub.example/team?t=tm"))).text(), /Standby list/);
   assert.equal((await serve(sea, new Request("https://hub.example/team/standby?t=tm", { method: "POST", body: new URLSearchParams({ name: sb, act: "join", agree: "yes" }) }))).status, 404);
 });
+
+test("Philadelphia: 20 min edge changes free, half of lost hours, team offer exempt, and $40 per short rest after a prior day's shift", () => {
+  const r = readNoticeEnv({ FAIR_WORKWEEK: "Philadelphia" }), wage = 18;
+  assert.equal(r.name, "philadelphia");
+  assert.equal(readNoticeEnv({ FAIR_WORKWEEK: "philly" }).name, "philadelphia");
+  // Added shift inside 14 days: 1 h; a cut 3 days out: half of 8 h (no 24 h split as in Chicago).
+  assert.equal(priceChange(ch("2026-11-20T15:00:00Z", "added", null, S(0, 9, 17)), r, { wage }).premium, 18);
+  assert.equal(priceChange(ch("2026-11-20T15:00:00Z", "cancelled", S(0, 9, 17), null), r, { wage }).premium, 72);
+  // Start moved 20 min later: free, the lost 20 min included; 21 min: half of 21 min.
+  assert.equal(priceChange(ch("2026-11-20T15:00:00Z", "moved", S(0, 9, 17), { ...S(0, 9, 17), startMin: 9 * 60 + 20 }), r, { wage }).premium, 0);
+  assert.equal(priceChange(ch("2026-11-20T15:00:00Z", "moved", S(0, 9, 17), { ...S(0, 9, 17), startMin: 9 * 60 + 21 }), r, { wage: 20 }).premium, 3.5);
+  // Hours taken from a written mass communication after a colleague's call-out: exempt.
+  const add = ch("2026-11-22T12:00:00Z", "added", null, S(0, 9, 17), { person: "Ben", cause: "team offer", massOffer: true, coverFor: "Ana" });
+  assert.equal(priceChange(add, r, { wage }).premium, 0);
+  // Rest: Sun 16-24 then Mon 08-16 is 8 h, under 9: $40 flat, no wage needed. Mon 9-13 then Mon 20-23 (same day) is not counted.
+  const prev = { weekStart: "2026-11-16", assignments: [A("Ana", S(6, 16, 24))] };
+  const week = { weekStart: WS, assignments: [A("Ana", S(0, 8, 16)), A("Ben", S(1, 9, 13)), A("Ben", S(1, 20, 23)), A("Cy", S(2, 14, 23)), A("Cy", S(3, 7, 12))] };
+  const rests = shortRests(week, prev, r);
+  assert.deepEqual(rests.map((x) => `${x.person} ${x.premium}`), ["Ana 40", "Cy 40"]);
+  // Seattle counts Ben's same-day split (7 h apart) and prices hours, not a flat sum.
+  assert.ok(shortRests(week, prev, FWW_PRESETS.seattle, new Map([["Ben", 20]])).some((x) => x.person === "Ben" && x.premium === 30));
+});
+
+test("Los Angeles (city): 15 min added free, half of lost hours, no team-offer exception, time and a half on the whole later shift", () => {
+  const r = readNoticeEnv({ FAIR_WORKWEEK: "LA" }), wage = 20;
+  assert.equal(r.name, "los-angeles");
+  assert.equal(readNoticeEnv({ FAIR_WORKWEEK: "los angeles" }).name, "los-angeles");
+  assert.equal(priceChange(ch("2026-11-20T15:00:00Z", "moved", S(0, 9, 17), { ...S(0, 9, 17), endMin: 17 * 60 + 15 }), r, { wage }).premium, 0);
+  assert.equal(priceChange(ch("2026-11-20T15:00:00Z", "moved", S(0, 9, 17), { ...S(0, 9, 17), endMin: 17 * 60 + 16 }), r, { wage }).premium, 20);
+  assert.equal(priceChange(ch("2026-11-20T15:00:00Z", "cancelled", S(0, 9, 17), null), r, { wage }).premium, 80);
+  const add = ch("2026-11-22T12:00:00Z", "added", null, S(0, 9, 17), { person: "Ben", cause: "team offer", massOffer: true, coverFor: "Ana" });
+  const p = priceChange(add, r, { wage });
+  assert.equal(p.premium, 20); assert.match(p.why, /no team-offer exception/);
+  // Sun 16-24 then Mon 08-16: 8 h rest. Seattle pays 0.5 x 2 h inside the window; the city of LA 0.5 x the whole 8 h shift.
+  const prev = { weekStart: "2026-11-16", assignments: [A("Ana", S(6, 16, 24))] };
+  const week = { weekStart: WS, assignments: [A("Ana", S(0, 8, 16))] };
+  const wages = new Map([["Ana", 20]]);
+  assert.equal(shortRests(week, prev, FWW_PRESETS.seattle, wages)[0].premium, 20);
+  const la = shortRests(week, prev, r, wages)[0];
+  assert.equal(la.paidH, 8); assert.equal(la.insideH, 2); assert.equal(la.premium, 80);
+  // The new switches can be typed onto any preset, and flags above 1 are refused.
+  const c = readNoticeEnv({ FAIR_WORKWEEK: "seattle", FWW_REST_WHOLE_SHIFT: "1", FWW_REST_FLAT: "25", FWW_REST_ACROSS_DAYS: "2" });
+  assert.equal(c.restWhole, 1); assert.equal(c.restFlat, 25); assert.equal(c.restAcross, 0);
+  assert.equal(shortRests(week, prev, c, wages)[0].premium, 105);
+});
+
+test("the hub's changes page states the Philadelphia and Los Angeles rest rules and prices a short rest", async () => {
+  for (const [name, label, rule, cell] of [
+    ["philadelphia", /Philadelphia Fair Workweek/, /a shift starting under 9 h after the end of a prior day&#39;s shift pays \$40\.00 each|a shift starting under 9 h after the end of a prior day's shift pays \$40\.00 each/, /\$40\.00/],
+    ["los-angeles", /Los Angeles Fair Work Week \(city\)/, /under 10 h after the last shift pays 1\.5x for the whole later shift/, /\$80\.00/],
+  ]) {
+    const state = emptyState();
+    state.weekStart = WS;
+    state.staff = "name, wage, max hours, min hours, availability\nAna, 20, 40, 0, Mon-Sun 0-24";
+    state.shifts = "day, start, end, people needed, label\nMon, 16, 24, 1, close\nTue, 8, 16, 1, open";
+    assert.ok(publish(state, at("2026-11-01T09:00:00Z")).ok);
+    // The builder itself avoids the close-then-open, so the manager fills Tuesday by hand.
+    state.published.assignments[1].person = "Ana";
+    const hub = handler(state, () => {}, { ADMIN_KEY: "adm", TEAM_TOKEN: "tm", TIMEZONE: "UTC", FAIR_WORKWEEK: name }, () => at("2026-11-21T12:00:00Z"), null);
+    const page = await (await serve(hub, new Request("https://hub.example/admin/changes?key=adm"))).text();
+    assert.match(page, label, name);
+    assert.match(page, rule, name);
+    assert.match(page, /Short rests this week/, name);
+    assert.match(page, cell, name);
+  }
+});

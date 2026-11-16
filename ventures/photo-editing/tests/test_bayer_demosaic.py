@@ -362,6 +362,48 @@ class DirectionalTests(unittest.TestCase):
         folds = list(t.cv_folds([{"group": g, "synthetic": syn} for g, syn in tags]))
         self.assertEqual(folds, [([0, 1, 2], [3, 4, 5, 6]), ([3, 4], [0, 1, 2, 5, 6])])
 
+    @unittest.skipUnless(has_numpy(), "numpy not installed")
+    def test_oracle_ceiling_tiles(self):
+        """tools/bayer_oracle_ceiling.py (eval/bayer-oracle-ceiling-2026-11-16.md): the box sum matches a
+        brute-force sum; each tile's weight is the best constant on a fine grid; the 1 x 1 tile oracle is the
+        trainer's per-sensel oracle on the same sample; nested tiles (1, 2, 4, ... 32) never gain more as
+        they grow; the trainer's sample is drawn the same way."""
+
+        import numpy as np
+
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+        import bayer_laplace_train as t
+        import bayer_oracle_ceiling as oc
+
+        rng = np.random.default_rng(3)
+        a = rng.random((9, 11))
+        for b in (1, 2, 4, 5):
+            lo = b // 2
+            ref = np.array([[a[max(0, y - lo) : max(0, y - lo + b), max(0, x - lo) : max(0, x - lo + b)].sum()
+                             for x in range(11)] for y in range(9)])
+            self.assertTrue(np.allclose(oc.box_sum(a, b), ref), b)
+
+        D = rng.normal(size=(8, 8))
+        ws = rng.uniform(0.0, 0.4, size=(8, 8))
+        wt = oc.tile_weights(D * D * ws, D * D, 4)
+        grid = np.linspace(0.125, 0.25, 1251)
+        for ty in (0, 4):
+            for tx in (0, 4):
+                d, w = D[ty : ty + 4, tx : tx + 4], ws[ty : ty + 4, tx : tx + 4]
+                best = grid[np.argmin([np.sum(d * d * (g - w) ** 2) for g in grid])]
+                self.assertAlmostEqual(float(wt[ty, tx]), float(best), delta=1e-4)
+                self.assertTrue(np.all(wt[ty : ty + 4, tx : tx + 4] == wt[ty, tx]))
+
+        truth = t.near_nyquist_texture(seed=1, n=128, tile=32)
+        scores, s = oc.copy_rows(truth, (0, 1, 1, 2), seed=0, snr=None, per_frame=2000)
+        gains = [scores[f"tile{b}"] for b in oc.TILES]
+        self.assertTrue(all(x <= y * (1 + 1e-9) for x, y in zip(gains, gains[1:])), gains)
+        self.assertLess(scores["tile1"], min(scores["1/8"], scores["1/4"], scores["B"]))
+        ref = t.truth_samples(truth, (0, 1, 1, 2), 2000, seed=0)
+        for k in ("g8", "g4", "g316", "gt"):
+            self.assertTrue(np.allclose(s[k], ref[k], atol=1e-6), k)
+        self.assertTrue(np.allclose(s["X"], ref["X"][:, :8], atol=1e-6))
+
 
 class DeveloperChoiceTests(unittest.TestCase):
     def raw(self):

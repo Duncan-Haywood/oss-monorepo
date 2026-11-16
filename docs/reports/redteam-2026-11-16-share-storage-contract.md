@@ -28,5 +28,8 @@ contract rejects can still read as escaped. Extending the usage-contract patch
 to cover share.mjs is control plane (`/prompts/`).
 
 Also fixed: moving-bid-calculator's hourly section told a blank form (every
-cost zero) that "$0.00/h does not cover $0.00/h of labor" (`belowLaborCost`
-now needs `variablePerHour > 0`; `ceilTo` no longer returns -0).
+cost zero) that "$0.00/h does not cover $0.00/h of labor" (`ceilTo` no
+longer returns -0; the `belowLaborCost` half was fixed concurrently by #16602,
+whose `quotedRate < variablePerHour - 1e-9` also covers it). Two red-team runs
+chose this venture in the same hour: check open `redteam:` PRs right before
+seeding, not only at the start.

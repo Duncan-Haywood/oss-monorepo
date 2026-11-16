@@ -359,5 +359,10 @@ class RedTeam20261116(unittest.TestCase):
         self.assertEqual((f1["line"], f1["image"], f1["classification"]), (5, "ubuntu", dbc.PINNED))
 
 
+    def test_backslash_right_after_the_tag_drops_only_the_backslash(self):
+        findings = dbc.scan_text("FROM node:20\\\n  AS build\nFROM build\n", filename="Dockerfile")
+        self.assertEqual(len(findings), 1)
+        self.assertEqual((findings[0]["line"], findings[0]["image"], findings[0]["tag"]), (1, "node", "20"))
+
 if __name__ == "__main__":
     unittest.main()

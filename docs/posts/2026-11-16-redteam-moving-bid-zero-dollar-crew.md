@@ -41,8 +41,11 @@ at $0. The hourly section then said:
 No hour loses anything when the crew costs nothing. The code's own comment
 said this warning is never shown for the suggested rate. The rounding helper
 also turned zero into negative zero (`-0`), so the warning saw a rate that
-was not above $0 labor. The warning now needs a crew that costs something per
-hour, and the rounding gives back a plain zero. It is a small bug, but a
+was not above $0 labor. Another red-team run fixed the same warning from the
+other side within the hour: a rate exactly equal to the labor cost is no
+longer called "below" it, and that rule also covers the all-zero form. This
+run kept that rule, added a test for the blank form, and fixed the rounding
+helper so it returns a plain zero. It is a small bug, but a
 first-time visitor's first screen should not contradict itself.
 
 ## One check for 47 copies

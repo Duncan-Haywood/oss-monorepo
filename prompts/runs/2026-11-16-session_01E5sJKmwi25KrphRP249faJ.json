@@ -40,6 +40,10 @@
     {
       "what": "platform/distribution/shorts.test.mjs failed once inside the parallel local ventures-tests sweep",
       "fixed": "passes 10/10 run alone; not touched by this diff, read as load flake"
+    },
+    {
+      "what": "Did not see #16602 (opened the same hour on the same target) before starting; merge conflict at belowLaborCost",
+      "fixed": "kept main's condition, which subsumes this run's fix"
     }
   ],
   "integrity_issues": [],
@@ -55,6 +59,10 @@
     {
       "file": "docs/taxonomy.json",
       "issue": "'ventures' is not a report topic (product-build is); doc_index check caught it, cheap but a predictable miss."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Two red-team runs picked moving-bid-calculator the same hour (both from 'files changed on main in the last 3 days'). The duplicate-PR search ran on titles containing 'redteam' but #16602 was not yet open; a claim file or a seeded tie-break on --target would avoid it."
     }
   ],
   "deviations": [
@@ -70,7 +78,7 @@
     "docs/reports/redteam-2026-11-16-share-storage-contract.md"
   ],
   "goal": "Measure and raise the catch rate on a just-changed, user-facing pricing tool, and leave an automated guard for the shared share.mjs storage code.",
-  "notes": "Campaigns: calc.mjs 12 mutants 10 caught, share.mjs 8 mutants 6 caught; rerun after tests: 20/20 (catch_rate 0.8 -> 1.0). Real defect: zero-cost hourly 'below labor cost' warning, patched. Guard added: platform/ci/check_share_storage_contract.py (47 copies checked, 3 other-design skipped, 0 breaches, 0.6 s; runs via unwired_checks.py) with test_check_share_storage_contract.py (4 tests OK, re-applies both escaped mutants). Local verification: moving-bid-calculator node --test 143 pass 0 fail; check_share_decoders 0 crashed; doc_index ok; check_post_frontmatter ok; run_workflow_locally --for-changes: portfolio-validate 99/100 (the 1 was the long description, fixed), ventures-tests one unrelated flake (shorts.test.mjs passes alone), pages/checklist/conflict-markers green; agent-cross-review and deploy jobs not run locally.",
+  "notes": "Campaigns: calc.mjs 12 mutants 10 caught, share.mjs 8 mutants 6 caught; rerun after tests: 20/20 (catch_rate 0.8 -> 1.0). Real defect: zero-cost hourly 'below labor cost' warning, patched. Guard added: platform/ci/check_share_storage_contract.py (47 copies checked, 3 other-design skipped, 0 breaches, 0.6 s; runs via unwired_checks.py) with test_check_share_storage_contract.py (4 tests OK, re-applies both escaped mutants). Local verification: moving-bid-calculator node --test 143 pass 0 fail; check_share_decoders 0 crashed; doc_index ok; check_post_frontmatter ok; run_workflow_locally --for-changes: portfolio-validate 99/100 (the 1 was the long description, fixed), ventures-tests one unrelated flake (shorts.test.mjs passes alone), pages/checklist/conflict-markers green; agent-cross-review and deploy jobs not run locally. Merged origin/main after a conflict with #16602 (same target, concurrent run): kept main's belowLaborCost condition; 145 venture tests pass after the merge; tally 20/20 after fix with line 191 graded by hand.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -220,7 +228,7 @@
             "seconds": 0.6,
             "triage": "gap",
             "caught_after_fix": true,
-            "note": "No test had a rate earning between $0 and $1/h above the margin; marginHours went null. Test at 50 cents/h over crew cost."
+            "note": "No test had a rate earning between $0 and $1/h above the margin; marginHours went null. Test at 50 cents/h over crew cost. After merging main (#16602 moved the line into hoursToCover), re-applied by hand as `perHour > 1` at calc.mjs:196: the new test fails, so caught."
           },
           {
             "file": "ventures/moving-bid-calculator/calc.mjs",
@@ -378,7 +386,7 @@
     "real_defects": [
       {
         "file": "ventures/moving-bid-calculator/calc.mjs",
-        "issue": "With every cost at zero (a blank form) the suggested hourly rate came out as -0 and belowLaborCost was true, contradicting the code's own comment ('never true for the suggested rate'), so the page said 'At $0.00/h the rate does not cover the crew's loaded labor of $0.00/h, so every extra hour loses more'. Fixed: ceilTo normalises -0, belowLaborCost requires variablePerHour > 0; failing-first test in calc.test.mjs.",
+        "issue": "With every cost at zero (a blank form) the suggested hourly rate came out as -0 and belowLaborCost was true, contradicting the code's own comment ('never true for the suggested rate'), so the page said 'At $0.00/h the rate does not cover the crew's loaded labor of $0.00/h, so every extra hour loses more'. Fixed: ceilTo normalises -0, belowLaborCost requires variablePerHour > 0; failing-first test in calc.test.mjs. Merge note: #16602 (a concurrent red-team run on the same file) changed belowLaborCost to `quotedRate < variablePerHour - 1e-9`, which also covers the zero-cost case; the merge kept main's condition plus this run's ceilTo -0 fix, and this run's test passes on it.",
         "patched": true
       }
     ]
