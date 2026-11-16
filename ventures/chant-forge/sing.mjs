@@ -195,7 +195,8 @@ export const VOICE_BAR_DB = 28;
 // Hz low-passes the nasal murmur uses), and voiceBarGain takes that into account. Tried, not shipped: it
 // read 7 more of part N's voiced stops but cost part A and part P, and the openings (consonant-check A 195 to
 // 192, B 812 to 808), so it is off by default: `voiceBarWall: true` (a singNote option; `renderMidi(..., {
-// voiceBarWall: true })`) turns it on.
+// voiceBarWall: true })`) turns it on;
+// `voiceBarWall: 'coda'` walls the codas' bars only (2026-11-16, README "The wall in codas only").
 const WALL_HZ = 400;
 function wallPow(hz, rate) {
   const a = 1 - Math.exp((-2 * Math.PI * WALL_HZ) / rate), w = (2 * Math.PI * hz) / rate;
@@ -463,7 +464,9 @@ function rawSing(f, dur, rate, vowel, glide, opts, seed) {
   const from = tuneF1(FORMANTS[vowel] || FORMANTS.a, f, o.f1Tune), to = glide ? tuneF1(FORMANTS[glide], f, o.f1Tune) : from;
   const on = onset.length ? onsetTracks(onset, dur, total, rate, from, rng(seed ^ 0x5bd1e995), rawRms(rate), o.onsetShare, room, o.lateralLevel === false || o.onsetLateral === 'first' ? null : (c) => lateralGain(f, rate, from, c), o.voiceBarLevel === false ? null : (c) => voiceBarGain(f, rate, from, c, VOICE_BAR_DB, o.voiceBarWall === true), o.voiceBarWall === true) : null;
   const coda = o.coda || [];
-  const cd = coda.length ? codaTracks(coda, dur, lead + dur, total, rate, to, rng(seed ^ 0x27d4eb2f), rawRms(rate), o.codaShare, o.lateralLevel === false ? null : (c) => lateralGain(f, rate, to, c), o.voiceBarLevel === false ? null : (c) => voiceBarGain(f, rate, to, c, VOICE_BAR_DB, o.voiceBarWall === true), o.voiceBarWall === true) : null;
+  // `voiceBarWall: 'coda'` walls a closing b, d or g only, so the openings are sung as before (README "The wall in codas only")
+  const codaWall = o.voiceBarWall === true || o.voiceBarWall === 'coda';
+  const cd = coda.length ? codaTracks(coda, dur, lead + dur, total, rate, to, rng(seed ^ 0x27d4eb2f), rawRms(rate), o.codaShare, o.lateralLevel === false ? null : (c) => lateralGain(f, rate, to, c), o.voiceBarLevel === false ? null : (c) => voiceBarGain(f, rate, to, c, VOICE_BAR_DB, codaWall), codaWall) : null;
   // a diphthong reaches its second vowel by the coda (or the note's end)
   const g0 = Math.round((lead + o.glideFrom * dur) * rate), g1 = Math.max(g0 + 1, Math.round((cd ? cd.plan.codaAt - TRANSITION * cd.plan.scale : lead + dur) * rate));
   const st = new Float64Array(10); // two state values per resonator

@@ -1,0 +1,209 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVKydFK5uAXsvDWBw49",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "[scheduled] continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "a2e75fba3c0b67aae1dd7ede48c600229241d2989912220c18156091b240b65e",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T18:59:06Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "redteam campaign on ventures/gitignore-explainer/gitignore.mjs",
+  "projects": [
+    "gitignore-explainer"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16671",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "git checkout of gitignore.mjs during a with/without check reverted the fix; restored from a scratch copy before commit",
+      "impact": "none"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-redteam-gitignore-global-folder.md"
+  ],
+  "goal": null,
+  "notes": "Step 0: all 9 open entries are control-plane (prompts/, .github/workflows, platform/ci/control_plane_guard.py) with their own PRs awaiting owner approval (#14612, #15945 and others); not duplicated. Campaign: 10 mutants, 6 caught; 3 gaps tested, 1 equivalent; rerun all gaps caught_after_fix true (run before the defect fix, on a green suite). Guard added: gitignore.diff.test.mjs differential pass vs git check-ignore with label-like folder names (150 repos, 2440 paths agree on git 2.43; fails on the pre-fix code). Verification: node --test in ventures/gitignore-explainer 58 pass 0 fail.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/gitignore-explainer/gitignore.mjs",
+        "test": "node --test ventures/gitignore-explainer/**/*.test.mjs  (in .)",
+        "seed": 36802799,
+        "commit": "b619b9989",
+        "sites": 467,
+        "baseline_seconds": 6.0,
+        "mutants": [
+          {
+            "file": "ventures/gitignore-explainer/gitignore.mjs",
+            "line": 117,
+            "col": 29,
+            "operator": "plus-to-minus",
+            "before": "const start = pi + 2;",
+            "after": "const start = pi - 2;",
+            "line_text": "            const start = pi + 2;",
+            "caught": true,
+            "seconds": 2.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/gitignore-explainer/gitignore.mjs",
+            "line": 123,
+            "col": 25,
+            "operator": "minus-to-plus",
+            "before": "pi = start - 2;",
+            "after": "pi = start + 2;",
+            "line_text": "              pi = start - 2;",
+            "caught": false,
+            "seconds": 5.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test of [[: without :] (literal [ in a set); added one checked against git status --ignored."
+          },
+          {
+            "file": "ventures/gitignore-explainer/gitignore.mjs",
+            "line": 127,
+            "col": 46,
+            "operator": "const-plus-one",
+            "before": "const name = p.slice(start, j - 1);",
+            "after": "const name = p.slice(start, j - 2);",
+            "line_text": "              const name = p.slice(start, j - 1);",
+            "caught": true,
+            "seconds": 2.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/gitignore-explainer/gitignore.mjs",
+            "line": 237,
+            "col": 80,
+            "operator": "or-to-and",
+            "before": "if (path === \".git/info/exclude\" || /(^|\\/)\\.config\\/git\\/ignore$/.test(path) || /^(global|core\\.excludesfile|excludesfile)\\b/i.test(path)) {",
+            "after": "if (path === \".git/info/exclude\" || /(^|\\/)\\.config\\/git\\/ignore$/.test(path) && /^(global|core\\.excludesfile|excludesfile)\\b/i.test(path)) {",
+            "line_text": "  if (path === \".git/info/exclude\" || /(^|\\/)\\.config\\/git\\/ignore$/.test(path) || /^(global|core\\.excludesfile|excludesfile)\\b/i.test(path)) {",
+            "caught": false,
+            "seconds": 5.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test of a ~/.config/git/ignore source; added one."
+          },
+          {
+            "file": "ventures/gitignore-explainer/gitignore.mjs",
+            "line": 287,
+            "col": 139,
+            "operator": "const-plus-one",
+            "before": "else if (special === 0 && pattern[0] === \"*\" && pattern.slice(1).search(/[*?[\\\\]/) === -1) s = { exact: undefined, suffix: pattern.slice(1) };",
+            "after": "else if (special === 0 && pattern[0] === \"*\" && pattern.slice(1).search(/[*?[\\\\]/) === -1) s = { exact: undefined, suffix: pattern.slice(2) };",
+            "line_text": "  else if (special === 0 && pattern[0] === \"*\" && pattern.slice(1).search(/[*?[\\\\]/) === -1) s = { exact: undefined, suffix: pattern.slice(1) };",
+            "caught": true,
+            "seconds": 1.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/gitignore-explainer/gitignore.mjs",
+            "line": 295,
+            "col": 16,
+            "operator": "and-to-or",
+            "before": "if (rule.base && !path.startsWith(rule.base + \"/\")) return false;",
+            "after": "if (rule.base || !path.startsWith(rule.base + \"/\")) return false;",
+            "line_text": "  if (rule.base && !path.startsWith(rule.base + \"/\")) return false;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/gitignore-explainer/gitignore.mjs",
+            "line": 406,
+            "col": 20,
+            "operator": "lt-to-le",
+            "before": "for (let i = 1; i < s.length; i++) {",
+            "after": "for (let i = 1; i <= s.length; i++) {",
+            "line_text": "  for (let i = 1; i < s.length; i++) {",
+            "caught": false,
+            "seconds": 5.5,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "unquoteC: with <= the extra pass reads s[length] (undefined), pushes junk bytes, then the loop ends and returns null exactly as the unterminated-quote path already does; no input can reach the return inside the loop on that pass."
+          },
+          {
+            "file": "ventures/gitignore-explainer/gitignore.mjs",
+            "line": 411,
+            "col": 60,
+            "operator": "const-plus-one",
+            "before": "if (/^[0-3][0-7]{2}$/.test(o)) { bytes.push(parseInt(o, 8)); i += 3; continue; }",
+            "after": "if (/^[0-3][0-7]{2}$/.test(o)) { bytes.push(parseInt(o, 9)); i += 3; continue; }",
+            "line_text": "    if (/^[0-3][0-7]{2}$/.test(o)) { bytes.push(parseInt(o, 8)); i += 3; continue; }",
+            "caught": true,
+            "seconds": 5.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/gitignore-explainer/gitignore.mjs",
+            "line": 756,
+            "col": 89,
+            "operator": "plus-to-minus",
+            "before": "? `It contains a \\`/\\`, so it only matches relative to ${r.base ? \"`\" + r.base + \"/`\" : \"the repository root\"}. To match at any depth, write \\`**/${r.pattern}${r.dirOnly ? \"/\" : \"\"}\\`. `",
+            "after": "? `It contains a \\`/\\`, so it only matches relative to ${r.base ? \"`\" + r.base - \"/`\" : \"the repository root\"}. To match at any depth, write \\`**/${r.pattern}${r.dirOnly ? \"/\" : \"\"}\\`. `",
+            "line_text": "          ? `It contains a \\`/\\`, so it only matches relative to ${r.base ? \"`\" + r.base + \"/`\" : \"the repository root\"}. To match at any depth, write \\`**/${r.pattern}${r.dirOnly ? \"/\" : \"\"}\\`. `",
+            "caught": false,
+            "seconds": 5.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "unmatched-rule detail text for a nested file was never asserted; the mutant prints NaN in place of the folder."
+          },
+          {
+            "file": "ventures/gitignore-explainer/gitignore.mjs",
+            "line": 808,
+            "col": 27,
+            "operator": "true-to-false",
+            "before": "const x = explain(cur, true);",
+            "after": "const x = explain(cur, false);",
+            "line_text": "    const x = explain(cur, true);",
+            "caught": true,
+            "seconds": 6.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/gitignore-explainer/gitignore.mjs",
+        "issue": "classifySource read any bundle label starting with global/excludesfile/core.excludesFile as a repo-wide global excludes file, so global/.gitignore or global-config/.gitignore applied its rules across the whole repository (rule foo ignored other/foo). Reproduced with resolver(compile(...)).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16671"
+      }
+    ]
+  }
+}
