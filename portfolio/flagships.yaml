@@ -379,11 +379,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "Slow wheels
-      need slower gains" (gains scaled under 1,500 rpm, 6-revolution gate hold).
-      Next: why one 1,107 rpm wheel read 1.48x its drop through the loop fit (build
-      0.7/0.35, eval/low-speed-loop-drill-2026-11-16.txt); a tach averaging a fixed
-      time, not 4 revolutions; 14 of 336 balls still fed over 3% off.
+      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "The 1.48x
+      wheel" (HOLD_RPM 3,000) and "A tach that averages a fixed time" (built, off:
+      it cost the drop fits). Next: wheels under 750 rpm get 3-4 revolutions before
+      the verdict (keep the snapshot past it until the targets change); warn before
+      a calibration drill when the survey sees an ESC lag ESC_TAU_US lacks (the hold
+      hurts then); does the hold make shots late?
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
