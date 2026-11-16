@@ -36,6 +36,8 @@ The associations travel between groups, but the levels do not:
 
 Gradient boosting adds almost nothing over logistic regression (median +0.003 AUC).
 
+**Paper draft (milestone 6):** [`paper/draft.md`](paper/draft.md), a methods paper for *Sociological Methods & Research* on rotating an item off a subgroup's ballot: why a transferred model misses the level, how big a calibration subsample to keep, shrinkage with robust empirical Bayes intervals, and the by-kind prior rule with its fresh-item test. Every number is tied to a results file by `paper/check_numbers.py` (71 checks); citations in [`paper/references.bib`](paper/references.bib).
+
 Research programme, AI-assisted (Claude), on the owner's request: [`PROPOSAL.md`](PROPOSAL.md), [`LOG.md`](LOG.md) (hypotheses written before each run, then outcomes), full tables in [`experiments/m1_imputation/results/summary.md`](experiments/m1_imputation/results/summary.md).
 
 **Live page:** https://marisstella.app/research/christian-belief-models/
@@ -79,7 +81,8 @@ python3 experiments/m6_calibration/summarise.py            # results/summary.md 
 OMP_NUM_THREADS=1 python3 experiments/m6_allocation/run.py --jobs 4   # ~1 min on 4 cores; budget split across subgroups, results/families.csv
 python3 experiments/m6_allocation/summarise.py             # results/summary.md and loss_by_budget.svg
 python3 experiments/m6_kindsel/run.py                     # ~40 s on 4 cores; per-kind prior choice without the rotated item, from committed CSVs
-python3 -m pytest test_recode.py test_mice.py test_drift_intervals.py test_mixture.py test_period_mixture.py test_shift_bound.py test_calibration.py test_allocation.py test_prior.py test_kindsel.py
+python3 -m pytest test_recode.py test_mice.py test_drift_intervals.py test_mixture.py test_period_mixture.py test_shift_bound.py test_calibration.py test_allocation.py test_prior.py test_kindsel.py test_paper_numbers.py
+python3 paper/check_numbers.py                  # stdlib; every number in paper/draft.md against the results files
 ```
 
 Needs `pandas`, `numpy` and `scikit-learn`. Set `GSS_DTA` to point at an existing `gss7224_r3a.dta`.
