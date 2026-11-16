@@ -48,6 +48,8 @@ class AxisError:
     s_surf: float          # surface offset sigma (m)
     s_depth: float         # depth offset sigma (m), joint errors only
     rho: float             # their correlation
+    mu_s: float = 0.0      # fixed surface offset (m): a bias calibration left (milestone 31)
+    mu_d: float = 0.0      # fixed depth offset (m)
 
 
 @dataclass
@@ -62,8 +64,8 @@ class ToolError:
         e = self.y if axis == "y" else self.z
         z1 = rng.normal(0.0, 1.0, shape)
         z2 = rng.normal(0.0, 1.0, shape)
-        s = e.s_surf * z1
-        d = e.s_depth * (e.rho * z1 + math.sqrt(max(0.0, 1 - e.rho ** 2)) * z2)
+        s = e.s_surf * z1 + e.mu_s
+        d = e.s_depth * (e.rho * z1 + math.sqrt(max(0.0, 1 - e.rho ** 2)) * z2) + e.mu_d
         if self.s_lean > 0:
             d = d + self.depth * np.tan(rng.normal(0.0, self.s_lean, shape))
         return s, d

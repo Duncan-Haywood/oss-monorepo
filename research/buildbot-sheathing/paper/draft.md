@@ -553,6 +553,20 @@ theirs. The nailer's 12-11/16 in height puts the grip 0.29–0.32 m behind the n
 0.2792 to 0.2354), and a handle 0.15 m above the drive axis costs the 11-bit G1 8.02 points
 through the hand's roll, while one below it gains 4.08.
 
+That calibration holds at the pose it was taken at (milestone 31). Over the 15 poses a stock G1
+reaches from one stance (hand heights 0.4–1.2 m, hands shifted 0.15 m either way along the wall),
+13–20 of the 22 joints that move the nose stay held, fewest near the top of the reach, where knees,
+shoulder and wrist joints go loose. Calibrated at every pose, 5 arcmin then costs the 12-bit G1
+between 0.33 and 9.93 points; the worst is the 1.2 m pose, 0.9131 to 0.8138. Three joints held at
+every pose (both hip yaws and the waist roll, −27.83 to +19.97 N m) change the sign of their torque
+across the grid, so they rest on the other side of their gaps. A single tool-frame calibration at
+the 1.0 m pose therefore leaves a fixed offset of every nail along the wall of up to 3.394 mm (at 0.4 m, shifted
+0.15 m), mostly from those sign flips, and the single-2x stack falls to 0.0000 there. Kept within
+2 points of each pose's own stack at every pose, 12-bit joints tolerate 2.49 arcmin with per-pose
+calibration and 0.44 arcmin with one calibration (13 bits: 4.13 and 0.79). A stock-gearbox
+humanoid therefore needs the bias predicted at every pose (from the static torques, which give
+the side of each gap) rather than one tool offset.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every
@@ -691,7 +705,8 @@ readings a robot's escaped misses cost about the same (2.73% and 2.67% mean in h
   pulled-off foot when backing it out are checked but not simulated, and the ledger height (0.5 m)
   that sets the G1's push is the model's, not a measured site value.
 - **The tool point.** Joint quantisation and gear backlash are carried to the nailer's nose; link
-  and tool-mount deflection under the press, and calibration, are not. The backlash is swept (no
+  and tool-mount deflection under the press are not, and calibration is modelled as exact, either at
+  every pose or once at one pose (milestone 31). The backlash is swept (no
   G1 figure is published), which joints are held depends on the least-norm split of the ground
   reaction rather than a balance controller's, and the handle's offset from the drive axis is
   swept; the grip's 0.29–0.32 m behind the nose follows the nailer's published height, and the
@@ -728,7 +743,8 @@ measured: stud profiles, panel squareness, stage times, the cost of a missed nai
 ultimate for a 16d end-nailed joint, and a mock-up to check the whole chain. The tool error that reaches
 the nail is a tool-point quantity: a stock G1's 11-bit joints leave 1.3 mm at a nailer's nose, 12-bit
 joints restore 93% clean single-2x sheets, and gear backlash costs nothing more if the balance
-controller keeps the ankle-roll joints loaded one way.
+controller keeps the ankle-roll joints loaded one way, provided the held joints' bias is compensated
+pose by pose: one calibration leaves up to 3.4 mm at the edge of the reach.
 
 ## Data and code availability
 

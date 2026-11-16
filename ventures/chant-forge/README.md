@@ -1940,6 +1940,23 @@ porrectus listed before their pages were read (`eval/broken-stroke-fresh-pages.j
 ways, 2,869 agreeing and 2 differing. The rule fires on 43 of 303 leaves; 12 crops looked at are all
 real stroke tops.
 
+### A liquescent whose small note sits on a staff line (2026-11-16)
+
+GregoBase 3464's *sanc-* `fd~` was read e for d: a cephalicus whose hook straddles a line that, crowded
+with heads, was measured 8 px thick where its ink is 3 px. The reader counts a line's rows as ink only
+where ink runs out past them, so the hook was traced only to the line's near edge and its small note
+read a step too close to the head. Now an accepted tail whose end stops at a line's near edge is moved
+to the line's far edge when the small note straddles the line (its ink crosses at least 0.08 spaces
+further than the line's own ink beside it; `LIQ.onLine`, `LIQ.straddle` in `scan.mjs`,
+`readPage(img, { hookOnLine: false })` reads as before). Set on the 113 pieces of the eleven earlier
+lists in four tries (the first three broke up to 8 small notes printed in the space beside a line);
+frozen, it moves two notes, both wrong to right, and nothing else. Held out, fifteen pieces with 25
+liquescents whose small note is on a line, listed and committed before their pages were read
+(`eval/hook-fresh-pages.json`): the registered gain **failed**, since the rule moved nothing, and
+nothing got worse. Main already reads 22 of the 25. Two of the three misses are a different shape, a
+one-step cephalicus whose head and small note the reader takes for one head at the small note's pitch:
+next. Details: `eval/hook-on-line-check.md`; run `node eval/hook-on-line-check.mjs <lists>`.
+
 ## Not checked yet
 
 - `examples/dies-irae-incipit.gabc` is the widely quoted opening motif
