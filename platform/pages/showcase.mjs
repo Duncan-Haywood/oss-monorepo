@@ -34,7 +34,10 @@ export function loadShowcase(publishedSlugs, source = SHOWCASE_SOURCE) {
   if (!existsSync(file)) return { shots: [], reel: null };
   const manifest = JSON.parse(readFileSync(file, 'utf8'));
   const published = new Set(publishedSlugs);
-  const shots = (manifest.shots ?? []).filter((s) => published.has(s.slug) && existsSync(path.join(source, s.file)));
+  const shots = (manifest.shots ?? [])
+    .filter((s) => published.has(s.slug) && existsSync(path.join(source, s.file)))
+    // A hero crop whose file is missing drops out; the hero falls back to the full still.
+    .map(({ hero, ...s }) => (hero && existsSync(path.join(source, hero)) ? { ...s, hero } : s));
   const reel = manifest.reel && ['webm', 'mp4', 'poster'].every((k) => existsSync(path.join(source, manifest.reel[k])))
     ? { ...manifest.reel, tools: (manifest.reel.tools ?? []).filter((slug) => published.has(slug)) }
     : null;
@@ -43,7 +46,7 @@ export function loadShowcase(publishedSlugs, source = SHOWCASE_SOURCE) {
 
 /** Publish the files the showcase names, and nothing else from that folder. */
 export async function copyShowcase(outDir, showcase, source = SHOWCASE_SOURCE) {
-  const files = [...showcase.shots.map((s) => s.file)];
+  const files = showcase.shots.flatMap((s) => (s.hero ? [s.file, s.hero] : [s.file]));
   if (showcase.reel) files.push(showcase.reel.webm, showcase.reel.mp4, showcase.reel.poster);
   if (!files.length) return 0;
   await fs.mkdir(path.join(outDir, SHOWCASE_DIR), { recursive: true });
@@ -128,6 +131,9 @@ export const HERO_TOOLS = ['wall-framing-takeoff', 'ebay-fee-calculator', 'conta
  * (polish-2026-11-16-hero-art.md: at 1,280 px the right 35% of the hero was
  * empty starfield). Each is a link to its tool. Hidden below 1,180 px, where
  * there is no column for it, and lazy, so a phone never fetches the images.
+ * A still's `hero` crop (capture.mjs, HERO_VIEWPORT: the tool's drawing or
+ * table at 720 px, saved 600 x 375) is used when there is one; the full-page
+ * still drops its text to about 3 px at this size.
  */
 export function renderHeroArt(shots, titleFor = (slug) => slug, order = HERO_TOOLS) {
   const bySlug = new Map(shots.map((s) => [s.slug, s]));
@@ -140,7 +146,7 @@ ${picked
   .map(
     (s, i) => `        <a class="hero-card hero-card-${i + 1}" href="${esc(s.slug)}/" data-tool="${esc(s.slug)}">
           <span class="frame-bar" aria-hidden="true"><i></i><i></i><i></i><span>${esc(titleFor(s.slug))}</span></span>
-          <img src="${SHOWCASE_DIR}/${esc(s.file)}" width="960" height="600" loading="lazy" decoding="async"
+          <img src="${SHOWCASE_DIR}/${esc(s.hero || s.file)}" width="${s.hero ? 600 : 960}" height="${s.hero ? 375 : 600}" loading="lazy" decoding="async"
                alt="${esc(titleFor(s.slug))}: ${esc(s.caption)}">
         </a>`,
   )
