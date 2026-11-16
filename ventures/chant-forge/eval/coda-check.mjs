@@ -117,6 +117,26 @@
 //    +4, N +2, K's cluster column, and (3) and (5) held; A, B, D, E, H, I, F, K, L byte-identical. As registered,
 //    readCoda keeps the rule off (`deepMurmur: false` by default); `--deep on` runs every part with it, and parts
 //    N and O print both columns.
+// Twelfth round (2026-11-16): a murmur louder than the dip before it (onsets.mjs PRE.hi 4 to 12, README "A murmur
+//    louder than the dip before it"). O's misses on its D4-E4 pulse-2 notes (one beat, 0.48 s at 126 BPM: the parts
+//    above call these eighth notes, but at eventsToMidi's two pulses a beat a pulse-2 note is a quarter) read frame by
+//    frame: *punc* and *tunt* on D#4 and *sons* on D4 and D#4 hold an n 50 ms long, a median 37-48 dB dark in itself
+//    and 20 dB or more darker than the vowel just before, but the vowel dips 7-16 dB as it darkens into it and the
+//    murmur then swells back to -8 to +4 dB of the reference (on these notes the nasal resonance sits on the
+//    fundamental). Every nasal rule caps its level: `nasal` at -5 dB, NEAR at 0 and PRE at 4 dB over the vowel 25-45
+//    ms before; the murmur sat 5-12 dB over that. Changed: PRE.hi 4 to 12, nothing else. Set on J, N and O only
+//    (hi 4, 8, 12, 16: J 128 of 132 clusters, 306 others, 453 control each time; N clusters 114, 116, 116, 116; O's
+//    D4-E4 pulse-2 clusters 25, 27, 28, 28; others, voiced stops read as nasal and controls unchanged in both). Left:
+//    *sons* on D4 (its step into the murmur is 7.9 dB of the 8 PRE wants, not changed) and *rint* on D4 (a quiet
+//    -24 to -30 dB murmur the closure rule swallows). Pre-registered here and committed before part P or any other
+//    part was run with it. Part P is new: 10 cluster syllables and 20 others sung in no other part, at G2, D3, G#3,
+//    C#4, D4 and F4 (F4 in no other part), 116 BPM, pulse-4 and pulse-2 notes, sung and vowel-only, printed beside
+//    `preOpts: { hi: 4 }` (the reader before). Predictions: (1) P's cluster nasals no fewer, and at least 2 more on
+//    its pulse-2 notes at C#4, D4 and F4 (30 cells); (2) P's other syllables read exactly within 1, its voiced stops
+//    read as a nasal no more often; (3) P's vowel-only control identical (PRE needs an obstruent after the run);
+//    (4) A, B, D, E, H, I, F, K, L and M totals each no lower, nasals no fewer, vowel-only controls identical
+//    (`--pre hi=4` against the default); (5) eval/vowel-check.mjs and eval/consonant-check.mjs cannot move (readOnset
+//    and the synthesis are untouched).
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
@@ -128,7 +148,7 @@ const args = process.argv.slice(2);
 const outFile = args.includes('--out') ? args[args.indexOf('--out') + 1] : new URL('./coda-check-report.md', import.meta.url);
 // --parts ABDEHIFC (default all): which parts to run; --hide-misses F: print a part's score without its misses
 // (how a held-out set is scored before a round's changes without anyone reading what it gets wrong)
-const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJKLMNOC';
+const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJKLMNOPC';
 const HIDE = args.includes('--hide-misses') ? args[args.indexOf('--hide-misses') + 1] : '';
 // --near off: readCoda without its reading against the vowel just before the murmur (the reader before
 // 2026-11-15's round); --near dark=8,lo=-18: try other settings (onsets.mjs NEAR)
@@ -142,7 +162,9 @@ const AGAINARG = args.includes('--again') ? args[args.indexOf('--again') + 1] : 
 // --vfric off: readCoda's voiced fricative without its noise-above-5-kHz test (before 2026-11-16's tenth round)
 const VFRICARG = args.includes('--vfric') ? args[args.indexOf('--vfric') + 1] : '';
 const DEEPARG = args.includes('--deep') ? args[args.indexOf('--deep') + 1] : '';
-const RC = { ...RC0, ...(PREARG === 'off' ? { preObstruent: false } : {}), ...(AGAINARG === 'off' ? { againGap: false } : {}), ...(VFRICARG === 'off' ? { vfricHi5: false } : {}), ...(DEEPARG === 'on' ? { deepMurmur: true } : {}) };
+// --pre hi=12,step=8: try other PRE settings (onsets.mjs PRE)
+const PREOPTS = PREARG && PREARG !== 'off' ? { preOpts: Object.fromEntries(PREARG.split(',').map((kv) => { const [k, v] = kv.split('='); return [k, Number(v)]; })) } : {};
+const RC = { ...RC0, ...PREOPTS, ...(PREARG === 'off' ? { preObstruent: false } : {}), ...(AGAINARG === 'off' ? { againGap: false } : {}), ...(VFRICARG === 'off' ? { vfricHi5: false } : {}), ...(DEEPARG === 'on' ? { deepMurmur: true } : {}) };
 const rate = 44100, corpus = new URL('../corpus/', import.meta.url);
 const lines = [];
 const pct = (a, b) => `${a} of ${b} (${b ? ((100 * a) / b).toFixed(1) : '-'}%)`;
@@ -550,6 +572,47 @@ lines.push('## O. Held-out deep murmurs, second registration (eleventh round)', 
   `| voiced stops read as a nasal | ${oVst.on || 0} | ${oVst.off || 0} |`,
   `| vowel-only control read as none | ${cell('control on')} | ${cell('control off')} |`, '',
   'Misses with the rule (count over the twelve pitch and length cells):', '', HIDE.includes('O') ? '- hidden' : [...oMiss].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join('; ') || 'none', '');
+}
+
+// ---- P ----
+// The twelfth round's held-out set (PRE.hi, pre-registered in the header): 10 cluster syllables and 20 others sung in
+// no other part, at G2, D3, G#3, C#4, D4 and F4, 116 BPM, pulse-4 and pulse-2 notes (two pulses a beat), each followed
+// by a rest; the reader as it stands beside `preOpts: { hi: 4 }`.
+if (PARTS.includes('P')) {
+const POS = ['cent', 'pint', 'dons', 'tans', 'munt', 'lint', 'sanc', 'genc', 'rons', 'fent'];
+const VST = ['sad', 'ted', 'rob', 'lig', 'dub', 'mag', 'vid', 'nug'];
+const NEG = [...VST, 'pat', 'fec', 'tip', 'lot', 'duc', 'sum', 'ten', 'gam', 'las', 'dos', 'me', 'tu'];
+const SY = [...POS, ...NEG], tally = {}, pMiss = new Map(), pVst = {};
+const bump = (k, ok) => { tally[k] = tally[k] || [0, 0]; tally[k][1]++; if (ok) tally[k][0]++; };
+const RCB = { ...RC, preOpts: { ...(RC.preOpts || {}), hi: 4 } };
+for (const pulses of [4, 2]) for (const midi of [43, 50, 56, 61, 62, 65]) {
+  const ev = []; for (const s of SY) ev.push({ type: 'note', midi, pulses, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
+  const mid = eventsToMidi(ev, { bpm: 116, title: 'held-out loud murmurs' });
+  for (const sing of [true, 'vowels']) {
+    const { x, notes } = choir(mid, sing);
+    SY.forEach((s, j) => {
+      const n = notes[j], want = sing === true ? expectedRead(latinCoda(s)[0]) : { cls: 'none' };
+      const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
+      const grp = sing === true ? (POS.includes(s) ? 'cluster' : 'other') : 'control';
+      for (const [mode, o] of [['on', RC], ['off', RCB]]) {
+        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        bump(`${grp} ${mode}`, ok);
+        if (grp === 'cluster' && pulses === 2 && midi >= 61) bump(`high ${mode}`, ok);
+        if (grp === 'other' && VST.includes(s) && got.cls === 'nasal') pVst[mode] = (pVst[mode] || 0) + 1;
+        if (mode === 'on' && !ok && !HIDE.includes('P')) { const key = `${grp === 'control' ? `${s} (vowel only)` : s} as ${label(got)}`; pMiss.set(key, (pMiss.get(key) || 0) + 1); }
+      }
+    });
+  }
+}
+const cell = (k) => pct(...(tally[k] || [0, 0]));
+lines.push('## P. Held out: murmurs louder than the dip before them (twelfth round)', '', `Clusters: ${POS.map((s) => `*${s}*`).join(', ')}; others: ${NEG.map((s) => `*${s}*`).join(', ')}. Pulse-4 and pulse-2 notes (two pulses a beat) at 116 BPM, each followed by a rest, G2, D3, G#3, C#4, D4, F4.`, '',
+  '| | the reader (PRE.hi 12) | `preOpts: { hi: 4 }` (before) |', '|---|---|---|',
+  `| cluster syllables read exactly (on their nasal) | ${cell('cluster on')} | ${cell('cluster off')} |`,
+  `| of them, pulse-2 notes on C#4, D4 and F4 | ${cell('high on')} | ${cell('high off')} |`,
+  `| other syllables read exactly | ${cell('other on')} | ${cell('other off')} |`,
+  `| voiced stops read as a nasal | ${pVst.on || 0} | ${pVst.off || 0} |`,
+  `| vowel-only control read as none | ${cell('control on')} | ${cell('control off')} |`, '',
+  'Misses (count over the twelve pitch and length cells):', '', HIDE.includes('P') ? '- hidden' : [...pMiss].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join('; ') || 'none', '');
 }
 
 // ---- C ----
