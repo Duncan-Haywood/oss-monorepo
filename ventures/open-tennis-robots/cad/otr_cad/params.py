@@ -1204,6 +1204,16 @@ class Feeder:
                                       # values for 0.005-0.02 ohm and gains 25-200 with every lift rule passing (2026-11-15)
     lift_sense_rc_s: float = 1.0e-3   # 10k + 100 nF from the amplifier's output (the shunt, low side) to the comparator
     lift_sense_offset_v: float = 0.009  # LM393 input offset over temperature, worst case (datasheet: 9 mV)
+    # The amplifier against the 20 kHz PWM (2026-11-15, cad/README.md "Sense amplifier against the PWM ripple";
+    # `lift_sense_ripple`, `check_lift_sense_ripple`; tests/lift_sense_ripple_sweep.py). TI SBOS318B, frequency response
+    # (CLOAD 10 pF), as quoted from the datasheet: -3 dB bandwidth 45, 37, 35, 33 and 27 kHz for A1 to A5; slew rate
+    # 0.3 V/us (VS 5 V, VOUT 0.5 to 4.5 V); gain error specified for VOUT 0.1 V to VS - 0.1 V.
+    lift_pwm_hz: float = 20000.0      # firmware main.py: PWM(Pin(LIFT_PIN), freq=20000)
+    lift_sense_bw_hz: float = 37e3    # INA186A2's -3 dB bandwidth (A1 45k, A3 35k, A4 33k, A5 27k)
+    lift_sense_slew_v_us: float = 0.3  # INA186 slew rate
+    lift_sense_headroom_v: float = 0.1  # output kept this far under its 3.3 V supply (the gain error's test range)
+    lift_sense_ripple_share: float = 0.1  # ripple at the comparator, in motor amps, under this share of the trip's spread
+    lift_sense_slew_factor: float = 3.0   # the amplifier's slew rate over the steepest ripple edge it must follow
     lift_rail_tol: float = 0.03       # 3.3 V rail
     lift_res_tol: float = 0.01
     lift_duty: float = 1.0            # config LIFT_DUTY: with the shunt low side (in the MOSFET's source) the filter sees duty x I
@@ -1812,6 +1822,7 @@ class Feeder:
         bad += self.check_trough()
         bad += self.check_lift()
         bad += self.check_lift_jam()
+        bad += self.check_lift_sense_ripple()
         bad += self.check_lift_slip()
         bad += self.check_lift_tooth()
         bad += self.check_lift_strand()
@@ -4250,6 +4261,76 @@ class Feeder:
                        f"blanking: the motor would reach full duty with too little blanking left to settle")
         if self.lift_jam_trip_ms < 10.0:
             bad.append("lift jam cutoff needs over-current on two ticks (10 ms) so one stray reading cannot trip it")
+        return bad
+
+    def lift_sense_ripple(self, duty: float | None = None, volts: float | None = None, amps: float | None = None) -> dict:
+        """The 20 kHz PWM ripple through the high-side sense path, analytic (2026-11-15; cad/README.md "Sense amplifier
+        against the PWM ripple"; tests/lift_sense_ripple_sweep.py checks it against a switched simulation).
+
+        Ripple: with the motor's electrical time constant (L / R, 0.46 ms) long against the 50 us period, the current is
+        a triangle, rising while the MOSFET conducts (the pack less the back-EMF and the loop's I x R across L) and
+        falling while the diode freewheels (the diode's drop plus the same across L). With the mean voltage balancing
+        them, its peak to peak is (V + Vd) x D x (1 - D) / (L x f), largest at D = 0.5 (the soft start passes it) and
+        zero at full duty. High side the shunt carries the whole triangle; the amplifier's single pole and the 1 ms RC
+        pass each harmonic of the asymmetric triangle at their gains (harmonic n of a triangle rising for D of the
+        period: pp x |sin(pi n D)| / (pi^2 n^2 D (1 - D))), and the ripple left at the comparator is twice their sum,
+        an upper bound. A linear filter passes the mean untouched; what could move it is non-linear: the amplifier
+        slewing (the steepest edge is the on-phase's, (V + Vd) x (1 - D) / L x gain x R) or its output reaching the
+        rail on the triangle's peaks (which reads low). Delay: the pole's 1 / (2 pi BW).
+
+        `duty`, `volts`, `amps` default to the worst case each rule wants: D = 0.5 at the charger's voltage (most
+        ripple), and the held duty's cold stall for the rail."""
+        m = self.lift_motor_model()
+        c = self.lift_jam_cutoff()
+        v = self.battery_v_max if volts is None else volts
+        d = 0.5 if duty is None else duty
+        vd = 0.7
+        f, l, g = self.lift_pwm_hz, m["l_h"], c["sense_v_per_a"]
+        if self.lift_sense_side != "high":
+            g = self.lift_shunt_ohm        # low side the comparator sees the shunt itself (and only while on)
+        pp_a = (v + vd) * d * (1 - d) / (l * f)
+        bw = self.lift_sense_bw_hz if self.lift_sense_side == "high" else math.inf
+        rc = self.lift_sense_rc_s
+
+        def gain_at(hz):
+            amp = 1 / math.sqrt(1 + (hz / bw) ** 2) if math.isfinite(bw) else 1.0
+            return amp / math.sqrt(1 + (2 * math.pi * hz * rc) ** 2)
+        comp_pp_v = 0.0
+        if 0 < d < 1:
+            for n in range(1, 60):
+                comp_pp_v += 2 * pp_a * g * abs(math.sin(math.pi * n * d)) / (math.pi ** 2 * n * n * d * (1 - d)) * gain_at(n * f)
+        edge_v_us = (v + vd) * (1 - d) / l * g / 1e6
+        i_mean = c["stall_cold_a"] if amps is None else amps
+        rail = 3.3 * (1 - self.lift_rail_tol) - self.lift_sense_headroom_v
+        peak_v = (i_mean + pp_a / 2) * g
+        spread_a = c["trip_hi_a"] - c["trip_lo_a"]
+        return {"duty": d, "volts": v, "pp_a": pp_a, "amp_pp_v": pp_a * g * (1 / math.sqrt(1 + (f / bw) ** 2) if math.isfinite(bw) else 1.0),
+                "comp_pp_v": comp_pp_v, "comp_pp_a": comp_pp_v / g, "spread_a": spread_a,
+                "ripple_share": comp_pp_v / g / spread_a, "edge_v_us": edge_v_us,
+                "slew_factor": self.lift_sense_slew_v_us / edge_v_us if edge_v_us > 0 else math.inf,
+                "delay_us": 1e6 / (2 * math.pi * bw) if math.isfinite(bw) else 0.0, "rail_v": rail, "peak_v": peak_v,
+                "clips": peak_v > rail, "rc_corner_hz": 1 / (2 * math.pi * rc)}
+
+    def check_lift_sense_ripple(self) -> list[str]:
+        bad = []
+        if self.lift_sense_side != "high":
+            return bad
+        r = self.lift_sense_ripple()
+        if r["ripple_share"] > self.lift_sense_ripple_share:
+            bad.append(f"lift sense: {r['comp_pp_a'] * 1000:.0f} mA of PWM ripple reaches the comparator at D = 0.5, over "
+                       f"{self.lift_sense_ripple_share:.0%} of the trip's {r['spread_a'] * 1000:.0f} mA spread: lengthen "
+                       f"lift_sense_rc_s or raise lift_pwm_hz")
+        worst_edge = max(self.lift_sense_ripple(duty=dd)["edge_v_us"] for dd in (0.1, 0.5, 0.82))
+        if self.lift_sense_slew_v_us < self.lift_sense_slew_factor * worst_edge:
+            bad.append(f"lift sense amplifier's {self.lift_sense_slew_v_us:g} V/us slew is under "
+                       f"{self.lift_sense_slew_factor:g}x the ripple's steepest edge ({worst_edge:.3f} V/us): it would "
+                       f"slew-limit and bend the mean it reads")
+        held = self.lift_sense_ripple(duty=self.lift_duty_at(self.battery_v_max))
+        c = self.lift_jam_cutoff()
+        vref_hi = c["trip_hi_a"] * c["sense_v_per_a"]
+        if held["clips"] and held["rail_v"] < 2 * vref_hi:
+            bad.append(f"lift sense amplifier clips at {held['rail_v']:.2f} V on the held duty's stall, under twice the "
+                       f"highest reference ({vref_hi:.2f} V): a clipped stall might not read over the trip")
         return bad
 
     def lift_slip_design(self) -> dict:

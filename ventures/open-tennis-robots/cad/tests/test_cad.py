@@ -1394,6 +1394,43 @@ class LiftParamsTest(unittest.TestCase):
         self.assertTrue(any("spring" in r for r in Feeder(lift_slip_spring_n=100.0).check_lift_slip()))
         self.assertTrue(any("boot's wall" in r for r in Feeder(lift_slip_collar_w=20.0).check_lift_slip()))
 
+    def test_lift_sense_ripple_numbers_and_rules(self):
+        # 2026-11-16, cad/README.md "Sense amplifier against the PWM ripple"
+        p = Feeder()
+        self.assertEqual(p.check_lift_sense_ripple(), [])
+        r = p.lift_sense_ripple()
+        # the triangle's peak to peak, largest at D = 0.5, none at full duty
+        self.assertAlmostEqual(r["pp_a"], (29.2 + 0.7) * 0.25 / (0.002 * 20000), places=9)
+        self.assertEqual(p.lift_sense_ripple(duty=1.0)["pp_a"], 0.0)
+        self.assertGreater(r["pp_a"], p.lift_sense_ripple(duty=0.82)["pp_a"])
+        # what reaches the comparator is a few mA of motor current against a 259 mA trip spread
+        self.assertLess(r["comp_pp_a"], 0.002)
+        self.assertLess(r["ripple_share"], 0.01)
+        self.assertGreater(r["slew_factor"], 50)
+        self.assertAlmostEqual(r["delay_us"], 1e6 / (2 * math.pi * 37e3), places=6)
+        self.assertFalse(p.lift_sense_ripple(duty=p.lift_duty_at(29.2))["clips"])
+        # the rules fire: a 10 us filter passes the ripple; a 50 uH winding also out-runs the slew rate
+        self.assertTrue(any("ripple reaches" in b for b in Feeder(lift_sense_rc_s=1e-5).check_lift_sense_ripple()))
+        self.assertTrue(any("slew" in b for b in Feeder(lift_motor_mh=0.05).check_lift_sense_ripple()))
+        # low side has no amplifier to check
+        self.assertEqual(Feeder(lift_sense_side="low", lift_shunt_ohm=0.05, lift_sense_r2=2.4e3,
+                                lift_shunt_w=3.0, lift_slip_nm=1.0).check_lift_sense_ripple(), [])
+        # the switched simulation agrees with the formula and leaves the mean where the averaged plant puts it
+        sys.path.insert(0, str(HERE.parent.parent / "tests"))
+        import lift_sense_ripple_sweep as sw
+        for duty in (0.5, p.lift_duty_at(29.2)):
+            s = sw.steady(p, 29.2, duty, p.lift_jam_cutoff()["trip_a"])
+            a = p.lift_sense_ripple(duty=duty)
+            self.assertAlmostEqual(s["pp_a"], a["pp_a"], delta=0.03 * a["pp_a"])
+            self.assertLessEqual(s["comp_pp_v"], a["comp_pp_v"] * 1.01)       # the analytic figure is a bound
+            self.assertGreater(s["comp_pp_v"], 0.8 * a["comp_pp_v"])
+            self.assertLess(abs(s["bias_ma"]), 0.05)
+        # the amplifier adds about its pole's delay to a stall's crossing, thousands of times under the 10 ms tick
+        held = p.lift_duty_at(29.2)
+        added = sw.stall_cross_us(p, 29.2, held, True, False) - sw.stall_cross_us(p, 29.2, held, True, True)
+        self.assertGreater(added, 0.5 * r["delay_us"])
+        self.assertLess(added, 2 * r["delay_us"])
+
     def test_lift_tooth_jump_numbers_and_rules(self):
         # 2026-11-15, cad/README.md "Lift tooth jump"
         p = Feeder()

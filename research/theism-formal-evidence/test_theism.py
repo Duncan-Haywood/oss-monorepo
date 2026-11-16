@@ -433,3 +433,19 @@ def test_mcgrew_reproduced_and_mixture_bound():
     assert e26.post(e26.PRIOR_R, e26.W * e26.PER_DISCIPLE ** 12 * e26.PAUL) > F(1, 2)
     assert e26.post(e26.PRIOR_R, e26.W * e26.PER_DISCIPLE ** 11 * e26.PAUL) < F(1, 2)
     assert e26.post(F(1, 4), F(50)) == F(50, 53)
+
+
+def test_e27_separability_is_hypergraph_two_colouring():
+    """E27: on H31's reduction frame, v is separable from w iff the hypergraph is 2-colourable;
+    the Fano plane gives a non-separable successor with no back witness."""
+    e27 = _load("e27_separability_np")
+    fano = [(0, 1, 2), (0, 3, 4), (0, 5, 6), (1, 3, 5), (1, 4, 6), (2, 3, 6), (2, 4, 5)]
+    R = e27.frame(list(range(7)), fano)
+    assert e27.separable_bt(R, 0, 1) is None and not e27.back(R, 0, 1)
+    R6 = e27.frame(list(range(7)), fano[:6])
+    assert e27.check_witness(R6, 0, 1, *e27.separable_bt(R6, 0, 1))
+    for edges in [((0, 1),), ((0,),), ((0, 1), (1, 2), (0, 2)), ((0, 1, 2), (0, 1))]:
+        pts = sorted({p for e in edges for p in e})
+        R = e27.frame(pts, edges)
+        assert (e27.separable_bt(R, 0, 1) is not None) == e27.two_col(pts, edges)
+        assert e27.separable_brute(R, len(R), 0, 1) == e27.two_col(pts, edges)
