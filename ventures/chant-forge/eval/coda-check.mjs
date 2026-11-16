@@ -236,6 +236,14 @@
 //    (7) A-S as listed above. If all seven hold, the candidate becomes the default (readCoda `closeAnchor: true,
 //    localRef: false`; render.mjs `voiceBarWall: 'coda'`); otherwise both stay opt-in, reported. The two single
 //    columns are printed but decide nothing.
+//    Outcome (run 2026-11-16, after the registration above was committed): failed. On T, voiced stops read exactly:
+//    default 122, closeAnchor 124, coda wall 120, both 121 of 144, so (1) fails (-1 where +4 was wanted); (2) read as a
+//    nasal 11 to 14, holds at the bar; (3) nasals 45 of 48 all four, (4) others 93 of 96 all four, (5) control 284 of
+//    288 all four: hold; (6) fails by one cell: consonant-check's held-out G 2055 to 2054 of 2349 (one voiced alveolar
+//    opening in gregobase-1908/3417, 61 to 60 of 74; a coda's wall reaches the next syllable's opening read); (7) holds
+//    (the figures above were taken on this code). Both stay opt-in. R's 107 did not generalise: across R, S and T
+//    closeAnchor alone reads 332 of 384 voiced stops against localRef's 333. T's misses with the default are mostly a
+//    voiced stop read as a nasal (11 of 22: *tag*, *pob*, *hag*, *vob*), the next item.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
