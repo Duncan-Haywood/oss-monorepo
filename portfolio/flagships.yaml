@@ -370,12 +370,11 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min): slip hub back to 0.9 N m 2026-11-15 (cad/README.md "Slip
-      hub back to 0.9 N m": worst flight peak 91 to 84 N, slowest cut 109 to 129 ms;
-      0.8 N m slips 3 of 6 soft starts on a worn stiff spider). Next: model the
-      current-sense amplifier's 20 kHz ripple and bandwidth in the sweep plant; or
-      the facing's friction spread with wear as a sweep axis (the +-20% band is
-      assumed).
+      venv, about 2 min): sense amplifier against the 20 kHz PWM 2026-11-16
+      (cad/README.md "Sense amplifier against the PWM ripple": ripple at the
+      comparator 0.3-4.3 mA, mean unbiased, amp adds 4 us; the averaged sweep plant
+      holds). Next: the facing's friction spread with wear as a sweep axis (the
+      +-20% band is assumed).
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
