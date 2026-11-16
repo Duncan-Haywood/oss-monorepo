@@ -1206,6 +1206,76 @@ class LoopDropTest(unittest.TestCase):
         self.assertEqual((rec["unsure_top"], rec["unsure_bottom"]), (False, True))
 
 
+class EscSurveyTest(unittest.TestCase):
+    """2026-11-16, firmware/esp32/README.md "The ESC lag surveyed on the board": the board sums each wheel's fit
+    residual at six ESC lags after its record is out, the ESC_SURVEY frame carries the sums to the Pi, and the Pi says
+    which ESC_TAU_US the balls pick."""
+
+    def test_pick_refines_between_neighbours(self):
+        g = controller.ESC_SURVEY_GRID_US
+        self.assertEqual(controller.survey_pick(g, [0.0] * 6), (None, None))
+        self.assertEqual(controller.survey_pick(g, [1, 2, 3, 4, 5, 6]), (0, 0.0))        # an end: the grid point
+        i, ref = controller.survey_pick(g, [9, 5, 4, 5, 9, 12])                         # symmetric in log around 50
+        self.assertEqual(i, 2)
+        self.assertAlmostEqual(ref, (20000 * 100000) ** 0.5, delta=1000)  # the vertex of a parabola symmetric in log
+        i, ref = controller.survey_pick(g, [9, 5, 5.5, 8, 9, 12])                       # 0 below: linear in the lag
+        self.assertEqual(i, 1)
+        self.assertTrue(0 <= ref <= 50000)
+
+    def test_board_surveys_a_drill_and_the_pi_reads_it(self):
+        import esc_survey_sweep as S
+        sim = S.sim_for({"esc_tau_s": 0.08}, 0.4, 0.95, 0.65)
+        res = S.drill(sim, "drill.rally.json")
+        sv = res.esc_survey
+        self.assertIsNotNone(sv)
+        self.assertGreaterEqual(sv["wheels"], 16)
+        self.assertEqual(sim.hw.launch.survey_cut, 0)
+        self.assertEqual(sv["least_ms"], 100)
+        self.assertAlmostEqual(sv["refined_ms"], 80, delta=12)
+        self.assertEqual(len(sv["rms_ppm"]), P.ESC_SURVEY_LAGS)
+        self.assertIn("set ESC_TAU_US = ", host.esc_survey_advice(sv))
+        sim = S.sim_for({}, 0.4, 0.95, 0.65)
+        sv = S.drill(sim, "drill.rally.json").esc_survey
+        self.assertEqual(sv["refined_ms"], 0)
+        self.assertIn("keep ESC_TAU_US = 0", host.esc_survey_advice(sv))
+
+    def test_a_new_stroke_cuts_the_survey_not_the_record(self):
+        import esc_survey_sweep as S
+        sim = S.sim_for({}, 0.4, 0.95, 0.65)
+        lc = sim.hw.launch
+        S.drill(sim, "drill.rally.json")
+        n = lc.survey_n
+        lc.surveying = iter([None] * 1000)        # a survey under way ...
+        lc.start((3000, 2000), 0)                 # ... and a new stroke
+        self.assertIsNone(lc.surveying)
+        self.assertEqual((lc.survey_cut, lc.survey_n), (1, n))
+
+    def test_advice_waits_for_enough_wheels_and_frame_round_trips(self):
+        self.assertIsNone(host.esc_survey_advice(None))
+        self.assertIn("run more balls", host.esc_survey_advice({"wheels": 6, "least_ms": 50, "refined_ms": 44}))
+        self.assertIn("already matches", host.esc_survey_advice({"wheels": 30, "least_ms": 50, "refined_ms": 44}, 45))
+        frame = P.encode(P.ESC_SURVEY, 30, 100, 79, 817, 808, 361, 290, 566, 65535)
+        (cmd, vals), = list(P.Decoder().feed(frame))
+        self.assertEqual((cmd, vals[:3]), (P.ESC_SURVEY, (30, 100, 79)))
+
+    def test_survey_off_sends_nothing(self):
+        lc = controller.LaunchCheck(0.00155, 0.0577, 0.075, 0.0335, 0.85, 0.5, survey=())
+        self.assertIsNone(lc.survey_report())
+
+
+class EdgeFormTest(unittest.TestCase):
+    """2026-11-16, README "The drop on the edge times": the loop fit can run on the edge times (`edges=True`); it is
+    off by default because at a few microseconds of jitter it spread the drop more than the period form."""
+
+    def test_edge_form_fits_a_clean_wheel_as_well(self):
+        import loop_residual_sweep as lr
+        for rpm, tau in ((2500, 0.2), (4000, 0.4), (6000, 0.8)):
+            ps, tk = lr.wheel(rpm, 0.08, tau)
+            got = controller.drop_from_commands(ps, tk, edges=True)
+            self.assertAlmostEqual(got[0] / 0.08, 1.0, delta=0.008, msg=(rpm, tau))
+            self.assertLess(got[5], controller.LOOP_SE_MAX)
+
+
 class LoopFitUnsureTest(unittest.TestCase):
     """2026-11-16 later, firmware/esp32/README.md "When the wheel is not a first-order lag": the loop fit's standard
     error from its own misses marks drops it cannot vouch for, and the Pi's launcher fit warns when enough are marked."""

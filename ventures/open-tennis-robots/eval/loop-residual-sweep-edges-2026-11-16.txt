@@ -1,0 +1,14 @@
+# tests/loop_residual_sweep.py --edges, run 2026-11-16 (compare eval/loop-residual-sweep-2026-11-16.txt, the period form)
+plant          n  loop err mean/worst %   rms median/max x1e-4  parabola worst %  marked (se > LOOP_SE_MAX)  worst unmarked %
+first         24       0.21 /     0.69       0.65 /     1.77         4.47                    0/24            0.69
+hall 5us      24       0.96 /     3.22       2.20 /     6.42         5.92                    8/24            2.41
+hall 20us     20       2.96 /     8.77       7.49 /    20.75        30.67                   19/20            0.18
+hall 50us     17       7.11 /    22.66      18.68 /    51.40        34.01                   17/17            0.00
+torque 20k    24       0.20 /     0.69       0.68 /     1.77         4.47                    0/24            0.69
+torque 8k     24       0.17 /     0.57       0.65 /     1.77         3.53                    0/24            0.57
+esc 30ms      24       2.83 /     7.89       2.78 /     8.76         5.20                   12/24            2.96
+esc 80ms      24       2.98 /    10.97       2.81 /    13.54        24.85                   12/24            2.23
+curve 1.25    24       0.23 /     0.62       0.63 /     1.70         4.99                    0/24            0.62
+slip x3       20     124.72 /   186.12      59.11 /   102.28       171.88                   20/20            0.00
+torque 3k     24       0.27 /     1.27       0.69 /     5.06         2.85                    1/24            1.27
+drops more than 2% off: 72, marked 66; drops within 1%: 154, marked 19; no fit (too little to fit or out of range): 15 of 264
