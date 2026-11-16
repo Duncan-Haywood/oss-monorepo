@@ -11,7 +11,19 @@ field robot to accept or reject the update.
 **Paper draft (milestone 7):** [`paper/draft.md`](paper/draft.md) pulls milestones 1–6b into one
 RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with every quoted number
 checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (239 of 239,
-revised with milestones 4e–4o) and a list of what a submission still needs.
+revised with milestones 4e–4p) and a list of what a submission still needs.
+
+**Milestone 4p headline** (does the update test hold on views it has never seen? 13 fresh views per TUM
+unit, 9,440 new solves): **its false alarms stay under the bar, but the in-sample figures were optimistic.**
+With the old views from milestone 4j's 13 and the new views from a disjoint 13 of the same sequence (and the
+reverse), the twin reference fires falsely on 0.9% (Kinect) and 1.9% (Xtion) of 7 + 6 splits, under the
+programme's 2.5% bar but above the 0.6% and 0.1% measured in-sample, and catches a 2% focal change in 8.0%
+of splits against 14.8% in-sample. The same selection rule found flatter boards the second time (median tilt
+about half), and on that weaker pool alone the test loses most of its power on the Kinect (2.1%) and
+over-alarms on the Xtion (4.4%): the test's safety depends on the views as well as on the threshold. Three of
+four pre-registered predictions were refuted (H93–H95).
+
+![share of 7 + 6 splits where the update test fires against the focal change, within milestone 4j's views, within the fresh views, and across the two, for TUM's Kinect and Xtion](experiments/m4p_fresh/fresh.png)
 
 **Milestone 4o headline** (with the Kinect's lens fitted as k1 + k2, does the twin still choose good
 updates, and do the gains add up? no new solve): **they multiply.** Fitting k2 and then testing the new
@@ -871,6 +883,10 @@ OMP_NUM_THREADS=1 python3 experiments/m4n_k2/run.py         # milestone 4n: ~2 h
 python3 experiments/m4n_k2/analyse.py                      # ~4 min; summary.json, k2.png (H82-H85)
 python3 experiments/m4o_k2wait/analyse.py                  # milestone 4o: ~3 min; rig_k1/k2.npz (k1 and k1 + k2 twins)
 python3 experiments/m4o_k2wait/score.py                    # under a minute; summary.json, k2wait.png (H86-H91)
+python3 experiments/m4p_fresh/prepare.py fr1 <dir>/rgbd_dataset_freiburg1_rgb_calibration   # milestone 4p: fresh 13 views (fetch: m4j_tum/fetch.sh)
+python3 experiments/m4p_fresh/prepare.py fr3 <dir>/rgbd_dataset_freiburg3_calibration_rgb_depth
+OMP_NUM_THREADS=1 python3 experiments/m4p_fresh/run.py      # ~40 min on 4 cores; results.json.gz (k1 + k2, fr1b / fr3b)
+python3 experiments/m4p_fresh/analyse.py                   # ~5 min; summary.json, fresh.png (H92-H95)
 python3 experiments/m6b_render/measure.py      # seconds; measure.json (real-image blur, noise, levels)
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/run.py     # ~10 min on 4 cores; calib.json, results.json.gz
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/ablate.py  # ~8 min on 4 cores; ablate.json
@@ -918,7 +934,9 @@ python3 paper/check_numbers.py             # seconds; the draft's numbers agains
 
 ## Next steps
 
-After milestone 6: rerun the milestone 3 jackknife and the milestone 2 gate on SB corners
+After milestone 4p: build the reference from the new set's own geometry (a twin of the new views, or a
+gate on their tilt relative to the old set's) and check it on a third disjoint pool of each TUM sequence,
+where the Xtion's flat pool over-alarmed at 4.4%. After milestone 6: rerun the milestone 3 jackknife and the milestone 2 gate on SB corners
 (does the jackknife stay honest when σ is this much smaller?); find the smooth 2-D residual
 field that survives every localiser (tangential or thin-prism lens terms, or a per-view
 board deformation); and synthetic renders with a known camera to say which localiser is

@@ -1,6 +1,7 @@
 """Milestone 4p, step 3: the 7 + 6 update test with the old and new view sets from different pools.
 
-    python3 experiments/m4p_fresh/analyse.py      # ~10 min, after run.py
+    python3 experiments/m4p_fresh/analyse.py            # ~5 min, after run.py
+    python3 experiments/m4p_fresh/analyse.py --figure   # redraw fresh.png from summary.json
 
 Pools: A = milestone 4j's 13 views per TUM unit (fr1, fr3; milestone 4n's k1 + k2 solves), B = this
 milestone's 13 fresh views (fr1b, fr3b; run.py's k1 + k2 solves). Each pool gets its own k1 + k2 twin
@@ -159,30 +160,40 @@ def main():
     print(json.dumps({k: v for k, v in out.items() if k != "table"}, indent=1))
     for k, v in H.items():
         print(k, "holds" if v["holds"] else "REFUTED", json.dumps({a: b for a, b in v.items() if a != "holds"}))
-    figure(arms, os.path.join(HERE, "fresh.png"))
+    figure(out, os.path.join(HERE, "fresh.png"))
 
 
-def figure(arms, path):
+def figure(summary, path):
+    """Two panels (one per unit): firing rate against the focal change, within A, within B, across pools."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    col = {"fr1": "#1b2f6b", "fr3": "#c0392b"}
     lab = {"fr1": "fr1 (Kinect)", "fr3": "fr3 (Xtion)"}
-    fig, ax = plt.subplots(figsize=(6.4, 4.2))
-    xs = [100 * (s - 1) for s in S_LIST]
-    for u in UNITS:
-        ax.plot(xs, [rate(arms, ("AA", "BB"), (u,), (s,)) for s in S_LIST], "--", marker="o", ms=3, color=col[u],
-                label=f"{lab[u]}, old and new from one pool")
-        ax.plot(xs, [rate(arms, ("AB", "BA"), (u,), (s,)) for s in S_LIST], "-", marker="s", ms=3, color=col[u],
-                label=f"{lab[u]}, new views never seen (across pools)")
-    ax.axhline(0.01, color="grey", lw=0.8, ls=":")
-    ax.set_xlabel("focal change applied to the new views (%)")
-    ax.set_ylabel("share of 7 + 6 splits where the test fires")
-    ax.set_ylim(-0.02, 1.02); ax.legend(fontsize=7.5, frameon=False)
-    ax.set_title("Milestone 4p: the update test on fresh views (TUM RGB-D, k1 + k2)", fontsize=9)
+    lines = ((("AA",), "--", "o", "#1b2f6b", "within A (milestone 4j's views)"),
+             (("BB",), ":", "^", "#7f8c8d", "within B (fresh views)"),
+             (("AB", "BA"), "-", "s", "#c0392b", "old from one pool, new from the other"))
+    fig, axes = plt.subplots(1, 2, figsize=(8.4, 3.8), sharey=True)
+    for ax, u in zip(axes, UNITS):
+        for dirs, ls, mk, c, name in lines:
+            rows = [r for r in summary["table"] if r["unit"] == u and r["dir"] in dirs]
+            ys = [sum(r["R_geom"] * r["n"] for r in rows if r["s"] == s) / sum(r["n"] for r in rows if r["s"] == s)
+                  for s in S_LIST]
+            ax.plot([100 * (s - 1) for s in S_LIST], ys, ls, marker=mk, ms=3.5, color=c, label=name)
+        ax.axhline(0.01, color="grey", lw=0.8, ls=":")
+        ax.axhline(0.025, color="grey", lw=0.6, ls="-.")
+        ax.set_title(lab[u], fontsize=9)
+        ax.set_xlabel("focal change applied to the new views (%)")
+    axes[0].set_ylabel("share of 7 + 6 splits where the test fires")
+    axes[0].set_ylim(-0.02, 0.62); axes[0].legend(fontsize=7.5, frameon=False, loc="upper center")
+    fig.suptitle("Milestone 4p: the update test on views it has never seen (TUM RGB-D, k1 + k2)", fontsize=9.5)
     fig.tight_layout()
     fig.savefig(path, dpi=130)
 
 
+def redraw():
+    with open(os.path.join(HERE, "summary.json")) as fh:
+        figure(json.load(fh), os.path.join(HERE, "fresh.png"))
+
+
 if __name__ == "__main__":
-    main()
+    redraw() if sys.argv[1:] == ["--figure"] else main()

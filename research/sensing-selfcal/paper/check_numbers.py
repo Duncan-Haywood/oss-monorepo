@@ -290,6 +290,20 @@ CHECKS = [
     ("json", "m4o_k2wait/summary.json", "k2/wait/fr1/pi/chosen_pm2", 17.9, 1, pct, "6.2% blind with k<sub>1</sub> becomes 17.9% chosen"),
     ("json", "m4o_k2wait/summary.json", "k2/wait/fr1/pi/fa", 0.59, 2, pct, "at 0.59% false\nalarms"),
     ("json", "m4o_k2wait/summary.json", "k2/predict/fr3/ratio", 1.96, 2, None, "still overstates its power 1.96×"),
+    # Section 7, milestone 4p (fresh views)
+    ("json", "m4p_fresh/summary.json", "hypotheses/H92/fr1", 0.91, 2, pct, "(0.91% on the Kinect,\n1.90% on the Xtion)"),
+    ("json", "m4p_fresh/summary.json", "hypotheses/H92/fr3", 1.90, 2, pct, "(0.91% on the Kinect,\n1.90% on the Xtion)"),
+    ("json", "m4p_fresh/summary.json", "hypotheses/H93/pooled", 1.40, 2, pct, "not at nominal (1.40% pooled)"),
+    ("json", "m4p_fresh/summary.json", "hypotheses/H94/fresh", 7.96, 2, pct, "in 7.96% of splits against 14.76% in-sample"),
+    ("json", "m4p_fresh/summary.json", "hypotheses/H94/in_sample", 14.76, 2, pct, "in 7.96% of splits against 14.76% in-sample"),
+    ("json", "m4p_fresh/summary.json", "hypotheses/H95/fr1", 0.17, 2, pct, "agree to +0.17% and +0.58%"),
+    ("json", "m4p_fresh/summary.json", "hypotheses/H95/fr3", 0.58, 2, pct, "agree to +0.17% and +0.58%"),
+    ("json", "m4p_fresh/summary.json", "pooled/AA/1.0", 0.35, 2, pct, "(1.40% against 0.35%)"),
+    ("json", "m4p_fresh/summary.json", "anchors/fr3/gap_in_twin_sd", 2.71, 2, None, "0.98 and 2.71 of the twins' sd"),
+    ("json", "m4p_fresh/summary.json", "anchors/fr1/gap_in_twin_sd", 0.98, 2, None, "0.98 and 2.71 of the twins' sd"),
+    ("json", "m4p_fresh/summary.json", "table/38/R_geom", 4.44, 2, pct, "the Xtion's false alarms reach 4.44%"),
+    ("log", "6-view sets 1.23% against 0.59% (fr1) and 1.23% against 0.50% (fr3)", "(1.23% of f against 0.59% and 0.50%)"),
+    ("log", "Median tilt of the kept frames (prepare's foreshortening measure) 0.147 against 0.268 (fr1) and 0.063 against 0.101 (fr3)", "(median tilt 0.147 against 0.268 and\n0.063 against 0.101)"),
 ]
 
 
