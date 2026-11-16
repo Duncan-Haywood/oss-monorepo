@@ -2159,7 +2159,7 @@ def noise_profile(ifd, ifd0=None) -> tuple[float, float] | None:
 def noise_profile_planes(ifd, ifd0=None) -> list[tuple[float, float]] | None:
     """The DNG NoiseProfile as one (shot, read) pair per colour, R, G, B (``noise_profile``'s rules). DNG 1.7.1.0
     gives either one pair for every plane or one per CFA plane, in the order of CFAPlaneColor (tag 50710,
-    default 0, 1, 2); a single pair is repeated. Nine of 83 real CFA DNGs write pairs that differ between
+    default 0, 1, 2); a single pair is repeated. Ten of 83 real CFA DNGs write pairs that differ between
     planes (six Google Pixels, a Lightroom D80, two Xiaomis, an asus; eval/noise-profile-real-dngs-2026-11-16.md).
     None when there is no usable profile, or its planes do not name R, G and B once each."""
 

@@ -10,7 +10,7 @@ left three things open, and this tool measures all three on the same borrowed sc
    carries the profile with one mean gain (shot x mean g, read x mean g^2). This tool draws the noise on the
    raw scale with each file's own as-shot gains and compares that carry with a per-colour one (shot x g_k,
    read x g_k^2, ``frame_measures`` with a (3, 2) noise).
-3. **Per-plane profiles.** Nine real DNGs write a different (shot, read) per plane. The Pixel 6 Pro's red and
+3. **Per-plane profiles.** Ten real DNGs write a different (shot, read) per plane. The Pixel 6 Pro's red and
    blue state 1.69x green's shot term and 2.25x its read term; the "pixel" scenario draws that.
 
 Scenarios, per tile and SNR (SNR at 18% grey on the raw scale, 80% shot, as ``add_noise``):
