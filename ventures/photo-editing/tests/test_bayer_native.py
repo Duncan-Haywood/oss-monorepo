@@ -95,6 +95,19 @@ class NativeBayer(unittest.TestCase):
             bayer_native.piece(np.ones((8, 8), np.float32), np.ones((8, 8), np.int8), 2, 2.0, False, 1e-6, 2, 2, out,
                                learned=(0.1,) * 10)
 
+    def test_learned_ring_edges(self):
+        """The fused learned path keeps its intermediates in 8-row rings (eval/bayer-learned-fused-2026-11-16.md):
+        every frame height from 2 to 19 rows, so the band is shorter than, as tall as and taller than the
+        ring with the edge rows held, still equals numpy bit for bit."""
+
+        for h in range(2, 20):
+            for w in (2, 4, 13):
+                c = _scene(h, w, seed=7 * h + w)
+                with self.subTest(h=h, w=w):
+                    a = self.d(c, (2, 1, 1, 0), laplace="learned", native=False)
+                    b = self.d(c, (2, 1, 1, 0), laplace="learned", native=True, band=16)
+                    self.assertTrue(np.array_equal(a, b), float(np.max(np.abs(a - b))))
+
     def test_learned_band_and_threads_change_nothing(self):
         c = _scene(301, 77, seed=3)
         whole = self.d(c, (0, 1, 1, 2), laplace="learned", native=True, band=1000, threads=1)

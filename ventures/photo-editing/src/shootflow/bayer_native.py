@@ -10,7 +10,8 @@ off). With no compiler or a failed build ``piece()`` returns ``None`` and the nu
 
 What it covers: the default settings and ``rb="simple"``, any ``window``, ``power`` and ``laplace``, and
 ``laplace="learned"`` (the eight features and the fitted weight per sensel, 2026-11-16,
-``eval/bayer-learned-native-2026-11-16.md``). The optional
+``eval/bayer-learned-native-2026-11-16.md``; fused into one row pipeline over 8-row rings and vectorized
+the same day, ``eval/bayer-learned-fused-2026-11-16.md``). The optional
 median clean-up (``median_passes > 0``) stays numpy-only. The two paths agree to float32 rounding,
 not bit for bit (the C compiler may contract ``a * b + c``; ``-ffp-contract=off`` is passed to keep
 that rare): ``tests/test_bayer_native.py`` holds them within 1e-5 of full scale on edges, gratings,
@@ -47,20 +48,38 @@ C_SOURCE = r"""
 static __thread const long *CX, *CY;
 #define AT(p, y, x) (p)[CY[y] + CX[x]]
 
+/* Column bounds of the interior of a stencil reaching d sensels each way: x in [lo, hi) reads no column
+   outside the band, so it indexes directly (the compiler vectorizes those loops); the few columns either
+   side go through CX. */
+#define INNER(d, lo, hi) long lo = (d) < W ? (d) : W, hi = W - (d) > lo ? W - (d) : lo
+
+/* The horizontal half of a box sum for one row: t = a + (a[-1] + a[+1]) + (a[-2] + a[+2]) ..., the order of
+   bayer_demosaic._box. From d0 + 1 to r, added to whatever t holds (d0 = 0 starts from a). */
+static void row_sum(const float *restrict a, float *restrict t, long W, int d0, int r) {
+    if (d0 == 0) for (long x = 0; x < W; x++) t[x] = a[x];
+    for (int d = d0 + 1; d <= r; d++) {
+        INNER(d, lo, hi);
+        for (long x = 0; x < lo; x++) t[x] += a[CX[x - d]] + a[CX[x + d]];
+        for (long x = lo; x < hi; x++) t[x] += a[x - d] + a[x + d];
+        for (long x = hi; x < W; x++) t[x] += a[CX[x - d]] + a[CX[x + d]];
+    }
+}
+
+/* The vertical half for output row y: o = t[y] + (t[y-1] + t[y+1]) ... + eps, t the row sums (R x W). */
+static void col_sum(const float *restrict t, float *restrict o, long y, long W, int r, float eps) {
+    const float *t0 = t + CY[y];
+    for (long x = 0; x < W; x++) o[x] = t0[x];
+    for (int d = 1; d <= r; d++) {
+        const float *u = t + CY[y - d], *v = t + CY[y + d];
+        for (long x = 0; x < W; x++) o[x] += u[x] + v[x];
+    }
+    for (long x = 0; x < W; x++) o[x] += eps;
+}
+
 static void box_sum(const float *a, float *tmp, float *out, long R, long W, int r, float eps) {
     /* rows first, then columns, each as a + (a[-1] + a[+1]) + (a[-2] + a[+2]) ..., as bayer_demosaic._box */
-    for (long y = 0; y < R; y++)
-        for (long x = 0; x < W; x++) {
-            float s = a[(size_t)y * W + x];
-            for (int d = 1; d <= r; d++) s += AT(a, y, x - d) + AT(a, y, x + d);
-            tmp[(size_t)y * W + x] = s;
-        }
-    for (long y = 0; y < R; y++)
-        for (long x = 0; x < W; x++) {
-            float s = tmp[(size_t)y * W + x];
-            for (int d = 1; d <= r; d++) s += AT(tmp, y - d, x) + AT(tmp, y + d, x);
-            out[(size_t)y * W + x] = s + eps;
-        }
+    for (long y = 0; y < R; y++) row_sum(a + (size_t)y * W, tmp + (size_t)y * W, W, 0, r);
+    for (long y = 0; y < R; y++) col_sum(tmp, out + (size_t)y * W, y, W, r, eps);
 }
 
 static inline float powr(float t, float p) { return p == 2.0f ? t * t : powf(t, p); }
@@ -68,97 +87,197 @@ static inline float powr(float t, float p) { return p == 2.0f ? t * t : powf(t, 
 static inline float sqz(float r) { return r / (1.0f + r); }
 static inline float clampf(float v, float lo, float hi) { return v < lo ? lo : (v > hi ? hi : v); }
 
+/* Sweep one of learned_map for one row: the per-sensel inputs. c0 is the row, cm1/cp1/cm2/cp2 the rows
+   1 and 2 above and below (held to the band). The interior columns index directly (vectorized). */
+#define BODY1(x, a, b, d, e2) { \
+        float cc = c0[x], s = cr[x] == 1 ? 1.0f : -1.0f; \
+        float mh = (c0[b] + c0[d]) / 2.0f, mv = (cm1[x] + cp1[x]) / 2.0f; \
+        float lh = (2.0f * cc - c0[a]) - c0[e2], lv = (2.0f * cc - cm2[x]) - cp2[x]; \
+        ah[x] = s * (cc - mh); bh[x] = s * lh; av[x] = s * (cc - mv); bv[x] = s * lv; \
+        curv[x] = fabsf(lh) + fabsf(lv); \
+        slope[x] = fabsf(c0[d] - c0[b]) + fabsf(cp1[x] - cm1[x]); \
+        dis[x] = fabsf(mh - mv); \
+        lev[x] = (fabsf(cc) + fabsf(mh)) + fabsf(mv); \
+        float ddh = s * (cc - (mh + 0.1875f * lh)), ddv = s * (cc - (mv + 0.1875f * lv)); \
+        dh[x] = ddh; dv[x] = ddv; \
+        absd[x] = fabsf(ddh) + fabsf(ddv); }
+static void sweep1_row(const float *restrict c0, const float *restrict cm1, const float *restrict cp1,
+                       const float *restrict cm2, const float *restrict cp2, const int8_t *restrict cr,
+                       float *restrict ah, float *restrict bh, float *restrict av, float *restrict bv,
+                       float *restrict dh, float *restrict dv, float *restrict curv, float *restrict slope,
+                       float *restrict dis, float *restrict lev, float *restrict absd, long W) {
+    INNER(2, lo, hi);
+    for (long x = 0; x < lo; x++) BODY1(x, CX[x - 2], CX[x - 1], CX[x + 1], CX[x + 2])
+    for (long x = lo; x < hi; x++) BODY1(x, x - 2, x - 1, x + 1, x + 2)
+    for (long x = hi; x < W; x++) BODY1(x, CX[x - 2], CX[x - 1], CX[x + 1], CX[x + 2])
+}
+#undef BODY1
+
+/* Sweep two for one row: the second differences of the colour-difference lines (num, den) and the
+   gradient inputs (ghi, gvi). *0 is the row, *m/*p the rows above and below (held). */
+#define BODY2(x, b, d) { \
+        float d2a = (2.0f * ah[x] - ah[d]) - ah[b]; \
+        float d2b = (2.0f * bh[x] - bh[d]) - bh[b]; \
+        float nu = 0.0f + d2a * d2b, de = 0.0f + d2b * d2b; \
+        d2a = (2.0f * av0[x] - avp[x]) - avm[x]; \
+        d2b = (2.0f * bv0[x] - bvp[x]) - bvm[x]; \
+        num[x] = nu + d2a * d2b; den[x] = de + d2b * d2b; \
+        float a0 = dh[x], b0 = dv0[x]; \
+        ghi[x] = fabsf(a0 - dh[d]) + fabsf(a0 - dh[b]); \
+        gvi[x] = fabsf(b0 - dvp[x]) + fabsf(b0 - dvm[x]); }
+static void sweep2_row(const float *restrict ah, const float *restrict bh, const float *restrict av0,
+                       const float *restrict avm, const float *restrict avp, const float *restrict bv0,
+                       const float *restrict bvm, const float *restrict bvp, const float *restrict dh,
+                       const float *restrict dv0, const float *restrict dvm, const float *restrict dvp,
+                       float *restrict num, float *restrict den, float *restrict ghi, float *restrict gvi, long W) {
+    INNER(1, lo, hi);
+    for (long x = 0; x < lo; x++) BODY2(x, CX[x - 1], CX[x + 1])
+    for (long x = lo; x < hi; x++) BODY2(x, x - 1, x + 1)
+    for (long x = hi; x < W; x++) BODY2(x, CX[x - 1], CX[x + 1])
+}
+#undef BODY2
+
+/* The eight features of one output row from its twelve window sums (see learned_map for the order). Each
+   plane is its own restrict parameter: GCC vectorizes these loops only then. */
+static void feature_row(const float *restrict b0, const float *restrict b1, const float *restrict b2,
+                        const float *restrict b3, const float *restrict b4, const float *restrict b5,
+                        const float *restrict b6, const float *restrict b7, const float *restrict b8,
+                        const float *restrict b9, const float *restrict b10, const float *restrict b11,
+                        float *restrict f0, float *restrict f1, float *restrict f2, float *restrict f3,
+                        float *restrict f4, float *restrict f5, float *restrict f6, float *restrict f7,
+                        float e, long W) {
+    for (long x = 0; x < W; x++) {
+        f0[x] = clampf(b0[x] / b1[x], 0.0f, 0.5f);
+        f1[x] = sqz(b2[x] / b3[x]);
+        f2[x] = sqz(b4[x] / (b2[x] * 0.25f + e));
+        f3[x] = fabsf(b10[x] - b11[x]) / ((b10[x] + b11[x]) + e);
+        f4[x] = sqz(b9[x] / b5[x]);
+        f5[x] = sqz((4.0f * b2[x]) / b5[x]);
+        f6[x] = sqz(b6[x] / b7[x]);
+        f7[x] = sqz(b8[x] / (b6[x] * 0.25f + e));
+    }
+}
+
+/* w += k * f and w += k * (f * g), each sensel on its own (no reordering across sensels). */
+static inline void add_term(float *restrict w, const float *restrict f, float k, long W) {
+    for (long x = 0; x < W; x++) w[x] += k * f[x];
+}
+static inline void add_product(float *restrict w, const float *restrict f, const float *restrict g, float k, long W) {
+    for (long x = 0; x < W; x++) w[x] += k * (f[x] * g[x]);
+}
+
+/* The eight features and the fitted weight of one output row from its twelve window sums B, written to
+   o: w = coef[0] + sum coef[1+j] f_j (+ sum coef[t] f_a f_b), in that order, as _laplace_learned adds them.
+   F: 8 rows of scratch, w: one. */
+static void weight_row(float *const *B, float *const *F, float *w, float *o, const float *coef, int ncoef,
+                       float e, long W) {
+    feature_row(B[0], B[1], B[2], B[3], B[4], B[5], B[6], B[7], B[8], B[9], B[10], B[11],
+                F[0], F[1], F[2], F[3], F[4], F[5], F[6], F[7], e, W);
+    float c0 = coef[0];
+    for (long x = 0; x < W; x++) w[x] = c0;
+    for (int j = 0; j < 8; j++) add_term(w, F[j], coef[1 + j], W);
+    if (ncoef > 9) {
+        int t = 9;
+        for (int a = 0; a < 8; a++)
+            for (int b = a; b < 8; b++) add_product(w, F[a], F[b], coef[t++], W);
+    }
+    for (long x = 0; x < W; x++) o[x] = clampf(w[x], 0.125f, 0.25f);
+}
+
+/* Rings of RING rows per plane: row y of a ring plane lives in slot (y held to the band) mod RING. */
+#define RING 8
+static inline float *ring_row(float *plane, long y, long R, long W) {
+    long h = y < 0 ? 0 : (y >= R ? R - 1 : y);
+    return plane + (size_t)(h & (RING - 1)) * W;
+}
+
+/* col_sum over a ring plane: o = t[y] + (t[y-1] + t[y+1]) ... + eps, rows held to the band. */
+static void col_sum_ring(float *t, float *restrict o, long y, long R, long W, int r, float eps) {
+    const float *t0 = ring_row(t, y, R, W);
+    for (long x = 0; x < W; x++) o[x] = t0[x];
+    for (int d = 1; d <= r; d++) {
+        const float *u = ring_row(t, y - d, R, W), *v = ring_row(t, y + d, R, W);
+        for (long x = 0; x < W; x++) o[x] += u[x] + v[x];
+    }
+    for (long x = 0; x < W; x++) o[x] += eps;
+}
+
 /* The learned per-sensel Laplacian weight of bayer_demosaic._laplace_features and _laplace_learned, written
-   into lapw (R x W). Same float32 operations in the same order as the numpy code; every intermediate numpy
-   shifts is a stored plane read through AT, so edge reads repeat as _sh repeats them. coef: intercept, the
-   8 linear terms, then (when ncoef is 45) the 36 products f_i f_j, i <= j. Returns 0 or -1 (memory). */
+   into lapw (R x W). Same float32 operations in the same order as the numpy code, so the result is equal
+   bit for bit, and edge reads repeat the edge row or column as _sh repeats them. coef: intercept, the 8
+   linear terms, then (when ncoef is 45) the 36 products f_i f_j, i <= j. Returns 0 or -1 (memory).
+
+   Fused (2026-11-16, eval/bayer-learned-fused-2026-11-16.md). Three row steps run as a pipeline: at step k,
+   sweep one computes row k's per-sensel inputs from the raw (the colour-difference lines, curvature,
+   slope, disagreement, level, the 3/16 colour differences) and the horizontal halves of their box sums;
+   sweep two computes row k-1's second differences and gradient inputs (they read rows k-2 .. k) and their
+   horizontal sums; then the vertical halves of all twelve box sums, the eight features and the fitted
+   weight of row k-3 (whose 5 x 5 sums read rows k-5 .. k-1). Every intermediate lives in an 8-row ring,
+   so no band-sized plane is allocated or written but lapw: the old code wrote 15 planes. The 5 x 5 row
+   sums continue the 3 x 3 ones (the same additions in the same order as _box). */
 static long learned_map(const float *c, const int8_t *col, long R, long W, float e, const float *coef, int ncoef,
                         float *lapw) {
-    size_t n = (size_t)R * W;
-    float *buf = (float *)malloc(sizeof(float) * n * 15);
+    /* ring planes (RING rows each): 0-5 ah bh av bv dh dv; 6 curv1 7 curv2 8 slope1 9 slope2 10 dis1
+       11 dis2 12 lev1 13 absd1 14 num1 15 den1 16 gh2 17 gv2. Then 9 rows of per-sensel inputs, 12 of
+       vertical sums, 8 of features and 1 of weights. */
+    enum { NP = 18 };
+    size_t rw = (size_t)RING * W;
+    float *buf = (float *)malloc(sizeof(float) * (rw * NP + (size_t)W * 30));
     if (!buf) return -1;
-    float *F[8], *T[6], *tmp = buf + 14 * n;
-    for (int j = 0; j < 8; j++) F[j] = buf + (size_t)j * n;
-    for (int j = 0; j < 6; j++) T[j] = buf + (size_t)(8 + j) * n;
-#define LOOP for (long y = 0; y < R; y++) for (long x = 0; x < W; x++)
-#define I ((size_t)y * W + x)
-#define MH(y, x) ((AT(c, y, x - 1) + AT(c, y, x + 1)) / 2.0f)
-#define MV(y, x) ((AT(c, y - 1, x) + AT(c, y + 1, x)) / 2.0f)
-#define LH(y, x) ((2.0f * AT(c, y, x) - AT(c, y, x - 2)) - AT(c, y, x + 2))
-#define LV(y, x) ((2.0f * AT(c, y, x) - AT(c, y - 2, x)) - AT(c, y + 2, x))
-#define SG(i) (col[i] == 1 ? 1.0f : -1.0f)
-    float *ah = T[0], *bh = T[1], *av = T[2], *bv = T[3], *num = T[4], *den = T[5];
-    LOOP {
-        size_t i = I; float s = SG(i), cc = c[i];
-        ah[i] = s * (cc - MH(y, x)); bh[i] = s * LH(y, x);
-        av[i] = s * (cc - MV(y, x)); bv[i] = s * LV(y, x);
-    }
-    LOOP {
-        size_t i = I;
-        float d2a = (2.0f * ah[i] - AT(ah, y, x + 1)) - AT(ah, y, x - 1);
-        float d2b = (2.0f * bh[i] - AT(bh, y, x + 1)) - AT(bh, y, x - 1);
-        float nu = 0.0f + d2a * d2b, de = 0.0f + d2b * d2b;
-        d2a = (2.0f * av[i] - AT(av, y + 1, x)) - AT(av, y - 1, x);
-        d2b = (2.0f * bv[i] - AT(bv, y + 1, x)) - AT(bv, y - 1, x);
-        num[i] = nu + d2a * d2b; den[i] = de + d2b * d2b;
-    }
-    box_sum(num, tmp, T[0], R, W, 1, 0.0f);
-    box_sum(den, tmp, T[1], R, W, 1, e * e);
-    for (size_t i = 0; i < n; i++) F[0][i] = clampf(T[0][i] / T[1][i], 0.0f, 0.5f);
-    float *curv = T[0], *slope = T[1], *dis = T[2];
-    LOOP {
-        size_t i = I;
-        curv[i] = fabsf(LH(y, x)) + fabsf(LV(y, x));
-        slope[i] = fabsf(AT(c, y, x + 1) - AT(c, y, x - 1)) + fabsf(AT(c, y + 1, x) - AT(c, y - 1, x));
-        dis[i] = fabsf(MH(y, x) - MV(y, x));
-    }
-    box_sum(curv, tmp, T[3], R, W, 1, 0.0f);
-    box_sum(slope, tmp, T[4], R, W, 1, e);
-    box_sum(dis, tmp, T[5], R, W, 1, 0.0f);
-    for (size_t i = 0; i < n; i++) {
-        F[1][i] = sqz(T[3][i] / T[4][i]);
-        F[2][i] = sqz(T[5][i] / (T[3][i] * 0.25f + e));
-    }
-    LOOP { size_t i = I; T[4][i] = (fabsf(c[i]) + fabsf(MH(y, x))) + fabsf(MV(y, x)); }
-    box_sum(T[4], tmp, T[5], R, W, 1, e);  /* T[5]: level */
-    for (size_t i = 0; i < n; i++) F[5][i] = sqz((4.0f * T[3][i]) / T[5][i]);
-    box_sum(curv, tmp, T[3], R, W, 2, 0.0f);
-    box_sum(slope, tmp, T[4], R, W, 2, e);
-    for (size_t i = 0; i < n; i++) F[6][i] = sqz(T[3][i] / T[4][i]);
-    box_sum(dis, tmp, T[4], R, W, 2, 0.0f);
-    for (size_t i = 0; i < n; i++) F[7][i] = sqz(T[4][i] / (T[3][i] * 0.25f + e));
-    float *dh = T[0], *dv = T[1];
-    LOOP {
-        size_t i = I; float s = SG(i), cc = c[i];
-        dh[i] = s * (cc - (MH(y, x) + 0.1875f * LH(y, x)));
-        dv[i] = s * (cc - (MV(y, x) + 0.1875f * LV(y, x)));
-    }
-    for (size_t i = 0; i < n; i++) T[2][i] = fabsf(dh[i]) + fabsf(dv[i]);
-    box_sum(T[2], tmp, T[3], R, W, 1, 0.0f);
-    for (size_t i = 0; i < n; i++) F[4][i] = sqz(T[3][i] / T[5][i]);
-    LOOP { size_t i = I; T[2][i] = fabsf(dh[i] - AT(dh, y, x + 1)) + fabsf(dh[i] - AT(dh, y, x - 1)); }
-    box_sum(T[2], tmp, T[3], R, W, 2, 0.0f);  /* gh */
-    LOOP { size_t i = I; T[2][i] = fabsf(dv[i] - AT(dv, y + 1, x)) + fabsf(dv[i] - AT(dv, y - 1, x)); }
-    box_sum(T[2], tmp, T[4], R, W, 2, 0.0f);  /* gv */
-    for (size_t i = 0; i < n; i++) F[3][i] = fabsf(T[3][i] - T[4][i]) / ((T[3][i] + T[4][i]) + e);
-    for (size_t i = 0; i < n; i++) {
-        float f[8], w = coef[0];
-        for (int j = 0; j < 8; j++) f[j] = F[j][i];
-        for (int j = 0; j < 8; j++) w += coef[1 + j] * f[j];
-        if (ncoef > 9) {
-            int t = 9;
-            for (int a = 0; a < 8; a++)
-                for (int b = a; b < 8; b++) w += coef[t++] * (f[a] * f[b]);
+    float *P[NP];
+    for (int j = 0; j < NP; j++) P[j] = buf + (size_t)j * rw;
+    float *rowb = buf + NP * rw;
+    float *curv = rowb, *slope = rowb + W, *dis = rowb + 2 * W, *lev = rowb + 3 * W, *absd = rowb + 4 * W;
+    float *num = rowb + 5 * W, *den = rowb + 6 * W, *ghi = rowb + 7 * W, *gvi = rowb + 8 * W;
+    float *B[12], *F[8], *wr = rowb + 29 * (size_t)W;
+    for (int j = 0; j < 12; j++) B[j] = rowb + (size_t)(9 + j) * W;
+    for (int j = 0; j < 8; j++) F[j] = rowb + (size_t)(21 + j) * W;
+#define RR(j, yy) ring_row(P[j], (yy), R, W)
+    for (long k = 0; k < R + 3; k++) {
+        if (k < R) {  /* sweep one, row k */
+            long y = k, r0 = y * W;
+            sweep1_row(c + r0, c + CY[y - 1], c + CY[y + 1], c + CY[y - 2], c + CY[y + 2], col + r0,
+                       RR(0, y), RR(1, y), RR(2, y), RR(3, y), RR(4, y), RR(5, y), curv, slope, dis, lev, absd, W);
+            float *c1 = RR(6, y), *c2 = RR(7, y), *s1 = RR(8, y), *s2 = RR(9, y), *d1 = RR(10, y), *d2 = RR(11, y);
+            row_sum(curv, c1, W, 0, 1);
+            for (long x = 0; x < W; x++) c2[x] = c1[x];
+            row_sum(curv, c2, W, 1, 2);
+            row_sum(slope, s1, W, 0, 1);
+            for (long x = 0; x < W; x++) s2[x] = s1[x];
+            row_sum(slope, s2, W, 1, 2);
+            row_sum(dis, d1, W, 0, 1);
+            for (long x = 0; x < W; x++) d2[x] = d1[x];
+            row_sum(dis, d2, W, 1, 2);
+            row_sum(lev, RR(12, y), W, 0, 1);
+            row_sum(absd, RR(13, y), W, 0, 1);
         }
-        lapw[i] = clampf(w, 0.125f, 0.25f);
+        long y = k - 1;
+        if (y >= 0 && y < R) {  /* sweep two, row k-1 (reads rows k-2 .. k of planes 0-5) */
+            sweep2_row(RR(0, y), RR(1, y), RR(2, y), RR(2, y - 1), RR(2, y + 1), RR(3, y), RR(3, y - 1), RR(3, y + 1),
+                       RR(4, y), RR(5, y), RR(5, y - 1), RR(5, y + 1), num, den, ghi, gvi, W);
+            row_sum(num, RR(14, y), W, 0, 1);
+            row_sum(den, RR(15, y), W, 0, 1);
+            row_sum(ghi, RR(16, y), W, 0, 2);
+            row_sum(gvi, RR(17, y), W, 0, 2);
+        }
+        y = k - 3;
+        if (y >= 0) {  /* the vertical halves, features and weight of row k-3 */
+            col_sum_ring(P[14], B[0], y, R, W, 1, 0.0f);   /* num */
+            col_sum_ring(P[15], B[1], y, R, W, 1, e * e);  /* den */
+            col_sum_ring(P[6], B[2], y, R, W, 1, 0.0f);    /* curvature 3x3 */
+            col_sum_ring(P[8], B[3], y, R, W, 1, e);       /* slope 3x3 */
+            col_sum_ring(P[10], B[4], y, R, W, 1, 0.0f);   /* disagreement 3x3 */
+            col_sum_ring(P[12], B[5], y, R, W, 1, e);      /* level 3x3 */
+            col_sum_ring(P[7], B[6], y, R, W, 2, 0.0f);    /* curvature 5x5 */
+            col_sum_ring(P[9], B[7], y, R, W, 2, e);       /* slope 5x5 */
+            col_sum_ring(P[11], B[8], y, R, W, 2, 0.0f);   /* disagreement 5x5 */
+            col_sum_ring(P[13], B[9], y, R, W, 1, 0.0f);   /* |colour differences| 3x3 */
+            col_sum_ring(P[16], B[10], y, R, W, 2, 0.0f);  /* horizontal gradient 5x5 */
+            col_sum_ring(P[17], B[11], y, R, W, 2, 0.0f);  /* vertical gradient 5x5 */
+            weight_row(B, F, wr, lapw + (size_t)y * W, coef, ncoef, e, W);
+        }
     }
-#undef LOOP
-#undef I
-#undef MH
-#undef MV
-#undef LH
-#undef LV
-#undef SG
+#undef RR
     free(buf);
     return 0;
 }
@@ -282,7 +401,11 @@ done:
 }
 """
 
-_FLAGS = ["-O2", "-ffp-contract=off"]
+# -O3 lets the compiler vectorize the direct-indexed interior loops (2026-11-16). It changes no bit: there is
+# no -ffast-math, so every lane does the same IEEE float32 operations in the same order, and
+# -ffp-contract=off keeps a * b + c from becoming one fused multiply-add. tests/test_bayer_native.py and the
+# real-frame checks compare the result with numpy bit for bit.
+_FLAGS = ["-O3", "-ffp-contract=off"]
 _STATE: dict[str, object] = {}
 _LOCK = threading.Lock()
 
