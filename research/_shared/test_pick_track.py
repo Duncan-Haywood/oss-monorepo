@@ -499,6 +499,14 @@ class PostLimitsTest(unittest.TestCase):
         self.assertIn(f"description {cpf.MIN_DESCRIPTION} to {cpf.LIMITS['description']}", line)
 
 
+class ProgrammeLabelTest(unittest.TestCase):
+    def test_offline_and_plain(self):
+        self.assertEqual(pick_track.programme_label("no-such-programme", []), "no-such-programme")
+        got = pick_track.programme_label("no-such-programme", ["https://example.invalid/"])
+        self.assertIn("OFFLINE", got)
+        self.assertIn("https://example.invalid/", got)
+
+
 if __name__ == "__main__":
     unittest.main()
 
@@ -578,3 +586,4 @@ class LandFirstTest(unittest.TestCase):
         prs = [self.pr(i, f"research/p{i}: s", "2026-11-01T00:00:00Z") for i in range(12)]
         lines = self._lines(prs, show=3)
         self.assertTrue(any("and 9 more" in l for l in lines))
+
