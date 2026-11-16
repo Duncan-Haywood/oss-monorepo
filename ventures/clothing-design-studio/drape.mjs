@@ -88,7 +88,7 @@ const DEPTH = Object.freeze({ chest: 0.7, waist: 0.72, hip: 0.68 });
  * half-width and half-depth (m). Above `top` there is no body.
  * @param {{chest:number, waist?:number, hip?:number, height?:number}} m  cm
  */
-export function bodyModel(m, { armAngleDeg = 45, deltoid = {} } = {}) {
+export function bodyModel(m, { armAngleDeg = 45, deltoid = {}, softTissueCm = 0 } = {}) {
   const chest = num(m?.chest, 60, 170);
   if (chest == null) return { ok: false, error: "Enter a chest measurement between 60 and 170 cm." };
   const assumed = [];
@@ -130,7 +130,10 @@ export function bodyModel(m, { armAngleDeg = 45, deltoid = {} } = {}) {
   const geo = { rU, rE, rW, H, shoulderA, top: hps - slope, ...deltoid };
   const arms = [1, -1].map(sg => armAt(geo, sg, armAngleDeg));
   const al = Math.max(5, Math.min(60, armAngleDeg)) * Math.PI / 180;
-  return { ok: true, levels, top: 0.93 * H, H, measures: { chest, waist, hip, height, upperArm, wrist }, assumed, hps, slope, arms, armGeo: geo, armAngleDeg: Math.round(al * 180 / Math.PI) };
+  // soft: how far (m) the side of the torso below the armpit gives where an arm
+  // rests on it (see dentContact). 0 keeps the rigid ellipses.
+  const soft = Math.max(0, Math.min(5, Number(softTissueCm) || 0)) / 100;
+  return { ok: true, levels, top: 0.93 * H, H, measures: { chest, waist, hip, height, upperArm, wrist }, assumed, hps, slope, arms, armGeo: geo, armAngleDeg: Math.round(al * 180 / Math.PI), soft, pitY: levels[5].y - 0.02, dentTop: levels[6].y, dentGap: DENT_GAP };
 }
 
 /**
@@ -175,7 +178,7 @@ export function setArmAngle(body, deg) {
  * arm hanging straight down would pass through the torso; real arms rest
  * against the side and squash it a little.
  */
-export function hangAngleDeg(body, gapM = 0.012) {
+export function hangAngleDeg(body, gapM = DENT_GAP) {
   if (!body.arms || !body.armGeo) return null;
   // the armpit: the torso level just under the shoulder shelf; above it the arm
   // joins the shoulder and overlaps the torso by design
@@ -190,12 +193,40 @@ export function hangAngleDeg(body, gapM = 0.012) {
       // compare the arm surface's inner edge with the torso's side at that height
       const sec = sectionAt(body, y);
       if (!sec) continue;
-      if (x - r - sec.a < gapM) return false;
+      // a soft torso gives up to body.soft where the arm presses, so the arm may
+      // reach that far into the rigid ellipse and still leave gapM for the cloth
+      if (x - r - sec.a < gapM - (body.soft || 0)) return false;
     }
     return true;
   };
   for (let deg = 3; deg <= 45; deg += 0.5) if (ok(deg)) return deg;
   return 45;
+}
+
+/**
+ * The soft torso (2026-11-16). Below the armpit, where an arm comes closer than
+ * body.dentGap to the torso, the torso is carved away round the arm: the
+ * torso's surface there is the arm's surface pushed out by dentGap, so the two
+ * layers of cloth at the side (the body's side seam and the sleeve's underarm)
+ * keep that much room between a lowered arm and the side, as a real side gives
+ * under a resting arm. hangAngleDeg caps how deep the carving may go below the
+ * armpit at body.soft. The carving reaches up to the shoulder shelf (dentTop):
+ * stopped at the armpit (pitY), the sleeve's underarm was caught between the
+ * arm and the rigid torso just above it, stretched to 213% on one triangle and
+ * never settled (M tee, 3 cm, 18 degrees); to the shelf, it settles and the worst
+ * triangle is 99%, under the rigid body's 138% at 29 degrees. Volume is not conserved: the flesh pressed in is not bulged out
+ * at front and back (a few millimetres on a real body, not modelled).
+ * Returns the nearest arm contact with `dent` = distance (m) to that carved
+ * surface (negative inside the carved-out room), or null where the torso is
+ * rigid (no softness, no arms, or above the shoulder shelf, where the arm
+ * joins the shoulder and overlaps the torso by design).
+ */
+export function dentContact(body, x, y, z) {
+  if (!body.soft || !body.arms || !(y < body.dentTop)) return null;
+  const c = armContact(body, x, y, z);
+  if (!c) return null;
+  c.dent = c.dist - body.dentGap;
+  return c;
 }
 
 /** Radius (m) of an arm at distance s along its axis from the shoulder joint. */
@@ -229,6 +260,7 @@ export function armContact(body, x, y, z) {
   return found ? { dist: bd, cx: bx, cy: by, cz: bz, r: br, s: bs, arm: barm } : null;
 }
 const scale = (e, s) => ({ a: e.a * s, b: e.b * s });
+const DENT_GAP = 0.012;
 function num(v, lo, hi) { const n = Number(v); return Number.isFinite(n) && n >= lo && n <= hi ? n : null; }
 
 /** A straight cylinder (or elliptic prism) body, for tests and comparisons. */
@@ -270,8 +302,11 @@ export function clearance(body, x, y, z) {
   if (!s) return Infinity;
   const f = (x / s.a) ** 2 + (z / s.b) ** 2;
   const r = Math.hypot(x, z);
-  if (f === 0) return -Math.min(s.a, s.b);
-  return r * (1 - 1 / Math.sqrt(f));
+  const t = f === 0 ? -Math.min(s.a, s.b) : r * (1 - 1 / Math.sqrt(f));
+  if (t >= 0 || !body.soft) return t;
+  // inside the ellipse: a soft torso is the ellipse minus the room round a lowered arm
+  const c = dentContact(body, x, y, z);
+  return c ? Math.max(t, -c.dent) : t;
 }
 
 /* ---------------- mesh ---------------- */
@@ -406,6 +441,9 @@ export function simulate(cloth, pos, o = {}) {
   let t = 0;
   for (let s = 0; s < steps; s++, t += dt) {
     if (pose && body?.arms) {
+      // the side softens only once the arms start down, so sewing at the held-out
+      // angle is exactly the rigid body's
+      if (pose.soft != null) body.soft = t >= pose.t0 ? pose.soft : 0;
       const u = Math.max(0, Math.min(1, (t - pose.t0) / (pose.t1 - pose.t0)));
       const deg = pose.from + (pose.to - pose.from) * u * u * (3 - 2 * u);
       if (!(Math.abs(deg - armDeg) <= 1e-3)) { setArmAngle(body, deg); armDeg = deg; }
@@ -503,6 +541,23 @@ function pushOut(body, pos, k, thick) {
   const a = s.a + thick, b = s.b + thick;
   const f = (x / a) ** 2 + (z / b) ** 2;
   if (f >= 1) return 0;
+  if (body.soft) {
+    // soft torso: inside the carved room round a lowered arm there is no torso;
+    // past the room's edge, whichever surface is nearer (the ellipse's or the
+    // room's) takes the point
+    const c = dentContact(body, x, y, z);
+    if (c) {
+      if (c.dent <= 0) return 0;
+      const rr = Math.hypot(x, z), ellDepth = rr * (1 / Math.sqrt(f) - 1);
+      if (c.dent < ellDepth) {
+        let dx = c.cx - x, dy = c.cy - y, dz = c.cz - z, d = Math.hypot(dx, dy, dz);
+        if (d < 1e-9) return 0;
+        NRM[0] = dx / d; NRM[1] = dy / d; NRM[2] = dz / d;
+        pos[k] = x + NRM[0] * c.dent; pos[k + 1] = y + NRM[1] * c.dent; pos[k + 2] = z + NRM[2] * c.dent;
+        return c.dent;
+      }
+    }
+  }
   const x0 = x, y0 = y, z0 = z;
   // Newton steps on F = (x/a(y))^2 + (z/b(y))^2 - 1 with the y-slope of the section
   for (let it = 0; it < 3; it++) {
@@ -640,10 +695,12 @@ export function pairEdges(A, B) {
  * @param {{chest:number, waist?:number, hip?:number, height?:number, upperArm?:number, wrist?:number}} measures cm
  * @param {{garment?:string, size?:string, fit?:string, fabric?:string|{gsm:number,ktNPerM:number}, gridCm?:number, sizeChart?:object, settleTime?:number, sleeves?:boolean, armAngleDeg?:number, pattern?:object}} opts
  */
-export function drapeGarment(measures, { garment = "tee", size = "M", fit = "regular", fabric = "jersey", gridCm = 2.5, sizeChart = BODY_CHEST_CM, settleTime, sewTime, substeps = 32, sleeves = true, armAngleDeg = 45, lowerArms = false, lowerTime = 0.8, deltoid = {}, simOpts = {}, pattern = {} } = {}) {
+export function drapeGarment(measures, { garment = "tee", size = "M", fit = "regular", fabric = "jersey", gridCm = 2.5, sizeChart = BODY_CHEST_CM, settleTime, sewTime, substeps = 32, sleeves = true, armAngleDeg = 45, lowerArms = false, lowerTime = 0.8, softTissueCm = 0, dent = {}, deltoid = {}, simOpts = {}, pattern = {} } = {}) {
   if (!SIMULATED.includes(garment)) return { ok: false, error: `No drape for "${garment}".` };
-  const body = bodyModel(measures, { armAngleDeg, deltoid });
+  const body = bodyModel(measures, { armAngleDeg, deltoid, softTissueCm });
   if (!body.ok) return body;
+  // dent: {dentTop, dentGap} overrides for the soft torso's carved room (eval only)
+  for (const k of ["dentTop", "dentGap"]) if (Number.isFinite(dent[k])) body[k] = dent[k];
   if (!sleeves) { body.arms = null; body.assumed = body.assumed.filter(a => !/^(upper arm|wrist) /.test(a)); }
   const settleDefault = settleTime == null;
   settleTime ??= sleeves ? 2.0 : 1.6; sewTime ??= sleeves ? 0.7 : 0.5;
@@ -652,8 +709,10 @@ export function drapeGarment(measures, { garment = "tee", size = "M", fit = "reg
   let armPose = null;
   if (sleeves && lowerArms !== false) {
     const to = lowerArms === true ? hangAngleDeg(body) : Math.max(3, Math.min(60, Number(lowerArms)));
-    if (Number.isFinite(to) && Math.abs(to - body.armAngleDeg) > 0.5) armPose = { from: body.armAngleDeg, to, t0: sewTime, t1: sewTime + lowerTime };
+    if (Number.isFinite(to) && Math.abs(to - body.armAngleDeg) > 0.5) armPose = { from: body.armAngleDeg, to, t0: sewTime, t1: sewTime + lowerTime, soft: body.soft };
   }
+  // a soft side only matters to arms that come down onto it; held out, the body is rigid
+  if (!armPose) body.soft = 0;
   const sewAngleDeg = body.armAngleDeg;
   if (armPose && settleDefault) settleTime += lowerTime; // the same settling after the arms come down
   const fab = typeof fabric === "string" ? FABRICS[fabric] : fabric;
@@ -863,7 +922,8 @@ function notesFor(levels, hemDropCm, body, sleeves = [], lowered = false) {
     if (sl.cuffPastWristCm > 6) out.push(`The cuff reaches ${sl.cuffPastWristCm} cm past the wrist with the arms ${lowered ? `lowered to ${body.armAngleDeg} degrees` : "held out"}: on a hanging arm it bunches or covers the hand.`);
   }
   if (body.assumed?.length) out.push(`Not given, so assumed: ${body.assumed.join(", ")}.`);
-  if (sl && lowered) out.push(`The arms were sewn at 45 degrees and then lowered to ${body.armAngleDeg}, as low as this smooth-ellipse body allows (a real torso gives where the arm rests against it, so real arms hang lower). Lowering them moves the hem under a centimetre; the cloth pinched between arm and side reads as stretch, so trust the bicep's mean over its peak in this pose.`);
+  if (sl && lowered && body.soft > 0) out.push(`The arms were sewn at 45 degrees and then lowered to ${body.armAngleDeg}, resting against a side that gives up to ${r1(body.soft * 100)} cm where the arm presses (an assumed softness for arm and side together, not measured; more give lets the arm hang lower). The pressed flesh is not bulged out at front and back. The cloth pinched between arm and side reads as stretch, so trust the bicep's mean over its peak in this pose.`);
+  else if (sl && lowered) out.push(`The arms were sewn at 45 degrees and then lowered to ${body.armAngleDeg}, as low as this smooth-ellipse body allows (a real torso gives where the arm rests against it, so real arms hang lower). Lowering them moves the hem under a centimetre; the cloth pinched between arm and side reads as stretch, so trust the bicep's mean over its peak in this pose.`);
   out.push(sl ? `Body and sleeves, arms ${lowered ? "lowered to" : "held"} ${body.armAngleDeg} degrees from the sides; hood and rib bands are not simulated yet, and the body is smooth ellipses and round arms, so treat this as a picture of ease and tension, not a promise of fit. With sleeves the neckline shows a few percent of stretch that the panels alone do not: the sleeves, held on the arms by friction, pull the shoulders outward (slipperier contact doubles it, arms raised to 60 degrees halve it), so read colour at the neck as the model, not the pattern.` : "Body panels only: sleeves, hood and rib bands are not simulated, and the body is smooth ellipses, so treat this as a picture of ease and tension, not a promise of fit.");
   return out;
 }
