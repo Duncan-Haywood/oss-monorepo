@@ -164,7 +164,9 @@ export function readSpki(der) {
 const P = 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2fn;
 const N = 0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141n;
 const G = [0x79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798n, 0x483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8n];
-const mod = (a, m) => ((a % m) + m) % m;
+// One BigInt division, not two: `%` keeps the dividend's sign, so a negative
+// remainder needs one + m (same results as ((a % m) + m) % m).
+const mod = (a, m) => { const r = a % m; return r < 0n ? r + m : r; };
 function inv(a, m) {
   let [r0, r1, s0, s1] = [mod(a, m), m, 1n, 0n];
   while (r1) { const q = r0 / r1; [r0, r1] = [r1, r0 - q * r1]; [s0, s1] = [s1, s0 - q * s1]; }
