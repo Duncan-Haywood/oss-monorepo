@@ -378,13 +378,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min). Model check (firmware/esp32/README.md "When the wheel is
-      not a first-order lag", 2026-11-16): the loop fit's standard error marks
-      unsure drops (LAUNCH bits 6/7), no first-order wheel marked; 5 us tach jitter
-      or a 30 ms ESC lag puts the drill's spin 5-24% off. ESC lag surveyed on the
-      board (README "The ESC lag surveyed on the board"): ESC_SURVEY frame, pick
-      within 10% on 29 of 30 ESC builds; edge-time fit tried, worse, off. Next:
-      retest MIN_FIT_RPM; why one jittery wheel fits 10-60x worse (trimmed).
+      venv, about 2 min). Landed in firmware/esp32/README.md: unsure-drop marks, the
+      ESC lag survey, its trim, and "The 1,000 rpm floor retested" (floor stays; the
+      Pi holds its next speeds to the verdict after a shot with a wheel under 1,000
+      rpm, tests/min_fit_rpm_sweep.py). Next: why one jittery wheel fits 10-60x
+      worse; why a ~510 rpm wheel behind a 30 ms ESC (0.2 s wheel lag) never settles
+      in the ready gate (loop gains at low speed).
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
