@@ -104,7 +104,7 @@ test("required, optional and prohibited specifications", () => {
 });
 
 test("the tiny sample model trips exactly the gaps written into it", () => {
-  const r = check(file("./samples/coordination-basics.ids"), file("./samples/tiny-house.ifc"));
+  const r = check(file("./samples/coordination-basics.ids.xml"), file("./samples/tiny-house.ifc"));
   const byName = Object.fromEntries(r.specs.map((s) => [s.name, s]));
   assert.equal(r.pass, false);
   assert.deepEqual(byName["Walls say whether they are load-bearing"].failed.map((f) => f.name), ["W-02"]);
@@ -112,7 +112,7 @@ test("the tiny sample model trips exactly the gaps written into it", () => {
   assert.equal(byName["Doors and windows sit on a storey"].status, "pass", "the window reaches the storey through opening and wall");
   assert.deepEqual(byName["Spaces have a name and a long name"].failed.map((f) => f.name), ["001"]);
   assert.equal(byName["No building element proxies"].failed.length, 1);
-  const q = check(file("./samples/quantities-and-naming.ids"), file("./samples/tiny-house.ifc"));
+  const q = check(file("./samples/quantities-and-naming.ids.xml"), file("./samples/tiny-house.ifc"));
   const qn = Object.fromEntries(q.specs.map((s) => [s.name, s]));
   assert.equal(qn["Doors are at least 2 m tall"].status, "pass", "2100 mm is 2.1 m");
   assert.equal(qn["Slabs carry a predefined type"].status, "pass");
@@ -131,7 +131,7 @@ test("CSV export neutralises spreadsheet formulas", () => {
 });
 
 test("BCF export is a valid zip with one topic per failing element", () => {
-  const r = check(file("./samples/coordination-basics.ids"), file("./samples/tiny-house.ifc"));
+  const r = check(file("./samples/coordination-basics.ids.xml"), file("./samples/tiny-house.ifc"));
   const zip = bcfZip(r, { modelName: "tiny-house.ifc", date: "2026-01-01T00:00:00Z" });
   const failing = r.specs.reduce((n, s) => n + s.failed.length, 0);
   const text = new TextDecoder().decode(zip);

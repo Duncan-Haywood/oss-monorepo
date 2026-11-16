@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b4a'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EI%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>IDS Model Check: free IFC checker for buildingSMART IDS files</title>
   <meta name="description" content="Check an IFC model against a buildingSMART IDS 1.0 file in your browser. Passes all 334 of buildingSMART's official IDS test cases. Export failures as BCF, CSV or JSON. Free, open source, nothing uploaded.">
@@ -59,7 +59,7 @@
   <h1>Check an IFC model against an IDS file, in your browser.</h1>
   <p class="lede">Drop a building model (.ifc) and a buildingSMART Information Delivery Specification (.ids). You get every specification's result, each failing element with the reason, and a BCF issue list your BIM tool can open. Nothing is uploaded.</p>
 
-  <p class="cta-row"><a class="cta" href="#run">Check a model</a> <a class="cta ghost" href="samples/coordination-basics.ids">Get the starter IDS</a></p>
+  <p class="cta-row"><a class="cta" href="#run">Check a model</a> <a class="cta ghost" href="samples/coordination-basics.ids.xml">Get the starter IDS</a></p>
   <div class="facts">
     <div class="fact"><b>334 / 334</b>buildingSMART IDS test cases right (<a href="#accuracy">how it was checked</a>)</div>
     <div class="fact"><b>under 1 s</b>for a 22 MB, 424,819-entity Revit export in Chromium (0.8 s; 1.4 s on the command line)</div>
@@ -91,7 +91,7 @@
   <section aria-labelledby="what">
     <h2 id="what">What it checks</h2>
     <p>An IDS lists <em>specifications</em>. Each says which elements it applies to (for example every <code>IFCWALL</code> with <code>Pset_WallCommon.IsExternal = true</code>) and what those elements must have (a <code>FireRating</code>, a Uniclass code, a material, a place on a storey). The checker reads both files, finds the elements each specification applies to, and tests every requirement on each, following the IDS 1.0 rules for required, optional and prohibited facets, value restrictions (enumerations, patterns, ranges, lengths), floating-point tolerance and unit conversion to SI.</p>
-    <p>Starting from scratch? The <a href="samples/coordination-basics.ids">starter IDS</a> asks for what most coordinators want before a model is shared: walls marked external and load-bearing, a material on every wall, named doors and windows on a storey, named spaces, and no building element proxies. Edit it in any text editor.</p>
+    <p>Starting from scratch? The <a href="samples/coordination-basics.ids.xml">starter IDS</a> asks for what most coordinators want before a model is shared: walls marked external and load-bearing, a material on every wall, named doors and windows on a storey, named spaces, and no building element proxies. Edit it in any text editor.</p>
   </section>
 
   <section aria-labelledby="accuracy">
@@ -157,10 +157,10 @@
     });
   }
   async function loadStarter() {
-    const r = await fetch("samples/coordination-basics.ids");
+    const r = await fetch("samples/coordination-basics.ids.xml");
     state.ids = await r.text();
-    state.idsName = "coordination-basics.ids";
-    $("ids-name").textContent = "coordination-basics.ids (starter)";
+    state.idsName = "coordination-basics.ids.xml";
+    $("ids-name").textContent = "coordination-basics.ids.xml (starter)";
     ready();
   }
   $("starter").addEventListener("click", loadStarter);

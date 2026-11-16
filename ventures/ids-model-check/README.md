@@ -58,9 +58,9 @@ or `checkIds(idsText, ifcText, { schemas, typeMap, measureUnits })` from
 `ids.mjs` anywhere.
 
 Two starter IDS files written for this tool are in `samples/`:
-`coordination-basics.ids` (external/load-bearing walls, wall materials, named
+`coordination-basics.ids.xml` (served as `.ids.xml` so the site sends an XML content type; rename to `.ids` if your tool wants it: external/load-bearing walls, wall materials, named
 doors and windows on a storey, named spaces, no proxies) and
-`quantities-and-naming.ids` (door heights in metres, wall length quantities,
+`quantities-and-naming.ids.xml` (door heights in metres, wall length quantities,
 naming patterns, storeys in a building, classification, slab types, fire-rating
 format). `samples/tiny-house.ifc` is a hand-written IFC4 model with deliberate
 gaps for both.
@@ -107,8 +107,8 @@ No API key, account or server is involved, so there is nothing to configure.
    `opensourceBIM/IFC-files`, not committed), buildingSMART's simple scene in
    IFC2X3 and IFC4X3 and wall-with-opening in IFC4 (the fixtures in
    `../wall-framing-takeoff/fixtures/`), the `research/house-open-design` ADU,
-   and `samples/tiny-house.ifc`. With `samples/coordination-basics.ids`: all
-   42 specification results identical. With `samples/quantities-and-naming.ids`:
+   and `samples/tiny-house.ifc`. With `samples/coordination-basics.ids.xml`: all
+   42 specification results identical. With `samples/quantities-and-naming.ids.xml`:
    identical except the naming-pattern specification, which has two
    `xs:pattern`s. XSD (Part 2, 4.3.4) says several patterns in one restriction
    are alternatives, and buildingSMART's `regex_patterns_work_in_OR` cases

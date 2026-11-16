@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 29,
   "outcome": "success",
@@ -39,6 +39,10 @@
     {
       "what": "page race: clicking Check before a newly chosen file finished reading checked the previous model",
       "fix": "button disabled while a file is read"
+    },
+    {
+      "what": "CI build: .ids has no served content type; CI validate: no tab icon",
+      "fix": "samples renamed .ids.xml; favicons.py --fix"
     }
   ],
   "integrity_issues": [],
@@ -50,6 +54,10 @@
     {
       "file": "buildingSMART IDS docs (external)",
       "issue": "user manual's bounded-property table and tolerance text (exclusive) contradict the official test cases; followed the test cases, noted in README"
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "check.mjs reports one problem per unknown extension; a git-ignored .ids test file was listed as 'local only, not counted', hiding the committed samples/*.ids with the same problem, so preflight said clean and CI's build failed. favicons.py also isn't in preflight's repository checks (CI validate failed on a missing tab icon)."
     }
   ],
   "deviations": [
@@ -65,7 +73,7 @@
     "ventures/ids-model-check/README.md (How it was checked; agent-facing notes and next steps live there and in the flagship row, so no separate docs/reports file)"
   ],
   "goal": null,
-  "notes": "Verification: node eval/run-testcases.mjs on buildingSMART/IDS@870f9c4 test pairs: 334/334 (first run 309/334). IfcTester 0.9.0.post1 on the same suite: 312/334 (eval/score_ifctester.py). eval/crosscheck_ifctester.py with samples/coordination-basics.ids and samples/quantities-and-naming.ids on Schultz_Residence (opensourceBIM/IFC-files, 22 MB, 424,819 entities), bsi simple scene ifc2x3/ifc43, bsi wall-with-opening ifc4, research/house-open-design adu.ifc, samples/tiny-house.ifc: identical verdicts, applicable counts and failing element ids, except the two-xs:pattern naming spec where IfcTester ANDs patterns (contrary to XSD and the suite's regex_patterns_work_in_OR cases). Schultz: 1.4 s CLI, 0.77 s in Chromium via Playwright (worker + schema fetch), BCF download works, mobile width 390 no horizontal scroll. run_venture_tests.py ids-model-check: ok, 29 tests (suite test included when eval/IDS fetched). venture-preflight.mjs ids-model-check: clean on the 4th run (fixed: entry-script guard, launched.json, tree counts, catalogue sub-group, CTA under h1, sibling link from wall-framing-takeoff). wall-framing-takeoff suite: ok, 1206 tests. CI jobs queued (runners starved) at merge time.",
+  "notes": "Verification: node eval/run-testcases.mjs on buildingSMART/IDS@870f9c4 test pairs: 334/334 (first run 309/334). IfcTester 0.9.0.post1 on the same suite: 312/334 (eval/score_ifctester.py). eval/crosscheck_ifctester.py with samples/coordination-basics.ids.xml and samples/quantities-and-naming.ids.xml on Schultz_Residence (opensourceBIM/IFC-files, 22 MB, 424,819 entities), bsi simple scene ifc2x3/ifc43, bsi wall-with-opening ifc4, research/house-open-design adu.ifc, samples/tiny-house.ifc: identical verdicts, applicable counts and failing element ids, except the two-xs:pattern naming spec where IfcTester ANDs patterns (contrary to XSD and the suite's regex_patterns_work_in_OR cases). Schultz: 1.4 s CLI, 0.77 s in Chromium via Playwright (worker + schema fetch), BCF download works, mobile width 390 no horizontal scroll. run_venture_tests.py ids-model-check: ok, 29 tests (suite test included when eval/IDS fetched). venture-preflight.mjs ids-model-check: clean on the 4th run (fixed: entry-script guard, launched.json, tree counts, catalogue sub-group, CTA under h1, sibling link from wall-framing-takeoff). wall-framing-takeoff suite: ok, 1206 tests. CI jobs queued (runners starved) at merge time.",
   "corrections": [],
   "redteam": null,
   "usage": {
