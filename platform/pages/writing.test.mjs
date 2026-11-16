@@ -716,3 +716,49 @@ test('the phone keeps the "By project" chips to one sideways row', async () => {
   const html = renderTopicPage([], 'tools', { projects: [{ slug: 'x', name: 'X', count: 3 }] });
   assert.match(html, /@media \(max-width:639px\) \{\s*\.topic-nav\.lead ul \{ flex-wrap:nowrap; overflow-x:auto;/);
 });
+
+test('Research findings: a programme with three posts gets a page that leads with its question and links the programme', async () => {
+  const { projectOf } = await import('./writing.mjs');
+  const tagged = (slug, date, tags) => [`${date}-${slug}.md`, post(slug, date).replace(/^tags:.*$/m, `tags: [${tags}]`)];
+  const root = repoWith(Object.fromEntries([
+    tagged('r1', '2026-10-01', 'hull-study, research'),
+    tagged('r2', '2026-10-02', 'hull-study'),
+    tagged('r3', '2026-10-03', 'hull-study, negative-result'),
+    tagged('r4', '2026-10-04', 'research'),
+    tagged('t1', '2026-10-05', 'framer'),
+    tagged('t2', '2026-10-06', 'framer'),
+    tagged('t3', '2026-10-07', 'framer'),
+  ]));
+  mkdirSync(path.join(root, 'research', 'hull-study'), { recursive: true });
+  writeFileSync(path.join(root, 'research', 'hull-study', 'README.md'), '# hull-study: which hull?\n');
+  mkdirSync(path.join(root, 'research', '_homepage'), { recursive: true });
+  writeFileSync(path.join(root, 'research', '_homepage', 'projects.json'), JSON.stringify({ themes: [{ id: 'm', projects: [{ slug: 'hull-study', title: 'Which hull goes <em>furthest</em> per kWh?' }] }] }));
+  mkdirSync(path.join(root, 'ventures', 'framer'), { recursive: true });
+  writeFileSync(path.join(root, 'ventures', 'framer', 'README.md'), '# Framer Pro\n');
+  const sets = { research: new Set(['hull-study']), ventures: new Set(['framer']) };
+  assert.equal(projectOf(['hull-study'], 'research', sets), 'hull-study');
+  assert.equal(projectOf(['hull-study'], 'tools', sets), undefined, 'a research slug does not group a tools post');
+  const out = mkdtempSync(path.join(os.tmpdir(), 'writing-out-'));
+  const pages = await buildWriting(out, BASE, { root, published: new Set(['framer']) });
+  assert.ok(pages.includes('topic/research/hull-study'), 'the programme page is in the sitemap');
+  assert.ok(pages.includes('topic/tools/framer'), 'tool projects keep their pages');
+  const topic = await fs.readFile(path.join(out, 'writing/topic/research/index.html'), 'utf8');
+  assert.match(topic, /<h2 id="project-nav-h">By programme<\/h2><ul><li><a href="hull-study\/" title="Which hull goes furthest per kWh\?">hull-study <span class="n">3<\/span><\/a><\/li><\/ul>/);
+  assert.match(topic, /3 of 4 posts are about these 1 programmes/);
+  assert.ok(!topic.includes('framer/'), 'tool projects stay off the research topic page');
+  const tools = await fs.readFile(path.join(out, 'writing/topic/tools/index.html'), 'utf8');
+  assert.ok(!tools.includes('hull-study'), 'and research programmes off the tools page');
+  const page = await fs.readFile(path.join(out, 'writing/topic/research/hull-study/index.html'), 'utf8');
+  assert.equal((page.match(/<h1/g) || []).length, 1);
+  assert.match(page, /<h1>Which hull goes furthest per kWh\?<\/h1>/, 'the question, tags stripped, is the heading');
+  assert.match(page, /<title>hull-study findings: Which hull goes furthest per kWh\?/);
+  assert.match(page, /href="\.\.\/\.\.\/\.\.\/\.\.\/research\/hull-study\/">Read the hull-study programme<\/a>/);
+  assert.match(page, /"about":\{"@type":"ResearchProject"/);
+  assert.match(page, /<h2 id="project-nav-h">Other programmes<\/h2>/);
+  for (const slug of ['r1', 'r2', 'r3']) assert.ok(page.includes(`href="../../../${slug}/"`), `${slug} is listed`);
+  assert.ok(!page.includes('href="../../../r4/"'));
+  const r1 = await fs.readFile(path.join(out, 'writing/r1/index.html'), 'utf8');
+  assert.match(r1, /<a href="\.\.\/topic\/research\/hull-study\/">More on hull-study<\/a>/);
+  const t1 = await fs.readFile(path.join(out, 'writing/t1/index.html'), 'utf8');
+  assert.match(t1, /<a href="\.\.\/topic\/tools\/framer\/">More on Framer Pro<\/a>/);
+});
