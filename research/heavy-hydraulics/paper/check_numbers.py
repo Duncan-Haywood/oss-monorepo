@@ -463,6 +463,14 @@ MANUSCRIPT_CHECKS = [
     ("E<sub>50</sub> = 0.8238 + 0.0177 (kW &minus; 3.57)", "gear_pump_eight_results.txt", "E50 = 0.8238 + 0.0177 (kW - 3.57)"),
     ("an RMS of 0.0022 against 0.0113 for a constant", "gear_pump_eight_results.txt", "eight held-out diagonals: one-number 0.0113, two-number 0.0022"),
     ("lands 0.0008 from the seven-family rule", "gear_pump_eight_results.txt", "AF1 AZPF within 0.006 of rule (Z): held (+0.0008)"),
+    # milestone 7b: the largest size spun instead of held
+    ("its efficiency at the index point falls only to 0.9043", "gear_pump_spin_results.txt", "azpf_spin   0.9043"),
+    ("rises from 7.7 to 12.3 W per L/min", "gear_pump_spin_results.txt", "85.00         3000      0.8865      0.9043      0.9037              12.3             0.9103               7.7"),
+    ("its idle power at 85 L/min rises to 2.99 kW", "gear_pump_spin_results.txt", "azpf_spin   0.9043       +0.0000     2.99"),
+    ("The crossing does not move (0.8075)", "gear_pump_spin_results.txt", "AZPF spun: E50 0.8075 (held 0.8075, +0.0000)"),
+    ("now predicts 0.8135, an error of &minus;0.0060", "gear_pump_spin_results.txt", "(Z) 6z rule at 2.99 kW: 0.8135, error -0.0060"),
+    ("E<sub>50</sub> = 0.8230 + 0.0181 (kW &minus; 3.57)", "gear_pump_spin_results.txt", "E50 = 0.8230 + 0.0181 (kW - 3.57)"),
+    ("the left-out RMS 0.0035 against 0.0115 for a constant", "gear_pump_spin_results.txt", "diagonal RMS: one-number 0.0115, two-number 0.0035"),
 ]
 
 
