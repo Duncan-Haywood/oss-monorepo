@@ -73,3 +73,11 @@ test("bad input is rejected, not guessed", () => {
 test("renderText mentions the extra tax", () => {
   assert.match(renderText(estimate(EXAMPLE)), /extra/);
 });
+
+test("renderText puts a loss's minus sign outside the dollar sign", () => {
+  // 280E's own headline case: tax owed on a real loss. Was "$-200,000.00".
+  const text = renderText(estimate({ ...EXAMPLE, opex: 1300000 }));
+  assert.match(text, /real net after operating expenses -\$200,000\.00/);
+  assert.match(text, /Cash left after tax -\$508,000\.00/);
+  assert.doesNotMatch(text, /\$-/);
+});

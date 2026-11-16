@@ -227,7 +227,12 @@
       });
       record("analysis_run");
     }
-    const money2 = (n) => "$" + n.toFixed(2);
+    const money2 = (n) => {
+      const format = (n) => "$" + n.toFixed(2);
+      if (!(Number(n) < 0)) return format(n);
+      const text = format(Math.abs(n));
+      return /[1-9]/.test(text) ? `-${text}` : text;
+    };
     fill();
     $("run").addEventListener("click", run);
     $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });

@@ -162,7 +162,12 @@
     const num = (id, dflt) => { const v = parseFloat($(id).value); return Number.isFinite(v) ? v : dflt; };
     const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.round(Math.abs(n)).toLocaleString("en-US"));
     const pct = (p, target) => p === null ? "n/a" : `<span class="${p > target ? "over" : "ok"}">${p.toFixed(1)}%</span>`;
-    const dollars = (n) => n === null ? "n/a" : "$" + n.toFixed(0);
+    const dollars = (n) => {
+      const format = (n) => n === null ? "n/a" : "$" + n.toFixed(0);
+      if (!(Number(n) < 0)) return format(n);
+      const text = format(Math.abs(n));
+      return /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const hr = (h) => `${h % 12 === 0 ? 12 : h % 12}${h < 12 ? "a" : "p"}`;
 
     function run(salesText, laborText) {

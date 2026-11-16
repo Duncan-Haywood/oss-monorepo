@@ -346,7 +346,12 @@ const RULE_NAME = { federal: "federal (over 40 a week)", california: "California
   nevada: "Nevada (over 8 in a 24-hour workday under 1.5x the minimum wage, or 40 a week; meal period)" };
 RULE_NAME.kentucky = "Kentucky (over 40 a week, the seventh day at 1.5x; meal-period check from the US DOL state table)";
 for (const [k, v] of Object.entries(MEAL_RULES)) if (!Object.hasOwn(RULE_NAME, k)) RULE_NAME[k] = `${v.name} (over 40 a week; meal-period check from the US DOL state table)`;
-const cents = (x) => "$" + x.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const cents = (x) => {
+  const format = (x) => "$" + x.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  if (!(Number(x) < 0)) return format(x);
+  const text = format(Math.abs(x));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 export function payTable(rows, pay) {
   const h = (x) => x.toFixed(2);
   const body = rows.map((r) => `<tr><td><strong>${esc(r.name)}</strong></td><td>${h(r.regularH)}</td><td>${h(r.overtimeH)}</td><td>${h(r.doubleH)}</td><td>${r.mealPremiumDays || ""}</td><td>${r.regularRate == null ? "" : esc(cents(r.regularRate))}</td><td>${r.gross == null ? "" : esc(cents(r.gross))}</td><td>${esc([...r.flags, ...r.notes, pay.roundMin && r.roundNetMin ? `rounding ${r.roundNetMin > 0 ? "+" : ""}${Math.round(r.roundNetMin)} min` : ""].filter(Boolean).join("; "))}</td></tr>`).join("");
@@ -414,7 +419,12 @@ function pinSection(state, k, weekStart, names, tc) {
 
 // Predictive scheduling: every logged change to a posted week, newest first, with its notice and the premium under the
 // FAIR_WORKWEEK rule set; shifts posted with too little notice; short rests in the current week. notice.mjs.
-const $ = (x) => (x == null ? "" : "$" + x.toFixed(2));
+const $ = (x) => {
+  const format = (x) => (x == null ? "" : "$" + x.toFixed(2));
+  if (!(Number(x) < 0)) return format(x);
+  const text = format(Math.abs(x));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 const r2h = (x) => Math.round(x * 100) / 100;
 // The rest rule in words, for the rule-set note, and the short-rest table's pay heading.
 function restRule(r) {

@@ -329,7 +329,12 @@ export function decodeBuffer(buf) {
 // ---- samples -----------------------------------------------------------------
 
 const HEAD = ["Pay Date", "Employee", "Gross Pay", "Federal Income Tax", "Social Security", "Medicare", "State Income Tax", "401(k)", "Health Insurance", "Other Deductions", "Net Pay", "Employer Social Security", "Employer Medicare", "FUTA", "SUTA", "Employer 401(k) Match"];
-const usd = (c) => "$" + (c / 100).toFixed(2);
+const usd = (c) => {
+  const format = (c) => "$" + (c / 100).toFixed(2);
+  if (!(Number(c) < 0)) return format(c);
+  const text = format(Math.abs(c));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 const cents = (v) => Math.round((v || 0) * 100);
 
 // items in dollars. Social Security 6.2% and Medicare 1.45% are computed for both sides; net pay is computed.

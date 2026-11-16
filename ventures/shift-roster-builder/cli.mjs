@@ -412,7 +412,12 @@ function hoursWatchReport(r, opts) {
   const head = rows.length ? `${over} at or over ${num(line)} h this week, ${rows.length - over} within ${num(within)} h under it.` : `No one is at or within ${num(within)} h of ${num(line)} h this week.`;
   return [head, ...lines, "", "Planned hours for this one week against a line you typed. Eligibility rules usually count a longer period, so this is not a statement of what any benefit or employer-mandate rule requires. Not legal advice.", ""].join("\n");
 }
-const usd = (x) => "$" + x.toFixed(2);
+const usd = (x) => {
+  const format = (x) => "$" + x.toFixed(2);
+  if (!(Number(x) < 0)) return format(x);
+  const text = format(Math.abs(x));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 function tipsReport(r, opts) {
   const t = tipPool(r, opts.tips);
   if (!t.rows.length) return "No tip split: nobody is scheduled for any hours.\n";
@@ -433,7 +438,12 @@ function longReport(r, opts) {
 }
 function budgetReport(staff, slots, r, opts) {
   const b = budgetCheck(r, opts.budget);
-  const $ = (x) => "$" + x.toFixed(2);
+  const $ = (x) => {
+    const format = (x) => "$" + x.toFixed(2);
+    if (!(Number(x) < 0)) return format(x);
+    const text = format(Math.abs(x));
+    return /[1-9]/.test(text) ? `-${text}` : text;
+  };
   if (!b) return "Nothing to compare: no payroll.\n";
   if (!b.over) return `Payroll ${$(b.payroll)} against a ${$(b.budget)} budget: ${$(b.headroom)} under (${b.pct.toFixed(1)}%).\n`;
   const need = b.payroll - b.budget;

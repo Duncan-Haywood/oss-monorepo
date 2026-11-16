@@ -134,7 +134,12 @@ micro, 430, 808, 1656, 108</textarea></label>
 
     const FIELDS = ['patents','asOf','horizonYears','warnDays','fees'];
     const $ = (id) => document.getElementById(id);
-    const usd = (n) => '$' + Math.round(n).toLocaleString('en-US');
+    const usd = (n) => {
+      const format = (n) => '$' + Math.round(n).toLocaleString('en-US');
+      if (!(Number(n) < 0)) return format(n);
+      const text = format(Math.abs(n));
+      return /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const todayIso = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
     const STATUS = { 'upcoming': 'Not yet open', 'window-open': 'Window open', 'surcharge': 'SURCHARGE period' };
     let last = null;

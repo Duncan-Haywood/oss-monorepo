@@ -16,7 +16,12 @@ const MAX_SPAN = 800; // days between earliest start and latest end
 const NODE_LIMIT = 3_000_000;
 const SCALE = 10000; // weight units: priority (x days) x SCALE, +500 so ties favour more approvals, minus list position
 
-export const money = (n) => "$" + Math.round(n).toLocaleString("en-US");
+export const money = (n) => {
+  const format = (n) => "$" + Math.round(n).toLocaleString("en-US");
+  if (!(Number(n) < 0)) return format(n);
+  const text = format(Math.abs(n));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 export const num = (n, d = 1) => (Math.round(n * 10 ** d) / 10 ** d).toLocaleString("en-US", { maximumFractionDigits: d });
 
 // ---- dates -------------------------------------------------------------

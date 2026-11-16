@@ -41,6 +41,11 @@ const num = (v) => {
 const round2 = (n) => Math.round(n * 100) / 100;
 
 export function money(n) {
+  // The sign goes outside the symbol, and only on a nonzero amount: -$9.24, never $-9.24.
+  if (Number(n) < 0) {
+    const text = money(Math.abs(n));
+    return /[1-9]/.test(text) ? `-${text}` : text;
+  }
   const v = Math.round(n * 100) / 100;
   return "$" + v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }

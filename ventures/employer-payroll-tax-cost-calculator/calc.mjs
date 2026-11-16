@@ -57,7 +57,12 @@ export function parse(input) {
 }
 
 const r2 = (v) => Math.round(v * 100) / 100;
-export const money = (v) => "$" + Math.round(v).toLocaleString("en-US");
+export const money = (v) => {
+  const format = (v) => "$" + Math.round(v).toLocaleString("en-US");
+  if (!(Number(v) < 0)) return format(v);
+  const text = format(Math.abs(v));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 export const pct = (v) => (Math.round(v * 1000) / 10).toString() + "%";
 
 export function compute(input) {

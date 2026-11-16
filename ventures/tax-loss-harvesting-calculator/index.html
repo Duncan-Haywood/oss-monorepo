@@ -178,7 +178,12 @@
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    const usd = (n) => "$" + money(n);
+    const usd = (n) => {
+      const format = (n) => "$" + money(n);
+      if (!(Number(n) < 0)) return format(n);
+      const text = format(Math.abs(n));
+      return /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const ROWS = [1, 2, 3, 4, 5, 6];
     const TOP = ["stGain", "ltGain", "stCarry", "ltCarry", "ordRate", "ltRate", "stateRate", "niitRate"];
     const PKEYS = ["name", "loss", "term", "wash"];

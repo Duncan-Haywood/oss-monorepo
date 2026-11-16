@@ -94,6 +94,36 @@ class FindingsIn(unittest.TestCase):
             name="calc.mjs",
         )
 
+    # Red team 2026-11-16: 100 formatters in 97 files read as clean because
+    # they concatenated (`"$" + n.toLocaleString(...)`) instead of using a
+    # template, or were named `fmt`, `m`, `cad`, `cents`, `amt` or `$`.
+    # cannabis-280e-tax-calculator rendered its headline case, tax owed on a
+    # real loss, as "Real profit $-200,000" and "Cash after tax $-508,000".
+    def test_flags_the_concatenated_spelling(self):
+        self.assert_flagged('const money = (n) => "$" + n.toLocaleString("en-US", { maximumFractionDigits: 0 });')
+        self.assert_flagged("const usd = (n) => '$' + Math.round(n).toLocaleString('en-US');")
+        self.assert_flagged('export function money2(x) {\n  return "$" + x.toFixed(2);\n}', name="calc.mjs")
+        self.assert_flagged('const usd = (n) => "$" + money(n);')
+
+    def test_flags_the_drifted_names(self):
+        self.assert_flagged(
+            'export function fmt(n) {\n  return `$${n.toLocaleString("en-US", '
+            '{ minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;\n}',
+            name="engine.mjs",
+        )
+        for name in ("m", "cad", "cents", "amt", "moneyCents", "usd3", "$"):
+            self.assert_flagged(f'const {name} = (x) => "$" + x.toFixed(2);')
+        self.assert_flagged("const m = (x) => `$${x.toFixed(2)}`;")
+
+    def test_passes_the_concatenated_spelling_signed_correctly(self):
+        self.assert_clean(
+            "const usd = (n) => {\n"
+            '  const format = (n) => "$" + n.toFixed(2);\n'
+            "  const text = format(Math.abs(n));\n"
+            "  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;\n"
+            "};"
+        )
+
     def test_passes_a_formatter_that_signs_correctly(self):
         self.assert_clean(
             "const money = (value) => {\n"
@@ -188,6 +218,44 @@ class FindingsIn(unittest.TestCase):
             )
         )
         self.assertEqual(len(found), 1)
+
+
+class TheFixer(unittest.TestCase):
+    """fix_money_sign.mjs must turn every newly flagged spelling into one that
+    renders "-$1,234.50", keeps guards and zeros as they were, and passes the check."""
+
+    CASES = [
+        ('const money = (n) => "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });',
+         {"-1234.5": "-$1,234.50", "1234.5": "$1,234.50", "-0.001": "$0.00", "0": "$0.00"}),
+        ('export function fmt(n) {\n  return `$${n.toFixed(2)}`;\n}', {"-9.24": "-$9.24", "9.24": "$9.24"}),
+        ('const usd = (x) => (x == null ? "—" : "$" + x.toFixed(2));', {"null": "—", "-3": "-$3.00"}),
+        ("const usd = (n, d = 0) => '$' + n.toFixed(d);", {"-3.4": "-$3", "-0.4": "$0"}),
+        ('const $ = (x) => "$" + x.toFixed(2);', {"-1": "-$1.00"}),
+    ]
+
+    def test_rewrites_render_the_sign_outside_and_pass_the_check(self):
+        import json, subprocess
+        here = Path(__file__).resolve().parent
+        script = (
+            "import { rewrite } from " + json.dumps((here / "fix_money_sign.mjs").as_uri()) + ";\n"
+            "const cases = JSON.parse(process.argv[1]); const out = [];\n"
+            "for (const [src, io] of cases) {\n"
+            "  const { after, count } = rewrite(src);\n"
+            "  const name = after.match(/(?:function|const)\\s+([\\w$]+)/)[1];\n"
+            "  const fn = new Function(after.replace(/^export /m, '') + `; return ${name};`)();\n"
+            "  out.push({ after, count, got: Object.fromEntries(Object.keys(io).map((k) => [k, fn(JSON.parse(k))])) });\n"
+            "}\n"
+            "console.log(JSON.stringify(out));\n"
+        )
+        run = subprocess.run(["node", "--input-type=module", "-e", script, json.dumps(self.CASES)],
+                             capture_output=True, text=True, check=True)
+        with TemporaryDirectory() as tmp:
+            for (src, want), res in zip(self.CASES, json.loads(run.stdout)):
+                self.assertEqual(res["count"], 1, src)
+                self.assertEqual(res["got"], want, res["after"])
+                path = Path(tmp) / "calc.mjs"
+                path.write_text(res["after"], encoding="utf-8")
+                self.assertEqual(list(guard.findings_in(path)), [], res["after"])
 
 
 class SourceFiles(unittest.TestCase):
