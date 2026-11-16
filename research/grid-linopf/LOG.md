@@ -1,5 +1,10 @@
 # Research log
 
+## 2026-11-16 · Why the DC OPF has no solution on five held-out cases: outcome. On 4 of 5 the reference DC solver fails, not the network
+- Plan, outcome and the follow-up plan: `research/infra-dcopf/LOG.md` (2026-11-16); numbers in `research/infra-dcopf/experiments/results_dc_infeasible.txt`.
+- A second solver (the same B-theta DC OPF on Clarabel) agrees with PYPOWER's PIPS on all 89 problems both solve (within 1e-5) and solves **26 that PIPS reports as having no solution**. case2000_goc API is feasible under MATPOWER's own convention; the SNEM network has two x = 0 bus ties that make MATPOWER's B infinite, and with them at 1e-4 pu its DC OPF solves; case1951_rte API is the one genuine case, infeasible by 1.61 MW on one rating row under b = 1/(x tap) and feasible under PowerModels' convention.
+- D1 (PM on PIPS matches PGLib) and D2 (ratings cause it) refuted as written; D4 held on Clarabel. Next: the five cases through the unchanged repair from a second-solver start (E1 to E3).
+
 ## 2026-11-16 · Why the DC OPF has no solution on five held-out cases (plan)
 - Plan and predictions D1 to D4 with control C0: `research/infra-dcopf/LOG.md` (2026-11-16); script `research/infra-dcopf/experiments/diag_dc_infeasible.py`. The five unscored cases (case1803_snem x3, case1951_rte API, case2000_goc API): data, ratings, angle limits or the DC convention?
 
