@@ -1,0 +1,68 @@
+Milestone 6zzp: an asymmetric guard on the learned local summer, and 6zzo's early-bright tilt, scored on all 30 points and the five single-year lags, 2005 to 2014 (50 W)
+lag g: scoring L learns from 2010 - g, scoring E from 2009 + g; local summer JJA north, DJF south
+high-amplitude points: P-60, P-30, P+50, P+60, A-50, A+50, A+60, North-Sea, Gulf-of-Alaska (9)
+
+Checks (6zzj, 6zzo): all168 LC_1 97 (97), LC_2 117 (117), LC_3 132 (132), LC_4 152 (152), LC_5 111 (111); hi168 LC_1 77 (77), LC_2 153 (153), LC_3 1 (1), LC_4 124 (124), LC_5 50 (50), TE_2 166 (166); AT_90 all168 139 (139), hi168 25 (25), real8 8 (8), pp240 126 (126)  ok
+
+Per rule and lag: dominance counts
+  rule   |  all168 |   real8 |   hi168 |   pp240
+  AT_90  |     139 |       8 |      25 |     126
+  LC_1   |      97 |       4 |      77 |     106
+  LC_2   |     117 |       7 |     153 |     121
+  LC_3   |     132 |       8 |       1 |     107
+  LC_4   |     152 |       8 |     124 |     131
+  LC_5   |     111 |       7 |      50 |     105
+  DG_1   |      89 |       5 |     105 |     109
+  DG_2   |     105 |       6 |     152 |     121
+  DG_3   |     136 |       7 |      74 |     120
+  DG_4   |     131 |       6 |     124 |     133
+  DG_5   |      69 |       3 |      91 |     113
+  DH_1   |     102 |       5 |      90 |     109
+  DH_2   |     120 |       6 |     152 |     118
+  DH_3   |     148 |       7 |      30 |     112
+  DH_4   |     156 |       8 |     124 |     128
+  DH_5   |      99 |       4 |      53 |     113
+  SZ_1   |     126 |       7 |      48 |     107
+  SZ_2   |     138 |       8 |      74 |     121
+  SZ_3   |     140 |       8 |      40 |     119
+  SZ_4   |     157 |       8 |      67 |     119
+  SZ_5   |     120 |       5 |      35 |     115
+  DA_1   |      61 |       3 |      88 |     116
+  DA_2   |      79 |       3 |     164 |     111
+  DA_3   |     111 |       6 |      53 |     117
+  DA_4   |      93 |       5 |     133 |     128
+  DA_5   |      66 |       2 |      79 |     111
+  TE_1   |     109 |       5 |      70 |     111
+  TE_2   |     141 |       8 |     166 |     125
+  TE_3   |     137 |       8 |       2 |     111
+  TE_4   |     158 |       8 |     105 |     130
+  TE_5   |     123 |       7 |      56 |     112
+
+Per rule over the five lags: mean [min, max]
+  LC  |  121.8 [ 97,152] |    6.8 [  4,  8] |   81.0 [  1,153] |  114.0 [105,131]
+  DG  |  106.0 [ 69,136] |    5.4 [  3,  7] |  109.2 [ 74,152] |  119.2 [109,133]
+  DH  |  125.0 [ 99,156] |    6.0 [  4,  8] |   89.8 [ 30,152] |  116.0 [109,128]
+  SZ  |  136.2 [120,157] |    7.2 [  5,  8] |   52.8 [ 35, 74] |  116.2 [107,121]
+  DA  |   82.0 [ 61,111] |    3.8 [  2,  6] |  103.4 [ 53,164] |  116.6 [111,128]
+  TE  |  133.6 [109,158] |    7.2 [  5,  8] |   79.8 [  2,166] |  117.8 [111,130]
+
+Failing hi168 cells by mode (km only / dark only / both)
+  LC: lag 1 89/2/0; lag 2 1/14/0; lag 3 167/0/0; lag 4 44/0/0; lag 5 118/0/0
+  DG: lag 1 61/2/0; lag 2 1/15/0; lag 3 94/0/0; lag 4 44/0/0; lag 5 77/0/0
+  TE: lag 1 97/1/0; lag 2 2/0/0; lag 3 166/0/0; lag 4 63/0/0; lag 5 112/0/0
+
+Share of learned local-summer months with c_m < 1 (all 30 points / high-amplitude points)
+  lag 1 0.51 / 0.49, lag 2 0.52 / 0.54, lag 3 0.51 / 0.51, lag 4 0.55 / 0.53, lag 5 0.46 / 0.42
+
+Predictions
+G1 DG_3 hi168 >= 30: held (74)
+G2 DG_2 hi168 >= 143: held (152)
+G3 DG mean hi168 >= 81.0: held (109.2)
+G4 DG mean all168 >= 121.8: refuted (106.0)
+G5 DG mean all168 >= 139: refuted (106.0)
+G6 DG mean hi168 > SZ mean hi168: held (109.2 vs 52.8)
+G7 LC_3 <= DH_3 <= DG_3 on hi168: held (1, 30, 74)
+G8 DA mean all168 < DG mean all168: held (82.0 vs 106.0)
+G9 TE_g > LC_g on hi168 for >= 4 of 5 lags: refuted (3 of 5)
+G10 TE mean all168 >= 121.8: held (133.6)
+G11 DG worst lag hi168 >= 30: held (74)

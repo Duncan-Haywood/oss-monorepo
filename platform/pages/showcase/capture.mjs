@@ -5,23 +5,32 @@
 //   node build.mjs --out=dist            # in platform/pages
 //   (cd dist && python3 -m http.server 8765) &
 //   node showcase/capture.mjs [http://localhost:8765]
+//   node showcase/capture.mjs --stills-only [--only=slug,slug] [base url]
+//
+// `--stills-only` retakes stills and keeps the recording; `--only` limits it
+// to the named tools and keeps every other entry in the manifest as it was.
 //
 // Needs Playwright's Chromium, ImageMagick (`convert`, for WebP) and ffmpeg.
 // Rerun it when a tool's look changes; `manifest.json` is what the hub reads,
 // and the hub drops any entry whose tool is no longer published.
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const BASE = (process.argv[2] || 'http://localhost:8765').replace(/\/$/, '');
-const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
+const ARGS = process.argv.slice(2);
+const STILLS_ONLY = ARGS.includes('--stills-only');
+const ONLY = (ARGS.find((a) => a.startsWith('--only=')) || '').slice('--only='.length).split(',').filter(Boolean);
+const BASE = (ARGS.find((a) => !a.startsWith('--')) || 'http://localhost:8765').replace(/\/$/, '');
+const pwModule = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
+const { chromium } = pwModule.chromium ? pwModule : pwModule.default;
 
 // slug, the button that loads its example, the text to scroll to (default:
 // the biggest table or drawing on the page), and the caption under the still.
 export const SHOTS = [
+  { slug: 'wall-framing-takeoff', focus: 'Wall drawing and layout marks', caption: 'Draws every stud, header and cripple, then prices the lumber order' },
   { slug: 'container-load-planner', click: '#load-example', caption: 'Packs cartons and pallets into containers, drawn to scale' },
   { slug: 'band-tour-profit-planner', click: '#load-example', focus: 'Your tour', caption: 'Shows which tour dates lose money before you book the van' },
   { slug: 'league-schedule-generator', click: '#load-example', focus: 'Your schedule', caption: 'Builds a fair round-robin league schedule in a minute' },
@@ -58,11 +67,20 @@ async function show(page, shot) {
       target = target?.closest('section') || target;
     }
     if (target) {
-      target.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      // Instant: a smooth scroll down a long page (wall-framing-takeoff, ~9,600 px)
+      // had not arrived when the screenshot was taken.
+      target.scrollIntoView({ block: 'start', behavior: 'instant' });
     }
   }, shot.focus || null);
   await page.waitForTimeout(900);
-  await page.evaluate(() => window.scrollBy(0, -24));
+  await page.evaluate(() => {
+    window.scrollBy(0, -24);
+    // Floating controls (the site assistant's "Speak or type" button) sat in
+    // the same corner of every still; the still is about the tool's answer.
+    for (const el of document.querySelectorAll('body *')) {
+      if (getComputedStyle(el).position === 'fixed') el.style.visibility = 'hidden';
+    }
+  });
   await page.waitForTimeout(200);
 }
 
@@ -70,8 +88,18 @@ const browser = await chromium.launch();
 const tmp = mkdtempSync(path.join(os.tmpdir(), 'showcase-'));
 try {
   const page = await browser.newPage({ viewport: VIEWPORT });
-  const manifest = { generated: new Date().toISOString().slice(0, 10), shots: [], reel: null };
+  const previous = existsSync(path.join(HERE, 'manifest.json'))
+    ? JSON.parse(readFileSync(path.join(HERE, 'manifest.json'), 'utf8'))
+    : { shots: [], reel: null };
+  const manifest = { generated: new Date().toISOString().slice(0, 10), shots: [], reel: STILLS_ONLY ? previous.reel : null };
+  const unknown = ONLY.filter((slug) => !SHOTS.some((s) => s.slug === slug));
+  if (unknown.length) throw new Error(`not in SHOTS: ${unknown.join(', ')}`);
   for (const shot of SHOTS) {
+    if (ONLY.length && !ONLY.includes(shot.slug)) {
+      const kept = previous.shots.find((s) => s.slug === shot.slug);
+      if (kept) manifest.shots.push(kept);
+      continue;
+    }
     await show(page, shot);
     const png = path.join(tmp, `${shot.slug}.png`);
     await page.screenshot({ path: png });
@@ -81,6 +109,10 @@ try {
     console.log(`still: ${file}`);
   }
 
+  if (STILLS_ONLY) {
+    writeFileSync(path.join(HERE, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
+    console.log('kept the existing recording (--stills-only)');
+  } else {
   // The recording: each tool opened, its example loaded, the answer scrolled to.
   const context = await browser.newContext({ viewport: VIEWPORT, recordVideo: { dir: tmp, size: VIEWPORT } });
   const rec = await context.newPage();
@@ -100,6 +132,7 @@ try {
   manifest.reel = { webm: 'reel.webm', mp4: 'reel.mp4', poster: 'reel-poster.webp', tools: REEL };
   writeFileSync(path.join(HERE, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
   console.log('reel: reel.webm, reel.mp4');
+  }
 } finally {
   await browser.close();
   rmSync(tmp, { recursive: true, force: true });

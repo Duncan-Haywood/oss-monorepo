@@ -5,3 +5,4 @@
 ## Parked from flagships.yaml `next:`
 
 - (2026-11-16) 32-40 exhaustive needs a tighter bound (30 teams took 24 min)
+- (2026-11-16) printed sheets on a real printer and paper

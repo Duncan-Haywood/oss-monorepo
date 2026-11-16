@@ -37,6 +37,30 @@ __attribute__((export_name("in_i32"))) void in_i32(i32 k) {
   if (narrow) for (i32 x = 0; x < 1 << k; x++) Ts[PERM(x)] = (i16)Pi[x];
   else for (i32 x = 0; x < 1 << k; x++) Ti[PERM(x)] = Pi[x];
 }
+// The symmetric step (README "Half the table: flipping every host"): a whole-break table
+// with f[x] = f[~x] goes in with one of the next round's host bits fixed at 0, so that match's two
+// edges become unary costs on the input (m0, m1: the A host bit each of its teams meets, 0 for
+// none; the team breaks when that bit equals f0, f1), and the step runs on one fewer y bit.
+__attribute__((export_name("in_i32u"))) void in_i32u(i32 k, i32 m0, i32 f0, i32 m1, i32 f1) {
+  i32 lo = 0, hi = 0;
+  for (i32 x = 0; x < 1 << k; x++) { const i32 v = Pi[x]; lo = v < lo ? v : lo; hi = v > hi ? v : hi; }
+  narrow = lo > -NARROW_MAX && hi < NARROW_MAX - 2;
+  // the cost of bit m is 1 when (x & m != 0) == f: with s = f ? 0 : m, that is ((x & m) ^ s) == m
+  // for m != 0; an absent edge (m = 0) adds nothing
+  const i32 s0 = f0 ? 0 : m0, s1 = f1 ? 0 : m1, e0 = m0 != 0, e1 = m1 != 0;
+#define U(x) ((e0 & (((x) & m0) == (m0 ^ s0))) + (e1 & (((x) & m1) == (m1 ^ s1))))
+  if (narrow) for (i32 x = 0; x < 1 << k; x++) Ts[PERM(x)] = (i16)(Pi[x] + U(x));
+  else for (i32 x = 0; x < 1 << k; x++) Ti[PERM(x)] = Pi[x] + U(x);
+#undef U
+}
+// ...and comes out at full width: y with the fixed bit (hb) set reads ~y's entry (the table is
+// symmetric), and the step's table holds the other k - 1 bits (the lookups place those).
+__attribute__((export_name("out_i32s"))) void out_i32s(i32 k, i32 swap, i32 tm, i32 hb) {
+  const i32 full = (1 << k) - 1, half = hb;
+  if (narrow) { const i16 *S = swap ? Ns : Ts; for (i32 y = 0; y < 1 << k; y++) { const i32 v = y & half ? ~y & full : y; Pi[y] = S[PERM(v) & tm]; } return; }
+  const i32 *T = swap ? Ni : Ti;
+  for (i32 y = 0; y < 1 << k; y++) { const i32 v = y & half ? ~y & full : y; Pi[y] = T[PERM(v) & tm]; }
+}
 __attribute__((export_name("narrowed"))) i32 narrowed(void) { return narrow; }
 __attribute__((export_name("in_f64"))) void in_f64(i32 k) { for (i32 x = 0; x < 1 << k; x++) Tf[PERM(x)] = Pf[x]; }
 __attribute__((export_name("out_i32"))) void out_i32(i32 k, i32 swap, i32 tm) {

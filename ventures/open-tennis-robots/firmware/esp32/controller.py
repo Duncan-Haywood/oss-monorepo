@@ -820,7 +820,8 @@ class LaunchCheck:
     `start(targets, now)` when the shuttle's forward stroke begins (the wheels are held within 3% of target then, or
     the gate would not have opened); `stroke_done(now)` when it ends; `update(now, rpms)` every control tick returns
     None while it watches, then once, `check_ms` after the stroke's end, True (a ball went: the wheel with the larger
-    predicted drop fell by at least `share` of its prediction, and by `dip_min` at least) or False (it did not).
+    predicted drop fell by at least `share` of its prediction, and by `dip_min` at least, measured from its own speed just
+    before the fall, not from its target) or False (it did not).
     Wheels both at rest give no verdict (None throughout): nothing could launch a ball. `cancel()` on any stop.
     Pass the wheels' current targets to `update`: once they differ from the stroke's (the Pi re-aims as soon as it sees
     the release counted, at the stroke's end), the low readings stop being taken, so the next shot's slower speed or the
@@ -835,6 +836,7 @@ class LaunchCheck:
         self.low = [0.0, 0.0]
         self.frozen = False
         self.last_dip = None          # the measured drop of the judged wheel at the last verdict, for the README's sweep
+        self.last_dip_target = None   # the same wheel's drop below its target (the verdict before 2026-11-16 evening)
         # Every verdict, both wheels (2026-11-16, README "Shot log"): (seq mod 256, top and bottom rpm just before the
         # ball, their drops in 1/10000 of that speed, 1 if a ball went). The ball's momentum is in the drops, so the Pi
         # fits the launcher's efficiencies from them (tennisbots.launcher.fit_from_drops) without a radar gun. The drop
@@ -900,7 +902,13 @@ class LaunchCheck:
         if th is None:
             return None
         i, need = th
-        self.last_dip = 1.0 - low[i] / targets[i]
+        # Judged on the drop from the wheel's own speed when the ball met it (2026-11-16, README "Empty hopper", "The
+        # verdict from the pre-ball speed"), not from the target: a stroke fed as the 3% gate opens after a speed change
+        # starts with the wheel still closing on its target, and against the target that offset read 27 of 486 dry
+        # strokes as balls and 2 of 486 balls as dry on the simulator (tests/launch_check_sweep.py, "fed at the gate";
+        # none either way from the pre-ball speed). `low` (the target-based drop) is kept as `last_dip_target`.
+        self.last_dip = fall[i][0]
+        self.last_dip_target = 1.0 - low[i] / targets[i]
         went = self.last_dip >= need
         drops = [int(round(10000 * fall[k][0])) for k in (0, 1)]
         self.seq = (self.seq + 1) & 0xFF

@@ -168,6 +168,7 @@ import {
   loadShowcase,
   renderMarquee,
   renderShowcaseSection,
+  renderHeroArt,
 } from './showcase.mjs';
 import {
   HOME_SECTIONS_CSS,
@@ -9126,6 +9127,8 @@ ${
            320 px). "Open source", "check how a number was reached" and "run
            your own copy" are steps 2 and 3 of the how-it-works band below;
            research is in the search label and the stats. -->
+      <div class="hero-grid">
+      <div class="hero-main">
       <p class="lede">
         Bid calculators for the trades, fee checkers for marketplace sellers, and
         pricing, tax and back-office tools for service businesses. Type your
@@ -9167,6 +9170,9 @@ ${
         <p>No tool here does what you need? Tell us the job, and the AI agents that build this site may build it for you, free and in public. The one condition: the result stays open source (MIT).</p>
         <a class="go" href="${CUSTOM_DEV_PATH}">Describe your problem</a>
       </section>
+      </div>
+${renderHeroArt(showcase.shots, (slug) => titles.get(slug) ?? slug)}
+      </div>
     </div>
   </header>
 

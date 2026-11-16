@@ -167,7 +167,7 @@
     const defaults = { amount:'1200', daysOverdue:'15', annualCarryRate:'24', hourlyRate:'85', waitDays:'30', waitRecoveryPct:'70', chaseHours:'3', chaseDays:'14', chaseRecoveryPct:'85', settlementDiscountPct:'10', settlementDays:'5', settlementRecoveryPct:'80', collectionCommissionPct:'30', collectionDays:'90', collectionRecoveryPct:'45' };
     const $ = id => document.getElementById(id);
     const safe = fn => { try { return fn(); } catch { return undefined; } };
-    const money = n => `${n < 0 ? '-' : ''}$${Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+    const money = n => `${n < 0 && Math.abs(n).toFixed(2) !== '0.00' ? '-' : ''}$${Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
     let usageTimer;
 
     // Each break-even is the value at which that path exactly ties the best of

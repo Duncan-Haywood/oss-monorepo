@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtJsJRpsgR4uXkzyA75",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T06:06:54Z",
+  "ended": "2026-11-16T06:16:39Z",
+  "wall_minutes": 10.09,
+  "tokens_in": 3799471,
+  "tokens_out": 24391,
+  "cost_usd": 2.0967,
+  "tool_calls": 40,
+  "task": "research programme llm-coding-inference, milestone 7ax (7aw next step 1)",
+  "projects": [
+    "llm-coding-inference"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16475",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "summary code's decision branch switched the default to w5 when w3 failed P4 alone, contradicting the committed text; caught on reading the output, fixed to follow the text, disclosed in LOG.md and the script"
+  ],
+  "integrity_issues": [
+    "prediction text said '6 of the 9 cells' with expected positives under 3; its own list gives 12 (arithmetic slip), disclosed; result passes either count",
+    "decision branch fixed after the run (see errors); the committed text governs and the fix is disclosed"
+  ],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-rare-count-fallback-second-corpus.md",
+    "research/llm-coding-inference/LOG.md (7ax entry)"
+  ],
+  "goal": null,
+  "notes": "36 fresh NaijaSenti cells (nb, Qwen2.5-1.5B, 3B; 0.5/1/2% thinned; n 200-1000), 1000 draws each, ~10 min on 4 cores. P1, P2, P3, P5 supported; P4 refuted (w3 keeps 47.7% of a 0.281 summed gain). Default stays RARE_FALLBACK=3. Local checks: test_llmci.py 41 passed; research/_homepage/build.py ok; check_md_links ok; research_live_links ok; programme_check ok; post front matter and links ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0455fb33-d3db-5e1f-927a-5080c075e118",
+    "transcripts": 1,
+    "first": "2026-11-16T06:06:54Z",
+    "last": "2026-11-16T06:16:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 38,
+        "input": 75,
+        "output": 24391,
+        "thinking": 5736,
+        "cache_read": 3690592,
+        "cache_write_5m": 0,
+        "cache_write_1h": 108804,
+        "api_equivalent_usd": 2.0967,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 38,
+      "input": 75,
+      "output": 24391,
+      "thinking": 5736,
+      "cache_read": 3690592,
+      "cache_write_5m": 0,
+      "cache_write_1h": 108804,
+      "api_equivalent_usd": 2.0967,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 40,
+    "tools": {
+      "Bash": 37,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.09,
+      "active_minutes": 10.09,
+      "model_minutes": 4.33,
+      "tool_minutes": 5.77,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design, run and write up one pre-registered 36-cell simulation study, by a statistics PhD student",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 286.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

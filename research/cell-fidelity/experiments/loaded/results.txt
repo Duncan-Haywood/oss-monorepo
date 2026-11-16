@@ -1,0 +1,25 @@
+cell-fidelity milestone 5zc: 5zb's kinetic law with the loaded charge capacity (eta short of each
+cut-off, eta from the measured charge Ah of cycles 2 to 10) against 5zb (open-circuit Q) and 5y.
+DFN (SEI + plating) to cycle 100, fresh Sobol designs (seed 21); median |ln(L_pred(99) / L_DFN(99))|
+
+condition               n drop     5y    5zb   load sgn 5zb sgn ld  wins   rhoL   ld+s  sgn ls  eta mV
+Ai2020@0.525x          32    0  0.087  0.031  0.030  +0.027 -0.004    18  0.982  0.141  -0.141   181.8
+NCA_Kim2011@0.6875x    32    0  0.053  0.018  0.023  +0.010 +0.005     8  0.995  0.113  +0.113   112.3
+Chen2020@1.375x        32    0  0.327  0.279  0.210  +0.279 +0.210    32  0.995  0.239  +0.171   377.9
+OKane2022@1.375x       32    0  0.346  0.248  0.161  +0.248 +0.161    32  0.996  0.153  +0.130   383.3
+
+condition              Qch err eta Qch err oc eta99 mV
+Ai2020@0.525x                0.069      0.287    161.7
+NCA_Kim2011@0.6875x          0.047      0.196    147.3
+Chen2020@1.375x              0.048      0.831    371.9
+OKane2022@1.375x             0.040      0.856    376.6
+
+(ld+s: the loaded law with 5za's surface offset, descriptive; Qch err: median |ln| of the predicted over the
+ DFN charge Ah at cycle 99, with eta held at its cycles 2 to 10 value and at open circuit; eta99: the eta the
+ cycle-99 charge needs)
+
+H152 (loaded law beats 5zb on both LG M50 pools): supported
+H153 (loaded law within 0.15 on both LG M50 pools): mixed
+H154 (controls: no worse than 5zb by more than 0.02 on either): supported
+H155 (worst-pool error below 5zb's; 0.210 vs 0.279): supported
+H156 (a fixed eta predicts the cycle-99 charge Ah within 0.05 on all four pools): mixed

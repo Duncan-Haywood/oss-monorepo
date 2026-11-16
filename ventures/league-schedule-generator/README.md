@@ -2568,7 +2568,54 @@ tried. Tests: `blackout-fit.test.mjs` (relabelling keeps a round robin and moves
 its label; never worse than the plan as given; the same seed gives the same season; no blackouts means no
 change). The multi-division page gets the same fit in the next section.
 
-## Starting under the gap: 27 and 28 teams join the page (2026-11-15, latest)
+## Half the table: flipping every host (2026-11-16, latest)
+
+The flagship row asked for 29 and 30 teams in the page's floor-priced step, profiling 30 first. With the
+size guards lifted locally (not committed), 30 teams took **128 s solo** (138 to 196 s three at once)
+against 47 to 64 s for 28, and added one or two seasons a seed, all just under the top of a very wide
+gap: seed 1's list jumps from 1110/84 to 2542/68, and the step added 1152/82 and 2542/64; seed 2 added
+1164/82. 29 teams (seed 1) added nothing in 110 s. The profile: 116 of 128 s in the floor trials, the
+WebAssembly step 66 s, its copy in and out 17 s, the JS around it 18 s.
+
+**The symmetry.** Flipping every host in every round leaves every team's breaks as they were (two home
+games in a row become two away games). So every whole-break table the floor programme builds, which starts
+at zero, has f[x] = f[~x], and so does the next one. `minPlusStep(fr, A, B, { sym: true })` uses it: one of
+B's host bits is fixed at 0, the two teams of that match become unary costs on fr's bits ("this team breaks
+when A's host bit i equals f"), the step runs on one fewer bit, and the other half of the output is read
+from the first (g[y] = g[~y]). The unary costs are added in the module's copy-in (`in_i32u`) and the fold
+in its copy-out (`out_i32s`), so no extra pass runs in JS (a first JS version was slower than the plain
+step). The bit fixed is the first one the elimination meets, so every table after the first step is
+halved: 0.44 to 0.35 ms a step at 30 teams (the last bit: 0.39; the best bit by measured time would save
+more, but scoring the bits costs more than it saves). `floorTable` passes `sym` on every step; the priced
+(Float64) tables and `leastBreaks`' other callers are unchanged. Below 13 matches the extra planning
+costs what it saves, so the step only takes the flag from 13 matches (26 teams) up (`SYM_MIN_MATCHES`).
+
+**The page's floor-priced step, off against on** (`eval/symmetric-step.txt`; `FLOOR_SYM=0` turns it off;
+two processes side by side on one shared 4-CPU machine, same seasons in every pair):
+
+| Teams, seed | off | on | seasons added (the same) |
+|---|---|---|---|
+| 28, 1 | 58.0 s | 52.1 s | 1252/72, 1250/70 |
+| 28, 2 | 53.6 s | 48.6 s | 1260/72, 1248/70 |
+| 28, 3 | 63.9 s | 56.6 s | 1220/68, 1318/66 |
+| 26, 1 | 27.9 s | 26.5 s | 1014/58, 1068/56 |
+| 26, 2 | 20.1 s | 18.7 s | 738/68, 776/66 |
+| 30, 1 (guards lifted, last bit fixed) | 129.2 s | 103.8 s | 1152/82, 2542/64 |
+
+**28 teams 175.5 s to 157.3 s over three seeds (10%), 26 teams 48.0 to 45.2 s (6%), 30 teams 20%**, with
+identical seasons. That is not enough for 30 teams: at about 100 s they still cost twice the 28-team step,
+for seasons near the top of the gap, so 29 and 30 stay off the page (`maxTeams` 28). At 28 teams the step
+is a smaller share of the run (a bare step goes 0.23 to 0.19 ms), so the rest of the time is the moves,
+the closing walks and the JS around each step.
+
+- Tests: `orient.test.mjs`: on 240 random rounds of 2 to 16 matches (byes included), symmetric tables
+  small, at the int16 edge and wide int32 give the JS loop's table with `sym` and a symmetric output;
+  `floorTable` gives the same floor and trials with the symmetry on and off at 9, 14, 20 and 24 teams.
+- Not claimed: times are from one shared cloud machine, not a phone or a laptop browser; per-step times
+  in `eval/symmetric-step.txt` are noisy to about 10%. Next for 30 teams: the copy-in and copy-out are now
+  about as large as the step (keep tables in the module between steps instead of copying each one out).
+
+## Starting under the gap: 27 and 28 teams join the page (2026-11-15)
 
 The section below left 28 teams (14 matches a round) off the page: 94 s of floor-priced search that
 added nothing. Profiled first (`node --cpu-prof`, 28 teams, seed 1; `eval/under-start.txt`): of 78 s in

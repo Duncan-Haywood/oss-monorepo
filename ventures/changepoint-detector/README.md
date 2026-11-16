@@ -5467,3 +5467,45 @@ published methods (bocpd, KL-CPD) were not rerun on 1 to 5. Next for (a): a per-
 floor, or the AR(1) correction alone (best here, 0.353) on a sixth fresh multi-column set before it is anything more.
 Tests: `beedance-muted.test.mjs` (3: the rule fails with the committed numbers; white noise never flagged under the
 default or a floor of 2; bee 3 under AR(1) + floor 2 names x and y in the text and the default names nothing).
+
+## A date you name: three pre-registered rounds, not shipped (2026-11-16)
+
+The question: a law, launch or price change happened on a date fixed before anyone looked at the chart; did the
+level or the slope change there? That is an interrupted time series (segmented regression; Wagner et al. 2002,
+Bernal, Cummins and Gasparrini 2017). The module `known-date.mjs` fits a line, a step and a slope change at the
+given date (plus seasonal dummies with a period), AR(1) noise by iterated Prais-Winsten, and calibrates the joint
+F and both t statistics with a parametric bootstrap from the null fit. A 95% range for the step and the slope
+change uses the bootstrap's 97.5th percentile of |t|. The bar to ship (CLI `--known-date`, the page, the engine)
+was size within 2-8% at p 0.05 in every synthetic cell plus four real predictions. **It failed the size bar in
+every round, in short sticky series, so it is not offered.** The module and its tests stay for the next round.
+
+| Round (pre-registration) | Generator rho; guard | Worst size cells (of series tested) | Random walks rejected (of all) | Real A-D |
+|---|---|---|---|---|
+| 1 (`eval/known-date-prereg-2026-11-16.md`) | Kendall-corrected, capped at the guard; full-model residuals | n 40 rho 0.8: 13.6% (date at 50%), 8.9% (80%) | 18.0% (n 40), 10.8% (n 120) | all met |
+| 2 (`...-round2-2026-11-16.md`) | matched by indirect inference, capped at 0.95; same | n 40 rho 0.8 date 80%: 9.2% | 5.0%, 8.7% | (not rerun) |
+| 3 (`...-round3-2026-11-16.md`) | matched; plus the hinge test's random-walk cut guard | n 40 rho 0.8 date 80%: 9.4%; n 60 rho 0.8: 8.9% | 1.3%, 1.0% | all met |
+
+400 series per cell, 199 replicates; outputs in
+`eval/known-date-sim-round1.out.txt`, `-round2`, and `eval/known-date-sim.out.txt` (round 3). Every other size cell
+in round 3 was 3.8-7.3%, and as a share of *all* series (refusals count as no rejection) no cell rejected more than
+7.3%: the excess is among the short sticky series the guard lets through, whose rho reads low.
+
+**Real series, 999 replicates** (`eval/known-date-real.out.txt`, round 3's code; round 1's in `-round1`):
+
+- A. UK car drivers killed or seriously injured, logs, monthly seasons, date 1983-02 (the front-seat belt law of
+  31 January 1983): step -0.237 (a 21% fall), range -0.354 to -0.119, p 0.001; slope change p 0.13. Met.
+- B. Front-seat passengers: step -0.309 (27%), p 0.001. Met.
+- C. Rear-seat passengers, whom the 1983 law did not cover (the control): step +0.043, range -0.080 to 0.165, p 0.50.
+  Met. The joint test is significant (p 0.006), because the slope after 1983 rises in all three series by the same
+  0.007 a month: whatever moved the post-law trend was not the belt law, which is why a control series matters.
+- D. Nile flow, date 1899 (after the 1898 Aswan dam): step -289, range -436 to -143, p 0.001; slope change p 0.90. Met.
+- E. Placebo dates on Nottingham temperatures (1925, 1930, 1935): p 0.30, 0.39, 0.97.
+
+**What a reader can use now.** The F table (what a regression package reports) is far too eager on autocorrelated
+data even with the AR(1) correction: on straight lines with rho 0.4 it rejected 13-15% of 40-point series at p 0.05,
+and with rho 0.8 11-30% at every length (round 3 table). The bootstrap brings every 120-point cell to 3.8-6.8%.
+
+**Next round** (needs a fresh pre-registration and fresh seeds): the bootstrap's generator for admitted short
+series at the upper end of a range for rho rather than its point estimate, or a size bar on all series
+(unconditional) stated before the run, with the conditional rate reported. Then the CLI, page and engine wiring is
+a few lines (it was written and tested in this session, then taken out when the bar failed).
