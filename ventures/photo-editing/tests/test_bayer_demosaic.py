@@ -404,6 +404,37 @@ class DirectionalTests(unittest.TestCase):
             self.assertTrue(np.allclose(s[k], ref[k], atol=1e-6), k)
         self.assertTrue(np.allclose(s["X"], ref["X"][:, :8], atol=1e-6))
 
+    def test_boosted_weight_tool(self):
+        """tools/bayer_boosted_weight.py (eval/bayer-boosted-weight-2026-11-16.md): the 5 x 5 mean matches a
+        brute-force mean with reflected edges; the sample is the trainer's (same sensels, greens and twelve
+        features); the gain of B's weight matches a direct score; the linear refit on one copy beats 3/16
+        on that copy (in sample)."""
+
+        import numpy as np
+
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+        import bayer_boosted_weight as bw
+        import bayer_laplace_train as t
+
+        rng = np.random.default_rng(4)
+        a = rng.random((7, 9))
+        p = np.pad(a, 2, mode="reflect")
+        ref = np.array([[p[y : y + 5, x : x + 5].mean() for x in range(9)] for y in range(7)])
+        self.assertTrue(np.allclose(bw.window_mean(a), ref))
+
+        truth = t.near_nyquist_texture(seed=2, n=128, tile=32)
+        s = bw.copy_samples(truth, (0, 1, 1, 2), seed=0, snr=None, per_frame=2000)
+        self.assertEqual(s["X"].shape, (2000, len(bw.FEATURE_NAMES)))
+        ref = t.truth_samples(truth, (0, 1, 1, 2), 2000, seed=0)
+        for k in ("g8", "g4", "g316", "gt"):
+            self.assertTrue(np.allclose(s[k], ref[k], atol=1e-6), k)
+        self.assertTrue(np.allclose(s["X"][:, :12], ref["X"], atol=1e-5))
+        D = 8.0 * (s["g4"] - s["g8"])
+        direct = np.mean((s["g8"] + (s["wB"] - 0.125) * D - s["gt"]) ** 2)
+        self.assertAlmostEqual(bw.gain(s, s["wB"]), 10 * np.log10(np.mean((s["g316"] - s["gt"]) ** 2) / direct), 9)
+        coef = bw.fit_linear([s])
+        self.assertGreater(bw.gain(s, bw.predict_linear(coef, s)), 0.0)
+
 
 class DeveloperChoiceTests(unittest.TestCase):
     def raw(self):
