@@ -1,0 +1,3 @@
+declines 2% -> 25%: decline jump heard in 20/20 shops, days after the jump: median 5, range 5-5; payments/revenue alerts dated at the jump 12; other alert lines 0 in 620 checks (0.0 per 100)
+declines 2% -> 10%: decline jump heard in 16/20 shops, days after the jump: median 5, range 4-7; payments/revenue alerts dated at the jump 0; other alert lines 0 in 620 checks (0.0 per 100)
+no change: decline jump heard in 0/20 shops; payments/revenue alerts dated at the jump 0; other alert lines 0 in 620 checks (0.0 per 100)

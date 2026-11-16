@@ -62,6 +62,9 @@ where it departs from the paper.
   `--columns orders:poisson,revenue,signups:poisson`, a model per column) watches every column of one CSV, keeps a
   record per column in one state file and sends the day's new changes as one webhook message. README "Several metrics in
   one watch".
+- **Watch your Stripe account** (2026-11-16): `STRIPE_API_KEY=rk_live_... node stripe-metrics.mjs --out data/stripe.csv`
+  writes payments, revenue and failed payments per complete day from your own account; the self-deploy workflow
+  fetches and watches it when the secret `STRIPE_API_KEY` is set. README "Stripe as a source".
 - **AI agents / MCP:** from a clone of the repository,
   `node platform/agents/tools.mjs call changepoint-detector analyze --input '{"values":[...]}'`
   (the watch replay: `call changepoint-detector replayWatch --module watch-core.mjs --args '[[...]]'`)
@@ -463,6 +466,9 @@ Free and open source (MIT, see `LICENSE`). Optional support:
 - **Eyeballing a chart:** fast, but cannot say whether a dip is noise or a shift, or how sure to be.
 - **Anomaly alerts in a monitoring product:** flag single odd points, not a lasting change in level.
   `watch.mjs` is the lasting-change alert, run in the user's own account (see "Watching a growing series").
+- **Stripe analytics apps (Baremetrics, ChartMogul, ProfitWell and the like):** subscription dashboards, mostly
+  paid, holding the merchant's data. `stripe-metrics.mjs` plus the watch sends one message when payments, revenue
+  or declines move to a new level, from the merchant's own GitHub account, free (see "Stripe as a source").
 
 
 **Page (2026-10-21).** The web page now has a "Known holidays" box (comma-separated dates or row numbers, counts model) that passes `holidays` to the engine. Checked on 200 seeded daily counts with every 17th day at 0.3x: 6 changes without the list, 0 with it (factor 0.304).
@@ -3482,6 +3488,54 @@ Still open: a real series with documented carry-forward to check a call against 
 is simulated), and a faster fit (the Markov ascent could skip the degrees of freedom that round four's
 M1 already places far behind). Tests: `rounded-walk-markov.test.mjs`, `rounded-walk-heavy.test.mjs`,
 `rounded-walk.test.mjs`.
+
+## Stripe as a source (2026-11-16)
+
+Most people who want to hear "sales moved to a new level" sell through Stripe, and asking them to export a CSV every
+day is where a watch dies. `stripe-metrics.mjs` turns the deployer's own Stripe account into the daily CSV the watch
+reads, with a read-only restricted key (Charges; Customers too for `--customers`) from an environment variable:
+
+- one row per **complete** day in the deployer's `--utc-offset` (today is left out, so a half day never reads as a
+  fall), zeros on days with nothing, so a count series has no holes;
+- `payments`: succeeded charges in any currency; `revenue`: their gross amount in one currency, major units, summed
+  in minor units so it stays exact (zero- and three-decimal currencies from Stripe's currency list); `failed`:
+  charges with status `failed`; `new_customers` with `--customers`. Pending charges count once they settle; refunds
+  are not subtracted (a refund belongs to the day it was made, which a charge list does not date);
+- an existing CSV is extended: its last `--refetch` days (default 3) are fetched again for late settles, the rest
+  kept, and the currency summed is remembered beside it (`<file>.currency`) so a column never mixes two;
+- list pages followed with `starting_after`, 429 and 5xx retried with backoff (1, 2, 4, 8, 16 s), a 401 or 403
+  answered with what to fix; a publishable key is refused before any call. `STRIPE_API_BASE` (tests only) takes a
+  loopback address and nothing else, so the key cannot be pointed at another host.
+
+`deploy/watch-metric.yml` runs it before the watch when the secret `STRIPE_API_KEY` is set (options in the variable
+`STRIPE_OPTIONS`), caches `data/stripe.csv` with `actions/cache` so a run fetches days, not 400 days, and with
+`METRIC_CSV` unset watches `--columns payments:poisson,revenue,failed:poisson`. `make-watch-repo.sh` copies the
+script and writes a `.gitignore` for the CSV. The repository should be private: `watch-state.json` records the
+level around each change, which for revenue is the business's revenue.
+
+**Checked** (`stripe-metrics.test.mjs`, 10 tests, one the CSV formula guard): against a stand-in for Stripe's list API with its documented
+shape (`{object: 'list', data, has_more}`, newest first, `created[gte]`, `created[lt]`, `starting_after`, `limit`
+capped at 100): every charge read once across pages; retries and error messages; day boundaries at an offset;
+complete days only; the incremental refetch window; the currency guard; then the made repository's workflow run
+under `deploy/run-workflow.mjs` against the stand-in served over HTTP (fetch step writes 400 days, state holds the
+three columns, the CSV is not committed, the key never printed). **Not checked against a live Stripe account**: no
+session holds a key. A deployer's first run is that check; the field names used (`id`, `created`, `amount`,
+`currency`, `status`) are the stable core of the Charge object.
+
+**How the default watch behaves on it** (`eval/stripe-declines.mjs`, output `eval/stripe-declines.out.txt`;
+synthetic shops, 40 Poisson payments a day of $10-50, declines 2% of attempts, watched daily over the last 30 of
+120 days, 20 seeds per row; measured once, no setting tuned on it):
+
+| case | decline jump heard | days after the jump | payments/revenue alerts at the jump | other alert lines / 620 checks |
+|---|---|---|---|---|
+| declines 2% to 25%, 12 days before the end | 20 of 20 | 5 (all) | 12 | 0 |
+| declines 2% to 10% | 16 of 20 | median 5, 4-7 | 0 | 0 |
+| no change | - | - | - | 0 |
+
+The 12 payments/revenue alerts in the first row are true: a quarter of attempts declined takes about a quarter off
+succeeded payments. The quiet is optimistic: these shops have no weekly cycle, promotions or growth, all of which a
+real shop has and which the watch's own history replay (`--suggest`) is there to measure. Next: a real shop's
+daily Stripe series (a deployer's, or a public one) through `--suggest`, and a weekly cycle (`--period 7`) per column.
 
 ## Watching a growing series (2026-11-12, four pre-registered rounds; ships)
 
