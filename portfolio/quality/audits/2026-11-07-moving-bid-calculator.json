@@ -4,7 +4,7 @@
   "seed": "2026-11-07-c",
   "auditor": "agent session (Claude), subagent audit",
   "status": "audited",
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16594"],
   "subject": "ventures/moving-bid-calculator",
   "professional": "an owner-operator of a local moving company who prices jobs hourly (crew-hours with a minimum, plus truck, fuel, valuation coverage), checking first that hours x crew x loaded wage ties to a bid and that margin is on price",
   "scores": {
@@ -29,7 +29,8 @@
     {
       "severity": "medium",
       "what": "Output is a lump-sum price only; no billable crew hourly rate or minimum-hours output, and no valuation/liability coverage cost line, which is how local moves are quoted and where they lose money",
-      "where": "ventures/moving-bid-calculator/calc.mjs:136"
+      "where": "ventures/moving-bid-calculator/calc.mjs:136",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16594"
     },
     {
       "severity": "low",

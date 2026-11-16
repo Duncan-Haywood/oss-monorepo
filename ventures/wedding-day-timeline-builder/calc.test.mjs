@@ -259,3 +259,11 @@ test("the guide's worked example: 5:41 PM portraits, 65 minutes before a 6:46 PM
   }
   assert.equal(fmtTime(adviseCeremonyTimes(inputs({ firstLook: true }).p).best[0].start), "5:30 PM");
 });
+
+test("ICS text escapes semicolons and commas (RFC 5545 3.3.11; audit 2026-11-07 defect 2, fixed by PR #15047)", () => {
+  const { n, day } = plan();
+  const d = { ...day, events: [{ start: 600, end: 615, title: "Toast; then cake, finally", who: ["all"], note: "a;b", couple: false, kind: "event" }] };
+  const ics = timelineIcs(d, n.p);
+  assert.ok(ics.includes("SUMMARY:Toast\\; then cake\\, finally"), ics);
+  assert.ok(ics.includes("DESCRIPTION:a\\;b"));
+});
