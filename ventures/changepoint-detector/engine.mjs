@@ -18,6 +18,7 @@
 import { NILE_CSV } from './example-data.mjs';
 import { slopeBreaks } from './slope-breaks.mjs';
 import { hingeTest } from './hinge-test.mjs';
+import { twoHingeTest } from './two-hinge.mjs';
 
 import { groupRamps } from './ramps.mjs';
 import { updateRateChanges, updateRateLines } from './update-rate.mjs';
@@ -2433,6 +2434,7 @@ export function analyze(input = {}) {
     ...(changes.length > 1 && groupRamps(changes, segments, values.length, { values }).length ? { ramps: groupRamps(changes, segments, values.length, { values }) } : {}),
     ...(o.slopeBreaks ? { slopeBreaks: slopeBreakReport(values, labels, o.slopeBreaks) } : {}),
     ...(o.hingeTest ? { hingeTest: hingeTestReport(values, labels, o.hingeTest, { log: !!o.log }) } : {}),
+    ...(o.twoHingeTest ? { twoHingeTest: twoHingeTestReport(values, labels, o.twoHingeTest, { log: !!o.log }) } : {}),
     pelt: { penalty: round(p.penalty), minSegment, changepoints: changes, segments },
     bocpd: {
       hazardLambda: Number(o.hazardLambda) || 100,
@@ -2490,6 +2492,30 @@ export function hingeTestReport(values, labels, opt, { log = false } = {}) {
     p: Number(h.p.toFixed(4)), reps: h.reps, rho: Number(h.rho.toFixed(3)),
     slopeBefore: Number(h.slopeBefore.toPrecision(4)), slopeAfter: Number(h.slopeAfter.toPrecision(4)), significant: h.p <= 0.05, note,
     ...(h.admittedByCut ? { admittedByCut: true, rhoLine: Number(h.rhoLine.toFixed(3)), rhoHinge: Number(h.rhoHinge.toFixed(3)), cutBar: Number(h.cutBar.toFixed(3)) } : {}),
+  };
+}
+
+/**
+ * Two changes of slope against a straight line, on the levels (two-hinge.mjs; README "Two changes of slope", pre-registered
+ * 2026-11-16, eval/two-hinge-prereg-2026-11-16.md): the hinge test with a second knot, for a series that speeds up and
+ * levels off, or rises, holds and falls. Same AR(1) noise, bootstrap and rho-cut guard. 30 to 300 points (the scan
+ * over knot pairs is cubic in n). `opt` is true or { reps, seed }.
+ */
+export function twoHingeTestReport(values, labels, opt, { log = false } = {}) {
+  const n = values.length;
+  if (n < 30) throw new Error(`The two-hinge test needs at least 30 points; got ${n}.`);
+  if (n > 300) throw new Error(`The two-hinge test takes at most 300 points (its bootstrap scans every pair of knots); got ${n}. Aggregate first (monthly to yearly).`);
+  const o = typeof opt === 'object' && opt ? opt : {};
+  const h = twoHingeTest(values, { reps: Number(o.reps) || 499, seed: Number(o.seed) || 1 });
+  const scale = log ? 'on the logs (a slope is a growth rate per step)' : 'on the levels';
+  const note = 'Two changes of slope against a straight line, ' + scale + ', assuming AR(1) noise about the trend; the p-value is from a parametric bootstrap. A level step can pass for two close bends (on the Nile it rejects with knots in 1892 and 1907, a 15-year plunge standing in for the 1898 drop), so run the step models too. A small p says the straight line is wrong, not that exactly two bends are right; under 60 points it refuses most sticky series.';
+  if (h.refused) return { refused: true, reason: h.reason, note, scale: log ? 'log' : 'levels' };
+  const lab = (i) => labels[i] ?? String(i);
+  return {
+    refused: false, scale: log ? 'log' : 'levels', index1: h.index1, index2: h.index2, label1: lab(h.index1), label2: lab(h.index2),
+    f: Number(h.f.toFixed(2)), bar95: Number(h.bar95.toFixed(2)), p: Number(h.p.toFixed(4)), reps: h.reps, rho: Number(h.rho.toFixed(3)),
+    slopes: h.slopes.map((v) => Number(v.toPrecision(4))), significant: h.p <= 0.05, note,
+    ...(h.admittedByCut ? { admittedByCut: true, rhoLine: Number(h.rhoLine.toFixed(3)), rhoTwo: Number(h.rhoTwo.toFixed(3)), cutBar: Number(h.cutBar.toFixed(3)) } : {}),
   };
 }
 
