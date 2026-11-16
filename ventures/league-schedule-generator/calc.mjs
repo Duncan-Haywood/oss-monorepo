@@ -1967,7 +1967,7 @@ export function teamSchedule(schedule, teamIdx) {
 
 export function csvCell(v) {
   let s = String(v ?? "");
-  if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`; // never let a team name run as a spreadsheet formula
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`; // never let a team name run as a spreadsheet formula
   return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 

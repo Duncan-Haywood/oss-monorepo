@@ -330,8 +330,42 @@ settle in the time given. So the page keeps the 45 degree pose. Arms that
 really hang need a torso that gives under the arm (a soft layer, or a section
 shaped from a scan) before the sleeve's fall can be read.
 
-Not yet: elbow bend, a non-round arm section, a torso the arm can rest
-against, the hood and rib bands, and any real garment compared.
+### A soft torso the arms rest against (2026-11-16)
+
+`drapeGarment(..., { lowerArms: true, softTissueCm: 3 })`, and "Arms: lowered
+to the side" with "Side gives (cm)" on `drape.html`. Below the shoulder shelf
+the torso is carved away round a lowered arm (`dentContact`), leaving 1.2 cm
+for the two layers of cloth at the side, as a real side gives under a resting
+arm; `hangAngleDeg` lets the arm press up to `softTissueCm` into the rigid
+ellipse below the armpit. The side only softens once the arms start down, so
+arms held out at 45 degrees drape bit-identically to before. The pressed
+flesh is not bulged out at front and back, and **the give is an assumption**
+(arm and side together; nobody has measured it for this page).
+
+`node eval/drape-soft-torso.mjs`, table and reading in
+`eval/drape-soft-torso-2026-11-16.md` (tee, long sleeve and hoodie in S, M and
+L on the 100 cm chest):
+
+| | rigid (0 cm) | 2 cm | 3 cm | 4 cm |
+|---|---|---|---|---|
+| arm angle | 28.5 | 22 | 18 | 15 |
+| drapes settled, of 9 | 7 | 8 | 9 | 9 |
+| points inside the body (S tee + S long sleeve) | 16 | 0 | 0 | 0 |
+| M tee: worst sleeve triangle / bicep peak | 138% / 22.9% | 95% / 22.6% | 98% / 23.6% | 100% / 24.5% |
+
+What it does not fix: the cloth pinched between arm and side still reads as a
+bicep peak (M and L peaks rise 1-4 points as the arm comes closer; S falls
+from about 60% to 46%), so the bicep's mean is the reading to trust in this
+pose. Against the rigid lowered runs the hem moves at most 0.7 cm. A first
+version carved the side only below the armpit: the sleeve's underarm caught
+between the arm and the rigid torso just above it (one triangle at 213%) and
+the M tee never settled; carving up to the shoulder shelf fixed both.
+`drape-soft-torso.test.mjs` (4 tests, about 5 s) pins the angles, the carving
+and the bit-identical held-out drape. The page still opens with the arms out.
+
+Not yet: elbow bend, a non-round arm section, volume kept when the side is
+pressed, a measured give, the hood and rib bands, and any real garment
+compared.
 
 ## Turntable preview (2026-11-04)
 

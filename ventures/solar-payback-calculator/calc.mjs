@@ -117,7 +117,7 @@ export function sampleInput() {
   return { systemKw: "8", costPerWatt: "3", kwhPerKw: "1400", usage: "11000", importRate: "0.24", exportRate: "0.08", selfShare: "55", escalation: "3", degradation: "0.5", incentives: "0", om: "150", inverterCost: "3000", inverterYear: "13", years: "25", discount: "4", loan: "0", apr: "7", loanYears: "10" };
 }
 
-const csvCell = (v) => { let s = String(v); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+const csvCell = (v) => { let s = String(v); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 export function reportCsv(a) {
   const rows = [["Year", "Production kWh", "Savings", "Maintenance and inverter", "Loan payments", "Net cash flow", "Cumulative"]];
   for (const r of a.base.rows) rows.push([r.year, Math.round(r.production), round2(r.savings), round2(r.om), round2(r.loanPaid), round2(r.net), round2(r.cumulative)]);

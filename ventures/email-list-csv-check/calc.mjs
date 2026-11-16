@@ -512,7 +512,7 @@ export function repair(text, opts = {}) {
 }
 
 // A cell that starts with = + - @ would run as a formula when the findings file is opened in Excel.
-const safeCell = (v) => (/^[=+\-@\t\r]/.test(v) ? "'" + v : v);
+const safeCell = (v) => (/^[=+\-@\t\r]/.test(v) && !/^-?\d+(\.\d+)?$/.test(v) ? "'" + v : v);
 
 export function findingsCsv(result) {
   return toCsv([["Severity", "Line", "Check", "Finding", "Detail"], ...result.findings.map((x) => [x.severity, x.line ? String(x.line) : "", x.code, safeCell(x.title), safeCell(x.detail)])]);

@@ -201,7 +201,7 @@ export function stats(state) {
   return { contacts, unsubscribed: unsub, suppressed, sequences: out };
 }
 
-const csvCell = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) || /[",\n]/.test(s) ? `"${(/^[=+\-@\t\r]/.test(s) ? "'" + s : s).replace(/"/g, '""')}"` : s; };
+const csvCell = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) || /[",\n]/.test(s) ? `"${(/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? "'" + s : s).replace(/"/g, '""')}"` : s; };
 export function toCsv(state) {
   const rows = [["email", "joined", "unsubscribed", "suppressed", "sequences"]];
   for (const c of Object.values(state.contacts)) rows.push([c.email, new Date(c.at).toISOString(), c.unsub ? new Date(c.unsub).toISOString() : "", c.sup || "", Object.entries(c.en).map(([k, e]) => `${k}:${e.end ? e.end.why : "active"}`).join(" ")]);

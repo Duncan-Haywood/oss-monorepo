@@ -10,3 +10,4 @@
 - (2026-11-16) fair workweek: a real site's week of changes through /admin/changes (team offer and on-call landed 2026-11-16)
 - (2026-11-16) own and site rates read from staff CSVs and 7shifts (README "Per-location pay from an export")
 - (2026-11-16) a real two-site export and staff list (README "Staff shared between sites")
+- (2026-11-16) order-free pair check played: no gain, stays opt-in (README "The order-free pass played")

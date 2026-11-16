@@ -52,6 +52,16 @@ test('CSV quotes commas and neutralises formula cells', () => {
   assert.ok(row.includes(`"'=HYPERLINK(""x""),dash"`));
 });
 
+// Red team 2026-11-16: a losing session's netProfit (-12.5) left as "'-12.5" text, which a sheet cannot sum; a
+// tab-led label went through undefused.
+test('CSV keeps a negative net profit a number and defuses tab-led text', () => {
+  const row = { date: '2026-10-05', label: '\t=1+1', grossPay: 10, milesDriven: 40, hoursActive: 2, vehicleCost: 22.5, netProfit: -12.5, taxReserve: 0 };
+  const line = toCsv([row]).split('\n')[1].split(',');
+  assert.equal(line[1], "'\t=1+1");
+  assert.equal(line[6], '-12.5');
+  assert.equal(toCsv([{ ...row, label: '-2+3' }]).split('\n')[1].split(',')[1], "'-2+3");
+});
+
 import { byWeekday, extremes } from './log.mjs';
 
 test('byWeekday groups total-over-total and sorts best first', () => {

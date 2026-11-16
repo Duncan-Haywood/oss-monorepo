@@ -105,7 +105,7 @@ export function stats(state, now) {
   return out;
 }
 
-const cell = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) ? `'${s}` : s; };
+const cell = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? `'${s}` : s; };
 export function toCsv(state, now) {
   const rows = [["id", "title", "status", "signer_asked", "signed_name", "created", "signed_at", "doc_sha256"]];
   for (const r of Object.values(state.requests)) rows.push([r.id, r.title, status(r, now), r.signerName, r.signature?.name, new Date(r.createdAt).toISOString(), r.signature ? new Date(r.signature.at).toISOString() : "", r.docHash]);

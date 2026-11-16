@@ -93,7 +93,8 @@ test('no obligations warns instead of returning an empty success', () => {
 test('CSV neutralises spreadsheet formula injection and quotes properly', () => {
   assert.equal(csvCell('=HYPERLINK("http://x")'), `"'=HYPERLINK(""http://x"")"`);
   assert.equal(csvCell('+1'), "'+1");
-  assert.equal(csvCell('-2'), "'-2");
+  assert.equal(csvCell('-2'), '-2'); // a plain number is not a formula (2026-11-16)
+  assert.equal(csvCell('-2+3'), "'-2+3");
   assert.equal(csvCell('@SUM(A1)'), "'@SUM(A1)");
   assert.equal(csvCell('a,b'), '"a,b"');
   assert.equal(csvCell('plain'), 'plain');

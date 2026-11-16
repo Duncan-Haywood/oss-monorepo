@@ -522,7 +522,7 @@ const csvCell = (v) => { const s = String(v ?? ""); return /[",\n\r]/.test(s) ? 
 const csvRow = (cells) => cells.map(csvCell).join(",");
 // Text copied from a bank file opens in Excel or Sheets as a formula if it starts with = + - @ (or a tab/CR),
 // so exported text columns get a leading apostrophe (OWASP's CSV-injection advice). Amounts and dates stay bare.
-export const safeText = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) ? "'" + s : s; };
+export const safeText = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? "'" + s : s; };
 const usDate = (iso) => `${iso.slice(5, 7)}/${iso.slice(8, 10)}/${iso.slice(0, 4)}`;
 const ukDate = (iso) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}`;
 

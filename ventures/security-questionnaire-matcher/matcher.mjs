@@ -91,7 +91,7 @@ export function parseCsv(text) {
 function csvCell(v) {
   const s = String(v ?? "");
   // Neutralise spreadsheet formula injection from pasted text.
-  const safe = /^[=+\-@]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? "'" + s : s;
+  const safe = /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? "'" + s : s;
   return /[",\n\r]/.test(safe) ? '"' + safe.replace(/"/g, '""') + '"' : safe;
 }
 

@@ -52,7 +52,7 @@ export function buildLineSheet(input) {
 
 /** One row per style x colour x size for the stockist to fill the Qty column. */
 export function orderFormCsv(sheet) {
-  const q = (v) => { const t = String(v ?? "").replace(/^[=+\-@\t\r]/, "'$&"); return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
+  const q = (v) => { const t = String(v ?? "").replace(/^[=+\-@\t\r]/, (c, _i, all) => (/^-?\d+(\.\d+)?$/.test(all) ? c : "'" + c)); return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
   const rows = [["SKU", "Style", "Colour", "Size", `Wholesale (${sheet.terms.currency})`, `Retail (${sheet.terms.currency})`, "Qty"]];
   for (const s of sheet.styles) {
     const cols = s.colours.length ? s.colours : [""], sizes = s.sizes.length ? s.sizes : [""];

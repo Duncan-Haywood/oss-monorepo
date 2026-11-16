@@ -20,7 +20,7 @@ import { formatDecimal } from "./format.mjs";
  */
 function safeText(value) {
   const text = String(value);
-  return /^[=+\-@\t\r]/.test(text) ? `'${text}` : text;
+  return /^[=+\-@\t\r]/.test(text) && !/^-?\d+(\.\d+)?$/.test(text) ? `'${text}` : text;
 }
 
 /**

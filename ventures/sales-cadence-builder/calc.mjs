@@ -428,7 +428,7 @@ export function buildPlan(prospectsCsv, sender, opts = {}) {
 
 // ---------- exports ----------
 
-const guard = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) ? `'${s}` : s; };
+const guard = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? `'${s}` : s; };
 const csvCell = (v) => { const s = guard(v); return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 
 export function toCsv(tasks) {
