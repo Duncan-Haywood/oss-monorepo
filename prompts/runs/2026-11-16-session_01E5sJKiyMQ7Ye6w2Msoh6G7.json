@@ -1,0 +1,125 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKiyMQ7Ye6w2Msoh6G7",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T23:09:52Z",
+  "ended": "2026-11-16T23:13:54Z",
+  "wall_minutes": 22.28,
+  "tokens_in": 3812528,
+  "tokens_out": 16856,
+  "cost_usd": 1.7908,
+  "tool_calls": 41,
+  "task": "flagship 6 shift-roster-builder: time-bound the pay polish after a cover walk or repair gain",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16736",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/shift-roster-builder/eval/stage-overrun.mjs",
+      "issue": "polishPay was not in calc.mjs _internals, so timing it alone needed an export first; added."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-the-last-untimed-stage-in-the-roster-builder.md",
+    "ventures/shift-roster-builder/README.md (The pay polish stops at the budget's end)"
+  ],
+  "goal": null,
+  "notes": "Pre-registered A/B (eval/polish-deadline-prereg.md, committed before the run), seeds 66-77, 48 weeks x 2 builds: late >20 ms at the pay floor 8 -> 0; open hours 11818 -> 11815 (noise); pay on 45 equal-open weeks -0.000%; mean build -0.03 s; KEEP ON. Small item (25-44 ms), chosen because it was the named next item and the other next: items need real accounts or data. stage-overrun.test.mjs 8/8 pass locally; full venture suite and venture-preflight run in background, results in the PR body. No agent doc in docs/reports: the README section and flagships next: carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8087360d-62ac-5254-9dec-cb306aaadf83",
+    "transcripts": 1,
+    "first": "2026-11-16T23:09:52Z",
+    "last": "2026-11-16T23:32:09Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 85,
+        "output": 16856,
+        "thinking": 2695,
+        "cache_read": 3723870,
+        "cache_write_5m": 0,
+        "cache_write_1h": 88573,
+        "api_equivalent_usd": 1.7908,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 85,
+      "output": 16856,
+      "thinking": 2695,
+      "cache_read": 3723870,
+      "cache_write_5m": 0,
+      "cache_write_1h": 88573,
+      "api_equivalent_usd": 1.7908,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 38,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.28,
+      "active_minutes": 5.04,
+      "model_minutes": 3.51,
+      "tool_minutes": 1.53,
+      "waiting_on_human_minutes": 17.24,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "an engineer adding a deadline to a local-search stage, writing a pre-registered 48-week A/B and the write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 167.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
