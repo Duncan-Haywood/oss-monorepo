@@ -41,6 +41,26 @@ export const ACCESS_DEFAULTS = Object.freeze({
   minutesPer50ftCarryPer200CuFt: 6,
 });
 
+// Released value: the carrier's liability when the customer waives full
+// value protection, per pound per article. 60 cents is the federal figure for
+// interstate household goods moves (49 CFR 375.201 and the "Waiver of Full
+// Value Protection" option in Appendix A to Part 375, "Your Rights and
+// Responsibilities When You Move"). Local moves follow state rules; many
+// states use the same 60 cents, some differ, so it is an input.
+export const RELEASED_VALUE_PER_LB = 0.6;
+
+// Common conversion from cubic feet to shipment weight for household goods.
+// A rule of thumb, not a scale ticket: an input, so a mover can use their own.
+export const DEFAULT_LB_PER_CU_FT = 7;
+
+// Hourly billing in this tool rounds the suggested crew rate up to the next
+// $5 and the minimum up to the next half hour, the way rates are posted.
+const RATE_STEP = 5;
+const HOURS_STEP = 0.5;
+const FLOOR_MINIMUM_HOURS = 2;
+
+const ceilTo = (value, step) => Math.ceil(value / step - 1e-9) * step;
+
 function number(value, name, { min = 0, allowZero = true } = {}) {
   const result = Number(value);
   if (!Number.isFinite(result)) throw new Error(`${name} must be a number`);
@@ -77,6 +97,12 @@ function volumeFactor(totalCubicFeet) {
  * @param {number} input.otherCost         Anything else billed to this job.
  * @param {number} input.overheadRate      Business overhead as a % on direct cost.
  * @param {number} input.targetMargin      Net profit as a % of the final price.
+ * @param {number|string|null} [input.quotedHourlyRate] Optional crew-and-truck
+ *   hourly rate already posted; blank uses the suggested rate.
+ * @param {number} [input.lbPerCuFt]        Shipment weight per cubic foot (default 7).
+ * @param {number} [input.releasedValuePerLb] Released-value liability per lb (default 0.60).
+ * @param {number} [input.declaredValue]    Declared value for full value protection.
+ * @param {number} [input.valuationRatePer1000] Charge per $1,000 of declared value.
  * @param {number|null} input.proposedPrice Optional: a bedroom-count quote
  *   already on the table, so the mover can see the margin it actually leaves.
  */
@@ -142,6 +168,70 @@ export function calculateBid(input) {
   const hasProposed = input.proposedPrice !== null && input.proposedPrice !== undefined && input.proposedPrice !== '';
   const proposedPrice = hasProposed ? number(input.proposedPrice, 'Price you are considering') : null;
 
+  // ---- hourly quote ---------------------------------------------------------
+  // Most local moves are sold as "$X per hour for a crew and truck, N-hour
+  // minimum", not as the lump sum above. The trap in an hourly quote is that
+  // the truck day, fuel and materials are fixed per job while only labor
+  // scales with the clock: a rate that earns the target margin at the
+  // estimated hours loses money on a short job. So the minimum is the shortest
+  // billed time at which the quoted rate covers the job's fixed costs (the
+  // break-even), rounded up; marginHours says from when it also earns the
+  // target margin.
+  const ohFactor = 1 + overheadRate / 100;
+  const marginShare = targetMargin / 100;
+  const variablePerHour = crewSize * loadedWage * ohFactor;
+  const fixedJobCost = (truckCost + fuelTolls + materials + otherCost) * ohFactor;
+  const suggestedRate = clockHours === 0 ? null : ceilTo(price / clockHours, RATE_STEP);
+  const hasRate = input.quotedHourlyRate !== null && input.quotedHourlyRate !== undefined && input.quotedHourlyRate !== '';
+  const quotedRate = hasRate ? number(input.quotedHourlyRate, 'Hourly rate you quote', { allowZero: false }) : suggestedRate;
+  let hourly = null;
+  if (quotedRate !== null) {
+    const earnsPerHour = quotedRate * (1 - marginShare) - variablePerHour;
+    const breakEvenHours = quotedRate > variablePerHour ? fixedJobCost / (quotedRate - variablePerHour) : null;
+    const marginHours = earnsPerHour > 0 ? fixedJobCost / earnsPerHour : null;
+    const minimumHours = breakEvenHours === null ? null : Math.max(FLOOR_MINIMUM_HOURS, ceilTo(breakEvenHours, HOURS_STEP));
+    const at = (hours) => {
+      const billedHours = minimumHours === null ? hours : Math.max(hours, minimumHours);
+      const billed = quotedRate * billedHours;
+      const cost = fixedJobCost + variablePerHour * hours;
+      // flatProfit: the same day under the lump-sum price above, for comparison
+      return { hours, billedHours, billed, cost, profit: billed - cost, margin: billed === 0 ? 0 : (billed - cost) / billed * 100, flatProfit: price - cost };
+    };
+    hourly = {
+      rate: quotedRate,
+      suggested: !hasRate,
+      variablePerHour,
+      fixedJobCost,
+      breakEvenHours,
+      marginHours,
+      minimumHours,
+      // Never true for the suggested rate: below the labor cost no
+      // minimum rescues a job, every extra hour loses more.
+      belowLaborCost: quotedRate <= variablePerHour,
+      scenarios: [0.75, 1, 1.25].map((k) => ({ scale: k, ...at(clockHours * k) })),
+    };
+  }
+
+  // ---- valuation (liability for loss or damage) -----------------------------
+  const lbPerCuFt = number(input.lbPerCuFt ?? DEFAULT_LB_PER_CU_FT, 'Pounds per cubic foot');
+  const releasedPerLb = number(input.releasedValuePerLb ?? RELEASED_VALUE_PER_LB, 'Released value per pound');
+  const declaredValue = number(input.declaredValue ?? 0, 'Declared value');
+  const valuationRatePer1000 = number(input.valuationRatePer1000 ?? 0, 'Full value rate per $1,000');
+  const estimatedWeight = totalCubicFeet * lbPerCuFt;
+  const valuation = {
+    estimatedWeight,
+    lbPerCuFt,
+    releasedPerLb,
+    // The most the mover owes on a total loss at released value; a single
+    // damaged article is capped at its own weight times the same rate.
+    releasedLiabilityCap: estimatedWeight * releasedPerLb,
+    declaredValue,
+    ratePer1000: valuationRatePer1000,
+    fullValueCharge: declaredValue / 1000 * valuationRatePer1000,
+    // What full value protection exposes the mover to, beyond released value.
+    extraExposure: Math.max(0, declaredValue - estimatedWeight * releasedPerLb),
+  };
+
   const hoursShare = (hours) => (clockHours === 0 ? 0 : hours / clockHours * 100);
 
   return {
@@ -174,6 +264,8 @@ export function calculateBid(input) {
     // Price at which the job stops making money — the walk-away number when
     // a customer asks them to match a cheaper bedroom-count quote.
     breakEvenPrice: totalCost,
+    hourly,
+    valuation,
     accessHoursShare: hoursShare(accessHours),
     split: [
       { name: 'Load & unload', hours: inventoryHours, share: hoursShare(inventoryHours) },
