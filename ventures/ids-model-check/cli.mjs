@@ -1,35 +1,46 @@
 #!/usr/bin/env node
 // ids-model-check CLI: check an IFC model against an IDS file.
 //
-//   node cli.mjs MODEL.ifc SPEC.ids [--json] [--bcf out.bcfzip] [--max-failures N]
+//   node cli.mjs MODEL.ifc SPEC.ids [--json] [--bcf out.bcfzip] [--max-failures N] [--no-audit]
+//   node cli.mjs --audit SPEC.ids [--json]     # check the IDS itself, no model
 //
 // Exit 0 when every specification passes, 1 when one fails, 2 on a usage or
 // read error. Nothing leaves the machine.
 import { readFileSync, writeFileSync } from "node:fs";
-import { check } from "./node.mjs";
-import { textReport } from "./report.mjs";
+import { check, resources } from "./node.mjs";
+import { textReport, auditReport } from "./report.mjs";
+import { parseIds } from "./ids.mjs";
+import { auditIds } from "./audit.mjs";
 import { bcfZip } from "./bcf.mjs";
 
 const args = process.argv.slice(2);
 const flag = (n) => args.includes(n);
 const opt = (n) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : undefined; };
 const files = args.filter((a, i) => !a.startsWith("--") && !["--bcf", "--max-failures"].includes(args[i - 1]));
-if (files.length !== 2 || flag("--help")) {
-  console.error("usage: node cli.mjs MODEL.ifc SPEC.ids [--json] [--bcf out.bcfzip] [--max-failures N]");
+if (flag("--audit") && files.length === 1) {
+  let ids;
+  try { ids = parseIds(readFileSync(files[0], "utf8")); } catch (e) { console.error(`error: ${e.message}`); process.exit(2); }
+  const issues = auditIds(ids, resources());
+  if (flag("--json")) console.log(JSON.stringify({ title: ids.title, valid: !issues.some((x) => x.level === "error"), issues }, null, 2));
+  else console.log(auditReport(ids.title, ids.specs, issues));
+  process.exitCode = issues.some((x) => x.level === "error") ? 1 : 0;
+} else if (files.length !== 2 || flag("--help")) {
+  console.error("usage: node cli.mjs MODEL.ifc SPEC.ids [--json] [--bcf out.bcfzip] [--max-failures N] [--no-audit]\n       node cli.mjs --audit SPEC.ids [--json]");
   process.exit(2);
+} else {
+  let [ifcPath, idsPath] = files;
+  if (ifcPath.toLowerCase().endsWith(".ids")) [ifcPath, idsPath] = [idsPath, ifcPath];
+  let report;
+  try {
+    const t0 = Date.now();
+    report = check(readFileSync(idsPath, "utf8"), readFileSync(ifcPath, "utf8"), { audit: !flag("--no-audit") });
+    report.seconds = (Date.now() - t0) / 1000;
+  } catch (e) {
+    console.error(`error: ${e.message}`);
+    process.exit(2);
+  }
+  if (opt("--bcf")) writeFileSync(opt("--bcf"), bcfZip(report, { modelName: ifcPath.split(/[\\/]/).pop() }));
+  if (flag("--json")) console.log(JSON.stringify(report, null, 2));
+  else console.log(textReport(report, { maxFailures: Number(opt("--max-failures") || 10) }));
+  process.exitCode = report.pass ? 0 : 1; // not process.exit(): it cuts off a large piped stdout
 }
-let [ifcPath, idsPath] = files;
-if (ifcPath.toLowerCase().endsWith(".ids")) [ifcPath, idsPath] = [idsPath, ifcPath];
-let report;
-try {
-  const t0 = Date.now();
-  report = check(readFileSync(idsPath, "utf8"), readFileSync(ifcPath, "utf8"));
-  report.seconds = (Date.now() - t0) / 1000;
-} catch (e) {
-  console.error(`error: ${e.message}`);
-  process.exit(2);
-}
-if (opt("--bcf")) writeFileSync(opt("--bcf"), bcfZip(report, { modelName: ifcPath.split(/[\\/]/).pop() }));
-if (flag("--json")) console.log(JSON.stringify(report, null, 2));
-else console.log(textReport(report, { maxFailures: Number(opt("--max-failures") || 10) }));
-process.exitCode = report.pass ? 0 : 1; // not process.exit(): it cuts off a large piped stdout

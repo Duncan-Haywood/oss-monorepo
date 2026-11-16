@@ -23,6 +23,7 @@ if (!existsSync(dir)) {
 }
 const byFacet = {};
 const wrong = [];
+const strictWrong = [];
 let total = 0;
 let right = 0;
 for (const facet of readdirSync(dir, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name).sort()) {
@@ -37,12 +38,16 @@ for (const facet of readdirSync(dir, { withFileTypes: true }).filter((d) => d.is
     let report = null;
     try {
       report = check(readFileSync(join(dir, facet, f), "utf8"), readFileSync(ifcPath, "utf8"));
-      got = report.pass ? "pass" : "fail";
+      got = report.pass ? "pass" : report.valid ? "fail" : "invalid";
     } catch (e) {
       got = "error";
       err = e.message;
     }
     const ok = expected === "pass" ? got === "pass" : got !== "pass";
+    // Strict: an invalid-* IDS must be reported invalid, and no pass-*/fail-*
+    // IDS may be (the audit must not cry wolf on valid files).
+    const strictOk = expected === "invalid" ? got === "invalid" : got === expected;
+    if (!strictOk) strictWrong.push({ facet, base, expected, got, report });
     const slot = (byFacet[facet] ||= { total: 0, right: 0 });
     slot.total++;
     total++;
@@ -52,6 +57,10 @@ for (const facet of readdirSync(dir, { withFileTypes: true }).filter((d) => d.is
 }
 for (const [facet, s] of Object.entries(byFacet)) console.log(`${facet.padEnd(15)} ${String(s.right).padStart(3)} / ${s.total}`);
 console.log(`${"total".padEnd(15)} ${String(right).padStart(3)} / ${total}`);
+const inv = strictWrong.filter((w) => w.expected === "invalid").length;
+const falseInv = strictWrong.filter((w) => w.expected !== "invalid" && w.got === "invalid").length;
+console.log(`strict (invalid must read INVALID, pass/fail exact): ${total - strictWrong.length} / ${total}; invalid-* not flagged: ${inv}; valid IDS flagged invalid: ${falseInv}`);
+if (verbose) for (const w of strictWrong) console.log(`STRICT ${w.facet}/${w.base}: expected ${w.expected}, got ${w.got}${w.report && w.report.audit.length ? " [" + w.report.audit.map((a) => a.level + ": " + a.message).join(" | ") + "]" : ""}`);
 for (const w of wrong) {
   console.log(`WRONG ${w.facet}/${w.base}: expected ${w.expected}, got ${w.got}${w.err ? " (" + w.err + ")" : ""}`);
   if (verbose && w.report) for (const s of w.report.specs) console.log(`   ${s.status} applicable=${s.applicable} ${s.note || ""} ${s.failed.map((x) => x.reasons.join("; ")).join(" | ")}`);

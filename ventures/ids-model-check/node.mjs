@@ -17,6 +17,6 @@ export function resources() {
   return cache;
 }
 
-export function check(idsText, ifcText) {
-  return checkIds(idsText, ifcText, resources());
+export function check(idsText, ifcText, opts = {}) {
+  return checkIds(idsText, ifcText, { ...resources(), ...opts });
 }
