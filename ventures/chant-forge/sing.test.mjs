@@ -513,3 +513,23 @@ test('a voiced closure\'s voice bar sits at one level under its vowel across pit
   assert.ok(spread(got) < 0.6 * spread(old), `spread ${spread(got).toFixed(1)} dB with the per-note gain, ${spread(old).toFixed(1)} fixed`);
   for (const d of got) assert.ok(d < -18 && d > -40, `voice bar ${d.toFixed(1)} dB against its vowel`);
 });
+
+test('closeAnchor (opt-in) closes a voice bar against the last vowel-like frames, band by band (eb, ib on D4)', () => {
+  // README "Two anchors for one closure": the parallel rule to localRef. On D4 the five voices' slow beat left the
+  // 60 ms reference's band under 500 Hz 10-20 dB under the vowel at the closure, and *eb*/*ib* read as no closure
+  // against the reference alone. Sung in eval/coda-check.mjs part K's order (the beat's phase depends on where a note starts).
+  const SY = ['fons', 'dens', 'pons', 'mons', 'gens', 'hinc', 'runt', 'bunt', 'tent', 'cant', 'frons', 'sanct', 'lunt', 'quent', 'ep', 'ip', 'op', 'ec', 'ic', 'oc', 'eb', 'ib', 'ob'];
+  const ev = [];
+  for (const s of SY) ev.push({ type: 'note', midi: 62, pulses: 4, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
+  const mid = eventsToMidi(ev, { bpm: 104 });
+  const m = parseMidi(mid), sec = (t) => tickToSeconds(t, m.division, m.tempos);
+  const notes = m.notes.filter((n) => n.ch === 0).sort((a, b) => a.tick - b.tick);
+  const x = renderMidi(mid, { stems: true, sing: true }).stems.choir.channels[0];
+  const read = (j, o) => readCoda(x, rate, sec(notes[j].tick) + 0.1, Math.min(sec(notes[j].end) + 0.25, sec(notes[j + 1]?.tick ?? 1e9)), o);
+  for (const s of ['eb', 'ib']) {
+    const j = SY.indexOf(s), on = read(j, { localRef: false, closeAnchor: true });
+    assert.deepEqual([on.cls, on.voiced, on.place], ['stop', true, 'lab'], `${s} with closeAnchor`);
+    assert.equal(read(j, { localRef: false }).cls, 'none', `${s}: the reference alone`);
+  }
+  for (const s of ['ep', 'ec', 'ic']) assert.equal(read(SY.indexOf(s), { localRef: false, closeAnchor: true }).cls, 'stop', s);
+});
