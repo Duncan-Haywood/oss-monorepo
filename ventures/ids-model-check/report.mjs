@@ -1,0 +1,37 @@
+// Plain-text and CSV renderings of a checkIds() report.
+
+export function textReport(r, { maxFailures = 10 } = {}) {
+  const out = [];
+  const passed = r.specs.filter((s) => s.status === "pass").length;
+  out.push(`${r.title || "IDS"} against a ${r.schema} model (${r.entityCount.toLocaleString("en-US")} entities)${r.seconds !== undefined ? ` in ${r.seconds.toFixed(2)} s` : ""}`);
+  out.push(`${r.pass ? "PASS" : "FAIL"}: ${passed} of ${r.specs.length} specifications pass`);
+  if (r.parseErrors.length) out.push(`note: ${r.parseErrors.length} line(s) could not be read, e.g. ${r.parseErrors[0]}`);
+  for (const s of r.specs) {
+    out.push("");
+    out.push(`[${s.status.toUpperCase()}] ${s.name} (${s.optionality})`);
+    if (s.warning) out.push(`  warning: ${s.warning}`);
+    out.push(`  applies to: ${s.applicability.join("; ") || "everything"}  -> ${s.applicable} element(s)`);
+    if (s.requirements.length) out.push(`  requires: ${s.requirements.join("; ")}`);
+    if (s.note) out.push(`  ${s.note}`);
+    if (s.failed.length) {
+      out.push(`  ${s.passed} pass, ${s.failed.length} fail:`);
+      for (const f of s.failed.slice(0, maxFailures)) out.push(`    #${f.id} ${f.type}${f.name ? ` "${f.name}"` : ""}${f.globalId ? ` ${f.globalId}` : ""}: ${f.reasons.join("; ")}`);
+      if (s.failed.length > maxFailures) out.push(`    ... and ${s.failed.length - maxFailures} more`);
+    }
+  }
+  return out.join("\n");
+}
+
+const csvCell = (v) => {
+  const s = v === null || v === undefined ? "" : String(v);
+  return /[",\n]/.test(s) || /^[=+\-@]/.test(s) ? `"${s.replace(/^([=+\-@])/, "'$1").replace(/"/g, '""')}"` : s;
+};
+
+export function csvReport(r) {
+  const rows = [["specification", "status", "step_id", "ifc_class", "global_id", "name", "reason"]];
+  for (const s of r.specs) {
+    if (!s.failed.length) rows.push([s.name, s.status, "", "", "", "", s.note || ""]);
+    for (const f of s.failed) rows.push([s.name, "fail", "#" + f.id, f.type, f.globalId, f.name, f.reasons.join("; ")]);
+  }
+  return rows.map((row) => row.map(csvCell).join(",")).join("\n") + "\n";
+}
