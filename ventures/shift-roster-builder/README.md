@@ -260,6 +260,44 @@ opening balance; a July leave year; the trim keeping the balances identical; the
 when off, the page, a recorded and a removed use, an opening balance, the CSV and its formula guard). Not claimed: not
 tried on a live team or against any state's rule text; a manager's view of the policy wording is the next thing to get.
 
+## Philadelphia and Los Angeles (2026-11-16, later)
+
+Two more presets for the hub's change log, so a covered shop in either city can turn the pricing on with one setting
+(`FAIR_WORKWEEK=philadelphia` or `philly`; `FAIR_WORKWEEK=los-angeles` or `la`). Both cities' own sites (phila.gov,
+wagesla.lacity.gov, the American Legal code library) were out of reach from this session (403 or no DNS), so the numbers
+come from search summaries of the cities' FAQs and regulations and of law-firm alerts, cross-checked where two agreed.
+Check them against Phila. Code ch. 9-4600 and LAMC ch. XVIII art. 5 before relying on them; the page says so.
+
+| | Philadelphia | Los Angeles (city) |
+|---|---|---|
+| Notice | 14 days | 14 days |
+| Added shift, added time, moved shift with no hours lost | 1 h of pay | 1 h of pay |
+| Free changes | start or end moved by 20 min or less (the regulations' exception) | added work time of 15 min or less |
+| Hours taken away | half their pay, anywhere in the 14 days | half their pay |
+| Team offer after a call-out | exempt (written "mass communication") | priced: the city FAQ says pay is owed even when the employee volunteers |
+| Rest | 9 h after a prior day's shift (or one that ran across two days); with written consent, $40 each such shift | 10 h; time and a half for the whole shift that follows |
+
+Three new switches carry the rest rules, and any preset takes them as overrides: `FWW_REST_FLAT` (a flat sum per short
+rest, owed whatever the wage), `FWW_REST_WHOLE_SHIFT=1` (the multiplier on the whole later shift, not only its hours
+inside the window) and `FWW_REST_ACROSS_DAYS=1` (a same-day split shift is not a short rest). The changes page states the
+rest rule in words and the short-rest table shows the hours paid and the sum owed.
+
+What the sources disagreed on, and what was chosen: for Los Angeles one vendor blog and the city's FAQ wording ("time and
+a half for the Shift following the insufficient rest period") say the whole shift, while a county summary says the hours
+in the gap; the preset follows the city's wording, and the LA County ordinance (unincorporated areas, from 2025-07-01) is
+not a preset (`custom` with `FWW_REST_WHOLE_SHIFT=0` types it). One summary of the LA rules also gives a one-week line for
+cancellations; the preset prices half of the lost hours anywhere inside the 14 days, the reading two other summaries give.
+
+Not modelled for either city: who is covered (Philadelphia: retail, hospitality and food service with 250+ employees and
+30+ locations; Los Angeles: retail with 300+ employees worldwide), Los Angeles's 72-hour offer of extra hours to current
+staff before hiring, the good-faith estimate, and the right to decline.
+
+Tested (`notice.test.mjs`, 17 tests, 3 new): each city's arithmetic (Philadelphia: a 20 min later start free, 21 min half
+of 21 min = $3.50 at $20; a cut at 3 days' notice half of 8 h = $72 at $18; the team offer exempt; Los Angeles: 15 min
+added free, 16 min one hour; the team offer priced), the rest rules side by side on Sunday 16-24 then Monday 08-16 at
+$20 (Seattle $20 on 2 h inside the window, Los Angeles $80 on the whole 8 h shift, Philadelphia $40 with no wage needed;
+a same-day split counted in Seattle and not in Philadelphia), the overrides, and the hub's changes page for both presets.
+
 ## Schedule changes and fair-workweek pay (2026-11-16)
 
 Seattle, Oregon, Chicago, New York City, Philadelphia, San Francisco, Los Angeles and others make covered employers post
@@ -275,7 +313,8 @@ a moment you type. The hub is where the changes really happen, days apart, so it
   employee-asked and the added shift as not, because the manager picked the person. The first publish of a week is kept
   as its posting time. The manager can flip any entry between "Employee asked" and not. The last 1,500 changes are kept
   (Seattle asks for three years of records, so the page says to download the CSV with each payroll).
-- **The rule sets (`FAIR_WORKWEEK=seattle|oregon|chicago|custom`):** read from the City of Seattle's Office of Labor
+- **The rule sets (`FAIR_WORKWEEK=seattle|oregon|chicago|philadelphia|los-angeles|custom`; the last two since
+  2026-11-16 later, see "Philadelphia and Los Angeles" below):** read from the City of Seattle's Office of Labor
   Standards "Secure Scheduling" page and Oregon BOLI's "Predictive scheduling" page on 2026-11-16, and for Chicago from
   search summaries of the city's Fair Workweek notice and rules on chicago.gov and the ordinance's table as quoted by the
   National Law Review (the chicago.gov pages returned 403 or 404 here, so Chicago is the least checked of the three):
