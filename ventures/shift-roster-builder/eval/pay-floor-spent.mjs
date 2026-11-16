@@ -1,7 +1,8 @@
 // The pay floor once the time budget is spent (README "The pay floor once the budget is spent", 2026-11-16). One generated week
 // (the generator of eval/warm-gate-e2e.mjs and eval/pay-floor-reserve.mjs) built at the default 20 s budget in one of two ways:
 // "full", `scoreFloorSpent: true` with a reserve no build reaches (60 s), so the pay floor runs even when the earlier stages spent
-// the budget and reports its whole warm time; and "base", today's default (skipped once the budget is spent). The summary
+// the budget and reports its whole warm time; and "base", the default when the runs were made (skipped once the budget is spent;
+// since the default changed, "nospent" is that build and "default" today's). The summary
 // (eval/pay-floor-spent-summary.py) scores the spent try at any reserve R: on a spent week it finishes iff its time <= R.
 //   SEED=<n> RUNS=full,base node eval/pay-floor-spent.mjs P S week
 import { parseStaff, parseShifts, buildRoster } from "../calc.mjs";
@@ -17,7 +18,7 @@ for (let c = 0; c <= week; c++) {
 }
 const staff = parseStaff(st).staff, slots = parseShifts(sh).slots;
 for (const run of (process.env.RUNS || "full,base").split(",")) {
-  const opts = run === "base" ? {} : run === "full" ? { scoreFloorSpent: true, scoreFloorReserveMs: 60000 } : run === "spent" ? { scoreFloorSpent: true } : { scoreFloorSpent: true, scoreFloorReserveMs: Number(run) };
+  const opts = run === "base" || run === "default" ? {} : run === "nospent" ? { scoreFloorSpent: false } : run === "full" ? { scoreFloorSpent: true, scoreFloorReserveMs: 60000, scoreFloorSpentReserveMs: 60000 } : run === "spent" ? { scoreFloorSpent: true } : { scoreFloorSpent: true, scoreFloorReserveMs: Number(run) };
   const t0 = Date.now();
   const r = buildRoster(staff, slots, { exact: true, timeBudgetMs: 20000, ...opts });
   const o = r.optimality, t = o.scoreFloorTried;

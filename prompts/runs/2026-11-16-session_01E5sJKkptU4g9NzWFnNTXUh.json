@@ -15,25 +15,46 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
-  "repo": null,
+  "task": "Deepen (flagship 6) shift-roster-builder: the pay floor's budget-spent case",
+  "projects": [
+    "ventures/shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16644",
+  "repo": "Duncan-Haywood/oss-monorepo",
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 1,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "doc_friction": [
+    {
+      "file": "ventures/shift-roster-builder/README.md",
+      "issue": "The previous section called the budget-spent case one week (seed 9); its own log could not tell why 29 of 48 weeks never tried the pay floor. Counting with a skip-reason field found it on about one in five big weeks."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "'last landed on main' said 95.1 h for shift-roster-builder while main's log had a shift-roster-builder commit from the same day (#16636); the 7-day fetch exceeded 50 s, so the date is likely from a partial history."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "eval/pay-floor-spent-prereg.md",
+      "why": "The pre-registered rule for the 6 s reserve failed by 0.02 s; instead of closing the item, wrote a second rule for a 4 s spent-only reserve and tested it on twelve fresh seeds before adopting it.",
+      "did": "second pre-registration (eval/pay-floor-spent-4s-prereg.md) committed before its run",
+      "result": "passed every clause on fresh weeks; confirmed with the default itself (9 of 10 finished)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-shift-roster-the-proof-that-came-after-the-deadline.md",
+    "ventures/shift-roster-builder/README.md#the-pay-floor-once-the-budget-is-spent-2026-11-16-later"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Added optimality.scoreFloorSkip and scoreFloorSpent / scoreFloorSpentReserveMs (default 4 s) in calc.mjs. Seeds 18-29: 10 of 48 spent, 6 s finished 9 for +0.52 s mean (rule fails). Seeds 30-41: 10 spent, 4 s finished 8 for +0.31 s, open hours 12,142 both. Confirm: 9 of 10 finished, +1.65 s on those weeks. Venture tests: see PR body.",
   "corrections": [],
   "redteam": null
 }

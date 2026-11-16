@@ -3518,3 +3518,45 @@ floor can differ by timing (the +1 and -1 open hours on seeds 16 and 17 in the s
 scaling below a 20 s budget was not measured. Next: the budget-spent case. The plan gives a try with the budget already spent
 "the reserve alone", but `buildRoster` never reaches it (seed 9 above); whether letting it run then finishes enough weeks to pay
 for the wait, measured the same way.
+
+## The pay floor once the budget is spent (2026-11-16 later)
+
+"The pay floor's reserve, sized from the full solve" ended on one case its reserve could not reach: when the stages before the pay
+floor run past the 20 s time budget, `buildRoster` skipped it (`!over()`), so a big week was posted with a gap of $20,000-$900,000
+in score units where a second or two of warm LP would have bounded it to within dollars or whole open hours. That run took the case
+to be rare (one week, seed 9). It is not: a new field, `optimality.scoreFloorSkip`, now names why the pay floor did not run
+("noClique", "proven", "off", "spent", "noBasis", or null when it ran), and on fresh weeks about one in five ended "spent", almost
+all of them 70-person weeks whose earlier stages ran 6-680 ms over.
+
+**Two pre-registered tests.** Both build each week twice at the default 20 s budget (`eval/pay-floor-spent.mjs`): "full" (try when
+spent, with a reserve no build reaches, so it reports the warm solve's whole time T) and "base" (the old skip). On a spent week a
+reserve R finishes iff T <= R; `eval/pay-floor-spent-summary.py` scores any R from the pair.
+
+| | spent weeks of 48 | finished at 4 s | finished at 6 s | mean build, base -> 4 s / 6 s | open hours, all 48 |
+|---|---|---|---|---|---|
+| seeds 18-29 (`eval/pay-floor-spent-prereg.md`, `.out.txt`) | 10 | 9 | 9 | 20.82 -> 21.30 / **21.34 s** | 11,912 -> 11,904 |
+| seeds 30-41, fresh (`eval/pay-floor-spent-4s-prereg.md`, `-4s.out.txt`) | 10 | **8** | 9 | 20.83 -> **21.14** / 21.18 s | 12,142 -> 12,142 |
+
+The first test's rule (turn it on at the normal 6 s reserve if it finishes half the spent weeks for at most +0.5 s of mean build
+time) **failed by 0.02 s** (+0.52 s). Its table showed 4 s finishing the same 9 for +0.48 s, but picking 4 s from that table would
+be fitting to it, so a second rule for a 4 s reserve of its own was written down and tested on twelve seeds no pay-floor test had
+used. It passed every clause: 8 of 10 finished, +0.31 s mean, open hours not higher. The first test's -8 open hours are mostly the
+two builds' timing noise (seed 19 and 22 went +1), so no open-hours gain is claimed.
+
+What a finished try does: the pay gap on the week goes from $23,865-$25,215 to under $1 (seed 30 week 1, seed 31 week 0), or from
+$124,000-$126,000 to about $99,980, which is one open hour left and the pay bounded to within about $20 (four weeks). The roster is
+the same or a few dollars cheaper, because the priced LP then guides the day sweeps.
+
+**What landed:** the pay floor now tries once the budget is spent, warm, for a reserve of its own, `scoreFloorSpentReserveMs`
+(default the smaller of 4 s and the normal reserve; a caller with a 3 s budget waits at most 0.9 s). `scoreFloorSpent: false`
+keeps the old skip. With time left the normal reserve (30% of the budget, at most 6 s) is unchanged.
+
+**Checked with the default itself** (`sh eval/pay-floor-spent-confirm.sh`, `eval/pay-floor-spent-confirm.jsonl`, the ten fresh
+spent weeks, default against `scoreFloorSpent: false`): 9 of 10 finished (one more than predicted: seed 36's solve took 3.9 s this
+time against 4.1 s), same open hours on nine and one fewer on seed 40, mean build 22.21 -> 23.86 s on those weeks (+0.34 s spread
+over all 48), slowest 26.3 s. Tests: `warm-score-floor.test.mjs` checks the spent reserve (4 s, an explicit value, capped by the
+normal reserve), the skip reasons and `scoreFloorSpent: false`.
+
+Not claimed: generated weeks, one cloud machine; the spent weeks are almost all 70 x 196, so 80-100 person weeks are untested here.
+Next: why the stages before the pay floor run past the budget at all (6-680 ms on these weeks), which is time no reserve should
+need to cover.

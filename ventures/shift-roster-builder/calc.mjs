@@ -2425,8 +2425,11 @@ const EXACT_TREE_SLOTS = 60;
 // no budget or `scoreFloor: true`, or no basis and the cold formula fits), "try" (warm, stopped at untilMs, when that is over
 // 250 ms) and "skip". `scoreFloorTry: false` or `scoreFloorWarm: false` keep the cold formula alone (the 2026-11-14 skip).
 const scoreFloorReserveDefault = (budgetMs) => (budgetMs > 0 ? Math.min(6000, Math.round(0.3 * budgetMs)) : 0);
+// Once the budget is spent the try gets a reserve of its own, `scoreFloorSpentReserveMs`, default the smaller of 4 s and the
+// normal reserve (README "The pay floor once the budget is spent", pre-registered in eval/pay-floor-spent-4s-prereg.md).
 function scoreFloorPlan(o, { budgetMs, leftMs, copies, carry }) {
-  const reserve = Math.max(0, Number.isFinite(o.scoreFloorReserveMs) ? o.scoreFloorReserveMs : scoreFloorReserveDefault(budgetMs));
+  const normal = Math.max(0, Number.isFinite(o.scoreFloorReserveMs) ? o.scoreFloorReserveMs : scoreFloorReserveDefault(budgetMs));
+  const reserve = budgetMs > 0 && leftMs <= 0 ? Math.max(0, Number.isFinite(o.scoreFloorSpentReserveMs) ? o.scoreFloorSpentReserveMs : Math.min(4000, normal)) : normal;
   if (o.scoreFloor === false) return { mode: "skip", reserve, untilMs: 0 };
   if (o.scoreFloor === true || !(budgetMs > 0)) return { mode: "run", reserve, untilMs: Infinity };
   if (o.scoreFloorTry !== false && o.scoreFloorWarm !== false && carry) {
@@ -2437,13 +2440,15 @@ function scoreFloorPlan(o, { budgetMs, leftMs, copies, carry }) {
 }
 // Why buildRoster does not run the pay floor, or null when it does: "noClique" (the clique LP did not run), "proven" (nothing left
 // to bound), "off" (`scoreFloor: false`), "spent" (the earlier stages ran past the time budget, or the try would get under 250 ms)
-// or "noBasis" (no warm start and the cold formula does not fit). A spent budget skips it unless `scoreFloorSpent: true`, which
-// tries it warm for its reserve alone (README "The pay floor once the budget is spent", 2026-11-16).
+// or "noBasis" (no warm start and the cold formula does not fit). A spent budget no longer skips it (2026-11-16, README "The pay
+// floor once the budget is spent": on 48 fresh weeks 10 reached it spent, a 4 s try finished 8 and took their pay gaps to within a
+// few dollars or whole open hours, for +0.31 s of mean build time); it tries warm for the spent reserve alone. `scoreFloorSpent:
+// false` keeps the old skip.
 function scoreFloorSkip(o, { clique, proven, spent, plan }) {
   if (!clique) return "noClique";
   if (proven) return "proven";
   if (o.scoreFloor === false) return "off";
-  if (spent && o.scoreFloorSpent !== true) return "spent";
+  if (spent && o.scoreFloorSpent === false) return "spent";
   if (plan.mode === "skip") return clique.carry ? "spent" : "noBasis";
   return null;
 }
@@ -4042,8 +4047,8 @@ function buildRosterOnce(staff, slots, options = {}) {
     const pricedLeft = budgetMs - (Date.now() - tStart);
     const plan = scoreFloorPlan(o, { budgetMs, leftMs: pricedLeft, copies: ctx.S, carry: !!clique?.carry });
     const pricedTry = plan.mode === "try", pricedReserve = plan.reserve;
-    // The budget-spent case (2026-11-16, README "The pay floor once the budget is spent"): by default the pay floor is skipped when
-    // the earlier stages ran past the time budget. `scoreFloorSpent: true` lets it try then, warm, for its reserve alone.
+    // The budget-spent case (2026-11-16, README "The pay floor once the budget is spent"): when the earlier stages ran past the time
+    // budget the pay floor still tries, warm, for its spent reserve alone (4 s at most). `scoreFloorSpent: false` skips it then.
     // `optimality.scoreFloorSkip` names why it did not run: "noClique", "proven", "off", "spent", "noBasis" (no warm start and the
     // cold formula does not fit) or null when it ran.
     const spent = over();
