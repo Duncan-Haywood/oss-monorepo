@@ -77,7 +77,7 @@ for the browser-extension, iOS and Android packagers.
 | [`conformal-prediction-intervals`](../../ventures/conformal-prediction-intervals/) | Lei et al. 2018; Romano, Patterson & Candès 2019 | How wide must a prediction interval be to cover 90% of new cases, with no distributional assumption? |
 | [`matrix-profile-explorer`](../../ventures/matrix-profile-explorer/) | Yeh et al. 2016; Zhu et al. 2016 | Which stretch of this series repeats (motif), and which is unlike anything else (discord)? |
 | [`survival-analysis`](../../ventures/survival-analysis/) | Kaplan & Meier 1958; Mantel 1966; Cox 1972; Efron 1977; Grambsch & Therneau 1994 | How long until the event, do groups differ, and by what hazard ratio once covariates are adjusted for? |
-| [`fdr-multiple-testing`](../../ventures/fdr-multiple-testing/) | Benjamini & Hochberg 1995; Benjamini & Yekutieli 2001; Benjamini, Krieger & Yekutieli 2006; Storey 2002; Wang & Ramdas 2022 | I ran many tests: which results still stand, at a chosen false discovery rate or family-wise error rate? |
+| [`fdr-multiple-testing`](../../ventures/fdr-multiple-testing/) | Benjamini & Hochberg 1995; Benjamini & Yekutieli 2001; Benjamini, Krieger & Yekutieli 2006; Storey 2002; Wang & Ramdas 2022; Javanmard & Montanari 2018; Ramdas, Yang, Wainwright & Jordan 2017; Ramdas, Zrnic, Wainwright & Jordan 2018 | I ran many tests: which results still stand, at a chosen false discovery rate or family-wise error rate? And when tests arrive one at a time, which do I keep before the next one comes? |
 | [`synthetic-control`](../../ventures/synthetic-control/) | Abadie & Gardeazabal 2003; Abadie, Diamond & Hainmueller 2010, 2015; Abadie 2021 | Did this intervention change one unit's outcome, by how much, and is the gap unusual against placebo runs on every donor? |
 | [`stl-decomposition`](../../ventures/stl-decomposition/) | Cleveland, Cleveland, McRae & Terpenning 1990; Cleveland 1979; Wang, Smith & Hyndman 2006; Bandara, Hyndman & Bergmeir 2021 (MSTL) | Is it the season or the trend: what are this series' trend, seasonal pattern (or daily, weekly and yearly patterns at once) and remainder, and which points stand out from both? |
 | [`fuzzy-dedupe`](../../ventures/fuzzy-dedupe/) | Fellegi & Sunter 1969; Winkler 1988, 1990; Jaro 1989 | Which rows of this contact or customer file are the same person, even spelled differently, and what does the merged file look like? |
@@ -108,7 +108,7 @@ with automatic relevance determination, and a forecast-calibrated mean, as
 modes of `gaussian-process-regression`;
 the debiased Sinkhorn divergence (Genevay, Peyré & Cuturi 2018) and unbalanced
 transport as modes of `wasserstein-distance`;
-stable PCP with an explicit noise level (Zhou, Li, Wright, Candès & Ma 2010) as a mode of `robust-pca`; online FDR control (Javanmard & Montanari 2018) for tests that arrive over time;
+stable PCP with an explicit noise level (Zhou, Li, Wright, Candès & Ma 2010) as a mode of `robust-pca`; ADDIS (Tian & Ramdas 2019) for online FDR with conservative nulls, and online rules under dependence, as modes of `fdr-multiple-testing` (LOND, LORD++ and SAFFRON landed 2026-11-16);
 p-to-e calibrators (Vovk & Wang 2021) so e-BH in `fdr-multiple-testing` can take p-values;
 the extended isolation forest's random-hyperplane cuts (Hariri, Carrasco Kind & Brunner 2021) as a mode of `isolation-forest`;
 multiclass and ordinal calibration, and calibration tracked over time with a monitoring chart, as modes of `probability-calibration`;
