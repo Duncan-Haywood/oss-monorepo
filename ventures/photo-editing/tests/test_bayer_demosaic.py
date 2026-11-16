@@ -168,6 +168,52 @@ class DirectionalTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             bd.directional(c, (0, 1, 1, 2), laplace="adaptive", native=True)
 
+    def test_learned_laplace(self):
+        """laplace="learned" (eval/bayer-learned-laplace-2026-11-16.md): 45 fitted weights (intercept, 8
+        features, 36 products); features are scale-free and in range; the weight stays in [1/8, 1/4];
+        each sensel keeps its value; flat fields stay flat; the C path refuses it; a weight list of the
+        wrong length is refused."""
+
+        import numpy as np
+
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+        from xtrans_demosaic_check import synthetic_sheet
+
+        from shootflow import bayer_demosaic as bd
+
+        self.assertEqual(len(bd.LEARNED_LAPLACE), 45)
+        truth = synthetic_sheet(160)
+        for pat in PHASES:
+            c, cm = _mosaic(truth, pat)
+            f = bd.laplace_features(c, pat)
+            self.assertEqual(f.shape, (8,) + c.shape)
+            self.assertTrue(np.all(np.isfinite(f)))
+            self.assertGreaterEqual(float(f.min()), 0.0)
+            self.assertLessEqual(float(f.max()), 1.0)
+            # scale-free: exposure (a gain on the whole plane) moves no feature
+            f2 = bd.laplace_features(c * 7.5, pat)
+            self.assertLess(float(np.max(np.abs(f2 - f))), 1e-3, pat)
+            w = bd._laplace_learned(list(f), bd.LEARNED_LAPLACE)
+            self.assertGreaterEqual(float(w.min()), 0.125)
+            self.assertLessEqual(float(w.max()), 0.25)
+            out = bd.directional(c, pat, laplace="learned")
+            own = np.take_along_axis(out, cm[..., None].astype(np.int64), axis=2)[..., 0]
+            self.assertTrue(np.allclose(own, c, atol=1e-6), pat)
+        flat = np.ones((20, 26, 3)) * np.array([0.6, 0.4, 0.25])
+        c, _ = _mosaic(flat, (0, 1, 1, 2))
+        self.assertLess(float(np.max(np.abs(bd.directional(c, (0, 1, 1, 2), laplace="learned") - flat))), 1e-6)
+        # a constant model equal to a fixed weight gives that fixed weight's output
+        const = (0.25,) + (0.0,) * 8
+        self.assertTrue(np.allclose(bd.directional(c, (0, 1, 1, 2), laplace=const, native=False),
+                                    bd.directional(c, (0, 1, 1, 2), laplace=0.25, native=False), atol=1e-6))
+        c, _ = _mosaic(truth, (0, 1, 1, 2))
+        self.assertTrue(np.allclose(bd.directional(c, (0, 1, 1, 2), laplace=const),
+                                    bd.directional(c, (0, 1, 1, 2), laplace=0.25, native=False), atol=1e-5))
+        with self.assertRaises(RuntimeError):
+            bd.directional(c, (0, 1, 1, 2), laplace="learned", native=True)
+        with self.assertRaises(ValueError):
+            bd.directional(c, (0, 1, 1, 2), laplace=(0.2, 0.1))
+
     def test_bands_equal_one_piece(self):
         import numpy as np
 
@@ -175,7 +221,7 @@ class DirectionalTests(unittest.TestCase):
 
         rng = np.random.default_rng(4)
         c = rng.random((75, 41)).astype(np.float32) * 3.0
-        for kw in ({}, {"median_passes": 1}, {"rb": "simple"}, {"laplace": "adaptive"}):
+        for kw in ({}, {"median_passes": 1}, {"rb": "simple"}, {"laplace": "adaptive"}, {"laplace": "learned"}):
             whole = directional(c, (0, 1, 1, 2), band=1000, **kw)
             for band in (16, 17, 40):
                 for threads in (1, 3):
@@ -227,6 +273,17 @@ class DeveloperChoiceTests(unittest.TestCase):
         self.assertNotEqual(list(px), list(bil))
         explicit = self.develop(raw, engine="numpy", demosaic="directional")
         self.assertEqual(list(explicit[2]), list(px))
+
+    @unittest.skipUnless(has_numpy(), "numpy not installed")
+    def test_learned_is_an_opt_in_choice(self):
+        raw = self.raw()
+        _w, _h, px, rep = self.develop(raw, engine="numpy", demosaic="learned")
+        self.assertEqual(rep.demosaic, "learned")
+        _, _, auto, rep_a = self.develop(raw, engine="numpy")
+        self.assertEqual(rep_a.demosaic, "directional")  # not the default
+        self.assertEqual(len(px), len(auto))
+        with self.assertRaises(rd.DevelopError):
+            self.develop(raw, engine="python", demosaic="learned")
 
     @unittest.skipUnless(has_numpy(), "numpy not installed")
     def test_half_size_bins_and_does_not_demosaic(self):
