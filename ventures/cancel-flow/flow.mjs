@@ -64,8 +64,10 @@ export function addMonths(ms, months) {
   return d.getTime();
 }
 
+// Stripe's zero-decimal currencies: amounts are whole units, not cents.
+const ZERO_DECIMAL = ["bif", "clp", "djf", "gnf", "jpy", "kmf", "krw", "mga", "pyg", "rwf", "ugx", "vnd", "vuv", "xaf", "xof", "xpf"];
 export function formatMoney(minor, currency = "usd") {
-  const zero = ["jpy", "krw", "vnd", "clp"].includes(String(currency).toLowerCase());
+  const zero = ZERO_DECIMAL.includes(String(currency).toLowerCase());
   const v = zero ? minor : minor / 100;
   try { return new Intl.NumberFormat("en-US", { style: "currency", currency: String(currency).toUpperCase() }).format(v); }
   catch { return `${v.toFixed(zero ? 0 : 2)} ${currency}`; }

@@ -111,4 +111,8 @@ test("emails are neutral and fill every placeholder", () => {
 test("money formatting handles zero-decimal currencies", () => {
   assert.equal(formatMoney(4900, "usd"), "$49.00");
   assert.match(formatMoney(5000, "jpy"), /5,000/);
+  // Stripe's full zero-decimal list: an amount of 5000 is 5,000 units, not 50.
+  for (const c of ["bif", "clp", "djf", "gnf", "jpy", "kmf", "krw", "mga", "pyg", "rwf", "ugx", "vnd", "vuv", "xaf", "xof", "xpf"]) {
+    assert.match(formatMoney(5000, c), /5,000/, c);
+  }
 });

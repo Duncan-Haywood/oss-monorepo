@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { decide, monthlyAmount, addMonths, summarize, describeOffer, mergePolicy, REASONS } from "./flow.mjs";
+import { decide, monthlyAmount, addMonths, summarize, describeOffer, mergePolicy, REASONS, formatMoney } from "./flow.mjs";
 
 const NOW = Date.UTC(2026, 9, 15, 12);
 const monthly = { status: "active", amount: 4900, currency: "usd", interval: "month", intervalCount: 1 };
@@ -118,4 +118,9 @@ test("experiment verdict waits for enough offers, then calls a real difference",
   assert.equal(big.too_expensive.A.saveRate, 25);
   const tie = summarizeExperiments([...mk("A", 100, 25), ...mk("B", 100, 27)]);
   assert.equal(tie.too_expensive.B.verdict, "no clear difference");
+});
+
+test("money formatting reads Stripe zero-decimal amounts as whole units", () => {
+  assert.equal(formatMoney(4900, "usd"), "$49.00");
+  for (const c of ["jpy", "krw", "bif", "djf", "gnf", "kmf", "mga", "pyg", "rwf", "ugx", "vuv", "xaf", "xof", "xpf"]) assert.match(formatMoney(5000, c), /5,000/, c);
 });

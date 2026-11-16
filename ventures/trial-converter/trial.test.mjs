@@ -73,4 +73,5 @@ test("conversion value and money formatting", () => {
   assert.equal(conversionValue({ trialsPerMonth: "x", price: 20, rateNow: 5, rateTarget: 1 }).extraMrr + 0, 0, "garbage input is zero, not NaN");
   assert.equal(formatMoney(4900, "usd"), "$49.00");
   assert.equal(formatMoney(5000, "jpy"), "¥5,000");
+  for (const c of ["bif", "djf", "gnf", "kmf", "mga", "pyg", "rwf", "vuv", "xpf"]) assert.match(formatMoney(5000, c), /5,000/, c);
 });
