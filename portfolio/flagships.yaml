@@ -190,11 +190,11 @@ flagships:
       shape checks failed; next phase-tolerant shapes, 5th set. Open: (0) drift
       model: t-walk increments, biweight on fresh data, why it absorbs seat belts
       and quality control 4, its AR(1) term; (1) slopes: logs fail, 2 hinges ship
-      (refuse short sticky series), given date (README "A date you name"): round 4
-      upper-bound rho: high side fixed, 1.8% at n 40 rho 0.4 (<2%); next gate on
-      line rho; step/bend bootstrap tests (README "Step or bend, as two tests")
-      fail: walks called bend, use the cut guard; nulls rho low; a real step inside
-      a cycle, a cycle check not tied to rho, real documented ramps and close steps;
+      (refuse short sticky series), given date: --known-date ships (round 5); next a
+      bootstrap conditioned on the cut guard (cut-only admits 17/26 false), page,
+      engine; step/bend bootstrap tests (README "Step or bend, as two tests") fail:
+      walks called bend, use the cut guard; nulls rho low; a real step inside a
+      cycle, a cycle check not tied to rho, real documented ramps and close steps;
       More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
