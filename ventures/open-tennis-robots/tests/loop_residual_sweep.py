@@ -82,13 +82,16 @@ PLANTS = [("first", {}), ("hall 5us", {"jitter_us": 5}), ("hall 20us", {"jitter_
 CASES = [(rpm, drop, tau) for rpm in (1500, 2500, 4000, 6000) for drop in (0.06, 0.10) for tau in (0.2, 0.4, 0.8)]
 
 
+EDGES = "--edges" in sys.argv
+
+
 def run():
     rows = []
     for name, kw in PLANTS:
         for i, (rpm, drop, tau) in enumerate(CASES):
             ball = 1500.0 + (i * 0.37) % 1 * 10            # ball at varied phases of the 10 ms tick
             ps, tk = wheel(rpm, drop, tau, ball_ms=ball, seed=i, **kw)
-            got = controller.drop_from_commands(ps, tk)
+            got = controller.drop_from_commands(ps, tk, edges=EDGES)
             par = controller.drop_from_periods(ps)
             rows.append((name, rpm, drop, tau, got[0] / drop if got else None, got[4] if got else None, got[5] if got else None, got[6] if got else None,
                          par[0] / drop if par else None))

@@ -255,14 +255,14 @@ flagships:
       records; a manager's read on whether the steadier plan is the one they would
       post; a real 7shifts account through --import-7shifts (README "Reading 7shifts
       directly"); a real When I Work account or response through --import-wheniwork
-      (README "Reading When I Work directly"); Homebase (docs need an account);
+      (README "Reading When I Work directly"); Homebase (docs need an account); a
+      real Square account via --import-square (README "Reading Square's schedule");
       --cover-price moves two shifts together (README "Moving two shifts together");
       second call-outs priced, off by default (README "The pair price in played
       weeks": fewer open hours on 3 of 4 weeks); order-free pair check played: no
       gain, stays opt-in (README "The order-free pass played"); a real two-site
-      export and staff list (README "Staff shared between sites"); own and site
-      rates read from staff CSVs and 7shifts (README "Per-location pay from an
-      export"). More open items: NEXT.md.
+      export and staff list (README "Staff shared between sites"). More open items:
+      NEXT.md.
   - venture: photo-editing
     hosts: [https://raw.pixls.us/, https://github.com/]
     why: >-
@@ -381,10 +381,10 @@ flagships:
       venv, about 2 min). Model check (firmware/esp32/README.md "When the wheel is
       not a first-order lag", 2026-11-16): the loop fit's standard error marks
       unsure drops (LAUNCH bits 6/7), no first-order wheel marked; 5 us tach jitter
-      or a 30 ms ESC lag puts the drill's spin 5-24% off. Next: fit the drop on edge
-      times (jitter is on times, not periods); ESC_TAU_US (README "An ESC lag
-      picked..."): sum its residual grid on the board over a drill, finer grid;
-      retest MIN_FIT_RPM.
+      or a 30 ms ESC lag puts the drill's spin 5-24% off. ESC lag surveyed on the
+      board (README "The ESC lag surveyed on the board"): ESC_SURVEY frame, pick
+      within 10% on 29 of 30 ESC builds; edge-time fit tried, worse, off. Next:
+      retest MIN_FIT_RPM; why a jittery slow wheel picks 0.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -446,11 +446,12 @@ flagships:
       rhombi, quilismas, liquescents, lines at true thickness; tilted pages, curled
       staves straightened (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
       (eval/broken-stroke-check.md); next: worn pages (new GABC needed), mottled
-      squares, a liquescent hook ending on a line (held-out misses), 3408's strokes,
-      3464's cephalicus; --split-voices (by phrase or at a word, --split-words,
-      eval/word-split-report.md) and --overlap (both sections sing the seam note at
-      a direct tenor/bass swap, eval/overlap-report.md) need a singer's check of the
-      ranges, of a mid-phrase handoff against a whole phrase and of a one-note
-      overlap against a clean handoff; --baritones, --entrance-cost N and
-      --second-tenors (TTBB; README) need the same check. Next: a real choir's range
-      test; a director on --sit-out N, the --musicxml parts and the --learn tracks.
+      squares, a one-step cephalicus read as one head (3490, 3508;
+      eval/hook-on-line-check.md), 3408's strokes, 3464's cephalicus; --split-voices
+      (by phrase or at a word, --split-words, eval/word-split-report.md) and
+      --overlap (both sections sing the seam note at a direct tenor/bass swap,
+      eval/overlap-report.md) need a singer's check of the ranges, of a mid-phrase
+      handoff against a whole phrase and of a one-note overlap against a clean
+      handoff; --baritones, --entrance-cost N and --second-tenors (TTBB; README)
+      need the same check. Next: a real choir's range test; a director on --sit-out
+      N, the --musicxml parts and the --learn tracks.

@@ -224,7 +224,7 @@ export const STROKE_TOP_FALL = 0.4;
 // least minFall spaces, and the wide rest starts within join spaces of its
 // right end's height. Set from one stroke (GregoBase 3679, leaf 721).
 export const BROKEN_STROKE = { minFall: 0.15, join: 0.35 };
-export function readStaff(bin, staff, { minH = 0.4, maxH = 0.85, strokeTop = true, brokenStroke = true } = {}) {
+export function readStaff(bin, staff, { minH = 0.4, maxH = 0.85, strokeTop = true, brokenStroke = true, hookOnLine = true } = {}) {
   const { width, ink } = bin;
   const s = staff.space;
   const y0 = Math.max(0, Math.round(staff.top - 2.1 * s));
@@ -365,7 +365,7 @@ export function readStaff(bin, staff, { minH = 0.4, maxH = 0.85, strokeTop = tru
   // a liquescent's small note hangs off its head on a short stem
   // (liquescentTail); it is kept on the head and read after it (readPage)
   for (const o of out) {
-    const t = liquescentTail(isInk, o, out, staff, y0, y1);
+    const t = liquescentTail(isInk, o, out, staff, y0, y1, { onLine: hookOnLine, bin });
     if (t) o.liq = t;
   }
   // Two more things a quilisma never is (eval/quilisma-stroke-check.md):
@@ -515,8 +515,8 @@ export function headShape(f) {
 // eval/shape-fresh-pages.json (51 of 57 liquescents found at the right
 // pitch, 2 of 4,524 other heads given a tail) and then tested on pieces
 // scanned only after they were frozen: eval/liquescent-check-report.md.
-export const LIQ = { minLen: 0.6, maxLen: 2.4, gap: 0.2, minThick: 0.1, minEnd: 0.2, maxEnd: 0.4 };
-export function liquescentTail(isInk, h, heads, staff, y0, y1) {
+export const LIQ = { minLen: 0.6, maxLen: 2.4, gap: 0.2, minThick: 0.1, minEnd: 0.2, maxEnd: 0.4, onLine: 0.06, straddle: 0.08 };
+export function liquescentTail(isInk, h, heads, staff, y0, y1, { onLine = true, bin = null } = {}) {
   const s = staff.space;
   const c = Math.round(h.y);
   const k = Math.max(1, Math.round(0.12 * s));
@@ -551,9 +551,40 @@ export function liquescentTail(isInk, h, heads, staff, y0, y1) {
     ws.sort((p, q) => p - q);
     const endW = ws.length ? ws[Math.floor(ws.length / 2)] : 0;
     if (endW < LIQ.minEnd * s || endW >= LIQ.maxEnd * s) continue;
-    const y = yE - dir * 0.25 * s;
+    // a hook (or small head) whose end sits on a staff line: the line's
+    // rows count as ink only where ink runs out the far side too, so the
+    // trace stopped at the line's near edge and the small note was read a
+    // step too close to its head. Once the tail is accepted as it stands,
+    // its end is moved on to the line's far edge (LIQ.onLine; this never
+    // decides whether there is a tail, only where it ends) -- but only when
+    // the small note straddles the line: in the tail's column the ink runs
+    // past the line's far edge, as measured half a space to a space either
+    // side, by LIQ.straddle spaces. A small note in the space beside a line
+    // only touches it, and moving its end read it a step too far (8 such
+    // notes on the earlier piece lists, eval/hook-on-line-check.md).
+    let yR = yE;
+    const l = onLine && bin ? staff.lines.find((q) => { const d = dir > 0 ? q.top - yE : yE - q.bottom; return d >= 1 && d <= Math.max(1, LIQ.onLine * s); }) : null;
+    if (l) {
+      // the far end of the ink in column x that crosses the line: from the
+      // line's near edge, past any white rows inside the line, to where the
+      // ink stops (the line's own far edge, or what hangs past it)
+      const near = dir > 0 ? l.top : l.bottom, farEdge = dir > 0 ? l.bottom : l.top;
+      const reach = (x) => {
+        const at = (y) => bin.ink[y * bin.width + x] === 1;
+        let y = near;
+        while (!at(y) && dir * (farEdge - y) > 0) y += dir;
+        if (!at(y)) return 0;
+        while (Math.abs(y - near) < s / 2 && at(y + dir)) y += dir;
+        return dir * (y - near);
+      };
+      const ref = [];
+      for (const side of [-1, 1]) for (let d = Math.round(0.5 * s); d <= s; d += 2) ref.push(reach(bx + side * d));
+      ref.sort((p, q) => p - q);
+      if (reach(bx) - ref[Math.floor(ref.length / 2)] >= Math.max(2, LIQ.straddle * s)) yR = dir > 0 ? l.bottom : l.top;
+    }
+    const y = yR - dir * 0.25 * s, y0E = yE - dir * 0.25 * s;
     const hit = heads.some((o) => o !== h && Math.sign(o.y - h.y) === dir && Math.abs(o.y - h.y) > 0.3 * s &&
-      Math.abs(o.y - y) < 0.4 * s && o.x0 <= bx + 0.6 * s && o.x1 >= bx - 0.3 * s);
+      Math.abs(o.y - y0E) < 0.4 * s && o.x0 <= bx + 0.6 * s && o.x1 >= bx - 0.3 * s);
     if (hit) continue;
     if (!best || len > best.len) best = { len, x: bx, y, pos: Math.round((staff.bottom - y) / (s / 2)) };
   }

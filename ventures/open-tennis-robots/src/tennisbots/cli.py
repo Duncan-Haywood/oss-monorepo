@@ -100,6 +100,9 @@ def cmd_run(a: argparse.Namespace) -> int:
               file=sys.stderr)
         return 1
     print(f"{len(res.shots)} balls fed; {res.link_errors} bad frames on the link")
+    advice = host.esc_survey_advice(res.esc_survey)
+    if advice:
+        print(advice)
     return 0
 
 
