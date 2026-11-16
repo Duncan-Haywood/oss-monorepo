@@ -19,8 +19,8 @@ class Drift(unittest.TestCase):
 
     def test_scale_family_valid_exactly(self):
         # All 2^14 outcome paths under varying reports: P(slash) <= alpha, and not vacuous.
-        for two in (False, True):
-            fs = self._exact_tv(0.25, two_sided=two, family="scale")
+        for two, fam in itertools.product((False, True), ("scale", "both")):
+            fs = self._exact_tv(0.25, two_sided=two, family=fam, spacing="log")
             self.assertLessEqual(fs, 0.25, msg=two)
             self.assertGreater(fs, 0.02, msg=two)
 
@@ -72,6 +72,16 @@ class Drift(unittest.TestCase):
             add.append(run_mixture_tv(ys, ps, 0.05, K=16) or 3000)
             sc.append(run_mixture_tv(ys, ps, 0.05, K=16, family="scale") or 3000)
         self.assertLess(sum(sc), sum(add))
+
+    def test_both_is_the_average_of_the_two_families(self):
+        rng = random.Random(2)
+        ps = [0.02 + 0.3 * rng.random() for _ in range(50)]
+        ys = [1 if rng.random() < x else 0 for x in ps]
+        for two in (False, True):
+            a = list(mixture_tv_path(ys, ps, K=8, two_sided=two, spacing="log"))[-1]
+            b = list(mixture_tv_path(ys, ps, K=8, two_sided=two, family="scale"))[-1]
+            c = list(mixture_tv_path(ys, ps, K=8, two_sided=two, spacing="log", family="both"))[-1]
+            self.assertAlmostEqual(math.exp(c), (math.exp(a) + math.exp(b)) / 2, places=9)
 
     def test_family_rejected(self):
         with self.assertRaises(ValueError): run_mixture_tv([1], [0.2], 0.05, family="nope")

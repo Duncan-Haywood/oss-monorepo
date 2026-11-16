@@ -160,11 +160,13 @@ def _bet_fracs(p, cs, rs, family):
     'additive': c fixed, the alternative is p + c(1 - p) (up) or p(1 - c) (down).
     'scale': the alternative is r*p (up) or p/r (down), the likelihood ratio of a
     verifier whose true rate is a fixed multiple of its report; the up fraction is
-    (r - 1)p/(1 - p), capped at 0.999 so the y=0 factor stays positive."""
+    (r - 1)p/(1 - p), capped at 0.999 so the y=0 factor stays positive.
+    'both': the two lists concatenated, an equal-weight mixture of both families."""
     if family == "additive": return cs, cs
     up = [min((r - 1) * p / (1 - p), 0.999) for r in rs]
     dn = [1 - 1 / r for r in rs]
-    return up, dn
+    if family == "scale": return up, dn
+    return cs + up, cs + dn
 
 
 def mixture_tv_path(ys, ps, K=32, two_sided=False, spacing="uniform", family="additive"):
@@ -176,20 +178,23 @@ def mixture_tv_path(ys, ps, K=32, two_sided=False, spacing="uniform", family="ad
     With two_sided, the down-bets 1 - c (y_t - p_t) / (1 - p_t) are added and the
     two halves averaged, which also catches a verifier that over-reports faults.
     family='additive' keeps c fixed across rounds; family='scale' sets c from p_t
-    so each component is the likelihood ratio of a true rate r * p_t (or p_t / r).
-    Both are predictable in p_t, so validity is unchanged; power depends on which
-    family matches how the cheater misreports.
+    so each component is the likelihood ratio of a true rate r * p_t (or p_t / r);
+    family='both' averages K components of each (2K in all; `spacing` applies to
+    the additive half).  All are predictable in p_t, so validity is unchanged;
+    power depends on which family matches how the cheater misreports.
     """
-    if family not in ("additive", "scale"): raise ValueError(f"family must be 'additive' or 'scale', got {family!r}")
-    cs = frac_grid(K, spacing) if family == "additive" else None
-    rs = scale_grid(K) if family == "scale" else None
-    up = [0.0] * K
-    dn = [0.0] * K
-    n = 2 * K if two_sided else K
+    if family not in ("additive", "scale", "both"):
+        raise ValueError(f"family must be 'additive', 'scale' or 'both', got {family!r}")
+    cs = frac_grid(K, spacing) if family != "scale" else None
+    rs = scale_grid(K) if family != "additive" else None
+    k = 2 * K if family == "both" else K
+    up = [0.0] * k
+    dn = [0.0] * k
+    n = 2 * k if two_sided else k
     for y, p in zip(ys, ps):
         _check_rate(p, "p_t")
         cu, cd = _bet_fracs(p, cs, rs, family)
-        for i in range(K):
+        for i in range(k):
             up[i] += math.log(1 + cu[i] * (y - p) / p)
             if two_sided: dn[i] += math.log(1 - cd[i] * (y - p) / (1 - p))
         ws = up + dn if two_sided else up

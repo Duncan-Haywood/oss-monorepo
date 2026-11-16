@@ -17,7 +17,7 @@
   "tokens_out": 38279,
   "cost_usd": 2.558,
   "tool_calls": 49,
-  "task": "quality fix mode: research/sequential-slashing open defects from the 2026-11-07 audit",
+  "task": "quality fix mode: research/sequential-slashing open defects from the 2026-11-07 audit; consolidated onto PR 16634 after a parallel duplicate",
   "projects": [
     "research/sequential-slashing"
   ],
@@ -29,13 +29,15 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 13,
+  "tests_added": 8,
   "outcome": "success",
   "errors": [
     "quality_mutate.py: passed the test command as 'PYTHONPATH=src python3 ...'; it execs argv directly, so needs 'env PYTHONPATH=src ...' (FileNotFoundError). Retried with env.",
     "First whitepaper draft stated E5(b)/E6 numbers before the experiment finished (my guess that per-round reports speed detection); the run showed the opposite (157 vs 211 rounds) and the text was rewritten from results.txt before commit.",
     "json.dump of research/_homepage/projects.json reformatted 824 lines; reverted and edited the one summary string.",
-    "Changing results.txt number format (integers to 1 decimal) broke experiments/figure.py's regex; caught by running it, fixed."
+    "Changing results.txt number format (integers to 1 decimal) broke experiments/figure.py's regex; caught by running it, fixed.",
+    "Duplicate work: a parallel session (same routine, session_01E5sJKmE6URPvwzDgwUU3AA) took the same subject at the same time and merged PR 16634 at 16:42 UTC with an equivalent fix (exact DP, time-varying two-sided mixture, references) plus a log bet grid. My open-PR search at 16:25 found nothing because neither PR existed yet. Resolved by keeping main's version whole, dropping my rewrite/tests/post, and adding only new work on top (drift invalidity R6, bet families R7, family='scale'/'both').",
+    "Down-bet mutation in the new scale family survived the validity tests (a wrong but valid bet); added a likelihood-ratio identity test that catches it."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -46,14 +48,25 @@
     {
       "file": "prompts/quality/prompt-0.md",
       "issue": "Step 5 names the post for a sample round; the fix-mode naming is only in the README's mode table. The prompt could point at the mode first (it is the sample command's NOTE that tells you)."
+    },
+    {
+      "file": "platform/ci/quality_audit.py",
+      "issue": "fix-mode `queue` lists defects but gives no claim mechanism before a PR exists: two sessions started the same minute both picked research/sequential-slashing (the first medium-severity row with no recent commits). sample/census add a random seed tail for exactly this race; queue could shuffle among equal-priority rows by session, or `queue --claim` could open the draft PR first."
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "why": "Instead of closing my PR as superseded after #16634 merged, I merged main, took its version wholesale and kept the PR for the genuinely new results (R6, R7, scale/both families).",
+      "did": "git merge -X theirs then checkout origin/main for every overlapping file; new code only in model.py (family=), tests/test_drift.py, experiments/drift.py",
+      "result": "PR diff against main contains only additive work; 25 tests pass"
+    }
+  ],
   "writeups": [
-    "docs/posts/2026-11-16-quality-fix-sequential-slashing.md"
+    "docs/posts/2026-11-16-slashing-tests-must-bet-the-way-the-cheater-lies.md"
   ],
   "goal": null,
-  "notes": "Mode: fix (quality_audit.py mode; seed of the day 2026-11-16-db0c, not used for a sample). Subject: research/sequential-slashing (audit 2026-11-07, no commits since). Fixed defects 0,1,3,4,5,6,7 (marked fixed_by PR 16632); defect 2 (scope: composite null, confidence sequence, matched bet family, strategic cheater) partly addressed (per-round reports, two-sided) and left open in README Known gaps. Exact DP reproduces the auditor's independent numbers 0.3731/0.0432/111.8. Corrected numbers: mixture false-slash 0.020 -> 0.0310, price of ignorance 1.36 -> 1.43, overshoot 'within 12%' -> 2.3-13.1%. New negative finding: per-round mixture is valid under drift but slower (211 vs 157 rounds) against a scaling cheater. Mutations: dropped /K normaliser caught, wrong 'less' factor caught, DP absorption off-by-one caught. Verification: 19 unit tests OK (4 s); run.py 4m18s; research homepage build ok; research_live_links/check_md_links ok; writing.test.mjs 53/53; quality_audit.py validate 382 files 0 problems; run_workflow_locally --for-changes 11 workflows DONE exit 0 (134 steps ok). Share meeting the bar: n/a (fix mode, no re-audit this round).",
+  "notes": "Mode: fix (quality_audit.py mode; day seed 2026-11-16-db0c unused). Subject: research/sequential-slashing, audit 2026-11-07. A parallel session fixed defects 0,1,3-7 in PR 16634 first; this PR adds to defect 2 (scope) without closing it (composite null and confidence sequence still missing), listed in fix_prs, not fixed_by. New results: R6 pooling drifting claims slashes an honest verifier with probability 1.000000 (exact) vs 4.5% [3.7,5.6] per-round; R7 per-round additive uniform test median 1124 rounds vs scale family 328 vs both 388 against a 1.5x cheater (claims log-uniform 1-30%), while against a +0.02 cheater scale detects only 70.8% vs additive-log 98.3% and both 98.0%; honest false slash 2.0-3.7% in every cell. Mutations (quality_mutate.py): scale up fraction caught; scale down fraction caught after adding LR identity test (first survived); both reusing up bets for down caught. Earlier (dropped) duplicate also verified the auditor's independent numbers 0.3731/0.0432/111.8 by my own DP. Verification: 25 unit tests OK (19.8 s); experiments/drift.py 6m15s reproducible (rows unchanged between runs with the same seeds); research homepage build ok; research_live_links ok; check_md_links ok; writing.test.mjs 53/53; quality_audit.py validate 382/0. Share meeting the bar: n/a (fix mode).",
   "corrections": [],
   "redteam": null,
   "usage": {
