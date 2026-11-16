@@ -6,7 +6,10 @@
 // rule was set from two cephalici (GregoBase 3490 con-, leaf 773, and 3508
 // et, leaf 382) and checked on the twelve earlier piece lists, before any
 // page of these pieces was downloaded. Takes, in id order from 3463, the
-// first 15 GregoBase ids that are in no earlier piece list, whose book:
+// first 15 GregoBase ids that are in no earlier piece list, none of whose
+// four leaves any earlier list (or an earlier piece of this one) reads (a
+// first draw without that test shared leaves with 14 of its 15 pieces:
+// those pages had been read by the rule while it was set), whose book:
 // header names only the Graduale Romanum, 1908 with a page, and whose GABC
 // has a one-step cephalicus: a liquescent (~) whose note just before it, in
 // the same group, is a plain lowercase pitch one letter higher (gf~, fe~).
@@ -23,9 +26,10 @@ const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '..');
 const dir = join(root, 'corpus/gregobase-1908-onestep');
 mkdirSync(dir, { recursive: true });
-const used = new Set();
+const used = new Set(), usedLeaves = new Set();
 for (const f of readdirSync(here).filter((f) => /pages.*\.json$/.test(f) && f !== 'one-step-fresh-pages.json')) {
   for (const m of readFileSync(join(here, f), 'utf8').matchAll(/(\d{4})\.gabc/g)) used.add(Number(m[1]));
+  for (const p of JSON.parse(readFileSync(join(here, f), 'utf8')).pieces) for (const pg of p.pages) usedLeaves.add(pg.leaf);
 }
 const L = 'abcdefghijklm';
 export const oneStepCephalici = (body) => {
@@ -49,8 +53,10 @@ for (let id = 3463; id <= 3999 && pieces.length < 15; id++) {
   if (!pg) continue;
   const k = oneStepCephalici(src.slice(src.indexOf('%%')));
   if (!k) continue;
-  if (!existsSync(file)) writeFileSync(file, src);
   const leaf = Number(pg[2]) + (pg[1] ? 585 : 26);
+  // no leaf any earlier list reads: the rule was tuned on those pages
+  if ([leaf - 2, leaf - 1, leaf, leaf + 1].some((l) => usedLeaves.has(l) || pieces.some((q) => q.pages.some((pp) => pp.leaf === l)))) continue;
+  if (!existsSync(file)) writeFileSync(file, src);
   const name = /^name:(.*);/m.exec(src)[1].trim();
   pieces.push({
     name: `GregoBase ${id} (${name})`,
@@ -62,6 +68,6 @@ for (let id = 3463; id <= 3999 && pieces.length < 15; id++) {
     pages: [leaf - 2, leaf - 1, leaf, leaf + 1].map((l) => ({ page: l === leaf ? `${pg[1]}${pg[2]}${pg[1] ? ']' : ''}` : `leaf ${l}`, leaf: l })),
   });
 }
-const note = 'Fresh held-out pieces for the one-step cephalicus rule (scan.mjs oneStepCephalicus, ONE_STEP), chosen on 2026-11-16 by eval/one-step-fresh.mjs after the rule was set from two cephalici (GregoBase 3490, leaf 773; 3508, leaf 382) and frozen, and listed before any of their pages was downloaded: in id order from 3463, the first 15 GregoBase ids in no earlier piece list whose book: header names only the Graduale Romanum, 1908, and whose GABC has a one-step cephalicus (a liquescent whose note before it in the group is a plain pitch one letter higher). Arabic page p is printed on leaf p+26, bracketed page [p] on leaf p+585; the two leaves before it and the one after are read and the piece found by local alignment. GABC files are unmodified GregoBase downloads (CC0), in corpus/gregobase-1908-onestep/.';
+const note = 'Fresh held-out pieces for the one-step cephalicus rule (scan.mjs oneStepCephalicus, ONE_STEP), chosen on 2026-11-16 by eval/one-step-fresh.mjs after the rule was set from two cephalici (GregoBase 3490, leaf 773; 3508, leaf 382) and frozen, and listed before any of their pages was downloaded: in id order from 3463, the first 15 GregoBase ids in no earlier piece list, none of whose four leaves any earlier list (or an earlier piece of this list) reads, whose book: header names only the Graduale Romanum, 1908, and whose GABC has a one-step cephalicus (a liquescent whose note before it in the group is a plain pitch one letter higher). Arabic page p is printed on leaf p+26, bracketed page [p] on leaf p+585; the two leaves before it and the one after are read and the piece found by local alignment. GABC files are unmodified GregoBase downloads (CC0), in corpus/gregobase-1908-onestep/.';
 writeFileSync(join(here, 'one-step-fresh-pages.json'), JSON.stringify({ note, pieces }, null, 2) + '\n');
 console.log(pieces.map((p) => `${p.name} leaf ${p.pages[2].leaf}, ${p.oneStepCephalici} one-step cephalici`).join('\n'));
