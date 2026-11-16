@@ -5,7 +5,8 @@
 //
 // Each page is prepared exactly as `csshound --pages --json` prepares it
 // (src/page.rs): the CSS is the page's <style> blocks plus the local
-// stylesheets it links, and the content is the page with those <style>
+// stylesheets it links (a <style> inside a comment or script is text), and
+// the content is the page with those <style>
 // blocks cut out plus the local scripts it loads. PurgeCSS then runs with its
 // defaults and `rejected: true`. The comparison is compare_rejected.py.
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
@@ -44,10 +45,15 @@ export function preparePage(file) {
   const html = readFileSync(file, "utf8");
   const dir = dirname(file);
   const css = [];
-  const content = html.replace(/<style\b[^>]*>([\s\S]*?)<\/style\s*>/gi, (_, body) => {
-    css.push(body);
-    return "";
-  });
+  // A `<style>` inside a comment or a script is text, not a style element.
+  const content = html.replace(
+    /<!--[\s\S]*?-->|<script\b[^>]*>[\s\S]*?<\/script\s*>|<style\b[^>]*>([\s\S]*?)<\/style\s*>/gi,
+    (m, body) => {
+      if (body === undefined) return m;
+      css.push(body);
+      return "";
+    },
+  );
   const extra = [];
   for (const tag of content.match(/<link\b[^>]*>/gi) || []) {
     const rel = attr(tag, "rel");
