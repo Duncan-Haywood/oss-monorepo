@@ -379,11 +379,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "Slow wheels
-      watched past the verdict". Next: set MIN_FIT_RPM (1,000; no floor looked as
-      good) on held-out builds; why the 0.8 s first-order slow drill aborts at shot
-      2 (on main too); warn before a calibration drill when the survey sees an ESC
-      lag ESC_TAU_US lacks (the hold hurts then); does the hold make shots late?
+      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "The slow
+      drill's release timeout". Next: set MIN_FIT_RPM (1,000; no floor looked as
+      good) on held-out builds; why a 0.8 s wheel braking to 526 rpm settles 3-4%
+      low under the scaled gains (costs ~2 s a shot); warn before a calibration
+      drill when the survey sees an ESC lag ESC_TAU_US lacks (the hold hurts then);
+      does the hold make shots late?
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

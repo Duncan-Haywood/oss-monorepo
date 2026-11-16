@@ -418,6 +418,10 @@ class Abort(Exception):
     pass
 
 
+# Flags under which the board's feed gate stays shut: a queued FEED waits for them to clear (main.py's feed gate).
+GATE_SHUT = P.FLAG_WHEELS_SETTLING | P.FLAG_AIM_SETTLING
+
+
 def _wheels_ok(t: Telemetry, shot: PlannedShot) -> bool:
     """The firmware's own verdict (wheels held within 3% for 150 ms) and, as a check that the frame belongs to this
     shot's speeds rather than the last one's, the reported rpm within 5% of this shot's."""
@@ -471,8 +475,10 @@ def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, rea
             link.poll()
             sleep(tick_s)
 
-    def wait(until, timeout, what, ignore=0):
-        start = clock()
+    def wait(until, timeout, what, ignore=0, gate_cap=None):
+        """Poll until `until(frame)`. With `gate_cap`, `timeout` runs from the last frame whose flags show the feed
+        gate shut (wheels or aim settling), for up to `gate_cap` after the call: a release only starts once the gate opens."""
+        start = first = clock()
         while True:
             t = link.poll()
             now = clock()
@@ -491,6 +497,8 @@ def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, rea
                     raise Abort(f"{what}: no telemetry for {now - t.t:.2f} s (cable, baud rate or board reset?)")
                 if until(t):
                     return t
+                if gate_cap is not None and t.flags & GATE_SHUT and now - first < gate_cap:
+                    start = now
             elif now - start > link_timeout_s:
                 raise Abort(f"{what}: no telemetry at all (wrong port, baud rate or role?)")
             if now - start > timeout:
@@ -538,7 +546,11 @@ def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, rea
             if fed_at is None:
                 fed_at = clock()
             fed = (fed + 1) & 0xFF
-            gone = wait(lambda t: t.balls_fed == fed, release_timeout_s, f"{label} release")
+            # The board strokes only once its gate holds the wheels steady again (SteadyGate restarts its 6-revolution
+            # hold when a reading slips out of the 3% band), so the release timeout counts from the gate's last shut
+            # frame (firmware/esp32/README.md "The slow drill's release timeout").
+            gone = wait(lambda t: t.balls_fed == fed, release_timeout_s, f"{label} release",
+                        gate_cap=ready_timeout_s + release_timeout_s)
             last_release = gone.t
             res.shots.append(ShotResult(shot.index, ready_s, gone.t, (ready.rpm_top, ready.rpm_bottom)))
             if log:
