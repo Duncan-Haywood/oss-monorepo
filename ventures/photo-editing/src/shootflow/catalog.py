@@ -6,24 +6,17 @@ from pathlib import Path
 from typing import Literal
 
 from shootflow.deliverables import MediaAsset
-from shootflow.ingest import sha256_file
+from shootflow.ingest import RAW_PHOTO_EXTENSIONS, sha256_file
 
 CatalogMediaType = Literal["photo", "video"]
 
-_PHOTO_EXTENSIONS = {
-    ".arw",
-    ".cr2",
-    ".cr3",
-    ".dng",
+_PHOTO_EXTENSIONS = RAW_PHOTO_EXTENSIONS | {
     ".heic",
+    ".heif",
+    ".hif",
+    ".insp",
     ".jpeg",
     ".jpg",
-    ".nef",
-    ".orf",
-    ".pef",
-    ".raf",
-    ".rw2",
-    ".srw",
     ".tif",
     ".tiff",
 }
@@ -32,10 +25,15 @@ _VIDEO_EXTENSIONS = {
     ".ari",
     ".avi",
     ".braw",
+    ".crm",
+    ".insv",
+    ".lrv",
+    ".m2ts",
     ".m4v",
     ".mov",
     ".mp4",
     ".mts",
+    ".mxf",
     ".r3d",
     ".xavc",
 }

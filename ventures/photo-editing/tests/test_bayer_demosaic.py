@@ -404,6 +404,84 @@ class DirectionalTests(unittest.TestCase):
             self.assertTrue(np.allclose(s[k], ref[k], atol=1e-6), k)
         self.assertTrue(np.allclose(s["X"], ref["X"][:, :8], atol=1e-6))
 
+    def test_boosted_weight_tool(self):
+        """tools/bayer_boosted_weight.py (eval/bayer-boosted-weight-2026-11-16.md): the 5 x 5 mean matches a
+        brute-force mean with reflected edges; the sample is the trainer's (same sensels, greens and twelve
+        features); the gain of B's weight matches a direct score; the linear refit on one copy beats 3/16
+        on that copy (in sample)."""
+
+        import numpy as np
+
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+        import bayer_boosted_weight as bw
+        import bayer_laplace_train as t
+
+        rng = np.random.default_rng(4)
+        a = rng.random((7, 9))
+        p = np.pad(a, 2, mode="reflect")
+        ref = np.array([[p[y : y + 5, x : x + 5].mean() for x in range(9)] for y in range(7)])
+        self.assertTrue(np.allclose(bw.window_mean(a), ref))
+
+        truth = t.near_nyquist_texture(seed=2, n=128, tile=32)
+        s = bw.copy_samples(truth, (0, 1, 1, 2), seed=0, snr=None, per_frame=2000)
+        self.assertEqual(s["X"].shape, (2000, len(bw.FEATURE_NAMES)))
+        ref = t.truth_samples(truth, (0, 1, 1, 2), 2000, seed=0)
+        for k in ("g8", "g4", "g316", "gt"):
+            self.assertTrue(np.allclose(s[k], ref[k], atol=1e-6), k)
+        self.assertTrue(np.allclose(s["X"][:, :12], ref["X"], atol=1e-5))
+        D = 8.0 * (s["g4"] - s["g8"])
+        direct = np.mean((s["g8"] + (s["wB"] - 0.125) * D - s["gt"]) ** 2)
+        self.assertAlmostEqual(bw.gain(s, s["wB"]), 10 * np.log10(np.mean((s["g316"] - s["gt"]) ** 2) / direct), 9)
+        coef = bw.fit_linear([s])
+        self.assertGreater(bw.gain(s, bw.predict_linear(coef, s)), 0.0)
+
+    def test_boosted_guard_tool(self):
+        """tools/bayer_boosted_guard.py (eval/bayer-boosted-guard-2026-11-16.md): the frame guards fall back
+        to B only outside the training range (C1a on feature 5 alone, C1b on any of eight); the clamp stays
+        within 1/64 of B; the CV rule takes the highest eligible mean, prefers the simpler within 0.005 dB,
+        and refuses a candidate whose worst frame is below the linear weight by more than 0.05 dB."""
+
+        import numpy as np
+
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+        import bayer_boosted_guard as g
+
+        T, B = np.array([0.15, 0.24, 0.13]), np.array([0.18, 0.18, 0.18])
+        lo, hi = np.zeros(8), np.ones(8)
+        inside = np.full(8, 0.5)
+        maps, flags = g.candidates(T, B, inside, lo, hi)
+        self.assertFalse(flags["fallback_f5"] or flags["fallback_any"])
+        self.assertIs(maps["C1a"], T)
+        self.assertTrue(np.all(np.abs(maps["C2"] - B) <= 1 / 64 + 1e-12))
+        self.assertTrue(np.allclose(maps["C3"], (T + B) / 2))
+        other = inside.copy()
+        other[2] = 2.0  # out of range on a feature other than 5
+        maps, flags = g.candidates(T, B, other, lo, hi)
+        self.assertIs(maps["C1a"], T)
+        self.assertIs(maps["C1b"], B)
+        f5 = inside.copy()
+        f5[5] = -1.0
+        maps, _ = g.candidates(T, B, f5, lo, hi)
+        self.assertIs(maps["C1a"], B)
+
+        def row(group, lin, **c):
+            return {"group": group, "cv_gain_linear": lin, **{f"cv_gain_{k}": v for k, v in c.items()}}
+
+        # C2 has the higher mean but loses 0.1 dB on frame b; C3 is within the floor, C1a/C1b below the bar.
+        rows = [row("a", 0.3, C3=0.40, C2=0.50, C1a=0.31, C1b=0.31), row("b", 0.3, C3=0.27, C2=0.20, C1a=0.31, C1b=0.31)]
+        pick, summary = g.choose(rows)
+        self.assertEqual(pick, "C3")
+        self.assertFalse(summary["C2"]["eligible"])
+        self.assertEqual(summary["C2"]["worst_frame"], "b")
+        # Within 0.005 dB the simpler (C3 before C2) wins.
+        rows = [row("a", 0.3, C3=0.400, C2=0.404, C1a=0.3, C1b=0.3)]
+        self.assertEqual(g.choose(rows)[0], "C3")
+        self.assertIsNone(g.choose([row("a", 0.3, C3=0.31, C2=0.31, C1a=0.31, C1b=0.31)])[0])
+
+        v = g.verdict([{"group": "a", "gain_B": 0.3, "gain_X": 0.4}, {"group": "b", "gain_B": 0.3, "gain_X": 0.2}], "gain_X")
+        self.assertFalse(v["pass"])  # frame b is 0.1 dB below B
+        self.assertEqual(v["wins"], 1)
+
 
 class DeveloperChoiceTests(unittest.TestCase):
     def raw(self):

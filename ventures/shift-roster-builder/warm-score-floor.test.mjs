@@ -87,13 +87,18 @@ test("buildRoster reports the warm start and `scoreFloorWarm: false` turns it of
 
 test("the warm-sized gate: with the open-hours basis the pay floor always runs warm, stopped the reserve past the budget", () => {
   // README "A warm-sized gate for the pay floor" (2026-11-16): the warm solve's time does not follow the cold formula, so the
-  // formula no longer decides when a basis is in hand; the solve gets the time left plus `scoreFloorReserveMs` (default 1500).
+  // formula no longer decides when a basis is in hand; the solve gets the time left plus `scoreFloorReserveMs`. The reserve defaults to 30% of the budget, at most 6 s (README "The pay floor's
+  // reserve, sized from the full solve": 6 s at the 20 s default, pre-registered in eval/pay-floor-reserve-prereg.md).
   const big = { budgetMs: 20000, copies: 245, carry: true };
-  assert.deepEqual(scoreFloorPlan({}, { ...big, leftMs: 900 }), { mode: "try", reserve: 1500, untilMs: 2400 });
+  assert.deepEqual(scoreFloorPlan({}, { ...big, leftMs: 900 }), { mode: "try", reserve: 6000, untilMs: 6900 });
   // Lots of time left: the old gate ran it with no deadline; now it is still bounded by the time left plus the reserve.
-  assert.deepEqual(scoreFloorPlan({}, { ...big, leftMs: 9000 }), { mode: "try", reserve: 1500, untilMs: 10500 });
-  // The budget already spent: the reserve alone.
-  assert.equal(scoreFloorPlan({}, { ...big, leftMs: -40 }).untilMs, 1500);
+  assert.deepEqual(scoreFloorPlan({}, { ...big, leftMs: 9000 }), { mode: "try", reserve: 6000, untilMs: 15000 });
+  // The budget already spent: the spent reserve alone (at most 4 s since 2026-11-16, README "The pay floor once the budget is spent").
+  assert.equal(scoreFloorPlan({}, { ...big, leftMs: -40 }).untilMs, 4000);
+  // A shorter budget gets a shorter reserve (30% of it), a longer one no more than 6 s; an explicit value wins.
+  assert.equal(scoreFloorPlan({}, { ...big, budgetMs: 3000, leftMs: 1 }).reserve, 900);
+  assert.equal(scoreFloorPlan({}, { ...big, budgetMs: 60000, leftMs: 1 }).reserve, 6000);
+  assert.equal(scoreFloorPlan({ scoreFloorReserveMs: 1500 }, { ...big, leftMs: 900 }).untilMs, 2400);
   // Reserve 0 is the 2026-11-14 try (stopped at the budget's end); under 250 ms it is skipped.
   assert.equal(scoreFloorPlan({ scoreFloorReserveMs: 0 }, { ...big, leftMs: 100 }).mode, "skip");
   assert.deepEqual(scoreFloorPlan({ scoreFloorReserveMs: 0 }, { ...big, leftMs: 900 }), { mode: "try", reserve: 0, untilMs: 900 });
@@ -107,4 +112,26 @@ test("the warm-sized gate: with the open-hours basis the pay floor always runs w
     assert.equal(scoreFloorPlan(o, { ...big, carry, leftMs: 4100 }).mode, "run", JSON.stringify(o));
     assert.equal(scoreFloorPlan(o, { ...big, carry, leftMs: 3900 }).mode, "skip", JSON.stringify(o));
   }
+});
+
+test("the pay floor's skip reasons, and a try once the budget is spent", () => {
+  // README "The pay floor once the budget is spent" (2026-11-16, pre-registered in eval/pay-floor-spent-prereg.md and
+  // eval/pay-floor-spent-4s-prereg.md): on by default, with a reserve of its own of at most 4 s.
+  const { scoreFloorSkip } = _internals;
+  const clique = { carry: {} }, big = { budgetMs: 20000, copies: 245, carry: true };
+  const tryPlan = scoreFloorPlan({}, { ...big, leftMs: -300 });
+  assert.deepEqual(tryPlan, { mode: "try", reserve: 4000, untilMs: 4000 }, "a spent budget leaves the 4 s spent reserve alone");
+  assert.equal(scoreFloorPlan({ scoreFloorSpentReserveMs: 2500 }, { ...big, leftMs: -1 }).untilMs, 2500);
+  assert.equal(scoreFloorPlan({}, { ...big, budgetMs: 3000, leftMs: -1 }).untilMs, 900, "never more than the normal reserve");
+  assert.equal(scoreFloorPlan({ scoreFloorReserveMs: 1500 }, { ...big, leftMs: -1 }).untilMs, 1500);
+  assert.equal(scoreFloorPlan({}, { ...big, leftMs: 10 }).reserve, 6000, "time left: the normal reserve");
+  assert.equal(scoreFloorSkip({}, { clique: null, proven: false, spent: false, plan: tryPlan }), "noClique");
+  assert.equal(scoreFloorSkip({}, { clique, proven: true, spent: false, plan: tryPlan }), "proven");
+  assert.equal(scoreFloorSkip({ scoreFloor: false }, { clique, proven: false, spent: false, plan: tryPlan }), "off");
+  assert.equal(scoreFloorSkip({}, { clique, proven: false, spent: false, plan: tryPlan }), null);
+  assert.equal(scoreFloorSkip({}, { clique, proven: false, spent: true, plan: tryPlan }), null, "spent: tried by default");
+  assert.equal(scoreFloorSkip({ scoreFloorSpent: false }, { clique, proven: false, spent: true, plan: tryPlan }), "spent");
+  // No basis: the cold formula decides, and a spent budget never fits it.
+  const coldPlan = scoreFloorPlan({}, { ...big, carry: false, leftMs: -300 });
+  assert.equal(scoreFloorSkip({}, { clique: { carry: null }, proven: false, spent: true, plan: coldPlan }), "noBasis");
 });

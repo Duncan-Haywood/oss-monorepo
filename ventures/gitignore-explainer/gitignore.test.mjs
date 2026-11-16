@@ -173,6 +173,25 @@ test("a large list stays fast", () => {
   assert.ok(performance.now() - t0 < 15000, `took ${Math.round(performance.now() - t0)} ms`);
 });
 
+// Perf 2026-11-16: unanchored `name` and `*suffix` rules skip wildmatch, as
+// git's match_basename does. Pin the shortcut to the full matcher.
+test("the literal and *suffix shortcuts agree with wildmatch", () => {
+  const patterns = ["*", "?", "?log", "[ab]", "\\*x", "*.log", "*log", "*.tar.gz", "*~", "*.", "a", "a.log", "log", ".env", "a b", "*.ext5", "*.ext50"];
+  const names = ["", "a", "a.log", "b.log", "log", ".log", "x.tar.gz", "tar.gz", "f~", "f.", ".env", ".envrc", "#x", "a b", "f.ext5", "f.ext50", "f.ext500", "alog"];
+  for (const pattern of patterns) {
+    for (const name of names) {
+      for (const dir of ["", "sub/", "a/b.log/"]) {
+        if (!name) continue;
+        const path = dir + name;
+        const want = wildmatch(pattern, name, { pathname: false });
+        // `own` is the path's own match, whatever its folders do
+        assert.equal(!!decide(pattern, path).own, want, `${pattern} on ${path}`);
+        assert.equal(!!decide(`${pattern}/`, path, true).own, want, `${pattern}/ on ${path}/`);
+      }
+    }
+  }
+});
+
 test("a negated folder inside an ignored folder is blocked too, and its contents come back with the fix", () => {
   const r = run("build/\n!build/keep.txt\n!build/assets/", "build/keep.txt\nbuild/assets/logo.svg\nbuild/app.js");
   const blocked = r.findings.filter((f) => f.kind === "negation-blocked");
@@ -225,4 +244,46 @@ test("a negation in .git/info/exclude blocked by a root folder rule gets a fix",
   assert.deepEqual(r.fix.patches, [{ file: ".gitignore", lines: ["!/build/", "/build/*", "!build/keep.txt"] }]);
   assert.deepEqual(r.fix.fixed, ["build/keep.txt"]);
   assert.deepEqual(r.fix.unfixed, []);
+});
+
+test("POSIX class edges: control characters and DEL", () => {
+  // git's [[:cntrl:]] is iscntrl(): bytes 0-31 and 127; [[:graph:]] stops at 126
+  assert.ok(wildmatch("[[:cntrl:]]x", "\x01x"));
+  assert.ok(wildmatch("[[:cntrl:]]x", "\x7fx"));
+  assert.ok(!wildmatch("[[:cntrl:]]x", "ax"));
+  assert.ok(!wildmatch("[[:graph:]]x", "\x7fx"));
+  assert.ok(wildmatch("[[:graph:]]x", "~x"));
+});
+
+test("a bracket range includes both of its ends", () => {
+  assert.ok(wildmatch("[a-c].log", "a.log"));
+  assert.ok(wildmatch("[a-c].log", "c.log"));
+  assert.ok(!wildmatch("[a-c].log", "d.log"));
+  assert.ok(!wildmatch("[b-c].log", "a.log"));
+});
+
+test("every C escape git uses in a quoted path decodes to its byte", () => {
+  const names = { a: 7, b: 8, t: 9, n: 10, v: 11, f: 12, r: 13 };
+  for (const [e, code] of Object.entries(names)) {
+    assert.equal(run("x", `"p\\${e}q"`).paths[0].path, `p${String.fromCharCode(code)}q`, `\\${e}`);
+  }
+});
+
+test("between two equally good fixes, the one in the negation's own file is offered", () => {
+  // the root .gitignore could carry `!/web/**/*.map` just as well, but the
+  // reader wrote the negation in web/.gitignore, so the fix stays there
+  const r = run("dist\n==> web/.gitignore <==\n!*.map", "web/dist/a.map");
+  assert.deepEqual(r.fix.patches, [{ file: "web/.gitignore", lines: ["!/dist/", "/dist/*", "!*.map"] }]);
+  assert.deepEqual(r.fix.sideEffects, []);
+});
+
+test("wildcards take one byte, as in git, so `?` does not match an accented letter", () => {
+  // checked with `git check-ignore --no-index -v` (git 2.4x): é is two UTF-8
+  // bytes, so `caf?.txt` and `n[!a]o` leave café.txt and néo alone, while `*`
+  // still spans both bytes
+  const r = run("caf?.txt\n[[:alpha:]]x\nn[!a]o\nb*z\ncaf??.md\n[é]x", "café.txt\néx\nnéo\nbé.z\ncafé.md");
+  assert.deepEqual(r.paths.map((p) => [p.path, p.ignored]), [["café.txt", false], ["éx", false], ["néo", false], ["bé.z", true], ["café.md", true]]);
+  assert.ok(!wildmatch("?", "é"));
+  assert.ok(wildmatch("??", "é"));
+  assert.ok(wildmatch("café*", "café.txt"));
 });

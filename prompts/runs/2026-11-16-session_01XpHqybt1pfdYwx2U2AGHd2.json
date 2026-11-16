@@ -1,0 +1,276 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqybt1pfdYwx2U2AGHd2",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T16:38:39Z",
+  "ended": "2026-11-16T16:39:10Z",
+  "wall_minutes": 7.33,
+  "tokens_in": 6099946,
+  "tokens_out": 31687,
+  "cost_usd": 2.6394,
+  "tool_calls": 70,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16638",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 says to fix every open entry first, but all 9 open entries are control-plane fixes (prompts/, .github/, control_plane_guard.py) that this run cannot land without owner approval; the list re-prints the same blocked items every run. It would help to mark entries as 'awaiting owner PR #N' so `redteam.py open` can separate actionable from blocked."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The redteam prompt says to look at files changed on main in the last 3 days, but the clone is depth-1, so `git log --since=3.days --name-only origin/main` returns nothing without a deepen; the random draw was used instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 asks to fix the open list before seeding; every entry needs a control-plane PR with owner approval.",
+      "did": "Checked each one still reproduces on main (none fixed; grep for each fix's marker), left them as they were, and went on to seed.",
+      "result": "No step-0 entry patched; the run's time went to 3 new real defects instead."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-redteam-nan-switches-the-guard-off.md"
+  ],
+  "goal": null,
+  "notes": "Guard added (4b): platform/ci/check_finite_thresholds.py, run on PRs via unwired_checks.py; its first run found 4 bare type=float threshold flags (3 in platform/ci, 1 in coverage-drop-check), all fixed. Sibling defects found by searching the same class: agentic-trading-lab NaN risk limits and NaN order notionals; backup-verification-evidence NaN max_age_hours classified as verified. Verification: run_venture_tests.py agentic-trading-lab coverage-drop-check backup-verification-evidence -> 3 ok (44, 50, 145 tests); platform/ci unittest test_check_finite_thresholds, test_adopt_stranded, test_check_site_fresh, test_post_similarity, test_unwired_checks -> OK; check_post_frontmatter ok.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/coverage-drop-check/compare.mjs",
+        "test": "node --test ventures/coverage-drop-check/**/*.test.mjs  (in .)",
+        "seed": 458639008,
+        "commit": "c49fbad12",
+        "sites": 149,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/coverage-drop-check/compare.mjs",
+            "line": 44,
+            "col": 66,
+            "operator": "or-to-and",
+            "before": "if (whole.startsWith(\"<!--\") || whole.startsWith(\"<!DOCTYPE\") || whole.startsWith(\"<?\")) {",
+            "after": "if (whole.startsWith(\"<!--\") || whole.startsWith(\"<!DOCTYPE\") && whole.startsWith(\"<?\")) {",
+            "line_text": "    if (whole.startsWith(\"<!--\") || whole.startsWith(\"<!DOCTYPE\") || whole.startsWith(\"<?\")) {",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Prolog-only paste (<?xml ...?>) parsed as a tag and no longer threw 'no XML tags found'. New test: 'a paste that is only an XML declaration...'."
+          },
+          {
+            "file": "ventures/coverage-drop-check/compare.mjs",
+            "line": 81,
+            "col": 36,
+            "operator": "or-to-and",
+            "before": "for (const child of node.children || []) {",
+            "after": "for (const child of node.children && []) {",
+            "line_text": "  for (const child of node.children || []) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/coverage-drop-check/compare.mjs",
+            "line": 136,
+            "col": 17,
+            "operator": "neq-flip",
+            "before": "if (node.tag !== \"class\") return;",
+            "after": "if (node.tag === \"class\") return;",
+            "line_text": "    if (node.tag !== \"class\") return;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/coverage-drop-check/compare.mjs",
+            "line": 143,
+            "col": 21,
+            "operator": "neq-flip",
+            "before": "if (line.tag !== \"line\") continue;",
+            "after": "if (line.tag === \"line\") continue;",
+            "line_text": "        if (line.tag !== \"line\") continue;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/coverage-drop-check/compare.mjs",
+            "line": 145,
+            "col": 57,
+            "operator": "const-plus-one",
+            "before": "if (Number(line.attrs.hits || 0) > 0) covered += 1;",
+            "after": "if (Number(line.attrs.hits || 0) > 0) covered += 2;",
+            "line_text": "        if (Number(line.attrs.hits || 0) > 0) covered += 1;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/coverage-drop-check/compare.mjs",
+            "line": 206,
+            "col": 34,
+            "operator": "or-to-and",
+            "before": "if (Number(child.attrs.ci || 0) > 0) covered += 1;",
+            "after": "if (Number(child.attrs.ci && 0) > 0) covered += 1;",
+            "line_text": "        if (Number(child.attrs.ci || 0) > 0) covered += 1;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "JaCoCo per-line ci fallback (sourcefile with no LINE counter) was never exercised; every fixture had counters. New test: 'JaCoCo sourcefiles without a LINE counter...'."
+          },
+          {
+            "file": "ventures/coverage-drop-check/compare.mjs",
+            "line": 253,
+            "col": 49,
+            "operator": "lt-to-le",
+            "before": "if (!Number.isFinite(maxDropPct) || maxDropPct < 0) {",
+            "after": "if (!Number.isFinite(maxDropPct) || maxDropPct <= 0) {",
+            "line_text": "  if (!Number.isFinite(maxDropPct) || maxDropPct < 0) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/coverage-drop-check/compare.mjs",
+            "line": 331,
+            "col": 44,
+            "operator": "times-to-div",
+            "before": "const basePct = (result.baseline.lineRate * 100).toFixed(2);",
+            "after": "const basePct = (result.baseline.lineRate / 100).toFixed(2);",
+            "line_text": "  const basePct = (result.baseline.lineRate * 100).toFixed(2);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/coverage-drop-check/check.py",
+        "issue": "compare_coverage accepted --max-drop inf (only nan and negatives were rejected), so `check.py base.xml cur.xml --max-drop inf` reported a 50-point drop as 'within the inf point allowance' and exited 0: a CI gate that silently always passes. The browser page (compare.mjs) already rejects it with Number.isFinite. Fixed with math.isfinite and test_max_drop_rejects_infinity_and_nan.",
+        "patched": true
+      },
+      {
+        "file": "ventures/agentic-trading-lab/src/tradelab/execution/safety.py",
+        "issue": "Risk guards failed open on NaN: check_orders accepted an Order with notional=nan (neither > max nor < min), check_targets returned no error for a NaN weight, and Limits(max_order_notional=nan) or `rebalance --max-order nan` / `--max-weight nan` disabled the per-order and per-symbol limits (a 1e9 order accepted). Fixed: Limits.__post_init__ rejects non-finite/negative limits, non-finite notional and weights are rejected with a reason, and the CLI flags use a finite-only argparse type. Tests: test_guards_fail_closed_on_nan_and_inf, test_rebalance_refuses_a_nan_limit_from_the_command_line.",
+        "patched": true
+      },
+      {
+        "file": "ventures/backup-verification-evidence/src/backup_evidence/report.py",
+        "issue": "classify_run read expected.max_age_hours / min_size_bytes unchecked: NaN or Infinity (which json.loads accepts, and which `record --max-age-hours nan` wrote, since record used type=float while verify already used _positive_hours) made a 4-day-old artifact classify as verified; a string threshold crashed with TypeError. Fixed: _threshold() turns a non-finite/non-number threshold into a reason (status suspicious), record uses _positive_hours. Tests: test_a_nan_or_non_number_threshold_fails_closed, test_record_refuses_a_nan_or_infinite_max_age.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ba247c18-14e5-565f-ac71-d525bbb90ed6",
+    "transcripts": 1,
+    "first": "2026-11-16T16:38:39Z",
+    "last": "2026-11-16T16:45:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 65,
+        "input": 126,
+        "output": 31687,
+        "thinking": 7368,
+        "cache_read": 5999153,
+        "cache_write_5m": 0,
+        "cache_write_1h": 100667,
+        "api_equivalent_usd": 2.6394,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 65,
+      "input": 126,
+      "output": 31687,
+      "thinking": 7368,
+      "cache_read": 5999153,
+      "cache_write_5m": 0,
+      "cache_write_1h": 100667,
+      "api_equivalent_usd": 2.6394,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 70,
+    "tools": {
+      "Bash": 65,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.33,
+      "active_minutes": 7.33,
+      "model_minutes": 5.22,
+      "tool_minutes": 2.11,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "senior engineer: mutation triage of one file, three cross-venture NaN fixes with tests, an AST lint and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 189.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

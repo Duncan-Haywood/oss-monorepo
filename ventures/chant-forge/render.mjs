@@ -211,7 +211,7 @@ export function limiterCurve(L, R, rate, ceil, ms = 5, scratch = null) {
   return out;
 }
 
-export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0.8, targetLufs = null, ceiling = 0.89, stems = false, limit = false, learn = null, sing = false, nasalCut = true } = {}) {
+export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0.8, targetLufs = null, ceiling = 0.89, stems = false, limit = false, learn = null, sing = false, nasalCut = true, voiceBar = true, voiceBarWall = false } = {}) {
   const m = parseMidi(midiBytes);
   // sing: the choir sings each note's Latin syllable (sing.mjs) instead of the pad's fixed "ah":
   // its consonants on the syllable's first note, then its vowel, then its final consonants at the end of
@@ -295,7 +295,7 @@ export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0
       const onset = sung ? onsetOf(n) : [], coda = sung ? codaOf(n) : [];
       const leadMs = Math.round(ld.lead * 1000), lenMs = ld.len === null ? -1 : Math.round(ld.len * 1000);
       const key = `${v}:${n.note}:${Math.round(dur * 1000)}${sung ? `:${sung.vowel}${glide || ''}:${Math.round(release * 1000)}:${onset.join('.')}:${leadMs}:${lenMs}:${coda.join('.')}` : ''}`;
-      if (!waveCache.has(key)) waveCache.set(key, sung ? singNote(hz(n.note), dur, rate, { vowel: sung.vowel, glide, release, onset, coda, lead: leadMs / 1000, onsetLen: lenMs < 0 ? null : lenMs / 1000, seed: n.note * 7919 + Math.round(dur * 1000) }) : (v === 'choir' ? choir : v === 'organ' ? organ : v === 'bass' ? bass : chordPad)(hz(n.note), dur, rate));
+      if (!waveCache.has(key)) waveCache.set(key, sung ? singNote(hz(n.note), dur, rate, { vowel: sung.vowel, glide, release, onset, coda, lead: leadMs / 1000, onsetLen: lenMs < 0 ? null : lenMs / 1000, seed: n.note * 7919 + Math.round(dur * 1000), ...(voiceBar ? {} : { voiceBarLevel: false }), ...(voiceBarWall ? { voiceBarWall: true } : {}) }) : (v === 'choir' ? choir : v === 'organ' ? organ : v === 'bass' ? bass : chordPad)(hz(n.note), dur, rate));
       wave = waveCache.get(key);
     }
     let g = (n.vel / 127) * gain[v], p = pan[v];

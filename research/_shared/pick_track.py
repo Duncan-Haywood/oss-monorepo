@@ -123,6 +123,20 @@ def unreachable_hosts(slug, answers=host_answers):
     return [h for h, a in zip(hosts, ok) if not a]
 
 
+def programme_label(slug, down):
+    """How the track listing names a programme: BLOCKED (its BLOCKED file), OFFLINE (a HOSTS entry did not
+    answer from this session), or the bare slug.
+
+    Friction 2026-11-16: a track draw (track 12 redrawn to 25) named heavy-hydraulics as the programme to
+    advance although its HOSTS host (huggingface.co) answered 403 at CONNECT; only the programme draw
+    (draw_programme) checked HOSTS, so the run found out by running the experiment."""
+    if is_blocked(slug):
+        return f"{slug} (BLOCKED)"
+    if down:
+        return f"{slug} (OFFLINE: needs {', '.join(down)}, research/{slug}/HOSTS)"
+    return slug
+
+
 def projects(prefix, limit=5):
     """(count, newest `limit` project dirs) for slugs starting `prefix-`."""
     dirs = sorted(d.name for d in RESEARCH.glob(prefix + "-*") if d.is_dir())
@@ -726,12 +740,15 @@ if __name__ == "__main__":
               "the listed milestones are raw material, not separate projects")
         progs_here = track_programmes(t)
         if progs_here:
+            down = {s: unreachable_hosts(s) for s in progs_here if not is_blocked(s)}
             print(f"open programme(s) for track {t}: "
-                  + ", ".join(f"{s} (BLOCKED)" if is_blocked(s) else s for s in progs_here)
+                  + ", ".join(programme_label(s, down.get(s)) for s in progs_here)
                   + "; advancing one is the default: read research/<slug>/PROPOSAL.md and its "
                   "newest LOG.md entries, and prefer its next step over a free milestone below")
+            if progs_here and all(is_blocked(s) or down.get(s) for s in progs_here):
+                print("  every open programme here is BLOCKED or OFFLINE in this session: `--new` draws again")
             for s in progs_here:
-                if not is_blocked(s):
+                if not is_blocked(s) and not down.get(s):
                     for line in newest_log_entries(s, n=2):
                         print(f"  {s}: LOG.md {line}")
                     for line in claim_check(s):

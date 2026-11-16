@@ -178,6 +178,30 @@ export const PHONES = {
 };
 const VOICE_BAR = 0.08; // voicing left in a voiced closure or under a voiced fricative's noise: a low murmur
 const VOICED_FRIC = 0.3;
+// The voice bar's level: VOICE_BAR_DB under the vowel beside it, worked out per note (voiceBarGain) as the
+// nasal's and the lateral's are. With the fixed VOICE_BAR a voiced closure's murmur passes through its 180 Hz
+// F1, so its level against the vowel swung with how near a harmonic fell to 180 Hz: on the sung *sub* of
+// eval/coda-check.mjs part L it sat 17 to 38 dB under the /u/ (G2-C#4), and where it was 17-20 dB under,
+// the closure was read as nothing (README "A voice bar at one level"). 28 dB is an assumption, the middle of
+// where the fixed gain left it on the notes it read right, not fitted to recordings. `voiceBarLevel: false`
+// (a singNote option) keeps the fixed gain, to compare.
+export const VOICE_BAR_DB = 28;
+// Through the walls (2026-11-16, README "A closure against the vowel before it"; tried, off by default): with the mouth shut, the voicing
+// of a b, d or g is heard through the cheeks and throat, which pass little above a few hundred hertz, so a
+// voice bar is a low band (Stevens 1998, Acoustic Phonetics, ch. 7). Sung through the closure's formants
+// alone, its harmonics above 600 Hz came up with the per-note gain on D4-E4, where the fundamental is far
+// from the closure's 180 Hz F1, and buried the release burst: on D#4 and E4 *nab*/*gab* the burst stood 9
+// dB over the bar above 600 Hz, under the reader's 12. So the bar is also low-passed (the two one-pole 400
+// Hz low-passes the nasal murmur uses), and voiceBarGain takes that into account. Tried, not shipped: it
+// read 7 more of part N's voiced stops but cost part A and part P, and the openings (consonant-check A 195 to
+// 192, B 812 to 808), so it is off by default: `voiceBarWall: true` (a singNote option; `renderMidi(..., {
+// voiceBarWall: true })`) turns it on.
+const WALL_HZ = 400;
+function wallPow(hz, rate) {
+  const a = 1 - Math.exp((-2 * Math.PI * WALL_HZ) / rate), w = (2 * Math.PI * hz) / rate;
+  const one = (a * a) / (1 - 2 * (1 - a) * Math.cos(w) + (1 - a) ** 2);
+  return one * one;
+}
 // The murmur's level: NASAL_DB under the vowel it leaves (or, in an opening, goes to), the middle of
 // Fujimura's (1962) 5-10 dB. A fixed gain (the first version's) left it 9 to 27 dB down depending on the
 // vowel and the pitch, as the low-pass and the nasal's resonance pass more or less of the harmonics, and
@@ -262,16 +286,18 @@ const edge = (u, a) => Math.min(1, u / a, (1 - u) / a); // linear ramps at both 
 // Paint one consonant span into the voicing gain `av`, the noise `fr`, the bandwidth scale `bwm`
 // and the formant keypoints `keys`, against the vowel `V` beside it.
 function paintSeg(sg, V, rate, total, av, fr, bwm, keys, rand, refRms, nas) {
+    const wall = nas.wall;
     const i0 = Math.round(sg.t0 * rate), i1 = Math.round(sg.t1 * rate);
     if (sg.kind === 'stop' || sg.kind === 'affricate') {
       const ic = Math.round((sg.t0 + sg.closure * sg.k) * rate);
-      for (let i = i0; i < ic; i++) av[i] = sg.voiced ? VOICE_BAR : 0;
+      for (let i = i0; i < ic; i++) av[i] = sg.voiced ? sg.vb ?? VOICE_BAR : 0;
+      if (sg.voiced && sg.wall) for (let i = i0; i < Math.min(total, sg.kind === 'stop' ? i1 : ic); i++) wall[i] = 1;
       const F = obstruentF(sg, V); keys.push([sg.t0, F], [sg.t1, F]);
       if (sg.kind === 'stop') { // the release: a short burst of noise, sharp rise, quick decay
         const [fc0, bw, db] = sg.burst, fc = fc0 ?? Math.min(3200, Math.max(1800, V[1] + 400)); // a velar burst sits just above the vowel's F2
         const n = Math.max(8, i1 - ic), b = noiseSpan(n, fc, bw, refRms * 10 ** (db / 20), rate, rand, (u) => Math.min(1, u * 8) * Math.exp(-4 * u));
         for (let i = 0; i < n && ic + i < total; i++) fr[ic + i] += b[i];
-        for (let i = ic; i < i1; i++) av[i] = sg.voiced ? VOICE_BAR : 0;
+        for (let i = ic; i < i1; i++) av[i] = sg.voiced ? sg.vb ?? VOICE_BAR : 0;
       } else { // the affricate's release is its fricative
         const [fc, bw, db] = sg.fric, n = Math.max(8, i1 - ic);
         const b = noiseSpan(n, fc, bw, refRms * 10 ** (db / 20), rate, rand, (u) => Math.min(1, u / 0.15) * Math.min(1, (1 - u) / 0.25));
@@ -300,12 +326,14 @@ function paintSeg(sg, V, rate, total, av, fr, bwm, keys, rand, refRms, nas) {
 }
 
 // a nasal's per-sample weight (0..1) and its antiformant's frequency (nas.z)
-function nasTrack(total) { const t = new Float64Array(total); t.z = new Float64Array(total); return t; }
+// and nas.wall: 1 where a voiced closure's bar is heard through the walls of the shut tract (WALL_LP)
+function nasTrack(total) { const t = new Float64Array(total); t.z = new Float64Array(total); t.wall = new Float64Array(total); return t; }
 
 // Per-sample voicing gain, frication noise and formant targets for a note's onset.
-function onsetTracks(onset, dur, total, rate, V, rand, refRms, share, room, latAv = null) {
+function onsetTracks(onset, dur, total, rate, V, rand, refRms, share, room, latAv = null, barAv = null, wallOn = false) {
   const plan = onsetPlan(onset, dur, share, room);
   if (latAv) for (const sg of plan.segs) if (sg.kind === 'lateral') sg.av = latAv(sg);
+  if (barAv) for (const sg of plan.segs) if ((sg.kind === 'stop' || sg.kind === 'affricate') && sg.voiced) { sg.vb = barAv(sg); sg.wall = wallOn; }
   const av = new Float64Array(total).fill(1), fr = new Float64Array(total), bwm = new Float64Array(total).fill(1);
   const keys = []; // [t, F] formant keypoints before the vowel
   const nas = nasTrack(total);
@@ -370,9 +398,10 @@ export function codaPlan(coda, dur, end, share = SING_DEFAULTS.codaShare) {
 // Per-sample tracks for a coda (see onsetTracks). The vowel's formants move to the first
 // consonant's over the transition before it; after a final obstruent the voices stay silent
 // through the release, after a final nasal, l or r they hum on with its formants as they fade.
-function codaTracks(coda, dur, end, total, rate, V, rand, refRms, share, latAv = null) {
+function codaTracks(coda, dur, end, total, rate, V, rand, refRms, share, latAv = null, barAv = null, wallOn = false) {
   const plan = codaPlan(coda, dur, end, share);
   if (latAv) for (const sg of plan.segs) if (sg.kind === 'lateral') sg.av = latAv(sg);
+  if (barAv) for (const sg of plan.segs) if ((sg.kind === 'stop' || sg.kind === 'affricate') && sg.voiced) { sg.vb = barAv(sg); sg.wall = wallOn; }
   const av = new Float64Array(total).fill(1), fr = new Float64Array(total), bwm = new Float64Array(total).fill(1);
   const keys = [[plan.codaAt - TRANSITION * plan.scale, V]], nas = nasTrack(total);
   for (const sg of plan.segs) paintSeg(sg, V, rate, total, av, fr, bwm, keys, rand, refRms, nas);
@@ -432,9 +461,9 @@ function rawSing(f, dur, rate, vowel, glide, opts, seed) {
   for (let i = 0; i < total; i++) src[i] = src[i] / nv + o.breath * rand();
   // formant track: the vowel, gliding to `glide` from glideFrom of the sung length
   const from = tuneF1(FORMANTS[vowel] || FORMANTS.a, f, o.f1Tune), to = glide ? tuneF1(FORMANTS[glide], f, o.f1Tune) : from;
-  const on = onset.length ? onsetTracks(onset, dur, total, rate, from, rng(seed ^ 0x5bd1e995), rawRms(rate), o.onsetShare, room, o.lateralLevel === false || o.onsetLateral === 'first' ? null : (c) => lateralGain(f, rate, from, c)) : null;
+  const on = onset.length ? onsetTracks(onset, dur, total, rate, from, rng(seed ^ 0x5bd1e995), rawRms(rate), o.onsetShare, room, o.lateralLevel === false || o.onsetLateral === 'first' ? null : (c) => lateralGain(f, rate, from, c), o.voiceBarLevel === false ? null : (c) => voiceBarGain(f, rate, from, c, VOICE_BAR_DB, o.voiceBarWall === true), o.voiceBarWall === true) : null;
   const coda = o.coda || [];
-  const cd = coda.length ? codaTracks(coda, dur, lead + dur, total, rate, to, rng(seed ^ 0x27d4eb2f), rawRms(rate), o.codaShare, o.lateralLevel === false ? null : (c) => lateralGain(f, rate, to, c)) : null;
+  const cd = coda.length ? codaTracks(coda, dur, lead + dur, total, rate, to, rng(seed ^ 0x27d4eb2f), rawRms(rate), o.codaShare, o.lateralLevel === false ? null : (c) => lateralGain(f, rate, to, c), o.voiceBarLevel === false ? null : (c) => voiceBarGain(f, rate, to, c, VOICE_BAR_DB, o.voiceBarWall === true), o.voiceBarWall === true) : null;
   // a diphthong reaches its second vowel by the coda (or the note's end)
   const g0 = Math.round((lead + o.glideFrom * dur) * rate), g1 = Math.max(g0 + 1, Math.round((cd ? cd.plan.codaAt - TRANSITION * cd.plan.scale : lead + dur) * rate));
   const st = new Float64Array(10); // two state values per resonator
@@ -464,6 +493,9 @@ function rawSing(f, dur, rate, vowel, glide, opts, seed) {
     const zf = nCd >= nOn ? cd && cd.nas.z[i] : onCoda && on.nas.z[i];
     if (zf && (!az || az.f !== zf)) { const [A, B, C] = reson(zf, NASAL_ZBW, rate); az = { f: zf, a: 1 / A, b: -B / A, c: -C / A }; }
     const zy = az ? az.a * lp2 + az.b * zx1 + az.c * zx2 : lp2; zx2 = zx1; zx1 = lp2;
+    // a voiced closure's bar through the shut tract's walls: the same two low-passes, taken in place of x
+    const wl = Math.max(on ? on.nas.wall[i] : 0, cd ? cd.nas.wall[i] : 0);
+    if (wl && !nz) x = x * (1 - wl) + lp2 * wl;
     if (nz) x = nCd >= nOn ? x * (1 - nz) + zy * nz * gainOf(zf, to, 'cd') : onCoda ? x * (1 - nz) + zy * nz * gainOf(zf, from, 'on') : x * (1 - nz) + lp2 * nz * ONSET_NASAL_GAIN;
     for (let k = 0; k < 5; k++) {
       const [A, B, C] = co[k];
@@ -533,6 +565,20 @@ function lateralGain(f0, rate, V, c) {
     pv += gv; pl += gl;
   }
   return pl > 0 ? 10 ** (-LATERAL_DB / 20) * Math.sqrt(pv / pl) : c.av;
+}
+
+// The voicing gain that puts a voiced closure's bar VOICE_BAR_DB under the vowel V on f0: as lateralGain,
+// the harmonics' power through the vowel's five resonators against their power through the closure's
+// (obstruentF: F1 at 180 Hz). Steady state; vibrato and detuning ignored. `db` for the checks.
+export function voiceBarGain(f0, rate, V, c, db = VOICE_BAR_DB, wall = false) {
+  const vf = [...V, ...F45], bf = [...obstruentF(c, V), ...F45];
+  let pv = 0, pb = 0;
+  for (let h = 1; h * f0 < 5000; h++) {
+    const hz = h * f0; let gv = 1 / (h * h), gb = gv * (wall ? wallPow(hz, rate) : 1);
+    for (let k = 0; k < 5; k++) { gv *= resonPow(hz, vf[k], BW[k], rate); gb *= resonPow(hz, bf[k], BW[k], rate); }
+    pv += gv; pb += gb;
+  }
+  return pb > 0 ? 10 ** (-db / 20) * Math.sqrt(pv / pb) : VOICE_BAR;
 }
 
 // f: Hz; dur: s; returns Float64Array of lead + dur + release seconds. `onset`: the syllable's

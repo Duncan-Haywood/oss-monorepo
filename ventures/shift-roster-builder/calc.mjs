@@ -2418,11 +2418,18 @@ const EXACT_TREE_SLOTS = 60;
 // (copies / 245)^4.5) and otherwise tried it warm up to the budget's end. The warm solve does not follow that formula
 // (eval/warm-gate.out.jsonl, 78 generated weeks of 148-326 copies: 29 ms to 14.5 s, above the cold formula on 25 weeks and far
 // below it on most of the rest), so with the open-hours LP's basis in hand it now always runs warm, stopped `untilMs` from now:
-// the time left plus a reserve of its own like the day sweeps' (`scoreFloorReserveMs`, default 1500). Modes: "run" (no deadline:
+// the time left plus a reserve of its own like the day sweeps' (`scoreFloorReserveMs`). The reserve defaults to 30% of the time
+// budget, at most 6 s: 6 s at the 20 s default (README "The pay floor's reserve, sized from the full solve", 2026-11-16, pre-registered
+// in eval/pay-floor-reserve-prereg.md: on 48 fresh weeks the try finished on 19 of 19 against 13 at the old 1.5 s, for +0.25 s of
+// mean build time; 8 s finished no more). Modes: "run" (no deadline:
 // no budget or `scoreFloor: true`, or no basis and the cold formula fits), "try" (warm, stopped at untilMs, when that is over
 // 250 ms) and "skip". `scoreFloorTry: false` or `scoreFloorWarm: false` keep the cold formula alone (the 2026-11-14 skip).
+const scoreFloorReserveDefault = (budgetMs) => (budgetMs > 0 ? Math.min(6000, Math.round(0.3 * budgetMs)) : 0);
+// Once the budget is spent the try gets a reserve of its own, `scoreFloorSpentReserveMs`, default the smaller of 4 s and the
+// normal reserve (README "The pay floor once the budget is spent", pre-registered in eval/pay-floor-spent-4s-prereg.md).
 function scoreFloorPlan(o, { budgetMs, leftMs, copies, carry }) {
-  const reserve = Math.max(0, Number.isFinite(o.scoreFloorReserveMs) ? o.scoreFloorReserveMs : 1500);
+  const normal = Math.max(0, Number.isFinite(o.scoreFloorReserveMs) ? o.scoreFloorReserveMs : scoreFloorReserveDefault(budgetMs));
+  const reserve = budgetMs > 0 && leftMs <= 0 ? Math.max(0, Number.isFinite(o.scoreFloorSpentReserveMs) ? o.scoreFloorSpentReserveMs : Math.min(4000, normal)) : normal;
   if (o.scoreFloor === false) return { mode: "skip", reserve, untilMs: 0 };
   if (o.scoreFloor === true || !(budgetMs > 0)) return { mode: "run", reserve, untilMs: Infinity };
   if (o.scoreFloorTry !== false && o.scoreFloorWarm !== false && carry) {
@@ -2430,6 +2437,20 @@ function scoreFloorPlan(o, { budgetMs, leftMs, copies, carry }) {
     return untilMs > 250 ? { mode: "try", reserve, untilMs } : { mode: "skip", reserve, untilMs: 0 };
   }
   return leftMs >= 4000 * Math.pow(copies / 245, 4.5) ? { mode: "run", reserve, untilMs: Infinity } : { mode: "skip", reserve, untilMs: 0 };
+}
+// Why buildRoster does not run the pay floor, or null when it does: "noClique" (the clique LP did not run), "proven" (nothing left
+// to bound), "off" (`scoreFloor: false`), "spent" (the earlier stages ran past the time budget, or the try would get under 250 ms)
+// or "noBasis" (no warm start and the cold formula does not fit). A spent budget no longer skips it (2026-11-16, README "The pay
+// floor once the budget is spent": on 48 fresh weeks 10 reached it spent, a 4 s try finished 8 and took their pay gaps to within a
+// few dollars or whole open hours, for +0.31 s of mean build time); it tries warm for the spent reserve alone. `scoreFloorSpent:
+// false` keeps the old skip.
+function scoreFloorSkip(o, { clique, proven, spent, plan }) {
+  if (!clique) return "noClique";
+  if (proven) return "proven";
+  if (o.scoreFloor === false) return "off";
+  if (spent && o.scoreFloorSpent === false) return "spent";
+  if (plan.mode === "skip") return clique.carry ? "spent" : "noBasis";
+  return null;
 }
 // Expected time of the open-hours clique LP (cliqueOpenFloor) on a week of S shift copies: 1.6 s x (S / 245)^4.5, fitted to one
 // machine's 1.2-1.7 s at 238-245 copies, 4.5-6.3 s at 304-326 and 13-15 s at 400 (eval/clique-floor.out.txt).
@@ -4021,16 +4042,22 @@ function buildRosterOnce(staff, slots, options = {}) {
     // A warm-sized gate (2026-11-16, README "A warm-sized gate for the pay floor"; scoreFloorPlan): the warm solve's time does not
     // follow the copies the way the cold one does (eval/warm-gate.out.jsonl: 29 ms to 14.5 s on 78 generated weeks of 148-326
     // copies, its ratio to the open-hours LP's own time 0.04 to 6), so no size formula sizes it. With the open-hours basis in hand
-    // it always runs warm, stopped `scoreFloorReserveMs` (default 1500) past the time budget's end.
+    // it always runs warm, stopped `scoreFloorReserveMs` (default 30% of the budget, at most 6 s) past the time budget's end.
     let priced = null, pricedTried = null;
     const pricedLeft = budgetMs - (Date.now() - tStart);
     const plan = scoreFloorPlan(o, { budgetMs, leftMs: pricedLeft, copies: ctx.S, carry: !!clique?.carry });
     const pricedTry = plan.mode === "try", pricedReserve = plan.reserve;
-    if (clique && !ex.proven && o.scoreFloor !== false && !over() && plan.mode !== "skip") {
+    // The budget-spent case (2026-11-16, README "The pay floor once the budget is spent"): when the earlier stages ran past the time
+    // budget the pay floor still tries, warm, for its spent reserve alone (4 s at most). `scoreFloorSpent: false` skips it then.
+    // `optimality.scoreFloorSkip` names why it did not run: "noClique", "proven", "off", "spent", "noBasis" (no warm start and the
+    // cold formula does not fit) or null when it ran.
+    const spent = over();
+    const pricedSkip = scoreFloorSkip(o, { clique, proven: ex.proven, spent, plan });
+    if (!pricedSkip) {
       priced = cliqueScoreFloor(ctx, pricedTry
         ? { warm: clique.carry, deadline: Date.now() + plan.untilMs, coldFallback: false }
         : { warm: o.scoreFloorWarm === false ? null : clique.carry });
-      if (pricedTry) pricedTried = { finished: !!priced, ms: Date.now() - tStart - (budgetMs - pricedLeft), left: pricedLeft, reserve: pricedReserve };
+      if (pricedTry) pricedTried = { finished: !!priced, ms: Date.now() - tStart - (budgetMs - pricedLeft), left: pricedLeft, reserve: pricedReserve, spent };
       mark("scoreFloor");
       if (priced && priced.bound > ex.rootBound) {
         ex.rootBound = priced.bound;
@@ -4098,6 +4125,7 @@ function buildRosterOnce(staff, slots, options = {}) {
       dayLNS,
       scoreFloor: priced ? { bound: priced.bound, lp: priced.lp, rows: priced.rows, columns: priced.cols, pivots: priced.pivots, warm: priced.warm, tried: !!pricedTried, ms: priced.ms } : null,
       scoreFloorTried: pricedTried,
+      scoreFloorSkip: pricedSkip,
       coverGuided,
       coverRepairReserveMs: repairReserveMs,
       coverRepair: repairStats,
@@ -5745,7 +5773,7 @@ export const TEMPLATES = {
 };
 
 export const _paidMinutes = paidMinutes;
-export const _internals = { buildContext, coverPass, coverRepair, neighbourhoodFloor, scoreOwner, ownerValid, validList, openHoursFloor, wholeShiftCap, earlyOpenFloor, cliqueOpenFloor, cliqueScoreFloor, cliqueLP, dayReassign, assignRows, keptStart, BIG, memoKey, personScore, validWith, insertSorted, scoreCGBudgetMs, cliqueCostMs, scoreFloorPlan, coverGroupsFree, coverGroupsJoint };
+export const _internals = { buildContext, coverPass, coverRepair, neighbourhoodFloor, scoreOwner, ownerValid, validList, openHoursFloor, wholeShiftCap, earlyOpenFloor, cliqueOpenFloor, cliqueScoreFloor, cliqueLP, dayReassign, assignRows, keptStart, BIG, memoKey, personScore, validWith, insertSorted, scoreCGBudgetMs, cliqueCostMs, scoreFloorPlan, scoreFloorSkip, coverGroupsFree, coverGroupsJoint };
 // Test hook: the fast and the original hard-rule check, so a test can hold them to the same answers.
 export const _validListPair = { validList, validListSlow, validWith, insertSorted, buildContext };
 

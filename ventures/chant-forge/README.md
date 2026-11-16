@@ -29,6 +29,32 @@ Checked in headless Chromium on Dies irae and Pange lingua with the metal backin
 Alternatives people use today: Gregorio plus LilyPond/MuseScore by hand (print, not MIDI with a genre backing), and
 Gregorio's own web editors (notation only). This one's niche is chant as a source for gym-genre tracks.
 
+## Build a release folder: `ep-cli.mjs` (2026-11-16)
+
+One plan file in, one folder a distributor upload can be made from out:
+
+```sh
+node ventures/chant-forge/ep-cli.mjs ventures/chant-forge/examples/first-ep.json -o lux-in-tenebris --today 2026-11-16
+```
+
+The plan (`examples/first-ep.json`) names a title, a release date and, per track, a GABC file and the `cli.mjs`
+options for it (genre, BPM, sections, key lift and so on). For each track the builder runs the converter, renders
+the singing preview choir with the limiter at -14 LUFS, and writes the MIDI, the WAV, timed lyrics (LRC) and a copy
+of the GABC source. Then it draws a 3000 x 3000 cover from the first track's own opening notes (square notation on a
+red four-line staff, no text, so nothing on it can disagree with the metadata), writes `release.json` with each
+track's source edition, year, transcriber and rights note read from the GABC header, and runs the release check
+(`release.mjs`) over the folder. `REPORT.md` lists the tracks with length, loudness and true peak, and splits the
+failing checks into **build faults** (exit 1) and **owner steps**: the artist name, p- and c-lines and ISRCs, which
+only the owner can supply (exit 0 when those are all that is left).
+
+The example plan (Dies irae as half-time metal, Pange lingua as deep house with an a cappella first verse and a key
+lift, Veni Creator as hard rock, the 1908 Te Deum as EDM) builds in 47 s here: 4 tracks, 11:40, every track
+-14.0 LUFS and -1.05 dBTP or lower, 69 checks pass, and the 7 that fail are the owner steps. A GABC file that names
+no source edition (the typed-from-memory demo in `examples/`) is a build fault, so nothing uncited reaches a release.
+The AI disclosure defaults to "assisted" and names the tools and parts; the level is the owner's call. 6 tests in
+`ep.test.mjs` (pixel checks on the cover, -14 LUFS read back from the WAV, the filled-in folder passing the check).
+Nobody has listened to the tracks; listening before upload is the first line of the report's "Before upload".
+
 ## Hear it without a DAW
 
 ```sh
@@ -1073,7 +1099,120 @@ That needs a part P, since O's misses are now printed. `sing.test.mjs` holds the
 all four of J's E4 eighths read on their n (at least 3 more than without), and *ad*, *ud*, *ab*, *ub* on E2
 and A2 eighths read as stops with it and without. Reader only; nothing in the synthesis changed. Not listened to.
 
-#### A murmur louder than the dip before it (2026-11-16, latest; shipped, one prediction failed)
+#### Two anchors for one closure (2026-11-16, latest; head to head, the default stays)
+
+Two scheduled sessions took the same item (K's *eb*/*ib*, N's *nab*/*gab*) within the hour. Both found the same
+fault on D4. The five detuned voices beat slowly (over one held /e/ on D4 the band under 500 Hz swung 7 to 40 dB),
+so the 60 ms reference falls on a random point of the swing, while a voice bar beats in step with the vowel just
+before it. Each session wrote its own rule and pre-registered it on its own new held-out set. One merged first:
+`localRef`, the section below. The other rule is kept as an opt-in, `closeAnchor`
+(`onsets.mjs` `ANCHOR`). It reads a closure against the loudest of the last 10 vowel-like frames (within 12 dB of
+that level), the total and the band under 500 Hz each against its own anchor, with no cap. Its diagnostic is
+`eval/voice-bar-diag.mjs`.
+
+Neither rule had been run on the other's held-out set. The decision rule was committed before that cross run
+(`eval/coda-check.mjs` header, fifteenth round): `localRef` stays the default unless `closeAnchor` reads R's and S's
+voiced stops together 3 or more better and loses nothing anywhere else. Part S is the second session's set: 12
+voiced stops and 13 others at G#2, A#2, E3, C4 and F4, 112 BPM.
+
+| voiced stops read exactly | reference only | `localRef` (default) | `closeAnchor` |
+|---|---|---|---|
+| R (held out for `localRef`) | 99 of 120 | 103 | 100 |
+| S (held out for `closeAnchor`) | 101 of 120 | 108 | 108 |
+| together | 200 of 240 | **211** | 208 |
+
+`localRef` stays the default. Its gain on S, +7 on a set written without sight of it, is the strongest evidence
+for it so far. `closeAnchor` generalised less well to R (+1). Elsewhere, against the default, `closeAnchor` read
+K's others 193 to 195, N's 220 to 222 (voiced stops read as a nasal 6 to 4), O's 222 to 223, P's 214 to 216 (its
+clusters 114 to 115, voiced stops read as a nasal 7 to 8), Q's voiced stops 106 to 105 and others 75 to 76, and S's
+others 127 to 128. A, B, D, E, H, I, F, J, L and M were byte-identical, and every vowel-only control was identical.
+
+One observation not in the registration, so not acted on: with `closeAnchor`, the opt-in voice-bar wall
+(`voiceBarWall`) read R's voiced stops 107 of 120 (read as nothing 3, as a nasal 9). With `localRef` it read 103.
+The wall's burst fix and an anchor that holds its band under 500 Hz apart may need each other. That is a
+candidate for its own round with a new held-out set.
+
+#### A closure against the vowel before it (2026-11-16; shipped, pre-registration held)
+
+The round before left K's *ib*/*eb* and N's *nab*/*gab* reading as nothing or as a nasal. Read frame by frame
+(`eval/vstop-diag.mjs`), nearly all of those misses sat on D4-E4, for two reasons. (a) On D4 the five detuned voices
+swing the vowel's level by 15-20 dB through the note, and the reader's 60 ms reference fell in a trough. The *ib*
+voice bar sat 25 dB under the vowel just before it but only 13 dB under the reference, so the closure rule (22 dB
+under) did not see it. (b) On D#4 and E4 the per-note gain lifts the bar's harmonics above 600 Hz, and the release
+burst stood only 9 dB over the bar there, short of the 12 dB the burst search wants.
+
+- **The change** (`onsets.mjs` `LOCAL_REF`, readCoda's `localRef`): a frame counts as closed when it sits 22 dB under
+  the louder of the reference and the vowel before it. "The vowel before it" is the loudest five-frame median 30-120
+  ms back, capped at 20 dB over the reference. The nasal rule keeps the reference. Read against the vowel before, a
+  vowel-only release fading through -5 to -25 dB of it read as a murmur, and the vowel-only controls of J, K, L, M and
+  N lost 33 cells. A closure also needs a burst, which a fade never has. `localRef: false` (`--local off` in
+  `eval/coda-check.mjs`) is the reader before. The synthesis did not change.
+- **Tried for (b), not shipped:** the voice bar low-passed through the walls of the shut tract (`voiceBarWall: true`
+  in `sing.mjs`, `--wall on`). A closed mouth radiates voicing through the cheeks and throat, which pass little above
+  a few hundred hertz. On the development parts it read 7 more of N's syllables but cost A 2 and P's voiced stops
+  (7 to 12 read as a nasal), and the openings dropped (`eval/consonant-check.mjs` A 195 to 192, B 812 to 808). So it is
+  off by default.
+- **Pre-registered on a new part R** (in `eval/coda-check.mjs`'s header, committed before R ran). R has 10 voiced-stop
+  codas, 4 nasal codas and 6 other syllables, none sung in any other part, at A#2, G3, C#4, D4, E4 and F4, 112 BPM.
+
+| prediction (against `localRef: false`) | before | the reader | |
+|---|---|---|---|
+| (1) R's voiced stops read exactly, 4 or more of 120 better | 99 | 103 | holds, exactly at the bar |
+| (2) R's nasal codas no fewer | 48 of 48 | 48 | holds |
+| (3) R's others within 2 | 72 of 72 | 72 | holds |
+| (4) R's vowel-only control identical | 238 of 240 | 238 | holds |
+| (5) the development parts as registered | | | holds (one figure was misquoted in the registration: Q's others are 75 of 80 both ways, not 75 to 73) |
+| (6) openings (`eval/consonant-check.mjs`) cannot move | | | holds: the report is byte-identical |
+| (7) the wall: R's voiced stops read as nothing fewer, control identical | 8 (wall off) | 3 (wall on) | holds, but it gains no voiced stop (103 either way: 5 more read as a nasal), so it stays off |
+
+On the development parts, against `--local off`: J's others 318 to 321 of 336, K's 191 to 193 of 220, M 107 to 109 and
+108 to 109, N's others 212 to 220 of 240, O 217 to 222, P 209 to 214 (its clusters 116 to 114, one D4 and one F4
+pulse-2 cell), Q's voiced stops 102 to 106 of 120, H's voiced alveolar stops 1 to 2 of 2, L +1. A, B, D, E, F, I and every
+vowel-only control were identical. Shipped on. The gain is small on held-out data (+4 of 120, at the bar) and larger on
+the parts whose misses had been read. R's misses now: *nob*, *rog*, *hob* read as a nasal (7) and *dib*, *sib* read as
+nothing (8). Not yet read frame by frame; (b), which this round did not fix, is the likely cause. Reader only; not listened to.
+
+#### A voice bar at one level (2026-11-16; shipped, two predictions failed)
+
+Part L left *sub* read as nothing on 3 of its 10 cells. Read frame by frame (`eval/sub-cum-diag.mjs`), the b was
+there: a closure, a voice bar, a burst. But on the missed cells (G#3 half notes, G2 and C3 quarters) the voice bar
+sat 17-20 dB under the /u/. The closure rule wants a closure 22 dB or more under the vowel. On the cells it read, the
+bar sat 23-38 dB under. The bar was a fixed gain (`VOICE_BAR` 0.08) through a 180 Hz first resonance, so its level
+swung with how close a harmonic fell to 180 Hz. Worked out in steady state over five vowels from E2 to E4, it sat
+19.7 to 42.3 dB under the vowel, median 27. This was the same fault the nasal murmur and the final /l/ had before
+their gains were set per note.
+
+- **The change** (`sing.mjs` `voiceBarGain`, `VOICE_BAR_DB`): a voiced closure's bar is set per note to sit 28 dB
+  under the vowel beside it, in codas and in openings, the same way `nasalGain` and `lateralGain` set theirs. The
+  28 dB is the median above, rounded. It is an assumption, not fitted to recordings or to any part. With one voice
+  and no vibrato the bar now sits 27.8-28.6 dB under its vowel at E2-E4 after any vowel, where the fixed gain gave
+  21.0-42.1 (`sing.test.mjs`). `voiceBarLevel: false` (a singNote option; `renderMidi(..., { voiceBar: false })`,
+  `node eval/coda-check.mjs --voice-bar off`) keeps the fixed gain. The reader did not change.
+- **Pre-registered on a new part Q** (in `eval/coda-check.mjs`'s header, committed before Q or any other part ran
+  with the change). Q has 12 voiced-stop codas, 10 of them sung in no other part, and 8 other syllables, at A2, F3,
+  A#3, C4 and D#4, 100 BPM.
+
+| prediction (against `--voice-bar off`) | fixed gain | per note |
+|---|---|---|
+| (1) Q's voiced stops read exactly, 4 or more of 120 better | 95 | 102: holds |
+| (2) Q's voiced stops read as nothing, fewer | 10 | 8: holds |
+| (3) Q's other syllables within 2 | 75 of 80 | 75: holds |
+| (4) Q's vowel-only control identical | 200 of 200 | 200: holds |
+| (5) every other coda part within 3, voiced stops no worse, controls identical | | fails on K's others (198 to 191 of 220: *ib*, *eb* read as nothing, *ob* as a nasal) and N's voiced stops read as a nasal (1 to 5: *nab*, *gab*) |
+| (6) openings (`eval/consonant-check.mjs`) A and B within 3 | A 195 of 210, B 780 of 934 | A 195; B 812: fails upward |
+
+Everywhere else the coda parts rose: A 173 to 177 of 180, B 129 to 130, J's others 306 to 318, L's /i/ syllables
+153 to 157, M 105 to 108, O 210 to 217, P 202 to 209. Every vowel-only control was identical. L's *sub* went from 3
+misses to 2 (one read as nothing, one as velar). The openings gained most, which no prediction foresaw. The held-out
+Graduale part G went from 1959 to 2055 of 2349 (83.4% to 87.5%), with voiced alveolar openings 116 to 172 of 227
+and labial 65 to 98 of 115. Before, a d or b opening's bar was often loud enough to be read as no closure at all.
+
+Shipped on. The net gain is large and mostly on held-out data (G, Q). The losses are named: K's *ib*/*eb* and N's
+*nab*/*gab*, where a quieter bar after /i/, /e/ and /a/ now reads as nothing or as a murmur. Those are the next
+items. L's *cum* (2 misses) is untouched: it is a nasal and this round changed only voiced closures. Not listened
+to. Whether a voice bar 28 dB down sounds like a b is a listening-test question.
+
+#### A murmur louder than the dip before it (2026-11-16; shipped, one prediction failed)
 
 O's five misses on its D4-E4 pulse-2 notes, read frame by frame (5 ms hops, levels against the reference vowel):
 *punc* and *tunt* on D#4 and *sons* on D4 and D#4 each hold an n about 50 ms long, a median 37-48 dB dark in itself

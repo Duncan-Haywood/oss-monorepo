@@ -20,6 +20,7 @@ import re
 import sys
 from itertools import combinations
 from pathlib import Path
+from argtypes import finite_nonneg
 
 ROOT = Path(__file__).resolve().parents[2]
 N = 5
@@ -58,7 +59,7 @@ def similar_pairs(texts, threshold=0.5, only=None):
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--root", default=str(ROOT))
-    ap.add_argument("--min", type=float, default=0.25)
+    ap.add_argument("--min", type=finite_nonneg, default=0.25)
     ap.add_argument("--fail", action="store_true")
     ap.add_argument("files", nargs="*", help="only report pairs that include these posts")
     args = ap.parse_args(argv)

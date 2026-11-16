@@ -317,3 +317,24 @@ test('hourly: a rate exactly at loaded labor with no fixed cost breaks even, it 
   assert.equal(truck.hourly.belowLaborCost, false);
   assert.equal(calculateBid({ ...threeBed(), quotedHourlyRate: 1 }).hourly.belowLaborCost, true);
 });
+
+// Red team 2026-11-16, second run: two mutants that went green.
+test('valuation: a declared value under the released cap exposes the mover to nothing extra', () => {
+  // 1,100 cu ft x 7 lb x $0.60 = $4,620 released cap; $3,000 declared is below it.
+  const r = calculateBid({ ...threeBed(), declaredValue: 3000, valuationRatePer1000: 8 });
+  assert.equal(r.valuation.extraExposure, 0);
+  assert.equal(calculateBid(threeBed()).valuation.extraExposure, 0);
+});
+
+test('a one-person, one-hour job still scores a proposed price per mover-hour', () => {
+  const r = calculateBid({
+    ...threeBed(),
+    inventory: [{ name: 'Treadmill', cubicFeet: 0, clockHours: 1 }],
+    carryFeet: 0,
+    driveHours: 0,
+    crewSize: 1,
+    proposedPrice: 150,
+  });
+  assert.equal(r.personHours, 1);
+  assert.equal(r.proposed.hourlyPerMover, 150);
+});

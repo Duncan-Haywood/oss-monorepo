@@ -137,6 +137,83 @@
 //    (4) A, B, D, E, H, I, F, K, L and M totals each no lower, nasals no fewer, vowel-only controls identical
 //    (`--pre hi=4` against the default); (5) eval/vowel-check.mjs and eval/consonant-check.mjs cannot move (readOnset
 //    and the synthesis are untouched).
+// Thirteenth round (2026-11-16): a voice bar at one level (sing.mjs VOICE_BAR_DB, README "A voice bar at one
+//    level"). The synthesis changes, not the reader. L's *sub* read as nothing 3 times in 10 cells: frame by frame
+//    (eval/sub-cum-diag.mjs) its closure held a voice bar 17-20 dB under the /u/ on G#3 quarters and G2 and C3 pulse-2
+//    notes, too loud for the closure rule (22 dB under), and 23-38 dB under on the cells it read. The voice bar was a
+//    fixed gain (VOICE_BAR 0.08) through a 180 Hz F1, so its level against the vowel swung with pitch and vowel:
+//    worked out in steady state over five vowels E2-E4, 19.7 to 42.3 dB under (median 27). The change: the gain is
+//    worked out per note (voiceBarGain, as nasalGain and lateralGain are) to sit VOICE_BAR_DB = 28 under the vowel
+//    beside it, in codas and openings; 28 is that median rounded, an assumption, not fitted to recordings or to any
+//    part. Read on L's *sub* only before this registration: misses 3 to 2 of 10 (G2 pulse-2 bar now -21 to -23,
+//    still read as nothing; one G#3 pulse-2 read velar). Pre-registered here and committed before part Q or any
+//    other part was run with it. Part Q is new: 12 voiced-stop codas (*tub mab cib reb sed quod pud lod ug fug*,
+//    and *sub* and *ad* again) and 8 others (*pot lec sap rum nem fel hic ra*), 18 of the 20 sung in no other part,
+//    at A2, F3, A#3, C4 and D#4, 100 BPM, pulse-4 and pulse-2 notes, sung and vowel-only, printed beside the fixed
+//    gain (`--voice-bar off`). Predictions: (1) Q's voiced stops read exactly (class, voicing, place) at least 4
+//    more of 120 than with the fixed gain; (2) of them, read as nothing: fewer; (3) Q's other syllables within 2;
+//    (4) Q's vowel-only control identical (no coda, no voice bar); (5) every other part's total within 3 of
+//    `--voice-bar off`, its voiced stops (where a part prints them) no fewer, its vowel-only control identical;
+//    (6) eval/consonant-check.mjs A and B within 3 of before (openings with b, d, g change level too).
+//    Outcome (run 2026-11-16, against `--voice-bar off` on the same code): (1) Q's voiced stops 95 to 102 of 120:
+//    holds; (2) read as nothing 10 to 8: holds; (3) Q's others 75 to 75 of 80: holds; (4) control 200 of 200 both:
+//    holds; (5) fails on two parts: K's other syllables 198 to 191 of 220 (*ib* and *eb* read as nothing, *ob* as a
+//    nasal) and N's voiced stops read as a nasal 1 to 5 (*nab*, *gab*; N's others 215 to 212, within 3); A 173 to
+//    177, B 129 to 130, J's others 306 to 318, L's /i/ 153 to 157 and others 113 to 114, M 105 to 108 and 106 to
+//    107, O 210 to 217, P 202 to 209 (its voiced stops as a nasal 7 to 8), every control identical; (6) fails
+//    upward: consonant-check A 195 of 210 both, B 780 to 812 of 934 (a gain far past "within 3"), and held-out G
+//    1959 to 2055 of 2349, its voiced alveolar openings 116 to 172 of 227 and labial 65 to 98 of 115. Shipped on:
+//    README "A voice bar at one level".
+// Fourteenth round (2026-11-16): a closure against the vowel before it (onsets.mjs LOCAL_REF, README "A closure against
+//    the vowel before it"). The reader changes. After the thirteenth round K's *ib*/*eb* and N's *nab*/*gab* missed,
+//    nearly all on D4-E4 (eval/vstop-diag.mjs). Two faults, read frame by frame: (a) on D4 the five voices swing the
+//    vowel's level 15-20 dB and the 60 ms reference fell in a trough, so a voice bar 25 dB under the vowel before it
+//    read 13 dB under the reference, too loud for the closure rule (22 under); (b) on D#4 and E4 the per-note gain
+//    lifts the bar's harmonics above 600 Hz, and the burst stood 9 dB over it there, under burstAfter's 12. For (a) the
+//    closure rule reads each frame against the louder of the reference and the loudest five-frame median 30-120 ms
+//    before it, capped at 20 dB (`localRef`); the nasal rule keeps the reference. For (b), tried in the synthesis: the
+//    bar low-passed through the walls (sing.mjs `voiceBarWall`). Chosen on A-Q only (development: every part's misses
+//    have been read): with localRef on the closure alone, against `--local off`, J's others 318 to 321, K's 191 to 193,
+//    M 107 to 109 and 108 to 109, N's others 212 to 220, O 217 to 222, P 209 to 214 (its clusters 116 to 114), Q's
+//    voiced stops 102 to 106 (others 75 to 73), H +1, L +1, F, A, B, D, E, I and every vowel-only control identical. On
+//    the nasal rule too it lost 33 vowel-only control cells, so not there. The wall on top: N's others +7, but A -2, P's
+//    voiced stops read as a nasal 7 to 12, and consonant-check A 195 to 192, B 812 to 808: off by default, opt-in.
+//    Pre-registered here and committed before part R or any other new part was run with it. Part R is new: 10
+//    voiced-stop codas (*rog sib teg vad pug hob ned dib meg nob*), 4 nasal codas (*sen pin gem don*) and 6 others (*fac
+//    mox dit sat vel tus*), none sung in any other part, at A#2 (in no other part), G3, C#4, D4, E4 and F4, 112 BPM (in
+//    no other part), pulse-4 and pulse-2 notes, sung and vowel-only. Against `localRef: false` (printed beside):
+//    (1) R's voiced stops read exactly at least 4 more of 120; (2) R's nasal codas no fewer (of 48); (3) R's others
+//    within 2 (of 72); (4) R's vowel-only control identical (no burst, no closure read); (5) every other part's
+//    figures as listed above under `--local off` against the default (development, a check that nothing moved since);
+//    (6) eval/consonant-check.mjs cannot move (readOnset and the default synthesis are untouched). Also registered,
+//    for the opt-in wall (R's third column, against R's first): (7) R's voiced stops read as nothing fewer, and its
+//    vowel-only control identical; if (7) holds and R's voiced stops gain 3 or more, the wall is a candidate for a
+//    later round with its own held-out openings, not switched on here.
+//    Outcome (run 2026-11-16, against `localRef: false` on the same code): (1) R's voiced stops 99 to 103 of 120: holds, at
+//    the bar; (2) nasals 48 of 48 both: holds; (3) others 72 of 72 both: holds; (4) control 238 of 240 both: holds;
+//    (5) holds, every figure as listed but one misquoted here: Q's others are 75 of 80 both ways (75 to 73 was the run
+//    with localRef on the nasal rule too); (6) holds, consonant-check's report byte-identical; (7) the wall: R's voiced
+//    stops read as nothing 8 to 3 and control identical, holds, but 5 more read as a nasal and none gains (103 both), so
+//    it stays off. Shipped on: README "A closure against the vowel before it".
+// Fifteenth round (2026-11-16): two anchors for one closure (onsets.mjs ANCHOR, readCoda `closeAnchor`, README "Two
+//    anchors for one closure"). A second session diagnosed the same D4 fault in parallel (eval/voice-bar-diag.mjs) and
+//    wrote a different rule: the closure against the loudest of the last 10 vowel-like frames (within 12 dB), the
+//    total and the band under 500 Hz each against its own anchor, uncapped. Chosen on K's and N's voiced stops only
+//    (against the reference alone: K's *eb ib ob* 20 to 24 of 30, N's eight 72 to 82 of 96), and pre-registered on its
+//    own held-out set, now part S (12 voiced stops *beb dib gid neg mig sab feb lid ved rag heb pug*, 13 others *dit pec
+//    lip sut min fem bas fus sent punt nom vi do*, G#2, A#2, E3, C4, F4, 112 BPM; *dib*, *pug* and *dit* are also in R,
+//    the two sets were written at the same time). Against the reference alone, S's voiced stops went 101 to 108 of 120,
+//    others 128 of 130 both, control 246 of 250 both, and every part A-Q was within its registered allowance. Neither
+//    rule has been run on the other's held-out set. Registered here and committed before that cross run: localRef
+//    stays the default unless closeAnchor (with `--local off`) reads R's and S's voiced stops together 3 or more better
+//    than localRef, and loses nothing anywhere else: every part's total no lower, nasals no fewer, every vowel-only
+//    control identical, and consonant-check unmoved. Otherwise closeAnchor stays opt-in, reported.
+//    Outcome (run 2026-11-16): voiced stops, R: reference only 99, localRef 103, closeAnchor 100; S: 101, 108, 108;
+//    together localRef 211, closeAnchor 208 of 240: closeAnchor does not clear the bar, localRef stays the default and
+//    closeAnchor stays opt-in. Against the default, closeAnchor: K's others 193 to 195, N's 220 to 222, O's 222 to 223,
+//    P's others 214 to 216 and clusters 114 to 115, Q's voiced stops 106 to 105, S's others 127 to 128; A, B, D, E, H,
+//    I, F, J, L and M byte-identical, every control identical. Not registered: with closeAnchor, R's wall column read
+//    107 of 120 (103 with localRef).
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
@@ -148,7 +225,15 @@ const args = process.argv.slice(2);
 const outFile = args.includes('--out') ? args[args.indexOf('--out') + 1] : new URL('./coda-check-report.md', import.meta.url);
 // --parts ABDEHIFC (default all): which parts to run; --hide-misses F: print a part's score without its misses
 // (how a held-out set is scored before a round's changes without anyone reading what it gets wrong)
-const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJKLMNOPC';
+const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJKLMNOPQRSC';
+// --voice-bar off: the choir sung with the fixed voice-bar gain (sing.mjs `voiceBarLevel: false`, before 2026-11-16's thirteenth round)
+const VOICEBAR = !(args.includes('--voice-bar') && args[args.indexOf('--voice-bar') + 1] === 'off');
+// --wall on: the voice bar low-passed through the walls (sing.mjs `voiceBarWall: true`; tried in 2026-11-16's fourteenth round, off by default)
+const WALL = args.includes('--wall') && args[args.indexOf('--wall') + 1] === 'on';
+// --local off: readCoda's closure and nasal levels against the reference alone (`localRef: false`, before the fourteenth round)
+const LOCALARG = args.includes('--local') ? args[args.indexOf('--local') + 1] : '';
+// --anchor on: the closure rule against the last vowel-like frames, band by band (`closeAnchor: true`, the parallel rule)
+const ANCHORARG = args.includes('--anchor') ? args[args.indexOf('--anchor') + 1] : '';
 const HIDE = args.includes('--hide-misses') ? args[args.indexOf('--hide-misses') + 1] : '';
 // --near off: readCoda without its reading against the vowel just before the murmur (the reader before
 // 2026-11-15's round); --near dark=8,lo=-18: try other settings (onsets.mjs NEAR)
@@ -164,15 +249,15 @@ const VFRICARG = args.includes('--vfric') ? args[args.indexOf('--vfric') + 1] : 
 const DEEPARG = args.includes('--deep') ? args[args.indexOf('--deep') + 1] : '';
 // --pre hi=12,step=8: try other PRE settings (onsets.mjs PRE)
 const PREOPTS = PREARG && PREARG !== 'off' ? { preOpts: Object.fromEntries(PREARG.split(',').map((kv) => { const [k, v] = kv.split('='); return [k, Number(v)]; })) } : {};
-const RC = { ...RC0, ...PREOPTS, ...(PREARG === 'off' ? { preObstruent: false } : {}), ...(AGAINARG === 'off' ? { againGap: false } : {}), ...(VFRICARG === 'off' ? { vfricHi5: false } : {}), ...(DEEPARG === 'on' ? { deepMurmur: true } : {}) };
+const RC = { ...RC0, ...PREOPTS, ...(PREARG === 'off' ? { preObstruent: false } : {}), ...(AGAINARG === 'off' ? { againGap: false } : {}), ...(VFRICARG === 'off' ? { vfricHi5: false } : {}), ...(DEEPARG === 'on' ? { deepMurmur: true } : {}), ...(LOCALARG === 'off' ? { localRef: false } : {}), ...(ANCHORARG === 'on' ? { closeAnchor: true } : {}) };
 const rate = 44100, corpus = new URL('../corpus/', import.meta.url);
 const lines = [];
 const pct = (a, b) => `${a} of ${b} (${b ? ((100 * a) / b).toFixed(1) : '-'}%)`;
 const label = (e) => e.cls === 'stop' ? `${e.voiced ? 'voiced' : 'voiceless'} ${e.place} stop` : e.cls === 'affricate' ? `${e.voiced ? 'voiced' : 'voiceless'} affricate` : e.cls === 'fricative' ? `fricative ${e.place}` : e.cls;
 const match = (want, got) => Object.entries(want).every(([k, v]) => got[k] === v);
 
-function choir(midiBytes, sing) {
-  const r = renderMidi(midiBytes, { rate, stems: true, sing });
+function choir(midiBytes, sing, voiceBar = VOICEBAR, voiceBarWall = WALL) {
+  const r = renderMidi(midiBytes, { rate, stems: true, sing, voiceBar, voiceBarWall });
   const m = parseMidi(midiBytes), sec = (t) => tickToSeconds(t, m.division, m.tempos);
   const notes = m.notes.filter((n) => n.ch !== 9 && m.programs.get(n.ch)?.[0]?.[1] === 52).map((n) => ({ ...n, t0: sec(n.tick), t1: sec(n.end) })).sort((a, b) => a.t0 - b.t0);
   return { x: r.stems.choir.channels[0], notes };
@@ -613,6 +698,120 @@ lines.push('## P. Held out: murmurs louder than the dip before them (twelfth rou
   `| voiced stops read as a nasal | ${pVst.on || 0} | ${pVst.off || 0} |`,
   `| vowel-only control read as none | ${cell('control on')} | ${cell('control off')} |`, '',
   'Misses (count over the twelve pitch and length cells):', '', HIDE.includes('P') ? '- hidden' : [...pMiss].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join('; ') || 'none', '');
+}
+
+// ---- Q ----
+// The thirteenth round's held-out set (VOICE_BAR_DB, pre-registered in the header): voiced-stop codas and others at
+// A2, F3, A#3, C4 and D#4, 100 BPM, pulse-4 and pulse-2 notes, each followed by a rest; the choir with the voice bar
+// at one level beside the fixed gain (`voiceBarLevel: false`). The reader is the same in both columns.
+if (PARTS.includes('Q')) {
+const VST = ['tub', 'mab', 'cib', 'reb', 'sed', 'quod', 'pud', 'lod', 'ug', 'fug', 'sub', 'ad'];
+const NEG = ['pot', 'lec', 'sap', 'rum', 'nem', 'fel', 'hic', 'ra'];
+const SY = [...VST, ...NEG], tally = {}, qMiss = new Map(), qNone = {};
+const bump = (k, ok) => { tally[k] = tally[k] || [0, 0]; tally[k][1]++; if (ok) tally[k][0]++; };
+for (const pulses of [4, 2]) for (const midi of [45, 53, 58, 60, 63]) {
+  const ev = []; for (const s of SY) ev.push({ type: 'note', midi, pulses, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
+  const mid = eventsToMidi(ev, { bpm: 100, title: 'held-out voice bars' });
+  for (const sing of [true, 'vowels']) for (const [mode, vb] of [['on', true], ['off', false]]) {
+    const { x, notes } = choir(mid, sing, vb);
+    SY.forEach((s, j) => {
+      const n = notes[j], want = sing === true ? expectedRead(latinCoda(s)[0]) : { cls: 'none' };
+      const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
+      const grp = sing === true ? (VST.includes(s) ? 'vst' : 'other') : 'control';
+      const got = readCoda(x, rate, vAt, tEnd, RC), ok = match(want, got);
+      bump(`${grp} ${mode}`, ok);
+      if (grp === 'vst' && got.cls === 'none') qNone[mode] = (qNone[mode] || 0) + 1;
+      if (mode === 'on' && !ok && !HIDE.includes('Q')) { const key = `${grp === 'control' ? `${s} (vowel only)` : s} as ${label(got)}`; qMiss.set(key, (qMiss.get(key) || 0) + 1); }
+    });
+  }
+}
+const cell = (k) => pct(...(tally[k] || [0, 0]));
+lines.push('## Q. Held out: voice bars at one level (thirteenth round)', '', `Voiced stops: ${VST.map((s) => `*${s}*`).join(', ')}; others: ${NEG.map((s) => `*${s}*`).join(', ')}. Pulse-4 and pulse-2 notes at 100 BPM, each followed by a rest, A2, F3, A#3, C4, D#4.`, '',
+  '| | voice bar VOICE_BAR_DB under the vowel | fixed gain (`--voice-bar off`) |', '|---|---|---|',
+  `| voiced-stop codas read exactly | ${cell('vst on')} | ${cell('vst off')} |`,
+  `| voiced-stop codas read as nothing | ${qNone.on || 0} | ${qNone.off || 0} |`,
+  `| other syllables read exactly | ${cell('other on')} | ${cell('other off')} |`,
+  `| vowel-only control read as none | ${cell('control on')} | ${cell('control off')} |`, '',
+  'Misses (count over the ten pitch and length cells):', '', HIDE.includes('Q') ? '- hidden' : [...qMiss].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join('; ') || 'none', '');
+}
+
+// ---- R ----
+// The fourteenth round's held-out set (localRef, pre-registered in the header): voiced-stop codas, nasal codas and
+// others sung in no other part, at A#2, G3, C#4, D4, E4 and F4, 112 BPM, pulse-4 and pulse-2 notes, each followed by
+// a rest, sung and vowel-only. Three columns: the reader as shipped, `localRef: false` (the reader before), and the
+// choir with the voice bar's wall low-pass switched from its default (`voiceBarWall`), read by the reader as shipped.
+if (PARTS.includes('R')) {
+const VST = ['rog', 'sib', 'teg', 'vad', 'pug', 'hob', 'ned', 'dib', 'meg', 'nob'];
+const NAS = ['sen', 'pin', 'gem', 'don'];
+const NEG = [...NAS, 'fac', 'mox', 'dit', 'sat', 'vel', 'tus'];
+const SY = [...VST, ...NEG], tally = {}, rMiss = new Map(), rNone = {}, rNas = {};
+const bump = (k, ok) => { tally[k] = tally[k] || [0, 0]; tally[k][1]++; if (ok) tally[k][0]++; };
+for (const pulses of [4, 2]) for (const midi of [46, 55, 61, 62, 64, 65]) {
+  const ev = []; for (const s of SY) ev.push({ type: 'note', midi, pulses, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
+  const mid = eventsToMidi(ev, { bpm: 112, title: 'held-out local reference' });
+  for (const sing of [true, 'vowels']) for (const wall of [WALL, !WALL]) {
+    const { x, notes } = choir(mid, sing, VOICEBAR, wall);
+    SY.forEach((s, j) => {
+      const n = notes[j], want = sing === true ? expectedRead(latinCoda(s)[0]) : { cls: 'none' };
+      const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
+      const grp = sing === true ? (VST.includes(s) ? 'vst' : NAS.includes(s) ? 'nasal' : 'other') : 'control';
+      const modes = wall === WALL ? [['on', RC], ['off', { ...RC, localRef: false }]] : [['wall', RC]];
+      for (const [mode, o] of modes) {
+        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        bump(`${grp} ${mode}`, ok);
+        if (grp === 'vst' && got.cls === 'none') rNone[mode] = (rNone[mode] || 0) + 1;
+        if (grp === 'vst' && got.cls === 'nasal') rNas[mode] = (rNas[mode] || 0) + 1;
+        if (mode === 'on' && !ok && !HIDE.includes('R')) { const key = `${grp === 'control' ? `${s} (vowel only)` : s} as ${label(got)}`; rMiss.set(key, (rMiss.get(key) || 0) + 1); }
+      }
+    });
+  }
+}
+const cell = (k) => pct(...(tally[k] || [0, 0]));
+lines.push('## R. Held out: closures against the vowel before them (fourteenth round)', '', `Voiced stops: ${VST.map((s) => `*${s}*`).join(', ')}; nasals: ${NAS.map((s) => `*${s}*`).join(', ')}; others: ${NEG.filter((s) => !NAS.includes(s)).map((s) => `*${s}*`).join(', ')}. Pulse-4 and pulse-2 notes at 112 BPM, each followed by a rest, A#2, G3, C#4, D4, E4, F4.`, '',
+  `| | the reader (localRef) | \`localRef: false\` (before) | voice bar wall ${WALL ? 'off' : 'on'} |`, '|---|---|---|---|',
+  `| voiced-stop codas read exactly | ${cell('vst on')} | ${cell('vst off')} | ${cell('vst wall')} |`,
+  `| voiced-stop codas read as nothing | ${rNone.on || 0} | ${rNone.off || 0} | ${rNone.wall || 0} |`,
+  `| voiced-stop codas read as a nasal | ${rNas.on || 0} | ${rNas.off || 0} | ${rNas.wall || 0} |`,
+  `| nasal codas read exactly | ${cell('nasal on')} | ${cell('nasal off')} | ${cell('nasal wall')} |`,
+  `| other syllables read exactly | ${cell('other on')} | ${cell('other off')} | ${cell('other wall')} |`,
+  `| vowel-only control read as none | ${cell('control on')} | ${cell('control off')} | ${cell('control wall')} |`, '',
+  'Misses with the reader (count over the twelve pitch and length cells):', '', HIDE.includes('R') ? '- hidden' : [...rMiss].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join('; ') || 'none', '');
+}
+
+// ---- S ----
+// The fifteenth round's second held-out set (the parallel rule's own, README "Two anchors for one closure"): voiced
+// stops and others at G#2, A#2, E3, C4 and F4, 112 BPM, pulse-4 and pulse-2 notes, each followed by a rest; read
+// three ways on the same choir: the default (localRef), the parallel rule (closeAnchor, localRef off) and neither.
+if (PARTS.includes('S')) {
+const VST = ['beb', 'dib', 'gid', 'neg', 'mig', 'sab', 'feb', 'lid', 'ved', 'rag', 'heb', 'pug'];
+const NEG = ['dit', 'pec', 'lip', 'sut', 'min', 'fem', 'bas', 'fus', 'sent', 'punt', 'nom', 'vi', 'do'];
+const SY = [...VST, ...NEG], tally = {}, sMiss = new Map(), sStop = {};
+const bump = (k, ok) => { tally[k] = tally[k] || [0, 0]; tally[k][1]++; if (ok) tally[k][0]++; };
+const MODES = [['local', { ...RC, localRef: undefined, closeAnchor: false }], ['anchor', { ...RC, localRef: false, closeAnchor: true }], ['off', { ...RC, localRef: false, closeAnchor: false }]];
+for (const pulses of [4, 2]) for (const midi of [44, 46, 52, 60, 65]) {
+  const ev = []; for (const s of SY) ev.push({ type: 'note', midi, pulses, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
+  const mid = eventsToMidi(ev, { bpm: 112, title: 'held-out closures' });
+  for (const sing of [true, 'vowels']) {
+    const { x, notes } = choir(mid, sing);
+    SY.forEach((s, j) => {
+      const n = notes[j], want = sing === true ? expectedRead(latinCoda(s)[0]) : { cls: 'none' };
+      const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
+      const grp = sing === true ? (VST.includes(s) ? 'vst' : 'other') : 'control';
+      for (const [mode, o] of MODES) {
+        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        bump(`${grp} ${mode}`, ok);
+        if (grp === 'other' && got.cls === 'stop' && want.cls !== 'stop') sStop[mode] = (sStop[mode] || 0) + 1;
+        if (mode === 'local' && !ok && !HIDE.includes('S')) { const key = `${grp === 'control' ? `${s} (vowel only)` : s} as ${label(got)}`; sMiss.set(key, (sMiss.get(key) || 0) + 1); }
+      }
+    });
+  }
+}
+const cell = (k) => pct(...(tally[k] || [0, 0]));
+lines.push('## S. Held out: the parallel rule\'s own set (fifteenth round)', '', `Voiced stops: ${VST.map((s) => `*${s}*`).join(', ')}; others: ${NEG.map((s) => `*${s}*`).join(', ')}. Pulse-4 and pulse-2 notes at 112 BPM, each followed by a rest, G#2, A#2, E3, C4, F4.`, '',
+  '| | default (`localRef`) | last vowel-like frames (`closeAnchor`) | reference only |', '|---|---|---|---|',
+  ...[['voiced-stop codas read exactly', 'vst'], ['other syllables read exactly', 'other'], ['vowel-only control read as none', 'control']].map(([t, g]) => `| ${t} | ${cell(`${g} local`)} | ${cell(`${g} anchor`)} | ${cell(`${g} off`)} |`),
+  `| other syllables read as a stop where none is written | ${sStop.local || 0} | ${sStop.anchor || 0} | ${sStop.off || 0} |`, '',
+  'Misses with the default (count over the ten pitch and length cells):', '', HIDE.includes('S') ? '- hidden' : [...sMiss].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join('; ') || 'none', '');
 }
 
 // ---- C ----

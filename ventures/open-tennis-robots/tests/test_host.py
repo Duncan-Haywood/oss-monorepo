@@ -190,6 +190,26 @@ class PeriodTachTest(unittest.TestCase):
         # The old count-per-10-ms tachometer could only say 0 or 6000 at this speed.
         self.assertEqual({int(n * 60000 / 10) for n in (0, 1)}, {0, 6000})
 
+    def test_window_averages_fewer_revolutions_on_a_slow_wheel(self):
+        # README "A tach that averages a fixed time": the newest periods until they span the window, at most four
+        tach = controller.PeriodTach(window_us=60000)
+        for p in (20000, 20000, 20000, 20000):
+            tach.edge(p)                     # 3000 rpm: 60 ms is three revolutions
+        tach.edge(30000)                     # the wheel slows: the newest three span 70 ms
+        self.assertEqual(tach.rpm(0), round(60e6 / (70000 / 3)))
+        slow = controller.PeriodTach(window_us=60000)
+        for p in (100000, 100000, 100000, 120000):
+            slow.edge(p)                     # under 600 rpm one revolution spans the window: it alone is read
+        self.assertEqual(slow.rpm(0), 500)
+        fast = controller.PeriodTach(window_us=60000)
+        for p in (5000, 5000, 5000, 5000, 6000):
+            fast.edge(p)                     # 12,000 rpm: four revolutions are 21 ms, under the window; four is the most
+        self.assertEqual(fast.rpm(0), round(60e6 / 5250))
+        old = controller.PeriodTach(window_us=0)
+        for p in (100000, 100000, 100000, 120000):
+            old.edge(p)
+        self.assertEqual(old.rpm(0), round(60e6 / 105000))
+
     def test_glitch_is_folded_into_its_revolution(self):
         tach = controller.PeriodTach()
         for _ in range(4):
@@ -223,11 +243,29 @@ class WheelLoopTest(unittest.TestCase):
             self.assertEqual(loop.update(8500, 0, 10), 1.0)
         self.assertEqual(loop.i, 0.0)
 
+    def test_slow_targets_scale_the_gains(self):
+        # README "Slow wheels need slower gains": under LOOP_LOW_RPM both gains shrink with the target
+        fast, slow = controller.WheelLoop(9000), controller.WheelLoop(9000)
+        g = 750 / controller.LOOP_LOW_RPM
+        self.assertAlmostEqual(fast.update(3000, 2900, 10) - 3000 / 9000, 2e-4 * 100 + 6e-7 * 100 * 10)
+        self.assertAlmostEqual(slow.update(750, 650, 10) - 750 / 9000, g * (2e-4 * 100 + 6e-7 * 100 * 10))
+        off = controller.WheelLoop(9000, low_rpm=0)
+        self.assertAlmostEqual(off.update(750, 650, 10) - 750 / 9000, 2e-4 * 100 + 6e-7 * 100 * 10)
+
     def test_gate_needs_the_speed_held(self):
         gate = controller.SteadyGate()
-        self.assertFalse(gate.update((3000, 2000), (3050, 2010), 100))
-        self.assertTrue(gate.update((3000, 2000), (3050, 2010), 60))
-        self.assertFalse(gate.update((3000, 2000), (3100, 2010), 10))    # 3.3% off: start over
+        self.assertFalse(gate.update((3000, 2500), (3050, 2510), 100))
+        self.assertTrue(gate.update((3000, 2500), (3050, 2510), 60))
+        self.assertFalse(gate.update((3000, 2500), (3100, 2510), 10))    # 3.3% off: start over
+
+    def test_gate_holds_revolutions_of_a_slow_wheel(self):
+        # README "Slow wheels need slower gains": at 500 rpm GATE_HOLD_REVS revolutions outlast the 150 ms hold
+        gate = controller.SteadyGate()
+        need = controller.GATE_HOLD_REVS * 60000 // 500
+        self.assertFalse(gate.update((3000, 500), (3000, 500), need - 10))
+        self.assertTrue(gate.update((3000, 500), (3000, 500), 10))
+        fast = controller.SteadyGate()
+        self.assertTrue(fast.update((3000, 2500), (3000, 2500), 150))     # 6 revolutions at 2,500 rpm are 144 ms
         self.assertFalse(gate.update((0, 2000), (0, 2000), 500))          # a stopped wheel is never ready
 
     def test_loop_settles_over_the_plant_grid(self):
@@ -1307,6 +1345,36 @@ class EscSurveyTest(unittest.TestCase):
         self.assertIsNone(lc.survey_report())
 
 
+class AnchorTest(unittest.TestCase):
+    """2026-11-16, firmware/esp32/README.md "The outlier wheel was anchored past its ball": behind a slow recovery the
+    revolutions after the ball are nearly level, and tach jitter could make the second one the longest, putting the
+    ball outside the fit's t0 search."""
+
+    # a 5,479 rpm wheel behind a 100 ms ESC on a 0.8 s wheel, 5 us jitter (seed 7): the ball is in revolution 69
+    LEVEL = [10830, 10841, 10833, 10839, 10827, 10835, 10839, 10827, 10838, 11189, 11475, 11489, 11467, 11452, 11452,
+             11428, 11413, 11400, 11390, 11380]
+
+    def test_walks_back_over_a_level_run(self):
+        ball = 9
+        self.assertEqual(controller._anchor(self.LEVEL, 0), ball + 2)       # the longest period: past the search
+        self.assertEqual(controller._anchor(self.LEVEL), ball + 1)
+
+    def test_a_partial_ball_revolution_stays_the_one_before(self):
+        ps = [10835] * 9 + [11189, 11475, 11300, 11200, 11150, 11100, 11050, 11000, 10950, 10900]
+        self.assertEqual(controller._anchor(ps), 10)
+        self.assertEqual(controller._anchor(ps, 0), 10)
+
+    def test_no_wheel_outvotes_the_survey_on_the_build_that_failed(self):
+        import survey_outlier_cause as C
+        ws = [w for w in C.wheels({"esc_tau_s": 0.10, "tach_jitter_us": 5.0}, 0.8, 0.7, 0.35, 7) if w[3] is not None]
+        best = sorted(min(w[3]) ** 0.5 for w in ws)
+        med = best[len(best) // 2]
+        self.assertGreater(len(ws), 50)
+        self.assertLess(best[-1], controller.SURVEY_TRIM * med)
+        for _, periods, b, _ in ws:
+            self.assertIn(controller._anchor(periods) - b, (0, 1))
+
+
 class EdgeFormTest(unittest.TestCase):
     """2026-11-16, README "The drop on the edge times": the loop fit can run on the edge times (`edges=True`); it is
     off by default because at a few microseconds of jitter it spread the drop more than the period form."""
@@ -1334,7 +1402,13 @@ class LoopFitUnsureTest(unittest.TestCase):
         ps, tk = lr.wheel(4000, 0.06, 0.4, jitter_us=20, seed=3)
         got = controller.drop_from_commands(ps, tk)
         self.assertGreater(got[5], controller.LOOP_SE_MAX)
-        ps, tk = lr.wheel(1500, 0.06, 0.2, tau_esc=0.08)
+        # The four-revolution tach (the default): with a 40 ms window (README "A tach that averages a fixed time") this
+        # loop rings less and the fit is only 2.8% off, so the badly-off case is pinned to the tach it was found on
+        old, controller.TACH_WINDOW_US = controller.TACH_WINDOW_US, 0
+        try:
+            ps, tk = lr.wheel(1500, 0.06, 0.2, tau_esc=0.08)
+        finally:
+            controller.TACH_WINDOW_US = old
         got = controller.drop_from_commands(ps, tk)
         self.assertGreater(abs(got[0] / 0.06 - 1), 0.05)       # the fit is badly off ...
         self.assertGreater(got[5], controller.LOOP_SE_MAX)       # ... and says so

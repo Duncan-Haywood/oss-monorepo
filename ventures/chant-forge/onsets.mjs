@@ -216,7 +216,14 @@ export function expectedRead(ph) {
 // keeps its F2 and F3. Measured on the sung syllables E2-E4 (README "Final consonants, fourth round"):
 // /l/ 12-25 dB, /m/ and /n/ 38-54 dB. Without it every final *al* read as a nasal (its F1 falls under
 // 500 Hz, which brightens the low band against the vowel's). `murmurTilt: 0` turns the check off.
-export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = false, deepOpts = {} } = {}) {
+export const LOCAL_REF = { from: 6, to: 24, cap: 20, nasal: false };
+// A second rule for the same fault, written in parallel by another session (2026-11-16, README "Two anchors for one
+// closure"): a frame closes against the louder of the reference and the loudest of the last ANCHOR.frames
+// vowel-like frames (within ANCHOR.drop dB of that level), band by band (total and under 500 Hz apart), uncapped.
+// No frame in a closure is vowel-like, so the anchor holds through it. Opt-in (`closeAnchor: true`); it replaces
+// localRef on the closure rule only, the nasal rule is untouched.
+export const ANCHOR = { frames: 10, drop: 12 };
+export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = false, deepOpts = {}, localRef = LOCAL_REF, closeAnchor = false } = {}) {
   const hop = Math.round(0.005 * rate), a = Math.round((vowelAt + 0.06) * rate), z = Math.round((tEnd - 0.02) * rate), zEnd = Math.round(tEnd * rate);
   const ref = [];
   for (let i = Math.round(vowelAt * rate); i < a; i += hop) ref.push(frameFeatures(x, i, rate));
@@ -226,6 +233,22 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
   for (let i = a; i <= z; i += hop) fr.push({ t: (i - a) / rate, ...frameFeatures(x, i, rate) });
   if (fr.length < 3) return { cls: 'none' };
   for (const f of fr) { f.lvl = db(f.tot, vTot); f.loRel = db(f.low, vLow); f.hiRel = db(f.hi1, vHi1); }
+  // Against the vowel just before (2026-11-16, README "A closure against the vowel before it"): on a high note
+  // five beating voices swing the vowel's level by 15-20 dB, and the 60 ms reference can fall in a trough, so a
+  // closure 25 dB under the vowel before it read 13 dB under the reference (D4 *ib*, *eb*) and missed the
+  // closure rule. So the closure's level is read against the louder of the reference and the vowel before the
+  // frame: the loudest median of five frames from localRef.from to localRef.to frames back (30-120 ms), capped
+  // at localRef.cap dB over the reference. The nasal rule keeps the reference (localRef.nasal false): read
+  // against the vowel before, a vowel-only release fading through -5 to -25 dB of it read as a murmur (the
+  // vowel-only controls of J, K, L, M and N lost 33 cells). A closure needs a burst after it, which a fade
+  // never has. `localRef: false` is the reader before.
+  if (localRef) {
+    const LR = localRef === true ? LOCAL_REF : localRef, sm = fr.map((_, k) => median(fr.slice(Math.max(0, k - 2), k + 3).map((f) => f.lvl)));
+    fr.forEach((f, k) => {
+      let up = 0; for (let j = Math.max(0, k - LR.to); j <= k - LR.from; j++) up = Math.max(up, sm[j]);
+      f.up = Math.min(LR.cap, up);
+    });
+  } else for (const f of fr) f.up = 0;
   const msOf = ([s, e]) => (e - s) * 5 + 20;
   const runs = (pred, minMs) => {
     const out = []; let s = -1;
@@ -244,10 +267,19 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
   const hiss = (f) => vfricHi5 === false || db(f.hi5, vHi5) >= vfricHi5;
   const noisy = (f) => f.hiR > Math.max(0.5, 3 * vHi) && f.lvl > -45 && hiss(f);
   const vnoisy = (f) => !noisy(f) && f.hiR > Math.max(0.12, 3 * vHi) && f.lowR > 0.2 && f.hiRel > -20 && f.lvl > -35 && f.lvl < -3 && hiss(f);
-  const closed = (f) => f.lvl < -22 && f.loRel < -12 && !noisy(f) && !vnoisy(f);
+  if (closeAnchor) {
+    const hist = []; // the last ANCHOR.frames vowel-like frames' [lvl, loRel]
+    for (const f of fr) {
+      f.aT = Math.max(0, ...hist.map((h) => h[0])); f.aL = Math.max(0, ...hist.map((h) => h[1]));
+      if (f.lvl > f.aT - ANCHOR.drop) { hist.push([f.lvl, f.loRel]); if (hist.length > ANCHOR.frames) hist.shift(); }
+    }
+  }
+  const closed = closeAnchor ? (f) => f.lvl - f.aT < -22 && f.loRel - f.aL < -12 && !noisy(f) && !vnoisy(f)
+    : (f) => f.lvl - f.up < -22 && f.loRel - f.up < -12 && !noisy(f) && !vnoisy(f);
   // a coda's nasal must be a deeper murmur than an opening's: a vowel fading into its release also
   // loses its upper formants first (they ring for less time), by 5 to 12 dB
-  const nasal = (f) => f.loRel >= -15 && f.lvl < -5 && f.lvl > -25 && f.hiRel < f.loRel - 15;
+  const nu = (f) => (localRef && (localRef === true ? LOCAL_REF : localRef).nasal ? f.up : 0);
+  const nasal = (f) => f.loRel - nu(f) >= -15 && f.lvl - nu(f) < -5 && f.lvl - nu(f) > -25 && f.hiRel < f.loRel - 15;
   // a tap: a brief dip, 12 dB or more under the vowel and under 30 ms at its deepest, with frames
   // 10 dB louder within 40 ms on both sides (a final r hums on after it). Searched locally: the
   // quietest frame of the window is the release's fade. After a dark vowel (/u/, /o/) the r's own

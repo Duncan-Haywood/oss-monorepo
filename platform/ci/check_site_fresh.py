@@ -20,6 +20,7 @@ import sys
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
+from argtypes import finite_nonneg
 
 SITE = "https://marisstella.app/"
 # Three hours between scheduled deploys, plus a build of up to an hour.
@@ -60,7 +61,7 @@ def verdict(version, now, max_hours=MAX_HOURS):
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--url", default=SITE)
-    ap.add_argument("--max-hours", type=float, default=MAX_HOURS)
+    ap.add_argument("--max-hours", type=finite_nonneg, default=MAX_HOURS)
     args = ap.parse_args(argv)
     version, why = fetch_version(args.url)
     if version is None:

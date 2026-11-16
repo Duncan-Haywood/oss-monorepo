@@ -260,6 +260,47 @@ opening balance; a July leave year; the trim keeping the balances identical; the
 when off, the page, a recorded and a removed use, an opening balance, the CSV and its formula guard). Not claimed: not
 tried on a live team or against any state's rule text; a manager's view of the policy wording is the next thing to get.
 
+## New York City fast food (2026-11-16, later)
+
+A sixth preset, `FAIR_WORKWEEK=new-york-city` (or `nyc`), for the fast food half of New York City's Fair Workweek Law
+(Admin. Code 20-1201 et seq.). It is the first preset that does not fit the "hours of pay" shape the other five share,
+so three new pieces carry it:
+
+| | New York City (fast food) | The other presets |
+|---|---|---|
+| Premium | a flat sum per change, by notice: 14 to 7 days $10 (added or moved) / $20 (hours taken away); 7 days to 24 h $15 / $45; under 24 h $15 / $75 | hours of pay at the person's wage |
+| Notice counted to | 12:00 a.m. on the first day of the work schedule (rule 7-622(a)) | the start of the changed shift |
+| Free changes | start and end each moved by 15 min or less, whatever the shift's length becomes (final de minimis rule) | per city |
+| A shift moved to another day | one change: $10 at 14 to 7 days (7-622(a) example 3) | a cancellation plus an addition |
+| Volunteers, open-shift pick-ups, fill-ins | priced (7-622(e)(5)-(7)); consent does not waive it (7-622(b)) | exempt in Seattle, Oregon, Philadelphia |
+| Rest | a clopening (under 11 h, across two calendar days) pays $100 (20-1231) | per city |
+
+Why the week's first day matters: a Thursday shift cancelled on the Sunday before a Monday-start week is a change with
+under 24 hours' notice in New York City ($75), though the shift is four days off. Seattle, counting to the shift, calls
+the same change 4 days' notice. `noticeFromWeek` (`FWW_NOTICE_FROM_WEEK=1`) and `edgeEach` (`FWW_EDGE_EACH=1`) are
+switches any preset or `custom` can take; the flat table itself is the preset's and is not typed from the environment.
+The changes page states the table in words, and the CSV leaves "hours of pay" empty for a flat premium.
+
+Sources, read 2026-11-16 (the city's code library returned 403 and the DCWP page 404 from this session): the premium
+table of 20-1222(a) as the city's Office of Labor Policy and Standards set it out (CLASP conference slides, 2018); DCWP's
+proposed rules (rules.cityofnewyork.us notice of hearing, January 2022: 7-601 definitions, 7-607 de minimis, 7-622
+schedule changes with its five worked examples, 7-623 clopenings); and Fisher Phillips's summary of the June 2022 final
+rules, which changed de minimis from 15 minutes in total to 15 minutes at each end, and confirmed hours (336, 168) as the
+measure of days. Check the current RCNY title 6 chapter 7 text before relying on it.
+
+Not modelled: who is covered (fast food chains with 30 or more locations nationally), the retail half of the law (72
+hours' notice, no on-call shifts, no premiums), the exception for a shortened shift that is still paid in full, the
+regular-schedule rules of 7-622(g), the good-faith estimate, access to hours (offering shifts to current staff before
+hiring), and written consent for added hours and for each clopening (the page counts the $100, it does not collect
+the consent). The absent employee owes nothing (7-622(d)); the hub already logs a call-out's dropped shift as
+employee-asked.
+
+Tested (`notice.test.mjs`, 21 tests, 3 new): the rules' examples 1 to 3 ($75 for a cancellation on the Sunday before,
+$45 at 151 hours, $10 for a Thursday shift moved to Friday at 228 hours, where Seattle prices the same pair at $100 on a
+$20 wage), each tier for adds and cuts, the de minimis edges (15 min each way free, both ends together free, 20 min priced
+$15 or $45), the team offer still priced, an employee request exempt, the $100 clopening with no wage and a same-day split
+not counted, the CSV row, and the changes page's table in words.
+
 ## Philadelphia and Los Angeles (2026-11-16, later)
 
 Two more presets for the hub's change log, so a covered shop in either city can turn the pricing on with one setting
@@ -313,8 +354,8 @@ a moment you type. The hub is where the changes really happen, days apart, so it
   employee-asked and the added shift as not, because the manager picked the person. The first publish of a week is kept
   as its posting time. The manager can flip any entry between "Employee asked" and not. The last 1,500 changes are kept
   (Seattle asks for three years of records, so the page says to download the CSV with each payroll).
-- **The rule sets (`FAIR_WORKWEEK=seattle|oregon|chicago|philadelphia|los-angeles|custom`; the last two since
-  2026-11-16 later, see "Philadelphia and Los Angeles" below):** read from the City of Seattle's Office of Labor
+- **The rule sets (`FAIR_WORKWEEK=seattle|oregon|chicago|philadelphia|los-angeles|new-york-city|custom`; the last three
+  since 2026-11-16 later, see "Philadelphia and Los Angeles" and "New York City fast food" above):** read from the City of Seattle's Office of Labor
   Standards "Secure Scheduling" page and Oregon BOLI's "Predictive scheduling" page on 2026-11-16, and for Chicago from
   search summaries of the city's Fair Workweek notice and rules on chicago.gov and the ordinance's table as quoted by the
   National Law Review (the chicago.gov pages returned 403 or 404 here, so Chicago is the least checked of the three):
@@ -3432,3 +3473,90 @@ the reserve, bounded even with lots of time left, the reserve alone when the bud
 deadline without a budget, the cold formula without a basis). Not claimed: single runs on one cloud machine, generated weeks only;
 the 1.5 s reserve was not tuned (1 s or 2 s may do as well). Next: whether a longer reserve finishes more weeks than it costs, and
 carry the priced LP's basis into the day sweeps' guide.
+
+## The pay floor's reserve, sized from the full solve (2026-11-16 later)
+
+"A warm-sized gate for the pay floor" left its 1.5 s reserve untuned. Rather than race a few reserves against each other, this
+run measured what every reserve would do at once. **Pre-registered** (`eval/pay-floor-reserve-prereg.md`, committed before the
+run): 48 fresh weeks (seeds 6-17, 60 x 168 and 70 x 196, weeks 0-1, the generator of `eval/warm-gate-e2e.mjs`), each built twice
+at the default 20 s budget (`sh eval/pay-floor-reserve.sh`): once with the pay floor given a reserve no build reaches, so it
+reports its whole warm time T and the time left L at its start, and once with `scoreFloor: false`, which is exactly the path of a
+try that runs out of time. A reserve R finishes the try iff T <= max(0, L) + R, so `eval/pay-floor-reserve-summary.py` scores
+any R from the pair (`eval/pay-floor-reserve.out.txt`). The pay floor was tried on 19 of the 48 weeks; the rest were proven
+earlier or had no basis, and are the same under any R.
+
+| reserve | tries finished (of 19) | sum of gaps | pay, against 0.5 s | mean build | slowest build |
+|---|---|---|---|---|---|
+| 0.5 s | 12 | $21.73M | - | 21.14 s | 23.1 s |
+| 1.5 s (the old default) | 13 | $21.81M | one open hour more (search noise, below) | 21.26 s | 24.1 s |
+| 3 s | 15 | $21.69M | $44 less | 21.42 s | 25.6 s |
+| 4 s | 18 | $21.62M | $64 less | 21.49 s | 26.3 s |
+| **6 s** | **19** | **$21.60M** | **$75 less** | **21.51 s** | **27.5 s** |
+| 8 s | 19 | $21.60M | $75 less | 21.51 s | 27.5 s |
+
+(Gaps are in score units, where an open hour is 100,000, so the sums are dominated by open hours the floor cannot close; per
+week the change is the point: a finished try took the 70-person weeks' gaps from $22,530-$27,131 to $5-$18.)
+
+The warm solve needed up to 5.4 s past the time left (T 1.1-12.1 s); six of the 19 weeks needed more than 1.5 s and at most 6 s.
+The rule (raise only to a reserve finishing at least 3 more builds for at most 0.5 s more mean build time; the most finished,
+ties to the smaller) picked **6 s**: 6 more finished tries for 0.25 s of mean build time. The cost is the tail: the slowest
+build went from 24.1 to 27.5 s on a 20 s budget.
+
+**Checked with the new default itself** (`sh eval/pay-floor-reserve-confirm.sh`, `eval/pay-floor-reserve-confirm.jsonl`): the six
+weeks, new default against an explicit 1.5 s. Five finished, as predicted: gaps $23,613 to $6.98 and $24,278 to $15.52 on the
+70-person weeks, $118,547-$120,385 to about $99,990 (one open hour left) on two 60-person weeks, and one week (seed 17) covered
+one more hour; pay $0.61-$17.75 lower on four. The sixth (seed 9) never tried: that build's earlier stages ran past the budget,
+and `buildRoster` skips the pay floor once the budget is spent (`!over()`), whatever the reserve. Mean build time +0.9 s on these
+six, the slowest 25.5 s.
+
+**What landed:** `scoreFloorReserveMs` now defaults to 30% of the time budget, at most 6 s: 6 s at the 20 s default for big
+weeks, which is what was tested; a caller with a 3 s budget waits at most 0.9 s more, not 6. An explicit value wins.
+`warm-score-floor.test.mjs` checks the scaled default, the 6 s cap and an explicit 1.5 s.
+
+Not claimed: generated weeks, one cloud machine; the two builds of a week are separate runs, so their rosters before the pay
+floor can differ by timing (the +1 and -1 open hours on seeds 16 and 17 in the summary are that, not the pay floor); the 30%
+scaling below a 20 s budget was not measured. Next: the budget-spent case. The plan gives a try with the budget already spent
+"the reserve alone", but `buildRoster` never reaches it (seed 9 above); whether letting it run then finishes enough weeks to pay
+for the wait, measured the same way.
+
+## The pay floor once the budget is spent (2026-11-16 later)
+
+"The pay floor's reserve, sized from the full solve" ended on one case its reserve could not reach: when the stages before the pay
+floor run past the 20 s time budget, `buildRoster` skipped it (`!over()`), so a big week was posted with a gap of $20,000-$900,000
+in score units where a second or two of warm LP would have bounded it to within dollars or whole open hours. That run took the case
+to be rare (one week, seed 9). It is not: a new field, `optimality.scoreFloorSkip`, now names why the pay floor did not run
+("noClique", "proven", "off", "spent", "noBasis", or null when it ran), and on fresh weeks about one in five ended "spent", almost
+all of them 70-person weeks whose earlier stages ran 6-680 ms over.
+
+**Two pre-registered tests.** Both build each week twice at the default 20 s budget (`eval/pay-floor-spent.mjs`): "full" (try when
+spent, with a reserve no build reaches, so it reports the warm solve's whole time T) and "base" (the old skip). On a spent week a
+reserve R finishes iff T <= R; `eval/pay-floor-spent-summary.py` scores any R from the pair.
+
+| | spent weeks of 48 | finished at 4 s | finished at 6 s | mean build, base -> 4 s / 6 s | open hours, all 48 |
+|---|---|---|---|---|---|
+| seeds 18-29 (`eval/pay-floor-spent-prereg.md`, `.out.txt`) | 10 | 9 | 9 | 20.82 -> 21.30 / **21.34 s** | 11,912 -> 11,904 |
+| seeds 30-41, fresh (`eval/pay-floor-spent-4s-prereg.md`, `-4s.out.txt`) | 10 | **8** | 9 | 20.83 -> **21.14** / 21.18 s | 12,142 -> 12,142 |
+
+The first test's rule (turn it on at the normal 6 s reserve if it finishes half the spent weeks for at most +0.5 s of mean build
+time) **failed by 0.02 s** (+0.52 s). Its table showed 4 s finishing the same 9 for +0.48 s, but picking 4 s from that table would
+be fitting to it, so a second rule for a 4 s reserve of its own was written down and tested on twelve seeds no pay-floor test had
+used. It passed every clause: 8 of 10 finished, +0.31 s mean, open hours not higher. The first test's -8 open hours are mostly the
+two builds' timing noise (seed 19 and 22 went +1), so no open-hours gain is claimed.
+
+What a finished try does: the pay gap on the week goes from $23,865-$25,215 to under $1 (seed 30 week 1, seed 31 week 0), or from
+$124,000-$126,000 to about $99,980, which is one open hour left and the pay bounded to within about $20 (four weeks). The roster is
+the same or a few dollars cheaper, because the priced LP then guides the day sweeps.
+
+**What landed:** the pay floor now tries once the budget is spent, warm, for a reserve of its own, `scoreFloorSpentReserveMs`
+(default the smaller of 4 s and the normal reserve; a caller with a 3 s budget waits at most 0.9 s). `scoreFloorSpent: false`
+keeps the old skip. With time left the normal reserve (30% of the budget, at most 6 s) is unchanged.
+
+**Checked with the default itself** (`sh eval/pay-floor-spent-confirm.sh`, `eval/pay-floor-spent-confirm.jsonl`, the ten fresh
+spent weeks, default against `scoreFloorSpent: false`): 9 of 10 finished (one more than predicted: seed 36's solve took 3.9 s this
+time against 4.1 s), same open hours on nine and one fewer on seed 40, mean build 22.21 -> 23.86 s on those weeks (+0.34 s spread
+over all 48), slowest 26.3 s. Tests: `warm-score-floor.test.mjs` checks the spent reserve (4 s, an explicit value, capped by the
+normal reserve), the skip reasons and `scoreFloorSpent: false`.
+
+Not claimed: generated weeks, one cloud machine; the spent weeks are almost all 70 x 196, so 80-100 person weeks are untested here.
+Next: why the stages before the pay floor run past the budget at all (6-680 ms on these weeks), which is time no reserve should
+need to cover.

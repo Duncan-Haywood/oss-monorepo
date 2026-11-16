@@ -106,7 +106,7 @@ through a detector you supply: set `SHOOTFLOW_FACE_DETECTOR` to a command that
 takes an image path and prints `{"faces": [{"size": 0.1, "eyes_open": 0.9}]}`
 (`src/shootflow/faces.py`). A prominent face (1% of the frame or more) with eyes
 open adds 0.03 to `story_score`; the least-open eye costs up to 0.25; off by
-default, run without a shell, and any failure keeps the measured score. `tools/opencv_face_detector.py` (2026-10-29) is a reference detector for that contract: OpenCV Haar
+default, run without a shell, and any failure keeps the measured score. Since 2026-11-16 the recommended detector is `tools/mediapipe_face_detector.py`: Google's MediaPipe Face Landmarker (Apache 2.0, a 3.8 MB model you download once, path in `SHOOTFLOW_FACE_LANDMARKER`; on Linux `apt-get install libegl1 libgles2`) reads each lid's blink score, searches the frame in tiles so group shots' small faces are found, and averages the score over every view of a face. On 105 real CC0 photos it flagged 5 of 6 closed-eye photos and none of the other 99; the Haar detector below flagged 3 of 6 and 8 of 99 (open eyes behind sunglasses or narrowed by a smile, a sleeping cat). The labels are an agent's, not a photographer's, and the open/shut margin was thin (blink 0.44 against 0.50): `eval/blink-landmarker-2026-11-16.md`. A face cut in half by the frame edge, which no face finder sees, is searched for in each edge's strip mirrored across the edge (later on 2026-11-16): the set's one miss is now flagged (6 of 6, still 0 of 99), and of 40 half faces cut from the set's own faces 20 are found instead of none, 19 reading the same as the whole face (16 of 18 faces over 100 px wide; `eval/blink-edge-mirror-2026-11-16.md`). `tools/opencv_face_detector.py` (2026-10-29) is the older reference detector for that contract: OpenCV Haar
 cascades (`pip install "opencv-python-headless<5"`; 5.x dropped the cascade classifier), on your machine, nothing
 uploaded. `eyes_open` is 0.95, 0.5 or 0.1 for two, one or no eyes found in the upper face, and null under 70 px wide.
 It is a classical detector, not a blink classifier: the eye cascade was trained on open eyes, so sunglasses,
@@ -1458,6 +1458,25 @@ richer model is still worth one try, with +0.83 as its realistic ceiling against
 Fitting B's model to a 4 x 4 box-averaged target lost 0.062 dB in cross-validation, so nothing changed in
 the shipped demosaic.
 
+**Boosted trees, 2026-11-16** (`eval/bayer-boosted-weight-2026-11-16.md`, `tools/bayer_boosted_weight.py`;
+pre-registered in its own commit before any score). LightGBM on 29 features (the eight, the four
+correlation features, log|D| and the 5 x 5 mean and spread of the eight) gains +0.527 dB in five-fold CV
+against +0.386 for B's model on the same folds, better on 108 of 120 copies, and +0.451 against B's +0.406
+on the ten test frames (22 of 30 copies). Both bars passed, about 31% of the way from B to the 4 x 4
+ceiling. Not shipped: on the Pentax K-1 Mark II it falls below the 3/16 default at every noise level
+(-0.21 to -0.29 dB, where B gains +0.25), and the A7 III loses to B too. Next: a guarded variant judged
+per frame, then tree inference in numpy and C.
+
+**Guarded trees and numpy inference, 2026-11-16** (`eval/bayer-boosted-guard-2026-11-16.md`,
+`tools/bayer_boosted_guard.py`, `src/shootflow/tree_ensemble.py`; pre-registered in its own commit). Four
+fallbacks to B were scored in CV. The rule picked a frame guard: B for the whole frame when any of the
+eight feature means falls outside the training range. It gains +0.518 dB in CV and +0.398 against B's
++0.242 on six fresh cameras no note had used (Canon R3, R8, 10D, Kodak DCS Pro SLR/n, Leica D-LUX 109 and
+V-LUX 114). No fresh frame does worse than B, and the guard catches the R8, where unguarded trees lose
+0.65 dB to B. Still not shipped: on the ten test frames the K-1 II (-0.49) and A7 III (-0.12) look
+ordinary to the guard and stay below B. `shootflow.tree_ensemble` evaluates a LightGBM model from flattened
+arrays in numpy, matching `Booster.predict` exactly on the full model. It is a reference, not yet a developer path: 58 s against lightgbm's 3.7 s on 0.6 million sensels, so shipping one would need the walk in C.
+
 ## Pentax PEF (2026-11-14)
 
 Pentax raw files no longer need Adobe's DNG Converter, and they are no longer skipped at ingest:
@@ -1630,6 +1649,23 @@ Not done: no checked file uses a tone curve (tags 0x39/0x3A), per-symbol shifts 
 values. A file with a curve is refused with the reason; shifts and starting values are read as
 LibRaw reads them, tested on synthetic streams only. Colour needs the camera's `.dcp`, as for every
 RW2 here.
+
+### Leica RWL, and a card copy that leaves no raw behind (2026-11-16)
+
+Leica's D-LUX, V-LUX and C-LUX are Lumix bodies, and their `.RWL` files are RW2 under another
+name. They now develop like any RW2 (`shootflow develop L1000001.RWL --dcp DIR`): on a real
+D-LUX (Typ 109) and V-LUX (Typ 114) every one of 32.7 M sensels, the white balance, black
+level, CFA, crop and white level equal LibRaw 0.22's.
+
+The card copy used to take only the ten raw formats the developer reads and say nothing about
+the rest, so a `.RWL`, `.NRW`, `.CRW` or `.X3F` stayed on the card. It now copies 27 raw
+formats, HEIF/HIF stills, MXF and M2TS video and XMP sidecars, skips the hidden `._` files a Mac
+writes on a card (which carry the raw's extension and used to be copied as photos), and lists
+every other file it leaves behind as `left_on_card` in the preview, the result and
+`ingest_manifest.json`. On the 71 camera raw files in the public metadata-extractor-images
+corpus the old copy left 6 behind; the new one leaves none. Formats with no reader are culled
+from their embedded preview and stop at the grade with the "convert to DNG" message. Details:
+`eval/leica-rwl-and-card-formats-2026-11-16.md`; tests: `tests/test_card_formats.py`.
 
 ## Olympus ORF (2026-11-14)
 
