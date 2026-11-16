@@ -34,6 +34,7 @@ zero dependencies, one JSON file on a disk you own.
 - **On the phone:** the staff page is an installable web app (manifest + a small service worker, `server.mjs`). "Add to home screen" opens it full-screen like an app, and the last schedule the phone saw stays readable with no signal. Only the schedule page is cached; forms are never replayed offline. No app-store account, no push notifications.
 - **Labor budget from a script (2026-11-08):** `node cli.mjs --budget 2400 staff.txt shifts.txt` compares payroll with a weekly dollar budget and, when over, lists the drops (from `trimOptions`) that close the gap, safe ones first; tested in `cli.test.mjs` on a hand-built week and the sample week.
 - **Time clock and timesheets (2026-11-15, on unless `TIME_CLOCK=0`):** staff clock in and out on the team page (the server's clock, shown in your `TIMEZONE`); `/admin/timesheet` shows hours worked beside the published week, flags late starts, early finishes, time past the shift's end, shifts with no punch and missing clock-outs, lets you add a missed punch (marked as yours) and downloads a CSV for payroll. Since 2026-11-16, optional per-person clock PINs and an optional site geofence (section "Clock PINs and a site geofence"); without them it is an honour system. Also since 2026-11-16, paid sick leave (or PTO) earned per hour worked at the rate and caps you set, off until `LEAVE_ACCRUAL` is set (section "Paid sick leave from the time clock"). Details in "Time clock and timesheets" below.
+- **Oregon's voluntary standby list (2026-11-16, with `FAIR_WORKWEEK=oregon`):** staff join it in writing on their page and leave any time; a call-out can be offered to the list first, and the hours someone on it accepts owe no predictability pay (ORS 653.432). The Oregon preset was checked against the statute's text: start or end changes of 30 minutes or less are free, a separate added shift always owes the hour. Section "Oregon's voluntary standby list" below.
 - **Schedule changes and notice pay (2026-11-16, the log always on, pricing off until `FAIR_WORKWEEK` is set):** every change to a posted week is logged with the moment it was made and who asked for it (a week published again, an approved trade or pick-up, a call-out given to someone); `/admin/changes` prices each under Seattle's, Oregon's or Chicago's predictive-scheduling numbers (or your own), flags shifts posted under 14 days ahead and short rests, and downloads a CSV. Section "Schedule changes and fair-workweek pay" below.
 - **Overtime, meal periods and rounding (2026-11-15 later, `PAY_RULES`):** the timesheet turns punches into regular, 1.5x and 2x hours under federal, California, Alaska or Colorado rules, flags California meal breaks that came late or not at all (with the extra hour owed), rounds punches to 5, 6 or 15 minutes if you ask (never under California rules) and estimates gross pay at each person's wage. Since 2026-11-15 also Nevada (daily overtime by the 24-hour workday for staff under 1.5x the minimum wage) and meal-period flags for 13 more states (section "Nevada, and meal periods in 13 more states").
 - **Call-outs from a script (2026-11-07):** `node cli.mjs --cover "Tue 17:00" --json staff.txt shifts.txt` prints who can take the shift outright, who is blocked and why, and the hand-over chains as JSON (tested in `cli.test.mjs`).
@@ -338,6 +339,47 @@ were not modelled: the offer to the whole team after someone calls out, and on-c
   never called in in all three presets, the CSV row; and the hub end to end: a call-out offered, the webhook text, the
   staff page, a refused yes from the caller, a yes, the cover logged as "team offer" and shown exempt under Seattle, an
   on-call shift marked not needed, logged and priced, and a second mark refused. Not run against a real site's week.
+
+## Oregon's voluntary standby list, from the statute's own text (2026-11-16)
+
+The two sections above priced Oregon from search summaries, because oregon.gov and the Oregon statutes did not answer
+from the session that wrote them. This session's request to the Oregon Legislature's published chapter 653
+(oregonlegislature.gov/bills_laws/ors/ors653.html, ORS 653.412 to 653.485 as amended by 2024 c.20) did answer, so the
+Oregon preset was checked against the statute itself. Reading it showed two pricing mistakes and one missing exception:
+
+- **A start or end changed by 30 minutes or less owes nothing, hours lost included** (ORS 653.455(3)(a)). The preset
+  charged half of the lost minutes, so a start moved 20 minutes later cost $2.50 at $15 an hour. It now owes nothing
+  (`minEdgeMin: 30`, override `FWW_MIN_EDGE_MIN`). 31 minutes is priced as before, and widening both ends by 20 minutes
+  adds 40 minutes of work, more than the 30 that (2)(a)(A) allows, so it still owes the hour. Seattle and Chicago keep
+  their old arithmetic.
+- **An additional shift owes the hour at any length** (ORS 653.455(2)(a)(C)). The 30-minute threshold is for "more than
+  30 minutes of work" added *to* a shift. The code had let a separate shift of 30 minutes or less go free, and it did
+  that in every preset. Now an added shift always owes `addHours`. The threshold still applies to time added to a shift.
+- **The voluntary standby list** (ORS 653.432, exempt under 653.455(3)(j)). An employer may keep a list of employees
+  who agreed in writing to be asked for extra hours after an unexpected absence or customer need. Hours someone on the
+  list agrees to work owe no predictability pay. With `FAIR_WORKWEEK=oregon` (or `FWW_STANDBY=1` with any rule set) the
+  hub has:
+  - **a "Standby list (voluntary)" section on the staff page.** It shows the written notice with the four statements
+    653.432(1)(a)-(d) require: the list is voluntary and how to leave it, how hours are offered and accepted, that
+    nobody has to accept, and that accepted hours earn no predictability pay. Joining needs a ticked written agreement,
+    and anyone can leave at any time (653.432(5)). The manager can also take someone off on request. Each join and
+    removal goes into a dated record (`standbyHistory`, latest 500 kept).
+  - **an "Ask the standby list (N)" button on each call-out.** It posts the hours on the staff page and to the team
+    webhook (653.432(2) allows notice by text, email or another electronic format). Only the people who were asked
+    can press "I'll take it". When the manager gives the shift to one of them, the change is logged as "standby list"
+    and priced as exempt, with a reason that cites 653.432(4).
+  - **the standby-first condition on the team offer.** Under 653.455(3)(k)(C), where an employer keeps a standby list,
+    the exception for cover after an absence applies only after everyone on the list has been contacted. A team offer
+    taken while listed people were never asked now records how many (`standbyOpen`). Oregon prices that shift and says
+    why; Seattle is unchanged. The call-out block tells the manager to ask the list first.
+- **Checked against the text, not yet in use.** `notice.test.mjs` (14 tests, 2 new and 1 corrected) covers the 20-,
+  30- and 31-minute edges, the 40-minute widening, the 30-minute added shift, the standby exemption in Oregon and its
+  absence in Seattle and Chicago, the standby-first pricing and the four statements. It also runs the hub end to end
+  under Oregon: a join refused without the box ticked, a join, the ask, a refusal for someone not asked, the yes, the
+  cover logged as exempt, a team offer before the list was asked priced at one hour, leaving, removal by the manager,
+  and the section and routes absent under Seattle. Not modelled: the 653.432(6) anti-retaliation rule and the
+  653.432(7) coercion penalty are printed as notes, not enforced. The rule texts were read, not checked by an
+  employment lawyer, and no real Oregon site has used this.
 
 ## Free on Cloudflare: no server, no card (2026-11-15)
 

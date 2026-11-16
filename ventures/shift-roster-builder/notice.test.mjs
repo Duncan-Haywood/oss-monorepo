@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readNoticeEnv, diffAssignments, logChanges, priceChange, latePosting, shortRests, noticeReport, noticeCsv, slotInstant, teamOfferText, onCallShifts, onCallNeverCalled, isOnCall, FWW_PRESETS } from "./notice.mjs";
+import { readNoticeEnv, diffAssignments, logChanges, priceChange, latePosting, shortRests, noticeReport, noticeCsv, slotInstant, teamOfferText, onCallShifts, onCallNeverCalled, isOnCall, standbyNoticeText, standbyAskText, FWW_PRESETS } from "./notice.mjs";
 import { handler, emptyState, publish } from "./hub.mjs";
 import { serve } from "./hub-worker.mjs";
 
@@ -77,8 +77,47 @@ test("Oregon: 30 minutes or less of added time owes nothing, more owes an hour",
   const r = FWW_PRESETS.oregon, wage = 15;
   assert.equal(priceChange(ch("2026-11-20T15:00:00Z", "moved", S(0, 9, 17), { ...S(0, 9, 17), endMin: 17 * 60 + 30 }), r, { wage }).premium, 0);
   assert.equal(priceChange(ch("2026-11-20T15:00:00Z", "moved", S(0, 9, 17), { ...S(0, 9, 17), endMin: 17 * 60 + 45 }), r, { wage }).premium, 15);
-  // A start moved 20 min later with no lost time... loses 20 min: half of 1/3 h.
-  assert.equal(priceChange(ch("2026-11-20T15:00:00Z", "moved", S(0, 9, 17), { ...S(0, 9, 17), startMin: 9 * 60 + 20 }), r, { wage }).premium, 2.5);
+  // ORS 653.455(3)(a): a start or end changed by 30 min or less owes nothing, the lost 20 minutes included.
+  const late = priceChange(ch("2026-11-20T15:00:00Z", "moved", S(0, 9, 17), { ...S(0, 9, 17), startMin: 9 * 60 + 20 }), r, { wage });
+  assert.equal(late.premium, 0); assert.match(late.why, /hours lost included/);
+  // 31 minutes later: half of the lost 31 minutes. Seattle has no such threshold and prices the 20 minutes.
+  assert.equal(priceChange(ch("2026-11-20T15:00:00Z", "moved", S(0, 9, 17), { ...S(0, 9, 17), startMin: 9 * 60 + 31 }), r, { wage: 30 }).premium, 7.75);
+  assert.equal(priceChange(ch("2026-11-20T15:00:00Z", "moved", S(0, 9, 17), { ...S(0, 9, 17), startMin: 9 * 60 + 20 }), FWW_PRESETS.seattle, { wage }).premium, 2.5);
+  // Both ends 20 min out: 40 min added is more than 30, so the hour is owed.
+  assert.equal(priceChange(ch("2026-11-20T15:00:00Z", "moved", S(0, 9, 17), { ...S(0, 9, 17), startMin: 8 * 60 + 40, endMin: 17 * 60 + 20 }), r, { wage }).premium, 15);
+  // Both shifted 30 min later, no hours lost: exempt.
+  assert.equal(priceChange(ch("2026-11-20T15:00:00Z", "moved", S(0, 9, 17), { ...S(0, 9, 17), startMin: 9 * 60 + 30, endMin: 17 * 60 + 30 }), r, { wage }).premium, 0);
+  // ORS 653.455(2)(a)(C): an additional shift owes the hour whatever its length; the 30 min is for time added to a shift.
+  assert.equal(priceChange(ch("2026-11-20T15:00:00Z", "added", null, { ...S(0, 9, 17), startMin: 9 * 60, endMin: 9 * 60 + 30 }), r, { wage }).premium, 15);
+  assert.equal(readNoticeEnv({ FAIR_WORKWEEK: "seattle", FWW_MIN_EDGE_MIN: "15" }).minEdgeMin, 15);
+});
+
+test("Oregon's voluntary standby list: accepted hours exempt; a team offer before the list is asked is priced", () => {
+  const r = FWW_PRESETS.oregon, wage = 20;
+  const sb = ch("2026-11-22T12:00:00Z", "added", null, S(0, 9, 17), { person: "Ben", cause: "standby list", standby: true, coverFor: "Ana" });
+  const p = priceChange(sb, r, { wage });
+  assert.equal(p.premium, 0); assert.match(p.why, /voluntary standby list to cover Ana and agreed: exempt \(ORS 653\.432\(4\)\)/);
+  // Seattle and Chicago have no standby-list exception here; the hour is charged and the reason says so.
+  for (const name of ["seattle", "chicago"]) {
+    const q = priceChange(sb, FWW_PRESETS[name], { wage });
+    assert.equal(q.premium, 20, name); assert.match(q.why, /no standby-list exception/, name);
+  }
+  assert.equal(readNoticeEnv({ FAIR_WORKWEEK: "seattle", FWW_STANDBY: "1" }).standby, 1);
+  assert.equal(readNoticeEnv({ FAIR_WORKWEEK: "oregon", FWW_STANDBY: "0" }).standby, 0);
+  // ORS 653.455(3)(k)(C): two on the list not asked, so the team offer's exception fails in Oregon only.
+  const offer = ch("2026-11-22T12:00:00Z", "added", null, S(0, 9, 17), { person: "Cleo", cause: "team offer", massOffer: true, coverFor: "Ana", standbyOpen: 2 });
+  const o = priceChange(offer, r, { wage });
+  assert.equal(o.premium, 20); assert.match(o.why, /standby list asked first \(ORS 653\.455\(3\)\(k\)\(C\)\); 2 on it were not/);
+  assert.equal(priceChange(offer, FWW_PRESETS.seattle, { wage }).premium, 0);
+  assert.equal(priceChange({ ...offer, standbyOpen: 0 }, r, { wage }).premium, 0);
+  // The log keeps both marks.
+  const state = { changeLog: [] };
+  logChanges(state, [{ person: "Ben", kind: "added", from: null, to: S(0, 9, 17), standby: true, coverFor: "Ana" }, { person: "Cleo", kind: "added", from: null, to: S(1, 9, 17), massOffer: true, coverFor: "Ana", standbyOpen: 2 }], { at: 1, weekStart: WS, cause: "x" });
+  assert.equal(state.changeLog[0].standby, true); assert.equal(state.changeLog[1].standbyOpen, 2); assert.equal(state.changeLog[0].standbyOpen, undefined);
+  // The written notice says the four things ORS 653.432(1)(a)-(d) list.
+  const n = standbyNoticeText().join(" ");
+  for (const re of [/voluntary/, /come off it at any time/, /how|tells the people on the list/, /accept by pressing/, /do not have to accept/, /do not earn predictability pay/]) assert.match(n, re);
+  assert.match(standbyAskText({ person: "Ana", day: 0, startMin: 540, endMin: 1020 }, WS), /Mon 09:00-17:00 \(week of 2026-11-23\), because Ana cannot work it\. You may decline/);
 });
 
 test("late posting and short rests, the rest reaching back into last week", () => {
@@ -255,4 +294,73 @@ test("the hub: a call-out offered to the whole team, a yes from the staff page, 
   assert.match(await (await call("/admin?key=adm")).text(), /On-call shifts \(0 waiting\)/);
   assert.equal((await post("/admin/oncall?key=adm", { key, act: "called" })).status, 303); // already marked: refused
   assert.equal(state.onCall[key].status, "released");
+});
+
+test("the hub under Oregon: join the standby list in writing, ask it on a call-out, cover from it exempt; a team offer before asking it is priced", async () => {
+  const state = emptyState();
+  state.weekStart = WS;
+  state.staff = "name, wage, max hours, min hours, availability\nAna, 20, 40, 0, Mon-Sun 6-23\nBen, 18, 40, 0, Mon-Sun 6-23\nCleo, 19, 40, 0, Mon-Sun 6-23\nDev, 17, 40, 0, Mon-Sun 6-23";
+  state.shifts = "day, start, end, people needed, label\nMon, 9, 17, 1, open\nTue, 9, 17, 1, open";
+  assert.ok(publish(state, at("2026-11-13T09:00:00Z")).ok);
+  const clock = { t: at("2026-11-21T12:00:00Z") }, sent = [];
+  const env = { ADMIN_KEY: "adm", TEAM_TOKEN: "tm", TIMEZONE: "UTC", FAIR_WORKWEEK: "oregon", TEAM_WEBHOOK_URL: "https://hook.example/t" };
+  const hub = handler(state, () => {}, env, () => clock.t, async (u, o) => { sent.push(String(o && o.body)); return new Response("ok"); });
+  const call = (p) => serve(hub, new Request("https://hub.example" + p));
+  const post = (p, b) => serve(hub, new Request("https://hub.example" + p, { method: "POST", body: new URLSearchParams(b) }));
+  let team = await (await call("/team?t=tm")).text();
+  assert.match(team, /Standby list \(voluntary\)/); assert.match(team, /do not earn predictability pay/);
+  const mon = state.published.assignments.find((a) => a.slot.day === 0), tue = state.published.assignments.find((a) => a.slot.day === 1);
+  const free = state.published.people.map((q) => q.name).filter((n) => n !== mon.person && n !== tue.person);
+  assert.ok(free.length >= 2);
+  const [sb, other] = free;
+  // Joining needs the written agreement; a second join is a no-op; the record keeps it.
+  assert.equal((await post("/team/standby?t=tm", { name: sb, act: "join" })).status, 400);
+  assert.equal((await post("/team/standby?t=tm", { name: sb, act: "join", agree: "yes" })).status, 200);
+  assert.equal((await post("/team/standby?t=tm", { name: sb, act: "join", agree: "yes" })).status, 200);
+  assert.deepEqual(state.standby.map((x) => x.person), [sb]);
+  assert.deepEqual(state.standbyHistory.map((h) => `${h.person} ${h.act} ${h.by}`), [`${sb} joined self`]);
+  // Monday's caller: the admin page offers to ask the list (1), and says to ask it first.
+  state.callouts.push({ person: mon.person, day: 0, startMin: 540, endMin: 1020, note: "" });
+  let admin = await (await call("/admin?key=adm")).text();
+  assert.match(admin, /Ask the standby list \(1\)<\/button>/); assert.match(admin, /ask the standby list first/);
+  assert.match(admin, /Standby list \(1\)/);
+  assert.equal((await post("/admin/standby-ask?key=adm", { i: "0" })).status, 303);
+  assert.deepEqual(state.callouts[0].standbyAsked, [sb]);
+  assert.ok(sent.some((b) => /Standby list: extra hours available Mon 09:00-17:00/.test(b)));
+  team = await (await call("/team?t=tm")).text();
+  assert.match(team, /Extra hours offered to the standby list/);
+  // Only those asked can take it.
+  assert.equal((await post("/team/standby-take?t=tm", { shift: `${mon.person}|0|540|1020`, name: other })).status, 400);
+  assert.equal((await post("/team/standby-take?t=tm", { shift: `${mon.person}|0|540|1020`, name: sb })).status, 200);
+  admin = await (await call("/admin?key=adm")).text();
+  assert.match(admin, new RegExp(`Give to ${sb} \\(said yes from the standby list\\)`));
+  let n0 = state.changeLog.length;
+  assert.equal((await post("/admin/cover?key=adm", { i: "0", name: sb })).status, 303);
+  const logged = state.changeLog.slice(n0);
+  assert.deepEqual(logged.map((c) => `${c.person === sb ? "taker" : "caller"} ${c.kind} ${c.cause} ${!!c.standby}`).sort(), ["caller cancelled standby list false", "taker added standby list true"]);
+  let page = await (await call("/admin/changes?key=adm")).text();
+  assert.match(page, /voluntary standby list to cover .* and agreed: exempt/);
+  // Tuesday's caller: offered to the whole team without asking the list; `other` takes it. The list's one member
+  // was never asked, so Oregon prices the added shift.
+  state.callouts.push({ person: tue.person, day: 1, startMin: 540, endMin: 1020, note: "" });
+  assert.equal((await post("/admin/offer?key=adm", { i: "0" })).status, 303);
+  const tueTaker = state.published.people.map((q) => q.name).find((n) => n !== tue.person && n !== sb);
+  assert.equal((await post("/team/offer?t=tm", { shift: `${tue.person}|1|540|1020`, name: tueTaker })).status, 200);
+  n0 = state.changeLog.length;
+  const r = await post("/admin/cover?key=adm", { i: "0", name: tueTaker });
+  assert.equal(r.status, 303);
+  const added = state.changeLog.slice(n0).find((c) => c.person === tueTaker);
+  assert.equal(added.massOffer, true); assert.equal(added.standbyOpen, 1);
+  page = await (await call("/admin/changes?key=adm")).text();
+  assert.match(page, /standby list asked first \(ORS 653\.455\(3\)\(k\)\(C\)\); 1 on it were not/);
+  // Leaving, from the staff page or by the manager on request.
+  assert.equal((await post("/team/standby?t=tm", { name: sb, act: "leave" })).status, 200);
+  assert.deepEqual(state.standby, []);
+  assert.equal((await post("/team/standby?t=tm", { name: sb, act: "join", agree: "yes" })).status, 200);
+  assert.equal((await post("/admin/standby-remove?key=adm", { name: sb })).status, 303);
+  assert.deepEqual(state.standbyHistory.map((h) => `${h.act} ${h.by}`), ["joined self", "left self", "joined self", "removed manager"]);
+  // Under Seattle the list is off: no section, and its routes refuse.
+  const sea = handler(state, () => {}, { ...env, FAIR_WORKWEEK: "seattle" }, () => clock.t, async () => new Response("ok"));
+  assert.doesNotMatch(await (await serve(sea, new Request("https://hub.example/team?t=tm"))).text(), /Standby list/);
+  assert.equal((await serve(sea, new Request("https://hub.example/team/standby?t=tm", { method: "POST", body: new URLSearchParams({ name: sb, act: "join", agree: "yes" }) }))).status, 404);
 });
