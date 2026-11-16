@@ -241,3 +241,24 @@ test("PAPERS names what was used, with DOIs", () => {
     assert.ok(p.used.length > 30);
   }
 });
+
+test("analyze: the match count, a band of 0 and two-point series are taken as given", () => {
+  const rows = ["t,query,long"];
+  const rand = lcg(9);
+  const long = randomSeries(rand, 80);
+  const q = long.slice(30, 40);
+  long.forEach((v, i) => rows.push(`${i},${i < q.length ? q[i] : ""},${v}`));
+  for (const k of [1, 2, 3]) {
+    const r = analyze({ csv: rows.join("\n"), a: "query", b: "long", mode: "subsequence", matches: k });
+    assert.equal(r.subsequence.matches.length, k, `matches: ${k}`);
+  }
+  // A band of 0 steps is lockstep comparison, a valid setting.
+  const zero = analyze({ csv: "t,a,b\n1,1,1\n2,2,2\n3,3,3\n4,2,2\n5,1,1\n6,0,0\n", window: 0 });
+  assert.equal(zero.error, undefined);
+  assert.equal(zero.settings.window, 0);
+  assert.match(analyze({ csv: "t,a,b\n1,1,1\n2,2,2\n3,3,3\n", window: -1 }).error, /0 or more/);
+  // Two identical two-point series follow the diagonal: nothing runs along the band's edge.
+  const two = analyze({ csv: "t,a,b\n1,1,1\n2,2,2\n", window: 1 });
+  assert.equal(two.error, undefined);
+  assert.equal(two.notes.some((n) => /edge of the band/.test(n)), false);
+});
