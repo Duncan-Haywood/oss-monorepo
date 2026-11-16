@@ -217,3 +217,67 @@ the azimuth have arrived. Telemetry sets `FLAG_AIM_SETTLING` (128) while either
 is moving or homing, so the Pi can time its next shot. Tested on a simulated
 actuator (`tests/test_robots.py`, `test_elevation_*`); not yet run on a board
 or a real actuator.
+
+## Empty hopper (2026-11-16)
+
+Until now an empty tub ended a drill badly: the shuttle stroked an empty
+pocket, the firmware counted it as a ball fed, and the Pi carried on until a
+release timed out or the drill "finished" with shots that never flew.
+`FLAG_HOPPER_EMPTY` (8) was defined but nothing set it.
+
+The plan was a break-beam across the column. The feeder's ESP32 has no pin for
+one: every GPIO a WROOM-32 module exposes is taken except 1 and 3, which are
+UART0, the USB console that `mpremote` flashes over (`hardware/electronics.md`,
+"ESP32 pins, feeder role"). So the firmware reads the sensor it already has:
+the wheel tachometers.
+
+**The physics.** A ball squeezed through the wheels takes its momentum from
+them. The wheels' pushes add up to the ball's linear momentum `m v`, and their
+difference times the ball's radius gives its spin, so each wheel loses
+`J R / I` of its angular speed (`controller.launch_dips`). Slip and the felt's
+heat do not enter, because this is momentum, not energy. With the CAD's ball
+(57 g), wheel radius (75 mm) and wheel inertia (0.00155 kg m^2), and the
+launcher's speed efficiency 0.85, a flat shot slows each wheel by 8.8%, at any
+speed. Whatever the spin, the faster wheel slows by at least half that.
+
+**The check.** `controller.LaunchCheck` starts when the forward stroke starts,
+with the wheels' targets (they are held within 3% or the gate would not have
+opened). It keeps the lowest single-revolution speed of each wheel
+(`PeriodTach.rpm_last`: the 4-revolution mean shows only part of a drop at low
+speed), and stops taking readings as soon as the targets change, so the Pi's
+re-aim for the next shot, or the drill's final stop, cannot pass for a ball.
+`LAUNCH_CHECK_MS` (250 ms) after the stroke ends it judges the wheel with the
+larger predicted drop: a ball went if that wheel fell by at least
+`LAUNCH_DIP_SHARE` (0.25) of its prediction, and by `LAUNCH_DIP_MIN` (1.5%) at
+least. A dry stroke sets `FLAG_HOPPER_EMPTY` until the next `FEED`.
+
+**The Pi.** `run_drill` stops at the first dry stroke and reports the shot
+that went dry and how many flew; `tennisbots run` exits 3. It stops the wheels
+without latching the e-stop, since nothing is wrong with the machine: refill
+and run again. After the last shot it waits for that shot's verdict before
+reporting the drill done. An empty pocket and a bridged outlet or a stuck ball
+look the same, and the message names all three.
+
+**Margins (simulated).** `tests/launch_check_sweep.py` runs the real firmware
+on the simulated feeder over six shots (flat 1,500, 3,000 and 6,500 rpm, heavy
+topspin, heavy backspin, 7,000/2,500) and 27 builds that differ from config:
+the true wheel inertia 0.7 to 1.5 times config's, the ball taking 60% to 100%
+of the modelled momentum, and the wheel's spin-up lag 0.2 to 0.8 s. The Pi in
+the sweep re-aims the very millisecond the release is counted, which a real Pi
+(a telemetry frame every 100 ms) never beats.
+
+| | worst case | measured drop / threshold |
+| --- | --- | --- |
+| Ball in the pocket (must be 1 or more) | wheel 1.5x heavier, 60% take, 0.2 s lag | 1.26 (4.7% drop on 5,000/1,500) |
+| Empty pocket (must be under 1) | nominal wheel, 60% take, 0.8 s lag | 0.17 (0.37% drop at 3,000 rpm) |
+
+Two runs before the threshold settled: with the 4-revolution mean and a share
+of 0.4, a loaded stroke read as low as 0.47 of the threshold at 1,500 rpm on a
+heavy wheel, because the Pi's re-aim ended the watch before the mean caught
+up. The single-revolution reading and the lower share fixed both.
+
+**Not measured.** The simulator's wheels are first-order lags and the momentum
+leaves in one instant; a real ball's contact is a few milliseconds and the ESC
+may answer faster or slower. Before relying on it, log `hw.launch.last_dip`
+for a few dozen real shots and dry strokes on the first build and check they
+sit either side of the threshold. `LAUNCH_CHECK = False` turns the check off.

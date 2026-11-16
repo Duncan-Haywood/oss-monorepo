@@ -1697,6 +1697,10 @@ export function bestCarryOverRounds(n, { double = false, seed = 1, tries = 4, ca
   checkBestOfK(tries, pick);
   if (!Number.isInteger(capped) || capped < 0) throw new Error("capped must be a whole number of 0 or more.");
   if (!Number.isInteger(gap) || gap < 0) throw new Error("gap must be a whole number of 0 or more.");
+  // every count is checked before the first try, so a bad one fails at once, not after the search
+  if (!Number.isInteger(squeeze) || squeeze < 0) throw new Error("squeeze must be a whole number of 0 or more.");
+  if (!Number.isInteger(polish) || polish < 0) throw new Error("polish must be a whole number of 0 or more.");
+  if (!Number.isInteger(floorPriced) || floorPriced < 0) throw new Error("floorPriced must be a whole number of 0 or more.");
   const results = [];
   // `gap` more capped tries continue the cap sequence (j = capped, capped + 1, ...) and are only
   // ever kept when `keep` names one (combineCarryOverTries `among`)
@@ -1707,7 +1711,6 @@ export function bestCarryOverRounds(n, { double = false, seed = 1, tries = 4, ca
   }
   // `squeeze` more seasons after every try: squeezeDoubleRounds (squeezeSingleRounds) into the
   // widest gaps of the tries' frontier (carryOverSqueeze); like the gap tries, only kept by `keep`
-  if (!Number.isInteger(squeeze) || squeeze < 0) throw new Error("squeeze must be a whole number of 0 or more.");
   if (squeeze) {
     for (let j = 0; j < squeeze; j++) {
       const t = carryOverSqueeze(n, results, { seed, effort });
@@ -1717,14 +1720,12 @@ export function bestCarryOverRounds(n, { double = false, seed = 1, tries = 4, ca
     }
   }
   // `polish` more: frontier seasons regrounded with fewer breaks (carryOverPolish); only kept by `keep`
-  if (!Number.isInteger(polish) || polish < 0) throw new Error("polish must be a whole number of 0 or more.");
   if (polish) for (const t of carryOverPolish(n, results, { seed, count: polish })) {
     results.push(t);
     if (onTry) onTry(t.index, candidateOf(t, pick));
   }
   // `floorPriced` more: timetables searched on their proved break floor into the widest gap
   // (carryOverFloorPriced, single round robins); only kept by `keep`
-  if (!Number.isInteger(floorPriced) || floorPriced < 0) throw new Error("floorPriced must be a whole number of 0 or more.");
   if (floorPriced) for (const t of carryOverFloorPriced(n, results, { seed, count: floorPriced })) {
     results.push(t);
     if (onTry) onTry(t.index, candidateOf(t, pick));

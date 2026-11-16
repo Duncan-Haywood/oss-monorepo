@@ -107,6 +107,7 @@ class Tach:
         self.core = controller.PeriodTach()
         self.last_us = time.ticks_us()
         self.rpm = 0
+        self.rpm_last = 0
         Pin(pin, Pin.IN).irq(self._p, Pin.IRQ_RISING)
 
     def _p(self, _):
@@ -115,7 +116,9 @@ class Tach:
         self.last_us = now
 
     def update(self, dt):
-        self.rpm = self.core.rpm(time.ticks_diff(time.ticks_us(), self.last_us))
+        since = time.ticks_diff(time.ticks_us(), self.last_us)
+        self.rpm = self.core.rpm(since)
+        self.rpm_last = self.core.rpm_last(since)     # one revolution, unaveraged: the empty-hopper check reads it
 
 
 class StepDir:
@@ -209,6 +212,20 @@ class FeederHw:
         # outlet while balls are being fed, so a bridge of balls over it cannot leave the column empty.
         self.agit_pwm = PWM(Pin(AGIT_PIN), freq=20000, duty_u16=0)
         self.agit = controller.AgitatorRun(getattr(config, "AGIT_RUN_ON_MS", 3000), getattr(config, "AGIT_DUTY", 1.0))
+        # Empty hopper (2026-11-16, README "Empty hopper"): every forward stroke is judged by the wheels' speed drop, since
+        # a ball takes its momentum from them; a stroke that leaves them steady carried an empty pocket. No pin is free
+        # for a sensor, and none is needed.
+        self.launch = None
+        if getattr(config, "LAUNCH_CHECK", True):
+            self.launch = controller.LaunchCheck(
+                getattr(config, "WHEEL_INERTIA_KGM2", 0.00155), getattr(config, "BALL_KG", 0.057),
+                getattr(config, "WHEEL_RADIUS_M", 0.075), getattr(config, "BALL_RADIUS_M", 0.0335),
+                getattr(config, "LAUNCH_SPEED_EFF", 0.85), getattr(config, "LAUNCH_SPIN_EFF", 0.5),
+                getattr(config, "LAUNCH_DIP_SHARE", 0.25), getattr(config, "LAUNCH_DIP_MIN", 0.015),
+                getattr(config, "LAUNCH_CHECK_MS", 250))
+        self.hopper_empty = False     # the last judged stroke put no ball through the wheels; cleared by the next FEED
+        self.dry_strokes = 0          # strokes judged empty since power-up
+        self.launches = 0             # strokes judged to have launched a ball since power-up
         self.arm()
 
     def arm(self):
@@ -246,6 +263,8 @@ class FeederHw:
         self.lift_pwm.duty_u16(0)
         self.agit.stop()
         self.agit_pwm.duty_u16(0)
+        if self.launch is not None:
+            self.launch.cancel()          # wheels stopping mid-check would read as a launch; a cut stroke counts no ball
         if self.elev.mode == controller.ELEV_RC:
             self.elev_out.pwm.duty_u16(0)     # no pulse: the actuator holds where it is
         else:
@@ -270,6 +289,8 @@ class FeederHw:
 
     def feed(self, n):
         self.feeding += n
+        if n > 0:
+            self.hopper_empty = False     # a new FEED is the Pi (or a person) trying again, perhaps after a refill
 
     def set_base(self, y_mm, vmax):
         self.base_target, self.base_vmax = y_mm, vmax
@@ -300,6 +321,8 @@ class FeederHw:
             f |= protocol.FLAG_LIFT_JAM
         if self.lift_jams.due:
             f |= protocol.FLAG_LIFT_HUB_DUE
+        if self.hopper_empty:
+            f |= protocol.FLAG_HOPPER_EMPTY
         return f
 
     def lift_hub_reset(self):
@@ -356,6 +379,14 @@ class FeederHw:
             self.esc_cmd[i] = 0.0 if ramp.coasting else self.wheel_loops[i].update(ramped, tach.rpm, dt)
             esc.frac(self.esc_cmd[i])
         steady = self.wheels_steady.update(self.target_rpm, (self.tach_top.rpm, self.tach_bottom.rpm), dt)
+        if self.launch is not None:
+            went = self.launch.update(now, (self.tach_top.rpm_last, self.tach_bottom.rpm_last), self.target_rpm)
+            if went is True:
+                self.launches += 1
+                self.hopper_empty = False
+            elif went is False:
+                self.dry_strokes += 1
+                self.hopper_empty = True
         # Base: proportional position control capped at vmax (trapezoid in practice
         # because the cap limits speed and the gain limits deceleration).
         err = self.base_target - self.base_y_mm()
@@ -373,10 +404,14 @@ class FeederHw:
                 self.gate_out = False
                 self.fed += 1
                 self.lift.kick(now)
+                if self.launch is not None:
+                    self.launch.stroke_done(now)
         elif self.feeding and not self.gate_homed:
             self.gate_back(now)           # first FEED since power-up or a stop: bring the shuttle back first
         elif self.feeding and ok and now >= self.gate_ready_at:
             self.gate.frac(1)
+            if self.launch is not None:
+                self.launch.start(self.target_rpm, now)
             self.gate_out = True
             self.gate_rest_at = None
             self.gate_open_until = now + self.gate_out_ms

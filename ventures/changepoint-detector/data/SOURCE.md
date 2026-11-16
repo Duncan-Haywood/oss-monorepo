@@ -674,3 +674,16 @@ report prints when the set is wider than one page (`eval/multi-report-print.mjs`
 - **Retrieved:** 2026-11-13 from <https://raw.githubusercontent.com/datasets/global-temp/main/data/monthly.csv> (datahub.io `global-temp`, republishing NASA GISTEMP and NOAA/NASA GCAG).
 - **Licence:** the datahub packaging is ODC-PDDL; the underlying figures are public US government data. Kept as test fixtures with their source named.
 - **Used by:** `hinge-test.test.mjs`, `eval/hinge-test-real.mjs`, README "The 1976 acceleration, dated and tested on the levels".
+
+# Example data: five-minute call volume at a North American bank, 2003
+
+`bank-calls-5min.csv`: one row per weekday, the date then the calls handled in each of 169 five-minute slots from
+07:00 to 21:05, 164 weekdays from 2003-03-03 to 2003-10-24 (the `fpp2::calls` series, reshaped from one column).
+
+- **Retrieved:** 2026-11-16 from the Rdatasets mirror,
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/calls.csv> (row names such as
+  `X3.3.20031`, day.month.year then slot, rewritten as dates).
+- **Source:** Rob Hyndman, for *Forecasting: Principles and Practice* (2nd ed.); the package documentation says
+  "Five-minute call volume handled on weekdays between 7:00am and 9:05pm, beginning 3 March 2003 for 164 days."
+- **Licence:** the fpp2 package is GPL-3; the series is published counts (facts). Not checked further.
+- **Used by:** `eval/calls-law.mjs`, `eval/calls-law-posthoc.mjs`, `calls-law.test.mjs`.

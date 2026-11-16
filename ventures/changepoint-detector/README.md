@@ -5309,7 +5309,8 @@ an exposure term the NB1 likelihood already holds: a bend won on 8 of 8 straight
 listed in the pre-registration. On development seeds the 2-to-200 cell read 0.30 against the 0.2 bar; the bars were
 not moved, and the pre-registered run decided. Remaining false changes are short bursts and short runs of zeros on
 series whose phi comes out low. Not checked: a real count series known to clump in proportion to its level (call
-centre arrivals in batches, insurance claims per event), and the law check under a season (it reads the raw counts).
+centre arrivals in batches, insurance claims per event; real call-centre arrivals were checked on 2026-11-16 and turned out
+Poisson around a wandering rate, see the next section), and the law check under a season (it reads the raw counts).
 Tests: `nb1.test.mjs` (6: the special functions, the cost against a grid with and without exposures, phi on flat and
 growing counts, the law check both ways and on a flat series, analyze's output and hint, a flat series kept whole).
 
@@ -5376,3 +5377,38 @@ label1, label2, f, bar95, p, rho, slopes: [before, between, after], significant,
 `--log` it runs on the logs. Test: `two-hinge.test.mjs`. **Next** (not run): a hinge test with the knot or knots given
 by the user (a documented date: no search, so a far smaller null and a looser guard), which is the remaining route for
 the 39-55 point series.
+
+## The clumping-law check on real call-centre arrivals (2026-11-16, pre-registered; fails its bar by abstaining, nothing changed)
+
+The NB1 section left open "a real count series known to clump in proportion to its level". This is the first real
+one: `fpp2::calls`, five-minute calls handled by a large North American bank, 164 weekdays of 169 slots from
+3 March 2003 (`data/bank-calls-5min.csv`, `data/SOURCE.md`). The reference law was read across days, which the
+check never sees: a weekday-by-slot profile times a day level, then the mean of (y - E)^2 / E by decile of E
+(`eval/calls-law-preregistration.md`, written before any check ran; `node eval/calls-law.mjs`,
+`eval/calls-law.out.txt`).
+
+| | Pre-registered | Result |
+|---|---|---|
+| Reference law | `nb2`, `nb1` or `unclear` by a fixed rule | `nb1`: top / bottom decile 0.83, bottom 1.60 |
+| L1: check says `nb1` on at least 99 of 164 days | | **0 of 164: fails** |
+| L1/L2: check says `nb2` (a wrong warning) on at most 16 | | 0 of 164: holds |
+
+`clumpingLaw` said `either` on every day and `nb1Dispersion` read phi 1 (Poisson) on 161 of 164. The level inside a
+day spans 2.16 times (median, upper half against lower), under the check's 3. Both NB costs gave the same changes
+on the first five whole weeks with `--period 169` (7 to 13 a week, 0.1 s each), with no warning.
+
+**Why, post hoc (not pre-registered; `eval/calls-law-posthoc.mjs`, `eval/calls-law-posthoc.out.txt`).** The
+pre-registration named this weakness in advance: a profile that differs from the fitted one leaves residuals that
+look like clumping. That is what happened. Pooled over all 27,552 within-day first differences, d^2 / (2m) is 1.005,
+Poisson to the third digit, so adjacent five-minute counts do not clump. The across-day residuals are correlated
+inside a day (lag 1: 0.31), and their dispersion grows with the block they are summed over: 1.34 at 5 minutes, 2.18
+at 15, 3.25 at 30, 5.17 at an hour, 8.02 at two hours. Independent clumping would stay flat. So these arrivals are
+Poisson around a rate that wanders slowly away from the weekday profile, the doubly stochastic picture of the
+call-centre literature, and the reference's "NB1" was that wander, not batches.
+
+**What it means for use.** On counts like these the law check abstaining is the right answer, and the NB costs add
+nothing over plain Poisson. The 7 to 13 changes a week are the wandering rate cut into steps, not clumping. Nothing
+in `clumpingLaw` was changed (decided in advance: one series does not retune it). Still open: a real series that does
+clump in batches (insurance claims per event, orders per basket), and, for wandering rates on counts, a drift model
+like "Wandering level" (the mean model has one) for the Poisson cost. Test: `calls-law.test.mjs` (2: the reference
+reads `nb1` by the pre-registered rule; the check says `either` on all 164 days and a week run warns nothing).
