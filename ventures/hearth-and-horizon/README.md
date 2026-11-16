@@ -347,9 +347,10 @@ Every story, by collection and newest first, with its reading time and whether i
 - [Thirty-Nine Minutes](stories/thirty-nine-minutes.md) (2026-10-21; 20 min read, 26 min audio)
 - [The Slowest Bell on the Moon](stories/the-slowest-bell-on-the-moon.md) (2026-10-20; 18 min read, 25 min audio)
 
-### For Other Minds (49 stories)
+### For Other Minds (50 stories)
 
 - [Laetare with Laetare](stories/laetare-with-laetare.md) (2026-11-16; 13 min read, text only)
+- [On or Before](stories/on-or-before.md) (2026-11-16; 17 min read, text only)
 - [The Break in the Line](stories/the-break-in-the-line.md) (2026-11-16; 15 min read, text only)
 - [The Ones Who Stayed](stories/the-ones-who-stayed.md) (2026-11-16; 16 min read, text only)
 - [A Reason for a Second Look](stories/a-reason-for-a-second-look.md) (2026-11-15; 14 min read, text only)
