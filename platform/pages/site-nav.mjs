@@ -294,13 +294,23 @@ export const SITE_HEADER_CSS = `
    Before 2026-11-11 the Search control wrapped onto a row of its own, under the brand at the left edge, on every
    page but the hub from 721px up (even at 1280px, where the 236px form was too wide to share the row with ten
    links). The query is on the bar's own content width, not the window's: a tool page's header can sit in a 1,000px column,
-   with or without side padding. One row needs about 1,016px (brand 153, links 721, gaps 44, Search pill 98). */
+   with or without side padding. One row needs about 1,016px (brand 153, links 721, gaps 44, Search pill 98).
+   Between 960 and 1,017px the row is kept by drawing Search as its glass alone and closing the gaps (about 929px);
+   before 2026-11-16 that band went to two rows, and 885 of 1,388 tool pages, whose column is 900 to 1,000px wide, had a
+   31px taller header at 1,280px than the pages beside them. The two-row layout is for 959px and under. */
 [data-pfs-head] .pfs-bar{container:pfs-head/inline-size}
-@container pfs-head (max-width:1017px){
+@container pfs-head (max-width:959px){
   [data-pfs-head] .pfs-brand{flex:1 1 auto}
   .pfs-nav{order:3;flex-basis:100%}
   /* The pill is taller than the brand line; let it overhang the row gap so two rows cost no more than before. */
   [data-pfs-head] .pfs-searchlink{margin-block:-4px}
+}
+/* The word "Search" is set at font-size 0, not removed: it stays the link's accessible name. */
+@container pfs-head (min-width:960px) and (max-width:1017px){
+  .pfs-bar{column-gap:18px}
+  .pfs-nav{column-gap:14px}
+  .pfs-search{display:none}
+  [data-pfs-head] .pfs-searchlink{display:inline-flex;justify-content:center;width:35px;padding:8px 0;gap:0;font-size:0}
 }
 @property --pfs-fade{syntax:'<length>';inherits:false;initial-value:28px}
 @keyframes pfs-fade-out{to{--pfs-fade:0px}}
@@ -382,6 +392,10 @@ nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-crumbs a{text-decoration:underli
 nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-searchlink{padding:5px 13px 5px 11px;border:1px solid var(--pfs-line);
   border-radius:999px;font-weight:600;color:var(--pfs-ink)}
 nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-searchlink:hover{border-color:currentColor}
+/* The compact header row (SITE_HEADER_CSS) draws Search as its glass alone; the two rules above outrank it here. */
+@container pfs-head (min-width:960px) and (max-width:1017px){
+  nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-searchlink{padding:8px 0;font-size:0}
+}
 nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-mark{background:var(--pfs-mark);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
 aside.pf-chrome.pf-chrome-foot{display:block;position:static;float:none;max-width:none;box-sizing:border-box;
   color:var(--pfs-ink);background:var(--pfs-foot-bg);border:0;border-top:1px solid var(--pfs-line);border-radius:0;
