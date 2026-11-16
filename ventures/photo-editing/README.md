@@ -1667,6 +1667,20 @@ corpus the old copy left 6 behind; the new one leaves none. Formats with no read
 from their embedded preview and stop at the grade with the "convert to DNG" message. Details:
 `eval/leica-rwl-and-card-formats-2026-11-16.md`; tests: `tests/test_card_formats.py`.
 
+### Canon CRW, the 2000-2004 bodies (2026-11-16)
+
+Canon's CIFF raw files (`.CRW`: the EOS D30, D60, 10D and 300D, the PowerShot G2 to G6, Pro1 and
+S30 to S70) now develop directly: `shootflow develop CRW_0001.CRW --dcp DIR`, and the grade stage
+takes them like any CR2 (`src/shootflow/crw.py`). It reads the CIFF heap, Canon's 64-sensel block
+coder with its three tree pairs, the 12-bit bodies' stored low bits, SensorInfo's picture area and
+masked rectangle (black level), the as-shot white balance from whichever of the three colour
+records the body writes, and the camera's rotation. On 20 real files from 15 bodies every one of
+114.0 M sensels and the CFA equal LibRaw 0.22's, the white balance too wherever the file records
+one, black within 2; 2-4 s a file in Python. A PowerShot on Auto white balance keeps no levels for
+the shot, so none is applied and the report says so. The four-colour G1, Pro70 and Pro90 IS are
+refused. Details: `eval/canon-crw-reader-2026-11-16.md`; check: `tools/crw_libraw_check.py`;
+tests: `tests/test_crw.py`.
+
 ## Olympus ORF (2026-11-14)
 
 Olympus and OM System raw files no longer need Adobe's DNG Converter. `shootflow develop

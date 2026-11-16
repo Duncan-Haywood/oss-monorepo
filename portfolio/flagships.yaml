@@ -272,12 +272,12 @@ flagships:
     buildable: >-
       Public samples, no key: github.com/drewnoakes/metadata-extractor-images
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
-      eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`). Bayer trees parked: a
-      range guard passes 6 fresh cameras, misses K-1 II/A7 III; no fresh frames left
-      (eval/bayer-boosted-guard-*). X-Trans: a per-frame choice (A7 IV wants less
-      edge-keeping, GF7/NX1 a wider red/blue window; --truth-from,
-      eval/xtrans-fresh-truths-2026-11-16.md). DNG 1.7.1.0 spec PDF: URL in
-      eval/opcode-spec-audit-2026-11-12.md.
+      eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`; its CIFF CRWs all read).
+      Bayer trees parked: a range guard passes 6 fresh cameras, misses K-1 II/A7
+      III; no fresh frames left (eval/bayer-boosted-guard-*). X-Trans: a per-frame
+      choice (A7 IV wants less edge-keeping, GF7/NX1 a wider red/blue window;
+      --truth-from, eval/xtrans-fresh-truths-2026-11-16.md). DNG 1.7.1.0 spec PDF:
+      URL in eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
@@ -291,9 +291,9 @@ flagships:
       RWL, and a card copy that keeps all 27 raw formats, 2026-11-16. Bayer and
       X-Trans demosaics in C 2026-11-15 (eval/bayer-*, eval/xtrans-native-*). NEF
       edge columns, real split rows, Z 6II curve, 12-bit black 2026-11-15
-      (eval/nikon-nef-*). Next: a Coolpix NRW or Canon CRW reader (copied, not
-      developed); an RW2 RawFormat 8 with a tone curve (0x39/0x3A); Sony's
-      vignetting table vs an evenly lit frame; a real DNG and a
+      (eval/nikon-nef-*). Canon CRW 2026-11-16 (eval/canon-crw-*). Next: a Coolpix
+      NRW reader (no public sample yet); an RW2 RawFormat 8 with a tone curve
+      (0x39/0x3A); Sony's vignetting table vs an evenly lit frame; a real DNG and a
       vignetting-calibrated lens through the pipeline's lens stage; a real evenly
       lit frame shot wide open (corners level after lensfun's vignetting?); a second
       maker-against-lensfun DNG pair; a real DNG carrying any opcode run only on
