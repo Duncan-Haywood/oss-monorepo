@@ -501,3 +501,57 @@ class PostLimitsTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class LandFirstTest(unittest.TestCase):
+    """research prompt step 2: runs read 100+ open PR titles by hand to find the research ones."""
+
+    def setUp(self):
+        pick_track._open_pr_titles.cache_clear()
+        pick_track._HEADS.clear()
+        pick_track._META.clear()
+
+    tearDown = setUp
+
+    def _lines(self, prs, branch="claude/mine", **kw):
+        import io, json, calendar, time
+        from unittest import mock
+        body = json.dumps(prs).encode()
+        now = calendar.timegm(time.strptime("2026-11-16T12:00:00Z", "%Y-%m-%dT%H:%M:%SZ"))
+        with mock.patch("urllib.request.urlopen", return_value=io.BytesIO(body)), \
+                mock.patch.object(pick_track, "current_branch", return_value=branch):
+            return pick_track.land_first_lines(now=now, **kw)
+
+    def pr(self, n, title, created, ref="claude/x", draft=False):
+        return {"number": n, "title": title, "created_at": created, "draft": draft, "head": {"ref": ref}}
+
+    def test_splits_stale_from_fresh_and_skips_others(self):
+        lines = self._lines([
+            self.pr(1, "research/sensing-selfcal: milestone 3b", "2026-11-16T11:00:00Z", draft=True),
+            self.pr(2, "research/build-data: session 90", "2026-11-14T12:00:00Z"),
+            self.pr(3, "redteam: some venture", "2026-11-10T12:00:00Z"),
+            self.pr(4, "run record: research run 2026-11-08", "2026-11-08T12:00:00Z"),
+            self.pr(5, "research/old-prog: step", "2026-11-16T06:00:00Z"),
+            self.pr(6, "research/mine: step", "2026-11-10T00:00:00Z", ref="claude/mine"),
+        ])
+        text = "\n".join(lines)
+        self.assertIn("3 other open PR(s) of 6", lines[0])
+        self.assertNotIn("#3 ", text)
+        self.assertNotIn("#4 ", text)
+        # oldest stale first, fresh in its own group, own PR labelled
+        self.assertLess(text.index("#2 (2d)"), text.index("#5 (6.0h)"))
+        self.assertLess(text.index("#5 (6.0h)"), text.index("last 3h"))
+        self.assertIn("#1 (1.0h, draft)", text.split("last 3h")[1])
+        self.assertIn("#6 is this branch's own PR", text)
+
+    def test_none_and_api_error_are_said(self):
+        self.assertIn("none", self._lines([self.pr(3, "ventures: x", "2026-11-16T11:00:00Z")])[0])
+        pick_track._open_pr_titles.cache_clear()
+        from unittest import mock
+        with mock.patch("urllib.request.urlopen", side_effect=OSError):
+            self.assertIn("could not list", pick_track.land_first_lines()[0])
+
+    def test_caps_long_lists(self):
+        prs = [self.pr(i, f"research/p{i}: s", "2026-11-01T00:00:00Z") for i in range(12)]
+        lines = self._lines(prs, show=3)
+        self.assertTrue(any("and 9 more" in l for l in lines))
