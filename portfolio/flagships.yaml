@@ -261,7 +261,7 @@ flagships:
       hours on 3 of 4 weeks); order-free pair check played: no gain, stays opt-in
       (README "The order-free pass played"); a real two-site export and staff list
       (README "Staff shared between sites"); own and site rates read from staff CSVs
-      and 7shifts (README "Per-location pay from an export");. More open items:
+      and 7shifts (README "Per-location pay from an export"). More open items:
       NEXT.md.
   - venture: photo-editing
     hosts: [https://raw.pixls.us/, https://github.com/]
@@ -375,7 +375,7 @@ flagships:
       teams 124-132 open (132 by eval/window-refill.c): below 132, or 124-130 ruled
       out; 18 and 24 teams: 318 and 570 are the least starters
       (eval/starter-exhaust.txt), so lower needs non-starter moves; a real league's
-      travel and blackout list;. More open items: NEXT.md.
+      travel and blackout list. More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a

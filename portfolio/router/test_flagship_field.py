@@ -78,6 +78,35 @@ def test_cli_replace_on_a_copy(tmp_path, capsys):
 
 def test_real_file_is_clean():
     assert ff.hyphen_folds(ff.FLAGSHIPS_PATH.read_text()) == []
+    assert ff.stray_separators(ff.FLAGSHIPS_PATH.read_text()) == []
+
+
+def test_stray_separators_found():
+    assert ff.stray_separators(DOC) == []
+    assert ff.stray_separators(DOC.replace("Only b.", "Only b;. More.")) == ["b.next"]
+    assert ff.stray_separators(DOC.replace("Only b.", "x; ; y.")) == ["b.next"]
+    assert ff.stray_separators(DOC.replace("Only b.", "v1.0, e.g. this.")) == []
+
+
+NOTE_ROW = ("History: README. Next: (a) one long open item here; (b) another long open item, "
+            "the last one. A run that lands a slice replaces its item here; keep this under "
+            "2,000 characters.")
+
+
+def test_park_candidates_leave_the_row_note():
+    cands = [c for c, _ in ff.park_candidates(NOTE_ROW, 10**6)]
+    assert cands[0] == "(b) another long open item, the last one"
+    assert not any("A run that lands" in c or "keep this under" in c for c in cands)
+
+
+def test_park_last_item_keeps_note_and_leaves_no_stray_separator():
+    got = ff.remove_items(NOTE_ROW, ["(b) another long open item, the last one"])
+    assert got == ("History: README. Next: (a) one long open item here. A run that lands a "
+                   "slice replaces its item here; keep this under 2,000 characters.")
+    tail = "Next: (a) one; (b) two items long enough. When a slice lands, replace its item here."
+    cands = [c for c, _ in ff.park_candidates(tail, 10**6)]
+    assert cands == ["(b) two items long enough"]
+    assert ff.remove_items(tail, cands) == "Next: (a) one. When a slice lands, replace its item here."
 
 
 LANDED_NEXT = (
@@ -287,3 +316,8 @@ def test_cli_replace_with_make_room_lands_in_one_call(tmp_path, capsys):
 def test_refusal_offers_make_room():
     with pytest.raises(ValueError, match="--make-room"):
         ff.set_value(DOC, "b", "next", _full_row(11, 190))
+
+
+def test_park_before_a_standalone_pointer_ends_the_sentence():
+    v = f"History: README. Next: (a) one item; (b) a second open item; {ff.PARK_POINTER}"
+    assert ff.remove_items(v, ["(b) a second open item"]) == f"History: README. Next: (a) one item. {ff.PARK_POINTER}"
