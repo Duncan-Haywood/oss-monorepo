@@ -62,6 +62,34 @@ export const CATEGORY_MAP = {
 // Lakeland, eval/southlakeland-pcard.mjs) before any held-out file was scored: none yet beyond those.
 export const EXCLUDE = new Set(["halfords", "ncp", "dvsa"]);
 
+// Transit networks and operators (2026-11-16). NSI's `transit/route/*` lists the public-transport
+// networks and operators of every bus, train, metro, tram and ferry route it knows ("Long Island Rail
+// Road", "SEPTA", "Toronto Transit Commission", "Metrolink"), each tagged `network` and `operator`
+// (and short forms). A fare paid to one is travel (6120), as BUILT_IN files Uber and Amtrak. Written
+// before any bank line was scored with it. The same filters as the chains apply (at least 4 letters,
+// no one-word common English word, people's names only with a store number), plus:
+export const TRANSIT_ROUTES = ["bus", "train", "subway", "light_rail", "tram", "trolleybus", "ferry", "monorail"];
+export const TRANSIT_FIELDS = ["network", "operator", "network:short", "operator:short", "network:en", "operator:en"];
+// Only a name that says it is a transport service is kept ("Long Island Rail Road", "Metrolink",
+// "Flixbus", "Toronto Transit Commission"): NSI's network tags are often a bare place ("Renfrewshire",
+// "Isle of Wight") or initials ("STAS", "CITA"), and a bank line starting with either is a council,
+// a hotel or anything else as often as a fare. So SEPTA, Amtrak and Greyhound are not added here
+// (Amtrak and Greyhound are already in BUILT_IN).
+const TRANSIT_WORD = /(transit|metro|rail|bus|tram|ferry|ferries|ferrocarril|coach|train|transport|trasport|verkehr|bahn|subway|shuttle|trolley|streetcar|spoor|trein|dopravn|komunikac)/i;
+// A city, county or ministry runs many services; a payment to one is tax, a permit, parking or
+// rent as often as a fare. Such a name is kept only when it names the transit service itself
+// ("King County Metro", "Beaumont Municipal Transit"), never when it is a department or ministry.
+const GOVERNMENT = /\b(city|town|village|county|borough|state|province|provincial|municipal|municipality|council|commune|region|government|ministry|department|public works|gemeinde|stadt|ville|comune|kommune)\b/i;
+const DEPARTMENT = /\b(government|ministry|department|public works|council|authority of the state)\b/i;
+// Rail infrastructure owners sell no fares: a business pays them for access, land or wayleaves.
+export const TRANSIT_EXCLUDE = new Set(["network rail", "hoofdrailnet nederland"]);
+export function transitName(n) {
+  if (!n || /^[a-z]{2}:/.test(n)) return false; // "ar:municipal" style placeholders
+  if (TRANSIT_EXCLUDE.has(brandKey(n))) return false;
+  if (!TRANSIT_WORD.test(n)) return false;
+  return !(GOVERNMENT.test(n) && DEPARTMENT.test(n));
+}
+
 // Normalised the way the payee memory keys a line, so "SHELL OIL 57444" and "Shell" meet.
 export const brandKey = (name) => payeeTokens(name).join(" ");
 
@@ -78,13 +106,16 @@ export function readCensusNames(dir) {
   return new Set([...rd("dist.male.first"), ...rd("dist.female.first"), ...rd("dist.all.last", SURNAMES_KEPT)].map(brandKey));
 }
 
-export function build(nsi, common = new Set()) {
+export function build(nsi, common = new Set(), { transitRoutes = true } = {}) {
   const seen = new Map(); // key -> Set of accounts ("" for an unmapped kind of place)
   for (const [cat, { items }] of Object.entries(nsi.nsi)) {
-    if (!cat.startsWith("brands/")) continue;
-    const account = CATEGORY_MAP[cat.slice(7)] ?? "";
+    const transit = transitRoutes && cat.startsWith("transit/route/") && TRANSIT_ROUTES.includes(cat.slice(14));
+    if (!cat.startsWith("brands/") && !transit) continue;
+    const account = transit ? "6120" : CATEGORY_MAP[cat.slice(7)] ?? "";
     for (const it of items) {
-      const names = new Set([it.displayName, it.tags?.name, it.tags?.brand, it.tags?.["name:en"], it.tags?.["brand:en"], ...(it.matchNames ?? [])]);
+      const names = transit
+        ? new Set(TRANSIT_FIELDS.map((f) => it.tags?.[f]).filter(transitName))
+        : new Set([it.displayName, it.tags?.name, it.tags?.brand, it.tags?.["name:en"], it.tags?.["brand:en"], ...(it.matchNames ?? [])]);
       for (const n of names) {
         if (!n) continue;
         const k = brandKey(n);
@@ -119,8 +150,11 @@ if (process.argv[1] && import.meta.url.endsWith(process.argv[1].split("/").pop()
   const nsi = JSON.parse(readFileSync(process.argv[2], "utf8"));
   const args = process.argv.slice(3), ni = args.indexOf("--names");
   const namesDir = ni === -1 ? null : args.splice(ni, 2)[1];
+  const noTransit = args.includes("--no-transit");
+  if (noTransit) args.splice(args.indexOf("--no-transit"), 1);
   const common = new Set(args.flatMap((f) => JSON.parse(readFileSync(f, "utf8")).map((w) => w.toLowerCase())));
-  const m = build(nsi, common);
+  const m = build(nsi, common, { transitRoutes: !noTransit });
+
   const people = namesDir ? personNames(m, readCensusNames(namesDir)) : [];
   const byAcct = {};
   for (const [k, a] of m) (byAcct[a] ??= []).push(k);

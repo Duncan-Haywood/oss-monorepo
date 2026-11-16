@@ -1573,6 +1573,56 @@ Every line it changed, read from empty books on the sets reachable from here (Du
 
 What it says, with care: a small fix on a small layer. It takes back the whole YNAB loss the chain layer brought in (first-seen 74.9% / 11.9% is where that set stood before the layer) and most of its Scottish Government damage, at the cost of one bare chain name a budgeting app had already stripped of its store number. The name lists are American; a British or Dutch given name that is also a chain and is not on them still matches. Pinned in `brands.test.mjs` (two tests: the cases above in the shapes the files print, and the builder on a made-up index).
 
+### Public transport from OpenStreetMap (2026-11-16)
+
+The chain-name layer knew hotels and car hire as travel but no railway, bus company or ferry: a
+first import filed "LONG ISLAND RAIL ROAD" by guessing (meals, on Hack Club's books). OpenStreetMap's
+name-suggestion-index, the same pinned release 8.0.20261101, also lists the network and operator of
+every bus, train, metro, tram, trolleybus and ferry route it knows (`transit/route/*`, tags `network`,
+`operator` and their short and English forms). `brands-build.mjs` now adds those as travel (6120),
+the account `BUILT_IN` already gives Amtrak and Uber. The rule was written from the index before any
+bank line was scored:
+
+- the chains' filters apply unchanged: at least four letters, no one-word common English word, a
+  person's name only with a store number after it;
+- a name must say it is transport (transit, metro, rail, bus, tram, ferry, coach, train, transport,
+  shuttle, trolley, streetcar, and Verkehr, Bahn, trasporti, spoor, doprava, komunikacja), because
+  NSI's network tag is often a bare place ("Renfrewshire", "Isle of Wight") or initials ("STAS",
+  "CITA"), and a bank line starting with either is a council or a hotel as often as a fare. So SEPTA,
+  WMATA and Greyhound are not added (Greyhound and Amtrak are in `BUILT_IN`);
+- a city, county or region's name counts only when it names the service ("King County Metro"), and a
+  department, ministry or public-works name never does (a payment to a DOT is a permit or a toll);
+- read from the list itself: Network Rail and the Dutch "Hoofdrailnet" own track and sell no fares
+  (`TRANSIT_EXCLUDE`); "ferr" was narrowed to ferry and ferrocarril after it let in "AMI Ferrara".
+
+Result: 1,193 names added (7,819 in all), no chain name lost or re-filed, the people's-names list
+unchanged. `--no-transit` rebuilds the 2026-11-15 file byte for byte. The reason a reviewer sees says
+"a chain listed by OpenStreetMap as a hotel, car hire, travel agent or public transport service".
+
+Scored with the old and the new list on every labelled set reachable from this session (layer on,
+everything else unchanged):
+
+| set | lines | before | after |
+|---|---|---|---|
+| Hack Club ledger, learning loop, first-seen payees (held out) | 185 | 54.1% right / 25.9% wrong | **55.1% / 25.4%** |
+| Hack Club, every line | 1,241 | 89.0% / 7.7% | 89.2% / 7.6% |
+| makerspace bank exports, Chase card | 16, 79 first-seen | unchanged | unchanged |
+| Mint, tuning and held-out halves | 835, 403 first-seen | unchanged | unchanged |
+| YNAB, three households | 219 first-seen | unchanged | unchanged |
+| Scottish Government, empty books | 11,087 | unchanged | unchanged |
+| 63 real US exports (no labels) | 4,927 out | 48 lines changed by the layer | the same 48 |
+
+What it says, with care: **a small, clean gain.** The one line it changed was the Long Island Rail
+Road, from a wrong meals guess to travel; it broke nothing anywhere. Fares are rare in these sets:
+the Scottish file lists only lines over 500 pounds, the households' fares that are there print as
+initials or fare-card names (Mint lines read "MTA" and "Clipper Service Ca") that the transport-word
+rule skips on purpose,
+and Toronto's and Durham's card hosts refused this session, so the sets where fares are common (a
+council's or a city's card lines) were not rescored. Bolt Bus, Concord Coach Lines, United and the
+Port Authority's AirTrain, among Hack Club's misses, are not in the index and were not added by hand
+(Hack Club is held out). Tests: `brands.test.mjs` (13; three new: shapes card exports print, the
+name filter, the builder on a made-up index).
+
 ### PNC CSV (2026-10-22)
 
 `bank.mjs` labels a `Date, Description, Withdrawals, Deposits, Balance` export as PNC. The columns already read through the generic Debit/Credit matching; the fixture `pnc-checking.csv` (made-up rows, header from memory of PNC's layout, no real download tried) is tested in `neobank.test.mjs` with the running-balance chain.
