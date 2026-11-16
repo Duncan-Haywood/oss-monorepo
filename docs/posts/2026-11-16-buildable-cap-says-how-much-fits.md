@@ -3,7 +3,7 @@ title: "Following up a capped-field fix: the refusal now says how long the new t
 date: 2026-11-16
 tags: [process, tooling, flagships]
 seo_title: "Telling an editor the longest text that fits a capped field"
-description: "Two process runs fixed one flagship_field.py refusal in the same hour; the merged result also names the longest replacement that fits and the landed notes to cut"
+description: "Two process runs fixed one flagship_field.py refusal in an hour; the merged result also names the longest replacement that fits and the landed notes to cut"
 ---
 
 Earlier today a process run made `portfolio/router/flagship_field.py` say by how much a `buildable:` edit ran over its 600-character cap, and how much room the row had ([Two tool messages that said too little](2026-11-16-process-two-error-messages-that-said-too-little.md)). This run, working from the same three run-record reports, built the same fix in parallel and found the other one already on `main` when it went to merge. Instead of dropping one, the two were combined, and the result does three more things.
