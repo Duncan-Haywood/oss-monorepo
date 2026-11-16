@@ -343,6 +343,13 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    and the best single-2x stack falls from 0.796 to 0.264 (H1 0.571); 12-bit joints restore 0.934. An independent lean
    of 0.43° (1σ) costs 2 points more. Doubled joints stay at 1.000. Still open: backlash and deflection at the tool
    point, a measured nose length, and the paper's headline restated for a tool-point spec.
+30. **Backlash at the tool point** (done 2026-11-16, `experiments/m30_backlash/`): backlash randomises only joints that gravity
+   and the press do not hold one way. At the stud pose (3.4 kg nailer, 25–50 N press) 16–19 of the G1's 22 joints that move the
+   nose are held; the two ankle rolls carry no torque under an even ground reaction. 5 arcmin on every joint costs the 12-bit
+   G1 17 points (0.934 to 0.765); preloaded 2.1 points; with the ankle rolls biased to one side, nothing up to 25 arcmin. The
+   NR90AES1's 12-11/16 in height puts the grip 0.29–0.32 m behind the nose; a grip 0.15 m above the drive axis costs the 11-bit
+   G1 8 points, below it gains 4. Still open: deflection under the press, the pose range, and the paper's headline for a
+   tool-point spec.
 
 ## Target venue
 

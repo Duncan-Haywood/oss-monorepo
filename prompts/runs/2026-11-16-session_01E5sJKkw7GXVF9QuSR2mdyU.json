@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKkw7GXVF9QuSR2mdyU",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T04:09:31Z",
+  "ended": "2026-11-16T04:24:46Z",
+  "wall_minutes": 15.68,
+  "tokens_in": 7400209,
+  "tokens_out": 48269,
+  "cost_usd": 3.6747,
+  "tool_calls": 62,
+  "task": "research programme buildbot-sheathing, milestone 30: gear backlash at the nailer's nose and which joints gravity and the press preload",
+  "projects": [
+    "research/buildbot-sheathing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16449",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "WebFetch to humanoid.guide failed DNS (outside allowed domains); curl to dspace.mit.edu got proxy 403, so the ~17 arcmin quasi-direct-drive backlash figure stays an unverified search excerpt and is not used as a parameter"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/buildbot-sheathing/paper/draft.md",
+      "issue": "'Data and code availability' still said 142 test functions and 'all 22 experiments reproduce' four milestones after both went stale (164 tests, 26 experiments listed); check_numbers.py does not cover that section. Fixed the counts and reworded the reproduce claim to what was checked."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py is documented with pytest numpy matplotlib; the MuJoCo-based buildbot experiments also need mujoco and scipy, which the default python3 lacks. Asking pyenv.py for them in the background took about a minute."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Landing step 2 (work through open research PRs before building) was skipped: pick_track's CLAIM CHECK found no open PR on this programme, and auditing 107 open PRs would have used the session's budget.",
+      "did": "Built the drawn programme's next milestone directly.",
+      "result": "no conflict seen; PR opened within minutes as a claim"
+    },
+    {
+      "file": "research/buildbot-sheathing/LOG.md",
+      "why": "Added a fourth backlash case (ankle rolls biased one way) and a 'down' handle direction after seeing the first run, beyond the registered plan.",
+      "did": "Reported both as unregistered extras, separate from the H112-H114 verdicts, which use only the registered cases.",
+      "result": "the unregistered ankle-roll case became the main practical finding, labelled as post hoc in LOG, README and post"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-humanoid-nailer-gear-backlash-ankle-roll.md",
+    "research/buildbot-sheathing/LOG.md (milestone 30 planned and result)"
+  ],
+  "goal": "advance a PhD-level research programme aimed at Automation in Construction",
+  "notes": "Milestone 30 of buildbot-sheathing. New src/buildbot_sheathing/backlash.py (general tool offset, per-joint sigmas, MuJoCo static torques with a press at the nose, held/loose joint classification), experiments/m30_backlash (run 125 s; reproduce.py --check m30_backlash: reproduces, 197 lines), 5 tests. H112 held (5 arcmin unpreloaded: 0.9344 to 0.7646), H113 refuted (preloaded loss 2.10 points against a bar of 2; all from the G1's two ankle rolls, which carry zero torque under the least-norm ground reaction), H114 refuted (0.15 m grip above the drive axis: -8.02 points at 11 bits). Ankle rolls biased one way: no loss up to 25 arcmin. Checks: paper/check_numbers.py 233/233; research/_homepage/build.py ok; research_live_links --write; check_md_links ok; post front matter/links/similarity ok; tests/test_backlash.py + test_tool_lean.py 11 passed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "fb54e719-8173-5fb0-9d34-7f8329227447",
+    "transcripts": 1,
+    "first": "2026-11-16T04:09:31Z",
+    "last": "2026-11-16T04:25:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 111,
+        "output": 48269,
+        "thinking": 15194,
+        "cache_read": 7242548,
+        "cache_write_5m": 0,
+        "cache_write_1h": 157550,
+        "api_equivalent_usd": 3.6747,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 111,
+      "output": 48269,
+      "thinking": 15194,
+      "cache_read": 7242548,
+      "cache_write_5m": 0,
+      "cache_write_1h": 157550,
+      "api_equivalent_usd": 3.6747,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 62,
+    "tools": {
+      "Bash": 52,
+      "WebSearch": 3,
+      "ToolSearch": 2,
+      "Write": 2,
+      "WebFetch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.68,
+      "active_minutes": 15.68,
+      "model_minutes": 8.26,
+      "tool_minutes": 7.42,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a robotics engineer building the backlash/preload model on MuJoCo, sourcing specs, running and writing up one milestone",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 326.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
