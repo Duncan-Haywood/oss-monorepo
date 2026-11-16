@@ -279,7 +279,7 @@ export function sinkhorn(a, b, C, eps, opts = {}) {
   let cmax = 0;
   for (const c of C) if (c > cmax) cmax = c;
   const f = new Float64Array(n), g = new Float64Array(m);
-  const u = new Float64Array(n), v = new Float64Array(m), Kv = new Float64Array(n), Ku = new Float64Array(m);
+  const u = new Float64Array(n), v = new Float64Array(m), Ku = new Float64Array(m);
   const K = new Float64Array(n * m);
   const build = (e) => {
     for (let i = 0; i < n; i++) {
@@ -287,6 +287,7 @@ export function sinkhorn(a, b, C, eps, opts = {}) {
       for (let j = 0; j < m; j++) K[row + j] = ai * b[j] * Math.exp((fi + g[j] - C[row + j]) / e);
     }
     u.fill(1); v.fill(1);
+    kuFresh = false;
   };
   const absorb = (e) => {
     for (let i = 0; i < n; i++) f[i] += e * Math.log(u[i]);
@@ -314,19 +315,69 @@ export function sinkhorn(a, b, C, eps, opts = {}) {
     }
   };
   let iterations = 0, err = Infinity;
+  // Ku = K^T u for the current u and K. Each step ends by computing it for
+  // the u it just set, while row i of K is still in cache, so the next
+  // step and columnError skip their own pass over K. kuFresh says Ku is
+  // current; build() and every other write to u clear it. The sums run in
+  // the same order as a separate pass (rows ascending), so the result is
+  // bit-identical to computing Ku afresh.
+  let kuFresh = false;
+  const fillKu = () => {
+    Ku.fill(0);
+    let i = 0;
+    for (; i + 3 < n; i += 4) {
+      const r0 = i * m, r1 = r0 + m, r2 = r1 + m, r3 = r2 + m, u0 = u[i], u1 = u[i + 1], u2 = u[i + 2], u3 = u[i + 3];
+      for (let j = 0; j < m; j++) Ku[j] = Ku[j] + K[r0 + j] * u0 + K[r1 + j] * u1 + K[r2 + j] * u2 + K[r3 + j] * u3;
+    }
+    for (; i < n; i++) { const row = i * m, ui = u[i]; for (let j = 0; j < m; j++) Ku[j] += K[row + j] * ui; }
+    kuFresh = true;
+  };
   // One scaling iteration; false when a kernel row or column has underflowed.
   const step = () => {
-    Ku.fill(0);
-    for (let i = 0; i < n; i++) { const row = i * m, ui = u[i]; for (let j = 0; j < m; j++) Ku[j] += K[row + j] * ui; }
+    if (!kuFresh) fillKu();
+    kuFresh = false;
     for (let j = 0; j < m; j++) { if (!(Ku[j] > 0)) return false; v[j] = b[j] / Ku[j]; }
-    for (let i = 0; i < n; i++) { const row = i * m; let s = 0; for (let j = 0; j < m; j++) s += K[row + j] * v[j]; Kv[i] = s; }
-    for (let i = 0; i < n; i++) { if (!(Kv[i] > 0)) return false; u[i] = a[i] / Kv[i]; }
+    // One pass over the rows: (K v)_i, then u_i = a_i / (K v)_i, then row i's
+    // share of K^T u for the next step, while the row is still in cache. As
+    // in the unfused form, an underflow at row i returns with u_0..u_{i-1}
+    // already updated (kuFresh stays false, so Ku is recomputed).
+    // Rows go four at a time: the four dot products share each v_j load and
+    // Ku_j is read and written once per four rows. Every sum still adds its
+    // terms in the unblocked order (j ascending within a row, rows ascending
+    // into Ku_j), so the floating-point result is unchanged.
+    Ku.fill(0);
+    let i = 0;
+    for (; i + 3 < n; i += 4) {
+      const r0 = i * m, r1 = r0 + m, r2 = r1 + m, r3 = r2 + m;
+      let s0 = 0, s1 = 0, s2 = 0, s3 = 0;
+      for (let j = 0; j < m; j++) {
+        const vj = v[j];
+        s0 += K[r0 + j] * vj; s1 += K[r1 + j] * vj; s2 += K[r2 + j] * vj; s3 += K[r3 + j] * vj;
+      }
+      if (!(s0 > 0)) return false;
+      const u0 = (u[i] = a[i] / s0);
+      if (!(s1 > 0)) return false;
+      const u1 = (u[i + 1] = a[i + 1] / s1);
+      if (!(s2 > 0)) return false;
+      const u2 = (u[i + 2] = a[i + 2] / s2);
+      if (!(s3 > 0)) return false;
+      const u3 = (u[i + 3] = a[i + 3] / s3);
+      for (let j = 0; j < m; j++) Ku[j] = Ku[j] + K[r0 + j] * u0 + K[r1 + j] * u1 + K[r2 + j] * u2 + K[r3 + j] * u3;
+    }
+    for (; i < n; i++) {
+      const row = i * m;
+      let s = 0;
+      for (let j = 0; j < m; j++) s += K[row + j] * v[j];
+      if (!(s > 0)) return false;
+      const ui = (u[i] = a[i] / s);
+      for (let j = 0; j < m; j++) Ku[j] += K[row + j] * ui;
+    }
+    kuFresh = true;
     iterations++;
     return true;
   };
   const columnError = () => {
-    Ku.fill(0);
-    for (let i = 0; i < n; i++) { const row = i * m, ui = u[i]; for (let j = 0; j < m; j++) Ku[j] += K[row + j] * ui; }
+    if (!kuFresh) fillKu();
     let e2 = 0;
     for (let j = 0; j < m; j++) e2 += Math.abs(Ku[j] * v[j] - b[j]);
     return e2;
@@ -351,6 +402,7 @@ export function sinkhorn(a, b, C, eps, opts = {}) {
     }
     absorb(e);
     u.fill(1); v.fill(1);
+    kuFresh = false;
   };
   if (opts.scaling !== false) for (let e = cmax; e > eps * 2; e /= 2) run(e, 50, 1e-3);
   run(eps, maxIter, tol);
