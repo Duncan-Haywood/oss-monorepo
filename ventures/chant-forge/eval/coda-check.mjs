@@ -189,6 +189,12 @@
 //    for the opt-in wall (R's third column, against R's first): (7) R's voiced stops read as nothing fewer, and its
 //    vowel-only control identical; if (7) holds and R's voiced stops gain 3 or more, the wall is a candidate for a
 //    later round with its own held-out openings, not switched on here.
+//    Outcome (run 2026-11-16, against `localRef: false` on the same code): (1) R's voiced stops 99 to 103 of 120: holds, at
+//    the bar; (2) nasals 48 of 48 both: holds; (3) others 72 of 72 both: holds; (4) control 238 of 240 both: holds;
+//    (5) holds, every figure as listed but one misquoted here: Q's others are 75 of 80 both ways (75 to 73 was the run
+//    with localRef on the nasal rule too); (6) holds, consonant-check's report byte-identical; (7) the wall: R's voiced
+//    stops read as nothing 8 to 3 and control identical, holds, but 5 more read as a nasal and none gains (103 both), so
+//    it stays off. Shipped on: README "A closure against the vowel before it".
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
