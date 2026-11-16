@@ -88,3 +88,52 @@ test("presets are complete and run", () => {
     assert.ok(!r.error, p.id);
   }
 });
+
+// Quality fix (audit 2026-11-07, defects 1-2, 5): boundaries and values the
+// earlier tests left unasserted. Expected numbers are worked by hand below.
+
+test("edit-share warning fires at exactly 50% and not just under it", () => {
+  // shoot 8 + highlight edit 8 = 16 hours, edit share 8/16 = 0.5
+  const at = calculateBooking({ price: 2000, shootHours: 8, highlightEditHours: 8 });
+  assert.equal(at.editShare, 0.5);
+  assert.match(at.findings.map((f) => f.title).join("|"), /50% of the hours are editing/);
+  // shoot 8.5 + 8 = 16.5 hours, share 0.485
+  const under = calculateBooking({ price: 2000, shootHours: 8.5, highlightEditHours: 8 });
+  assert.ok(under.editShare < 0.5);
+  assert.doesNotMatch(under.findings.map((f) => f.title).join("|"), /editing and revisions/);
+});
+
+test("sensitivity minimum prices are target x hours plus costs, grossed up for fees", () => {
+  const r = calculateBooking(base); // 8 shoot + 20 edit, no costs, target 50
+  const at = (m) => r.sensitivity.find((s) => s.multiplier === m);
+  assert.equal(at(0.75).hoursWorked, 23);
+  assert.equal(at(0.75).minPrice, 1150); // 50 x 23
+  assert.equal(at(2).minPrice, 2400); // 50 x (8 + 40)
+  const fee = calculateBooking({ ...base, processingPercent: 4, deliveryCost: 60 });
+  // (50 x 28 + 60) / 0.96 = 1520.833...
+  assert.ok(Math.abs(fee.sensitivity.find((s) => s.multiplier === 1).minPrice - 1460 / 0.96) < 1e-9);
+});
+
+test("ladder tiers keep non-edit hours and costs; base row is the booking as entered", () => {
+  const input = { ...base, travelHours: 2, revisionRoundsUsed: 2, hoursPerRevision: 1.5, secondShooterHours: 8, secondShooterRate: 25, processingPercent: 3 };
+  const r = deliverableLadder(input);
+  // tier 1: 8 shoot + 2 travel + 3 revision + 8 edit = 21 h; 1800 - 54 fees - 200 second = 1546
+  assert.equal(r.rows[0].hoursWorked, 21);
+  assert.ok(Math.abs(r.rows[0].profit - 1546) < 1e-9);
+  assert.ok(Math.abs(r.rows[0].trueHourly - 1546 / 21) < 1e-9);
+  assert.ok(Math.abs(r.rows[0].minPrice - 1250 / 0.97) < 1e-9); // (50 x 21 + 200) / 0.97
+  // tier 3: 3400, 19 edit h -> 32 h; 3400 - 102 - 200 = 3098
+  assert.equal(r.rows[2].hoursWorked, 32);
+  assert.ok(Math.abs(r.rows[2].profit - 3098) < 1e-9);
+  assert.equal(r.nonEditHours, 13);
+  const main = calculateBooking(input);
+  assert.equal(r.base.editHours, 20);
+  assert.equal(r.base.hoursWorked, main.hoursWorked);
+  assert.equal(r.base.profit, main.profit);
+  assert.equal(r.base.trueHourly, main.trueHourly);
+});
+
+test("revision creep names the hours past the cap, not all revision hours", () => {
+  const r = calculateBooking({ ...base, revisionRoundsIncluded: 2, revisionRoundsUsed: 5, hoursPerRevision: 2 });
+  assert.match(r.findings.map((f) => f.detail).join("|"), /3 round\(s\) past the cap took about 6\.0 of the 10\.0 revision hours/);
+});
