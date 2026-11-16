@@ -364,3 +364,67 @@ radar-gun session fixes that for good: `tennisbots fit-launcher shots.jsonl
 momentum leaving in one instant, a recovery model fitted to that simulator.
 A real ESC may recover in a shape the formula does not follow. The first
 build's check is a calibration drill logged beside a radar gun.
+
+## Re-planning a drill from its own shots (2026-11-16)
+
+The shot log measures the launcher's efficiencies, but until now the number
+only reached a drill when someone ran `fit-launcher` and pasted its
+`"launcher"` block into the file. `tennisbots run --refit-after N` closes the
+loop inside the drill:
+
+    tennisbots run drill.rally.json --shot-log shots.jsonl --refit-after 4
+
+After every N shots `host.Refitter` fits this run's drops and re-plans the
+shots not yet fed. Only the wheel speeds change (`host.rewheel`): the aim
+depends on the ball's speed and spin, which the drill fixes. For each re-plan
+it prints the old and new efficiencies and how far each remaining shot would
+have landed from its target on the old speeds if the fit is right (the
+"landing shift"), and `--shot-log` keeps the records as before.
+
+**Details that mattered on the simulator.**
+
+- *Wait for the last verdict.* A stroke's record lands 250 ms after its
+  release, and the runner re-aims straight after the release, so the first
+  version re-planned one shot late. With a re-planner the runner now waits for
+  the verdict first (half a second of an interval the shot spends waiting
+  anyway).
+- *The tach's recovery time comes from the calibration drill.* A drill's shots
+  sit at a few speeds, too few to fit it (`fit_from_drops`), so `run` reads it
+  from the `--shot-log` file when that holds a calibration drill (it is a
+  property of the speed loop, not of the felt or the balls), or takes
+  `--recovery-s`.
+- *Change only what the fit can resolve.* A four-shot fit reads the speed
+  efficiency about 3% off. The first version adopted any move over 2%, and on
+  builds whose true launcher was the planner's default (0.85) it moved the
+  landings from 0.57 m off to 0.90 m off (worst 1.67 m). Each efficiency now
+  changes only when the fit moves it beyond its own measured error (5% speed,
+  15% spin, from the "Shot log" sweep).
+- *Wheels under 500 rpm.* A fitted launcher with a low spin efficiency asked
+  for a bottom wheel at 263 rpm, where the simulated wheel never settled and
+  the drill timed out; at 400 rpm the empty-hopper check read the ball as no
+  ball. The planner now refuses any wheel outside 500..7,000 rpm
+  (`host.MIN_WHEEL_RPM`; it used to accept 0), and the re-planner gives such a
+  shot its speed with the most spin the wheels can make, re-aimed at the same
+  spot, and says so.
+- Fits outside 0.3..1.0 (speed) or 0.05..1.0 (spin) are refused, never used.
+
+**How close (simulated).** `tests/refit_sweep.py` runs `drill.rally.json` (16
+groundstrokes, 18 to 25 m/s, mostly topspin) on 12 simulated builds whose true
+launcher differs from the planner's default (speed efficiency 0.70 / 0.85 /
+0.95, spin 0.35 / 0.65, wheel lag 0.2 / 0.8 s), each after one calibration
+drill for the recovery time, and flies every ball with the simulator's true
+exit speed and spin. Shots 5 to 16, metres from the target
+(eval/refit-sweep-2026-11-16.txt):
+
+| | median, worst build | worst shot |
+| --- | --- | --- |
+| planner's default launcher all drill | 5.16 | 5.21 |
+| re-planned after 4 shots, then every 4 | 1.10 | 1.18 |
+
+Every build landed closer re-planned; the two builds the default nearly fitted
+went from 0.45 to 0.59 m off to 0.01 to 0.24 m. What is left (up to 1.2 m) is
+the fit's own 2-4% speed error from a drill's few speeds; a calibration drill
+first, with its `"launcher"` block in the drill file, does better.
+
+**Not measured.** The simulator's physics, as for the shot log, and
+landings computed from its exit speeds, not watched balls.
