@@ -13,6 +13,7 @@
 import { parseStep } from "./step.mjs";
 import { parseIfcXml, ifcXmlSchemaId, looksLikeXml } from "./ifcxml.mjs";
 import { parseXml, kids, kid } from "./xml.mjs";
+import { auditIds } from "./audit.mjs";
 
 // ---------------------------------------------------------------- schema ----
 
@@ -839,11 +840,24 @@ export function checkIds(idsText, ifcText, opts = {}) {
   const model = ifcText instanceof Model ? ifcText : new Model(ifcText, opts.schemas);
   model.measureUnits = opts.measureUnits || null;
   const ctx = { typeMap: opts.typeMap || null };
+  // The IDS audit (audit.mjs): a specification with an error is reported as
+  // invalid and not run. opts.audit === false turns it off.
+  const audit = opts.audit === false ? [] : auditIds(ids, { schemas: opts.auditSchemas || opts.schemas, typeMap: ctx.typeMap });
   const specs = [];
-  for (const spec of ids.specs) {
+  for (const [si, spec] of ids.specs.entries()) {
     const s = { name: spec.name, description: spec.description, optionality: spec.optionality, ifcVersion: spec.ifcVersion, applicability: spec.applicability.map((f) => f.describe()), requirements: spec.requirements.map((f) => (f.kind === "entity" ? "" : f.cardinality + " ") + f.describe()), applicable: 0, passed: 0, failed: [], status: "pass", note: null };
     // The IDS test suite treats ifcVersion as metadata: the check still runs.
     if (!versionMatches(spec, model)) s.warning = `written for ${spec.ifcVersion.join(", ")}; the model is ${model.schemaRaw}`;
+    const mine = audit.filter((x) => x.spec === si);
+    if (mine.some((x) => x.level === "warning")) s.auditWarnings = mine.filter((x) => x.level === "warning").map((x) => x.message);
+    const errors = mine.filter((x) => x.level === "error");
+    if (errors.length) {
+      s.status = "invalid";
+      s.invalid = errors.map((x) => x.message);
+      s.note = "invalid IDS, not checked: " + s.invalid.join("; ");
+      specs.push(s);
+      continue;
+    }
     const hits = applies(spec, model, ctx);
     s.applicable = hits.length;
     if (spec.optionality === "prohibited") {
@@ -878,6 +892,8 @@ export function checkIds(idsText, ifcText, opts = {}) {
     entityCount: model.entities.size,
     parseErrors: model.parseErrors.slice(0, 20),
     pass: counted.every((s) => s.status === "pass"),
+    valid: !specs.some((s) => s.status === "invalid"),
+    audit,
     specs,
   };
 }

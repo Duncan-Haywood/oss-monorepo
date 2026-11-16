@@ -1,0 +1,63 @@
+name: school-timetable-builder
+description: >-
+  Browser and CLI school timetable generator: plain-text lessons in, a weekly
+  timetable with no class, teacher or room double-booked out, with doubles,
+  room types, joint classes, teachers' periods off and daily maximums, a
+  counting check that explains why a week cannot fit, and an independent
+  validator. Per class, teacher and room views, print packs and CSV. MIT, no
+  dependencies, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-11-16 (explore track). Paid market is real: aSc TimeTables,
+# Untis, TimeTabler and Edval sell school timetabling by school licence; FET is
+# the free GPL desktop option. The gap: a no-install, no-upload builder a small
+# school, department or tutoring centre can use in minutes, with a plain-text
+# input. Constraint-search depth (school timetabling is NP-hard), not a
+# calculator. duplicate_check: no venture or research project builds school
+# timetables; league-schedule-generator (sports fixtures), shift-roster-builder
+# and tutor-weekly-schedule-optimizer solve different assignment problems.
+#
+# First visitor: deputy heads and office managers searching "free school
+# timetable generator", "school timetable maker online", "aSc timetables
+# alternative", and teachers' forums in the weeks before a school year starts.
+# Volume not measured with an external tool.
+#
+# Path to revenue (payments stay off): free and MIT as the lead magnet; paid
+# steps are a done-for-you timetable service for schools that send their
+# constraints, and support; GitHub Sponsors meanwhile. Hosting under the public
+# name and billing are owner-gated.
+
+hypotheses:
+  - claim: >-
+      People who load the sample will go on to build their own school: at
+      least one in four sessions with sample_loaded also records a second
+      timetable_built after editing the list.
+    status: untested
+    checked: null
+    evidence: customer-contact  # usage counters sample_loaded, timetable_built (local only)
+  - claim: >-
+      A clash-free first result is what keeps people: at least half of
+      timetable_built events also record timetable_clean, and those sessions
+      print or download CSV more often than sessions that end with clashes.
+    status: untested
+    checked: null
+    evidence: customer-contact  # timetable_clean, printed, csv_downloaded (local only)
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct people (issues, stars, or a pasted school) engage within 90 days of the page being reachable from the published site.
+  - A user reports a timetable marked "no hard problems" that has a clash; fixing the validator comes before any new feature.
+
+links:
+  production: https://marisstella.app/school-timetable-builder/
+  analytics: null

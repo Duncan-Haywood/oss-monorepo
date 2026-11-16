@@ -240,7 +240,11 @@ export function normalizeRows(table, { decimalComma = false, platform = "auto", 
     if (bad) { skipped.push({ line: lineNo, reason: "amount not a number" }); continue; }
     if (f.gross === null && CHARGE_FIELDS.every((k) => f[k] === null)) { skipped.push({ line: lineNo, reason: "no amount" }); continue; }
     const status = get(line, "status");
-    const cancelled = /cancel|declin|reject|expire|void|fail|refund(ed)?\b/i.test(status) && !/^\s*$/.test(status);
+    // A refund cancels the order only when it is the whole status ("Refund",
+    // "Refunded", "Fully refunded"): "Partially refunded" or "Refund
+    // requested" orders were delivered and sold their food, and the refunded
+    // part arrives in the error/refund column.
+    const cancelled = /cancel|declin|reject|expire|void|fail/i.test(status) || /^(fully\s+)?refund(ed)?$/i.test(status);
     if (cancelled) cancelledCount += 1;
     const rowKey = cols.platform !== undefined ? platformFromText(get(line, "platform")) : null;
     const key = rowKey || fileKey || "other";

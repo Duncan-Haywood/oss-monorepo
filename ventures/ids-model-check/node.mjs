@@ -19,8 +19,8 @@ export function resources() {
   return cache;
 }
 
-export function check(idsText, ifcText) {
-  return checkIds(idsText, ifcText, resources());
+export function check(idsText, ifcText, opts = {}) {
+  return checkIds(idsText, ifcText, { ...resources(), ...opts });
 }
 
 // Reads a model file: .ifc (STEP), .ifcxml, or an .ifczip holding either.

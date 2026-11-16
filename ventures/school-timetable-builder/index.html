@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231d4f91'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ET%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>School Timetable Builder: free timetable generator for schools</title>
+  <meta name="description" content="Type your classes, teachers, rooms and periods per week; get a clash-free school timetable in seconds, with doubles, labs, joint classes and teachers' days off. Free, open source, runs in your browser.">
+  <link rel="canonical" href="https://marisstella.app/school-timetable-builder/">
+  <meta property="og:title" content="School Timetable Builder: a clash-free timetable from a plain list of lessons">
+  <meta property="og:description" content="Free browser timetable generator for small and mid-size schools: no teacher, class or room double-booked, doubles kept off breaks, gaps minimised. Prints per class, teacher and room; exports CSV.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "School Timetable Builder", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the command line", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Builds a weekly school timetable from a plain-text list of lessons: no class, teacher or room double-booked, teachers' periods off respected, double lessons kept within a block, gaps and same-day repeats minimised. Prints per class, teacher and room and exports CSV."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does it guarantee?", "acceptedAnswer": {"@type": "Answer", "text": "When the result says no hard problems, a separate checker has rebuilt the week from the finished timetable and confirmed that no class, teacher or room is in two places at once, nobody teaches in a period you marked off, every double lesson sits inside one block, every lab or gym lesson has a room of that type, and every lesson is placed. If it cannot find such a timetable it lists exactly what still clashes instead of hiding it."}}, {"@type": "Question", "name": "What if my timetable cannot fit?", "acceptedAnswer": {"@type": "Answer", "text": "Before solving, the page counts: a teacher with more lessons than free periods, a class with more lessons than the week, or more lab lessons than lab time is reported with the numbers, because no solver can fix that. It also says when a subject must fall twice on one day, for example five English lessons for a teacher who is off on Fridays."}}, {"@type": "Question", "name": "Is my school's data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The list you type and the timetable it builds stay in your browser tab. The share link keeps the list in the part of the address after #, which browsers do not send to any server."}}, {"@type": "Question", "name": "How is this different from aSc TimeTables, Untis or FET?", "acceptedAnswer": {"@type": "Answer", "text": "Those are mature products. aSc TimeTables and Untis are paid desktop and cloud suites with substitution planning, drag-and-drop editing and school information system links. FET is free, open source and very powerful, but it is a desktop program with a long learning curve. This page is for a small school, a department or a tutoring centre that wants a correct first timetable in minutes without installing anything; if you need cover planning or hundreds of constraint types, use one of them."}}, {"@type": "Question", "name": "How big a school can it handle?", "acceptedAnswer": {"@type": "Answer", "text": "In our benchmark of synthetic secondary schools where every class is fully booked (30 lessons in 30 periods, with doubles, labs, gyms and teachers' days off), it placed every lesson with no clash for 4 to 40 classes, in about 2 seconds or less each on one 2.1 GHz server core. The script that produces those numbers is in the repository. Real schools have constraints the benchmark does not, so check the result."}}]}</script>
+  <style>
+    :root { --ink:#1b2430; --muted:#5b6675; --line:#d5dbe3; --bg:#f7f9fc; --card:#fff; --brand:#1d4f91; --bad:#a3261b; --ok:#1d6b3a; --warn:#8a5a00; }
+    @media (prefers-color-scheme: dark) { :root { --ink:#e6ebf2; --muted:#a3adba; --line:#334155; --bg:#0f1720; --card:#16202c; --brand:#7fb0f0; --bad:#ff8a7a; --ok:#7fd69c; --warn:#f0c060; } }
+    * { box-sizing: border-box; }
+    body { margin:0; font:16px/1.5 system-ui, -apple-system, Segoe UI, sans-serif; color:var(--ink); background:var(--bg); }
+    main { max-width: 1100px; margin: 0 auto; padding: 16px; }
+    h1 { font-size: 1.7rem; margin: .4em 0 .2em; }
+    h2 { font-size: 1.2rem; margin-top: 1.6em; }
+    h3 { font-size: 1rem; margin-bottom: .2em; }
+    .lead { color: var(--muted); margin-top: 0; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px; margin: 12px 0; }
+    textarea { width: 100%; min-height: 320px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink); }
+    label { font-weight: 600; }
+    .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 10px 0; }
+    button, select, input[type=number] { font: inherit; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--ink); }
+    button.primary { background: var(--brand); color: #fff; border-color: var(--brand); font-weight: 600; }
+    button:disabled { opacity: .5; }
+    progress { width: 200px; }
+    .msg { margin: 4px 0; }
+    .bad { color: var(--bad); } .ok { color: var(--ok); } .warn { color: var(--warn); }
+    table.tt { border-collapse: collapse; width: 100%; table-layout: fixed; font-size: 14px; }
+    table.tt th, table.tt td { border: 1px solid var(--line); padding: 4px 6px; vertical-align: top; }
+    table.tt th { background: color-mix(in srgb, var(--brand) 10%, var(--card)); }
+    table.tt td.clash { background: color-mix(in srgb, var(--bad) 18%, var(--card)); }
+    table.tt tr.brk td, table.tt tr.brk th { border-bottom: 3px solid var(--muted); }
+    .cell b { display:block; } .cell small { color: var(--muted); display:block; }
+    .scroll { overflow-x: auto; }
+    .stats { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+    .stats span { white-space: nowrap; }
+    details summary { cursor: pointer; font-weight: 600; }
+    code { font-size: .92em; overflow-wrap: anywhere; }
+    footer { color: var(--muted); font-size: .9rem; margin-top: 2em; }
+    #printall { display: none; }
+    @media print {
+      body { background: #fff; color: #000; }
+      main > *:not(#printall) { display: none !important; }
+      #printall { display: block !important; }
+      #printall section { page-break-after: always; }
+      table.tt { font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>School Timetable Builder</h1>
+  <p class="lead">Type the lessons each class has in a week. Get a timetable where no class, teacher or room is double-booked, doubles stay inside a block, teachers' days off are kept and gaps are squeezed out. Free, open source, and nothing leaves your browser.</p>
+
+  <div class="card">
+    <label for="school">Your school, one line per lesson</label>
+    <textarea id="school" spellcheck="false" aria-describedby="format"></textarea>
+    <details id="format">
+      <summary>How to write it</summary>
+      <ul>
+        <li><code>days: Mon, Tue, Wed, Thu, Fri</code> and <code>periods: 6</code> set the week.</li>
+        <li><code>breaks after: 2, 4</code>: double lessons never span the break after period 2 or 4.</li>
+        <li><code>rooms: Lab 1 (lab), Lab 2 (lab), Gym (gym)</code>: rooms, with a type in brackets. Lessons without a room are taught in the class's own base room.</li>
+        <li><code>7A: Maths / Okafor / 5</code>: class, subject, teacher, periods per week.</li>
+        <li><code>7A: Science / Patel / 4 / 2 doubles / lab</code>: two double periods, in any lab. <code>/ double</code> makes all of them doubles; <code>/ room Lab 1</code> pins one room.</li>
+        <li><code>7A+7B: PE / Garcia / 2 / double / gym</code>: two classes taught together. <code>Okafor+Ng</code> puts two teachers on one lesson.</li>
+        <li><code>teacher Okafor: off Mon 1-2, Fri; max 5 per day</code> and <code>class 7A: off Fri 6</code>: periods off and a daily maximum.</li>
+        <li>Anything after <code>#</code> is a comment.</li>
+      </ul>
+    </details>
+    <div class="row">
+      <button class="primary" id="build" type="button">Build timetable</button>
+      <button id="improve" type="button" disabled>Keep improving</button>
+      <label for="seed" style="font-weight:400">Seed</label> <input id="seed" type="number" value="1" min="1" max="99999" style="width:6em">
+      <button id="sample" type="button">Load the sample school</button>
+      <progress id="prog" max="1" value="0" hidden></progress>
+    </div>
+    <div id="messages" aria-live="polite"></div>
+  </div>
+
+  <div class="card" id="result" hidden>
+    <div class="stats" id="stats"></div>
+    <div id="problems"></div>
+    <div class="row">
+      <label for="view">Show</label>
+      <select id="view"><option value="class">Class</option><option value="teacher">Teacher</option><option value="room">Room</option></select>
+      <label for="who" class="sr">Which</label>
+      <select id="who"></select>
+    </div>
+    <div class="scroll"><table class="tt" id="grid"></table></div>
+    <div class="row">
+      <button id="csv" type="button">Download CSV</button>
+      <button id="print" type="button">Print every class</button>
+      <button id="printTeachers" type="button">Print every teacher</button>
+      <button id="share" type="button">Copy share link</button>
+    </div>
+  </div>
+
+  <section id="printall"></section>
+
+  <h2>Who it is for</h2>
+  <p>Deputy heads and office managers at small schools, heads of department who timetable their own subject, tutoring and language centres, and homeschool co-ops. If you are doing the timetable in a spreadsheet, moving one lesson breaks three others, and you only find the clash when two teachers turn up to the same room, this does the search for you. It is not a cover or substitution planner. Scheduling one tutor's private students instead? Try the <a href="../tutor-weekly-schedule-optimizer/">tutor weekly schedule optimizer</a>; for sports fixtures, the <a href="../league-schedule-generator/">league schedule generator</a>. <a href="free-school-timetable-generator.html">Worked example and when to use something else</a>.</p>
+
+  <h2>Questions</h2>
+  <h3>What does it guarantee?</h3>
+  <p>When the result says no hard problems, a separate checker has rebuilt the week from the finished timetable and confirmed that no class, teacher or room is in two places at once, nobody teaches in a period you marked off, every double lesson sits inside one block, every lab or gym lesson has a room of that type, and every lesson is placed. If it cannot find such a timetable it lists exactly what still clashes instead of hiding it.</p>
+  <h3>What if my timetable cannot fit?</h3>
+  <p>Before solving, the page counts: a teacher with more lessons than free periods, a class with more lessons than the week, or more lab lessons than lab time is reported with the numbers, because no solver can fix that. It also says when a subject must fall twice on one day, for example five English lessons for a teacher who is off on Fridays.</p>
+  <h3>Is my school's data uploaded?</h3>
+  <p>No. The list you type and the timetable it builds stay in your browser tab. The share link keeps the list in the part of the address after #, which browsers do not send to any server.</p>
+  <h3>How is this different from aSc TimeTables, Untis or FET?</h3>
+  <p>Those are mature products. aSc TimeTables and Untis are paid desktop and cloud suites with substitution planning, drag-and-drop editing and school information system links. FET is free, open source and very powerful, but it is a desktop program with a long learning curve. This page is for a small school, a department or a tutoring centre that wants a correct first timetable in minutes without installing anything; if you need cover planning or hundreds of constraint types, use one of them.</p>
+  <h3>How big a school can it handle?</h3>
+  <p>In our benchmark of synthetic secondary schools where every class is fully booked (30 lessons in 30 periods, with doubles, labs, gyms and teachers' days off), it placed every lesson with no clash for 4 to 40 classes, in about 2 seconds or less each on one 2.1 GHz server core. The script that produces those numbers is in the repository. Real schools have constraints the benchmark does not, so check the result.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It builds a timetable from the lessons and rules you type; it is not professional advice, it does not know your staff contracts, union or working-time rules, safeguarding or legal requirements, and the person responsible for the school timetable must check it before it is used. Everything on this page runs in your browser: what you type is not uploaded. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p>MIT licensed. <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/school-timetable-builder">Source code and command line version</a> &middot; <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+</main>
+<script type="module">
+  import { parseSchool, feasibility, expandUnits, grid, toCsv } from "./timetable.mjs";
+  import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  let state = null; // { problem, units, placements, check, text }
+  let worker = null;
+
+  async function loadSample() {
+    const res = await fetch("samples/small-secondary.txt");
+    $("school").value = await res.text();
+  }
+
+  function encode(text) {
+    const bytes = new TextEncoder().encode(text);
+    let bin = "";
+    bytes.forEach((b) => (bin += String.fromCharCode(b)));
+    return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+  function decode(s) {
+    const bin = atob(s.replace(/-/g, "+").replace(/_/g, "/"));
+    return new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)));
+  }
+
+  function say(html) { $("messages").innerHTML = html; }
+
+  function preflight(text) {
+    const { problem, errors, warnings } = parseSchool(text);
+    const parts = [];
+    for (const e of errors) parts.push(`<p class="msg bad">${esc(e)}</p>`);
+    for (const w of warnings) parts.push(`<p class="msg warn">${esc(w)}</p>`);
+    if (!problem) return { problem: null, html: parts.join("") };
+    const issues = feasibility(problem);
+    for (const i of issues) parts.push(`<p class="msg ${i.soft ? "warn" : "bad"}">${i.soft ? "Note" : "Cannot fit"}: ${esc(i.text)}</p>`);
+    return { problem, html: parts.join(""), blocking: issues.filter((i) => !i.soft).length };
+  }
+
+  function run(initial) {
+    const text = $("school").value;
+    const pre = preflight(text);
+    say(pre.html);
+    if (!pre.problem) return;
+    if (worker) worker.terminate();
+    worker = new Worker(new URL("./worker.mjs", import.meta.url), { type: "module" });
+    $("build").disabled = $("improve").disabled = true;
+    $("prog").hidden = false;
+    $("prog").value = 0;
+    const seed = Math.max(1, Number($("seed").value) || 1) + (initial ? Date.now() % 1000 : 0);
+    worker.onmessage = (e) => {
+      const m = e.data;
+      if (m.type === "progress") $("prog").value = m.fraction;
+      else if (m.type === "error") {
+        say(m.errors.map((x) => `<p class="msg bad">${esc(x)}</p>`).join(""));
+        finish();
+      } else if (m.type === "done") {
+        const { units } = expandUnits(pre.problem);
+        state = { problem: pre.problem, units, placements: m.placements, check: m.check, text };
+        record(initial ? "timetable_improved" : "timetable_built");
+        if (m.check.ok) record("timetable_clean");
+        finish();
+        show();
+      }
+    };
+    worker.onerror = (e) => {
+      say(`<p class="msg bad">The solver stopped: ${esc(e.message || "unknown error")}</p>`);
+      finish();
+    };
+    worker.postMessage({ text, seed, initial: initial ? state.placements : undefined, temperature: initial ? 3 : undefined });
+  }
+
+  function finish() {
+    $("build").disabled = false;
+    $("improve").disabled = !state;
+    $("prog").hidden = true;
+  }
+
+  function show() {
+    const { problem, check } = state;
+    const s = check.stats;
+    $("result").hidden = false;
+    $("stats").innerHTML = [
+      check.ok ? `<span class="ok"><strong>No hard problems</strong></span>` : `<span class="bad"><strong>${check.problems.length} hard problem(s)</strong></span>`,
+      `<span>Class gaps: ${s.classGaps}</span>`,
+      `<span>Teacher gaps: ${s.teacherGaps}</span>`,
+      `<span>Same subject twice in a day: ${s.repeats}</span>`,
+      `<span>Over a teacher's daily max: ${s.overMax}</span>`,
+      `<span>Late class starts: ${s.lateStarts}</span>`,
+    ].join("");
+    $("problems").innerHTML = check.problems.length
+      ? `<details open><summary class="bad">What still clashes</summary><ul>${check.problems.slice(0, 60).map((p) => `<li>${esc(p.text)}</li>`).join("")}</ul><p>Try Keep improving, another seed, or relax the line named above.</p></details>`
+      : "";
+    fillWho();
+    drawGrid();
+  }
+
+  function fillWho() {
+    const kind = $("view").value;
+    const list = kind === "class" ? state.problem.classes : kind === "teacher" ? state.problem.teachers : state.problem.rooms;
+    const keep = $("who").value;
+    $("who").innerHTML = list.map((x, i) => `<option value="${i}">${esc(x.name)}</option>`).join("");
+    if (keep && Number(keep) < list.length) $("who").value = keep;
+  }
+
+  function tableHtml(kind, index) {
+    const { problem, units, placements } = state;
+    const cells = grid(problem, units, placements, kind, index);
+    const breaks = new Set(problem.breaksAfter);
+    let h = `<thead><tr><th style="width:4.5em">Period</th>${problem.days.map((d) => `<th>${esc(d)}</th>`).join("")}</tr></thead><tbody>`;
+    for (let p = 0; p < problem.periods; p++) {
+      h += `<tr${breaks.has(p + 1) ? ' class="brk"' : ""}><th>${p + 1}</th>`;
+      for (let d = 0; d < problem.days.length; d++) {
+        const list = cells[p][d];
+        const inner = list.map((c) => {
+          const lines = [kind !== "class" ? c.classes : "", kind !== "teacher" ? c.teachers : "", kind !== "room" ? c.room : ""].filter(Boolean);
+          return `<div class="cell"><b>${esc(c.subject)}${c.double ? " (2)" : ""}</b>${lines.map((l) => `<small>${esc(l)}</small>`).join("")}</div>`;
+        }).join("");
+        h += `<td${list.length > 1 ? ' class="clash"' : ""}>${inner}</td>`;
+      }
+      h += "</tr>";
+    }
+    return h + "</tbody>";
+  }
+
+  function drawGrid() {
+    $("grid").innerHTML = tableHtml($("view").value, Number($("who").value) || 0);
+  }
+
+  function printAll(kind) {
+    const list = kind === "class" ? state.problem.classes : state.problem.teachers;
+    $("printall").innerHTML = list.map((x, i) => `<section><h2>${esc(x.name)}</h2><table class="tt">${tableHtml(kind, i)}</table></section>`).join("");
+    record("printed");
+    window.print();
+  }
+
+  $("build").onclick = () => run(false);
+  $("improve").onclick = () => run(true);
+  $("sample").onclick = async () => { await loadSample(); record("sample_loaded"); run(false); };
+  $("view").onchange = () => { fillWho(); drawGrid(); };
+  $("who").onchange = drawGrid;
+  $("print").onclick = () => printAll("class");
+  $("printTeachers").onclick = () => printAll("teacher");
+  $("csv").onclick = () => {
+    const blob = new Blob([toCsv(state.problem, state.units, state.placements)], { type: "text/csv" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "timetable.csv";
+    a.click();
+    URL.revokeObjectURL(a.href);
+    record("csv_downloaded");
+  };
+  $("share").onclick = async () => {
+    const url = `${location.href.split("#")[0]}#s=${encode(state.text)}&seed=${Number($("seed").value) || 1}`;
+    try { await navigator.clipboard.writeText(url); say(`<p class="msg ok">Link copied. It carries your lesson list after the #, which is never sent to a server.</p>`); }
+    catch { say(`<p class="msg">Copy this link: <code>${esc(url)}</code></p>`); }
+    record("share_copied");
+  };
+  $("optout").checked = usageOptedOut();
+  $("optout").onchange = (e) => setUsageOptOut(e.target.checked);
+
+  const hash = new URLSearchParams(location.hash.slice(1));
+  if (hash.get("s")) {
+    try {
+      $("school").value = decode(hash.get("s"));
+      if (hash.get("seed")) $("seed").value = hash.get("seed");
+      record("share_opened");
+      run(false);
+    } catch { say(`<p class="msg bad">That share link is damaged; loading the sample instead.</p>`); loadSample(); }
+  } else {
+    loadSample();
+  }
+</script>
+</body>
+</html>

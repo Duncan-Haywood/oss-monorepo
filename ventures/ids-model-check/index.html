@@ -10,7 +10,7 @@
   <meta property="og:description" content="Drop an IFC model and an IDS file, see which elements miss which requirement, export a BCF issue list. Passes buildingSMART's 334 IDS test cases. MIT licensed.">
   <meta property="og:type" content="website">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "IDS Model Check", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the command line", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Checks IFC2X3, IFC4 and IFC4X3 building models against buildingSMART Information Delivery Specification (IDS 1.0) files, in the browser or on the command line, and exports failures as BCF 2.1, CSV or JSON."}</script>
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is an IDS file?", "acceptedAnswer": {"@type": "Answer", "text": "IDS (Information Delivery Specification) is buildingSMART's XML format for saying what information a model must contain: which elements need which properties, attributes, classifications, materials and relationships. Version 1.0 was approved in 2024. A client or BIM manager writes one IDS, and every party's model can be checked against it by software instead of by eye."}}, {"@type": "Question", "name": "How do I know the results are right?", "acceptedAnswer": {"@type": "Answer", "text": "buildingSMART publishes 334 pairs of small IFC and IDS files with the expected result of each, covering every facet, restriction, tolerance and cardinality rule. This checker gets all 334 right; the script that scores it is in the repository so anyone can re-run it. Real models still contain cases those files do not cover, so treat a result as a strong first pass and check anything surprising."}}, {"@type": "Question", "name": "Is my model uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The model and the IDS are read by JavaScript in your browser tab. The only files the page fetches are its own schema tables from this site. You can also download the code and run it offline, or use the command line version."}}, {"@type": "Question", "name": "Why not use Solibri, BIMcollab or IfcTester?", "acceptedAnswer": {"@type": "Answer", "text": "Those are good tools. Solibri and the commercial checkers do far more (clash detection, geometry rules) and cost a seat licence. IfcTester from IfcOpenShell is free and excellent but needs Python and a command line, or a desktop BIM tool. This page needs nothing installed, opens on any computer, and turns a failing check into a BCF issue list your design tool can open."}}, {"@type": "Question", "name": "Which IFC versions work?", "acceptedAnswer": {"@type": "Answer", "text": "IFC2X3, IFC4 and IFC4X3 (ADD2) models, as STEP (.ifc), ifcXML (.ifcxml) or zipped (.ifczip, holding either). IFC2X3 occurrence classes are resolved through buildingSMART's type mapping table, so an IDS that asks for IFCAIRTERMINAL also finds an IfcFlowTerminal typed by an IfcAirTerminalType."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is an IDS file?", "acceptedAnswer": {"@type": "Answer", "text": "IDS (Information Delivery Specification) is buildingSMART's XML format for saying what information a model must contain: which elements need which properties, attributes, classifications, materials and relationships. Version 1.0 was approved in 2024. A client or BIM manager writes one IDS, and every party's model can be checked against it by software instead of by eye."}}, {"@type": "Question", "name": "How do I know the results are right?", "acceptedAnswer": {"@type": "Answer", "text": "buildingSMART publishes 334 pairs of small IFC and IDS files with the expected result of each, covering every facet, restriction, tolerance and cardinality rule. This checker gets all 334 right; the script that scores it is in the repository so anyone can re-run it. Real models still contain cases those files do not cover, so treat a result as a strong first pass and check anything surprising."}}, {"@type": "Question", "name": "Can it check the IDS file itself?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Drop an IDS on its own and press Audit the IDS only. Each specification is checked against the IFC schema it names: class and attribute names, data types, values IDS cannot compare (lists, objects, selects), numbers, integers and booleans written in a form IDS does not accept, and prohibited specifications with requirements. Of buildingSMART's 27 invalid test files it flags 26 as invalid, and none of the 307 valid ones; the 27th is wrong only in combination with its model. All 12 example IDS files in buildingSMART's repository audit clean."}}, {"@type": "Question", "name": "Is my model uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The model and the IDS are read by JavaScript in your browser tab. The only files the page fetches are its own schema tables from this site. You can also download the code and run it offline, or use the command line version."}}, {"@type": "Question", "name": "Why not use Solibri, BIMcollab or IfcTester?", "acceptedAnswer": {"@type": "Answer", "text": "Those are good tools. Solibri and the commercial checkers do far more (clash detection, geometry rules) and cost a seat licence. IfcTester from IfcOpenShell is free and excellent but needs Python and a command line, or a desktop BIM tool. This page needs nothing installed, opens on any computer, and turns a failing check into a BCF issue list your design tool can open."}}, {"@type": "Question", "name": "Which IFC versions work?", "acceptedAnswer": {"@type": "Answer", "text": "IFC2X3, IFC4 and IFC4X3 (ADD2) models, as STEP (.ifc), ifcXML (.ifcxml) or zipped (.ifczip, holding either). IFC2X3 occurrence classes are resolved through buildingSMART's type mapping table, so an IDS that asks for IFCAIRTERMINAL also finds an IfcFlowTerminal typed by an IfcAirTerminalType."}}]}</script>
   <style>
     :root { --bg: #fbfaf7; --fg: #1d2125; --muted: #5b636b; --line: #dcd8cf; --card: #ffffff; --accent: #1f5f8b; --pass: #1e7a46; --fail: #b3261e; --warn: #8a5a00; color-scheme: light dark; }
     @media (prefers-color-scheme: dark) { :root { --bg: #15181b; --fg: #e8e6e1; --muted: #a2a9b0; --line: #30353a; --card: #1c2024; --accent: #7fb6dc; --pass: #5cc48a; --fail: #ff8a80; --warn: #e3b35b; } }
@@ -37,7 +37,8 @@
     .spec > summary { list-style: none; cursor: pointer; padding: 12px 14px; display: flex; gap: 10px; align-items: baseline; }
     .spec > summary::-webkit-details-marker { display: none; }
     .tag { font-size: 0.78rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap; }
-    .tag.pass { color: var(--pass); } .tag.fail { color: var(--fail); }
+    .tag.pass { color: var(--pass); } .tag.fail { color: var(--fail); } .tag.invalid, .tag.warning { color: var(--warn); } .tag.error { color: var(--fail); }
+    ul.issues { padding-left: 1.2em; } ul.issues li { margin: 6px 0; }
     .spec .body { padding: 0 14px 12px; font-size: 0.94rem; }
     .muted { color: var(--muted); }
     .warn { color: var(--warn); }
@@ -82,6 +83,7 @@
     </div>
     <div class="row">
       <button id="go" disabled>Check the model</button>
+      <button id="audit" class="ghost" type="button" disabled>Audit the IDS only</button>
       <button id="sample" class="ghost" type="button">Try a tiny sample</button>
       <span id="status" role="status" aria-live="polite"></span>
     </div>
@@ -91,6 +93,7 @@
   <section aria-labelledby="what">
     <h2 id="what">What it checks</h2>
     <p>An IDS lists <em>specifications</em>. Each says which elements it applies to (for example every <code>IFCWALL</code> with <code>Pset_WallCommon.IsExternal = true</code>) and what those elements must have (a <code>FireRating</code>, a Uniclass code, a material, a place on a storey). The checker reads both files, finds the elements each specification applies to, and tests every requirement on each, following the IDS 1.0 rules for required, optional and prohibited facets, value restrictions (enumerations, patterns, ranges, lengths), floating-point tolerance and unit conversion to SI.</p>
+    <p>Before any model is read, the IDS itself is audited against the IFC schema its specifications name: class names that do not exist or are not upper case, attributes a class does not have (or has only as derived or inverse attributes), values compared with lists, objects or selects, numbers written with a decimal comma, integers written as <code>42.0</code>, booleans written <code>FALSE</code>, patterns on numbers, unknown data types, and prohibited specifications that carry requirements. Such a specification is reported as <strong>INVALID</strong>, with the reason, instead of failing every element. Writing an IDS? Drop it alone and press <em>Audit the IDS only</em>.</p>
     <p>Starting from scratch? The <a href="samples/coordination-basics.ids.xml">starter IDS</a> asks for what most coordinators want before a model is shared: walls marked external and load-bearing, a material on every wall, named doors and windows on a storey, named spaces, and no building element proxies. Edit it in any text editor.</p>
   </section>
 
@@ -105,6 +108,8 @@
     <p>IDS (Information Delivery Specification) is buildingSMART's XML format for saying what information a model must contain: which elements need which properties, attributes, classifications, materials and relationships. Version 1.0 was approved in 2024. A client or BIM manager writes one IDS, and every party's model can be checked against it by software instead of by eye.</p>
     <h3>How do I know the results are right?</h3>
     <p>buildingSMART publishes 334 pairs of small IFC and IDS files with the expected result of each, covering every facet, restriction, tolerance and cardinality rule. This checker gets all 334 right; the script that scores it is in the repository so anyone can re-run it. Real models still contain cases those files do not cover, so treat a result as a strong first pass and check anything surprising.</p>
+    <h3>Can it check the IDS file itself?</h3>
+    <p>Yes. Drop an IDS on its own and press Audit the IDS only. Each specification is checked against the IFC schema it names: class and attribute names, data types, values IDS cannot compare (lists, objects, selects), numbers, integers and booleans written in a form IDS does not accept, and prohibited specifications with requirements. Of buildingSMART's 27 invalid test files it flags 26 as invalid, and none of the 307 valid ones; the 27th is wrong only in combination with its model. All 12 example IDS files in buildingSMART's repository audit clean.</p>
     <h3>Is my model uploaded?</h3>
     <p>No. The model and the IDS are read by JavaScript in your browser tab. The only files the page fetches are its own schema tables from this site. You can also download the code and run it offline, or use the command line version.</p>
     <h3>Why not use Solibri, BIMcollab or IfcTester?</h3>
@@ -135,7 +140,7 @@
   const state = { ifc: null, ifcName: null, ids: null, idsName: null, report: null };
   const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
-  function ready() { $("go").disabled = !(state.ifc && state.ids); }
+  function ready() { $("go").disabled = !(state.ifc && state.ids); $("audit").disabled = !state.ids; }
   async function readFile(file, kind) {
     $("go").disabled = true;
     $(kind + "-name").textContent = `Reading ${file.name}...`;
@@ -212,6 +217,35 @@
   }
   $("go").addEventListener("click", run);
 
+  // Audit the IDS on its own: is every class, attribute, data type and value
+  // one IDS can check? No model needed.
+  function runAudit() {
+    if (!state.ids) return;
+    $("status").textContent = "Auditing the IDS...";
+    $("out").innerHTML = "";
+    worker ||= new Worker(new URL("./worker.mjs", import.meta.url), { type: "module" });
+    worker.onmessage = (ev) => {
+      ready();
+      if (ev.data.error) { $("status").textContent = "Could not audit: " + ev.data.error; record("check_error"); return; }
+      const a = ev.data.audit;
+      $("status").textContent = `Audited in ${a.seconds.toFixed(2)} s.`;
+      record("ids_audited");
+      const errors = a.issues.filter((x) => x.level === "error");
+      if (errors.length) record("ids_invalid");
+      const bad = new Set(errors.map((x) => x.spec));
+      let h = `<p class="summary"><span class="tag ${errors.length ? "invalid" : "pass"}">${errors.length ? "INVALID" : "VALID"}</span> ${a.specs.length - bad.size} of ${a.specs.length} specifications valid${a.issues.length - errors.length ? `, ${a.issues.length - errors.length} warning(s)` : ""}</p>`;
+      h += `<p class="muted">${esc(a.title || state.idsName)}: checked against the IFC schema${a.specs.some((s) => s.ifcVersion.length) ? "s its ifcVersion names" : "s"}. An invalid specification would fail every element for a reason in the IDS, not the model.</p>`;
+      if (a.issues.length) {
+        h += `<ul class="issues">`;
+        for (const x of a.issues) h += `<li><span class="tag ${x.level}">${x.level.toUpperCase()}</span> <strong>${esc(x.specName)}</strong>${x.facet ? ` <span class="muted">${esc(x.facet)}</span>` : ""}: ${esc(x.message)}</li>`;
+        h += `</ul>`;
+      } else h += `<p>No problems found. Add a model to check it against this IDS.</p>`;
+      $("out").innerHTML = h;
+    };
+    worker.postMessage({ ids: state.ids, auditOnly: true });
+  }
+  $("audit").addEventListener("click", runAudit);
+
   function download(name, data, type) {
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([data], { type }));
@@ -223,14 +257,17 @@
   function render(r) {
     const passed = r.specs.filter((s) => s.status === "pass").length;
     const failing = r.specs.reduce((n, s) => n + s.failed.length, 0);
-    let h = `<p class="summary"><span class="tag ${r.pass ? "pass" : "fail"}">${r.pass ? "PASS" : "FAIL"}</span> ${passed} of ${r.specs.length} specifications pass${failing ? `, ${failing.toLocaleString()} failing element results` : ""}</p>`;
+    const invalid = r.specs.filter((s) => s.status === "invalid").length;
+    let h = `<p class="summary"><span class="tag ${r.pass ? "pass" : "fail"}">${r.pass ? "PASS" : "FAIL"}</span> ${passed} of ${r.specs.length} specifications pass${failing ? `, ${failing.toLocaleString()} failing element results` : ""}${invalid ? `, ${invalid} invalid` : ""}</p>`;
+    if (invalid) h += `<p class="warn">${invalid} specification(s) in the IDS are invalid and were not checked: the IDS needs fixing, not the model. Each says why below.</p>`;
     h += `<p class="muted">${esc(r.title || state.idsName)} against ${esc(state.ifcName)}: a ${esc(r.schema)} model with ${r.entityCount.toLocaleString()} entities.</p>`;
     if (r.parseErrors.length) h += `<p class="warn">${r.parseErrors.length} line(s) of the model could not be read, e.g. ${esc(r.parseErrors[0])}</p>`;
     h += `<div class="row"><button class="ghost" id="dl-bcf">Download BCF issues</button><button class="ghost" id="dl-csv">Download CSV</button><button class="ghost" id="dl-json">Download JSON</button></div>`;
     for (const s of r.specs) {
-      h += `<details class="spec"${s.status === "fail" && r.specs.length < 12 ? " open" : ""}><summary><span class="tag ${s.status}">${s.status.toUpperCase()}</span><span><strong>${esc(s.name)}</strong> <span class="muted">${s.applicable} applicable${s.failed.length ? `, ${s.failed.length} failing` : ""} (${s.optionality})</span></span></summary><div class="body">`;
+      h += `<details class="spec"${s.status !== "pass" && r.specs.length < 12 ? " open" : ""}><summary><span class="tag ${s.status}">${s.status.toUpperCase()}</span><span><strong>${esc(s.name)}</strong> <span class="muted">${s.applicable} applicable${s.failed.length ? `, ${s.failed.length} failing` : ""} (${s.optionality})</span></span></summary><div class="body">`;
       if (s.description) h += `<p>${esc(s.description)}</p>`;
       if (s.warning) h += `<p class="warn">${esc(s.warning)}</p>`;
+      for (const w of s.auditWarnings || []) h += `<p class="warn">IDS warning: ${esc(w)}</p>`;
       h += `<p class="muted">Applies to: ${esc(s.applicability.join("; ") || "everything")}<br>Requires: ${esc(s.requirements.join("; ") || "nothing (prohibited specification)")}</p>`;
       if (s.note) h += `<p>${esc(s.note)}</p>`;
       if (s.failed.length) {

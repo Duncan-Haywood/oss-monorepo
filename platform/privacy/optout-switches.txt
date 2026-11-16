@@ -420,6 +420,7 @@ ventures/exemption-certificate-audit-check/usage.mjs
 ventures/expense-tracker/usage.mjs
 ventures/experience-mod-calculator/usage.mjs
 ventures/exterior-painting-bid-calculator/usage.mjs
+ventures/extreme-value-analysis/usage.mjs
 ventures/facebook-marketplace-fee-calculator/usage.mjs
 ventures/fair-workweek-schedule-checker/usage.mjs
 ventures/faire-wholesale-calculator/usage.mjs
@@ -984,6 +985,7 @@ ventures/sba-loan-capacity-calculator/usage.mjs
 ventures/sbir-budget-builder/usage.mjs
 ventures/sbom-diff-check/usage.mjs
 ventures/schengen-90-180-day-calculator/usage.mjs
+ventures/school-timetable-builder/usage.mjs
 ventures/scope-creep-change-order-calculator/usage.mjs
 ventures/scrap-gold-buy-price-calculator/usage.mjs
 ventures/scrap-metal-yard-payout-calculator/usage.mjs
