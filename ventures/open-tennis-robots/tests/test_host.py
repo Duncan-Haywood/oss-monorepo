@@ -520,6 +520,23 @@ class LiftJamTest(unittest.TestCase):
                 self.assertLess(r["winding_j"], off["winding_j"] / 10, (name, where))
                 self.assertLess(r["peak_n"], _feeder().lift_jam_cutoff()["weld_allow_n"], (name, where))
 
+    def test_worn_slip_hub_still_cuts_a_jam(self):
+        # 2026-11-16, cad/README.md "Slip hub wear": the facings' lost thickness comes off the disc stack's deflection.
+        # The single A disc it replaced, 40 um worn at its lowest setting and friction, let a jam slide with no cut and
+        # no flag at the 24 V hot corner; four B discs in series at 4x that loss still cut it.
+        import lift_jam_sweep as sweep
+        Feeder = type(_feeder())
+        old = Feeder(lift_slip_spring_t=0.7, lift_slip_spring_h0=0.3, lift_slip_spring_count=1).lift_slip_wear()
+        new = Feeder().lift_slip_wear()
+        old_40 = dict((l, nm) for l, _, nm in old["sweep"])[40.0]
+        new_160 = dict((l, nm) for l, _, nm in new["sweep"])[160.0]
+        _, v, rise = sweep.CORNERS[1]
+        self.assertIsNone(sweep.jam(v, rise, 1.0, "hi", "boot", slip=old_40)["cut_ms"])
+        for where in sweep.WHERE:
+            r = sweep.jam(v, rise, 1.0, "hi", where, slip=new_160)
+            self.assertIsNotNone(r["cut_ms"], where)
+            self.assertIsNotNone(r["jammed_ms"], where)
+
     def test_slip_hub_keeps_a_jam_under_the_cap_plate(self):
         # 2026-11-15, cad/README.md "Lift slip coupling": rigid, the rotor's inertia put up to 214 N on a flight (the
         # plate allows 156 N) before any cut; with the hub at the top of its torque and the cutoff at its lowest trip the

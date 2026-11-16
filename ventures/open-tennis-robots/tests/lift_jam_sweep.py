@@ -5,6 +5,7 @@
     PYTHONPATH=src python3 tests/lift_jam_sweep.py --duty    # duty held to the battery against the fixed duty
     PYTHONPATH=src python3 tests/lift_jam_sweep.py --sense   # high-side sense against the low-side shunt it replaced
     PYTHONPATH=src python3 tests/lift_jam_sweep.py --chain   # the belt as a chain of masses against lumped and rigid
+    PYTHONPATH=src python3 tests/lift_jam_sweep.py --wear    # the facings' thickness loss off the disc stack's curve
 
 The real firmware (main.py's FeederHw and controller.LiftRun, through tests/feeder_sim.py) drives the lift's MOSFET
 and reads the comparator on GPIO 0 every 10 ms tick. Between its 1 ms steps this file integrates the plant at 0.1 ms:
@@ -67,8 +68,9 @@ LOW_SIDE = {"lift_sense_side": "low", "lift_shunt_ohm": 0.05, "lift_sense_r2": 2
 
 
 class Plant:
-    """`slip`: None for a rigid drive (the pulley keyed to the gearmotor's shaft, as before 2026-11-15), or "lo", "nom"
-    or "hi" for the slip hub at the low end, middle or high end of its set torque (`Feeder.lift_slip_design`)."""
+    """`slip`: None for a rigid drive (the pulley keyed to the gearmotor's shaft, as before 2026-11-15), "lo", "nom"
+    or "hi" for the slip hub at the low end, middle or high end of its set torque (`Feeder.lift_slip_design`), or a
+    sticking torque in N m (`wear_report`: a worn hub off the disc stack's curve, `Feeder.lift_slip_wear`)."""
 
     def __init__(self, p: Feeder, volts, rise_k, j_factor=1.0, trip="lo", loaded=True, slip="nom", coupler="nom",
                  belt=None, chain=None):
@@ -88,7 +90,8 @@ class Plant:
         if slip is None:
             self.t_stick = self.t_slide = math.inf
         else:
-            t = p.lift_slip_nm * {"lo": 1 - p.lift_slip_tol, "nom": 1.0, "hi": 1 + p.lift_slip_tol}[slip]
+            t = slip if isinstance(slip, (int, float)) else \
+                p.lift_slip_nm * {"lo": 1 - p.lift_slip_tol, "nom": 1.0, "hi": 1 + p.lift_slip_tol}[slip]
             self.t_stick, self.t_slide = t, t * p.lift_slip_kinetic
         self.locked = True
         self.wb = 0.0                # belt side's speed (the same as the motor side's, w, while the hub is stuck)
@@ -750,6 +753,95 @@ def sense_report():
         FEEDER_KW = {}
 
 
+SPRINGS = (("one A 12.5 x 0.7 disc (to 2026-11-16)",
+            {"lift_slip_spring_t": 0.7, "lift_slip_spring_h0": 0.3, "lift_slip_spring_count": 1}),
+           ("four B 12.5 x 0.5 discs in series (now)", {}))
+WORN_COUPLER = (80.0, 5.0)        # the stiffest, most worn spider: where soft starts slip the hub first
+
+
+def wear_case(torque_nm):
+    """One hub torque over the corners that bound it. Soft starts, empty belt, rotor 0.5-2x and both packs (6), at the
+    nominal coupling and the worn stiff spider: starts that slipped. Jams at the assumed rotor, boot and hood, both packs
+    (4), trip at its highest: the slowest cut (inf: never cut) and the latest give-up; trip at its lowest: the peak."""
+    out = {}
+    for label, cp in (("nom", "nom"), ("worn", WORN_COUPLER)):
+        slips = 0
+        for _, v, rise in CORNERS:
+            for jf in INERTIAS:
+                start(v, rise, jf, "lo", loaded=False, slip=torque_nm, coupler=cp)
+                slips += start.plant.slid_ms > 0
+        out[f"slips_{label}"] = slips
+    cut = gave = peak = 0
+    for where in WHERE:
+        for _, v, rise in CORNERS:
+            r = jam(v, rise, 1.0, "hi", where, slip=torque_nm)
+            cut = max(cut, r["cut_ms"] if r["cut_ms"] is not None else math.inf)
+            gave = max(gave, r["jammed_ms"] if r["jammed_ms"] is not None else math.inf)
+            peak = max(peak, jam(v, rise, 1.0, "lo", where, slip=torque_nm)["peak_n"])
+    out.update(cut_ms=cut, gave_ms=gave, peak_n=peak)
+    return out
+
+
+def wear_thresholds(iters=7):
+    """Bisect the hub's sticking torque for the two floors a worn hub crosses: the lowest at which every jam corner
+    (boot and hood, both packs, trip at its highest) is still cut, and the lowest at which no soft start on an empty
+    belt (6 corners) slips with the worn stiff spider. Returns (cut floor, start floor), each to about 0.01 N m."""
+    def cut_all(t):
+        return all(jam(v, rise, 1.0, "hi", where, slip=t)["cut_ms"] is not None
+                   for where in WHERE for _, v, rise in CORNERS)
+
+    def no_slip(t):
+        for _, v, rise in CORNERS:
+            for jf in INERTIAS:
+                start(v, rise, jf, "lo", loaded=False, slip=t, coupler=WORN_COUPLER)
+                if start.plant.slid_ms > 0:
+                    return False
+        return True
+
+    out = []
+    for ok in (cut_all, no_slip):
+        lo, hi = 0.2, 1.0
+        for _ in range(iters):
+            mid = (lo + hi) / 2
+            lo, hi = (lo, mid) if ok(mid) else (mid, hi)
+        out.append(hi)
+    return tuple(out)
+
+
+def wear_report():
+    """The facings' thickness loss as a sweep axis (2026-11-16; cad/README.md "Slip hub wear"). For each disc stack and
+    each loss in `lift_slip_loss_sweep_um`, the worn hub at its lowest setting and friction (`Feeder.lift_slip_wear`)
+    on the real firmware; then the new hub warm at its highest setting and friction."""
+    p = Feeder()
+    c = p.lift_jam_cutoff()
+    print(f"Slip hub wear: set {p.lift_slip_nm:g} N m; the worn corner is the set at -{p.lift_slip_set_tol:.0%} and the "
+          f"friction at -{p.lift_slip_mu_spread:.0%}, times the disc stack's load left after the loss. Trip "
+          f"{c['trip_lo_a']:.2f}-{c['trip_hi_a']:.2f} A; plate allows {c['plate_allow_n']:.0f} N. Starts: soft, empty "
+          f"belt, 6 corners, slips at the nominal / worn stiff spider {WORN_COUPLER}. Jams: 4 corners; cut and "
+          f"give-up at the highest trip, peak at the lowest.")
+    for name, kw in SPRINGS:
+        q = Feeder(**kw)
+        sp, w = q.lift_slip_spring(), q.lift_slip_wear()
+        print(f"\n{name}: set {sp['set_mm'] * 1000:.0f} um of {sp['stroke_mm'] * 1000:.0f} um, "
+              f"{sp['rate_n_um']:.2f} N/um, stack {sp['stack_mm']:.2f} mm; budget {w['budget_um']:.0f} um; design loss "
+              f"{w['loss_um']:.0f} um (set {q.lift_slip_loss_um:g} + cold {w['shrink_um']:.1f} + {q.lift_slip_jams} "
+              f"jams x {w['jam_um']:.3f}); warm high corner {w['hi_nm']:.2f} N m")
+        print(f"  {'loss um':>7} {'load':>5} {'hub N m':>7} {'slips':>7} {'cut ms':>7} {'gave up':>8} {'peak N':>7}")
+        for loss, ratio, nm in w["sweep"]:
+            if nm <= 0.05:
+                print(f"  {loss:7g} {ratio:5.0%} {nm:7.2f}  the stack is unloaded: the pulley spins free, the belt stops")
+                continue
+            r = wear_case(nm)
+            print(f"  {loss:7g} {ratio:5.0%} {nm:7.2f} {r['slips_nom']:3d}/{r['slips_worn']:<3d} {r['cut_ms']:7g} "
+                  f"{r['gave_ms']:8g} {r['peak_n']:7.0f}")
+        r = wear_case(w["hi_nm"])
+        print(f"  warm, new {w['hi_nm']:7.2f} N m: slips {r['slips_nom']}/{r['slips_worn']}, cut by {r['cut_ms']:g} ms, "
+              f"peak {r['peak_n']:.0f} N")
+    cut_floor, start_floor = wear_thresholds()
+    print(f"\nFloors (bisected): every jam is still cut down to {cut_floor:.2f} N m; no soft start slips with the worn "
+          f"stiff spider down to {start_floor:.2f} N m (the band's bottom is {p.lift_slip_nm * (1 - p.lift_slip_tol):.2f})")
+
+
 def main():
     p = Feeder()
     c = p.lift_jam_cutoff()
@@ -823,5 +915,7 @@ if __name__ == "__main__":
         sense_report()
     elif "--chain" in sys.argv[1:]:
         chain_report()
+    elif "--wear" in sys.argv[1:]:
+        wear_report()
     else:
         main()
