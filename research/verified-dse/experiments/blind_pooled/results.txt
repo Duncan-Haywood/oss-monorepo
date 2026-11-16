@@ -1,0 +1,69 @@
+# Milestone 136: every rule on the 42 pooled blind cells, each scored on the cells that test it (replay, no flow run)
+
+42 cells on 21 designs (m125 16, m132 12, m133 14); 36 on the ladder branch; 8 failing (SWC loses to random by > 1 point), 26 winning (SWC <= 0.5%).
+design bootstrap 2000 resamples, seed 136.
+
+## Table 1: each rule on its own blind cells, and on all 42
+
+rule | blind sets | blind cells | blind mean % | SWC on the same cells % | random on the same cells % | all-42 mean % | all-42 status
+SWC | m125, m132, m133 | 42 | 3.30 | 3.30 | 4.65 | 3.30 | blind
+SWG(32) | m125, m132, m133 | 42 | 4.26 | 3.30 | 4.65 | 4.26 | blind
+SWP(32) | m132, m133 | 26 | 3.19 | 3.14 | 4.01 | 3.32 | partly seen
+SWGP(32) | m132, m133 | 26 | 2.85 | 3.14 | 4.01 | 4.02 | partly seen
+SWPF(32) | m133 | 14 | 3.23 | 2.70 | 5.57 | 3.33 | partly seen
+SWX(3,0.02) | - | 0 | - | - | - | 4.02 | seen (descriptive)
+SWXR(3,0.02) | - | 0 | - | - | - | 4.08 | seen (descriptive)
+random | m125, m132, m133 | 42 | 4.65 | 3.30 | 4.65 | 4.65 | blind
+perfect guard min(SWC, random) | - | - | - | - | - | 1.30 | bound, not a rule
+
+## Table 2: guard against SWC on the guard's blind cells (Holm over the five guards with blind cells)
+
+guard | cells | better | worse | tied | sign p | Holm p | design-bootstrap 95% interval of mean (guard - SWC), points
+SWG(32) | 42 | 5 | 11 | 26 | 0.210 | 0.346 | -0.90 to +2.89
+SWP(32) | 26 | 6 | 14 | 6 | 0.115 | 0.346 | -0.76 to +0.84
+SWGP(32) | 26 | 6 | 14 | 6 | 0.115 | 0.346 | -2.40 to +1.64
+SWPF(32) | 14 | 3 | 11 | 0 | 0.057 | 0.229 | -0.69 to +1.59
+
+## SWC against random
+
+SWC vs random: better 28, worse 8, tied 6; sign p = 0.001; design bootstrap 95% interval of mean (SWC - random) -3.98 to +1.58 points
+perfect guard vs SWC: better 8, worse 0, tied 34; sign p = 0.008; design bootstrap 95% interval of mean (perfect guard - SWC) -4.11 to -0.37 points
+design level (21 designs, mean over each design's cells): SWC better on 13, worse on 5, tied on 3; sign p = 0.0963
+design-level mean (SWC - random) -1.36 points, sd 6.71; a 95% normal interval below zero needs about 95 designs at this spread (21 run so far)
+leave one design out: SWC - random from -2.38 points (without pmul4) to -0.85 (without pmul3)
+
+## Table 3: per design (mean over its cells)
+
+set | design | cells | ladder cells | SWC % | random % | SWG(32) % | SWP(32) % | SWX(3,0.02) % | perfect % | SWC - random
+m125 | pmul3 | 2 | 2 | 0.00 | 11.52 | 11.52 | 2.77 | 10.07 | 0.00 | -11.52
+m125 | avg5 | 2 | 2 | 0.00 | 9.37 | 9.37 | 2.23 | 0.00 | 0.00 | -9.37
+m133 | fib12 | 2 | 2 | 0.00 | 6.29 | 0.00 | 0.97 | 5.05 | 0.00 | -6.29
+m133 | cmp16 | 2 | 2 | 0.00 | 6.21 | 6.21 | 3.27 | 0.00 | 0.00 | -6.21
+m133 | cmp48 | 2 | 2 | 0.00 | 5.56 | 0.00 | 1.20 | 0.00 | 0.00 | -5.56
+m133 | fib14 | 2 | 2 | 0.00 | 5.46 | 0.00 | 1.14 | 0.00 | 0.00 | -5.46
+m133 | bcd2 | 2 | 2 | 0.00 | 5.23 | 5.23 | 0.72 | 0.00 | 0.00 | -5.23
+m125 | lane4k1 | 2 | 2 | 2.95 | 7.93 | 7.93 | 4.54 | 2.95 | 2.95 | -4.99
+m132 | gray1 | 2 | 2 | 0.00 | 3.03 | 0.00 | 0.26 | 0.00 | 0.00 | -3.03
+m125 | lane2k2 | 2 | 2 | 0.00 | 2.82 | 0.00 | 1.14 | 0.00 | 0.00 | -2.82
+m125 | sel64 | 2 | 2 | 0.00 | 2.64 | 0.00 | 0.78 | 0.00 | 0.00 | -2.64
+m125 | lane4k2 | 2 | 2 | 2.40 | 4.86 | 2.40 | 2.62 | 2.40 | 2.40 | -2.45
+m125 | avg6 | 2 | 2 | 0.00 | 2.42 | 0.00 | 0.63 | 0.00 | 0.00 | -2.42
+m132 | mod10 | 2 | 0 | 2.37 | 2.37 | 2.37 | 2.37 | 2.37 | 2.37 | +0.00
+m132 | mod12 | 2 | 0 | 1.32 | 1.32 | 1.32 | 1.32 | 1.32 | 1.32 | +0.00
+m132 | mod8 | 2 | 0 | 2.96 | 2.96 | 2.96 | 2.96 | 2.96 | 2.96 | +0.00
+m133 | bcd3 | 2 | 2 | 9.32 | 6.49 | 6.49 | 8.94 | 9.32 | 6.49 | +2.83
+m132 | lut1 | 2 | 2 | 6.58 | 3.24 | 6.58 | 4.90 | 6.58 | 2.80 | +3.34
+m133 | crc7s16 | 2 | 2 | 9.55 | 3.72 | 3.72 | 7.18 | 9.55 | 1.86 | +5.83
+m132 | gray0 | 2 | 2 | 8.67 | 0.31 | 0.31 | 6.27 | 8.67 | 0.31 | +8.37
+m125 | pmul4 | 2 | 2 | 23.10 | 3.93 | 23.10 | 13.44 | 23.09 | 3.93 | +19.17
+
+perfect guard: 1.99 points below SWC on the 42 cells; 1.00 of that gap sits on the 8 failing cells, on 5 designs
+
+## Predictions
+
+(1) SWC lowest of every rule on all 42 cells: True (SWC 3.30, SWG(32) 4.26, SWP(32) 3.32, SWGP(32) 4.02, SWPF(32) 3.33, SWX(3,0.02) 4.02, SWXR(3,0.02) 4.08, random 4.65)
+(2) SWC no higher than each guard on the guard's blind cells: False (SWG(32) 4.26 against SWC 3.30; SWP(32) 3.19 against SWC 3.14; SWGP(32) 2.85 against SWC 3.14; SWPF(32) 3.23 against SWC 2.70)
+(3) no guard-vs-SWC test significant after Holm: True (smallest Holm p 0.229)
+(4) design level, SWC better on >= 14 of 21 designs and sign p < 0.05: False (13 better, 5 worse, p = 0.0963)
+(5) SWC below random with any one design left out: True
+(6) perfect guard less than 2 points below SWC: True (1.99 points)
