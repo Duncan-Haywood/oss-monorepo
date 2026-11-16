@@ -5,3 +5,4 @@
 ## Parked from flagships.yaml `next:`
 
 - (2026-11-15) (5) holiday list: wanted a shop's counts or a yearly term.
+- (2026-11-16) (4) driftWarning on real shocks.

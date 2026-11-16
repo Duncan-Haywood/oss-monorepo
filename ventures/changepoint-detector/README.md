@@ -5262,3 +5262,53 @@ and calls the series Poisson unless the mean at c = 0 clears 0.9813 by two stand
 - **Not checked.** A real count series with a documented steep slope break (still wanted, as before); clumping that
   itself changes with the level (NB1-like, variance proportional to the mean), which a single r cannot describe.
 
+
+## Clumping that grows with the level: an NB1 cost and a law check (2026-11-16, pre-registered; ships)
+
+`--overdispersion nb` uses the NB2 law, variance mu + mu^2 / r with one size r. Counts that arrive in batches of a
+typical size clump in proportion to their level instead (NB1, variance phi mu), and on a series whose level moves a
+lot one r cannot describe that: it overstates the spread where the level is high and understates it where it is low,
+so the low stretch sprouts changes. Measured first (`eval/nb1-probe.mjs`, `eval/nb1-probe.out.txt`): on NB1 counts
+(phi 3) ramping 100-fold with `--trend bend` and no change, the NB2 cost gave 0.38 to 0.68 false changes per series,
+4 to 7 times what it gives when its law is right; the quasi-Poisson route (`--overdispersion`) was worse everywhere,
+up to 8 per series on NB2 ramps.
+
+**What shipped.**
+
+- `--overdispersion nb1` (CLI, API `overdispersion: "nb1"`, the page's counts box): the NB1 negative-binomial
+  likelihood, size lam e_t / delta per point (delta = phi - 1), with `--period` and `--trend` exposures as `nb` has.
+  The segment's rate has no closed-form maximum, so the moment estimate is polished by a Newton step on the exact
+  score (digamma, trigamma), warm-started along PELT's scan; within 1e-3 of a brute-force grid (`nb1.test.mjs`).
+  It costs about 2.5 times `nb` with `--trend bend` (1.3 s against 0.5 s on 200 points). The Bayesian pass has no
+  NB1 conjugate, so it tempers the Poisson likelihood by phi there.
+- `nb1Dispersion`: phi read against each point's local 7-point level, the same capped-mean equation `negbinSize` uses
+  for NB2 (so growth is not read as clumping), and phi 1 unless Poisson is rejected by two standard errors.
+- `clumpingLaw` and the output's `clumping` field: both laws fitted to the same differences; the right law leaves the
+  scaled differences equal on the lower and upper halves of the level. It says `nb1`, `nb2` or `either` (the level
+  spans under 3 times, or neither is clearly worse). When the other law fits better, `clumpingWarning` says which
+  setting to use, on the page and in the report.
+
+**Pre-registered bars, fresh seeds, run once** (`eval/nb1-preregistration.md`, `eval/nb1.mjs 9701 9702 9703 9704`,
+`eval/nb1.out.txt`; 100 series of 200 counts per cell):
+
+| | NB2 cost (`nb`) | NB1 cost (`nb1`) |
+|---|---|---|
+| NB1 phi 3, ramp 7 to 700, false changes per series | 0.45 | **0.19** |
+| NB1 phi 3, ramp 2 to 200, false changes per series | 0.47 | **0.15** |
+| NB1 ramp with a x1.6 step: found within 5 points | 100 of 100 | 100 of 100 |
+| ... other changes per series | 0.50 | 0.47 |
+| NB2 r 8 ramps, false changes per series (no bar) | 0.15 / 0.12 | 3.50 / 2.67 |
+
+The law check said `nb1` on 94 of 100 NB1 ramps in each cell (the rest `either`, never `nb2`) and `nb2` on 100 of 100
+NB2 ramps. phi came out 2.91 (flat) and 3.00 (ramp) against the true 3, and plain Poisson ramps read phi 1 on 97 of 100.
+
+**Read with care.** The wrong law costs more in the NB1-on-NB2 direction (3.5 false changes against 0.45 the other
+way), so `nb` stays the default clumpy-count cost and `nb1` is opt-in, with the law check to say when to take it. Two
+changes were made on development seeds before the run (the Newton polish, and a bug in the trend fit that subtracted
+an exposure term the NB1 likelihood already holds: a bend won on 8 of 8 straight ramps until it was fixed); they are
+listed in the pre-registration. On development seeds the 2-to-200 cell read 0.30 against the 0.2 bar; the bars were
+not moved, and the pre-registered run decided. Remaining false changes are short bursts and short runs of zeros on
+series whose phi comes out low. Not checked: a real count series known to clump in proportion to its level (call
+centre arrivals in batches, insurance claims per event), and the law check under a season (it reads the raw counts).
+Tests: `nb1.test.mjs` (6: the special functions, the cost against a grid with and without exposures, phi on flat and
+growing counts, the law check both ways and on a flat series, analyze's output and hint, a flat series kept whole).
