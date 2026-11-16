@@ -72,13 +72,14 @@ def slide_sx(s_slide, s_edge=S_EDGE):
 
 def clean(on=SOURCES, *, framing="2x", warp="straight", policy="three", rock_draw=None,
           slide=None, shim=None, s_robot=C.S_ROBOT, straighten=None, trials=20000, seed=7,
-          profiles=None, u_joint=None, hits=False):
+          profiles=None, u_joint=None, hits=False, tool=None):
     """Clean sheets and missed nails with only the sources in ``on`` switched on.
     ``u_joint`` and ``hits`` (milestone 14) pass to ``tack.simulate``: a denser joint-edge schedule,
     and the per-nail hit pattern, returned as ``hits`` when asked for.
     ``slide``/``shim`` (residuals, m) apply the remedies; they replace the slide translation and
     the ledger/panel tilt respectively, and keep the edge reads they rely on. ``profiles``
-    (milestone 11's measured studs, ``tack.simulate``) replaces the warp draw."""
+    (milestone 11's measured studs, ``tack.simulate``) replaces the warp draw. ``tool`` (milestone 29,
+    ``tool_lean.ToolError``) replaces the per-nail tool scatter."""
     on = set(on)
     s_edge = S_EDGE if "edge" in on else 0.0
     if slide is not None:
@@ -89,7 +90,7 @@ def clean(on=SOURCES, *, framing="2x", warp="straight", policy="three", rock_dra
     kw = dict(trials=trials, seed=seed, policy=policy, band=C.band(), joint_band=C.band(C.FRAMING[framing]),
               s_robot=s_robot if "tool" in on else 0.0, s_read=S_READ if "stud" in on else 0.0,
               s_edge=s_edge, s_x=s_x, aim="edge", theta_draw=td, straighten=straighten, profiles=profiles,
-              u_joint=u_joint, return_hits=hits, **({} if profiles is not None else C.WARP[warp]))
+              u_joint=u_joint, return_hits=hits, tool=tool, **({} if profiles is not None else C.WARP[warp]))
     r = K.simulate(**kw)
     out = {"clean": r["clean"], "missed": r["missed"]}
     if hits:

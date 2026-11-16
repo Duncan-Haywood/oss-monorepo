@@ -51,6 +51,8 @@ EXPERIMENTS = {
     "m21_degrading": ("numpy, scipy", 35, [("check_diag.py --walls", "check_diag.txt")]),
     "m27_slide_mech": ("numpy, mujoco, Menagerie G1/H1; reads m11 profiles.json, m6b results.json", 3, []),
     "m28_shim_mech": ("numpy, mujoco, Menagerie G1/H1; reads m11 profiles.json, m6b and m27 results.json", 1, []),
+    "m29_tool_lean": ("numpy, scipy, mujoco, Menagerie G1/H1; reads m11 profiles.json, m6b and m27 results.json", 1,
+                      []),
 }
 QUICK = [n for n, (needs, mins, _) in EXPERIMENTS.items()
          if mins <= 2 and "mujoco" not in needs and "drake" not in needs]

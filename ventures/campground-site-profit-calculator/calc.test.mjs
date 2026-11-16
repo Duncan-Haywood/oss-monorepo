@@ -106,3 +106,26 @@ test("turnover labour carries the payroll burden, and a bare wage is called out"
   assert.match(compute(raw({ burdenPct: "-1" })).errors.join(" "), /Payroll burden must be 0 or more/);
   assert.equal(compute(raw({ burdenPct: "" })).input.burdenPct, 0);
 });
+
+// Red team 2026-11-16: below break-even occupancy the page said "loses about $16,385" and, in the
+// same list, "One rainy month can turn it into a loss."
+test("near break-even is a warning above it; below it the gap is stated, not a future risk", () => {
+  const be = compute(raw()).breakEvenOcc; // about 40.5%
+  const near = compute(raw({ occupancy: String(Math.ceil(be) + 5) }));
+  assert.ok(near.profit > 0);
+  assert.ok(near.findings.some((f) => f.severity === "medium" && /rainy month/.test(f.title)));
+  const edge = compute(raw({ occupancy: String(Math.ceil(be) + 9.5) }));
+  assert.ok(edge.findings.some((f) => /rainy month/.test(f.title)), "within 10 points is near");
+  const clear = compute(raw({ occupancy: String(be + 10) }));
+  assert.ok(!clear.findings.some((f) => /rainy month/.test(f.title)), "10 points clear is not near");
+  const below = compute(raw({ occupancy: "35" }));
+  assert.ok(below.profit < 0);
+  assert.ok(!below.findings.some((f) => /rainy month|turn it into a loss/.test(f.title)));
+  assert.ok(below.findings.some((f) => /Break-even is 41% full and you run 35%/.test(f.title) && /more occupied nights/.test(f.title)));
+});
+
+test("a campground that exactly breaks even is not said to lose money", () => {
+  const z = compute(raw({ nightly: "0", stayFee: "0", varNight: "0", turnMin: "0", fixedYear: "0", platformPct: "0", target: "0" }));
+  assert.equal(z.profit, 0);
+  assert.ok(!z.findings.some((f) => /loses/.test(f.title)));
+});

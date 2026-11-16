@@ -5309,6 +5309,106 @@ an exposure term the NB1 likelihood already holds: a bend won on 8 of 8 straight
 listed in the pre-registration. On development seeds the 2-to-200 cell read 0.30 against the 0.2 bar; the bars were
 not moved, and the pre-registered run decided. Remaining false changes are short bursts and short runs of zeros on
 series whose phi comes out low. Not checked: a real count series known to clump in proportion to its level (call
-centre arrivals in batches, insurance claims per event), and the law check under a season (it reads the raw counts).
+centre arrivals in batches, insurance claims per event; real call-centre arrivals were checked on 2026-11-16 and turned out
+Poisson around a wandering rate, see the next section), and the law check under a season (it reads the raw counts).
 Tests: `nb1.test.mjs` (6: the special functions, the cost against a grid with and without exposures, phi on flat and
 growing counts, the law check both ways and on a flat series, analyze's output and hint, a flat series kept whole).
+
+## Two changes of slope: a second hinge for the short sticky series (2026-11-16, pre-registered; ships as `--two-hinge-test`)
+
+"Step or bend?" and "The hinge test on the logs" ended the same way: `--hinge-test` refused 7 of 8 real series under
+100 points because the residuals about its best single bend stayed sticky (rho 0.71-0.95), and a second hinge was the
+route both named. `two-hinge.mjs` (`twoHingeTest`) is the same procedure with two knots: `x = a + b t + c1 (t - k1)+
++ c2 (t - k2)+` plus AR(1) noise, a sup-F with 2 and n - 4 degrees of freedom over knot pairs (each knot 15% from either
+end, the two at least 15% of n apart), rho from the best OLS pair's residuals, Prais-Winsten GLS, and a bootstrap from
+the GLS straight line. The guard is the one-hinge `cut` guard with the random-walk bar recomputed for two hinges (0.90
+at n 39, 0.82 at 40, 0.65 at 55, 0.64 at 60, 0.40 at 95: two bends cut a walk's stickiness much more than one does).
+The scan precomputes the Gram matrix of the hinge columns, so a pair costs a 2 x 2 solve; 499 replicates on 145 points
+take about 1.3 s, and 300 points (the cap) about 8 s. Bars, predictions and the decision rule were committed before any run
+(`eval/two-hinge-prereg-2026-11-16.md`; development seeds 900,000+ looked at once for speed, not reused).
+`node eval/two-hinge-sim.mjs 300 99 size <n>` (`eval/two-hinge-sim-size.out.txt`, seeds from 64,000,000),
+`node eval/two-hinge-sim.mjs 300 99 power` (`eval/two-hinge-sim-power.out.txt`), `node eval/two-hinge-real.mjs`
+(`eval/two-hinge-real.out.txt`, 999 replicates).
+
+**Size (S1) and unit roots (S2): all 21 cells hold** (share of all series with p <= 0.05, refusals counted as not
+rejecting; cap 8%):
+
+| n | line + AR(1) rho 0 / 0.3 / 0.6 / 0.8 | AR(1) 0.9 / 0.95 / random walk with drift |
+|---|---|---|
+| 40 | 5.7% / 4.3% / 7.3% / 4.7% | 2.7% / 3.7% / 2.3% |
+| 60 | 4.7% / 7.0% / 5.3% / 2.7% | 1.3% / 2.7% / 1.7% |
+| 95 | 3.3% / 5.0% / 5.3% / 2.3% | 0.7% / 1.0% / 2.0% |
+
+**Power (P): holds.** Flat to n/3, rising 0.25 a step to 2n/3, flat after, rho 0.5, on the same series:
+
+| cell | two hinges | one hinge (shipped) | difference |
+|---|---|---|---|
+| n 60, rise 0.25 (bar: at least 10 points) | 30.7% (224 tested) | 7.3% (224 tested) | **+23.3** |
+| n 95, rise 0.25 (reported) | 46.3% (144 tested) | 1.7% (77 tested) | +44.7 |
+| n 60, rise 0.15 (reported) | 17.0% | 7.7% | +9.3 |
+
+**Real series: 6 of 7 predictions hold, and the motivating ones are still refused.**
+
+| series | n | two hinges | one hinge | prediction |
+|---|---|---|---|---|
+| R1 Australian gas, annual | 39 | refused: line 0.97, two 0.47, cut bar 0.90 | refused | refused: holds |
+| R2 US electricity, annual | 40 | refused: line 0.82, two 0.49, cut bar 0.82 | refused | refused: holds |
+| R3 US female murder rate | 55 | refused: line 0.97, two 0.68, cut 0.29 against 0.65 | refused | tested, p <= 0.05: **fails** |
+| R4 Canada fertility | 38 | refused: line 0.92, two 0.61, cut bar 0.93 | refused | refused: holds |
+| C Lake Huron / Michigan-Huron | 98 / 92 | refused (two 0.71 / 0.78) | refused | refused: holds |
+| G GCAG 1880-2024 | 145 | knots 1904 and 1985, p 0.002; -0.26 -> 0.62 -> 2.27 degrees per century | 1976, p 0.001 | knot in 1965-1985: holds |
+| CO2 annual means (reported) | 67 | refused: line 0.97, two 0.77 | refused | |
+| Nile (reported) | 100 | knots 1892 and 1907, p 0.019, a slope of -18.6 a year between | 1913, p 0.017 | |
+
+**Verdict: ships.** S1, S2 and P hold, so the decision rule puts it in `analyze({ twoHingeTest })`, the CLI
+(`--two-hinge-test`) and the page ("Also test two changes of slope"), 30 to 300 points. On a series the shipped test
+already admits, it finds two-bend shapes the one-hinge test misses (the plateau: 31% against 7% at n 60). It does
+**not** rescue the short sticky series it was built for. Two hinges do take their stickiness down (gas 0.83 to 0.47,
+fertility 0.77 to 0.61, murder rate 0.80 to 0.68), but two hinges take a random walk's down by about as much, so the
+random-walk bar rises with them and the cut never clears it under 60 points. That is the guard working: S2 at n 40 is
+at most 3.7%, and a rule loose enough to admit the gas series would admit walks. Under 60 points, these series need
+outside information (a documented break date, which would fix the knots and remove the search) rather than another
+shape. GCAG's pair dates the early-century warming's start and the late acceleration; 1976 sits between 1904 and 1985
+as one hinge's compromise. The Nile result is the familiar warning: two close knots make a 15-year plunge that stands
+in for the 1898 drop, and the note says so.
+
+**Use it.** CLI `--two-hinge-test`; `analyze({ ..., twoHingeTest: true })` returns `twoHingeTest: { index1, index2,
+label1, label2, f, bar95, p, rho, slopes: [before, between, after], significant, note }` or `{ refused, reason }`; with
+`--log` it runs on the logs. Test: `two-hinge.test.mjs`. **Next** (not run): a hinge test with the knot or knots given
+by the user (a documented date: no search, so a far smaller null and a looser guard), which is the remaining route for
+the 39-55 point series.
+
+## The clumping-law check on real call-centre arrivals (2026-11-16, pre-registered; fails its bar by abstaining, nothing changed)
+
+The NB1 section left open "a real count series known to clump in proportion to its level". This is the first real
+one: `fpp2::calls`, five-minute calls handled by a large North American bank, 164 weekdays of 169 slots from
+3 March 2003 (`data/bank-calls-5min.csv`, `data/SOURCE.md`). The reference law was read across days, which the
+check never sees: a weekday-by-slot profile times a day level, then the mean of (y - E)^2 / E by decile of E
+(`eval/calls-law-preregistration.md`, written before any check ran; `node eval/calls-law.mjs`,
+`eval/calls-law.out.txt`).
+
+| | Pre-registered | Result |
+|---|---|---|
+| Reference law | `nb2`, `nb1` or `unclear` by a fixed rule | `nb1`: top / bottom decile 0.83, bottom 1.60 |
+| L1: check says `nb1` on at least 99 of 164 days | | **0 of 164: fails** |
+| L1/L2: check says `nb2` (a wrong warning) on at most 16 | | 0 of 164: holds |
+
+`clumpingLaw` said `either` on every day and `nb1Dispersion` read phi 1 (Poisson) on 161 of 164. The level inside a
+day spans 2.16 times (median, upper half against lower), under the check's 3. Both NB costs gave the same changes
+on the first five whole weeks with `--period 169` (7 to 13 a week, 0.1 s each), with no warning.
+
+**Why, post hoc (not pre-registered; `eval/calls-law-posthoc.mjs`, `eval/calls-law-posthoc.out.txt`).** The
+pre-registration named this weakness in advance: a profile that differs from the fitted one leaves residuals that
+look like clumping. That is what happened. Pooled over all 27,552 within-day first differences, d^2 / (2m) is 1.005,
+Poisson to the third digit, so adjacent five-minute counts do not clump. The across-day residuals are correlated
+inside a day (lag 1: 0.31), and their dispersion grows with the block they are summed over: 1.34 at 5 minutes, 2.18
+at 15, 3.25 at 30, 5.17 at an hour, 8.02 at two hours. Independent clumping would stay flat. So these arrivals are
+Poisson around a rate that wanders slowly away from the weekday profile, the doubly stochastic picture of the
+call-centre literature, and the reference's "NB1" was that wander, not batches.
+
+**What it means for use.** On counts like these the law check abstaining is the right answer, and the NB costs add
+nothing over plain Poisson. The 7 to 13 changes a week are the wandering rate cut into steps, not clumping. Nothing
+in `clumpingLaw` was changed (decided in advance: one series does not retune it). Still open: a real series that does
+clump in batches (insurance claims per event, orders per basket), and, for wandering rates on counts, a drift model
+like "Wandering level" (the mean model has one) for the Poisson cost. Test: `calls-law.test.mjs` (2: the reference
+reads `nb1` by the pre-registered rule; the check says `either` on all 164 days and a week run warns nothing).

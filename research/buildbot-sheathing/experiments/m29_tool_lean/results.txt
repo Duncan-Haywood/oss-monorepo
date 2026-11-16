@@ -1,0 +1,68 @@
+# Milestone 29: the nailer's length and the nail's lean (buildbot-sheathing)
+member bound checked 44.4 mm below the surface (7/16 in OSB + 10 x 0.131 in); 11-bit joint error 0.0507 deg (1 sigma)
+
+## A. Tool error at the stud-height pose (hand x 0.4, z 1.0 m), 11-bit joints, feet planted
+robot | hand rotation sigma x/y/z (deg) | L (m) | y: surface  depth  rho | z: surface  depth  rho  (mm)
+g1    | 0.101 0.118 0.095            |  0.00 |      0.931  0.981 0.998 |      0.873  0.956 0.999
+g1    | 0.101 0.118 0.095            |  0.15 |      1.110  1.168 0.999 |      1.160  1.247 1.000
+g1    | 0.101 0.118 0.095            |  0.30 |      1.312  1.375 1.000 |      1.456  1.544 1.000
+g1    | 0.101 0.118 0.095            |  0.45 |      1.529  1.594 1.000 |      1.757  1.846 1.000
+h1    | 0.066 0.093 0.080            |  0.00 |      0.699  0.750 0.999 |      0.642  0.709 0.999
+h1    | 0.066 0.093 0.080            |  0.15 |      0.876  0.931 1.000 |      0.871  0.940 1.000
+h1    | 0.066 0.093 0.080            |  0.30 |      1.064  1.122 1.000 |      1.106  1.176 1.000
+h1    | 0.066 0.093 0.080            |  0.45 |      1.259  1.318 1.000 |      1.343  1.414 1.000
+lean a joint error gives at the nose: y g1 0.095 deg, h1 0.080 deg (rotation about z tilts the nail along the wall)
+
+## B. Checks
+buildbot-fasten's 11-bit G1 hand point: 0.93/0.87 mm (y/z); here L 0 surface 0.931/0.873 mm
+one nail, window surface >= -2.0 mm and depth <= +2.0 mm: Monte Carlo 0.8632 (400,000), bivariate normal 0.8633
+one nail, window surface >= -1.0 mm and depth <= +1.5 mm: Monte Carlo 0.6387 (400,000), bivariate normal 0.6393
+one nail, window surface >= -3.0 mm and depth <= +0.8 mm: Monte Carlo 0.7069 (400,000), bivariate normal 0.7085
+best single-2x stack, old path (0.9 mm hand point): 0.7964 (milestone 28: 0.7964)
+the same point model through the new path (other random draws): 0.7969; old path's 95% interval [0.7908, 0.8019]
+doubled joint studs, old path: 1.0000
+
+## C. The stack with each robot's tool error (11-bit x multiple, nailer length L)
+robot mult L (m) | single 2x  [95%]           vs 0.9 mm point (pts) | doubled
+g1       1  0.00 | 0.7346 [0.7284, 0.7406]                -6.18 | 1.0000
+g1       1  0.15 | 0.5118 [0.5048, 0.5187]               -28.46 | 
+g1       1  0.30 | 0.2637 [0.2576, 0.2699]               -53.27 | 1.0000
+g1       1  0.45 | 0.0993 [0.0952, 0.1035]               -69.71 | 
+g1       2  0.00 | 0.0119 [0.0105, 0.0135]               -78.45 | 1.0000
+g1       2  0.15 | 0.0008 [0.0005, 0.0012]               -79.56 | 
+g1       2  0.30 | 0.0000 [0.0000, 0.0002]               -79.64 | 0.9997
+g1       2  0.45 | 0.0000 [0.0000, 0.0002]               -79.64 | 
+g1       4  0.00 | 0.0000 [0.0000, 0.0002]               -79.64 | 0.9570
+g1       4  0.15 | 0.0000 [0.0000, 0.0002]               -79.64 | 
+g1       4  0.30 | 0.0000 [0.0000, 0.0002]               -79.64 | 0.3952
+g1       4  0.45 | 0.0000 [0.0000, 0.0002]               -79.64 | 
+h1       1  0.00 | 0.9117 [0.9077, 0.9156]               +11.53 | 1.0000
+h1       1  0.15 | 0.7830 [0.7772, 0.7887]                -1.34 | 
+h1       1  0.30 | 0.5706 [0.5637, 0.5774]               -22.59 | 1.0000
+h1       1  0.45 | 0.3247 [0.3182, 0.3312]               -47.17 | 
+
+old path, the 0.9 mm point model at other scatters (for scale): 0.60 mm 0.9595, 1.00 mm 0.6887, 1.30 mm 0.3152
+
+G1 at L 0.3 m by joint-sensor resolution (quantisation only): what a nailer this long needs
+bits | y surface/depth (mm) | single 2x  missed nails a sheet | doubled
+  11 | 1.312 / 1.375        | 0.2637     1.426              | 1.0000
+  12 | 0.656 / 0.688        | 0.9344     0.081              | 1.0000
+  13 | 0.328 / 0.344        | 0.9910     0.012              | 1.0000
+  14 | 0.164 / 0.172        | 0.9966     0.005              | 1.0000
+
+## D. An independent nail lean (1 sigma, each axis) on top of the G1's 11-bit error at L 0.3 m
+lean (deg) | offset at 44.4 mm (1 sigma, mm) | single 2x  vs no lean (pts) | doubled
+      0.00 |                             0.000 | 0.2637           +0.00 | 1.0000
+      0.25 |                             0.194 | 0.2577           -0.60 | 1.0000
+      0.50 |                             0.387 | 0.2379           -2.58 | 1.0000
+      1.00 |                             0.775 | 0.1709           -9.28 | 1.0000
+      2.00 |                             1.550 | 0.0430          -22.06 | 1.0000
+      3.00 |                             2.326 | 0.0062          -25.75 | 0.9998
+lean the single-2x stack tolerates for a 2-point loss: 0.434 deg (1 sigma; 0.336 mm at depth)
+
+## E. Hypotheses (registered in LOG.md before this run)
+H109 (G1 11-bit at a 0.3 m nose and 44 mm depth loses > 2 points against the 0.9 mm point): 0.2637 against 0.7964 (-53.27 points) -> held
+H110 (a 1 deg lean costs > 5 points): 0.1709 against 0.2637 (-9.28 points) -> held
+H111 (doubled joints >= 0.99 at a 2 deg lean): 1.0000 -> held
+
+(run time 23 s; python 3.13.18, numpy 2.5.3, mujoco 4.0.1)

@@ -368,6 +368,19 @@ on the Kinect, 6.2% blind with k<sub>1</sub> becomes 17.9% chosen with k<sub>1</
 alarms. On the Xtion the twin still overstates its power 1.96×, so an unmodelled lens term is one source of
 the twin's optimism, not the only one.
 
+**On views the test has never seen (milestone 4p, pre-registered).** Every figure above scores splits of one
+pool of 13 views. A second, disjoint pool of 13 was picked from each TUM sequence by the same rule (each
+frame at least 1 s from the first pool's), solved with k<sub>1</sub> + k<sub>2</sub> (9,440 solves), and the 7 + 6 test
+scored with the old set from one pool and the new set from the other, in both directions, against the
+per-split threshold of the two pools' twins. False alarms stay under the 2.5% bar (0.91% on the Kinect,
+1.90% on the Xtion) but not at nominal (1.40% pooled), against 0.59% and 0.12% in-sample, and ±2% is caught
+in 7.96% of splits against 14.76% in-sample. The second pool is flatter (median tilt 0.147 against 0.268 and
+0.063 against 0.101), its 6-view solves scatter twice as much (1.23% of f against 0.59% and 0.50%), and
+within it alone the Xtion's false alarms reach 4.44%; the across-pool power lies between the two pools' own
+(14.8% and 5.7%). The two 13-view calibrations agree to +0.17% and +0.58%, 0.98 and 2.71 of the twins' sd.
+The in-sample false-alarm rates of this section are therefore lower bounds, and the test's safety depends on
+the geometry of the new views as well as on the threshold.
+
 ## 8. Recommendations
 
 1. **Gate on a view-level jackknife, not the solver's covariance.** The reported covariance and a
@@ -407,7 +420,7 @@ One stereo rig, one board, one tutorial image set for Sections 3–7; two more u
 the update test, each one hand-held sequence of about 50 s; 13 views per camera, so the splits reuse views
 and the intervals are too narrow, and a 99th percentile from 180 statistics rests on about two of
 them (Section 7 shows how far that moved one result). Scoring every split removes the sampling of
-splits, not the reuse of views: it says nothing about a fresh set of views. The focal and principal-point changes are exact model transforms; the swaps (here and between the
+splits, not the reuse of views; a second pool of 13 views per TUM unit (milestone 4p) shows the in-sample false alarms understate the fresh-view rate (1.40% against 0.35%), but both pools come from one session. The focal and principal-point changes are exact model transforms; the swaps (here and between the
 two TUM units) are the only real changes. The corners are checkerboard corners without mismatches; natural features (SIFT) are not yet
 tested. The renders leave out the bend, the clipboard and background clutter, vignetting and the
 sensor's own noise. Several findings (the half-width cause, the f-alone power figures in Section 5)
@@ -427,6 +440,10 @@ were found after a pre-registered prediction failed and are labelled so in the l
   doubles its power at 7 + 6 (milestone 4n), and waiting multiplies with it (milestone 4o: 6.2% to 17.9% on the Kinect); still needed: a stopping rule over
   a longer stream of views (more than 13 per unit), and a twin that models the right camera's extra spread (a per-view offset
   term fitted to the unit's own jackknife) to bring that camera up to 1%.
+- Done for one session per unit (milestone 4p): a disjoint second pool of views keeps false alarms under 2.5%
+  but halves the power and shows the threshold must match the new views' geometry. Still needed: a reference
+  that conditions on the new set's own geometry (a twin of the new views, or a tilt gate), checked on a
+  third pool, and views from a different session of the same camera.
 - The robust-jackknife test (Section 7) pre-registered on a second unit's views, with both references:
   the model reference to confirm it stays conservative, and χ²<sub>1</sub> to see whether its 2–3%
   false alarms survive a unit with more views, where the model says they should rise. Every split of
