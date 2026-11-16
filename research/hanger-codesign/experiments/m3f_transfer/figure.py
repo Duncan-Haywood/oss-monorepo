@@ -1,6 +1,6 @@
 """Where the jersey's transferred states end up: energy above the target lattice's lowest own seed, every
 transfer sorted, for 3e's nearest-fill transfer and 3f's affine transfer (capped transfers included at
-their capped energy). The dashed line is the flag bound (target's own seed band + 1e-5 J), in 1e-5 J.
+their capped energy). The dashed line is the widest own-seed band of the three lattices plus 1e-5 J (the flag bound), in 1e-5 J.
 
     python3 experiments/m3f_transfer/figure.py    (reads results.json here and 3e's; stdlib only)
 
