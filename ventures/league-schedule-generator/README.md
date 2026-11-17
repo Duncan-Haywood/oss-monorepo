@@ -535,6 +535,33 @@ Open: the same class at 47 on 8 x 9 (41 on 7 x 9 closed, next sections) (3 spare
 a night, no group of order k), and the fully booked 49 on 8 x 9 (43 on 7 x 9 closed 2026-11-17 by
 `eval/odd-orbit.py`, the section after next).
 
+### 47 teams on 8 x 9: five more runs from 13 of 16, no climb (2026-11-17, latest)
+
+The next step the section below asked for, run as written plus one new setting: three resumes of
+`eval/odd-lns.py` from the stored 13-of-16 state, side by side on four cores, 6,000 s each, and
+`eval/lns-bad-night.py` on the fourth (full logs at the end of `eval/odd-lns.txt`).
+
+| Seed | Settings | Steps | Sideways | Better | Failed repairs |
+|---|---|---|---|---|---|
+| 131 | `--also 15` | 23 | 4 | 0 | 18, all timeouts |
+| 132 | `--also 15 --sideways-after 2` | 28 | 11 | 0 | 18, all timeouts |
+| 133 | `--free 3` (new at 47) | 20 | 1 | 0 | 19, all timeouts |
+
+- **The search has stalled at 13.** With seeds 121 and 122 from the last session, five runs from 13
+  have found no climb in 26,870 core-seconds. The bad nights stay 2, 3 and 11. The sideways steps
+  re-deal their pairs without making any of them lay out.
+- **Night 2 alone is not proved impossible.** Its 69 matches (7,485 variables, 17,103 clauses)
+  came back UNKNOWN after 3,600 s with the one-night model. At 41 teams the last bad night was UNSAT
+  in 677 s, and that verdict pointed straight at a re-deal. Here a layout may exist, but the search's
+  300 s repairs never reach it. A longer budget (seed 92, 900 s) already did worse.
+- **Freeing three nights did not help.** `--free 3` made one sideways step in 6,208 s, the slowest
+  of the three. That matches 41 teams, where freeing three nights a step also stalled.
+
+The stored state is unchanged (13 of 16). Throwing more seeds at the same moves is unlikely to pay
+off. The next attempt should change the method: an orbit model like the one that closed 43 on 7 x 9
+(`eval/odd-orbit.py`, with the 4x-a-size cost) for the n = 6m + 5 family, or a one-night model with
+symmetry breaking so that night 2 returns SAT or UNSAT within an hour.
+
 ### 47 teams on 8 x 9: 5 to 13 of 16 nights, and why the repairs fail (2026-11-17, later)
 
 The state saved by the last run (5 of 16, "47 teams on 8 x 9: 5 of 16 nights" below) is now **13 of 16** wait-free nights,

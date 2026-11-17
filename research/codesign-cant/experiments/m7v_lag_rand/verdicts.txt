@@ -1,0 +1,16 @@
+V1 held: 24 of 24 lagrand designs pass the margin test under all three identified laws (need >= 22; lag39 24)
+V2 held (4 of 4): L2-45 at 39.1 ms, lagrand >= lag39: 7l above 191 vs 150; 7l below 177 vs 167; aware above 132 vs 72; aware below 90 vs 73
+V3 refuted (0 of 4): L2-45 at 33 ms, lagrand < lag39: 7l above 101 vs 80; 7l below 112 vs 107; aware above 61 vs 37; aware below 53 vs 46
+V4 refuted (1 of 4): worst identified L2-45, lagrand <= 1.15 x lag39: 7l above 191 vs 150 (x1.27); 7l below 177 vs 167 (x1.06); aware above 132 vs 72 (x1.83); aware below 90 vs 73 (x1.23)
+V5 refuted: under the inherited 15 ms law lagrand certified 21 of 24 (need >= 22; lag39 20)
+V6 held: at 45 ms lagrand certified 8 of 24 (need <= 15; lag39 15); L2-45 lagrand vs lag39: 7l above 231 vs 215; 7l below 227 vs 225; aware above 205 vs 149; aware below 162 vs 141
+V7 held: aware lagrand vs 7l lagrand at 39.1 ms: above L2-45 132 vs 191, mass +12.4%; below L2-45 90 vs 177, mass +25.2%
+check: 7u's lag39 designs reproduce 7u's L2-45 counts (33 ms 80, 107, 37, 46; 39.1 ms 150, 167, 72, 73): 80, 107, 37, 46; 150, 167, 72, 73
+context: L2-45 under inherited 15 ms D^1.5, lagrand / lag39 / lag36: 7l above 34 / 26 / 29; 7l below 54 / 60 / 59; aware above 10 / 8 / 8; aware below 14 / 13 / 15
+context: L2-45 under id 33 ms D^0, lagrand / lag39 / lag36: 7l above 101 / 80 / 108; 7l below 112 / 107 / 124; aware above 61 / 37 / 53; aware below 53 / 46 / 56
+context: L2-45 under mid 36 ms D^0, lagrand / lag39 / lag36: 7l above 144 / 109 / 149; 7l below 129 / 132 / 161; aware above 90 / 61 / 63; aware below 60 / 59 / 82
+context: L2-45 under id 39.1 ms D^0, lagrand / lag39 / lag36: 7l above 191 / 150 / 198; 7l below 177 / 167 / 195; aware above 132 / 72 / 93; aware below 90 / 73 / 117
+context: L2-45 under stress 45 ms D^0, lagrand / lag39 / lag36: 7l above 231 / 215 / 248; 7l below 227 / 225 / 251; aware above 205 / 149 / 168; aware below 162 / 141 / 190
+context: margin passes per law, lagrand / lag39 / lag36 (of 24): inherited 15 ms 21 / 20 / 23; id 33 ms 24 / 24 / 23; mid 36 ms 24 / 24 / 24; id 39.1 ms 24 / 24 / 21; stress 45 ms 8 / 15 / 10
+context: mean mass, D, pos kp lagrand vs lag39: 7l above 1.260 vs 1.307 kg, 0.128 vs 0.137 m, kp 22.6 vs 23.2; 7l below 1.085 vs 1.053 kg, 0.127 vs 0.124 m, kp 22.7 vs 25.0; aware above 1.417 vs 1.420 kg, 0.107 vs 0.103 m, kp 21.1 vs 20.8; aware below 1.358 vs 1.356 kg, 0.113 vs 0.111 m, kp 21.1 vs 22.0
+context: median J at lever 1, 45 deg under 36 ms, lagrand vs lag39: 7l above -3.96 vs -2.41; 7l below -2.35 vs -2.23; aware above -2.12 vs -1.83; aware below -1.66 vs -1.67
