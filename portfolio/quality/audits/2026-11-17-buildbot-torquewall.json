@@ -1,0 +1,221 @@
+{
+ "date": "2026-11-17",
+ "subject": "research/buildbot-torquewall",
+ "stratum": "research",
+ "seed": "2026-11-17-e87b",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior humanoid hardware / actuator-sizing engineer (the person who signs off a joint's motor and gearbox, and reviews whole-body co-design papers for Humanoids, ICRA or RA-L); first checks: do the limits match the model and the vendor, is the torque budget right for the stated pose, is the limit a peak or a continuous rating for a sustained carry, does the 'bottleneck joint' survive a change of posture, and what is new against actuator co-design and static torque-budget practice",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Re-ran the full 990-case sweep in a scratch copy (`cd /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall && BUILDBOT_MENAGERIE=/tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/menagerie venv/bin/python rerun.py out`, MuJoCo 3.3.7, Menagerie cda5236f, 1055 s on 4 contended CPUs): results.txt byte-identical to experiments/results.txt. Independent checks with no subject import (`/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/indep.py /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/menagerie`): (1) every G1/H1 limit parsed straight from the MJCF matches the README table where it states one; (2) the speed table rebuilt from results.json rows matches results.txt cell for cell (G1 waist x2: 4 kg 0.20, 6 kg 0.17; all x4 10 kg 0.17; H1 all x2/x4 23 kg 0.07); (3) physics invariants that must hold because limits do not enter the dynamics: ik/CoP/mu/fz identical across all 11 configs (max diff 0.0), ratio(all,f)=ratio(stock)/f exactly, scaling a group not holding the stock worst joint leaves the ratio unchanged (0 violations); ok flag recomputed from its four criteria (0 mismatches). (4) Own quasi-static waist-pitch torque (gravity moment of the torso subtree plus the load at the hands about the joint axis, from body COMs; no mj_inverse or foot-wrench solve; `/tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/venv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/statics.py`) on the subject's IK poses at L=0.1, T=1.5: 28.16/47.53/58.72 N.m at 0/4/6 kg vs subject peak 28.20/47.81/59.71 (ratio x 50), within 1.7%, the remainder being the dynamic term. The numbers are right for the pose modelled; one results.txt label is wrong (see claims).",
+  "completeness": "Claimed artefacts, each run: 12-test suite (README:30 says 12; `env BUILDBOT_MENAGERIE=/tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/menagerie /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/venv/bin/python -m pytest -q -p no:cacheprovider tests` 12 passed in 14.3 s); run.py reproduces results.txt (README:31 'a few minutes on 4 CPUs': 1055 s here under contention from parallel auditors, not a clean timing); figure.py reads results.json; live page https://marisstella.app/research/buildbot-torquewall/ returns 200 and carries the 990-case summary and the waist headline. Every headline bullet (README:8-11) is a cell of results.txt. No stubs or TODOs. Not done: the 'next steps' (actuator mass with limit, costing) and any pose sensitivity.",
+  "verification": "`env BUILDBOT_MENAGERIE=/tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/menagerie /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/venv/bin/python -m pytest -q -p no:cacheprovider tests`: 12 passed. Five mutants via platform/ci/quality_mutate.py: 3 caught (scaling the wrong group, dropping 'wrist' from the arm group, capping the factor at 2), 2 survived, both in experiments/run.py, which produces every headline number: inverting the fastest-step key in best() (run.py:39, the table would report the slowest step) and widening the worst-joint tally filter to ratio > 0 (run.py:71). No test pins any results.txt cell; the tests cover the patching mechanism, not the analysis.",
+  "craft": "Read model.py (61 lines), run.py (80), figure.py (21), tests/test_model.py (54), pyproject.toml, and buildbot_carryphase/model.py score() (305). Small and readable; reusing carryphase's scorer unchanged is the right design and the context manager restores the global. Defects: the mechanism is a monkeypatch of a module-level function (P.torque_limits) captured as _BASE at import, so any other patcher or a thread breaks it silently; a limits argument to C.score would be cleaner. run.py:67 labels a set 'fail only on torque' that its filter (run.py:70-71) does not restrict to torque-only failures. results.json stores only the worst joint, so 'the next joints bind' cannot be read from it. figure.py colours bars by equality with the stock value only. A reviewer would accept with those notes.",
+  "claims": "Backed and reproduced: every speed and payload in README:8-11 and the project.json summary (4->6 kg with waist x2, 0.10->0.20 m/s at 4 kg, 8 kg at all x2, 10 kg at 0.17 m/s at all x4, H1 18/23 kg at 0.07 only with all, nothing at 30 kg), '12 tests', '990 cases', 'deterministic' (byte-identical rerun). Overstated or wrong: (a) README:8 'The G1's wall is one joint: the waist pitch' is stated generally but holds for one fixed hand pose (0.3 m ahead, 0.6 m up); the sibling project buildbot-holdheat (README:9, pose search, 2026-10-23, before this project) found that at hands 0.15 m ahead and 0.7 m high the stud-carry peak ratio falls from 0.91 to 0.33 and the binding joint becomes wrist pitch, not the waist; not cited. (b) results.txt:23 / README:36 'cases that fail only on torque': 4 of 7 counted G1 4 kg cases and 5 of 9 at 6 kg also put the centre of pressure outside the sole. (c) README:10 H1 'binding joints ... hip pitch (14 to 18 kg) and the elbow (23 kg and up)' rests on 1-3 of 9 cases per payload; at 18-30 kg 6 of 9 H1 cases fail IK, which no torque scaling can rescue, and 30 kg fails on CoP. (d) README:22 limits table omits G1 waist yaw 88, G1 wrist pitch/yaw 5 and H1 torso 200 N.m, all of which are scaled in the 'waist'/'arms' groups. Disclaimer present (README:15).",
+  "fitness": "A robotics researcher could reuse the group-scaling wrapper in an afternoon, but the result is a sensitivity of a static/quasi-static torque budget at one posture, which an actuator engineer does in a spreadsheet; nothing is checked against hardware or a vendor peak/continuous table. Nearest prior work, none cited: actuator and morphology co-design (Ha, Coros et al. 2018, 'Computational co-optimization of design parameters and motion trajectories for robotic systems', IJRR; Fadini et al. 2021, energy-efficient legged-robot actuator sizing; Chadwick et al. 2020, Vitruvio leg design), Unitree's own published joint torque specifications, and in this repository buildbot-holdheat (continuous rating and pose search) and buildbot-payload. Not new as a method; the 'waist pitch is the G1's limit at a forward-reach carry pose' finding is plausible and reproducible but already in buildbot-holdheat's headline (0.54 of peak empty-handed). Standalone (project.json programme 'none').",
+  "domain": "Departs from actuator-sizing practice in three places a senior engineer would hit first: (1) the limit used is the Menagerie actuatorfrcrange, a peak torque; a sustained carry is sized against the continuous (thermal) rating, typically a third to a half of peak, and the sibling buildbot-holdheat shows nothing is sustainable at this pose for a continuous rating <= 0.5 of peak; the Limitations section (README:38-43) does not mention it. (2) Posture is held fixed; a practitioner first re-poses the load (hands in, torso upright) before upgrading a motor, and holdheat's pose search shows that moves the bottleneck off the waist. (3) Scaling the limit with mass and inertia fixed is disclosed (README:40). The single-support LIPM gait, CoP and friction checks are standard (Kajita 2001) and correctly applied by the reused scorer; the step grid is coarse but disclosed."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "G1 and H1 per-joint torque limits used in the scaling",
+   "method": "own XML parse of the pinned Menagerie MJCF (actuatorfrcrange, else motor ctrlrange x gear), no subject import",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/indep.py /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/menagerie",
+   "expected": "README:22: G1 waist pitch/roll 50, ankles 50, hips 88-139, knee 139, arms 25; H1 hips 200, knee 300, ankle 40, arms 18-40",
+   "observed": "all stated values match; unstated: G1 waist_yaw 88, G1 wrist pitch/yaw 5, H1 torso 200; every non-base joint maps to a group (none 'other')",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "quasi-static waist-pitch torque at 0/4/6 kg, L=0.1 m, T=1.5 s",
+   "method": "own gravity-moment sum over the torso subtree and the hand load about the joint axis from body COMs (not mj_inverse, not the foot-wrench solve), on the subject's IK poses",
+   "command": "env BUILDBOT_MENAGERIE=/tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/menagerie /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/venv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/statics.py",
+   "expected": "subject peak |tau| = ratio x 50 = 28.20/47.81/59.71 N.m (results.json)",
+   "observed": "28.16/47.53/58.72 N.m (within 1.7%, the dynamic remainder)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "limits do not enter the dynamics: invariance of ik/CoP/mu/fz across configs and ratio(all,f) = ratio(stock)/f",
+   "method": "derived from the scorer's structure (torques depend on pose and load only); checked over all 990 rows",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/indep.py /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/menagerie",
+   "expected": "0 differences; ratio scaling exact; groups not holding the worst joint unchanged",
+   "observed": "max diff 0.0; max |ratio_all,f - ratio/f| 0.0; 0 violations; ok flag 0 mismatches",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "headline speed table (fastest feasible L/T per payload and config)",
+   "method": "own rebuild from results.json rows, separate code from run.py write_txt",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/indep.py /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/menagerie",
+   "expected": "results.txt:4-16",
+   "observed": "identical cell for cell",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "full sweep reproduces results.txt",
+   "method": "re-run run.py with outputs redirected to scratch (MuJoCo 3.3.7) and diff",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall && env BUILDBOT_MENAGERIE=/tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/menagerie venv/bin/python rerun.py /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/out && diff out/results.txt /home/user/oss-monorepo/research/buildbot-torquewall/experiments/results.txt",
+   "expected": "no diff (README:31 'deterministic')",
+   "observed": "IDENTICAL; 1055 s on 4 CPUs shared with other sessions",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "cd /home/user/oss-monorepo/research/buildbot-torquewall && env BUILDBOT_MENAGERIE=/tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/menagerie /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/venv/bin/python -m pytest -q -p no:cacheprovider tests",
+   "expected": "12 tests pass (README:30)",
+   "observed": "12 passed in 14.27s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "results.txt:23 'cases that fail only on torque'",
+   "method": "count CoP failures inside the set run.py:70-71 tallies",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/indep.py /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/menagerie",
+   "expected": "no CoP failures in a torque-only set",
+   "observed": "G1 4 kg 4 of 7, 6 kg 5 of 9, 8 kg 4 of 9, 10 kg 5 of 8; H1 18 kg 2 of 3, 30 kg 3 of 3 also fail CoP",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:8 'The G1's wall is one joint: the waist pitch' as a general statement",
+   "method": "compare with the in-repo pose search of research/buildbot-holdheat (README:9, experiments/posesearch.txt)",
+   "command": "sed -n 9p /home/user/oss-monorepo/research/buildbot-holdheat/README.md",
+   "expected": "waist binds across reasonable carry poses",
+   "observed": "at hands 0.15 m ahead, 0.7 m high the peak ratio is 0.33 and the binding joint is wrist pitch; torquewall tests one pose and does not cite this",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:10 H1 binding joints hip pitch / elbow",
+   "method": "failure-mode breakdown of the 9 stock cases per payload",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/indep.py /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/menagerie",
+   "expected": "torque is what blocks the H1",
+   "observed": "18/23/30 kg: 6 of 9 cases fail IK (unrescuable by torque), torque-limited tallies rest on 3 cases; 30 kg fails on CoP",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "live page",
+   "method": "load",
+   "command": "curl -sS -w '%{http_code}' https://marisstella.app/research/buildbot-torquewall/",
+   "expected": "200 with the headline",
+   "observed": "200; '990' and the waist-pitch headline present",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "peak vs continuous torque for a sustained carry",
+   "method": "actuator-sizing practice; sibling buildbot-holdheat README:7",
+   "command": "grep -n 'continuous\\|thermal\\|rated' /home/user/oss-monorepo/research/buildbot-torquewall/README.md",
+   "expected": "the limit type is stated and its effect bounded",
+   "observed": "only 'not a rated payload' (README:15); peak actuatorfrcrange used throughout, no mention of continuous rating",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/buildbot_torquewall/model.py:44",
+   "change": "if group == \"all\" or g == group: -> if group == \"all\" or g == \"legs\":",
+   "caught": true,
+   "test_cmd": "env BUILDBOT_MENAGERIE=/tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/menagerie /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/venv/bin/python -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/buildbot_torquewall/model.py:18",
+   "change": "_ARM = (\"shoulder\", \"elbow\", \"wrist\") -> _ARM = (\"shoulder\", \"elbow\")",
+   "caught": true,
+   "test_cmd": "env BUILDBOT_MENAGERIE=/tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/menagerie /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/venv/bin/python -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "experiments/run.py:39",
+   "change": "key=lambda r: (r[\"L\"] / r[\"T\"], -r[\"ratio\"]) -> key=lambda r: (r[\"T\"] / r[\"L\"], -r[\"ratio\"])",
+   "caught": false,
+   "test_cmd": "env BUILDBOT_MENAGERIE=/tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/menagerie /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/venv/bin/python -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "experiments/run.py:71",
+   "change": "and r[\"ik\"] < 5e-3 and r[\"ratio\"] > 1.0] -> and r[\"ik\"] < 5e-3 and r[\"ratio\"] > 0.0]",
+   "caught": false,
+   "test_cmd": "env BUILDBOT_MENAGERIE=/tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/menagerie /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/venv/bin/python -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/buildbot_torquewall/model.py:45",
+   "change": "            lim[d] *= factor ->             lim[d] *= min(factor, 2.0)",
+   "caught": true,
+   "test_cmd": "env BUILDBOT_MENAGERIE=/tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/menagerie /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/buildbot-torquewall/venv/bin/python -m pytest -q -p no:cacheprovider tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Headline 'The G1's wall is one joint: the waist pitch' is a single-pose result stated generally; the in-repo buildbot-holdheat pose search (earlier) moves the binding joint to wrist pitch at a closer-in hold, and is not cited, so 'upgrade the waist' (Next steps) is not the supported action",
+   "where": "research/buildbot-torquewall/README.md:8",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Limits are Menagerie peak torques (actuatorfrcrange); a sustained carry is sized against the continuous rating, which buildbot-holdheat shows makes nothing sustainable at this pose for rho <= 0.5; not in Limitations",
+   "where": "research/buildbot-torquewall/README.md:38",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "experiments/run.py, which computes every headline number (best() and the worst-joint tally), is untested: inverting the fastest-step key and widening the tally filter both leave all 12 tests green",
+   "where": "research/buildbot-torquewall/experiments/run.py:39",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "results.txt/README label the worst-joint tally 'cases that fail only on torque' but the filter (ik ok and ratio > 1) admits CoP failures: 4 of 7 G1 4 kg cases also have the CoP outside the sole",
+   "where": "research/buildbot-torquewall/experiments/run.py:67",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "H1 'binding joints are hip pitch then elbow' rests on 1-3 of 9 cases; 6 of 9 H1 cases at 18-30 kg fail IK and 30 kg fails CoP, which torque scaling cannot fix, and the README does not say so",
+   "where": "research/buildbot-torquewall/README.md:10",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Limits table omits limits that the groups scale: G1 waist_yaw 88, G1 wrist pitch/yaw 5, H1 torso 200 N.m",
+   "where": "research/buildbot-torquewall/README.md:22",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "No prior work cited (actuator/morphology co-design, Unitree joint specs, buildbot-holdheat); the finding duplicates holdheat's waist-pitch headline",
+   "where": "research/buildbot-torquewall/README.md:3",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Mechanism monkeypatches the module global P.torque_limits (captured as _BASE at import); any concurrent patch or thread silently breaks it; a limits parameter to C.score would be explicit",
+   "where": "research/buildbot-torquewall/src/buildbot_torquewall/model.py:48",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "The numbers are right and reproducible: a full rerun under MuJoCo 3.3.7 is byte-identical, an independent statics calculation reproduces the waist-pitch torque within 1.7%, and the speed table and the physics invariants (limits never touch the dynamics) check exactly. It does not meet the bar: verification is 2 (run.py, which produces every headline number, is untested; 2 of 5 mutants survived) and claims are 2 (the 'one-joint wall' is a single-pose, peak-torque result stated generally, contradicted for posture by the repo's own buildbot-holdheat; the 'torque-only' tally includes CoP failures; the H1 story is mostly IK and CoP). As research it is a sensitivity run on a static torque budget with no prior work cited, a useful note inside a programme rather than a result a humanoid actuator engineer would act on."
+}
