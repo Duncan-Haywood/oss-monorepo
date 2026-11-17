@@ -1,0 +1,241 @@
+{
+ "date": "2026-11-17",
+ "subject": "research/ambient-startcount",
+ "stratum": "research",
+ "seed": "2026-11-17-e87b",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a computational statistician who works on EM for latent-class / Dawid-Skene crowdsourcing models (the Biernacki-Celeux-Govaert initialisation line, Zhang-Chen-Zhou-Jordan spectral-initialised DS); first checks: are the 'missed optima' distinct local maxima or unconverged fits, is the reported log-likelihood the likelihood of the returned parameters, does the generator produce the stated marginals, and what is new against the published work on EM starting strategies",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 1,
+  "domain": 1
+ },
+ "evidence": {
+  "correctness": "Ran the experiment in a private copy (`cd <scratch>/copy && PYTHONPATH=src /usr/bin/python3.13 experiments/run.py`, matplotlib absent so only the text output): all 73 lines are byte-identical to experiments/results.txt (full diff empty; about 20 minutes). Independent script (/tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/ambient-startcount/indep.py, run with python3 -I, 167 s) with its own mixture likelihood from the definition and its own EM: C1 the generator's marginal auditor accuracy is 0.8000 in all three cells and P(a1=a2) 0.660000/0.717857/0.800000 by definition equals the subject's joint3_hard; C2 draw3_hard at n=2e6 vs own exact joint: TV 0.00201, chi2 78.5 on 80 df (sampler correct); C3 own EM at the same cap reproduces the subject's fits (own LL minus subject LL 0 to 2.4e-7, positive because est.py:252 computes ll before the final M-step, so the returned ll lags the returned parameters by one iteration and the lag exceeds the 1e-7 HIT threshold). The decisive check fails: re-running the first 6 draws of the null cell (n=1000) with my EM, 23 of 24 grid fits stop at the 2000-iteration cap; at a 50,000 cap all four starts in draws 0(starts 1-2), 1, 3 and 4 reach the same optimum (in draws 1 and 3 one exceeding the 'best of 32' reference by 2.6e-9 and 4.2e-7), so 12 of the 21 recorded misses there are cap artefacts and only 9 (draws 2 and 5, draw 0 start 3) are distinct optima. In the h=0.3, hard 0.5, n=200 cell, misses in draw 0 are cap-limited and draws 1 and 4 are real local optima (gap 3.26e-3, 1.73e-3). So the numbers are computed correctly but the 'hit' share, the study's main output, does not measure what Results 2-3 say it measures.",
+  "completeness": "Claimed: 5 tests (ran: 5 passed in 0.25 s), run.py writing results.txt and startcount.png (results reproduce; figure exists in the tree, not regenerated here for lack of matplotlib), live page https://marisstella.app/research/ambient-startcount/ (HTTP 200, but its summary paragraph is corrupted, see claims). Every README result has a row in results.txt. Next steps (iteration counts, cap separation, LRT) are listed as not done. No stubs.",
+  "verification": "`cd research/ambient-startcount && PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests`: 5 passed in 0.25 s. Five mutants via platform/ci/quality_mutate.py: 2 caught (best_of_first comparison flipped; second-half grid hard accuracy 0.3 -> 0.4), 3 survived: dropping the third auditor's term from the easy-matrix M-step (est.py:256), ignoring the start's P(hard) (est.py:245, every start begins at 0.5, which makes grid and random starts nearly the same), and best_of_first scanning fits[1:k-1] (est.py:305, every K-start strategy silently uses K-1 fits). No test checks that dsH3 recovers known parameters, that EM increases the likelihood, or pins any results.txt number.",
+  "craft": "Read est.py (308 lines), sim.py (121), run.py (61), test_startcount.py (41). est.py is a copy of ambient-multistart's est.py (diff: identical apart from the appended 26 lines) and one of 46 ambient-* copies; most of it is dead here (estimate_naive/em/ds/ds_hard/ds3, draw_audit, draw_audit2, joint_audit2_hard, estimate_ds3_hard_multistart; run.py imports joint3_hard and never uses it). estimate_ds3_hard reports the log-likelihood of the previous iterate (est.py:252), convergence is on the max parameter change rather than the likelihood, and no iteration count is returned although the README's own limitation needs it. run.py is a top-level script with one-letter globals. Small and readable otherwise.",
+  "claims": "README numbers checked against results.txt: Result 1 (95%/88%, K=4 100%), Result 2 (72/78/85/85/97, 62/75/82/88/93, 30/33/55/57/97, 33/38/60/70/72), Result 3 (97 vs 93, 97 vs 72, 90 vs 88, 97 plateau vs 100), 'SE up to about 0.08' (sqrt(.25/40)=0.0791) all match. Not backed: (a) the served page summary (research/_homepage/projects.json:1933) is corrupted, a sentence pasted into itself four times ('...strong or nWith strong hardness or n = 1000 ... every such cell;nbsp;=With strong...'), and its ranges contradict its own condition: '72-100%' for one start and '82-100%' for four come from the mild n=200 cell the sentence excludes (in the strong-or-n=1000 cells one start is 78-100%, four 93-100%), and '4 starts reach it in every such cell' is false (random K=4 is 0.93 at hard 1/3, n=200); (b) Result 2 'More starts keep finding better optima there; 8 starts is not enough in the null cell' is stated as a finding while my rerun shows most null-cell misses are unconverged fits, which the Limitations concede was not separated; (c) Result 4 'utility differs by at most about 0.0002 within a cell' vs 0.3909-0.3912 (0.0003) in the null n=1000 cell. Stylised disclosure, AI note and limitations are present.",
+  "fitness": "A researcher picking this up gets a toy-model simulation whose central measurement is confounded by the iteration cap. Nearest prior work, none cited: Biernacki, Celeux & Govaert 2003 (CSDA, 'Choosing starting values for the EM algorithm', short-runs/random/small-EM strategies at equal compute, the exact question here), Karlis & Xekalaki 2003 (CSDA, mixture starting values), McLachlan & Krishnan, The EM Algorithm and Extensions (slow convergence near weak identifiability, the null-cell behaviour), Zhang, Chen, Zhou & Jordan 2014/2016 (NeurIPS/JMLR, spectral initialisation for Dawid-Skene with guarantees). Against these the result is not new and, as measured, not sound for the null and weak-hardness cells. Not a step of any programme in research/PROGRAMMES.md.",
+  "domain": "The first thing an EM practitioner separates, convergence failure from multimodality, is the one thing not done (README Limitations: 'I did not separate the two'), and it binds: in the null cell the hit share at K=1..16 mostly tracks how close each 2000-iteration fit got to a slowly reached single optimum. Standard practice would use a likelihood-based stopping rule, report iterations, run to convergence (or use an accelerator such as SQUAREM) before ranking fits, and compare at equal iterations, not equal fits. The likelihood is reported one iterate late. The utility conclusion (Result 4) is sound in direction: policy utility is flat across K."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "generator marginal auditor accuracy and pairwise agreement in all three cells",
+   "method": "closed form from the stated model definition (easy = (acc - h*hard)/(1-h), P(a1=a2) summed by hand) vs subject joint3_hard",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/ambient-startcount/indep.py <copy>/src",
+   "expected": "marginal 0.8; P(a1=a2) 0.660000/0.717857/0.800000",
+   "observed": "0.8000 in each cell; 0.660000/0.717857/0.800000",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "draw3_hard samples the stated joint distribution",
+   "method": "own exact joint by explicit 81-cell loop; total variation and chi-square at n=2e6",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/ambient-startcount/indep.py <copy>/src",
+   "expected": "chi2 near 80 on 80 df",
+   "observed": "TV 0.00201, chi2 78.5",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "reported loglik equals the loglik of the returned parameters",
+   "method": "own mixture log-likelihood from the definition at the subject's returned parameters",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/ambient-startcount/indep.py <copy>/src",
+   "expected": "difference < 1e-10 (well below HIT = 1e-7)",
+   "observed": "difference 0 to 2.4e-7 on cap-limited fits (ll computed before the final M-step, est.py:252)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "null-cell 'missed optima' are distinct local maxima (Result 2)",
+   "method": "own EM from the same 4 grid starts on run.py's first 6 null draws (seed 1005, n=1000), cap 2000 vs 50,000",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/ambient-startcount/indep.py <copy>/src",
+   "expected": "misses persist at a 50,000 cap if they are local optima",
+   "observed": "23 of 24 fits hit the 2000 cap; 12 of 21 misses vanish at 50,000 (two draws exceed the 'best of 32' reference); 9 are real optima",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "own EM reproduces subject fits at the same cap",
+   "method": "independent EM implementation (responsibilities over (t, z) per cell)",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/ambient-startcount/indep.py <copy>/src",
+   "expected": "same log-likelihood to 1e-7",
+   "observed": "agree to <= 2.4e-7 on 48 fits (the one-iterate lag)",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiment reproduces results.txt",
+   "method": "rerun in private copy and diff the written prefix",
+   "command": "cd <copy> && PYTHONPATH=src /usr/bin/python3.13 experiments/run.py > ../rerun.txt; diff ../rerun.txt experiments/results.txt",
+   "expected": "no diff",
+   "observed": "full 73-line output identical (empty diff); figure not regenerated (no matplotlib)",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "cd research/ambient-startcount && PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests",
+   "expected": "5 tests pass (README)",
+   "observed": "5 passed in 0.25s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "seeded mutants in EM and strategy code",
+   "method": "platform/ci/quality_mutate.py, 5 mutants",
+   "command": "python3 platform/ci/quality_mutate.py research/ambient-startcount/src/ambient_startcount/est.py --old 'for f in fits[1:k]:' --new 'for f in fits[1:k - 1]:' -- PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests",
+   "expected": "every mutant caught",
+   "observed": "2 caught, 3 survived (M-step, start P(hard), best_of_first off-by-one)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "served page summary",
+   "method": "load page; compare ranges with results.txt",
+   "command": "curl -sS https://marisstella.app/research/ambient-startcount/ | grep -o 'When hardness is present.\\{0,400\\}'",
+   "expected": "one coherent sentence; one start 78-100%, four 93-100% in the strong-or-n=1000 cells",
+   "observed": "sentence pasted into itself four times with stray ';nbsp;'; ranges 72-100% and 82-100% from the excluded cell; 'every such cell' false",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README Results 1-3 hit shares",
+   "method": "compare with results.txt",
+   "command": "grep -n 'K= 1\\|K=16' research/ambient-startcount/experiments/results.txt",
+   "expected": "each quoted share present",
+   "observed": "all present",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Result 4: utility differs by at most about 0.0002 within a cell",
+   "method": "max minus min of the utility column per cell in results.txt",
+   "command": "grep -n 'utility' research/ambient-startcount/experiments/results.txt",
+   "expected": "<= 0.0002",
+   "observed": "null n=1000: 0.3909-0.3912 = 0.0003; others <= 0.0002",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "'standard error up to about 0.08' with 40 draws",
+   "method": "binomial SE sqrt(0.25/40)",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/ambient-startcount/indep.py <copy>/src",
+   "expected": "0.079",
+   "observed": "0.0791",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "prior work on EM starting strategies cited",
+   "method": "read README 'Builds on'; compare with Biernacki et al. 2003, Karlis & Xekalaki 2003, Zhang et al. 2014",
+   "command": "sed -n 7,12p research/ambient-startcount/README.md",
+   "expected": "starting-value literature cited",
+   "observed": "only Dawid & Skene 1979 (from memory) and sibling projects",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "convergence separated from multimodality",
+   "method": "standard EM practice (McLachlan & Krishnan): run to convergence or report iterations before ranking fits",
+   "command": "grep -n 'did not separate' research/ambient-startcount/README.md",
+   "expected": "done",
+   "observed": "conceded as not done; my rerun shows it changes the null-cell result",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/ambient_startcount/est.py:256",
+   "change": "nAe = s(wE, \"ta\") + s(wE, \"tb\") + s(wE, \"tc\") -> nAe = s(wE, \"ta\") + s(wE, \"tb\")",
+   "caught": false,
+   "test_cmd": "PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/ambient_startcount/est.py:305",
+   "change": "for f in fits[1:k]: -> for f in fits[1:k - 1]:",
+   "caught": false,
+   "test_cmd": "PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/ambient_startcount/est.py:245",
+   "change": "ph, prior = init[2], PRIOR.copy() -> ph, prior = 0.5, PRIOR.copy()",
+   "caught": false,
+   "test_cmd": "PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/ambient_startcount/est.py:306",
+   "change": "if f[5] > best[5]: -> if f[5] < best[5]:",
+   "caught": true,
+   "test_cmd": "PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/ambient_startcount/est.py:287",
+   "change": "for h in (0.3, 0.5) -> for h in (0.4, 0.5)",
+   "caught": true,
+   "test_cmd": "PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "The 'hit' share confounds unconverged fits with local optima: in the null cell (n=1000) 23 of 24 re-run grid fits stop at the 2000-iteration cap and 12 of 21 recorded misses vanish at a 50,000 cap, yet Result 2 reports 'more starts keep finding better optima; 8 starts is not enough in the null cell' as a finding.",
+   "where": "research/ambient-startcount/README.md:33",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Served page summary is corrupted (a sentence pasted into itself four times with stray ';nbsp;') and its ranges contradict its own condition: one start '72-100%' and four '82-100%' come from the excluded mild n=200 cell (actual 78-100% and 93-100%), and '4 starts reach it in every such cell' is false (random K=4 = 0.93 at hard 1/3, n=200).",
+   "where": "research/_homepage/projects.json:1933",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Core EM and strategy code untested in effect: dropping the third auditor from the M-step, ignoring the start's P(hard), and an off-by-one making every K-start strategy use K-1 fits all leave the 5 tests green; no test pins a results.txt number.",
+   "where": "research/ambient-startcount/tests/test_startcount.py:24-35",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "estimate_ds3_hard returns the log-likelihood of the previous iterate (computed before the final M-step), lagging the returned parameters by up to 2.4e-7 per message on cap-limited fits, larger than the 1e-7 HIT threshold used to rank and score fits.",
+   "where": "research/ambient-startcount/src/ambient_startcount/est.py:252",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "No prior work on EM starting strategies is cited (Biernacki, Celeux & Govaert 2003; Karlis & Xekalaki 2003; Zhang, Chen, Zhou & Jordan 2014 spectral DS initialisation); the question is a known one and the result is not new.",
+   "where": "research/ambient-startcount/README.md:7-12",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Result 4 'mean utility differs by at most about 0.0002 within a cell' vs 0.3909-0.3912 (0.0003) in the null n=1000 cell.",
+   "where": "research/ambient-startcount/README.md:35",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Copied 308-line estimator module (identical to ambient-multistart's plus 26 lines) with most functions dead here; run.py imports joint3_hard and never uses it; no iteration count returned although the stated limitation needs it.",
+   "where": "research/ambient-startcount/src/ambient_startcount/est.py:1",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "The arithmetic is right and the output reproduces: the seeded rerun matches results.txt line for line, the sampler matches its exact joint (chi2 78.5 on 80 df), the generator's marginal accuracy is 0.8 in every cell, and an independent EM reproduces the fits. The study's central measurement is not. Re-running the null cell to a 50,000-iteration cap, 12 of 21 'missed optima' are fits stopped at the 2000 cap, so the claim that more starts keep finding better optima there is mostly an iteration-budget effect, which the README concedes it did not separate. The reported log-likelihood lags one iterate by more than the hit threshold. Three of five seeded mutants in the EM and the K-start selection survive the tests. The served page summary is garbled and quotes ranges from the cell it excludes. No starting-value literature is cited for a question it has studied since 2003. Below the bar on correctness, verification, claims and domain."
+}
