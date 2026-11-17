@@ -526,6 +526,22 @@ angle (poses not re-solved); waist backlash is swept, not published; statics onl
 
 ![Worst residual along the wall for each waist case and two sensors, and the clean-sheet loss over a drag range](experiments/m39_waist/figure.png)
 
+**Milestone 40: does the nailer's recoil undo the spec?** No figure for a framing nailer's recoil had been found, so
+it is bracketed from published measurements: an 8d nail at chronograph speeds (29.8–36.9 m/s, Buchalter et al. 2002)
+carries 0.13–0.16 N s, a floor, and Lowe et al. (2014)'s force-plate data give at most about 8.7 N s per nail. That
+straddles the 0.25–1 N s at which [`buildbot-recoil`](../buildbot-recoil)'s nose leaves the wall, so each nail
+starts from a lifted nose and a press that rises again. That rise **sets none** of the joints milestones 30–39 scored
+as loose (H151 refuted): of 56 loose nose-moving joints, 36 change sign and 7 rise through the holding threshold
+inside the 25–50 N window, so where they sit depends on the firing force, and the 11 below it peak at 0.16 N m on the
+rise against a 0.2 N m threshold. With the spec (FT 300, leg preload, 10 N squeeze, braked waist) the G1's worst
+residual at a 5 N drag stays **0.012 mm** (H152 refuted, H153 held); only at a 20 N drag does the rise set one wrist
+joint, leaving 0.203 mm unless the compensator plans the rise. The finding with consequences is the stance: at
+**12 of 35 poses** (the G1 at 1.0–1.2 m, milestone 30's calibration pose among them; the H1 at 1.4–1.6 m) the leaned
+stance balances only above 3.7–11.8 N of press, so a recoil that lifts the nose leaves the robot leaning on nothing.
+Quasi-static rise, no recoil transient simulated; the holding threshold is unsourced.
+
+![Lowest press each leaned stance balances at, and how close the loose joints come to the holding threshold on the re-press](experiments/m40_liftoff/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).

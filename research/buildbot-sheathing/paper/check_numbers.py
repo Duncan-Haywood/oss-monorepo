@@ -39,6 +39,8 @@ M36 = E + "m36_wrist_ft/results.txt"
 M37 = E + "m37_preload/results.txt"
 M38 = E + "m38_squeeze/results.txt"
 M39 = E + "m39_waist/results.txt"
+M40 = E + "m40_liftoff/results.txt"
+M40P = E + "m40_liftoff/posthoc.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -161,6 +163,16 @@ CHECKS = [
     (M39, "g1  10.0 | braked    |   0.04", "10 N stack loss from 5.80 to 0.04 points"),
     (M39, "g1  10.0 | precision |   0.11", "gives 0.106 mm\nand 0.11 points"),
     (M39, "g1   5.0  2.4 | 1.350 (0.922) / 1.350 (0.922) / 0.968 (0.679) / 0.873 (0.477)", "still leaves 0.873 mm"),
+    (M40, "0.129-0.160 N s (Buchalter et al. 2002)", "carries 0.129 to 0.160 N s, a floor"),
+    (M40, "force-plate unloading 8.70 N s per transfer phase", "gives at most about 8.70 N s a nail"),
+    (M40, "H151 (F_r 0 sets at least half the loose nose-moving joints): 0 of 56", "rise sets none of the 56 nose-moving joints"),
+    (M40P, "56 loose; 11 below tau_f, 2 set on entering the window, 7 rise through it, 36 change sign",
+     "loose: 36 change sign inside the 25"),
+    (M40, "in the window 0.159 N m", "peak at 0.159 N m"),
+    (M40, "  g1 braked   5.0 | 0.012 / 0.012 / 0.012", "keeps 0.012 mm at a 5 N drag"),
+    (M40, "  g1 braked  20.0 | 0.012 / 0.203 / 0.012", "which costs 0.203 mm"),
+    (M40, "h1: lowest balancing press > 0 at z 1.4 m 3.7 N", "balances only above 3.7 to"),
+    (M40, "z 1.2 m 11.8 N", "11.8 N of press"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),
