@@ -411,6 +411,41 @@ class T(unittest.TestCase):
         self.assertEqual(pyenv.missing(sys.executable, ["json", "no_such_module_xyz"]),
                          ["no_such_module_xyz"])
 
+    def _fake_dist(self, top_level=True):
+        """A site dir holding distribution `fake-dist-xyz` whose package is `zzpkg_xyz`."""
+        site = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, site, True)
+        os.makedirs(os.path.join(site, "zzpkg_xyz"))
+        Path(site, "zzpkg_xyz", "__init__.py").write_text("")
+        info = Path(site, "fake_dist_xyz-1.0.dist-info")
+        info.mkdir()
+        info.joinpath("METADATA").write_text("Metadata-Version: 2.1\nName: fake-dist-xyz\nVersion: 1.0\n")
+        if top_level:
+            info.joinpath("top_level.txt").write_text("zzpkg_xyz\n")
+        info.joinpath("RECORD").write_text("zzpkg_xyz/__init__.py,,\nfake_dist_xyz-1.0.dist-info/METADATA,,\n")
+        patch = unittest.mock.patch.dict(os.environ, {"PYTHONPATH": site})
+        patch.start()
+        self.addCleanup(patch.stop)
+
+    def test_a_pip_name_whose_import_name_differs_is_found(self):
+        # 2026-11-17: `pyenv.py python-sat` guessed `python_sat` (the package is
+        # `pysat`) and reported no interpreter after a good install.
+        mod = pyenv.import_name("fake-dist-xyz")
+        self.assertEqual(mod, "fake_dist_xyz")
+        self.assertFalse(pyenv.imports(sys.executable, [mod]))  # not on the path yet
+        self._fake_dist()
+        self.assertTrue(pyenv.imports(sys.executable, ["json", mod]))
+        self.assertEqual(pyenv.missing(sys.executable, ["json", mod, "no_such_module_xyz"]),
+                         ["no_such_module_xyz"])
+
+    def test_record_files_stand_in_for_a_missing_top_level(self):
+        self._fake_dist(top_level=False)
+        self.assertTrue(pyenv.imports(sys.executable, [pyenv.import_name("fake-dist-xyz")]))
+
+    def test_python_sat_installs_and_checks_as_pysat(self):
+        self.assertEqual(pyenv.import_name("python-sat"), "pysat")
+        self.assertEqual(pyenv.dist_name("pysat"), "python-sat")
+
     def test_heartbeat_logs_until_stopped(self):
         logs = []
         stop = pyenv.heartbeat(logs.append, every=0.01)

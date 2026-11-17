@@ -73,7 +73,7 @@ import time
 PIP_NAMES = {"sklearn": "scikit-learn", "yaml": "pyyaml", "PIL": "pillow",
              "skfem": "scikit-fem", "skimage": "scikit-image", "cv2": "opencv-python-headless",
              "bs4": "beautifulsoup4", "dateutil": "python-dateutil",
-             "opendssdirect": "OpenDSSDirect.py"}
+             "opendssdirect": "OpenDSSDirect.py", "pysat": "python-sat"}
 APT_NAMES = {"sklearn": "python3-sklearn", "yaml": "python3-yaml", "PIL": "python3-pil",
              "skimage": "python3-skimage", "cv2": "python3-opencv", "bs4": "python3-bs4",
              "dateutil": "python3-dateutil"}
@@ -177,8 +177,45 @@ def candidates(path=None, extra_globs=("/usr/bin/python3*", "/usr/local/bin/pyth
     return out
 
 
+# Run inside the candidate interpreter: import `m`, or, when that fails, the
+# modules the installed distribution `dist` really provides. A pip name whose
+# import name differs and no table knows (`pyenv.py python-sat` guessed
+# `python_sat`; the package is `pysat`) used to read as "no interpreter
+# imports" after a good install (doc friction 2026-11-17).
+RESOLVE = """def _imp(m, dist):
+    import importlib
+    try:
+        return importlib.import_module(m)
+    except ImportError:
+        if not dist:
+            raise
+        import importlib.metadata as md
+        try:
+            d = md.distribution(dist)
+        except md.PackageNotFoundError:
+            raise ImportError(m)
+        tops = (d.read_text("top_level.txt") or "").split()
+        if not tops:
+            tops = sorted({str(f).split("/")[0].split(".")[0] for f in (d.files or [])
+                           if not str(f).startswith((".", "_")) and ".dist-info" not in str(f).split("/")[0]
+                           and ".data" not in str(f).split("/")[0]})
+        for t in sorted(tops, key=lambda t: t.startswith("_")):
+            try:
+                return importlib.import_module(t)
+            except ImportError:
+                pass
+        raise
+"""
+
+
+def dist_name(mod):
+    """The pip distribution name for `mod`, consulted when `mod` itself does not import."""
+    return re.split(r"[<>=!~\[; ]", PINS.get(mod) or PIP_NAMES.get(mod, mod), maxsplit=1)[0]
+
+
 def imports(py, modules, run=subprocess.run):
-    code = ("import " + ", ".join(modules) if modules else "pass") + pin_code(modules)
+    code = (RESOLVE + "".join(f"_imp({m!r}, {dist_name(m)!r})\n" for m in modules)
+            if modules else "pass") + pin_code(modules)
     try:
         return run([py, "-c", code], capture_output=True, timeout=60).returncode == 0
     except (OSError, subprocess.TimeoutExpired):
@@ -374,8 +411,9 @@ MISSING_PROBE = """import importlib, sys
 bad = []
 for m in sys.argv[1:]:
     m, _, req = m.partition("=")
+    m, _, dist = m.partition(":")
     try:
-        importlib.import_module(m)
+        _imp(m, dist)
         assert not req or _pin_ok(req)
     except Exception:
         bad.append(m)
@@ -385,8 +423,8 @@ print(" ".join(bad))"""
 def missing(py, modules, run=subprocess.run):
     """The modules `py` cannot import, in one subprocess (all of them on error)."""
     try:
-        args = [f"{m}={PINS[m]}" if m in PINS else m for m in modules]
-        done = run([py, "-c", PIN_CHECK + MISSING_PROBE, *args], capture_output=True, timeout=120)
+        args = [f"{m}:{dist_name(m)}" + (f"={PINS[m]}" if m in PINS else "") for m in modules]
+        done = run([py, "-c", PIN_CHECK + RESOLVE + MISSING_PROBE, *args], capture_output=True, timeout=120)
     except (OSError, subprocess.TimeoutExpired):
         return list(modules)
     out = getattr(done, "stdout", None)
