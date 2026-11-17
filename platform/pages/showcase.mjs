@@ -26,6 +26,26 @@ const esc = (value) =>
   String(value).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
 /**
+ * A still's <img> source attributes. A close crop (`hero`, 600 x 375) is used
+ * when there is one; its 1,200 px twin (`heroWide`) goes in a srcset so a
+ * 3x phone showing a 290 px gallery card gets 870+ px of image instead of 600
+ * (polish-2026-11-17-gallery-crops.md, "Still weakest" 2). `sizes` is the
+ * slot's CSS width, so a 1x or 2x screen keeps the 600 px file.
+ */
+// The gallery card's CSS width, measured in polish-2026-11-17-hero-srcset.md:
+// 82% of the band (about 290 px at 390) up to 640 px, then 280 px at every
+// wider width (the scrolling grid settles on the minmax minimum). So a 2x
+// screen still takes the 600 px crop, and a 3x phone (290 x 3 = 870) the 1,200.
+export const GALLERY_SIZES = '(max-width: 640px) 82vw, 280px';
+
+export function stillSrc(s, sizes) {
+  const src = `${SHOWCASE_DIR}/${esc(s.hero || s.file)}`;
+  const dims = s.hero ? 'width="600" height="375"' : 'width="960" height="600"';
+  if (!s.hero || !s.heroWide) return `src="${src}" ${dims}`;
+  return `src="${src}" srcset="${src} 600w, ${SHOWCASE_DIR}/${esc(s.heroWide)} 1200w" sizes="${sizes}" ${dims}`;
+}
+
+/**
  * The showcase manifest, keeping only stills of tools this build publishes, so
  * a renamed or withdrawn tool drops out instead of becoming a dead card.
  */
@@ -37,7 +57,11 @@ export function loadShowcase(publishedSlugs, source = SHOWCASE_SOURCE) {
   const shots = (manifest.shots ?? [])
     .filter((s) => published.has(s.slug) && existsSync(path.join(source, s.file)))
     // A hero crop whose file is missing drops out; the hero falls back to the full still.
-    .map(({ hero, ...s }) => (hero && existsSync(path.join(source, hero)) ? { ...s, hero } : s));
+    // So does its 1,200 px version (`heroWide`), which only adds a srcset entry.
+    .map(({ hero, heroWide, ...s }) => {
+      if (!hero || !existsSync(path.join(source, hero))) return s;
+      return heroWide && existsSync(path.join(source, heroWide)) ? { ...s, hero, heroWide } : { ...s, hero };
+    });
   const reel = manifest.reel && ['webm', 'mp4', 'poster'].every((k) => existsSync(path.join(source, manifest.reel[k])))
     ? { ...manifest.reel, tools: (manifest.reel.tools ?? []).filter((slug) => published.has(slug)) }
     : null;
@@ -46,7 +70,7 @@ export function loadShowcase(publishedSlugs, source = SHOWCASE_SOURCE) {
 
 /** Publish the files the showcase names, and nothing else from that folder. */
 export async function copyShowcase(outDir, showcase, source = SHOWCASE_SOURCE) {
-  const files = showcase.shots.flatMap((s) => (s.hero ? [s.file, s.hero] : [s.file]));
+  const files = showcase.shots.flatMap((s) => [s.file, s.hero, s.heroWide].filter(Boolean));
   if (showcase.reel) files.push(showcase.reel.webm, showcase.reel.mp4, showcase.reel.poster);
   if (!files.length) return 0;
   await fs.mkdir(path.join(outDir, SHOWCASE_DIR), { recursive: true });
@@ -103,7 +127,7 @@ export function renderShowcaseSection({ shots, reel }, titleFor = (slug) => slug
 ${shots
   .map(
     (s) => `        <li class="shot"><a href="${esc(s.slug)}/" data-tool="${esc(s.slug)}">
-          <img src="${SHOWCASE_DIR}/${esc(s.hero || s.file)}" width="${s.hero ? 600 : 960}" height="${s.hero ? 375 : 600}" loading="lazy" decoding="async"
+          <img ${stillSrc(s, GALLERY_SIZES)} loading="lazy" decoding="async"
                alt="${esc(titleFor(s.slug))} with its worked example loaded">
           <span class="shot-name">${esc(titleFor(s.slug))}</span>
           <span class="shot-cap">${esc(s.caption)}</span>
@@ -149,7 +173,7 @@ ${picked
   .map(
     (s, i) => `        <a class="hero-card hero-card-${i + 1}" href="${esc(s.slug)}/" data-tool="${esc(s.slug)}">
           <span class="frame-bar" aria-hidden="true"><i></i><i></i><i></i><span>${esc(titleFor(s.slug))}</span></span>
-          <img src="${SHOWCASE_DIR}/${esc(s.hero || s.file)}" width="${s.hero ? 600 : 960}" height="${s.hero ? 375 : 600}" loading="lazy" decoding="async"
+          <img ${stillSrc(s, '300px')} loading="lazy" decoding="async"
                alt="${esc(titleFor(s.slug))}: ${esc(s.caption)}">
         </a>`,
   )
