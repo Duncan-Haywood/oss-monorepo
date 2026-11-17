@@ -2176,3 +2176,27 @@ test("every field the page reads survives a share link (lateTeams and finishBy w
   const lost = keys.filter((k) => !(k in back));
   assert.deepEqual(lost, [], "add these to SHARE_KEYS and decodeFields in calc.mjs");
 });
+
+test("calendar ids name the fixture: a rainout keeps them, bumps SEQUENCE, and a withdrawal sends cancellations", () => {
+  const s = buildSchedule({ ...baseSpec(6), double: true });
+  const ids = s.rounds.flatMap((r) => r.matches.map((m) => m.fixture));
+  assert.equal(new Set(ids).size, ids.length);
+  const ev = (t) => new Map([...t.matchAll(/BEGIN:VEVENT\r\n([\s\S]*?)END:VEVENT/g)].map((m) => [m[1].match(/UID:(.*)\r\n/)[1], m[1]]));
+  const a = ev(scheduleIcs(s, 0, "20261001T000000Z"));
+  const day = s.rounds[0].day;
+  const r = applyRainouts(s, new Date(day * 86400000).toISOString().slice(0, 10));
+  assert.ok(r.moves.length > 0);
+  const b = ev(scheduleIcs(r.schedule, 0, "20261001T000000Z"));
+  assert.deepEqual([...b.keys()].sort(), [...a.keys()].sort());
+  const moved = [...b.values()].filter((x) => /SEQUENCE:1/.test(x));
+  assert.equal(moved.length, 1);
+  for (const x of a.values()) assert.match(x, /SEQUENCE:0/);
+  const w = applyWithdrawals(r.schedule, s.teams[5]);
+  const c = ev(scheduleIcs(w.schedule, 0, "20261001T000000Z"));
+  assert.deepEqual([...c.keys()].sort(), [...b.keys()].sort(), "withdrawn fixtures stay as cancelled events");
+  const cancelled = [...c.values()].filter((x) => /STATUS:CANCELLED/.test(x));
+  assert.equal(cancelled.length, 2);
+  for (const x of cancelled) assert.match(x, /SUMMARY:Cancelled: /);
+  const off = scheduleIcs(s, null, "20261001T000000Z", "Nobody");
+  assert.doesNotMatch(off, /STATUS:CANCELLED/);
+});
