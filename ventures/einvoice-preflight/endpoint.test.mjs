@@ -61,7 +61,7 @@ test("valid published endpoints produce no finding", () => {
     { scheme: "0088", id: "0614141000005" },
     { scheme: "EM", id: "ap@customer.example" },
     { scheme: "0192", id: "981276957" },
-    { scheme: "0208", id: "0123456789" },
+    { scheme: "0208", id: "0123456749" },
     { scheme: "0184", id: "12345678" },
     { scheme: "9930", id: "DE136695976" },
   ];
@@ -147,4 +147,41 @@ test("UBL without EndpointID stays clean", () => {
   assert.equal(mapped.supplier.endpoint, undefined);
   assert.equal(mapped.customer.endpoint, undefined);
   assert.deepEqual(checkInvoice(mapped), []);
+});
+
+// 2026-11-17: the checksummed schemes follow OpenPeppol's PEPPOL-COMMON rules
+// (eval/endpoint-peppol-differential.mjs: 0 disagreements on 21,264 ids). Before,
+// 0208/0192/0007 were only digit counts and 0151/0096/0198 unchecked.
+import { readFileSync } from "node:fs";
+const PEPPOL_CASES = JSON.parse(readFileSync(new URL("./tests/endpoint_peppol_cases.json", import.meta.url), "utf8"));
+
+test("Peppol-valid ids in the checksummed schemes pass", () => {
+  for (const [scheme, id] of PEPPOL_CASES.valid) {
+    assert.deepEqual(inspectPartyEndpoint({ endpoint: { scheme, id } }, "customer"), [], `${scheme} ${id}`);
+  }
+});
+
+test("ids OpenPeppol rejects are INV-041, with the scheme's shape in the fix and no id echoed", () => {
+  for (const [scheme, id] of PEPPOL_CASES.invalid) {
+    const findings = inspectPartyEndpoint({ endpoint: { scheme, id } }, "supplier");
+    assert.deepEqual(findings.map((item) => item.rule), ["INV-041"], `${scheme} ${id}`);
+    assert.equal(findings[0].message.includes(id), false);
+    assert.equal(findings[0].fix.includes(id), false);
+    assert.match(findings[0].fix, /digits/);
+  }
+});
+
+test("a Belgian KBO number with a wrong check pair is caught in a UBL file too", () => {
+  const xml = UBL_WITH_ENDPOINTS
+    .replace('<cbc:EndpointID schemeID="0088">1234567890128</cbc:EndpointID>', '<cbc:EndpointID schemeID="0208">0403170702</cbc:EndpointID>')
+    .replace('<cbc:EndpointID schemeID="0088">1234567890129</cbc:EndpointID>', '<cbc:EndpointID schemeID="0208">0403170701</cbc:EndpointID>');
+  const findings = inspectPartyEndpoints(parseUblInvoice(xml));
+  assert.deepEqual(findings.map((item) => [item.rule, item.path]), [["INV-041", "/supplier/endpoint/id"]]);
+});
+
+test("EAS codes in EN 16931's BR-CL-25 list are known (0225 FRCTC, 0217 KVK establishment)", () => {
+  for (const scheme of ["0225", "0217", "0147", "0170", "0194", "0203", "0205", "9960", "AN", "AQ", "AS", "AU"]) {
+    assert.equal(looksLikeKnownScheme(scheme), true, scheme);
+    assert.deepEqual(inspectPartyEndpoint({ endpoint: { scheme, id: "315143296_1" } }, "customer"), [], scheme);
+  }
 });

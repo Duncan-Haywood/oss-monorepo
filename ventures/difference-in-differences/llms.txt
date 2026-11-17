@@ -1,0 +1,25 @@
+# Difference-in-differences with staggered adoption
+
+> Free difference-in-differences tool for units that adopted a policy or change at different times. Upload a long panel CSV (one row per unit and period) with the first treated period or a 0/1 treatment column, and get Callaway and Sant'Anna group-time effects ATT(g,t), overall, event-time and cohort aggregations with influence-function standard errors, an event-study plot with a simultaneous bootstrap band, a Wald pre-test of parallel trends, the two-way fixed effects estimate with clustered errors and its Goodman-Bacon decomposition. Checked against csdid (a port of R's did) and pyfixest to 1e-9. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial, medical, policy or professional advice.
+
+## Pages
+
+- [The tool](https://marisstella.app/difference-in-differences/)
+
+## Use it from code
+
+- `node cli.mjs panel.csv --unit state --time year --outcome y --cohort first_treated [--control never|notyet] [--base varying|universal] [--anticipation 0] [--min-cohort 1] [--csv|--json]`
+- `node cli.mjs --example` for castle-doctrine laws and US state homicide rates, 2000-2010
+- `node platform/agents/tools.mjs call difference-in-differences analyze --input '{"csv":"...","unit":"state","time":"year","outcome":"y","cohort":"first_treated"}'`
+
+## What it answers
+
+- Did units that adopted a change at different times move differently afterwards from units that had not, and by how much, overall, by time since adoption and by cohort?
+- Were the treated units already drifting apart before adoption (pre-trends)?
+- How much of the usual two-way fixed effects estimate comes from comparing later adopters with units already treated, and does that bias it?
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/difference-in-differences): MIT licensed.

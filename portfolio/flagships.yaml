@@ -119,12 +119,11 @@ flagships:
     buildable: >-
       Receipts, item (5): SRD photos (eval/srd-fetch.mjs), CORD photos
       (eval/cord_images.py); tesseract via apt, RapidOCR via pip. CORD train shards
-      1-3: tesseract four 362 of 583, `--rapidocr` 539 (515 before the parser rules
-      of eval/rapidocr-parser-misses-2026-11-17.md); test 83 of 95. Next:
-      tesseract's four readings of shards 1-3 (about 100 min) to score the
-      five-reading vote and the page there; the 22 parser-reachable RapidOCR misses
-      left are one-offs (an amount split over two lines, mixed separators; same
-      note). CORD test stays held out.
+      1-3: `--rapidocr` 539 of 583, test 83 of 95; SRD `--rapidocr` 187 of 196
+      (eval/rapidocr-srd-misses-2026-11-17.md: rows one off their words). Next: the
+      page's RapidOCR port on SRD (rows shifted there too?); tesseract's four on
+      CORD shards 1-3 (about 100 min) for the five-reading vote; CORD's 22
+      parser-reachable misses are one-offs. CORD test stays held out.
     hosts: [https://huggingface.co/, https://raw.githubusercontent.com/]
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
@@ -194,9 +193,10 @@ flagships:
       and quality control 4, its AR(1) term; (1) slopes: logs fail, 2 hinges ship
       (refuse short sticky series), given date: --known-date on CLI, page, engine;
       in-time placebos ship beside it (README "In-time placebos": 0-4% false
-      warnings); control series fails seat-belt placebos 3/3: next a step-only test
-      with the control, real pairs (a policy covering some regions). More open
-      items: NEXT.md.
+      warnings); control series: step-only rule calibrated in sims, but 11 of 13
+      annual state tobacco ratios refused as wanders (README "The step alone"): next
+      monthly state series, a synthetic control, a slope-path test. More open items:
+      NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     why: >-
@@ -204,7 +204,10 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History: README and git (latest: France Flux 10 e-reporting, PPF Annexe 7
+      History: README and git (latest: INV-041 endpoint ids as OpenPeppol's
+      PEPPOL-COMMON rules check them, 0 of 21,264 off
+      (eval/endpoint-peppol-differential-2026-11-17.md); open: Peppol's
+      warning-level IT/NL id rules; France Flux 10 e-reporting, PPF Annexe 7
       controls 147/147 vs Saxon (eval/flux10-crosscheck-2026-11-17.md); open: a real
       Flux 10 file, a PPF rejection; BR-FR 264/264 vs Saxon, all 384 BR-FR/CDV
       messages in English (br-fr-error-codes.html); CDAR (BR-FR-CDV) 780/780 vs
@@ -454,10 +457,10 @@ flagships:
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
-      (eval/ifcxml-xbim-2026-11-16.md); the subclass 'not checked' warning in CI
-      outputs (JUnit, annotations) and an editor offer of IFCWALLSTANDARDCASE beside
-      IFCWALL (eval/corpus-crosscheck-2026-11-17.md); the IDS editor (editor.html;
-      README): "Use the model's range" for dates, xs:date one-of rows
+      (eval/ifcxml-xbim-2026-11-16.md); an audit rule for an entity facet naming an
+      abstract class with no concrete one (IFC2X3 IFCBUILDINGELEMENT in RVB BIM
+      Norm: applies to nothing, eval/ci-unchecked-2026-11-17.md); the IDS editor
+      (editor.html; README): "Use the model's range" for dates, xs:date one-of rows
       (eval/date-ranges-2026-11-17.md); more real exports through
       eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
@@ -481,11 +484,6 @@ flagships:
       own sets, 21 of 122 standard props in a non-template dataType): applicability
       rows 2026-11-17 (eval/applicability-rows-2026-11-17.md: counts equal the
       checker's applicable; 83.5% of public facets editable, IDS-Audit-tool 21.5%);
-      a no-dataType value row; attribute values and classification codes 2026-11-17
-      (eval/model-attr-codes-2026-11-17.md: 242 of 242 offers pass; 143 of 210
-      Uniformat elements in Schultz have an empty code, Require a code); a range for
-      numeric attributes; a dataType-mismatch hint, Accept any data type 2026-11-17
-      (eval/model-any-type-2026-11-17.md); date and duration ranges 2026-11-17
-      (eval/date-ranges-2026-11-17.md: IfcTester 0.9.0 fails every object on a date
-      range, Write as a pattern agrees 10 of 10; 86.4% of public facets editable).
+      a no-dataType value row; unchecked subclasses in CI and the editor 2026-11-17
+      (eval/ci-unchecked-2026-11-17.md: 21,405 elements in 165 of 2,028 checks).
       More open items: NEXT.md.

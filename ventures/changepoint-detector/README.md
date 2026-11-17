@@ -5761,3 +5761,49 @@ quarterly cement is refused at every date.
 `--json` has `placebo: { dates: [{ label, p }], tested, fired, warn }`; `analyze({ knownDate })` has the same field
 (`knownDate: { date, placebo: false }` leaves it out), and the page adds a sentence to "Test a date you name". Tests:
 `known-date-placebo.test.mjs`.
+
+### The step alone, with a control series: calibrated in simulation, refused on real state pairs (2026-11-17, pre-registered; not shipped)
+
+The control round above failed only on its placebo dates, where the joint test read a slow bend in the drivers-to-rear
+ratio through its slope term; the step's own p fired at none of the five. So this round keeps the statistic and changes
+the decision: with a control, a **finding** is the step's p (`pStep`, in the model that still fits a slope change) at
+0.05 with the in-time placebos, run on the same difference, not warning. Pre-registration
+`eval/known-date-prereg-control-step-2026-11-17.md`, committed after an exploratory run (seed base 91000,
+`eval/known-date-control-step-explore.out.txt`) and before the confirmatory run (fresh base 97000, 400 pairs a cell,
+`eval/known-date-control-step-confirm.out.txt`) and before any real pair was tested. The real pairs are new to this
+tool: state cigarette tax rises (CDC's *Tax Burden on Tobacco*, 1970-2019, `data/us-cigarette-packs-per-capita.csv`),
+each state's packs per head against the mean of Abadie, Diamond and Hainmueller's (2010) 38 donor states, on logs.
+
+| Bar (pre-registered) | Confirmatory | |
+|---|---|---|
+| 1. step size 2-8% of tested, six no-change cells (n 31-120, shared slopes, steps and walks) | 4.3-6.8% (joint p 4.0-7.3%) | holds |
+| 2. findings at most 8% where only the treated series bends or turns (six cells, no step) | 0-5.3%; the date-at-80% bends: step p fired 44.0% and 41.0%, the placebos warned 176 of 176 and 160 of 164 | holds |
+| 3. power, findings as a share of all pairs: P1 55%, P2 50%, P3 20%, P5 30%, and the step above the joint p | 65.5, 60.8, 24.0, 40.0% (joint 51.3, 49.5, 14.0, 14.0%) | holds |
+| 4. placebos warn at most 8% in the no-change cells | 1.3-4.3% | holds |
+| 5a. California, Proposition 99, 1989: a fall found | **refused** (the log ratio about a line has rho 0.98; the cut at 1989 is 0.67 against a walk bar of 0.72) | **fails** |
+| 5b. Massachusetts 1993, Arizona 1995, Oregon 1997: 2 of 3 found | **0 of 3: all three refused** as wanders | **fails** |
+| 5c. nine placebo states (state tax unchanged FY1985-FY1995), 1989: at most 1 of 9 found | 1 of 9 (Tennessee, +8.9%, step p 0.007); 7 of the 9 refused | holds |
+
+By its own rule nothing ships, and `control` stays an off-by-default option of `known-date.mjs`. In simulation the rule
+does what it was built to do: as calibrated as the joint test, more powerful wherever the change is a step (a 2 sd step
+at n 40 found 24% of the time against 14%), and the bends that fool the step are the ones the placebos see. The real
+pairs failed for a reason the simulation did not contain.
+
+**Why the real pairs were refused** (after the run, not pre-registered; `node eval/known-date-control-step-real-diag.mjs`,
+`eval/known-date-control-step-real-diag.out.txt`). The simulated pairs share a wander that the difference removes
+exactly and leave AR(1) noise at rho 0.4; a real state's share of national cigarette sales wanders on its own
+(cross-border buying, smuggling, demographics). Across all 38 donor states against the other 37 over 1970-2000, the
+log ratio about a straight line has a median bias-corrected rho of 0.76, and 26 of 38 are above the guard's 0.7 for
+series under 100 points; about the before-and-after lines at 1989, 14 of 38 still are. On 31 annual points the guard
+cannot tell such a ratio from a random walk, and that is a correct refusal, not a fault to tune away. With the guard
+switched off (not a calibrated test), California's ratio shows a step of -5.6% (step p 0.051) and a slope change of
+-0.033 a year (p 0.002): Proposition 99's effect grows over the decade, as in Abadie et al.'s synthetic-control
+estimate, so even uncensored a step-only rule would set aside the part of the effect a tobacco programme produces.
+Massachusetts and Oregon stay above 0.7 about their own before-and-after lines; Arizona shows -6.9% (p 0.14).
+
+**What a reader can use now.** A control series and a named date make a sharp test only where the control removes the
+wander, and a state against a national average on annual data usually does not: check the ratio's own stickiness first
+(this tool's refusal says it for you). **Next** (fresh pre-registration): monthly or quarterly state series, where 31
+years are 124-372 points and the guard reads rho on enough data; a synthetic control (weights fitted on the
+before-period, Abadie et al. 2010) instead of a plain mean; and, for programmes rather than one-off price changes, a
+test of the effect's path (the slope change) with the placebo warning, since that is where the real effect sat.

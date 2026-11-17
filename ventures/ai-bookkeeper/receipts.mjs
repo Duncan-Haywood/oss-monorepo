@@ -56,7 +56,7 @@ const DATE_RES = [
   /\b((?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.? \d{1,2},? \d{4})\b/i,
   /\b(\d{1,2} (?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?,? (?:\d{4}|\d{2}))(?!\d)/i,
 ];
-const TOTAL_RE = /\b(grand\s+total|total\s+(?:due|paid|charged|amount)|amount\s+(?:due|paid|charged)|balance\s+due|order\s+total|grandtotal|gesamt(?:betrag)?|summe|totale|totaal|total|netto|jumlah|due|(?<=\bqty\W{0,3}\d{1,3}\W{0,3})amount|(?<!\b(?:tax|gst|vat|sst)\b.*)tl)\b/i;
+const TOTAL_RE = /\b(grand\s+total|total\s+(?:due|paid|charged|amount)|totaldue|amount\s+(?:due|paid|charged)|balance\s+due|order\s+total|grandtotal|gesamt(?:betrag)?|summe|totale|totaal|total|netto|jumlah|due|(?<=\bqty\W{0,3}\d{1,3}\W{0,3})amount|(?<!\b(?:tax|gst|vat|sst)\b.*)tl)\b/i;
 const NOT_TOTAL_RE = /accepted\s+total|total\s+tender|total\s+includ\w*\s+(?:gst|tax|vat)\s*@|total[^a-z]*(?:sales\s*)?\(?[^a-z]*(?:excl|before\s+(?:gst|tax))|total\s+(?:gst|tax|vat)\b|total\s+includ(?:es|ed|ing)\b[^a-z]*\d*\s*%|(?:gst|tax|vat)\b[^a-z]*\d*\s*%?\s*includ(?:es|ed)?\s+in\s+(?:the\s+)?total|sub\s*-?total|zwischensumme|sous-total|total\s+(?:savings|disc\w*|items?|qty|aty|oty|qt|quantity|pcs|tax|points|sv|gv|ev|qu)\b|discount\s+total|\bch\s+ange\b|tax\s+total|before\s+tax|tip\b|change\b|cash\b|kemba/i;
 const FUZZY_TOTAL_RE = /^\W*(?:grand\s*)?t[aeo]t[aeo]?[ail1](?![a-z])/i;
 const TAX_RE = /\b(sales\s+tax|tax|vat|gst|hst|pst|tva|mwst|iva|btw|ppn|pb\s*1|pajak|p\.\s*rest(?:o|oran)?)\b/i;
@@ -270,6 +270,36 @@ function totalCashChange(lines, comma) {
   return null;
 }
 
+// The total when a reading's amounts sit one row off their words (parseReceipt): the total
+// line's (lines[at]'s) neighbour (row d away, d = 1 or -1) holds the total, the subtotal and tax lines hold
+// theirs in place or at the same offset, and subtotal plus tax closes exactly. Null unless
+// exactly one amount qualifies; with it, the tax that closed the sum.
+function rowShiftTotal(lines, comma, cents, at) {
+  const last = (i) => { if (i < 0 || i >= lines.length) return null; const a = amountsIn(lines[i], comma); return a.length ? a[a.length - 1] : null; };
+  const subs = [], taxes = [], totals = [];
+  lines.forEach((l, i) => {
+    if (SUB_RE.test(l)) subs.push(i);
+    else if (TAX_RE.test(l) && !NOT_TAX_RE.test(l) && !/incl|excl|\bid\b|reg|summary/i.test(l) && !TOTAL_RE.test(l)) taxes.push(i);
+    else if (TOTAL_RE.test(l) && !NOT_TOTAL_RE.test(l)) totals.push(i);
+  });
+  // a sum the subtotal and tax lines make in place is an ordinary subtotal line ("Sbt1 w/Tax:
+  // $73.34" above "Amt Due: $55.39" after a void, SRD 1042), not a shifted total
+  const inPlace = new Set(subs.flatMap((s) => taxes.map((x) => last(s) + last(x))));
+  const found = new Map(); // total -> tax
+  // only the line the total was read from: an earlier "Total" above a printed gratuity and
+  // "Balance Due 64.52" is not the slip's total (SRD 1099)
+  for (const d of [1, -1]) for (const t of totals.filter((i) => i === at)) {
+    const T = last(t + d);
+    if (T === null || T === cents || T <= 0 || SUB_RE.test(lines[t + d]) || inPlace.has(T)) continue;
+    for (const s of subs) for (const x of taxes) {
+      if (!(s < x && x < t)) continue;
+      // at least one of the two read shifted
+      for (const [S, X] of [[last(s), last(x + d)], [last(s + d), last(x)], [last(s + d), last(x + d)]]) if (S > 0 && X > 0 && X < S && S + X === T) found.set(T, X);
+    }
+  }
+  return found.size === 1 ? { cents: [...found][0][0], tax: [...found][0][1] } : null;
+}
+
 // A total line whose decimal point OCR lost or misread: "TOTAL 184 47)", "esl TOTAL : 92:22",
 // "dount Due 9, 70", "mount Due $2 17" (SRD photos, eval/split-decimal-2026-11-15.md). Only on a
 // receipt written 12.50, only after the total word, only where no amount reads on the line, and
@@ -452,6 +482,10 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
   // "DU1,241,790" (cleanOcr: "0U1,241,790") with DUE's E lost and the amount glued on (CORD train photos read by
   // RapidOCR: eval/rapidocr-parser-misses-2026-11-17.md)
   if (comma === "whole") lines = lines.map((l) => l.replace(/(\p{L})\s*[:=]\s*(?=\d)/gu, "$1 ").replace(/^(\W*)[D0]UE?(?=\d{1,3}(?:[.,]\d{3})+(?![.,]?\d))/i, "$1DUE "));
+  // a run of four or more dotted pairs ("Tl:01.48.28.44.81", a French phone number after the
+  // Tel abbreviation, which TOTAL_RE reads as TL) is no amount in any style: thousands group
+  // in threes (SRD 1034, 1114 read by RapidOCR, eval/rapidocr-srd-misses-2026-11-17.md)
+  lines = lines.map((l) => l.replace(/(?<![\d.,])\d{2}(?:[.]\d{2}){3,}(?![\d.,])/g, " "));
   if (comma === "whole") lines = lines.map((l) => joinSplitGroups(l.replace(/§(?=\d{1,2}([.,])\d{3}(?:\1\d{3})*(?![.,]?\d))/g, "5")));
   const guess = dayFirst ?? dayFirstOf(lines);
   const dmy = !!guess;
@@ -681,9 +715,24 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
     }
   }
 
+  // Amounts one row off their words: RapidOCR prints a receipt's word column and amount
+  // column as separate boxes, and on a tilted photo each amount lands in the row above or
+  // below its word ("Subtotal $5.50 / Tax $86.65 / Total: $6.93 / ... $93.58", SRD 1006;
+  // "TAX / AMOUNT DUE 5.96 / $80.45", SRD 1150). When no check confirms the total read, the
+  // total word's amount taken one row down (or up), with the subtotal and tax each read in
+  // place or shifted the same way, is the total if subtotal plus tax gives it to the cent,
+  // and only when exactly one shifted amount does (eval/rapidocr-srd-misses-2026-11-17.md).
+  let rowShiftTax = null;
+  if (comma !== "whole" && cents !== null && !checks.some(([v]) => v === cents)) {
+    const shifted = rowShiftTotal(lines, comma, cents, at);
+    if (shifted !== null) { notes.push(`total read as ${(cents / 100).toFixed(2)}, but the amounts sit one row off their words: subtotal plus tax give ${(shifted.cents / 100).toFixed(2)}, printed next to the total line; used that, check the total`); cents = shifted.cents; rowShiftTax = shifted.tax; }
+  }
+
   let taxCents = null;
   const taxRead = readTax(lines, comma, cents);
   taxCents = taxRead.cents;
+  // the tax that closed the shifted sum, over one read in place beside the wrong amount
+  if (rowShiftTax !== null) taxCents = rowShiftTax;
   if (taxRead.note) notes.push(taxRead.note);
   // line items, kept only if they add up to the printed total (with the tax and
   // any tip, or already including tax); the merchant line is not an item
