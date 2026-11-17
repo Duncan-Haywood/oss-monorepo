@@ -158,7 +158,7 @@ class Registry(unittest.TestCase):
         self.assertEqual(
             set(bc.CHECKS),
             {"journey", "sweep", "contrast", "roundtrip", "presets", "highlight",
-             "sideways", "optout"},
+             "sideways", "optout", "framerate"},
         )
 
     def test_every_enumeration_of_the_checks_agrees(self):

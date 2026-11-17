@@ -1,11 +1,13 @@
 name: Browser checks
 
-# Runs the eight checks in `platform/pages/` that need a real browser, so the
+# Runs the nine checks in `platform/pages/` that need a real browser, so the
 # question "does every tool still compute" has an automated answer for the
 # first time.
 #
 # What this closes. `platform/ci/browser_checks.py` orchestrates
 # `sideways`, `presets`, `roundtrip`, `highlight`, `contrast`, `optout`,
+# `framerate` (added 2026-11-03: does a page keep drawing frames on a slow
+# CPU; the homepage ran at 7 fps and no still-frame check could see it),
 # `sweep` and
 # `journey` -- between them the only things that open a page, type into the
 # form and read the number back out. Its own docstring says why none of them
@@ -102,9 +104,9 @@ on:
   workflow_dispatch:
     inputs:
       checks:
-        description: "Comma-separated subset to run (default: all seven)"
+        description: "Comma-separated subset to run (default: all of them)"
         required: false
-        default: "sideways,presets,roundtrip,highlight,contrast,optout,sweep,journey"
+        default: "sideways,presets,roundtrip,highlight,contrast,optout,framerate,sweep,journey"
       only:
         description: "Comma-separated venture slugs to scope to (default: the whole site)"
         required: false
@@ -141,7 +143,7 @@ jobs:
           python-version: "3.12"
       - id: split
         env:
-          CHECKS: ${{ inputs.checks || 'sideways,presets,roundtrip,highlight,contrast,optout,sweep,journey' }}
+          CHECKS: ${{ inputs.checks || 'sideways,presets,roundtrip,highlight,contrast,optout,framerate,sweep,journey' }}
         run: |
           python3 -c 'import json, os; print("checks=" + json.dumps([c.strip() for c in os.environ["CHECKS"].split(",") if c.strip()]))' >> "$GITHUB_OUTPUT"
       # The harness has its own unit tests, and a change to it is exactly the
