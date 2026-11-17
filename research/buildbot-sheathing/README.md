@@ -565,6 +565,17 @@ G1 loses 0.31–1.30 at four poses and gains 0.60–0.79 at two. Statics, 'hold-
 
 ![The no-hose clean-sheet stack at each re-leaned pose in the four lean × sides cells: the sides never move a bar](experiments/m42_sides/figure.png)
 
+**Milestone 43: what does the zero-press stance cost in the spec's own plan?** On the G1, nothing: it gains. Milestones
+41 and 42 used the controller's 'hold-min' torques; the spec re-plans its 0.1 N m leg preload and 10 N squeeze for each
+stance, and with those the G1's worst no-hose stack rises from 0.9160 to **0.9257** with the braked waist (+0.97
+points) and from 0.9081 to 0.9257 with the stock one, over the same poses plus one the old lean could not plan. At the
+worst pose the two conventions now differ by 2.70 points (0.9300 against 0.9030). The cost moves to the H1 near the top
+of its reach: two re-leaned poses keep a controller but cannot carry the 0.1 N m leg preload at a 50 N press (the
+stance allows 0.033 and 0.095 N m), so only 3 of its 6 re-leaned poses have a spec plan; those lose 0.09–0.22 points.
+H166–H168 held, H165 and H169 refuted. Statics, zero hose force, exact sensor.
+
+![The no-hose clean-sheet stack at each re-leaned pose, spec plan against 'hold-min' torques, before and after the re-lean](experiments/m43_specstack/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
