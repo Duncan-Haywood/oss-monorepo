@@ -12,6 +12,7 @@
 
 import { COLOURS, FABRICS, GARMENTS } from "./catalogue.mjs";
 import { MOTIFS } from "./motifs.mjs";
+import { splitNegations } from "./negation.mjs";
 
 const WORD_NUMBERS = {
   zero: 0, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
@@ -327,19 +328,34 @@ export function parseClause(raw, design) {
 
 /**
  * Parse a whole utterance. Returns
- *   { steps: [{ words, ops, ui, did }], unmatched: [words] }
+ *   { steps: [{ words, ops, ui, did }], unmatched: [words], declined: [{ words, cue }] }
+ * Negated words ("not black", "don't make it bigger", "no embroidery") are
+ * cut out before parsing (`negation.mjs`) and listed in `declined`, never
+ * applied.
  */
 export function parseCommand(text, design) {
   const steps = [];
   const unmatched = [];
+  const declined = [];
   for (const clause of clauses(String(text || "").slice(0, 600))) {
-    if (/^(please|ok(?:ay)?|um+|uh+|so|now|yeah|yes|and|can you|could you)$/i.test(clause)) continue;
-    const cleaned = clause.replace(/^(?:please|ok(?:ay)?|um+|uh+|so|now|yeah|can you|could you|i want(?: you)? to|i'd like(?: to)?|let's)\s+/i, "");
+    if (/^(please|ok(?:ay)?|um+|uh+|so|now|yeah|yes|and|can you|could you|no|nope|nah|not that)$/i.test(clause)) continue;
+    let cleaned = clause.replace(/^(?:please|ok(?:ay)?|um+|uh+|so|now|yeah|can you|could you|i want(?: you)? to|i'd like(?: to)?|let's)\s+/i, "");
+    // Naming, writing text and "never mind" carry their own words: no negation cut.
+    const ownWords = /\b(call it|name it|name the design|title it)\b|^(?:undo|never mind)/i.test(cleaned)
+      || (/\b(add|write|put|print|say|spell|change|replace|edit)\b/i.test(cleaned) && (/["“”]/.test(cleaned) || /\b(text|words?|saying|caption|slogan)\b/i.test(cleaned)));
+    if (!ownWords) {
+      const n = splitNegations(cleaned);
+      declined.push(...n.negated.map(x => ({ words: `${x.cue} ${x.words}`, cue: x.cue })));
+      cleaned = n.kept.replace(/\s+/g, " ").trim();
+      if (!cleaned) continue;
+      if (n.negated.length && /^(?:but|instead|rather|just|only)$/i.test(cleaned)) continue;
+      cleaned = cleaned.replace(/^(?:but|instead|rather|just|only)\s+/i, "");
+    }
     const r = parseClause(cleaned, design);
     if (r) steps.push({ words: clause, ...r });
     else unmatched.push(clause);
   }
-  return { steps, unmatched };
+  return { steps, unmatched, declined };
 }
 
 /** Example commands shown on the page and used by the tests and evals. */

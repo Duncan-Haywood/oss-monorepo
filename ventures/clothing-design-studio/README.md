@@ -109,6 +109,35 @@ and run it yourself.
 MIT licence: [`LICENSE`](LICENSE). Sponsor: https://github.com/sponsors/Duncan-Haywood
 
 
+## "Not black, make it cream": negated feedback (2026-11-17)
+
+Spoken feedback is full of refusals, and both keyword readers (`commands.mjs`
+in the studio, `guide.mjs` in the wardrobe chat) used to read a refused word as
+a request: "don't make it bigger" made the print 15% bigger, "no embroidery,
+screen print it" applied both methods, "not for men" chose men's fit and "not
+luxury" chose luxury. `negation.mjs` now cuts each negated stretch out first
+(from "not", "no", "don't", "never", "without", "nothing", "instead of",
+"rather than" and the like to the end of the clause: the next comma, "but",
+"and", "just", another negation, at most four words). Quoted text, names
+("call it Not Today") and phrases that only look negative ("not just", "no
+more than", "never mind", "not sure") are left alone.
+
+- **Studio:** a refused command is never applied; it is listed as "Left alone
+  (you said no)" in the command log (`parseCommand(...).declined`, also through
+  the optional model's rewrite).
+- **Wardrobe chat:** turning down the current answer undoes it ("not luxury"
+  sets the tier back to premium, the default) and the question is asked again;
+  a refused occasion comes off the list. "Skip", "not sure", "any" or "no
+  preference" in reply to a question keeps the current answer and moves on,
+  and "men ... women too" said apart reads as unisex.
+
+`node eval/negated-feedback.mjs` (`eval/negated-feedback-2026-11-17.md`): on 30
+hand-written studio sentences, `main` read 15 right and this reads 29; on 12
+wardrobe sentences, 3 and 12. The six controls without negation pass both.
+The one miss is a question ("isn't navy better", read as turning navy down).
+The sentences are ours, not a designer's: real recorded feedback is still the
+test that matters. `negation.test.mjs` (9 tests).
+
 ## Virtual drape: the pattern sewn onto a body (2026-11-13)
 
 `drape.mjs` and `drape.html`. The interviews asked to see a garment on the
