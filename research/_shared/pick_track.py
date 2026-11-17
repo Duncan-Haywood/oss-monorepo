@@ -896,7 +896,7 @@ if __name__ == "__main__":
                 print(f"track {t} has {n} projects (>= {SATURATED}); redrawing is fine. Fewest: "
                       + ", ".join(f"track {i} ({c})" for c, i in counts[:3]))
             print(f"next step if milestones are done: research/{newest[0]}/README.md, 'Next steps'{note}")
-            if not free:
+            if not milestones(PREFIX[t - 1])[1]:
                 for name in newest[:3]:
                     print(f"  {name}: {next_steps(name) or '(no Next steps section)'}")
     print(post_limits_line())

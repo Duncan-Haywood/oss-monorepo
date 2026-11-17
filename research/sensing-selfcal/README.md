@@ -13,6 +13,17 @@ RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with
 checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (290 of 290,
 revised with milestones 4e–4s and 3b–3g) and a list of what a submission still needs.
 
+**Milestone 3j headline** (do the first-order verdicts of milestones 3g and 3i survive a real re-solve? each of the 57 TUM RGB-D
+natural-feature windows re-solved by bundle adjustment with the board's distortion, principal point or both pinned): **yes, and
+the distortion verdict is sharper.** Pinning the board's k<sub>1</sub>, k<sub>2</sub> doubles the median focal error (5.25% to
+10.5%; fr1/xyz 18%) and leaves f above the board's in 52 of 53 windows; the principal point alone is mildly worse (5.87%; it helps
+fr3/stf, 7.2% to 5.9%, and hurts both fr1 sequences); all four 10.7%. First order gets the size about right (median re-solved/predicted
+step 0.91, 1.01, 0.87) but the direction wrong in a quarter of the distortion re-solves (sign agreement 74%; on board windows 99%).
+Rule for a robot: in a short natural-feature window, do not import the board's distortion. Five of six predictions held.
+[Log](LOG.md).
+
+![TUM windows: first-order against re-solved focal step for each pin, and the focal error free and pinned](experiments/m3j_tumpin/tumpin.png)
+
 **Milestone 3i headline** (is the principal point what a short natural-feature window's focal length compensates? the
 board's (c<sub>x</sub>, c<sub>y</sub>) pinned, first order on the 57 TUM RGB-D windows and re-solved on milestone 3h's 149 board windows):
 **no.** On the TUM windows pinning the board's principal point raises the median focal error from 5.25% to 6.76% (with the
@@ -1104,6 +1115,11 @@ python3 paper/check_numbers.py             # seconds; the draft's numbers agains
   `PROPOSAL.md`).
 
 ## Next steps
+
+After milestone 3j: the re-solve on the TUM video confirms 3g and 3i (board distortion pinned: 10.5% median error; principal
+point: 5.87%; free: 5.25%). The TUM video now downloads, so the remaining candidates for what a window's f compensates can be
+tested on it directly: a rolling-shutter term in the window model (which TUM camera has one needs a source first), track bias
+in the SIFT front end (re-track with a different detector and compare f), and longer windows.
 
 After milestone 3i: the principal point is ruled out too (pinned at the board's value it raises the TUM median error to
 6.76%, while helping clean board windows), so the next candidates sit outside the pinhole-plus-radial model: a rolling-shutter
