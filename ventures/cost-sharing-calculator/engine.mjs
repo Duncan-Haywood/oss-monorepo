@@ -98,27 +98,33 @@ const TOL = 1e-9;
 // ---------------------------------------------------------------- CSV ----
 
 export function parseCsv(text) {
-  const lines = String(text ?? "").replace(/^﻿/, "").split(/\r?\n/).filter((l) => l.trim() !== "" && !/^\s*#/.test(l));
-  if (!lines.length) return [];
-  const first = lines[0];
+  // Quote-aware over the whole text, so a quoted note that spans lines stays
+  // in one cell (red-team 2026-11-17). Blank rows and #-comment rows drop.
+  const s = String(text ?? "").replace(/^\uFEFF/, "");
+  const first = s.split(/\r?\n/).find((l) => l.trim() !== "" && !/^\s*#/.test(l));
+  if (first === undefined) return [];
   const delim = [",", "\t", ";"].sort((a, b) => first.split(b).length - first.split(a).length)[0];
-  return lines.map((line) => {
-    const out = [];
-    let cur = "";
-    let q = false;
-    for (let i = 0; i < line.length; i++) {
-      const ch = line[i];
-      if (q) {
-        if (ch === '"' && line[i + 1] === '"') { cur += '"'; i++; }
-        else if (ch === '"') q = false;
-        else cur += ch;
-      } else if (ch === '"') q = true;
-      else if (ch === delim) { out.push(cur.trim()); cur = ""; }
-      else cur += ch;
-    }
-    out.push(cur.trim());
-    return out;
-  });
+  const rows = [];
+  let row = [], cur = "", q = false, quotedRow = false;
+  const end = () => {
+    row.push(cur.trim());
+    const blank = row.every((c) => c === "");
+    if (!blank && !(!quotedRow && /^\s*#/.test(row.join(delim)))) rows.push(row);
+    row = []; cur = ""; quotedRow = false;
+  };
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+    if (q) {
+      if (ch === '"' && s[i + 1] === '"') { cur += '"'; i++; }
+      else if (ch === '"') q = false;
+      else if (!(ch === "\r" && s[i + 1] === "\n")) cur += ch;
+    } else if (ch === '"') { q = true; quotedRow = true; }
+    else if (ch === delim) { row.push(cur.trim()); cur = ""; }
+    else if (ch === "\n" || ch === "\r") { if (ch === "\r" && s[i + 1] === "\n") i++; end(); }
+    else cur += ch;
+  }
+  end();
+  return rows;
 }
 
 /** A money-like cell to a number: "$1,200.50" -> 1200.5; null when not a number. */

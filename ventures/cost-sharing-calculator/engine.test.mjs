@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
   analyze, shapley, nucleolus, airportGame, airportShapley, bankruptcyGame, talmud, cea, cel,
-  separableCosts, coreCheck, completeGame, parseCoalitionTable, simplex, toCsv, csvCell, PAPERS, num,
+  separableCosts, coreCheck, completeGame, parseCoalitionTable, simplex, toCsv, csvCell, PAPERS, num, parseCsv,
 } from "./engine.mjs";
 import { EXAMPLES } from "./example-data.mjs";
 
@@ -223,4 +223,9 @@ test("the CSV export defuses spreadsheet formulas in names but keeps negative nu
   assert.equal(csvCell('a "b", c'), '"a ""b"", c"');
   const r = analyze({ mode: "road", csv: "=cmd,100\nB,200" });
   assert.match(toCsv(r), /\n'=cmd,/);
+});
+
+test("parseCsv: a quoted cell spanning lines stays one row; comments and blanks drop (red-team 2026-11-17)", () => {
+  const rows = parseCsv('# header comment\nname,amount\r\n"Line one\r\nline two, more",12\n\n"# not a comment",3\n# trailing\n');
+  assert.deepEqual(rows, [["name", "amount"], ["Line one\nline two, more", "12"], ["# not a comment", "3"]]);
 });

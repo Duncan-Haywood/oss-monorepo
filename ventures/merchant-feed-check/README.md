@@ -56,6 +56,12 @@ specification errors and warnings, plus feed-level problems like duplicate
 IDs. No fetch happens from the page itself, so nothing you load ever leaves
 your device.
 
+CSV and TSV follow RFC 4180 quoting: a quoted cell may hold the delimiter, a
+doubled `""` quote, or a line break, so a multi-paragraph description from a
+Shopify or Excel export stays one item. Availability takes Google's
+`in_stock` / `out_of_stock` spelling as well as the spaced `in stock` form
+Meta uses.
+
 ## Quickstart (CLI)
 
 Zero dependencies, one file, Node 18+. Reads only the file you name — no
