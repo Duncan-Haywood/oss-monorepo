@@ -106,6 +106,12 @@ def models(c, pat) -> dict:
     lvl, sig = two_scale_blocks(c, 6 if len(pat) == 36 else 2)
     for p in (50, 15):
         out[f"two{p}"] = _noise_model(np.clip(lvl, 0, None).ravel(), sig.ravel(), pct=p)
+    from shootflow.noise_pca import estimate_noise_pca
+
+    out["pca4"] = estimate_noise_pca(c, pat, d=4, mosaic=False)
+    out["pca5"] = estimate_noise_pca(c, pat, d=5, mosaic=False)
+    for d in (4, 6, 8):
+        out[f"m{d}"] = estimate_noise_pca(c, pat, d=d, mosaic=True)
     return out
 
 
@@ -191,7 +197,7 @@ def binning(args) -> int:
 def summary(paths) -> int:
     rows = [json.loads(line) for p in paths for line in open(p) if line.strip()]
     rows = [r for r in rows if "true" in r]
-    keys = [k for k in rows[0] if k.startswith(("spread", "haar", "two"))]
+    keys = [k for k in rows[0] if k.startswith(("spread", "haar", "two", "pca", "m"))]
     for layout in sorted({r["layout"] for r in rows}):
         for split in ("tune", "held"):
             rs = [r for r in rows if r["layout"] == layout and r["split"] == split]

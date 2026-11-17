@@ -62,10 +62,11 @@ class NoiseAwareTests(unittest.TestCase):
             self.assertAlmostEqual(m["sigma"] / sigma, 1.0, delta=0.2)
 
     def test_frame_noise_is_the_scaled_estimate_and_never_above_it(self):
+        from shootflow.noise_pca import estimate_noise_pca
         from shootflow.xtrans_demosaic import FRAME_SCALE, estimate_noise, frame_noise
 
         _, c = self._flat(0.01)
-        shot, read = estimate_noise(c, XE1_PATTERN)
+        shot, read = estimate_noise_pca(c, XE1_PATTERN)
         fs, fr = frame_noise(c, XE1_PATTERN)
         # sigma scaled by FRAME_SCALE (the guard only ever lowers it further)
         self.assertLessEqual(fs, shot * FRAME_SCALE**2 + 1e-15)
@@ -73,6 +74,13 @@ class NoiseAwareTests(unittest.TestCase):
         self.assertGreater(fs + fr, 0.0)
         fs1, fr1 = frame_noise(c, XE1_PATTERN, scale=1.0)
         self.assertGreater(fs1 + fr1, fs + fr)
+        # the block-spread model of the morning of 2026-11-17 stays reachable
+        ss, sr = frame_noise(c, XE1_PATTERN, estimator="spread")
+        es, er = estimate_noise(c, XE1_PATTERN)
+        self.assertLessEqual(ss, es * FRAME_SCALE**2 + 1e-15)
+        self.assertLessEqual(sr, er * FRAME_SCALE**2 + 1e-15)
+        with self.assertRaises(ValueError):
+            frame_noise(c, XE1_PATTERN, estimator="nope")
 
     def test_frame_noise_blend_beats_directional_on_a_flat_noisy_field(self):
         from shootflow.xtrans_demosaic import directional, frame_noise, noise_aware
