@@ -1,6 +1,8 @@
 // Real tests for the synthetic control (pre-registration eval/synth-prereg-2026-11-17.md): state cigarette packs per
 // head (levels, fiscal years, data/us-cigarette-packs-per-capita.csv) against Abadie, Diamond and Hainmueller's (2010)
 // 38 donor states. node eval/synth-real.mjs > eval/synth-real.out.txt
+// SC_STAT=floored (or post) ranks by that placebo statistic instead and prints all three (README "A floored ratio";
+// SC_STAT=floored node eval/synth-real.mjs > eval/synth-floor-real.out.txt).
 import { readFileSync } from 'node:fs';
 import { synthControlTest, synthInTimePlacebo } from '../synth-control.mjs';
 const read = (f) => { const [h, ...rows] = readFileSync(new URL(`../data/${f}`, import.meta.url), 'utf8').trim().split('\n'); return { head: h.split(','), data: rows.map((l) => l.split(',').map(Number)) }; };
@@ -16,6 +18,8 @@ function cleanDonors(last) {
   return DONORS.filter((s) => { const v = col(tax, s); let mx = 0; for (let i = i0; i <= i1; i++) mx = Math.max(mx, v[i] - v[i0]); return mx < 0.5; });
 }
 const f = (v, p = 2) => Number(v).toFixed(p);
+const STAT = process.env.SC_STAT;
+const opts = { statistic: STAT ?? 'ratio' }; // the last round's tables used the paper's ratio
 const out = [];
 function run(tag, state, date, last, { exclude = [], fake = null } = {}) {
   const lo = years.indexOf(1970), hi = years.indexOf(last) + 1;
@@ -23,12 +27,13 @@ function run(tag, state, date, last, { exclude = [], fake = null } = {}) {
   const y = col(sales, state).slice(lo, hi);
   const donors = Object.fromEntries(pool.map((s) => [s, col(sales, s).slice(lo, hi)]));
   const k = years.slice(lo, hi).indexOf(date);
-  const r = fake == null ? synthControlTest(y, donors, k) : synthInTimePlacebo(y, donors, k, years.slice(lo, hi).indexOf(fake));
+  const r = fake == null ? synthControlTest(y, donors, k, opts) : synthInTimePlacebo(y, donors, k, years.slice(lo, hi).indexOf(fake), opts);
   const window = fake == null ? `1970-${last}` : `1970-${date - 1}, fake date ${fake}`;
   console.log(`${tag}: ${state} ${fake ?? date}, ${window}, ${r.donors} donors`);
   console.log(`  weights: ${r.weights.slice(0, 6).map((w) => `${w.name} ${f(w.weight, 3)}`).join(', ')}${r.weights.length > 6 ? `, +${r.weights.length - 6} more` : ''}`);
   console.log(`  before RMSPE ${f(r.preRmspe)} packs (worse than ${f(100 * r.preFitShare, 0)}% of the donors' own fits${r.fitWarning ? ', FIT WARNING' : ''}); after RMSPE ${f(r.postRmspe)}; ratio ${f(r.ratio)}`);
   console.log(`  gap after the date: ${f(r.effectAverage)} packs on average, ${f(r.effectAtEnd)} at the end; rank ${r.rank} of ${r.donors + 1}, p ${f(r.p, 3)}`);
+  if (STAT) console.log(`  statistics: ${Object.entries(r.tests).map(([key, t]) => `${key} ${f(t.value)} rank ${t.rank} p ${f(t.p, 3)}`).join('; ')} (floor ${f(r.floor)} packs); ranked by ${STAT}`);
   if (fake == null && state === 'CA') console.log(`  gap by year: ${years.slice(lo, hi).map((yy, i) => `${yy} ${f(r.gap[i], 1)}`).join(', ')}`);
   const row = { tag, state, date: fake ?? date, last, donors: r.donors, p: r.p, rank: r.rank, effectAverage: r.effectAverage, effectAtEnd: r.effectAtEnd, preRmspe: r.preRmspe, fitWarning: r.fitWarning };
   out.push(row);
