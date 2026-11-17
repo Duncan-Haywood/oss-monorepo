@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231f5c63'/%3E%3Ctext%20x='16'%20y='22'%20font-size='14'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ERD%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Regression Discontinuity Calculator Online: Robust Bias-Corrected RD, Fuzzy RD, Bandwidth</title>
+  <meta name="description" content="Free regression discontinuity tool. Upload a CSV with a running variable and a cutoff and get the jump at the cutoff with Calonico, Cattaneo and Titiunik robust bias-corrected confidence intervals, an MSE-optimal bandwidth, fuzzy RD, a bandwidth sweep, placebo cutoffs, covariate balance and a McCrary density test. Matches rdrobust at fixed bandwidths. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Regression discontinuity in your browser, with robust bias-corrected intervals">
+  <meta property="og:description" content="Did crossing a cutoff change the outcome? Local polynomial RD, sharp or fuzzy, with the checks a referee will ask for: bandwidth sensitivity, placebo cutoffs, covariates and bunching. Free and private.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Regression discontinuity with robust bias-corrected inference", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Upload a CSV with a running variable, a cutoff and an outcome, and get the local polynomial estimate of the jump at the cutoff with conventional, bias-corrected and robust standard errors and confidence intervals (Calonico, Cattaneo and Titiunik 2014), an MSE-optimal bandwidth, the fuzzy design for imperfect take-up, a bandwidth sensitivity sweep, placebo cutoffs, covariate balance tests, a McCrary density test and an RD plot. Runs in your browser.", "featureList": "regression discontinuity calculator, RD design online, robust bias-corrected confidence interval, rdrobust alternative, fuzzy regression discontinuity, MSE-optimal bandwidth, local linear regression at a cutoff, McCrary density test, placebo cutoffs, covariate balance, RD plot, CSV download", "citation": ["https://doi.org/10.3982/ECTA11757", "https://doi.org/10.1093/ectj/utz022", "https://doi.org/10.1016/j.jeconom.2007.05.005", "https://doi.org/10.1002/pam.21985", "https://doi.org/10.1016/j.jeconom.2007.05.004"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does a regression discontinuity design answer?", "acceptedAnswer": {"@type": "Answer", "text": "Whether crossing a threshold changed an outcome: a scholarship for test scores above 80, a programme for incomes below a line, an election won by a margin above zero. Units just either side of the cutoff are alike in everything except which side they landed on, so the jump in the average outcome at the cutoff estimates the effect for units near it."}}, {"@type": "Question", "name": "Why are there three estimates?", "acceptedAnswer": {"@type": "Answer", "text": "The conventional estimate fits a line on each side within the bandwidth. At the bandwidth that minimises mean squared error, its bias is not small next to its standard error, so its confidence interval covers the truth less often than it claims. The bias-corrected estimate subtracts an estimate of that bias, and the robust standard error also counts the noise in the bias estimate. Report the conventional point estimate with the robust interval, as Calonico, Cattaneo and Titiunik recommend."}}, {"@type": "Question", "name": "How is the bandwidth chosen?", "acceptedAnswer": {"@type": "Answer", "text": "By default it is the bandwidth that minimises the estimated mean squared error of the jump, the same on both sides, from pilot fits of the curvature and the noise near the cutoff. You can set it yourself. The sweep shows the estimate from half to twice the chosen bandwidth, so you can see whether the answer depends on it."}}, {"@type": "Question", "name": "What is a fuzzy regression discontinuity?", "acceptedAnswer": {"@type": "Answer", "text": "When crossing the cutoff raises the chance of treatment without making it certain, for example when not everyone eligible takes up a programme. Give the tool the 0/1 take-up column: it divides the jump in the outcome by the jump in take-up, which estimates the effect for units whose take-up is switched by the cutoff."}}, {"@type": "Question", "name": "How do I know the design is valid?", "acceptedAnswer": {"@type": "Answer", "text": "No test proves it, but three checks catch common failures. Units should not bunch on one side of the cutoff (the McCrary density test), characteristics fixed before treatment should not jump (covariate balance), and the outcome should not jump at made-up cutoffs away from the real one (placebo cutoffs). The page runs all three."}}, {"@type": "Question", "name": "Does it match rdrobust?", "acceptedAnswer": {"@type": "Answer", "text": "At a given bandwidth, yes: on 14 test cases covering sharp and fuzzy designs, polynomial orders 0 to 3, the three kernels and the five variance estimators, every estimate and standard error agrees with rdrobust 2.1.1 within 1e-8. The automatic bandwidth is this tool's own plug-in and lands at 0.75 to 1.06 times rdrobust's on the six test designs, so with the default bandwidth the numbers differ somewhat. Type rdrobust's bandwidth into the h and b boxes to reproduce it exactly."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analysed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #182a2c; background: #f1f5f5; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1f5c63; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #163f44; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #163f44; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4b5d5f; }
+    .card { background: #fff; border: 1px solid #d3e0e1; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #163f4410; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6f8587; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5c63; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e2eded; color: #163f44; }
+    button:disabled { opacity: .6; cursor: default; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e7efef; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4b5d5f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d3e0e1; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #6f8587; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; }
+    .summary { font-size: 1.02rem; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    .legend { font-size: .82rem; color: #4b5d5f; margin: 4px 0 0; }
+    .sw { display: inline-block; width: 14px; height: 3px; vertical-align: middle; margin: 0 4px 0 10px; }
+    pre { background: #f3f7f7; border: 1px solid #dde8e8; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">REGRESSION DISCONTINUITY · SHARP AND FUZZY · ROBUST BIAS-CORRECTED INTERVALS · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Did crossing the cutoff change the outcome?</h1>
+    <p>A scholarship goes to scores of 80 and up, a subsidy to incomes under a line, a seat to whoever wins by any margin. Units just either side of a cutoff are alike except for the side they landed on, so the <strong>jump at the cutoff</strong> measures the effect. Upload one row per unit with the running variable and the outcome. You get the jump with <strong>robust bias-corrected confidence intervals</strong> (Calonico, Cattaneo &amp; Titiunik), an <strong>MSE-optimal bandwidth</strong>, a <strong>fuzzy</strong> estimate when take-up is partial, and the checks a referee asks for: a <strong>bandwidth sweep</strong>, <strong>placebo cutoffs</strong>, <strong>covariate balance</strong> and a <strong>density test</strong> for bunching.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Statistical output from data you supply, not advice. Not legal, tax, or financial advice, and not medical or policy advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your data</h2>
+    <label for="csv">CSV with a header row: one row per unit (for example <code>score,outcome,took_up</code>)</label>
+    <textarea id="csv" spellcheck="false" placeholder="score,outcome&#10;71,0.42&#10;83,0.67&#10;..."></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.txt,text/csv">
+    <button type="button" class="secondary" id="load-example">Load example: 1,000 simulated close elections (true jump 0.04)</button>
+    <p class="note" id="data-status">Paste data or load the example.</p>
+
+    <div class="grid">
+      <div><label for="running">Running variable</label><select id="running"></select></div>
+      <div><label for="outcome">Outcome</label><select id="outcome"></select></div>
+      <div><label for="cutoff">Cutoff (treated at or above)</label><input id="cutoff" type="number" step="any" value="0" inputmode="decimal"></div>
+      <div><label for="treatment">Take-up column (fuzzy design)</label><select id="treatment"></select></div>
+      <div><label for="covariates">Covariates that should not jump (comma-separated)</label><input id="covariates" type="text" placeholder="age, prior_score"></div>
+      <div><label for="p">Local polynomial</label><select id="p"><option value="0">Constant (p = 0)</option><option value="1" selected>Linear (p = 1)</option><option value="2">Quadratic (p = 2)</option></select></div>
+      <div><label for="kernel">Kernel</label><select id="kernel"><option value="triangular" selected>Triangular</option><option value="epanechnikov">Epanechnikov</option><option value="uniform">Uniform</option></select></div>
+      <div><label for="vce">Variance estimator</label><select id="vce"><option value="nn" selected>Nearest neighbours (3)</option><option value="hc0">HC0</option><option value="hc1">HC1</option><option value="hc2">HC2</option><option value="hc3">HC3</option></select></div>
+      <div><label for="h">Bandwidth h (blank: MSE-optimal)</label><input id="h" type="number" step="any" min="0" inputmode="decimal"></div>
+      <div><label for="b">Bias bandwidth b (blank: automatic)</label><input id="b" type="number" step="any" min="0" inputmode="decimal"></div>
+    </div>
+    <button type="button" id="analyze">Estimate</button>
+    <p id="status" class="note" role="status"></p>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="summary" id="summary"></p>
+    <div id="warnings"></div>
+    <div class="charts">
+      <div>
+        <h3>RD plot</h3>
+        <div id="rd-chart" role="img" aria-label="Binned means of the outcome against the running variable, with the local fit on each side of the cutoff"></div>
+        <p class="legend"><span class="sw" style="background:#7d9496;height:8px"></span>binned means (20 bins a side) <span class="sw" style="background:#1f5c63"></span>local fit within h <span class="sw" style="background:#c4572f"></span>cutoff</p>
+      </div>
+      <div>
+        <h3>Does the answer depend on the bandwidth?</h3>
+        <div id="sweep-chart" role="img" aria-label="Estimate and robust confidence interval at bandwidths from half to twice the chosen one"></div>
+        <p class="legend"><span class="sw" style="background:#1f5c63"></span>estimate and robust 95% interval, the chosen h filled</p>
+      </div>
+    </div>
+    <div id="takeup-wrap" hidden>
+      <h3>Take-up (first stage)</h3>
+      <div id="takeup-chart" role="img" aria-label="Binned share taking up treatment against the running variable"></div>
+    </div>
+    <h3>Estimates</h3>
+    <div class="scroll"><table id="est-table"><thead><tr><th>Estimate</th><th class="n">Value</th><th class="n">SE</th><th class="n">95% CI</th></tr></thead><tbody></tbody></table></div>
+    <div class="charts">
+      <div>
+        <h3>Placebo cutoffs and covariates</h3>
+        <div class="scroll"><table id="check-table"><thead><tr><th>Check</th><th class="n">Jump</th><th class="n">p</th></tr></thead><tbody></tbody></table></div>
+      </div>
+      <div>
+        <h3>Bunching at the cutoff</h3>
+        <div class="scroll"><table id="density-table"><thead><tr><th>Test</th><th class="n">Below</th><th class="n">Above</th><th class="n">p</th></tr></thead><tbody></tbody></table></div>
+        <p class="note">The window counts follow the binomial test of Cattaneo, Titiunik &amp; Vazquez-Bare; where the density slopes, wide windows tilt even without sorting, so the McCrary row is the one the summary uses.</p>
+      </div>
+    </div>
+    <button type="button" class="secondary" id="download">Download the estimates and bandwidth sweep (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p>On each side of the cutoff <em>c</em>, the tool fits a polynomial of order <em>p</em> in <em>x</em> &minus; <em>c</em> by weighted least squares, with kernel weights that fall to zero at distance <em>h</em>. The <strong>conventional estimate</strong> is the difference between the two fitted values at <em>c</em>. Its leading bias is proportional to the (<em>p</em>+1)-th derivative of the outcome curve on each side; the tool estimates those from fits of order <em>q</em> = <em>p</em>+1 with a pilot bandwidth <em>b</em> and subtracts the bias. The <strong>robust standard error</strong> treats the bias-corrected estimate as one linear combination of the outcomes, so it includes the variance the bias estimate adds (Calonico, Cattaneo &amp; Titiunik 2014). Residual variances come from the three nearest neighbours on the same side by default, or from the fitted residuals (HC0 to HC3).</p>
+    <p>The default <strong>bandwidth</strong> minimises the estimated mean squared error of the jump with one <em>h</em> for both sides (Calonico, Cattaneo &amp; Farrell 2020), after pilot steps: a rule-of-thumb pilot for the variance, a global polynomial for the highest derivative, then local fits for each lower derivative, each step with a regularisation term for the noise in its bias estimate. In a <strong>fuzzy</strong> design the estimate is the outcome jump divided by the take-up jump, with a delta-method variance from the joint residuals; the bandwidth is chosen for the outcome jump.</p>
+    <p>Checks: the <strong>bandwidth sweep</strong> reruns the estimate at 0.5 to 2 times <em>h</em> with the same ratio <em>b</em>/<em>h</em>. <strong>Placebo cutoffs</strong> sit at the median of each side and use only that side's data, where no jump should exist. <strong>Covariates</strong> are run as outcomes with their own bandwidths. The <strong>density test</strong> is McCrary's (2008): a fine histogram, a local linear fit of its heights on each side at twice <em>h</em>, and the log difference at the cutoff with his standard error.</p>
+    <p>Verified by tests in the source against <strong>rdrobust 2.1.1</strong> (the reference implementation by the method's authors, used only as an external program; none of its code is here): on 14 fixed-bandwidth cases (sharp and fuzzy, <em>p</em> from 0 to 3, all three kernels, nearest-neighbour and HC0-HC3 variances, a running variable with ties), the conventional, bias-corrected and robust estimates and standard errors agree within 1e-8, as do the counts inside <em>h</em>. The automatic bandwidth is this tool's own plug-in and lands at 0.75 to 1.06 times rdrobust's <code>mserd</code> on six test designs. On 1,000 simulated samples of 1,000 from the Lee calibration (true jump 0.04), the robust 95% interval at the automatic bandwidth covered the truth 93.7% of the time and the conventional one 91.7%.</p>
+    <h3>Limits</h3>
+    <ul>
+      <li><strong>Local, not general.</strong> The estimate is the effect for units at the cutoff. It says nothing directly about units far from it.</li>
+      <li><strong>No sorting.</strong> If units can choose their side (retaking a test, editing an application), the comparison breaks; the density test catches heavy bunching, not subtle sorting.</li>
+      <li><strong>Mass points.</strong> With a discrete running variable (ages in years, whole test scores) there are few distinct values near the cutoff; the tool counts ties as neighbours but does not apply rdrobust's mass-point adjustment, and a local randomisation analysis may suit better.</li>
+      <li><strong>No covariate adjustment or clustering</strong> yet; covariates are tested for balance only.</li>
+      <li><strong>One cutoff.</strong> Multi-cutoff and geographic designs are not handled.</li>
+    </ul>
+    <h3>BibTeX</h3>
+    <pre>@article{calonico2014robust,
+  author  = {Calonico, Sebastian and Cattaneo, Matias D. and Titiunik, Rocio},
+  title   = {Robust Nonparametric Confidence Intervals for Regression-Discontinuity Designs},
+  journal = {Econometrica},
+  volume  = {82}, number = {6}, pages = {2295--2326}, year = {2014},
+  doi     = {10.3982/ECTA11757}
+}
+@article{calonico2020optimal,
+  author  = {Calonico, Sebastian and Cattaneo, Matias D. and Farrell, Max H.},
+  title   = {Optimal Bandwidth Choice for Robust Bias-Corrected Inference in Regression Discontinuity Designs},
+  journal = {The Econometrics Journal},
+  volume  = {23}, number = {2}, pages = {192--210}, year = {2020},
+  doi     = {10.1093/ectj/utz022}
+}
+@article{mccrary2008manipulation,
+  author  = {McCrary, Justin},
+  title   = {Manipulation of the Running Variable in the Regression Discontinuity Design: A Density Test},
+  journal = {Journal of Econometrics},
+  volume  = {142}, number = {2}, pages = {698--714}, year = {2008},
+  doi     = {10.1016/j.jeconom.2007.05.005}
+}
+@article{lee2008randomized,
+  author  = {Lee, David S.},
+  title   = {Randomized Experiments from Non-random Selection in {U.S.} House Elections},
+  journal = {Journal of Econometrics},
+  volume  = {142}, number = {2}, pages = {675--697}, year = {2008},
+  doi     = {10.1016/j.jeconom.2007.05.004}
+}</pre>
+    <p class="note">Example data: 1,000 close elections simulated from the fifth-order polynomial calibration of Lee's (2008) House data used in the simulations of Calonico, Cattaneo &amp; Titiunik (2014): vote margin as the running variable, next vote share as the outcome, and a prior vote share that does not jump. The true jump is 0.04. They are simulated, not Lee's data; <code>eval/simulate.py</code> regenerates them.</p>
+  </section>
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What does a regression discontinuity design answer?</h3>
+    <p>Whether crossing a threshold changed an outcome: a scholarship for test scores above 80, a programme for incomes below a line, an election won by a margin above zero. Units just either side of the cutoff are alike in everything except which side they landed on, so the jump in the average outcome at the cutoff estimates the effect for units near it.</p>
+    <h3>Why are there three estimates?</h3>
+    <p>The conventional estimate fits a line on each side within the bandwidth. At the bandwidth that minimises mean squared error, its bias is not small next to its standard error, so its confidence interval covers the truth less often than it claims. The bias-corrected estimate subtracts an estimate of that bias, and the robust standard error also counts the noise in the bias estimate. Report the conventional point estimate with the robust interval, as Calonico, Cattaneo and Titiunik recommend.</p>
+    <h3>How is the bandwidth chosen?</h3>
+    <p>By default it is the bandwidth that minimises the estimated mean squared error of the jump, the same on both sides, from pilot fits of the curvature and the noise near the cutoff. You can set it yourself. The sweep shows the estimate from half to twice the chosen bandwidth, so you can see whether the answer depends on it.</p>
+    <h3>What is a fuzzy regression discontinuity?</h3>
+    <p>When crossing the cutoff raises the chance of treatment without making it certain, for example when not everyone eligible takes up a programme. Give the tool the 0/1 take-up column: it divides the jump in the outcome by the jump in take-up, which estimates the effect for units whose take-up is switched by the cutoff.</p>
+    <h3>How do I know the design is valid?</h3>
+    <p>No test proves it, but three checks catch common failures. Units should not bunch on one side of the cutoff (the McCrary density test), characteristics fixed before treatment should not jump (covariate balance), and the outcome should not jump at made-up cutoffs away from the real one (placebo cutoffs). The page runs all three.</p>
+    <h3>Does it match rdrobust?</h3>
+    <p>At a given bandwidth, yes: on 14 test cases covering sharp and fuzzy designs, polynomial orders 0 to 3, the three kernels and the five variance estimators, every estimate and standard error agrees with rdrobust 2.1.1 within 1e-8. The automatic bandwidth is this tool's own plug-in and lands at 0.75 to 1.06 times rdrobust's on the six test designs, so with the default bandwidth the numbers differ somewhat. Type rdrobust's bandwidth into the h and b boxes to reproduce it exactly.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The file is read and analysed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician or economist. Results are statistical estimates from the data you enter; they do not establish what caused any outcome, and they are not medical or policy advice. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, the rdrobust or rddensity projects, or any software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs data.csv --running score --outcome y --cutoff 80</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/regression-discontinuity" rel="noopener">source</a>.</p>
+    <p>More causal and research tools on your own data: <a href="../difference-in-differences/">difference-in-differences</a> for changes adopted at different times, <a href="../synthetic-control/">synthetic control</a> for a single treated unit, the <a href="../changepoint-detector/">changepoint detector</a> for when a series changed, and <a href="../meta-analysis/">meta-analysis</a> to pool studies.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, parseCsv } from "./engine.mjs";
+    import { EXAMPLE_CSV, EXAMPLE_SPEC } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const fmt = (x, d = 4) => (Number.isFinite(x) ? Number(x.toPrecision(Math.max(1, d))).toLocaleString("en-US", { maximumSignificantDigits: d }) : "n/a");
+    const pfmt = (p) => (!Number.isFinite(p) ? "n/a" : p < 0.0001 ? "< 0.0001" : p.toFixed(3));
+    let parsed = null;
+    let last = null;
+    const opts = (list, blank) => (blank ? `<option value="">${esc(blank)}</option>` : "") + list.map((c) => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+    const isNum = (col) => parsed.records.slice(0, 300).filter((r) => r[col] !== "").every((r) => Number.isFinite(Number(String(r[col]).replace(/,/g, ""))));
+    function refreshColumns() {
+      const text = $("#csv").value;
+      if (!text.trim()) { parsed = null; $("#data-status").textContent = "Paste data or load the example."; return; }
+      try { parsed = parseCsv(text); } catch (e) { parsed = null; $("#data-status").textContent = e.message; return; }
+      const numeric = parsed.header.filter(isNum);
+      const pick = (re, fallback) => numeric.find((c) => re.test(c)) || fallback;
+      const prev = { x: $("#running").value, y: $("#outcome").value, d: $("#treatment").value };
+      $("#running").innerHTML = opts(numeric);
+      $("#outcome").innerHTML = opts(numeric);
+      $("#treatment").innerHTML = opts(numeric, "None (sharp design)");
+      $("#running").value = numeric.includes(prev.x) ? prev.x : pick(/(score|margin|running|age|distance|income|^x$)/i, numeric[0] || "");
+      $("#outcome").value = numeric.includes(prev.y) ? prev.y : numeric.find((c) => c !== $("#running").value) || "";
+      $("#treatment").value = numeric.includes(prev.d) ? prev.d : "";
+      $("#data-status").textContent = `${parsed.records.length} rows, ${parsed.header.length} columns.`;
+    }
+    $("#csv").addEventListener("input", refreshColumns);
+    $("#file").addEventListener("change", async (event) => {
+      const f = event.target.files && event.target.files[0];
+      if (!f) return;
+      $("#csv").value = await f.text();
+      refreshColumns();
+    });
+    function inputs() {
+      return {
+        csv: $("#csv").value, running: $("#running").value, outcome: $("#outcome").value, cutoff: $("#cutoff").value,
+        treatment: $("#treatment").value || null, covariates: $("#covariates").value, p: Number($("#p").value), kernel: $("#kernel").value,
+        vce: $("#vce").value, h: $("#h").value, b: $("#b").value,
+      };
+    }
+    const range = (vals) => { let lo = Math.min(...vals), hi = Math.max(...vals); if (lo === hi) { lo -= 1; hi += 1; } const p = (hi - lo) * 0.06; return [lo - p, hi + p]; };
+    function axes(W, H, L, R, T, B, xlo, xhi, ylo, yhi, xlabel) {
+      const x = (v) => L + ((v - xlo) / (xhi - xlo)) * (W - L - R);
+      const y = (v) => T + (1 - (v - ylo) / (yhi - ylo)) * (H - T - B);
+      let g = "";
+      for (let i = 0; i <= 5; i++) {
+        const v = ylo + ((yhi - ylo) * i) / 5;
+        g += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="#e7efef"/><text x="${L - 6}" y="${y(v) + 4}" font-size="11" text-anchor="end" fill="#4b5d5f">${esc(fmt(v, 3))}</text>`;
+        const u = xlo + ((xhi - xlo) * i) / 5;
+        g += `<text x="${x(u)}" y="${H - B + 16}" font-size="11" text-anchor="middle" fill="#4b5d5f">${esc(fmt(u, 3))}</text>`;
+      }
+      g += `<text x="${(L + W - R) / 2}" y="${H - 4}" font-size="11" text-anchor="middle" fill="#4b5d5f">${esc(xlabel)}</text>`;
+      return { x, y, g };
+    }
+    function rdChart(el, bins, lines, cutoff, xlabel) {
+      const W = 480, H = 300, L = 58, R = 12, T = 12, B = 40;
+      const xs = bins.map((b) => b.x).concat(cutoff);
+      const ys = bins.map((b) => b.y).concat(...["left", "right"].map((s) => (lines?.[s] || []).map((q) => q[1])));
+      const [xlo, xhi] = range(xs), [ylo, yhi] = range(ys);
+      const { x, y, g: grid } = axes(W, H, L, R, T, B, xlo, xhi, ylo, yhi, xlabel);
+      let g = grid;
+      g += `<line x1="${x(cutoff)}" x2="${x(cutoff)}" y1="${T}" y2="${H - B}" stroke="#c4572f" stroke-dasharray="4 3"/>`;
+      for (const b of bins) g += `<circle cx="${x(b.x).toFixed(1)}" cy="${y(b.y).toFixed(1)}" r="3.5" fill="#7d9496"><title>${b.n} units, mean ${esc(fmt(b.y))}</title></circle>`;
+      for (const s of ["left", "right"]) if (lines?.[s]?.length) g += `<polyline fill="none" stroke="#1f5c63" stroke-width="2.4" points="${lines[s].map((q) => `${x(q[0]).toFixed(1)},${y(q[1]).toFixed(1)}`).join(" ")}"/>`;
+      el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${g}</svg>`;
+    }
+    function sweepChart(el, sweep, h) {
+      const ok = sweep.filter((s) => !s.error);
+      if (!ok.length) { el.innerHTML = ""; return; }
+      const W = 480, H = 300, L = 58, R = 12, T = 12, B = 40;
+      const [ylo, yhi] = range(ok.flatMap((s) => [s.ci[0], s.ci[1], s.estimate, 0]));
+      const [xlo, xhi] = range(ok.map((s) => s.h));
+      const { x, y, g: grid } = axes(W, H, L, R, T, B, xlo, xhi, ylo, yhi, "bandwidth h");
+      let g = grid + `<line x1="${L}" x2="${W - R}" y1="${y(0)}" y2="${y(0)}" stroke="#8a9c9e"/>`;
+      for (const s of ok) {
+        g += `<line x1="${x(s.h)}" x2="${x(s.h)}" y1="${y(s.ci[1])}" y2="${y(s.ci[0])}" stroke="#1f5c63" stroke-width="2"/>`;
+        g += `<circle cx="${x(s.h)}" cy="${y(s.estimate)}" r="4" fill="${Math.abs(s.h - h) < 1e-12 * Math.max(1, h) ? "#1f5c63" : "#fff"}" stroke="#1f5c63"><title>h ${esc(fmt(s.h))}: ${esc(fmt(s.estimate))}</title></circle>`;
+      }
+      el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${g}</svg>`;
+    }
+    function render(r) {
+      $("#results").hidden = false;
+      $("#summary").textContent = r.summary;
+      $("#warnings").innerHTML = r.notes.map((n) => `<p class="warn">${esc(n)}</p>`).join("");
+      rdChart($("#rd-chart"), r.plot.bins, r.plot.lines, r.options.cutoff, r.options.running);
+      sweepChart($("#sweep-chart"), r.sweep, r.bandwidth.h);
+      $("#takeup-wrap").hidden = !r.plot.takeUp;
+      if (r.plot.takeUp) rdChart($("#takeup-chart"), r.plot.takeUp, null, r.options.cutoff, r.options.running);
+      const row = (name, e) => `<tr><td>${name}</td><td class="n">${esc(fmt(e.estimate))}</td><td class="n">${esc(fmt(e.se))}</td><td class="n">${esc(fmt(e.ci[0]))} to ${esc(fmt(e.ci[1]))}</td></tr>`;
+      $("#est-table").querySelector("tbody").innerHTML = row("Conventional", r.conventional) + row("Bias-corrected", r.biasCorrected) + row("Robust (report this interval)", r.robust)
+        + (r.firstStage ? `<tr><td>Take-up jump (first stage)</td><td class="n">${esc(fmt(r.firstStage.conventional))}</td><td class="n">${esc(fmt(r.firstStage.se))}</td><td class="n"></td></tr>` : "")
+        + `<tr><td colspan="4" class="note">h = ${esc(fmt(r.bandwidth.h))} (${r.bandwidth.chosen === "mse" ? "MSE-optimal" : "given"}), b = ${esc(fmt(r.bandwidth.b))}; ${r.n.leftInH} below and ${r.n.rightInH} above inside h, of ${r.n.left} and ${r.n.right}.</td></tr>`;
+      $("#check-table").querySelector("tbody").innerHTML = r.placebo.map((q) => `<tr><td>Placebo cutoff ${esc(fmt(q.cutoff))} (${q.side} side)</td>${q.error ? `<td colspan="2" class="note">${esc(q.error)}</td>` : `<td class="n">${esc(fmt(q.estimate))}</td><td class="n">${pfmt(q.pValue)}</td>`}</tr>`).join("")
+        + r.balance.map((q) => `<tr><td>Covariate ${esc(q.covariate)}</td>${q.error ? `<td colspan="2" class="note">${esc(q.error)}</td>` : `<td class="n">${esc(fmt(q.estimate))}</td><td class="n">${pfmt(q.pValue)}</td>`}</tr>`).join("");
+      $("#density-table").querySelector("tbody").innerHTML = (r.mccrary ? `<tr><td>McCrary log density difference ${esc(fmt(r.mccrary.theta, 3))}</td><td class="n">${esc(fmt(r.mccrary.left, 3))}</td><td class="n">${esc(fmt(r.mccrary.right, 3))}</td><td class="n">${pfmt(r.mccrary.pValue)}</td></tr>` : "")
+        + r.density.map((d) => `<tr><td>Counts within ${esc(fmt(d.window, 3))}</td><td class="n">${d.below}</td><td class="n">${d.above}</td><td class="n">${pfmt(d.pValue)}</td></tr>`).join("");
+    }
+    function runAnalysis() {
+      $("#status").textContent = "";
+      try {
+        last = analyze(inputs());
+        render(last);
+        $("#status").textContent = `Done: ${last.n.left + last.n.right} observations, h = ${fmt(last.bandwidth.h)}.`;
+        return true;
+      } catch (e) {
+        $("#results").hidden = true;
+        $("#status").textContent = e.message;
+        return false;
+      }
+    }
+    $("#analyze").addEventListener("click", () => {
+      $("#analyze").disabled = true;
+      $("#status").textContent = "Choosing the bandwidth and estimating...";
+      setTimeout(() => { if (runAnalysis()) record("analysis_run"); $("#analyze").disabled = false; }, 20);
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#csv").value = EXAMPLE_CSV;
+      refreshColumns();
+      $("#running").value = EXAMPLE_SPEC.running;
+      $("#outcome").value = EXAMPLE_SPEC.outcome;
+      $("#cutoff").value = String(EXAMPLE_SPEC.cutoff);
+      $("#treatment").value = "";
+      $("#covariates").value = EXAMPLE_SPEC.covariates;
+      $("#h").value = "";
+      $("#b").value = "";
+      if (runAnalysis()) { record("example_loaded"); $("#data-status").textContent = "Example: 1,000 simulated close elections. The true jump is 0.04; this draw estimates more, with a robust interval that still covers 0.04."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const f = (v) => (Number.isFinite(v) ? v : "");
+      const lines = ["kind,h,estimate,se,ci_low,ci_high",
+        ...[["conventional", last.conventional], ["bias_corrected", last.biasCorrected], ["robust", last.robust]].map(([k, e]) => [k, f(last.bandwidth.h), f(e.estimate), f(e.se), f(e.ci[0]), f(e.ci[1])].join(",")),
+        ...last.sweep.filter((s) => !s.error).map((s) => ["sweep", f(s.h), f(s.estimate), "", f(s.ci[0]), f(s.ci[1])].join(","))];
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([lines.join("\n") + "\n"], { type: "text/csv" }));
+      a.download = "regression-discontinuity.csv";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
