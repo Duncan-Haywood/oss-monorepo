@@ -1,0 +1,138 @@
+{
+ "date": "2026-11-17",
+ "subject": "research/mimic-twinswing",
+ "stratum": "research",
+ "seed": "2026-11-17-791a",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior control-systems researcher working on identification for control and sim-to-real transfer (nonlinear pendulum swing-up, model validation); first checks: that the simulator integrates the stated dynamics correctly, that the regret and detectability numbers reproduce, that the fidelity test is run on data relevant to the closed-loop task, and that the mechanism offered for which twins are costly is tested rather than asserted",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "The headline numbers reproduce exactly. Re-ran the 12 held-out real evaluations and the tuning for four twins with the shipped code (`/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/2d2e6a91-ab4e-5afb-9d66-7868d2f21338/scratchpad/ts/rerun.py`): exact twin regret 0.00009 (sd 0.00013), g/L +20% 0.02921 (sd 0.03310, median 0.01010), g/L -20% 0.01296 (sd 0.00314, median 0.01414), coul = 0 0.00094, all identical to experiments/results.txt to 5 decimals. C2ST seed 0 (`OMP_NUM_THREADS=1 /usr/bin/python3.13 .../ts/c2st.py`): exact 0.521, noise sd x0.75 0.861, g/L +20% 0.998 against the 3-seed means 0.513 / 0.861 / 0.998. Spearman recomputed by hand from results.json with tie-averaged ranks and a 20,000-shuffle permutation test, no scipy (`python3 .../ts/indep.py`): AUROC rho 0.161 (perm p 0.566), RMSE rho 0.434 (perm p 0.104), matching 0.16/0.567 and 0.43/0.106. Integrator checked against a source the author did not write: frictionless RK4 period vs the exact elliptic-integral period 4K(sin^2(theta0/2))/sqrt(g/L) (`.../ts/period.py`) agrees to 4e-7, 3e-7 and 2e-6 at theta0 = 0.5, 2.0, 3.0 rad. One number does not reproduce: README:9 'best real cost is 0.353'; the rerun gives 0.35505 (mean over seeds of the grid minimum) and 0.35511 (minimum of the seed-mean cost); 0.353 is in no results file. Percentages using 0.355 are 8.2% and 3.7% (README says 8.3% and 3.7%), so the conclusion is unaffected.",
+  "completeness": "Claimed and checked: 9 tests (observed 9 passed; 99 s when run alone with default threads, 6 s with less thread contention); the 15-twin, 12-seed regret table (4 of 16 rows re-run, all identical); AUROC per twin (3 rows re-run at seed 0, within the recorded sd); both Spearman correlations (recomputed); the SVG figure exists (figure.py not re-run). The full `experiments/run.py` was not re-run end to end; the eval phase alone took 32 s for 12 seeds, so 'about 15 minutes on 4 CPUs' is plausible. No stubs or TODOs. The run.py docstring says 'a few minutes' while the README says 'about 15 minutes'.",
+  "verification": "`cd research/mimic-twinswing && /usr/bin/python3.13 -m pytest -q tests`: 9 passed in 99 s. Five mutants via platform/ci/quality_mutate.py: 4 survived, 1 caught. Survived: tune's argmin -> argmax at twin.py:97 (the tuner picks the WORST controller and every test passes), control cost u^2 -> |u| at :80, Coulomb smoothing width 0.05 -> 0.5 at :24 (friction model changed tenfold), pump direction sign(w_hat) -> sign of the raw difference at :78. Caught: the energy-estimate sign flip at :78 (test_good_controller_beats_doing_nothing). No test touches run.py's regret computation or the Spearman, no test pins a swing-up cost against a reference, and the zero-gain test compares swing_cost to the same _rk4 it calls, so any dynamics error cancels.",
+  "craft": "Read twin.py (122 lines), experiments/run.py (71), tests/test_twin.py (61), experiments/figure.py (40). Short, vectorised, common random numbers across gain tuples done properly (one noise draw broadcast over all gains), tuning and evaluation generators separated. Defects: twin.py is a near-copy of mimic-twinregret/twin.py (passive, noise, c2st, paired_rmse, features duplicated; the same file is copied again into mimic-twinswinggrid and mimic-twingrid); run.py is an unguarded top-level script; imports by sys.path insertion; no requirements/pyproject (dependencies only in a README pip line); HistGradientBoosting's OpenMP threads oversubscribe when anything else runs (the test suite took 650-690 s under contention vs 6 s with it removed) and nothing sets threads. Acceptable research code, not reviewer-clean.",
+  "claims": "Checked: regret values, medians and sds (README:10-11) trace to results.txt (pass); 'every other wrong twin is below 0.0011 (0.3%)' max 0.000998 (pass); 'largest paired error 0.23 to 0.25 rad are the two costly ones' (pass); Spearman values (pass); 'Coulomb -67% and doubled viscous cost no more than the exact twin' partly (visc x2 regret 0.00016 vs exact 0.00009, within noise). Failing: 'a 60-point gain grid' at README:3, :9 and :37 and in research/_homepage/projects.json:3539 (also on the served page https://marisstella.app/research/mimic-twinswing/, HTTP 200) is wrong: gain_grid() is 5x3x3x2 = 90, results.txt line 1 says 'grid of 90 controllers' and test_grid_size asserts 90; the error propagated into mimic-twinswinggrid README:3 and its projects.json summary ('144-point gain grid instead of 60'). 'The best real cost is 0.353' (README:9) is backed by no file and reproduces as 0.355. The 'Reading' (README:13) asserts the gravity twins cost because the error enters the controller's energy estimate; the pick distribution in results.json shows the gravity twins differ mainly in the PD catch gains (g/L +20% picks kd 1 or 2, g/L -20% picks kp 10, kd 2), so the mechanism is untested, and the follow-up mimic-twingrid found that letting the controller use the twin's g/L made g/L -20% worse (0.013 -> 0.177). Disclaimers present: stylised, simulated, preliminary, AI-assisted, limitations section.",
+  "fitness": "A researcher can build on it and two follow-ups did (mimic-twinswinggrid, mimic-twingrid); results re-run bit-identically from seeds. Nearest prior work: identification for control (Gevers 2005, 'Identification for control: from the early achievements to the revival of experiment design', Eur. J. Control; Hjalmarsson 2005, Automatica 41; Skelton 1989 'Model error concepts in control design'), which established that open-loop model fit is not the right measure of a model's value for control and that excitation should match the closed-loop use; and sim-to-real predictivity (Kadian et al. 2020, 'Sim2Real Predictivity', IEEE RA-L). None is cited. Against that literature the finding (a two-sample test on passive data does not rank twins by control regret) is expected rather than new; it is sound as a small replication on one toy system, with 15 points of which 13 sit at the regret noise floor, so the Spearman is close to uninformative by construction.",
+  "domain": "The energy pump u = k(E_top - E) sign(w) is the Astrom-Furuta (2000) law for a torque-actuated pendulum and is implemented correctly (energy sign mutant caught; swing-up cost 0.355 vs 0.999 doing nothing). Departures a control researcher would flag: (1) the C2ST is run on open-loop passive trajectories from |theta0| < 2 rad, never near the inverted equilibrium where the catch controller operates, so detectability is measured on data irrelevant to the task (the classic identification-for-control point); (2) 'detectability' is a property of the detector, not the twin: on the same features a logistic-regression C2ST gives AUROC 0.505 for g/L +20% where boosted trees give 0.998 (`.../ts/c2st.py`); (3) the best controller sits on the grid edge in kd (4) and cap (0.8) as well as ke, not only ke as the Limitations say; (4) the mechanism for the gravity twins' cost is asserted, not isolated (e.g. by fixing the PD gains and tuning only ke)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Regret of exact, g/L +20%, g/L -20% and coul = 0 twins over 12 seeds",
+   "method": "re-run of the shipped tune/swing_cost with the run.py seeds; compare with results.txt",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/2d2e6a91-ab4e-5afb-9d66-7868d2f21338/scratchpad/ts/rerun.py",
+   "expected": "0.00009 / 0.02921 (sd 0.03310, med 0.01010) / 0.01296 (sd 0.00314, med 0.01414) / 0.00094",
+   "observed": "0.00009 / 0.02921 (sd 0.03310, med 0.01010) / 0.01296 (sd 0.00314, med 0.01414) / 0.00094",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Spearman AUROC-vs-regret and RMSE-vs-regret over 15 wrong twins",
+   "method": "hand-written tie-averaged rank correlation and 20,000-shuffle permutation test on results.json (no scipy)",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/2d2e6a91-ab4e-5afb-9d66-7868d2f21338/scratchpad/ts/indep.py",
+   "expected": "rho 0.16 (p 0.567), rho 0.43 (p 0.106)",
+   "observed": "rho 0.161 (perm p 0.566), rho 0.434 (perm p 0.104)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Pendulum integrator against the exact large-amplitude period",
+   "method": "textbook T = 4 K(sin^2(theta0/2)) / sqrt(g/L) (complete elliptic integral, scipy.special.ellipk), frictionless _rk4 at DT = 0.02",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/2d2e6a91-ab4e-5afb-9d66-7868d2f21338/scratchpad/ts/period.py",
+   "expected": "2.03787, 2.66587, 5.15807 s at theta0 0.5, 2.0, 3.0",
+   "observed": "2.03787, 2.66587, 5.15806 s (max rel error 1.7e-6)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "C2ST AUROC for exact, noise sd x0.75 and g/L +20% twins, seed 0",
+   "method": "re-run of twin.c2st with the run.py seed; AUROC also computed by hand (Mann-Whitney) for a logistic-regression detector on the same features",
+   "command": "OMP_NUM_THREADS=1 /usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/2d2e6a91-ab4e-5afb-9d66-7868d2f21338/scratchpad/ts/c2st.py",
+   "expected": "3-seed means 0.513 (sd 0.008), 0.861, 0.998",
+   "observed": "HGB 0.521, 0.861, 0.998; logistic 0.514, 0.606, 0.505",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Best real cost on the grid (README:9 'best real cost is 0.353')",
+   "method": "minimum of the 12-seed held-out real cost over the 90-point grid, two ways",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/2d2e6a91-ab4e-5afb-9d66-7868d2f21338/scratchpad/ts/rerun.py",
+   "expected": "0.353 at (8, 20, 4, 0.8)",
+   "observed": "0.35505 (mean of per-seed minima) / 0.35511 at (8, 20, 4, 0.8) (minimum of mean cost); 0.353 in no results file",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Grid size: '60-point gain grid' (README:3, :9, :37; projects.json:3539; served page)",
+   "method": "gain_grid() length, results.txt header, test_grid_size",
+   "command": "grep -n '60-point' research/mimic-twinswing/README.md; head -1 research/mimic-twinswing/experiments/results.txt",
+   "expected": "60",
+   "observed": "90 controllers (5 ke x 3 kp x 3 kd x 2 cap); results.txt 'grid of 90 controllers'",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Every other wrong twin is below 0.0011 (0.3%)' and 8.3% / 3.7% of best cost",
+   "method": "max non-gravity regret from results.json; regret / best cost",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/2d2e6a91-ab4e-5afb-9d66-7868d2f21338/scratchpad/ts/indep.py",
+   "expected": "< 0.0011; 8.3%, 3.7%",
+   "observed": "0.000998; 8.28% and 3.67% of 0.353 (8.23% and 3.65% of the reproduced 0.355)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Reading: gravity twins cost because the error enters the controller's energy estimate",
+   "method": "picked gain tuples per seed in results.json (Counter)",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/2d2e6a91-ab4e-5afb-9d66-7868d2f21338/scratchpad/ts/indep.py",
+   "expected": "costly twins differ from the exact twin mainly in the pump gain ke",
+   "observed": "g/L +20% keeps ke 8 but picks kd 1-2 (exact: kd 4); g/L -20% picks (2, 10, 2, 0.8) 10 of 12; difference is mostly in the PD catch gains, mechanism not isolated",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "pytest",
+   "command": "cd research/mimic-twinswing && /usr/bin/python3.13 -m pytest -q tests",
+   "expected": "9 tests pass (README:18)",
+   "observed": "9 passed in 99.14 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Is the detector measuring the twin or the classifier? Same features, linear detector",
+   "method": "logistic-regression C2ST, AUROC computed by hand (Mann-Whitney), seed 0",
+   "command": "OMP_NUM_THREADS=1 /usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/2d2e6a91-ab4e-5afb-9d66-7868d2f21338/scratchpad/ts/c2st.py",
+   "expected": "if AUROC is a property of the twin, similar across reasonable detectors",
+   "observed": "g/L +20%: boosted trees 0.998, logistic 0.505; noise x0.75: 0.861 vs 0.606",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {"where": "twin.py:97", "change": "return int(np.argmin(swing_cost( -> return int(np.argmax(swing_cost(", "caught": false, "test_cmd": "/usr/bin/python3.13 -m pytest -q -x tests"},
+  {"where": "twin.py:80", "change": "U_COST * u ** 2 -> U_COST * np.abs(u)", "caught": false, "test_cmd": "/usr/bin/python3.13 -m pytest -q -x tests"},
+  {"where": "twin.py:24", "change": "np.tanh(w / 0.05) -> np.tanh(w / 0.5)", "caught": false, "test_cmd": "/usr/bin/python3.13 -m pytest -q -x tests"},
+  {"where": "twin.py:78", "change": "* np.sign(wh) -> * np.sign(meas - prev)", "caught": false, "test_cmd": "/usr/bin/python3.13 -m pytest -q -x tests"},
+  {"where": "twin.py:78", "change": "0.5 * wh ** 2 - G_NOM * np.cos(meas) -> 0.5 * wh ** 2 + G_NOM * np.cos(meas)", "caught": true, "test_cmd": "/usr/bin/python3.13 -m pytest -q -x tests"}
+ ],
+ "defects": [
+  {"severity": "medium", "what": "The gain grid is stated as 60 points in three places in the README and in the homepage summary (served live); gain_grid() has 90, as results.txt and test_grid_size say. The error propagated to mimic-twinswinggrid ('144-point gain grid instead of 60').", "where": "research/mimic-twinswing/README.md:3", "category": "overclaim", "origin": "claims", "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16937"},
+  {"severity": "medium", "what": "Tests would not catch a broken tuner or dynamics: tune's argmin -> argmax, the control-cost form, a tenfold change in the Coulomb model and the pump direction all leave the 9 tests green; nothing tests run.py's regret or Spearman.", "where": "research/mimic-twinswing/twin.py:97", "category": "untested-core", "origin": "tests"},
+  {"severity": "medium", "what": "Detectability is measured on open-loop passive trajectories (|theta0| < 2, u = 0) that never visit the inverted region where the catch controller works, and with one detector whose AUROC is not a property of the twin (logistic regression on the same features: 0.505 vs 0.998 for g/L +20%). The null correlation is partly built into the design; identification-for-control prior work (Gevers 2005, Hjalmarsson 2005) and sim-to-real predictivity (Kadian et al. 2020) are not cited.", "where": "research/mimic-twinswing/experiments/run.py:47", "category": "research-design", "origin": "design"},
+  {"severity": "low", "what": "The 'Reading' asserts the gravity twins are costly because the error enters the controller's energy estimate; the picked gains show they differ mainly in the PD catch gains, the mechanism was not isolated, and the follow-up mimic-twingrid's result (twin-matched g/L made g/L -20% worse) cuts against it.", "where": "research/mimic-twinswing/README.md:13", "category": "overclaim", "origin": "claims"},
+  {"severity": "low", "what": "'The best real cost is 0.353' is in no results file and reproduces as 0.355 (0.35505 mean of per-seed minima; 0.35511 minimum of the mean).", "where": "research/mimic-twinswing/README.md:9", "category": "stale-docs", "origin": "maintenance", "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16937"},
+  {"severity": "low", "what": "Limitations name only ke on the grid edge; the best and most-picked controllers also sit at the kd = 4 and cap = 0.8 edges.", "where": "research/mimic-twinswing/README.md:37", "category": "scope-gap", "origin": "spec", "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16937"},
+  {"severity": "low", "what": "twin.py duplicates mimic-twinregret's pendulum, noise, C2ST and paired-RMSE code (and is copied again into two follow-ups); no requirements file; HistGradientBoosting threads unbounded, so the test suite slows from 6 s to over 600 s under contention.", "where": "research/mimic-twinswing/twin.py:1", "category": "code-craft", "origin": "implementation"}
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16937"],
+ "verdict": "The numbers are right: four regret rows, three AUROCs and both Spearman correlations reproduce exactly, and the integrator matches the exact elliptic-integral pendulum period to 2e-6. The write-up is not: the grid is called 60-point in four places (and on the live page) when it is 90, the 'best real cost 0.353' is unbacked and reproduces as 0.355, and the mechanism in 'Reading' is asserted rather than isolated. Tests miss four of five seeded bugs, including a tuner that picks the worst controller. A control researcher would accept the simulation and reject the framing: the fidelity test runs on passive data away from the task's operating region, the AUROC depends on the detector (0.998 vs 0.505 on the same features), and identification-for-control work that predicts this null result is not cited. Does not meet the bar (verification 1, claims 2); finished for what it claims."
+}

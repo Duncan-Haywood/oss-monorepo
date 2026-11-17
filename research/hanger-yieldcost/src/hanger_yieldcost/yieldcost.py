@@ -3,7 +3,7 @@
 hanger-lookahead redirects an arm whenever its choice lies within `sep` of the predicted next target of the other
 arm, which started losing garments an hour. Its first next step: yield only when the clash would cost a wait longer
 than the garment is worth. Here the arm computes the overlap it would cause, (end of its own unrestricted pick) minus
-(the moment the other arm becomes free), and redirects only if that overlap is at least `tau` seconds. `tau=0` is
+(the moment the other arm becomes free), and redirects only if that overlap is at least `tau` seconds. `tau=-inf` is
 hanger-lookahead's rule; a huge `tau` is hanger-avoid (both are tests). Stdlib only; inputs are the earlier
 placeholders.
 """
