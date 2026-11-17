@@ -1800,3 +1800,32 @@ class RefitTest(unittest.TestCase):
                 fh.writelines(json.dumps(r) + "\n" for r in recs)
             self.assertAlmostEqual(host.recovery_from_log(path), 0.3, delta=0.03)
             self.assertIsNone(host.recovery_from_log(os.path.join(d, "missing.jsonl")))
+
+
+class SpreadTakeTest(unittest.TestCase):
+    """SimFeeder(take_ms=) spreads the ball's take over its contact time (tests/take_spread.py): the same rpm leaves
+    the wheels as an instant take, only later, and the force profile sets how it is shared out."""
+
+    def _take(self, take_ms, shape="halfsine"):
+        sim = SimFeeder(take_ms=take_ms, take_shape=shape, wheel_tau_s=1e9)   # a wheel that neither speeds up nor coasts
+        sim.wheel, sim._drive = [5000.0, 3000.0], [0.0, 0.0]
+        sim._take_momentum()
+        trace = []
+        for _ in range(8):
+            sim.run_ms(1)
+            trace.append(sim.wheel[0])
+        return sim, trace
+
+    def test_spread_take_removes_the_instant_takes_rpm(self):
+        inst, _ = self._take(0.0)
+        for shape in ("halfsine", "front"):
+            sim, trace = self._take(4.0, shape)
+            self.assertEqual(sim.taken, inst.taken)                # the same momentum, recorded at first contact
+            self.assertAlmostEqual(trace[3], inst.wheel[0], places=6)   # all of it gone after 4 ms
+            self.assertGreater(trace[0], trace[3])                 # but not at once
+            self.assertEqual(sim._takes, [])
+
+    def test_front_profile_takes_more_early(self):
+        _, half = self._take(4.0, "halfsine")
+        _, front = self._take(4.0, "front")
+        self.assertLess(front[0], half[0])                         # 7/16 of it in the first ms against 15%
