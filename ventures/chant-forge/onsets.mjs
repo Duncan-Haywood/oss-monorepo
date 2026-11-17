@@ -114,6 +114,8 @@ export const VOICELESS_LOW = 0.9;
 // `after` frames of its end (a cluster's n hands over to its stop's silent closure with one bright frame). A murmur
 // read by any nasal rule that starts at most `lead` frames before such a closure is that closure's voice bar.
 // Chosen on U's C#4 and D#4 cells (eval/burst-diag.mjs) and the development parts A-W of eval/coda-check.mjs.
+// voicedLead's hold form: the longest lead, in 5 ms frames, it drops before a closure (README "A voiced closure that holds to its burst")
+export const VOICED_HOLD_SPAN = 20;
 export const BAR_BURST = { hz: 2000, lvl: 10, floor: -40, dark: 30, tail: 25, lead: 4, hold: 6, holdMs: 20, after: 8 };
 // readCoda's deep murmur on a high short note before an obstruent (see its note; off by default, `deepMurmur: true`);
 // chosen on eval/coda-check.mjs J and N
@@ -522,14 +524,26 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
   // up to, or into, the closure readCoda chose for the stop. No Latin coda puts a nasal before a voiced stop (the
   // clusters are -nt, -nc, -ns, -nx, whose stops are voiceless), so a run that ends at most N frames before the chosen
   // closure, or inside it, is that stop's lead when the closure reads voiced (its bar above -40 dB, as below)
-  const VL = voicedLead === false ? null : typeof voicedLead === 'number' ? { gap: voicedLead, bar: false } : { gap: 2, bar: true, ...(voicedLead === true ? {} : voicedLead) };
+  const VL = voicedLead === false ? null : typeof voicedLead === 'number' ? { gap: voicedLead, bar: false } : { gap: 2, bar: true, ...(voicedLead !== true && voicedLead.hold ? { span: VOICED_HOLD_SPAN } : {}), ...(voicedLead === true ? {} : voicedLead) };
+  // The hold form (`voicedLead: { hold: true }`, the twenty-second round, README "A voiced closure that holds to its
+  // burst"): a closure the ordinary closure rule found counts too when it passes the voice-bar rule's own release
+  // test (barRel: a burst that does not run into frication, and the 20 ms before it still voiced, above BB.floor and
+  // within BB.hold dB of the run's median). An n-t's closure is silent at its end and an n-s runs into frication; a
+  // voiced stop's bar runs up to its burst. And the run dropped must start at most VL.span frames (100 ms) before the
+  // closure: a voiced stop's lead (F1 falling, the bar's first frames) started 1-14 frames before it on A-Y, a final
+  // nasal held 37-55 frames before a release blip the closure rule took for one
+  const barHeld = (r) => !!BB && VL.hold && relOf.get(r) >= 0 && barRel(r) >= 0;
   const stopVoiced = (() => {
-    if (!VL || !stopRun || (VL.bar && !barRun)) return false;
+    if (!VL || !stopRun || (VL.bar && !barRun && !barHeld(stopRun))) return false;
     const rel = relOf.get(stopRun), sg = fr.slice(stopRun[0], stopRun[1] + 1), shut = sg.filter((f) => a + f.t * rate + 0.02 * rate <= rel);
     const inner = shut.length >= 2 ? shut.slice(Math.floor(shut.length / 2)) : shut.length ? shut : sg;
     return median(inner.map((f) => f.loRel)) > -40;
   })();
-  const leadOf = (r) => stopVoiced && r[0] < stopRun[0] && r[1] >= stopRun[0] - VL.gap;
+  const leadOf = (r) => {
+    const yes = stopVoiced && r[0] < stopRun[0] && r[1] >= stopRun[0] - VL.gap && (VL.span === undefined || stopRun[0] - r[0] <= VL.span);
+    if (yes && trace) (trace.leads = trace.leads || []).push({ before: stopRun[0] - r[0], len: r[1] - r[0] + 1, bar: !!barRun });
+    return yes;
+  };
   const nasRules = [['level', runs(nasal, 30).find((r) => (msOf(r) >= 45 || !next.some((k) => k >= r[1] && k - r[1] <= 3)) && !vowelAgain(r) && murmur(r) && !barOf(r))], ['step', step], ['near', near], ['pre', pre], ['deep', deep]]
     .filter(([, r]) => r && !intoTap(r) && !leadOf(r) && !(barRun && r[0] <= barRun[0] && barRun[0] - r[0] <= BB.lead)).sort((p, q) => p[1][0] - q[1][0]);
   const nas = nasRules[0]?.[1];
