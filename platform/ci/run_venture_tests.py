@@ -340,7 +340,7 @@ def changed_slugs(base_ref="origin/main"):
         raise SystemExit(
             f"run_venture_tests: no merge base between {base_ref} and HEAD "
             "(shallow clone, or the ref is missing/stale).\n"
-            "  Refresh it: git fetch --depth=40 origin main\n"
+            "  Refresh it: python3 platform/ci/fetch_ref.py main\n"
             "  Still none: git fetch --deepen=500 origin main, until "
             f"`git merge-base {base_ref} HEAD` answers.\n"
             "  Or name the ventures: run_venture_tests.py <slug> [<slug> ...]")
