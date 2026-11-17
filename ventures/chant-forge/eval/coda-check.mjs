@@ -474,6 +474,32 @@
 //    others and vowel-only cells read as a nasal 3 and 3; (4) control 384 and 384 of 384; (5) the report rebuilt on the
 //    shipped code matches the `--shut on` development figures above in every part. lipShut is readCoda's default
 //    (`--shut off` is the reader before).
+//    Twenty-fourth round (2026-11-17): a dark-vowel m that holds level (onsets.mjs readCoda `lipHold`, LIP_HOLD, README
+//    "A dark-vowel m that holds level"). With lipShut, a's misses were still *bum*, *hum*, *fum* (D4-E4 and C4 eighths),
+//    *mun*, *gun* and *vum*, read as nothing. Frame by frame (eval/dark-nasal-diag.mjs a): the lips' blip is there (the
+//    band above 1 kHz up 3-15 dB over the vowel, then down 11-15 dB within two or three hops), but the /u/'s upper band
+//    had already fallen 3-8 dB into the closure, so the m sits no lower in that band than the vowel 25-45 ms before and
+//    lipShut's darkness test fails. What it does instead is hold: its level settles 4-11 dB under that vowel and stays
+//    within 1-2 dB for 30 ms. Rule: a run entered by a fall of 12 dB or more in the band above 1 kHz from any of the
+//    three frames before, every frame 3 to 20 dB under the vowel's level 25-45 ms before and dark in itself
+//    (murmurTilt), its level within 2 dB over its first 30 ms, 45 ms long, the vowel not coming back. Written from a's
+//    D4 *bum*/*hum*/*fum* cells and C4/D4 eighths, then not tuned. Development (A-a, `--hold on` against the default,
+//    lipShut on in both): +22 cells, none lost in any part. a's nasals after /u/ or /o/ 121 to 128 of 144, its
+//    n-clusters 43 to 44 of 48; H 131 to 132 of 134; I 140 to 141 of 142; F's nasals 206 to 208 of 215; N's others 231
+//    to 233 of 240; O's 227 to 228; P's 233 to 235; V's 59 to 60 of 60; X's nasal codas 43 to 45 of 48; Y's 46 to 47 and
+//    its n-clusters as their nasal 42 to 43 of 48. Every vowel-only control identical, and no stop, other or vowel-only
+//    cell newly read as a nasal. Pre-registered here and committed before part b was run with anything. Part b is new:
+//    12 nasal codas after /u/ or /o/ (*mum num bun cun run vun dom fom hom som lon ton*, the target), 5 voiced stops
+//    after them (*bud dud god sod vug*, the risk), 4 nasals after a bright vowel (*pem fim lam rem*), 4 n-clusters
+//    (*donc tonc nunt vont*), 3 voiceless stops (*dup loc hoc*) and 4 others (*mul bor dul fo*), none sung in any other
+//    part, at C#3, A3, C#4, D4, D#4 and E4, 90 BPM (in no other part), pulse-4 and pulse-2 notes, sung and vowel-only.
+//    Against the default (b's first column), lipHold (its second): (1) nasals after /u/ or /o/ read exactly (of 144): at
+//    least 3 more; (2) nasals after a bright vowel (of 48) and n-clusters read as their nasal (of 48): no fewer; (3)
+//    voiced stops (of 60), voiceless stops (of 36) and others (of 48) read exactly: no fewer, and no more stops, others
+//    or vowel-only cells read as a nasal; (4) the vowel-only control (of 384): identical; (5) A-a as above, re-run on the
+//    shipped code. The gain is tested only if the default misses 3 or more of b's dark-vowel nasals; if fewer, lipHold
+//    stays opt-in, reported as untested. If all five hold and the gain is tested, lipHold becomes readCoda's default;
+//    otherwise it stays opt-in.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
