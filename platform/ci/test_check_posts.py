@@ -86,5 +86,11 @@ class T(unittest.TestCase):
         self.assertIn("check_posts.py", check_post_frontmatter.limits_line())
 
 
+class WrongRoot(unittest.TestCase):
+    def test_root_without_posts_refuses(self):
+        with tempfile.TemporaryDirectory() as d:
+            self.assertEqual(check_posts.main(["--root", d]), 2)
+
+
 if __name__ == "__main__":
     unittest.main()
