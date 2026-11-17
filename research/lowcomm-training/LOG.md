@@ -2,6 +2,19 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-17 · Milestone 6aa (H6 mechanism): does the clean-last-sync gain keep growing as the noise shrinks below omega 3? Rand-k keep 1/2 and shaped Gaussian at omega 3, 1 and 1/3, H = 64, four seeds (planned before running; outcome below)
+
+- Why: 6z's "Next" (1). The recipe (compress every sync but the last, send the last dense) ends below uncompressed on 6y's fresh batches by T = -0.0185 (se 0.0020) at omega 3, -0.0141 at omega 7, +0.0113 at omega 15 and +0.0807 at omega 31. The best omega tried was the smallest, and T must return to 0 as omega goes to 0, so the gain has an optimum at or below omega 3 that 6z could not place. A practitioner choosing a keep level needs it, and keep 1/2 (omega 1) is the cheapest compression worth sending.
+- Run (`experiments/gpt_scale/recipe_6aa.py`, written before the runs; the run and scoring code is 6z's): the size-2 setup of `scale.py` at H = 64. Noises: rand-k keep 1/2 (omega 1), shaped Gaussian (6v's, rand-k's per-coordinate variance, nothing zeroed) at omega 3 and 1, seeds 0 to 3; exploratory, shaped Gaussian at omega 1/3 (rand-k keep 3/4's variance), seeds 0 to 2. Per (noise, seed) the trunk trains with that noise for rounds 1 to 59, the state is forked, and the last round runs *clean* (the recipe) and *full* (the same noise continuing). Both are scored on the standard batches and on 6y's 64 fresh batches. Unc is 6y's; rand-k at omega 3 and 7 come from 6z and 6y. A control reruns 6z's (keep 1/4, seed 0). 16 runs, control first, omega 1/3 last.
+- **H6aa-i** (prior 95%, check): the control reproduces 6z's four scores bit-exactly (same torch 2.15.0+cpu).
+- **H6aa-ii** (prior 60%): the omega-1 recipe is below unc on the fresh batches by more than 2 se (paired by seed).
+- **H6aa-iii** (prior 45%): the omega-1 recipe's fresh-batch loss is above the omega-3 recipe's by more than 2 se (paired by seed): the gain peaks above omega 1, so keep 1/4 beats keep 1/2 on loss as well as on bytes.
+- **H6aa-iv** (prior 70%): the shaped omega-3 recipe is within 2 se of the rand-k omega-3 recipe on the fresh batches (paired): sparsity is incidental at omega 3 as at omega 7 (6z).
+- **H6aa-v** (prior 75%): the last-round cost b = full - clean (standard batches) at omega 1 is below b at omega 3 and between +0.0012 and +0.0024 (6z's 0.0015 to 0.0019 nats per unit of omega).
+- Reported, no verdict: T, C and b for every noise on both batch sets, b / omega, the weight norm, and shaped minus rand-k at omega 1.
+- Reading: ii and iii holding place the optimum between omega 1 and 7 and make keep 1/4 the recommendation; ii holding with iii failing means the gain is as large or larger at keep 1/2, so the optimum is at or below omega 1 and the omega 1/3 arm says where; ii failing means the gain needs noise of at least omega 3's energy.
+- Not tested: H other than 64, other widths, a held-out split, tuning the compressed run's outer step.
+
 ## 2026-11-16 · Milestone 6z (H6 mechanism): where in omega does the clean-last-round trunk gain exist, and does it need rand-k? Recipe at omega 3, 15 and 31 and with shaped Gaussian noise at omega 7, H = 64, four seeds (planned before running; outcome below)
 
 - Why: 6y's "Next" (1) and (2). The recipe (rand-k keep 1/8, omega 7, for rounds 1 to 59, the last round uncompressed) ends below uncompressed at H = 64 by -0.0136 (se 0.0035) on the standard batches and -0.0141 (0.0063) on fresh ones, and no outer step from lr 0.7 to 2 or Nesterov closes it (6y). That is one omega and one noise. If the trunk gain is a property of noise in the outer step, it should appear with Gaussian noise of rand-k's per-coordinate variance (6v's *shaped*, whose fully-noised run ended at -0.0010, se 0.0053) and should vary smoothly with omega.
