@@ -93,6 +93,11 @@ on:
       # Post-only PRs ran no front-matter check, so posts without a description
       # or tags, and posts dated ahead, reached main (five on 2026-10-26).
       - "docs/posts/**"
+      # Report-only PRs ran no taxonomy check, so reports without front matter
+      # or tagged with an alias ("aeo") reached main three times (2026-11-06,
+      # -08, -11; red-team records of those dates).
+      - "docs/reports/**"
+      - "docs/taxonomy.json"
       - "platform/ci/**"
       - ".github/workflows/**"
   pull_request:
@@ -133,6 +138,11 @@ on:
       # Post-only PRs ran no front-matter check, so posts without a description
       # or tags, and posts dated ahead, reached main (five on 2026-10-26).
       - "docs/posts/**"
+      # Report-only PRs ran no taxonomy check, so reports without front matter
+      # or tagged with an alias ("aeo") reached main three times (2026-11-06,
+      # -08, -11; red-team records of those dates).
+      - "docs/reports/**"
+      - "docs/taxonomy.json"
       - "platform/ci/**"
       - ".github/workflows/**"
   workflow_dispatch:
@@ -491,6 +501,23 @@ jobs:
       - name: Post front matter checker unit tests
         working-directory: platform/ci
         run: python3 -m unittest test_check_post_frontmatter
+
+      # doc_index check and the plain-http loader check were runnable only by
+      # hand (main_health.py), so both went red on main unseen; the red-team
+      # open list carried both as "no PR workflow runs this".
+      - name: Check report front matter and taxonomy anchors
+        run: python3 platform/ci/doc_index.py check
+
+      - name: Report-taxonomy tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_doc_index
+
+      - name: No page loads a script or stylesheet over plain http
+        run: python3 platform/ci/check_insecure_refs.py
+
+      - name: Insecure-reference check tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_insecure_refs
 
       # Guides are added in batches; one missing from the hub is found only by search.
       - name: Check the Start here series links both ways
