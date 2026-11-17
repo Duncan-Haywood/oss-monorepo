@@ -1445,6 +1445,14 @@ opt-in. The 0.8 scale was picked after seeing held-out Bayer rows; on X-Trans th
 `frame_noise(..., estimator="spread")` gives the old model. `tools/noise_estimator_accuracy.py`,
 `tools/noise_aware_estimated.py sweep --pca`, `eval/noise-pca-estimator-2026-11-17.md`.
 
+**Since the evening of 2026-11-17 X-Trans files no longer lose detail to it either.** On X-Trans a colour's next
+copy is six sensels away, so the afternoon's texture test saw the scene at a six-sensel scale and kept textured
+patches; two-period (12 x 12) patches were worse, not better. The test now takes the differences of touching
+same-colour sensels (every X-Trans green touches another), reading texture at one sensel. On 248 held-out
+X-Trans tiles no tile is now worse than directional by over 0.1 dB (was 17, worst -0.04 dB against -1.48), and
+the mean luma gain rose from +0.45 to +0.53 dB. Bayer is unchanged. `estimate_noise_pca(..., texture="colour")`
+gives the afternoon's model. `eval/xtrans-noise-pca-12-2026-11-17.md`.
+
 ## A directional demosaic for Bayer files (2026-11-15)
 
 Nearly every camera has a Bayer sensor, and until now every Bayer file the developer read (DNG, CR2,
