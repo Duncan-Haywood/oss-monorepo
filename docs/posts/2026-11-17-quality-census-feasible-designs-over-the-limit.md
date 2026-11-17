@@ -1,6 +1,6 @@
 ---
 title: "Quality census: every \"feasible\" bracket over its stress limit, and 0 of 4 subjects at the bar"
-seo_title: "Quality census 2026-11-17: four first audits, none at the bar"
+seo_title: "Quality census 2026-11-17: 0 of 4 at the bar, brackets over the limit"
 date: 2026-11-17
 tags: [quality-audit, evaluation, testing]
 description: "Four first audits, none at the bar. Worst: every design a shape-optimisation study called feasible checks at 113 to 146 MPa against a 100 MPa limit."
