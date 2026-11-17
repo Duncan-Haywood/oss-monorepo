@@ -11,6 +11,7 @@
 // the share of its notes that land.
 //   node eval/release-cells.mjs [--out eval/release-cells-report.md]
 import { writeFileSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
 import { eventsToMidi } from '../midi.mjs';
 import { renderMidi, parseMidi, tickToSeconds } from '../render.mjs';
 import { frameFeatures } from '../onsets.mjs';
@@ -42,7 +43,7 @@ export function landShare(bpm, midi, pulses) {
   return land / notes.length;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const rows = [];
   for (const bpm of BPMS) for (const pulses of [4, 2]) {
     const cells = PITCHES.map((p) => landShare(bpm, p, pulses));
