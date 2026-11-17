@@ -1,6 +1,6 @@
 # Draft: which hull carries a small survey boat furthest per kWh, and how much of the answer is the drag model?
 
-Status: **milestone 7b (section 2.5 updated by 6p; section 2.7 added by 6zzq, extended by 6zzr, 6zzs, 6zzt, 6zzu, 6zzv, 6zzw, 6zzx, 6zzy and 6zzz): introduction, model and results-table drafted, not submittable.** Every number below is copied from
+Status: **milestone 7b (section 2.5 updated by 6p; section 2.7 added by 6zzq, extended by 6zzr, 6zzs, 6zzt, 6zzu, 6zzv, 6zzw, 6zzx, 6zzy, 6zzz and 6zzzb): introduction, model and results-table drafted, not submittable.** Every number below is copied from
 [`../LOG.md`](../LOG.md) and the `experiments/results_*.txt` file named beside it. Nothing is new
 in this file. Target: OCEANS (IEEE/MTS), 6 to 10 pages. The hull constants are unvalidated against
 tank data (milestone 3 is open), and that gap decides what the paper can claim, as section 5 says.
@@ -190,11 +190,13 @@ What the chain established, in order:
 
 16. **With more seasons the spread-set clamp beats the pooled cosine on both pool means** (6zzz). AP on every pair and triple of learning years: all30 158.1 [151, 163] at k = 2 and 159.5 [155, 162] at k = 3 (HR 151.9, 155.5), nasa hi168 70.5 and 74.5 (HR 54.0, 56.7); it crosses both floors at k = 3 (worst 155 / 33; HR 150 / 31) but not at k = 2 (hi168 worst 7). HR keeps the per-point count (pp240 140.2 / 142.6 against AP's 132.2 / 134.2). The spread narrows with the log (AP mean h on all30 0.063, 0.051, 0.046 at k = 1, 2, 3; cross 0.120, 0.105, 0.099), so at k = 3 the wide fixed clamp C15 (LC) has the smallest worst gap to the best of five rules (-10.3, against AP -26.6), because it is best at the high-amplitude points and in reverse.
 
+17. **Scale the spread clamp with the log, not with latitude** (6zzzb). AK, h = d * sqrt(k) in [0.02, 0.40], fixed in advance: at k = 3 all30 154.5 [136, 160], nasa hi168 89.0, cross 57.5, reverse 93.3; its worst gap to 6zzz's best of five rules is -7.1 (AP -26.6, C15 -10.3), the smallest of any rule scored, and it is best in cross at k = 2 and 3; it does not cross the all168 floor (worst triple 136). Switching AP to ±15% at |latitude| >= 50 (AB) leaves every pooled count within 1 cell of AP's except cross (37.5): the eight band points barely move the pooled hi168 total, so 6zzz's C15 lead at the high-amplitude points came from P-30, the one point below 50 degrees, and is not a high-latitude effect.
+
 For a designer, the table gives three rules:
 
 1. With one season of log, pool the fitted yearly cosine within a latitude band (HR) and expect 140 to 153 of 168. The raw ratios clamped to ±5% score higher on the mean (151.4 [138, 160]; 6zzx), but that width was picked from a sweep on the scored years and its worst year dips one case below AT_90, so it is a candidate to test out of sample, not yet the rule.
 2. Above about 50 degrees, treat the raw correction and the dark-summer guard as candidates only.
-3. To be safe in both pools over every year drawn, use three seasons of a fitted cosine (LHF, HR or HX), of the raw ratios clamped to their own spread (AP, higher on both pool means, lower per point; 6zzz), or four of any rule tested; above about 50 degrees the raw month ratios still win more cases on average at every history length (6zzr).
+3. To be safe in both pools over every year drawn, use three seasons of a fitted cosine (LHF, HR or HX), of the raw ratios clamped to their own spread (AP, higher on both pool means, lower per point; 6zzz), or four of any rule tested; above about 50 degrees the raw month ratios still win more cases on average at every history length (6zzr). Caveat (6zzzb): the high-amplitude pool sums km and dark hours over nine points and P-30, the one below 50 degrees, carries much of that sum, so its "above 50 degrees" readings need restating on an equal-weight pool. For the most robust single clamp at three seasons, scale the spread by sqrt(k) (AK, worst gap -7.1).
 
 No rule yet selects itself by site: gating the guard by latitude (|lat| >= 50, chosen after seeing DG) keeps the 30-point mean but loses the high-amplitude gain (6zzp, post hoc), and so does gating it on the replayed operating side of the learning year, fixed before the run (6zzs); falling back to no correction on non-short replays, or shrinking by the replay margin, stays below AT_90 on the 30-point pool (6zzt).
 
