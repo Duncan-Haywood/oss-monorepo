@@ -188,14 +188,16 @@
    "what": "eBay per-order fee is always $0.40; eBay charges $0.30 on orders of $10 or less (the preset's own note says so). A $9 sticker shows fees $1.62 instead of $1.52 and the target-price solve inherits it.",
    "where": "ventures/print-on-demand-profit-calculator/calc.mjs:27",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16798"
   },
   {
    "severity": "medium",
    "what": "No test pins any eBay number: changing the preset to 12.9% + $0.30 leaves all 28 tests green; break-even ROAS on price instead of order total also survives (every ROAS test has shipCharged 0).",
    "where": "ventures/print-on-demand-profit-calculator/calc.test.mjs:45",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16798"
   },
   {
    "severity": "medium",
@@ -233,6 +235,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16798"],
  "verdict": "A small, honest single-item POD pricing tool whose arithmetic is right on every mainstream case recomputed. The Etsy, Shopify Basic and eBay presets, labelled 'unverified recollection', match the current published US rules (checked via search; the platform sites are blocked here), and the sample shirt (profit $5.89, 19.64%, 30%-margin price $35.44, break-even ROAS 5.09x), an eBay $30 order ($4.48 fees) and a Shopify $35 order ($1.315) reproduce by hand to the cent on the served page. Misses at the edges: eBay's $0.30 per-order fee at or under $10 is not applied though the note states it, the Offsite Ads $100 cap is missing, and fees charged on sales tax (eBay) are folded into 'sales tax not modelled'. Tests pin real dollar values for custom, Etsy and Shopify, but nothing pins eBay or ROAS with shipping: 2 of 6 seeded mutants survive. Disclaimer, privacy and usage counting hold. Does not meet the bar (verification 2); finished (completeness 3). Fixable in an hour: eBay fixed fee tier, Offsite cap, an eBay and a shipping-ROAS test, reject blank target and negative custom fees."
 }

@@ -204,7 +204,8 @@
    "what": "DRS row states the exemption as 'a 90 percent separate-collection rate already met'; Article 50 sets 90% as the 2029 target and exempts a Member State at 80% in 2026 with a plan (and binds Member States, not the producer)",
    "where": "ventures/eu-packaging-regulation-checker/calc.mjs:48",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16798"
   },
   {
    "severity": "medium",
@@ -263,6 +264,6 @@
    "origin": "claims"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16798"],
  "verdict": "An honest, small PPWR first-read checklist that gets the headline right: for a non-EU online seller it says the Regulation applies now and that producer registration and an authorised representative are overdue, and its 2026, 2029 and 2030 dates agree with secondary legal summaries (EUR-Lex itself was unreachable from this session). Below the bar on correctness and domain: the Article 29 reuse target is missing for e-commerce packaging (including the tool's own worked example) and wrongly applied to cardboard transport boxes, the DRS exemption is stated as 90% instead of 80% in 2026, the later-of implementing-act clauses for the label, recycled content and empty space are not modelled though the label act has already slipped, and single-select roles drop design duties for own-brand online sellers. 30 tests pass but 3 of 6 seeded mutants survive. Disclaimers and the dates-from-memory disclosure are present and accurate. Finished (completeness 3), does not meet the bar (correctness 2, verification 2, median 2); fixable in one session by correcting the reuse and DRS rows, adding later-of notes and article numbers checked against CELEX 32025R0040, and pinning each duty's date and categories in a table test."
 }
