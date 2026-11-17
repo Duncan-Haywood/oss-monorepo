@@ -12,4 +12,6 @@ After using this, you can now **tell which job to push when the bench is full an
 2. Pure logic is in `calc.mjs` (`plan()`, `seasonResult()`, `serviceLine()`, `passLine()`, `encodeShare()`); tests: `node --test`.
 
 Modelled: three services with price, bench minutes and materials, burdened technician pay, profit per bench hour, a target-margin price per service, the tools spread over its seasons, rent for the open months, a care-plan membership with its break-even visits, bench-hour utilization, a break-even job count, a volume table, a share link. Not modelled: the owner's own pay, retail and rentals, sales tax, card fees, insurance, hiring a second technician, income tax.
+**Known gaps:** the technician is paid only for the bench minutes jobs use, so idle scheduled bench hours cost nothing and season profit, break-even and the low-volume rows are overstated when the bench is not full (sample: 25,869.20 shown, 8,148.11 with the 719 idle hours paid); the target-margin price carries none of the fixed cost. See the [2026-11-17 quality audit](../../portfolio/quality/audits/2026-11-17-bike-shop-repair-profit-calculator.json).
+
 Not legal, tax or financial advice. No warranty; see the page footer. MIT licensed (`LICENSE`).
