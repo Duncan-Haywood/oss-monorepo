@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtGrG8RBpjUmu8Ge7aq",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T11:06:49Z",
+  "ended": "2026-11-17T11:17:36Z",
+  "wall_minutes": 23.46,
+  "tokens_in": 8869455,
+  "tokens_out": 48290,
+  "cost_usd": 3.8728,
+  "tool_calls": 69,
+  "task": "changepoint-detector flagship: synthetic control for a named date (Abadie et al. 2010), pre-registered",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16915",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "partial",
+  "errors": [
+    "CI changed-ventures failed on check_cli_entry.py: eval/synth-sim.mjs used a file:// string entry guard; fixed with pathToFileURL (check and its unittest pass locally)"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--replace with a slightly longer NEW auto-parked five items without --make-room, and split clauses mid-sentence (e.g. 'next phase-tolerant shapes, 5th set' parked apart from the TSSB clause it belonged to); reverted and used --no-make-room with explicit --park instead."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start-here pick einvoice-preflight again had its one buildable item (Peppol IT/NL warning rules) already claimed by open PR #16914 and the rest needing real outside files; took row 2 instead, as two earlier sessions did."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "The picked row (einvoice-preflight) had nothing buildable left that was not claimed (PR #16914) or blocked on a real outside file",
+      "did": "took flagship row 2, changepoint-detector, whose next: named a synthetic control on data already in the tree",
+      "result": "a pre-registered round landed: estimate replicates Abadie et al. (gap -26.5 packs at 2000), test fails (rank 3 of 39), nothing shipped to users"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-changepoint-synthetic-control-proposition-99.md",
+    "ventures/changepoint-detector/README.md (A synthetic control)"
+  ],
+  "goal": null,
+  "notes": "Pre-registration eval/synth-prereg-2026-11-17.md committed (fbd344d49) before the confirmatory sim (seed 13000, 400 panels a cell) and before any real state was fitted. Sim bars 1-3 hold (size 3.3-5.5% at p<=0.05, E1 1.3% with 99.5% fit warnings, power P1 34.8%, P3 22.8%). Real: CA rank 3 of 39 p 0.077 (fails T1), T2-T4 0 of 3 (fails), in-time placebos and placebo states hold. Post hoc: MO and VA outrank CA by near-exact before-fits; the paper's placebo pool leaves CA 3rd; N1's 5.5% not reproduced on seed 15000 (2.5%), suspected correlated consecutive xorshift seeds. --synth-control CLI wiring removed per the rule; module + tests stay. No agent doc: the README section and flagships next: carry what the next run needs. Local verification: run_venture_tests.py changepoint-detector -> ok (179.9s, 815 tests), 1 suite, 0 failed; check_post_frontmatter, check_post_links, post_similarity clean; promptctl validate ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "29bf722b-443a-5282-aa4a-31097ca40778",
+    "transcripts": 1,
+    "first": "2026-11-17T11:06:49Z",
+    "last": "2026-11-17T11:30:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 135,
+        "output": 48290,
+        "thinking": 11772,
+        "cache_read": 8724115,
+        "cache_write_5m": 0,
+        "cache_write_1h": 145205,
+        "api_equivalent_usd": 3.8728,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 135,
+      "output": 48290,
+      "thinking": 11772,
+      "cache_read": 8724115,
+      "cache_write_5m": 0,
+      "cache_write_1h": 145205,
+      "api_equivalent_usd": 3.8728,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 69,
+    "tools": {
+      "Bash": 60,
+      "Write": 7,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.46,
+      "active_minutes": 17.24,
+      "model_minutes": 9.38,
+      "tool_minutes": 7.86,
+      "waiting_on_human_minutes": 6.22,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a statistician implementing a synthetic control with placebo inference, a pre-registered simulation and a replication on state data",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 258.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
