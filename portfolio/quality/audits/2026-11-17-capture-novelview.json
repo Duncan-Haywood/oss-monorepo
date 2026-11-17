@@ -167,42 +167,48 @@
    "what": "The headline result (synthesis beats cutting to the nearest camera only up to about 30 degrees; a bystander pulls the useful gap to about 10 degrees, 37 cameras) is an artefact of leaving disocclusion holes as sky blue and scoring them. Filling holes from the nearest camera, the standard DIBR fallback and one np.where, makes synthesis beat the cut at every tested gap: 28.18 vs 23.10 dB at 45 degrees, 26.64 vs 22.75 at 90; with the bystander 26.49 vs 21.30 at 15 degrees. The README presents the crossover as the limit of two-view synthesis.",
    "where": "research/capture-novelview/README.md:3",
    "category": "research-design",
-   "origin": "design"
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"
   },
   {
    "severity": "medium",
    "what": "Hole fraction is labelled 'of non-sky target pixels' but is computed over all pixels (sky marked valid, then 1 - have.mean()), understating holes by about a quarter: 8.3% reported at 45 degrees is 11.2% of non-sky pixels, 14.1% at 90 is 19.1%.",
    "where": "research/capture-novelview/experiments/run.py:30",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"
   },
   {
    "severity": "medium",
    "what": "Tests cannot catch geometry errors: reversing the z-buffer, using ray distance instead of axis depth, and dropping the ray renormalisation all leave 7/7 green. The identity-warp test is blind to depth scale; no test warps between two poses against ray-traced depth.",
    "where": "research/capture-novelview/tests/test_novelview.py:19",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"
   },
   {
    "severity": "medium",
    "what": "Nearest prior work on exactly this question is not cited: plenoptic sampling (Chai, Tong, Chan, Shum 2000) gives the minimum camera spacing for depth-based rendering analytically; Zitnick et al. 2004 and Fehn 2004 / MPEG VSRS cover two-view DIBR with hole filling. Novelty of the ordering result is overstated by omission.",
    "where": "research/capture-novelview/README.md:7",
    "category": "research-design",
-   "origin": "design"
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"
   },
   {
    "severity": "low",
    "what": "'about 1.4 dB per percent at the start' matches no slope of table B (0.49 dB/% from 0 to 1%, 0.71 from 0 to 2%, 0.93 from 1 to 2%).",
    "where": "research/capture-novelview/README.md:3",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"
   },
   {
    "severity": "low",
    "what": "'about 10 degrees, i.e. 37 cameras on a full ring' is 36 cameras; and capture-kit does not state that an owner cannot carry that many.",
    "where": "research/capture-novelview/README.md:40",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"
   },
   {
    "severity": "low",
@@ -216,9 +222,10 @@
    "what": "Stale docstrings: run.py says 'about 10 s' (runs in 1.1 s; README says 3 s) and 'around azimuth 0 (+180 so they face the front)' while the code centres on azimuth 20.",
    "where": "research/capture-novelview/experiments/run.py:19",
    "category": "stale-docs",
-   "origin": "maintenance"
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"],
  "verdict": "A tidy, deterministic toy renderer whose geometry is right (axis depth, cross-pose reprojection and PSNR all match independent recomputation, and results.txt and the SVG reproduce byte-identical), but whose headline does not survive a fair baseline: the 30-40 degree crossover and the 'bystander pulls it to 10 degrees' finding exist only because disocclusion holes are scored as sky blue; filling them from the nearest camera, as any DIBR system does, beats the cut at every gap up to 90 degrees with and without the bystander. The hole fraction is mislabelled (all pixels, not non-sky), two derived numbers in the README are wrong, plenoptic sampling and DIBR prior work are uncited, and 3 of 4 seeded geometry mutants survive the tests. Does not meet the bar (verification 1, claims 1)."
 }

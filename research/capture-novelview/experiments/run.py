@@ -1,6 +1,6 @@
 """Novel-view synthesis between two ring cameras against ray-traced truth.
 
-    python experiments/run.py            # about 10 s; writes experiments/results.txt
+    python experiments/run.py            # about 1 s; writes experiments/results.txt
 """
 import sys
 from pathlib import Path

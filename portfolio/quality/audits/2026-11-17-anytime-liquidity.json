@@ -170,28 +170,32 @@
    "what": "Novelty overstated and no prior work cited: the whitepaper lists the sqrt 2 anytime price with c* as a contribution, but it is the standard anytime-Hedge/FTRL calculation; Chen & Vaughan 2010, Othman et al. (LS-LMSR), Abernethy et al. 2014, Cesa-Bianchi & Lugosi 2006 and de Rooij et al. 2014 (AdaHedge) are not cited.",
    "where": "research/anytime-liquidity/paper/whitepaper.md:30",
    "category": "research-design",
-   "origin": "design"
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"
   },
   {
    "severity": "medium",
    "what": "Tests check only inequalities against bounds; 3 of 6 seeded mutants survive, including the adversary direction that produces every E2/E3 number and a 1.5x over-count of Delta that makes the headline R <= 2 Delta test easier. No test pins run.py output to results.txt.",
    "where": "research/anytime-liquidity/tests/test_model.py:30",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"
   },
   {
    "severity": "low",
    "what": "'doubling is 1.70x worse' compares a sum of per-epoch regrets (an upper bound) to true regret; the true concatenated ratio is 1.65-1.69. Disclosed only as limitation (4), not in README or abstract.",
    "where": "research/anytime-liquidity/README.md:12",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"
   },
   {
    "severity": "low",
    "what": "README and whitepaper say '10 tests'; the suite has 12 (the live page already says 12).",
    "where": "research/anytime-liquidity/README.md:9",
    "category": "stale-docs",
-   "origin": "maintenance"
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"
   },
   {
    "severity": "low",
@@ -201,6 +205,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"],
  "verdict": "Small, correct and reproducible, but thinner than it says. Every number I recomputed from independent code matched: the E1 bound ratios from a zeta(1/2) closed form, the E2 regrets from a separate Hedge, and the E4 AdaHedge regrets and Delta from de Rooij et al.'s pseudocode; run.py reproduces results.txt byte-for-byte and a trader simulation confirms the 'subsidy b_T ln N' reading for nondecreasing b. The doubling penalty is 1.65-1.69 true rather than the reported 1.70 (an upper bound, disclosed as a limitation). The gaps are research-level: the headline sqrt 2 result is the textbook anytime-Hedge constant presented as a contribution with no prior work cited, and the market question that would make it new (trader path dependence under a b_t schedule) is left open; 3 of 6 seeded mutants survive because tests check only bound inequalities, and the test count in README and whitepaper is stale. Does not meet the bar (verification 2, claims 2; median 3). Fixable in a session: cite the LMSR-as-Hedge and anytime/AdaHedge literature and rescope the contribution, pin results.txt in a test, fix the test count."
 }

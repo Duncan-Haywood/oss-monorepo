@@ -167,21 +167,24 @@
    "what": "The comparator ignores the warping restraint the clamped solid imposes; an independent warping-restrained cantilever model (Timoshenko & Gere sec 6.4 / Trahair, Vlasov Cw = b^3 w^3/144) predicts FE/closed 1.044 and 1.021 at l/w 12 and 24 vs the FE's 1.038 and 1.021, so the README's mesh-error explanation of the residual gap and its ~w/l drift is contradicted by standard theory that was not tried",
    "where": "research/simdesign-shellaspect/README.md:30",
    "category": "research-design",
-   "origin": "design"
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"
   },
   {
    "severity": "medium",
    "what": "No test pins any number: the T&G coefficient (4.013 -> 3.5), the J correction (0.63 -> 0) and a 10% scale on every FE critical load all leave both tests green",
    "where": "research/simdesign-shellaspect/tests/test_scan.py:6",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"
   },
   {
    "severity": "low",
    "what": "Pre-buckling in-plane deflection effect (factor 1.077 for this 4:1 section, Kirby & Nethercot / Trahair) omitted by both models and not named in Limitations",
    "where": "research/simdesign-shellaspect/README.md:33",
    "category": "scope-gap",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"
   },
   {
    "severity": "low",
@@ -205,6 +208,6 @@
    "origin": "build"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"],
  "verdict": "A small, honest, fully reproducible scan: three of four FE rows re-run bit-identically, the closed form re-derives to 0.014% from an independent ODE and the exact torsion series, and the same engine matches Euler and end-moment cantilever buckling within 0.5%. It misses the bar on verification (two tests, three of four seeded bugs survive, including a 13% error in the comparator and a 10% error in every FE load) and on method: the gap it sets out to explain is predicted, at l/w >= 12 to within 0.6 percentage points, by the textbook warping-restrained cantilever, which the README does not try and instead leans toward mesh error. A stability researcher would trust the numbers and rewrite the interpretation."
 }

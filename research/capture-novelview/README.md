@@ -18,7 +18,7 @@ Fourth-in-chain follow-up to `capture-rig` (track 13, milestone 3), which counte
 pip install pytest numpy
 cd research/capture-novelview
 python -m pytest -q tests                        # 10 tests
-PYTHONPATH=src python experiments/run.py         # about 3 s; writes experiments/results.txt
+PYTHONPATH=src python experiments/run.py         # about 1 s; writes experiments/results.txt
 python experiments/figure.py                     # experiments/baseline.svg from results.txt
 ```
 

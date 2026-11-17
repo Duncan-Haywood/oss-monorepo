@@ -206,7 +206,8 @@
    "what": "Casual and fixed-term employees are shown minimum notice and an unworked-notice payout (e.g. the example as casual: 5 weeks, A$9,250 of a A$13,690 total), but s123(1)(a) and (c) exclude them from all of Division 11, notice included. Only redundancy pay is zeroed; notice is computed regardless of the exclusion.",
    "where": "ventures/au-redundancy-pay-calculator/calc.mjs:92",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"
   },
   {
    "severity": "medium",
@@ -234,7 +235,8 @@
    "what": "Tests never exercise fixed-term or apprentice types, notice for an excluded employee, or a days-per-week other than 5: mutants weekly/dpw -> weekly/5 and type !== 'permanent' -> === 'casual' both survive.",
    "where": "ventures/au-redundancy-pay-calculator/calc.test.mjs:30",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"
   },
   {
    "severity": "low",
@@ -265,6 +267,6 @@
    "origin": "spec"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"],
  "verdict": "A small, honest NES estimator whose core table is right and whose exclusions are half applied. Against the Fair Work Act 2009 compilation in force 2026-07-07 (fetched from legislation.gov.au), the s119(2) redundancy table matches at every band, the small business threshold is right at 14/15, apprentices correctly keep notice but lose redundancy pay, and the worked example reproduces to the cent (A$43,290). But casual and fixed-term employees, whom s123(1) takes out of the whole Division, are still shown a notice payout (A$9,250 for the example as casual); notice and the 12-month exclusion are measured at the last day rather than the notice day; notice is paid at base rather than the full rate the Act and the file's own comment require; and trainees are excluded unconditionally. Tests pass 20/20 and caught 4 of 6 mutants; the two survivors (day rate, exclusion types) are exactly where the high defect sits. Disclaimer, verify line and 'written from memory' are present. Does not meet the bar (correctness 2, claims 2, verification 2; median 2); finished (completeness 3). Fixable in one session: zero notice for casual and fixed-term, add a notice-date field, a full-rate input for notice, split apprentice from trainee with the s123(1)(d) condition, and tests for each."
 }
