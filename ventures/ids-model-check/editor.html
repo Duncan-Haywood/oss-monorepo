@@ -93,7 +93,7 @@
   import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
   import { Schema, parseIds } from "./ids.mjs";
   import { auditIds } from "./audit.mjs";
-  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, idsSchema, facetXml, editableAttributes, modelSets, valueTypes, ownSetName, specBases, specClassNames, commonSets, commonAttributes, sameAttributeType, commonPredefinedTypes, parseClassList, modelValueOffer, modelAttributes, modelCodes } from "./editor.mjs";
+  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, idsSchema, facetXml, editableAttributes, modelSets, valueTypes, ownSetName, specBases, specClassNames, commonSets, commonAttributes, attributeValueKind, commonPredefinedTypes, parseClassList, modelValueOffer, modelAttributes, modelCodes } from "./editor.mjs";
   import { isZip, unzipModel, inflateRawStream } from "./zip.mjs";
 
   const $ = (id) => document.getElementById(id);
@@ -192,8 +192,7 @@
     } else if (r.kind === "attribute") {
       const attrs = commonAttributes(L.S, specBases(spec));
       h += `<div><label for="${id("name")}">Attribute</label><select id="${id("name")}" data-s="${si}" data-r="${ri}" data-k="name">${opt("", "choose", r.name)}${attrs.map((a) => opt(a, a, r.name)).join("")}</select></div>`;
-      const a = L.S.entities[spec.cls] && sameAttributeType(L.S, specBases(spec), r.name) && L.S.attrs(spec.cls).find((x) => x.name === r.name);
-      if (a && L.S.types[a.type] && L.S.types[a.type].kind === "enum") enumVals = L.S.types[a.type].values;
+      ({ kind: valueKind, enumVals } = attributeValueKind(L.S, specBases(spec), r.name));
       // The values the opened model's objects of these classes hold for it.
       if (inv && spec.cls && r.name) {
         const ma = modelAttributes(inv, specClasses(L, spec));
@@ -237,7 +236,7 @@
       h += `<div class="row" style="margin-top:8px"><label for="${id("mode")}" style="display:inline">Value</label><select id="${id("mode")}" style="width:auto" data-s="${si}" data-r="${ri}" data-k="mode">${modes.map(([v, l]) => opt(v, l, r.mode)).join("")}</select>`;
       const inM = (v) => { const x = offer && offer.values.find(([y]) => y === v); return x ? ` (${x[1]} in model)` : ""; };
       if (r.mode === "equals") h += enumVals ? `<select style="width:auto" aria-label="value" data-s="${si}" data-r="${ri}" data-k="equals">${opt("", "choose", r.equals)}${enumVals.map((v) => opt(v, v + inM(v), r.equals)).join("")}</select>` : `<input style="width:14em" aria-label="value" data-s="${si}" data-r="${ri}" data-k="equals" value="${esc(r.equals)}"${offer ? ` list="${id("vals")}" autocomplete="off"` : ""}>${offer ? `<datalist id="${id("vals")}">${offer.values.map(([v, n]) => `<option value="${esc(v)}">${n} in model</option>`).join("")}</datalist>` : ""}`;
-      if (r.mode === "range") h += `<input style="width:8em" aria-label="minimum" placeholder="min" data-s="${si}" data-r="${ri}" data-k="min" value="${esc(r.min)}"> to <input style="width:8em" aria-label="maximum" placeholder="max" data-s="${si}" data-r="${ri}" data-k="max" value="${esc(r.max)}"> <span class="muted">SI units (metres, square metres...)</span>`;
+      if (r.mode === "range") h += `<input style="width:8em" aria-label="minimum" placeholder="min" data-s="${si}" data-r="${ri}" data-k="min" value="${esc(r.min)}"> to <input style="width:8em" aria-label="maximum" placeholder="max" data-s="${si}" data-r="${ri}" data-k="max" value="${esc(r.max)}"> <span class="muted">${r.kind === "attribute" ? "as the model writes it, in the model's own units (this checker does not convert attributes)" : "SI units (metres, square metres...)"}</span>`;
       if (r.mode === "pattern") h += `<input style="width:14em" aria-label="pattern" placeholder="[A-Z]{2}-[0-9]+" data-s="${si}" data-r="${ri}" data-k="pattern" value="${esc(r.pattern)}">`;
       h += `</div>`;
       if (r.mode === "oneOf" && enumVals) h += `<div class="enum">${enumVals.map((v) => `<label><input type="checkbox" data-s="${si}" data-r="${ri}" data-k="oneOf" value="${esc(v)}"${r.oneOf.includes(v) ? " checked" : ""}> ${esc(v)}${esc(inM(v))}</label>`).join("")}</div>`;

@@ -85,6 +85,16 @@ open. MIT licensed, no dependencies, nothing uploaded.
   no code, so an IDS that names only the system passes them. The row says so
   and offers **Require a code** (a `.+` pattern), which fails exactly those.
   `eval/model-attr-codes-2026-11-17.md`.
+  **A range for numeric attributes** (2026-11-17): OverallHeight, Elevation,
+  NumberOfRiser and other real or integer attributes get a **between** mode
+  and **Use the model's range**, written with an `xs:double` (or
+  `xs:integer`) base as IDS's own test cases write it; boolean attributes
+  (Sizeable) are asked true/false. On four real exports and the sample house,
+  27 of 27 numeric and 6 of 6 boolean requirements built from the model pass
+  it, and IfcTester gives the same verdict on all 33. Attributes are compared
+  in the model's own units (millimetres or feet in these exports), not SI, in
+  this checker and in IfcTester; the row says so.
+  `eval/model-attr-ranges-2026-11-17.md`.
 - Exports: BCF 2.1 (one topic per failing element, selected by IfcGuid), CSV,
   JSON.
 - 22 MB Revit export (Schultz Residence, 424,819 entities): 1.4 s on the command
@@ -382,11 +392,11 @@ faster than IfcTester; its point is needing no install.
   2026-11-16, `eval/model-inventory-2026-11-16.md`; several classes per
   specification 2026-11-17, `eval/several-classes-2026-11-17.md`; a model's
   property values 2026-11-17; attribute values and classification codes
-  2026-11-17, `eval/model-attr-codes-2026-11-17.md`):
+  2026-11-17, `eval/model-attr-codes-2026-11-17.md`; numeric attribute
+  ranges 2026-11-17, `eval/model-attr-ranges-2026-11-17.md`):
   property/attribute facets in the applicability (85 kept facets on the
-  public files); a subclass checkbox per class, not only the first; a range
-  mode for numeric attributes (OverallHeight; written with an xs:double base);
-  a "fix the dataType" hint built from the 21
+  public files); a subclass checkbox per class, not only the first;
+  exclusive bounds on an opened range; a "fix the dataType" hint built from the 21
   of 122 standard properties real exports write in another type.
 - More real models through the IfcTester cross-check (an MEP model, an IFC4X3
   infrastructure model).
