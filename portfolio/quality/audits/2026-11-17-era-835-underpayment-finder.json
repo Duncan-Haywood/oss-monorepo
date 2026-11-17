@@ -1,0 +1,284 @@
+{
+ "date": "2026-11-17",
+ "subject": "ventures/era-835-underpayment-finder",
+ "stratum": "venture",
+ "drawn_by": "census",
+ "seed": "2026-11-17-a396",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a certified revenue-cycle / payment-posting specialist (CRCR or CPC) who reads 835 ERAs daily and works payer underpayments and denials for physician and dental practices",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Wrote my own 835 fixture from the 005010X221A1 layout (ISA fixed width with ISA16 '>', BPR02 = sum CLP04 - sum PLB04, CLP03-CLP04 = sum of 2100+2110 CAS, SVC02-SVC03 = sum of line CAS) with an independent expected-value script (/tmp/claude-0/-home-user-oss-monorepo/091d6275-30d5-5492-8889-4ef9ed0beb80/scratchpad/era-835-underpayment-finder/make835.py) and ran calc.mjs on it (/tmp/claude-0/-home-user-oss-monorepo/091d6275-30d5-5492-8889-4ef9ed0beb80/scratchpad/era-835-underpayment-finder/run.mjs). The 005010 guide was not fetched (X12 is paywalled); positions and balancing rules are cited from knowledge. Matches: Medicare line with CO-253 sequestration allowed 110.43 = 110.43 and not flagged; commercial 99213 allowed 80 vs contract 92.50, shortfall 12.50 = 12.50; 97110 x2 units with AMT*B6 60 expected 60 = 60, not flagged; deposit 350.37 = 389.07 claims - 38.70 PLB, no mismatch reported; PLB net 38.70 = 38.70. Fails: (1) two files whose ISA16 component separators differ (sampleEra ':' plus my fixture '>', both common) joined as the page does (index.html:197) blank every procedure code in the second file, so its 3 underpaid lines (52.93) vanish with 0 issues reported (/tmp/claude-0/-home-user-oss-monorepo/091d6275-30d5-5492-8889-4ef9ed0beb80/scratchpad/era-835-underpayment-finder/multi.mjs); (2) a 71046-26 professional-component line is compared with the global 71046 rate and flagged 30.00 short; (3) a valid claim-level CAS (CO-59 10.00 with balanced lines) is dropped from the adjustments tables (shows CO-45 20 only, expected 30 total) (/tmp/claude-0/-home-user-oss-monorepo/091d6275-30d5-5492-8889-4ef9ed0beb80/scratchpad/era-835-underpayment-finder/edge.mjs).",
+  "completeness": "Ran `node --test '*.test.mjs'`: 42/42 pass. Checked each README/page feature: contract-mode flags with tolerance and units, modifier-specific rates, inferred mode (3 lines, half agreeing), denial list with plain-language CARC and next step, reversal excluded, PLB table and netting, claim/line/deposit balance checks, payer filter, CSV worksheet with formula guard (`'=HYPERLINK` prefixed, run), example, local opt-out usage counts. All work end to end on single files. 'One or more 835 files' (README:18, input `multiple` at index.html:68) works only when every file shares the first file's separators. served-copy.mjs: no placeholder origin. No stubs or TODOs.",
+  "verification": "`node --test '*.test.mjs'`: 42 pass, 0 fail. 11 seeded mutants via quality_mutate.py: 5 caught (sequestration add-back, PLB sign in deposit check, ISA component separator, PLB pair loop, line balance), 6 survived: dropping the half-agreement rule in inferred mode (calc.mjs:459), dropping the claim+line sum from the claim balance (353), removing 253 from the clean-line reasons so every Medicare line is silently skipped (335), denial lead reason replaced by the first CAS (409), inferred tie-break reversed (458), adjustment source switched from line to claim CAS (387). A twelfth (paid<=CENT -> <0, line 345) also survived but is arguably behaviour-neutral, so not counted.",
+  "craft": "Read calc.mjs (665 lines), index.html script, usage.mjs. Pure exported functions, never-throw parser that collects issues, CSV injection guarded, HTML escaped. Defects: separators are detected once for the whole joined text (calc.mjs:36) and a composite that does not split yields code '' silently with no issue; the comment at calc.mjs:385 treats claim-level and line-level CAS as duplicates, which is not the 835 rule, and the claim balance accepts claim-only or line-only sums (353) so it cannot catch a doubled adjustment; line dates ignore DTM*150/151 (run: DTM*150 20250310 -> line date 2025-01-01 from the claim); inferred mode breaks a 2-2 tie toward the higher amount and flags half the group.",
+  "claims": "Disclaimer (no warranty, not billing/coding/compliance advice, verify against payer records) at index.html:142-144 and on the guide page; 'read by position from memory, no real remittance was available' stated on the page (index.html:60), README and VENTURE.yaml; not-modelled list explicit (index.html:119); denials defined as claims (index.html:117). No-upload claim backed: page.test asserts no network calls and module imports are local. Weak spots: README:18 'Separators are read from the ISA header' with 'one or more files' is true only of the first file's ISA; the not-modelled list omits modifier component pricing (26/TC) although the tool falls back to the global rate.",
+  "fitness": "Walked a biller's job: download a week of ERAs from two payers, paste the fee schedule, read the underpaid lines and denials, export the worksheet. On one file it works and the worksheet is usable. Selecting files from two clearinghouses with different ISA16 loses the second payer's codes silently. Line-level denials on paid claims (CO-97 bundled 36415 on a paid visit, run: denials [] ) do not appear in the denial list or worksheet, and radiology/cardiology lines billed -26 are flagged against the global fee. A practice would get a useful first pass on a single file, not a worklist they could rely on.",
+  "domain": "Against payment-posting practice and the 835 guide (from knowledge; X12 text not fetched): segment positions for ISA, BPR, TRN, N1, CLP, CAS triplets, SVC composite and units, AMT*B6, DTM 232/233/472 and PLB pairs are right; group codes, CARC texts checked (1,2,3,4,16,45,50,59,96,97,197,253 and others) are right; PLB sign and deposit equation right; allowed = paid + PR + CO-253 is the standard reconstruction. Departs: denials are claim-level only, though most professional denials are line-level on a paid claim; component modifiers (26, TC) fall back to the global rate; claim-level CAS is discarded when lines carry CAS; DTM*150/151 service periods ignored."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Medicare line with sequestration: allowed reconstructed from paid + PR + CO-253",
+   "method": "835 guide balancing (from knowledge) + independent fixture make835.py: 86.57 + 22.09 + 1.77",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/091d6275-30d5-5492-8889-4ef9ed0beb80/scratchpad/era-835-underpayment-finder/make835.py && node /tmp/claude-0/-home-user-oss-monorepo/091d6275-30d5-5492-8889-4ef9ed0beb80/scratchpad/era-835-underpayment-finder/run.mjs",
+   "expected": "110.43, not flagged",
+   "observed": "110.43, not flagged",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "contract shortfall on 99213 (paid 60, PR-3 20, contract 92.50)",
+   "method": "hand arithmetic in make835.py",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/091d6275-30d5-5492-8889-4ef9ed0beb80/scratchpad/era-835-underpayment-finder/run.mjs",
+   "expected": "allowed 80.00, shortfall 12.50",
+   "observed": "allowed 80, shortfall 12.5",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "2 units with AMT*B6 60 vs 30/unit",
+   "method": "SVC05 units paid x rate; AMT*B6 allowed (guide)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/091d6275-30d5-5492-8889-4ef9ed0beb80/scratchpad/era-835-underpayment-finder/run.mjs",
+   "expected": "expected 60, not flagged",
+   "observed": "AMT*B6 60, not flagged",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "deposit equation BPR02 = sum CLP04 - sum PLB04 with WO +41.20 and L6 -2.50",
+   "method": "835 PLB sign convention (from knowledge), make835.py",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/091d6275-30d5-5492-8889-4ef9ed0beb80/scratchpad/era-835-underpayment-finder/run.mjs",
+   "expected": "350.37 = 389.07 - 38.70, no mismatch",
+   "observed": "payTotal 350.37, claimPaid 389.07, plbNet 38.70, paymentMismatch []",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "two files with different ISA16 component separators (':' and '>') joined as the page joins them",
+   "method": "each interchange's ISA defines its own delimiters (X12 envelope rule)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/091d6275-30d5-5492-8889-4ef9ed0beb80/scratchpad/era-835-underpayment-finder/multi.mjs",
+   "expected": "7 ACME codes read, 3 ACME lines flagged (52.93)",
+   "observed": "7 codes all '', 0 ACME lines flagged, 0 issues",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "71046-26 professional component, schedule lists global 71046 at 40 only",
+   "method": "component modifiers are priced separately from the global fee (payer and MPFS practice)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/091d6275-30d5-5492-8889-4ef9ed0beb80/scratchpad/era-835-underpayment-finder/run.mjs",
+   "expected": "not flagged against the global rate (or reported as unmatched)",
+   "observed": "flagged, expected 40, allowed 10, short 30",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "claim-level CAS CO-59 10 on a claim whose line carries CO-45 20 (CLP 100/70, SVC 100/80)",
+   "method": "835 rule: claim-level and line-level CAS are separate dollars, CLP03-CLP04 = sum of both",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/091d6275-30d5-5492-8889-4ef9ed0beb80/scratchpad/era-835-underpayment-finder/edge.mjs",
+   "expected": "adjustments CO-45 20 and CO-59 10 (30)",
+   "observed": "CO-45 20 only",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "line-level denial CO-97 on 36415 within a paid claim",
+   "method": "denial-management practice: denials are tracked per line",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/091d6275-30d5-5492-8889-4ef9ed0beb80/scratchpad/era-835-underpayment-finder/run.mjs",
+   "expected": "a denial row for 36415 (25.00)",
+   "observed": "denials [] (only in the adjustments table)",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "ISA separator positions and segment element positions",
+   "method": "005010X221A1 layout from knowledge (ISA 106 chars, ISA16 at index 104)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/091d6275-30d5-5492-8889-4ef9ed0beb80/scratchpad/era-835-underpayment-finder/run.mjs (sep)",
+   "expected": "* > ~ from ISA, all fixture values read",
+   "observed": "el *, comp >, seg ~, fromIsa true, 0 issues",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "42/42 pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "line service date with DTM*150",
+   "method": "guide: DTM*150/151 service period at line level",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/091d6275-30d5-5492-8889-4ef9ed0beb80/scratchpad/era-835-underpayment-finder/edge.mjs",
+   "expected": "2025-03-10",
+   "observed": "2025-01-01 (claim date)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "nothing uploaded",
+   "method": "page.test network assertion; grep",
+   "command": "grep -n 'fetch\\|sendBeacon\\|XMLHttp' calc.mjs usage.mjs index.html",
+   "expected": "no network calls",
+   "observed": "none; page.test passes",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer, from-memory caveat, not-modelled list on page",
+   "method": "read page source",
+   "command": "grep -n 'No warranty\\|from memory\\|Not modelled' index.html",
+   "expected": "present",
+   "observed": "index.html:60, :119, :142",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "llms.txt/sitemap hosts as served",
+   "method": "deploy rewrite copy",
+   "command": "node platform/pages/served-copy.mjs era-835-underpayment-finder",
+   "expected": "no placeholder origin",
+   "observed": "no placeholder or retired origin left",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:341",
+   "change": "round2(line.paid + pr + seq) -> round2(line.paid + pr)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:459",
+   "change": "if (n < 2 || n / g.length < 0.5) continue; -> if (n < 2) continue;",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:499",
+   "change": "t.claimPaid - t.plbNet -> t.claimPaid + t.plbNet (deposit check)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:353",
+   "change": "[c, l, round2(c + l)].some -> [c, l].some",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:335",
+   "change": "NEUTRAL_REASONS without \"253\"",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:409",
+   "change": "lead = non-PR reason with largest amount -> lead = src[0]",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:458",
+   "change": "tie-break b[0] - a[0] -> a[0] - b[0]",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:387",
+   "change": "adjustment source line CAS when present -> claim CAS when present",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:29",
+   "change": "comp from ISA16 -> comp ':' always",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:282",
+   "change": "PLB pair loop bound s.length -> s.length - 2",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:357",
+   "change": "lineBalances -> return true",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Several files selected together are joined into one text and parsed with the separators of the first file's ISA only. When a second file's ISA16 component separator differs (':' vs '>', both common across clearinghouses) every SVC composite fails to split, every procedure code becomes '' and that file's underpayments disappear with no issue reported (fixture: 3 flagged lines, 52.93, become 0). A different element separator drops the whole second file silently (6 of 12 claims read).",
+   "where": "ventures/era-835-underpayment-finder/index.html:197",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Denials are claim-level only (status 4, or nothing paid). A line denied on a paid claim (CO-97 bundling, CO-50, CO-16 on one line) never reaches the denial list, the denial finding or the appeal worksheet; it appears only as dollars in the adjustments table.",
+   "where": "ventures/era-835-underpayment-finder/calc.mjs:406",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "A line with a component modifier (26, TC) and no modifier rate in the schedule is compared with the global code rate, so a correctly paid professional component is flagged as underpaid (71046-26 allowed 10 flagged 30 short against global 40). The not-modelled list does not mention it.",
+   "where": "ventures/era-835-underpayment-finder/calc.mjs:324",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "6 of 11 seeded core mutants survive: inferred-mode half-agreement rule, claim balance c+l, sequestration as a clean reason (every Medicare line would be skipped silently), denial lead reason, inferred tie-break, adjustment source. No test has a Medicare line asserted as tested, a claim with both claim- and line-level CAS, or a denial whose first CAS is PR.",
+   "where": "ventures/era-835-underpayment-finder/calc.test.mjs:60",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Claim-level CAS is discarded from the adjustment tables whenever any line carries CAS, on the premise (comment) that it duplicates line CAS; in the 835 the two are separate dollars (CO-59 10 dropped in the run). The claim balance check likewise accepts claim-only or line-only sums, so a doubled adjustment passes.",
+   "where": "ventures/era-835-underpayment-finder/calc.mjs:387",
+   "category": "domain-rule",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Line service dates ignore DTM*150/151 (service period) and fall back to the claim's statement date, so the worksheet's service_date can be wrong.",
+   "where": "ventures/era-835-underpayment-finder/calc.mjs:255",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Inferred mode breaks a tie in frequency toward the higher amount: two lines at 100 and two at 80 flag both 80s as 20 short, though neither amount is the payer's 'usual'.",
+   "where": "ventures/era-835-underpayment-finder/calc.mjs:458",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "README says separators are read from the ISA header and that one or more files are accepted; only the first file's ISA is read.",
+   "where": "ventures/era-835-underpayment-finder/README.md:18",
+   "category": "overclaim",
+   "origin": "claims"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A careful, honest first pass at reading 835 remittances whose core arithmetic is right. On a fixture I wrote independently from the 005010 layout, a sequestered Medicare line reconstructs to an allowed 110.43 and is not flagged, a commercial 99213 is 12.50 short of a 92.50 contract, multi-unit AMT*B6 lines and the deposit equation (350.37 = 389.07 - 38.70 PLB) all match. Disclaimers, the from-memory caveat and the no-upload claim are on the page and backed by tests. A payment poster would hit three gaps in the first hour: selecting remittances from two clearinghouses with different component separators silently blanks the second file's codes and loses its underpayments with no warning; line-level denials on paid claims never reach the denial list or worksheet; and -26 component lines are flagged against the global fee. The 42 tests pass but 6 of 11 seeded core mutants survive. Does not meet the bar (correctness 2, verification 2, median 2); finished (completeness 3). Fixable in a session: parse each file separately with its own ISA (or split on each ISA), add line-level denials, report component-modifier lines as unmatched rather than using the global rate, and add tests for a Medicare line being tested, mixed-separator files and claim plus line CAS."
+}

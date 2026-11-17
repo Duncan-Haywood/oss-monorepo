@@ -1,0 +1,199 @@
+{
+ "date": "2026-11-17",
+ "subject": "research/robofab-solreftimestep",
+ "stratum": "research",
+ "seed": "2026-11-17-a396",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a robotics simulation researcher who tunes MuJoCo contact for grasping (soft-constraint model, solref/solimp/refsafe, noslip, impratio); first checks: does the numbers rerun, is the refsafe reading right, and is 'fails' a loss of grip or an artefact of the pass/fail criterion (does the outcome depend on force, threshold and run length)",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Numbers reproduce and the arithmetic and the refsafe reading are right; what 'fails' means is the problem (see claims, domain). (1) Installed mujoco 3.16.0 (the README's version) into /usr/bin/python3.13 and re-ran `cd /tmp/claude-0/-home-user-oss-monorepo/091d6275-30d5-5492-8889-4ef9ed0beb80/scratchpad/robofab/copy && /usr/bin/python3.13 experiments/run.py` (6.4 s): results.txt byte-identical to the committed one; figure.py regenerates an identical SVG. (2) Analytic bound by hand: cover = 40 x 30 x 4 mm = 4800 mm^3 x 1240 kg/m^3 = 5.952 g; m(g+a)/(2 mu) = 5.952e-3 x 409.81 / 1.0 = 2.4392 N and x 809.81 = 4.8200 N, matching results.txt. (3) The refsafe clamp max(solref, 2 dt), which the README says it took from the docs and did not test, checked in MuJoCo: refsafe on, a=400, 1.3 x bound: worst displacement is identical to 6 digits for (solref 0.2, dt 0.2) and (0.4, 0.2) = 1.795248 mm and for (0.1, 0.15) and (0.3, 0.15) = 1.346584 mm; with refsafe disabled the dt >= 0.2 ms cells blow up (QACC NaN warnings, 1.8 to 33 m displacement). (4) 'none' really means no tested force holds: holds() is false at 1.02, 1.05, 1.1, 1.3, 2, 4, 8 and 12.4 x bound in 8 'none' cells (monotone.py), so the bisection's single check at 60 N does not mislabel cells.",
+  "completeness": "Claimed and checked: '6 tests, < 1 s' (6 passed in 0.42 s with pytest; unittest command also valid); 'about 6 s' (6.4 s); grid 3 x 4 x 2 = 24 cells and 6 holding (counted in results.txt); ladder 8 timesteps x 3 pairs with effective-constant lines (present); '6 of 6 cells in the two 800 rows with dt >= 0.15 ms fail' (true); figure regenerates from results.txt. No stubs or TODOs. All Next steps (refsafe off, solimp, cause of non-monotonicity, other six parts) are open, and are stated as open.",
+  "verification": "`cd research/robofab-solreftimestep && /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests`: 6 passed in 0.42 s (after `pip install mujoco==3.16.0`; mujoco is not declared in pyproject.toml). min_force(), which produces every number in results.txt, has no test at all. Four mutants via platform/ci/quality_mutate.py: 3 survived (hold threshold x1.5 at sim.py:66; min_force returning the failing bracket `lo` instead of `hi` at sim.py:80; side-load doubled in moving_bound at model.py:74), 1 caught (carrier velocity not prescribed at sim.py:62, 2 tests fail). A changed slip criterion or a bisection that returns the wrong end leave the suite green.",
+  "craft": "Read model.py, sim.py, run.py, figure.py, the test file. Short and readable. Defects: sim.py and model.py are verbatim copies of research/robofab-solrefmap (`diff -q` silent), one of 49 robofab-* slugs, so a fix must be repeated; pyproject.toml declares no dependencies (mujoco, numpy); run.py:32-33 and :52-53 write results with open() never closed and write the files twice; the carrier is moved kinematically by overwriting qpos/qvel before each mj_step (sim.py:61-63) rather than with a mocap/weld or actuator, the harness candidate the README itself suspects; holds() reports only a bool, discarding the displacement that decides the result.",
+  "claims": "Disclaimers present: 'stylised' (title, page x10), 'Produced with AI assistance', 'Simulation only', a Limitations section that names the 2 mm criterion and the 0.05 s window; the served page https://marisstella.app/research/robofab-solreftimestep/ returns 200. The literal numbers are backed by results.txt. But the framing outruns the files: the title asks what 'breaks a moving grasp', and 'no force up to 60 N holds' reads as loss of grip, while 13 of the 15 failing ladder cells are a force-independent creep of 2.14 to 3.59 mm along the load at 10 x the friction bound (identical at 2 x and 10 x; impratio 1, 10, 100 changes nothing), crossing the fixed 2 mm threshold; only the dt = 0.4 ms cells at 800 m/s^2 (220 mm) and the solref 0.5 ms cells (224 mm, pads lose the part) are gross slip. The 'practical consequence' (solref 0.1 ms held at 800 m/s^2 for dt <= 0.1 ms) does not survive a longer move: with t_acc = 0.2 s instead of 0.05 s, min_force at (800, 0.1 ms, 0.05 ms) returns None. 'The held cells form a window' is a smooth displacement curve minimised where 2 dt = solref (1.80 mm at dt = 0.1 for solref 0.2) crossing 2 mm, not a holding window.",
+  "fitness": "A researcher can rerun everything in 6 s with a pip install, and the refsafe clamp observation is correct and useful (I confirmed it in MuJoCo in seconds; the README deferred that test). But the binary outcome hides the mechanism the README calls unexplained: per-cell displacement at fixed force (ladder.py) gives 3.58, 1.80, 1.35, 1.85, 2.14, 2.34, 2.49, 2.59 mm (a=400, solref 0.3) and 219.9, 3.59, 2.69, 1.80, 2.39, 2.79, 3.09, 3.29 mm (a=800, solref 0.2) across dt 0.4 to 0.025 ms: a continuous creep that grows as dt falls below solref/2 and grows with run length. With a 3 mm threshold the a=800, solref 0.2 row would hold at four timesteps, not one. A researcher would need to redo the study with displacement (or creep rate) as the outcome. Nearest prior work, none cited: MuJoCo documentation, Computation/Soft constraints and the solref/refsafe/noslip options; Todorov (2014) ICRA 'Convex and analytically-invertible dynamics with contacts and constraints' (the soft-contact model that permits creep); Erez, Tassa and Todorov (2015) ICRA, simulator comparison including grasp stability. Novelty: the refsafe clamp is documented behaviour; the creep-vs-dt curve could be a modest new observation but is not reported. One micro-question per slug, contrary to the programme model in research/CLAUDE.md.",
+  "domain": "Against MuJoCo contact-tuning practice: (a) the outcome is a binary 2 mm threshold over a fixed 0.05 s window, while soft constraints are known to permit force-independent creep, so the right measure is displacement or creep rate vs (solref, dt), not a min-force bisection whose ratio is ~1.01 wherever it 'holds'; (b) the refsafe clamp is a single option flag and was not tested (it takes one line, mjDSBL_REFSAFE); (c) impratio, the usual knob for slip with elliptic cones, was not considered (it has no effect here, which is itself diagnostic: the creep is not friction-cone slip); (d) the carrier is teleported each step, the README's own candidate cause, not checked against a mocap or actuated carrier; (e) single part, single run length. The README states (a)'s criterion and (b) as limits, which keeps it honest, but a senior practitioner would not sign off 'timestep can make it worse' or the solref 0.1 ms recommendation from this method."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Analytic friction bound for the cover at 400 and 800 m/s^2",
+   "method": "hand calculation: m = 4800 mm^3 x 1240 kg/m^3; N = m(g+a)/(2 mu), mu = 0.5",
+   "command": "/usr/bin/python3.13 -c \"m=40*30*4*1240e-9; print(m*(9.81+400), m*(9.81+800))\"",
+   "expected": "2.4392 N, 4.8200 N",
+   "observed": "2.4392 N, 4.8200 N in results.txt",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "refsafe clamp: effective solref = max(solref, 2*dt)",
+   "method": "MuJoCo XML reference (refsafe) tested in MuJoCo 3.16.0 by my own script: equal effective constants must give identical trajectories; refsafe off must differ",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/091d6275-30d5-5492-8889-4ef9ed0beb80/scratchpad/robofab && /usr/bin/python3.13 ladder.py copy/src . ; /usr/bin/python3.13 -I trace.py copy/src",
+   "expected": "(0.2,0.2)=(0.4,0.2) and (0.1,0.15)=(0.3,0.15); refsafe off unstable at coarse dt",
+   "observed": "1.795248 = 1.795248 mm; 1.346584 = 1.346584 mm; refsafe off: 1.9 to 33 m, QACC NaN warnings",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "'none' means no force up to 60 N holds (bisection assumes monotone in force)",
+   "method": "own sweep of holds() at 1.02 to 12.4 x bound in 8 'none' cells",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/091d6275-30d5-5492-8889-4ef9ed0beb80/scratchpad/robofab/monotone.py /tmp/claude-0/-home-user-oss-monorepo/091d6275-30d5-5492-8889-4ef9ed0beb80/scratchpad/robofab/copy/src",
+   "expected": "no force holds in any of the 8 cells",
+   "observed": "no force holds in any of the 8 cells",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Full grid + ladder reproduce",
+   "method": "rerun in scratch copy with mujoco 3.16.0, diff against committed results.txt",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/091d6275-30d5-5492-8889-4ef9ed0beb80/scratchpad/robofab/copy && /usr/bin/python3.13 experiments/run.py",
+   "expected": "identical results.txt, about 6 s",
+   "observed": "byte-identical, 6.4 s; figure.py SVG identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Fails' = the grasp breaks (title; 'no force up to 60 N holds')",
+   "method": "own trace of part displacement vs carrier at 2 x and 10 x bound, and with impratio 1/10/100",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/091d6275-30d5-5492-8889-4ef9ed0beb80/scratchpad/robofab && /usr/bin/python3.13 -I comp.py copy/src && /usr/bin/python3.13 -I imp.py copy/src",
+   "expected": "gross slip of the part in failing cells",
+   "observed": "a=800, solref 0.2, dt 0.05: z creep 2.794 mm at 2 x and 10 x bound, unchanged by impratio, 9 contacts kept; 13 of 15 failing ladder cells are 2.14-3.59 mm creep, only dt 0.4 at 800 (220 mm) and solref 0.5 (224 mm) are gross slip",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Practical consequence: solref 0.1 ms holds at 800 m/s^2 for dt <= 0.1 ms",
+   "method": "subject's own min_force with a longer acceleration window",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/091d6275-30d5-5492-8889-4ef9ed0beb80/scratchpad/robofab/tacc.py /tmp/claude-0/-home-user-oss-monorepo/091d6275-30d5-5492-8889-4ef9ed0beb80/scratchpad/robofab/copy/src",
+   "expected": "holds (ratio ~1.01) for t_acc 0.05, 0.1, 0.2 s",
+   "observed": "4.863 N at 0.05 and 0.1 s; None (fails at 60 N) at 0.2 s",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimers and served page",
+   "method": "curl + grep",
+   "command": "curl -s https://marisstella.app/research/robofab-solreftimestep/",
+   "expected": "200, stylised, AI assistance, preliminary",
+   "observed": "200; 'stylised' x10, 'AI assistance' x1, 'preliminary' x1",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Is the 'window' a holding window or a threshold on a continuous curve?",
+   "method": "worst displacement at 10 x bound over the 8-step ladder",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/091d6275-30d5-5492-8889-4ef9ed0beb80/scratchpad/robofab && /usr/bin/python3.13 ladder.py copy/src .",
+   "expected": "README: unexplained non-monotone window",
+   "observed": "smooth curve, minimum at 2 dt = solref (a=800 solref 0.2: 219.9, 3.59, 2.69, 1.80, 2.39, 2.79, 3.09, 3.29 mm); a 3 mm threshold flips 3 of 7 failing cells in that row",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "pytest",
+   "command": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests",
+   "expected": "6 tests, < 1 s",
+   "observed": "6 passed in 0.42 s (needs mujoco, not declared)",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "Engine copied",
+   "method": "diff against research/robofab-solrefmap/src",
+   "command": "diff -q src/robofab_solreftimestep/sim.py ../robofab-solrefmap/src/*/sim.py; diff -q src/robofab_solreftimestep/model.py ../robofab-solrefmap/src/*/model.py",
+   "expected": "disclosed copy",
+   "observed": "both identical (disclosed in README)",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/robofab_solreftimestep/sim.py:66",
+   "change": "return bool(worst * 1e3 < disp_mm) -> return bool(worst * 1e3 < 1.5 * disp_mm)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/robofab_solreftimestep/sim.py:80",
+   "change": "    return hi ->     return lo",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/robofab_solreftimestep/sim.py:62",
+   "change": "d.qpos[qz], d.qvel[vz] = 0.5 * a_up * t * t, a_up * t -> d.qpos[qz], d.qvel[vz] = 0.5 * a_up * t * t, 0.0",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/robofab_solreftimestep/model.py:74",
+   "change": "math.hypot(G + a_up, a_side) -> math.hypot(G + a_up, 2 * a_side)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "The headline outcome ('fails', 'breaks a moving grasp', 'no force up to 60 N holds') is a fixed 2 mm threshold on a force-independent creep, not loss of grip: 13 of 15 failing ladder cells creep 2.14-3.59 mm at 10 x the friction bound (same at 2 x; impratio has no effect) while contact is kept. The 'window' and 'a finer timestep can make it worse' are a smooth displacement curve, minimised at 2 dt = solref, crossing 2 mm; a 3 mm threshold would flip 3 of 7 failing cells in the a=800, solref 0.2 row.",
+   "where": "research/robofab-solreftimestep/README.md:7",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "high",
+   "what": "The practical recommendation (solref 0.1 ms holds at 800 m/s^2 for dt <= 0.1 ms) depends on the 0.05 s acceleration window: with t_acc = 0.2 s min_force at (800, 0.1 ms, 0.05 ms) returns None, because the creep grows with run length. A practitioner tuning a workcell twin for a longer move would act on it and see the same 'failure'.",
+   "where": "research/robofab-solreftimestep/README.md:11",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "min_force (the bisection that produces every reported ratio) has no test; mutants returning the failing bracket, loosening the 2 mm criterion by 50%, or doubling the side load all leave the 6 tests green.",
+   "where": "research/robofab-solreftimestep/src/robofab_solreftimestep/sim.py:69",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "The refsafe explanation is left untested though it is a one-flag check (mjDSBL_REFSAFE); it holds (identical trajectories for equal max(solref, 2 dt)), so the README undersells a confirmable result and leaves an open caveat that need not be there. holds() also discards the displacement, so no continuous outcome is reported.",
+   "where": "research/robofab-solreftimestep/src/robofab_solreftimestep/sim.py:66",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "No prior work on MuJoCo soft-contact creep or contact-parameter tuning cited (MuJoCo docs on soft constraints/refsafe/noslip; Todorov 2014 ICRA; Erez, Tassa and Todorov 2015 ICRA); refs.bib holds only the MuJoCo paper and Zykov 2005.",
+   "where": "research/robofab-solreftimestep/paper/refs.bib:1",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "pyproject.toml declares no dependencies; mujoco and numpy must be installed by hand for the tests to import.",
+   "where": "research/robofab-solreftimestep/pyproject.toml:5",
+   "category": "repo-hygiene",
+   "origin": "build"
+  },
+  {
+   "severity": "low",
+   "what": "sim.py and model.py are verbatim copies of research/robofab-solrefmap (one of 49 robofab-* slugs); results files are written twice with open() never closed.",
+   "where": "research/robofab-solreftimestep/experiments/run.py:32",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A small, honest-in-its-limits MuJoCo grid that reruns byte-identically in 6 s with mujoco 3.16.0; the analytic bound (2.4392 / 4.8200 N) is right, and the refsafe clamp the README took from the docs is confirmed (equal max(solref, 2 dt) gives identical trajectories). It misses the bar on claims and verification. The binary 'holds within 2 mm over 0.05 s' outcome hides that 13 of 15 failing ladder cells are a force-independent 2.1-3.6 mm creep with contact kept, so the 'window' and 'finer timestep can make it worse' are a smooth creep curve (minimum at 2 dt = solref) crossing an arbitrary threshold, and the recommended solref 0.1 ms setting fails at any force once the move lasts 0.2 s. min_force, which produces every number, is untested (3 of 4 seeded bugs survive). Reporting displacement or creep rate instead of a threshold would turn this into a usable result."
+}
