@@ -449,7 +449,12 @@ with a 2 GB heap it finishes, before and after this change.
    unit conversion, type inheritance and overrides, cardinality, the sample
    model's known gaps, CSV formula neutralising, and BCF zip structure (and an
    `unzip` round trip when it is installed). The suite test runs when
-   `eval/IDS` has been fetched.
+   `eval/IDS` has been fetched. With `eval/fetch-bcf-schemas.sh` run and
+   `xmllint` installed, every file of a sample BCF export is also validated
+   against buildingSMART's BCF 2.1 schemas (CC BY-ND, fetched, not
+   committed). That check found, on 2026-11-17, that every `markup.bcf` wrote
+   an empty `IfcProject=""` the schema rejects, and that a control character
+   in an IFC name made the markup unreadable XML; both are fixed.
 
 6. **ifcXML and `.ifczip` on real files** (2026-11-16,
    `eval/ifcxml-xbim-2026-11-16.md`). `eval/fetch-xbim-samples.sh` fetches the
