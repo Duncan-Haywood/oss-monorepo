@@ -16,7 +16,7 @@ never holds the literal placeholder origin the site check refuses.
     python3 platform/ci/check_post_frontmatter.py --fix docs/posts/NEW.md   # house tag spellings, then check
 
 Named posts are checked alone, and the cross-post checks (tag spellings,
-shared descriptions) report only groups that include one of them. Runs kept
+shared descriptions, shared page titles) report only groups that include one of them. Runs kept
 passing a file and getting a usage error (two friction reports, 2026-11-10).
 
 Agent reports in docs/reports/ get `doc_index.py`'s front-matter check here
@@ -217,6 +217,56 @@ def duplicate_descriptions(texts):
     return [v for v in seen.values() if len(v) > 1]
 
 
+SITE_NAME = "Maris Stella Labs"  # platform/pages/site-nav.mjs
+
+
+_YAML_ESCAPES = {'"': '"', "\\": "\\", "/": "/", "n": "\n", "t": "\t", "r": "\r", "0": "\0"}
+
+
+def _unquote(value):
+    """writing.mjs unquoteYamlScalar: a quoted title loses its quotes and escapes as the page shows it."""
+    if len(value) >= 2 and value[0] == value[-1] == '"':
+        return re.sub(r"\\(.)", lambda m: _YAML_ESCAPES.get(m.group(1), m.group(0)), value[1:-1])
+    if len(value) >= 2 and value[0] == value[-1] == "'":
+        return value[1:-1].replace("''", "'")
+    return value
+
+
+def page_title(text):
+    """The post's <title> as writing.mjs builds it (loadPost's seoTitle, then postPageTitle), or None."""
+    m = re.match(r"---\n(.*?)\n---\n", text, re.S)
+    if not m:
+        return None
+    fields = {}
+    for line in m.group(1).splitlines():
+        kv = re.match(r"([A-Za-z_][\w-]*):\s*(.*)$", line)
+        if kv:
+            fields[kv.group(1)] = _unquote(kv.group(2).strip())
+    title, seo = fields.get("title", ""), fields.get("seo_title", "")
+    head = seo or (_cut(title) if len(title) > LIMITS["seo_title"] else None) or title
+    if not head:
+        return None
+    full = f"{head} · {SITE_NAME}"
+    return full if len(full) <= LIMITS["seo_title"] else head
+
+
+def duplicate_page_titles(texts):
+    """{page title: [post names]} for titles two posts would share ({name: post text}).
+
+    check.mjs fails a pull request's site build on a duplicate <title>, and
+    the build renames a post only when it clashes with a tool page, never
+    with another post. Runs met it after the ~10-minute local build: a
+    seo_title copied from a same-day sibling post (run record for PR #16945,
+    2026-11-17). This catches it from the files, in a second.
+    """
+    seen = {}
+    for name, text in texts.items():
+        t = page_title(text)
+        if t:
+            seen.setdefault(t, []).append(name)
+    return {t: v for t, v in seen.items() if len(v) > 1}
+
+
 def landed_broken(since, ref="origin/main", root=ROOT):
     """[(commit line, post name, problems)] for posts that failed this check in the commit that added them.
 
@@ -335,6 +385,12 @@ def main(argv=None):
         if args.posts and not named & set(group):
             continue
         print(f"one description on {len(group)} posts: {', '.join(group)}; word each for its own post")
+        bad += 1
+    for title, group in duplicate_page_titles(texts).items():
+        if args.posts and not named & set(group):
+            continue
+        print(f"one page title on {len(group)} posts, which fails the site build (check.mjs): \"{title}\" "
+              f"on {', '.join(group)}; give the newer post its own `seo_title:` ({LIMITS['seo_title']} max)")
         bad += 1
     for line in report_problems(Path(args.root), reports if args.posts else None):
         print(line)
