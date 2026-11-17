@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVMYhMnJMbgruSKSPdc",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell, support revenue-generating software); merge when done",
+  "input_sha256": "2bd5620e2ff10e0f5020edfce24c72073836a7226f40267b4c7c3fd95b13aaab",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T13:19:08Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "perf: research homepage build one tree walk",
+  "projects": [
+    "research/_homepage",
+    "platform/ci"
+  ],
+  "pr": 16947,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both perf backlog items are owner-only again (P063, P064); step 3 (local slowest step) needed a self-made per-module timer for platform/ci tests. A committed timing script would save the sweep."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-one-walk-instead-of-two-thousand.md",
+    "docs/history/ci-perf-2026-11-17-research-tree-one-walk.md"
+  ],
+  "goal": null,
+  "notes": "Metric: research/_homepage/build.py wall time. Before 2.60 s mean, after 2.08 s mean (8 alternating runs each, date +%s%N around `python3 research/_homepage/build.py --out DIR`, 4-core cloud container, noisy +/-0.5 s). Clean in-process number: test_count + third_party_imports + own_modules over all 1,083 research dirs, 0.83-1.05 s before vs 0.44-0.48 s after (old and new modules imported side by side, both orders, results equal). Profile: cProfile on one build, 3.9 s; third_party_imports 1.29 s cum, own_modules 0.66 s, test_count 0.26 s; 2,161 rglob walks. Output byte-identical (diff -r, --base-url build). test_research_homepage_publish 20 OK; run_workflow_locally --for-changes DONE exit 0. Reading: 163 platform/ci test modules, 188 s total serial; top warm: run_workflow_locally 10.6, run_venture_tests 10.6, research_homepage_publish 10.3, adopt_stranded 9.9 s.",
+  "corrections": [],
+  "redteam": null
+}

@@ -109,21 +109,22 @@ flagships:
       (README); open: Relay, a bank scan; (3) Adyen's sample read (README); open: a
       real merchant's payout export, a real 1099-K; (4) loans: LendingClub rounds
       payments up (99.97% of 445k, README), `--round up`; open: a lender's full
-      table, a supplier's terms letter; (5) receipts OCR (page SRD 189/196, SROIE
-      84.6%, US 79.6%, tax 74.6%; CLI 78.6%, tax 71.9%; CORD photos val 71.4%, train
-      62.2%, test 57.9%, tax 16/41; open: OCR-bound); (6) payroll (README): two
-      journal layouts read; open: a real Gusto or ADP export; (7) IRIS NEC and MISC
-      rents files on IRS TY2025 guidelines (HISTORY): open: a real upload, TY2026
-      template. A run that lands a slice replaces its item here; keep this under
-      2,000 characters. More open items: NEXT.md.
+      table, a supplier's terms letter; (5) receipts OCR (five-reading vote keeps
+      RapidOCR's total unless arithmetic confirms the majority, CORD train 542/583;
+      page SRD 189/196, SROIE 84.6%, US 79.6%, tax 74.6%; CLI 78.6%, tax 71.9%; CORD
+      photos val 71.4%, train 62.2%, test 57.9%, tax 16/41; open: OCR-bound); (6)
+      payroll (README): two journal layouts read; open: a real Gusto or ADP export;
+      (7) IRIS NEC and MISC rents files on IRS TY2025 guidelines (HISTORY): open: a
+      real upload, TY2026 template. A run that lands a slice replaces its item here;
+      keep this under 2,000 characters. More open items: NEXT.md.
     buildable: >-
       Receipts, item (5): SRD photos (eval/srd-fetch.mjs), CORD photos
       (eval/cord_images.py); tesseract via apt, RapidOCR via pip. CORD train shards
-      1-3: `--rapidocr` 539 of 583, test 83 of 95; SRD: Python RapidOCR 188, the
-      page's port 190, the page (port then four) 189 of 196
-      (eval/rapidocr-web-srd-2026-11-17.md: same row shifts, gratuity check). Next:
-      tesseract's four on CORD shards 1-3 (about 100 min) for the five-reading vote;
-      CORD's 22 parser-reachable misses are one-offs. CORD test stays held out.
+      1-3: `--rapidocr` 539 of 583; five readings, lead total kept unless arithmetic
+      confirms the majority, 542 (test 83 of 95, SRD 188 of 196;
+      eval/lead-vote-2026-11-17.md). Next: re-score the page with its JS port as
+      lead (eval/rapidocr-browser.mjs); SRD's 2 taxes lost with the lead; train
+      shard 4 (200 unread photos) as a fresh check. CORD test stays held out.
     hosts: [https://huggingface.co/, https://raw.githubusercontent.com/]
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
@@ -193,9 +194,9 @@ flagships:
       sticky series), given date: --known-date on CLI, page, engine; control series:
       step-only rule calibrated in sims, but 11 of 13 annual state tobacco ratios
       refused as wanders (README "The step alone"): synthetic control (README "A
-      synthetic control"): CA -26.5 packs at 2000 as published, rank 3 of 39 (MO, VA
-      fit too well): next a ratio robust to tiny before-gaps, monthly series. More
-      open items: NEXT.md.
+      floored ratio"): CA -26.5 packs at 2000, rank 1 of 39 with the floored ratio
+      (default); MA, AZ, OR ranks 6-13, loose fits: next covariates or monthly
+      series, then CLI. More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     why: >-
@@ -228,11 +229,9 @@ flagships:
       passes Mustang; open: a real business's PINT file. A run that lands a slice
       replaces its item here. More open items: NEXT.md.
     buildable: >-
-      Python readers (src/einvoice_preflight/ubl.py, formats.py) fill legal_id and
-      party_ids so the CLI's INV-062 reads XML files, not only JSON; PayeeParty and
-      TaxRepresentativeParty ids, which Peppol's PEPPOL-COMMON contexts also match
-      (extend eval/party-id-peppol-differential.mjs's PLACES); R056-2 (an NL VAT
-      number in PartyTaxScheme, a warning). No network.
+      PayeeParty and TaxRepresentativeParty ids, which Peppol's PEPPOL-COMMON
+      contexts also match (extend eval/party-id-peppol-differential.mjs's PLACES);
+      R056-2 (an NL VAT number in PartyTaxScheme, a warning). No network.
   - venture: shift-roster-builder
     inputs_only: >-
       a live deploy with real punches, a real payroll template, a manager's
@@ -284,10 +283,10 @@ flagships:
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
       eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`; its CIFF CRWs all read).
       Bayer trees parked: a range guard passes 6 fresh cameras, misses K-1 II/A7
-      III; no fresh frames left (eval/bayer-boosted-guard-*). Noise-aware:
-      no-profile raws via --noise-from-frame (eval/noise-aware-estimated-*); next: a
-      patch-PCA estimator (tools/noise_estimator_accuracy.py), an earlier colour
-      ramp. DNG 1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
+      III; no fresh frames left (eval/bayer-boosted-guard-*). Noise-aware: patch-PCA
+      frame noise (eval/noise-pca-estimator-*); next: X-Trans 12 x 12 patches (17 of
+      248 held tiles lose), then the auto fallback. DNG 1.7.1.0 spec PDF: URL in
+      eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
@@ -370,10 +369,11 @@ flagships:
       night 2 UNKNOWN at 1 h; next: a new model, orbit or symmetry-broken night); 49
       on 8x9 (orbit, ~11 h est.); the rest of the 20-team gap (40 to 44 still
       ~444-550: four-round re-deals or a longer run, now ~4x cheaper; or a starter
-      family climbed with the floor as its score); 30 teams in the page (README
-      "Half the table": 104 s with the symmetric step, 2x 28 teams; next: keep
-      tables in the module, copy-in/out now as large as the step; 29 adds nothing).
-      More open items: NEXT.md.
+      family climbed with the floor as its score); 30 teams in the page since
+      2026-11-17 (README "A trial's steps kept in the module": chained trials, 30
+      teams 62 s, 28 teams 30 s; 29 skipped, 1 of 3 seeds); next: the step is now 31
+      of 62 s at 30 teams, a cheaper elimination order or fewer steps a trial (span
+      19 on average). More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
@@ -464,10 +464,9 @@ flagships:
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
-      (eval/ifcxml-xbim-2026-11-16.md); audit warnings in a GitLab code-quality
-      report (CI annotates them on the IDS line since 2026-11-17,
-      eval/ci-audit-annotations-2026-11-17.md); the IDS editor (editor.html;
-      README): "Use the model's range" for dates, xs:date one-of rows
+      (eval/ifcxml-xbim-2026-11-16.md); duplicate GlobalIds as a finding (real HHS
+      exports repeat them; eval/gitlab-codequality-2026-11-17.md); the IDS editor
+      (editor.html; README): "Use the model's range" for dates, xs:date one-of rows
       (eval/date-ranges-2026-11-17.md); more real exports through
       eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
@@ -491,6 +490,8 @@ flagships:
       own sets, 21 of 122 standard props in a non-template dataType): applicability
       rows 2026-11-17 (eval/applicability-rows-2026-11-17.md: counts equal the
       checker's applicable; 83.5% of public facets editable, IDS-Audit-tool 21.5%);
-      a no-dataType value row; unchecked subclasses in CI and the editor 2026-11-17
-      (eval/ci-unchecked-2026-11-17.md: 21,405 elements in 165 of 2,028 checks).
-      More open items: NEXT.md.
+      a no-dataType value row; GitLab Code Quality report keyed on GlobalId+class
+      2026-11-17 (eval/gitlab-codequality-2026-11-17.md: 18 of 18 real changes, 0
+      for a renumbering re-export); unchecked subclasses in CI and the editor
+      2026-11-17 (eval/ci-unchecked-2026-11-17.md: 21,405 elements in 165 of 2,028
+      checks). More open items: NEXT.md.

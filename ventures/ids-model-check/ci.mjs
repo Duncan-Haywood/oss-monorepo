@@ -220,6 +220,96 @@ export function annotations(runs, { lines = new Map(), idsLines = new Map(), fai
   return out;
 }
 
+// GitLab Code Quality report (artifacts:reports:codequality): a JSON array of
+// issues, each { description, check_name, fingerprint, severity, location:
+// { path, lines: { begin } } }. GitLab shows them in the merge request widget
+// as new or resolved by comparing fingerprints with the target branch's report,
+// and inline on changed lines of the diff. So, unlike the GitHub annotations
+// (ten per step), there is one issue per failing element, keyed on its
+// GlobalId and class, not its #id or line: a re-export renumbers #ids and
+// moves lines, but the widget then still says which walls this merge request
+// broke or fixed. The class is in the key because real exports repeat
+// GlobalIds (HHS construction2.ifc gives a column the GlobalId of a slab), and
+// a shared key would shift a fingerprint suffix onto the wrong element.
+// The rest are the same findings the annotations make: audit warnings and
+// invalid specifications once per IDS file on the specification's line, not-
+// checked subclasses per model, an unreadable file. Past maxPerSpec failing
+// elements of one specification, one issue says how many more (its fingerprint
+// is the specification's, so a count that changes stays one issue).
+// Which elements get their own issue is chosen by GlobalId order, not model
+// order: a re-export can reorder the file (BIMserver's copy of the HHS MEP
+// model does), and taking the first N in file order would then report up to N
+// different elements as new and N as resolved. The default, 1,000, is every
+// element a report lists (--max-failures): a cap hides the elements past it,
+// and on the HHS revisions a cap of 50 hid every real change
+// (eval/gitlab-codequality-2026-11-17.md).
+// pathPrefix is prepended to every path: GitLab needs paths from the
+// repository root, and ci-cli.mjs may have read the files under --root.
+export function codeQuality(runs, { lines = new Map(), idsLines = new Map(), failOnUnchecked = false, failOnAudit = false, maxPerSpec = 1000, pathPrefix = "" } = {}) {
+  const out = [];
+  const seen = new Set();
+  const p = (path) => (pathPrefix ? `${pathPrefix.replace(/\/+$/, "")}/${path}` : path);
+  const push = (check_name, severity, description, path, line, key) => {
+    let fingerprint = cqHash([check_name, ...key].join("\u0000"));
+    // Two distinct findings must not share a fingerprint (GitLab would show one).
+    for (let n = 1; seen.has(fingerprint); n++) fingerprint = cqHash([check_name, ...key, n].join("\u0000"));
+    seen.add(fingerprint);
+    out.push({ type: "issue", check_name, description, categories: ["Bug Risk"], severity, fingerprint, location: { path: p(path), lines: { begin: line || 1 } } });
+  };
+  const specLine = (ids, index) => idsLines.get(ids)?.[index];
+  for (const a of auditFindings(runs)) {
+    for (const w of a.warnings) push("ids-audit", failOnAudit ? "major" : "minor", `IDS audit: "${a.name}": ${w}`, a.ids, specLine(a.ids, a.index), [a.ids, a.name, w]);
+  }
+  const once = new Set();
+  for (const r of runs) {
+    if (r.error) { push("ids-unreadable", "blocker", `IDS check could not run (${r.model} vs ${r.ids}): ${r.error}`, r.model, 1, [r.model, r.ids]); continue; }
+    r.report.specs.forEach((s, index) => {
+      const nc = notChecked(s);
+      if (nc && s.hint) push("ids-not-checked", failOnUnchecked ? "major" : "minor", `"${s.name}" vs ${r.model}: ${nc.toLocaleString("en-US")} element(s) not checked. ${s.hint}`, r.ids, specLine(r.ids, index), [r.ids, s.name, r.model]);
+      const sev = severity(s);
+      if (sev === "pass") return;
+      if (s.status === "invalid") {
+        const msg = s.note || "The IDS needs fixing before this specification can be checked.";
+        const k = `${r.ids}\u0000${index}\u0000${msg}`;
+        if (!once.has(k)) { once.add(k); push("ids-invalid-specification", "blocker", `Invalid IDS specification "${s.name}": ${msg}`, r.ids, specLine(r.ids, index), [r.ids, s.name, msg]); }
+        return;
+      }
+      const level = sev === "error" ? "critical" : "minor";
+      const name = sev === "error" ? (s.optionality === "prohibited" ? "ids-prohibited" : "ids-required") : "ids-optional";
+      const ln = lines.get(r.model);
+      if (!s.failed.length) { push(name, level, `"${s.name}" (${r.ids}): ${s.note || "fails"}`, r.model, 1, [r.model, r.ids, s.name]); return; }
+      for (const f of cqElements(s, maxPerSpec)) push(name, level, `"${s.name}" (${r.ids}): ${failLine(f)}`, r.model, ln?.get(f.id), [r.model, r.ids, s.name, f.globalId ? `${f.globalId} ${f.type}` : `#${f.id}`]);
+      const more = failCount(s) - Math.min(maxPerSpec, s.failed.length);
+      if (more > 0) push(name, level, `"${s.name}" (${r.ids}): ${more.toLocaleString("en-US")} more element(s) fail (${failCount(s).toLocaleString("en-US")} of ${s.applicable.toLocaleString("en-US")} in all; the JUnit, JSON or BCF report lists them).`, r.model, ln?.get(s.failed[0].id), [r.model, r.ids, s.name, "more"]);
+    });
+  }
+  return out;
+}
+
+// The failing elements of a specification that get their own GitLab issue:
+// the first max by GlobalId (then #id), so the pick does not depend on file
+// order. ci-cli.mjs asks stepLines() for the lines of exactly these.
+export function cqElements(s, max = 1000) {
+  const key = (f) => f.globalId || "";
+  return [...s.failed].sort((a, b) => (key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : a.id - b.id)).slice(0, max);
+}
+
+// A 128-bit hex fingerprint with no dependencies (ci.mjs does no I/O and
+// imports nothing): four 32-bit FNV-1a-style lanes with different seeds over
+// the UTF-16 code units, then mixed. Stable across runs and platforms, which is
+// all GitLab needs of it; not a security hash.
+export function cqHash(s) {
+  const h = [0x811c9dc5, 0x9e3779b9, 0x85ebca6b, 0xc2b2ae35];
+  for (let i = 0; i < s.length; i++) {
+    const c = s.charCodeAt(i);
+    for (let k = 0; k < 4; k++) h[k] = Math.imul(h[k] ^ c ^ (k << 8), 0x01000193 + 2 * k);
+  }
+  return h.map((x, k) => {
+    x ^= h[(k + 1) & 3] >>> 15; x = Math.imul(x, 0x2c1b3c6d); x ^= x >>> 12; x = Math.imul(x, 0x297a2d39); x ^= x >>> 15;
+    return (x >>> 0).toString(16).padStart(8, "0");
+  }).join("");
+}
+
 const mdCell = (s) => String(s ?? "").replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
 
 export function stepSummary(runs, { maxFailures = 5, failOnUnchecked = false, failOnAudit = false } = {}) {

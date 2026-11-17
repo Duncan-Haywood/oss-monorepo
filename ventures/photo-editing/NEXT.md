@@ -19,9 +19,16 @@
 - (2026-11-17) Luma has its own ramp (eval/noise-aware-luma-ramp-2026-11-17.md). Open: does the guard's cap want
   re-tuning with the later luma ramp; an earlier colour ramp (0.2-1.5 / 0.2-2.0 gained 0.01-0.02 dB colour).
 - A real low- and high-ISO pair of one static scene, for this mode as for the X-Trans SNR 25 column.
-- (2026-11-17) Raws without a profile: `--noise-from-frame` shipped opt-in (eval/noise-aware-estimated-2026-11-17.md). Open: gate it on EXIF ISO and the optical-black area's spread (read noise with no texture), fitted on real ISO series; a texture-proof estimator (patch-PCA weak-texture selection; the two-scale reading in tools/noise_estimator_accuracy.py halves the median overstatement, not the tail).
+- (2026-11-17) Raws without a profile: `--noise-from-frame` shipped opt-in (eval/noise-aware-estimated-2026-11-17.md). Patch PCA since that afternoon (src/shootflow/noise_pca.py, eval/noise-pca-estimator-2026-11-17.md): 0 of 240 held Bayer tiles lose over 0.1 dB (was 43), X-Trans 17 of 248 (was 45, worst 1.48 dB). Open: X-Trans 12 x 12 (two-period) patches or a same-colour texture test for the 6 x 6 one; then make it the automatic fallback for `--demosaic noise-aware`; win back noisy-tile gain (41-71% of the true model's) with a scale picked on tune rows only (0.9?); gate on EXIF ISO and the optical-black area's spread, fitted on a real ISO series.
 - The noise-free oracle gain (+0.06-0.12 dB from averaging the two demosaics) is untouched.
 - (2026-11-17) a tungsten-lit colour chart to say which colour model is closer (the 70D frame, 4,700 K and green-tinted, is where they part most; the Nexus 5X carries ForwardMatrix)
 - (2026-11-17) a phone DNG with its own JPEG of the frame (corrected corners)
 - (2026-11-17) a real DNG with opcode flag bit 1 set
 - (2026-11-17) the DJI Phantom 4 DNG's vignette lift against DJI's own render (eval/opcode-quality-flag-*)
+
+## From the cull showcase (2026-11-17, eval/cull-showcase-2026-11-17.md)
+
+- A 4% reframe of a frame formed its own group (a 3% one grouped). Near-duplicates shown as separate groups cost the
+  photographer a look each; try a second hash or a crop-tolerant distance, scored on the same known bursts.
+- A copy at 30% brightness (exposure 0.28) stayed an alternate; it lost its group, so harmless, but the reject line
+  for exposure may sit too low.

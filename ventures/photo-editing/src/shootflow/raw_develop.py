@@ -1330,8 +1330,8 @@ class DevelopSettings:
     demosaic: str = "auto"
     # With demosaic "noise-aware" on a file with no NoiseProfile (every raw read directly, many DNGs): read the
     # noise model from the frame (``xtrans_demosaic.frame_noise``) instead of falling back to directional.
-    # Opt-in (2026-11-17, eval/noise-aware-estimated-2026-11-17.md): on noisy frames it gains most of what the
-    # true model gains; on clean, finely textured frames texture reads as noise and it can cost detail.
+    # Opt-in (2026-11-17, eval/noise-aware-estimated-2026-11-17.md); patch PCA since that afternoon
+    # (eval/noise-pca-estimator-2026-11-17.md): no held-out Bayer tile lost over 0.1 dB, 17 of 248 X-Trans did.
     noise_from_frame: bool = False
     # Lens distortion from a lensfun database (``lens_profiles.load_db``) for files whose opcode lists
     # carry no warp of their own (or with opcodes off): lens and focal length from EXIF unless given.
@@ -2206,7 +2206,7 @@ def _demosaic_method(choice: str, pat, numpy_engine: bool, w: int, h: int, notes
     (opt-in, both CFAs, 2026-11-16): the directional result blended toward bilinear block by block where it
     adds less than the sensor noise the DNG's NoiseProfile states (eval/xtrans-noise-aware-blend-2026-11-16.md);
     without one, ``develop`` falls back to directional unless ``noise_from_frame`` asks for a model read from the
-    frame (eval/noise-aware-estimated-2026-11-17.md)."""
+    frame (eval/noise-aware-estimated-2026-11-17.md, eval/noise-pca-estimator-2026-11-17.md)."""
 
     if choice not in DEMOSAICS:
         raise DevelopError(f"unknown demosaic {choice!r} ({', '.join(DEMOSAICS)})")

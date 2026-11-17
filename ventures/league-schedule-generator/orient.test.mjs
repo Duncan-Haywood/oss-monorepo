@@ -235,6 +235,31 @@ test("minPlusStep's symmetric step (sym) equals the JS loop on every table with 
   }
 });
 
+test("floorTable's chained trials (steps kept in the module) give the stepped trials' least, commits and walks, 9 to 30 teams", async () => {
+  // README "A trial's steps kept in the module": a trial's steps run in WebAssembly from one to the
+  // next, its tables rebuilt only for a commit or a walk; chain: false steps every table out as before
+  const { floorTable, MINPLUS_WASM_ON } = await import("./orient.mjs");
+  if (!MINPLUS_WASM_ON) return;
+  for (const n of [9, 14, 20, 24, 27, 28, 30]) {
+    const opp = oppOf(carryOverTry(n, 1, { seed: 3, weighted: 8 }).rounds, n), R = opp.length;
+    const a = floorTable(opp, n, { maxMatches: 15 }), b = floorTable(opp, n, { maxMatches: 15, chain: false });
+    assert.equal(a.floor, b.floor, `${n}`);
+    for (let i = 0; i < 30; i++) {
+      // swap two rounds, so every trial is a real move; keep a third of them
+      const lo = (i * 7) % R, hi = Math.min(R - 1, lo + (i % 5) * 3);
+      [opp[lo], opp[hi]] = [opp[hi], opp[lo]];
+      assert.equal(a.trial(lo, hi), b.trial(lo, hi), `${n} ${lo}..${hi}`);
+      if (i % 3 === 0) { a.commit(); b.commit(); } else [opp[lo], opp[hi]] = [opp[hi], opp[lo]];
+      if (i % 7 === 0) {
+        const cap = a.trial(0, 1) + 4;
+        assert.equal(b.trial(0, 1) + 4, cap, `${n} walk trial`);
+        assert.deepEqual(a.balanced(cap, { budget: 2000 }), b.balanced(cap, { budget: 2000 }), `${n} walk`);
+        a.commit(); b.commit();
+      }
+    }
+  }
+});
+
 test("a 24-team break floor in seconds, not minutes (12 matches a round)", () => {
   const tries = carryOverTry(24, 0, { seed: 1, weighted: 8 });
   const t = Date.now();

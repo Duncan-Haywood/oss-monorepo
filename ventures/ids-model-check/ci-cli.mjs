@@ -6,6 +6,7 @@
 //       [--pairing all|name] [--junit report.xml] [--summary summary.md]
 //       [--bcf-dir bcf/] [--json results.json] [--annotations] [--fail-on error|warning|never]
 //       [--root DIR] [--max-failures N] [--fail-on-unchecked] [--fail-on-audit-warnings]
+//       [--gitlab-codequality gl-code-quality-report.json] [--gitlab-max-per-spec N]
 //
 // Globs are matched under --root (default: the current directory), skipping
 // .git and node_modules. Inside GitHub Actions (GITHUB_ACTIONS=true) it also
@@ -17,17 +18,20 @@
 // does not check what was meant, e.g. it names an abstract class), 2 on a usage error or when no file matched.
 // Each specification's report keeps its first --max-failures failing elements
 // (default 1000; counts stay exact) so one spec matching every entity of a
-// large export cannot run Node out of memory. Nothing leaves the machine.
+// large export cannot run Node out of memory. --gitlab-codequality writes a
+// GitLab Code Quality report: one issue per failing element (every listed one,
+// --max-failures, or --gitlab-max-per-spec N) keyed on its GlobalId, so a merge request's widget says which
+// elements it broke or fixed. Nothing leaves the machine.
 import { readFileSync, writeFileSync, appendFileSync, mkdirSync, readdirSync, statSync } from "node:fs";
-import { join, relative, sep } from "node:path";
+import { join, relative, resolve, sep, isAbsolute } from "node:path";
 import { check, readModel, parseModel, parseIds } from "./node.mjs";
 import { bcfZip } from "./bcf.mjs";
-import { junitXml, annotations, stepSummary, tally, notChecked, auditFindings, idsSpecLines, globToRegex, patterns, pairUp, stepLines } from "./ci.mjs";
+import { junitXml, annotations, codeQuality, cqElements, stepSummary, tally, notChecked, auditFindings, idsSpecLines, globToRegex, patterns, pairUp, stepLines } from "./ci.mjs";
 
 const args = process.argv.slice(2);
 const opt = (n, d) => { const i = args.indexOf(n); return i >= 0 && args[i + 1] !== undefined ? args[i + 1] : d; };
 const flag = (n) => args.includes(n);
-const usage = () => { console.error('usage: node ci-cli.mjs --models "GLOB[,GLOB]" --ids "GLOB[,GLOB]" [--pairing all|name] [--junit FILE] [--summary FILE] [--bcf-dir DIR] [--json FILE] [--annotations] [--fail-on error|warning|never] [--root DIR] [--max-failures N] [--fail-on-unchecked] [--fail-on-audit-warnings]'); process.exit(2); };
+const usage = () => { console.error('usage: node ci-cli.mjs --models "GLOB[,GLOB]" --ids "GLOB[,GLOB]" [--pairing all|name] [--junit FILE] [--summary FILE] [--bcf-dir DIR] [--json FILE] [--annotations] [--fail-on error|warning|never] [--root DIR] [--max-failures N] [--fail-on-unchecked] [--fail-on-audit-warnings] [--gitlab-codequality FILE] [--gitlab-max-per-spec N]'); process.exit(2); };
 if (flag("--help") || !opt("--models") || !opt("--ids")) usage();
 const failOn = opt("--fail-on", "error");
 if (!["error", "warning", "never"].includes(failOn)) usage();
@@ -39,6 +43,9 @@ if (!Number.isInteger(maxFailed) || maxFailed < 1) usage();
 const gha = process.env.GITHUB_ACTIONS === "true";
 const failOnUnchecked = flag("--fail-on-unchecked");
 const failOnAudit = flag("--fail-on-audit-warnings");
+const gitlab = opt("--gitlab-codequality");
+const cqPerSpec = Number(opt("--gitlab-max-per-spec", String(maxFailed))); // GitLab issues per failing specification; the rest are one "N more" issue
+if (!Number.isInteger(cqPerSpec) || cqPerSpec < 1) usage();
 
 function walk(dir, out = []) {
   for (const e of readdirSync(dir, { withFileTypes: true })) {
@@ -96,7 +103,7 @@ for (const { model, ids } of pairUp(models, idsFiles, pairing)) {
     const t1 = Date.now();
     const report = check(idsOf(ids), current.parsed, { maxFailed });
     report.seconds = (Date.now() - (t0 ?? t1)) / 1000;
-    const failedIds = report.specs.flatMap((s) => s.failed.slice(0, 1).map((f) => f.id));
+    const failedIds = report.specs.flatMap((s) => [...s.failed.slice(0, 1), ...(gitlab ? cqElements(s, cqPerSpec) : [])].map((f) => f.id));
     const known = lines.get(model) || new Map();
     if (current.text) for (const [k, v] of stepLines(current.text, failedIds.filter((id) => !known.has(id)))) known.set(k, v);
     lines.set(model, known);
@@ -120,6 +127,12 @@ console.log(`${ok ? "PASS" : "FAIL"}: ${t.pairs} pair(s), ${t.passed} pass, ${t.
 
 const write = (f, s) => { mkdirSync(join(f, ".."), { recursive: true }); writeFileSync(f, s); };
 if (opt("--junit")) write(opt("--junit"), junitXml(runs));
+if (gitlab) {
+  // GitLab reads paths from the repository root (the job's working directory).
+  const rel = relative(process.cwd(), resolve(root)).split(sep).join("/");
+  const pathPrefix = rel && !rel.startsWith("..") && !isAbsolute(rel) ? rel : "";
+  write(gitlab, JSON.stringify(codeQuality(runs, { lines, idsLines, failOnUnchecked, failOnAudit, maxPerSpec: cqPerSpec, pathPrefix }), null, 2) + "\n");
+}
 if (opt("--json")) write(opt("--json"), JSON.stringify({ tally: t, runs }, null, 2));
 const summary = stepSummary(runs, { failOnUnchecked, failOnAudit });
 if (opt("--summary")) write(opt("--summary"), summary);

@@ -1374,7 +1374,41 @@ def runner_files() -> dict[str, str]:
             open(path, "a").close()
             _RUNNER_FILES[name] = path
         _RUNNER_FILES["RUNNER_TEMP"] = tmp
-    return {k: v for k, v in _RUNNER_FILES.items() if k not in os.environ}
+    files = {k: v for k, v in _RUNNER_FILES.items() if k not in os.environ}
+    files["GIT_CONFIG_GLOBAL"] = isolated_git_global(tmp=_RUNNER_FILES["RUNNER_TEMP"])
+    return files
+
+
+def global_git_config_paths(environ=os.environ) -> list[str]:
+    """The files `git config --global` reads, in git's order (later wins)."""
+    if environ.get("GIT_CONFIG_GLOBAL"):
+        return [environ["GIT_CONFIG_GLOBAL"]]
+    home = environ.get("HOME") or os.path.expanduser("~")
+    xdg = environ.get("XDG_CONFIG_HOME") or os.path.join(home, ".config")
+    return [os.path.join(xdg, "git", "config"), os.path.join(home, ".gitconfig")]
+
+
+def isolated_git_global(tmp: str, environ=os.environ) -> str:
+    """A per-run copy of the global git config that steps read and write.
+
+    CI steps write `git config --global`: portfolio-validate's supersede-check
+    step sets user.email ci@example.com and user.name CI, which a fresh
+    runner throws away. Run here, it overwrote the session's own ~/.gitconfig,
+    so the session's next commit went out as "CI <ci@example.com>",
+    Unverified, until amended (doc friction, run record 2026-11-17,
+    session_01XpHqye3mm8o2YXnvRwxsJV). Steps now see a copy, made once per
+    process: reads behave as before, writes land in RUNNER_TEMP.
+    """
+    path = os.path.join(tmp, "gitconfig-global")
+    if not os.path.exists(path):
+        with open(path, "w") as out:
+            for source in global_git_config_paths(environ):
+                try:
+                    with open(source) as f:
+                        out.write(f.read().rstrip("\n") + "\n")
+                except OSError:
+                    continue
+    return path
 
 
 # Why a failed step names its distinct errors, not only its last lines. A node

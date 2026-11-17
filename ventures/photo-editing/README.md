@@ -1433,6 +1433,18 @@ residual, a two-scale reading that cancels self-similar texture) removed that ta
 high-ISO frames and is not the default fallback. About 2-5x the directional demosaic's time.
 `tools/noise_aware_estimated.py`, `tools/noise_estimator_accuracy.py`, `eval/noise-aware-estimated-2026-11-17.md`.
 
+**Since the afternoon of 2026-11-17 `--noise-from-frame` reads the noise with patch PCA, and fine texture no
+longer reads as noise on Bayer files.** `src/shootflow/noise_pca.py` keeps only patches whose gradients are
+no bigger than noise alone would give (Liu, Tanaka and Okutomi 2013) and reads sigma from their smallest
+covariance eigenvalues (Chen, Zhu and Heng 2015), on 6 x 6 patches of the mosaic itself: scene texture is
+nearly the same in every colour while noise is independent sensel to sensel, so texture falls out of the small
+eigenvalues. On 240 held-out Bayer tiles no tile is now worse than directional by over 0.03 dB (the block-spread
+estimate: 43 tiles over 0.1 dB, down to 4.17 dB), at the same mean luma gain (+0.52 dB against +0.53). On
+X-Trans, 17 of 248 tiles still lose over 0.1 dB (worst 1.48 dB, from 45 and 5.65 dB), so the flag stays
+opt-in. The 0.8 scale was picked after seeing held-out Bayer rows; on X-Trans the tune-only rule picked it.
+`frame_noise(..., estimator="spread")` gives the old model. `tools/noise_estimator_accuracy.py`,
+`tools/noise_aware_estimated.py sweep --pca`, `eval/noise-pca-estimator-2026-11-17.md`.
+
 ## A directional demosaic for Bayer files (2026-11-15)
 
 Nearly every camera has a Bayer sensor, and until now every Bayer file the developer read (DNG, CR2,
