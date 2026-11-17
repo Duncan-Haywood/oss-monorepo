@@ -104,7 +104,7 @@ export function readCdar(source) {
 }
 
 export function statusName(code) {
-  const known = CDV_STATUS[code];
+  const known = Object.hasOwn(CDV_STATUS, code) ? CDV_STATUS[code] : null;
   if (known) return `${code} ${known[0]} (${known[1]})`;
   if (code === "206" || code === "208") return `${code} (FNFE-MPE's Schematron names 206 and 208 both ways round: Approuvée partiellement / Suspendue)`;
   if (CDV_CODES.includes(code)) return `${code} (in FNFE-MPE's list of allowed codes; no label in its files)`;
@@ -112,7 +112,7 @@ export function statusName(code) {
 }
 
 const ROLES = { SE: "seller", BY: "buyer", WK: "platform (PA)", DFH: "PPF (tax administration's platform)", AB: "buyer's agent", DL: "factor", SR: "seller's agent", PE: "payee", PR: "payer", II: "invoice issuer", IV: "invoicee" };
-const role = (p) => (p?.role ? `${ROLES[p.role] || p.role}${p.name ? ` ${p.name}` : ""}` : "");
+const role = (p) => (p?.role ? `${(Object.hasOwn(ROLES, p.role) ? ROLES[p.role] : "") || p.role}${p.name ? ` ${p.name}` : ""}` : "");
 
 export function cdarEnvelope(msg, pairs = []) {
   const first = msg.refs[0];
