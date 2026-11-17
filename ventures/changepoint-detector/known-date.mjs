@@ -199,6 +199,8 @@ export function knownDateTest(x, k, { period = 0, reps = 499, seed = 1, rhoMax =
   // coefficient (held fixed in the bootstrap). README "A control series", eval/known-date-prereg-control-2026-11-17.md:
   // 'difference' met the simulation bars (size 3.3-7.8%) but fired on 3 of 3 placebo dates in the seat-belt ratio, and
   // 'regress' flagged 18% under a shared slope, so neither is in the CLI or the page; this option reproduces the table.
+  // A step-only rule with the placebos on the difference (README "The step alone, with a control series") met every
+  // simulation bar and failed on real state tobacco pairs: 11 of 13 annual log ratios to a donor mean were refused as wanders.
   let ctl = null;
   if (control != null) {
     ctl = Array.from(control, Number);
