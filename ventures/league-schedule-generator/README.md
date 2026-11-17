@@ -188,6 +188,38 @@ MIT licence, see `LICENSE`.
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
 
+## Import into TeamSnap or SportsEngine (2026-11-17)
+
+Many leagues already pay for TeamSnap or SportsEngine for registration, payments and team
+messaging, and those platforms' own schedulers are where this tool's fairness work (fewest
+home/away breaks, even courts and slots, blackouts) does not reach. Typing a 10-team season
+into either platform by hand is 45 games. Now the schedule card has **Import into TeamSnap
+or SportsEngine**: two downloads that are each platform's own import file, so the season
+built here goes up in one upload.
+
+- **TeamSnap** (`teamSnapCsv`): the organisation schedule import, columns `Date, Start Time,
+  End Time, Arrival Time, Short Label, Event Type, Division, Home Team, Away Team, Location,
+  Location Details` in that order, dates MM/DD/YYYY and times h:mm AM/PM. You type the
+  TeamSnap division name and, optionally, the location name (then each court goes in
+  Location Details) and an arrival time in minutes. Arrival Time is left out when blank,
+  which TeamSnap allows. The file is refused-in-advance where TeamSnap would refuse it: no
+  division, a game with no start time. A game ending after midnight is flagged, because
+  TeamSnap's template has no end date, and names with `% @ # *` are flagged because TeamSnap
+  says those symbols trip imports.
+- **SportsEngine HQ** (`sportsEngineCsv`, `parseTeamIds`): the 28-column Schedule Upload
+  file (`Start_Date` ... `Division_Override`), 24-hour times, `TBD` for a game with no time
+  slot, the end date rolled past midnight, `Event_Type` Game, `Team1_Is_Home` 1 for the home
+  side. HQ matches games by its own team IDs, so you paste `Hawks = 2270996_271208` lines
+  (HQ lists them on the template's Team/Division ID tab); a team without one is named in the
+  error.
+
+The column lists are copied from the templates the platforms publish, read 2026-11-17
+(`eval/platform-templates-2026-11-17.md` has the URLs, header rows and SHA-256 of each file),
+and `platform-import.test.mjs` pins them. **Not done:** no file has been uploaded to a real
+TeamSnap or SportsEngine account (both need a paid organisation account), so what each
+platform does with, say, a repeated Short Label is untested; the multi-division page has no
+platform export yet.
+
 ## A shorter season with an even strength of schedule (2026-11-17)
 
 "Rounds to play" cuts a round robin short: 20 teams with a ten-week season play the first
