@@ -166,6 +166,7 @@ export function parseInstance(text) {
   });
   if (sides.length !== 2) throw new Error("give two sides, each opened by a [header] line, e.g. [applicants] then [programmes]");
   const [SA, SB] = sides;
+  if (SA.label === SB.label) throw new Error(`the two sides need different names in their [header] lines; both are [${SA.label}]`);
   for (const S of sides) {
     if (!S.rows.length) throw new Error(`side [${S.label}] has no members`);
     const seen = new Set();
@@ -339,11 +340,15 @@ function expandSeats(inst) {
   const { A, B } = inst;
   const seatOf = [];
   const firstSeat = [];
+  // A programme never fills more seats than it has acceptable applicants, so
+  // seats past its list length stay empty in every matching: leave them out
+  // (a typed capacity of 300000000 would otherwise allocate 300M seats).
+  const seats = B.cap.map((c, j) => Math.min(c, B.prefs[j].length));
   for (let j = 0; j < B.n; j++) {
     firstSeat.push(seatOf.length);
-    for (let s = 0; s < B.cap[j]; s++) seatOf.push(j);
+    for (let s = 0; s < seats[j]; s++) seatOf.push(j);
   }
-  const prefA = A.prefs.map((l) => l.flatMap((j) => Array.from({ length: B.cap[j] }, (_, s) => firstSeat[j] + s)));
+  const prefA = A.prefs.map((l) => l.flatMap((j) => Array.from({ length: seats[j] }, (_, s) => firstSeat[j] + s)));
   const rankA = prefA.map((l) => { const r = new Int32Array(seatOf.length).fill(1 << 30); l.forEach((s, k) => (r[s] = k)); return r; });
   const rankS = seatOf.map((j) => { const r = new Int32Array(A.n).fill(1 << 30); B.prefs[j].forEach((i, k) => (r[i] = k)); return r; });
   return { seatOf, firstSeat, prefA, rankA, rankS, nS: seatOf.length };

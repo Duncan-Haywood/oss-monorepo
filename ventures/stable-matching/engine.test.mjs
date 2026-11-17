@@ -188,3 +188,26 @@ test("scores, CSV and papers", () => {
     assert.ok(p.authors && p.title && p.venue && p.year && p.url && p.implemented && p.deviations, p.title);
   }
 });
+
+test("checkStability flags an unacceptable pair at the first programme (index 0)", () => {
+  const inst = parseInstance("[a]\nx: q\ny: p\n[b]\np: y\nq: x\n");
+  const c = checkStability(inst, [0, 1]); // x at p, y at q: neither pair is acceptable
+  assert.equal(c.problems.length, 2);
+  assert.match(c.problems[0], /x is placed at p/);
+  assert.equal(c.stable, false);
+});
+
+test("a huge capacity is clamped to the list length, not expanded seat by seat", () => {
+  const t0 = Date.now();
+  const r = analyze({ text: "[a]\nx: c\ny: c\n[b]\nc (300000000): x > y\n" });
+  assert.equal(r.error, undefined, r.error);
+  assert.equal(r.matching.assignment.x, "c");
+  assert.equal(r.matching.assignment.y, "c");
+  assert.equal(r.stableMatchings.count, 1);
+  assert.equal(r.sides.B.places, 300000000);
+  assert.ok(Date.now() - t0 < 2000, `took ${Date.now() - t0} ms`);
+});
+
+test("two sides with the same header label are told apart", () => {
+  assert.throws(() => parseInstance("[s]\nx: c\n[s]\nc: x\n"), /different names/);
+});
