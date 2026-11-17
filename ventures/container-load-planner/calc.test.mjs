@@ -546,3 +546,15 @@ test("the dead-corner memo changes no placement: 24 mixed loads match the pre-me
   }
   assert.equal(createHash("sha256").update(JSON.stringify(out)).digest("hex"), "69eff7e5589c59a72014207eb164849f9b8f6c0154fa34604e74faf521a31e8e");
 });
+
+test("FAQ pallet counts match the planner: a 20 ft floor holds 9 of the 48 x 40 size (quality audit 2026-11-17)", async () => {
+  const { readFileSync } = await import("node:fs");
+  const { lines } = parseCargo("GMA,48,40,48,600,40,upright,1,0", SYSTEMS.imperial);
+  const n = planLoad(lines, PRESETS.find((p) => p.id === "20ft"), { restarts: 40 }).firstPacked;
+  assert.equal(n, 9);
+  for (const f of ["index.html", "how-to-plan-a-container-load.html"]) {
+    const html = readFileSync(new URL(f, import.meta.url), "utf8");
+    assert.ok(!/or 10 of the 48 x 40/.test(html), f);
+    assert.ok(new RegExp(`or ${n} of the 48 x 40 (inch )?size`).test(html), f);
+  }
+});
