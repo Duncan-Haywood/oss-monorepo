@@ -241,7 +241,7 @@ export function entityFacet(S, cls, { withSubclasses = false, predefinedType = n
 // buildIds() writes; importIds() turns an opened IDS file into it.
 
 export const blankReq = () => ({ kind: "property", set: "", name: "", custom: false, dataType: "", cardinality: "required", mode: "any", equals: "", oneOf: [], min: "", max: "", pattern: "", system: "", relation: "IFCRELCONTAINEDINSPATIALSTRUCTURE", entity: "IFCBUILDINGSTOREY" });
-export const blankSpec = () => ({ name: "", description: "", instructions: "", optionality: "required", cls: "", also: [], withSub: true, predefinedType: "", reqs: [blankReq()] });
+export const blankSpec = () => ({ name: "", description: "", instructions: "", optionality: "required", cls: "", also: [], withSub: true, predefinedType: "", reqs: [blankReq()], app: [] });
 
 // ------------------------------------------------- several classes per spec --
 // A specification may apply to several classes (IFCSLAB, IFCBEAM, IFCCOLUMN):
@@ -419,6 +419,43 @@ export function modelValueOffer(mp, kind, enumVals = null) {
     rangeMin: num ? outwardBound(mp.min, -1) : null, rangeMax: num ? outwardBound(mp.max, 1) : null, oneOf, empty: mp.empty || 0 };
 }
 
+// How many of the model's objects an applicability row lets through, from the
+// inventory's tally for it (`mp`, one entry of modelSets' props,
+// modelAttributes or modelCodes; `offer`, modelValueOffer's for it), or null
+// when the tally cannot say exactly: a value list cut short, values outside
+// the row's kind, objects holding several values, a classification code (one
+// object may carry several in a system), a material or a place.
+//   r: the row ({ kind, mode, equals, oneOf, min, max, pattern });
+//   valueKind: "number" | "text" | "bool" (numbers compare with IDS's
+//   tolerance, |a - b| <= |b| x 1e-6 + 1e-6)
+export function appMatchCount(mp, offer, r, valueKind = "text") {
+  if (r.kind === "material" || r.kind === "partOf") return null;
+  if (!mp) return 0;
+  const held = mp.count - (mp.empty || 0);
+  // Any value: an empty one or UNKNOWN fails an attribute facet, while a
+  // classification facet naming only its system passes a reference with no
+  // code. A property counted here carries the property.
+  if (r.mode === "any" || !r.mode) return r.kind === "classification" ? mp.count : held;
+  if (r.kind === "classification" || !offer || !offer.complete || offer.outside.length) return null;
+  if (offer.values.reduce((t, [, n]) => t + n, 0) > held) return null;
+  const tally = (pick) => offer.values.filter(([v]) => pick(v)).reduce((t, [, n]) => t + n, 0);
+  const same = (v, w) => (valueKind === "number" ? Math.abs(Number(v) - Number(w)) <= Math.abs(Number(w)) * 1e-6 + 1e-6 : v === w);
+  if (r.mode === "equals") return valueKind === "number" && !Number.isFinite(Number(r.equals)) ? null : tally((v) => same(v, r.equals));
+  if (r.mode === "true" || r.mode === "false") return tally((v) => v === r.mode);
+  if (r.mode === "oneOf") return tally((v) => r.oneOf.some((w) => same(v, w)));
+  if (r.mode === "range") {
+    const lo = r.min === "" || r.min == null ? -Infinity : Number(r.min), hi = r.max === "" || r.max == null ? Infinity : Number(r.max);
+    if (Number.isNaN(lo) || Number.isNaN(hi)) return null;
+    return tally((v) => Number(v) >= lo && Number(v) <= hi);
+  }
+  if (r.mode === "pattern") {
+    let re;
+    try { re = new RegExp(`^(?:${r.pattern})$`, "u"); } catch { return null; }
+    return tally((v) => re.test(v));
+  }
+  return null;
+}
+
 // The shortest decimal at or beyond v (dir -1: at or below, 1: at or above)
 // that stays within IDS's equality tolerance of it (|v| x 1e-6 + 1e-6). IDS
 // ranges take no tolerance (ImplementersDocumentation/tolerance.md), and unit
@@ -482,7 +519,12 @@ function reqFacet(L, r) {
   return { kind: r.kind, set: r.set, name: r.name, dataType: p ? p.dataType : null, value, cardinality: r.cardinality, system: r.system, relation: r.relation, entity: r.entity };
 }
 
-const reqComplete = (r) => r.fixed || (r.kind === "property" ? r.set && r.name : r.kind === "attribute" ? r.name : r.kind === "partOf" ? r.entity : true);
+// An applicability row: the same row as a requirement, written without a
+// cardinality (IDS 1.0 applicability facets have none; an object either
+// matches the facet or the specification does not apply to it).
+const appFacet = (L, r) => reqFacet(L, { ...r, cardinality: "required" });
+
+export const reqComplete = (r) => r.fixed || (r.kind === "property" ? r.set && r.name : r.kind === "attribute" ? r.name : r.kind === "partOf" ? r.entity : true);
 
 // The page state as the document buildIds() writes.
 export function stateToDoc(state, L) {
@@ -492,7 +534,8 @@ export function stateToDoc(state, L) {
       name: s.name || (s.cls ? `${s.cls} requirements` : "Unnamed specification"),
       description: s.description, instructions: s.instructions, optionality: s.optionality,
       ifcVersion: s.ifcVersion || null, requirementsDescription: s.requirementsDescription || null,
-      applicability: [...(s.cls ? [{ kind: "entity", names: specClassNames(L.S, s), predefinedType: s.predefinedType || null }] : []), ...(s.fixedApp || [])],
+      applicability: [...(s.cls ? [{ kind: "entity", names: specClassNames(L.S, s), predefinedType: s.predefinedType || null }] : []),
+        ...(s.app || []).filter(reqComplete).map((r) => appFacet(L, r)), ...(s.fixedApp || [])],
       requirements: s.reqs.filter(reqComplete).map((r) => reqFacet(L, r)),
     })),
   };
@@ -594,10 +637,18 @@ export function importIds(parsed, loadFor) {
   let kept = 0, rows = 0, dropped = 0;
   const droppedIn = [];
   for (const s of parsed.specs) {
-    const spec = { ...blankSpec(), name: s.name === "(unnamed)" ? "" : s.name, description: s.description || "", instructions: s.instructions || "", optionality: s.optionality, reqs: [], fixedApp: [] };
+    const spec = { ...blankSpec(), name: s.name === "(unnamed)" ? "" : s.name, description: s.description || "", instructions: s.instructions || "", optionality: s.optionality, reqs: [], fixedApp: [], app: [] };
     if (s.requirementsDescription) spec.requirementsDescription = s.requirementsDescription;
     if (s.ifcVersion.join(" ") !== IFC_VERSION[schema]) spec.ifcVersion = s.ifcVersion;
-    for (const f of s.applicability) {
+    // The class first, so the other facets' rows know what it offers.
+    const appIn = [...s.applicability.filter((f) => f.kind === "entity"), ...s.applicability.filter((f) => f.kind !== "entity")];
+    for (const f of appIn) {
+      // A facet beyond the class: an editable row when the page writes it back
+      // unchanged (no cardinality in applicability).
+      if (f.kind !== "entity") {
+        const row = editableRow(L, specBases(spec), { ...f, cardinality: "required" });
+        if (row && facetXml(appFacet(L, row), L.S, false) === facetXml(facetFromParsed(f), L.S, false)) { spec.app.push({ ...row, cardinality: "required" }); rows++; continue; }
+      }
       if (f.kind === "entity" && !spec.cls && !spec.fixedApp.some((x) => x.kind === "entity")) {
         // A class list matches as a set: one name, or a class and all its
         // concrete subclasses in any order, is what the page writes.
