@@ -362,7 +362,8 @@ flagships:
       rainouts, standings, officials, duty rota, team sheets; carry-over and break
       floors, frontier picker, blackout fit, WebAssembly step: README 2026-11-11 to
       2026-11-15 sections; 2026-11-17 shorter seasons with even strength of
-      schedule, eval/seed-balance.txt). 2026-11-15: 3-game nights
+      schedule, eval/seed-balance.txt; TeamSnap and SportsEngine import files,
+      eval/platform-templates-2026-11-17.md). 2026-11-15: 3-game nights
       (eval/three-game-nights.txt): SAT session designs (session-designs.mjs) take
       every even 10-48 teams on 6 slots, 16 of 19 sizes on 9, to 0 waits; 8 on 2x6,
       12 on 2x9 UNSAT. Odd leagues (eval/odd-night-sat.py, odd-designs.mjs): 11-25
