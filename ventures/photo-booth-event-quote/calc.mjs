@@ -153,7 +153,7 @@ export function calculateQuote(input) {
     : maxPrintsAtBreakeven - expectedPrints;
   const printCostSharePct = price > 0 ? (printCost / price) * 100 : null;
 
-  const hasProposed = input.proposedPrice !== null && input.proposedPrice !== undefined && input.proposedPrice !== '';
+  const hasProposed = String(input.proposedPrice ?? '').trim() !== '';
   const proposedPrice = hasProposed ? number(input.proposedPrice, 'Price you are considering') : null;
 
   return {

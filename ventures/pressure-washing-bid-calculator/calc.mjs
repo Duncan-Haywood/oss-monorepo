@@ -134,7 +134,7 @@ export function calculateBid(input) {
   const minimumApplied = bidPrice > targetPrice && minimumJob > targetPrice;
   const profit = bidPrice - totalCost;
 
-  const hasProposed = input.proposedPrice !== null && input.proposedPrice !== undefined && input.proposedPrice !== '';
+  const hasProposed = String(input.proposedPrice ?? '').trim() !== '';
   const proposedPrice = hasProposed ? number(input.proposedPrice, 'Price you are considering') : null;
 
   const afterTravelHourly = totalHours === 0 ? null : bidPrice / totalHours;

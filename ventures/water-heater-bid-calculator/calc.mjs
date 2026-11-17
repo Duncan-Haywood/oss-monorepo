@@ -234,7 +234,7 @@ function moneyInputs(input) {
 }
 
 function proposedComparison(proposedPrice, totalCost, laborHours) {
-  if (proposedPrice === '' || proposedPrice == null) return null;
+  if (String(proposedPrice ?? '').trim() === '') return null;
   const price = number(proposedPrice, 'Proposed price');
   const profit = price - totalCost;
   const margin = price === 0 ? 0 : (profit / price) * 100;

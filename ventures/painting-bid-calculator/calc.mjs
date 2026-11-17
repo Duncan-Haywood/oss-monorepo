@@ -225,7 +225,7 @@ export function calculateBid(input) {
   const price = jobCost / (1 - targetMargin / 100);
   const profit = price - jobCost;
 
-  const hasProposed = input.proposedPrice !== null && input.proposedPrice !== undefined && input.proposedPrice !== '';
+  const hasProposed = String(input.proposedPrice ?? '').trim() !== '';
   const proposedPrice = hasProposed ? number(input.proposedPrice, 'Price you are considering') : null;
 
   const hasFloor = input.floorSquareFeet !== null && input.floorSquareFeet !== undefined && input.floorSquareFeet !== '';
