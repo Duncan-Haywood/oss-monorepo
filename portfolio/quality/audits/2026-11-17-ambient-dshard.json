@@ -1,0 +1,216 @@
+{
+ "date": "2026-11-17",
+ "subject": "research/ambient-dshard",
+ "stratum": "research",
+ "seed": "2026-11-17-fe49",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a biostatistician who works on latent class models for diagnostic tests and annotators without a gold standard (Dawid-Skene, conditional dependence between raters, identifiability); first checks: is the dependent-rater model identified (Kruskal / Allman-Matias-Rhodes three-view condition), does the result already exist in the conditional-dependence literature (Vacek 1985; Torrance-Rynard and Walter 1997; Albert and Dodd 2004), are EM fits checked from multiple starts, and do the headline numbers reproduce",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Every number reproduces and the plain-DS figures survive an independent implementation. (1) Reran the full experiment in a scratch copy with the matplotlib tail removed (`cd /tmp/claude-0/audit-ambient-dshard/copy && PYTHONPATH=src /usr/bin/python3.13 experiments/run_nofig.py > rerun.txt; diff rerun.txt experiments/results.txt`): byte-identical, 1 m 44 s. (2) My own Dawid-Skene EM written from Dawid and Skene (1979) with plain loops, on a joint built by explicit enumeration, no subject import (`/usr/bin/python3.13 -I /tmp/claude-0/audit-ambient-dshard/indep.py`): auditor-1 estimated accuracy 0.810 0.822 0.837 0.850 0.878 (label 0.7) and 0.810 0.822 0.836 0.849 0.872 (label 0.9), all ten equal to results.txt. (3) Closed forms: easy accuracy (0.8 - h*ha)/(1-h) gives 0.83333, 0.875, 0.92857, 0.91667, 1.0 (README's 'perfectly labelled' extreme cell is right); auditor marginal accuracy 0.800000; P(a1 = a2) 0.717857 by enumeration and by closed form 0.7(e^2 + 2((1-e)/2)^2) + 0.3(0.375), against 0.66 under independence. (4) Own Bayes decision code over the subject's utility table (`/usr/bin/python3.13 /tmp/claude-0/audit-ambient-dshard/bayes.py /home/user/oss-monorepo/research/ambient-dshard/src`): blind 0.3824, Bayes 0.3917 / 0.4066, gains 0.0093 / 0.0241, as README. Arithmetic in README results 2-4 (2.5%, 3%, 31%, 18%, within-0.0001 at n = 1000, -0.0006..+0.0003 at n = 200) checked against results.txt: right. One misattribution: README:39 says DS reads the auditors as 0.878 at label 0.9; results.txt gives 0.872 there (0.878 is the label-0.7 row).",
+  "completeness": "Claimed and checked: '7 tests' (7 passed in 0.28 s); 'about 5 minutes' for run.py (1 m 44 s, conservative); results.txt reproduces byte-identically; five cells x two label accuracies x {population, n = 200, n = 1000}; three-start non-identification table; experiments/dshard.png committed (the figure step needs matplotlib, not installed here, so the PNG was not regenerated). Nothing claimed is missing; no TODOs. experiments/figure.py and dshard.svg exist and are not mentioned in the README (harmless).",
+  "verification": "`cd research/ambient-dshard && env PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests`: 7 passed, 0.28 s. The tests cover the generator well (marginals, normalisation, sampler vs exact joint, extra agreement) and the dsH fit, but nothing touches the utility/policy layer (u_table, posterior, modes_from_estimate, value, policies) that every headline number in the README comes from, and the plain-DS test only asserts that DS is off by more than 0.02, which any broken DS also satisfies. Five mutants via platform/ci/quality_mutate.py: 3 survived (argmax -> argmin in the Bayes decision rule, est.py:75, inverting every policy; DS classifier M-step counting auditor 2's labels instead of the classifier's, est.py:120; dsH classifier M-step down-weighting hard messages, est.py:183), 2 caught (sampler using the easy matrix on hard messages, est.py:156; P(hard) update halved, est.py:184).",
+  "craft": "Read est.py, sim.py, run.py, tests/test_hard.py, pyproject.toml. Short, vectorised, readable einsum code with docstrings. Defects: sim.py and the first 128 lines of est.py are verbatim copies of earlier ambient-* slugs (disclosed; 46 ambient-* directories carry versions of this engine, so a fix must be repeated); dead code copied along (draw_audit, draw_audit2, simulate_utility, regret unused anywhere in src/tests/experiments); `norm` lambda redefined inside the EM loop (est.py:121); run.py is a module-level script with no main guard and positional policies() reuse (v_of passes the estimate twice and reads 'bayes_naive', est.py:83-88 via run.py:15) that is correct but obscure; pytest and matplotlib not declared in pyproject.toml (dependencies = ['numpy']). Acceptable research code, not reviewer-clean.",
+  "claims": "README numbers trace to experiments/results.txt (checked above); 'Produced with AI assistance', 'Stylised, simulated results only', every parameter a chosen round figure, a Limitations section and 'citation from memory' are present (README:3, :45-49). research/README.md:450 and research/_homepage/projects.json summaries match the results. Two claims fail: (a) README:41 'What the policy needs, the classifier's matrix, is identified' and README:40 'recovers the classifier' are not true as stated: from start (0.95, 0.4, 0.2, 0.95) the subject's own estimate_ds_hard fits the population joint to 2.7e-13 with max|C_hat - C| = 0.0158 and max|prior_hat - prior| = 0.0045 (`/usr/bin/python3.13 /tmp/claude-0/audit-ambient-dshard/cdev.py /home/user/oss-monorepo/research/ambient-dshard/src`), and a numerical Jacobian of the full-matrix model has rank 17 of 21 parameters with 3 null directions that move prior and C, at the truth and at three random generic points (`/usr/bin/python3.13 -I /tmp/claude-0/audit-ambient-dshard/ident2.py`); every start the README and test use puts the classifier at its true accuracy 0.7. The policy utility is unchanged (0.39169 both fits), so the practical conclusion holds in this cell, but the identification statement is a mathematical claim no file backs. (b) README:39 0.878 for label 0.9 should be 0.872. The served page could not be loaded: the egress proxy refused marisstella.app (connect_rejected).",
+  "fitness": "A researcher can rerun and extend it in minutes, and the repository did (research/ambient-third, ambient-multistart build directly on it). As research it is one small step in a 46-slug ambient-* chain rather than a programme (research/CLAUDE.md), on a stylised utility model with every parameter invented, against the 2026-10-21 'run the numbers; don't stylise them' direction. Nearest prior work, none cited: conditional dependence between raters in latent class models of diagnostic tests (Vacek 1985, Biometrics 41; Torrance-Rynard and Walter 1997, Stat Med 16; Qu, Tan and Kutner 1996, Biometrics 52 random-effects latent class with a shared latent 'difficulty'; Albert and Dodd 2004, Biometrics 60, showing different dependence structures fit the same data), and item-difficulty crowdsourcing models (Whitehill et al. 2009, GLAD). That conditional dependence makes DS over-estimate rater accuracy, and that the dependence structure is not identified from few raters, are known results; what is new here is only their size in this toy utility model.",
+  "domain": "Against latent-class practice: (a) identifiability is probed by three EM starts, not analysed; with two auditors that share a hardness flag, (a1, a2) and the classifier label are only two conditionally independent views of the class, so Kruskal-type three-view identification (Allman, Matias and Rhodes 2009, Ann Stat 37) does not apply and the classifier matrix is generically not identified either (shown above); (b) the hardness-aware estimator is the generator's own structure started near the truth (disclosed), so 'dsH recovers' is a best case, not a method result; (c) multiple starts without comparing likelihoods; (d) 60 replicates per finite cell with no standard errors reported, so 0.0001-0.0003 differences are uninterpretable (the README says so); (e) no literature on conditional dependence. The simulation design itself (fixing each auditor's marginal accuracy and varying only the dependence) is sound and is what a statistician would do first."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Plain Dawid-Skene population fit: auditor-1 estimated accuracy, 5 cells x 2 label accuracies",
+   "method": "own loop-based DS EM written from Dawid and Skene (1979), joint by explicit enumeration, no subject import",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-ambient-dshard/indep.py",
+   "expected": "results.txt: 0.810 0.822 0.837 0.850 0.878 (label 0.7); 0.810 0.822 0.836 0.849 0.872 (label 0.9)",
+   "observed": "0.810 0.822 0.837 0.850 0.878; 0.810 0.822 0.836 0.849 0.872",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Easy accuracy that keeps overall auditor accuracy 0.8, and marginal accuracy of the hard-message joint",
+   "method": "closed form (1-h)e + h*ha = 0.8; enumeration over hardness, class and labels",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-ambient-dshard/indep.py",
+   "expected": "e = 0.83333, 0.875, 0.92857, 0.91667, 1.0; marginal accuracy 0.8",
+   "observed": "0.83333 0.87500 0.92857 0.91667 1.00000; 0.800000; joint sums to 1",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Auditor agreement under hardness vs independence (label 0.7, h 0.3, ha 0.5)",
+   "method": "closed form 0.7(e^2 + 2((1-e)/2)^2) + 0.3(0.5^2 + 2*0.25^2) vs enumeration",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-ambient-dshard/indep.py",
+   "expected": "0.717857 (independent auditors: 0.66)",
+   "observed": "0.717857 both ways",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Blind and true-parameter Bayes utility",
+   "method": "own Bayes decision rule (argmax_m sum_t P(t,o) U[t,m]) over the subject's utility table",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/audit-ambient-dshard/bayes.py /home/user/oss-monorepo/research/ambient-dshard/src",
+   "expected": "README: blind 0.3824; Bayes 0.3917 / 0.4066; gains 0.0093 / 0.0241",
+   "observed": "0.3824; 0.3917 / 0.4066; 0.0093 / 0.0241",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Full experiment reproduces",
+   "method": "rerun in scratch copy (figure tail stripped, matplotlib absent), diff with committed results.txt",
+   "command": "cd /tmp/claude-0/audit-ambient-dshard/copy && PYTHONPATH=src /usr/bin/python3.13 experiments/run_nofig.py > rerun.txt && diff rerun.txt experiments/results.txt",
+   "expected": "identical",
+   "observed": "IDENTICAL, 1 m 44 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:41 'the classifier's matrix is identified' / README:40 'recovers the classifier'",
+   "method": "subject's estimate_ds_hard from starts with the classifier away from its true 0.7; numerical Jacobian rank of the full-matrix hardness model (Rothenberg 1971 local identification)",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/audit-ambient-dshard/cdev.py /home/user/oss-monorepo/research/ambient-dshard/src; /usr/bin/python3.13 -I /tmp/claude-0/audit-ambient-dshard/ident2.py",
+   "expected": "every exact fit has the same C if C is identified",
+   "observed": "start (0.95,0.4,0.2,0.95): fit error 2.7e-13 with max|C_hat-C| 0.0158, prior off 0.0045; Jacobian rank 17/21, 3 null directions move prior+C; policy utility unchanged 0.39169",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:39 DS auditor accuracy in the extreme cell at label 0.9",
+   "method": "read results.txt",
+   "command": "grep -n '0.3 0.33' experiments/results.txt",
+   "expected": "0.878 (README)",
+   "observed": "0.872 at label 0.9 (0.878 is the label-0.7 row)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README results 2-4 percentages and n=200/1000 gaps",
+   "method": "arithmetic on results.txt",
+   "command": "cat experiments/results.txt",
+   "expected": "2.5%, 3%, 31%, 18%; dsH within 0.0001 of em-known at n=1000; -0.0010..-0.0002 (label 0.7), +0.0003..-0.0006 (label 0.9) at n=200",
+   "observed": "0.0006/0.0241 = 2.5%, 0.0003/0.0093 = 3.2%, 0.0074/0.0241 = 30.7%, 0.0017/0.0093 = 18%; all gaps as stated",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite runs",
+   "method": "pytest",
+   "command": "env PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests",
+   "expected": "7 tests pass",
+   "observed": "7 passed in 0.28 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Results summaries in research index and homepage match",
+   "method": "read",
+   "command": "grep -n ambient-dshard research/README.md research/_homepage/projects.json",
+   "expected": "same numbers as README",
+   "observed": "0.4060 vs 0.4066, 0.84 at h=0.3, 0.3992 extreme cell: consistent",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served page live with disclaimers",
+   "method": "curl",
+   "command": "curl -s https://marisstella.app/research/ambient-dshard/",
+   "expected": "200 with 'Stylised' and 'AI assistance'",
+   "observed": "egress proxy refused the host (connect_rejected); not checked",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Novelty against prior work on conditional dependence between raters",
+   "method": "literature: Vacek 1985; Qu, Tan and Kutner 1996; Torrance-Rynard and Walter 1997; Albert and Dodd 2004; Whitehill et al. 2009",
+   "command": "grep -n -i 'vacek\\|albert\\|qu, tan\\|whitehill\\|conditional dependence' README.md",
+   "expected": "prior work cited and the delta stated",
+   "observed": "none cited; only Dawid and Skene 1979 'from memory'",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/ambient_dshard/est.py:75",
+   "change": "return [int(np.argmax(post[o] @ U)) for o in range(K)] -> return [int(np.argmin(post[o] @ U)) for o in range(K)]",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/ambient_dshard/est.py:120",
+   "change": "nC = np.einsum(\"tabo,abo->to\", w, counts) -> nC = np.einsum(\"tabo,abo->tb\", w, counts)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/ambient_dshard/est.py:183",
+   "change": "nC = np.einsum(\"tabo,abo->to\", wE + wH, counts) -> nC = np.einsum(\"tabo,abo->to\", wE + 0.9 * wH, counts)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/ambient_dshard/est.py:156",
+   "change": "d = (r > M_hard[t].cumsum(axis=1)).sum(axis=1) -> d = (r > M_easy[t].cumsum(axis=1)).sum(axis=1)",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/ambient_dshard/est.py:184",
+   "change": "nH.sum() / (nE + nH).sum()) -> 0.5 * nH.sum() / (nE + nH).sum())",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "README states the classifier matrix is identified and that dsH recovers it, but every start used (README, run.py, test) puts the classifier at its true accuracy 0.7. From start (0.95, 0.4, 0.2, 0.95) the same estimator fits the population joint to 2.7e-13 with the classifier off by 0.0158 and the class prior off by 0.0045; the Jacobian of the full-matrix model has 3 null directions that move prior and C. With two auditors sharing a hardness flag there are only two conditionally independent views, so three-view (Kruskal) identification does not apply. Policy utility was unchanged in the cell checked, so the practical conclusion may survive, but the identification statement is false.",
+   "where": "research/ambient-dshard/README.md:41",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "No test touches the utility/policy layer that every headline number comes from: flipping argmax to argmin in the Bayes decision rule leaves all 7 tests green. The plain-DS test asserts only |C_hat - C| > 0.02, so a DS that estimates the classifier from auditor 2's labels also passes.",
+   "where": "research/ambient-dshard/src/ambient_dshard/est.py:75",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Prior work on conditional dependence between raters in latent class models (Vacek 1985; Qu, Tan and Kutner 1996; Torrance-Rynard and Walter 1997; Albert and Dodd 2004) and item-difficulty annotator models (GLAD, Whitehill et al. 2009) is not cited; both headline findings (dependence makes DS over-trust raters; the dependence structure is not identified from two raters) are known there, so novelty is limited to magnitudes in a stylised utility model.",
+   "where": "research/ambient-dshard/README.md:13",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Extreme-cell DS auditor accuracy at label 0.9 quoted as 0.878; results.txt gives 0.872 (0.878 is the label-0.7 value).",
+   "where": "research/ambient-dshard/README.md:39",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "Every utility parameter, the class mix and the auditor/classifier accuracies are invented round figures (disclosed), contrary to research/CLAUDE.md 'Run the numbers; don't stylise them' (2026-10-21); no sensitivity sweep beyond the five hardness cells.",
+   "where": "research/ambient-dshard/src/ambient_dshard/sim.py:8",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Engine copied from earlier ambient-* slugs with its dead code (draw_audit, draw_audit2, simulate_utility, regret are never called); pytest and matplotlib used but not declared in pyproject.toml.",
+   "where": "research/ambient-dshard/src/ambient_dshard/est.py:27",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A small, honest, fully reproducible simulation: results.txt reruns byte-identically in under two minutes, every README number traces to it, and an independent loop-based Dawid-Skene EM reproduces all ten auditor-accuracy figures (0.810 to 0.878) while own Bayes code reproduces blind 0.3824 and Bayes 0.3917 / 0.4066. It misses the bar on verification (3 of 5 seeded bugs survive, including argmax -> argmin in the policy rule that produces every headline utility) and on claims: the README says the classifier matrix is identified, but the subject's own estimator, started away from the true classifier accuracy, fits the joint exactly with the classifier 0.016 off, and a Jacobian rank check shows prior and classifier are locally unidentified. As research it is one step in a 46-slug stylised chain whose two findings are known from the latent-class conditional-dependence literature, which it does not cite."
+}
