@@ -27,14 +27,15 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": true,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 48,
   "outcome": "success",
   "errors": [
     "First fuzzy bias-corrected estimate took the ratio of the two corrected jumps (0.0028 off rdrobust); fixed by linearising the ratio's bias.",
     "First HC1 and nn robust SEs differed from rdrobust in the 6th-8th digit; fixed by restricting to the max(h,b) window and counting that window in HC1's n.",
-    "First density check (symmetric-window binomial) false-alarmed at p=0.001 on the example's sloped density; replaced in the summary by McCrary's test."
+    "First density check (symmetric-window binomial) false-alarmed at p=0.001 on the example's sloped density; replaced in the summary by McCrary's test.",
+    "Two repo lints failed in CI on the first push: test_inherited_keys (KERNELS[o.kernel]) and test_csv_thousands_split (a .split(\",\") beside a comma-stripping number reader); fixed with Object.hasOwn and a regex split."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -45,6 +46,10 @@
     {
       "file": "portfolio/research-tools/README.md",
       "issue": "A new research tool needs four out-of-folder registrations (build.mjs slug list, launched.json, optout-switches.txt, this table) found by reading an earlier tool's merge commit; open PR #16932 (register-tool.mjs) would remove that step."
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "The unwired tree checks (test_inherited_keys, test_csv_thousands_split) only surface inside run_venture_tests' changed-ventures step; running the venture's own node --test is not enough, and the local sweep took ~5 min to show them."
     }
   ],
   "deviations": [

@@ -636,7 +636,7 @@ export function analyze(input = {}) {
     if (!header.includes(o[k])) throw new Error(`No column named "${o[k]}" (columns: ${header.join(", ")}).`);
   }
   if (o.treatment && !header.includes(o.treatment)) throw new Error(`No column named "${o.treatment}".`);
-  const covariates = (Array.isArray(o.covariates) ? o.covariates : String(o.covariates || "").split(",")).map((s) => s.trim()).filter(Boolean);
+  const covariates = (Array.isArray(o.covariates) ? o.covariates : String(o.covariates || "").split(/\s*,\s*/)).map((s) => s.trim()).filter(Boolean);
   for (const cv of covariates) if (!header.includes(cv)) throw new Error(`No covariate column named "${cv}".`);
   const notes = [];
   const rows = records.map((r) => ({ x: num(r[o.running]), y: num(r[o.outcome]), d: o.treatment ? num(r[o.treatment]) : 0, r }));
