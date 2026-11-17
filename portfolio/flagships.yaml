@@ -470,8 +470,8 @@ flagships:
       eval/crosscheck_ifctester.py; the IDS editor (editor.html; opens an IDS and a
       model; several classes per spec 2026-11-17,
       eval/several-classes-2026-11-17.md): applicability facets beyond the class, a
-      model's values for an attribute or a classification's codes (as for
-      properties, eval/model-values-2026-11-17.md); more real exports through
+      range for numeric attributes (OverallHeight; xs:double base,
+      eval/model-attr-codes-2026-11-17.md); more real exports through
       eval/model-inventory.mjs.
     hosts: [https://github.com]
     next: >-
@@ -490,7 +490,9 @@ flagships:
       own sets editable, 79.4% of public facets editable,
       eval/model-inventory-2026-11-16.md: 4 real exports, 347 of 395 class-set pairs
       own sets, 21 of 122 standard props in a non-template dataType): applicability
-      property/attribute facets (85); a model's values for attributes and
-      classification codes; a dataType-mismatch hint; a GitHub Action wrapper; heap
-      use on a 200 MB model; a BIM coordinator's real IDS and model (needs a
-      person).
+      property/attribute facets (85); attribute values and classification codes
+      2026-11-17 (eval/model-attr-codes-2026-11-17.md: 242 of 242 offers pass; 143
+      of 210 Uniformat elements in Schultz have an empty code, Require a code); a
+      range for numeric attributes; a dataType-mismatch hint; a GitHub Action
+      wrapper; heap use on a 200 MB model; a BIM coordinator's real IDS and model
+      (needs a person).

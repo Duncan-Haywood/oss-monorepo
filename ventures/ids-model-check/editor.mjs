@@ -338,23 +338,62 @@ export function modelSets(inv, classes, standardSets = []) {
       m.count += s.count;
       for (const p of s.props) {
         let q = m.props.get(p.name);
-        if (!q) m.props.set(p.name, (q = { name: p.name, count: 0, dataType: p.dataType, vals: new Map(), distinct: 0, more: false, min: null, max: null }));
+        if (!q) m.props.set(p.name, (q = { ...blankTally(), name: p.name, dataType: p.dataType }));
         else q.dataType = q.dataType || p.dataType;
-        q.count += p.count;
-        // A class's list holds its MAX_LISTED commonest values; one that lists
-        // fewer than it holds (`distinct`) leaves the merged list incomplete.
-        for (const [v, n] of p.values || []) q.vals.set(v, (q.vals.get(v) || 0) + n);
-        q.distinct = Math.max(q.distinct, p.distinct || 0);
-        if (p.more || (p.distinct || 0) > (p.values || []).length) q.more = true;
-        if (p.min !== null && p.min !== undefined) q.min = q.min === null ? p.min : Math.min(q.min, p.min);
-        if (p.max !== null && p.max !== undefined) q.max = q.max === null ? p.max : Math.max(q.max, p.max);
+        mergeTally(q, p);
       }
     }
   }
-  const prop = (q) => { const values = [...q.vals.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])); return { name: q.name, count: q.count, dataType: q.dataType, values, distinct: Math.max(q.distinct, values.length), more: q.more, min: q.min, max: q.max }; };
+  const prop = (q) => ({ name: q.name, dataType: q.dataType, ...tallyOut(q) });
   return [...out.values()].map((m) => ({ name: m.name, count: m.count, of, standard: standardSets.includes(m.name), props: [...m.props.values()].map(prop).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name)) }))
     .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 }
+
+// Value tallies (inventory.mjs) merged across classes. A class's list holds
+// its MAX_LISTED commonest values; one that lists fewer than it holds
+// (`distinct`) leaves the merged list incomplete.
+const blankTally = () => ({ count: 0, empty: 0, vals: new Map(), distinct: 0, more: false, min: null, max: null });
+function mergeTally(q, p) {
+  q.count += p.count;
+  q.empty += p.empty || 0;
+  for (const [v, n] of p.values || []) q.vals.set(v, (q.vals.get(v) || 0) + n);
+  q.distinct = Math.max(q.distinct, p.distinct || 0);
+  if (p.more || (p.distinct || 0) > (p.values || []).length) q.more = true;
+  if (p.min !== null && p.min !== undefined) q.min = q.min === null ? p.min : Math.min(q.min, p.min);
+  if (p.max !== null && p.max !== undefined) q.max = q.max === null ? p.max : Math.max(q.max, p.max);
+}
+function tallyOut(q) {
+  const values = [...q.vals.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  return { count: q.count, empty: q.empty, values, distinct: Math.max(q.distinct, values.length), more: q.more, min: q.min, max: q.max };
+}
+function mergeBy(inv, classes, field, key) {
+  if (!inv) return [];
+  const want = new Set(classes);
+  const out = new Map();
+  let of = 0;
+  for (const c of inv.classes) {
+    if (!want.has(c.cls)) continue;
+    of += c.count;
+    for (const a of c[field] || []) {
+      let q = out.get(a[key]);
+      if (!q) out.set(a[key], (q = blankTally()));
+      mergeTally(q, a);
+    }
+  }
+  return [...out.entries()].map(([k, q]) => ({ [key]: k, of, ...tallyOut(q) })).sort((a, b) => b.count - a.count || String(a[key]).localeCompare(String(b[key])));
+}
+
+// The attribute values a model's objects of these classes hold (inventory.mjs
+// `attrs`), merged: [{ name, count, of, empty, values, distinct, more, min,
+// max }]; `count` of the `of` objects have it set, `empty` of them to an empty
+// string or UNKNOWN. Each is one modelValueOffer() can take.
+export const modelAttributes = (inv, classes) => mergeBy(inv, classes, "attrs", "name");
+
+// The codes a model's objects of these classes carry in each classification
+// system (inventory.mjs `codes`), merged: [{ system, count, of, empty, values,
+// distinct, more }]; `empty` of the `count` objects are classified in the
+// system with no code. Each is one modelValueOffer() can take, as text.
+export const modelCodes = (inv, classes) => mergeBy(inv, classes, "codes", "system");
 
 // What a model's values offer a property row of this value kind (number,
 // text, bool) and standard enumeration (or null): mp is one prop of
@@ -363,7 +402,9 @@ export function modelSets(inv, classes, standardSets = []) {
 //     enumeration lacks (a check limited to it fails those objects),
 //     complete: every value the model holds is listed, min, max,
 //     oneOf: the values a "one of" restriction should list to pass the model
-//     as it is (null when the list is incomplete or the kind is not text) }
+//     as it is (null when the list is incomplete or the kind is not text),
+//     empty: objects that carry it with no value (an empty attribute, a
+//     classification with no code), which any value check fails }
 export function modelValueOffer(mp, kind, enumVals = null) {
   if (!mp || !mp.values || !mp.values.length || !kind) return null;
   const isNum = (v) => v.trim() !== "" && Number.isFinite(Number(v));
@@ -375,7 +416,7 @@ export function modelValueOffer(mp, kind, enumVals = null) {
   const oneOf = kind === "text" && complete && !outside.length && values.length ? values.map(([v]) => v).sort() : null;
   const num = kind === "number" && typeof mp.min === "number" && typeof mp.max === "number";
   return { values, outside, complete, min: num ? mp.min : null, max: num ? mp.max : null,
-    rangeMin: num ? outwardBound(mp.min, -1) : null, rangeMax: num ? outwardBound(mp.max, 1) : null, oneOf };
+    rangeMin: num ? outwardBound(mp.min, -1) : null, rangeMax: num ? outwardBound(mp.max, 1) : null, oneOf, empty: mp.empty || 0 };
 }
 
 // The shortest decimal at or beyond v (dir -1: at or below, 1: at or above)
