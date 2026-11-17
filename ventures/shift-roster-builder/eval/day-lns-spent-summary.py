@@ -18,9 +18,9 @@ for r in ran:
         by_phase[k] += g
         for c in cuts:
             if t <= c: by_cut[c] += g
-        if g >= 100000 - 1e-6:
+        if g >= 50000:
             for c in cuts:
-                if t > c: open_gain_after[c] += int(g // 100000)
+                if t > c: open_gain_after[c] += int(round(g / 100000))
     print(f"  seed {r['seed']} {r['P']}x{r['S']} w{r['week']}: started {d['startedAt']} ms, {d['kicks']} kicks, guide {d['guideFrom']}, saved {d['before'] - d['after']:.2f}, gains {d['gains']}")
 print(f"saved in all: {total:.2f} (score units; 100,000 = one open hour)")
 print("by phase:", {k: round(v, 2) for k, v in by_phase.items()})

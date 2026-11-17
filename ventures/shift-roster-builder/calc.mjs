@@ -4121,14 +4121,22 @@ function buildRosterOnce(staff, slots, options = {}) {
       // (README "A guide when the pay floor is skipped", eval/guide-open.out.txt: 1-2 fewer open hours on 2 of 10 weeks, none worse).
       // `dayGuideOpen: false` turns that off.
       const guideLog = [];
+      // Repeated ladders (`dayGuideRepeat`, 2026-11-17, README "The day sweeps past a spent budget"): run the whole ladder again
+      // from the improved roster while the last ladder saved an open hour's worth, before the kicks get the rest of the window.
+      let ladders = 0;
       if (guide) {
-        for (const lam of o.dayGuideWeights ?? [8, 4, 2, 1, 0.5, 0.25, 0.12]) {
-          if (Date.now() > deadline) break;
-          const g = dayReassign(ctx, own, { rounds: 30, deadline, guide, guideWeight: lam * ctx.avgWage });
-          const q = dayReassign(ctx, g, { rounds: 30, deadline });
-          const qs = scoreOwner(ctx, q).total;
-          guideLog.push([lam, qs]);
-          if (qs < sc - 1e-9) { gains.push([Date.now() - t0, "guide", sc - qs]); own = q; sc = qs; }
+        for (let again = true; again && Date.now() <= deadline && ladders < (o.dayGuideRepeat ? 8 : 1); ) {
+          ladders++;
+          const start = sc;
+          for (const lam of o.dayGuideWeights ?? [8, 4, 2, 1, 0.5, 0.25, 0.12]) {
+            if (Date.now() > deadline) break;
+            const g = dayReassign(ctx, own, { rounds: 30, deadline, guide, guideWeight: lam * ctx.avgWage });
+            const q = dayReassign(ctx, g, { rounds: 30, deadline });
+            const qs = scoreOwner(ctx, q).total;
+            guideLog.push([lam, qs]);
+            if (qs < sc - 1e-9) { gains.push([Date.now() - t0, ladders > 1 ? "guide2" : "guide", sc - qs]); own = q; sc = qs; }
+          }
+          again = start - sc >= BIG / 2;
         }
       }
       while (Date.now() < deadline && days.length) {
@@ -4140,7 +4148,7 @@ function buildRosterOnce(staff, slots, options = {}) {
       }
       if (sc < best.score - 1e-9 && ownerValid(ctx, own)) best = { owner: own, score: sc };
       if (ex.rootBound >= best.score - o.exactTolerance - 1e-9) ex.proven = true;
-      dayLNS = { before, after: best.score, kicks, ms: Date.now() - t0, guide: guideLog, guideFrom, gains, startedAt: t0 - tStart };
+      dayLNS = { before, after: best.score, kicks, ms: Date.now() - t0, guide: guideLog, guideFrom, gains, ladders, startedAt: t0 - tStart };
       mark("dayLNS");
     }
     const gap = ex.proven ? annealScore - best.score : best.score - Math.min(ex.rootBound, best.score);
