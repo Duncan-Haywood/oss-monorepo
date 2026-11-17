@@ -64,7 +64,7 @@ export function makePersona(opts = {}) {
   /** @type {Traits} */
   const traits = { openness: 0, conscientiousness: 0, extraversion: 0, agreeableness: 0, neuroticism: 0 };
   for (const t of TRAITS) traits[t] = clamp(opts.traits?.[t] ?? score(r));
-  const p = { id: `p-${String(seed).replace(/[^\w-]/g, "").slice(0, 24) || "x"}`, name, role, age, traits };
+  const p = { id: `p-${String(seed).replace(/[^\w-]/g, "").slice(-24) || "x"}`, name, role, age, traits };
   return opts.note ? { ...p, note: opts.note } : p;
 }
 
