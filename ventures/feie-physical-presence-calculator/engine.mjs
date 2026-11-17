@@ -1,14 +1,14 @@
 // Physical presence test (Form 2555, IRC 911) day counter. Pure functions over
 // the date ranges the visitor types; no network. Arithmetic on their dates, not tax advice.
 
-export const LIMITS = { 2023: 120000, 2024: 126500, 2025: 130000, 2026: 132900 };
+export const LIMITS = { 2022: 112000, 2023: 120000, 2024: 126500, 2025: 130000, 2026: 132900 };
 export const DAYS_REQUIRED = 330;
 
 export const INPUT_NOTES = [
   { what: "2025-03-04 to 2025-11-20", detail: "One stay in a foreign country per line, first and last full day inclusive. Dates are YYYY-MM-DD." },
   { what: "2025-03-04 to present", detail: "An ongoing stay: \"present\" or \"today\" means the as-of date you set." },
   { what: "Labels and comments", detail: "Text after # is ignored. Lines starting with # are skipped." },
-  { what: "Travel days", detail: "Count a day only if you were in a foreign country for the whole 24 hours, midnight to midnight. Leave the days you flew or crossed out of each range yourself." },
+  { what: "Travel days", detail: "Count a day only if you were in a foreign country for the whole 24 hours, midnight to midnight. Leave out days spent partly in the US or over international waters; a move between foreign countries that takes under 24 hours loses no days." },
 ];
 
 const MS = 86400000;
@@ -65,9 +65,12 @@ export function analyze(input = {}) {
   const asOf = input.asOf || new Date().toISOString().slice(0, 10);
   const taxYear = Math.round(Number(input.taxYear ?? 2025));
   const income = Math.max(0, Number(input.income ?? 0)) || 0;
-  const limit = Number(input.limit) > 0 ? Number(input.limit) : (LIMITS[taxYear] ?? LIMITS[2025]);
   const { trips, errors } = parseTrips(input.trips, asOf);
   if (!Number.isInteger(taxYear) || taxYear < 2000 || taxYear > 2100) throw new Error("Tax year must be a four-digit year.");
+  // No silent fallback to another year's figure: 2022 would have shown 130,000
+  // where Rev. Proc. 2021-45 sets 112,000.
+  const limit = Number(input.limit) > 0 ? Number(input.limit) : LIMITS[taxYear];
+  if (!(limit > 0)) throw new Error(`No built-in exclusion limit for ${taxYear}; enter the IRS figure in the limit box.`);
   if (Number.isNaN(toDay(asOf))) throw new Error("The as-of date must be YYYY-MM-DD.");
   if (!trips.length) throw new Error(errors[0] || "Enter at least one foreign stay, e.g. 2025-01-10 to 2025-12-20.");
   const merged = mergeTrips(trips);
@@ -129,6 +132,9 @@ export function summarize(r) {
   const lines = [head];
   if (r.earliest) lines.push(`The first date a 12-month span holds ${DAYS_REQUIRED} foreign days is ${fromDay(r.earliest)}.`);
   if (r.income > 0) lines.push(`For ${r.taxYear} with ${money(r.income)} of foreign earned income and a ${money(r.limit)} limit: ${r.qDaysInYear > 0 ? `${r.qDaysInYear} of ${r.daysInYear} days fall in a qualifying period (${fromDay(r.yearWindow.start)} to ${fromDay(r.yearWindow.end)}), prorated limit ${money(r.prorated)}, excluded ${money(r.excluded)}, ${money(r.taxableAfter)} left in income` : "no exclusion under this test on these dates"}.`);
+  if (r.income > 0 && r.yearWindow && (r.yearWindow.start < r.merged[0].start || r.yearWindow.end > r.merged.at(-1).end)) {
+    lines.push("Part of that qualifying period falls before your first stay or after your last; those days count toward the prorated limit only if your tax home was in a foreign country then (Form 2555 instructions).");
+  }
   return { status: r.qualifies ? "ok" : "short", text: lines.join("\n") };
 }
 
