@@ -25,11 +25,13 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 3,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "CI changed-ventures failed on contingency-table-tests (landed today in PR 16955, not touched here): reference.test.mjs's r x c Fisher check hit fisherRxC's 6 s wall-clock cap on a loaded runner (6.1 s) and got null. Fixed forward: that check passes maxMs: Infinity (the work budget still bounds it)."
+  ],
   "integrity_issues": [
     "The accuracy summary printed tune and held rows together, so held numbers were visible when m6n was picked; disclosed in the eval note (the tune rule picks the same variant). The 0.8 scale was fixed by the afternoon run, not re-picked."
   ],
