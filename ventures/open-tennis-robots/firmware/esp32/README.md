@@ -1999,7 +1999,17 @@ front-loaded builds scattered (0, 2 and 5 ms), since no half-sine is that shape.
 ms reads the 6 ms take at 0.75%.
 
 **End to end** with `controller.LOOP_TAKE = take_offsets(6000)` on the 6 ms builds (take_spread.py's last mode, added
-after the first five ran): RESULT_TOLD
+after the first five ran), 12 builds, readings at 1,000 rpm and up:
+
+| plant | fit | reading mean | sd | > 1% off | speed err | spin mean (worst) |
+| --- | --- | --- | --- | --- | --- | --- |
+| first-order 8k | step | 0.9973 | 0.82% | 42 | 0.25% | 1.47% (2.63) |
+| first-order 8k | told 6 ms | 0.9994 | 0.20% | 0 | 0.06% | 0.39% (0.83) |
+| ESC 50 ms told | step | 0.9976 | 0.62% | 46 | 0.22% | 1.25% (1.92) |
+| ESC 50 ms told | told 6 ms | 0.9996 | 0.18% | 0 | 0.04% | 0.35% (0.82) |
+
+The readings hold 0.14-0.21% in every speed band. The spin fit is still two to three times the instant take's
+(0.05% / 0.15%), on one seed.
 
 **The jittery plant with polish** (the item "Not the simulator's step either" left): take_spread's fifth mode reruns
 the 3 us tach plant, shipped 1 ms plant and instant take, seeds 7 and 8. Readings scatter 0.66% (0.72% before polish,

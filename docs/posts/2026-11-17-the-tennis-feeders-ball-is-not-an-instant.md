@@ -58,6 +58,11 @@ did as well as knowing the answer. That is how the board already finds its
 ESC's lag, so it can survey its contact time the same way on a
 calibration drill.
 
+Rerunning the whole drills with the board told the 6 ms contact time, the
+readings went from 0.82% to 0.20% scatter (0.62% to 0.18% with a lagging
+ESC). The spin efficiency error fell from 1.47% to 0.39% (1.25% to 0.35%).
+That is still above the instant take's 0.05-0.15%, on one seed.
+
 ## What this does not show
 
 All of it is simulated. The force profiles are assumed shapes, and a real
