@@ -107,13 +107,14 @@ const escAttr = (s) => escText(s).replace(/"/g, "&quot;");
 
 // An IDS value element body for a restriction:
 //   { equals: "x" } | { oneOf: ["a", "b"] } | { pattern: "..." } |
-//   { min: "1", max: "9" } (either may be absent; inclusive) |
+//   { min: "1", max: "9", minEx, maxEx } (either bound may be absent; inclusive
+//   unless minEx / maxEx is true, then xs:minExclusive / xs:maxExclusive) |
 //   { r: { base, enumeration, pattern, minInclusive, maxInclusive,
 //          minExclusive, maxExclusive, length, minLength, maxLength } }
 //   (any restriction, as an opened IDS file had it; its own base wins);
 //   { equals: "", exact: true } writes an empty simpleValue an opened file had
 // Returns "" for no restriction.
-const R_BOUNDS = ["minInclusive", "maxInclusive", "minExclusive", "maxExclusive", "length", "minLength", "maxLength"];
+const R_BOUNDS = ["minInclusive", "minExclusive", "maxInclusive", "maxExclusive", "length", "minLength", "maxLength"];
 function valueXml(v, base) {
   if (!v) return "";
   if (v.equals !== undefined && (v.equals !== "" || v.exact)) return `<simpleValue>${escText(v.equals)}</simpleValue>`;
@@ -127,8 +128,8 @@ function valueXml(v, base) {
   } else if (v.oneOf && v.oneOf.length) for (const x of v.oneOf) parts.push(`<xs:enumeration value="${escAttr(x)}"/>`);
   else if (v.pattern) parts.push(`<xs:pattern value="${escAttr(v.pattern)}"/>`);
   else {
-    if (v.min !== undefined && v.min !== "") parts.push(`<xs:minInclusive value="${escAttr(v.min)}"/>`);
-    if (v.max !== undefined && v.max !== "") parts.push(`<xs:maxInclusive value="${escAttr(v.max)}"/>`);
+    if (v.min !== undefined && v.min !== "") parts.push(`<xs:${v.minEx ? "minExclusive" : "minInclusive"} value="${escAttr(v.min)}"/>`);
+    if (v.max !== undefined && v.max !== "") parts.push(`<xs:${v.maxEx ? "maxExclusive" : "maxInclusive"} value="${escAttr(v.max)}"/>`);
   }
   if (!parts.length) return "";
   return `<xs:restriction base="${base}">${parts.join("")}</xs:restriction>`;
@@ -241,7 +242,7 @@ export function entityFacet(S, cls, { withSubclasses = false, predefinedType = n
 // requirement rows with a value "mode". stateToDoc() turns it into the shape
 // buildIds() writes; importIds() turns an opened IDS file into it.
 
-export const blankReq = () => ({ kind: "property", set: "", name: "", custom: false, untyped: false, dataType: "", cardinality: "required", mode: "any", equals: "", oneOf: [], min: "", max: "", pattern: "", system: "", relation: "IFCRELCONTAINEDINSPATIALSTRUCTURE", entity: "IFCBUILDINGSTOREY" });
+export const blankReq = () => ({ kind: "property", set: "", name: "", custom: false, untyped: false, dataType: "", cardinality: "required", mode: "any", equals: "", oneOf: [], min: "", max: "", minEx: false, maxEx: false, pattern: "", system: "", relation: "IFCRELCONTAINEDINSPATIALSTRUCTURE", entity: "IFCBUILDINGSTOREY" });
 export const blankSpec = () => ({ name: "", description: "", instructions: "", optionality: "required", cls: "", also: [], withSub: true, predefinedType: "", reqs: [blankReq()], app: [] });
 
 // ------------------------------------------------- several classes per spec --
@@ -465,7 +466,7 @@ export function appMatchCount(mp, offer, r, valueKind = "text") {
   if (r.mode === "range") {
     const lo = r.min === "" || r.min == null ? -Infinity : Number(r.min), hi = r.max === "" || r.max == null ? Infinity : Number(r.max);
     if (Number.isNaN(lo) || Number.isNaN(hi)) return null;
-    return tally((v) => Number(v) >= lo && Number(v) <= hi);
+    return tally((v) => (r.minEx ? Number(v) > lo : Number(v) >= lo) && (r.maxEx ? Number(v) < hi : Number(v) <= hi));
   }
   if (r.mode === "pattern") {
     let re;
@@ -533,12 +534,15 @@ export function valueChoices(L, cls, r) {
   return { kind, enumVals, modes, prop: p };
 }
 
+// A range row's value: inclusive bounds unless the row says a bound is
+// exclusive ("more than" / "less than"), as IDS's restriction test cases write them.
+const rangeValue = (r) => ({ min: r.min, max: r.max, ...(r.minEx ? { minEx: true } : {}), ...(r.maxEx ? { maxEx: true } : {}) });
 function reqFacet(L, r, classes = []) {
   if (r.fixed) return r.fixed;
   const p = r.kind !== "property" ? null : r.untyped ? { dataType: null, untyped: true } : r.custom ? { dataType: r.dataType && L.S.types[r.dataType] ? r.dataType : null } : propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name);
   const value = r.cardinality === "prohibited" || (p && !p.dataType && !p.untyped) ? null
     : r.mode === "equals" ? { equals: r.equals } : r.mode === "true" || r.mode === "false" ? { equals: r.mode }
-    : r.mode === "oneOf" ? { oneOf: r.oneOf } : r.mode === "range" ? { min: r.min, max: r.max } : r.mode === "pattern" ? { pattern: r.pattern } : null;
+    : r.mode === "oneOf" ? { oneOf: r.oneOf } : r.mode === "range" ? rangeValue(r) : r.mode === "pattern" ? { pattern: r.pattern } : null;
   const base = r.kind === "attribute" && value ? attributeValueKind(L.S, classes, r.name).base : undefined;
   return { kind: r.kind, set: r.set, name: r.name, dataType: p ? p.dataType : null, value, base, cardinality: r.cardinality, system: r.system, relation: r.relation, entity: r.entity };
 }
@@ -688,9 +692,12 @@ function editableRow(L, classes, f) {
   } else if (v.r.pattern.length === 1 && !v.r.enumeration.length && R_BOUNDS.every((k) => v.r[k] === undefined)) {
     if (!ch.modes.includes("pattern")) return null;
     r.mode = "pattern"; r.pattern = v.r.pattern[0];
-  } else if (!v.r.enumeration.length && !v.r.pattern.length && ["minExclusive", "maxExclusive", "length", "minLength", "maxLength"].every((k) => v.r[k] === undefined)) {
+  } else if (!v.r.enumeration.length && !v.r.pattern.length && ["length", "minLength", "maxLength"].every((k) => v.r[k] === undefined)
+    && (v.r.minInclusive === undefined || v.r.minExclusive === undefined) && (v.r.maxInclusive === undefined || v.r.maxExclusive === undefined)) {
+    // A range: each bound inclusive or exclusive, at most one of each per side.
     if (!ch.modes.includes("range")) return null;
-    r.mode = "range"; r.min = v.r.minInclusive ?? ""; r.max = v.r.maxInclusive ?? "";
+    r.mode = "range"; r.min = v.r.minInclusive ?? v.r.minExclusive ?? ""; r.max = v.r.maxInclusive ?? v.r.maxExclusive ?? "";
+    r.minEx = v.r.minExclusive !== undefined; r.maxEx = v.r.maxExclusive !== undefined;
   } else return null;
   return r;
 }
