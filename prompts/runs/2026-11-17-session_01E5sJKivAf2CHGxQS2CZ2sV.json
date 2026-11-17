@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKivAf2CHGxQS2CZ2sV",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T04:18:25Z",
+  "ended": "2026-11-17T04:23:53Z",
+  "wall_minutes": 9.4,
+  "tokens_in": 5033412,
+  "tokens_out": 22924,
+  "cost_usd": 2.1675,
+  "tool_calls": 58,
+  "task": "polish: cap tool h1s at 90 characters (item 1 of polish-2026-11-17-h1-length.md 'Still weakest')",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16812",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Pillow import failed in the container (_imaging missing) when composing the before/after image",
+      "fix": "used ImageMagick convert, as showcase/capture.mjs does"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Composing a before/after image for the report has no named tool; system Pillow is broken in the container, ImageMagick `convert` works (capture.mjs uses it). One line would save the detour."
+    },
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "route printed '4110/40 runs toward the next review', which reads as a review 100x overdue yet the draw still went to polish; the counter or the message is off."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Asked to screenshot hub, a flagship, research, Stories and a post before choosing; I took the previous polish run's measured top item instead and screenshotted only the changed pages",
+      "did": "rewrote 31 h1s and measured them on the built pages with hero-heading.mjs",
+      "result": "5-line h1s at 390 18 -> 0; total h1 height -29%"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-one-question-per-heading.md",
+    "docs/reports/polish-2026-11-17-h1-90.md"
+  ],
+  "goal": null,
+  "notes": "Verified locally: run_venture_tests.py on the 31 slugs: 31 suites, 0 failed. node --test 'platform/pages/*.test.mjs': 1771 pass, 0 fail (307 s). check_post_frontmatter, check_post_links, post_similarity clean. Measured with hero-heading.mjs --slugs --json on a local build (before) and the same build with the 31 h1s patched (after): 4,482 -> 3,176 px at 390, 4,158 -> 3,053 px at 1,280, no page taller.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "20280a4a-16c2-55a2-bf71-40d1095d7ae4",
+    "transcripts": 1,
+    "first": "2026-11-17T04:18:25Z",
+    "last": "2026-11-17T04:27:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 54,
+        "input": 105,
+        "output": 22924,
+        "thinking": 4131,
+        "cache_read": 4943320,
+        "cache_write_5m": 0,
+        "cache_write_1h": 89987,
+        "api_equivalent_usd": 2.1675,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 54,
+      "input": 105,
+      "output": 22924,
+      "thinking": 4131,
+      "cache_read": 4943320,
+      "cache_write_5m": 0,
+      "cache_write_1h": 89987,
+      "api_equivalent_usd": 2.1675,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 54,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.4,
+      "active_minutes": 9.4,
+      "model_minutes": 4.73,
+      "tool_minutes": 4.67,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "rewrite and check 31 headings against their ledes, measure before/after in a browser, write report and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 138.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
