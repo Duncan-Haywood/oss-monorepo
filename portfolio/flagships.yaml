@@ -124,10 +124,10 @@ flagships:
       kaydee/wildreceipt; Apache-2.0), SRD (eval/srd-fetch.mjs), CORD
       (eval/cord_images.py); tesseract via apt, RapidOCR via pip. All WildReceipt
       photos read; test held out: five readings 360 of 405 totals, tax 207 of 272
-      (eval/wildreceipt-train1-2026-11-17.md). Next, small: two TVA rates summed
-      under a Total HTVA; TVA read as TUA; tax in a Subtotal(12%VAT) line; a fresh
-      labelled source. CORD leftovers: train-28, 1009
-      (eval/cord-shard0-lead-2026-11-17.md).
+      (eval/wildreceipt-train1-2026-11-17.md). HTVA, TUA, Subtotal(12%VAT), 0.00 tax
+      read (eval/wildreceipt-tax-shapes-2026-11-17.md), unscored: huggingface.co
+      refused; next: with HF access re-score shard 1 and test; a fresh labelled
+      source. CORD leftovers: train-28, 1009 (eval/cord-shard0-lead-2026-11-17.md).
     hosts: [https://huggingface.co/, https://raw.githubusercontent.com/]
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
