@@ -1,5 +1,6 @@
 ---
 title: "A slow lip closure, and a held-out part that missed for a different reason"
+seo_title: "A slow lip closure rule that failed its held-out part"
 date: 2026-11-17
 tags: [chant-forge, audio, speech-acoustics, pre-registration]
 description: "A rule for slowly closed m's gained 16 cells on development parts and 2 on its held-out part. The held-out misses turned out to be a different shape."
