@@ -7,6 +7,7 @@
 //   SC_SEED_BASE=11000 SC_SHARD=0/4 node eval/synth-sim.mjs 100 > part0.json
 // SC_POOL=with moves the treated unit into each placebo's pool (the README's post-hoc check; default 'without').
 // Each line of output is one JSON row per panel: { cell, rep, p, rank, effect, fitWarning }.
+import { pathToFileURL } from 'node:url';
 import { synthControlTest } from '../synth-control.mjs';
 
 function rng(seed) {
@@ -50,7 +51,7 @@ export function panel(cell, seed) {
   return rows;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const reps = Number(process.argv[2] ?? 100);
   const base = Number(process.env.SC_SEED_BASE ?? 11000);
   const [si, sn] = (process.env.SC_SHARD ?? '0/1').split('/').map(Number);
