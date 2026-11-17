@@ -118,16 +118,14 @@ flagships:
       rents files on IRS TY2025 guidelines (HISTORY): open: a real upload, TY2026
       template. A run that lands a slice replaces its item here; keep this under
       2,000 characters. More open items: NEXT.md.
-    buildable: >-
-      Receipts, item (5): SRD photos (eval/srd-fetch.mjs), CORD photos
-      (eval/cord_images.py); tesseract via apt, RapidOCR via pip. CORD train shards
-      1-3: `--rapidocr` 539 of 583; five readings, lead total kept unless arithmetic
-      confirms the majority, 542 (test 83 of 95, SRD 188 of 196;
-      eval/lead-vote-2026-11-17.md). Page with its JS port as lead: SRD 190/196, tax
-      166 (eval/rapidocr-web-lead-srd-2026-11-17.md). Next
-      (eval/cord-shard0-lead-2026-11-17.md): train-28 (items plus tax confirmed the
-      cash); 1009 (lead read no total line). All CORD photos are read; fresh ones
-      need a new source.
+    inputs_only: >-
+      every open item needs a real outside input (a hosted-model key, real Relay,
+      Gusto or ADP, merchant or lender exports, a real IRIS upload, the TY2026
+      template). The receipts item's last buildable work is two single-receipt
+      misses (train-28 has no narrow rule, eval/cord-shard0-lead-2026-11-17.md;
+      SRD 1009) on photo sets already fully read, and huggingface.co (CORD)
+      refused on 2026-11-17; three runs in two days were sent here and left. A
+      fresh public receipt photo set would make it buildable again.
     hosts: [https://huggingface.co/, https://raw.githubusercontent.com/]
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
@@ -204,8 +202,10 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History: README and git (latest: INV-041 endpoint ids as OpenPeppol's
-      PEPPOL-COMMON rules check them, 0 of 21,264 off
+      History: README and git (latest: R056-2 on payee, deliver-to and line VAT
+      numbers, references and no-break spaces, 3,149 to 0, Saxon-checked
+      (eval/nl-vat-r056-2-payee-refs-2026-11-17.md); INV-041 endpoint ids as
+      OpenPeppol's PEPPOL-COMMON rules check them, 0 of 21,264 off
       (eval/endpoint-peppol-differential-2026-11-17.md); Peppol's warning-level
       IT/NL id formats as INV-061 warnings, 0 of 23,999 off
       (eval/endpoint-peppol-warnings-2026-11-17.md); INV-062/063: the same rules on
@@ -229,12 +229,13 @@ flagships:
       passes Mustang; open: a real business's PINT file. A run that lands a slice
       replaces its item here. More open items: NEXT.md.
     buildable: >-
-      R056-2 landed (BT-63 read, INV-064;
-      eval/nl-vat-r056-2-differential-2026-11-17.md): open, R056-2 on a payee or
-      deliver-to PartyTaxScheme and a trailing no-break space the readers' trim()
-      drops. Party ids everywhere Peppol's COMMON contexts reach landed 2026-11-17
-      (UBL line parties: eval/ubl-line-ids-peppol-differential-2026-11-17.md). No
-      network.
+      R056-2's full reach landed 2026-11-17 (payee, deliver-to, line and second VAT
+      schemes; character references; trailing no-break space; oracle checked with
+      Saxon, eval/nl-vat-r056-2-payee-refs-2026-11-17.md). Next:
+      plain-schematron.mjs runs every rule set on fontoxpath, whose normalize-space
+      strips U+00A0 where XPath and Saxon do not: rewrite to a spec normalize-space
+      and cross-check with Saxon (Maven Central answers) on files with U+00A0 in
+      tested fields. No network beyond Maven.
   - venture: shift-roster-builder
     inputs_only: >-
       a live deploy with real punches, a real payroll template, a manager's
