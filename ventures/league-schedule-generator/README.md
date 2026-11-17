@@ -189,7 +189,63 @@ MIT licence, see `LICENSE`.
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
 
-## Calendar files that follow a rainout (2026-11-17, latest)
+## Bowling leagues: lane pairs rotated evenly (2026-11-17, latest)
+
+`bowling-league-schedule.html` (engine `bowling.mjs`, tests `bowling.test.mjs`) builds a whole
+bowling season: the circle-method round robin repeated until the weeks run out, real dates on one
+weekday with no-bowl dates stepped over, weeks held for position rounds (1st v 2nd, 3rd v 4th on
+the pairs in order; they do not advance the round robin), a Vacancy for an odd league (it bowls
+on its pair like any team, so 9 teams use 5 pairs), and lane-pair labels from the league's first
+lane (`firstLane: 13` gives "Lanes 13-14", ...). Exports: CSV (formula-safe), text, print.
+`validateBowling` re-checks each week (each team once, each pair once), that every pair of teams
+meets `floor` or `floor + 1` times for the round-robin weeks played, and the dates.
+
+**The lane problem.** A team that bowls W weeks on P pairs can at best have every pair
+floor(W/P) or ceil(W/P) times ("at the bound"). Each week's matches go on pairs by an assignment
+problem (Hungarian method, `hungarian`, tested against every permutation up to 6x6). The page then
+runs an iterated local search: with every other week fixed, one week's best assignment is exact
+(each team's count on one pair rises by one and its repeats depend only on the weeks either side,
+so the price is a sum over (match, pair) cells); sweeps re-solve every week until none improves,
+a kick re-deals one to three random weeks, a worse result is undone, and the season with the
+fewest out-of-bounds counts, then fewest back-to-back repeats, is kept. Deterministic per seed;
+"Try another lane deal" changes the seed.
+
+**Measured** (`node eval/bowling-lanes.mjs`, `eval/bowling-lanes.txt`; 36 seasons, 6 to 24 teams x
+26, 30, 32, 34 weeks; "all at bound" = every team at the bound):
+
+| assignment | seasons with all teams at the bound | worst spread | back-to-back repeats (total) |
+|---|---|---|---|
+| naive (match k on pair k, a copy of the circle method) | 0 of 36 | 34 | 2,124 |
+| hand rotation (every match one pair along each week) | 1 of 36 | 13 | 6,490 |
+| greedy (week by week, Hungarian on counts so far) | 4 of 36 | 3 | 417 |
+| page (greedy + iterated local search) | 30 of 36 | 2 | 340 |
+
+About 0.55 s per season on this container. **The 6 misses are the search's fault, not the
+problem's:** `eval/bowling-lane-sat.py` (CaDiCaL via python-sat; exactly-one per match and per
+pair each week, cardinality bounds per team and pair, week 1 fixed for symmetry) finds an
+assignment with every team at the bound for all six (`eval/bowling-lane-sat.txt`: 10x30, 12x30,
+16x32, 18x26, 20x30, 24x34, each SAT). Balance does not depend on which week a round falls in, so
+the answer holds for any round order.
+
+Tried and dropped (numbers from this session's runs, same 36 seasons unless named): a simulated
+annealing swap search (two matches of one week trade pairs) on squared deviation stalled at spread
+2 on most sizes from 10 teams up; guided local search (raising penalty weights on out-of-bounds
+cells) did worse than random kicks (10x30: 7 of 10 teams at the bound against 8); starting from a
+balanced first cycle with pair labels shifted by one each cycle (which keeps full cycles within
+one of even when the first cycle is a balanced tournament design) gave the same 30 of 36 and took
+1.7 times as long, and the search did not find a balanced first cycle at 20 or 32 teams anyway;
+closed forms f(round, diagonal) = (k + h r) mod P gave no balanced cycle for any h at 6 to 32, 40, 48 or 64 teams.
+
+Browser check: `node eval/browser-bowling.mjs` (`eval/browser-bowling.txt`, 10 checks at 390 px:
+sample 8 of 8 at the bound, odd league with the Vacancy and a skip date, reshuffle, an error
+hiding the old schedule, no horizontal scroll, no console errors).
+
+Open: close the 6 misses (ship SAT-found assignments for common sizes, or a stronger move such as
+re-solving two weeks jointly); lane-pair preferences (a team that must avoid the end pair); a
+"switch lanes each frame" note per pair for printed sheets; feeding real standings into the
+position rounds.
+
+## Calendar files that follow a rainout (2026-11-17)
 
 A team's `.ics` file used to give each game an id built from its date and its place in the
 round (`2-0-20261013-1@...`). A calendar import adds or updates events by that id and never
