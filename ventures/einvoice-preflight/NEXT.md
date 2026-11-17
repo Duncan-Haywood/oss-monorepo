@@ -11,3 +11,9 @@
 - (2026-11-17) national NFS-e landed: open: a national rejection compared
 - (2026-11-17) a real reform NF-e from a SEFAZ test environment, a real SEFAZ rejection for a cClassTrib
 - (2026-11-17) cCredPres rules and cClassTrib at IT 1.71 landed (README): RTC events (211110, 12 others incl. 112120, 110001) landed, 211120 (removed in v1.40) flagged (README): open: a real event
+- (2026-11-17) Mexico CFDI 4.0 landed: open: SAT's CP error matrix to map MX-070..080 to CP codes (omawww blocked), a real payroll or export file, a PAC rejection compared
+- (2026-11-17) SK landed (README): open: a real SK file
+- (2026-11-17) mandate texts: IL, ES, NRS, SRO 1852, Jordan open
+- (2026-11-17) India's INV-01 check on a real IRP payload
+- (2026-11-17) NLCIUS on a real Dutch file
+- (2026-11-17) open: RO_CIUS on a real ANAF file

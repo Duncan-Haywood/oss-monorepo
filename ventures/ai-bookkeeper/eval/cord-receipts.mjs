@@ -9,6 +9,8 @@
 // eval/sroie-tesseractjs.mjs reads them with the page's engine in both modes). With two
 // folders it scores parseReceiptPasses; add --settled to score what the page puts in
 // the receipts box (photoocr.mjs settleReadings). Receipts with no OCR file are left out.
+// --lead: the first folder is a stronger engine's reading (RapidOCR), as the CLI's
+// `--rapidocr --four-pass` and the page mark it (receipts.mjs parseReceiptPasses `lead`).
 import { readFileSync, existsSync } from "node:fs";
 import { cleanOcr } from "../cleanocr.mjs";
 import { parseReceipt, parseReceiptPasses } from "../receipts.mjs";
@@ -39,11 +41,11 @@ export function withOcr(rows, ocr) {
   });
 }
 
-export function score(rows, { settled = false } = {}) {
+export function score(rows, { settled = false, lead = false } = {}) {
   const r = { receipts: rows.length, total: { labelled: 0, right: 0, wrong: 0, none: 0 }, tax: { labelled: 0, right: 0, wrong: 0, none: 0, unlabelledRead: 0 }, misses: [] };
   for (const row of rows) {
-    const s = row.texts && settled ? settleReadings(row.raw) : null;
-    const p = row.texts ? (s ? parseReceipt(s.text) : parseReceiptPasses(row.texts)) : parseReceipt(row.text);
+    const s = row.texts && settled ? settleReadings(row.raw, { lead }) : null;
+    const p = row.texts ? (s ? parseReceipt(s.text) : parseReceiptPasses(row.texts, { lead })) : parseReceipt(row.text);
     const want = labelCents(row.total);
     if (want !== null) {
       r.total.labelled++;
@@ -69,7 +71,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   let rows = readFileSync(file, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
   const oi = process.argv.indexOf("--ocr");
   if (oi > 0) rows = withOcr(rows, process.argv[oi + 1]);
-  const r = score(rows, { settled: process.argv.includes("--settled") });
+  const r = score(rows, { settled: process.argv.includes("--settled"), lead: process.argv.includes("--lead") });
   if (process.argv.includes("--json")) console.log(JSON.stringify({ ...r, misses: process.argv.includes("--misses") ? r.misses : r.misses.length }, null, 2));
   else {
     const pct = (a, b) => `${a}/${b} (${b ? ((100 * a) / b).toFixed(1) : "0"}%)`;

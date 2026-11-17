@@ -6,7 +6,7 @@ import { headerAdjustmentNetDelta, inspectHeaderAdjustments } from "./adjustment
 import { inspectPaymentBic } from "./bic.mjs";
 import { inspectTaxBreakdown } from "./breakdown.mjs";
 import { inspectDocumentType } from "./document.mjs";
-import { inspectPartyEndpoint } from "./endpoint.mjs";
+import { inspectPartyEndpoint, inspectPartyIdentifiers } from "./endpoint.mjs";
 import { inspectPaymentIban } from "./iban.mjs";
 import { inspectPaymentMeans } from "./means.mjs";
 import { inspectInvoicePeriod } from "./period.mjs";
@@ -129,6 +129,9 @@ export function checkInvoice(invoice) {
         fail(finding.rule, finding.message, finding.fix, finding.path);
       }
       for (const finding of inspectPartyEndpoint(party, partyName)) {
+        fail(finding.rule, finding.message, finding.fix, finding.path, finding.severity);
+      }
+      for (const finding of inspectPartyIdentifiers(party, partyName)) {
         fail(finding.rule, finding.message, finding.fix, finding.path, finding.severity);
       }
     }

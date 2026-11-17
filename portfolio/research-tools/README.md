@@ -59,6 +59,14 @@ as tools".
 | `README.md`, `VENTURE.yaml`, `LICENSE` | As for any venture; the README opens with what the tool answers, in a searcher's words, links the live page, and has a "Verification" section. |
 | `*.test.mjs` | Tests against a **published or independently computed reference** (the paper's own example, a textbook result, or another implementation's output with its provenance), plus property tests (invariances, edge cases), plus `page.test.mjs`. |
 
+As soon as the page exists, run `node platform/pages/register-tool.mjs <slug> --research`
+(about 10 s). It adds the slug to build.mjs's `RESEARCH_ALGORITHM_SLUGS`, the
+launch date to `launched.json` and the usage module to
+`platform/privacy/optout-switches.txt`, and lists what needs words: the row in
+the table below, an inbound link from a sibling tool's page, and any CSV
+formula-guard or row-spread hit in this venture. Six run records (2026-11-14 to
+-17) found these one red CI job at a time.
+
 Before merging a new tool, run `node platform/pages/venture-preflight.mjs <slug>`: it
 catches the repository-wide steps a tool's own tests cannot see (the launch date in
 `launched.json`, a link from a sibling tool, the privacy-switch count), each of which
@@ -105,6 +113,7 @@ for the browser-extension, iOS and Android packagers.
 | [`item-response-theory`](../../ventures/item-response-theory/) | Bock & Aitkin 1981; Birnbaum 1968; Rasch 1960; Orlando & Thissen 2000; Lord & Wingersky 1984; Bock & Mislevy 1982; Thissen et al. 1995 | Which questions on my test work, how hard is each and how well does it separate strong from weak, does a question misfit, is a key wrong, and where is the test precise? |
 | [`difference-in-differences`](../../ventures/difference-in-differences/) | Callaway & Sant'Anna 2021; Goodman-Bacon 2021; Card & Krueger 1994 | Did a change adopted at different times move the outcome, by how much at each time since adoption, were the adopters already drifting apart before, and how much of the usual two-way fixed effects estimate compares late adopters with units already treated? |
 | [`method-comparison`](../../ventures/method-comparison/) | Passing & Bablok 1983; Cornbleet & Gochman 1979; Linnet 1990, 1993; Bland & Altman 1986, 1999; Knight 1966; Sen 1968; Dillencourt, Mount & Netanyahu 1992 | Do two measurement methods agree, is the difference constant or proportional, what are the limits of agreement, and how far apart are they at a decision level? |
+| [`regression-discontinuity`](../../ventures/regression-discontinuity/) | Calonico, Cattaneo & Titiunik 2014; Calonico, Cattaneo & Farrell 2020; McCrary 2008; Cattaneo, Titiunik & Vazquez-Bare 2017; Lee 2008 | Did crossing a threshold of a score, income, age or vote margin change the outcome, by how much for units near it, with an interval that accounts for the fit's bias, and does the design survive other bandwidths, placebo cutoffs, covariates and a bunching test? |
 
 The site files them under "Research algorithms & ML"
 (`platform/pages/build.mjs`, `research-algorithms`). Add a row here and the
@@ -112,7 +121,7 @@ slug there when a tool lands.
 
 ## Candidates
 
-Next papers to implement, each a job someone has: covariates by the doubly robust estimator (Sant'Anna & Zhao 2020), the imputation estimator (Borusyak, Jaravel & Spiess 2024) and HonestDiD sensitivity bounds (Rambachan & Roth 2023) as modes of `difference-in-differences`; augmented synthetic
+Next papers to implement, each a job someone has: covariate-adjusted RD (Calonico, Cattaneo, Farrell & Titiunik 2019), the rddensity test (Cattaneo, Jansson & Ma 2020) and local randomisation inference for discrete scores as modes of `regression-discontinuity`; covariates by the doubly robust estimator (Sant'Anna & Zhao 2020), the imputation estimator (Borusyak, Jaravel & Spiess 2024) and HonestDiD sensitivity bounds (Rambachan & Roth 2023) as modes of `difference-in-differences`; augmented synthetic
 control (Ben-Michael, Feller & Rothstein 2021) as a bias-corrected mode for
 `synthetic-control`; several input columns
 with automatic relevance determination, and a forecast-calibrated mean, as

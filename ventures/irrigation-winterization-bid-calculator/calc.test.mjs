@@ -160,3 +160,26 @@ test('a nameless system still reports under a stable label', () => {
   assert.equal(result.systems[0].name, 'System 1');
   assert.equal(result.systems[1].name, 'System 2');
 });
+
+test('a cleared field or a zero wage is an error, not a $0 cost (quality audit 2026-11-17)', () => {
+  assert.throws(() => calculateBid({ ...house(), hourlyWage: '' }), /Hourly wage is blank/);
+  assert.throws(() => calculateBid({ ...house(), hourlyWage: 0 }), /Hourly wage must be greater than zero/);
+  assert.throws(() => calculateBid({ ...house(), overheadRate: '  ' }), /Overhead is blank/);
+  assert.equal(calculateBid({ ...house(), otherCost: '0' }).price, calculateBid(house()).price);
+});
+
+test('a backflow-only stop still bills the minimum on-site time', () => {
+  const bid = calculateBid({
+    ...house(),
+    systems: [{ sprayZones: 0, rotorZones: 0, dripZones: 0 }],
+    backflows: 1,
+    setupHours: 0,
+    minOnSiteHours: 1,
+  });
+  assert.equal(bid.minimumApplied, true);
+});
+
+test('the hourly rate of a price you are considering spreads it over all hours, travel included', () => {
+  const bid = calculateBid({ ...house(), proposedPrice: 150 });
+  assert.ok(Math.abs(bid.proposed.hourlyRate - 150 / bid.totalHours) < 1e-9);
+});

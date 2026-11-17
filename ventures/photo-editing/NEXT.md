@@ -19,7 +19,7 @@
 - (2026-11-17) Luma has its own ramp (eval/noise-aware-luma-ramp-2026-11-17.md). Open: does the guard's cap want
   re-tuning with the later luma ramp; an earlier colour ramp (0.2-1.5 / 0.2-2.0 gained 0.01-0.02 dB colour).
 - A real low- and high-ISO pair of one static scene, for this mode as for the X-Trans SNR 25 column.
-- A noise model for raws without a profile (the optical-black area, ISO).
+- (2026-11-17) Raws without a profile: `--noise-from-frame` shipped opt-in (eval/noise-aware-estimated-2026-11-17.md). Open: gate it on EXIF ISO and the optical-black area's spread (read noise with no texture), fitted on real ISO series; a texture-proof estimator (patch-PCA weak-texture selection; the two-scale reading in tools/noise_estimator_accuracy.py halves the median overstatement, not the tail).
 - The noise-free oracle gain (+0.06-0.12 dB from averaging the two demosaics) is untouched.
 - (2026-11-17) a tungsten-lit colour chart to say which colour model is closer (the 70D frame, 4,700 K and green-tinted, is where they part most; the Nexus 5X carries ForwardMatrix)
 - (2026-11-17) a phone DNG with its own JPEG of the frame (corrected corners)

@@ -1,0 +1,88 @@
+// INV-062 / INV-063: OpenPeppol's PEPPOL-COMMON id rules on PartyIdentification/ID and
+// PartyLegalEntity/CompanyID (UBL), GlobalID and SpecifiedLegalOrganization/ID (CII), and
+// legal_id / party_ids in JSON. Whole-file differential: eval/party-id-peppol-differential.mjs.
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { checkInvoice } from "./checks.mjs";
+import { inspectPartyIdentifiers } from "./endpoint.mjs";
+import { parseUblInvoice } from "./ubl.mjs";
+import { parseCiiInvoice } from "./cii.mjs";
+
+const CASES = JSON.parse(readFileSync(new URL("./tests/endpoint_peppol_cases.json", import.meta.url), "utf8"));
+const UBL = readFileSync(new URL("./examples/peppol-credit-note.xml", import.meta.url), "utf8");
+const CII = readFileSync(new URL("./examples/cii-invoice.xml", import.meta.url), "utf8");
+
+const json = (supplier = {}, customer = {}) => ({
+  invoice_number: "INV-1",
+  issue_date: "2026-08-24",
+  currency: "EUR",
+  supplier: { id: "S1", name: "Supplier BV", ...supplier },
+  customer: { id: "C1", name: "Customer NV", ...customer },
+  lines: [{ description: "Work", quantity: 2, unit_price: 100, tax_percent: 21, net: 200 }],
+  totals: { net: 200, tax: 42, gross: 242 },
+});
+const idRules = (findings) => findings.filter((f) => f.rule === "INV-062" || f.rule === "INV-063").map((f) => [f.rule, f.path, f.severity || "error"]);
+
+test("the endpoint's Peppol verdicts hold for legal_id and party_ids too", () => {
+  for (const [scheme, id] of CASES.valid) {
+    assert.deepEqual(inspectPartyIdentifiers({ legal_id: { scheme, id }, party_ids: [{ scheme, id }] }, "supplier"), [], `${scheme} ${id}`);
+  }
+  for (const [scheme, id] of CASES.invalid) {
+    const found = inspectPartyIdentifiers({ legal_id: { scheme, id }, party_ids: [{ scheme: "0088", id: "4012345000009" }, { scheme, id }] }, "customer");
+    assert.deepEqual(found.map((f) => [f.rule, f.path]), [["INV-062", "/customer/legal_id/id"], ["INV-062", "/customer/party_ids/1/id"]], `${scheme} ${id}`);
+    for (const f of found) assert.ok(!f.message.includes(id) && !f.fix.includes(id), "never echoes the id");
+  }
+});
+
+test("a mistyped Belgian KBO number as legal registration blocks a JSON invoice", () => {
+  const findings = checkInvoice(json({ legal_id: { scheme: "0208", id: "0403.170.701" } }));
+  assert.deepEqual(idRules(findings), [["INV-062", "/supplier/legal_id/id", "error"]]);
+  assert.match(findings.find((f) => f.rule === "INV-062").fix, /no dots or BE prefix/);
+  assert.deepEqual(idRules(checkInvoice(json({ legal_id: { scheme: "0208", id: "0403170701" } }))), []);
+});
+
+test("warning-level schemes are INV-063 warnings naming Peppol's rule", () => {
+  const findings = checkInvoice(json({}, { legal_id: { scheme: "0106", id: "1234567" }, party_ids: [{ scheme: "9944", id: "NL123456789B1" }] }));
+  assert.deepEqual(idRules(findings), [["INV-063", "/customer/legal_id/id", "warning"], ["INV-063", "/customer/party_ids/0/id", "warning"]]);
+  assert.match(findings.find((f) => f.path === "/customer/legal_id/id").message, /PEPPOL-COMMON-R054/);
+});
+
+test("schemes Peppol has no rule for, empty values and odd shapes are left alone", () => {
+  for (const party of [
+    { legal_id: { scheme: "0002", id: "anything" } },
+    { legal_id: { scheme: "", id: "123" } },
+    { legal_id: { scheme: "0208", id: "  " } },
+    { legal_id: "0403170701" },
+    { party_ids: "nope" },
+    { party_ids: [null, 5, { scheme: "EM", id: "no-at-sign" }] },
+  ]) assert.deepEqual(inspectPartyIdentifiers(party, "supplier"), [], JSON.stringify(party));
+});
+
+test("the UBL reader carries every schemed PartyIdentification and the CompanyID scheme", () => {
+  const xml = UBL
+    .replace('<cbc:EndpointID schemeID="0088">4012345000009</cbc:EndpointID>', '$&<cac:PartyIdentification><cbc:ID>internal-7</cbc:ID></cac:PartyIdentification><cac:PartyIdentification><cbc:ID schemeID="0088">4012345000008</cbc:ID></cac:PartyIdentification>')
+    .replace("<cbc:RegistrationName>Customer AG</cbc:RegistrationName>", '$&<cbc:CompanyID schemeID="0192">981276958</cbc:CompanyID>');
+  const invoice = parseUblInvoice(xml);
+  assert.deepEqual(invoice.supplier.party_ids, [{ id: "4012345000008", scheme: "0088" }]);
+  assert.equal(invoice.supplier.id, "internal-7");
+  assert.deepEqual(idRules(checkInvoice(invoice)), [["INV-062", "/supplier/party_ids/0/id", "error"], ["INV-062", "/customer/legal_id/id", "error"]]);
+});
+
+test("the CII reader carries GlobalID and a schemed SpecifiedLegalOrganization/ID", () => {
+  const xml = CII
+    .replace("<ram:Name>Supplier GmbH</ram:Name>", '<ram:GlobalID schemeID="0007">5560360794</ram:GlobalID>$&')
+    .replace("<ram:Name>Acheteur SARL</ram:Name>", '$&<ram:SpecifiedLegalOrganization><ram:ID schemeID="0217">12345</ram:ID></ram:SpecifiedLegalOrganization>');
+  const invoice = parseCiiInvoice(xml);
+  assert.deepEqual(invoice.supplier.party_ids, [{ id: "5560360794", scheme: "0007" }]);
+  assert.deepEqual(idRules(checkInvoice(invoice)), [["INV-062", "/supplier/party_ids/0/id", "error"], ["INV-063", "/customer/legal_id/id", "warning"]]);
+});
+
+test("every shipped example stays free of INV-062 and INV-063", () => {
+  const dir = new URL("./examples/", import.meta.url);
+  for (const name of ["peppol-credit-note.xml", "peppol-nl-credit-note.xml", "cii-invoice.xml", "nlcius-invoice.xml", "nlcius-cii-invoice.xml", "xrechnung-cii-invoice.xml"]) {
+    const xml = readFileSync(new URL(name, dir), "utf8");
+    const invoice = xml.includes("CrossIndustryInvoice") ? parseCiiInvoice(xml) : parseUblInvoice(xml);
+    assert.deepEqual(idRules(checkInvoice(invoice)), [], name);
+  }
+});
