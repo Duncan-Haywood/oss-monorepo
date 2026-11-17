@@ -239,10 +239,12 @@ function splitLine(line, delim) {
   return out;
 }
 
-function toNumber(s) {
+function toNumber(s, decimalComma = false) {
   if (s === undefined) return NaN;
-  const t = String(s).trim();
+  let t = String(s).trim();
   if (t === "") return NaN;
+  // Semicolon-separated files (Excel's CSV across most of Europe) write 4,1 for 4.1.
+  if (decimalComma && /^[+-]?\d*,\d+([eE][+-]?\d+)?$/.test(t)) t = t.replace(",", ".");
   if (!/^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(t)) return NaN;
   return Number(t);
 }
@@ -255,10 +257,15 @@ function toNumber(s) {
 export function parsePairs(text, opts = {}) {
   if (typeof text !== "string" || !text.trim()) throw new Error("Paste paired readings: one row per sample, a column for each method.");
   const lines = text.replace(/\r\n?/g, "\n").split("\n").filter((l) => l.trim() && !/^\s*#/.test(l));
-  const delim = lines[0].includes("\t") ? "\t" : lines[0].includes(",") ? "," : lines[0].includes(";") ? ";" : /\s/.test(lines[0].trim()) ? " " : ",";
+  // A semicolon on every one of the first lines means a semicolon-separated file, whose
+  // commas are decimal commas: splitting "4,1;4,3" on the comma would read 1;4 as a header.
+  const head = lines.slice(0, 5);
+  const delim = lines[0].includes("\t") ? "\t" : head.every((l) => l.includes(";")) ? ";" : lines[0].includes(",") ? "," : lines[0].includes(";") ? ";" : /\s/.test(lines[0].trim()) ? " " : ",";
+  const dc = delim === ";";
+  const num = (c) => toNumber(c, dc);
   const rows = lines.map((l) => (delim === " " ? l.trim().split(/\s+/) : splitLine(l, delim)));
   const first = rows[0];
-  const header = first.some((c) => c !== "" && Number.isNaN(toNumber(c)));
+  const header = first.some((c) => c !== "" && Number.isNaN(num(c)));
   const names = header ? first.map((c, i) => c || `column ${i + 1}`) : first.map((_, i) => `column ${i + 1}`);
   const body = header ? rows.slice(1) : rows;
   const pick = (want, label) => {
@@ -276,7 +283,7 @@ export function parsePairs(text, opts = {}) {
       let ok = 0, bad = 0;
       for (const r of body) {
         if (r[i] === undefined || r[i] === "") continue;
-        if (Number.isNaN(toNumber(r[i]))) bad++; else ok++;
+        if (Number.isNaN(num(r[i]))) bad++; else ok++;
       }
       return ok > 0 && bad <= ok / 4;
     });
@@ -289,7 +296,7 @@ export function parsePairs(text, opts = {}) {
   const x = [], y = [];
   let skipped = 0;
   for (const r of body) {
-    const a = toNumber(r[xi]), b = toNumber(r[yi]);
+    const a = num(r[xi]), b = num(r[yi]);
     if (Number.isFinite(a) && Number.isFinite(b)) { x.push(a); y.push(b); } else skipped++;
   }
   return { x, y, xName: names[xi], yName: names[yi], skipped, columns: names };
@@ -779,8 +786,10 @@ export function analyze(input = {}) {
     ({ x, y, xName, yName, skipped } = p);
   }
   if (!Array.isArray(x) || !Array.isArray(y) || x.length !== y.length) throw new Error("Give x and y as two arrays of the same length.");
-  x = x.map(Number); y = y.map(Number);
-  if (x.some((v) => !Number.isFinite(v)) || y.some((v) => !Number.isFinite(v))) throw new Error("Every reading must be a number.");
+  // Number(null), Number("") and Number(false) are all 0: a missing reading must not become a zero.
+  const reading = (v) => (typeof v === "number" ? v : typeof v === "string" ? toNumber(v) : NaN);
+  x = x.map(reading); y = y.map(reading);
+  if (x.some((v) => !Number.isFinite(v)) || y.some((v) => !Number.isFinite(v))) throw new Error("Every reading must be a number (a missing reading is not a zero: leave that pair out).");
   const n = x.length;
   if (n < 5) throw new Error("Need at least 5 paired readings.");
   if (n > LIMITS.pairs) throw new Error(`Up to ${LIMITS.pairs.toLocaleString("en-US")} pairs.`);
@@ -794,7 +803,9 @@ export function analyze(input = {}) {
     lambdaFrom = `from repeatability SDs ${input.sdY} (new) and ${input.sdX} (comparison)`;
   }
   if (!(lambda > 0 && Number.isFinite(lambda))) throw new Error("The error-variance ratio must be above zero.");
-  const levels = (input.decisionLevels || []).map(Number).filter(Number.isFinite);
+  const rawLevels = input.decisionLevels ?? [];
+  const levels = (Array.isArray(rawLevels) ? rawLevels : String(rawLevels).split(/[,;\s]+/))
+    .map((v) => (typeof v === "number" ? v : typeof v === "string" ? toNumber(v) : NaN)).filter(Number.isFinite);
   const warnings = [];
   if (skipped) warnings.push(`${skipped} row(s) without two numbers were skipped.`);
   if (n < 30) warnings.push(`Only ${n} pairs: the intervals will be wide. More samples, spread over the whole measuring range, narrow them.`);
