@@ -93,3 +93,15 @@ test('incomeGap returns null additional jobs when average profit per job is zero
   const gapNeg = incomeGap(1000, -200, -100);
   assert.equal(gapNeg.additionalJobsNeeded, null);
 });
+
+test('a blank field is an error, not a silent zero (quality audit 2026-11-17)', () => {
+  for (const id of Object.keys(DEFAULTS)) {
+    const input = Object.fromEntries(Object.entries(DEFAULTS).map(([k, v]) => [k, String(v)]));
+    input[id] = '';
+    assert.throws(() => calculate(input), /required|greater than/, `${id} left blank`);
+    input[id] = '   ';
+    assert.throws(() => calculate(input), /required|greater than/, `${id} left as spaces`);
+  }
+  const ok = calculate(Object.fromEntries(Object.entries(DEFAULTS).map(([k, v]) => [k, String(v)])));
+  assert.ok(Math.abs(ok.billRatePerAcre - 19.19) < 0.01);
+});
