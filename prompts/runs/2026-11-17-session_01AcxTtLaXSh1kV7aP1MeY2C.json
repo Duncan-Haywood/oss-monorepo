@@ -1,0 +1,153 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtLaXSh1kV7aP1MeY2C",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T05:06:49Z",
+  "ended": "2026-11-17T05:37:15Z",
+  "wall_minutes": 34.41,
+  "tokens_in": 12447818,
+  "tokens_out": 46513,
+  "cost_usd": 4.5992,
+  "tool_calls": 101,
+  "task": "ai-bookkeeper flagship item (5): bottom-third crop reading for OCR-bound receipt photos; it failed, and a second OCR engine (RapidOCR) was measured and shipped as `receipts --rapidocr`",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16823",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "a background wait loop used `pgrep -f` with an alternation pattern; it matched nothing and exited at once",
+      "fix": "waited on file counts instead"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "'Start here' named shift-roster-builder again although its own 'Left recently' line says three sessions in two days left it as inputs-only; the reason still held, so this run also took another row (ai-bookkeeper)"
+    },
+    {
+      "file": "ventures/ai-bookkeeper/eval/cord-train-photos-2026-11-17.md",
+      "issue": "its 'try a bottom-third crop' suggestion was not checked against the photos: the OCR-bound totals are not cut off, the photos are faded or tinted; a look at a contact sheet would have pointed at the engine first"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "'Start here' was shift-roster-builder, whose next: is real-site inputs plus marginal solver tuning (same reason as the three earlier sessions)",
+      "did": "took row 1 ai-bookkeeper's BUILDABLE HERE item instead; did not add inputs_only: to shift-roster-builder because its solver items are still buildable, just low value",
+      "result": "landed a held-out gain of 55 to 80 of 95 CORD test totals"
+    },
+    {
+      "file": "ventures/ai-bookkeeper flagships.yaml buildable",
+      "why": "the named item (bottom-third crop) failed on measurement (+1 total in 146 photos)",
+      "did": "recorded the negative result and pivoted to a second OCR engine within the same item",
+      "result": "RapidOCR: CORD test 80/95 vs 55/95, SRD 180/196 vs 156/196"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-ai-bookkeeper-swapping-the-ocr-engine-beat-weeks-of-rules.md",
+    "ventures/ai-bookkeeper/eval/rapidocr-2026-11-17.md"
+  ],
+  "goal": "Direction: depth over calculators (flagship deepening); local models",
+  "notes": "Tesseract baselines re-read in this session from the same commit reproduce the documented numbers (train 122/196, validation 70/98, test 55/95). RapidOCR rapidocr-onnxruntime 1.4.4 from PyPI; no setting tuned on any photo set. Bottom crops measured on 146 of 200 train photos (stopped early: 3 of 41 OCR-bound totals printed). Five image variants on the 49 OCR-bound train photos: at most 3 recovered. Checks run here: ai-bookkeeper suite 3301 tests 0 failed; venture-preflight.mjs ai-bookkeeper clean; promptctl validate ok; portfolio/router/validate.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "17e5c5ee-37f9-5293-a69c-5c7bbaada022",
+    "transcripts": 1,
+    "first": "2026-11-17T05:06:49Z",
+    "last": "2026-11-17T05:41:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 98,
+        "input": 188,
+        "output": 46513,
+        "thinking": 9681,
+        "cache_read": 12296520,
+        "cache_write_5m": 0,
+        "cache_write_1h": 151110,
+        "api_equivalent_usd": 4.5992,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 98,
+      "input": 188,
+      "output": 46513,
+      "thinking": 9681,
+      "cache_read": 12296520,
+      "cache_write_5m": 0,
+      "cache_write_1h": 151110,
+      "api_equivalent_usd": 4.5992,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 101,
+    "tools": {
+      "Bash": 89,
+      "Write": 3,
+      "ToolSearch": 2,
+      "Read": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "ReadNotifications": 1,
+      "Edit": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 34.41,
+      "active_minutes": 34.41,
+      "model_minutes": 11.02,
+      "tool_minutes": 23.39,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an ML engineer: fetch three datasets, run and score two OCR engines plus crop/variant experiments on ~700 photos, CLI wiring, tests and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 217.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
