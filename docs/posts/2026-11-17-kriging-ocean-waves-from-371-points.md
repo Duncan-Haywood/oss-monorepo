@@ -3,7 +3,7 @@ title: "Filling in a map from 371 points: kriging ocean waves, and why inverse d
 seo_title: "Free kriging tool online: variogram, kriged map and standard errors"
 date: 2026-11-17
 tags: [kriging, geostatistics, variogram, spatial-interpolation, research-algorithms]
-description: "A browser kriging tool fits a variogram, maps the estimate and its standard error, and checks itself against inverse distance. On ERA5 wave heights kriging misses by 0.39 m, inverse distance by 0.62 m."
+description: "A free browser kriging tool maps scattered readings with standard errors. On ERA5 wave heights it misses by 0.39 m; inverse distance by 0.62 m."
 ---
 
 You have readings at some places (soil samples, wells, rain gauges, a grid
