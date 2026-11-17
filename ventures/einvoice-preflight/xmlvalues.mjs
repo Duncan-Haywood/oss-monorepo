@@ -14,8 +14,9 @@
 // Unicode space separators, U+0085, U+FEFF and zero-width spaces: what JavaScript's trim()
 // or \s takes (or a copy-paste leaves) and XML does not count as whitespace.
 export const NON_XML_SPACE = /[\u0085\u00A0\u1680\u2000-\u200B\u2028\u2029\u202F\u205F\u3000\uFEFF]/;
-// The leaf values a rule or receiver casts: a decimal, an ISO date, a CII 102 date, a boolean.
-export const CASTABLE = /^(?:[+-]?(?:\d+(?:\.\d*)?|\.\d+)|\d{4}-\d{2}-\d{2}|\d{8}|true|false)$/;
+// The leaf values a rule or receiver casts: a decimal, an ISO date, a CII 102 date, a
+// boolean, an xs:time or xs:dateTime (ZATCA's IssueTime, FA(3) and NAV timestamps; added 2026-11-17).
+export const CASTABLE = /^(?:[+-]?(?:\d+(?:\.\d*)?|\.\d+)|\d{4}-\d{2}-\d{2}|\d{8}|(?:\d{4}-\d{2}-\d{2}T)?\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?|true|false)$/;
 
 const NAMES = {
   "\u00A0": "no-break space (U+00A0)",
@@ -79,7 +80,7 @@ export function xmlValueFinding(row, path) {
   const element = typeof row.element === "string" && row.element ? row.element : "A value";
   return {
     rule: "INV-065",
-    message: `${element} "${visibleSpaces(row.value)}" holds a ${spaceName(row.value)}, so it is not a valid number or date in XML${row.path ? ` (${row.path})` : ""}. Software that trims it reads ${row.value.trim()}; a receiver's validator (Saxon) stops on the whole file instead and reports no rule.`,
+    message: `${element} "${visibleSpaces(row.value)}" holds a ${spaceName(row.value)}, so it is not a valid number, date or time in XML${row.path ? ` (${row.path})` : ""}. Software that trims it reads ${row.value.trim()}; a receiver's validator (Saxon) stops on the whole file instead and reports no rule.`,
     fix: "Write the value with no space characters other than an ordinary space, tab or line break at its ends (no no-break space, U+00A0, or similar). Spreadsheets and text copied from a PDF often add one.",
     path,
   };

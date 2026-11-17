@@ -10,6 +10,10 @@ peppol-cii.xsl, xrechnung-ubl.xsl, xrechnung-cii.xsl (the SchXslt output
 build-schematron.mjs leaves in its work folder). Needs `pip install saxonche`.
 Each mutant is compared on the change from its unmutated copy, so rule-set version
 differences between the engines cancel out.
+
+A DIR written by eval/profile-whitespace-crosscheck.mjs (PINT, ZATCA) carries a map.json
+from set name to stylesheet path; when one is there it is used and XSL_DIR may be any
+folder (pass the DIR itself). Its rows also name their profile, tallied apart.
 """
 import json
 import re
@@ -21,6 +25,10 @@ from saxonche import PySaxonProcessor
 
 xsl_dir, out_dirs = Path(sys.argv[1]), [Path(d) for d in sys.argv[2:]]
 rows = []
+xsl_map = {}
+for d in out_dirs:
+    if (d / "map.json").exists():
+        xsl_map.update(json.loads((d / "map.json").read_text()))
 for d in out_dirs:
     for line in (d / "manifest.jsonl").read_text().splitlines():
         if line:
@@ -35,7 +43,7 @@ with PySaxonProcessor(license=False) as proc:
         ids = set()
         for name in row["sets"]:
             if name not in compiled:
-                compiled[name] = xslt.compile_stylesheet(stylesheet_file=str(xsl_dir / f"{name}.xsl"))
+                compiled[name] = xslt.compile_stylesheet(stylesheet_file=str(xsl_map.get(name) or xsl_dir / f"{name}.xsl"))
             try:
                 svrl = compiled[name].transform_to_string(source_file=str(row["dir"] / row["file"]))
             except Exception as e:  # a dynamic error is its own outcome, not a pass
@@ -58,6 +66,10 @@ def delta(row, key):
 
 
 tally = Counter()
+per_profile = {}
+for row in rows:
+    if "profile" in row:
+        per_profile.setdefault(row["profile"], Counter())
 missed_before, missed_after, extra_after, sjs_off, aborts_silent = Counter(), Counter(), Counter(), Counter(), Counter()
 examples = []
 for row in rows:
@@ -66,6 +78,8 @@ for row in rows:
         continue
     tally["mutants"] += 1
     truth = delta(row, "saxonc")
+    if "profile" in row:
+        per_profile[row["profile"]]["mutants"] += 1
     if truth != (frozenset(), frozenset()):
         tally["saxonc changed"] += 1
     aborts = any(x.startswith("#ERROR") for x in truth[0])
@@ -75,6 +89,9 @@ for row in rows:
         # plain route only listed those rules as skipped; now run() adds XML-VALUE-01 at the
         # fields unreadableValues() names (castFields). Counted apart from rule ids.
         tally["saxonc aborts"] += aborts
+        if "profile" in row:
+            per_profile[row["profile"]]["saxonc aborts"] += aborts
+            per_profile[row["profile"]]["aborts, XML-VALUE-01 names the field"] += bool(aborts and plain_cast and row.get("castFields", 0) > 0)
         if aborts and not delta(row, "plainBefore")[0] - {"#ERROR cast"}:
             tally["aborts, plain route raised no rule before"] += 1
         if aborts and plain_cast and row.get("castFields", 0) > 0:
@@ -92,6 +109,8 @@ for row in rows:
         got = delta(row, key)
         if got != truth:
             tally[f"{label} differs"] += 1
+            if "profile" in row:
+                per_profile[row["profile"]][f"{label} differs"] += 1
             if label == "before":
                 missed_before.update(truth[0] - got[0])
             if label == "after":
@@ -103,6 +122,8 @@ for row in rows:
                 sjs_off.update((truth[0] ^ got[0]))
 
 print(json.dumps(tally))
+for name, c in sorted(per_profile.items()):
+    print(f"  {name}: {json.dumps(c)}")
 print("raised by SaxonC, missed by the plain route before:", dict(missed_before.most_common()))
 print("raised by SaxonC, missed after:", dict(missed_after.most_common()))
 print("raised after, not by SaxonC:", dict(extra_after.most_common()))
