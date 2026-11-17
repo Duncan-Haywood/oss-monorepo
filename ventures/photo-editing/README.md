@@ -1453,6 +1453,15 @@ X-Trans tiles no tile is now worse than directional by over 0.1 dB (was 17, wors
 the mean luma gain rose from +0.45 to +0.53 dB. Bayer is unchanged. `estimate_noise_pca(..., texture="colour")`
 gives the afternoon's model. `eval/xtrans-noise-pca-12-2026-11-17.md`.
 
+**Since the night of 2026-11-17 it is the default: `--demosaic noise-aware` on a file with no NoiseProfile reads
+the noise from the frame** (`--no-noise-from-frame` gives the old fallback to directional). Checked on whole
+real frames from the public sample set: all 52 files without a profile that develop (ARW, CR2, NEF, ORF, RW2,
+SRW, RAF, PEF and DNG; four Bayer phases and two X-Trans) took the frame-read model, and the one DNG with a
+profile kept it. With no truth on those frames the check is behavioural: at ISO 50-200 the blend moves a median
+1.5% of pixel values (PSNR 58 dB against directional), at ISO 800-6400 a median 23% (48 dB). It costs about
+0.5 s per megapixel and up to 6.4 GB on a 36 MP frame, which is why the default demosaic (`auto`) stays
+directional. `tools/noise_fallback_real.py`, `eval/noise-fallback-real-2026-11-17.md`.
+
 ## A directional demosaic for Bayer files (2026-11-15)
 
 Nearly every camera has a Bayer sensor, and until now every Bayer file the developer read (DNG, CR2,
