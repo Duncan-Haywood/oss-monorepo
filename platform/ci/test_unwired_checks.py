@@ -246,6 +246,24 @@ class PullRequestTrigger(unittest.TestCase):
         self.assertIn("platform/proposal/term-ids.test.mjs", names)
         self.assertNotIn("platform/pages/home.test.mjs", names)  # portfolio-pages.yml runs it
 
+    def test_underscore_named_node_suites_count(self):
+        """2026-11-17: the six platform/ci/test_check_*.mjs suites matched no
+        workflow and not the `*.test.mjs` glob, so no pull request ran them."""
+        with tempfile.TemporaryDirectory() as d:
+            root, wf = Path(d), Path(d) / "wf"
+            wf.mkdir()
+            (root / "platform/ci").mkdir(parents=True)
+            for f in ("test_check_a.mjs", "test_check_b.mjs", "check_a.mjs", "test_x.py"):
+                (root / "platform/ci" / f).write_text("")
+            (wf / "t.yml").write_text(
+                "jobs:\n  t:\n    steps:\n      - run: node --test platform/ci/test_check_b.mjs\n")
+            names = [u.node_name(p, root) for p in u.unwired_node_suites(root, wf)]
+            self.assertEqual(names, ["platform/ci/test_check_a.mjs"])
+        self.assertIn("platform/ci/test_check_enter_reload.mjs",
+                      [u.node_name(p) for p in u.unwired_node_suites()])
+        self.assertIn("cd platform/ci && node --test test_check_a.mjs",
+                      u.report([("platform/ci/test_check_a.mjs", 1, "boom")]))
+
     def test_run_node_suite_reports_red_green_and_a_named_slow_skip(self):
         with tempfile.TemporaryDirectory() as d:
             root = Path(d)
