@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
-import { simplexLeastSquares, simplexLeastSquaresRows, projectSimplex, synthControlTest, synthInTimePlacebo } from './synth-control.mjs';
+import { simplexLeastSquares, simplexLeastSquaresRows, projectSimplex, synthControlTest, synthInTimePlacebo, covariateBalance } from './synth-control.mjs';
 import { predictorsOf } from './eval/synth-cov-sim.mjs';
 import { panel, CELLS } from './eval/synth-sim.mjs';
 
@@ -115,4 +115,33 @@ test('several starts for V (README "Several starts for V"): never a looser treat
   multi.placebos.forEach((q, j) => assert.ok(q.preRmspe <= one.placebos[j].preRmspe + 1e-12, `placebo ${q.name}`));
   assert.equal(synthControlTest(rows[0], donors, CELLS.P1.k, { predictors, vSearch: 'multi' }).p, multi.p);
   assert.throws(() => synthControlTest(rows[0], donors, CELLS.P1.k, { predictors, vSearch: 'many' }), /unknown vSearch/);
+});
+
+test('covariate balance (README "Covariate balance"): synthetic value is the fit weights times the donors, placebos ranked', () => {
+  const rows = panel(CELLS.P1, 779);
+  const names = rows.slice(1).map((_, j) => `d${j}`).slice(0, 10);
+  const donors = Object.fromEntries(names.map((s, j) => [s, rows[j + 1]]));
+  const r = synthControlTest(rows[0], donors, CELLS.P1.k);
+  for (const q of r.placebos) assert.ok(Math.abs(Object.values(q.donorWeights).reduce((a, b) => a + b, 0) - 1) < 1e-6, q.name);
+  // covariate 1: each unit's mean before the date (the fit matches it closely); covariate 2: arbitrary per-unit values
+  const mean = (a) => a.slice(0, CELLS.P1.k).reduce((s, v) => s + v, 0) / CELLS.P1.k;
+  const other = (j) => ((j * 7919) % 13) / 3;
+  const cov = { treated: [mean(rows[0]), other(0)], donors: Object.fromEntries(names.map((s, j) => [s, [mean(rows[j + 1]), other(j + 1)]])) };
+  const b = covariateBalance(r, cov, { names: ['before mean', 'other'] });
+  assert.equal(b.length, 2);
+  const synth2 = names.reduce((s, n) => s + r.donorWeights[n] * cov.donors[n][1], 0);
+  assert.ok(Math.abs(b[1].synthetic - synth2) < 1e-12);
+  assert.ok(Math.abs(b[1].donorMean - names.reduce((s, n) => s + cov.donors[n][1], 0) / names.length) < 1e-12);
+  assert.ok(Math.abs(b[0].stdGap) < 0.25 && !b[0].imbalanced, `before mean gap ${b[0].stdGap}`); // matched by the outcome fit
+  for (const c of b) assert.ok(c.placeboShare >= 0 && c.placeboShare <= 1);
+  assert.throws(() => covariateBalance(r, { treated: [1], donors: {} }), /same count of finite numbers/);
+  assert.throws(() => covariateBalance({}, cov), /synthControlTest result/);
+});
+
+test('covariate balance on Proposition 99: the outcome-only fit leaves California richer than its synthetic control', async () => {
+  const { rows } = await import('./eval/synth-balance-real.mjs?quiet');
+  const ca = rows.find((r) => r.state === 'CA').balance;
+  assert.ok(ca[0].stdGap > 1 && ca[0].imbalanced, `CA ln income ${ca[0].stdGap}`); // 1.66 sd (eval/synth-balance-real.out.txt)
+  assert.ok(ca.slice(2).every((c) => !c.imbalanced)); // the packs lags and before mean are matched
+  assert.ok(rows.find((r) => r.state === 'MA').balance.every((c) => !c.imbalanced)); // MA balanced, yet ranked 6th
 });
