@@ -182,14 +182,16 @@
    "what": "The hourly line 'about $X/hr after all costs' divides net profit that already deducts the operator's own labor at the target wage by the same hours, so it shows residual profit above the wage, not the hourly rate. Defaults: $132.16 shown vs $164.16 earned; vs page Site B '$16.80/hr' next to a $32 target when it pays $48.80/hr, which would push an operator to drop a site that beats their target. Tests pin the wrong figure.",
    "where": "ventures/fire-extinguisher-inspection-route-margin/calc.mjs:167",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16816"
   },
   {
    "severity": "medium",
    "what": "vs-ranking page and its FAQ/JSON-LD publish 'Effective hourly rate $181.40/hr' and '$16.80/hr' (residual above a $32 wage) as hourly rates; the article heading says a site that is cash-positive and earns $24.41/hr 'loses money'.",
    "where": "ventures/fire-extinguisher-inspection-route-margin/vs-ranking-sites-by-extinguisher-count.html:74",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16816"
   },
   {
    "severity": "medium",
@@ -234,6 +236,6 @@
    "origin": "claims"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16816"],
  "verdict": "A tidy, private one-site profit calculator whose arithmetic is right: an independent Python model reproduces every line item on the defaults (visit profit 307.45, net 17.62/month, 42.66% margin), the article's 6-unit site (-0.51/month, break-even at 7 units) and both vs-page sites to the cent, and the NFPA 10 cadence it describes (annual maintenance, 5/12-year hydro) is right. A fire-extinguisher service owner would reject its hourly line: 'about $X/hr after all costs' is net profit after already paying the owner $32/hr, divided by the hours, so it shows $132.16 instead of $164.16 on the defaults and calls a site that pays $48.80/hr a '$16.80/hr' site on the comparison page; the tests pin that figure. The route section is six hand-typed rows, service shares can total 300%, a blank field becomes 0, and two incomeGap mutants survive. Does not meet the bar (correctness 2, claims 2, verification 2, median 2); finished (completeness 3). Fixable in a session: report (netProfit + laborCost*monthlyVisits)/monthlyLaborHours as the earned rate (or relabel the current one 'above your target rate'), update the vs page and tests, cap the three shares at 100% total, reject blank fields, and add boundary tests for incomeGap."
 }

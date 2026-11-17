@@ -227,7 +227,8 @@
    "what": "Several files selected together are joined into one text and parsed with the separators of the first file's ISA only. When a second file's ISA16 component separator differs (':' vs '>', both common across clearinghouses) every SVC composite fails to split, every procedure code becomes '' and that file's underpayments disappear with no issue reported (fixture: 3 flagged lines, 52.93, become 0). A different element separator drops the whole second file silently (6 of 12 claims read).",
    "where": "ventures/era-835-underpayment-finder/index.html:197",
    "category": "input-handling",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16816"
   },
   {
    "severity": "medium",
@@ -276,9 +277,10 @@
    "what": "README says separators are read from the ISA header and that one or more files are accepted; only the first file's ISA is read.",
    "where": "ventures/era-835-underpayment-finder/README.md:18",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16816"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16816"],
  "verdict": "A careful, honest first pass at reading 835 remittances whose core arithmetic is right. On a fixture I wrote independently from the 005010 layout, a sequestered Medicare line reconstructs to an allowed 110.43 and is not flagged, a commercial 99213 is 12.50 short of a 92.50 contract, multi-unit AMT*B6 lines and the deposit equation (350.37 = 389.07 - 38.70 PLB) all match. Disclaimers, the from-memory caveat and the no-upload claim are on the page and backed by tests. A payment poster would hit three gaps in the first hour: selecting remittances from two clearinghouses with different component separators silently blanks the second file's codes and loses its underpayments with no warning; line-level denials on paid claims never reach the denial list or worksheet; and -26 component lines are flagged against the global fee. The 42 tests pass but 6 of 11 seeded core mutants survive. Does not meet the bar (correctness 2, verification 2, median 2); finished (completeness 3). Fixable in a session: parse each file separately with its own ISA (or split on each ISA), add line-level denials, report component-modifier lines as unmatched rather than using the global rate, and add tests for a Medicare line being tested, mixed-separator files and claim plus line CAS."
 }
