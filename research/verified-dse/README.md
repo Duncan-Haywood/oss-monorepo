@@ -161,6 +161,14 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   where the ladder fails (15.64% against 16.63%) and gives up 0.97 where it is perfect. Four of six predictions refuted; the
   probe-guard search for this rule closes here:
   [`experiments/delay_check/`](experiments/delay_check/results.txt).
+- **At a second library corner, SKY130 ss_100C_1v60, the clipped ladder beats equal-cost random routing on 24 of 27 blind
+  designs, although the routed ranking barely carries over between corners (milestone 143, flow run, six of seven predictions
+  held).** Only the liberty changes (40% utilisation, clocks from each design's own ss baseline, a median 2.19 times the tt
+  period). The routed score's median tau-b between tt and ss is 0.34, against 0.74 for 40% to 65%, and the routed-best sequence is
+  the same at both corners on 3 of 27 designs; with nothing retuned SWC has 1.96% mean regret against 6.11% (sign p = 0.00005;
+  tt on the same designs 2.76% against 6.35%, 22 to 5). The losing designs at tt and at ss do not overlap: division, the weak
+  family at tt, wins all five of its designs at ss (the refuted prediction), and the carry-save adders lose two of three:
+  [`experiments/corner_ss_blind/`](experiments/corner_ss_blind/results.txt).
 - **On 26 more blind designs at 65% placement utilisation the clipped ladder beats equal-cost random routing 22 to 4, and over
   46 designs at 65% it wins 38 to 8 with the same edge as at 40% (milestone 142, flow run, all eight predictions held).** The rest
   of milestone 141's seeded order (26 of 32 finished): SWC 2.41% mean regret against 5.75% (sign p = 0.0005). Over all 46: 2.46%

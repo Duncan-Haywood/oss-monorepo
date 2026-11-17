@@ -115,7 +115,7 @@ def main(dst):
     lo, hi = boot(dss.values(), seed=SEED + 1)
     fail_t, fail_s = sum(v > 1 for v in dtt.values()), sum(v > 1 for v in dss.values())
     out += ["", f"ss: mean regret SWC {lb.mean(lss, swc):.2f}%, random {lb.mean(lss, rand):.2f}%; SWC better on {bs}, worse on {ws}, "
-            f"tied on {ts}; two-sided sign p = {ps:.4f}; design-bootstrap 95% interval of mean d_ss {lo:+.2f} to {hi:+.2f}",
+            f"tied on {ts}; two-sided sign p = {ps:.6f}; design-bootstrap 95% interval of mean d_ss {lo:+.2f} to {hi:+.2f}",
             f"tt (40%, same designs): mean regret SWC {lb.mean(ltt, swc):.2f}%, random {lb.mean(ltt, rand):.2f}%; SWC better on {bt}, "
             f"worse on {wt}, tied on {tt_}; two-sided sign p = {pt:.4f}",
             f"SWC fails (loses by > 1 point): {fail_t} designs at tt, {fail_s} at ss",
@@ -175,7 +175,7 @@ def main(dst):
     out += ["", f"designs where SWC loses at ss: {', '.join(loss) or 'none'}", "", "## Predictions", "",
             f"(1) every ss cell on the ladder branch: {len(ladder) == len(lss)} ({len(ladder)} of {len(lss)})",
             f"(2) PRIMARY: SWC better on more designs at ss and sign p < 0.05: {bs > ws and ps < 0.05} ({bs} better, {ws} worse, "
-            f"p = {ps:.4f})",
+            f"p = {ps:.6f})",
             f"(3) SWC mean regret below random at ss: {lb.mean(lss, swc) < lb.mean(lss, rand)}",
             f"(4) median tau-b tt vs ss below 0.74: {mtau < 0.74} ({mtau:.3f})",
             f"(5) sign agrees on at least two thirds of untied designs: {3 * nagree >= 2 * len(agree)} ({nagree} of {len(agree)})",
