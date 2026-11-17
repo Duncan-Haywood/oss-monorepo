@@ -21,7 +21,7 @@
 import { createRequire } from "node:module";
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync, appendFileSync } from "node:fs";
 import { join } from "node:path";
-import { detectSyntax, matchingAddons, matchingProfile } from "../schematron-core.mjs";
+import { ADDONS, EXTENDED_BASES, PROFILES, detectSyntax, matchingAddons, matchingProfile, plainOnlySets } from "../schematron-core.mjs";
 import { createPlainRunner, unreadableValues } from "../plain-schematron.mjs";
 
 const args = process.argv.slice(2);
@@ -33,6 +33,20 @@ const roots = (take("--xsl-roots") ?? "").split(",").filter(Boolean);
 // compared, the EU base under it being xml-whitespace-crosscheck.mjs's job. A root may
 // then be the stylesheet's own folder (e.g. external/schematron/1.0.9).
 const addons = args.includes("--addons") && args.splice(args.indexOf("--addons"), 1).length > 0;
+// --fr: the French plain-only sets (added 2026-11-17): every file takes what
+// plainOnlySets(xml, syntax, { profile: "france" }) names, as the page does with France
+// picked: BR-FR (cius-fr) on UBL and CII, the EXTENDED-CTC-FR / Factur-X EXTENDED base on
+// an extended file, BR-FR-CDV on a CDAR status, the Annexe 7 controls on a Flux 10 report.
+// Their manifest `from` is a .sch; FNFE-MPE ships each compiled, so a root may be one of
+// France_RFE's 2xslt folders and the .xslt of the same name is taken.
+const fr = args.includes("--fr") && args.splice(args.indexOf("--fr"), 1).length > 0;
+const SPECIAL = { "cdar-fr": "cdar-fr", "flux10-fr": "flux10-fr" };
+const setFiles = (name, syntax) => {
+  if (SPECIAL[name]) return [SPECIAL[name]];
+  const f = (PROFILES[name] ?? EXTENDED_BASES[name] ?? ADDONS[name])?.files?.[syntax];
+  if (!f) throw new Error(`${name}: no ${syntax} set`);
+  return [].concat(f).map((x) => x.replace(/\.(sef\.)?json$/, ""));
+};
 if (!outDir || !roots.length) throw new Error("usage: --out DIR --xsl-roots R1,R2 [per-file] [seed] dir ...");
 mkdirSync(outDir, { recursive: true });
 writeFileSync(join(outDir, "manifest.jsonl"), "");
@@ -58,7 +72,9 @@ const xslFor = (name) => {
   const from = manifest[name]?.from;
   if (!from) throw new Error(`${name}: no 'from' in plain/manifest.json`);
   for (const r of roots) {
-    for (const p of [join(r, "external/schematron", from), join(r, "external/schematron/3.4.6", from), join(r, from)]) {
+    const xslt = from.replace(/\.sch$/, ".xslt");
+    // The compiled .xslt first: France_RFE's Flux10 folder holds the .sch beside it.
+    for (const p of [join(r, xslt), join(r, "external/schematron", from), join(r, "external/schematron/3.4.6", from), join(r, from)]) {
       if (existsSync(p)) return (map[name] = p);
     }
   }
@@ -107,8 +123,11 @@ for (const dir of dirs) {
   for (const path of walk(dir)) {
     const xml = readFileSync(path, "utf8").replace(/^﻿/, "");
     const syntax = detectSyntax(xml);
-    let profile = syntax === "ubl" ? matchingProfile(xml, syntax) : null;
-    if (!profile && addons && syntax) {
+    let profile = syntax === "ubl" && !fr ? matchingProfile(xml, syntax) : null;
+    if (fr && syntax) {
+      const names = plainOnlySets(xml, syntax, { profile: "france" });
+      if (names.length) profile = [`${syntax}:${names.join("+")}`, { files: { ubl: names.flatMap((n) => setFiles(n, syntax)) } }];
+    } else if (!profile && addons && syntax) {
       const found = matchingAddons(xml, syntax).filter(([, a]) => a.plainOnly);
       if (found.length) profile = [found.map(([n]) => n).join("+"), { files: { ubl: found.map(([, a]) => a.files[syntax].replace(/\.sef\.json$/, "")) } }];
     }
