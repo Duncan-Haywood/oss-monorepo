@@ -180,3 +180,45 @@ test("PAPERS are complete and DEFAULTS sensible", () => {
   assert.equal(DEFAULTS.confidence, 0.95);
   assert.equal(full.papers.length, PAPERS.length);
 });
+
+// Red-team 2026-11-17: four mutants escaped this suite.
+test("parseCsv keeps a last line with no newline, even one column wide or ending in an empty cell", () => {
+  assert.deepEqual(parseCsv("x\n5"), [["x"], ["5"]]);
+  assert.deepEqual(parseCsv("a,b,c\n1,2,"), [["a", "b", "c"], ["1", "2", ""]]);
+});
+
+test("reversing needs a real scale range: equal minimum and maximum are refused", () => {
+  const small = "a,b,c\n1,2,3\n2,3,4\n3,3,5\n4,5,4\n";
+  assert.throws(() => analyze({ csv: small, reverse: "b", scaleMin: 3, scaleMax: 3, bootstrap: 0 }), /scale range/);
+});
+
+test("rng is mulberry32, so a seeded bootstrap gives the same interval from one release to the next", () => {
+  assert.equal(rng(1)(), 0.6270739405881613);
+});
+
+test("the more-than-one-factor warning fires exactly when the second eigenvalue exceeds 1 and is over a third of the first", () => {
+  const R = rng(5);
+  let near = 0;
+  for (let t = 0; t < 400; t++) {
+    const k = 4 + Math.floor(R() * 5), split = 1 + Math.floor(R() * (k - 1)), mix = R();
+    const rows = Array.from({ length: 60 }, () => {
+      const f = R() * 2 - 1, g = R() * 2 - 1;
+      return Array.from({ length: k }, (_, j) => (j < split ? f : mix * f + (1 - mix) * g) + (R() - 0.5) * (0.3 + R()));
+    });
+    const csvT = [Array.from({ length: k }, (_, j) => `i${j}`).join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const res = analyze({ csv: csvT, bootstrap: 0 });
+    const [e0, e1] = res.eigenvalues;
+    const want = e1 > 1 && e0 / e1 < 3;
+    if (e1 > 1 && e0 / e1 >= 3 && e0 / e1 < 4) near++;
+    assert.equal(res.warnings.some((w) => /may measure more than one thing/.test(w)), want, `eigenvalues ${e0}, ${e1}`);
+  }
+  assert.ok(near >= 3, `only ${near} draws had a ratio between 3 and 4`);
+});
+
+test("an absurd bootstrap count is refused instead of hanging the page or CLI", () => {
+  const small = "a,b,c\n1,2,3\n2,3,4\n3,3,5\n4,5,4\n2,2,2\n5,4,5\n";
+  assert.throws(() => analyze({ csv: small, bootstrap: 1e9 }), /bootstrap must be a whole number from 0/);
+  assert.throws(() => analyze({ csv: small, bootstrap: -5 }), /bootstrap must be a whole number from 0/);
+  assert.equal(analyze({ csv: small, bootstrap: 0 }).input.bootstrap, 0);
+  assert.equal(analyze({ csv: small, bootstrap: 50 }).input.bootstrap, 50);
+});
