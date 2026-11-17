@@ -2775,6 +2775,33 @@ tried. Tests: `blackout-fit.test.mjs` (relabelling keeps a round robin and moves
 its label; never worse than the plan as given; the same seed gives the same season; no blackouts means no
 change). The multi-division page gets the same fit in the next section.
 
+## Stopping a refused trial early: measured, not kept (2026-11-17, latest)
+
+The flagship row asked for a cheaper 30-team floor-priced step: the step is 31 of the page's 62 s. One way to
+spend fewer steps is to stop a trial once it is sure to be refused. The search only needs to know whether a
+timetable's break floor is at most `maxBreaks + floor((line - carry-over) / over)`, so a trial could stop as
+soon as a lower bound on its floor passes that. Tried, measured, and left out of `main`, because it bought
+nothing the machine's noise does not hide (`eval/trial-cutoff.txt`; the code is `eval/trial-cutoff.patch.txt`).
+
+- **Two rounds alone never force a break in an even league.** The cheapest bound counts the odd cycles the
+  teams of two consecutive rounds form (each such cycle forces one break; checked by brute force on 400 random
+  pairs). On every pair of rounds of a 30-team starter it is 0. Breaks come from three rounds or more:
+  disjoint 3-round windows give 56 of that starter's 84, 5-round windows all 84.
+- **Refused moves miss by a break or two.** Of the trials that ran to the end, 1,044 were refused by one
+  break and 1,432 more by 2 to 5. A bound has to be within a break or two of exact to stop a trial early.
+  The pair bound plus the table so far stopped 7,211 of 11,307 trials, but near their end: 5.9% fewer steps,
+  and the floor-priced step took 55.5, 56.3 and 54.1 s against 60.4, 56.0 and 55.3 s without it.
+- **Exact windows cost more than they save.** Caching the exact least of every window of 4 or 6 unchanged
+  committed rounds gives a much tighter bound, but a commit every ten trials changes about three rounds, so
+  the windows are recomputed so often that the run takes 40,654 to 66,540 extra steps to save 21,000 to
+  29,000 (67.4 and 68.6 s).
+- **The step itself is near its limit.** A profile puts 28 of 54 s in the int16 step, which keeps one cycle
+  open at a time (tables of 2^(k+1) at most) and moves about 3.8 billion entries a second. A shuffle-free
+  inner loop gave the same tables at the same speed.
+
+So the next saving at 30 teams is fewer trials, not cheaper ones, and has to be judged on the seasons it
+finds. Same seasons, same code on the page; nothing changed for users.
+
 ## A trial's steps kept in the module: 30 teams join the page (2026-11-17)
 
 The flagship row asked for 30 teams in the page's floor-priced step, and named the next thing to cut:
