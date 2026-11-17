@@ -468,10 +468,10 @@ def _block_stat(a: np.ndarray, fn, block: int = BLOCK) -> np.ndarray:
     return fn(tiles)
 
 
-def _noise_model(level: np.ndarray, spread: np.ndarray) -> tuple[float, float]:
+def _noise_model(level: np.ndarray, spread: np.ndarray, pct: float = 15.0) -> tuple[float, float]:
     """Fit variance = g * level + r (shot and read noise) to the quietest blocks at each brightness: the
-    blocks are put in eight brightness bins and each bin's 15th percentile of ``spread`` squared is taken,
-    so texture (which only adds spread) mostly drops out."""
+    blocks are put in eight brightness bins and each bin's ``pct``th percentile (15th by default) of ``spread``
+    squared is taken, so texture (which only adds spread) mostly drops out."""
 
     lv, sp = level.ravel(), spread.ravel()
     if lv.size < 8:
@@ -482,7 +482,7 @@ def _noise_model(level: np.ndarray, spread: np.ndarray) -> tuple[float, float]:
         sel = (lv >= edges[i]) & (lv <= edges[i + 1])
         if sel.sum() >= 3:
             xs.append(float(np.median(lv[sel])))
-            ys.append(float(np.percentile(sp[sel], 15)) ** 2)
+            ys.append(float(np.percentile(sp[sel], pct)) ** 2)
     x, y = np.asarray(xs), np.asarray(ys)
     if x.size < 2 or np.ptp(x) == 0:
         return 0.0, float(np.mean(y)) if y.size else 0.0
@@ -557,13 +557,13 @@ def variance_map(c, pat, noise) -> np.ndarray:
     return p[cmap, 0] * np.clip(c, 0.0, None) + p[cmap, 1]
 
 
-def estimate_noise(c, pat) -> tuple[float, float]:
+def estimate_noise(c, pat, pct: float = 15.0) -> tuple[float, float]:
     """The sensor's (shot, read) model, variance = shot * level + read, fitted from the mosaic ``c`` alone: the
     quietest blocks' spread at each brightness (``_block_spread``, ``_noise_model``). Texture only adds to the
     spread, so on a detailed frame this reads high; on a smooth one it reads about 0.8 of the true sigma
     (eval/noise-profile-real-dngs-2026-11-16.md)."""
 
-    return _noise_model(*_block_spread(c, pat))
+    return _noise_model(*_block_spread(c, pat), pct=pct)
 
 
 # The profile guard (2026-11-16, eval/noise-profile-real-dngs-2026-11-16.md). Blocks are put in eight brightness
@@ -666,6 +666,28 @@ def guard_profile(c, pat, noise, *, cap: float = PROFILE_CAP):
         return (shot, read), ratio
     f = (cap / ratio) ** 2
     return (shot * f, read * f), ratio
+
+
+# A file with no NoiseProfile (every raw read directly: ARW, NEF, CR2, RW2, ...) can get its noise model from the
+# frame, opt-in (``DevelopSettings.noise_from_frame``; 2026-11-17, tools/noise_aware_estimated.py,
+# eval/noise-aware-estimated-2026-11-17.md): ``estimate_noise`` with sigma times FRAME_SCALE, then
+# ``guard_profile``. Texture only adds to the estimate, and an overstated model costs detail where an understated
+# one only moves the blend toward directional, so the estimate is scaled down. 0.8 is the largest scale whose
+# tune rows lost no more than 0.1 dB on frames whose noise is at least their finest texture's level; on
+# held-out noisy frames it keeps 80-94% of the true model's luma gain. On clean, finely textured frames texture
+# still reads as noise, which is why the mode is opt-in.
+FRAME_PCT = 15.0
+FRAME_SCALE = 0.8
+
+
+def frame_noise(c, pat, *, pct: float = FRAME_PCT, scale: float = FRAME_SCALE) -> tuple[float, float]:
+    """A (shot, read) noise model for the noise-aware blend read from the mosaic ``c`` alone, on ``c``'s scale:
+    ``estimate_noise`` at the ``pct``th block-spread percentile, sigma times ``scale``, through ``guard_profile``."""
+
+    shot, read = estimate_noise(c, pat, pct=pct)
+    f = scale * scale
+    used, _ = guard_profile(c, pat, (shot * f, read * f))
+    return float(used[0]), float(used[1])
 
 
 def frame_measures(
