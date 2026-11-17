@@ -57,6 +57,26 @@ class AuditTests(unittest.TestCase):
         self.assertEqual(ranks, sorted(ranks, reverse=True))
         self.assertTrue(all(f["file"] == ".github/workflows/ci.yml" for f in findings))
 
+    def test_parallel_checks_match_a_serial_run(self):
+        # audit() runs the checks concurrently; pin it against the plain loop.
+        with repo(BAD + "\n# second line\n") as d:
+            findings, errors = audit.audit(d)
+            serial, serial_errors = [], []
+            for name, field, sev in audit.CHECKS:
+                raw, err = audit.run_check(name, d)
+                if err:
+                    serial_errors.append(err)
+                else:
+                    serial.extend(audit.normalise(name, field, sev, raw, d))
+        seen, expected = set(), []
+        for f in serial:
+            key = (f["file"], f["line"], f["rule"], f["scope"])
+            if key not in seen:
+                seen.add(key)
+                expected.append(f)
+        expected.sort(key=lambda f: (-audit.RANK[f["severity"]], f["file"], f["line"], f["rule"]))
+        self.assertEqual((findings, errors), (expected, serial_errors))
+
     def test_clean_workflow_is_clean(self):
         with repo(GOOD) as d:
             findings, errors = audit.audit(d)
