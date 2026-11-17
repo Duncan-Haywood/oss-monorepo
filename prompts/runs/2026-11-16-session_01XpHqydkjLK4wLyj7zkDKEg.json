@@ -50,6 +50,12 @@
       "why": "After section A's first rows showed the residual did not shrink with sensor quality, a diagnostic section A2 was added post hoc to find out why",
       "did": "labelled A2 'post hoc, not registered' in run.py, results.txt, LOG and README; hypotheses H132-H135 are judged exactly as registered",
       "result": "found the threshold-flip mechanism, the milestone's main finding"
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "why": "main went red (checklist_coverage) after PR #16739 added platform/ci/*.test.mjs without a checklist line; my PR's validate and coverage jobs failed on it",
+      "did": "added `node --test platform/ci/*.test.mjs` to the checklist in this research PR (not a CODEOWNERS path), fixing forward",
+      "result": "checklist_coverage and its unit test pass locally; the 4 node tests pass"
     }
   ],
   "writeups": [
