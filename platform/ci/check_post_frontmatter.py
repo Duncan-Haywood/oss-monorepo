@@ -66,7 +66,8 @@ ENTITY = re.compile(r"&(#\d+|#x[0-9a-f]+|[a-z][a-z0-9]*);", re.I)  # entities.mj
 def limits_line():
     return (f"front matter: title <= {LIMITS['title']} chars, description {MIN_DESCRIPTION} to "
             f"{LIMITS['description']}, seo_title <= {LIMITS['seo_title']} (needed when a title over "
-            f"{LIMITS['seo_title']} has no clean cut at ': '), date = `date -u +%F`, tags: [a, b]")
+            f"{LIMITS['seo_title']} has no clean cut at ': '), date = `date -u +%F`, tags: [a, b]; "
+            f"once written: python3 platform/ci/check_posts.py (front matter, links, near-copies)")
 
 
 def problems(name, text, today=None):

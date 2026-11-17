@@ -57,7 +57,20 @@ for d in out_dirs:
     for line in (d / "manifest.jsonl").read_text().splitlines():
         if line:
             rows.append({**json.loads(line), "dir": d})
-FIRED = re.compile(r'<svrl:(?:failed-assert|successful-report)\b[^>]*?\bid="([^"]+)"')
+FIRED = re.compile(r'<svrl:(failed-assert|successful-report)\b([^>]*)>([\s\S]*?)</svrl:\1>')
+TEXT_ID = re.compile(r'<svrl:text[^>]*>\s*\[([^\]]+)\]')
+
+
+def fired_ids(svrl):
+    # The assert's id attribute, else the [ID] that opens its message: what parseSvrl in
+    # schematron-core.mjs reports. Until 2026-11-17 only the attribute was read, so FNFE's
+    # CDAR and Flux 10 stylesheets, whose asserts carry no id, showed no rule at all.
+    out = set()
+    for _, attrs, body in FIRED.findall(svrl):
+        m = re.search(r'\bid="([^"]+)"', attrs) or TEXT_ID.search(body)
+        if m:
+            out.add(m.group(1))
+    return out
 
 with PySaxonProcessor(license=False) as proc:
     xslt = proc.new_xslt30_processor()
@@ -73,7 +86,7 @@ with PySaxonProcessor(license=False) as proc:
             except Exception as e:  # a dynamic error is its own outcome, not a pass
                 ids.add("#ERROR " + (re.findall(r"\b[A-Z]{4}\d{4}\b", str(e)) or ["?"])[0])
                 continue
-            ids.update(FIRED.findall(svrl))
+            ids.update(fired_ids(svrl))
         return ids
 
     for row in rows:

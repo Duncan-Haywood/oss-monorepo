@@ -103,3 +103,25 @@ export function inspectXmlValues(invoice) {
 export function xmlValueFindings(tree) {
   return unreadableLeaves(tree).map((row) => xmlValueFinding(row, row.path));
 }
+
+// INV-065 for France's Flux 10 e-reporting and CDAR status files (added 2026-11-17). Measured
+// against FNFE-MPE's compiled rules on SaxonC-HE (eval/french-whitespace-2026-11-17.md): a
+// no-break space in a Flux 10 amount stops Saxon on the whole file, while a space in an
+// identifier (GlobalID, URIID: string types in the schemas) or in CDAR's DateTimeString
+// (udt's string type, format 204) is read by no rule as a number, so those leaves are left
+// out. The message says what France's rules may do, not that Saxon always stops.
+const FRENCH_SKIP = { flux10: /(?:ID|Id)$/, cdar: /(?:ID|Id|DateTimeString)$/ };
+export function frenchXmlValueFindings(tree, format) {
+  const skip = FRENCH_SKIP[format];
+  return unreadableLeaves(tree)
+    .filter((row) => !skip.test(String(row.element).replace(/^.*:/, "")))
+    .map((row) => {
+      const f = xmlValueFinding(row, row.path);
+      return {
+        ...f,
+        message: f.message.replace(/ a receiver's validator \(Saxon\) stops on the whole file instead and reports no rule\.$/,
+          " XML does not trim this space, so an XML schema check, or France's official rules run on Saxon, may stop on the whole file or reject the value, without naming the space."),
+        source: format,
+      };
+    });
+}
