@@ -38,6 +38,7 @@ them red on main (term-ids.test.mjs). About 30 s more at six at a time;
 NODE_SLOW names the ones too slow for every pull request.
 """
 import argparse
+import functools
 import glob
 import re
 import shlex
@@ -117,6 +118,22 @@ def has_module(name, python=sys.executable):
     return subprocess.run([python, "-c", f"import {name}"], capture_output=True).returncode == 0
 
 
+@functools.lru_cache(maxsize=None)
+def pytest_python():
+    """An interpreter that imports pytest, or None: this one first, then the
+    other python3s pyenv.py knows (no install). Cloud images often run this
+    script under a python3 without pytest while /usr/bin/python3.x has it, and
+    every plain suite then showed as a skip (doc friction 2026-11-17)."""
+    if has_module("pytest"):
+        return sys.executable
+    try:
+        import pyenv
+        cands = pyenv.candidates()
+    except Exception:
+        return None
+    return next((py for py in cands if has_module("pytest", py)), None)
+
+
 def missing_module(out, here=HERE):
     """The third-party module a run failed to import, or None. A module the
     repository holds (a sibling .py file) is a real break, not a missing package."""
@@ -134,12 +151,13 @@ def run_suite(path, timeout=main_health.TIMEOUT):
     third-party package is a SKIPPED result with rc 0."""
     path = Path(path)
     plain = "TestCase" not in path.read_text(encoding="utf-8", errors="replace")
-    if plain and not has_module("pytest"):
-        return path.name, 0, f"{SKIPPED} pytest-style suite and no pytest here"
+    python = pytest_python() if plain else sys.executable
+    if python is None:
+        return path.name, 0, f"{SKIPPED} pytest-style suite and no python3 here has pytest"
     cmd = ["-m", "pytest", "-q", "-p", "no:cacheprovider", path.name] if plain \
         else ["-m", "unittest", path.stem]
     try:
-        r = subprocess.run([sys.executable, *cmd], cwd=path.parent,
+        r = subprocess.run([python, *cmd], cwd=path.parent,
                            capture_output=True, text=True, timeout=timeout)
     except subprocess.TimeoutExpired:
         return path.name, main_health.TIMED_OUT, f"timed out after {timeout} s"
