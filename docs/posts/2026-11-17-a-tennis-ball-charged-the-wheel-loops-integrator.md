@@ -3,7 +3,7 @@ title: "Why the tennis feeder's slow wheel sat 3.6% low after each ball: its int
 seo_title: "A launcher wheel's integrator learned the ball and the brake"
 date: 2026-11-17
 tags: [open-tennis-robots, firmware, control, simulation]
-description: "After each ball the feeder's slow wheel overshot 19%, then sat 3.6% low for 2 s. The integrator was learning the ball and the brake. Fixing both halves the wait."
+description: "After each ball the feeder's slow wheel overshot 19%, then sat 3.6% low for 2 s. The integrator was learning the ball and the brake. Fixing both cut the wait."
 ---
 
 The open tennis-ball feeder fires each ball between two spinning wheels. The
@@ -64,7 +64,12 @@ wheel lags and two wrong free speeds.
 | braking: the slow wheel's lowest speed, worst | 11% of target | 69% |
 | slow-wheel spin-ups: worst time to steady (336 cases) | 11.62 s | 7.63 s |
 
-DRILL_PARAGRAPH
+**On whole drills.** A 30-shot drill that keeps alternating fast and slow
+wheels now finishes faster on every one of the 12 simulated builds tried:
+2.5-3.8 s sooner on wheels that respond in 0.4 s, and 8-15 s sooner (about 5-9%)
+on wheels that take 0.8 s. The feeder's own measurement of each ball (the
+wheels' speed drop, which it uses to calibrate itself) reads as accurately as
+before, and the calibration it produces moves by less than 0.2 points.
 
 **What it costs.** Wheels that are faster than the board is told (11,000 rpm
 free speed against 9,000) dip a little more after a ball. On the fastest

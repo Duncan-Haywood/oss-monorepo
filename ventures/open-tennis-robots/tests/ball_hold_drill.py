@@ -86,7 +86,7 @@ def main():
                 with open(raw, "a") as f:
                     f.write(json.dumps([key(a), r, done[key(a)][1]]) + "\n")
     out = [(g, done[key(g)][0], done[key(g)][1]) for g in grid]
-    print("plant        | ball hold | drills | aborted | slow drill s, mean / worst | record/true: >2% off, range, "
+    print("plant        | loop      | drills | aborted | slow drill s, mean / worst | record/true: >2% off, range, "
           "500-1,000 rpm >2% | spin error mean / worst | speed error mean / worst")
     for pname, _ in plants:
         for band in (None, ON):
@@ -99,7 +99,7 @@ def main():
             span = [r[0] for r in ok]
             rat = [x for r in ok for x in r[1]]
             slow = [q for rpm, q in rat if rpm < 1000]
-            print(f"{pname:12} | {'off' if band is None else band:>9} | {len(rows):6d} | {len(ab):7d} | "
+            print(f"{pname:12} | {'before' if band is None else 'shipped':>9} | {len(rows):6d} | {len(ab):7d} | "
                   f"{statistics.fmean(span):6.1f} / {max(span):6.1f} | {sum(abs(q - 1) > 0.02 for _, q in rat):3d} of "
                   f"{len(rat)}, {min(q for _, q in rat):.3f}-{max(q for _, q in rat):.3f}, "
                   f"{sum(abs(q - 1) > 0.02 for q in slow)} of {len(slow)} | "
@@ -107,7 +107,7 @@ def main():
                   f"{100 * statistics.fmean(r[2] for r in ok):.2f} / {100 * max(r[2] for r in ok):.2f}%")
             for a in ab:
                 print(f"    aborted: lag {a[0]} build {a[1]}/{a[2]}: {a[3]}")
-    print("\nPer drill (slow drill seconds, off -> on):")
+    print("\nPer drill (slow drill seconds, before -> shipped):")
     by = {}
     for a, r, _ in out:
         by.setdefault((a[0], a[2], a[3], a[4]), {})[a[5]] = r[0] if r else None

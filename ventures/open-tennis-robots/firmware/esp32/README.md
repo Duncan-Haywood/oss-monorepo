@@ -1483,7 +1483,8 @@ verdict" left this build out, so their first-order rows have 8 builds, not 9.
 
 **Still open.** The undershoot itself: under the speed-scaled gains a 0.8 s wheel braking to 526 rpm settles 3-4% low and
 takes about 2 s to creep back. This costs time, not accuracy, because the gate waits it out. A wheel model that is
-not first-order may undershoot differently.
+not first-order may undershoot differently. (Answered 2026-11-17 in "A ball charged the integrator": the
+integrator, charged by the ball and by the brake before it.)
 
 ## Checked before a calibration drill (2026-11-16)
 
@@ -1612,7 +1613,26 @@ worst 11.62 to 7.63 s, 14 to 12 balls that could go over 3% off, worst error at 
 worst 5.12 to 5.29 s, error at the gate 3.3 to 3.1%, over the next 2 s 6.2 to 6.4%
 (eval/wheel-loop-ramp-hold-2026-11-17.txt): a small cost, from the bound.
 
-DRILL_SECTION
+**The build that started it.** On the trace's build, braking to 526 rpm now bottoms at 429 rpm (about 90 before) and
+peaks at 547 (620), the integrator stays at -0.016 (its bound is -0.020), and after shot 1's ball the wheel tops out
+at 528 rpm (625). Shot 1 is released at 20.87 s (21.47 before) and shot 2 at 24.87 s (27.34).
+
+**Whole drills.** `tests/ball_hold_drill.py --plants 0,2 --lags 0.4,0.8` runs the 30-shot slow drill of
+`tests/min_fit_rpm_sweep.py` and the calibration drill on the first-order and 30 ms ESC plants, three true launchers,
+with the loop before and as shipped, the board told its ESC lag, `HOLD_RPM` and `LOOP_AFTER_REVS` as shipped: 24
+drills, none aborted (eval/ball-hold-drill-2026-11-17.txt, rows in the .jsonl beside it).
+
+| plant | loop | slow drill, mean / worst | record drop / true drop, >2% off | spin efficiency error, mean / worst |
+| --- | --- | --- | --- | --- |
+| first-order | before | 140.8 / 151.9 s | 0 of 360 | 0.16 / 0.33% |
+| first-order | shipped | 134.9 / 142.5 s | 0 of 360 | 0.31 / 0.51% |
+| ESC 30 ms | before | 143.6 / 157.0 s | 0 of 360 | 0.21 / 0.67% |
+| ESC 30 ms | shipped | 135.9 / 143.7 s | 0 of 360 | 0.17 / 0.31% |
+
+Every drill is faster: 2.5-3.8 s on the 0.4 s wheels, 8.2-14.6 s on the 0.8 s wheels. The record drops read as well
+as before (range 0.990-1.010 against 0.993-1.009), and the launcher fit moves by less than 0.2 points either way
+(worse on the first-order plant, better behind the ESC); speed efficiency stays within 0.1%. The 0.2 s wheels and the
+jittery tach were not run here, to keep the run under an hour.
 
 **Where it does worse.** On 0.2 s wheels the ball's undershoots over 2% went from 7 to 17 of 72. Every one is a
 wheel whose free speed is 11,000 rpm against the 9,000 told: there the proportional term overshoots on its own (the
