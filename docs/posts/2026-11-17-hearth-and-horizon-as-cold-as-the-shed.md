@@ -1,9 +1,9 @@
 ---
 title: "Hearth & Horizon: As Cold as the Shed, a story about the ice dam a warm room builds"
-seo_title: "Why ice dams form: snow as insulation and a warm roof space, in a short story"
+seo_title: "Why ice dams form: snow as insulation, told in a short story"
 date: 2026-11-17
 tags: [fiction, hearth-and-horizon, writing, short-story, physics, buildings]
-description: "A Hokkaido parish hall becomes a warm room for the winter, and water comes through its ceiling under 30 cm of snow. Plus one in the roof space at minus eight explains why."
+description: "A Hokkaido parish hall becomes a warm room, and water drips through its ceiling under 30 cm of snow. Plus one in the roof at minus eight explains why."
 ---
 
 [As Cold as the Shed](../../ventures/hearth-and-horizon/stories/as-cold-as-the-shed.md)
