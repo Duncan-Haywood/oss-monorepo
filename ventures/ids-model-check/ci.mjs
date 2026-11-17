@@ -92,8 +92,17 @@ const DUP_WHY = "IFC requires every GlobalId to be unique (IfcRoot rule UR1); BC
 //   apart.
 // The IDS verdict stands; CI fails on them only when asked
 // (--fail-on-shared-globalids).
-export function crossModelGlobalIds(indexes, { revisionShare = 0.5, minRevision = 10 } = {}) {
-  const empty = { models: indexes.length, conflicts: [], revisions: [], frame: [], pairs: [] };
+// Two refinements on top (eval/federation-allow-2026-11-17.md):
+// - dependents: a relationship whose holders name only shared GlobalIds
+//   (IfcRelDefinesByType, IfcRelAssociatesMaterial of a shared element), and
+//   a type such a relationship names, follow an element already reported. They
+//   are listed under it (conflict.with), not as findings of their own.
+// - allow: rules from parseSharedAllow (a team's list of GlobalIds or classes
+//   shared on purpose, such as a survey point copied into every discipline's
+//   file). A conflict every holder of which matches a rule moves, with its
+//   dependents, to out.allowed; rules that matched nothing are out.allowUnused.
+export function crossModelGlobalIds(indexes, { revisionShare = 0.5, minRevision = 10, allow = null } = {}) {
+  const empty = { models: indexes.length, conflicts: [], revisions: [], frame: [], pairs: [], allowed: [], allowUnused: [] };
   if (indexes.length < 2) return empty;
   const holders = new Map(); // GlobalId -> [{ m, e }] for GlobalIds in 2+ models
   const firstAt = new Map();
@@ -138,14 +147,130 @@ export function crossModelGlobalIds(indexes, { revisionShare = 0.5, minRevision 
     (isFrame(hk) ? out.frame : out.conflicts).push(entry);
   }
   const byG = (a, b) => (a.globalId < b.globalId ? -1 : a.globalId > b.globalId ? 1 : 0);
+  groupDependents(out, holders);
+  if (allow) applyAllow(out, allow);
   out.conflicts.sort(byG);
+  out.allowed.sort(byG);
   out.frame.sort(byG);
   out.pairs = [...pairs.values()].sort((x, y) => x.a - y.a || x.b - y.b).map((p) => ({ a: indexes[p.a].model, b: indexes[p.b].model, shared: p.shared, frame: p.frame, sizeA: sizes[p.a], sizeB: sizes[p.b], revision: p.revision }));
   out.revisions = out.pairs.filter((p) => p.revision);
   return out;
 }
+// Moves conflicts that only follow other shared objects under them.
+function groupDependents(out, holders) {
+  const shared = new Map(); // GlobalId -> conflict entry, or "frame"
+  for (const c of out.conflicts) shared.set(c.globalId, c);
+  for (const c of out.frame) shared.set(c.globalId, "frame");
+  const refsOf = (c) => {
+    const hs = holders.get(c.globalId);
+    if (!hs.every((h) => Array.isArray(h.e.refs) && h.e.refs.length)) return null;
+    return [...new Set(hs.flatMap((h) => h.e.refs))];
+  };
+  const dep = new Map(); // dependent GlobalId -> the primary conflicts it follows
+  // A relationship is dependent when, in every model holding it, everything it
+  // names is shared, and at least one of those is a non-relationship conflict.
+  for (const c of out.conflicts) {
+    const refs = refsOf(c);
+    if (!refs || !refs.every((g) => shared.has(g))) continue;
+    if (!refs.some((g) => shared.get(g) !== "frame" && !holders.get(g)[0].e.refs)) continue;
+    dep.set(c.globalId, refs);
+  }
+  // A type (or other non-element, non-relationship) is dependent when a
+  // dependent relationship names it next to an element conflict.
+  const elementRefs = (refs) => refs.filter((g) => shared.get(g) !== "frame" && shared.get(g)?.holders[0].kind === "element");
+  for (const [, refs] of [...dep]) {
+    const els = elementRefs(refs);
+    if (!els.length) continue;
+    for (const g of refs) {
+      const c = shared.get(g);
+      if (c && c !== "frame" && c.holders[0].kind === "other" && !holders.get(g)[0].e.refs && !dep.has(g)) dep.set(g, els);
+    }
+  }
+  // Each dependent goes under its primaries: the element conflicts it reaches
+  // (through a dependent type for a relationship that names only a type).
+  const primariesOf = (g, seen = new Set()) => {
+    if (seen.has(g)) return [];
+    seen.add(g);
+    const refs = dep.get(g);
+    if (!refs) return shared.get(g) && shared.get(g) !== "frame" ? [g] : [];
+    return [...new Set(refs.flatMap((r) => primariesOf(r, seen)))];
+  };
+  const keep = [];
+  for (const c of out.conflicts) {
+    if (!dep.has(c.globalId)) { keep.push(c); continue; }
+    const ps = primariesOf(c.globalId).filter((p) => p !== c.globalId && !dep.has(p));
+    if (!ps.length) { keep.push(c); continue; }
+    const brief = { globalId: c.globalId, type: c.holders[0].type, name: c.holders[0].name, models: c.holders.length, follows: ps };
+    for (const p of ps) (shared.get(p).with ||= []).push(brief);
+  }
+  // A relationship left as a finding whose holders name different objects:
+  // one GlobalId for two different relationships. A viewer merging by
+  // GlobalId keeps one and drops the other's links.
+  for (const c of keep) {
+    const hs = holders.get(c.globalId);
+    if (!hs.every((h) => Array.isArray(h.e.refs))) continue;
+    const key = (h) => [...new Set(h.e.refs)].sort().join(",");
+    if (hs.some((h) => key(h) !== key(hs[0]))) c.contentsDiffer = true;
+  }
+  out.conflicts = keep;
+}
+
+// A team's allow list: one rule per line, "#" starts a comment. A GlobalId's
+// first character carries 2 bits, so it is 0-3; that tells it from a class.
+//   3Fit2Fad92zf2f6aWdJtF5            a GlobalId
+//   IFCBUILDINGELEMENTPROXY "origin"  a class and a name ("*" in the name matches any run)
+//   IFCGRID                           a class (any name)
+//   * "geo-reference"                 a name, any class
+export function parseSharedAllow(text) {
+  const rules = [];
+  const errors = [];
+  String(text).split(/\r?\n/).forEach((raw, i) => {
+    const line = raw.replace(/(^|\s)#.*$/, "").trim();
+    if (!line) return;
+    let m;
+    if ((m = /^([0-3][0-9A-Za-z_$]{21})$/.exec(line))) rules.push({ line: i + 1, text: line, globalId: m[1] });
+    else if ((m = /^(\*|IFC[A-Z0-9_]+)(?:\s+"([^"]*)")?$/i.exec(line))) {
+      const cls = m[1] === "*" ? null : m[1].toUpperCase();
+      if (!cls && m[2] === undefined) { errors.push(`line ${i + 1}: "*" needs a name ("*" "origin")`); return; }
+      const name = m[2] === undefined ? null : new RegExp(`^${m[2].replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*")}$`, "i");
+      rules.push({ line: i + 1, text: line, cls, name });
+    } else errors.push(`line ${i + 1}: not a GlobalId, a class or a class with a quoted name: ${line}`);
+  });
+  return { rules, errors };
+}
+function applyAllow(out, allow) {
+  const used = new Set();
+  const matches = (c) => {
+    const hit = new Set();
+    for (const h of c.holders) {
+      const r = allow.rules.find((r) => (r.globalId ? r.globalId === c.globalId : (!r.cls || r.cls === h.type) && (!r.name || (h.name != null && r.name.test(h.name)))));
+      if (!r) return null;
+      hit.add(r);
+    }
+    return hit;
+  };
+  const keep = [];
+  for (const c of out.conflicts) {
+    const hit = matches(c);
+    if (!hit) { keep.push(c); continue; }
+    for (const r of hit) used.add(r);
+    c.allowedBy = [...hit].map((r) => r.line);
+    out.allowed.push(c);
+  }
+  // A dependent under more than one element stays only while one is reported.
+  const allowedIds = new Set(out.allowed.map((c) => c.globalId));
+  for (const c of out.allowed) c.with = (c.with || []).filter((d) => d.follows.every((p) => allowedIds.has(p)));
+  for (const c of keep) {
+    if (!c.with) continue;
+    for (const d of c.with) d.follows = d.follows.filter((p) => !allowedIds.has(p));
+  }
+  out.conflicts = keep;
+  out.allowUnused = allow.rules.filter((r) => !used.has(r)).map((r) => ({ line: r.line, rule: r.text }));
+}
+
 const holderLine = (h) => `${h.model} #${h.id} ${h.type}${h.name ? ` "${h.name}"` : ""}`;
-export const sharedLine = (c) => `${c.globalId} is in ${c.holders.length} models: ${c.holders.map(holderLine).join(", ")} (${!c.sameClass ? "different objects: viewers and BCF topics cannot tell them apart" : c.holders[0].kind === "element" ? "the same element in more than one model's file: counted twice in quantities" : "the same object in more than one model's file"})`;
+const withLine = (c) => (c.with?.length ? `; with it: ${c.with.map((d) => `${d.type}${d.name ? ` "${d.name}"` : ""} ${d.globalId}`).join(", ")}` : "");
+export const sharedLine = (c) => `${c.globalId} is in ${c.holders.length} models: ${c.holders.map(holderLine).join(", ")}${withLine(c)} (${!c.sameClass ? "different objects: viewers and BCF topics cannot tell them apart" : c.contentsDiffer ? "one GlobalId for relationships that link different objects in each model: a viewer merging by GlobalId keeps one and drops the others' links" : c.holders[0].kind === "element" ? "the same element in more than one model's file: counted twice in quantities" : "the same object in more than one model's file"})`;
 export const revisionLine = (p) => `${p.b} shares ${p.shared - p.frame} of ${Math.min(p.sizeA, p.sizeB)} GlobalIds with ${p.a}: one model twice (a revision or a copy), so every element is in the set twice`;
 export const sharedCount = (f) => (f ? f.conflicts.length + f.revisions.length : 0);
 const SHARED_WHY = "GlobalIds must be unique across a federated set as well as within a file: BCF topics, clash and diff tools find elements by GlobalId, so one held in two discipline models points them at both.";
@@ -457,6 +582,8 @@ export function stepSummary(runs, { maxFailures = 5, failOnUnchecked = false, fa
   if (t.auditWarnings) out.push(`**IDS audit:** ${t.auditWarnings} warning(s) on ${t.auditSpecs} specification(s): the IDS is valid, but these specifications probably do not check what their author meant (details below)${failOnAudit ? "; the build fails on them (--fail-on-audit-warnings)" : ""}. The fix is in the IDS file.`, "");
   if (t.duplicateGlobalIds) out.push(`**Duplicate GlobalIds:** ${t.duplicateGlobalIds.toLocaleString("en-US")} GlobalId(s) shared by more than one element in ${t.duplicateModels} model(s) (details below). ${DUP_WHY}${failOnDuplicates ? " The build fails on them (--fail-on-duplicate-globalids)." : ""}`, "");
   if (sharedCount(federation)) out.push(`**GlobalIds shared between models:** ${[t.sharedGlobalIds ? `${t.sharedGlobalIds.toLocaleString("en-US")} GlobalId(s) held in more than one of the ${federation.models} models` : "", t.revisionPairs ? `${t.revisionPairs} pair(s) of models that are one model twice` : ""].filter(Boolean).join("; ")} (details below). ${SHARED_WHY}${failOnShared ? " The build fails on them (--fail-on-shared-globalids)." : ""}`, "");
+  if (federation?.allowed?.length) out.push(`**Shared on purpose:** ${federation.allowed.length} shared GlobalId(s) matched the team's allow list (${federation.allowed.map((c) => `${c.holders[0].type}${c.holders[0].name ? ` "${c.holders[0].name}"` : ""}`).filter((x, i, a) => a.indexOf(x) === i).slice(0, 5).join(", ")}${federation.allowed.length > 5 ? ", ..." : ""}), with ${federation.allowed.reduce((n, c) => n + (c.with?.length || 0), 0)} type(s) and relationship(s) that follow them. Not counted.`, "");
+  if (federation?.allowUnused?.length) out.push(`**Allow list:** ${federation.allowUnused.map((u) => `line ${u.line} (\`${u.rule}\`)`).join(", ")} matched nothing shared in this run. A rule left from an earlier model set can hide a new mistake later; drop it if it is stale.`, "");
   if (t.sharedFrame) out.push(`**Shared frame:** ${t.sharedFrame} project, site, building, storey, space or grid GlobalId(s) are the same in more than one model. Discipline files exported from one template usually share these on purpose, so they are not a warning.`, "");
   out.push("| Model | IDS | Result | Specifications passing | Failing elements | Not checked |", "|---|---|---|---|---|---|");
   for (const r of runs) {

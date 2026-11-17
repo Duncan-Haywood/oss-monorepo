@@ -8,6 +8,7 @@
 //       [--root DIR] [--max-failures N] [--fail-on-unchecked] [--fail-on-audit-warnings]
 //       [--gitlab-codequality gl-code-quality-report.json] [--gitlab-max-per-spec N]
 //       [--fail-on-duplicate-globalids] [--fail-on-shared-globalids]
+//       [--shared-globalids-allow FILE]
 //
 // Globs are matched under --root (default: the current directory), skipping
 // .git and node_modules. Inside GitHub Actions (GITHUB_ACTIONS=true) it also
@@ -20,7 +21,10 @@
 // --fail-on-duplicate-globalids: two elements of a model share a GlobalId;
 // and --fail-on-shared-globalids: with two or more models, a GlobalId one
 // model's element holds is also in another model, or two models are one model
-// twice), 2 on a usage error or when no file matched.
+// twice; --shared-globalids-allow FILE lists GlobalIds or classes a team
+// shares between models on purpose, which then count with the types and
+// relationships that follow them), 2 on a usage error, a bad allow-list line
+// or when no file matched.
 // Each specification's report keeps its first --max-failures failing elements
 // (default 1000; counts stay exact) so one spec matching every entity of a
 // large export cannot run Node out of memory. --gitlab-codequality writes a
@@ -32,12 +36,12 @@ import { join, relative, resolve, sep, isAbsolute } from "node:path";
 import { check, readModel, parseModel, parseIds } from "./node.mjs";
 import { globalIdIndex } from "./ids.mjs";
 import { bcfZip } from "./bcf.mjs";
-import { junitXml, annotations, codeQuality, cqElements, stepSummary, tally, notChecked, auditFindings, modelFindings, dupLine, crossModelGlobalIds, sharedLine, revisionLine, sharedCount, idsSpecLines, globToRegex, patterns, pairUp, stepLines } from "./ci.mjs";
+import { junitXml, annotations, codeQuality, cqElements, stepSummary, tally, notChecked, auditFindings, modelFindings, dupLine, crossModelGlobalIds, parseSharedAllow, sharedLine, revisionLine, sharedCount, idsSpecLines, globToRegex, patterns, pairUp, stepLines } from "./ci.mjs";
 
 const args = process.argv.slice(2);
 const opt = (n, d) => { const i = args.indexOf(n); return i >= 0 && args[i + 1] !== undefined ? args[i + 1] : d; };
 const flag = (n) => args.includes(n);
-const usage = () => { console.error('usage: node ci-cli.mjs --models "GLOB[,GLOB]" --ids "GLOB[,GLOB]" [--pairing all|name] [--junit FILE] [--summary FILE] [--bcf-dir DIR] [--json FILE] [--annotations] [--fail-on error|warning|never] [--root DIR] [--max-failures N] [--fail-on-unchecked] [--fail-on-audit-warnings] [--gitlab-codequality FILE] [--gitlab-max-per-spec N] [--fail-on-duplicate-globalids] [--fail-on-shared-globalids]'); process.exit(2); };
+const usage = () => { console.error('usage: node ci-cli.mjs --models "GLOB[,GLOB]" --ids "GLOB[,GLOB]" [--pairing all|name] [--junit FILE] [--summary FILE] [--bcf-dir DIR] [--json FILE] [--annotations] [--fail-on error|warning|never] [--root DIR] [--max-failures N] [--fail-on-unchecked] [--fail-on-audit-warnings] [--gitlab-codequality FILE] [--gitlab-max-per-spec N] [--fail-on-duplicate-globalids] [--fail-on-shared-globalids] [--shared-globalids-allow FILE]'); process.exit(2); };
 if (flag("--help") || !opt("--models") || !opt("--ids")) usage();
 const failOn = opt("--fail-on", "error");
 if (!["error", "warning", "never"].includes(failOn)) usage();
@@ -51,6 +55,14 @@ const failOnUnchecked = flag("--fail-on-unchecked");
 const failOnAudit = flag("--fail-on-audit-warnings");
 const failOnDuplicates = flag("--fail-on-duplicate-globalids");
 const failOnShared = flag("--fail-on-shared-globalids");
+// A team's list of GlobalIds or classes shared between models on purpose
+// (ci.mjs parseSharedAllow); a bad line stops the run rather than being skipped.
+let sharedAllow = null;
+if (opt("--shared-globalids-allow")) {
+  try { sharedAllow = parseSharedAllow(readFileSync(isAbsolute(opt("--shared-globalids-allow")) ? opt("--shared-globalids-allow") : join(opt("--root", "."), opt("--shared-globalids-allow")), "utf8")); }
+  catch (e) { console.error(`--shared-globalids-allow: ${e.message}`); process.exit(2); }
+  if (sharedAllow.errors.length) { console.error(`--shared-globalids-allow ${opt("--shared-globalids-allow")}:\n  ${sharedAllow.errors.join("\n  ")}`); process.exit(2); }
+}
 const gitlab = opt("--gitlab-codequality");
 const cqPerSpec = Number(opt("--gitlab-max-per-spec", String(maxFailed))); // GitLab issues per failing specification; the rest are one "N more" issue
 if (!Number.isInteger(cqPerSpec) || cqPerSpec < 1) usage();
@@ -127,7 +139,7 @@ for (const { model, ids } of pairUp(models, idsFiles, pairing)) {
 // GlobalIds shared between the models of the run (a federated set). The
 // lines of the elements named are read afterwards, from the models involved
 // only, since one parsed model is held at a time above.
-const federation = crossModelGlobalIds(gidIndexes);
+const federation = crossModelGlobalIds(gidIndexes, { allow: sharedAllow });
 {
   const want = new Map();
   for (const c of federation.conflicts) for (const h of c.holders) if (/\.ifc$/i.test(h.model) && !lines.get(h.model)?.has(h.id)) want.set(h.model, [...(want.get(h.model) || []), h.id]);
@@ -149,6 +161,8 @@ for (const a of auditFindings(runs)) for (const w of a.warnings) console.log(`  
 for (const m of modelFindings(runs)) for (const d of m.duplicates) console.log(`  model warning: ${m.model}: duplicate GlobalId ${dupLine(d)}`);
 for (const p of federation.revisions) console.log(`  federation warning: ${revisionLine(p)}`);
 for (const c of federation.conflicts) console.log(`  federation warning: shared GlobalId ${sharedLine(c)}`);
+if (federation.allowed.length) console.log(`  note: ${federation.allowed.length} shared GlobalId(s) allowed by ${opt("--shared-globalids-allow")}${federation.allowed.some((c) => c.with?.length) ? `, with ${federation.allowed.reduce((n, c) => n + (c.with?.length || 0), 0)} type(s) and relationship(s) that follow them` : ""}`);
+for (const u of federation.allowUnused) console.log(`  note: allow rule on line ${u.line} (${u.rule}) matched nothing shared in this run`);
 if (federation.frame.length) console.log(`  note: ${federation.frame.length} project/site/building/storey/space/grid GlobalId(s) are the same in more than one model (usually intended)`);
 // The check's result; --fail-on decides only the exit code, as before.
 const ok = t.ok && !(failOnUnchecked && t.elementsNotChecked > 0) && !(failOnAudit && t.auditWarnings > 0) && !(failOnDuplicates && t.duplicateGlobalIds > 0) && !(failOnShared && sharedCount(federation) > 0);

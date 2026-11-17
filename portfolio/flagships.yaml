@@ -475,12 +475,10 @@ flagships:
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
-      (eval/ifcxml-xbim-2026-11-16.md); an allow list for GlobalIds shared across
-      federated models on purpose (eval/federated-globalids-2026-11-17.md, 'Not
-      done': the Simple-Scene 'origin' markers); the IDS editor (editor.html):
-      attribute rows in specifications with no class (16 IDS-Audit-tool date lists
-      stay kept, eval/date-oneof-2026-11-17.md; date one-of rows landed); more real
-      exports through eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
+      (eval/ifcxml-xbim-2026-11-16.md); the IDS editor (editor.html): attribute rows
+      in specifications with no class (16 IDS-Audit-tool date lists stay kept,
+      eval/date-oneof-2026-11-17.md; date one-of rows landed); more real exports
+      through eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked"). Next, most
@@ -506,7 +504,7 @@ flagships:
       2026-11-17 (eval/gitlab-codequality-2026-11-17.md: 18 of 18 real changes, 0
       for a renumbering re-export); duplicate GlobalIds in a model
       (eval/duplicate-globalids-2026-11-17.md) and across federated models in CI
-      2026-11-17 (eval/federated-globalids-2026-11-17.md: HHS architect+structural
-      share 1 wall; Simple-Scene roof, manholes); unchecked subclasses in CI and the
-      editor 2026-11-17 (eval/ci-unchecked-2026-11-17.md: 21,405 elements in 165 of
-      2,028 checks). More open items: NEXT.md.
+      2026-11-17 (eval/federated-globalids-2026-11-17.md; allow list and followers,
+      eval/federation-allow-2026-11-17.md: Simple-Scene 35 to 23); unchecked
+      subclasses in CI and the editor 2026-11-17 (eval/ci-unchecked-2026-11-17.md:
+      21,405 elements in 165 of 2,028 checks). More open items: NEXT.md.
