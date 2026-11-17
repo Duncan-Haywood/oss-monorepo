@@ -24,6 +24,8 @@ const ICON_PATHS = {
   services: '<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/><path d="m9 15 2 2 4-4"/>',
   logistics: '<path d="M2 7h11v9H2zM13 10h4l3 3v3h-7"/><circle cx="6" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>',
   evidence: '<path d="M12 3 5 6v5c0 4.5 3 8.3 7 10 4-1.7 7-5.5 7-10V6z"/><path d="m9 12 2 2 4-4"/>',
+  // A paper form with a dollar sign, the US twin of the `uk-tax` page-with-pound glyph.
+  'personal-tax': '<path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4"/><path d="M14 11.5c-.4-.9-1.2-1.3-2.2-1.3-1.2 0-2 .6-2 1.5 0 2 4.4 1.1 4.4 3.3 0 .9-.9 1.6-2.2 1.6-1 0-1.9-.4-2.3-1.3M12 9v1.2M12 16.6v1.2"/>',
   'uk-tax': '<path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4"/><path d="M14.5 11.5A2.3 2.3 0 0 0 10.4 13v4M9 17h6M9 14.5h4"/>',
   backoffice: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/>',
   ci: '<circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="9" r="2"/><path d="M6 8v8M18 11c0 4-6 3-11 6"/>',
