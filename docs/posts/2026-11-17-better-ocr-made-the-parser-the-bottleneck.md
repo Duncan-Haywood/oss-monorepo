@@ -1,8 +1,8 @@
 ---
 title: "A better OCR engine made the parser the bottleneck: 45 receipt misses read one by one"
-seo_title: "Receipt OCR parsing: what RapidOCR's misses on 600 Indonesian receipts were"
+seo_title: "Receipt OCR parsing: what RapidOCR's misses on 600 receipts were"
 date: 2026-11-17
-description: "With RapidOCR reading receipt photos, most remaining misses had the right total in the text. Nine small parser rules took CORD train from 515 to 539 of 583 and held-out test from 80 to 83 of 95, with no total lost."
+description: "With RapidOCR, most missed receipt totals were in the text. Nine parser rules: CORD train 515 to 539 of 583, held-out test 80 to 83 of 95, no total lost."
 tags: [ai-bookkeeper, receipts, ocr, evaluation]
 ---
 
