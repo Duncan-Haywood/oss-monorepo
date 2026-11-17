@@ -1,0 +1,262 @@
+{
+ "date": "2026-11-17",
+ "subject": "research/sensing-burst",
+ "stratum": "research",
+ "seed": "2026-11-17-5b6c",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior computational-photography / image-sensor scientist (burst denoising and HDR merge, Poisson-Gaussian noise calibration, the CCD/CMOS SNR equation); first checks: is the variance algebra and the A..A^2 break-even right, is the merge an unbiased estimator applied consistently to every arm being compared, is the resampling 'blur cap' a real property or an artefact, are the sensor assumptions (equal read noise per pixel at A times the area) stated, and is the result new against Hasinoff's noise-optimal / time-constrained capture analyses.",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Rerun: copied the subject to /tmp/claude-0/audit-sensingburst/rerun/sb, `/usr/bin/python3.13 experiments/run.py` (21 s) and `diff` against the committed experiments/results.txt: byte-identical. Independent recompute (`python3 -I /tmp/claude-0/audit-sensingburst/scripts/indep.py`, no sensing_burst import; it reads only the truth/canvas arrays dumped from make_canvas): N* by bisection on the two variance expressions 5.213 (results 5.21, so the closed form A^2(sx+r^2)/(Asx+r^2) is right); a 2,000,000-draw Monte Carlo gives burst variance 1.1601e-2 / 2.8912e-3 / 7.2495e-4 (N = 1, 4, 16) and large 2.2262e-3 against formulas 1.1600e-2 / 2.9000e-3 / 7.2500e-4 / 2.2250e-3; section C fixed-time ratios by hand 4.84, 5.95, 8.19, 12.65, 21.58 (exact match); a display-domain delta-method N* weighted over the real truth pixels gives 4.1, 4.8, 4.5, 8.9, 30.6, 10.3, 11.6, 24.7 against simulated 4.0, 4.8, 4.5, 8.8, 31.6, 10.6, 11.7, 26.2 (confirms the README's explanation that dark pixels push N* above the mean-radiance formula); my own noise-only simulation with fresh RNG gives N* 9.1 / 9.4 (results 8.8), 4.1 / 4.0 (4.0), 54.0 / 55.1 (54.9), i.e. within seed noise of about 0.5 frames; own HDR bracket merge (`scripts/hdr.py`) reads the disc at 5.914 (results 5.92; true disc-pixel mean 5.969, not 6) and the clipped equal-frame fallback at 3.00. Noise-free known-shift merge with my own render and Fourier shift: 42.5 dB for quarter-pixel shifts and 321 dB for integer shifts, so the README's attribution of the ~40 dB cap to sub-pixel resampling of aliased box-sampled frames is correct. One confound found: merge() clamps each frame at zero (model.py:95) but the unregistered and large-frame arms are unclamped; at P = 30 the clamp alone adds 2.7 dB (known-shift merge 18.70 with the clamp, 15.98 without, unregistered 15.71, large 16.83; `scripts/clamp.py`), 0.5 dB at P = 100, nil at P >= 300. So section D's P = 30 row and D2's P = 100 frame counts are not like-for-like; the headline numbers (P >= 300 and the noise-only table) are unaffected.",
+  "completeness": "Claimed and checked: '12 tests' (12 passed in 0.26 s); run.py writes results.txt (yes, identical); figure.py writes the SVG from results.txt via research/_shared/linefig (committed SVG present); every number in README 'Results' matches results.txt (break-even ranges, 17 of 18 cells within 15% and worst 16.4% at A = 8, 2 e-, P = 30: 21.9 vs 26.2, recomputed; MC values; section C; hand-shake deltas 0.01 / 0.26 / 5.4 / 12.3 dB; D2; highlights). No TODOs or stubs. Live page https://marisstella.app/research/sensing-burst/ returned 200 through the proxy and carries the same headline numbers (14.4, 42 dB vs 22 dB). Stale: run.py:1 says 'a few minutes' (21 s measured); README '~30 s' is fine.",
+  "verification": "`cd research/sensing-burst && PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests`: 12 passed in 0.26 s. The formula tests (A and A^2 limits, variance equality at N*) are solid and caught 2 of 7 mutants (break-even A**2 -> A; var_large (A s)^2 -> A s^2). Five survived via platform/ci/quality_mutate.py: removing the per-frame zero clamp in merge (model.py:95), dropping the N read-noise term in var_burst_fixed_time (model.py:124, which would change every section C ratio), gamma 1/2.2 -> 1 in display_psnr (model.py:105), the clip threshold 0.98 fw -> 0.5 fw (model.py:94), and the sign of the sub-pixel parabola refinement in estimate_shift (model.py:78). The merge test uses zero read noise; no test runs any part of run.py (crossing(), handheld()).",
+  "craft": "Read model.py, run.py, figure.py, tests/test_model.py, pyproject.toml, README.md. Small, readable numpy with docstrings stating units; sensible structure (crossing/noise_only/handheld as functions). Defects: the inconsistent zero clamp between merge() and the plain-mean arms (model.py:95 vs run.py:128); large_psnr hard-codes read noise 3.0 and renders each scene twice (run.py:131-132), so changing handheld's read argument would silently compare against a 3 e- large frame; estimate_shift wraps the refined peak with `> m/2` after refinement, fine; Fourier shift is periodic and the 6 px crop covers the 2 px wrap. Acceptable research code.",
+  "claims": "Every numeric claim in README.md and research/README.md:810 traces to results.txt and recomputes (see checks). Disclaimers present: 'Produced with AI assistance', 'Everything here is synthetic', a long and honest Limitations list including that the 40 dB cap is this resampler's property (README.md:39) and that no confidence intervals are reported. Novelty is stated modestly ('elementary algebra'). Weaker: the headline (README.md:3) states 'registration blur adds frames in bright light (about 21 for A = 4)' as a finding although the body shows it is an artefact of the chosen resampler; the equal-read-noise-per-pixel assumption, which is what makes the dark limit A^2, is not called out as an assumption. Live page loaded (200).",
+  "fitness": "A researcher building on burst-vs-sensor-size could reuse the harness (procedural scenes, Poisson-Gaussian capture, crossing interpolation), and the follow-up research/sensing-burstcap already does. But the result is not new: the A (shot-limited) to A^2 (read-limited) break-even is the CCD SNR equation applied to frame stacking (Howell, Handbook of CCD Astronomy, 2nd ed. 2006, ch. 4; the sub-exposure read-noise penalty is standard in astronomical stacking), and Hasinoff, Kutulakos, Durand & Freeman (ICCV 2009, 'Time-constrained photography') and Hasinoff, Durand & Freeman (CVPR 2010, 'Noise-optimal capture for high dynamic range photography') derive the same read-noise cost of splitting an exposure and the optimal bracket; neither is cited. Synthetic only, no real raw bursts. Sound as a pedagogical check, below a publishable increment.",
+  "domain": "Against standard practice (Foi et al. 2008 noise model; Hasinoff 2010 merge weights; HDR+ 2016 merge): the noise model and the variance algebra are right, and the fixed-total-exposure framing (section C) is the comparison a sensor scientist would ask for. Departures: (1) the merge's per-frame clamp max(e, 0) is a biased estimator in the read-noise-limited regime and is applied to some arms only; (2) the bracket merge weights frames by exposure (sum e / s sum t), which is ML for pure Poisson but not the inverse-variance weighting Hasinoff 2010 shows is optimal once read noise is present; (3) equal per-pixel read noise for a pixel of A times the area is assumed silently (real large-pixel sensors differ in conversion gain and read noise); (4) PSNR only, no CIs. Disclosed limits (no ghosting, no robust merge, synthetic) are honest."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Break-even N* at x = 0.4, s = 50, A = 4, r = 3",
+   "method": "bisection on the two variance expressions derived by hand from Poisson + Gaussian variance (no subject import)",
+   "command": "python3 -I /tmp/claude-0/audit-sensingburst/scripts/indep.py",
+   "expected": "5.21 (results.txt section B)",
+   "observed": "5.213",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Closed-form variances vs Monte Carlo (burst N = 1, 4, 16; large)",
+   "method": "independent 2,000,000-draw Poisson+Gaussian Monte Carlo with own RNG",
+   "command": "python3 -I /tmp/claude-0/audit-sensingburst/scripts/indep.py",
+   "expected": "1.160e-2, 2.900e-3, 7.250e-4, 2.225e-3 (formulas in results.txt)",
+   "observed": "1.1601e-2, 2.8912e-3, 7.2495e-4, 2.2262e-3",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Section C fixed-total-exposure variance ratios, A = 4, r = 3, s = 75, x = 0.4",
+   "method": "by hand: (s x + N r^2)/s^2 divided by (A s x + r^2)/(A s)^2",
+   "command": "python3 -I /tmp/claude-0/audit-sensingburst/scripts/indep.py",
+   "expected": "4.84, 5.95, 8.19, 12.65, 21.58",
+   "observed": "4.84, 5.95, 8.19, 12.65, 21.58",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Simulated N* in the noise-only table (A=4 r=8 P=300; A=4 r=2 P=3000; A=8 r=8 P=30)",
+   "method": "own capture, own display-PSNR and own crossing interpolation on the dumped truth images, two fresh seeds",
+   "command": "python3 -I /tmp/claude-0/audit-sensingburst/scripts/indep.py",
+   "expected": "8.8, 4.0, 54.9",
+   "observed": "9.1/9.4, 4.1/4.0, 54.0/55.1",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "README explanation that the mean-radiance formula undershoots because dark pixels need more frames",
+   "method": "delta-method N* weighted by the gamma-1/2.2 display sensitivity over every truth pixel",
+   "command": "python3 -I /tmp/claude-0/audit-sensingburst/scripts/indep.py",
+   "expected": "sim 4.0, 4.8, 4.5, 8.8, 31.6, 10.6, 11.7, 26.2",
+   "observed": "4.1, 4.8, 4.5, 8.9, 30.6, 10.3, 11.6, 24.7",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "~40 dB cap is sub-pixel resampling of box-sampled frames, not border wrap",
+   "method": "own render + own Fourier shift, noise-free 8-frame known-shift merge, quarter vs integer shifts, crop 6 and 12",
+   "command": "python3 -I /tmp/claude-0/audit-sensingburst/scripts/indep.py",
+   "expected": "cap with quarter-pixel shifts, none with integer shifts",
+   "observed": "42.5 / 43.1 dB quarter-pixel; 321 dB integer-pixel",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Highlight section: small-sensor bracket disc estimate and clipped equal-frame fallback",
+   "method": "own capture and own Poisson-ML bracket merge over unclipped samples, no clamp",
+   "command": "python3 -I /tmp/claude-0/audit-sensingburst/scripts/hdr.py",
+   "expected": "5.92 and 3.00",
+   "observed": "5.914 and 3.00 (true disc-pixel mean is 5.969, not 6)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Section D P = 30 and P = 100: arms compared like for like",
+   "method": "rerun handheld() arms with merge() and with the same merge minus the per-frame max(e, 0) clamp",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/audit-sensingburst/scripts/clamp.py",
+   "expected": "registration gain independent of estimator bias",
+   "observed": "P=30: known 18.70 clamped vs 15.98 unclamped (unregistered 15.71, large 16.83); P=100: 25.84 vs 25.31; P=300: 31.93 vs 31.90",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Experiment reproduces",
+   "method": "rerun run.py in a scratch copy and diff",
+   "command": "cd /tmp/claude-0/audit-sensingburst/rerun/sb && /usr/bin/python3.13 experiments/run.py && diff experiments/results.txt <committed>",
+   "expected": "identical",
+   "observed": "identical, 21 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Test count and runtime claims",
+   "method": "run the suite; compare with README '12 tests' and run.py docstring 'a few minutes'",
+   "command": "cd research/sensing-burst && PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests",
+   "expected": "12 tests; a few minutes for run.py",
+   "observed": "12 passed in 0.26 s; run.py 21 s",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "README 'within 15% in 17 of 18 cells, 16.4% worst at A=8, 2 e-, P=30'",
+   "method": "ratio of formula to simulation for every row of results.txt section A",
+   "command": "by hand from results.txt",
+   "expected": "17/18 within 15%, worst 16.4%",
+   "observed": "17/18 within 15% (next worst 13.3% at A=8 r=8 P=300); worst 21.9/26.2 = 16.4%",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Live page carries the same numbers",
+   "method": "curl the served page through the proxy",
+   "command": "curl -sS https://marisstella.app/research/sensing-burst/ | grep -o '14\\.4[^<]*'",
+   "expected": "200 and README headline",
+   "observed": "200; '14.4 in dim light with 8 e- read noise', '42 dB against 22 dB'",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Headline 'registration blur adds frames in bright light (about 21 for A = 4)'",
+   "method": "compare with README Limitations and the noise-free resampling check",
+   "command": "grep -n 'registration blur' README.md",
+   "expected": "qualified as an artefact of this resampler",
+   "observed": "qualified only in Limitations (README.md:39); stated as a general finding in the headline and research/README.md:810",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Novelty against nearest prior work",
+   "method": "literature: CCD SNR equation (Howell 2006); Hasinoff et al. ICCV 2009 'Time-constrained photography'; Hasinoff, Durand, Freeman CVPR 2010 'Noise-optimal capture for HDR photography'",
+   "command": "grep -rn 'Hasinoff' research/sensing-burst/README.md",
+   "expected": "prior read-noise/stacking analyses cited and the increment stated",
+   "observed": "only Hasinoff 2016 (HDR+) and Foi 2008 cited; the A to A^2 result is the standard stacking SNR result",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "Bracket merge weighting with read noise",
+   "method": "Hasinoff 2010 inverse-variance weights vs model.py merge (sum e / s sum t)",
+   "command": "sed -n 87,98p src/sensing_burst/model.py",
+   "expected": "inverse-variance weighting when read noise is present, or the choice stated",
+   "observed": "exposure-proportional weights (Poisson ML), stated as 'plain mean' in Limitations",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/sensing_burst/model.py:95",
+   "change": "num += fourier_shift(np.maximum(e, 0) * ok, dy, dx) -> num += fourier_shift(e * ok, dy, dx)",
+   "caught": false,
+   "test_cmd": "sh -c 'PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /usr/bin/python3.13 -m pytest -q -x tests'"
+  },
+  {
+   "where": "src/sensing_burst/model.py:124",
+   "change": "return (s * x + N * read ** 2) / s ** 2 -> return (s * x + read ** 2) / s ** 2",
+   "caught": false,
+   "test_cmd": "sh -c 'PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /usr/bin/python3.13 -m pytest -q -x tests'"
+  },
+  {
+   "where": "src/sensing_burst/model.py:105",
+   "change": "np.clip(v / p, 0, 1) ** (1 / 2.2) -> np.clip(v / p, 0, 1) ** (1 / 1.0)",
+   "caught": false,
+   "test_cmd": "sh -c 'PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /usr/bin/python3.13 -m pytest -q -x tests'"
+  },
+  {
+   "where": "src/sensing_burst/model.py:130",
+   "change": "return A ** 2 * (...) -> return A * (...)",
+   "caught": true,
+   "test_cmd": "sh -c 'PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /usr/bin/python3.13 -m pytest -q -x tests'"
+  },
+  {
+   "where": "src/sensing_burst/model.py:94",
+   "change": "ok = (e < 0.98 * fw) -> ok = (e < 0.5 * fw)",
+   "caught": false,
+   "test_cmd": "sh -c 'PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /usr/bin/python3.13 -m pytest -q -x tests'"
+  },
+  {
+   "where": "src/sensing_burst/model.py:78",
+   "change": "0.5 * (lo - hi) / d -> 0.5 * (hi - lo) / d",
+   "caught": false,
+   "test_cmd": "sh -c 'PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /usr/bin/python3.13 -m pytest -q -x tests'"
+  },
+  {
+   "where": "src/sensing_burst/model.py:114",
+   "change": "/ (A * s) ** 2 -> / (A * s ** 2)",
+   "caught": true,
+   "test_cmd": "sh -c 'PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /usr/bin/python3.13 -m pytest -q -x tests'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "merge() clamps every frame at zero (np.maximum(e, 0)) while the unregistered arm and the large frame are plain unclamped means, so section D compares a biased estimator against unbiased ones. At P = 30 the clamp alone is worth +2.7 dB (known-shift merge 18.70 clamped vs 15.98 unclamped; unregistered 15.71; large 16.83), which is why even the 'failed alignment' (3.1 px RMS) estimated merge beats the large frame; +0.5 dB at P = 100 (feeds D2's N* 5.9/6.8); nil at P >= 300. Headline numbers unaffected. Repro: /usr/bin/python3.13 /tmp/claude-0/audit-sensingburst/scripts/clamp.py.",
+   "where": "research/sensing-burst/src/sensing_burst/model.py:95",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Five of seven seeded mutants survive the 12 tests: removing the merge clamp, dropping the N read-noise term in var_burst_fixed_time (changes every section C ratio), gamma 1/2.2 -> 1, the clip threshold 0.98 fw -> 0.5 fw, and the sign of the sub-pixel peak refinement. The merge test uses zero read noise; nothing in run.py is tested.",
+   "where": "research/sensing-burst/tests/test_model.py:56",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Nearest prior work not cited and novelty not positioned: the A (shot-limited) to A^2 (read-limited) break-even is the CCD SNR equation applied to stacking (Howell 2006), and Hasinoff et al. ICCV 2009 ('Time-constrained photography') and Hasinoff, Durand & Freeman CVPR 2010 ('Noise-optimal capture for HDR photography') derive the read-noise cost of splitting exposures and the optimal bracket. Only HDR+ (2016) and Foi (2008) are cited.",
+   "where": "research/sensing-burst/README.md:7",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Headline states 'registration blur adds frames in bright light (about 21 for A = 4)' as a finding, but it is an artefact of the chosen Fourier resampler (noise-free check: 42.5 dB cap for quarter-pixel shifts, none for integer shifts), as README.md:39 itself says; the research index repeats it unqualified.",
+   "where": "research/sensing-burst/README.md:3",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Equal per-pixel read noise for a pixel of A times the area is assumed but not listed as an assumption; it alone produces the A^2 dark limit. Bracket merge uses exposure-proportional (Poisson ML) weights rather than inverse-variance weights once read noise is present (Hasinoff 2010).",
+   "where": "research/sensing-burst/src/sensing_burst/model.py:87",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "large_psnr hard-codes read noise 3.0 and re-renders each scene twice, so changing handheld()'s read argument would silently compare against a 3 e- large frame.",
+   "where": "research/sensing-burst/experiments/run.py:132",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "run.py docstring says 'a few minutes on one CPU core'; it runs in 21 s (README's ~30 s is right).",
+   "where": "research/sensing-burst/experiments/run.py:1",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A small, honest, reproducible synthetic study: results.txt reproduces byte-for-byte, and every headline number I recomputed independently holds (break-even algebra, 2M-draw Monte Carlo, fixed-exposure ratios, simulated N* within seed noise, the resampling cap's cause, the HDR bracket). It misses the bar on verification (5 of 7 seeded mutants survive) and sits at 2 on fitness and domain: the central A-to-A^2 result is the textbook stacking SNR equation and Hasinoff 2009/2010 is not cited, and the merge's per-frame zero clamp makes the low-light hand-shake rows (P = 30, 100) a biased-vs-unbiased comparison worth up to 2.7 dB. Finished (completeness 3), not at senior-professional level as research."
+}
