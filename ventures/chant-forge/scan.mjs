@@ -224,7 +224,7 @@ export const STROKE_TOP_FALL = 0.4;
 // least minFall spaces, and the wide rest starts within join spaces of its
 // right end's height. Set from one stroke (GregoBase 3679, leaf 721).
 export const BROKEN_STROKE = { minFall: 0.15, join: 0.35 };
-export function readStaff(bin, staff, { minH = 0.4, maxH = 0.85, strokeTop = true, brokenStroke = true, hookOnLine = true, oneStep = true } = {}) {
+export function readStaff(bin, staff, { minH = 0.4, maxH = 0.85, strokeTop = true, brokenStroke = true, hookOnLine = true, oneStep = true, oneStepGap = true } = {}) {
   const { width, ink } = bin;
   const s = staff.space;
   const y0 = Math.max(0, Math.round(staff.top - 2.1 * s));
@@ -374,7 +374,7 @@ export function readStaff(bin, staff, { minH = 0.4, maxH = 0.85, strokeTop = tru
   if (oneStep) {
     for (const o of [...out]) {
       if (!o.feat || o.liq || o.strokeTop || o.brokenStroke || !out.includes(o)) continue;
-      const t = oneStepCephalicus(isInk, o, staff, y0, y1);
+      const t = oneStepCephalicus(isInk, o, staff, y0, y1, { gap: oneStepGap });
       if (!t) continue;
       o.liq = t;
       o.oneStep = true;
@@ -619,7 +619,8 @@ export function liquescentTail(isInk, h, heads, staff, y0, y1, { onLine = true, 
 // down sits and the head's own ink has ended:
 //   - the head's right part (from ONE_STEP.split of its width) has rows
 //     inked across at least half its columns, in a run noteW spaces or
-//     wider (a podatus's stem is narrower), for minRows spaces or more,
+//     wider (a podatus's stem is narrower; a white counter up to gap
+//     spaces inside the small note is bridged), for minRows spaces or more,
 //   - its left part (past the stem) is at most maxLeft inked, so it is not
 //     a second full head (a podatus or two touching heads),
 //   - the right part's ink stops by ONE_STEP.maxEnd spaces (not a longer
@@ -630,8 +631,8 @@ export function liquescentTail(isInk, h, heads, staff, y0, y1, { onLine = true, 
 //     is a hairline (stemW spaces or less across) beside the small note:
 //     the upper head of a quilisma podatus has the quilisma there.
 // The small note is read one step under the head.
-export const ONE_STEP = { from: 0.55, to: 0.85, split: 0.45, minRows: 0.15, maxLeft: 0.3, maxEnd: 0.95, stem: 0.95, stemW: 0.2, noteW: 0.18, maxFall: 0.12, lowFrom: 0.3, lowTo: 0.9 };
-export function oneStepCephalicus(isInk, h, staff, y0, y1) {
+export const ONE_STEP = { from: 0.55, to: 0.85, split: 0.45, minRows: 0.15, maxLeft: 0.3, maxEnd: 0.95, stem: 0.95, stemW: 0.2, noteW: 0.18, maxFall: 0.12, lowFrom: 0.3, lowTo: 0.9, gap: 0.1 };
+export function oneStepCephalicus(isInk, h, staff, y0, y1, { gap = true } = {}) {
   const s = staff.space;
   const c = h.y, w = h.x1 - h.x0 + 1;
   if (w < 0.35 * s) return null;
@@ -642,9 +643,19 @@ export function oneStepCephalicus(isInk, h, staff, y0, y1) {
   const ya = Math.round(c + ONE_STEP.from * s), yb = Math.min(y1, Math.round(c + ONE_STEP.to * s));
   // the longest run of ink across a row, from a little left of the right
   // part to a little past the head (a small note is wider than a stem)
+  // A gap of up to ONE_STEP.gap spaces inside the run is bridged: some
+  // printings draw the small note with a white counter, so only its bottom
+  // rows are solid and its upper rows are two bars either side of the
+  // counter (GregoBase 3478 e, 3481 cer-, 3448 in; eval/one-step-hollow-check.md).
+  const gapMax = gap ? Math.round(ONE_STEP.gap * s) : 0;
   const runIn = (y, xa, xb) => {
-    let best = 0, run = 0;
-    for (let x = xa; x <= xb; x++) { if (isInk(x, y)) { run++; if (run > best) best = run; } else run = 0; }
+    let best = 0, start = -1, last = -1;
+    for (let x = xa; x <= xb; x++) {
+      if (!isInk(x, y)) continue;
+      if (start < 0 || x - last - 1 > gapMax) start = x;
+      last = x;
+      if (last - start + 1 > best) best = last - start + 1;
+    }
     return best;
   };
   const rxa = Math.round(rx0 - 0.1 * s), rxb = Math.round(h.x1 + 0.1 * s);
