@@ -250,7 +250,7 @@
     }
     h += `</div>`;
     // The values the opened model holds for this property (inventory.mjs).
-    const offer = modelValueOffer(mprop, valueKind, enumVals);
+    const offer = modelValueOffer(mprop, valueKind, enumVals, temporal);
     offers.set(key, offer);
     if (valueKind && r.cardinality !== "prohibited") {
       const modes = [["any", "any value"], ["equals", "exactly"]];
@@ -291,11 +291,18 @@
       let mv = `In the model: ${nVals}${offer.values.length ? ": " + shown + (offer.values.length > 8 ? ", ..." : "") : ""}.`;
       const n12 = (x) => String(Number(x.toPrecision(12)));
       if (offer.min !== null && offer.max !== null) mv += ` They range from ${n12(offer.min)} to ${n12(offer.max)} (${r.kind === "property" ? "SI units" : "as the model writes them"})${offer.rangeMin !== n12(offer.min) || offer.rangeMax !== n12(offer.max) ? `; as written, ${offer.min} to ${offer.max}, and IDS ranges take no rounding tolerance, so the model's range is ${offer.rangeMin} to ${offer.rangeMax}` : ""}.`;
+      // Dates, times and durations: the earliest and latest, as the model
+      // writes them (a range of exactly those passes every object with one).
+      if (offer.tmin !== null && offer.tmax !== null) mv += ` They run from ${offer.tmin} to ${offer.tmax}.`;
+      else if (temporal && mprop && mprop.tkind === "mixed") mv += ` Not every value is ${temporal === "duration" ? "an ISO duration" : temporal === "time" ? "an ISO time" : temporal === "dateTime" ? "an ISO date-time" : "an ISO date"} in one form, so no range passes them all.`;
       if (offer.outside.length) mv += ` It also writes ${offer.outside.slice(0, 5).map(([v, n]) => `${v} (${n})`).join(", ")}${offer.outside.length > 5 ? ", ..." : ""}, which the standard does not list; a one-of check fails those objects.`;
       const use = offer.oneOf && !(r.mode === "oneOf" && r.oneOf.length === offer.oneOf.length && offer.oneOf.every((v) => r.oneOf.includes(v))) ? "Allow exactly these values"
         : offer.min !== null && offer.max !== null && valueKind === "number" && !(r.mode === "range" && r.min === offer.rangeMin && r.max === offer.rangeMax && !r.minEx && !r.maxEx) ? "Use the model's range" : "";
+      // A temporal row gets the range as well as (not instead of) the values.
+      const useT = offer.tmin !== null && offer.tmax !== null && temporal && !(r.mode === "range" && r.min === offer.tmin && r.max === offer.tmax && !r.minEx && !r.maxEx)
+        ? ` <button type="button" class="ghost small" data-act="model-range" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>Use the model's range</button>` : "";
       const any = codeless.has(key) ? ` <button type="button" class="ghost small" data-act="model-coded" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>Require a code</button>` : "";
-      h += `<p class="muted" style="margin:6px 0 0;font-size:0.86rem">${esc(mv)}${use ? ` <button type="button" class="ghost small" data-act="model-values" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>${use}</button>` : ""}${any}</p>`;
+      h += `<p class="muted" style="margin:6px 0 0;font-size:0.86rem">${esc(mv)}${use ? ` <button type="button" class="ghost small" data-act="model-values" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>${use}</button>` : ""}${useT}${any}</p>`;
     }
     // TRUE or False on a boolean with no dataType: IDS 1.0's test cases write
     // booleans true/false with a dataType; without one this checker matches no
@@ -563,6 +570,11 @@
       if (o && o.oneOf) { r.mode = "oneOf"; r.oneOf = [...o.oneOf]; }
       else if (o && o.rangeMin !== null && o.rangeMax !== null) { r.mode = "range"; r.min = o.rangeMin; r.max = o.rangeMax; r.minEx = false; r.maxEx = false; }
       record("editor_model_values");
+    }
+    // A date, time or duration row set to the model's earliest and latest.
+    if (a === "model-range") {
+      const r = rows[+e.target.dataset.r], o = offers.get(okey);
+      if (o && o.tmin !== null && o.tmax !== null) { r.mode = "range"; r.min = o.tmin; r.max = o.tmax; r.minEx = false; r.maxEx = false; record("editor_model_range"); }
     }
     // An opened row with no dataType given the template's (or the model's).
     if (a === "type-row") {
