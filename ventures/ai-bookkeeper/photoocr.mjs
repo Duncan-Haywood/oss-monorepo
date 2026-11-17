@@ -132,6 +132,8 @@ export async function loadRapidWorker(worker, { draw = drawPixels } = {}) {
     read: async (file) => {
       if (dead) throw dead;
       const { rgba, width, height } = await draw(file);
+      // the worker can die while the photo is drawn: a message to it now would never be answered
+      if (dead) throw dead;
       const id = nextId++;
       return new Promise((resolve, reject) => {
         waiting.set(id, { resolve, reject });

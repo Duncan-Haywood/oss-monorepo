@@ -105,6 +105,20 @@ test("loadRapidWorker: a worker that dies fails the waiting reads instead of han
   await assert.rejects(eng.read("y"), /out of memory/);
 });
 
+// 2026-11-17 red team: a worker that dies while the page is still drawing the photo used to
+// leave that read waiting forever (readPhotos then never finished)
+test("loadRapidWorker: a worker that dies while a photo is being drawn fails that read", async () => {
+  const w = { postMessage: (m) => { if (m.type === "open") queueMicrotask(() => w.onmessage({ data: { type: "ready" } })); }, terminate() {} };
+  let drawn;
+  const eng = await loadRapidWorker(w, { draw: () => new Promise((r) => { drawn = r; }) });
+  const p = eng.read("x");
+  await new Promise((r) => setTimeout(r, 0));
+  w.onerror({ message: "out of memory", preventDefault() {} });
+  drawn(rgbaBar());
+  const got = await Promise.race([p.then(() => "resolved", (e) => e.message), new Promise((r) => setTimeout(() => r("still waiting"), 500))]);
+  assert.match(got, /RapidOCR worker stopped \(out of memory\)/);
+});
+
 test("loadRapidEngine: the worker first; one that cannot start falls back to the page's thread", async () => {
   const ok = await loadRapidEngine({ makeWorker: () => fakeWorker({ loadOrt: async () => fakeOrt(), fetchBytes: modelFetch }), inPage: async () => assert.fail("should not run in the page") });
   assert.equal(ok.how, "worker");
