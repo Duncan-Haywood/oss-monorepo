@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { parseIds } from "./ids.mjs";
 import { auditIds } from "./audit.mjs";
 import { resources, check } from "./node.mjs";
-import { modelSubclassesLeftOut, modelSpec, classesWithSets, setsFor, propertiesOf, subclasses, predefinedTypes, buildIds, entityFacet, xsBase, PARTOF_RELATIONS, importIds, stateToDoc, idsSchema, idsSchemaChoices, auditSchemaIds, schemaIdsOf, importIdsAs, specClassNames, commonSets, commonAttributes, sameAttributeType, commonPredefinedTypes, parseClassList, valueChoices, attributeValueKind, modelAttributes, modelValueOffer, typeRow, appMatchCount, untypeRow, templateTypeRow, fileTypeRefused, fileTypeOf, blankReq, blankSpec, temporalType, modelSets, datePattern, numberValueProblem, NUMBER_ONEOF_MAX } from "./editor.mjs";
+import { modelSubclassesLeftOut, modelSpec, classesWithSets, setsFor, propertiesOf, subclasses, predefinedTypes, buildIds, entityFacet, xsBase, PARTOF_RELATIONS, importIds, stateToDoc, idsSchema, idsSchemaChoices, auditSchemaIds, schemaIdsOf, importIdsAs, specClassNames, commonSets, commonAttributes, sameAttributeType, commonPredefinedTypes, parseClassList, valueChoices, attributeValueKind, modelAttributes, modelValueOffer, typeRow, appMatchCount, untypeRow, templateTypeRow, fileTypeRefused, fileTypeOf, nameSuggestion, renameSuggestion, renameRow, specBases, blankReq, blankSpec, temporalType, modelSets, datePattern, numberValueProblem, NUMBER_ONEOF_MAX } from "./editor.mjs";
 import { Model } from "./ids.mjs";
 import { modelInventory } from "./inventory.mjs";
 
@@ -771,4 +771,46 @@ test("Use the template's type drops a value the template's type cannot hold, and
   // Changing the row to no dataType drops the file type.
   const u = untypeRow(L, { ...area, fileType: "IFCREAL" }, "IFCREAL");
   assert.ok(u && u.row.untyped && u.row.fileType === undefined);
+});
+
+test("a property one slip from the template's name gets the audit's 'did you mean', and Use Length fixes it", () => {
+  const prop = (set, name, dt, value = "") => `<property${dt ? ` dataType="${dt}"` : ""}><propertySet><simpleValue>${set}</simpleValue></propertySet><baseName><simpleValue>${name}</simpleValue></baseName>${value}</property>`;
+  const spec = (cls, req) => `<specification name="${cls}" ifcVersion="IFC4"><applicability minOccurs="1" maxOccurs="unbounded"><entity><name><simpleValue>${cls}</simpleValue></name></entity></applicability><requirements>${req}</requirements></specification>`;
+  // As the public files write them: Portugal's Lenght with a dataType (kept on
+  // open), Rotterdam's AkousticRating with none (an editable row), a set typo,
+  // and words that are no slip (Pset_DoorCommon Mark).
+  const xml = `<?xml version="1.0"?><ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema"><info><title>t</title></info><specifications>
+    ${spec("IFCDUCTSEGMENT", prop("Qto_DuctSegmentBaseQuantities", "Lenght", "IFCLENGTHMEASURE", `<value><xs:restriction base="xs:double"><xs:minInclusive value="0.5"/></xs:restriction></value>`))}
+    ${spec("IFCWALL", prop("Pset_WallCommon", "AkousticRating"))}
+    ${spec("IFCWALL", prop("Pset_WallComon", "FireRating", "IFCLABEL"))}
+    ${spec("IFCDOOR", prop("Pset_DoorCommon", "Mark", "IFCLABEL"))}
+    ${spec("IFCRAILING", prop("Qto_RailingBaseQuantities", "Lenght", "IFCPOSITIVELENGTHMEASURE"))}</specifications></ids>`;
+  const L = loadFor("IFC4");
+  const imp = importIds(parseIds(xml), loadFor);
+  const [len, ak, setTypo, mark, rail] = imp.state.specs.map((s) => s.reqs[0]);
+  const classes = (i) => specBases(imp.state.specs[i]);
+  assert.ok(len.fixed && !ak.fixed && setTypo.fixed && mark.fixed);
+  assert.deepEqual(renameSuggestion(L, classes(0), len), { set: "Qto_DuctSegmentBaseQuantities", name: "Length", fromSet: "Qto_DuctSegmentBaseQuantities", fromName: "Lenght", row: len.rename.row, fixed: len.rename.fixed });
+  assert.deepEqual(renameSuggestion(L, classes(1), ak), { set: "Pset_WallCommon", name: "AcousticRating", fromSet: "Pset_WallCommon", fromName: "AkousticRating" });
+  assert.equal(renameSuggestion(L, classes(2), setTypo).set, "Pset_WallCommon");
+  assert.equal(renameSuggestion(L, classes(3), mark), null, "Mark is no slip");
+  // The fixes: Length opens as an editable range row, AcousticRating keeps no dataType.
+  const r0 = renameRow(L, classes(0), len), r1 = renameRow(L, classes(1), ak), r2 = renameRow(L, classes(2), setTypo);
+  assert.deepEqual([r0.fixed, r0.name, r0.mode, r0.min], [undefined, "Length", "range", "0.5"]);
+  assert.deepEqual([r1.name, r1.untyped], ["AcousticRating", true]);
+  assert.deepEqual([r2.set, r2.name, r2.fixed], ["Pset_WallCommon", "FireRating", undefined]);
+  // Fixed, the name faults are gone; the railing's file type now reads as its
+  // own fault (pset-datatype), which Use the template's type fixes.
+  const r4 = renameRow(L, classes(4), rail);
+  assert.deepEqual([r4.name, r4.fileType, fileTypeRefused(L, r4)], ["Length", "IFCPOSITIVELENGTHMEASURE", true]);
+  const st = { ...imp.state, specs: imp.state.specs.map((s, i) => ({ ...s, reqs: [[r0, r1, r2, mark, templateTypeRow(L, r4).row][i]] })) };
+  const found = auditIds(parseIds(buildIds(stateToDoc(st, L), L.S)), R).filter((x) => /^pset-(property|name|datatype)$/.test(x.code));
+  assert.deepEqual(found.map((x) => x.message), ["Pset_DoorCommon has no standard property Mark (it has Reference, Status, FireRating, AcousticRating, SecurityRating, DurabilityRating, ...)"]);
+  // nameSuggestion on a standard set the class cannot carry: none.
+  assert.equal(nameSuggestion(L, ["IFCWALL"], { kind: "property", propertySet: { present: true, simple: "Pset_DoorCommon" }, baseName: { present: true, simple: "FireRatng" } }), null);
+});
+
+test("the audit reads a swapped pair of letters as one slip (Lenght: did you mean Length?)", () => {
+  const xml = `<?xml version="1.0"?><ids xmlns="http://standards.buildingsmart.org/IDS"><info><title>t</title></info><specifications><specification name="d" ifcVersion="IFC4"><applicability minOccurs="1" maxOccurs="unbounded"><entity><name><simpleValue>IFCDUCTSEGMENT</simpleValue></name></entity></applicability><requirements><property dataType="IFCLENGTHMEASURE"><propertySet><simpleValue>Qto_DuctSegmentBaseQuantities</simpleValue></propertySet><baseName><simpleValue>Lenght</simpleValue></baseName></property></requirements></specification></specifications></ids>`;
+  assert.match(audit(xml).map((x) => x.message).join(" "), /no standard property Lenght; did you mean Length\?/);
 });

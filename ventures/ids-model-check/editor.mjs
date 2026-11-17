@@ -10,6 +10,7 @@
 // give: the faults auditIds() finds in 21 of 64 public IDS files.
 
 import { temporalKind, temporalKey } from "./temporal.mjs";
+import { nearName } from "./audit.mjs";
 
 const own = (o, k) => (o && Object.hasOwn(o, k) ? o[k] : undefined);
 
@@ -1008,6 +1009,78 @@ function editableRow(L, classes, f) {
   return r;
 }
 
+// The standard set and property a kept property facet most likely meant,
+// when it names a Pset_/Qto_ set the templates lack (Pset_WallComon) or a
+// property its set's template lacks (Portugal's Qto_DuctSegmentBaseQuantities
+// Lenght, Rotterdam's AkousticRating): { set, name, fromSet, fromName }, or
+// null. The audit's nearName picks the name (same letters ignoring case, or
+// one slip on a short name, two on a long one; null on a tie), so the page
+// offers exactly the audit's "did you mean". A standard set the class cannot
+// carry, or a word that is no slip (Mark, Verblijfsruimte), gets none.
+export function nameSuggestion(L, classes, f) {
+  if (!f || f.kind !== "property") return null;
+  const set = simpleOf(f.propertySet), name = simpleOf(f.baseName);
+  if (!set || !name) return null;
+  const sets = commonSets(L, classes);
+  let toSet = set;
+  if (!sets.includes(set)) {
+    if (!/^(Pset|Qto)_/.test(set) || own(L.psets, set)) return null;
+    toSet = nearName(set, sets);
+    if (!toSet) return null;
+  }
+  const props = propertiesOf(L.psets, L.S, toSet).map((p) => p.name);
+  const toName = props.includes(name) ? name : nearName(name, props);
+  if (!toName || (toSet === set && toName === name)) return null;
+  return { set: toSet, name: toName, fromSet: set, fromName: name };
+}
+
+// A parsed facet with the suggested set and property names, everything else
+// as written.
+const renamedFacet = (f, sug) => ({ ...f, propertySet: { present: true, simple: sug.set }, baseName: { present: true, simple: sug.name } });
+
+// A kept requirement with a nameSuggestion: { kind, fixed, rename }, where
+// rename.row is the editable row the corrected facet opens as (when the page
+// writes it back unchanged bar the names) and rename.fixed the corrected facet
+// kept as written otherwise. renameRow() applies it.
+function keptRequirement(L, classes, f) {
+  const out = { kind: f.kind, fixed: facetFromParsed(f) };
+  const sug = nameSuggestion(L, classes, f);
+  if (!sug) return out;
+  const g = renamedFacet(f, sug);
+  const row = editableRow(L, classes, g);
+  const ok = row && facetXml(reqFacet(L, row, classes), L.S, true) === facetXml(facetFromParsed(g), L.S, true);
+  out.rename = { ...sug, row: ok ? row : null, fixed: facetFromParsed(g) };
+  return out;
+}
+
+// The rename a requirement row offers: a kept facet's (keptRequirement, set
+// when the file was opened), or, on an editable standard row whose property
+// its set's template lacks (Rotterdam's AkousticRating written with no
+// dataType opens as a row), the audit's nearest name. Null otherwise.
+export function renameSuggestion(L, classes, r) {
+  if (!r || r.kind !== "property") return null;
+  if (r.fixed) return r.rename || null;
+  if (r.custom || !r.set || !r.name) return null;
+  const props = propertiesOf(L.psets, L.S, r.set).map((p) => p.name);
+  if (!props.length || props.includes(r.name)) return null;
+  const name = nearName(r.name, props);
+  return name ? { set: r.set, name, fromSet: r.set, fromName: r.name } : null;
+}
+
+// "Use Length": the row moved to the name renameSuggestion offers, as an
+// editable row when it opens as one, the corrected facet kept as written
+// otherwise; null when it has none. A row with no dataType keeps none (and
+// its value): only the name changes. A typed editable row with a property
+// the template lacks does not write back unchanged, so it was kept on open.
+export function renameRow(L, classes, r) {
+  const sug = renameSuggestion(L, classes, r);
+  if (!sug) return null;
+  if (r.fixed) return r.rename.row ? { ...r.rename.row } : { kind: r.kind, fixed: r.rename.fixed };
+  const row = { ...r, set: sug.set, name: sug.name };
+  delete row.fileType;
+  return row;
+}
+
 // The schema an opened IDS is mostly written for: the one most specifications
 // name first (IFC4 on a tie or when none is named).
 const vid = (v) => (v.startsWith("IFC4X3") ? "IFC4X3" : v === "IFC4" ? "IFC4" : v === "IFC2X3" ? "IFC2X3" : null);
@@ -1121,7 +1194,7 @@ export function importIdsAs(parsed, loadFor, schema) {
       const row = editableRow(L, specBases(spec), f);
       // The row must write the same XML the facet had, or it is kept as written.
       if (row && facetXml(reqFacet(L, row, specBases(spec)), L.S, true) === facetXml(facetFromParsed(f), L.S, true)) { spec.reqs.push(row); rows++; }
-      else { spec.reqs.push({ kind: f.kind, fixed: facetFromParsed(f) }); kept++; }
+      else { spec.reqs.push(keptRequirement(L, specBases(spec), f)); kept++; }
     }
     state.specs.push(spec);
   }

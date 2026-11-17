@@ -215,6 +215,13 @@ open. MIT licensed, no dependencies, nothing uploaded.
   refused, all values carried over, the files' 14 `pset-datatype` errors go to
   0 in the page and the CLI, still valid against ids.xsd; 90.8% of public facets
   editable (was 90.0%). `eval/template-type-2026-11-17.md`.
+  **Did you mean Length?** (2026-11-17): a property one slip from its
+  template's name (Portugal's `Lenght`, Rotterdam's `AkousticRating`) shows the
+  audit's "did you mean" with **Use Length**; the audit now counts a swapped
+  pair of letters as one slip. 17 rows in 7 public files, all open as editable
+  rows after the fix; name errors 31 to 14 (the rest are no slip: `Mark`,
+  `Verblijfsruimte`), and the page agrees with the CLI on every file.
+  `eval/name-suggestion-2026-11-17.md`.
 - Exports: BCF 2.1 (one topic per failing element, selected by IfcGuid), CSV,
   JSON.
 - 22 MB Revit export (Schultz Residence, 424,819 entities): 1.4 s on the command
