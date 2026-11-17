@@ -41,9 +41,12 @@ def main(argv=None):
     ap.add_argument("--root", type=Path, default=ROOT / "ventures")
     args = ap.parse_args(argv)
     bad = 0
-    for page in sorted(args.root.rglob("*.html")):
-        if "node_modules" in page.parts or "_site" in page.parts:
-            continue
+    pages = [p for p in sorted(args.root.rglob("*.html"))
+             if "node_modules" not in p.parts and "_site" not in p.parts]
+    if not pages:
+        print(f"no .html pages under {args.root}: nothing was checked")
+        return 2
+    for page in pages:
         hits = agent_text(page.read_text(encoding="utf-8", errors="replace"))
         for h in hits:
             print(f"{page.relative_to(args.root.parent)}: {h!r}")
