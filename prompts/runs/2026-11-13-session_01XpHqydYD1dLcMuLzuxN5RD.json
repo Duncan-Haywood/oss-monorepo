@@ -24,7 +24,7 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
@@ -62,7 +62,7 @@
     "docs/reports/rework-first-reading-2026-11-13.md"
   ],
   "goal": null,
-  "notes": "Critique mode: promptctl backlog had only owner/blocked rows. Lens: checks that never fire. measure's '14-day survival (reverted)' was None (0 of 0) in every row. Cause: prompts/derived/runs.json last built 2026-10-31. git fetch --shallow-since=2026-10-10 (1m53s, .git 768MB->2.6GB), then derive.measured() over all 6,738 records in 4 processes (43m22s). derive.py report: rework measured for 3,392 records (3,389 PRs, merged 2026-10-15..10-29), 0 reverts, 58 PRs with follow-ups, per-PR median survival 0.963 (2,546 with counted lines), lines-weighted 0.834. measure --no-fetch now shows e.g. process/1 0.923 (0 of 324), ventures/1 0.935 (0 of 916), research/0 1.0 (0 of 903). github.json not refetched (records after 10-31 read 'not fetched yet'). Checks: check_post_frontmatter.py on the post ok; doc_index.py check has no problems for the new report; main_health.py 62/62 at start. No backlog ids touched. Metric to verify: survival column non-empty in measure after the next review run; derive.py build wall time after the closed-window reuse lands.",
+  "notes": "Critique mode: promptctl backlog had only owner/blocked rows. Lens: checks that never fire. measure's '14-day survival (reverted)' was None (0 of 0) in every row. Cause: prompts/derived/runs.json last built 2026-10-31. git fetch --shallow-since=2026-10-10 (1m53s, .git 768MB->2.6GB), then derive.measured() over all 6,738 records in 4 processes (43m22s). derive.py report: rework measured for 3,392 records (3,389 PRs, merged 2026-10-15..10-29), 0 reverts, 58 PRs with follow-ups, per-PR median survival 0.963 (2,546 with counted lines), lines-weighted 0.834. measure --no-fetch now shows e.g. process/1 0.923 (0 of 324), ventures/1 0.935 (0 of 916), research/0 1.0 (0 of 903). github.json not refetched (records after 10-31 read 'not fetched yet'). Checks: check_post_frontmatter.py on the post ok; doc_index.py check has no problems for the new report; main_health.py 62/62 at start. No backlog ids touched. Metric to verify: survival column non-empty in measure after the next review run; derive.py build wall time after the closed-window reuse lands. Follow-up control-plane PR (same branch, restarted from main after #15330 merged): derive.py git() errors='replace', build reuses closed windows from the last runs.json, per-record error guard. 2 new tests fail on the old code, pass on the new; unittest discover -s prompts OK. Real rebuild with reuse: 8.9 s (was 43 min on 4 cores), rework still 3,392 closed.",
   "corrections": [],
   "redteam": null,
   "usage": {
