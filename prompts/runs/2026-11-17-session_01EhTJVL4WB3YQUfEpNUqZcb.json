@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVL4WB3YQUfEpNUqZcb",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "cc93f2915acb7b9c720e680e33e6e22c81c29afb1e84eb2bb179b707b248f606",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T06:19:42Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Explore: new venture cash-application-matcher (apply bank receipts to open invoices)",
+  "projects": [
+    "ventures/cash-application-matcher"
+  ],
+  "pr": 16836,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 23,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py",
+      "why": "Left the run record's model field null: session instructions forbid model identifiers in pushed artifacts.",
+      "did": "model: null",
+      "result": "record validates"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-cash-application-which-invoices-did-this-payment-pay.md",
+    "ventures/cash-application-matcher/eval/synthetic-2026-11-17.md"
+  ],
+  "goal": "Ship a free, explainable AR cash-application tool (receipts to open invoices), a niche served today by priced-for-mid-market AR automation platforms.",
+  "notes": "Idea: cash application matcher (explore). Remittance invoice-number reading, payer-name matching with suffix/abbreviation/truncation handling, bounded DFS subset-sum over a customer's open invoices with 2/10 net 30 discounts and a bank-charge limit, FIFO ties, late-discount detection. Synthetic benchmark only (generated data): 1,606 receipts over 5 seeds, High 99.8% exact, Medium 97.3%, Review 63.5%; all High/Medium misses equal-amount swaps (checked). Checks run here: node --test (23 pass), payment-reconciliation-workbench suite (56 pass), venture-preflight.mjs full build clean, quality_mutate 3 of 3 mutants caught, headless Chromium at 1200 and 390 px with no console errors. Next: a real anonymised AR + bank export; reading PDF remittance advices.",
+  "corrections": [],
+  "redteam": null
+}
