@@ -1,5 +1,17 @@
 # buildbot-sheathing research log
 
+## 2026-11-17 · Milestone 43 planned: the spec's own stack on the zero-press poses
+
+- **Why.** Milestones 41 and 42 costed the zero-press stance with milestone 38's 'hold-min' torques (no leg preload, no squeeze), while milestone 40's per-pose stack, the one the spec quotes, takes each pose's torques from the spec's plan (leg preload 0.1 N m and the 10 N squeeze). Milestone 42's post hoc found the two conventions agree at each robot's worst pose but differ at 9 of 34 poses by up to 0.97 points. So the spec's stack on the re-leaned poses, the number a designer adopting the zero-press stance would read, has not been computed.
+- **Model.** Milestone 42's import (milestone 41's run, so M0 on milestone 32's leans and M1 on the re-leans are the objects it built). For each setup, each pose with a 'hold-min' solution and each waist case ('stock', 'braked'): the spec plan at zero hose force and an exact sensor (milestone 38's `plan`, S* 10 N, m 0.1 N m), and the no-hose clean-sheet stack with loose joints uniform, exactly milestone 40's section D 'uniform' column. M0 must reproduce milestone 40's column to 0 (check). Per re-leaned pose: the spec-convention change, set beside milestone 42's 'hold-min' change.
+- **Disclosed before registering.** Milestones 40–42's published numbers are known (G1 worst 0.9160 braked, 0.9081 stock, both at (1.2 m, 0); 'hold-min' on the re-leans 0.9030 there); no spec plan on a re-leaned pose has been computed. A re-leaned pose with a 'hold-min' solution but no spec plan drops out and is printed.
+- **Hypotheses, registered before the run.**
+  - **H165 (the conventions agree at the worst pose).** 'braked': the G1's re-leaned spec stack at (1.2 m, 0) is within 0.10 points of milestone 42's 'hold-min' 0.9030. Refuted if further.
+  - **H166 (the G1 loses at most 1.5 points).** 'braked': the G1's worst spec stack over the re-leaned set is at least 0.9010 (milestone 40: 0.9160). Refuted if lower.
+  - **H167 (the H1 pays little).** 'braked': every re-leaned H1 pose with a plan loses at most 0.5 points against its own milestone 40 spec stack. Refuted if any loses more.
+  - **H168 (the stock waist pays the same).** 'stock': the G1's worst spec stack over the re-leaned set loses at most 1.5 points against milestone 40's 0.9081. Refuted if more.
+  - **H169 (the plan survives).** Every re-leaned pose with a 'hold-min' solution also has a spec plan (preload and squeeze) at zero hose force. Refuted if any does not.
+
 ## 2026-11-17 · Milestone 42 result: the G1's 1.3-point loss is all lean; the controller's four flipped sides move no stack by a digit but are needed to keep one re-leaned pose; and milestone 41's per-pose losses mixed two torque conventions; H161, H162 and H163 held, H164 refuted
 
 `experiments/m42_sides/` (run, results, post hoc, figure; imports milestone 41's run, so both setups are the objects it built), `src/buildbot_sheathing/factorial.py` (new: the 2 × 2 split), `tests/test_factorial.py` (4 tests), `reproduce.py` (m42 listed), `paper/draft.md` (section 5.11 paragraph), `paper/check_numbers.py`, README, PROPOSAL and project card.
