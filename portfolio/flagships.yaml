@@ -121,12 +121,12 @@ flagships:
       here; keep this under 2,000 characters. More open items: NEXT.md.
     buildable: >-
       Receipts, item (5): SRD photos (eval/srd-fetch.mjs) and CORD photos
-      (eval/cord_images.py) read by `apt-get install tesseract-ocr` and
-      eval/srd-cli.mjs. CORD train, all 4 shards read
-      (eval/cord-train-shards-2026-11-17.md): CLI 362 of 583 (shards 1-3), page 357;
-      test 56 of 95 (held out). 148 of 221 train misses OCR-bound; a bottom-crop
-      reading found 5 of 149 (dropped). Next: a second engine or model reading for
-      OCR-bound photos; one-digit misreads with no check (train-569, -644).
+      (eval/cord_images.py); tesseract via apt, PP-OCRv4 via `pip install
+      rapidocr_onnxruntime` (tools/rapidocr_receipt.py, RECEIPT_OCR_LEAD;
+      eval/second-ocr-engine-2026-11-17.md): CLI totals test 56 to 80 of 95, SRD 156
+      to 180 of 196. Next: PP-OCR in the page (onnxruntime-web, 16 MB models); rules
+      from PP-OCR's own misses on CORD train (75 of 583); PP-OCR on the grey 2,000
+      px copy as a sixth reading.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
