@@ -1,0 +1,7 @@
+48 weeks with both builds
+old: late >20 ms 8 [25, 25, 25, 33, 37, 37, 38, 44] by stage {'coverPass': 1, 'coverRepair': 7}; latest at the pay floor 20044 ms; open hours 11818; mean build 22.04 s, slowest 28.1 s; proven 4
+new: late >20 ms 0 [] by stage {}; latest at the pay floor 20002 ms; open hours 11815; mean build 22.01 s, slowest 28.1 s; proven 5
+per week open hours new-old: [-1, -1, -1]
+pay on 45 weeks with equal open hours: old 1030595.21, new 1030592.06 (-0.000%); new lower on 1, higher on 0
+rule: (1) late >20 ms 8 -> 0: pass; (2) open hours -3: pass; (3) pay -0.000%: pass; (4) mean build -0.03 s: pass
+KEEP ON

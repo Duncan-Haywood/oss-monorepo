@@ -164,7 +164,9 @@ test("an opened IDS becomes editable rows where the page can hold a facet, and i
   assert.equal(imp.state.schema, "IFC4");
   assert.equal(w.cls, "IFCWALL");
   assert.equal(w.withSub, true);
-  assert.deepEqual(w.reqs.map((r) => (r.fixed ? "kept" : r.kind + ":" + r.mode)), ["property:true", "kept", "kept", "attribute:pattern"]);
+  assert.deepEqual(w.reqs.map((r) => (r.fixed ? "kept" : r.kind + ":" + r.mode)), ["property:true", "property:any", "kept", "attribute:pattern"]);
+  // A project's own set (Acme_Wall) is an editable row since 2026-11-16; an exclusive bound is not.
+  assert.deepEqual([w.reqs[1].custom, w.reqs[1].set, w.reqs[1].dataType], [true, "Acme_Wall", "IFCLABEL"]);
   assert.equal(d.cls, "");
   assert.deepEqual(d.fixedApp.map((f) => f.kind), ["entity", "attribute"]);
   assert.deepEqual(d.ifcVersion, ["IFC2X3", "IFC4"]);

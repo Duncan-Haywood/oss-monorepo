@@ -98,6 +98,9 @@ export const VFRIC_HI5 = 12;
 // eval/coda-check.mjs K, N, T and U's stop codas read by eval/vstop-diag.mjs: labial bursts peaking at 1.5 kHz or
 // above held 0.58 or less, velars read as labial 0.68 or more at 1.9 kHz or above
 export const COMPACT_VELAR = { c: 0.65, hz: 1650 };
+// readCoda's `voicelessLow` (README "A p's burst read as a k"): the share of a voiceless burst's energy above 1 kHz
+// under which it is labial; set midway between the voiceless labials' highest (0.79) and the velars' lowest (0.99)
+export const VOICELESS_LOW = 0.9;
 // readCoda's deep murmur on a high short note before an obstruent (see its note; off by default, `deepMurmur: true`);
 // chosen on eval/coda-check.mjs J and N
 export const DEEP = { lo: -35, hi: -12, minMs: 60, silent: -50, gap: 5, tilt: 15, peak: true };
@@ -227,7 +230,7 @@ export const LOCAL_REF = { from: 6, to: 24, cap: 20, nasal: false };
 // No frame in a closure is vowel-like, so the anchor holds through it. Opt-in (`closeAnchor: true`); it replaces
 // localRef on the closure rule only, the nasal rule is untouched.
 export const ANCHOR = { frames: 10, drop: 12 };
-export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = false, deepOpts = {}, localRef = LOCAL_REF, closeAnchor = false, barLead = false, compactVelar = false } = {}) {
+export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = false, deepOpts = {}, localRef = LOCAL_REF, closeAnchor = false, barLead = false, compactVelar = false, voicelessLow = VOICELESS_LOW } = {}) {
   const hop = Math.round(0.005 * rate), a = Math.round((vowelAt + 0.06) * rate), z = Math.round((tEnd - 0.02) * rate), zEnd = Math.round(tEnd * rate);
   const ref = [];
   for (let i = Math.round(vowelAt * rate); i < a; i += hop) ref.push(frameFeatures(x, i, rate));
@@ -480,8 +483,15 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
     // bar's harmonics under 1 kHz run on under a voiced g's burst, so the low test reads it as a b; a burst whose
     // 500 Hz band holds `c` or more of the 1-11 kHz energy, centred at `hz` or above, is velar whatever lies under it
     const cv = compactVelar === true ? COMPACT_VELAR : compactVelar;
-    const place = b.centroid > 3400 ? 'alv' : cv && b.compactAny >= cv.c && b.compactHz >= cv.hz ? 'vel' : b.hi1 < 0.5 * b.tot ? 'lab' : b.compactAny > 0.4 && b.compactHz >= 1500 ? 'vel' : 'lab';
-    return { cls: 'stop', voiced, place, bar, closureMs: msOf(r), centroid: b.centroid, compact: b.compact, peakHz: b.peakHz, hi1R: b.tot ? b.hi1 / b.tot : 0, compactAny: b.compactAny, compactHz: b.compactHz };
+    // A p's burst read as a k (`voicelessLow`, default since its registration held on part W; README "A p's burst
+    // read as a k"; `voicelessLow: false` is the reader before): sing.mjs's labial burst is
+    // noise through a wide band at 500 Hz, and one 8 ms draw of it holds 11-79% of its energy above 1 kHz (median 0.39
+    // on K, N, T, U and V), so "most of it under 1 kHz" misses a third of them. With no voice bar under it nothing else
+    // sounds low: every voiceless velar and alveolar burst there held 99% or more above 1 kHz. So a burst after a
+    // silent closure with `voicelessLow` or less of its energy above 1 kHz is labial; a voiced one keeps the 0.5 test
+    const vl = voicelessLow === true ? VOICELESS_LOW : voicelessLow, lowShare = vl && !voiced ? vl : 0.5;
+    const place = b.centroid > 3400 ? 'alv' : cv && b.compactAny >= cv.c && b.compactHz >= cv.hz ? 'vel' : b.hi1 < lowShare * b.tot ? 'lab' : b.compactAny > 0.4 && b.compactHz >= 1500 ? 'vel' : 'lab';
+    return { cls: 'stop', voiced, place, bar, closureMs: msOf(r), centroid: b.centroid, compact: b.compact, peakHz: b.peakHz, hi1R: b.tot ? b.hi1 / b.tot : 0, compactAny: b.compactAny, compactHz: b.compactHz, relAt: rel / rate };
   }
   if (kind === 'fricative') {
     const cen = seg.reduce((q, f) => q + f.centroid, 0) / seg.length, l = seg.reduce((q, f) => q + f.lvl, 0) / seg.length;
