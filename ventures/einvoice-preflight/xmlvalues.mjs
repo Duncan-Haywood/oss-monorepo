@@ -15,8 +15,8 @@
 // or \s takes (or a copy-paste leaves) and XML does not count as whitespace.
 export const NON_XML_SPACE = /[\u0085\u00A0\u1680\u2000-\u200B\u2028\u2029\u202F\u205F\u3000\uFEFF]/;
 // The leaf values a rule or receiver casts: a decimal, an ISO date, a CII 102 date, a
-// boolean, an xs:time (ZATCA's IssueTime, which its rules cast; added 2026-11-17).
-export const CASTABLE = /^(?:[+-]?(?:\d+(?:\.\d*)?|\.\d+)|\d{4}-\d{2}-\d{2}|\d{8}|\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?|true|false)$/;
+// boolean, an xs:time or xs:dateTime (ZATCA's IssueTime, FA(3) and NAV timestamps; added 2026-11-17).
+export const CASTABLE = /^(?:[+-]?(?:\d+(?:\.\d*)?|\.\d+)|\d{4}-\d{2}-\d{2}|\d{8}|(?:\d{4}-\d{2}-\d{2}T)?\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?|true|false)$/;
 
 const NAMES = {
   "\u00A0": "no-break space (U+00A0)",
@@ -75,19 +75,31 @@ export function unreadableLeaves(tree) {
   return out;
 }
 
+// One INV-065 finding for an unreadable leaf ({ path, element, value }).
+export function xmlValueFinding(row, path) {
+  const element = typeof row.element === "string" && row.element ? row.element : "A value";
+  return {
+    rule: "INV-065",
+    message: `${element} "${visibleSpaces(row.value)}" holds a ${spaceName(row.value)}, so it is not a valid number, date or time in XML${row.path ? ` (${row.path})` : ""}. Software that trims it reads ${row.value.trim()}; a receiver's validator (Saxon) stops on the whole file instead and reports no rule.`,
+    fix: "Write the value with no space characters other than an ordinary space, tab or line break at its ends (no no-break space, U+00A0, or similar). Spreadsheets and text copied from a PDF often add one.",
+    path,
+  };
+}
+
 // INV-065 findings for a mapped invoice whose reader kept `xml_values`.
 export function inspectXmlValues(invoice) {
   const rows = invoice && Array.isArray(invoice.xml_values) ? invoice.xml_values : [];
   const findings = [];
   rows.forEach((row, index) => {
     if (!row || typeof row !== "object" || typeof row.value !== "string") return;
-    const element = typeof row.element === "string" && row.element ? row.element : "A value";
-    findings.push({
-      rule: "INV-065",
-      message: `${element} "${visibleSpaces(row.value)}" holds a ${spaceName(row.value)}, so it is not a valid number, date or time in XML${row.path ? ` (${row.path})` : ""}. Software that trims it reads ${row.value.trim()}; a receiver's validator (Saxon) stops on the whole file instead and reports no rule.`,
-      fix: "Write the value with no space characters other than an ordinary space, tab or line break at its ends (no no-break space, U+00A0, or similar). Spreadsheets and text copied from a PDF often add one.",
-      path: `/xml_values/${index}/value`,
-    });
+    findings.push(xmlValueFinding(row, `/xml_values/${index}/value`));
   });
   return findings;
+}
+
+// INV-065 for the national readers that report straight from the tree
+// (FatturaPA, FA(3), Facturae, NAV; added 2026-11-17): the finding's path is
+// the leaf's own. `tree` is parseXmlTree()'s result or one element of it.
+export function xmlValueFindings(tree) {
+  return unreadableLeaves(tree).map((row) => xmlValueFinding(row, row.path));
 }

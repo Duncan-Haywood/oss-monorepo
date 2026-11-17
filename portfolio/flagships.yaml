@@ -112,7 +112,7 @@ flagships:
       table, a supplier's terms letter; (5) receipts OCR (five-reading vote keeps
       RapidOCR's total unless arithmetic confirms the majority, CORD train 542/583;
       page SRD 190/196 (port as lead), page CORD taxes kept (train 205/267),
-      WildReceipt held out 359/405, tax 204/272, SROIE 84.6%, US 79.6%, tax 74.6%;
+      WildReceipt held out 360/405, tax 207/272, SROIE 84.6%, US 79.6%, tax 74.6%;
       CLI 78.6%, tax 71.9%; CORD photos val 71.4%, train 62.2%, test 57.9%, tax
       16/41; open: OCR-bound); (6) payroll (README): two journal layouts read; open:
       a real Gusto or ADP export; (7) IRIS NEC and MISC rents files on IRS TY2025
@@ -120,13 +120,13 @@ flagships:
       slice replaces its item here; keep this under 2,000 characters. More open
       items: NEXT.md.
     buildable: >-
-      Receipts, item (5): WildReceipt photos (eval/wildreceipt.py, Hugging Face
+      Receipts, item (5): WildReceipt (eval/wildreceipt.py, Hugging Face
       kaydee/wildreceipt; Apache-2.0), SRD (eval/srd-fetch.mjs), CORD
-      (eval/cord_images.py); tesseract via apt, RapidOCR via pip. WildReceipt test
-      held out: five readings 359 of 405 totals, tax 204 of 272
-      (eval/wildreceipt-2026-11-17.md). Next: train shard 1 (about 630 unread
-      photos) as fresh development; tax amounts in net/tax/gross column rows;
-      EC$/US$ read as ECS/USS before an amount. CORD leftovers: train-28, 1009
+      (eval/cord_images.py); tesseract via apt, RapidOCR via pip. All WildReceipt
+      photos read; test held out: five readings 360 of 405 totals, tax 207 of 272
+      (eval/wildreceipt-train1-2026-11-17.md). Next, small: two TVA rates summed
+      under a Total HTVA; TVA read as TUA; tax in a Subtotal(12%VAT) line; a fresh
+      labelled source. CORD leftovers: train-28, 1009
       (eval/cord-shard0-lead-2026-11-17.md).
     hosts: [https://huggingface.co/, https://raw.githubusercontent.com/]
 
@@ -236,8 +236,9 @@ flagships:
       (eval/pint-zatca-whitespace-2026-11-17.md). Next: CIUS-RO, CIUS-PT, CIUS-HR,
       NLCIUS and the French plain-only sets against SaxonC the same way (SchXslt
       compiles their .sch; eval/profile-whitespace-crosscheck.mjs takes
-      --xsl-roots); the readers' String.trim() leaf scan if PR 17032 has not landed.
-      No network beyond PyPI, Maven and GitHub.
+      --xsl-roots); xs:dateTime leaves (FA(3), NAV timestamps) now in CASTABLE:
+      measure them as eval/nbsp-other-formats-2026-11-17.md does. No network beyond
+      PyPI, Maven and GitHub.
   - venture: shift-roster-builder
     inputs_only: >-
       a live deploy with real punches, a real payroll template, a manager's
@@ -472,11 +473,12 @@ flagships:
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
-      (eval/ifcxml-xbim-2026-11-16.md); the IDS editor (editor.html): a one-of row
-      on numbers (166 IDS-Audit-tool lists kept; no-class specs landed 2026-11-17,
-      eval/no-class-specs-2026-11-17.md); the 132 kept property requirements in
-      public files (node eval/kept-facets.mjs); more real exports through
-      eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
+      (eval/ifcxml-xbim-2026-11-16.md); the IDS editor (editor.html): the 20 numeric
+      lists on non-element attributes in no-class specs still kept (number one-of
+      rows landed 2026-11-17, eval/number-oneof-2026-11-17.md: IfcTester matches
+      listed numbers exactly, offers list exact values); the 132 kept property
+      requirements in public files (node eval/kept-facets.mjs); more real exports
+      through eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked"). Next, most
@@ -491,18 +493,9 @@ flagships:
       classification-system gaps, eval/editor-2026-11-16.md); IFC 4.3 infra/HVAC
       cross-check 2026-11-17 (348 of 348, eval/infra-mep-crosscheck-*); 65 public
       IDS vs IfcTester 2026-11-17 (1,661 of 1,736 same; unchecked subclasses
-      reported, eval/corpus-crosscheck-*); editor (opens an IDS,
-      eval/editor-open-2026-11-16.md; opens a model and offers its classes and sets,
-      own sets editable, 79.4% of public facets editable,
-      eval/model-inventory-2026-11-16.md: 4 real exports, 347 of 395 class-set pairs
-      own sets, 21 of 122 standard props in a non-template dataType): applicability
-      rows 2026-11-17 (eval/applicability-rows-2026-11-17.md: counts equal the
-      checker's applicable; 83.5% of public facets editable, IDS-Audit-tool 21.5%);
-      a no-dataType value row; GitLab Code Quality report keyed on GlobalId+class
-      2026-11-17 (eval/gitlab-codequality-2026-11-17.md: 18 of 18 real changes, 0
-      for a renumbering re-export); duplicate GlobalIds in a model
+      reported, eval/corpus-crosscheck-*); duplicate GlobalIds in a model
       (eval/duplicate-globalids-2026-11-17.md) and across federated models in CI
       2026-11-17 (eval/federated-globalids-2026-11-17.md; allow list and followers,
-      eval/federation-allow-2026-11-17.md: Simple-Scene 35 to 23); unchecked
-      subclasses in CI and the editor 2026-11-17 (eval/ci-unchecked-2026-11-17.md:
-      21,405 elements in 165 of 2,028 checks). More open items: NEXT.md.
+      eval/federation-allow-2026-11-17.md: Simple-Scene 35 to 23); number one-of
+      rows 2026-11-17 (eval/number-oneof-2026-11-17.md: 663 of 663 offers pass,
+      IfcTester 646). More open items: NEXT.md.

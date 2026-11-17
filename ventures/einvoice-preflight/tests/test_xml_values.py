@@ -19,7 +19,7 @@ def _inv065(invoice):
 
 class XmlValuesTest(unittest.TestCase):
     def test_unreadable_value_matches_the_page(self):
-        for value in ["238.00\u00a0", "\u00a0238.00", "\ufeff1", "2026-11-17\u3000", "20261117\u00a0", "true\u2009", "14:30:00\u00a0"]:
+        for value in ["238.00\u00a0", "\u00a0238.00", "\ufeff1", "2026-11-17\u3000", "20261117\u00a0", "true\u2009", "14:30:00\u00a0", "2026-11-17T14:30:00Z\u00a0"]:
             self.assertTrue(unreadable_value(value), repr(value))
         for value in ["238.00", " 238.00\n", "ACME\u00a0GmbH", "1\u00a0000.00", "", " 14:30:00 ", "14:30\u00a0"]:
             self.assertFalse(unreadable_value(value), repr(value))

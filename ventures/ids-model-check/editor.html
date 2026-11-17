@@ -94,7 +94,7 @@
   import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
   import { Schema, parseIds } from "./ids.mjs";
   import { auditIds } from "./audit.mjs";
-  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, idsSchema, facetXml, editableAttributes, modelSets, valueTypes, ownSetName, specBases, specClassNames, commonSets, commonAttributes, attributeValueKind, commonPredefinedTypes, parseClassList, modelValueOffer, modelAttributes, modelCodes, appMatchCount, reqComplete, typeRow, untypeRow, temporalType, TEMPORAL_EXAMPLE, datePattern, modelSubclassesLeftOut, modelSpec } from "./editor.mjs";
+  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, idsSchema, facetXml, editableAttributes, modelSets, valueTypes, ownSetName, specBases, specClassNames, commonSets, commonAttributes, attributeValueKind, commonPredefinedTypes, parseClassList, modelValueOffer, modelAttributes, modelCodes, appMatchCount, reqComplete, typeRow, untypeRow, temporalType, TEMPORAL_EXAMPLE, datePattern, modelSubclassesLeftOut, modelSpec, valueChoices, numberValueProblem } from "./editor.mjs";
   import { temporalKind } from "./temporal.mjs";
   import { isZip, unzipModel, inflateRawStream } from "./zip.mjs";
 
@@ -252,14 +252,18 @@
     // The values the opened model holds for this property (inventory.mjs).
     const offer = modelValueOffer(mprop, valueKind, enumVals, temporal);
     offers.set(key, offer);
+    // A number row's integer type (xs:integer): its one-of values are digits only.
+    const integer = valueKind === "number" && valueChoices(L, specBases(spec), r).integer;
     if (valueKind && r.cardinality !== "prohibited") {
       const modes = [["any", "any value"], ["equals", "exactly"]];
-      if (enumVals || valueKind === "text") modes.push(["oneOf", "one of"]);
+      if (enumVals || valueKind === "text" || valueKind === "number") modes.push(["oneOf", "one of"]);
       if (valueKind === "number" || temporal) modes.push(["range", temporal === "duration" ? "between (durations)" : temporal ? "between (dates)" : "between"]);
       if (valueKind === "text" && !enumVals) modes.push(["pattern", "matching a pattern"]);
       if (valueKind === "bool") modes.splice(1, 1, ["true", "true"], ["false", "false"]);
       h += `<div class="row" style="margin-top:8px"><label for="${id("mode")}" style="display:inline">Value</label><select id="${id("mode")}" style="width:auto" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="mode">${modes.map(([v, l]) => opt(v, l, r.mode)).join("")}</select>`;
-      const inM = (v) => { const x = offer && offer.values.find(([y]) => y === v); return x ? ` (${x[1]} in model)` : ""; };
+      // Numbers are tallied at 12 significant digits; a one-of lists them exactly.
+      const at12 = (v) => (valueKind === "number" && Number.isFinite(Number(v)) && String(v).trim() !== "" ? String(Number(Number(v).toPrecision(12))) : v);
+      const inM = (v) => { const x = offer && offer.values.find(([y]) => y === v || (valueKind === "number" && y === at12(v))); return x ? ` (${x[1]} in model)` : ""; };
       if (r.mode === "equals") h += enumVals ? `<select style="width:auto" aria-label="value" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="equals">${opt("", "choose", r.equals)}${enumVals.map((v) => opt(v, v + inM(v), r.equals)).join("")}</select>` : `<input style="width:14em" aria-label="value" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="equals" value="${esc(r.equals)}"${offer ? ` list="${id("vals")}" autocomplete="off"` : ""}>${offer ? `<datalist id="${id("vals")}">${offer.values.map(([v, n]) => `<option value="${esc(v)}">${n} in model</option>`).join("")}</datalist>` : ""}`;
       // Each bound inclusive (at least / at most) or exclusive (more than / less than: xs:minExclusive, xs:maxExclusive).
       if (r.mode === "range") h += `<select style="width:auto" aria-label="lower bound" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="minEx">${opt("", "at least", r.minEx ? "1" : "")}${opt("1", "more than", r.minEx ? "1" : "")}</select> <input style="width:8em" aria-label="minimum" placeholder="${temporal ? TEMPORAL_EXAMPLE[temporal][0] : "min"}" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="min" value="${esc(r.min)}"> and <select style="width:auto" aria-label="upper bound" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="maxEx">${opt("", "at most", r.maxEx ? "1" : "")}${opt("1", "less than", r.maxEx ? "1" : "")}</select> <input style="width:8em" aria-label="maximum" placeholder="${temporal ? TEMPORAL_EXAMPLE[temporal][1] : "max"}" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="max" value="${esc(r.max)}"> <span class="muted">${temporal ? TEMPORAL_UNIT[temporal] : r.kind === "attribute" ? "as the model writes it, in the model's own units (this checker does not convert attributes)" : "SI units (metres, square metres...)"}</span>`;
@@ -279,10 +283,21 @@
       // "One of" values the author lists: the model's values to tick, the
       // ones already listed, and a field to add another.
       if (r.mode === "oneOf" && !enumVals) {
-        const listed = [...r.oneOf, ...(offer ? offer.values.map(([v]) => v).filter((v) => !r.oneOf.includes(v)) : [])];
+        const listed = [...r.oneOf, ...(offer ? offer.values.map(([v]) => v).filter((v) => !r.oneOf.some((w) => w === v || at12(w) === v)) : [])];
         h += `<div class="enum">${listed.map((v) => `<label><input type="checkbox" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="oneOf" value="${esc(v)}"${r.oneOf.includes(v) ? " checked" : ""}> ${v === "" ? "<em>(empty)</em>" : esc(v)}${esc(inM(v))}</label>`).join("")}</div>`;
         h += `<input style="width:14em;margin-top:6px" aria-label="add a value" placeholder="add a value, then Enter" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="oneOfAdd" data-change="1">`;
         if (!r.oneOf.length) h += ` <span class="warn">Tick or add at least one value.</span>`;
+      }
+      // A one-of on numbers: each value as IDS reads the type, and how the
+      // checkers compare it. This checker matches a real number within IDS's
+      // tolerance (|a - b| <= |b| x 1e-6 + 1e-6, as for "exactly"); IfcTester
+      // 0.9.0 compares a listed value with Python's `in`, exactly, so a value
+      // the model holds as 0.25399999999999995 passes here and fails there
+      // (eval/number-oneof-2026-11-17.md).
+      if (r.mode === "oneOf" && valueKind === "number") {
+        const bad = r.oneOf.map((v) => numberValueProblem(v, integer)).filter(Boolean);
+        if (bad.length) h += `<p class="warn" style="margin:6px 0 0;font-size:0.86rem">${esc(bad.slice(0, 3).join("; "))}${bad.length > 3 ? ` (and ${bad.length - 3} more)` : ""}. Untick or remove ${bad.length === 1 ? "it" : "them"}: IDS cannot read ${bad.length === 1 ? "it" : "them"}, so the audit rejects the file.</p>`;
+        else h += `<p class="muted" style="margin:6px 0 0;font-size:0.86rem">${integer ? "Whole numbers, compared exactly." : `Real numbers. This checker matches each within IDS's tolerance (a millionth either way); IfcOpenShell's IfcTester (0.9.0) matches a listed value only when the model holds exactly that number, so list values exactly as the model holds them (Allow exactly these values does)${r.kind === "property" ? ", in SI units. Where the model is in feet or degrees, IfcTester's own unit conversion can differ from this checker's in the last digit (17 of 636 property lists on 4 real exports), so a range is the safer check there" : ", in the model's own units"}, or ask for a range.`}</p>`;
       }
       // A one-of on a date, time or duration: written on the DataTypes base
       // (xs:date...), or on xs:string as an opened file had it. Both this
@@ -305,13 +320,18 @@
       if (offer.tmin !== null && offer.tmax !== null) mv += ` They run from ${offer.tmin} to ${offer.tmax}.`;
       else if (temporal && mprop && mprop.tkind === "mixed") mv += ` Not every value is ${temporal === "duration" ? "an ISO duration" : temporal === "time" ? "an ISO time" : temporal === "dateTime" ? "an ISO date-time" : "an ISO date"} in one form, so no range passes them all.`;
       if (offer.outside.length) mv += ` It also writes ${offer.outside.slice(0, 5).map(([v, n]) => `${v} (${n})`).join(", ")}${offer.outside.length > 5 ? ", ..." : ""}, which the standard does not list; a one-of check fails those objects.`;
-      const use = offer.oneOf && !(r.mode === "oneOf" && r.oneOf.length === offer.oneOf.length && offer.oneOf.every((v) => r.oneOf.includes(v))) ? "Allow exactly these values"
-        : offer.min !== null && offer.max !== null && valueKind === "number" && !(r.mode === "range" && r.min === offer.rangeMin && r.max === offer.rangeMax && !r.minEx && !r.maxEx) ? "Use the model's range" : "";
+      const listedAll = offer.oneOf && r.mode === "oneOf" && r.oneOf.length === offer.oneOf.length && offer.oneOf.every((v) => r.oneOf.includes(v));
+      const rangeAll = offer.min !== null && offer.max !== null && valueKind === "number" && !(r.mode === "range" && r.min === offer.rangeMin && r.max === offer.rangeMax && !r.minEx && !r.maxEx);
+      // A number row with a few values gets both: the model's range and its
+      // values as a one-of (data-pick says which).
+      const use = offer.oneOf && !listedAll && valueKind !== "number" ? "Allow exactly these values" : rangeAll ? "Use the model's range" : "";
+      const useN = offer.oneOf && !listedAll && valueKind === "number"
+        ? ` <button type="button" class="ghost small" data-act="model-values" data-pick="oneOf" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>Allow exactly these values</button>` : "";
       // A temporal row gets the range as well as (not instead of) the values.
       const useT = offer.tmin !== null && offer.tmax !== null && temporal && !(r.mode === "range" && r.min === offer.tmin && r.max === offer.tmax && !r.minEx && !r.maxEx)
         ? ` <button type="button" class="ghost small" data-act="model-range" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>Use the model's range</button>` : "";
       const any = codeless.has(key) ? ` <button type="button" class="ghost small" data-act="model-coded" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>Require a code</button>` : "";
-      h += `<p class="muted" style="margin:6px 0 0;font-size:0.86rem">${esc(mv)}${use ? ` <button type="button" class="ghost small" data-act="model-values" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>${use}</button>` : ""}${useT}${any}</p>`;
+      h += `<p class="muted" style="margin:6px 0 0;font-size:0.86rem">${esc(mv)}${use ? ` <button type="button" class="ghost small" data-act="model-values" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>${use}</button>` : ""}${useN}${useT}${any}</p>`;
     }
     // TRUE or False on a boolean with no dataType: IDS 1.0's test cases write
     // booleans true/false with a dataType; without one this checker matches no
@@ -582,7 +602,8 @@
     // A requirement the opened model already passes: its values, or its range.
     if (a === "model-values") {
       const r = rows[+e.target.dataset.r], o = offers.get(okey);
-      if (o && o.oneOf) { r.mode = "oneOf"; r.oneOf = [...o.oneOf]; }
+      const pick = e.target.dataset.pick;
+      if (o && o.oneOf && (pick === "oneOf" || o.rangeMin === null || o.rangeMin === undefined)) { r.mode = "oneOf"; r.oneOf = [...o.oneOf]; }
       else if (o && o.rangeMin !== null && o.rangeMax !== null) { r.mode = "range"; r.min = o.rangeMin; r.max = o.rangeMax; r.minEx = false; r.maxEx = false; }
       record("editor_model_values");
     }

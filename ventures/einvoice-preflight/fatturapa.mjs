@@ -13,6 +13,7 @@
 
 import { roundHalfUpToCents } from "./checks.mjs";
 import { parseXmlTree } from "./ubl.mjs";
+import { xmlValueFindings } from "./xmlvalues.mjs";
 import { calendarDate, checkAgainstSchema, codesFor } from "./fatturapa-xsd.mjs";
 
 // The code lists come from the Agenzia's XSD 1.2.3 (specification 1.9), read by
@@ -440,6 +441,9 @@ export function checkFatturaPa(source) {
   if (!root) throw new Error("Not a FatturaElettronica document");
   const out = [];
   const skipped = [];
+  // INV-065 (2026-11-17): a number or date with a no-break space that trim() hides
+  // and SdI's schema check does not (eval/nbsp-other-formats-2026-11-17.md).
+  out.push(...xmlValueFindings({ children: [root] }));
   const version = (root.attrs && root.attrs.versione) || "";
   if (version !== "FPR12" && version !== "FPA12") {
     out.push(finding("IT-001", "The versione attribute is not FPR12 (business) or FPA12 (public body).",

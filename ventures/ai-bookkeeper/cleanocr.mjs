@@ -16,6 +16,11 @@ const lev1 = (a, b) => {
 const subtotalWord = (w) => { const l = w.toLowerCase(); return l.length >= 7 && l !== "subtotal" && l !== "subtotals" && (lev1(l, "subtotal") || lev1(l, "subtota")); };
 export function cleanOcr(text) {
   return text.split(/\r?\n/).map((line) => line
+    // "US$12.50", "EC$161.04", "S$8.40", and the same with the $ read as S ("USS12.50",
+    // "ECS161.04"): a dollar with its country letters is a dollar. Left alone, the
+    // token pass below reads the S (and US's S) as 5, so US$12.50 became 5512.50
+    // (WildReceipt, eval/wildreceipt-train1-2026-11-17.md).
+    .replace(/(^|[^A-Za-z])(?:US|EC|HK|NZ|AU|SG|NT|CA|BZ|TT|JM|BB|BS|FJ|A|C|S)(?:\$|S(?=\s?\d+[.,]\d{2}(?!\d)))\s?(?=\d)/g, "$1$$")
     .replace(/(^|\s)S(?=\d+[.,]\d{2}(?!\d))/g, "$1$$") // "S10.62" -> "$10.62"
     .replace(/(\d)\s+([.,])(\d{2})(?!\d)/g, "$1$2$3") // "5 .50" -> "5.50"
     .replace(/(\d[.,])\s+(\d{2})(?!\d)/g, "$1$2")

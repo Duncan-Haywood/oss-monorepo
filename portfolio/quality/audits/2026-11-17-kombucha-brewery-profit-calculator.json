@@ -1,0 +1,275 @@
+{
+ "date": "2026-11-17",
+ "subject": "ventures/kombucha-brewery-profit-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-17-5df2",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a production and finance manager at a craft-beverage (kombucha) producer who builds pro formas for lenders; first checks: is output net of starter liquid held back and batch loss, are ingredients costed on brewed (not sold) gallons, is packaging split by keg vs can/bottle channel, can a 25-35% distributor margin be entered, is the loan an amortising payment and DSCR computed on the right cash flow, does the ramp-up cash reserve make sense, and is the alcohol line (TTB: 0.5% ABV or more at any time, including after bottling, makes it an alcohol beverage with excise tax and permits) at least flagged",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Every headline output of the worked example recomputed independently in Python (`python3 /tmp/claude-0/audit-kombucha/hand.py`, my own formulas, not the module) and matched the module output to the cent: 365/16 = 22.8125 batches, 1200 x 0.9 x 22.8125 x 0.94 = 23,159 gal/yr = 1,930/mo = 445/wk; blended 0.7x11 + 0.3x30 = 16.70, net 15.865, variable 5.50 (incl. 3 min at $20 = $1); energy 8 kW x 24 h x 30 x 0.13 x 1.6 = 1,198.08; fixed 10,698.08; profit 9,305.72 (30.4%); break-even 10,698.08 / 10.365 = 1,032 gal/mo (238/wk on the headline); startup 193,800; level payment on 96,900 at 9%/7 yr by the standard annuity formula = 1,559.03; DSCR 5.97; price factor for a 20% margin 0.870; 60-month ramp trough at month 5, reserve 19,611, payback month 23. Not a 4 because the method understates cost when batch loss is entered: variable cost is charged on sold gallons only (calc.mjs:114), so tea, sugar, flavouring and brew labour for dumped gallons vanish and raising loss from 0% to 6% lowers monthly variable cost from 11,292 to 10,615; in the sample that omits about $185/month of ingredients, at 50% loss about $1,540/month. Leaving optional fields blank (each shows a realistic placeholder) yields zero cost: the five required fields alone give a 100.0% margin and payback in month 1 with no warning.",
+  "completeness": "Claimed features (README, VENTURE.yaml, page rules list) all run end to end: gallons a week, monthly profit at full production, break-even with and without the loan, price change to a target margin, output, price and power sweeps, 60-month ramp with trough, reserve and payback, loan coverage, summary text and CSV download, print, local usage counts with opt-out. No stubs or TODOs. Visible gap: the form instruction shown on load (index.html:102, repeated as IDLE at :167) names 'Growing area, plants per square foot, days to harvest' as required fields, copied verbatim from ventures/hydroponic-farm-profit-calculator; the real required fields are capacity, fill, brew days and two prices. Served copy rewrites llms.txt to marisstella.app (`node platform/pages/served-copy.mjs kombucha-brewery-profit-calculator`: no placeholder or retired origin left), so the github.io link in source llms.txt is not a defect.",
+  "verification": "`cd ventures/kombucha-brewery-profit-calculator && node --test '*.test.mjs'`: 25 tests, 25 pass, ~0.12 s; README's repo-root command also passes 25. Tests compute small cases by hand (good). Seven seeded mutants via platform/ci/quality_mutate.py: climate-control share /100 -> /50 caught; 30 -> 31 days caught; target-margin revenue /(1-m) -> *(1+m) caught; reserve formula -(trough+equity) -> -trough SURVIVED (the headline reserve would include the whole equity, the test only asserts reserve > 0); loan-term boundary mo <= debtMonths -> mo < SURVIVED; 'cannot produce' high finding threshold 100% -> 150% SURVIVED; trough < -> <= survived (near-equivalent, ties only). 3 of 6 meaningful mutants caught; the ramp/reserve/payback block and findings thresholds are thinly pinned.",
+  "craft": "Read calc.mjs (219 lines), calc.test.mjs, page.test.mjs, the index.html script. Pure functions, closed-form break-even, validated inputs with messages, escaped findings HTML, no network. Defects: user-visible status text copied from another product (index.html:102,167); WEEKS_PER_MONTH declared and never used (calc.mjs:25); the equipmentPct error message calls the field 'Climate control (cooling, dehumidifying, fans)' while the label and FAQ say 'Pumps, heating and packaging line' (calc.mjs:56 vs index.html:80); energy uses 30 days a month while output uses 365/12 = 30.42 (calc.mjs:89 vs 74), a 1.4% inconsistency; parse() is one dense 40-line block with 30 variables on few lines.",
+  "claims": "Backed: every FAQ rule (output formula, two break-evens 'exact for your inputs', chilling kW x h x 30 x price, power table +/-25%), 'bad input is rejected, never clamped' for typed values (tests cover 14 cases), no-network claim (page.test.mjs asserts it), no-warranty and not-advice disclaimer on page and README, 'nothing here is a market price' and sample labelled illustrative. Not backed or wrong: the on-load instruction lists hydroponic fields as required (index.html:102); VENTURE.yaml says bad input is 'rejected instead of clamped' but a blank cost field silently becomes 0 under a placeholder that looks like a value; the alcohol line says kombucha that 'tests above 0.5%' is regulated, where TTB's line is 0.5% or more at any time including after bottling (index.html:128, calc.mjs:191, README.md:11); the packaging label promises 'lost kegs' and wholesale 'kegs and cases' but one packaging cost per gallon covers both channels.",
+  "fitness": "Job walked through: a brewer with 1,200 gal of fermenters sizing a $97k loan. They get output, break-even, DSCR, reserve and payback in a minute, and the power and price tables are useful. In the first hour they hit: no place to hold back starter liquid (typically 10-20% of each batch kept to inoculate the next), so output is overstated unless they think to fold it into 'loss' (whose label lists dumped batches, lees, fill shrink, rejects but not starter); one packaging cost for kegs and cans although wholesale draft and packaged retail differ by several dollars a gallon; fees capped under 30% so a typical 25-35% distributor margin plus card fees cannot be entered (must be netted into the wholesale price by hand); ingredients not charged on dumped gallons; a single SKU; no income tax, depreciation or working capital (receivables on 30-day wholesale terms, inventory of 2 weeks of product), only the first of which is disclosed. Hard (alcoholic) kombucha excise and TTB permits are not modelled, but disclosed.",
+  "domain": "Compared with standard small-manufacturer pro forma practice (contribution margin, fixed cost, break-even = F / unit contribution, level-payment loan, DSCR on operating cash flow before debt, which lenders commonly want at 1.25x) the method is right, and the 1.25x DSCR flag matches common SBA/bank practice. Departures: COGS should charge ingredients and brewing labour on brewed gallons, with loss as yield (calc.mjs:86,114); starter retention not modelled; packaging and pricing not split by keg vs can/bottle; distributor margin capped at <30% (calc.mjs:49); heating for warm fermentation (kombucha ferments at about 75-85 F) expressed as a percent of chiller energy, which goes to zero for a brewery with no cold room; the TTB threshold phrased as 'above 0.5%' instead of '0.5% or more ... at any time' (TTB kombucha guidance, 27 CFR 4.10/7.10 definitions; from my own knowledge, not fetched). Excise and permits for >=0.5% ABV are disclosed as out of scope."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Worked example output: batches, gallons a year/month/week",
+   "method": "independent Python recompute: 365/(14+2) x 1200 x 0.9 x (1-0.06)",
+   "command": "python3 /tmp/claude-0/audit-kombucha/hand.py",
+   "expected": "22.81 batches, 23,159 gal/yr, 1,930/mo, 445/wk",
+   "observed": "22.8 batches, 1,930 a month, 445 a week",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Worked example monthly P&L and margin",
+   "method": "independent recompute: blended 16.70, net x0.95, vc 5.50, energy 8x24x30x0.13x1.6, fixed sum",
+   "command": "python3 /tmp/claude-0/audit-kombucha/hand.py",
+   "expected": "revenue 30,618.46, variable 10,614.66, fixed 10,698.08, profit 9,305.72, 30.4%",
+   "observed": "$30,618 / $10,615 / $10,698 / $9,306 (30.4%)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Loan payment and DSCR on a 96,900 loan at 9% over 7 years",
+   "method": "standard annuity formula P r / (1-(1+r)^-n), computed independently",
+   "command": "python3 /tmp/claude-0/audit-kombucha/hand.py",
+   "expected": "1,559.03 a month; DSCR 5.97",
+   "observed": "1559.03; 5.97",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Break-even gallons and price factor for a 20% margin",
+   "method": "F / (net - vc); R = (V+F)/(1-m), factor R / current net revenue",
+   "command": "python3 /tmp/claude-0/audit-kombucha/hand.py",
+   "expected": "1,032 gal/mo (238/wk), factor 0.870",
+   "observed": "1,032 gal/mo, 238.19/wk, 0.8701",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Ramp-up trough, reserve and payback",
+   "method": "independent 60-month loop: linear 25% -> 100% over 10 months, less payment, from -equity",
+   "command": "python3 /tmp/claude-0/audit-kombucha/hand.py",
+   "expected": "trough month 5, reserve 19,611, payback month 23",
+   "observed": "month 5, $19,611, month 23",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Ingredient cost of dumped gallons",
+   "method": "COGS practice: ingredients are consumed per brewed gallon; loss is a yield, not a cost saving",
+   "command": "node -e 'import(\"./calc.mjs\").then(({compute,SAMPLE})=>console.log(compute(SAMPLE).steady.variable, compute({...SAMPLE,lossPct:\"0\"}).steady.variable))'",
+   "expected": "variable cost does not fall when loss rises (ingredients on 2,053 brewed gal/mo)",
+   "observed": "10,614.66 at 6% loss vs 11,292.19 at 0%: more loss lowers cost; ~$185/mo of ingredients omitted",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Only the required fields filled, every other box showing a placeholder value",
+   "method": "run the five required inputs",
+   "command": "node -e 'import(\"./calc.mjs\").then(({compute})=>{const r=compute({tankGal:\"1200\",fillPct:\"90\",brewDays:\"14\",wholesalePrice:\"11\",retailPrice:\"30\"});console.log(r.margin,r.paybackMonth)})'",
+   "expected": "an error or a warning that costs are zero",
+   "observed": "margin 1.000, payback month 1, no warning",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "cd ventures/kombucha-brewery-profit-calculator && node --test '*.test.mjs'",
+   "expected": "pass",
+   "observed": "25/25 pass, ~0.12 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "On-load form instruction names the required fields",
+   "method": "read index.html; grep for the text across ventures",
+   "command": "grep -rln 'Growing area, plants per square foot' ventures/*/index.html",
+   "expected": "tank capacity, fill, brew days and prices named",
+   "observed": "'Growing area, plants per square foot, days to harvest' copied from hydroponic-farm-profit-calculator",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served llms.txt, sitemap and canonical origins",
+   "method": "served-copy",
+   "command": "node platform/pages/served-copy.mjs kombucha-brewery-profit-calculator",
+   "expected": "marisstella.app origins",
+   "observed": "no placeholder or retired origin left",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer, privacy and no-network claims",
+   "method": "read footer and README; page.test.mjs asserts no fetch/XHR/beacon",
+   "command": "cd ventures/kombucha-brewery-profit-calculator && node --test page.test.mjs",
+   "expected": "no-warranty, not-advice, local only",
+   "observed": "present and pinned",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Alcohol threshold wording",
+   "method": "TTB kombucha guidance: 0.5% ABV or more at any time, including after bottling (own knowledge, not fetched)",
+   "command": "grep -n 'above 0.5' ventures/kombucha-brewery-profit-calculator/index.html ventures/kombucha-brewery-profit-calculator/calc.mjs",
+   "expected": "'0.5% or more ... at any time'",
+   "observed": "'tests above 0.5% alcohol'",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Distributor margin entry",
+   "method": "typical distributor margin 25-35% of wholesale plus card fees",
+   "command": "node -e 'import(\"./calc.mjs\").then(({compute,SAMPLE})=>console.log(compute({...SAMPLE,feesPct:\"30\"}).errors))'",
+   "expected": "accepted",
+   "observed": "rejected: 'must be from 0 to under 30 percent'",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "Packaging split by keg vs can/bottle channel and starter retention",
+   "method": "craft-beverage costing practice",
+   "command": "read index.html:61-72 and calc.mjs:85-87",
+   "expected": "per-channel packaging; starter hold-back",
+   "observed": "one packaging cost per gallon for both channels; no starter input",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:90",
+   "change": "chilling * (1 + p.equipmentPct / 100) -> chilling * (1 + p.equipmentPct / 50)",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:89",
+   "change": "chillerHours * 30 * kwhPrice -> chillerHours * 31 * kwhPrice",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:146",
+   "change": "(st.variable + st.fixed) / (1 - m) -> (st.variable + st.fixed) * (1 + m)",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:162",
+   "change": "Math.max(0, -(trough + equity)) -> Math.max(0, -trough)",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:154",
+   "change": "mo <= debtMonths -> mo < debtMonths",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:182",
+   "change": "bePctDebt > 100 -> bePctDebt > 150",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:158",
+   "change": "cum < trough -> cum <= trough (near-equivalent: ties only)",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Ingredient, flavouring and labour cost is charged on sold gallons only, so dumped batches cost nothing and a higher batch-loss input lowers variable cost (6% loss: 10,615 vs 11,292 at 0%); about $185/month of ingredients omitted in the sample, about $1,540/month at 50% loss.",
+   "where": "ventures/kombucha-brewery-profit-calculator/calc.mjs:114",
+   "category": "logic-error",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "The on-load form instruction (and the IDLE text restored by Clear) says 'Growing area, plants per square foot, days to harvest and a price are required', copied from hydroponic-farm-profit-calculator; the real required fields are fermenter capacity, fill, brew days and two prices.",
+   "where": "ventures/kombucha-brewery-profit-calculator/index.html:102",
+   "category": "code-craft",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17026"
+  },
+  {
+   "severity": "medium",
+   "what": "Every input has value=\"\" and a realistic placeholder (2.2 packaging, 3500 rent, ...), but a blank optional field becomes 0 (or 100% start, 20% margin) silently: the five required fields alone report a 100.0% margin and payback in month 1 with no finding.",
+   "where": "ventures/kombucha-brewery-profit-calculator/calc.mjs:21",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Seeded mutants survive in the ramp-up block: replacing the reserve formula with -trough (reserve would include the whole equity), dropping the last loan payment at the term boundary, and moving the 'tank capacity cannot produce' high finding from 100% to 150% all leave 25 tests green; the reserve test only asserts reserve > 0.",
+   "where": "ventures/kombucha-brewery-profit-calculator/calc.test.mjs:58",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Fees are capped under 30% of revenue though the label invites 'distributor fees'; a typical 25-35% distributor margin plus card fees cannot be entered and must be netted into the wholesale price by hand. Fees also apply to taproom revenue at the same rate.",
+   "where": "ventures/kombucha-brewery-profit-calculator/calc.mjs:49",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "One packaging cost per gallon for both channels although wholesale is labelled 'kegs and cases' and the packaging label 'bottles, caps, labels, lost kegs'; draft kegs and cans/bottles differ by several dollars a gallon, so a channel-mix change gives the wrong margin. No starter-liquid hold-back (commonly 10-20% of each batch) either, so output is overstated unless folded into 'loss', whose label does not mention it.",
+   "where": "ventures/kombucha-brewery-profit-calculator/calc.mjs:86",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Alcohol line says kombucha that 'tests above 0.5% alcohol' is regulated; TTB's line is 0.5% ABV or more at any time, including after bottling. Excise tax and permits for such product are not modelled (disclosed).",
+   "where": "ventures/kombucha-brewery-profit-calculator/index.html:128",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Heating for warm fermentation is a percent of chiller energy, so a brewery with no cold room gets zero heating cost; the error message calls the same field 'Climate control (cooling, dehumidifying, fans)' while the label says 'Pumps, heating and packaging line'.",
+   "where": "ventures/kombucha-brewery-profit-calculator/calc.mjs:56",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Energy uses 30 days a month (calc.mjs:89) while output uses 365/12 = 30.42 days; WEEKS_PER_MONTH is declared and never used (calc.mjs:25).",
+   "where": "ventures/kombucha-brewery-profit-calculator/calc.mjs:89",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "No income tax, depreciation or working capital (wholesale receivables, finished inventory) in the ramp-up cash; tax and depreciation disclosed, working capital not.",
+   "where": "ventures/kombucha-brewery-profit-calculator/calc.mjs:149",
+   "category": "scope-gap",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17026"],
+ "verdict": "The arithmetic is right: output, blended and net price, variable and fixed cost, profit, both break-evens, the price change to a target margin, an amortising loan payment, DSCR and the 60-month ramp (trough month 5, reserve $19,611, payback month 23) all recompute to the cent from an independent script. It misses the bar on claims, verification and domain. The form tells every visitor that 'growing area, plants per square foot, days to harvest' are required (copied from the hydroponic calculator); blank cost fields under realistic placeholders silently become zero, so the required fields alone show a 100% margin; dumped batches cost no ingredients, so more loss lowers cost; and three of six meaningful seeded mutants in the reserve, loan-term and findings logic survive the 25 tests. A kombucha finance manager would also want starter hold-back, keg vs can packaging, a distributor margin over 30%, and the TTB line stated as 0.5% or more at any time. A brewer who fills every box and folds those into their own inputs gets a sound first-pass pro forma."
+}
