@@ -17,11 +17,12 @@ window or the anchor instead).
 Builds: the first-order 8k plant at 0.1 ms steps, wheel lag 0.3 s, min_fit_heldout's three launchers, calibration plus
 held-out slow drill, seed 7; takes: half-sine 6 ms, front 4 ms, half-sine 3 ms.
 
-    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_fit.py [--procs 2] [--out rows.jsonl] [--rescore rows.jsonl]
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_fit.py [--procs 2] [--out rows.jsonl] [--rescore rows.jsonl[.gz]]
 
 `--rescore` runs no drill: it refits saved rows. Simulated only.
 """
 
+import gzip
 import json
 import multiprocessing
 import statistics
@@ -137,7 +138,8 @@ def score(rows):
 
 def main():
     if "--rescore" in sys.argv:
-        with open(sys.argv[sys.argv.index("--rescore") + 1]) as f:
+        path = sys.argv[sys.argv.index("--rescore") + 1]
+        with (gzip.open(path, "rt") if path.endswith(".gz") else open(path)) as f:
             return score([json.loads(line) for line in f])
     out = sys.argv[sys.argv.index("--out") + 1] if "--out" in sys.argv else None
     procs = int(sys.argv[sys.argv.index("--procs") + 1]) if "--procs" in sys.argv else multiprocessing.cpu_count()

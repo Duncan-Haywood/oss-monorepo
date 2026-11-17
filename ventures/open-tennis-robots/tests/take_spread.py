@@ -47,12 +47,14 @@ import unsure_weight as u
 from feeder_sim import SimFeeder, controller
 from tennisbots import host, launcher
 
-# (label, take_ms, shape, plant index, seeds, 0.1 ms plant)
+# (label, take_ms, shape, plant index, seeds, 0.1 ms plant[, the board's LOOP_TAKE contact time in ms, half-sine])
 MODES = (("instant", 0.0, "halfsine", (0, 2), (7,), True),
          ("halfsine 3 ms", 3.0, "halfsine", (0, 2), (7,), True),
          ("halfsine 6 ms", 6.0, "halfsine", (0, 2), (7,), True),
          ("front 4 ms", 4.0, "front", (0, 2), (7,), True),
-         ("jitter, polish", 0.0, "halfsine", (1,), (7, 8), False))
+         ("jitter, polish", 0.0, "halfsine", (1,), (7, 8), False),
+         # added after modes 0-4 ran and tests/take_fit.py scored the contact-time term offline
+         ("halfsine 6, told", 6.0, "halfsine", (0, 2), (7,), True, 6.0))
 
 FINE_STEP = """\
 for s in range(SUB):                 # the shipped Euler step, SUB times per millisecond, with the take's share
@@ -97,7 +99,8 @@ def run(true, tau, spec, plant, seed):
 
 def case(args):
     mi, pi, tau, li, seed = args
-    label, take_ms, shape, _, _, fine = MODES[mi]
+    label, take_ms, shape, _, _, fine = MODES[mi][:6]
+    controller.LOOP_TAKE = controller.take_offsets(MODES[mi][6] * 1000) if len(MODES[mi]) > 6 else ()
     if fine:
         rf._FINE_STEP = FINE_STEP
         feeder_sim.SimFeeder.run_ms = rf._make_run_ms(sub=rf.FINE)

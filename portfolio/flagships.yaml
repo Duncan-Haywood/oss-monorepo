@@ -386,12 +386,13 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "Not the
-      simulator's step either" (the noise-free 0.3% reading floor was the loop fit's
-      t0 grid, not 0.1 ms steps; polish=True halves it, spin 0.58 to 0.31%,
-      eval/fit-grid-floor-2026-11-17.txt). Next: the jittery plant rerun with
-      polish; a ball take spread over a few ms in the simulator; ball hold: measure
-      WHEEL_RPM_FULL error's cost on 0.2 s wheels; an ESC with its own speed loop.
+      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "A take that
+      lasts a few milliseconds" (a 6 ms ball contact reads 0.82% sd as a step and
+      puts spin 1.5% off; LOOP_TAKE contact-time term, off by default, 0.19%; the
+      least-rms pick of 7 contact times matches the truth,
+      eval/take-fit-2026-11-17.txt). Next: a contact-time survey on the board's
+      calibration drill, as the ESC-lag survey; ball hold: measure WHEEL_RPM_FULL
+      error's cost on 0.2 s wheels; an ESC with its own speed loop.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
