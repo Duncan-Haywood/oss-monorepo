@@ -1,0 +1,42 @@
+# Milestone 13: per-rule scoring streams and replicate re-draws of milestone 12's key rules
+B = 500 joint draws; 5 copies (primary + 4 replicates) of 4 rules; reference = the 53 primary rules, the copy's replicate swapped in
+
+## milestone 12's rows, shared stream (m12_strength/verdicts.json) -> own stream (copy 0): joint median
+  census-degree-measured             0.0508 -> 0.0438 (-0.70 point)
+  census-dd-measured                 0.0092 -> 0.0148 (+0.56 point)
+  adaptive-dd-0.5-s0.75-measured     0.0218 -> 0.0220 (+0.03 point)
+  census-degree-matched              0.0503 -> 0.0438 (-0.65 point)
+  census-dd-matched                  0.0178 -> 0.0173 (-0.05 point)
+  adaptive-dd-0.5-s0.75-matched      0.0225 -> 0.0180 (-0.44 point)
+  census-degree-stress               0.0424 -> 0.0480 (+0.56 point)
+  census-dd-stress                   0.0158 -> 0.0123 (-0.36 point)
+  adaptive-dd-0.5-s0.75-stress       0.0286 -> 0.0206 (-0.80 point)
+
+## joint median of the key rules per copy (copy 0 = primary)
+  census-dd-measured                 0.0148  0.0165  0.0148  0.0150  0.0144 | mean 0.0151 sd 0.0008 range 0.0022
+  census-dd-matched                  0.0173  0.0094  0.0147  0.0153  0.0223 | mean 0.0158 sd 0.0047 range 0.0129
+  adaptive-dd-0.5-s0.75-measured     0.0220  0.0226  0.0222  0.0232  0.0227 | mean 0.0225 sd 0.0005 range 0.0012
+  adaptive-dd-0.5-s0.75-matched      0.0180  0.0232  0.0240  0.0244  0.0217 | mean 0.0223 sd 0.0026 range 0.0063
+
+## measured minus matched joint median, per copy
+  census-dd:              -0.25  +0.71  +0.01  -0.03  -0.80 | mean -0.07 point
+  adaptive-dd-0.5-s0.75:  +0.40  -0.07  -0.19  -0.11  +0.10 | mean +0.03 point
+
+## null: |difference| between two copies of the same rule (40 pairs): median 0.14, max 1.29 point
+
+## paired share of joint draws, measured below matched, per copy
+  census-dd:             0.668  0.156  0.538  0.492  0.898
+  adaptive-dd-0.5-s0.75: 0.250  0.524  0.624  0.558  0.412
+
+## pooled over copies (5 x B draws): joint median
+  census-dd-measured                 0.0150
+  census-dd-matched                  0.0158
+  adaptive-dd-0.5-s0.75-measured     0.0226
+  adaptive-dd-0.5-s0.75-matched      0.0223
+
+## reference rows (copy 0): perfect census dd-0.05 0.0120, census top degree 0.0405, adaptive-dd-0.5-s0.75 0.0198
+
+H31 (each key rule's joint median varies across copies with sd <= 0.25 point): refuted; sd 0.08, 0.47, 0.05, 0.26
+H32 (census dd measured below matched in every copy, mean gap <= -0.5 point): refuted; mean -0.07, copies negative 3/5
+H33 (survey rule measured minus matched, mean |gap| <= 0.5 point): held; mean +0.03
+prediction (not tested): switching to own streams moves milestone 12's rows by at most 0.6 point: max |shift| 0.80

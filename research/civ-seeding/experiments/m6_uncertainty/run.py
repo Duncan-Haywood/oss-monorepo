@@ -15,6 +15,7 @@ import json
 import os
 import sys
 import time
+import zlib
 from concurrent.futures import ProcessPoolExecutor
 
 import numpy as np
@@ -49,6 +50,25 @@ EXTRA_RULES = {}
 OUT_DIR = HERE
 # milestone 10 adds randomised rules: name -> fn(v, b, rng), N_RAND draws each, scored like RANDOMISED
 EXTRA_RANDOMISED = {}
+# milestone 13: each extra randomised rule scored on its own stream, keyed by its name, so adding or
+# removing rules re-draws no other rule. A name ending in "#r<j>" is replicate j of the rule before
+# the "#": its surveys and its scoring runs are drawn afresh. False keeps milestones 10-12's shared stream.
+PER_RULE_STREAMS = False
+# milestone 13: rules scored but left out of the best-rule reference (replicates)
+NOT_IN_REFERENCE = set()
+
+
+def rule_key(name):
+    """Stable 32-bit key of a rule name (crc32), for its own random stream."""
+    return zlib.crc32(name.encode())
+
+
+def replicate_of(name):
+    """(base name, replicate index); index 0 for a rule that is not a replicate."""
+    if "#r" in name:
+        base, j = name.rsplit("#r", 1)
+        return base, int(j)
+    return name, 0
 
 
 def rand_names():
@@ -103,6 +123,9 @@ def rand_sets(v, b):
         for k in range(N_RAND):
             r = np.random.default_rng([EVAL_SEED, v.village, k, 7])
             if rule in EXTRA_RANDOMISED:
+                j = replicate_of(rule)[1] if PER_RULE_STREAMS else 0
+                if j:
+                    r = np.random.default_rng([EVAL_SEED, v.village, k, 7, j])
                 D.append(EXTRA_RANDOMISED[rule](v, b, r))
             elif rule == "random":
                 D.append(sd.rule_random(v, b, np.random.default_rng([EVAL_SEED, v.village, k])))
@@ -135,7 +158,16 @@ def _score(args):
         er = sd.simulate_batch(v, _BETA, R, 1, np.random.default_rng([EVAL_SEED, v.village, 17]),
                                shift=zr, independent=True, **mod)[:, 0].reshape(len(RANDOMISED), N_RAND).mean(1)
         parts = [e, er]
-        if RX is not None:  # own streams, so milestone 6's rows are untouched by the extra rules
+        if RX is not None and PER_RULE_STREAMS:
+            ex_ = []
+            for i, rule in enumerate(EXTRA_RANDOMISED):
+                key = rule_key(rule)
+                zx = np.random.default_rng([EVAL_SEED + 2, v.village, 7, key]).standard_normal(N_RAND) * s if s else None
+                ex_.append(sd.simulate_batch(v, _BETA, RX[:, i * N_RAND:(i + 1) * N_RAND], 1,
+                                             np.random.default_rng([EVAL_SEED, v.village, 19, key]),
+                                             shift=zx, independent=True, **mod)[:, 0].mean())
+            parts.append(np.array(ex_))
+        elif RX is not None:  # own streams, so milestone 6's rows are untouched by the extra rules
             zx = m3b.zdraw(EVAL_SEED + 2, v.village, RX.shape[1]) * s if s else None
             ex_ = sd.simulate_batch(v, _BETA, RX, 1, np.random.default_rng([EVAL_SEED, v.village, 19]),
                                     shift=zx, independent=True, **mod)[:, 0]
@@ -220,14 +252,15 @@ def main():
         for bi in range(B_BOOT):
             for fi, f in enumerate(FAMS):
                 tot = E[pick(bi, f)] @ W[bi]
-                out[bi, fi] = 1 - tot / tot.max()
+                out[bi, fi] = 1 - tot / tot[ref].max()
         return out
+    ref = np.array([r not in NOT_IN_REFERENCE for r in rules])
     joint = regrets(lambda bi, f: draws[bi][f])
     fixed = regrets(lambda bi, f: point[f])
     wj, wf = joint.max(1), fixed.max(1)
     n = np.array([v.n for v in V])
     full = {f: E[point[f]].sum(1) for f in FAMS}
-    reg0 = {f: 1 - full[f] / full[f].max() for f in FAMS}
+    reg0 = {f: 1 - full[f] / full[f][ref].max() for f in FAMS}
     worst0 = np.max([reg0[f] for f in FAMS], 0)
 
     p("\n## sanity: point fits, equal weights (milestone 5 at S = 200: greedy-T 0.005, dd-0.05 0.014, degree 0.041)")
