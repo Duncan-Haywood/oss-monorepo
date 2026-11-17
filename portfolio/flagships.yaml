@@ -503,6 +503,6 @@ flagships:
       numeric attributes; a dataType-mismatch hint, Accept any data type 2026-11-17
       (eval/model-any-type-2026-11-17.md); GitHub Action and ci-cli.mjs 2026-11-17
       (eval/ci-action-2026-11-17.md: 8 pairs on 4 real exports in 7.5 s, 9 of 9
-      annotations on the element's line); heap 2026-11-17
-      (eval/heap-200mb-2026-11-17.md: 219 MB model 2.5 to 1.0 GB; next:
-      no-entity-facet IDS 4.7 GB, lazy ifcXML). More open items: NEXT.md.
+      annotations on the element's line); heap 2026-11-17 (eval/heap-200mb-*,
+      eval/no-entity-facet-*: 219 MB model 2.5 to 1.0 GB; 68 public IDS 515 to 111
+      s, fits 2 GB as before; next: lazy ifcXML). More open items: NEXT.md.
