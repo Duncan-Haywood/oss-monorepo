@@ -1139,11 +1139,30 @@ export function globalIdIndex(model) {
     for (const e of list) {
       const g = e.args[i];
       if (typeof g !== "string" || g === "" || out.has(g)) continue;
-      out.set(g, { id: e.id, type: e.type, name: nameOf(model, e), kind: kindOf(type) });
+      const entry = { id: e.id, type: e.type, name: nameOf(model, e), kind: kindOf(type) };
+      if (model.schema.isA(type, "IFCRELATIONSHIP")) entry.refs = rootRefs(e);
+      out.set(g, entry);
     }
   }
   model._gidIndex = out;
   return out;
+  // The GlobalIds of the IfcRoot objects a relationship names (RelatedObjects,
+  // RelatingType, ...), so a relationship shared between federated models can
+  // be told apart as one that only follows shared elements (ci.mjs
+  // crossModelGlobalIds groups it under them).
+  function rootRefs(e) {
+    const refs = [];
+    const walk = (v) => {
+      if (Array.isArray(v)) { for (const x of v) walk(x); return; }
+      const t = model.get(v);
+      if (!t || !model.schema.isA(t.type, "IFCROOT")) return;
+      const gi = model.schema.attrs(t.type).index.get("GlobalId");
+      const g = gi === undefined ? null : t.args[gi];
+      if (typeof g === "string" && g) refs.push(g);
+    };
+    for (const a of e.args.slice(4)) walk(a);
+    return refs;
+  }
   function kindOf(type) {
     const S = model.schema;
     // The shared frame a federated set is built on: project, site, building,

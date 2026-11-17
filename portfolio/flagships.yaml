@@ -186,21 +186,16 @@ flagships:
       real shop's series through --suggest); (a) ar1 + floor 2 failed on 5 fresh bee
       dances (0.244 vs 0.337, README; muted note ships); ar1 alone led (0.353): a
       6th set, a season and a trend term per column (README "Wide sets in print");
-      (b) sticky series on a drifting level: four repeat treatments failed the
-      frozen-juice bar; 3 log n led on all TCPD post hoc (0.754 vs 0.697 on the 34
-      non-sticky), test it on fresh labelled data; update-rate check: date a
-      documented collection change. Stale feeds: clumped LR shipped; next a real
-      documented carry-forward. joint drift (measured, not offered) and its 2x
-      penalty on fresh multi-column labelled data. Open: (0) drift model: t-walk
-      increments, biweight on fresh data, why it absorbs seat belts and quality
-      control 4, its AR(1) term; (2) synthetic control (README "A floored ratio"):
-      CA rank 1 of 39; MA, AZ, OR ranks 6-13; covariates (README "Matched on
-      covariates") failed; multi-start V (README "Several starts for V") failed too:
-      no V fits Oregon; covariate balance of the outcome fit (covariateBalance,
-      eval/synth-balance-real.out.txt) 2026-11-17: CA 1.66 sd richer than its
-      synthetic, MA balanced yet 6th; next a sim where a covariate drives the
-      outcome (does the 0.25 flag find biased gaps?), lags over the before-period,
-      then CLI. More open items: NEXT.md.
+      update-rate check: date a documented collection change. Stale feeds: clumped
+      LR shipped; next a real documented carry-forward. joint drift (measured, not
+      offered) and its 2x penalty on fresh multi-column labelled data. Open: (0)
+      drift model: t-walk increments, biweight on fresh data, why it absorbs seat
+      belts and quality control 4, its AR(1) term; covariate balance of the outcome
+      fit (covariateBalance, eval/synth-balance-real.out.txt) 2026-11-17: CA 1.66 sd
+      richer than its synthetic, MA balanced yet 6th; covariate-shock sim (README
+      "Which imbalance biases the gap"): 0.25 flag fires on 84% of null fits;
+      placeboWarning (>=80% matched better) holds every false find; next CLI table,
+      2-covariate cell. More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     why: >-
@@ -235,13 +230,13 @@ flagships:
       passes Mustang; open: a real business's PINT file. A run that lands a slice
       replaces its item here. More open items: NEXT.md.
     buildable: >-
-      The browser's official rules read whitespace as Saxon does and name values
-      Saxon cannot cast (XML-VALUE-01) since 2026-11-17 (SaxonC-HE via pip saxonche,
-      eval/xml-whitespace-crosscheck-2026-11-17.md). Next: the built-in readers
-      (ubl.mjs, cii.mjs) read an amount with a literal U+00A0 through Number(),
-      which trims it, so with the official rules off nothing is said: add an INV
-      rule at the field; then cross-check PINT and ZATCA sets the same way (SchXslt
-      compiles their .sch). No network beyond PyPI and Maven.
+      Built-in checks report a number or date holding a no-break or other non-XML
+      space (INV-065, browser and CLI) since 2026-11-17: 13,920 of 13,920 copies
+      named, agreeing with SaxonC-HE (eval/nbsp-amounts-2026-11-17.md). Next:
+      cross-check the PINT and ZATCA sets against SaxonC as
+      eval/xml-whitespace-crosscheck.mjs does (SchXslt compiles their .sch); the
+      other readers (FatturaPA, FA(3), Facturae, NAV, ISDOC) trim with String.trim()
+      too: the same leaf scan there. No network beyond PyPI and Maven.
   - venture: shift-roster-builder
     inputs_only: >-
       a live deploy with real punches, a real payroll template, a manager's
@@ -476,13 +471,11 @@ flagships:
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
-      (eval/ifcxml-xbim-2026-11-16.md); an allow list for GlobalIds shared across
-      federated models on purpose (eval/federated-globalids-2026-11-17.md, 'Not
-      done': the Simple-Scene 'origin' markers); the IDS editor (editor.html): a
-      one-of row on numbers (166 IDS-Audit-tool lists kept; no-class specs landed
-      2026-11-17, eval/no-class-specs-2026-11-17.md); the 132 kept property
-      requirements in public files (node eval/kept-facets.mjs); more real exports
-      through eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
+      (eval/ifcxml-xbim-2026-11-16.md); the IDS editor (editor.html): a one-of row
+      on numbers (166 IDS-Audit-tool lists kept; no-class specs landed 2026-11-17,
+      eval/no-class-specs-2026-11-17.md); the 132 kept property requirements in
+      public files (node eval/kept-facets.mjs); more real exports through
+      eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked"). Next, most
@@ -508,7 +501,7 @@ flagships:
       2026-11-17 (eval/gitlab-codequality-2026-11-17.md: 18 of 18 real changes, 0
       for a renumbering re-export); duplicate GlobalIds in a model
       (eval/duplicate-globalids-2026-11-17.md) and across federated models in CI
-      2026-11-17 (eval/federated-globalids-2026-11-17.md: HHS architect+structural
-      share 1 wall; Simple-Scene roof, manholes); unchecked subclasses in CI and the
-      editor 2026-11-17 (eval/ci-unchecked-2026-11-17.md: 21,405 elements in 165 of
-      2,028 checks). More open items: NEXT.md.
+      2026-11-17 (eval/federated-globalids-2026-11-17.md; allow list and followers,
+      eval/federation-allow-2026-11-17.md: Simple-Scene 35 to 23); unchecked
+      subclasses in CI and the editor 2026-11-17 (eval/ci-unchecked-2026-11-17.md:
+      21,405 elements in 165 of 2,028 checks). More open items: NEXT.md.

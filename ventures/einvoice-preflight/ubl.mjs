@@ -2,6 +2,7 @@
 // Intentionally small: it is not a Peppol or EN 16931 validator. DTD and
 // entity declarations are rejected so a dropped file cannot expand entities.
 import { parseDecimal } from "./numbers.mjs";
+import { decodeXmlRefs, unreadableLeaves } from "./xmlvalues.mjs";
 
 function localName(tag) {
   const trimmed = tag.replace(/^\/+/, "").split(/[\s>/]/, 1)[0];
@@ -67,7 +68,10 @@ function textOf(node, name, required = true) {
 
 function asNumber(value) {
   // Not Number(): it reads "0x64" as 100, an amount no receiver accepts (xs:decimal).
-  const number = parseDecimal(value);
+  // Character references are decoded first (2026-11-17): `238.00&#160;` refused
+  // the whole file as "not a number"; now it reads as the literal does and
+  // INV-065 names the field, and `&#50;38` reads as 238, as XML says it is.
+  const number = parseDecimal(typeof value === "string" ? decodeXmlRefs(value) : value);
   if (number === null) throw new Error(`UBL amount is not a number: ${String(value).slice(0, 40)}`);
   return number;
 }
@@ -635,6 +639,10 @@ export function parseUblInvoice(source) {
     ...root.children.filter((child) => child.name === "PaymentTerms").flatMap((terms) => descendants(terms, "Note").map((n) => n.text.trim())),
   ].filter(Boolean);
   if (notes.length) invoice.notes = notes;
+  // INV-065: an amount, quantity or date that String.trim() reads and XML does
+  // not (a no-break space at its end). Kept for checks.mjs; xmlvalues.mjs.
+  const unreadable = unreadableLeaves(tree);
+  if (unreadable.length) invoice.xml_values = unreadable;
   return invoice;
 }
 

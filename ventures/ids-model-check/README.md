@@ -212,6 +212,22 @@ open. MIT licensed, no dependencies, nothing uploaded.
   structural file; on buildingSMART's Simple-Scene, the house roof in
   architecture and structure and two manholes in plumbing and electrical.
   `eval/federated-globalids-2026-11-17.md`.
+- **Shared on purpose: an allow list, and the types that follow an element**
+  (2026-11-17): a type, property set or relationship that only follows a
+  shared element (its IfcRelDefinesByType, its material link) is listed under
+  that element ("with it: ...") instead of being a finding of its own, and a
+  relationship whose one GlobalId links different objects in different files
+  is called out as such (a viewer merging by GlobalId keeps one and drops the
+  other's links). `--shared-globalids-allow FILE` (Action input
+  `shared-globalids-allow`) takes a team's list, one rule per line: a GlobalId,
+  a class (`IFCGRID`), a class and a name (`IFCBUILDINGELEMENTPROXY "origin"`,
+  `*` matching any run) or `* "name"`. A shared element every holder of which
+  matches is not counted, nor is what follows it; rules that matched nothing
+  are listed so a stale list does not hide a new mistake. On buildingSMART's
+  IFC4 Simple-Scene the findings go from 35 to 23 with no list (8 elements
+  carry 14 followers; 12 relationships reuse one GlobalId for different
+  links) and to 21 with two rules for its survey markers, which clear 8
+  GlobalIds. HHS Office is unchanged (1 wall). `eval/federation-allow-2026-11-17.md`.
 
 ## Why someone would use it
 

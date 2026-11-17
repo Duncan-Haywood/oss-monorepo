@@ -3,7 +3,8 @@
 ``shootflow cull FOLDER`` reads the photos (JPEG, PNG, TIFF and the preview
 embedded in RAW files), scores each with the measured frame metrics, groups
 near-identical frames by perceptual hash (single linkage, the same distance the
-story planner uses), and picks one keeper per group. It also flags frames that
+story planner uses, plus a crop-tolerant match for frames the camera panned or
+zoomed a few percent between), and picks one keeper per group. It also flags frames that
 fail on their own: blurred, badly exposed, or with a prominent closed eye when a
 face detector is configured (``SHOOTFLOW_FACE_DETECTOR``, see ``faces.py``).
 
@@ -32,10 +33,19 @@ from pathlib import Path
 
 from shootflow.faces import FaceReport, detect_faces
 from shootflow.ffmpeg_media import PHOTO_EXTENSIONS, FfmpegMediaError, FfmpegTools, find_ffmpeg_tools
-from shootflow.frame_analysis import FrameMetrics, analyze_media
+from shootflow.frame_analysis import FrameMetrics, analyze_media, crop_distance
 from shootflow.raw_preview import RAW_EXTENSIONS, extract_preview, is_raw_path
 
 NEAR_DUPLICATE_MAX_DISTANCE = 8
+# Crop-tolerant second pass (eval/cull-crop-grouping-2026-11-17.md): two frames
+# whose whole-frame hashes differ by at most CROP_CANDIDATE_MAX_DISTANCE also
+# group when some pair of their 88% windows is within CROP_MAX_DISTANCE and that
+# is at least CROP_MIN_GAIN closer than the whole frames. Picked on 165 tune
+# photos; on 166 held-out ones it took burst-pair recall from 0.40 to 0.72 and
+# added 4 false merges in 13,695 pairs of distinct photos (17 to 21).
+CROP_CANDIDATE_MAX_DISTANCE = 24
+CROP_MAX_DISTANCE = 6
+CROP_MIN_GAIN = 5
 BLURRY_BELOW = 0.2
 BAD_EXPOSURE_BELOW = 0.25
 CLOSED_EYES_BELOW = 0.3
@@ -263,6 +273,15 @@ def _failures(metrics: FrameMetrics, faces: FaceReport | None) -> tuple[str, ...
     return tuple(reasons)
 
 
+def crop_match(distance: int, crops_a: Sequence[int], crops_b: Sequence[int]) -> bool:
+    """The crop-tolerant second pass for a pair whose whole-frame hashes are ``distance`` apart."""
+
+    if distance > CROP_CANDIDATE_MAX_DISTANCE:
+        return False
+    shifted = crop_distance(crops_a, crops_b)
+    return shifted <= CROP_MAX_DISTANCE and shifted <= distance - CROP_MIN_GAIN
+
+
 def _group(
     scored: Sequence[tuple[Path, FrameMetrics, FaceReport | None]],
 ) -> list[list[tuple[Path, FrameMetrics, FaceReport | None]]]:
@@ -276,15 +295,19 @@ def _group(
         return index
 
     # Parse each hash once: the all-pairs scan is quadratic (up to _MAX_FILES
-    # photos), so the inner step must be a bare XOR and popcount.
+    # photos), so the inner step must be a bare XOR and popcount. The window
+    # comparison runs only for the few pairs inside the candidate distance.
     hashes = [int(row[1].dhash, 16) for row in ordered]
+    crops = [tuple(int(h, 16) for h in getattr(row[1], "dhash_crops", ())) for row in ordered]
     for i in range(len(hashes)):
         hi = hashes[i]
         for j in range(i + 1, len(hashes)):
-            if (hi ^ hashes[j]).bit_count() <= NEAR_DUPLICATE_MAX_DISTANCE:
-                a, b = find(i), find(j)
-                if a != b:
-                    parent[max(a, b)] = min(a, b)
+            distance = (hi ^ hashes[j]).bit_count()
+            if distance > NEAR_DUPLICATE_MAX_DISTANCE and not crop_match(distance, crops[i], crops[j]):
+                continue
+            a, b = find(i), find(j)
+            if a != b:
+                parent[max(a, b)] = min(a, b)
     grouped: dict[int, list[tuple[Path, FrameMetrics, FaceReport | None]]] = {}
     for index, row in enumerate(ordered):
         grouped.setdefault(find(index), []).append(row)

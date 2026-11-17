@@ -9,6 +9,7 @@
 // this file: createPlainRunner({ fontoxpath, parseXml }).
 import { FILES, ADDONS, PROFILES, detectSyntax, matchingAddons, matchingExtendedBase, matchingProfile } from "./schematron-core.mjs";
 import { plainFix } from "./schematron-fixes.mjs";
+import { CASTABLE, NON_XML_SPACE, spaceName, visibleSpaces } from "./xmlvalues.mjs";
 
 export const PLAIN_DIR = "plain/";
 const RULE_FILES = { ubl: "en16931-ubl.json", cii: "en16931-cii.json" };
@@ -199,13 +200,8 @@ function locate(node) {
 }
 
 const CAST_ERROR = /FORG0001|FOCA0002/;
-// Unicode space separators, U+0085, U+FEFF and zero-width spaces: what JavaScript's trim()
-// or \s takes (or a copy-paste leaves) and XML does not count as whitespace.
-const NON_XML_SPACE = /[\u0085\u00A0\u1680\u2000-\u200B\u2028\u2029\u202F\u205F\u3000\uFEFF]/;
-const CASTABLE = /^(?:[+-]?(?:\d+(?:\.\d*)?|\.\d+)|\d{4}-\d{2}-\d{2}|\d{8}|true|false)$/;
-const NAMES = { "\u00A0": "no-break space (U+00A0)", "\u202F": "narrow no-break space (U+202F)", "\uFEFF": "zero-width no-break space (U+FEFF)", "\u200B": "zero-width space (U+200B)", "\u3000": "ideographic space (U+3000)" };
-const spaceName = (v) => { const c = v.match(NON_XML_SPACE)?.[0] ?? ""; return NAMES[c] ?? `non-XML space (U+${c.codePointAt(0)?.toString(16).toUpperCase().padStart(4, "0")})`; };
-const visibleSpaces = (v) => v.replace(new RegExp(NON_XML_SPACE.source, "g"), (c) => `[U+${c.codePointAt(0).toString(16).toUpperCase().padStart(4, "0")}]`);
+// NON_XML_SPACE, CASTABLE, spaceName and visibleSpaces live in xmlvalues.mjs, shared
+// with the built-in readers' INV-065 since 2026-11-17.
 // Leaf values that are a number, date or boolean once JavaScript trims them but not once
 // XML does: the values a rule's cast fails on.
 export function unreadableValues(nodes) {

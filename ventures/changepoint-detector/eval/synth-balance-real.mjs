@@ -41,11 +41,12 @@ function run(tag, state, date, last) {
   log(`${tag}: ${state} ${date}, 1970-${last}, ${r.donors} donors; outcome-only fit, floored rank ${r.rank} of ${r.donors + 1}, p ${f(r.p, 3)}, before RMSPE ${f(r.preRmspe)}${r.fitWarning ? ', FIT WARNING' : ''}`);
   log(`  weights: ${r.weights.slice(0, 6).map((w) => `${w.name} ${f(w.weight, 3)}`).join(', ')}${r.weights.length > 6 ? `, +${r.weights.length - 6} more` : ''}`);
   log('  covariate            treated  synthetic  donor mean  std gap (synth)  std gap (mean)  placebos matched better');
-  for (const c of b) log(`  ${c.name.padEnd(20)} ${f(c.treated, 3).padStart(8)} ${f(c.synthetic, 3).padStart(10)} ${f(c.donorMean, 3).padStart(11)} ${f(c.stdGap).padStart(16)}${c.imbalanced ? '*' : ' '} ${f(c.stdGapDonorMean).padStart(15)} ${f(100 * c.placeboShare, 0).padStart(14)}%`);
+  for (const c of b) log(`  ${c.name.padEnd(20)} ${f(c.treated, 3).padStart(8)} ${f(c.synthetic, 3).padStart(10)} ${f(c.donorMean, 3).padStart(11)} ${f(c.stdGap).padStart(16)}${c.imbalanced ? '*' : ' '} ${f(c.stdGapDonorMean).padStart(15)} ${f(100 * c.placeboShare, 0).padStart(14)}%${c.placeboWarning ? ' !' : ''}`);
   rows.push({ state, date, p: r.p, balance: b });
   return b;
 }
-log('Outcome-only synthetic control (the default), covariate balance. * = |standardised gap| over 0.25.');
+log('Outcome-only synthetic control (the default), covariate balance. * = |standardised gap| over 0.25;');
+log('! = placeboWarning (placebos matched better >= 80%; the warning to read, README "Which imbalance biases the gap").');
 log('std gap = (treated - synthetic) / sd over all units; placebos matched better = share of donors whose own');
 log('outcome-only synthetic control is closer to them on that covariate than the treated fit is.\n');
 run('T1 Proposition 99', 'CA', 1989, 2000);
@@ -54,3 +55,5 @@ run('T3 Proposition 200', 'AZ', 1995, 2002);
 run('T4 Measure 44', 'OR', 1997, 2004);
 const imb = rows.map((r) => `${r.state} ${r.balance.filter((c) => c.imbalanced).map((c) => c.name).join(', ') || 'none'}`);
 log(`\nImbalanced (|std gap| > 0.25): ${imb.join('; ')}`);
+const warn = rows.map((r) => `${r.state} ${r.balance.filter((c) => c.placeboWarning).map((c) => c.name).join(', ') || 'none'}`);
+log(`Placebo warning (>= 80% of placebos matched better): ${warn.join('; ')}`);
