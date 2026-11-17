@@ -1114,9 +1114,45 @@ def left_rows(names, runs_dir: Path = RUNS_DIR, now: Optional[datetime] = None,
     return out
 
 
+def worked_rows(names, runs_dir: Path = RUNS_DIR, now: Optional[datetime] = None,
+                days: int = LEFT_WINDOW_DAYS) -> dict[str, int]:
+    """{flagship: run records in the same window whose `projects` names it}.
+
+    Why: a leave count alone read as "this row is empty". On 2026-11-17
+    chant-forge showed 11 departures in three days while 39 records in the
+    same days worked it, and a run that took its buildable item reported the
+    note "overstates how little is buildable here" (doc_friction on this
+    file). The worked count puts the leaves in proportion."""
+    now = now or datetime.now(timezone.utc)
+    cutoff = (now - timedelta(days=days - 1)).date().isoformat()
+    names = list(names)
+    out: dict[str, int] = {}
+    for path in sorted(runs_dir.glob("*.json")):
+        if path.name[:10] < cutoff:
+            continue
+        try:
+            rec = json.loads(path.read_text())
+        except (OSError, ValueError):
+            continue
+        if not isinstance(rec, dict):
+            continue
+        projects = json.dumps(rec.get("projects"))
+        for n in names:
+            if n in projects:
+                out[n] = out.get(n, 0) + 1
+    return out
+
+
 def left_note(name: str, left: dict[str, list[tuple[str, str, str]]],
-              days: int = LEFT_WINDOW_DAYS) -> Optional[str]:
-    """One line saying how many recent sessions left this row and for what."""
+              days: int = LEFT_WINDOW_DAYS, worked: Optional[int] = None,
+              has_buildable: bool = False) -> Optional[str]:
+    """One line saying how many recent sessions left this row and for what.
+
+    With `worked` (worked_rows) it also says how many worked the row, and the
+    advice follows the balance: mostly worked means check the reason, not
+    leave on the count; mostly left means mark the row. A row that already
+    has `buildable:` is told to refresh that list, not to add one (a
+    2026-11-17 report: the advice to add buildable: misfired on such a row)."""
     hits = left.get(name) or []
     if not hits:
         return None
@@ -1127,10 +1163,20 @@ def left_note(name: str, left: dict[str, list[tuple[str, str, str]]],
     latest = sorted(hits)[-1][2]
     if len(latest) > 220:
         latest = latest[:217].rstrip() + "..."
+    counted = ""
+    if worked is not None:
+        counted = f" In the same days {worked} record(s) worked {name}."
+    mark = ("refresh its `buildable:` list (it may name only items that are done or not worth doing) "
+            "or add `inputs_only:`" if has_buildable else "add `buildable:` or `inputs_only:` to the row")
+    if worked is not None and worked > len(hits):
+        advice = ("Most sessions sent here found work, so check that reason against the row "
+                  f"before leaving; if it holds, {mark} so the next pick knows.")
+    else:
+        advice = (f"Check that reason still holds before reading the whole row; if it does, {mark} "
+                  "so the next pick knows.")
     return (f"Left recently: {len(hits)} session(s) sent to {name} in the last {days} days (record dates) "
-            f"took another row instead (prompts/runs deviations): {where}. Latest why: "
-            f"\"{latest}\" Check that reason still holds before reading the whole row; "
-            "if it does, add `buildable:` or `inputs_only:` to the row so the next pick knows.")
+            f"took another row instead (prompts/runs deviations): {where}.{counted} Latest why: "
+            f"\"{latest}\" {advice}")
 
 
 def claim_note(hits: list[tuple[int, str, str]], now: Optional[datetime] = None) -> str:
@@ -1201,7 +1247,8 @@ def venture_report(name: str, ventures: list[Venture],
                    claims: Optional[dict[str, list]] = None,
                    landed: Optional[str] = None,
                    now: Optional[datetime] = None,
-                   probe=None, left: Optional[dict] = None) -> Optional[str]:
+                   probe=None, left: Optional[dict] = None,
+                   worked: Optional[dict[str, int]] = None) -> Optional[str]:
     """One venture's row in full: rank, task with the untruncated flagship
     `next:`, open PRs with their ages and when work last landed.
 
@@ -1233,7 +1280,8 @@ def venture_report(name: str, ventures: list[Venture],
     else:
         lines.append("task: " + next_task(v))
     if v.flagship and left is not None:
-        note = left_note(v.name, left)
+        note = left_note(v.name, left, worked=None if worked is None else worked.get(v.name, 0),
+                         has_buildable=bool(v.flagship_buildable))
         if note:
             lines.append(note)
     if landed:
@@ -1349,7 +1397,10 @@ def print_table(ventures: list[Venture], queue: list[dict],
             f"`python3 portfolio/router/claim_check.py {first[1]}`: two sessions that opened "
             "in the same minute both see this row free, and the PR opened first keeps it."
         )
-        note = left_note(first[1], left_rows([i["venture"] for i in queue if i["flagship"]]))
+        flag_names = [i["venture"] for i in queue if i["flagship"]]
+        note = left_note(first[1], left_rows(flag_names),
+                         worked=worked_rows(flag_names).get(first[1], 0),
+                         has_buildable=first[1] in load_flagship_field("buildable"))
         if note:
             print(note)
         print(claim_recipe(first[1]))
@@ -1477,7 +1528,8 @@ def main(argv: Optional[list[str]] = None) -> int:
         report = venture_report(args.venture, ventures, claims=claims_one,
                                 landed=last_landed(args.venture),
                                 probe=None if args.no_probe else host_answers,
-                                left=left_rows(load_flagships()))
+                                left=left_rows(load_flagships()),
+                                worked=worked_rows(load_flagships()))
         if report is None:
             print(f"No venture named {args.venture!r} (ventures/<slug>/VENTURE.yaml).", file=sys.stderr)
             return 1

@@ -80,3 +80,16 @@ test('all donors, a window, the log scale and a headerless covariates file', () 
   assert.match(synthText(r), /on the logs/);
   assert.deepEqual(parseCovariates('unit;x;y\nA;1;2\n').units.a, [1, 2]);
 });
+
+// Red team 2026-11-17: the covariates file is read like the data CSV. A semicolon file from a comma-decimal locale
+// ("a;3,5") had split into two covariates, 3 and 5, under one header name; a quoted unit name lost its comma; a row
+// repeated for one unit silently replaced the first.
+test('covariates: decimal commas in a semicolon file, quoted names, and rows that disagree with the header', () => {
+  const cv = parseCovariates('unit;income\na;3,5\nb;4,25\n');
+  assert.deepEqual(cv.names, ['income']);
+  assert.deepEqual(cv.units, { a: [3.5], b: [4.25] });
+  assert.deepEqual(parseCovariates('unit,income\n"Washington, DC",7\n').units, { 'washington, dc': [7] });
+  assert.throws(() => parseCovariates('unit,income\na,3,5\nb,4,1\n'), /row for a needs 1 number \(income\), got 2: a decimal comma/);
+  assert.throws(() => parseCovariates('unit,x\nA,1\na,2\n'), /two rows for a/);
+  assert.throws(() => parseCovariates('unit,x,y\na,1\n'), /row for a needs 2 numbers/);
+});

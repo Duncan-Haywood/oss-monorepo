@@ -186,3 +186,12 @@ test("the sample wall uses the library's own values, paint on the room side of t
   }
   assert.equal(rows[0][0], "Latex primer and paint", "inside first: the paint is the room-side face");
 });
+
+// Red team 2026-11-17: SI users in comma-decimal locales write "Gypsum;0,06;2860"; the comma split it into four cells,
+// so the layer was named "Gypsum, 0" with an R-value of 6 (100x), and no error.
+test("semicolon layer lines read decimal commas", () => {
+  const { layers, errors } = parseLayers("Gypsum;0,06;2860\nMineral wool;3,5;100000", "SI", "ng");
+  assert.deepEqual(errors, []);
+  assert.deepEqual(layers.map((l) => [l.name, l.rSI]), [["Gypsum", 0.06], ["Mineral wool", 3.5]]);
+  assert.deepEqual(parseLayers("a, 1, 1\nb, 0.5, 2", "SI", "ng").layers.map((l) => l.rSI), [1, 0.5]);
+});
