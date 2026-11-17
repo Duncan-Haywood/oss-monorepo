@@ -321,9 +321,12 @@ numbers worked out before drafting. Finished ones live in [DONE.md](DONE.md)
 (346 on 2026-11-12), with the numbers each story used: read it before
 proposing. Mark a proposal you finish `*(Done: Title, place, date.)*` here
 or anywhere; `node bible_done.mjs` moves it there, and `node --test` fails
-until it has. An empty shelf below means: write a proposal.
+until it has. An empty shelf below means: write a proposal;
+`node overlap.mjs --unused [--shelf <id>]` draws starting subjects from
+[subjects.txt](subjects.txt) that nothing finished or proposed uses yet.
 `node overlap.mjs <term> ...` lists the finished stories that already use a
-subject, a calculation or a character name. A proposal you find overlapping
+subject, a calculation or a character name (`--titles` skips passing
+mentions in story text). A proposal you find overlapping
 finished work: rewrite its angle or delete it, rather than adding a note to it
 (`node --test` fails on an overlap note, since a flagged entry reads as available).
 Claim before you draft: about thirty creative runs a day read the same short
