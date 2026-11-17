@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createRequire } from "node:module";
 import { runPlain, plainAvailable } from "./plain-node.mjs";
-import { createPlainRunner } from "./plain-schematron.mjs";
+import { createPlainRunner, specNormalizeSpace, xmlWhitespaceRewrite } from "./plain-schematron.mjs";
 import { runSchematron, schematronAvailable } from "./schematron.mjs";
 import { hasSpecificFix } from "./schematron-fixes.mjs";
 
@@ -70,6 +70,55 @@ test("a failed money equation is cleared when it is only floating-point noise", 
   const rules = { ns: {}, prolog: "", patterns: [{ id: "p", rules: [{ context: "/a", checks: [check("NOISE", "0.1 + 0.2 = 0.3"), check("REAL", "0.1 + 0.2 = 0.31"), check("OR", "1 = 2 or 3 = 4")] }] }] };
   const out = runner.runRules(rules, req("slimdom").parseXmlDocument("<a/>"));
   assert.deepEqual(out.map((f) => f.rule), ["REAL", "OR"], "0.1+0.2=0.3 is noise; a real cent is not; a compound test is left alone");
+});
+
+test("normalize-space and \\s patterns are rewritten to XML whitespace, strings and names left alone", () => {
+  const NS = "Q{urn:einvoice-preflight:xml-whitespace}normalize-space";
+  assert.equal(xmlWhitespaceRewrite("normalize-space(cbc:ID) = 'VAT'"), `${NS}(cbc:ID) = 'VAT'`);
+  assert.equal(xmlWhitespaceRewrite("string-length(fn:normalize-space( )) > 0"), `string-length(${NS}(.)) > 0`);
+  assert.equal(xmlWhitespaceRewrite("replace(cbc:ID, '([ \\n\\r\\t\\s])', '')"), "replace(cbc:ID, '([ \\n\\r\\t \\t\\n\\r])', '')");
+  assert.equal(xmlWhitespaceRewrite("tokenize('49 59', '\\s')"), "tokenize('49 59', '[ \\t\\n\\r]')");
+  assert.equal(xmlWhitespaceRewrite("replace(x, '\\S+', '\\s')"), "replace(x, '[^ \\t\\n\\r]+', '\\s')", "only the pattern argument");
+  for (const same of ["matches(., '\\s')", "tokenize(., '\\|')", "concat('normalize-space(', x)", "my-normalize-space(x)", "x (: normalize-space( :) = 1"]) assert.equal(xmlWhitespaceRewrite(same), same);
+  assert.equal(specNormalizeSpace("\u00A0 a \t\n b\u00A0 "), "\u00A0 a b\u00A0");
+  assert.equal(specNormalizeSpace(null), "");
+});
+
+test("a no-break space is a character, not whitespace, as Saxon reads it", { skip }, () => {
+  const req = createRequire(import.meta.url);
+  const runner = createPlainRunner({ fontoxpath: req("fontoxpath"), parseXml: () => ({}) });
+  const check = (id, test) => ({ kind: "assert", id, flag: "warning", test, text: `[${id}]-w` });
+  const rules = { ns: {}, prolog: "", patterns: [{ id: "p", rules: [{ context: "v[normalize-space(.) != '']", checks: [
+    check("NL-VAT", "matches(normalize-space(), '^NL[0-9]{9}B[0-9]{2}$')"),
+    check("IBAN", "string-length(replace(., '\\s', '')) = 14"),
+  ] }] }] };
+  const doc = req("slimdom").parseXmlDocument("<a><v>NL123456782B01&#160;</v><v> NL123456782B01\t</v><v>&#160;</v></a>");
+  const out = runner.runRules(rules, doc);
+  assert.deepEqual(out.map((f) => `${f.rule} ${f.path}`), ["NL-VAT /a[1]/v[1]", "IBAN /a[1]/v[1]", "NL-VAT /a[1]/v[3]", "IBAN /a[1]/v[3]"], "the trailing U+00A0 stays; XML whitespace is trimmed; a lone U+00A0 is not empty");
+  const old = createPlainRunner({ fontoxpath: req("fontoxpath"), parseXml: () => ({}), xmlWhitespace: false }).runRules(rules, doc);
+  assert.deepEqual([...old], [], "fontoxpath's own normalize-space and \\s take U+00A0");
+});
+
+test("a number or date with a no-break space is XML-VALUE-01, where Saxon stops on the file", { skip }, async () => {
+  const xml = read("peppol-credit-note.xml");
+  const clean = await runPlain(xml);
+  assert.ok(!clean.findings.some((f) => f.rule === "XML-VALUE-01"));
+  assert.ok(!("castFailed" in clean));
+  const cases = [
+    [xml.replace(/(<cbc:PayableAmount[^>]*>)/, "$1\u00A0"), "/CreditNote[1]/LegalMonetaryTotal[1]/PayableAmount[1]"],
+    [xml.replace(/(<cbc:PayableAmount[^>]*>[^<]+)/, "$1&#160;"), "/CreditNote[1]/LegalMonetaryTotal[1]/PayableAmount[1]"],
+    [xml.replace(/(<cbc:Percent>[^<]+)/, "$1\u202F"), "/CreditNote[1]/TaxTotal[1]/TaxSubtotal[1]/TaxCategory[1]/Percent[1]"],
+  ];
+  for (const [mutant, path] of cases) {
+    const r = await runPlain(mutant);
+    const f = r.findings.filter((x) => x.rule === "XML-VALUE-01");
+    assert.deepEqual(f.map((x) => [x.path, x.severity, x.source]), [[path, "fatal", "en16931-schematron"]], path);
+    assert.match(f[0].message, /U\+(00A0|202F)/);
+    assert.ok(!("castFailed" in r));
+  }
+  // A name with a no-break space is text, not a cast: nothing to report.
+  const name = await runPlain(xml.replace(/(<cbc:RegistrationName>[^<]+)/, "$1\u00A0"));
+  assert.ok(!name.findings.some((x) => x.rule === "XML-VALUE-01"));
 });
 
 // ---- the compiler -------------------------------------------------------------------
