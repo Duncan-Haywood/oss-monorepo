@@ -52,3 +52,15 @@ def test_stronger_waist_lowers_waist_ratio(g1):
     a, _ = M.score(su, 0.2, 1.0, 4.0, "waist", 1.0, hand=(0.3, 0.6))
     b, _ = M.score(su, 0.2, 1.0, 4.0, "waist", 2.0, hand=(0.3, 0.6))
     assert a.worst.startswith("waist") and b.ratio < a.ratio
+
+
+def test_best_picks_fastest_ok_step():
+    # quality audit 2026-11-17: inverting the speed key in run.best() left every test green
+    import importlib.util, pathlib
+    spec = importlib.util.spec_from_file_location("tw_run", pathlib.Path(__file__).parents[1] / "experiments" / "run.py")
+    run = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(run)
+    rows = [dict(ok=True, L=0.1, T=1.0, ratio=0.5), dict(ok=True, L=0.2, T=1.0, ratio=0.9),
+            dict(ok=False, L=0.4, T=1.0, ratio=1.2), dict(ok=True, L=0.15, T=1.0, ratio=0.4)]
+    assert run.best(rows)["L"] == 0.2
+    assert run.best([dict(ok=False, L=0.1, T=1.0, ratio=2.0)]) is None

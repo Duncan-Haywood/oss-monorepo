@@ -69,6 +69,23 @@ export const PROFILES = {
   "pint-om-sb-1": { source: "pint-om-schematron", match: /^\s*urn:peppol:pint:selfbilling-1@om-1\b/i, files: { ubl: ["pint1-om-sb-ubl.json", "pint1-om-sb-jur-ubl.json"] } },
 };
 
+// Extended profiles whose own base set stands in for the EN 16931 base (added 2026-11-17).
+// An extended file may carry what EN 16931 forbids (more than one seller on a multi-vendor
+// invoice, sub-lines, more lines and allowances); the EU base rejected every one of FNFE's
+// fifteen extended examples (4 to 16 findings each, fatal BR-CO-10, BR-22, BR-26 ...).
+// FNFE-MPE publishes the bases: EXTENDED-CTC-FR (UBL and CII, derived from EN 16931 1.3.16)
+// and Factur-X 1.09.2 EXTENDED (CII, the profile ZUGFeRD 2.x EXTENDED names too).
+// Plain route only (build-fr-rules.mjs). National add-ons (BR-FR) still run after them.
+export const EXTENDED_BASES = {
+  "extended-ctc-fr": { source: "extended-ctc-fr-schematron", match: /urn\.cpro\.gouv\.fr:1p0:extended-ctc-fr/i, files: { ubl: "extended-ctc-fr-ubl.json", cii: "extended-ctc-fr-cii.json" } },
+  "facturx-extended": { source: "facturx-extended-schematron", match: /urn:(?:factur-x\.eu:1p0|zugferd\.de:2p0):extended\b/i, files: { cii: "facturx-extended-cii.json" } },
+};
+
+export function matchingExtendedBase(xml, syntax) {
+  const id = customizationId(xml);
+  return Object.entries(EXTENDED_BASES).find(([, b]) => b.match.test(id) && b.files[syntax]) || null;
+}
+
 export function matchingProfile(xml, syntax) {
   const id = customizationId(xml);
   const profileId = xml.match(/<(?:\w+:)?ProfileID\b[^>]*>([^<]*)</)?.[1] ?? "";
@@ -96,9 +113,11 @@ export function matchingAddons(xml, syntax, { profile = "" } = {}) {
 // the current EU base and nothing else, so it hands the file to the plain route instead.
 export function plainOnlySets(xml, syntax, opts = {}) {
   if (!syntax) return [];
+  if (syntax === "cdar") return ["cdar-fr"];
   const profile = matchingProfile(xml, syntax);
   if (profile) return [profile[0]];
-  return matchingAddons(xml, syntax, opts).filter(([, a]) => a.plainOnly).map(([name]) => name);
+  const extended = matchingExtendedBase(xml, syntax);
+  return (extended ? [extended[0]] : []).concat(matchingAddons(xml, syntax, opts).filter(([, a]) => a.plainOnly).map(([name]) => name));
 }
 
 function decodeXml(text) {
@@ -130,6 +149,8 @@ export function parseSvrl(svrl, source = "en16931-schematron") {
 }
 
 export function detectSyntax(xml) {
+  // France's life-cycle status message (CDAR, "CDV" 200-228): its own rule set, no EN 16931 base.
+  if (/<(?:\w+:)?CrossDomainAcknowledgementAndResponse\b/.test(xml)) return "cdar";
   if (/<(?:\w+:)?CrossIndustryInvoice\b/.test(xml)) return "cii";
   if (/<(?:\w+:)?(?:Invoice|CreditNote)\b/.test(xml)) return "ubl";
   return "";

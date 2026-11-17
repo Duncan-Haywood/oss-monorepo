@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVNUfYFxae518YsyqN1",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled ventures brief: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (full text in prompts/ventures/prompt-1.md)",
+  "input_sha256": "8dd5fc0641cd3b22b7ab2f84db229e0d7ac1f6fdba6d21337cca0e2e3508b85d",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T06:56:40Z",
+  "ended": "2026-11-17T07:44:17Z",
+  "wall_minutes": 56.98,
+  "tokens_in": 20236657,
+  "tokens_out": 88923,
+  "cost_usd": 7.5845,
+  "tool_calls": 115,
+  "task": "Deepen (flagship 2) ai-bookkeeper: BUILDABLE item 'ONNX Runtime Web for the page' - RapidOCR in the browser",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16852",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 14,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "tesseract run with xargs -P 4 and default OpenMP threads ran ~30x slow (16 threads on 4 cores)",
+      "fix": "OMP_THREAD_LIMIT=1"
+    },
+    {
+      "what": "first plain-tesseract SRD baseline (137/196) skipped the CLI's shaded-photo passes",
+      "fix": "re-read with eval/srd-cli.mjs, which matches the documented 156"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper's BUILDABLE item 1 (parser misses on CORD train shards 1-3) needs CORD photos from huggingface.co, which this session's proxy refused (403); the row names no hosts: list, so allocate.py could not warn"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "cloud-session notes do not mention OMP_THREAD_LIMIT=1 when running tesseract in parallel; default OpenMP threading made a 200-photo read take tens of minutes"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py output",
+      "why": "allocate named chant-forge (row 7); two sessions in two days left it for its remaining items being fine singing/OMR tweaks, and the brief asks for revenue-relevant depth. Took row 1 ai-bookkeeper's BUILDABLE 'ONNX Runtime Web for the page' (its other item needs huggingface, blocked); no open ai-bookkeeper PR.",
+      "did": "ported RapidOCR to the browser and wired it into the receipts page",
+      "result": "page photo totals 155 to 184 of 196 on SRD, taxes 135 to 166 of 185"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-rapidocr-in-the-browser-receipt-photos.md",
+    "ventures/ai-bookkeeper/eval/rapidocr-web-2026-11-17.md"
+  ],
+  "goal": "flagship depth: a stronger receipt-photo reader on the free page, no per-user cost",
+  "notes": "rapidocr-web.mjs ports rapidocr-onnxruntime 1.4.4 (config defaults) to JS over ONNX Runtime Web; models from npm @gutenye/ocr-models@1.4.2 (outputs equal to the wheel's: max diff 0.0 on random inputs). Exactness fixes: Clipper round-join unclip (39/39 boxes identical on photo 1002) and OpenCV fixed-point INTER_LINEAR. Headless Chromium on 200 SRD photos: rows identical to Python on 170/199, 98.5% of lines; page settled totals tesseract four 155/196 -> RapidOCR + four 184/196; tax 135 -> 166 of 185. 3.8 s/photo single-thread WASM under contention; blocks the main thread (next: Web Worker). CORD not re-read (huggingface 403). eval/photo-ocr-browser.mjs end to end passes (13 checks). Verification: ai-bookkeeper suite 3,319 tests pass (run_venture_tests.py, 260 s); venture-preflight clean; post front matter/links/similarity clean; validate.py clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "80c74432-01c3-5a94-8e73-8ecc03ebcc24",
+    "transcripts": 1,
+    "first": "2026-11-17T06:56:40Z",
+    "last": "2026-11-17T07:53:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 112,
+        "input": 218,
+        "output": 88923,
+        "thinking": 22794,
+        "cache_read": 20011065,
+        "cache_write_5m": 0,
+        "cache_write_1h": 225374,
+        "api_equivalent_usd": 7.5845,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 112,
+      "input": 218,
+      "output": 88923,
+      "thinking": 22794,
+      "cache_read": 20011065,
+      "cache_write_5m": 0,
+      "cache_write_1h": 225374,
+      "api_equivalent_usd": 7.5845,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.989,
+    "tool_calls": 115,
+    "tools": {
+      "Bash": 107,
+      "Write": 4,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 56.98,
+      "active_minutes": 56.98,
+      "model_minutes": 17.12,
+      "tool_minutes": 39.86,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "porting a CV/OCR inference pipeline to JS with bit-level parity checks, browser integration and a 200-photo evaluation: about two days for a senior engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 211.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

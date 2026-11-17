@@ -1,0 +1,824 @@
+{
+ "settings": {
+  "fields": 40,
+  "n": 150,
+  "holdout": 100,
+  "seed": 7,
+  "domain": "100 x 100 square",
+  "truth": "exponential or spherical, nugget 0.1, partial sill 1, range uniform 20-60, alternating"
+ },
+ "summary": {
+  "krigingBeatsIdw": 36,
+  "krigingBeatsNearest": 40,
+  "meanRmse": {
+   "kriging": 0.631990975448139,
+   "idw": 0.6959013650941841,
+   "nearest": 0.7915976093985815
+  },
+  "meanCoverage95": 0.9509999999999998,
+  "meanLooMsdr": 1.0010183451236956,
+  "medianRangeRatio": 1.036277644065963
+ },
+ "runs": [
+  {
+   "truth": {
+    "model": "exponential",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 20.468190126121044
+   },
+   "fitted": {
+    "nugget": 0.06213044116578528,
+    "psill": 0.8627026527268635,
+    "range": 13.218545091845776
+   },
+   "holdoutRmse": {
+    "kriging": 0.8034681125103741,
+    "idw": 0.8207702523274496,
+    "nearest": 1.0747680731070006
+   },
+   "coverage95": 0.95,
+   "looMsdr": 0.9596157559013757
+  },
+  {
+   "truth": {
+    "model": "spherical",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 39.35951782390475
+   },
+   "fitted": {
+    "nugget": 0.1660122499136427,
+    "psill": 1.123747508481751,
+    "range": 46.83911724781281
+   },
+   "holdoutRmse": {
+    "kriging": 0.5849192192703211,
+    "idw": 0.6752501693509793,
+    "nearest": 0.8372486241447462
+   },
+   "coverage95": 0.99,
+   "looMsdr": 0.9376273422595399
+  },
+  {
+   "truth": {
+    "model": "exponential",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 56.55219383537769
+   },
+   "fitted": {
+    "nugget": 0.04352341351746048,
+    "psill": 1.2542883334801402,
+    "range": 50.352837992013136
+   },
+   "holdoutRmse": {
+    "kriging": 0.647997449729084,
+    "idw": 0.8053498222076668,
+    "nearest": 0.7815060360924715
+   },
+   "coverage95": 0.93,
+   "looMsdr": 1.0145581680694988
+  },
+  {
+   "truth": {
+    "model": "spherical",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 46.33760342374444
+   },
+   "fitted": {
+    "nugget": 0.14139816609668335,
+    "psill": 1.1159987002595837,
+    "range": 47.549251810428075
+   },
+   "holdoutRmse": {
+    "kriging": 0.5004181011692762,
+    "idw": 0.5582339827887556,
+    "nearest": 0.6604464837820954
+   },
+   "coverage95": 0.99,
+   "looMsdr": 0.9634145703082502
+  },
+  {
+   "truth": {
+    "model": "exponential",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 51.92530747503042
+   },
+   "fitted": {
+    "nugget": 0,
+    "psill": 1.3858689092277912,
+    "range": 33.903305586684105
+   },
+   "holdoutRmse": {
+    "kriging": 0.6877338835712136,
+    "idw": 0.7312537772236635,
+    "nearest": 0.8895282467184511
+   },
+   "coverage95": 0.97,
+   "looMsdr": 0.9423193552814297
+  },
+  {
+   "truth": {
+    "model": "spherical",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 30.452024061232805
+   },
+   "fitted": {
+    "nugget": 0.19832903613534458,
+    "psill": 0.937937418293675,
+    "range": 40.50979415172496
+   },
+   "holdoutRmse": {
+    "kriging": 0.6365869083858466,
+    "idw": 0.6590102724935584,
+    "nearest": 0.791951372798431
+   },
+   "coverage95": 0.95,
+   "looMsdr": 1.0309262554293714
+  },
+  {
+   "truth": {
+    "model": "exponential",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 54.002761356532574
+   },
+   "fitted": {
+    "nugget": 0.012858204568938877,
+    "psill": 1.2867758191596221,
+    "range": 67.17502942683919
+   },
+   "holdoutRmse": {
+    "kriging": 0.6710078659758499,
+    "idw": 0.7066713331879413,
+    "nearest": 0.8224632477509373
+   },
+   "coverage95": 0.87,
+   "looMsdr": 1.2703180175041624
+  },
+  {
+   "truth": {
+    "model": "spherical",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 32.685953844338655
+   },
+   "fitted": {
+    "nugget": 0.08539734821158824,
+    "psill": 1.1389994849996041,
+    "range": 34.019463233671004
+   },
+   "holdoutRmse": {
+    "kriging": 0.5353147500656195,
+    "idw": 0.7091189379105732,
+    "nearest": 0.7192215637777966
+   },
+   "coverage95": 0.95,
+   "looMsdr": 0.9600911033090167
+  },
+  {
+   "truth": {
+    "model": "exponential",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 28.623973997309804
+   },
+   "fitted": {
+    "nugget": 0.09056668039430178,
+    "psill": 0.9297010522785312,
+    "range": 27.556844500340336
+   },
+   "holdoutRmse": {
+    "kriging": 0.8072163069895628,
+    "idw": 0.8341138487672025,
+    "nearest": 0.9251883417528813
+   },
+   "coverage95": 0.93,
+   "looMsdr": 0.9894445805916263
+  },
+  {
+   "truth": {
+    "model": "spherical",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 58.24978752993047
+   },
+   "fitted": {
+    "nugget": 0.10293630449430802,
+    "psill": 0.8830865112333994,
+    "range": 44.24445181445558
+   },
+   "holdoutRmse": {
+    "kriging": 0.5095262020192476,
+    "idw": 0.6038185607893919,
+    "nearest": 0.6684900658555916
+   },
+   "coverage95": 0.97,
+   "looMsdr": 1.0465682663520042
+  },
+  {
+   "truth": {
+    "model": "exponential",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 36.55598788522184
+   },
+   "fitted": {
+    "nugget": 0,
+    "psill": 1.0500936367132954,
+    "range": 27.247598692392486
+   },
+   "holdoutRmse": {
+    "kriging": 0.7668001967112307,
+    "idw": 0.8249564638816016,
+    "nearest": 0.9112297115428384
+   },
+   "coverage95": 0.94,
+   "looMsdr": 0.8417835594862378
+  },
+  {
+   "truth": {
+    "model": "spherical",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 49.32366791181266
+   },
+   "fitted": {
+    "nugget": 0.1965646247296405,
+    "psill": 0.9559026450607736,
+    "range": 86.52108047558278
+   },
+   "holdoutRmse": {
+    "kriging": 0.46250718182487477,
+    "idw": 0.5234471732057254,
+    "nearest": 0.5954569417358361
+   },
+   "coverage95": 0.99,
+   "looMsdr": 0.7626653043273509
+  },
+  {
+   "truth": {
+    "model": "exponential",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 38.450446566566825
+   },
+   "fitted": {
+    "nugget": 0.3095368565255498,
+    "psill": 1.1934250667826733,
+    "range": 182.35521251404225
+   },
+   "holdoutRmse": {
+    "kriging": 0.5731307282818137,
+    "idw": 0.6133952422554015,
+    "nearest": 0.7523336304966165
+   },
+   "coverage95": 0.99,
+   "looMsdr": 0.9953005162054526
+  },
+  {
+   "truth": {
+    "model": "spherical",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 48.65886026062071
+   },
+   "fitted": {
+    "nugget": 0.09852734411463886,
+    "psill": 1.060980854383839,
+    "range": 53.72295087147058
+   },
+   "holdoutRmse": {
+    "kriging": 0.5316339784501465,
+    "idw": 0.6544188781967493,
+    "nearest": 0.7134477421244875
+   },
+   "coverage95": 0.95,
+   "looMsdr": 1.0235520336865767
+  },
+  {
+   "truth": {
+    "model": "exponential",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 33.51050063967705
+   },
+   "fitted": {
+    "nugget": 0.43532211872437143,
+    "psill": 0.5001160904413372,
+    "range": 71.08124963694252
+   },
+   "holdoutRmse": {
+    "kriging": 0.7498022553021128,
+    "idw": 0.725825351584648,
+    "nearest": 0.8535156749420645
+   },
+   "coverage95": 0.97,
+   "looMsdr": 0.9840412961136142
+  },
+  {
+   "truth": {
+    "model": "spherical",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 24.467555908486247
+   },
+   "fitted": {
+    "nugget": 0.20104572987270658,
+    "psill": 1.0596967529923493,
+    "range": 27.848086133617816
+   },
+   "holdoutRmse": {
+    "kriging": 0.6381621521418003,
+    "idw": 0.763902720027693,
+    "nearest": 0.7945724055582749
+   },
+   "coverage95": 0.98,
+   "looMsdr": 0.8432939781879889
+  },
+  {
+   "truth": {
+    "model": "exponential",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 44.104306353256106
+   },
+   "fitted": {
+    "nugget": 0.09890849994936936,
+    "psill": 0.8070295067487947,
+    "range": 32.142854615927604
+   },
+   "holdoutRmse": {
+    "kriging": 0.5964790278013924,
+    "idw": 0.6951736982309944,
+    "nearest": 0.7488147077689975
+   },
+   "coverage95": 0.96,
+   "looMsdr": 0.9145016390734694
+  },
+  {
+   "truth": {
+    "model": "spherical",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 38.56395970098674
+   },
+   "fitted": {
+    "nugget": 0.1272701985137035,
+    "psill": 0.9490235694719836,
+    "range": 39.02471213798978
+   },
+   "holdoutRmse": {
+    "kriging": 0.5925468711484205,
+    "idw": 0.6362745816617682,
+    "nearest": 0.7510678435147339
+   },
+   "coverage95": 0.97,
+   "looMsdr": 0.8774005659431904
+  },
+  {
+   "truth": {
+    "model": "exponential",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 23.330949880182743
+   },
+   "fitted": {
+    "nugget": 0.1916263685346242,
+    "psill": 0.9959966026174414,
+    "range": 27.021353563877945
+   },
+   "holdoutRmse": {
+    "kriging": 0.8989076675452703,
+    "idw": 0.9223335462381761,
+    "nearest": 1.081038360305983
+   },
+   "coverage95": 0.95,
+   "looMsdr": 0.9458912042831753
+  },
+  {
+   "truth": {
+    "model": "spherical",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 57.8804970998317
+   },
+   "fitted": {
+    "nugget": 0.11401822806891729,
+    "psill": 0.6874815269303212,
+    "range": 53.168947857915796
+   },
+   "holdoutRmse": {
+    "kriging": 0.5303187616115678,
+    "idw": 0.5605607705851874,
+    "nearest": 0.571555521312004
+   },
+   "coverage95": 0.95,
+   "looMsdr": 1.0339057000607716
+  },
+  {
+   "truth": {
+    "model": "exponential",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 53.655909625813365
+   },
+   "fitted": {
+    "nugget": 0,
+    "psill": 1.2883955413525898,
+    "range": 57.31433808254884
+   },
+   "holdoutRmse": {
+    "kriging": 0.5753630490983584,
+    "idw": 0.6563784171497666,
+    "nearest": 0.6748956954353748
+   },
+   "coverage95": 0.92,
+   "looMsdr": 1.0753452402998793
+  },
+  {
+   "truth": {
+    "model": "spherical",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 50.444801514968276
+   },
+   "fitted": {
+    "nugget": 0.005263651230002843,
+    "psill": 1.7265748583543419,
+    "range": 52.27482006930644
+   },
+   "holdoutRmse": {
+    "kriging": 0.544974537224285,
+    "idw": 0.7051413842990966,
+    "nearest": 0.7331555451824647
+   },
+   "coverage95": 0.91,
+   "looMsdr": 1.4682460058259315
+  },
+  {
+   "truth": {
+    "model": "exponential",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 51.00339506752789
+   },
+   "fitted": {
+    "nugget": 0,
+    "psill": 1.0354454414205956,
+    "range": 34.717253001660865
+   },
+   "holdoutRmse": {
+    "kriging": 0.6554065727780081,
+    "idw": 0.7088356969042073,
+    "nearest": 0.74575901574803
+   },
+   "coverage95": 0.95,
+   "looMsdr": 0.9818566915624316
+  },
+  {
+   "truth": {
+    "model": "spherical",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 31.048268442973495
+   },
+   "fitted": {
+    "nugget": 0.30730361530278805,
+    "psill": 1.0428998843373585,
+    "range": 78.10293234766407
+   },
+   "holdoutRmse": {
+    "kriging": 0.6906244599568394,
+    "idw": 0.7230194854332294,
+    "nearest": 0.8453911210669506
+   },
+   "coverage95": 0.93,
+   "looMsdr": 0.921531022991928
+  },
+  {
+   "truth": {
+    "model": "exponential",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 42.08118627779186
+   },
+   "fitted": {
+    "nugget": 0.005377770095361399,
+    "psill": 0.5852252999226006,
+    "range": 23.56136646392199
+   },
+   "holdoutRmse": {
+    "kriging": 0.6575162996077595,
+    "idw": 0.6675270206637361,
+    "nearest": 0.8049310652861459
+   },
+   "coverage95": 0.9,
+   "looMsdr": 1.0820691902367625
+  },
+  {
+   "truth": {
+    "model": "spherical",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 52.19569659791887
+   },
+   "fitted": {
+    "nugget": 0.08463908567551336,
+    "psill": 0.6744643505103862,
+    "range": 32.73076801910898
+   },
+   "holdoutRmse": {
+    "kriging": 0.5878551158152884,
+    "idw": 0.575446476309972,
+    "nearest": 0.7142415382972758
+   },
+   "coverage95": 0.95,
+   "looMsdr": 1.0200653783889444
+  },
+  {
+   "truth": {
+    "model": "exponential",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 46.758529832586646
+   },
+   "fitted": {
+    "nugget": 0.0679396169017496,
+    "psill": 0.9691104583881427,
+    "range": 45.32690817829551
+   },
+   "holdoutRmse": {
+    "kriging": 0.6033133247728445,
+    "idw": 0.6440772617255641,
+    "nearest": 0.7322795389640435
+   },
+   "coverage95": 0.96,
+   "looMsdr": 0.9384970252137996
+  },
+  {
+   "truth": {
+    "model": "spherical",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 29.67146341688931
+   },
+   "fitted": {
+    "nugget": 0.08407899114316877,
+    "psill": 1.1638888349027108,
+    "range": 37.80216719272962
+   },
+   "holdoutRmse": {
+    "kriging": 0.5776605864921041,
+    "idw": 0.6979083840837735,
+    "nearest": 0.7233955310674985
+   },
+   "coverage95": 0.96,
+   "looMsdr": 1.1680118618752822
+  },
+  {
+   "truth": {
+    "model": "exponential",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 34.03225294314325
+   },
+   "fitted": {
+    "nugget": 0,
+    "psill": 1.067796706208749,
+    "range": 20.066263256950673
+   },
+   "holdoutRmse": {
+    "kriging": 0.7530971194245687,
+    "idw": 0.7895110727674727,
+    "nearest": 0.9111424842040444
+   },
+   "coverage95": 0.95,
+   "looMsdr": 1.055404397192977
+  },
+  {
+   "truth": {
+    "model": "spherical",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 21.339592207223177
+   },
+   "fitted": {
+    "nugget": 0,
+    "psill": 1.0550228741993486,
+    "range": 18.419859599636695
+   },
+   "holdoutRmse": {
+    "kriging": 0.696762177387352,
+    "idw": 0.6911859779805389,
+    "nearest": 0.913824289691849
+   },
+   "coverage95": 0.89,
+   "looMsdr": 1.2939945701662874
+  },
+  {
+   "truth": {
+    "model": "exponential",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 20.400685956701636
+   },
+   "fitted": {
+    "nugget": 0.18307831111698852,
+    "psill": 0.4943214813838438,
+    "range": 11.82608760976555
+   },
+   "holdoutRmse": {
+    "kriging": 0.8019428588269926,
+    "idw": 0.8111192232469346,
+    "nearest": 0.8961642961954891
+   },
+   "coverage95": 0.96,
+   "looMsdr": 0.9745869920149456
+  },
+  {
+   "truth": {
+    "model": "spherical",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 35.229649571701884
+   },
+   "fitted": {
+    "nugget": 0.026701649791960262,
+    "psill": 1.401231284345962,
+    "range": 37.55658530045314
+   },
+   "holdoutRmse": {
+    "kriging": 0.5434457083767997,
+    "idw": 0.7647199072230337,
+    "nearest": 0.784095018000472
+   },
+   "coverage95": 0.93,
+   "looMsdr": 1.109379677448316
+  },
+  {
+   "truth": {
+    "model": "exponential",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 57.756158355623484
+   },
+   "fitted": {
+    "nugget": 0.22636049333827138,
+    "psill": 2.4160901139023103,
+    "range": 182.10907960090034
+   },
+   "holdoutRmse": {
+    "kriging": 0.6416585879383273,
+    "idw": 0.7171901352092505,
+    "nearest": 0.839810803429395
+   },
+   "coverage95": 0.96,
+   "looMsdr": 0.9307315251688066
+  },
+  {
+   "truth": {
+    "model": "spherical",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 40.581571497023106
+   },
+   "fitted": {
+    "nugget": 0.07298495701998392,
+    "psill": 0.9124607223713823,
+    "range": 37.7347062829016
+   },
+   "holdoutRmse": {
+    "kriging": 0.594597225163609,
+    "idw": 0.6887941134987903,
+    "nearest": 0.7109649945566977
+   },
+   "coverage95": 0.91,
+   "looMsdr": 0.9183994847918372
+  },
+  {
+   "truth": {
+    "model": "exponential",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 53.793038902804255
+   },
+   "fitted": {
+    "nugget": 0.11186969609556986,
+    "psill": 1.1517137427087174,
+    "range": 64.9227729564598
+   },
+   "holdoutRmse": {
+    "kriging": 0.623247526025905,
+    "idw": 0.6499636468290858,
+    "nearest": 0.756846226218318
+   },
+   "coverage95": 0.94,
+   "looMsdr": 1.081723451224586
+  },
+  {
+   "truth": {
+    "model": "spherical",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 49.6146032307297
+   },
+   "fitted": {
+    "nugget": 0.29407963919415425,
+    "psill": 0.46564998230987475,
+    "range": 61.84896866557546
+   },
+   "holdoutRmse": {
+    "kriging": 0.5827533356438369,
+    "idw": 0.5575568264900739,
+    "nearest": 0.7712059289142429
+   },
+   "coverage95": 0.99,
+   "looMsdr": 0.964734890043076
+  },
+  {
+   "truth": {
+    "model": "exponential",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 30.52834860049188
+   },
+   "fitted": {
+    "nugget": 0.33811039253122965,
+    "psill": 0.8029355718410796,
+    "range": 46.38734845441311
+   },
+   "holdoutRmse": {
+    "kriging": 0.7397864706279386,
+    "idw": 0.7530499616727889,
+    "nearest": 0.9688897946795466
+   },
+   "coverage95": 0.98,
+   "looMsdr": 1.0693401512589435
+  },
+  {
+   "truth": {
+    "model": "spherical",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 46.23658043332398
+   },
+   "fitted": {
+    "nugget": 0.16992744825710726,
+    "psill": 0.9061275534461246,
+    "range": 46.893332000867176
+   },
+   "holdoutRmse": {
+    "kriging": 0.545439068667059,
+    "idw": 0.5890862631738452,
+    "nearest": 0.694711971982037
+   },
+   "coverage95": 0.98,
+   "looMsdr": 0.809043576610602
+  },
+  {
+   "truth": {
+    "model": "exponential",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 57.67567629925907
+   },
+   "fitted": {
+    "nugget": 0.1753696396642026,
+    "psill": 1.3938783634460252,
+    "range": 139.48819440719146
+   },
+   "holdoutRmse": {
+    "kriging": 0.6168056623988463,
+    "idw": 0.7275447977630841,
+    "nearest": 0.7691956729474264
+   },
+   "coverage95": 0.96,
+   "looMsdr": 0.8526751713199692
+  },
+  {
+   "truth": {
+    "model": "spherical",
+    "nugget": 0.1,
+    "psill": 1,
+    "range": 46.18874256499112
+   },
+   "fitted": {
+    "nugget": 0.08766840933679948,
+    "psill": 1.2179643727532095,
+    "range": 44.95825455682012
+   },
+   "holdoutRmse": {
+    "kriging": 0.5229117111938024,
+    "idw": 0.6941191684279946,
+    "nearest": 0.7291592489937166
+   },
+   "coverage95": 0.96,
+   "looMsdr": 0.9878782889384164
+  }
+ ]
+}

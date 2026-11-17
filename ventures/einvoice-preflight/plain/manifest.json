@@ -236,6 +236,30 @@
       "commit": "97ba0f3d4ef2abed5780e9490d5c3a2be832ab1d",
       "from": "BR-FR-Flux2-Schematron-CII.sch",
       "checks": 171
+    },
+    "cdar-fr": {
+      "source": "FNFE-MPE BR-FR-CDV (CDAR life-cycle statuses) 1.4.0.04, github.com/fnfempe/France_RFE (Apache-2.0)",
+      "commit": "97ba0f3d4ef2abed5780e9490d5c3a2be832ab1d",
+      "from": "BR-FR-CDV-Schematron-CDAR.sch",
+      "checks": 43
+    },
+    "extended-ctc-fr-ubl": {
+      "source": "FNFE-MPE EXTENDED-CTC-FR 1.4.0.04, github.com/fnfempe/France_RFE (Apache-2.0)",
+      "commit": "97ba0f3d4ef2abed5780e9490d5c3a2be832ab1d",
+      "from": "EXTENDED-CTC-FR-UBL.sch",
+      "checks": 953
+    },
+    "extended-ctc-fr-cii": {
+      "source": "FNFE-MPE EXTENDED-CTC-FR 1.4.0.04, github.com/fnfempe/France_RFE (Apache-2.0)",
+      "commit": "97ba0f3d4ef2abed5780e9490d5c3a2be832ab1d",
+      "from": "EXTENDED-CTC-FR-CII.sch",
+      "checks": 773
+    },
+    "facturx-extended-cii": {
+      "source": "Factur-X EXTENDED 1.09.2 (FNFE-MPE), github.com/fnfempe/France_RFE (Apache-2.0)",
+      "commit": "97ba0f3d4ef2abed5780e9490d5c3a2be832ab1d",
+      "from": "FACTUR-X_EXTENDED.sch",
+      "checks": 1464
     }
   },
   "fontoxpath": "3.34.0"
