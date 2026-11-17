@@ -119,11 +119,12 @@ flagships:
     buildable: >-
       Receipts, item (5): SRD photos (eval/srd-fetch.mjs), CORD photos
       (eval/cord_images.py); tesseract via apt, RapidOCR via pip. CORD train shards
-      1-3: tesseract four 362 of 583, `--rapidocr` 515, `--rapidocr --four-pass` 510
-      with tax 172 to 203 of 267 (eval/second-ocr-engine-2026-11-17.md); test 80 of
-      95. RapidOCR runs on the page (rapidocr-web.mjs, ONNX Runtime Web;
-      eval/rapidocr-web-2026-11-17.md). Next: RapidOCR's parser misses on shards 1-3
-      (68; Rp57,000, cash taken as total). CORD test stays held out.
+      1-3: tesseract four 362 of 583, `--rapidocr` 539 (515 before the parser rules
+      of eval/rapidocr-parser-misses-2026-11-17.md); test 83 of 95. Next:
+      tesseract's four readings of shards 1-3 (about 100 min) to score the
+      five-reading vote and the page there; the 22 parser-reachable RapidOCR misses
+      left are one-offs (an amount split over two lines, mixed separators; same
+      note). CORD test stays held out.
     hosts: [https://huggingface.co/, https://raw.githubusercontent.com/]
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
@@ -192,9 +193,10 @@ flagships:
       model: t-walk increments, biweight on fresh data, why it absorbs seat belts
       and quality control 4, its AR(1) term; (1) slopes: logs fail, 2 hinges ship
       (refuse short sticky series), given date: --known-date on CLI, page, engine;
-      control series (README) passes sims, fails seat-belt placebos 3/3, not
-      shipped: next an in-time placebo check.
-      More open items: NEXT.md.
+      in-time placebos ship beside it (README "In-time placebos": 0-4% false
+      warnings); control series fails seat-belt placebos 3/3: next a step-only test
+      with the control, real pairs (a policy covering some regions). More open
+      items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     why: >-
@@ -417,14 +419,15 @@ flagships:
       (to listen), scan-checked corpus, 2,129 notes read by eye, hymns, song
       sections, breakdown, riser; --a-cappella first verse and a range-checked
       --key-lift N, eval/key-lift-check.md; per-section singer guidance in --cues;
-      2026-11-17: lipShut (dark-vowel m) default; lipHold failed held-out b (133 to
-      135 of 144, 3 wanted), opt-in; next: b's num/mum/bun, place misses). Open
-      checks that need a person: listen to the studio page, --sing, the options
-      (--stretch, --halftime, --fills, --limit pumping, stems, sections, breakdown,
-      riser, the a cappella verse and whether the key lift sounds like a lift);
-      --lrc in a real player and --markers/--stems in a DAW; --cues (and its section
-      lines), RECORDING-GUIDE.md and the E2-E4 range with real singers; the release
-      kit against a distributor's real form; the Te Deum/3427/3912/3775 fixes
+      2026-11-17: lipShut (dark-vowel m) default; lipHold failed held-out b, opt-in;
+      a slow lip closure failed held-out c (123 to 125 of 144, 3 wanted), opt-in;
+      next: c's cluster-onset -um, A#3 /u/ fades read as nasals). Open checks that
+      need a person: listen to the studio page, --sing, the options (--stretch,
+      --halftime, --fills, --limit pumping, stems, sections, breakdown, riser, the a
+      cappella verse and whether the key lift sounds like a lift); --lrc in a real
+      player and --markers/--stems in a DAW; --cues (and its section lines),
+      RECORDING-GUIDE.md and the E2-E4 range with real singers; the release kit
+      against a distributor's real form; the Te Deum/3427/3912/3775 fixes
       (eval/scan-check-verdicts.md). master-cli passed EBU Tech 3341/3342 from their
       text; open: the EBU's WAVs (403), Apple/Amazon/Tidal levels. scan.mjs reads
       rhombi, quilismas, liquescents, lines at true thickness; tilted pages, curled
@@ -435,10 +438,11 @@ flagships:
       NEXT.md.
     buildable: >-
       Coda reader rounds on synthetic held-out parts, no outside input
-      (eval/coda-check.mjs, eval/dark-nasal-diag.mjs, eval/vstop-diag.mjs; README "A
-      dark-vowel m that holds level"): b's num/mum/bun read as nothing, V's p read
-      as k on A3-B3. OMR (scan.mjs) items in next: one-step cephalici, 10 of 84
-      tuning misses, 3408's strokes, 3464's cephalicus.
+      (eval/coda-check.mjs, eval/dark-nasal-diag.mjs; README "A dark-vowel m that
+      closes slowly"): c's cluster-onset -um (brum, glum, stum, flum: 18 of 48 read
+      as nothing on A#3-E4); c's vowel-only /u/ on A#3 quarters read as a nasal by
+      the level rule (15 cells). OMR (scan.mjs) items in next: one-step cephalici,
+      10 of 84 tuning misses, 3408's strokes, 3464's cephalicus.
   # Added 2026-11-16 (new venture, construction direction): buildingSMART IDS 1.0
   # checking of IFC models, in a browser tab or CI. Depth: a full IDS engine
   # scored on buildingSMART's 334 test pairs and cross-checked against IfcTester.
@@ -453,8 +457,8 @@ flagships:
       (eval/ifcxml-xbim-2026-11-16.md); the subclass 'not checked' warning in CI
       outputs (JUnit, annotations) and an editor offer of IFCWALLSTANDARDCASE beside
       IFCWALL (eval/corpus-crosscheck-2026-11-17.md); the IDS editor (editor.html;
-      README): a tolerance hint on exclusive bounds
-      (eval/exclusive-bounds-2026-11-17.md); more real exports through
+      README): "Use the model's range" for dates, xs:date one-of rows
+      (eval/date-ranges-2026-11-17.md); more real exports through
       eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
     next: >-
@@ -469,9 +473,8 @@ flagships:
       audit clean, 15,102 valid in ids.xsd; found voids/fills token pair and
       classification-system gaps, eval/editor-2026-11-16.md); IFC 4.3 infra/HVAC
       cross-check 2026-11-17 (348 of 348, eval/infra-mep-crosscheck-*); 65 public
-      IDS on 4 exports vs IfcTester 2026-11-17 (1,661 of 1,736 same, all 75
-      explained; reports count unchecked subclasses,
-      eval/corpus-crosscheck-2026-11-17.md); editor (opens an IDS,
+      IDS vs IfcTester 2026-11-17 (1,661 of 1,736 same; unchecked subclasses
+      reported, eval/corpus-crosscheck-*); editor (opens an IDS,
       eval/editor-open-2026-11-16.md; opens a model and offers its classes and sets,
       own sets editable, 79.4% of public facets editable,
       eval/model-inventory-2026-11-16.md: 4 real exports, 347 of 395 class-set pairs
@@ -482,4 +485,7 @@ flagships:
       (eval/model-attr-codes-2026-11-17.md: 242 of 242 offers pass; 143 of 210
       Uniformat elements in Schultz have an empty code, Require a code); a range for
       numeric attributes; a dataType-mismatch hint, Accept any data type 2026-11-17
-      (eval/model-any-type-2026-11-17.md). More open items: NEXT.md.
+      (eval/model-any-type-2026-11-17.md); date and duration ranges 2026-11-17
+      (eval/date-ranges-2026-11-17.md: IfcTester 0.9.0 fails every object on a date
+      range, Write as a pattern agrees 10 of 10; 86.4% of public facets editable).
+      More open items: NEXT.md.

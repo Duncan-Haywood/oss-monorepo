@@ -139,6 +139,17 @@ open. MIT licensed, no dependencies, nothing uploaded.
   valid files (25.0%, was 21.5%), all still writing back the same. Eight
   inclusive/exclusive ranges on the sample house's 2100 mm door: 8 of 8 the
   same verdict in IfcTester 0.9.0. `eval/exclusive-bounds-2026-11-17.md`.
+  **Date, time and duration ranges** (2026-11-17): IFCDATE, IFCDATETIME,
+  IFCTIME and IFCDURATION properties and attributes get a **between** row
+  written on `xs:date`, `xs:dateTime`, `xs:time` or `xs:duration`, as IDS
+  1.0's DataTypes table gives them. IfcTester 0.9.0 casts range bounds to
+  float, so it fails every object on such a range (0 of 10 date ranges the
+  same as this checker on 61 doors); the row warns, and **Write as a
+  pattern** rewrites a date range as the XSD pattern of the same dates
+  (`datePattern`), which both checkers read the same way: 10 of 10, same
+  failing doors. Presence-only standard properties with no dataType now open
+  as rows: 86.4% of public facets editable (was 85.2%), 17 of 64 files fully
+  editable (was 14). `eval/date-ranges-2026-11-17.md`.
 - Exports: BCF 2.1 (one topic per failing element, selected by IfcGuid), CSV,
   JSON.
 - 22 MB Revit export (Schultz Residence, 424,819 entities): 1.4 s on the command
@@ -462,7 +473,12 @@ with a 2 GB heap it finishes, before and after this change.
    unit conversion, type inheritance and overrides, cardinality, the sample
    model's known gaps, CSV formula neutralising, and BCF zip structure (and an
    `unzip` round trip when it is installed). The suite test runs when
-   `eval/IDS` has been fetched.
+   `eval/IDS` has been fetched. With `eval/fetch-bcf-schemas.sh` run and
+   `xmllint` installed, every file of a sample BCF export is also validated
+   against buildingSMART's BCF 2.1 schemas (CC BY-ND, fetched, not
+   committed). That check found, on 2026-11-17, that every `markup.bcf` wrote
+   an empty `IfcProject=""` the schema rejects, and that a control character
+   in an IFC name made the markup unreadable XML; both are fixed.
 
 6. **ifcXML and `.ifczip` on real files** (2026-11-16,
    `eval/ifcxml-xbim-2026-11-16.md`). `eval/fetch-xbim-samples.sh` fetches the
@@ -567,7 +583,9 @@ faster than IfcTester; its point is needing no install.
   applicability rows 2026-11-17, `eval/applicability-rows-2026-11-17.md`;
   numeric attribute ranges 2026-11-17, `eval/model-attr-ranges-2026-11-17.md`;
   untyped value rows 2026-11-17, `eval/untyped-values-2026-11-17.md`;
-  exclusive bounds 2026-11-17, `eval/exclusive-bounds-2026-11-17.md`):
+  exclusive bounds 2026-11-17, `eval/exclusive-bounds-2026-11-17.md`;
+  date and duration ranges 2026-11-17, `eval/date-ranges-2026-11-17.md`):
+  "Use the model's range" for dates; `xs:date` one-of rows;
   a subclass checkbox per class, not only the first;
   a "fix the dataType" hint built from the 21
   of 122 standard properties real exports write in another type.

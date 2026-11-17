@@ -403,6 +403,11 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    0.49 mm. The 0.48–0.50 mm left is in the waist and the H1's torso. Side finding: the G1's wrist pitch carries more
    than its 5 N m MJCF rating at 7 of 14 poses. Still open: the paper's headline for a tool-point spec, a grip that
    changes the waist's share, and the nailer's recoil.
+39. **The waist's gap** (done 2026-11-17, `experiments/m39_waist/`): at milestone 38's 10 N squeeze and leg preload, a
+   braked waist takes the G1's worst residual at a 5 N drag from 0.485 to 0.012 mm and its 0–10 N stack loss from 5.80
+   to 0.04 points; a 1 arcmin waist gearbox gives 0.106 mm and 0.11 points. Locking waist roll and pitch, as on the base
+   G1, changes nothing: the yaw is the joint that flips. The pre-2017 sensor still leaves 0.87 mm. Still open: the
+   paper's headline for a tool-point spec, and the nailer's recoil.
 
 ## Target venue
 

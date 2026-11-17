@@ -5722,3 +5722,42 @@ straight line is the wrong baseline for this ratio over 14 years. The seat-belt 
 (the same test at dates in the before-period; refuse or warn when they fire), or a step-only test with the control,
 since the steps passed every placebo (0 of 5 at p 0.05, real pairs 4c and 4d); and real pairs beyond road deaths, such as a policy that
 covered some regions and not others.
+
+### In-time placebos: a warning beside the test when the line before your date is not a line (2026-11-17, pre-registered; ships)
+
+The control round above ended asking for "an in-time placebo check that ships beside the test". This is it, for the
+shipped one-series test: `placeboCheck(x, k, { period })` in `known-date.mjs` runs the same test (round 5's settings,
+199 replicates) on the points before your date only, at up to three dates spread through that before-period (each with
+`8 + period` points on both sides), where the event you named cannot act. It **warns** when 2 or more of the tested
+placebo dates give joint p <= 0.05. It is a warning beside the result; it does not change the named-date p. This is
+the "falsification" check of the interrupted-time-series tutorials (Lopez Bernal, Cummins and Gasparrini 2017).
+
+Pre-registration `eval/known-date-prereg-placebo-2026-11-17.md`, committed after an exploratory run (seed base 81000,
+100 series, `eval/known-date-placebo-explore.out.txt`) and before the confirmatory run (fresh seed base 87000, 200
+series per cell, `eval/known-date-placebo-confirm.out.txt`; `KD_SEED_BASE=87000 KD_SHARD=i/4 node
+eval/known-date-placebo-sim.mjs 200 199`) and the real series (`node eval/known-date-placebo-real.mjs`,
+`eval/known-date-placebo-real.out.txt`):
+
+| Bar (pre-registered) | Confirmatory | |
+|---|---|---|
+| 1. false warnings at most 8% of tested, 14 straight-line cells (n 40-240, rho 0-0.8) and a real 2 sd step at the date | 0-4.0% (the step cell 1.0%) | holds |
+| 2. warnings: a quadratic bend of 8 sd, n 120, rho 0, at least 70%; an earlier 3 sd shock, n 240 / n 120, rho 0, at least 80% / 25% | 91.5%; 92.5% / 44.5% | holds |
+| 3. among the named-date test's false rejections (bends and earlier shocks, no change at the date), at least 25% warned | 677 of 1,830 (37.0%) | holds |
+| 4. drivers / rear-seat ratio before 1983-02 warns (seen); Nile before 1899 and Nottingham before 1935-01 and 1930-01 do not | ratio 3 of 3 fired, warns; Nile 0 of 3, Nottingham 0 of 3 twice | holds |
+
+**What it catches and what it cannot.** Where the before-period itself bends or carries an earlier shock, the warning
+comes up often (bends 15-91.5% at n 120, earlier shocks 8.5-92.5%; stickier noise hides more). Where the series bends
+mostly *after* the date (a quadratic with the date at the middle of 240 points), the named-date test fires 59-100% of
+the time with nothing at the date and the placebos warn only 3.5-19%: they see only the before-period. So no warning is
+not a clean bill; a control series or a look at the after-period is still the check for that.
+
+**Real series** (reported without a bar): drivers alone before the 1983 belt law, 1 of 3 (1973-05, the fuel crisis)
+and no warning; front-seat passengers 2 of 3 and rear-seat passengers 2 of 3 both warn, which agrees with the control
+round's reading that the joint test on those series partly reads a slope shared by all three. Australian cafe turnover
+before the July 2000 GST would warn (2 of 2), but the named date is refused (a wander) so no placebos are reported;
+quarterly cement is refused at every date.
+
+**Use it.** Nothing to switch on: `--known-date` prints an "In-time placebos" line (and a WARNING line when it fires);
+`--json` has `placebo: { dates: [{ label, p }], tested, fired, warn }`; `analyze({ knownDate })` has the same field
+(`knownDate: { date, placebo: false }` leaves it out), and the page adds a sentence to "Test a date you name". Tests:
+`known-date-placebo.test.mjs`.
