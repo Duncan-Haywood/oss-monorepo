@@ -1,5 +1,8 @@
 # Research log
 
+## 2026-11-17 · A margin-backoff rule for an empty margin-shifted set (plan)
+- Plan, rule B (a two-solver check of the margin-shifted AC OPF before round 1; on an empty set, halve every margin up to three times) and predictions B1 to B7: `research/infra-dcopf/LOG.md` (2026-11-17); script `research/infra-dcopf/experiments/run_backoff.py`. Frozen on the 34 development cases, scored on the held-out 24.
+
 ## 2026-11-17 · Do the two development stalls come from the repair's own safety margins? Outcome. case73 API: its margin-shifted AC OPF has no solution on PIPS or IPOPT; case118 API: it solves; zero margins finish neither and lose 5 to 21 finishers
 - Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-17); numbers in `research/infra-dcopf/experiments/results_margin.txt`. A1, M2, Z3 held; M1, M3, Z1, Z2, Z4 refuted. Reproduction gate passed on all 34 cases.
 - case73 API's AC optimum sits on its voltage bounds (all 14 generator buses at the ceiling, 7 PQ buses at the floor) and 10 branch ends at their rating; pulling in thermal and voltage bounds together leaves no AC point (each alone is solvable, +0.41 % and +1.99 %). The repair stalls because it aims at an empty set.
