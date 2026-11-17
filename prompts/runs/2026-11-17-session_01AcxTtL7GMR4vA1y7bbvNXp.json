@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtL7GMR4vA1y7bbvNXp",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T22:15:29Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "flagship row 5 league-schedule-generator: calendar ids that survive rainouts, subscribe feeds",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17083",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "no named post-check command; found check_post_frontmatter.py, check_post_links.py and post_similarity.py by listing platform/ci (a guessed check_posts.py does not exist)"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "the top next: items for this flagship are multi-hour SAT/LNS searches (47 and 49 teams on 8x9) that earlier runs stalled on; took a product defect instead: re-sent .ics files left moved games on their old date",
+      "did": "fixture-based UIDs, SEQUENCE, cancelled events for withdrawals, subscribe feeds on server.mjs",
+      "result": "1,139 ghost events after rainouts went to 0 on 584 team files; 52 ghosts + 70 duplicates to 0 on the multi-division example"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-a-rainout-should-not-leave-a-ghost-game-in-your-calendar.md",
+    "ventures/league-schedule-generator/README.md (Calendar files that follow a rainout)"
+  ],
+  "goal": null,
+  "notes": "eval/ics-stable-uids.mjs measures old vs new UIDs. No real calendar app was tested; that is stated in README and post. Venture tests and preflight results are added below once they finish.",
+  "corrections": [],
+  "redteam": null
+}
