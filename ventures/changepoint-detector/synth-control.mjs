@@ -232,7 +232,10 @@ export function synthControlTest(y, donors, k, { minBefore = 5, minAfter = 2, fi
     const others = all.filter((i) => i !== j);
     if (placeboPool === 'with') others.push(-1);
     const f = fitOne(j, others);
-    return { name: s, preRmspe: f.preRmspe, postRmspe: f.postRmspe, ratio: f.ratio };
+    // donorWeights: the placebo's own synthetic control, by name ('(treated)' when the treated unit is in its pool),
+    // so covariateBalance can put the treated fit's balance among the placebos' (README "Covariate balance").
+    const donorWeights = Object.fromEntries(others.map((i, q) => [i < 0 ? '(treated)' : names[i], f.weights[q]]));
+    return { name: s, preRmspe: f.preRmspe, postRmspe: f.postRmspe, ratio: f.ratio, donorWeights };
   });
   // Three placebo statistics, each ranked the same way (README "A floored ratio"): 'ratio' (the 2010 paper's),
   // 'floored' (the default since 2026-11-17, eval/synth-floor-prereg-2026-11-17.md) (the after-gap over the before-gap floored at the median before-gap of all units, treated and
@@ -258,7 +261,7 @@ export function synthControlTest(y, donors, k, { minBefore = 5, minAfter = 2, fi
   const after = fit.gap.slice(k);
   const weights = names.map((s, j) => ({ name: s, weight: fit.weights[j] })).filter((e) => e.weight >= 0.001).sort((a, b) => b.weight - a.weight);
   return {
-    k, n, donors: names.length, weights, synth: fit.synth, gap: fit.gap, v: fit.v ?? null, predictorRmse: fit.predictorRmse ?? null,
+    k, n, donors: names.length, weights, donorWeights: Object.fromEntries(names.map((s, j) => [s, fit.weights[j]])), synth: fit.synth, gap: fit.gap, v: fit.v ?? null, predictorRmse: fit.predictorRmse ?? null,
     preRmspe: fit.preRmspe, postRmspe: fit.postRmspe, ratio: fit.ratio,
     effectAverage: after.reduce((s, e) => s + e, 0) / after.length, effectAtEnd: after[after.length - 1],
     rank, p, statistic, tests, floor, minP: 1 / (names.length + 1), placebos,
@@ -272,4 +275,38 @@ export function synthInTimePlacebo(y, donors, k, kFake, opts = {}) {
   const cut = (a) => a.slice(0, k);
   const d = Object.fromEntries(Object.entries(donors).map(([s, a]) => [s, cut(a)]));
   return synthControlTest(cut(y), d, kFake, opts);
+}
+
+// Covariate balance of a fitted synthetic control (Abadie 2021, section 7: report how the synthetic control compares
+// with the treated unit on covariates it was not, or not only, matched on; Abadie et al. 2010, Table 1). r: a
+// synthControlTest result; covariates: { treated: [c numbers], donors: { name: [c numbers] } }, for every donor in the
+// fit; names (optional): a label per covariate. For each covariate: the treated value, the synthetic control's
+// (the fit's donor weights applied to the donors' values), the plain donor average, and both gaps divided by the
+// covariate's standard deviation over all units (a standardised difference). imbalanced is |standardised gap| above
+// `threshold` (default 0.25, the usual matching rule of thumb, Stuart 2010). placeboShare: the share of placebo fits
+// (each donor's own synthetic control, the same covariates) whose standardised gap is smaller in size than the
+// treated fit's: near 1 says the treated unit is matched worse on this covariate than most donors are by theirs.
+// A diagnostic, not a test: it changes no p.
+export function covariateBalance(r, covariates, { names = null, threshold = 0.25 } = {}) {
+  const donorNames = Object.keys(r.donorWeights ?? {});
+  if (!donorNames.length) throw new Error('covariateBalance needs a synthControlTest result');
+  const x1 = covariates?.treated;
+  const C = Array.isArray(x1) ? x1.length : 0;
+  const rows = [x1, ...donorNames.map((s) => covariates.donors?.[s])];
+  if (!C || rows.some((a) => !Array.isArray(a) || a.length !== C || a.some((v) => !Number.isFinite(v)))) throw new Error('covariates need the same count of finite numbers for the treated unit and every donor in the fit');
+  const valueOf = (unit) => (unit === '(treated)' ? x1 : covariates.donors[unit]);
+  const synthOf = (w, m) => Object.entries(w).reduce((s, [u, q]) => s + q * valueOf(u)[m], 0);
+  return Array.from({ length: C }, (_, m) => {
+    const all = rows.map((a) => a[m]), mu = all.reduce((a, b) => a + b, 0) / all.length;
+    const sd = Math.sqrt(all.reduce((a, b) => a + (b - mu) ** 2, 0) / (all.length - 1)) || 1;
+    const synthetic = synthOf(r.donorWeights, m);
+    const donorMean = donorNames.reduce((s, u) => s + covariates.donors[u][m], 0) / donorNames.length;
+    const std = (x1[m] - synthetic) / sd;
+    const placeboStd = r.placebos.map((q) => Math.abs((valueOf(q.name)[m] - synthOf(q.donorWeights, m)) / sd));
+    return {
+      name: names?.[m] ?? `covariate ${m + 1}`, treated: x1[m], synthetic, donorMean, sd,
+      stdGap: std, stdGapDonorMean: (x1[m] - donorMean) / sd, imbalanced: Math.abs(std) > threshold,
+      placeboShare: placeboStd.filter((v) => v < Math.abs(std)).length / placeboStd.length,
+    };
+  });
 }

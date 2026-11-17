@@ -194,9 +194,11 @@ flagships:
       control 4, its AR(1) term; (2) synthetic control (README "A floored ratio"):
       CA rank 1 of 39; MA, AZ, OR ranks 6-13; covariates (README "Matched on
       covariates") failed; multi-start V (README "Several starts for V") failed too:
-      no V fits Oregon (15.8+ vs 5.5 packs), 3 late lags miss its 1970s; next lags
-      spread over the before-period, or monthly series, then CLI. More open items:
-      NEXT.md.
+      no V fits Oregon; covariate balance of the outcome fit (covariateBalance,
+      eval/synth-balance-real.out.txt) 2026-11-17: CA 1.66 sd richer than its
+      synthetic, MA balanced yet 6th; next a sim where a covariate drives the
+      outcome (does the 0.25 flag find biased gaps?), lags over the before-period,
+      then CLI. More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     why: >-
