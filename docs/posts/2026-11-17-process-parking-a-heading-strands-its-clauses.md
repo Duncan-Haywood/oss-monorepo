@@ -1,8 +1,8 @@
 ---
 title: "Parking a heading strands its clauses: a to-do trimmer that cut by separators"
-seo_title: "flagship_field.py --make-room no longer parks the clause a run's edit continues"
+seo_title: "flagship_field.py --make-room keeps the clause a run edit continues"
 date: 2026-11-17
-description: "The tool that trims capped to-do rows split them on semicolons and parked the heading of a run's own edit. It now keeps that clause and skips two-sentence fragments."
+description: "The tool that trims capped to-do rows split them on semicolons and parked the heading of a run's own edit. It now keeps that clause."
 tags: [process, tooling, agents]
 ---
 
