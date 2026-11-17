@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKj4D7CCnzrBbJ6iT4v",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T13:23:03Z",
+  "ended": "2026-11-17T13:37:15Z",
+  "wall_minutes": 14.41,
+  "tokens_in": 5844476,
+  "tokens_out": 42913,
+  "cost_usd": 3.0621,
+  "tool_calls": 53,
+  "task": "research/sensing-selfcal milestone 3k: rolling-shutter effect on a short self-calibration window's focal length",
+  "projects": [
+    "research/sensing-selfcal"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16950",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "First test draft had too-tight tolerances (fixed-point convergence at 6 iterations; the stretch test ignored the (1+y^2) term); corrected before the plan was committed."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/sensing-selfcal/README.md",
+      "issue": "Next steps (after 3j) said 'The TUM video now downloads'; in this session the host refused the proxy again (CONNECT 403), so both listed TUM steps were blocked; pick_track.py's HOSTS RECHECK line did say so."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "The programme's next step (rolling-shutter term, track-bias re-track on TUM video) needs the TUM host, refused today.",
+      "did": "Ran the rolling-shutter question synthetically through the project's own bundle adjuster and compared with stored mocap rates; one pilot job was seen before the plan and disclosed in it; a post-hoc split (explore.py) is labelled as such.",
+      "result": "A real result: the rolling shutter is not ruled out (median 4.2% shift at 0.3 rad/s) and the mean-rate bound fails; 2 of 5 predictions held."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-a-rolling-shutter-could-be-the-hidden-focal-error.md",
+    "research/sensing-selfcal/LOG.md (3k plan and result)"
+  ],
+  "goal": null,
+  "notes": "Checks run locally: tests/ 127 passed; research/_homepage/build.py ok; research_live_links --write; check_md_links ok; post frontmatter, links, similarity clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f57ecc52-b38d-58c2-a709-61ea1747c1e7",
+    "transcripts": 1,
+    "first": "2026-11-17T13:23:03Z",
+    "last": "2026-11-17T13:37:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 96,
+        "output": 42913,
+        "thinking": 13546,
+        "cache_read": 5711739,
+        "cache_write_5m": 0,
+        "cache_write_1h": 132641,
+        "api_equivalent_usd": 3.0621,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 96,
+      "output": 42913,
+      "thinking": 13546,
+      "cache_read": 5711739,
+      "cache_write_5m": 0,
+      "cache_write_1h": 132641,
+      "api_equivalent_usd": 3.0621,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 53,
+    "tools": {
+      "Bash": 49,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.41,
+      "active_minutes": 14.41,
+      "model_minutes": 6.95,
+      "tool_minutes": 7.46,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a researcher writing a rolling-shutter renderer, a 156-job paired sweep and the write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 195.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
