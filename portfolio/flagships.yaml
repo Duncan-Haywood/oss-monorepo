@@ -283,10 +283,10 @@ flagships:
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
       eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`; its CIFF CRWs all read).
       Bayer trees parked: a range guard passes 6 fresh cameras, misses K-1 II/A7
-      III; no fresh frames left (eval/bayer-boosted-guard-*). Noise-aware:
-      no-profile raws via --noise-from-frame (eval/noise-aware-estimated-*); next: a
-      patch-PCA estimator (tools/noise_estimator_accuracy.py), an earlier colour
-      ramp. DNG 1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
+      III; no fresh frames left (eval/bayer-boosted-guard-*). Noise-aware: patch-PCA
+      frame noise (eval/noise-pca-estimator-*); next: X-Trans 12 x 12 patches (17 of
+      248 held tiles lose), then the auto fallback. DNG 1.7.1.0 spec PDF: URL in
+      eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
