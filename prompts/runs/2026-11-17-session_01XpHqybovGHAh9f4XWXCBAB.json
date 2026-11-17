@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "A scripted sweep replaced num(\"months\", 12) inside the new monthsOpt helper too (infinite recursion); the new probe showed every baseline red at once, fixed with one sed before anything was committed."
+    "A scripted sweep replaced num(\"months\", 12) inside the new monthsOpt helper too (infinite recursion); the new probe showed every baseline red at once, fixed with one sed before anything was committed.",
+    "The local ventures-tests run failed test_checks_refuse_empty_root.py: the new check exited 0 on an empty --root. It now exits 2 when it finds no gate CLI, and a unit test covers that."
   ],
   "integrity_issues": [],
   "doc_friction": [],

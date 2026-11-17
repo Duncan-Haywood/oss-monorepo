@@ -62,6 +62,9 @@ class BadInputExit(unittest.TestCase):
         self.assertIsNone(found["nocompare"])
         self.assertEqual(cb.main(["--root", str(self.root)]), 0)
 
+    def test_an_empty_root_is_an_error_not_a_pass(self):
+        self.assertEqual(cb.main(["--root", str(self.root)]), 2)
+
     def test_required_args_ignore_bracketed_flags(self):
         self.assertEqual(cb.required_args("--stored-gb <n> --egress-gb <n> [--growth <pct>] [--json] --streaming"),
                          ["--stored-gb", "10", "--egress-gb", "10", "--streaming"])

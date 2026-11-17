@@ -22,7 +22,7 @@ then runs it again with each hostile input below and requires exit 2:
 A CLI whose usage has no `compare` subcommand or whose baseline does not exit 0
 is reported as skipped, not failed (the baseline is the venture suite's job).
 
-    python3 platform/ci/check_cli_bad_input_exit.py [--root DIR] [--verbose]   # exit 1 on any crash
+    python3 platform/ci/check_cli_bad_input_exit.py [--root DIR] [--verbose]   # exit 1 on any crash, 2 if it finds no gate CLI
 """
 import argparse
 import json
@@ -114,6 +114,9 @@ def main(argv=None):
     ap.add_argument("--verbose", action="store_true")
     a = ap.parse_args(argv)
     clis = gate_clis(a.root)
+    if not clis:
+        print(f"no ventures/*/cli.mjs under {a.root} documents exit 1 vs 2 bad input: wrong --root?")
+        return 2
     with tempfile.TemporaryDirectory() as tmp, ThreadPoolExecutor(max_workers=8) as pool:
         results = list(pool.map(lambda c: probe(*c, tmp), clis))
     failed = 0
