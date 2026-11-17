@@ -347,8 +347,43 @@ _HOST_RE = re.compile(
 )
 
 
-def row_hosts(v: "Venture") -> list[str]:
-    """Hosts to probe for flagship `v`: its `hosts:` URLs, then host names its prose names."""
+# Scripts a `buildable:` names (eval/cord_images.py, eval/srd-fetch.mjs) are
+# read for the hosts they fetch from. ai-bookkeeper's row named its CORD fetch
+# script but no host, so a session learned huggingface.co was refused only when
+# the fetch failed (2 doc-friction reports, 2026-11-17).
+_SCRIPT_RE = re.compile(r"(?<![\w/.-])((?:[\w.-]+/)*[\w.-]+\.(?:py|mjs|js|sh))(?![\w-])")
+_URL_RE = re.compile(r"https?://([a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+)", re.I)
+SCRIPT_HOSTS_MAX = 4
+_NOT_FETCHED = ("localhost", "example.com", "example.org", "opensource.org", "creativecommons.org",
+                "spdx.org", "www.w3.org", "doi.org", "schema.org")
+
+
+def script_hosts(text: str, root: Path) -> list[str]:
+    """Host names fetched by the scripts `text` names that exist under `root`.
+
+    Comments count: cord_images.py names its download URL in its usage
+    comment. Licence and reference hosts (_NOT_FETCHED) are skipped, and at
+    most SCRIPT_HOSTS_MAX are returned so a probe stays a few seconds."""
+    out: list[str] = []
+    for m in _SCRIPT_RE.finditer(text):
+        path = root / m.group(1)
+        try:
+            if not path.is_file() or not path.resolve().is_relative_to(root.resolve()):
+                continue
+            lines = path.read_text(errors="replace").splitlines()
+        except OSError:
+            continue
+        for line in lines:
+            for u in _URL_RE.finditer(line):
+                name = u.group(1).lower()
+                if name not in out and not any(name == h or name.endswith("." + h) for h in _NOT_FETCHED):
+                    out.append(name)
+    return out[:SCRIPT_HOSTS_MAX]
+
+
+def row_hosts(v: "Venture", ventures_dir: Path = VENTURES_DIR) -> list[str]:
+    """Hosts to probe for flagship `v`: its `hosts:` URLs, then host names its
+    prose names, then hosts the scripts its `buildable:` names fetch from."""
     seen: dict[str, str] = {}
     for url in v.flagship_hosts:
         name = re.sub(r"^[a-z]+://", "", url, flags=re.I).split("/", 1)[0].lower()
@@ -357,6 +392,8 @@ def row_hosts(v: "Venture") -> list[str]:
         for m in _HOST_RE.finditer(text):
             name = m.group(1).lower()
             seen.setdefault(name, "https://" + name + "/")
+    for name in script_hosts(v.flagship_buildable or "", ventures_dir / v.name):
+        seen.setdefault(name, "https://" + name + "/")
     return list(seen.values())
 
 

@@ -177,12 +177,18 @@ pronunciation); its docstring has the setup.
 
 Done episodes are in `episodes/`; the list entries they came from, with the
 sources each used and the sequels it left for another night, are in
-[DONE.md](DONE.md). Next up, roughly in order (claim one by writing it; skip
-any already in `episodes/`). Mark one you finish `- *(Done: episode N,
-Title.)*` at the start of its line, then run `node list_done.mjs` to move it
-to DONE.md (`node --test` fails while one is left here):
+[DONE.md](DONE.md). Next up, roughly in order, one entry per line (claim one by
+writing it; skip any already in `episodes/`). Mark one you finish `- *(Done:
+episode N, Title.)*` at the start of its line, then run `node list_done.mjs` to
+move it to DONE.md (`node --test` fails while one is left here). Add the
+sequels your episode leaves as new lines, so the list never runs down to one:
 
-- Next up, suggestions: Egeria at Epiphany in Bethlehem (Travels, chapters 24-26); more saints' lives (Saint Theognius or Saint Abraamius, Cyril's other short desert lives; Saint Cyriacus the Anchorite, whose Life Cyril also wrote; Saint Joseph of Thessalonica, Theodore's hymn-writing brother)
+- Egeria at Epiphany in Bethlehem and the daily office (Travels, chapters 24-26; a sequel to episode 133).
+- Egeria and Lent with the bishop's catechesis (Travels, chapters 27-28 and 45-46; a sequel to episode 133).
+- Egeria at Pentecost and the dedication feast, where the manuscript breaks off (Travels, chapters 41-49; a sequel to episode 133).
+- Saint Theognius or Saint Abraamius, Cyril of Scythopolis's other short desert lives.
+- Saint Cyriacus the Anchorite, whose Life Cyril also wrote.
+- Saint Joseph of Thessalonica, Theodore the Studite's hymn-writing brother.
 
 ## Audio status
 

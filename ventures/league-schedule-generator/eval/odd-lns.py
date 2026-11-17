@@ -218,7 +218,7 @@ def repair(n, courts, times, rounds, nights, freed, need, seconds, rng):
     phases = [(1 if rng.random() < 0.5 else -1) * x[k] for k in rng.sample(list(x), len(x) // 3)]
     res, model = solve(m.cnf.clauses, seconds, phases)
     if not res:
-        return None
+        return None if res is None else False  # None: out of time; False: proved impossible
     out = [list(r) for r in rounds]
     for r in rs:
         out[r] = sorted(e for e in U if x[r, e] in model)
@@ -299,6 +299,7 @@ def main():
     ap.add_argument("--save", help="write the state here after every accepted step")
     ap.add_argument("--resume", help="start from a state file written by --save")
     ap.add_argument("--also", default="", help="nights always freed with the bad one, comma-separated (e.g. the short last night, 13 at 41 teams, whose slack can take awkward pairs)")
+    ap.add_argument("--sideways-after", type=int, default=6, help="failed repairs in a row before a sideways step (as many good nights, pairs re-dealt) is tried")
     ap.add_argument("--resume-check", type=float, default=180, help="seconds to re-check a resumed night with no stored layout")
     args = ap.parse_args()
     n, courts, times = args.n, args.courts, args.times
@@ -325,6 +326,7 @@ def main():
     # a resumed night with no stored layout gets a longer first check (--resume-check seconds)
     status = [good(t, args.resume_check if args.resume else 20) for t in range(len(nights))]
     steps = fails = 0
+    tried = {"timeout": 0, "unsat": 0, "unconfirmed": 0}  # failed repairs by cause, logged with each accepted step
     log = lambda *a: print(f"[{time.time() - t0:7.1f}s]", *a, file=sys.stderr, flush=True)
     log("start", sum(status), "of", len(nights), "nights good")
     while not all(status) and time.time() - t0 < args.limit:
@@ -337,11 +339,14 @@ def main():
         rest = [t for t in range(len(nights)) if t not in freed]
         freed += rng.sample(rest, m - len(freed))
         cur = sum(status[t] for t in freed)
-        sideways = fails >= 6
+        sideways = fails >= args.sideways_after
         need = cur if sideways else cur + 1
         new = repair(n, courts, times, rounds, nights, freed, need, args.step, rng)
-        if new is None:
+        if not new:
+            tried["timeout" if new is None else "unsat"] += 1
             fails += 1
+            if steps % 10 == 0:
+                log(f"step {steps}: no step accepted yet; failed repairs so far {tried}")
             continue
         old_rounds = rounds
         rounds, laid = new
@@ -350,6 +355,7 @@ def main():
         st = [good(t) if t in freed else status[t] for t in range(len(nights))]
         if sum(st) < sum(status):  # a layout the night check could not confirm in its time
             rounds = old_rounds
+            tried["unconfirmed"] += 1
             fails += 1
             continue
         status = st
@@ -357,7 +363,7 @@ def main():
         if args.save:
             lay = {t: cache[frozenset(e for r in nights[t] for e in rounds[r])] for t in range(len(nights)) if status[t]}
             save_state(args.save, n, courts, times, args.seed, rounds, sum(status), len(nights), lay)
-        log(f"step {steps}: freed {freed}, {'sideways' if sideways else 'better'}: {sum(status)} of {len(nights)} good")
+        log(f"step {steps}: freed {freed}, {'sideways' if sideways else 'better'}: {sum(status)} of {len(nights)} good; failed repairs so far {tried}")
     head = {"n": n, "courts": courts, "times": times, "method": "lns", "seed": args.seed, "free": args.free, "steps": steps}
     head["seconds"] = round(time.time() - t0, 1)
     if not all(status):

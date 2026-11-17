@@ -28,7 +28,8 @@
 #
 # `hosts: [<url>, ...]` (optional) lists the hosts those items need.
 # `allocate.py --venture <slug>` probes each one (and any host name the row's
-# prose names) and prints which answer from this session now. Write no
+# prose names, and the hosts the scripts `buildable:` names fetch from) and
+# prints which answer from this session now. Write no
 # "X answers 403" or "X serves files" in the prose: reachability changes
 # between sessions, and such notes went stale within a day (13 run reports,
 # 2026-11-13..15).
@@ -123,6 +124,7 @@ flagships:
       95. RapidOCR runs on the page (rapidocr-web.mjs, ONNX Runtime Web;
       eval/rapidocr-web-2026-11-17.md). Next: RapidOCR's parser misses on shards 1-3
       (68; Rp57,000, cash taken as total). CORD test stays held out.
+    hosts: [https://huggingface.co/, https://raw.githubusercontent.com/]
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
@@ -353,13 +355,13 @@ flagships:
       waits (eval/session-orbit.py). 29 on 5x9, 35 on 6x9: 0 waits (odd-lns.py). 41
       on 7x9 0 waits (last night UNSAT alone, eval/lns-bad-night.py; re-dealt with
       the short night). 43 on 7x9 0 waits (odd-orbit.py, 9,849 s). Next, most
-      valuable first: 47 on 8x9 (5 of 16 nights: --resume
-      eval/lns-states/47-8x9.json, --also 15); 49 on 8x9 (orbit, ~11 h est.); the
-      rest of the 20-team gap (40 to 44 still ~444-550: four-round re-deals or a
-      longer run, now ~4x cheaper; or a starter family climbed with the floor as its
-      score); 30 teams in the page (README "Half the table": 104 s with the
-      symmetric step, 2x 28 teams; next: keep tables in the module, copy-in/out now
-      as large as the step; 29 adds nothing). More open items: NEXT.md.
+      valuable first: 47 on 8x9 (13 of 16: --resume eval/lns-states/47-8x9.json
+      --also 15); 49 on 8x9 (orbit, ~11 h est.); the rest of the 20-team gap (40 to
+      44 still ~444-550: four-round re-deals or a longer run, now ~4x cheaper; or a
+      starter family climbed with the floor as its score); 30 teams in the page
+      (README "Half the table": 104 s with the symmetric step, 2x 28 teams; next:
+      keep tables in the module, copy-in/out now as large as the step; 29 adds
+      nothing). More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
@@ -412,14 +414,14 @@ flagships:
       (to listen), scan-checked corpus, 2,129 notes read by eye, hymns, song
       sections, breakdown, riser; --a-cappella first verse and a range-checked
       --key-lift N, eval/key-lift-check.md; per-section singer guidance in --cues;
-      2026-11-17 latest: lipShut (dark-vowel m) held on held-out a, 116 to 121 of
-      144, now default; next: a's bum/hum/fum, place misses). Open checks that need
-      a person: listen to the studio page, --sing, the options (--stretch,
-      --halftime, --fills, --limit pumping, stems, sections, breakdown, riser, the a
-      cappella verse and whether the key lift sounds like a lift); --lrc in a real
-      player and --markers/--stems in a DAW; --cues (and its section lines),
-      RECORDING-GUIDE.md and the E2-E4 range with real singers; the release kit
-      against a distributor's real form; the Te Deum/3427/3912/3775 fixes
+      2026-11-17: lipShut (dark-vowel m) default; lipHold failed held-out b (133 to
+      135 of 144, 3 wanted), opt-in; next: b's num/mum/bun, place misses). Open
+      checks that need a person: listen to the studio page, --sing, the options
+      (--stretch, --halftime, --fills, --limit pumping, stems, sections, breakdown,
+      riser, the a cappella verse and whether the key lift sounds like a lift);
+      --lrc in a real player and --markers/--stems in a DAW; --cues (and its section
+      lines), RECORDING-GUIDE.md and the E2-E4 range with real singers; the release
+      kit against a distributor's real form; the Te Deum/3427/3912/3775 fixes
       (eval/scan-check-verdicts.md). master-cli passed EBU Tech 3341/3342 from their
       text; open: the EBU's WAVs (403), Apple/Amazon/Tidal levels. scan.mjs reads
       rhombi, quilismas, liquescents, lines at true thickness; tilted pages, curled
@@ -428,6 +430,12 @@ flagships:
       squares, one-step cephalici read (eval/one-step-cephalicus-check.md), 10 of 84
       tuning misses left, 3408's strokes, 3464's cephalicus. More open items:
       NEXT.md.
+    buildable: >-
+      Coda reader rounds on synthetic held-out parts, no outside input
+      (eval/coda-check.mjs, eval/dark-nasal-diag.mjs, eval/vstop-diag.mjs; README "A
+      dark-vowel m that holds level"): b's num/mum/bun read as nothing, V's p read
+      as k on A3-B3. OMR (scan.mjs) items in next: one-step cephalici, 10 of 84
+      tuning misses, 3408's strokes, 3464's cephalicus.
   # Added 2026-11-16 (new venture, construction direction): buildingSMART IDS 1.0
   # checking of IFC models, in a browser tab or CI. Depth: a full IDS engine
   # scored on buildingSMART's 334 test pairs and cross-checked against IfcTester.
