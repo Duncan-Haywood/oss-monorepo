@@ -337,6 +337,11 @@ EXTEND_MS = 1200
 # verdict and the parabola's snapshot still freeze at the change, as before. A real wheel that does not follow its
 # command as one lag over a 5x speed change (an ESC's own speed loop, current limit, belt slip) would bias the drop.
 LOOP_THROUGH_CHANGE = False
+# The ball's contact time in the loop fit (2026-11-17, README "A take that lasts a few milliseconds"; off by default):
+# offsets in us from take_offsets(contact_us, shape). () models the take as one step, as before. On the simulator a
+# 6 ms half-sine take read 0.98% (sd) about the true drop as a step and 0.19% with its contact time here; a build's
+# contact time is unknown until a real tach log or a survey of the fits' misses (tests/take_fit.py) names it.
+LOOP_TAKE = ()
 # The ESC-lag survey (2026-11-16, README "The ESC lag surveyed on the board"): after each launched stroke's record, every
 # turning wheel's snapshot is refitted with the commands through each of these ESC lags (esc_lagged_ticks) and the fit's
 # squared residual rms is summed per lag over the balls; the least is the build's lag. The Pi reads the sums from the
@@ -444,13 +449,32 @@ def _anchor(periods, back=None, steps=2):
     return k
 
 
+def take_offsets(take_us, shape="halfsine", parts=4):
+    """The offsets (us after first contact) of `parts` equal shares of a ball's take that lasts `take_us`, at the
+    quantile midpoints of its force profile: "halfsine" (force rising and falling symmetrically) or "front" (force at
+    its peak at first contact, falling linearly). For drop_from_commands_steps(take=); 0 us gives () (one step)."""
+    if take_us <= 0:
+        return ()
+    out = []
+    for i in range(parts):
+        q = (i + 0.5) / parts
+        if shape == "front":
+            x = 1.0 - math.sqrt(1.0 - q)
+        elif shape == "halfsine":
+            x = math.acos(1.0 - 2.0 * q) / math.pi
+        else:
+            raise ValueError(shape)
+        out.append(x * take_us)
+    return tuple(out)
+
+
 def _stopped(was, now):
     """True when a wheel turning in `was` has no target in `now` (a stop: the coast down is the ESC's braking)."""
     return any(w > 0 and n <= 0 for w, n in zip(was, now))
 
 
 def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, taus=LOOP_TAU_GRID_US, refine=5, levels=3,
-                             edges=False, back=None, polish=True):
+                             edges=False, back=None, polish=True, take=()):
     """A ball's whole drop on one wheel from its revolution periods and the ESC commands the speed loop sent around it
     (2026-11-16, README "A recovery shaped by the loop's own commands").
 
@@ -514,6 +538,9 @@ def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, tau
     # deficits below w0, as fractions of it: small numbers, so MicroPython's single-precision floats keep them
     ys = [1.0 - 1.0 / (periods[j] * w0) for j in range(j0, j1)]
     t_lo, t_hi = T[k - 1], T[k + 1]
+    if take:
+        # first contact can come up to the take's last share before the revolution the fall shows in
+        t_lo = max(T[j0], t_lo - take[-1])
 
     nr = j1 - j0
     pbar = (T[j1] - T[j0]) / nr
@@ -542,15 +569,21 @@ def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, tau
             out.append((1.0, a0, a1, a2))
         return out
 
+    starts = take if take else (0.0,)
+    share = 1.0 / len(starts)
+
     def dcol(tau, t0):
+        # `take` (2026-11-17, README "A take that lasts a few milliseconds"): the ball's take as equal parts starting
+        # at t0 + each offset (us), the contact's force profile at its quantiles (take_offsets); () is one step at t0
         ds, acc = [], 0.0
         for idx in range(nr):
             a, b = T[j0 + idx], T[j0 + idx + 1]
-            if b <= t0:
-                d = 0.0
-            else:
-                x = a if a > t0 else t0
-                d = tau * (math.exp(-(x - t0) / tau) - math.exp(-(b - t0) / tau)) / (b - a)
+            d = 0.0
+            for off in starts:
+                t1 = t0 + off
+                if b > t1:
+                    x = a if a > t1 else t1
+                    d += share * tau * (math.exp(-(x - t1) / tau) - math.exp(-(b - t1) / tau)) / (b - a)
             if edges:
                 acc += d * wts[idx]
                 d = acc
@@ -1738,7 +1771,7 @@ class LaunchCheck:
                 continue
             e0 = edges0[k]
             tk = esc_lagged_ticks(snap[k], [(c - e0, us, u) for c, us, u in ticks[k]], self.esc_tau_us)
-            for item in drop_from_commands_steps(snap[k], tk):
+            for item in drop_from_commands_steps(snap[k], tk, take=LOOP_TAKE):
                 if item is None:
                     yield None
                 else:

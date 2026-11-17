@@ -65,7 +65,7 @@ def case(args):
             if item is not None:
                 res = item[1]
             yield item
-        if not kw and res is not None and balls:     # the board's own fit (the survey passes refine=0)
+        if "refine" not in kw and res is not None and balls:     # the board's own fit (the survey passes refine=0)
             before, after = balls[-1]
             k = min((0, 1), key=lambda i: abs(before[i] - res[1]))
             if abs(before[k] - res[1]) < 0.05 * before[k]:

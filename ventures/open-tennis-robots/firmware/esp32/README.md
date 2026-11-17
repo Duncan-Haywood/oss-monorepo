@@ -1933,3 +1933,96 @@ update), which delays every re-plan; not worth it before a real board says how l
 **Not known.** All simulated, one seed, two plants. The jittery tach plant was not rerun: its 0.72% scatter is the
 jitter's, and a finer t0 should not touch that. A real wheel's drop is not a step at an instant (the ball is in the
 wheels for a few milliseconds), which this model and this simulator both leave out.
+
+## A take that lasts a few milliseconds (2026-11-17, last)
+
+**The item.** Every run so far took the ball's momentum from the wheels at one instant, and the board's loop fit models
+the take as a step at one moment t0. A real ball is in the wheels for a few milliseconds: 150 mm wheels grip it over
+about 50 mm while it speeds up to 18-27 m/s, so contact lasts about 2L / v = 4 to 6 ms. A revolution is 7 to 60 ms.
+
+**The simulator.** `SimFeeder(take_ms=, take_shape=)` spreads a take over its contact time: "halfsine" (force rising
+and falling symmetrically) or "front" (force at its peak at first contact, falling linearly, as when the ball slips
+most while slowest). Each plant step removes the share the profile puts inside it; `sim.taken` records the speed at
+first contact and the rpm taken, which is now the true drop (the wheel's speed after the take is not, since the loop
+is already pushing back while it lasts). Default 0: nothing else changes.
+
+**The run.** `tests/take_spread.py`: reading_floor's 12 builds per take (three launchers, two lags, first-order and
+ESC 50 ms plants, calibration plus slow drill, seed 7), the plant at 0.1 ms with the 1 us timer for every row, the
+instant take included (eval/take-spread-2026-11-17.txt, rows in the .jsonl beside it). The prediction, written
+before it ran: a short take changes a revolution's time as a step at its centroid would, so the mean reading stays
+within 0.1% and the sd within 0.05 points at 3 ms, 0.1 at 6 ms. The rule: any profile of 6 ms or less that moves the
+mean by more than 0.3% or the sd above 0.3% means the fit needs a contact-time term.
+
+| plant | take | reading mean | sd | > 1% off | spin mean (worst) |
+| --- | --- | --- | --- | --- | --- |
+| first-order 8k | instant | 0.9999 | 0.14% | 0 | 0.05% (0.12) |
+| first-order 8k | half-sine 3 ms | 0.9998 | 0.30% | 7 | 0.24% (0.60) |
+| first-order 8k | front 4 ms | 0.9988 | 0.50% | 21 | 0.58% (1.23) |
+| first-order 8k | half-sine 6 ms | 0.9973 | 0.82% | 42 | 1.47% (2.63) |
+| ESC 50 ms told | instant | 1.0002 | 0.12% | 0 | 0.15% (0.30) |
+| ESC 50 ms told | half-sine 3 ms | 0.9997 | 0.27% | 7 | 0.36% (0.79) |
+| ESC 50 ms told | front 4 ms | 0.9987 | 0.48% | 28 | 0.96% (1.97) |
+| ESC 50 ms told | half-sine 6 ms | 0.9976 | 0.62% | 46 | 1.25% (1.92) |
+
+**The prediction failed.** The step model holds at 3 ms (just at the rule's 0.3%) but not at 4 or 6 ms, and the miss
+grows with speed, where the take is a larger share of a revolution: on both plants the 6 ms take reads 0.24% sd at
+1,000-2,000 rpm and 0.91% at 4,500 and up, reading low (0.9958). A 6 ms contact puts the spin fit 1.3-1.5% off,
+ten times the instant take. (The instant rows at 0.1 ms with polish also show the spin floor at 0.05% / 0.15%, down
+from 0.26% / 0.20% before polish.)
+
+**A contact-time term.** `drop_from_commands_steps(take=offsets)` models the take as equal parts starting at t0 plus
+each offset, the profile's quantile midpoints (`controller.take_offsets(contact_us, shape, parts)`); the drop column
+is their mean, so the solve is unchanged in size and each t0 costs `parts` times the exponentials. `tests/take_fit.py`
+keeps every board fit's inputs from 9 builds (three launchers, lag 0.3 s, first-order plant at 0.1 ms; takes
+half-sine 6 ms, front 4 ms, half-sine 3 ms) and refits them offline (eval/take-fit-2026-11-17.txt, inputs in the
+.jsonl.gz). The prediction: at the true contact time, 4 parts bring every take under 0.3%.
+
+The first refit missed on the 6 ms take (0.88% against the step's 0.98%), and the script's own fallback ("look at the
+window") was right: t0 is searched from the start of the revolution where the fall shows, but a long take's first
+contact can come before it. With `take` set, the search now starts the take's last part earlier. Readings at 1,000
+rpm and up, sd about the true drop:
+
+| fit | half-sine 6 ms | front 4 ms | half-sine 3 ms |
+| --- | --- | --- | --- |
+| step (shipped) | 0.98% | 0.41% | 0.21% |
+| true time, 4 parts | 0.19% | 0.21% | 0.17% |
+| true time, 8 parts | 0.18% | 0.17% | 0.16% |
+| true time, 2 parts | 0.45% | 0.23% | 0.18% |
+| a guess: 4 ms half-sine | 0.75% | 0.26% | 0.19% |
+| picked per wheel (least rms of 0, 2, 3, 4, 5, 6, 8 ms) | 0.17% | 0.11% | 0.09% |
+| picked per build (least summed squared rms) | 0.19% | 0.27% | 0.14% |
+
+**The fit can name its own contact time.** Refitting each wheel at seven candidate contact times and keeping the one
+whose fit misses least does as well as knowing the truth, with the half-sine shape even on the front-loaded take.
+Pooled over a build's wheels, the pick named 6 ms on all three 6 ms builds and 2-4 ms on the 3 ms ones; the
+front-loaded builds scattered (0, 2 and 5 ms), since no half-sine is that shape. A fixed guess is a poor substitute: 4
+ms reads the 6 ms take at 0.75%.
+
+**End to end** with `controller.LOOP_TAKE = take_offsets(6000)` on the 6 ms builds (take_spread.py's last mode, added
+after the first five ran), 12 builds, readings at 1,000 rpm and up:
+
+| plant | fit | reading mean | sd | > 1% off | speed err | spin mean (worst) |
+| --- | --- | --- | --- | --- | --- | --- |
+| first-order 8k | step | 0.9973 | 0.82% | 42 | 0.25% | 1.47% (2.63) |
+| first-order 8k | told 6 ms | 0.9994 | 0.20% | 0 | 0.06% | 0.39% (0.83) |
+| ESC 50 ms told | step | 0.9976 | 0.62% | 46 | 0.22% | 1.25% (1.92) |
+| ESC 50 ms told | told 6 ms | 0.9996 | 0.18% | 0 | 0.04% | 0.35% (0.82) |
+
+The readings hold 0.14-0.21% in every speed band. The spin fit is still two to three times the instant take's
+(0.05% / 0.15%), on one seed.
+
+**The jittery plant with polish** (the item "Not the simulator's step either" left): take_spread's fifth mode reruns
+the 3 us tach plant, shipped 1 ms plant and instant take, seeds 7 and 8. Readings scatter 0.66% (0.72% before polish,
+seeds 7, 8, 13, 14), the spin fit is 0.52% off (worst 1.27%; 0.57% before), and 166 of 816 wheels came marked unsure.
+As expected, polish barely touches it: the jitter, not the grid, sets that floor.
+
+**What changes.** `LOOP_TAKE` (default `()`, the step as before) passes a contact time to the board's fit; the window
+widens only when it is set. Nothing turns on by default: a real ball's contact time and profile are unknown, and a
+wrong guess costs as much as the step on the takes tried. Next: a contact-time survey on the board, as the ESC-lag
+survey does for the lag (each launched snapshot refitted at a few contact times, squared rms summed per candidate,
+the Pi picks the least), costing a few seconds of board time a ball, so run on the calibration drill only; then a
+real wheel's tach log around a ball, which names the contact time directly.
+
+**Not known.** All simulated. The take's profile is assumed (half-sine or linear); a real ball's grip includes
+compression and slip that may not be either, and a real contact time may change with speed (faster wheels, shorter
+contact), which a single `LOOP_TAKE` does not model. The offline refit covers one lag and one plant.
