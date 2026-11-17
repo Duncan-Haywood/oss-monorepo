@@ -454,10 +454,10 @@ flagships:
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
-      (eval/ifcxml-xbim-2026-11-16.md); cross-check more public models from
-      opensourceBIM/IFC-files with eval/crosscheck_ifctester.py (buildingSMART's
-      Simple-Scene set done 2026-11-17); the IDS editor (editor.html; README): "Use
-      the model's range" for dates, xs:date one-of rows
+      (eval/ifcxml-xbim-2026-11-16.md); the subclass 'not checked' warning in CI
+      outputs (JUnit, annotations) and an editor offer of IFCWALLSTANDARDCASE beside
+      IFCWALL (eval/corpus-crosscheck-2026-11-17.md); the IDS editor (editor.html;
+      README): "Use the model's range" for dates, xs:date one-of rows
       (eval/date-ranges-2026-11-17.md); more real exports through
       eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
@@ -472,9 +472,11 @@ flagships:
       (eval/ifcxml-xbim-2026-11-16.md); IDS editor 2026-11-16 (203,433 offered specs
       audit clean, 15,102 valid in ids.xsd; found voids/fills token pair and
       classification-system gaps, eval/editor-2026-11-16.md); IFC 4.3 infra/HVAC
-      cross-check 2026-11-17 (348 of 348, eval/infra-mep-crosscheck-*); editor
-      (opens an IDS, eval/editor-open-2026-11-16.md; opens a model and offers its
-      classes and sets, own sets editable, 79.4% of public facets editable,
+      cross-check 2026-11-17 (348 of 348, eval/infra-mep-crosscheck-*); 65 public
+      IDS vs IfcTester 2026-11-17 (1,661 of 1,736 same; unchecked subclasses
+      reported, eval/corpus-crosscheck-*); editor (opens an IDS,
+      eval/editor-open-2026-11-16.md; opens a model and offers its classes and sets,
+      own sets editable, 79.4% of public facets editable,
       eval/model-inventory-2026-11-16.md: 4 real exports, 347 of 395 class-set pairs
       own sets, 21 of 122 standard props in a non-template dataType): applicability
       rows 2026-11-17 (eval/applicability-rows-2026-11-17.md: counts equal the

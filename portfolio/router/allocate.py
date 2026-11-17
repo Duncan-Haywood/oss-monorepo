@@ -917,6 +917,41 @@ def _search_pr_titles(timeout: int = OPEN_PR_TIMEOUT_S) -> Optional[list[tuple[i
     return rows
 
 
+LANDED_SUBJECT = re.compile(r"\(#(\d+)\)\s*$|^Merge pull request #(\d+)\b")
+
+
+def main_subjects(n: int = 1000) -> list[str]:
+    """Subjects of the last `n` commits on origin/main (HEAD if that ref is missing); [] on errors."""
+    for ref in ("origin/main", "HEAD"):
+        try:
+            out = subprocess.run(["git", "log", ref, "-n", str(n), "--format=%s"], capture_output=True,
+                                 text=True, timeout=20, cwd=REPO_ROOT)
+        except (OSError, subprocess.SubprocessError):
+            return []
+        if out.returncode == 0:
+            return out.stdout.splitlines()
+    return []
+
+
+def drop_landed(prs: Optional[list[tuple[int, str, str]]],
+                subjects=None) -> Optional[list[tuple[int, str, str]]]:
+    """`prs` without the ones whose squash ("... (#N)") or merge commit is already on main.
+
+    The table listed #16521 as "OPEN PR (20h old): extend it or pick a different item"
+    while its content sat on main as f693694a1 (run-record doc_friction on this file,
+    2026-11-17): a squash-merged PR left open by hand, or one GitHub had not closed
+    yet, still scared runs off its row. pick_track.landed_on_main does the same for
+    research's LAND FIRST list."""
+    if not prs:
+        return prs
+    landed = set()
+    for subject in (main_subjects() if subjects is None else subjects):
+        m = LANDED_SUBJECT.search(subject)
+        if m:
+            landed.add(int(m.group(1) or m.group(2)))
+    return [pr for pr in prs if pr[0] not in landed]
+
+
 def claims_by_venture(names, prs: list[tuple[int, str, str]]) -> dict[str, list[tuple[int, str, str]]]:
     """{venture: open PRs whose title names its slug as a whole word}."""
     out: dict[str, list[tuple[int, str, str]]] = {}
@@ -1385,7 +1420,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     if args.venture:
         claims_one = None
         if not args.no_claims:
-            prs = open_pr_titles()
+            prs = drop_landed(open_pr_titles())
             if prs is not None:
                 claims_one = claims_by_venture([args.venture], prs)
         report = venture_report(args.venture, ventures, claims=claims_one,
@@ -1403,7 +1438,7 @@ def main(argv: Optional[list[str]] = None) -> int:
 
     claims: Optional[dict[str, list]] = None
     if not args.no_claims:
-        prs = open_pr_titles()
+        prs = drop_landed(open_pr_titles())
         if prs is not None:
             claims = claims_by_venture([item["venture"] for item in queue], prs)
             for item in queue:

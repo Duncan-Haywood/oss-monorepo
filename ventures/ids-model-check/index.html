@@ -269,6 +269,7 @@
       if (s.description) h += `<p>${esc(s.description)}</p>`;
       if (s.warning) h += `<p class="warn">${esc(s.warning)}</p>`;
       for (const w of s.auditWarnings || []) h += `<p class="warn">IDS warning: ${esc(w)}</p>`;
+      if (s.hint) h += `<p class="warn">${esc(s.hint)}</p>`;
       h += `<p class="muted">Applies to: ${esc(s.applicability.join("; ") || "everything")}<br>Requires: ${esc(s.requirements.join("; ") || "nothing (prohibited specification)")}</p>`;
       if (s.note) h += `<p>${esc(s.note)}</p>`;
       if (s.failed.length) {
