@@ -27,13 +27,20 @@ export function reporting(headcount) {
   return { tier: "under 100", cadence: "none under the Directive", first: "no report required by the Directive (a Member State may require one)", article: "Art 9" };
 }
 
+// A line with a semicolon comes from a comma-decimal locale (Excel writes 3.200,50;3.400,00): split on ; and tab only
+// and read "3.200,50" as 3200.5. Other lines split on , ; and tab as before (red team 2026-11-17).
+const splitCells = (line) => {
+  if (!line.includes(";")) return line.split(/[,;\t]/).map((c) => c.trim());
+  return line.split(/[;\t]/).map((c) => c.trim()).map((c) => (/^[-+]?(\d{1,3}(\.\d{3})+(,\d+)?|\d*,\d+)$/.test(c) ? c.replace(/\./g, "").replace(",", ".") : c));
+};
+
 // "Category,women_avg,men_avg" rows. Returns the rows with gap %, and the rows at or over 5%.
 export function parsePayTable(text) {
   const rows = [];
   const errors = [];
   const lines = String(text || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   lines.forEach((line, idx) => {
-    const cells = line.split(/[,;\t]/).map((c) => c.trim());
+    const cells = splitCells(line);
     if (idx === 0 && cells.length >= 3 && Number.isNaN(Number(cells[1]))) return; // header
     if (cells.length < 3) { errors.push(`Line ${idx + 1}: expected category, women average, men average.`); return; }
     const w = Number(cells[1]);

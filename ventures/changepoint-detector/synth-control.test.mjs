@@ -147,3 +147,25 @@ test('covariate balance on Proposition 99: the outcome-only fit leaves Californi
   assert.ok(ca.slice(2).every((c) => !c.imbalanced)); // the packs lags and before mean are matched
   assert.ok(rows.find((r) => r.state === 'MA').balance.every((c) => !c.imbalanced)); // MA balanced, yet ranked 6th
 });
+
+// Red team 2026-11-17: the row-form solver's step is 1 / (largest eigenvalue of A A'), by power iteration. Checked
+// against the T x J solver (simplexLeastSquares, run long) as an oracle: an eigenvalue estimate that is too big (small
+// predictors, L << 1) stalls the descent, one that is too small (one predictor row much larger than the rest) makes
+// it oscillate. Either leaves the objective above the oracle's minimum.
+test('the row-form solver reaches the T x J solver\'s minimum on tiny predictors and on one dominant predictor', () => {
+  let s = 7; const rnd = () => ((s = (s * 16807) % 2147483647) / 2147483647);
+  const objOf = (A, b) => (w) => A.reduce((t, r, i) => t + (b[i] - r.reduce((q, a, j) => q + a * w[j], 0)) ** 2, 0);
+  { // tiny predictors (L about 1e-5)
+    const A = Array.from({ length: 9 }, (_, i) => Array.from({ length: 12 }, () => (i === 0 ? 10 : 1) * 1e-3 * rnd()));
+    const b = A.map((r) => 1e-3 * (0.2 + rnd()) * r.reduce((x, y) => x + y, 0) / 12);
+    const obj = objOf(A, b), ref = obj(simplexLeastSquares(A, b, { iters: 50000, tol: 1e-16 }));
+    assert.ok(obj(simplexLeastSquaresRows(A, b)) <= ref * (1 + 1e-8), `${obj(simplexLeastSquaresRows(A, b))} vs ${ref}`);
+  }
+  s = 11;
+  { // the first predictor row 20x the others: its direction carries the top eigenvalue
+    const A = Array.from({ length: 9 }, (_, i) => Array.from({ length: 10 }, () => (i === 0 ? 20 : 1) * (rnd() - 0.5)));
+    const b = A.map((r) => r.reduce((q, a, j) => q + a * (j === 3 || j === 7 ? 0.5 : 0), 0) + 0.3 * (rnd() - 0.5));
+    const obj = objOf(A, b), ref = obj(simplexLeastSquares(A, b, { iters: 50000, tol: 1e-16 }));
+    assert.ok(obj(simplexLeastSquaresRows(A, b)) <= ref * (1 + 1e-6), `${obj(simplexLeastSquaresRows(A, b))} vs ${ref}`);
+  }
+});

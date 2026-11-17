@@ -4,6 +4,7 @@ pieces it leans on: the period tachometer, the wheel speed loop and the steady-w
 import json
 import math
 import os
+import statistics
 import tempfile
 import unittest
 
@@ -1407,6 +1408,23 @@ class LoopDropTest(unittest.TestCase):
         self.assertEqual(steps[-1][0], "fit")
         self.assertTrue(all(s is None for s in steps[:-1]))
         self.assertLessEqual(len(steps) - 1, 40)              # 5 + 7 time constants x 3 t0 grids
+
+    def test_polish_finds_the_ball_between_grid_points(self):
+        # README "Not the simulator's step either": the 3-level t0 grid's last step (1/64 of a revolution) left a 0.3%
+        # scatter on noise-free wheels; one solve at the parabola's vertex halves it and adds no step
+        for rpm in (2500, 5000):
+            errs = {}
+            for polish in (False, True):
+                errs[polish] = []
+                for i in range(16):                        # the ball at 16 moments across a revolution or two
+                    ps, ticks = self._wheel(rpm, 0.08, 0.3, 9000, ball_ms=1500 + i)
+                    errs[polish].append(controller.drop_from_commands(ps, ticks, polish=polish)[0] / 0.08 - 1)
+            sd = {p: statistics.pstdev(e) for p, e in errs.items()}
+            self.assertLess(sd[True], 0.6 * sd[False], rpm)
+            self.assertLess(max(map(abs, errs[True])), 0.004, rpm)
+        ps, ticks = self._wheel(3000, 0.09, 0.4, 9000)
+        self.assertEqual(len(list(controller.drop_from_commands_steps(ps, ticks))),
+                         len(list(controller.drop_from_commands_steps(ps, ticks, polish=False))))
 
     def test_no_fit_without_commands_or_revolutions(self):
         ps, ticks = self._wheel(3000, 0.09, 0.4, 9000)

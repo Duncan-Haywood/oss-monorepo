@@ -450,7 +450,7 @@ def _stopped(was, now):
 
 
 def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, taus=LOOP_TAU_GRID_US, refine=5, levels=3,
-                             edges=False, back=None):
+                             edges=False, back=None, polish=True):
     """A ball's whole drop on one wheel from its revolution periods and the ESC commands the speed loop sent around it
     (2026-11-16, README "A recovery shaped by the loop's own commands").
 
@@ -473,7 +473,13 @@ def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, tau
 
     A generator, so the board can spread the work over its control ticks (`LaunchCheck` advances it one step a tick):
     it yields None after each t0 grid of each tau tried, about 36 steps, and its last item is ("fit", result).
-    `drop_from_commands` runs it to the end."""
+    `drop_from_commands` runs it to the end.
+
+    `polish` (2026-11-17, README "Not the simulator's step either") adds one solve after each tau's last t0 grid, at
+    the vertex of the parabola through the grid's best point and its neighbours: no extra step, and on
+    tests/fit_grid_floor.py's 755 noise-free wheels the readings' scatter about the true drop fell from 0.32% / 0.27%
+    (first-order / ESC 50 ms plants) to 0.15% / 0.15%. The 3-level grid's last step, 1/64 of a revolution, was the
+    floor; a fourth level does as well again (0.12%) but costs 12 more steps a wheel."""
     n = len(periods)
     if n < pre + 4:
         yield ("fit", None)
@@ -567,41 +573,57 @@ def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, tau
         for r in range(nf):
             for q in range(r):
                 mf[r][q] = mf[q][r]
+        def at(t0):
+            ds = dcol(tau, t0)
+            cross = [0.0] * nf
+            mdd = vd = 0.0
+            for idx in range(nr):
+                d = ds[idx]
+                if d:
+                    row = F[idx]
+                    for r in range(nf):
+                        cross[r] += d * row[r]
+                    mdd += d * d
+                    vd += d * yrow[idx]
+            m = [mf[r] + [cross[r]] for r in range(nf)] + [cross + [mdd]]
+            x = _solve_small(m, vf + [vd])
+            if x is None:
+                return None
+            sse = 0.0
+            for idx in range(nr):
+                e = yrow[idx] - x[nf] * ds[idx]
+                row = F[idx]
+                for r in range(nf):
+                    e -= x[r] * row[r]
+                sse += e * e
+            return (sse, t0, x, m)
+
         best = None
         lo, hi = t_lo, t_hi
         for _ in range(levels):
             step = (hi - lo) / 8
+            grid = []
             for g in range(9):
-                t0 = lo + step * g
-                ds = dcol(tau, t0)
-                cross = [0.0] * nf
-                mdd = vd = 0.0
-                for idx in range(nr):
-                    d = ds[idx]
-                    if d:
-                        row = F[idx]
-                        for r in range(nf):
-                            cross[r] += d * row[r]
-                        mdd += d * d
-                        vd += d * yrow[idx]
-                m = [mf[r] + [cross[r]] for r in range(nf)] + [cross + [mdd]]
-                x = _solve_small(m, vf + [vd])
-                if x is None:
-                    continue
-                sse = 0.0
-                for idx in range(nr):
-                    e = yrow[idx] - x[nf] * ds[idx]
-                    row = F[idx]
-                    for r in range(nf):
-                        e -= x[r] * row[r]
-                    sse += e * e
-                if best is None or sse < best[0]:
-                    best = (sse, t0, x, m)
+                f = at(lo + step * g)
+                grid.append(f)
+                if f is not None and (best is None or f[0] < best[0]):
+                    best = f
             if best is None:
                 out.append(None)
                 return
             lo, hi = max(t_lo, best[1] - step), min(t_hi, best[1] + step)
             yield None
+        if polish:
+            # the last grid's best point and its two neighbours: one more solve at their parabola's vertex (README
+            # "Not the simulator's step either"); kept only if its misses are smaller
+            g = next((i for i in range(1, 8) if grid[i] is best), None)
+            if g is not None and grid[g - 1] is not None and grid[g + 1] is not None:
+                sm, s0, sp = grid[g - 1][0], best[0], grid[g + 1][0]
+                curv = sm - 2.0 * s0 + sp
+                if curv > 0:
+                    f = at(best[1] + step * 0.5 * (sm - sp) / curv)
+                    if f is not None and f[0] < best[0]:
+                        best = f
         out.append((best[0], best[1], best[2], tau, best[3]))
 
     def run(tau):

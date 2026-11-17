@@ -43,6 +43,8 @@ M40 = E + "m40_liftoff/results.txt"
 M40P = E + "m40_liftoff/posthoc.txt"
 M41 = E + "m41_stance0/results.txt"
 M41P = E + "m41_stance0/posthoc.txt"
+M42 = E + "m42_sides/results.txt"
+M42P = E + "m42_sides/posthoc.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -182,6 +184,11 @@ CHECKS = [
     (M41, "  g1   5.0 | 0.011 (0.012)", "leaves the G1 0.011 mm"),
     (M41, "  h1   5.0 | 0.019 (0.019)", "the H1 0.019 mm at a 5 N drag"),
     (M41, "g1: worst pose over all 0.9030 (milestone 40 0.9160)", "from 0.9160 to 0.9030"),
+    (M42, "g1 at [1.2, 0.0]: loss both +1.30 = lean +1.30 + sides +0.00 + interaction +0.00",
+     "the lean costs 1.30 points, the sides 0.00 and the\ninteraction 0.00"),
+    (M42, "lost at [[1.2, 0.15]] -> refuted", "the re-leaned G1 at (1.2 m, +0.15 m) has no solution"),
+    (M42P, "h1: 5 lose 0.09-0.29 points, 0 gain -", "costs the H1 0.09 to 0.29 points per pose"),
+    (M42P, "g1: 4 lose 0.31-1.30 points, 2 gain 0.60-0.79", "G1 0.31 to 1.30 points at four poses while gaining 0.60 to 0.79 at two"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),

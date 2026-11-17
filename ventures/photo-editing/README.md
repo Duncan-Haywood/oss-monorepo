@@ -1476,6 +1476,15 @@ fell from 0.49 to 0.16 s per megapixel (8.6 s in all on a 36 MP D810, was 21.6 s
 41% (2.9 GB on the D810, was 5.1 GB). All 14 outputs are byte-identical to before. `auto` still picks
 directional. `tools/noise_aware_cost.py`, `eval/noise-aware-full-frame-cost-2026-11-17.md`.
 
+**The bilinear image is float32 since 2026-11-17 (night): another 15% less memory, no visible change.** The
+largest array the noise-aware develop holds, the bilinear image the blend writes over, is now float32 as the
+Bayer directional image already was (each band's arithmetic stays float64). On the same 14 raws the memory the
+develop adds fell a median 15% more (0.086 to 0.073 GB per megapixel; 3.85 to 2.45 GB on the Sony A7 IV, 2.86 to
+2.44 GB on the D810); time is unchanged (median 1.00x). 13 of 14 outputs change, in at most 4 in 100,000 values
+(1,446 of 36 million on the Nexus 5X), and every changed value is exactly one step of the develop's 4,096-entry
+tone table: values that sat within float32 rounding of a step boundary, which the float64 develop rounds just
+as arbitrarily. `tools/noise_aware_cost.py --keep/--codes`, `eval/noise-aware-float32-2026-11-17.md`.
+
 **A higher scale was tried and did not ship (2026-11-17, evening).** The frame-read model is scaled to 0.8 of
 what patch PCA reads, which keeps 41-71% of the true model's gain on noisy tiles. A scale picked on tune
 rows only, constant or switched per frame by three frame statistics (block spread over PCA, patches the texture

@@ -490,6 +490,10 @@ MANUSCRIPT_CHECKS = [
     ("RMS is 0.0056, 34% below the drag rule", "gear_pump_holddrag_results.txt", "OD2 pooled ow diagonal RMS at least 20% below two-number: held (0.0056 against 0.0084, -34%)"),
     ("gives 0.0018 and 0.0030", "gear_pump_holddrag_results.txt", "OD6 spun and geared panels, ow below w on both: held (spun (7b) 0.0018 against 0.0026; geared (7c) 0.0030 against 0.0042)"),
     ("sits 0.0065 below it", "gear_pump_holddrag_results.txt", "refuted (-0.0065;"),
+    ("With the pick-weighted drag kW<sub>w</sub> in the idle term the fitted ratio is 1.02", "gear_pump_ratio_results.txt", "owh 1.22, owhw 1.02"),
+    ("E<sub>50</sub> = 0.8208 + 0.0359 H (kW<sub>w</sub> &minus; P<sub>LS</sub>)", "gear_pump_ratio_results.txt", "owdw  +0.8208, +0.0359, -0.4350"),
+    ("slope of kW<sub>w</sub> on kW<sub>o</sub> 0.880)", "gear_pump_ratio_results.txt", "pooled with condition fixed effects 0.880"),
+    ("Danfoss family (0.0080 against 0.0061)", "gear_pump_ratio_results.txt", "danfoss                       0.0061 / 0.0080 / 0.0080"),
 ]
 
 
