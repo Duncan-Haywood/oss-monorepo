@@ -84,6 +84,7 @@ def case(args):
                 fits[(len(sims), len(sim.taken) - 1, k)] = (list(periods), list(ticks), at[k], dws[k] / at[k])
     controller.drop_from_commands_steps = kept
     feeder_sim.SimFeeder.__init__ = made
+    u.run = ts.run                     # the true drop from the simulator's take record, not the speed after it
     try:
         _, r = u.case((PLANT, LAG, li, SEED))
     finally:
