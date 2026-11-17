@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%232d2a5e'/%3E%3Crect%20x='6'%20y='6'%20width='9'%20height='9'%20rx='1.5'%20fill='%23ffd166'/%3E%3Crect%20x='17'%20y='6'%20width='9'%20height='9'%20rx='1.5'%20fill='%23fff'/%3E%3Crect%20x='6'%20y='17'%20width='9'%20height='9'%20rx='1.5'%20fill='%23fff'/%3E%3Crect%20x='17'%20y='17'%20width='9'%20height='9'%20rx='1.5'%20fill='%23ffd166'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Fisher's Exact Test Calculator — Barnard, Boschloo, 2x2 and r x c tables, free</title>
+  <meta name="description" content="Free Fisher's exact test calculator for 2x2 and larger contingency tables, with Barnard's and Boschloo's unconditional tests, the mid-p, chi-square, odds ratio, risk ratio and risk difference with confidence intervals, Cochran-Mantel-Haenszel for strata and McNemar for paired data. Matches scipy, statsmodels and R. Runs in your browser.">
+  <meta property="og:title" content="Fisher's exact test, Barnard's and Boschloo's tests, and every 2x2 table statistic, in your browser">
+  <meta property="og:description" content="At 20 per group, Fisher's exact test's real false-positive rate averages 1.9% at a nominal 5%, so it misses real differences. This tool runs it beside Boschloo's, Barnard's and the mid-p, with exact odds-ratio intervals, stratified and paired tests.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Contingency table tests: Fisher, Barnard, Boschloo, chi-square, CMH, McNemar", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste counts or one row per subject. Fisher's exact test (Fisher 1935) and its mid-p (Lancaster 1961), Barnard's (1945) and Boschloo's (1970) unconditional exact tests, Pearson and Yates chi-square, the exact conditional odds ratio with its interval, risk difference (Newcombe 1998) and risk ratio (Katz et al. 1978); Fisher-Freeman-Halton for r x c tables by a network algorithm (Mehta and Patel 1983); Cochran-Mantel-Haenszel with Breslow-Day-Tarone for strata; McNemar for paired data. Runs in your browser.", "featureList": "Fisher's exact test calculator, 2x2 contingency table calculator, Barnard's exact test, Boschloo's test, mid-p value, Fisher-Freeman-Halton exact test, r x c Fisher exact test, chi-square test of independence, Yates continuity correction, G-test, odds ratio confidence interval, conditional maximum likelihood odds ratio, risk ratio confidence interval, risk difference Newcombe interval, number needed to treat, Cramér's V, adjusted residuals, Cochran-Mantel-Haenszel test, Mantel-Haenszel odds ratio, Breslow-Day test, Tarone correction, exact stratified test, McNemar test, exact McNemar, Simpson's paradox, CSV upload", "citation": ["https://doi.org/10.2307/2342435", "https://doi.org/10.2307/2332323", "https://doi.org/10.1080/01621459.1983.10477989", "https://doi.org/10.1038/156177a0", "https://doi.org/10.1111/j.1467-9574.1970.tb00104.x", "https://doi.org/10.1080/01621459.1961.10482105", "https://doi.org/10.1002/sim.3531", "https://doi.org/10.1093/jnci/22.4.719", "https://doi.org/10.2307/2531052", "https://doi.org/10.1093/biomet/72.1.91", "https://doi.org/10.1007/BF02295996"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "When should I use Fisher's exact test instead of chi-square?", "acceptedAnswer": {"@type": "Answer", "text": "When any expected count is below about 5, the chi-square p-value can be badly off, and in this tool's exact calculation Pearson's chi-square rejects a true null up to 6.5% of the time at a nominal 5% with 25 per group. An exact test never exceeds its level. But Fisher's test is conservative: with 20 per group its real false-positive rate averages 1.9%, so it also misses real differences. Boschloo's test is exact too and more powerful, so it is the better default for two independent groups."}}, {"@type": "Question", "name": "What is the difference between Fisher's, Barnard's and Boschloo's tests?", "acceptedAnswer": {"@type": "Answer", "text": "Fisher's test fixes both margins of the table and uses the hypergeometric distribution. Barnard's and Boschloo's tests fix only the group sizes, as in most studies, and take the largest p-value over the unknown common risk, so they never exceed the level either. Barnard orders tables by the z statistic, Boschloo by Fisher's own p-value, which makes Boschloo uniformly more powerful than Fisher."}}, {"@type": "Question", "name": "What is the mid-p value?", "acceptedAnswer": {"@type": "Answer", "text": "Fisher's p-value with only half the probability of the observed table counted. It is not guaranteed to stay below the level, but it is much closer to it than Fisher's test; in this tool's exact calculation it stayed under 5% at every group size from 10 to 50."}}, {"@type": "Question", "name": "Which odds ratio does the tool report?", "acceptedAnswer": {"@type": "Answer", "text": "Two. The sample odds ratio ad/bc with Woolf's interval, and the conditional maximum likelihood estimate with its exact interval, which is what R's fisher.test and scipy's odds_ratio report. They are close in large samples and differ in small ones; the exact interval agrees with Fisher's test."}}, {"@type": "Question", "name": "When do I need the Cochran-Mantel-Haenszel test?", "acceptedAnswer": {"@type": "Answer", "text": "When the groups were compared within strata such as sites, departments, age bands or study centres. Pooling the strata can hide or reverse an association, as in the Berkeley admissions example: men were admitted more often overall, but not within departments. The test combines the strata, and the Breslow-Day-Tarone test says whether they share one odds ratio."}}, {"@type": "Question", "name": "When do I need McNemar's test?", "acceptedAnswer": {"@type": "Answer", "text": "When the two measurements are on the same people or on matched pairs, such as before and after, or two tests on one sample. Only the pairs that changed carry information. With fewer than 25 changed pairs, use the exact or mid-p version."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The counts or file are read and analysed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d1b3a; background: #f1f0f8; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #3d3a8c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #2d2a5e; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #2d2a5e; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c4a66; }
+    .card { background: #fff; border: 1px solid #d9d7ea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #2d2a5e10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #77748f; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 14px; }
+    .quick { display: grid; grid-template-columns: minmax(90px, 1.2fr) 1fr 1fr; gap: 6px 10px; align-items: end; max-width: 560px; }
+    .quick label { margin: 0; font-size: .85rem; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #3d3a8c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e5e4f3; color: #2d2a5e; }
+    button:disabled { opacity: .6; cursor: progress; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6e5f1; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c4a66; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.hi { background: #fde9d9; } td.lo { background: #dfe7fb; }
+    tr.group td { background: #f5f4fb; font-weight: 700; font-size: .85rem; }
+    footer { margin-top: 28px; border-top: 1px solid #d9d7ea; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 140px; padding: 9px 10px; border: 1px solid #77748f; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .summary { font-size: 1.02rem; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 12px 0; }
+    .stat { background: #f1f0f9; border-radius: 10px; padding: 10px 12px; }
+    .stat b { display: block; font-size: 1.35rem; color: #2d2a5e; font-variant-numeric: tabular-nums; }
+    .stat span { font-size: .82rem; color: #4c4a66; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    pre { background: #f4f3fa; border: 1px solid #e0dff0; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">FISHER'S EXACT TEST · BARNARD · BOSCHLOO · MID-P · CHI-SQUARE · ODDS RATIO · CMH · MCNEMAR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Do these two groups differ, or is it chance?</h1>
+    <p>Type four counts, or paste a table: treated versus control and how many recovered, a variant's conversions against the control's, defects by supplier, survey answers by age band. You get <strong>Fisher's exact test</strong> and, beside it, the exact tests that lose less power: <strong>Boschloo's</strong> and <strong>Barnard's</strong> unconditional tests and the <strong>mid-p</strong>. Every 2x2 also gets the chi-square tests, the <strong>odds ratio</strong> (sample and exact conditional), the <strong>risk ratio</strong> and the <strong>risk difference</strong> with confidence intervals. Bigger tables get the exact <strong>Fisher-Freeman-Halton</strong> test and the cells that drive it; tables split by site or department get <strong>Cochran-Mantel-Haenszel</strong> and a check for Simpson's paradox; before-and-after data on the same people get <strong>McNemar's test</strong>.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Statistical output from counts you supply, not advice. Not legal, tax, or financial advice, and not medical advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>A 2x2 table</h2>
+    <div class="quick">
+      <span></span><label for="c-head-1">First outcome</label><label for="c-head-2">Second outcome</label>
+      <input id="r-head-1" aria-label="Name of group 1" value="Treated"><input id="c11" type="number" min="0" step="1" aria-label="Group 1, first outcome" value="9"><input id="c12" type="number" min="0" step="1" aria-label="Group 1, second outcome" value="3">
+      <input id="r-head-2" aria-label="Name of group 2" value="Control"><input id="c21" type="number" min="0" step="1" aria-label="Group 2, first outcome" value="4"><input id="c22" type="number" min="0" step="1" aria-label="Group 2, second outcome" value="9">
+      <span></span><input id="c-head-1" value="Recovered"><input id="c-head-2" value="Not recovered">
+    </div>
+    <button type="button" id="analyze-quick">Test these four counts</button>
+  </section>
+
+  <section class="card">
+    <h2>Or a table of any size, by strata, or one row per subject</h2>
+    <label for="csv">A CSV: either a grid (a header of column labels, then a label and counts on each row) or one row per subject or per cell, with category columns and an optional count column</label>
+    <textarea id="csv" spellcheck="false" placeholder="group,improved,not improved&#10;Drug A,12,8&#10;Drug B,7,14&#10;Placebo,5,16"></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv">
+    <button type="button" class="secondary" id="load-berkeley">Load example: Berkeley admissions 1973, by department (Simpson's paradox)</button>
+    <button type="button" class="secondary" id="load-twins">Load example: Fisher's twin convictions (small 2x2)</button>
+    <button type="button" class="secondary" id="load-jobs">Load example: job satisfaction by income (4x4)</button>
+    <p class="note" id="data-status">Paste a table or load an example.</p>
+    <div class="grid">
+      <div><label for="row-col">Groups (rows)</label><select id="row-col"></select></div>
+      <div><label for="col-col">Outcome (columns)</label><select id="col-col"></select></div>
+      <div><label for="stratum-col">Strata (optional)</label><select id="stratum-col"></select></div>
+      <div><label for="count-col">Count column (optional)</label><select id="count-col"></select></div>
+    </div>
+    <button type="button" id="analyze">Test the table</button>
+  </section>
+
+  <section class="card">
+    <h2>Settings</h2>
+    <div class="grid">
+      <div><label for="mode">Design</label><select id="mode"><option value="auto" selected>Independent groups</option><option value="paired">Paired: the same people measured twice (McNemar)</option></select></div>
+      <div><label for="alternative">Alternative</label><select id="alternative"><option value="two-sided" selected>Two-sided: the groups differ</option><option value="greater">One-sided: group 1 higher</option><option value="less">One-sided: group 1 lower</option></select></div>
+      <div><label for="pooled">Barnard's variance</label><select id="pooled"><option value="true" selected>Pooled (score)</option><option value="false">Unpooled (Wald)</option></select></div>
+      <div><label for="alpha">Significance level</label><select id="alpha"><option value="0.01">1%</option><option value="0.05" selected>5%</option><option value="0.1">10%</option></select></div>
+      <div><label for="confidence">Confidence intervals</label><select id="confidence"><option value="0.9">90%</option><option value="0.95" selected>95%</option><option value="0.99">99%</option></select></div>
+    </div>
+    <p id="status" class="note" role="status"></p>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="summary" id="summary"></p>
+    <div class="stats" id="stats"></div>
+    <div id="warnings"></div>
+    <h3>The table</h3>
+    <p class="note" id="table-note"></p>
+    <div class="scroll"><table id="obs-table"><thead></thead><tbody></tbody></table></div>
+    <div id="bars" role="img" aria-label="Share of each group in each outcome, one bar per group"></div>
+    <h3>Every test on these counts</h3>
+    <p class="note">Exact tests never exceed the level you set; asymptotic ones can when counts are small. When they disagree, Fisher's test is usually the one that is too cautious.</p>
+    <div class="scroll"><table id="test-table"><thead><tr><th>Test</th><th>Statistic</th><th class="n">p-value</th><th>Verdict</th></tr></thead><tbody></tbody></table></div>
+    <div id="effects-block" hidden>
+      <h3>How big is the difference?</h3>
+      <div class="scroll"><table id="effects-table"><thead><tr><th>Measure</th><th class="n">Estimate</th><th class="n" id="ci-head">Interval</th><th>Method</th></tr></thead><tbody></tbody></table></div>
+    </div>
+    <div id="strata-block" hidden>
+      <h3>Stratum by stratum</h3>
+      <div id="forest" role="img" aria-label="Odds ratio in each stratum on a log scale, with the Mantel-Haenszel common odds ratio and its interval"></div>
+      <div class="scroll"><table id="strata-table"><thead><tr><th>Stratum</th><th class="n">Group 1</th><th class="n">Group 2</th><th class="n">n</th><th class="n">Odds ratio</th></tr></thead><tbody></tbody></table></div>
+    </div>
+    <button type="button" class="secondary" id="download-report">Download the report (text)</button>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p><strong>Fisher's exact test.</strong> With both margins fixed, the first cell of a 2x2 table is hypergeometric (Fisher 1935). The two-sided p-value adds the probabilities of every table no more probable than the observed one (within a relative 10⁻⁷, as R and scipy do); the one-sided values add a tail. The odds ratio it goes with is the conditional maximum likelihood estimate, the noncentral hypergeometric mean set equal to the observed count, and its interval inverts the one-sided tests (Cornfield's method, as R's <code>fisher.test</code>). The <strong>mid-p</strong> takes half the observed table's probability off (Lancaster 1961).</p>
+    <p><strong>Unconditional tests.</strong> Most studies fix only the group sizes. Barnard (1945) orders all (n₁+1)(n₂+1) possible outcomes by the z statistic for p₁ − p₂, and Boschloo (1970) by Fisher's one-sided p-value; the p-value is the probability of an outcome at least as extreme, maximised over the unknown common risk π, here on a 1,000-point grid polished by golden-section search. Boschloo's two-sided value is twice the smaller one-sided value, as in scipy.</p>
+    <p><strong>Larger tables.</strong> The Fisher-Freeman-Halton test (Freeman &amp; Halton 1951) sums the probabilities of every table with the same margins that is no more probable than the observed one. Tables are built a column at a time as paths through a network of remaining row totals (Mehta &amp; Patel 1983): partial tables of equal probability arriving at the same node are merged, and a subtree whose most and least probable completions both fall on one side of the observed table is added or dropped whole, using its closed-form total. Past 5 million steps or 6 seconds the tool falls back to 20,000 random tables with both margins fixed and says so. Adjusted residuals (Haberman 1973) show which cells are above or below independence; beyond ±1.96 they are shaded.</p>
+    <p><strong>Strata.</strong> The Cochran-Mantel-Haenszel statistic (Mantel &amp; Haenszel 1959) adds each stratum's first cell minus its expectation, over the summed hypergeometric variances, with R's continuity correction. The common odds ratio's interval uses the Robins-Breslow-Greenland (1986) variance. Breslow-Day with Tarone's (1985) correction tests whether the strata share an odds ratio. The exact stratified test uses the convolution of the strata's hypergeometric distributions, and gives a conditional MLE of the common odds ratio with an exact interval.</p>
+    <p><strong>Paired.</strong> McNemar (1947) uses only the discordant pairs b and c: chi-square (b − c)²/(b + c), with or without the continuity correction, and the exact binomial test of b out of b + c at one half, with its mid-p.</p>
+    <p><strong>Effect sizes.</strong> Risk difference with the Newcombe (1998) hybrid score interval and the Wald interval; risk ratio with the Katz et al. (1978) log interval; sample odds ratio with Woolf's (1955) interval (0.5 added to every cell when one is zero, and the table says so); phi; and the number needed to treat, 1/|risk difference|.</p>
+    <p>Verified by tests in the source: on 69 tables, Fisher's p-values (all three alternatives) match <strong>scipy 1.18.1</strong> to 10⁻⁹ and the conditional odds ratio and its interval to 10⁻⁶; chi-square, Yates, G, Woolf, Katz and Newcombe match scipy and <strong>statsmodels 0.15.0</strong>; on 8 strata sets CMH, the Mantel-Haenszel odds ratio and interval, Breslow-Day and Tarone match statsmodels; McNemar matches statsmodels; the r x c exact p-value equals plain enumeration of every table on 16 tables; and R's documented values are reproduced (twins 0.0004652, job satisfaction 0.7827, penicillin and rabbits CMH 0.047, exact 0.040 and one-sided 0.020). Barnard's and Boschloo's p-values are never below the maximum of the same function on a 10,001-point grid. In 22 of the Barnard p-values scipy reports a lower number; in every one, a table whose statistic equals the observed one in exact rational arithmetic was left out because the two floating-point values differ in the last bit.</p>
+    <h3>BibTeX</h3>
+    <pre>@article{fisher1935logic,
+  author  = {Fisher, R. A.},
+  title   = {The logic of inductive inference},
+  journal = {Journal of the Royal Statistical Society},
+  volume  = {98}, number = {1}, pages = {39--82}, year = {1935},
+  doi     = {10.2307/2342435}
+}
+@article{barnard1945new,
+  author  = {Barnard, G. A.},
+  title   = {A new test for 2 x 2 tables},
+  journal = {Nature}, volume = {156}, pages = {177}, year = {1945},
+  doi     = {10.1038/156177a0}
+}
+@article{boschloo1970raised,
+  author  = {Boschloo, R. D.},
+  title   = {Raised conditional level of significance for the 2 x 2-table when testing the equality of two probabilities},
+  journal = {Statistica Neerlandica}, volume = {24}, number = {1}, pages = {1--9}, year = {1970},
+  doi     = {10.1111/j.1467-9574.1970.tb00104.x}
+}
+@article{mehta1983network,
+  author  = {Mehta, Cyrus R. and Patel, Nitin R.},
+  title   = {A network algorithm for performing {F}isher's exact test in r x c contingency tables},
+  journal = {Journal of the American Statistical Association},
+  volume  = {78}, number = {382}, pages = {427--434}, year = {1983},
+  doi     = {10.1080/01621459.1983.10477989}
+}
+@article{lydersen2009recommended,
+  author  = {Lydersen, Stian and Fagerland, Morten W. and Laake, Petter},
+  title   = {Recommended tests for association in 2 x 2 tables},
+  journal = {Statistics in Medicine}, volume = {28}, number = {7}, pages = {1159--1175}, year = {2009},
+  doi     = {10.1002/sim.3531}
+}
+@article{mantel1959statistical,
+  author  = {Mantel, Nathan and Haenszel, William},
+  title   = {Statistical aspects of the analysis of data from retrospective studies of disease},
+  journal = {Journal of the National Cancer Institute},
+  volume  = {22}, number = {4}, pages = {719--748}, year = {1959},
+  doi     = {10.1093/jnci/22.4.719}
+}</pre>
+    <h3>Limits</h3>
+    <ul>
+      <li><strong>An association is not a cause.</strong> A small p-value says the groups' outcomes differ more than chance would usually produce. It says nothing about why: who ended up in which group, how outcomes were recorded, or a third factor (as the Berkeley example shows) can make the difference.</li>
+      <li><strong>Independence of subjects.</strong> Every test here except McNemar's assumes each count is a different, independent subject. Repeated measures, clustered samples (classes, clinics, households) or one person counted twice break that, and the p-values come out too small.</li>
+      <li><strong>Choose the test before looking.</strong> Running all of them and reporting the smallest p-value inflates the false-positive rate. Decide the test (Boschloo for two independent groups is a sound default) and the one- or two-sided alternative before seeing the data.</li>
+      <li><strong>Size.</strong> Barnard's and Boschloo's tests run up to 500 by 500 per group; past that they agree with chi-square and are skipped. The r x c exact test enumerates up to 5 million steps (about 6 seconds) and then estimates by Monte Carlo, labelled as such.</li>
+      <li>Not covered: ordered categories (linear-by-linear or Cochran-Armitage trend tests), exact intervals for the risk difference (Chan-Zhang, Santner-Snell), equivalence and non-inferiority margins, and sample-size planning; the <a href="../ab-test-significance-calculator/">A/B test calculator</a> plans sample sizes for conversion tests.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>When should I use Fisher's exact test instead of chi-square?</h3>
+    <p>When any expected count is below about 5, the chi-square p-value can be badly off, and in this tool's exact calculation Pearson's chi-square rejects a true null up to 6.5% of the time at a nominal 5% with 25 per group. An exact test never exceeds its level. But Fisher's test is conservative: with 20 per group its real false-positive rate averages 1.9%, so it also misses real differences. Boschloo's test is exact too and more powerful, so it is the better default for two independent groups.</p>
+    <h3>What is the difference between Fisher's, Barnard's and Boschloo's tests?</h3>
+    <p>Fisher's test fixes both margins of the table and uses the hypergeometric distribution. Barnard's and Boschloo's tests fix only the group sizes, as in most studies, and take the largest p-value over the unknown common risk, so they never exceed the level either. Barnard orders tables by the z statistic, Boschloo by Fisher's own p-value, which makes Boschloo uniformly more powerful than Fisher.</p>
+    <h3>What is the mid-p value?</h3>
+    <p>Fisher's p-value with only half the probability of the observed table counted. It is not guaranteed to stay below the level, but it is much closer to it than Fisher's test; in this tool's exact calculation it stayed under 5% at every group size from 10 to 50.</p>
+    <h3>Which odds ratio does the tool report?</h3>
+    <p>Two. The sample odds ratio ad/bc with Woolf's interval, and the conditional maximum likelihood estimate with its exact interval, which is what R's fisher.test and scipy's odds_ratio report. They are close in large samples and differ in small ones; the exact interval agrees with Fisher's test.</p>
+    <h3>When do I need the Cochran-Mantel-Haenszel test?</h3>
+    <p>When the groups were compared within strata such as sites, departments, age bands or study centres. Pooling the strata can hide or reverse an association, as in the Berkeley admissions example: men were admitted more often overall, but not within departments. The test combines the strata, and the Breslow-Day-Tarone test says whether they share one odds ratio.</p>
+    <h3>When do I need McNemar's test?</h3>
+    <p>When the two measurements are on the same people or on matched pairs, such as before and after, or two tests on one sample. Only the pairs that changed carry information. With fewer than 25 changed pairs, use the exact or mid-p version.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The counts or file are read and analysed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+    <p class="note">Example data: graduate applications to the six largest departments of the University of California, Berkeley, in fall 1973 (Bickel, Hammel &amp; O'Connell 1975, <a href="https://doi.org/10.1126/science.187.4175.398" rel="noopener">Science 187, 398-404</a>), as R's <code>UCBAdmissions</code> dataset, retrieved from the Rdatasets collection on 2026-11-17; the twin convictions and job-satisfaction tables are the examples in R's <code>fisher.test</code> documentation, which cites Fisher (1962, 1970) and Agresti (2002, p. 57).</p>
+  </section>
+</main>
+
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, not medical advice, and it does not replace a qualified statistician on a study that matters. Results are statistical estimates from the counts you enter; a significant difference is not proof of an error or of a cause. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, the University of California, the scipy, statsmodels or R projects, or any software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs --table "9,3;4,9"</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/contingency-table-tests" rel="noopener">source</a>.</p>
+    <p>More research algorithms on your own data: <a href="../meta-analysis/">meta-analysis</a> pools odds ratios across studies, <a href="../fdr-multiple-testing/">multiple testing correction</a> says which of many p-values still stand, <a href="../survival-analysis/">survival analysis</a> compares time to an event, <a href="../inter-rater-agreement/">inter-rater agreement</a> measures whether coders agree, <a href="../probability-calibration/">probability calibration</a> checks whether forecasts mean what they say, and <a href="../difference-in-differences/">difference-in-differences</a> estimates the effect of a change.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, parseCSV, testRows, report } from "./engine.mjs";
+    import { BERKELEY_CSV, TWINS_CSV, JOBS_CSV } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const fmt = (x) => (Number.isFinite(x) ? Number(x.toPrecision(4)).toString() : x === Infinity ? "∞" : "—");
+    const fp = (p) => (!Number.isFinite(p) ? "—" : p < 0.0001 ? "&lt; 0.0001" : p.toFixed(4));
+    let last = null;
+
+    function options(sel, names, chosen, blank) {
+      sel.innerHTML = (blank ? `<option value="">${blank}</option>` : "") + names.map((n) => `<option value="${esc(n)}"${n === chosen ? " selected" : ""}>${esc(n)}</option>`).join("");
+    }
+
+    function refreshColumns() {
+      const text = $("#csv").value;
+      const rows = text.trim() ? parseCSV(text) : [];
+      if (rows.length < 2) {
+        for (const id of ["#row-col", "#col-col", "#stratum-col", "#count-col"]) $(id).innerHTML = "";
+        $("#data-status").textContent = text.trim() ? "Need a header row and at least one more row." : "Paste a table or load an example.";
+        return;
+      }
+      const head = rows[0];
+      const grid = rows.slice(1).every((r) => r.length === head.length && r.slice(1).every((v) => /^\d+$/.test(v)));
+      if (grid && head.length >= 3) {
+        for (const id of ["#row-col", "#col-col", "#stratum-col", "#count-col"]) $(id).innerHTML = `<option value="">(grid of counts)</option>`;
+        $("#data-status").textContent = `A grid of counts: ${rows.length - 1} rows by ${head.length - 1} columns.`;
+        return;
+      }
+      options($("#row-col"), head, "", "(automatic)");
+      options($("#col-col"), head, "", "(automatic)");
+      options($("#stratum-col"), head, "", "(automatic)");
+      options($("#count-col"), head, "", "(automatic)");
+      $("#data-status").textContent = `${(rows.length - 1).toLocaleString("en-US")} rows, ${head.length} columns. Columns are picked automatically unless you choose them.`;
+    }
+    $("#csv").addEventListener("input", refreshColumns);
+    $("#file").addEventListener("change", async (event) => {
+      const f = event.target.files && event.target.files[0];
+      if (!f) return;
+      $("#csv").value = await f.text();
+      refreshColumns();
+    });
+
+    function settings() {
+      return { mode: $("#mode").value, alternative: $("#alternative").value, pooled: $("#pooled").value === "true", alpha: Number($("#alpha").value), confidence: Number($("#confidence").value) };
+    }
+
+    // ---------- charts (plain SVG) ----------
+    const W = 900;
+    const PALETTE = ["#3d3a8c", "#e07a1f", "#2a9d8f", "#c0392b", "#8e6bbf", "#6b8e23", "#b5838d", "#457b9d"];
+    function drawBars(r) {
+      const rows = r.table.length, h = 40 + rows * 34;
+      let s = "";
+      r.table.forEach((row, i) => {
+        const tot = row.reduce((a, b) => a + b, 0) || 1;
+        let x = 170;
+        s += `<text x="160" y="${30 + i * 34 + 15}" font-size="13" text-anchor="end" fill="#1d1b3a">${esc(r.rowLabels[i]).slice(0, 22)}</text>`;
+        row.forEach((v, j) => {
+          const w = (v / tot) * (W - 200);
+          s += `<rect x="${x.toFixed(1)}" y="${30 + i * 34}" width="${w.toFixed(1)}" height="22" fill="${PALETTE[j % PALETTE.length]}"/>`;
+          if (w > 40) s += `<text x="${(x + w / 2).toFixed(1)}" y="${30 + i * 34 + 15}" font-size="12" text-anchor="middle" fill="#fff">${Math.round((v / tot) * 100)}%</text>`;
+          x += w;
+        });
+      });
+      let lx = 170;
+      r.colLabels.forEach((c, j) => { s += `<rect x="${lx}" y="6" width="12" height="12" fill="${PALETTE[j % PALETTE.length]}"/><text x="${lx + 16}" y="16" font-size="12" fill="#4c4a66">${esc(c).slice(0, 24)}</text>`; lx += 30 + Math.min(24, c.length) * 7; });
+      $("#bars").innerHTML = `<svg viewBox="0 0 ${W} ${h}" xmlns="http://www.w3.org/2000/svg">${s}</svg>`;
+    }
+
+    function drawForest(r) {
+      const st = r.stratified.strata, h = 50 + (st.length + 1) * 28;
+      const vals = st.map((t) => t.oddsRatio).concat(r.stratified.commonOR.ci).filter((v) => Number.isFinite(v) && v > 0);
+      let lo = Math.log(Math.min(0.5, ...vals)), hi = Math.log(Math.max(2, ...vals));
+      const padLog = (hi - lo) * 0.06;
+      lo -= padLog; hi += padLog;
+      const sx = (v) => 170 + ((Math.log(v) - lo) / (hi - lo)) * (W - 210);
+      let s = `<line x1="${sx(1)}" x2="${sx(1)}" y1="20" y2="${h - 25}" stroke="#77748f" stroke-dasharray="4 3"/>`;
+      for (const t of [0.25, 0.5, 1, 2, 4, 8].filter((v) => Math.log(v) >= lo && Math.log(v) <= hi)) s += `<text x="${sx(t)}" y="${h - 8}" font-size="12" text-anchor="middle" fill="#4c4a66">${t}</text>`;
+      st.forEach((t, i) => {
+        const y = 32 + i * 28;
+        s += `<text x="160" y="${y + 4}" font-size="13" text-anchor="end" fill="#1d1b3a">${esc(t.label).slice(0, 22)}</text>`;
+        if (Number.isFinite(t.oddsRatio) && t.oddsRatio > 0) s += `<rect x="${sx(t.oddsRatio) - 5}" y="${y - 5}" width="10" height="10" fill="#3d3a8c"/>`;
+        else s += `<text x="${sx(1) + 8}" y="${y + 4}" font-size="12" fill="#4c4a66">undefined (a zero cell)</text>`;
+      });
+      const y = 32 + st.length * 28, c = r.stratified.commonOR;
+      s += `<text x="160" y="${y + 4}" font-size="13" font-weight="700" text-anchor="end" fill="#1d1b3a">Common (MH)</text>`;
+      if (Number.isFinite(c.ci[0]) && Number.isFinite(c.ci[1]) && c.ci[0] > 0) s += `<line x1="${sx(c.ci[0])}" x2="${sx(c.ci[1])}" y1="${y}" y2="${y}" stroke="#e07a1f" stroke-width="3"/>`;
+      if (c.estimate > 0 && Number.isFinite(c.estimate)) s += `<polygon points="${sx(c.estimate) - 8},${y} ${sx(c.estimate)},${y - 7} ${sx(c.estimate) + 8},${y} ${sx(c.estimate)},${y + 7}" fill="#e07a1f"/>`;
+      s += `<text x="${(W + 130) / 2}" y="14" font-size="12" text-anchor="middle" fill="#4c4a66">odds ratio, group 1 vs group 2 (log scale)</text>`;
+      $("#forest").innerHTML = `<svg viewBox="0 0 ${W} ${h}" xmlns="http://www.w3.org/2000/svg">${s}</svg>`;
+    }
+
+    function render(r) {
+      last = r;
+      $("#results").hidden = false;
+      $("#summary").textContent = r.summary;
+      const pct = Math.round(r.confidence * 100);
+      let stats;
+      if (r.mode === "paired") {
+        const m = r.mcnemar;
+        stats = [[fp(m.exactP), "McNemar exact p"], [fp(m.midP), "mid-p"], [`${m.b} / ${m.c}`, "discordant pairs"], [fmt(m.oddsRatio), "paired odds ratio"]];
+      } else if (r.rows === 2 && r.cols === 2) {
+        const e = r.effects;
+        stats = [[fp(r.boschloo.skipped ? r.fisher.midP : r.boschloo.p), r.boschloo.skipped ? "Fisher mid-p" : "Boschloo p (exact)"], [fp(r.fisher.p), "Fisher's exact p"], [`${(e.riskDifference.estimate * 100).toFixed(1)} pts`, "risk difference"], [fmt(e.riskRatio.estimate), "risk ratio"], [fmt(r.fisher.oddsRatio), "odds ratio (conditional MLE)"], [r.n.toLocaleString("en-US"), "subjects"]];
+      } else {
+        stats = [[fp(r.fisherRxC.p), r.fisherRxC.exact ? "Fisher-Freeman-Halton exact p" : "exact p (Monte Carlo)"], [fp(r.chiSquare.p), "chi-square p"], [fmt(r.chiSquare.cramerV), "Cramér's V"], [r.n.toLocaleString("en-US"), "subjects"]];
+      }
+      if (r.stratified) stats.push([fp(r.stratified.cmh.p), "CMH p, adjusted for strata"], [fmt(r.stratified.commonOR.estimate), "common odds ratio"]);
+      $("#stats").innerHTML = stats.map(([b, sp]) => `<div class="stat"><b>${b}</b><span>${esc(sp)}</span></div>`).join("");
+      const warns = []; // r.warnings are already in the summary
+      if (r.chiSquare && r.chiSquare.cellsBelow5) warns.push(`${r.chiSquare.cellsBelow5} of ${r.chiSquare.cells} expected counts are below 5: read the exact tests, not the chi-square.`);
+      if (r.boschloo && r.boschloo.skipped) warns.push(r.boschloo.skipped);
+      if (r.fisherRxC && !r.fisherRxC.exact) warns.push(`The exact r x c test was too large to enumerate; its p-value is estimated from ${r.fisherRxC.samples.toLocaleString("en-US")} random tables (± ${fmt(1.96 * r.fisherRxC.se)}).`);
+      if (r.effects && r.effects.oddsRatio.corrected) warns.push("A cell is zero, so 0.5 was added to every cell for the sample odds ratio and risk ratio intervals; the conditional odds ratio needs no correction.");
+      $("#warnings").innerHTML = warns.map((w) => `<p class="warn">${esc(w)}</p>`).join("");
+      // the table, with expected counts and adjusted residuals for independent designs
+      const x = r.chiSquare;
+      $("#obs-table thead").innerHTML = `<tr><th></th>${r.colLabels.map((c) => `<th class="n">${esc(c)}</th>`).join("")}<th class="n">Total</th></tr>`;
+      $("#obs-table tbody").innerHTML = r.table.map((row, i) => `<tr><td>${esc(r.rowLabels[i])}</td>${row.map((v, j) => {
+        const res = x ? x.residuals[i][j] : 0;
+        const cls = r.mode !== "paired" && Math.abs(res) > 1.96 ? (res > 0 ? ' class="n hi"' : ' class="n lo"') : ' class="n"';
+        return `<td${cls}>${v.toLocaleString("en-US")}${x && r.mode !== "paired" ? `<br><span class="note">exp ${fmt(x.expected[i][j])}, res ${res.toFixed(2)}</span>` : ""}</td>`;
+      }).join("")}<td class="n">${row.reduce((a, b) => a + b, 0).toLocaleString("en-US")}</td></tr>`).join("");
+      $("#table-note").textContent = r.mode === "paired" ? "Rows: the first measurement; columns: the second. Only the off-diagonal cells (changed pairs) enter McNemar's test." : "Under each count: the count expected if the groups did not differ, and the adjusted residual. Cells beyond ±1.96 are shaded (orange above, blue below).";
+      drawBars(r);
+      let group = "";
+      $("#test-table tbody").innerHTML = testRows(r).map((t) => {
+        const head = t.group !== group ? `<tr class="group"><td colspan="4">${esc(t.group)}</td></tr>` : "";
+        group = t.group;
+        const verdict = !Number.isFinite(t.p) ? (t.note ? esc(t.note) : "") : t.p < r.alpha ? `significant at ${Math.round(r.alpha * 100)}%` : "not significant";
+        return `${head}<tr><td>${esc(t.name)}</td><td>${esc(t.statistic)}</td><td class="n">${fp(t.p)}</td><td>${verdict}</td></tr>`;
+      }).join("");
+      if (r.effects) {
+        const e = r.effects, ci = (v) => `${fmt(v[0])} to ${fmt(v[1])}`;
+        $("#ci-head").textContent = `${pct}% interval`;
+        const rows = [
+          [`Risk in ${r.rowLabels[0]}`, `${(e.risk1 * 100).toFixed(1)}%`, "", "share with the first outcome"],
+          [`Risk in ${r.rowLabels[1]}`, `${(e.risk2 * 100).toFixed(1)}%`, "", ""],
+          ["Risk difference", `${(e.riskDifference.estimate * 100).toFixed(1)} pts`, `${(e.riskDifference.newcombe[0] * 100).toFixed(1)} to ${(e.riskDifference.newcombe[1] * 100).toFixed(1)}`, "Newcombe hybrid score"],
+          ["Risk ratio", fmt(e.riskRatio.estimate), ci(e.riskRatio.ci), `Katz log${e.riskRatio.corrected ? ", 0.5 added" : ""}`],
+          ["Odds ratio (conditional MLE)", fmt(r.fisher.oddsRatio), ci(r.fisher.ci), "exact, agrees with Fisher's test"],
+          ["Odds ratio (sample, ad/bc)", fmt(e.oddsRatio.estimate), ci(e.oddsRatio.ci), `Woolf${e.oddsRatio.corrected ? ", 0.5 added" : ""}`],
+          ["Number needed to treat", fmt(e.nnt), "", "1 / |risk difference|"],
+          ["Phi", fmt(e.phi), "", "correlation of the two yes/no variables"],
+        ];
+        $("#effects-table tbody").innerHTML = rows.map((row) => `<tr><td>${esc(row[0])}</td><td class="n">${esc(row[1])}</td><td class="n">${esc(row[2])}</td><td>${esc(row[3])}</td></tr>`).join("");
+        $("#effects-block").hidden = false;
+      } else $("#effects-block").hidden = true;
+      if (r.stratified) {
+        $("#strata-block").hidden = false;
+        drawForest(r);
+        $("#strata-table tbody").innerHTML = r.stratified.strata.map((t) => {
+          const [[a, b], [c, d]] = t.table;
+          return `<tr><td>${esc(t.label)}</td><td class="n">${a} of ${a + b} (${a + b ? Math.round((a / (a + b)) * 100) : 0}%)</td><td class="n">${c} of ${c + d} (${c + d ? Math.round((c / (c + d)) * 100) : 0}%)</td><td class="n">${t.n.toLocaleString("en-US")}</td><td class="n">${fmt(t.oddsRatio)}</td></tr>`;
+        }).join("");
+      } else $("#strata-block").hidden = true;
+    }
+
+    function run(input) {
+      $("#status").textContent = "Computing…";
+      for (const b of ["#analyze", "#analyze-quick"]) $(b).disabled = true;
+      setTimeout(() => {
+        try {
+          const t0 = performance.now();
+          const r = analyze({ ...settings(), ...input });
+          render(r);
+          record("analysis_run");
+          $("#status").textContent = `Done in ${((performance.now() - t0) / 1000).toFixed(1)} s.`;
+          $("#results").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+        } catch (e) {
+          $("#results").hidden = true;
+          $("#status").textContent = e.message;
+        } finally {
+          for (const b of ["#analyze", "#analyze-quick"]) $(b).disabled = false;
+        }
+      }, 20);
+    }
+    $("#analyze-quick").addEventListener("click", () => {
+      const v = (id) => Number($(id).value);
+      run({ table: [[v("#c11"), v("#c12")], [v("#c21"), v("#c22")]], rowLabels: [$("#r-head-1").value || "Group 1", $("#r-head-2").value || "Group 2"], colLabels: [$("#c-head-1").value || "Event", $("#c-head-2").value || "No event"] });
+    });
+    $("#analyze").addEventListener("click", () => {
+      const pick = (id) => $(id).value || undefined;
+      run({ csv: $("#csv").value, row: pick("#row-col"), col: pick("#col-col"), stratum: pick("#stratum-col"), count: pick("#count-col") });
+    });
+    function loadExample(csv) {
+      $("#csv").value = csv;
+      refreshColumns();
+      $("#mode").value = "auto";
+      record("example_loaded");
+      run({ csv });
+    }
+    $("#load-berkeley").addEventListener("click", () => loadExample(BERKELEY_CSV));
+    $("#load-twins").addEventListener("click", () => loadExample(TWINS_CSV));
+    $("#load-jobs").addEventListener("click", () => loadExample(JOBS_CSV));
+    $("#download-report").addEventListener("click", () => {
+      if (!last) return;
+      const blob = new Blob([report(last) + "\n"], { type: "text/plain" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "contingency-table-report.txt";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -132,5 +132,5 @@ test("robots, sitemap, README, LICENSE, VENTURE.yaml and llms.txt exist", () => 
 
 test("footer links the sibling research-algorithm tools", () => {
   const html = page("index.html");
-  for (const s of ["fdr-multiple-testing", "inter-rater-agreement", "survival-analysis", "probability-calibration"]) assert.match(html, new RegExp(`href="\\.\\./${s}/"`));
+  for (const s of ["contingency-table-tests", "fdr-multiple-testing", "inter-rater-agreement", "survival-analysis", "probability-calibration"]) assert.match(html, new RegExp(`href="\\.\\./${s}/"`));
 });
