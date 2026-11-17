@@ -74,19 +74,31 @@ export function unreadableLeaves(tree) {
   return out;
 }
 
+// One INV-065 finding for an unreadable leaf ({ path, element, value }).
+export function xmlValueFinding(row, path) {
+  const element = typeof row.element === "string" && row.element ? row.element : "A value";
+  return {
+    rule: "INV-065",
+    message: `${element} "${visibleSpaces(row.value)}" holds a ${spaceName(row.value)}, so it is not a valid number or date in XML${row.path ? ` (${row.path})` : ""}. Software that trims it reads ${row.value.trim()}; a receiver's validator (Saxon) stops on the whole file instead and reports no rule.`,
+    fix: "Write the value with no space characters other than an ordinary space, tab or line break at its ends (no no-break space, U+00A0, or similar). Spreadsheets and text copied from a PDF often add one.",
+    path,
+  };
+}
+
 // INV-065 findings for a mapped invoice whose reader kept `xml_values`.
 export function inspectXmlValues(invoice) {
   const rows = invoice && Array.isArray(invoice.xml_values) ? invoice.xml_values : [];
   const findings = [];
   rows.forEach((row, index) => {
     if (!row || typeof row !== "object" || typeof row.value !== "string") return;
-    const element = typeof row.element === "string" && row.element ? row.element : "A value";
-    findings.push({
-      rule: "INV-065",
-      message: `${element} "${visibleSpaces(row.value)}" holds a ${spaceName(row.value)}, so it is not a valid number or date in XML${row.path ? ` (${row.path})` : ""}. Software that trims it reads ${row.value.trim()}; a receiver's validator (Saxon) stops on the whole file instead and reports no rule.`,
-      fix: "Write the value with no space characters other than an ordinary space, tab or line break at its ends (no no-break space, U+00A0, or similar). Spreadsheets and text copied from a PDF often add one.",
-      path: `/xml_values/${index}/value`,
-    });
+    findings.push(xmlValueFinding(row, `/xml_values/${index}/value`));
   });
   return findings;
+}
+
+// INV-065 for the national readers that report straight from the tree
+// (FatturaPA, FA(3), Facturae, NAV; added 2026-11-17): the finding's path is
+// the leaf's own. `tree` is parseXmlTree()'s result or one element of it.
+export function xmlValueFindings(tree) {
+  return unreadableLeaves(tree).map((row) => xmlValueFinding(row, row.path));
 }

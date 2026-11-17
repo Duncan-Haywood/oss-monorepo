@@ -34,6 +34,7 @@
 
 import { base64Bytes, sha3_512Hex } from "./sha3.mjs";
 import { parseXmlTree } from "./ubl.mjs";
+import { xmlValueFindings } from "./xmlvalues.mjs";
 import { wellFormed } from "./fatturapa-xsd.mjs";
 import { checkAgainstNavSchema } from "./hu-xsd.mjs";
 
@@ -1284,6 +1285,9 @@ export function checkNavInvoiceData(source, { operation = null, electronicInvoic
   // The schema gate first (HU-027..HU-032, hu-xsd.mjs): NAV aborts a report that breaks
   // invoiceData.xsd before any business rule, so these are listed ahead of the rest.
   findings.push(...checkAgainstNavSchema(root, pathPrefix, text));
+  // INV-065 (2026-11-17): a number or date with a no-break space (xmlvalues.mjs);
+  // the path follows pathPrefix so a manageInvoice operation's finding names its operation.
+  for (const f of xmlValueFindings({ children: [root] })) findings.push({ ...f, path: `${pathPrefix}${f.path.replace(/^\/InvoiceData\[1\]/, "")}` });
   const invoiceNumberRaw = raw(root, "invoiceNumber");
   const invoiceNumber = invoiceNumberRaw.trim();
   const issueDate = txt(root, "invoiceIssueDate");
