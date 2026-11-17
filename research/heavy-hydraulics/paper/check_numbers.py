@@ -485,6 +485,11 @@ MANUSCRIPT_CHECKS = [
     ("(0.0034 against 0.0022)", "gear_pump_pickdrag_results.txt", "held (7a)    diagonal RMS: one 0.0113, two 0.0022, w 0.0017, dw 0.0034, dww 0.0034"),
     ("(median 151 bar)", "gear_pump_pickdrag_results.txt", "p10 142, median 151, p90 171 bar"),
     ("sits 0.0068 below it", "gear_pump_pickdrag_results.txt", "refuted (-0.0068;"),
+    # milestone 7g
+    ("E<sub>50</sub> = 0.7562 + 0.0182 kW<sub>o</sub> &minus; 0.4269 k<sub>w</sub>", "gear_pump_holddrag_results.txt", "ow  : coefficients +0.7562, +0.0182, -0.4269"),
+    ("RMS is 0.0056, 34% below the drag rule", "gear_pump_holddrag_results.txt", "OD2 pooled ow diagonal RMS at least 20% below two-number: held (0.0056 against 0.0084, -34%)"),
+    ("gives 0.0018 and 0.0030", "gear_pump_holddrag_results.txt", "OD6 spun and geared panels, ow below w on both: held (spun (7b) 0.0018 against 0.0026; geared (7c) 0.0030 against 0.0042)"),
+    ("sits 0.0065 below it", "gear_pump_holddrag_results.txt", "refuted (-0.0065;"),
 ]
 
 
