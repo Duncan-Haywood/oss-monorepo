@@ -336,7 +336,7 @@ before writing the first scene.
 
 **Hearth & Horizon**
 
-- *Muons under the nave* (proposed 2026-11-17): a mining village in the Štiavnica Mountains, Slovakia (invented), 2063. The nave floor of the parish church cracks after a wet spring and the engineer closes it; an 18th-century mine map shows an old working (*Alter Mann*) about 18 m under the floor, a mining fathom high, and a collapse can climb about ten times a working's height. A loaned muon tracker in the drainage adit 40 m below counts the cosmic-ray muons that get through the rock (about one per thumbnail a minute at the surface, about one every half hour down there); a void lets a few more through. The first map shows a false void that is the cemetery terrace's rubble fill; the real gallery is six metres from where the map drew it. The engineer's question is not what the detector found but what it could have missed. Cost: the gallery, with a cross cut in its wall, is grouted shut.
+- *Lime that is still setting* (proposed 2026-11-17): a mason repoints a medieval church tower with lime mortar on a deadline (a wedding, a bell's return), and the parish council wants it painted or loaded at the end of the week because the mortar "feels hard". Lime hardens by taking carbon dioxide from the air, from the face inwards, and the carbonated depth grows roughly as the square root of time, so the mortar deep in a joint can still be soft for months, and a joint twice as deep takes four times as long. Work the rate from published carbonation measurements, the joint depths and the wet weather that slows it; the phenolphthalein spray on a broken sample (pink where it is still lime) is the scene. Not Slovakia or Galway, which the last two stories used.
 
 **For Other Minds**
 
