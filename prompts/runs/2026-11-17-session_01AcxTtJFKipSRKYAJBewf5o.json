@@ -53,7 +53,7 @@
       "file": "prompts/ventures/prompt-1.md",
       "why": "venture-preflight.mjs not run: the change touches no page, llms.txt or site surface (a firmware-analysis sweep, a default-off fit argument, a README section)",
       "did": "ran the venture's own tests (run_venture_tests.py open-tennis-robots) and the post checks",
-      "result": "see notes"
+      "result": "venture suite 355 tests ok"
     },
     {
       "file": "CLAUDE.md",
@@ -67,7 +67,7 @@
     "ventures/open-tennis-robots/firmware/esp32/README.md#unsure-marks-on-the-noisy-wheels"
   ],
   "goal": "deepen a flagship",
-  "notes": "72 simulated builds (seeds 7,8 design; 13,14 held out), pre-registered rule committed before output. LOOP_UNSURE marks 41% of slow shots' fast wheels vs 4% of fast shots', 16 of 23 >2% misses; weighting marked readings 0.5/0.25/0 did not beat 1 on held-out seeds (0.55/0.56/0.59 vs 0.54% spin). Oracle: true drops give 0.03% spin error, true marked readings only 0.44%: the error is spread over all readings. Default stays 1. Tests: tests.test_host 112 OK locally; venture suite result appended below.",
+  "notes": "72 simulated builds (seeds 7,8 design; 13,14 held out), pre-registered rule committed before output. LOOP_UNSURE marks 41% of slow shots' fast wheels vs 4% of fast shots', 16 of 23 >2% misses; weighting marked readings 0.5/0.25/0 did not beat 1 on held-out seeds (0.55/0.56/0.59 vs 0.54% spin). Oracle: true drops give 0.03% spin error, true marked readings only 0.44%: the error is spread over all readings. Default stays 1. Tests: tests.test_host 112 OK locally; venture suite: run_venture_tests.py open-tennis-robots ok, 355 tests (58 skipped, build123d not installed), 204 s.",
   "corrections": [],
   "redteam": null,
   "usage": {
