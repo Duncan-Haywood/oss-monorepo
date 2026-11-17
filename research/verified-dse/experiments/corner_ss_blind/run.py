@@ -23,6 +23,7 @@ import argparse
 import hashlib
 import importlib.util
 import json
+import re
 import sys
 from multiprocessing import Pool
 from pathlib import Path
@@ -56,10 +57,27 @@ def task(a):
     return r
 
 
+def synth_period(log, period=10.0):
+    """The no-wire period from the synth_netlist stage of an OpenROAD log (measured before placement and routing)."""
+    blk = re.split(r"^STAGE (\w+)\n", log, flags=re.M)
+    st = {blk[i]: blk[i + 1] for i in range(1, len(blk), 2)}
+    m = re.search(r"worst slack (?:max )?(-?[\d.]+)", st.get("synth_netlist", ""))
+    return round(period - float(m.group(1)), 3) if m else None
+
+
 def base_task(a):
+    """The baseline's no-wire period needs only the synth_netlist stage, so a later-stage OpenROAD failure (rng4r's baseline hit
+    GRT-0183, a global-router heap underflow, in the first launch) does not lose it; a log already written for the same baseline
+    (same liberty, empty sequence) is reused."""
     d, wd, lib, pdk, orb = a
     M141.install()
-    return d, flow.run_point(d, (), 10.0, wd, lib, pdk, orb)["synth_netlist_period_ns"]
+    log = Path(wd) / "openroad.log"
+    if log.exists() and synth_period(log.read_text()) is not None:
+        return d, synth_period(log.read_text())
+    try:
+        return d, flow.run_point(d, (), 10.0, wd, lib, pdk, orb)["synth_netlist_period_ns"]
+    except RuntimeError:
+        return d, synth_period(log.read_text()) if log.exists() else None
 
 
 def main():
