@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKkL4s8Fv4bwp2LBEdX",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T08:18:18Z",
+  "ended": "2026-11-17T08:36:12Z",
+  "wall_minutes": 18.17,
+  "tokens_in": 4798696,
+  "tokens_out": 27754,
+  "cost_usd": 2.3641,
+  "tool_calls": 47,
+  "task": "research programme sensing-selfcal, milestone 3g: first-order two-term (k1, k2) conditioning of 57 TUM RGB-D window solves on the board's distortion",
+  "projects": [
+    "research/sensing-selfcal"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16874",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/sensing-selfcal/LOG.md",
+      "issue": "Milestone 3f said corr(k1, k2) was not stored and deferred two-term conditioning to a re-solve needing the blocked TUM host; milestone 3b's results.json had stored every start's full 5x5 covariance all along. A run blocked on data should grep its own stored results for the missing quantity first."
+    },
+    {
+      "file": "research/sensing-selfcal/tests",
+      "issue": "14 of the programme's test files need cv2, which no interpreter on the box has (pyenv.py pytest numpy scipy matplotlib returns /usr/bin/python3.13 without it); test_m4o.py fails on this box with or without this run's change."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/sensing-selfcal/README.md",
+      "why": "README and LOG named the next step '3g' (the TUM re-solve). This run's first-order two-term analysis took the 3g name and the re-solve is renamed 3h, recorded in the plan entry.",
+      "did": "renamed in LOG plan, README next steps",
+      "result": "consistent within the project"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-a-past-lens-calibration-is-a-bad-prior-for-short-window-self-calibration.md",
+    "research/sensing-selfcal/LOG.md (3g plan and result)"
+  ],
+  "goal": null,
+  "notes": "Pre-registered H144-H148 in LOG.md and pushed before the analysis first ran. Result: H144-H147 refuted, H148 held; median |focal error| 5.25% as solved, 7.01% with k1 pinned (3f), 8.72% with k1 and k2 pinned; fr1/xyz +12.9%; pooled K=5 rms z 3.07. TUM host (cvg.cit.tum.de, vision.in.tum.de, cdn2) and huggingface.co refused by the proxy (CONNECT 403). Local checks: sensing-selfcal tests without cv2 40 passed (1 pre-existing failure m4o, 14 cv2 collection errors), research/_homepage/build.py ok, check_md_links ok, check_numbers 290/290, post front matter/links/similarity ok, run_workflow_locally --for-changes 9/9 selected workflows passed (research-ci 3/3 run steps; agent-cross-review and deploy jobs not runnable locally).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a24c1f0d-1220-5565-ab03-18e9edef6904",
+    "transcripts": 1,
+    "first": "2026-11-17T08:18:18Z",
+    "last": "2026-11-17T08:36:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 89,
+        "output": 27754,
+        "thinking": 5258,
+        "cache_read": 4689774,
+        "cache_write_5m": 0,
+        "cache_write_1h": 108833,
+        "api_equivalent_usd": 2.3641,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 89,
+      "output": 27754,
+      "thinking": 5258,
+      "cache_read": 4689774,
+      "cache_write_5m": 0,
+      "cache_write_1h": 108833,
+      "api_equivalent_usd": 2.3641,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 47,
+    "tools": {
+      "Bash": 45,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.17,
+      "active_minutes": 18.17,
+      "model_minutes": 4.64,
+      "tool_minutes": 13.53,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a PhD student: find the stored covariances, write the conditioning code and tests, pre-register, analyse and write up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 253.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
