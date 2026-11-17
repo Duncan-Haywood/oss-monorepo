@@ -922,6 +922,7 @@ ventures/redirect-map-check/usage.mjs
 ventures/referral-keeper/usage.mjs
 ventures/referrer-permissions-policy-check/usage.mjs
 ventures/regex-redos-check/usage.mjs
+ventures/regression-discontinuity/usage.mjs
 ventures/release-notes-generator/usage.mjs
 ventures/renewal-rent-optimizer/usage.mjs
 ventures/rent-increase-notice-checker/usage.mjs

@@ -3,7 +3,8 @@
 // by a weighted average of donor series (weights at least zero, summing to one), and the gap after the date is the
 // estimate. Inference is the in-space placebo test of the 2010 paper: every donor is put through the same fit as if
 // it were the treated one, and the treated series' ratio of after-date to before-date root mean squared gap is ranked
-// among them. p = (units whose ratio is at least the treated's) / (donors + 1), so the smallest p with 38 donors is
+// among them (since 2026-11-17 the ratio's before-gap is floored at the median before-gap of all units, README "A
+// floored ratio"). p = (units whose statistic is at least the treated's) / (donors + 1), so the smallest p with 38 donors is
 // 1/39 = 0.026, and the test is exact when the treated unit is no different from a donor before the date.
 //
 // This version matches on the outcome's own before-period values only (no covariates and no V matrix: the
@@ -86,7 +87,7 @@ export function synthFit(y, donors, k) {
 // unit left out, so it has one donor fewer than the treated fit. 'with': the treated unit is moved into each placebo's
 // pool (Abadie et al. 2010: "shifting California to the donor pool"), so every unit is fitted against the same number
 // of others and the ranks are exchangeable when nothing happened (README "A synthetic control", the diagnostic).
-export function synthControlTest(y, donors, k, { minBefore = 5, minAfter = 2, fitWarnQuantile = 0.8, placeboPool = 'without' } = {}) {
+export function synthControlTest(y, donors, k, { minBefore = 5, minAfter = 2, fitWarnQuantile = 0.8, placeboPool = 'without', statistic = 'floored' } = {}) {
   const names = Object.keys(donors);
   const n = y.length;
   if (names.length < 4) throw new Error(`a synthetic control needs at least 4 donor series (got ${names.length})`);
@@ -101,9 +102,25 @@ export function synthControlTest(y, donors, k, { minBefore = 5, minAfter = 2, fi
     const f = synthFit(series[j], others, k);
     return { name: s, preRmspe: f.preRmspe, postRmspe: f.postRmspe, ratio: f.ratio };
   });
-  const atLeast = placebos.filter((p) => p.ratio >= fit.ratio).length;
-  const p = (atLeast + 1) / (names.length + 1);
-  const rank = atLeast + 1;
+  // Three placebo statistics, each ranked the same way (README "A floored ratio"): 'ratio' (the 2010 paper's),
+  // 'floored' (the default since 2026-11-17, eval/synth-floor-prereg-2026-11-17.md) (the after-gap over the before-gap floored at the median before-gap of all units, treated and
+  // donors alike, so a donor fitted almost exactly before the date cannot win on a tiny denominator; the floor is a
+  // symmetric function of every unit's fit, so the ranks stay exchangeable when nothing happened) and 'post' (the
+  // after-gap alone).
+  const median = (a) => { const b = [...a].sort((x, z) => x - z), m = b.length >> 1; return b.length % 2 ? b[m] : (b[m - 1] + b[m]) / 2; };
+  const floor = median([fit.preRmspe, ...placebos.map((q) => q.preRmspe)]);
+  const stat = {
+    ratio: (u) => u.ratio,
+    floored: (u) => u.postRmspe / Math.max(u.preRmspe, floor, 1e-12),
+    post: (u) => u.postRmspe,
+  };
+  if (!stat[statistic]) throw new Error(`unknown statistic ${statistic} (ratio, floored or post)`);
+  const tests = Object.fromEntries(Object.entries(stat).map(([key, s]) => {
+    const own = s(fit), atLeast = placebos.filter((q) => s(q) >= own - 1e-12 * Math.abs(own)).length;
+    return [key, { value: own, rank: atLeast + 1, p: (atLeast + 1) / (names.length + 1) }];
+  }));
+  for (const q of placebos) q.floored = stat.floored(q);
+  const { rank, p } = tests[statistic];
   const preSorted = placebos.map((q) => q.preRmspe).sort((a, b) => a - b);
   const preRankShare = preSorted.filter((v) => v < fit.preRmspe).length / preSorted.length;
   const after = fit.gap.slice(k);
@@ -112,7 +129,7 @@ export function synthControlTest(y, donors, k, { minBefore = 5, minAfter = 2, fi
     k, n, donors: names.length, weights, synth: fit.synth, gap: fit.gap,
     preRmspe: fit.preRmspe, postRmspe: fit.postRmspe, ratio: fit.ratio,
     effectAverage: after.reduce((s, e) => s + e, 0) / after.length, effectAtEnd: after[after.length - 1],
-    rank, p, minP: 1 / (names.length + 1), placebos,
+    rank, p, statistic, tests, floor, minP: 1 / (names.length + 1), placebos,
     preFitShare: preRankShare, fitWarning: preRankShare >= fitWarnQuantile,
   };
 }

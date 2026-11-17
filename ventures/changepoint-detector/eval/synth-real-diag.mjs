@@ -10,7 +10,7 @@ const col = (s) => data.map((r) => r[head.indexOf(s)]);
 const EX = new Set('AK AZ FL HI MD MA MI NJ NY OR WA DC CA'.split(' '));
 const DONORS = head.slice(1).filter((s) => !EX.has(s));
 const hi = years.indexOf(2000) + 1, k = years.indexOf(1989);
-const r = synthControlTest(col('CA').slice(0, hi), Object.fromEntries(DONORS.map((s) => [s, col(s).slice(0, hi)])), k);
+const r = synthControlTest(col('CA').slice(0, hi), Object.fromEntries(DONORS.map((s) => [s, col(s).slice(0, hi)])), k, { statistic: 'ratio' });
 const f = (v, p = 2) => Number(v).toFixed(p);
 console.log(`California: before RMSPE ${f(r.preRmspe)}, after ${f(r.postRmspe)}, ratio ${f(r.ratio)}, rank ${r.rank} of 39`);
 const sorted = [...r.placebos].sort((a, b) => b.ratio - a.ratio);
@@ -25,6 +25,6 @@ const abovePost = r.placebos.filter((p) => p.postRmspe >= r.postRmspe).length;
 console.log(`after-date RMSPE alone (not the test): California's rank ${abovePost + 1} of 39; top: ${post.slice(0, 4).map((p) => `${p.name} ${f(p.postRmspe)}`).join(', ')}`);
 const gapSign = r.placebos.map((p) => p.name);
 // The paper's placebo pool: California moved into each placebo's donor pool (placeboPool 'with').
-const w = synthControlTest(col('CA').slice(0, hi), Object.fromEntries(DONORS.map((s) => [s, col(s).slice(0, hi)])), k, { placeboPool: 'with' });
+const w = synthControlTest(col('CA').slice(0, hi), Object.fromEntries(DONORS.map((s) => [s, col(s).slice(0, hi)])), k, { placeboPool: 'with', statistic: 'ratio' });
 const sw = [...w.placebos].sort((a, b) => b.ratio - a.ratio);
 console.log(`With California in each placebo's pool (the paper's placebos): California's rank ${w.rank} of 39, p ${f(w.p, 3)}; top: ${sw.slice(0, 4).map((p) => `${p.name} ${f(p.ratio)} (before ${f(p.preRmspe)})`).join('; ')}`);
