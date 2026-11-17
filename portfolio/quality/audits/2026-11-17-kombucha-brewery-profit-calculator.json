@@ -210,7 +210,8 @@
    "what": "The on-load form instruction (and the IDLE text restored by Clear) says 'Growing area, plants per square foot, days to harvest and a price are required', copied from hydroponic-farm-profit-calculator; the real required fields are fermenter capacity, fill, brew days and two prices.",
    "where": "ventures/kombucha-brewery-profit-calculator/index.html:102",
    "category": "code-craft",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17026"
   },
   {
    "severity": "medium",
@@ -269,6 +270,6 @@
    "origin": "spec"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17026"],
  "verdict": "The arithmetic is right: output, blended and net price, variable and fixed cost, profit, both break-evens, the price change to a target margin, an amortising loan payment, DSCR and the 60-month ramp (trough month 5, reserve $19,611, payback month 23) all recompute to the cent from an independent script. It misses the bar on claims, verification and domain. The form tells every visitor that 'growing area, plants per square foot, days to harvest' are required (copied from the hydroponic calculator); blank cost fields under realistic placeholders silently become zero, so the required fields alone show a 100% margin; dumped batches cost no ingredients, so more loss lowers cost; and three of six meaningful seeded mutants in the reserve, loan-term and findings logic survive the 25 tests. A kombucha finance manager would also want starter hold-back, keg vs can packaging, a distributor margin over 30%, and the TTB line stated as 0.5% or more at any time. A brewer who fills every box and folds those into their own inputs gets a sound first-pass pro forma."
 }

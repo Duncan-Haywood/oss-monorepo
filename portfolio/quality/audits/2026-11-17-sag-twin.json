@@ -179,7 +179,8 @@
    "what": "Cold-cell section reports real/twin endurance low by the factor k: run.py compares endurance(k*u0) in the cold cell's time unit (k R0 Q/E0) with twin_endurance(base) in the warm unit (R0 Q/E0). Reported 0.476, 0.286, 0.099, 0.012 at k = 1.5, 2, 3, 4; correct 0.715, 0.571, 0.298, 0.047 (identical to section 2's rows at u0 = 0.3, 0.4, 0.6, 0.8, which the table itself contradicts). Published in whitepaper result 5.",
    "where": "research/sag-twin/experiments/run.py:53",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17026"
   },
   {
    "severity": "medium",
@@ -224,6 +225,6 @@
    "origin": "maintenance"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17026"],
  "verdict": "A small, clean, reproducible equivalent-circuit study: results.txt regenerates byte-identically in 1.3 s, the closed forms (eta(u) = (1+sqrt(1-u))/2, the cutoff state, the voltage-limited max power) are right, and five reported numbers recompute in an independent physical-units simulation. It misses the bar: the cold-cell section (whitepaper result 5) is wrong by a factor k because the nondimensional time unit changes with R0 (0.286 reported at k = 2 where the true ratio is 0.571, which the same table's section 2 already shows), half the seeded mutants in the twin and droop path survive the 9 tests, the driving parameters are invented and unswept, and the main burst-floor result is the standard HPPC available-power formula, uncited, so the research contribution is a textbook consequence of an R-only Thevenin model rather than a new result."
 }
