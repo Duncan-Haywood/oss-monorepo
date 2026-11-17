@@ -2882,6 +2882,22 @@ refused the download). Details:
 [`eval/service-charge-vote-2026-11-17.md`](eval/service-charge-vote-2026-11-17.md).
 Tests: `receipt-crosscheck.test.mjs`.
 
+### Wrong totals on CORD photos: change lines and sums across readings (2026-11-17)
+
+CORD validation's photos were read again (huggingface.co answered), which also scored last
+run's service-charge vote there: no change (totals 66 of 98, tax 25 / 3 / 19). Of the five
+wrong totals that have a tax line, two took a line that is not a total: "Total Kembalian"
+(the change, in Indonesian) and "Total Qty" read as "Total aty"; both are now left out. Two
+read the total line wrong where the receipt's own sums are right: when the readings' total
+lines disagree, or a subtotal read twice is above the total, `parseReceiptPasses` takes a
+cash-less-change (or subtotal-plus-tax) amount one digit from a read total line, when two
+readings give it or a subtotal lies between, and the receipt says to check the total.
+Validation photos: totals 66 to 69, tax 25 to 27; nothing lost. Held-out test photos, scored
+once: unchanged (53, tax 16 / 2 / 23). SRD photos through the CLI and CORD text (also read
+as three readings): unchanged, except CORD validation text 96 to 97. Details:
+[`eval/cord-wrong-totals-2026-11-17.md`](eval/cord-wrong-totals-2026-11-17.md).
+Tests: `receipt-crosscheck.test.mjs`.
+
 ## Budget against actual
 
 `node cli.mjs --books books.json budget 6130 200` sets a monthly budget of $200

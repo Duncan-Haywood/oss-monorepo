@@ -447,3 +447,39 @@ test("an unreadable tax line is the total less the subtotal and the service char
   const e = "CAFE\nSUBTOTAL 30.00\nTAX\nTOTAL 32.40\nSuggested tip 18% 5.40";
   assert.equal(parseReceiptPasses([e, "CAFE", e, "CAFE"]).taxCents, 240);
 });
+
+test("change and quantity lines are not the total, misread or not", () => {
+  // CORD validation-70 and -61 in shape: "Total Qty" read "Total aty", "Total Kembalian" (change)
+  const a = "RESTO\nSUBTOTAL 103,000\nService 7,725\nPB1 11,073\nTOTAL 121,798\nTotal item 3 Total aty 3";
+  assert.equal(parseReceipt(a).cents, 12179800);
+  const b = "WARUNG\nSub Total 7,500\nPajak Resto (10%) 750\nTotal Bayar 8,250\nUang Bayar 10,000\nTotal Kembalian 1,750";
+  assert.equal(parseReceipt(b).cents, 825000);
+});
+
+test("a total in doubt is the receipt's own sum one digit from a total line", () => {
+  // CORD validation-87 in shape: the readings' total lines disagree (73,000 and 23,000);
+  // cash 30,000 less change 1,000 in two readings makes 29,000, one digit from 23,000
+  const a = "KEDAI\nTotal: 73,000\nCash: 30,000\nCHANGE: 1,000";
+  const b = "KEDAI\nTotal: 23,000\nCash: 30,000\nCHANGE : 1,000";
+  const p = parseReceiptPasses([a, "KEDAI", b, "KEDAI"]);
+  assert.equal(p.cents, 2900000);
+  assert.ok(p.notes.some((n) => /receipt's own sums give/.test(n)));
+  // validation-85 in shape: one total line (13,000) below a subtotal read twice (13,636);
+  // one reading's cash less change makes 15,000, and the tax follows from the total
+  const c = "KOPI\nSubTotal: 13,636\nTotal: 13,000\ncash: 20,000";
+  const d = "KOPI\nSubTotal: 13,636\ncash: 20,000\nChange: 5,000";
+  const q = parseReceiptPasses([c, c, "KOPI", d]);
+  assert.equal(q.cents, 1500000);
+  assert.equal(q.taxCents, 136400);
+});
+
+test("a total every reading agrees on stands against a short cash line", () => {
+  // CORD train-81 and test-14 in shape: cash less change below the total (another tender,
+  // a misprint) is no reason to doubt a total every reading prints
+  const a = "TOKO\nTOTAL 36,000\nCASH 35,000\nCHANGE 0";
+  assert.equal(parseReceiptPasses([a, a, a]).cents, 3600000);
+  // a total line that starts with 0 lost a digit, so it is no reference (validation-33)
+  const b = "TOKO\nTOTAL 57,500";
+  const c = "TOKO\nTOTAL 07,900\nCASH 7,500\nCHANGE 0", d = "TOKO\nTOTAL 97,900\nCASH 7,500\nCHANGE 0";
+  assert.equal(parseReceiptPasses([b, d, "TOKO", c]).cents, 5750000);
+});
