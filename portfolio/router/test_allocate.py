@@ -1328,5 +1328,69 @@ class PostLimitsLineTests(unittest.TestCase):
         self.assertIn(f"seo_title <= {cpf.LIMITS['seo_title']}", line)
 
 
+class MainFlagshipsTest(unittest.TestCase):
+    """refresh_tip + main_flagships: rows come from origin/main when a sibling's merge
+    changed flagships.yaml after this clone (four claims of just-merged items, 2026-11-16/17)."""
+
+    def git(self, cwd, *args):
+        import subprocess
+        subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *args], cwd=cwd,
+                       check=True, capture_output=True, text=True)
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        t = Path(self.tmp.name)
+        self.remote, self.sibling, self.clone = t / "remote.git", t / "sibling", t / "clone"
+        self.git(t, "init", "-q", "--bare", "-b", "main", str(self.remote))
+        self.git(t, "clone", "-q", str(self.remote), str(self.sibling))
+        (self.sibling / "portfolio").mkdir()
+        self.write(self.sibling, "flagships:\n- venture: a\n  next: old item\n")
+        self.git(self.sibling, "add", "-A")
+        self.git(self.sibling, "commit", "-qm", "first")
+        self.git(self.sibling, "push", "-q", "origin", "HEAD:main")
+        self.git(t, "clone", "-q", str(self.remote), str(self.clone))
+        # A sibling session merges a change to the row after this clone was made.
+        self.write(self.sibling, "flagships:\n- venture: a\n  next: new item\n")
+        self.git(self.sibling, "commit", "-qam", "a: old item landed (#9)")
+        self.git(self.sibling, "push", "-q", "origin", "HEAD:main")
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def write(self, repo, text):
+        (repo / "portfolio" / "flagships.yaml").write_text(text)
+
+    def test_reads_main_after_a_sibling_merge(self):
+        from allocate import main_flagships, refresh_tip
+        self.assertEqual(main_flagships(self.clone), (None, ""))  # origin/main not fetched yet
+        self.assertTrue(refresh_tip(self.clone))
+        self.assertFalse(refresh_tip(self.clone))  # already the tip: no second fetch
+        text, note = main_flagships(self.clone)
+        self.assertIn("new item", text)
+        self.assertIn("1 commit(s)", note)
+        self.assertIn("old item landed (#9)", note)
+
+    def test_keeps_a_sessions_own_edits(self):
+        from allocate import main_flagships, refresh_tip
+        refresh_tip(self.clone)
+        self.write(self.clone, "flagships:\n- venture: a\n  next: my claim\n")
+        text, note = main_flagships(self.clone)
+        self.assertIsNone(text)
+        self.assertIn("uncommitted edits", note)
+        self.git(self.clone, "commit", "-qam", "mine")
+        text, note = main_flagships(self.clone)
+        self.assertIsNone(text)
+        self.assertIn("git merge origin/main", note)
+
+    def test_override_reaches_the_loaders(self):
+        import allocate
+        allocate._FLAGSHIPS_TEXT = "flagships:\n- venture: zz\n  next: from main\n"
+        try:
+            self.assertEqual(load_flagships(FLAGSHIPS_PATH), {"zz": (0, "from main")})
+        finally:
+            allocate._FLAGSHIPS_TEXT = None
+        self.assertNotIn("zz", load_flagships(FLAGSHIPS_PATH))
+
+
 if __name__ == "__main__":
     unittest.main()
