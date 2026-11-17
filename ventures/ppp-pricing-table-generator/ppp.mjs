@@ -66,7 +66,7 @@ export function roundPrice(p, style) {
 // unit back inside; the floor wins when no rounded price fits both bounds.
 const ROUND_STEP = { none: 0.01, whole: 1, nine: 10, charm: 1 };
 export function roundWithin(raw, o) {
-  const step = ROUND_STEP[o.rounding] ?? 1;
+  const step = Object.hasOwn(ROUND_STEP, o.rounding) ? ROUND_STEP[o.rounding] : 1;
   const lo = o.base * o.floor - 1e-9;
   const hi = o.base * o.cap + 1e-9;
   let price = roundPrice(raw, o.rounding);
