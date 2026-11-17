@@ -1038,6 +1038,17 @@ How it was checked:
   or `SHOOTFLOW_NATIVE=0`: the pure loop runs. `raw_develop.HUFFMAN_ENGINE` (`auto`, `python`,
   `native`) chooses; an invalid code falls back to the pure loop, which raises as before.
 
+## The sRGB encode, interpolated (2026-11-17)
+
+The develop's last step, linear light to sRGB, read a 4,096-entry table at the nearest entry, so a 16-bit
+master held at most 4,096 levels per channel and sat up to 104 codes (of 65,535) off the curve in the
+shadows. It now reads a 16,384-entry table with linear interpolation (`raw_develop.srgb_table`,
+`SRGB_TABLE_SIZE`), in both engines with the same arithmetic. On five public camera DNGs the output holds
+45,014-65,536 levels per channel (was 2,239-4,096), every value is within 1 code of a near-exact reference,
+the two engines still write identical bytes, and the gap to LibRaw's render shrinks (p99 in 8-bit steps:
+Leica T 0.136 to 0.035, Pentax Q-S1 0.160 to 0.047). Every develop's bytes change. How it was checked:
+`eval/srgb-table-interp-2026-11-17.md` (`tools/srgb_table_check.py`).
+
 ## Develop a Canon CR2 directly (2026-11-12)
 
 `shootflow develop IMG_0001.CR2 --dcp "Canon EOS 5D Mark II Adobe Standard.dcp" --out DIR`

@@ -10,9 +10,6 @@
 
 ## From the float32 check (2026-11-17, eval/noise-aware-float32-2026-11-17.md)
 
-- The develop's 4,096-entry tone table caps a 16-bit output at 4,096 levels per channel (steps of 16-200 codes
-  in shadows and midtones): interpolate between entries, or a larger table, checked against the pure path and
-  LibRaw (changes every develop's bytes).
 - (moved from flagships.yaml `buildable:`) Bayer trees parked: a range guard passes 6 fresh cameras, misses
   K-1 II/A7 III; no fresh frames left (eval/bayer-boosted-guard-*).
 
