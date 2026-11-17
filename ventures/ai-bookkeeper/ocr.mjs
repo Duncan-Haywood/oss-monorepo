@@ -64,9 +64,10 @@ export const LOCAL_THRESHOLD = "-c thresholding_method=2";
 // A lead reading by a second engine, read before tesseract's readings and voted with them
 // (receipts.mjs parseReceiptPasses); a failure there is dropped. `lead` is a function of the
 // photo's path (cli.mjs `--rapidocr --four-pass` passes receiptTextRapid), or RECEIPT_OCR_LEAD
-// names a command shaped like RECEIPT_OCR_CMD. RapidOCR first, then tesseract's four: on 600
-// unseen CORD train photos totals 362 to 508 of 583 and tax 135 to 202 of 267 against
-// tesseract's four, and 29 more taxes than RapidOCR alone (README, "RapidOCR and tesseract together").
+// names a command shaped like RECEIPT_OCR_CMD. RapidOCR first, then tesseract's four, with the
+// lead's total kept over an unconfirmed majority: on 600 CORD train photos totals 542 of 583
+// (tesseract's four 367, RapidOCR alone 539) and tax 209 of 267 (RapidOCR alone 177)
+// (README, "RapidOCR's total kept over an unconfirmed tesseract majority").
 export function receiptPassesFromFile(path, opts = {}) {
   const { run = spawnSync, env = process.env, lead = null } = opts;
   const image = IMAGE.has(extname(path).toLowerCase());
