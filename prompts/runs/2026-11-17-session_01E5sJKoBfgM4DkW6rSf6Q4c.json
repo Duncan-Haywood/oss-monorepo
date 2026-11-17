@@ -1,0 +1,64 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKoBfgM4DkW6rSf6Q4c",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T08:04:58Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 9) league-schedule-generator: 47 teams on 8x9 neighbourhood search, resumed",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16799",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "partial",
+  "errors": [
+    "Container restarted at about 07:05 UTC and killed four running searches; every improved state had already been committed and pushed, and logs in /tmp survived, so nothing was lost.",
+    "First pip install of python-sat appeared not to take; a second pip call reported it already installed and the import worked."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/pyenv.py",
+      "issue": "`pyenv.py python-sat` reports 'no interpreter imports python_sat': the import name is pysat, so the helper cannot find an installed python-sat."
+    },
+    {
+      "file": "Bash hook (process-kill guard)",
+      "issue": "A bracketed process-kill pattern was refused because the same script name appeared later in the command (the restart), and a run-record heredoc was refused because its prose quoted the command. Killing by pid from ps works; cost two retries."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/league-schedule-generator/README.md (previous run's Next)",
+      "why": "The documented next step was four identical 300 s resumes; four such resumes last session accepted no step in 1.3 h, so repeating all four would mostly re-measure that.",
+      "did": "Ran two as documented and changed two (900 s steps, later --sideways-after 2), instrumented the script to count failure causes, and restarted the slowest run from each new best state (a relay).",
+      "result": "5 to 13 of 16; the 900 s variant did worse; every logged failure was a timeout."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-a-47-team-league-thirteen-nights-of-sixteen.md",
+    "ventures/league-schedule-generator/README.md (47 teams on 8 x 9: 5 to 13 of 16 nights)",
+    "ventures/league-schedule-generator/eval/odd-lns.txt"
+  ],
+  "goal": "Finish 47 teams on 8x9 wait-free, or land the best state and what was learned.",
+  "notes": "Checks run: node --test lns-state.test.mjs (5 pass, 0 fail) after every saved state; python3 portfolio/router/validate.py (all valid); check_post_frontmatter, check_post_links, post_similarity on the new post (clean). odd-lns.py edited (cause counters, --sideways-after); smoke-tested on 17 teams 3x9 (6 of 6 in 31 s). No product code changed; the tool still anneals 47 teams with waits.",
+  "corrections": [],
+  "redteam": null
+}
