@@ -28,6 +28,7 @@ from pathlib import Path
 from typing import Any
 from xml.etree import ElementTree
 
+from .xmlvalues import unreadable_leaves
 from .facturx import EmbeddedInvoiceError, extract_embedded_invoice_xml, looks_like_pdf
 
 __all__ = [
@@ -150,7 +151,11 @@ def parse_bytes(data: bytes) -> tuple[dict[str, Any], str]:
         root = ElementTree.fromstring(data)
     except ElementTree.ParseError as exc:
         raise DocumentError(f"The XML is not well formed: {exc}") from exc
-    return (_parse_ubl(root) if syntax == "ubl" else _parse_cii(root)), syntax
+    document = _parse_ubl(root) if syntax == "ubl" else _parse_cii(root)
+    unreadable = unreadable_leaves(root)
+    if unreadable:
+        document["xml_values"] = unreadable
+    return document, syntax
 
 
 # --------------------------------------------------------------------------
@@ -738,6 +743,8 @@ def to_checker_invoice(document: dict[str, Any]) -> dict[str, Any]:
     for key in ("payee_party", "tax_representative", "delivery_party"):
         if isinstance(document.get(key), dict):
             invoice[key] = document[key]
+    if isinstance(document.get("xml_values"), list):
+        invoice["xml_values"] = document["xml_values"]
     return invoice
 
 

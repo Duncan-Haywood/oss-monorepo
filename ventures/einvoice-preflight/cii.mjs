@@ -6,6 +6,7 @@
 
 import { parseXmlTree, registrationPlace, xmlValue } from "./ubl.mjs";
 import { parseDecimal } from "./numbers.mjs";
+import { unreadableLeaves } from "./xmlvalues.mjs";
 
 const CII_NS = "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100";
 
@@ -452,5 +453,9 @@ export function parseCiiInvoice(source) {
     ...descendants(settlement || { name: "", children: [] }, "SpecifiedTradePaymentTerms").map((terms) => nestedText(terms, "Description")),
   ].filter(Boolean);
   if (notes.length) invoice.notes = notes;
+  // INV-065: an amount, quantity or date that String.trim() reads and XML does
+  // not (a no-break space at its end). Kept for checks.mjs; xmlvalues.mjs.
+  const unreadable = unreadableLeaves(tree);
+  if (unreadable.length) invoice.xml_values = unreadable;
   return invoice;
 }
