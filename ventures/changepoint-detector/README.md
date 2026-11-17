@@ -5896,7 +5896,7 @@ but near its corner.
 
 The after-gap alone was ruled out in exploration (49% rejections in E1, 54.8% confirmatory: a series no mix of donors
 can match drifts away after any date). With the hashed seeds the paper's ratio holds its exact size in N1 (3.0%
-against 2.6% exact), so the last round's 5.5% was the seeds, as suspected.
+against 2.6% exact), consistent with the last round's 5.5% being a seed artefact (one run does not prove it).
 
 **What changed.** The floor on the real data is 2.15 packs (the median before-gap of the 39 states). California's
 before-gap, 1.66, is under it, so its statistic is 20.5 / 2.15 = 9.5; Missouri's (10.9 after, 0.41 before) drops from
