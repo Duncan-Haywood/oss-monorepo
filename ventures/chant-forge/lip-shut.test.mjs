@@ -1,4 +1,5 @@
-// A dark-vowel nasal's lip closure (onsets.mjs readCoda `lipShut`; README "A dark-vowel m").
+// A dark-vowel nasal's lip closure (onsets.mjs readCoda `lipShut`, the default since the twenty-third round; README
+// "A dark-vowel m").
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { eventsToMidi } from './midi.mjs';
@@ -21,6 +22,7 @@ test('lum on D#4: the m after /u/ reads as nothing without lipShut, as a nasal (
   assert.equal(r('lum', { lipShut: false }).cls, 'none');
   const g = r('lum', { lipShut: true });
   assert.deepEqual([g.cls, g.rule], ['nasal', 'shut']);
+  assert.deepEqual(r('lum'), g); // the default since its registration held on part a
 });
 
 test('the same cell sung on vowels only reads as none with lipShut, and its voiced stops and n-clusters do not move', () => {

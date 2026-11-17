@@ -122,7 +122,8 @@ export const VOICED_LEAD = { hold: true };
 export const BAR_BURST = { hz: 2000, lvl: 10, floor: -40, dark: 30, tail: 25, lead: 4, hold: 6, holdMs: 20, after: 8 };
 // readCoda's deep murmur on a high short note before an obstruent (see its note; off by default, `deepMurmur: true`);
 // chosen on eval/coda-check.mjs J and N
-// A dark-vowel nasal's lip closure (opt-in `lipShut`, README "A dark-vowel m"): after /u/ on D4-E4 a final m is only
+// A dark-vowel nasal's lip closure (`lipShut`, the default since its registration held on part a; `lipShut: false` is the
+// reader before; README "A dark-vowel m"): after /u/ on D4-E4 a final m is only
 // 4-6 dB darker than the vowel, which has almost nothing above 1 kHz to lose, so the level, step and near rules all
 // pass it by. What the closure does is drop the band above 1 kHz by `fall` dB or more within two hops, after a blip
 // up as the lips meet, while the vowel's own vibrato moves it 4-9 dB over the same span. See readCoda.
@@ -254,7 +255,7 @@ export const LOCAL_REF = { from: 6, to: 24, cap: 20, nasal: false };
 // No frame in a closure is vowel-like, so the anchor holds through it. Opt-in (`closeAnchor: true`); it replaces
 // localRef on the closure rule only, the nasal rule is untouched.
 export const ANCHOR = { frames: 10, drop: 12 };
-export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = false, deepOpts = {}, localRef = LOCAL_REF, closeAnchor = false, barLead = false, compactVelar = false, voicelessLow = VOICELESS_LOW, barBurst = true, voicedLead = VOICED_LEAD, lipShut = false, trace = null } = {}) {
+export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = false, deepOpts = {}, localRef = LOCAL_REF, closeAnchor = false, barLead = false, compactVelar = false, voicelessLow = VOICELESS_LOW, barBurst = true, voicedLead = VOICED_LEAD, lipShut = true, trace = null } = {}) {
   const hop = Math.round(0.005 * rate), a = Math.round((vowelAt + 0.06) * rate), z = Math.round((tEnd - 0.02) * rate), zEnd = Math.round(tEnd * rate);
   const ref = [];
   for (let i = Math.round(vowelAt * rate); i < a; i += hop) ref.push(frameFeatures(x, i, rate));
@@ -524,11 +525,11 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
     return null;
   };
   const deep = deepRun();
-  // A dark-vowel nasal's lip closure (opt-in `lipShut`, README "A dark-vowel m"): Z's *lum* and *dun* and X's *tum* on
-  // D4-E4 read as nothing. Frame by frame (eval/dark-nasal-diag.mjs) the sung m there sits 2-17 dB under the reference
+  // A dark-vowel nasal's lip closure (`lipShut`, the default since the twenty-third round; README "A dark-vowel m"):
+  // Z's *lum* and *dun* and X's *tum* on D4-E4 read as nothing. Frame by frame (eval/dark-nasal-diag.mjs) the sung m there sits 2-17 dB under the reference
   // and is dark in itself (tilt -39 to -50), but no darker than an /u/ that already had a tilt of -38 to -45, so the
   // level rule's 15 dB and the step rule's 7 dB of darkness against the vowel both fail. Its entry is what marks it:
-  // the band above 1 kHz blips up as the lips meet, then falls 14-19 dB within two hops and holds within 4 dB. So a
+  // the band above 1 kHz blips up as the lips meet, then falls 14-19 dB within two hops and holds within 1-4 dB. So a
   // run counts when the band above 1 kHz has fallen SH.fall dB or more from either of the two frames before it, every
   // frame sits SH.dark dB or more under that band in the vowel 25-45 ms before, SH.lo to SH.hi dB of that vowel's
   // level, dark in itself (murmurTilt), its level and its upper band holding within SH.hold and SH.hiHold dB over its
