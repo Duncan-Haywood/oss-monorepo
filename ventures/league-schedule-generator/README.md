@@ -33,6 +33,7 @@ third party: zero dependencies, one JSON file on a disk you own.
 - **Run:** `ADMIN_KEY=a LEAGUE_TOKEN=b STATE=./state.json node server.mjs`, or `docker compose up -d`
   (`docker-compose.yml`), Fly (`fly.toml`), or Render (`render.yaml`, deploy from your fork; it generates both
   secrets). Nothing runs on the author's accounts.
+- **Calendar feeds:** the player page links a subscribe-able feed for the whole league and each team (`webcal://`, Google Calendar, or the plain address). Optional `PUBLIC_URL=https://league.example.org` fixes the address in those links; without it the request's host is used (README "Calendar files that follow a rainout").
 - **Score reports:** the player page has a "Report a score" form. A report only waits in `/admin` ("Scores waiting for you"); **Approve** appends it to Results as `Hawks 3 - 2 Owls`, **Decline** drops it, and the table never changes until you approve. At most 100 wait at once.
 - Tests: `node --test server.test.mjs deploy.test.mjs`.
 
@@ -187,6 +188,52 @@ MIT licence, see `LICENSE`.
 **A message per team.** "Download a message per team" writes one ready-to-paste note for each team ("Hi Hawks, your fixtures: ...") with only that team's dates, venues, opponents and byes, so a coordinator can message each team instead of forwarding the whole league (`teamMessages` in `calc.mjs`).
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
+
+## Calendar files that follow a rainout (2026-11-17, latest)
+
+A team's `.ics` file used to give each game an id built from its date and its place in the
+round (`2-0-20261013-1@...`). A calendar import adds or updates events by that id and never
+deletes one missing from the new file, so when a rained-out game moved and the organiser
+re-sent the file, the player's calendar kept the old date as well as the new one. Every
+match now carries a **fixture id** (`fixture` on each match, `assignFixtureIds` in
+`calc.mjs`): the pair, lower team index first, and which meeting of that pair it is in the
+season as built (`0-3-1` is the second meeting of teams 0 and 3). Rainouts, pins and late
+entries copy the match and keep the id, and each move adds one to `moves`, written as the
+event's `SEQUENCE`. When a team withdraws, its removed fixtures go out as `STATUS:CANCELLED`
+events under the same ids, titled "Cancelled: ...", so a re-import marks them rather than
+leaving them in place. Officials' files add `-official` to the id so a referee who also plays
+does not have one event overwrite the other. The multi-division page (`divisionsIcs`) uses
+the division, the round and the pair.
+
+Measured with `node eval/ics-stable-uids.mjs` (`eval/ics-stable-uids.txt`): 9 league sizes
+(4 to 16 teams), single and double, 4 seeds, two random nights rained out and then the last
+team withdrawing mid-season. A player imports the first file, then the updated one; we count
+the events left over that are a **ghost** (no game then) or a **duplicate** (the same game
+twice). Old ids against fixture ids:
+
+| | team files | matches moved | old ids: ghost + duplicate | fixture ids |
+|---|---|---|---|---|
+| single division, two nights rained out | 584 | 640 | 1,139 + 0 | 0 + 0 |
+| then a team withdraws | 584 | | 512 + 2,222 | 0 + 0 |
+| multi-division example, one night rained out (4 runs) | 80 | 26 | 52 + 70 | 0 + 0 |
+
+The duplicates come from the old id's position-in-round part: removing or moving one game
+renumbered the others on that night. No file repeats an id.
+
+**Subscribe on the self-hosted league page.** `server.mjs`'s player page now offers, for the
+whole league (`/league/ics?t=...&team=all`, new) and each team, a `webcal://` subscribe link,
+a Google Calendar add-by-URL link, the plain address to paste into any app, and the download.
+A subscribed calendar re-reads the feed on its own schedule (each app decides how often), so
+a rainout reaches players without anyone re-sending a file. The address is taken from
+`PUBLIC_URL` when set, else the request's host (`x-forwarded-proto` for https behind Fly or
+Render); a host that is not a plain name is refused and the page falls back to downloads.
+The feed is served `inline` with `cache-control: no-cache`.
+
+**Not checked:** no real calendar app was used here. The counts above model an import that
+matches events by UID as RFC 5545 describes; how Google, Apple and Outlook each treat a
+re-imported file or a cancelled event, and how often they poll a subscription, is untested.
+Ids are stable while the season's base setup (teams, dates, courts, seed) is unchanged;
+editing those rebuilds the season and its ids.
 
 ## Import into TeamSnap or SportsEngine (2026-11-17)
 
