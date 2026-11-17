@@ -60,6 +60,7 @@
       <div><label for="choir">Choir ranges</label><select id="choir"><option value="" selected>Default: unison E2-E4, textbook sections</option><option value="textbook">Textbook (T C3-A4, B E2-E4; unison C3-E4)</option><option value="amateur">Amateur (T D3-F4, B G2-C4; unison D3-C4)</option><option value="octave">Octave a section, beginners (T E3-E4, B A2-A3; unison E3-A3)</option></select></div>
       <div><label for="stretch">Bar fit</label><select id="stretch"><option value="stretch" selected>Lengthen long notes to fill bars</option><option value="pad">Pad with rests</option><option value="none">No fitting</option></select></div>
       <div><label for="half">Chant speed</label><select id="half"><option value="">Normal</option><option value="1">Half-time over the backing (metal)</option></select></div>
+      <div><label for="organum">Second voice</label><select id="organum"><option value="">None: the chant in unison</option><option value="1">Organum: a fourth below, as in the Musica enchiriadis</option></select></div>
       <div><label for="sections">Song sections</label><select id="sections"><option value="">One groove all the way</option><option value="1">Intro, verses, builds, breakdown and drops (from the double bars)</option></select></div>
       <div><label for="acap">First verse (with sections)</label><select id="acap"><option value="">With the band</option><option value="1">A cappella: choir alone until the first build</option></select></div>
       <div><label for="lift">Last drop (with sections)</label><select id="lift"><option value="0">Same key</option><option value="2">Up a whole tone</option><option value="1">Up a semitone</option></select></div>
@@ -144,6 +145,7 @@
     import { sectionPlan, liftEvents } from "./sections.mjs";
     import { cueSheet, sectionCues } from "./cues.mjs";
     import { lrc } from "./lrc.mjs";
+    import { addOrganum, describeIntervals } from "./organum.mjs";
     import { eventsToMusicXml } from "./musicxml.mjs";
     import { parseSingers, singersChoir, fewestSectionsForSingers, sitOutNotes, SECTION_LABEL } from "./singers.mjs";
     import { wavBytes, zipStored } from "./files.mjs";
@@ -244,6 +246,15 @@ mode: 1;
         const tracks = [sung("tenor2") ? "a First tenors, a Second tenors" : "a Tenors", ...(sung("baritone") ? ["a Baritones"] : [])].join(", ") + " and a Basses track";
         lines.push(`Voices: ${describeSplit(r)}.${r.split ? ` The MIDI has ${tracks}; the cue sheet says who sings each note.` : ""}`);
       }
+      if ($("organum").value) {
+        if (events.some((e) => e.type === "note" && e.voice)) lines.push("Note: the organum is left out when the chant is split between sections.");
+        else {
+          const o = addOrganum(events, { from: 1, lift });
+          events = o.events;
+          const low = Math.min(...events.filter((e) => e.organal !== undefined).map((e) => e.organal));
+          lines.push(`Organum: ${o.notes} notes (${describeIntervals(o.intervals)}), lowest ${noteName(low)}; the MIDI has an Organal voice track.${low < 40 ? " Below E2: pick a higher final for a men's choir." : ""}`);
+        }
+      }
       const sum = summarize({ ...parsed, events }, { bpm, pulsesPerBar: 8 });
       let backing = null;
       if (g) {
@@ -272,7 +283,7 @@ mode: 1;
       lyrics = lrc(events, { bpm }, title);
       built = { header: parsed.header, gabcText: $("src").value, warnings: sum.warnings.slice(), coverMidis: events.filter((e) => e.type === "note").map((e) => e.midi),
         gabcName: loaded && loaded.text === $("src").value ? loaded.file : null,
-        settings: [g || "no backing", `${bpm} BPM`, useSections ? `sections${$("acap").value ? ", a cappella verse" : ""}${lift ? `, key up ${lift}` : ""}` : "", $("half").value ? "half-time" : "", sung() ? "sung Latin" : "pad choir", `${len.seconds.toFixed(0)} s`].filter(Boolean).join(", ") };
+        settings: [g || "no backing", `${bpm} BPM`, useSections ? `sections${$("acap").value ? ", a cappella verse" : ""}${lift ? `, key up ${lift}` : ""}` : "", $("half").value ? "half-time" : "", $("organum").value ? "organum" : "", sung() ? "sung Latin" : "pad choir", `${len.seconds.toFixed(0)} s`].filter(Boolean).join(", ") };
       score = eventsToMusicXml(events, { title, bpm, plan });
       const guides = plan ? sectionCues(events, { bpm, pulsesPerBar: 8, plan }) : [];
       lines.unshift(`${sum.name || "Chant"}: ${sum.notes} notes, ${sum.lowest}-${sum.highest} (ambitus ${sum.ambitus} semitones), final ${sum.final}`,
