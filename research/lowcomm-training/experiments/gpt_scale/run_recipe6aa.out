@@ -2,3 +2,4 @@
 {'noise': 'rk2', 'omega': 1, 'H': 64, 'seed': 1, 'full_std': 1.5821832120418549, 'full_fresh': 1.6080846842378378, 'clean_std': 1.5812481939792633, 'clean_fresh': 1.6071055512875319, 'theta2': 12536.793066263199, 'step2': 28.44006112543866, 'torch': '2.15.0+cpu', 'secs': 897}
 {'noise': 'rk4', 'omega': 3, 'H': 64, 'seed': 0, 'full_std': 1.5931439697742462, 'full_fresh': 1.6192487012594938, 'clean_std': 1.5876348465681076, 'clean_fresh': 1.613149642944336, 'theta2': 14907.780742883682, 'step2': 30.530636039446108, 'torch': '2.15.0+cpu', 'secs': 898}
 {'noise': 'rk2', 'omega': 1, 'H': 64, 'seed': 0, 'full_std': 1.599940650165081, 'full_fresh': 1.6225687079131603, 'clean_std': 1.5990624129772186, 'clean_fresh': 1.6220282446593046, 'theta2': 12540.009629309177, 'step2': 28.652555028151255, 'torch': '2.15.0+cpu', 'secs': 900}
+--- restarted 2026-11-17T01:30:51Z after a container restart; 4 finished runs kept, the 12 in progress rerun from scratch
