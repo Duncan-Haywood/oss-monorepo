@@ -1,6 +1,6 @@
 ---
 title: "One loop for one cost: a 23% faster PELT without changing a bit"
-seo_title: "Speeding up PELT changepoint detection in JavaScript"
+seo_title: "A specialised PELT loop for the Gaussian mean cost"
 date: 2026-11-17
 tags: [performance, changepoint-detection, javascript, v8]
 description: "PELT's inner loop served every cost model. Giving the Gaussian mean cost its own loop made 6,225 real calls 23% faster with identical results."
