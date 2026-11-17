@@ -417,6 +417,99 @@ function dayMatches(n, r, mode) {
   return true;
 }
 
+const sortedUnique = (xs) => [...new Set(xs)].sort((a, b) => a - b);
+
+/**
+ * The days of month m of year y that BYMONTH and BYMONTHDAY leave open, in
+ * order: none when BYMONTH excludes the month, BYMONTHDAY's days when it has
+ * any, else the whole month.
+ */
+function monthCandidates(r, y, m, mode = null) {
+  if (r.monthSet.size && !r.monthSet.has(m)) return [];
+  const first = dayNumber(y, m, 1);
+  const len = daysInMonth(y, m);
+  const lists = [];
+  if (r.mdPos.size || r.mdNeg.size) {
+    const ds = [];
+    for (const d of r.mdPos) if (d <= len) ds.push(d);
+    for (const d of r.mdNeg) if (len + 1 + d >= 1) ds.push(len + 1 + d);
+    lists.push(sortedUnique(ds).map((d) => first + d - 1));
+  }
+  // BYDAY's ordinals count within the month only for MONTHLY rules and YEARLY
+  // ones with BYMONTH; the caller passes a mode only then.
+  const byday = mode === null ? null : bydayCandidates(r, mode, first, len);
+  if (byday) lists.push(byday);
+  if (!lists.length) return Array.from({ length: len }, (_, j) => first + j);
+  return lists.reduce((a, b) => (b.length < a.length ? b : a));
+}
+
+/**
+ * The days of [first, first + len) that can pass dayMatches' BYDAY test, in
+ * order, when ordinals (2MO, -1FR) count within that span; null without BYDAY.
+ */
+function bydayCandidates(r, mode, first, len) {
+  if (!r.plainDays.size && !r.nthDays.length) return null;
+  const nth = [];
+  for (const x of r.nthDays) {
+    let i;
+    if (x.n > 0) i = ((x.wd - weekday(first) + 7) % 7) + 7 * (x.n - 1);
+    else i = len - 1 - ((weekday(first + len - 1) - x.wd + 7) % 7) + 7 * (x.n + 1);
+    if (i >= 0 && i < len) nth.push(first + i);
+  }
+  if (mode === "intersect" && r.plainDays.size && r.nthDays.length) return sortedUnique(nth.filter((n) => r.plainDays.has(weekday(n))));
+  for (let n = first; n < first + len; n++) if (r.plainDays.has(weekday(n))) nth.push(n);
+  return sortedUnique(nth);
+}
+
+/**
+ * Days of year y worth testing with dayMatches, in order: a superset of the
+ * days that pass, taken from the most selective of BYYEARDAY, BYWEEKNO and
+ * BYMONTH/BYMONTHDAY, and BYDAY. dayMatches still checks every filter, so the result is
+ * the same as testing all 365 or 366 days; a rule that never matches (each
+ * one searches 400 years before saying so) just tests far fewer.
+ */
+function yearCandidates(r, y, mode) {
+  const jan1 = dayNumber(y, 1, 1);
+  const len = daysInYear(y);
+  const lists = [];
+  if (r.ydSet.size) {
+    const ds = [];
+    for (const v of r.ydSet) {
+      const i = v > 0 ? v : len + 1 + v;
+      if (i >= 1 && i <= len) ds.push(jan1 + i - 1);
+    }
+    lists.push(sortedUnique(ds));
+  }
+  if (r.wnSet.size) {
+    // A day's week number counts in its own week-year, which can be y - 1 or y + 1.
+    const ds = [];
+    for (let wy = y - 1; wy <= y + 1; wy++) {
+      const start = week1Start(wy, r.wkst);
+      const weeks = (week1Start(wy + 1, r.wkst) - start) / 7;
+      for (const v of r.wnSet) {
+        const w = v > 0 ? v : weeks + 1 + v;
+        if (w < 1 || w > weeks) continue;
+        for (let j = 0; j < 7; j++) {
+          const n = start + (w - 1) * 7 + j;
+          if (n >= jan1 && n < jan1 + len) ds.push(n);
+        }
+      }
+    }
+    lists.push(sortedUnique(ds));
+  }
+  if (r.monthSet.size || r.mdPos.size || r.mdNeg.size) {
+    const ds = [];
+    for (let m = 1; m <= 12; m++) for (const n of monthCandidates(r, y, m, r.monthSet.size ? mode : null)) ds.push(n);
+    lists.push(ds);
+  }
+  if (!r.monthSet.size) {
+    const byday = bydayCandidates(r, mode, jan1, len);
+    if (byday) lists.push(byday);
+  }
+  if (!lists.length) return Array.from({ length: len }, (_, j) => jan1 + j);
+  return lists.reduce((a, b) => (b.length < a.length ? b : a));
+}
+
 function product(a, b, c) {
   const out = [];
   for (const x of a) for (const y of b) for (const z of c) out.push(x * 3600 + y * 60 + z);
@@ -425,6 +518,12 @@ function product(a, b, c) {
 
 function applySetPos(list, setpos) {
   if (!setpos.length) return list;
+  if (setpos.length === 1) {
+    // One position picks at most one entry; sub-daily rules call this per step.
+    const p = setpos[0];
+    const i = p > 0 ? p - 1 : list.length + p;
+    return i >= 0 && i < list.length ? [list[i]] : [];
+  }
   const picked = new Set();
   for (const p of setpos) {
     const i = p > 0 ? p - 1 : list.length + p;
@@ -455,19 +554,20 @@ function* ruleTimes(rule, start, { mode = "union", maxYears = null, weekFromStar
       if (r.freq === "YEARLY") {
         const y = s0.y + i * k;
         first = dayNumber(y, 1, 1);
-        days = Array.from({ length: daysInYear(y) }, (_, j) => first + j);
+        days = first > lastDay ? [] : yearCandidates(r, y, mode);
       } else if (r.freq === "MONTHLY") {
         const mm = s0.m - 1 + i * k;
         const y = s0.y + Math.floor(mm / 12);
         const m = (mm % 12) + 1;
         first = dayNumber(y, m, 1);
-        days = Array.from({ length: daysInMonth(y, m) }, (_, j) => first + j);
+        days = first > lastDay ? [] : monthCandidates(r, y, m, mode);
       } else if (r.freq === "WEEKLY") {
         first = start.day - ((weekday(start.day) - r.wkst + 7) % 7) + i * 7 * k;
         days = Array.from({ length: 7 }, (_, j) => first + j);
         // python-dateutil's first week begins at DTSTART, not at WKST, which
         // changes what BYSETPOS counts in that week.
         if (weekFromStart && i === 0) days = days.filter((n) => n >= start.day);
+        if (r.plainDays.size) days = days.filter((n) => r.plainDays.has(weekday(n)));
       } else {
         first = start.day + i * k;
         days = [first];
@@ -489,6 +589,9 @@ function* ruleTimes(rule, start, { mode = "union", maxYears = null, weekFromStar
   const cap = 3_000_000;
   let cacheDay = null;
   let cacheOk = false;
+  // product([h], ...) less its hour (and minute), built once instead of per step.
+  const msWithinHour = product([0], r.byminute, r.bysecond);
+  const sWithinMinute = product([0], [0], r.bysecond);
   while (steps++ < cap) {
     const p = (base + idx * k) * unit;
     const n = Math.floor(p / 86400);
@@ -512,8 +615,14 @@ function* ruleTimes(rule, start, { mode = "union", maxYears = null, weekFromStar
     const s = sod % 60;
     let set = [];
     if (!(r.hourSet.size && !r.hourSet.has(h)) && !(unit <= 60 && r.minuteSet.size && !r.minuteSet.has(mi)) && !(unit === 1 && r.secondSet.size && !r.secondSet.has(s))) {
-      if (unit === 3600) set = product([h], r.byminute, r.bysecond).map((t) => n * 86400 + t);
-      else if (unit === 60) set = product([h], [mi], r.bysecond).map((t) => n * 86400 + t);
+      if (unit === 1 && !r.bysetpos.length) {
+        // The common SECONDLY step: one time, nothing to pick from.
+        if (p >= startW) yield { w: p };
+        idx++;
+        continue;
+      }
+      if (unit === 3600) set = msWithinHour.map((t) => n * 86400 + h * 3600 + t);
+      else if (unit === 60) set = sWithinMinute.map((t) => n * 86400 + h * 3600 + mi * 60 + t);
       else set = [p];
     }
     for (const w of applySetPos(set, r.bysetpos)) if (w >= startW) yield { w };
@@ -551,8 +660,10 @@ export function expand(parsed, opts = {}) {
   const rfc = (opts.dtstartMode ?? (opts.flavor === "dateutil" ? "rule" : "rfc")) === "rfc";
   const tz = parsed.tzid && !start.utc ? parsed.tzid : null;
   const zoneOk = tz ? validZone(tz) : false;
-  const ex = new Set(parsed.exdates.map((e) => (e.date ? `d${e.day}` : `w${e.day * 86400 + e.sec}`)));
-  const excluded = (w) => ex.has(`w${w}`) || ex.has(`d${Math.floor(w / 86400)}`);
+  // Numbers, not strings: a sub-daily rule tests millions of candidates here.
+  const exW = new Set(parsed.exdates.filter((e) => !e.date).map((e) => e.day * 86400 + e.sec));
+  const exD = new Set(parsed.exdates.filter((e) => e.date).map((e) => e.day));
+  const excluded = (w) => (exW.size > 0 && exW.has(w)) || (exD.size > 0 && exD.has(Math.floor(w / 86400)));
   const afterW = opts.after ? opts.after.day * 86400 + opts.after.sec : -Infinity;
   const streams = parsed.rules.map((rule) => {
     // RFC: an unsynchronised DTSTART still takes one of the COUNT slots.
@@ -919,3 +1030,6 @@ export function reportCsv(result) {
   for (const o of result.occurrences) rows.push([q(o.date), q(o.weekday), q(o.utc ?? ""), q(o.offset ?? ""), q(o.source), q(o.zone === "gap" ? `clock skips this time; happens at ${o.actualLocal}` : o.zone === "overlap" ? "time happens twice; first one" : "")].join(","));
   return rows.join("\n") + "\n";
 }
+
+/** For tests only: the day filter and the candidate lists that narrow it. */
+export const _scan = { normalize, dayMatches, yearCandidates, monthCandidates };
