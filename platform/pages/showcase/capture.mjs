@@ -36,13 +36,13 @@ const { chromium } = pwModule.chromium ? pwModule : pwModule.default;
 export const SHOTS = [
   { slug: 'wall-framing-takeoff', focus: 'Wall drawing and layout marks', hero: '#drawing', caption: 'Draws every stud, header and cripple, then prices the lumber order' },
   { slug: 'container-load-planner', click: '#load-example', hero: 'h3:has(+ #view-top)', caption: 'Packs cartons and pallets into containers, drawn to scale' },
-  { slug: 'band-tour-profit-planner', click: '#load-example', focus: 'Your tour', caption: 'Shows which tour dates lose money before you book the van' },
-  { slug: 'league-schedule-generator', click: '#load-example', focus: 'Your schedule', caption: 'Builds a fair round-robin league schedule in a minute' },
-  { slug: 'event-seating-chart-optimizer', click: '#load-example', focus: 'Seating plan', caption: 'Seats every guest with the most wishes met' },
-  { slug: 'invoice-maker', click: '#load-example', focus: 'Receivables', caption: 'Makes invoices and ages what is still owed' },
+  { slug: 'band-tour-profit-planner', click: '#load-example', focus: 'Your tour', hero: '#big', caption: 'Shows which tour dates lose money before you book the van' },
+  { slug: 'league-schedule-generator', click: '#load-example', focus: 'Your schedule', hero: '#rounds-table', caption: 'Builds a fair round-robin league schedule in a minute' },
+  { slug: 'event-seating-chart-optimizer', click: '#load-example', focus: 'Seating plan', hero: '#tables', caption: 'Seats every guest with the most wishes met' },
+  { slug: 'invoice-maker', click: '#load-example', focus: 'Receivables', hero: '#dash', caption: 'Makes invoices and ages what is still owed' },
   { slug: 'ebay-fee-calculator', focus: 'Promoted Listings Standard vs skip', hero: '#promotedStandardTable', caption: 'Says what an eBay sale really leaves after fees' },
-  { slug: 'incident-postmortem-timeline', click: '#load-example', focus: 'Response metrics', caption: 'Measures detect-to-resolve times and drafts a blameless postmortem' },
-  { slug: 'greenhouse-bench-planner', click: '#load-ok', focus: 'Result', caption: 'Plans sowing weeks against greenhouse bench space' },
+  { slug: 'incident-postmortem-timeline', click: '#load-example', focus: 'Response metrics', hero: '#report-card', caption: 'Measures detect-to-resolve times and drafts a blameless postmortem' },
+  { slug: 'greenhouse-bench-planner', click: '#load-ok', focus: 'Result', hero: 'h3:has(+ .scroll #weeks)', caption: 'Plans sowing weeks against greenhouse bench space' },
 ];
 
 // The tools the recording walks through, in order.
@@ -63,20 +63,35 @@ const HERO_SIZE = '600x375';
 /** A close crop of `shot.hero` and what follows it, for the hub's hero (HERO_VIEWPORT). */
 async function heroCrop(page, shot, png) {
   await show(page, shot);
-  const top = await page.evaluate((selector) => {
+  const pad = await page.evaluate((selector) => {
     const el = document.querySelector(selector);
     if (!el || el.getBoundingClientRect().height === 0) return null;
-    el.scrollIntoView({ block: 'start', behavior: 'instant' });
     // Up to 12 px of air above it, but not into the element before (the wall
-    // picker's bottom border showed above Wall Framing Takeoff's drawing).
+    // picker's bottom border showed above Wall Framing Takeoff's drawing). The
+    // element before is the nearest visible earlier sibling of it or of a parent:
+    // a table that opens its .scroll wrapper has none of its own, and the League
+    // Schedule Generator's note above the wrapper bled into its crop.
     const r = el.getBoundingClientRect();
-    const prev = el.previousElementSibling?.getBoundingClientRect();
-    const pad = prev && prev.height > 0 ? Math.max(0, Math.min(12, r.top - prev.bottom - 2)) : 12;
-    return r.top + window.scrollY - pad;
+    let prev = null;
+    for (let node = el; node && node !== document.body && !prev; node = node.parentElement) {
+      for (let sib = node.previousElementSibling; sib && !prev; sib = sib.previousElementSibling) {
+        const box = sib.getBoundingClientRect();
+        if (box.height > 0 && box.bottom <= r.top + 1) prev = box;
+      }
+    }
+    const pad = prev ? Math.max(0, Math.min(12, r.top - prev.bottom - 2)) : 12;
+    window.scrollTo({ top: r.top + window.scrollY - pad, behavior: 'instant' });
+    return pad;
   }, shot.hero);
-  if (top == null) throw new Error(`${shot.slug}: hero selector ${shot.hero} matched nothing visible`);
+  if (pad == null) throw new Error(`${shot.slug}: hero selector ${shot.hero} matched nothing visible`);
   await page.waitForTimeout(300);
-  await page.screenshot({ path: png, fullPage: true, clip: { x: 0, y: Math.max(0, top), ...HERO_BOX } });
+  // Measured again after the scroll and cut from the viewport, not a full-page
+  // shot: a full-page capture lays the page out again at its whole height, and
+  // on the League Schedule Generator that moved the table about 20 px, so the
+  // note above it showed in the crop.
+  const y = await page.evaluate(([selector, p]) => document.querySelector(selector).getBoundingClientRect().top - p, [shot.hero, pad]);
+  const clipY = Math.max(0, Math.min(HERO_VIEWPORT.height - HERO_BOX.height, y));
+  await page.screenshot({ path: png, clip: { x: 0, y: clipY, ...HERO_BOX } });
 }
 
 async function show(page, shot) {
