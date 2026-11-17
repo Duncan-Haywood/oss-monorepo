@@ -25,3 +25,10 @@
 - (2026-11-17) a phone DNG with its own JPEG of the frame (corrected corners)
 - (2026-11-17) a real DNG with opcode flag bit 1 set
 - (2026-11-17) the DJI Phantom 4 DNG's vignette lift against DJI's own render (eval/opcode-quality-flag-*)
+
+## From the cull showcase (2026-11-17, eval/cull-showcase-2026-11-17.md)
+
+- A 4% reframe of a frame formed its own group (a 3% one grouped). Near-duplicates shown as separate groups cost the
+  photographer a look each; try a second hash or a crop-tolerant distance, scored on the same known bursts.
+- A copy at 30% brightness (exposure 0.28) stayed an alternate; it lost its group, so harmless, but the reject line
+  for exposure may sit too low.
