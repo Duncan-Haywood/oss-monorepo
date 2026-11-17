@@ -417,6 +417,34 @@ export const AUDIENCES = [
     match:
       /(^|-)rmd-|(^|-)qcd-|irmaa|pension-lump-sum|retirement-withdrawal|roth-conversion|social-security|fers-retirement|uk-pension-withdrawal|uk-state-pension|aca-subsidy-cliff/,
   },
+  {
+    id: 'parents',
+    who: 'parents',
+    name: 'Parents & families',
+    title: 'Free calculators for parents: child credit, childcare, leave',
+    description:
+      'Free calculators for parents: Child Tax Credit, EITC, dependent care FSA vs credit, nanny tax, 529 to Roth, UK maternity and shared parental pay, childcare.',
+    intro:
+      'Calculators for the money side of having children: the Child Tax Credit and EITC, whether a dependent care FSA or the childcare credit saves more, what employing a nanny really costs, rolling a leftover 529 into a Roth IRA, and on the UK side Statutory Maternity Pay, Shared Parental Pay, Tax-Free Childcare and the High Income Child Benefit Charge. The US tools follow federal rules; the four marked UK follow GOV.UK rules.',
+    starting:
+      'Expecting a baby? In the US, start with the Child Tax Credit calculator and the dependent care FSA vs credit comparison; in the UK, start with the maternity pay calculator and the shared parental pay planner, which shows how the weeks split between both parents.',
+    match:
+      /child-tax-credit|eitc-|dependent-care-fsa|nanny-tax|529-to-roth|uk-child-benefit|shared-parental|maternity-pay|tax-free-childcare/,
+  },
+  {
+    id: 'job-changers',
+    who: 'people changing or losing a job',
+    name: 'Changing or losing a job',
+    title: 'Free calculators for a layoff, severance or a new job offer',
+    description:
+      'Free calculators for leaving a job: severance, COBRA vs marketplace, 401(k) loan vs withdrawal, final paycheck dates, UK and AU redundancy pay, job offers.',
+    intro:
+      'Calculators for the weeks around a job change: whether a severance offer is in the usual range, keeping COBRA or buying a marketplace plan, a 401(k) loan against an early withdrawal, the date a final paycheck is legally due in your state, statutory redundancy pay and notice in Great Britain and Australia, comparing job offers on total pay, and a tracker for the applications in between.',
+    starting:
+      'Just been laid off? Check the severance offer and the final paycheck date first, since both have deadlines, then compare COBRA with a marketplace plan before the election window closes.',
+    match:
+      /severance-package|cobra-vs-marketplace|401k-loan-vs-withdrawal|(^|-)redundancy-pay|final-paycheck|job-offer-total-comp|job-application-tracker/,
+  },
 ];
 
 export function audiencePageId(audience) {

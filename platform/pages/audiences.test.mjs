@@ -174,3 +174,32 @@ test('the retirees page claims the drawdown-years tools and leaves saving-years 
     assert.ok(!audienceMatches(byId.retirees, slug), slug);
   }
 });
+
+test('the household pages claim parents\' and job-leavers\' tools and leave the business ones out', () => {
+  for (const slug of [
+    'child-tax-credit-calculator',
+    'dependent-care-fsa-vs-credit-calculator',
+    'nanny-tax-calculator',
+    'uk-statutory-maternity-pay-calculator',
+    'uk-shared-parental-pay-planner',
+    'uk-tax-free-childcare-calculator',
+  ]) {
+    assert.ok(audienceMatches(byId.parents, slug), slug);
+  }
+  for (const slug of ['childcare-center-break-even-calculator', 'kids-birthday-party-package-profit-calculator', 'babysitting-business-kit']) {
+    assert.ok(!audienceMatches(byId.parents, slug), slug);
+  }
+  for (const slug of [
+    'severance-package-calculator',
+    'cobra-vs-marketplace-calculator',
+    '401k-loan-vs-withdrawal-calculator',
+    'uk-redundancy-pay-calculator',
+    'au-redundancy-pay-calculator',
+    'job-offer-total-comp-calculator',
+  ]) {
+    assert.ok(audienceMatches(byId['job-changers'], slug), slug);
+  }
+  for (const slug of ['which-job-first', 'handyman-minimum-job-calculator', 'pto-accrual-liability-calculator', 'rsu-withholding-gap-calculator']) {
+    assert.ok(!audienceMatches(byId['job-changers'], slug), slug);
+  }
+});
