@@ -82,8 +82,10 @@ SaxonC-HE 13.1 ran the official XSLT.
 | with it (what the page runs) | **80** (76 Oman) | **4** |
 
 The 4 left are one rule's label, not a disagreement: PINT SG's BR-NG-08-GST-SG has
-`id="BR-NG-08-GST-SG"` and text `[BR-NG-08]-...`; the plain route reads the id from the
-text, Saxon from the attribute. Both fire on the same 4 copies.
+`id="BR-NG-08-GST-SG"` and text `[BR-NG-08]-...`; this script read the id from the
+text, Saxon from the attribute. Both fire on the same 4 copies. (Correction, later on
+2026-11-17: the product itself reports the attribute, as Saxon does; only the script read
+the text. The script now reads the `id` first: [`cius-whitespace-2026-11-17.md`](cius-whitespace-2026-11-17.md).)
 
 | mutants Saxon stops on (FORG0001) | shipped | after |
 |---|---|---|
@@ -121,8 +123,6 @@ raise nothing on any of OpenPeppol's 49 Oman examples that Saxon does not.
 
 ## Not done
 
-- CIUS-RO, CIUS-PT, CIUS-HR, NLCIUS and the French sets (plain-only, built from `.sch`)
-  are still not cross-checked against Saxon; they would need SchXslt to compile their
-  `.sch` first.
-- The plain route takes a rule's id from its message text where both exist; for
-  BR-NG-08-GST-SG that is the shorter id.
+- CIUS-RO, CIUS-PT, CIUS-HR and NLCIUS: done later the same day, 0 rule-id differences
+  ([`cius-whitespace-2026-11-17.md`](cius-whitespace-2026-11-17.md)). The French sets
+  (plain-only, built from `.sch`) still need SchXslt to compile their `.sch` first.

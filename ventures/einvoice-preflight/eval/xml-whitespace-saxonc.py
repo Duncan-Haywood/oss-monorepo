@@ -23,7 +23,31 @@ from pathlib import Path
 
 from saxonche import PySaxonProcessor
 
-xsl_dir, out_dirs = Path(sys.argv[1]), [Path(d) for d in sys.argv[2:]]
+argv = sys.argv[1:]
+# --plain-scope: compare only rule ids the row's plain sets (../plain/<set>.json) carry;
+# engine aborts are always kept. For a stylesheet that bundles rules its plain set leaves
+# to another route: NLCIUS's si-ubl-2.0.3.13.xslt carries the whole EU base around
+# BR-NL/SI-UBL (build-nl-rules.mjs keeps those), CIUS-PT's repeats BR-29 and others
+# (build-pt-rules.mjs drops what the EN 16931 set checks).
+plain_scope = "--plain-scope" in argv
+if plain_scope:
+    argv.remove("--plain-scope")
+PLAIN = Path(__file__).resolve().parent.parent / "plain"
+scope_ids = {}
+
+
+def in_scope(sets):
+    ids = set()
+    for name in sets:
+        if name not in scope_ids:
+            d = json.loads((PLAIN / f"{name}.json").read_text())
+            checks = [c for p in d["patterns"] for r in p["rules"] for c in r["checks"]]
+            scope_ids[name] = {c.get("id") for c in checks} | {m for c in checks for m in re.findall(r"^\[([^\]]+)\]", c.get("text", ""))}
+        ids |= scope_ids[name]
+    return ids
+
+
+xsl_dir, out_dirs = Path(argv[0]), [Path(d) for d in argv[1:]]
 rows = []
 xsl_map = {}
 for d in out_dirs:
@@ -54,6 +78,10 @@ with PySaxonProcessor(license=False) as proc:
 
     for row in rows:
         row["saxonc"] = sorted(saxon_ids(row))
+        if plain_scope:
+            keep = in_scope(row["sets"])
+            for key in ("saxonc", "plainFixed", "plainBefore"):
+                row[key] = [x for x in row[key] if x.startswith("#ERROR") or x in keep]
     print(proc.version)
 
 by_index = {(r["dir"], int(r["file"][:5])): r for r in rows}
@@ -72,9 +100,14 @@ for row in rows:
         per_profile.setdefault(row["profile"], Counter())
 missed_before, missed_after, extra_after, sjs_off, aborts_silent = Counter(), Counter(), Counter(), Counter(), Counter()
 examples = []
+unmutated_off = []
 for row in rows:
     if row["base"] is None:
         tally["files"] += 1
+        same = set(row["saxonc"]) == set(row["plainFixed"])
+        tally["unmutated, same rule ids"] += same
+        if not same and len(unmutated_off) < 10:
+            unmutated_off.append((row["source"], sorted(set(row["saxonc"]) - set(row["plainFixed"])), sorted(set(row["plainFixed"]) - set(row["saxonc"]))))
         continue
     tally["mutants"] += 1
     truth = delta(row, "saxonc")
@@ -129,5 +162,7 @@ print("raised by SaxonC, missed after:", dict(missed_after.most_common()))
 print("raised after, not by SaxonC:", dict(extra_after.most_common()))
 print("Saxon-JS vs SaxonC, rule ids that differ:", dict(sjs_off.most_common()))
 print("aborts the plain route does not see (field, variant):", dict(aborts_silent.most_common(12)))
+for u in unmutated_off:
+    print("unmutated, ids differ (Saxon only, plain only):", *u)
 for e in examples:
     print("\t".join(map(str, e)))
