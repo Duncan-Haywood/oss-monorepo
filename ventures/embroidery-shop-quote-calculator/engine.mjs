@@ -14,6 +14,27 @@
 // piece so the margin is never undershot by rounding. Pure functions, no
 // network, no dependencies.
 
+// Comma-separated, with spreadsheet-style double quotes so an exported
+// "$1,200" or "Smith, LLC" stays one field ("" inside quotes is a quote).
+const splitCsvLine = (line) => {
+  if (!line.includes('"')) return line.split(",").map((s) => s.trim());
+  const out = [];
+  let cur = "";
+  let quoted = false;
+  for (let i = 0; i < line.length; i += 1) {
+    const ch = line[i];
+    if (quoted) {
+      if (ch === '"' && line[i + 1] === '"') { cur += '"'; i += 1; }
+      else if (ch === '"') quoted = false;
+      else cur += ch;
+    } else if (ch === '"' && cur.trim() === "") { quoted = true; cur = ""; }
+    else if (ch === ",") { out.push(cur.trim()); cur = ""; }
+    else cur += ch;
+  }
+  out.push(cur.trim());
+  return out;
+};
+
 export const MODEL_NOTE =
   "Cost = garments + thread/backing per 1000 stitches + labor and machine overhead for the clock time (setup + hoops + hooping) + digitizing. " +
   "Quote = cost / (1 - target margin), at least the minimum charge, plus any rush surcharge, rounded up to the cent per piece. " +
@@ -341,7 +362,7 @@ export function parseJobs(text) {
   String(text || "").split(/\r?\n/).forEach((raw, i) => {
     const line = raw.trim();
     if (!line || line.startsWith("#")) return;
-    const cells = line.split(",").map((c) => c.trim());
+    const cells = splitCsvLine(line);
     if (/^name$/i.test(cells[0])) return;
     const where = `line ${i + 1}`;
     if (!cells[0]) { errors.push(`${where}: the job needs a name`); return; }

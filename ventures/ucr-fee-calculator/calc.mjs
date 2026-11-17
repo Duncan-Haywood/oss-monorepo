@@ -4,6 +4,27 @@
 // The default table is the 2027-and-later schedule from FMCSA's final rule, 91 FR 56063 (FR Doc 2026-17893,
 // published 2026-09-01, effective 2026-10-01). The fee table is an input so a visitor can correct it from ucr.gov.
 
+// Comma-separated, with spreadsheet-style double quotes so an exported
+// "$1,200" or "Smith, LLC" stays one field ("" inside quotes is a quote).
+const splitCsvLine = (line) => {
+  if (!line.includes('"')) return line.split(",").map((s) => s.trim());
+  const out = [];
+  let cur = "";
+  let quoted = false;
+  for (let i = 0; i < line.length; i += 1) {
+    const ch = line[i];
+    if (quoted) {
+      if (ch === '"' && line[i + 1] === '"') { cur += '"'; i += 1; }
+      else if (ch === '"') quoted = false;
+      else cur += ch;
+    } else if (ch === '"' && cur.trim() === "") { quoted = true; cur = ""; }
+    else if (ch === ",") { out.push(cur.trim()); cur = ""; }
+    else cur += ch;
+  }
+  out.push(cur.trim());
+  return out;
+};
+
 export const DEFAULT_FEES_TEXT = ["0-2: 55", "3-5: 167", "6-20: 333", "21-100: 1163", "101-1000: 5548", "1001+: 54165"].join("\n");
 export const FEE_TABLE_LABEL = "2027 registration year schedule (verify against ucr.gov for the year you are filing)";
 export const TYPES = ["motor-carrier", "private-carrier", "broker", "freight-forwarder", "leasing"];
@@ -47,7 +68,7 @@ export function parseEntities(text) {
   String(text ?? "").split(/\r?\n/).forEach((raw, i) => {
     const line = raw.trim();
     if (!line || line.startsWith("#")) return;
-    const p = line.split(",").map((s) => s.trim());
+    const p = splitCsvLine(line);
     const digits = (p[1] ?? "").replace(/[ _]/g, "");
     const n = /^\d+$/.test(digits) ? Number(digits) : NaN; // no hex, exponents, signs or decimals
     const type = (p[2] || "motor-carrier").toLowerCase().replace(/\s+/g, "-");

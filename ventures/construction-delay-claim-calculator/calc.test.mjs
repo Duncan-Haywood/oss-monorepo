@@ -81,3 +81,9 @@ test("csv has a header and the headline rows", () => {
   assert.match(csv, /^item,value/);
   assert.match(csv, /net_position,37209.16/);
 });
+
+test("a quoted event name with a comma stays one field (redteam 2026-11-17)", () => {
+  const r = parseDelays('"RFI 12, late drawings",14,owner,no');
+  assert.deepEqual(r.errors, []);
+  assert.deepEqual(r.delays.map((d) => [d.name, d.days, d.cause]), [["RFI 12, late drawings", 14, "owner"]]);
+});

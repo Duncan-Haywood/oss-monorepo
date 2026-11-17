@@ -3,6 +3,27 @@
 // contractor's own, and liquidated damages are charged on whatever lateness is left. The home-office overhead share uses the Eichleay
 // formula. This sets the claim against the liquidated damages so the net position of a delayed job can be seen before the letter is written.
 
+// Comma-separated, with spreadsheet-style double quotes so an exported
+// "$1,200" or "Smith, LLC" stays one field ("" inside quotes is a quote).
+const splitCsvLine = (line) => {
+  if (!line.includes('"')) return line.split(",").map((s) => s.trim());
+  const out = [];
+  let cur = "";
+  let quoted = false;
+  for (let i = 0; i < line.length; i += 1) {
+    const ch = line[i];
+    if (quoted) {
+      if (ch === '"' && line[i + 1] === '"') { cur += '"'; i += 1; }
+      else if (ch === '"') quoted = false;
+      else cur += ch;
+    } else if (ch === '"' && cur.trim() === "") { quoted = true; cur = ""; }
+    else if (ch === ",") { out.push(cur.trim()); cur = ""; }
+    else cur += ch;
+  }
+  out.push(cur.trim());
+  return out;
+};
+
 export const CAUSES = ["owner", "contractor", "weather", "other"];
 const round2 = (x) => Math.round((x + Number.EPSILON) * 100) / 100;
 const round4 = (x) => Math.round((x + Number.EPSILON) * 10000) / 10000;
@@ -17,7 +38,7 @@ export function parseDelays(text) {
   String(text ?? "").split(/\r?\n/).forEach((raw, i) => {
     const line = raw.trim();
     if (!line || line.startsWith("#")) return;
-    const p = line.split(",").map((s) => s.trim());
+    const p = splitCsvLine(line);
     const [name, daysRaw, causeRaw, concRaw] = p;
     const where = `Delay line ${i + 1}`;
     if (!name || daysRaw === undefined || !causeRaw) return errors.push(`${where}: need "name, days, owner|contractor|weather|other, concurrent yes|no".`);
