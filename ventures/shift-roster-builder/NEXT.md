@@ -13,3 +13,4 @@
 - (2026-11-16) order-free pair check played: no gain, stays opt-in (README "The order-free pass played")
 - (2026-11-16) second call-outs priced, off by default (README "The pair price in played weeks": fewer open hours on 3 of 4 weeks)
 - (2026-11-17) --cover-price moves two shifts together (README "Moving two shifts together")
+- (2026-11-17) a real Square account via --import-square (README "Reading Square's schedule")
