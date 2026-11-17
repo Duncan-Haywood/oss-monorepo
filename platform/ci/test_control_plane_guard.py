@@ -134,6 +134,64 @@ class Audit(unittest.TestCase):
         self.assertTrue(msg.startswith("::warning::"))
 
 
+class WithdrawnAndStaleApprovals(unittest.TestCase):
+    """Red team 2026-11-14: any APPROVED review ever left on the PR passed the audit."""
+
+    pr = {"number": 9, "user": {"login": "bot[bot]"}, "head": {"sha": "head"}}
+
+    def verdict(self, *reviews):
+        return guard.audit_verdict(["CLAUDE.md"], self.pr, list(reviews), {"owner"})[0]
+
+    def at(self, login, state, sha):
+        return {**review(login, state), "commit_id": sha}
+
+    def test_approval_of_the_merged_head_passes(self):
+        self.assertEqual(self.verdict(self.at("owner", "APPROVED", "head")), 0)
+
+    def test_changes_requested_after_approval_fails(self):
+        self.assertEqual(self.verdict(self.at("owner", "APPROVED", "head"),
+                                      self.at("owner", "CHANGES_REQUESTED", "head")), 1)
+
+    def test_dismissed_approval_fails(self):
+        self.assertEqual(self.verdict(self.at("owner", "APPROVED", "old"),
+                                      self.at("owner", "DISMISSED", "old")), 1)
+
+    def test_comment_after_approval_keeps_it(self):
+        self.assertEqual(self.verdict(self.at("owner", "APPROVED", "head"),
+                                      self.at("owner", "COMMENTED", "head")), 0)
+
+    def test_approval_of_an_older_commit_fails(self):
+        self.assertEqual(self.verdict(self.at("owner", "APPROVED", "old")), 1)
+
+    def test_re_approval_after_a_push_passes(self):
+        self.assertEqual(self.verdict(self.at("owner", "APPROVED", "old"),
+                                      self.at("owner", "CHANGES_REQUESTED", "old"),
+                                      self.at("owner", "APPROVED", "head")), 0)
+
+
+class AuditReadsEveryPageOfFiles(unittest.TestCase):
+    """Red team 2026-11-14: a commit's files come 300 to a page; page 2 was never read."""
+
+    def test_owned_file_on_the_second_page_fails_the_audit(self):
+        import os
+        from unittest import mock
+
+        page1 = {"files": [{"filename": f"ventures/v/{i:03}.mjs"} for i in range(300)]}
+        page2 = {"files": [{"filename": "CLAUDE.md"}]}
+        pr = {"number": 3, "merged_at": "t", "user": {"login": "bot[bot]"}, "head": {"sha": "h"}}
+
+        def fake_get(path):
+            if path.endswith("/pulls"):
+                return [pr]
+            return page2 if "page=2" in path else page1
+
+        with mock.patch.dict(os.environ, {"GITHUB_REPOSITORY": "o/r"}), \
+             mock.patch.object(guard, "gh_get", side_effect=fake_get), \
+             mock.patch.object(guard, "gh_pages", return_value=[]), \
+             mock.patch.object(guard, "summarize"):
+            self.assertEqual(guard.main(["--audit-commit", "abc"]), 1)
+
+
 class TrailingDoubleStar(unittest.TestCase):
     def test_dir_double_star_matches_nested_depth(self):
         rules = guard.parse_codeowners("/docs/** @owner\n")

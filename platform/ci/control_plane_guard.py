@@ -170,6 +170,39 @@ def owned(files: list[str], rules) -> list[str]:
     return [f for f in files if owners_for(f, rules)]
 
 
+def current_approvers(reviews: list, head_sha: str | None) -> set[str]:
+    """Logins whose latest decisive review approves the merged head.
+
+    A reviewer's later CHANGES_REQUESTED or DISMISSED review withdraws an
+    earlier approval (COMMENTED leaves it standing, as on GitHub), and an
+    approval of an older commit does not cover commits pushed after it. The
+    ruleset's dismiss-stale-reviews does the second only once it is applied,
+    and this audit exists for the time before that and for admin bypasses.
+    """
+    latest: dict[str, dict] = {}
+    for r in reviews:  # the API lists reviews oldest first
+        login = (r.get("user") or {}).get("login")
+        if login and r.get("state") in ("APPROVED", "CHANGES_REQUESTED", "DISMISSED"):
+            latest[login.lower()] = r
+    return {
+        login
+        for login, r in latest.items()
+        if r["state"] == "APPROVED" and (head_sha is None or r.get("commit_id") == head_sha)
+    }
+
+
+def commit_files(repo: str, sha: str, limit: int = 10) -> list[str]:
+    """Every file a commit touched. The API returns 300 per page (3,000 at
+    most), so a big squash could otherwise hide an owned file on page 2."""
+    files: list[str] = []
+    for page in range(1, limit + 1):
+        batch = gh_get(f"/repos/{repo}/commits/{sha}?per_page=300&page={page}").get("files", [])
+        files += [f["filename"] for f in batch]
+        if len(batch) < 300:
+            break
+    return files
+
+
 def audit_verdict(touched: list[str], pr: dict | None, reviews: list, logins: set[str]):
     """Return (exit_code, message) for one commit on main."""
     if not touched:
@@ -177,11 +210,7 @@ def audit_verdict(touched: list[str], pr: dict | None, reviews: list, logins: se
     listing = "\n".join(f"  - {f}" for f in touched)
     if pr is None:
         return 1, f"pushed to main without a pull request, touching:\n{listing}"
-    approvers = {
-        r["user"]["login"].lower()
-        for r in reviews
-        if r.get("state") == "APPROVED" and r.get("user")
-    }
+    approvers = current_approvers(reviews, (pr.get("head") or {}).get("sha"))
     if approvers & logins:
         return 0, f"PR #{pr['number']}: owner approved {len(touched)} control-plane file(s)"
     author = (pr.get("user") or {}).get("login", "").lower()
@@ -238,7 +267,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     sha = args.audit_commit
-    files = [f["filename"] for f in gh_get(f"/repos/{repo}/commits/{sha}").get("files", [])]
+    files = commit_files(repo, sha)
     prs = [p for p in gh_get(f"/repos/{repo}/commits/{sha}/pulls") if p.get("merged_at")]
     pr = prs[0] if prs else None
     reviews = gh_pages(f"/repos/{repo}/pulls/{pr['number']}/reviews") if pr else []
