@@ -1,0 +1,26 @@
+# Cronbach's alpha calculator with McDonald's omega, Guttman's lambdas and item analysis
+
+> Free scale reliability tool for questionnaires and surveys. Paste one row per respondent and one column per item and get Cronbach's alpha with its Feldt confidence interval, McDonald's omega from a one-factor model with a BCa bootstrap interval, Guttman's lambda-2 and lambda-6, standardised alpha, corrected item-total correlations, alpha and omega if each item is deleted, loadings, a reverse-keyed item check, the standard error of measurement and the Spearman-Brown projection. Checked against pingouin and factor_analyzer. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are statistical estimates from the answers you supply, not medical, psychological, legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://marisstella.app/scale-reliability/)
+
+## Use it from code
+
+- `node cli.mjs data/phq9-nhanes-2017-2018.csv [--items q1,q2,...] [--reverse q3] [--scale-min 1 --scale-max 5] [--missing 7,9] [--bootstrap 1000] [--json]`
+- `node platform/agents/tools.mjs call scale-reliability analyze --input '{"csv":"q1,q2,q3\n4,5,4\n3,3,4\n2,2,1\n5,4,5","bootstrap":0}'`
+
+## What it answers
+
+- How reliable is the total score: alpha with an interval, omega with an interval, lambda-2 and lambda-6.
+- Which items pull the scale down: item-rest correlations, alpha and omega if deleted, loadings.
+- Did I forget to reverse an item: items that correlate negatively with the rest are named.
+- Does the scale look like one dimension: eigenvalues and the one-factor residuals.
+- How many items would a target reliability take: Spearman-Brown.
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/scale-reliability): MIT licensed.

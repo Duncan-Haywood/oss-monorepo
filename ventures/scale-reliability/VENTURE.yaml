@@ -1,0 +1,64 @@
+name: scale-reliability
+description: >-
+  Free browser tool, CLI and agent call for anyone who built or used a
+  questionnaire scale: graduate students, survey researchers, psychologists,
+  UX and HR researchers. Paste one row per respondent and get Cronbach's alpha
+  with its Feldt interval, McDonald's omega with a BCa bootstrap interval,
+  Guttman's lambda-2 and lambda-6, and an item analysis (item-rest
+  correlations, alpha and omega if deleted, loadings, reverse-keyed items).
+  Matches pingouin and factor_analyzer. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-17 on an explore run, as a tool of "research algorithms as
+# tools" (portfolio/research-tools/README.md). No venture in the tree computed
+# Cronbach's alpha or omega (grep of 1,391 venture READMEs for Cronbach, omega,
+# scale reliability, item analysis); inter-rater-agreement covers agreement
+# between raters, not internal consistency. Implemented from the papers'
+# mathematics; no third-party code was ported. pingouin 0.7.0 (GPL-3.0),
+# factor_analyzer 0.5.1 (GPL-2.0), scipy and numpy were run only to produce
+# eval/reference.json; none of their code is in the tool.
+# Example data: NHANES 2017-2018 PHQ-9 answers, a US government public-use file
+# (data/SOURCE.md).
+#
+# First visitor: searches such as "cronbach's alpha calculator", "cronbach
+# alpha online", "mcdonald's omega calculator", "alpha if item deleted",
+# "scale reliability calculator"; students with survey data in a spreadsheet
+# who do not use R or SPSS. Volume not measured with an external tool.
+#
+# Alternatives: SPSS's RELIABILITY procedure (paid), R's psych and MBESS
+# packages, JASP and jamovi (installs), pingouin. The differentiators here: no
+# install and no upload, omega and its interval beside alpha by default, the
+# reverse-keyed check, and a coverage simulation that shows when alpha's
+# interval misses the true reliability.
+#
+# Liability: statistical output from supplied data, not medical, psychological
+# or professional advice; the example's PHQ-9 totals are not screening
+# results. Data never leave the browser (tests assert no network calls).
+
+hypotheses:
+  - claim: >-
+      Students and survey researchers checking a scale's reliability will use
+      a no-install page that shows omega and an interval beside alpha over
+      opening SPSS or learning R's psych package.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a result that disagrees with psych, pingouin or SPSS on the same data and settings beyond rounding (outside the documented convention differences), and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/scale-reliability/
+  analytics: null

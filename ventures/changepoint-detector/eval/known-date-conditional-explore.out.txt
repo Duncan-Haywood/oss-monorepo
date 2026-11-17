@@ -1,0 +1,20 @@
+# round 6, seed base 41000, screen 3000, cap 40, 199 replicates; only series the cut admits are scored
+## Size (null: line + AR(1), and random walks)
+null   n  40 rho 0.90 date 50%: cut admitted 12 of 3000; p <= 0.05 round 5 100.0%, conditional   8.3%; under 99 admitted replicates: 0
+null   n  60 rho 0.80 date 50%: cut admitted 19 of 3000; p <= 0.05 round 5  63.2%, conditional   0.0%; under 99 admitted replicates: 0
+null   n  60 rho 0.90 date 50%: cut admitted 40 of 2258; p <= 0.05 round 5  65.0%, conditional   5.0%; under 99 admitted replicates: 0
+null   n  60 rho 0.95 date 50%: cut admitted 40 of 1580; p <= 0.05 round 5  80.0%, conditional   5.0%; under 99 admitted replicates: 0
+null   n 120 rho 0.90 date 50%: cut admitted 8 of 3000; p <= 0.05 round 5  37.5%, conditional   0.0%; under 99 admitted replicates: 0
+null   n 120 rho 0.95 date 50%: cut admitted 30 of 3000; p <= 0.05 round 5  83.3%, conditional   3.3%; under 99 admitted replicates: 0
+null   n  60 rho 0.90 date 80%: cut admitted 38 of 3000; p <= 0.05 round 5  73.7%, conditional   0.0%; under 99 admitted replicates: 0
+walk   n  40 rho 0.00 date 50%: cut admitted 9 of 3000; p <= 0.05 round 5 100.0%, conditional  11.1%; under 99 admitted replicates: 0
+walk   n  60 rho 0.00 date 50%: cut admitted 40 of 1601; p <= 0.05 round 5  82.5%, conditional  17.5%; under 99 admitted replicates: 0
+walk   n 120 rho 0.00 date 50%: cut admitted 35 of 3000; p <= 0.05 round 5  91.4%, conditional  11.4%; under 99 admitted replicates: 0
+## Power (step in innovation sds at the date)
+step   n  60 rho 0.90 date 50% step 2: cut admitted 40 of 1679; p <= 0.05 round 5  77.5%, conditional   0.0%; under 99 admitted replicates: 0
+step   n  60 rho 0.90 date 50% step 4: cut admitted 40 of 1158; p <= 0.05 round 5  97.5%, conditional   2.5%; under 99 admitted replicates: 0
+step   n 120 rho 0.90 date 50% step 2: cut admitted 16 of 3000; p <= 0.05 round 5  62.5%, conditional   0.0%; under 99 admitted replicates: 0
+step   n 120 rho 0.90 date 50% step 4: cut admitted 27 of 3000; p <= 0.05 round 5  85.2%, conditional   0.0%; under 99 admitted replicates: 0
+step   n  40 rho 0.80 date 50% step 3: cut admitted 7 of 3000; p <= 0.05 round 5 100.0%, conditional   0.0%; under 99 admitted replicates: 1
+all null and walk: 271 admitted; round 5 rejected  78.2%, conditional   6.6%, uncalibrated 0
+all step: 130 admitted; round 5 rejected  84.6%, conditional   0.8%, uncalibrated 1
