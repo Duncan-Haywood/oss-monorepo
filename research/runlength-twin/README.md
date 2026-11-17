@@ -6,10 +6,19 @@ Pure Python, no dependencies. A gain `K` is the LQR gain of a twin whose plant p
 
 ```bash
 cd research/runlength-twin
-PYTHONPATH=src python3 -m unittest discover -s tests -v   # 11 tests, ~2 s
-PYTHONPATH=src python3 experiments/run.py                 # ~15 s; output in experiments/results.txt
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 15 tests, ~2 s
+PYTHONPATH=src python3 experiments/run.py                 # ~35 s; output in experiments/results.txt
 ```
 
 **Builds on.** The sim-to-real and safe-autonomy direction of ARPG (<https://arpg.colorado.edu/>), RECUV (<https://www.colorado.edu/recuv/>) and the HIRO group (<https://hiro-group.ronc.one/>), where the length of a hardware validation run is budgeted from simulated rollouts; no specific paper from those groups is reproduced and nothing here is affiliated with or endorsed by them. The variance of a time average of a correlated process is classical (Anderson 1971; Glynn & Whitt 1992; Geyer 1992); this project works out the exact scalar case and what the twin's wrong pole does to the sizing. Companion to `control-twin`, `horizon-twin` and `twin-audit` in this repository.
 
 Stylised: scalar linear-Gaussian plant, fixed known gain, normal-approximation interval, pilot repair without a coverage guarantee. Preliminary. MIT.
+
+## Known gaps (quality census 2026-11-17)
+
+From the first audit, [`portfolio/quality/audits/2026-11-17-runlength-twin.json`](../../portfolio/quality/audits/2026-11-17-runlength-twin.json):
+
+- No baseline against the procedure practitioners use: fixed-width sequential stopping with batch-means or spectral variance estimated from the real run (Glynn & Whitt 1992; Jones et al. 2006; Flegal & Jones 2010). The 0.685 coverage describes sizing that ignores the real run, and the core law is the textbook integrated autocorrelation time of an AR(1).
+- The figure labels `m` "gain multiplier" (it scales the twin's plant pole) and `r` "noise ratio" (it is the LQR control weight).
+- The "Builds on" paragraph says those groups budget hardware runs from simulated rollouts without citing where.
+- `tests/test_pinned.py` now pins the headline row against a closed-form DARE and the textbook IACT; the sizing-ratio, coverage and Riccati mutants that survived before are caught.

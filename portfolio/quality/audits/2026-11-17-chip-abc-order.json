@@ -1,0 +1,207 @@
+{
+ "date": "2026-11-17",
+ "subject": "research/chip-abc-order",
+ "stratum": "research",
+ "seed": "2026-11-17-5eee",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior logic-synthesis researcher / EDA engineer who has published on ABC and Yosys flows (structural bias, choice-based mapping, datapath synthesis); first checks: are the rewrites truly equivalence-preserving and proved so, is the effect real under an independent re-synthesis, is the metric honest (area vs depth), and is the mechanism and prior work on structural bias acknowledged",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Installed Yosys 0.33 (git sha1 2584903a060, same as results.txt). experiments/run.py in a scratch copy (/tmp/claude-0/audit-chip-abc-order/copy, 3 min 58 s) regenerated results.txt byte-identically (diff empty). Independent recompute: a carry-select adder hand-written from scratch (/tmp/claude-0/audit-chip-abc-order/indep/mk.py, no subject import) with every block in order a+b+c, c+a+b, etc., synthesised with my own yosys command lines: order a+b+cin gives 95x22=2090 (default), 112x11=1232 (dch), 111x15=1665 (resyn2), matching the README's 'as generated' column; order cin+a+b gives 84x27=2268 (default, the README max) and 128x8=1024 (dch, the README min). Equivalence re-checked by a different method (Icarus Verilog, 300,000 random vectors plus corners vs a+b): 0 mismatches for two hand-written orders and for two subject-generated shuffle+rename+permute variants. Ratio 1750/1220=1.434 and 1-1024/1232=16.9% recomputed by hand. Numbers are right; the framing of the 1024 'win' is not (see claims).",
+  "completeness": "Every reproduce step ran: unittest 4 tests OK in 1.7 s; run.py regenerates results.txt identically (about 4 min, README says about 6); figure.py's SVG labels (2090, 2268, 1024, 1408, 1220, 1750) match results.txt; live page https://marisstella.app/research/chip-abc-order/ returns 200 and carries the 1.43 figure. No stubs or TODOs. Next steps list two items that have since been done in research/chip-abc-orderpass and research/chip-abc-orderblocks without the README saying so.",
+  "verification": "`/usr/bin/python3.13 -m unittest discover -s tests`: 4 tests OK. Three mutants via platform/ci/quality_mutate.py, two survived: dropping `-verify` from the sat prover in flow.py:47 (confirmed by hand to make a deliberately non-equivalent adder 'prove' equivalent: rc 0 instead of 1) and breaking the depth regex in flow.py:39 (depth silently becomes 0, cells x depth becomes 0). Only disabling the operand shuffle in variants.py:35 was caught. There is no negative test for the equivalence checker, so the README's '0 failures of 288' guarantee is unguarded, and nothing tests a score value.",
+  "craft": "Read flow.py, variants.py, gens.py, run.py, figure.py, tests/test_variants.py. Small and readable. Defects: flow.score returns cells=0/depth=0 when its regexes do not match instead of raising (flow.py:38-40, a silent fallback that would score a variant as a perfect 0); Verilog is rewritten by regex (variants.py:5,37), acceptable for the generator's narrow output but undocumented as such; tests open files without closing (ResourceWarning); the figure's 'over 12 operand orders' range also includes the base text (run.py:281).",
+  "claims": "Numbers in the README table and bullets are all backed by results.txt and reproduced. Unbacked or misleading: (1) title and intro say the texts 'differ only cosmetically', but reordering a left-associative `a + b + c` chain changes the expression tree ((a+b)+c vs (c+a)+b), which is what lets opt_merge share a+b (the follow-up chip-abc-orderpass found exactly this); (2) 'best variant under dch_map (1024) beats ... the best adder (1232) by 17%' omits that it has 128 cells vs 112 (+14% area) and wins only on depth 8 vs 11; (3) Limitations says shuffle is a no-op on csel4, but 12 of 12 csel4 shuffle variants differ in text (the output-slice assigns are reordered); (4) suspected alumacc/macc mechanism and Next steps are stale after chip-abc-orderpass. Limits, AI-assistance note and tool version are stated.",
+  "fitness": "A researcher could build on it, and two did (chip-abc-orderpass, chip-abc-orderblocks). Nearest prior work: structural bias in ABC mapping (Chatterjee, Mishchenko, Brayton et al., 'Reducing structural bias in technology mapping', ICCAD 2005 / IEEE TCAD 2006, the origin of the dch choice computation used here) and datapath rewriting that removes sensitivity to written expression structure (Coward, Constantinides, Drane, e-graph datapath optimisation, ARITH 2022); neither is cited. The result (QoR depends on how a sum is parenthesised, via sharing) is sound but known in kind; its value is as an internal caveat for the repo's proposer loops, one structure, 12 samples of a 6^7 order space.",
+  "domain": "A synthesis researcher would accept the miter+SAT equivalence step and the pinned tool version, but would flag: cells x depth on a generic-gate library is a proxy that here hides an area-for-depth trade; 'cosmetic' conflates text with expression structure; sampling 12 of 6^7 orders when the whole space per block-type (6 orders, verified uniform here in 18 runs) is cheap to enumerate; no explanation of mechanism (the cause is resource sharing by opt_merge, a front-end effect, not ABC)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "csel4 cells x depth as generated, three scripts",
+   "method": "independent hand-written carry-select adder (order a+b+cin) synthesised with my own yosys commands, no subject import",
+   "command": "cd /tmp/claude-0/audit-chip-abc-order/indep && python3 mk.py abc > csel_abc.v && yosys -q -p \"read_verilog csel_abc.v; synth -top add16 -flatten -noabc; abc -g AND,NAND,OR,NOR,XOR,XNOR,ANDNOT,ORNOT,MUX [-script dch.abc|r2.abc]; opt_clean; tee -o /dev/stdout stat; tee -o /dev/stdout ltp -noff\"",
+   "expected": "2090 / 1232 / 1665 (README)",
+   "observed": "95x22=2090 / 112x11=1232 / 111x15=1665",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "csel4 extremes under operand reorder: default max 2268, dch min 1024",
+   "method": "independent hand-written adder with every block written cin+a+b",
+   "command": "cd /tmp/claude-0/audit-chip-abc-order/indep && python3 mk.py cab > csel_cab.v && yosys -q -p \"read_verilog csel_cab.v; synth -top add16 -flatten -noabc; abc -g AND,NAND,OR,NOR,XOR,XNOR,ANDNOT,ORNOT,MUX [-script dch.abc|r2.abc]; opt_clean; tee -o /dev/stdout stat; tee -o /dev/stdout ltp -noff\"",
+   "expected": "2268 (default max), 1024 (dch min)",
+   "observed": "84x27=2268, 128x8=1024",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "permuted/renamed/shuffled variants are equivalent to a+b",
+   "method": "Icarus Verilog simulation, 300,000 random vectors + corners vs a+b (different method from the subject's Yosys SAT miter)",
+   "command": "cd /tmp/claude-0/audit-chip-abc-order/indep && iverilog -o s tb.v var_all7.v && vvp s",
+   "expected": "0 mismatches",
+   "observed": "0 mismatches for csel_cab, csel_bca, var_all7 (csel4 all-rewrites seed 7), var_rip (cselrip4 seed 7)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "headline ratios 1.43x and 17%",
+   "method": "hand arithmetic from reproduced values",
+   "command": "1750/1220; 1-1024/1232",
+   "expected": "1.434; 17%",
+   "observed": "1.434; 16.9%",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiments/run.py regenerates results.txt",
+   "method": "run in scratch copy, diff against committed file",
+   "command": "cd /tmp/claude-0/audit-chip-abc-order/copy && /usr/bin/python3.13 experiments/run.py && diff experiments/results.txt <committed>",
+   "expected": "identical",
+   "observed": "identical, 3 min 58 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "unit tests",
+   "method": "run",
+   "command": "/usr/bin/python3.13 -m unittest discover -s tests",
+   "expected": "pass",
+   "observed": "Ran 4 tests in 1.748s OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "equivalence checker has a negative test",
+   "method": "mutation plus hand check that sat without -verify returns rc 0 on a broken adder",
+   "command": "yosys ... sat -prove trigger 0 miter (broken.v with cin=0 everywhere)",
+   "expected": "a test fails",
+   "observed": "mutant survived; broken adder 'proved' (rc 0)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'beats the best adder by 17%, with no change in function'",
+   "method": "cells and depth of the 1024 variant",
+   "command": "yosys -q -p \"read_verilog csel_cab.v; synth -top add16 -flatten -noabc; abc -g AND,NAND,OR,NOR,XOR,XNOR,ANDNOT,ORNOT,MUX [-script dch.abc|r2.abc]; opt_clean; tee -o /dev/stdout stat; tee -o /dev/stdout ltp -noff\" (dch)",
+   "expected": "a strictly better netlist",
+   "observed": "128 cells (vs 112, +14%) at depth 8 (vs 11): a depth-for-area trade, not stated",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "Limitations: shuffle is a no-op on csel4",
+   "method": "count text-changing shuffle variants",
+   "command": "variants.variant(gen_add16('csel',4),['shuffle'],i)!=src for i in range(12)",
+   "expected": "0 of 12 differ",
+   "observed": "12 of 12 differ (output-slice assigns reordered)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "figure numbers match results.txt",
+   "method": "read SVG text labels",
+   "command": "grep -o '<text[^>]*>[^<]*' experiments/csel4_order.svg",
+   "expected": "2090,2268,1024,1408,1220,1750",
+   "observed": "same",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "live page serves",
+   "method": "HTTP GET",
+   "command": "curl -s -o page.html -w '%{http_code}' https://marisstella.app/research/chip-abc-order/",
+   "expected": "200",
+   "observed": "200, contains 1.43",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "prior work on structural bias cited",
+   "method": "read README Builds on",
+   "command": "grep -in 'bias\\|choice\\|e-graph' README.md",
+   "expected": "structural-bias / datapath rewriting literature cited",
+   "observed": "only Brayton-Mishchenko ABC CAV 2010, 'not re-read'",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/chip_abc_order/flow.py:47",
+   "change": "sat -verify -prove trigger 0 -> sat -prove trigger 0",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/chip_abc_order/flow.py:39",
+   "change": "length=(\\d+) -> lengthX=(\\d+)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/chip_abc_order/variants.py:35",
+   "change": "rng.shuffle(terms) -> terms = terms",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The equivalence prover has no negative test: removing `-verify` makes a non-equivalent adder 'prove' equivalent and all tests stay green, so the '0 of 288 unproved' soundness claim is unguarded",
+   "where": "research/chip-abc-order/tests/test_variants.py:30",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17046"
+  },
+  {
+   "severity": "medium",
+   "what": "'1024 beats the best adder 1232 by 17%, with no change in function' omits that the 1024 netlist has 128 cells vs 112 (+14% area) and wins only on depth (8 vs 11); cells x depth hides the trade",
+   "where": "research/chip-abc-order/README.md:35",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17046"
+  },
+  {
+   "severity": "medium",
+   "what": "Texts are called 'cosmetically' different, but operand reorder in a left-associative chain changes the expression tree ((a+b)+c vs (c+a)+b), which decides whether a+b is shared; structural-bias prior work (Chatterjee/Mishchenko/Brayton ICCAD 2005; e-graph datapath rewriting, ARITH 2022) is not cited",
+   "where": "research/chip-abc-order/README.md:3",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "flow.score returns cells=0/depth=0 when the stat/ltp regexes do not match instead of raising; a parse failure would score as a perfect 0 (mutant survived)",
+   "where": "research/chip-abc-order/src/chip_abc_order/flow.py:38",
+   "category": "code-craft",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17046"
+  },
+  {
+   "severity": "low",
+   "what": "Limitations says shuffle is a no-op on csel4; 12 of 12 csel4 shuffle variants change the text (output-slice assigns)",
+   "where": "research/chip-abc-order/README.md:40",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Mechanism guess (alumacc/macc) and Next steps are stale: chip-abc-orderpass found opt_merge sharing, chip-abc-orderblocks ran the enumeration; README not updated or linked",
+   "where": "research/chip-abc-order/README.md:47",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17046"],
+ "verdict": "The numbers are right: the full experiment regenerates byte-identically on Yosys 0.33, and an independently hand-written carry-select adder reproduces 2090/1232/1665 as generated and the 2268 and 1024 extremes after reordering, with variant equivalence confirmed by 300,000-vector Icarus simulation. It does not meet the bar: verification is weak (the SAT prover and the depth parser can be broken with all four tests green), the README frames an expression-tree change as cosmetic and a depth-for-area trade (+14% cells) as a 17% win, and it does not cite the structural-bias literature that predicts the effect. Sound as an internal caveat for the repo's proposer loops, and two follow-ups built on it; not new in kind."
+}

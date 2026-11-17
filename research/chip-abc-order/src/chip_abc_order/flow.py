@@ -37,7 +37,10 @@ def score(file, top, script_name="yosys_default"):
         raise RuntimeError(p.stderr.strip() or p.stdout.strip())
     m = re.search(r"Number of cells:\s+(\d+)", p.stdout)
     d = re.search(r"Longest topological path in \S+ \(length=(\d+)\)", p.stdout)
-    return {"cells": int(m.group(1)) if m else 0, "depth": int(d.group(1)) if d else 0}
+    if not (m and d):
+        # a parse failure used to score as a perfect 0 cells / 0 depth (2026-11-17 quality census)
+        raise RuntimeError("could not read cell count or depth from Yosys output")
+    return {"cells": int(m.group(1)), "depth": int(d.group(1))}
 
 
 def equivalent(ref_file, ref_top, cand_file, cand_top):

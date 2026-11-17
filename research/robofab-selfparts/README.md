@@ -7,12 +7,12 @@ Pure Python, no dependencies. A toy parallel-jaw gripper (base, two rails, two f
 - **The cover sets the jaw requirement.** With a jaw opening of 25 mm or less, no complete order exists under any arm model: the largest reachable subassembly is 5 of 6 free parts and the cover is never placed. At 30 mm (the cover's 30 mm width in y) and above, a complete order exists. The minimum opening is 30.0 mm for all three arm models (0.5 mm steps). This is close to a restatement of the design: the arm must be able to hold the widest part of the thing it builds.
 - **Approach direction matters, jaw width above 30 mm does not.** Of 720 orderings of the six free parts, 384 are valid when the arm can lift or slide parts in any direction, and the same 384 when it is only forbidden from pushing parts up from below (nothing in this design needs that). A strictly top-down arm gets 120 (5!: the cover must go last, all others in any order).
 - **Gravity matters less than approach.** With the support rule off (every part held in place), the free and side arms accept all 720 orderings and the top-down arm still 120. The support rule alone removes 336 of 720 orders for the free and side arms.
-- **Negative result.** Jaw-pad thickness from 2 to 10 mm changes nothing (384 orders throughout) in this geometry; the pads always find free space. This is a limitation of the toy design, not evidence that pads never matter.
+- **Negative result.** Jaw-pad thickness from 2 to 10 mm changes nothing (384 orders throughout) in this geometry. Removing the pad collision checks altogether changes no count either (2026-11-17 audit), so in this design the grasp model is in effect only a jaw-width test. This is a limitation of the toy design, not evidence that pads never matter.
 
 ```bash
 cd research/robofab-selfparts
-PYTHONPATH=src python3 -m unittest discover -s tests -v   # 8 tests, ~2 s (includes brute-force check of the counts)
-PYTHONPATH=src python3 experiments/run.py                 # ~10 s; output in experiments/results.txt
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 11 tests, ~2 s (includes brute-force check of the counts)
+PYTHONPATH=src python3 experiments/run.py                 # ~1 s; output in experiments/results.txt
 ```
 
 ## Motivation
@@ -44,3 +44,12 @@ Printing the parts and testing on a low-cost open arm such as the SO-101 is the 
 None (standard library only). Produced with AI assistance (Claude). No language-model proposer was used.
 
 MIT.
+
+## Known gaps (quality census 2026-11-17)
+
+From the first audit, [`portfolio/quality/audits/2026-11-17-robofab-selfparts.json`](../../portfolio/quality/audits/2026-11-17-robofab-selfparts.json):
+
+- The grasp model has floating pads and no jaw or finger bodies, so it accepts grasps whose jaw axis runs along the direction of travel, where the leading finger sits in the part's path. Forbidding only those cuts the free and side arms from 384 to 180 orders, so most of the 384 vs 120 gap rests on grasps a real gripper cannot make.
+- The toy gripper's own fingers open 8 mm (12 mm at most between the rails), below the 30 mm its cover needs, so this gripper cannot assemble a copy of itself. The Motivation asks that question without answering it for the design.
+- Nearest prior work: directional blocking graphs (Wilson & Latombe 1994) and ASAP (Tian et al. 2024). The counts are not new beyond this geometry.
+- `tests/test_pinned.py` now pins the headline counts; two of the four seeded bugs that survived before are caught.
