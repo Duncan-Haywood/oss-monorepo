@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
   analyze, shapley, nucleolus, airportGame, airportShapley, bankruptcyGame, talmud, cea, cel,
-  separableCosts, coreCheck, completeGame, parseCoalitionTable, simplex, toCsv, PAPERS, num,
+  separableCosts, coreCheck, completeGame, parseCoalitionTable, simplex, toCsv, csvCell, PAPERS, num,
 } from "./engine.mjs";
 import { EXAMPLES } from "./example-data.mjs";
 
@@ -214,4 +214,13 @@ test("every paper has a verified DOI, what was implemented, and deviations", () 
     assert.equal(p.url, `https://doi.org/${p.doi}`);
     assert.ok(p.implemented.length > 40 && p.deviations.length >= 4, p.title);
   }
+});
+
+test("the CSV export defuses spreadsheet formulas in names but keeps negative numbers", () => {
+  assert.equal(csvCell("=HYPERLINK(1)"), "'=HYPERLINK(1)");
+  assert.equal(csvCell("@sum"), "'@sum");
+  assert.equal(csvCell(-12.5), "-12.5");
+  assert.equal(csvCell('a "b", c'), '"a ""b"", c"');
+  const r = analyze({ mode: "road", csv: "=cmd,100\nB,200" });
+  assert.match(toCsv(r), /\n'=cmd,/);
 });

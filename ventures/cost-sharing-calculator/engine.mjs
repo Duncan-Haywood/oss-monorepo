@@ -794,6 +794,13 @@ export function analyze(input = {}) {
   return { error: `unknown mode "${mode}" (coalitions, road or claims)` };
 }
 
+/** A CSV cell that a spreadsheet will not run as a formula (a name like "=HYPERLINK(...)" gets a leading apostrophe). */
+export function csvCell(c) {
+  let s = String(c);
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?(e[-+]?\d+)?$/i.test(s)) s = `'${s}`;
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
 /** One row per member and method, for spreadsheets. */
 export function toCsv(r) {
   const ids = r.methods.filter((m) => m.x).map((m) => m.id);
@@ -801,7 +808,7 @@ export function toCsv(r) {
   const lines = [head.join(",")];
   r.players.forEach((nm, i) => {
     const sa = r.mode === "claims" ? r.claims[i] : r.standalone[i];
-    lines.push([/[",\n]/.test(nm) ? `"${nm.replace(/"/g, '""')}"` : nm, round(sa, 6), ...r.methods.filter((m) => m.x).map((m) => round(m.x[i], 6))].join(","));
+    lines.push([nm, round(sa, 6), ...r.methods.filter((m) => m.x).map((m) => round(m.x[i], 6))].map(csvCell).join(","));
   });
   return lines.join("\n") + "\n";
 }
