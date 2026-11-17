@@ -39,6 +39,7 @@ export function panel(cell, seed) {
   for (let i = 0; i < units; i++) {
     let lam = [0.5 + u(), 0.5 + u()];
     if (cell.edge && i === 0) lam = [2.0, 2.0];
+    if (cell.lam0 && i === 0) lam = cell.lam0.slice(); // a treated unit inside the hull but near its corner
     const a = 2 * g();
     const y = []; let e = 0, w = 0;
     for (let t = 0; t < n; t++) {
@@ -47,6 +48,12 @@ export function panel(cell, seed) {
       y.push(a + lam[0] * F[0][t] + lam[1] * F[1][t] + e + w + (i === 0 && cell.effect && t >= k ? cell.effect(t - k, m) : 0));
     }
     rows.push(y);
+  }
+  // copies: the last 2c rows become c near-copy pairs (row 2j+1 of the block = row 2j + N(0, copySd) each point), so
+  // some donors can be matched almost exactly before the date (README "A floored ratio")
+  if (cell.copies) {
+    const start = units - 2 * cell.copies;
+    for (let j = 0; j < cell.copies; j++) rows[start + 2 * j + 1] = rows[start + 2 * j].map((v) => v + cell.copySd * g());
   }
   return rows;
 }
