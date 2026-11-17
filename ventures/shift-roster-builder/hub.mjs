@@ -7,6 +7,7 @@ import { punch, addPunch, removePunch, onTheClock, timesheet, timesheetCsv, zone
 import { readPayEnv, payForTimesheet, MEAL_RULES } from "./payrules.mjs";
 import { readLeaveEnv, leaveBalances, addLeaveUse, removeLeaveUse, setLeaveOpening, leaveCsv } from "./leave.mjs";
 import { setPin, hasPin, checkPin, validPin, readGeofence, placeOf, GEO_SCRIPT } from "./clockguard.mjs";
+import { FIELDS, splitCsvLine, readTemplate, parseOverrides, parseIds, payrollRows, fillTemplate } from "./payroll-export.mjs";
 import { readNoticeEnv, diffAssignments, logChanges, markRequested, noticeReport, noticeCsv, slotLabel, teamOfferText, standbyNoticeText, standbyAskText, onCallShifts, MAX_CHANGES } from "./notice.mjs";
 
 const MAX_BODY = 64 * 1024, MAX_REPLIES = 200, MAX_CALLOUTS = 100, MAX_TRADES = 100, MAX_CLAIMS = 100, MAX_OFFS = 100;
@@ -326,7 +327,7 @@ ${claimBlock}
 ${offBlock}
 <h2>Availability replies (${state.replies.length})</h2>
 <form method="post" action="/admin/merge?key=${k}"><textarea name="replies" readonly>${replies}</textarea><button ${state.replies.length ? "" : "disabled"}>Merge into staff list</button></form>
-<p class="note">${p ? `Published ${esc(p.at)}: ${p.unfilled} open shift(s).` : "Nothing published yet."} Staff link: <code>/team?t=TEAM_TOKEN</code></p><p><a href="/admin/changes?key=${k}">Schedule changes and notice pay</a> (${(state.changeLog || []).length} change(s) logged)</p>${clockOn ? `<p><a href="/admin/timesheet?key=${k}">Timesheet: hours worked against the schedule</a> (${(state.punches || []).length} punch(es) recorded) · <a href="/admin/leave?key=${k}">Leave balances</a></p>` : ""}`);
+<p class="note">${p ? `Published ${esc(p.at)}: ${p.unfilled} open shift(s).` : "Nothing published yet."} Staff link: <code>/team?t=TEAM_TOKEN</code></p><p><a href="/admin/changes?key=${k}">Schedule changes and notice pay</a> (${(state.changeLog || []).length} change(s) logged)</p>${clockOn ? `<p><a href="/admin/timesheet?key=${k}">Timesheet: hours worked against the schedule</a> (${(state.punches || []).length} punch(es) recorded) · <a href="/admin/leave?key=${k}">Leave balances</a> · <a href="/admin/payroll?key=${k}">Payroll import file</a></p>` : ""}`);
 }
 
 // The manager's timesheet for a published week (the current one or one of the last 12): worked time beside the
@@ -374,12 +375,62 @@ function timesheetPage(state, key, tc, weekStart, note = "") {
   const recent = [...(state.punches || [])].sort((a, b) => b.at - a.at).slice(0, 30).map((x) => { const t = ts.local(x.at); return `<tr><td>${esc(x.person)}</td><td>${x.kind === "in" ? "in" : "out"}</td><td>${esc(t.date)} ${esc(t.time)}</td><td>${x.by === "manager" ? "manager" : "staff"}</td><td><form method="post" action="/admin/punch-remove?key=${k}"><input type="hidden" name="id" value="${x.id}"><input type="hidden" name="week" value="${esc(week.weekStart)}"><button>Remove</button></form></td></tr>`; }).join("");
   return page(`Timesheet, week of ${week.weekStart}`, `${note}${pick}<p class="note">Times are ${esc(ts.tz)} (set TIMEZONE to your site's zone, for example America/Chicago). Late and early flags allow ${ts.graceMin} min (TIME_GRACE_MIN). The pay estimate below applies the PAY_RULES you set; check it against your own state's rules before paying.</p>
 <table><thead><tr><th>Person</th><th>Worked h</th><th>Scheduled h</th><th>Difference</th><th>Check</th></tr></thead><tbody>${sum || `<tr><td colspan="5">No punches or shifts this week.</td></tr>`}</tbody></table>
-<p><a href="/admin/timesheet.csv?key=${k}&amp;week=${esc(week.weekStart)}">Download CSV for payroll</a> · ${tc.leave ? `<a href="/admin/leave?key=${k}">${esc(tc.leave.name || "Leave")} balances</a> · ` : ""}<a href="/admin?key=${k}">Back to admin</a></p>
+<p><a href="/admin/timesheet.csv?key=${k}&amp;week=${esc(week.weekStart)}">Download CSV for payroll</a> · <a href="/admin/payroll?key=${k}&amp;week=${esc(week.weekStart)}">Fill your payroll service's template</a> · ${tc.leave ? `<a href="/admin/leave?key=${k}">${esc(tc.leave.name || "Leave")} balances</a> · ` : ""}<a href="/admin?key=${k}">Back to admin</a></p>
 ${tc.pay ? payTable(payForTimesheet(ts, wagesOf(state), tc.pay), tc.pay) : ""}
 <h2>Every stretch worked</h2><table><thead><tr><th>Person</th><th>Date</th><th>In</th><th>Out</th><th>Hours</th><th>Scheduled shift</th><th>Flags</th></tr></thead><tbody>${det}</tbody></table>
 <h2>Add a missed punch</h2><form method="post" action="/admin/punch-add?key=${k}"><input type="hidden" name="week" value="${esc(week.weekStart)}"><label>Person<select name="name" required>${names.map((n) => `<option>${esc(n)}</option>`).join("")}</select></label><label>Date<input type="date" name="date" required></label><label>Time (HH:MM, ${esc(ts.tz)})<input name="time" required placeholder="09:00" maxlength="5"></label><button name="kind" value="in">Add clock-in</button><button name="kind" value="out">Add clock-out</button></form><p class="note">Added punches are marked "added by manager" here and in the CSV, so the record shows what was typed in later.</p>
 <h2>Latest punches</h2><table><thead><tr><th>Person</th><th></th><th>When</th><th>By</th><th></th></tr></thead><tbody>${recent}</tbody></table>
 ${pinSection(state, k, week.weekStart, names, tc)}`);
+}
+
+// The payroll provider's own template, filled from the week's timesheet (payroll-export.mjs). The manager saves the
+// template's header row, payroll IDs and any column fixes once; each week is then one download.
+const MAX_TEMPLATE = 4000, MAX_IDS = 16 * 1024, MAX_OVERRIDES = 4000;
+export function payrollFile(state, tc, week) {
+  const cfg = state.payrollTemplate || {};
+  if (!cfg.header) return { error: "No template saved yet." };
+  const ts = timesheet(state.punches, week, { tz: tc.tz, nowMs: tc.now, graceMin: tc.grace });
+  const pay = payForTimesheet(ts, wagesOf(state), tc.pay);
+  const rows = payrollRows(pay, { weekStart: week.weekStart, leaveUses: tc.leave && !tc.leave.error ? state.leaveUses || [] : [], ids: parseIds(cfg.ids) });
+  const ov = parseOverrides(cfg.overrides);
+  const out = fillTemplate(cfg.header, rows, { overrides: ov.map, zeros: cfg.zeros === "zero" ? "zero" : "blank" });
+  return out.error ? out : { ...out, rows, overrideErrors: ov.errors, open: ts.people.filter((x) => x.rows.some((r) => r.open) || x.missing.length).map((x) => x.name) };
+}
+function payrollPage(state, key, tc, weekStart, note = "") {
+  const k = esc(key), weeks = weeksOf(state), week = weeks.find((w) => w.weekStart === weekStart) || weeks[0];
+  const cfg = state.payrollTemplate || {};
+  const back = `<p><a href="/admin/timesheet?key=${k}${week ? `&amp;week=${esc(week.weekStart)}` : ""}">Timesheet</a> · <a href="/admin?key=${k}">Back to admin</a></p>`;
+  let preview = "";
+  if (!week) preview = `<p>Publish a week first: the file is filled from the timesheet of a published week.</p>`;
+  else if (cfg.header) {
+    const f = payrollFile(state, tc, week);
+    if (f.error) preview = `<p class="err">${esc(f.error)}</p>`;
+    else {
+      const pick = weeks.length > 1 ? `<form method="get" action="/admin/payroll"><input type="hidden" name="key" value="${k}"><label>Week<select name="week">${weeks.map((w) => `<option${w.weekStart === week.weekStart ? " selected" : ""}>${esc(w.weekStart)}</option>`).join("")}</select></label><button>Show</button></form>` : "";
+      const how = { name: "matched by name", guess: '<span class="err">guessed</span>: check it', "you chose": "you chose", "fixed value": "fixed value", "no match": '<span class="err">left empty</span>' };
+      const cols = f.columns.map((c) => `<tr><td><code>${esc(c.header)}</code></td><td>${c.value != null ? `"${esc(c.value)}"` : c.field ? esc(FIELDS[c.field].label) : ""}</td><td>${how[c.how] || ""}</td></tr>`).join("");
+      const lines = f.csv.trim().split(/\r?\n/);
+      const grid = lines.slice(0, 26).map((l, i) => `<tr>${splitCsvLine(l, f.sep).map((x) => (i ? `<td>${esc(x)}</td>` : `<th>${esc(x)}</th>`)).join("")}</tr>`).join("");
+      const warn = [...f.overrideErrors, ...f.warnings, ...(f.open.length ? [`Still on the clock or with an unpaired punch: ${f.open.join(", ")}. Their open stretch is not counted; fix it on the timesheet first.`] : [])];
+      preview = `<h2>Week of ${esc(week.weekStart)}</h2>${pick}${warn.length ? `<ul>${warn.map((w) => `<li class="err">${esc(w)}</li>`).join("")}</ul>` : `<p class="ok">Every column is filled or deliberately empty.</p>`}
+<p><a href="/admin/payroll.csv?key=${k}&amp;week=${esc(week.weekStart)}"><strong>Download the filled template</strong></a> (${f.rows.length} people)</p>
+<h3>How each column is filled</h3><table><thead><tr><th>Column in your template</th><th>Filled with</th><th>How</th></tr></thead><tbody>${cols}</tbody></table>
+<h3>The file</h3><div style="overflow-x:auto"><table>${grid}</table></div>${lines.length > 26 ? `<p class="note">First 25 rows shown.</p>` : ""}`;
+    }
+  }
+  const fields = Object.entries(FIELDS).map(([key, f]) => `<code>${esc(key)}</code> (${esc(f.label)})`).join(", ");
+  const pick = `<script>document.querySelectorAll("input[data-template]").forEach(function(i){i.addEventListener("change",function(){var f=i.files&&i.files[0];if(!f)return;f.slice(0,65536).text().then(function(t){var l=t.replace(/^\uFEFF/,"").split(/\r?\n/).filter(function(x){return x.trim()})[0]||"";document.getElementById("header").value=l})})})</script>`;
+  return page("Payroll import file", `${note}<p class="note">Your payroll service imports hours from a spreadsheet, and each service wants its own columns. Download the blank hours template from your payroll service (Gusto, ADP, Paychex, QuickBooks and others offer one on their run-payroll or import screen), choose it below or paste its first row, and save. Each week this page fills the same columns, in the same order, from the timesheet and the pay rules on this server. Nothing is sent to your payroll service from here: you download the file and upload it there yourself.</p>
+${preview}
+<h2>Your template</h2><form method="post" action="/admin/payroll-template?key=${k}"><input type="hidden" name="week" value="${week ? esc(week.weekStart) : ""}">
+<label>Blank template file (only its first row is read, in your browser)<input type="file" accept=".csv,.txt,text/csv" data-template></label>
+<label>Header row<textarea id="header" name="header" maxlength="${MAX_TEMPLATE}" style="min-height:4rem" placeholder="Employee ID,First Name,Last Name,Regular Hours,Overtime Hours">${esc(cfg.header || "")}</textarea></label>
+<label>Payroll IDs, one per line as <code>Name = ID</code> (as your payroll service shows them; leading zeros kept)<textarea name="ids" maxlength="${MAX_IDS}" placeholder="Ana Ruiz = 000123">${esc(cfg.ids || "")}</textarea></label>
+<label>Column fixes, one per line: <code>Column = field</code> to choose what fills a column, <code>Column = blank</code> to leave it empty, or <code>Column = "value"</code> for the same value on every row (a company code or batch ID)<textarea name="overrides" maxlength="${MAX_OVERRIDES}" style="min-height:5rem" placeholder='Co Code = "ABC"'>${esc(cfg.overrides || "")}</textarea></label>
+<label><input type="checkbox" name="zeros" value="zero" style="width:auto"${cfg.zeros === "zero" ? " checked" : ""}> Write 0.00 for zero hours (default: leave the cell empty)</label>
+<button>Save template</button></form>
+<p class="note">Fields: ${fields}. A column whose name is not recognised is left empty and listed above; a guessed column is marked so you can check it. The hours are the estimate from PAY_RULES (regular, 1.5x and 2x), leave hours are those recorded on the leave page inside the week, and the rate and gross come from the wages in the staff list. Check the file in your payroll service's preview before you submit payroll: tips, bonuses, differentials and local rules are not in it.</p>
+${back}${pick}`);
 }
 
 // Accrued leave from the time clock (leave.mjs): each person's balance, the uses the manager recorded, a form to record
@@ -685,6 +736,27 @@ export function handler(state, save, env = globalThis.process?.env ?? {}, now = 
       const c = tcNow();
       const tsw = timesheet(state.punches, w, { tz: c.tz, nowMs: c.now, graceMin: c.grace });
       return send(200, timesheetCsv(tsw, payForTimesheet(tsw, wagesOf(state), c.pay)), "text/csv; charset=utf-8", { "content-disposition": `attachment; filename="timesheet-${w.weekStart}.csv"` });
+    }
+    if (clockOn && req.method === "GET" && url.pathname === "/admin/payroll") {
+      const note = url.searchParams.get("note");
+      return send(200, payrollPage(state, adminKey, tcNow(), url.searchParams.get("week"), note ? `<p class="ok">${esc(note)}</p>` : ""));
+    }
+    if (clockOn && req.method === "GET" && url.pathname === "/admin/payroll.csv") {
+      const weeks = weeksOf(state), w = weeks.find((x) => x.weekStart === url.searchParams.get("week")) || weeks[0];
+      if (!w) return send(404, "no published week\n", "text/plain");
+      const f = payrollFile(state, tcNow(), w);
+      if (f.error) return send(404, f.error + "\n", "text/plain");
+      return send(200, f.csv, f.sep === "\t" ? "text/tab-separated-values; charset=utf-8" : "text/csv; charset=utf-8", { "content-disposition": `attachment; filename="payroll-${w.weekStart}.${f.sep === "\t" ? "txt" : "csv"}"` });
+    }
+    if (clockOn && req.method === "POST" && url.pathname === "/admin/payroll-template") {
+      const dest = `/admin/payroll?key=${encodeURIComponent(adminKey)}&week=${encodeURIComponent(String(form.get("week") || ""))}`;
+      const header = String(form.get("header") || "").replace(/^\uFEFF/, "").split(/\r?\n/).find((l) => l.trim() !== "") || "";
+      const ids = String(form.get("ids") || ""), overrides = String(form.get("overrides") || "");
+      if (header.length > MAX_TEMPLATE || ids.length > MAX_IDS || overrides.length > MAX_OVERRIDES) return back(dest, "Not saved: too long. Paste only the template's first row.");
+      if (header) { const t = readTemplate(header); if (t.error) return back(dest, "Not saved: " + t.error); }
+      state.payrollTemplate = { header: header.trim(), ids, overrides, zeros: form.get("zeros") === "zero" ? "zero" : "blank" };
+      save();
+      return back(dest, header ? "Template saved." : "Template cleared.");
     }
     const leaveHere = `/admin/leave?key=${encodeURIComponent(adminKey)}`;
     if (clockOn && req.method === "GET" && url.pathname === "/admin/leave") {
