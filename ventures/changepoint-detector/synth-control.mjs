@@ -164,7 +164,11 @@ function nelderMead(f, x0, { step = 1, maxEval = 160, tol = 1e-9 } = {}) {
 // W(V) minimises sum_m v_m (x1_m - X0_m W)^2 on the simplex; V is chosen to minimise the before-date squared gap of
 // the outcome under W(V) (the "data-driven" V of Synth). v = softmax(theta), theta by Nelder-Mead from equal weights.
 // The same procedure, with the same starting point, is applied to every placebo, so the test stays symmetric.
-export function synthFitCovariates(y, donors, k, x1, X0, { maxEval = 160 } = {}) {
+// vSearch 'multi' (README "Several starts for V", eval/synth-multi-prereg-2026-11-17.md): Nelder-Mead runs from equal
+// weights and then once from each predictor's corner (theta_m = startTilt, the rest 0, so v_m is about 0.83 with five
+// predictors), each start with its own maxEval budget and a fresh inner warm start; the best V seen by any start is
+// kept. The before-gap is piecewise flat in V (W jumps between donor sets), and one start can stall on a plateau.
+export function synthFitCovariates(y, donors, k, x1, X0, { maxEval = 160, vSearch = 'single', startTilt = 3 } = {}) {
   const P = x1.length, J = donors.length;
   const yb = y.slice(0, k);
   let warm = null; // each inner solve starts from the last weights (deterministic: the same sequence for every unit)
@@ -173,7 +177,13 @@ export function synthFitCovariates(y, donors, k, x1, X0, { maxEval = 160 } = {})
   const softmax = (th) => { const mx = Math.max(...th), e = th.map((a) => Math.exp(a - mx)), s = e.reduce((a, b) => a + b, 0); return e.map((a) => a / s); };
   let best = null;
   const f = (th) => { const v = softmax(th), w = weightsFor(v), l = preLoss(w); if (!best || l < best.l) best = { l, v, w }; return l; };
-  if (P === 1) f([0]); else nelderMead(f, new Array(P).fill(0), { maxEval });
+  if (P === 1) f([0]);
+  else {
+    const starts = [new Array(P).fill(0)];
+    if (vSearch === 'multi') for (let m = 0; m < P; m++) starts.push(Array.from({ length: P }, (_, i) => (i === m ? startTilt : 0)));
+    else if (vSearch !== 'single') throw new Error(`unknown vSearch ${vSearch} (single or multi)`);
+    for (const x0 of starts) { warm = null; nelderMead(f, x0, { maxEval }); }
+  }
   const w = best.w;
   const synth = y.map((_, t) => donors.reduce((s, d, j) => s + w[j] * d[t], 0));
   const gap = y.map((val, t) => val - synth[t]);
@@ -194,7 +204,7 @@ export function synthFitCovariates(y, donors, k, x1, X0, { maxEval = 160 } = {})
 // its standard deviation over all units (treated and donors, one scale for every fit), and every fit, the treated
 // one and each placebo's, chooses its own V as synthFitCovariates says. Without predictors, the fit matches every
 // before-date outcome (the default).
-export function synthControlTest(y, donors, k, { minBefore = 5, minAfter = 2, fitWarnQuantile = 0.8, placeboPool = 'without', statistic = 'floored', predictors = null, maxEval = 160 } = {}) {
+export function synthControlTest(y, donors, k, { minBefore = 5, minAfter = 2, fitWarnQuantile = 0.8, placeboPool = 'without', statistic = 'floored', predictors = null, maxEval = 160, vSearch = 'single' } = {}) {
   const names = Object.keys(donors);
   const n = y.length;
   if (names.length < 4) throw new Error(`a synthetic control needs at least 4 donor series (got ${names.length})`);
@@ -213,7 +223,7 @@ export function synthControlTest(y, donors, k, { minBefore = 5, minAfter = 2, fi
       const ti = target < 0 ? 0 : target + 1;
       const oi = others.map((i) => (i < 0 ? 0 : i + 1));
       const X0 = Array.from({ length: P }, (_, m) => oi.map((i) => scaled[i][m]));
-      return synthFitCovariates(target < 0 ? y : series[target], others.map((i) => (i < 0 ? y : series[i])), k, scaled[ti], X0, { maxEval });
+      return synthFitCovariates(target < 0 ? y : series[target], others.map((i) => (i < 0 ? y : series[i])), k, scaled[ti], X0, { maxEval, vSearch });
     };
   }
   const all = names.map((_, i) => i);

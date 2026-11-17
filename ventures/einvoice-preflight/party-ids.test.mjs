@@ -158,3 +158,27 @@ test("a CII item id (BT-157) filed under a Peppol COMMON scheme meets that schem
   assert.deepEqual(idRules(checkInvoice(parseCiiInvoice(item('<ram:GlobalID schemeID="0160">4012345000008</ram:GlobalID>')))), []);
   assert.equal(parseCiiInvoice(CII).lines[0].scheme_ids, undefined);
 });
+
+test("UBL line-level parties (Delivery/DeliveryParty, an Item's ManufacturerParty) meet Peppol's COMMON id rules; item ids do not", () => {
+  const delivery = (inner) => UBL.replace('<cbc:LineExtensionAmount currencyID="EUR">200.00</cbc:LineExtensionAmount>\n    <cac:Item>',
+    `<cbc:LineExtensionAmount currencyID="EUR">200.00</cbc:LineExtensionAmount><cac:Delivery><cac:DeliveryParty>${inner}</cac:DeliveryParty></cac:Delivery>\n    <cac:Item>`);
+  // A mistyped GLN check digit on a line's deliver-to party: R040 fails in Peppol, so INV-062.
+  const typo = parseUblInvoice(delivery('<cac:PartyIdentification><cbc:ID schemeID="0088">4012345000008</cbc:ID></cac:PartyIdentification>'));
+  assert.deepEqual(typo.lines[0].scheme_ids, [{ id: "4012345000008", scheme: "0088" }]);
+  const findings = checkInvoice(typo);
+  assert.deepEqual(idRules(findings), [["INV-062", "/lines/0/scheme_ids/0/id", "error"]]);
+  assert.match(findings.find((f) => f.rule === "INV-062").message, /^Line 1 identifier/);
+  // Legal registration under 0007 (Swedish org number, Luhn): a bad one fails; a good one passes.
+  const legal = (v) => delivery(`<cac:PartyLegalEntity><cbc:RegistrationName>Store 12 AB</cbc:RegistrationName><cbc:CompanyID schemeID="0007">${v}</cbc:CompanyID></cac:PartyLegalEntity>`);
+  assert.deepEqual(idRules(checkInvoice(parseUblInvoice(legal("5560360795")))), [["INV-062", "/lines/0/scheme_ids/0/id", "error"]]);
+  assert.deepEqual(idRules(checkInvoice(parseUblInvoice(legal("5560360793")))), []);
+  // An Item's ManufacturerParty is reached the same way.
+  const maker = parseUblInvoice(UBL.replace("</cac:ClassifiedTaxCategory>",
+    '</cac:ClassifiedTaxCategory><cac:ManufacturerParty><cac:PartyIdentification><cbc:ID schemeID="0088">4012345000008</cbc:ID></cac:PartyIdentification></cac:ManufacturerParty>'));
+  assert.deepEqual(idRules(checkInvoice(maker)), [["INV-062", "/lines/0/scheme_ids/0/id", "error"]]);
+  // A GTIN as the item's standard id is outside every COMMON context, even under 0088.
+  const gtin = parseUblInvoice(UBL.replace("<cbc:Name>Consulting</cbc:Name>",
+    '<cbc:Name>Consulting</cbc:Name><cac:StandardItemIdentification><cbc:ID schemeID="0088">4012345000008</cbc:ID></cac:StandardItemIdentification>'));
+  assert.equal(gtin.lines[0].scheme_ids, undefined);
+  assert.equal(parseUblInvoice(UBL).lines[0].scheme_ids, undefined);
+});

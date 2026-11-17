@@ -71,6 +71,85 @@ export function modelFindings(runs) {
 export const dupLine = (d) => `${d.globalId} is held by ${d.elements.length} elements: ${d.elements.map((e) => `#${e.id} ${e.type}${e.name ? ` "${e.name}"` : ""}`).join(", ")}`;
 const DUP_WHY = "IFC requires every GlobalId to be unique (IfcRoot rule UR1); BCF viewpoints, model diffs and this report's GitLab issues find elements by GlobalId, so a shared one points them at the wrong element or at both. Usually an authoring-tool copy or a merge of two exports.";
 
+// GlobalIds shared between the models of one run: a federated coordination
+// set, one export per discipline. UR1 holds inside one file, so a GlobalId
+// held in two discipline files is a fault no single-model check sees, and the
+// coordination tools that federate them (BCF topics select by IfcGuid, clash
+// and diff tools match by it) then treat two files' elements as one.
+// indexes is [{ model, index }], index from ids.mjs globalIdIndex. Three kinds:
+// - frame: project, site, building, storeys, spaces or grids of the same
+//   class in each file. Discipline files exported from one template or with a
+//   copy-monitored grid share these on purpose (every pair of the HHS
+//   architect, MEP and structural exports shares its 7), so they are counted,
+//   not warned about.
+// - revision pairs: two models sharing at least revisionShare of the smaller
+//   one's GlobalIds (frame excluded from the shared count) are one model twice (a revision left beside the
+//   current file, or a copy), so every element is in the set twice. One
+//   finding per pair, not thousands.
+// - conflicts: every other shared GlobalId. The same class in both is one
+//   element modelled or exported into two disciplines' files (counted twice
+//   in quantities); different classes are two elements a viewer cannot tell
+//   apart.
+// The IDS verdict stands; CI fails on them only when asked
+// (--fail-on-shared-globalids).
+export function crossModelGlobalIds(indexes, { revisionShare = 0.5, minRevision = 10 } = {}) {
+  const empty = { models: indexes.length, conflicts: [], revisions: [], frame: [], pairs: [] };
+  if (indexes.length < 2) return empty;
+  const holders = new Map(); // GlobalId -> [{ m, e }] for GlobalIds in 2+ models
+  const firstAt = new Map();
+  indexes.forEach(({ index }, m) => {
+    for (const [g, e] of index) {
+      const f = firstAt.get(g);
+      if (f === undefined) { firstAt.set(g, { m, e }); continue; }
+      let l = holders.get(g);
+      if (!l) holders.set(g, (l = [f]));
+      l.push({ m, e });
+    }
+  });
+  const sizes = indexes.map(({ index }) => index.size);
+  const pairKey = (a, b) => (a < b ? `${a},${b}` : `${b},${a}`);
+  const pairs = new Map();
+  const isFrame = (hs) => hs.every((h) => h.e.kind === "frame" && h.e.type === hs[0].e.type);
+  for (const hs of holders.values()) {
+    const frame = isFrame(hs);
+    for (let i = 0; i < hs.length; i++) for (let j = i + 1; j < hs.length; j++) {
+      const k = pairKey(hs[i].m, hs[j].m);
+      const p = pairs.get(k) || { a: Math.min(hs[i].m, hs[j].m), b: Math.max(hs[i].m, hs[j].m), shared: 0, frame: 0 };
+      p.shared++;
+      if (frame) p.frame++;
+      pairs.set(k, p);
+    }
+  }
+  const revision = new Set();
+  for (const [k, p] of pairs) {
+    const rest = p.shared - p.frame;
+    p.revision = rest >= minRevision && rest >= revisionShare * Math.min(sizes[p.a], sizes[p.b]);
+    if (p.revision) revision.add(k);
+  }
+  const out = { ...empty };
+  const cell = (h) => ({ model: indexes[h.m].model, id: h.e.id, type: h.e.type, name: h.e.name ?? null, kind: h.e.kind ?? "other" });
+  for (const [g, hs] of holders) {
+    // Only holders in a pair that is not a revision pair count.
+    const keep = new Set();
+    for (let i = 0; i < hs.length; i++) for (let j = i + 1; j < hs.length; j++) if (!revision.has(pairKey(hs[i].m, hs[j].m))) { keep.add(i); keep.add(j); }
+    if (!keep.size) continue;
+    const hk = hs.filter((_, i) => keep.has(i));
+    const entry = { globalId: g, sameClass: hk.every((h) => h.e.type === hk[0].e.type), holders: hk.map(cell) };
+    (isFrame(hk) ? out.frame : out.conflicts).push(entry);
+  }
+  const byG = (a, b) => (a.globalId < b.globalId ? -1 : a.globalId > b.globalId ? 1 : 0);
+  out.conflicts.sort(byG);
+  out.frame.sort(byG);
+  out.pairs = [...pairs.values()].sort((x, y) => x.a - y.a || x.b - y.b).map((p) => ({ a: indexes[p.a].model, b: indexes[p.b].model, shared: p.shared, frame: p.frame, sizeA: sizes[p.a], sizeB: sizes[p.b], revision: p.revision }));
+  out.revisions = out.pairs.filter((p) => p.revision);
+  return out;
+}
+const holderLine = (h) => `${h.model} #${h.id} ${h.type}${h.name ? ` "${h.name}"` : ""}`;
+export const sharedLine = (c) => `${c.globalId} is in ${c.holders.length} models: ${c.holders.map(holderLine).join(", ")} (${!c.sameClass ? "different objects: viewers and BCF topics cannot tell them apart" : c.holders[0].kind === "element" ? "the same element in more than one model's file: counted twice in quantities" : "the same object in more than one model's file"})`;
+export const revisionLine = (p) => `${p.b} shares ${p.shared - p.frame} of ${Math.min(p.sizeA, p.sizeB)} GlobalIds with ${p.a}: one model twice (a revision or a copy), so every element is in the set twice`;
+export const sharedCount = (f) => (f ? f.conflicts.length + f.revisions.length : 0);
+const SHARED_WHY = "GlobalIds must be unique across a federated set as well as within a file: BCF topics, clash and diff tools find elements by GlobalId, so one held in two discipline models points them at both.";
+
 // The 1-based line of each <specification> start tag in an IDS file, in
 // document order (the order of report.specs), so an annotation about a
 // specification lands on it. Comments, CDATA and processing instructions are
@@ -88,7 +167,7 @@ export function idsSpecLines(text) {
   return out;
 }
 
-export function tally(runs) {
+export function tally(runs, federation = null) {
   const t = { pairs: runs.length, unreadable: 0, specs: 0, passed: 0, failed: 0, warnings: 0, invalid: 0, elementsFailed: 0, uncheckedSpecs: 0, elementsNotChecked: 0, auditSpecs: 0, auditWarnings: 0, duplicateModels: 0, duplicateGlobalIds: 0 };
   for (const r of runs) {
     if (r.error) { t.unreadable++; continue; }
@@ -106,6 +185,9 @@ export function tally(runs) {
   }
   for (const a of auditFindings(runs)) { t.auditSpecs++; t.auditWarnings += a.warnings.length; }
   for (const m of modelFindings(runs)) { t.duplicateModels++; t.duplicateGlobalIds += m.duplicates.length; }
+  t.sharedGlobalIds = federation ? federation.conflicts.length : 0;
+  t.revisionPairs = federation ? federation.revisions.length : 0;
+  t.sharedFrame = federation ? federation.frame.length : 0;
   t.ok = t.unreadable === 0 && t.failed === 0 && t.invalid === 0;
   return t;
 }
@@ -198,7 +280,7 @@ export function stepLines(text, ids) {
 // real IDS (Rotterdam's) has 19 specifications with audit warnings, so past
 // maxAudit the rest become one annotation pointing at the job summary, which
 // lists them all.
-export function annotations(runs, { lines = new Map(), idsLines = new Map(), failOnUnchecked = false, failOnAudit = false, failOnDuplicates = false, maxAudit = 9 } = {}) {
+export function annotations(runs, { lines = new Map(), idsLines = new Map(), failOnUnchecked = false, failOnAudit = false, failOnDuplicates = false, maxAudit = 9, federation = null, failOnShared = false } = {}) {
   const out = [];
   const at = (ids, index) => { const l = idsLines.get(ids)?.[index]; return `file=${escProp(ids)}${l ? `,line=${l}` : ""}`; };
   const once = new Set();
@@ -219,6 +301,19 @@ export function annotations(runs, { lines = new Map(), idsLines = new Map(), fai
     const line = lines.get(m.model)?.get(d[0].elements[1].id);
     const shown = d.slice(0, 5).map(dupLine).join("\n");
     out.push(`::${failOnDuplicates ? "error" : "warning"} file=${escProp(m.model)}${line ? `,line=${line}` : ""},title=${escProp(`IFC: ${d.length} duplicate GlobalId(s)`)}::${escData(`${shown}${d.length > 5 ? `\n... and ${d.length - 5} more (the job summary lists them)` : ""}\n${DUP_WHY}`)}`);
+  }
+  // GlobalIds shared between models: one annotation per later model, on the
+  // line of its first shared element; one per revision pair.
+  if (federation) {
+    const lvl = failOnShared ? "error" : "warning";
+    const byModel = new Map();
+    for (const c of federation.conflicts) { const m = c.holders[c.holders.length - 1].model; byModel.set(m, [...(byModel.get(m) || []), c]); }
+    for (const [m, cs] of byModel) {
+      const h = cs[0].holders[cs[0].holders.length - 1];
+      const line = lines.get(m)?.get(h.id);
+      out.push(`::${lvl} file=${escProp(m)}${line ? `,line=${line}` : ""},title=${escProp(`IFC: ${cs.length} GlobalId(s) also in another model`)}::${escData(`${cs.slice(0, 5).map(sharedLine).join("\n")}${cs.length > 5 ? `\n... and ${cs.length - 5} more (the job summary lists them)` : ""}\n${SHARED_WHY}`)}`);
+    }
+    for (const p of federation.revisions) out.push(`::${lvl} file=${escProp(p.b)},title=${escProp("IFC: the same model twice in the set")}::${escData(`${revisionLine(p)}. Drop one from the models glob, or check whether a revision was left beside the current file.`)}`);
   }
   for (const r of runs) {
     if (r.error) { out.push(`::error file=${escProp(r.model)},title=${escProp("IDS check could not run")}::${escData(r.error)}`); continue; }
@@ -270,7 +365,7 @@ export function annotations(runs, { lines = new Map(), idsLines = new Map(), fai
 // (eval/gitlab-codequality-2026-11-17.md).
 // pathPrefix is prepended to every path: GitLab needs paths from the
 // repository root, and ci-cli.mjs may have read the files under --root.
-export function codeQuality(runs, { lines = new Map(), idsLines = new Map(), failOnUnchecked = false, failOnAudit = false, failOnDuplicates = false, maxPerSpec = 1000, pathPrefix = "" } = {}) {
+export function codeQuality(runs, { lines = new Map(), idsLines = new Map(), failOnUnchecked = false, failOnAudit = false, failOnDuplicates = false, maxPerSpec = 1000, pathPrefix = "", federation = null, failOnShared = false } = {}) {
   const out = [];
   const seen = new Set();
   const p = (path) => (pathPrefix ? `${pathPrefix.replace(/\/+$/, "")}/${path}` : path);
@@ -290,6 +385,15 @@ export function codeQuality(runs, { lines = new Map(), idsLines = new Map(), fai
   // as resolved.
   for (const m of modelFindings(runs)) {
     for (const d of m.duplicates) push("ifc-duplicate-globalid", failOnDuplicates ? "major" : "minor", `Duplicate GlobalId: ${dupLine(d)}. ${DUP_WHY}`, m.model, lines.get(m.model)?.get(d.elements[1].id), [m.model, d.globalId]);
+  }
+  // One issue per GlobalId shared between models, keyed on the GlobalId and
+  // the models holding it (not #ids or lines, which a re-export moves).
+  if (federation) {
+    for (const c of federation.conflicts) {
+      const h = c.holders[c.holders.length - 1];
+      push("ifc-shared-globalid", failOnShared ? "major" : "minor", `GlobalId shared between models: ${sharedLine(c)}. ${SHARED_WHY}`, h.model, lines.get(h.model)?.get(h.id), [c.globalId, ...c.holders.map((x) => x.model).sort()]);
+    }
+    for (const p of federation.revisions) push("ifc-model-twice", failOnShared ? "major" : "minor", `${revisionLine(p)}.`, p.b, 1, [p.a, p.b]);
   }
   const once = new Set();
   for (const r of runs) {
@@ -343,15 +447,17 @@ export function cqHash(s) {
 
 const mdCell = (s) => String(s ?? "").replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
 
-export function stepSummary(runs, { maxFailures = 5, failOnUnchecked = false, failOnAudit = false, failOnDuplicates = false, maxDuplicates = 50 } = {}) {
-  const t = tally(runs);
-  const ok = t.ok && !(failOnUnchecked && t.elementsNotChecked) && !(failOnAudit && t.auditWarnings) && !(failOnDuplicates && t.duplicateGlobalIds);
+export function stepSummary(runs, { maxFailures = 5, failOnUnchecked = false, failOnAudit = false, failOnDuplicates = false, maxDuplicates = 50, federation = null, failOnShared = false } = {}) {
+  const t = tally(runs, federation);
+  const ok = t.ok && !(failOnUnchecked && t.elementsNotChecked) && !(failOnAudit && t.auditWarnings) && !(failOnDuplicates && t.duplicateGlobalIds) && !(failOnShared && sharedCount(federation));
   const audits = auditFindings(runs);
   const out = [`## IDS model check: ${ok ? "PASS" : "FAIL"}`, ""];
   out.push(`${t.pairs} model/IDS pair(s), ${t.specs} specification check(s): ${t.passed} pass, ${t.failed} fail, ${t.warnings} optional warning(s), ${t.invalid} invalid${t.unreadable ? `, ${t.unreadable} could not be read` : ""}.`, "");
   if (t.elementsNotChecked) out.push(`**Not checked:** ${t.elementsNotChecked.toLocaleString("en-US")} element(s) in ${t.uncheckedSpecs} specification check(s) belong to a subclass of a class the entity facet names (e.g. IFCWALLSTANDARDCASE under IFCWALL). IDS entity names do not include subclasses, so these elements were not checked${failOnUnchecked ? " and the build fails on them (--fail-on-unchecked)" : ""}. Add the class names to the entity facet to check them.`, "");
   if (t.auditWarnings) out.push(`**IDS audit:** ${t.auditWarnings} warning(s) on ${t.auditSpecs} specification(s): the IDS is valid, but these specifications probably do not check what their author meant (details below)${failOnAudit ? "; the build fails on them (--fail-on-audit-warnings)" : ""}. The fix is in the IDS file.`, "");
   if (t.duplicateGlobalIds) out.push(`**Duplicate GlobalIds:** ${t.duplicateGlobalIds.toLocaleString("en-US")} GlobalId(s) shared by more than one element in ${t.duplicateModels} model(s) (details below). ${DUP_WHY}${failOnDuplicates ? " The build fails on them (--fail-on-duplicate-globalids)." : ""}`, "");
+  if (sharedCount(federation)) out.push(`**GlobalIds shared between models:** ${[t.sharedGlobalIds ? `${t.sharedGlobalIds.toLocaleString("en-US")} GlobalId(s) held in more than one of the ${federation.models} models` : "", t.revisionPairs ? `${t.revisionPairs} pair(s) of models that are one model twice` : ""].filter(Boolean).join("; ")} (details below). ${SHARED_WHY}${failOnShared ? " The build fails on them (--fail-on-shared-globalids)." : ""}`, "");
+  if (t.sharedFrame) out.push(`**Shared frame:** ${t.sharedFrame} project, site, building, storey, space or grid GlobalId(s) are the same in more than one model. Discipline files exported from one template usually share these on purpose, so they are not a warning.`, "");
   out.push("| Model | IDS | Result | Specifications passing | Failing elements | Not checked |", "|---|---|---|---|---|---|");
   for (const r of runs) {
     if (r.error) { out.push(`| ${mdCell(r.model)} | ${mdCell(r.ids)} | ERROR | - | ${mdCell(r.error)} | - |`); continue; }
@@ -389,6 +495,13 @@ export function stepSummary(runs, { maxFailures = 5, failOnUnchecked = false, fa
     out.push("", `<details><summary>${mdCell(m.model)}: ${m.duplicates.length} duplicate GlobalId(s)</summary>`, "");
     for (const d of m.duplicates.slice(0, maxDuplicates)) out.push(`- ${mdCell(dupLine(d))}`);
     if (m.duplicates.length > maxDuplicates) out.push(`- ... and ${m.duplicates.length - maxDuplicates} more (see the JSON report)`);
+    out.push("", "</details>");
+  }
+  if (sharedCount(federation)) {
+    out.push("", `<details><summary>GlobalIds shared between models: ${sharedCount(federation)} finding(s)</summary>`, "");
+    for (const p of federation.revisions) out.push(`- ${mdCell(revisionLine(p))}`);
+    for (const c of federation.conflicts.slice(0, maxDuplicates)) out.push(`- ${mdCell(sharedLine(c))}`);
+    if (federation.conflicts.length > maxDuplicates) out.push(`- ... and ${federation.conflicts.length - maxDuplicates} more (see the JSON report)`);
     out.push("", "</details>");
   }
   const byIds = new Map();

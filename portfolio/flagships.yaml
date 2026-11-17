@@ -194,9 +194,11 @@ flagships:
       penalty on fresh multi-column labelled data. Open: (0) drift model: t-walk
       increments, biweight on fresh data, why it absorbs seat belts and quality
       control 4, its AR(1) term; (2) synthetic control (README "A floored ratio"):
-      CA rank 1 of 39; MA, AZ, OR ranks 6-13; covariates (income, price, 3 lags;
-      README "Matched on covariates") failed: CA 2nd, OR fit worse; next monthly
-      series or the paper's age/beer covariates, then CLI. More open items: NEXT.md.
+      CA rank 1 of 39; MA, AZ, OR ranks 6-13; covariates (README "Matched on
+      covariates") failed; multi-start V (README "Several starts for V") failed too:
+      no V fits Oregon (15.8+ vs 5.5 packs), 3 late lags miss its 1970s; next lags
+      spread over the before-period, or monthly series, then CLI. More open items:
+      NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     why: >-
@@ -229,11 +231,12 @@ flagships:
       passes Mustang; open: a real business's PINT file. A run that lands a slice
       replaces its item here. More open items: NEXT.md.
     buildable: >-
-      R056-2 on the tax representative's VAT number (a warning; seller/buyer already
-      fail INV-022/023); UBL line-level Delivery/DeliveryParty ids, which UBL's open
-      PartyIdentification context reaches (payee, tax representative, deliver-to and
-      CII line ids landed 2026-11-17:
-      eval/line-ids-peppol-differential-2026-11-17.md). No network.
+      R056-2 landed (BT-63 read, INV-064;
+      eval/nl-vat-r056-2-differential-2026-11-17.md): open, R056-2 on a payee or
+      deliver-to PartyTaxScheme and a trailing no-break space the readers' trim()
+      drops. Party ids everywhere Peppol's COMMON contexts reach landed 2026-11-17
+      (UBL line parties: eval/ubl-line-ids-peppol-differential-2026-11-17.md). No
+      network.
   - venture: shift-roster-builder
     inputs_only: >-
       a live deploy with real punches, a real payroll template, a manager's
@@ -355,28 +358,25 @@ flagships:
       ventures/league-schedule-generator/README.md and eval/ (divisions, venues,
       rainouts, standings, officials, duty rota, team sheets; carry-over and break
       floors, frontier picker, blackout fit, WebAssembly step: README 2026-11-11 to
-      2026-11-15 sections). 2026-11-15: 3-game nights (eval/three-game-nights.txt):
-      SAT session designs (session-designs.mjs) take every even 10-48 teams on 6
-      slots, 16 of 19 sizes on 9, to 0 waits; 8 on 2x6, 12 on 2x9 UNSAT. Odd leagues
-      (eval/odd-night-sat.py, odd-designs.mjs): 11-25 teams 0 waits on 6 slots; on 9
-      slots 11, 13 teams on 2 courts, 17 on 3; proved impossible: 7, 9 on 2x6; 5, 7
-      on 1x9; 7 on 2x9. Night by night (eval/odd-cyclic.py): 21, 23 on 4x9, 27 on
-      7x6; every 3k of 27-63 on the least 9-slot courts 0 waits; fails at <=3 spare
-      slots (eval/odd-cyclic.txt). Fully booked: 19 on 3x9, 25 on 4x9, 31 on 5x9, 37
-      on 6x9 0 waits (eval/odd-orbit.py, 3 k-cycles); even 40, 46 on 3 sessions 0
-      waits (eval/session-orbit.py). 29 on 5x9, 35 on 6x9: 0 waits (odd-lns.py). 41
-      on 7x9 0 waits (last night UNSAT alone, eval/lns-bad-night.py; re-dealt with
-      the short night). 43 on 7x9 0 waits (odd-orbit.py, 9,849 s). Next, most
-      valuable first: 47 on 8x9 (13 of 16; LNS stalled: 5 runs from 13, 0 climbs,
-      night 2 UNKNOWN at 1 h; next: a new model, orbit or symmetry-broken night); 49
-      on 8x9 (orbit, ~11 h est.); the rest of the 20-team gap (40 to 44 still
-      ~444-550: four-round re-deals or a longer run, now ~4x cheaper; or a starter
-      family climbed with the floor as its score); 30 teams in the page since
-      2026-11-17 (README "A trial's steps kept in the module": chained trials, 30
-      teams 62 s, 28 teams 30 s; 29 skipped, 1 of 3 seeds); a cheaper 30-team step:
-      stopping refused trials early and exact window bounds measured, not kept
-      (eval/trial-cutoff.txt; refusals miss by 1-5 breaks); next is fewer trials,
-      judged on seasons. More open items: NEXT.md.
+      2026-11-15 sections; 2026-11-17 shorter seasons with even strength of
+      schedule, eval/seed-balance.txt). 2026-11-15: 3-game nights
+      (eval/three-game-nights.txt): SAT session designs (session-designs.mjs) take
+      every even 10-48 teams on 6 slots, 16 of 19 sizes on 9, to 0 waits; 8 on 2x6,
+      12 on 2x9 UNSAT. Odd leagues (eval/odd-night-sat.py, odd-designs.mjs): 11-25
+      teams 0 waits on 6 slots; on 9 slots 11, 13 teams on 2 courts, 17 on 3; proved
+      impossible: 7, 9 on 2x6; 5, 7 on 1x9; 7 on 2x9. Night by night
+      (eval/odd-cyclic.py): 21, 23 on 4x9, 27 on 7x6; every 3k of 27-63 on the least
+      9-slot courts 0 waits; fails at <=3 spare slots (eval/odd-cyclic.txt). Fully
+      booked: 19 on 3x9, 25 on 4x9, 31 on 5x9, 37 on 6x9 0 waits (eval/odd-orbit.py,
+      3 k-cycles); even 40, 46 on 3 sessions 0 waits (eval/session-orbit.py). 29 on
+      5x9, 35 on 6x9: 0 waits (odd-lns.py). 41 on 7x9 0 waits (last night UNSAT
+      alone, eval/lns-bad-night.py; re-dealt with the short night). 43 on 7x9 0
+      waits (odd-orbit.py, 9,849 s). Next, most valuable first: 47 on 8x9 (13 of 16;
+      LNS stalled: 5 runs from 13, 0 climbs, night 2 UNKNOWN at 1 h; next: a new
+      model, orbit or symmetry-broken night); 49 on 8x9 (orbit, ~11 h est.); the
+      rest of the 20-team gap (40 to 44 still ~444-550: four-round re-deals or a
+      longer run, now ~4x cheaper; or a starter family climbed with the floor as its
+      score). More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
@@ -470,10 +470,10 @@ flagships:
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
-      (eval/ifcxml-xbim-2026-11-16.md); duplicate GlobalIds across federated models
-      (one discipline file's GlobalId in another;
-      eval/duplicate-globalids-2026-11-17.md, 'Not done'); the IDS editor
-      (editor.html; README): "Use the model's range" for dates, xs:date one-of rows
+      (eval/ifcxml-xbim-2026-11-16.md); an allow list for GlobalIds shared across
+      federated models on purpose (eval/federated-globalids-2026-11-17.md, 'Not
+      done': the Simple-Scene 'origin' markers); the IDS editor (editor.html;
+      README): "Use the model's range" for dates, xs:date one-of rows
       (eval/date-ranges-2026-11-17.md); more real exports through
       eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
@@ -499,9 +499,9 @@ flagships:
       checker's applicable; 83.5% of public facets editable, IDS-Audit-tool 21.5%);
       a no-dataType value row; GitLab Code Quality report keyed on GlobalId+class
       2026-11-17 (eval/gitlab-codequality-2026-11-17.md: 18 of 18 real changes, 0
-      for a renumbering re-export); duplicate GlobalIds as a model finding in every
-      output, plus a STEP \S\' reader fix 2026-11-17
-      (eval/duplicate-globalids-2026-11-17.md: 3 in 163 public files, same groups as
-      IfcOpenShell on 133 of 133); unchecked subclasses in CI and the editor
-      2026-11-17 (eval/ci-unchecked-2026-11-17.md: 21,405 elements in 165 of 2,028
-      checks). More open items: NEXT.md.
+      for a renumbering re-export); duplicate GlobalIds in a model
+      (eval/duplicate-globalids-2026-11-17.md) and across federated models in CI
+      2026-11-17 (eval/federated-globalids-2026-11-17.md: HHS architect+structural
+      share 1 wall; Simple-Scene roof, manholes); unchecked subclasses in CI and the
+      editor 2026-11-17 (eval/ci-unchecked-2026-11-17.md: 21,405 elements in 165 of
+      2,028 checks). More open items: NEXT.md.
