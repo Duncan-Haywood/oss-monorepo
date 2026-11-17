@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVLmXzKTBomvyDyaJcr",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures prompt (prompts/ventures/prompt-1.md brief)",
+  "input_sha256": "20b6aad4c7749bfe57783787f0f3f9a9b8479b84f65050c730d7f1e9113b4831",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T02:06:21Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ids-model-check flagship: a range for numeric attributes in the IDS editor (BUILDABLE HERE item)",
+  "projects": [
+    "ids-model-check"
+  ],
+  "pr": 16776,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "First preflight failed on platform/pages/sticky-fit.test.mjs (a card taller than the window...), which passed 12/12 when rerun alone and on the second full preflight: flaky under load, not related to the venture."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "allocate picked chant-forge (row 8); its one session-buildable synthesis item (X's cog/tum codas) was claimed by PR 16775 the same minute, L's cum sits in the same strand, and every scan item needs archive.org, which the proxy refused. Took row 9 (ids-model-check), whose BUILDABLE HERE item had no open PR.",
+      "did": "ids-model-check numeric attribute ranges",
+      "result": "landed; 33 of 33 offers pass their model and match IfcTester"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-ids-door-height-range-in-the-models-own-units.md",
+    "ventures/ids-model-check/eval/model-attr-ranges-2026-11-17.md"
+  ],
+  "goal": null,
+  "notes": "Landed: editor.mjs attributeValueKind (numeric attributes get a between mode and an xs:double/xs:integer restriction base; booleans true/false), reqFacet/facetXml carry the base, importIds reopens such ranges as editable rows. Eval eval/model-attr-ranges.mjs on 4 opensourceBIM/IFC-files exports (cb96c50) + sample house: 27/27 numeric and 6/6 boolean requirements built from the model pass it; IfcTester 0.9.0.post1 same verdict and failing elements on all 33. Finding: attributes are compared unconverted by both checkers (metre range fails a mm model in both), so the editor hint now says the model's own units. Checks: run_venture_tests ids-model-check ok (90 tests); run_workflow_locally --for-changes 14/14 passed (uses: steps, cross-review and deploy jobs not run); venture-preflight clean on rerun; Playwright drive of editor.html with samples/tiny-house.ifc: 'Use the model's range' fills 2100-2100, xs:double in the page, no console errors.",
+  "corrections": [],
+  "redteam": null
+}

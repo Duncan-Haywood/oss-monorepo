@@ -1,0 +1,24 @@
+H6aa-i reproduction: the control (rk4, seed 0) against 6z
+  clean_std  : 1.5876348466 vs 1.5876348466 (+0.0e+00)  torch 2.15.0+cpu vs 2.15.0+cpu
+  clean_fresh: 1.6131496429 vs 1.6131496429 (+0.0e+00)  torch 2.15.0+cpu vs 2.15.0+cpu
+  full_std   : 1.5931439698 vs 1.5931439698 (+0.0e+00)  torch 2.15.0+cpu vs 2.15.0+cpu
+  full_fresh : 1.6192487013 vs 1.6192487013 (+0.0e+00)  torch 2.15.0+cpu vs 2.15.0+cpu
+H6aa-i (bit-exact): held
+
+per noise, paired by seed against unc (6y): T = clean - unc, C = full - unc, b = full - clean (std); fresh T
+  shaped0.33 omega  0.33 n 3: T +0.0016 (0.0060)  C +0.0023 (0.0059)  b +0.0006 (0.0002)  | fresh T -0.0010 (0.0063) per seed -0.0009 -0.0119 +0.0099  theta2 11,723  b/omega 0.0019
+  rk2        omega  1.00 n 4: T -0.0080 (0.0054)  C -0.0067 (0.0055)  b +0.0013 (0.0003)  | fresh T -0.0123 (0.0062) per seed -0.0143 -0.0285 +0.0003 -0.0068  theta2 12,513  b/omega 0.0013
+  shaped1    omega  1.00 n 4: T -0.0083 (0.0038)  C -0.0068 (0.0039)  b +0.0015 (0.0002)  | fresh T -0.0065 (0.0020) per seed -0.0039 -0.0085 -0.0025 -0.0109  theta2 12,477  b/omega 0.0015
+  rk4        omega  3.00 n 4: T -0.0180 (0.0020)  C -0.0127 (0.0027)  b +0.0053 (0.0008)  | fresh T -0.0185 (0.0020) per seed -0.0232 -0.0207 -0.0150 -0.0151  theta2 14,929  b/omega 0.0018
+  shaped3    omega  3.00 n 4: T -0.0169 (0.0028)  C -0.0117 (0.0027)  b +0.0051 (0.0003)  | fresh T -0.0181 (0.0030) per seed -0.0123 -0.0264 -0.0177 -0.0158  theta2 14,930  b/omega 0.0017
+  rk8        omega  7.00 n 4: T -0.0136 (0.0035)  C -0.0016 (0.0038)  b +0.0120 (0.0004)  | fresh T -0.0141 (0.0063) per seed -0.0261 -0.0215 +0.0024 -0.0113  theta2 20,571  b/omega 0.0017
+  shaped7    omega  7.00 n 4: T -0.0141 (0.0048)  C -0.0010 (0.0053)  b +0.0130 (0.0010)  | fresh T -0.0142 (0.0042) per seed -0.0144 -0.0027 -0.0166 -0.0231  theta2 20,448  b/omega 0.0019
+  rk16       omega 15.00 n 4: T +0.0137 (0.0067)  C +0.0428 (0.0064)  b +0.0291 (0.0013)  | fresh T +0.0113 (0.0072) per seed +0.0309 -0.0032 +0.0116 +0.0058  theta2 33,430  b/omega 0.0019
+  rk32       omega 31.00 n 4: T +0.0845 (0.0030)  C +0.1321 (0.0041)  b +0.0476 (0.0027)  | fresh T +0.0807 (0.0059) per seed +0.0893 +0.0669 +0.0752 +0.0916  theta2 62,777  b/omega 0.0015
+  unc theta2 11,377
+
+H6aa-ii  (omega 1 recipe below unc on fresh by > 2 se): refuted (-0.0123, -2.0 se)
+H6aa-iii (omega 1 recipe above omega 3 on fresh by > 2 se, paired: the gain peaks above omega 1): refuted (+0.0062, +1.2 se)
+H6aa-iv  (shaped omega 3 within 2 se of rand-k omega 3 on fresh, paired): held (+0.0004, +0.1 se)
+H6aa-v   (b(omega 1) < b(omega 3) and b(1) in [0.0012, 0.0024]): held (+0.0013 vs +0.0053)
+exploratory: shaped omega 1 minus rand-k omega 1 on fresh, paired: +0.0059 (0.0058)

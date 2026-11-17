@@ -3757,3 +3757,39 @@ valid roster no worse than its start; an infinite deadline changes nothing).
 
 Not claimed: generated weeks, one cloud machine, two builds at a time; the open-hours, pay and proof differences are within the
 builds' timing noise. What it buys is the 25-44 ms the pay floor no longer loses, nothing larger.
+
+## The day sweeps past a spent budget (2026-11-17)
+
+With every stage before the pay floor stopping on the clock, the time a 20 s build still runs past its budget is nearly all
+two stages, read from the 48 "new" timelines of `eval/polish-deadline-ab.jsonl`: the pay floor (63 s summed, its 4 s spent
+reserve, kept on purpose) and the day sweeps (`dayLNS`, 67 s summed: 2.0 s on every build that ran them, whatever the clock
+said). Mean build 22.0 s, slowest 28.1 s. Were the day sweeps' 2 s worth it on weeks whose budget was already gone?
+
+**What landed:** `optimality.dayLNS` now logs where the pass gains: `gains` (each as [ms since the pass started, phase
+"sweep" / "guide" / "guide2" / "kick", score saved]), `startedAt` (ms since the build started) and `ladders` (guide ladders
+run). `eval/stage-overrun.mjs` prints them; `eval/day-lns-spent-summary.py` adds them up by phase and by window length.
+
+**Measured** (`eval/day-lns-spent-explore.jsonl`: seeds 66-71, 60 x 168 and 70 x 196, weeks 0-1, today's defaults; the pass ran
+on 23 of 24, starting past the budget on 9):
+
+| what the 2 s window found, 23 builds | score saved (100,000 = one open hour) | open hours |
+|---|---|---|
+| first exact sweeps (by 15-55 ms) | 340 (pay alone) | 0 |
+| LP-guided ladder (by 400 ms) | 900,150 | 9 |
+| random kicks (250-1,870 ms) | 199,995 | 2 (at 866 ms and 1,155 ms) |
+| **kept by a 500 ms window** | 82% of the score saved | 9 of 11 |
+| kept by a 1,000 ms window | 91% | 10 of 11 |
+
+So the window stays at 2 s: a shorter one would have given back cover on 2 of 23 builds (one open hour each, both on 70 x 196
+weeks guided by the open-hours LP because the pay floor did not finish), and an open hour is worth more than the 1.5 s.
+
+**Tried and dropped: repeating the guide ladder.** The ladder found most of the cover, so `dayGuideRepeat: true` runs it again
+from the improved roster (up to 8 ladders) while the last one saved at least half an open hour, before the kicks. The builds are
+deterministic up to the pass (all 24 entered it at the same score both ways), so the comparison is exact
+(`eval/day-lns-repeat-explore.jsonl`): the second ladder found nothing on any build, and open hours were 6,064 both ways. It
+stays off; the option is kept so the result can be re-run.
+
+Tests: `day-lns.test.mjs` (the gains are in time order, positive, one of the four phases, and add up to what the pass saved,
+with and without repeated ladders; the ladder count is within its cap). Not claimed: generated weeks, one cloud machine, two
+builds at a time, an exploration set rather than a pre-registered one (no default moved, so none was needed); 2 of 11 open
+hours is a small count.

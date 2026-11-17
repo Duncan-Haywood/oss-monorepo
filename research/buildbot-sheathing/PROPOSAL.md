@@ -389,6 +389,13 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    friction threshold, so a floor of 0.3–0.5 mm remains (0.82 mm at 5 N); the pre-2017 sensor is worse than none.
    Still open: a held-joint preload against that floor, the paper's headline for a tool-point spec, and the nailer's
    recoil.
+37. **A held-joint preload** (done 2026-11-17, `experiments/m37_preload/`): with the controller planning from the
+   measured force and the robot settling under the true one, 92% of the mispredicted joints are the balance
+   controller's own held joints, pinned exactly at the threshold; a 0.1 N m preload on every leg joint removes them and
+   brings the G1's 0–20 N stack loss from 56.5 points back to 1.6 (milestone 36's figure) for 1.7% more leg torque and
+   one of 15 poses. The 0.3–0.8 mm left is in the waist and arm joints, which the ground reaction cannot move; a hedged
+   compensator does not help. Still open: a two-handed squeeze to preload the arms, the paper's headline for a
+   tool-point spec, and the nailer's recoil.
 
 ## Target venue
 
