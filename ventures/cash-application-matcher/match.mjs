@@ -288,10 +288,19 @@ export function applyCash(invoicesIn, receiptsIn, userSettings = {}) {
     }
     if (short > 0 && short <= settings.feeTolerance) {
       const items = live.map((inv) => ({ inv, applied: inv.open, discount: 0 }));
-      const last = items[items.length - 1];
-      last.applied -= short;
-      last.writeoff = short;
-      commit(r, items, 'reference + amount less fee', 'medium', `Remittance names ${plural(live.length, 'invoice')} totalling ${fmt(total)}; the payment is ${fmt(short)} short, within the ${fmt(settings.feeTolerance)} you accept as a bank charge. The shortfall is shown as a write-off on ${last.inv.id}.`);
+      // Write the shortfall off from the newest invoice back, never more than an
+      // invoice's own balance, so no application goes negative (red team 2026-11-17:
+      // 10.00 short on a 5.00 last invoice applied -5.00 to it).
+      let left = short;
+      const offs = [];
+      for (let k = items.length - 1; k >= 0 && left > 0; k--) {
+        const w = Math.min(left, items[k].applied);
+        items[k].applied -= w;
+        items[k].writeoff = w;
+        left -= w;
+        offs.unshift(items[k].inv.id);
+      }
+      commit(r, items, 'reference + amount less fee', 'medium', `Remittance names ${plural(live.length, 'invoice')} totalling ${fmt(total)}; the payment is ${fmt(short)} short, within the ${fmt(settings.feeTolerance)} you accept as a bank charge. The shortfall is shown as a write-off on ${offs.join(' and ')}.`);
       continue;
     }
     if (short > 0) {
