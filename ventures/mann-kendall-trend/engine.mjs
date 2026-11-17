@@ -62,7 +62,7 @@ export const PAPERS = [
     url: "https://doi.org/10.1023/B:WARM.0000043140.61082.60",
     doi: "10.1023/B:WARM.0000043140.61082.60",
     implemented: "The effective-sample-size correction: multiply Var S by n/n* = 1 + 2 sum_k (1 - k/n) rho_k, rho_k the autocorrelation of the Sen-detrended values (not their ranks), with the lag-1 (AR(1)) model rho_k = r1^k. This is the default.",
-    deviations: "pymannkendall's default sums every sample autocorrelation instead; those sum to -1/2 for any centred series, which drags the factor towards zero or below, and in simulation it rejects 45-58% of trend-free series at alpha = 0.05, white noise included. The tool uses the AR(1) form (5-9% for phi up to 0.6 and 6-13% at 0.8 in eval/size-simulation.json) and keeps the all-lag sum only as a tested function (yueWangFactor(resid, \"all\")), not as an option.",
+    deviations: "pymannkendall's default sums every sample autocorrelation instead; those sum to -1/2 for any centred series, which drags the factor towards zero or below, and in simulation it rejects 45-58% of trend-free series at alpha = 0.05, white noise included. The tool uses the AR(1) form, floored at 1 so a negative lag-1 estimate never shrinks Var S (4-9% for phi up to 0.6 and 6-13% at 0.8 with 50 to 200 readings in eval/size-simulation.json; with 10 or 20 readings it holds 4-5% on white noise but no correction can estimate strong persistence that short: 13-15% at phi = 0.6, 20-25% at 0.8) and keeps the all-lag sum only as a tested function (yueWangFactor(resid, \"all\")), not as an option.",
   },
   {
     authors: "Sheng Yue, Paul Pilon, Bob Phinney, George Cavadias",
@@ -521,6 +521,10 @@ export function yueWangFactor(resid, mode = "ar1") {
       if (Math.abs(rk) < 1e-17) break;
       sum += (1 - k / n) * rk;
     }
+    // Floor at 1: a negative or noisy lag-1 estimate must not shrink Var S.
+    // Without the floor, short trend-free series were called trends 10-11%
+    // of the time at n = 8-10 (quality audit 2026-11-17).
+    return Math.max(1, 1 + 2 * sum);
   }
   return 1 + 2 * sum;
 }

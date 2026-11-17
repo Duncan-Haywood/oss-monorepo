@@ -45,8 +45,8 @@ every write.
   and prints what moved, instead of refusing and suggesting `--make-room`.
   `--no-make-room` keeps the old refusal.
 - `--trim` parks a row down to the target with no other edit, and was run
-  once on the 11 full rows. They now sit at 1,502 to 1,691 characters. The
-  33 items it moved are in each product's `NEXT.md`, dated 2026-11-17.
+  once on the 11 full rows. They now sit at 1,502 to 1,692 characters. The
+  35 items it moved are in each product's `NEXT.md`, dated 2026-11-17.
 
 ## A bug the trim turned up
 

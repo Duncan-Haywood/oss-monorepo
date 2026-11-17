@@ -1,0 +1,301 @@
+{
+ "date": "2026-11-17",
+ "subject": "ventures/mann-kendall-trend",
+ "stratum": "venture",
+ "seed": "2026-11-17-e87b",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "an environmental statistician / USGS-style hydrologist who runs Mann-Kendall, Sen's slope and the seasonal Kendall test on streamflow and water-quality records (Gilbert 1987 ch. 16-17; Hirsch, Slack & Smith 1982; Hirsch & Slack 1984; Hamed & Rao 1998; Yue & Wang 2004; Helsel et al. 2020, USGS TM 4-A3); first checks: tie-corrected Var S, the continuity correction, Sen's slope and its distribution-free CI, the Hirsch-Slack covariance with missing months, and whether the serial-correlation correction holds its size at the record lengths people actually have (10-30 annual values)",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 3,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Independent implementation from Gilbert 1987 / Hirsch-Slack 1984 / Hamed-Rao / Yue-Wang in numpy + scipy 1.18.1 (scratch venv; pymannkendall deliberately not installed since the author used it), run against `node cli.mjs ... --json`: `cd /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/mann-kendall-trend && venv/bin/python -I indep.py /home/user/oss-monorepo/ventures/mann-kendall-trend`. C1 annual peaks (n=96, 30 tied values): S -68, Var S 99794, Z -0.212091, p 0.832036 identical; scipy kendalltau tau_b*sqrt(N0(N0-N1)) = -68; Sen slope -43.9206 and Gilbert-rule 95% CI with the Yue-Wang variance -526.735/414.980 identical; Hamed-Rao significant lags [4], factor 0.609994 identical; Yue-Wang AR(1) r1 0.125341, factor 1.283191, p 0.851480 identical. C2 seasonal Kendall on both Potomac monthly files: S 1182/3118, independent Var 1219702/1167164.67, Hirsch-Slack Var 4053125.33/3863734.0 (factor 3.323/3.310), p 0.5575/0.1128 and 0.2849/0.00391, homogeneity chi2 7.4052/8.2318 on 11 df, seasonal Sen 4.4338 [-10.0385, 19.0333] and 12.1538 [-2.9412, 27.2364] all identical to 1e-9; the Hirsch-Slack diagonal equals the tie-corrected Kendall variance. C3 exact p for n=8 by brute force over 40,320 permutations: 0.0141369 = tool. C4 Var S with ties in values and times by enumeration over 5,040 orderings: 38.047619 = tool. Every formula is right. Not a 4 because the default single-series output is miscalibrated at short n (see domain): on the n=8 series above the default Yue-Wang p is 4.5e-5 against an exact 0.014, because a negative lag-1 estimate shrinks Var S by 3x.",
+  "completeness": "Each README/page feature run: plain MK with exact p (n<=20), Sen slope + CI, Yue-Wang/Hamed-Rao/Hamed-Rao-3/TFPW side by side, seasonal Kendall by month, quarter (`seasons: \"quarter\"`) and season column, Hirsch-Slack covariance on by default from 10 years with a note below it, fallback note with two values in one month, homogeneity test, censored '<0.5' skipped with a warning, CSV/JSON output, CLI on all three example files reproduces every README number (p 0.557, +4.43 [-10, +19], x3.32; 0.0039 -> 0.113, [-2.94, +27.2]; 0.851, -43.9 [-527, +415]). Live page https://marisstella.app/mann-kendall-trend/ returns 200. Gaps: quarterly dates on the default `auto` setting run the single-series test, though README/page/CLI help say quarterly data get the seasonal test; a value column with 15% 'NA' strings is rejected outright ('No value column') because profileColumns needs 90% numeric and counts NA as filled; blanks work.",
+  "verification": "`cd ventures/mann-kendall-trend && node --test *.test.mjs`: 38 tests, 38 pass, 1.6 s. Ten seeded mutants via platform/ci/quality_mutate.py (nine recorded in mutations): 8 caught (ties-in-both variance term /2 -> /4; continuity correction removed; Sen lower-rank off by one; Hirsch-Slack /3 -> /2; Hamed-Rao screen one-sided; Yue-Wang (1-k/n) weight dropped; EXACT_MAX_N 20 -> 10; homogeneity M -> M-1), 1 survived (auto covariance threshold 10 -> 20 years), 1 equivalent and excluded from the count (monthly gap bound 35 -> 31 days, still above 1/12 year). Tests compare against pymannkendall/scipy reference values produced by the author, plus brute-force enumeration and simulation, which is good. Gap: the size simulation (eval and the 300-rep test) covers only n >= 50, so the doubled false-positive rate of the default at n <= 30 is invisible; and the proposed Math.max(1, factor) fix leaves all 38 tests green, so nothing pins the factor < 1 behaviour either way.",
+  "craft": "Read engine.mjs (872 lines), cli.mjs, the three test files, eval/size-simulation.mjs, index.html script. Pure functions, no dependencies, careful numerics (Lanczos lgamma, series/continued-fraction incomplete gamma, Acklam + Halley quantile), PAPERS array documents each formula and deviation, half-even rounding matching scipy, CSV formula-injection guard. Defects: 'NA'/'ND' strings counted as filled non-numeric cells, so a column with >10% missing codes is not numeric (engine.mjs:211-216); tests.none and hamed-rao use exact p but yue-wang (the default) never does, an inconsistency the summary does not mention (engine.mjs:548, 568, 578); the seasonal path silently ignores --correction except for a note. A senior JS reviewer would accept with those fixes.",
+  "claims": "Backed: every README Potomac number (CLI rerun), the size-simulation table (my own numpy simulation, 2000 reps, gives none 31.5%, Yue-Wang 7.1%, TFPW 41.2% at phi 0.6/n 100 and Yue-Wang 13.1% at 0.8/50 vs README 30/6/40/13), the 'autocorrelations of a centred series sum to -1/2' identity, the data SHA-256s in data/SOURCE.md (sha256sum matches all three), disclaimer on page, README and CLI. Not backed: the page FAQ (index.html:211 and JSON-LD line 12) says 'With 20 or fewer readings and no ties the tool uses the exact distribution', but the default correction reports a normal p (n=8 example: shown p 4.5e-5, exact 0.014); README:3-7, index.html:55 and CLI help say monthly or quarterly data get the seasonal Kendall test, but auto runs it only for monthly dates; README 'node --test *.test.mjs (about 30 s)' vs 1.6 s; PAPERS says TFPW has no deviations from Yue et al. 2002, whose procedure pre-whitens only when r1 is significant. served-copy.mjs reports no placeholder origins.",
+  "fitness": "Job walked through: a hydrologist pastes 96 years of monthly flow and gets the seasonal Kendall test with Hirsch-Slack covariance, per-month table and homogeneity in one view, numbers identical to a hand implementation; this is the job and it works, with no install. A water-quality analyst with 15 annual nitrate values gets a default p whose white-noise false-positive rate is 9-10% (simulation below), with no warning; one with quarterly samples gets a non-seasonal test unless they change the dropdown; one whose export uses 'NA' gets an error. Censored data (the norm in water quality) are dropped with a warning, a stated limit. Usable for streamflow; a water-quality practitioner hits two of those in the first hour.",
+  "domain": "Formulas follow the standard exactly (Gilbert 1987 variance with ties, continuity correction, Gilbert/Theil-Sen CI rule, Hirsch-Slack 1984 covariance with missing years, van Belle-Hughes homogeneity). Departures a reviewer would raise: (1) the default Yue-Wang AR(1) correction is applied unconditionally, including when r1 is negative or insignificant, so the factor goes below 1; small-sample r1 is biased negative after Sen detrending, and the default then rejects 10.6/9.7/9.3/8.4/7.5% of white-noise series at n=8/10/15/20/30 against 3.2-5.2% for the plain test (`node /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/mann-kendall-trend/smalln.mjs /home/user/oss-monorepo/ventures/mann-kendall-trend/engine.mjs`, 4,000 reps each); flooring the factor at 1 restores 3.0-4.4%. eval/size-simulation.json starts at n=50, so the README's choice of default is justified only where it holds. (2) TFPW pre-whitens regardless of r1 significance (Yue et al. 2002 screen it). (3) No flow adjustment (LOWESS residuals, Hirsch et al. 1982) and no one-value-per-season aggregation (USGS practice takes the median or the sample nearest mid-season); the tool falls back to independent seasons instead. (4) Censored methods absent (stated)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Annual peaks: S, Var S with ties, Z with continuity correction, p",
+   "method": "own Gilbert (1987) eq. 16.4 implementation in numpy; S cross-checked via scipy.stats.kendalltau tau_b",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/mann-kendall-trend && venv/bin/python -I indep.py /home/user/oss-monorepo/ventures/mann-kendall-trend",
+   "expected": "S -68, Var 99794, Z -0.212091, p 0.832036 (own computation)",
+   "observed": "tool identical: -68, 99794, -0.21209116975591927, 0.8320359085181599",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Sen slope and Gilbert-rule 95% CI with the Yue-Wang variance; Hamed-Rao and Yue-Wang factors",
+   "method": "own pairwise-slope median, Gilbert M1=(N'-C)/2, M2+1 ranks; own rank-ACF screen and AR(1) effective-sample-size factor",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/mann-kendall-trend && venv/bin/python -I indep.py /home/user/oss-monorepo/ventures/mann-kendall-trend",
+   "expected": "slope -43.9206, CI -526.735/414.980, HR lags [4] factor 0.609994, YW factor 1.283191 p 0.851480",
+   "observed": "identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Seasonal Kendall with Hirsch-Slack covariance and homogeneity on both Potomac monthly records",
+   "method": "own years x months table, K_gh and R_ig from Hirsch & Slack (1984), chi2 = sum Z^2 - M Zbar^2",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/mann-kendall-trend && venv/bin/python -I indep.py /home/user/oss-monorepo/ventures/mann-kendall-trend",
+   "expected": "Vcov 4053125.33 / 3863734.0, p_cov 0.5575 / 0.1128, chi2 7.4052 / 8.2318, seasonal Sen 4.4338 [-10.04, 19.03] / 12.1538 [-2.94, 27.24]",
+   "observed": "identical to 1e-9; HS diagonal equals tie-corrected Var S",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Exact two-sided p for n=8, no ties",
+   "method": "brute force over all 40,320 permutations",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/mann-kendall-trend && venv/bin/python -I indep.py /home/user/oss-monorepo/ventures/mann-kendall-trend",
+   "expected": "0.0141369",
+   "observed": "tool tests.none.p 0.014136904761904764",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Var S with ties in values and in times",
+   "method": "variance of S over all 5,040 orderings of x against tied times [1,1,2,3,3,3,4]",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/mann-kendall-trend && venv/bin/python -I indep.py /home/user/oss-monorepo/ventures/mann-kendall-trend",
+   "expected": "38.047619",
+   "observed": "38.047619047619044",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Size of the default (Yue-Wang AR(1)) test on trend-free white noise at short n",
+   "method": "4,000 simulated series per n through analyze(); nominal 5%",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/mann-kendall-trend/smalln.mjs /home/user/oss-monorepo/ventures/mann-kendall-trend/engine.mjs",
+   "expected": "about 0.05 (plain test: 0.032-0.052)",
+   "observed": "0.106/0.097/0.093/0.084/0.075 at n=8/10/15/20/30",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README size table (phi 0.6, n 100) and 0.8/50",
+   "method": "own numpy simulation, 2,000 reps, different RNG",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/mann-kendall-trend && venv/bin/python -I size.py",
+   "expected": "none 30%, Yue-Wang 6%, TFPW 40%; Yue-Wang 13% at 0.8/50",
+   "observed": "31.5%, 7.1%, 41.2%; 13.1%",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "FAQ: 'With 20 or fewer readings and no ties the tool uses the exact distribution'",
+   "method": "analyze n=8 tie-free series with defaults",
+   "command": "cd ventures/mann-kendall-trend && node -e 'import(\"./engine.mjs\").then(m=>{const r=m.analyze({t:[1,2,3,4,5,6,7,8],x:[3.1,2.0,4.5,3.9,5.2,4.8,6.0,5.5]});console.log(r.test.key,r.test.p,r.tests.none.p)})'",
+   "expected": "headline p exact (0.0141)",
+   "observed": "yue-wang 0.0000452 (normal, factor 0.33); exact 0.0141 only on the non-default row",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README/page/CLI: quarterly data get the seasonal Kendall test",
+   "method": "12 years of quarterly dates, seasons auto vs quarter",
+   "command": "cd ventures/mann-kendall-trend && node -e 'import(\"./engine.mjs\").then(m=>{let r=[\"date,v\"];for(let y=2000;y<2012;y++)for(const q of [1,4,7,10])r.push(`${y}-${String(q).padStart(2,\"0\")}-15,${(q*3+Math.sin(y)).toFixed(3)}`);console.log(m.analyze({csv:r.join(\"\\n\")}).mode)})'",
+   "expected": "seasonal mode on auto",
+   "observed": "auto -> single series Yue-Wang p 0.747; explicit quarter -> seasonal p 0.504",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "README Potomac numbers via CLI",
+   "method": "rerun",
+   "command": "node cli.mjs data/potomac-monthly-flow.csv; node cli.mjs data/potomac-adjusted-monthly-flow.csv; node cli.mjs data/potomac-annual-peaks.csv",
+   "expected": "0.557 +4.43 [-10,+19] x3.32; 0.0039 -> 0.113 [-2.94,+27.2]; 0.851 -43.9 [-527,+415]",
+   "observed": "all reproduced",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Missing-value codes in the value column",
+   "method": "100 annual rows, every 7th 'NA' (15%)",
+   "command": "cd ventures/mann-kendall-trend && node -e 'import(\"./engine.mjs\").then(m=>{let r=[\"year,v\"];for(let i=0;i<100;i++)r.push(`${1900+i},${i%7===0?\"NA\":(i*0.1+Math.sin(i)).toFixed(2)}`);try{console.log(m.analyze({csv:r.join(\"\\n\")}).n)}catch(e){console.log(e.message)}})'",
+   "expected": "85 readings, 15 skipped (as with blanks)",
+   "observed": "Error: No value column; blanks give n 85 skipped 15",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "cd ventures/mann-kendall-trend && node --test '*.test.mjs'",
+   "expected": "all pass; README 'about 30 s'",
+   "observed": "38/38 pass in 1.6 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "seeded mutants in core logic",
+   "method": "platform/ci/quality_mutate.py, 9 mutants (1 equivalent)",
+   "command": "python3 platform/ci/quality_mutate.py ventures/mann-kendall-trend/engine.mjs --old 'years.length >= 10);' ... -- node --test '*.test.mjs'",
+   "expected": "every non-equivalent mutant caught",
+   "observed": "7 of 8 caught; auto covariance threshold 10 -> 20 survived",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "data provenance hashes",
+   "method": "sha256sum vs data/SOURCE.md",
+   "command": "sha256sum ventures/mann-kendall-trend/data/*.rdb.txt",
+   "expected": "c5d668.../e0d81f.../dc68c5...",
+   "observed": "all three match",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "served llms.txt/sitemap/canonical hosts",
+   "method": "deploy rewrite",
+   "command": "node platform/pages/served-copy.mjs mann-kendall-trend",
+   "expected": "no placeholder origin",
+   "observed": "none left",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "TFPW procedure vs Yue et al. 2002",
+   "method": "read engine.mjs:580-588 against the paper's step (pre-whiten only when r1 is significant)",
+   "command": "sed -n 580,588p ventures/mann-kendall-trend/engine.mjs",
+   "expected": "r1 significance screen, or a stated deviation",
+   "observed": "always pre-whitens; PAPERS says 'None beyond using the times as given'",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "engine.mjs:385",
+   "change": "/ (2 * n * (n - 1)) -> / (4 * n * (n - 1)) (ties-in-both term)",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "engine.mjs:392",
+   "change": "(s - 1) / sqrt(v) : (s + 1) / sqrt(v) -> s / sqrt(v) (no continuity correction)",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "engine.mjs:463",
+   "change": "roundHalfEven((N + z * sd) / 2) - 1 -> roundHalfEven((N + z * sd) / 2)",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "engine.mjs:661",
+   "change": "Hirsch-Slack cov / 3 -> / 2",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "engine.mjs:560",
+   "change": "rho[k] > bound || rho[k] < -bound -> rho[k] > bound",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "engine.mjs:522",
+   "change": "sum += (1 - k / n) * rk -> sum += rk",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "engine.mjs:123",
+   "change": "EXACT_MAX_N = 20 -> 10",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "engine.mjs:615",
+   "change": "chiTrend = M * zBar^2 -> (M - 1) * zBar^2",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "engine.mjs:630",
+   "change": "years.length >= 10 -> years.length >= 20 (auto covariance threshold)",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "The default single-series test (Yue-Wang AR(1)) applies the variance factor unconditionally, so a negative or insignificant lag-1 estimate (biased negative at small n after Sen detrending) shrinks Var S; on white noise the default reports a trend in 10.6/9.7/9.3/8.4/7.5% of series at n=8/10/15/20/30 vs 5% nominal (plain test 3.2-5.2%). An 8-point tie-free series gets p 4.5e-5 where the exact p is 0.014. Flooring the AR(1) factor at 1 gives 3.0-4.4% and keeps all 38 tests green.",
+   "where": "ventures/mann-kendall-trend/engine.mjs:525",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16857"
+  },
+  {
+   "severity": "medium",
+   "what": "The size simulation that justifies the default starts at n=50 (eval/size-simulation.mjs:17), and no test checks the default's size at short n, so the doubled false-positive rate on 8-30-point annual records is unguarded and undisclosed.",
+   "where": "ventures/mann-kendall-trend/eval/size-simulation.mjs:17",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16857"
+  },
+  {
+   "severity": "medium",
+   "what": "Page FAQ and JSON-LD say that with 20 or fewer readings and no ties the tool uses the exact distribution; on the default correction the headline p is always the normal approximation (exact p appears only on the non-default plain row).",
+   "where": "ventures/mann-kendall-trend/index.html:211",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16857"
+  },
+  {
+   "severity": "medium",
+   "what": "README, page and CLI help say quarterly data get the seasonal Kendall test, but seasons=auto detects only monthly spacing; quarterly dates silently run the single-series test on a seasonal series.",
+   "where": "ventures/mann-kendall-trend/engine.mjs:758",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Missing-value codes such as 'NA' count as filled non-numeric cells, so a value column with more than 10% 'NA' is not recognised as numeric and analysis fails with 'No value column' (blanks work).",
+   "where": "ventures/mann-kendall-trend/engine.mjs:211",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Auto Hirsch-Slack covariance threshold (10 years) is not pinned by any test: changing it to 20 leaves the suite green.",
+   "where": "ventures/mann-kendall-trend/engine.mjs:630",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "PAPERS says trend-free pre-whitening has no deviations from Yue et al. (2002), but the code pre-whitens whatever r1 is; the paper's procedure applies it only when r1 is significant.",
+   "where": "ventures/mann-kendall-trend/engine.mjs:75",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "No flow adjustment and no one-value-per-season aggregation (median or nearest mid-season sample, USGS practice); with several samples per month the tool drops to independent seasons instead.",
+   "where": "ventures/mann-kendall-trend/engine.mjs:633",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "README says the test suite takes about 30 s; it runs in 1.6 s.",
+   "where": "ventures/mann-kendall-trend/README.md:93",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16857"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16857"],
+ "verdict": "The arithmetic is right: an independent numpy/scipy implementation from Gilbert (1987), Hirsch & Slack (1984), Hamed & Rao and Yue & Wang reproduces every statistic the tool reports on the Potomac data to 1e-9 (S, tie-corrected Var S, continuity-corrected Z, Sen's slope and its Gilbert CI, both serial-correlation factors, the Hirsch-Slack covariance with missing months, the homogeneity chi-square), brute-force enumeration confirms the exact p and the ties-in-both variance, and 7 of 8 seeded mutants are caught. The gap is the default: the Yue-Wang AR(1) factor is applied even when the lag-1 estimate is negative, so on short records it shrinks the variance and the headline test calls a trend in 8-11% of white-noise series at n=8-20 (the size study that picked the default starts at n=50). The page also claims exact p-values for n<=20 that the default does not report, and says quarterly data get the seasonal test when auto does not. Strong for long streamflow records; below the bar on claims and on the method a water-quality statistician would sign off for short annual series."
+}

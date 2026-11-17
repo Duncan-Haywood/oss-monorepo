@@ -13,4 +13,4 @@
 - (2026-11-17) a real step inside a cycle, a cycle check not tied to rho, real documented ramps and close steps
 - (2026-11-17) nulls rho low
 - (2026-11-17) step/bend bootstrap tests (README "Step or bend, as two tests") fail: walks called bend, use the cut guard
-- (2026-11-17) next a bootstrap conditioned on the cut guard (cut-only admits 17/26 false), page, engine
+- (2026-11-17) cut-guard conditioning calibrated but blind (round 6), next a control series

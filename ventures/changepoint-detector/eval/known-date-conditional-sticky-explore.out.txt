@@ -1,0 +1,6 @@
+# round 6, seed base 41000, screen 3000, cap 25, 199 replicates; only series the cut admits are scored
+## Size (null: line + AR(1), and random walks)
+null   n  60 rho 0.90 date 50%: cut admitted 25 of 1052; p <= 0.05 round 5  60.0%, conditional  60.0%; under 99 admitted replicates: 0
+walk   n  60 rho 0.00 date 50%: cut admitted 25 of 1240; p <= 0.05 round 5  88.0%, conditional  88.0%; under 99 admitted replicates: 0
+step   n  60 rho 0.90 date 50% step 4: cut admitted 25 of 891; p <= 0.05 round 5  96.0%, conditional  92.0%; under 99 admitted replicates: 0
+step   n 120 rho 0.90 date 50% step 4: cut admitted 25 of 2757; p <= 0.05 round 5  84.0%, conditional  80.0%; under 99 admitted replicates: 0

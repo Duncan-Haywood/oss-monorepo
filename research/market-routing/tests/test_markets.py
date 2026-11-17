@@ -94,7 +94,6 @@ class RegretTests(unittest.TestCase):
         n, T = 8, 600
         for _ in range(5):
             gains = rand_gains(rng, n, T)
-            gains = [[g * (1.0 if i != 0 else 1.0) for i, g in enumerate(row)] for row in gains]
             for b in (5.0, 15.0):
                 r = run_routing(EntropicMarket(n, b), gains)
                 self.assertLessEqual(r.regret, hedge_regret_bound(n, T, b) + 1e-9)
@@ -112,10 +111,6 @@ class RegretTests(unittest.TestCase):
             self.assertEqual(max(range(n), key=lambda i: p[i]), 2)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class ForgettingTests(unittest.TestCase):
     def test_decay_recovers_after_switch_but_static_does_not(self):
         n, T = 4, 600
@@ -125,3 +120,26 @@ class ForgettingTests(unittest.TestCase):
             forget = M(n, b=1.0); run_routing(forget, gains, decay=0.9)
             self.assertGreater(forget.prices()[3], 0.99)
             self.assertLess(static.prices()[3], forget.prices()[3])
+
+
+class AuditPinTests(unittest.TestCase):
+    """Hand-computed values (quality audit 2026-11-17-market-routing)."""
+
+    def test_switching_regret_by_hand(self):
+        # round 1 plays [.5,.5]; round 2 plays softmax([1,0]) = [.7311,.2689]
+        r = run_routing(EntropicMarket(2, 1.0), [[1.0, 0.0], [0.0, 1.0]], best_seq=[0, 1])
+        expected = 2.0 - (0.5 + 1.0 / (1.0 + math.e))
+        self.assertAlmostEqual(r.switching_regret, expected, places=9)
+        self.assertAlmostEqual(r.switching_regret, 1.2311, places=4)
+
+    def test_loss_bound_constants(self):
+        self.assertAlmostEqual(QuadraticMarket(4, b=2).max_loss_bound(), 0.75)
+        self.assertAlmostEqual(EntropicMarket(5, b=2).max_loss_bound(), 2 * math.log(5))
+
+    def test_short_bundle_rejected(self):
+        with self.assertRaises(ValueError):
+            QuadraticMarket(4).trade([1.0])
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -4,11 +4,37 @@
  "rows": [
   {
    "phi": 0,
+   "n": 10,
+   "reps": 1000,
+   "rejectionRate": {
+    "none": 0.06,
+    "yue-wang": 0.051,
+    "hamed-rao": 0.079,
+    "hamed-rao-3": 0.079,
+    "tfpw": 0.067,
+    "yue-wang-all-lags": 0.358
+   }
+  },
+  {
+   "phi": 0,
+   "n": 20,
+   "reps": 1000,
+   "rejectionRate": {
+    "none": 0.05,
+    "yue-wang": 0.042,
+    "hamed-rao": 0.091,
+    "hamed-rao-3": 0.085,
+    "tfpw": 0.059,
+    "yue-wang-all-lags": 0.441
+   }
+  },
+  {
+   "phi": 0,
    "n": 50,
    "reps": 1000,
    "rejectionRate": {
     "none": 0.049,
-    "yue-wang": 0.069,
+    "yue-wang": 0.042,
     "hamed-rao": 0.091,
     "hamed-rao-3": 0.066,
     "tfpw": 0.053,
@@ -21,7 +47,7 @@
    "reps": 1000,
    "rejectionRate": {
     "none": 0.051,
-    "yue-wang": 0.054,
+    "yue-wang": 0.044,
     "hamed-rao": 0.088,
     "hamed-rao-3": 0.059,
     "tfpw": 0.048,
@@ -34,7 +60,7 @@
    "reps": 1000,
    "rejectionRate": {
     "none": 0.044,
-    "yue-wang": 0.051,
+    "yue-wang": 0.04,
     "hamed-rao": 0.097,
     "hamed-rao-3": 0.047,
     "tfpw": 0.052,
@@ -43,11 +69,37 @@
   },
   {
    "phi": 0.3,
+   "n": 10,
+   "reps": 1000,
+   "rejectionRate": {
+    "none": 0.109,
+    "yue-wang": 0.087,
+    "hamed-rao": 0.122,
+    "hamed-rao-3": 0.122,
+    "tfpw": 0.121,
+    "yue-wang-all-lags": 0.432
+   }
+  },
+  {
+   "phi": 0.3,
+   "n": 20,
+   "reps": 1000,
+   "rejectionRate": {
+    "none": 0.119,
+    "yue-wang": 0.078,
+    "hamed-rao": 0.147,
+    "hamed-rao-3": 0.143,
+    "tfpw": 0.112,
+    "yue-wang-all-lags": 0.47
+   }
+  },
+  {
+   "phi": 0.3,
    "n": 50,
    "reps": 1000,
    "rejectionRate": {
     "none": 0.131,
-    "yue-wang": 0.069,
+    "yue-wang": 0.067,
     "hamed-rao": 0.133,
     "hamed-rao-3": 0.109,
     "tfpw": 0.152,
@@ -78,6 +130,32 @@
     "hamed-rao-3": 0.071,
     "tfpw": 0.172,
     "yue-wang-all-lags": 0.487
+   }
+  },
+  {
+   "phi": 0.6,
+   "n": 10,
+   "reps": 1000,
+   "rejectionRate": {
+    "none": 0.22,
+    "yue-wang": 0.15,
+    "hamed-rao": 0.233,
+    "hamed-rao-3": 0.233,
+    "tfpw": 0.236,
+    "yue-wang-all-lags": 0.53
+   }
+  },
+  {
+   "phi": 0.6,
+   "n": 20,
+   "reps": 1000,
+   "rejectionRate": {
+    "none": 0.286,
+    "yue-wang": 0.135,
+    "hamed-rao": 0.286,
+    "hamed-rao-3": 0.255,
+    "tfpw": 0.316,
+    "yue-wang-all-lags": 0.542
    }
   },
   {
@@ -117,6 +195,32 @@
     "hamed-rao-3": 0.086,
     "tfpw": 0.417,
     "yue-wang-all-lags": 0.508
+   }
+  },
+  {
+   "phi": 0.8,
+   "n": 10,
+   "reps": 1000,
+   "rejectionRate": {
+    "none": 0.354,
+    "yue-wang": 0.247,
+    "hamed-rao": 0.362,
+    "hamed-rao-3": 0.362,
+    "tfpw": 0.367,
+    "yue-wang-all-lags": 0.611
+   }
+  },
+  {
+   "phi": 0.8,
+   "n": 20,
+   "reps": 1000,
+   "rejectionRate": {
+    "none": 0.422,
+    "yue-wang": 0.199,
+    "hamed-rao": 0.359,
+    "hamed-rao-3": 0.332,
+    "tfpw": 0.513,
+    "yue-wang-all-lags": 0.603
    }
   },
   {

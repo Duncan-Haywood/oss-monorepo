@@ -49,7 +49,7 @@
  ],
  "writeups": [],
  "goal": null,
- "notes": "Critique mode (backlog held only owner rows). Target: friction_rank.py --live --ungated --days 3 top row, flagships.yaml next: at cap (18x, 2026-11-14..17). Root cause: --make-room parked only to the cap so rows stayed full. Fix: FLAGSHIP_NEXT_TARGET=1700, auto make-room on over-cap next: edits, --trim, bracket-safe item split. Trimmed 11 rows to 1,502-1,691; 33 items moved to NEXT.md. Verdict recorded in friction_verdicts.json (regex narrowed to next:). Verification: pytest portfolio/router test_flagship_field/test_validate/test_allocate pass (5 new tests); flagship_field --check, validate.py, check_post_frontmatter clean; main_health 254/254 before the change. No backlog ids touched (none agent-owned open).",
+ "notes": "Critique mode (backlog held only owner rows). Target: friction_rank.py --live --ungated --days 3 top row, flagships.yaml next: at cap (18x, 2026-11-14..17). Root cause: --make-room parked only to the cap so rows stayed full. Fix: FLAGSHIP_NEXT_TARGET=1700, auto make-room on over-cap next: edits, --trim, bracket-safe item split. Trimmed 11 rows to 1,502-1,692; 35 items moved to NEXT.md. Verdict recorded in friction_verdicts.json (regex narrowed to next:). Verification: pytest portfolio/router test_flagship_field/test_validate/test_allocate pass (5 new tests); flagship_field --check, validate.py, check_post_frontmatter clean; main_health 254/254 before the change. No backlog ids touched (none agent-owned open).",
  "corrections": [],
  "redteam": null
 }
