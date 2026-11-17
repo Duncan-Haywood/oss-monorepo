@@ -367,13 +367,30 @@ def unmarked_fixes(audits: list[dict], severity: str = "medium") -> list[dict]:
     return out
 
 
-def reaudit_due(audits: list[dict], seed: str | None = None) -> list[dict]:
+OPEN_RX = re.compile(r"known gaps?|not yet fixed|still open|unfixed|open defects", re.I)
+
+
+def documented_open(a: dict, root: Path = ROOT) -> bool:
+    """Whether the subject's README names this audit file next to "known gaps" or "not yet fixed": the round's PR
+    wrote the defects down as open, and listing that PR in `fix_prs` then counted them all as fixed. On
+    2026-11-17, 56 of 186 such latest audits read this way, 49 high defects among them; gig-driver-net-pay-
+    calculator's missing depreciation and verifier-bribery's threshold were two (reflection 2)."""
+    readme = root / a.get("subject", "") / "README.md"
+    try:
+        text = readme.read_text(errors="ignore")
+    except OSError:
+        return False
+    return a.get("_file", "") in text and bool(OPEN_RX.search(text))
+
+
+def reaudit_due(audits: list[dict], seed: str | None = None, root: Path = ROOT) -> list[dict]:
     """Subjects whose latest audit records a fix (a `fix_prs` entry or a defect's `fixed_by`) that no later audit
     has checked: the "a later round re-audits" step of the fix loop. Nothing scheduled it before 2026-11-17, and
     sample and census skip a subject audited in the last 90 days, so 250 audits with fix PRs had no re-audit
     (reflection 2, portfolio/quality/reflections/2026-11-17-the-fix-loop-is-open.md). Subjects whose recorded
     fixes include a high-severity defect come first, then the oldest audit; with `seed`, subjects are shuffled
-    within those two groups so parallel sessions spread out (as `queue` does)."""
+    within those two groups so parallel sessions spread out (as `queue` does). Subjects whose README still lists the
+    audit's defects as open (`documented_open`) and that hold a high go first of all."""
     latest: dict[str, dict] = {}
     for a in sorted(audits, key=lambda x: (x.get("date", ""), x["_file"])):
         latest[a["subject"]] = a
@@ -386,14 +403,16 @@ def reaudit_due(audits: list[dict], seed: str | None = None) -> list[dict]:
         out.append({"subject": a["subject"], "audit": a["_file"], "date": a.get("date", ""),
                     "fix_prs": list(a.get("fix_prs") or []), "defects": len(ds), "fixed": len(fixed),
                     "explicit": sum(bool(d.get("fixed_by")) for d in ds),
-                    "high_fixed": sum(d.get("severity") == "high" for d in fixed)})
+                    "high_fixed": sum(d.get("severity") == "high" for d in fixed),
+                    "documented_open": documented_open(a, root)})
     rank = {}
     if seed is not None:
         rng = random.Random(int(hashlib.sha256(seed.encode()).hexdigest()[:16], 16))
         subjects = sorted(r["subject"] for r in out)
         rng.shuffle(subjects)
         rank = {s: i for i, s in enumerate(subjects)}
-    out.sort(key=lambda r: (r["high_fixed"] == 0, rank.get(r["subject"], 0), r["date"], r["subject"]))
+    out.sort(key=lambda r: (not (r["documented_open"] and r["high_fixed"]), r["high_fixed"] == 0,
+                            rank.get(r["subject"], 0), r["date"], r["subject"]))
     return out
 
 
@@ -432,8 +451,10 @@ def fix_confirmation(audits: list[dict]) -> dict:
         if a.get("status") == "audited":
             by_subject[a["subject"]].append(a)
     rechecked = sum(any(x.get("fix_prs") for x in seq[:-1]) for seq in by_subject.values() if len(seq) > 1)
+    due = reaudit_due(audits)
     return {"explicit": explicit, "assumed": assumed, "open": open_,
-            "rechecked_after_fix": rechecked, "awaiting_recheck": len(reaudit_due(audits))}
+            "rechecked_after_fix": rechecked, "awaiting_recheck": len(due),
+            "documented_open": sum(r["documented_open"] for r in due)}
 
 
 def bar_by_instrument(audits: list[dict], meets_bar) -> dict:
@@ -778,7 +799,7 @@ def render_md(m: dict) -> str:
           f"Of the latest audits' defects, {fx['explicit']} are marked fixed one by one (`fixed_by`), {fx['assumed']} are "
           f"assumed fixed because their audit lists a fix PR and marks none, and {fx['open']} are open. "
           f"{fx['rechecked_after_fix']} subjects have been re-audited after a recorded fix; {fx['awaiting_recheck']} await one "
-          "(`quality_audit.py reaudit`).",
+          f"(`quality_audit.py reaudit`), {fx['documented_open']} of them with a README that still lists the audit's defects as open.",
           f"Of {ps['earlier_defects']} defects in an audit that was later repeated, {ps['reappeared']} "
           f"({100 * (ps['share'] or 0):.0f}%) reappear in the next audit of the same subject "
           f"({ps['subjects_reaudited']} subjects re-audited)."]
@@ -895,6 +916,9 @@ def main_metrics(args, audits, pop, meets_bar, wilson) -> int:
         for r in rows[: args.limit]:
             print(f"  {r['subject']}  audit {r['audit']}  {r['fixed']} of {r['defects']} defects counted fixed"
                   f" ({r['explicit']} marked, {r['high_fixed']} high)  fix PRs: {', '.join(str(p) for p in r['fix_prs'][:3])}")
+            if r["documented_open"]:
+                print("      its README lists this audit under known gaps / not yet fixed: the fix PR may only have"
+                      " written the defects down")
             for n, t in prs_naming(r["subject"], prs or [])[:2]:
                 print(f"      open PR naming it: #{n} {t[:80]}")
         print(f"{len(rows)} subjects have a recorded fix no later audit has checked. Re-audit one in a new file with"

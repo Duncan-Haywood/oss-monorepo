@@ -164,6 +164,22 @@ class FixLoopTest(unittest.TestCase):
         self.assertEqual(sorted(r["subject"] for r in m.reaudit_due([fixed_low, fixed_high], "s")),
                          ["ventures/a", "ventures/b"])
 
+    def test_documented_open_goes_first(self):
+        import tempfile
+        root = Path(tempfile.mkdtemp())
+        (root / "ventures" / "a").mkdir(parents=True)
+        (root / "ventures" / "a" / "README.md").write_text(
+            "## Known gaps\n\nFrom `portfolio/quality/audits/2026-11-12-a.json`: not yet fixed.\n")
+        (root / "ventures" / "b").mkdir(parents=True)
+        (root / "ventures" / "b" / "README.md").write_text("All fixed.\n")
+        high = [{"severity": "high", "what": "y"}]
+        a = audit(subject="ventures/a", date="2026-11-12", fix_prs=[self.URL], defects=high)
+        a["_file"] = "2026-11-12-a.json"
+        b = audit(subject="ventures/b", date="2026-11-08", fix_prs=[self.URL], defects=high)
+        rows = m.reaudit_due([b, a], root=root)
+        self.assertEqual([(r["subject"], r["documented_open"]) for r in rows], [("ventures/a", True), ("ventures/b", False)])
+        self.assertFalse(m.documented_open(dict(a, subject="ventures/missing"), root))
+
     def test_fix_confirmation_separates_marked_from_assumed(self):
         marked = audit(subject="ventures/a", fix_prs=[self.URL],
                        defects=[{"severity": "high", "what": "y", "fixed_by": self.URL}, {"severity": "low", "what": "z"}])
