@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVL9r9jatjr4MRwntC8",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (prompt.md)",
+  "input_sha256": "e7710cfbf7593885a44c98515fb38155574d91e862caf0f63f8c83124ca0298e",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T07:06:07Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "einvoice-preflight (flagship 5): France CDAR life-cycle status messages (BR-FR-CDV)",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": 16851,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "einvoice-preflight's next: is near the 2000-char cap, so landing one item meant parking an unrelated ABRASF item to NEXT.md via --make-room."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-french-invoice-status-messages-cdar.md",
+    "ventures/einvoice-preflight/eval/cdar-crosscheck-2026-11-17.md"
+  ],
+  "goal": null,
+  "notes": "New cdar.mjs reads French CDAR (CDV) status messages: names status and reason (FR-CDV-100), pairs with the invoice in the batch and compares MDT-91/100/129 with BT-3/2/30 (FR-CDV-101..103), lists an invoice's statuses in time order (FR-CDV-104). FNFE-MPE BR-FR-CDV Schematron 1.4.0.04 compiled to plain/cdar-fr.json (43 checks) by build-fr-rules.mjs (cius-fr sets rebuild byte-identical); routed via detectSyntax 'cdar' and plainOnlySets so it runs in the browser and never gets the EN 16931 base. eval/cdar-crosscheck.mjs vs Saxon-JS on FNFE's XSLT: 59 messages x up to 14 mutations, 780/780 same rule ids, 0 skipped. Found: no CDAR rule format-checks MDT-4/MDT-8/MDT-87; 206/208 labelled both ways round in FNFE's file. Local: node --test in ventures/einvoice-preflight 2172 pass, 0 fail, 16 skipped (with slimdom+fontoxpath installed; CI without them skips the plain-route tests as for BR-FR). Post checks: front matter, links, similarity clean.",
+  "corrections": [],
+  "redteam": null
+}

@@ -96,6 +96,7 @@ export function matchingAddons(xml, syntax, { profile = "" } = {}) {
 // the current EU base and nothing else, so it hands the file to the plain route instead.
 export function plainOnlySets(xml, syntax, opts = {}) {
   if (!syntax) return [];
+  if (syntax === "cdar") return ["cdar-fr"];
   const profile = matchingProfile(xml, syntax);
   if (profile) return [profile[0]];
   return matchingAddons(xml, syntax, opts).filter(([, a]) => a.plainOnly).map(([name]) => name);
@@ -130,6 +131,8 @@ export function parseSvrl(svrl, source = "en16931-schematron") {
 }
 
 export function detectSyntax(xml) {
+  // France's life-cycle status message (CDAR, "CDV" 200-228): its own rule set, no EN 16931 base.
+  if (/<(?:\w+:)?CrossDomainAcknowledgementAndResponse\b/.test(xml)) return "cdar";
   if (/<(?:\w+:)?CrossIndustryInvoice\b/.test(xml)) return "cii";
   if (/<(?:\w+:)?(?:Invoice|CreditNote)\b/.test(xml)) return "ubl";
   return "";
