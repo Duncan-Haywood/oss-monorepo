@@ -35,7 +35,8 @@ And (2026-11-14) every `platform/**/*.test.mjs` node suite no workflow runs at
 all, resolved from each `node --test` line's globs and working directory: 34
 suites in platform/devlog, platform/distribution and platform/proposal, one of
 them red on main (term-ids.test.mjs). About 30 s more at six at a time;
-NODE_SLOW names the ones too slow for every pull request.
+NODE_SLOW names the ones too slow for every pull request. Since 2026-11-17
+`test_*.mjs` suites count too: six in platform/ci ran nowhere (under 3 s).
 """
 import argparse
 import functools
@@ -233,12 +234,20 @@ def node_tests_run(text, root=ROOT):
     return out
 
 
+# Node suite file names. `test_*.mjs` too (2026-11-17): the six browser-sweep
+# unit suites in platform/ci (test_check_enter_reload.mjs and its siblings) are
+# named that way, matched no workflow and not the `*.test.mjs` glob either, so
+# nothing ran them while their checkers grew.
+NODE_SUITE_GLOBS = ("*.test.mjs", "test_*.mjs")
+
+
 def unwired_node_suites(root=ROOT, workflows=WORKFLOWS):
-    """platform/**/*.test.mjs (outside node_modules) that no workflow runs."""
+    """platform/**/{*.test.mjs,test_*.mjs} (outside node_modules) that no workflow runs."""
     ran = set()
     for p in sorted(workflows.glob("*.y*ml")):
         ran |= node_tests_run(p.read_text(encoding="utf-8", errors="replace"), root)
-    return [p for p in sorted((root / "platform").rglob("*.test.mjs"))
+    found = {p for g in NODE_SUITE_GLOBS for p in (root / "platform").rglob(g)}
+    return [p for p in sorted(found)
             if "node_modules" not in p.parts and p.resolve() not in ran]
 
 
@@ -314,7 +323,7 @@ TAIL = 8
 
 
 def reproduce(name):
-    if name.endswith(".test.mjs"):
+    if name.endswith(".mjs"):
         d, _, f = name.rpartition("/")
         return f"cd {d} && node --test {f}"
     if name.startswith("test_"):
