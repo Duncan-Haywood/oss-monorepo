@@ -1846,12 +1846,17 @@ class TakeSurveyTest(unittest.TestCase):
         self.assertEqual(tuple(g // 1000 for g in controller.TAKE_SURVEY_GRID_US), host.TAKE_SURVEY_MS)
 
     def test_advice(self):
-        sv = {"wheels": 24, "least_ms10": 60, "refined_ms10": 57, "board_ms10": 0}
+        sv = {"wheels": 24, "least_ms10": 60, "refined_ms10": 57, "board_ms10": 0,
+              "rms_ppm": [136, 140, 119, 98, 95, 50, 112]}
         self.assertIsNone(host.take_survey_advice(None))
         self.assertIn("run more balls", host.take_survey_advice(dict(sv, wheels=6)))
         self.assertIn("set TAKE_US = 5500", host.take_survey_advice(sv))
         self.assertIn("already matches", host.take_survey_advice(dict(sv, board_ms10=60)))
         self.assertIn("keep TAKE_US = 0", host.take_survey_advice(dict(sv, least_ms10=0, refined_ms10=0)))
+        # an instant take's build on the simulator: 3 ms fits 25% better than the step, under the margin
+        flat = dict(sv, least_ms10=30, refined_ms10=26, rms_ppm=[68, 62, 51, 75, 81, 107, 197])
+        self.assertIn("keep TAKE_US = 0", host.take_survey_advice(flat))
+        self.assertIn("only 25% less", host.take_survey_advice(flat))
         self.assertIn("set TAKE_US = 0", host.take_survey_advice(dict(sv, least_ms10=0, refined_ms10=0, board_ms10=40)))
 
     def test_board_off_by_default_and_on_for_a_calibration_drill(self):

@@ -385,6 +385,11 @@ def esc_lag_check(sv: dict | None, board_ms: int | None) -> str | None:
 
 TAKE_SURVEY_MS = (0, 2, 3, 4, 5, 6, 8)   # the firmware's TAKE_SURVEY_GRID_US, in ms
 TAKE_SURVEY_S = 12.0          # a contact-time survey triples the board's work after the last ball
+# Advise a contact time only when the survey's best candidate misses by at most this share of the step's rms (README
+# "The contact time surveyed on the board"): on the simulator 4 of 6 builds with an instant take picked 1.5-2.5 ms at
+# 0.66-0.76 of the step's rms and read worse told it, while most spread takes fell to 0.29-0.6. Chosen on seed 7, checked
+# on seed 8 (eval/take-survey-heldout-2026-11-17.txt).
+TAKE_ADVISE_RATIO = 0.6
 TAKE_WAIT_S = 8.0             # the longest a calibration drill holds a ball for the last one's surveys
 
 
@@ -405,6 +410,12 @@ def take_survey_advice(sv: dict | None) -> str | None:
     if n < ESC_SURVEY_MIN_WHEELS:
         return (f"contact-time survey: {n} wheels so far pick {pick:g} ms; run more balls ({ESC_SURVEY_MIN_WHEELS} "
                 f"wheels) before setting TAKE_US")
+    rms = [v for v in (sv.get("rms_ppm") or ()) if v is not None]
+    gain = min(rms) / rms[0] if rms and rms[0] else 0.0
+    if pick > 0 and gain > TAKE_ADVISE_RATIO:
+        return (f"contact-time survey: {n} wheels pick {pick:g} ms, but its fits miss only {1 - gain:.0%} less than the "
+                f"step's (an instant take's builds reached 34% on the simulator): " +
+                ("keep TAKE_US = 0" if board == 0 else "set TAKE_US = 0 in config.py and re-flash"))
     if pick == 0:
         return f"contact-time survey: {n} wheels pick an instant take; " + (
             "keep TAKE_US = 0" if board == 0 else "set TAKE_US = 0 in config.py and re-flash")

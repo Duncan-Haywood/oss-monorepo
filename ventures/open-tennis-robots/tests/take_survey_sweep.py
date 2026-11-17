@@ -21,7 +21,7 @@ Builds: the first-order 8k and ESC 50 ms told plants of min_fit_heldout.py at 0.
 plant, as tests/take_spread.py), its three launchers, wheel lag 0.3 s, seed 7; takes: instant, half-sine 3 ms,
 half-sine 6 ms, front 4 ms. 24 builds, four drills each.
 
-    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_sweep.py [--raw rows.jsonl] [--procs N]
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_sweep.py [--raw rows.jsonl] [--procs N] [--seed 7]
 
 One process per build; `--raw` appends each build as it finishes and a rerun skips the builds already there. The
 physics and the take's profile are the simulator's assumptions, not a real ball.
@@ -44,6 +44,8 @@ TAKES = (("instant", 0.0, "halfsine"), ("halfsine 3 ms", 3.0, "halfsine"), ("hal
          ("front 4 ms", 4.0, "front"))
 PLANTS = (0, 2)
 LAG, SEED = 0.3, 7
+if "--seed" in sys.argv:
+    SEED = int(sys.argv[sys.argv.index("--seed") + 1])
 
 
 def drill(true, plant, spec, take_us=0, survey=False):
@@ -155,9 +157,16 @@ def main():
         def spin(key):
             es = [r[key]["cal_err"][1] for r in rs if r[key]["cal_err"]]
             return f"{100 * statistics.fmean(es):.2f}% ({100 * max(es):.2f})" if es else "-"
+        def adv(r):
+            return "told" if "set TAKE_US" in (host.take_survey_advice(r["survey"]) or "") else "step"
+        def pool_adv():
+            return [w for r in rs for part in ("cal", "slow") for w in (r[adv(r)][part] or ())]
+        es = [r[adv(r)]["cal_err"][1] for r in rs if r[adv(r)]["cal_err"]]
+        margin = (f" | with the advice's margin ({sum(adv(r) == 'told' for r in rs)} of {len(rs)} advised): "
+                  f"{stats(pool_adv())}, spin {100 * statistics.fmean(es):.2f}% ({100 * max(es):.2f})")
         picks = sorted(r["pick_ms"] for r in rs)
         print(f"  {name:14} picks {picks} | {stats(pool_('step'))} -> {stats(pool_('told'))} | "
-              f"{spin('step')} -> {spin('told')}")
+              f"{spin('step')} -> {spin('told')}{margin}")
 
 
 if __name__ == "__main__":
