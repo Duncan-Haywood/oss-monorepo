@@ -347,6 +347,8 @@ before writing the first scene.
 
 **For Other Minds**
 
+- *Three tills and a concert* (proposed 2026-11-17): a parish office agent is asked "what each group raised" at a Christmas fair three groups ran together, because a co-op grant is to be split "in proportion to what each raised", and it reports the till takings, which credit the choir with nothing. Removing each group in turn over-counts (the three "without us" losses sum to more than the takings, because the groups make each other's money); averaging each group's marginal take over every order of arrival (the Shapley value) splits the total exactly. Two of the seven coalition figures have never been observed and must be labelled guesses, with their effect on each share stated, and the agent declines to put a figure on its own posters. Numbers: tills Y 2,900, B 1,900, C 0 of 4,800; v(B) 900, v(C) 1,200, v(Y) 600, v(BC) 2,700, v(BY) 1,800 and v(CY) 2,400 guessed; Shapley B 1,550, C 2,000, Y 1,250.
+
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
 
