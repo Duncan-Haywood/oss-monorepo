@@ -213,6 +213,9 @@ def fit_from_drops(records, *, inertia: float = WHEEL_INERTIA_KGM2, ball_kg: flo
     # warning about the build, not readings to drop: on the simulator setting them aside did not improve the fit
     # (tests/plant_drill_sweep.py; with a 5 us tach jitter it made the spin error worse, 7.2% against 5.3%), but no
     # wheel of the first-order plant was ever marked and every plant that broke the model marked 30-96% of its wheels.
+    # `unsure_weight` (2026-11-17, README "Unsure marks on the noisy wheels") counts a marked reading that many times;
+    # 1 stays the default: on held-out seeds 0.5, 0.25 and 0 all left the jittery tach's spin error the same or worse
+    # (tests/unsure_weight.py). The rms is then of the weighted residuals.
     unsure = sum(1 for r in rows if r[5])
     slow = sum(1 for r in records if r.get("launched")
                for w in (float(r["rpm_top"]), float(r["rpm_bottom"])) if 0 < w < MIN_FIT_RPM)

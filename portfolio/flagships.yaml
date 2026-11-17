@@ -377,12 +377,13 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "The jittery
-      tach through a speed change" (six seeds: LOOP_THROUGH_CHANGE misses alike, 35
-      vs 38 wheels; the noisy class is a slow shot's fast wheel, sd 1.0%). Next:
-      does LOOP_UNSURE mark those wheels, and should the Pi's fit weight them down
-      (eval/through-jitter-cause-2026-11-17.jsonl); ball hold: measure
-      WHEEL_RPM_FULL error's cost on 0.2 s wheels; an ESC with its own speed loop.
+      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "Unsure marks
+      on the noisy wheels" (LOOP_UNSURE marks 41% of a slow shot's fast wheels, 16
+      of 23 misses; weighting them down in the fit failed held-out seeds: the 0.57%
+      jitter spin error is spread over every reading,
+      eval/unsure-weight-2026-11-17.txt). Next: lower every reading's noise under
+      tach jitter (the loop fit's drop); ball hold: measure WHEEL_RPM_FULL error's
+      cost on 0.2 s wheels; an ESC with its own speed loop.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

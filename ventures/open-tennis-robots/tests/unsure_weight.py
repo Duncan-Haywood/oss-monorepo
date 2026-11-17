@@ -6,6 +6,9 @@ spin shot (2,500 rpm and up, the other wheel watched past its verdict), sd 1.0% 
 wheels have 0.6%. The board marks a loop fit unsure (LAUNCH flags bits 6 / 7) when the fit's own misses give its drop a
 standard error over LOOP_SE_MAX (1%). Two questions:
 
+Part 3 (added after the run, not part of the rule): the jittery-tach fits with readings replaced by the simulator's
+true drops, every reading, the marked ones or the ones over 2% off, to see where the fit's error comes from.
+
 1. MARKS. Of the wheels more than 2% off, how many came marked, and how many of the marked are off? Per class.
    The loop fit's standard error itself is logged too (the Pi never sees it, only the bit).
 2. WEIGHT. `launcher.fit_from_drops(unsure_weight=w)` counts a marked reading w times in the least squares. Candidates
@@ -128,6 +131,28 @@ def fit_errors(log, li, weight):
     return abs(f.speed_efficiency / se - 1), abs(f.spin_efficiency / sp - 1)
 
 
+def oracle_errors(r, li, which):
+    """fit_from_drops on the log with some readings replaced by their true drop (the simulator's): `which(w)` picks
+    them. Shows how much of the fit's error those readings carry, an upper bound on what weighting them can win."""
+    se, sp = h.LAUNCHERS[li]
+    launched = [x for x in r["log"] if x.get("launched")]
+    new = []
+    for i, rec in enumerate(launched):
+        rec = dict(rec)
+        for j, nm in enumerate(("top", "bottom")):
+            w = r["wheels"][2 * i + j]
+            if which(w):
+                rec[f"drop_{nm}"] = rec[f"drop_{nm}"] / w["ratio"]
+        new.append(rec)
+    old = launcher.MIN_FIT_RPM
+    launcher.MIN_FIT_RPM = FLOOR
+    try:
+        f = launcher.fit_from_drops(new)
+    finally:
+        launcher.MIN_FIT_RPM = old
+    return abs(f.speed_efficiency / se - 1), abs(f.spin_efficiency / sp - 1)
+
+
 def cls(w):
     if w["drill"] == "calibration":
         return "calibration"
@@ -218,6 +243,14 @@ def main():
 
     dstats = table([s for s in seeds if s in DESIGN], f"design seeds {DESIGN}: speed mean / spin mean (spin worst)")
     hstats = table([s for s in seeds if s in HELDOUT], f"held-out seeds {HELDOUT}: speed mean / spin mean (spin worst)")
+
+    print("\nPart 3. Jittery-tach builds (all seeds): the fit with readings replaced by their true drops")
+    for lab, which in (("as read", lambda w: False), ("every reading true", lambda w: True),
+                       ("marked readings true", lambda w: w["unsure"]),
+                       ("readings > 2% off true", lambda w: abs(w["ratio"] - 1) > 0.02)):
+        es = [oracle_errors(done[tuple(g)], g[2], which) for g in ok if g[0] == 1]
+        print(f"  {lab:24} speed {100 * statistics.fmean(e[0] for e in es):.2f}%, spin mean "
+              f"{100 * statistics.fmean(e[1] for e in es):.2f}%, worst {100 * max(e[1] for e in es):.2f}% ({len(es)} builds)")
 
     print("\nDecision")
     if (None, 1.0) not in dstats:
