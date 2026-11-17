@@ -513,3 +513,25 @@ test("a total line under its own reading's subtotal loses its total-line vote wh
   // validation-61 and -78: the rule alone traded one wrong total for another)
   assert.equal(parseReceiptPasses([a, b, "CAFE\n29.88", "CAFE"]).cents, 707);
 });
+
+test("RECEIPT_OCR_LEAD reads the photo with a second engine first, and its failure is dropped", async () => {
+  const { receiptPassesFromFile } = await import("./ocr.mjs");
+  const calls = [];
+  const run = (cmd, args) => {
+    calls.push([cmd, ...args].join(" "));
+    if (cmd === "pp") return { status: 0, stdout: "KEDAI MAJU\nTotal 31.000" };
+    return { status: 0, stdout: args.includes("4") ? "KEDAI MAJU\nTotal 34.000" : "KEDAI MAJU\nTotal 31.000" };
+  };
+  const t = receiptPassesFromFile("slip.jpg", { run, env: { RECEIPT_OCR_LEAD: "pp read {file}" } });
+  assert.equal(t.length, 3);
+  assert.equal(calls[0], "pp read slip.jpg");
+  assert.match(t[0], /31\.000/);
+  // a lead engine that fails, or prints nothing, leaves tesseract's readings
+  const bad = (cmd, args) => (cmd === "pp" ? { status: 1, stdout: "" } : run(cmd, args));
+  assert.equal(receiptPassesFromFile("slip.jpg", { run: bad, env: { RECEIPT_OCR_LEAD: "pp {file}" } }).length, 2);
+  // a PDF is not given to the lead engine (pdftotext reads it, once)
+  calls.length = 0;
+  const pdf = (cmd, args) => { calls.push(cmd); return { status: 0, stdout: "KEDAI MAJU\nTotal 31.000" }; };
+  assert.equal(receiptPassesFromFile("slip.pdf", { run: pdf, env: { RECEIPT_OCR_LEAD: "pp {file}" } }).length, 1);
+  assert.deepEqual(calls, ["pdftotext"]);
+});

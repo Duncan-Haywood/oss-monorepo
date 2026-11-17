@@ -60,7 +60,22 @@ export function receiptTextFromFile(path, { run = spawnSync, env = process.env, 
 // `--psm 4`. Text and PDF files, and an OCR command that is not tesseract, have one
 // reading. A second pass that fails is dropped, not an error.
 export const LOCAL_THRESHOLD = "-c thresholding_method=2";
-export function receiptPassesFromFile(path, { run = spawnSync, env = process.env, grow = 0 } = {}) {
+// RECEIPT_OCR_LEAD: a second engine's command (same shape as RECEIPT_OCR_CMD), read before
+// tesseract's readings and voted with them; a failure there is dropped. With PP-OCRv4 through
+// tools/rapidocr_receipt.py on 600 unseen CORD train photos, `--four-pass` went from 362 to 508
+// of 583 totals and tax from 135 to 202 of 267 (README, "A second OCR engine").
+export function receiptPassesFromFile(path, opts = {}) {
+  const { run = spawnSync, env = process.env } = opts;
+  const lead = env.RECEIPT_OCR_LEAD && IMAGE.has(extname(path).toLowerCase()) ? leadReading(path, env.RECEIPT_OCR_LEAD, run, env) : null;
+  const rest = tesseractPasses(path, opts);
+  return lead ? [lead, ...rest] : rest;
+}
+
+function leadReading(path, cmd, run, env) {
+  try { const t = receiptTextFromFile(path, { run, env: { ...env, RECEIPT_OCR_CMD: cmd } }); return t.trim() ? t : null; } catch { return null; }
+}
+
+function tesseractPasses(path, { run = spawnSync, env = process.env, grow = 0 } = {}) {
   const first = receiptTextFromFile(path, { run, env });
   if (!IMAGE.has(extname(path).toLowerCase())) return [first];
   const base = env.RECEIPT_OCR_CMD || DEFAULT_OCR;
