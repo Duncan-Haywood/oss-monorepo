@@ -1,0 +1,42 @@
+# eval/odd-orbit-sym.py and eval/odd-orbit-sym-pairs.py, python-sat 1.9.dev22 (CaDiCaL 1.9, cd19),
+# 4-core cloud container, 2026-11-17. Up to four runs shared the cores; times rough.
+#
+# The question: odd-orbit.py's night H (one pair from every full <g>-orbit, g = three k-cycles A, B, C)
+# also fixed, as a set of pairs, by h = (A -> B -> C -> A, same position; team 3k and the bye fixed).
+# h commutes with g and moves every full orbit, so the solver picks one pair per class of three orbits
+# instead of one per orbit. Aimed at 49 on 8 x 9 (k = 16), which odd-orbit.py would need ~11 h for.
+#
+# teams courts x times | fully booked | turn-fixed (odd-orbit-sym.py) | plain (odd-orbit.py model, same run)
+
+7  3x6 | no  | SAT 0.0 s     |
+13 3x6 | yes | UNSAT 0.5 s   | SAT 0.0 s (eval/odd-orbit.txt)
+13 4x9 | no  | SAT 6.7 s     |
+19 3x9 | yes | UNSAT 81.5 s  | SAT 33.5 s (--no-sym, same session)
+19 4x9 | no  | SAT 63.3 s    |
+25 4x9 | yes | no answer, stopped at ~11 min | SAT 141 s (eval/odd-orbit.txt, cd15)
+
+Pairs only (odd-orbit-sym-pairs.py: one pair per full orbit, three rounds, turn-fixed; no layout):
+13, twist 0: SAT    19, twist 0: SAT    19, no symmetry: SAT
+19, twist 1 (h^3 = g): UNSAT, as it must be: H would hold e and g e, two pairs of one orbit.
+19 on 3x9 with the layout, twists 1, 2, 3: UNSAT 36-37 s (the same reason).
+
+Turn-fixing only some kinds of orbit (--only; cross = A-B, B-C, C-A pairs, within = pairs inside a
+cycle, fixed = pairs with team 3k or the bye):
+13 3x6 | cross: UNSAT 2.0 s | within: SAT 0.1 s | fixed: SAT 0.1 s | within,fixed: UNSAT 0.4 s
+19 3x9 | within,fixed: SAT 39.3 s (no faster than the plain 33.5 s) | cross: no answer, stopped at ~10 min
+
+Reading: a turn-fixed night exists as pairs, and lays out when a court is spare, but every fully
+booked size tried has no wait-free layout for it. 49 on 8 x 9 is fully booked (72 matches in 72
+slots), so this symmetry is no route there. Not proved for every size; recorded so the next run
+does not repeat it. Two other symmetries are ruled out on paper: swapping A and B pointwise maps the
+A-B orbit of difference k/2 onto itself with no fixed pair (H must take exactly one pair of it), and
+any h with h^3 = g^t, t != 0, as above.
+
+49 on 8 x 9 with the plain odd-orbit.py model (no turn symmetry), four runs side by side on four
+cores, started 2026-11-17 18:55 UTC (totalizer run ~19:03):
+solver cd19 (CaDiCaL 1.9), seqcounter cards   | no answer at 7,000 s (timeout)
+solver cd15 (CaDiCaL 1.5.3), seqcounter cards | no answer at 7,000 s (timeout)
+solver mcb (MapleChrono), seqcounter cards    | no answer at 7,000 s (timeout)
+solver cd19, totalizer cards (EncType swapped in at load) | no answer at 6,600 s (timeout)
+Consistent with the ~4x-a-size trend (43 on 7 x 9 took 9,849 s alone on a core; 49 est. ~11 h):
+a portfolio of solvers or a different cardinality encoding does not close it in two hours.
