@@ -13,7 +13,7 @@ from typing import Any
 from xml.etree import ElementTree
 
 NON_XML_SPACE = re.compile("[\u0085\u00a0\u1680\u2000-\u200b\u2028\u2029\u202f\u205f\u3000\ufeff]")
-CASTABLE = re.compile(r"^(?:[+-]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)|[0-9]{4}-[0-9]{2}-[0-9]{2}|[0-9]{8}|true|false)$")
+CASTABLE = re.compile(r"^(?:[+-]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)|[0-9]{4}-[0-9]{2}-[0-9]{2}|[0-9]{8}|(?:[0-9]{4}-[0-9]{2}-[0-9]{2}T)?[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]+)?(?:Z|[+-][0-9]{2}:[0-9]{2})?|true|false)$")
 XML_TRIM = re.compile("^[ \t\n\r]+|[ \t\n\r]+$")
 # What JavaScript's String.trim() takes, so the CLI and the page agree on a value.
 JS_TRIM = re.compile("^[\\s\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]+|[\\s\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]+$")
@@ -87,8 +87,8 @@ def inspect_xml_values(invoice: Any) -> list[dict[str, str]]:
         findings.append({
             "rule": "INV-065",
             "message": (
-                f'{element} "{visible_spaces(value)}" holds a {space_name(value)}, so it is not a valid number '
-                f"or date in XML{where}. Software that trims it reads {JS_TRIM.sub('', value)}; a receiver's "
+                f'{element} "{visible_spaces(value)}" holds a {space_name(value)}, so it is not a valid number, '
+                f"date or time in XML{where}. Software that trims it reads {JS_TRIM.sub('', value)}; a receiver's "
                 "validator (Saxon) stops on the whole file instead and reports no rule."
             ),
             "fix": (

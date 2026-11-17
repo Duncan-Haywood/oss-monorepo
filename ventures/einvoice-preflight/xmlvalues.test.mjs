@@ -15,10 +15,10 @@ const CII = readFileSync(new URL("./examples/cii-invoice.xml", import.meta.url),
 const inv065 = (invoice) => checkInvoice(invoice).filter((f) => f.rule === "INV-065");
 
 test("unreadableValue: castable once JavaScript trims, not once XML trims", () => {
-  for (const v of ["238.00\u00A0", "\u00A0238.00", "238.00\u202F", "\uFEFF1", "2026-11-17\u3000", "20261117\u00A0", "true\u2009"]) {
+  for (const v of ["238.00\u00A0", "\u00A0238.00", "238.00\u202F", "\uFEFF1", "2026-11-17\u3000", "20261117\u00A0", "true\u2009", "14:30:00\u00A0", "\u00A014:30:00.5+03:00", "2026-11-17T14:30:00Z\u00A0"]) {
     assert.equal(unreadableValue(v), true, JSON.stringify(v));
   }
-  for (const v of ["238.00", " 238.00\n", "\t2026-11-17 ", "ACME\u00A0GmbH", "NL123456782B01\u00A0", "1\u00A0000.00", ""]) {
+  for (const v of ["238.00", " 238.00\n", "\t2026-11-17 ", "ACME\u00A0GmbH", "NL123456782B01\u00A0", "1\u00A0000.00", "", " 14:30:00 ", "14:30\u00A0"]) {
     assert.equal(unreadableValue(v), false, JSON.stringify(v));
   }
 });
