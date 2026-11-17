@@ -7,7 +7,8 @@
 // header names the EUPL). One BR-FR file per syntax serves EN 16931, Extended-CTC-FR
 // and Factur-X alike (the copies under each profile are byte-identical, checked below).
 // The "fatal" files are used, not the _WARNING copies meant for the transition.
-// Add-on sets over the EN 16931 base: cius-fr-ubl.json, cius-fr-cii.json.
+// Add-on sets over the EN 16931 base: cius-fr-ubl.json, cius-fr-cii.json. Also the life-cycle
+// status message rules (BR-FR-CDV, CDAR D22B): cdar-fr.json, a set of its own (no EN 16931 base).
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -41,5 +42,14 @@ for (const [syntax, files] of Object.entries(sets)) {
   writeFileSync(join(out, `cius-fr-${syntax}.json`), JSON.stringify(rules) + "\n");
   manifest.sets[`cius-fr-${syntax}`] = { source: `FNFE-MPE BR-FR (XP Z12-012) ${version}, github.com/fnfempe/France_RFE (Apache-2.0)`, commit, from: files[0].split("/").pop(), checks };
   console.log(`cius-fr-${syntax}: ${checks} checks`);
+}
+{
+  const from = "CDAR/schematron/BR-FR-CDV-Schematron-CDAR.sch";
+  const cdarVersion = readFileSync(join(root, from), "utf8").match(/BR-FR-CDV-Schematron-CDAR_V([\d.]+)/)?.[1] ?? "?";
+  const rules = compileSchematron(join(root, from));
+  const checks = rules.patterns.reduce((n, p) => n + p.rules.reduce((m, r) => m + r.checks.length, 0), 0);
+  writeFileSync(join(out, "cdar-fr.json"), JSON.stringify(rules) + "\n");
+  manifest.sets["cdar-fr"] = { source: `FNFE-MPE BR-FR-CDV (CDAR life-cycle statuses) ${cdarVersion}, github.com/fnfempe/France_RFE (Apache-2.0)`, commit, from: from.split("/").pop(), checks };
+  console.log(`cdar-fr: ${checks} checks`);
 }
 writeFileSync(manifestFile, JSON.stringify(manifest, null, 2) + "\n");
