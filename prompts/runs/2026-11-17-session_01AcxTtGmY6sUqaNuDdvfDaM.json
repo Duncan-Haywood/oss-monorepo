@@ -7,14 +7,16 @@
   "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T20:06:40Z",
   "ended": "2026-11-17T20:07:37Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 24.67,
+  "tokens_in": 20848718,
+  "tokens_out": 166201,
+  "cost_usd": 11.2242,
+  "tool_calls": 218,
   "task": "quality census (mode draw), seed 2026-11-17-7681, six never-audited subjects",
   "projects": [
     "research/simdesign-gaugescatter",
@@ -53,5 +55,84 @@
   "goal": null,
   "notes": "Mode census (seeded draw). Seed 2026-11-17-7681. Subjects: research/simdesign-gaugescatter, ventures/patio-door-bid-calculator, research/decentralized-verification-markets, ventures/fdr-multiple-testing, research/osrobot-dofbom, ventures/earthwork-cut-fill. Share meeting the bar: 1 of 6 (fdr-multiple-testing); 5 of 6 finished. Seeded mutants caught 21 of 38; correctness recomputations passed 32 of 45. One auditor agent per subject in parallel; I reran each headline recomputation (dofbom 66.38/121.94/1.837/57.9; fdr BH 0.035625; patio 6432.51; earthwork 9.375/3.8194 yd3; gaugescatter 99.97/131.14 MPa; dvm CA+penalty honest gap +153.36, plain b=2 Brier 0.0112) and all matched. Fix PRs: #17050 (this PR): fdr null->p=0, earthwork comma split + privacy claim, patio restore freezing kit prices + walk-away mislabel, dofbom test pins + target guard, gaugescatter mesh-artefact pointer + beam-bounded tip test (kills plane-strain and 0.8-load mutants), dvm four README claim corrections. Portfolio-wide patterns found, not fixed: the restore-marks-all-edited applyValues block in 38 venture index.html files, and 'Nothing is sent anywhere' on 163 venture pages despite the deployed page-view counter. Open: DVM CA needs the published penalty term implemented and follow-ups rerun. Local checks: run_venture_tests for the three ventures (all ok), research homepage build ok, check_md_links ok, research_live_links ok, quality_audit validate 454 files 0 problems, post front matter/links/similarity ok; run_workflow_locally --for-changes result below.",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2f950879-9161-56ac-80fd-125bbcb610bf",
+    "transcripts": 7,
+    "first": "2026-11-17T20:06:40Z",
+    "last": "2026-11-17T20:31:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 210,
+        "input": 429,
+        "output": 166201,
+        "thinking": 39440,
+        "cache_read": 20166677,
+        "cache_write_5m": 529271,
+        "cache_write_1h": 152341,
+        "api_equivalent_usd": 11.2242,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 210,
+      "input": 429,
+      "output": 166201,
+      "thinking": 39440,
+      "cache_read": 20166677,
+      "cache_write_5m": 529271,
+      "cache_write_1h": 152341,
+      "api_equivalent_usd": 11.2242,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.967,
+    "tool_calls": 218,
+    "tools": {
+      "Bash": 193,
+      "Agent": 6,
+      "SubagentHandback": 6,
+      "Read": 5,
+      "Write": 4,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 24.67,
+      "active_minutes": 19.8,
+      "model_minutes": 7.04,
+      "tool_minutes": 12.76,
+      "waiting_on_human_minutes": 4.88,
+      "human_prompts": 6,
+      "stalls": 0,
+      "subagent_minutes": 30.15
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "six independent expert audits with recomputation and mutation testing (~2 h each) plus six fixes with tests and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 142.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
