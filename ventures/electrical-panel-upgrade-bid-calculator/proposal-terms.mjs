@@ -81,6 +81,15 @@ function usableNumber(value) {
   return result;
 }
 
+// The cleaning a term gets before it is measured or carried. One function,
+// because `overlongTerms` must measure the same text `usableText` keeps:
+// measured raw, a clause with a few pasted control characters rode in the
+// link while the note told the sender it stayed behind (red team, 2026-11-17).
+function cleanTermText(value) {
+  // eslint-disable-next-line no-control-regex
+  return value.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '').trim();
+}
+
 /**
  * Prose as typed, newlines included — an exclusions list is a list, and it
  * prints as one on the customer's sheet. Two things come out: the control
@@ -95,8 +104,7 @@ function usableNumber(value) {
  */
 function usableText(value) {
   if (typeof value !== 'string') return null;
-  // eslint-disable-next-line no-control-regex
-  const clean = value.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '').trim();
+  const clean = cleanTermText(value);
   if (!clean) return null;
   return clean.length > MAX_TERM_TEXT ? null : clean;
 }
@@ -238,7 +246,7 @@ export function applyTerms(values, lookup) {
 export function overlongTerms(values) {
   return PROPOSAL_TERM_TEXT.filter((id) => {
     const raw = values?.[id];
-    return typeof raw === 'string' && raw.trim().length > MAX_TERM_TEXT;
+    return typeof raw === 'string' && cleanTermText(raw).length > MAX_TERM_TEXT;
   });
 }
 
@@ -254,6 +262,8 @@ export function overlongTermsNote(values) {
   const named = left.length === 1
     ? left[0]
     : `${left.slice(0, -1).join(', ')} and ${left[left.length - 1]}`;
-  return `your ${named} ${left.length === 1 ? 'is' : 'are'} too long to fit in a link `
-    + `and stayed behind — send ${left.length === 1 ? 'it' : 'them'} separately if the wording matters`;
+  // "payment terms" and "notes" are plural nouns: only the list takes "is".
+  const one = left.length === 1 && left[0] === TERM_LABELS.proposalExclusions;
+  return `your ${named} ${one ? 'is' : 'are'} too long to fit in a link `
+    + `and stayed behind — send ${one ? 'it' : 'them'} separately if the wording matters`;
 }
