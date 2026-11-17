@@ -2912,6 +2912,24 @@ SRD 155 to 156; CORD text train 749 to 761 and test 92 to 93; SROIE unchanged. D
 [`eval/cord-train-photos-2026-11-17.md`](eval/cord-train-photos-2026-11-17.md).
 Tests: `cord-train-photos.test.mjs`.
 
+### RapidOCR's parser misses on CORD train photos (2026-11-17)
+
+With RapidOCR reading the photo, 45 of the 68 missed totals on CORD train shards 1-3 had the
+right digits in the reading: the parser lost them. Rules written from those misses only, for
+whole-unit (rupiah) slips: `Change:5,000` reads through its colon and `Pay Cash 50.000
+Change:5,000` on one line splits into cash and change; `DU1,241,790` is a DUE line; `IDR` reads
+like `Rp`; `Total Qty` read as `OTY`, `Discount total` and `Ch ange Due` are not totals; a
+misspelt total word (`Tatai`, `Tota.......`) is a fallback when no real total line was read;
+when no check confirms the total, cash less change or subtotal plus tax that the slip also
+prints on a line of its own is taken (exactly one such amount, never under a subtotal); a stray
+digit after a total (`TOTAL 127,500 4`) is dropped. Train 515 to 539 of 583; validation 83 to
+85; US photos (SRD) 180 to 182; held-out CORD test, scored once, 80 to 83 (RapidOCR then
+tesseract's four: 80 to 83; the page 81 to 84; tesseract's four alone 56 to 58); CORD text
+train 761 to 767, test 93 to 94; SROIE text unchanged. No total went from right to wrong in any
+set; two taxes did, each after its total became right. Details:
+[`eval/rapidocr-parser-misses-2026-11-17.md`](eval/rapidocr-parser-misses-2026-11-17.md).
+Tests: `receipt-rapidocr-misses.test.mjs`.
+
 ### RapidOCR and tesseract together (2026-11-17)
 
 `--rapidocr --four-pass` reads the photo with RapidOCR first, then with tesseract's four
