@@ -443,6 +443,31 @@
 //    default (`--vlead off` is the reader before). After the result, sing.test.mjs showed the opt-in deepMurmur rule's
 //    runs dropped as leads on J's E4 eighths (*sunt*, *nunc*: 4 to 2 nasal); the deep rule only fires into frication or
 //    a silent closure, so its runs are exempt. That changes only readings with `deepMurmur: true`.
+//    Twenty-third round (2026-11-17): a dark-vowel nasal's lip closure (onsets.mjs readCoda `lipShut`, LIP_SHUT, README "A
+//    dark-vowel m"). Z's *lum* and *dun* and X's *tum* on D4-E4 read as nothing: frame by frame (eval/dark-nasal-diag.mjs)
+//    the m is dark in itself (tilt -39 to -50) but no darker than an /u/ whose tilt was already -38 to -45, so the level
+//    and step rules' darkness against the vowel fails. What marks it is the closure: the band above 1 kHz blips up as the
+//    lips meet, then falls 14-19 dB within two hops and holds. Rule: a run entered by a fall of 12 dB or more in that band
+//    from either of the two frames before, every frame 8 dB or more under that band in the vowel 25-45 ms before, 0 to
+//    -20 dB of that vowel's level, dark in itself (murmurTilt), level within 4 dB and upper band within 6 dB over its
+//    first 30 ms, 45 ms long, the vowel not coming back. Chosen on Z's *lum*/*dun* cells only (4 of Z's 6 misses taken
+//    back, no vowel-only cell moved), then not tuned. Development (A-Z, `--shut on` against the default): +31 cells, none
+//    lost in any part. D 69 to 70 of 70; H 130 to 131 of 134; I 138 to 140 of 142; F's nasals 194 to 206 of 215; K's
+//    clusters 132 to 133 of 140; L's others 116 to 117; N's 230 to 231; O's 226 to 227; P's 232 to 233; Q's 76 to 77;
+//    T's nasal codas 45 to 47 of 48; U's 46 to 48; X's 42 to 43 and n-clusters as their nasal 51 to 54 of 60 (as a
+//    stop 9 to 6); Y's nasal codas 45 to 46; Z's 42 to 46. A, B, E, M, R, S, V, W and every vowel-only control
+//    identical. Pre-registered here and committed before part a was run with anything. Part a is new: 12 nasal codas
+//    after /u/ or /o/ (*bum vum fum hum mun pun gun lun tom pom mon gon*, the target), 5 voiced stops after them (*bog
+//    dod vud gug fob*, the risk: a voice bar read through the rule), 4 nasals after a bright vowel (*dem ren sim ham*),
+//    4 n-clusters (*munc gont bunc funt*), 3 voiceless stops (*nuc tup bup*) and 4 others (*gul tur bu po*), none sung
+//    in any other part, at D3, G#3, C4, D4, D#4 and E4, 94 BPM (in no other part), pulse-4 and pulse-2 notes, sung
+//    and vowel-only. Against the default (a's first column), lipShut (its second): (1) nasals after /u/ or /o/ read
+//    exactly (of 144): at least 3 more; (2) nasals after a bright vowel (of 48) and n-clusters read as their nasal (of
+//    48): no fewer; (3) voiced stops (of 60), voiceless stops (of 36) and others (of 48) read exactly: no fewer, and no
+//    more stops, others or vowel-only cells read as a nasal; (4) the vowel-only control (of 384): identical; (5) A-Z as
+//    above, re-run on the shipped code. The gain is tested only if the default misses 3 or more of a's dark-vowel
+//    nasals; if fewer, lipShut stays opt-in, reported as untested. If all five hold and the gain is tested, lipShut
+//    becomes readCoda's default; otherwise it stays opt-in.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
