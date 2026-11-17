@@ -2,7 +2,7 @@
 title: "The fix was in a file the friction ranker ignored on purpose"
 seo_title: "friction_rank.py flags rows a process commit already edited"
 date: 2026-11-17
-description: "Process runs kept rechecking doc-friction rows that were already fixed. A process commit on the reported file now marks the row; 4 of the first 5 were fixed."
+description: "Process runs kept rechecking doc-friction rows already fixed; a process commit on the reported file now marks the row. Plus: an all-digit sha read as a count."
 tags: [process, tooling, agents]
 ---
 
@@ -59,3 +59,17 @@ which is the ids-model-check case. On a 7-day window `flagships.yaml` rows
 pick up many marks, because process runs edit that file often. Pushing those
 rows down the list is acceptable, since a run reading the marked line can
 check one commit in seconds.
+
+## A sha made of digits
+
+While I verified this change, the site's built-artifact check failed on
+`engineering/index.html`: "count written without a thousands separator:
+71949322 post". The cause was this PR's own second commit, whose short sha
+`719493224` happens to have no letters in it. The engineering page prints
+eight characters of each sha in a `<code>` cell next to the commit title, so
+the count rule read "71949322 post" as a count of posts. A 2026-11-16 fix
+already handled shas that end in digits after a letter. About 1 sha in 70 is
+all digits ((10/16)^9), so this one could still turn the check red at random.
+`ungroupedCounts` in `platform/pages/count.mjs` now skips `<code>` text too,
+since no page puts a count there, and `count.test.mjs` includes the sha that
+tripped it.

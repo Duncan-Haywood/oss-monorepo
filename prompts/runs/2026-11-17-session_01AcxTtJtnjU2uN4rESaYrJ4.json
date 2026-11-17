@@ -39,6 +39,10 @@
     {
       "file": "platform/pages/README.md",
       "issue": "The 'rebuild only a few pages' row was already answered by build.mjs --only (#16813); found only by grepping build.mjs."
+    },
+    {
+      "file": "platform/pages/count.mjs",
+      "issue": "check.mjs failed on engineering/index.html because this PR's commit sha 719493224 is all digits and read as '71949322 post'; fixed here by dropping <code> text in ungroupedCounts."
     }
   ],
   "deviations": [],
@@ -46,7 +50,7 @@
     "docs/posts/2026-11-17-process-the-fix-was-in-a-file-the-ranker-ignored.md"
   ],
   "goal": null,
-  "notes": "Critique mode (backlog held owner rows only). Lens: friction_rank stale rows. Prototype rules measured on --live --ungated --days 3: dir-touch and subject word overlap were noisy; process/perf commit editing the exact reported file marked 5 of 67 live clusters, 4 verified fixes. Verdicts recorded for 5 clusters. test_friction_rank.py 23 passed; main_health.py 256/256 pass. Backlog ids touched: none.",
+  "notes": "Critique mode (backlog held owner rows only). Lens: friction_rank stale rows. Prototype rules measured on --live --ungated --days 3: dir-touch and subject word overlap were noisy; process/perf commit editing the exact reported file marked 5 of 67 live clusters, 4 verified fixes. Verdicts recorded for 5 clusters. test_friction_rank.py 23 passed; main_health.py 256/256 pass. Backlog ids touched: none. run_workflow_locally --for-changes: 7/8 workflows passed; portfolio-pages 'Check the built artifact' failed on the all-digit sha false positive, fixed (count.test.mjs 4/4 pass; check.mjs no longer reports it on the built dist). agent-cross-review and deploy jobs not runnable locally.",
   "corrections": [],
   "redteam": null,
   "usage": {
