@@ -14,6 +14,8 @@ on:
       - "ventures/**"
       - "platform/ci/run_venture_tests.py"
       - "platform/ci/test_run_venture_tests.py"
+      - "platform/ci/check_calendar_dates.py"
+      - "platform/ci/test_check_calendar_dates.py"
       - ".github/workflows/ventures-tests.yml"
   push:
     branches: [main]
@@ -21,6 +23,8 @@ on:
       - "ventures/**"
       - "platform/ci/run_venture_tests.py"
       - "platform/ci/test_run_venture_tests.py"
+      - "platform/ci/check_calendar_dates.py"
+      - "platform/ci/test_check_calendar_dates.py"
       - ".github/workflows/ventures-tests.yml"
   workflow_dispatch:
 
@@ -69,7 +73,11 @@ jobs:
           python-version: "3.12"
       - name: Runner unit tests
         working-directory: platform/ci
-        run: python3 -m unittest test_run_venture_tests
+        run: python3 -m unittest test_run_venture_tests test_check_calendar_dates
+      # A YYYY-MM-DD check that trusts Date.parse accepts 2026-02-30 (V8 rolls
+      # it over to March); 15 such validators were found on 2026-11-11 (PR #14890).
+      - name: No date check accepts an impossible day
+        run: python3 platform/ci/check_calendar_dates.py
       # The same command a contributor runs locally (`--changed` there): one
       # `node --test` per touched venture, from its own directory, in
       # parallel. It replaced 418 per-venture <slug>-ci.yml workflows that ran
