@@ -142,6 +142,7 @@ export const LIP_HOLD = { fall: 12, span: 3, drop: 3, lo: -20, hold: 2, minMs: 4
 // is thrown out. Every vowel-only nasal of c (A#3 quarters) and W (E3 eighths) started 5-6 frames from it; the earliest
 // right nasal on K-c, 7 (eval/level-tail-sweep.mjs).
 export const LEVEL_FADE = { tail: 6 };
+export const LONG_TILT = { span: 0.3, gap: 0.45 };
 export const DEEP = { lo: -35, hi: -12, minMs: 60, silent: -50, gap: 5, tilt: 15, peak: true };
 const db = (a, b) => 10 * Math.log10((a + 1e-20) / (b + 1e-20));
 const median = (v) => { const s = [...v].sort((p, q) => p - q); return s.length ? s[Math.floor(s.length / 2)] : NaN; };
@@ -269,7 +270,7 @@ export const LOCAL_REF = { from: 6, to: 24, cap: 20, nasal: false };
 // No frame in a closure is vowel-like, so the anchor holds through it. Opt-in (`closeAnchor: true`); it replaces
 // localRef on the closure rule only, the nasal rule is untouched.
 export const ANCHOR = { frames: 10, drop: 12 };
-export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = false, deepOpts = {}, localRef = LOCAL_REF, closeAnchor = false, barLead = false, compactVelar = false, voicelessLow = VOICELESS_LOW, barBurst = true, voicedLead = VOICED_LEAD, lipShut = true, lipHold = false, levelFade = false, trace = null } = {}) {
+export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = false, deepOpts = {}, localRef = LOCAL_REF, closeAnchor = false, barLead = false, compactVelar = false, voicelessLow = VOICELESS_LOW, barBurst = true, voicedLead = VOICED_LEAD, lipShut = true, lipHold = false, levelFade = false, longTilt = false, trace = null } = {}) {
   const hop = Math.round(0.005 * rate), a = Math.round((vowelAt + 0.06) * rate), z = Math.round((tEnd - 0.02) * rate), zEnd = Math.round(tEnd * rate);
   const ref = [];
   for (let i = Math.round(vowelAt * rate); i < a; i += hop) ref.push(frameFeatures(x, i, rate));
@@ -325,7 +326,21 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
   // a coda's nasal must be a deeper murmur than an opening's: a vowel fading into its release also
   // loses its upper formants first (they ring for less time), by 5 to 12 dB
   const nu = (f) => (localRef && (localRef === true ? LOCAL_REF : localRef).nasal ? f.up : 0);
-  const nasal = (f) => f.loRel - nu(f) >= -15 && f.lvl - nu(f) < -5 && f.lvl - nu(f) > -25 && f.hiRel < f.loRel - 15;
+  // The murmur's darkness against a longer stretch of vowel (2026-11-17, README "A cluster onset before -um"):
+  // five detuned voices beat, so the vowel's tilt (above 1 kHz against under 500 Hz) swings 10-15 dB through a
+  // held note, and the 60 ms reference can land on its darkest stretch. On D4 *brum* it read -47 dB, darker than
+  // the m itself (-36 to -46), and the plain level rule's darkness test could not pass. With `longTilt` the test
+  // takes the median tilt of the frames from the reference's start to longTilt.span seconds on, ending at least
+  // longTilt.gap seconds before tEnd (so the coda stays out of it), never shorter than the reference itself.
+  let darkTest = (f) => f.hiRel < f.loRel - 15;
+  if (longTilt) {
+    const LT = { ...LONG_TILT, ...(longTilt === true ? {} : longTilt) }, s0 = Math.round(vowelAt * rate);
+    const s1 = Math.max(a, Math.min(Math.round((vowelAt + LT.span) * rate), Math.round((tEnd - LT.gap) * rate)));
+    const tl = []; for (let i = s0; i < s1; i += hop) { const g = frameFeatures(x, i, rate); tl.push(db(g.hi1, g.low)); }
+    const refT = median(tl);
+    darkTest = (f) => db(f.hi1, f.low) < refT - 15;
+  }
+  const nasal = (f) => f.loRel - nu(f) >= -15 && f.lvl - nu(f) < -5 && f.lvl - nu(f) > -25 && darkTest(f);
   // a tap: a brief dip, 12 dB or more under the vowel and under 30 ms at its deepest, with frames
   // 10 dB louder within 40 ms on both sides (a final r hums on after it). Searched locally: the
   // quietest frame of the window is the release's fade. After a dark vowel (/u/, /o/) the r's own

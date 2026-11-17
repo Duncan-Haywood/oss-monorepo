@@ -1261,7 +1261,50 @@ cells the burst the reader finds has a 2.1-2.3 kHz centroid with 54-66% of its e
 on G2 and F3 read 33-44%. Where that energy comes from (the burst search's timing, or the vowel's release reaching
 into the 10 ms window) is the next thing to read, frame by frame, before any rule. Reader only; not listened to.
 
-#### A /u/ release read as a nasal (2026-11-17, latest; registration untested, opt-in)
+#### Cluster onsets before -um: a murmur no reference can find (2026-11-17, latest; opt-in, not registered)
+
+Part c's misses were 21 dark-vowel nasals read as nothing, 18 of them after a two-consonant onset (*brum*, *glum*,
+*stum*, *flum*, *prun*, A#3-E4). Read frame by frame (`eval/dark-nasal-diag.mjs c`, and the new
+`eval/cluster-um-diag.mjs`, report `eval/cluster-um-report.md`):
+
+- **The reference was one cause, and a fix for it is below.** Five detuned voices beat, so a held /u/'s tilt (above
+  1 kHz against under 500 Hz) swings 10-25 dB through the note. On D4 *brum* the reader's 60 ms reference sat on a dark
+  stretch, -46 dB, darker than the m itself.
+- **But the m is not dark enough against any stretch of its vowel.** Against the median tilt of its own vowel, the
+  darkest 40 ms of a sung m or n after a single onset is 26 dB darker (median; 18 at the 90th percentile), and 77 of 84
+  pass the level rule's 15 dB. After a cluster onset the read ones are 13 dB darker, and the 21 missed ones 10 dB
+  (1 dB at the 90th percentile), at or above their vowel's darkest 40 ms. Only 2 of the 21 pass 15 dB.
+- **The cluster isn't the cause; its timing is.** Sung alone with `singNote` on D4, *bum* given *brum*'s 103 ms lead
+  gets *brum*'s darkness exactly (15 dB), and *brum* given *bum*'s 70 ms lead gets *bum*'s (4 dB). Sweeping *bum*'s lead
+  from 40 to 200 ms in 10 ms steps moves its m between 19 dB darker than the vowel and 2 dB brighter, on A#3, D4 and E4,
+  quarters and eighths. The synthesised murmur's darkness depends on where its closure falls in the voices' beating.
+  Cluster onsets are longer, so they move the closure. No reader threshold separates a murmur that is not darker than
+  its vowel, so the next step is in `sing.mjs`: a murmur dark in every phase of the beating (its low band held up while
+  the voices' fundamentals cancel), checked by ear as well as by `eval/coda-check.mjs`.
+
+The reference fix, measured but not registered:
+
+- **The rule** (`readCoda`'s `longTilt`, `LONG_TILT = { span: 0.3, gap: 0.45 }` in `onsets.mjs`, opt-in; `--long-tilt on`
+  in `eval/coda-check.mjs`): the plain level rule's darkness test (15 dB darker than the reference) is taken against the
+  median tilt of the frames from the reference's start to 0.3 s on (ending at least 0.45 s before the window's end, so
+  the coda stays out), not the 60 ms reference's average.
+- **Development** (every part, `--long-tilt on` against the default; the default run is byte-identical to the
+  committed report): vowel-only controls read as a nasal fall by 47 cells (J 453 to 468 of 468, T 284 to 288, Z 359 to
+  372, c 369 to 384, all four parts now clean); K's others read as a nasal 5 to 1; voiced stops +2 on T, +3 on X, +4 on Z.
+  It costs dark-vowel nasals: a 116 to 112 of 144, b 133 to 128, d 136 to 134, Z's nasal codas and n-clusters -1 and -2,
+  and 6 controls on R and S. c's cluster misses do not move (123 to 123): the early vowel after a cluster is dark too.
+- So `longTilt` stays opt-in: it clears the vowel-only fault on cells `levelFade` cannot reach (Z's C#4 eighths and T,
+  whose false runs start 14-19 frames from the window's end), at a price in right reads that `levelFade` does not pay.
+  Neither is registered on held-out data yet. For that, `eval/release-cells.mjs` (report `eval/release-cells-report.md`)
+  scores 234 tempo, pitch and note-length cells by how many vowel-only /u/ and /o/ notes sit at the level rule's depth
+  in the window's last 30 ms. It uses frame levels only and never runs `readCoda`, so a held-out part can be built on its
+  cells before any reader sees them. Most cells land 4 or 8 of 8 (the vowel decides, not the onset), so landing is
+  necessary for a false nasal but not enough: the next registration should take its cells from that table and its
+  predictions from both columns. `long-tilt.test.mjs` (2 tests) keeps c's vowel-only /u/ on A#3 (a nasal by default,
+  none with the rule) and c's C3 quarters (nasals still read, stops and others unmoved). Reader only; nothing in the
+  synthesis changed. Not listened to.
+
+#### A /u/ release read as a nasal (2026-11-17; registration untested, opt-in)
 
 The round before found a fault in the default reader: on part c's A#3 quarter notes every /u/ syllable sung on vowels
 only (*nun*, *brum*, *mut*, *nul* and 11 more) read as a final nasal, by the plain level rule. Read frame by frame
