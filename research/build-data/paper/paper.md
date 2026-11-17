@@ -612,11 +612,12 @@ on the sources' latest year as it stands on the decision date: without its long 
 too early (1.3 days of mean loss, session 85). Keep the source permits still open on the decision date in a
 censored pinball loss (4.4b, session 90), but drop those open for more than about three years: many are permits the
 city never closed out, and they lengthen the borrowed tail (session 91). Do not pick that cut-off with a censored
-score on the same feeds: it always favours keeping more of them (session 92). Pick it instead on the target
-city's own permits issued six years before the decision date and completed by it, scored with each candidate
-borrowed model: that picks the 3-year cut for San Francisco and the 5-year cut for Seattle, the best rule in all
-four city-years tested (mean regret 0; the three-year-old cohort, plain or IPCW-weighted, cannot, since its
-follow-up stops at the shorter cut; sessions 98 and 99).
+score on the same feeds: it always favours keeping more of them (session 92). Do not pick it from the target
+city's own history either: a score on its permits issued six years earlier picked the best rule in the four
+city-years it was found on (session 99), but picked the 3-year cut in all four out-of-sample city-years (2019, 2020),
+where the 5-year cut was better in both cities (mean regret 2.15 days; the picks are stable under a row bootstrap,
+so the score is biased, not noisy; session 100). Use a fixed cut of about five years: over eight city-years it is
+the best fixed rule (mean q0.9 78.16 days, 0.63 above the per-cell oracle).
 
 ## 7 To do before submission
 
