@@ -78,6 +78,24 @@ class Bed(unittest.TestCase):
         self.assertFalse(geom.bbox_fits(D, 220)[0])
         self.assertTrue(geom.bbox_fits(D, 220, half=True)[0])
 
+    def test_half_carries_the_post_and_the_turn_search_is_fine(self):
+        # One half of a two-piece hanger must carry the post and loop; and a 5-degree turn grid
+        # misses the best angle by up to 2.6 mm here (quality audit 2026-11-17-hanger-print).
+        xxl = geom.Design(w=25.8, slope=15.92, bow=0.59, r=2.86)
+        pts = [p for s in geom.shells(xxl) if s["name"] in ("arm_right", "hub", "post", "loop")
+               for p in s["outline"]]
+
+        def side(a):
+            c, s_ = math.cos(math.radians(a)), math.sin(math.radians(a))
+            xs = [c * x - s_ * y for x, y in pts]
+            ys = [s_ * x + c * y for x, y in pts]
+            return max(max(xs) - min(xs), max(ys) - min(ys))
+
+        ref = min(side(k / 10.0) for k in range(900))
+        fits, _, bw, bh = geom.bbox_fits(xxl, 220, half=True)
+        self.assertAlmostEqual(max(bw, bh), ref, delta=0.5)
+        self.assertFalse(fits)
+
 
 if __name__ == "__main__":
     unittest.main()
