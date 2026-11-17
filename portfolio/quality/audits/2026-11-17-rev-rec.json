@@ -194,7 +194,8 @@
    "what": "Credit notes are booked as one-day negative revenue lines and the original line keeps spreading, so a refund of the unearned part of an annual plan drives the issue month's revenue negative and the refunded customer keeps generating revenue until the original term ends: $1,200 annual, 320/365 refunded Feb 15 gives Feb revenue -960.00, Feb deferred 1,006.03 and 1,006.03 of Mar-Dec revenue (ASC 606: Feb 46.03, deferred 0, nothing after). The README describes the mechanics but not this consequence.",
    "where": "ventures/rev-rec/stripe.mjs:20",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17001"
   },
   {
    "severity": "high",
@@ -250,9 +251,10 @@
    "what": "A blank amount cell in the pasted CSV becomes a 0.00 line instead of a skipped row (Number('') is 0).",
    "where": "ventures/rev-rec/csv.mjs:44",
    "category": "input-handling",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17001"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17001"],
  "verdict": "Rev Rec gets the core ratable arithmetic right: annual and mid-month plans and Stripe proration upgrades recompute to the cent by hand, and the journal balances. It does not meet the bar for a revenue accountant. A refund of an unearned annual plan drives the issue month's revenue negative and keeps recognising the refunded amount for the rest of the term (Feb -960.00 and 1,006.03 Mar-Dec where ASC 606 gives 46.03 and nothing). Incremental sync never fetches an invoice paid more than about 3 days after it was created. Periods with a time of day get one extra day. Zero-decimal currencies are off by 100x. Setup fees and bundles skip SSP allocation, and closed months can be rewritten. Three of seven seeded mutants survive. Fix the credit-note treatment (reduce the remaining deferred schedule of the credited line) and the sync window before anything else."
 }

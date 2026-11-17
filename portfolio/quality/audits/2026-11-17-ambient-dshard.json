@@ -173,7 +173,8 @@
    "what": "README states the classifier matrix is identified and that dsH recovers it, but every start used (README, run.py, test) puts the classifier at its true accuracy 0.7. From start (0.95, 0.4, 0.2, 0.95) the same estimator fits the population joint to 2.7e-13 with the classifier off by 0.0158 and the class prior off by 0.0045; the Jacobian of the full-matrix model has 3 null directions that move prior and C. With two auditors sharing a hardness flag there are only two conditionally independent views, so three-view (Kruskal) identification does not apply. Policy utility was unchanged in the cell checked, so the practical conclusion may survive, but the identification statement is false.",
    "where": "research/ambient-dshard/README.md:41",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17001"
   },
   {
    "severity": "medium",
@@ -194,7 +195,8 @@
    "what": "Extreme-cell DS auditor accuracy at label 0.9 quoted as 0.878; results.txt gives 0.872 (0.878 is the label-0.7 value).",
    "where": "research/ambient-dshard/README.md:39",
    "category": "stale-docs",
-   "origin": "maintenance"
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17001"
   },
   {
    "severity": "low",
@@ -211,6 +213,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17001"],
  "verdict": "A small, honest, fully reproducible simulation: results.txt reruns byte-identically in under two minutes, every README number traces to it, and an independent loop-based Dawid-Skene EM reproduces all ten auditor-accuracy figures (0.810 to 0.878) while own Bayes code reproduces blind 0.3824 and Bayes 0.3917 / 0.4066. It misses the bar on verification (3 of 5 seeded bugs survive, including argmax -> argmin in the policy rule that produces every headline utility) and on claims: the README says the classifier matrix is identified, but the subject's own estimator, started away from the true classifier accuracy, fits the joint exactly with the classifier 0.016 off, and a Jacobian rank check shows prior and classifier are locally unidentified. As research it is one step in a 46-slug stylised chain whose two findings are known from the latent-class conditional-dependence literature, which it does not cite."
 }
