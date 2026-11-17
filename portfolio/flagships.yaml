@@ -193,9 +193,9 @@ flagships:
       sticky series), given date: --known-date on CLI, page, engine; control series:
       step-only rule calibrated in sims, but 11 of 13 annual state tobacco ratios
       refused as wanders (README "The step alone"): synthetic control (README "A
-      synthetic control"): CA -26.5 packs at 2000 as published, rank 3 of 39 (MO, VA
-      fit too well): next a ratio robust to tiny before-gaps, monthly series. More
-      open items: NEXT.md.
+      floored ratio"): CA -26.5 packs at 2000, rank 1 of 39 with the floored ratio
+      (default); MA, AZ, OR ranks 6-13, loose fits: next covariates or monthly
+      series, then CLI. More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     why: >-

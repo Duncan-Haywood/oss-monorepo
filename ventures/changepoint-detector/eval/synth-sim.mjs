@@ -69,7 +69,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       if (r % sn !== si) continue;
       const rows = panel(cell, base + 1000 * ci + r);
       const donors = Object.fromEntries(rows.slice(1).map((d, j) => [`d${j}`, d]));
-      const res = synthControlTest(rows[0], donors, cell.k, { placeboPool: process.env.SC_POOL ?? 'without' });
+      const res = synthControlTest(rows[0], donors, cell.k, { placeboPool: process.env.SC_POOL ?? 'without', statistic: 'ratio' });
       console.log(JSON.stringify({ cell: name, rep: r, p: res.p, rank: res.rank, effect: res.effectAverage, fitWarning: res.fitWarning, pre: res.preRmspe }));
     }
   });

@@ -19,7 +19,7 @@ function cleanDonors(last) {
 }
 const f = (v, p = 2) => Number(v).toFixed(p);
 const STAT = process.env.SC_STAT;
-const opts = STAT ? { statistic: STAT } : {};
+const opts = { statistic: STAT ?? 'ratio' }; // the last round's tables used the paper's ratio
 const out = [];
 function run(tag, state, date, last, { exclude = [], fake = null } = {}) {
   const lo = years.indexOf(1970), hi = years.indexOf(last) + 1;

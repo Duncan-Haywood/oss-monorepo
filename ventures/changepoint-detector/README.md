@@ -5867,3 +5867,49 @@ the published-quality estimate of the gap (`node -e` with `synthControlTest`), b
 when some donors fit almost exactly. **Next** (fresh pre-registration): a statistic that does not divide by a tiny
 before-gap (the after-gap alone, or the ratio with the before-gap floored at the donors' median), checked in simulation
 against cells where some donors are near-copies of others; monthly series; and the effect's path as the statistic.
+
+### A floored ratio: California ranks first, as in the paper (2026-11-17, pre-registered; module default, CLI not shipped)
+
+The synthetic-control round above ranked California 3rd of 39 because Missouri and Virginia are fitted almost exactly
+before 1989 and the paper's statistic divides by that before-gap. `synthControlTest` now scores every placebo with
+three statistics from the same fits (`r.tests`): **floored**, the after-gap over the before-gap floored at the median
+before-gap of all units, treated and donors alike (`r.floor`); ratio, the paper's after-gap over before-gap; and post,
+the after-gap alone. The floor is one number computed symmetrically from every unit's fit, so when nothing happened
+and the treated unit is like the donors, the ranks stay exchangeable and the test stays exact.
+
+Pre-registration `eval/synth-floor-prereg-2026-11-17.md`, committed after an exploratory run (hashed seed base 21000,
+`eval/synth-floor-explore.out.txt`) and before the confirmatory run (base 23000, 400 panels a cell,
+`eval/synth-floor-confirm.out.txt`) and before the floored ratio was computed on any real state
+(`SC_STAT=floored node eval/synth-real.mjs`, `eval/synth-floor-real.out.txt`). Seeds are now hashed (splitmix32), as
+the last round asked. New cells: N6/P5 eight near-copy donor pairs; N7/P6 a treated unit inside the donors' range
+but near its corner.
+
+| Bar (pre-registered, floored statistic) | Confirmatory (400 panels a cell) | |
+|---|---|---|
+| 1. size, N1-N7: p <= 0.05 at most 6%, p <= 0.10 at most 14% | 2.3-5.3%; 6.8-14.0% (N6, the near copies, at the cap) | holds |
+| 2. treated outside the donors' range (E1): p <= 0.05 at most 6% | 5.8% (ratio 0.5%; p <= 0.10 16.5%, no bar; the fit warning fires on 100%) | holds |
+| 3. power, p <= 0.05: no cell below the ratio by more than 2 points; P1 and P6 at least 10 above | P1 56.5 vs 33.8%; P2 18.8 vs 12.0; P3 26.0 vs 20.0; P4 25.3 vs 6.8; P5 57.3 vs 41.8; P6 45.5 vs 18.8 | holds |
+| 4a. T1 California 1989: p <= 0.05, average gap -30 to -10, gap at 2000 below 0 | **rank 1 of 39, p 0.026**; gap -19.5 average, -26.5 at 2000 | holds |
+| 4b. T2-T4 MA 1993, AZ 1995, OR 1997: 2 of 3 at p <= 0.10, negative gap | 0 of 3 (p 0.154, 0.361, 0.214; ranks 6, 13, 6, up from 8, 18, 11) | **fails** |
+| 4c. in-time placebos (1980, 1984 in a window cut at 1988): neither p <= 0.05 | p 0.385, 0.359 | holds |
+| 4d. nine placebo states at 1989: at most 1 of 9 p <= 0.05 | 0 of 9 (Virginia now rank 5 of 38, p 0.132, from 2nd) | holds |
+
+The after-gap alone was ruled out in exploration (49% rejections in E1, 54.8% confirmatory: a series no mix of donors
+can match drifts away after any date). With the hashed seeds the paper's ratio holds its exact size in N1 (3.0%
+against 2.6% exact), so the last round's 5.5% was the seeds, as suspected.
+
+**What changed.** The floor on the real data is 2.15 packs (the median before-gap of the 39 states). California's
+before-gap, 1.66, is under it, so its statistic is 20.5 / 2.15 = 9.5; Missouri's (10.9 after, 0.41 before) drops from
+26.5 to 5.1 and Virginia's from 16.9 to 6.7, and California ranks 1st (the next are Oklahoma 7.4 and Texas 7.2), p 1/39 = 0.026, the paper's result without
+the paper's covariates. On simulated panels the floored ratio finds a 2 sd step 57% of the time against 34%, and a
+treated unit near the edge of the donors' range 46% against 19%. The cost is in E1, the case the fit warning is for:
+when no mix of donors can match the treated series, p <= 0.10 comes up 16.5% of the time against 3.5%, so read p
+only when the fit warning is off.
+
+**Decision, as pre-registered.** Bars 1-3 hold, so `synthControlTest`'s default statistic is now `'floored'`
+(`{ statistic: 'ratio' }` gives the paper's; the last round's scripts pass it and reproduce their tables). Bar 4b
+fails: Massachusetts, Arizona and Oregon have negative gaps of 8 to 16 packs, ranked 6th to 13th, so `--synth-control`
+stays out of the CLI and the module stays a library function. **Next** (fresh pre-registration): those three states
+have before-gaps of 3.0 to 5.5 packs, worse than 55-78% of the donors', so they are matched loosely, not over-fitted:
+covariates (income, price, the 15-24 share) or monthly series would give the fit something more to go on; and the
+effect's path (a slope change) as the statistic.
