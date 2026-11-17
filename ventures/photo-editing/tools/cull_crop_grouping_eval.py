@@ -117,7 +117,9 @@ def main() -> int:
         old = distance <= NEAR_DUPLICATE_MAX_DISTANCE
         return distance, old, old or crop_match(distance, a[1], b[1])
 
-    half = lambda ident: "tune" if int(ident) % 2 == 0 else "held"
+    def half(ident: str) -> str:
+        return "tune" if int(ident) % 2 == 0 else "held"
+
     rows = {"pos": [], "neg": []}
     for ident in ids:
         for kind, a, b in pairs():
