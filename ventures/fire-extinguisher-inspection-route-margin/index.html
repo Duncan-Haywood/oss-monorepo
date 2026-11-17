@@ -152,7 +152,7 @@ function updateVisit(count = false) {
     el('profit').textContent = money(r.netProfit);
     el('rateLine').textContent = r.effectiveHourlyRate === null
       ? 'no labor time entered'
-      : `about ${money(r.effectiveHourlyRate)}/hr after all costs, averaged across the year`;
+      : `about ${money(r.effectiveHourlyRate)} of profit per labor hour, on top of the ${money(Number(visitInputs().targetHourlyRate) || 0)}/hr labor rate already counted as a cost, averaged across the year`;
     el('revenueOut').textContent = money(r.visitRevenue);
     el('materialsOut').textContent = money(r.materialsCost);
     el('mileageOut').textContent = money(r.mileageCost);

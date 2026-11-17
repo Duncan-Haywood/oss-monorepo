@@ -78,7 +78,7 @@
   <pre id="xml" aria-label="IDS XML"></pre>
 
   <h2>How it works</h2>
-  <p>Already have an IDS? <strong>Open an IDS file</strong> reads it in. Everything the page's controls can hold without changing it becomes an editable row; anything else (a pattern on a class name, a property with a value but no data type, an exclusive bound, a non-standard Pset_ name) is kept as written: shown as its XML, written back unchanged, and removable. Opened and written back, 64 of 64 IDS files from public repositories (83.5% of their facets editable, a project's own property sets and conditions in the applicability included) and all 187 of buildingSMART's passing test cases ask for the same thing as before, and none stops validating against ids.xsd. The one change: requirements on a prohibited specification, which IDS 1.0 cannot evaluate, are dropped and named when you open the file.</p>
+  <p>Already have an IDS? <strong>Open an IDS file</strong> reads it in. Everything the page's controls can hold without changing it becomes an editable row; anything else (a pattern on a class name, a range with two lower or two upper bounds, a non-standard Pset_ name) is kept as written: shown as its XML, written back unchanged, and removable. Opened and written back, 64 of 64 IDS files from public repositories (85.2% of their facets editable, a project's own property sets, conditions in the applicability and exclusive bounds included) and all 187 of buildingSMART's passing test cases ask for the same thing as before, and none stops validating against ids.xsd. The one change: requirements on a prohibited specification, which IDS 1.0 cannot evaluate, are dropped and named when you open the file.</p>
   <p><strong>Open a model to write for</strong> reads an IFC model (.ifc, .ifcxml or .ifczip) in a background thread of this tab, with the checker's own reader, and lists what it already carries: each class with how many of it, the property and quantity sets on them (standard or the project's own, with the data type the model writes each property in) and the classification systems in use. The editor then offers those first: the model's classes in the class list, and, on each requirement, the sets the model's objects of that class carry, with how many carry them. A set of the project's own (Acme_Wall, not a Pset_ or Qto_ set) becomes a row you can edit: its name, the property and a data type from the IFC schema, filled in from the model when it has the property. The model is not uploaded or kept: close the tab and it is gone.</p>
   <p><strong>Narrow it</strong> limits a specification to the elements that also match a condition: a property value (only walls whose Pset_WallCommon.IsExternal is true), an attribute (PredefinedType SOLIDWALL), a classification system, a material or a place. IDS calls these the applicability; an element that does not match is not checked at all, so "external walls must have a fire rating" does not fail internal walls. With a model open, each condition says how many of the class's objects it keeps, counted the way the checker counts them, and warns when it keeps none.</p>
   <p>The class list is every non-abstract class in the IFC schema you pick that can carry at least one standard set; the set list is the sets whose templates apply to that class, its ancestors, or the occurrence a type object is for (Pset_WallCommon on IFCWALL, IFCWALLSTANDARDCASE and IFCWALLTYPE); the property list and data types are the template's. IDS matches exact classes, so a specification on IFCWALL misses IFCWALLSTANDARDCASE unless both are listed: tick <em>and its subclasses</em> to list them. A property whose template gives no single data type (a bounded value, a table, a list or a reference) is checked for presence only.</p>
@@ -94,7 +94,7 @@
   import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
   import { Schema, parseIds } from "./ids.mjs";
   import { auditIds } from "./audit.mjs";
-  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, idsSchema, facetXml, editableAttributes, modelSets, valueTypes, ownSetName, specBases, specClassNames, commonSets, commonAttributes, attributeValueKind, commonPredefinedTypes, parseClassList, modelValueOffer, modelAttributes, modelCodes, appMatchCount, reqComplete, typeRow } from "./editor.mjs";
+  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, idsSchema, facetXml, editableAttributes, modelSets, valueTypes, ownSetName, specBases, specClassNames, commonSets, commonAttributes, attributeValueKind, commonPredefinedTypes, parseClassList, modelValueOffer, modelAttributes, modelCodes, appMatchCount, reqComplete, typeRow, untypeRow } from "./editor.mjs";
   import { isZip, unzipModel, inflateRawStream } from "./zip.mjs";
 
   const $ = (id) => document.getElementById(id);
@@ -138,7 +138,7 @@
     let h = `<div class="req"><div class="grid">`;
     h += `<div><label for="${id("kind")}">${app ? "Only elements with" : "Requirement"}</label><select id="${id("kind")}" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="kind">${[["property", "a property or quantity"], ["attribute", "an attribute (Name, Description...)"], ["classification", "a classification"], ["material", "a material"], ["partOf", "a place (storey, group...)"]].map(([v, l]) => opt(v, l, r.kind)).join("")}</select></div>`;
     if (!app) h += `<div><label for="${id("card")}">How</label><select id="${id("card")}" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="cardinality">${[["required", "must have"], ["optional", "if present, must match"], ["prohibited", "must not have"]].map(([v, l]) => opt(v, l, r.cardinality)).join("")}</select></div>`;
-    let valueKind = "text", enumVals = null, note = "", mprop = null, typeBtn = "";
+    let valueKind = "text", enumVals = null, note = "", mprop = null, typeBtn = "", anyBtn = false, realWarn = false;
     codeless.delete(key);
     if (r.kind === "property") {
       // With several classes, only the standard sets every one can carry.
@@ -187,6 +187,13 @@
           const q = mset && mset.props.find((x) => x.name === r.name);
           mprop = q || null;
           if (q) note += ` The model has it on ${q.count} of ${ofN}${q.dataType ? `, as ${q.dataType}` : ""}.`;
+          // A real number with no dataType: this checker converts units, IfcTester
+          // does not, so a value is read apart (eval/model-any-type-2026-11-17.md).
+          if (q && q.dataType && L.S.types[q.dataType] && L.S.prim(q.dataType) === "double") {
+            if (!r.mode || r.mode === "any") valueKind = null;
+            else realWarn = true;
+            note += " With no dataType a real number is read apart by checkers (this one converts units, IfcTester does not), so check it for presence only.";
+          }
         } else if (p) {
           if (!p.dataType) { valueKind = null; note = "The standard gives no single data type for this property (a bounded value, table, list or reference), so it is checked for presence only."; }
           else {
@@ -198,6 +205,9 @@
           const q = mset && mset.props.find((x) => x.name === r.name);
           mprop = q || null;
           if (q) note += ` The model has it on ${q.count} of ${ofN}${q.dataType && q.dataType !== p.dataType ? `, written as ${q.dataType}, so a check with this dataType will fail them` : ""}.`;
+          // The model writes another type: offer the row with no dataType
+          // (untypeRow), which checks the property whatever type it holds.
+          if (q && q.dataType && untypeRow(L, r, q.dataType)) { note += ` A check with no dataType passes them whatever type they hold, and the audit accepts it${r.mode && r.mode !== "any" ? " (with a warning when a value is asked)" : ""}.`; anyBtn = true; }
           else if (inv && spec.cls && ofN) note += ` None of the model's ${ofN} ${spec.cls} object(s) has it yet.`;
         } else valueKind = null;
       }
@@ -248,7 +258,8 @@
       h += `<div class="row" style="margin-top:8px"><label for="${id("mode")}" style="display:inline">Value</label><select id="${id("mode")}" style="width:auto" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="mode">${modes.map(([v, l]) => opt(v, l, r.mode)).join("")}</select>`;
       const inM = (v) => { const x = offer && offer.values.find(([y]) => y === v); return x ? ` (${x[1]} in model)` : ""; };
       if (r.mode === "equals") h += enumVals ? `<select style="width:auto" aria-label="value" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="equals">${opt("", "choose", r.equals)}${enumVals.map((v) => opt(v, v + inM(v), r.equals)).join("")}</select>` : `<input style="width:14em" aria-label="value" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="equals" value="${esc(r.equals)}"${offer ? ` list="${id("vals")}" autocomplete="off"` : ""}>${offer ? `<datalist id="${id("vals")}">${offer.values.map(([v, n]) => `<option value="${esc(v)}">${n} in model</option>`).join("")}</datalist>` : ""}`;
-      if (r.mode === "range") h += `<input style="width:8em" aria-label="minimum" placeholder="min" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="min" value="${esc(r.min)}"> to <input style="width:8em" aria-label="maximum" placeholder="max" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="max" value="${esc(r.max)}"> <span class="muted">${r.kind === "attribute" ? "as the model writes it, in the model's own units (this checker does not convert attributes)" : "SI units (metres, square metres...)"}</span>`;
+      // Each bound inclusive (at least / at most) or exclusive (more than / less than: xs:minExclusive, xs:maxExclusive).
+      if (r.mode === "range") h += `<select style="width:auto" aria-label="lower bound" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="minEx">${opt("", "at least", r.minEx ? "1" : "")}${opt("1", "more than", r.minEx ? "1" : "")}</select> <input style="width:8em" aria-label="minimum" placeholder="min" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="min" value="${esc(r.min)}"> and <select style="width:auto" aria-label="upper bound" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="maxEx">${opt("", "at most", r.maxEx ? "1" : "")}${opt("1", "less than", r.maxEx ? "1" : "")}</select> <input style="width:8em" aria-label="maximum" placeholder="max" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="max" value="${esc(r.max)}"> <span class="muted">${r.kind === "attribute" ? "as the model writes it, in the model's own units (this checker does not convert attributes)" : "SI units (metres, square metres...)"}</span>`;
       if (r.mode === "pattern") h += `<input style="width:14em" aria-label="pattern" placeholder="[A-Z]{2}-[0-9]+" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="pattern" value="${esc(r.pattern)}">`;
       h += `</div>`;
       if (r.mode === "oneOf" && enumVals) h += `<div class="enum">${enumVals.map((v) => `<label><input type="checkbox" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="oneOf" value="${esc(v)}"${r.oneOf.includes(v) ? " checked" : ""}> ${esc(v)}${esc(inM(v))}</label>`).join("")}</div>`;
@@ -269,7 +280,7 @@
       if (offer.min !== null && offer.max !== null) mv += ` They range from ${n12(offer.min)} to ${n12(offer.max)} (${r.kind === "property" ? "SI units" : "as the model writes them"})${offer.rangeMin !== n12(offer.min) || offer.rangeMax !== n12(offer.max) ? `; as written, ${offer.min} to ${offer.max}, and IDS ranges take no rounding tolerance, so the model's range is ${offer.rangeMin} to ${offer.rangeMax}` : ""}.`;
       if (offer.outside.length) mv += ` It also writes ${offer.outside.slice(0, 5).map(([v, n]) => `${v} (${n})`).join(", ")}${offer.outside.length > 5 ? ", ..." : ""}, which the standard does not list; a one-of check fails those objects.`;
       const use = offer.oneOf && !(r.mode === "oneOf" && r.oneOf.length === offer.oneOf.length && offer.oneOf.every((v) => r.oneOf.includes(v))) ? "Allow exactly these values"
-        : offer.min !== null && offer.max !== null && valueKind === "number" && !(r.mode === "range" && r.min === offer.rangeMin && r.max === offer.rangeMax) ? "Use the model's range" : "";
+        : offer.min !== null && offer.max !== null && valueKind === "number" && !(r.mode === "range" && r.min === offer.rangeMin && r.max === offer.rangeMax && !r.minEx && !r.maxEx) ? "Use the model's range" : "";
       const any = codeless.has(key) ? ` <button type="button" class="ghost small" data-act="model-coded" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>Require a code</button>` : "";
       h += `<p class="muted" style="margin:6px 0 0;font-size:0.86rem">${esc(mv)}${use ? ` <button type="button" class="ghost small" data-act="model-values" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>${use}</button>` : ""}${any}</p>`;
     }
@@ -280,7 +291,8 @@
     const vals = r.mode === "equals" ? [r.equals] : [];
     const caps = vals.filter((v) => /^(true|false)$/i.test(v) && v !== v.toLowerCase());
     if (boolType && caps.length) h += `<p class="warn" style="margin:6px 0 0;font-size:0.86rem">${esc(caps.join(", "))} is not how IDS writes a boolean (true or false). With no dataType, tools disagree: this checker matches no object with it, IfcTester matches the ones that hold it. ${esc(typeBtn)} turns it into ${esc(vals.map((v) => v.toLowerCase()).join(", "))}, which both read the same way.</p>`;
-    if (note) h += `<p class="muted" style="margin:6px 0 0;font-size:0.86rem">${esc(note)}${typeBtn ? ` <button type="button" class="ghost small" data-act="type-row" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>${esc(typeBtn)}</button>` : ""}</p>`;
+    if (note) h += `<p class="muted" style="margin:6px 0 0;font-size:0.86rem">${esc(note)}${typeBtn ? ` <button type="button" class="ghost small" data-act="type-row" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>${esc(typeBtn)}</button>` : ""}${anyBtn ? ` <button type="button" class="ghost small" data-act="untype-row" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>Accept any data type</button>` : ""}</p>`;
+    if (realWarn) h += `<p class="warn" style="margin:6px 0 0;font-size:0.86rem">This value has no dataType and the model holds a real number: tools disagree on whether it matches. Ask for any value, or ${esc(typeBtn || "write a dataType")}.</p>`;
     // How many of the model's objects of these classes the condition keeps.
     if (app && inv && spec.cls) {
       const ofN = inv.classes.filter((c) => specClasses(L, spec).includes(c.cls)).reduce((t, c) => t + c.count, 0);
@@ -297,7 +309,7 @@
   // The exact classes a specification names (IDS matches exact classes).
   const specClasses = (L, s) => specClassNames(L.S, s);
   // An opened property value with no dataType (kept that way, typeRow adds one).
-  const UNTYPED_NOTE = "No dataType, as the opened file wrote it: the value is compared with whatever type the model holds, so TRUE may not match a true boolean and 3 may not match 3.0. IDS 1.0 expects a dataType and the audit warns.";
+  const UNTYPED_NOTE = "No dataType: the value is compared with whatever type the model holds, so TRUE may not match a true boolean and 3 may not match 3.0. With a value, IDS 1.0 expects a dataType and the audit warns.";
   function specHtml(L, s, si) {
     const known = !!(L.S.entities[s.cls] || (L.tm && L.tm[s.cls]));
     const subs = L.S.entities[s.cls] ? subclasses(L.S, s.cls) : [];
@@ -460,6 +472,7 @@
     if (k === "dataType" || k === "kind" || (k === "name" && t.dataset.r !== undefined)) target.untyped = false;
     if (k === "oneOf") target.oneOf = t.checked ? [...target.oneOf, t.value] : target.oneOf.filter((v) => v !== t.value);
     else if (t.type === "checkbox") target[k] = t.checked;
+    else if (k === "minEx" || k === "maxEx") target[k] = t.value === "1";
     else target[k] = k === "cls" || k === "entity" ? t.value.trim().toUpperCase() : t.value;
     // A new class or set resets what depended on it.
     if (k === "also") {
@@ -495,7 +508,7 @@
     if (a === "model-values") {
       const r = rows[+e.target.dataset.r], o = offers.get(okey);
       if (o && o.oneOf) { r.mode = "oneOf"; r.oneOf = [...o.oneOf]; }
-      else if (o && o.rangeMin !== null && o.rangeMax !== null) { r.mode = "range"; r.min = o.rangeMin; r.max = o.rangeMax; }
+      else if (o && o.rangeMin !== null && o.rangeMax !== null) { r.mode = "range"; r.min = o.rangeMin; r.max = o.rangeMax; r.minEx = false; r.maxEx = false; }
       record("editor_model_values");
     }
     // An opened row with no dataType given the template's (or the model's).
@@ -505,6 +518,14 @@
       const q = m && m.props.find((x) => x.name === r.name);
       const t = typeRow(L, r, q ? q.dataType : null);
       if (t) { rows[+e.target.dataset.r] = t.row; record("editor_typed"); if (t.dropped) alert("The value did not fit that data type, so the row now asks for any value. Set the value again."); }
+    }
+    // A standard row the model writes in another type, written with no dataType.
+    if (a === "untype-row") {
+      const L = loaded[doc.schema], s = doc.specs[si], r = rows[+e.target.dataset.r];
+      const m = inv ? modelSets(inv, specClasses(L, s), []).find((x) => x.name === r.set) : null;
+      const q = m && m.props.find((x) => x.name === r.name);
+      const t = q ? untypeRow(L, r, q.dataType) : null;
+      if (t) { rows[+e.target.dataset.r] = t.row; record("editor_untyped"); if (t.dropped) alert(t.real ? "With no dataType, checkers read a real-number value differently, so the row now asks for any value (presence)." : "A range needs a dataType, so the row now asks for any value. Set a value again if you need one."); }
     }
     // A classification that must carry some code, not only the system.
     if (a === "model-coded") {
@@ -529,7 +550,7 @@
     if (!doc.title) doc.title = name.replace(/\.(ids|xml)$/i, "");
     const total = r.rows + r.kept;
     let msg = `Opened ${esc(name)}: ${parsed.specs.length} specification(s) for ${esc(id)}. ${r.rows} of ${total} facet(s) are editable here`;
-    msg += r.kept ? `; ${r.kept} are kept as written (shown as XML, written back unchanged, removable), because the page's controls would change them (a pattern on a class name, an exclusive bound, a property value with no data type...).` : ".";
+    msg += r.kept ? `; ${r.kept} are kept as written (shown as XML, written back unchanged, removable), because the page's controls would change them (a pattern on a class name, a range with two lower bounds, a non-standard Pset_ name...).` : ".";
     if (r.dropped) msg += ` <span class="warn">${r.dropped} requirement(s) of prohibited specification(s) (${esc(r.droppedIn.join(", "))}) are not kept: IDS 1.0 cannot evaluate them, so move the condition into the applicability.</span>`;
     $("open-status").innerHTML = msg;
     record("editor_opened");

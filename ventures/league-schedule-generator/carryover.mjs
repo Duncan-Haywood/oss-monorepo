@@ -1325,7 +1325,15 @@ function assignVenuesOnce(opp, n, seed, { start = null, runs = true } = {}) {
   let cost = 0;
   for (let t = 0; t < n; t++) { tb[t] = teamBreaks(venues, opp, t, n); cost += tb[t] + PEN * imb(t); }
   const iters = Math.max(5000, 60 * R * N);
-  const after = new Int32Array(R + 1);
+  const after = new Int32Array(R + 1), near = new Int32Array(R + 1);
+  // local() summed over the rounds a run move on t flips for touched[i]: all of a..b for t
+  // itself (i = 0), else the rounds in a..b where x meets t
+  const flippedLocal = (x, i, t, a, b) => {
+    let s = 0;
+    if (i === 0) { for (let q = a; q <= b; q++) s += local(q, x); }
+    else for (let q = a; q <= b; q++) if (opp[q][t] === x) s += local(q, x);
+    return s;
+  };
   const flipMatch = (q, x) => {
     const y = opp[q][x], hx = venues[q][x];
     venues[q][x] = hx ? 0 : 1; venues[q][y] = hx ? 1 : 0;
@@ -1350,9 +1358,15 @@ function assignVenuesOnce(opp, n, seed, { start = null, runs = true } = {}) {
       for (let q = a; q <= b; q++) touched.push(opp[q][t]);
       let before = 0;
       for (const x of touched) before += tb[x] + PEN * imb(x);
+      // A team's breaks change only next to the rounds where its venue flips, so each touched
+      // team's breaks after the flip are tb plus the change in local() over those rounds (a pair
+      // of rounds both flipped is counted on both sides, before and after alike, so it cancels):
+      // the same counts teamBreaks gives over the whole season, at a few rounds per team
+      // (docs/history/ci-perf-2026-11-17-league-venue-run-local.md).
+      for (let i = 0; i < touched.length; i++) near[i] = -flippedLocal(touched[i], i, t, a, b);
       for (let q = a; q <= b; q++) flipMatch(q, t);
       let d = -before;
-      for (let i = 0; i < touched.length; i++) { const x = touched[i]; after[i] = teamBreaks(venues, opp, x, n); d += after[i] + PEN * imb(x); }
+      for (let i = 0; i < touched.length; i++) { const x = touched[i]; after[i] = tb[x] + near[i] + flippedLocal(x, i, t, a, b); d += after[i] + PEN * imb(x); }
       if (d <= 0 || rand() < Math.exp(-d / T)) { cost += d; for (let i = 0; i < touched.length; i++) tb[touched[i]] = after[i]; }
       else for (let q = a; q <= b; q++) flipMatch(q, t);
     } else {

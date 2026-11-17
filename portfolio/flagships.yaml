@@ -229,6 +229,12 @@ flagships:
       1.00/Abaco file. A run that lands a slice replaces its item here. More open
       items: NEXT.md.
   - venture: shift-roster-builder
+    inputs_only: >-
+      a live deploy with real punches, a real payroll template, a manager's
+      read, real 7shifts, When I Work, Square or Homebase accounts, dated
+      leave records or a site's week of changes; what is left without them is
+      solver tuning past 300 copies that four runs (2026-11-16 to 17) judged
+      too marginal for a run
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
       youth labour rules, state overtime presets, roles) with a self-host
@@ -259,8 +265,14 @@ flagships:
       would post; a real 7shifts account through --import-7shifts (README "Reading
       7shifts directly"); a real When I Work account or response through
       --import-wheniwork (README "Reading When I Work directly"); Homebase (docs
-      need an account); a real Square account via --import-square (README "Reading
-      Square's schedule"). More open items: NEXT.md.
+      need an account); a real Deputy install via --import-deputy (README "Reading
+      Deputy directly"). More open items: NEXT.md.
+    buildable: >-
+      Deputy staff and wages from its API (no account needed to build):
+      resource/Employee and EmployeeAgreement field names are in the MIT
+      communityds/deputy-api-wrapper models (git clone works; api.github.com does
+      not), see eval/deputy-api-format-2026-11-17.md; mirror import-7shifts.mjs's
+      staff reader. Homebase stays account-gated.
   - venture: photo-editing
     hosts: [https://raw.pixls.us/, https://github.com/]
     why: >-
@@ -377,11 +389,11 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "A ball
-      charged the integrator". Next: set MIN_FIT_RPM (1,000; no floor looked as
-      good) on held-out builds; does the hold make shots late? Ball hold (README "A
-      ball charged the integrator"): measure WHEEL_RPM_FULL error's cost on 0.2 s
-      wheels; an ESC with its own speed loop.
+      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "The fit
+      floor on held-out builds" (floor stays 1,000; opt-in LOOP_THROUGH_CHANGE ends
+      the hold's 0.6-0.9 s lateness). Next: why the jittery tach does worse through
+      a speed change (eval/min-fit-heldout-2026-11-17.txt); ball hold: measure
+      WHEEL_RPM_FULL error's cost on 0.2 s wheels; an ESC with its own speed loop.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -430,19 +442,18 @@ flagships:
       (to listen), scan-checked corpus, 2,129 notes read by eye, hymns, song
       sections, breakdown, riser; --a-cappella first verse and a range-checked
       --key-lift N, eval/key-lift-check.md; per-section singer guidance in --cues;
-      2026-11-17 latest: voicedLead's hold form (closure voiced to its burst) held
-      on held-out Z, 171 to 177 of 192, now default; next: a dark-vowel m (X's tum,
-      Z's lum), voiced place misses). Open checks that need a person: listen to the
-      studio page, --sing, the options (--stretch, --halftime, --fills, --limit
-      pumping, stems, sections, breakdown, riser, the a cappella verse and whether
-      the key lift sounds like a lift); --lrc in a real player and --markers/--stems
-      in a DAW; --cues (and its section lines), RECORDING-GUIDE.md and the E2-E4
-      range with real singers; the release kit against a distributor's real form;
-      the Te Deum/3427/3912/3775 fixes (eval/scan-check-verdicts.md). master-cli
-      passed EBU Tech 3341/3342 from their text; open: the EBU's WAVs (403),
-      Apple/Amazon/Tidal levels. scan.mjs reads rhombi, quilismas, liquescents,
-      lines at true thickness; tilted pages, curled staves straightened
-      (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
+      2026-11-17 latest: lipShut (dark-vowel m) held on held-out a, 116 to 121 of
+      144, now default; next: a's bum/hum/fum, place misses). Open checks that need
+      a person: listen to the studio page, --sing, the options (--stretch,
+      --halftime, --fills, --limit pumping, stems, sections, breakdown, riser, the a
+      cappella verse and whether the key lift sounds like a lift); --lrc in a real
+      player and --markers/--stems in a DAW; --cues (and its section lines),
+      RECORDING-GUIDE.md and the E2-E4 range with real singers; the release kit
+      against a distributor's real form; the Te Deum/3427/3912/3775 fixes
+      (eval/scan-check-verdicts.md). master-cli passed EBU Tech 3341/3342 from their
+      text; open: the EBU's WAVs (403), Apple/Amazon/Tidal levels. scan.mjs reads
+      rhombi, quilismas, liquescents, lines at true thickness; tilted pages, curled
+      staves straightened (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
       (eval/broken-stroke-check.md); next: worn pages (new GABC needed), mottled
       squares, one-step cephalici read (eval/one-step-cephalicus-check.md), 10 of 84
       tuning misses left, 3408's strokes, 3464's cephalicus; --split-voices (by
@@ -466,12 +477,9 @@ flagships:
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
       (eval/ifcxml-xbim-2026-11-16.md); cross-check more public models from
       opensourceBIM/IFC-files and buildingSMART's Sample-Test-Files with
-      eval/crosscheck_ifctester.py; the IDS editor (editor.html; README): "Write
-      dataType" for the 21 of 122 standard properties real exports write in another
-      type (typeRow, eval/untyped-values-2026-11-17.md); exclusive bounds on an
-      opened range (numeric attribute ranges 2026-11-17,
-      eval/model-attr-ranges-2026-11-17.md); more real exports through
-      eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
+      eval/crosscheck_ifctester.py; the IDS editor (editor.html; README): a tolerance hint on
+      exclusive bounds (eval/exclusive-bounds-2026-11-17.md); more real exports
+      through eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked"). Next, most
@@ -494,8 +502,9 @@ flagships:
       a no-dataType value row; attribute values and classification codes 2026-11-17
       (eval/model-attr-codes-2026-11-17.md: 242 of 242 offers pass; 143 of 210
       Uniformat elements in Schultz have an empty code, Require a code); a range for
-      numeric attributes; a dataType-mismatch hint; GitHub Action and ci-cli.mjs
-      2026-11-17 (eval/ci-action-2026-11-17.md: 8 pairs on 4 real exports in 7.5 s,
-      9 of 9 annotations on the element's line; next: parse each model once for all
-      its IDS, a run on a GitHub runner and a team's repo); heap use on a 200 MB
-      model; a BIM coordinator's real IDS and model (needs a person).
+      numeric attributes; a dataType-mismatch hint, Accept any data type 2026-11-17
+      (eval/model-any-type-2026-11-17.md); GitHub Action and ci-cli.mjs 2026-11-17
+      (eval/ci-action-2026-11-17.md: 8 pairs on 4 real exports in 7.5 s, 9 of 9
+      annotations on the element's line; next: parse each model once for all its
+      IDS, a run on a GitHub runner and a team's repo); heap use on a 200 MB model;
+      a BIM coordinator's real IDS and model (needs a person).

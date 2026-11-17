@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { parseIds } from "./ids.mjs";
 import { auditIds } from "./audit.mjs";
 import { resources, check } from "./node.mjs";
-import { classesWithSets, setsFor, propertiesOf, subclasses, predefinedTypes, buildIds, entityFacet, xsBase, PARTOF_RELATIONS, importIds, stateToDoc, idsSchema, specClassNames, commonSets, commonAttributes, sameAttributeType, commonPredefinedTypes, parseClassList, valueChoices, attributeValueKind, modelAttributes, modelValueOffer, typeRow } from "./editor.mjs";
+import { classesWithSets, setsFor, propertiesOf, subclasses, predefinedTypes, buildIds, entityFacet, xsBase, PARTOF_RELATIONS, importIds, stateToDoc, idsSchema, specClassNames, commonSets, commonAttributes, sameAttributeType, commonPredefinedTypes, parseClassList, valueChoices, attributeValueKind, modelAttributes, modelValueOffer, typeRow, appMatchCount, untypeRow, blankReq, blankSpec } from "./editor.mjs";
 import { Model } from "./ids.mjs";
 import { modelInventory } from "./inventory.mjs";
 
@@ -166,8 +166,9 @@ test("an opened IDS becomes editable rows where the page can hold a facet, and i
   assert.equal(imp.state.schema, "IFC4");
   assert.equal(w.cls, "IFCWALL");
   assert.equal(w.withSub, true);
-  assert.deepEqual(w.reqs.map((r) => (r.fixed ? "kept" : r.kind + ":" + r.mode)), ["property:true", "property:any", "kept", "attribute:pattern"]);
-  // A project's own set (Acme_Wall) is an editable row since 2026-11-16; an exclusive bound is not.
+  assert.deepEqual(w.reqs.map((r) => (r.fixed ? "kept" : r.kind + ":" + r.mode)), ["property:true", "property:any", "property:range", "attribute:pattern"]);
+  // A project's own set (Acme_Wall) is an editable row since 2026-11-16; an exclusive bound since 2026-11-17.
+  assert.deepEqual([w.reqs[2].min, w.reqs[2].minEx, w.reqs[2].max, w.reqs[2].maxEx], ["", false, "0.3", true]);
   assert.deepEqual([w.reqs[1].custom, w.reqs[1].set, w.reqs[1].dataType], [true, "Acme_Wall", "IFCLABEL"]);
   assert.equal(d.cls, "");
   // The class pattern has no control; the Name condition beside it is an
@@ -295,6 +296,33 @@ test("a numeric attribute gets a range from the model, written as xs:double, tha
   assert.equal(reopen(asString).imp.state.specs[0].reqs[0].fixed.kind, "attribute");
 });
 
+test("a range bound can be exclusive: written as xs:minExclusive / xs:maxExclusive, checked, counted and reopened", () => {
+  const L = loadFor("IFC4");
+  const text = readFileSync(new URL("samples/tiny-house.ifc", import.meta.url), "utf8");
+  // The sample house's one door is 2100 (mm) high.
+  const row = (min, max, minEx, maxEx) => ({ kind: "attribute", name: "OverallHeight", cardinality: "required", mode: "range", min, max, minEx, maxEx, oneOf: [] });
+  const spec = (r, i) => ({ name: `door ${i}`, optionality: "required", cls: "IFCDOOR", withSub: false, also: [], predefinedType: "", reqs: [r] });
+  const rows = [row("2000", "2100", true, false), row("2000", "2100", true, true), row("2100", "", true, false), row("", "2100.5", false, true)];
+  const xml = buildIds(stateToDoc({ title: "t", schema: "IFC4", specs: rows.map(spec) }, L), L.S);
+  assert.match(xml, /<xs:restriction base="xs:double"><xs:minExclusive value="2000"\/><xs:maxInclusive value="2100"\/><\/xs:restriction>/);
+  assert.match(xml, /<xs:minExclusive value="2000"\/><xs:maxExclusive value="2100"\/>/);
+  assert.deepEqual(audit(xml).filter((i) => i.level === "error"), []);
+  // More than 2000, at most 2100 passes; less than 2100 fails at 2100; more than 2100 fails; less than 2100.5 passes.
+  assert.deepEqual(check(xml, text).specs.map((s) => s.status), ["pass", "fail", "fail", "pass"]);
+  // The model-match count of an applicability row agrees with the checker.
+  const inv = modelInventory(new Model(text, R.schemas), R.measureUnits);
+  const a = modelAttributes(inv, ["IFCDOOR"]).find((x) => x.name === "OverallHeight");
+  const o = modelValueOffer(a, "number", null);
+  assert.deepEqual(rows.map((r) => appMatchCount(a, o, r, "number")), [1, 0, 0, 1]);
+  // Reopened, each is an editable row with the same bounds and writes the same IDS back.
+  const { imp, parsed, back } = reopen(xml);
+  assert.deepEqual(imp.state.specs.map((s) => s.reqs.map((r) => (r.fixed ? "kept" : `${r.minEx ? ">" : ">="}${r.min} ${r.maxEx ? "<" : "<="}${r.max}`))[0]), [">2000 <=2100", ">2000 <2100", ">2100 <=", ">= <2100.5"]);
+  for (let i = 0; i < rows.length; i++) assert.deepEqual(said(back.specs[i]), said(parsed.specs[i]));
+  // Two bounds on one side (minInclusive and minExclusive) have no single control: kept as written.
+  const both = xml.replace('<xs:minExclusive value="2000"/><xs:maxInclusive', '<xs:minInclusive value="1900"/><xs:minExclusive value="2000"/><xs:maxInclusive');
+  assert.equal(reopen(both).imp.state.specs[0].reqs[0].fixed.kind, "attribute");
+});
+
 test("a property value with no dataType opens as a row that keeps no dataType; typeRow writes the template's", () => {
   const L = loadFor("IFC4");
   const text = readFileSync(new URL("./samples/tiny-house.ifc", import.meta.url), "utf8");
@@ -341,4 +369,31 @@ test("a property value with no dataType opens as a row that keeps no dataType; t
   const a = check(written, text).specs[0], b = check(typed, text).specs[0];
   assert.deepEqual([a.applicable, b.applicable], [0, 2]);
   assert.ok(!auditIds(parseIds(typed), { schemas: { IFC4: R.schemas.IFC4 }, typeMap: R.typeMap, psets: R.psets }).some((i) => i.code === "value-no-datatype" && /IsExternal|FireRating/.test(i.message)));
+});
+
+test("untypeRow: a standard property the model writes in another type is checked with no dataType", () => {
+  const L = loadFor("IFC2X3");
+  const row = { ...blankReq(), set: "Pset_WallCommon", name: "Reference" };
+  // Not offered when the model writes the template's type, or for own sets.
+  assert.equal(untypeRow(L, row, "IFCIDENTIFIER"), null);
+  assert.equal(untypeRow(L, { ...row, custom: true }, "IFCLABEL"), null);
+  assert.equal(untypeRow(L, row, null), null);
+  const u = untypeRow(L, { ...row, mode: "equals", equals: "W-01" }, "IFCLABEL");
+  assert.deepEqual([u.row.untyped, u.row.dataType, u.row.mode, u.row.equals, u.dropped, u.real], [true, "", "equals", "W-01", false, false]);
+  // Written with no dataType; presence only audits clean, a value warns.
+  const spec = (r) => ({ ...blankSpec(), name: "s", cls: "IFCWALL", withSub: false, reqs: [r] });
+  const xml = (r) => buildIds(stateToDoc({ title: "t", schema: "IFC2X3", specs: [spec(r)] }, L), L.S);
+  const pres = untypeRow(L, row, "IFCLABEL").row;
+  assert.ok(!/dataType=/.test(xml(pres)));
+  assert.deepEqual(audit(xml(pres), "IFC2X3").filter((i) => i.level !== "info").map((i) => i.code), []);
+  assert.deepEqual(audit(xml(u.row), "IFC2X3").map((i) => i.code).filter((c) => c === "value-no-datatype"), ["value-no-datatype"]);
+  // typeRow turns it back into the template's row.
+  const back = typeRow(L, u.row);
+  assert.deepEqual([back.row.untyped, back.row.mode, back.row.equals, back.dropped], [false, "equals", "W-01", false]);
+  // A real number keeps only presence (checkers read the value apart); so does a range.
+  const h = { ...blankReq(), set: "Pset_RailingCommon", name: "Height", mode: "range", min: "0.9", max: "1.2" };
+  const uh = untypeRow(L, h, "IFCREAL");
+  assert.deepEqual([uh.row.mode, uh.row.min, uh.dropped, uh.real], ["any", "", true, true]);
+  const n = untypeRow(L, { ...blankReq(), set: "Pset_StairCommon", name: "NumberOfRiser", mode: "equals", equals: "17" }, "IFCINTEGER");
+  assert.deepEqual([n.row.mode, n.row.equals, n.dropped], ["equals", "17", false]);
 });
