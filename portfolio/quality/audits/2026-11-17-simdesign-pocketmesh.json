@@ -1,0 +1,215 @@
+{
+ "date": "2026-11-17",
+ "subject": "research/simdesign-pocketmesh",
+ "stratum": "research",
+ "seed": "2026-11-17-4dba",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior finite-element stress analyst / computational-mechanics researcher (mesh-convergence and solution verification practice: ASME V&V 20, Roache's grid convergence index, stress recovery); first checks: is there an analytic baseline the FE must approach, does the reported stress measure converge, are the scan numbers reproducible, and does the headline (pockets are a mesh artefact) survive the obvious alternative reading (the whole feasible set is collapsing)",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Every number reproduces and the headline survives an independent analytic check. (1) Re-ran the full 372-point scan in a scratch copy (`cd /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/simdesign-pocketmesh/copy && /usr/bin/python3.13 experiments/meshscan.py`, 8.2 s wall on 4 cores): 0 feasibility mismatches, max |d peak| = 0 against the committed meshscan.json, meshscan.txt byte-identical. (2) Independent elementary-beam floor (`/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/simdesign-pocketmesh/beam.py`, no subject import): in the uniform vertical arm the extreme-fibre stress is 6F(L-w/2)/(b w^2) + F/(b w), which equals the 100 MPa limit at exactly w* = 15.000 mm (F = 100 N, L = 80, b = 2). The h = 2.5 'pockets' at w = 14.4-14.9 mm sit where beam theory already gives 102.8-108.8 MPa in the plain arm, so they must be discretisation artefacts, which is the README's reading; every h = 1.5 feasible w (15.6-16.0) is above w*. (3) The FE engine approaches that beam value: max centroid von Mises in the mid-arm band (y 40-55) at w = 15.0, r = 12 rises 88.1 -> 98.4 MPa from h = 2.5 to 0.75 against 100.0 analytic (`/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/simdesign-pocketmesh/fecheck.py /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/simdesign-pocketmesh/copy/src`); at w = 15.4 it is 91.6 against 94.7. (4) Tip deflection 0.383 mm at w = 15 vs 0.452 mm Castigliano centreline-frame estimate (FE 15% stiffer, as expected from the rigid corner block); the 4 mm limit never binds. README values 105.8 / 100.2 / 92.1 MPa (h = 2.5, r = 12) and r = 10 h = 1.5 pattern 15.7, 15.8, 16.0 with 15.9 failing all match meshscan.json.",
+  "completeness": "Claimed and checked: '5 tests, a few seconds' (5 passed in 1.19 s); 'meshscan.py ... under a minute' (8.2 s); '372 points' (3 h x 4 r x 31 w = 372, counted in the JSON); the results table (all 12 rows match meshscan.txt); 'pockets reported by simdesign-gaugebasins reproduced here at h = 2.5' (r = 10: 14.6, 14.7; r = 12: 14.8; r = 14: 14.4, 14.9, identical to research/simdesign-gaugebasins/experiments/wscan.txt). experiments/wscan.py and figure.py exist; wscan.txt is not committed but is not claimed. No TODOs or stubs. Everything the README says was done runs end to end.",
+  "verification": "`cd research/simdesign-pocketmesh && /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests`: 5 passed, 60 warnings, 1.19 s. Two tests only check rule constants; the FE tests assert a bool type, peak > 0, infeasibility far from the boundary, and fine/coarse within a factor of two. No test pins a stress against a reference. Four mutants via platform/ci/quality_mutate.py: 3 survived (stress limit x1.1 at dfm.py:131; shear stress doubled at model.py:128; load x1.2 at model.py:113), 1 caught (MAX_SLENDER 8 -> 7 at dfm.py:23, which makes the w = 15.8 test point rule-infeasible). A 20% error in the load or 10% in the limit moves the whole feasible boundary that the paper is about and no test notices.",
+  "craft": "Read model.py, dfm.py, measures.py, optimise.py, meshscan.py, tests. Short and readable, units stated. Defects: the engine is a verbatim copy of simdesign-gaugebasins (`diff -q` on model, dfm, measures, optimise: identical), itself copied down a chain of simdesign-* projects, so a fix must be made many times; dead code at model.py:105-107 (`... if False else None`, and an unused `fb`); package docstring at __init__.py:1 describes the DFM rule module, not this project; meshscan.py:39-40 writes files without closing them; pytest not declared in pyproject.toml; tests import via sys.path insertion; 60 skfem DeprecationWarnings per test run. Acceptable research code, not reviewer-clean.",
+  "claims": "README numbers all trace to experiments/meshscan.txt / meshscan.json (checked above). AI assistance, 'stylised', 'preliminary', 'Simulated results only' and a Limitations section are present (README:3, :35-38), and the README says plainly that h = 1.5 is not shown to be converged and that the mesh-noise reading was not tested. research/README.md:551 and research/_homepage/projects.json summaries match. The served page https://marisstella.app/research/simdesign-pocketmesh/ returns 200 and carries 'preliminary' (11x) and 'AI assistance'. Soft omission, not an overclaim: the README never says the feasible window is capped at w = 16.0 mm by the slenderness rule (dfm.py:23, w/b <= 8), so 'the boundary moves up' reads as a moving edge when it is a window shrinking against a hard cap.",
+  "fitness": "A researcher can build on it: the scan reruns bit-identically in seconds. But as a research step it is thin. The deferred 'next step' (h = 1.0) costs seconds: probing w = 15.6-16.0 at r = 10 and 14 on h = 1.0 gives 0 of 10 feasible, and on h = 0.75 1 of 10 (w = 16.0, r = 14, 99.47 MPa) (`/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/simdesign-pocketmesh/finer.py /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/simdesign-pocketmesh/copy/src`, 5.8 s), i.e. the gauge-2 feasible set essentially vanishes, a stronger and different conclusion from 'the boundary moves up'; a later slug (research/simdesign-meshconverge) found the same. The analytic beam floor (w* = 15.000) answers the project's question (are the pockets artefacts?) without any mesh study. Nearest prior work: standard FE solution verification (Roache 1998 grid convergence index; ASME V&V 20-2009) and stress-concentration handbooks (Peterson's), none cited. One micro-question per slug, contrary to the programme model in research/CLAUDE.md.",
+  "domain": "Against FE verification practice: (a) no analytic or handbook baseline, though the plain-arm beam stress gives a hard lower bound of w* = 15.0 mm; (b) peak stress is sampled at P2 element centroids (model.py:121-131), which sit inside the section and under-read surface stress by roughly 2d/w on a coarse mesh, the likely mechanism of the pockets; a reviewer would expect nodal/surface recovery (Zienkiewicz-Zhu SPR) or extrapolation; (c) three meshes from an unstructured grid-plus-Delaunay mesher that re-meshes as w changes, with no Richardson/GCI estimate, and a peak that is non-monotone in h (w = 15.0, r = 12: 105.8, 100.7, 112.4, 116.1, 117.4 MPa at h = 2.5, 2.0, 1.5, 1.0, 0.75, my run); (d) feasibility decided by a hard threshold on an unconverged, possibly singular peak at the fillet tangent point. The README states (c) and (d) as limits, which keeps it honest, but a senior analyst would not sign off the method as a way to locate a feasible boundary."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Analytic floor on feasible w: uniform-arm extreme-fibre stress 6F(L-w/2)/(b w^2) + F/(b w) = 100 MPa",
+   "method": "elementary beam theory (Euler-Bernoulli bending + axial), own script, no subject import",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/simdesign-pocketmesh/beam.py",
+   "expected": "every converged feasible w >= w*; h=2.5 pockets 14.4-14.9 are below it",
+   "observed": "w* = 15.000 mm; pockets at 102.8-108.8 MPa beam stress; all h=1.5 feasible w in 15.6-16.0 > w*",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "FE mid-arm stress converges to the beam value at w=15.0, r=12",
+   "method": "elementary beam theory, 100.0 MPa at extreme fibre (centroid sampling expected slightly below)",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/simdesign-pocketmesh/fecheck.py /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/simdesign-pocketmesh/copy/src",
+   "expected": "100.0 MPa (approached from below)",
+   "observed": "88.1, 91.4, 90.3, 97.9, 98.4 MPa at h = 2.5, 2.0, 1.5, 1.0, 0.75",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Tip deflection at w=15, r=12 vs Castigliano centreline L-frame",
+   "method": "Castigliano, bending only: F Lc^3/(3EI) + F Lc^2 Hc/(EI), Lc = Hc = 72.5 mm",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/simdesign-pocketmesh/beam.py; /usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/simdesign-pocketmesh/fecheck.py /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/simdesign-pocketmesh/copy/src",
+   "expected": "0.452 mm (upper estimate, rigid corner ignored)",
+   "observed": "0.383 mm, mesh-independent to 4 digits",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Full 372-point scan reproduces",
+   "method": "rerun in scratch copy, compare with committed JSON",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/simdesign-pocketmesh/copy && /usr/bin/python3.13 experiments/meshscan.py",
+   "expected": "identical flags and peaks",
+   "observed": "0 flag mismatches, max |dvm| = 0, meshscan.txt identical, 8.2 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "h=2.5 pockets match simdesign-gaugebasins wscan",
+   "method": "compare meshscan.txt with research/simdesign-gaugebasins/experiments/wscan.txt",
+   "command": "cat experiments/meshscan.txt ../simdesign-gaugebasins/experiments/wscan.txt",
+   "expected": "r=10: 14.6,14.7; r=12: 14.8; r=14: 14.4,14.9",
+   "observed": "identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README peak values 105.8 / 100.2 / 92.1 MPa (h=2.5, r=12, w=15.0/15.4/15.8) and r=10 h=1.5 pattern",
+   "method": "read meshscan.json",
+   "command": "/usr/bin/python3.13 -c \"import json; b=json.load(open('experiments/meshscan.json')); print(b['2.5']['12.0'])\"",
+   "expected": "105.8, 100.2, 92.1; 15.7,15.8,16.0 feasible, 15.9 not",
+   "observed": "105.80, 100.16, 92.06; 15.7 T, 15.8 T, 15.9 F (100.6), 16.0 T",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Feasible window's upper edge disclosed",
+   "method": "dfm.py:23 slenderness w/b <= 8 at b = 2; JSON shows NaN peak (no FE) for w > 16.0",
+   "command": "grep -n 'slender\\|16.0\\|cap' README.md",
+   "expected": "README mentions the 16.0 mm cap",
+   "observed": "not mentioned; 'boundary moves up' omits that the window is closing against a hard rule cap",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Does anything stay feasible on the next mesh the README defers (h = 1.0)?",
+   "method": "subject's own evaluate() at w 15.6-16.0, r 10 and 14",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/simdesign-pocketmesh/finer.py /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/simdesign-pocketmesh/copy/src",
+   "expected": "README implies a boundary that keeps moving up",
+   "observed": "h=1.0: 0/10 feasible; h=0.75: 1/10 (w=16.0, r=14, 99.47 MPa); feasible set collapses",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite runs",
+   "method": "pytest",
+   "command": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests",
+   "expected": "5 tests pass, a few seconds",
+   "observed": "5 passed, 60 warnings in 1.19 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served page live with disclaimers",
+   "method": "curl",
+   "command": "curl -s https://marisstella.app/research/simdesign-pocketmesh/",
+   "expected": "200, preliminary/stylised/AI assistance",
+   "observed": "200; 'preliminary' x11, 'stylised' x8, 'AI assistance' x1",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "Engine is a copy",
+   "method": "diff against research/simdesign-gaugebasins/src",
+   "command": "for f in model dfm measures optimise; do diff -q src/simdesign_pocketmesh/$f.py ../simdesign-gaugebasins/src/*/$f.py; done",
+   "expected": "README says copied",
+   "observed": "all four identical (disclosed, but a fix must be repeated across the chain)",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/simdesign_pocketmesh/dfm.py:131",
+   "change": "_over(proc.material.sigma_allow, ...) -> _over(1.1 * proc.material.sigma_allow, ...)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/simdesign_pocketmesh/model.py:128",
+   "change": "sxy = c * (1 - mat.nu) / 2 * gxy -> sxy = c * (1 - mat.nu) * gxy",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/simdesign_pocketmesh/model.py:113",
+   "change": "return -(p.F / (p.w * p.b)) -> return -(1.2 * p.F / (p.w * p.b))",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/simdesign_pocketmesh/dfm.py:23",
+   "change": "MAX_SLENDER = 8.0 -> MAX_SLENDER = 7.0",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "No test pins an FE output against a reference: a 20% load error, a doubled shear stress and a 10% looser stress limit all leave the 5 tests green, though each moves the feasible boundary the project is about. A test that the mid-arm stress at w=15 approaches the beam value 100 MPa would catch all three.",
+   "where": "research/simdesign-pocketmesh/tests/test_pocketmesh.py:26",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "No analytic baseline: elementary beam theory puts the plain-arm extreme-fibre stress at exactly 100 MPa at w = 15.000 mm, so the h = 2.5 pockets (14.4-14.9 mm, 102.8-108.8 MPa by beam theory) are artefacts without any mesh study, and any converged feasible w must exceed 15.0. The README argues it only from mesh trends.",
+   "where": "research/simdesign-pocketmesh/README.md:31",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "The feasible window is capped above at w = 16.0 mm by the slenderness rule (w/b <= 8), which the README never states; read with that cap, 'the boundary moves up' is a window collapsing (h = 1.0: 0 of 10 points at r = 10, 14 feasible; h = 0.75: 1 of 10), a stronger conclusion the deferred next step would have found in seconds.",
+   "where": "research/simdesign-pocketmesh/README.md:31",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Peak stress is sampled at P2 element centroids, which lie inside the section and under-read surface stress on coarse meshes (the likely mechanism of the pockets); no surface/nodal recovery or Richardson/GCI estimate, and the peak is non-monotone in h.",
+   "where": "research/simdesign-pocketmesh/src/simdesign_pocketmesh/model.py:121",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Dead code: `fb = ... if False else None` and an unused `fb` from basis.boundary.",
+   "where": "research/simdesign-pocketmesh/src/simdesign_pocketmesh/model.py:105",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Engine (model, dfm, measures, optimise) is a verbatim copy of simdesign-gaugebasins and earlier simdesign-* slugs; fixes must be repeated across the chain.",
+   "where": "research/simdesign-pocketmesh/src/simdesign_pocketmesh/model.py:1",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Package docstring describes the DFM rule module ('Design-for-manufacture rules for a parametric L-bracket: FDM, CNC routing, ...'), not this project.",
+   "where": "research/simdesign-pocketmesh/src/simdesign_pocketmesh/__init__.py:1",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "pytest used by tests but not declared; meshscan.py writes meshscan.txt/json with open() never closed.",
+   "where": "research/simdesign-pocketmesh/experiments/meshscan.py:39",
+   "category": "repo-hygiene",
+   "origin": "build"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A small, honest, fully reproducible mesh-refinement scan: the 372-point scan reruns bit-identically in 8 s, every README number traces to meshscan.json, and the headline (the h = 2.5 mm feasible pockets below 15.4 mm vanish at h = 1.5 mm) is right and is confirmed by an independent beam-theory floor of w* = 15.000 mm, below which the plain arm alone exceeds 100 MPa. It misses the bar on verification (3 of 4 seeded bugs in load, shear stress and limit survive the 5 tests) and falls short of a senior FE analyst's method: no analytic baseline, centroid-sampled peak stress, no convergence estimate, and an unmentioned slenderness cap at w = 16.0 mm that turns 'the boundary moves up' into 'the feasible set collapses' (0 of 10 probed points feasible at h = 1.0), a finding the deferred next step would have produced in seconds."
+}

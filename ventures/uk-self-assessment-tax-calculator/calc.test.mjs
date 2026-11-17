@@ -129,3 +129,11 @@ test("liability and schedule are usable directly", () => {
   const L = liability(p);
   assert.equal(schedule(p, L).paymentsOnAccountDue, true);
 });
+
+test("the finance-cost credit's income limit leaves out dividends and savings (quality audit 2026-11-17)", () => {
+  const r = compute({ ...base, rent: 15000, rentExpenses: 2000, mortgageInterest: 10000, dividends: 20000 });
+  // 13,000 property profit - 12,570 allowance = 430 adjusted total income, so the
+  // credit is 20% of 430 = 86; tax = 86 + (20,000 - 500) x 8.75% = 1,792.25 - 86.
+  near(r.credit, 86, "credit");
+  near(r.incomeTax, 1706.25, "income tax");
+});
