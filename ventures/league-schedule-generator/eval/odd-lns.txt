@@ -248,3 +248,40 @@ After the container restart (07:09 UTC), all from the 11-of-16 state, --step 300
 
 Failed repairs over the instrumented runs (the last count each log printed, so a lower bound): at least 98, every one a timeout; 0 unsat, 0 unconfirmed.
 Best: 13 of 16 (seed 103), stored as eval/lns-states/47-8x9.json.
+
+47 teams on 8 x 9, resumed from the 13-of-16 state, 2026-11-17 (third session). 4-core container, python-sat 1.9.dev22.
+Every run: --step 300 --limit 6000 --resume-check 60 --resume eval/lns-states/47-8x9.json. Three LNS runs and one one-night check, side by side.
+--- seed 131: --also 15
+[  180.3s] start 13 of 16 nights good
+[ 2003.2s] step 7: freed [2, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 6, 'unsat': 0, 'unconfirmed': 0}
+[ 2904.0s] step 10: no step accepted yet; failed repairs so far {'timeout': 9, 'unsat': 0, 'unconfirmed': 0}
+[ 3826.2s] step 14: freed [3, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 12, 'unsat': 0, 'unconfirmed': 0}
+[ 5627.8s] step 20: no step accepted yet; failed repairs so far {'timeout': 18, 'unsat': 0, 'unconfirmed': 0}
+[ 5648.3s] step 21: freed [2, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 18, 'unsat': 0, 'unconfirmed': 0}
+{"n": 47, "courts": 8, "times": 9, "method": "lns", "seed": 131, "free": 2, "steps": 23, "seconds": 6248.9, "sat": null, "good": 13}
+--- seed 132: --also 15 --sideways-after 2
+[  180.4s] start 13 of 16 nights good
+[  802.5s] step 3: freed [2, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 2, 'unsat': 0, 'unconfirmed': 0}
+[ 1426.3s] step 6: freed [2, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 4, 'unsat': 0, 'unconfirmed': 0}
+[ 2047.8s] step 9: freed [11, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 6, 'unsat': 0, 'unconfirmed': 0}
+[ 2348.1s] step 10: no step accepted yet; failed repairs so far {'timeout': 7, 'unsat': 0, 'unconfirmed': 0}
+[ 2670.2s] step 12: freed [11, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 8, 'unsat': 0, 'unconfirmed': 0}
+[ 3291.5s] step 15: freed [3, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 10, 'unsat': 0, 'unconfirmed': 0}
+[ 3913.1s] step 18: freed [3, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 12, 'unsat': 0, 'unconfirmed': 0}
+[ 4513.7s] step 20: no step accepted yet; failed repairs so far {'timeout': 14, 'unsat': 0, 'unconfirmed': 0}
+[ 4535.3s] step 21: freed [2, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 14, 'unsat': 0, 'unconfirmed': 0}
+[ 5157.2s] step 24: freed [11, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 16, 'unsat': 0, 'unconfirmed': 0}
+[ 5778.9s] step 27: freed [3, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 18, 'unsat': 0, 'unconfirmed': 0}
+{"n": 47, "courts": 8, "times": 9, "method": "lns", "seed": 132, "free": 2, "steps": 28, "seconds": 6079.1, "sat": null, "good": 13}
+--- seed 133: --free 3 (three nights freed a step; first try at 47)
+[  180.4s] start 13 of 16 nights good
+[ 3185.8s] step 10: no step accepted yet; failed repairs so far {'timeout': 10, 'unsat': 0, 'unconfirmed': 0}
+[ 4405.0s] step 14: freed [3, 5, 11], sideways: 13 of 16 good; failed repairs so far {'timeout': 13, 'unsat': 0, 'unconfirmed': 0}
+[ 6208.0s] step 20: no step accepted yet; failed repairs so far {'timeout': 19, 'unsat': 0, 'unconfirmed': 0}
+{"n": 47, "courts": 8, "times": 9, "method": "lns", "seed": 133, "free": 3, "steps": 20, "seconds": 6208.0, "sat": null, "good": 13}
+--- eval/lns-bad-night.py on the stored state, --seconds 3600 (stopped after the first unlaid night)
+{"night": 2, "matches": 69, "vars": 7485, "clauses": 17103, "verdict": "UNKNOWN", "seconds": 3600.1}
+
+No run climbed: 13 of 16 in all three, 71 steps, 0 better, 55 failed repairs (all timeouts; 0 unsat, 0 unconfirmed).
+Night 2's 69 matches alone (7,485 vars, 17,103 clauses) came back UNKNOWN in 3,600 s: neither laid out nor proved impossible.
+Five runs from 13 (seeds 121, 122 last session; 131, 132, 133 here) found 0 climbs in 26,870 core-seconds. The stored state is unchanged.
