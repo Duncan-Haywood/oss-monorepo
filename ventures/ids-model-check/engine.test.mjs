@@ -239,3 +239,24 @@ test("bounded properties: a range ignores the set point, and a missing bound is 
   assert.equal(check(p(`<simpleValue>5</simpleValue>`), model("$", "IFCREAL(5.)", "$")).pass, true, "upper bound only");
   assert.equal(check(range, model("IFCREAL(1.)", "$", "$")).pass, false, "a range needs both bounds");
 });
+
+test("parseXml: a truncated file throws instead of looping forever", () => {
+  const whole = '<?xml version="1.0"?><!-- c --><ids xmlns="x"><info><title><![CDATA[t]]></title></info><specifications/></ids>';
+  assert.equal(parseXml(whole).local, "ids");
+  // every prefix of a well-formed file must end, and every proper prefix must throw
+  for (let n = 1; n < whole.length; n++) assert.throws(() => parseXml(whole.slice(0, n)), undefined, `prefix of ${n}`);
+  for (const bad of ["<ids><not closed", "<!-- open", "<?xml", "<![CDATA[x", "<!DOCTYPE", "<ids></ids", "<ids>< </ids>"]) {
+    assert.throws(() => parseXml(bad), /unterminated|no element name|unclosed|mismatched/, bad);
+  }
+});
+
+test("parseStep: every prefix of a STEP file ends (a cut-off enum once looped forever)", async () => {
+  const { parseStep } = await import("./step.mjs");
+  const t = readFileSync(new URL("samples/tiny-house.ifc", import.meta.url), "utf8");
+  for (let n = 1; n < t.length; n++) { try { parseStep(t.slice(0, n)); } catch { /* "no DATA section" is fine */ } }
+  const cut = t.slice(0, t.indexOf(".LENGTHUNIT.") + 11);
+  const r = parseStep(cut);
+  assert.ok(r.errors.some((e) => /unterminated enumeration/.test(e)), r.errors.join("; "));
+  assert.ok(r.entities.has(1));
+  assert.ok(parseStep("DATA;\n#1=IFCWALL(#);\n#2=IFCWALL('x');").entities.has(2), "'#' with no number is one bad entity, not a loop");
+});
