@@ -337,6 +337,8 @@ before writing the first scene.
 
 **For Other Minds**
 
+- *A Hundred and Thirty-Eight* (claimed 2026-11-17 by the session drafting it): digit preference. A parish health team's records agent, after an automatic blood-pressure monitor is donated, reports that it "appears to read high" (26% of its readings at 140 or over, against 7% at the retired nurse's manual table) and the machine is withdrawn. Checked against the surgery's monitor it is fine. The agent then looks at the shape of the nurse's numbers: four in ten end in nought, one in ten in five (impossible on a gauge marked every 2 mmHg), and a wall at 140 (58 readings in the 130s, 8 in the 140s). It cannot say which readings were moved. The fix is the nurse's own: two readings, five minutes apart, record both. 'Digit preference' and 'heaping' are unused in `overlap.mjs`.
+
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
 
