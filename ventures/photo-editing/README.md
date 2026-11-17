@@ -1371,7 +1371,7 @@ unchanged.
 directional result toward bilinear block by block (24 x 24). Each block's weight comes from how far
 directional departs from bilinear there, against the noise the sensor has at that brightness. The noise
 comes from the DNG's own NoiseProfile tag, which phones and converted DNGs write. Without the tag the
-file develops as directional, and the notes say so (or, with `--noise-from-frame`, from the frame: below). On 25 held-out sample files (scenes from 41 bodies,
+noise is read from the frame itself (the default since 2026-11-17, below; `--no-noise-from-frame` develops such a file as directional, and the notes say so). On 25 held-out sample files (scenes from 41 bodies,
 noise drawn at three levels), colour PSNR rises +0.43 dB on X-Trans and +0.31 dB on Bayer over the
 directional default on average, +0.93 / +0.68 dB at SNR 12, and no tile is worse by more than 0.01 dB.
 That beats the best single blend weight per frame chosen with the truth in hand (+0.41 / +0.26). The
