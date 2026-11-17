@@ -637,7 +637,17 @@ def next_steps(name, width=400):
     if not readme.is_file():
         return ""
     m = re.search(r"^#+ *Next steps[^\n]*\n(.*?)(?=^#|\Z)", readme.read_text(), re.M | re.S)
-    text = " ".join(m.group(1).split()) if m else ""
+    if not m:
+        return ""
+    # A numbered or bulleted list shows every item's head, so a cut never hides
+    # the later items (doc friction 2026-11-17: item 6's open threads were cut off).
+    items = [" ".join(x.split()) for x in
+             re.split(r"^\s*(?:\d+[.)]|[-*]) +", m.group(1), flags=re.M)[1:] if x.strip()]
+    if len(items) > 1:
+        each = max(80, width // len(items))
+        return " | ".join(f"{i}) " + (x if len(x) <= each else x[:each].rstrip() + "...")
+                          for i, x in enumerate(items, 1))
+    text = " ".join(m.group(1).split())
     return text if len(text) <= width else text[:width].rstrip() + "..."
 
 

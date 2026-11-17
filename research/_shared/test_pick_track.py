@@ -1,4 +1,7 @@
+import tempfile
 import unittest
+from pathlib import Path
+from unittest import mock
 
 import pick_track
 
@@ -81,6 +84,17 @@ class NextStepsTest(unittest.TestCase):
 
     def test_missing_project_is_empty(self):
         self.assertEqual(pick_track.next_steps("nosuch-project"), "")
+
+    def test_a_list_shows_every_item(self):
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d) / "p").mkdir()
+            body = "".join(f"{i}. Item {i} " + "x" * 300 + "\n" for i in range(1, 7))
+            (Path(d) / "p" / "README.md").write_text("# P\n\n## Next steps\n\n" + body + "\n## Log\n")
+            with mock.patch.object(pick_track, "RESEARCH", Path(d)):
+                text = pick_track.next_steps("p")
+        for i in range(1, 7):
+            self.assertIn(f"{i}) Item {i}", text)
+        self.assertNotIn("Log", text)
 
 
 class NewestLogEntriesTest(unittest.TestCase):
