@@ -3,7 +3,7 @@ title: "Who pays for the shared road? A Shapley value and nucleolus tool, checke
 seo_title: "Free fair cost sharing calculator: Shapley value, nucleolus, core"
 date: 2026-11-17
 tags: [cost-sharing, game-theory, shapley-value, nucleolus, research-algorithms]
-description: "A new browser tool splits a shared cost by the Shapley value and the nucleolus and checks each split against the core. It reproduces the Mishnah's estate divisions, and solving the dual made it 3,000 times faster."
+description: "A browser tool splits a shared cost by the Shapley value and nucleolus, checks each split against the core, and reproduces the Talmud's estate rulings."
 ---
 
 Five households share a 1,200-metre private road, and resurfacing it costs
