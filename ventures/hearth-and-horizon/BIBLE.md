@@ -347,6 +347,8 @@ before writing the first scene.
 
 **For Other Minds**
 
+- *The older the likelier* (proposed 2026-11-17): a diocesan office agent is asked which parish societies a ten-year grant should back and ranks them by age, on the Lindy reasoning (Gott's 1993 "Copernican" argument: if you meet something at a random moment of its life, there is a 50% chance its future is between a third and three times its past, 95% between 1/39 and 39 times). An eighty-year-old Legion of Mary praesidium gets 27 to 240 more years at 50%, a walking group founded last spring two months to eighteen months; but the praesidium's eleven members are all over seventy-five and the walking group has forty under forty. The argument is a prior for when you know nothing else, and the agent knew something else. Work the intervals and the membership ages before drafting; say plainly that Gott's argument is disputed.
+
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
 
