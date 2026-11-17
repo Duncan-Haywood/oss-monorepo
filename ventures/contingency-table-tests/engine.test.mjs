@@ -171,3 +171,72 @@ test("the size study file agrees with the engine", () => {
   for (const k of ["Fisher exact", "Fisher mid-p", "Boschloo", "Barnard (pooled Wald)"]) for (const d of s.designs) assert.ok(d.tests[k].maxSize <= 0.05, `${k} n=${d.n1}`);
   assert.ok(s.designs.some((d) => d.tests["Pearson chi-square"].maxSize > 0.06));
 });
+
+// Red team 2026-11-17: guards for mutants that escaped and defects found by hand.
+test("normppf's upper tail (a 99% interval) is right", () => {
+  assert.ok(Math.abs(normppf(0.995) - 2.5758293035489) < 1e-9);
+  assert.ok(Math.abs(normppf(0.999) - 3.090232306167813) < 1e-9);
+});
+
+test("a table with no events at all: every exact test gives p = 1", () => {
+  const r = analyze({ table: [[0, 5], [0, 7]] });
+  assert.equal(r.fisher.p, 1);
+  assert.equal(r.boschloo.p, 1);
+  assert.equal(r.barnard.p, 1);
+  for (const alternative of ["less", "greater"]) assert.equal(boschlooExact(0, 5, 0, 7, { alternative }).p, 1, alternative);
+});
+
+test("phi is the Pearson correlation of the 2x2 (phi squared = chi-square / n)", () => {
+  const r = analyze({ table: [[30, 10], [10, 30]] });
+  assert.ok(Math.abs(r.effects.phi - 0.5) < 1e-12);
+  assert.ok(Math.abs(r.effects.phi ** 2 - r.chiSquare.statistic / r.n) < 1e-12);
+});
+
+test("a 2x2 with an empty group is refused, not reported as NaN%", () => {
+  assert.throws(() => analyze({ table: [[0, 0], [3, 4]] }), /no observations/);
+  assert.throws(() => analyze({ strata: [[[0, 0], [3, 4]], [[0, 0], [2, 1]]] }), /no observations/);
+  // an empty row in a larger table is still fine: the exact test drops it
+  assert.ok(Number.isFinite(analyze({ table: [[0, 0, 0], [3, 4, 1], [2, 2, 5]] }).fisherRxC.p));
+});
+
+test("paired data with a one-sided alternative says the test is two-sided instead of silently ignoring it", () => {
+  const r = analyze({ paired: [[5, 10], [2, 5]], alternative: "greater" });
+  assert.equal(r.alternative, "two-sided");
+  assert.ok(r.warnings.some((w) => /two-sided/.test(w)));
+  assert.match(r.summary, /two-sided/);
+});
+
+test("an infinite Mantel-Haenszel odds ratio is not called confounding", () => {
+  const r = analyze({ strata: [[[3, 0], [0, 4]], [[2, 0], [0, 1]]] });
+  assert.equal(r.stratified.commonOR.estimate, Infinity);
+  assert.doesNotMatch(r.summary, /confound/);
+});
+
+test("Monte Carlo on a large r x c table is fast and still close to the exact value", () => {
+  const t0 = Date.now();
+  const big = fisherRxCMonteCarlo([[3000, 2000, 1000], [1000, 2000, 3000], [2000, 2000, 2000]]);
+  assert.ok(Date.now() - t0 < 3000, `took ${Date.now() - t0} ms`);
+  assert.ok(big.p < 0.001);
+  for (const t of [[[3, 1, 4, 0], [1, 5, 2, 3], [2, 0, 1, 4]], [[10, 2, 3], [3, 9, 2], [1, 2, 8]], [[0, 5, 1], [6, 2, 0]]]) {
+    const ex = fisherRxC(t).p, mc = fisherRxCMonteCarlo(t, { samples: 20000, seed: 11 });
+    assert.ok(Math.abs(mc.p - ex) < 4 * mc.se + 0.002, `${JSON.stringify(t)}: ${mc.p} vs ${ex}`);
+  }
+});
+
+test("fuzz: no summary or report prints NaN or undefined, on any small table, stratum set or paired table", () => {
+  let seed = 12345;
+  const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
+  const cell = () => (rnd() < 0.3 ? 0 : Math.floor(rnd() * 12));
+  const grid = (R, C) => Array.from({ length: R }, () => Array.from({ length: C }, cell));
+  let ran = 0;
+  for (let k = 0; k < 300; k++) {
+    const kind = k % 4;
+    const alternative = ["two-sided", "less", "greater"][k % 3];
+    const input = kind === 0 ? { table: grid(2, 2) } : kind === 1 ? { table: grid(2 + (k % 2), 3) } : kind === 2 ? { strata: [grid(2, 2), grid(2, 2), grid(2, 2)] } : { paired: grid(2, 2) };
+    let r;
+    try { r = analyze({ ...input, alternative, samples: 200 }); } catch (e) { assert.match(e.message, /no observations|empty|at least 2/, e.message); continue; }
+    ran++;
+    for (const text of [r.summary, report(r)]) assert.doesNotMatch(text, /NaN|undefined/, `${JSON.stringify(input)} ${alternative}: ${text}`);
+  }
+  assert.ok(ran > 200, `only ${ran} inputs analysed`);
+});
