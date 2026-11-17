@@ -1639,6 +1639,8 @@ export function pelt(x, { model = 'mean', penalty = 'bic', minSegment = 2, sigma
   // prune test against F(t - 1) is dropped as it is reached, so R is walked once per step, not twice. The same starts are
   // scored in the same order against the same values, so the same changepoints
   // (docs/history/ci-perf-2026-11-11-pelt-inner-loop.md, ci-perf-2026-11-11-median-select-pelt-one-pass.md).
+  // The 'mean' cost runs in its own loop, peltMeanLoop, with nothing else in its body: about 23% faster per call on the 195-point
+  // trend fits, the same bits (docs/history/ci-perf-2026-11-17-changepoint-pelt-mean-loop.md).
   let R = new Int32Array(n + 1), V = new Float64Array(n + 1), r = 1;
   V[0] = -Infinity; // a new start is kept unconditionally, as before
   let S1 = null, S2 = null, s2 = 0;
@@ -1654,6 +1656,7 @@ export function pelt(x, { model = 'mean', penalty = 'bic', minSegment = 2, sigma
     for (let i = 0; i < n; i++) { P1[i + 1] = P1[i] + x[i]; PE[i + 1] = PE[i] + (exposure ? exposure[i] : 1); }
   }
   let prev = Infinity; // F at the previous step, the bound the stored values are pruned against
+  if (mean) return peltMeanLoop(n, minSeg, beta, F, last, R, V, S1, S2, s2);
   for (let t = minSeg; t <= n; t++) {
     let best = Infinity;
     let arg = -1;
@@ -1666,16 +1669,45 @@ export function pelt(x, { model = 'mean', penalty = 'bic', minSegment = 2, sigma
       R[k] = s;
       if (t - s < minSeg) { V[k++] = -Infinity; continue; }
       let c;
-      if (mean) {
-        const m = t - s;
-        const a = S1[t] - S1[s];
-        c = Math.max(0, S2[t] - S2[s] - (a * a) / m) / s2;
-      } else if (poisson) {
+      if (poisson) {
         const m = PE[t] - PE[s];
         const a = P1[t] - P1[s];
         c = a > 0 && m > 0 ? 2 * (a - a * Math.log(a / m)) : 0;
       } else c = cost(s, t);
       const v = F[s] + c + beta;
+      V[k++] = v;
+      if (v < best) { best = v; arg = s; }
+    }
+    F[t] = best;
+    last[t] = arg;
+    if (Number.isFinite(best)) { R[k] = t; V[k++] = -Infinity; }
+    r = k;
+    prev = best;
+  }
+  const cps = [];
+  for (let t = n; last[t] > 0; t = last[t]) cps.push(last[t]);
+  cps.reverse();
+  return { changepoints: cps, cost: F[n], penalty: beta };
+}
+
+// PELT's step loop for the 'mean' cost alone: the same starts, the same pruning, the same cost expression in the same order as
+// the general loop's mean branch, so the same F, the same changepoints and the same cost to the bit.
+function peltMeanLoop(n, minSeg, beta, F, last, R, V, S1, S2, s2) {
+  let r = 1, prev = Infinity;
+  for (let t = minSeg; t <= n; t++) {
+    let best = Infinity;
+    let arg = -1;
+    let k = 0;
+    const St1 = S1[t], St2 = S2[t];
+    for (let i = 0; i < r; i++) {
+      const vi = V[i];
+      if (!(vi - beta <= prev)) continue;
+      const s = R[i];
+      R[k] = s;
+      const m = t - s;
+      if (m < minSeg) { V[k++] = -Infinity; continue; }
+      const a = St1 - S1[s];
+      const v = F[s] + Math.max(0, St2 - S2[s] - (a * a) / m) / s2 + beta;
       V[k++] = v;
       if (v < best) { best = v; arg = s; }
     }
