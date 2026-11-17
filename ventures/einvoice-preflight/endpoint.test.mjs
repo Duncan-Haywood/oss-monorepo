@@ -182,6 +182,54 @@ test("a Belgian KBO number with a wrong check pair is caught in a UBL file too",
 test("EAS codes in EN 16931's BR-CL-25 list are known (0225 FRCTC, 0217 KVK establishment)", () => {
   for (const scheme of ["0225", "0217", "0147", "0170", "0194", "0203", "0205", "9960", "AN", "AQ", "AS", "AU"]) {
     assert.equal(looksLikeKnownScheme(scheme), true, scheme);
-    assert.deepEqual(inspectPartyEndpoint({ endpoint: { scheme, id: "315143296_1" } }, "customer"), [], scheme);
+    // 0217 has a format of its own (PEPPOL-COMMON-R057, 12 digits), so this id draws the
+    // INV-061 warning there; what matters here is that no scheme draws INV-039.
+    const rules = inspectPartyEndpoint({ endpoint: { scheme, id: "315143296_1" } }, "customer").map((f) => f.rule);
+    assert.deepEqual(rules, scheme === "0217" ? ["INV-061"] : [], scheme);
   }
+});
+
+// 2026-11-17: OpenPeppol's warning-level PEPPOL-COMMON rules (R044, R045, R047, R054,
+// R055, R056-1, R057) as INV-061, a warning (eval/endpoint-peppol-warnings.mjs: 0
+// disagreements on 23,999 ids). Before, these schemes took any non-empty text.
+test("ids in Peppol's warning-level formats pass silently", () => {
+  for (const [scheme, id] of [
+    ["0201", "UFABCD"], ["0201", "a1b2c3"],
+    ["0210", "RSSMRA85T10A562S"], ["0210", "00743110157"],
+    ["0211", "IT00743110157"], ["0211", "it00743110157"], ["0211", "00743110157"],
+    ["0106", "12345678"], ["0190", "00000001234567890000"],
+    ["9944", "NL123456789B12"], ["0217", "123456789012"],
+  ]) {
+    assert.deepEqual(inspectPartyEndpoint({ endpoint: { scheme, id } }, "customer"), [], `${scheme} ${id}`);
+  }
+});
+
+test("ids Peppol warns on are INV-061 warnings, naming the Peppol rule, never echoing the id", () => {
+  for (const [scheme, id, rule] of [
+    ["0201", "UFABC", "R044"], ["0201", "UF-ABC", "R044"],
+    ["0210", "RSSMRA85T10A56", "R045"], ["0210", "RSSMRA8OT10A562S", "R045"],
+    ["0211", "IT00743110158", "R047"], ["0211", "IT0074311015", "R047"],
+    ["0106", "7654321", "R054"], ["0106", "KVK87654321", "R054"],
+    ["0190", "0000 0001 2345 6789 0000", "R055"],
+    ["9944", "NL987654321b12", "R056-1"], ["9944", "987654321B12", "R056-1"],
+    ["0217", "98765432109", "R057"],
+  ]) {
+    const findings = inspectPartyEndpoint({ endpoint: { scheme, id } }, "supplier");
+    assert.deepEqual(findings.map((f) => [f.rule, f.severity]), [["INV-061", "warning"]], `${scheme} ${id}`);
+    assert.match(findings[0].message, new RegExp(`PEPPOL-COMMON-${rule}\\b`));
+    assert.equal(findings[0].message.includes(id) || findings[0].fix.includes(id), false);
+  }
+});
+
+test("stricter than Peppol on purpose: an 11-digit codice fiscale or partita IVA needs its check digit", () => {
+  for (const [scheme, id] of [["0210", "00743110158"], ["0211", "00743110158"], ["0211", "IT-00743110157"]]) {
+    assert.deepEqual(inspectPartyEndpoint({ endpoint: { scheme, id } }, "customer").map((f) => f.rule), ["INV-061"], `${scheme} ${id}`);
+  }
+});
+
+test("INV-061 reaches checkInvoice as a warning, and a blocking INV-041 is not doubled by it", () => {
+  const warned = checkInvoice(invoice({ scheme: "0106", id: "1234567" })).filter((f) => f.rule.startsWith("INV-04") || f.rule === "INV-061");
+  assert.deepEqual(warned.map((f) => [f.rule, f.severity]), [["INV-061", "warning"]]);
+  const blocked = inspectPartyEndpoint({ endpoint: { scheme: "0190", id: "1234" } }, "customer").map((f) => f.rule);
+  assert.deepEqual(blocked, ["INV-041"]);
 });
