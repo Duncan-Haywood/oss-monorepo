@@ -1,4 +1,4 @@
-"""Session 100: tfol_boot's pick, bootstrap and row check on synthetic rows."""
+"""Session 101: tfol_boot's pick, bootstrap and row check on synthetic rows."""
 import json, os, sys, tempfile, unittest
 import numpy as np
 

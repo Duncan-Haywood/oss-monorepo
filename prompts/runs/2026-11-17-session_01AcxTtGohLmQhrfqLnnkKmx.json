@@ -17,7 +17,7 @@
   "tokens_out": 29940,
   "cost_usd": 2.8735,
   "tool_calls": 58,
-  "task": "build-data session 100: out-of-sample test (2019, 2020) and row bootstrap of session 99's Y-6 selector",
+  "task": "build-data session 101: paired row bootstrap of the Y-6 target selector over 8 SF/Seattle cells (out-of-sample 2019, 2020 run in parallel with session 100)",
   "projects": [
     "research/build-data"
   ],
@@ -32,22 +32,34 @@
   "tests_added": 2,
   "outcome": "success",
   "errors": [
-    "First background launch of permits.py pull (chained with pyenv and status_pull in one backgrounded shell) never started; relaunched on its own."
+    "First background launch of permits.py pull (chained with pyenv and status_pull in one backgrounded shell) never started; relaunched on its own.",
+    "Duplicate work: a sibling session (PR #16810, session 100) pre-registered and ran the same 2019/2020 cells in the same minutes; pick_track.py's CLAIM CHECK at start showed no claim. Found at merge time via the re-run CLAIM CHECK; consolidated by renumbering this run as session 101 and narrowing it to the bootstrap it uniquely adds."
   ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "research/CLAUDE.md",
       "issue": "Chaining several '( ... ) &' jobs inside one run_in_background command silently dropped one of them (the permits pull); one background command per long job is safer, worth a line next to the wait_for.py advice."
+    },
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "Two runs drew build-data within a minute and both took the same 'Next' item; the claim-check step only sees pushed PRs. Pushing the pre-registration took ~20 min (after the data pull), by which time the sibling had already pushed theirs; pushing an empty claim commit first, before the pull, would have exposed the collision."
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Landing work step 3 says pick something else if taken; the collision was found only after the runs finished",
+      "did": "kept the unique part (per-row saving, tfol_boot.py bootstrap, independent reproduction) as session 101 on top of session 100, rewrote LOG/README/paper/post to credit session 100 for R1-R4",
+      "result": "no duplicate claims on main; the bootstrap answers session 100's Next (2)"
+    }
+  ],
   "writeups": [
-    "docs/posts/2026-11-17-build-data-selector-fails-out-of-sample.md",
-    "research/build-data/LOG.md (session 100, pre-registered, with Next)"
+    "docs/posts/2026-11-17-build-data-stable-and-wrong-bootstrap.md",
+    "research/build-data/LOG.md (session 101, pre-registered, with Next)"
   ],
   "goal": null,
-  "notes": "Pre-registered R0-R5 (commit 74d901bd4) before any model run. 32 fits (2 held cities x 4 test years x 4 rules, 3 seeds, q0.9) on a fresh pull with row counts identical to sessions 95-99. R0 (refits equal session 99 to the digit) and R5 (bootstrap stability >= 96% in all 8 cells) held; R1-R4 refuted: on 2019/2020 the 5-year cut wins in all 4 cells incl. SF, the Y-6 selector picks nc3 in all 4 (regret 2.15). Negative result: session 99's 4/4 was year-specific; fixed 5-year cut is the default again (8-cell mean 78.16 vs selector 78.61). Local checks: build-data tests 161 passed 2 skipped; _homepage/build.py ok; research_live_links ok; check_md_links ok; post front matter, links and similarity ok.",
+  "notes": "Pre-registered R0-R5 (commit 74d901bd4) before any model run. 32 fits (2 held cities x 4 test years x 4 rules, 3 seeds, q0.9) on a fresh pull with row counts identical to sessions 95-99. R0 (refits equal session 99 to the digit) and R5 (bootstrap stability >= 96% in all 8 cells) held; R1-R4 refuted: on 2019/2020 the 5-year cut wins in all 4 cells incl. SF, the Y-6 selector picks nc3 in all 4 (regret 2.15). Consolidated with sibling session 100 (#16810) as session 101; 2019/2020 fits match theirs to the digit. Negative result: session 99's 4/4 was year-specific; fixed 5-year cut is the default again (8-cell mean 78.16 vs selector 78.61). Local checks: build-data tests 161 passed 2 skipped; _homepage/build.py ok; research_live_links ok; check_md_links ok; post front matter, links and similarity ok.",
   "corrections": [],
   "redteam": null,
   "usage": {

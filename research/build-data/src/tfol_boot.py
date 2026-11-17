@@ -1,4 +1,4 @@
-"""Session 100: does the oldest-cohort selector (session 99) hold on years it was not found on, and how often would
+"""Session 101: does the oldest-cohort selector (session 99) hold on years it was not found on, and how often would
 its pick flip on resampled permits?
 
 Session 99 picked, per held-out city and test year Y, the source rule (cpin_es3_nc3, _nc5, _nc5_stamp,
@@ -100,7 +100,7 @@ def summary(path, rows_dir, prior_path=None, held=("sf", "seattle")):
         R3=full_new and all(sel_new < x for x in fixed_new.values()),
         R4=full_new and m([c["regret"] for c in new]) <= 1.0,
         R5=full_new and full_old and all(c["boot_k6_same_side"] >= 0.8 for c in cells))
-    return dict(note="session 100: cascade2 transfer model, q0.9 mean pinball loss over 3 seeds (days); pick = "
+    return dict(note="session 101: cascade2 transfer model, q0.9 mean pinball loss over 3 seeds (days); pick = "
                      "lowest q0.9 pinball on the target city's own Y-6 permits completed by D = 1 January Y "
                      f"(session 99's k6_loss); bootstrap: {B} row resamples (iid over permits), seed {SEED}",
                 cells=cells, fixed_mean_new=fixed_new, selected_mean_new=sel_new,

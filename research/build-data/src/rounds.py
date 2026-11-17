@@ -52,7 +52,7 @@ Y-3 permits, rows a deployment on D = 1 January Y holds: tgt_loss is the q0.9 pi
 tgt_closs the censored loss on all of them (open ones with their window at D). target_sel_summary picks, per cell,
 the candidate source rule with the lowest tgt_loss (and, as a second selector, tgt_closs) and scores the pick on
 the test year against each fixed rule and the per-cell oracle. The target's rows are never trained on.
-Session 100: with CPIN_ROWS_DIR=DIR every cpin variant also writes DIR/<held>_<Y>_<variant>.npz: the q0.9
+Session 101: with CPIN_ROWS_DIR=DIR every cpin variant also writes DIR/<held>_<Y>_<variant>.npz: the q0.9
 predictions per seed on the completed test rows and on each target cohort Y-k (with labels, open flags, IPCW
 weights), so src/tfol_boot.py can resample rows and say how often the pick flips (paired bootstrap).
 Session 95: with --status-dir every cpin variant is also scored on the "live" test rows: completed test-year
@@ -95,6 +95,8 @@ LONG_DAYS = 365  # session 97: "long" closures (Austin's dead median 140, p90 1,
 LEN_SEED = 97  # session 97: rng seed of len_drop's matched sample, fixed before any run
 LEN_BINS = 10  # session 97: decile bins of the dead rows' labels
 TGT_KS = (3, 5, 6)  # session 99: target cohorts Y-k scored (completed by D, plain and IPCW-weighted)
+# session 100: CPIN_TGT_KS=3,5,6,8 adds the Y-8 cohort (default unchanged)
+TGT_KS = tuple(int(x) for x in os.environ.get("CPIN_TGT_KS", "").split(",") if x) or TGT_KS
 STALE_Q = 0.99  # session 93, cpin_es3_ncq: a source's threshold = this quantile of its builds completed by D
 
 
@@ -297,7 +299,7 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
     # session 95: CPIN_TAUS=0.9 fits the tail model only (q0.5 is 85% of an SF fit's time and no prediction used it)
     taus = tuple(float(x) for x in os.environ.get("CPIN_TAUS", "").split(",") if x) or taus
     sel_loss, loss_live = {t: [] for t in taus}, {t: [] for t in taus}
-    rows_dir = os.environ.get("CPIN_ROWS_DIR")  # session 100: save q0.9 predictions per row and seed here
+    rows_dir = os.environ.get("CPIN_ROWS_DIR")  # session 101: save q0.9 predictions per row and seed here
     test_rows = []
     out, loss, preds, closs_te = {}, {t: [] for t in taus}, {}, {t: [] for t in taus}
     for s in range(seeds):
@@ -316,7 +318,7 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
                     d_k["loss"].setdefault(str(t), []).append(None if pin_k is None else float(pin_k.mean()))
                     d_k["ipcw"].setdefault(str(t), []).append(
                         None if pin_k is None else float((d_k["w"] * pin_k).sum() / d_k["w"].sum()))
-                    if rows_dir and t == 0.9:  # session 100: per-row predictions, for a paired bootstrap
+                    if rows_dir and t == 0.9:  # session 101: per-row predictions, for a paired bootstrap
                         d_k.setdefault("pred", []).append(pk.astype(np.float32))
                 tgt["loss"].setdefault(str(t), []).append(
                     float(boosted.pin(ytg[~otg], pt[~otg], t).mean()) if (~otg).any() else None)
@@ -328,7 +330,7 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
             print(f"  {held} {Y} {variant} seed {s} tau {t}: {r[t]} rounds, {time.time() - t0:.0f} s", flush=True)
             if score:
                 loss[t].append(float(boosted.pin(te.y.to_numpy(float), pr[done_te], t).mean()))
-                if rows_dir and t == 0.9:  # session 100
+                if rows_dir and t == 0.9:  # session 101
                     test_rows.append(pr[done_te].astype(np.float32))
                 if live is not None:
                     loss_live[t].append(float(boosted.pin(te.y.to_numpy(float)[live], pr[done_te][live], t).mean()))
@@ -362,7 +364,7 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
                                      loss={t: float(np.mean(v)) for t, v in d_k["loss"].items()},
                                      ipcw={t: float(np.mean(v)) for t, v in d_k["ipcw"].items()})
                         for k, d_k in tk.items()}
-    if rows_dir:  # session 100: one .npz per cell and variant; rows are in frame order, the same for every variant
+    if rows_dir:  # session 101: one .npz per cell and variant; rows are in frame order, the same for every variant
         arrs = dict(test_y=te.y.to_numpy(np.float32), test_pred=np.array(test_rows))
         for k, d_k in (tk.items() if tgt is not None else ()):
             arrs.update({f"k{k}_y": d_k["y"].astype(np.float32), f"k{k}_open": d_k["o"], f"k{k}_w": d_k["w"],
@@ -934,6 +936,75 @@ def target_follow_summary(path, prior_path, held=("sf", "seattle"), years=(2021,
                 mean_regret=regret, predictions=pred)
 
 
+REP_SELECTORS = ("k3_loss", "k5_loss", "k6_loss", "k8_loss", "k3_ipcw", "k6_ipcw")
+REP_NEW = (("sf", 2019), ("sf", 2020), ("seattle", 2019), ("seattle", 2020))  # session 100: new test years
+REP_AUSTIN = (("austin", 2021), ("austin", 2022))  # session 100: a third target city
+REP_OLD = (("sf", 2021), ("sf", 2022), ("seattle", 2021), ("seattle", 2022))  # session 99's cells
+
+
+def _rep_cell(R, h, Y, cands, tau="0.9"):
+    """Session 100: one cell's oracle, each selector's pick and regret (selectors whose cohort is absent skipped)."""
+    rs = {v: R.get(f"{h} {Y} {v}") for v in cands}
+    if any(r is None or "tgt_k" not in r for r in rs.values()):
+        return None
+    test = {v: r["test_loss"][tau] for v, r in rs.items()}
+    oracle = min(test, key=test.get)
+    ks = set(rs[cands[0]]["tgt_k"])
+    score = {sel: {v: r["tgt_k"][sel[1]][sel[3:]][tau] for v, r in rs.items()}
+             for sel in REP_SELECTORS if sel[1] in ks}
+    score = {sel: sc for sel, sc in score.items() if all(x is not None for x in sc.values())}
+    pick = {sel: min(sc, key=sc.get) for sel, sc in score.items()}
+    n_s = len(rs[cands[0]]["test_loss_per_seed"][tau])
+    seed_pick = {sel: [min(cands, key=lambda v: rs[v]["tgt_k"][sel[1]][sel[3:] + "_per_seed"][tau][s])
+                       for s in range(n_s)] for sel in score}
+    return dict(held=h, year=Y, test_q90=test, oracle=oracle, score=score, pick=pick, pick_per_seed=seed_pick,
+                regret={sel: test[p] - test[oracle] for sel, p in pick.items()},
+                nc5_minus_nc3={sel: sc["cpin_es3_nc5"] - sc["cpin_es3_nc3"] for sel, sc in score.items()},
+                test_nc5_minus_nc3=test["cpin_es3_nc5"] - test["cpin_es3_nc3"],
+                tgt_n={k: rs[cands[0]]["tgt_k"][k]["n"] for k in sorted(ks)},
+                tgt_n_open={k: rs[cands[0]]["tgt_k"][k]["n_open"] for k in sorted(ks)},
+                n_test=rs[cands[0]]["n_test"])
+
+
+def replicate_summary(path, old_path, cands=TSEL, tau="0.9"):
+    """Session 100: does session 99's target-cohort selector (k6_loss: the held city's own Y-6 permits completed
+    by D) survive new cells? New: SF and Seattle at test years 2019 and 2020, Austin held out at 2021 and 2022
+    (this file); old: session 99's four cells (old_path). Predictions H1 to H6, fixed before any run."""
+    R, O = json.load(open(path)), json.load(open(old_path))
+    new = [c for c in (_rep_cell(R, h, Y, cands, tau) for h, Y in REP_NEW) if c]
+    au = [c for c in (_rep_cell(R, h, Y, cands, tau) for h, Y in REP_AUSTIN) if c]
+    old = [c for c in (_rep_cell(O, h, Y, cands, tau) for h, Y in REP_OLD) if c]
+    m = lambda xs: float(np.mean(xs)) if xs else None  # noqa: E731
+    five = set(cands) - {"cpin_es3_nc3"}
+
+    def agg(cells):
+        sels = [s for s in REP_SELECTORS if cells and all(s in c["pick"] for c in cells)]
+        return dict(n=len(cells), fixed_mean={v: m([c["test_q90"][v] for c in cells]) for v in cands},
+                    oracle_mean=m([c["test_q90"][c["oracle"]] for c in cells]),
+                    selected_mean={s: m([c["test_q90"][c["pick"][s]] for c in cells]) for s in sels},
+                    mean_regret={s: m([c["regret"][s] for c in cells]) for s in sels},
+                    hits={s: sum(c["pick"][s] == c["oracle"] for c in cells) for s in sels},
+                    fixed_regret={v: m([c["test_q90"][v] - c["test_q90"][c["oracle"]] for c in cells]) for v in cands})
+    A_new, A_au, A_all = agg(new), agg(au), agg(new + au + old)
+    full = len(new) == 4 and len(au) == 2 and len(old) == 4
+    sfn = [c for c in new if c["held"] == "sf"]
+    sen = [c for c in new if c["held"] == "seattle"]
+    P = "k6_loss"
+    pred = dict(
+        H1=len(new) == 4 and all(c["oracle"] == "cpin_es3_nc3" for c in sfn) and all(c["oracle"] in five for c in sen),
+        H2=len(new) == 4 and A_new["hits"].get(P, 0) >= 3,
+        H3=len(new) == 4 and A_new["mean_regret"].get(P, 9e9) <= 1.0,
+        H4=len(new) == 4 and all(A_new["selected_mean"][P] <= x for x in A_new["fixed_mean"].values()),
+        H5=len(au) == 2 and A_au["mean_regret"].get(P, 9e9) <= 1.0,
+        H6=full and A_all["hits"].get(P, 0) >= 8 and A_all["mean_regret"][P] < A_all["mean_regret"]["k3_loss"]
+           and all(A_all["mean_regret"][P] < x for x in A_all["fixed_regret"].values()))
+    return dict(note="session 100: cascade2 transfer model, q0.9 mean pinball loss over 3 seeds on completed test "
+                     "rows (days); kK_loss = lowest q0.9 pinball on the held city's own Y-K permits completed by "
+                     "D = 1 January Y, kK_ipcw the same weighted by 1/G(y); old cells from session 99",
+                primary=P, cands=list(cands), new=new, austin=au, old=old, agg_new=A_new, agg_austin=A_au,
+                agg_all=A_all, predictions=pred)
+
+
 def stamp_summary(path, clean_path, sweep_path, held=("sf", "seattle"), years=(2021, 2022)):
     """Session 96: cpin_es3_nc5_stamp and cpin_es3_nc3_clean (this file) against session 95's cpin_es3_nc5 and
     cpin_es3_nc5_clean (clean_path) and session 92's cpin_es3_nc3 (sweep_path), all on feeds whose row counts
@@ -1012,9 +1083,18 @@ if __name__ == "__main__":
     ap.add_argument("--summarise-len", help="session 97: write results/<name>_summary.json from this file")
     ap.add_argument("--summarise-stamp", help="session 96: write results/<name>_summary.json from this file")
     ap.add_argument("--summarise-tsel", help="session 98: write results/<name>_summary.json from this file")
+    ap.add_argument("--summarise-rep", help="session 100: write results/<name>_summary.json from this file")
     ap.add_argument("--summarise-tfol", help="session 99: write results/<name>_summary.json from this file")
     a = ap.parse_args()
     res_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
+    if a.summarise_rep:
+        s = replicate_summary(a.summarise_rep, os.path.join(res_dir, "rounds_score_tfol_i2c.json"))
+        json.dump(s, open(a.summarise_rep.replace(".json", "_summary.json"), "w"), indent=1)
+        print(json.dumps({k: s[k] for k in ("agg_new", "agg_austin", "agg_all", "predictions")}, indent=1))
+        for c in s["new"] + s["austin"] + s["old"]:
+            print(c["held"], c["year"], c["oracle"], c["pick"], {k: round(v, 2) for k, v in c["test_q90"].items()},
+                  {k: round(v, 2) for k, v in c["nc5_minus_nc3"].items()}, c["tgt_n"], c["tgt_n_open"])
+        sys.exit()
     if a.summarise_tfol:
         s = target_follow_summary(a.summarise_tfol, os.path.join(res_dir, "rounds_score_tsel_i2c.json"))
         json.dump(s, open(a.summarise_tfol.replace(".json", "_summary.json"), "w"), indent=1)

@@ -614,10 +614,13 @@ censored pinball loss (4.4b, session 90), but drop those open for more than abou
 city never closed out, and they lengthen the borrowed tail (session 91). Do not pick that cut-off with a censored
 score on the same feeds: it always favours keeping more of them (session 92). Do not pick it from the target
 city's own history either: a score on its permits issued six years earlier picked the best rule in the four
-city-years it was found on (session 99), but picked the 3-year cut in all four out-of-sample city-years (2019, 2020),
-where the 5-year cut was better in both cities (mean regret 2.15 days; the picks are stable under a row bootstrap,
-so the score is biased, not noisy; session 100). Use a fixed cut of about five years: over eight city-years it is
-the best fixed rule (mean q0.9 78.16 days, 0.63 above the per-cell oracle).
+city-years it was found on (session 99), but picked the 3-year cut in all four out-of-sample San Francisco and
+Seattle city-years (2019, 2020), where the 5-year cut was better in both cities (mean regret 2.15 days; session 100).
+Those picks are stable under a bootstrap over the target's permits (at least 96% of resamples on the same side in
+all eight city-years), so the score is biased, not noisy (session 101). For San Francisco- and Seattle-like targets
+use a fixed cut of about five years: over their eight city-years it is the best fixed rule (mean q0.9 78.16 days,
+0.63 above the per-cell oracle). Austin as the target wants the 3-year cut by about 16 days (session 100), and no
+signal found so far tells a deployment which kind of target it has.
 
 ## 7 To do before submission
 
