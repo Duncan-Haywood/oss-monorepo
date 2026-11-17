@@ -3,7 +3,7 @@ title: "The slowest recurrence rule is the one that never happens"
 seo_title: "Why an RRULE with no dates is the slowest to expand"
 date: 2026-11-17
 tags: [performance, rrule-explainer, ical]
-description: "In our RRULE explainer, 456 of 3,200 test expansions produced no dates and took 92% of the time. Testing only the days a rule could match made them 5x faster with identical output."
+description: "456 of 3,200 test expansions in our RRULE explainer found no dates and took 92% of the time. Checking only possible days made them 5x faster."
 ---
 
 [RRULE Explainer](https://marisstella.app/rrule-explainer/) lists the dates an
