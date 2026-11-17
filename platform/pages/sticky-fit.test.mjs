@@ -33,12 +33,29 @@ const page = (cardRows, formHeight = 3000, extra = '') => `<!doctype html><html>
 <section class="result"><h2>Your bid</h2>${'<p>row</p>'.repeat(cardRows)}<button>Copy</button></section></div>
 <script>${stripForInjection(STICKY_FIT_JS)}</script></body></html>`;
 
+// The script fits on requestAnimationFrame, then setTimeout(0) (STICKY_FIT_JS,
+// `later`). Wait for that queue, not a clock: the fixed 100-150 ms sleeps this
+// file used lost the race when a parallel suite delayed the first browser's
+// first frame (the first browser test failed under load in six run records,
+// 2026-11-14..17, and passed alone). Two frames cover a resize or input event
+// that only queues its fit in the next frame.
+const settle = (p) => p.evaluate(() => new Promise((done) => {
+  requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(() => setTimeout(done, 0), 0)));
+}));
+
+// A viewport change reaches the page asynchronously: wait for it, then settle.
+const resize = async (p, height) => {
+  await p.setViewportSize({ width: 1280, height });
+  await p.waitForFunction((h) => innerHeight === h, height);
+  await settle(p);
+};
+
 async function withPage(html, height, fn) {
   const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH || undefined });
   try {
     const p = await (await browser.newContext({ viewport: { width: 1280, height } })).newPage();
     await p.setContent(html, { waitUntil: 'load' });
-    await p.waitForTimeout(100);
+    await settle(p);
     await fn(p);
   } finally {
     await browser.close();
@@ -108,18 +125,16 @@ test('a card that sets its own row height, with rows after it, is left alone (no
 test('the cap follows the window and the card: a taller window or a shorter card releases it', { skip }, async () => {
   await withPage(page(30), 700, async (p) => {
     assert.equal((await state(p)).fit, true);
-    await p.setViewportSize({ width: 1280, height: 2000 });
-    await p.waitForTimeout(150);
+    await resize(p, 2000);
     assert.equal((await state(p)).fit, false, 'a 2000 px window holds the whole card');
-    await p.setViewportSize({ width: 1280, height: 700 });
-    await p.waitForTimeout(150);
+    await resize(p, 700);
     assert.equal((await state(p)).fit, true);
     // A recalculation that shortens the card, announced by an input event.
     await p.evaluate(() => {
       document.querySelectorAll('.result p').forEach((n, i) => { if (i > 3) n.remove(); });
       dispatchEvent(new Event('input'));
     });
-    await p.waitForTimeout(150);
+    await settle(p);
     const s = await state(p);
     assert.equal(s.fit, false);
     assert.equal(s.maxHeight, '');
@@ -142,7 +157,7 @@ test('printing releases the cap so the card is not cut off on paper', { skip }, 
     });
     assert.deepEqual(during, { fit: false, maxHeight: '' });
     await p.evaluate(() => dispatchEvent(new Event('afterprint')));
-    await p.waitForTimeout(150);
+    await settle(p);
     assert.equal((await state(p)).fit, true);
   });
 });
@@ -151,8 +166,7 @@ test('a card with nothing focusable in it gets a tab stop while it scrolls, and 
   const html = page(30).replace('<button>Copy</button>', '');
   await withPage(html, 700, async (p) => {
     assert.equal((await state(p)).tabindex, '0');
-    await p.setViewportSize({ width: 1280, height: 2000 });
-    await p.waitForTimeout(150);
+    await resize(p, 2000);
     assert.equal((await state(p)).tabindex, null);
   });
 });
@@ -185,7 +199,7 @@ test('a capped card fades at its foot while more is below, and the fade lifts at
     assert.match(start.mask, /linear-gradient/);
     assert.deepEqual([start.top, start.end], ['0px', '40px']);
     await p.evaluate(() => { const el = document.querySelector('.result'); el.scrollTop = el.scrollHeight; });
-    await p.waitForTimeout(150);
+    await settle(p);
     const end = await read();
     assert.deepEqual([end.top, end.end], ['24px', '0px']);
   });

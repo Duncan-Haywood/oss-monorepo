@@ -1764,6 +1764,20 @@ def _srgb_curve(v: float) -> float:
     return 1.055 * v ** (1 / 2.4) - 0.055
 
 
+# The sRGB encode is a table read with linear interpolation between entries (2026-11-17,
+# eval/srgb-table-interp-2026-11-17.md). It used to be a 4,096-entry table read at the nearest
+# entry, which capped a 16-bit output at 4,096 levels per channel and was off the exact curve by up
+# to 104 of 65,535 codes in the shadows; 16,384 entries interpolated are within 0.22 codes everywhere
+# and reach every 16-bit level. Entries are unrounded (x 65535); the read rounds once.
+SRGB_TABLE_SIZE = 16384
+
+
+def srgb_table(size: int = SRGB_TABLE_SIZE) -> list[float]:
+    """``size`` samples of the sRGB curve at even linear steps from 0 to 1, scaled to 65535."""
+
+    return [_srgb_curve(i / (size - 1)) * 65535.0 for i in range(size)]
+
+
 def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int, int, array, DevelopReport]:
     """Render ``raw`` to linear-light-free sRGB, 16 bits per channel.
 
@@ -2004,8 +2018,8 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     # Highlight clip: a sensel at white level, white-balanced, is clipped to the
     # smallest channel's white so blown highlights render neutral.
     hi = min(clip_r, clip_g, clip_b)
-    lut_size = 4096
-    curve = [round(_srgb_curve(i / (lut_size - 1)) * 65535) for i in range(lut_size)]
+    lut_size = SRGB_TABLE_SIZE
+    curve = srgb_table(lut_size)
 
     look_apply = look.apply if look is not None else None
 
@@ -2024,7 +2038,10 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
             elif v >= 1:
                 out.append(65535)
             else:
-                out.append(curve[int(v * (lut_size - 1) + 0.5)])
+                t = v * (lut_size - 1)
+                i = int(t)
+                lo = curve[i]
+                out.append(int(lo + (t - i) * (curve[i + 1] - lo) + 0.5))
 
     # With a WarpRectilinear to run, the white-balanced linear values (clipped as
     # ``encode`` clips them) are kept, warped, and only then encoded: the warp

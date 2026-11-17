@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKk2q3FfBu5meJkFhW4",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T21:18:02Z",
+  "ended": "2026-11-17T21:30:02Z",
+  "wall_minutes": 14.94,
+  "tokens_in": 5285839,
+  "tokens_out": 27374,
+  "cost_usd": 2.4478,
+  "tool_calls": 54,
+  "task": "photo-editing (flagship 7): float32 bilinear in the noise-aware develop, with its quality check",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17070",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "Backgrounded the benchmark with a shell '&' instead of run_in_background; it survived, but run_in_background is the documented way.",
+    "Wrote 0.080/0.071 GB per MP and a 9-36% range in the first draft of the eval note from a glance at the table; recomputed (0.086/0.073, 10-36%) before committing."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "The row named raw.pixls.us as the card-floor item's source while the same output probed it REFUSED; the other buildable items (metadata-extractor-images via github.com) worked."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "A bare `python3 -m pytest` on a venture's tests fails collection (tests/test_analysis.py) while run_venture_tests.py passes; worth one line saying use the runner, not pytest directly."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-photo-editing-float32-bilinear-tone-table.md",
+    "ventures/photo-editing/eval/noise-aware-float32-2026-11-17.md"
+  ],
+  "goal": "Deepen flagship photo-editing: cut the noise-aware develop's memory and check the output change honestly.",
+  "notes": "Flagship row 4 (photo-editing) by allocate.py. Landed: float32 bilinear image in raw_develop_np._noise_aware_plane; float64 widening in _encode_image and _half_linear so other develops keep their bytes; tools/noise_aware_cost.py --keep/--codes. Measured on the 14 largest metadata-extractor-images raws, old and new alternating: added peak memory median -15% (10-36%), time 0.93-1.04x; 13 of 14 outputs change in <=4.0e-5 of values, all 7,508 changes exactly one step of the 4,096-entry tone LUT. Side finding: that LUT caps 16-bit output at 4,096 levels per channel; made the next buildable item. Tests: python3 platform/ci/run_venture_tests.py photo-editing -> ok, 1304 tests, 9 skipped (173.5 s); venture-preflight run before merge (see PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "26226c8f-79d6-5600-9cda-feb71f640e9c",
+    "transcripts": 1,
+    "first": "2026-11-17T21:18:02Z",
+    "last": "2026-11-17T21:32:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 51,
+        "input": 98,
+        "output": 27374,
+        "thinking": 5983,
+        "cache_read": 5177691,
+        "cache_write_5m": 0,
+        "cache_write_1h": 108050,
+        "api_equivalent_usd": 2.4478,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 51,
+      "input": 98,
+      "output": 27374,
+      "thinking": 5983,
+      "cache_read": 5177691,
+      "cache_write_5m": 0,
+      "cache_write_1h": 108050,
+      "api_equivalent_usd": 2.4478,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 51,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.94,
+      "active_minutes": 14.94,
+      "model_minutes": 4.32,
+      "tool_minutes": 10.62,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a numerics engineer: change, benchmark 14 raws old/new, code-level diff analysis, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 245.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

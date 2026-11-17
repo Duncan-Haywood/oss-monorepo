@@ -1141,7 +1141,26 @@ export function buildSchedule(spec) {
       notices.push(`${w.idle} wait(s) of a time slot or more between a team's games on the same night (${w.nights} team-night(s)).${hint}`);
     } else if (schedule.waitFree) notices.push(`Back-to-back nights: the round robin was rearranged so every team plays its ${games} games in a row each night (the plain order would leave ${schedule.waitFree.before} match(es) that cannot sit back to back)${schedule.waitFree.designed ? "; it is built from a design, so each night splits into groups of teams that only play each other, one group per session" : ""}.`);
   }
+  assignFixtureIds(schedule);
   schedule.stats = scheduleStats(schedule);
+  return schedule;
+}
+
+/**
+ * Give every match an id that names the fixture, not its date: the pair (lower team index first)
+ * and which meeting of that pair it is in the season as built ("0-3-1" is the second meeting of
+ * teams 0 and 3). Rainouts, pins, late entries and home/away flips copy the match and keep the id,
+ * so a calendar file re-sent after a move updates the same event instead of adding a second one.
+ */
+export function assignFixtureIds(schedule) {
+  const seen = new Map();
+  for (const r of schedule.rounds) for (const m of r.matches) {
+    if (m.fixture) continue;
+    const pair = `${Math.min(m.home, m.away)}-${Math.max(m.home, m.away)}`;
+    const k = seen.get(pair) || 0;
+    seen.set(pair, k + 1);
+    m.fixture = `${pair}-${k}`;
+  }
   return schedule;
 }
 
@@ -1539,7 +1558,7 @@ export function applyRainouts(schedule, text, opts = {}) {
         placed = { d, target, free };
       }
       if (!placed) { errors.push(fixed !== null ? `${mt.homeName} v ${mt.awayName}: cannot play on ${dayIso(fixed)} (a team is away or busy that day, or no court and time slot is free). Leave the date off to let it search.` : `${mt.homeName} v ${mt.awayName}: no free date found after ${dayIso(day)}.`); round.matches.push(mt); continue; }
-      const moved = { ...mt, court: cfg.courts[placed.free % cfg.courts.length], time: cfg.times[Math.floor(placed.free / cfg.courts.length)], moved: true, slot: placed.free };
+      const moved = { ...mt, court: cfg.courts[placed.free % cfg.courts.length], time: cfg.times[Math.floor(placed.free / cfg.courts.length)], moved: true, moves: (mt.moves || 0) + 1, slot: placed.free };
       if (placed.target) placed.target.matches.push(moved);
       else s.rounds.push({ number: null, label: "Rescheduled", makeup: true, ...(fixed !== null ? { chosenDay: true } : {}), day: placed.d, bye: null, matches: [moved] });
       moves.push({ from: day, to: placed.d, home: mt.homeName, away: mt.awayName, court: moved.court, time: moved.time });
@@ -1664,7 +1683,7 @@ export function applyWithdrawals(schedule, text) {
     const gone = (r, x) => (x.home === team || x.away === team) && (from === null || r.day >= from);
     const removed = [];
     for (const r of s.rounds) {
-      for (const x of r.matches) if (gone(r, x)) removed.push({ home: x.home, away: x.away, day: r.day });
+      for (const x of r.matches) if (gone(r, x)) removed.push({ home: x.home, away: x.away, day: r.day, fixture: x.fixture, time: x.time, court: x.court, moves: x.moves || 0, label: r.label });
       r.matches = r.matches.filter((x) => !gone(r, x));
     }
     withdrawals.push({ team, from, removed });
@@ -1746,7 +1765,7 @@ export function applyLateTeams(schedule, text) {
         origin.matches.push(mt);
         continue;
       }
-      const mv = { ...mt, court: cfg.courts[placed.free % cfg.courts.length], time: cfg.times[Math.floor(placed.free / cfg.courts.length)], slot: placed.free, moved: true };
+      const mv = { ...mt, court: cfg.courts[placed.free % cfg.courts.length], time: cfg.times[Math.floor(placed.free / cfg.courts.length)], slot: placed.free, moved: true, moves: (mt.moves || 0) + 1 };
       if (placed.target) placed.target.matches.push(mv);
       else s.rounds.push({ number: null, label: "Makeup", makeup: true, day: placed.d, bye: null, matches: [mv] });
       moved.push({ home: mt.homeName, away: mt.awayName, to: placed.d, court: mv.court, time: mv.time });
@@ -2266,6 +2285,19 @@ export function icsFold(line) {
 
 const compactDate = (day) => dayIso(day).replace(/-/g, "");
 
+/** A fixture's calendar id: stable across rainouts and pins when the match carries `fixture`. */
+function icsUid(m, day = null, i = 0, role = "") {
+  return m.fixture ? `fixture-${m.fixture}${role}@league-schedule-generator` : `${m.home}-${m.away}-${compactDate(day)}-${i}@league-schedule-generator`;
+}
+function icsWhen(day, time, minutes) {
+  if (!time) return [`DTSTART;VALUE=DATE:${compactDate(day)}`, `DTEND;VALUE=DATE:${compactDate(day + 1)}`];
+  const [hh, mm] = time.split(":").map(Number);
+  const endMin = hh * 60 + mm + minutes;
+  const endDay = day + Math.floor(endMin / 1440), em = endMin % 1440;
+  return [`DTSTART:${compactDate(day)}T${String(hh).padStart(2, "0")}${String(mm).padStart(2, "0")}00`,
+    `DTEND:${compactDate(endDay)}T${String(Math.floor(em / 60)).padStart(2, "0")}${String(em % 60).padStart(2, "0")}00`];
+}
+
 /**
  * An iCalendar file for one team (teamIdx) or every match (teamIdx omitted).
  * Times are floating local times, so a phone shows them as written at the venue.
@@ -2285,22 +2317,23 @@ export function scheduleIcs(schedule, teamIdx = null, stamp = null, official = n
       const summary = official !== null ? `Officiate: ${m.homeName} vs ${m.awayName}` : teamIdx === null
         ? `${m.homeName} vs ${m.awayName}`
         : `${schedule.teams[teamIdx]} vs ${schedule.teams[m.home === teamIdx ? m.away : m.home]} (${m.home === teamIdx ? "home" : "away"})`;
-      out.push("BEGIN:VEVENT", `UID:${m.home}-${m.away}-${compactDate(r.day)}-${i}@league-schedule-generator`, `DTSTAMP:${dtstamp}`);
-      if (m.time) {
-        const [hh, mm] = m.time.split(":").map(Number);
-        const startMin = hh * 60 + mm;
-        const endMin = startMin + minutes;
-        const endDay = r.day + Math.floor(endMin / 1440);
-        const em = endMin % 1440;
-        out.push(`DTSTART:${compactDate(r.day)}T${String(hh).padStart(2, "0")}${String(mm).padStart(2, "0")}00`,
-          `DTEND:${compactDate(endDay)}T${String(Math.floor(em / 60)).padStart(2, "0")}${String(em % 60).padStart(2, "0")}00`);
-      } else {
-        out.push(`DTSTART;VALUE=DATE:${compactDate(r.day)}`, `DTEND;VALUE=DATE:${compactDate(r.day + 1)}`);
-      }
+      out.push("BEGIN:VEVENT", `UID:${icsUid(m, r.day, i, official !== null ? "-official" : "")}`, `DTSTAMP:${dtstamp}`, `SEQUENCE:${m.moves || 0}`, ...icsWhen(r.day, m.time, minutes));
       out.push(`SUMMARY:${icsEscape(summary)}`, `LOCATION:${icsEscape(m.court)}`, `DESCRIPTION:${icsEscape(r.label)}`);
       if (m.time) out.push(...icsAlarm(alarmMinutes, summary));
       out.push("END:VEVENT");
     });
+  }
+  // A withdrawn team's removed fixtures go out as cancelled events under the same ids, so a file
+  // imported before the withdrawal drops them on re-import (a subscribed feed drops them anyway).
+  if (official === null) {
+    for (const w of schedule.withdrawals || []) for (const x of w.removed || []) {
+      if (!x.fixture || (teamIdx !== null && x.home !== teamIdx && x.away !== teamIdx)) continue;
+      const hn = schedule.teams[x.home], an = schedule.teams[x.away];
+      const summary = teamIdx === null ? `${hn} vs ${an}` : `${schedule.teams[teamIdx]} vs ${schedule.teams[x.home === teamIdx ? x.away : x.home]} (${x.home === teamIdx ? "home" : "away"})`;
+      out.push("BEGIN:VEVENT", `UID:${icsUid(x)}`, `DTSTAMP:${dtstamp}`, `SEQUENCE:${(x.moves || 0) + 1}`, ...icsWhen(x.day, x.time, minutes),
+        "STATUS:CANCELLED", `SUMMARY:${icsEscape("Cancelled: " + summary)}`, `LOCATION:${icsEscape(x.court)}`,
+        `DESCRIPTION:${icsEscape(`${schedule.teams[w.team]} withdrew from the league.`)}`, "END:VEVENT");
+    }
   }
   out.push("END:VCALENDAR");
   return out.map(icsFold).join("\r\n") + "\r\n";

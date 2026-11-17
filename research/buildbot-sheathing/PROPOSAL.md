@@ -420,6 +420,19 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    height, so a zero-press stance reaching 50 N exists only below 1.225 m (G1) and 1.883 m (H1) grip height, and the G1
    at 1.2 m keeps 1.6 N of margin. The braked spec holds (G1 0.011 mm, H1 0.019 mm at a 5 N drag); one H1 pose loses its
    controller and the G1's worst no-hose stack falls 1.3 points (0.9160 to 0.9030).
+42. **The lean or the controller's sides?** (done 2026-11-17, `experiments/m42_sides/`): a 2 × 2 (leans × 'hold-min'
+   sides) puts all of the G1's 1.30-point loss on the lean (sides 0.00, interaction 0.00); the four flipped roll sides
+   change no stack, but the old sides lose the controller at one re-leaned G1 pose. Post hoc, like for like, the H1's
+   re-lean costs 0.09–0.29 points per pose, not milestone 41's mixed-convention 0.1–0.9.
+43. **The spec's own stack on the zero-press poses** (done 2026-11-17, `experiments/m43_specstack/`): with the spec's
+   re-planned leg preload and squeeze the re-lean raises the G1's worst no-hose stack 0.97 points (braked, 0.9160 to
+   0.9257; stock +1.76), so milestones 41–42's 1.3-point loss is the 'hold-min' convention's; the H1 keeps a spec plan at
+   only 3 of 6 re-leaned poses, two because the stance allows only 0.033 and 0.095 N m of leg preload at 50 N.
+44. **A per-pose leg preload** (done 2026-11-17, `experiments/m44_legpreload/`): preloading each leg to 0.9 of what the
+   stance allows (0.030 and 0.085 N m) gives both dropped H1 poses a spec plan at no clean-sheet cost (the stack does not
+   move between 0 and 0.085 N m; −0.08 and −0.27 points against the old lean), but the worst residual along the wall
+   becomes 0.172 mm (0.241 at 20 N drag) against the spec's 0.019: (1.6 m, 0) is rescued (0.003 mm), (1.4 m, −0.15 m) is
+   not, because the joint that flips there is a hold-set joint the leg preload does not reach.
 
 ## Target venue
 

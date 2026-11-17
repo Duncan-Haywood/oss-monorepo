@@ -242,3 +242,29 @@ def min_stats_snr_db(x, n_win, fs=16000, frame=512, hop=256, alpha=0.7, span_s=1
     y = float(np.mean(p[win].sum(axis=1)))
     nn = float(np.mean(nmin[win].sum(axis=1))) + 1e-30
     return float(10 * np.log10(max(y - nn, 1e-3 * nn) / nn))
+
+
+# ---- Step 3g: a periodic-content flag -----------------------------------------------------------------------
+
+def self_periodicity(x, fs=16000, min_lag_s=1 / 30, max_lag_s=1.5, band=(100.0, 4000.0)):
+    """How much a window repeats itself: the highest normalised autocorrelation in the GCC band at lags from
+    min_lag_s to max_lag_s (at most 3/4 of the window), unbiased (lag L divided by its overlap n - L, then by
+    the zero-lag value). A looped recording or a machine with a steady period reads near its repeat's
+    correlation (0.9+); speech reads low. One device's window only: it needs neither the other device nor any
+    label."""
+    x = np.asarray(x, float)
+    x = x - x.mean()
+    n = len(x)
+    nfft = 1 << (2 * n - 1).bit_length()
+    X = np.fft.rfft(x, nfft)
+    p = np.abs(X) ** 2
+    f = np.fft.rfftfreq(nfft, 1.0 / fs)
+    p[(f < band[0]) | (f > band[1])] = 0
+    r = np.fft.irfft(p, nfft)
+    if r[0] <= 0:
+        return 0.0
+    lo, hi = int(round(min_lag_s * fs)), min(int(round(max_lag_s * fs)), (3 * n) // 4)
+    if hi < lo:
+        return 0.0
+    lag = np.arange(lo, hi + 1)
+    return float(np.clip((r[lo:hi + 1] * n / (n - lag)).max() / r[0], 0.0, 1.0))

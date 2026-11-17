@@ -2,7 +2,7 @@
 // Reads the columns of Stripe's Subscriptions export (Dashboard > Billing >
 // Subscriptions > Export) by header name, in any order, and amounts in major
 // units (dollars), as that export writes them.
-import { monthlyAmount } from "./metrics.mjs";
+import { monthlyAmount, minorExponent } from "./metrics.mjs";
 
 export function parseCsv(text) {
   const rows = []; let row = [], cur = "", q = false;
@@ -57,11 +57,12 @@ export function subsFromCsv(text) {
     const interval = get("interval").toLowerCase();
     if (!Number.isFinite(amount) || amount < 0) return skipped.push({ line: i + 2, why: "amount is not a number" });
     if (created === null) return skipped.push({ line: i + 2, why: "created is not a date" });
-    const mrr = monthlyAmount(Math.round(amount * 100), interval, Number(get("intervalCount")) || 1, get("quantity") === "" ? 1 : Number(get("quantity")));
+    const currency = (get("currency") || "usd").toLowerCase();
+    const mrr = monthlyAmount(Math.round(amount * 10 ** minorExponent(currency)), interval, Number(get("intervalCount")) || 1, get("quantity") === "" ? 1 : Number(get("quantity")));
     if (!mrr && amount > 0) return skipped.push({ line: i + 2, why: `unknown interval "${interval}"` });
     const endedAt = toMs(get("endedAt"));
     const status = (get("status") || (endedAt ? "canceled" : "active")).toLowerCase();
-    subs.push({ id: get("id") || `row${i + 2}`, mrr, status, created, endedAt: status === "canceled" ? endedAt : null, currency: (get("currency") || "usd").toLowerCase() });
+    subs.push({ id: get("id") || `row${i + 2}`, mrr, status, created, endedAt: status === "canceled" ? endedAt : null, currency });
   });
   return { subs, skipped, missing: [] };
 }

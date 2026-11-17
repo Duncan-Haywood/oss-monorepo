@@ -228,7 +228,13 @@ def _load_yaml(path: Path) -> dict:
                   "Another interpreter is ~15x faster, e.g. /usr/bin/python3.13 or a venv with "
                   "`pip install pyyaml`.)", file=sys.stderr)
         loader = yaml.SafeLoader
-    return yaml.load(path.read_text(), Loader=loader) or {}
+    text = _FLAGSHIPS_TEXT if _FLAGSHIPS_TEXT is not None and path == FLAGSHIPS_PATH else path.read_text()
+    return yaml.load(text, Loader=loader) or {}
+
+
+# portfolio/flagships.yaml as origin/main has it, when that is newer than this checkout's copy
+# (use_main_flagships). None means read the file.
+_FLAGSHIPS_TEXT: Optional[str] = None
 
 
 def count_portfolio_mentions(
@@ -811,6 +817,73 @@ def deepen_to_window(days: int) -> bool:
         return False
 
 
+def refresh_tip(cwd: Path = REPO_ROOT, run=subprocess.run) -> bool:
+    """Fetch main when origin/main is not the remote's tip; True when it fetched.
+
+    Why: the flagship rows were read from the clone, and a clone is minutes to
+    hours old. Four sessions on 2026-11-16/17 claimed a `next:`/`buildable:`
+    item that had merged 1 to 2 minutes earlier (#16518, #16883, #17063 and a
+    service-charge item; doc_friction on this file): the table's open-PR column
+    is read live, the row text was not. ls-remote costs under a second, and the
+    fetch only the commits since the clone."""
+    def git(*args, timeout=20):
+        return run(["git", *args], capture_output=True, text=True, timeout=timeout, cwd=cwd)
+    try:
+        remote = git("ls-remote", "origin", "refs/heads/main").stdout.split()
+        local = git("rev-parse", "-q", "--verify", "origin/main").stdout.strip()
+        if not remote or remote[0] == local:
+            return False
+        return _shallow_fetch(["-q", "origin", "main"], cwd=cwd, timeout=FETCH_TIMEOUT_S).returncode == 0
+    except (OSError, subprocess.SubprocessError):
+        return False
+
+
+FLAGSHIPS_REL = "portfolio/flagships.yaml"
+
+
+def main_flagships(cwd: Path = REPO_ROOT, run=subprocess.run) -> tuple[Optional[str], str]:
+    """(origin/main's flagships.yaml text, note) when it is newer than this checkout's copy
+    and the session has not edited the file itself; (None, note) when the rows shown are
+    local though main's differ (the note says so); (None, "") when they agree.
+
+    A session that edits the file (a claim, a parked item) keeps its own copy: its PR
+    resolves the difference when it merges main."""
+    def git(*args):
+        done = run(["git", *args], capture_output=True, text=True, timeout=20, cwd=cwd)
+        return done.stdout if done.returncode == 0 else None
+    try:
+        theirs = git("show", f"origin/main:{FLAGSHIPS_REL}")
+        if theirs is None:
+            return None, ""
+        work = (Path(cwd) / FLAGSHIPS_REL)
+        mine = work.read_text() if work.is_file() else None
+        if mine == theirs:
+            return None, ""
+        stale = ("(portfolio/flagships.yaml differs on origin/main and this checkout {why}, so the rows "
+                 "below are this checkout's: `git merge origin/main` before taking an item.)")
+        if mine != git("show", f"HEAD:{FLAGSHIPS_REL}"):
+            return None, stale.format(why="has uncommitted edits to it")
+        base = (git("merge-base", "HEAD", "origin/main") or "").strip()
+        if not base or git("show", f"{base}:{FLAGSHIPS_REL}") != mine:
+            return None, stale.format(why="changed it too (or the shared base is outside this shallow clone)")
+        newer = (git("log", "--format=%s", f"{base}..origin/main", "--", FLAGSHIPS_REL) or "").splitlines()
+        latest = f"; newest: {newer[0][:120]}" if newer else ""
+        return theirs, (f"(flagship rows read from origin/main: {len(newer)} commit(s) to "
+                        f"portfolio/flagships.yaml landed after this checkout{latest})")
+    except (OSError, subprocess.SubprocessError, UnicodeDecodeError):
+        return None, ""
+
+
+def use_main_flagships(cwd: Path = REPO_ROOT) -> None:
+    """Refresh origin/main and read flagship rows from it when it is newer (main_flagships)."""
+    global _FLAGSHIPS_TEXT
+    refresh_tip(cwd)
+    text, note = main_flagships(cwd)
+    _FLAGSHIPS_TEXT = text
+    if note:
+        print(note, file=sys.stderr)
+
+
 def recent_commits(days: int = 7, deepen: bool = True) -> dict[str, int]:
     """Commits in the last `days` days touching each ventures/<slug>/.
 
@@ -1114,9 +1187,45 @@ def left_rows(names, runs_dir: Path = RUNS_DIR, now: Optional[datetime] = None,
     return out
 
 
+def worked_rows(names, runs_dir: Path = RUNS_DIR, now: Optional[datetime] = None,
+                days: int = LEFT_WINDOW_DAYS) -> dict[str, int]:
+    """{flagship: run records in the same window whose `projects` names it}.
+
+    Why: a leave count alone read as "this row is empty". On 2026-11-17
+    chant-forge showed 11 departures in three days while 39 records in the
+    same days worked it, and a run that took its buildable item reported the
+    note "overstates how little is buildable here" (doc_friction on this
+    file). The worked count puts the leaves in proportion."""
+    now = now or datetime.now(timezone.utc)
+    cutoff = (now - timedelta(days=days - 1)).date().isoformat()
+    names = list(names)
+    out: dict[str, int] = {}
+    for path in sorted(runs_dir.glob("*.json")):
+        if path.name[:10] < cutoff:
+            continue
+        try:
+            rec = json.loads(path.read_text())
+        except (OSError, ValueError):
+            continue
+        if not isinstance(rec, dict):
+            continue
+        projects = json.dumps(rec.get("projects"))
+        for n in names:
+            if n in projects:
+                out[n] = out.get(n, 0) + 1
+    return out
+
+
 def left_note(name: str, left: dict[str, list[tuple[str, str, str]]],
-              days: int = LEFT_WINDOW_DAYS) -> Optional[str]:
-    """One line saying how many recent sessions left this row and for what."""
+              days: int = LEFT_WINDOW_DAYS, worked: Optional[int] = None,
+              has_buildable: bool = False) -> Optional[str]:
+    """One line saying how many recent sessions left this row and for what.
+
+    With `worked` (worked_rows) it also says how many worked the row, and the
+    advice follows the balance: mostly worked means check the reason, not
+    leave on the count; mostly left means mark the row. A row that already
+    has `buildable:` is told to refresh that list, not to add one (a
+    2026-11-17 report: the advice to add buildable: misfired on such a row)."""
     hits = left.get(name) or []
     if not hits:
         return None
@@ -1127,10 +1236,20 @@ def left_note(name: str, left: dict[str, list[tuple[str, str, str]]],
     latest = sorted(hits)[-1][2]
     if len(latest) > 220:
         latest = latest[:217].rstrip() + "..."
+    counted = ""
+    if worked is not None:
+        counted = f" In the same days {worked} record(s) worked {name}."
+    mark = ("refresh its `buildable:` list (it may name only items that are done or not worth doing) "
+            "or add `inputs_only:`" if has_buildable else "add `buildable:` or `inputs_only:` to the row")
+    if worked is not None and worked > len(hits):
+        advice = ("Most sessions sent here found work, so check that reason against the row "
+                  f"before leaving; if it holds, {mark} so the next pick knows.")
+    else:
+        advice = (f"Check that reason still holds before reading the whole row; if it does, {mark} "
+                  "so the next pick knows.")
     return (f"Left recently: {len(hits)} session(s) sent to {name} in the last {days} days (record dates) "
-            f"took another row instead (prompts/runs deviations): {where}. Latest why: "
-            f"\"{latest}\" Check that reason still holds before reading the whole row; "
-            "if it does, add `buildable:` or `inputs_only:` to the row so the next pick knows.")
+            f"took another row instead (prompts/runs deviations): {where}.{counted} Latest why: "
+            f"\"{latest}\" {advice}")
 
 
 def claim_note(hits: list[tuple[int, str, str]], now: Optional[datetime] = None) -> str:
@@ -1201,7 +1320,8 @@ def venture_report(name: str, ventures: list[Venture],
                    claims: Optional[dict[str, list]] = None,
                    landed: Optional[str] = None,
                    now: Optional[datetime] = None,
-                   probe=None, left: Optional[dict] = None) -> Optional[str]:
+                   probe=None, left: Optional[dict] = None,
+                   worked: Optional[dict[str, int]] = None) -> Optional[str]:
     """One venture's row in full: rank, task with the untruncated flagship
     `next:`, open PRs with their ages and when work last landed.
 
@@ -1233,7 +1353,8 @@ def venture_report(name: str, ventures: list[Venture],
     else:
         lines.append("task: " + next_task(v))
     if v.flagship and left is not None:
-        note = left_note(v.name, left)
+        note = left_note(v.name, left, worked=None if worked is None else worked.get(v.name, 0),
+                         has_buildable=bool(v.flagship_buildable))
         if note:
             lines.append(note)
     if landed:
@@ -1349,7 +1470,10 @@ def print_table(ventures: list[Venture], queue: list[dict],
             f"`python3 portfolio/router/claim_check.py {first[1]}`: two sessions that opened "
             "in the same minute both see this row free, and the PR opened first keeps it."
         )
-        note = left_note(first[1], left_rows([i["venture"] for i in queue if i["flagship"]]))
+        flag_names = [i["venture"] for i in queue if i["flagship"]]
+        note = left_note(first[1], left_rows(flag_names),
+                         worked=worked_rows(flag_names).get(first[1], 0),
+                         has_buildable=first[1] in load_flagship_field("buildable"))
         if note:
             print(note)
         print(claim_recipe(first[1]))
@@ -1456,6 +1580,8 @@ def main(argv: Optional[list[str]] = None) -> int:
                         help="print one venture's row in full (untruncated flagship `next:`, open PRs, last landing)")
     args = parser.parse_args(argv)
 
+    if not args.no_deepen:
+        use_main_flagships()
     ventures = load_ventures()
     if not ventures:
         print("No ventures with a VENTURE.yaml found.", file=sys.stderr)
@@ -1477,7 +1603,8 @@ def main(argv: Optional[list[str]] = None) -> int:
         report = venture_report(args.venture, ventures, claims=claims_one,
                                 landed=last_landed(args.venture),
                                 probe=None if args.no_probe else host_answers,
-                                left=left_rows(load_flagships()))
+                                left=left_rows(load_flagships()),
+                                worked=worked_rows(load_flagships()))
         if report is None:
             print(f"No venture named {args.venture!r} (ventures/<slug>/VENTURE.yaml).", file=sys.stderr)
             return 1

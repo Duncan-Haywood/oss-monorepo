@@ -17,6 +17,7 @@
 //
 // It reads what a platform said; it is not a platform and not tax advice.
 import { parseXmlTree } from "./ubl.mjs";
+import { frenchXmlValueFindings } from "./xmlvalues.mjs";
 
 export const CDAR_NS = "urn:un:unece:uncefact:data:standard:CrossDomainAcknowledgementAndResponse:100";
 
@@ -91,6 +92,9 @@ export function readCdar(source) {
     };
   });
   return {
+    // INV-065 (2026-11-17): a number or date holding a no-break space or another space XML
+    // does not trim (frenchXmlValueFindings in xmlvalues.mjs says which leaves count).
+    xmlValues: frenchXmlValueFindings(tree, "cdar"),
     process: text(path(ctx, "BusinessProcessSpecifiedDocumentContextParameter", "ID")),
     profile: text(path(ctx, "GuidelineSpecifiedDocumentContextParameter", "ID")),
     id: text(kid(doc, "ID")),
@@ -163,6 +167,7 @@ export function cdarGapFindings(msg) {
 export function cdarFindings(msg, invoices = []) {
   const findings = [];
   const pairs = [];
+  findings.push(...(msg.xmlValues || []));
   findings.push(...cdarGapFindings(msg));
   for (const ref of msg.refs) {
     const reasons = ref.reasons.map((r) => `${r.code}${r.text ? ` (${r.text})` : ""}`).join("; ");

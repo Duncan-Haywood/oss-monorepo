@@ -34,9 +34,112 @@ disagreement belongs to soft cloth, and only the cotton jersey and the shirting,
 stiffness lands in the band where the choice flips, still need a measured tensile toe. Milestone 5 proves the margin bound the proposal planned (regret is at most the spread of the paired tier error, not its size) and tests it on those 50 tier pairs: the bound certifies no 2D-chain choice (the paired error still spreads 0.6 to 1.3 cm across widths, against margins of 0.05 to 0.25 cm), though the 2D choice's realised regret is small (mean 0.03 cm); it certifies only a stretch-stiffness guess near the KES-sourced one, so a cheap tier can screen widths but not judge them. Milestone 5b keeps the cheap tier's own penalty term the first bound dropped: the regret is at most max over d of K|d − d^| minus the cheap tier's penalty at d, with K the slope of the paired error around the choice, 2.8 times tighter on the 2D chain (median realised share of the bound 34% against 12%). Used as a loop (three reference runs around the cheap choice, estimate K, run what the bound cannot rule out), it finds the reference optimum in 48 of 50 tier pairs with 3.9 of 7 reference runs on average; the two misses are the softest cloth (EA 40 N/m), whose optimum sits two grid steps away. Milestone 3a builds ARCSim's element model (constant-strain triangles with measured shear, discrete-shell hinges) with a Newton solver: it matches the exact cantilever elastica to within 0.9% of the overhang after extrapolation and ignores stretch stiffness there, but fails the Cusick acceptance test: on the suiting the drape coefficient still climbs 0.016 per mesh refinement and 0.034 from EA 800 to 3200 N/m (40% less than the spring sheet), and on the soft jersey it converges only at EA 150 N/m, near the jersey's sourced tangent stiffness, and locks above it. Milestone 3b shows that jersey result was mostly a solver that never arrived: started from the soft equilibrium and stepped up in stretch stiffness, all 40 cases converge, and at the jersey's own sourced stiffness (254 and 369 N/m) the drape coefficient moves by only 0.008 to 0.011 from 3.75 to 2.5 mm and by 0.003 from 150 to 369 N/m, so the element passes the acceptance test there; the suiting misses the 0.03 mesh bar by 0.004 to 0.006 through a change in fold count, and the same case can settle in fold patterns whose drape coefficients differ by up to 0.32, so a calibration will need the measured node count too. Milestone 3c runs seven seeds per case: the suiting lands in 6 to 10 folds, its seed-mean drape coefficient still rises 0.030 to 0.033 from 3.75 to 2.5 mm (the revised acceptance fails by 0.0025), but in every discordant case the lower-drape fold pattern is lower in energy, and the lowest-energy seed's drape coefficient moves only 0.001 to 0.009 with the mesh on both fabrics: the mesh dependence is finer meshes trapping starts in stiffer, higher-energy fold patterns. Milestone 3d makes the solver 3 times faster with an element-local Hessian and adds a 1.875 mm lattice: registered in advance, that lowest-energy rule fails on the suiting (+0.021; no seed found the 7-fold pattern), the seed mean converges on both fabrics (under 0.008 from 2.5 to 1.875 mm), and a Hessian that differs by under one part in a billion sends 13 of 14 chains to different fold states, so the seed mean, not the lowest of a few seeds, is what to calibrate against a measured drape. Milestone 3e pools the search: each lattice also starts from the fold patterns every other lattice found, all on one solver. The registered lowest-energy rule then passes, moving under 0.008 from 2.5 to 1.875 mm on both fabrics, and the suiting's 7-fold pattern is the lowest state on all three lattices. The seed mean also converges, but it sits 0.026 above that pattern on the suiting, so a measured node count is what will say which one a real drape test matches. Milestone 3f finds that 3e's high-energy jersey transfers came from how the transfer filled the cloth's rim, not from real fold patterns: continuing the rim along the cloth's own tangent plane puts 41 of 42 transfers inside the target mesh's own energy band (worst 2.3e-5 J above it, against 6.4e-4 J), and the pooled drape coefficient moves by at most 0.002, though one transfer stops at the step cap and the jersey's mesh margin shrinks to 0.0005 under the bar. Milestone 3g reports the drape coefficient as an interval over every state within 1e-5 J of the lowest (the work of lowering the overhang by 0.1 to 0.2 mm): the jersey's states all lie within 3e-5 J, so its drape coefficient is 0.156 to 0.174 rather than one number, the suiting's 7-fold pattern is lowest but an 8-fold one sits right at the band edge, and the interval's midpoint moves under 0.007 between the two finest meshes for every band from 1e-5 to 3e-4 J.** Produced with AI assistance (Claude). Research track 18 (`hanger`,
 `research/PROJECTS.md`). Simulation only; nothing here is a measurement of real garments.
 
+**Milestone 4a (the first comparison with real fabric):** given only measured FAST data for nine
+woven fabrics (Petrak et al. 2021, *Materials* 14, 6259), the triangle-FEM tier ranks their measured
+Cusick drape coefficients with Pearson r = 0.965 (Spearman 0.967), better than the commercial CAD
+simulation published with the data (0.85 to 0.94), but over-drapes every fabric by 0.09 to 0.20
+(RMSE 0.148, acceptance failed), and it is not mesh-flat at these stiffnesses; one shared factor of
+0.485 on bending rigidity brings it to RMSE 0.050 leave-one-out (0.036 solved, in-sample).
+
 **Live page:** https://marisstella.app/research/hanger-codesign/
 
 ![Shape error against arm width offset on fabric D for three model tiers](experiments/m1_kes_fidelity/err_vs_offset_D.svg)
+
+## Milestone 4a: the uncalibrated cloth FEM against nine measured Cusick drape coefficients
+
+**Question.** Every drape coefficient (DC) in milestones 2 to 3g was simulated. Is the top tier
+(3a's triangle element, 3d's local Newton) right about real fabric when it is given only measured
+inputs and no fitted parameter?
+
+**Data.** Petrak, Mahnić Naglić, Rogale and Geršak (2021), "Analysis of polygonal computer model
+parameters and influence on fabric drape simulation", *Materials* 14(21), 6259,
+doi:10.3390/ma14216259, CC BY 4.0, read from Europe PMC (PMC8584912) after milestones 2, 3f and
+3g found every journal host refused. Nine woven fabrics, 84 to 367 g/m², with FAST and KES-FB
+bending, shear and tensile extension, and a Cusick DC (0.222 to 0.647) measured on our geometry
+(30 cm specimen, 18 cm disc, mean of five). The numbers are copied into
+[`experiments/m4a_measured_drape/fabrics.py`](experiments/m4a_measured_drape/fabrics.py) with
+their table numbers. Two checks on how the columns read: KES shear and FAST shear agree after
+unit conversion (F1: 0.41 cN/cm/° = 23.5 N/m, FAST 23 N/m; ratio 1.0 to 1.65 over the nine), and
+KES bending is 0.29 to 0.42 of FAST bending on seven fabrics but 1.3 to 1.4 on F6 and F7, whose
+printed KES weft values (0.398, 0.444) look like a decimal slip. Recomputing the paper's Table 5
+correlations from its Table 6 reproduces the FAST columns within 0.01 but not the KES columns
+(0.92 to 0.94 against the printed 0.90 to 0.91), a small inconsistency in the source.
+
+**Method.** Inputs, all from the paper: B = geometric mean of FAST warp and weft bending
+rigidity (Peirce 1930, doi:10.1080/19447023008661529); W; G = FAST shear rigidity; EA = geometric
+mean of the warp and weft secant stiffnesses at 100 gf/cm (831 to 4,785 N/m), reached by
+continuation from 150 N/m in steps of at most ×2. Main run: 2.5 mm lattice, seeds 0 to 2, the DC
+of the lowest-energy seed. Mesh check: 3.75 mm, seed 0. Input check: KES bending, seed 0.
+Baseline: the paper's own Optitex simulations of the same nine fabrics (eight columns: FAST or
+KES inputs, four polygon sizes). Predictions M1 to M7 were committed and pushed before the first
+solve (`run.py`'s docstring); K1 to K3 and V1 to V2 were added during the run, each with what had
+been seen when it was written.
+
+**Results** ([`results.txt`](experiments/m4a_measured_drape/results.txt), 45 + 18 + 9 chains, every stage converged; about 8 core-hours on 4 cores):
+
+![Simulated against measured Cusick drape coefficient for nine woven fabrics](experiments/m4a_measured_drape/dc_sim_vs_measured.svg)
+
+| simulation, against measured DC (n = 9) | Pearson r | Spearman ρ | bias | RMSE |
+|---|---|---|---|---|
+| triangle FEM, FAST inputs, 2.5 mm, lowest of 3 (registered) | 0.965 | 0.967 | +0.143 | 0.148 |
+| triangle FEM, same, 3.75 mm, seed 0 | 0.975 | 0.967 | +0.133 | 0.137 |
+| triangle FEM, KES bending, 2.5 mm, seed 0 | 0.666 | 0.800 | +0.004 | 0.152 |
+| triangle FEM, KES bending, 2.5 mm, lowest of 3 (K1 to K3) | 0.651 | 0.800 | +0.003 | 0.152 |
+| post hoc: FAST bending × one shared factor, leave-one-out (interpolated) | 0.934 | 0.883 | +0.004 | 0.050 |
+| post hoc: FAST bending × 0.485, solved (V1, in-sample, one parameter) | 0.969 | 0.933 | −0.004 | 0.036 |
+| Optitex (paper), best column: KES inputs, 0.6 cm polygons | 0.933 | 0.917 | +0.044 | 0.067 |
+| Optitex (paper), FAST inputs, 0.4 cm | 0.853 | 0.833 | +0.006 | 0.079 |
+| Optitex (paper), median of eight columns | | | | 0.123 |
+
+- **M1 held:** every stage of the 27 main chains converged; one end state (F5 seed 0) has a
+  negative smallest Hessian eigenvalue (−3.8e-7), not the lowest-energy seed.
+- **M2 and M3 held:** the FEM orders the nine fabrics almost exactly as measured (Spearman 0.967,
+  Pearson 0.965), better than any of the paper's Optitex columns (0.853 to 0.942).
+- **M4 refuted (acceptance failed), and M5:** it over-drapes every fabric, by +0.089 (F3) to
+  +0.204 (F7), mean +0.143, so RMSE is 0.148 against a bar of 0.08.
+- **M6 refuted:** from 3.75 to 2.5 mm the DC rises on seven fabrics, by 0.027 to 0.038 on six of
+  them and 0.018 on F9; F2 and F8 move under 0.005 (3 of 9 under the 0.02 bar). At these stiffnesses (1,800 to 4,800 N/m, against the 369 and 1,896 N/m of
+  milestones 3b to 3g) the element is not mesh-flat, and refining makes the over-drape worse,
+  the direction membrane locking predicts.
+- **M7 refuted, narrowly:** KES bending lowers the DC on all seven fabrics it should (by 0.13 to
+  0.33), and removes the bias (+0.004), but its RMSE (0.152) is not larger than FAST's seed-0
+  RMSE (0.159): F6 and F7, the suspect KES values, over-drape by +0.26 and +0.28, and F8 under-drapes
+  by −0.20.
+- **K1 to K3 refuted** (written mid-run after three of nine KES results, all three within 0.04):
+  with KES bending and three seeds the RMSE is 0.152, r 0.651. The three fabrics seen first were
+  not representative, which is the reason predictions go in before the data.
+- **Post hoc (not registered):** interpolating each fabric's seed-0 DC linearly in log B between
+  its two solved bending values, the factor on FAST bending that matches the measured DC is 0.32
+  to 0.61 on all nine fabrics (median 0.47); one shared factor of 0.485 fitted to eight
+  fabrics predicts the ninth with RMSE 0.050 (leave-one-out), below every Optitex column.
+- **V1 and V2 held** (registered after that analysis): solved at FAST bending × 0.485 (seed 0,
+  2.5 mm), the FEM's DC is within 0.064 of the measured value on every fabric (RMSE 0.036,
+  bias −0.004, r 0.969), and within 0.03 of the interpolated value on 8 of 9. This is an in-sample
+  fit of one parameter to nine points, not a prediction.
+
+**Reading.** The uncalibrated top tier ranks real fabrics by drape better than the commercial CAD
+system the measurements came with, but it is biased high by about 0.14, so it fails as an absolute
+predictor. The bias is close to a single factor on bending rigidity, and one factor learned from
+eight fabrics predicts the ninth to 0.05 (interpolated; 0.036 solved, in-sample). That bears on H3: on this tier calibration is not
+optional, and a one-parameter calibration is enough at the level of these nine wovens. The factor
+is a calibration knob, not a measurement: it stands in for whatever the isotropic element misses
+(the warp/weft anisotropy of B, up to 4:1 on F9, and of EA, up to 11:1 on F2), for the mesh
+trend (M6, which would push the factor lower on a finer lattice), and for any difference between
+FAST's cantilever bending and the bending a drape uses. FAST and KES disagree on B by a factor of
+about 2.6 on these same fabrics, so "measured bending" is itself uncertain by more than the
+calibration factor.
+
+**Limits.** Nine fabrics from one laboratory, all woven; each measured DC is a mean of five with no
+spread printed, and no node counts were extracted; isotropic element; seed 0 only for the mesh,
+KES and calibration checks; the interpolation is in log B through two points per fabric (and an
+extrapolation for F6 and F7); the factor was fitted on the same nine fabrics V1 checks, so V1 is
+an in-sample check; the 2.5 mm lattice is not mesh-converged at these stiffnesses.
+
+**Next.** (a) the nonconforming membrane (or an orthotropic element) for EA above about 2,000 N/m,
+since M6 shows the conforming element is not mesh-flat there; (b) an orthotropic B and EA, to see
+how much of the factor the anisotropy carries; (c) hold out a second data set (another open DC
+table) to test the 0.485 factor out of sample; (d) repeat milestone 1's hanger choice on the
+calibrated tier (H1, H3).
 
 ## Milestone 3g: report the drape coefficient as an interval over near-degenerate states
 

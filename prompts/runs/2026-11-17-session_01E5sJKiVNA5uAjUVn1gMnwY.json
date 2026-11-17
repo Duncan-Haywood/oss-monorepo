@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKiVNA5uAjUVn1gMnwY",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T21:18:26Z",
+  "ended": "2026-11-17T21:27:51Z",
+  "wall_minutes": 11.07,
+  "tokens_in": 5845123,
+  "tokens_out": 33419,
+  "cost_usd": 2.7756,
+  "tool_calls": 58,
+  "task": "research programme buildbot-sheathing, milestone 42 (pick_track draw)",
+  "projects": [
+    "research/buildbot-sheathing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17071",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first smoke run of m42 crashed: the smoke mode skipped the H1 but the summary loop did not",
+      "fix": "loop over ROBOTS (G1 only in smoke); rerun clean"
+    }
+  ],
+  "integrity_issues": [
+    {
+      "what": "milestone 41 (an earlier run) printed per-pose stacks against milestone 40's column computed in a different torque convention (spec plan with leg preload and squeeze vs raw 'hold-min'); its H1 per-pose losses 0.1-0.9 and a G1 0.2-point 'gain' were artefacts",
+      "fix": "m42 posthoc.txt computes both conventions; the LOG, README, PROPOSAL, paper and post state the like-for-like figures (H1 0.09-0.29 points); milestone 41's headline worst-pose numbers are unchanged because the conventions agree there"
+    }
+  ],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py pytest numpy scipy mujoco does not install matplotlib, which every experiments/figure.py needs; one extra pip install"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-humanoid-stance-cost-lean-not-controller.md",
+    "research/buildbot-sheathing/LOG.md (milestone 42 plan and result)"
+  ],
+  "goal": null,
+  "notes": "Hypotheses H161-H164 registered and pushed (PR opened as draft) before the run. Local verification: project tests 212 passed, 4 skipped; reproduce.py --check m42_sides reproduces (91 lines); paper/check_numbers.py 341 of 341 (4 new); research/_homepage/build.py ok; research_live_links and check_md_links clean; post front matter, links and similarity clean. No agent doc in docs/reports: the LOG.md 'Next' line is where the next run of this programme looks.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "67e49107-f4fb-57d6-b3be-9722f346e03b",
+    "transcripts": 1,
+    "first": "2026-11-17T21:18:26Z",
+    "last": "2026-11-17T21:29:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 100,
+        "output": 33419,
+        "thinking": 6779,
+        "cache_read": 5724789,
+        "cache_write_5m": 0,
+        "cache_write_1h": 120234,
+        "api_equivalent_usd": 2.7756,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 100,
+      "output": 33419,
+      "thinking": 6779,
+      "cache_read": 5724789,
+      "cache_write_5m": 0,
+      "cache_write_1h": 120234,
+      "api_equivalent_usd": 2.7756,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 53,
+      "Read": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.07,
+      "active_minutes": 11.07,
+      "model_minutes": 5.04,
+      "tool_minutes": 6.03,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a 2x2 rerun of an existing simulation, a post hoc convention check, write-up in five files and a blog post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 216.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

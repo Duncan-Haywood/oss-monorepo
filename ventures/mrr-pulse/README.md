@@ -115,7 +115,6 @@ Found by the [quality audit of 2026-11-13](../../portfolio/quality/audits/2026-1
   rather than 3,000 of expansion.
 - **Tiered prices count as 0.** Graduated and volume prices have no
   `unit_amount`, so they add nothing to MRR.
-- **Zero-decimal currencies** (JPY, KRW) display 100 times too small.
 - **Cancel at period end** in a CSV with both "Canceled At" and "Ended At"
   columns is dated at the request, not the end.
 - NRR is a one-month figure; a 12-month NRR is the usual benchmark.

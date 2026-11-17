@@ -6,6 +6,20 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 ![Left: held-out flights that diverged at a 20 degree tilt limit, out of 384, at centre-of-pressure levers 2 and 3. Centre of pressure above: 4, 9, 7 and 8 at lever 2 and 68, 73, 66 and 75 at lever 3 for milestone 7e's designs, milestone 7h's thrust-to-weight-free designs, and the lever-aware designs at thrust-to-weight 2 and free. Below: 45, 38, 20 and 14 at lever 2 and 159, 146, 87 and 86 at lever 3. Right: each design's mass against its diverged flights at lever 3: one falling curve from about 35 of 64 at 1.15 kg to 5 at 2 kg, whatever the arm.](experiments/m7i_aware/m7i_aware.png)
 
+## Milestone 7x: is there a motor-lag tuning floor past which a drone stops gaining? Not by 60 ms: crashes keep falling; mass and gain pay
+
+**Question.** Milestone 7w found that tuning a 5-inch quadrotor for a 45 ms motor lag, slower than either published identification (33 and 39.1 ms), crashes less than tuning at 39.1 ms even when flown at 33 ms. Where is the knee? 7w's lever-aware objective was retuned at **52 ms** and **60 ms** (not sourced: tuning floors chosen to bracket a knee; training plants floor × U(1, 2)), with the stability certificate also required at 33 ms, and scored next to 7w's 45 ms and 7u's 39.1 ms designs under seven lag laws.
+
+**Headline (`experiments/m7x_knee/results.txt`, `verdicts.txt`, `posthoc.txt`, `corner_bind.txt`; 48 CMA-ES runs, about 2.6 h on 4 cores; simulated; 7 predictions committed first, 4 held).**
+
+- **No knee by 60 ms.** At twice the centre-of-pressure lever and a 45° tilt limit, crashes over the identified range (33, 36, 39.1 ms; both geometries; of 2304 flights) fall with every slower floor: **348, 236, 162, 87** for 39.1, 45, 52 and 60 ms tunes. At the fast 33 ms end: 27, 34 crashes for the 45 ms tune against 8, 12 for the 60 ms tune. Monotone in 13 of 14 law × geometry cells.
+- **A measured gap this time:** 60 ms against 45 ms, Mann-Whitney p = 0.004-0.014 in all six identified cells (post hoc, six seeds). 52 against 45 ms is not separated (p 0.14-0.87).
+- **All 24 new designs are certified across 33-39.1 ms.** The extra 33 ms certificate corner was slack on 22 of 24 designs (the radius is set by a mode the lag does not move), so the gain is the floor, not the constraint.
+- **The price is a heavier vehicle and a softer loop:** at 60 ms the designs are 4-8% heavier, take a larger propeller and a 20% lower position gain, and track about 5% worse at lever 1. The 52 ms tune has no mass cost and about 3% worse tracking.
+- **For a builder:** in this simulator the crash count never sets the tuning floor; slower keeps buying robustness. Pick the floor from what you will give up (mass, endurance, tracking), and keep the certificate checked at the fastest measured lag.
+
+![Two panels, centre of pressure above and below the centre of mass: diverged flights of 384 at lever 2, 45 degrees, against the motor lag flown (33 to 60 ms), one line per tuning floor. The 60 ms line (red) is lowest everywhere, then 52 ms (orange), 45 ms (purple) and 39.1 ms (green): at 39.1 ms, 17, 30, 52 and 72 crashes with the centre of pressure above.](experiments/m7x_knee/m7x_knee.png)
+
 ## Milestone 7w: how slow should you tune a drone's motor lag? Slower than the slowest measurement, and it still pays at the fast end
 
 **Question.** Milestones 7u and 7v found that a tuner that knows the 5-inch quadrotor motor lag only as a range (33-39.1 ms, two published identifications) should train on plants no faster than its slow end. Where does tuning slower stop paying? 7u's two objectives were retuned at **45 ms** (not sourced: 15% beyond the slower identification, chosen on purpose to bracket the knee from above; training plants 45-90 ms, certificate corners 45 and 90 ms) and scored next to 7u's 39.1 ms and 7t's 36 ms designs.
@@ -512,6 +526,8 @@ python3 experiments/m7q_closure/fit.py         # seconds, stdlib: closure consta
 "$PY" experiments/m7v_lag_rand/verdicts.py && "$PY" experiments/m7v_lag_rand/posthoc.py && "$PY" experiments/m7v_lag_rand/figure.py
 "$PY" experiments/m7w_slow45/run.py           # about 1.8 h on 4 cores (48 CMA-ES runs at 45 ms, cached in .cache/; then 7 min of held-out flights)
 "$PY" experiments/m7w_slow45/verdicts.py && "$PY" experiments/m7w_slow45/posthoc.py && "$PY" experiments/m7w_slow45/figure.py
+"$PY" experiments/m7x_knee/run.py             # about 2.6 h on 4 cores (48 CMA-ES runs at 52 and 60 ms, cached in .cache/; then 7 min of held-out flights)
+"$PY" experiments/m7x_knee/verdicts.py && "$PY" experiments/m7x_knee/posthoc.py && "$PY" experiments/m7x_knee/corner_bind.py && "$PY" experiments/m7x_knee/figure.py
 python3 paper/check_numbers.py                  # stdlib; every number the paper draft quotes against its results file
 ```
 

@@ -1,4 +1,8 @@
 {
+ "doi:10.1080/19447023008661529": {
+  "checked": "2026-11-17",
+  "title": "26—THE “HANDLE” OF CLOTH AS A MEASURABLE QUANTITY (1930)"
+ },
  "doi:10.1145/1360612.1360662": {
   "checked": "2026-11-14",
   "title": "Discrete elastic rods (2008)"
@@ -10,5 +14,9 @@
  "doi:10.2478/aut-2019-0034": {
   "checked": "2026-11-14",
   "title": "Fuzzy Logic Method for Predicting the Effect of Main Fabric Parameters Influencing Drape Phenomenon (2020)"
+ },
+ "doi:10.3390/ma14216259": {
+  "checked": "2026-11-17",
+  "title": "Analysis of Polygonal Computer Model Parameters and Influence on Fabric Drape Simulation (2021)"
  }
 }

@@ -30,10 +30,11 @@
  * and SPD are the source of truth for whether this strategy is even
  * available, and this tool says so on every page.
  *
- * IRS figures sourced 2026-09-24 via WebSearch cross-checking
- * irs.gov Notice 2024-80 (2025) and Notice 2025-67 (2026) as summarized by
- * Thomson Reuters, Employee Fiduciary, and BSK -- see VENTURE.yaml for the
- * full sourcing note.
+ * IRS figures first sourced 2026-09-24 from secondary summaries, then read
+ * on 2026-11-17 in the primary text of Notice 2025-67
+ * (irs.gov/pub/irs-drop/n-25-67.pdf), which states each 2026 limit next to
+ * the 2025 one ("increased from $23,500 to $24,500"); every figure below
+ * matches it. See VENTURE.yaml for the sourcing note.
  */
 
 export const LIMITS = Object.freeze({

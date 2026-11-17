@@ -206,3 +206,13 @@ test("forecast defaults to six months; low takes the worst churn, high the best"
   assert.equal(f.low[0], Math.round(1000 * (1 - 0.2)));
   assert.equal(f.high[0], Math.round(1000 * (1 - 0.05)));
 });
+
+test("zero-decimal currencies are whole units, as Stripe sends them (red team 2026-11-17)", async () => {
+  const { formatMoney, minorExponent } = await import("./metrics.mjs");
+  assert.equal(formatMoney(5000, "jpy"), "¥5,000");
+  assert.equal(formatMoney(5000, "usd"), "$50");
+  assert.equal(minorExponent("bhd"), 3);
+  const m = { month: "2026-01", mrr: 5000, customers: 1, new: 5000, expansion: 0, reactivation: 0, contraction: 0, churn: 0, approximate: false };
+  assert.match(monthsCsv([m], "jpy"), /\n2026-01,5000,1,5000,0,0,0,0,no\n/);
+  assert.match(monthsCsv([m], "usd"), /\n2026-01,50\.00,1,50\.00,/);
+});

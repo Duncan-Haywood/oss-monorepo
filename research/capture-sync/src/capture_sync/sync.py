@@ -18,9 +18,8 @@ FS = 16000
 EXCL = 12  # samples either side of the peak left out of the sidelobe statistics (as capture-syncgate)
 
 
-def gcc(a, b, gamma=1.0, fs=FS, max_lag_s=1.0, band=(100.0, 4000.0), centre_s=0.0):
-    """Delay of b behind a (s) and PSR. `b` may be longer than `a`; lags are searched in
-    centre_s +- max_lag_s, where lag 0 means a[0] lines up with b[0]."""
+def gcc_curve(a, b, gamma=1.0, fs=FS, max_lag_s=1.0, band=(100.0, 4000.0), centre_s=0.0):
+    """The partially whitened cross-correlation over the searched lags: (lags in samples, values)."""
     a = np.asarray(a, float)
     b = np.asarray(b, float)
     a = a - a.mean()
@@ -36,7 +35,10 @@ def gcc(a, b, gamma=1.0, fs=FS, max_lag_s=1.0, band=(100.0, 4000.0), centre_s=0.
     lo = int(round((centre_s - max_lag_s) * fs))
     hi = int(round((centre_s + max_lag_s) * fs))
     lags = np.arange(lo, hi + 1)
-    vals = cc[lags % nfft]
+    return lags, cc[lags % nfft]
+
+
+def _peak(lags, vals, fs):
     k = int(np.argmax(vals))
     rest = np.concatenate((vals[:max(0, k - EXCL)], vals[k + EXCL + 1:]))
     sd = rest.std()
@@ -47,7 +49,34 @@ def gcc(a, b, gamma=1.0, fs=FS, max_lag_s=1.0, band=(100.0, 4000.0), centre_s=0.
         den = y0 - 2 * y1 + y2
         if den != 0:
             off = 0.5 * (y0 - y2) / den
-    return (lags[k] + off) / fs, psr
+    return k, (lags[k] + off) / fs, psr
+
+
+def gcc(a, b, gamma=1.0, fs=FS, max_lag_s=1.0, band=(100.0, 4000.0), centre_s=0.0):
+    """Delay of b behind a (s) and PSR. `b` may be longer than `a`; lags are searched in
+    centre_s +- max_lag_s, where lag 0 means a[0] lines up with b[0]."""
+    lags, vals = gcc_curve(a, b, gamma, fs, max_lag_s, band, centre_s)
+    _, d, psr = _peak(lags, vals, fs)
+    return d, psr
+
+
+def second_peak_ratio(vals, k, excl):
+    """Height of the highest correlation value more than `excl` lags from the peak at index k, over the peak's
+    height (step 3g). Near 1 when another lag explains the data almost as well (a repeating sound, a second
+    source); clipped to [0, 1]; 1 when the peak is not positive or nothing lies outside the exclusion."""
+    vals = np.asarray(vals, float)
+    top = vals[k]
+    out = np.concatenate((vals[:max(0, k - excl)], vals[k + excl + 1:]))
+    if top <= 0 or len(out) == 0:
+        return 1.0
+    return float(np.clip(out.max() / top, 0.0, 1.0))
+
+
+def gcc_peaks(a, b, gamma=1.0, fs=FS, max_lag_s=1.0, band=(100.0, 4000.0), centre_s=0.0, excl_s=1 / 30):
+    """gcc's delay and PSR (identical numbers) plus the second-peak ratio outside +-excl_s of the peak."""
+    lags, vals = gcc_curve(a, b, gamma, fs, max_lag_s, band, centre_s)
+    k, d, psr = _peak(lags, vals, fs)
+    return d, psr, second_peak_ratio(vals, k, int(round(excl_s * fs)))
 
 
 def theil_sen(t, y):

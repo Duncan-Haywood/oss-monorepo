@@ -83,3 +83,18 @@ test("a 0.00 tax on a 0.00 receipt is the tax; a tax equal to a non-zero total i
   assert.equal(parseReceipt("FREEBIE\nSAMPLE 0.00\nSUBTOTAL 0.00\nTAX 0.00\nTOTAL 0.00").taxCents, 0);
   assert.equal(parseReceipt("SHOP\nX 5.00\nTAX 5.00\nTOTAL 5.00").taxCents, null);
 });
+
+// A VAT table with a row per rate, found re-scoring shard 1 (eval/wildreceipt-rescore-2026-11-17.md)
+test("a VAT table with two rate rows adds both taxes when the rows' grosses make the total", () => {
+  // French: header bent by OCR, the first row's tax amount lost, the second row under it
+  const fr = parseReceipt("MUSEE CAFE\n2MENU  10.40  20.80\nTOTAL  20.80\nHT  TUA  TIC\nTUA5.50%  10.26  95'0  10.82\nTUA10.00%  9.07  0.91  9.98\nCB  20.80");
+  assert.equal(fr.cents, 2080);
+  assert.equal(fr.taxCents, 147);
+  // Dutch: the second row's net lost its mark, so rate, tax and gross are what is left
+  const nl = parseReceipt("LA MAREE\nWijn 21,00\nMosselen 48,00\nTotaal  137,45\nEXCT.BTW  BTW%  IncI.BTW\n21,45  21%  4,50  25.95\n9966  12%  11,95  111,50");
+  assert.equal(nl.cents, 13745);
+  assert.equal(nl.taxCents, 1645);
+  // rows whose grosses do not make the total are not added: the last row's tax stays
+  const off = parseReceipt("CAFE\nTOTAL  30.00\nHT  TVA  TTC\nTVA5.50%  10.26  0.56  10.82\nTVA10.00%  9.07  0.91  9.98");
+  assert.equal(off.taxCents, 91);
+});

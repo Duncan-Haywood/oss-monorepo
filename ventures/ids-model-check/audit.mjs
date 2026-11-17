@@ -310,18 +310,23 @@ function attributeIndex(S) {
   return s;
 }
 
-// Levenshtein distance, capped: returns cap + 1 once it is exceeded.
+// Edit distance with adjacent transpositions (optimal string alignment:
+// Lenght and Length are one slip apart, not two), capped: returns cap + 1
+// once it is exceeded.
 function editDistance(a, b, cap = 2) {
   if (Math.abs(a.length - b.length) > cap) return cap + 1;
+  let prev2 = null;
   let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
   for (let i = 1; i <= a.length; i++) {
     const cur = [i];
     let best = i;
     for (let j = 1; j <= b.length; j++) {
       cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      if (prev2 && i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) cur[j] = Math.min(cur[j], prev2[j - 2] + 1);
       if (cur[j] < best) best = cur[j];
     }
     if (best > cap) return cap + 1;
+    prev2 = prev;
     prev = cur;
   }
   return prev[b.length];
@@ -330,7 +335,7 @@ function editDistance(a, b, cap = 2) {
 // The standard name a misspelt one most likely meant: same letters ignoring
 // case, or one or two edits away (only for names long enough that two edits
 // are a slip, not another word). Null when none, or when two tie.
-function nearName(name, candidates) {
+export function nearName(name, candidates) {
   const lower = name.toLowerCase();
   const exact = candidates.filter((c) => c.toLowerCase() === lower);
   if (exact.length) return exact[0];

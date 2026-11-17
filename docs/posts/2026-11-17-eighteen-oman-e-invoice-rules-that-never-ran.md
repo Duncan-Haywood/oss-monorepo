@@ -33,7 +33,7 @@ These are the arithmetic checks, the ones most likely to catch a real billing sy
 
 ## After
 
-With the rules as shipped this morning, our rule ids differed from Saxon's on 80 copies. Now they differ on 4. All 4 are a labelling quirk: PINT Singapore's rule `BR-NG-08-GST-SG` writes `[BR-NG-08]` in its message, and we read the id from the message. On the 182 unmodified examples, our findings match Saxon's except for one deliberate gap: Oman's "rule set version" banner, which fires on every file and isn't a check.
+With the rules as shipped this morning, our rule ids differed from Saxon's on 80 copies. Now they differ on 4. All 4 are a labelling quirk: PINT Singapore's rule `BR-NG-08-GST-SG` writes `[BR-NG-08]` in its message, and we read the id from the message. (Correction: it was our test script that read the id from the message. The product reports `BR-NG-08-GST-SG`, as Saxon does. See [the follow-up](2026-11-17-romania-portugal-croatia-netherlands-e-invoice-rules-match-saxon.md).) On the 182 unmodified examples, our findings match Saxon's except for one deliberate gap: Oman's "rule set version" banner, which fires on every file and isn't a check.
 
 A made-up Oman invoice now runs all 154 of Oman's jurisdiction checks, with none skipped. If you send PINT invoices in Oman, the line and VAT-total arithmetic is now checked before your access point checks it.
 

@@ -33,6 +33,7 @@ third party: zero dependencies, one JSON file on a disk you own.
 - **Run:** `ADMIN_KEY=a LEAGUE_TOKEN=b STATE=./state.json node server.mjs`, or `docker compose up -d`
   (`docker-compose.yml`), Fly (`fly.toml`), or Render (`render.yaml`, deploy from your fork; it generates both
   secrets). Nothing runs on the author's accounts.
+- **Calendar feeds:** the player page links a subscribe-able feed for the whole league and each team (`webcal://`, Google Calendar, or the plain address). Optional `PUBLIC_URL=https://league.example.org` fixes the address in those links; without it the request's host is used (README "Calendar files that follow a rainout").
 - **Score reports:** the player page has a "Report a score" form. A report only waits in `/admin` ("Scores waiting for you"); **Approve** appends it to Results as `Hawks 3 - 2 Owls`, **Decline** drops it, and the table never changes until you approve. At most 100 wait at once.
 - Tests: `node --test server.test.mjs deploy.test.mjs`.
 
@@ -187,6 +188,108 @@ MIT licence, see `LICENSE`.
 **A message per team.** "Download a message per team" writes one ready-to-paste note for each team ("Hi Hawks, your fixtures: ...") with only that team's dates, venues, opponents and byes, so a coordinator can message each team instead of forwarding the whole league (`teamMessages` in `calc.mjs`).
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
+
+## Bowling leagues: lane pairs rotated evenly (2026-11-17, latest)
+
+`bowling-league-schedule.html` (engine `bowling.mjs`, tests `bowling.test.mjs`) builds a whole
+bowling season: the circle-method round robin repeated until the weeks run out, real dates on one
+weekday with no-bowl dates stepped over, weeks held for position rounds (1st v 2nd, 3rd v 4th on
+the pairs in order; they do not advance the round robin), a Vacancy for an odd league (it bowls
+on its pair like any team, so 9 teams use 5 pairs), and lane-pair labels from the league's first
+lane (`firstLane: 13` gives "Lanes 13-14", ...). Exports: CSV (formula-safe), text, print.
+`validateBowling` re-checks each week (each team once, each pair once), that every pair of teams
+meets `floor` or `floor + 1` times for the round-robin weeks played, and the dates.
+
+**The lane problem.** A team that bowls W weeks on P pairs can at best have every pair
+floor(W/P) or ceil(W/P) times ("at the bound"). Each week's matches go on pairs by an assignment
+problem (Hungarian method, `hungarian`, tested against every permutation up to 6x6). The page then
+runs an iterated local search: with every other week fixed, one week's best assignment is exact
+(each team's count on one pair rises by one and its repeats depend only on the weeks either side,
+so the price is a sum over (match, pair) cells); sweeps re-solve every week until none improves,
+a kick re-deals one to three random weeks, a worse result is undone, and the season with the
+fewest out-of-bounds counts, then fewest back-to-back repeats, is kept. Deterministic per seed;
+"Try another lane deal" changes the seed.
+
+**Measured** (`node eval/bowling-lanes.mjs`, `eval/bowling-lanes.txt`; 36 seasons, 6 to 24 teams x
+26, 30, 32, 34 weeks; "all at bound" = every team at the bound):
+
+| assignment | seasons with all teams at the bound | worst spread | back-to-back repeats (total) |
+|---|---|---|---|
+| naive (match k on pair k, a copy of the circle method) | 0 of 36 | 34 | 2,124 |
+| hand rotation (every match one pair along each week) | 1 of 36 | 13 | 6,490 |
+| greedy (week by week, Hungarian on counts so far) | 4 of 36 | 3 | 417 |
+| page (greedy + iterated local search) | 30 of 36 | 2 | 340 |
+
+About 0.55 s per season on this container. **The 6 misses are the search's fault, not the
+problem's:** `eval/bowling-lane-sat.py` (CaDiCaL via python-sat; exactly-one per match and per
+pair each week, cardinality bounds per team and pair, week 1 fixed for symmetry) finds an
+assignment with every team at the bound for all six (`eval/bowling-lane-sat.txt`: 10x30, 12x30,
+16x32, 18x26, 20x30, 24x34, each SAT). Balance does not depend on which week a round falls in, so
+the answer holds for any round order.
+
+Tried and dropped (numbers from this session's runs, same 36 seasons unless named): a simulated
+annealing swap search (two matches of one week trade pairs) on squared deviation stalled at spread
+2 on most sizes from 10 teams up; guided local search (raising penalty weights on out-of-bounds
+cells) did worse than random kicks (10x30: 7 of 10 teams at the bound against 8); starting from a
+balanced first cycle with pair labels shifted by one each cycle (which keeps full cycles within
+one of even when the first cycle is a balanced tournament design) gave the same 30 of 36 and took
+1.7 times as long, and the search did not find a balanced first cycle at 20 or 32 teams anyway;
+closed forms f(round, diagonal) = (k + h r) mod P gave no balanced cycle for any h at 6 to 32, 40, 48 or 64 teams.
+
+Browser check: `node eval/browser-bowling.mjs` (`eval/browser-bowling.txt`, 10 checks at 390 px:
+sample 8 of 8 at the bound, odd league with the Vacancy and a skip date, reshuffle, an error
+hiding the old schedule, no horizontal scroll, no console errors).
+
+Open: close the 6 misses (ship SAT-found assignments for common sizes, or a stronger move such as
+re-solving two weeks jointly); lane-pair preferences (a team that must avoid the end pair); a
+"switch lanes each frame" note per pair for printed sheets; feeding real standings into the
+position rounds.
+
+## Calendar files that follow a rainout (2026-11-17)
+
+A team's `.ics` file used to give each game an id built from its date and its place in the
+round (`2-0-20261013-1@...`). A calendar import adds or updates events by that id and never
+deletes one missing from the new file, so when a rained-out game moved and the organiser
+re-sent the file, the player's calendar kept the old date as well as the new one. Every
+match now carries a **fixture id** (`fixture` on each match, `assignFixtureIds` in
+`calc.mjs`): the pair, lower team index first, and which meeting of that pair it is in the
+season as built (`0-3-1` is the second meeting of teams 0 and 3). Rainouts, pins and late
+entries copy the match and keep the id, and each move adds one to `moves`, written as the
+event's `SEQUENCE`. When a team withdraws, its removed fixtures go out as `STATUS:CANCELLED`
+events under the same ids, titled "Cancelled: ...", so a re-import marks them rather than
+leaving them in place. Officials' files add `-official` to the id so a referee who also plays
+does not have one event overwrite the other. The multi-division page (`divisionsIcs`) uses
+the division, the round and the pair.
+
+Measured with `node eval/ics-stable-uids.mjs` (`eval/ics-stable-uids.txt`): 9 league sizes
+(4 to 16 teams), single and double, 4 seeds, two random nights rained out and then the last
+team withdrawing mid-season. A player imports the first file, then the updated one; we count
+the events left over that are a **ghost** (no game then) or a **duplicate** (the same game
+twice). Old ids against fixture ids:
+
+| | team files | matches moved | old ids: ghost + duplicate | fixture ids |
+|---|---|---|---|---|
+| single division, two nights rained out | 584 | 640 | 1,139 + 0 | 0 + 0 |
+| then a team withdraws | 584 | | 512 + 2,222 | 0 + 0 |
+| multi-division example, one night rained out (4 runs) | 80 | 26 | 52 + 70 | 0 + 0 |
+
+The duplicates come from the old id's position-in-round part: removing or moving one game
+renumbered the others on that night. No file repeats an id.
+
+**Subscribe on the self-hosted league page.** `server.mjs`'s player page now offers, for the
+whole league (`/league/ics?t=...&team=all`, new) and each team, a `webcal://` subscribe link,
+a Google Calendar add-by-URL link, the plain address to paste into any app, and the download.
+A subscribed calendar re-reads the feed on its own schedule (each app decides how often), so
+a rainout reaches players without anyone re-sending a file. The address is taken from
+`PUBLIC_URL` when set, else the request's host (`x-forwarded-proto` for https behind Fly or
+Render); a host that is not a plain name is refused and the page falls back to downloads.
+The feed is served `inline` with `cache-control: no-cache`.
+
+**Not checked:** no real calendar app was used here. The counts above model an import that
+matches events by UID as RFC 5545 describes; how Google, Apple and Outlook each treat a
+re-imported file or a cancelled event, and how often they poll a subscription, is untested.
+Ids are stable while the season's base setup (teams, dates, courts, seed) is unchanged;
+editing those rebuilds the season and its ids.
 
 ## Import into TeamSnap or SportsEngine (2026-11-17)
 
@@ -609,7 +712,34 @@ Open: the same class at 47 on 8 x 9 (41 on 7 x 9 closed, next sections) (3 spare
 a night, no group of order k), and the fully booked 49 on 8 x 9 (43 on 7 x 9 closed 2026-11-17 by
 `eval/odd-orbit.py`, the section after next).
 
-### 47 teams on 8 x 9: five more runs from 13 of 16, no climb (2026-11-17, latest)
+### 49 teams on 8 x 9: a turn-fixed night does not lay out, and two hours of four solvers (2026-11-17, latest)
+
+The open fully booked size, 49 teams on 8 courts x 9 slots, was estimated at about 11 hours for
+`eval/odd-orbit.py` on one core. This run tried to cut that and did not. Both results are negative,
+and both are written down so the next run skips them (`eval/odd-orbit-sym.txt`).
+
+- **A second symmetry: no layout on a fully booked night.** `eval/odd-orbit-sym.py` adds to the
+  orbit model that the night's set of pairs is also fixed by turning the three cycles (A to B to C to
+  A, same position). That commutes with g and moves every full orbit, so the solver picks one pair
+  per class of three orbits. The pairs alone always exist (`eval/odd-orbit-sym-pairs.py`, SAT at 13
+  and 19). With the layout, every fully booked size tried was UNSAT: 13 on 3 x 6 in 0.5 s, 19 on
+  3 x 9 in 82 s, and 25 on 4 x 9 gave no answer in 11 minutes against 141 s without the symmetry.
+  With a court to spare it is SAT (13 and 19 on 4 x 9; 7 on 3 x 6). Fixing only some kinds of orbit
+  (`--only`) was UNSAT at 13 or no faster at 19 (39 s against 34 s). 49 on 8 x 9 is fully booked, so
+  this is not a route there. Two other symmetries fail on paper: swapping A and B pointwise maps an
+  orbit onto itself with no fixed pair, and any turn whose cube is a power of g other than the
+  identity puts two pairs of one orbit in the night.
+- **The plain model with four solvers at once, two hours each: no answer.** CaDiCaL 1.9, CaDiCaL
+  1.5.3, MapleChrono, and CaDiCaL 1.9 with totalizer instead of sequential-counter cardinalities,
+  one per core, all stopped at 6,600 to 7,000 s. That fits the ~4x-a-size trend (43 on 7 x 9 took
+  9,849 s alone).
+
+What is left for 49: one run of `eval/odd-orbit.py 49 --courts 8 --times 9 --solver cd19` of about 11 hours
+on its own core (a session's background limit is 2 hours, so it needs a resumable or split search),
+or a model that fixes the window shapes and team positions first. The tool still builds 49 on 8 x 9
+with waits.
+
+### 47 teams on 8 x 9: five more runs from 13 of 16, no climb (2026-11-17, later)
 
 The next step the section below asked for, run as written plus one new setting: three resumes of
 `eval/odd-lns.py` from the stored 13-of-16 state, side by side on four cores, 6,000 s each, and

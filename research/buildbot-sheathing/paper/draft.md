@@ -682,6 +682,32 @@ H1; the G1 at its 1.2 m poses keeps 1.6 N above the press window. Rebuilt on the
 the braked spec leaves the G1 0.011 mm and the H1 0.019 mm at a 5 N drag, but one H1 pose loses
 its balance controller and the G1's worst no-hose stack falls from 0.9160 to 0.9030.
 
+That loss is the stance, not the controller (milestone 42). The new pose set flips four of the
+G1's six held leg-joint sides (both hip rolls and both ankle rolls), so a two-by-two of leans and
+sides separates them: at the G1's worst pose the lean costs 1.30 points, the sides 0.00 and the
+interaction 0.00. At every pose where both side choices have a solution they give the same stack,
+because a side sets which way a joint is held and the stack counts only the loose ones. The sides
+still decide feasibility: with the old ones the re-leaned G1 at (1.2 m, +0.15 m) has no solution.
+Compared in one torque convention, the re-lean costs the H1 0.09 to 0.29 points per pose, and the
+G1 0.31 to 1.30 points at four poses while gaining 0.60 to 0.79 at two.
+
+Those figures use the controller's 'hold-min' torques; the spec re-plans its leg preload and
+squeeze for each stance (milestone 43). In that convention the re-lean does not cost the G1: its
+worst no-hose stack rises from 0.9160 to 0.9257 with the braked waist and from 0.9081 to 0.9257
+with the stock one, over the same poses plus one the old lean could not plan, and at its worst pose
+the two conventions now differ by 2.70 points. The price is paid by the H1 near the top of its
+reach. Two of its re-leaned poses keep a balance controller but cannot carry the 0.1 N m leg
+preload at a 50 N press (the stance allows 0.033 and 0.095 N m), so only three of its six re-leaned
+poses have a plan, and those lose 0.09 to 0.22 points.
+
+A per-pose preload of 0.9 of what each stance allows (0.030 and 0.085 N m) returns a plan at both
+poses (milestone 44), and their stacks do not move between no preload and 0.085 N m, so the stack
+alone cannot tell the two apart. The residual along the wall can. With a 0.2 N sensor error the
+H1's worst becomes 0.172 mm, against 0.019 mm on its other poses, all of it at (1.4 m, −0.15 m),
+where a joint in the controller's hold set flips and the leg preload cannot reach it; at (1.6 m, 0)
+the residual is 0.003 mm. The zero-press stance therefore keeps a spec-grade plan at four of the
+H1's six re-leaned poses.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every

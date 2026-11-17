@@ -35,6 +35,7 @@ test("no profit, unknown year, override", () => {
   assert.equal(z.solo401k.total, 0);
   assert.throws(() => retirementLimits(D(1000), { year: 2031 }), /pass limits/);
   const o = retirementLimits(D(100000), { year: 2031, limits: LIMITS[2026] });
-  assert.ok(!o.warnings.some((w) => /from memory/.test(w)));
+  assert.ok(!o.warnings.some((w) => /Notice 2025-67/.test(w)));
+  assert.ok(z.warnings.some((w) => /match the IRS text of Notice 2025-67/.test(w)));
 });
 function D(n) { return n * 100; }

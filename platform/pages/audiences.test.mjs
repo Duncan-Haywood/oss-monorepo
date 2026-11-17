@@ -152,3 +152,54 @@ test('slug rules claim the UK section 24 and 1099-K tools for their audiences', 
   assert.ok(audienceMatches(byId.freelancers, '1099-k-threshold-checker'));
   assert.ok(!audienceMatches(byId.freelancers, '1100-k-threshold-checker'));
 });
+
+test('the retirees page claims the drawdown-years tools and leaves saving-years and employer ones out', () => {
+  for (const slug of [
+    'rmd-calculator',
+    'qcd-calculator',
+    'medicare-irmaa-cliff-calculator',
+    'social-security-claiming-age-calculator',
+    'retirement-withdrawal-sequencer',
+    'pension-lump-sum-vs-annuity-calculator',
+    'uk-state-pension-ni-years-checker',
+  ]) {
+    assert.ok(audienceMatches(byId.retirees, slug), slug);
+  }
+  for (const slug of [
+    'retirement-plan-startup-credit-calculator',
+    'uk-pension-annual-allowance-calculator',
+    'sep-ira-contribution-calculator',
+    'inherited-ira-10-year-withdrawal-planner',
+  ]) {
+    assert.ok(!audienceMatches(byId.retirees, slug), slug);
+  }
+});
+
+test('the household pages claim parents\' and job-leavers\' tools and leave the business ones out', () => {
+  for (const slug of [
+    'child-tax-credit-calculator',
+    'dependent-care-fsa-vs-credit-calculator',
+    'nanny-tax-calculator',
+    'uk-statutory-maternity-pay-calculator',
+    'uk-shared-parental-pay-planner',
+    'uk-tax-free-childcare-calculator',
+  ]) {
+    assert.ok(audienceMatches(byId.parents, slug), slug);
+  }
+  for (const slug of ['childcare-center-break-even-calculator', 'kids-birthday-party-package-profit-calculator', 'babysitting-business-kit']) {
+    assert.ok(!audienceMatches(byId.parents, slug), slug);
+  }
+  for (const slug of [
+    'severance-package-calculator',
+    'cobra-vs-marketplace-calculator',
+    '401k-loan-vs-withdrawal-calculator',
+    'uk-redundancy-pay-calculator',
+    'au-redundancy-pay-calculator',
+    'job-offer-total-comp-calculator',
+  ]) {
+    assert.ok(audienceMatches(byId['job-changers'], slug), slug);
+  }
+  for (const slug of ['which-job-first', 'handyman-minimum-job-calculator', 'pto-accrual-liability-calculator', 'rsu-withholding-gap-calculator']) {
+    assert.ok(!audienceMatches(byId['job-changers'], slug), slug);
+  }
+});

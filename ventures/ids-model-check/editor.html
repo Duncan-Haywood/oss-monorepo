@@ -94,7 +94,7 @@
   import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
   import { Schema, parseIds } from "./ids.mjs";
   import { auditIds } from "./audit.mjs";
-  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, idsSchema, idsSchemaChoices, auditSchemaIds, schemaIdsOf, facetXml, editableAttributes, modelSets, valueTypes, ownSetName, specBases, specClassNames, commonSets, commonAttributes, attributeValueKind, commonPredefinedTypes, parseClassList, modelValueOffer, modelAttributes, modelCodes, appMatchCount, reqComplete, typeRow, untypeRow, templateTypeRow, fileTypeRefused, temporalType, TEMPORAL_EXAMPLE, datePattern, modelSubclassesLeftOut, modelSpec, valueChoices, numberValueProblem } from "./editor.mjs";
+  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, idsSchema, idsSchemaChoices, auditSchemaIds, schemaIdsOf, facetXml, editableAttributes, modelSets, valueTypes, ownSetName, specBases, specClassNames, commonSets, commonAttributes, attributeValueKind, commonPredefinedTypes, parseClassList, modelValueOffer, modelAttributes, modelCodes, appMatchCount, reqComplete, typeRow, untypeRow, templateTypeRow, fileTypeRefused, renameSuggestion, renameRow, temporalType, TEMPORAL_EXAMPLE, datePattern, modelSubclassesLeftOut, modelSpec, valueChoices, numberValueProblem } from "./editor.mjs";
   import { temporalKind } from "./temporal.mjs";
   import { isZip, unzipModel, inflateRawStream } from "./zip.mjs";
 
@@ -130,8 +130,20 @@
   // changing it: shown as its XML, written back unchanged, removable.
   const KIND = { entity: "class", property: "property", attribute: "attribute", classification: "classification", material: "material", partOf: "place" };
   const keptHtml = (L, f, inReq, act, si, i) => `<div class="req kept"><p style="margin:0 0 4px"><span class="tag muted">KEPT AS WRITTEN</span> ${esc(KIND[f.kind] || f.kind)}${inReq && f.cardinality && f.cardinality !== "required" ? ` (${esc(f.cardinality)})` : ""}</p><code>${esc(facetXml(f, L.S, inReq))}</code><br><button type="button" class="ghost small" data-act="${act}" data-s="${si}" data-r="${i}" style="margin-top:6px">Remove</button></div>`;
+  // A property the standard set lacks, written one slip from a name it has
+  // (editor.mjs renameSuggestion, the audit's "did you mean"): say so, and
+  // offer the template's name.
+  const renameHtml = (sug, si, ri, app) => {
+    const what = sug.fromSet !== sug.set ? `${sug.fromSet} is not a standard property set` : `${sug.set} has no standard property ${sug.fromName}`;
+    const to = sug.fromSet !== sug.set ? (sug.fromName !== sug.name ? `${sug.set}.${sug.name}` : sug.set) : sug.name;
+    return `<p class="rename" style="margin:6px 0 0;font-size:0.86rem"><span class="tag warn">NAME</span> ${esc(what)}; did you mean ${esc(to)}? A model that follows the standard can never pass this check as written. <button type="button" class="ghost small" data-act="rename-row" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>Use ${esc(to)}</button></p>`;
+  };
   function reqHtml(L, spec, si, r, ri, app = false) {
-    if (r.fixed) return keptHtml(L, r.fixed, true, "del-req", si, ri);
+    if (r.fixed) {
+      const sug = renameSuggestion(L, specBases(spec), r);
+      const k = keptHtml(L, r.fixed, true, "del-req", si, ri);
+      return sug ? k.replace(/<\/div>$/, renameHtml(sug, si, ri, app) + "</div>") : k;
+    }
     // app: a row of the applicability (which elements the specification is
     // about), written without a cardinality; otherwise a requirement.
     const id = (k) => `${app ? "a" : "r"}-${si}-${ri}-${k}`;
@@ -181,7 +193,7 @@
       } else {
         const props = r.set ? propertiesOf(L.psets, L.S, r.set) : [];
         const pcount = (n) => { const q = mset && mset.props.find((x) => x.name === n); return q ? `, ${q.count} in model` : ""; };
-        h += `<div><label for="${id("name")}">Property</label><select id="${id("name")}" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="name">${opt("", props.length ? "choose a property" : "-", r.name)}${props.map((p) => opt(p.name, p.name + (p.dataType ? ` (${p.dataType.replace(/^IFC/, "").toLowerCase()}${pcount(p.name)})` : pcount(p.name) ? ` (${pcount(p.name).slice(2)})` : ""), r.name)).join("")}</select></div>`;
+        h += `<div><label for="${id("name")}">Property</label><select id="${id("name")}" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="name">${opt("", props.length ? "choose a property" : "-", r.name)}${r.name && !props.some((x) => x.name === r.name) ? opt(r.name, r.name + " (not in the template)", r.name) : ""}${props.map((p) => opt(p.name, p.name + (p.dataType ? ` (${p.dataType.replace(/^IFC/, "").toLowerCase()}${pcount(p.name)})` : pcount(p.name) ? ` (${pcount(p.name).slice(2)})` : ""), r.name)).join("")}</select></div>`;
         const p = props.find((x) => x.name === r.name);
         if (p && r.untyped) {
           valueKind = "text"; note = UNTYPED_NOTE + (p.dataType ? ` The template gives ${p.dataType}.` : "");
@@ -354,6 +366,8 @@
     const vals = r.mode === "equals" ? [r.equals] : [];
     const caps = vals.filter((v) => /^(true|false)$/i.test(v) && v !== v.toLowerCase());
     if (boolType && caps.length) h += `<p class="warn" style="margin:6px 0 0;font-size:0.86rem">${esc(caps.join(", "))} is not how IDS writes a boolean (true or false). With no dataType, tools disagree: this checker matches no object with it, IfcTester matches the ones that hold it. ${esc(typeBtn)} turns it into ${esc(vals.map((v) => v.toLowerCase()).join(", "))}, which both read the same way.</p>`;
+    const sug = renameSuggestion(L, specBases(spec), r);
+    if (sug) h += renameHtml(sug, si, ri, app);
     if (note) h += `<p class="muted" style="margin:6px 0 0;font-size:0.86rem">${esc(note)}${typeBtn ? ` <button type="button" class="ghost small" data-act="type-row" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>${esc(typeBtn)}</button>` : ""}${tplBtn ? ` <button type="button" class="ghost small" data-act="template-type" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>${esc(tplBtn)}</button>` : ""}${anyBtn ? ` <button type="button" class="ghost small" data-act="untype-row" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>Accept any data type</button>` : ""}</p>`;
     if (realWarn) h += `<p class="warn" style="margin:6px 0 0;font-size:0.86rem">This value has no dataType and the model holds a real number: tools disagree on whether it matches. Ask for any value, or ${esc(typeBtn || "write a dataType")}.</p>`;
     // How many of the model's objects of these classes the condition keeps.
@@ -646,6 +660,12 @@
       const q = m && m.props.find((x) => x.name === r.name);
       const t = q ? untypeRow(L, r, q.dataType) : null;
       if (t) { rows[+e.target.dataset.r] = t.row; record("editor_untyped"); if (t.dropped) alert(t.real ? "With no dataType, checkers read a real-number value differently, so the row now asks for any value (presence)." : "A range needs a dataType, so the row now asks for any value. Set a value again if you need one."); }
+    }
+    // A property one slip from the template's name, moved to that name.
+    if (a === "rename-row") {
+      const L = loaded[doc.schema], s = doc.specs[si], r = rows[+e.target.dataset.r];
+      const t = renameRow(L, specBases(s), r);
+      if (t) { rows[+e.target.dataset.r] = t; record("editor_renamed"); }
     }
     // An opened standard row in a dataType the template refuses, moved to the template's.
     if (a === "template-type") {

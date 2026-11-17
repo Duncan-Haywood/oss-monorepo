@@ -4,6 +4,7 @@ pieces it leans on: the period tachometer, the wheel speed loop and the steady-w
 import json
 import math
 import os
+import statistics
 import tempfile
 import unittest
 
@@ -1408,6 +1409,23 @@ class LoopDropTest(unittest.TestCase):
         self.assertTrue(all(s is None for s in steps[:-1]))
         self.assertLessEqual(len(steps) - 1, 40)              # 5 + 7 time constants x 3 t0 grids
 
+    def test_polish_finds_the_ball_between_grid_points(self):
+        # README "Not the simulator's step either": the 3-level t0 grid's last step (1/64 of a revolution) left a 0.3%
+        # scatter on noise-free wheels; one solve at the parabola's vertex halves it and adds no step
+        for rpm in (2500, 5000):
+            errs = {}
+            for polish in (False, True):
+                errs[polish] = []
+                for i in range(16):                        # the ball at 16 moments across a revolution or two
+                    ps, ticks = self._wheel(rpm, 0.08, 0.3, 9000, ball_ms=1500 + i)
+                    errs[polish].append(controller.drop_from_commands(ps, ticks, polish=polish)[0] / 0.08 - 1)
+            sd = {p: statistics.pstdev(e) for p, e in errs.items()}
+            self.assertLess(sd[True], 0.6 * sd[False], rpm)
+            self.assertLess(max(map(abs, errs[True])), 0.004, rpm)
+        ps, ticks = self._wheel(3000, 0.09, 0.4, 9000)
+        self.assertEqual(len(list(controller.drop_from_commands_steps(ps, ticks))),
+                         len(list(controller.drop_from_commands_steps(ps, ticks, polish=False))))
+
     def test_no_fit_without_commands_or_revolutions(self):
         ps, ticks = self._wheel(3000, 0.09, 0.4, 9000)
         self.assertIsNone(controller.drop_from_commands(ps, []))
@@ -1782,3 +1800,32 @@ class RefitTest(unittest.TestCase):
                 fh.writelines(json.dumps(r) + "\n" for r in recs)
             self.assertAlmostEqual(host.recovery_from_log(path), 0.3, delta=0.03)
             self.assertIsNone(host.recovery_from_log(os.path.join(d, "missing.jsonl")))
+
+
+class SpreadTakeTest(unittest.TestCase):
+    """SimFeeder(take_ms=) spreads the ball's take over its contact time (tests/take_spread.py): the same rpm leaves
+    the wheels as an instant take, only later, and the force profile sets how it is shared out."""
+
+    def _take(self, take_ms, shape="halfsine"):
+        sim = SimFeeder(take_ms=take_ms, take_shape=shape, wheel_tau_s=1e9)   # a wheel that neither speeds up nor coasts
+        sim.wheel, sim._drive = [5000.0, 3000.0], [0.0, 0.0]
+        sim._take_momentum()
+        trace = []
+        for _ in range(8):
+            sim.run_ms(1)
+            trace.append(sim.wheel[0])
+        return sim, trace
+
+    def test_spread_take_removes_the_instant_takes_rpm(self):
+        inst, _ = self._take(0.0)
+        for shape in ("halfsine", "front"):
+            sim, trace = self._take(4.0, shape)
+            self.assertEqual(sim.taken, inst.taken)                # the same momentum, recorded at first contact
+            self.assertAlmostEqual(trace[3], inst.wheel[0], places=6)   # all of it gone after 4 ms
+            self.assertGreater(trace[0], trace[3])                 # but not at once
+            self.assertEqual(sim._takes, [])
+
+    def test_front_profile_takes_more_early(self):
+        _, half = self._take(4.0, "halfsine")
+        _, front = self._take(4.0, "front")
+        self.assertLess(front[0], half[0])                         # 7/16 of it in the first ms against 15%

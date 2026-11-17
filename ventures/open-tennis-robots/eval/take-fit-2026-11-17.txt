@@ -1,0 +1,32 @@
+build (0, 1) (take front 4.0 ms): picked 5.0 ms half-sine
+build (1, 2) (take halfsine 3.0 ms): picked 2.0 ms half-sine
+build (2, 1) (take front 4.0 ms): picked 2.0 ms half-sine
+build (0, 0) (take halfsine 6.0 ms): picked 6.0 ms half-sine
+build (1, 1) (take front 4.0 ms): picked 0.0 ms half-sine
+build (2, 0) (take halfsine 6.0 ms): picked 6.0 ms half-sine
+build (0, 2) (take halfsine 3.0 ms): picked 3.0 ms half-sine
+build (2, 2) (take halfsine 3.0 ms): picked 4.0 ms half-sine
+build (1, 0) (take halfsine 6.0 ms): picked 6.0 ms half-sine
+575 wheel fits at 1000 rpm and up; reading / true drop, mean and sd
+take             fit                       n    mean     sd sd >= 4,500 rpm
+halfsine 6.0 ms  step (shipped)          190  0.9968  0.98%           1.22%
+halfsine 6.0 ms  true time, 4 parts      190  0.9996  0.19%           0.21%
+halfsine 6.0 ms  true time, 2 parts      190  0.9987  0.45%           0.58%
+halfsine 6.0 ms  true time, 8 parts      190  1.0001  0.18%           0.15%
+halfsine 6.0 ms  guess 4 ms half-sine    190  0.9974  0.75%           0.98%
+halfsine 6.0 ms  picked per wheel        190  0.9996  0.17%           0.22%
+halfsine 6.0 ms  picked per build        190  0.9996  0.19%           0.21%
+front 4.0 ms     step (shipped)          192  0.9994  0.41%           0.51%
+front 4.0 ms     true time, 4 parts      192  1.0003  0.21%           0.19%
+front 4.0 ms     true time, 2 parts      192  0.9997  0.23%           0.30%
+front 4.0 ms     true time, 8 parts      192  1.0002  0.17%           0.15%
+front 4.0 ms     guess 4 ms half-sine    192  0.9999  0.26%           0.26%
+front 4.0 ms     picked per wheel        192  1.0003  0.11%           0.15%
+front 4.0 ms     picked per build        192  1.0000  0.27%           0.37%
+halfsine 3.0 ms  step (shipped)          193  1.0002  0.21%           0.23%
+halfsine 3.0 ms  true time, 4 parts      193  1.0001  0.17%           0.13%
+halfsine 3.0 ms  true time, 2 parts      193  1.0001  0.18%           0.25%
+halfsine 3.0 ms  true time, 8 parts      193  1.0004  0.16%           0.17%
+halfsine 3.0 ms  guess 4 ms half-sine    193  1.0006  0.19%           0.23%
+halfsine 3.0 ms  picked per wheel        193  1.0003  0.09%           0.13%
+halfsine 3.0 ms  picked per build        193  1.0003  0.14%           0.16%

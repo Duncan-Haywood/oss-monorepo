@@ -1,0 +1,45 @@
+(1) milestone 32's leans, milestone 38's sides: robot | pose | spec-plan torques (milestone 40 D) | 'hold-min' torques (milestone 41 C, here) | difference (points)
+  g1 [0.4, 0.15] | 0.9558 | 0.9543 | +0.16
+  g1 [0.8, -0.15] | 0.9636 | 0.9539 | +0.97
+  g1 [1.0, 0.0] | 0.9464 | 0.9516 | -0.52
+  h1 [0.4, 0.15] | 0.9767 | 0.9725 | +0.42
+  h1 [0.6, 0.15] | 0.9832 | 0.9821 | +0.11
+  h1 [0.8, 0.15] | 0.9837 | 0.9829 | +0.08
+  h1 [1.2, 0.15] | 0.9755 | 0.9725 | +0.30
+  h1 [1.4, -0.15] | 0.9723 | 0.9632 | +0.91
+  h1 [1.6, 0.0] | 0.9695 | 0.9638 | +0.56
+  9 of 34 poses differ, by up to 0.97 points; each robot's worst pose is the same in both
+  g1: worst 0.9160 at [1.2, 0.0] (plan) vs 0.9160 at [1.2, 0.0] ('hold-min')
+  h1: worst 0.9564 at [1.6, -0.15] (plan) vs 0.9564 at [1.6, -0.15] ('hold-min')
+
+(2) re-lean cost per re-leaned pose, one convention ('hold-min' torques): robot | pose | before | after | change (points) | milestone 41's printed change (mixed conventions)
+  g1 [1.0, -0.15] | 0.9534 | 0.9503 | -0.31 | -0.31
+  g1 [1.0, 0.0] | 0.9516 | 0.9484 | -0.32 | +0.20
+  g1 [1.0, 0.15] | 0.9468 | 0.9547 | +0.79 | -
+  g1 [1.2, -0.15] | 0.9358 | 0.9418 | +0.60 | +0.60
+  g1 [1.2, 0.0] | 0.9160 | 0.9030 | -1.30 | -1.30
+  g1 [1.2, 0.15] | 0.9480 | 0.9363 | -1.17 | -1.17
+  g1: 4 lose 0.31-1.30 points, 2 gain 0.60-0.79
+  h1 [1.4, -0.15] | 0.9632 | 0.9620 | -0.11 | -1.03
+  h1 [1.4, 0.0] | 0.9744 | 0.9734 | -0.10 | -0.10
+  h1 [1.4, 0.15] | 0.9765 | 0.9756 | -0.09 | -0.09
+  h1 [1.6, -0.15] | 0.9564 | - | no 'hold-min' solution
+  h1 [1.6, 0.0] | 0.9638 | 0.9610 | -0.29 | -0.85
+  h1 [1.6, 0.15] | 0.9677 | 0.9655 | -0.22 | -0.22
+  h1: 5 lose 0.09-0.29 points, 0 gain -
+
+(3) the split, every re-leaned pose with all four cells: robot | pose | lean | sides | interaction (points)
+  g1 [1.0, -0.15] | -0.31 | +0.00 | +0.00
+  g1 [1.0, 0.0] | -0.32 | +0.00 | +0.00
+  g1 [1.0, 0.15] | +0.79 | +0.00 | +0.00
+  g1 [1.2, -0.15] | +0.60 | +0.00 | +0.00
+  g1 [1.2, 0.0] | -1.30 | +0.00 | +0.00
+  h1 [1.4, -0.15] | -0.11 | +0.00 | +0.00
+  h1 [1.4, 0.0] | -0.10 | +0.00 | +0.00
+  h1 [1.4, 0.15] | -0.09 | +0.00 | +0.00
+  h1 [1.6, 0.0] | -0.29 | +0.00 | +0.00
+  h1 [1.6, 0.15] | -0.22 | +0.00 | +0.00
+
+(4) held joints (all actuated) per pose, both sides choices ('hold-min', milestone 32 leans): poses where the count differs
+  g1 [1.2, 0.15]: 21 vs 20
+  1 poses where the held-joint count changes with the sides

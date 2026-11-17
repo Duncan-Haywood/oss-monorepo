@@ -210,7 +210,7 @@ export function calculateBid(input) {
   const profit = price - totalCost;
   const pieceCount = doors + drawers + openings;
 
-  const hasProposed = input.proposedPrice !== null && input.proposedPrice !== undefined && input.proposedPrice !== '';
+  const hasProposed = String(input.proposedPrice ?? '').trim() !== '';
   const proposedPrice = hasProposed ? number(input.proposedPrice, 'Price you are considering') : null;
 
   const costShare = (amount) => (totalCost === 0 ? 0 : amount / totalCost * 100);

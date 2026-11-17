@@ -112,7 +112,7 @@ flagships:
       table, a supplier's terms letter; (5) receipts OCR (five-reading vote keeps
       RapidOCR's total unless arithmetic confirms the majority, CORD train 542/583;
       page SRD 190/196 (port as lead), page CORD taxes kept (train 205/267),
-      WildReceipt held out 360/405, tax 207/272, SROIE 84.6%, US 79.6%, tax 74.6%;
+      WildReceipt held out 360/405, tax 209/272, SROIE 84.6%, US 79.6%, tax 74.6%;
       CLI 78.6%, tax 71.9%; CORD photos val 71.4%, train 62.2%, test 57.9%, tax
       16/41; open: OCR-bound); (6) payroll (README): two journal layouts read; open:
       a real Gusto or ADP export; (7) IRIS NEC and MISC rents files on IRS TY2025
@@ -123,11 +123,11 @@ flagships:
       Receipts, item (5): WildReceipt (eval/wildreceipt.py, Hugging Face
       kaydee/wildreceipt; Apache-2.0), SRD (eval/srd-fetch.mjs), CORD
       (eval/cord_images.py); tesseract via apt, RapidOCR via pip. All WildReceipt
-      photos read; test held out: five readings 360 of 405 totals, tax 207 of 272
-      (eval/wildreceipt-train1-2026-11-17.md). HTVA, TUA, Subtotal(12%VAT), 0.00 tax
-      read (eval/wildreceipt-tax-shapes-2026-11-17.md), unscored: huggingface.co
-      refused; next: with HF access re-score shard 1 and test; a fresh labelled
-      source. CORD leftovers: train-28, 1009 (eval/cord-shard0-lead-2026-11-17.md).
+      photos read; test held out: five readings 360 of 405 totals, tax 209 of 272,
+      page 208, after HTVA/TUA/12%VAT/0.00 shapes and per-rate VAT tables, re-scored
+      (eval/wildreceipt-rescore-2026-11-17.md); next: VAT5%: 668 (point lost); a
+      fresh labelled source. CORD leftovers: train-28, 1009
+      (eval/cord-shard0-lead-2026-11-17.md).
     hosts: [https://huggingface.co/, https://raw.githubusercontent.com/]
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
@@ -194,10 +194,10 @@ flagships:
       fit (covariateBalance, eval/synth-balance-real.out.txt) 2026-11-17: CA 1.66 sd
       richer than its synthetic, MA balanced yet 6th; placeboWarning (>=80% matched
       better) holds every false find (README "Which imbalance biases the gap"); CLI
-      --donors/--covariates ships it 2026-11-17; two covariates (README "Two
-      covariates"): harmless one's warning 0 of 170 false finds, but 1.27x bias (bar
-      failed); next the table on the page, non-step shocks. More open items:
-      NEXT.md.
+      and page ship it 2026-11-17 (README "A synthetic control on the page", Prop 99
+      example); two covariates: harmless one's warning 0 of 170 false finds, 1.27x
+      bias (bar failed); next non-step shocks, a real deployer's panel. More open
+      items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     why: >-
@@ -232,15 +232,14 @@ flagships:
       passes Mustang; open: a real business's PINT file. A run that lands a slice
       replaces its item here. More open items: NEXT.md.
     buildable: >-
-      Oman's PINT rules all run since 2026-11-17 (18 were skipped on every file;
-      prolog fix), and PINT/ZATCA match SaxonC-HE's rule ids on 2,268 whitespace
-      copies of 182 publisher examples bar one rule's label
-      (eval/pint-zatca-whitespace-2026-11-17.md). Next: CIUS-RO, CIUS-PT, CIUS-HR,
-      NLCIUS and the French plain-only sets against SaxonC the same way (SchXslt
-      compiles their .sch; eval/profile-whitespace-crosscheck.mjs takes
-      --xsl-roots); xs:dateTime leaves (FA(3), NAV timestamps) now in CASTABLE:
-      measure them as eval/nbsp-other-formats-2026-11-17.md does. No network beyond
-      PyPI, Maven and GitHub.
+      Every plain-only set now matches SaxonC-HE's rule ids on whitespace copies of
+      the publishers' examples: PINT/ZATCA, CIUS-RO/PT/HR, NLCIUS
+      (eval/cius-whitespace-2026-11-17.md) and the French sets (BR-FR,
+      EXTENDED-CTC-FR, Factur-X EXTENDED, CDAR, Flux 10), with INV-065 now in the
+      Flux 10 and CDAR readers (eval/french-whitespace-2026-11-17.md). Next:
+      xs:dateTime leaves (FA(3), NAV timestamps) now in CASTABLE: measure them as
+      eval/nbsp-other-formats-2026-11-17.md does. No network beyond PyPI, Maven and
+      GitHub.
   - venture: shift-roster-builder
     inputs_only: >-
       a live deploy with real punches, a real payroll template, a manager's
@@ -291,11 +290,10 @@ flagships:
       Public samples, no key: github.com/drewnoakes/metadata-extractor-images
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
       eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`; its CIFF CRWs all read).
-      Bayer trees parked: a range guard passes 6 fresh cameras, misses K-1 II/A7
-      III; no fresh frames left (eval/bayer-boosted-guard-*). Noise-aware: 2.2x
-      faster, same bytes (eval/noise-aware-full-frame-cost-*); scale over 0.8 fails;
-      next: a card floor (sweep --card) on real multi-frame raw.pixls.us sets. DNG
-      1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
+      Interpolated sRGB encode 2026-11-17; a 3-stop lift loses 0 of the screen codes
+      the old one lost 1-39 of (eval/shadow-lift-banding-*). Noise-aware: a card
+      floor (sweep --card) on real multi-frame raw.pixls.us sets. DNG 1.7.1.0 spec
+      PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
@@ -364,7 +362,9 @@ flagships:
       floors, frontier picker, blackout fit, WebAssembly step: README 2026-11-11 to
       2026-11-15 sections; 2026-11-17 shorter seasons with even strength of
       schedule, eval/seed-balance.txt; TeamSnap and SportsEngine import files,
-      eval/platform-templates-2026-11-17.md). 2026-11-15: 3-game nights
+      eval/platform-templates-2026-11-17.md; calendar ids per fixture,
+      eval/ics-stable-uids.txt; bowling seasons, lane pairs rotated evenly: 30 of 36
+      at the bound, 6 misses SAT-feasible, eval/bowling-lanes.txt). 3-game nights
       (eval/three-game-nights.txt): SAT session designs (session-designs.mjs) take
       every even 10-48 teams on 6 slots, 16 of 19 sizes on 9, to 0 waits; 8 on 2x6,
       12 on 2x9 UNSAT. Odd leagues (eval/odd-night-sat.py, odd-designs.mjs): 11-25
@@ -376,22 +376,18 @@ flagships:
       3 k-cycles); even 40, 46 on 3 sessions 0 waits (eval/session-orbit.py). 29 on
       5x9, 35 on 6x9: 0 waits (odd-lns.py). 41 on 7x9 0 waits (last night UNSAT
       alone, eval/lns-bad-night.py; re-dealt with the short night). 43 on 7x9 0
-      waits (odd-orbit.py, 9,849 s). Next, most valuable first: 47 on 8x9 (13 of 16;
-      LNS stalled: 5 runs from 13, 0 climbs, night 2 UNKNOWN at 1 h; next: a new
-      model, orbit or symmetry-broken night); 49 on 8x9 (orbit, ~11 h est.); the
-      rest of the 20-team gap (40 to 44 still ~444-550: four-round re-deals or a
-      longer run, now ~4x cheaper; or a starter family climbed with the floor as its
-      score). More open items: NEXT.md.
+      waits (odd-orbit.py, 9,849 s). Next, most valuable first: bowling's 6 misses
+      (eval/bowling-lane-sat.txt). More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "The spin
-      error was there without the jitter" (noise-free plants miss spin by 0.53-0.58%
-      too, from a 0.3% scatter per drop reading that exact edge timing barely moves:
-      not the 1 us timer, eval/reading-floor-2026-11-17.txt). Next: rerun
-      tests/reading_floor.py's builds at 0.1 ms simulator steps (simulator floor or
-      a missing drop-model term); ball hold: measure WHEEL_RPM_FULL error's cost on
-      0.2 s wheels; an ESC with its own speed loop.
+      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "A take that
+      lasts a few milliseconds" (a 6 ms ball contact reads 0.82% sd as a step and
+      puts spin 1.5% off; LOOP_TAKE contact-time term, off by default, 0.19%; the
+      least-rms pick of 7 contact times matches the truth,
+      eval/take-fit-2026-11-17.txt). Next: a contact-time survey on the board's
+      calibration drill, as the ESC-lag survey; ball hold: measure WHEEL_RPM_FULL
+      error's cost on 0.2 s wheels; an ESC with its own speed loop.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -439,31 +435,33 @@ flagships:
       2026-11-17 --organum, a Musica enchiriadis second voice on --repeat passes 2-N
       (68 of 68 corpus files stay in E2-E4); 2026-11-17: lipShut (dark-vowel m)
       default; lipHold failed held-out b, opt-in; a slow lip closure failed held-out
-      c (123 to 125 of 144, 3 wanted), opt-in; next: c's cluster-onset -um;
-      levelFade (a release read as a nasal) opt-in, untested on d). Open checks that
-      need a person: listen to the studio page, --sing, the options (--stretch,
-      --halftime, --fills, --limit pumping, stems, sections, breakdown, riser, the a
-      cappella verse and whether the key lift sounds like a lift, --organum over a
-      band); --lrc in a real player and --markers/--stems in a DAW; --cues (and its
-      section lines), RECORDING-GUIDE.md and the E2-E4 range with real singers; the
-      release kit against a distributor's real form; the Te Deum/3427/3912/3775
-      fixes (eval/scan-check-verdicts.md). master-cli passed EBU Tech 3341/3342 from
-      their text; open: the EBU's WAVs (403), Apple/Amazon/Tidal levels. scan.mjs
-      reads rhombi, quilismas, liquescents, lines at true thickness; tilted pages,
-      curled staves straightened (eval/staff-curl-check.md); 3506/3679 fixed
-      2026-11-15 (eval/broken-stroke-check.md); next: worn pages (new GABC needed),
-      mottled squares, one-step cephalici read (eval/one-step-cephalicus-check.md),
-      10 of 84 tuning misses left, 3408's strokes, 3464's cephalicus. More open
-      items: NEXT.md.
+      c (123 to 125 of 144, 3 wanted), opt-in; 2026-11-17: c's cluster-onset -um
+      misses traced to the synthesised murmur's beat phase, not the reader
+      (eval/cluster-um-report.md); longTilt opt-in; next: a held-out part on
+      eval/release-cells-report.md's cells). Open checks that need a person: listen
+      to the studio page, --sing, the options (--stretch, --halftime, --fills,
+      --limit pumping, stems, sections, breakdown, riser, the a cappella verse and
+      whether the key lift sounds like a lift, --organum over a band); --lrc in a
+      real player and --markers/--stems in a DAW; --cues (and its section lines),
+      RECORDING-GUIDE.md and the E2-E4 range with real singers; the release kit
+      against a distributor's real form; the Te Deum/3427/3912/3775 fixes
+      (eval/scan-check-verdicts.md). master-cli passed EBU Tech 3341/3342 from their
+      text; open: the EBU's WAVs (403), Apple/Amazon/Tidal levels. scan.mjs reads
+      rhombi, quilismas, liquescents, lines at true thickness; tilted pages, curled
+      staves straightened (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
+      (eval/broken-stroke-check.md); next: worn pages (new GABC needed), mottled
+      squares, one-step cephalici read (eval/one-step-cephalicus-check.md), 10 of 84
+      tuning misses left, 3408's strokes, 3464's cephalicus. More open items:
+      NEXT.md.
     buildable: >-
-      Coda reader rounds on synthetic held-out parts, no outside input
-      (eval/coda-check.mjs, eval/dark-nasal-diag.mjs; README "A dark-vowel m that
-      closes slowly"): c's cluster-onset -um (brum, glum, stum, flum: 18 of 48 read
-      as nothing on A#3-E4); a held-out part for levelFade (opt-in; README "A /u/
-      release read as a nasal": d untested, 0 vowel-only misses), its cells picked
-      where a vowel-only release ends in the window's last 30 ms. OMR (scan.mjs)
-      items in next: one-step cephalici, 10 of 84 tuning misses, 3408's strokes,
-      3464's cephalicus.
+      Coda reader, no outside input: a held-out part built on
+      eval/release-cells-report.md's cells (picked before any reader runs) to
+      register levelFade and longTilt (both opt-in; README "Cluster onsets before
+      -um", "A /u/ release read as a nasal"). The cluster-onset -um misses are a
+      synthesis fault (the murmur's darkness follows the closure's phase in the
+      voices' beating, eval/cluster-um-report.md): a murmur dark in every phase,
+      sing.mjs. OMR (scan.mjs) items in next: one-step cephalici, 10 of 84 tuning
+      misses, 3408's strokes, 3464's cephalicus.
   # Added 2026-11-16 (new venture, construction direction): buildingSMART IDS 1.0
   # checking of IFC models, in a browser tab or CI. Depth: a full IDS engine
   # scored on buildingSMART's 334 test pairs and cross-checked against IfcTester.
@@ -475,10 +473,8 @@ flagships:
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
-      (eval/ifcxml-xbim-2026-11-16.md); the IDS editor (editor.html): a 'did you
-      mean' for a property the template lacks (Portugal's Lenght for Length, 8
-      public facets, eval/template-type-2026-11-17.md); the 20 numeric lists on
-      non-element attributes in no-class specs; more real exports through
+      (eval/ifcxml-xbim-2026-11-16.md); the 20 numeric lists on non-element
+      attributes in no-class specs; more real exports through
       eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
     next: >-
@@ -504,4 +500,6 @@ flagships:
       audit in every named schema, false page errors 18 to 0 on 18 public files); a
       standard property in the file's own dataType 2026-11-17
       (eval/template-type-2026-11-17.md: 16 rows in 7 public files, Use the
-      template's type, 14 pset-datatype errors to 0). More open items: NEXT.md.
+      template's type, 14 pset-datatype errors to 0). 'did you mean' rows 2026-11-17
+      (eval/name-suggestion-2026-11-17.md: 17 rows in 7 public files, name errors 31
+      to 14). More open items: NEXT.md.

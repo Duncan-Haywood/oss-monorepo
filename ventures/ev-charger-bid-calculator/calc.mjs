@@ -292,7 +292,7 @@ export function calculateBid(input = {}) {
   const serviceHeadroom = existingServiceAmps - estimatedExistingLoad;
   const serviceUpgradeSuggested = serviceHeadroom < breakerAmps && panelWork !== 'service_upgrade';
 
-  const hasProposed = input.proposedPrice !== null && input.proposedPrice !== undefined && input.proposedPrice !== '';
+  const hasProposed = String(input.proposedPrice ?? '').trim() !== '';
   const proposedPrice = hasProposed ? number(input.proposedPrice, 'Price you are considering') : null;
 
   const share = (amount) => (totalCost === 0 ? 0 : amount / totalCost * 100);

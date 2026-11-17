@@ -7,8 +7,12 @@ the develop adds over what was held before it (``tracemalloc``, which numpy repo
 SHA-256 of the 16-bit output are recorded. Run it once against each version of ``src`` (``PYTHONPATH``)
 to compare their cost, and their digests to check the outputs are the same bytes.
 
-    PYTHONPATH=src python tools/noise_aware_cost.py FILE [FILE ...] > rows.jsonl
+    PYTHONPATH=src python tools/noise_aware_cost.py [--keep DIR] FILE [FILE ...] > rows.jsonl
     python tools/noise_aware_cost.py --compare old.jsonl new.jsonl
+    python tools/noise_aware_cost.py --codes OLD_DIR NEW_DIR    # 16-bit code differences of kept outputs
+
+``--keep DIR`` saves each noise-aware output as ``DIR/<stem>.npy`` (uint16, (h, w, 3)), so two versions whose
+digests differ can be compared code by code (``--codes``; eval/noise-aware-float32-2026-11-17.md).
 
 A raw read directly carries no colour matrix; files without one get the sRGB one as a stand-in, as
 ``tools/noise_fallback_real.py`` does (colour does not enter the blend).
@@ -24,7 +28,7 @@ import tracemalloc
 from pathlib import Path
 
 
-def one(path: Path) -> dict:
+def one(path: Path, keep: Path | None = None) -> dict:
     from shootflow.raw_develop import TAG_COLOR_MATRIX_1, DevelopSettings, develop, read_raw
 
     sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -54,7 +58,32 @@ def one(path: Path) -> dict:
         return row
     row["mp"], row["cfa"], row["used"] = round(w * h / 1e6, 2), rep.cfa, rep.demosaic
     row["sha256"] = hashlib.sha256(bytes(px)).hexdigest()
+    if keep is not None:
+        import numpy as np
+
+        keep.mkdir(parents=True, exist_ok=True)
+        np.save(keep / f"{path.parent.name}__{path.stem}.npy", np.frombuffer(bytes(px), dtype=np.uint16).reshape(h, w, 3))
     return row
+
+
+def codes(old_dir: Path, new_dir: Path) -> None:
+    """Per kept output: the share of 16-bit codes that differ, the largest difference, and the PSNR between the
+    two (on the 0-65535 scale; inf when identical)."""
+
+    import numpy as np
+
+    print("| file | codes differing | share | max diff | PSNR dB |")
+    print("|---|---|---|---|---|")
+    for f in sorted(old_dir.glob("*.npy")):
+        g = new_dir / f.name
+        if not g.exists():
+            continue
+        a, b = np.load(f).astype(np.int32), np.load(g).astype(np.int32)
+        d = np.abs(a - b)
+        n = int((d > 0).sum())
+        mse = float((d.astype(np.float64) ** 2).mean())
+        psnr = float("inf") if mse == 0 else 10 * np.log10(65535.0 ** 2 / mse)
+        print(f"| {f.stem.replace('__', '/')} | {n:,} of {d.size:,} | {n / d.size:.2e} | {int(d.max())} | {psnr:.1f} |")
 
 
 def compare(old_path: Path, new_path: Path) -> None:
@@ -77,8 +106,14 @@ def compare(old_path: Path, new_path: Path) -> None:
 
 
 if __name__ == "__main__":
-    if sys.argv[1:2] == ["--compare"]:
-        compare(Path(sys.argv[2]), Path(sys.argv[3]))
+    args = sys.argv[1:]
+    if args[:1] == ["--compare"]:
+        compare(Path(args[1]), Path(args[2]))
+    elif args[:1] == ["--codes"]:
+        codes(Path(args[1]), Path(args[2]))
     else:
-        for a in sys.argv[1:]:
-            print(json.dumps(one(Path(a))), flush=True)
+        keep = None
+        if args[:1] == ["--keep"]:
+            keep, args = Path(args[1]), args[2:]
+        for a in args:
+            print(json.dumps(one(Path(a), keep)), flush=True)

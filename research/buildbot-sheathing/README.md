@@ -554,6 +554,39 @@ Statics; the lean's and the controller's side choice's shares of that loss are n
 
 ![Press range each stance balances, before and after re-leaning to stand at zero press, against the rigid-body width](experiments/m41_stance0/figure.png)
 
+**Milestone 42: is that 1.3-point loss the stance or the controller?** The stance. Re-leaning flipped four of the
+G1's six held leg-joint sides (both hip rolls, both ankle rolls), so a 2 × 2 (leans × sides) separates them: at the
+G1's worst pose the lean costs **1.30 points** and the sides **0.00**, with no interaction (H161–H163 held), and at
+every pose where both side choices solve they give the same stack to the printed digit, because a side says which way
+a joint is held, not whether. The flip still matters: with the old sides one re-leaned G1 pose has no controller
+solution (H164 refuted). A post hoc check also corrects milestone 41's per-pose figures, which compared stacks from
+two torque conventions: like for like, the re-lean costs the H1 **0.09–0.29 points** per pose (not 0.1–0.9), and the
+G1 loses 0.31–1.30 at four poses and gains 0.60–0.79 at two. Statics, 'hold-min' torques without the leg preload.
+
+![The no-hose clean-sheet stack at each re-leaned pose in the four lean × sides cells: the sides never move a bar](experiments/m42_sides/figure.png)
+
+**Milestone 43: what does the zero-press stance cost in the spec's own plan?** On the G1, nothing: it gains. Milestones
+41 and 42 used the controller's 'hold-min' torques; the spec re-plans its 0.1 N m leg preload and 10 N squeeze for each
+stance, and with those the G1's worst no-hose stack rises from 0.9160 to **0.9257** with the braked waist (+0.97
+points) and from 0.9081 to 0.9257 with the stock one, over the same poses plus one the old lean could not plan. At the
+worst pose the two conventions now differ by 2.70 points (0.9300 against 0.9030). The cost moves to the H1 near the top
+of its reach: two re-leaned poses keep a controller but cannot carry the 0.1 N m leg preload at a 50 N press (the
+stance allows 0.033 and 0.095 N m), so only 3 of its 6 re-leaned poses have a spec plan; those lose 0.09–0.22 points.
+H166–H168 held, H165 and H169 refuted. Statics, zero hose force, exact sensor.
+
+![The no-hose clean-sheet stack at each re-leaned pose, spec plan against 'hold-min' torques, before and after the re-lean](experiments/m43_specstack/figure.png)
+
+**Milestone 44: can a smaller leg preload rescue the H1's two dropped poses?** One of them. Preloading each leg to 0.9
+of what the stance allows (0.030 and 0.085 N m instead of 0.1) gives both poses a spec plan, and the clean-sheet stack
+does not move at all between 0 and 0.085 N m (0.9715 and 0.9668, 0.08 and 0.27 points under the old lean). But with a
+0.2 N sensor error the worst residual along the wall becomes **0.172 mm** (0.241 mm at 20 N of hose drag), against
+0.019 mm on the other poses. Post hoc, all of it is at (1.4 m, −0.15 m), where a joint in the controller's hold set
+flips under the sensor error and the leg preload cannot reach it; at (1.6 m, 0) the residual is 0.003 mm. So the
+zero-press stance keeps a spec-grade plan at 4 of the H1's 6 re-leaned poses. H170, H172 and H173 held, H171 and H174
+refuted. Statics.
+
+![The H1's worst residual along the wall: 0.010 to 0.032 mm on the other poses, 0.17 to 0.24 mm on the re-planned ones](experiments/m44_legpreload/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).

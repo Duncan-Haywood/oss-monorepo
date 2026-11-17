@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtKHuHbUazCmifAZ8TJ",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T23:07:09Z",
+  "ended": "2026-11-17T23:18:07Z",
+  "wall_minutes": 11.27,
+  "tokens_in": 4926058,
+  "tokens_out": 30626,
+  "cost_usd": 2.5862,
+  "tool_calls": 49,
+  "task": "research/buildbot-sheathing milestone 44: a per-pose leg preload for the H1's two zero-press poses that lost the spec plan (milestone 43's Next)",
+  "projects": [
+    "research/buildbot-sheathing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17095",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Says to get an interpreter with PY=$(python3 platform/ci/pyenv.py ...); plain python3 lacked mujoco but /usr/bin/python3.13 already had it, and pyenv.py returned that path at once. Worked, no time lost; noting that the m43 results.txt version line (python 3.13.18) is the quickest hint to the right interpreter."
+    },
+    {
+      "file": "research/buildbot-sheathing (experiment chain)",
+      "issue": "Each milestone imports the previous run.py (m44 -> m43 -> m42 -> m41 -> m38), so any experiment pays a ~100 s import before its first line of new work; acceptable but a cached setup object would make post hocs cheaper."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-a-smaller-leg-preload-rescues-one-humanoid-pose-not-two.md",
+    "research/buildbot-sheathing/LOG.md (milestone 44 planned and result entries)"
+  ],
+  "goal": "Advance the buildbot-sheathing programme by one registered milestone",
+  "notes": "Security queue empty, IDEAS.md and website requests empty; routed research (draw 0.8201), pick_track drew buildbot-sheathing (no open PR). Registered H170-H174 in LOG.md and pushed before the run. Results: H170, H172, H173 held; H171 (24 of 204 swept cases lose the plan) and H174 (H1 worst residual 0.172 mm at 5 N, 0.241 at 20 N) refuted. Post hoc: (1.6, 0) rescued at 0.003 mm, (1.4, -0.15) keeps 0.172 mm because a hold-set joint flips. Checks run locally: paper/check_numbers.py 353 of 353 ok; research/_homepage/build.py ok; research_live_links.py --write; check_md_links.py ok; check_posts.py ok; m41 H1 residuals reproduced exactly by the untouched poses. No agent doc in docs/reports: the LOG entry carries the next step for the next run.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "24b13e0d-0b53-528e-af46-cd3c7e9afae8",
+    "transcripts": 1,
+    "first": "2026-11-17T23:07:09Z",
+    "last": "2026-11-17T23:18:25Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 45,
+        "input": 88,
+        "output": 30626,
+        "thinking": 6758,
+        "cache_read": 4799286,
+        "cache_write_5m": 0,
+        "cache_write_1h": 126684,
+        "api_equivalent_usd": 2.5862,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 45,
+      "input": 88,
+      "output": 30626,
+      "thinking": 6758,
+      "cache_read": 4799286,
+      "cache_write_5m": 0,
+      "cache_write_1h": 126684,
+      "api_equivalent_usd": 2.5862,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 49,
+    "tools": {
+      "Bash": 42,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.27,
+      "active_minutes": 11.27,
+      "model_minutes": 5.34,
+      "tool_minutes": 5.93,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an engineer extending the existing MuJoCo pipeline: design the per-pose preload, run sweep and post hoc, write up (about 1.5 days)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 386.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

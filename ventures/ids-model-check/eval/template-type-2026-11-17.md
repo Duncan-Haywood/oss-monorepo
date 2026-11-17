@@ -73,5 +73,5 @@ dataType on a set the page writes typed. None has a known non-template type.
 **Limits.** The fix moves to the template's *first* type; a property whose
 template allows several (rare in IFC4) gets that one. A value that fits the
 file's type but not the template's (text on a measure) is dropped with a
-warning rather than guessed. The page does not yet suggest the nearest
-standard property name for a misspelling like `Lenght`.
+warning rather than guessed. The nearest standard name for a misspelling like
+`Lenght` landed later the same day (`eval/name-suggestion-2026-11-17.md`).

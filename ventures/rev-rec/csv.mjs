@@ -1,5 +1,8 @@
 // Invoice-line CSV -> lines, for the browser demo. Columns by header name, any
-// order, amounts in major units. Needs amount, period start and a billing date.
+// order, amounts in major units, scaled by the row currency's minor unit
+// (minorExponent). Needs amount, period start and a billing date.
+import { minorExponent } from "./revrec.mjs";
+
 export function parseCsv(text) {
   const rows = []; let row = [], cur = "", q = false;
   const s = String(text).replace(/^﻿/, "");
@@ -58,7 +61,8 @@ export function linesFromCsv(text) {
     if (start === null) return skipped.push({ line: i + 2, why: "period start is not a date" });
     const end = toMs(get("end")) ?? start;
     if (end < start) return skipped.push({ line: i + 2, why: "period end is before period start" });
-    lines.push({ id: get("id") || `row${i + 2}`, billedAt, start, end, amount: Math.round((neg ? -raw : raw) * 100), currency: (get("currency") || "usd").toLowerCase(), ...(get("credits") ? { credits: get("credits") } : {}) });
+    const currency = (get("currency") || "usd").toLowerCase();
+    lines.push({ id: get("id") || `row${i + 2}`, billedAt, start, end, amount: Math.round((neg ? -raw : raw) * 10 ** minorExponent(currency)), currency, ...(get("credits") ? { credits: get("credits") } : {}) });
   });
   return { lines, skipped, missing: [] };
 }

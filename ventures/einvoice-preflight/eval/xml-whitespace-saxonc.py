@@ -23,7 +23,31 @@ from pathlib import Path
 
 from saxonche import PySaxonProcessor
 
-xsl_dir, out_dirs = Path(sys.argv[1]), [Path(d) for d in sys.argv[2:]]
+argv = sys.argv[1:]
+# --plain-scope: compare only rule ids the row's plain sets (../plain/<set>.json) carry;
+# engine aborts are always kept. For a stylesheet that bundles rules its plain set leaves
+# to another route: NLCIUS's si-ubl-2.0.3.13.xslt carries the whole EU base around
+# BR-NL/SI-UBL (build-nl-rules.mjs keeps those), CIUS-PT's repeats BR-29 and others
+# (build-pt-rules.mjs drops what the EN 16931 set checks).
+plain_scope = "--plain-scope" in argv
+if plain_scope:
+    argv.remove("--plain-scope")
+PLAIN = Path(__file__).resolve().parent.parent / "plain"
+scope_ids = {}
+
+
+def in_scope(sets):
+    ids = set()
+    for name in sets:
+        if name not in scope_ids:
+            d = json.loads((PLAIN / f"{name}.json").read_text())
+            checks = [c for p in d["patterns"] for r in p["rules"] for c in r["checks"]]
+            scope_ids[name] = {c.get("id") for c in checks} | {m for c in checks for m in re.findall(r"^\[([^\]]+)\]", c.get("text", ""))}
+        ids |= scope_ids[name]
+    return ids
+
+
+xsl_dir, out_dirs = Path(argv[0]), [Path(d) for d in argv[1:]]
 rows = []
 xsl_map = {}
 for d in out_dirs:
@@ -33,7 +57,20 @@ for d in out_dirs:
     for line in (d / "manifest.jsonl").read_text().splitlines():
         if line:
             rows.append({**json.loads(line), "dir": d})
-FIRED = re.compile(r'<svrl:(?:failed-assert|successful-report)\b[^>]*?\bid="([^"]+)"')
+FIRED = re.compile(r'<svrl:(failed-assert|successful-report)\b([^>]*)>([\s\S]*?)</svrl:\1>')
+TEXT_ID = re.compile(r'<svrl:text[^>]*>\s*\[([^\]]+)\]')
+
+
+def fired_ids(svrl):
+    # The assert's id attribute, else the [ID] that opens its message: what parseSvrl in
+    # schematron-core.mjs reports. Until 2026-11-17 only the attribute was read, so FNFE's
+    # CDAR and Flux 10 stylesheets, whose asserts carry no id, showed no rule at all.
+    out = set()
+    for _, attrs, body in FIRED.findall(svrl):
+        m = re.search(r'\bid="([^"]+)"', attrs) or TEXT_ID.search(body)
+        if m:
+            out.add(m.group(1))
+    return out
 
 with PySaxonProcessor(license=False) as proc:
     xslt = proc.new_xslt30_processor()
@@ -49,11 +86,15 @@ with PySaxonProcessor(license=False) as proc:
             except Exception as e:  # a dynamic error is its own outcome, not a pass
                 ids.add("#ERROR " + (re.findall(r"\b[A-Z]{4}\d{4}\b", str(e)) or ["?"])[0])
                 continue
-            ids.update(FIRED.findall(svrl))
+            ids.update(fired_ids(svrl))
         return ids
 
     for row in rows:
         row["saxonc"] = sorted(saxon_ids(row))
+        if plain_scope:
+            keep = in_scope(row["sets"])
+            for key in ("saxonc", "plainFixed", "plainBefore"):
+                row[key] = [x for x in row[key] if x.startswith("#ERROR") or x in keep]
     print(proc.version)
 
 by_index = {(r["dir"], int(r["file"][:5])): r for r in rows}
@@ -72,9 +113,14 @@ for row in rows:
         per_profile.setdefault(row["profile"], Counter())
 missed_before, missed_after, extra_after, sjs_off, aborts_silent = Counter(), Counter(), Counter(), Counter(), Counter()
 examples = []
+unmutated_off = []
 for row in rows:
     if row["base"] is None:
         tally["files"] += 1
+        same = set(row["saxonc"]) == set(row["plainFixed"])
+        tally["unmutated, same rule ids"] += same
+        if not same and len(unmutated_off) < 10:
+            unmutated_off.append((row["source"], sorted(set(row["saxonc"]) - set(row["plainFixed"])), sorted(set(row["plainFixed"]) - set(row["saxonc"]))))
         continue
     tally["mutants"] += 1
     truth = delta(row, "saxonc")
@@ -129,5 +175,7 @@ print("raised by SaxonC, missed after:", dict(missed_after.most_common()))
 print("raised after, not by SaxonC:", dict(extra_after.most_common()))
 print("Saxon-JS vs SaxonC, rule ids that differ:", dict(sjs_off.most_common()))
 print("aborts the plain route does not see (field, variant):", dict(aborts_silent.most_common(12)))
+for u in unmutated_off:
+    print("unmutated, ids differ (Saxon only, plain only):", *u)
 for e in examples:
     print("\t".join(map(str, e)))
