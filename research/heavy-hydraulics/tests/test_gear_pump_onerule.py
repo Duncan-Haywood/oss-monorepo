@@ -1,4 +1,4 @@
-"""Milestone 7i: the idle-hour rule's design rows, its held-out scoring and the committed verdicts."""
+"""Milestone 7j: the idle-hour rule's design rows, its held-out scoring and the committed verdicts."""
 import re
 import sys
 from pathlib import Path

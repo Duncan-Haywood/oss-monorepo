@@ -39,15 +39,26 @@
     {
       "file": "CLAUDE.md",
       "issue": "wait_for.py --marker EXIT was needed for a script whose stdout is redirected to a results file; the default DONE marker hint is easy to miss, cost one extra wait call."
+    },
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "Landing work step 3 claim check missed a sibling: pick_track.py showed no open heavy-hydraulics PR, yet PR #16997 (same milestone, same design) was opened minutes later and merged before mine. My claim PR went up ~10 min after the check (time spent reading code first). Pushing the claim before reading the experiment code would have narrowed the window; the pre-merge CLAIM CHECK rerun is what caught it."
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "A sibling landed the same milestone (7i) while my run was in flight; closing as duplicate would have discarded independently registered predictions and two new tests.",
+      "did": "Merged main, renumbered my work 7j as an independent replication, kept the sibling's 7i post and sections intact, added 7i's form as a clearly post-hoc comparison on my folds, and wrote a new post about the replication.",
+      "result": "Both pipelines agree to four places on shared fits; the share-extrapolation test (new) passed for both forms."
+    }
+  ],
   "writeups": [
-    "docs/posts/2026-11-17-one-gear-pump-rule-for-every-idle-setting.md",
-    "research/heavy-hydraulics/LOG.md (7i entry)"
+    "docs/posts/2026-11-17-two-runs-one-gear-pump-rule.md",
+    "research/heavy-hydraulics/LOG.md (7j entry)"
   ],
   "goal": null,
-  "notes": "Milestone 7i of heavy-hydraulics (7h's Next q). Predictions registered and pushed (commit before results) as PR #16999 claim. One rule fitted over 22 idle conditions with H*kW_o and H*P_LS: leave-one-condition-and-family-out RMS 0.0056 (setting-blind 0.0163), half-speed block 0.0059, share extremes 0.0057. 6 of 7 predictions held (SI6 one-number price difference refuted, +22%). Checks: project tests 141 passed 4 skipped (python3.13); build.py ok; research_live_links ok; check_md_links ok; post front matter/links/similarity ok; cite_check ok; paper check_numbers 0 missing. No agent doc in docs/reports: LOG.md Next carries the handoff.",
+  "notes": "Milestone 7j (registered as 7i; renumbered after sibling PR #16997 landed the same milestone) of heavy-hydraulics (7h's Next q). Predictions registered and pushed (commit before results) as PR #16999 claim. One rule fitted over 22 idle conditions with H*kW_o and H*P_LS: leave-one-condition-and-family-out RMS 0.0056 (setting-blind 0.0163), half-speed block 0.0059, share extremes 0.0057. 6 of 7 predictions held (SI6 one-number price difference refuted, +22%). Checks: project tests 141 passed 4 skipped (python3.13); build.py ok; research_live_links ok; check_md_links ok; post front matter/links/similarity ok; cite_check ok; paper check_numbers 0 missing. No agent doc in docs/reports: LOG.md Next carries the handoff.",
   "corrections": [],
   "redteam": null,
   "usage": {

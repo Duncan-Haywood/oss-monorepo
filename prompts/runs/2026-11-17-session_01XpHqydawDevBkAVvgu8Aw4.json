@@ -1,0 +1,123 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqydawDevBkAVvgu8Aw4",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T16:38:18Z",
+  "ended": "2026-11-17T16:59:11Z",
+  "wall_minutes": 21.0,
+  "tokens_in": 3970693,
+  "tokens_out": 25258,
+  "cost_usd": 2.1545,
+  "tool_calls": 39,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16997",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/heavy-hydraulics/paper/manuscript.md",
+      "issue": "main already failed tests/test_paper_tex.py (orphan 0.035 from 7h's rounded 'up to 0.035'); fixed to 0.0349 here. Rounded figures in the manuscript must match a results file to four places."
+    },
+    {
+      "file": "research/heavy-hydraulics/experiments/gear_pump_settings.py",
+      "issue": "7h did not save its 22x196 cells, so the 14-minute rebuild had to be repeated; gear_pump_idlecost.py now caches them in <cache>/idlecost_cells.pkl."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-one-gear-pump-rule-for-every-idle-setting.md",
+    "research/heavy-hydraulics/LOG.md (7i)"
+  ],
+  "goal": null,
+  "notes": "Milestone 7i of heavy-hydraulics: pooled idle-cost rule E50 = 0.8234 + 0.0524 S*kW_o - 0.4350 k_w - 0.0664 S*P_LS predicts each of 22 idle conditions (condition and maker family left out) at RMS 0.0051-0.0062; 4 of 6 registered predictions held. Local checks: heavy-hydraulics tests 142 passed / 4 skipped; check_numbers 0 orphans; homepage build ok; md links ok; post front matter/links/similarity ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5a3ab6e7-21e7-5e84-8372-f86a6f293c1d",
+    "transcripts": 1,
+    "first": "2026-11-17T16:38:18Z",
+    "last": "2026-11-17T16:59:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 38,
+        "input": 77,
+        "output": 25258,
+        "thinking": 5101,
+        "cache_read": 3861017,
+        "cache_write_5m": 0,
+        "cache_write_1h": 109599,
+        "api_equivalent_usd": 2.1545,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 38,
+      "input": 77,
+      "output": 25258,
+      "thinking": 5101,
+      "cache_read": 3861017,
+      "cache_write_5m": 0,
+      "cache_write_1h": 109599,
+      "api_equivalent_usd": 2.1545,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 35,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.0,
+      "active_minutes": 21.0,
+      "model_minutes": 3.9,
+      "tool_minutes": 17.1,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

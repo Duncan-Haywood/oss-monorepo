@@ -1,4 +1,4 @@
-"""Milestone 7i: one selection rule for every idle setting.
+"""Milestone 7j: one selection rule for every idle setting, an independent replication of 7i with two new tests.
 
 7h found that the rule's slopes transfer across idle settings but its intercept does not: the setting changes the
 load-sensing pump's standby power P_LS, which the rule does not carry, and the kW_o slope scales with the idle share.
@@ -9,10 +9,12 @@ hours per working hour H = S / (1 - S) and is fitted once over all 22 conditions
   owl = a + b kW_o + c k_w + d P_LS                (share-blind)
   owh = a + b H kW_o + c k_w + d H P_LS            (idle-hour prices)
   owd = a + b H (kW_o - P_LS) + c k_w              (one price-difference number)
+  owc = a + b S kW_o + c k_w + d S P_LS            (7i's owC, scored here post hoc, not registered)
 
 Scores: (A) leave-one-condition-and-maker-family-out, RMS over the 22 x 14 = 308 diagonals; (B1) the nine half-idle-
 speed conditions held out together; (B2) S = 0.20 and 0.50 held out together (both also leave-one-maker-family-out).
-Check: each condition's own refitted ow reproduces 7h. Predictions SI1 to SI7 are in LOG.md (7i).
+Check: each condition's own refitted ow reproduces 7h. Predictions SI1 to SI7 are in LOG.md (7j); they were
+registered before 7i (gear_pump_idlecost.py) landed, by a parallel run that did not know of it.
 
 Usage: python gear_pump_onerule.py [cache dir] > gear_pump_onerule_results.txt
 Needs numpy and h5py (cache shared with 5z to 7h). The 22 conditions' cells are built in parallel (fork, about 14 min
@@ -39,7 +41,7 @@ from excavator_idle_standby import CENTRAL, S_C  # noqa: E402
 from excavator_part_stroke_eta import tables  # noqa: E402
 from excavator_loss_below_x0 import LossCurves  # noqa: E402
 
-RULES = ("ow", "owl", "owh", "owd")
+RULES = ("ow", "owl", "owh", "owd", "owc")
 CHECK_7H = os.path.join(HERE, "gear_pump_settings_results.txt")
 _G = {}
 
@@ -49,8 +51,10 @@ def hours(share):
     return share / (1.0 - share)
 
 
-def row(rule, kwo, kw, pls, h):
-    """Design row of one cell for one rule."""
+def row(rule, kwo, kw, pls, h, s=None):
+    """Design row of one cell for one rule (s, the idle share, only for owc)."""
+    if rule == "owc":
+        return [1.0, s * kwo, kw, s * pls]
     if rule == "ow":
         return [1.0, kwo, kw]
     if rule == "owl":
@@ -63,7 +67,7 @@ def row(rule, kwo, kw, pls, h):
 
 
 def design(recs, rule):
-    return np.array([row(rule, r["kwo"], r["kw"], r["pls"], r["h"]) for r in recs])
+    return np.array([row(rule, r["kwo"], r["kw"], r["pls"], r["h"], r.get("s")) for r in recs])
 
 
 def fit(recs, rule):
@@ -78,7 +82,7 @@ def records(conds):
         h = hours(c["share"])
         for (f, g), v in c["cells"].items():
             out.append({"c": j, "f": f, "g": g, "kwo": c["kwo"][g], "kw": c["kwf"][f], "pls": c["pls"], "h": h,
-                        "e50": v})
+                        "s": c["share"], "e50": v})
     return out
 
 
@@ -182,7 +186,7 @@ def main(cache):
     ref = seven_h_ow()
     out = []
     p = out.append
-    p("Milestone 7i: one selection rule fitted once over 7h's 22 idle conditions (18 idle settings at S = 0.38, four "
+    p("Milestone 7j: one selection rule fitted once over 7h's 22 idle conditions (18 idle settings at S = 0.38, four "
       "other idle shares at the central setting), 14 variants, 196 cells each, 4312 cells")
     p("(motion: fuxi-robot/excavator-motion folder 75, CC BY-NC-SA 4.0; load-sensing pump: Kauranne 2022, Energies "
       "15:4030, Fig. 13, CC BY; gear pumps and drive loss as gear_pump_stepup.py; neutral readings as "
@@ -218,7 +222,7 @@ def main(cache):
     p(f"  references using the held condition's own cells (7h): refitted ow median {np.median(own):.4f}, "
       f"pooled over 308 {g5.rms([x for x in own]):.4f} (RMS of per-condition RMS)")
     p("")
-    p("Per condition, (A) RMS: ow / owl / owh / owd, and 7h's own refitted ow")
+    p("Per condition, (A) RMS: ow / owl / owh / owd / owc, and 7h's own refitted ow")
     for j, c in enumerate(conds):
         s, x = c["setting"], c["share"]
         vals = [g5.rms([v for (k, _), v in score["A"][r].items() if k == j]) for r in RULES]
@@ -240,7 +244,7 @@ def main(cache):
     B1 = g5.rms(list(score["B1"]["owh"].values()))
     B2 = g5.rms(list(score["B2"]["owh"].values()))
     ok = lambda c: "held" if c else "refuted"  # noqa: E731
-    p("Predictions (LOG.md 7i):")
+    p("Predictions (LOG.md 7j; owc, 7i's form, is post hoc and in no prediction):")
     p(f"  SI1 owh (A) at most 0.0070: {ok(A['owh'] <= 0.0070)} ({A['owh']:.4f})")
     p(f"  SI2 owh (A) at least 50% below ow: {ok(A['owh'] <= 0.5 * A['ow'])} ({A['owh'] / A['ow'] - 1:+.0%})")
     p(f"  SI3 owh (A) below owl: {ok(A['owh'] < A['owl'])} ({A['owh']:.4f} against {A['owl']:.4f})")
