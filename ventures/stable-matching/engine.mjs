@@ -580,7 +580,10 @@ function summarize(inst, r) {
 }
 
 export function csvCell(c) {
-  const t = String(c ?? "");
+  let t = String(c ?? "");
+  // CSV formula injection: names are typed by the visitor, so a leading
+  // = + - @ (or tab/CR) would run as a formula in a spreadsheet.
+  if (/^[=+\-@\t\r]/.test(t) && !/^-?\d+(\.\d+)?$/.test(t)) t = "'" + t;
   return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
 }
 

@@ -166,6 +166,17 @@ test("the listing stops at its limit and says so", () => {
   assert.equal(all.matchings.length, 3 ** 7);
 });
 
+test("CSV cells that look like formulas are defused", async () => {
+  const { csvCell } = await import("./engine.mjs");
+  assert.equal(csvCell("=HYPERLINK(1)"), "'=HYPERLINK(1)");
+  assert.equal(csvCell("-1+CMD"), "'-1+CMD");
+  assert.equal(csvCell("@x"), "'@x");
+  assert.equal(csvCell("-3"), "-3");
+  assert.equal(csvCell("ana"), "ana");
+  const r = analyze({ text: "[a]\n=evil: P\n[b]\nP: =evil\n" });
+  assert.match(toCsv(r), /\n'=evil,P,1,/);
+});
+
 test("scores, CSV and papers", () => {
   const inst = parseInstance(SAMPLE_TEXT);
   const s = scoreMatching(inst, deferredAcceptance(inst, "A"));

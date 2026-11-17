@@ -1,9 +1,9 @@
 ---
 title: "Who gets matched with whom? A Gale-Shapley tool, and the search that visited some answers twice"
-seo_title: "Free stable matching tool: Gale-Shapley, every stable matching, blocking pairs"
+seo_title: "Free stable matching tool: Gale-Shapley and every stable matching"
 date: 2026-11-17
 tags: [stable-matching, gale-shapley, game-theory, market-design, research-algorithms]
-description: "A browser tool runs deferred acceptance with capacities, lists every stable matching, and checks a matching made by hand. Its enumeration had a repeat bug that only showed at scale."
+description: "A browser tool runs Gale-Shapley with capacities, lists every stable matching and checks one made by hand. Its listing had a bug that showed only at scale."
 ---
 
 Twelve residents rank four training programmes, and the programmes rank the
