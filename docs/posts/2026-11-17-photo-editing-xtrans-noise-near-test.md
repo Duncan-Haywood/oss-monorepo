@@ -2,7 +2,7 @@
 title: "Fujifilm raws: why bigger patches made noise estimation worse, and what fixed it"
 seo_title: "X-Trans noise estimation: a touching-neighbour texture test"
 date: 2026-11-17
-description: "On X-Trans raws ShootFlow's in-frame noise estimate still cost detail on 17 of 248 test tiles. Bigger patches made it worse; comparing touching greens took it to zero."
+description: "On X-Trans raws ShootFlow's in-frame noise estimate still cost detail on 17 of 248 tiles. Bigger patches made it worse; comparing touching greens fixed it."
 tags: [photo-editing, raw, demosaic, research]
 ---
 
