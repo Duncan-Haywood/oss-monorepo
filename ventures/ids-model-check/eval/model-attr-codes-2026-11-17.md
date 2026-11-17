@@ -47,7 +47,16 @@ which fails exactly the uncoded objects (tested in `inventory.test.mjs`).
 
 `node eval/model-attr-codes.mjs DIR` on the same four exports from
 `opensourceBIM/IFC-files` at `cb96c50` as `model-values-2026-11-17.md` (not
-committed; blob-less sparse clone). Each offer is written as an IDS
+committed). To fetch them:
+
+```
+git clone --filter=blob:none --sparse https://github.com/opensourceBIM/IFC-files.git
+cd IFC-files && git checkout cb96c50 && git sparse-checkout set "HHS Office" "OpeningDesign.com"
+# the four: "HHS Office/{MEP,architect,construction}.ifc" (not the *2.ifc copies)
+#           and OpeningDesign.com/Schultz_Residence.ifc, linked into one DIR
+```
+
+Each offer is written as an IDS
 requirement (attributes "if present, must match", classifications "must
 have", exact class) and checked against its own model with the checker. A row
 with no empty objects should pass; one with empty objects should fail on
