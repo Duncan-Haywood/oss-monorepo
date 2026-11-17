@@ -6540,7 +6540,7 @@ ${subItems.map(renderCard).join('\n')}
   const otherAudiences = audiences.filter(({ audience }) => audiencePageId(audience) !== category.id);
   const audienceLinks = otherAudiences.length
     ? `    <section class="siblings">
-      <h2>Free tools by trade and business</h2>
+      <h2>Free tools by trade, business and who you are</h2>
       <ul>
 ${otherAudiences
   .map(
@@ -9366,7 +9366,7 @@ ${
   audiencePages.length
     ? `    <section class="band" id="for" aria-labelledby="for-h">
       <p class="section-eyebrow">Who it is for</p>
-      <h2 id="for-h">Find the tools for your trade or business</h2>
+      <h2 id="for-h">Find the tools for your trade, business or stage of life</h2>
       <p class="band-lede">The same tools, filed by who they are for. Each page lists the calculators that kind of business uses, and what to price first if you are just starting one.</p>
       <ul class="for-list">
 ${audiencePages
