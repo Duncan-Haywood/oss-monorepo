@@ -190,7 +190,7 @@ function fTail2(f, m) { return Math.pow(1 + 2 * f / m, -m / 2); }
  * x: the series (evenly spaced). k: index of the first point after the change. Options: period (seasonal dummies),
  * reps (bootstrap), seed, rhoMax (guard), rhoCap. Returns { refused, reason } or the estimates and p-values.
  */
-export function knownDateTest(x, k, { period = 0, reps = 499, seed = 1, rhoMax = 0.9, rhoCap = 0.95, minSide = 8, rhoGenMethod = 'matched', genCap = 0.95, guard = 'cut', gateRho = 0.5 } = {}) {
+export function knownDateTest(x, k, { period = 0, reps = 499, seed = 1, rhoMax = 0.9, rhoCap = 0.95, minSide = 8, rhoGenMethod = 'matched', genCap = 0.95, guard = 'cut', gateRho = 0.5, cutConditional = false, maxDrawFactor = 200, minAdmitted = 99 } = {}) {
   x = Array.from(x, Number);
   const n = x.length;
   period = period > 1 ? Math.round(period) : 0;
@@ -235,15 +235,33 @@ export function knownDateTest(x, k, { period = 0, reps = 499, seed = 1, rhoMax =
   const pOf = (arr, v) => (1 + arr.filter((w) => w >= v).length) / (1 + arr.length);
   const q975 = (arr) => { const a = [...arr].sort((p, q) => p - q); return a[Math.min(a.length - 1, Math.floor(0.95 * a.length))]; };
   let p = 0, pStep = 0, pSlope = 0, qD = 0, qC = 0, m = Infinity; const pGen = [];
+  // cutConditional (round 6, eval/known-date-prereg-round6-2026-11-17.md): a series let through only by the cut is a
+  // selected one, and an unconditional bootstrap ignores the selection (round 5 diagnosis: 17 of 26 no-change series
+  // admitted this way got p <= 0.05). So each null replicate must pass the same way (line rho above the guard, the cut
+  // above the walk bar, the change model's rho at or under the guard, the full GLS check), and the p is the share among
+  // admitted replicates: a conditional test on the selection event (Lee, Sun, Sun and Taylor 2016 in spirit, by Monte
+  // Carlo). Draws stop at reps admitted or reps * maxDrawFactor tries; fewer than minAdmitted leaves it uncalibrated.
+  const conditional = cutConditional && admittedByCut;
+  const admits = (z) => {
+    const rL = corrected(lag1(ols(z, X0).e), n);
+    if (!(rL > rhoMax)) return false;
+    const rC = corrected(lag1(ols(z, X1).e), n);
+    return rC <= rhoMax && rL - rC > cutBar;
+  };
+  let draws = 0, admittedReps = Infinity;
   gens.forEach((rhoGen, gi) => {
     const r = mulberry(seed + 7919 * gi), fs = [], tds = [], tcs = [];
-    for (let b = 0; b < reps; b++) {
+    const tries = conditional ? reps * maxDrawFactor : reps;
+    for (let b = 0; b < tries && fs.length < reps; b++) {
       const z = new Float64Array(n); let u = gauss(r) * sdInnov / Math.sqrt(Math.max(1e-9, 1 - rhoGen * rhoGen));
       for (let t = 0; t < n; t++) { if (t) u = rhoGen * u + gauss(r) * sdInnov; z[t] = mean0[t] + u; }
+      if (conditional) { draws++; if (!admits(z)) continue; }
       const s = stats(z, X1, rhoCap);
       if (!s) continue;
+      if (conditional && corrected(lag1(s.u), n) > rhoMax) continue;
       fs.push(s.f); tds.push(Math.abs(s.tD)); tcs.push(Math.abs(s.tC));
     }
+    if (conditional) admittedReps = Math.min(admittedReps, fs.length);
     m = Math.min(m, fs.length);
     pGen.push(pOf(fs, st.f));
     p = Math.max(p, pOf(fs, st.f)); pStep = Math.max(pStep, pOf(tds, Math.abs(st.tD))); pSlope = Math.max(pSlope, pOf(tcs, Math.abs(st.tC)));
@@ -252,6 +270,7 @@ export function knownDateTest(x, k, { period = 0, reps = 499, seed = 1, rhoMax =
   const post = n - k, meanAfter = (post - 1) / 2;
   return {
     refused: false, n, k, period, rho: st.rho, rhoFull, reps: m, guard, rhoGen: gens, pGen, rhoGenMethod, lineRho, ...(rhoGenMethod === 'gated' ? { gateRho, gated } : {}), ...(guard === 'cut' ? { rhoLine, admittedByCut, cutBar } : {}),
+    ...(conditional ? { conditional: true, draws, admittedReps, calibratedConditional: admittedReps >= minAdmitted } : {}),
     step: st.d, stepSe: st.seD, stepRange95: [st.d - qD * st.seD, st.d + qD * st.seD], pStep,
     slopeBefore: st.beta[1], slopeChange: st.c, slopeChangeSe: st.seC, slopeChangeRange95: [st.c - qC * st.seC, st.c + qC * st.seC], pSlope,
     f: st.f, p, pTable: fTail2(st.f, st.df),
