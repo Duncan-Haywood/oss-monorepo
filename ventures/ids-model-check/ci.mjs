@@ -55,6 +55,22 @@ export function auditFindings(runs) {
   return [...seen.values()];
 }
 
+// Duplicate GlobalIds (ids.mjs duplicateGlobalIds, IfcRoot rule UR1) belong to
+// the model, not to any IDS, so a model checked against three IDS files is told
+// once: one entry per model, in run order. The IDS verdict stands; CI fails on
+// them only when asked (--fail-on-duplicate-globalids).
+export function modelFindings(runs) {
+  const seen = new Map();
+  for (const r of runs) {
+    if (r.error || seen.has(r.model)) continue;
+    const d = r.report.duplicateGlobalIds || [];
+    if (d.length) seen.set(r.model, { model: r.model, duplicates: d });
+  }
+  return [...seen.values()];
+}
+export const dupLine = (d) => `${d.globalId} is held by ${d.elements.length} elements: ${d.elements.map((e) => `#${e.id} ${e.type}${e.name ? ` "${e.name}"` : ""}`).join(", ")}`;
+const DUP_WHY = "IFC requires every GlobalId to be unique (IfcRoot rule UR1); BCF viewpoints, model diffs and this report's GitLab issues find elements by GlobalId, so a shared one points them at the wrong element or at both. Usually an authoring-tool copy or a merge of two exports.";
+
 // The 1-based line of each <specification> start tag in an IDS file, in
 // document order (the order of report.specs), so an annotation about a
 // specification lands on it. Comments, CDATA and processing instructions are
@@ -73,7 +89,7 @@ export function idsSpecLines(text) {
 }
 
 export function tally(runs) {
-  const t = { pairs: runs.length, unreadable: 0, specs: 0, passed: 0, failed: 0, warnings: 0, invalid: 0, elementsFailed: 0, uncheckedSpecs: 0, elementsNotChecked: 0, auditSpecs: 0, auditWarnings: 0 };
+  const t = { pairs: runs.length, unreadable: 0, specs: 0, passed: 0, failed: 0, warnings: 0, invalid: 0, elementsFailed: 0, uncheckedSpecs: 0, elementsNotChecked: 0, auditSpecs: 0, auditWarnings: 0, duplicateModels: 0, duplicateGlobalIds: 0 };
   for (const r of runs) {
     if (r.error) { t.unreadable++; continue; }
     for (const s of r.report.specs) {
@@ -89,6 +105,7 @@ export function tally(runs) {
     }
   }
   for (const a of auditFindings(runs)) { t.auditSpecs++; t.auditWarnings += a.warnings.length; }
+  for (const m of modelFindings(runs)) { t.duplicateModels++; t.duplicateGlobalIds += m.duplicates.length; }
   t.ok = t.unreadable === 0 && t.failed === 0 && t.invalid === 0;
   return t;
 }
@@ -181,7 +198,7 @@ export function stepLines(text, ids) {
 // real IDS (Rotterdam's) has 19 specifications with audit warnings, so past
 // maxAudit the rest become one annotation pointing at the job summary, which
 // lists them all.
-export function annotations(runs, { lines = new Map(), idsLines = new Map(), failOnUnchecked = false, failOnAudit = false, maxAudit = 9 } = {}) {
+export function annotations(runs, { lines = new Map(), idsLines = new Map(), failOnUnchecked = false, failOnAudit = false, failOnDuplicates = false, maxAudit = 9 } = {}) {
   const out = [];
   const at = (ids, index) => { const l = idsLines.get(ids)?.[index]; return `file=${escProp(ids)}${l ? `,line=${l}` : ""}`; };
   const once = new Set();
@@ -194,6 +211,14 @@ export function annotations(runs, { lines = new Map(), idsLines = new Map(), fai
     const rest = audits.slice(maxAudit);
     const files = [...new Set(rest.map((a) => a.ids))];
     out.push(`::${failOnAudit ? "error" : "warning"} file=${escProp(rest[0].ids)},title=${escProp(`IDS audit: ${rest.length} more specification(s) with warnings`)}::${escData(`Not annotated here (GitHub shows ten warnings per step): ${rest.length} more specification(s) in ${files.join(", ")}. The job summary lists every IDS audit warning.`)}`);
+  }
+  // Duplicate GlobalIds: one annotation per model, on the line of the first
+  // element that repeats an earlier one's GlobalId.
+  for (const m of modelFindings(runs)) {
+    const d = m.duplicates;
+    const line = lines.get(m.model)?.get(d[0].elements[1].id);
+    const shown = d.slice(0, 5).map(dupLine).join("\n");
+    out.push(`::${failOnDuplicates ? "error" : "warning"} file=${escProp(m.model)}${line ? `,line=${line}` : ""},title=${escProp(`IFC: ${d.length} duplicate GlobalId(s)`)}::${escData(`${shown}${d.length > 5 ? `\n... and ${d.length - 5} more (the job summary lists them)` : ""}\n${DUP_WHY}`)}`);
   }
   for (const r of runs) {
     if (r.error) { out.push(`::error file=${escProp(r.model)},title=${escProp("IDS check could not run")}::${escData(r.error)}`); continue; }
@@ -245,7 +270,7 @@ export function annotations(runs, { lines = new Map(), idsLines = new Map(), fai
 // (eval/gitlab-codequality-2026-11-17.md).
 // pathPrefix is prepended to every path: GitLab needs paths from the
 // repository root, and ci-cli.mjs may have read the files under --root.
-export function codeQuality(runs, { lines = new Map(), idsLines = new Map(), failOnUnchecked = false, failOnAudit = false, maxPerSpec = 1000, pathPrefix = "" } = {}) {
+export function codeQuality(runs, { lines = new Map(), idsLines = new Map(), failOnUnchecked = false, failOnAudit = false, failOnDuplicates = false, maxPerSpec = 1000, pathPrefix = "" } = {}) {
   const out = [];
   const seen = new Set();
   const p = (path) => (pathPrefix ? `${pathPrefix.replace(/\/+$/, "")}/${path}` : path);
@@ -259,6 +284,12 @@ export function codeQuality(runs, { lines = new Map(), idsLines = new Map(), fai
   const specLine = (ids, index) => idsLines.get(ids)?.[index];
   for (const a of auditFindings(runs)) {
     for (const w of a.warnings) push("ids-audit", failOnAudit ? "major" : "minor", `IDS audit: "${a.name}": ${w}`, a.ids, specLine(a.ids, a.index), [a.ids, a.name, w]);
+  }
+  // One issue per duplicated GlobalId, keyed on the model and the GlobalId, so
+  // a merge request that introduces one shows it as new and one that fixes it
+  // as resolved.
+  for (const m of modelFindings(runs)) {
+    for (const d of m.duplicates) push("ifc-duplicate-globalid", failOnDuplicates ? "major" : "minor", `Duplicate GlobalId: ${dupLine(d)}. ${DUP_WHY}`, m.model, lines.get(m.model)?.get(d.elements[1].id), [m.model, d.globalId]);
   }
   const once = new Set();
   for (const r of runs) {
@@ -312,14 +343,15 @@ export function cqHash(s) {
 
 const mdCell = (s) => String(s ?? "").replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
 
-export function stepSummary(runs, { maxFailures = 5, failOnUnchecked = false, failOnAudit = false } = {}) {
+export function stepSummary(runs, { maxFailures = 5, failOnUnchecked = false, failOnAudit = false, failOnDuplicates = false, maxDuplicates = 50 } = {}) {
   const t = tally(runs);
-  const ok = t.ok && !(failOnUnchecked && t.elementsNotChecked) && !(failOnAudit && t.auditWarnings);
+  const ok = t.ok && !(failOnUnchecked && t.elementsNotChecked) && !(failOnAudit && t.auditWarnings) && !(failOnDuplicates && t.duplicateGlobalIds);
   const audits = auditFindings(runs);
   const out = [`## IDS model check: ${ok ? "PASS" : "FAIL"}`, ""];
   out.push(`${t.pairs} model/IDS pair(s), ${t.specs} specification check(s): ${t.passed} pass, ${t.failed} fail, ${t.warnings} optional warning(s), ${t.invalid} invalid${t.unreadable ? `, ${t.unreadable} could not be read` : ""}.`, "");
   if (t.elementsNotChecked) out.push(`**Not checked:** ${t.elementsNotChecked.toLocaleString("en-US")} element(s) in ${t.uncheckedSpecs} specification check(s) belong to a subclass of a class the entity facet names (e.g. IFCWALLSTANDARDCASE under IFCWALL). IDS entity names do not include subclasses, so these elements were not checked${failOnUnchecked ? " and the build fails on them (--fail-on-unchecked)" : ""}. Add the class names to the entity facet to check them.`, "");
   if (t.auditWarnings) out.push(`**IDS audit:** ${t.auditWarnings} warning(s) on ${t.auditSpecs} specification(s): the IDS is valid, but these specifications probably do not check what their author meant (details below)${failOnAudit ? "; the build fails on them (--fail-on-audit-warnings)" : ""}. The fix is in the IDS file.`, "");
+  if (t.duplicateGlobalIds) out.push(`**Duplicate GlobalIds:** ${t.duplicateGlobalIds.toLocaleString("en-US")} GlobalId(s) shared by more than one element in ${t.duplicateModels} model(s) (details below). ${DUP_WHY}${failOnDuplicates ? " The build fails on them (--fail-on-duplicate-globalids)." : ""}`, "");
   out.push("| Model | IDS | Result | Specifications passing | Failing elements | Not checked |", "|---|---|---|---|---|---|");
   for (const r of runs) {
     if (r.error) { out.push(`| ${mdCell(r.model)} | ${mdCell(r.ids)} | ERROR | - | ${mdCell(r.error)} | - |`); continue; }
@@ -328,7 +360,8 @@ export function stepSummary(runs, { maxFailures = 5, failOnUnchecked = false, fa
     const bad = s.reduce((n, x) => n + failCount(x), 0);
     const nc = s.reduce((n, x) => n + notChecked(x), 0);
     const aw = s.some((x) => x.auditWarnings?.length);
-    const res = tally([r]).ok && !(failOnUnchecked && nc) && !(failOnAudit && aw) ? "PASS" : "FAIL";
+    const dup = (r.report.duplicateGlobalIds || []).length;
+    const res = tally([r]).ok && !(failOnUnchecked && nc) && !(failOnAudit && aw) && !(failOnDuplicates && dup) ? "PASS" : "FAIL";
     out.push(`| ${mdCell(r.model)} | ${mdCell(r.report.title || r.ids)} | ${res} | ${pass} of ${s.length} | ${bad} | ${nc} |`);
   }
   for (const r of runs) {
@@ -350,6 +383,12 @@ export function stepSummary(runs, { maxFailures = 5, failOnUnchecked = false, fa
     if (!un.length) continue;
     out.push("", `<details><summary>${mdCell(r.model)} vs ${mdCell(r.ids)}: ${un.length} specification(s) with elements not checked</summary>`, "");
     for (const s of un) out.push(`- **${mdCell(s.name)}**: ${s.skippedSubclasses.map((x) => `${x.count} ${x.type} (a subclass of ${x.via})`).join(", ")}`);
+    out.push("", "</details>");
+  }
+  for (const m of modelFindings(runs)) {
+    out.push("", `<details><summary>${mdCell(m.model)}: ${m.duplicates.length} duplicate GlobalId(s)</summary>`, "");
+    for (const d of m.duplicates.slice(0, maxDuplicates)) out.push(`- ${mdCell(dupLine(d))}`);
+    if (m.duplicates.length > maxDuplicates) out.push(`- ... and ${m.duplicates.length - maxDuplicates} more (see the JSON report)`);
     out.push("", "</details>");
   }
   const byIds = new Map();

@@ -505,3 +505,12 @@ test("a prohibited specification with requirements stays invalid and says how ma
   assert.equal(s.matching, 1);
   assert.match(s.note, /1 element\(s\) in this model match its applicability and would fail it/);
 });
+
+test("STEP: an apostrophe after \\S\\ is the directive's character, not the closing quote", () => {
+  // xBIM's SpecicalSolidusEscape.ifc: '...\S\'' ends with "§" (39 + 128).
+  const m = parseStep(ifc("IFC4", ["#1=IFCGROUP('g',$,'ends in \\S\\'',$,$);", "#2=IFCGROUP('h',$,'a\\\\S\\',$,$);", "#3=IFCGROUP('i',$,'it''s',$,$);"]));
+  assert.deepEqual(m.errors, []);
+  assert.equal(m.entities.get(1).args[2], "ends in §");
+  assert.equal(m.entities.get(2).args[2], "a\\S\\", "an escaped backslash before S\\ is not a directive");
+  assert.equal(m.entities.get(3).args[2], "it's");
+});

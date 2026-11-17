@@ -1078,11 +1078,49 @@ export function checkIds(idsText, ifcText, opts = {}) {
     schema: model.schemaRaw,
     entityCount: model.entities.size,
     parseErrors: model.parseErrors.slice(0, 20),
+    // A model fault, not an IDS verdict: it does not change pass (IDS checks
+    // what the IDS asks), but every rendering says so.
+    duplicateGlobalIds: duplicateGlobalIds(model),
     pass: counted.every((s) => s.status === "pass"),
     valid: !specs.some((s) => s.status === "invalid"),
     audit,
     specs,
   };
+}
+
+// IfcRoot's uniqueness rule UR1 (every schema: IFC2X3, IFC4, IFC4X3) says no
+// two rooted objects share a GlobalId. Real exports break it (the HHS Office
+// construction and MEP files, eval/duplicate-globalids-2026-11-17.md), and the
+// tools downstream key on it: a BCF topic selects components by IfcGuid, a
+// GitLab report and most model-diff tools match revisions by it, so a
+// duplicate makes those point at the wrong element or at two. Returns every
+// GlobalId held by more than one IfcRoot instance, each with its elements (by
+// #id), sorted by GlobalId; cached on the model, since CI checks one parsed
+// model against several IDS files.
+export function duplicateGlobalIds(model) {
+  if (model._dupGids) return model._dupGids;
+  const seen = new Map();
+  const dups = new Map();
+  for (const [type, list] of model.byType) {
+    if (!model.schema.isA(type, "IFCROOT")) continue;
+    const i = model.schema.attrs(type).index.get("GlobalId");
+    if (i === undefined) continue;
+    for (const e of list) {
+      const g = e.args[i];
+      if (typeof g !== "string" || g === "") continue;
+      const first = seen.get(g);
+      if (first === undefined) { seen.set(g, e); continue; }
+      let l = dups.get(g);
+      if (!l) dups.set(g, (l = [first]));
+      l.push(e);
+    }
+  }
+  const out = [...dups].sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0)).map(([g, es]) => ({
+    globalId: g,
+    elements: es.sort((a, b) => a.id - b.id).map((e) => ({ id: e.id, type: e.type, name: nameOf(model, e) })),
+  }));
+  model._dupGids = out;
+  return out;
 }
 
 function globalId(model, e) {

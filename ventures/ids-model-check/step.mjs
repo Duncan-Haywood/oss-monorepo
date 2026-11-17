@@ -14,6 +14,18 @@
 // separate Set of integer-looking tokens is not needed for IDS checks: the schema
 // says which attributes are integers).
 
+// An apostrophe right after a \S\ directive is the directive's character
+// (39 + 128 = 167, "§"), not a quote: ISO 10303-21 escapes the directive's
+// character, not the quote, so '...\S\'' is one string ending in "§"
+// (xBIM's SpecicalSolidusEscape.ifc). The "\S\" must not itself end an
+// escaped backslash ("\\S\" is a backslash, then "S\").
+function quotedBySolidusS(t, q) {
+  if (t.charCodeAt(q - 1) !== 92 || t.charCodeAt(q - 2) !== 83 || t.charCodeAt(q - 3) !== 92) return false;
+  let k = q - 4, n = 0;
+  while (k >= 0 && t.charCodeAt(k) === 92) { n++; k--; }
+  return n % 2 === 0;
+}
+
 export function decodeStepString(s) {
   let out = "";
   for (let i = 0; i < s.length; i++) {
@@ -78,6 +90,7 @@ class Reader {
       for (;;) {
         const q = t.indexOf("'", i);
         if (q < 0) throw new Error("unterminated string");
+        if (quotedBySolidusS(t, q)) { i = q + 1; continue; }
         if (t[q + 1] === "'") { i = q + 2; continue; }
         const raw = t.slice(this.p + 1, q);
         this.p = q + 1;
@@ -156,6 +169,7 @@ function recordEnd(t, p) {
       for (;;) {
         const q = t.indexOf("'", i + 1);
         if (q < 0) return -1;
+        if (quotedBySolidusS(t, q)) { i = q; continue; }
         if (t.charCodeAt(q + 1) === 39) { i = q + 1; continue; }
         i = q;
         break;
