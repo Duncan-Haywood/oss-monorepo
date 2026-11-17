@@ -298,8 +298,16 @@ export function histogram(p, bins = 20) {
 function readValues(input, kind) {
   let labels, rawValues, valueCol = "value", labelCol = null, dropped = 0;
   if (Array.isArray(input.values)) {
-    rawValues = input.values.map(Number);
-    labels = Array.isArray(input.labels) ? input.labels.map(String) : rawValues.map((_, i) => `#${i + 1}`);
+    // A missing entry (null, undefined, "", "NA", ...) is left out and counted, as on the CSV path;
+    // Number(null) and Number("") are 0, which would turn a missing test into a certain discovery.
+    const given = Array.isArray(input.labels) ? input.labels.map(String) : null;
+    labels = [];
+    rawValues = [];
+    input.values.forEach((v, i) => {
+      if (v === null || v === undefined || (typeof v !== "number" && (isMissing(v) || !isNum(v)))) { dropped++; return; }
+      rawValues.push(Number(v));
+      labels.push(given ? given[i] : `#${i + 1}`);
+    });
   } else {
     const parsed = parseCsv(input.csv);
     if (parsed.error) return { error: parsed.error };

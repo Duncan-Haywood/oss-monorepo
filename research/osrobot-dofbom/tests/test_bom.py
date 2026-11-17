@@ -33,6 +33,23 @@ class BomTests(unittest.TestCase):
         self.assertLess(bom(2, filament_usd_per_kg=hi)["printed"], 5.0)
         self.assertEqual(bom(2, filament_usd_per_kg=lo)["printed"], bom(6, filament_usd_per_kg=lo)["printed"])
 
+    def test_headline_figures_pinned(self):
+        # Hand sums from the SO-ARM101 table: 2*13.89 + 38.60 = 66.38; 121.94 / 66.38 = 1.837;
+        # RobotShop 12 V servo: (6*49.22 + 38.60) / (2*49.22 + 38.60) = 2.437
+        self.assertAlmostEqual(total(2), 66.38, places=2)
+        self.assertAlmostEqual(ratio(6, 2), 1.837, places=3)
+        self.assertAlmostEqual(ratio(6, 2, servo_usd=49.22), 2.437, places=3)
+
+    def test_break_even_servo_price(self):
+        # 38.60 * (2.5 - 1) / (6 - 2.5 * 2) = 57.90, and the closed form round-trips
+        self.assertAlmostEqual(servo_price_for_ratio(2.5), 57.90, places=2)
+        self.assertAlmostEqual(ratio(6, 2, servo_usd=servo_price_for_ratio(2.0)), 2.0, places=9)
+
+    def test_unreachable_target_rejected(self):
+        for t in (1.0, 3.0, 3.5):
+            with self.assertRaises(ValueError):
+                servo_price_for_ratio(t)
+
     def test_no_joints_rejected(self):
         with self.assertRaises(ValueError):
             bom(0)

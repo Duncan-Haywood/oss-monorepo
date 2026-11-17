@@ -54,5 +54,7 @@ def ratio(n_hi, n_lo, **kw):
 
 def servo_price_for_ratio(target, n_hi=6, n_lo=2, **kw):
     """Servo price at which total(n_hi)/total(n_lo) equals `target` (1 < target < n_hi/n_lo), by the closed form."""
+    if not 1.0 < target < n_hi / n_lo:
+        raise ValueError(f"target ratio must lie strictly between 1 and {n_hi / n_lo:g}")
     fixed = total(n_lo, servo_usd=0.0, **kw)
     return fixed * (target - 1.0) / (n_hi - target * n_lo)
