@@ -238,6 +238,7 @@ test("decision levels may be one number or a list in a string, not only an array
   assert.deepEqual(analyze({ x: p.x, y: p.y, decisionLevels: 10, bootstrap: 0 }).decision.map((d) => d.level), [10]);
   assert.deepEqual(analyze({ x: p.x, y: p.y, decisionLevels: "10, 20", bootstrap: 0 }).decision.map((d) => d.level), [10, 20]);
   assert.deepEqual(analyze({ x: p.x, y: p.y, decisionLevels: [10, null, ""], bootstrap: 0 }).decision.map((d) => d.level), [10]);
+  assert.deepEqual(analyze({ x: p.x, y: p.y, decisionLevels: "6,000; 12", bootstrap: 0 }).decision.map((d) => d.level), [6000, 12]);
 });
 
 test("Kendall's tie-corrected variance equals the exact permutation variance of S", () => {

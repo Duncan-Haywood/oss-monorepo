@@ -27,11 +27,17 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 7,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    {
+      "what": "decisionLevels string split on ',' broke '6,000' into 6 and 0",
+      "caught_by": "changed-ventures / check_thousands_split.py",
+      "fixed": "grouped-token split as in uk-vat-registration-checker parseMonths; page passes raw text"
+    }
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -418,7 +424,7 @@
       },
       {
         "file": "ventures/method-comparison/engine.mjs",
-        "issue": "analyze crashed with 'map is not a function' when decisionLevels was a single number or a string such as '120, 140', and kept null as a level of 0. Fix: accept a number, a list string or an array; drop non-numbers.",
+        "issue": "analyze crashed with 'map is not a function' when decisionLevels was a single number or a string such as '120, 140', and kept null as a level of 0. Fix: accept a number, a list string or an array; drop non-numbers. First version of the fix split strings on commas and was caught by CI's check_thousands_split ('6,000' -> 6 and 0); now grouped tokens stay one number, and the page's level box (which had the same split) passes its text to the engine.",
         "patched": true
       },
       {
