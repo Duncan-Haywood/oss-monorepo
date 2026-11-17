@@ -417,11 +417,12 @@ Every story, by collection and newest first, with its reading time and whether i
 - [The Last Message in the Window](stories/the-last-message-in-the-window.md) (2026-10-21; 13 min read, 18 min audio)
 - [NOTES.md](stories/notes-dot-md.md) (2026-10-20; 13 min read, 20 min audio)
 
-### Little Lamps (74 stories)
+### Little Lamps (75 stories)
 
 - [Anselm and the Whitest Bread](stories/anselm-and-the-whitest-bread.md) (2026-11-17; 10 min read, text only)
 - [Bernard and the Fair Share](stories/bernard-and-the-fair-share.md) (2026-11-17; 10 min read, text only)
 - [Bruno and the Seven Stars](stories/bruno-and-the-seven-stars.md) (2026-11-17; 11 min read, text only)
+- [Charles and the Prayers at the Windows](stories/charles-and-the-prayers-at-the-windows.md) (2026-11-17; 11 min read, text only)
 - [Gertrude and the Heartbeat at Helfta](stories/gertrude-and-the-heartbeat-at-helfta.md) (2026-11-17; 10 min read, text only)
 - [Hedwig of Silesia and the Shoes in Her Hand](stories/hedwig-of-silesia-and-the-shoes-in-her-hand.md) (2026-11-17; 11 min read, text only)
 - [Angela and the Girls around the Kitchen Table](stories/angela-and-the-girls-around-the-kitchen-table.md) (2026-11-16; 10 min read, text only)
