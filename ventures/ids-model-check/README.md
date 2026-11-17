@@ -392,6 +392,20 @@ with a 2 GB heap it finishes, before and after this change.
    | value compared with a list, an object or a select | 3 |
    | literal IDS cannot read for the type: `42,3`, `123,4.5` for a real; `42.`, `42.0`, `42.3` for an integer; `FALSE` for a boolean; a pattern on a number | 13 |
    | prohibited specification with requirements | 1 |
+   | required entity requirement naming only abstract classes (`IFCBUILDINGELEMENT`: no object is ever of that class itself) | 0 |
+
+   An entity facet naming an abstract class (2026-11-17, `class-abstract`;
+   97 of IFC2X3's 653 classes, 123 of IFC4's 776, 133 of IFC4X3's 876) matches
+   nothing, because IDS has no inheritance and no object is ever of an abstract
+   class itself. In the applicability (or a `partOf` entity, or a list that also
+   names concrete classes) that is a warning, and the message lists the concrete
+   subclasses to name instead; as a required requirement it is an error, since
+   every applicable element would fail. On the 65 public IDS files of
+   `eval/fetch-audit-corpus.sh` it flags 2: both copies of the Dutch RVB BIM
+   Norm v1.1, whose `IFCBUILDINGELEMENT` specification applied to 0 of 8,356
+   building elements in four real IFC2X3 exports
+   (`eval/abstract-class-2026-11-17.md`). The suite score, the 307 valid files
+   and the editor's 203,433 offered specifications are unchanged.
 
    It also checks `dataType` names, `partOf` relations, `ifcVersion` values and
    regular expressions, and warns (without changing the verdict) about a

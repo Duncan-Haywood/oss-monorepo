@@ -133,6 +133,43 @@ function applicableClasses(spec, S, typeMap, id) {
   return out;
 }
 
+// A class name that no object can ever have as its own class: abstract in
+// every audited schema that knows it (IFCBUILDINGELEMENT in IFC2X3 and IFC4,
+// IFCELEMENT everywhere), and not an IFC2X3 type-mapping name.
+// IDS matches exact classes, so a facet listing only such names matches
+// nothing: an applicability selects no element (a required specification then
+// fails with "nothing applicable" while the model's walls and slabs sit under
+// it), a required entity requirement fails every element. The fix is to list
+// the concrete subclasses, which the message names.
+function abstractOnly(n, ctx) {
+  const known = ctx.list.filter(({ S }) => S.has(n));
+  if (!known.length) return false;
+  return known.every(({ id, S }) => S.entities[n].abstract && !(id === "IFC2X3" && own(ctx.typeMap, n)));
+}
+
+function concreteBelow(n, ctx) {
+  const out = new Set();
+  for (const { S } of ctx.list) {
+    if (!S.has(n)) continue;
+    for (const c of Object.keys(S.entities)) if (c !== n && !S.entities[c].abstract && S.isA(c, n)) out.add(c);
+  }
+  return [...out].sort();
+}
+
+function abstractIssues(f, ctx, where, required) {
+  const names = listedNames(f.name);
+  if (!names) return [];
+  const dead = names.filter((n) => abstractOnly(n, ctx));
+  if (!dead.length) return [];
+  const label = ctx.list.filter(({ S }) => dead.some((n) => S.has(n))).map((x) => x.id).join(" and ");
+  const subs = [...new Set(dead.flatMap((n) => concreteBelow(n, ctx)))].filter((c) => !names.includes(c));
+  const fix = subs.length ? `; list its concrete subclasses instead (${subs.length}: ${subs.slice(0, 8).join(", ")}${subs.length > 8 ? ", ..." : ""})` : "";
+  const what = dead.length === 1 ? `${dead[0]} is abstract in ${label}` : `${dead.join(", ")} are abstract in ${label}`;
+  if (dead.length < names.length) return [{ level: "warning", code: "class-abstract", message: `${where}${what}: no object is ever of ${dead.length === 1 ? "that class" : "those classes"} itself, and IDS matches exact classes, so ${dead.length === 1 ? "that name matches" : "those names match"} nothing${fix}` }];
+  const effect = required ? "every applicable element would fail" : where ? "it matches no object" : "the specification applies to no object";
+  return [{ level: required ? "error" : "warning", code: "class-abstract", message: `${where}${what}: no object is ever of ${dead.length === 1 ? "that class" : "those classes"} itself, and IDS matches exact classes (no subclasses), so ${effect}${fix}` }];
+}
+
 function entityNameIssues(f, ctx, where) {
   const issues = [];
   const names = listedNames(f.name);
@@ -431,6 +468,7 @@ export function auditIds(ids, { schemas, typeMap, psets } = {}) {
         if (f.kind === "entity") {
           issues.push(...entityNameIssues(f, ctx, ""));
           if (where === "requirements" && !issues.some((x) => x.level === "error")) issues.push(...entityContradiction(f, spec, ctx));
+          if (!issues.some((x) => x.level === "error")) issues.push(...abstractIssues(f, ctx, "", where === "requirements" && f.cardinality !== "optional" && f.cardinality !== "prohibited"));
         }
         else if (f.kind === "attribute") issues.push(...attributeIssues(f, spec, ctx));
         else if (f.kind === "property") issues.push(...propertyIssues(f, ctx, spec, where));
@@ -438,7 +476,11 @@ export function auditIds(ids, { schemas, typeMap, psets } = {}) {
         else if (f.kind === "partOf") {
           if (f.relation === "IFCRELVOIDSELEMENT" || f.relation === "IFCRELFILLSELEMENT") issues.push({ level: "error", code: "relation-voids-fills", message: `partOf relation ${f.relation} on its own is not an IDS 1.0 value, and tools that validate against ids.xsd (IfcTester among them) refuse the file; write relation="IFCRELVOIDSELEMENT IFCRELFILLSELEMENT" for an element in an opening of another` });
           else if (f.relation && !PARTOF_RELS.includes(f.relation)) issues.push({ level: "error", code: "relation-unknown", message: `partOf relation ${f.relation} is not one of ${PARTOF_RELS.map((r) => JSON.stringify(r)).join(", ")}` });
-          if (f.entity) issues.push(...entityNameIssues(f.entity, ctx, "partOf: "));
+          if (f.entity) {
+            const en = entityNameIssues(f.entity, ctx, "partOf: ");
+            issues.push(...en);
+            if (!en.some((x) => x.level === "error")) issues.push(...abstractIssues(f.entity, ctx, "partOf: ", false));
+          }
         }
         for (const x of issues) add(where + " " + f.describe(), x);
       }

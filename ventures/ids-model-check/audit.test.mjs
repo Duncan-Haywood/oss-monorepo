@@ -35,6 +35,31 @@ test("an entity requirement no applicable class can satisfy is invalid", () => {
   assert.deepEqual(codes(spec(ent("IFCFLOWTERMINAL"), ent("IFCAIRTERMINAL"), { version: "IFC2X3" })), []);
 });
 
+test("an abstract class matches nothing: warned in the applicability, invalid as a required requirement", () => {
+  const app = audit(spec(ent("IFCBUILDINGELEMENT"), attr("Name"), { version: "IFC2X3" }));
+  assert.deepEqual(app.map((x) => [x.level, x.code]), [["warning", "class-abstract"]]);
+  assert.match(app[0].message, /applies to no object/);
+  assert.match(app[0].message, /concrete subclasses instead \(25: IFCBEAM,/);
+  assert.doesNotMatch(app[0].message, /IFCBUILDINGELEMENTCOMPONENT/); // abstract itself
+  // A requirement every applicable element must meet, and cannot.
+  assert.deepEqual(codes(spec(prop("IFCLABEL"), ent("IFCBUILDINGELEMENT"))), ["class-abstract"]);
+  // Optional or prohibited: nothing can fail, so a warning.
+  const opt = `<entity cardinality="optional"><name><simpleValue>IFCBUILDINGELEMENT</simpleValue></name></entity>`;
+  assert.deepEqual(codes(spec(prop("IFCLABEL"), opt)), []);
+  assert.deepEqual(codes(spec(prop("IFCLABEL"), opt), "warning"), ["class-abstract"]);
+  // One dead name among concrete ones: the rest still match.
+  const mixed = `<entity><name><xs:restriction base="xs:string"><xs:enumeration value="IFCWALL"/><xs:enumeration value="IFCBUILDINGELEMENT"/></xs:restriction></name></entity>`;
+  const m = audit(spec(mixed, attr("Name")));
+  assert.deepEqual(m.map((x) => [x.level, x.code]), [["warning", "class-abstract"]]);
+  assert.doesNotMatch(m[0].message, /IFCWALL[,)]/); // already listed, not suggested
+  // partOf a container class nothing can be.
+  const po = `<partOf relation="IFCRELCONTAINEDINSPATIALSTRUCTURE"><entity><name><simpleValue>IFCSPATIALSTRUCTUREELEMENT</simpleValue></name></entity></partOf>`;
+  assert.deepEqual(codes(spec(ent("IFCWALL"), po), "warning"), ["class-abstract"]);
+  // Concrete classes and IFC2X3 type-mapping names are untouched.
+  assert.deepEqual(audit(spec(ent("IFCWALL"), ent("IFCWALL"))), []);
+  assert.deepEqual(codes(spec(ent("IFCFLOWTERMINAL"), ent("IFCAIRTERMINAL"), { version: "IFC2X3" }), "warning"), []);
+});
+
 test("unknown, derived and inverse attributes are invalid", () => {
   assert.deepEqual(codes(spec(ent("IFCWALL"), attr("ActingRole"))), ["attribute-unknown"]);
   assert.deepEqual(codes(spec(ent("IFCCARTESIANPOINT"), attr("Dim"))), ["attribute-derived"]);
