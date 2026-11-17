@@ -274,6 +274,32 @@ them. A glob that matches nothing exits 2 rather than passing an empty
 check. Pinning `@main` follows this repository; pin a commit SHA for a
 repeatable build, or copy the folder (it runs from its own directory).
 
+In GitLab, `--gitlab-codequality gl-code-quality-report.json` writes a Code
+Quality report (since 2026-11-17, `eval/gitlab-codequality-2026-11-17.md`):
+one issue per failing element on its `#id=` line, IDS audit warnings and
+invalid specifications on the specification's line, and each element's
+fingerprint built from its GlobalId and class, not its `#id`. The merge
+request widget then says which elements a change broke or fixed. On the HHS
+Office revisions in `opensourceBIM/IFC-files` it showed exactly the 2 and 16
+changed failures, and 0 for BIMserver's re-serialisation of the MEP model,
+which renumbers all 665,224 entities (keyed on `#id`, that re-save would show
+8,975 new and 8,975 fixed). Every listed element gets an issue by default;
+`--gitlab-max-per-spec N` caps it for size, but a cap of 50 hid all 18 real
+changes there.
+
+```yaml
+ids-check:
+  image: node:22
+  script:
+    - node ids-model-check/ci-cli.mjs --models "models/**/*.ifc" --ids "requirements/*.ids"
+        --junit ids-report.xml --gitlab-codequality gl-code-quality-report.json
+  artifacts:
+    when: always
+    reports:
+      junit: ids-report.xml
+      codequality: gl-code-quality-report.json
+```
+
 Outside GitHub the same entry point runs anywhere Node does (GitLab CI,
 Jenkins, a pre-commit hook):
 
@@ -281,7 +307,8 @@ Jenkins, a pre-commit hook):
 node ci-cli.mjs --models "models/**/*.ifc" --ids "req/*.ids" --junit report.xml \
   [--summary summary.md] [--bcf-dir bcf/] [--json results.json] [--annotations] \
   [--pairing all|name] [--fail-on error|warning|never] [--fail-on-unchecked] \
-  [--fail-on-audit-warnings] [--root DIR] [--max-failures N]
+  [--fail-on-audit-warnings] [--root DIR] [--max-failures N] \
+  [--gitlab-codequality FILE] [--gitlab-max-per-spec N]
 node cli.mjs model.ifc spec.ids --junit report.xml   # one pair
 ```
 

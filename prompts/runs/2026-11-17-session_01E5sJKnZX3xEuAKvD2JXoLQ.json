@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKnZX3xEuAKvD2JXoLQ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T12:19:58Z",
+  "ended": "2026-11-17T13:02:40Z",
+  "wall_minutes": 43.06,
+  "tokens_in": 9295567,
+  "tokens_out": 57357,
+  "cost_usd": 4.2487,
+  "tool_calls": 72,
+  "task": "Flagship 9 (league-schedule-generator), allocator row 5: '30 teams in the page: keep tables in the module, copy-in/out now as large as the step'",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16934",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "First blocked-64 chain split the unary cost wrongly (a term whose bit sat in the other half was counted in both); the on/off trial comparison caught it (27 teams 63 vs 58) before anything was committed."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml (league-schedule-generator next:)",
+      "issue": "The item said the copy-in/out was the cost to cut; counting trials first showed the real waste was 19 steps a trial copied out for trials 90% of which are discarded, and the fused move itself needed two more rewrites before it stopped costing 16-20 s. Worth counting call patterns before trusting a profile line."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py (row 5's next:, first item)",
+      "why": "The first item (47 teams on 8x9) has stalled across five multi-hour LNS runs and needs a new model with hour-scale solver runs; the 30-teams-in-the-page item is user-facing and measurable within one session.",
+      "did": "Took the fourth listed item (30 teams in the page) instead of the first.",
+      "result": "Landed: 34% faster floor-priced step at 28 and 30 teams, 30 teams on the page."
+    },
+    {
+      "file": "carryover.mjs carryOverFloorPriced",
+      "why": "29 teams added a season on only 1 of 3 seeds for ~75 s of a visitor's CPU, while 30 added on 3 of 3.",
+      "did": "Added skip: [29] rather than a plain maxTeams range.",
+      "result": "30 in, 29 out, tested."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-nine-trials-in-ten-never-leave-the-module.md",
+    "ventures/league-schedule-generator/README.md (A trial's steps kept in the module)",
+    "ventures/league-schedule-generator/eval/chain-step.txt"
+  ],
+  "goal": null,
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py league-schedule-generator -> ok (217.9 s, 562 tests). Exactness: floorTable chain on vs off over 280 trials at 9-30 teams with commits and walks, identical; orient.test.mjs repeats a version of it. Timing pairs (shared 4-CPU machine, on vs off side by side): 30-1 93.8 -> 62.0 s, 28-1 45.7 -> 30.2 s, same seasons. post checks (frontmatter, links, similarity) clean; portfolio/router/validate.py clean. venture-preflight run in the background before merge (result in PR body).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1c335e7f-5b16-54b1-82df-034da7d9a36c",
+    "transcripts": 1,
+    "first": "2026-11-17T12:19:58Z",
+    "last": "2026-11-17T13:03:01Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 70,
+        "input": 131,
+        "output": 57357,
+        "thinking": 22021,
+        "cache_read": 9136215,
+        "cache_write_5m": 0,
+        "cache_write_1h": 159221,
+        "api_equivalent_usd": 4.2487,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 70,
+      "input": 131,
+      "output": 57357,
+      "thinking": 22021,
+      "cache_read": 9136215,
+      "cache_write_5m": 0,
+      "cache_write_1h": 159221,
+      "api_equivalent_usd": 4.2487,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 72,
+    "tools": {
+      "Bash": 69,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 43.06,
+      "active_minutes": 43.06,
+      "model_minutes": 9.91,
+      "tool_minutes": 33.15,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "profiling, a fused WebAssembly kernel in three versions with exactness tests, size-gate measurements over 9 seeds, README and post: a senior perf engineer's day plus",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 235.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
