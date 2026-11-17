@@ -1,0 +1,26 @@
+{
+  "id": "P067",
+  "title": "Definition of done: every claim on the page and README points at the file that backs it; no hand-written test counts or runtimes",
+  "status": "open",
+  "owner": "agent",
+  "effect": 3,
+  "cost": 2,
+  "problem": "Claims is the most-failed gate: 89 of 130 below-bar subjects, 46 of 64 sampled ventures. Overclaim (116) and stale-docs (30) are the second-largest defect group; hand-written counts and runtimes go stale on the next change.",
+  "evidence": [
+    "claims gate failures among below-bar subjects: 89 of 130 (python3 platform/ci/quality_audit.py metrics --md, 2026-11-10)",
+    "overclaim defects 116, stale-docs 30 (keyword taxonomy, 75% agreement with hand labels)"
+  ],
+  "change": "A claims pass in the definition of done: each number or comparative claim links its backing test, result or source, or is cut or labelled an estimate. A check that flags README sentences of the form 'N tests' or 'about N minutes'.",
+  "touches": [
+    "PRODUCT_PLAYBOOK.md",
+    "ventures/CLAUDE.md",
+    "platform/ci/"
+  ],
+  "metric": "claims-gate failures among below-bar subjects",
+  "baseline": "68% (89 of 130)",
+  "opened": "2026-11-10",
+  "source": "portfolio/quality/reflections/2026-11-10-where-quality-drops-off.md",
+  "pr": null,
+  "result": null,
+  "history": []
+}

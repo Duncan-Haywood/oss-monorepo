@@ -442,13 +442,14 @@ class RepositoryTest(unittest.TestCase):
         weights = {t: float(c["weight"]) for t, c in tracks.items() if t != promptctl.REVIEW}
         self.assertAlmostEqual(weights["perf"] / sum(weights.values()), 0.05, places=3)
 
-    def test_quality_audits_get_about_five_percent(self):
+    def test_quality_audits_get_about_twenty_percent(self):
         # The owner, 2026-11-07: measuring whether the work is "finished and accomplished
         # to a high senior expert professional level or higher. This should be ongoing and
-        # very thorough" (prompts/quality/prompt-0.md, portfolio/quality/README.md).
+        # very thorough"; 2026-11-10: "direct a lot more work to quality audits"
+        # (prompts/quality/prompt-0.md, portfolio/quality/README.md).
         tracks = promptctl.load_routing(promptctl.ROOT)["tracks"]
         weights = {t: float(c["weight"]) for t, c in tracks.items() if t != promptctl.REVIEW}
-        self.assertAlmostEqual(weights["quality"] / sum(weights.values()), 0.05, places=3)
+        self.assertAlmostEqual(weights["quality"] / sum(weights.values()), 0.20, places=3)
         self.assertTrue((promptctl.ROOT / "quality" / "prompt-0.md").exists())
 
 
