@@ -260,6 +260,12 @@
       "commit": "97ba0f3d4ef2abed5780e9490d5c3a2be832ab1d",
       "from": "FACTUR-X_EXTENDED.sch",
       "checks": 1464
+    },
+    "flux10-fr": {
+      "source": "FNFE-MPE Flux 10 e-reporting (PPF Annexe 7 v1.8 controls), github.com/fnfempe/France_RFE (Apache-2.0)",
+      "commit": "97ba0f3d4ef2abed5780e9490d5c3a2be832ab1d",
+      "from": "Flux10.sch",
+      "checks": 150
     }
   },
   "fontoxpath": "3.34.0"
