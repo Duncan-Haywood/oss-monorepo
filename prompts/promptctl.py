@@ -248,6 +248,33 @@ def infer_track(task: str, tracks: dict[str, Any]) -> str | None:
     return None
 
 
+def session_task(base: Path | None = None) -> str | None:
+    """The first message of this session's transcript, for a `route` run without --task.
+
+    Doc friction, 2026-11-14 to 15: a dozen scheduled runs ran a bare `route`,
+    which ignored their stored brief (e.g. the ventures brief) and drew another
+    track; they rerouted by hand after reading prompt.md. Reading the starting
+    message here makes the bare command do what --task does. Any failure (no
+    transcript, odd format) says None, so the draw stands as before."""
+    try:
+        import runcost
+        paths = runcost.find_transcripts(None, base)
+        if not paths:
+            return None
+        for entry in runcost.read_entries(paths[0]):
+            if entry.get("type") != "user" or entry.get("isMeta") or runcost.is_tool_result(entry):
+                continue
+            content = (entry.get("message") or {}).get("content")
+            if isinstance(content, list):
+                content = "\n".join(c.get("text", "") for c in content
+                                    if isinstance(c, dict) and c.get("type") == "text")
+            if isinstance(content, str) and content.strip() and not content.lstrip().startswith("<"):
+                return content.strip()
+    except Exception:
+        return None
+    return None
+
+
 def review_claimed(repo: str = "duncan-haywood/oss-monorepo") -> bool:
     """True when an open PR titled "prompts: review" already holds the review claim.
 
@@ -1305,7 +1332,8 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("route", help="pick this run's sub-prompt and version")
     p.add_argument("--track", help="force a track (the session's task decides it)")
     p.add_argument("--task", help="the message that started the run; names like 'revenue "
-                   "products' pick the track, otherwise the draw stands")
+                   "products' pick the track, otherwise the draw stands. Omitted, it is read "
+                   "from this session's transcript (~/.claude/projects)")
     p.add_argument("--skip-review", action="store_true",
                    help="a review is due but another run has already claimed it")
     p.add_argument("--seed", type=int, help="deterministic draw, for tests")
@@ -1335,7 +1363,13 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "route":
         rng = random.Random(args.seed) if args.seed is not None else None
-        r = route(ROOT, args.track, args.skip_review, rng, task=args.task)
+        task = args.task
+        if task is None and args.track is None and args.seed is None:
+            task = session_task()
+            if task:
+                print(f"Task:    read from this session's transcript ({task[:70]!r}); "
+                      "pass --task to override", file=sys.stderr)
+        r = route(ROOT, args.track, args.skip_review, rng, task=task)
         print(json.dumps(r, indent=2)) if args.json else print_route(r)
         return 0
     if args.cmd == "record":
