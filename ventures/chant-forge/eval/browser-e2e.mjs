@@ -344,6 +344,17 @@ await page.selectOption("#sections", "");
   await page.fill("#relartist", ""); await page.fill("#reltitle", "");
   await page.selectOption("#voice", ""); await page.selectOption("#genre", "");
 }
+// organum: a second choir track a fourth below, named Organal voice
+{
+  const pieceNow = (await page.locator("#piece option").evaluateAll((o) => o.map((x) => x.value))).find((v) => /veni-creator\.gabc/.test(v)) || pieces.find(Boolean);
+  await page.selectOption("#piece", pieceNow); await page.waitForFunction(() => document.querySelector("#src").value.includes("%%"));
+  await page.selectOption("#genre", ""); await page.selectOption("#organum", "1"); await page.click("#go");
+  const t = await out();
+  const [dl] = await Promise.all([page.waitForEvent("download"), page.click("#dlmid")]);
+  const m = fs.readFileSync(await dl.path());
+  ok(/Organum: \d+ notes \(/.test(t) && m.includes(Buffer.from("Organal voice")), `organum: ${(t.match(/Organum:[^\n]*/) || ["no line"])[0].slice(0, 90)}`);
+  await page.selectOption("#organum", "");
+}
 // errors
 await page.fill("#src", "hello");
 await page.click("#go");
