@@ -223,3 +223,40 @@ def _email_ok(identifier: str) -> bool:
 
 def _finding(rule: str, message: str, fix: str, path: str) -> dict[str, str]:
     return {"rule": rule, "message": message, "fix": fix, "path": path}
+
+
+# INV-062 (endpoint.mjs, 2026-11-17): OpenPeppol applies the same fatal
+# PEPPOL-COMMON rules to PartyIdentification/ID and PartyLegalEntity/CompanyID
+# as to the endpoint, so a JSON invoice's legal_id ({scheme, id}) and party_ids
+# ([{scheme, id}]) meet them too. INV-063, the warning-level twin, stays silent
+# here as INV-061 does: the Python checks have no warning severity.
+def _inspect_one_identifier(entry: Any, label: str, what: str, path: str) -> list[dict[str, str]]:
+    if not isinstance(entry, dict):
+        return []
+    scheme = normalize_scheme(entry.get("scheme"))
+    identifier = normalize_endpoint_id(entry.get("id"))
+    if scheme is None or identifier is None:
+        return []
+    check = _SCHEME_CHECKS.get(scheme)
+    if check is None or check(identifier):
+        return []
+    return [_finding(
+        "INV-062",
+        f"{label} {what} does not match the {scheme} format OpenPeppol rejects on (PEPPOL-COMMON).",
+        f"Correct the {scheme} identifier ({_SCHEME_SHAPES[scheme]}). Peppol applies the same check here as on "
+        "the electronic address; this is a format check, not a registry lookup.",
+        f"{path}/id",
+    )]
+
+
+def inspect_party_identifiers(party: Any, party_name: str) -> list[dict[str, str]]:
+    """Return INV-062 observations for a party's legal_id and party_ids."""
+    if not isinstance(party, dict):
+        return []
+    label = party_name.title()
+    findings = _inspect_one_identifier(party.get("legal_id"), label, "legal registration identifier", f"/{party_name}/legal_id")
+    party_ids = party.get("party_ids")
+    if isinstance(party_ids, list):
+        for index, entry in enumerate(party_ids):
+            findings.extend(_inspect_one_identifier(entry, label, "identifier", f"/{party_name}/party_ids/{index}"))
+    return findings
