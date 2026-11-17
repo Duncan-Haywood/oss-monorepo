@@ -1,0 +1,275 @@
+{
+ "date": "2026-11-17",
+ "subject": "ventures/uk-self-assessment-tax-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-17-4dba",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a UK chartered tax adviser (CTA) preparing SA100/SA103/SA105 returns; first checks: 2025/26 bands and allowances, the GBP 100,000 personal allowance taper, Class 4 rates and Class 2 treatment, savings/dividend ordering with the starting rate, PSA and Dividend Allowance, the residential finance cost reducer (lower of finance costs, property profits, adjusted total income excluding savings and dividends), the property allowance election, student loan income for SA, and the payments on account tests",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Sources the author did not write, fetched through the proxy on 2026-11-17 (gov.uk returned 200): GOV.UK 'Income Tax rates and allowances: current and past' (rates.html sha256 e5f32910...), 'Rates and thresholds for employers 2025 to 2026' (emp2526.html b356c6a2...), 'Self-employed National Insurance rates' (nic.html 17744d3f...), 'Changes to tax relief for residential landlords: how it's worked out' (finance.html 5d4f87b5...), 'Payments on account' (poa.html 17399104...), 'Tell HMRC about a student or postgraduate loan in your tax return' (slsa.html ebfecf34...); text in /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/uk-self-assessment-tax-calculator/dl/. Probes (node /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/uk-self-assessment-tax-calculator/probes.mjs), hand-recomputed from those pages: PASS employment GBP 200,000 -> income tax 76,203 (7,540 + 87,440x40% + 74,860x45%); PASS GBP 110,000 -> allowance 7,570, tax 33,432, and with GBP 8,000 net pension -> allowance 12,570, tax 29,432; PASS trading profit 60,000 -> Class 4 2,456.60 (37,700x6% + 9,730x2%), tax 11,432; PASS sample 10,329.50 tax, 325.80 Class 4, POA 2,977.65, 31 Jan 8,932.95 (also on the live page); PASS dividends and PSA cases (2,317.25; 12,032; additional-rate PSA 0 -> 54,603). FAIL finance cost reducer: GOV.UK says the third limb is adjusted total income 'excluding savings and dividends income' over the allowance, but calc.mjs:131 uses total income including them: rent 15,000, expenses 2,000, mortgage interest 10,000, dividends 20,000 -> tool income tax GBP 0 (credit 2,000), correct 1,706.25 (credit 20% x min(10,000, 13,000, 430) = 86 against 1,792.25 gross); the live page shows 'Income tax £0'. FAIL property allowance chosen by comparing expenses only (calc.mjs:97-98), so it forfeits the finance credit: employment 30,000, rent 10,000, expenses 500, mortgage interest 6,000 -> tool 5,286, best route 4,186; GBP 1 more of expenses (1,001) drops the tool to 4,085.80, a GBP 1,200 cliff. FAIL student loan base includes all savings/dividends: GOV.UK counts 'unearned income in excess of GBP 2,000': employment 30,000, interest 1,500, Plan 2 -> tool 272.70, expected 137.70. FAIL Plan 5 charged for 2025/26 (employment 40,000 -> 1,350); the 2025/26 employer thresholds list Plans 1, 2, 4 and PGL only, Plan 5 collection starts April 2026.",
+  "completeness": "Claimed on README/page: income tax in HMRC stacking order, Class 4, student loan and PGL, PAYE offset, 31 January balance, payments on account, pension/Gift Aid what-ifs, download and print, nothing uploaded. Loaded the live page https://marisstella.app/uk-self-assessment-tax-calculator/ in headless Chrome over CDP ({S}/page.mjs): 'Load an example' renders 'Balance £5,955.3; with the first payment on account, £8,932.95 is due on 31 January 2027' with the breakdown table and obligations; custom inputs (landlord case) compute; disclaimer text present. Every listed feature produces output; the what-if findings appear in compute() (calc.mjs:200-206). No TODOs or stubs; page.test.mjs checks sibling links exist. Finished as described; several outputs are wrong (correctness).",
+  "verification": "`cd ventures/uk-self-assessment-tax-calculator && node --test '*.test.mjs'`: 32 tests, 32 pass, 0.14 s. Eight mutants via platform/ci/quality_mutate.py: 2 caught (PSA higher 500 -> 1,000; Class 4 6% -> 9%), 6 survived: POA 80% test -> 90%, additional-rate band not extended by pension/Gift Aid, additional dividend rate 39.35% -> 38.75%, Plan 4 threshold changed, Gift Aid not grossed up, finance credit cap ignoring pension/Gift Aid. Only one finance-cost test (no savings or dividends), no Gift Aid test, no additional-rate dividend test, no Plan 1/4/5 or PGL test. Tests are the author's hand calculations, so they encode the author's reading of the finance-credit and student-loan rules.",
+  "craft": "Read calc.mjs (232 lines), index.html script (lines 130-180), calc.test.mjs, page.test.mjs. Pure engine imported by the page, input rejected not clamped, clear stacking via one slice() helper, no copied engines. Defects: money formatting uses minimumFractionDigits 0, so the headline shows '£5,955.3' (index.html:136, calc.mjs:38); the property allowance-vs-expenses choice is a two-way comparison that ignores the finance credit, creating a GBP 1,200 cliff at GBP 1 of extra expense; marginalOn (calc.mjs:150) adds employment pay but no Class 1 NIC while the finding calls it tax and National Insurance; SAMPLE PAYE (4,700) is below what 38,000 of PAYE pay would deduct (about 5,086), harmless but odd.",
+  "claims": "Checked: 'No warranty', 'not ... tax ... advice' and the verify line on page (index.html:53,120), README and summary text (calc.mjs:230) - pass; 'Written from memory ... without network access' disclosed (README:11) - pass; 'Not modelled' list (Scotland, CGT, losses, foreign income, marriage allowance, HICBC) on page (index.html:99) and in findings - pass; FAQ Class 4 '6% ... 2% above; Class 2 is no longer compulsory' (index.html:112) matches GOV.UK nic page - pass; 2025/26 bands, dividend rates, PSA, starting rate all match rates.html - pass. Failing: the marginal-rate finding says 'costs about GBP 346 in tax and National Insurance' for a GBP 50,000 employee (calc.mjs:195) but omits the employee's Class 1 NIC (8% then 2%), so the stated figure is low; Plan 5 is offered as a 2025/26 repayment plan (index.html:71, calc.mjs:30) though no Plan 5 repayments are collected that year; the page says the property allowance is used when it 'gives you a better result' (calc.mjs:191) when the choice ignores the finance credit. Served copy (`node platform/pages/served-copy.mjs uk-self-assessment-tax-calculator`): no placeholder or retired origin left, so the github.io link in source llms.txt is rewritten at deploy (not filed).",
+  "fitness": "Job walked: someone with a job and a side business (the sample) gets a correct 31 January figure and POA schedule, which is the core use, and the pension what-if in the taper band is correctly worth GBP 4,000 on GBP 8,000 net. A landlord with mortgage interest and dividends (a common SA profile, e.g. a company director who lets property) can be told GBP 0 tax when about GBP 1,706 is due; a landlord with small expenses is overcharged by the forced allowance; a borrower with modest interest is overcharged student loan. Scotland, HICBC and losses are disclosed exclusions, but HICBC in particular is common in SA. Usable as a first estimate for employment plus trade; not for landlords. Nearest tools: HMRC's own 'Estimate your Income Tax' and commercial SA estimators, which handle the finance cost reducer.",
+  "domain": "Against GOV.UK 2025/26: personal allowance, taper, basic 37,700 and additional 125,140 bands, dividend 8.75/33.75/39.35 and GBP 500 allowance, starting rate 5,000, PSA 1,000/500/0, Class 4 6%/2% between 12,570 and 50,270, Class 2 treated as paid (pass); ordering non-savings, savings, dividends with nil-rate amounts using band space (pass); pension relief at source and Gift Aid extending both basic and additional bands and reducing ANI (pass); POA tests at GBP 1,000 and 80% at source, excluding student loan, half the relevant amount each (pass, poa.html). Departs: finance cost reducer third limb includes savings/dividends (GOV.UK: adjusted total income excludes them); property allowance election not optimised against the reducer; SA student loan income counts all unearned income instead of only when over GBP 2,000; Plan 5 charged a year early; the 'more than 80% collected at source' test uses PAYE only, ignoring other tax deducted at source (small). A CTA would accept the stacking engine and reject the landlord figures."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Additional-rate employee, GBP 200,000",
+   "method": "GOV.UK Income Tax rates 2025/26 (rates.html): allowance gone, 37,700 x 20% + 87,440 x 40% + 74,860 x 45%",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/uk-self-assessment-tax-calculator/probes.mjs",
+   "expected": "76,203",
+   "observed": "P2 allowance=0 incomeTax=76203",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Taper: GBP 110,000 employment, then with GBP 8,000 net pension",
+   "method": "GOV.UK rates page: allowance reduced GBP 1 per GBP 2 over 100,000; RAS gross 10,000 extends basic band to 47,700 and lowers ANI to 100,000",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/uk-self-assessment-tax-calculator/probes.mjs",
+   "expected": "7,570 / 33,432; 12,570 / 29,432",
+   "observed": "P3 allowance=7570 incomeTax=33432; P3b allowance=12570 incomeTax=29432",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Class 4 and income tax on GBP 60,000 trading profit",
+   "method": "GOV.UK Self-employed NI rates (nic.html): 6% 12,570-50,270, 2% above; Class 2 treated as paid",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/uk-self-assessment-tax-calculator/probes.mjs",
+   "expected": "Class 4 2,456.60; tax 11,432",
+   "observed": "P4 class4Nic=2456.6 incomeTax=11432",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Worked example: income tax, Class 4, POA, 31 January total",
+   "method": "hand from rates.html: 9,832 non-savings + 400 x 40% + 1,000 x 33.75%; Class 4 5,430 x 6%; poa.html tests (>= 1,000, < 80% at source)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/uk-self-assessment-tax-calculator/probes.mjs",
+   "expected": "10,329.50; 325.80; POA 2,977.65; 8,932.95",
+   "observed": "P1 incomeTax=10329.5 class4Nic=325.8 poaEach=2977.65 jan=8932.95; live page 'Balance £5,955.3 ... £8,932.95 is due on 31 January 2027'",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Finance cost reducer with dividend income: rent 15,000, expenses 2,000, mortgage interest 10,000, dividends 20,000",
+   "method": "GOV.UK 'Changes to tax relief for residential landlords' (finance.html): 20% of lower of finance costs, property profits, adjusted total income 'excluding savings and dividends income' over the allowance = 20% x 430 = 86; gross tax 86 + 19,500 x 8.75% = 1,792.25",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/uk-self-assessment-tax-calculator/probes.mjs",
+   "expected": "credit 86, income tax 1,706.25",
+   "observed": "P8 credit=2000 incomeTax=0; live page 'Income tax£0'",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Property allowance vs finance credit: employment 30,000, rent 10,000, expenses 500, mortgage interest 6,000",
+   "method": "hand: allowance route 39,000 -> 5,286 with no reducer; expenses route profit 9,500, tax 26,930 x 20% = 5,386 less 20% x 6,000 = 4,186; the taxpayer elects the better route",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/uk-self-assessment-tax-calculator/probes.mjs",
+   "expected": "4,186",
+   "observed": "P7 propUsedAllowance=true credit=0 incomeTax=5286; P7b with expenses 1,001 -> 4085.8",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Student loan in SA with GBP 1,500 interest, Plan 2, employment 30,000",
+   "method": "GOV.UK 'Tell HMRC about a student loan in your tax return' (slsa.html): SA income includes 'unearned income in excess of £2,000'; 2025/26 Plan 2 threshold 28,470 (emp2526.html)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/uk-self-assessment-tax-calculator/probes.mjs",
+   "expected": "(30,000 - 28,470) x 9% = 137.70",
+   "observed": "P5 slDue=272.7",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Plan 5 in 2025/26, employment 40,000",
+   "method": "GOV.UK 'Rates and thresholds for employers 2025 to 2026' lists Plans 1, 2, 4 and PGL only; Plan 5 repayments start April 2026",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/uk-self-assessment-tax-calculator/probes.mjs",
+   "expected": "0",
+   "observed": "P6 slDue=1350",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Savings PSA for higher and additional rate",
+   "method": "rates.html bands; PSA 500 higher, 0 additional",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/uk-self-assessment-tax-calculator/probes.mjs",
+   "expected": "60k+2k interest: 12,032; 150k+2k: 54,603",
+   "observed": "P11 psaBand=500 incomeTax=12032; P12 psaBand=0 incomeTax=54603",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Live page: example, custom inputs, disclaimer",
+   "method": "headless Chrome over CDP against https://marisstella.app/uk-self-assessment-tax-calculator/",
+   "command": "S=/tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/uk-self-assessment-tax-calculator node /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/uk-self-assessment-tax-calculator/page.mjs https://marisstella.app/uk-self-assessment-tax-calculator/",
+   "expected": "report renders, disclaimer present",
+   "observed": "example 'Balance £5,955.3; ... £8,932.95 is due on 31 January 2027'; landlord case renders; disclaimer true",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "cd ventures/uk-self-assessment-tax-calculator && node --test '*.test.mjs'",
+   "expected": "pass",
+   "observed": "32 tests, 32 pass, 0 fail, 0.14 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Marginal rate stated as 'tax and National Insurance' for an employee",
+   "method": "GOV.UK: employees pay Class 1 NIC 8% to 50,270 and 2% above; extra 1,000 from 50,000 adds 270 x 8% + 730 x 2% = 36.20",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/uk-self-assessment-tax-calculator/probes.mjs",
+   "expected": "about 38.2% including Class 1 (34.6% income tax)",
+   "observed": "P9 'costs about GBP 346 in tax and National Insurance and loans: a marginal rate of 34.6%'",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer, no-warranty, from-memory and not-modelled lists",
+   "method": "grep index.html, README, calc.mjs",
+   "command": "grep -n -i 'warranty\\|advice\\|from memory\\|Not modelled\\|Not decided' ventures/uk-self-assessment-tax-calculator/index.html ventures/uk-self-assessment-tax-calculator/README.md ventures/uk-self-assessment-tax-calculator/calc.mjs",
+   "expected": "present",
+   "observed": "index.html:53,99,120; README:11; calc.mjs:207,230",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served llms.txt, sitemap and canonicals",
+   "method": "deploy rewrite",
+   "command": "node platform/pages/served-copy.mjs uk-self-assessment-tax-calculator",
+   "expected": "no placeholder or retired origin",
+   "observed": "no placeholder or retired origin left in llms.txt, sitemap.xml, robots.txt or canonicals",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Class 4 and Class 2 treatment, 2025/26",
+   "method": "GOV.UK nic.html: Class 2 treated as paid above the small profits threshold; Class 4 6%/2%",
+   "command": "sed -n '24p;198p' ventures/uk-self-assessment-tax-calculator/calc.mjs",
+   "expected": "6%/2% on 12,570/50,270; Class 2 not charged",
+   "observed": "CLASS4 = { lower: 12570, upper: 50270, main: 0.06, above: 0.02 }; finding says Class 2 no longer compulsory",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:34",
+   "change": "POA_PAYE_SHARE = 0.8 -> 0.9",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:107",
+   "change": "const addTop = ADDITIONAL_THRESHOLD + pensionGross + giftGross; -> const addTop = ADDITIONAL_THRESHOLD;",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:19",
+   "change": "dividend additional: 0.3935 -> 0.3875",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:29",
+   "change": "Plan 4 threshold 32745 -> 31395",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:103",
+   "change": "const giftGross = r2(p.giftAidNet / 0.8); -> r2(p.giftAidNet)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:131",
+   "change": "pos(totalIncome - pensionGross - giftGross - allowance) -> pos(totalIncome - allowance)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:22",
+   "change": "PSA higher 500 -> 1000",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:24",
+   "change": "Class 4 main 0.06 -> 0.09",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Finance cost reducer's third limb uses total income including savings and dividends; GOV.UK uses adjusted total income excluding them. A landlord with rent 15,000 (expenses 2,000, mortgage interest 10,000) and 20,000 dividends is shown income tax GBP 0 where 1,706.25 is due.",
+   "where": "ventures/uk-self-assessment-tax-calculator/calc.mjs:131",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Property allowance is chosen whenever it beats ordinary expenses, ignoring that it forfeits the finance cost reducer; the user cannot override. Employment 30,000, rent 10,000, expenses 500, mortgage interest 6,000 -> 5,286 instead of 4,186; GBP 1 more expense flips it (GBP 1,200 cliff).",
+   "where": "ventures/uk-self-assessment-tax-calculator/calc.mjs:97",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Student loan SA income counts all savings and dividend income; GOV.UK counts unearned income only when over GBP 2,000. Employment 30,000, interest 1,500, Plan 2 -> 272.70 instead of 137.70.",
+   "where": "ventures/uk-self-assessment-tax-calculator/calc.mjs:135",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Plan 5 is offered and charged for 2025/26 (employment 40,000 -> GBP 1,350), but Plan 5 repayments are not collected until April 2026; the 2025/26 employer thresholds list no Plan 5.",
+   "where": "ventures/uk-self-assessment-tax-calculator/calc.mjs:30",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "6 of 8 seeded mutants survive: POA 80% test, additional-rate band extension, additional dividend rate, Plan 4 threshold, Gift Aid gross-up and the finance-credit cap are untested; the one finance-cost test has no savings or dividends.",
+   "where": "ventures/uk-self-assessment-tax-calculator/calc.test.mjs:49",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Marginal-rate finding says the next GBP 1,000 costs that much 'in tax and National Insurance' but marginalOn adds employment pay without Class 1 NIC, understating an employee's marginal rate (34.6% shown vs about 38.2% at 50,000).",
+   "where": "ventures/uk-self-assessment-tax-calculator/calc.mjs:150",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Money format uses minimumFractionDigits 0, so the headline reads '£5,955.3' and '£2,456.6'.",
+   "where": "ventures/uk-self-assessment-tax-calculator/index.html:136",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "The 80%-at-source test counts PAYE only; tax deducted at source elsewhere is not an input. The High Income Child Benefit Charge, common among SA filers, is disclosed but not modelled.",
+   "where": "ventures/uk-self-assessment-tax-calculator/calc.mjs:158",
+   "category": "scope-gap",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A tidy 2025/26 Self Assessment estimator whose core stacking engine is right and whose landlord and student-loan paths are not. Against GOV.UK pages fetched on 2026-11-17, the bands, taper, dividend and savings rates, PSA, starting rate, Class 4 (and Class 2 treated as paid), pension and Gift Aid band extension and the payments-on-account tests all reproduce: GBP 200,000 -> 76,203; 110,000 -> 33,432 and 29,432 with an 8,000 net pension; the worked example 10,329.50 tax and 8,932.95 due on 31 January, also on the live page. But the finance cost reducer counts dividends and savings in adjusted total income, so a landlord with dividends can be shown GBP 0 instead of 1,706.25; the property allowance is forced over the reducer (GBP 1,100 overcharge, a GBP 1,200 cliff at one pound of expense); student loan ignores the GBP 2,000 unearned-income rule; and Plan 5 is charged a year early. Tests pass 32/32 but 6 of 8 mutants survive. Disclaimer, from-memory note and exclusions are present. Does not meet the bar (correctness 2, claims 2, verification 2; median 2); finished (completeness 3). Fixable in one session: exclude savings/dividends from the ATI limb, pick the property route by total tax, apply the GBP 2,000 unearned test, drop Plan 5 for 2025/26, and add tests for each."
+}
