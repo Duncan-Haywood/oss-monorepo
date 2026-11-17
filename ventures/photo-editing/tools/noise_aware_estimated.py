@@ -34,6 +34,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import sys
 import time
 
@@ -160,6 +161,13 @@ def gains(rows, metric: str, arm: str, ref: str = "D") -> np.ndarray:
     return np.array([r[m][arm] - r[m][ref] for r in rows])
 
 
+def finite_nonneg(text: str) -> float:
+    value = float(text)
+    if not math.isfinite(value) or value < 0:
+        raise argparse.ArgumentTypeError(f"must be a finite number >= 0, got {text!r}")
+    return value
+
+
 def summary(g: np.ndarray) -> dict:
     return {"mean": round(float(g.mean()), 3), "worst": round(float(g.min()), 2),
             "worse_0.1": int((g < -0.1).sum()), "n": int(g.size)}
@@ -169,7 +177,7 @@ def fit(argv) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("rows", nargs="+")
     ap.add_argument("--json")
-    ap.add_argument("--max-worse", type=float, default=0.1, help="a tune row may lose at most this (dB) vs D, either metric")
+    ap.add_argument("--max-worse", type=finite_nonneg, default=0.1, help="a tune row may lose at most this (dB) vs D, either metric")
     args = ap.parse_args(argv)
     rows = [json.loads(line) for p in args.rows for line in open(p) if line.strip()]
     rows = [r for r in rows if "cpsnr" in r]
