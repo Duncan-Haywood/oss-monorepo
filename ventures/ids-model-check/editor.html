@@ -93,7 +93,7 @@
   import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
   import { Schema, parseIds } from "./ids.mjs";
   import { auditIds } from "./audit.mjs";
-  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, idsSchema, facetXml, editableAttributes, modelSets, valueTypes, ownSetName } from "./editor.mjs";
+  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, idsSchema, facetXml, editableAttributes, modelSets, valueTypes, ownSetName, specBases, specClassNames, commonSets, commonAttributes, sameAttributeType, commonPredefinedTypes, parseClassList } from "./editor.mjs";
   import { isZip, unzipModel, inflateRawStream } from "./zip.mjs";
 
   const $ = (id) => document.getElementById(id);
@@ -136,7 +136,8 @@
     h += `<div><label for="${id("card")}">How</label><select id="${id("card")}" data-s="${si}" data-r="${ri}" data-k="cardinality">${[["required", "must have"], ["optional", "if present, must match"], ["prohibited", "must not have"]].map(([v, l]) => opt(v, l, r.cardinality)).join("")}</select></div>`;
     let valueKind = "text", enumVals = null, note = "";
     if (r.kind === "property") {
-      const sets = L.S.entities[spec.cls] || (L.tm && L.tm[spec.cls]) ? setsFor(L.psets, L.S, spec.cls, L.tm) : [];
+      // With several classes, only the standard sets every one can carry.
+      const sets = commonSets(L, specBases(spec));
       // What the opened model's objects of this class carry (inventory.mjs).
       const inModel = inv && spec.cls ? modelSets(inv, specClasses(L, spec), sets) : [];
       const ofN = inModel.length ? inModel[0].of : 0;
@@ -147,7 +148,7 @@
       let so = opt("", sets.length || own.length ? "choose a set" : "pick a class first, or write your own", setVal);
       const carried = sets.filter((x) => inModel.some((m) => m.name === x));
       if (carried.length) so += `<optgroup label="Standard sets the model carries">${carried.map((x) => opt(x, x + onN(inModel.find((m) => m.name === x)), setVal)).join("")}</optgroup>`;
-      if (sets.length) so += `<optgroup label="${carried.length ? "Other standard sets" : "Standard sets"}${spec.cls ? " for " + esc(spec.cls) : ""}">${sets.filter((x) => !carried.includes(x)).map((x) => opt(x, x + onN(inModel.find((m) => m.name === x)), setVal)).join("")}</optgroup>`;
+      if (sets.length) so += `<optgroup label="${carried.length ? "Other standard sets" : "Standard sets"}${spec.cls ? " for " + esc(specBases(spec).join(", ")) : ""}">${sets.filter((x) => !carried.includes(x)).map((x) => opt(x, x + onN(inModel.find((m) => m.name === x)), setVal)).join("")}</optgroup>`;
       if (own.length) so += `<optgroup label="The model's own sets">${own.map((m) => opt("own:" + m.name, m.name + onN(m), setVal)).join("")}</optgroup>`;
       so += opt("__own", "a set of your own...", setVal);
       h += `<div><label for="${id("set")}">Property set</label><select id="${id("set")}" data-s="${si}" data-r="${ri}" data-k="set">${so}</select></div>`;
@@ -186,9 +187,9 @@
         } else valueKind = null;
       }
     } else if (r.kind === "attribute") {
-      const attrs = editableAttributes(L.S, spec.cls);
+      const attrs = commonAttributes(L.S, specBases(spec));
       h += `<div><label for="${id("name")}">Attribute</label><select id="${id("name")}" data-s="${si}" data-r="${ri}" data-k="name">${opt("", "choose", r.name)}${attrs.map((a) => opt(a, a, r.name)).join("")}</select></div>`;
-      const a = L.S.entities[spec.cls] && L.S.attrs(spec.cls).find((x) => x.name === r.name);
+      const a = L.S.entities[spec.cls] && sameAttributeType(L.S, specBases(spec), r.name) && L.S.attrs(spec.cls).find((x) => x.name === r.name);
       if (a && L.S.types[a.type] && L.S.types[a.type].kind === "enum") enumVals = L.S.types[a.type].values;
     } else if (r.kind === "classification") {
       h += `<div><label for="${id("system")}">System (IDS 1.0 requires one)</label><input id="${id("system")}" list="systems" data-s="${si}" data-r="${ri}" data-k="system" value="${esc(r.system)}" placeholder="Uniclass 2015"></div>`;
@@ -218,21 +219,26 @@
   }
 
   // The exact classes a specification names (IDS matches exact classes).
-  const specClasses = (L, s) => (s.withSub && L.S.entities[s.cls] ? [s.cls, ...subclasses(L.S, s.cls)] : [s.cls]);
+  const specClasses = (L, s) => specClassNames(L.S, s);
   function specHtml(L, s, si) {
     const known = !!(L.S.entities[s.cls] || (L.tm && L.tm[s.cls]));
     const subs = L.S.entities[s.cls] ? subclasses(L.S, s.cls) : [];
-    const pts = L.S.entities[s.cls] ? predefinedTypes(L.S, s.cls) : [];
-    const nSets = known ? setsFor(L.psets, L.S, s.cls, L.tm).length : 0;
+    const bases = specBases(s);
+    const also = s.also || [];
+    const unknownAlso = also.filter((c) => !(L.S.entities[c] || (L.tm && L.tm[c])));
+    const pts = L.S.entities[s.cls] ? commonPredefinedTypes(L.S, bases) : [];
+    const nSets = known ? commonSets(L, bases).length : 0;
     let h = `<div class="card" id="spec-${si}"><div class="grid">`;
     h += `<div style="grid-column: 1 / -1"><label for="s-${si}-name">Specification name</label><input id="s-${si}-name" data-s="${si}" data-k="name" value="${esc(s.name)}" placeholder="Walls say whether they are external"></div>`;
     h += `<div><label for="s-${si}-cls">Applies to class</label><input id="s-${si}-cls" list="classes" data-s="${si}" data-k="cls" data-change="1" value="${esc(s.cls)}" placeholder="IFCWALL" autocomplete="off"></div>`;
+    h += `<div><label for="s-${si}-also">Also applies to (optional)</label><input id="s-${si}-also" data-s="${si}" data-k="also" data-change="1" value="${esc(also.join(", "))}" placeholder="IFCSLAB, IFCBEAM" autocomplete="off"></div>`;
     h += `<div><label for="s-${si}-pt">Predefined type (optional)</label><select id="s-${si}-pt" data-s="${si}" data-k="predefinedType">${opt("", "any", s.predefinedType)}${pts.map((p) => opt(p, p, s.predefinedType)).join("")}</select></div>`;
     h += `<div><label for="s-${si}-opt">The model</label><select id="s-${si}-opt" data-s="${si}" data-k="optionality">${[["required", "must have at least one"], ["optional", "may have some"], ["prohibited", "must have none"]].map(([v, l]) => opt(v, l, s.optionality)).join("")}</select></div>`;
     h += `</div>`;
     if (s.cls && !known) h += `<p class="warn">${esc(s.cls)} is not a ${esc(doc.schema)} class.</p>`;
+    if (unknownAlso.length) h += `<p class="warn">${esc(unknownAlso.join(", "))} ${unknownAlso.length > 1 ? "are not" : "is not a"} ${esc(doc.schema)} class${unknownAlso.length > 1 ? "es" : ""}.</p>`;
     if (inv && s.cls) { const n = inv.classes.filter((c) => specClasses(L, s).includes(c.cls)).reduce((a, c) => a + c.count, 0); h += `<p class="${n ? "muted" : "warn"}" style="font-size:0.88rem;margin-bottom:0">${n ? `The model has ${n} object(s) this applies to.` : `The model has no ${esc(s.cls)}${s.withSub ? " or subclass" : ""} objects: a required specification would fail on it.`}</p>`; }
-    if (s.cls && known) h += `<p class="muted" style="font-size:0.88rem">${nSets} standard set(s) apply to ${esc(L.S.entities[s.cls] ? L.S.entities[s.cls].name : s.cls)}.${subs.length ? ` <label style="display:inline;color:var(--fg)"><input type="checkbox" data-s="${si}" data-k="withSub"${s.withSub ? " checked" : ""}> and its ${subs.length} subclass(es): ${esc(subs.slice(0, 6).join(", "))}${subs.length > 6 ? ", ..." : ""}</label>` : ""}</p>`;
+    if (s.cls && known) h += `<p class="muted" style="font-size:0.88rem">${nSets} standard set(s) apply to ${also.length ? `every one of ${esc(bases.join(", "))}` : esc(L.S.entities[s.cls] ? L.S.entities[s.cls].name : s.cls)}.${subs.length ? ` <label style="display:inline;color:var(--fg)"><input type="checkbox" data-s="${si}" data-k="withSub"${s.withSub ? " checked" : ""}> and its ${subs.length} subclass(es): ${esc(subs.slice(0, 6).join(", "))}${subs.length > 6 ? ", ..." : ""}</label>` : ""}</p>`;
     h += `<div class="grid"><div><label for="s-${si}-desc">Why it is needed (optional)</label><input id="s-${si}-desc" data-s="${si}" data-k="description" value="${esc(s.description)}"></div><div><label for="s-${si}-ins">Instructions for the modeller (optional)</label><input id="s-${si}-ins" data-s="${si}" data-k="instructions" value="${esc(s.instructions)}"></div></div>`;
     if (s.ifcVersion) h += `<p class="muted" style="font-size:0.88rem">This specification keeps its own ifcVersion, ${esc(s.ifcVersion.join(" "))}; it is audited against ${esc(doc.schema)}.</p>`;
     if (s.fixedApp && s.fixedApp.length) { h += `<p class="muted" style="font-size:0.88rem;margin-bottom:0">It also applies only to elements matching:</p>`; s.fixedApp.forEach((f, i) => { h += keptHtml(L, f, false, "del-app", si, i); }); }
@@ -362,6 +368,15 @@
     else if (t.type === "checkbox") target[k] = t.checked;
     else target[k] = k === "cls" || k === "entity" ? t.value.trim().toUpperCase() : t.value;
     // A new class or set resets what depended on it.
+    if (k === "also") {
+      s.also = parseClassList(t.value).filter((c) => c !== s.cls);
+      // Keep only what every class still shares.
+      const L = loaded[doc.schema], keep = commonSets(L, specBases(s));
+      if (s.predefinedType && !commonPredefinedTypes(L.S, specBases(s)).includes(s.predefinedType)) s.predefinedType = "";
+      for (const r of s.reqs) if (r.kind === "property" && !r.custom && !r.fixed && r.set && !keep.includes(r.set)) { r.set = ""; r.name = ""; }
+      render();
+      return;
+    }
     if (k === "cls") { s.predefinedType = ""; for (const r of s.reqs) if (r.kind === "property" && !r.custom) { r.set = ""; r.name = ""; } }
     if (k === "kind") { target.name = ""; target.mode = "any"; target.oneOf = []; target.custom = false; target.set = ""; target.dataType = ""; }
     if (k === "dataType") { target.mode = "any"; target.oneOf = []; }

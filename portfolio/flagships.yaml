@@ -467,21 +467,24 @@ flagships:
       (eval/ifcxml-xbim-2026-11-16.md); cross-check more public models from
       opensourceBIM/IFC-files and buildingSMART's Sample-Test-Files with
       eval/crosscheck_ifctester.py; the IDS editor (editor.html; opens an IDS and a
-      model, eval/model-inventory-2026-11-16.md): several classes per spec,
-      applicability facets beyond the class, a model's values for a property; more
-      real exports through eval/model-inventory.mjs.
+      model; several classes per spec 2026-11-17,
+      eval/several-classes-2026-11-17.md): applicability facets beyond the class, a
+      model's values for a property; more real exports through
+      eval/model-inventory.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked"). Next, most
       valuable first: (audit 2026-11-16: 26 of 27 invalid-* files INVALID, 0 of 307
       valid; Pset_/Qto_ template audit 2026-11-16: 5 of 5 IDS-Audit-tool pset files,
-      faults in 21 of 64 public IDS, eval/audit-corpus.mjs); ifcXML and .ifczip read
-      2026-11-16 (eval/ifcxml-xbim-2026-11-16.md); IDS editor 2026-11-16 (203,433
-      offered specs audit clean, 15,102 valid in ids.xsd; found voids/fills token
-      pair and classification-system gaps, eval/editor-2026-11-16.md); an MEP and an
-      IFC4X3 infrastructure model through the IfcTester cross-check; editor (opens
-      an IDS, eval/editor-open-2026-11-16.md; opens a model and offers its classes
-      and sets, own sets editable, 79.4% of public facets editable,
+      faults in 21 of 64 public IDS, eval/audit-corpus.mjs); several classes per
+      spec 2026-11-17 (eval/several-classes-2026-11-17.md: 81.1% of public facets
+      editable); ifcXML and .ifczip read 2026-11-16
+      (eval/ifcxml-xbim-2026-11-16.md); IDS editor 2026-11-16 (203,433 offered specs
+      audit clean, 15,102 valid in ids.xsd; found voids/fills token pair and
+      classification-system gaps, eval/editor-2026-11-16.md); an MEP and an IFC4X3
+      infrastructure model through the IfcTester cross-check; editor (opens an IDS,
+      eval/editor-open-2026-11-16.md; opens a model and offers its classes and sets,
+      own sets editable, 79.4% of public facets editable,
       eval/model-inventory-2026-11-16.md: 4 real exports, 347 of 395 class-set pairs
       own sets, 21 of 122 standard props in a non-template dataType): several
       classes per spec, applicability property/attribute facets (85); offer a

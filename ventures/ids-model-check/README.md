@@ -58,6 +58,13 @@ open. MIT licensed, no dependencies, nothing uploaded.
   the template does not give (the row says so). Own sets also open as editable
   rows: 79.4% of the public IDS files' facets (was 75.0%), all still writing
   back the same. `eval/model-inventory-2026-11-16.md`.
+  **Several classes per specification** (2026-11-17): "Also applies to"
+  takes more classes (`IFCSLAB, IFCBEAM`), written as one entity facet; the
+  page then offers only the standard sets, attributes and predefined types
+  every class shares. Opened files' class lists open as editable: 29
+  specifications in 11 public files, 81.1% of the public files' facets editable
+  (was 79.4%), every file still writing back the same and none made invalid
+  against `ids.xsd`. `eval/several-classes-2026-11-17.md`.
 - Exports: BCF 2.1 (one topic per failing element, selected by IfcGuid), CSV,
   JSON.
 - 22 MB Revit export (Schultz Residence, 424,819 entities): 1.4 s on the command
@@ -352,9 +359,10 @@ faster than IfcTester; its point is needing no install.
 ## Next steps
 
 - The editor (own sets and a loaded model's classes and sets landed
-  2026-11-16, `eval/model-inventory-2026-11-16.md`): several classes per
-  specification and property/attribute facets in the applicability (85 kept
-  facets on the public files); offer the values a model uses for a property
+  2026-11-16, `eval/model-inventory-2026-11-16.md`; several classes per
+  specification 2026-11-17, `eval/several-classes-2026-11-17.md`):
+  property/attribute facets in the applicability (85 kept facets on the
+  public files); a subclass checkbox per class, not only the first; offer the values a model uses for a property
   (its labels as an enumeration); a "fix the dataType" hint built from the 21
   of 122 standard properties real exports write in another type.
 - More real models through the IfcTester cross-check (an MEP model, an IFC4X3
