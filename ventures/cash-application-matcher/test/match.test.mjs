@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import { applyCash, parseTerms, discountCents, nameScore, findReferences, buildReferenceIndex, findSubsets, DEFAULT_SETTINGS } from '../match.mjs';
 import { readInvoices, readReceipts, parseDate } from '../csv.mjs';
 import { applicationsCsv } from '../export.mjs';
-import { score } from '../eval/synthetic.mjs';
+import { score, generate } from '../eval/synthetic.mjs';
 
 const d = (s) => parseDate(s);
 const inv = (id, customer, date, amount, terms = 'Net 30') => ({ id, customer, date: d(date), amount, terms });
@@ -148,4 +148,55 @@ test('synthetic benchmark (generated data): high-confidence proposals stay at le
   }
   assert.ok(n > 300);
   assert.ok(right / n >= 0.99, `${right}/${n}`);
+});
+
+test('red team 2026-11-17: a within-tolerance short-pay larger than the last named invoice never applies a negative amount', () => {
+  // 1,005.00 named, 995.00 paid: the 10.00 shortfall is more than INV-1002's 5.00.
+  const invoices = [inv('INV-1001', 'Acme', '2026-10-01', 100000), inv('INV-1002', 'Acme', '2026-10-02', 500)];
+  const run = applyCash(invoices, [rec('r', '2026-11-01', 99500, 'ACME', 'INV-1001 INV-1002')]);
+  const x = run.results[0];
+  assert.equal(x.method, 'reference + amount less fee');
+  for (const a of x.applications) assert.ok(a.applied >= 0, `${a.invoice} applied ${a.applied}`);
+  assert.deepEqual(x.applications.map((a) => [a.invoice, a.applied, a.writeoff, a.leftOpen]), [['INV-1001', 99500, 500, 0], ['INV-1002', 0, 500, 0]]);
+  assert.equal(x.applications.reduce((s, a) => s + a.applied, 0), 99500);
+  assert.equal(x.unapplied, 0);
+  assert.match(x.note, /INV-1001/);
+});
+
+test('red team 2026-11-17: method names a single-invoice customer match and a multi-invoice one apart', () => {
+  const one = applyCash([inv('A1', 'Orchid Labs', '2026-10-01', 61580)], [rec('r', '2026-11-01', 61580, 'ORCHID LABS')]);
+  assert.equal(one.results[0].method, 'customer + amount');
+  const two = applyCash([inv('A1', 'Orchid Labs', '2026-10-01', 61580), inv('A2', 'Orchid Labs', '2026-10-02', 1000)], [rec('r', '2026-11-01', 62580, 'ORCHID LABS')]);
+  assert.equal(two.results[0].method, 'customer + sum of invoices');
+});
+
+test('red team 2026-11-17: run-together payer names score as the customer ("ACMEWIDGETS" vs "Acme Widgets")', () => {
+  assert.ok(nameScore('ACMEWIDGETS', 'Acme Widgets') >= 0.9, String(nameScore('ACMEWIDGETS', 'Acme Widgets')));
+});
+
+test('red team 2026-11-17: a prefix split from a short number at the end of the remittance ("INV 12")', () => {
+  const index = buildReferenceIndex([{ id: 'INV-12', customer: 'A' }]);
+  assert.deepEqual(findReferences('paid INV 12', index).map((i) => i.id), ['INV-12']);
+});
+
+test('red team 2026-11-17: a pool whose total cannot reach the payment is pruned, not searched to the node cap', () => {
+  const pool = Array.from({ length: 30 }, (_, i) => ({ id: `P${i}`, customer: 'C', date: i, amount: 100, open: 100, termsParsed: null }));
+  const out = findSubsets(pool, 1000000, 0, DEFAULT_SETTINGS);
+  assert.equal(out.solutions.length, 0);
+  assert.equal(out.truncated, false);
+});
+
+test('red team 2026-11-17: every proposal balances and no amount goes negative (synthetic data, 3 seeds)', () => {
+  for (const seed of [1, 2, 3]) {
+    const { invoices, receipts } = generate({ seed, customers: 40, receipts: 400 });
+    const run = applyCash(invoices, receipts);
+    for (const x of run.results) {
+      const applied = x.applications.reduce((s, a) => s + a.applied, 0);
+      assert.equal(applied + x.unapplied, x.receipt.amount, `seed ${seed} ${x.receipt.id}`);
+      for (const a of x.applications) {
+        for (const k of ['applied', 'discount', 'writeoff', 'leftOpen']) assert.ok(a[k] >= 0, `seed ${seed} ${x.receipt.id} ${a.invoice} ${k} ${a[k]}`);
+      }
+    }
+    for (const o of run.openInvoices) assert.ok(o.open > 0 && o.open <= o.amount, `seed ${seed} ${o.id}`);
+  }
 });

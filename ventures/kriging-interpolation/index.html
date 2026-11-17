@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23234b5e'/%3E%3Cpath%20d='M4%2024C9%2014%2014%2026%2019%2016S27%2010%2028%208'%20stroke='%23f2c14e'%20stroke-width='3'%20fill='none'/%3E%3Ccircle%20cx='9'%20cy='18'%20r='2.5'%20fill='%23fff'/%3E%3Ccircle%20cx='19'%20cy='16'%20r='2.5'%20fill='%23fff'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Kriging Interpolation Tool — variogram fit, kriged map and standard errors from your CSV, free online</title>
+  <meta name="description" content="Free online kriging tool. Paste scattered readings (soil samples, wells, rain gauges, sensors; x/y or longitude/latitude) and get the semivariogram, a fitted spherical, exponential or Gaussian model, an ordinary kriging map with a standard error everywhere, and a leave-one-out check against inverse distance weighting. Runs in your browser.">
+  <meta property="og:title" content="Fill in a map from scattered readings: ordinary kriging with standard errors, in your browser">
+  <meta property="og:description" content="Semivariogram, weighted least-squares variogram fit, kriged map and standard-error map, and a leave-one-out comparison with inverse distance weighting. On ERA5 wave heights kriging misses by 0.39 m against 0.62 m for inverse distance.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Kriging interpolation tool: variogram, kriged map and standard errors", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Interpolates scattered readings by ordinary kriging (Matheron 1963): empirical semivariogram (Matheron; Cressie and Hawkins 1980), spherical, exponential or Gaussian model fitted by Cressie's 1985 weighted least squares, a kriged map with a standard-error map, longitude and latitude by chordal distance, and a closed-form leave-one-out check (Dubrule 1983) against inverse distance weighting and the nearest reading. Runs in your browser.", "featureList": "kriging, ordinary kriging, semivariogram, variogram fitting, spherical exponential Gaussian variogram, nugget sill range, kriging variance, standard error map, spatial interpolation, inverse distance weighting comparison, leave-one-out cross-validation, longitude latitude, soil sampling map, groundwater contour, CSV download", "citation": ["https://doi.org/10.2113/gsecongeo.58.8.1246", "https://doi.org/10.1007/BF01035243", "https://doi.org/10.1007/BF01032109", "https://doi.org/10.1007/BF01033232", "https://doi.org/10.1145/800186.810616", "https://doi.org/10.3150/12-BEJSP06", "https://doi.org/10.1002/qj.3803"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is kriging?", "acceptedAnswer": {"@type": "Answer", "text": "Kriging estimates a value at a place you did not measure as a weighted average of the readings you have, with weights chosen from how quickly readings stop resembling each other as they get farther apart (the variogram). Among such averages it has the smallest expected error, and it says how large that error is likely to be at every place. It is named after Danie Krige, a South African mining engineer, and was formalised by Georges Matheron."}}, {"@type": "Question", "name": "What do nugget, sill and range mean?", "acceptedAnswer": {"@type": "Answer", "text": "The semivariogram plots half the average squared difference between two readings against the distance between them. The nugget is where it starts at a tiny distance: measurement noise plus variation finer than your spacing. The sill is the level it flattens at, about the overall variance. The range is the distance where it gets there: readings farther apart than that tell you nothing about each other."}}, {"@type": "Question", "name": "Is kriging better than inverse distance weighting?", "acceptedAnswer": {"@type": "Answer", "text": "Often, but check on your own data. The tool leaves out each reading in turn and predicts it from the rest by kriging, by inverse distance weighting and by the nearest reading, and reports each method's error. On the ERA5 wave-height example kriging misses by 0.39 m root mean square against 0.62 m for inverse distance. On 40 simulated fields with a known truth it beat inverse distance on 36. If inverse distance wins on your data, the tool says so."}}, {"@type": "Question", "name": "How much can I trust the standard error map?", "acceptedAnswer": {"@type": "Answer", "text": "It is right only if the variogram is right, so the tool checks it: the mean standardised squared error of the leave-one-out predictions should be near 1. Above about 1.5 the bands are too narrow; below about 0.67 they are too wide. On simulated fields the 95% bands covered 95.1% of the held-out true values. The standard error depends on where the readings are, not on their values, so it also shows where one more sample would help most."}}, {"@type": "Question", "name": "Can I use longitude and latitude?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Name the columns lon and lat (or longitude and latitude) and distances are measured in kilometres on a sphere, straight through the Earth (chordal distance), which keeps the spherical, exponential and Gaussian models valid (Gneiting 2013). Points either side of the 180 degree meridian are treated as neighbours."}}, {"@type": "Question", "name": "What does the tool not do?", "acceptedAnswer": {"@type": "Answer", "text": "It assumes the same variogram in every direction (no anisotropy), a constant mean (no trend surface or universal kriging), and uses every reading in every estimate, so it takes up to 1,000 locations. It does not do block kriging, indicator kriging, co-kriging or log-normal back-transforms. It is a statistical estimate, not a survey, engineering or environmental certification."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Every number is computed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17262e; background: #eef3f4; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #234b5e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #163847; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #163847; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5b63; }
+    .card { background: #fff; border: 1px solid #d3dfe2; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #16384710; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #687a82; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #234b5e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e0eaec; color: #163847; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e3eaec; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5b63; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d3dfe2; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #687a82; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .summary { font-size: 1.02rem; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    .toggle button { margin-top: 6px; }
+    .toggle button[aria-pressed="true"] { background: #234b5e; color: #fff; }
+    pre { background: #f2f6f7; border: 1px solid #d9e3e5; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">KRIGING · SEMIVARIOGRAM · VARIOGRAM FIT · STANDARD ERROR MAP · LEAVE-ONE-OUT CHECK · X/Y OR LON/LAT · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What is the value between my sample points, and how sure can I be?</h1>
+    <p>Soil samples, wells, rain gauges, air sensors, survey points: you measured at some places and need a map of the rest. This tool fits a <strong>semivariogram</strong> to your readings (how fast they stop resembling each other with distance), fills in the map by <strong>ordinary kriging</strong> (Matheron 1963) with a <strong>standard error at every place</strong>, and checks itself by leaving out each reading in turn, against inverse distance weighting and the nearest reading.</p>
+    <p class="note">Nothing you enter leaves this browser tab. A statistical estimate from the readings you give, not engineering, surveying or environmental advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your readings</h2>
+    <label for="data">CSV or tab-separated, one reading per row. Name the columns lon,lat (degrees) or x,y (any one unit) plus a value; without a header the first three columns are x, y, value.</label>
+    <textarea id="data" spellcheck="false"></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <div class="grid">
+      <div><label for="value">Value column (blank: the first other number)</label><input id="value" type="text" placeholder="e.g. zinc"></div>
+      <div><label for="coords">Coordinates</label><select id="coords"><option value="auto">From the header</option><option value="xy">Flat x, y</option><option value="lonlat">Longitude, latitude</option></select></div>
+      <div><label for="model">Variogram model</label><select id="model"><option value="auto">Best by leave-one-out</option><option value="spherical">Spherical</option><option value="exponential">Exponential</option><option value="gaussian">Gaussian</option><option value="linear">Linear (no sill)</option></select></div>
+      <div><label for="estimator">Semivariogram estimator</label><select id="estimator"><option value="matheron">Matheron (classical)</option><option value="cressie">Cressie-Hawkins (robust)</option></select></div>
+      <div><label for="lags">Distance classes</label><input id="lags" type="number" min="3" max="50" step="1" value="15"></div>
+      <div><label for="mask">Hide map cells farther than this many spacings from a reading (0 = none)</label><input id="mask" type="number" min="0" max="20" step="0.5" value="1.5"></div>
+    </div>
+    <label for="predict">Optional: places to estimate, one "x, y" (or "lon, lat") per line</label>
+    <textarea id="predict" spellcheck="false" style="min-height:70px" placeholder="-30, 45&#10;0, 0"></textarea>
+    <div>
+      <button type="button" class="secondary" id="ex-waves">Example: ERA5 ocean wave height, January 2024 (real)</button>
+      <button type="button" class="secondary" id="ex-soil">Example: 12 soil samples (made up)</button>
+    </div>
+    <button type="button" id="analyze">Krige</button>
+    <span class="note" id="status"></span>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="summary" id="summary"></p>
+    <div id="notes"></div>
+    <h3>Map</h3>
+    <div class="toggle"><button type="button" class="secondary" id="show-est" aria-pressed="true">Estimate</button><button type="button" class="secondary" id="show-sd" aria-pressed="false">Standard error</button></div>
+    <div id="map"></div>
+    <p class="note" id="map-legend"></p>
+    <h3>Semivariogram and fitted model</h3>
+    <div id="vario"></div>
+    <p class="note">Dots: half the mean squared difference between readings in each distance class (size grows with the number of pairs). Line: the model used for the map.</p>
+    <h3>Leave-one-out check</h3>
+    <div class="scroll"><table id="cv"></table></div>
+    <div class="scroll"><table id="models"></table></div>
+    <div id="pred-box" hidden><h3>Your places</h3><div class="scroll"><table id="pred"></table></div></div>
+    <button type="button" class="secondary" id="download">Download the map (CSV)</button>
+    <button type="button" class="secondary" id="download-loo">Download the leave-one-out table (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>Example: one month of ocean waves from 371 points</h2>
+    <p>The real example is the median significant wave height in January 2024 at 371 ocean points on a 10-degree grid, from the ERA5 reanalysis (Hersbach et al. 2020). Left out one at a time, kriging predicts each point from the other 370 with a root mean square error of 0.39 m. Inverse distance weighting misses by 0.62 m and the nearest point by 0.51 m. The fitted exponential variogram has a small nugget (5% of the sill), so neighbouring cells 1,000 km apart still share most of their variation. The points kriging gets most wrong are sheltered water near land: one in southern Norway at 60°N 10°E had 0.22 m where the open-ocean neighbours imply 2.2 m. That is the point of the check: a map is only as good as the variogram's idea of what "nearby" means.</p>
+  </section>
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What is kriging?</h3>
+    <p>Kriging estimates a value at a place you did not measure as a weighted average of the readings you have, with weights chosen from how quickly readings stop resembling each other as they get farther apart (the variogram). Among such averages it has the smallest expected error, and it says how large that error is likely to be at every place. It is named after Danie Krige, a South African mining engineer, and was formalised by Georges Matheron.</p>
+    <h3>What do nugget, sill and range mean?</h3>
+    <p>The semivariogram plots half the average squared difference between two readings against the distance between them. The nugget is where it starts at a tiny distance: measurement noise plus variation finer than your spacing. The sill is the level it flattens at, about the overall variance. The range is the distance where it gets there: readings farther apart than that tell you nothing about each other.</p>
+    <h3>Is kriging better than inverse distance weighting?</h3>
+    <p>Often, but check on your own data. The tool leaves out each reading in turn and predicts it from the rest by kriging, by inverse distance weighting and by the nearest reading, and reports each method's error. On the ERA5 wave-height example kriging misses by 0.39 m root mean square against 0.62 m for inverse distance. On 40 simulated fields with a known truth it beat inverse distance on 36. If inverse distance wins on your data, the tool says so.</p>
+    <h3>How much can I trust the standard error map?</h3>
+    <p>It is right only if the variogram is right, so the tool checks it: the mean standardised squared error of the leave-one-out predictions should be near 1. Above about 1.5 the bands are too narrow; below about 0.67 they are too wide. On simulated fields the 95% bands covered 95.1% of the held-out true values. The standard error depends on where the readings are, not on their values, so it also shows where one more sample would help most.</p>
+    <h3>Can I use longitude and latitude?</h3>
+    <p>Yes. Name the columns lon and lat (or longitude and latitude) and distances are measured in kilometres on a sphere, straight through the Earth (chordal distance), which keeps the spherical, exponential and Gaussian models valid (Gneiting 2013). Points either side of the 180 degree meridian are treated as neighbours.</p>
+    <h3>What does the tool not do?</h3>
+    <p>It assumes the same variogram in every direction (no anisotropy), a constant mean (no trend surface or universal kriging), and uses every reading in every estimate, so it takes up to 1,000 locations. It does not do block kriging, indicator kriging, co-kriging or log-normal back-transforms. It is a statistical estimate, not a survey, engineering or environmental certification.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Every number is computed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p><strong>Semivariogram</strong> (Matheron 1963). Every pair of readings, binned by distance up to half the widest distance (or the limit you set): half the mean squared difference in each class. The robust option is Cressie &amp; Hawkins (1980): the fourth power of the mean square-root difference, bias-corrected, so a few wild readings do not inflate it.</p>
+    <p><strong>Model fit</strong> (Cressie 1985). Spherical, exponential or Gaussian, with nugget, partial sill and range (the practical range, 95% of the sill, for the exponential and Gaussian), chosen to minimise the sum over classes of pairs &times; (estimate / model &minus; 1)&sup2;. For each range, nugget and sill are found by reweighted least squares, kept non-negative; the range is scanned and refined by golden-section search. "Best by leave-one-out" fits all three and keeps the one with the smallest leave-one-out error.</p>
+    <p><strong>Ordinary kriging</strong> (Matheron 1963). The estimate is the weighted average of every reading whose weights sum to one and minimise the expected squared error under the model; the kriging variance is that minimum. Readings at the same place are averaged first. The map passes exactly through each reading.</p>
+    <p><strong>Leave-one-out</strong> (Dubrule 1983). All the leave-one-out errors and variances come from one inverse of the kriging matrix, so the check costs no more than the map. Baselines: inverse distance weighting with power 2 (Shepard 1968) and the nearest reading. <strong>Longitude and latitude</strong>: chordal distance on a sphere of radius 6,371 km (Gneiting 2013).</p>
+    <p><strong>Checked</strong> against the covariance-form predictor solved by a separate Cholesky routine (to 1e-8), against linear interpolation in one dimension with a linear variogram (an exact result), against a refit with each reading removed for the leave-one-out shortcut, and on 40 simulated random fields with a known truth, where the 95% bands covered 95.1% of 4,000 held-out values. Implemented from the papers; no third-party code was ported.</p>
+<pre>@article{matheron1963principles, author={Matheron, Georges}, title={Principles of geostatistics}, journal={Economic Geology}, volume={58}, number={8}, pages={1246--1266}, year={1963}, doi={10.2113/gsecongeo.58.8.1246}}
+@article{krige1951statistical, author={Krige, D. G.}, title={A statistical approach to some basic mine valuation problems on the Witwatersrand}, journal={Journal of the Chemical, Metallurgical and Mining Society of South Africa}, volume={52}, number={6}, pages={119--139}, year={1951}}
+@article{cressie1980robust, author={Cressie, Noel and Hawkins, Douglas M.}, title={Robust estimation of the variogram: I}, journal={Mathematical Geology}, volume={12}, number={2}, pages={115--125}, year={1980}, doi={10.1007/BF01035243}}
+@article{cressie1985fitting, author={Cressie, Noel}, title={Fitting variogram models by weighted least squares}, journal={Mathematical Geology}, volume={17}, number={5}, pages={563--586}, year={1985}, doi={10.1007/BF01032109}}
+@article{dubrule1983cross, author={Dubrule, Olivier}, title={Cross validation of kriging in a unique neighborhood}, journal={Mathematical Geology}, volume={15}, number={6}, pages={687--699}, year={1983}, doi={10.1007/BF01033232}}
+@inproceedings{shepard1968two, author={Shepard, Donald}, title={A two-dimensional interpolation function for irregularly-spaced data}, booktitle={Proceedings of the 1968 23rd ACM National Conference}, pages={517--524}, year={1968}, doi={10.1145/800186.810616}}
+@article{gneiting2013strictly, author={Gneiting, Tilmann}, title={Strictly and non-strictly positive definite functions on spheres}, journal={Bernoulli}, volume={19}, number={4}, pages={1327--1349}, year={2013}, doi={10.3150/12-BEJSP06}}
+@article{hersbach2020era5, author={Hersbach, Hans and others}, title={The ERA5 global reanalysis}, journal={Quarterly Journal of the Royal Meteorological Society}, volume={146}, number={730}, pages={1999--2049}, year={2020}, doi={10.1002/qj.3803}}</pre>
+    <p class="note">Example data: ERA5 (Hersbach et al. 2020) through the Open-Meteo marine API, licence CC BY 4.0. Contains modified Copernicus Climate Change Service information (2024). Neither the European Commission nor ECMWF is responsible for any use of it. Monthly medians computed from hourly values in this repository.</p>
+    <p class="note">Limits: up to 1,000 distinct locations, every reading in every estimate. Isotropic variogram, constant mean, point estimates (no block kriging). The map's bounding box is the readings' own; cells far from any reading are hidden by default because the estimate there is just the mean.</p>
+  </section>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, surveying, environmental or other professional advice, and a map from it is not a certified survey or site assessment. Results are a statistical estimate from the readings you enter; a regulator, standard or contract may require a different method. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, ECMWF, Copernicus, Open-Meteo, or any software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs readings.csv --predict 10:20 --csv</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/kriging-interpolation" rel="noopener">source</a>.</p>
+    <p>More research algorithms on your own data: <a href="../gaussian-process-regression/">Gaussian process regression</a> fits a curve with a band through a series, and <a href="../hdbscan-clustering/">HDBSCAN clustering</a> finds the groups in a table.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, toCsv, looCsv, gammaModel, fmt } from "./engine.mjs";
+    import { EXAMPLES } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const g = (v, s = 3) => (Number.isFinite(v) ? Number(v.toPrecision(s)).toString() : "–");
+    let last = null, layer = "estimate";
+    // Sequential palette (dark blue to yellow), interpolated in RGB.
+    const STOPS = [[37, 52, 148], [44, 127, 184], [65, 182, 196], [161, 218, 180], [255, 255, 204]];
+    const STOPS_SD = [[255, 247, 236], [253, 212, 158], [252, 141, 89], [215, 48, 31], [127, 0, 0]];
+    function color(t, stops) {
+      t = Math.max(0, Math.min(1, t)) * (stops.length - 1);
+      const i = Math.min(stops.length - 2, Math.floor(t)), f = t - i;
+      const c = stops[i].map((v, k) => Math.round(v + f * (stops[i + 1][k] - v)));
+      return `rgb(${c[0]},${c[1]},${c[2]})`;
+    }
+    function inputs() {
+      const predictAt = $("#predict").value.split(/\n/).map((l) => l.split(/[,;\t ]+/).filter(Boolean).map(Number)).filter((p) => p.length >= 2 && p.every(Number.isFinite));
+      return { text: $("#data").value, value: $("#value").value.trim(), coords: $("#coords").value, model: $("#model").value, estimator: $("#estimator").value, lags: Number($("#lags").value) || 15, mask: Number($("#mask").value), predictAt };
+    }
+    function mapSvg(r) {
+      const G = r.grid, W = 900, L = 50, B = 36, T = 10, R = 90;
+      const H = Math.max(260, Math.min(620, Math.round(((W - L - R) * (G.y1 - G.y0)) / (G.x1 - G.x0)) + T + B));
+      const sx = (x) => L + ((x - G.x0) / (G.x1 - G.x0)) * (W - L - R), sy = (y) => H - B - ((y - G.y0) / (G.y1 - G.y0)) * (H - T - B);
+      const cw = (W - L - R) / G.nx, ch = (H - T - B) / G.ny;
+      const isSd = layer === "sd";
+      const vals = G.cells.filter(Boolean).map((c) => (isSd ? c.sd : c.estimate));
+      const lo = isSd ? 0 : Math.min(...vals, ...r.points.map((p) => p.v)), hi = Math.max(...vals, ...(isSd ? [] : r.points.map((p) => p.v)));
+      const t = (v) => (hi > lo ? (v - lo) / (hi - lo) : 0.5);
+      let out = "";
+      for (const c of G.cells) if (c) out += `<rect x="${(sx(c.x) - cw / 2).toFixed(1)}" y="${(sy(c.y) - ch / 2).toFixed(1)}" width="${(cw + 0.6).toFixed(1)}" height="${(ch + 0.6).toFixed(1)}" fill="${color(t(isSd ? c.sd : c.estimate), isSd ? STOPS_SD : STOPS)}"/>`;
+      for (const p of r.points) out += `<circle cx="${sx(p.x).toFixed(1)}" cy="${sy(p.y).toFixed(1)}" r="3.2" fill="${isSd ? "#163847" : color(t(p.v), STOPS)}" stroke="#163847" stroke-width="1"><title>${esc(r.names.x)} ${p.x}, ${esc(r.names.y)} ${p.y}: ${p.v}</title></circle>`;
+      out += `<rect x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}" fill="none" stroke="#9fb0b6"/>`;
+      out += `<text x="${(L + W - R) / 2}" y="${H - 8}" font-size="13" text-anchor="middle" fill="#4a5b63">${esc(r.names.x)} (${g(G.x0)} to ${g(G.x1)})</text>`;
+      out += `<text x="14" y="${(T + H - B) / 2}" font-size="13" text-anchor="middle" fill="#4a5b63" transform="rotate(-90 14 ${(T + H - B) / 2})">${esc(r.names.y)} (${g(G.y0)} to ${g(G.y1)})</text>`;
+      for (let k = 0; k <= 20; k++) out += `<rect x="${W - R + 22}" y="${(T + ((20 - k) * (H - T - B - 20)) / 21).toFixed(1)}" width="18" height="${((H - T - B - 20) / 21 + 1).toFixed(1)}" fill="${color(k / 20, isSd ? STOPS_SD : STOPS)}"/>`;
+      out += `<text x="${W - R + 44}" y="${T + 10}" font-size="12" fill="#4a5b63">${g(hi)}</text><text x="${W - R + 44}" y="${H - B - 22}" font-size="12" fill="#4a5b63">${g(lo)}</text>`;
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${isSd ? "Kriging standard error" : "Kriged estimate"} map with the readings as dots">${out}</svg>`;
+    }
+    function varioSvg(r) {
+      const W = 900, H = 300, L = 70, B = 44, T = 14, R = 20, bins = r.variogram.bins, m = r.model;
+      const xmax = r.variogram.maxLag, ymax = Math.max(...bins.map((b) => b.gamma), m.nugget + m.psill) * 1.1;
+      const sx = (x) => L + (x / xmax) * (W - L - R), sy = (y) => H - B - (y / ymax) * (H - T - B);
+      const nmax = Math.max(...bins.map((b) => b.n));
+      let path = "";
+      for (let k = 1; k <= 200; k++) { const h = (k / 200) * xmax; path += `${k === 1 ? "M" : "L"}${sx(h).toFixed(1)},${sy(gammaModel(m, h)).toFixed(1)}`; }
+      let out = `<line x1="${L}" y1="${H - B}" x2="${W - R}" y2="${H - B}" stroke="#9fb0b6"/><line x1="${L}" y1="${T}" x2="${L}" y2="${H - B}" stroke="#9fb0b6"/>`;
+      out += `<path d="${path}" fill="none" stroke="#d1495b" stroke-width="2.5"/>`;
+      for (const b of bins) out += `<circle cx="${sx(b.h).toFixed(1)}" cy="${sy(b.gamma).toFixed(1)}" r="${(3 + 6 * Math.sqrt(b.n / nmax)).toFixed(1)}" fill="#234b5e" fill-opacity=".7"><title>distance ${g(b.h)}${r.unit ? " " + r.unit : ""}: ${g(b.gamma)} from ${b.n} pairs</title></circle>`;
+      out += `<text x="${(L + W - R) / 2}" y="${H - 10}" font-size="13" text-anchor="middle" fill="#4a5b63">distance between readings${r.unit ? " (" + r.unit + ")" : ""}, 0 to ${g(xmax)}</text>`;
+      out += `<text x="16" y="${(T + H - B) / 2}" font-size="13" text-anchor="middle" fill="#4a5b63" transform="rotate(-90 16 ${(T + H - B) / 2})">semivariance, 0 to ${g(ymax)}</text>`;
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Empirical semivariogram with the fitted model">${out}</svg>`;
+    }
+    function drawMap() {
+      if (!last) return;
+      $("#map").innerHTML = mapSvg(last);
+      $("#show-est").setAttribute("aria-pressed", String(layer === "estimate"));
+      $("#show-sd").setAttribute("aria-pressed", String(layer === "sd"));
+      $("#map-legend").textContent = layer === "sd"
+        ? `Kriging standard error: smallest at the readings (dots), largest far from them. Largest shown: ${g(last.grid.maxSd)}.`
+        : `Kriged estimate of ${last.names.value}, ${g(last.grid.min)} to ${g(last.grid.max)}. Dots are the readings, coloured on the same scale. ${last.coords === "lonlat" ? "Longitude across, latitude up (not an equal-area projection)." : ""}`;
+    }
+    function show(r) {
+      last = r;
+      $("#results").hidden = false;
+      $("#summary").textContent = r.summary;
+      $("#notes").innerHTML = r.warnings.map((n) => `<p class="warn">${esc(n)}</p>`).join("");
+      drawMap();
+      $("#vario").innerHTML = varioSvg(r);
+      const cv = r.crossValidation;
+      const row = (name, s) => `<tr><td>${name}</td><td class="n">${g(s.rmse)}</td><td class="n">${g(s.mae)}</td><td class="n">${g(s.meanError)}</td></tr>`;
+      $("#cv").innerHTML = `<tr><th>Each reading predicted from the others by</th><th class="n">RMSE</th><th class="n">Mean abs. error</th><th class="n">Mean error</th></tr>` +
+        row(`Kriging (${esc(r.model.model)})`, cv.kriging) + row("Inverse distance weighting (power 2)", cv.idw) + row("Nearest reading", cv.nearest) + row("Mean of the others", cv.mean);
+      const u = r.unit ? " " + r.unit : "";
+      $("#models").innerHTML = `<tr><th>Model</th><th class="n">Nugget</th><th class="n">Partial sill</th><th class="n">Range</th><th class="n">LOO RMSE</th><th class="n">Std. sq. error (ideal 1)</th></tr>` +
+        r.models.map((m) => m.failed ? `<tr><td>${esc(m.model)}</td><td colspan="5">${esc(m.failed)}</td></tr>` : `<tr><td>${esc(m.model)}${m.model === r.model.model ? " (used)" : ""}</td><td class="n">${g(m.nugget)}</td><td class="n">${g(m.psill)}</td><td class="n">${g(m.range)}${u}</td><td class="n">${g(m.loo.rmse)}</td><td class="n">${fmt(m.loo.msdr, 2)}</td></tr>`).join("");
+      $("#pred-box").hidden = !r.predictions.length;
+      $("#pred").innerHTML = `<tr><th>${esc(r.names.x)}</th><th>${esc(r.names.y)}</th><th class="n">Estimate</th><th class="n">95% band</th><th class="n">Inverse distance</th></tr>` +
+        r.predictions.map((p) => `<tr><td>${p.x}</td><td>${p.y}</td><td class="n">${g(p.estimate, 4)}</td><td class="n">${g(p.low95, 4)} to ${g(p.high95, 4)}</td><td class="n">${g(p.idw, 4)}</td></tr>`).join("");
+    }
+    function run() {
+      const t0 = performance.now();
+      $("#status").textContent = "Working…";
+      setTimeout(() => {
+        const r = analyze(inputs());
+        if (r.error) { $("#status").textContent = r.error; $("#results").hidden = true; return; }
+        $("#status").textContent = `Done in ${Math.round(performance.now() - t0)} ms.`;
+        show(r);
+        record("analysis_run");
+      }, 10);
+    }
+    function loadExample(key, quiet = false) {
+      const ex = EXAMPLES[key];
+      $("#data").value = ex.text;
+      $("#coords").value = ex.coords || "auto";
+      $("#value").value = "";
+      $("#predict").value = key === "waves" ? "-30, 45\n-150, 30" : "10, 10";
+      $("#status").textContent = ex.label;
+      if (quiet) { const r = analyze(inputs()); if (!r.error) show(r); return; }
+      record("example_loaded");
+      run();
+    }
+    $("#analyze").addEventListener("click", run);
+    $("#ex-waves").addEventListener("click", () => loadExample("waves"));
+    $("#ex-soil").addEventListener("click", () => loadExample("soil"));
+    $("#show-est").addEventListener("click", () => { layer = "estimate"; drawMap(); });
+    $("#show-sd").addEventListener("click", () => { layer = "sd"; drawMap(); });
+    $("#file").addEventListener("change", async (e) => {
+      const f = e.target.files?.[0];
+      if (f) { $("#data").value = await f.text(); run(); }
+    });
+    const save = (text, name) => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type: "text/csv" }));
+      a.download = name;
+      a.click();
+      record("report_downloaded");
+    };
+    $("#download").addEventListener("click", () => { if (last) save(toCsv(last), "kriged-map.csv"); });
+    $("#download-loo").addEventListener("click", () => { if (last) save(looCsv(last), "kriging-leave-one-out.csv"); });
+    const syncOpt = () => { $("#optout").textContent = usageOptedOut() ? "Turn usage counting back on" : "Turn usage counting off"; };
+    $("#optout").addEventListener("click", () => { setUsageOptOut(!usageOptedOut()); syncOpt(); });
+    syncOpt();
+    loadExample("waves", true);
+  </script>
+</body>
+</html>

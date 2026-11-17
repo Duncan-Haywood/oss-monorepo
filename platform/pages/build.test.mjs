@@ -5124,6 +5124,18 @@ test('tools whose audience browses a section are filed in it', async () => {
     'notary-trip-quote': ['services', null],
     'booth-rent-vs-commission': ['services', null],
     'translator-project-quote': ['services', null],
+    // Parked under "Marketplace seller tools" from 2026-10-11 while `services`
+    // and `backoffice` were near their offline-bundle ceiling; the breadcrumb
+    // on a driving school's page read "Marketplace seller tools" (polish,
+    // 2026-11-17). Each is back in the section its reader browses.
+    'driving-school-profit-calculator': ['services', null],
+    'barbershop-chair-profit-calculator': ['services', null],
+    'axe-throwing-bar-profit-calculator': ['services', null],
+    'tournament-pairing-manager': ['services', null],
+    'bail-bond-agency-exposure-calculator': ['services', null],
+    'commercial-lease-abstract-reader': ['backoffice', null],
+    'severance-package-calculator': ['backoffice', null],
+    'payment-processor-fee-comparison-calculator': ['backoffice', null],
   };
 
   for (const [slug, [category, subcategory]] of Object.entries(placements)) {
@@ -5131,6 +5143,20 @@ test('tools whose audience browses a section are filed in it', async () => {
     const sub = subcategoryFor(slug);
     assert.equal(sub ? sub.id : null, subcategory, `${slug} is in the wrong sub-group`);
   }
+});
+
+test('no shop, studio or salon profit calculator is filed as a marketplace seller tool', async () => {
+  // The marketplace section is for people selling through someone else's
+  // storefront. A bench, chair or studio business prices its own time; filing
+  // one there to dodge a bundle ceiling put "Marketplace seller tools" in the
+  // breadcrumb of eleven local-service pages until 2026-11-17. Raise the
+  // ceiling or split the section instead.
+  const { surfaces } = await site();
+  const misfiled = surfaces
+    .map((s) => s.slug)
+    .filter((slug) => /-(shop|studio|chair|school|salon|bar)-(service-)?profit-calculator$/.test(slug))
+    .filter((slug) => categoryFor(slug).id === 'marketplace');
+  assert.deepEqual(misfiled, []);
 });
 
 test('the catch-all holds only what no section claims', async () => {

@@ -12,6 +12,7 @@ import { plainFix } from "./schematron-fixes.mjs";
 
 export const PLAIN_DIR = "plain/";
 const RULE_FILES = { ubl: "en16931-ubl.json", cii: "en16931-cii.json" };
+export const CDAR_FILE = "cdar-fr.json";
 export const PLAIN_ADDON_FILES = { xrechnung: { ubl: "xrechnung-ubl.json", cii: "xrechnung-cii.json" }, peppol: { ubl: "peppol-ubl.json", cii: "peppol-cii.json" }, "cius-ro": { ubl: "cius-ro-ubl.json" }, "cius-pt": { ubl: "cius-pt-ubl.json" }, "cius-hr": { ubl: "cius-hr-ubl.json" }, nlcius: { ubl: "nlcius-ubl.json", cii: "nlcius-cii.json" }, "cius-fr": { ubl: "cius-fr-ubl.json", cii: "cius-fr-cii.json" } };
 
 // fontoxpath works on IEEE doubles, the rules are written for exact xs:decimal.
@@ -169,6 +170,13 @@ export function createPlainRunner({ fontoxpath, parseXml }) {
   // opts.profile ("france") adds the add-on that profile names (schematron-core.mjs).
   async function run(xml, load, opts = {}) {
     const syntax = detectSyntax(xml);
+    if (syntax === "cdar") {
+      // A French life-cycle message (CDAR) is not an invoice: FNFE-MPE's BR-FR-CDV set alone.
+      const rules = await load(CDAR_FILE);
+      if (!rules) return { status: "unavailable", syntax, findings: [], sets: [] };
+      const raw = runRules(rules, parseXml(xml.replace(/^\uFEFF/, "")));
+      return { status: "ok", syntax, findings: raw.map((x) => toFinding(x, "cdar-fr-schematron")), sets: ["cdar-fr"], skipped: raw.skipped };
+    }
     const profile = syntax && matchingProfile(xml, syntax);
     if (profile) {
       // PINT: its own sets stand in for the EN 16931 base and the BIS add-on. Any set

@@ -1,0 +1,8 @@
+M=12 tau=3.05 mine          enr_plan mean loss 1.0370 median 1.0218 max 1.1317
+M=12 tau=3.05 same_group_c  enr_plan mean loss 1.0327 median 1.0185 max 1.1249
+M=12 tau=5.00 mine          enr_plan mean loss 1.0462 median 1.0299 max 1.1461
+M=12 tau=5.00 same_group_c  enr_plan mean loss 1.0389 median 1.0235 max 1.1378
+M=16 tau=3.05 mine          enr_plan mean loss 1.0453 median 1.0383 max 1.1852
+M=16 tau=3.05 same_group_c  enr_plan mean loss 1.0399 median 1.0346 max 1.1770
+M=16 tau=5.00 mine          enr_plan mean loss 1.0533 median 1.0480 max 1.1931
+M=16 tau=5.00 same_group_c  enr_plan mean loss 1.0453 median 1.0392 max 1.1830
