@@ -1,0 +1,451 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqybovGHAh9f4XWXCBAB",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T05:40:00Z",
+  "ended": "2026-11-17T05:40:18Z",
+  "wall_minutes": 5.33,
+  "tokens_in": 4016325,
+  "tokens_out": 24685,
+  "cost_usd": 2.0383,
+  "tool_calls": 46,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16833",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A scripted sweep replaced num(\"months\", 12) inside the new monthsOpt helper too (infinite recursion); the new probe showed every baseline red at once, fixed with one sed before anything was committed.",
+    "The local ventures-tests run failed test_checks_refuse_empty_root.py: the new check exited 0 on an empty --root. It now exits 2 when it finds no gate CLI, and a unit test covers that."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 lists 10 open defects; all are control-plane edits (workflows, prompts/) that need their own owner-approved PRs, several already written in other branches or patches. Re-checking or re-opening them would restate blockers.",
+      "did": "Skipped step 0 fixes, spent the run on seeding, the real defects and a class guard.",
+      "result": "2 real defect classes fixed across 16 ventures, 1 new automated check."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-a-crash-that-looked-like-over-budget.md"
+  ],
+  "goal": null,
+  "notes": "Target ventures/search-api-pricing-calculator/engine.mjs (random draw, 0.6 s suite), two campaigns (8 + 12 mutants). Guard added (step 4b): platform/ci/check_cli_bad_input_exit.py, argument-free so unwired_checks.py runs it on every ventures PR via run_venture_tests.py --since; first run: 15 gate CLIs probed, 84 bad-input runs that did not exit 2; after the sweep 0. Unit test platform/ci/test_check_cli_bad_input_exit.py (4 OK). All 16 touched venture suites pass under node --test (26-33 tests each). Line-57 mutant re-applied by hand after the fix rewrote the line (1 test fails).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/search-api-pricing-calculator/engine.mjs",
+        "test": "node --test ventures/search-api-pricing-calculator/**/*.test.mjs  (in .)",
+        "seed": 233836222,
+        "commit": "3540b0baf",
+        "sites": 97,
+        "baseline_seconds": 0.6,
+        "mutants": [
+          {
+            "file": "ventures/search-api-pricing-calculator/engine.mjs",
+            "line": 29,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "const nn = (n) => Math.max(0, Number(n) || 0);",
+            "after": "const nn = (n) => Math.max(0, Number(n) || 1);",
+            "line_text": "const nn = (n) => Math.max(0, Number(n) || 0);",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/search-api-pricing-calculator/engine.mjs",
+            "line": 34,
+            "col": 32,
+            "operator": "eq-flip",
+            "before": "if (records === 0 && searches === 0) return 0;",
+            "after": "if (records === 0 && searches !== 0) return 0;",
+            "line_text": "  if (records === 0 && searches === 0) return 0;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/search-api-pricing-calculator/engine.mjs",
+            "line": 35,
+            "col": 35,
+            "operator": "minus-to-plus",
+            "before": "const recs = Math.max(0, records - nn(p.includedRecordsK)) * nn(p.perKRecords);",
+            "after": "const recs = Math.max(0, records + nn(p.includedRecordsK)) * nn(p.perKRecords);",
+            "line_text": "  const recs = Math.max(0, records - nn(p.includedRecordsK)) * nn(p.perKRecords);",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/search-api-pricing-calculator/engine.mjs",
+            "line": 61,
+            "col": 67,
+            "operator": "const-plus-one",
+            "before": "totals.sort((a, b) => a.total - b.total || (a.label < b.label ? -1 : 1));",
+            "after": "totals.sort((a, b) => a.total - b.total || (a.label < b.label ? -2 : 1));",
+            "line_text": "  totals.sort((a, b) => a.total - b.total || (a.label < b.label ? -1 : 1));",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Array.prototype.sort reads only the sign of the comparator; -2/2 orders exactly like -1/1."
+          },
+          {
+            "file": "ventures/search-api-pricing-calculator/engine.mjs",
+            "line": 61,
+            "col": 71,
+            "operator": "const-plus-one",
+            "before": "totals.sort((a, b) => a.total - b.total || (a.label < b.label ? -1 : 1));",
+            "after": "totals.sort((a, b) => a.total - b.total || (a.label < b.label ? -1 : 2));",
+            "line_text": "  totals.sort((a, b) => a.total - b.total || (a.label < b.label ? -1 : 1));",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Array.prototype.sort reads only the sign of the comparator; -2/2 orders exactly like -1/1."
+          },
+          {
+            "file": "ventures/search-api-pricing-calculator/engine.mjs",
+            "line": 77,
+            "col": 14,
+            "operator": "const-plus-one",
+            "before": "let start = 0;",
+            "after": "let start = 1;",
+            "line_text": "  let start = 0;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/search-api-pricing-calculator/engine.mjs",
+            "line": 80,
+            "col": 14,
+            "operator": "eq-flip",
+            "before": "if (w.key === prev.key) continue;",
+            "after": "if (w.key !== prev.key) continue;",
+            "line_text": "    if (w.key === prev.key) continue;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/search-api-pricing-calculator/engine.mjs",
+            "line": 81,
+            "col": 22,
+            "operator": "const-plus-one",
+            "before": "let lo = grid[i - 1], hi = grid[i];",
+            "after": "let lo = grid[i - 2], hi = grid[i];",
+            "line_text": "    let lo = grid[i - 1], hi = grid[i];",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Covered by the new crossover-at-zero-records test: at i=1, grid[-1] is undefined and the first segment ends at undefined."
+          }
+        ]
+      },
+      {
+        "target": "ventures/search-api-pricing-calculator/engine.mjs",
+        "test": "node --test ventures/search-api-pricing-calculator/**/*.test.mjs  (in .)",
+        "seed": 7,
+        "commit": "3540b0baf",
+        "sites": 97,
+        "baseline_seconds": 0.6,
+        "mutants": [
+          {
+            "file": "ventures/search-api-pricing-calculator/engine.mjs",
+            "line": 29,
+            "col": 27,
+            "operator": "const-plus-one",
+            "before": "const nn = (n) => Math.max(0, Number(n) || 0);",
+            "after": "const nn = (n) => Math.max(1, Number(n) || 0);",
+            "line_text": "const nn = (n) => Math.max(0, Number(n) || 0);",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/search-api-pricing-calculator/engine.mjs",
+            "line": 29,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "const nn = (n) => Math.max(0, Number(n) || 0);",
+            "after": "const nn = (n) => Math.max(0, Number(n) || 1);",
+            "line_text": "const nn = (n) => Math.max(0, Number(n) || 0);",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/search-api-pricing-calculator/engine.mjs",
+            "line": 34,
+            "col": 32,
+            "operator": "eq-flip",
+            "before": "if (records === 0 && searches === 0) return 0;",
+            "after": "if (records === 0 && searches !== 0) return 0;",
+            "line_text": "  if (records === 0 && searches === 0) return 0;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/search-api-pricing-calculator/engine.mjs",
+            "line": 34,
+            "col": 36,
+            "operator": "const-plus-one",
+            "before": "if (records === 0 && searches === 0) return 0;",
+            "after": "if (records === 0 && searches === 1) return 0;",
+            "line_text": "  if (records === 0 && searches === 0) return 0;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/search-api-pricing-calculator/engine.mjs",
+            "line": 36,
+            "col": 79,
+            "operator": "times-to-div",
+            "before": "const freeSearches = nn(p.includedSearchesK) + nn(p.freeSearchesPerKRecords) * records;",
+            "after": "const freeSearches = nn(p.includedSearchesK) + nn(p.freeSearchesPerKRecords) / records;",
+            "line_text": "  const freeSearches = nn(p.includedSearchesK) + nn(p.freeSearchesPerKRecords) * records;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/search-api-pricing-calculator/engine.mjs",
+            "line": 54,
+            "col": 12,
+            "operator": "const-plus-one",
+            "before": "const g = 1 + Math.max(-50, Number(growthPct) || 0) / 100;",
+            "after": "const g = 2 + Math.max(-50, Number(growthPct) || 0) / 100;",
+            "line_text": "  const g = 1 + Math.max(-50, Number(growthPct) || 0) / 100;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/search-api-pricing-calculator/engine.mjs",
+            "line": 56,
+            "col": 79,
+            "operator": "times-to-div",
+            "before": "for (let m = 0; m < months; m++) path.push({ records: Math.round(nn(records) * g ** m), searches: Math.round(nn(searches) * g ** m) });",
+            "after": "for (let m = 0; m < months; m++) path.push({ records: Math.round(nn(records) / g ** m), searches: Math.round(nn(searches) * g ** m) });",
+            "line_text": "  for (let m = 0; m < months; m++) path.push({ records: Math.round(nn(records) * g ** m), searches: Math.round(nn(searches) * g ** m) });",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/search-api-pricing-calculator/engine.mjs",
+            "line": 57,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "const end = path[path.length - 1];",
+            "after": "const end = path[path.length - 2];",
+            "line_text": "  const end = path[path.length - 1];",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "New test pins endRecords/endSearches/endMonthly to the last month of a 3-month 2x path. [rerun: line changed; triage by hand] rerun reported the line changed (the fix rewrote it); re-applied path[path.length - 2] by hand to the new line: 1 test fails (32 pass, 1 fail)."
+          },
+          {
+            "file": "ventures/search-api-pricing-calculator/engine.mjs",
+            "line": 72,
+            "col": 16,
+            "operator": "const-plus-one",
+            "before": "const grid = [0];",
+            "after": "const grid = [1];",
+            "line_text": "  const grid = [0];",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "New crossover test at 0 records: the 0-search all-tie segment must exist; starting the grid or the first winner at 1K searches drops it."
+          },
+          {
+            "file": "ventures/search-api-pricing-calculator/engine.mjs",
+            "line": 76,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "let prev = winner(grid[0]);",
+            "after": "let prev = winner(grid[1]);",
+            "line_text": "  let prev = winner(grid[0]);",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "New crossover test at 0 records: the 0-search all-tie segment must exist; starting the grid or the first winner at 1K searches drops it."
+          },
+          {
+            "file": "ventures/search-api-pricing-calculator/engine.mjs",
+            "line": 81,
+            "col": 22,
+            "operator": "const-plus-one",
+            "before": "let lo = grid[i - 1], hi = grid[i];",
+            "after": "let lo = grid[i - 2], hi = grid[i];",
+            "line_text": "    let lo = grid[i - 1], hi = grid[i];",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Covered by the new crossover-at-zero-records test: at i=1, grid[-1] is undefined and the first segment ends at undefined."
+          },
+          {
+            "file": "ventures/search-api-pricing-calculator/engine.mjs",
+            "line": 94,
+            "col": 62,
+            "operator": "false-to-true",
+            "before": "if (!pick) return { status: \"error\", errors: 1, overBudget: false, text: `Unknown provider \"${provider}\".` };",
+            "after": "if (!pick) return { status: \"error\", errors: 1, overBudget: true, text: `Unknown provider \"${provider}\".` };",
+            "line_text": "  if (!pick) return { status: \"error\", errors: 1, overBudget: false, text: `Unknown provider \"${provider}\".` };",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "New test: an unknown provider with a budget returns overBudget false (the CLI keys exit 2 vs 1 on it)."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/search-api-pricing-calculator/cli.mjs",
+        "issue": "compare --months 0 crashed in project() (path[-1] undefined) with a stack trace and exit 1, which the CLI documents as 'over --budget', so a CI budget gate read bad input as over budget; --months 2.5 silently ran 3 months but printed '2.5-month spend'. Fixed: --months must be a whole number >= 1 (exit 2), and project() returns today's volumes and zero spend for months < 1.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16833"
+      },
+      {
+        "file": "ventures/search-api-pricing-calculator/cli.mjs",
+        "issue": "--prices whose JSON is null (TypeError, exit 1 = 'over budget'), an array, a string, or has a non-object provider entry ({\"algolia\": 3}, silently ignored) was accepted or crashed. Fixed: it must be an object of objects, else exit 2 with a message.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16833"
+      },
+      {
+        "file": "ventures/*-pricing-calculator/cli.mjs (14 siblings: app-store-commission, auth-mau, cdn-bandwidth, ci-minutes, email-api, error-tracking, feature-flag, log-management, merchant-of-record-fee, object-storage, product-analytics, speech-to-text, uptime-monitoring, video-hosting; training-gpu for --prices only)",
+        "issue": "Same template, same two defects: --months 0 crashed with exit 1 (merchant-of-record exited 0), --months 2.5 ran 3 months, --prices null crashed with exit 1, and an array/string/non-object entry was silently ignored; 84 bad-input runs across 15 CLIs did not exit 2. Fixed by one scripted CLI-level sweep (monthsOpt() + object-of-objects check), guarded by platform/ci/check_cli_bad_input_exit.py.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16833"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ad22ffda-8eb6-57db-b721-8214b841223a",
+    "transcripts": 1,
+    "first": "2026-11-17T05:40:00Z",
+    "last": "2026-11-17T05:45:20Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 84,
+        "output": 24685,
+        "thinking": 5156,
+        "cache_read": 3921238,
+        "cache_write_5m": 0,
+        "cache_write_1h": 95003,
+        "api_equivalent_usd": 2.0383,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 84,
+      "output": 24685,
+      "thinking": 5156,
+      "cache_read": 3921238,
+      "cache_write_5m": 0,
+      "cache_write_1h": 95003,
+      "api_equivalent_usd": 2.0383,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 46,
+    "tools": {
+      "Bash": 42,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.33,
+      "active_minutes": 5.33,
+      "model_minutes": 4.03,
+      "tool_minutes": 1.3,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "Finding the defect, fixing 16 CLIs, writing a probe check with tests, mutation triage, and a post: about a day's senior work",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 245.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
