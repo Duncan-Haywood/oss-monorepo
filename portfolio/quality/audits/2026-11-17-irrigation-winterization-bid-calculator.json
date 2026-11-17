@@ -1,0 +1,254 @@
+{
+ "date": "2026-11-17",
+ "subject": "ventures/irrigation-winterization-bid-calculator",
+ "stratum": "venture",
+ "drawn_by": "census",
+ "seed": "2026-11-17-1d50",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "an irrigation contractor who runs a fall blowout route (owner-operator or crew lead pricing 10-25 residential winterizations a day plus a few commercial/HOA systems)",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Wrote an independent exact-fraction Python model of the README's stated method (/tmp/claude-0/-home-user-oss-monorepo/7a221d65-0203-5521-aacd-e90e19e27620/scratchpad/irrig/indep.py: hours = zones x minutes per head type + backflows x minutes + setup, minimum on-site, round-trip travel, loaded wage x (1+premium), direct + overhead, price = cost/(1-margin)) and compared with calc.mjs via node (/tmp/claude-0/-home-user-oss-monorepo/7a221d65-0203-5521-aacd-e90e19e27620/scratchpad/irrig/run.mjs). Five cases match to 4 decimals: page defaults (6/2/2, 1 backflow) price 178.6787, cost 125.0751, 17.87/zone, 89.13/h; vs-a-flat-per-zone pair 76.3125 / 77.55 walk-away / 96.9375, carried-over shortfalls -1.2375 and -20.625 (every figure printed on that page); freeze call on a 2-zone bed with minimum applied 198.2459; commercial 8/12/4 with 2 backflows 417.92 over 4.4 h. Proposal deposit split 30% of 178.68 = 53.60 + 125.08 (sum exact). Output sanity against a source the author did not write: default typical-residential price 178.68 and 17.87/zone sit inside Angi's 100-250 per visit / 10-20 per extra zone and LawnLove's ~26.50/zone national figures. Gaps found by running: a blank wage field becomes 0 silently (price drops to 67.36 with no warning), 2.5 zones accepted, and a stop with zero zones and zero backflows still prices 118.52.",
+  "completeness": "Ran `node --test '*.test.mjs'` (116/116 pass; README's bare `node --test` also passes 116). Checked each README/page feature: per-system spray/rotor/drip hours (works), backflow line (works), freeze/after-hours premium on labor only (works), loaded wage and round-trip travel (works), minimum on-site (works), overhead then margin-on-price (works), price per zone / effective hourly / walk-away (works), proposed-price scoring (works), share link round-trips systems, drip minutes, backflows, freeze and margin (share.mjs encode/decode run), printable proposal with deposit split (buildProposal run). served-copy.mjs: no placeholder or retired origin in llms.txt, sitemap, robots or canonicals. No TODO/FIXME. Nothing claimed is stubbed.",
+  "verification": "116 tests pass and pin the core hours, travel, overhead and margin identities to hand values. Seeded 6 mutants in calc.mjs with quality_mutate.py: 3 caught (travel one-way instead of round trip :130, overhead skipping trip fee :139, rotor zones at spray minutes :104); 3 survived: backflow-only stop no longer gets the minimum (:127), proposed-price hourly rate divided by on-site hours instead of total hours (:187, a number shown in the verdict line, index.html:505), and `<` -> `<=` on the minimum (:128, near-equivalent: only the 'minimum applied' label changes at exact equality). Two real survivors out of five non-equivalent mutants.",
+  "craft": "Read calc.mjs (192 lines), share.mjs, proposal.mjs header, index.html script (readInput/update/applyShare). calc.mjs is pure, small and validates negatives, zero speed and margin >= 100. Defects: number() turns '' into 0, so a cleared wage, burden, compressor or overhead field silently prices at zero (calc.mjs:36, run: wage '' -> price 67.36); fractional zone counts accepted (calc.mjs:99); a stop with no work still returns a full price (hasWork only gates the minimum, calc.mjs:127); proposal.mjs is one of 121 byte-identical copies across ventures/ (md5 088181e3...), a copied engine rather than a shared module; a system row keeps its preset label as its name after the counts are edited (index.html:385-387).",
+  "claims": "Disclaimer (no warranty, not engineering advice, not a winterization spec) on index.html:297, all three side pages and README. Privacy claim backed: grep finds no fetch/sendBeacon/XMLHttpRequest in index.html or *.mjs; usage.mjs honours DNT/GPC. Every number on vs-a-flat-per-zone-rate.html (76.31, 77.55, 96.94, 1.24, 20.63, 19.08/zone) reproduced by the independent model and by the page's own test. vs-jobber.html states no Jobber price or plan and carries the non-affiliation clause; its 'used through a paid account' line is consistent with Jobber being a subscription product but no file backs it. Weak spots: vs-jobber.html:48-49 prints agent-process text ('Jobber's own site is not reachable from this session') on a public page, and :53-57 makes a universal 'none describe' claim about public descriptions of field-service software that no file backs; the flat-per-zone page compares against a pure zones x rate price, while trade quotes commonly use a base fee covering ~6 zones plus a per-zone add-on and a separate backflow charge (Angi), so the comparison is narrower than the page implies.",
+  "fitness": "Walked the contractor's job: price one stop from zones and backflows, check a $75 special against walk-away, print a proposal. Works in under a minute and the proposal is usable. But a fall blowout is a route business: the real job is a season price sheet (base fee + per-zone + backflow add-on) for hundreds of houses, priced on route density. The tool charges a full depot round trip to every stop (calc.mjs:130; 10 mi default = 0.57 h, 28% of the default stop's hours) with no way to model 15-20 stops a day sharing one trailer and one compressor day-rate; compressor cost is a hand-entered per-stop figure. A contractor can work around it (enter the between-stop leg), but would still build the price sheet elsewhere.",
+  "domain": "Compared with Rain Bird's homeowner blowout guidance (regulator ~50 psi, run each zone ~2 minutes, let air purge, repeat) and Hunter's winterization tech note (80-100 CFM compressor for mainlines up to 2 in.; required CFM ~ largest zone GPM / 7.5; stay under the lowest pressure-rated component). The 4/5/8-minute per-zone defaults are plausible as two Rain Bird cycles plus moving between valves, and drip being slowest is consistent with lower allowed pressure, but none of the constants (calc.mjs:27-33) cites a source. Departures: zone time is independent of compressor capacity and zone flow, which Hunter's rule says governs it (a contractor on a 20 CFM portable vs a 185 CFM tow-behind gets the same minutes); travel modelled as a full round trip per stop rather than route legs; freeze premium is applied to drive time too (defensible). Cost-plus overhead and margin-on-price arithmetic is standard estimating practice."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "default typical-residential stop (6 spray/2 rotor/2 drip, 1 backflow, $26 x 1.30, 10 mi @35, setup .35, trip 25, comp 12, fittings 4, OH 15%, margin 30%)",
+   "method": "independent exact-fraction model of README method (indep.py), hand arithmetic",
+   "command": "python3 indep.py; node run.mjs",
+   "expected": "hours 2.0048, cost 125.0751, price 178.6787",
+   "observed": "hours 2.0048, cost 125.0751, price 178.6787",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "vs-a-flat-per-zone-rate worked pair (4 spray, 0 vs 2 backflows)",
+   "method": "independent model (indep.py)",
+   "command": "python3 indep.py; node run.mjs",
+   "expected": "76.3125; walk-away 77.55; 96.9375; shortfalls -1.2375 / -20.625",
+   "observed": "76.3125; 77.55; 96.9375; -1.2375 / -20.625",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "freeze call on a 2-zone bed, minimum on-site 1 h applied, 50% premium",
+   "method": "independent model (indep.py)",
+   "command": "python3 indep.py; node run.mjs",
+   "expected": "hours 1.5714, labor 79.6714, price 198.2459, minimum applied",
+   "observed": "hours 1.5714, labor 79.6714, price 198.2459, min true",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "commercial 8/12/4 with 2 backflows, 20 mi @30, wage 30 x1.35, OH 20, margin 25",
+   "method": "independent model (indep.py)",
+   "command": "python3 indep.py; node run.mjs",
+   "expected": "hours 4.4, cost 313.44, price 417.92",
+   "observed": "hours 4.4, cost 313.44, price 417.92",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "default output vs published market prices",
+   "method": "Angi 'How much does it cost to winterize a sprinkler system' (100-250/visit, 10-20 per extra zone); LawnLove (~26.50/zone for 3+ zones)",
+   "command": "node run.mjs (default)",
+   "expected": "price within 100-250, per zone within ~10-30",
+   "observed": "178.68; 17.87/zone",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "blank wage field",
+   "method": "input-handling probe; a blank required cost should be rejected, not priced",
+   "command": "node run.mjs (blank wage)",
+   "expected": "error or warning",
+   "observed": "labor 0, price 67.36, no warning",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "test suite",
+   "method": "run",
+   "command": "cd ventures/irrigation-winterization-bid-calculator && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "116/116 pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "share link round trip and proposal deposit split",
+   "method": "run share.mjs encode/decode and proposal.buildProposal",
+   "command": "node prop.mjs",
+   "expected": "payload preserved; 30% of 178.68 = 53.60 + 125.08",
+   "observed": "payload preserved; 53.60 + 125.08",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "llms.txt / sitemap / canonical hosts as served",
+   "method": "deploy rewrite copy",
+   "command": "node platform/pages/served-copy.mjs irrigation-winterization-bid-calculator",
+   "expected": "no placeholder origin",
+   "observed": "no placeholder or retired origin left",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "nothing uploaded",
+   "method": "grep for network calls",
+   "command": "grep -n 'fetch\\|sendBeacon\\|XMLHttp' *.mjs index.html",
+   "expected": "no network calls in shipped code",
+   "observed": "only a test assertion and a test comment match",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "vs-jobber.html competitor statements",
+   "method": "read page; check each statement for a backing file",
+   "command": "sed -n 40,105p vs-jobber.html",
+   "expected": "no unbacked competitor claims",
+   "observed": "no price/plan claims and a non-affiliation clause; but agent-process text on the public page (:48) and an unbacked universal 'none describe' claim (:53-57)",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "flat-per-zone comparison framing",
+   "method": "Angi pricing structure (base fee covering up to ~6 zones + per-zone fee)",
+   "command": "sed -n 33,100p vs-a-flat-per-zone-rate.html",
+   "expected": "comparison against the method contractors actually quote",
+   "observed": "numbers right, but compares only against pure zones x rate with backflow bundled",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "minutes per zone defaults (4/5/8, backflow 15)",
+   "method": "Rain Bird blowout guidance (~2 min per zone, purge, repeat); Hunter tech note (80-100 CFM, CFM = largest zone GPM/7.5)",
+   "command": "sed -n 23,33p calc.mjs",
+   "expected": "plausible and cited; time tied to compressor capacity",
+   "observed": "plausible, uncited; no compressor CFM or zone-flow input",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "seeded mutants in calc.mjs",
+   "method": "platform/ci/quality_mutate.py",
+   "command": "python3 platform/ci/quality_mutate.py ventures/irrigation-winterization-bid-calculator/calc.mjs --old ... -- node --test '*.test.mjs'",
+   "expected": "all caught",
+   "observed": "3 of 5 non-equivalent caught",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:127",
+   "change": "totalZones > 0 || backflows > 0 -> totalZones > 0",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:187",
+   "change": "proposedPrice / totalHours -> proposedPrice / onSiteHours (proposed hourly rate)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:130",
+   "change": "(2 * milesOneWay) / speedMph -> milesOneWay / speedMph",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:139",
+   "change": "directCost * overheadRate / 100 -> (laborCost + materials) * overheadRate / 100",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:104",
+   "change": "rotorZones * rotorMinutes -> rotorZones * sprayMinutes",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:128",
+   "change": "rawOnSite < minOnSiteHours -> rawOnSite <= minOnSiteHours (near-equivalent: only the label changes at equality)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "A cleared cost field is priced as 0 with no warning: number() converts '' to 0, so a blank hourly wage gives labor $0 and a $67.36 bid on the default house (true $178.68); same for burden, compressor, overhead.",
+   "where": "ventures/irrigation-winterization-bid-calculator/calc.mjs:81",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Travel is a full depot round trip charged to every stop; blowouts are route work (many stops per trailer-day), so the default stop carries 0.57 h of drive (28% of its hours) and there is no route/season price-sheet mode.",
+   "where": "ventures/irrigation-winterization-bid-calculator/calc.mjs:130",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Per-zone minutes do not depend on compressor capacity or zone flow, which Hunter's guidance (CFM ~ largest zone GPM / 7.5; 80-100 CFM for <=2 in. mainline) says governs blowout time; the 4/5/8/15-minute defaults cite no source.",
+   "where": "ventures/irrigation-winterization-bid-calculator/calc.mjs:27",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Two seeded mutants survive: a backflow-only stop losing the minimum (calc.mjs:127) and the proposed-price hourly rate shown in the verdict line using on-site hours (calc.mjs:187).",
+   "where": "ventures/irrigation-winterization-bid-calculator/calc.mjs:127",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Public comparison page prints agent-process text ('Jobber's own site is not reachable from this session') and an unbacked universal claim that no public description of field-service software covers cost-based stop pricing.",
+   "where": "ventures/irrigation-winterization-bid-calculator/vs-jobber.html:48",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Flat-per-zone comparison is against pure zones x rate with backflow bundled; common trade quotes are a base fee covering ~6 zones plus a per-zone add-on and a separate backflow charge, which the page does not acknowledge.",
+   "where": "ventures/irrigation-winterization-bid-calculator/vs-a-flat-per-zone-rate.html:38",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Fractional zone counts accepted (2.5 zones) and a stop with zero zones and zero backflows still returns a $118.52 price.",
+   "where": "ventures/irrigation-winterization-bid-calculator/calc.mjs:99",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "proposal.mjs is one of 121 byte-identical copies across ventures/ instead of a shared module.",
+   "where": "ventures/irrigation-winterization-bid-calculator/proposal.mjs:31",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "The arithmetic is right: five independent recomputations, including every dollar figure on the flat-per-zone comparison page, match calc.mjs to four decimals, and the default stop ($178.68, $17.87/zone) lands inside published market ranges. It does everything its pages claim (116 tests pass). It misses the bar on verification (2 of 5 non-equivalent seeded mutants survive) and sits at 2 on craft, fitness and domain: blank cost fields silently price at zero, travel is a full round trip per stop although blowouts are route work, and zone minutes are uncited constants that ignore compressor CFM, which Hunter's guidance says governs blowout time. Finished, not yet at the senior-contractor bar."
+}
