@@ -230,16 +230,18 @@
       };
     }
     const range = (vals) => { let lo = Math.min(...vals), hi = Math.max(...vals); if (lo === hi) { lo -= 1; hi += 1; } const p = (hi - lo) * 0.06; return [lo - p, hi + p]; };
+    function ticks(lo, hi) {
+      const raw = (hi - lo) / 5, mag = Math.pow(10, Math.floor(Math.log10(raw))), step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((s) => s >= raw);
+      const out = [];
+      for (let v = Math.ceil(lo / step) * step; v <= hi + step * 1e-9; v += step) out.push(Math.abs(v) < step * 1e-9 ? 0 : v);
+      return out;
+    }
     function axes(W, H, L, R, T, B, xlo, xhi, ylo, yhi, xlabel) {
       const x = (v) => L + ((v - xlo) / (xhi - xlo)) * (W - L - R);
       const y = (v) => T + (1 - (v - ylo) / (yhi - ylo)) * (H - T - B);
       let g = "";
-      for (let i = 0; i <= 5; i++) {
-        const v = ylo + ((yhi - ylo) * i) / 5;
-        g += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="#e7efef"/><text x="${L - 6}" y="${y(v) + 4}" font-size="11" text-anchor="end" fill="#4b5d5f">${esc(fmt(v, 3))}</text>`;
-        const u = xlo + ((xhi - xlo) * i) / 5;
-        g += `<text x="${x(u)}" y="${H - B + 16}" font-size="11" text-anchor="middle" fill="#4b5d5f">${esc(fmt(u, 3))}</text>`;
-      }
+      for (const v of ticks(ylo, yhi)) g += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="#e7efef"/><text x="${L - 6}" y="${y(v) + 4}" font-size="11" text-anchor="end" fill="#4b5d5f">${esc(fmt(v, 3))}</text>`;
+      for (const u of ticks(xlo, xhi)) if (x(u) > L + 10 && x(u) < W - R - 10) g += `<text x="${x(u)}" y="${H - B + 16}" font-size="11" text-anchor="middle" fill="#4b5d5f">${esc(fmt(u, 3))}</text>`;
       g += `<text x="${(L + W - R) / 2}" y="${H - 4}" font-size="11" text-anchor="middle" fill="#4b5d5f">${esc(xlabel)}</text>`;
       return { x, y, g };
     }
@@ -250,7 +252,7 @@
       const [xlo, xhi] = range(xs), [ylo, yhi] = range(ys);
       const { x, y, g: grid } = axes(W, H, L, R, T, B, xlo, xhi, ylo, yhi, xlabel);
       let g = grid;
-      g += `<line x1="${x(cutoff)}" x2="${x(cutoff)}" y1="${T}" y2="${H - B}" stroke="#c4572f" stroke-dasharray="4 3"/>`;
+      g += `<line x1="${x(cutoff)}" x2="${x(cutoff)}" y1="${T}" y2="${H - B}" stroke="#c4572f" stroke-width="1.6" stroke-dasharray="5 3"/>`;
       for (const b of bins) g += `<circle cx="${x(b.x).toFixed(1)}" cy="${y(b.y).toFixed(1)}" r="3.5" fill="#7d9496"><title>${b.n} units, mean ${esc(fmt(b.y))}</title></circle>`;
       for (const s of ["left", "right"]) if (lines?.[s]?.length) g += `<polyline fill="none" stroke="#1f5c63" stroke-width="2.4" points="${lines[s].map((q) => `${x(q[0]).toFixed(1)},${y(q[1]).toFixed(1)}`).join(" ")}"/>`;
       el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${g}</svg>`;
@@ -283,7 +285,7 @@
         + `<tr><td colspan="4" class="note">h = ${esc(fmt(r.bandwidth.h))} (${r.bandwidth.chosen === "mse" ? "MSE-optimal" : "given"}), b = ${esc(fmt(r.bandwidth.b))}; ${r.n.leftInH} below and ${r.n.rightInH} above inside h, of ${r.n.left} and ${r.n.right}.</td></tr>`;
       $("#check-table").querySelector("tbody").innerHTML = r.placebo.map((q) => `<tr><td>Placebo cutoff ${esc(fmt(q.cutoff))} (${q.side} side)</td>${q.error ? `<td colspan="2" class="note">${esc(q.error)}</td>` : `<td class="n">${esc(fmt(q.estimate))}</td><td class="n">${pfmt(q.pValue)}</td>`}</tr>`).join("")
         + r.balance.map((q) => `<tr><td>Covariate ${esc(q.covariate)}</td>${q.error ? `<td colspan="2" class="note">${esc(q.error)}</td>` : `<td class="n">${esc(fmt(q.estimate))}</td><td class="n">${pfmt(q.pValue)}</td>`}</tr>`).join("");
-      $("#density-table").querySelector("tbody").innerHTML = (r.mccrary ? `<tr><td>McCrary log density difference ${esc(fmt(r.mccrary.theta, 3))}</td><td class="n">${esc(fmt(r.mccrary.left, 3))}</td><td class="n">${esc(fmt(r.mccrary.right, 3))}</td><td class="n">${pfmt(r.mccrary.pValue)}</td></tr>` : "")
+      $("#density-table").querySelector("tbody").innerHTML = (r.mccrary ? `<tr><td>McCrary: density each side, log difference ${esc(fmt(r.mccrary.theta, 3))}</td><td class="n">${esc(fmt(r.mccrary.left, 3))}</td><td class="n">${esc(fmt(r.mccrary.right, 3))}</td><td class="n">${pfmt(r.mccrary.pValue)}</td></tr>` : "")
         + r.density.map((d) => `<tr><td>Counts within ${esc(fmt(d.window, 3))}</td><td class="n">${d.below}</td><td class="n">${d.above}</td><td class="n">${pfmt(d.pValue)}</td></tr>`).join("");
     }
     function runAnalysis() {
