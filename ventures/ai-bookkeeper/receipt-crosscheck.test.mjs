@@ -483,3 +483,33 @@ test("a total every reading agrees on stands against a short cash line", () => {
   const c = "TOKO\nTOTAL 07,900\nCASH 7,500\nCHANGE 0", d = "TOKO\nTOTAL 97,900\nCASH 7,500\nCHANGE 0";
   assert.equal(parseReceiptPasses([b, d, "TOKO", c]).cents, 5750000);
 });
+
+test("a change line OCR read without its C still closes cash less change", () => {
+  // SRD 1022 in shape: "HANGE 62.63"
+  const a = parseReceipt("CAFE\n10/29/2018\nTOTAL: 37.37\nCASH: 100.00\nHANGE 62.63");
+  assert.ok(a.checks.some(([v, w]) => v === 3737 && w === "cash less change"));
+  // a bare "ange" is not the change line: "Orange Crush" read as "'ange Crsh" (SRD 1002)
+  const c = parseReceipt("CAFE\n10/29/2018\nTotal 17.00\nCash 20.00\nange Crsh 1.99");
+  assert.ok(!c.checks.some(([, w]) => w === "cash less change"));
+});
+
+test("a bare TL after a tax word is OCR noise, not a total line", () => {
+  // SRD 1022's grey reading: "Tax (8.75%): 44 Of tl Bit." took 8.75 as the total
+  const r = parseReceipt("CAFE\n10/29/2018\nSUBTOTAL: 29.88\nTax (8.75%): 3.01 tl\nTOTAL: 32.89");
+  assert.equal(r.cents, 3289);
+  assert.equal(r.taxCents, 301);
+  // "TL 12.50" alone is still a total line
+  assert.equal(parseReceipt("CAFE\n10/29/2018\nCOFFEE 12.50\nTL 12.50").cents, 1250);
+});
+
+test("a total line under its own reading's subtotal loses its total-line vote when cash less change is above it", () => {
+  // SRD 1022 in shape: one reading's "TOTAL: 7.07" sits under its "SUBTOTAL: 29.88"; another
+  // reading prints 37.37 with no total word, a third's cash less change makes 37.37
+  const a = "CAFE\n10/29/2018\nWEEKDAY DINNER 29.88\nTax 3.01\nPep yh 37.37";
+  const b = "CAFE\n10/29/2018\nSUBTOTAL: 29.88\nTOTAL: 7.07";
+  const d = "CAFE\nCASH: 100.00\nHANGE 62.63";
+  assert.equal(parseReceiptPasses([a, b, "CAFE\n29.88", d]).cents, 3737);
+  // with no cash less change above the subtotal the total line keeps its point (CORD
+  // validation-61 and -78: the rule alone traded one wrong total for another)
+  assert.equal(parseReceiptPasses([a, b, "CAFE\n29.88", "CAFE"]).cents, 707);
+});
