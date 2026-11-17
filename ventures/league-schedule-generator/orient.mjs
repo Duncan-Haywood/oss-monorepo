@@ -46,6 +46,8 @@ const MP = (() => {
     const buf = ex.memory.buffer, cap = ex.cap(), io = ex.io();
     return {
       cap, io, lut: new Int32Array(buf, ex.lut(), 64 + 1024), inu: ex.in_i32u, outs: ex.out_i32s,
+      luto: new Int32Array(buf, ex.luto(), 64 + 1024), pb: new Int32Array(buf, ex.pb(), io),
+      chain: ex.chain_i32, chainMin: ex.chain_min, top: ex.top, narrowed: ex.narrowed,
       i32: { step: ex.step_i32, inp: ex.in_i32, out: ex.out_i32, io: new Int32Array(buf, ex.pi(), io) },
       f64: { step: ex.step_f64, inp: ex.in_f64, out: ex.out_f64, io: new Float64Array(buf, ex.pf(), io) },
     };
@@ -56,10 +58,11 @@ export const MINPLUS_WASM_ON = !!MP;
 /** Largest number of matches in a round the exact programme takes by default (2^12 states, 24 or 25
  * teams). The floor-priced search passes FLOOR_PRICED_MAX_MATCHES: 13 (26 teams) since the int16 step
  * (README "Whole-break tables in int16"), 14 (28 teams) since 2026-11-15's balance-guided walk and
- * under-the-gap start (README "Starting under the gap"); leastBreaks' other callers keep 12, so their
+ * under-the-gap start (README "Starting under the gap"), 15 (30 teams) since 2026-11-17's chained trial
+ * steps (README "A trial's steps kept in the module"); leastBreaks' other callers keep 12, so their
  * cost is unchanged. */
 export const ORIENT_MAX_MATCHES = 12;
-export const FLOOR_PRICED_MAX_MATCHES = 14;
+export const FLOOR_PRICED_MAX_MATCHES = 15;
 
 /** Predecessor entries a balanced walk keeps at most (4 bytes each: 16 MB), balancedWalk nearOf. */
 const NEAR_CACHE = 4000000;
@@ -128,9 +131,13 @@ export function minPlusStep(fr, A, B, { sym = false } = {}) {
 }
 
 function symStep(fr, A, B) {
-  // fix the first B bit the elimination meets, so every table after the first step is halved
-  // (on 30-team rounds: 0.44 -> 0.35 ms a step; always the last bit 0.39; scoring every bit by
-  // its tables' size picks better bits but costs more than it saves)
+  const { Bs, u } = symArgs(A, B);
+  return plainStep(fr, A, Bs, u);
+}
+// fix the first B bit the elimination meets, so every table after the first step is halved
+// (on 30-team rounds: 0.44 -> 0.35 ms a step; always the last bit 0.39; scoring every bit by
+// its tables' size picks better bits but costs more than it saves)
+function symArgs(A, B) {
   let j0 = B.length - 1;
   { const { edges, order } = elimOrder(A, B); for (const i of order) if (edges[i].length) { j0 = edges[i][0][0]; break; } }
   const [c, d] = B[j0], u = [0, 0, 0, 0, j0];
@@ -142,7 +149,7 @@ function symStep(fr, A, B) {
       if (t === d) { u[2] = 1 << i; u[3] = ra; }
     }
   });
-  return plainStep(fr, A, B.filter((_, i) => i !== j0), u);
+  return { Bs: B.filter((_, i) => i !== j0), u };
 }
 
 /** minPlusStep's edges (per A match, [B match, flip] for each team that plays in both rounds) and
@@ -177,12 +184,109 @@ function elimOrder(A, B) {
   return { edges, order };
 }
 
+// the module's two lookups that move a table's bits to their places (orient.mjs perm, in the module)
+// (a place of -1 drops that bit)
+function setLut(L, pos, k) {
+  L.fill(0);
+  for (let v = 0; v < 64; v++) { let z = 0; for (let p = 0; p < Math.min(k, 6); p++) if (pos[p] >= 0) z |= ((v >>> p) & 1) << pos[p]; L[v] = z; }
+  for (let v = 0; v < 1 << Math.max(0, k - 6); v++) { let z = 0; for (let p = 6; p < k; p++) if (pos[p] >= 0) z |= ((v >>> (p - 6)) & 1) << pos[p]; L[64 + v] = z; }
+}
+
+/** One step's plan for the module: every elimination step's sizes and edge bits, where x's bits go
+ * in (xPos) and where the output's bits are (ys over outK bits, hb the symmetric step's folded bit,
+ * tm the last table's mask). Planned in full first, so a table too big for the module's buffers falls
+ * back to JS before anything is written; null then. */
+function wasmPlan(A, B, unary, eo = elimOrder(A, B)) {
+  const kA = A.length, kB = B.length, { edges, order } = eo;
+  const xPos = new Int32Array(kA);
+  for (let p = 0; p < kA; p++) xPos[order[p]] = p;
+  const plan = [], yp = new Int32Array(kB).fill(-1);
+  let lx0 = kA, ly0 = 0, fits = (1 << kA) <= MP.cap;
+  for (let p = 0; p < kA && fits; p++) {
+    const e = edges[order[p]];
+    let add = 0;
+    for (const [j] of e) if (yp[j] < 0) yp[j] = ly0 + add++;
+    const lx = lx0 - 1, ly = ly0 + add;
+    if ((1 << (lx + ly)) > MP.cap) fits = false;
+    plan.push([lx, ly, ly0, e.length > 0 ? yp[e[0][0]] : 0, e.length > 0 ? e[0][1] : 0, e.length > 0 ? 1 : 0,
+      e.length > 1 ? yp[e[1][0]] : 0, e.length > 1 ? e[1][1] : 0, e.length > 1 ? 1 : 0]);
+    lx0 = lx; ly0 = ly;
+  }
+  if (!(fits && (1 << kA) <= MP.io && (1 << (kB + (unary ? 1 : 0))) <= MP.io)) return null;
+  const tm = (1 << (lx0 + ly0)) - 1; // the last table's size, as T.length - 1 in the JS loop
+  // B's bits no A bit met (a match of two teams that both sat out round r) are free
+  for (let j = 0; j < kB; j++) if (yp[j] < 0) yp[j] = ly0++;
+  if (!unary) return { kA, xPos, plan, ys: yp, outK: kB, tm, hb: 0, unary };
+  // the fixed bit back at j0; its lookup place is never read (the fold clears that bit)
+  const j0 = unary[4], ys = new Int32Array(kB + 1);
+  for (let j = 0; j <= kB; j++) ys[j] = j < j0 ? yp[j] : j === j0 ? 0 : yp[j - 1];
+  return { kA, xPos, plan, ys, outK: kB + 1, tm, hb: 1 << j0, unary };
+}
+
+// a plan's input from w.io into the module, and its steps; returns where the output is (swap)
+function wasmIn(w, q) {
+  setLut(MP.lut, q.xPos, q.kA);
+  if (q.unary) MP.inu(q.kA, q.unary[0], q.unary[1], q.unary[2], q.unary[3]); else w.inp(q.kA);
+  return wasmSteps(w, q, 0);
+}
+function wasmSteps(w, q, swap) {
+  for (const s of q.plan) { w.step(swap, ...s); swap ^= 1; }
+  return swap;
+}
+
+/**
+ * The least of min over y of (fr stepped through rounds[0] -> rounds[1] -> ... -> rounds[last])[y]
+ * + b[y] (b null: the table's own least), with every step's table kept in the module (README "A
+ * trial's steps kept in the module"): between steps the last output goes straight into the next
+ * input layout (chain_i32), so no table is copied out, sliced and copied back in. The same number as
+ * minPlusStep's chain, bit for bit; null when the module is off or a table does not fit, and the
+ * caller then steps as before. `sym` as minPlusStep's (fr symmetric under flipping every host).
+ */
+function chainLeast(fr, rounds, b, sym) {
+  if (!MP || fr.constructor !== Int32Array || rounds.length < 2) return null;
+  const qs = [];
+  for (let r = 0; r + 1 < rounds.length; r++) {
+    const A = rounds[r], B = rounds[r + 1];
+    let q;
+    if (sym && A.length >= SYM_MIN_MATCHES && B.length >= 2) { const { Bs, u } = symArgs(A, B); q = wasmPlan(A, Bs, u); }
+    else q = wasmPlan(A, B, null);
+    if (!q) return null;
+    qs.push(q);
+  }
+  const w = MP.i32;
+  w.io.set(fr);
+  let swap = wasmIn(w, qs[0]);
+  // int16 tables: a step adds at most one break per team (32), so the chain cannot overflow while the
+  // input's top plus that stays under the module's NARROW_MAX (30000); else run the plain steps
+  if (MP.narrowed() && MP.top() + 34 * qs.length >= 29000) return null;
+  for (let i = 1; i < qs.length; i++) {
+    const p = qs[i - 1], q = qs[i], u = q.unary || [0, 0, 0, 0];
+    // the composite permutation, in the next input's layout: its bit xPos[j] is the round's match j,
+    // which sits at the last output's bit ys[j] (none when the output dropped it: a free bit past
+    // its table, or the folded bit)
+    const cs = new Int32Array(q.kA).fill(-1), tb = 31 - Math.clz32(p.tm + 1);
+    let mm = 0, qm = 0;
+    for (let j = 0; j < q.kA; j++) {
+      const d = q.xPos[j];
+      if (p.hb === 1 << j) { qm = 1 << d; continue; }
+      if (p.ys[j] < tb) { cs[d] = p.ys[j]; mm |= 1 << p.ys[j]; }
+    }
+    setLut(MP.luto, cs, q.kA);
+    const at = (m) => (m ? 1 << q.xPos[31 - Math.clz32(m)] : 0);
+    MP.chain(q.kA, at(u[0]), u[1], at(u[2]), u[3], swap, mm, qm);
+    swap = wasmSteps(w, q, swap ^ 1);
+  }
+  const last = qs[qs.length - 1];
+  if (b) { setLut(MP.lut, last.ys, last.outK); MP.pb.set(b); }
+  return MP.chainMin(last.outK, swap, last.tm, last.hb, b ? 1 : 0);
+}
+
 // unary: null for the plain step, or [m0, f0, m1, f1, j0] for symStep (j0: where the fixed bit
 // goes back in B's order) (WebAssembly path only: null when
 // the tables do not fit the module, and minPlusStep then runs the plain step)
 function plainStep(fr, A, B, unary) {
   const kA = A.length, kB = B.length;
-  const { edges, order } = elimOrder(A, B);
+  const eo = elimOrder(A, B), { edges, order } = eo;
   // the table's bits, low to high: A's bits not yet eliminated (the next one at bit 0), then B's
   // bits in the order they were met
   // x's bits moved to their places in the table by two lookups of six bits each, not a loop over
@@ -193,53 +297,20 @@ function plainStep(fr, A, B, unary) {
     for (let v = 0; v < Hh.length; v++) { let z = 0; for (let p = 6; p < k; p++) z |= ((v >>> (p - 6)) & 1) << pos[p]; Hh[v] = z; }
     return (x) => L[x & 63] | Hh[x >>> 6];
   };
-  const xPos = new Int32Array(kA);
-  for (let p = 0; p < kA; p++) xPos[order[p]] = p;
   const Arr = fr.constructor; // Int32Array for whole breaks, Float64Array for priced host bits
   if (MP && (Arr === Int32Array || Arr === Float64Array)) {
-    // the same steps in WebAssembly: plan every step's sizes and edge bits first, so a table too big
-    // for the module's buffers falls back to JS before anything is written
-    const plan = [], yp = new Int32Array(kB).fill(-1);
-    let lx0 = kA, ly0 = 0, fits = (1 << kA) <= MP.cap;
-    for (let p = 0; p < kA && fits; p++) {
-      const e = edges[order[p]];
-      let add = 0;
-      for (const [j] of e) if (yp[j] < 0) yp[j] = ly0 + add++;
-      const lx = lx0 - 1, ly = ly0 + add;
-      if ((1 << (lx + ly)) > MP.cap) fits = false;
-      plan.push([lx, ly, ly0, e.length > 0 ? yp[e[0][0]] : 0, e.length > 0 ? e[0][1] : 0, e.length > 0 ? 1 : 0,
-        e.length > 1 ? yp[e[1][0]] : 0, e.length > 1 ? e[1][1] : 0, e.length > 1 ? 1 : 0]);
-      lx0 = lx; ly0 = ly;
-    }
-    if (fits && (1 << kA) <= MP.io && (1 << (kB + (unary ? 1 : 0))) <= MP.io) {
+    const q = wasmPlan(A, B, unary, eo);
+    if (q) {
       const w = Arr === Float64Array ? MP.f64 : MP.i32;
-      // the permutations run in the module too, from the same two lookups perm builds
-      const lut = (pos, k) => {
-        const L = MP.lut;
-        L.fill(0);
-        for (let v = 0; v < 64; v++) { let z = 0; for (let p = 0; p < Math.min(k, 6); p++) z |= ((v >>> p) & 1) << pos[p]; L[v] = z; }
-        for (let v = 0; v < 1 << Math.max(0, k - 6); v++) { let z = 0; for (let p = 6; p < k; p++) z |= ((v >>> (p - 6)) & 1) << pos[p]; L[64 + v] = z; }
-      };
       w.io.set(fr);
-      lut(xPos, kA);
-      if (unary) MP.inu(kA, unary[0], unary[1], unary[2], unary[3]); else w.inp(kA);
-      let swap = 0;
-      for (const q of plan) { w.step(swap, ...q); swap ^= 1; }
-      const tm = (1 << (lx0 + ly0)) - 1; // the last table's size, as T.length - 1 below
-      for (let j = 0; j < kB; j++) if (yp[j] < 0) yp[j] = ly0++;
-      if (unary) {
-        // the fixed bit back at j0; its lookup place is never read (out_i32s clears that bit)
-        const j0 = unary[4], ys = new Int32Array(kB + 1);
-        for (let j = 0; j <= kB; j++) ys[j] = j < j0 ? yp[j] : j === j0 ? 0 : yp[j - 1];
-        lut(ys, kB + 1);
-        MP.outs(kB + 1, swap, tm, 1 << j0);
-        return w.io.slice(0, 1 << (kB + 1));
-      }
-      lut(yp, kB);
-      w.out(kB, swap, tm);
-      return w.io.slice(0, 1 << kB);
+      const swap = wasmIn(w, q);
+      setLut(MP.lut, q.ys, q.outK);
+      if (unary) MP.outs(q.outK, swap, q.tm, q.hb); else w.out(q.outK, swap, q.tm);
+      return w.io.slice(0, 1 << q.outK);
     }
   }
+  const xPos = new Int32Array(kA);
+  for (let p = 0; p < kA; p++) xPos[order[p]] = p;
   if (unary) return null;
   const xz = perm(xPos, kA);
   let T = new Arr(1 << kA);
@@ -481,7 +552,9 @@ export function relaxedBreakFloor(opp, n, opts = {}) {
 // each is symmetric and its steps take minPlusStep's `sym` (README "Half the table: flipping every host"); FLOOR_SYM = 0
 // in the environment turns it off, for comparison
 const SYM = { sym: !(typeof process !== "undefined" && process.env && process.env.FLOOR_SYM === "0") };
-export function floorTable(opp, n, { maxMatches = ORIENT_MAX_MATCHES } = {}) {
+// FLOOR_CHAIN = 0 in the environment steps every trial in JS land as before, for comparison
+const CHAIN = !(typeof process !== "undefined" && process.env && process.env.FLOOR_CHAIN === "0");
+export function floorTable(opp, n, { maxMatches = ORIENT_MAX_MATCHES, chain = true } = {}) {
   const R = opp.length;
   if (n > 32 || roundMatches(opp, n).some((ms) => ms.length > maxMatches)) return null;
   const playsOf = (r) => { let p = 0; for (let t = 0; t < n; t++) if (opp[r][t] < n) p |= 1 << t; return p >>> 0; };
@@ -500,16 +573,30 @@ export function floorTable(opp, n, { maxMatches = ORIENT_MAX_MATCHES } = {}) {
     for (let r = bv - 1; r >= to; r--) bwd[r] = minPlusStep(bwd[r + 1], ms[r + 1], ms[r], SYM);
     if (to < bv) bv = to;
   };
+  // a trial's tables, stepped in JS land: f[i] for round lo + i, from the committed tables before lo
+  const tables = (lo, hi, m) => {
+    const f = [];
+    for (let r = lo; r <= hi; r++) {
+      const i = r - lo;
+      f[i] = r === 0 ? new Int32Array(1 << m[0].length) : minPlusStep(i ? f[i - 1] : fwd[r - 1], i ? m[i - 1] : ms[r - 1], m[i], SYM);
+    }
+    return f;
+  };
   const run = (lo, hi = R - 1) => {
     if (!(lo >= 0 && hi < R && lo <= hi)) throw new Error("trial needs 0 <= lo <= hi < rounds");
     forwardTo(lo - 1);
     if (hi < R - 1) backwardTo(hi + 1);
-    const m = [], h = [], p = [], f = [];
-    for (let r = lo; r <= hi; r++) {
-      const i = r - lo;
-      m[i] = roundMatches([opp[r]], n)[0]; h[i] = homeMasks(m[i]); p[i] = playsOf(r);
-      f[i] = r === 0 ? new Int32Array(h[0].length) : minPlusStep(i ? f[i - 1] : fwd[r - 1], i ? m[i - 1] : ms[r - 1], m[i], SYM);
+    const m = [], p = [];
+    for (let r = lo; r <= hi; r++) { const i = r - lo; m[i] = roundMatches([opp[r]], n)[0]; p[i] = playsOf(r); }
+    // the trial's steps chained in the module (README "A trial's steps kept in the module"): only
+    // its least comes back; its tables and home masks are rebuilt if it is committed or walked
+    // (about one trial in ten at 30 teams)
+    if (CHAIN && chain) {
+      const rounds = (lo > 0 ? [ms[lo - 1]] : []).concat(m, hi < R - 1 ? [ms[hi + 1]] : []);
+      const best = chainLeast(lo > 0 ? fwd[lo - 1] : new Int32Array(1 << m[0].length), rounds, hi < R - 1 ? bwd[hi + 1] : null, SYM.sym);
+      if (best != null) { pending = { lo, hi, m, h: null, p, f: null, full: null }; return best; }
     }
+    const f = tables(lo, hi, m);
     let best = Infinity;
     const last = f[hi - lo];
     if (hi === R - 1) { for (const v of last) if (v < best) best = v; }
@@ -517,15 +604,20 @@ export function floorTable(opp, n, { maxMatches = ORIENT_MAX_MATCHES } = {}) {
       const g = minPlusStep(last, m[hi - lo], ms[hi + 1], SYM), b = bwd[hi + 1];
       for (let y = 0; y < g.length; y++) if (g[y] + b[y] < best) best = g[y] + b[y];
     }
-    pending = { lo, hi, m, h, p, f, full: null };
+    pending = { lo, hi, m, h: m.map(homeMasks), p, f, full: null };
     return best;
+  };
+  // a chained trial's tables and home masks, when a commit or a walk needs them
+  const filled = () => {
+    if (!pending.f) { pending.f = tables(pending.lo, pending.hi, pending.m); pending.h = pending.m.map(homeMasks); }
+    return pending;
   };
   // the whole forward table, home masks and plays of the last trial's timetable (or the committed
   // one), for a balanced walk: rounds after the trial's span are run forward from it here
   const whole = () => {
     if (!pending) { forwardTo(R - 1); return { f: fwd, h: H, p: plays }; }
     if (pending.full) return pending.full;
-    const { lo, hi, m, h, p, f } = pending;
+    const { lo, hi, m, h, p, f } = filled();
     const F = fwd.slice(0, lo).concat(f), Hs = H.slice(0, lo).concat(h), P = plays.slice(0, lo).concat(p);
     for (let r = hi + 1; r < R; r++) {
       F[r] = minPlusStep(F[r - 1], r - 1 === hi ? m[hi - lo] : ms[r - 1], ms[r], SYM);
@@ -536,7 +628,7 @@ export function floorTable(opp, n, { maxMatches = ORIENT_MAX_MATCHES } = {}) {
   };
   const commit = () => {
     if (!pending) return;
-    const { lo, hi, m, h, p, f, full } = pending;
+    const { lo, hi, m, h, p, f, full } = filled();
     for (let r = lo; r <= hi; r++) { ms[r] = m[r - lo]; H[r] = h[r - lo]; plays[r] = p[r - lo]; fwd[r] = f[r - lo]; }
     if (full) { for (let r = hi + 1; r < R; r++) fwd[r] = full.f[r]; fv = R - 1; } else fv = hi;
     // backward tables after the span are untouched; at and before it they are stale
