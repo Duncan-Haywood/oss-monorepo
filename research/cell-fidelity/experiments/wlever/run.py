@@ -181,5 +181,29 @@ def report():
     print("\n".join(L))
 
 
+def sign_p(k, n):
+    """One-sided sign-test p-value: P(at least k of n successes) under a fair coin."""
+    return sum(math.comb(n, i) for i in range(k, n + 1)) / 2 ** n
+
+
+def posthoc():
+    """After the verdicts: per-design counts with one-sided sign tests (a kappa of 0 counts as an infinite miss)."""
+    rs = json.loads((HERE / "rows.json").read_text())
+    inf = float("inf")
+    L = ["5zl post hoc (after the verdicts): per-design counts, one-sided sign tests", "",
+         f"{'set':12s}{'n':>3s}{'w<sep':>7s}{'p':>8s}{'e_w<phys':>9s}{'p':>8s}{'e_w<e_sep':>10s}{'p':>8s}{'k_sep=0':>8s}"]
+    for st in list(SETS) + [None]:
+        t = [r for r in rs if st is None or r["set"] == st]
+        a = sum((r["miss_w"] if r["miss_w"] is not None else inf) < (r["miss_sep"] if r["miss_sep"] is not None else inf)
+                for r in t)
+        b = sum(r["err_w"] < r["err_phys"] for r in t)
+        c = sum(r["err_w"] < r["err_sep"] for r in t)
+        z = sum(not r["k_sep"] for r in t)
+        n = len(t)
+        L.append(f"{st or 'all':12s}{n:3d}{a:7d}{sign_p(a, n):8.4f}{b:9d}{sign_p(b, n):8.4f}{c:10d}{sign_p(c, n):8.4f}{z:8d}")
+    (HERE / "posthoc.txt").write_text("\n".join(L) + "\n")
+    print("\n".join(L))
+
+
 if __name__ == "__main__":
-    {"rows": rows, "report": report}[sys.argv[1] if len(sys.argv) > 1 else "report"]()
+    {"rows": rows, "report": report, "posthoc": posthoc}[sys.argv[1] if len(sys.argv) > 1 else "report"]()
