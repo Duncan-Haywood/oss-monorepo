@@ -1,0 +1,286 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqyeCriEFhGAiBgntwUd",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T14:39:36Z",
+  "ended": "2026-11-17T14:42:00Z",
+  "wall_minutes": 6.51,
+  "tokens_in": 2526658,
+  "tokens_out": 16756,
+  "cost_usd": 1.3354,
+  "tool_calls": 35,
+  "task": "redteam: ids-model-check step.mjs (STEP reader)",
+  "projects": [
+    "ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16969",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: all 11 open entries are control-plane fixes (workflows, prompts/redteam.py, control_plane_guard.py) needing their own owner-approved PRs; most already have patches or PRs waiting. Did not reopen them.",
+      "did": "Seeded a fresh target instead.",
+      "result": "One real defect found and fixed, 3 gaps guarded."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-a-commented-out-door-the-ifc-checker-still-checked.md"
+  ],
+  "goal": null,
+  "notes": "Target ventures/ids-model-check/step.mjs (changed on main today, 2.3 s suite). 10 mutants: 7 caught, 3 gaps (binary value, recordEnd laziness, eager rescan) all caught after new tests (rerun). Real defect: phantom entities from comments/complex instances, fixed. Bench on 64 MB synthetic: old vs new scan 0.9-1.2 s both, within noise. run_venture_tests.py ids-model-check: ok, 161 tests. No 4b automation guard added beyond tests: the defect class is reader-specific.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/ids-model-check/step.mjs",
+        "test": "node --test ventures/ids-model-check/**/*.test.mjs  (in .)",
+        "seed": 399801069,
+        "commit": "b41b8396b",
+        "sites": 214,
+        "baseline_seconds": 2.4,
+        "mutants": [
+          {
+            "file": "ventures/ids-model-check/step.mjs",
+            "line": 35,
+            "col": 17,
+            "operator": "eq-flip",
+            "before": "if (s[i + 1] === \"\\\\\") { out += \"\\\\\"; i++; continue; }",
+            "after": "if (s[i + 1] !== \"\\\\\") { out += \"\\\\\"; i++; continue; }",
+            "line_text": "    if (s[i + 1] === \"\\\\\") { out += \"\\\\\"; i++; continue; }",
+            "caught": true,
+            "seconds": 2.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ids-model-check/step.mjs",
+            "line": 38,
+            "col": 28,
+            "operator": "plus-to-minus",
+            "before": "const hex = s.slice(i + 4, end < 0 ? s.length : end);",
+            "after": "const hex = s.slice(i - 4, end < 0 ? s.length : end);",
+            "line_text": "      const hex = s.slice(i + 4, end < 0 ? s.length : end);",
+            "caught": true,
+            "seconds": 2.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ids-model-check/step.mjs",
+            "line": 72,
+            "col": 30,
+            "operator": "or-to-and",
+            "before": "if (c === 32 || c === 9 || c === 10 || c === 13) { this.p++; continue; }",
+            "after": "if (c === 32 || c === 9 && c === 10 || c === 13) { this.p++; continue; }",
+            "line_text": "      if (c === 32 || c === 9 || c === 10 || c === 13) { this.p++; continue; }",
+            "caught": true,
+            "seconds": 2.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ids-model-check/step.mjs",
+            "line": 122,
+            "col": 17,
+            "operator": "plus-to-minus",
+            "before": "this.p = e + 1;",
+            "after": "this.p = e - 1;",
+            "line_text": "      this.p = e + 1;",
+            "caught": false,
+            "seconds": 2.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "binary value (\"...\") parse never tested; engine.test.mjs 'a binary value is read' added"
+          },
+          {
+            "file": "ventures/ids-model-check/step.mjs",
+            "line": 139,
+            "col": 24,
+            "operator": "const-plus-one",
+            "before": "return { typed: k[0].toUpperCase(), value: inner.length === 1 ? inner[0] : inner };",
+            "after": "return { typed: k[1].toUpperCase(), value: inner.length === 1 ? inner[0] : inner };",
+            "line_text": "      return { typed: k[0].toUpperCase(), value: inner.length === 1 ? inner[0] : inner };",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ids-model-check/step.mjs",
+            "line": 139,
+            "col": 66,
+            "operator": "const-plus-one",
+            "before": "return { typed: k[0].toUpperCase(), value: inner.length === 1 ? inner[0] : inner };",
+            "after": "return { typed: k[0].toUpperCase(), value: inner.length === 2 ? inner[0] : inner };",
+            "line_text": "      return { typed: k[0].toUpperCase(), value: inner.length === 1 ? inner[0] : inner };",
+            "caught": true,
+            "seconds": 2.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ids-model-check/step.mjs",
+            "line": 154,
+            "col": 12,
+            "operator": "eq-flip",
+            "before": "if (c === \",\") continue;",
+            "after": "if (c !== \",\") continue;",
+            "line_text": "      if (c === \",\") continue;",
+            "caught": true,
+            "seconds": 1.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ids-model-check/step.mjs",
+            "line": 173,
+            "col": 32,
+            "operator": "eq-flip",
+            "before": "if (t.charCodeAt(q + 1) === 39) { i = q + 1; continue; }",
+            "after": "if (t.charCodeAt(q + 1) !== 39) { i = q + 1; continue; }",
+            "line_text": "        if (t.charCodeAt(q + 1) === 39) { i = q + 1; continue; }",
+            "caught": false,
+            "seconds": 2.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "every record with a string fell to the eager fallback (recordEnd returned -1), silently losing laziness; the lazy test only had a bad record without a string. Guard: 'a record holding a string is still read lazily'"
+          },
+          {
+            "file": "ventures/ids-model-check/step.mjs",
+            "line": 211,
+            "col": 18,
+            "operator": "neq-flip",
+            "before": "if (this._a !== undefined) return this._a;",
+            "after": "if (this._a === undefined) return this._a;",
+            "line_text": "      if (this._a !== undefined) return this._a;",
+            "caught": true,
+            "seconds": 2.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ids-model-check/step.mjs",
+            "line": 261,
+            "col": 19,
+            "operator": "max-to-min",
+            "before": "re.lastIndex = Math.max(r.p, re.lastIndex);",
+            "after": "re.lastIndex = Math.min(r.p, re.lastIndex);",
+            "line_text": "    re.lastIndex = Math.max(r.p, re.lastIndex);",
+            "caught": false,
+            "seconds": 2.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "eager scan restarted inside the record, so '#n=X(' in a string became an entity; guard: \"'#n=X(' inside a string is not another entity\""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/ids-model-check/step.mjs",
+        "issue": "parseStep's record scan matched '#n=X(' anywhere in DATA, so a commented-out record (/* #9=IFCDOOR(1); */) or a '#n=X(' string inside a skipped complex instance #5=(A()B()) came back as a real entity the IDS checks judged (lazy and eager). Fixed: the scan steps over comments and complex instances whole; failing-first test in engine.test.mjs.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c2da7fa0-50f4-55fa-92d2-9bb0b94d6d65",
+    "transcripts": 1,
+    "first": "2026-11-17T14:39:36Z",
+    "last": "2026-11-17T14:46:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 68,
+        "output": 16756,
+        "thinking": 5366,
+        "cache_read": 2463168,
+        "cache_write_5m": 0,
+        "cache_write_1h": 63422,
+        "api_equivalent_usd": 1.3354,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 68,
+      "output": 16756,
+      "thinking": 5366,
+      "cache_read": 2463168,
+      "cache_write_5m": 0,
+      "cache_write_1h": 63422,
+      "api_equivalent_usd": 1.3354,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 33,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.51,
+      "active_minutes": 6.51,
+      "model_minutes": 3.06,
+      "tool_minutes": 3.45,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "mutation campaign triage, 4 tests, parser fix and bench, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 224.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

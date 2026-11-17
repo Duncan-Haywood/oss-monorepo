@@ -224,7 +224,12 @@ export function parseStep(text, opts = {}) {
   const dataStart = text.search(/\bDATA\s*;/);
   if (dataStart < 0) throw new Error("not a STEP file: no DATA section");
   const entities = new Map();
-  const re = /#(\d+)\s*=\s*([A-Za-z0-9_]+)\s*\(/g;
+  // A comment between records and a multi-type ("complex") instance
+  // #5=(IFCA(...)IFCB(...)) are stepped over whole: the scan once matched
+  // '#n=X(' inside them, so a record someone had commented out, or text in a
+  // complex instance's string, came back as an entity (red team 2026-11-17).
+  // Complex instances are not read (as before), only no longer mined.
+  const re = /\/\*|#(\d+)\s*=\s*(?:([A-Za-z0-9_]+)\s*)?\(/g;
   re.lastIndex = dataStart;
   const errors = [];
   const policy = { keep: () => true };
@@ -234,6 +239,18 @@ export function parseStep(text, opts = {}) {
   const types = new Map();
   let m;
   while ((m = re.exec(text))) {
+    if (m[1] === undefined) { // /* comment */
+      const e = text.indexOf("*/", re.lastIndex);
+      if (e < 0) break;
+      re.lastIndex = e + 2;
+      continue;
+    }
+    if (m[2] === undefined) { // complex instance: skip to its ";"
+      const end = recordEnd(text, re.lastIndex - 1);
+      if (end < 0) break;
+      re.lastIndex = end + 1;
+      continue;
+    }
     const id = Number(m[1]);
     let type = types.get(m[2]);
     if (type === undefined) types.set(m[2], (type = m[2].toUpperCase()));
