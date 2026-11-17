@@ -1,0 +1,250 @@
+{
+ "date": "2026-11-17",
+ "subject": "research/simdesign-buckleguard",
+ "stratum": "research",
+ "seed": "2026-11-17-e4eb",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior structural / mechanical design engineer who sizes thin steel brackets and signs off stability checks (EN 1993-1-1 6.3.2, AISC 360-22 F11 for rectangular bars, Timoshenko & Gere 1961 ch. 6), and who reviews FE-driven optimisation; first checks: the LTB closed forms and torsion constant, whether the peak-stress FE result that sets feasibility is mesh-converged at the fillet, whether the knock-down K is tied to a design code, and whether the headline mass saving survives those",
+ "scores": {
+  "correctness": 1,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 1,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Recomputed independently (`python3 /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/buckleguard/hand.py`, plain Python, J from Roark 7th ed. Table 10.7 with the b^4/w^4 term rather than the code's 1-0.63 b/w): governing LTB factor 3.1375 at w=8,b=2 (README/test 3.14), 0.9798 at w=6,b=1.5 (test comment 0.98), 3.5376 at the K=3 optimum (guards.txt 3.54), 6.73 / 8.06 / 17.23 at the slender, K=8 and 3 mm rows (all match). Max factor inside the bounds at b=1.5 is 4.977 at w=25 and 11.72 at b=2, so the 'infeasible for K>=5 (1.5 mm) and K=12 (2 mm)' rows are analytically certain. Mass by hand (L area + r^2(1-pi/4), times b and 7.85e-3) = tool to 0.01 g on four optima. FE tip deflection 0.252/0.330 mm lies between a rigid-corner frame bound (0.233/0.335) and a centreline frame (0.287/0.396): plausible. The failure: the peak von Mises that decides feasibility is not mesh-converged. `/usr/bin/python3.13 -I .../conv.py` on the reported optima: K=3 design (w 18.72, r 8.26, b 1.5) peak 98.7 / 111.5 / 111.5 / 112.8 MPa at h = 1.5 / 1.0 / 0.75 / 0.5 mm; old-rule design (15.61, 13.27, 2.0) 98.7 / 100.6 / 105.9 / 107.7 MPa. Both 'feasible' designs exceed the 100 MPa limit by 8-13% on a refined mesh, peak at the fillet tangency (x ~ w, y ~ w+r, `where.py`), not at the load or clamp. On h = 0.6 the old rule at 2 mm has no feasible design (w <= 16 allowed: 100.5 MPa at r 15, 102.2 at r 13), and the 3 mm row's 44.22 g design is 112.5 MPa; a 3 mm design at 46.7 g (w 13.3, r 12) passes at 98.0, while 1.5 mm passes at 32.6 g (w 19.5, r 12, 96.7 MPa). So on a converged mesh the old rule costs about 30%, not 12%: the direction of the headline holds, its number does not.",
+  "completeness": "Everything the README says was run exists: package, 7 tests, experiments/guards.py with guards.txt/json (json is 1,752 bytes on one line, not empty), sensitivity.py with sensitivity.txt/json. Reran sensitivity.py in a scratch copy of the project (`cd .../scratchpad/buckleguard/copy && python3.13 -I experiments/sensitivity.py`), output identical to the committed sensitivity.txt in 1 min 6 s on 4 cores. guards.py (8 min) not rerun; its four optima re-evaluated with evaluate() at h=1.5 reproduce mass, peak and factor to the printed digits. The 'w <= 12 at b = 1.5 gives 227-266 MPa' claim reproduced: 265.6/229.4/226.8 MPa at r = 4/8/12. Live page https://marisstella.app/research/simdesign-buckleguard/ returns 200 and repeats the README result. No stubs or TODOs.",
+  "verification": "`cd research/simdesign-buckleguard && python3.13 -m pytest -q tests`: 7 passed in 0.57 s. The tests cover only the guard switch and the LTB closed form. Five seeded mutants via platform/ci/quality_mutate.py: 1 caught (vertical-arm pi/(2H) -> pi/H), 4 survived: horizontal-arm length (L-w)^2 -> L^2, MAX_SLENDER 8 -> 12, von Mises 3*sxy^2 -> sxy^2, clamp-zone exclusion removed. No test touches the FE solve, the stress measure, evaluate() or the optimiser, i.e. everything the headline mass numbers come from; nothing checks mesh convergence, which is where the real defect is.",
+  "craft": "Read model.py, ltb.py, dfm.py, optimise.py, measures.py, __init__.py, tests, both experiment scripts. ltb.py is short, clear and documents its assumptions. Defects: model.py:105-107 dead code (`... if False else None`, and an `fb` assigned twice and never used); model.py:18 Material default still documented as an FDM thermoplastic in a steel-sheet project; configuration through mutable module globals (dfm.GUARD, dfm.BUCKLE_MIN) set inside worker processes and reset in tearDown, fragile but works; the whole package is a copy of simdesign-widerweb (the chain has 20+ near-identical copies, PROGRAMMES.md:8-14), so a fix in one never reaches the others. The FE peak is sampled at P2 element centroids on a 1.5 mm grid mesh with no boundary refinement at the fillet, which is why it under-reads.",
+  "claims": "Backed: every number in the results table and sensitivity bullets against guards.txt/sensitivity.txt; the 227-266 MPa claim; the 3.14 webbuckle factor; 'the guard does not bind at K=3' (optimum factors 3.44-3.56 > 3); disclosures (stylised, AI-assisted, one mesh, not a recommendation to cut). Not backed: the headline 'the old rule cost about 12% of mass' (README:36, page, research/README.md:575) is a coarse-mesh number; on h <= 1.0 both compared designs violate the stated 100 MPa limit and the old-rule 2 mm design does not exist, which the project's own ancestor simdesign-meshconverge already reported (empty feasible set at 2 mm, w <= 16, on h = 1.0 and 0.5). The 'one mesh' limitation is disclosed but its known consequence is not. README:43 calls the K>=5 / K=12 infeasibility 'not a proof' when it follows in closed form from the factor's maximum at w=25 (an under-claim). README 'about 12%': the table gives 12.3-13.7%.",
+  "fitness": "Job for a researcher: take the guard and the mass price of the old rule into the next step. The LTB piece is reusable (and simdesign-loadbind did build on it). The mass result is not safe to build on without rerunning at h <= 0.75. Nearest prior work: elastic LTB of narrow rectangular cantilevers (Timoshenko & Gere 1961 sec. 6.2-6.3; Trahair, Flexural-Torsional Buckling of Structures, 1993) and design-code LTB checks for rectangular bars (AISC 360-22 F11; EN 1993-1-1 6.3.2), plus stability-constrained structural optimisation (e.g. topology optimisation with buckling constraints, Ferrari & Sigmund 2019). Against that, replacing a w/b rule with an elastic LTB factor is textbook practice, not a new result; it is one small step in a 20+-project chain that PROGRAMMES.md itself calls below thesis level. Not PhD level, not publishable as is.",
+  "domain": "The closed forms are the right ones (cantilever end couple M_cr = pi/(2l) sqrt(EIy GJ); tip load at centroid P_cr = 4.013 sqrt(EIy GJ)/l^2; thin-rectangle J), and the README is candid that imperfections, residual stress, corner flexibility, the lever-applied (non-axial) end moment and local crippling are absent. Departures a senior engineer raises: (1) K = 3 is 'a guess at a knock-down' when the codes give one: my EN 1993-1-1 6.3.2.2 check of the K=3 optimum (S235 assumed, curve d, `python3 .../codes.py`) gives lambda_LT 0.908, chi 0.516, utilisation 0.66 at working load; AISC F11 (Lb d/t^2 = 666 or 1331 with Lb = l or 2l) gives Mn/My 1.31/1.09, ASD utilisation 0.44/0.53, so the design passes both and the code check would have replaced the arbitrary K and its sensitivity sweep. (2) Feasibility rests on an unconverged peak stress at a fillet (correctness above); a stress engineer would check convergence before quoting a saving. (3) Arm-by-arm cantilever idealisation ignores the corner's torsional flexibility (unconservative, disclosed) and the stabilising axial tension (conservative, disclosed)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Governing LTB factor at w=8, b=2 and w=6, b=1.5 (steel)",
+   "method": "own implementation of Timoshenko & Gere (1961) end-couple and tip-load cantilever formulas with J from Roark 7th ed. Table 10.7 (half-dimension form incl. b^4/w^4 term)",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/buckleguard/hand.py",
+   "expected": "3.1375 and 0.9798 (own computation)",
+   "observed": "ltb.governing_factor 3.14 (test) and 0.98 (test comment)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "LTB factor of the reported optima (K=3 1.5 mm, slender 2 mm, K=8 2 mm, 3 mm)",
+   "method": "same hand implementation",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/buckleguard/hand.py",
+   "expected": "3.538 / 6.732 / 8.063 / 17.226",
+   "observed": "guards.txt/sensitivity.txt 3.54 / 6.73 / 8.06 / 17.23",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Is 'no feasible design for K>=5 at 1.5 mm, K=12 at 2 mm' a search failure or certain?",
+   "method": "maximum of the closed-form factor over w in [3, 25] (monotone in w)",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/buckleguard/hand.py",
+   "expected": "max factor 4.977 (b 1.5) and 11.72 (b 2) at w=25, both below K",
+   "observed": "sensitivity.txt reports infeasible for exactly those rows; README calls it 'not a proof'",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Process mass of four optima",
+   "method": "hand area L*w + (H-w)*w + r^2(1 - pi/4), times b and 7.85e-3 g/mm^3",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/buckleguard/fe.py",
+   "expected": "35.98 / 31.31 / 31.01 / 31.07 g",
+   "observed": "35.98 / 31.31 / 31.01 / 31.07 g",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "FE tip deflection of the K=3 and old-rule optima",
+   "method": "Euler-Bernoulli frame bounds: rigid corner (arms L-w, H-w) and centreline (L-w/2, H-w/2)",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/buckleguard/conv.py",
+   "expected": "between 0.233-0.287 mm and 0.335-0.396 mm",
+   "observed": "0.252 and 0.330 mm (0.330 just under the rigid-corner bound of 0.335, within shear/corner effects)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Peak von Mises of the 'feasible' optima under mesh refinement (feasibility limit 100 MPa)",
+   "method": "same solver, h = 1.5, 1.0, 0.75, 0.5 mm; location of the peak checked",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/buckleguard/conv.py",
+   "expected": "<= 100 MPa on a converged mesh",
+   "observed": "K=3 design 98.7/111.5/111.5/112.8; old-rule design 98.7/100.6/105.9/107.7 MPa; peak at the fillet tangency",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Does the old rule at 2 mm have any feasible design on a fine mesh, and what does each guard cost there?",
+   "method": "spot designs at h = 0.6 mm",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/buckleguard/refine.py; .../refine3.py",
+   "expected": "README: old rule 35.9 g (2 mm) vs 31.3 g (1.5 mm), about 12%",
+   "observed": "2 mm, w=16 (rule limit): 100.5 MPa at r 15, infeasible; 3 mm feasible at 46.7 g (98.0 MPa); 1.5 mm feasible at 32.6 g (96.7 MPa): about 30%",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'at b = 1.5 mm the rule allows only w <= 12 mm, where the peak stress is 227 to 266 MPa for fillets of 4, 8 and 12 mm'",
+   "method": "evaluate() at h=1.5",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/buckleguard/fe.py",
+   "expected": "227-266 MPa",
+   "observed": "265.6 / 229.4 / 226.8 MPa",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Headline 'the old rule cost about 12% of mass' (README:36, page, research/README.md:575)",
+   "method": "guards.txt arithmetic, then fine-mesh re-check above",
+   "command": "cat research/simdesign-buckleguard/experiments/guards.txt",
+   "expected": "a saving that holds on a converged mesh",
+   "observed": "12.3-13.7% at h=1.5; about 30% at h=0.6 where the 2 mm old-rule design does not exist (as simdesign-meshconverge already reported)",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "sensitivity.py reproduces sensitivity.txt",
+   "method": "rerun in a scratch copy",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/buckleguard/copy && /usr/bin/python3.13 -I experiments/sensitivity.py",
+   "expected": "identical to committed sensitivity.txt",
+   "observed": "identical (diff empty), 1 min 6 s on 4 cores",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "guards.txt optima re-evaluated",
+   "method": "evaluate(LASER, Params(...), h=1.5) with each guard",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/buckleguard/fe.py",
+   "expected": "feasible, mass/peak as printed",
+   "observed": "all feasible; 35.98 g 98.7 MPa; 31.31 g 98.7 MPa; 31.01 g 99.7 MPa; 31.07 g 99.9 MPa",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "cd research/simdesign-buckleguard && /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests",
+   "expected": "7 tests, about a second (README)",
+   "observed": "7 passed in 0.57 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "seeded mutants in core logic",
+   "method": "platform/ci/quality_mutate.py, 5 mutants",
+   "command": "python3 platform/ci/quality_mutate.py research/simdesign-buckleguard/src/simdesign_buckleguard/model.py --old '3 * sxy ** 2' --new 'sxy ** 2' -- /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests (and four more)",
+   "expected": "core mutants caught",
+   "observed": "1 of 5 caught; FE, stress measure, slenderness limit and horizontal-arm length unpinned",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "K=3 optimum against design codes for LTB of a rectangular bar",
+   "method": "EN 1993-1-1 6.3.2.2 curve d (alpha_LT 0.76) and AISC 360-22 F11, S235 assumed",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/buckleguard/codes.py",
+   "expected": "a code-based check or K tied to one",
+   "observed": "not in the project; my check: EC3 lambda_LT 0.908 chi 0.516 utilisation 0.66; AISC Mn/My 1.31 (Lb=l) / 1.09 (Lb=2l), ASD utilisation 0.44/0.53: passes",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "live page",
+   "method": "curl",
+   "command": "curl -s -o /dev/null -w '%{http_code}' https://marisstella.app/research/simdesign-buckleguard/",
+   "expected": "200, same result as README",
+   "observed": "200; 'about 12% lighter (three seeds each)'",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "research/simdesign-buckleguard/src/simdesign_buckleguard/ltb.py:32",
+   "change": "np.pi / (2 * H) -> np.pi / H (vertical-arm effective length)",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "research/simdesign-buckleguard/src/simdesign_buckleguard/ltb.py:38",
+   "change": "/ (L - w) ** 2 / F -> / L ** 2 / F (horizontal-arm length)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "research/simdesign-buckleguard/src/simdesign_buckleguard/dfm.py:24",
+   "change": "MAX_SLENDER = 8.0 -> 12.0",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "research/simdesign-buckleguard/src/simdesign_buckleguard/model.py:129",
+   "change": "von Mises 3 * sxy ** 2 -> sxy ** 2",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "research/simdesign-buckleguard/src/simdesign_buckleguard/model.py:131",
+   "change": "free = cen[1] < p.H - p.w -> cen[1] < p.H (clamp-zone exclusion removed)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Feasibility rests on a peak von Mises stress that is not mesh-converged: the reported K=3 optimum reads 98.7 MPa at h=1.5 but 111.5-112.8 MPa at h=1.0-0.5, the old-rule optimum 98.7 -> 107.7 MPa, both over the 100 MPa limit (peak at the fillet tangency). On h=0.6 the old rule has no feasible 2 mm design (w<=16 gives >=100.5 MPa) and is pushed to 3 mm (about 46.7 g) against about 32.6 g at 1.5 mm, so the headline '12% lighter' is about 30% on a converged mesh. The project's own ancestor simdesign-meshconverge had already reported the empty 2 mm feasible set at h=1.0 and 0.5.",
+   "where": "research/simdesign-buckleguard/experiments/guards.py:12",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "high",
+   "what": "Headline claim 'the old rule cost about 12% of mass' (README, live page, research/README.md index) is a coarse-mesh artefact; the 'one mesh' limitation is disclosed but its known consequence (from simdesign-meshconverge/meshmargin) is not.",
+   "where": "research/simdesign-buckleguard/README.md:36",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "No test touches the FE solve, the stress measure, evaluate() or the optimiser; 4 of 5 seeded mutants survive (von Mises shear term, clamp-zone exclusion, MAX_SLENDER, horizontal-arm length), and nothing checks mesh convergence.",
+   "where": "research/simdesign-buckleguard/tests/test_buckleguard.py:1",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "K = 3 is described as a guess and swept, while design codes give the answer for this section: EN 1993-1-1 6.3.2.2 (curve d) gives utilisation 0.66 and AISC 360-22 F11 0.44-0.53 for the 1.5 mm optimum (S235 assumed). Neither code nor Trahair is cited.",
+   "where": "research/simdesign-buckleguard/src/simdesign_buckleguard/dfm.py:26",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "README calls the K>=5 (1.5 mm) and K=12 (2 mm) infeasibility 'what a stochastic search found, not a proof', but it follows in closed form: the factor is monotone in w and peaks at 4.98 and 11.72 at the w=25 bound.",
+   "where": "research/simdesign-buckleguard/README.md:43",
+   "category": "other",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Dead code in the solver: a boundary basis built under `if False` and a second `fb` that is never used.",
+   "where": "research/simdesign-buckleguard/src/simdesign_buckleguard/model.py:105",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Material dataclass default documented as an FDM thermoplastic in a steel-sheet project (the copied package carries all four processes); the whole package is a copy of simdesign-widerweb, so fixes do not propagate.",
+   "where": "research/simdesign-buckleguard/src/simdesign_buckleguard/model.py:18",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "The buckling arithmetic is right: an independent implementation of the Timoshenko-Gere cantilever formulas reproduces every LTB factor in the tables (3.14, 0.98, 3.54, 6.73, 8.06, 17.23), masses match a hand area to 0.01 g, FE deflection sits between frame bounds, and the K>=5 infeasibility is certain in closed form. The result the project exists for is not: feasibility is decided by a peak fillet stress read on a 1.5 mm mesh, and on h <= 1.0 both compared optima exceed the 100 MPa limit by 8-13%; the old rule's 2 mm design vanishes (as the chain's own simdesign-meshconverge had shown), so the saving is about 30%, not 12%. The direction of the conclusion holds. Tests pin only the closed form (4 of 5 core mutants survive), K=3 is guessed where EN 1993-1-1 and AISC F11 give a check (which the 1.5 mm design passes), and the step is textbook practice, far from the PhD bar. Below the bar on correctness, verification and claims."
+}
