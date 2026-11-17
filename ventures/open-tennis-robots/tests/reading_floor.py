@@ -20,7 +20,7 @@ noise on the board cannot win it.
 Builds: min_fit_heldout's three launchers and two wheel lags on the first-order 8k and ESC 50 ms told plants (no
 random draws, so one seed), calibration drill plus the held-out slow drill, hold mode, as tests/unsure_weight.py.
 
-    PYTHONPATH=src:tests:firmware/esp32 python3 tests/reading_floor.py [--raw out.jsonl]
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/reading_floor.py [--raw out.jsonl] [--modes 0,2]
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/reading_floor.py --oracle eval/unsure-weight-2026-11-17.jsonl
 
 `--oracle` runs nothing: it reads unsure_weight's saved rows and prints, per plant, the fit with every reading, the
@@ -121,7 +121,10 @@ def main():
     if "--oracle" in sys.argv:
         return oracle(sys.argv[sys.argv.index("--oracle") + 1])
     raw = sys.argv[sys.argv.index("--raw") + 1] if "--raw" in sys.argv else None
-    grid = [(pi, tau, li, mode) for mode in MODES for pi in PLANTS for tau in h.LAGS for li in range(len(h.LAUNCHERS))]
+    modes = MODES
+    if "--modes" in sys.argv:
+        modes = [MODES[int(i)] for i in sys.argv[sys.argv.index("--modes") + 1].split(",")]
+    grid = [(pi, tau, li, mode) for mode in modes for pi in PLANTS for tau in h.LAGS for li in range(len(h.LAUNCHERS))]
     done = {}
     if raw:
         try:
@@ -144,10 +147,10 @@ def main():
         if "aborted" in done[tuple(g)]:
             print(f"aborted: {g}: {done[tuple(g)]['aborted']}")
     print(f"{len(ok)} of {len(grid)} builds ran (calibration drill + held-out slow drill, hold mode, seed {SEED})")
-    print(f"\n{'plant':16} {'edges':12} | {'wheels':>6} {'mean':>7} {'sd':>6} {'>1% off':>7} | "
+    print(f"\n{'plant':16} {'edges':13} | {'wheels':>6} {'mean':>7} {'sd':>6} {'>1% off':>7} | "
           f"{'speed err':>9} {'spin mean':>9} {'spin worst':>10} | {'spin, true drops':>16}")
     for pi in PLANTS:
-        for mode in MODES:
+        for mode in modes:
             gs = [g for g in ok if g[0] == pi and g[3] == mode]
             ws = [w for g in gs for w in done[tuple(g)]["wheels"] if w["rpm"] >= u.FLOOR]
             if not ws:
@@ -156,18 +159,18 @@ def main():
             es = [u.fit_errors(done[tuple(g)]["log"], g[2], 1.0) for g in gs]
             es = [e for e in es if e is not None]
             ts = [u.oracle_errors(done[tuple(g)], g[2], lambda w: True) for g in gs]
-            print(f"{h.PLANTS[pi][0]:16} {mode:12} | {len(ws):6d} {statistics.fmean(rs):7.4f} "
+            print(f"{h.PLANTS[pi][0]:16} {mode:13} | {len(ws):6d} {statistics.fmean(rs):7.4f} "
                   f"{100 * statistics.pstdev(rs):5.2f}% {sum(abs(q - 1) > 0.01 for q in rs):7d} | "
                   f"{100 * statistics.fmean(e[0] for e in es):8.2f}% {100 * statistics.fmean(e[1] for e in es):8.2f}% "
                   f"{100 * max(e[1] for e in es):9.2f}% | {100 * statistics.fmean(t[1] for t in ts):15.2f}%")
-    print("\nBy speed band (all plants): reading sd, 1 us timer / exact edges")
+    print("\nBy speed band (both plants): reading sd, " + " / ".join(modes))
     for lo, hi in ((1000, 2000), (2000, 3000), (3000, 4500), (4500, 9000)):
         row = []
-        for mode in MODES:
+        for mode in modes:
             rs = [w["ratio"] for g in ok if g[3] == mode for w in done[tuple(g)]["wheels"] if lo <= w["rpm"] < hi]
-            row.append(f"{100 * statistics.pstdev(rs):.2f}% (n={len(rs)})" if len(rs) > 1 else "-")
-        print(f"  {lo:5d}-{hi:<5d} rpm: {row[0]:>16} / {row[1]:>16}")
-
+            row.append(f"{100 * statistics.pstdev(rs):.2f}%" if len(rs) > 1 else "-")
+        n = sum(1 for g in ok if g[3] == modes[0] for w in done[tuple(g)]["wheels"] if lo <= w["rpm"] < hi)
+        print(f"  {lo:5d}-{hi:<5d} rpm (n={n:3d} per mode): " + " / ".join(row))
 
 if __name__ == "__main__":
     main()
