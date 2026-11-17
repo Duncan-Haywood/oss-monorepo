@@ -102,3 +102,17 @@ test('matched on covariates (README "Matched on covariates"): V on the simplex, 
   assert.equal(again.p, r.p); // deterministic
   assert.throws(() => synthControlTest(rows[0], donors, CELLS.P1.k, { predictors: { treated: px[0], donors: {} } }), /same count of finite numbers/);
 });
+
+test('several starts for V (README "Several starts for V"): never a looser treated fit than one start, deterministic', () => {
+  const rows = panel(CELLS.P1, 778);
+  const px = predictorsOf(rows, CELLS.P1.k, 778);
+  const names = rows.slice(1).map((_, j) => `d${j}`).slice(0, 12); // a small pool keeps the test quick
+  const donors = Object.fromEntries(names.map((s, j) => [s, rows[j + 1]]));
+  const predictors = { treated: px[0], donors: Object.fromEntries(names.map((s, j) => [s, px[j + 1]])) };
+  const one = synthControlTest(rows[0], donors, CELLS.P1.k, { predictors });
+  const multi = synthControlTest(rows[0], donors, CELLS.P1.k, { predictors, vSearch: 'multi' });
+  assert.ok(multi.preRmspe <= one.preRmspe + 1e-12, `multi ${multi.preRmspe} vs one ${one.preRmspe}`);
+  multi.placebos.forEach((q, j) => assert.ok(q.preRmspe <= one.placebos[j].preRmspe + 1e-12, `placebo ${q.name}`));
+  assert.equal(synthControlTest(rows[0], donors, CELLS.P1.k, { predictors, vSearch: 'multi' }).p, multi.p);
+  assert.throws(() => synthControlTest(rows[0], donors, CELLS.P1.k, { predictors, vSearch: 'many' }), /unknown vSearch/);
+});
