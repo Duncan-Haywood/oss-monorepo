@@ -402,7 +402,8 @@ class FeederHw:
             ramp = self.wheel_ramps[i]
             ramped = ramp.update(self.target_rpm[i], tach.rpm, dt, brake)
             # coasting: zero throttle (ESCs set with no brake at zero throttle), the loop's integrator held
-            self.esc_cmd[i] = 0.0 if ramp.coasting else self.wheel_loops[i].update(ramped, tach.rpm, dt)
+            self.esc_cmd[i] = 0.0 if ramp.coasting else self.wheel_loops[i].update(ramped, tach.rpm, dt,
+                                                                                   ramped > self.target_rpm[i])
             esc.frac(self.esc_cmd[i])
         steady = self.wheels_steady.update(self.target_rpm, (self.tach_top.rpm, self.tach_bottom.rpm), dt)
         if self.launch is not None:

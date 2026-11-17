@@ -317,6 +317,23 @@ class WheelLoopTest(unittest.TestCase):
         moved.update(4000, 2100, 10)               # the Pi sent the next shot's speeds: the hold ends
         self.assertEqual(moved.recover, 0)
 
+    def test_braking_does_not_wind_the_integrator(self):
+        # README "A ball charged the integrator", braking: while the ramp lowers the target the integrator holds, and
+        # it never leaves +-LOOP_I_FF_MAX of the feedforward
+        loop = controller.WheelLoop(9000, ramp_hold=True, i_ff_max=0.35)
+        loop.update(3000, 2990, 10)
+        i0 = loop.i
+        for _ in range(100):
+            loop.update(2000, 2400, 10, True)        # ramping down: the wheel lags the falling target
+        self.assertEqual(loop.i, i0)
+        for _ in range(2000):
+            loop.update(526, 600, 10)                # arrived, the wheel still a little fast
+        self.assertAlmostEqual(loop.i, -0.35 * 526 / 9000)
+        free = controller.WheelLoop(9000, ramp_hold=False, i_ff_max=None)
+        for _ in range(100):
+            free.update(2000, 2400, 10, True)
+        self.assertLess(free.i, -0.01)
+
     def test_gate_needs_the_speed_held(self):
         gate = controller.SteadyGate()
         self.assertFalse(gate.update((3000, 2500), (3050, 2510), 100))
