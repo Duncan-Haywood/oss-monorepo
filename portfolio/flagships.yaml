@@ -123,12 +123,11 @@ flagships:
     buildable: >-
       Receipts, item (5): SRD photos (eval/srd-fetch.mjs) and CORD photos
       (eval/cord_images.py) read by `apt-get install tesseract-ocr` and
-      eval/srd-cli.mjs. CLI `--four-pass`: SRD totals 154 of 196, tax 134 of 185
-      (service charge in the tax vote, eval/service-charge-vote-2026-11-17.md); CORD
-      validation totals 69 of 98, tax 27 of 47 (change lines, sums across readings:
-      eval/cord-wrong-totals-2026-11-17.md; service-charge vote: no change there);
-      test 53 of 95, tax 16 of 41. Next: validation-61's 8,260 for 8,250; SRD 1022's
-      change line read as HANGE; test-14 on photos. CORD test stays held out.
+      eval/srd-cli.mjs. CLI `--four-pass`: SRD totals 155 of 196, tax 135 of 185
+      (eval/change-ocr-2026-11-17.md); CORD validation totals 69 of 98, tax 27 of 47
+      (change lines, sums across readings: eval/cord-wrong-totals-2026-11-17.md;
+      service-charge vote: no change there); test 53 of 95, tax 16 of 41. Next:
+      validation-61's 8,260 for 8,250; test-14 on photos. CORD test stays held out.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
@@ -240,10 +239,10 @@ flagships:
       History: README, eval/*. Hub, clock (PINs, geofence), PAY_RULES (NV, 13 meal
       states), leave accrual (LEAVE_ACCRUAL), fair-workweek log and pay
       (FAIR_WORKWEEK; team-offer exception, on-call shifts, Oregon's standby list,
-      PHL, LA, NYC, SF, Emeryville presets; next a real site's changes): next live
-      deploy, real punches at a site. Exact side: branch-and-price and column
-      generation prove 20-80 person weeks; the exact check is on by default at every
-      size. Forecast side (--from-sales, eight real files,
+      PHL, LA, NYC, SF, Emeryville, Berkeley presets; next a real site's changes):
+      next live deploy, real punches at a site. Exact side: branch-and-price and
+      column generation prove 20-80 person weeks; the exact check is on by default
+      at every size. Forecast side (--from-sales, eight real files,
       eval/real-pos-exports.mjs): backtest, closure score, half-life auto, priced
       cut, tickets, labour standard, shut-door work, multi-file pastes. Posted
       weeks: reissues hold started and posted shifts; a whole week at the Deputy
@@ -380,10 +379,11 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "Checked
-      before a calibration drill". Next: set MIN_FIT_RPM (1,000; no floor looked as
-      good) on held-out builds; why a 0.8 s wheel braking to 526 rpm settles 3-4%
-      low under the scaled gains (costs ~2 s a shot); does the hold make shots late?
+      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "A ball
+      charged the integrator". Next: set MIN_FIT_RPM (1,000; no floor looked as
+      good) on held-out builds; does the hold make shots late? Ball hold (README "A
+      ball charged the integrator"): measure WHEEL_RPM_FULL error's cost on 0.2 s
+      wheels; an ESC with its own speed loop.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -432,23 +432,23 @@ flagships:
       (to listen), scan-checked corpus, 2,129 notes read by eye, hymns, song
       sections, breakdown, riser; --a-cappella first verse and a range-checked
       --key-lift N, eval/key-lift-check.md; per-section singer guidance in --cues;
-      2026-11-16 latest: voicelessLow (p's burst read as k) held on held-out W, p as
-      k 18 to 0, now default; next: no burst on C#4-E4, L's cum). Open checks that
-      need a person: listen to the studio page, --sing, the options (--stretch,
-      --halftime, --fills, --limit pumping, stems, sections, breakdown, riser, the a
-      cappella verse and whether the key lift sounds like a lift); --lrc in a real
-      player and --markers/--stems in a DAW; --cues (and its section lines),
-      RECORDING-GUIDE.md and the E2-E4 range with real singers; the release kit
-      against a distributor's real form; the Te Deum/3427/3912/3775 fixes
-      (eval/scan-check-verdicts.md). master-cli passed EBU Tech 3341/3342 from their
-      text; open: the EBU's WAVs (403), Apple/Amazon/Tidal levels. scan.mjs reads
-      rhombi, quilismas, liquescents, lines at true thickness; tilted pages, curled
-      staves straightened (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
-      (eval/broken-stroke-check.md); next: worn pages (new GABC needed), mottled
-      squares, one-step cephalici read (eval/one-step-cephalicus-check.md), 10 of 84
-      tuning misses left, 3408's strokes, 3464's cephalicus; --split-voices (by
-      phrase or at a word, --split-words, eval/word-split-report.md) and --overlap
-      (both sections sing the seam note at a direct tenor/bass swap,
+      2026-11-17 latest: barBurst (C#4-E4 voice bar read as a nasal) held on
+      held-out X, voiced stops 102 to 130 of 144, now default; next: X's cog, tum,
+      L's cum). Open checks that need a person: listen to the studio page, --sing,
+      the options (--stretch, --halftime, --fills, --limit pumping, stems, sections,
+      breakdown, riser, the a cappella verse and whether the key lift sounds like a
+      lift); --lrc in a real player and --markers/--stems in a DAW; --cues (and its
+      section lines), RECORDING-GUIDE.md and the E2-E4 range with real singers; the
+      release kit against a distributor's real form; the Te Deum/3427/3912/3775
+      fixes (eval/scan-check-verdicts.md). master-cli passed EBU Tech 3341/3342 from
+      their text; open: the EBU's WAVs (403), Apple/Amazon/Tidal levels. scan.mjs
+      reads rhombi, quilismas, liquescents, lines at true thickness; tilted pages,
+      curled staves straightened (eval/staff-curl-check.md); 3506/3679 fixed
+      2026-11-15 (eval/broken-stroke-check.md); next: worn pages (new GABC needed),
+      mottled squares, one-step cephalici read (eval/one-step-cephalicus-check.md),
+      10 of 84 tuning misses left, 3408's strokes, 3464's cephalicus; --split-voices
+      (by phrase or at a word, --split-words, eval/word-split-report.md) and
+      --overlap (both sections sing the seam note at a direct tenor/bass swap,
       eval/overlap-report.md) need a singer's check of the ranges, of a mid-phrase
       handoff against a whole phrase and of a one-note overlap against a clean
       handoff; --baritones, --entrance-cost N and --second-tenors (TTBB; README)
@@ -467,19 +467,21 @@ flagships:
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
       (eval/ifcxml-xbim-2026-11-16.md); cross-check more public models from
       opensourceBIM/IFC-files and buildingSMART's Sample-Test-Files with
-      eval/crosscheck_ifctester.py; the IDS editor (editor.html; opens an IDS and a
-      model; several classes per spec 2026-11-17,
-      eval/several-classes-2026-11-17.md): applicability facets beyond the class, a
-      model's values for a property; more real exports through
-      eval/model-inventory.mjs.
+      eval/crosscheck_ifctester.py; the IDS editor (editor.html; README): a property
+      value with no dataType in the applicability (39 kept facets,
+      eval/applicability-rows-2026-11-17.md); exclusive bounds on an opened range
+      (numeric attribute ranges 2026-11-17, eval/model-attr-ranges-2026-11-17.md);
+      more real exports through eval/model-inventory.mjs and
+      eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked"). Next, most
       valuable first: (audit 2026-11-16: 26 of 27 invalid-* files INVALID, 0 of 307
       valid; Pset_/Qto_ template audit 2026-11-16: 5 of 5 IDS-Audit-tool pset files,
-      faults in 21 of 64 public IDS, eval/audit-corpus.mjs); several classes per
-      spec 2026-11-17 (eval/several-classes-2026-11-17.md: 81.1% of public facets
-      editable); ifcXML and .ifczip read 2026-11-16
+      faults in 21 of 64 public IDS, eval/audit-corpus.mjs); a model's property
+      values 2026-11-17 (eval/model-values-2026-11-17.md: one-of or range from the
+      model, ranges rounded outward, 1,014 of 1,014 pass their model; 82.0% of
+      public facets editable); ifcXML and .ifczip read 2026-11-16
       (eval/ifcxml-xbim-2026-11-16.md); IDS editor 2026-11-16 (203,433 offered specs
       audit clean, 15,102 valid in ids.xsd; found voids/fills token pair and
       classification-system gaps, eval/editor-2026-11-16.md); an MEP and an IFC4X3
@@ -487,8 +489,12 @@ flagships:
       eval/editor-open-2026-11-16.md; opens a model and offers its classes and sets,
       own sets editable, 79.4% of public facets editable,
       eval/model-inventory-2026-11-16.md: 4 real exports, 347 of 395 class-set pairs
-      own sets, 21 of 122 standard props in a non-template dataType): several
-      classes per spec, applicability property/attribute facets (85); offer a
-      model's values for a property; a dataType-mismatch hint; a GitHub Action
-      wrapper; heap use on a 200 MB model; a BIM coordinator's real IDS and model
-      (needs a person).
+      own sets, 21 of 122 standard props in a non-template dataType): applicability
+      rows 2026-11-17 (eval/applicability-rows-2026-11-17.md: counts equal the
+      checker's applicable; 83.5% of public facets editable, IDS-Audit-tool 21.5%);
+      a no-dataType value row; attribute values and classification codes 2026-11-17
+      (eval/model-attr-codes-2026-11-17.md: 242 of 242 offers pass; 143 of 210
+      Uniformat elements in Schultz have an empty code, Require a code); a range for
+      numeric attributes; a dataType-mismatch hint; a GitHub Action wrapper; heap
+      use on a 200 MB model; a BIM coordinator's real IDS and model (needs a
+      person).

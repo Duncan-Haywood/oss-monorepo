@@ -54,7 +54,7 @@ const DATE_RES = [
   /\b((?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.? \d{1,2},? \d{4})\b/i,
   /\b(\d{1,2} (?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?,? (?:\d{4}|\d{2}))(?!\d)/i,
 ];
-const TOTAL_RE = /\b(grand\s+total|total\s+(?:due|paid|charged|amount)|amount\s+(?:due|paid|charged)|balance\s+due|order\s+total|grandtotal|gesamt(?:betrag)?|summe|totale|totaal|total|netto|jumlah|due|tl)\b/i;
+const TOTAL_RE = /\b(grand\s+total|total\s+(?:due|paid|charged|amount)|amount\s+(?:due|paid|charged)|balance\s+due|order\s+total|grandtotal|gesamt(?:betrag)?|summe|totale|totaal|total|netto|jumlah|due|(?<!\b(?:tax|gst|vat|sst)\b.*)tl)\b/i;
 const NOT_TOTAL_RE = /accepted\s+total|total\s+tender|total\s+includ\w*\s+(?:gst|tax|vat)\s*@|total[^a-z]*(?:sales\s*)?\(?[^a-z]*(?:excl|before\s+(?:gst|tax))|total\s+(?:gst|tax|vat)\b|total\s+includ(?:es|ed|ing)\b[^a-z]*\d*\s*%|(?:gst|tax|vat)\b[^a-z]*\d*\s*%?\s*includ(?:es|ed)?\s+in\s+(?:the\s+)?total|sub\s*-?total|zwischensumme|sous-total|total\s+(?:savings|discount|items?|qty|aty|qt|quantity|pcs|tax|points|sv|gv|ev|qu)\b|tax\s+total|before\s+tax|tip\b|change\b|cash\b|kemba/i;
 const TAX_RE = /\b(sales\s+tax|tax|vat|gst|hst|pst|tva|mwst|iva|btw|ppn|pb\s*1|pajak|p\.\s*rest(?:o|oran)?)\b/i;
 // "Tax Total" is the tax, not the total; "Dasar Pengenaan Pajak" (DPP) is the taxable base
@@ -166,12 +166,16 @@ export const oneDigitApart = (a, b) => {
   for (let i = 0; i < x.length; i++) if (x[i] !== y[i] && ++d > 1) return false;
   return true;
 };
+// The change line, also as OCR reads it with the C lost: "HANGE 62.63" (SRD 1022, its
+// psm-4 grey reading). Not a bare "ange": an item line reads "'ange Crsh" for Orange
+// Crush (SRD 1002), and "ange Due" also reads as a total line (eval/change-ocr-2026-11-17.md).
+export const CHANGE_WORD = /\b(?:c?hange|kembali\w*|baki)\b/i;
 function totalChecks(lines, comma, at, bare) {
   const amt = (i) => { if (i < 0 || i >= lines.length) return null; const a = amountsIn(lines[i], comma).length ? amountsIn(lines[i], comma) : bare(lines[i + 1]); return a.length ? a[a.length - 1] : null; };
   const checks = []; // [cents, why]
   // cash handed over less change, both read after the total line
   const ti = lines.findIndex((l, i) => i > at && /\b(?:cash|tender(?:ed)?|received|tunai)\b/i.test(l) && !/\bchange\b/i.test(l) && !/cash\s*(?:bill|sale|ier)/i.test(l));
-  const ci = ti < 0 ? -1 : lines.findIndex((l, i) => i > ti && /\b(?:change|kembali\w*|baki)\b/i.test(l) && !/exchange/i.test(l));
+  const ci = ti < 0 ? -1 : lines.findIndex((l, i) => i > ti && CHANGE_WORD.test(l) && !/exchange/i.test(l));
   const tender = amt(ti), change = amt(ci);
   if (tender !== null && change !== null && tender > change) checks.push([tender - change, "cash less change"]);
   // before-tax subtotal plus each GST/SST/tax line, with any printed rounding
@@ -539,7 +543,7 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
   // "TOTAL PAID RM50.00" under "GRAND TOTAL RM21.85" and "CHANGE RM28.15" is the cash
   // handed over, not the total: an earlier total line equal to paid less change wins
   if (cents !== null && at > 0 && /\b(?:total|amount)\s+paid\b/i.test(from)) {
-    const ci = lines.findIndex((l, i) => i > at && /\bchange\b/i.test(l));
+    const ci = lines.findIndex((l, i) => i > at && CHANGE_WORD.test(l) && !/exchange/i.test(l));
     const ch = ci < 0 ? [] : (amountsIn(lines[ci], comma).length ? amountsIn(lines[ci], comma) : bare(lines[ci + 1]));
     const chg = ch.length ? ch[ch.length - 1] : null;
     if (chg !== null && chg > 0 && chg < cents) {
@@ -570,7 +574,7 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
     // largest-amount fallback below)
     const undash = (l) => undashWhole(l, comma);
     const pick = (re) => { const i = lines.findIndex((l) => re.test(l)); if (i < 0) return null; const a = amountsIn(undash(lines[i]), comma).length ? amountsIn(undash(lines[i]), comma) : bare(undash(lines[i + 1])); return a.length ? a[a.length - 1] : null; };
-    const tender = pick(/\b(?:cash|tendered|payment|paid|accepted\s+total)\b/i), change = pick(/\bchange\b/i);
+    const tender = pick(/\b(?:cash|tendered|payment|paid|accepted\s+total)\b/i), change = pick(CHANGE_WORD);
     if (tender !== null && change !== null && tender > change) { cents = tender - change; notes.push("no total line; cash handed over less change"); }
   }
   if (cents === null) {
@@ -717,11 +721,18 @@ function arithmeticTotals(ps, texts, votes) {
   return out;
 }
 function voteTotal(ps, support, texts = []) {
+  // A reading's total line under a subtotal that same reading prints ("SUBTOTAL: 29.88" over
+  // "TOTAL: 7.07", SRD 1022) loses its total-line point when some reading's cash less change
+  // is above that subtotal: the money handed over says more was paid. Without the cash check
+  // it moved two CORD validation receipts from one wrong total to another, and one tax from
+  // none to wrong (eval/change-ocr-2026-11-17.md).
+  const paid = ps.flatMap((q) => q.checks.filter(([, w]) => w === "cash less change").map(([v]) => v));
+  const belowOwnSubtotal = (p) => (p.subtotals ?? []).some((s) => s > p.cents && paid.some((v) => v > s));
   const votes = new Map();
   ps.forEach((p, i) => {
     if (p.cents === null) return;
     const v = votes.get(p.cents) ?? { score: support(p.cents), first: i };
-    v.score += leadingZero(p, ps) ? GUESS_VOTE : guessedCash(p) && !support(p.cents) && !printedOffCash(texts, p.cents) ? CASH_GUESS_VOTE : (guessedLargest(p) ? GUESS_VOTE : 1) + (p.totalLine ? 1 : 0);
+    v.score += leadingZero(p, ps) ? GUESS_VOTE : guessedCash(p) && !support(p.cents) && !printedOffCash(texts, p.cents) ? CASH_GUESS_VOTE : (guessedLargest(p) ? GUESS_VOTE : 1) + (p.totalLine && !belowOwnSubtotal(p) ? 1 : 0);
     votes.set(p.cents, v);
   });
   // each reading that prints the subtotal-plus-tax amount counts once (no total-line point:

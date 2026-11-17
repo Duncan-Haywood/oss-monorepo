@@ -2898,6 +2898,19 @@ as three readings): unchanged, except CORD validation text 96 to 97. Details:
 [`eval/cord-wrong-totals-2026-11-17.md`](eval/cord-wrong-totals-2026-11-17.md).
 Tests: `receipt-crosscheck.test.mjs`.
 
+### A change line read as HANGE, a stray TL, a total under its subtotal (2026-11-17)
+
+SRD 1022 read 7.07 for 37.37. Three narrow fixes, each needed: the change line is also found
+when OCR drops its C (`HANGE 62.63`), so cash less change backs 37.37; a `tl` after a tax word
+on the same line ("Tax (8.75%): 44 Of tl") no longer makes that line a total; and a reading's
+total line under a subtotal the same reading prints loses its total-line point, but only when
+some reading's cash less change is above that subtotal (without that condition it traded two
+wrong CORD validation totals for other wrong ones). SRD CLI totals 154 to 155, tax 134 to 135;
+the page, CORD validation and held-out test photos, CORD text and SROIE text unchanged, and
+1022 is the only receipt that changed. Details:
+[`eval/change-ocr-2026-11-17.md`](eval/change-ocr-2026-11-17.md).
+Tests: `receipt-crosscheck.test.mjs`.
+
 ## Budget against actual
 
 `node cli.mjs --books books.json budget 6130 200` sets a monthly budget of $200

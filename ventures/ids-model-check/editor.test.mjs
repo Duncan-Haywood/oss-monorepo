@@ -4,7 +4,9 @@ import { readFileSync } from "node:fs";
 import { parseIds } from "./ids.mjs";
 import { auditIds } from "./audit.mjs";
 import { resources, check } from "./node.mjs";
-import { classesWithSets, setsFor, propertiesOf, subclasses, predefinedTypes, buildIds, entityFacet, xsBase, PARTOF_RELATIONS, importIds, stateToDoc, idsSchema, specClassNames, commonSets, commonAttributes, sameAttributeType, commonPredefinedTypes, parseClassList, valueChoices } from "./editor.mjs";
+import { classesWithSets, setsFor, propertiesOf, subclasses, predefinedTypes, buildIds, entityFacet, xsBase, PARTOF_RELATIONS, importIds, stateToDoc, idsSchema, specClassNames, commonSets, commonAttributes, sameAttributeType, commonPredefinedTypes, parseClassList, valueChoices, attributeValueKind, modelAttributes, modelValueOffer } from "./editor.mjs";
+import { Model } from "./ids.mjs";
+import { modelInventory } from "./inventory.mjs";
 
 const R = resources();
 const S4 = R.schemas.IFC4;
@@ -168,7 +170,10 @@ test("an opened IDS becomes editable rows where the page can hold a facet, and i
   // A project's own set (Acme_Wall) is an editable row since 2026-11-16; an exclusive bound is not.
   assert.deepEqual([w.reqs[1].custom, w.reqs[1].set, w.reqs[1].dataType], [true, "Acme_Wall", "IFCLABEL"]);
   assert.equal(d.cls, "");
-  assert.deepEqual(d.fixedApp.map((f) => f.kind), ["entity", "attribute"]);
+  // The class pattern has no control; the Name condition beside it is an
+  // editable applicability row since 2026-11-17.
+  assert.deepEqual(d.fixedApp.map((f) => f.kind), ["entity"]);
+  assert.deepEqual(d.app.map((r) => `${r.kind}:${r.name}:${r.mode}`), ["attribute:Name:any"]);
   assert.deepEqual(d.ifcVersion, ["IFC2X3", "IFC4"]);
   assert.equal(imp.dropped, 1);
   assert.deepEqual(imp.droppedIn, ["no proxies"]);
@@ -253,4 +258,39 @@ test("an opened IDS naming several classes opens them as editable, and writes ba
   assert.equal(bad.cls, "");
   assert.equal(bad.fixedApp[0].kind, "entity");
   for (let i = 0; i < 3; i++) assert.deepEqual(said(back.specs[i]), said(parsed.specs[i]), parsed.specs[i].name);
+});
+
+test("a numeric attribute gets a range from the model, written as xs:double, that passes the model it came from", () => {
+  const L = loadFor("IFC4");
+  // OverallHeight is an IfcPositiveLengthMeasure: a number, so a range; Elevation too; Name stays text.
+  assert.deepEqual(attributeValueKind(L.S, ["IFCDOOR"], "OverallHeight"), { kind: "number", enumVals: null, base: "xs:double" });
+  assert.ok(valueChoices(L, ["IFCDOOR"], { kind: "attribute", name: "OverallHeight" }).modes.includes("range"));
+  assert.ok(!valueChoices(L, ["IFCDOOR"], { kind: "attribute", name: "OverallHeight" }).modes.includes("pattern"));
+  assert.equal(attributeValueKind(L.S, ["IFCBUILDINGSTOREY"], "Elevation").kind, "number");
+  assert.equal(attributeValueKind(L.S, ["IFCDOOR"], "Name").kind, "text");
+  assert.equal(attributeValueKind(L.S, ["IFCDOOR"], "PredefinedType").enumVals.includes("DOOR"), true);
+  // A boolean attribute (IfcDoorType.ParameterTakesPrecedence) is asked true/false.
+  assert.equal(attributeValueKind(L.S, ["IFCDOORTYPE"], "ParameterTakesPrecedence").kind, "bool");
+  assert.deepEqual(valueChoices(L, ["IFCDOORTYPE"], { kind: "attribute", name: "ParameterTakesPrecedence" }).modes, ["any", "true", "false"]);
+
+  // The sample house writes its door 2100 high in millimetres; attributes are compared as written.
+  const text = readFileSync(new URL("samples/tiny-house.ifc", import.meta.url), "utf8");
+  const inv = modelInventory(new Model(text, R.schemas), R.measureUnits);
+  const a = modelAttributes(inv, ["IFCDOOR"]).find((x) => x.name === "OverallHeight");
+  const o = modelValueOffer(a, "number", null);
+  assert.deepEqual([o.rangeMin, o.rangeMax], ["2100", "2100"]);
+  const spec = (min, max) => ({ name: `door ${min}-${max}`, optionality: "required", cls: "IFCDOOR", withSub: false, also: [], predefinedType: "", reqs: [{ kind: "attribute", name: "OverallHeight", cardinality: "required", mode: "range", min, max, oneOf: [] }] });
+  const xml = buildIds(stateToDoc({ title: "t", schema: "IFC4", specs: [spec(o.rangeMin, o.rangeMax), spec("2", "2.2")] }, L), L.S);
+  assert.match(xml, /<attribute><name><simpleValue>OverallHeight<\/simpleValue><\/name><value><xs:restriction base="xs:double"><xs:minInclusive value="2100"\/><xs:maxInclusive value="2100"\/>/);
+  assert.deepEqual(audit(xml).filter((i) => i.level === "error"), []);
+  const res = check(xml, text);
+  assert.deepEqual(res.specs.map((s) => s.status), ["pass", "fail"], "the model's own range passes; metres fail a millimetre model");
+
+  // Reopened, the range is an editable row again and writes the same XML back.
+  const { imp, parsed, back } = reopen(xml);
+  assert.deepEqual(imp.state.specs[0].reqs.map((r) => (r.fixed ? "kept" : `${r.kind}:${r.mode}:${r.min}-${r.max}`)), ["attribute:range:2100-2100"]);
+  assert.deepEqual(said(back.specs[0]), said(parsed.specs[0]));
+  // A range written on xs:string (as some tools do) is kept as written, not rewritten to xs:double.
+  const asString = xml.replace('base="xs:double"', 'base="xs:string"');
+  assert.equal(reopen(asString).imp.state.specs[0].reqs[0].fixed.kind, "attribute");
 });

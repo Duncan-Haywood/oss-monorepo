@@ -145,7 +145,7 @@ function cardinalityAttr(c) {
 // One facet. Facet shapes:
 //   { kind: "entity", names: [...], predefinedType }  (or name: a value object)
 //   { kind: "property", set, name, dataType, value, cardinality }
-//   { kind: "attribute", name, value, cardinality }
+//   { kind: "attribute", name, value, base, cardinality }  (base: xs:string unless given)
 //   { kind: "classification", system, value, cardinality }
 //   { kind: "material", value, cardinality }
 //   { kind: "partOf", relation, entity, cardinality }  (entity: a class name or an entity facet)
@@ -163,7 +163,8 @@ export function facetXml(f, S, inRequirements) {
     return `<property${dt}${card}><propertySet>${f.set ? nameXml(f.set) : ""}</propertySet><baseName>${f.name ? nameXml(f.name) : ""}</baseName>${v ? `<value>${v}</value>` : ""}</property>`;
   }
   if (f.kind === "attribute") {
-    const v = valueXml(f.value, "xs:string");
+    // base: the xs: type of a numeric or boolean attribute (attributeValueKind).
+    const v = valueXml(f.value, f.base || "xs:string");
     return `<attribute${card}><name>${f.name ? nameXml(f.name) : ""}</name>${v ? `<value>${v}</value>` : ""}</attribute>`;
   }
   if (f.kind === "classification") {
@@ -241,7 +242,7 @@ export function entityFacet(S, cls, { withSubclasses = false, predefinedType = n
 // buildIds() writes; importIds() turns an opened IDS file into it.
 
 export const blankReq = () => ({ kind: "property", set: "", name: "", custom: false, dataType: "", cardinality: "required", mode: "any", equals: "", oneOf: [], min: "", max: "", pattern: "", system: "", relation: "IFCRELCONTAINEDINSPATIALSTRUCTURE", entity: "IFCBUILDINGSTOREY" });
-export const blankSpec = () => ({ name: "", description: "", instructions: "", optionality: "required", cls: "", also: [], withSub: true, predefinedType: "", reqs: [blankReq()] });
+export const blankSpec = () => ({ name: "", description: "", instructions: "", optionality: "required", cls: "", also: [], withSub: true, predefinedType: "", reqs: [blankReq()], app: [] });
 
 // ------------------------------------------------- several classes per spec --
 // A specification may apply to several classes (IFCSLAB, IFCBEAM, IFCCOLUMN):
@@ -284,6 +285,24 @@ export function commonAttributes(S, classes) {
 const attrType = (S, c, n) => (S.entities[c] ? (S.attrs(c).find((a) => a.name === n) || {}).type : undefined);
 export const sameAttributeType = (S, classes, n) => classes.filter(Boolean).every((c) => attrType(S, c, n) === attrType(S, classes[0], n));
 
+// How the page asks for an attribute's value on these classes:
+// { kind: "number" | "bool" | "text", enumVals, base }. A number (OverallHeight,
+// Elevation, an integer count) gets a range, a boolean or logical true/false,
+// an enumeration its values; `base` is the xs: type a restriction on it is
+// written with (xs:double for OverallHeight, as IDS's own test cases write a
+// bounds restriction on a measure attribute). Classes that type the attribute
+// differently, or an attribute the schema does not know, stay free text.
+export function attributeValueKind(S, classes, name) {
+  const cs = (Array.isArray(classes) ? classes : [classes]).filter(Boolean);
+  const a = name && S.entities[cs[0]] && sameAttributeType(S, cs, name) && S.attrs(cs[0]).find((x) => x.name === name);
+  if (!a) return { kind: "text", enumVals: null, base: "xs:string" };
+  const t = S.types[a.type];
+  if (t && t.kind === "enum") return { kind: "text", enumVals: t.values, base: "xs:string" };
+  const prim = S.prim(a.type);
+  const kind = prim === "double" || prim === "integer" ? "number" : prim === "boolean" || prim === "logical" ? "bool" : "text";
+  return { kind, enumVals: null, base: kind === "text" ? "xs:string" : xsBase(S, a.type) };
+}
+
 // Predefined types every one of `classes` allows (one predefinedType applies
 // to every name in the entity facet).
 export function commonPredefinedTypes(S, classes) {
@@ -319,7 +338,9 @@ export const ownSetName = (name) => typeof name === "string" && name.trim() !== 
 
 // The sets a loaded model's objects of these classes carry (modelInventory()
 // in inventory.mjs), merged: [{ name, count, of, standard, props: [{ name,
-// count, dataType }] }], where `count` of the `of` objects carry the set.
+// count, dataType, values, distinct, more, min, max }] }], where `count` of the
+// `of` objects carry the set and `values` are [[value, objects]], most common
+// first (see modelValueOffer).
 // `standard` says whether it is a template set the class can carry; the page
 // offers those as standard rows and the rest as the author's own.
 export function modelSets(inv, classes, standardSets = []) {
@@ -335,14 +356,141 @@ export function modelSets(inv, classes, standardSets = []) {
       if (!m) out.set(s.name, (m = { name: s.name, count: 0, props: new Map() }));
       m.count += s.count;
       for (const p of s.props) {
-        const q = m.props.get(p.name);
-        if (!q) m.props.set(p.name, { name: p.name, count: p.count, dataType: p.dataType });
-        else { q.count += p.count; q.dataType = q.dataType || p.dataType; }
+        let q = m.props.get(p.name);
+        if (!q) m.props.set(p.name, (q = { ...blankTally(), name: p.name, dataType: p.dataType }));
+        else q.dataType = q.dataType || p.dataType;
+        mergeTally(q, p);
       }
     }
   }
-  return [...out.values()].map((m) => ({ name: m.name, count: m.count, of, standard: standardSets.includes(m.name), props: [...m.props.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name)) }))
+  const prop = (q) => ({ name: q.name, dataType: q.dataType, ...tallyOut(q) });
+  return [...out.values()].map((m) => ({ name: m.name, count: m.count, of, standard: standardSets.includes(m.name), props: [...m.props.values()].map(prop).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name)) }))
     .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+}
+
+// Value tallies (inventory.mjs) merged across classes. A class's list holds
+// its MAX_LISTED commonest values; one that lists fewer than it holds
+// (`distinct`) leaves the merged list incomplete.
+const blankTally = () => ({ count: 0, empty: 0, vals: new Map(), distinct: 0, more: false, min: null, max: null });
+function mergeTally(q, p) {
+  q.count += p.count;
+  q.empty += p.empty || 0;
+  for (const [v, n] of p.values || []) q.vals.set(v, (q.vals.get(v) || 0) + n);
+  q.distinct = Math.max(q.distinct, p.distinct || 0);
+  if (p.more || (p.distinct || 0) > (p.values || []).length) q.more = true;
+  if (p.min !== null && p.min !== undefined) q.min = q.min === null ? p.min : Math.min(q.min, p.min);
+  if (p.max !== null && p.max !== undefined) q.max = q.max === null ? p.max : Math.max(q.max, p.max);
+}
+function tallyOut(q) {
+  const values = [...q.vals.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  return { count: q.count, empty: q.empty, values, distinct: Math.max(q.distinct, values.length), more: q.more, min: q.min, max: q.max };
+}
+function mergeBy(inv, classes, field, key) {
+  if (!inv) return [];
+  const want = new Set(classes);
+  const out = new Map();
+  let of = 0;
+  for (const c of inv.classes) {
+    if (!want.has(c.cls)) continue;
+    of += c.count;
+    for (const a of c[field] || []) {
+      let q = out.get(a[key]);
+      if (!q) out.set(a[key], (q = blankTally()));
+      mergeTally(q, a);
+    }
+  }
+  return [...out.entries()].map(([k, q]) => ({ [key]: k, of, ...tallyOut(q) })).sort((a, b) => b.count - a.count || String(a[key]).localeCompare(String(b[key])));
+}
+
+// The attribute values a model's objects of these classes hold (inventory.mjs
+// `attrs`), merged: [{ name, count, of, empty, values, distinct, more, min,
+// max }]; `count` of the `of` objects have it set, `empty` of them to an empty
+// string or UNKNOWN. Each is one modelValueOffer() can take.
+export const modelAttributes = (inv, classes) => mergeBy(inv, classes, "attrs", "name");
+
+// The codes a model's objects of these classes carry in each classification
+// system (inventory.mjs `codes`), merged: [{ system, count, of, empty, values,
+// distinct, more }]; `empty` of the `count` objects are classified in the
+// system with no code. Each is one modelValueOffer() can take, as text.
+export const modelCodes = (inv, classes) => mergeBy(inv, classes, "codes", "system");
+
+// What a model's values offer a property row of this value kind (number,
+// text, bool) and standard enumeration (or null): mp is one prop of
+// modelSets(). -> null when the model holds no value, else
+//   { values: [[v, n]] usable for the row, outside: [[v, n]] the standard's
+//     enumeration lacks (a check limited to it fails those objects),
+//     complete: every value the model holds is listed, min, max,
+//     oneOf: the values a "one of" restriction should list to pass the model
+//     as it is (null when the list is incomplete or the kind is not text),
+//     empty: objects that carry it with no value (an empty attribute, a
+//     classification with no code), which any value check fails }
+export function modelValueOffer(mp, kind, enumVals = null) {
+  if (!mp || !mp.values || !mp.values.length || !kind) return null;
+  const isNum = (v) => v.trim() !== "" && Number.isFinite(Number(v));
+  const fits = kind === "number" ? (v) => isNum(v) : kind === "bool" ? (v) => v === "true" || v === "false" : () => true;
+  const usable = mp.values.filter(([v]) => fits(v));
+  const values = enumVals ? usable.filter(([v]) => enumVals.includes(v)) : usable;
+  const outside = enumVals ? usable.filter(([v]) => !enumVals.includes(v)) : [];
+  const complete = !mp.more && usable.length === mp.values.length && mp.values.length >= (mp.distinct || 0);
+  const oneOf = kind === "text" && complete && !outside.length && values.length ? values.map(([v]) => v).sort() : null;
+  const num = kind === "number" && typeof mp.min === "number" && typeof mp.max === "number";
+  return { values, outside, complete, min: num ? mp.min : null, max: num ? mp.max : null,
+    rangeMin: num ? outwardBound(mp.min, -1) : null, rangeMax: num ? outwardBound(mp.max, 1) : null, oneOf, empty: mp.empty || 0 };
+}
+
+// How many of the model's objects an applicability row lets through, from the
+// inventory's tally for it (`mp`, one entry of modelSets' props,
+// modelAttributes or modelCodes; `offer`, modelValueOffer's for it), or null
+// when the tally cannot say exactly: a value list cut short, values outside
+// the row's kind, objects holding several values, a classification code (one
+// object may carry several in a system), a material or a place.
+//   r: the row ({ kind, mode, equals, oneOf, min, max, pattern });
+//   valueKind: "number" | "text" | "bool" (numbers compare with IDS's
+//   tolerance, |a - b| <= |b| x 1e-6 + 1e-6)
+export function appMatchCount(mp, offer, r, valueKind = "text") {
+  if (r.kind === "material" || r.kind === "partOf") return null;
+  if (!mp) return 0;
+  const held = mp.count - (mp.empty || 0);
+  // Any value: an empty one or UNKNOWN fails an attribute facet, while a
+  // classification facet naming only its system passes a reference with no
+  // code. A property counted here carries the property.
+  if (r.mode === "any" || !r.mode) return r.kind === "classification" ? mp.count : held;
+  if (r.kind === "classification" || !offer || !offer.complete || offer.outside.length) return null;
+  if (offer.values.reduce((t, [, n]) => t + n, 0) > held) return null;
+  const tally = (pick) => offer.values.filter(([v]) => pick(v)).reduce((t, [, n]) => t + n, 0);
+  const same = (v, w) => (valueKind === "number" ? Math.abs(Number(v) - Number(w)) <= Math.abs(Number(w)) * 1e-6 + 1e-6 : v === w);
+  if (r.mode === "equals") return valueKind === "number" && !Number.isFinite(Number(r.equals)) ? null : tally((v) => same(v, r.equals));
+  if (r.mode === "true" || r.mode === "false") return tally((v) => v === r.mode);
+  if (r.mode === "oneOf") return tally((v) => r.oneOf.some((w) => same(v, w)));
+  if (r.mode === "range") {
+    const lo = r.min === "" || r.min == null ? -Infinity : Number(r.min), hi = r.max === "" || r.max == null ? Infinity : Number(r.max);
+    if (Number.isNaN(lo) || Number.isNaN(hi)) return null;
+    return tally((v) => Number(v) >= lo && Number(v) <= hi);
+  }
+  if (r.mode === "pattern") {
+    let re;
+    try { re = new RegExp(`^(?:${r.pattern})$`, "u"); } catch { return null; }
+    return tally((v) => re.test(v));
+  }
+  return null;
+}
+
+// The shortest decimal at or beyond v (dir -1: at or below, 1: at or above)
+// that stays within IDS's equality tolerance of it (|v| x 1e-6 + 1e-6). IDS
+// ranges take no tolerance (ImplementersDocumentation/tolerance.md), and unit
+// conversion leaves 0.254 m as 0.25399999999999995: a range from 0.254 fails
+// that object, one from 0.253999 passes it. Returned as a string.
+export function outwardBound(v, dir) {
+  if (!Number.isFinite(v)) return null;
+  const tol = Math.abs(v) * 1e-6 + 1e-6;
+  for (let k = 0; k <= 15; k++) {
+    const f = 10 ** k;
+    let d = Number(((dir < 0 ? Math.floor(v * f) : Math.ceil(v * f)) / f).toFixed(k));
+    if (dir < 0 && d > v) d = Number((d - 1 / f).toFixed(k));
+    if (dir > 0 && d < v) d = Number((d + 1 / f).toFixed(k));
+    if (Math.abs(d - v) <= tol && (dir < 0 ? d <= v : d >= v)) return String(d);
+  }
+  return String(v);
 }
 
 // What value modes the page offers for a requirement row, and the
@@ -366,13 +514,13 @@ export function valueChoices(L, cls, r) {
       enumVals = p.enum;
     }
   } else if (r.kind === "attribute") {
-    const a = L.S.entities[cls] && sameAttributeType(L.S, classes, r.name) && L.S.attrs(cls).find((x) => x.name === r.name);
-    if (a && L.S.types[a.type] && L.S.types[a.type].kind === "enum") enumVals = L.S.types[a.type].values;
+    ({ kind, enumVals } = attributeValueKind(L.S, classes, r.name));
   } else if (r.kind === "partOf") kind = null;
   const modes = [];
   if (kind) {
     modes.push("any", "equals");
-    if (enumVals) modes.push("oneOf");
+    // "one of" a standard's enumeration, or of values the author lists (text).
+    if (enumVals || kind === "text") modes.push("oneOf");
     if (kind === "number") modes.push("range");
     if (kind === "text" && !enumVals) modes.push("pattern");
     if (kind === "bool") modes.splice(1, 1, "true", "false");
@@ -380,16 +528,22 @@ export function valueChoices(L, cls, r) {
   return { kind, enumVals, modes, prop: p };
 }
 
-function reqFacet(L, r) {
+function reqFacet(L, r, classes = []) {
   if (r.fixed) return r.fixed;
   const p = r.kind !== "property" ? null : r.custom ? { dataType: r.dataType && L.S.types[r.dataType] ? r.dataType : null } : propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name);
   const value = r.cardinality === "prohibited" || (p && !p.dataType) ? null
     : r.mode === "equals" ? { equals: r.equals } : r.mode === "true" || r.mode === "false" ? { equals: r.mode }
     : r.mode === "oneOf" ? { oneOf: r.oneOf } : r.mode === "range" ? { min: r.min, max: r.max } : r.mode === "pattern" ? { pattern: r.pattern } : null;
-  return { kind: r.kind, set: r.set, name: r.name, dataType: p ? p.dataType : null, value, cardinality: r.cardinality, system: r.system, relation: r.relation, entity: r.entity };
+  const base = r.kind === "attribute" && value ? attributeValueKind(L.S, classes, r.name).base : undefined;
+  return { kind: r.kind, set: r.set, name: r.name, dataType: p ? p.dataType : null, value, base, cardinality: r.cardinality, system: r.system, relation: r.relation, entity: r.entity };
 }
 
-const reqComplete = (r) => r.fixed || (r.kind === "property" ? r.set && r.name : r.kind === "attribute" ? r.name : r.kind === "partOf" ? r.entity : true);
+// An applicability row: the same row as a requirement, written without a
+// cardinality (IDS 1.0 applicability facets have none; an object either
+// matches the facet or the specification does not apply to it).
+const appFacet = (L, r, classes = []) => reqFacet(L, { ...r, cardinality: "required" }, classes);
+
+export const reqComplete = (r) => r.fixed || (r.kind === "property" ? r.set && r.name : r.kind === "attribute" ? r.name : r.kind === "partOf" ? r.entity : true);
 
 // The page state as the document buildIds() writes.
 export function stateToDoc(state, L) {
@@ -399,8 +553,9 @@ export function stateToDoc(state, L) {
       name: s.name || (s.cls ? `${s.cls} requirements` : "Unnamed specification"),
       description: s.description, instructions: s.instructions, optionality: s.optionality,
       ifcVersion: s.ifcVersion || null, requirementsDescription: s.requirementsDescription || null,
-      applicability: [...(s.cls ? [{ kind: "entity", names: specClassNames(L.S, s), predefinedType: s.predefinedType || null }] : []), ...(s.fixedApp || [])],
-      requirements: s.reqs.filter(reqComplete).map((r) => reqFacet(L, r)),
+      applicability: [...(s.cls ? [{ kind: "entity", names: specClassNames(L.S, s), predefinedType: s.predefinedType || null }] : []),
+        ...(s.app || []).filter(reqComplete).map((r) => appFacet(L, r, specBases(s))), ...(s.fixedApp || [])],
+      requirements: s.reqs.filter(reqComplete).map((r) => reqFacet(L, r, specBases(s))),
     })),
   };
 }
@@ -463,7 +618,7 @@ function editableRow(L, classes, f) {
     else if (ch.modes.includes("equals") && (!ch.enumVals || ch.enumVals.includes(s))) { r.mode = "equals"; r.equals = s; }
     else return null;
   } else if (en) {
-    if (!ch.modes.includes("oneOf") || !en.every((x) => ch.enumVals.includes(x))) return null;
+    if (!ch.modes.includes("oneOf") || (ch.enumVals && !en.every((x) => ch.enumVals.includes(x)))) return null;
     r.mode = "oneOf"; r.oneOf = [...en];
   } else if (v.r.pattern.length === 1 && !v.r.enumeration.length && R_BOUNDS.every((k) => v.r[k] === undefined)) {
     if (!ch.modes.includes("pattern")) return null;
@@ -501,10 +656,18 @@ export function importIds(parsed, loadFor) {
   let kept = 0, rows = 0, dropped = 0;
   const droppedIn = [];
   for (const s of parsed.specs) {
-    const spec = { ...blankSpec(), name: s.name === "(unnamed)" ? "" : s.name, description: s.description || "", instructions: s.instructions || "", optionality: s.optionality, reqs: [], fixedApp: [] };
+    const spec = { ...blankSpec(), name: s.name === "(unnamed)" ? "" : s.name, description: s.description || "", instructions: s.instructions || "", optionality: s.optionality, reqs: [], fixedApp: [], app: [] };
     if (s.requirementsDescription) spec.requirementsDescription = s.requirementsDescription;
     if (s.ifcVersion.join(" ") !== IFC_VERSION[schema]) spec.ifcVersion = s.ifcVersion;
-    for (const f of s.applicability) {
+    // The class first, so the other facets' rows know what it offers.
+    const appIn = [...s.applicability.filter((f) => f.kind === "entity"), ...s.applicability.filter((f) => f.kind !== "entity")];
+    for (const f of appIn) {
+      // A facet beyond the class: an editable row when the page writes it back
+      // unchanged (no cardinality in applicability).
+      if (f.kind !== "entity") {
+        const row = editableRow(L, specBases(spec), { ...f, cardinality: "required" });
+        if (row && facetXml(appFacet(L, row, specBases(spec)), L.S, false) === facetXml(facetFromParsed(f), L.S, false)) { spec.app.push({ ...row, cardinality: "required" }); rows++; continue; }
+      }
       if (f.kind === "entity" && !spec.cls && !spec.fixedApp.some((x) => x.kind === "entity")) {
         // A class list matches as a set: one name, or a class and all its
         // concrete subclasses in any order, is what the page writes.
@@ -536,7 +699,7 @@ export function importIds(parsed, loadFor) {
     else for (const f of s.requirements) {
       const row = editableRow(L, specBases(spec), f);
       // The row must write the same XML the facet had, or it is kept as written.
-      if (row && facetXml(reqFacet(L, row), L.S, true) === facetXml(facetFromParsed(f), L.S, true)) { spec.reqs.push(row); rows++; }
+      if (row && facetXml(reqFacet(L, row, specBases(spec)), L.S, true) === facetXml(facetFromParsed(f), L.S, true)) { spec.reqs.push(row); rows++; }
       else { spec.reqs.push({ kind: f.kind, fixed: facetFromParsed(f) }); kept++; }
     }
     state.specs.push(spec);
