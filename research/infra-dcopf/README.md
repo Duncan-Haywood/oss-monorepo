@@ -276,6 +276,9 @@ The 24 held-out cases of [`grid-linopf`](../grid-linopf/PROPOSAL.md)'s milestone
 - **Cost:** clean points +0.01 to +2.12 % over PGLib's objective, mean +0.50 %, median +0.26 %; case588 TYP is the one above +1 % (pre-registered bar refuted).
 - **Misses:** case1354 (1 to 4 overloads at 112 to 120 %), case1888 TYP and SAD (one bus out of voltage band), case500 SAD (2 angle limits) and case588 SAD; IPOPT's reactive stage finds no solution on any of them.
 
+## A step-based convergence statement, checked on the traces (added 2026-11-17, `experiments/check_theory.py`, `results_theory.txt`)
+Milestone 7's theory half; statement and proofs in [`../grid-linopf/theory.md`](../grid-linopf/theory.md). Under a smooth power flow along each step (A1) and hard-QP feasibility (A2): a hard step within r* = &kappa;<sup>&minus;1/2</sup> finishes (Theorem 1), the trust box is halved at most max(1, &lceil;log<sub>2</sub>(||&Delta;||/r*)&rceil;) times (Theorem 2), and the round count is 1 + A + H with the accepted rounds A bounded only by their path length over r* (Theorem 3). On the 2026-11-13 traces: H&#770;* is 1 to 12 against 0 to 5 observed halvings; the finishing step is inside the radius on 4 of 31; steps shrink before the finish on 28 of 28; accepted rounds are 162 of 228 misses and the path bound is a median 24x loose; round 1's curvature predicts the path poorly (15 of 39); case73 API's elastic step scales with its box over a 250-fold halving, so its stall is not the first-order stationary point the 2026-11-13 entry inferred. Four of seven predictions held (`LOG.md`, 2026-11-17).
+
 ## Analytic sensitivities from the power-flow Jacobian (added 2026-11-13, `experiments/check_sens.py`, `results_sens.txt`, `run_vlin.py --margin --analytic`, `results_vlin_margin_analytic.txt`)
 Milestone 2 of [`grid-linopf`](../grid-linopf/PROPOSAL.md). `vlin.jacobian_sens` takes every sensitivity J-m uses (slack P, |S| at both branch ends, angle differences, PQ-bus voltages, unit Q; with respect to unit P and generator voltage setpoints) from the Newton Jacobian at the base power flow, by the implicit function theorem: one sparse LU and one solve per round, instead of n_gen + n_vbus extra power flows. Plan and predictions logged before the run.
 
@@ -427,6 +430,7 @@ OMP_NUM_THREADS=1 python experiments/run_heldout.py  # milestone 6, the 24 held-
 OMP_NUM_THREADS=1 python experiments/run_heldout_slack.py J <case/kind ...>  # milestone 6 under one protocol (largest-unit slack); then `R <case/kind ...>` (IPOPT reactive stage, needs cyipopt) on the unfinished ones and `--merge`; about 23 min (J) and 30 min (R) summed over cases; results_heldout_slack.txt/.json
 OMP_NUM_THREADS=1 python experiments/run_vlin.py --margin --analytic --screen --clarabel  # milestone 6 gate: screened Clarabel against full Clarabel on the 34 development cases, about 1 min
 OMP_NUM_THREADS=1 python experiments/run_converge.py  # milestone 7, traced repair with a 30-round budget, about 3 min on 4 processes; results_converge.txt/.json
+python experiments/check_theory.py  # milestone 7 theory half: Theorems 1-3 and Proposition 2 on those traces, under a second; results_theory.txt/.json
 OMP_NUM_THREADS=1 python experiments/run_perturb.py --noref  # the arms on copies with no AC optimum, about 5 min; results_perturb_noref.txt/.json
 python experiments/diag_lpac.py               # which limit class makes LPAC-C infeasible; writes results_lpac_infeasible.txt
 python experiments/run_lmp.py                 # LMP comparison, about 1 min; writes experiments/results_lmp.txt
