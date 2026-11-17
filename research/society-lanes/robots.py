@@ -34,6 +34,11 @@ ADAPT_RANGE = 4.0      # m, ahead or behind, for "adapt"
 TARGET_AHEAD = 2.0     # m, as sftwin.TARGET_AHEAD
 PASS_WINDOW = 2.0      # m, along the corridor
 CLOSE_GAP = 0.5        # m, surface to surface
+# Milestone 6f: the two ways a robot differs from a person, each switchable. HUMAN as the policy keeps
+# the people's steering rule (sftwin.steer_targets, side bias included) for the robots; PEOPLE_SPEED as
+# robot_speed draws each robot entry's desired speed as a person's (sftwin.desired_speeds).
+HUMAN = "human"
+PEOPLE_SPEED = "people"
 
 
 def lane_y(d, width, side):

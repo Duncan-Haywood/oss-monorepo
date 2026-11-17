@@ -269,7 +269,8 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
         raise ValueError(f"rule must be one of {S.RULES}")
     import robots as R
     rng = np.random.default_rng(seed)
-    v_robot = R.ROBOT_SPEED if robot_speed is None else robot_speed
+    people_speed = robot_speed == R.PEOPLE_SPEED   # milestone 6f, as sftwin.simulate
+    v_robot = R.ROBOT_SPEED if robot_speed is None else (math.nan if people_speed else robot_speed)
     RB = np.zeros(0, dtype=bool)   # is a robot
     RG = np.zeros(0)               # a robot's exit under policy "goal" (nan otherwise)
     P = np.zeros((0, 2))
@@ -288,7 +289,7 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
 
     def add(x, y, d, s, new, robot=False):
         nonlocal P, V, v0, D, G, NEW, ID, RB, RG
-        if robot:
+        if robot and not people_speed:
             s = v_robot
         P = np.vstack([P, [x, y]])
         V = np.vstack([V, [d * s, 0.0]])
@@ -349,10 +350,11 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
                     y0 = rng.uniform(e_lo, e_hi) if e_hi > e_lo else width / 2
                     if len(P) and np.min((P[:, 0] - x0) ** 2 + (P[:, 1] - y0) ** 2) < S.CLEARANCE ** 2:
                         break
-                    add(x0, y0, dd, v_robot, True, robot=True)
+                    add(x0, y0, dd, S.desired_speeds(rng, 1)[0] if people_speed else v_robot, True,
+                        robot=True)
                     rqueue[dd] -= 1
             tx, ty = S.steer_targets(P, D, G, beta, width, length, RADIUS, rule)
-            if robots and RB.any():
+            if robots and RB.any() and policy != R.HUMAN:
                 rtx, rty = R.robot_targets(P, D, RG, RB, policy, width, length, RADIUS)
                 tx, ty = tx.copy(), ty.copy()
                 tx[RB], ty[RB] = rtx, rty
