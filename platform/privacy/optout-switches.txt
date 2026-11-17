@@ -1094,6 +1094,7 @@ ventures/square-sales-to-journal/usage.mjs
 ventures/squarespace-product-csv-check/usage.mjs
 ventures/sri-check/usage.mjs
 ventures/sshd-config-check/usage.mjs
+ventures/stable-matching/usage.mjs
 ventures/staffing-markup-calculator/usage.mjs
 ventures/stair-lift-bid-calculator/usage.mjs
 ventures/standby-generator-bid-calculator/usage.mjs
