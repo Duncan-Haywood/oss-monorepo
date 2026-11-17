@@ -67,12 +67,22 @@ export function compute(input) {
   if (start === null) errors.push("Enter the start date as YYYY-MM-DD.");
   if (end === null) errors.push("Enter the last day of employment as YYYY-MM-DD.");
   if (start !== null && end !== null && end < start) errors.push("The last day is before the start date.");
-  const age = num(input.age || 0);
+  if (!Number.isFinite(weekly)) errors.push("Weekly base pay is too large to be a real amount.");
+  // An optional field left blank counts as 0; anything typed must be a non-negative number, since a typo
+  // read as 0 silently drops the age 45+ notice week or the leave payout.
+  const opt = (v, msg) => {
+    if (String(v ?? "").trim() === "") return 0;
+    const n = num(v);
+    if (!(n >= 0) || !Number.isFinite(n)) { errors.push(msg); return 0; }
+    return n;
+  };
+  const age = opt(input.age, "Age must be a number of years, for example 47 (leave it blank if unknown).");
+  if (age > 120) errors.push("Age must be 120 or less.");
   const employees = num(input.employees || 0);
-  if (!(employees >= 1)) errors.push("Enter the number of employees the employer has (1 or more).");
+  if (!(employees >= 1) || !Number.isInteger(employees)) errors.push("Enter the number of employees the employer has (a whole number, 1 or more).");
   const type = String(input.employmentType || "permanent");
-  const worked = Math.max(0, num(input.noticeWorkedWeeks || 0) || 0);
-  const leaveDays = Math.max(0, num(input.leaveDays || 0) || 0);
+  const worked = opt(input.noticeWorkedWeeks, "Notice weeks already worked must be a number, 0 or more.");
+  const leaveDays = opt(input.leaveDays, "Accrued annual leave must be a number of days, 0 or more.");
   if (errors.length) return { errors };
 
   const years = completedYears(start, end);

@@ -2898,6 +2898,20 @@ as three readings): unchanged, except CORD validation text 96 to 97. Details:
 [`eval/cord-wrong-totals-2026-11-17.md`](eval/cord-wrong-totals-2026-11-17.md).
 Tests: `receipt-crosscheck.test.mjs`.
 
+### CORD train photos: a fresh development set (2026-11-17)
+
+Every photo rule had been chosen on CORD validation or SRD. Read for the first time, 200 CORD
+train photos score 115 of 196 totals (58.7%) against validation's 69 of 98 (70.4%): validation
+was overfit, and unseen phone photos of Indonesian receipts sit near 57-59%. Rules written from
+train misses only: `SUB. TOTAL` is a subtotal; `Bayar` (paid) and a cut `Kembal` (change) make
+cash less change; a whole-unit total under 100 units gets no vote; long digit runs are not
+amounts; `Qty: 3 Amount: 262,000` is a total line; a subtotal at Indonesia's 10% or 11% tax
+rate is a check when a tax line is printed. Train photos 115 to 122; validation 69 to 70;
+held-out test photos, scored once, 54 to 55, with wrong totals the page does not flag 5 to 2;
+SRD 155 to 156; CORD text train 749 to 761 and test 92 to 93; SROIE unchanged. Details:
+[`eval/cord-train-photos-2026-11-17.md`](eval/cord-train-photos-2026-11-17.md).
+Tests: `cord-train-photos.test.mjs`.
+
 ### A change line read as HANGE, a stray TL, a total under its subtotal (2026-11-17)
 
 SRD 1022 read 7.07 for 37.37. Three narrow fixes, each needed: the change line is also found

@@ -1217,7 +1217,56 @@ cells the burst the reader finds has a 2.1-2.3 kHz centroid with 54-66% of its e
 on G2 and F3 read 33-44%. Where that energy comes from (the burst search's timing, or the vowel's release reaching
 into the 10 ms window) is the next thing to read, frame by frame, before any rule. Reader only; not listened to.
 
-#### A g's voice bar read as a nasal (2026-11-17, latest; failed its registration, opt-in)
+#### A voiced closure that holds to its burst (2026-11-17, latest; registration held, now the default)
+
+The round before ("A g's voice bar read as a nasal") dropped a nasal-rule run that ends at or inside a voiced stop's
+closure, but only when the voice-bar rule found that closure. On held-out part Y most of the nasal misses (*sob*, *hog*,
+*mog*, *cob*) ended on a closure the ordinary closure rule found, so it took back 1 of 10. Applying it to every
+voiced-reading closure lost n-t and n-c clusters (*mant*, *dant*, *hanc*): an n's murmur runs into the t's silent
+closure and its tail makes the closure's later half read voiced.
+
+- **The rule** (readCoda's `voicedLead: { hold: true }`, now the default; `voicedLead: false` is the reader before,
+  `true` the bar form): a closure the closure rule found counts too when it passes the voice-bar rule's own release test
+  (`barRel`): a burst that does not run into frication, and the 20 ms just before it still voiced, above -40 dB and
+  within 6 dB of the run's median. An n-t closure is silent at its end and an n-s runs into its s; a voiced stop's bar
+  runs on up to its burst. The run it drops must also start at most 20 frames (100 ms) before the closure.
+- **Why the span**: a first form (the hold measured on any burst, no span) lost K's *om* and *on*, V's *gum* and Y's
+  *son* (a final nasal read as a voiced labial stop) and N's *fans*, *rens* and O's *pens* (the n-s's frication taken
+  for a burst). Listing every run the rule drops on parts K, N, T, U, V, W, X and Y: a voiced stop's lead started 1 to
+  14 frames (5-70 ms) before its closure, while the final nasals it wrongly dropped started 37 to 55 frames (185-275 ms)
+  before a release blip the closure rule took for a burst. No case sat between 15 and 36.
+- **Development** (A-Y, `--vlead hold2` against the default then): no nasal coda, n-cluster, voiceless stop, other
+  syllable or vowel-only cell lost in any part; the corpus parts B, D, E, H, I and F identical. Gains: A's E2 29 to 30
+  of 30; K's others 206 to 208 of 220; N's 227 to 230 of 240 (voiced stops read as a nasal 6 to 3); R's third column
+  112 to 117 of 120 (as a nasal 6 to 1); T's columns 131-133 to 133-136 of 144; V's velars 182 to 186 of 192, labials
+  101 to 103 of 108; W's voiced stops 76 to 78 of 84; X's 130 to 134 of 144; Y's 173 to 176 of 192 (as a nasal 10 to
+  4), and one cell each in M and Q (O's deep-murmur column gained one too, before the exemption below). Some voiced velars that read as a nasal now read as a voiced labial (V's velars
+  read as a labial 4 to 5): a place miss, still counted as a miss.
+- **Pre-registered on a new part Z** (`eval/coda-check.mjs` header, twenty-second round, committed as d66844f before Z
+  ran): 16 voiced stop codas, most after /o/ or /u/, 4 nasal codas, 6 n-clusters, 3 voiceless stops and 2 others, none
+  sung before, at A2, F#3, B3, C#4, D#4 and E4, 98 BPM.
+
+| Z | default (before) | bar form | hold form | wanted (hold against default) |
+|---|---|---|---|---|
+| voiced stop codas read exactly (of 192) | 171 | 172 | 177 | 2 or more better: **holds** |
+| voiced stops read as a nasal | 9 | 8 | 2 | 2 or more fewer: **holds** |
+| nasal codas (of 48), n-clusters as their nasal (of 72), either read as a stop | 42, 68, 3 | 42, 68, 3 | 42, 68, 3 | no fewer, no more: holds |
+| voiceless stops (of 36), others (of 24), vowel-only control (of 372) | 36, 24, 359 | 36, 24, 359 | 36, 24, 359 | identical: holds |
+
+The gain was tested (the default read 9 of Z's voiced stops as a nasal), every prediction held, and the report
+rebuilt on the shipped code (`eval/coda-check-report.md`) matches the development figures above, so the hold form is
+readCoda's default. One change after the result: with the opt-in `deepMurmur` rule on, the hold form dropped its
+runs on J's E4 eighths (*sunt*, *nunc* read as their nasal 4 to 2, `sing.test.mjs`). That rule fires only on a murmur
+running into frication or a silent closure, never a voiced lead, so its runs are exempt; the default reader, which
+has it off, is unchanged. `voiced-lead.test.mjs` (4 tests) keeps Y's *sob* on C4 (a nasal without the rule and with the bar
+form, a voiced labial stop with the hold form) and K's *om* on F3 (a nasal with the 100 ms span, a stop without it).
+
+What is left on Z: *lum* read as nothing on 4 cells and *dun* on 2 (the dark-vowel nasal X's *tum* showed: an m only
+4-6 dB darker than an /u/ with almost nothing above 1 kHz), *dunt* and *hunt* read on their t, and place misses
+(*neb*, *mob*, *hub*, *bub*, *rab* as velars; *pog*, *gog*, *cug*, *log*, *heg* as labials). Reader only; nothing in the
+synthesis changed. Not listened to.
+
+#### A g's voice bar read as a nasal (2026-11-17; failed its registration, opt-in)
 
 The round before left X's *cog* read as a nasal on 5 of its 12 cells, all on C#4-E4 or a G3 eighth. Read with
 `eval/burst-diag.mjs` (which now also prints the nasal rule that won and where its run starts), each of those cells

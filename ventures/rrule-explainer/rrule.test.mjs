@@ -357,3 +357,13 @@ test("a repeated hour in a zone more than 12 h ahead of UTC is still an overlap 
   assert.equal(ov.kind, "overlap");
   assert.equal(ov.offset, 14 * 3600);
 });
+
+// red team 2026-11-17: the short-month warning is about MONTHLY/YEARLY periods only; a DAILY or WEEKLY
+// rule that filters to the 31st is asking for exactly those days, and "years where January has no 31st"
+// would be wrong for it.
+test("DAILY and WEEKLY rules on the 31st get no skips-short-months warning", () => {
+  for (const f of ["DAILY", "WEEKLY"]) {
+    const r = analyze({ text: `DTSTART:20260131T090000\nRRULE:FREQ=${f};BYMONTHDAY=31;COUNT=5` });
+    assert.equal(r.findings.find((x) => x.code === "skips-short-months"), undefined, f);
+  }
+});

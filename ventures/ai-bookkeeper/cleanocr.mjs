@@ -22,6 +22,9 @@ export function cleanOcr(text) {
     .replace(/(^|[\s$€£])([OoIl|])(?=[.,]\d{2}(?!\d))/g, (m, p, c) => p + LOOK[c]) // "O.87" -> "0.87"
     .replace(/(\d)\.\.(\d{2})(?!\d)/g, "$1.$2") // "146..57" -> "146.57": a doubled decimal point
     .replace(/[A-Za-z]{7,9}/g, (w) => (subtotalWord(w) ? "Subtotal" : w))
+    .replace(/(\d{1,3}[.,]\s?)([Oo0]{3})(?![\w.,])/g, (m, a, z) => a + "000") // "26, OOO" -> "26, 000": a whole-unit group read as letters (CORD train-87)
+    .replace(/\b(TOTA|Tota|tota)(?=\s*[:.]?\s*(?:Rp\.?\s*)?\d)/g, (m, w) => w + (w === "TOTA" ? "L" : "l")) // "TOTA 24.000": the L lost
+    .replace(/\b(sub)\s*[.,]\s*(total)\b/gi, "$1 $2") // "SUB. TOTAL", "SUB, TOTAL" -> "SUB TOTAL" (CORD train-59)
     .replace(/\b((?:sub\s*-?\s*)?tota)[\]|](?=[\s:]|$)/gi, (m, w) => w + (w.endsWith("A") ? "L" : "l")) // "Tota]" / "Subtota|" -> "Total" / "Subtotal"
     .replace(/[\w$€£|.,\/-]+/g, (tok) => {
     if (/^\d+[.,]\d{2}(?:SR|ZR|TX|ES|RS)$/.test(tok)) return tok; // "7.50ZR": a price and its tax code (Malaysian SR/ZR), not 7.5025
