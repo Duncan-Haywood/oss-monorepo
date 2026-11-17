@@ -128,3 +128,26 @@ test('every real shelf with audio gets a panel whose files are the ones its vent
     }
   }
 });
+
+test('the hero shows each shelf as its cover: small thumbnails the ventures ship, lazy, no alt text repeating the label', () => {
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+  const shelves = loadFiction();
+  for (const shelf of shelves) {
+    assert.ok(shelf.cover, `${shelf.id} has a cover thumbnail`);
+    assert.ok(existsSync(path.join(root, 'ventures', shelf.cover)), `${shelf.cover} is a file the venture ships`);
+  }
+  const html = renderStoriesPage(shelves);
+  assert.match(html, /<header class="pf-hero has-covers">/);
+  const jump = /<ul class="jump">([\s\S]*?)<\/ul>/.exec(html)[1];
+  const imgs = jump.match(/<img [^>]*>/g) || [];
+  assert.equal(imgs.length, shelves.length, 'one cover per shelf link');
+  for (const img of imgs) {
+    assert.match(img, /alt=""/, 'decorative: the link text names the shelf');
+    assert.match(img, /loading="lazy"/, 'a phone, where the covers are display:none, never fetches them');
+    assert.match(img, /width="\d+" height="\d+"/, 'sized, so nothing shifts as it loads');
+  }
+  for (const shelf of shelves) assert.ok(jump.includes(`href="#${shelf.id}"`), shelf.id);
+  // A shelf without a thumbnail keeps the chip row: no half-empty grid.
+  const bare = shelves.map((s, i) => (i ? s : { ...s, cover: null }));
+  assert.doesNotMatch(renderStoriesPage(bare), /pf-hero has-covers/);
+});
