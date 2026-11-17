@@ -46,3 +46,12 @@ test("receiptPassesFromFile marks the readings when a lead engine read the photo
   const none = receiptPassesFromFile("slip.jpg", { run, env: {}, lead: () => { throw new Error("no python"); } });
   assert.equal(none.lead, undefined);
 });
+
+test("a tax most readings agree on is not 'fixed' to the total less the subtotal", () => {
+  // SRD 1027's shape (eval/rapidocr-web-lead-srd-2026-11-17.md): a discount and a gratuity sit
+  // between subtotal and total, so 44.31 less 42.75 is 1.56, one digit from the printed 1.86
+  const slip = (total, tax = "1.86") => `ALOHA DINER\n2 Pancakes 42.75\nSubtotal 42.75\nDiscount -3.30\nGET 4.712% ${tax}\nTotal ${total}\nGratuity 3.00\nTotal 44.31`;
+  const five = [slip("41.31"), slip("41.31"), slip("41.31"), slip("41.31", "1.36"), slip("41.31")];
+  const p = parseReceiptPasses(five, { lead: true });
+  assert.equal(p.taxCents, 186);
+});
