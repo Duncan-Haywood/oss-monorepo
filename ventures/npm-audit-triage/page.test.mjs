@@ -73,3 +73,11 @@ test('index links one hop to sibling checks that exist', () => {
     assert.ok(readdirSync(new URL(`../${s}/`, import.meta.url)).includes('index.html'));
   }
 });
+
+test("the footer links its sibling cvss-vector-check, which links back", async () => {
+  const { readFileSync } = await import("node:fs");
+  const here = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  const there = readFileSync(new URL("../cvss-vector-check/index.html", import.meta.url), "utf8");
+  if (!here.includes('href="../cvss-vector-check/"')) throw new Error("missing link to cvss-vector-check");
+  if (!there.includes('href="../npm-audit-triage/"')) throw new Error("cvss-vector-check no longer links back");
+});
