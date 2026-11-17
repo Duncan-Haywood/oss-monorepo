@@ -374,10 +374,12 @@ flagships:
       alone, eval/lns-bad-night.py; re-dealt with the short night). 43 on 7x9 0
       waits (odd-orbit.py, 9,849 s). Next, most valuable first: 47 on 8x9 (13 of 16;
       LNS stalled: 5 runs from 13, 0 climbs, night 2 UNKNOWN at 1 h; next: a new
-      model, orbit or symmetry-broken night); 49 on 8x9 (orbit, ~11 h est.); the
-      rest of the 20-team gap (40 to 44 still ~444-550: four-round re-deals or a
-      longer run, now ~4x cheaper; or a starter family climbed with the floor as its
-      score). More open items: NEXT.md.
+      model, orbit or symmetry-broken night); 49 on 8x9 (orbit ~11 h est.; 4 solvers
+      x 2 h no answer, a turn-fixed night never lays out when fully booked,
+      eval/odd-orbit-sym.txt; next: a split or resumable search, or window shapes
+      fixed first); the rest of the 20-team gap (40 to 44 still ~444-550: four-round
+      re-deals or a longer run, now ~4x cheaper; or a starter family climbed with
+      the floor as its score). More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a

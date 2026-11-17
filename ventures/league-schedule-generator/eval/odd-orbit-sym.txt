@@ -31,3 +31,12 @@ slots), so this symmetry is no route there. Not proved for every size; recorded 
 does not repeat it. Two other symmetries are ruled out on paper: swapping A and B pointwise maps the
 A-B orbit of difference k/2 onto itself with no fixed pair (H must take exactly one pair of it), and
 any h with h^3 = g^t, t != 0, as above.
+
+49 on 8 x 9 with the plain odd-orbit.py model (no turn symmetry), four runs side by side on four
+cores, started 2026-11-17 18:55 UTC (totalizer run ~19:03):
+solver cd19 (CaDiCaL 1.9), seqcounter cards   | no answer at 7,000 s (timeout)
+solver cd15 (CaDiCaL 1.5.3), seqcounter cards | no answer at 7,000 s (timeout)
+solver mcb (MapleChrono), seqcounter cards    | no answer at 7,000 s (timeout)
+solver cd19, totalizer cards (EncType swapped in at load) | no answer at 6,600 s (timeout)
+Consistent with the ~4x-a-size trend (43 on 7 x 9 took 9,849 s alone on a core; 49 est. ~11 h):
+a portfolio of solvers or a different cardinality encoding does not close it in two hours.
