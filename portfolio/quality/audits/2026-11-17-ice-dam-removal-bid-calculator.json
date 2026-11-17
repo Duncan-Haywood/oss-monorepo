@@ -193,7 +193,8 @@
    "what": "Privacy claims say nothing is saved ('nothing is saved to storage', 'nothing you type is saved anywhere') but the proposal block saves the business name, phone, email, licence and address to localStorage (key ice-dam-removal-bid-company), as index.html:147 itself says.",
    "where": "ventures/ice-dam-removal-bid-calculator/README.md:62",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16786"
   },
   {
    "severity": "medium",
@@ -231,6 +232,6 @@
    "origin": "spec"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16786"],
  "verdict": "Correct arithmetic around a model that departs from how the trade prices. An auditor-written cost-plus oracle reproduces every output to the cent (default job cost $332.02, target $474.32, quote $560, break-even $4.15/ft; 15 ft job $22.13/ft on a $375 minimum; the comparison page's 4.5-hour overrun $484.34/$75.66), and the live page in headless Chrome shows the same. But the emergency/storm premium the page advertises raises only the contractor's cost, never the 'Price to quote' or the printed proposal (which says 'priority call' at the daytime $560); the trade mostly bills hourly with minimums, which the tool cannot model; steamer fuel does not scale with hours in the reconciliation; the default mileage rate is the 2024 IRS figure; and the privacy text says nothing is saved while business details go to localStorage. Tests pass 114/114 and caught 3 of 6 mutants (survivors at the zero-rate and equality boundaries). Disclaimers are present and the served llms.txt is clean. Does not meet the bar (correctness 2, claims 2, verification 2; median 2); finished (completeness 3). Fixable in a session: an emergency-adjusted quoted price, an hourly billing mode, fuel per hour, current mileage default, and corrected privacy text."
 }

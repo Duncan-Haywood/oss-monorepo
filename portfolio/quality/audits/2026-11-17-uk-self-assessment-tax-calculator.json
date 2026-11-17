@@ -218,7 +218,8 @@
    "what": "Finance cost reducer's third limb uses total income including savings and dividends; GOV.UK uses adjusted total income excluding them. A landlord with rent 15,000 (expenses 2,000, mortgage interest 10,000) and 20,000 dividends is shown income tax GBP 0 where 1,706.25 is due.",
    "where": "ventures/uk-self-assessment-tax-calculator/calc.mjs:131",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16786"
   },
   {
    "severity": "medium",
@@ -270,6 +271,6 @@
    "origin": "spec"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16786"],
  "verdict": "A tidy 2025/26 Self Assessment estimator whose core stacking engine is right and whose landlord and student-loan paths are not. Against GOV.UK pages fetched on 2026-11-17, the bands, taper, dividend and savings rates, PSA, starting rate, Class 4 (and Class 2 treated as paid), pension and Gift Aid band extension and the payments-on-account tests all reproduce: GBP 200,000 -> 76,203; 110,000 -> 33,432 and 29,432 with an 8,000 net pension; the worked example 10,329.50 tax and 8,932.95 due on 31 January, also on the live page. But the finance cost reducer counts dividends and savings in adjusted total income, so a landlord with dividends can be shown GBP 0 instead of 1,706.25; the property allowance is forced over the reducer (GBP 1,100 overcharge, a GBP 1,200 cliff at one pound of expense); student loan ignores the GBP 2,000 unearned-income rule; and Plan 5 is charged a year early. Tests pass 32/32 but 6 of 8 mutants survive. Disclaimer, from-memory note and exclusions are present. Does not meet the bar (correctness 2, claims 2, verification 2; median 2); finished (completeness 3). Fixable in one session: exclude savings/dividends from the ATI limb, pick the property route by total tax, apply the GBP 2,000 unearned test, drop Plan 5 for 2025/26, and add tests for each."
 }

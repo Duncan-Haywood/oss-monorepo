@@ -86,3 +86,11 @@ safety or roofing-condition assessment tool — always follow manufacturer and
 OSHA fall-protection guidance for ladder and roof work.
 
 MIT licensed. See `LICENSE`.
+
+## Known gaps
+
+From the [2026-11-17 census quality audit](../../portfolio/quality/audits/2026-11-17-ice-dam-removal-bid-calculator.json), not yet fixed:
+
+- Ticking storm / night / weekend dispatch raises the job's cost but never the price to quote or the proposal price: the premium is modelled as a cost to you, not a charge to the customer, while the proposal still lists a priority call.
+- Many steam crews bill hourly with a minimum; only per-foot pricing is modelled. Steamer fuel stays flat however long the job runs.
+- The default mileage rate is 0.67 $/mi (the 2024 IRS rate); the IRS rate from 1 July 2026 is 0.76.
