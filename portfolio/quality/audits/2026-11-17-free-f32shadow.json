@@ -1,0 +1,222 @@
+{
+ "date": "2026-11-17",
+ "subject": "research/free-f32shadow",
+ "stratum": "research",
+ "seed": "2026-11-17-1461",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a numerical-analysis researcher in floating-point error analysis of chaotic ODE integration (the Sauer-Grebogi-Yorke shadowing line and the reduced-precision weather/climate work of Palmer, Duben and Klower); first checks: is the float32 error compared with the roundoff in consistent units (absolute vs relative), does a different but valid float32 operation order give the same departure time, is the Lyapunov estimate unbiased against a tangent-space reference, and is 'statistics survive' tested with enough power and against the prior reduced-precision literature",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Reran `PYTHONPATH=src /usr/bin/python3.13 experiments/run.py` (numpy 2.5.3, 75 s): output byte-identical to experiments/results.txt. Independent code that does not import the subject ({S}/indep.py: my own componentwise RK4 with a different float32 operation order, h/6 precomputed) rebuilt the 200 Lorenz starts (seed 11, burn 20, rounded to float32) and gave a float32 departure median 12.38 (q10 10.48, q90 14.75) vs the reported 12.32 (10.00, 14.70): the result is robust to op order. Inverting the committed fits by hand gives equivalent delta0 5.67e-6 (Lorenz) and 4.55e-6 (Rossler), as reported. A tangent-space (variational) Lyapunov estimate gives 0.9055 for Lorenz over T=2000 (Sprott's 0.9056) and 0.0728 for Rossler over T=20000 (Sprott ~0.0714); the subject's Benettin values 0.8995 (se 0.0031) and 0.0705 (se 0.0006) are about 2 se low, consistent with a short t=100/1000 run whose random initial direction is not discarded as transient; the float32-vs-float64 equality, which is the claim, is unaffected. Lorenz time-average identities <x^2> = <xy> = beta<z> hold in my float64 ensemble (62.840/62.841/62.834) with <z> = 23.563 vs the subject's 23.552. IEEE 754 binary32 unit roundoff 2^-24 = 5.96e-8 as stated. The headline interpretation ('100 times the unit roundoff') is a units problem scored under claims/domain, not a wrong computed output.",
+  "completeness": "Every artefact named in the README runs: 7-test suite (pass, 1.6 s; README says ~3 s), run.py reproduces results.txt byte-for-byte (75 s; README says ~3 min), figure.py parses results.txt (not retyped), live page https://marisstella.app/research/free-f32shadow/ returns 200 with summary, stylised disclaimer and tests/code links. All five headline bullets map to sections 1-5 of results.txt. The next steps (contact system, FMA/GPU, threshold sweep) are labelled as not done. No stubs or TODOs.",
+  "verification": "`cd research/free-f32shadow && PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests -v`: Ran 7 tests, OK. Six mutants via platform/ci/quality_mutate.py, only 1 caught (Lorenz beta * 1.02, via the fixed-point test). Survived: Lyapunov log-growth scaled by 0.9 (the 0.12 tolerance on test_model.py:38 admits 0.81), divergence threshold doubled, sign-flip rate halved, Welch z halved, and constants cast to float64 instead of the run dtype (which under NumPy 2 NEP 50 promotes every float32 product to float64, silently breaking the project's central 'every operation in the dtype' mechanism). long_run_stats, z_stat and the fit/inversion in run.py have no test; no test pins any reported number.",
+  "craft": "Read model.py (126 lines), run.py (87), figure.py, test_model.py. Small, vectorised, readable; float32 casting is explicit at each operation and the starting state is made float32-representable so both twins start identically (a careful touch). Defects: run.py:86 mutates the shared SYSTEMS dict to change dt (restored at the end, not in try/finally); model.py:10 comment lists 'params' that are not in the dict (they are hard-coded in deriv); the Benettin routine starts from a random direction with no transient discarded (model.py:86); test class named T; star import in __init__.",
+  "claims": "Checked against results.txt and my reruns: departure medians and quantiles, fit lines, 1/lambda, equivalent delta0, Lyapunov values, Welch z ranges (-1.1..1.1 for float32, -1.3..0.8 control), float16 z values and 2.53 median, step-size table and 'about 2.9 times' (1.3e-5/4.5e-6 = 2.89) all backed. Not backed: README:13 'about 100 times the float32 unit roundoff, not 1 times: rounding errors added at every step, not one rounding of the start, set the shadowing time' compares an absolute Euclidean distance with a relative unit roundoff. One rounding of a Lorenz state of size ~25 is u*|s| = 1.5e-6, and the measured error of a single float32 RK4 step from the identical start is median 5.0e-7, so the equivalent 5.6e-6 is about 4 state roundings or 11 one-step errors, not 100. README:14 notes the literature 0.906 without saying its own estimate is ~2 se below it. Limitations, stylised label and AI-assistance/MIT line present; Builds on is honest about which references were checked.",
+  "fitness": "A researcher could reuse the code (numpy only, deterministic, ~1 min) and the equivalent-initial-error framing is a handy summary. Nearest prior work is not engaged: Sauer, Grebogi and Yorke (1997, PRL, 'How long do numerical chaotic solutions remain valid?') on shadowing times of noisy numerical orbits; Teixeira, Reynolds and Judd (2007, J. Atmos. Sci.) on step-size sensitivity of chaotic integration, which covers the section-5 finding; Liao's 'clean numerical simulation' work on critical predictable time vs precision (Tellus A, 2009); and the reduced-precision climate literature showing statistics survive in single and half precision (Duben and Palmer 2014 MWR; Vana et al. 2017 MWR; Klower et al. 2020 JAMES; Paxton et al. 2022 J. Climate, Lorenz-96 in float16). Against that, the results (log-law predictability, unchanged Lyapunov exponent and climate statistics in float32/float16) are expected; the new part is a clean small-system replication. The sim-to-real motivation is not tested (no contact, no policy; stated). Sound as a note, not new.",
+  "domain": "Method mostly standard: RK4 at fixed step, Benettin two-trajectory renormalisation, departure time against a threshold, Welch comparison of per-member time averages with independent starts, and a matched float64 1e-12 control, which is the right null. Departures a floating-point analyst would hit first: (1) the absolute-vs-relative units mismatch behind the '100x roundoff' reading (Higham, Accuracy and Stability, ch. 2: fl(x) = x(1+d), |d| <= u, so absolute error scales with |x|); (2) the Benettin estimate keeps the initial alignment transient, biasing short runs low against the tangent-space reference; (3) a single 'equivalent delta0' depends on the random perturbation direction vs the structured direction of rounding error, not discussed. Power is stated honestly (quarter of a member sd)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Lorenz float32 departure median/q10/q90 (200 members, thr 1)",
+   "method": "independent RK4 with a different float32 operation order, starts rebuilt from seed 11 without importing the subject",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/28cabc82-884b-5f5d-b359-081413dc958d/scratchpad/free-f32shadow/indep.py depart",
+   "expected": "12.32 (10.00, 14.70) as results.txt section 2",
+   "observed": "12.38 (10.48, 14.75)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Lorenz largest Lyapunov exponent",
+   "method": "tangent-space (variational) RK4, T=2000; Sprott (2003) value 0.9056",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/28cabc82-884b-5f5d-b359-081413dc958d/scratchpad/free-f32shadow/indep.py lyap",
+   "expected": "0.8995 (se 0.0031) within ~1 se of reference",
+   "observed": "0.9055; subject 0.0060 low (1.9 se)",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Rossler largest Lyapunov exponent",
+   "method": "tangent-space RK4, T=20000; Sprott ~0.0714",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/28cabc82-884b-5f5d-b359-081413dc958d/scratchpad/free-f32shadow/indep.py lyap",
+   "expected": "0.0705 (se 0.0006)",
+   "observed": "0.0728 (single trajectory); subject 2-4 se low",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Lorenz mean z and time-average identities",
+   "method": "<x^2> = <xy> = beta<z> from averaging dx/dt and dz/dt over the attractor; own float64 ensemble 50 x t=500",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/28cabc82-884b-5f5d-b359-081413dc958d/scratchpad/free-f32shadow/indep.py ident",
+   "expected": "identities equal; <z> ~ 23.55 as results.txt",
+   "observed": "62.840/62.841/62.834; <z> 23.563",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Equivalent delta0 from committed fits",
+   "method": "hand inversion delta0 = exp(-(T - a)/b)",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/28cabc82-884b-5f5d-b359-081413dc958d/scratchpad/free-f32shadow/indep.py depart",
+   "expected": "5.6e-6 Lorenz, 4.5e-6 Rossler",
+   "observed": "5.67e-6, 4.55e-6",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "float32 unit roundoff 6.0e-8",
+   "method": "IEEE 754 binary32, u = 2^-24",
+   "command": "python3 -c 'print(2**-24)'",
+   "expected": "6.0e-8",
+   "observed": "5.96e-8",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'about 100 times the float32 unit roundoff ... not one rounding of the start' (README:13)",
+   "method": "measure the absolute error of one float32 RK4 step from the identical start, and u*|state| (Higham ch. 2 model fl(x)=x(1+d))",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/28cabc82-884b-5f5d-b359-081413dc958d/scratchpad/free-f32shadow/indep.py depart",
+   "expected": "one-rounding error ~1e-7 if 100x were meaningful",
+   "observed": "one-step error median 5.0e-7, u*|state| 1.5e-6: 5.6e-6 is ~11 one-step errors, ~4 state roundings",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiments reproduce committed results",
+   "method": "rerun and diff",
+   "command": "cd research/free-f32shadow && PYTHONPATH=src /usr/bin/python3.13 experiments/run.py > /tmp/claude-0/-home-user-oss-monorepo/28cabc82-884b-5f5d-b359-081413dc958d/scratchpad/free-f32shadow/rerun.txt && diff /tmp/claude-0/-home-user-oss-monorepo/28cabc82-884b-5f5d-b359-081413dc958d/scratchpad/free-f32shadow/rerun.txt experiments/results.txt",
+   "expected": "no diff",
+   "observed": "identical, 75 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "cd research/free-f32shadow && PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests -v",
+   "expected": "7 tests pass",
+   "observed": "Ran 7 tests in 1.618s, OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "step-size bullet: 8x steps -> 2.9x error, random walk 2.8",
+   "method": "arithmetic on results.txt section 5",
+   "command": "python3 -c 'print(1.3e-5/4.5e-6, 8**0.5)'",
+   "expected": "2.9, 2.8",
+   "observed": "2.89, 2.83",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "live page and stylised disclaimer",
+   "method": "load served page",
+   "command": "curl -sS https://marisstella.app/research/free-f32shadow/",
+   "expected": "200 with summary and limits",
+   "observed": "200; 'Stylised: two autonomous flows, CPU numpy, no contact or policy.'",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "prior reduced-precision / shadowing literature cited",
+   "method": "grep README for Sauer, Teixeira, Palmer, Duben, Klower, Paxton, Liao",
+   "command": "grep -n -i 'sauer\\|teixeira\\|palmer\\|duben\\|klower\\|paxton\\|liao' research/free-f32shadow/README.md",
+   "expected": "nearest prior work cited",
+   "observed": "no matches",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "research/free-f32shadow/src/free_f32shadow/model.py:20",
+   "change": "x * y - c(8.0 / 3.0) * z -> x * y - c(8.0 / 3.0) * z * c(1.02)",
+   "caught": true,
+   "test_cmd": "sh -c PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "research/free-f32shadow/src/free_f32shadow/model.py:96",
+   "change": "acc += np.log(dist / d0) -> acc += np.log(dist / d0) * 0.9",
+   "caught": false,
+   "test_cmd": "sh -c PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "research/free-f32shadow/src/free_f32shadow/model.py:67",
+   "change": "over = d > thr -> over = d > 2 * thr",
+   "caught": false,
+   "test_cmd": "sh -c PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "research/free-f32shadow/src/free_f32shadow/model.py:118",
+   "change": "sw / t_end -> sw / (2 * t_end)",
+   "caught": false,
+   "test_cmd": "sh -c PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "research/free-f32shadow/src/free_f32shadow/model.py:125",
+   "change": "(a.mean() - b.mean()) / se -> / (2 * se)",
+   "caught": false,
+   "test_cmd": "sh -c PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "research/free-f32shadow/src/free_f32shadow/model.py:17",
+   "change": "c = lambda v: dtype(v) -> c = lambda v: np.float64(v) (float32 products promote to float64 under NEP 50)",
+   "caught": false,
+   "test_cmd": "sh -c PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Headline reading 'about 100 times the float32 unit roundoff, not 1 times: rounding errors added at every step, not one rounding of the start' compares an absolute distance with a relative roundoff. One rounding of a Lorenz state (|s|~25) is u*|s| = 1.5e-6 and one float32 RK4 step errs by a median 5.0e-7, so 5.6e-6 is ~4 state roundings or ~11 step errors.",
+   "where": "research/free-f32shadow/README.md:13",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests catch 1 of 6 seeded mutants: Lyapunov scale, divergence threshold, sign-flip rate, Welch z and the float32 constant casting (the project's core mechanism) are unguarded; long_run_stats, z_stat and the fit inversion have no tests; no reported number is pinned.",
+   "where": "research/free-f32shadow/tests/test_model.py:38",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Nearest prior work not cited or compared: Sauer-Grebogi-Yorke 1997 shadowing times, Teixeira-Reynolds-Judd 2007 step-size sensitivity, Liao's clean numerical simulation, and the reduced-precision climate literature (Duben & Palmer 2014, Vana et al. 2017, Klower et al. 2020, Paxton et al. 2022) that already shows statistics survive in float32/float16.",
+   "where": "research/free-f32shadow/README.md:40",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Benettin estimate keeps the initial alignment transient from a random direction; at t=100 Lorenz comes out 0.8995 vs a tangent-space 0.9055 (~2 se low), Rossler similarly low; README quotes the literature value without noting the gap.",
+   "where": "research/free-f32shadow/src/free_f32shadow/model.py:86",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Stale/incorrect comment and global state: SYSTEMS comment lists params not in the dict; run.py mutates SYSTEMS['lorenz']['dt'] without try/finally.",
+   "where": "research/free-f32shadow/experiments/run.py:86",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Reproduce section timings drifted: '~3 s' tests run in 1.6 s and '~3 min' run.py in 75 s on numpy 2.5.3.",
+   "where": "research/free-f32shadow/README.md:33",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "Reproducible and numerically right where it computes: run.py reproduces results.txt byte-for-byte, an independent float32 integrator with a different operation order gives the same departure median (12.38 vs 12.32), the fit inversions and the Lorenz time-average identities check, and the float32 and float64 Lyapunov exponents agree (though both Benettin estimates sit ~2 se below a tangent-space reference). What fails is the interpretation and the guard rails: the headline '100 times the unit roundoff' compares an absolute distance with a relative unit (the equivalent error is about 4 state roundings, 11 one-step errors), only 1 of 6 seeded mutants is caught (including one that silently turns float32 arithmetic into float64), and the closest prior work on shadowing times and reduced-precision climate statistics is not cited, so the 'statistics survive' result is a replication rather than new. Does not meet the bar (verification 1, claims 2; median 2). Fixable in a session: reword README:13, add the prior work, add tests that pin dtype of intermediate products, stats and z."
+}
