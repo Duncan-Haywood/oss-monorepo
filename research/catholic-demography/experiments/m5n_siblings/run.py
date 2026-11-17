@@ -241,7 +241,10 @@ def prepare():
     return d
 
 
-UNITLESS = ('rho', 'SB', 'DD', 'fraction', 'mr', 'covered')
+def unitless(q):
+    # Fixed after the first full run, which printed the 'gap M - f(P_m, rho_m)' and channel 'fertility sibling rho'
+    # rows as fractions instead of points (their names contain 'rho'); estimates are unchanged (same seed).
+    return q.startswith(('rho', 'SB', 'DD', 'mr', 'covered')) or 'fraction' in q
 
 
 def main():
@@ -257,7 +260,7 @@ def main():
         cnt = key[2] == 'n' or key[2].startswith('covered')
         bs = np.array([b.get(key, np.nan) for b in boots], float)
         lo, hi = (np.nan, np.nan) if cnt else np.nanpercentile(bs, [2.5, 97.5])
-        sc = 1 if cnt or any(u in key[2] for u in UNITLESS) else 100
+        sc = 1 if cnt or unitless(key[2]) else 100
         rows.append(dict(table=key[0], group=key[1], quantity=key[2], est=sc * v, lo=sc * lo, hi=sc * hi))
     t = pd.DataFrame(rows)
     pd.set_option('display.width', 250)
