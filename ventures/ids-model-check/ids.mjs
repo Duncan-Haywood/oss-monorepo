@@ -1123,6 +1123,39 @@ export function duplicateGlobalIds(model) {
   return out;
 }
 
+// Every GlobalId of an IfcRoot instance in the model, to the first element
+// holding it ({ id, type, name }). ci.mjs crossModelGlobalIds compares these
+// between the models of one run (a federated coordination set), where a
+// discipline file holding another file's GlobalId is the fault UR1 cannot see.
+// Cached on the parsed model; kept small so a run can hold one per model after
+// the model itself is dropped.
+export function globalIdIndex(model) {
+  if (model._gidIndex) return model._gidIndex;
+  const out = new Map();
+  for (const [type, list] of model.byType) {
+    if (!model.schema.isA(type, "IFCROOT")) continue;
+    const i = model.schema.attrs(type).index.get("GlobalId");
+    if (i === undefined) continue;
+    for (const e of list) {
+      const g = e.args[i];
+      if (typeof g !== "string" || g === "" || out.has(g)) continue;
+      out.set(g, { id: e.id, type: e.type, name: nameOf(model, e), kind: kindOf(type) });
+    }
+  }
+  model._gidIndex = out;
+  return out;
+  function kindOf(type) {
+    const S = model.schema;
+    // The shared frame a federated set is built on: project, site, building,
+    // storeys, spaces, facilities (IFC2X3 IfcSpatialStructureElement, IFC4
+    // IfcSpatialElement) and grids. Discipline files exported from one
+    // template or a copy-monitored link often hold these on purpose.
+    if (type === "IFCPROJECT" || S.isA(type, "IFCCONTEXT") || S.isA(type, "IFCSPATIALELEMENT") || S.isA(type, "IFCSPATIALSTRUCTUREELEMENT") || S.isA(type, "IFCGRID")) return "frame";
+    if (S.isA(type, "IFCELEMENT")) return "element";
+    return "other";
+  }
+}
+
 function globalId(model, e) {
   const g = model.attr(e, "GlobalId");
   return typeof g === "string" ? g : null;
