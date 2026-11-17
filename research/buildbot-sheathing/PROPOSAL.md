@@ -424,6 +424,10 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    sides) puts all of the G1's 1.30-point loss on the lean (sides 0.00, interaction 0.00); the four flipped roll sides
    change no stack, but the old sides lose the controller at one re-leaned G1 pose. Post hoc, like for like, the H1's
    re-lean costs 0.09–0.29 points per pose, not milestone 41's mixed-convention 0.1–0.9.
+43. **The spec's own stack on the zero-press poses** (done 2026-11-17, `experiments/m43_specstack/`): with the spec's
+   re-planned leg preload and squeeze the re-lean raises the G1's worst no-hose stack 0.97 points (braked, 0.9160 to
+   0.9257; stock +1.76), so milestones 41–42's 1.3-point loss is the 'hold-min' convention's; the H1 keeps a spec plan at
+   only 3 of 6 re-leaned poses, two because the stance allows only 0.033 and 0.095 N m of leg preload at 50 N.
 
 ## Target venue
 
