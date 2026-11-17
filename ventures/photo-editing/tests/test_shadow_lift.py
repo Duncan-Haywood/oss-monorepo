@@ -27,6 +27,7 @@ class ShadowLiftTest(unittest.TestCase):
     def test_gradient_keeps_every_code_on_new_encode(self):
         import numpy as np
         import shadow_lift_check as slc
+
         from shootflow import raw_develop_np as rnp
 
         # A smooth ramp through the deep shadows: linear 0 to 1/8, which a 3-stop lift takes to 0-1.

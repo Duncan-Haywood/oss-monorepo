@@ -91,10 +91,10 @@ def score(master: np.ndarray, ref8: np.ndarray, keep: np.ndarray, stops: float) 
     a, r = out8[keep].astype(np.int16), ref8[keep].astype(np.int16)
     d = np.abs(a - r)
     return {
-        "levels8": [int(len(np.unique(a[:, c]))) for c in range(3)],
+        "levels8": [len(np.unique(a[:, c])) for c in range(3)],
         "gaps8": [gaps(a[:, c]) for c in range(3)],
         "gaps8_low": [gaps(a[:, c], 63) for c in range(3)],
-        "lost8": [int(len(np.setdiff1d(np.unique(r[:, c]), np.unique(a[:, c])))) for c in range(3)],
+        "lost8": [len(np.setdiff1d(np.unique(r[:, c]), np.unique(a[:, c]))) for c in range(3)],
         "off1": round(float((d >= 1).mean()), 6),
         "off2": round(float((d >= 2).mean()), 6),
         "max_off": int(d.max()),
