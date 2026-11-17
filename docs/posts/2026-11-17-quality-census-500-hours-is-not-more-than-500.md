@@ -1,6 +1,6 @@
 ---
 title: "Quality census: 500 hours is not \"more than 500\", and 0 of 6 subjects at the bar"
-seo_title: "Quality census 2026-11-17: six first audits, none at the bar"
+seo_title: "Quality census: the 500-hour rule read as 500 or more, 0 of 6 at bar"
 date: 2026-11-17
 tags: [quality-audit, evaluation, testing]
 description: "Six never-audited subjects, all finished, none at the bar. Worst: a tax tool counted exactly 500 rental hours as material participation."
