@@ -951,6 +951,79 @@ def start_here(queue: list[dict], claims: Optional[dict[str, list]],
     return free[int(hashlib.sha256(session.encode()).hexdigest(), 16) % len(free)]
 
 
+RUNS_DIR = REPO_ROOT / "prompts" / "runs"
+LEFT_WINDOW_DAYS = 2
+# A deviation about a claim race says the row was taken, not that it was empty.
+_COLLISION = re.compile(r"claim|YIELD|(?:seconds?|minutes?) earlier|same (?:second|minute)"
+                        r"|opened .{0,40}earlier|open PR|already", re.I)
+
+
+def left_rows(names, runs_dir: Path = RUNS_DIR, now: Optional[datetime] = None,
+              days: int = LEFT_WINDOW_DAYS) -> dict[str, list[tuple[str, str, str]]]:
+    """{flagship: [(date, row taken instead, why)]} from recent run records.
+
+    Why: 'Start here' keeps sending sessions to rows that earlier sessions
+    found nothing buildable on, and each one re-reads the full `next:` to
+    learn it. Run records' deviations say so (14 such departures from
+    2026-11-15 to 11-17, 4 from shift-roster-builder, 6 from ai-bookkeeper;
+    three doc-friction reports on this file on 2026-11-17). The same rows
+    were also worked successfully 12 to 21 times in two days, so this is a
+    hint printed with the pick, not a demotion.
+
+    A departure is a deviation filed against allocate.py or a ventures
+    prompt whose `why` names a flagship first that the record's `projects`
+    does not include (the first name is the row it was sent to); claim races (claimed, YIELD, opened earlier) are
+    skipped. Loose text matching: good enough for a hint, not for ranking."""
+    now = now or datetime.now(timezone.utc)
+    cutoff = (now - timedelta(days=days - 1)).date().isoformat()  # today and yesterday
+    names = list(names)
+    out: dict[str, list[tuple[str, str, str]]] = {}
+    for path in sorted(runs_dir.glob("*.json")):
+        date = path.name[:10]
+        if date < cutoff:
+            continue
+        try:
+            rec = json.loads(path.read_text())
+        except (OSError, ValueError):
+            continue
+        if not isinstance(rec, dict):
+            continue
+        projects = json.dumps(rec.get("projects"))
+        for dev in rec.get("deviations") or []:
+            if not isinstance(dev, dict):
+                continue
+            if not re.search(r"allocate|ventures/prompt", str(dev.get("file", ""))):
+                continue
+            why = str(dev.get("why", ""))
+            if _COLLISION.search(why):
+                continue
+            named = sorted((why.find(n), n) for n in names if n in why)
+            if not named or named[0][1] in projects:
+                continue  # names no flagship, or the session worked the row it names first
+            took = next((n for n in names if n in projects), "a non-flagship")
+            out.setdefault(named[0][1], []).append((date, took, why))
+    return out
+
+
+def left_note(name: str, left: dict[str, list[tuple[str, str, str]]],
+              days: int = LEFT_WINDOW_DAYS) -> Optional[str]:
+    """One line saying how many recent sessions left this row and for what."""
+    hits = left.get(name) or []
+    if not hits:
+        return None
+    took: dict[str, int] = {}
+    for _, t, _ in hits:
+        took[t] = took.get(t, 0) + 1
+    where = ", ".join(f"{t} ({n})" for t, n in sorted(took.items(), key=lambda kv: -kv[1]))
+    latest = sorted(hits)[-1][2]
+    if len(latest) > 220:
+        latest = latest[:217].rstrip() + "..."
+    return (f"Left recently: {len(hits)} session(s) sent to {name} in the last {days} days (record dates) "
+            f"took another row instead (prompts/runs deviations): {where}. Latest why: "
+            f"\"{latest}\" Check that reason still holds before reading the whole row; "
+            "if it does, add `buildable:` or `inputs_only:` to the row so the next pick knows.")
+
+
 def claim_note(hits: list[tuple[int, str, str]], now: Optional[datetime] = None) -> str:
     """A prefix for the task column naming the open PRs on this venture.
 
@@ -1019,7 +1092,7 @@ def venture_report(name: str, ventures: list[Venture],
                    claims: Optional[dict[str, list]] = None,
                    landed: Optional[str] = None,
                    now: Optional[datetime] = None,
-                   probe=None) -> Optional[str]:
+                   probe=None, left: Optional[dict] = None) -> Optional[str]:
     """One venture's row in full: rank, task with the untruncated flagship
     `next:`, open PRs with their ages and when work last landed.
 
@@ -1050,6 +1123,10 @@ def venture_report(name: str, ventures: list[Venture],
         lines.append(v.flagship_next or "(none written)")
     else:
         lines.append("task: " + next_task(v))
+    if v.flagship and left is not None:
+        note = left_note(v.name, left)
+        if note:
+            lines.append(note)
     if landed:
         try:
             age_h = (now - datetime.fromisoformat(landed)).total_seconds() / 3600
@@ -1163,6 +1240,9 @@ def print_table(ventures: list[Venture], queue: list[dict],
             f"`python3 portfolio/router/claim_check.py {first[1]}`: two sessions that opened "
             "in the same minute both see this row free, and the PR opened first keeps it."
         )
+        note = left_note(first[1], left_rows([i["venture"] for i in queue if i["flagship"]]))
+        if note:
+            print(note)
         print(claim_recipe(first[1]))
     print()
     print(
@@ -1273,7 +1353,8 @@ def main(argv: Optional[list[str]] = None) -> int:
                 claims_one = claims_by_venture([args.venture], prs)
         report = venture_report(args.venture, ventures, claims=claims_one,
                                 landed=last_landed(args.venture),
-                                probe=None if args.no_probe else host_answers)
+                                probe=None if args.no_probe else host_answers,
+                                left=left_rows(load_flagships()))
         if report is None:
             print(f"No venture named {args.venture!r} (ventures/<slug>/VENTURE.yaml).", file=sys.stderr)
             return 1

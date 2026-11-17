@@ -82,6 +82,11 @@ HOLD_RPM = 3000.0
 BALL_LEAD_S = 0.14
 LOOP_AFTER_REVS = 8
 HOLD_MAX_S = 0.25 + 1.2
+# Set when the board runs with controller.LOOP_THROUGH_CHANGE (2026-11-17, firmware/esp32/README.md "The fit floor on
+# held-out builds"; off by default, like the board's): its slow wheel's watch goes on through the next shot's speed
+# change, so the next shot's speeds go out straight after the release instead of after hold_s. The hold before the
+# drill's final stop stays (a stop ends the watch), and a re-planned drill still waits for the verdict.
+LOOP_THROUGH_CHANGE = False
 HOPPER_EMPTY = ("hopper empty: the feed stroke put no ball through the wheels (the launcher wheels did not slow); "
                 "refill the tub, or check the outlet for a bridge of balls and the hose for a stuck one")
 
@@ -579,7 +584,8 @@ def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, rea
                 if new is not None:
                     shots[k:] = new
             shot = shots[k]
-            if k > 0 and last_release is not None and replan is None and _slow_wheel(shots[k - 1]):
+            if k > 0 and last_release is not None and replan is None and _slow_wheel(shots[k - 1]) \
+                    and not LOOP_THROUGH_CHANGE:
                 h = hold_s(shots[k - 1])
                 wait(lambda t: t.t >= last_release + h, h + 1.0, f"shot {shots[k - 1].index}'s launch check")
             link.send(P.SET_WHEELS, shot.rpm_top, shot.rpm_bottom)

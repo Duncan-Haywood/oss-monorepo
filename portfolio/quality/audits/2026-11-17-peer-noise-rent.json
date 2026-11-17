@@ -1,0 +1,252 @@
+{
+ "date": "2026-11-17",
+ "subject": "research/peer-noise-rent",
+ "stratum": "research",
+ "seed": "2026-11-17-21f8",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a mechanism-design / peer-prediction researcher reviewing for EC or WINE (the Dasgupta-Ghosh, Shnayder-Agarwal-Frongillo-Parkes correlated-agreement and Kong DMI line); first checks: does the plug-in variance formula reproduce, is the 'fresh penalty' baseline the published mechanism, does the noise-rent figure survive an exact (not normal) calculation, do the sample sizes deliver the stated power, and what is new against the finite-task peer-prediction and effort-elicitation literature",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran `cd research/peer-noise-rent && PYTHONPATH=src python3 experiments/run.py` (31 s): output byte-identical to experiments/results.txt. Independent script written without importing the subject (/tmp/claude-0/-home-user-oss-monorepo/1378d21e-81f5-5682-8b00-29e4997707f2/scratchpad/pnr/indep.py, 35 s) computes the plug-in score from its definition (agreement minus f_i f_j+(1-f_i)(1-f_j)) over exact multinomial count vectors, a different method from the subject's 4^n product enumeration and covariance identity. C1: mean/var 0.07800/0.057600, 0.11700/0.040918, 0.13000/0.029747 at n=2,4,6 and 0.14820/0.009904 (n=20), 0.15444/0.002045 (n=100), matching results.txt:2-6 formula columns. C2: 2p(1-p)g^2*(199/200) by hand gives E2 mean pay 0.0199/0.1244/0.3184/0.0127/0.0796/0.2038 (results.txt:10-15). C3: exact E[S+] for the fair-coin lazy verifier at n=100 is 0.01985 (paper 0.0199/0.020), honest pay 0.2079; at tau=0.0448/0.0826/0.1128 exact coin rent 0.00500/0.00099/0.00020 and honest pay 0.1631/0.1254/0.0955 (paper 0.1631/0.1253/0.0954); own bisection on the normal-tail rent gives the same tau. C4 (partial): exact power at the E4 n is 0.9485/0.9449/0.9380 for g=0.3/0.5/0.7, so 'reach 95%' is 1.2 points short at g=0.7, as the simulation (0.941) already showed. C5 (fail): the fresh-penalty simulator pairs u_k with v_(k+1) cyclically within one second sample, so adjacent penalty indicators share a task and covary by (2f_i-1)(2f_j-1)Cov; at p=0.2, g=0.8, n=200 a 40,000-run simulation of that scheme gives var 2.162e-3 vs the paper's formula 1.922e-3 (SD 6% higher) and 2.158e-3 with the covariance correction. All validations of the fresh formula (E1, test_fresh_variance_matches_simulation) sit at f_i=0.5, where the term vanishes. The headline numbers are right; one formula does not describe the code it is said to match off the tested point.",
+  "completeness": "Claimed artefacts, each run: 9-test suite (README says 9, 0.8 s, OK); run.py reproduces results.txt byte-for-byte (README says 'under a minute': 31 s); figure.py parses E4 from results.txt; live page https://marisstella.app/research/peer-noise-rent/ returns 200 and shows '9 tests' and the 0.208 figure. Every section of the whitepaper (exact variance, sqrt 2, rent, deductible, detection, ranking) has an experiment that runs. No stubs or TODOs. Not done: no strategic analysis of the floored payment, no estimation of p and peer quality (stated as a limit).",
+  "verification": "`cd research/peer-noise-rent && PYTHONPATH=src python3 -m unittest discover -s tests -v`: 9 tests OK in 0.81 s. Five mutants via platform/ci/quality_mutate.py: 3 caught (fresh penalty pairing same task; dropping +c^2 in cov_var_exact; deductible bisection upper bound 12 sd -> 1 sd), 2 survived, both in sample_size (model.py:111), the function behind every E4 number and the figure: using sd0 for the power term (E4 n 56 -> 62 at g=0.7) and a two-sided alpha (n 329/115/56 -> 396/139/68, +20%) both leave the 4,000-run power test (delta 0.025) green. No test pins run.py output to results.txt, so E2-E5 constants are unguarded; the fresh-variance test runs only at f=0.5 where the cyclic-pair covariance is zero.",
+  "craft": "Read model.py (144 lines), run.py (77), figure.py, test_model.py, pyproject.toml. Small, pure stdlib, docstrings state each formula; formulas are written on a generic joint table so ranking reuses them, which is a good design. Defects: score_fresh docstring says 'independent draws' but the cyclic pairing makes adjacent penalty terms dependent (model.py:101-106); star imports in __init__, run.py and tests; test class named T; run.py:71-72 calls table_stats three times and recomputes the asymptotic SD inline instead of via plugin_stats; phi_inv by 80-step bisection where statistics.NormalDist.inv_cdf exists. A reviewer would accept after the score_fresh fix.",
+  "claims": "Backed by results.txt and reproduced: 0.0199 vs 0.208 rent, 0.028 fresh, tau 0.045/0.083/0.113, 40% honest-pay cost (1-0.1253/0.2079=39.7%), 22-54% for 75-99% rent removal, n=329/115/56 and 870/242/72, 'exact variance verified by enumeration', 'constant reporter paid exactly 0' (tested). Not backed or overstated: README:3 gives the variance formula of the unbiased sample covariance as the payment's variance, without the (2(n-1)/n)^2 factor the whitepaper carries; whitepaper:6 says 'exact finite-sample law' but only the first two moments are exact (the rent uses a normal approximation); abstract 'sqrt 2 exactly at the null' holds only when both marginals are 1/2 (at p=0.2, peer a=b=0.9 the null SD ratio is 1.61); README 'hit 95% in simulation' and whitepaper 'reach 95%' vs 0.941/0.944 simulated and 0.938 exact; '1.39-1.64x noisier' (E2) uses the independent-pair formula, which the simulated scheme departs from at p=0.2. No prior work is cited at all; Dasgupta-Ghosh is named without a reference.",
+  "fitness": "A researcher could pick up the moment formulas and the joint-table code and extend them. For a paper, the nearest prior work is uncited: Dasgupta & Ghosh 2013 (WWW) and Shnayder et al. 2016 (EC, correlated agreement) for the mechanism; Agarwal et al. (peer prediction with heterogeneous users, sample complexity) and Kong's DMI mechanism (constant number of tasks) for finite-task analysis; Witkowski et al. 2013 ('Dwelling on the negative', limited liability and effort) and Gao, Wright & Leyton-Brown 2016 for effort incentives and noise. The variance of a sample covariance is textbook, and E[S+]=sigma/sqrt(2 pi) is the folded-normal mean, so the novel part is the framing (noise rent and deductible sizing), which is a workshop-note contribution, not a main-track result. Not listed as a programme step in research/PROGRAMMES.md.",
+  "domain": "Sound as statistics: exact moments, normal tail for rent, a standard one-sided z-test sample size (power slightly under target at small n, as expected from the normal approximation). As mechanism design it departs from practice in three places a reviewer would hit: (1) the 'fresh' baseline is a constructed variant drawing a second sample of n tasks with independent-looking penalty pairs, not the Dasgupta-Ghosh mechanism, which takes penalty tasks from the same batch, so the sqrt 2 saving is against a strawman that also uses twice the tasks; (2) no incentive analysis of the floored plug-in payment (is truthful reporting still a best response under max(S,0) and a deductible, and what about lazy strategies other than a fair coin, e.g. q-coins chosen against the deductible); (3) p and peer quality are assumed known when sizing n and tau, with no sensitivity analysis."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "E1 plug-in mean and variance at n=2,4,6,20,100 (p=.4, a_i=.8, b_i=.7, a_j=.75, b_j=.9)",
+   "method": "own exact multinomial enumeration of the score from its definition (not the covariance identity, not the subject's 4^n product), no subject import",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/1378d21e-81f5-5682-8b00-29e4997707f2/scratchpad/pnr/indep.py",
+   "expected": "results.txt:2-6 formula: var 0.057600/0.040918/0.029747/0.00990/0.00204",
+   "observed": "0.057600/0.040918/0.029747/0.009904/0.002045, means 0.07800/0.11700/0.13000/0.14820/0.15444",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "E2 mean pay column, n=200",
+   "method": "by hand: 2p(1-p)g^2 times the (n-1)/n plug-in bias",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/1378d21e-81f5-5682-8b00-29e4997707f2/scratchpad/pnr/indep.py",
+   "expected": "0.0199/0.1244/0.3184/0.0127/0.0796/0.2038 (results.txt:10-15)",
+   "observed": "0.0199/0.1244/0.3184/0.0127/0.0796/0.2038",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "E3 noise rent of a fair-coin verifier, honest pay and deductible pay at n=100",
+   "method": "exact E[(S-tau)+] over all multinomial count vectors (no normal approximation, no simulation) plus own bisection on the normal-tail rent",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/1378d21e-81f5-5682-8b00-29e4997707f2/scratchpad/pnr/indep.py",
+   "expected": "rent 0.0199; tau 0.0448/0.0826/0.1128; honest pay 0.2079 -> 0.1631/0.1253/0.0954",
+   "observed": "rent 0.01985; tau 0.0448/0.0826/0.1128; exact honest pay 0.2079 -> 0.1631/0.1254/0.0955; exact coin rent at those tau 0.00500/0.00099/0.00020",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "E4 power at the closed-form n (claimed to reach 95%)",
+   "method": "exact power and false-pass by multinomial enumeration at n=329/115/56 with the subject's cut",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/1378d21e-81f5-5682-8b00-29e4997707f2/scratchpad/pnr/indep.py",
+   "expected": "power >= 0.95 per README:3 'hit 95% in simulation'",
+   "observed": "power 0.9485/0.9449/0.9380, false-pass 0.0494/0.0480/0.0456",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "fresh-penalty variance formula (a(1-a)+pi(1-pi))/n against the scheme score_fresh implements, off f=1/2",
+   "method": "own simulation of the cyclic pairing (40,000 runs) and a derived covariance correction 2(2f_i-1)(2f_j-1)Cov/n",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/1378d21e-81f5-5682-8b00-29e4997707f2/scratchpad/pnr/indep.py",
+   "expected": "formula 1.922e-3 at p=0.2, g=0.8, n=200 (what E2 uses)",
+   "observed": "simulated 2.162e-3; corrected formula 2.158e-3; SD 6% above the paper's formula",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiments reproduce results.txt",
+   "method": "re-run and diff",
+   "command": "cd research/peer-noise-rent && PYTHONPATH=src python3 experiments/run.py | diff - experiments/results.txt",
+   "expected": "no diff",
+   "observed": "no diff, 31 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "cd research/peer-noise-rent && PYTHONPATH=src python3 -m unittest discover -s tests -v",
+   "expected": "9 tests pass (README:9)",
+   "observed": "Ran 9 tests in 0.811s OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "seeded mutants in core logic",
+   "method": "platform/ci/quality_mutate.py, 5 mutants",
+   "command": "python3 platform/ci/quality_mutate.py research/peer-noise-rent/src/peer_noise_rent/model.py --old 'phi_inv(1 - alpha) * sd0' --new 'phi_inv(1 - alpha / 2) * sd0' -- PYTHONPATH=src python3 -m unittest discover -s tests",
+   "expected": "every mutant caught",
+   "observed": "3 caught, 2 survived (both in sample_size)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:3 exact variance of the plug-in payment",
+   "method": "compare with whitepaper:6 and model.py:58-62",
+   "command": "sed -n 3p research/peer-noise-rent/README.md",
+   "expected": "(2(n-1)/n)^2 [(mu22-c^2)/n + (sx^2 sy^2+c^2)/(n(n-1))]",
+   "observed": "formula given without the (2(n-1)/n)^2 factor, attached to the payment",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "abstract: sqrt 2 exactly at the null",
+   "method": "closed form: null plug-in var 4 var_i var_j/n, fresh 2 pi(1-pi)/n; evaluate at p=0.2, peer a=b=0.9, coin reporter",
+   "command": "python3 -c \"f=.2*.9+.8*.1;print(((.5)/(4*.25*f*(1-f)))**.5)\"",
+   "expected": "1.414",
+   "observed": "1.61 (sqrt 2 only when both marginals are 1/2)",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "headline numbers in abstract (0.020 vs 0.208, 0.028, 40%, n=329/115/56, 870/242/72)",
+   "method": "compare with results.txt and recomputation",
+   "command": "cat research/peer-noise-rent/experiments/results.txt",
+   "expected": "each number present",
+   "observed": "all present and reproduced",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "prior work cited and novelty",
+   "method": "read whitepaper.md for references; compare with Dasgupta-Ghosh 2013, Shnayder et al. 2016, Witkowski et al. 2013, Kong DMI",
+   "command": "grep -n -i 'reference\\|et al' research/peer-noise-rent/paper/whitepaper.md",
+   "expected": "related-work section",
+   "observed": "no references; only sibling repo projects named",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "baseline is the published mechanism",
+   "method": "compare score_fresh (model.py:101-106, run.py:10) with Dasgupta-Ghosh penalty tasks from the same batch",
+   "command": "sed -n 101,106p research/peer-noise-rent/src/peer_noise_rent/model.py",
+   "expected": "penalty pairs from the n bonus tasks",
+   "observed": "penalty from a second independent sample of n tasks (2n tasks total)",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page",
+   "method": "load",
+   "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/research/peer-noise-rent/",
+   "expected": "200 with summary",
+   "observed": "200, shows '9 tests', 0.208, sqrt 2",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/peer_noise_rent/model.py:111",
+   "change": "phi_inv(1 - beta) * sd1 -> phi_inv(1 - beta) * sd0",
+   "caught": false,
+   "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/peer_noise_rent/model.py:111",
+   "change": "phi_inv(1 - alpha) * sd0 -> phi_inv(1 - alpha / 2) * sd0",
+   "caught": false,
+   "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/peer_noise_rent/model.py:105",
+   "change": "other[(k + 1) % n][1] -> other[k][1]",
+   "caught": true,
+   "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/peer_noise_rent/model.py:55",
+   "change": "(vu * vv + c * c) / (n * (n - 1)) -> (vu * vv) / (n * (n - 1))",
+   "caught": true,
+   "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/peer_noise_rent/model.py:122",
+   "change": "lo, hi = 0.0, mean + 12 * sd -> lo, hi = 0.0, mean + 1 * sd",
+   "caught": true,
+   "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Fresh-penalty simulator does not implement the scheme its variance formula describes: score_fresh pairs u_k with v_(k+1) cyclically in one second sample, so adjacent penalty terms share a task and covary by (2f_i-1)(2f_j-1)Cov; off f_i=1/2 the simulated variance exceeds (a(1-a)+pi(1-pi))/n (2.162e-3 vs 1.922e-3 at p=0.2, g=0.8, n=200). E2's p=0.2 ratios (1.39-1.50) describe the formula, not the code; every validation sits at f_i=0.5 where the error vanishes.",
+   "where": "research/peer-noise-rent/src/peer_noise_rent/model.py:105",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "No prior work cited and novelty overstated: the variance of a sample covariance is textbook and E[S+]=sigma/sqrt(2 pi) is the folded-normal mean; Dasgupta & Ghosh 2013, Shnayder et al. 2016 (correlated agreement), Kong's DMI mechanism, Agarwal et al. (sample complexity, heterogeneous users), Witkowski et al. 2013 (limited liability and effort) are not referenced.",
+   "where": "research/peer-noise-rent/paper/whitepaper.md:22-23",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Baseline is a constructed 'fresh' scheme that draws a second sample of n tasks (2n total), not the Dasgupta-Ghosh mechanism, which draws penalty tasks from the same batch; the sqrt 2 / 1.39-1.64x saving is measured against it.",
+   "where": "research/peer-noise-rent/experiments/run.py:10",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "sample_size (behind every E4 number and the figure) is untested in effect: using sd0 for the power term or a two-sided alpha (n +20%: 329/115/56 -> 396/139/68) leaves all tests green; no test pins results.txt.",
+   "where": "research/peer-noise-rent/tests/test_model.py:61-72",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16818"
+  },
+  {
+   "severity": "low",
+   "what": "README states the unbiased-sample-covariance variance as the plug-in payment's exact variance, omitting the (2(n-1)/n)^2 factor the whitepaper carries.",
+   "where": "research/peer-noise-rent/README.md:3",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16818"
+  },
+  {
+   "severity": "low",
+   "what": "'Exact finite-sample law' claims more than the exact first two moments given; 'sqrt 2 exactly at the null' holds only when both marginals are 1/2 (1.61 at p=0.2, peer a=b=0.9).",
+   "where": "research/peer-noise-rent/paper/whitepaper.md:6",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16818"
+  },
+  {
+   "severity": "low",
+   "what": "'Hit/reach 95% in simulation' for detection: simulated 0.950/0.944/0.941, exact 0.9485/0.9449/0.9380; the normal-approximation n undershoots at small n and the text does not say so.",
+   "where": "research/peer-noise-rent/README.md:3",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16818"
+  },
+  {
+   "severity": "low",
+   "what": "No incentive analysis of the floored/deductible payment: only a fair coin and a constant are tried as lazy strategies, and truthful best response under max(S - tau, 0) is not checked.",
+   "where": "research/peer-noise-rent/paper/whitepaper.md:17",
+   "category": "scope-gap",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16818"],
+ "verdict": "Every headline number reproduces: run.py output is byte-identical to results.txt, and an independent exact multinomial enumeration matches the plug-in variance (0.057600/0.040918/0.029747/0.009904/0.002045), the lazy-coin rent (0.01985 exact vs 0.0199) and the deductible table (tau 0.0448/0.0826/0.1128, honest pay 0.1631/0.1254/0.0955). The gap is elsewhere. The fresh-penalty simulator pairs tasks cyclically, so its variance departs from the formula E2 reports once marginals leave 1/2 (12% in variance at p=0.2, g=0.8), and the baseline is a constructed scheme using twice the tasks rather than Dasgupta-Ghosh as published. Two of five seeded mutants in sample_size survive (a +20% change in every E4 n). The README's variance formula drops the (2(n-1)/n)^2 factor, '95%' is 93.8-94.9%, and no prior work is cited for what is mostly textbook statistics with a new framing. Correct and well-built as a note; not at the bar for claims, verification or a peer-prediction reviewer."
+}
