@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "Edited the visible FAQ answer without its FAQPage JSON-LD twin; portfolio-pages test (faq-visible.test.mjs) went red in CI and locally; fixed in a follow-up commit."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -56,7 +58,7 @@
     "docs/reports/polish-2026-11-17-greenhouse-example.md"
   ],
   "goal": null,
-  "notes": "Local verification: run_venture_tests.py greenhouse-bench-planner 29/29; post front matter, links, similarity clean. Site build ran (DONE) before the change; change is venture-only.",
+  "notes": "Local verification: run_venture_tests.py greenhouse-bench-planner 29/29; post front matter, links, similarity clean. Site build ran (DONE) before the change; change is venture-only. run_workflow_locally --for-changes: 12/13 workflows passed before the fix; the one failure was faq-visible, fixed and rerun green (4/4).",
   "corrections": [],
   "redteam": null,
   "usage": {
