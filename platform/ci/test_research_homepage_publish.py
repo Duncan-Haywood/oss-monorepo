@@ -19,6 +19,21 @@ BASE = "https://example.test/site/"
 LD = re.compile(r'<script type="application/ld\+json">(.*?)</script>', re.S)
 
 
+_BARE = []
+
+
+def bare_build():
+    """One build with no base URL or site chrome, shared by the classes that only read it
+    (2026-11-16: two classes each built the same site, a fifth of this module's time)."""
+    if not _BARE:
+        tmp = tempfile.TemporaryDirectory()
+        unittest.addModuleCleanup(tmp.cleanup)
+        out = Path(tmp.name) / "research"
+        subprocess.run([sys.executable, str(BUILD), "--out", str(out)], check=True, capture_output=True, text=True)
+        _BARE.append(out)
+    return _BARE[0]
+
+
 def graph(html):
     nodes = []
     for block in LD.findall(html):
@@ -124,8 +139,7 @@ class ResearchSiteChromeTest(unittest.TestCase):
         cls.out = tmp / "research"
         subprocess.run([sys.executable, str(BUILD), "--out", str(cls.out), "--base-url", BASE,
                         "--site-chrome", str(chrome)], check=True, capture_output=True, text=True)
-        cls.bare = tmp / "bare"
-        subprocess.run([sys.executable, str(BUILD), "--out", str(cls.bare)], check=True, capture_output=True, text=True)
+        cls.bare = bare_build()
 
     @classmethod
     def tearDownClass(cls):
@@ -159,13 +173,7 @@ class ResearchIndexLengthTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.tmp = tempfile.TemporaryDirectory()
-        cls.out = Path(cls.tmp.name)
-        subprocess.run([sys.executable, str(BUILD), "--out", str(cls.out)], check=True, capture_output=True, text=True)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.tmp.cleanup()
+        cls.out = bare_build()
 
     def test_logs_newest_cards_then_every_log_listed(self):
         index = (self.out / "index.html").read_text()
@@ -252,6 +260,47 @@ class InlineMarkdownTest(unittest.TestCase):
         self.assertEqual(self.b.md_spans("`a*b*c` *x*"), "<code>a*b*c</code> <em>x</em>")
         self.assertEqual(self.b.md_spans("[t](https://e.x)"), "[t](https://e.x)")
         self.assertEqual(self.b.inline_md("[t](https://e.x)"), '<a href="https://e.x">t</a>')
+
+
+class TitleIndexTest(unittest.TestCase):
+    """title_index (2026-11-16) replaced a scan of every other project per page; the
+    answers must match that scan on the real registry and on made-up clashes."""
+
+    @classmethod
+    def setUpClass(cls):
+        InlineMarkdownTest.setUpClass.__func__(cls)
+
+    def check(self, themes, without_index=False):
+        b = self.b
+        # The old answer: compare with every other project (each clipped title computed once here).
+        every = [(q["slug"], q["title"], b.title_tag(b.plain(q["title"]))) for t in themes for q in t["projects"]]
+        index = b.title_index(themes)
+        for t in themes:
+            for p in t["projects"]:
+                clip = b.title_tag(b.plain(p["title"]))
+                old = (any(s != p["slug"] and title == p["title"] for s, title, _ in every),
+                       any(s != p["slug"] and c == clip for s, _, c in every))
+                got = (b.shared_title(p, themes, index), b.clipped_title_taken(p, themes, index))
+                self.assertEqual(got, old, p["slug"])
+                if without_index:
+                    self.assertEqual((b.shared_title(p, themes), b.clipped_title_taken(p, themes)), old)
+
+    def test_matches_the_pairwise_scan_on_the_registry(self):
+        sys.path.insert(0, str(BUILD.parent))
+        try:
+            import registry
+            themes = registry.load(ROOT / "research")["themes"]
+        finally:
+            sys.path.remove(str(BUILD.parent))
+        self.check(themes)
+
+    def test_matches_the_pairwise_scan_on_clashes(self):
+        long = "Does a very long question title clip to the same forty-eight characters"
+        self.check([
+            {"projects": [{"slug": "a", "title": "Same"}, {"slug": "b", "title": "Same"},
+                          {"slug": "c", "title": long + " here?"}, {"slug": "d", "title": long + " there?"}]},
+            {"projects": [{"slug": "a", "title": "Same"}, {"slug": "e", "title": "<em>Alone</em> &amp; unique"}]},
+        ], without_index=True)
 
 
 class LogFormatTest(unittest.TestCase):
