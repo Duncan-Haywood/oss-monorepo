@@ -85,3 +85,7 @@ test("the guide's published numbers match the engine on the cases it names", asy
   assert.equal(x.scores.environmental, 7);
   assert.equal(x.otherVersion.environmental, 6.9);
 });
+
+test("the footer links its sibling npm-audit-triage", () => {
+  assert.ok(page("index.html").includes('href="../npm-audit-triage/"'));
+});

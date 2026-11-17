@@ -1,0 +1,70 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtJr6FYCC6kzRyXw7Tq",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T00:19:25Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "explore: new venture cvss-vector-check (CVSS v3.1/v3.0 scorer, diff, report audit)",
+  "projects": [
+    "cvss-vector-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16752",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 33,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First v3.0 Roundup was a naive Math.ceil(x*10)/10; the oracle fixture caught 7 of 3,000 vectors disagreeing (5.0*0.92 -> 4.7). Fixed to the exact reading; naive kept as an audit explainer."
+    },
+    {
+      "what": "parseVector accepted AV:toString (prototype keys through `in`); platform/ci/inherited_keys.py flagged a related lookup during run_venture_tests. Fixed with Object.hasOwn/Map, test added."
+    },
+    {
+      "what": "First post description was 213 characters; check_post_frontmatter.py caught it before merge."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Points to portfolio duplicate screening implicitly; the duplicate_check.py tool lives at portfolio/pipeline/, not portfolio/ledger/ beside supersede_check.py, which cost one lookup."
+    },
+    {
+      "file": "prompts/runs/",
+      "issue": "Finding past explore ideas meant grepping 8,000+ JSON records; a `promptctl.py ideas --track explore` listing of notes would save time."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/CLAUDE.md",
+      "why": "'Calculators are a poor use of a run': a CVSS scorer is calculator-shaped. Did it anyway because the depth is the audit of whole reports, the vector diff and exact rounding that chatbots get wrong; measured with an exhaustive oracle check.",
+      "did": "Built scorer + diff + report audit + CLI with --strict, with a measured guide page",
+      "result": "Merged with 33 tests; the measurement produced a publishable finding (3.0 and 3.1 base scores identical over the whole space)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-cvss-3-0-and-3-1-agree-on-every-base-score.md",
+    "ventures/cvss-vector-check/cvss-3-0-vs-3-1-score-differences.html"
+  ],
+  "goal": null,
+  "notes": "Explore idea: CVSS v3 vector checker (no venture covered CVSS). Engine differential-tested against Red Hat's cvss PyPI 3.6: 0 differences on all 259,200 base+temporal vectors per version and 200,000 random environmental vectors. Findings: base/temporal identical across 3.0 and 3.1; environmental differ by 0.1 only with Changed modified scope (6.3% of uniform sample, 0.3% change band); naive 3.0 ceiling wrong on 228 temporal scores. No agent doc in docs/reports: the README holds everything a next run needs. Next: CVSS 4.0. Local checks: run_venture_tests cvss-vector-check 33/33; check_post_frontmatter, check_post_links, check_md_links ok; run_workflow_locally --for-changes output summarised in the PR.",
+  "corrections": [],
+  "redteam": null
+}
