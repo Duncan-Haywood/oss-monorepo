@@ -218,7 +218,7 @@ def score(path):
                 f"{sk} {t[sk]['ok']}/10 kept {t[sk]['kept']:.2f} (wrong&kept {100 * t[sk]['wrong_accepted_of_all']:.2f}%)"
                 for sk in SCORES))
     open(os.path.join(HERE, "noiseperiod_results.txt"), "w").write("\n".join(out) + "\n")
-    json.dump(summ, open(os.path.join(HERE, "noiseperiod_summary.json"), "w"), indent=1)
+    json.dump(summ, open(os.path.join(HERE, "noiseperiod_summary.json"), "w"), indent=1, default=lambda o: o.item())
     print("\n".join(out))
 
 
