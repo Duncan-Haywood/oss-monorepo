@@ -16,7 +16,7 @@
 // is refused as too close to a unit root. Pre-registration: eval/known-date-prereg-2026-11-16.md; rounds 2-5 after it.
 // Shipped settings (round 5, CLI --known-date via known-date-cli.mjs): rhoGenMethod 'gated', gateRho 0.5, guard 'cut'.
 //
-// What it does not do: control series (CausalImpact's synthetic control), covariates, non-Gaussian noise, dependence
+// What it does not do: a synthetic control built from many series (CausalImpact), covariates beyond one control, non-Gaussian noise, dependence
 // beyond AR(1), or say what caused the change. A small p says the pre-date line does not carry on through the date.
 
 function mulberry(seed) { let s = seed >>> 0; return () => { s = (s + 0x6D2B79F5) >>> 0; let t = s; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
@@ -111,9 +111,9 @@ function stats(x, X, rhoCap) {
 // draws at a rho biased low makes the test too eager (n 40, rho 0.8: 13.6% at p 0.05, eval/known-date-sim.out.txt).
 const matchCache = new Map();
 const RHO_GRID = Array.from({ length: 39 }, (_, i) => -0.9 + i * 0.05).filter((v) => v <= 0.981).concat([0.95, 0.98]).sort((a, b) => a - b);
-function matchedMeans(X0, rhoCap) {
+function matchedMeans(X0, rhoCap, cache = true) {
   const n = X0[0].length, key = `${n}|${X0.length}|${rhoCap}`;
-  if (matchCache.has(key)) return matchCache.get(key);
+  if (cache && matchCache.has(key)) return matchCache.get(key);
   const M = 80, r = mulberry(4242), shocks = Array.from({ length: M }, () => Float64Array.from({ length: n + 1 }, () => gauss(r)));
   const means = RHO_GRID.map((rho) => {
     let s = 0;
@@ -125,7 +125,7 @@ function matchedMeans(X0, rhoCap) {
     return s / M;
   });
   for (let i = 1; i < means.length; i++) means[i] = Math.max(means[i], means[i - 1]);
-  matchCache.set(key, means);
+  if (cache) matchCache.set(key, means);
   return means;
 }
 
@@ -135,9 +135,9 @@ function matchedMeans(X0, rhoCap) {
 // low less than 10% of the time. Short sticky series read rho low, and a bootstrap drawn at the point estimate is
 // then too eager (round 3: n 40 rho 0.8 date 80%, 9.4%); the test takes the larger p of the two generators.
 const upperCache = new Map();
-function upperQuantiles(X0, rhoCap) {
+function upperQuantiles(X0, rhoCap, cache = true) {
   const n = X0[0].length, key = `${n}|${X0.length}|${rhoCap}`;
-  if (upperCache.has(key)) return upperCache.get(key);
+  if (cache && upperCache.has(key)) return upperCache.get(key);
   const M = 200, r = mulberry(4343), shocks = Array.from({ length: M }, () => Float64Array.from({ length: n + 1 }, () => gauss(r)));
   const q = RHO_GRID.map((rho) => {
     const est = shocks.map((z) => {
@@ -148,17 +148,17 @@ function upperQuantiles(X0, rhoCap) {
     return est[Math.floor(0.1 * (M - 1))];
   });
   for (let i = 1; i < q.length; i++) q[i] = Math.max(q[i], q[i - 1]);
-  upperCache.set(key, q);
+  if (cache) upperCache.set(key, q);
   return q;
 }
-function upperRho(est, X0, rhoCap) {
-  const m = upperQuantiles(X0, rhoCap), g = RHO_GRID;
+function upperRho(est, X0, rhoCap, cache = true) {
+  const m = upperQuantiles(X0, rhoCap, cache), g = RHO_GRID;
   if (est <= m[0]) return g[0];
   for (let i = 1; i < m.length; i++) if (est <= m[i]) return m[i] > m[i - 1] ? g[i - 1] + (g[i] - g[i - 1]) * (est - m[i - 1]) / (m[i] - m[i - 1]) : g[i];
   return g[g.length - 1];
 }
-function matchedRho(est, X0, rhoCap) {
-  const m = matchedMeans(X0, rhoCap), g = RHO_GRID;
+function matchedRho(est, X0, rhoCap, cache = true) {
+  const m = matchedMeans(X0, rhoCap, cache), g = RHO_GRID;
   if (est <= m[0]) return g[0];
   for (let i = 1; i < m.length; i++) if (est <= m[i]) return m[i] > m[i - 1] ? g[i - 1] + (g[i] - g[i - 1]) * (est - m[i - 1]) / (m[i] - m[i - 1]) : g[i];
   return g[g.length - 1];
@@ -190,14 +190,28 @@ function fTail2(f, m) { return Math.pow(1 + 2 * f / m, -m / 2); }
  * x: the series (evenly spaced). k: index of the first point after the change. Options: period (seasonal dummies),
  * reps (bootstrap), seed, rhoMax (guard), rhoCap. Returns { refused, reason } or the estimates and p-values.
  */
-export function knownDateTest(x, k, { period = 0, reps = 499, seed = 1, rhoMax = 0.9, rhoCap = 0.95, minSide = 8, rhoGenMethod = 'matched', genCap = 0.95, guard = 'cut', gateRho = 0.5, cutConditional = false, cutWalkGen = false, maxDrawFactor = 200, minAdmitted = 99 } = {}) {
+export function knownDateTest(x, k, { period = 0, reps = 499, seed = 1, rhoMax = 0.9, rhoCap = 0.95, minSide = 8, rhoGenMethod = 'matched', genCap = 0.95, guard = 'cut', gateRho = 0.5, cutConditional = false, cutWalkGen = false, maxDrawFactor = 200, minAdmitted = 99, control = null, controlMode = 'difference' } = {}) {
   x = Array.from(x, Number);
   const n = x.length;
+  // control (comparative interrupted time series; Lopez Bernal, Cummins and Gasparrini 2018): a series the change should
+  // not touch, on the same rows. 'difference' tests x - control (on logs, the log ratio), so whatever moved both series
+  // at the date (a shared trend, a common wander) cancels; 'regress' adds the control as a fixed regressor with its own
+  // coefficient (held fixed in the bootstrap). README "A control series", eval/known-date-prereg-control-2026-11-17.md:
+  // 'difference' met the simulation bars (size 3.3-7.8%) but fired on 3 of 3 placebo dates in the seat-belt ratio, and
+  // 'regress' flagged 18% under a shared slope, so neither is in the CLI or the page; this option reproduces the table.
+  let ctl = null;
+  if (control != null) {
+    ctl = Array.from(control, Number);
+    if (ctl.length !== n || ctl.some((v) => !Number.isFinite(v))) return { refused: true, reason: `the control series needs a number on every row (${ctl.length} values for ${n} rows)`, n, k };
+    if (controlMode === 'difference') x = x.map((v, t) => v - ctl[t]);
+    else if (controlMode !== 'regress') throw new Error(`controlMode "${controlMode}": use "difference" or "regress"`);
+  }
+  const withCtl = (X) => (ctl && controlMode === 'regress' ? [...X, Float64Array.from(ctl)] : X);
   period = period > 1 ? Math.round(period) : 0;
   const side = minSide + (period || 0);
   if (!Number.isInteger(k) || k < side || n - k < side) return { refused: true, reason: `needs at least ${side} points on each side of the date (got ${Math.max(0, k)} before and ${Math.max(0, n - k)} from it on)`, n, k };
   if (n < 100) rhoMax = Math.min(rhoMax, 0.7);
-  const X1 = design(n, k, period, true), X0 = design(n, k, period, false);
+  const X1 = withCtl(design(n, k, period, true)), X0 = withCtl(design(n, k, period, false));
   const st = stats(x, X1, rhoCap);
   if (!st) return { refused: true, reason: 'the design is singular (too few points per season?)', n, k };
   const rhoFull = corrected(lag1(st.u), n);
@@ -223,15 +237,16 @@ export function knownDateTest(x, k, { period = 0, reps = 499, seed = 1, rhoMax =
   const sdInnov = Math.sqrt(tr.rss / (n - X0.length));
   const mean0 = new Float64Array(n);
   for (let t = 0; t < n; t++) { let f = 0; for (let i = 0; i < X0.length; i++) f += g0.beta[i] * X0[i][t]; mean0[t] = f; }
+  const regCtl = !!ctl && controlMode === 'regress'; // the caches are keyed by the design's shape; a control column is data
   const clampGen = (v) => Math.max(-0.9, Math.min(genCap ?? rhoMax, v));
-  const point = clampGen(rhoGenMethod === 'kendall' ? corrected(g0.rho, n) : matchedRho(g0.rho, X0, rhoCap));
+  const point = clampGen(rhoGenMethod === 'kendall' ? corrected(g0.rho, n) : matchedRho(g0.rho, X0, rhoCap, !regCtl));
   const gens = [point];
   // 'gated' (round 5, eval/known-date-prereg-round5-2026-11-16.md): the upper bound only when the plain line's residual
   // rho (bias corrected, OLS; the guard's own reading) is above gateRho, fixed in advance. Round 4 took it everywhere
   // and spent the error budget on rho 0.4 series, where 40 points put the bound far above the truth.
   const lineRho = rhoLine ?? corrected(lag1(ols(x, X0).e), n);
   const gated = rhoGenMethod === 'gated' && lineRho > gateRho;
-  if (rhoGenMethod === 'upper' || gated) { const up = clampGen(upperRho(g0.rho, X0, rhoCap)); if (up > point + 1e-9) gens.push(up); }
+  if (rhoGenMethod === 'upper' || gated) { const up = clampGen(upperRho(g0.rho, X0, rhoCap, !regCtl)); if (up > point + 1e-9) gens.push(up); }
   const pOf = (arr, v) => (1 + arr.filter((w) => w >= v).length) / (1 + arr.length);
   const q975 = (arr) => { const a = [...arr].sort((p, q) => p - q); return a[Math.min(a.length - 1, Math.floor(0.95 * a.length))]; };
   let p = 0, pStep = 0, pSlope = 0, qD = 0, qC = 0, m = Infinity; const pGen = [];
@@ -279,6 +294,7 @@ export function knownDateTest(x, k, { period = 0, reps = 499, seed = 1, rhoMax =
   const post = n - k, meanAfter = (post - 1) / 2;
   return {
     refused: false, n, k, period, rho: st.rho, rhoFull, reps: m, guard, rhoGen: gens, pGen, rhoGenMethod, lineRho, ...(rhoGenMethod === 'gated' ? { gateRho, gated } : {}), ...(guard === 'cut' ? { rhoLine, admittedByCut, cutBar } : {}),
+    ...(ctl ? { controlMode, ...(regCtl ? { controlCoef: st.beta[X1.length - 1] } : {}) } : {}),
     ...(conditional ? { conditional: true, draws, admittedReps, calibratedConditional: admittedReps >= minAdmitted } : {}),
     step: st.d, stepSe: st.seD, stepRange95: [st.d - qD * st.seD, st.d + qD * st.seD], pStep,
     slopeBefore: st.beta[1], slopeChange: st.c, slopeChangeSe: st.seC, slopeChangeRange95: [st.c - qC * st.seC, st.c + qC * st.seC], pSlope,

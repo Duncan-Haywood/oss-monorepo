@@ -10,3 +10,4 @@
 - (2026-11-16) next real batch counts
 - (2026-11-16) real calls: Poisson, wandering rate
 - (2026-11-16) (2) clumpy counts: NB1 shipped
+- (2026-11-17) a real step inside a cycle, a cycle check not tied to rho, real documented ramps and close steps

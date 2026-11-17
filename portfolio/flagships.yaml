@@ -191,11 +191,10 @@ flagships:
       model: t-walk increments, biweight on fresh data, why it absorbs seat belts
       and quality control 4, its AR(1) term; (1) slopes: logs fail, 2 hinges ship
       (refuse short sticky series), given date: --known-date on CLI, page, engine;
-      cut-guard conditioning calibrated but blind (round 6), next a control series;
-      step/bend bootstrap tests (README "Step or bend, as two tests") fail: walks
-      called bend, use the cut guard; nulls rho low; a real step inside a cycle, a
-      cycle check not tied to rho, real documented ramps and close steps; More open
-      items: NEXT.md.
+      round 6 blind; control series (README) passes sims, fails seat-belt placebos
+      3/3, not shipped: next an in-time placebo check; step/bend bootstrap tests
+      (README "Step or bend, as two tests") fail: walks called bend, use the cut
+      guard; nulls rho low. More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     why: >-

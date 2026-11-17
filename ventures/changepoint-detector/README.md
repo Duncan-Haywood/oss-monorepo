@@ -5676,3 +5676,49 @@ likelihood ratio of "step at the date" against "random walk" that is scored on i
 row after the change; `--json` for the fields: `step`, `stepRange95`, `pStep`, `slopeChange`, `pSlope`, `p`,
 `pTable`, `effectAverage`, `effectAtEnd`, `gated`, `rhoGen`, `calibrated`). Tests: `known-date.test.mjs`,
 `known-date-cli.test.mjs`, `known-date-page.test.mjs`. On the page: type the label in "Test a date you name".
+
+### A control series: sharper and calibrated in simulation, but a placebo check on real data fails (2026-11-17, pre-registered; not shipped)
+
+Round 6 left one route for the sticky series the cut lets through: evidence the guard does not use, such as a control
+series the change should not touch (comparative interrupted time series; Lopez Bernal, Cummins and Gasparrini 2018,
+Int. J. Epidemiol. 47(6), 2082-2093). `knownDateTest(x, k, { control, controlMode: 'difference' })` runs round 5's test
+on the series minus the control (on logs, their ratio), so a trend change or a wander both share cancels. A second
+arm, the control as a regressor with a free coefficient (`controlMode: 'regress'`), was dropped after exploration: the
+control's own noise shrinks the coefficient (errors in variables), and with a shared slope change it flagged 18.0% of
+100 no-change pairs (`eval/known-date-control-explore-regress.out.txt`).
+
+Pre-registration `eval/known-date-prereg-control-2026-11-17.md`, committed before the confirmatory run (seed base
+67000, 400 pairs, 199 replicates; `eval/known-date-control-confirm.out.txt`, the treated series alone in
+`-confirm-plain.out.txt`) and before the real placebos (`node eval/known-date-control-real.mjs`,
+`eval/known-date-control-real.out.txt`):
+
+| Bar (pre-registered) | With the control (difference) | The treated series alone (round 5) | |
+|---|---|---|---|
+| 1. size 2-8% of tested, five cells: common AR(1) 0.5-0.9 or a common random walk, some with a shared step or slope change at the date | 4.0, 5.5, 7.8, 3.3, 4.8% | 11.5, 22.6, 20.0, 5.5, 9.3% | holds |
+| 2. at least 90% of pairs tested | 396-400 of 400 | 215-400 of 400 (the walks refused) | holds |
+| 3. power, a treated-only step of 2 sd, share of all pairs: at least 40, 35, 10% and above the series alone | 55.8, 52.3, 10.5% | 10.8, 19.8, 4.3% | holds |
+| 4a. seat belts, drivers minus rear-seat passengers, 1983-02 (seen in development) | step -0.277 (range -0.359 to -0.196), p 0.001; slope change -0.0002, p 0.95 | step -0.237, slope change +0.0066 | holds |
+| 4b. front minus rear (seen) | step -0.360, p 0.001; slope change p 0.86 | step -0.309 | holds |
+| 4c. **placebo**: drivers minus rear before the law, dates 1974-01, 1977-01, 1980-01; at most 1 of 3 with p <= 0.05 | **3 of 3** (joint p 0.018, 0.003, 0.002) | | **fails** |
+| 4d. placebo: male minus female lung deaths 1974-79, dates 1976-01, 1977-01; at most 1 of 2 | 1 of 2 (p 0.033, 0.116) | | holds |
+
+By its own rule nothing ships: the CLI, engine and page wiring written in this session was taken out, and `control`
+stays in `known-date.mjs` as an off-by-default option for reproducing the table (`known-date-control.test.mjs`).
+A control on another scale (cell S6, control = 2 x the common part, reported without a bar) was flagged 27.0% of the
+time: a difference only cancels what both series carry in the same units, which is why logs matter.
+
+**Why the placebo failed** (after the run, not pre-registered; `node eval/known-date-control-placebo-diag.mjs`,
+`eval/known-date-control-placebo-diag.out.txt`). Three things together. (i) 1974-01 was a poor placebo: the 1973-74
+fuel crisis is a real step in drivers, front and rear alike (each p 0.001 on its own), and the ratio still moved
+(slope change p 0.011). (ii) The drivers-to-rear ratio is almost free of short-run noise (rho -0.05 to -0.01 against
+0.27-0.52 for drivers alone), so the test is far sharper, and a slow bend in the ratio before 1983 that drivers alone
+hide in their noise is now enough to flag: at 1977-01 and 1980-01 drivers alone give p 0.81 and 0.83, drivers minus
+rear 0.003 and 0.002. (iii) The steps at the placebo dates are small and mostly not significant (p 0.68, 0.11, 0.055):
+the slope term carries the rejections. So the control did its job on noise and shared shocks, and exposed that a
+straight line is the wrong baseline for this ratio over 14 years. The seat-belt step itself is no weaker for it
+(a 24% fall in the ratio, range 18-30%), but a test whose placebos fire cannot be called calibrated here.
+
+**Next** (a fresh pre-registration, and real pairs not seen here): an in-time placebo check that ships beside the test
+(the same test at dates in the before-period; refuse or warn when they fire), or a step-only test with the control,
+since the steps passed every placebo (0 of 5 at p 0.05, real pairs 4c and 4d); and real pairs beyond road deaths, such as a policy that
+covered some regions and not others.
