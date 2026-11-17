@@ -6,7 +6,7 @@ import { headerAdjustmentNetDelta, inspectHeaderAdjustments } from "./adjustment
 import { inspectPaymentBic } from "./bic.mjs";
 import { inspectTaxBreakdown } from "./breakdown.mjs";
 import { inspectDocumentType } from "./document.mjs";
-import { inspectPartyEndpoint, inspectPartyIdentifiers } from "./endpoint.mjs";
+import { inspectPartyEndpoint, inspectPartyIdentifiers, inspectLineSchemedIds } from "./endpoint.mjs";
 import { inspectPaymentIban } from "./iban.mjs";
 import { inspectPaymentMeans } from "./means.mjs";
 import { inspectInvoicePeriod } from "./period.mjs";
@@ -202,6 +202,9 @@ export function checkInvoice(invoice) {
     if (!line || typeof line !== "object" || Array.isArray(line)) {
       fail("INV-008", `Line ${n} is not an object.`, "Provide description, quantity, unit_price, and tax_percent.", `/lines/${index}`);
       return;
+    }
+    for (const finding of inspectLineSchemedIds(line, index)) {
+      fail(finding.rule, finding.message, finding.fix, finding.path, finding.severity);
     }
     if (typeof line.description !== "string" || !line.description.trim()) {
       fail("INV-008", `Line ${n} has no description.`, "Add a human-readable line description.", `/lines/${index}/description`);

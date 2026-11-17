@@ -229,6 +229,18 @@ function parseLine(line) {
   if (adjustments.length) mapped.adjustments = adjustments.map(({ kind, amount }) => ({ kind, amount }));
   const category = nestedText(tax, "CategoryCode");
   if (category) mapped.tax_category = category;
+  // Every schemed ram:ID / GlobalID / URIID in the line (BT-157 item id, and
+  // Extended's line-level parties): Peppol's COMMON id contexts reach them all
+  // (endpoint.mjs, inspectLineSchemedIds).
+  const schemeIds = [];
+  for (const name of ["ID", "GlobalID", "URIID"]) {
+    for (const node of descendants(line, name)) {
+      const scheme = node.attrs && node.attrs.schemeID ? String(node.attrs.schemeID).trim() : "";
+      const id = (node.text || "").trim();
+      if (scheme && id) schemeIds.push({ id, scheme });
+    }
+  }
+  if (schemeIds.length) mapped.scheme_ids = schemeIds;
   return mapped;
 }
 

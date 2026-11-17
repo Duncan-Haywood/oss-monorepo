@@ -144,3 +144,17 @@ test("the deliver-to party's ids are read from CII ShipToTradeParty (BT-71's ID 
   assert.deepEqual(idRules(checkInvoice(invoice)), [["INV-062", "/delivery_party/party_ids/0/id", "error"]]);
   assert.equal(parseCiiInvoice(CII).delivery_party, undefined);
 });
+
+test("a CII item id (BT-157) filed under a Peppol COMMON scheme meets that scheme's rule; 0160 GTINs are left alone", () => {
+  const item = (gid) => CII.replace("<ram:SpecifiedTradeProduct><ram:Name>", `<ram:SpecifiedTradeProduct>${gid}<ram:Name>`);
+  // A mistyped check digit under 0088 (the GLN scheme): R040's mod-10 test fails, the file bounces.
+  const typo = parseCiiInvoice(item('<ram:GlobalID schemeID="0088">4012345000008</ram:GlobalID>'));
+  assert.deepEqual(typo.lines[0].scheme_ids, [{ id: "4012345000008", scheme: "0088" }]);
+  const findings = checkInvoice(typo);
+  assert.deepEqual(idRules(findings), [["INV-062", "/lines/0/scheme_ids/0/id", "error"]]);
+  assert.match(findings.find((f) => f.rule === "INV-062").message, /^Line 1 identifier does not match the 0088 format/);
+  // A valid EAN-13 under 0088 passes Peppol's mod-10 test; the same digits under 0160 are not a COMMON scheme.
+  assert.deepEqual(idRules(checkInvoice(parseCiiInvoice(item('<ram:GlobalID schemeID="0088">4012345000009</ram:GlobalID>')))), []);
+  assert.deepEqual(idRules(checkInvoice(parseCiiInvoice(item('<ram:GlobalID schemeID="0160">4012345000008</ram:GlobalID>')))), []);
+  assert.equal(parseCiiInvoice(CII).lines[0].scheme_ids, undefined);
+});
