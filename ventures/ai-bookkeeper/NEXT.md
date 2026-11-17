@@ -6,3 +6,8 @@
 
 - (2026-11-17) open: the 2026 table once printed
 - (2026-11-17) (9) EITC: 2025 EIC Table matched on all 10,992 cells (HISTORY)
+- (2026-11-17) open: line 9b once the 2026 instructions print
+- (2026-11-17) (8b) `annualized` (Schedule AI): penalty, box D, Jan 31 rule, 2026 draft (README)
+- (2026-11-17) open: AR statutes, a real return layout
+- (2026-11-17) 23 discounts, IN's band and day from the book (README)
+- (2026-11-17) (8) `salestax return`: the last six listed states read (eval/state-pages-2026-11-14e.md)
