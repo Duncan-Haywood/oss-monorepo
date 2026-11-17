@@ -548,6 +548,10 @@ def main(argv: list[str] | None = None) -> int:
         out = set_value(text, args.venture, args.field, new, mine)
     except (KeyError, ValueError) as e:
         print(e, file=sys.stderr)
+        # Said last, so a refusal followed by a page of park hints still ends
+        # on what happened (doc_friction 2026-11-17: "--replace without
+        # --make-room silently printed park suggestions and did not write").
+        print(f"NOT WRITTEN: {args.file.name} is unchanged", file=sys.stderr)
         return 1
     args.file.write_text(out)
     n = len(" ".join(new.split()))

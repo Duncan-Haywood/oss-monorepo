@@ -397,3 +397,13 @@ def test_buildable_read_shows_cap(tmp_path, capsys):
     f.write_text(DOC)
     assert ff.main(["a", "--field", "buildable", "--file", str(f)]) == 0
     assert f"-- 15 of {ff.FLAGSHIP_BUILDABLE_MAX} characters" in capsys.readouterr().err
+
+
+def test_cli_refusal_ends_on_not_written(tmp_path, capsys):
+    """A cap refusal prints park hints; its last line says nothing changed
+    (doc_friction 2026-11-17: a --replace refusal read as a silent no-op)."""
+    p = tmp_path / "f.yaml"
+    p.write_text(DOC)
+    assert ff.main(["b", "--file", str(p), "--replace", "Only", "x " * 1100]) == 1
+    assert capsys.readouterr().err.strip().splitlines()[-1] == "NOT WRITTEN: f.yaml is unchanged"
+    assert p.read_text() == DOC
