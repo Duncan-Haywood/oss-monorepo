@@ -1,0 +1,59 @@
+# Milestone 11ah: altitude bands under a fixed altitude budget (band_budget.py); 11ag's model and inputs (W = cf_D+ en-route, V = tau*A + B), 48 layouts
+# k_cap = floor((H/h + 1)/2) bands of two levels; tau = h (1/5 + 1/4)/2 s per level crossed; best of 200 descents; F_1 = one band (all en-route weight, no transit)
+
+## M = 12: medians over 24 layouts, by usable depth H (m) and level spacing h (m)
+  H      h   tau_s  k_cap   F/F_1   F/F_free   (free count used: median)
+  30   7.62   1.71     2    0.4294    2.3885    10.0
+  60   7.62   1.71     4    0.2126    1.2145    10.0
+  90   7.62   1.71     6    0.1789    1.0319    10.0
+ 120   7.62   1.71     8    0.1738    1.0025    10.0
+  30  15.24   3.43     1    1.0000    4.5541    10.0
+  60  15.24   3.43     2    0.4608    2.1196    10.0
+  90  15.24   3.43     3    0.3171    1.3839    10.0
+ 120  15.24   3.43     4    0.2562    1.1691    10.0
+  30  30.48   6.86     1    1.0000    3.2482     9.0
+  60  30.48   6.86     1    1.0000    3.2482     9.0
+  90  30.48   6.86     1    1.0000    3.2482     9.0
+ 120  30.48   6.86     2    0.5156    1.7072     9.0
+
+## M = 12: growing one band at a time at h = 7.62 m (tau 1.71 s) against a 200-restart re-plan at each k
+  k   mean F_ins/F_re   max      median moved  inserted on top (of 24)  bands used (median)
+  2       1.0060       1.0506      5.5            12                2.0
+  3       1.0114       1.0490      5.0             6                3.0
+  4       1.0117       1.0755      5.0             7                4.0
+  5       1.0091       1.0803      4.0             5                5.0
+  6       1.0066       1.0324      3.0             0                6.0
+  7       1.0038       1.0185      2.0             2                7.0
+  8       1.0012       1.0128      2.0             3                8.0
+
+## M = 16: medians over 24 layouts, by usable depth H (m) and level spacing h (m)
+  H      h   tau_s  k_cap   F/F_1   F/F_free   (free count used: median)
+  30   7.62   1.71     2    0.4339    2.7232    13.5
+  60   7.62   1.71     4    0.2137    1.3455    13.5
+  90   7.62   1.71     6    0.1769    1.0872    13.5
+ 120   7.62   1.71     8    0.1597    1.0211    13.5
+  30  15.24   3.43     1    1.0000    5.0557    13.0
+  60  15.24   3.43     2    0.4603    2.2935    13.0
+  90  15.24   3.43     3    0.3138    1.5669    13.0
+ 120  15.24   3.43     4    0.2541    1.2695    13.0
+  30  30.48   6.86     1    1.0000    3.5418    13.0
+  60  30.48   6.86     1    1.0000    3.5418    13.0
+  90  30.48   6.86     1    1.0000    3.5418    13.0
+ 120  30.48   6.86     2    0.5147    1.8254    13.0
+
+## M = 16: growing one band at a time at h = 7.62 m (tau 1.71 s) against a 200-restart re-plan at each k
+  k   mean F_ins/F_re   max      median moved  inserted on top (of 24)  bands used (median)
+  2       1.0050       1.0254      6.0            17                2.0
+  3       1.0176       1.1550      6.5            12                3.0
+  4       1.0109       1.0459      6.0            10                4.0
+  5       1.0093       1.0432      5.0             7                5.0
+  6       1.0033       1.0192      5.0             4                6.0
+  7       1.0032       1.0156      3.0             4                7.0
+  8       1.0013       1.0127      3.0             3                8.0
+
+## Prediction checks
+(1) H 120, h 7.62: median F/F_free M=12 1.0025, M=16 1.0211 (<= 1.01): False
+(2) H 60, h 7.62: median F/F_free M=12 1.2145, M=16 1.3455 (in [1.10, 1.40]): True
+(3) H 120, h 30.48: median F/F_1 M=12 0.5156, M=16 0.5147 (>= 0.45): True
+(4) H 120, h 15.24 -> 7.62: median reduction in best F M=12 0.3062, M=16 0.3669 (in [0.20, 0.40]): True
+(5) growing by insertion: worst mean F_ins/F_re over k = 2..8 and both M 1.0176 (<= 1.02): True
