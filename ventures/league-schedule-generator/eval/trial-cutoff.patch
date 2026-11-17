@@ -1,0 +1,239 @@
+--- a/orient.mjs
++++ b/orient.mjs
+@@ -242,8 +242,20 @@
+  * minPlusStep's chain, bit for bit; null when the module is off or a table does not fit, and the
+  * caller then steps as before. `sym` as minPlusStep's (fr symmetric under flipping every host).
+  */
+-function chainLeast(fr, rounds, b, sym) {
++function chainLeast(fr, rounds, b, sym, cutoff = Infinity) {
+   if (!MP || fr.constructor !== Int32Array || rounds.length < 2) return null;
++  // a cutoff: once the table so far, plus the breaks every later pair of rounds must have
++  // (pairBreakFloor), plus the backward table's least, is over `cutoff`, that sum comes back instead
++  // of the least (README "Stopping a refused trial early"); suf[i]: those later pairs' part from
++  // rounds[i] on, with b's least
++  let suf = null;
++  if (cutoff < Infinity && CUTOFF) {
++    suf = new Int32Array(rounds.length);
++    suf[rounds.length - 1] = b ? tableMin(b) : 0;
++    for (let i = rounds.length - 2; i >= 0; i--) suf[i] = suf[i + 1] + pairBreakFloor(rounds[i], rounds[i + 1]);
++    const lb = tableMin(fr) + suf[0];
++    if (lb > cutoff) return lb;
++  }
+   const qs = [];
+   for (let r = 0; r + 1 < rounds.length; r++) {
+     const A = rounds[r], B = rounds[r + 1];
+@@ -259,6 +271,10 @@
+   // int16 tables: a step adds at most one break per team (32), so the chain cannot overflow while the
+   // input's top plus that stays under the module's NARROW_MAX (30000); else run the plain steps
+   if (MP.narrowed() && MP.top() + 34 * qs.length >= 29000) return null;
++  if (suf && qs.length > 1) {
++    const lb = MP.chainMin(qs[0].outK, swap, qs[0].tm, qs[0].hb, 0) + suf[1];
++    if (lb > cutoff) return lb;
++  }
+   for (let i = 1; i < qs.length; i++) {
+     const p = qs[i - 1], q = qs[i], u = q.unary || [0, 0, 0, 0];
+     // the composite permutation, in the next input's layout: its bit xPos[j] is the round's match j,
+@@ -275,12 +291,54 @@
+     const at = (m) => (m ? 1 << q.xPos[31 - Math.clz32(m)] : 0);
+     MP.chain(q.kA, at(u[0]), u[1], at(u[2]), u[3], swap, mm, qm);
+     swap = wasmSteps(w, q, swap ^ 1);
++    if (suf && i + 1 < qs.length) {
++      const lb = MP.chainMin(q.outK, swap, q.tm, q.hb, 0) + suf[i + 1];
++      if (lb > cutoff) return lb;
++    }
+   }
+   const last = qs[qs.length - 1];
+   if (b) { setLut(MP.lut, last.ys, last.outK); MP.pb.set(b); }
+   return MP.chainMin(last.outK, swap, last.tm, last.hb, b ? 1 : 0);
+ }
+ 
++/** The least entry of a table (a backward table's, cached: it is read by many trials). */
++const mins = new WeakMap();
++function tableMin(t) {
++  let v = mins.get(t);
++  if (v != null) return v;
++  v = Infinity;
++  for (let x = 0; x < t.length; x++) if (t[x] < v) v = t[x];
++  mins.set(t, v);
++  return v;
++}
++
++/**
++ * The fewest breaks any host choice gives between two consecutive rounds alone (matches A, then B).
++ * The teams playing both rounds join A's and B's matches into paths and cycles; a team breaks when
++ * x_i ^ y_j ^ flip is 0 (elimOrder's edges), so round a cycle the breaks sum, mod 2, to the xor of
++ * its flips (every host bit is on two of its edges, and a cycle has an even number of edges). A
++ * cycle whose flips xor to 1 has at least one break and one suffices; a path or an even cycle can
++ * have none. So the floor is the number of odd cycles: a lower bound on those two rounds' part of any
++ * timetable's least.
++ */
++export function pairBreakFloor(A, B) {
++  const kA = A.length, up = new Int32Array(kA + B.length), par = new Uint8Array(kA + B.length);
++  const nodes = new Int32Array(kA + B.length).fill(1), edges = new Int32Array(kA + B.length);
++  for (let i = 0; i < up.length; i++) up[i] = i;
++  const find = (v) => { while (up[v] !== v) { up[v] = up[up[v]]; v = up[v]; } return v; };
++  const { edges: E } = elimOrder(A, B);
++  E.forEach((e, i) => {
++    for (const [j, f] of e) {
++      let a = find(i), c = find(kA + j);
++      if (a !== c) { up[c] = a; nodes[a] += nodes[c]; edges[a] += edges[c]; par[a] ^= par[c]; }
++      edges[a]++; par[a] ^= f;
++    }
++  });
++  let odd = 0;
++  for (let v = 0; v < up.length; v++) if (up[v] === v && edges[v] === nodes[v] && par[v]) odd++;
++  return odd;
++}
++
+ // unary: null for the plain step, or [m0, f0, m1, f1, j0] for symStep (j0: where the fixed bit
+ // goes back in B's order) (WebAssembly path only: null when
+ // the tables do not fit the module, and minPlusStep then runs the plain step)
+@@ -544,6 +602,10 @@
+  * round r's hosts x), so a move reruns only its own span, not everything after it (README "A
+  * backward table"). Tables a trial needs and a commit left stale (forward past the last committed
+  * span, backward before it) are brought up to date on the way, from rounds the move did not touch.
++ * `trial(lo, hi, cutoff)`: the caller only needs to know whether the least is at most `cutoff` (a
++ * move it refuses otherwise); once a lower bound proves the least is over it, the trial stops and
++ * returns that bound (some number over `cutoff`, at most the least) instead of the least (README
++ * "Stopping a refused trial early"). Committing or walking after such a trial still works.
+  * `commit()` keeps the last trial's rounds (call it only right after the trial it accepts; the
+  * caller undoes a refused move instead). Same floor as leastBreaks(opp, n).floor. null when a round
+  * has more than `maxMatches` (ORIENT_MAX_MATCHES) matches. `opp` is read live (the caller moves it).
+@@ -554,6 +616,8 @@
+ const SYM = { sym: !(typeof process !== "undefined" && process.env && process.env.FLOOR_SYM === "0") };
+ // FLOOR_CHAIN = 0 in the environment steps every trial in JS land as before, for comparison
+ const CHAIN = !(typeof process !== "undefined" && process.env && process.env.FLOOR_CHAIN === "0");
++// FLOOR_CUTOFF = 0 in the environment ignores trial cutoffs (every trial stepped to its end), for comparison
++const CUTOFF = !(typeof process !== "undefined" && process.env && process.env.FLOOR_CUTOFF === "0");
+ export function floorTable(opp, n, { maxMatches = ORIENT_MAX_MATCHES, chain = true } = {}) {
+   const R = opp.length;
+   if (n > 32 || roundMatches(opp, n).some((ms) => ms.length > maxMatches)) return null;
+@@ -582,7 +646,7 @@
+     }
+     return f;
+   };
+-  const run = (lo, hi = R - 1) => {
++  const run = (lo, hi = R - 1, cutoff = Infinity) => {
+     if (!(lo >= 0 && hi < R && lo <= hi)) throw new Error("trial needs 0 <= lo <= hi < rounds");
+     forwardTo(lo - 1);
+     if (hi < R - 1) backwardTo(hi + 1);
+@@ -593,7 +657,7 @@
+     // (about one trial in ten at 30 teams)
+     if (CHAIN && chain) {
+       const rounds = (lo > 0 ? [ms[lo - 1]] : []).concat(m, hi < R - 1 ? [ms[hi + 1]] : []);
+-      const best = chainLeast(lo > 0 ? fwd[lo - 1] : new Int32Array(1 << m[0].length), rounds, hi < R - 1 ? bwd[hi + 1] : null, SYM.sym);
++      const best = chainLeast(lo > 0 ? fwd[lo - 1] : new Int32Array(1 << m[0].length), rounds, hi < R - 1 ? bwd[hi + 1] : null, SYM.sym, cutoff);
+       if (best != null) { pending = { lo, hi, m, h: null, p, f: null, full: null }; return best; }
+     }
+     const f = tables(lo, hi, m);
+@@ -649,7 +713,7 @@
+   forwardTo(R - 1);
+   let floor = Infinity;
+   for (const v of fwd[R - 1]) if (v < floor) floor = v;
+-  return { floor, trial: (lo, hi) => run(lo, hi), commit, balanced };
++  return { floor, trial: (lo, hi, cutoff) => run(lo, hi ?? R - 1, cutoff ?? Infinity), commit, balanced };
+ }
+ /**
+  * A home-and-away season's timetable as the pair model: rounds' matches and home masks as
+--- a/carryover.mjs
++++ b/carryover.mjs
+@@ -2364,6 +2364,10 @@
+   const opp = oppFromRounds(start.rounds, N, n);
+   const table = floorTable(opp, n, { maxMatches: FLOOR_PRICED_MAX_MATCHES });
+   const costOf = (c, f) => c + over * Math.max(0, f - maxBreaks);
++  // the most breaks a timetable of carry-over c may have and still cost at most `line`: a trial
++  // that proves its floor over this stops early (floorTable trial's cutoff; README "Stopping a
++  // refused trial early"); every price at or under it is exact, so the search moves as before
++  const cutoffOf = (c, line) => (over > 0 ? maxBreaks + Math.floor((line - c) / over) : Infinity);
+   // the breaks a timetable is priced on: its floor, or, when the floor is within the cap and
+   // `balanced` is on, its least balanced host choice if that is within the cap too, else the cap + 2
+   // (the floor ignores the balance rule, and searches priced on it alone ended 1 to 3 over the cap:
+@@ -2419,7 +2423,7 @@
+       let take = null;
+       for (const c of scored.slice(0, dealFloors)) {
+         put(c.d);
+-        const nf = priced(table.trial(lo, hi)); floors++;
++        const nf = priced(table.trial(lo, hi, cutoffOf(c.nc, line))); floors++;
+         const v = costOf(c.nc, nf);
+         if (v <= line && (!take || v < take.v)) take = { ...c, nf, v };
+         put(was);
+@@ -2456,7 +2460,7 @@
+     const line = cur - T * Math.log(rand() || 1e-12);
+     const nc = coeOf(opp, n, false);
+     if (nc > line) { undo(); continue; }
+-    const nf = priced(table.trial(lo, hi)); floors++;
++    const nf = priced(table.trial(lo, hi, cutoffOf(nc, line))); floors++;
+     const v = costOf(nc, nf);
+     if (v <= line) {
+       cur = v; coe = nc; fl = nf; table.commit();
+--- a/orient.test.mjs
++++ b/orient.test.mjs
+@@ -260,6 +260,68 @@
+   }
+ });
+ 
++test("pairBreakFloor is the least breaks of two rounds alone, by brute force: byes, repeats, 1 to 7 matches", async () => {
++  // README "Stopping a refused trial early": the odd cycles of two consecutive rounds
++  const { pairBreakFloor } = await import("./orient.mjs");
++  const rand = mulberry32(77);
++  const roundOf = (n, sitOut) => {
++    const ts = [...Array(n).keys()];
++    for (let i = n - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [ts[i], ts[j]] = [ts[j], ts[i]]; }
++    const ms = [];
++    for (let i = sitOut; i + 1 < n; i += 2) ms.push([Math.min(ts[i], ts[i + 1]), Math.max(ts[i], ts[i + 1])]);
++    return ms.sort((a, b) => a[0] - b[0]);
++  };
++  for (let it = 0; it < 400; it++) {
++    const n = 2 + Math.floor(rand() * 13);
++    const A = roundOf(n, Math.floor(rand() * 3)), B = it % 11 === 0 ? A.slice() : roundOf(n, Math.floor(rand() * 3));
++    let best = Infinity;
++    for (let x = 0; x < 1 << A.length; x++) for (let y = 0; y < 1 << B.length; y++) {
++      const home = new Map();
++      A.forEach(([a, b], i) => { home.set(a, (x >> i) & 1); home.set(b, 1 - ((x >> i) & 1)); });
++      let br = 0;
++      B.forEach(([c, d], j) => {
++        if (home.has(c) && home.get(c) === ((y >> j) & 1)) br++;
++        if (home.has(d) && home.get(d) === 1 - ((y >> j) & 1)) br++;
++      });
++      if (br < best) best = br;
++    }
++    if (!A.length || !B.length) best = 0;
++    assert.equal(pairBreakFloor(A, B), best, `A ${JSON.stringify(A)} B ${JSON.stringify(B)}`);
++  }
++});
++
++test("floorTable trials with a cutoff: the exact least at or under it, else a bound over it and at most the least; commits and walks after either unchanged", async () => {
++  // README "Stopping a refused trial early"
++  const { floorTable, MINPLUS_WASM_ON } = await import("./orient.mjs");
++  if (!MINPLUS_WASM_ON) return;
++  let stopped = 0, all = 0;
++  for (const n of [14, 20, 24, 28, 30]) {
++    const opp = oppOf(carryOverTry(n, 1, { seed: 3, weighted: 8 }).rounds, n), R = opp.length;
++    const a = floorTable(opp, n, { maxMatches: 15 }), b = floorTable(opp, n, { maxMatches: 15 });
++    for (let i = 0; i < 24; i++) {
++      const lo = (i * 5) % R, hi = Math.min(R - 1, lo + 1 + (i % 6) * 3);
++      [opp[lo], opp[hi]] = [opp[hi], opp[lo]];
++      const want = b.trial(lo, hi);
++      for (const cutoff of [want - 9, want - 3, want - 1, want, want + 2]) {
++        const got = a.trial(lo, hi, cutoff);
++        all++;
++        if (want <= cutoff) assert.equal(got, want, `${n} ${lo}..${hi} cutoff ${cutoff}`);
++        else { assert.ok(got > cutoff && got <= want, `${n} ${lo}..${hi} cutoff ${cutoff}: ${got} of ${want}`); if (got < want) stopped++; }
++      }
++      // the last trial (cutoff want + 2) was exact; one more with a low cutoff, then commit or walk
++      a.trial(lo, hi, want - 9);
++      if (i % 3 === 0) { a.commit(); b.trial(lo, hi); b.commit(); } else [opp[lo], opp[hi]] = [opp[hi], opp[lo]];
++      if (i % 4 === 1) {
++        a.trial(0, 1, -1); b.trial(0, 1);
++        assert.deepEqual(a.balanced(want + 6, { budget: 2000 }), b.balanced(want + 6, { budget: 2000 }), `${n} walk`);
++        a.commit(); b.commit();
++      }
++    }
++  }
++  // the bound did stop trials before their end
++  assert.ok(stopped > 0, `${stopped} of ${all}`);
++});
++
+ test("a 24-team break floor in seconds, not minutes (12 matches a round)", () => {
+   const tries = carryOverTry(24, 0, { seed: 1, weighted: 8 });
+   const t = Date.now();

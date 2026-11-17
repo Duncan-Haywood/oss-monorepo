@@ -371,9 +371,10 @@ flagships:
       ~444-550: four-round re-deals or a longer run, now ~4x cheaper; or a starter
       family climbed with the floor as its score); 30 teams in the page since
       2026-11-17 (README "A trial's steps kept in the module": chained trials, 30
-      teams 62 s, 28 teams 30 s; 29 skipped, 1 of 3 seeds); next: the step is now 31
-      of 62 s at 30 teams, a cheaper elimination order or fewer steps a trial (span
-      19 on average). More open items: NEXT.md.
+      teams 62 s, 28 teams 30 s; 29 skipped, 1 of 3 seeds); a cheaper 30-team step:
+      stopping refused trials early and exact window bounds measured, not kept
+      (eval/trial-cutoff.txt; refusals miss by 1-5 breaks); next is fewer trials,
+      judged on seasons. More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
