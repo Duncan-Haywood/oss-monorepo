@@ -646,6 +646,15 @@ threshold removes all of them and gives back the re-solved figures (0.830 mm at 
 over 0 to 20 N), for 1.66% more leg torque and one of 15 G1 poses. The 0.3 to 0.8 mm that remains
 comes from waist and arm joints, which the ground reaction cannot reach.
 
+The arms take a different preload (milestone 38). A squeeze between the two hands along the line
+joining the grip points has no net force or moment, so it changes only the arm joints' torques
+(at most 1.1e-16 N m per newton elsewhere). Chosen by the controller from its plan within 10 N,
+it removes all 14 mispredicted arm joints; with the leg preload and the FT 300 the G1's worst
+residual at a 5 N drag falls from 0.830 to 0.485 mm, and over 0 to 20 N the worst pose loses
+0.05 points instead of 1.64 (the H1 0.02 instead of 2.19). The floor that remains comes from the
+waist, which only the tool's wrench loads. Holding the nailer, the G1's wrist pitch already
+exceeds its 5 N m rating in the model at 7 of 14 poses.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every

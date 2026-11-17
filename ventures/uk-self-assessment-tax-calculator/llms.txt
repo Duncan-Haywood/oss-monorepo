@@ -4,6 +4,14 @@
 
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
+## What it covers
+
+- Income tax in HMRC order (non-savings, savings, dividends), with the personal allowance taper, starting rate for savings, Personal Savings Allowance and Dividend Allowance.
+- Self-employed profit after the trading allowance or actual expenses, whichever is larger. Property profit takes the property allowance or actual expenses with the 20% mortgage-interest credit, whichever gives the lower bill.
+- Class 4 National Insurance, student loan and Postgraduate Loan. Unearned income of £2,000 or less is left out of student loan, and Plan 5 collects nothing for 2025/26.
+- The 31 January balance after PAYE, payments on account, and what a further £1,000 pension contribution or Gift Aid donation would save.
+- Not covered: Scotland, capital gains, losses, foreign income, the marriage allowance, the High Income Child Benefit Charge.
+
 ## Pages
 
 - [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-self-assessment-tax-calculator/)

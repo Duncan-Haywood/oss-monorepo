@@ -365,7 +365,14 @@ function templateIssues(f, spec, ctx, where) {
         // templates) are not compared.
         const allowed = (tpl.types || (tpl.type ? [tpl.type] : [])).filter((t) => S.types[t]);
         if (f.dataType && allowed.length && !allowed.includes(f.dataType)) return { error: { code: "pset-datatype", message: `${setName}.${pn} is ${allowed.join(" or ")} in the ${id} templates, not ${f.dataType}, so a model that follows the standard can never pass` } };
-        if (!f.dataType && allowed.length && f.value.present) warning ||= { code: "value-no-datatype", message: `property ${setName}.${pn} has a value but no dataType; IDS 1.0 expects one, and the ${id} templates give ${allowed.join(" or ")}` };
+        if (!f.dataType && allowed.length && f.value.present) {
+          // TRUE or True on a boolean: IDS writes booleans true/false, and with
+          // no dataType checkers part ways (this one matches no object,
+          // IfcTester 0.8.0 matches the true ones; README, 2026-11-17).
+          const sv = f.value.simple;
+          const caps = typeof sv === "string" && /^(true|false)$/i.test(sv) && sv !== sv.toLowerCase() && allowed.some((t) => ["boolean", "logical"].includes(S.prim(t)));
+          warning ||= { code: "value-no-datatype", message: `property ${setName}.${pn} has a value but no dataType; IDS 1.0 expects one, and the ${id} templates give ${allowed.join(" or ")}${caps ? `. ${sv} is not how IDS writes a boolean (${sv.toLowerCase()}): with no dataType, checkers disagree on whether it matches` : ""}` };
+        }
         if (tpl.enum && tpl.enum.length && f.value.present) {
           const listed = listedNames(f.value);
           if (listed && !listed.some((v) => tpl.enum.includes(v))) warning ||= { code: "value-never", message: `${setName}.${pn} is an enumeration (${tpl.enum.slice(0, 8).join(", ")}${tpl.enum.length > 8 ? ", ..." : ""}); ${listed.length === 1 ? JSON.stringify(listed[0]) + " is" : "none of the listed values is"} not a member, so a model that follows the standard cannot match` };

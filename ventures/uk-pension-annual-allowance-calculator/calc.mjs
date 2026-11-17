@@ -23,7 +23,7 @@ export const PRIOR = {
   2026: [{ label: "2023/24", aa: 60000 }, { label: "2024/25", aa: 60000 }, { label: "2025/26", aa: 60000 }],
 };
 
-const money = (n) => "GBP " + Number(Math.round(n * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+const money = (n) => "GBP " + Number(Math.round(n * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\.\d$/, (m) => m + "0");
 const r2 = (n) => Math.round(n * 100) / 100;
 const pct = (x) => Math.round(x * 1000) / 10 + "%";
 

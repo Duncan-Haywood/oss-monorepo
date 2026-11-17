@@ -25,6 +25,39 @@ import { fileURLToPath } from 'node:url';
 export const MAX_H1_PX = { 1280: 160, 390: 200 };
 /** Largest h1 font size a tool page's own CSS may ask for, in rem (48 px). */
 export const MAX_H1_REM = 3;
+/**
+ * Longest h1 a tool page may carry, in characters. At 390 px a 28.8 px h1 fits about 20
+ * characters a line, so 101 to 125 characters wrapped to 5 or 6 lines (155 to 193 px) before the
+ * lede; the second question moves to the lede (docs/reports/polish-2026-11-17-h1-length.md).
+ * 91 to 100 still wrapped to 5 lines, so the cap is 90 (docs/reports/polish-2026-11-17-h1-90.md).
+ */
+export const MAX_H1_CHARS = 90;
+
+/** The visible text of the first h1 in a page's HTML, entities decoded and whitespace collapsed, or null. */
+export function h1Text(html) {
+  const m = html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/i);
+  if (!m) return null;
+  const ent = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', rsquo: '\u2019', lsquo: '\u2018', mdash: '\u2014', ndash: '\u2013', hellip: '\u2026' };
+  return m[1]
+    .replace(/<[^>]+>/g, '')
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d)))
+    .replace(/&([a-z]+);/gi, (e, n) => ent[n.toLowerCase()] ?? e)
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/** `[{ slug, chars, text }]` for every tool page whose h1 is longer than `max` characters. */
+export function longHeadings(root = fileURLToPath(new URL('../../ventures/', import.meta.url)), max = MAX_H1_CHARS) {
+  const out = [];
+  for (const slug of fs.readdirSync(root)) {
+    const f = path.join(root, slug, 'index.html');
+    if (!fs.existsSync(f)) continue;
+    const text = h1Text(fs.readFileSync(f, 'utf8'));
+    if (text && [...text].length > max) out.push({ slug, chars: [...text].length, text });
+  }
+  return out.sort((a, b) => b.chars - a.chars);
+}
 
 /** Font sizes (rem) that `h1` rules in a stylesheet or page ask for at most: a clamp's ceiling, or a fixed rem size. */
 export function h1Ceilings(css) {

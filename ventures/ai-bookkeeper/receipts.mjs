@@ -54,7 +54,7 @@ const DATE_RES = [
   /\b((?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.? \d{1,2},? \d{4})\b/i,
   /\b(\d{1,2} (?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?,? (?:\d{4}|\d{2}))(?!\d)/i,
 ];
-const TOTAL_RE = /\b(grand\s+total|total\s+(?:due|paid|charged|amount)|amount\s+(?:due|paid|charged)|balance\s+due|order\s+total|grandtotal|gesamt(?:betrag)?|summe|totale|totaal|total|netto|jumlah|due|(?<!\b(?:tax|gst|vat|sst)\b.*)tl)\b/i;
+const TOTAL_RE = /\b(grand\s+total|total\s+(?:due|paid|charged|amount)|amount\s+(?:due|paid|charged)|balance\s+due|order\s+total|grandtotal|gesamt(?:betrag)?|summe|totale|totaal|total|netto|jumlah|due|(?<=\bqty\W{0,3}\d{1,3}\W{0,3})amount|(?<!\b(?:tax|gst|vat|sst)\b.*)tl)\b/i;
 const NOT_TOTAL_RE = /accepted\s+total|total\s+tender|total\s+includ\w*\s+(?:gst|tax|vat)\s*@|total[^a-z]*(?:sales\s*)?\(?[^a-z]*(?:excl|before\s+(?:gst|tax))|total\s+(?:gst|tax|vat)\b|total\s+includ(?:es|ed|ing)\b[^a-z]*\d*\s*%|(?:gst|tax|vat)\b[^a-z]*\d*\s*%?\s*includ(?:es|ed)?\s+in\s+(?:the\s+)?total|sub\s*-?total|zwischensumme|sous-total|total\s+(?:savings|discount|items?|qty|aty|qt|quantity|pcs|tax|points|sv|gv|ev|qu)\b|tax\s+total|before\s+tax|tip\b|change\b|cash\b|kemba/i;
 const TAX_RE = /\b(sales\s+tax|tax|vat|gst|hst|pst|tva|mwst|iva|btw|ppn|pb\s*1|pajak|p\.\s*rest(?:o|oran)?)\b/i;
 // "Tax Total" is the tax, not the total; "Dasar Pengenaan Pajak" (DPP) is the taxable base
@@ -169,15 +169,18 @@ export const oneDigitApart = (a, b) => {
 // The change line, also as OCR reads it with the C lost: "HANGE 62.63" (SRD 1022, its
 // psm-4 grey reading). Not a bare "ange": an item line reads "'ange Crsh" for Orange
 // Crush (SRD 1002), and "ange Due" also reads as a total line (eval/change-ocr-2026-11-17.md).
-export const CHANGE_WORD = /\b(?:c?hange|kembali\w*|baki)\b/i;
+export const CHANGE_WORD = /\b(?:c?hange|kembal\w*|baki)\b/i;
 function totalChecks(lines, comma, at, bare) {
   const amt = (i) => { if (i < 0 || i >= lines.length) return null; const a = amountsIn(lines[i], comma).length ? amountsIn(lines[i], comma) : bare(lines[i + 1]); return a.length ? a[a.length - 1] : null; };
   const checks = []; // [cents, why]
   // cash handed over less change, both read after the total line
-  const ti = lines.findIndex((l, i) => i > at && /\b(?:cash|tender(?:ed)?|received|tunai)\b/i.test(l) && !/\bchange\b/i.test(l) && !/cash\s*(?:bill|sale|ier)/i.test(l));
+  const ti = lines.findIndex((l, i) => i > at && (/\b(?:cash|tender(?:ed)?|received|tunai)\b/i.test(l) || (/\b(?:pem)?bayar\b/i.test(l) && !TOTAL_RE.test(l))) && !/\bchange\b/i.test(l) && !/cash\s*(?:bill|sale|ier)/i.test(l));
   const ci = ti < 0 ? -1 : lines.findIndex((l, i) => i > ti && CHANGE_WORD.test(l) && !/exchange/i.test(l));
   const tender = amt(ti), change = amt(ci);
-  if (tender !== null && change !== null && tender > change) checks.push([tender - change, "cash less change"]);
+  // on a whole-unit slip a change under 100 units ("CHANGE 26, OOO" read as 26) is an amount
+  // OCR cut short, so cash less it is no check (CORD train-87)
+  const cutChange = comma === "whole" && change > 0 && change < 10000;
+  if (tender !== null && change !== null && tender > change && !cutChange) checks.push([tender - change, "cash less change"]);
   // before-tax subtotal plus each GST/SST/tax line, with any printed rounding
   const subs = [], taxes = [], rounds = [0];
   lines.forEach((l, i) => {
@@ -595,7 +598,11 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
     // the dash OCR prints before a whole-unit amount ("AIR MINERAL -7,000": CORD
     // validation-66) is read through here as on the cash and change lines; a refund or
     // discount is never the largest amount on a slip with no total line
-    const all = lines.flatMap((l) => amountsIn(undashWhole(l, comma), comma));
+    // on a whole-unit slip a run of eight or more digits with no group separator is a
+    // barcode, card or phone number, not an amount (CORD train-64: "8047000270" over
+    // "Qty: 3 Amount: 262,000")
+    const noCodes = (l) => (comma === "whole" ? l.replace(/(?<![\d.,])\d{8,}(?![\d]|[.,]\d)/g, " ") : l);
+    const all = lines.flatMap((l) => amountsIn(undashWhole(noCodes(l), comma), comma));
     if (all.length) {
       cents = Math.max(...all);
       // the largest amount printed on the cash line is usually the money handed over, not
@@ -720,6 +727,10 @@ function arithmeticTotals(ps, texts, votes) {
   }
   return out;
 }
+// A whole-unit slip's total under 100 units ("Total 10 4", "TL - 2, OG", "Total 21 :")
+// is a digit or two OCR kept from a damaged amount, never a rupiah total: it gets no vote
+// (CORD train photos, eval/cord-train-photos-2026-11-17.md).
+const tinyWhole = (p, text) => p.cents < 10000 && text !== undefined && wholeStyle(String(text));
 function voteTotal(ps, support, texts = []) {
   // A reading's total line under a subtotal that same reading prints ("SUBTOTAL: 29.88" over
   // "TOTAL: 7.07", SRD 1022) loses its total-line point when some reading's cash less change
@@ -730,7 +741,7 @@ function voteTotal(ps, support, texts = []) {
   const belowOwnSubtotal = (p) => (p.subtotals ?? []).some((s) => s > p.cents && paid.some((v) => v > s));
   const votes = new Map();
   ps.forEach((p, i) => {
-    if (p.cents === null) return;
+    if (p.cents === null || tinyWhole(p, texts[i])) return;
     const v = votes.get(p.cents) ?? { score: support(p.cents), first: i };
     v.score += leadingZero(p, ps) ? GUESS_VOTE : guessedCash(p) && !support(p.cents) && !printedOffCash(texts, p.cents) ? CASH_GUESS_VOTE : (guessedLargest(p) ? GUESS_VOTE : 1) + (p.totalLine && !belowOwnSubtotal(p) ? 1 : 0);
     votes.set(p.cents, v);
@@ -878,11 +889,12 @@ function splitAtRate(texts, cents) {
 // lies between the read total and it; exactly one such amount, never below a subtotal read twice,
 // only when the total is in doubt, and a total line starting with 0 is no reference (eval/cord-wrong-totals-2026-11-17.md).
 const SUM_KINDS = new Set(["cash less change", "subtotal plus tax"]);
-function checkedAcrossReadings(ps, pick, support) {
+function checkedAcrossReadings(ps, pick, support, texts = []) {
   if (!(pick.cents > 0) || support(pick.cents) > 0) return null;
   // a total line whose amount starts with 0 ("TOTAL 07,900" for 57,500, validation-33) lost
   // its first digit, so it is no reference: one digit from it is the cash read short (7,500)
-  const read = ps.filter((p) => p.totalLine && p.cents > 0 && !/(?<![\d.,])0\d/.test(p.totalLine)).map((p) => p.cents);
+  // a tiny whole-unit total ("4 Total event" read as 4) puts no total in doubt (CORD train-84)
+  const read = ps.filter((p, i) => p.totalLine && p.cents > 0 && !/(?<![\d.,])0\d/.test(p.totalLine) && !tinyWhole(p, texts[i])).map((p) => p.cents);
   const by = new Map();
   ps.forEach((p, i) => { for (const [v, w] of p.checks) if (v > 0 && SUM_KINDS.has(w)) { if (!by.has(v)) by.set(v, new Set()); by.get(v).add(i); } });
   const subs = ps.flatMap((p) => p.subtotals ?? []), twice = subs.filter((s, i) => subs.indexOf(s) !== i);
@@ -893,6 +905,36 @@ function checkedAcrossReadings(ps, pick, support) {
   const between = (v) => twice.some((s) => s > pick.cents && s < v);
   const hits = [...by].filter(([v, rs]) => v !== pick.cents && read.some((t) => oneDigitApart(v, t)) && !twice.some((s) => s > v) && (rs.size >= 2 || between(v)));
   return hits.length === 1 ? hits[0][0] : null;
+}
+
+// A whole-unit slip that prints a tax line (Indonesia's PB1 or PPN, 10% or 11%): a subtotal
+// any reading read, plus that rate rounded to the unit, is a check on the total, as subtotal
+// plus tax is when the tax line's amount was read: "Subtotal Rp 37,800" at 10% is 41,580, which
+// one reading printed as its total while three took 8,400 / 9,600 / 1,200 lower down as total,
+// cash and change (CORD train-162; eval/cord-train-photos-2026-11-17.md).
+function atRate(ps, texts) {
+  const ts = texts.filter((t) => String(t ?? "").trim()).map(String);
+  if (!ts.some((x) => wholeStyle(x)) || !ts.some((x) => x.split(/\r?\n/).some((l) => (TAX_LINE_RE.test(l) || TAX_RE.test(l)) && !NOT_TAX_LINE_RE.test(l)))) return [];
+  const out = [];
+  for (const s of new Set(ps.flatMap((p) => p.subtotals ?? []))) {
+    if (!(s >= 100000) || s % 100) continue;
+    for (const r of SPLIT_RATES) out.push([Math.round((s / 100) * (1 + r)) * 100, "subtotal at the tax rate"]);
+  }
+  return out;
+}
+
+// A whole-unit total that ends in 00 and one more digit ("Total 6.008", "Total 31.508") is a
+// last 0 that OCR read as 8, 6, 9 or 3, or the amount before rounding ("Before Rounding 110,003"
+// over a total of 110,000, CORD train-400): 8 of CORD's 972 labelled totals end that way,
+// against 604 that end in 000. Taken as the amount with that digit a 0 when some reading prints that
+// amount on any line (an item line's "6.000", another reading's total), so a real 6,008 that
+// no reading shows as 6,000 stands (CORD train shards 1-3, eval/cord-train-shards-2026-11-17.md).
+function zeroLastDigit(cents, texts) {
+  if (!(cents > 0) || cents % 100 || !texts.some((x) => wholeStyle(x))) return null;
+  const u = cents / 100, d = u % 10;
+  if (u < 1000 || d === 0 || Math.floor(u / 10) % 100 !== 0) return null;
+  const z = (u - d) * 100;
+  return texts.some((x) => wholeStyle(x) && x.split(/\r?\n/).some((l) => amountsIn(l, "whole").includes(z))) ? z : null;
 }
 
 // One receipt read by OCR more than once (two page-segmentation modes, or two
@@ -906,7 +948,7 @@ export function parseReceiptPasses(texts, opts = {}) {
   if (!ps.length) return parseReceipt("", opts);
   const best = ps[0];
   if (ps.length === 1) return best;
-  const all = ps.flatMap((p) => p.checks);
+  const all = [...ps.flatMap((p) => p.checks), ...atRate(ps, texts)];
   // "another total line" is left out here: in a second reading the first reading's
   // own total line, misread differently, shows up as one (on SROIE, counting it
   // picked the wrong reading as often as the right one)
@@ -917,12 +959,19 @@ export function parseReceiptPasses(texts, opts = {}) {
   const out = { ...best };
   if (pick !== best) {
     Object.assign(out, { cents: pick.cents, taxCents: pick.taxCents, tipCents: pick.tipCents, items: pick.items, itemsOk: pick.itemsOk, taxIncluded: pick.taxIncluded, totalLine: pick.totalLine });
-    out.notes = [...best.notes.filter((n) => !/total|items add/i.test(n)), `OCR readings disagree on the total (${ps.map((p) => p.cents === null ? "none" : (p.cents / 100).toFixed(2)).join(" vs ")}); took ${(pick.cents / 100).toFixed(2)}, ${pick.derived ? `${pick.derived}: check the total` : "which the receipt's arithmetic confirms"}`];
+    out.notes = [...best.notes.filter((n) => !/total|items add/i.test(n)), `OCR readings disagree on the total (${ps.map((p) => p.cents === null ? "none" : (p.cents / 100).toFixed(2)).join(" vs ")}); took ${(pick.cents / 100).toFixed(2)}, ${pick.derived ? `${pick.derived}: check the total` : support(pick.cents) ? "which the receipt's arithmetic confirms" : "which most readings give but no check confirms: check the total"}`];
   }
-  const fixed = ps.length >= 3 ? checkedAcrossReadings(ps, pick, support) : null;
+  const fixed = ps.length >= 3 ? checkedAcrossReadings(ps, pick, support, texts.filter((t) => String(t ?? "").trim())) : null;
   if (fixed !== null) {
     out.notes = [...out.notes.filter((n) => !/total|items add/i.test(n)), `OCR readings read the total as ${[...new Set(ps.filter((p) => p.totalLine && p.cents > 0).map((p) => (p.cents / 100).toFixed(2)))].join(" and ")}, which no check confirms; took ${(fixed / 100).toFixed(2)}, which the receipt's own sums give (one digit from a total line): check the total`];
     Object.assign(out, { cents: fixed, totalLine: null, itemsOk: false });
+  }
+  const zero = ps.length >= 3 ? zeroLastDigit(out.cents, texts.filter((t) => String(t ?? "").trim()).map((t) => cleanOcr(String(t)))) : null;
+  if (zero !== null) {
+    out.notes = [...out.notes.filter((n) => !/total|items add/i.test(n)), `the total read as ${out.cents / 100} ends in 00${(out.cents / 100) % 10}, which a whole-unit slip rarely prints; took ${zero / 100}, which the readings also print: check the total`];
+    // the read total line with that last digit a 0, so the page's settled text reads it back
+    const line = out.totalLine && /\d(?=\D*$)/.test(out.totalLine) ? out.totalLine.replace(/\d(?=\D*$)/, "0") : null;
+    Object.assign(out, { cents: zero, itemsOk: false, totalLine: line });
   }
   const tax = voteTax(ps, out, pick, ps.length >= 3 ? texts.filter((t) => String(t ?? "").trim()).map((t) => cleanOcr(String(t))) : []);
   if (tax !== out.taxCents) {

@@ -102,9 +102,9 @@ test("age bands count each year of service by age during that year", () => {
   assert.match(r.findings.map((f) => f.title).join("\n"), /3 years at half a week \(under 22\), 3 at one week/);
 });
 
-test("money formatting: whole amounts have no decimals and small positives have no minus", () => {
+test("money formatting: whole amounts have no decimals, pence show two digits, and small positives have no minus", () => {
   const t = summaryText(run({ weekly: 0.5 }));
-  assert.match(t, /Weekly pay used: GBP 0\.5 /);
+  assert.match(t, /Weekly pay used: GBP 0\.50 /);
   assert.doesNotMatch(t, /GBP -|-GBP/);
   assert.match(summaryText(run({})), /Weekly pay used: GBP 751 /);
 });

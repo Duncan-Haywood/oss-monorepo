@@ -13,7 +13,12 @@ each was watched and whether the event happened, and get:
 - a **Cox proportional hazards model**: hazard ratios with intervals,
   likelihood-ratio, Wald and score tests, Efron or Breslow ties, a
   **proportional-hazards check** per term (Grambsch & Therneau 1994) and
-  **Harrell's concordance**.
+  **Harrell's concordance**;
+- **strata** (`--strata`): a stratified Cox model, where each stratum gets its
+  own baseline hazard and shares the coefficients, and the stratified
+  log-rank family of tests, for a variable you must adjust for but cannot
+  (or need not) give a hazard ratio, such as a study site or a term that
+  fails the proportional-hazards check.
 
 Live page: https://marisstella.app/survival-analysis/ (runs in the browser;
 nothing is uploaded).
@@ -52,6 +57,13 @@ Adding `sex` as well, the proportional-hazards check gives sex p = 0.052:
 borderline evidence that its effect is not constant over follow-up, so a
 single hazard ratio for sex would average over a changing effect.
 
+The usual remedy is to stratify by sex instead (`--strata sex`): each sex
+gets its own baseline hazard and no hazard ratio of its own. That fit gives
+treatment coefficient 0.998 (hazard ratio 2.71, 1.07 to 6.86) and logWBC
+1.454 (4.28 per unit), as lifelines and statsmodels also give; the stratified log-rank test of treatment is 9.70 on 1 df
+(p = 0.002), against 16.79 unstratified. Concordance, compared within each
+sex only, is 0.812.
+
 ## Verification
 
 Run `node --test` in this directory (or
@@ -78,6 +90,20 @@ Run `node --test` in this directory (or
     amount); the likelihood-ratio test (1e-6), Harrell's C (1e-6) and the
     proportional-hazards statistic with `time_transform="km"` (1e-3) against
     lifelines.
+- **Stratified fits.** The same script refits three cases with strata (the
+  example by `sex`, the 200-row case by its three-level `site`, the 120-row
+  case by the four combinations of two columns `s1`, `s2`) and the tests
+  check the stratified log-rank, Gehan-Breslow and Tarone-Ware statistics
+  against statsmodels' `survdiff(strata=...)` (1e-10, 1e-9); Cox
+  coefficients (1e-8), standard errors (1e-7) and the log-likelihood (1e-10)
+  against `PHReg(strata=...)` for both tie methods; and coefficients,
+  standard errors (1e-4), the log-likelihood (1e-6), within-strata
+  concordance (1e-6) and the proportional-hazards statistic (1e-3) against
+  lifelines' `CoxPHFitter(strata=...)`. Identities: a single stratum is the
+  unstratified fit; the data stacked twice as two strata (the copy with
+  every time multiplied by 7) keeps every coefficient and doubles the
+  log-likelihood and the log-rank statistic; within-strata concordance
+  equals a brute-force count of within-stratum pairs.
 - **Pinned values** for the example (the ones both libraries give, written
   out so a regression shows as a plain number): log-rank 16.79 with 9 observed and
   19.25 expected relapses on 6-MP; Efron coefficient 1.572 (HR 4.82), LR
@@ -122,9 +148,12 @@ Implemented from the papers' mathematics (`PAPERS` in `engine.mjs`, printed by
 
 Right-censored data only, every subject starting at 0. Assumes censoring is
 independent of outcome. Not modelled: late entry, time-varying covariates,
-strata, competing risks, frailty, interval censoring, weights, parametric
+competing risks, frailty, interval censoring, weights, parametric
 models. Bands, tests and Wald intervals are large-sample approximations;
-concordance is in-sample.
+concordance is in-sample. With strata, the proportional-hazards
+check's time scale is the pooled Kaplan-Meier, as in lifelines; the stratifying
+columns get no hazard ratio, and their own proportional hazards are not
+checked (they need none). Strata are capped at 50 combinations, and the Kaplan-Meier curves, medians and restricted means stay pooled over strata (one curve per group).
 
 ## Licence and disclaimer
 

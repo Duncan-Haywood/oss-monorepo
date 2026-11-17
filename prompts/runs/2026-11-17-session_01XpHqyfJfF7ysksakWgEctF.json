@@ -1,0 +1,273 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqyfJfF7ysksakWgEctF",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T05:38:50Z",
+  "ended": "2026-11-17T05:39:11Z",
+  "wall_minutes": 8.97,
+  "tokens_in": 3820796,
+  "tokens_out": 20861,
+  "cost_usd": 1.8921,
+  "tool_calls": 44,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16834",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First choice of target, ventures/shift-roster-builder/import-deputy.mjs (landed today), has a 189 s venture suite (769 tests), too slow for 8 mutants; switched to a random draw with --probe 20."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 1 suggests aiming at a file that just changed via `git log --since=3.days --name-only origin/main`, but the clone is depth 1 so that shows only the tip commit; and the most recent venture (shift-roster-builder) has a 3-minute suite, so 'just changed' and 'fast enough' often conflict."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 says fix the open list first; all 10 entries are control-plane fixes (workflows, prompts/) that need owner-approved PRs of their own and several already have patches/PRs waiting.",
+      "did": "Left them open, ran a campaign and hunt instead.",
+      "result": "3 real defects found and patched on a user-facing converter."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-the-copied-reader-nobody-tested.md"
+  ],
+  "goal": null,
+  "notes": "Guard added (4/4b): ventures/bai2-to-ofx-converter/reader-parity.test.mjs compares the converter's copied BAI2 reader with the tested bai2-statement-reader original on a 13-input corpus; it caught all 3 escaped mutants on its first run (rerun caught_after_fix true for each). Limitation: a change only to bai2-statement-reader does not run the converter suite under --changed, so drift surfaces on the converter's next run. Also read shift-roster-builder/import-deputy.mjs as an attacker (deputyBase host check, pagination, time-zone fallbacks); found nothing reproducible worth filing. Local checks: node --test in both bai2 ventures green (47 and 31 tests).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/bai2-to-ofx-converter/calc.mjs",
+        "test": "node --test ventures/bai2-to-ofx-converter/**/*.test.mjs  (in .)",
+        "seed": 1024866409,
+        "commit": "88a150ef1",
+        "sites": 541,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/bai2-to-ofx-converter/calc.mjs",
+            "line": 20,
+            "col": 174,
+            "operator": "const-plus-one",
+            "before": "const cents = (n) => ((t) => (n < 0 && /[1-9\u221e]/.test(t) ? \"-\" : \"\") + t)(\"$\" + (Math.abs(n) / 100).toLocaleString(\"en-US\", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));",
+            "after": "const cents = (n) => ((t) => (n < 0 && /[1-9\u221e]/.test(t) ? \"-\" : \"\") + t)(\"$\" + (Math.abs(n) / 100).toLocaleString(\"en-US\", { minimumFractionDigits: 2, maximumFractionDigits: 3 }));",
+            "line_text": "const cents = (n) => ((t) => (n < 0 && /[1-9\u221e]/.test(t) ? \"-\" : \"\") + t)(\"$\" + (Math.abs(n) / 100).toLocaleString(\"en-US\", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "maximumFractionDigits 2->3 in cents(): every amount passed is an integer number of cents (num() accepts only /^-?\\d+$/, sums of integers), so n/100 never has a third decimal."
+          },
+          {
+            "file": "ventures/bai2-to-ofx-converter/calc.mjs",
+            "line": 45,
+            "col": 36,
+            "operator": "minus-to-plus",
+            "before": "const dt = new Date(Date.UTC(y, m - 1, d));",
+            "after": "const dt = new Date(Date.UTC(y, m + 1, d));",
+            "line_text": "  const dt = new Date(Date.UTC(y, m - 1, d));",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bai2-to-ofx-converter/calc.mjs",
+            "line": 65,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "lines = lines[0].split(/\\/\\s*(?=(?:01|02|03|16|49|88|98|99),)/).map((l) => (l.endsWith(\"/\") ? l : l + \"/\"));",
+            "after": "lines = lines[0].split(/\\/\\s*(?=(?:01|02|4|16|49|88|98|99),)/).map((l) => (l.endsWith(\"/\") ? l : l + \"/\"));",
+            "line_text": "    lines = lines[0].split(/\\/\\s*(?=(?:01|02|03|16|49|88|98|99),)/).map((l) => (l.endsWith(\"/\") ? l : l + \"/\"));",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "One-line file split lost 03; caught now by reader-parity.test.mjs (one-line corpus compared with the tested bai2-statement-reader copy)."
+          },
+          {
+            "file": "ventures/bai2-to-ofx-converter/calc.mjs",
+            "line": 93,
+            "col": 42,
+            "operator": "minus-to-plus",
+            "before": "const prev = logical[logical.length - 1];",
+            "after": "const prev = logical[logical.length + 1];",
+            "line_text": "      const prev = logical[logical.length - 1];",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "88 continuation never exercised in this venture; caught now by reader-parity.test.mjs (88 continuation corpus)."
+          },
+          {
+            "file": "ventures/bai2-to-ofx-converter/calc.mjs",
+            "line": 160,
+            "col": 39,
+            "operator": "const-plus-one",
+            "before": "account = { rec: r, number: fl[1] || \"\", currency: fl[2] || group.currency || \"\", statuses: [], summaries: [], txns: [], sumStatus: 0, sumSummary: 0, sumDetail: 0, group, idx: idxOf.get(r) };",
+            "after": "account = { rec: r, number: fl[2] || \"\", currency: fl[2] || group.currency || \"\", statuses: [], summaries: [], txns: [], sumStatus: 0, sumSummary: 0, sumDetail: 0, group, idx: idxOf.get(r) };",
+            "line_text": "        account = { rec: r, number: fl[1] || \"\", currency: fl[2] || group.currency || \"\", statuses: [], summaries: [], txns: [], sumStatus: 0, sumSummary: 0, sumDetail: 0, group, idx: idxOf.get(r) };",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bai2-to-ofx-converter/calc.mjs",
+            "line": 256,
+            "col": 62,
+            "operator": "const-plus-one",
+            "before": "const sum98 = closed.reduce((s, g) => s + g.declared, 0);",
+            "after": "const sum98 = closed.reduce((s, g) => s + g.declared, 1);",
+            "line_text": "        const sum98 = closed.reduce((s, g) => s + g.declared, 0);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bai2-to-ofx-converter/calc.mjs",
+            "line": 259,
+            "col": 17,
+            "operator": "neq-flip",
+            "before": "if (nGrp !== groups.length) add(\"error\", \"99-GROUPS\", r.line, `File trailer says ${fl[2]} groups, the file has ${groups.length}`, \"Field 3 of the 99 record counts the 02/98 groups.\");",
+            "after": "if (nGrp === groups.length) add(\"error\", \"99-GROUPS\", r.line, `File trailer says ${fl[2]} groups, the file has ${groups.length}`, \"Field 3 of the 99 record counts the 02/98 groups.\");",
+            "line_text": "        if (nGrp !== groups.length) add(\"error\", \"99-GROUPS\", r.line, `File trailer says ${fl[2]} groups, the file has ${groups.length}`, \"Field 3 of the 99 record counts the 02/98 groups.\");",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bai2-to-ofx-converter/calc.mjs",
+            "line": 360,
+            "col": 15,
+            "operator": "eq-flip",
+            "before": "if (r.code === \"03\") {",
+            "after": "if (r.code !== \"03\") {",
+            "line_text": "    if (r.code === \"03\") {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "rebuildJoined (repair of a wrapped file) untested here; caught now by reader-parity.test.mjs comparing repair() output."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/bai2-to-ofx-converter/calc.mjs",
+        "issue": "toOfx escaped the memo and then cut it to 255 characters, so an '&' near the edge became '&a' (an unterminated entity in the OFX SGML). Reproduced with a 253-char customer reference + '&B'. Fixed: ofxCut trims the plain text until the escaped text fits.",
+        "patched": true
+      },
+      {
+        "file": "ventures/bai2-to-ofx-converter/calc.mjs",
+        "issue": "A statement whose 02 as-of date is invalid (e.g. 261399) still converted: QIF wrote 'Dundefined/undefined/261399', OFX DTPOSTED 261399120000, Xero *Date 261399. The page converts files with errors, so a user could download and import it. Fixed: toOfx/toQif/toXeroCsv throw a plain message, and the page shows it instead of downloading.",
+        "patched": true
+      },
+      {
+        "file": "ventures/bai2-statement-reader/calc.mjs",
+        "issue": "validate('') returned a summary without transactionList, so transactionsCsv threw on it (both copies). Not reachable from the page (it refuses blank input) but reachable from the exported API. Fixed in both copies, with a test.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "699208b8-a20d-55c2-859a-4a3c36ae830a",
+    "transcripts": 1,
+    "first": "2026-11-17T05:38:50Z",
+    "last": "2026-11-17T05:47:48Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 43,
+        "input": 85,
+        "output": 20861,
+        "thinking": 6385,
+        "cache_read": 3729632,
+        "cache_write_5m": 0,
+        "cache_write_1h": 91079,
+        "api_equivalent_usd": 1.8921,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 43,
+      "input": 85,
+      "output": 20861,
+      "thinking": 6385,
+      "cache_read": 3729632,
+      "cache_write_5m": 0,
+      "cache_write_1h": 91079,
+      "api_equivalent_usd": 1.8921,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 44,
+    "tools": {
+      "Bash": 42,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.97,
+      "active_minutes": 8.97,
+      "model_minutes": 3.65,
+      "tool_minutes": 5.32,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "senior engineer: mutation triage, parity harness, two converter fixes with tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 211.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

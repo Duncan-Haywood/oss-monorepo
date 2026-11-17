@@ -2,6 +2,9 @@
 """Compare this checker with IfcOpenShell's IfcTester on real models.
 
     pip install ifctester ifcopenshell
+    (install a matching pair: ifctester 0.8.0 crashes with ifcopenshell
+    0.9.0.post1 ("no attribute 'wrapped_data'") and runs with ifcopenshell
+    0.8.5; eval/untyped-values-2026-11-17.md)
     python3 eval/crosscheck_ifctester.py SPEC.ids MODEL.ifc [MODEL.ifc ...]
 
 For each model and specification, prints IfcTester's verdict and failing

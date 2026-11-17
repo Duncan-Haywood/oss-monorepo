@@ -109,6 +109,32 @@ export function evaluate(rows, prices, costs) {
   return { prices: prices.slice(), buyers, revenue, profit, paying, total, none: total - paying };
 }
 
+// Profit alone, with the same choice rule and the same summation order as evaluate(), so the number is bit-identical;
+// the searches below call it millions of times and build the full result only for a winner (no per-call arrays).
+function flatten(rows, k) {
+  const n = rows.length, V = new Float64Array(n * k), W = new Float64Array(n);
+  rows.forEach(({ v, w }, i) => { W[i] = w; for (let t = 0; t < k; t++) V[i * k + t] = v[t]; });
+  return { n, k, V, W, buyers: new Float64Array(k) };
+}
+
+function profitOf(fl, prices, costs) {
+  const { n, k, V, W, buyers } = fl;
+  buyers.fill(0);
+  for (let i = 0, o = 0; i < n; i++, o += k) {
+    let best = -1, bestS = -1e-9;
+    for (let t = 0; t < k; t++) {
+      const v = V[o + t];
+      if (v <= 0) continue;
+      const s = v - prices[t];
+      if (s > bestS + 1e-12 || (Math.abs(s - bestS) <= 1e-12 && best >= 0 && prices[t] > prices[best])) { best = t; bestS = s; }
+    }
+    if (best >= 0) buyers[best] += W[i];
+  }
+  let profit = 0;
+  for (let t = 0; t < k; t++) profit += buyers[t] * (prices[t] - costs[t]);
+  return profit;
+}
+
 function candidates(rows, t, cost, cap) {
   const set = new Set();
   for (const r of rows) if (r.v[t] > 0 && r.v[t] >= cost) set.add(Math.round(r.v[t] * 100) / 100);
@@ -127,27 +153,42 @@ function ladder(rows, costs, cap) {
   const cands = [];
   for (let t = 0; t < k; t++) cands.push(candidates(rows, t, costs[t], cap));
   if (cands.some((c) => c.length === 0)) return null;
-  let best = null;
+  // Each depth keeps every respondent's best plan among the prices fixed so far (same order, same tie rule as choose()),
+  // so the last plan's loop compares one plan per respondent instead of k.
+  const { n, V, W, buyers } = flatten(rows, k);
+  const bi = Array.from({ length: k + 1 }, () => new Int32Array(n).fill(-1));
+  const bs = Array.from({ length: k + 1 }, () => new Float64Array(n).fill(-1e-9));
+  let best = null, bestProfit = 0;
   const cur = new Array(k);
   (function go(t) {
-    if (t === k) {
-      const e = evaluate(rows, cur, costs);
-      if (!best || e.profit > best.profit + 1e-9) best = e;
-      return;
-    }
+    const pi = bi[t], ps = bs[t], ni = bi[t + 1], ns = bs[t + 1], last = t === k - 1;
     for (const p of cands[t]) {
       if (t > 0 && p < cur[t - 1]) continue;
       cur[t] = p;
-      go(t + 1);
+      if (last) buyers.fill(0);
+      for (let i = 0, o = t; i < n; i++, o += k) {
+        let b = pi[i], bS = ps[i];
+        const v = V[o];
+        if (v > 0) {
+          const s = v - p;
+          if (s > bS + 1e-12 || (Math.abs(s - bS) <= 1e-12 && b >= 0 && p > cur[b])) { b = t; bS = s; }
+        }
+        if (last) { if (b >= 0) buyers[b] += W[i]; } else { ni[i] = b; ns[i] = bS; }
+      }
+      if (!last) { go(t + 1); continue; }
+      let profit = 0;
+      for (let u = 0; u < k; u++) profit += buyers[u] * (cur[u] - costs[u]);
+      if (!best || profit > bestProfit + 1e-9) { best = cur.slice(); bestProfit = profit; }
     }
   })(0);
-  return best;
+  return best && evaluate(rows, best, costs);
 }
 
 // Exact one-price-at-a-time search: with the other prices fixed, profit only changes where some respondent switches plan,
 // which happens at their own value or where this plan's surplus equals their best alternative, so only those prices are tested.
 function refine(rows, costs, start) {
   const k = costs.length;
+  const fl = flatten(rows, k);
   let best = start;
   for (let guard = 0, improved = true; improved && guard < 60; guard++) {
     improved = false;
@@ -169,8 +210,7 @@ function refine(rows, costs, start) {
       for (const p of pts) {
         if (p < costs[t] || p < lo - 1e-9 || p > hi + 1e-9 || p === best.prices[t]) continue;
         const trial = best.prices.slice(); trial[t] = p;
-        const e = evaluate(rows, trial, costs);
-        if (e.profit > best.profit + 1e-9) { best = e; improved = true; }
+        if (profitOf(fl, trial, costs) > best.profit + 1e-9) { best = evaluate(rows, trial, costs); improved = true; }
       }
     }
   }

@@ -189,6 +189,7 @@ ventures/card-surcharge-vs-cash-discount-calculator/usage.mjs
 ventures/cargo-audit-triage/usage.mjs
 ventures/carpet-cleaning-bid-calculator/usage.mjs
 ventures/carpet-install-bid-calculator/usage.mjs
+ventures/cash-application-matcher/usage.mjs
 ventures/cash-balance-plan-calculator/usage.mjs
 ventures/cash-flow-risk-forecaster/usage.mjs
 ventures/cat-adjuster-fee-calculator/usage.mjs
@@ -265,6 +266,7 @@ ventures/convenience-store-gas-station-profit-calculator/usage.mjs
 ventures/cookie-security-check/usage.mjs
 ventures/cors-misconfig-check/usage.mjs
 ventures/cost-segregation-study-calculator/usage.mjs
+ventures/cost-sharing-calculator/usage.mjs
 ventures/cottage-food-pricing-calculator/usage.mjs
 ventures/countertop-bid-calculator/usage.mjs
 ventures/courier-van-route-profit-calculator/usage.mjs
@@ -641,6 +643,7 @@ ventures/kitchen-tile-backsplash-bid-calculator/usage.mjs
 ventures/klaviyo-profile-csv-check/usage.mjs
 ventures/ko-fi-payout-to-journal/usage.mjs
 ventures/kombucha-brewery-profit-calculator/usage.mjs
+ventures/kriging-interpolation/usage.mjs
 ventures/lambda-memory-rightsizer/usage.mjs
 ventures/lambda-vs-fargate-cost-breakeven/usage.mjs
 ventures/land-survey-bid-calculator/usage.mjs
@@ -1093,6 +1096,7 @@ ventures/square-sales-to-journal/usage.mjs
 ventures/squarespace-product-csv-check/usage.mjs
 ventures/sri-check/usage.mjs
 ventures/sshd-config-check/usage.mjs
+ventures/stable-matching/usage.mjs
 ventures/staffing-markup-calculator/usage.mjs
 ventures/stair-lift-bid-calculator/usage.mjs
 ventures/standby-generator-bid-calculator/usage.mjs
@@ -1292,6 +1296,7 @@ ventures/vineyard-grape-vs-wine-calculator/usage.mjs
 ventures/vinyl-liner-bid-calculator/usage.mjs
 ventures/visit-keeper/usage.mjs
 ventures/voiceover-project-rate-calculator/usage.mjs
+ventures/voltage-drop-calculator/usage.mjs
 ventures/volunteer-shift-scheduler/usage.mjs
 ventures/vpat-acr-generator/usage.mjs
 ventures/vscode-extension-drift-check/usage.mjs

@@ -501,6 +501,20 @@ model and the 0.2 N m threshold are modelled, not measured; statics only.
 
 ![Worst residual along the wall against the preload margin for two sensors, and the hedged compensator](experiments/m37_preload/figure.png)
 
+**Milestone 38: can a two-hand squeeze preload the arms?** A force pair along the line between the two grip points
+pushes the hands together (or apart) without changing the tool's wrench, so it moves only the arm joints: the base,
+legs and waist see at most 1e-16 N m per newton (H141 held). Chosen by the controller from its plan, a squeeze of up to
+**10 N** clears all 14 arm flips (H143 held). With milestone 37's leg preload and the FT 300, the G1's worst residual at a
+5 N drag falls from 0.83 to **0.49 mm** (H144 held) and at 20 N from 0.29 to 0.01 mm, and the 0–20 N stack loss from
+**1.64 to 0.05 points** (H1: 2.19 to 0.02). The G1's arm margin at 20 N is 0.07 N m at its worst pose, not the 0.1
+registered (H142 refuted). What is left, up to **0.50 mm**, is in the waist (the H1's torso), which no squeeze or ground
+reaction can move (H145 held). With the pre-2017 sensor the squeeze makes some cells worse. Side finding: holding the
+3.4 kg nailer, the G1's right wrist pitch already exceeds its 5 N m model rating at 7 of 14 poses, so the squeeze is
+not allowed to push any joint further past its limit. Grip force is swept (no hand publishes one), the squeeze is an
+ideal force pair, statics only.
+
+![Worst residual along the wall against the squeeze bound for two sensors, and which joints still flip](experiments/m38_squeeze/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).

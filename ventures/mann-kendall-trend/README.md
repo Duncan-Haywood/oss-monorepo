@@ -90,7 +90,7 @@ readings even the default reached 13%.
 
 ## Verification
 
-`node --test *.test.mjs` (about 30 s). Reference values are in
+`node --test *.test.mjs` (about 2 s). Reference values are in
 `eval/reference.json`, produced by `eval/reference.py` with pymannkendall
 1.4.3 (MIT) and scipy 1.17.1 (BSD-3-Clause); neither library's code is in the
 engine.

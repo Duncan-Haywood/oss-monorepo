@@ -11,7 +11,7 @@ export const YEARS = { 2021: "2021/22", 2022: "2022/23", 2023: "2023/24", 2024: 
 export const RATES = [19, 20, 21, 40, 42, 45, 48];
 export const P87_LIMIT = 2500;
 
-const money = (n) => "GBP " + Number(Math.round(n * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+const money = (n) => "GBP " + Number(Math.round(n * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\.\d$/, (m) => m + "0");
 const r2 = (n) => Math.round(n * 100) / 100;
 const yn = (v) => v === true || v === "yes";
 

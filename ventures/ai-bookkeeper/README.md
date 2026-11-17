@@ -2898,6 +2898,49 @@ as three readings): unchanged, except CORD validation text 96 to 97. Details:
 [`eval/cord-wrong-totals-2026-11-17.md`](eval/cord-wrong-totals-2026-11-17.md).
 Tests: `receipt-crosscheck.test.mjs`.
 
+### CORD train photos: a fresh development set (2026-11-17)
+
+Every photo rule had been chosen on CORD validation or SRD. Read for the first time, 200 CORD
+train photos score 115 of 196 totals (58.7%) against validation's 69 of 98 (70.4%): validation
+was overfit, and unseen phone photos of Indonesian receipts sit near 57-59%. Rules written from
+train misses only: `SUB. TOTAL` is a subtotal; `Bayar` (paid) and a cut `Kembal` (change) make
+cash less change; a whole-unit total under 100 units gets no vote; long digit runs are not
+amounts; `Qty: 3 Amount: 262,000` is a total line; a subtotal at Indonesia's 10% or 11% tax
+rate is a check when a tax line is printed. Train photos 115 to 122; validation 69 to 70;
+held-out test photos, scored once, 54 to 55, with wrong totals the page does not flag 5 to 2;
+SRD 155 to 156; CORD text train 749 to 761 and test 92 to 93; SROIE unchanged. Details:
+[`eval/cord-train-photos-2026-11-17.md`](eval/cord-train-photos-2026-11-17.md).
+Tests: `cord-train-photos.test.mjs`.
+
+### RapidOCR and tesseract together (2026-11-17)
+
+`--rapidocr --four-pass` reads the photo with RapidOCR first, then with tesseract's four
+readings, and all five vote (`RECEIPT_OCR_LEAD` does the same with any OCR command):
+
+```
+RAPIDOCR_PYTHON=v/bin/python node cli.mjs --books b.json receipts photo.jpg --rapidocr --four-pass
+```
+
+Against `--rapidocr` alone, totals stay about level and taxes go up. Held-out CORD test:
+totals 80 and 80 of 95, tax 28 to 32 of 41. US receipt photos (SRD): 180 to 181 of 196, tax
+142 to 162 of 185. CORD train shards 1-3 (where the order was chosen): 515 to 510 of 583, tax
+172 to 203 of 267. Against tesseract's four alone, test totals go from 56 to 80. Details:
+[`eval/second-ocr-engine-2026-11-17.md`](eval/second-ocr-engine-2026-11-17.md).
+
+### CORD train shards 1-3: 600 more unseen photos (2026-11-17)
+
+The other three CORD train shards, read for the first time, score 356 of 583 totals (61.1%)
+through the CLI, in line with shard 0 and test: the unseen-photo rate holds near 60%. Two
+changes, written from their misses only: a whole-unit total ending in `00` and one digit
+(`Total 6.008`) is the amount ending `000` when a reading prints it (8 of CORD's 972 totals end
+that way, 604 in `000`); and the page writes a rupiah total with no line of its own as
+`Total 110,000`, not `Total 110000.00`, which the slip read back as another amount. Train photos
+356 to 362 (CLI) and 341 to 357 (page); validation page 67 to 70; held-out test, scored once,
+55 to 56 (CLI) and 53 to 55 (page); CORD text unchanged. A fifth reading of the bottom half of
+the photo found the total on 5 of 149 OCR-bound misses, so it was dropped. Details:
+[`eval/cord-train-shards-2026-11-17.md`](eval/cord-train-shards-2026-11-17.md).
+Tests: `cord-train-shards.test.mjs`.
+
 ### A change line read as HANGE, a stray TL, a total under its subtotal (2026-11-17)
 
 SRD 1022 read 7.07 for 37.37. Three narrow fixes, each needed: the change line is also found
@@ -2910,6 +2953,58 @@ the page, CORD validation and held-out test photos, CORD text and SROIE text unc
 1022 is the only receipt that changed. Details:
 [`eval/change-ocr-2026-11-17.md`](eval/change-ocr-2026-11-17.md).
 Tests: `receipt-crosscheck.test.mjs`.
+
+### A second OCR engine for photos: `--rapidocr` (2026-11-17)
+
+`receipts photo.jpg --rapidocr` reads the photo with [RapidOCR](https://github.com/RapidAI/RapidOCR)
+instead of tesseract: PaddleOCR's detection and recognition models run through ONNX Runtime
+on your own CPU, offline (`pip install rapidocr-onnxruntime`, Apache-2.0; set
+`RAPIDOCR_PYTHON` to a virtual environment's python if it is not in `python3`).
+`rapidocr_rows.py` turns its word boxes into rows for the same parser. One reading, no parser
+change, totals right:
+
+| photos | tesseract, `--four-pass` | `--rapidocr` |
+|---|---|---|
+| CORD train shard 0 (development) | 122 / 196 | **172 / 196** |
+| CORD validation | 70 / 98 | **83 / 98** |
+| **CORD test, held out** | 55 / 95 | **80 / 95** |
+| SRD, 196 US photos | 156 / 196 | **180 / 196** |
+
+(Tesseract column before PR #16822, whose rules make test 56 of 95.) Taxes rise too (CORD test 16 to 28 of 41, SRD 135 to 142 of 185). It came out of a
+failed idea: 49 of 81 CORD train misses had the total in no tesseract reading, and a crop to
+the bottom third or five image variants (normalised, colour channels, a local threshold)
+recovered at most 3 of them. Nothing was tuned on these photos, so every set but train is
+unseen. Mixing RapidOCR with tesseract's four readings in the vote lowered totals (170 on
+train), so it is a separate mode for now. (Since 2026-11-17 the page runs RapidOCR too: "RapidOCR on the page" below.) About 3.6 s a
+photo on one core. Details:
+[`eval/rapidocr-2026-11-17.md`](eval/rapidocr-2026-11-17.md). Tests: `rapidocr.test.mjs`.
+
+### RapidOCR on the page (2026-11-17)
+
+The receipts card's "Receipt photos" control now reads each photo with RapidOCR first, in the
+browser, then with tesseract.js four times, and all five readings vote, as
+`receipts --rapidocr --four-pass` does. `rapidocr-web.mjs` is a JavaScript port of
+rapidocr-onnxruntime 1.4.4's pipeline (detection post-processing, crops, the 180-degree
+classifier, CTC decoding) run through ONNX Runtime Web 1.20.1; the models (PaddleOCR PP-OCRv4,
+Apache-2.0, npm `@gutenye/ocr-models@1.4.2`, outputs equal to the wheel's) and the runtime,
+about 16 MB, come from jsDelivr the first time a photo is read with the box ticked. Nothing is
+uploaded. Untick "also read with RapidOCR" for tesseract alone; if RapidOCR cannot load, the
+page falls back to tesseract and says why.
+
+On SRD's 196 US receipt photos, what the page puts in the receipts box:
+
+| page readers | totals right | tax right of 185 |
+|---|---|---|
+| tesseract four (before) | 155 | 135 |
+| **RapidOCR first, then tesseract four (now)** | **184** | **166** |
+
+In headless Chromium the port's text matches the Python engine's on 170 of 199 photos and on
+98.5% of lines. Two pieces had to be exact to get there: pyclipper's round-join unclip and
+OpenCV's fixed-point linear resize. Caveats: tesseract's column was made with tesseract 5.3.4,
+not tesseract.js; RapidOCR takes about 4 s a photo on one WASM thread and blocks the tab while
+it reads (next: a Web Worker); CORD photos were not re-read (huggingface.co refused the
+session's proxy). Details: [`eval/rapidocr-web-2026-11-17.md`](eval/rapidocr-web-2026-11-17.md).
+Tests: `rapidocr-web.test.mjs`; the page end to end: `eval/photo-ocr-browser.mjs`.
 
 ## Budget against actual
 

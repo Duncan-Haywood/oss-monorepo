@@ -91,3 +91,7 @@ test("the footer links AI Bookkeeper, the ledger these journals feed", async () 
   const { readFileSync } = await import("node:fs");
   assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/ai-bookkeeper\/"/);
 });
+
+test('footer links the cash application matcher, its receivables sibling', () => {
+  assert.match(html, /href="\.\.\/cash-application-matcher\/"/);
+});

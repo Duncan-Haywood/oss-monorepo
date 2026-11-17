@@ -1,0 +1,62 @@
+# Milestone 11ae: exact_D (exact_dense.exact_terms, K = 8) against cf_D+ with 12 and 16 operators (exact_scale.py)
+# semi, R = 50 m, Lambda = 240/h; layouts [1200, 1201, 1202, 1203, 1204, 1205, 1206, 1207] and [1600, 1601, 1602, 1603]; k = 2 exhaustive; k = 4 exhaustive at M = 12, best of 200 descents at M = 16
+
+## M = 12 per layout
+idx   cfD+/E   r_pair  even/all  odd/all  same2  lossE2  lossD2  ret2_E  ret2_cf  same4  lossE4  ret4_E  ret4_cf  rbE    rbcf   gdE2    gdD2    gdE4    gdD4   CPU_E
+1200  1.0016  1.00000  0.99297  1.00703   True  1.0000  1.0000  0.3432  0.3430   True  1.0000  0.0925  0.0922  1.0785  1.0788  1.0000  1.0000  1.0000  1.0000   1875
+1201  1.0026  0.99999  0.99870  1.00130   True  1.0000  1.0000  0.3380  0.3381   True  1.0000  0.0843  0.0843  1.1852  1.1838  1.0000  1.0000  1.0000  1.0000   2025
+1202  1.0012  0.99999  0.98673  1.01327   True  1.0000  1.0000  0.3349  0.3354   True  1.0000  0.1260  0.1264  1.0364  1.0362  1.0000  1.0000  1.0000  1.0000   1845
+1203  1.0019  0.99997  0.99914  1.00086   True  1.0000  1.0000  0.2203  0.2217   True  1.0000  0.0275  0.0275  1.0010  1.0009  1.0000  1.0000  1.0080  1.0073   1404
+1204  1.0015  1.00000  0.99572  1.00428   True  1.0000  1.0000  0.3579  0.3582   True  1.0000  0.0623  0.0624  1.0898  1.0889  1.0000  1.0000  1.0000  1.0000   1679
+1205  0.9998  1.00000  0.99360  1.00640   True  1.0000  1.0000  0.2960  0.2967   True  1.0000  0.0914  0.0914  1.1371  1.1384  1.0000  1.0000  1.0000  1.0000   1908
+1206  1.0009  1.00000  0.99271  1.00729   True  1.0000  1.0000  0.2593  0.2592   True  1.0000  0.0763  0.0760  1.0648  1.0650  1.0000  1.0000  1.0021  1.0021   1286
+1207  1.0033  0.99996  0.99602  1.00398   True  1.0000  1.0000  0.3543  0.3538   True  1.0000  0.0957  0.0955  1.0103  1.0106  1.0000  1.0000  1.0000  1.0000   1557
+M=12: pooled cfD+/E 1.0015 (sd over layouts 0.0010, range 0.9998 to 1.0033); all-zone cfD+/E pooled 1.0007
+M=12 gas_d: mean loss_E k=2 1.0000 (loss_D 1.0000), k=4 1.0013 (loss_D 1.0012)
+M=12 gas_d+: mean loss_E k=2 1.0000 (loss_D 1.0000), k=4 1.0010 (loss_D 1.0009)
+M=12 CPU s per layout: exact_D mean 1698 max 2025; cf_D+ mean 156; partitions mean 5; box-candidate fraction 0.272
+
+## M = 16 per layout
+idx   cfD+/E   r_pair  even/all  odd/all  same2  lossE2  lossD2  ret2_E  ret2_cf  same4  lossE4  ret4_E  ret4_cf  rbE    rbcf   gdE2    gdD2    gdE4    gdD4   CPU_E
+1600  1.0023  0.99999  0.99730  1.00270   True  1.0000  1.0000  0.3365  0.3365   True  1.0000  0.0805  0.0803  1.3974  1.3979  1.0000  1.0000  1.0000  1.0000   2439
+1601  1.0015  1.00000  0.99817  1.00183   True  1.0000  1.0000  0.3543  0.3543   True  1.0000  0.0875  0.0874  1.2154  1.2148  1.0000  1.0000  1.0000  1.0000   2953
+1602  1.0015  1.00000  0.99878  1.00122   True  1.0000  1.0000  0.3597  0.3595   True  1.0000  0.1079  0.1079  1.0380  1.0388  1.0000  1.0000  1.0004  1.0005   3363
+1603  1.0010  0.99998  0.99711  1.00289   True  1.0000  1.0000  0.3080  0.3081   True  1.0000  0.0736  0.0734  1.1861  1.1870  1.0000  1.0000  1.0000  1.0000   1710
+M=16: pooled cfD+/E 1.0016 (sd over layouts 0.0005, range 1.0010 to 1.0023); all-zone cfD+/E pooled 1.0009
+M=16 gas_d: mean loss_E k=2 1.0000 (loss_D 1.0000), k=4 1.0001 (loss_D 1.0001)
+M=16 gas_d+: mean loss_E k=2 1.0000 (loss_D 1.0000), k=4 1.0006 (loss_D 1.0005)
+M=16 CPU s per layout: exact_D mean 2616 max 3363; cf_D+ mean 267; partitions mean 1; box-candidate fraction 0.265
+
+## Prediction checks
+(1) M=12 pooled cfD+/E 1.0015 in [1.000, 1.010]: True
+(2) M=12 within 1%: 8/8 (>= 7): True
+(3) M=12 min pair-weight r 0.99996 >= 0.99: True
+(4) M=12 k=2 cfD+ split = exact_D best in 8/8 (>= 5), mean loss_E 1.00000 (<= 1.002), max 1.00000: True
+(5) M=12 k=4 cfD+ partition = exact_D best in 8/8, mean loss_E 1.00000 (<= 1.005), min 1.00000, max 1.00000: True
+(6) M=12 max |ret_E - ret_cf|: k=2 0.0014, k=4 0.0003 (<= 0.01); median ret_E k=2 0.3364, k=4 0.0879: True
+(7) M=12 recursive bisection on exact_D: mean 1.0754 (>= 1.05), median 1.0716, worse in 8/8; on cf_D+ 1.0753: True
+(8) M=12 max |mean loss_E - mean loss_D| over gas_d(+), k=2,4: 0.00009 (<= 0.005): True
+(9) M=12 max sub-rule deviation 0.01327 (<= 0.001): False
+(10) M=12 mean exact_D CPU 1698 s (<= 3000): True
+(1) M=16 pooled cfD+/E 1.0016 in [1.000, 1.010]: True
+(2) M=16 within 1%: 4/4 (>= 3): True
+(3) M=16 min pair-weight r 0.99998 >= 0.99: True
+(4) M=16 k=2 cfD+ split = exact_D best in 4/4 (>= 2), mean loss_E 1.00000 (<= 1.002), max 1.00000: True
+(5) M=16 k=4 cfD+ partition = exact_D best in 4/4, mean loss_E 1.00000 (<= 1.005), min 1.00000, max 1.00000: True
+(6) M=16 max |ret_E - ret_cf|: k=2 0.0001, k=4 0.0002 (<= 0.01); median ret_E k=2 0.3454, k=4 0.0840: True
+(7) M=16 recursive bisection on exact_D: mean 1.2092 (>= 1.05), median 1.2008, worse in 4/4; on cf_D+ 1.2096: True
+(8) M=16 max |mean loss_E - mean loss_D| over gas_d(+), k=2,4: 0.00006 (<= 0.005): True
+(9) M=16 max sub-rule deviation 0.00289 (<= 0.001): False
+(10) M=16 mean exact_D CPU 2616 s (<= 6000): True
+P1: held
+P2: held
+P3: held
+P4: held
+P5: held
+P6: held
+P7: held
+P8: held
+P9: refuted
+P10: held
+k=4 cells where cf_D+'s partition beat exact_D's own search (loss_E < 1): none
+# wall time 7070 s

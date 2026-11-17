@@ -239,3 +239,69 @@ test("bounded properties: a range ignores the set point, and a missing bound is 
   assert.equal(check(p(`<simpleValue>5</simpleValue>`), model("$", "IFCREAL(5.)", "$")).pass, true, "upper bound only");
   assert.equal(check(range, model("IFCREAL(1.)", "$", "$")).pass, false, "a range needs both bounds");
 });
+
+test("parseXml: a truncated file throws instead of looping forever", () => {
+  const whole = '<?xml version="1.0"?><!-- c --><ids xmlns="x"><info><title><![CDATA[t]]></title></info><specifications/></ids>';
+  assert.equal(parseXml(whole).local, "ids");
+  // every prefix of a well-formed file must end, and every proper prefix must throw
+  for (let n = 1; n < whole.length; n++) assert.throws(() => parseXml(whole.slice(0, n)), undefined, `prefix of ${n}`);
+  for (const bad of ["<ids><not closed", "<!-- open", "<?xml", "<![CDATA[x", "<!DOCTYPE", "<ids></ids", "<ids>< </ids>"]) {
+    assert.throws(() => parseXml(bad), /unterminated|no element name|unclosed|mismatched/, bad);
+  }
+});
+
+test("parseStep: every prefix of a STEP file ends (a cut-off enum once looped forever)", async () => {
+  const { parseStep } = await import("./step.mjs");
+  const t = readFileSync(new URL("samples/tiny-house.ifc", import.meta.url), "utf8");
+  for (let n = 1; n < t.length; n++) { try { parseStep(t.slice(0, n)); } catch { /* "no DATA section" is fine */ } }
+  const cut = t.slice(0, t.indexOf(".LENGTHUNIT.") + 11);
+  const r = parseStep(cut);
+  assert.ok(r.errors.some((e) => /unterminated enumeration/.test(e)), r.errors.join("; "));
+  assert.ok(r.entities.has(1));
+  assert.ok(parseStep("DATA;\n#1=IFCWALL(#);\n#2=IFCWALL('x');").entities.has(2), "'#' with no number is one bad entity, not a loop");
+});
+
+// Lazy arguments, 2026-11-17 (eval/heap-200mb-2026-11-17.md).
+test("parseStep reads arguments on first use, with the same values as an eager read", () => {
+  const t = readFileSync(new URL("samples/tiny-house.ifc", import.meta.url), "utf8");
+  const lazy = parseStep(t);
+  const eager = parseStep(t, { eager: true });
+  assert.equal(lazy.entities.size, eager.entities.size);
+  for (const [id, e] of eager.entities) {
+    const l = lazy.entities.get(id);
+    assert.equal(l.type, e.type);
+    assert.deepEqual(l.args, e.args, `#${id}`);
+  }
+  assert.equal(JSON.stringify(lazy.entities.get(1)), JSON.stringify(eager.entities.get(1)));
+});
+
+test("parseStep: a lazy record skips ';' inside strings and comments, and a bad record reports when read", () => {
+  const r = parseStep("DATA;\n#1=IFCWALL('a;b''c;',/* ; ' */ 2);\n#2=IFCWALL(#);\n#3=IFCWALL('x');\nENDSEC;\n");
+  assert.deepEqual(r.entities.get(1).args, ["a;b'c;", 2]);
+  assert.deepEqual(r.entities.get(3).args, ["x"]);
+  assert.deepEqual(r.errors, []);
+  assert.deepEqual(r.entities.get(2).args, []);
+  assert.ok(/#2: '#' with no number/.test(r.errors[0]), r.errors.join("; "));
+  r.entities.get(2).args;
+  assert.equal(r.errors.length, 1, "an error is recorded once");
+});
+
+test("federate: entity numbers shift past the previous file's, references inside strings do not", async () => {
+  const { federate } = await import("./eval/federate.mjs");
+  const a = "ISO-10303-21;\nHEADER;\nFILE_SCHEMA(('IFC4'));\nENDSEC;\nDATA;\n#1=IFCWALL('#1',#2);\n#2=IFCY();\nENDSEC;\nEND-ISO-10303-21;\n";
+  let out = "";
+  const r = federate([a, a], (s) => { out += s; });
+  assert.equal(r.entities, 4);
+  const m = parseStep(out);
+  assert.deepEqual(m.entities.get(3).args, ["#1", { ref: 4 }]);
+  assert.equal(m.entities.get(4).type, "IFCY");
+});
+
+test("parseStep: types the policy does not keep are read again on each use, with the same values", () => {
+  const r = parseStep("DATA;\n#1=IFCCARTESIANPOINT((0.,1.,2.));\n#2=IFCWALL('g');\nENDSEC;\n");
+  r.policy.keep = (t) => t !== "IFCCARTESIANPOINT";
+  const a = r.entities.get(1).args;
+  assert.deepEqual(a, [[0, 1, 2]]);
+  assert.notEqual(r.entities.get(1).args, a, "not kept");
+  assert.equal(r.entities.get(2).args, r.entities.get(2).args, "kept");
+});

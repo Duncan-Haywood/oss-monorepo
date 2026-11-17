@@ -109,6 +109,35 @@ test("compiler: rewrites xsl:function as XQuery and refuses what it cannot trans
   await assert.rejects(compileText({ "main.sch": SCH(`<pattern id="p"><rule context="/a"><extends rule="r"/></rule></pattern>`) }), /unsupported <extends>/);
 });
 
+test("compiler: XSLT scoping that FNFE-MPE's BR-FR rules rely on", { skip: skip || (!compileReady && "slimdom") }, async () => {
+  const r = await compileText({
+    "main.sch": SCH(`<ns prefix="c" uri="urn:c"/>
+      <x:function name="c:in-list" as="xs:boolean"><x:param name="v" as="xs:string?"/><x:variable name="c:codes" select="'A B'"/><x:sequence select="$v = tokenize($c:codes, ' ')"/></x:function>
+      <pattern id="p1"><let name="docId" value="/r/@id"/><rule context="/r"><assert id="L-1" test="c:in-list(@code)">[L-1]-code</assert></rule></pattern>
+      <pattern id="p2"><rule context="g"><assert id="L-2" test="@ref = $docId">[L-2]-ref</assert></rule></pattern>
+      <pattern id="p3"><rule context="g">
+        <let name="cur" value="../@cur"/><let name="gid" value="@id"/>
+        <let name="sum" value="sum(../i[@parent = $gid]/@n)"/>
+        <assert id="L-3" test="@n = $sum">[L-3]-sum</assert>
+        <assert id="L-4" test="exists(t[@cur = $cur])">[L-4]-cur</assert>
+        <assert id="L-5" test="$cur = 'EUR'">[L-5]-eur</assert></rule></pattern>`),
+  });
+  // a prefixed local variable is renamed (fontoxpath has no namespaced let)
+  assert.match(r.prolog, /let \$c_codes := \('A B'\) return \(\$v = tokenize\(\$c_codes, ' '\)\)/);
+  const checks = Object.fromEntries(r.patterns.flatMap((p) => p.rules.flatMap((x) => x.checks)).map((c) => [c.id, c.test]));
+  assert.match(checks["L-2"], /\/r\/@id/, "a later pattern reads an earlier pattern's let, as the ISO skeleton's top-level variable");
+  assert.match(checks["L-3"], /^let \$gid := \(@id\) return let \$sum := /, "a let read inside another let's predicate is bound at the context node");
+  assert.match(checks["L-4"], /^let \$cur := \(\.\.\/@cur\) return \(/);
+  assert.equal(checks["L-5"], "(../@cur) = 'EUR'", "outside a predicate the text is substituted as before");
+  const req = createRequire(import.meta.url);
+  const runner = createPlainRunner({ fontoxpath: req("fontoxpath"), parseXml: () => ({}) });
+  const doc = (xml) => req("slimdom").parseXmlDocument(xml);
+  const ok = `<r id="D1" code="A" cur="EUR"><g id="G" ref="D1" n="5"><t cur="EUR"/></g><i parent="G" n="2"/><i parent="G" n="3"/><i parent="X" n="9"/></r>`;
+  assert.deepEqual(runner.runRules(r, doc(ok)).map((f) => f.rule), []);
+  const bad = `<r id="D1" code="Z" cur="USD"><g id="G" ref="D2" n="6"><t cur="EUR"/></g><i parent="G" n="2"/><i parent="G" n="3"/></r>`;
+  assert.deepEqual(runner.runRules(r, doc(bad)).map((f) => f.rule).sort(), ["L-1", "L-2", "L-3", "L-4", "L-5"]);
+});
+
 test("compiler: an IBAN-style mod 97 on a 24-digit string runs digit by digit", { skip: skip || (!compileReady && "slimdom") }, async () => {
   const r = await compileText({
     "main.sch": SCH(`<ns prefix="u" uri="urn:u"/>

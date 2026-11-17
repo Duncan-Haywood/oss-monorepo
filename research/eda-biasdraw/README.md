@@ -24,7 +24,7 @@ python -m unittest discover -s tests
 ## Results (`experiments/results.txt`, logs `experiments/bias.jsonl`, `experiments/rows.json`)
 - None of the 26 targets yields a real mismatch under any of the four generators (20,000 biased vectors per target in all). No biased vector contradicts any of the 16 formal equivalence proofs.
 - For the 9 formal timeouts, a bug visible to one generator has a per-vector detection probability below 6 × 10<sup>-4</sup> at 95% under that generator (5,000 clean vectors each). This is an upper bound, not a proof of equivalence.
-- `del@122:delete` is confirmed as truncation: for 100 vectors the simulation prints 90 output rows, exactly 10 short, and no value is wrong. The checker reports the row count as a "mismatch", which is the 10-short pattern seen in `eda-verify` and `eda-deepdraw`.
+- `del@122:delete` was reported here as confirmed truncation (90 rows for 100 vectors). **Correction (quality audit, 2026-11-17):** the row count used the same numeric-only regex as the checker (`experiments/run.py:61`, `OUT (\d+) (\d) (\d+)`), so it counted parsed rows, not printed ones. All 100 rows are printed; the first 10 carry an X `done` (the deleted line is `done <= 0;`) and every vector has 1-cycle latency instead of 20. It is a real detection, not truncation ([audit](../../portfolio/quality/audits/2026-11-17-eda-deepdraw.json)).
 
 ## Limitations
 - The generators are hand-chosen heuristics, not coverage-directed; they hit the corners of the input range but not necessarily the specific input a particular mutant needs.

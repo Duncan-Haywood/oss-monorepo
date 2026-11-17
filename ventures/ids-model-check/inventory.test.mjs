@@ -86,7 +86,8 @@ test("an opened IDS with a project's own set becomes an editable row and writes 
   const reqs = r.state.specs[0].reqs;
   assert.deepEqual(reqs.slice(0, 3).map((x) => [x.custom, x.set, x.name, x.dataType, x.mode]), [[true, "Acme_Wall", "FireCompartment", "IFCLABEL", "equals"], [true, "Acme_Wall", "Cover", "IFCLENGTHMEASURE", "range"], [true, "Acme_Wall", "Note", "", "any"]]);
   assert.ok(reqs[3].fixed, "a misspelt Pset_ name stays as written (the audit flags it)");
-  assert.ok(reqs[4].fixed, "a value with no dataType stays as written");
+  assert.deepEqual([reqs[4].fixed, reqs[4].untyped, reqs[4].dataType, reqs[4].mode, reqs[4].equals], [undefined, true, "", "equals", "X"], "a value with no dataType is a row that keeps no dataType");
+  assert.ok(!buildIds(stateToDoc(r.state, L4), S4).includes('<property dataType=""'));
   const back = parseIds(buildIds(stateToDoc(r.state, L4), S4));
   assert.deepEqual(back.specs[0].requirements.map((f) => f.describe()).sort(), parsed.specs[0].requirements.map((f) => f.describe()).sort());
 });
@@ -296,10 +297,11 @@ test("an opened IDS's applicability facets beyond the class open as editable row
   const loadFor = (id) => ({ S: R.schemas[id], psets: R.psets[id], tm: R.typeMap });
   const imp = importIds(parsed, loadFor);
   const [s] = imp.state.specs;
-  assert.deepEqual(s.app.map((r) => `${r.kind}:${r.mode}`), ["classification:any", "attribute:equals", "property:true", "property:any"]);
+  assert.deepEqual(s.app.map((r) => `${r.kind}:${r.mode}`), ["classification:any", "attribute:equals", "property:true", "property:any", "property:range"]);
   assert.ok(s.app[3].custom, "a project's own set");
-  // The exclusive bound has no control on the page: kept as written.
-  assert.deepEqual(s.fixedApp.map((f) => f.kind), ["property"]);
+  // An exclusive bound is a range row with "more than" since 2026-11-17 (it was kept as written).
+  assert.deepEqual([s.app[4].min, s.app[4].minEx, s.app[4].max, s.app[4].maxEx], ["3", true, "", false]);
+  assert.deepEqual(s.fixedApp, []);
   const back = parseIds(buildIds(stateToDoc(imp.state, loadFor("IFC4")), S4));
   const said = (sp) => sp.applicability.map((f) => `${f.kind} ${f.dataType || ""} ${f.describe()}`).sort();
   assert.deepEqual(said(back.specs[0]), said(parsed.specs[0]));

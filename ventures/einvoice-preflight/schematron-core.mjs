@@ -26,6 +26,12 @@ export const ADDONS = {
   // the Porezna uprava's HR-BR rules (OIB check digits, KPD classification, operator, issue
   // time, process P1-P12). UBL only, plain route only: build-hr-rules.mjs.
   "cius-hr": { source: "cius-hr-schematron", match: /urn:mfin\.gov\.hr:/i, plainOnly: true, files: { ubl: "cius-hr-ubl.sef.json" } },
+  // France's CTC rules (BR-FR, XP Z12-012, mandatory since 1 September 2026): FNFE-MPE's
+  // Schematron, one file per syntax for EN 16931, Extended-CTC-FR and Factur-X alike
+  // (build-fr-rules.mjs). A French EN 16931 invoice names plain urn:cen.eu:en16931:2017,
+  // so BT-24 alone cannot tell it is French: the set also runs when the caller asks for
+  // the French profile (`profile: "france"`, the page's "Also apply the French rules").
+  "cius-fr": { source: "cius-fr-schematron", match: /urn\.cpro\.gouv\.fr/i, profile: "france", plainOnly: true, files: { ubl: "cius-fr-ubl.sef.json", cii: "cius-fr-cii.sef.json" } },
 };
 
 // Peppol PINT profiles (Singapore InvoiceNow, Australia/New Zealand). Their
@@ -76,10 +82,11 @@ export function customizationId(xml) {
     ?? xml.match(/<(?:\w+:)?GuidelineSpecifiedDocumentContextParameter\b[^>]*>\s*<(?:\w+:)?ID\b[^>]*>([^<]*)</)?.[1] ?? "";
 }
 
-// Add-on sets whose BT-24 pattern matches, as [name, addon], before checking the SEF is built.
-export function matchingAddons(xml, syntax) {
+// Add-on sets whose BT-24 pattern matches, or whose `profile` the caller asked for, as
+// [name, addon], before checking the SEF is built.
+export function matchingAddons(xml, syntax, { profile = "" } = {}) {
   const id = customizationId(xml);
-  return Object.entries(ADDONS).filter(([, a]) => a.match.test(id) && a.files[syntax]);
+  return Object.entries(ADDONS).filter(([, a]) => (a.match.test(id) || (profile && a.profile === profile)) && a.files[syntax]);
 }
 
 // Rule sets this file needs that have no Saxon form. build-schematron.mjs compiles the EU
@@ -87,11 +94,12 @@ export function matchingAddons(xml, syntax) {
 // and the national add-ons marked plainOnly (CIUS-RO on its 1.3.8 base, NLCIUS, CIUS-PT)
 // ship as ./plain/ JSON alone. A Saxon runner given such a file would check it against
 // the current EU base and nothing else, so it hands the file to the plain route instead.
-export function plainOnlySets(xml, syntax) {
+export function plainOnlySets(xml, syntax, opts = {}) {
   if (!syntax) return [];
+  if (syntax === "cdar") return ["cdar-fr"];
   const profile = matchingProfile(xml, syntax);
   if (profile) return [profile[0]];
-  return matchingAddons(xml, syntax).filter(([, a]) => a.plainOnly).map(([name]) => name);
+  return matchingAddons(xml, syntax, opts).filter(([, a]) => a.plainOnly).map(([name]) => name);
 }
 
 function decodeXml(text) {
@@ -123,6 +131,8 @@ export function parseSvrl(svrl, source = "en16931-schematron") {
 }
 
 export function detectSyntax(xml) {
+  // France's life-cycle status message (CDAR, "CDV" 200-228): its own rule set, no EN 16931 base.
+  if (/<(?:\w+:)?CrossDomainAcknowledgementAndResponse\b/.test(xml)) return "cdar";
   if (/<(?:\w+:)?CrossIndustryInvoice\b/.test(xml)) return "cii";
   if (/<(?:\w+:)?(?:Invoice|CreditNote)\b/.test(xml)) return "ubl";
   return "";

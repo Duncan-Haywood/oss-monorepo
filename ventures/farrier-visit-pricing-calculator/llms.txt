@@ -1,4 +1,4 @@
-# What to charge a farrier visit: trip charge, price per horse and what small stops really cost
+# What to charge a farrier visit: a trip charge plus a price per horse
 
 > Free pricing calculator for farriers: drive time, minutes per horse, materials, fixed costs and the income you want become a trip charge plus a per-horse rate, with a table by stop size. Private, runs in your browser.
 

@@ -397,3 +397,15 @@ def test_buildable_read_shows_cap(tmp_path, capsys):
     f.write_text(DOC)
     assert ff.main(["a", "--field", "buildable", "--file", str(f)]) == 0
     assert f"-- 15 of {ff.FLAGSHIP_BUILDABLE_MAX} characters" in capsys.readouterr().err
+
+
+def test_cli_refused_write_says_not_written(tmp_path, capsys):
+    doc = DOC.replace("    next: >-\n      Only b.\n", "".join(ff.wrap("next", _full_row(10, 195))))
+    f = tmp_path / "flagships.yaml"
+    f.write_text(doc)
+    old = "(3) item 3 " + "w" * 183
+    assert ff.main(["b", "--file", str(f), "--replace", old, old + " " + "z" * 300]) == 1
+    assert "NOT WRITTEN" in capsys.readouterr().err and f.read_text() == doc
+    # a read or a --check that fails is not a write attempt
+    assert ff.main(["nosuch", "--file", str(f), "--field", "next"]) == 1
+    assert "NOT WRITTEN" not in capsys.readouterr().err

@@ -34,6 +34,8 @@ import {
   DOWNLOADABLE_CLI_FILES,
   collectPageTitles,
   copyTree,
+  localOnlyPaths,
+  parseLocalOnly,
   clampMetaDescription,
   injectFavicon,
   discoverSurfaces,
@@ -5122,6 +5124,18 @@ test('tools whose audience browses a section are filed in it', async () => {
     'notary-trip-quote': ['services', null],
     'booth-rent-vs-commission': ['services', null],
     'translator-project-quote': ['services', null],
+    // Parked under "Marketplace seller tools" from 2026-10-11 while `services`
+    // and `backoffice` were near their offline-bundle ceiling; the breadcrumb
+    // on a driving school's page read "Marketplace seller tools" (polish,
+    // 2026-11-17). Each is back in the section its reader browses.
+    'driving-school-profit-calculator': ['services', null],
+    'barbershop-chair-profit-calculator': ['services', null],
+    'axe-throwing-bar-profit-calculator': ['services', null],
+    'tournament-pairing-manager': ['services', null],
+    'bail-bond-agency-exposure-calculator': ['services', null],
+    'commercial-lease-abstract-reader': ['backoffice', null],
+    'severance-package-calculator': ['backoffice', null],
+    'payment-processor-fee-comparison-calculator': ['backoffice', null],
   };
 
   for (const [slug, [category, subcategory]] of Object.entries(placements)) {
@@ -5129,6 +5143,20 @@ test('tools whose audience browses a section are filed in it', async () => {
     const sub = subcategoryFor(slug);
     assert.equal(sub ? sub.id : null, subcategory, `${slug} is in the wrong sub-group`);
   }
+});
+
+test('no shop, studio or salon profit calculator is filed as a marketplace seller tool', async () => {
+  // The marketplace section is for people selling through someone else's
+  // storefront. A bench, chair or studio business prices its own time; filing
+  // one there to dodge a bundle ceiling put "Marketplace seller tools" in the
+  // breadcrumb of eleven local-service pages until 2026-11-17. Raise the
+  // ceiling or split the section instead.
+  const { surfaces } = await site();
+  const misfiled = surfaces
+    .map((s) => s.slug)
+    .filter((slug) => /-(shop|studio|chair|school|salon|bar)-(service-)?profit-calculator$/.test(slug))
+    .filter((slug) => categoryFor(slug).id === 'marketplace');
+  assert.deepEqual(misfiled, []);
 });
 
 test('the catch-all holds only what no section claims', async () => {
@@ -6070,6 +6098,52 @@ test('copyTree drops dot-directory tool caches but keeps .well-known', async () 
     landed.includes('.well-known'),
     '.well-known is the one dot-directory a static site serves on purpose',
   );
+});
+
+// A local build published git-ignored files CI's fresh checkout never has
+// (ids-model-check's fetched eval/corpus, csshound's cargo target/), and
+// check.mjs failed on their types locally only: four sessions, 2026-11-16/17.
+test('parseLocalOnly keeps root ventures/ build-output rules and drops the rest', () => {
+  const out = [
+    'ventures/ids-model-check/.gitignore:1:eval/corpus/\tventures/ids-model-check/eval/corpus/',
+    'ventures/csshound/.gitignore:1:/target\tventures/csshound/target/',
+    '.gitignore:70:ventures/einvoice-preflight/browser/\tventures/einvoice-preflight/browser/',
+    '.gitignore:2:__pycache__/\tventures/x/__pycache__/',
+  ].join('\n');
+  assert.deepEqual([...parseLocalOnly(out, '/r')].sort(), [
+    '/r/ventures/csshound/target',
+    '/r/ventures/ids-model-check/eval/corpus',
+    '/r/ventures/x/__pycache__',
+  ]);
+});
+
+test('copyTree leaves out git-ignored local-only paths, and localOnlyPaths finds them', async (t) => {
+  const repo = await fs.mkdtemp(path.join(os.tmpdir(), 'localonly-'));
+  const git = (...args) => promisify(execFile)('git', args, { cwd: repo });
+  try { await git('init', '-q'); } catch { t.skip('git unavailable'); return; }
+  const v = path.join(repo, 'ventures', 'tool');
+  await fs.mkdir(path.join(v, 'eval', 'corpus'), { recursive: true });
+  await fs.writeFile(path.join(repo, '.gitignore'), 'ventures/tool/built/\n');
+  await fs.writeFile(path.join(v, '.gitignore'), 'eval/corpus/\nlocal.html\n');
+  await fs.writeFile(path.join(v, 'index.html'), '<!doctype html><p>tool</p>');
+  await fs.writeFile(path.join(v, 'local.html'), '<!doctype html><p>mine</p>');
+  await fs.writeFile(path.join(v, 'eval', 'corpus', 'a.html'), '<!doctype html><p>fetched</p>');
+  await fs.mkdir(path.join(v, 'built'));
+  await fs.writeFile(path.join(v, 'built', 'app.js'), 'export {};');
+  await fs.writeFile(path.join(v, 'new.html'), '<!doctype html><p>untracked, not ignored</p>');
+
+  const skip = localOnlyPaths(path.join(repo, 'ventures'));
+  assert.deepEqual([...skip].map((p) => path.relative(repo, p)).sort(),
+    ['ventures/tool/eval/corpus', 'ventures/tool/local.html']);
+
+  const to = await fs.mkdtemp(path.join(os.tmpdir(), 'localonly-out-'));
+  const copied = (await copyTree(v, to, 'https://example.test/', skip)).map((f) => path.relative(to, f)).sort();
+  assert.deepEqual(copied.filter((f) => f !== '.gitignore'), ['built/app.js', 'index.html', 'new.html']);
+
+  process.env.PAGES_KEEP_IGNORED = '1';
+  try { assert.equal(localOnlyPaths(path.join(repo, 'ventures')).size, 0); }
+  finally { delete process.env.PAGES_KEEP_IGNORED; }
+  assert.equal(localOnlyPaths(os.tmpdir()).size, 0, 'outside a git tree nothing is skipped');
 });
 
 // P019: the home page is a home for everything, not a calculator list. These
