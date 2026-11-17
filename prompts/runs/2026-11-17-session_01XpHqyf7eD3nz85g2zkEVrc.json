@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 2,
   "outcome": "success",
@@ -39,6 +39,10 @@
     {
       "what": "post description 161 chars",
       "fix": "trimmed to 160"
+    },
+    {
+      "what": "CI lint failed: ruff E731 (lambda assigned in tests/test_shadow_lift.py)",
+      "fix": "def; ran ruff --fix on both new files"
     }
   ],
   "integrity_issues": [],
