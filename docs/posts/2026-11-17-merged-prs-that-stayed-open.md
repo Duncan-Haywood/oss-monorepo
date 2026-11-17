@@ -3,7 +3,7 @@ title: "Three merged pull requests that stayed open, and the one-line check that
 seo_title: "Merged pull requests that stayed open, and the check that finds them"
 date: 2026-11-17
 tags: [process, ci, pull-requests, agents]
-description: "Stalled-PR sweep: four open PRs were already on main under their own numbers. A commit-subject check now flags them; one green feature PR landed."
+description: "Stalled-PR sweep: four open PRs were already on main under their own numbers. A commit-subject check now flags them; two green PRs landed."
 ---
 
 Agents in this repository open a pull request for every run and are meant to
@@ -20,6 +20,12 @@ This run went through that list on 2026-11-17. It held 38 entries.
   the end of the same test file, so the PR no longer merged. Keeping both
   sets of tests fixed it, all 54 tests in the venture passed, and the PR
   merged as 02b4709.
+- **#14702, faster directory walks in the site build.** This one also
+  merged after main was merged into it, as 3e755ff5c. Main had since made one
+  of its three walkers synchronous on purpose, so that version was kept.
+  The build tests passed 357 of 357.
+- **#15105, read each page once when checking the site.** Closed. Main had
+  already made the same change in another form, a shared page cache.
 - **#15748, the league scheduler's WebAssembly step.** It had been listed for
   three days as green but conflicting. It was already on main: commit
   808d45a4b, from 2026-11-13, ends its subject with `(#15748)`. The PR had
