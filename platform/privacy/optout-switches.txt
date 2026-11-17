@@ -617,6 +617,7 @@ ventures/irrigation-winterization-bid-calculator/usage.mjs
 ventures/irs-iris-1099-csv-check/usage.mjs
 ventures/iso-exercise-amt-calculator/usage.mjs
 ventures/isolation-forest/usage.mjs
+ventures/item-response-theory/usage.mjs
 ventures/janitorial-bid-calculator/usage.mjs
 ventures/job-application-tracker/usage.mjs
 ventures/job-margin-variance/usage.mjs
@@ -990,6 +991,7 @@ ventures/sawmill-custom-sawing-calculator/usage.mjs
 ventures/sba-loan-capacity-calculator/usage.mjs
 ventures/sbir-budget-builder/usage.mjs
 ventures/sbom-diff-check/usage.mjs
+ventures/scale-reliability/usage.mjs
 ventures/schengen-90-180-day-calculator/usage.mjs
 ventures/school-timetable-builder/usage.mjs
 ventures/scope-creep-change-order-calculator/usage.mjs

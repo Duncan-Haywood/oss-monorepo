@@ -1,0 +1,103 @@
+{
+ "data": "data/phq9-nhanes-2017-2018.csv",
+ "n": 1494,
+ "k": 9,
+ "alpha": 0.8236223352756996,
+ "feldt95Pingouin": [
+  0.81,
+  0.837
+ ],
+ "feldt95": [
+  0.8098912530064755,
+  0.8367348411331356
+ ],
+ "standardizedAlpha": 0.8271378886754486,
+ "lambda2": 0.8365435129291673,
+ "lambda6": 0.8264702572884999,
+ "omega": 0.8380490215669173,
+ "omegaStandardized": 0.8307089172328079,
+ "eigenvalues": [
+  3.8449860346829468,
+  0.9817348736804477,
+  0.8191007508922521,
+  0.7148487969263033,
+  0.6510740872183493,
+  0.6119319988322584,
+  0.5025338173385588,
+  0.47477052532918224,
+  0.39901911509970156
+ ],
+ "items": [
+  {
+   "name": "interest",
+   "itemRest": 0.562812112472515,
+   "alphaIfDeleted": 0.8012810358816514,
+   "loading": 0.4526509596752133,
+   "standardizedLoading": 0.6227792196487398
+  },
+  {
+   "name": "down",
+   "itemRest": 0.6820090758496538,
+   "alphaIfDeleted": 0.7869079075202478,
+   "loading": 0.5220795448651503,
+   "standardizedLoading": 0.7745840028610074
+  },
+  {
+   "name": "sleep",
+   "itemRest": 0.5421317149703191,
+   "alphaIfDeleted": 0.8074612394361604,
+   "loading": 0.5747012710517618,
+   "standardizedLoading": 0.5830546515427028
+  },
+  {
+   "name": "tired",
+   "itemRest": 0.6248916010544971,
+   "alphaIfDeleted": 0.7942265936898092,
+   "loading": 0.659859197799913,
+   "standardizedLoading": 0.6737655559583787
+  },
+  {
+   "name": "appetite",
+   "itemRest": 0.5223070434162749,
+   "alphaIfDeleted": 0.8064422282973744,
+   "loading": 0.45264800059589233,
+   "standardizedLoading": 0.5651015852585771
+  },
+  {
+   "name": "failure",
+   "itemRest": 0.571577260359667,
+   "alphaIfDeleted": 0.8013659434989374,
+   "loading": 0.38666700678430876,
+   "standardizedLoading": 0.6479651198621255
+  },
+  {
+   "name": "concentration",
+   "itemRest": 0.5027907368451474,
+   "alphaIfDeleted": 0.8086150268124627,
+   "loading": 0.3396438281088601,
+   "standardizedLoading": 0.5569030867979998
+  },
+  {
+   "name": "slow_or_restless",
+   "itemRest": 0.47549537286840093,
+   "alphaIfDeleted": 0.8119139316979178,
+   "loading": 0.28835999269182483,
+   "standardizedLoading": 0.5305412679380838
+  },
+  {
+   "name": "self_harm_thoughts",
+   "itemRest": 0.3164128107580217,
+   "alphaIfDeleted": 0.8276919479117569,
+   "loading": 0.08747967404076039,
+   "standardizedLoading": 0.360540540074214
+  }
+ ],
+ "versions": {
+  "pingouin": "0.7.0",
+  "factor_analyzer": "0.5.1",
+  "scikit-learn": "1.5.2",
+  "numpy": "2.4.6",
+  "scipy": "1.17.1",
+  "pandas": "3.1.1"
+ }
+}

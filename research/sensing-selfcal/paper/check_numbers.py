@@ -343,6 +343,8 @@ CHECKS = [
     ("json", "m3f_condk1/summary.json", "hypotheses/H140/spearman_dk1_e", 0.59, 2, None, "(Spearman +0.59)"),
     ("json", "m3f_condk1/summary.json", "hypotheses/H141/median_abs_e", 5.25, 2, pct, "from 5.25% to 7.01%"),
     ("json", "m3f_condk1/summary.json", "hypotheses/H141/median_abs_ec", 7.01, 2, pct, "from 5.25% to 7.01%"),
+    ("json", "m3g_condk12/summary.json", "hypotheses/H144/median_abs_ec2", 8.72, 2, pct, "the median error rises to 8.72%"),
+    ("json", "m3g_condk12/summary.json", "unscored/pool_k5/conditioned_k1k2/all/re/rms_z", 3.07, 2, None, "(rms z 3.07)"),
 ]
 
 
