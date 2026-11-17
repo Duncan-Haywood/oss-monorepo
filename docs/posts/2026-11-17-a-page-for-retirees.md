@@ -1,6 +1,6 @@
 ---
 title: "Free tools for retirees, on one page"
-seo_title: "Free retirement calculators for retirees: RMD, QCD, IRMAA, Social Security"
+seo_title: "Free retirement calculators: RMD, QCD, IRMAA, Social Security"
 date: 2026-11-17
 tags: [polish, seo, platform]
 description: "The site had 27 'free tools for …' pages, all for trades and sellers. Fourteen retirement calculators had no page a retiree could land on. Now they do."
