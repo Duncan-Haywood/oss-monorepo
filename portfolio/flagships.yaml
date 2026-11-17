@@ -123,12 +123,11 @@ flagships:
     buildable: >-
       Receipts, item (5): SRD photos (eval/srd-fetch.mjs) and CORD photos
       (eval/cord_images.py) read by `apt-get install tesseract-ocr` and
-      eval/srd-cli.mjs. CLI `--four-pass`: SRD totals 154 of 196, tax 134 of 185
-      (service charge in the tax vote, eval/service-charge-vote-2026-11-17.md); CORD
-      validation totals 69 of 98, tax 27 of 47 (change lines, sums across readings:
-      eval/cord-wrong-totals-2026-11-17.md; service-charge vote: no change there);
-      test 53 of 95, tax 16 of 41. Next: validation-61's 8,260 for 8,250; SRD 1022's
-      change line read as HANGE; test-14 on photos. CORD test stays held out.
+      eval/srd-cli.mjs. CLI `--four-pass`: SRD totals 155 of 196, tax 135 of 185
+      (eval/change-ocr-2026-11-17.md); CORD validation totals 69 of 98, tax 27 of 47
+      (change lines, sums across readings: eval/cord-wrong-totals-2026-11-17.md;
+      service-charge vote: no change there); test 53 of 95, tax 16 of 41. Next:
+      validation-61's 8,260 for 8,250; test-14 on photos. CORD test stays held out.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
