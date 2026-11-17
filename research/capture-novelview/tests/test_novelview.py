@@ -1,6 +1,6 @@
 import numpy as np
 from capture_novelview.scene import render, camera, W, H
-from capture_novelview.synth import synthesise, psnr, warp
+from capture_novelview.synth import synthesise, psnr, warp, fill_holes, hole_fraction
 
 
 def test_render_deterministic_and_shapes():
@@ -57,3 +57,37 @@ def test_camera_faces_target():
     c, rot = camera(37)
     to_t = np.array([0, 0.9, 0]) - c
     assert np.dot(rot[2], to_t / np.linalg.norm(to_t)) > 0.999
+
+
+def _pair(gap, bystanders=()):
+    a, b, t = 20 - gap / 2, 20 + gap / 2, 20.0
+    ca, za = render(a, bystanders)
+    cb, zb = render(b, bystanders)
+    truth, zt = render(t, bystanders)
+    out, have = synthesise([(ca, za, a), (cb, zb, b)], t)
+    return ca, cb, truth, zt, out, have
+
+
+def test_hole_filled_synthesis_beats_nearest_camera_at_wide_gaps():
+    # quality audit 2026-11-17: with holes left sky blue the warp lost to the nearest camera past
+    # about 30 degrees; filled from that camera (any real DIBR fallback) it wins at every gap.
+    for gap in (45, 90):
+        ca, cb, truth, _, out, have = _pair(gap)
+        assert psnr(fill_holes(out, have, cb), truth) > psnr(cb, truth) + 3
+
+
+def test_hole_fraction_is_over_non_sky_pixels():
+    have = np.zeros((2, 4), bool)
+    sky = np.zeros((2, 4), bool)
+    sky[0] = True            # half the frame is sky
+    have[1, :2] = True       # half the surface reached
+    assert hole_fraction(have, sky) == 0.5
+    _, _, _, zt, _, have = _pair(45)
+    sky = ~np.isfinite(zt)
+    assert hole_fraction(have, sky) > float((~(have | sky)).mean())
+
+
+def test_warped_pixels_match_truth_at_a_real_gap():
+    # identity warps cannot see a depth-scale or z-buffer error; a 15 degree warp can
+    _, _, truth, zt, out, have = _pair(15)
+    assert psnr(out, truth, have & np.isfinite(zt)) > 28
