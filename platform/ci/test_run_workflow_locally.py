@@ -517,6 +517,55 @@ class Execute(unittest.TestCase):
                             '&& echo ok >> "$GITHUB_STEP_SUMMARY" && test -d "$RUNNER_TEMP"')
         self.assertEqual(step.status, "ok", step.tail)
 
+    def fake_home(self, gitconfig):
+        """A HOME holding `gitconfig`, a fresh runner temp dir, and no
+        inherited GIT_CONFIG_GLOBAL/XDG_CONFIG_HOME, all undone on cleanup."""
+        home = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, home, True)
+        with open(os.path.join(home, ".gitconfig"), "w") as f:
+            f.write(gitconfig)
+        env = mock.patch.dict(os.environ, {"HOME": home})
+        env.start()
+        self.addCleanup(env.stop)
+        for key in ("GIT_CONFIG_GLOBAL", "XDG_CONFIG_HOME"):
+            os.environ.pop(key, None)
+        files = mock.patch.dict(runner._RUNNER_FILES, clear=True)
+        files.start()
+        self.addCleanup(files.stop)
+        return home
+
+    def test_a_global_git_config_write_does_not_reach_the_sessions_config(self):
+        """portfolio-validate's supersede-check step runs `git config --global
+        user.email ci@example.com`; run here it overwrote ~/.gitconfig and the
+        session's next commit went out as CI, Unverified (run record
+        2026-11-17, session_01XpHqye3mm8o2YXnvRwxsJV)."""
+        original = "[user]\n\tname = Session\n\temail = session@example.org\n"
+        home = self.fake_home(original)
+        step = self.run_one('git config --global user.email "ci@example.com" '
+                            '&& git config --global user.name CI '
+                            '&& test "$(git config --global user.email)" = ci@example.com')
+        self.assertEqual(step.status, "ok", step.tail)
+        with open(os.path.join(home, ".gitconfig")) as f:
+            self.assertEqual(f.read(), original)
+
+    def test_a_step_still_reads_the_sessions_global_git_config(self):
+        self.fake_home("[user]\n\temail = session@example.org\n")
+        step = self.run_one('test "$(git config --global user.email)" = session@example.org')
+        self.assertEqual(step.status, "ok", step.tail)
+
+    def test_an_exported_git_config_global_is_copied_not_written(self):
+        self.fake_home("")
+        mine = os.path.join(tempfile.mkdtemp(), "mine")
+        self.addCleanup(shutil.rmtree, os.path.dirname(mine), True)
+        with open(mine, "w") as f:
+            f.write("[user]\n\temail = mine@example.org\n")
+        os.environ["GIT_CONFIG_GLOBAL"] = mine
+        step = self.run_one('test "$(git config --global user.email)" = mine@example.org '
+                            '&& git config --global user.email ci@example.com')
+        self.assertEqual(step.status, "ok", step.tail)
+        with open(mine) as f:
+            self.assertIn("mine@example.org", f.read())
+
     def test_a_resolved_variable_reaches_the_step_as_empty(self):
         step = runner.Step("j", "n", 'test -z "${BASE_URL-unset}"', ".")
         step.env = {"BASE_URL": ""}
