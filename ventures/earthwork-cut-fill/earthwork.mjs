@@ -30,8 +30,15 @@ export const FORMATS = ['auto', 'PNEZD', 'PENZD', 'NEZ', 'ENZ'];
 function splitLine(line) {
   const t = line.trim();
   if (!t) return [];
-  if (t.includes(',')) return t.split(',').map(s => s.trim());
   if (t.includes('\t')) return t.split('\t').map(s => s.trim());
+  if (t.includes(',')) {
+    const cells = t.split(',').map(s => s.trim());
+    // A space-separated row whose description holds a comma ("1 5000 2000 100 EP, CURB"):
+    // the first comma cell is not a number but the first three words are.
+    const words = t.split(/\s+/);
+    if (!isNum(cells[0]) && words.length >= 3 && words.slice(0, 3).every(isNum)) return words;
+    return cells;
+  }
   if (t.includes(';')) return t.split(';').map(s => s.trim());
   return t.split(/\s+/);
 }
