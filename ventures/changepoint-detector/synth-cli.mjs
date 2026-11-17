@@ -4,25 +4,30 @@
 // warning (README "Covariate balance" and "Which imbalance biases the gap"). The balance table changes no p.
 import { parseColumns } from './multivariate.mjs';
 import { synthControlTest, covariateBalance } from './synth-control.mjs';
+import { splitLine, numCell } from './engine.mjs';
 
 // Covariates file: one row per unit, the unit's column name first, then one number per covariate; a header row names
-// them (`unit,ln income,price`). Units the fit does not use are ignored.
+// them (`unit,ln income,price`). Units the fit does not use are ignored. Read like the data CSV (engine.mjs splitLine
+// and numCell): quoted cells keep their commas, and a semicolon-separated file reads 3,5 as 3.5 (Excel in a
+// comma-decimal locale), where before 2026-11-17 it split into two covariates 3 and 5 under one header name.
 export function parseCovariates(csv) {
   const lines = String(csv ?? '').split(/\r?\n/).filter((l) => l.trim() !== '');
   if (!lines.length) throw new Error('--covariates: the file is empty');
-  const cells = lines.map((l) => l.split(/[,;\t]/).map((c) => c.trim().replace(/^"(.*)"$/, '$1')));
-  const isNum = (c) => c !== '' && Number.isFinite(Number(c));
+  const semi = lines.some((l) => l.replace(/"[^"]*"/g, '').includes(';'));
+  const cells = lines.map((l) => splitLine(l, semi));
+  const isNum = (c) => Number.isFinite(numCell(c, semi));
   const header = cells[0].slice(1).some((c) => !isNum(c)) ? cells[0] : null;
   const body = header ? cells.slice(1) : cells;
-  const C = Math.max(...body.map((r) => r.length)) - 1;
-  if (C < 1) throw new Error('--covariates needs a unit name and at least one number on each row');
+  const C = header ? header.length - 1 : Math.max(...body.map((r) => r.length)) - 1;
+  if (C < 1 || !body.length) throw new Error('--covariates needs a unit name and at least one number on each row');
   const units = {};
   for (const r of body) {
-    const vals = r.slice(1).map(Number);
-    if (vals.length !== C || r.slice(1).some((c) => !isNum(c))) throw new Error(`--covariates: the row for ${r[0]} needs ${C} numbers`);
-    units[r[0].toLowerCase()] = vals;
+    const key = r[0].toLowerCase();
+    if (r.length - 1 !== C || r.slice(1).some((c) => !isNum(c))) throw new Error(`--covariates: the row for ${r[0]} needs ${C} number${C > 1 ? 's' : ''}${header ? ` (${header.slice(1).join(', ')})` : ''}, got ${r.length - 1}${!semi && r.length - 1 > C ? ': a decimal comma (3,5) needs a semicolon-separated file' : ''}`);
+    if (key in units) throw new Error(`--covariates: two rows for ${r[0]}; keep one`);
+    units[key] = r.slice(1).map((c) => numCell(c, semi));
   }
-  const names = header ? header.slice(1, C + 1) : Array.from({ length: C }, (_, m) => `covariate ${m + 1}`);
+  const names = header ? header.slice(1) : Array.from({ length: C }, (_, m) => `covariate ${m + 1}`);
   return { names, units };
 }
 
