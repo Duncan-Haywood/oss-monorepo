@@ -290,10 +290,10 @@ flagships:
       Public samples, no key: github.com/drewnoakes/metadata-extractor-images
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
       eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`; its CIFF CRWs all read).
-      Interpolated sRGB encode landed 2026-11-17 (eval/srgb-table-interp-*); next
-      there: a real 3-stop shadow lift on a 16-bit master, old vs new, for banding.
-      Noise-aware: a card floor (sweep --card) on real multi-frame raw.pixls.us
-      sets. DNG 1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
+      Interpolated sRGB encode 2026-11-17; a 3-stop lift loses 0 of the screen codes
+      the old one lost 1-39 of (eval/shadow-lift-banding-*). Noise-aware: a card
+      floor (sweep --card) on real multi-frame raw.pixls.us sets. DNG 1.7.1.0 spec
+      PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
