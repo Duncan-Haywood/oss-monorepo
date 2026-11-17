@@ -207,34 +207,32 @@ flagships:
       PEPPOL-COMMON rules check them, 0 of 21,264 off
       (eval/endpoint-peppol-differential-2026-11-17.md); Peppol's warning-level
       IT/NL id formats as INV-061 warnings, 0 of 23,999 off
-      (eval/endpoint-peppol-warnings-2026-11-17.md); open: the same id rules on
-      PartyIdentification/CompanyID in JSON; France Flux 10 e-reporting, PPF Annexe
-      7 controls 147/147 vs Saxon (eval/flux10-crosscheck-2026-11-17.md); open: a
-      real Flux 10 file, a PPF rejection; BR-FR 264/264 vs Saxon, all 384 BR-FR/CDV
-      messages in English (br-fr-error-codes.html); CDAR (BR-FR-CDV) 780/780 vs
-      Saxon (eval/cdar-crosscheck-*); Extended-CTC-FR and Factur-X EXTENDED bases
-      175/175 vs Saxon (eval/extended-base-crosscheck-2026-11-17.md); open: a real
-      PA extended file, CDAR _WARNING set (37/43 rules hit, 6 dead: FR-CDV-105..107
-      cover them), a real PA rejection or status; VERI*FACTU (README): open: a
-      production SIF's records and replies). Open: a real HU report with NAV's
-      businessValidationMessages or SCHEMA_VIOLATION text; HU: open: a real chain
-      with NAV's replies; a real business's signed Facturae or FACe rejection
-      (eval/facturae-gob-*); ZATCA: a real KSA note; SdI: open: a real FatturaPA
-      rejection with its file; HR: a real HR invoice, cash accounting; CIUS-PT:
-      which validator does AT run (AA/RED codes)?; FA(3) KOR/ZAL/ROZ totals landed
-      (README): open: a real KSeF rejection, a business's real KOR/ZAL file; repair
-      keeps PDF/A (veraPDF 155/155), PDF/A-3b writer passes Mustang; open: a real
-      business's PINT file; open: RO_CIUS on a real ANAF file; NLCIUS on a real
-      Dutch file; India's INV-01 check on a real IRP payload; mandate texts: IL, ES,
-      NRS, SRO 1852, Jordan open; SK landed (README): open: a real SK file; Mexico
-      CFDI 4.0 landed: open: SAT's CP error matrix to map MX-070..080 to CP codes
-      (omawww blocked), a real payroll or export file, a PAC rejection compared. A
-      run that lands a slice replaces its item here. More open items: NEXT.md.
+      (eval/endpoint-peppol-warnings-2026-11-17.md); INV-062/063: the same rules on
+      PartyIdentification/CompanyID, GlobalID/legal org ID
+      (eval/party-id-peppol-differential-2026-11-17.md); France Flux 10 e-reporting,
+      PPF Annexe 7 controls 147/147 vs Saxon (eval/flux10-crosscheck-2026-11-17.md);
+      open: a real Flux 10 file, a PPF rejection; BR-FR 264/264 vs Saxon, all 384
+      BR-FR/CDV messages in English (br-fr-error-codes.html); CDAR (BR-FR-CDV)
+      780/780 vs Saxon (eval/cdar-crosscheck-*); Extended-CTC-FR and Factur-X
+      EXTENDED bases 175/175 vs Saxon (eval/extended-base-crosscheck-2026-11-17.md);
+      open: a real PA extended file, CDAR _WARNING set (37/43 rules hit, 6 dead:
+      FR-CDV-105..107 cover them), a real PA rejection or status; VERI*FACTU
+      (README): open: a production SIF's records and replies). Open: a real HU
+      report with NAV's businessValidationMessages or SCHEMA_VIOLATION text; HU:
+      open: a real chain with NAV's replies; a real business's signed Facturae or
+      FACe rejection (eval/facturae-gob-*); ZATCA: a real KSA note; SdI: open: a
+      real FatturaPA rejection with its file; HR: a real HR invoice, cash
+      accounting; CIUS-PT: which validator does AT run (AA/RED codes)?; FA(3)
+      KOR/ZAL/ROZ totals landed (README): open: a real KSeF rejection, a business's
+      real KOR/ZAL file; repair keeps PDF/A (veraPDF 155/155), PDF/A-3b writer
+      passes Mustang; open: a real business's PINT file. A run that lands a slice
+      replaces its item here. More open items: NEXT.md.
     buildable: >-
-      Peppol id rules (eval/endpoint-peppol-differential.mjs,
-      eval/endpoint-peppol-warnings.mjs, oracle plain/peppol-ubl.json, no network)
-      applied to PartyIdentification/ID and PartyLegalEntity/CompanyID in JSON
-      input, as Peppol applies them, not only the endpoint.
+      Python readers (src/einvoice_preflight/ubl.py, formats.py) fill legal_id and
+      party_ids so the CLI's INV-062 reads XML files, not only JSON; PayeeParty and
+      TaxRepresentativeParty ids, which Peppol's PEPPOL-COMMON contexts also match
+      (extend eval/party-id-peppol-differential.mjs's PLACES); R056-2 (an NL VAT
+      number in PartyTaxScheme, a warning). No network.
   - venture: shift-roster-builder
     inputs_only: >-
       a live deploy with real punches, a real payroll template, a manager's
@@ -286,10 +284,10 @@ flagships:
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
       eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`; its CIFF CRWs all read).
       Bayer trees parked: a range guard passes 6 fresh cameras, misses K-1 II/A7
-      III; no fresh frames left (eval/bayer-boosted-guard-*). Noise-aware demosaic
-      (opt-in): own luma ramp 2026-11-17 (eval/noise-aware-luma-ramp-*); next: an
-      earlier colour ramp, the guard's cap (tools/noise_aware_ramp_refit.py). DNG
-      1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
+      III; no fresh frames left (eval/bayer-boosted-guard-*). Noise-aware:
+      no-profile raws via --noise-from-frame (eval/noise-aware-estimated-*); next: a
+      patch-PCA estimator (tools/noise_estimator_accuracy.py), an earlier colour
+      ramp. DNG 1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
@@ -466,10 +464,11 @@ flagships:
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
-      (eval/ifcxml-xbim-2026-11-16.md); audit warnings (class-abstract and the rest)
-      as CI annotations on the IDS file (eval/abstract-classes-2026-11-17.md); the
-      IDS editor (editor.html; README): "Use the model's range" for dates, xs:date
-      one-of rows (eval/date-ranges-2026-11-17.md); more real exports through
+      (eval/ifcxml-xbim-2026-11-16.md); audit warnings in a GitLab code-quality
+      report (CI annotates them on the IDS line since 2026-11-17,
+      eval/ci-audit-annotations-2026-11-17.md); the IDS editor (editor.html;
+      README): "Use the model's range" for dates, xs:date one-of rows
+      (eval/date-ranges-2026-11-17.md); more real exports through
       eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
     next: >-

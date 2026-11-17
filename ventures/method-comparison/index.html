@@ -159,7 +159,7 @@
     let last = null;
     function inputs() {
       const o = { text: $("#data").value, xColumn: $("#xcol").value.trim(), yColumn: $("#ycol").value.trim(), baScale: $("#scale").value };
-      o.decisionLevels = $("#levels").value.split(/[,;\s]+/).filter(Boolean).map(Number).filter(Number.isFinite);
+      o.decisionLevels = $("#levels").value; // the engine reads "120, 140" as two levels and "6,000" as one
       const lam = Number($("#lambda").value);
       if (lam > 0) o.lambda = lam;
       const sx = Number($("#sdx").value), sy = Number($("#sdy").value);

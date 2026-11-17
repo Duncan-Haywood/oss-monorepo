@@ -146,3 +146,9 @@ test("the page cites every paper the engine implements, with BibTeX", async () =
   }
   for (const s of ["inter-rater-agreement", "scale-reliability"]) assert.match(html, new RegExp(`href="\\.\\./${s}/"`));
 });
+
+test("the decision-level box goes to the engine as text, so 6,000 stays one level (red team 2026-11-17)", () => {
+  const src = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(src, /o\.decisionLevels = \$\("#levels"\)\.value;/);
+  assert.doesNotMatch(src, /#levels"\)\.value\.split\(/);
+});

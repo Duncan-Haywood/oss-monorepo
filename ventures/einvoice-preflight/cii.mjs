@@ -112,6 +112,17 @@ function partyFrom(tradeParty) {
   if (legalId && (legalId.text || "").trim()) {
     mapped.legal_id = { id: legalId.text.trim(), scheme: legalId.attrs && legalId.attrs.schemeID ? String(legalId.attrs.schemeID).trim() : "" };
   }
+  // BT-29/BT-46 with a scheme (GlobalID; an ID with a schemeID too, as Peppol's
+  // ram:ID context reads it): each one meets its scheme's PEPPOL-COMMON rule
+  // (endpoint.mjs, INV-062/INV-063).
+  const partyIds = [];
+  for (const child of (tradeParty && tradeParty.children) || []) {
+    if (child.name !== "GlobalID" && child.name !== "ID") continue;
+    const scheme = child.attrs && child.attrs.schemeID ? String(child.attrs.schemeID).trim() : "";
+    const id = (child.text || "").trim();
+    if (scheme && id) partyIds.push({ id, scheme });
+  }
+  if (partyIds.length) mapped.party_ids = partyIds;
   const uri = firstChild(firstChild(tradeParty, "URIUniversalCommunication"), "URIID");
   if (uri) {
     const id = (uri.text || "").trim();

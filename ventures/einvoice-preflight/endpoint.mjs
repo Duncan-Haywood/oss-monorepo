@@ -252,3 +252,64 @@ export function inspectPartyEndpoints(invoice) {
   }
   return findings;
 }
+
+// The same PEPPOL-COMMON rules on the party's other identifiers (added
+// 2026-11-17). Peppol's contexts are `cbc:EndpointID[@schemeID = 'X'] |
+// cac:PartyIdentification/cbc:ID[@schemeID = 'X'] | cbc:CompanyID[@schemeID =
+// 'X']` in UBL and `ram:URIID | ram:ID | ram:GlobalID` in CII, so a mistyped
+// Belgian KBO number as the seller's legal registration (BT-30) or a GLN with
+// a bad check digit as the buyer identifier (BT-46) bounces at the network
+// exactly as a bad endpoint does. INV-062 is the fatal set (0088, 0192, 0184,
+// 0096, 0198, 0208, 0007, 0151), blocking; INV-063 the warning set, a warning.
+// Read from `legal_id: {scheme, id}` (BT-30/BT-47) and `party_ids: [{scheme,
+// id}]` (BT-29/BT-46 with a scheme); ubl.mjs and cii.mjs fill both from a file.
+// Only schemes with a Peppol rule are read here: an unknown ICD in these
+// places is EN 16931's BR-CL-11 to judge, not an EAS code. Findings never
+// repeat the identifier. eval/party-id-peppol-differential.mjs compares whole
+// UBL and CII files against Peppol's own rule pass.
+const ID_PLACES = {
+  legal_id: "legal registration identifier",
+  party_ids: "identifier",
+};
+
+function inspectOneIdentifier(entry, label, what, path) {
+  if (!entry || typeof entry !== "object" || Array.isArray(entry)) return [];
+  const scheme = normalizeScheme(entry.scheme);
+  const identifier = normalizeEndpointId(entry.id);
+  if (scheme === null || identifier === null) return [];
+  if (SCHEME_CHECKS[scheme]) {
+    if (SCHEME_CHECKS[scheme](identifier)) return [];
+    return [finding(
+      "INV-062",
+      `${label} ${what} does not match the ${scheme} format OpenPeppol rejects on (PEPPOL-COMMON).`,
+      `Correct the ${scheme} identifier (${SCHEME_SHAPES[scheme]}). Peppol applies the same check here as on the electronic address; this is a format check, not a registry lookup.`,
+      `${path}/id`,
+    )];
+  }
+  const check = WARNING_CHECKS[scheme];
+  if (check && !check.ok(identifier)) {
+    return [{
+      ...finding(
+        "INV-063",
+        `${label} ${what} does not match the ${scheme} format OpenPeppol checks (${check.rule}, a warning).`,
+        `Check the ${scheme} identifier: ${check.shape}. Peppol warns on this rather than rejecting the file; this is a format check, not a registry lookup.`,
+        `${path}/id`,
+      ),
+      severity: "warning",
+    }];
+  }
+  return [];
+}
+
+export function inspectPartyIdentifiers(party, partyName) {
+  if (!party || typeof party !== "object" || Array.isArray(party)) return [];
+  const label = partyName.charAt(0).toUpperCase() + partyName.slice(1);
+  const findings = [];
+  findings.push(...inspectOneIdentifier(party.legal_id, label, ID_PLACES.legal_id, `/${partyName}/legal_id`));
+  if (Array.isArray(party.party_ids)) {
+    party.party_ids.forEach((entry, index) => {
+      findings.push(...inspectOneIdentifier(entry, label, ID_PLACES.party_ids, `/${partyName}/party_ids/${index}`));
+    });
+  }
+  return findings;
+}

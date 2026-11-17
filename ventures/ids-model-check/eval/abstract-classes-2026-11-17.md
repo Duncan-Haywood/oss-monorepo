@@ -27,8 +27,19 @@ not change):
   `IFC2X3 IFC4` specification is told "applies to nothing in IFC2X3 models",
   an IFC4-only one gets nothing.
 - Not for class-name patterns (a pattern that also matches concrete classes is
-  how an author asks for a family), and not for requirements: a required
-  entity requirement naming an abstract class is already `entity-contradiction`.
+  how an author asks for a family).
+- Requirements (added later the same day, PR #16920): a required entity
+  requirement naming an abstract class is `entity-contradiction` only when the
+  applicability has an entity facet. Under an applicability with none (a
+  property or classification alone), `abstractRequirement` now reports it:
+  an **error** when every listed name matches nothing in every audited schema
+  (every applicable element would fail), a warning naming the schemas when only
+  some (IFCPROFILEDEF, abstract in IFC2X3 only). Optional and prohibited
+  requirements and IFC2X3 type-mapping names are left alone. 0 hits in the
+  public files, the IDS-Audit-tool files and the buildingSMART suite (outputs of
+  `audit-corpus.mjs`, `run-testcases.mjs` and `abstract-classes.mjs` identical
+  before and after); editor round trip still 0 errors, 0 warnings on 203,433;
+  `node --test *.test.mjs` 141 pass. A guard, not a measured finding.
 
 The warning reaches the text report, the page and the IDS editor's live audit
 (its "partOf: Of class" box takes any class name) through the existing

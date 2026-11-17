@@ -633,6 +633,32 @@ def milestones(prefix):
     return listed, [x for x in listed if x not in marked and not (RESEARCH / x).is_dir()]
 
 
+def milestone_lines(prefix, takeable=(), found=None, logs=None):
+    """The PROJECTS.md milestone line for a track draw.
+
+    When the track has an open programme this session can take, its LOG 'Next' is the
+    step to land and the milestone list is only for a run that opens a new programme:
+    the plain line ("milestones: 2/9 ... next free: aerolog-sizing") read as the next
+    step and sent runs to a new slug (doc friction 2026-11-11 and 2026-11-17,
+    research/_shared/pick_track.py). `takeable` is the track's programmes that are
+    neither BLOCKED nor OFFLINE here; `found` and `logs` replace milestones() and
+    mentioned_in_logs() in tests."""
+    listed, free = found if found is not None else milestones(prefix)
+    logs = logs or mentioned_in_logs
+    if takeable:
+        head = (f"milestones (PROJECTS.md, for a run that opens a new programme; advancing "
+                f"{', '.join(takeable[:3])} comes first, from its LOG.md 'Next'): ")
+    else:
+        head = "milestones: "
+    if not listed:
+        return [head + "no list found in PROJECTS.md; take a 'Next steps' item or ask a new question"]
+    if free:
+        named = logs(free[0])
+        seen = f" (named in {', '.join(named[:3])}: check it has not already run there)" if named else ""
+        return [head + f"{len(listed) - len(free)}/{len(listed)} on this checkout; next free: {free[0]}{seen}"]
+    return [head + f"all {len(listed)} listed are on this checkout; take a 'Next steps' item or ask a new question"]
+
+
 def mentioned_in_logs(slug):
     """research/<programme>/LOG.md files that name `slug`: a milestone run
     inside a programme often leaves no mark in PROJECTS.md (aerolog-sizing
@@ -860,15 +886,9 @@ if __name__ == "__main__":
         shallow = is_shallow()
         label = "some (shallow clone: commit dates are flattened, so this is not newest-first)" if shallow else "newest"
         print(f"{n} `{PREFIX[t - 1]}-*` projects on this checkout; {label}: {', '.join(newest) or 'none'}")
-        listed, free = milestones(PREFIX[t - 1])
-        if not listed:
-            print("milestones: no list found in PROJECTS.md; take a 'Next steps' item or ask a new question")
-        elif free:
-            logs = mentioned_in_logs(free[0])
-            seen = f" (named in {', '.join(logs[:3])}: check it has not already run there)" if logs else ""
-            print(f"milestones: {len(listed) - len(free)}/{len(listed)} on this checkout; next free: {free[0]}{seen}")
-        else:
-            print(f"milestones: all {len(listed)} listed are on this checkout; take a 'Next steps' item or ask a new question")
+        takeable = [s for s in progs_here if not is_blocked(s) and not down.get(s)] if progs_here else []
+        for line in milestone_lines(PREFIX[t - 1], takeable):
+            print(line)
         if newest:
             note = " (shallow clone: not necessarily the newest; unshallow first for that)" if shallow else ""
             if n >= SATURATED:

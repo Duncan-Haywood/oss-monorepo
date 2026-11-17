@@ -8,7 +8,7 @@ test("vs-Bonsai page carries the required disclaimers and no invented pricing", 
   assert.match(page, /no SLA/);
   assert.match(page, /GitHub Sponsors/);
   assert.match(page, /not affiliated with, endorsed by, or sponsored by Bonsai/);
-  assert.match(page, /not reachable from this session to confirm/);
+  assert.match(page, /changes over time, and this page does not track/);
   // No dollar figure is ever attributed to Bonsai on this page.
   assert.doesNotMatch(page, /Bonsai[^.]{0,80}\$\d/);
 });
