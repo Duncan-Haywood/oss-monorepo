@@ -1217,7 +1217,53 @@ cells the burst the reader finds has a 2.1-2.3 kHz centroid with 54-66% of its e
 on G2 and F3 read 33-44%. Where that energy comes from (the burst search's timing, or the vowel's release reaching
 into the 10 ms window) is the next thing to read, frame by frame, before any rule. Reader only; not listened to.
 
-#### A dark-vowel m that closes slowly (2026-11-17, latest; failed its registration, opt-in)
+#### A /u/ release read as a nasal (2026-11-17, latest; registration untested, opt-in)
+
+The round before found a fault in the default reader: on part c's A#3 quarter notes every /u/ syllable sung on vowels
+only (*nun*, *brum*, *mut*, *nul* and 11 more) read as a final nasal, by the plain level rule. Read frame by frame
+(`eval/dark-nasal-diag.mjs c`):
+
+- **The vowel swells, then fades after the note.** Through the note the /u/ grows 12 dB over the reference the reader
+  takes at its start, and darkens (its tilt from -25 to -45 dB). After the note ends it fades 2-3 dB per 5 ms, and in
+  the last 40 ms before the reader's window closes it passes the level rule's test: 5-25 dB under the reference and
+  15 dB darker above 1 kHz than under 500 Hz.
+- **Two guards that did not work.** Asking the run to be darker in itself than the vowel 25-45 ms before it took back
+  all 15 cells, and J's 15, but lost 60 or more sung nasals: a dark-vowel m is no darker than its vowel (README "A
+  dark-vowel m"). Asking the run's level not to keep falling lost 34 right reads for every 34 wrong ones it fixed: a
+  sung m also falls into its murmur.
+- **Where it starts is what marks it.** `eval/level-tail-sweep.mjs` lists every level-rule nasal on parts K-c, sung and
+  vowel-only, with where its run starts against the window's last frame. Every vowel-only one on c (A#3 quarters) and W
+  (E3 eighths) starts 5-6 frames (25-30 ms) from it; of 636 right reads the earliest starts 7 frames out, and nearly
+  all 60 or more.
+
+- **The rule** (`readCoda`'s `levelFade`, `LEVEL_FADE = { tail: 6 }` in `onsets.mjs`, opt-in; `--fade on` in
+  `eval/coda-check.mjs`): a level-rule run that starts within 6 frames of the window's last frame is the vowel's release,
+  not a nasal. A sung coda's murmur starts well before the next sound. Read off that sweep, not tuned.
+- **Development** (A-c, `--fade on` against the default): J's vowel-only control 453 to 468 of 468 and its others 332
+  to 333; W's control 338 to 352 of 360 and its others 32 to 33; c's control 369 to 384 of 384; L's others 117 to 118.
+  Lost: one O *lum* read as none. Every nasal row of every part identical. Z's 13 vowel-only misses (C#4 eighths) and
+  T's 4 start 14-19 frames out, and the rule does not touch them.
+- **Pre-registered on a new part d** (`eval/coda-check.mjs` header, twenty-sixth round, committed as 41e188357 before d
+  ran): the same mix as c, none sung before, at D#3, E3, A3, A#3, B3 and C#4, 92 BPM.
+
+| d | default | `levelFade` | wanted |
+|---|---|---|---|
+| vowel-only control read as none (of 384) | 384 | 384 | 3 or more better: **untested** |
+| nasals after /u/ or /o/ (of 144), after a bright vowel (of 48), n-clusters (of 48) | 136, 48, 47 | 136, 48, 47 | no fewer: holds |
+| voiced stops (of 60), voiceless (of 36), others (of 48) | 56, 36, 47 | 56, 36, 47 | no fewer: holds |
+| stops, others and vowel-only cells read as a nasal | 1 | 1 | no more: holds |
+
+So `levelFade` stays opt-in and the default reader did not change. The registration said the gain counts only if the
+default misses 3 or more of d's vowel-only cells, and it missed none: at 92 BPM on those six pitches no /u/ release
+lasted into the window's last 30 ms at the level rule's depth. The rule lost nothing on d either. The fault shows on
+some tempo and note-length pairs (c's A#3 quarters at 88 BPM, W's E3 eighths at 122) and not others, and a fair test
+needs a held-out part built to land on them: the next registration should pick its cells by where the release ends
+against the window, measured on the vowel-only render before any reader runs. `level-fade.test.mjs` (2 tests) keeps
+c's vowel-only /u/ on A#3 (a nasal by default, none with the rule), the sung cell unmoved, and b's *run* on D#4 eighths
+(a right level-rule read 7 frames from the end) still a nasal. Reader only; nothing in the synthesis changed. Not
+listened to.
+
+#### A dark-vowel m that closes slowly (2026-11-17; failed its registration, opt-in)
 
 The round before left part b's dark-vowel nasals read as nothing on 11 cells: *num* 3, *mum*, *bun*, *cun* 2 each, *run*
 and *vun*. Read frame by frame (`eval/dark-nasal-diag.mjs b`; part b is now in `eval/vstop-parts.mjs`, which the

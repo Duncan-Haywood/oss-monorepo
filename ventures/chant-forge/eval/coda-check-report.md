@@ -721,6 +721,29 @@ Misses with `lipShut: { span: 4, settle: 2, rise: 4 }`:
 
 brum as none 6; glum as none 5; stum as none 4; prun as none 2; flum as none 2; nun (vowel only) as nasal 1; brum (vowel only) as nasal 1; glum (vowel only) as nasal 1; stum (vowel only) as nasal 1; flum (vowel only) as nasal 1; prun (vowel only) as nasal 1; brud (vowel only) as nasal 1; glub (vowel only) as nasal 1; stug (vowel only) as nasal 1; frunt (vowel only) as nasal 1; mut (vowel only) as nasal 1; mup (vowel only) as nasal 1; nus (vowel only) as nasal 1; mur (vowel only) as nasal 1; nul (vowel only) as nasal 1; frunt as voiceless alv stop 1; nant as voiceless alv stop 1; plons as voiced alv stop 1
 
+## d. Held out: a release read as a nasal (twenty-sixth round)
+
+Nasals after /u/ or /o/: *rom*, *trun*, *crum*, *plun*, *grun*, *snum*, *drum*, *prom*, *clun*, *slom*, *tron*, *bron*; voiced stops: *clud*, *trub*, *prog*, *grod*, *blog*; nasals after a bright vowel: *hem*, *tin*, *dim*, *cram*; n-clusters: *pont*, *tont*, *cont*, *tanc*; voiceless stops: *lup*, *cup*, *rop*; others: *rus*, *tul*, *su*, *lo*. Pulse-4 and pulse-2 notes at 92 BPM, each followed by a rest, D#3, E3, A3, A#3, B3, C#4.
+
+| | default | `levelFade: { tail: 6 }` |
+|---|---|---|
+| nasals after /u/ or /o/ read exactly | 136 of 144 (94.4%) | 136 of 144 (94.4%) |
+| nasals after a bright vowel read exactly | 48 of 48 (100.0%) | 48 of 48 (100.0%) |
+| n-clusters read as their nasal | 47 of 48 (97.9%) | 47 of 48 (97.9%) |
+| voiced stop codas read exactly | 56 of 60 (93.3%) | 56 of 60 (93.3%) |
+| voiceless stop codas read exactly | 36 of 36 (100.0%) | 36 of 36 (100.0%) |
+| other syllables read exactly | 47 of 48 (97.9%) | 47 of 48 (97.9%) |
+| vowel-only control read as none | 384 of 384 (100.0%) | 384 of 384 (100.0%) |
+| stops, others and vowel-only control read as a nasal | 1 | 1 |
+
+Misses, default (count over the twelve pitch and length cells):
+
+crum as none 2; snum as none 2; drum as none 2; lo as nasal 1; trun as none 1; clun as none 1; trub as voiced vel stop 1; pont as voiceless alv stop 1; prog as voiced lab stop 1; prog as voiceless vel stop 1; blog as voiceless vel stop 1
+
+Misses with `levelFade`:
+
+crum as none 2; snum as none 2; drum as none 2; lo as nasal 1; trun as none 1; clun as none 1; trub as voiced vel stop 1; pont as voiceless alv stop 1; prog as voiced lab stop 1; prog as voiceless vel stop 1; blog as voiceless vel stop 1
+
 ## C. Closing consonants in the corpus
 
 146 GABC files, 9903 sung syllables; 3634 of 9903 (36.7%) close on a consonant, 266 on a cluster. First phone: s 938, n 720, m 649, t 448, r 420, l 168, k 145, d 75, b 28, p 25, f 15, g 3.

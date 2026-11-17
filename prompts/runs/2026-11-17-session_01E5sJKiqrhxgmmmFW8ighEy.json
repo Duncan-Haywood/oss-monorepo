@@ -17,7 +17,7 @@
   "tokens_out": 21003,
   "cost_usd": 2.2473,
   "tool_calls": 51,
-  "task": "Deepen (flagship 12) ids-model-check: BUILDABLE audit rule for an entity facet naming an abstract class",
+  "task": "Deepen (flagship 12) ids-model-check: abstract-class audit rule; after PR #16919 landed the same rule first, reduced to the required-requirement case it does not cover",
   "projects": [
     "ids-model-check"
   ],
@@ -30,11 +30,15 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 1,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [
     {
       "what": "post description 201 chars (cap 160) failed check_post_frontmatter, hub content tests and the pages build in the local workflow run",
       "fix": "shortened it; check_post_frontmatter.py and the four hub test files pass"
+    },
+    {
+      "what": "race: PR #16919 (another session) landed the class-abstract applicability/partOf warning while this PR was in CI; merge conflict in audit.mjs and llms.txt",
+      "fix": "kept #16919's implementation, post and eval doc; dropped this PR's duplicate post and eval doc; kept only abstractRequirement (required entity requirement under an applicability with no entity facet), which #16919's doc wrongly said entity-contradiction already covered"
     }
   ],
   "integrity_issues": [],
@@ -46,15 +50,25 @@
     {
       "file": "docs/posts (check_post_frontmatter.py)",
       "issue": "the 160-char description cap is only discovered by running the checks; a one-line note in the post template or ventures guide would save a CI round trip"
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md / allocate.py",
+      "issue": "allocate.py showed PR #16913 open on ids-model-check but #16919 (same BUILDABLE item) was opened after my check; a claim marker on a buildable item (branch name or file) would have avoided a 15-minute duplicate"
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md (new blog post per PR)",
+      "why": "#16919 already published a post on the same rule; a second post on the same finding would be noise",
+      "did": "no new post; extended #16919's eval doc instead",
+      "result": "PR carries code, test and eval-doc correction only"
+    }
+  ],
   "writeups": [
-    "docs/posts/2026-11-17-an-ids-check-on-ifcbuildingelement-checks-nothing.md",
-    "ventures/ids-model-check/eval/abstract-class-2026-11-17.md"
+    "ventures/ids-model-check/eval/abstract-classes-2026-11-17.md (extended)"
   ],
   "goal": "flagship depth: catch a real fault in public IDS files from the file alone",
-  "notes": "New audit rule class-abstract (audit.mjs abstractIssues): warning in applicability/partOf/mixed lists, error for a required entity requirement naming only abstract classes; lists concrete subclasses. Measured: 65 public IDS -> 2 flagged (both RVB BIM Norm v1.1 copies), error counts identical to before; buildingSMART suite output identical (334/334, strict 333/334); IDS-Audit-tool valid/invalid unchanged; editor round trip 203,433 specs 0 errors 0 warnings; node --test in venture 137 pass 1 skipped. venture-preflight.mjs ids-model-check: only failure was the post description (fixed). run_workflow_locally --for-changes: all failures traced to the post description (fixed and rechecked); agent-cross-review and deploy jobs not runnable locally.",
+  "notes": "Built class-abstract rule; PR #16919 merged the same rule (applicability + partOf warnings) first. Resolved by keeping theirs and adding abstractRequirement: error for a required entity requirement naming only abstract classes when the applicability has no entity facet (entity-contradiction cannot see it), warning when abstract in only some audited schemas. Verified: audit-corpus.mjs, run-testcases.mjs (334/334, strict 333/334), abstract-classes.mjs outputs identical before/after (0 real hits for the new case: a guard); editor-roundtrip 203,433 specs 0 errors 0 warnings; node --test *.test.mjs 141 pass 1 skipped. Earlier full run_workflow_locally --for-changes on the first version: 12/12 workflows passed; CI green on the first head.",
   "corrections": [],
   "redteam": null,
   "usage": {

@@ -133,43 +133,6 @@ function applicableClasses(spec, S, typeMap, id) {
   return out;
 }
 
-// A class name that no object can ever have as its own class: abstract in
-// every audited schema that knows it (IFCBUILDINGELEMENT in IFC2X3 and IFC4,
-// IFCELEMENT everywhere), and not an IFC2X3 type-mapping name.
-// IDS matches exact classes, so a facet listing only such names matches
-// nothing: an applicability selects no element (a required specification then
-// fails with "nothing applicable" while the model's walls and slabs sit under
-// it), a required entity requirement fails every element. The fix is to list
-// the concrete subclasses, which the message names.
-function abstractOnly(n, ctx) {
-  const known = ctx.list.filter(({ S }) => S.has(n));
-  if (!known.length) return false;
-  return known.every(({ id, S }) => S.entities[n].abstract && !(id === "IFC2X3" && own(ctx.typeMap, n)));
-}
-
-function concreteBelow(n, ctx) {
-  const out = new Set();
-  for (const { S } of ctx.list) {
-    if (!S.has(n)) continue;
-    for (const c of Object.keys(S.entities)) if (c !== n && !S.entities[c].abstract && S.isA(c, n)) out.add(c);
-  }
-  return [...out].sort();
-}
-
-function abstractIssues(f, ctx, where, required) {
-  const names = listedNames(f.name);
-  if (!names) return [];
-  const dead = names.filter((n) => abstractOnly(n, ctx));
-  if (!dead.length) return [];
-  const label = ctx.list.filter(({ S }) => dead.some((n) => S.has(n))).map((x) => x.id).join(" and ");
-  const subs = [...new Set(dead.flatMap((n) => concreteBelow(n, ctx)))].filter((c) => !names.includes(c));
-  const fix = subs.length ? `; list its concrete subclasses instead (${subs.length}: ${subs.slice(0, 8).join(", ")}${subs.length > 8 ? ", ..." : ""})` : "";
-  const what = dead.length === 1 ? `${dead[0]} is abstract in ${label}` : `${dead.join(", ")} are abstract in ${label}`;
-  if (dead.length < names.length) return [{ level: "warning", code: "class-abstract", message: `${where}${what}: no object is ever of ${dead.length === 1 ? "that class" : "those classes"} itself, and IDS matches exact classes, so ${dead.length === 1 ? "that name matches" : "those names match"} nothing${fix}` }];
-  const effect = required ? "every applicable element would fail" : where ? "it matches no object" : "the specification applies to no object";
-  return [{ level: required ? "error" : "warning", code: "class-abstract", message: `${where}${what}: no object is ever of ${dead.length === 1 ? "that class" : "those classes"} itself, and IDS matches exact classes (no subclasses), so ${effect}${fix}` }];
-}
-
 function entityNameIssues(f, ctx, where) {
   const issues = [];
   const names = listedNames(f.name);
@@ -200,6 +163,61 @@ function entityNameIssues(f, ctx, where) {
     else if (enumsFor.length && !enumsFor.some((v) => v.includes(pt))) issues.push({ level: "warning", code: "predefined-custom", message: `${where}predefined type ${JSON.stringify(pt)} is not in the class's enumeration, so it matches only USERDEFINED objects whose ObjectType (or the type's ElementType) is ${JSON.stringify(pt)}` });
   }
   return issues;
+}
+
+// An entity facet naming an abstract class (IFC2X3's IFCBUILDINGELEMENT,
+// IFCELEMENT, IFCPRODUCT): no object has it as its own class, and IDS class
+// names do not take in subclasses, so the name matches nothing. Valid IDS,
+// so a warning; a required specification whose every name is abstract fails
+// on every model as "nothing applicable". Found on the Dutch RVB BIM Norm IDS
+// (eval/abstract-classes-2026-11-17.md). Not for patterns: a pattern that
+// also matches concrete classes is how an author asks for a family.
+function concreteBelow(S, cls) {
+  return Object.keys(S.entities).filter((c) => c !== cls && !S.entities[c].abstract && isA(S, c, cls)).sort();
+}
+
+function abstractIssues(f, ctx, where, spec, isApplicability) {
+  const names = listedNames(f.name);
+  if (!names) return [];
+  const known = names.filter((n) => ctx.list.some(({ S }) => S.has(n)));
+  const abstractIn = (n) => ctx.list.filter(({ S }) => S.has(n) && S.entities[n].abstract).map(({ id }) => id);
+  const flagged = known.filter((n) => abstractIn(n).length);
+  if (!flagged.length) return [];
+  // Does every listed name match nothing in some audited schema?
+  const deadIn = ctx.list.filter(({ id, S }) => names.every((n) => !S.has(n) ? !(id === "IFC2X3" && own(ctx.typeMap, n)) : S.entities[n].abstract)).map(({ id }) => id);
+  return flagged.map((n) => {
+    const ids = abstractIn(n);
+    const { S } = ctx.list.find(({ id }) => id === ids[0]);
+    const sub = concreteBelow(S, n);
+    const inSchemas = ids.length === ctx.list.length ? "" : ` in ${ids.join(" and ")}`;
+    const subs = sub.length ? `; to check the objects below it, name their classes (${sub.slice(0, 8).join(", ")}${sub.length > 8 ? ` and ${sub.length - 8} more` : ""})` : "";
+    let what;
+    if (!isApplicability) what = `no element is part of an object of exactly that class, so this partOf facet never matches${deadIn.length ? "" : " through that name"}`;
+    else if (deadIn.length) what = `this specification applies to nothing${deadIn.length === ctx.list.length ? "" : ` in ${deadIn.join(" and ")} models`}${spec.optionality === "required" ? `, and being required it fails on every such model as "nothing applicable"` : ""}`;
+    else what = "the facet matches only its other class names";
+    return { level: "warning", code: "class-abstract", message: `${where}${n} is abstract${inSchemas}: no object has it as its own class, and IDS class names do not include subclasses, so ${what}${subs}` };
+  });
+}
+
+// A required entity requirement whose every name is abstract, under an
+// applicability with no entity facet (with one, entityContradiction already
+// catches it): no object is of an abstract class itself, so every applicable
+// element fails for a fault in the IDS. Invalid, like entityContradiction;
+// in a schema where some name is concrete, a warning from the applicability
+// rule's wording instead.
+function abstractRequirement(f, spec, ctx) {
+  if (f.cardinality === "optional" || f.cardinality === "prohibited") return [];
+  if (spec.applicability.some((x) => x.kind === "entity")) return [];
+  const names = listedNames(f.name);
+  if (!names) return [];
+  const dead = (id, S, n) => (!S.has(n) ? !(id === "IFC2X3" && own(ctx.typeMap, n)) : S.entities[n].abstract && !(id === "IFC2X3" && own(ctx.typeMap, n)));
+  const deadIn = ctx.list.filter(({ id, S }) => names.every((n) => dead(id, S, n))).map(({ id }) => id);
+  if (!deadIn.length || !names.some((n) => ctx.list.some(({ S }) => S.has(n) && S.entities[n].abstract))) return [];
+  const { S } = ctx.list.find(({ id }) => id === deadIn[0]);
+  const sub = [...new Set(names.flatMap((n) => (S.has(n) ? concreteBelow(S, n) : [])))];
+  const subs = sub.length ? `; to require objects below it, name their classes (${sub.slice(0, 8).join(", ")}${sub.length > 8 ? ` and ${sub.length - 8} more` : ""})` : "";
+  const all = deadIn.length === ctx.list.length;
+  return [{ level: all ? "error" : "warning", code: "class-abstract", message: `the requirement asks for entity ${f.name}, which is abstract${all ? "" : ` in ${deadIn.join(" and ")}`}: no object has it as its own class, and IDS class names do not include subclasses, so every applicable element${all ? "" : ` in ${deadIn.join(" and ")} models`} would fail${subs}` }];
 }
 
 // A required entity facet that no applicable class can satisfy: the
@@ -467,8 +485,9 @@ export function auditIds(ids, { schemas, typeMap, psets } = {}) {
         const issues = [];
         if (f.kind === "entity") {
           issues.push(...entityNameIssues(f, ctx, ""));
+          if (where === "applicability" && !issues.some((x) => x.level === "error")) issues.push(...abstractIssues(f, ctx, "", spec, true));
           if (where === "requirements" && !issues.some((x) => x.level === "error")) issues.push(...entityContradiction(f, spec, ctx));
-          if (!issues.some((x) => x.level === "error")) issues.push(...abstractIssues(f, ctx, "", where === "requirements" && f.cardinality !== "optional" && f.cardinality !== "prohibited"));
+          if (where === "requirements" && !issues.some((x) => x.level === "error")) issues.push(...abstractRequirement(f, spec, ctx));
         }
         else if (f.kind === "attribute") issues.push(...attributeIssues(f, spec, ctx));
         else if (f.kind === "property") issues.push(...propertyIssues(f, ctx, spec, where));
@@ -477,9 +496,9 @@ export function auditIds(ids, { schemas, typeMap, psets } = {}) {
           if (f.relation === "IFCRELVOIDSELEMENT" || f.relation === "IFCRELFILLSELEMENT") issues.push({ level: "error", code: "relation-voids-fills", message: `partOf relation ${f.relation} on its own is not an IDS 1.0 value, and tools that validate against ids.xsd (IfcTester among them) refuse the file; write relation="IFCRELVOIDSELEMENT IFCRELFILLSELEMENT" for an element in an opening of another` });
           else if (f.relation && !PARTOF_RELS.includes(f.relation)) issues.push({ level: "error", code: "relation-unknown", message: `partOf relation ${f.relation} is not one of ${PARTOF_RELS.map((r) => JSON.stringify(r)).join(", ")}` });
           if (f.entity) {
-            const en = entityNameIssues(f.entity, ctx, "partOf: ");
-            issues.push(...en);
-            if (!en.some((x) => x.level === "error")) issues.push(...abstractIssues(f.entity, ctx, "partOf: ", false));
+            const named = entityNameIssues(f.entity, ctx, "partOf: ");
+            issues.push(...named);
+            if (!named.some((x) => x.level === "error")) issues.push(...abstractIssues(f.entity, ctx, "partOf: ", spec, false));
           }
         }
         for (const x of issues) add(where + " " + f.describe(), x);

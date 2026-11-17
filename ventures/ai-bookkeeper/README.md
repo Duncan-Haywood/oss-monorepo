@@ -2945,6 +2945,17 @@ unseen for this rule); all 196, RapidOCR: 182 to 187; CORD text and SROIE text u
 Details: [`eval/rapidocr-srd-misses-2026-11-17.md`](eval/rapidocr-srd-misses-2026-11-17.md).
 Tests: `receipt-rapidocr-srd.test.mjs`.
 
+### The page's own RapidOCR on the US photos, and a printed gratuity (2026-11-17)
+
+The page's JavaScript port of RapidOCR, run in headless Chromium on all 196 SRD photos, slips
+rows on the same two photos as the Python engine and the row-shift rule fixes both; it reads 189
+totals right to Python's 187. With tesseract's four after it, the page gets 188. One of its misses
+was the parser's: `SubTotal 3.99 / Tax 0.30 / Gratuity 1.00 / Total 5.29` was "corrected" to 4.29
+because no check counted the gratuity. A gratuity line above the total now adds a check
+(subtotal plus tax and gratuity). The page: 188 to **189 of 196**, wrong with no warning 2 to 1;
+CORD and SROIE text unchanged. Details:
+[`eval/rapidocr-web-srd-2026-11-17.md`](eval/rapidocr-web-srd-2026-11-17.md).
+
 ### RapidOCR and tesseract together (2026-11-17)
 
 `--rapidocr --four-pass` reads the photo with RapidOCR first, then with tesseract's four

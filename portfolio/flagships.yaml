@@ -109,21 +109,21 @@ flagships:
       (README); open: Relay, a bank scan; (3) Adyen's sample read (README); open: a
       real merchant's payout export, a real 1099-K; (4) loans: LendingClub rounds
       payments up (99.97% of 445k, README), `--round up`; open: a lender's full
-      table, a supplier's terms letter; (5) receipts OCR (page SROIE 84.6%, US
-      79.6%, tax 74.6%; CLI 78.6%, tax 71.9%; CORD photos val 71.4%, train 62.2%,
-      test 57.9%, tax 16/41; open: OCR-bound); (6) payroll (README): two journal
-      layouts read; open: a real Gusto or ADP export; (7) IRIS NEC and MISC rents
-      files on IRS TY2025 guidelines (HISTORY): open: a real upload, TY2026
+      table, a supplier's terms letter; (5) receipts OCR (page SRD 189/196, SROIE
+      84.6%, US 79.6%, tax 74.6%; CLI 78.6%, tax 71.9%; CORD photos val 71.4%, train
+      62.2%, test 57.9%, tax 16/41; open: OCR-bound); (6) payroll (README): two
+      journal layouts read; open: a real Gusto or ADP export; (7) IRIS NEC and MISC
+      rents files on IRS TY2025 guidelines (HISTORY): open: a real upload, TY2026
       template. A run that lands a slice replaces its item here; keep this under
       2,000 characters. More open items: NEXT.md.
     buildable: >-
       Receipts, item (5): SRD photos (eval/srd-fetch.mjs), CORD photos
       (eval/cord_images.py); tesseract via apt, RapidOCR via pip. CORD train shards
-      1-3: `--rapidocr` 539 of 583, test 83 of 95; SRD `--rapidocr` 187 of 196
-      (eval/rapidocr-srd-misses-2026-11-17.md: rows one off their words). Next: the
-      page's RapidOCR port on SRD (rows shifted there too?); tesseract's four on
-      CORD shards 1-3 (about 100 min) for the five-reading vote; CORD's 22
-      parser-reachable misses are one-offs. CORD test stays held out.
+      1-3: `--rapidocr` 539 of 583, test 83 of 95; SRD: Python RapidOCR 188, the
+      page's port 190, the page (port then four) 189 of 196
+      (eval/rapidocr-web-srd-2026-11-17.md: same row shifts, gratuity check). Next:
+      tesseract's four on CORD shards 1-3 (about 100 min) for the five-reading vote;
+      CORD's 22 parser-reachable misses are one-offs. CORD test stays held out.
     hosts: [https://huggingface.co/, https://raw.githubusercontent.com/]
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
@@ -206,10 +206,12 @@ flagships:
     next: >-
       History: README and git (latest: INV-041 endpoint ids as OpenPeppol's
       PEPPOL-COMMON rules check them, 0 of 21,264 off
-      (eval/endpoint-peppol-differential-2026-11-17.md); open: Peppol's
-      warning-level IT/NL id rules; France Flux 10 e-reporting, PPF Annexe 7
-      controls 147/147 vs Saxon (eval/flux10-crosscheck-2026-11-17.md); open: a real
-      Flux 10 file, a PPF rejection; BR-FR 264/264 vs Saxon, all 384 BR-FR/CDV
+      (eval/endpoint-peppol-differential-2026-11-17.md); Peppol's warning-level
+      IT/NL id formats as INV-061 warnings, 0 of 23,999 off
+      (eval/endpoint-peppol-warnings-2026-11-17.md); open: the same id rules on
+      PartyIdentification/CompanyID in JSON; France Flux 10 e-reporting, PPF Annexe
+      7 controls 147/147 vs Saxon (eval/flux10-crosscheck-2026-11-17.md); open: a
+      real Flux 10 file, a PPF rejection; BR-FR 264/264 vs Saxon, all 384 BR-FR/CDV
       messages in English (br-fr-error-codes.html); CDAR (BR-FR-CDV) 780/780 vs
       Saxon (eval/cdar-crosscheck-*); Extended-CTC-FR and Factur-X EXTENDED bases
       175/175 vs Saxon (eval/extended-base-crosscheck-2026-11-17.md); open: a real
@@ -229,6 +231,11 @@ flagships:
       CFDI 4.0 landed: open: SAT's CP error matrix to map MX-070..080 to CP codes
       (omawww blocked), a real payroll or export file, a PAC rejection compared. A
       run that lands a slice replaces its item here. More open items: NEXT.md.
+    buildable: >-
+      Peppol id rules (eval/endpoint-peppol-differential.mjs,
+      eval/endpoint-peppol-warnings.mjs, oracle plain/peppol-ubl.json, no network)
+      applied to PartyIdentification/ID and PartyLegalEntity/CompanyID in JSON
+      input, as Peppol applies them, not only the endpoint.
   - venture: shift-roster-builder
     inputs_only: >-
       a live deploy with real punches, a real payroll template, a manager's
@@ -281,10 +288,9 @@ flagships:
       eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`; its CIFF CRWs all read).
       Bayer trees parked: a range guard passes 6 fresh cameras, misses K-1 II/A7
       III; no fresh frames left (eval/bayer-boosted-guard-*). Noise-aware demosaic
-      (opt-in): luma scored and guard per plane 2026-11-16
-      (eval/noise-aware-planes-luma-*); refit its ramps on luma
-      (tools/noise_aware_planes.py rows). DNG 1.7.1.0 spec PDF: URL in
-      eval/opcode-spec-audit-2026-11-12.md.
+      (opt-in): own luma ramp 2026-11-17 (eval/noise-aware-luma-ramp-*); next: an
+      earlier colour ramp, the guard's cap (tools/noise_aware_ramp_refit.py). DNG
+      1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
@@ -424,17 +430,18 @@ flagships:
       --key-lift N, eval/key-lift-check.md; per-section singer guidance in --cues;
       2026-11-17: lipShut (dark-vowel m) default; lipHold failed held-out b, opt-in;
       a slow lip closure failed held-out c (123 to 125 of 144, 3 wanted), opt-in;
-      next: c's cluster-onset -um, A#3 /u/ fades read as nasals). Open checks that
-      need a person: listen to the studio page, --sing, the options (--stretch,
-      --halftime, --fills, --limit pumping, stems, sections, breakdown, riser, the a
-      cappella verse and whether the key lift sounds like a lift); --lrc in a real
-      player and --markers/--stems in a DAW; --cues (and its section lines),
-      RECORDING-GUIDE.md and the E2-E4 range with real singers; the release kit
-      against a distributor's real form; the Te Deum/3427/3912/3775 fixes
-      (eval/scan-check-verdicts.md). master-cli passed EBU Tech 3341/3342 from their
-      text; open: the EBU's WAVs (403), Apple/Amazon/Tidal levels. scan.mjs reads
-      rhombi, quilismas, liquescents, lines at true thickness; tilted pages, curled
-      staves straightened (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
+      next: c's cluster-onset -um; levelFade (a release read as a nasal) opt-in,
+      untested on d). Open checks that need a person: listen to the studio page,
+      --sing, the options (--stretch, --halftime, --fills, --limit pumping, stems,
+      sections, breakdown, riser, the a cappella verse and whether the key lift
+      sounds like a lift); --lrc in a real player and --markers/--stems in a DAW;
+      --cues (and its section lines), RECORDING-GUIDE.md and the E2-E4 range with
+      real singers; the release kit against a distributor's real form; the Te
+      Deum/3427/3912/3775 fixes (eval/scan-check-verdicts.md). master-cli passed EBU
+      Tech 3341/3342 from their text; open: the EBU's WAVs (403), Apple/Amazon/Tidal
+      levels. scan.mjs reads rhombi, quilismas, liquescents, lines at true
+      thickness; tilted pages, curled staves straightened
+      (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
       (eval/broken-stroke-check.md); next: worn pages (new GABC needed), mottled
       squares, one-step cephalici read (eval/one-step-cephalicus-check.md), 10 of 84
       tuning misses left, 3408's strokes, 3464's cephalicus. More open items:
@@ -443,9 +450,11 @@ flagships:
       Coda reader rounds on synthetic held-out parts, no outside input
       (eval/coda-check.mjs, eval/dark-nasal-diag.mjs; README "A dark-vowel m that
       closes slowly"): c's cluster-onset -um (brum, glum, stum, flum: 18 of 48 read
-      as nothing on A#3-E4); c's vowel-only /u/ on A#3 quarters read as a nasal by
-      the level rule (15 cells). OMR (scan.mjs) items in next: one-step cephalici,
-      10 of 84 tuning misses, 3408's strokes, 3464's cephalicus.
+      as nothing on A#3-E4); a held-out part for levelFade (opt-in; README "A /u/
+      release read as a nasal": d untested, 0 vowel-only misses), its cells picked
+      where a vowel-only release ends in the window's last 30 ms. OMR (scan.mjs)
+      items in next: one-step cephalici, 10 of 84 tuning misses, 3408's strokes,
+      3464's cephalicus.
   # Added 2026-11-16 (new venture, construction direction): buildingSMART IDS 1.0
   # checking of IFC models, in a browser tab or CI. Depth: a full IDS engine
   # scored on buildingSMART's 334 test pairs and cross-checked against IfcTester.
@@ -457,12 +466,11 @@ flagships:
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
-      (eval/ifcxml-xbim-2026-11-16.md); the abstract-class audit (class-abstract,
-      2026-11-17, eval/abstract-class-2026-11-17.md: 2 of 65 public IDS) on
-      class-name patterns, and an editor button replacing an abstract class with its
-      concrete subclasses; the IDS editor (editor.html; README): "Use the model's
-      range" for dates, xs:date one-of rows (eval/date-ranges-2026-11-17.md); more
-      real exports through eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
+      (eval/ifcxml-xbim-2026-11-16.md); audit warnings (class-abstract and the rest)
+      as CI annotations on the IDS file (eval/abstract-classes-2026-11-17.md); the
+      IDS editor (editor.html; README): "Use the model's range" for dates, xs:date
+      one-of rows (eval/date-ranges-2026-11-17.md); more real exports through
+      eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked"). Next, most

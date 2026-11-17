@@ -98,6 +98,19 @@ synthetic test model fails (`ci.test.mjs`).
 - `node platform/pages/venture-preflight.mjs ids-model-check`: see the PR's run
   record notes.
 
+## Follow-up: "Add a specification" names them from the start (2026-11-17)
+
+"Add a specification" on a row of the open model's class list used to write
+the bare class, so a new IFCWALL specification on the Schultz Residence opened
+with the "would not check 101 IFCWALLSTANDARDCASE" warning and one more click.
+`modelSpec(S, cls, invClasses)` now starts it with the model's own subclass
+objects in "Also applies to" (only classes the model has; the schema's others
+stay behind the checkbox). On the four exports that changes two rows: Schultz
+`IFCWALL` (+ `IFCWALLSTANDARDCASE` 101) and `IFCGROUP` (+ `IFCSYSTEM` 1), HHS
+construction `IFCWALL` (+ 36). Checked in Chromium on a three-wall IFC2X3 file:
+the new specification lists IFCWALLSTANDARDCASE and shows no warning, no
+console errors. `node --test`: 136 pass (1 new in `editor.test.mjs`).
+
 ## Not done
 
 - The editor's offer covers a model that is open. Without a model it still
