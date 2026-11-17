@@ -226,6 +226,7 @@ jobs:
           ids: "requirements/*.ids"
           # pairing: name     # wall.ifc only against wall*.ids
           # fail-on: warning  # also fail on optional specifications
+          # fail-on-unchecked: true  # also fail when IFCWALL left IfcWallStandardCase unchecked
           bcf-dir: bcf        # one BCF 2.1 file per failing pair
       - uses: actions/upload-artifact@v4
         if: always()
@@ -240,10 +241,16 @@ It writes a JUnit report (`ids-report.xml`, one test case per specification,
 read by GitHub test-report actions, GitLab, Jenkins and Azure DevOps), a job
 summary table, an annotation per failing specification placed on the first
 failing element's `#id=` line of a STEP model, and the outputs `result`,
-`passed`, `failed`, `warnings`, `invalid` and `elements-failed`. Required and
+`passed`, `failed`, `warnings`, `invalid`, `elements-failed` and `not-checked`. Required and
 prohibited failures, invalid specifications and unreadable files fail the step;
 optional ones are warnings unless `fail-on: warning`; `fail-on: never` only
-reports. A glob that matches nothing exits 2 rather than passing an empty
+reports. IDS has no inheritance, so a specification naming `IFCWALL` never
+looks at an `IfcWallStandardCase` (most walls in Revit's IFC2X3 exports); the
+verdict stands, and since 2026-11-17 every CI output says how many elements
+were left out (a warning annotation on the IDS file, the JUnit test case's
+`system-out`, a "Not checked" column and list in the job summary, the
+`not-checked` output). `fail-on-unchecked: true` (`--fail-on-unchecked`) fails
+the step on them instead (`eval/ci-unchecked-2026-11-17.md`). A glob that matches nothing exits 2 rather than passing an empty
 check. Pinning `@main` follows this repository; pin a commit SHA for a
 repeatable build, or copy the folder (it runs from its own directory).
 
@@ -253,7 +260,8 @@ Jenkins, a pre-commit hook):
 ```
 node ci-cli.mjs --models "models/**/*.ifc" --ids "req/*.ids" --junit report.xml \
   [--summary summary.md] [--bcf-dir bcf/] [--json results.json] [--annotations] \
-  [--pairing all|name] [--fail-on error|warning|never] [--root DIR] [--max-failures N]
+  [--pairing all|name] [--fail-on error|warning|never] [--fail-on-unchecked] \
+  [--root DIR] [--max-failures N]
 node cli.mjs model.ifc spec.ids --junit report.xml   # one pair
 ```
 
