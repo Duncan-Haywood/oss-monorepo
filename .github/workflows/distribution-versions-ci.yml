@@ -21,6 +21,7 @@ on:
       - "platform/distribution/**"
       - "portfolio/distribution/**"
       - ".pre-commit-hooks.yaml"
+      - "flake.nix"
       - ".github/workflows/distribution-versions-ci.yml"
   workflow_dispatch:
 
@@ -57,6 +58,29 @@ jobs:
           platform/distribution/pypi-packages.test.mjs
           platform/distribution/homebrew.test.mjs
           platform/distribution/ghcr.test.mjs
+      # Every other publisher's tests. Until 2026-11-12 these ran in no PR workflow,
+      # and a new linter (systemd-unit-hardening-check) left ghaction, nixflake and
+      # precommit red on main unseen (red-team run 2026-11-12). ios.test.mjs is left
+      # out: its catalogue-wide plan test takes over 90 s.
+      - name: Other publisher unit tests
+        run: >-
+          node --test platform/distribution/ghaction.test.mjs
+          platform/distribution/nixflake.test.mjs
+          platform/distribution/precommit.test.mjs
+          platform/distribution/releases.test.mjs
+          platform/distribution/desktop.test.mjs
+          platform/distribution/android.test.mjs
+          platform/distribution/mcp.test.mjs
+          platform/distribution/vscode.test.mjs
+          platform/distribution/webext.test.mjs
+          platform/distribution/setup.test.mjs
+          platform/distribution/attribution.test.mjs
+          platform/distribution/citation.test.mjs
+          platform/distribution/bluesky.test.mjs
+          platform/distribution/devto.test.mjs
+          platform/distribution/hashnode.test.mjs
+          platform/distribution/mastodon.test.mjs
+          platform/distribution/wordpress.test.mjs
       # The hub writes every platform's text, and content.test.mjs checks its
       # drafts quote each post in docs/posts/ word for word and fit every limit.
       - name: Hub and content unit tests
