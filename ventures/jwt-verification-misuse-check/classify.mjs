@@ -192,7 +192,9 @@ const GO_CALLS = /\bjwt\.(?:Parse|ParseWithClaims)\s*\(/g;
 const STRING_ARG = /^[bBuU]?(["'`])((?:\\.|(?![\\]|\1).)*\\?)\1$/;
 const KEYWORD_ARG = /^([A-Za-z_]\w*)\s*=(?!=)\s*(.*)$/;
 const USER_KEY = /\b(?:req|request|ctx|event)\s*[.\[]|\bheaders?\b|\b(?:params|query|body)\b/;
-const GO_METHOD_CHECK = /\.Method\b/;
+// A keyfunc that checks token.Method (type assertion, .Alg(), or == jwt.SigningMethod*).
+// A bare /\.Method\b/ also matched net/http's r.Method (quality audit 2026-11-17).
+const GO_METHOD_CHECK = /\.Method\s*(?:\.\s*\(|\.\s*Alg\s*\(|[!=]=\s*jwt\.SigningMethod)/;
 
 const SECRET_FIX = "Load the key from the environment or a secret manager (process.env.JWT_SECRET, os.environ[\"JWT_SECRET\"], System.getenv), generate it with `openssl rand -base64 48` (at least 32 random bytes for HS256), and rotate this one -- it is in your version control history. Or move to an asymmetric pair (RS256/ES256) and keep the private key out of the repo.";
 const PIN_FIX_JS = "Pin the algorithm you issue with: jwt.verify(token, key, { algorithms: ['HS256'] }) (or ['RS256'] with a public key). Without it the library trusts the token's own alg header.";
