@@ -184,7 +184,7 @@ class ModeNote(unittest.TestCase):
             qm.mode_for = lambda *a, **k: {"mode": "fix", "why": "w"}
             note = q.mode_note("2026-11-14", [])
             self.assertIn("`fix`", note)
-            self.assertIn("Four modes", note)
+            self.assertIn("Five modes", note)
             qm.mode_for = lambda *a, **k: {"mode": "sample", "why": "w"}
             self.assertIsNone(q.mode_note("2026-11-14", []))
         finally:

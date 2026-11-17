@@ -33,6 +33,7 @@
     .tag { font-size: 0.78rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap; }
     .enum { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 0.9rem; }
     .enum label { display: inline; color: var(--fg); font-size: 0.9rem; }
+    .kept code { font-size: 0.78rem; word-break: break-all; color: var(--muted); }
     pre { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 10px; overflow-x: auto; font-size: 0.8rem; max-height: 420px; }
     ul.issues { padding-left: 1.2em; }
     footer { margin-top: 3em; font-size: 0.9rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 1em; }
@@ -42,7 +43,7 @@
 <main>
   <p class="muted"><a href="../">All tools</a> / <a href="./">IDS Model Check</a> / IDS Editor</p>
   <h1>Write an IDS from the standard property sets.</h1>
-  <p class="lede">Pick an IFC class, then a standard property or quantity set that class can carry, then one of its properties. The editor fills in the data type from buildingSMART's templates, offers the enumeration values the standard lists, and audits every specification as you write it. Download the .ids, or send it straight to the checker. Nothing is uploaded.</p>
+  <p class="lede">Pick an IFC class, then a standard property or quantity set that class can carry, then one of its properties. Or open the model you are writing for, and the editor offers the classes and sets it actually carries, your project's own sets included, and the values its objects hold (for properties, attributes such as Name or ObjectType, and the codes in each classification system), so a requirement can allow exactly those values or the model's range. The editor fills in the data type from buildingSMART's templates, offers the enumeration values the standard lists, and audits every specification as you write it. Download the .ids, or send it straight to the checker. Nothing is uploaded.</p>
 
   <div class="card">
     <div class="grid">
@@ -57,7 +58,13 @@
   <div class="row">
     <button id="add-spec" type="button">Add a specification</button>
     <button id="reset" type="button" class="ghost">Start over</button>
+    <label for="open" class="btn ghost" style="font-size:1rem;color:var(--accent)">Open an IDS file</label>
+    <input id="open" type="file" accept=".ids,.xml,application/xml,text/xml" style="position:absolute;left:-9999px;width:1px">
+    <label for="open-model" class="btn ghost" style="font-size:1rem;color:var(--accent)">Open a model to write for</label>
+    <input id="open-model" type="file" accept=".ifc,.IFC,.ifcxml,.ifcXML,.ifczip,.ifcZIP,.zip,.xml" style="position:absolute;left:-9999px;width:1px">
   </div>
+  <p id="open-status" role="status" aria-live="polite" class="muted"></p>
+  <div id="model" role="status" aria-live="polite"></div>
 
   <h2>Audit</h2>
   <div id="audit" role="status" aria-live="polite" class="muted">Nothing written yet.</div>
@@ -71,6 +78,8 @@
   <pre id="xml" aria-label="IDS XML"></pre>
 
   <h2>How it works</h2>
+  <p>Already have an IDS? <strong>Open an IDS file</strong> reads it in. Everything the page's controls can hold without changing it becomes an editable row; anything else (a pattern on a name, a facet in the applicability, an exclusive bound, a non-standard Pset_ name) is kept as written: shown as its XML, written back unchanged, and removable. Opened and written back, 64 of 64 IDS files from public repositories (79% of their facets editable, a project's own property sets included) and all 187 of buildingSMART's passing test cases ask for the same thing as before, and none stops validating against ids.xsd. The one change: requirements on a prohibited specification, which IDS 1.0 cannot evaluate, are dropped and named when you open the file.</p>
+  <p><strong>Open a model to write for</strong> reads an IFC model (.ifc, .ifcxml or .ifczip) in a background thread of this tab, with the checker's own reader, and lists what it already carries: each class with how many of it, the property and quantity sets on them (standard or the project's own, with the data type the model writes each property in) and the classification systems in use. The editor then offers those first: the model's classes in the class list, and, on each requirement, the sets the model's objects of that class carry, with how many carry them. A set of the project's own (Acme_Wall, not a Pset_ or Qto_ set) becomes a row you can edit: its name, the property and a data type from the IFC schema, filled in from the model when it has the property. The model is not uploaded or kept: close the tab and it is gone.</p>
   <p>The class list is every non-abstract class in the IFC schema you pick that can carry at least one standard set; the set list is the sets whose templates apply to that class, its ancestors, or the occurrence a type object is for (Pset_WallCommon on IFCWALL, IFCWALLSTANDARDCASE and IFCWALLTYPE); the property list and data types are the template's. IDS matches exact classes, so a specification on IFCWALL misses IFCWALLSTANDARDCASE unless both are listed: tick <em>and its subclasses</em> to list them. A property whose template gives no single data type (a bounded value, a table, a list or a reference) is checked for presence only.</p>
   <p>Every choice the editor offers was written out and audited: for each of the three schemas, every offered class, every set it offers for that class and every property of the set, once on its own and once with a value of the right kind. That is 203,433 specifications (32,823 for IFC2X3, 46,516 for IFC4, 124,094 for IFC4X3), and the audit finds no error and no warning in any of them (<code>eval/editor-roundtrip.mjs</code>). A sample of 15,102 specifications, one per class and set plus every facet, value kind, cardinality and partOf relation the page writes, validates against buildingSMART's IDS 1.0 XML schema in IfcOpenShell's IfcTester (<code>eval/editor-xsd-check.py</code>).</p>
 
@@ -84,7 +93,8 @@
   import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
   import { Schema, parseIds } from "./ids.mjs";
   import { auditIds } from "./audit.mjs";
-  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, buildIds, entityFacet, PARTOF_RELATIONS } from "./editor.mjs";
+  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, idsSchema, facetXml, editableAttributes, modelSets, valueTypes, ownSetName, specBases, specClassNames, commonSets, commonAttributes, sameAttributeType, commonPredefinedTypes, parseClassList, modelValueOffer, modelAttributes, modelCodes } from "./editor.mjs";
+  import { isZip, unzipModel, inflateRawStream } from "./zip.mjs";
 
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
@@ -105,8 +115,6 @@
     return loaded[id];
   }
 
-  const blankReq = () => ({ kind: "property", set: "", name: "", cardinality: "required", mode: "any", equals: "", oneOf: [], min: "", max: "", pattern: "", system: "", relation: "IFCRELCONTAINEDINSPATIALSTRUCTURE", entity: "IFCBUILDINGSTOREY" });
-  const blankSpec = () => ({ name: "", description: "", instructions: "", optionality: "required", cls: "", withSub: true, predefinedType: "", reqs: [blankReq()] });
   const starter = () => ({ title: "Project information requirements", description: "", schema: "IFC4", specs: [{ ...blankSpec(), name: "Walls say whether they are external", cls: "IFCWALL", reqs: [{ ...blankReq(), set: "Pset_WallCommon", name: "IsExternal" }] }] });
 
   let doc;
@@ -116,97 +124,180 @@
 
   const opt = (v, label, sel) => `<option value="${esc(v)}"${v === sel ? " selected" : ""}>${esc(label ?? v)}</option>`;
 
+  // A facet from an opened file the page's controls cannot hold without
+  // changing it: shown as its XML, written back unchanged, removable.
+  const KIND = { entity: "class", property: "property", attribute: "attribute", classification: "classification", material: "material", partOf: "place" };
+  const keptHtml = (L, f, inReq, act, si, i) => `<div class="req kept"><p style="margin:0 0 4px"><span class="tag muted">KEPT AS WRITTEN</span> ${esc(KIND[f.kind] || f.kind)}${inReq && f.cardinality && f.cardinality !== "required" ? ` (${esc(f.cardinality)})` : ""}</p><code>${esc(facetXml(f, L.S, inReq))}</code><br><button type="button" class="ghost small" data-act="${act}" data-s="${si}" data-r="${i}" style="margin-top:6px">Remove</button></div>`;
   function reqHtml(L, spec, si, r, ri) {
+    if (r.fixed) return keptHtml(L, r.fixed, true, "del-req", si, ri);
     const id = (k) => `r-${si}-${ri}-${k}`;
     let h = `<div class="req"><div class="grid">`;
     h += `<div><label for="${id("kind")}">Requirement</label><select id="${id("kind")}" data-s="${si}" data-r="${ri}" data-k="kind">${[["property", "a property or quantity"], ["attribute", "an attribute (Name, Description...)"], ["classification", "a classification"], ["material", "a material"], ["partOf", "a place (storey, group...)"]].map(([v, l]) => opt(v, l, r.kind)).join("")}</select></div>`;
     h += `<div><label for="${id("card")}">How</label><select id="${id("card")}" data-s="${si}" data-r="${ri}" data-k="cardinality">${[["required", "must have"], ["optional", "if present, must match"], ["prohibited", "must not have"]].map(([v, l]) => opt(v, l, r.cardinality)).join("")}</select></div>`;
-    let valueKind = "text", enumVals = null, note = "";
+    let valueKind = "text", enumVals = null, note = "", mprop = null;
+    codeless.delete(`${si}-${ri}`);
     if (r.kind === "property") {
-      const sets = L.S.entities[spec.cls] || (L.tm && L.tm[spec.cls]) ? setsFor(L.psets, L.S, spec.cls, L.tm) : [];
-      h += `<div><label for="${id("set")}">Standard set</label><select id="${id("set")}" data-s="${si}" data-r="${ri}" data-k="set">${opt("", sets.length ? "choose a set" : "pick a class with standard sets first", r.set)}${sets.map((s) => opt(s, s, r.set)).join("")}</select></div>`;
-      const props = r.set ? propertiesOf(L.psets, L.S, r.set) : [];
-      h += `<div><label for="${id("name")}">Property</label><select id="${id("name")}" data-s="${si}" data-r="${ri}" data-k="name">${opt("", props.length ? "choose a property" : "-", r.name)}${props.map((p) => opt(p.name, p.name + (p.dataType ? ` (${p.dataType.replace(/^IFC/, "").toLowerCase()})` : ""), r.name)).join("")}</select></div>`;
-      const p = props.find((x) => x.name === r.name);
-      if (p) {
-        if (!p.dataType) { valueKind = null; note = "The standard gives no single data type for this property (a bounded value, table, list or reference), so it is checked for presence only."; }
+      // With several classes, only the standard sets every one can carry.
+      const sets = commonSets(L, specBases(spec));
+      // What the opened model's objects of this class carry (inventory.mjs).
+      const inModel = inv && spec.cls ? modelSets(inv, specClasses(L, spec), sets) : [];
+      const ofN = inModel.length ? inModel[0].of : 0;
+      const mset = inModel.find((m) => m.name === r.set);
+      const onN = (m) => (m ? ` - on ${m.count} of ${ofN} in the model` : "");
+      const own = inModel.filter((m) => !m.standard && ownSetName(m.name));
+      const setVal = !r.custom ? r.set : own.some((m) => m.name === r.set) ? "own:" + r.set : "__own";
+      let so = opt("", sets.length || own.length ? "choose a set" : "pick a class first, or write your own", setVal);
+      const carried = sets.filter((x) => inModel.some((m) => m.name === x));
+      if (carried.length) so += `<optgroup label="Standard sets the model carries">${carried.map((x) => opt(x, x + onN(inModel.find((m) => m.name === x)), setVal)).join("")}</optgroup>`;
+      if (sets.length) so += `<optgroup label="${carried.length ? "Other standard sets" : "Standard sets"}${spec.cls ? " for " + esc(specBases(spec).join(", ")) : ""}">${sets.filter((x) => !carried.includes(x)).map((x) => opt(x, x + onN(inModel.find((m) => m.name === x)), setVal)).join("")}</optgroup>`;
+      if (own.length) so += `<optgroup label="The model's own sets">${own.map((m) => opt("own:" + m.name, m.name + onN(m), setVal)).join("")}</optgroup>`;
+      so += opt("__own", "a set of your own...", setVal);
+      h += `<div><label for="${id("set")}">Property set</label><select id="${id("set")}" data-s="${si}" data-r="${ri}" data-k="set">${so}</select></div>`;
+      if (r.custom) {
+        const mp = mset ? mset.props : [];
+        h += `<div><label for="${id("own")}">Set name</label><input id="${id("own")}" data-s="${si}" data-r="${ri}" data-k="ownSet" value="${esc(r.set)}" placeholder="Acme_Wall"></div>`;
+        h += `<div><label for="${id("name")}">Property</label><input id="${id("name")}" list="${id("props")}" data-s="${si}" data-r="${ri}" data-k="ownName" data-change="1" value="${esc(r.name)}" placeholder="FireCompartment" autocomplete="off"><datalist id="${id("props")}">${mp.map((p) => `<option value="${esc(p.name)}">${esc(p.dataType || "")}</option>`).join("")}</datalist></div>`;
+        h += `<div><label for="${id("dt")}">Data type</label><select id="${id("dt")}" data-s="${si}" data-r="${ri}" data-k="dataType">${opt("", "any (presence only)", r.dataType)}${valueTypes(L.S).map((t) => opt(t, t, r.dataType)).join("")}</select></div>`;
+        const dt = r.dataType && L.S.types[r.dataType] ? r.dataType : null;
+        if (!dt) { valueKind = null; note = "Pick a data type to ask for a value; without one the property is checked for presence."; }
         else {
-          const prim = L.S.prim(p.dataType);
+          const prim = L.S.prim(dt);
           valueKind = prim === "double" || prim === "integer" ? "number" : prim === "boolean" || prim === "logical" ? "bool" : "text";
-          enumVals = p.enum;
-          note = `dataType ${p.dataType}${p.dataTypes.length > 1 ? ` (the template also allows ${p.dataTypes.slice(1).join(", ")})` : ""}.`;
+          note = `dataType ${dt}.`;
         }
-      } else valueKind = null;
+        if (r.set && !ownSetName(r.set)) note = `${r.set} uses the Pset_/Qto_ prefix buildingSMART reserves for its standard sets; the audit will reject a name the standard does not have. ` + note;
+        const mp1 = mp.find((p) => p.name === r.name);
+        mprop = mp1 || null;
+        if (mp1) note += ` The model has it on ${mp1.count} of ${ofN}${mp1.dataType ? `, as ${mp1.dataType}` : ""}.`;
+        else if (mset && r.name) note += ` None of the model's ${esc(spec.cls)} objects has ${r.name} in ${r.set}.`;
+      } else {
+        const props = r.set ? propertiesOf(L.psets, L.S, r.set) : [];
+        const pcount = (n) => { const q = mset && mset.props.find((x) => x.name === n); return q ? `, ${q.count} in model` : ""; };
+        h += `<div><label for="${id("name")}">Property</label><select id="${id("name")}" data-s="${si}" data-r="${ri}" data-k="name">${opt("", props.length ? "choose a property" : "-", r.name)}${props.map((p) => opt(p.name, p.name + (p.dataType ? ` (${p.dataType.replace(/^IFC/, "").toLowerCase()}${pcount(p.name)})` : pcount(p.name) ? ` (${pcount(p.name).slice(2)})` : ""), r.name)).join("")}</select></div>`;
+        const p = props.find((x) => x.name === r.name);
+        if (p) {
+          if (!p.dataType) { valueKind = null; note = "The standard gives no single data type for this property (a bounded value, table, list or reference), so it is checked for presence only."; }
+          else {
+            const prim = L.S.prim(p.dataType);
+            valueKind = prim === "double" || prim === "integer" ? "number" : prim === "boolean" || prim === "logical" ? "bool" : "text";
+            enumVals = p.enum;
+            note = `dataType ${p.dataType}${p.dataTypes.length > 1 ? ` (the template also allows ${p.dataTypes.slice(1).join(", ")})` : ""}.`;
+          }
+          const q = mset && mset.props.find((x) => x.name === r.name);
+          mprop = q || null;
+          if (q) note += ` The model has it on ${q.count} of ${ofN}${q.dataType && q.dataType !== p.dataType ? `, written as ${q.dataType}, so a check with this dataType will fail them` : ""}.`;
+          else if (inv && spec.cls && ofN) note += ` None of the model's ${ofN} ${spec.cls} object(s) has it yet.`;
+        } else valueKind = null;
+      }
     } else if (r.kind === "attribute") {
-      const attrs = L.S.entities[spec.cls] ? L.S.attrs(spec.cls).filter((a) => !a.derived && !a.aggregate && ["string", "double", "integer", "boolean", "logical", "enum"].includes(L.S.prim(a.type))).map((a) => a.name) : ["Name", "Description", "ObjectType", "Tag"];
+      const attrs = commonAttributes(L.S, specBases(spec));
       h += `<div><label for="${id("name")}">Attribute</label><select id="${id("name")}" data-s="${si}" data-r="${ri}" data-k="name">${opt("", "choose", r.name)}${attrs.map((a) => opt(a, a, r.name)).join("")}</select></div>`;
-      const a = L.S.entities[spec.cls] && L.S.attrs(spec.cls).find((x) => x.name === r.name);
+      const a = L.S.entities[spec.cls] && sameAttributeType(L.S, specBases(spec), r.name) && L.S.attrs(spec.cls).find((x) => x.name === r.name);
       if (a && L.S.types[a.type] && L.S.types[a.type].kind === "enum") enumVals = L.S.types[a.type].values;
+      // The values the opened model's objects of these classes hold for it.
+      if (inv && spec.cls && r.name) {
+        const ma = modelAttributes(inv, specClasses(L, spec));
+        const q = ma.find((x) => x.name === r.name);
+        const ofN = ma.length ? ma[0].of : inv.classes.filter((c) => specClasses(L, spec).includes(c.cls)).reduce((t, c) => t + c.count, 0);
+        mprop = q || null;
+        if (q) note = `The model has it set on ${q.count} of ${q.of}.${q.empty ? ` ${q.empty} of them hold an empty value or UNKNOWN, which any check of ${r.name} fails, even "if present".` : ""}`;
+        else if (ofN) note = `None of the model's ${ofN} object(s) of this class has ${r.name} set.`;
+      }
     } else if (r.kind === "classification") {
-      h += `<div><label for="${id("system")}">System (IDS 1.0 requires one)</label><input id="${id("system")}" list="systems" data-s="${si}" data-r="${ri}" data-k="system" value="${esc(r.system)}" placeholder="Uniclass 2015"></div>`;
+      h += `<div><label for="${id("system")}">System (IDS 1.0 requires one)</label><input id="${id("system")}" list="systems" data-s="${si}" data-r="${ri}" data-k="system" data-change="1" value="${esc(r.system)}" placeholder="Uniclass 2015"></div>`;
       if (r.mode === "any" && !r.system) note = "Name the classification system; IDS 1.0 files without one are refused by tools that validate against ids.xsd.";
+      // The codes the opened model's objects of these classes carry in it.
+      if (inv && spec.cls) {
+        const mc = modelCodes(inv, specClasses(L, spec));
+        const q = r.system ? mc.find((x) => x.system === r.system) : null;
+        mprop = q || null;
+        const ofN = inv.classes.filter((c) => specClasses(L, spec).includes(c.cls)).reduce((t, c) => t + c.count, 0);
+        if (q) {
+          note = `The model classifies ${q.count} of ${ofN} in ${r.system}.`;
+          if (q.empty) note += ` ${q.empty} of them ${q.empty === 1 ? "has" : "have"} a ${r.system} reference with no code: a requirement that names only the system passes them, and one that asks for a code fails them.`;
+          if (q.empty && !(r.mode === "pattern" && r.pattern === ".+")) codeless.add(`${si}-${ri}`);
+        } else if (mc.length) note = `${r.system ? `None of the model's objects of this class is classified in ${r.system}. ` : ""}They use ${mc.map((x) => `${x.system} (${x.count} of ${ofN})`).join(", ")}.`;
+        else if (ofN) note = (note ? note + " " : "") + `None of the model's ${ofN} object(s) of this class is classified.`;
+      }
     } else if (r.kind === "partOf") {
       h += `<div><label for="${id("relation")}">Relation</label><select id="${id("relation")}" data-s="${si}" data-r="${ri}" data-k="relation">${Object.entries(PARTOF_RELATIONS).map(([v, l]) => opt(v, l, r.relation)).join("")}</select></div>`;
       h += `<div><label for="${id("entity")}">Of class</label><input id="${id("entity")}" list="all-classes" data-s="${si}" data-r="${ri}" data-k="entity" data-change="1" value="${esc(r.entity)}"></div>`;
       valueKind = null;
     }
     h += `</div>`;
+    // The values the opened model holds for this property (inventory.mjs).
+    const offer = modelValueOffer(mprop, valueKind, enumVals);
+    offers.set(`${si}-${ri}`, offer);
     if (valueKind && r.cardinality !== "prohibited") {
       const modes = [["any", "any value"], ["equals", "exactly"]];
-      if (enumVals) modes.push(["oneOf", "one of"]);
+      if (enumVals || valueKind === "text") modes.push(["oneOf", "one of"]);
       if (valueKind === "number") modes.push(["range", "between"]);
       if (valueKind === "text" && !enumVals) modes.push(["pattern", "matching a pattern"]);
       if (valueKind === "bool") modes.splice(1, 1, ["true", "true"], ["false", "false"]);
       h += `<div class="row" style="margin-top:8px"><label for="${id("mode")}" style="display:inline">Value</label><select id="${id("mode")}" style="width:auto" data-s="${si}" data-r="${ri}" data-k="mode">${modes.map(([v, l]) => opt(v, l, r.mode)).join("")}</select>`;
-      if (r.mode === "equals") h += enumVals ? `<select style="width:auto" aria-label="value" data-s="${si}" data-r="${ri}" data-k="equals">${opt("", "choose", r.equals)}${enumVals.map((v) => opt(v, v, r.equals)).join("")}</select>` : `<input style="width:14em" aria-label="value" data-s="${si}" data-r="${ri}" data-k="equals" value="${esc(r.equals)}">`;
+      const inM = (v) => { const x = offer && offer.values.find(([y]) => y === v); return x ? ` (${x[1]} in model)` : ""; };
+      if (r.mode === "equals") h += enumVals ? `<select style="width:auto" aria-label="value" data-s="${si}" data-r="${ri}" data-k="equals">${opt("", "choose", r.equals)}${enumVals.map((v) => opt(v, v + inM(v), r.equals)).join("")}</select>` : `<input style="width:14em" aria-label="value" data-s="${si}" data-r="${ri}" data-k="equals" value="${esc(r.equals)}"${offer ? ` list="${id("vals")}" autocomplete="off"` : ""}>${offer ? `<datalist id="${id("vals")}">${offer.values.map(([v, n]) => `<option value="${esc(v)}">${n} in model</option>`).join("")}</datalist>` : ""}`;
       if (r.mode === "range") h += `<input style="width:8em" aria-label="minimum" placeholder="min" data-s="${si}" data-r="${ri}" data-k="min" value="${esc(r.min)}"> to <input style="width:8em" aria-label="maximum" placeholder="max" data-s="${si}" data-r="${ri}" data-k="max" value="${esc(r.max)}"> <span class="muted">SI units (metres, square metres...)</span>`;
       if (r.mode === "pattern") h += `<input style="width:14em" aria-label="pattern" placeholder="[A-Z]{2}-[0-9]+" data-s="${si}" data-r="${ri}" data-k="pattern" value="${esc(r.pattern)}">`;
       h += `</div>`;
-      if (r.mode === "oneOf" && enumVals) h += `<div class="enum">${enumVals.map((v) => `<label><input type="checkbox" data-s="${si}" data-r="${ri}" data-k="oneOf" value="${esc(v)}"${r.oneOf.includes(v) ? " checked" : ""}> ${esc(v)}</label>`).join("")}</div>`;
+      if (r.mode === "oneOf" && enumVals) h += `<div class="enum">${enumVals.map((v) => `<label><input type="checkbox" data-s="${si}" data-r="${ri}" data-k="oneOf" value="${esc(v)}"${r.oneOf.includes(v) ? " checked" : ""}> ${esc(v)}${esc(inM(v))}</label>`).join("")}</div>`;
+      // "One of" values the author lists: the model's values to tick, the
+      // ones already listed, and a field to add another.
+      if (r.mode === "oneOf" && !enumVals) {
+        const listed = [...r.oneOf, ...(offer ? offer.values.map(([v]) => v).filter((v) => !r.oneOf.includes(v)) : [])];
+        h += `<div class="enum">${listed.map((v) => `<label><input type="checkbox" data-s="${si}" data-r="${ri}" data-k="oneOf" value="${esc(v)}"${r.oneOf.includes(v) ? " checked" : ""}> ${v === "" ? "<em>(empty)</em>" : esc(v)}${esc(inM(v))}</label>`).join("")}</div>`;
+        h += `<input style="width:14em;margin-top:6px" aria-label="add a value" placeholder="add a value, then Enter" data-s="${si}" data-r="${ri}" data-k="oneOfAdd" data-change="1">`;
+        if (!r.oneOf.length) h += ` <span class="warn">Tick or add at least one value.</span>`;
+      }
+    }
+    if (offer && r.cardinality !== "prohibited") {
+      const shown = offer.values.slice(0, 8).map(([v, n]) => `${v === "" ? "(empty)" : v} (${n})`).join(", ");
+      const nVals = offer.complete ? `${offer.values.length} different value${offer.values.length === 1 ? "" : "s"}` : `more than ${offer.values.length} different values`;
+      let mv = `In the model: ${nVals}${offer.values.length ? ": " + shown + (offer.values.length > 8 ? ", ..." : "") : ""}.`;
+      const n12 = (x) => String(Number(x.toPrecision(12)));
+      if (offer.min !== null && offer.max !== null) mv += ` They range from ${n12(offer.min)} to ${n12(offer.max)} (${r.kind === "property" ? "SI units" : "as the model writes them"})${offer.rangeMin !== n12(offer.min) || offer.rangeMax !== n12(offer.max) ? `; as written, ${offer.min} to ${offer.max}, and IDS ranges take no rounding tolerance, so the model's range is ${offer.rangeMin} to ${offer.rangeMax}` : ""}.`;
+      if (offer.outside.length) mv += ` It also writes ${offer.outside.slice(0, 5).map(([v, n]) => `${v} (${n})`).join(", ")}${offer.outside.length > 5 ? ", ..." : ""}, which the standard does not list; a one-of check fails those objects.`;
+      const use = offer.oneOf && !(r.mode === "oneOf" && r.oneOf.length === offer.oneOf.length && offer.oneOf.every((v) => r.oneOf.includes(v))) ? "Allow exactly these values"
+        : offer.min !== null && offer.max !== null && valueKind === "number" && !(r.mode === "range" && r.min === offer.rangeMin && r.max === offer.rangeMax) ? "Use the model's range" : "";
+      const any = codeless.has(`${si}-${ri}`) ? ` <button type="button" class="ghost small" data-act="model-coded" data-s="${si}" data-r="${ri}">Require a code</button>` : "";
+      h += `<p class="muted" style="margin:6px 0 0;font-size:0.86rem">${esc(mv)}${use ? ` <button type="button" class="ghost small" data-act="model-values" data-s="${si}" data-r="${ri}">${use}</button>` : ""}${any}</p>`;
     }
     if (note) h += `<p class="muted" style="margin:6px 0 0;font-size:0.86rem">${esc(note)}</p>`;
     h += `<button type="button" class="ghost small" data-act="del-req" data-s="${si}" data-r="${ri}" style="margin-top:6px">Remove requirement</button></div>`;
     return h;
   }
 
+  // The exact classes a specification names (IDS matches exact classes).
+  const specClasses = (L, s) => specClassNames(L.S, s);
   function specHtml(L, s, si) {
     const known = !!(L.S.entities[s.cls] || (L.tm && L.tm[s.cls]));
     const subs = L.S.entities[s.cls] ? subclasses(L.S, s.cls) : [];
-    const pts = L.S.entities[s.cls] ? predefinedTypes(L.S, s.cls) : [];
-    const nSets = known ? setsFor(L.psets, L.S, s.cls, L.tm).length : 0;
+    const bases = specBases(s);
+    const also = s.also || [];
+    const unknownAlso = also.filter((c) => !(L.S.entities[c] || (L.tm && L.tm[c])));
+    const pts = L.S.entities[s.cls] ? commonPredefinedTypes(L.S, bases) : [];
+    const nSets = known ? commonSets(L, bases).length : 0;
     let h = `<div class="card" id="spec-${si}"><div class="grid">`;
     h += `<div style="grid-column: 1 / -1"><label for="s-${si}-name">Specification name</label><input id="s-${si}-name" data-s="${si}" data-k="name" value="${esc(s.name)}" placeholder="Walls say whether they are external"></div>`;
     h += `<div><label for="s-${si}-cls">Applies to class</label><input id="s-${si}-cls" list="classes" data-s="${si}" data-k="cls" data-change="1" value="${esc(s.cls)}" placeholder="IFCWALL" autocomplete="off"></div>`;
+    h += `<div><label for="s-${si}-also">Also applies to (optional)</label><input id="s-${si}-also" data-s="${si}" data-k="also" data-change="1" value="${esc(also.join(", "))}" placeholder="IFCSLAB, IFCBEAM" autocomplete="off"></div>`;
     h += `<div><label for="s-${si}-pt">Predefined type (optional)</label><select id="s-${si}-pt" data-s="${si}" data-k="predefinedType">${opt("", "any", s.predefinedType)}${pts.map((p) => opt(p, p, s.predefinedType)).join("")}</select></div>`;
     h += `<div><label for="s-${si}-opt">The model</label><select id="s-${si}-opt" data-s="${si}" data-k="optionality">${[["required", "must have at least one"], ["optional", "may have some"], ["prohibited", "must have none"]].map(([v, l]) => opt(v, l, s.optionality)).join("")}</select></div>`;
     h += `</div>`;
     if (s.cls && !known) h += `<p class="warn">${esc(s.cls)} is not a ${esc(doc.schema)} class.</p>`;
-    else if (s.cls) h += `<p class="muted" style="font-size:0.88rem">${nSets} standard set(s) apply to ${esc(L.S.entities[s.cls] ? L.S.entities[s.cls].name : s.cls)}.${subs.length ? ` <label style="display:inline;color:var(--fg)"><input type="checkbox" data-s="${si}" data-k="withSub"${s.withSub ? " checked" : ""}> and its ${subs.length} subclass(es): ${esc(subs.slice(0, 6).join(", "))}${subs.length > 6 ? ", ..." : ""}</label>` : ""}</p>`;
+    if (unknownAlso.length) h += `<p class="warn">${esc(unknownAlso.join(", "))} ${unknownAlso.length > 1 ? "are not" : "is not a"} ${esc(doc.schema)} class${unknownAlso.length > 1 ? "es" : ""}.</p>`;
+    if (inv && s.cls) { const n = inv.classes.filter((c) => specClasses(L, s).includes(c.cls)).reduce((a, c) => a + c.count, 0); h += `<p class="${n ? "muted" : "warn"}" style="font-size:0.88rem;margin-bottom:0">${n ? `The model has ${n} object(s) this applies to.` : `The model has no ${esc(s.cls)}${s.withSub ? " or subclass" : ""} objects: a required specification would fail on it.`}</p>`; }
+    if (s.cls && known) h += `<p class="muted" style="font-size:0.88rem">${nSets} standard set(s) apply to ${also.length ? `every one of ${esc(bases.join(", "))}` : esc(L.S.entities[s.cls] ? L.S.entities[s.cls].name : s.cls)}.${subs.length ? ` <label style="display:inline;color:var(--fg)"><input type="checkbox" data-s="${si}" data-k="withSub"${s.withSub ? " checked" : ""}> and its ${subs.length} subclass(es): ${esc(subs.slice(0, 6).join(", "))}${subs.length > 6 ? ", ..." : ""}</label>` : ""}</p>`;
     h += `<div class="grid"><div><label for="s-${si}-desc">Why it is needed (optional)</label><input id="s-${si}-desc" data-s="${si}" data-k="description" value="${esc(s.description)}"></div><div><label for="s-${si}-ins">Instructions for the modeller (optional)</label><input id="s-${si}-ins" data-s="${si}" data-k="instructions" value="${esc(s.instructions)}"></div></div>`;
+    if (s.ifcVersion) h += `<p class="muted" style="font-size:0.88rem">This specification keeps its own ifcVersion, ${esc(s.ifcVersion.join(" "))}; it is audited against ${esc(doc.schema)}.</p>`;
+    if (s.fixedApp && s.fixedApp.length) { h += `<p class="muted" style="font-size:0.88rem;margin-bottom:0">It also applies only to elements matching:</p>`; s.fixedApp.forEach((f, i) => { h += keptHtml(L, f, false, "del-app", si, i); }); }
     if (s.optionality === "prohibited") h += `<p class="muted">A prohibited specification fails when any ${esc(s.cls || "element")} exists, so it has no requirements.</p>`;
     else s.reqs.forEach((r, ri) => { h += reqHtml(L, s, si, r, ri); });
     h += `<div class="row" style="margin-top:10px">${s.optionality === "prohibited" ? "" : `<button type="button" class="ghost small" data-act="add-req" data-s="${si}">Add a requirement</button>`}<button type="button" class="ghost small" data-act="del-spec" data-s="${si}">Remove specification</button></div></div>`;
     return h;
   }
 
-  function toIdsDoc(L) {
-    return {
-      title: doc.title, description: doc.description, schema: doc.schema,
-      specs: doc.specs.map((s) => ({
-        name: s.name || (s.cls ? `${s.cls} requirements` : "Unnamed specification"),
-        description: s.description, instructions: s.instructions, optionality: s.optionality,
-        applicability: s.cls ? [entityFacet(L.S, s.cls, { withSubclasses: s.withSub && !!L.S.entities[s.cls], predefinedType: s.predefinedType })] : [],
-        requirements: s.reqs.filter((r) => (r.kind === "property" ? r.set && r.name : r.kind === "attribute" ? r.name : r.kind === "partOf" ? r.entity : true)).map((r) => {
-          const p = r.kind === "property" ? propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name) : null;
-          const value = r.cardinality === "prohibited" || (p && !p.dataType) ? null
-            : r.mode === "equals" ? { equals: r.equals } : r.mode === "true" || r.mode === "false" ? { equals: r.mode }
-            : r.mode === "oneOf" ? { oneOf: r.oneOf } : r.mode === "range" ? { min: r.min, max: r.max } : r.mode === "pattern" ? { pattern: r.pattern } : null;
-          return { kind: r.kind, set: r.set, name: r.name, dataType: p ? p.dataType : null, value, cardinality: r.cardinality, system: r.system, relation: r.relation, entity: r.entity };
-        }),
-      })),
-    };
-  }
-
+  const toIdsDoc = (L) => stateToDoc(doc, L);
   let xml = "";
   function output() {
     const L = loaded[doc.schema];
@@ -227,12 +318,76 @@
     $("doc-title").value = doc.title;
     $("doc-desc").value = doc.description || "";
     $("doc-schema").value = doc.schema;
-    let h = `<datalist id="classes">${L.classes.map((c) => `<option value="${c}">`).join("")}</datalist><datalist id="all-classes">${["IFCBUILDINGSTOREY", "IFCSPACE", "IFCBUILDING", "IFCSITE", "IFCSYSTEM", "IFCDISTRIBUTIONSYSTEM", "IFCZONE", "IFCELEMENTASSEMBLY", "IFCOPENINGELEMENT"].filter((c) => L.S.entities[c]).map((c) => `<option value="${c}">`).join("")}</datalist><datalist id="systems"><option value="Uniclass 2015"><option value="OmniClass"><option value="NL-SfB"><option value="MasterFormat"><option value="UniFormat"></datalist>`;
+    const mine = inv && inv.schema === doc.schema ? inv.classes.filter((c) => L.S.entities[c.cls]).map((c) => c.cls) : [];
+    let h = `<datalist id="classes">${mine.map((c) => `<option value="${c}">in the model</option>`).join("")}${L.classes.filter((c) => !mine.includes(c)).map((c) => `<option value="${c}">`).join("")}</datalist><datalist id="all-classes">${["IFCBUILDINGSTOREY", "IFCSPACE", "IFCBUILDING", "IFCSITE", "IFCSYSTEM", "IFCDISTRIBUTIONSYSTEM", "IFCZONE", "IFCELEMENTASSEMBLY", "IFCOPENINGELEMENT"].filter((c) => L.S.entities[c]).map((c) => `<option value="${c}">`).join("")}</datalist><datalist id="systems">${inv ? inv.systems.map(([n]) => `<option value="${esc(n)}">in the model</option>`).join("") : ""}<option value="Uniclass 2015"><option value="OmniClass"><option value="NL-SfB"><option value="MasterFormat"><option value="UniFormat"></datalist>`;
     doc.specs.forEach((s, si) => { h += specHtml(L, s, si); });
     if (!doc.specs.length) h += `<p class="muted">No specifications yet.</p>`;
     $("specs").innerHTML = h;
+    modelHtml(L);
     output();
   }
+
+  // ---- a model to write for: what it carries (worker.mjs -> inventory.mjs)
+  let inv = null, invName = "";
+  const offers = new Map(); // "spec-req" -> modelValueOffer(), set as rows render
+  const codeless = new Set(); // "spec-req" classification rows whose system the model leaves some objects uncoded in
+  const SPATIAL = ["IFCPROJECT", "IFCSITE", "IFCBUILDING", "IFCBUILDINGSTOREY", "IFCSPACE", "IFCOPENINGELEMENT"];
+  function modelHtml(L) {
+    if (!inv) { $("model").innerHTML = ""; return; }
+    let h = `<div class="card"><p style="margin-top:0"><strong>${esc(invName)}</strong>: ${esc(inv.schemaRaw)} ${esc(inv.format)}, ${inv.entityCount.toLocaleString()} entities, ${inv.classes.length} object classes${inv.systems.length ? `, classified in ${inv.systems.map(([n]) => esc(n)).join(", ")}` : ""}. <button type="button" class="ghost small" data-act="model-close">Close the model</button></p>`;
+    if (inv.schema !== doc.schema) h += `<p class="warn">The model is ${esc(inv.schema)}; this IDS is written for ${esc(doc.schema)}, so its classes and sets are not offered. <button type="button" class="small" data-act="model-schema">Write for ${esc(inv.schema)}</button></p>`;
+    const rows = inv.classes.filter((c) => !SPATIAL.includes(c.cls) || c.sets.length);
+    h += `<p class="muted" style="font-size:0.88rem">Each class the model has, with the sets its objects carry (<em>own</em>: not a standard set). Add a specification for one, and its requirement rows offer these sets first.</p><div style="overflow-x:auto"><table style="border-collapse:collapse;font-size:0.88rem;width:100%"><thead><tr><th style="text-align:left">Class</th><th style="text-align:right">Objects</th><th style="text-align:left;padding-left:10px">Sets on them (how many carry each)</th><th></th></tr></thead><tbody>`;
+    for (const c of rows.slice(0, 60)) {
+      const std = L.S.entities[c.cls] || (L.tm && L.tm[c.cls]) ? setsFor(L.psets, L.S, c.cls, L.tm) : [];
+      const sets = c.sets.slice(0, 8).map((x) => `${esc(x.name)}${std.includes(x.name) ? "" : /^(Pset|Qto)_/.test(x.name) ? ' <span class="warn">(not standard)</span>' : ' <span class="muted">(own)</span>'} ${x.count}`).join(", ") + (c.sets.length > 8 ? `, and ${c.sets.length - 8} more` : "");
+      h += `<tr style="border-top:1px solid var(--line)"><td><code>${esc(c.cls)}</code></td><td style="text-align:right">${c.count.toLocaleString()}</td><td style="padding-left:10px">${sets || '<span class="muted">none</span>'}</td><td>${inv.schema === doc.schema ? `<button type="button" class="ghost small" data-act="model-spec" data-cls="${esc(c.cls)}">Add a specification</button>` : ""}</td></tr>`;
+    }
+    h += `</tbody></table></div>${rows.length > 60 ? `<p class="muted">and ${rows.length - 60} more classes.</p>` : ""}</div>`;
+    $("model").innerHTML = h;
+  }
+  let worker = null;
+  function inventoryOf(text) {
+    if (!worker) worker = new Worker(new URL("./worker.mjs", import.meta.url), { type: "module" });
+    return new Promise((resolve, reject) => {
+      worker.onmessage = (ev) => (ev.data.error ? reject(new Error(ev.data.error)) : resolve(ev.data.inventory));
+      worker.onerror = (ev) => reject(new Error(ev.message || "the model reader stopped"));
+      worker.postMessage({ inventory: true, ifc: text });
+    });
+  }
+  $("open-model").addEventListener("change", async (e) => {
+    const f = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!f) return;
+    $("model").innerHTML = `<p class="muted">Reading ${esc(f.name)}...</p>`;
+    try {
+      const bytes = new Uint8Array(await f.arrayBuffer());
+      let text, inner = null;
+      if (isZip(bytes)) { const m = await unzipModel(bytes, inflateRawStream); text = m.text; inner = m.name; }
+      else text = new TextDecoder().decode(bytes);
+      inv = await inventoryOf(text);
+      invName = f.name + (inner ? ` (${inner.split("/").pop()} inside)` : "");
+      record("editor_model_opened");
+      await render();
+    } catch (err) {
+      $("model").innerHTML = `<p class="err">Could not read ${esc(f.name)}: ${esc(err.message)}</p>`;
+    }
+  });
+  $("model").addEventListener("click", async (e) => {
+    const a = e.target.dataset && e.target.dataset.act;
+    if (a === "model-close") { inv = null; render(); }
+    if (a === "model-schema") { doc.schema = inv.schema; render(); }
+    if (a === "model-spec") {
+      const cls = e.target.dataset.cls;
+      const L = loaded[doc.schema];
+      const nice = L.S.entities[cls] ? L.S.entities[cls].name.replace(/^Ifc/, "") : cls;
+      doc.specs.push({ ...blankSpec(), name: `${nice} requirements`, cls, withSub: false });
+      record("editor_spec_added");
+      await render();
+      const n = document.getElementById(`s-${doc.specs.length - 1}-name`);
+      if (n) { n.scrollIntoView({ block: "center" }); n.focus(); }
+    }
+  });
 
   function onField(e, structural) {
     const t = e.target;
@@ -240,12 +395,48 @@
     const s = doc.specs[+t.dataset.s];
     const target = t.dataset.r !== undefined ? s.reqs[+t.dataset.r] : s;
     const k = t.dataset.k;
+    // The set picker: a standard set, one of the model's own ("own:Name"),
+    // or a set the author names ("__own").
+    if (k === "set") {
+      target.custom = t.value === "__own" || t.value.startsWith("own:");
+      target.set = t.value === "__own" ? "" : t.value.replace(/^own:/, "");
+      target.name = ""; target.dataType = ""; target.mode = "any"; target.oneOf = [];
+      render();
+      return;
+    }
+    if (k === "ownSet") { target.set = t.value.trim(); output(); return; }
+    if (k === "ownName") {
+      target.name = t.value.trim(); target.mode = "any"; target.oneOf = []; target.equals = "";
+      // Filled in from the model when it has this property.
+      const L = loaded[doc.schema];
+      const m = inv && modelSets(inv, specClasses(L, s), []).find((x) => x.name === target.set);
+      const q = m && m.props.find((x) => x.name === target.name);
+      if (q && q.dataType && L.S.types[q.dataType]) target.dataType = q.dataType;
+      render();
+      return;
+    }
+    if (k === "oneOfAdd") {
+      const v = t.value;
+      if (v.trim() !== "" && !target.oneOf.includes(v)) target.oneOf = [...target.oneOf, v];
+      render();
+      return;
+    }
     if (k === "oneOf") target.oneOf = t.checked ? [...target.oneOf, t.value] : target.oneOf.filter((v) => v !== t.value);
     else if (t.type === "checkbox") target[k] = t.checked;
     else target[k] = k === "cls" || k === "entity" ? t.value.trim().toUpperCase() : t.value;
     // A new class or set resets what depended on it.
-    if (k === "cls") { s.predefinedType = ""; for (const r of s.reqs) if (r.kind === "property") { r.set = ""; r.name = ""; } }
-    if (k === "set" || k === "kind") { target.name = ""; target.mode = "any"; target.oneOf = []; }
+    if (k === "also") {
+      s.also = parseClassList(t.value).filter((c) => c !== s.cls);
+      // Keep only what every class still shares.
+      const L = loaded[doc.schema], keep = commonSets(L, specBases(s));
+      if (s.predefinedType && !commonPredefinedTypes(L.S, specBases(s)).includes(s.predefinedType)) s.predefinedType = "";
+      for (const r of s.reqs) if (r.kind === "property" && !r.custom && !r.fixed && r.set && !keep.includes(r.set)) { r.set = ""; r.name = ""; }
+      render();
+      return;
+    }
+    if (k === "cls") { s.predefinedType = ""; for (const r of s.reqs) if (r.kind === "property" && !r.custom) { r.set = ""; r.name = ""; } }
+    if (k === "kind") { target.name = ""; target.mode = "any"; target.oneOf = []; target.custom = false; target.set = ""; target.dataType = ""; }
+    if (k === "dataType") { target.mode = "any"; target.oneOf = []; }
     if (k === "name" && t.dataset.r !== undefined) { target.mode = "any"; target.oneOf = []; target.equals = ""; }
     if (structural) render(); else output();
   }
@@ -258,10 +449,48 @@
     if (a === "add-req") doc.specs[si].reqs.push(blankReq());
     if (a === "del-req") doc.specs[si].reqs.splice(+e.target.dataset.r, 1);
     if (a === "del-spec") doc.specs.splice(si, 1);
+    if (a === "del-app") doc.specs[si].fixedApp.splice(+e.target.dataset.r, 1);
+    // A requirement the opened model already passes: its values, or its range.
+    if (a === "model-values") {
+      const r = doc.specs[si].reqs[+e.target.dataset.r], o = offers.get(`${si}-${e.target.dataset.r}`);
+      if (o && o.oneOf) { r.mode = "oneOf"; r.oneOf = [...o.oneOf]; }
+      else if (o && o.rangeMin !== null && o.rangeMax !== null) { r.mode = "range"; r.min = o.rangeMin; r.max = o.rangeMax; }
+      record("editor_model_values");
+    }
+    // A classification that must carry some code, not only the system.
+    if (a === "model-coded") {
+      const r = doc.specs[si].reqs[+e.target.dataset.r];
+      r.mode = "pattern"; r.pattern = ".+";
+      record("editor_model_values");
+    }
     render();
   });
   $("add-spec").addEventListener("click", () => { doc.specs.push(blankSpec()); record("editor_spec_added"); render().then(() => { const n = document.getElementById(`s-${doc.specs.length - 1}-name`); if (n) n.focus(); }); });
   $("reset").addEventListener("click", () => { if (confirm("Discard this draft and start from the example?")) { doc = starter(); render(); } });
+  // Open an existing IDS: facets the page can edit become rows; the rest are
+  // kept as written, so saving it back asks for what the file asked.
+  async function openIds(name, text) {
+    let parsed;
+    try { parsed = parseIds(text); } catch (e) { $("open-status").innerHTML = `<span class="err">Could not read ${esc(name)}: ${esc(e.message)}</span>`; return; }
+    const id = idsSchema(parsed);
+    await load(id);
+    const r = importIds(parsed, (x) => loaded[x]);
+    if (doc.specs.length && JSON.stringify(doc) !== JSON.stringify(starter()) && !confirm(`Replace the draft with ${name}?`)) return;
+    doc = r.state;
+    if (!doc.title) doc.title = name.replace(/\.(ids|xml)$/i, "");
+    const total = r.rows + r.kept;
+    let msg = `Opened ${esc(name)}: ${parsed.specs.length} specification(s) for ${esc(id)}. ${r.rows} of ${total} facet(s) are editable here`;
+    msg += r.kept ? `; ${r.kept} are kept as written (shown as XML, written back unchanged, removable), because the page's controls would change them (a pattern on a name, an exclusive bound, a facet in the applicability...).` : ".";
+    if (r.dropped) msg += ` <span class="warn">${r.dropped} requirement(s) of prohibited specification(s) (${esc(r.droppedIn.join(", "))}) are not kept: IDS 1.0 cannot evaluate them, so move the condition into the applicability.</span>`;
+    $("open-status").innerHTML = msg;
+    record("editor_opened");
+    await render();
+  }
+  $("open").addEventListener("change", async (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (f) await openIds(f.name, await f.text());
+    e.target.value = "";
+  });
   $("doc-title").addEventListener("input", (e) => { doc.title = e.target.value; output(); });
   $("doc-desc").addEventListener("input", (e) => { doc.description = e.target.value; output(); });
   $("doc-schema").addEventListener("change", (e) => { doc.schema = e.target.value; $("specs").innerHTML = `<p class="muted">Loading ${esc(doc.schema)}...</p>`; render(); });

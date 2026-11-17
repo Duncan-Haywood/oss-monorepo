@@ -625,6 +625,17 @@ hose alone leaves 0.474 mm. With the tension uniform over 0 to 5 N the worst G1 
 points of the 12-bit stack, over 0 to 10 N 20.66 points. A hose has to come off the tool, be
 measured at the wrist, or drag lightly.
 
+Measuring the wrench at the wrist (milestone 36) lets the compensator predict from the measured
+load. With a 0.2 N error (twice the Robotiq FT 300's listed 0.1 N noise) and k_t known, the G1's
+worst residual along the wall falls from 2.344 mm to 0.293 mm at a 20 N drag, and with the drag
+uniform over 0 to 20 N the worst pose loses 1.64 points instead of 91.55. A stiffness misjudged by
+25% leaves 0.060 and 0.100 mm at 5 N. The residual has a floor, though: at 5 N the same sensor
+leaves 0.824 mm, and an error of 0.01 N already leaves 0.267 mm, because a held joint within
+0.0014 to 0.05 N m of the holding threshold is predicted on the wrong side of its gap. That floor
+is a property of the sharp threshold model, so it bounds the brittleness of model-based backlash
+compensation rather than measuring it; the cure is to keep held joints away from the threshold.
+A 2.4 N error (the sensor's pre-2017 noise) leaves 1.326 mm, worse than no sensor.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every

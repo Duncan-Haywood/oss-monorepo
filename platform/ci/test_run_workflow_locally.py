@@ -386,6 +386,28 @@ class WorkflowBudget(unittest.TestCase):
         self.assertTrue(all(s.reason.startswith("TIMEOUT") for s in steps))
         self.assertLess(steps[0].seconds, 4)
 
+    def test_a_timed_out_step_keeps_what_it_printed(self):
+        # Dropped, a timed-out build showed no output: slow and broken looked
+        # the same (doc friction, 2026-11-16).
+        step = runner.Step("j", "slow", "echo 'not ok 3 - faq is visible'; "
+                           "echo 'error: boom' >&2; sleep 5", ".")
+        runner.execute(step, timeout=1)
+        self.assertEqual(step.status, "failed")
+        self.assertTrue(step.reason.startswith("timed out after"))
+        self.assertIn("not ok 3 - faq is visible", step.tail)
+        self.assertIn("error: boom", step.tail)
+        self.assertLess(step.seconds, 4)
+
+    def test_a_budget_cut_step_prints_its_last_output(self):
+        steps = [runner.Step("j", "slow", "echo building page 4021; sleep 5", ".")]
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            runner.run_steps(steps, 900, budget=1)
+            runner.report("wf.yml", steps, [], False)
+        self.assertEqual(steps[0].status, "unrun")
+        self.assertIn("last output before the cut:", out.getvalue())
+        self.assertIn("building page 4021", out.getvalue())
+
     def test_a_short_budget_still_runs_its_first_step(self):
         # The time left was int()-truncated, so 0.99 s read as 0 and a 1 s
         # budget marked every step UNRUN before any ran.

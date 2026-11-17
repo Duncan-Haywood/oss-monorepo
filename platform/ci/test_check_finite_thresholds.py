@@ -36,6 +36,13 @@ p.add_argument("--max-files")
 """
         self.assertEqual(flags(src), [])
 
+    def test_prefilter_keeps_split_and_spaced_spellings(self):
+        # The text prefilter (2026-11-16) must not drop a call written across lines,
+        # with spaces round `=`, or with an implicitly concatenated flag.
+        src = 'parser . add_argument(\n  "--" "max-age",\n  type = float)\n'
+        self.assertEqual(flags(src), ["--max-age"])
+        self.assertEqual(flags('p.add_argument("--max-age", type=int)  # float elsewhere\n'), [])
+
     def test_unparseable_source_is_skipped(self):
         self.assertEqual(flags("def broken(:\n"), [])
 

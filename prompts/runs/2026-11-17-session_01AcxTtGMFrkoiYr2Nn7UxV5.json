@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtGMFrkoiYr2Nn7UxV5",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T01:07:23Z",
+  "ended": "2026-11-17T01:18:48Z",
+  "wall_minutes": 19.63,
+  "tokens_in": 12629089,
+  "tokens_out": 44372,
+  "cost_usd": 4.5983,
+  "tool_calls": 102,
+  "task": "Deepen (flagship 2) ai-bookkeeper: receipts item (5), SRD 1022's change line read as HANGE",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16763",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "apt-get install tesseract-ocr failed with 'Unable to locate package' until apt-get update was run; the reproduce blocks in eval notes say only apt-get install.",
+    "The first version of the below-subtotal rule regressed one CORD validation tax (none to wrong) and traded two wrong totals for other wrong ones; caught by scoring CORD validation photos and narrowed before merge."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ai-bookkeeper/eval/service-charge-vote-2026-11-17.md",
+      "issue": "Reproduce says `apt-get install -y tesseract-ocr`; in a fresh container it fails until `apt-get update` (this run's note says both)."
+    },
+    {
+      "file": "ventures/ai-bookkeeper/eval/srd-fetch.mjs",
+      "issue": "Photos are saved as <id>-receipt.jpg, not <id>.jpg, so a quick `cp srd/1022.jpg` misses; labels use the same `1022-receipt` id."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "Without --foreground the run detaches after 100 s and forbids tracked edits until done, which blocked iterating on a scratch finding for several minutes; --foreground with run_in_background is the better default for an agent."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-ai-bookkeeper-three-small-misreads-one-receipt.md",
+    "ventures/ai-bookkeeper/eval/change-ocr-2026-11-17.md"
+  ],
+  "goal": "Land the flagship's BUILDABLE receipts item without lowering any other set's score.",
+  "notes": "SRD CLI totals 154 to 155/196, tax 134 to 135/185; SRD page, CORD validation and held-out test photos (tesseract 5, four readings), CORD text (val/train/test) and SROIE box text unchanged; per-receipt diff of main vs branch over SRD and CORD validation photos: only 1022 changed. Receipt test suites 141/141 pass. Local CI (run_workflow_locally --for-changes), first pass: only failures were this PR's own post (seo_title 75 chars; dead link to the not-yet-written eval note), both fixed; second pass result appended below.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "55f6feba-c2b5-5bc0-8db4-e5a03fc9dcc5",
+    "transcripts": 1,
+    "first": "2026-11-17T01:07:23Z",
+    "last": "2026-11-17T01:27:01Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 101,
+        "input": 198,
+        "output": 44372,
+        "thinking": 8389,
+        "cache_read": 12477057,
+        "cache_write_5m": 0,
+        "cache_write_1h": 151834,
+        "api_equivalent_usd": 4.5983,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 101,
+      "input": 198,
+      "output": 44372,
+      "thinking": 8389,
+      "cache_read": 12477057,
+      "cache_write_5m": 0,
+      "cache_write_1h": 151834,
+      "api_equivalent_usd": 4.5983,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 102,
+    "tools": {
+      "Bash": 92,
+      "Monitor": 2,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "Edit": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.63,
+      "active_minutes": 18.6,
+      "model_minutes": 10.02,
+      "tool_minutes": 8.58,
+      "waiting_on_human_minutes": 1.02,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "an engineer reading 800 OCR outputs, tracing the vote, ablating three rules and scoring five datasets",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 108.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

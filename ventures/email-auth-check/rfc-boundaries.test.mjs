@@ -165,3 +165,21 @@ test('a base64 length that cannot be valid (4n+1 chars) is rejected, not thrown'
   assert.equal(decodeBase64('abcde'), null);
   assert.equal(sel('v=DKIM1; p=abcde').hasPublicKey, false);
 });
+
+// Red team 2026-11-17 (prompts/runs/2026-11-17-session_01EhTJVMkXzct1bcj7NuvuAD.json).
+test('a DER long-form length whose length bytes run past the key is rejected, not read as NaN bits', () => {
+  // SEQUENCE { INTEGER with a 2-byte long-form length, only one byte present }
+  assert.equal(rsaModulusBits(new Uint8Array([0x30, 0x03, 0x02, 0x82, 0x01])), null);
+});
+
+test('no selectors checked means no "no DKIM key found" notice', () => {
+  const r = report('example.com', { 'example.com': ['v=spf1 -all'] });
+  assert.ok(!r.findings.some((f) => f.id === 'dkim-none-found'));
+});
+
+test('an own DMARC record with sp equal to p names p= in the pct notice', () => {
+  const r = report('example.com', { 'example.com': ['v=spf1 -all'] }, ['v=DMARC1; p=quarantine; sp=quarantine; pct=50; rua=mailto:d@example.com']);
+  const pct = r.findings.find((f) => f.id === 'dmarc-pct-partial');
+  assert.ok(pct, 'pct notice present');
+  assert.match(pct.detail, / p=quarantine treatment/);
+});

@@ -1,0 +1,162 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtJr6FYCC6kzRyXw7Tq",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T00:06:08Z",
+  "ended": "2026-11-17T00:19:25Z",
+  "wall_minutes": 28.39,
+  "tokens_in": 11315944,
+  "tokens_out": 75220,
+  "cost_usd": 5.0408,
+  "tool_calls": 90,
+  "task": "explore: new venture cvss-vector-check (CVSS v3.1/v3.0 scorer, diff, report audit)",
+  "projects": [
+    "cvss-vector-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16752",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 35,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First v3.0 Roundup was a naive Math.ceil(x*10)/10; the oracle fixture caught 7 of 3,000 vectors disagreeing (5.0*0.92 -> 4.7). Fixed to the exact reading; naive kept as an audit explainer."
+    },
+    {
+      "what": "parseVector accepted AV:toString (prototype keys through `in`); platform/ci/inherited_keys.py flagged a related lookup during run_venture_tests. Fixed with Object.hasOwn/Map, test added."
+    },
+    {
+      "what": "First post description was 213 characters; check_post_frontmatter.py caught it before merge."
+    },
+    {
+      "what": "sibling-links-ci failed: the new tool had no sibling linking back. Added a link from npm-audit-triage's footer, with tests in both ventures."
+    },
+    {
+      "what": "check_csv_formula_guard.py (run inside ventures-tests) flagged auditCsv for escaping plain negative numbers; fixed to the repo's convention."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Points to portfolio duplicate screening implicitly; the duplicate_check.py tool lives at portfolio/pipeline/, not portfolio/ledger/ beside supersede_check.py, which cost one lookup."
+    },
+    {
+      "file": "prompts/runs/",
+      "issue": "Finding past explore ideas meant grepping 8,000+ JSON records; a `promptctl.py ideas --track explore` listing of notes would save time."
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "checklist-coverage.yml is red on main: PR #16739 added platform/ci/venture-yaml-readers.test.mjs and the checklist does not name `node --test platform/ci/*.test.mjs`. The fix is in /.github/ (CODEOWNERS, owner-gated), so it was left out of this PR."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes hands long workflows off to a detached process, and any later edit voids them. Committing a fix during the run made me rerun three workflows; with --foreground from the start this would have been avoided."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/CLAUDE.md",
+      "why": "'Calculators are a poor use of a run': a CVSS scorer is calculator-shaped. Did it anyway because the depth is the audit of whole reports, the vector diff and exact rounding that chatbots get wrong; measured with an exhaustive oracle check.",
+      "did": "Built scorer + diff + report audit + CLI with --strict, with a measured guide page",
+      "result": "Merged with 33 tests; the measurement produced a publishable finding (3.0 and 3.1 base scores identical over the whole space)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-cvss-3-0-and-3-1-agree-on-every-base-score.md",
+    "ventures/cvss-vector-check/cvss-3-0-vs-3-1-score-differences.html"
+  ],
+  "goal": null,
+  "notes": "Explore idea: CVSS v3 vector checker (no venture covered CVSS). Engine differential-tested against Red Hat's cvss PyPI 3.6: 0 differences on all 259,200 base+temporal vectors per version and 200,000 random environmental vectors. Findings: base/temporal identical across 3.0 and 3.1; environmental differ by 0.1 only with Changed modified scope (6.3% of uniform sample, 0.3% change band); naive 3.0 ceiling wrong on 228 temporal scores. No agent doc in docs/reports: the README holds everything a next run needs. Next: CVSS 4.0. Local checks: run_venture_tests cvss-vector-check 33/33; check_post_frontmatter, check_post_links, check_md_links ok; run_workflow_locally --for-changes output summarised in the PR. Local CI on the final tree: sibling-links 2/2, ventures-tests 5/5, portfolio-validate 100/100, and conflict-markers, distribution-versions, doc-refs, duplicate-symbols, link-contrast, readme-live-links, page-integrity, agent-permission-harness, pages, control-plane-guard all pass (uses:/secret steps not run). checklist-coverage fails on main for an unrelated reason (doc_friction).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a83798ed-04a0-542e-962a-f9415bbda711",
+    "transcripts": 1,
+    "first": "2026-11-17T00:06:08Z",
+    "last": "2026-11-17T00:34:31Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 87,
+        "input": 167,
+        "output": 75220,
+        "thinking": 10877,
+        "cache_read": 11152622,
+        "cache_write_5m": 0,
+        "cache_write_1h": 163155,
+        "api_equivalent_usd": 5.0408,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 87,
+      "input": 167,
+      "output": 75220,
+      "thinking": 10877,
+      "cache_read": 11152622,
+      "cache_write_5m": 0,
+      "cache_write_1h": 163155,
+      "api_equivalent_usd": 5.0408,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 90,
+    "tools": {
+      "Bash": 82,
+      "Write": 4,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 28.39,
+      "active_minutes": 28.39,
+      "model_minutes": 13.55,
+      "tool_minutes": 14.83,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "senior security engineer: CVSS engine + oracle harness + audit parser + CLI + two pages, ~2 days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 317.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { parseIds } from "./ids.mjs";
 import { auditIds } from "./audit.mjs";
 import { resources, check } from "./node.mjs";
-import { classesWithSets, setsFor, propertiesOf, subclasses, predefinedTypes, buildIds, entityFacet, xsBase, PARTOF_RELATIONS } from "./editor.mjs";
+import { classesWithSets, setsFor, propertiesOf, subclasses, predefinedTypes, buildIds, entityFacet, xsBase, PARTOF_RELATIONS, importIds, stateToDoc, idsSchema, specClassNames, commonSets, commonAttributes, sameAttributeType, commonPredefinedTypes, parseClassList, valueChoices } from "./editor.mjs";
 
 const R = resources();
 const S4 = R.schemas.IFC4;
@@ -134,4 +134,123 @@ test("IFC2X3 type-mapping names carry their type's sets in the audit (IFCACTUATO
   // A set for another type is still refused.
   const bad = buildIds({ schema: "IFC2X3", specs: [{ name: "b", applicability: [entityFacet(S, "IFCACTUATOR")], requirements: [{ kind: "property", set: "Pset_AirTerminalTypeCommon", name: "Shape", dataType: "IFCLABEL" }] }] }, S);
   assert.equal(audit(bad, "IFC2X3")[0].code, "pset-class");
+});
+
+const loadFor = (id) => ({ S: R.schemas[id], psets: R.psets[id], tm: id === "IFC2X3" ? R.typeMap : null });
+const reopen = (xml) => {
+  const parsed = parseIds(xml);
+  const imp = importIds(parsed, loadFor);
+  const L = loadFor(imp.state.schema);
+  return { parsed, imp, back: parseIds(buildIds(stateToDoc(imp.state, L), L.S)) };
+};
+const said = (spec) => [...spec.applicability, ...spec.requirements].map((f) => `${f.kind} ${f.cardinality} ${f.dataType || ""} ${f.describe()}`).sort();
+
+test("an opened IDS becomes editable rows where the page can hold a facet, and is kept as written where it cannot", () => {
+  const head = `<?xml version="1.0"?><ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema"><info><title>Opened</title><copyright>Someone</copyright><version>2</version><description>d</description><author>a@example.com</author><purpose>p</purpose></info><specifications>`;
+  const xml = head + `
+    <specification name="walls" ifcVersion="IFC4" description="why" instructions="how"><applicability minOccurs="1" maxOccurs="unbounded"><entity><name><xs:restriction base="xs:string"><xs:enumeration value="IFCWALL"/><xs:enumeration value="IFCWALLELEMENTEDCASE"/><xs:enumeration value="IFCWALLSTANDARDCASE"/></xs:restriction></name></entity></applicability>
+      <requirements description="rd">
+        <property dataType="IFCBOOLEAN"><propertySet><simpleValue>Pset_WallCommon</simpleValue></propertySet><baseName><simpleValue>IsExternal</simpleValue></baseName><value><simpleValue>true</simpleValue></value></property>
+        <property dataType="IFCLABEL"><propertySet><simpleValue>Acme_Wall</simpleValue></propertySet><baseName><simpleValue>Code</simpleValue></baseName></property>
+        <property dataType="IFCTHERMALTRANSMITTANCEMEASURE" cardinality="optional"><propertySet><simpleValue>Pset_WallCommon</simpleValue></propertySet><baseName><simpleValue>ThermalTransmittance</simpleValue></baseName><value><xs:restriction base="xs:double"><xs:maxExclusive value="0.3"/></xs:restriction></value></property>
+        <attribute><name><simpleValue>Name</simpleValue></name><value><xs:restriction base="xs:string"><xs:pattern value="W-[0-9]+"/></xs:restriction></value></attribute>
+      </requirements></specification>
+    <specification name="named doors" ifcVersion="IFC2X3 IFC4"><applicability minOccurs="0" maxOccurs="unbounded"><entity><name><xs:restriction base="xs:string"><xs:pattern value="IFCDOOR.*"/></xs:restriction></name></entity><attribute><name><simpleValue>Name</simpleValue></name></attribute></applicability>
+      <requirements><material/></requirements></specification>
+    <specification name="no proxies" ifcVersion="IFC4"><applicability minOccurs="0" maxOccurs="0"><entity><name><simpleValue>IFCBUILDINGELEMENTPROXY</simpleValue></name></entity></applicability><requirements><material/></requirements></specification>
+  </specifications></ids>`;
+  const { parsed, imp, back } = reopen(xml);
+  const [w, d] = imp.state.specs;
+  assert.equal(imp.state.schema, "IFC4");
+  assert.equal(w.cls, "IFCWALL");
+  assert.equal(w.withSub, true);
+  assert.deepEqual(w.reqs.map((r) => (r.fixed ? "kept" : r.kind + ":" + r.mode)), ["property:true", "property:any", "kept", "attribute:pattern"]);
+  // A project's own set (Acme_Wall) is an editable row since 2026-11-16; an exclusive bound is not.
+  assert.deepEqual([w.reqs[1].custom, w.reqs[1].set, w.reqs[1].dataType], [true, "Acme_Wall", "IFCLABEL"]);
+  assert.equal(d.cls, "");
+  assert.deepEqual(d.fixedApp.map((f) => f.kind), ["entity", "attribute"]);
+  assert.deepEqual(d.ifcVersion, ["IFC2X3", "IFC4"]);
+  assert.equal(imp.dropped, 1);
+  assert.deepEqual(imp.droppedIn, ["no proxies"]);
+  // Written back, it asks for what it asked (bar the prohibited spec's requirement).
+  assert.equal(back.title, "Opened");
+  assert.deepEqual(back.info, parsed.info);
+  for (let i = 0; i < 2; i++) {
+    assert.deepEqual(said(back.specs[i]), said(parsed.specs[i]), parsed.specs[i].name);
+    for (const k of ["name", "description", "instructions", "ifcVersion", "optionality", "requirementsDescription"]) assert.deepEqual(back.specs[i][k], parsed.specs[i][k], k);
+  }
+  assert.equal(back.specs[2].requirements.length, 0);
+  assert.equal(back.specs[2].optionality, "prohibited");
+});
+
+test("the shipped samples open and write back unchanged in meaning", () => {
+  for (const f of ["coordination-basics.ids.xml", "quantities-and-naming.ids.xml"]) {
+    const { parsed, imp, back } = reopen(readFileSync(new URL("./samples/" + f, import.meta.url), "utf8"));
+    assert.equal(back.specs.length, parsed.specs.length, f);
+    parsed.specs.forEach((s, i) => assert.deepEqual(said(back.specs[i]), said(s), `${f}: ${s.name}`));
+    assert.ok(imp.rows > 0, f);
+  }
+});
+
+test("the schema an IDS is opened for is the one most of its specifications name", () => {
+  const p = (vs) => ({ specs: vs.map((v) => ({ ifcVersion: v })) });
+  assert.equal(idsSchema(p([["IFC2X3"], ["IFC2X3", "IFC4"], ["IFC4X3_ADD2"]])), "IFC2X3");
+  assert.equal(idsSchema(p([["IFC4X3_ADD2"]])), "IFC4X3");
+  assert.equal(idsSchema(p([])), "IFC4");
+  assert.equal(idsSchema(p([["IFC2X3"], ["IFC4"]])), "IFC4");
+});
+
+test("a specification can apply to several classes; the page offers what every one shares", () => {
+  const L = loadFor("IFC4");
+  // Sets: Pset_WallCommon is a wall's alone; Pset_EnvironmentalImpactIndicators applies to both.
+  const both = commonSets(L, ["IFCWALL", "IFCSLAB"]);
+  assert.ok(!both.includes("Pset_WallCommon") && !both.includes("Pset_SlabCommon"));
+  assert.ok(both.every((x) => setsFor(L.psets, L.S, "IFCWALL").includes(x) && setsFor(L.psets, L.S, "IFCSLAB").includes(x)));
+  assert.deepEqual(commonSets(L, ["IFCWALL", "IFCNOTACLASS"]), []);
+  // Attributes: PredefinedType is on both but of different enumerations, so no enumeration is offered.
+  assert.ok(commonAttributes(L.S, ["IFCWALL", "IFCSLAB"]).includes("PredefinedType"));
+  assert.equal(sameAttributeType(L.S, ["IFCWALL", "IFCSLAB"], "PredefinedType"), false);
+  assert.equal(valueChoices(L, ["IFCWALL", "IFCSLAB"], { kind: "attribute", name: "PredefinedType" }).enumVals, null);
+  assert.ok(valueChoices(L, ["IFCWALL"], { kind: "attribute", name: "PredefinedType" }).enumVals.includes("PARTITIONING"));
+  // Predefined types: only those every class allows (USERDEFINED, NOTDEFINED).
+  const pts = commonPredefinedTypes(L.S, ["IFCWALL", "IFCSLAB"]);
+  assert.ok(pts.includes("USERDEFINED") && !pts.includes("PARTITIONING") && !pts.includes("FLOOR"));
+  assert.deepEqual(parseClassList(" ifcslab, IFCBEAM;IFCBEAM  ifccolumn"), ["IFCSLAB", "IFCBEAM", "IFCCOLUMN"]);
+  // Written: the first class (with its subclasses when asked) then the rest, as one enumeration.
+  const names = specClassNames(L.S, { cls: "IFCWALL", withSub: true, also: ["IFCSLAB"] });
+  assert.deepEqual(names, ["IFCWALL", ...subclasses(L.S, "IFCWALL"), "IFCSLAB"]);
+  assert.deepEqual(specClassNames(L.S, { cls: "IFCWALL", withSub: false, also: ["IFCSLAB", "IFCWALL"] }), ["IFCWALL", "IFCSLAB"]);
+  const doc = stateToDoc({ title: "t", schema: "IFC4", specs: [{ name: "n", optionality: "required", cls: "IFCSLAB", withSub: false, also: ["IFCBEAM", "IFCCOLUMN"], predefinedType: "", reqs: [{ kind: "property", custom: true, set: "Acme_Common", name: "Code", dataType: "IFCLABEL", cardinality: "required", mode: "any" }] }] }, L);
+  const sp = parseIds(buildIds(doc, L.S)).specs[0];
+  assert.deepEqual(sp.applicability[0].name.r.enumeration, ["IFCSLAB", "IFCBEAM", "IFCCOLUMN"]);
+  assert.equal(sp.requirements[0].propertySet.simple, "Acme_Common");
+});
+
+test("an opened IDS naming several classes opens them as editable, and writes back what it asked", () => {
+  const enumOf = (cs) => `<xs:restriction base="xs:string">${cs.map((c) => `<xs:enumeration value="${c}"/>`).join("")}</xs:restriction>`;
+  const head = `<?xml version="1.0"?><ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema"><info><title>Several</title></info><specifications>`;
+  const xml = head + `
+    <specification name="structure" ifcVersion="IFC4"><applicability minOccurs="1" maxOccurs="unbounded"><entity><name>${enumOf(["IFCSLAB", "IFCCOLUMN", "IFCBEAM", "IFCWALL"])}</name></entity></applicability>
+      <requirements>
+        <property dataType="IFCLABEL"><propertySet><simpleValue>Acme_Common</simpleValue></propertySet><baseName><simpleValue>Phase</simpleValue></baseName></property>
+        <property dataType="IFCBOOLEAN"><propertySet><simpleValue>Pset_WallCommon</simpleValue></propertySet><baseName><simpleValue>IsExternal</simpleValue></baseName></property>
+        <attribute><name><simpleValue>PredefinedType</simpleValue></name></attribute>
+        <attribute><name><simpleValue>Name</simpleValue></name><value><xs:restriction base="xs:string"><xs:pattern value="S-[0-9]+"/></xs:restriction></value></attribute>
+      </requirements></specification>
+    <specification name="user-defined" ifcVersion="IFC4"><applicability minOccurs="0" maxOccurs="unbounded"><entity><name>${enumOf(["IFCSLAB", "IFCBEAM"])}</name><predefinedType><simpleValue>USERDEFINED</simpleValue></predefinedType></entity></applicability>
+      <requirements><attribute><name><simpleValue>ObjectType</simpleValue></name></attribute></requirements></specification>
+    <specification name="a misspelt class" ifcVersion="IFC4"><applicability minOccurs="1" maxOccurs="unbounded"><entity><name>${enumOf(["IFCSLAB", "IFCBEEM"])}</name></entity></applicability>
+      <requirements><attribute><name><simpleValue>Name</simpleValue></name></attribute></requirements></specification>
+  </specifications></ids>`;
+  const { parsed, imp, back } = reopen(xml);
+  const [st, ud, bad] = imp.state.specs;
+  assert.deepEqual([st.cls, st.withSub, st.also], ["IFCSLAB", false, ["IFCCOLUMN", "IFCBEAM", "IFCWALL"]]);
+  assert.equal(st.fixedApp.length, 0);
+  // The wall's own set is kept as written: not every class can carry it.
+  assert.deepEqual(st.reqs.map((r) => (r.fixed ? "kept" : r.kind + ":" + r.mode)), ["property:any", "kept", "attribute:any", "attribute:pattern"]);
+  assert.deepEqual([ud.cls, ud.also, ud.predefinedType], ["IFCSLAB", ["IFCBEAM"], "USERDEFINED"]);
+  // A name the schema lacks keeps the whole class list as written.
+  assert.equal(bad.cls, "");
+  assert.equal(bad.fixedApp[0].kind, "entity");
+  for (let i = 0; i < 3; i++) assert.deepEqual(said(back.specs[i]), said(parsed.specs[i]), parsed.specs[i].name);
 });

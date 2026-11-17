@@ -41,6 +41,50 @@ open. MIT licensed, no dependencies, nothing uploaded.
   none with an error or a warning; a 15,102-specification sample validates
   against buildingSMART's `ids.xsd` in IfcTester. Hands the file straight to the
   checker. `eval/editor-2026-11-16.md`.
+  **Opens an existing IDS** (2026-11-16): what the page can edit becomes
+  editable rows, the rest is kept as written (shown as XML, written back
+  unchanged, removable). 64 of 64 public IDS files, 12 of 12 IDS-Audit-tool
+  valid files and 187 of 187 buildingSMART pass cases write back asking the
+  same thing, spec by spec and facet by facet; none becomes invalid against
+  `ids.xsd`; 75% of the public files' facets open as editable rows.
+  `eval/editor-open-2026-11-16.md`.
+  **Writes for the model you have** (2026-11-16): open an IFC model in the
+  editor and it lists each class with its object count and the sets on them,
+  offers the sets the model's objects of a class carry first ("on 112 of 112"),
+  and lets you write a project's own set (Revit's `PSet_Revit_Dimensions`,
+  `Acme_Wall`) as an editable row with the data type the model uses. On four
+  real exports, 347 of 395 (class, set) pairs were own sets the editor could not
+  offer before, and 21 of 122 standard properties were written in a data type
+  the template does not give (the row says so). Own sets also open as editable
+  rows: 79.4% of the public IDS files' facets (was 75.0%), all still writing
+  back the same. `eval/model-inventory-2026-11-16.md`.
+  **Several classes per specification** (2026-11-17): "Also applies to"
+  takes more classes (`IFCSLAB, IFCBEAM`), written as one entity facet; the
+  page then offers only the standard sets, attributes and predefined types
+  every class shares. Opened files' class lists open as editable: 29
+  specifications in 11 public files, 81.1% of the public files' facets editable
+  (was 79.4%), every file still writing back the same and none made invalid
+  against `ids.xsd`. `eval/several-classes-2026-11-17.md`.
+  **A model's values** (2026-11-17): with a model open, each property row
+  says what values the model holds ("In the model: 3 different values: REI 60
+  (12), ...") and offers them: **Allow exactly these values** writes a one-of
+  list, **Use the model's range** a range. Ranges are rounded outward because
+  IDS ranges take no tolerance and Revit writes 0.254 m as
+  0.25399999999999995: on four real exports, 364 of 752 ranges taken from the
+  values as displayed fail their own model; all 1,014 requirements built from
+  the offers pass. "One of" now works on any text property or attribute (82.0%
+  of the public files' facets editable, was 81.1%).
+  `eval/model-values-2026-11-17.md`.
+  **Attribute values and classification codes** (2026-11-17): attribute rows
+  (Name, ObjectType, Tag, PredefinedType...) and classification rows offer
+  the values and codes the model holds the same way. On four real exports, 243
+  attribute rows offer a one-of list and all 242 with no empty value pass their
+  model. Schultz Residence (a Revit export) has 93 Uniformat references with an
+  empty code: 143 of its 210 Uniformat-classified elements (and 93 of 134 type
+  objects) carry the system but
+  no code, so an IDS that names only the system passes them. The row says so
+  and offers **Require a code** (a `.+` pattern), which fails exactly those.
+  `eval/model-attr-codes-2026-11-17.md`.
 - Exports: BCF 2.1 (one topic per failing element, selected by IfcGuid), CSV,
   JSON.
 - 22 MB Revit export (Schultz Residence, 424,819 entities): 1.4 s on the command
@@ -334,10 +378,16 @@ faster than IfcTester; its point is needing no install.
 
 ## Next steps
 
-- The editor: open an existing IDS to edit it (parseIds output back into the
-  editor's state); offer the classes and property sets a loaded model actually
-  has, with counts; applicability on properties and classifications, not only
-  a class.
+- The editor (own sets and a loaded model's classes and sets landed
+  2026-11-16, `eval/model-inventory-2026-11-16.md`; several classes per
+  specification 2026-11-17, `eval/several-classes-2026-11-17.md`; a model's
+  property values 2026-11-17; attribute values and classification codes
+  2026-11-17, `eval/model-attr-codes-2026-11-17.md`):
+  property/attribute facets in the applicability (85 kept facets on the
+  public files); a subclass checkbox per class, not only the first; a range
+  mode for numeric attributes (OverallHeight; written with an xs:double base);
+  a "fix the dataType" hint built from the 21
+  of 122 standard properties real exports write in another type.
 - More real models through the IfcTester cross-check (an MEP model, an IFC4X3
   infrastructure model).
 - A GitHub Action wrapper for checking models on every commit.

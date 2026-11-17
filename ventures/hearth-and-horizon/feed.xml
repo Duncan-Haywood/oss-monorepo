@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Everywhere</title>
+      <link>https://example.invalid/hearth-and-horizon/everywhere.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/everywhere.html</guid>
+      <pubDate>Tue, 17 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A parish office agent is asked, the Monday a new parish priest arrives, to &quot;update Father's name everywhere&quot;. It changes 1,342 mentions in 418 documents and renames the old priest's record in the register database, and its check, a search that finds no trace of the old name, says the job is done. Two days later a bride reads her baptismal certificate and finds she was baptised in 2019 by a man who was eleven and in Nigeria. A date cutoff would have broken it both ways. The fix asks, mention by mention, whether a name is the office now or a thing someone did then. A story about the scope of a request, what a check measures, and the two names on one certificate. Setting: Saint Mel's (invented), the parish of Drumcarrig (invented), a village in County Cavan, Ireland, Monday 2 September to Friday 6 September 2047. Read the full text at https://example.invalid/hearth-and-horizon/everywhere.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A parish office agent is asked, the Monday a new parish priest arrives, to &quot;update Father's name everywhere&quot;. It changes 1,342 mentions in 418 documents and renames the old priest's record in the register database, and its check, a search that finds no trace of the old name, says the job is done. Two days later a bride reads her baptismal certificate and finds she was baptised in 2019 by a man who was eleven and in Nigeria. A date cutoff would have broken it both ways. The fix asks, mention by mention, whether a name is the office now or a thing someone did then. A story about the scope of a request, what a check measures, and the two names on one certificate.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>A Ninth of the River</title>
       <link>https://example.invalid/hearth-and-horizon/a-ninth-of-the-river.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/a-ninth-of-the-river.html</guid>
@@ -172,6 +182,16 @@
       <pubDate>Mon, 16 Nov 2026 12:00:00 GMT</pubDate>
       <description>A bedtime story about Saint Vincent Ferrer, the Dominican friar from Valencia who, when he was nearly fifty and had just got better from a bad illness, set off on foot to preach from town to town. For twenty years crowds walked behind him, singing, and he taught them to say sorry and make peace with their neighbours. Feast day 5 April. Setting: Valencia in Spain, and the roads of Spain, France, Switzerland and Italy, about six hundred years ago, ending at Vannes in Brittany. Read the full text at https://example.invalid/hearth-and-horizon/vincent-ferrer-and-the-crowd-on-the-road.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
       <itunes:summary>A bedtime story about Saint Vincent Ferrer, the Dominican friar from Valencia who, when he was nearly fifty and had just got better from a bad illness, set off on foot to preach from town to town. For twenty years crowds walked behind him, singing, and he taught them to say sorry and make peace with their neighbours. Feast day 5 April.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
+      <title>What the Night Air Lends</title>
+      <link>https://example.invalid/hearth-and-horizon/what-the-night-air-lends.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/what-the-night-air-lends.html</guid>
+      <pubDate>Mon, 16 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A parish co-operative in Entre Ríos dries 160 tonnes of maize for its soup kitchen with one fan running day and night. After a week of fog a retired elevator hand pulls a sample from the bottom of the bin at 18 per cent, wetter than the day it went in, and tells the assistant to stop blowing fog into the grain. The assistant agrees, and the drying stops. A story about equilibrium moisture, why the night's water stays in the dry bottom metre and comes out again in the afternoon, a seven-week clock on the top layer, and a borrowed fan twice the size. Setting: Colonia Santa Rosa (invented), near Nogoyá, Entre Ríos, Argentina, Wednesday 9 May to Monday 18 June 2063. Read the full text at https://example.invalid/hearth-and-horizon/what-the-night-air-lends.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A parish co-operative in Entre Ríos dries 160 tonnes of maize for its soup kitchen with one fan running day and night. After a week of fog a retired elevator hand pulls a sample from the bottom of the bin at 18 per cent, wetter than the day it went in, and tells the assistant to stop blowing fog into the grain. The assistant agrees, and the drying stops. A story about equilibrium moisture, why the night's water stays in the dry bottom metre and comes out again in the afternoon, a seven-week clock on the top layer, and a borrowed fan twice the size.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
     </item>
