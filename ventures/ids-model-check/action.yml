@@ -26,6 +26,9 @@ inputs:
   json:
     description: Path for the full JSON results (empty for none).
     default: ''
+  max-failures:
+    description: Failing elements kept per specification in the reports (counts stay exact), so one specification matching every entity of a large export cannot exhaust memory.
+    default: '1000'
 outputs:
   result:
     description: '"pass" or "fail".'
@@ -58,10 +61,11 @@ runs:
         IDS_JUNIT: ${{ inputs.junit }}
         IDS_BCF: ${{ inputs.bcf-dir }}
         IDS_JSON: ${{ inputs.json }}
+        IDS_MAX_FAILURES: ${{ inputs.max-failures }}
       run: |
         major=$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo 0)
         if [ "$major" -lt 18 ]; then echo "::error title=IDS model check::needs Node 18 or newer (add actions/setup-node before this step)"; exit 2; fi
-        set -- --models "$IDS_MODELS" --ids "$IDS_IDS" --pairing "$IDS_PAIRING" --fail-on "$IDS_FAIL_ON"
+        set -- --models "$IDS_MODELS" --ids "$IDS_IDS" --pairing "$IDS_PAIRING" --fail-on "$IDS_FAIL_ON" --max-failures "${IDS_MAX_FAILURES:-1000}"
         [ -n "$IDS_JUNIT" ] && set -- "$@" --junit "$IDS_JUNIT"
         [ -n "$IDS_BCF" ] && set -- "$@" --bcf-dir "$IDS_BCF"
         [ -n "$IDS_JSON" ] && set -- "$@" --json "$IDS_JSON"

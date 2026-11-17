@@ -1,0 +1,54 @@
+name: voltage-drop-calculator
+description: >-
+  Free browser voltage drop and wire size calculator for electricians, solar and
+  van/boat builders: from the voltage, load and one-way run it gives the drop for
+  every AWG, kcmil or mm2 size, the smallest within a target, the longest run and
+  most current each size allows, and the watts and yearly cost lost in the wire.
+  DC, single and three-phase, copper or aluminium. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-11-17 in an explore run. duplicate_check.py: top match 0.11
+# (commercial-solar-ppa-lease-buy-calculator); no venture computes voltage drop
+# or wire size. pv-string-sizer lists voltage drop as not modelled;
+# service-load-check sizes the service, not the branch or feeder conductor.
+#
+# Why a tool and not a chatbot answer: the traps are the out-and-back factor of
+# 2 vs root 3, one-way vs round-trip length, conductor temperature, aluminium,
+# parallel sets and power factor, and readers want the whole size ladder plus
+# the inverse questions (longest run, most current) at once. Resistance is
+# computed from geometry and material constants, so no code table is copied;
+# the page takes the reader's own table value as an override.
+#
+# First visitor: DIY 12 V builders (vans, RVs, boats, off-grid solar) and
+# electricians searching "voltage drop calculator", "what size wire for 12v
+# 30 amps"; volume not measured with an external tool.
+#
+# Liability: arithmetic on typed numbers, not electrical advice; ampacity is not
+# checked and the page says so. Unverified: hand arithmetic and unit tests only.
+
+hypotheses:
+  - claim: >-
+      DIY low-voltage builders and electricians will use a no-signup voltage drop
+      tool that shows every size, the inverse questions and the cost of losses.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user shows a result that disagrees with a published resistance table by more than the documented few percent and the disagreement is the engine's error.
+
+links:
+  production: https://marisstella.app/voltage-drop-calculator/
+  analytics: null

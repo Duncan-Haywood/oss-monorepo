@@ -87,11 +87,13 @@ class Reader {
       const m = /#(\d+)/y;
       m.lastIndex = this.p;
       const r = m.exec(t);
+      if (!r) throw new Error(`'#' with no number at ${this.p}`);
       this.p = m.lastIndex;
       return { ref: Number(r[1]) };
     }
     if (c === ".") {
       const e = t.indexOf(".", this.p + 1);
+      if (e < 0) throw new Error(`unterminated enumeration at ${this.p}`);
       const v = t.slice(this.p + 1, e).toUpperCase();
       this.p = e + 1;
       if (v === "T") return true;
@@ -101,6 +103,7 @@ class Reader {
     }
     if (c === '"') {
       const e = t.indexOf('"', this.p + 1);
+      if (e < 0) throw new Error(`unterminated binary at ${this.p}`);
       const v = t.slice(this.p + 1, e);
       this.p = e + 1;
       return { binary: v };
@@ -161,7 +164,10 @@ export function parseStep(text) {
     } catch (e) {
       errors.push(`#${id}: ${e.message}`);
     }
-    re.lastIndex = r.p;
+    // Never step backwards: a truncated file (an export cut short) once sent
+    // the reader to 0 and this loop re-read the file forever, growing errors
+    // until the process ran out of memory.
+    re.lastIndex = Math.max(r.p, re.lastIndex);
   }
   return { schema, entities, errors };
 }

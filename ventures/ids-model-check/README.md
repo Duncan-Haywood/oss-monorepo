@@ -239,7 +239,7 @@ Jenkins, a pre-commit hook):
 ```
 node ci-cli.mjs --models "models/**/*.ifc" --ids "req/*.ids" --junit report.xml \
   [--summary summary.md] [--bcf-dir bcf/] [--json results.json] [--annotations] \
-  [--pairing all|name] [--fail-on error|warning|never] [--root DIR]
+  [--pairing all|name] [--fail-on error|warning|never] [--root DIR] [--max-failures N]
 node cli.mjs model.ifc spec.ids --junit report.xml   # one pair
 ```
 
@@ -247,8 +247,19 @@ Measured on four real exports (`eval/ci-action-2026-11-17.md`): 4 models (76 MB)
 against the two starter IDS files, 8 pairs, in 7.3-7.7 s on Node 22; 16
 annotations, every one of the 9 with a line number on the failing element's own
 line; JUnit valid XML. GitHub shows at most ten error annotations per step, so
-the job summary and JUnit file carry the full list. Each model is parsed once
-per IDS file, so N models by M IDS files cost N x M parses.
+the job summary and JUnit file carry the full list.
+
+Since 2026-11-17 (`eval/ci-scale-2026-11-17.md`) each model and each IDS is
+parsed once however many pairs it is in: the same 8 pairs take 4.3-4.8 s
+instead of 7.3-8.7 s, and 14 public IDS files against the four exports (56
+pairs) take 7.5-8.0 s instead of 48.6-48.9 s, with identical output. Each specification's report keeps
+its first 1,000 failing elements (`--max-failures` / `max-failures`; counts
+stay exact), because a public IDS whose specification has no entity facet
+applies to all 665,224 entities of the HHS MEP export and held ~440 MB of
+failure text per specification, so 16 public IDS files against the four
+exports ran Node out of memory; they now take 45 s at a 1.5 GB peak. A
+truncated IDS, ifcXML or STEP file used to loop forever (in the page as well);
+it now fails its own pairs with "unterminated ...".
 
 ## How it was checked
 
@@ -501,8 +512,9 @@ faster than IfcTester; its point is needing no install.
   of 122 standard properties real exports write in another type.
 - More real models through the IfcTester cross-check (an MEP model, an IFC4X3
   infrastructure model).
-- The GitHub Action (landed 2026-11-17): parse each model once for all its IDS
-  files; a team's real repository of exports running it.
+- The GitHub Action (landed 2026-11-17; parse-once and failure cap 2026-11-17):
+  a run on GitHub's own runner; a team's real repository of exports running it;
+  a failure cap with a streamed "download all" in the browser page.
 
 ## Sources
 

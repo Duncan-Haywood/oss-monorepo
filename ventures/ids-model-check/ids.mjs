@@ -905,21 +905,28 @@ export function checkIds(idsText, ifcText, opts = {}) {
       if (hits.length) {
         s.status = "fail";
         s.note = `${hits.length} element(s) match a prohibited specification`;
-        s.failed = hits.slice(0, 500).map((e) => ({ id: e.id, type: e.type, globalId: globalId(model, e), name: nameOf(model, e), reasons: ["matches the applicability of a prohibited specification"] }));
+        s.failed = hits.slice(0, Math.min(500, opts.maxFailed ?? 500)).map((e) => ({ id: e.id, type: e.type, globalId: globalId(model, e), name: nameOf(model, e), reasons: ["matches the applicability of a prohibited specification"] }));
       }
       specs.push(s);
       continue;
     }
+    // opts.maxFailed keeps the first N failing elements of a spec and counts
+    // the rest in s.failedCount (set only when some were dropped). CI uses it:
+    // a spec with no entity facet applies to every entity, and on a 40 MB MEP
+    // export (665,224 entities) one such spec held ~440 MB of reasons.
+    const maxFailed = opts.maxFailed ?? Infinity;
+    let failing = 0;
     for (const e of hits) {
       const reasons = [];
       for (const f of spec.requirements) {
         const r = checkRequirement(f, e, model, ctx);
         if (!r.pass) reasons.push(`${f.kind === "entity" ? "" : f.cardinality + " "}${f.describe()}: ${r.why || "not met"}`);
       }
-      if (reasons.length) s.failed.push({ id: e.id, type: e.type, globalId: globalId(model, e), name: nameOf(model, e), reasons });
+      if (reasons.length) { if (failing++ < maxFailed) s.failed.push({ id: e.id, type: e.type, globalId: globalId(model, e), name: nameOf(model, e), reasons }); }
       else s.passed++;
     }
-    if (s.failed.length) s.status = "fail";
+    if (failing > s.failed.length) s.failedCount = failing;
+    if (failing) s.status = "fail";
     else if (spec.optionality === "required" && hits.length === 0) {
       s.status = "fail";
       s.note = "required, but nothing in the model matches the applicability";

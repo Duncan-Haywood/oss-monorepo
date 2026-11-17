@@ -14,7 +14,9 @@ const failLine = (f) => `#${f.id} ${f.type}${f.name ? ` "${f.name}"` : ""}${f.gl
 
 // How many elements fail a spec. A prohibited spec lists at most 500 of its
 // matches (ids.mjs), but every match fails it.
-export const failCount = (s) => (s.optionality === "prohibited" && s.status === "fail" ? Math.max(s.applicable, s.failed.length) : s.failed.length);
+// A report checked with maxFailed (ci-cli.mjs) lists the first N and gives
+// the full count in failedCount.
+export const failCount = (s) => (s.optionality === "prohibited" && s.status === "fail" ? Math.max(s.applicable, s.failed.length) : s.failedCount ?? s.failed.length);
 
 // What a spec's result means for CI. Optional specifications never fail a
 // build in IDS terms (a failure there is advice), so they are warnings.
@@ -164,7 +166,7 @@ export function stepSummary(runs, { maxFailures = 5 } = {}) {
       const label = s.status === "invalid" ? "INVALID" : severity(s) === "warning" ? "OPTIONAL" : "FAIL";
       out.push(`- **[${label}] ${mdCell(s.name)}**: ${s.failed.length ? `${failCount(s)} of ${s.applicable} element(s) fail` : mdCell(s.note || "")}`);
       for (const f of s.failed.slice(0, maxFailures)) out.push(`  - ${mdCell(failLine(f))}`);
-      if (failCount(s) > maxFailures) out.push(`  - ... and ${failCount(s) - Math.min(maxFailures, s.failed.length)} more (see the JUnit or BCF report)`);
+      if (failCount(s) > maxFailures) out.push(`  - ... and ${failCount(s) - Math.min(maxFailures, s.failed.length)} more (see the JUnit, JSON or BCF report)`);
     }
     out.push("", "</details>");
   }
