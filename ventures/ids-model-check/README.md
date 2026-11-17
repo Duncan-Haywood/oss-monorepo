@@ -264,6 +264,13 @@ exports ran Node out of memory; they now take 45 s at a 1.5 GB peak. A
 truncated IDS, ifcXML or STEP file used to loop forever (in the page as well);
 it now fails its own pairs with "unterminated ...".
 
+Since 2026-11-17 (`eval/heap-200mb-2026-11-17.md`) an entity's arguments are
+read when a check first needs them and geometry's are not kept: a 219 MB
+federated model of seven real exports is checked against the starter IDS
+files in 7.5-7.8 s at a 1,010 MB peak, where it took 12.3 s and 2.5 GB, with
+identical reports; the page now finishes it under a 1 GB heap, where the tab
+used to crash.
+
 ## How it was checked
 
 1. **buildingSMART's test suite.** `eval/fetch-testcases.sh` sparse-clones
@@ -504,9 +511,15 @@ faster than IfcTester; its point is needing no install.
 - ifcJSON is not read. ifcXML is checked on 9 real documents from about
   seven exporters, not on every tool's output; the ifcXML reader holds the whole
   XML tree in memory, a few times the heap of the same model as STEP.
-- The whole model is held in memory as text and objects: about 1 GB of heap for
-  a 200 MB model. Very large federated models may need the command line with
-  `--max-old-space-size`.
+- The model's text is held in memory with a small record per entity; an
+  entity's arguments are read when a check first needs them, and geometry's
+  are not kept (2026-11-17, `eval/heap-200mb-2026-11-17.md`). A 219 MB
+  federated model built from seven real exports peaks at about 1 GB with the
+  starter IDS files, where reading every argument up front took 2.5 GB. A
+  specification with no entity facet still reads every entity, so many such
+  files raise the peak, and models well past 500 MB may need the command line
+  with `--max-old-space-size`. The ifcXML reader still reads everything up
+  front.
 - The IDS audit does not validate the file against the IDS XML schema
   (cardinality attributes, element order); the IDS-Audit-tool does. Property
   set templates are checked for names, data types and applicable classes, not
