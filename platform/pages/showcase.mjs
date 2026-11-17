@@ -28,14 +28,15 @@ const esc = (value) =>
 /**
  * A still's <img> source attributes. A close crop (`hero`, 600 x 375) is used
  * when there is one; its 1,200 px twin (`heroWide`) goes in a srcset so a
- * 3x phone showing a 290 px gallery card gets 870+ px of image instead of 600
+ * 3x phone showing a 290 px gallery card gets 870+ px of image, not 600
  * (polish-2026-11-17-gallery-crops.md, "Still weakest" 2). `sizes` is the
  * slot's CSS width, so a 1x or 2x screen keeps the 600 px file.
  */
 // The gallery card's CSS width, measured in polish-2026-11-17-hero-srcset.md:
 // 82% of the band (about 290 px at 390) up to 640 px, then 280 px at every
-// wider width (the scrolling grid settles on the minmax minimum). So a 2x
-// screen still takes the 600 px crop, and a 3x phone (290 x 3 = 870) the 1,200.
+// wider width (the scrolling grid settles on the minmax minimum). So a 1x
+// screen and a 2x desktop (560) keep the 600 px crop; a phone at 2x (about
+// 640) or 3x (about 960) and a 3x desktop (840) take the 1,200.
 export const GALLERY_SIZES = '(max-width: 640px) 82vw, 280px';
 
 export function stillSrc(s, sizes) {
