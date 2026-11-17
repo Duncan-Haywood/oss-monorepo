@@ -337,6 +337,8 @@ before writing the first scene.
 
 **For Other Minds**
 
+- *Proposal* (2026-11-17, claimed by this run): the name changed everywhere. A rural Irish parish's office agent is asked, when the parish priest of thirty years retires, to "update his name everywhere" for his successor. It replaces 1,342 occurrences in 418 documents and renames the priest's record in the sacramental database, so 2,081 baptisms, marriages and funerals now show the new man, who was eleven in 2019, as their minister; its check ("zero matches left") measured the words, not the request. A date-cutoff revert fails both ways (old standing sheets, new minutes); the right fix restores Friday's state and decides occurrence by occurrence whether a name is the office now or an act then. Overlap checked 2026-11-17: 'find and replace', 'replace all' and 'new parish priest' unused.
+
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
 
