@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtJSTCZW3bErL6mFrar",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T06:07:08Z",
+  "ended": "2026-11-17T06:15:35Z",
+  "wall_minutes": 8.78,
+  "tokens_in": 5820395,
+  "tokens_out": 36378,
+  "cost_usd": 2.9146,
+  "tool_calls": 53,
+  "task": "ids-model-check flagship: MEP and IFC4X3 infrastructure models through the IfcTester cross-check",
+  "projects": [
+    "ventures/ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16839",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first draft IDS used an empty <classification/>; IfcTester's ids.xsd load refused the file",
+      "fix": "pattern .+ for the system, as the checker's INVALID hint said"
+    },
+    {
+      "what": "first reading of the IFC2X3 differences blamed ifcVersion",
+      "fix": "re-ran with ifcVersion widened; cause is the IFC2X3 IfcFlowTerminal/IfcFlowSegment type mapping; eval doc, README, post corrected before commit"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "the first --replace text was too long for the 2000-character next: cap and the tool refused; it listed --park candidates but a shorter replacement was the right fix (worked fine, just one extra call)"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-ids-checks-on-bridges-roads-and-ducts.md",
+    "ventures/ids-model-check/eval/infra-mep-crosscheck-2026-11-17.md"
+  ],
+  "goal": null,
+  "notes": "buildingSMART Sample-Test-Files 80d976a Simple-Scene: 10 IFC4.3 models + HVAC IFC4/IFC2X3. IfcTester 0.8.0 + IfcOpenShell 0.8.5 via eval/crosscheck_ifctester.py: infrastructure-and-mep 180/180, coordination-basics 84/84, quantities-and-naming 84/84 identical; new IDS on HVAC IFC4+IFC2X3 33/36 (3 diffs on IFC2X3: type-mapped flow terminals/segment). Verdict counts checked against raw data with IfcOpenShell. Local checks: run_venture_tests.py ids-model-check ok (117 tests, 1 skipped); venture-preflight run in background (result in PR body). No agent doc in docs/reports: the eval doc and flagships next: carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "cd6335c3-6595-5456-b4f3-4424ad35bc79",
+    "transcripts": 1,
+    "first": "2026-11-17T06:07:08Z",
+    "last": "2026-11-17T06:15:55Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 98,
+        "output": 36378,
+        "thinking": 7925,
+        "cache_read": 5689192,
+        "cache_write_5m": 0,
+        "cache_write_1h": 131105,
+        "api_equivalent_usd": 2.9146,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 98,
+      "output": 36378,
+      "thinking": 7925,
+      "cache_read": 5689192,
+      "cache_write_5m": 0,
+      "cache_write_1h": 131105,
+      "api_equivalent_usd": 2.9146,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 53,
+    "tools": {
+      "Bash": 48,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.78,
+      "active_minutes": 8.78,
+      "model_minutes": 6.9,
+      "tool_minutes": 1.87,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "BIM engineer: fetch 12 sample models, write an 18-spec IDS, run two checkers, reconcile diffs, write up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 205.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
