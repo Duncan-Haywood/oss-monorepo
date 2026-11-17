@@ -1,0 +1,239 @@
+{
+ "date": "2026-11-17",
+ "subject": "ventures/fire-extinguisher-inspection-route-margin",
+ "stratum": "venture",
+ "drawn_by": "census",
+ "seed": "2026-11-17-a396",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "an operations manager / owner-operator at a portable fire-extinguisher service company (NFPA 10 annual maintenance, 6-year maintenance and hydrostatic-test intervals, route costing and per-account profitability)",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Wrote an independent Python model (/tmp/claude-0/-home-user-oss-monorepo/091d6275-30d5-5492-8889-4ef9ed0beb80/scratchpad/fire-extinguisher-inspection-route-margin/indep.py: fees minus materials, mileage and labor at the target wage, visit profit x visits/12 minus monthly recordkeeping) and compared it with `node -e calculate(...)`. Every arithmetic output matches: defaults visit revenue 495.72, materials 131.04, visit profit 307.45, net 17.6208/month, margin 42.66%; the article's 6-unit site 89.93 visit / -0.5058 month / -3.67%, 7-unit +1.0047 (break-even 7 units, as claimed), 6 units at 3/month recordkeeping 4.49 at 32.64%, 40 min/22 mi 72.69 / -1.94; vs-page Site A 356.01 / 21.67 / 45.8% and Site B 137.16 / 3.43 / 14.7%. The one headline figure that is wrong as labelled is the hourly line: index.html:155 prints effectiveHourlyRate as 'about $X/hr after all costs', but calc.mjs:167 divides net profit that has ALREADY had the operator's own labor at the target wage deducted (calc.mjs:159-160) by those same hours. Defaults show $132.16/hr; what the operator actually earns per hour is (net + labor charge)/hours = $164.16. On the vs page Site B is shown at '$16.80/hr' next to a $32/hr target, when it really pays $48.80/hr; the article's 6-unit site would read -$7.59/hr while it pays $24.41/hr. Other wrong-output cases (run): recharge+hydro+replacement at 100% each (300% of units) accepted, net 149.38/month; a blank field silently becomes 0 (blank inspection fee -> net 4.12 instead of an error); blank target income parsed as 0 so the route reads 'Goal met'.",
+  "completeness": "Ran `node --test '*.test.mjs'`: 72/72 pass. README/page features checked: per-site monthly profit (works), margin and per-unit profit (work), recordkeeping as flat monthly cost (works), route roll-up and income gap (works, but only six fixed rows, index.html:76-81, and each row needs the monthly profit copied by hand from the calculator), local draft and shareable link (share.test.mjs passes), opt-out local usage counting honouring DNT/GPC (usage.test.mjs), article and two vs-* pages render with disclaimer. served-copy.mjs reports no placeholder or retired origin in llms.txt, sitemap, robots or canonicals. No stubs or TODOs found.",
+  "verification": "72 tests pass and pin every per-site line item on the defaults to hand values, so seeded changes to labor minutes (calc.mjs:157) and replacement cost (calc.mjs:152) were caught. Two incomeGap mutants survived via quality_mutate.py: Math.ceil -> Math.round on additional sites needed (calc.mjs:203; the only test uses an exact 300/100 division) and meetsTarget >= -> > (calc.mjs:204). Worse, the tests lock in the mislabelled hourly rate: changing effectiveHourlyRate to the operator's real earned rate (calc.mjs:167) is 'caught' because calc.test.mjs:29 and vs-ranking-sites-by-extinguisher-count.test.mjs:93 assert the residual figures 211.45/1.6 and '16.80'. No test covers blank inputs or percentages summing past 100.",
+  "craft": "Read calc.mjs (205 lines), index.html script (lines 115-240), share.mjs, the three content pages. Pure, documented functions, DEFAULTS as the single field list, safe localStorage wrappers. Defects: number() accepts '' as 0 (Number('') === 0), so a cleared field silently becomes a zero fee/cost (calc.mjs:63); no check that recharge+hydro+replacement shares total 100% or less (calc.mjs:125-131); the route table uses parseFloat and treats 0 as blank (index.html:175-177) and parseFloat(target)||0 (index.html:180) so a blank goal reads 'Goal met'; the vs-servicetitan page ships agent-session text to users ('pricing page is not reachable from this session', vs-servicetitan.html:96).",
+  "claims": "Disclaimer (no warranty, not advice, not an NFPA 10 determination) is on index.html, the article, both vs pages and README. Privacy claim backed: usage.mjs counts locally and honours DNT/GPC, no fetch/sendBeacon in the page. Every worked number in the article and vs-ranking page reproduces (above). Unbacked or misleading: the hourly line 'after all costs' and the vs page row 'Effective hourly rate $16.80/hr' (vs-ranking-sites-by-extinguisher-count.html:74, FAQ :119) present residual profit per hour above a $32 wage as the hourly rate; the article's heading 'The six-extinguisher site that loses money' (how-many...html:33) describes a site that is cash-positive (+$1.63/month before the owner's own wage, +$24.41/hr earned) and only misses the $32/hr target; the page's 'rolls your whole route up' is six rows. ServiceTitan facts stated (field-service platform, founders, Glendale HQ, subscription) match public knowledge and no price is invented.",
+  "fitness": "Walked an owner-operator's job: price one 18-unit site (works in seconds), then check a route. A real extinguisher route has dozens to hundreds of accounts; the route section takes six hand-typed monthly-profit numbers, so the 'which sites are worth keeping' job cannot be done for a whole route without a spreadsheet. Drive time and mileage are charged as a round trip per site, so a route of neighbouring stops is over-costed unless the user hand-splits the leg. On-site time for recharge, 6-year teardown, hydro and replacement work is not modelled (minutes are per inspected unit only), and the hourly line would push the user to drop sites that in fact pay above their target. Useful for one-site what-ifs, not for a route decision.",
+  "domain": "Against NFPA 10 (2022 ed., from knowledge; nfpa.org not fetched): annual maintenance by a certified person with monthly owner inspections (ch. 7) is modelled right (visitsPerYear default 1, FAQ correct); hydrostatic intervals of 5 years (water, CO2, wet chemical, AFFF) and 12 years (stored-pressure dry chemical) per Table 8.3.1 are cited correctly in the code comment, and the 8% default is consistent with 1/12. Departures: the 6-year internal maintenance of stored-pressure dry-chemical units (7.3.3) is not named and is only implicitly folded into 'recharge'; a hydro-tested cylinder must be recharged after the test but the model treats hydro and recharge as independent shares with no overlap rule and no 100% cap; labor time for that shop/bench work is absent. Mileage default $0.67 is the IRS 2024 standard rate (IRS Notice 2024-08), not the 2025 rate of $0.70 (Notice 2025-5), and is uncited. Per-account profitability practice charges the owner's labor at a wage and reports margin above it; that part is standard, but calling the residual an hourly rate is not."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "default 18-unit site: visit revenue, materials, visit profit, monthly net, margin",
+   "method": "independent Python model (indep.py) from first-principles per-visit P&L",
+   "command": "python3 indep.py; node -e calculate(DEFAULTS)",
+   "expected": "495.72; 131.04; 307.45; 17.6208; 42.66%",
+   "observed": "495.72; 131.04; 307.45; 17.6208; 42.66%",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "article: 6-unit site and break-even unit count",
+   "method": "indep.py, search n=1..19 for first positive monthly net",
+   "command": "python3 indep.py vs node calculate({...DEFAULTS, extinguisherCount: 6})",
+   "expected": "89.93 visit; -0.51/month; -3.67%; break-even 7",
+   "observed": "89.93; -0.5058; -3.673%; 7 units +1.00 (matches page)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "vs page Site A / Site B visit profit, monthly net and margin",
+   "method": "indep.py with the page's stated inputs",
+   "command": "node -e calculate({...DEFAULTS,rechargePct:5,hydroTestPct:2,replacementPct:1,driveMinutes:75,mileage:38})",
+   "expected": "A 356.01 / 21.67 / 45.8%; B 137.16 / 3.43 / 14.7%",
+   "observed": "A 356.01 / 21.67 / 45.79%; B 137.16 / 3.43 / 14.74%",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "hourly rate 'after all costs' on the defaults and vs-page Site B",
+   "method": "owner-operator earned rate = (net + own labor charge) / hours (indep.py); the labor charge is already deducted from net",
+   "command": "node -e calculate(DEFAULTS).effectiveHourlyRate",
+   "expected": "164.16/hr default; 48.80/hr Site B",
+   "observed": "132.16/hr default; 16.80/hr Site B (residual above the $32 wage)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "service shares summing past 100% of units",
+   "method": "a unit cannot be recharged, hydro-tested and replaced outright on one visit; shares must total <= 100%",
+   "command": "node -e calculate({...DEFAULTS,rechargePct:100,hydroTestPct:100,replacementPct:100})",
+   "expected": "error",
+   "observed": "accepted, net 149.38/month",
+   "result": "fail"
+  },
+  {
+   "dimension": "craft",
+   "what": "blank inspection fee",
+   "method": "a cleared required field should error, not become 0",
+   "command": "node -e calculate({...DEFAULTS,inspectionFeePerUnit:''})",
+   "expected": "error",
+   "observed": "treated as 0, net 4.12/month",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "certified maintenance cadence and hydro intervals",
+   "method": "NFPA 10 (2022) ch. 7 annual maintenance, Table 8.3.1 5/12-year hydro, from knowledge (not fetched)",
+   "command": "grep -n 'every 5 or 12 years\\|annual' calc.mjs index.html",
+   "expected": "annual visit, 5 or 12 year hydro",
+   "observed": "calc.mjs:81, :95 and FAQ state both correctly",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "default mileage rate",
+   "method": "IRS standard mileage rate: 67c 2024 (Notice 2024-08), 70c 2025 (Notice 2025-5), from knowledge",
+   "command": "grep -n mileageRate calc.mjs index.html",
+   "expected": "current-year rate, cited",
+   "observed": "0.67 (2024), uncited",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "72/72 pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "llms.txt / sitemap / canonical hosts as served",
+   "method": "deploy rewrite copy",
+   "command": "node platform/pages/served-copy.mjs fire-extinguisher-inspection-route-margin",
+   "expected": "no placeholder origin",
+   "observed": "no placeholder or retired origin left",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "article heading 'The six-extinguisher site that loses money'",
+   "method": "cash view: (165.24-43.68-6.03)/12 - 8 before the owner's own wage",
+   "command": "python3 indep.py (6 units)",
+   "expected": "a loss",
+   "observed": "+1.63/month cash, $24.41/hr earned; it only misses the $32/hr target",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer and no-upload claim",
+   "method": "read pages; grep for network calls",
+   "command": "grep -n 'No warranty' *.html; grep -n 'fetch\\|sendBeacon' index.html usage.mjs",
+   "expected": "disclaimer present; no network calls",
+   "observed": "disclaimer on all four pages; no network calls",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "roll up a real route",
+   "method": "walk the owner's job with more than six accounts",
+   "command": "grep -n 'siteProfit' index.html",
+   "expected": "enter or import every site",
+   "observed": "six fixed rows (index.html:76-81), monthly profit typed by hand",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:203",
+   "change": "Math.ceil(gap / avg) -> Math.round(gap / avg)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:204",
+   "change": "meetsTarget: profit >= target -> meetsTarget: profit > target",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:157",
+   "change": "extinguisherCount * inspectionMinutesPerUnit + driveMinutes -> extinguisherCount * inspectionMinutesPerUnit",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:152",
+   "change": "replaceUnits * replacementCostPerUnit -> replaceUnits * replacementCostPerUnit * 0",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:167",
+   "change": "netProfit / monthlyLaborHours -> (netProfit + laborCost * monthlyVisits) / monthlyLaborHours (the correct earned rate; 'caught' because tests pin the mislabelled figure)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "The hourly line 'about $X/hr after all costs' divides net profit that already deducts the operator's own labor at the target wage by the same hours, so it shows residual profit above the wage, not the hourly rate. Defaults: $132.16 shown vs $164.16 earned; vs page Site B '$16.80/hr' next to a $32 target when it pays $48.80/hr, which would push an operator to drop a site that beats their target. Tests pin the wrong figure.",
+   "where": "ventures/fire-extinguisher-inspection-route-margin/calc.mjs:167",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "vs-ranking page and its FAQ/JSON-LD publish 'Effective hourly rate $181.40/hr' and '$16.80/hr' (residual above a $32 wage) as hourly rates; the article heading says a site that is cash-positive and earns $24.41/hr 'loses money'.",
+   "where": "ventures/fire-extinguisher-inspection-route-margin/vs-ranking-sites-by-extinguisher-count.html:74",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Route roll-up has six fixed rows and needs each site's monthly profit typed by hand; a real extinguisher route has dozens to hundreds of accounts, so the advertised 'whole route' check cannot be done in the tool.",
+   "where": "ventures/fire-extinguisher-inspection-route-margin/index.html:76",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Recharge, hydro-test and replacement shares are independent with no total cap (100% each accepted, 300% of units serviced) and no overlap rule (a hydro-tested unit must be recharged; NFPA 10 6-year maintenance not named); on-site/bench time for this work is not modelled, only per-unit inspection minutes.",
+   "where": "ventures/fire-extinguisher-inspection-route-margin/calc.mjs:125",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Two incomeGap mutants survive (Math.ceil -> Math.round on sites needed; >= -> > on meetsTarget): the only test divides exactly (300/100) and never sits on the boundary.",
+   "where": "ventures/fire-extinguisher-inspection-route-margin/calc.test.mjs:94",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "A cleared field is silently read as 0 (Number('') === 0): blank inspection fee prices the site at net 4.12/month instead of erroring; blank target income becomes 0 and the route reads 'Goal met'.",
+   "where": "ventures/fire-extinguisher-inspection-route-margin/calc.mjs:63",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Default mileage rate 0.67 is the IRS 2024 standard rate (2025 is 0.70), uncited.",
+   "where": "ventures/fire-extinguisher-inspection-route-margin/calc.mjs:48",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "User-facing vs-servicetitan page and its JSON-LD contain agent-session text ('pricing page is not reachable from this session').",
+   "where": "ventures/fire-extinguisher-inspection-route-margin/vs-servicetitan.html:96",
+   "category": "other",
+   "origin": "claims"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A tidy, private one-site profit calculator whose arithmetic is right: an independent Python model reproduces every line item on the defaults (visit profit 307.45, net 17.62/month, 42.66% margin), the article's 6-unit site (-0.51/month, break-even at 7 units) and both vs-page sites to the cent, and the NFPA 10 cadence it describes (annual maintenance, 5/12-year hydro) is right. A fire-extinguisher service owner would reject its hourly line: 'about $X/hr after all costs' is net profit after already paying the owner $32/hr, divided by the hours, so it shows $132.16 instead of $164.16 on the defaults and calls a site that pays $48.80/hr a '$16.80/hr' site on the comparison page; the tests pin that figure. The route section is six hand-typed rows, service shares can total 300%, a blank field becomes 0, and two incomeGap mutants survive. Does not meet the bar (correctness 2, claims 2, verification 2, median 2); finished (completeness 3). Fixable in a session: report (netProfit + laborCost*monthlyVisits)/monthlyLaborHours as the earned rate (or relabel the current one 'above your target rate'), update the vs page and tests, cap the three shares at 100% total, reject blank fields, and add boundary tests for incomeGap."
+}
