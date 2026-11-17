@@ -41,6 +41,13 @@ Predictions (written before the first solve of this script; LOG.md, 2026-11-17, 
   M6  Mesh: |DC(3.75 mm) - DC(2.5 mm)| < 0.02 (seed 0) on at least 7 of 9 fabrics.
   M7  Input: with KES bending in place of FAST every fabric but F6 and F7 drapes lower (smaller DC),
       and the KES-input RMSE is larger than the FAST-input RMSE.
+Added during the run, after reading only the seed-0 KES-bending end states of F1, F4 and F9 (DC 0.211,
+0.286, 0.611 against measured 0.222, 0.319, 0.647, while FAST bending gave 0.368, 0.494, 0.777) and
+before any other KES-bending result (`--extra`: KES bending, seeds 1 and 2, 2.5 mm, all nine):
+  K1  With KES bending, the lowest-energy-of-three DC has RMSE <= 0.05 against the measured DC.
+  K2  ... and |bias| <= 0.03, Pearson r >= 0.90.
+  K3  ... and its RMSE is below every one of the paper's eight Optitex columns.
+These are not blind (three of nine fabrics were seen) and are scored apart from M1 to M7.
 Acceptance for the milestone is M4: an uncalibrated top tier within 0.08 of measured drape on nine
 fabrics is what H3 (does calibration change a choice) needs as its starting point.
 """
@@ -109,7 +116,9 @@ def mm(a):
     return f"{a * 1000:g}"
 
 
-def jobs(quick):
+def jobs(quick, extra=False):
+    if extra:
+        return [(c, MAIN, s, "kes") for s in (1, 2) for c in fabrics.CODES]
     if quick:
         return [(c, 0.0075, 0, "fast") for c in ("F1", "F5", "F9")]
     main = [(c, MAIN, s, "fast") for s in SEEDS for c in fabrics.CODES]
@@ -264,6 +273,7 @@ def report():
               means=dict(zip(fabrics.CODES, means)), measured=dict(zip(fabrics.CODES, meas)),
               scores=dict(main=s_main, mean=s_mean, seed0=s_seed0, coarse=s_coarse, kes=s_kes,
                           optitex=opt), mesh=dict(zip(fabrics.CODES, mesh)), kes_change=dict(zip(fabrics.CODES, kesd)),
+              optitex={k: list(v) for k, v in OPTITEX.items()},
               predictions={n: bool(ok) for n, ok in pred})
     (HERE / "results.json").write_text(json.dumps(js, indent=1) + "\n")
     print("\n".join(L))
@@ -273,6 +283,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--phase", choices=("solve", "report"), default="solve")
     ap.add_argument("--quick", action="store_true")
+    ap.add_argument("--extra", action="store_true", help="K1-K3: KES bending, seeds 1 and 2")
     ap.add_argument("--procs", type=int, default=4)
     a = ap.parse_args()
     global CACHE
@@ -280,7 +291,7 @@ def main():
         CACHE = HERE / "cache_quick"
     CACHE.mkdir(exist_ok=True)
     if a.phase == "solve":
-        js = jobs(a.quick)
+        js = jobs(a.quick, a.extra)
         # longest first: the stiffest, finest chains
         js.sort(key=lambda j: (-1 / j[1], -fabrics.ea_secant(j[0])))
         with mp.Pool(a.procs) as pool:
