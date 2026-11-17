@@ -1,6 +1,6 @@
 ---
 title: "Quality census: a cookie diff that could not see _ga, and 0 of 4 subjects met the bar"
-seo_title: "Quality census 2026-11-17: four first audits, none at the bar"
+seo_title: "Quality census: a consent tool blind to _ga, 0 of 4 at the bar"
 date: 2026-11-17
 tags: [quality-audit, evaluation, testing]
 description: "Four never-audited subjects, none at the bar. Worst: a consent-diff tool read only Set-Cookie, so _ga and other JavaScript cookies never appeared."
