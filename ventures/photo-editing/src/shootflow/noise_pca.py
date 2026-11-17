@@ -56,18 +56,24 @@ def subplane_patches(c: np.ndarray, period: int, d: int = 4, stride: int = 2) ->
     return np.concatenate(out) if out else np.zeros((0, d * d))
 
 
-def mosaic_patches(c: np.ndarray, period: int, d: int, max_patches: int = 200_000) -> np.ndarray:
+def mosaic_patches(c: np.ndarray, period: int, d: int, max_patches: int = 200_000,
+                   shifts: tuple = ((0, 0),)) -> np.ndarray:
     """Every d x d patch of the mosaic itself, stepped by the CFA period so every patch has the same colour
     layout: one vector holds all colours, and texture (correlated across colours) is lower-rank in it than
-    noise (independent sensel to sensel)."""
+    noise (independent sensel to sensel). ``shifts``: further lattice offsets that map the CFA onto itself
+    (X-Trans: (3, 3), ``XTRANS_SHIFTS``), each adding a grid of patches with the same layout."""
 
     h, w = c.shape
     if h < d or w < d:
         return np.zeros((0, d * d))
-    n = ((h - d) // period + 1) * ((w - d) // period + 1)
+    n = ((h - d) // period + 1) * ((w - d) // period + 1) * len(shifts)
     step = period * max(1, math.ceil(math.sqrt(n / max_patches)))  # a whole frame: a regular subsample
-    v = np.lib.stride_tricks.sliding_window_view(np.ascontiguousarray(c), (d, d))[::step, ::step]
-    return v.reshape(-1, d * d)
+    v = np.lib.stride_tricks.sliding_window_view(np.ascontiguousarray(c), (d, d))
+    out = [v[dy::step, dx::step].reshape(-1, d * d) for dy, dx in shifts if dy < v.shape[0] and dx < v.shape[1]]
+    return np.concatenate(out)
+
+
+XTRANS_SHIFTS = ((0, 0), (3, 3))  # the X-Trans 6 x 6 layout repeats on a (3, 3) shift
 
 
 def _grad_matrix(d: int, step: int = 1) -> np.ndarray:
@@ -117,6 +123,27 @@ def _colour_residual_matrix(pat, d: int) -> tuple[np.ndarray, float]:
     return np.eye(d * d) - m, float(d * d - np.unique(col).size)
 
 
+def _near_matrix(pat, d: int) -> np.ndarray:
+    """The rows are the differences of every pair of same-colour sensels that touch (horizontally, vertically
+    or diagonally) in a d x d mosaic patch whose top-left sensel is at the CFA's origin. On X-Trans, where a
+    colour's next copy one period away is 6 sensels off, these are the finest-scale texture readings the
+    layout has: 20 of every 36 sensels are green and every green touches another, so the test sees texture
+    at one sensel, not at six (eval/xtrans-noise-pca-12-2026-11-17.md)."""
+
+    period = 6 if len(pat) == 36 else 2
+    col = [pat[(y % period) * period + (x % period)] for y in range(d) for x in range(d)]
+    rows = []
+    for y in range(d):
+        for x in range(d):
+            for dy, dx in ((0, 1), (1, -1), (1, 0), (1, 1)):
+                yy, xx = y + dy, x + dx
+                if 0 <= yy < d and 0 <= xx < d and col[y * d + x] == col[yy * d + xx]:
+                    r = np.zeros(d * d)
+                    r[y * d + x], r[yy * d + xx] = -1.0, 1.0
+                    rows.append(r)
+    return np.asarray(rows)
+
+
 def weak_texture_sigma2(p: np.ndarray, d: int, iters: int = 6, step: int = 1, D: np.ndarray | None = None,
                         dof: float | None = None) -> tuple[float, int]:
     """Liu et al.'s iteration on one bin's patches: (sigma^2, patches kept). ``D`` (rows: linear maps whose
@@ -144,16 +171,24 @@ def weak_texture_sigma2(p: np.ndarray, d: int, iters: int = 6, step: int = 1, D:
 
 
 def pca_bins(c: np.ndarray, period: int, d: int = 4, stride: int = 2, bins: int = 8,
-             mosaic: bool = False, pat=None) -> tuple[np.ndarray, np.ndarray]:
+             mosaic: bool = False, pat=None, texture: str | None = None,
+             shifts: tuple = ((0, 0),)) -> tuple[np.ndarray, np.ndarray]:
     """Per brightness bin of the mosaic's patches: (median level, sigma^2). ``mosaic``: d x d patches of the
-    mosaic (``mosaic_patches``) instead of a subplane's."""
+    mosaic (``mosaic_patches``) instead of a subplane's. ``texture`` (mosaic only): "grad" (same-colour
+    differences one period apart), "colour" (each sensel against its colour's mean in the patch) or "near"
+    (differences of touching same-colour sensels, ``_near_matrix``); by default "near" on X-Trans
+    (eval/xtrans-noise-pca-12-2026-11-17.md: 0 of 248 held tiles lose over 0.1 dB to directional, was 17),
+    "grad" on Bayer."""
 
     c = np.asarray(c, dtype=np.float64)
-    p = mosaic_patches(c, period, d) if mosaic else subplane_patches(c, period, d, stride)
+    p = mosaic_patches(c, period, d, shifts=shifts) if mosaic else subplane_patches(c, period, d, stride)
     step = period if mosaic else 1
     D = dof = None
-    if mosaic and step >= d:
+    tex = texture or ("near" if mosaic and period == 6 else "colour" if step >= d else "grad")
+    if mosaic and tex == "colour":
         D, dof = _colour_residual_matrix(pat, d)
+    elif mosaic and tex == "near":
+        D = _near_matrix(pat, d)
     if p.shape[0] == 0:
         return np.zeros(0), np.zeros(0)
     lv = p.mean(axis=1)
@@ -187,10 +222,13 @@ def fit_line(x: np.ndarray, y: np.ndarray) -> tuple[float, float]:
     return float(g), float(r)
 
 
-def estimate_noise_pca(c: np.ndarray, pat, d: int = 6, stride: int = 2, mosaic: bool = True) -> tuple[float, float]:
+def estimate_noise_pca(c: np.ndarray, pat, d: int = 6, stride: int = 2, mosaic: bool = True,
+                       texture: str | None = None, shifts: tuple = ((0, 0),)) -> tuple[float, float]:
     """The (shot, read) model of the mosaic ``c`` from patch PCA on weak-texture patches. The default, 6 x 6
     patches of the mosaic itself, read closest to the truth on the tune tiles
-    (eval/noise-pca-estimator-2026-11-17.md; tools/noise_estimator_accuracy.py)."""
+    (eval/noise-pca-estimator-2026-11-17.md; tools/noise_estimator_accuracy.py); on X-Trans with the "near"
+    texture test (touching same-colour sensels; eval/xtrans-noise-pca-12-2026-11-17.md)."""
 
     period = 6 if len(pat) == 36 else 2
-    return fit_line(*pca_bins(c, period, d, stride, mosaic=mosaic, pat=pat))
+    return fit_line(*pca_bins(c, period, d, stride, mosaic=mosaic, pat=pat, texture=texture,
+                             shifts=shifts))
