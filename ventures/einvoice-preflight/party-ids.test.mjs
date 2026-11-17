@@ -86,3 +86,30 @@ test("every shipped example stays free of INV-062 and INV-063", () => {
     assert.deepEqual(idRules(checkInvoice(invoice)), [], name);
   }
 });
+
+test("the payee (BG-10) and tax representative (BG-11) ids meet the same Peppol rules (UBL)", () => {
+  const xml = UBL.replace("</cac:AccountingCustomerParty>", '$&'
+    + '<cac:PayeeParty><cac:PartyIdentification><cbc:ID schemeID="0088">4012345000008</cbc:ID></cac:PartyIdentification><cac:PartyName><cbc:Name>Factor AB</cbc:Name></cac:PartyName><cac:PartyLegalEntity><cbc:CompanyID schemeID="0007">5560360794</cbc:CompanyID></cac:PartyLegalEntity></cac:PayeeParty>'
+    + '<cac:TaxRepresentativeParty><cac:PartyName><cbc:Name>Fiscal Rep BV</cbc:Name></cac:PartyName><cac:PartyLegalEntity><cbc:CompanyID schemeID="0106">1234567</cbc:CompanyID></cac:PartyLegalEntity></cac:TaxRepresentativeParty>');
+  const invoice = parseUblInvoice(xml);
+  assert.deepEqual(invoice.payee_party, { legal_id: { id: "5560360794", scheme: "0007" }, party_ids: [{ id: "4012345000008", scheme: "0088" }] });
+  const findings = checkInvoice(invoice);
+  assert.deepEqual(idRules(findings), [
+    ["INV-062", "/payee_party/legal_id/id", "error"],
+    ["INV-062", "/payee_party/party_ids/0/id", "error"],
+    ["INV-063", "/tax_representative/legal_id/id", "warning"],
+  ]);
+  assert.match(findings.find((f) => f.path === "/payee_party/legal_id/id").message, /^Payee legal registration identifier/);
+  assert.match(findings.find((f) => f.path === "/tax_representative/legal_id/id").message, /^Tax representative /);
+});
+
+test("the payee and tax representative ids are read from CII too, and valid ones pass", () => {
+  const xml = CII
+    .replace("<ram:InvoiceCurrencyCode>EUR</ram:InvoiceCurrencyCode>", '$&<ram:PayeeTradeParty><ram:GlobalID schemeID="0192">981276958</ram:GlobalID><ram:Name>Factor AB</ram:Name></ram:PayeeTradeParty>')
+    .replace("</ram:BuyerTradeParty>", '$&<ram:SellerTaxRepresentativeTradeParty><ram:Name>Fiscal Rep BV</ram:Name><ram:SpecifiedLegalOrganization><ram:ID schemeID="0007">5560360793</ram:ID></ram:SpecifiedLegalOrganization></ram:SellerTaxRepresentativeTradeParty>');
+  const invoice = parseCiiInvoice(xml);
+  assert.deepEqual(invoice.payee_party, { party_ids: [{ id: "981276958", scheme: "0192" }] });
+  assert.deepEqual(invoice.tax_representative, { legal_id: { id: "5560360793", scheme: "0007" } });
+  assert.deepEqual(idRules(checkInvoice(invoice)), [["INV-062", "/payee_party/party_ids/0/id", "error"]]);
+  assert.equal(parseCiiInvoice(CII).payee_party, undefined);
+});

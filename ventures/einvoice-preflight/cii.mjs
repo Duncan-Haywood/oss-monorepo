@@ -72,6 +72,38 @@ function ciiVatId(party) {
   return "";
 }
 
+// BT-30/BT-47 (legal_id) and BT-29/BT-46 with a scheme (party_ids), read the
+// same way for the seller, the buyer, the payee (BG-10, PayeeTradeParty) and
+// the tax representative (BG-11, SellerTaxRepresentativeTradeParty): Peppol's
+// `ram:ID | ram:GlobalID` contexts match them wherever they sit (endpoint.mjs,
+// INV-062/INV-063).
+function schemedIds(tradeParty) {
+  const mapped = {};
+  const legalId = firstChild(firstChild(tradeParty, "SpecifiedLegalOrganization"), "ID");
+  if (legalId && (legalId.text || "").trim()) {
+    mapped.legal_id = { id: legalId.text.trim(), scheme: legalId.attrs && legalId.attrs.schemeID ? String(legalId.attrs.schemeID).trim() : "" };
+  }
+  // BT-29/BT-46 with a scheme (GlobalID; an ID with a schemeID too, as Peppol's
+  // ram:ID context reads it): each one meets its scheme's PEPPOL-COMMON rule
+  // (endpoint.mjs, INV-062/INV-063).
+  const partyIds = [];
+  for (const child of (tradeParty && tradeParty.children) || []) {
+    if (child.name !== "GlobalID" && child.name !== "ID") continue;
+    const scheme = child.attrs && child.attrs.schemeID ? String(child.attrs.schemeID).trim() : "";
+    const id = (child.text || "").trim();
+    if (scheme && id) partyIds.push({ id, scheme });
+  }
+  if (partyIds.length) mapped.party_ids = partyIds;
+  return mapped;
+}
+
+// BG-10 / BG-11: only their schemed ids, for INV-062/INV-063.
+function sideParty(node) {
+  if (!node) return undefined;
+  const ids = schemedIds(node);
+  return Object.keys(ids).length ? ids : undefined;
+}
+
 function partyFrom(tradeParty) {
   const vatId = ciiVatId(tradeParty);
   const identifier = firstNonEmpty(
@@ -108,21 +140,7 @@ function partyFrom(tradeParty) {
     if (email) contact.email = email;
     if (Object.keys(contact).length) mapped.contact = contact;
   }
-  const legalId = firstChild(firstChild(tradeParty, "SpecifiedLegalOrganization"), "ID");
-  if (legalId && (legalId.text || "").trim()) {
-    mapped.legal_id = { id: legalId.text.trim(), scheme: legalId.attrs && legalId.attrs.schemeID ? String(legalId.attrs.schemeID).trim() : "" };
-  }
-  // BT-29/BT-46 with a scheme (GlobalID; an ID with a schemeID too, as Peppol's
-  // ram:ID context reads it): each one meets its scheme's PEPPOL-COMMON rule
-  // (endpoint.mjs, INV-062/INV-063).
-  const partyIds = [];
-  for (const child of (tradeParty && tradeParty.children) || []) {
-    if (child.name !== "GlobalID" && child.name !== "ID") continue;
-    const scheme = child.attrs && child.attrs.schemeID ? String(child.attrs.schemeID).trim() : "";
-    const id = (child.text || "").trim();
-    if (scheme && id) partyIds.push({ id, scheme });
-  }
-  if (partyIds.length) mapped.party_ids = partyIds;
+  Object.assign(mapped, schemedIds(tradeParty));
   const uri = firstChild(firstChild(tradeParty, "URIUniversalCommunication"), "URIID");
   if (uri) {
     const id = (uri.text || "").trim();
@@ -323,6 +341,10 @@ export function parseCiiInvoice(source) {
       gross: totals.gross,
     },
   };
+  const payee = sideParty(firstChild(settlement, "PayeeTradeParty"));
+  if (payee) invoice.payee_party = payee;
+  const representative = sideParty(firstChild(agreement, "SellerTaxRepresentativeTradeParty"));
+  if (representative) invoice.tax_representative = representative;
   const due = isoDate(nestedText(settlement, "SpecifiedTradePaymentTerms", "DueDateDateTime", "DateTimeString")
     || nestedText(settlement, "DueDateDateTime", "DateTimeString"));
   if (due) invoice.due_date = due;

@@ -97,6 +97,42 @@ function partyIdentifier(partyNode) {
     || nestedText(partyNode, "PartyTaxScheme", "CompanyID");
 }
 
+// BT-30/BT-47 (legal_id) and BT-29/BT-46 with a scheme (party_ids), read the
+// same way for the seller, the buyer, the payee (BG-10: BT-60, BT-61) and the
+// tax representative (BG-11). Peppol's PEPPOL-COMMON contexts match
+// `cac:PartyIdentification/cbc:ID` and `cbc:CompanyID` wherever they sit, so
+// each one meets its scheme's rule (endpoint.mjs, INV-062/INV-063).
+function schemedIds(partyNode) {
+  const mapped = {};
+  const legalNode = descendants(partyNode, "PartyLegalEntity").flatMap((entity) => descendants(entity, "CompanyID"))[0];
+  if (legalNode && legalNode.text.trim()) {
+    const scheme = (legalNode.attrs && legalNode.attrs.schemeID) ? legalNode.attrs.schemeID.trim() : "";
+    mapped.legal_id = { id: legalNode.text.trim(), scheme };
+  }
+  // BT-29/BT-46 with a scheme: Peppol checks each one against its scheme's
+  // PEPPOL-COMMON rule, so keep every PartyIdentification/ID that names one
+  // (endpoint.mjs, INV-062/INV-063).
+  const partyIds = [];
+  for (const identification of descendants(partyNode, "PartyIdentification")) {
+    for (const idNode of identification.children.filter((child) => child.name === "ID")) {
+      const scheme = idNode.attrs && idNode.attrs.schemeID ? idNode.attrs.schemeID.trim() : "";
+      const id = idNode.text.trim();
+      if (scheme && id) partyIds.push({ id, scheme });
+    }
+  }
+  if (partyIds.length) mapped.party_ids = partyIds;
+  return mapped;
+}
+
+// BG-10 payee and BG-11 seller tax representative: only their schemed ids,
+// for INV-062/INV-063 (undefined when the file names none).
+function sideParty(root, name) {
+  const node = root.children.find((child) => child.name === name);
+  if (!node) return undefined;
+  const ids = schemedIds(node);
+  return Object.keys(ids).length ? ids : undefined;
+}
+
 function party(node) {
   const partyNode = descendants(node, "Party")[0] || node;
   // XRechnung carries the legal name in PartyLegalEntity/RegistrationName and
@@ -151,23 +187,7 @@ function party(node) {
       break;
     }
   }
-  const legalNode = descendants(partyNode, "PartyLegalEntity").flatMap((entity) => descendants(entity, "CompanyID"))[0];
-  if (legalNode && legalNode.text.trim()) {
-    const scheme = (legalNode.attrs && legalNode.attrs.schemeID) ? legalNode.attrs.schemeID.trim() : "";
-    mapped.legal_id = { id: legalNode.text.trim(), scheme };
-  }
-  // BT-29/BT-46 with a scheme: Peppol checks each one against its scheme's
-  // PEPPOL-COMMON rule, so keep every PartyIdentification/ID that names one
-  // (endpoint.mjs, INV-062/INV-063).
-  const partyIds = [];
-  for (const identification of descendants(partyNode, "PartyIdentification")) {
-    for (const idNode of identification.children.filter((child) => child.name === "ID")) {
-      const scheme = idNode.attrs && idNode.attrs.schemeID ? idNode.attrs.schemeID.trim() : "";
-      const id = idNode.text.trim();
-      if (scheme && id) partyIds.push({ id, scheme });
-    }
-  }
-  if (partyIds.length) mapped.party_ids = partyIds;
+  Object.assign(mapped, schemedIds(partyNode));
   const endpointNode = descendants(partyNode, "EndpointID")[0];
   if (endpointNode) {
     const id = endpointNode.text.trim();
@@ -462,6 +482,10 @@ export function parseUblInvoice(source) {
       ...optionalMonetaryTotals(total),
     },
   };
+  const payee = sideParty(root, "PayeeParty");
+  if (payee) invoice.payee_party = payee;
+  const representative = sideParty(root, "TaxRepresentativeParty");
+  if (representative) invoice.tax_representative = representative;
   const payment = payeePayment(root) || {};
   const termsDays = paymentTermsDays(root);
   if (termsDays) payment.terms_days = termsDays;
