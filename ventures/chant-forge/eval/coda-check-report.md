@@ -697,6 +697,30 @@ Misses with `lipHold`:
 
 num as none 3; hoc as nasal 2; mum as none 2; bun as none 2; bor as none 1; god as none 1; loc as nasal 1; bud as voiceless alv stop 1; run as none 1; tonc as voiceless vel stop 1; sod as none 1; cun as none 1
 
+## c. Held out: a dark-vowel m with a slow closure (twenty-fifth round)
+
+Nasals after /u/ or /o/: *nun*, *brum*, *glum*, *stum*, *flum*, *prun*, *non*, *mom*, *bom*, *pon*, *vom*, *lom*; voiced stops: *brud*, *glub*, *drog*, *plod*, *stug*; nasals after a bright vowel: *mem*, *nim*, *ban*, *trem*; n-clusters: *nant*, *bonc*, *frunt*, *plons*; voiceless stops: *mut*, *mup*, *trop*; others: *nus*, *mur*, *bo*, *nul*. Pulse-4 and pulse-2 notes at 88 BPM, each followed by a rest, C3, A#3, C4, D4, D#4, E4.
+
+| | default | `lipShut: { span: 4, settle: 2, rise: 4 }` |
+|---|---|---|
+| nasals after /u/ or /o/ read exactly | 123 of 144 (85.4%) | 125 of 144 (86.8%) |
+| of them, on D4-E4 | 57 of 72 (79.2%) | 57 of 72 (79.2%) |
+| nasals after a bright vowel read exactly | 48 of 48 (100.0%) | 48 of 48 (100.0%) |
+| n-clusters read as their nasal | 44 of 48 (91.7%) | 45 of 48 (93.8%) |
+| voiced stop codas read exactly | 60 of 60 (100.0%) | 60 of 60 (100.0%) |
+| voiceless stop codas read exactly | 36 of 36 (100.0%) | 36 of 36 (100.0%) |
+| other syllables read exactly | 48 of 48 (100.0%) | 48 of 48 (100.0%) |
+| vowel-only control read as none | 369 of 384 (96.1%) | 369 of 384 (96.1%) |
+| stops, others and vowel-only control read as a nasal | 15 | 15 |
+
+Misses, default (count over the twelve pitch and length cells):
+
+brum as none 6; glum as none 5; stum as none 4; prun as none 3; flum as none 3; frunt as voiceless alv stop 2; nun (vowel only) as nasal 1; brum (vowel only) as nasal 1; glum (vowel only) as nasal 1; stum (vowel only) as nasal 1; flum (vowel only) as nasal 1; prun (vowel only) as nasal 1; brud (vowel only) as nasal 1; glub (vowel only) as nasal 1; stug (vowel only) as nasal 1; frunt (vowel only) as nasal 1; mut (vowel only) as nasal 1; mup (vowel only) as nasal 1; nus (vowel only) as nasal 1; mur (vowel only) as nasal 1; nul (vowel only) as nasal 1; nant as voiceless alv stop 1; plons as voiced alv stop 1
+
+Misses with `lipShut: { span: 4, settle: 2, rise: 4 }`:
+
+brum as none 6; glum as none 5; stum as none 4; prun as none 2; flum as none 2; nun (vowel only) as nasal 1; brum (vowel only) as nasal 1; glum (vowel only) as nasal 1; stum (vowel only) as nasal 1; flum (vowel only) as nasal 1; prun (vowel only) as nasal 1; brud (vowel only) as nasal 1; glub (vowel only) as nasal 1; stug (vowel only) as nasal 1; frunt (vowel only) as nasal 1; mut (vowel only) as nasal 1; mup (vowel only) as nasal 1; nus (vowel only) as nasal 1; mur (vowel only) as nasal 1; nul (vowel only) as nasal 1; frunt as voiceless alv stop 1; nant as voiceless alv stop 1; plons as voiced alv stop 1
+
 ## C. Closing consonants in the corpus
 
 146 GABC files, 9903 sung syllables; 3634 of 9903 (36.7%) close on a consonant, 266 on a cluster. First phone: s 938, n 720, m 649, t 448, r 420, l 168, k 145, d 75, b 28, p 25, f 15, g 3.

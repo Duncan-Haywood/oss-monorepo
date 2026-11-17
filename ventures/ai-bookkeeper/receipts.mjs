@@ -31,7 +31,9 @@ export function commaStyle(text) {
 // decimals, or plain 91000. Grouped amounts use one separator throughout; a
 // number glued to letters ("PB1", "xx7730"), a percentage or part of a date,
 // time or phone number is not an amount.
-const RP = /\bRp\.?\s*/gi;
+// "IDR215,985" is written like "Rp215,985" (CORD train-693), and cleanOcr reads that IDR as
+// "10R" before a digit
+const RP = /\b(?:Rp|IDR|10R(?=\d))\.?\s*/gi;
 const CUR_WORD = /\b(?:rm|myr|sgd|usd|aud|gbp|eur|inr)(?![a-z])\.?/gi;
 const GROUPED = /(?<![\p{L}\d.,\/-])\d{1,3}([.,])\d{3}(?:\1\d{3})*(?![.,]?\d|[%\/-]\d|:\d)/gu;
 const WHOLE = /(?:[¥₩]\s*)?(?<![\p{L}\d.,\/:-])(\d{1,3}(?:([.,])\d{3}(?:\2\d{3})*)?|\d+)(?![.,]?\d|%|[\/:-]\d)/gu;
@@ -55,7 +57,8 @@ const DATE_RES = [
   /\b(\d{1,2} (?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?,? (?:\d{4}|\d{2}))(?!\d)/i,
 ];
 const TOTAL_RE = /\b(grand\s+total|total\s+(?:due|paid|charged|amount)|amount\s+(?:due|paid|charged)|balance\s+due|order\s+total|grandtotal|gesamt(?:betrag)?|summe|totale|totaal|total|netto|jumlah|due|(?<=\bqty\W{0,3}\d{1,3}\W{0,3})amount|(?<!\b(?:tax|gst|vat|sst)\b.*)tl)\b/i;
-const NOT_TOTAL_RE = /accepted\s+total|total\s+tender|total\s+includ\w*\s+(?:gst|tax|vat)\s*@|total[^a-z]*(?:sales\s*)?\(?[^a-z]*(?:excl|before\s+(?:gst|tax))|total\s+(?:gst|tax|vat)\b|total\s+includ(?:es|ed|ing)\b[^a-z]*\d*\s*%|(?:gst|tax|vat)\b[^a-z]*\d*\s*%?\s*includ(?:es|ed)?\s+in\s+(?:the\s+)?total|sub\s*-?total|zwischensumme|sous-total|total\s+(?:savings|discount|items?|qty|aty|qt|quantity|pcs|tax|points|sv|gv|ev|qu)\b|tax\s+total|before\s+tax|tip\b|change\b|cash\b|kemba/i;
+const NOT_TOTAL_RE = /accepted\s+total|total\s+tender|total\s+includ\w*\s+(?:gst|tax|vat)\s*@|total[^a-z]*(?:sales\s*)?\(?[^a-z]*(?:excl|before\s+(?:gst|tax))|total\s+(?:gst|tax|vat)\b|total\s+includ(?:es|ed|ing)\b[^a-z]*\d*\s*%|(?:gst|tax|vat)\b[^a-z]*\d*\s*%?\s*includ(?:es|ed)?\s+in\s+(?:the\s+)?total|sub\s*-?total|zwischensumme|sous-total|total\s+(?:savings|disc\w*|items?|qty|aty|oty|qt|quantity|pcs|tax|points|sv|gv|ev|qu)\b|discount\s+total|\bch\s+ange\b|tax\s+total|before\s+tax|tip\b|change\b|cash\b|kemba/i;
+const FUZZY_TOTAL_RE = /^\W*(?:grand\s*)?t[aeo]t[aeo]?[ail1](?![a-z])/i;
 const TAX_RE = /\b(sales\s+tax|tax|vat|gst|hst|pst|tva|mwst|iva|btw|ppn|pb\s*1|pajak|p\.\s*rest(?:o|oran)?)\b/i;
 // "Tax Total" is the tax, not the total; "Dasar Pengenaan Pajak" (DPP) is the taxable base
 const TAX_TOTAL_RE = /tax\s+total|total\s+tax/i;
@@ -169,7 +172,9 @@ export const oneDigitApart = (a, b) => {
 // The change line, also as OCR reads it with the C lost: "HANGE 62.63" (SRD 1022, its
 // psm-4 grey reading). Not a bare "ange": an item line reads "'ange Crsh" for Orange
 // Crush (SRD 1002), and "ange Due" also reads as a total line (eval/change-ocr-2026-11-17.md).
-export const CHANGE_WORD = /\b(?:c?hange|kembal\w*|baki)\b/i;
+// OCR spells Kembali (change, Indonesian) "KEBALI", "KEPBALI", "KEHEALI", "KEMEALI" (CORD train
+// photos read by RapidOCR, eval/rapidocr-parser-misses-2026-11-17.md)
+export const CHANGE_WORD = /\b(?:c?hange|kembal\w*|baki|ke[a-z]{1,3}ali(?:an)?)\b/i;
 function totalChecks(lines, comma, at, bare) {
   const amt = (i) => { if (i < 0 || i >= lines.length) return null; const a = amountsIn(lines[i], comma).length ? amountsIn(lines[i], comma) : bare(lines[i + 1]); return a.length ? a[a.length - 1] : null; };
   const checks = []; // [cents, why]
@@ -186,8 +191,10 @@ function totalChecks(lines, comma, at, bare) {
   lines.forEach((l, i) => {
     const v = amt(i);
     if (v === null) return;
-    if (/sub\s*-?\s*total|excl(?:uding|usive)?\b|before\s+(?:gst|tax)|\bnett?\s+total/i.test(l) && !/\btotal\s+(?:gst|tax)\b/i.test(l)) subs.push(v);
-    else if (/\b(?:gst|sst|tax|service\s+charge)\b/i.test(l) && !/incl|excl|\bid\b|reg|summary|sales/i.test(l) && !(TOTAL_RE.test(l) && !TAX_TOTAL_RE.test(l))) taxes.push(v);
+    // DPP (Dasar Pengenaan Pajak, the taxable base; OCR "DFP") is the subtotal; "TAX10%" is a
+    // tax line with its rate glued on
+    if (/sub\s*[-.]?\s*total|excl(?:uding|usive)?\b|before\s+(?:gst|tax)|\bnett?\s+total|\bd[pf]p\b/i.test(l) && !/\btotal\s+(?:gst|tax)\b/i.test(l)) subs.push(v);
+    else if (/\b(?:gst|sst|tax|service\s+charge)(?:\b|(?=\d))/i.test(l) && !/incl|excl|\bid\b|reg|summary|sales/i.test(l) && !(TOTAL_RE.test(l) && !TAX_TOTAL_RE.test(l))) taxes.push(v);
     else if (/\bround(?:ing)?\b/i.test(l) && !TOTAL_RE.test(l)) { const m = l.match(/(-|\()\s*(?:rm\s*)?\d*[.,]\d{2}/i); if (Math.abs(v) <= 10) rounds.push(m ? -v : v); }
   });
   for (const s of subs) for (const t of taxes) if (t > 0 && t < s) for (const r of rounds) checks.push([s + t + r, "subtotal plus tax"]);
@@ -291,7 +298,7 @@ export function splitDecimal(line) {
 const TAX_LINE_RE = /\b(?:(?:sales\s+t[ae]x|tax(?:es)?|t[ae]x|vat|gst|hst|pst|tva|mwst|iva|btw|ppn|pb\s*1|pajak|p[.\s-]\s*rest(?:o|oran)?|txtl|get)\b|pb\s*[il\]!|](?![\w]))/i;
 const NOT_TAX_LINE_RE = /taxable|w\/\s*tax|with\s+tax|excl|before\s+(?:gst|tax)|(?:tax|gst|vat)\s*(?:id\b|invoice|no\b|reg|#)|sub\s*-?\s*total|\bsbt|summary|dasar\s+pengenaan|\bdpp\b/i;
 const PCT_RE = /\(?\d{1,2}(?:[.,]\d{1,4})?\s*%\)?/g;
-const SUB_RE = /sub\s*-?\s*total|\bsbtl?\b|\bsubttl\b|\bsub\s*\/\s*tt\s*[l1i\]|]|before\s+(?:gst|tax)|\bnet\b/i;
+const SUB_RE = /sub\s*[-.]?\s*total|\bsbtl?\b|\bsubttl\b|\bsub\s*\/\s*tt\s*[l1i\]|]|before\s+(?:gst|tax)|\bnet\b/i;
 // "Tax" with its first letter misread by OCR on a receipt photo: "[ax 0.30", "fax 1: 1.36",
 // "flax 1: 0.46", "Bax 0.46". Read only between a subtotal and the total (a fax number
 // sits in the header), and only when no real tax line is found.
@@ -440,6 +447,11 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
   // on a whole-unit slip tesseract reads a leading 5 as "§" ("TOTAL SALES §2,000" for
   // 52,000, "GRAND TOTAL §3,000" for 53,000: CORD validation-84 and -42); only glued to a
   // grouped amount, where no section sign is ever printed
+  // A word glued to its amount by a colon or equals sign ("Change:5,000", "Kembali= 2.000"),
+  // which WHOLE does not read through (a time keeps its colon: a digit comes before it), and
+  // "DU1,241,790" (cleanOcr: "0U1,241,790") with DUE's E lost and the amount glued on (CORD train photos read by
+  // RapidOCR: eval/rapidocr-parser-misses-2026-11-17.md)
+  if (comma === "whole") lines = lines.map((l) => l.replace(/(\p{L})\s*[:=]\s*(?=\d)/gu, "$1 ").replace(/^(\W*)[D0]UE?(?=\d{1,3}(?:[.,]\d{3})+(?![.,]?\d))/i, "$1DUE "));
   if (comma === "whole") lines = lines.map((l) => joinSplitGroups(l.replace(/§(?=\d{1,2}([.,])\d{3}(?:\1\d{3})*(?![.,]?\d))/g, "5")));
   const guess = dayFirst ?? dayFirstOf(lines);
   const dmy = !!guess;
@@ -510,6 +522,10 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
       let a = amountsIn(l, comma).length ? amountsIn(l, comma) : bare(lines[i + 1]);
       let split = null;
       if (!a.length && comma === false && (split = splitDecimal(l))) a = [split.cents];
+      // "TOTAL  127,500  4": a stray digit after a whole-unit total (a mark or a column OCR
+      // read as a number) is not the total; amounts under 100 units after one of 1,000 or more
+      // are dropped (CORD train-436 read by RapidOCR)
+      if (comma === "whole" && a.length > 1 && a.slice(0, -1).some((v) => v >= 100000)) while (a.length > 1 && a[a.length - 1] < 10000) a = a.slice(0, -1);
       if (a.length && a[a.length - 1] > 0) {
         cents = a[a.length - 1]; from = l; at = i;
         if (split) notes.push(`total line read "${split.was}" with its decimal point lost: took ${(split.cents / 100).toFixed(2)}, check the total`);
@@ -523,6 +539,18 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
       }
     }
   });
+  // No total line, but one whose word OCR misspelt: "Tatai...  45,000", "Tatal", "Totel",
+  // "Tota.......  81,000", "Grand Tatal" (CORD train photos read by RapidOCR,
+  // eval/rapidocr-parser-misses-2026-11-17.md). Only at the start of a line and only as a
+  // fallback, so a real total line always wins; the last such line with an amount is taken.
+  if (cents === null) {
+    lines.forEach((l, i) => {
+      if (!FUZZY_TOTAL_RE.test(l) || NOT_TOTAL_RE.test(l) || TAX_RE.test(l)) return;
+      const a = amountsIn(l, comma).length ? amountsIn(l, comma) : bare(lines[i + 1]);
+      if (a.length && a[a.length - 1] > 0) { cents = a[a.length - 1]; from = l; at = i; }
+    });
+    if (cents !== null) notes.push(`total line's word read as "${from.trim().split(/\s{2,}/)[0]}": check the total`);
+  }
   // A bare "Total : 89.50 5.37" row closing a GST summary, its tax cell garbled or cut
   // off by the OCR ("§.37]", "2.7"): the printed "Total Sales (Inclusive of GST)" or
   // "Total GST" line above it already holds the answer. The row's first amount is the
@@ -576,9 +604,15 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
     // amount reads through; the dash is dropped on these two lines (and in the
     // largest-amount fallback below)
     const undash = (l) => undashWhole(l, comma);
-    const pick = (re) => { const i = lines.findIndex((l) => re.test(l)); if (i < 0) return null; const a = amountsIn(undash(lines[i]), comma).length ? amountsIn(undash(lines[i]), comma) : bare(undash(lines[i + 1])); return a.length ? a[a.length - 1] : null; };
-    const tender = pick(/\b(?:cash|tendered|payment|paid|accepted\s+total)\b/i), change = pick(CHANGE_WORD);
-    if (tender !== null && change !== null && tender > change) { cents = tender - change; notes.push("no total line; cash handed over less change"); }
+    // "Pay Cash 50.000  Change:5,000" prints both on one line: the cash is what comes before
+    // the change word, the change what comes after (CORD train-443, -496, -596, -629)
+    const part = (l, side) => { const m = side && l.match(CHANGE_WORD); if (!m || m.index === 0) return l; return side === "before" ? l.slice(0, m.index) : l.slice(m.index); };
+    const pick = (re, side) => { const i = lines.findIndex((l) => re.test(l)); if (i < 0) return null; const l = part(undash(lines[i]), side); const a = amountsIn(l, comma).length ? amountsIn(l, comma) : bare(undash(lines[i + 1])); return a.length ? a[a.length - 1] : null; };
+    const tender = pick(/\b(?:cash|tendered|payment|paid|accepted\s+total)\b/i, "before"), change = pick(CHANGE_WORD, "after");
+    // a total is never under its own subtotal: "CASH[94,999] 66646" over "Change:5,001" under
+    // "SUB.TOTAL 86,363" is a cash line OCR garbled, not 61,645 paid (CORD train-668)
+    const subs = lines.filter((l) => SUB_RE.test(l)).flatMap((l) => amountsIn(undash(l), comma).slice(-1));
+    if (tender !== null && change !== null && tender > change && !subs.some((v) => v > tender - change)) { cents = tender - change; notes.push("no total line; cash handed over less change"); }
   }
   if (cents === null) {
     const t = totalCashChange(lines, comma);
@@ -625,6 +659,26 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
   if (cents !== null) {
     const fix = crossCheckTotal(checks, cents);
     if (fix) { notes.push(`total read as ${(cents / 100).toFixed(2)}; ${fix.why} give ${(fix.cents / 100).toFixed(2)}, one digit apart: used that, check the total`); cents = fix.cents; }
+  }
+
+  // One reading, two of the receipt's own sums agreeing: when no check confirms the total
+  // (or there is none), and cash less change or subtotal plus tax gives an amount the slip
+  // also prints on a line of its own (the total with its word lost: "45,499" under
+  // "TAX10.00% 4,136") or as its subtotal, that amount is the total. On a whole-unit slip
+  // only, exactly one amount must qualify, and it is never under a subtotal (CORD train
+  // photos read by RapidOCR, eval/rapidocr-parser-misses-2026-11-17.md).
+  if (comma === "whole" && (cents === null || !checks.some(([v]) => v === cents))) {
+    const sums = new Set(checks.filter(([, w]) => w === "cash less change" || w === "subtotal plus tax").map(([v]) => v));
+    const subAmts = lines.filter((l) => SUB_RE.test(l) || /\bd[pf]p\b/i.test(l)).flatMap((l) => amountsIn(l, comma).slice(-1));
+    // PB1 (restaurant tax; cleanOcr "P81") lines count here, not among the checks: there subtotal plus PB1
+    // one rupiah off a rounded total moved a right total (CORD train-735)
+    for (const l of lines) if (/\bp[b8]\s*1/i.test(l)) for (const t of amountsIn(l, comma).slice(-1)) for (const s of subAmts) if (t > 0 && t < s) sums.add(s + t);
+    const shown = new Set([...lines.flatMap((l) => bare(l)), ...subAmts]);
+    const ok = [...sums].filter((v) => v >= 10000 && shown.has(v) && !subAmts.some((s) => s > v));
+    if (ok.length === 1 && ok[0] !== cents) {
+      notes.push(`${cents === null ? "no total read" : `total read as ${(cents / 100).toFixed(2)}, which no check confirms`}; the receipt's own sums give ${(ok[0] / 100).toFixed(2)}, also printed on the slip: used that, check the total`);
+      cents = ok[0];
+    }
   }
 
   let taxCents = null;
