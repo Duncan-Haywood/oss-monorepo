@@ -1,0 +1,8 @@
+cell  n    p<=.05  mean|bias|  corr(bias, zPart) | flag |std|>0.25: in/out, p<=.05 in vs out, |bias| in vs out | placeboShare>=0.8: same
+B0    50      2.0      0.267       - | flag  38/12  p<=.05   2.6 vs   0.0  |bias| 0.268 vs 0.266 | share  11/39  p<=.05   0.0 vs   2.6  |bias| 0.362 vs 0.240
+B1    50      6.0      0.685    0.78 | flag  45/5   p<=.05   6.7 vs   0.0  |bias| 0.710 vs 0.463 | share  11/39  p<=.05  27.3 vs   0.0  |bias| 1.232 vs 0.531
+B2    50      2.0      0.975    0.92 | flag  44/6   p<=.05   2.3 vs   0.0  |bias| 1.061 vs 0.343 | share   8/42  p<=.05  12.5 vs   0.0  |bias| 1.826 vs 0.813
+B3    50      8.0      0.959    0.35 | flag  49/1   p<=.05   8.2 vs   0.0  |bias| 0.976 vs 0.104 | share  36/14  p<=.05  11.1 vs   0.0  |bias| 1.072 vs 0.667
+B4    50      2.0      0.391    0.70 | flag  40/10  p<=.05   2.5 vs   0.0  |bias| 0.413 vs 0.303 | share   8/42  p<=.05  12.5 vs   0.0  |bias| 0.818 vs 0.309
+B5    50      0.0      0.879    0.69 | flag  50/0   p<=.05   0.0 vs     -  |bias| 0.879 vs - | share  39/11  p<=.05   0.0 vs   0.0  |bias| 0.955 vs 0.611
+B6    50     52.0      0.389       - | flag  50/0   p<=.05  52.0 vs     -  |bias| 0.389 vs - | share  40/10  p<=.05  55.0 vs  40.0  |bias| 0.402 vs 0.341

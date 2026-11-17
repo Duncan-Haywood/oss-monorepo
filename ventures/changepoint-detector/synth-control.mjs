@@ -286,8 +286,12 @@ export function synthInTimePlacebo(y, donors, k, kFake, opts = {}) {
 // `threshold` (default 0.25, the usual matching rule of thumb, Stuart 2010). placeboShare: the share of placebo fits
 // (each donor's own synthetic control, the same covariates) whose standardised gap is smaller in size than the
 // treated fit's: near 1 says the treated unit is matched worse on this covariate than most donors are by theirs.
-// A diagnostic, not a test: it changes no p.
-export function covariateBalance(r, covariates, { names = null, threshold = 0.25 } = {}) {
+// placeboWarning: placeboShare >= placeboQuantile (default 0.8), the warning to read (eval/synth-bias-prereg-2026-11-17.md,
+// README "Which imbalance biases the gap"): in a simulation where a covariate moved every unit after the date, the
+// 0.25 flag fired on 84% of outcome-only fits even when the covariate did nothing, while this warning fired on 21%
+// and held every false p <= 0.05 when the covariate mattered (13-21% of warned panels against 0-0.6% of the rest),
+// with mean |gap bias| 2.0-2.6x the rest's. A diagnostic, not a test: it changes no p.
+export function covariateBalance(r, covariates, { names = null, threshold = 0.25, placeboQuantile = 0.8 } = {}) {
   const donorNames = Object.keys(r.donorWeights ?? {});
   if (!donorNames.length) throw new Error('covariateBalance needs a synthControlTest result');
   const x1 = covariates?.treated;
@@ -308,5 +312,5 @@ export function covariateBalance(r, covariates, { names = null, threshold = 0.25
       stdGap: std, stdGapDonorMean: (x1[m] - donorMean) / sd, imbalanced: Math.abs(std) > threshold,
       placeboShare: placeboStd.filter((v) => v < Math.abs(std)).length / placeboStd.length,
     };
-  });
+  }).map((c) => ({ ...c, placeboWarning: c.placeboShare >= placeboQuantile - 1e-12 }));
 }
