@@ -336,6 +336,19 @@ class PidProbe(unittest.TestCase):
             self.assertIn("running, quietly", msg)
             self.assertNotIn("stuck", msg)
 
+    def test_progress_keeps_the_end_of_a_long_command(self):
+        # friction 2026-11-17: a 60-character head cut showed '--draws 10' for '--draws 1000'
+        from wait_for import progress, short_cmd
+        cmd = "/usr/bin/python3.13 research/some-programme/experiments/m7t/run.py --seed 3 --draws 1000"
+        self.assertTrue(short_cmd(cmd).endswith("--draws 1000"))
+        self.assertLessEqual(len(short_cmd(cmd)), 80)
+        self.assertEqual(short_cmd("python3 bench.py"), "python3 bench.py")
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").close()
+            msg = progress(p, now=lambda: os.stat(p).st_mtime, who=lambda _: [(4242, cmd)])
+            self.assertIn("--draws 1000'", msg)
+
     def test_progress_says_a_log_nobody_holds_is_finished(self):
         from wait_for import progress
         with tempfile.TemporaryDirectory() as d:
