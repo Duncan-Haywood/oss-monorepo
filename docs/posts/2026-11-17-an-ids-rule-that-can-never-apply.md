@@ -3,7 +3,7 @@ title: "An IDS rule that can never apply, and how to tell before you have a mode
 seo_title: "IDS entity facets naming abstract IFC classes match nothing"
 date: 2026-11-17
 tags: [ids-model-check, bim, ifc, ids]
-description: "IFCBUILDINGELEMENT is abstract in IFC2X3 and IFC4, and IDS matches exact classes, so a specification that names it selects nothing. The IDS audit now says so, with the classes to name instead."
+description: "IDS matches exact IFC classes, so a facet naming abstract IFCBUILDINGELEMENT selects nothing. The IDS audit now warns, and names the classes to use."
 ---
 
 buildingSMART's IDS (Information Delivery Specification) says what a building
