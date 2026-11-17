@@ -209,7 +209,8 @@
       "what": "Go unpinned-Parse rule is file-scoped and suppressed by any `.Method` text: `if r.Method != http.MethodGet` in a handler (the usual Go HTTP idiom) hides an unpinned jwt.Parse, and one pinned Parse hides every unpinned Parse in the same file. Repro: bad.go (handler with r.Method + jwt.Parse(tok, kf)) -> 0 findings.",
       "where": "ventures/jwt-verification-misuse-check/check.py:174",
       "category": "logic-error",
-      "origin": "implementation"
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17037"
     },
     {
       "severity": "medium",
@@ -258,9 +259,10 @@
       "what": "llms.txt carries calculator boilerplate 'Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.' which does not describe a code scanner.",
       "where": "ventures/jwt-verification-misuse-check/llms.txt:5",
       "category": "stale-docs",
-      "origin": "maintenance"
+      "origin": "maintenance",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17037"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17037"],
   "verdict": "An honest, tidy, zero-dependency JWT grep with good fix text and a real Python/browser parity test, short of what an appsec reviewer would sign off. Against jsonwebtoken 9.0.2, jose 5.9.6 and PyJWT 2.15.0 run locally, its headline true positives are right (jwt.decode and decodeJwt accept forged alg:none claims; verify_signature False and ignoreExpiration accept forged/expired tokens; all flagged), and both engines agree on 32 findings. But a Go handler that checks r.Method hides its unpinned jwt.Parse, the header-derived algorithm the guide warns about is not flagged, audience/issuer checks (RFC 8725 \u00a73.8-3.9) are absent, and strings, docstrings, trailing and block comments produce 11 false findings on two safe files, so --fail-on-risk is not a usable gate. 6 of 8 seeded mutants survived. Does not meet the bar (correctness 2, verification 2, median 2); finished (completeness 3). Small fixes: tighten GO_METHOD_CHECK to a keyfunc type assertion and make the Go rule per call, add `get_unverified_header` and mixed RS/HS lists as rules, strip string/comment spans before matching, add tests for an options object without algorithms."
 }

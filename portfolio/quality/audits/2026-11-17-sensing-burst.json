@@ -254,9 +254,10 @@
    "what": "run.py docstring says 'a few minutes on one CPU core'; it runs in 21 s (README's ~30 s is right).",
    "where": "research/sensing-burst/experiments/run.py:1",
    "category": "stale-docs",
-   "origin": "maintenance"
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17037"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17037"],
  "verdict": "A small, honest, reproducible synthetic study: results.txt reproduces byte-for-byte, and every headline number I recomputed independently holds (break-even algebra, 2M-draw Monte Carlo, fixed-exposure ratios, simulated N* within seed noise, the resampling cap's cause, the HDR bracket). It misses the bar on verification (5 of 7 seeded mutants survive) and sits at 2 on fitness and domain: the central A-to-A^2 result is the textbook stacking SNR equation and Hasinoff 2009/2010 is not cited, and the merge's per-frame zero clamp makes the low-light hand-shake rows (P = 30, 100) a biased-vs-unbiased comparison worth up to 2.7 dB. Finished (completeness 3), not at senior-professional level as research."
 }

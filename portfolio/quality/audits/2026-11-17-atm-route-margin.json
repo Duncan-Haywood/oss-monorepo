@@ -41,7 +41,7 @@
     {"where": "calc.mjs:124", "change": "(refillMinutes + driveMinutes) * refillVisitsPerMonth -> (refillMinutes + driveMinutes)", "caught": true, "test_cmd": "node --test '*.test.mjs'"}
   ],
   "defects": [
-    {"severity": "high", "what": "The hourly line 'about $X/hr after all costs' is netProfit/laborHours, but netProfit has already paid the operator the target hourly rate for those hours, so it understates hourly earnings by exactly the target rate (defaults: shows $46.33, true $71.33); no test asserts it", "where": "ventures/atm-route-margin/calc.mjs:131", "category": "logic-error", "origin": "implementation"},
+    {"severity": "high", "what": "The hourly line 'about $X/hr after all costs' is netProfit/laborHours, but netProfit has already paid the operator the target hourly rate for those hours, so it understates hourly earnings by exactly the target rate (defaults: shows $46.33, true $71.33); no test asserts it", "where": "ventures/atm-route-margin/calc.mjs:131", "category": "logic-error", "origin": "implementation", "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17037"},
     {"severity": "medium", "what": "A blank field (or an invalid '1,200' that the number input sanitizes to '') becomes 0 because Number('') === 0; a blank surcharge prices a $0-revenue location with no error", "where": "ventures/atm-route-margin/calc.mjs:51", "category": "input-handling", "origin": "implementation"},
     {"severity": "medium", "what": "A blank target monthly income becomes 0 via `|| 0` and the route reports 'Goal met'", "where": "ventures/atm-route-margin/index.html:171", "category": "input-handling", "origin": "implementation"},
     {"severity": "medium", "what": "No interchange income line and the processor fee cannot go negative, so an ISO's per-withdrawal interchange share cannot be entered; non-withdrawal transactions (inquiries, denials) billed by the processor are not modelled", "where": "ventures/atm-route-margin/calc.mjs:106", "category": "scope-gap", "origin": "spec"},
@@ -52,6 +52,6 @@
     {"severity": "low", "what": "A route row with a genuine $0 profit is dropped from the location count and the average", "where": "ventures/atm-route-margin/index.html:167", "category": "logic-error", "origin": "implementation"},
     {"severity": "low", "what": "Default mileage rate 0.67 is the 2024 IRS rate (2025: 0.70), uncited", "where": "ventures/atm-route-margin/calc.mjs:36", "category": "source-data", "origin": "spec"}
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17037"],
   "verdict": "Below the bar. The per-location arithmetic is right: three hand-computed locations (self-serviced, mixed split plus flat fee, armored-serviced) and the route gap all match, the page ships at marisstella.app with the disclaimer and an opt-out local counter, and 82 tests pass. But the line an operator reads right after the profit, 'about $46.33/hr after all costs', is understated by the $25 wage the profit already paid (true $71.33), and nothing tests it; blank or comma-typed fields silently become zero; and the ISO revenue model has no interchange line and no non-withdrawal transactions, while the route table stops at six rows. Correctness, claims and verification are each 2, so the bar fails on all three gates."
 }

@@ -1,0 +1,261 @@
+{
+ "date": "2026-11-17",
+ "subject": "research/ambient-crossfit",
+ "stratum": "research",
+ "seed": "2026-11-17-5b6c",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a statistician / causal-ML researcher who works on doubly robust (AIPW) off-policy learning and double machine learning; first checks: did every MAP/logistic fit actually converge (are the fitted weights sane), is the DR pseudo-label the standard AIPW form with the right propensities, does cross-fitting have any reason to matter for a 4-parameter parametric outcome model, are the differences tested, and is the nearest prior work (Athey & Wager 2021; Kennedy's DR-learner; adaptive-data DR) cited.",
+ "scores": {
+  "correctness": 1,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 1,
+  "fitness": 1,
+  "domain": 1
+ },
+ "evidence": {
+  "correctness": "The run reproduces: `cd research/ambient-crossfit && PYTHONPATH=src python3.13 experiments/run.py` (private copy) rewrote results.txt byte-identically in 93 s. The informed-prior finite-cap cells recompute in an independent re-implementation from the README spec (`python3 -I /tmp/claude-0/audit-ambient-crossfit/scripts/reimpl.py informed 0.002`: biased 10.62, clip10 11.70, plug5/cross5 11.68/11.63, plug100/cross100 11.84/11.79, random_matched 12.48, full 12.72, all equal to results.txt). The oracle weights [1.998, 2.263, -0.019, -6.002] match the analytic posterior log-odds (2, 2.242, 0, -5.991; `python3 -I /tmp/claude-0/audit-ambient-crossfit/scripts/analytic.py`). But fit_map (core.py:42-60, undamped Newton, sigmoid clipped at +-30, 40 iterations, no convergence check) diverges throughout the uninformed-prior regime: in my re-implementation 11,986 of 12,256 fits at uninformed eps = 0.02 hit the iteration cap. The returned 'MAP' is not a MAP: for seed 0 the deployed 'biased' fit is [-369.3, -69.1, -172.7, -554.3] (negative score coefficient), ||w - w0|| = 689 while any MAP must satisfy ||w - w0|| <= sqrt(2 J(w0)) = 38.5, and its objective J = 774,851 against J(w0) = 743 and J(true MAP) = 222 (`python3 /tmp/claude-0/audit-ambient-crossfit/scripts/mapcheck.py`, objective computed independently). Re-running the subject's own loop with fit_map replaced by a damped Newton (backtracking line search, 0 unconverged fits; `python3 /tmp/claude-0/audit-ambient-crossfit/scripts/damped_rerun.py uninformed 0.02`) gives uninformed eps = 0.02: biased 11.44, clip10 12.51, plug5 12.50, cross5 12.50, cross20 12.51, cross100 12.33 against the reported -13.08, -96.19, -29.56, -13.09, -51.85, -59.33; uninformed eps = 0.002: plug5 11.68, cross20 11.66, pluginf 9.40 against -22.71, -14.33, -48.77. The unclipped informed eps = 0.002 headline (pluginf 0.26, crossinf 1.53) is also a non-converged artefact: 2.43/2.18 in my 40-iteration re-implementation (float-order differences), 0.47/0.82 with the subject's code at 400 iterations, 9.27/9.12 converged. So 33 of the 66 table cells (all uninformed DR/IPS cells) and the unclipped headline are optimiser failures, not estimator behaviour.",
+  "completeness": "Claimed and checked: 5 tests (5 passed, 0.62 s); run.py writes results.txt (yes, byte-identical, 93 s against 'several minutes'); every README table number traces to results.txt (checked all 66 cells against results.txt rows); plug columns reproduce ambient-drclip (diff of results.txt rows after the drc<c>_clip10 -> plug<c> rename: identical values); figure.py and utility.svg present; live page https://marisstella.app/research/ambient-crossfit/ returned 200 with the projects.json summary and figure. No stubs or TODOs. What is claimed runs end to end; it is the numbers that are wrong.",
+  "verification": "`cd research/ambient-crossfit && PYTHONPATH=src python3.13 -m pytest -q tests`: 5 passed in 0.62 s. The fold-exclusion test is a good one and caught the fold leak mutant; the eps = 1 identity test catches cap changes in dr_from_m. Six mutants via quality_mutate.py: 2 caught, 4 survived (cross uses the plug outcome model at core.py:201, so the experiment's whole contrast vanishes; crossfit outcome model unweighted at core.py:157; plug outcome model = biased fit at core.py:197; Newton tolerance 1e-8 -> 1e-1 at core.py:58). No test checks that fit_map reaches a stationary point on logged data, which is exactly where the defect is; no test pins any result number.",
+  "craft": "Read core.py, run.py, figure.py (header), tests/test_crossfit.py, pyproject.toml. Small and readable, docstrings precise. Defects: fit_map is a bare Newton iteration with no line search, no convergence flag and a clipped sigmoid (the clip makes p constant for |z| > 30 so gradient and Hessian stop describing the objective, and steps run off); it returns whatever the 40th iterate is, silently. The same fit_map is copied into nine other ambient-* projects (dr, drclip, capcv, drvalid, drablate, drrepeat, exploreonly, fullinfo, labelmatch), so the defect is in the lineage, not one file. dr_from_m duplicates dr_labels. run.py is a flat script with no functions.",
+  "claims": "Disclosure is honest (stylised, AI-assisted, negative result, limitations, no significance test). Backed: plug = ambient-drclip (pass); informed 'cross within 0.06 of plug for finite caps' (pass, max gap 0.06; my paired test gives mean -0.05, t = -3.0 to -3.2, so 'usually slightly below' is in fact consistent). Not backed: README results 2-3 and the uninformed rows (README.md:40-42, 50-51) and research/README.md:463 / projects.json:1983 'the unclipped collapse at eps = 0.002 persists (1.53 vs 0.26)': files back them but the files are optimiser artefacts (see correctness). projects.json:1983 and the served page say 'both variants stay far below the biased fit', but results.txt:29,35 has cross5 -13.09 against biased -13.08. README.md:33 'several minutes' (93 s). README result 3 ('a weak outcome model is the likely bottleneck') is a hypothesis the converged rerun refutes: with a converged optimiser the uninformed prior performs like the informed one.",
+  "fitness": "A researcher building on this would inherit a false finding (DR learning 'fails' with an uninformed prior) that the next five projects in the chain (capcv, drvalid, drablate, drrepeat, exploreonly) then tried to repair. Nearest prior work, not cited: Athey & Wager (2021, Econometrica 89(1)) policy learning with cross-fitted AIPW scores; Kennedy (2023, EJS) DR-learner with sample splitting; Robins, Rotnitzky & Zhao (1994) AIPW for missing outcomes; Dudik, Langford & Li (2011) DR policy learning; Su et al. (2020, ICML) DR with shrinkage/clipping; Zhan et al. (2021, KDD) and Kato et al. (2020) on DR with adaptively collected bandit data. Only Chernozhukov et al. 2018 is cited. Novelty: none; the question is a priori expected to give a null, because cross-fitting removes own-observation bias that is O(p/n) for a 4-parameter parametric logistic outcome model (n ~ 36,000 windows), and the converged rerun confirms a small consistent negative (-0.05 utility/h, cross uses half the data per model).",
+  "domain": "The DR pseudo-label m + (S/pi)(y - m) with known propensities and the 2-fold position split are standard and correctly coded; the propensity bookkeeping (1 for greedy or wake, eps otherwise) is right. A statistician departs at once on: (a) unconverged MAP fits with weight distances to the oracle of 179-16,100 (results.txt column 2) reported without comment; an L2 distance of 7,000 from a N(w0, I) prior is impossible for a MAP on 0/1 labels and is the red flag a practitioner checks first; (b) DR pseudo-labels outside [0, 1] fed to a logistic loss make the unpenalised objective unbounded below, so only the prior bounds the fit (the DR-learner literature regresses pseudo-outcomes with squared loss); (c) no paired test although every variant shares seeds; (d) cross-fitting motivated by DML, whose rationale is flexible nuisance learners, not a 4-parameter GLM; (e) the 'oracle' ignores that wake windows are spoken anyway (Bayes-optimal intercept for non-wake windows is 0.16 lower; expected utility 12.59 vs 12.53/h analytically), so 'full' 12.72 > 'oracle' 12.71 in the table is sampling noise on a shared held-out set."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Oracle logistic weights",
+   "method": "analytic Bayes posterior log-odds from the stated world (Gaussian score, Bernoulli keyword), no subject import",
+   "command": "python3 -I /tmp/claude-0/audit-ambient-crossfit/scripts/analytic.py",
+   "expected": "[2.000, 2.242, 0, -5.991]",
+   "observed": "results.txt:1 [1.998, 2.263, -0.019, -6.002]",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Oracle held-out utility/h",
+   "method": "analytic expected utility of the threshold policy (normal CDF over score, sum over need/kw/others/wake)",
+   "command": "python3 -I /tmp/claude-0/audit-ambient-crossfit/scripts/analytic.py",
+   "expected": "12.53 expected (Bayes-optimal with wake conditioning 12.59)",
+   "observed": "12.71 (20 x 100 h held-out, SE about 0.13)",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Informed prior, eps = 0.002, finite-cap fits and controls",
+   "method": "independent re-implementation from the README/docstring spec (own simulator, own MAP Newton), same seeds",
+   "command": "python3 -I /tmp/claude-0/audit-ambient-crossfit/scripts/reimpl.py informed 0.002",
+   "expected": "biased 10.62, clip10 11.70, plug5 11.68, cross5 11.63, plug100 11.84, cross100 11.79, full 12.72",
+   "observed": "identical to 2 decimals",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Is the uninformed 'biased' fit a MAP? (seed 0, eps = 0.02)",
+   "method": "MAP norm bound ||w - w0|| <= sqrt(2 J(w0)) for 0/1 labels and unit prior precision; objective computed independently; damped-Newton reference solve",
+   "command": "python3 /tmp/claude-0/audit-ambient-crossfit/scripts/mapcheck.py",
+   "expected": "||w - w0|| <= 38.5; J(w) <= J(w0) = 743",
+   "observed": "||w - w0|| = 689, J = 774,851; true MAP [1.945, 2.384, 0.009, -3.996], J = 222",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Uninformed prior, eps = 0.02, held-out utility with a converged optimiser",
+   "method": "subject's own loop with fit_map replaced by damped Newton (backtracking line search, 0 unconverged of 12,255)",
+   "command": "python3 /tmp/claude-0/audit-ambient-crossfit/scripts/damped_rerun.py uninformed 0.02",
+   "expected": "results.txt:29-38 biased -13.08, clip10 -96.19, plug5 -29.56, cross5 -13.09, cross20 -51.85",
+   "observed": "biased 11.44, clip10 12.51, plug5 12.50, cross5 12.50, cross20 12.51",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Unclipped collapse headline, informed eps = 0.002 (pluginf / crossinf)",
+   "method": "same fits at 40 iterations (independent code), 400 iterations (subject code), and converged damped Newton",
+   "command": "python3 -I /tmp/claude-0/audit-ambient-crossfit/scripts/reimpl.py informed 0.002; python3 /tmp/claude-0/audit-ambient-crossfit/scripts/iters_subject.py; python3 /tmp/claude-0/audit-ambient-crossfit/scripts/damped_rerun.py informed 0.002",
+   "expected": "0.26 / 1.53 (README.md:49, research/README.md:463)",
+   "observed": "2.43 / 2.18 (40 it, own code); 0.47 / 0.82 (400 it, subject code); 9.27 / 9.12 converged",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Uninformed prior, eps = 0.02, independent re-implementation at the subject's 40 iterations",
+   "method": "independent re-implementation, counting fits that hit the iteration cap",
+   "command": "python3 -I /tmp/claude-0/audit-ambient-crossfit/scripts/reimpl.py uninformed 0.02",
+   "expected": "results.txt:29 biased -13.08, cross5 -13.09",
+   "observed": "biased -10.75, cross5 -11.54; 11,986 of 12,256 fits unconverged",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "run.py regenerates results.txt",
+   "method": "run in a private copy, diff",
+   "command": "cd copy && PYTHONPATH=src python3.13 experiments/run.py; diff",
+   "expected": "identical, 'several minutes'",
+   "observed": "byte-identical, 93 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "PYTHONPATH=src python3.13 -m pytest -q tests",
+   "expected": "5 tests pass",
+   "observed": "5 passed in 0.62 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'every plug column reproduces ambient-drclip exactly'",
+   "method": "diff of results.txt rows against research/ambient-drclip/experiments/results.txt after renaming",
+   "command": "diff <(grep ... ambient-drclip/experiments/results.txt) <(grep ... ambient-crossfit/experiments/results.txt)",
+   "expected": "identical values",
+   "observed": "identical values (only names differ)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'cross within 0.06 of plug for finite caps' (informed)",
+   "method": "read all 9 cells; paired t over 20 seeds in the re-implementation",
+   "command": "python3 -I /tmp/claude-0/audit-ambient-crossfit/scripts/reimpl.py informed 0.002",
+   "expected": "<= 0.06",
+   "observed": "max 0.06; paired mean -0.05, t = -3.0 / -3.2 / -2.8",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "projects.json / served page: 'both variants stay far below the biased fit' (uninformed)",
+   "method": "compare with results.txt",
+   "command": "sed -n 29,35p experiments/results.txt",
+   "expected": "every cross/plug cell far below biased",
+   "observed": "eps = 0.02 cross5 -13.09 vs biased -13.08",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served page matches the repo",
+   "method": "curl the live page",
+   "command": "curl -sS https://marisstella.app/research/ambient-crossfit/",
+   "expected": "200, same summary",
+   "observed": "200, same summary and figure",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Nearest prior work cited",
+   "method": "literature check against README Motivation",
+   "command": "sed -n 7,15p README.md",
+   "expected": "Athey & Wager 2021, Kennedy DR-learner, adaptive-data DR (Zhan et al. 2021)",
+   "observed": "only Chernozhukov et al. 2018",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/ambient_crossfit/core.py:156",
+   "change": "tr = np.flatnonzero(spoke & (fold != k)) -> tr = np.flatnonzero(spoke & (fold == k))",
+   "caught": true,
+   "test_cmd": "bash -c PYTHONPATH=src /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/ambient_crossfit/core.py:165",
+   "change": "np.minimum(1.0 / prop, cap) -> np.minimum(1.0 / prop, 2 * cap) in dr_from_m",
+   "caught": true,
+   "test_cmd": "bash -c PYTHONPATH=src /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/ambient_crossfit/core.py:201",
+   "change": "dr_from_m(m_cross, ...) -> dr_from_m(m_plug, ...) (cross becomes plug)",
+   "caught": false,
+   "test_cmd": "bash -c PYTHONPATH=src /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/ambient_crossfit/core.py:157",
+   "change": "crossfit outcome model fit_map(..., np.minimum(1.0 / prop[tr], 10)) -> unweighted",
+   "caught": false,
+   "test_cmd": "bash -c PYTHONPATH=src /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/ambient_crossfit/core.py:197",
+   "change": "m_plug = sigmoid(X_e @ f[\"clip10\"]) -> sigmoid(X_e @ f[\"biased\"])",
+   "caught": false,
+   "test_cmd": "bash -c PYTHONPATH=src /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/ambient_crossfit/core.py:58",
+   "change": "Newton tolerance 1e-8 -> 1e-1",
+   "caught": false,
+   "test_cmd": "bash -c PYTHONPATH=src /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "fit_map is an undamped Newton iteration on a sigmoid clipped at +-30 with a 40-iteration cap and no convergence check; in the uninformed-prior regime it diverges and silently returns non-MAP weights (seed 0, eps 0.02: biased [-369.3, -69.1, -172.7, -554.3], objective 774,851 vs 743 at the start and 222 at the true MAP). With a converged damped Newton the uninformed cells become biased 11.44, clip10 12.51, plug5/cross5 12.50 instead of -13.08, -96.19, -29.56, -13.09.",
+   "where": "research/ambient-crossfit/src/ambient_crossfit/core.py:52",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "high",
+   "what": "README results 2-3 and every uninformed table row (and the research homepage line 'the unclipped collapse at eps = 0.002 persists (1.53 vs 0.26)') report optimiser failures as estimator behaviour. Converged: uninformed DR fits score 11.6-12.5 like the informed ones; unclipped informed eps 0.002 scores 9.27/9.12, not 0.26/1.53 (still below capped 11.7, so 'the cap helps' survives, 'collapse' does not). Result 3 (weak outcome model is the bottleneck) is refuted.",
+   "where": "research/ambient-crossfit/README.md:50",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "No test checks that fit_map reaches a stationary point (gradient ~ 0) on logged data, or pins any result; 4 of 6 seeded mutants survive, including the one that makes cross identical to plug (the experiment's whole contrast).",
+   "where": "research/ambient-crossfit/tests/test_crossfit.py:1",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "The diverging fit_map is copied verbatim into nine other ambient-* projects (dr, drclip, capcv, drvalid, drablate, drrepeat, exploreonly, fullinfo, labelmatch), so their uninformed-prior findings are suspect too; a shared, tested fitter would have fixed all at once.",
+   "where": "research/ambient-crossfit/src/ambient_crossfit/core.py:42",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Nearest prior work not cited (Athey & Wager 2021 cross-fitted AIPW policy learning; Kennedy 2023 DR-learner; Robins, Rotnitzky & Zhao 1994; Zhan et al. 2021 / Kato et al. 2020 DR with adaptively collected data), and no a-priori argument: own-observation bias of a 4-parameter parametric outcome model is O(p/n), so a null was expected; DR pseudo-labels outside [0, 1] are regressed with logistic loss (unbounded below without the prior) rather than the squared loss of the DR-learner literature.",
+   "where": "research/ambient-crossfit/README.md:9",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Homepage summary and served page say both uninformed variants 'stay far below the biased fit', but results.txt has cross5 -13.09 against biased -13.08 at eps 0.02.",
+   "where": "research/_homepage/projects.json:1983",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Weight-distance column reports L2 distances of 179-16,100 to the oracle without comment; these are impossible for a MAP under a unit-precision prior on 0/1 labels (bound about 38-140) and flag the divergence.",
+   "where": "research/ambient-crossfit/experiments/results.txt:5",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "'several minutes' for run.py; it takes 93 s.",
+   "where": "research/ambient-crossfit/README.md:33",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "'Oracle' is the logistic fit on all windows, ignoring that wake windows are spoken anyway; the Bayes-optimal rule for non-wake windows has an intercept 0.16 lower (expected 12.59 vs 12.53 utility/h analytically), so the oracle is not the ceiling ('full' 12.72 > 'oracle' 12.71 in the table).",
+   "where": "research/ambient-crossfit/src/ambient_crossfit/core.py:120",
+   "category": "domain-rule",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A tidy, bit-reproducible (93 s) stylised simulation whose informed-prior finite-cap cells recompute exactly in an independent re-implementation, and whose oracle weights match the analytic posterior. But its MAP fitter (undamped Newton on a clipped sigmoid, 40 iterations, no convergence check, core.py:52) diverges across the whole uninformed-prior regime: the returned weights violate the MAP norm bound by a factor of 18 and have objective 1,000x the starting value. With a converged optimiser the uninformed prior behaves like the informed one (biased 11.44, DR fits 12.5 at eps 0.02 instead of -13 to -96), and the 'unclipped collapse' headline (0.26 / 1.53) becomes 9.27 / 9.12. Half the table and results 2-3 are optimiser artefacts; the informed finite-cap conclusion (cross-fitting changes little, now a small significant -0.05) survives. The same fitter is in nine sibling projects. Tests (5) miss it; 4 of 6 mutants survive. Prior work on cross-fitted AIPW policy learning is uncited and the null was predictable. Does not meet the bar."
+}
