@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqyd75AeXyeKVwhM3L8s",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T08:39:10Z",
+  "ended": "2026-11-17T08:47:02Z",
+  "wall_minutes": 21.12,
+  "tokens_in": 5119194,
+  "tokens_out": 20732,
+  "cost_usd": 2.1611,
+  "tool_calls": 58,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16880",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First script_hosts draft skipped comment lines and found no host for ai-bookkeeper (cord_images.py gives its URL in a usage comment); caught by running it over the real flagships before committing, fixed.",
+    "Post first said test_allocate ran 117 tests; it ran 116; corrected before push."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Backlog held only owner rows again; friction_rank.py --live --ungated --days 2 found targets, but its #1 (docs/posts 160-char description) and allocate.py 'Left recently' rows were already handled in check_post_frontmatter.py and left_note; checking each took a source read."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes inside run_in_background still handed off at 100 s and exited 3, so the background task finished before the work did; a second wait_for on the detached log was needed (known, cosmetic)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-process-the-host-was-in-the-script.md"
+  ],
+  "goal": null,
+  "notes": "Mode: critique on live ungated friction (no agent-owned backlog item). Backlog ids touched: none. Shipped: allocate.row_hosts reads hosts from scripts named in buildable: (script_hosts, cap 4, licence hosts skipped) + test; ai-bookkeeper hosts: field; wait_for short_cmd keeps a command's tail + test; saints-by-candlelight next-up list one entry per line with episode 133's untaken Egeria sequels. No agent doc in docs/reports: the post and code comments carry the hand-off. Local checks: main_health 254/254 green before starting; test_wait_for 40 OK; test_allocate 116 OK; list_done.mjs --check ok; check_post_frontmatter clean on 5493 posts; run_workflow_locally --for-changes: 10/10 selected workflows passed (agent-cross-review and Pages deploy/gate jobs cannot run locally; uses: steps skipped).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "686d03ee-0d77-5a5d-a9ef-29edf013296b",
+    "transcripts": 1,
+    "first": "2026-11-17T08:39:10Z",
+    "last": "2026-11-17T09:00:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 55,
+        "input": 106,
+        "output": 20732,
+        "thinking": 4025,
+        "cache_read": 5026494,
+        "cache_write_5m": 0,
+        "cache_write_1h": 92594,
+        "api_equivalent_usd": 2.1611,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 106,
+      "output": 20732,
+      "thinking": 4025,
+      "cache_read": 5026494,
+      "cache_write_5m": 0,
+      "cache_write_1h": 92594,
+      "api_equivalent_usd": 2.1611,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 55,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.12,
+      "active_minutes": 21.12,
+      "model_minutes": 3.67,
+      "tool_minutes": 17.45,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "three small tool/data fixes with tests and a post, estimated",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 92.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

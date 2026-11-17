@@ -78,8 +78,83 @@ export async function loadEngine(onProgress = () => {}) {
 // vote after it, as `--rapidocr --four-pass` does: on SRD's 195 labelled US photos the page's
 // settled total goes from tesseract's alone to RapidOCR first (eval/rapidocr-web-2026-11-17.md).
 // The runtime and the models (about 16 MB) come from jsDelivr when the first photo is read
-// with it. `fetchBytes` is injectable for tests.
-export async function loadRapidEngine({ fetchBytes = defaultFetchBytes } = {}) {
+// with it.
+//
+// It runs in a Web Worker (rapidocr-worker.mjs) when the browser can start one, so the tab
+// keeps responding while a photo is read (in headless Chromium the page's longest stall went
+// from about the whole read to a few tens of milliseconds, eval/rapidocr-worker-2026-11-17.md);
+// the page only draws the photo and hands the pixels over. Where a worker cannot start or
+// load the reader, it runs on the page as before (loadRapidInPage); `how` on the engine says
+// which ("worker" or "page"). `makeWorker` and `fetchBytes` are injectable for tests.
+export async function loadRapidEngine({ makeWorker = defaultMakeWorker, fetchBytes = defaultFetchBytes, inPage = loadRapidInPage } = {}) {
+  let w = null;
+  try {
+    w = makeWorker();
+    if (w) return await loadRapidWorker(w);
+  } catch (e) {
+    w?.terminate?.();
+    // the reader could not be downloaded: the page would fail the same way
+    if (/could not download/.test(String(e?.message ?? e))) throw e;
+  }
+  return inPage({ fetchBytes });
+}
+
+function defaultMakeWorker() {
+  if (typeof Worker === "undefined") return null;
+  return new Worker(new URL("./rapidocr-worker.mjs", import.meta.url), { type: "module" });
+}
+
+// drives a started rapidocr-worker.mjs: open, then one read per photo, matched by id
+export async function loadRapidWorker(worker, { draw = drawPixels } = {}) {
+  const waiting = new Map();
+  let nextId = 1, ready = null, dead = null;
+  const fail = (why) => {
+    dead = new Error(why);
+    for (const w of waiting.values()) w.reject(dead);
+    waiting.clear();
+    ready?.reject(dead);
+  };
+  worker.onmessage = (ev) => {
+    const m = ev.data;
+    if (m.type === "ready") ready?.resolve();
+    else if (m.type === "rows") { waiting.get(m.id)?.resolve(m.text); waiting.delete(m.id); }
+    else if (m.type === "error") {
+      if (m.id != null) { waiting.get(m.id)?.reject(new Error(m.message)); waiting.delete(m.id); }
+      else ready?.reject(new Error(m.message));
+    }
+  };
+  // a module the worker cannot load (an old browser, a blocked script) arrives as an error event
+  worker.onerror = (ev) => { ev?.preventDefault?.(); fail(`the RapidOCR worker stopped (${ev?.message || "it could not start"})`); };
+  await new Promise((resolve, reject) => { ready = { resolve, reject }; worker.postMessage({ type: "open" }); });
+  ready = null;
+  return {
+    how: "worker",
+    read: async (file) => {
+      if (dead) throw dead;
+      const { rgba, width, height } = await draw(file);
+      const id = nextId++;
+      return new Promise((resolve, reject) => {
+        waiting.set(id, { resolve, reject });
+        worker.postMessage({ type: "read", id, width, height, rgba }, [rgba.buffer]);
+      });
+    },
+    close: async () => { worker.terminate(); fail("closed"); },
+  };
+}
+
+// the photo as the browser draws it (EXIF orientation applied), as RGBA pixels
+async function drawPixels(file) {
+  const bmp = await createImageBitmap(file);
+  const c = document.createElement("canvas");
+  c.width = bmp.width; c.height = bmp.height;
+  const g = c.getContext("2d", { willReadFrequently: true });
+  g.drawImage(bmp, 0, 0);
+  bmp.close?.();
+  return { rgba: g.getImageData(0, 0, c.width, c.height).data, width: c.width, height: c.height };
+}
+
+// RapidOCR on the page's own thread (the tab stalls while a photo is read): the fallback
+export async function loadRapidInPage({ fetchBytes = defaultFetchBytes } = {}) {
   if (!globalThis.ort) await loadScript(RAPID_URLS.ort);
   const ort = globalThis.ort;
   ort.env.wasm.wasmPaths = RAPID_URLS.wasm;
@@ -92,16 +167,11 @@ export async function loadRapidEngine({ fetchBytes = defaultFetchBytes } = {}) {
   const engine = createRapidOcr({ ort, models: { det, cls, rec }, keys });
   await engine.open();
   return {
-    // the photo as the browser draws it (EXIF orientation applied), read into rows of text
+    how: "page",
+    // the photo as the browser draws it, read into rows of text
     read: async (file) => {
-      const bmp = await createImageBitmap(file);
-      const c = document.createElement("canvas");
-      c.width = bmp.width; c.height = bmp.height;
-      const g = c.getContext("2d", { willReadFrequently: true });
-      g.drawImage(bmp, 0, 0);
-      bmp.close?.();
-      const d = g.getImageData(0, 0, c.width, c.height).data;
-      return rapidRows(await engine.read(bgrFromRgba(d, c.width, c.height)));
+      const { rgba, width, height } = await drawPixels(file);
+      return rapidRows(await engine.read(bgrFromRgba(rgba, width, height)));
     },
     close: () => engine.close(),
   };
@@ -258,11 +328,12 @@ export async function readPhotos(files, { loadEngine: load = loadEngine, loadRap
   const skipped = list.filter((f) => !images.includes(f)).map((f) => ({ name: f.name, why: "not a PNG, JPEG, WebP, BMP or GIF image" }));
   if (!images.length) return { text: "", read: 0, skipped, notes: [] };
   let lead = null, rapidError = null;
-  if (rapid) {
-    onProgress({ status: "loading rapidocr" });
-    try { lead = await loadRapid(); } catch (e) { rapidError = String(e?.message ?? e).replace(/^Error: /, ""); }
-  }
-  const engine = await load(onProgress);
+  // the two readers download side by side
+  const leading = rapid ? (onProgress({ status: "loading rapidocr" }), Promise.resolve().then(() => loadRapid()).then((x) => x, (e) => { rapidError = String(e?.message ?? e).replace(/^Error: /, ""); return null; })) : null;
+  let engine;
+  try { engine = await load(onProgress); }
+  catch (e) { (await leading)?.close?.(); throw e; }
+  lead = await leading;
   const blocks = [], notes = [];
   let rapidRead = 0;
   let readingsDone = 0, shaded = 0;
@@ -271,6 +342,8 @@ export async function readPhotos(files, { loadEngine: load = loadEngine, loadRap
       onProgress({ status: "reading", index: i, total: images.length, name: f.name });
       const readings = [];
       // one photo the reader cannot open is skipped; the others are still read
+      // RapidOCR reads in its worker while tesseract reads in its own, then leads the vote
+      const rapidText = lead ? lead.read(f).then((t) => t, () => null) : null;
       try {
         const first = [];
         // the passes for this photo: as given, or by how evenly it is lit (an engine
@@ -290,8 +363,8 @@ export async function readPhotos(files, { loadEngine: load = loadEngine, loadRap
         readings.unshift(...first);
         // RapidOCR's reading leads the vote; a photo it cannot read keeps tesseract's
         if (lead) {
-          try { const t = await lead.read(f); if (t && t.trim()) { readings.unshift(t); readingsDone++; rapidRead++; } }
-          catch { /* tesseract's readings stand */ }
+          const t = await rapidText;
+          if (t && t.trim()) { readings.unshift(t); readingsDone++; rapidRead++; }
         }
       }
       catch (e) { skipped.push({ name: f.name, why: `could not be read (${String(e?.message ?? e).replace(/^Error: /, "")})` }); continue; }
@@ -300,5 +373,5 @@ export async function readPhotos(files, { loadEngine: load = loadEngine, loadRap
       else skipped.push({ name: f.name, why: "no text found in the photo" });
     }
   } finally { await engine.close?.(); await lead?.close?.(); }
-  return { text: blocks.join("\n---\n"), read: blocks.length, readings: readingsDone, shaded, skipped, notes, rapid: rapidRead, rapidError };
+  return { text: blocks.join("\n---\n"), read: blocks.length, readings: readingsDone, shaded, skipped, notes, rapid: rapidRead, rapidError, rapidHow: lead?.how ?? null };
 }

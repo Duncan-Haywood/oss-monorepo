@@ -673,6 +673,30 @@ Misses with `lipShut`:
 
 bum as none 5; hum as none 5; fum as none 3; mun as none 3; gun as none 3; tur as none 3; vum as none 3; fob as nasal 2; bog as voiced lab stop 1; po as nasal 1; vud as voiceless alv stop 1; bunc as voiceless vel stop 1; lun as none 1; munc as voiceless vel stop 1; dod as none 1; munc as voiced lab stop 1; gont as voiceless alv stop 1; gug as voiceless vel stop 1; funt as voiceless alv stop 1
 
+## b. Held out: a dark-vowel m that holds level (twenty-fourth round)
+
+Nasals after /u/ or /o/: *mum*, *num*, *bun*, *cun*, *run*, *vun*, *dom*, *fom*, *hom*, *som*, *lon*, *ton*; voiced stops: *bud*, *dud*, *god*, *sod*, *vug*; nasals after a bright vowel: *pem*, *fim*, *lam*, *rem*; n-clusters: *donc*, *tonc*, *nunt*, *vont*; voiceless stops: *dup*, *loc*, *hoc*; others: *mul*, *bor*, *dul*, *fo*. Pulse-4 and pulse-2 notes at 90 BPM, each followed by a rest, C#3, A3, C#4, D4, D#4, E4.
+
+| | default | `lipHold` |
+|---|---|---|
+| nasals after /u/ or /o/ read exactly | 133 of 144 (92.4%) | 135 of 144 (93.8%) |
+| of them, on D4-E4 | 64 of 72 (88.9%) | 65 of 72 (90.3%) |
+| nasals after a bright vowel read exactly | 48 of 48 (100.0%) | 48 of 48 (100.0%) |
+| n-clusters read as their nasal | 47 of 48 (97.9%) | 47 of 48 (97.9%) |
+| voiced stop codas read exactly | 57 of 60 (95.0%) | 57 of 60 (95.0%) |
+| voiceless stop codas read exactly | 33 of 36 (91.7%) | 33 of 36 (91.7%) |
+| other syllables read exactly | 47 of 48 (97.9%) | 47 of 48 (97.9%) |
+| vowel-only control read as none | 384 of 384 (100.0%) | 384 of 384 (100.0%) |
+| stops, others and vowel-only control read as a nasal | 3 | 3 |
+
+Misses, default (count over the twelve pitch and length cells):
+
+num as none 3; hoc as nasal 2; cun as none 2; mum as none 2; bun as none 2; vun as none 1; bor as none 1; god as none 1; loc as nasal 1; bud as voiceless alv stop 1; run as none 1; tonc as voiceless vel stop 1; sod as none 1
+
+Misses with `lipHold`:
+
+num as none 3; hoc as nasal 2; mum as none 2; bun as none 2; bor as none 1; god as none 1; loc as nasal 1; bud as voiceless alv stop 1; run as none 1; tonc as voiceless vel stop 1; sod as none 1; cun as none 1
+
 ## C. Closing consonants in the corpus
 
 146 GABC files, 9903 sung syllables; 3634 of 9903 (36.7%) close on a consonant, 266 on a cluster. First phone: s 938, n 720, m 649, t 448, r 420, l 168, k 145, d 75, b 28, p 25, f 15, g 3.

@@ -188,3 +188,48 @@ test("outputs: CSVs, report and PAPERS", () => {
   assert.equal(csvCell('a,"b"'), '"a,""b"""');
   for (const p of PAPERS) { assert.ok(p.cite && p.implemented && p.deviations, p.key); if (p.doi) assert.match(p.doi, /^10\./); }
 });
+
+// Red-team 2026-11-17: the 2PL standard errors had no check (only 1PL's), so a
+// wrong unpacking of the interleaved (a, d) vector escaped. This compares them
+// with an independent route: the second differences of the marginal
+// log-likelihood itself (not the analytic score the engine differentiates).
+test("2PL standard errors match the inverse of a finite-difference Hessian of the log-likelihood", () => {
+  const r = analyze({ text: LSAT, model: "2pl" });
+  const data = parseResponses(LSAT);
+  const pat = compressPatterns(data.X, data.weights);
+  const a = r.itemTable.map((it) => it.a), d = r.itemTable.map((it) => -it.a * it.b);
+  const p0 = a.flatMap((v, j) => [v, d[j]]);
+  const ll = (p) => marginalLogLik(pat, p.filter((_, i) => i % 2 === 0), p.filter((_, i) => i % 2 === 1));
+  const k = p0.length, h = 1e-3;
+  const H = Array.from({ length: k }, () => new Array(k).fill(0));
+  const at = (i, si, j, sj) => { const p = p0.slice(); p[i] += si * h; p[j] += sj * h; return ll(p); };
+  for (let i = 0; i < k; i++) for (let j = i; j < k; j++) {
+    H[i][j] = H[j][i] = -(at(i, 1, j, 1) - at(i, 1, j, -1) - at(i, -1, j, 1) + at(i, -1, j, -1)) / (4 * h * h);
+  }
+  // Gauss-Jordan inverse
+  const M = H.map((row, i) => [...row, ...row.map((_, j) => (i === j ? 1 : 0))]);
+  for (let c = 0; c < k; c++) {
+    let piv = c;
+    for (let r2 = c + 1; r2 < k; r2++) if (Math.abs(M[r2][c]) > Math.abs(M[piv][c])) piv = r2;
+    [M[c], M[piv]] = [M[piv], M[c]];
+    const pv = M[c][c];
+    for (let j = 0; j < 2 * k; j++) M[c][j] /= pv;
+    for (let r2 = 0; r2 < k; r2++) if (r2 !== c) { const f = M[r2][c]; for (let j = 0; j < 2 * k; j++) M[r2][j] -= f * M[c][j]; }
+  }
+  const C = M.map((row) => row.slice(k));
+  r.itemTable.forEach((it, j) => {
+    const va = C[2 * j][2 * j], vd = C[2 * j + 1][2 * j + 1], cad = C[2 * j][2 * j + 1];
+    const b = it.b, aj = it.a;
+    const vb = (b * b * va + vd + 2 * b * cad) / (aj * aj);
+    close(it.aSE, Math.sqrt(va), 2e-3 * Math.sqrt(va), `se(a${j + 1})`);
+    close(it.bSE, Math.sqrt(vb), 2e-3 * Math.sqrt(vb), `se(b${j + 1})`);
+  });
+});
+
+test("quoted cells: a closing quote ends the field, so a quoted header keeps its comma and the next column", () => {
+  const d = parseResponses('"Item, one","q2",q3\n1,0,1\n0,1,1\n');
+  assert.deepEqual(d.items, ["Item, one", "q2", "q3"]);
+  assert.deepEqual(d.X.map((x) => Array.from(x)), [[1, 0, 1], [0, 1, 1]]);
+  assert.throws(() => parseResponses("   \n  "), /No data/);
+  assert.throws(() => parseResponses(null), /No data/);
+});

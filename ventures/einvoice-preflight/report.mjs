@@ -14,6 +14,7 @@ import { checkNavChains } from "./hungary-nav-chain.mjs";
 import { looksLikeVerifactu, readVerifactu, verifactuReport } from "./verifactu.mjs";
 import { looksLikeAeatResponse, readAeatResponse, responseEnvelope, responseFindings } from "./verifactu-response.mjs";
 import { cdarEnvelope, cdarFindings, cdarJourneys, looksLikeCdar, readCdar, statusName } from "./cdar.mjs";
+import { flux10Envelope, flux10Findings, flux10Kinds, looksLikeFlux10, readFlux10 } from "./flux10.mjs";
 import { looksLikeSdiReceipt, pairReceipt, readSdiReceipt, receiptEnvelope, receiptFindings } from "./sdi-receipt.mjs";
 import { checkFa3, fa3DuplicateKey, looksLikeFa3 } from "./fa3.mjs";
 import { checkCfdi, looksLikeCfdi } from "./cfdi.mjs";
@@ -115,6 +116,7 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
       const s = o.source ?? "";
       if ((typeof s === "string" ? s.length : s.length) > maxBytes || looksLikePdf(o.name || "", s)) continue;
       const t = typeof s === "string" ? s : new TextDecoder().decode(s);
+      if (looksLikeFlux10(t)) continue;
       if (looksLikeCdar(t)) {
         try { messages.push({ file: o.name || "status.xml", msg: readCdar(t) }); } catch { /* reported in the loop */ }
       } else if (looksLikeXml(o.name || "", t) || looksLikeCii(t)) {
@@ -202,6 +204,23 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
           } catch { schematronStatus = "unavailable"; }
         }
         reports.push({ file: name, errors: findings, envelope: cdarEnvelope(msg, pairs), cdar: { id: msg.id, statusAt: msg.statusAt, refs: msg.refs.map((r) => ({ invoiceId: r.invoiceId, status: r.status, reasons: r.reasons.map((x) => x.code) })), ...(pairs.length ? { pairedWith: pairs.map((x) => x.name) } : {}) }, ...(schematronStatus ? { schematron: schematronStatus } : {}) });
+        continue;
+      }
+      if (!looksLikePdf(name, source) && looksLikeFlux10(peek)) {
+        // France's e-reporting file (Flux 10: international B2B invoices, B2C transactions and the
+        // payments on them): its own reader and gap checks, and FNFE-MPE's Flux 10 controls on the plain route.
+        const rep = readFlux10(peek);
+        const findings = flux10Findings(rep);
+        let schematronStatus;
+        if (schematron) {
+          try {
+            const { runPlain } = await import("./plain-node.mjs");
+            const plain = await runPlain(peek, { profile });
+            schematronStatus = plain.status;
+            if (plain.status === "ok") findings.push(...plain.findings);
+          } catch { schematronStatus = "unavailable"; }
+        }
+        reports.push({ file: name, errors: findings, envelope: flux10Envelope(rep), flux10: { id: rep.id, type: rep.typeCode, kinds: flux10Kinds(rep), period: rep.period, invoices: rep.invoices.length, transactions: rep.transactions.length }, ...(schematronStatus ? { schematron: schematronStatus } : {}) });
         continue;
       }
       if (!looksLikePdf(name, source) && looksLikeFatturaPa(peek)) {

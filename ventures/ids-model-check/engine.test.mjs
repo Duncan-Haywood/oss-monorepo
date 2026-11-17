@@ -305,3 +305,81 @@ test("parseStep: types the policy does not keep are read again on each use, with
   assert.notEqual(r.entities.get(1).args, a, "not kept");
   assert.equal(r.entities.get(2).args, r.entities.get(2).args, "kept");
 });
+
+test("specifications with no entity facet: the argument-free prefilter selects exactly what the full tests select", async () => {
+  // eval/no-entity-facet-2026-11-17.md. Brute force: every entity, full tests only.
+  const { parseIds } = await import("./ids.mjs");
+  const { parseModel } = await import("./node.mjs");
+  // The sample, and a wall whose set, material and classification all come
+  // through its type (a material carrying its own property set too).
+  const typed = parseModel(ifc("IFC4", [
+    "#10=IFCWALL('0aaaaaaaaaaaaaaaaaaaaa',$,'w',$,$,$,$,$,$);",
+    "#11=IFCWALLTYPE('1aaaaaaaaaaaaaaaaaaaaa',$,'wt',$,$,(#12),$,$,$,.STANDARD.);",
+    "#12=IFCPROPERTYSET('2aaaaaaaaaaaaaaaaaaaaa',$,'Pset_WallCommon',$,(#13));",
+    "#13=IFCPROPERTYSINGLEVALUE('IsExternal',$,IFCBOOLEAN(.T.),$);",
+    "#14=IFCRELDEFINESBYTYPE('3aaaaaaaaaaaaaaaaaaaaa',$,$,$,(#10),#11);",
+    "#15=IFCMATERIAL('Concrete',$,$);",
+    "#16=IFCRELASSOCIATESMATERIAL('4aaaaaaaaaaaaaaaaaaaaa',$,$,$,(#11),#15);",
+    "#17=IFCCLASSIFICATION($,$,$,'Uniclass',$,$,$);",
+    "#18=IFCCLASSIFICATIONREFERENCE($,'Ss_20',$,#17,$,$);",
+    "#19=IFCRELASSOCIATESCLASSIFICATION('5aaaaaaaaaaaaaaaaaaaaa',$,$,$,(#11),#18);",
+    "#20=IFCMATERIALPROPERTIES('Pset_MaterialCommon',$,(#21),#15);",
+    "#21=IFCPROPERTYSINGLEVALUE('Porosity',$,IFCNORMALISEDRATIOMEASURE(0.1),$);",
+  ]));
+  const prop = (ps, bn = "") => `<property><propertySet><simpleValue>${ps}</simpleValue></propertySet>${bn && `<baseName><simpleValue>${bn}</simpleValue></baseName>`}</property>`;
+  const facets = [
+    `<attribute><name><simpleValue>GlobalId</simpleValue></name></attribute>`,
+    `<attribute><name><simpleValue>Name</simpleValue></name></attribute>`,
+    `<attribute><name><xs:restriction base="xs:string"><xs:pattern value=".*"/></xs:restriction></name></attribute>`,
+    prop("Pset_WallCommon"),
+    prop("Pset_WallCommon", "IsExternal"),
+    `<property><propertySet><xs:restriction base="xs:string"><xs:pattern value=".*"/></xs:restriction></propertySet><baseName><xs:restriction base="xs:string"><xs:pattern value=".*"/></xs:restriction></baseName></property>`,
+    `<classification/>`,
+    `<material/>`,
+    `<partOf/>`,
+    `<partOf relation="IFCRELCONTAINEDINSPATIALSTRUCTURE"/>`,
+    `<partOf relation="IFCRELAGGREGATES"/>`,
+    `<partOf relation="IFCRELVOIDSELEMENT IFCRELFILLSELEMENT"/>`,
+  ];
+  let some = 0;
+  for (const model of [parseModel(file("samples/tiny-house.ifc")), typed]) for (const f of facets.concat(prop("Pset_MaterialCommon"))) {
+    // Prohibited: the report lists every applicable entity, in model order.
+    const text = ids(spec(f, ent("IFCWALL"), 'minOccurs="0" maxOccurs="0"'));
+    const sp = parseIds(text).specs[0];
+    const brute = [...model.entities.values()].filter((e) => sp.applicability.every((x) => x.test(e, model, { typeMap: null }).ok)).map((e) => e.id);
+    const r = check(text, model, { audit: false, maxFailed: 1e9 });
+    assert.equal(r.specs[0].applicable, brute.length, f);
+    assert.deepEqual(r.specs[0].failed.map((x) => x.id), brute.slice(0, 500), f);
+    if (brute.length) some++;
+  }
+  assert.ok(some >= 16, `only ${some} facets matched anything in the sample`);
+
+  // Requirements on every entity (an entity facet whose name is a pattern
+  // matching anything, as public IDS files write it), each cardinality: the
+  // report equals one built from the full tests alone.
+  const anyEnt = `<entity><name><xs:restriction base="xs:string"><xs:pattern value="IFC.*"/></xs:restriction></name></entity>`;
+  const req = (f, card) => f.replace(/^<(\w+)/, `<$1 cardinality="${card}"`);
+  let checked = 0;
+  for (const model of [parseModel(file("samples/tiny-house.ifc")), typed]) for (const f of facets.concat(prop("Pset_MaterialCommon"))) for (const card of ["required", "optional", "prohibited"]) {
+    const text = ids(spec(anyEnt, req(f, card)));
+    const sp = parseIds(text).specs[0];
+    const ctx = { typeMap: null };
+    let passed = 0;
+    const failed = [];
+    for (const e of model.entities.values()) {
+      const [rf] = sp.requirements;
+      const r = rf.test(e, model, ctx);
+      const pass = rf.cardinality === "prohibited" ? !r.ok : rf.cardinality === "optional" ? r.ok || !!r.absent : r.ok;
+      if (pass) passed++;
+      else failed.push(e.id);
+    }
+    for (const maxFailed of [1e9, 3]) {
+      const got = check(text, model, { audit: false, maxFailed }).specs[0];
+      assert.equal(got.passed, passed, `${card} ${f}`);
+      assert.equal(got.failedCount ?? got.failed.length, failed.length, `${card} ${f}`);
+      assert.deepEqual(got.failed.map((x) => x.id), failed.slice(0, maxFailed), `${card} ${f}`);
+    }
+    checked++;
+  }
+  assert.equal(checked, 78);
+});

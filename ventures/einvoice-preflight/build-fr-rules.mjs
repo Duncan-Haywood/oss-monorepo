@@ -10,6 +10,8 @@
 // The "fatal" files are used, not the _WARNING copies meant for the transition.
 // Add-on sets over the EN 16931 base: cius-fr-ubl.json, cius-fr-cii.json. Also the life-cycle
 // status message rules (BR-FR-CDV, CDAR D22B): cdar-fr.json, a set of its own (no EN 16931 base).
+// And the e-reporting rules (Flux 10: B2C and international transactions and payments, the PPF's
+// "Annexe 7" controls as FNFE-MPE wrote them): flux10-fr.json, also a set of its own.
 // And the base sets that stand in for the EN 16931 base on an extended file: FNFE's
 // EXTENDED-CTC-FR (UBL, CII; derived from EN 16931 1.3.16, extensions allowed) and Factur-X
 // 1.09.2 EXTENDED (CII): extended-ctc-fr-ubl.json, extended-ctc-fr-cii.json,
@@ -82,6 +84,22 @@ for (const [syntax, files] of Object.entries(sets)) {
   writeFileSync(join(out, "cdar-fr.json"), JSON.stringify(rules) + "\n");
   manifest.sets["cdar-fr"] = { source: `FNFE-MPE BR-FR-CDV (CDAR life-cycle statuses) ${cdarVersion}, github.com/fnfempe/France_RFE (Apache-2.0)`, commit, from: from.split("/").pop(), checks };
   console.log(`cdar-fr: ${checks} checks`);
+}
+{
+  const from = "Flux10/Flux10.sch";
+  const sch = readFileSync(join(root, from), "utf8");
+  const f10Version = sch.match(/<title>[^<]*?v([\d.]+)\s*<\/title>/)?.[1] ?? "?";
+  const rules = compileSchematron(join(root, from));
+  // FNFE's Flux 10 asserts carry no @id; the PPF control code opens each message ("[G1.104] ...").
+  // Use it as the id, so a skipped check is named by the code a platform's rejection would quote.
+  for (const p of rules.patterns) for (const r of p.rules) for (const c of r.checks) {
+    if (!c.id) c.id = c.text.match(/^\[([^\]]+)\]/)?.[1] ?? "";
+    if (!c.id) throw new Error(`flux10: a check with no control code: ${c.text.slice(0, 80)}`);
+  }
+  const checks = rules.patterns.reduce((n, p) => n + p.rules.reduce((m, r) => m + r.checks.length, 0), 0);
+  writeFileSync(join(out, "flux10-fr.json"), JSON.stringify(rules) + "\n");
+  manifest.sets["flux10-fr"] = { source: `FNFE-MPE Flux 10 e-reporting (PPF Annexe 7 v${f10Version} controls), github.com/fnfempe/France_RFE (Apache-2.0)`, commit, from: from.split("/").pop(), checks };
+  console.log(`flux10-fr: ${checks} checks`);
 }
 for (const [name, from, re] of [
   ["extended-ctc-fr-ubl", "UBL/EXTENDED-CTC-FR/schematron/EXTENDED-CTC-FR-UBL.sch", /EXTENDED-CTC-FR-UBL-V([\d.]+)/],

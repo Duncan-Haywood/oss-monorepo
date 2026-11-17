@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Made up for testing: France's e-reporting (Flux 10.3), a seller's B2C sales for 1 to 10 October 2026,
+     summed per day, category and VAT rate. SIRENs are FNFE-MPE's test numbers; nothing here is a real business. -->
+<Report>
+  <ReportDocument>
+    <Id>EREP-100000009-20261011-01</Id>
+    <Name>B2C 2026-10 decade 1</Name>
+    <IssueDateTime>
+      <DateTimeString>20261011090000</DateTimeString>
+    </IssueDateTime>
+    <TypeCode>IN</TypeCode>
+    <Sender>
+      <Id schemeId="0238">0003</Id>
+      <Name>Example Approved Platform</Name>
+      <RoleCode>WK</RoleCode>
+    </Sender>
+    <Issuer>
+      <Id schemeId="0002">100000009</Id>
+      <Name>Example Boutique SARL</Name>
+      <RoleCode>SE</RoleCode>
+    </Issuer>
+  </ReportDocument>
+  <TransactionsReport>
+    <ReportPeriod>
+      <StartDate>20261001</StartDate>
+      <EndDate>20261010</EndDate>
+    </ReportPeriod>
+    <Transactions>
+      <Date>20261001</Date>
+      <TransactionsCurrency>EUR</TransactionsCurrency>
+      <TaxDueDateTypeCode>5</TaxDueDateTypeCode>
+      <CategoryCode>TLB1</CategoryCode>
+      <TaxExclusiveAmount>1200.00</TaxExclusiveAmount>
+      <TaxTotal>211.00</TaxTotal>
+      <TransactionsCount>57</TransactionsCount>
+      <TaxSubtotal>
+        <TaxPercent>20</TaxPercent>
+        <TaxableAmount>1000.00</TaxableAmount>
+        <TaxTotal>200.00</TaxTotal>
+      </TaxSubtotal>
+      <TaxSubtotal>
+        <TaxPercent>5.5</TaxPercent>
+        <TaxableAmount>200.00</TaxableAmount>
+        <TaxTotal>11.00</TaxTotal>
+      </TaxSubtotal>
+    </Transactions>
+    <Transactions>
+      <Date>20261001</Date>
+      <TransactionsCurrency>EUR</TransactionsCurrency>
+      <TaxDueDateTypeCode>72</TaxDueDateTypeCode>
+      <CategoryCode>TPS1</CategoryCode>
+      <TaxExclusiveAmount>500.00</TaxExclusiveAmount>
+      <TaxTotal>100.00</TaxTotal>
+      <TransactionsCount>12</TransactionsCount>
+      <TaxSubtotal>
+        <TaxPercent>20</TaxPercent>
+        <TaxableAmount>500.00</TaxableAmount>
+        <TaxTotal>100.00</TaxTotal>
+      </TaxSubtotal>
+    </Transactions>
+    <Transactions>
+      <Date>20261002</Date>
+      <TransactionsCurrency>EUR</TransactionsCurrency>
+      <TaxDueDateTypeCode>5</TaxDueDateTypeCode>
+      <CategoryCode>TLB1</CategoryCode>
+      <TaxExclusiveAmount>845.50</TaxExclusiveAmount>
+      <TaxTotal>156.70</TaxTotal>
+      <TransactionsCount>41</TransactionsCount>
+      <TaxSubtotal>
+        <TaxPercent>20</TaxPercent>
+        <TaxableAmount>760.00</TaxableAmount>
+        <TaxTotal>152.00</TaxTotal>
+      </TaxSubtotal>
+      <TaxSubtotal>
+        <TaxPercent>5.5</TaxPercent>
+        <TaxableAmount>85.50</TaxableAmount>
+        <TaxTotal>4.70</TaxTotal>
+      </TaxSubtotal>
+    </Transactions>
+  </TransactionsReport>
+</Report>
