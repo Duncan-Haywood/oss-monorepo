@@ -28,6 +28,11 @@ open. MIT licensed, no dependencies, nothing uploaded.
   `invalid-*` IDS files are flagged, none of the 307 valid ones, and all 12
   example IDS files in buildingSMART's repository audit clean. Works with no
   model: `node cli.mjs --audit spec.ids`, or "Audit the IDS only" on the page.
+  An entity facet naming an abstract class (IFC2X3's `IFCBUILDINGELEMENT`)
+  draws a warning: IDS matches exact classes, so it selects nothing, and the
+  warning lists the concrete classes to name instead. Found in 2 of 64 public
+  IDS files (both copies of the Dutch RVB BIM Norm), none of buildingSMART's
+  test files (`eval/abstract-classes-2026-11-17.md`).
 - **Property set templates:** a `Pset_`/`Qto_` set or property the standard does
   not have (`Pset_WallComon`, `AkousticRating`, with the near name when there
   is one), a `dataType` the template does not give, and a set the selected

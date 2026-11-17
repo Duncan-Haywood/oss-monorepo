@@ -457,11 +457,10 @@ flagships:
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
-      (eval/ifcxml-xbim-2026-11-16.md); an audit rule for an entity facet naming an
-      abstract class with no concrete one (IFC2X3 IFCBUILDINGELEMENT in RVB BIM
-      Norm: applies to nothing, eval/ci-unchecked-2026-11-17.md); the IDS editor
-      (editor.html; README): "Use the model's range" for dates, xs:date one-of rows
-      (eval/date-ranges-2026-11-17.md); more real exports through
+      (eval/ifcxml-xbim-2026-11-16.md); audit warnings (class-abstract and the rest)
+      as CI annotations on the IDS file (eval/abstract-classes-2026-11-17.md); the
+      IDS editor (editor.html; README): "Use the model's range" for dates, xs:date
+      one-of rows (eval/date-ranges-2026-11-17.md); more real exports through
       eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
     next: >-
