@@ -103,6 +103,30 @@ F9: needs x0.470  (KES/FAST 0.388)  LOO factor 0.487 -> DC 0.6537 vs Kd 0.647
 one factor fitted on all nine: x0.485
 leave-one-out, one shared factor           : r +0.934  rho +0.883  bias +0.0037  RMSE 0.0500  max|e| 0.0858
 
+V1-V2 (post hoc check, solved): seed 0, 2.5 mm, FAST bending x0.485: measured, solved DC, interpolated DC, error
+F1: Kd 0.222  solved 0.2458 (folds 11, allconv True)  interp 0.2591  err +0.0238
+F2: Kd 0.227  solved 0.2210 (folds 8, allconv True)  interp 0.2402  err -0.0060
+F3: Kd 0.285  solved 0.2391 (folds 10, allconv True)  interp 0.2493  err -0.0459
+F4: Kd 0.319  solved 0.3231 (folds 10, allconv True)  interp 0.3227  err +0.0041
+F5: Kd 0.348  solved 0.2837 (folds 9, allconv True)  interp 0.2981  err -0.0643
+F6: Kd 0.403  solved 0.4421 (folds 9, allconv True)  interp 0.4813  err +0.0391
+F7: Kd 0.442  solved 0.4794 (folds 10, allconv True)  interp 0.4885  err +0.0374
+F8: Kd 0.548  solved 0.5083 (folds 9, allconv True)  interp 0.4867  err -0.0397
+F9: Kd 0.647  solved 0.6654 (folds 10, allconv True)  interp 0.6530  err +0.0184
+FEM 2.5 mm seed 0, FAST bending x0.485   : r +0.969  rho +0.933  bias -0.0037  RMSE 0.0360  max|e| 0.0643
+
+K1-K3 (KES bending, 2.5 mm, seeds 0-2): measured, lowest-energy DC [interval], error
+F1: Kd 0.222  sim 0.2141 [0.2108, 0.2141] folds 11 err -0.0079  allconv True
+F2: Kd 0.227  sim 0.1949 [0.1949, 0.1980] folds 12 err -0.0321  allconv True
+F3: Kd 0.285  sim 0.2069 [0.2029, 0.2194] folds 10 err -0.0781  allconv True
+F4: Kd 0.319  sim 0.2861 [0.2861, 0.2976] folds 10 err -0.0329  allconv True
+F5: Kd 0.348  sim 0.2470 [0.2355, 0.2565] folds 10 err -0.1010  allconv True
+F6: Kd 0.403  sim 0.6635 [0.6635, 0.6741] folds 7 err +0.2605  allconv True
+F7: Kd 0.442  sim 0.7220 [0.7214, 0.7348] folds 8 err +0.2800  allconv True
+F8: Kd 0.548  sim 0.3495 [0.3495, 0.3805] folds 8 err -0.1985  allconv True
+F9: Kd 0.647  sim 0.5880 [0.5880, 0.6108] folds 8 err -0.0590  allconv True
+FEM 2.5 mm KES bending, lowest of 3    : r +0.651  rho +0.800  bias +0.0034  RMSE 0.1519  max|e| 0.2800
+
 Predictions:
   M1 every 2.5 mm stage converges: held
   M2 Spearman >= 0.80: held
@@ -111,4 +135,9 @@ Predictions:
   M5 |bias| <= 0.05: REFUTED
   M6 mesh change < 0.02 on >= 7 of 9 (3 of 9): REFUTED
   M7 KES bending lowers DC on all 7 others (7 of 7) and raises RMSE: REFUTED
+  K1 KES RMSE <= 0.05: REFUTED
+  K2 KES |bias| <= 0.03 and r >= 0.90: REFUTED
+  K3 KES RMSE below all eight Optitex columns: REFUTED
+  V1 solved RMSE <= 0.06 at x0.485: held
+  V2 within 0.03 of the interpolation on >= 7 of 9 (8 of 9): held
   (Optitex RMSE over its eight columns: 0.067 to 0.274, median 0.123)

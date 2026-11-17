@@ -2,13 +2,28 @@
 import importlib.util
 import json
 import math
+import sys
 import unittest
 from pathlib import Path
 
-EXP = Path(__file__).resolve().parents[1] / "experiments" / "m4a_measured_drape"
-_s = importlib.util.spec_from_file_location("m4a_run", EXP / "run.py")
-m4a = importlib.util.module_from_spec(_s)
-_s.loader.exec_module(m4a)
+ROOT = Path(__file__).resolve().parents[1] / "experiments"
+EXP = ROOT / "m4a_measured_drape"
+# 3d's run.py does `import run` for milestone 3a's module; other tests leave their own `run` in
+# sys.modules, so pin 3a's while loading (as test_m3e does), then restore
+_saved = sys.modules.get("run")
+_s3 = importlib.util.spec_from_file_location("run", ROOT / "m3_fem_tier" / "run.py")
+_m3 = importlib.util.module_from_spec(_s3)
+sys.modules["run"] = _m3
+_s3.loader.exec_module(_m3)
+try:
+    _s = importlib.util.spec_from_file_location("m4a_run", EXP / "run.py")
+    m4a = importlib.util.module_from_spec(_s)
+    _s.loader.exec_module(m4a)
+finally:
+    if _saved is not None:
+        sys.modules["run"] = _saved
+    else:
+        sys.modules.pop("run", None)
 fabrics = m4a.fabrics
 
 
