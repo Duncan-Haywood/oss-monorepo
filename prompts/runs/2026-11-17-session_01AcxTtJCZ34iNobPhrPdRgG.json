@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtJCZ34iNobPhrPdRgG",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T19:07:16Z",
+  "ended": "2026-11-17T19:27:23Z",
+  "wall_minutes": 20.41,
+  "tokens_in": 3936175,
+  "tokens_out": 21879,
+  "cost_usd": 2.0405,
+  "tool_calls": 42,
+  "task": "open-tennis-robots (flagship 10, allocate.py row 6): the buildable item 'lower every reading's noise under tach jitter'",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17036",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "open-tennis-robots' buildable item ('lower every reading's noise under tach jitter') rested on the previous run's reading of its own table: the two noise-free plants in that same table had the same spin error, so the item was misframed; rewritten."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Bash 'sleep N; cmd' is blocked by a hook in this harness; waiting on a background simulator run needs an until-loop, which the cloud-session notes could say up front."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml (buildable item)",
+      "why": "The item asked to lower per-reading noise under tach jitter; the saved rows showed jitter-free plants with the same error, so I tested the timer-quantization hypothesis first instead of building a jitter filter.",
+      "did": "tests/reading_floor.py: oracle over all plants from saved rows, then exact-edge-timing rerun of 24 noise-free builds with a prediction fixed beforehand.",
+      "result": "Timer ruled out (reading sd moved 3-11%); item closed and replaced with a 0.1 ms simulator-step test."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-the-tennis-feeders-spin-error-was-there-without-the-jitter.md",
+    "ventures/open-tennis-robots/firmware/esp32/README.md 'The spin error was there without the jitter'"
+  ],
+  "goal": null,
+  "notes": "Simulator: 24 builds x 2 modes, 4 cores, ~25 min. Shipped-mode rows reproduce unsure-weight-2026-11-17 seed 7 exactly (checked). No firmware changed. Local: run_venture_tests.py open-tennis-robots ok (355 tests, 191.9 s, 58 skipped for build123d); venture-preflight.mjs open-tennis-robots clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7f8be173-1082-56cc-9711-d086431b3a62",
+    "transcripts": 1,
+    "first": "2026-11-17T19:07:16Z",
+    "last": "2026-11-17T19:27:41Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 78,
+        "output": 21879,
+        "thinking": 4963,
+        "cache_read": 3831555,
+        "cache_write_5m": 0,
+        "cache_write_1h": 104542,
+        "api_equivalent_usd": 2.0405,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 78,
+      "output": 21879,
+      "thinking": 4963,
+      "cache_read": 3831555,
+      "cache_write_5m": 0,
+      "cache_write_1h": 104542,
+      "api_equivalent_usd": 2.0405,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 42,
+    "tools": {
+      "Bash": 40,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.41,
+      "active_minutes": 20.41,
+      "model_minutes": 4.12,
+      "tool_minutes": 16.29,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "an engineer framing the decomposition, writing the rerun script, running the sim and writing up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 196.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

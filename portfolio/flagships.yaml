@@ -385,13 +385,13 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "Unsure marks
-      on the noisy wheels" (LOOP_UNSURE marks 41% of a slow shot's fast wheels, 16
-      of 23 misses; weighting them down in the fit failed held-out seeds: the 0.57%
-      jitter spin error is spread over every reading,
-      eval/unsure-weight-2026-11-17.txt). Next: lower every reading's noise under
-      tach jitter (the loop fit's drop); ball hold: measure WHEEL_RPM_FULL error's
-      cost on 0.2 s wheels; an ESC with its own speed loop.
+      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "The spin
+      error was there without the jitter" (noise-free plants miss spin by 0.53-0.58%
+      too, from a 0.3% scatter per drop reading that exact edge timing barely moves:
+      not the 1 us timer, eval/reading-floor-2026-11-17.txt). Next: rerun
+      tests/reading_floor.py's builds at 0.1 ms simulator steps (simulator floor or
+      a missing drop-model term); ball hold: measure WHEEL_RPM_FULL error's cost on
+      0.2 s wheels; an ESC with its own speed loop.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
