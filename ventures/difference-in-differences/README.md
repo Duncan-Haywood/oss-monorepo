@@ -62,7 +62,7 @@ implemented from each and every deviation (also on the page and in `--help`).
 
 ## Verification
 
-`node --test *.test.mjs` (46 tests). `eval/reference.py` runs **csdid 0.4.5**
+`node --test *.test.mjs` (47 tests). `eval/reference.py` runs **csdid 0.4.5**
 (MIT; a Python port of R's `did` whose source documents each function as matching `did`) and
 **pyfixest 0.70.0** (MIT) and writes `eval/reference.json` (pandas 3.1.1,
 numpy 2.4.6). The tests check, on the castle-doctrine example (50 states,

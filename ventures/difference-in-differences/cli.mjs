@@ -71,10 +71,16 @@ export function parseArgs(argv) {
 }
 
 const f = (x, d = 4) => (Number.isFinite(x) ? x.toFixed(d) : "");
-const q = (s) => (/[",\n]/.test(String(s)) ? `"${String(s).replace(/"/g, '""')}"` : String(s));
+// Spreadsheet formula-injection guard: a text cell starting =, +, -, @, tab or CR
+// gets an apostrophe; plain numbers (including negatives) are left alone.
+export function csvCell(c) {
+  let s = String(c);
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?(e[+-]?\d+)?$/i.test(s)) s = `'${s}`;
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
 
 export function toCsv(r) {
-  return ["event_time,att,se,ci_low,ci_high,band_low,band_high,cohorts", ...r.eventStudy.map((e) => [e.e, f(e.att, 6), f(e.se, 6), f(e.lo, 6), f(e.hi, 6), f(e.ulo, 6), f(e.uhi, 6), q(e.cohorts.join(" "))].join(","))].join("\n");
+  return ["event_time,att,se,ci_low,ci_high,band_low,band_high,cohorts", ...r.eventStudy.map((e) => [e.e, f(e.att, 6), f(e.se, 6), f(e.lo, 6), f(e.hi, 6), f(e.ulo, 6), f(e.uhi, 6), e.cohorts.join(" ")].map(csvCell).join(","))].join("\n");
 }
 
 export function report(r) {

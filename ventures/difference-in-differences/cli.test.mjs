@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { run, parseArgs, HELP } from "./cli.mjs";
+import { run, parseArgs, HELP, csvCell } from "./cli.mjs";
 
 const here = fileURLToPath(new URL(".", import.meta.url));
 const castle = readFileSync(new URL("./data/castle.csv", import.meta.url), "utf8");
@@ -51,4 +51,12 @@ test("runs as a real process, reading stdin", () => {
   const p = spawnSync(process.execPath, ["cli.mjs", "--unit", "state", "--time", "year", "--outcome", "l_homicide", "--cohort", "first_treated", "--min-cohort", "2"], { cwd: here, input: castle, encoding: "utf8" });
   assert.equal(p.status, 0, p.stderr);
   assert.match(p.stdout, /left out of the group-time estimates/);
+});
+
+test("CSV cells are guarded against spreadsheet formulas, numbers are not", () => {
+  assert.equal(csvCell("=HYPERLINK(1)"), "'=HYPERLINK(1)");
+  assert.equal(csvCell("@x"), "'@x");
+  assert.equal(csvCell("-0.0558"), "-0.0558");
+  assert.equal(csvCell("2006 2007"), "2006 2007");
+  assert.equal(csvCell('a,"b"'), '"a,""b"""');
 });
