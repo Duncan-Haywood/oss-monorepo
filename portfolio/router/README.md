@@ -19,7 +19,10 @@ for another (a `deviations` entry on `allocate.py` or a ventures prompt that
 names the row first, not a claim race), a "Left recently" line follows with
 the count, where they went and the newest reason (`left_rows`); `--venture`
 prints it too. It is a hint, not a demotion: the same rows were also worked
-successfully many times.
+successfully many times. When every Deepen row has a PR from the last 24 h
+(the usual state by mid-day), "Start here" names the least contested row
+instead: the one whose newest claim is oldest, picked by session id among the
+six least contested (`least_claimed`), and asks for an item no open PR names.
 The table cuts each flagship's `next:` at 500 characters;
 `allocate.py --venture <slug>` prints one row in full, with the open PRs
 naming it and when work on it last landed on main. To edit a `next:` (or

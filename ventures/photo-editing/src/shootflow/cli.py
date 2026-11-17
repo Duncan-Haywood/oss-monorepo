@@ -1349,9 +1349,9 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help=(
             "With --demosaic noise-aware on a file that carries no NoiseProfile (ARW, NEF, CR2, RW2, RAF and other "
-            "raws, many DNGs): read the sensor noise from the frame itself instead of falling back to directional. "
-            "Meant for high-ISO frames: there it gains most of what a true profile gains; on clean, finely "
-            "textured frames fine texture reads as noise and detail can soften."
+            "raws, many DNGs): read the sensor noise from the frame itself (patch PCA on low-texture patches) "
+            "instead of falling back to directional. Gains most on high-ISO frames; on held-out tests no Bayer "
+            "tile lost detail against directional, while a few finely textured X-Trans tiles lost up to 1.5 dB."
         ),
     )
     develop.add_argument(

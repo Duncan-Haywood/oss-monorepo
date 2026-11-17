@@ -63,3 +63,4 @@ $PY experiments/ladder_confirm/analyse.py   # milestone 137 (no flow; about 15 s
 $PY experiments/ladder_confirm2/analyse.py   # milestone 138 (no flow; about 15 s; probe.py and check_designs.py need yosys, run.py re-runs the flow, stopped at 3,026 of 4,800 points after about 2 h on 4 cores)
 $PY experiments/tight_theta/analyse.py   # milestone 139 (replay; about 40 s)
 $PY experiments/ladder_rest/analyse.py   # milestone 140 (no flow; about 5 s; the flow is experiments/ladder_confirm2/run.py --resume, 1,774 points, about 95 min on 4 cores, rows then moved to experiments/ladder_rest/results.jsonl)
+$PY experiments/util65_blind/analyse.py   # milestone 141 (no flow; the flow is VDSE_UTIL=65 experiments/util65_blind/run.py, stopped at its 2 h limit after 2,468 points, 20 of 52 designs complete)

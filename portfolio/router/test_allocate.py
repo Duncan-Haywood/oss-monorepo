@@ -946,6 +946,31 @@ class StartHereTests(unittest.TestCase):
         self.assertEqual(start_here(queue[:2], {}, now=now, session="abc"), (1, "v0"))
 
 
+class LeastClaimedTests(unittest.TestCase):
+    def test_names_the_row_whose_newest_claim_is_oldest_when_none_is_free(self):
+        from datetime import datetime, timezone
+        from allocate import least_claimed
+        now = datetime(2026, 11, 17, 12, 0, tzinfo=timezone.utc)
+        queue = [
+            {"venture": "a", "flagship": True, "task": "Deepen (flagship 1): x"},
+            {"venture": "stuck", "flagship": True, "task": "Inputs only (flagship 2): x"},
+            {"venture": "b", "flagship": True, "task": "Deepen (flagship 3): x"},
+            {"venture": "c", "flagship": True, "task": "Deepen (flagship 4): x"},
+        ]
+        claims = {"a": [(10, "a: x", "2026-11-17T11:30:00Z")],
+                  "b": [(11, "b: x", "2026-11-17T07:00:00Z"), (12, "b: y", "2026-11-17T10:00:00Z")],
+                  "c": [(13, "c: x", "2026-11-17T11:00:00Z"), (9, "c: old", "2026-11-01T00:00:00Z")]}
+        self.assertIsNone(start_here(queue, claims, now=now))
+        # b's newest claim (#12, 2 h) is older than c's (1 h) and a's (0.5 h).
+        self.assertEqual(least_claimed(queue, claims, now=now), (3, "b", 12, 2.0))
+        # Sessions spread over the least contested rows, never the inputs-only one.
+        picks = {least_claimed(queue, claims, now=now, session=f"s{n}", spread=2)[:2] for n in range(40)}
+        self.assertEqual(picks, {(3, "b"), (4, "c")})
+        # A free row means start_here answers, so there is no fallback.
+        self.assertIsNone(least_claimed(queue, {"a": claims["a"]}, now=now))
+        self.assertIsNone(least_claimed(queue, None, now=now))
+
+
 class LeftRowsTests(unittest.TestCase):
     def _runs(self, records):
         d = tempfile.TemporaryDirectory()

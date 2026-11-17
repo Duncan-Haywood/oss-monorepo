@@ -427,6 +427,7 @@ def _parse_cii(root: Any) -> dict[str, Any]:
             vat_id=_cii_vat_id(party),
             country=_text(party, f"{{{RAM}}}PostalTradeAddress", f"{{{RAM}}}CountryID"),
         )
+        document[key].update(_cii_party_identifiers(party))
 
     lines = [] if transaction is None else transaction.findall(f"{{{RAM}}}IncludedSupplyChainTradeLineItem")
     document["lines"] = [_parse_cii_line(line) for line in lines]
@@ -435,6 +436,37 @@ def _parse_cii(root: Any) -> dict[str, Any]:
     document["totals"] = _parse_cii_totals(settlement)
     document["payment"] = _parse_cii_payment(settlement)
     return document
+
+
+def _cii_party_identifiers(party: Any) -> dict[str, Any]:
+    """BT-30/47 legal_id, BT-29/46 party_ids and BT-34/49 endpoint, as cii.mjs maps them.
+
+    endpoint.py checks each against its scheme's PEPPOL-COMMON rule (INV-041,
+    INV-062), so a CII file read by the CLI meets the same checks as the page.
+    """
+    if party is None:
+        return {}
+    mapped: dict[str, Any] = {}
+    legal = party.find(f"{{{RAM}}}SpecifiedLegalOrganization/{{{RAM}}}ID")
+    if legal is not None and (legal.text or "").strip():
+        mapped["legal_id"] = {"id": legal.text.strip(), "scheme": (legal.get("schemeID") or "").strip()}
+    party_ids = []
+    for child in party:
+        if child.tag not in (f"{{{RAM}}}GlobalID", f"{{{RAM}}}ID"):
+            continue
+        scheme = (child.get("schemeID") or "").strip()
+        value = (child.text or "").strip()
+        if scheme and value:
+            party_ids.append({"id": value, "scheme": scheme})
+    if party_ids:
+        mapped["party_ids"] = party_ids
+    uri = party.find(f"{{{RAM}}}URIUniversalCommunication/{{{RAM}}}URIID")
+    if uri is not None:
+        value = (uri.text or "").strip()
+        scheme = (uri.get("schemeID") or "").strip()
+        if value or scheme:
+            mapped["endpoint"] = {"id": value, "scheme": scheme}
+    return mapped
 
 
 def _cii_vat_id(party: Any) -> str | None:
@@ -586,6 +618,9 @@ def to_checker_invoice(document: dict[str, Any]) -> dict[str, Any]:
         }
         if source.get("vat_id"):
             mapped["vat_id"] = source["vat_id"]
+        for key in ("legal_id", "party_ids", "endpoint"):
+            if source.get(key):
+                mapped[key] = source[key]
         return mapped
 
     lines = []

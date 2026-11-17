@@ -669,22 +669,32 @@ def guard_profile(c, pat, noise, *, cap: float = PROFILE_CAP):
 
 
 # A file with no NoiseProfile (every raw read directly: ARW, NEF, CR2, RW2, ...) can get its noise model from the
-# frame, opt-in (``DevelopSettings.noise_from_frame``; 2026-11-17, tools/noise_aware_estimated.py,
-# eval/noise-aware-estimated-2026-11-17.md): ``estimate_noise`` with sigma times FRAME_SCALE, then
-# ``guard_profile``. Texture only adds to the estimate, and an overstated model costs detail where an understated
-# one only moves the blend toward directional, so the estimate is scaled down. 0.8 is the largest scale whose
-# tune rows lost no more than 0.1 dB on frames whose noise is at least their finest texture's level; on
-# held-out noisy frames it keeps 80-94% of the true model's luma gain. On clean, finely textured frames texture
-# still reads as noise, which is why the mode is opt-in.
+# frame, opt-in (``DevelopSettings.noise_from_frame``; tools/noise_aware_estimated.py). Since the afternoon of
+# 2026-11-17 the model comes from patch PCA on weak-texture mosaic patches (``noise_pca.estimate_noise_pca``,
+# eval/noise-pca-estimator-2026-11-17.md) with sigma times FRAME_SCALE, then ``guard_profile``. The block-spread
+# estimate it replaced (``estimator="spread"``, eval/noise-aware-estimated-2026-11-17.md) read fine texture as
+# noise: 43 of 240 held-out Bayer tiles lost over 0.1 dB to directional, down to 4.17 dB. With patch PCA none
+# did (worst 0.03 dB) at the same mean luma gain (+0.52 dB); on X-Trans 17 of 248 did (worst 1.48 dB, against
+# 45 and 5.65 dB). An understated model only moves the blend toward directional, so the estimate is scaled down.
 FRAME_PCT = 15.0
 FRAME_SCALE = 0.8
+FRAME_ESTIMATORS = ("pca", "spread")
 
 
-def frame_noise(c, pat, *, pct: float = FRAME_PCT, scale: float = FRAME_SCALE) -> tuple[float, float]:
+def frame_noise(c, pat, *, pct: float = FRAME_PCT, scale: float = FRAME_SCALE,
+                estimator: str = "pca") -> tuple[float, float]:
     """A (shot, read) noise model for the noise-aware blend read from the mosaic ``c`` alone, on ``c``'s scale:
-    ``estimate_noise`` at the ``pct``th block-spread percentile, sigma times ``scale``, through ``guard_profile``."""
+    patch PCA (``noise_pca.estimate_noise_pca``; ``estimator="spread"``: ``estimate_noise`` at the ``pct``th
+    block-spread percentile, the 2026-11-17 morning model), sigma times ``scale``, through ``guard_profile``."""
 
-    shot, read = estimate_noise(c, pat, pct=pct)
+    if estimator == "pca":
+        from shootflow.noise_pca import estimate_noise_pca
+
+        shot, read = estimate_noise_pca(c, pat)
+    elif estimator == "spread":
+        shot, read = estimate_noise(c, pat, pct=pct)
+    else:
+        raise ValueError(f"unknown estimator {estimator!r} ({', '.join(FRAME_ESTIMATORS)})")
     f = scale * scale
     used, _ = guard_profile(c, pat, (shot * f, read * f))
     return float(used[0]), float(used[1])

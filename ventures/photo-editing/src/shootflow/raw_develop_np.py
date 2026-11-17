@@ -297,8 +297,8 @@ def _directional(norm, w, h, pat, mults, hi, demosaic="directional", noise=None,
         g = np.asarray(mults, dtype=np.float64)
         if noise is None:
             # No NoiseProfile (a raw read directly, or a DNG without one): the model is read from the
-            # white-balanced plane itself, scaled down and guarded (``frame_noise``,
-            # eval/noise-aware-estimated-2026-11-17.md).
+            # white-balanced plane itself (patch PCA), scaled down and guarded (``frame_noise``,
+            # eval/noise-aware-estimated-2026-11-17.md, eval/noise-pca-estimator-2026-11-17.md).
             from shootflow.xtrans_demosaic import frame_noise
 
             plane_noise = frame_noise(plane, pat)
