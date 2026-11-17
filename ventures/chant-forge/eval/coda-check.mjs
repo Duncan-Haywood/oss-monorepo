@@ -566,6 +566,13 @@
 //    on the shipped code. The gain is tested only if the default misses 3 or more of d's vowel-only cells; if fewer,
 //    `levelFade` stays opt-in, reported as untested. If all four hold and the gain is tested, `levelFade` becomes
 //    readCoda's default; otherwise it stays opt-in (`--fade on`).
+//    Outcome (run 2026-11-17, after the registration above was committed as 41e188357): untested. (1) the vowel-only
+//    control 384 and 384 of 384: the default missed none, so the gain was not tested; (2) nasals after /u/ or /o/ 136
+//    and 136 of 144, bright-vowel nasals 48 and 48, n-clusters as their nasal 47 and 47; (3) voiced stops 56 and 56 of
+//    60, voiceless 36 and 36, others 47 and 47, stops, others and vowel-only cells read as a nasal 1 and 1; (4) A-c
+//    rebuilt on the shipped code match the development figures above. `levelFade` stays opt-in. At 92 BPM on d's six
+//    pitches no vowel-only release reached the window's last 30 ms at the level rule's depth; a fair test needs cells
+//    chosen where it does (README).
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
