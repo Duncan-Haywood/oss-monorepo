@@ -101,20 +101,21 @@ COMPANY_NAME=Acme node server.mjs
   </footer>
   </main>
   <script type="module">
-    import { linesFromCsv, sampleCsv } from "./csv.mjs";
+    import { linesFromCsv, sampleCsv, oneCurrency } from "./csv.mjs";
     import { schedule, summary, journal, journalCsv, formatMoney } from "./revrec.mjs";
     import { scheduleTable, esc } from "./page.mjs";
     import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
     const $ = (id) => document.getElementById(id);
     let csvOut = "";
     function run() {
-      const { lines, skipped, missing } = linesFromCsv($("csv").value);
+      const { lines: all, skipped, missing } = linesFromCsv($("csv").value);
       $("dl").hidden = true;
       if (missing.length) { $("out").hidden = true; $("msg").textContent = `Missing column(s): ${missing.join(", ")}. Check the header row.`; return; }
-      if (!lines.length) { $("out").hidden = true; $("msg").textContent = "No usable rows."; return; }
-      const cur = lines.find((l) => l.currency)?.currency || "usd", now = Date.now();
+      if (!all.length) { $("out").hidden = true; $("msg").textContent = "No usable rows."; return; }
+      const { currency: cur, lines, left } = oneCurrency(all), now = Date.now();
+      const other = Object.entries(left).map(([c, n]) => `${n} in ${c.toUpperCase()}`).join(", ");
       const rows = schedule(lines, { asOf: now }), s = summary(rows, now), M = (v) => formatMoney(v, cur);
-      $("msg").textContent = `${lines.length} lines read` + (skipped.length ? `; ${skipped.length} skipped (first: line ${skipped[0].line}, ${skipped[0].why})` : "") + ".";
+      $("msg").textContent = `${lines.length} lines read` + (skipped.length ? `; ${skipped.length} skipped (first: line ${skipped[0].line}, ${skipped[0].why})` : "") + (other ? `; one currency per schedule, so ${cur.toUpperCase()} only (left out: ${other})` : "") + ".";
       $("tiles").innerHTML = [["Deferred revenue now", M(s.deferredNow)], ["Recognised last month", s.lastMonth ? M(s.lastMonth.recognized) : "n/a"], ["Billed last month", s.lastMonth ? M(s.lastMonth.billed) : "n/a"], ["Still to recognise", M(s.backlog)]].map(([l, v]) => `<div>${esc(l)}<b>${esc(v)}</b></div>`).join("");
       $("table").innerHTML = scheduleTable(rows, cur);
       csvOut = journalCsv(journal(rows.filter((r) => !r.future)));
