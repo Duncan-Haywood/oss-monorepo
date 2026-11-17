@@ -187,6 +187,23 @@ _DOCUMENT_ROOTS = {
 }
 
 
+def _line_scheme_ids(line: Any) -> list[dict[str, str]]:
+    # Every schemed EndpointID, PartyIdentification/ID and CompanyID inside a UBL
+    # line, in ubl.mjs's order: Peppol's COMMON id contexts name no parent, so a
+    # line-level Delivery/DeliveryParty or an Item's ManufacturerParty is checked too.
+    nodes = [node for node in line.iter() if _local(node) == "EndpointID"]
+    for identification in (node for node in line.iter() if _local(node) == "PartyIdentification"):
+        nodes.extend(child for child in identification if _local(child) == "ID")
+    nodes.extend(node for node in line.iter() if _local(node) == "CompanyID")
+    found: list[dict[str, str]] = []
+    for node in nodes:
+        scheme = (node.get("schemeID") or "").strip()
+        value = (node.text or "").strip()
+        if scheme and value:
+            found.append({"id": value, "scheme": scheme})
+    return found
+
+
 def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
     """Map a local UBL Invoice, CreditNote, or DebitNote into the checker shape."""
     raw = source.encode() if isinstance(source, str) else source
@@ -237,6 +254,9 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
         if line_adjustments:
             mapped_line["adjustments"] = line_adjustments
         mapped_line.update(_tax_category_fields(category))
+        scheme_ids = _line_scheme_ids(line)
+        if scheme_ids:
+            mapped_line["scheme_ids"] = scheme_ids
         lines.append(mapped_line)
 
     supplier = next(iter(_children(root, "AccountingSupplierParty")), root)

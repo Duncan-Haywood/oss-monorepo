@@ -90,5 +90,19 @@ class SidePartyIds(unittest.TestCase):
         ok = xml.replace('schemeID="0088">4012345000008', 'schemeID="0160">4012345000008')
         self.assertEqual(id_rules(check_invoice(parse_cii_invoice(ok))), [])
 
+    def test_ubl_line_delivery_party(self):
+        xml = (ROOT / "examples" / "peppol-credit-note.xml").read_text(encoding="utf-8").replace(
+            '<cbc:LineExtensionAmount currencyID="EUR">200.00</cbc:LineExtensionAmount>\n    <cac:Item>',
+            '<cbc:LineExtensionAmount currencyID="EUR">200.00</cbc:LineExtensionAmount><cac:Delivery><cac:DeliveryParty>'
+            '<cac:PartyIdentification><cbc:ID schemeID="0088">4012345000008</cbc:ID></cac:PartyIdentification>'
+            "</cac:DeliveryParty></cac:Delivery>\n    <cac:Item>",
+        )
+        invoice = parse_ubl_invoice(xml)
+        self.assertEqual(invoice["lines"][0]["scheme_ids"], [{"id": "4012345000008", "scheme": "0088"}])
+        self.assertEqual(id_rules(check_invoice(invoice)), [("INV-062", "/lines/0/scheme_ids/0/id")])
+        ok = xml.replace('schemeID="0088">4012345000008', 'schemeID="0088">4012345000009')
+        self.assertEqual(id_rules(check_invoice(parse_ubl_invoice(ok))), [])
+
+
 if __name__ == "__main__":
     unittest.main()

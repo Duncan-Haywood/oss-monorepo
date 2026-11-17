@@ -1264,13 +1264,16 @@ STALE_BASE_COMMITS = 30
 
 
 # The fetches `changed_paths` tries, in order, when `origin/<branch>` and HEAD
-# share no commit: the refresh the error used to print, then deeper history.
-# Runs kept hitting the error on a fresh shallow clone and typing the first
-# one by hand (friction 2026-11-12: "that step could be automatic").
-FETCH_STEPS = (("--depth=40",), ("--deepen=500",))
+# share no commit: fetch_ref.py (a day of history, never cutting what the clone
+# already holds), then deeper history. Runs kept hitting the error on a fresh
+# shallow clone and typing the first one by hand (friction 2026-11-12: "that
+# step could be automatic"). The first step was `--depth=40` until 2026-11-17,
+# which also cut a deepened main back to 40 commits (fetch_ref.py, "Why").
+FETCH_STEPS = (("fetch_ref",), ("--deepen=500",))
+FETCH_HINT = "python3 platform/ci/fetch_ref.py main"
 
 
-def _fetch_merge_base(base, git):
+def _fetch_merge_base(base, git, repo=None):
     """Fetch history until `base` and HEAD share a commit, for a remote ref.
 
     Returns the last `git merge-base` result. A local base (`main`) is left
@@ -1281,9 +1284,15 @@ def _fetch_merge_base(base, git):
         return nothing
     found = nothing
     for step in FETCH_STEPS:
-        print(f"run_workflow_locally: {base} and HEAD share no commit here; "
-              f"git fetch {' '.join(step)} {remote} {branch}", file=sys.stderr)
-        if git("fetch", "-q", *step, remote, branch).returncode != 0:
+        how = (f"python3 platform/ci/fetch_ref.py {branch}" if step == ("fetch_ref",)
+               else f"git fetch {' '.join(step)} {remote} {branch}")
+        print(f"run_workflow_locally: {base} and HEAD share no commit here; {how}", file=sys.stderr)
+        if step == ("fetch_ref",):
+            sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+            import fetch_ref
+            if fetch_ref.fetch_ref(branch, remote, cwd=repo or REPO, out=sys.stderr) == 1:
+                break
+        elif git("fetch", "-q", *step, remote, branch).returncode != 0:
             break
         found = git("merge-base", base, "HEAD")
         if found.returncode == 0 and found.stdout.strip():
@@ -1314,16 +1323,16 @@ def changed_paths(base: str, repo: str = REPO) -> list[str]:
 
     found = git("merge-base", base, "HEAD")
     if found.returncode != 0 or not found.stdout.strip():
-        found = _fetch_merge_base(base, git)
+        found = _fetch_merge_base(base, git, repo)
     if found.returncode != 0 or not found.stdout.strip():
         if git("rev-parse", "--verify", "--quiet", base).returncode != 0:
             raise SystemExit(f"run_workflow_locally: no ref {base!r}; "
-                             f"fetch it: git fetch --depth=40 origin main")
+                             f"fetch it: {FETCH_HINT}")
         raise SystemExit(
             f"run_workflow_locally: {base} and HEAD share no commit in this "
             f"clone (shallow, or {base} is stale), so a diff would count every "
             f"change on both sides.\n"
-            f"  Refresh it: git fetch --depth=40 origin main\n"
+            f"  Refresh it: {FETCH_HINT}\n"
             f"  Still none: git fetch --deepen=500 origin main, until "
             f"`git merge-base {base} HEAD` answers.")
     merge_base = found.stdout.strip()
@@ -1331,7 +1340,7 @@ def changed_paths(base: str, repo: str = REPO) -> list[str]:
     if ahead.isdigit() and int(ahead) > STALE_BASE_COMMITS:
         print(f"note: HEAD is {ahead} commits past its merge base with {base}; "
               f"if this branch is not that long, {base} is stale "
-              f"(git fetch --depth=40 origin main).", file=sys.stderr)
+              f"({FETCH_HINT}).", file=sys.stderr)
     done = git("diff", "--name-only", merge_base)
     if done.returncode != 0:
         raise SystemExit(f"run_workflow_locally: git diff against {base} failed:\n"
