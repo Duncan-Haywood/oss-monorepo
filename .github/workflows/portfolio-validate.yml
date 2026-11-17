@@ -93,6 +93,8 @@ on:
       # Post-only PRs ran no front-matter check, so posts without a description
       # or tags, and posts dated ahead, reached main (five on 2026-10-26).
       - "docs/posts/**"
+      - "docs/reports/**"
+      - "docs/taxonomy.json"
       - "platform/ci/**"
       - ".github/workflows/**"
   pull_request:
@@ -133,6 +135,8 @@ on:
       # Post-only PRs ran no front-matter check, so posts without a description
       # or tags, and posts dated ahead, reached main (five on 2026-10-26).
       - "docs/posts/**"
+      - "docs/reports/**"
+      - "docs/taxonomy.json"
       - "platform/ci/**"
       - ".github/workflows/**"
   workflow_dispatch:
@@ -491,6 +495,13 @@ jobs:
       - name: Post front matter checker unit tests
         working-directory: platform/ci
         run: python3 -m unittest test_check_post_frontmatter
+
+      # One step for every platform/ci check, test suite and doc_index check
+      # that no other workflow names, found at run time, so a new check needs no
+      # workflow edit (2026-11-13: 71 of 121 suites ran on no PR; report-only
+      # PRs landed three batches of untagged reports past the venture-only path).
+      - name: Unwired checks, suites and doc_index check
+        run: python3 platform/ci/unwired_checks.py
 
       # Guides are added in batches; one missing from the hub is found only by search.
       - name: Check the Start here series links both ways
