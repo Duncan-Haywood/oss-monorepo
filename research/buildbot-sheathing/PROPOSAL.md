@@ -420,6 +420,10 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    height, so a zero-press stance reaching 50 N exists only below 1.225 m (G1) and 1.883 m (H1) grip height, and the G1
    at 1.2 m keeps 1.6 N of margin. The braked spec holds (G1 0.011 mm, H1 0.019 mm at a 5 N drag); one H1 pose loses its
    controller and the G1's worst no-hose stack falls 1.3 points (0.9160 to 0.9030).
+42. **The lean or the controller's sides?** (done 2026-11-17, `experiments/m42_sides/`): a 2 × 2 (leans × 'hold-min'
+   sides) puts all of the G1's 1.30-point loss on the lean (sides 0.00, interaction 0.00); the four flipped roll sides
+   change no stack, but the old sides lose the controller at one re-leaned G1 pose. Post hoc, like for like, the H1's
+   re-lean costs 0.09–0.29 points per pose, not milestone 41's mixed-convention 0.1–0.9.
 
 ## Target venue
 

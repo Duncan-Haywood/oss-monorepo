@@ -291,11 +291,10 @@ flagships:
       Public samples, no key: github.com/drewnoakes/metadata-extractor-images
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
       eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`; its CIFF CRWs all read).
-      Bayer trees parked: a range guard passes 6 fresh cameras, misses K-1 II/A7
-      III; no fresh frames left (eval/bayer-boosted-guard-*). Noise-aware: 2.2x
-      faster, same bytes (eval/noise-aware-full-frame-cost-*); scale over 0.8 fails;
-      next: a card floor (sweep --card) on real multi-frame raw.pixls.us sets. DNG
-      1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
+      Interpolate the 4,096-entry tone table: 16-bit outputs hold at most 4,096
+      levels (eval/noise-aware-float32-*); check vs pure path and LibRaw.
+      Noise-aware: a card floor (sweep --card) on real multi-frame raw.pixls.us
+      sets. DNG 1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
@@ -378,20 +377,21 @@ flagships:
       alone, eval/lns-bad-night.py; re-dealt with the short night). 43 on 7x9 0
       waits (odd-orbit.py, 9,849 s). Next, most valuable first: 47 on 8x9 (13 of 16;
       LNS stalled: 5 runs from 13, 0 climbs, night 2 UNKNOWN at 1 h; next: a new
-      model, orbit or symmetry-broken night); 49 on 8x9 (orbit, ~11 h est.); the
-      rest of the 20-team gap (40 to 44 still ~444-550: four-round re-deals or a
-      longer run, now ~4x cheaper; or a starter family climbed with the floor as its
-      score). More open items: NEXT.md.
+      model, orbit or symmetry-broken night); 49 on 8x9 (orbit ~11 h est.; 4 solvers
+      x 2 h no answer, a turn-fixed night never lays out when fully booked,
+      eval/odd-orbit-sym.txt; next: a split or resumable search, or window shapes
+      fixed first); the rest of the 20-team gap (40 to 44 still ~444-550: four-round
+      re-deals or a longer run, now ~4x cheaper; or a starter family climbed with
+      the floor as its score). More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "The spin
-      error was there without the jitter" (noise-free plants miss spin by 0.53-0.58%
-      too, from a 0.3% scatter per drop reading that exact edge timing barely moves:
-      not the 1 us timer, eval/reading-floor-2026-11-17.txt). Next: rerun
-      tests/reading_floor.py's builds at 0.1 ms simulator steps (simulator floor or
-      a missing drop-model term); ball hold: measure WHEEL_RPM_FULL error's cost on
-      0.2 s wheels; an ESC with its own speed loop.
+      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "Not the
+      simulator's step either" (the noise-free 0.3% reading floor was the loop fit's
+      t0 grid, not 0.1 ms steps; polish=True halves it, spin 0.58 to 0.31%,
+      eval/fit-grid-floor-2026-11-17.txt). Next: the jittery plant rerun with
+      polish; a ball take spread over a few ms in the simulator; ball hold: measure
+      WHEEL_RPM_FULL error's cost on 0.2 s wheels; an ESC with its own speed loop.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

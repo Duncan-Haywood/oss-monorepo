@@ -10,6 +10,7 @@ equals one written to a new array; and the develop path's in-place blend and cli
 from __future__ import annotations
 
 import sys
+import os
 import unittest
 from pathlib import Path
 
@@ -115,16 +116,31 @@ class BandsTest(unittest.TestCase):
         from shootflow.bayer_demosaic import directional as bayer
         from shootflow.xtrans_demosaic import directional, noise_aware
 
+        # The develop path holds the bilinear image (and so the blend) in float32 since 2026-11-17
+        # (eval/noise-aware-float32-2026-11-17.md): it equals the float64 blend to float32 rounding (each value
+        # within a few float32 steps of values up to 0.9; 16-bit output needs 1.5e-5), and its own bytes do not
+        # depend on the thread count.
         for pat in (BAYER, XE1_PATTERN):
-            c = np.clip(0.4 + 0.3 * self.rng.random((300, 264)) - 0.1, 0.0, None)
-            hi = 0.9
-            noise = (2e-4, 1e-5)
-            got = rnp._noise_aware_plane(c, pat, hi, noise)
-            d = bayer(c, pat, laplace=0.1875) if len(pat) == 4 else directional(c, pat, scale=hi)
-            b = np.empty((300, 264, 3))
-            rnp._bilinear(c, 264, 300, pat, (1.0, 1.0, 1.0), 1e9, None, None, None, None, sink=b, threads=1)
-            ref = rnp._clip(noise_aware(c, pat, bilinear=b, directional_out=d, noise=noise), hi)
-            self.assertTrue(np.array_equal(got, ref), len(pat))
+            for noise in ((2e-4, 1e-5), (2e-2, 1e-3)):  # a light blend and a heavy one
+                c = np.clip(0.4 + 0.3 * self.rng.random((300, 264)) - 0.1, 0.0, None)
+                hi = 0.9
+                got = rnp._noise_aware_plane(c, pat, hi, noise)
+                self.assertEqual(got.dtype, np.float32)
+                d = bayer(c, pat, laplace=0.1875) if len(pat) == 4 else directional(c, pat, scale=hi)
+                b = np.empty((300, 264, 3))
+                rnp._bilinear(c, 264, 300, pat, (1.0, 1.0, 1.0), 1e9, None, None, None, None, sink=b, threads=1)
+                ref = rnp._clip(noise_aware(c, pat, bilinear=b, directional_out=d, noise=noise), hi)
+                self.assertLessEqual(float(np.abs(got - ref).max()), 4 * 2.0**-24, (len(pat), noise))
+                old = os.environ.get("SHOOTFLOW_THREADS")
+                try:
+                    os.environ["SHOOTFLOW_THREADS"] = "1"
+                    one = rnp._noise_aware_plane(c, pat, hi, noise)
+                finally:
+                    if old is None:
+                        os.environ.pop("SHOOTFLOW_THREADS", None)
+                    else:
+                        os.environ["SHOOTFLOW_THREADS"] = old
+                self.assertTrue(np.array_equal(one, got), (len(pat), noise))
 
 
 if __name__ == "__main__":

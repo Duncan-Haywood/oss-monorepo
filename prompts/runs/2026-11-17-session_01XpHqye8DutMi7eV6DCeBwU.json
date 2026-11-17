@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqye8DutMi7eV6DCeBwU",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T20:39:16Z",
+  "ended": "2026-11-17T21:37:34Z",
+  "wall_minutes": 58.65,
+  "tokens_in": 11285283,
+  "tokens_out": 51015,
+  "cost_usd": 4.4246,
+  "tool_calls": 95,
+  "task": "open-tennis-robots: rerun the reading-floor builds at 0.1 ms simulator steps (flagship buildable item), then find the floor",
+  "projects": [
+    "ventures/open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17060",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first offline-refit draft matched fits to wheels by a field the wheel rows do not carry (the reported drop)",
+      "fix": "matched each fit to the last ball taken and the wheel nearest its speed instead"
+    },
+    {
+      "what": "pkill -f with the pattern repeated elsewhere in the same command was refused by the hook",
+      "fix": "split into its own call"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/open-tennis-robots/firmware/esp32/README.md",
+      "issue": "'The spin error was there without the jitter' estimated a 0.1 ms simulator run at about ten times the run time; it took 7% longer, because the firmware's own work dominates a build, not the plant's physics."
+    },
+    {
+      "file": "ventures/open-tennis-robots/firmware/esp32/README.md",
+      "issue": "The same section framed the remaining floor as simulator coarseness or a missing model term; on the first-order plant the model equals the simulator's physics, so the fit's search was the third candidate it did not list (and the answer)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "Free-choice run spent on a flagship's buildable item (open-tennis-robots, the row allocate.py named) rather than an unscreened idea: a concrete, finishable measurement with a written prediction",
+      "did": "ran the 0.1 ms test, then followed the null result to the fit's t0 grid and shipped a firmware change",
+      "result": "reading scatter halved end to end; tests green"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-the-tennis-feeders-reading-floor-was-a-search-grid.md",
+    "ventures/open-tennis-robots/firmware/esp32/README.md (Not the simulator's step either)"
+  ],
+  "goal": "deepen a flagship",
+  "notes": "Explore idea: test the open-tennis-robots drop-reading floor. 0.1 ms simulator steps (tests/reading_floor.py modes 2-3, 24 builds) left reading sd at 0.31%/0.27%: not the simulator. tests/fit_grid_floor.py kept 755 board loop-fit inputs and refitted offline: 4 t0 levels 0.12%, polish 0.15%, tau refinement alone 0.31%. Shipped drop_from_commands_steps(polish=True) default (no extra steps); end to end reading sd 0.32->0.16 (first-order), 0.27->0.15 (ESC 50 ms), spin error 0.58->0.31, 0.53->0.34. Verification: run_venture_tests.py open-tennis-robots: 355 tests ok, 58 skipped (build123d); new LoopDropTest polish test ok. No posts' links broken (check_post_links), front matter clean, validate.py clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9c3f36ba-ffbe-5611-ac9b-969ebc595768",
+    "transcripts": 1,
+    "first": "2026-11-17T20:39:16Z",
+    "last": "2026-11-17T21:37:55Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 92,
+        "input": 175,
+        "output": 51015,
+        "thinking": 16172,
+        "cache_read": 11138110,
+        "cache_write_5m": 0,
+        "cache_write_1h": 146998,
+        "api_equivalent_usd": 4.4246,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 92,
+      "input": 175,
+      "output": 51015,
+      "thinking": 16172,
+      "cache_read": 11138110,
+      "cache_write_5m": 0,
+      "cache_write_1h": 146998,
+      "api_equivalent_usd": 4.4246,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 95,
+    "tools": {
+      "Bash": 90,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 58.65,
+      "active_minutes": 58.65,
+      "model_minutes": 8.91,
+      "tool_minutes": 49.74,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an engineer reproducing a simulator change, a 755-fit offline refit study and a firmware fit change with tests: about a day and a half",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 226.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
