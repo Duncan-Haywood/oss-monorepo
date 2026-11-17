@@ -95,12 +95,15 @@ export function renderShowcaseSection({ shots, reel }, titleFor = (slug) => slug
         <figcaption>Recorded from the live tools: each one loads its own worked example and shows the answer.</figcaption>
       </figure>`
     : '';
+  // A card is about 280 to 440 px wide, where a full 1,280 px still drops its
+  // text to about 3 px; a shot's `hero` crop (capture.mjs, HERO_VIEWPORT: the
+  // tool's drawing or answer laid out 720 px wide) stays legible, so it wins.
   const gallery = shots.length
     ? `      <ul class="shots">
 ${shots
   .map(
     (s) => `        <li class="shot"><a href="${esc(s.slug)}/" data-tool="${esc(s.slug)}">
-          <img src="${SHOWCASE_DIR}/${esc(s.file)}" width="960" height="600" loading="lazy" decoding="async"
+          <img src="${SHOWCASE_DIR}/${esc(s.hero || s.file)}" width="${s.hero ? 600 : 960}" height="${s.hero ? 375 : 600}" loading="lazy" decoding="async"
                alt="${esc(titleFor(s.slug))} with its worked example loaded">
           <span class="shot-name">${esc(titleFor(s.slug))}</span>
           <span class="shot-cap">${esc(s.caption)}</span>
