@@ -1,0 +1,51 @@
+Milestone 7, theory half: Theorems 1-3 and Proposition 2 (research/grid-linopf/theory.md) on the
+recorded traces (results_converge.json). Plan and predictions Q1-Q7: LOG.md 2026-11-17.
+kappa estimates use rounds with ||d|| >= 0.0001 pu; r = kappa^-1/2; H* = max(1, ceil(log2(||Delta||/r_case))).
+
+case               kind   K   A   R   h  H* ||Delta||    r_case       r_1       d_K    S_A/r B_new
+case14_ieee        typ    4   3   0   0   5  1.36e-01  7.56e-03  1.15e-02  2.25e-02     19.2     9
+case24_ieee_rts    typ    2   1   0   0   6  1.17e+00  2.59e-02  2.59e-02  3.47e-01     15.9     8
+case30_ieee        typ    6   4   1   1   6  1.98e-01  5.41e-03  1.12e-02  1.53e-02     43.8    11
+case39_epri        typ    6   4   1   1  10  4.64e+00  6.28e-03  5.39e-02  1.56e-02     91.2    15
+case57_ieee        typ   12   8   3   3   5  2.54e+00  1.38e-01  2.34e-01  2.19e-01    115.2    14
+case73_ieee_rts    typ    6   3   2   2   9  2.06e+00  6.06e-03  4.30e-02  1.72e-01    274.4    13
+case118_ieee       typ   11   7   3   3   8  3.26e+00  2.45e-02  1.52e-01  1.70e-01    448.6    16
+case162_ieee_dtc   typ    8   4   3   3   7  7.46e+00  8.37e-02  9.79e-02  1.36e-01     64.3    12
+case179_goc        typ   10   7   2   2  12  4.68e+01  2.13e-02  2.30e-01  1.12e-01    859.1    20
+case200_activ      typ    1   0   0   0   6  9.87e-01  1.84e-02  1.84e-02  1.58e-01      0.0     7
+case240_pserc      typ   15   9   5   5   8  5.62e+01  2.77e-01  7.46e-01  2.24e-01    422.7    18
+case300_ieee       typ    -   0   0   0   -  1.29e+01         -         -         -        -     -
+case14_ieee        api    3   2   0   0   5  4.65e-01  2.38e-02  1.14e-01  2.67e-02     35.0     8
+case24_ieee_rts    api   10   6   3   3  10  4.20e+00  5.48e-03  5.74e-02  5.62e-02   1420.1    17
+case30_ieee        api    7   4   2   2   7  6.88e-01  8.80e-03  4.96e-02  7.91e-03     80.5    12
+case39_epri        api    7   4   2   2   8  9.17e+00  6.96e-02  1.38e-01  1.33e-01     58.1    13
+case57_ieee        api   12   8   3   3   5  2.19e+00  1.07e-01  1.83e-01  1.94e-01    119.2    14
+case73_ieee_rts    api    -  12  18  18   9  6.97e+00  1.49e-02  1.11e-01         -   1145.4    22
+case118_ieee       api    -  20  10   9  10  5.05e+00  6.58e-03  5.86e-02         -    901.1    31
+case162_ieee_dtc   api   11   7   3   3   7  6.88e+00  5.75e-02  5.75e-02  9.54e-02    116.5    15
+case200_activ      api   10   6   3   3   7  1.66e+00  1.70e-02  1.05e-01  8.85e-02    158.9    14
+case240_pserc      api   17  12   4   4   9  4.55e+01  1.63e-01  4.98e-01  2.65e-01    433.2    22
+case300_ieee       api   12   7   3   4  10  1.14e+01  1.97e-02         -  3.16e-01    946.3    18
+case14_ieee        sad    2   1   0   0   1  1.36e-01  9.28e-02  1.02e-01  1.32e-01      6.4     3
+case24_ieee_rts    sad    6   3   2   2   7  1.17e+00  1.29e-02  1.29e-01  8.63e-03    192.2    11
+case30_ieee        sad    7   5   1   1   6  1.98e-01  5.41e-03  1.47e-02  1.54e-02     51.5    12
+case39_epri        sad    3   2   0   0  10  4.64e+00  6.50e-03  2.19e-01  3.50e-02    905.8    13
+case57_ieee        sad    7   4   2   2  10  2.54e+00  3.66e-03  3.04e-02  1.85e-02    187.6    15
+case73_ieee_rts    sad    8   5   2   2  12  2.06e+00  7.54e-04  1.80e-01  1.94e-02   6707.8    18
+case118_ieee       sad   12   7   4   4   8  3.26e+00  2.41e-02  1.66e-01  8.97e-02    331.3    16
+case162_ieee_dtc   sad   10   6   3   3   7  7.46e+00  7.10e-02  1.08e-01  1.81e-01    101.2    14
+case179_goc        sad   11   7   3   3   8  4.68e+01  2.04e-01  3.35e-01  4.67e-01    200.8    16
+case200_activ      sad    3   2   0   0   6  9.87e-01  1.84e-02  4.69e-02  1.36e-01     19.4     9
+case240_pserc      sad   20  14   5   5   8  5.62e+01  4.02e-01  8.93e-01  3.91e-01    350.4    23
+
+Q1 (T2 consistent): all-hard finishers 15; halvings > H*: 0 [] -> held
+Q2 (H* <= 12 on all finishers): H* range 1 to 12, median 7; over 12: 0 of 31 -> held
+Q3 (clean step inside r_case on at most a third): 4 of 31 ['case240_pserc typ', 'case30_ieee api', 'case24_ieee_rts sad', 'case240_pserc sad'] -> held
+Q4 (clean step below the largest step of rounds 2..K-1, on >= 80 %): 28 of 28 -> held
+   clean step / largest earlier step (rounds >= 2): median 0.097, range 1.10e-02 to 0.78
+Q5 (hard rounds k>=2 with ||d|| <= r_1 end clean on >= 90 %): 15 of 39 clean -> refuted; not clean: ['case39_epri typ r3', 'case39_epri typ r4', 'case39_epri typ r5', 'case179_goc typ r8', 'case179_goc typ r9', 'case240_pserc typ r12', 'case240_pserc typ r13', 'case240_pserc typ r14', 'case14_ieee api r2', 'case30_ieee api r5', 'case30_ieee api r6', 'case39_epri api r6'] ...
+Q6 (S_A/r_case within 10x of A on >= half): 3 of 30; ratio median 23.9, range 6.38 to 1342 -> refuted
+Q7 (case73 API: elastic step fills its box on most of the last 10 rounds): 0 of 10; ||d||/box 0.32, 0.36, 0.35, 0.33, 0.32, 0.32, 0.32, 0.31, 0.31, 0.26 -> refuted
+
+Round count 1 + A + H* against observed K on 31 finishers: ratio median 1.71, max 7.00; within 2x on 21. (1 + A + H uses the observed A: only H* is a priori.)
+Halvings H as a share of K-1 on finishers with K >= 2: 66 of 228 not-clean rounds; accepted not-clean rounds: 162, of them hard 127.

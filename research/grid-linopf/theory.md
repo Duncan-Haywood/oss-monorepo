@@ -133,8 +133,30 @@ with two estimates, the largest over the case's rounds and round 1's alone (know
 runs). Results and the predictions made before computing them: `research/infra-dcopf/LOG.md`,
 2026-11-17.
 
+## What the traces showed (2026-11-17)
+
+On the 31 cases the frozen repair finishes within 30 rounds (`results_theory.txt`):
+
+- Theorem 2 is consistent with every all-hard finisher, and its bound is small: H&#770;* is 1 to 12
+  (median 7) against 0 to 5 observed halvings.
+- Theorem 1's sufficient condition is met at the finishing round on only 4 of 31: repairs usually
+  finish with a step longer than the worst-case radius, because the rows a step pushes have slack
+  beyond the margin. The sharper per-row radius is the one that describes them.
+- Theorem 3's termination condition holds empirically: on all 28 finishers with three or more
+  rounds the clean step is shorter than the largest earlier one (median ratio 0.097). But accepted
+  rounds are 162 of the 228 misses, their steps are a median 24 times the radius, and the path
+  bound S<sub>A</sub>/r&#770; is within 10x of A on only 3 of 30. The part of the round count proved
+  a priori is the minority.
+- Round 1's curvature does not predict the path's (15 of 39 hard rounds inside its radius end
+  clean), so r* cannot be read off before the repair runs.
+- case73 API, the stall: over its last 10 rounds the elastic step stays at 0.26 to 0.36 of the box's
+  2-norm while the box halves 250-fold. The QP keeps returning a box-limited step, not d = 0, so
+  Proposition 2's hypothesis is not met; the flat merit is better explained by the acceptance test
+  or by curvature, and the earlier reading of this case as a stationary point of the infeasibility
+  is withdrawn until the elastic QP's own penalty decrease is logged.
+
 ## References
 
 - R. Fletcher and E. Sainz de la Maza, "Nonlinear programming and nonsmooth optimization by
   successive linear programming", *Mathematical Programming* 43:235-256, 1989,
-  doi:10.1007/BF01582278.
+  doi:10.1007/BF01582292.
