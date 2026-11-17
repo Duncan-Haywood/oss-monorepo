@@ -212,28 +212,32 @@
    "what": "sample_size (behind every E4 number and the figure) is untested in effect: using sd0 for the power term or a two-sided alpha (n +20%: 329/115/56 -> 396/139/68) leaves all tests green; no test pins results.txt.",
    "where": "research/peer-noise-rent/tests/test_model.py:61-72",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16818"
   },
   {
    "severity": "low",
    "what": "README states the unbiased-sample-covariance variance as the plug-in payment's exact variance, omitting the (2(n-1)/n)^2 factor the whitepaper carries.",
    "where": "research/peer-noise-rent/README.md:3",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16818"
   },
   {
    "severity": "low",
    "what": "'Exact finite-sample law' claims more than the exact first two moments given; 'sqrt 2 exactly at the null' holds only when both marginals are 1/2 (1.61 at p=0.2, peer a=b=0.9).",
    "where": "research/peer-noise-rent/paper/whitepaper.md:6",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16818"
   },
   {
    "severity": "low",
    "what": "'Hit/reach 95% in simulation' for detection: simulated 0.950/0.944/0.941, exact 0.9485/0.9449/0.9380; the normal-approximation n undershoots at small n and the text does not say so.",
    "where": "research/peer-noise-rent/README.md:3",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16818"
   },
   {
    "severity": "low",
@@ -243,6 +247,6 @@
    "origin": "spec"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16818"],
  "verdict": "Every headline number reproduces: run.py output is byte-identical to results.txt, and an independent exact multinomial enumeration matches the plug-in variance (0.057600/0.040918/0.029747/0.009904/0.002045), the lazy-coin rent (0.01985 exact vs 0.0199) and the deductible table (tau 0.0448/0.0826/0.1128, honest pay 0.1631/0.1254/0.0955). The gap is elsewhere. The fresh-penalty simulator pairs tasks cyclically, so its variance departs from the formula E2 reports once marginals leave 1/2 (12% in variance at p=0.2, g=0.8), and the baseline is a constructed scheme using twice the tasks rather than Dasgupta-Ghosh as published. Two of five seeded mutants in sample_size survive (a +20% change in every E4 n). The README's variance formula drops the (2(n-1)/n)^2 factor, '95%' is 93.8-94.9%, and no prior work is cited for what is mostly textbook statistics with a new framing. Correct and well-built as a note; not at the bar for claims, verification or a peer-prediction reviewer."
 }

@@ -191,14 +191,16 @@
    "what": "HAR cookie diff reads only response.cookies (Set-Cookie). Cookies written by JavaScript (_ga, _fbp, _gcl_au), the usual pre-consent/after-refusal finding, never appear, yet the summary tile reads 'Cookies still set: 0' / 'Cookies appeared: 0'. HAR 1.2 request.cookies carries them and is ignored.",
    "where": "ventures/consent-change-record/tool/har-diff.mjs:54",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16818"
   },
   {
    "severity": "medium",
    "what": "JSON comparator keys requests on the full URL with query, so a tracker beacon with a rotating cache-buster that fires on both sides is reported as one removed and one added, never unchanged; the sibling HAR tool strips the query for this reason.",
    "where": "ventures/consent-change-record/calc.mjs:17",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16818"
   },
   {
    "severity": "medium",
@@ -219,14 +221,16 @@
    "what": "vs-cookiebot.html says the tool reports 'which fire regardless'; reportAsText lists only added and removed, never unchanged.",
    "where": "ventures/consent-change-record/vs-cookiebot.html:57",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16818"
   },
   {
    "severity": "medium",
    "what": "Two seeded mutants survived: method case-normalisation (calc.mjs:8) and hostname in the HAR cookie key (har-diff.mjs:65) are untested.",
    "where": "ventures/consent-change-record/tool/har-diff.mjs:65",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16818"
   },
   {
    "severity": "low",
@@ -254,7 +258,8 @@
    "what": "llms.txt says 'Results are estimates from the numbers typed in', calculator boilerplate that does not describe a trace diff.",
    "where": "ventures/consent-change-record/llms.txt:5",
    "category": "stale-docs",
-   "origin": "maintenance"
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16818"
   },
   {
    "severity": "low",
@@ -264,6 +269,6 @@
    "origin": "spec"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16818"],
  "verdict": "Does not meet the bar. An honest, local, well-disclaimed observation tool whose framing a DPO would accept (evidence, not a compliance badge; persisting third-party requests after a refusal is the right signal), and whose occurrence counting in the JSON comparator is right on hand inputs (3 before / 1 after -> 2 removed). But the evidence it collects misses what a consent audit turns on: the HAR tool sees only Set-Cookie cookies, so JS-set _ga/_fbp never appear (H1), the JSON comparator splits every cache-busted beacon into removed+added (C2), the HAR tool is presence-only despite the page's counting claim (H2), and the main tool's input format has no capture path. 56/56 tests pass, 2 of 5 seeded mutants survive. Re-run: node /tmp/claude-0/-home-user-oss-monorepo/1378d21e-81f5-5682-8b00-29e4997707f2/scratchpad/ccr/indep.mjs."
 }
