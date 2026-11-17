@@ -1,0 +1,319 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKikErtme9VoQpyK4iA",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T22:09:35Z",
+  "ended": "2026-11-17T22:10:18Z",
+  "wall_minutes": 5.54,
+  "tokens_in": 4188032,
+  "tokens_out": 18914,
+  "cost_usd": 1.8355,
+  "tool_calls": 50,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17084",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "redteam.py rerun was first run while the 109-venture suite run was in the background; that run happened to finish green, but rerun mutates calc.mjs in place, so the two should not overlap."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 says to fix every open defect first, but all 11 open entries are control-plane edits that need an owner-approved PR, so step 0 was a read-only pass in practice; the open list could mark control-plane entries so runs skip them quickly."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 open defects are all control-plane (workflows, prompts/); fixing them needs separate owner-approved PRs",
+      "did": "Left them open; spent the run on a new target and a 109-file class fix",
+      "result": "one real defect fixed in 109 calculators plus a CI lint"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-redteam-a-blank-price-was-zero-dollars.md"
+  ],
+  "goal": null,
+  "notes": "Target ventures/landscape-lighting-bid-calculator/calc.mjs (12 mutants, 0.1 s suite). Guard added: platform/ci/test_proposed_price_blank.py (red on pre-fix tree with 109 hits, green after). run_venture_tests.py over the 109 touched slugs: 109 suites run, 0 failed.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/landscape-lighting-bid-calculator/calc.mjs",
+        "test": "node --test ventures/landscape-lighting-bid-calculator/**/*.test.mjs  (in .)",
+        "seed": 1058644872,
+        "commit": "31c061782",
+        "sites": 245,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/landscape-lighting-bid-calculator/calc.mjs",
+            "line": 49,
+            "col": 21,
+            "operator": "const-plus-one",
+            "before": "hardscapeLights: 0,",
+            "after": "hardscapeLights: 1,",
+            "line_text": "    hardscapeLights: 0,",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/landscape-lighting-bid-calculator/calc.mjs",
+            "line": 55,
+            "col": 22,
+            "operator": "false-to-true",
+            "before": "includePhotocell: false,",
+            "after": "includePhotocell: true,",
+            "line_text": "    includePhotocell: false,",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/landscape-lighting-bid-calculator/calc.mjs",
+            "line": 80,
+            "col": 14,
+            "operator": "const-plus-one",
+            "before": "trenchLf: 180,",
+            "after": "trenchLf: 181,",
+            "line_text": "    trenchLf: 180,",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/landscape-lighting-bid-calculator/calc.mjs",
+            "line": 95,
+            "col": 14,
+            "operator": "const-plus-one",
+            "before": "trenchLf: 120,",
+            "after": "trenchLf: 121,",
+            "line_text": "    trenchLf: 120,",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "JOB_PRESETS example-yard data (add-on preset trench feet / travel miles); no page, post or llms.txt states this value and any non-negative figure is a valid example, so a test pinning it would be a change detector, not a guard. Every preset still runs through the calculator in the \"every shipped job preset\" test."
+          },
+          {
+            "file": "ventures/landscape-lighting-bid-calculator/calc.mjs",
+            "line": 99,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "travelMiles: 22,",
+            "after": "travelMiles: 23,",
+            "line_text": "    travelMiles: 22,",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "JOB_PRESETS example-yard data (add-on preset trench feet / travel miles); no page, post or llms.txt states this value and any non-negative figure is a valid example, so a test pinning it would be a change detector, not a guard. Every preset still runs through the calculator in the \"every shipped job preset\" test."
+          },
+          {
+            "file": "ventures/landscape-lighting-bid-calculator/calc.mjs",
+            "line": 141,
+            "col": 4,
+            "operator": "plus-to-minus",
+            "before": "+ number(travelMiles, 'Travel miles') * number(hoursPerMile, 'Hours per mile');",
+            "after": "- number(travelMiles, 'Travel miles') * number(hoursPerMile, 'Hours per mile');",
+            "line_text": "    + number(travelMiles, 'Travel miles') * number(hoursPerMile, 'Hours per mile');",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/landscape-lighting-bid-calculator/calc.mjs",
+            "line": 183,
+            "col": 9,
+            "operator": "eq-flip",
+            "before": "if (id === 'easy') {",
+            "after": "if (id !== 'easy') {",
+            "line_text": "  if (id === 'easy') {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/landscape-lighting-bid-calculator/calc.mjs",
+            "line": 287,
+            "col": 44,
+            "operator": "const-plus-one",
+            "before": "const pathEach = number(input.pathEach ?? 0, 'Path light each');",
+            "after": "const pathEach = number(input.pathEach ?? 1, 'Path light each');",
+            "line_text": "  const pathEach = number(input.pathEach ?? 0, 'Path light each');",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "A field missing from an agent call or old shared link defaulted silently to $1 instead of $0; new test \"a field missing from a shared link or agent call prices as zero\"."
+          },
+          {
+            "file": "ventures/landscape-lighting-bid-calculator/calc.mjs",
+            "line": 296,
+            "col": 60,
+            "operator": "const-plus-one",
+            "before": "const extraXfmrInvoice = number(input.extraXfmrInvoice ?? 0, 'Extra transformer invoice');",
+            "after": "const extraXfmrInvoice = number(input.extraXfmrInvoice ?? 1, 'Extra transformer invoice');",
+            "line_text": "  const extraXfmrInvoice = number(input.extraXfmrInvoice ?? 0, 'Extra transformer invoice');",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "A field missing from an agent call or old shared link defaulted silently to $1 instead of $0; new test \"a field missing from a shared link or agent call prices as zero\"."
+          },
+          {
+            "file": "ventures/landscape-lighting-bid-calculator/calc.mjs",
+            "line": 347,
+            "col": 63,
+            "operator": "div-to-times",
+            "before": "const hourShare = (amount) => (totalHours === 0 ? 0 : amount / totalHours * 100);",
+            "after": "const hourShare = (amount) => (totalHours === 0 ? 0 : amount * totalHours * 100);",
+            "line_text": "  const hourShare = (amount) => (totalHours === 0 ? 0 : amount / totalHours * 100);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "hourShares (the crew-hour split the page draws) had no test; new test checks they sum to 100 and trench equals hoursTrench/totalHours*100."
+          },
+          {
+            "file": "ventures/landscape-lighting-bid-calculator/calc.mjs",
+            "line": 347,
+            "col": 76,
+            "operator": "times-to-div",
+            "before": "const hourShare = (amount) => (totalHours === 0 ? 0 : amount / totalHours * 100);",
+            "after": "const hourShare = (amount) => (totalHours === 0 ? 0 : amount / totalHours / 100);",
+            "line_text": "  const hourShare = (amount) => (totalHours === 0 ? 0 : amount / totalHours * 100);",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "hourShares (the crew-hour split the page draws) had no test; new test checks they sum to 100 and trench equals hoursTrench/totalHours*100."
+          },
+          {
+            "file": "ventures/landscape-lighting-bid-calculator/calc.mjs",
+            "line": 427,
+            "col": 68,
+            "operator": "div-to-times",
+            "before": "margin: proposedPrice === 0 ? 0 : (proposedPrice - totalCost) / proposedPrice * 100,",
+            "after": "margin: proposedPrice === 0 ? 0 : (proposedPrice - totalCost) * proposedPrice * 100,",
+            "line_text": "      margin: proposedPrice === 0 ? 0 : (proposedPrice - totalCost) / proposedPrice * 100,",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/landscape-lighting-bid-calculator/calc.mjs",
+        "issue": "A whitespace proposed price ('  ', from an agent/CLI/MCP call) passed the `!== ''` blank check and Number('  ') is 0, so the engine scored a $0 bid (0% margin, or a 'loses everything' verdict) instead of no comparison. Same untrimmed check in 108 sibling calculators (101 identical lines plus 7 variants, incl. snow-removal seasonal/per-push, pest-control recurring, hvac monthly). Fixed in all 109 with String(x ?? '').trim(); lint platform/ci/test_proposed_price_blank.py guards the class.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "583c9b4b-e37b-5a09-8dda-3b9002641d37",
+    "transcripts": 1,
+    "first": "2026-11-17T22:09:35Z",
+    "last": "2026-11-17T22:15:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 49,
+        "input": 98,
+        "output": 18914,
+        "thinking": 4083,
+        "cache_read": 4108543,
+        "cache_write_5m": 0,
+        "cache_write_1h": 79391,
+        "api_equivalent_usd": 1.8355,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 49,
+      "input": 98,
+      "output": 18914,
+      "thinking": 4083,
+      "cache_read": 4108543,
+      "cache_write_5m": 0,
+      "cache_write_1h": 79391,
+      "api_equivalent_usd": 1.8355,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 50,
+    "tools": {
+      "Bash": 48,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.54,
+      "active_minutes": 5.54,
+      "model_minutes": 3.65,
+      "tool_minutes": 1.89,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "find, fix and test one bug across 109 files plus a lint and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 217.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
