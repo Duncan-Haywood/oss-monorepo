@@ -336,8 +336,6 @@ before writing the first scene.
 
 **Hearth & Horizon**
 
-- *A cillín counted by radar* (proposed 2026-11-17): east Galway, 2046. A parish wants to fence and bless a children's burial ground (a cillín, a recorded monument) on a farm before the cattle go out. A licensed ground-penetrating radar survey's first pass runs lines a metre apart east-west, parallel to the graves, and finds nine; nine is a floor, not a count. A grave cut about 35 cm wide, seen about 10 cm beyond each edge, is crossed by a line with probability about 0.55, so nine found means about sixteen (12 to 24, nine times in ten, flat prior). Depth from two-way time at 0.08 m/ns (10 ns is 40 cm). Offsetting a convex fence outward by d adds 2*pi*d to its length whatever its shape. The second pass (north-south, 25 cm) finds 15 inside and 2 just outside the bank where the posts would have gone. No number on the stone.
-
 **For Other Minds**
 
 **Little Lamps** (check each feast day against the General Roman Calendar and

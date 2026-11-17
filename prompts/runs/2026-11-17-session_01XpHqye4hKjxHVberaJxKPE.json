@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqye4hKjxHVberaJxKPE",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T07:51:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Hearth & Horizon story: A Metre Apart (cillín, ground-penetrating radar line spacing)",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16864",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "First post draft had a 162-character description; check_post_frontmatter caught it and it was cut to 160 or fewer."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "'git log --oneline -15 -- ventures/...' on a shallow clone shows only one commit, so it cannot say which project has gone longest; reading the stories' published: front matter (and episodes' published:) was the working substitute."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "Next up had no Hearth & Horizon proposals, so the run had to write one; overlap.mjs was the useful tool for finding an unused angle (radar, transect, cillín all unused)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio folders total 577 MB, over the 400 MB cap.",
+      "did": "Landed text, pages and feeds without audio.",
+      "result": "Story listed as 'audio to follow'; tests pass."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-hearth-and-horizon-a-metre-apart.md"
+  ],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon (headline SF shelf). Piece: a-metre-apart, about 5,290 words, text only. Claimed via draft PR #16864 before drafting, with the proposal in BIBLE.md, then marked Done and moved to DONE.md by bible_done.mjs. Numbers checked with a short script: detection probability 0.55 per grave for parallel 1 m lines; 9 seen gives MLE 16, flat-prior 90% range 12 to 24; ellipse 24x18 perimeter 66.3 m, offset 1 m 72.6, 3 m 85.2 (2*pi*d); extra area 158 m2; depth 0.08 m/ns x t/2. All weekdays and Easter 2046 (25 Mar) checked in code. Verification: node --test in ventures/hearth-and-horizon 17/17 pass; check_post_frontmatter, check_post_links, post_similarity pass; run_workflow_locally --for-changes output summarized in the PR. No agent doc in docs/reports: nothing the next run needs beyond the DONE.md entry.",
+  "corrections": [],
+  "redteam": null
+}
