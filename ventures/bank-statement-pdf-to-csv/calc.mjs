@@ -586,6 +586,9 @@ function parseStatementInner(lines, opts) {
   // An unsigned amount is not a guess when the statement signs its other amounts
   // (a bare number is then money in) or is a card statement (a bare number is a charge).
   const conventional = kind === 'card' || results.some((t) => t.source === 'sign');
+  // A scan read by OCR: figures the running balance proves were misread are
+  // put back first (repairByBalance), then the walk below proceeds as usual.
+  const ocrRepairs = opts.ocr ? repairByBalance(results, prev, closing ? (closing.neg || closing.tag === 'DR' ? -closing.abs : closing.abs) : null) : [];
   const tx = [];
   const balanceBreaks = [];
   let signFixed = 0;
@@ -625,7 +628,11 @@ function parseStatementInner(lines, opts) {
     tx.push({
       account: sections.length - 1, line: t.line, page: t.page, dateText: t.dateText, date: dateParts, postDate: postParts, description: t.description.replace(/\s+/g, ' ').trim(),
       delta: sign * abs || 0, amount: (kind === 'card' ? -sign * abs : sign * abs) || 0, balance: t.balance, source,
+      ...(t.ocrFix ? { ocrFix: t.ocrFix } : {}),
     });
+  }
+  if (ocrRepairs.length) {
+    note('warning', `${ocrRepairs.length} figure${ocrRepairs.length === 1 ? '' : 's'} misread by OCR corrected from the running balance`, ocrRepairs.slice(0, 12).map((x) => `line ${x.line}: ${x.field} read as ${money(x.from)}, corrected to ${money(x.to)}`).join('; ') + `${ocrRepairs.length > 12 ? '; …' : ''}. Each correction changes one digit (or two in a number of the same length) and is confirmed by the balances on both sides of the row. Check these figures on the page before importing.`, ocrRepairs[0].line);
   }
 
   // 5. Findings.
@@ -770,6 +777,78 @@ function parseStatementInner(lines, opts) {
 
 export function parseStatementText(text, opts) { return parseStatement(linesFromText(text), opts); }
 
+// --- OCR repairs ------------------------------------------------------------------
+
+// Could OCR have read `b` as `a`? One digit changed, dropped or added (3 for
+// 8, 1,234.56 as 1,23.56), or two digits changed in a number of the same
+// length. Digits OCR is known to confuse (1/7, 3/8, 5/6, 6/8, 0/8) cost half a
+// change, so 77.72 read as 11.12 counts as 1.5. A row lost from the scan,
+// whose amount is unrelated to the one read, is then not absorbed into its
+// neighbour's figure.
+const CONFUSED = new Set(['17', '71', '38', '83', '56', '65', '68', '86', '08', '80']);
+export function plausibleMisread(a, b) {
+  const s = String(Math.abs(a)), t = String(Math.abs(b));
+  if (s === t || Math.abs(s.length - t.length) > 2) return s === t;
+  let prevRow = Array.from({ length: t.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= s.length; i++) {
+    const row = [i];
+    for (let j = 1; j <= t.length; j++) row[j] = Math.min(prevRow[j] + 1, row[j - 1] + 1, prevRow[j - 1] + (s[i - 1] === t[j - 1] ? 0 : CONFUSED.has(s[i - 1] + t[j - 1]) ? 0.5 : 1));
+    prevRow = row;
+  }
+  const d = prevRow[t.length];
+  return d <= 1 || (d <= 2 && s.length === t.length);
+}
+
+/**
+ * OCR misreads digits, and a statement with a running balance carries its own
+ * checksum. Walking the rows from the opening balance, a row whose amount does
+ * not take the previous balance to its printed one is repaired only on
+ * two-sided evidence:
+ *  - its printed balance is confirmed by the next row (or equals the closing
+ *    balance), so the amount was misread and is the balance's change;
+ *  - or exactly one of previous balance plus or minus the amount is confirmed
+ *    by the next row, so the printed balance was misread.
+ * Either way the new figure must be a plausible misread of the old one (at most
+ * two digit edits). The first row is never repaired against the opening alone,
+ * since the opening may be the misread figure. Mutates `results` (move.abs or
+ * balance) and returns what changed, for the findings. Adapted from
+ * ventures/ai-bookkeeper/statementtext.mjs repairByBalance, plus the
+ * misread gate.
+ */
+export function repairByBalance(results, opening, closing) {
+  const out = [];
+  if (results.length < 2 || results.filter((r) => r.balance !== null).length < results.length / 2) return out;
+  const chains = (from, r) => r && r.balance !== null && Math.abs(r.balance - from) === r.move.abs;
+  const confirmed = (bal, i) => (i + 1 < results.length ? chains(bal, results[i + 1]) : closing !== null && bal === closing);
+  let prev = opening;
+  for (let i = 0; i < results.length; i++) {
+    const r = results[i], mag = r.move.abs;
+    if (prev === null) { prev = r.balance; continue; }
+    if (r.balance === null) { prev = r.sign ? prev + r.sign * mag : null; continue; }
+    if (Math.abs(r.balance - prev) === mag) { prev = r.balance; continue; }
+    if (i === 0) { prev = r.balance; continue; }
+    const change = Math.abs(r.balance - prev);
+    // the corrected change must move the balance the way the row's column or
+    // printed sign says it does
+    const sideOk = (to) => !r.sign || Math.sign(to - prev) === r.sign;
+    if (change && confirmed(r.balance, i) && plausibleMisread(mag, change) && sideOk(r.balance)) {
+      out.push({ line: r.line, field: 'amount', from: mag, to: change });
+      r.ocrFix = { field: 'amount', from: mag };
+      r.move = { ...r.move, abs: change };
+      prev = r.balance; continue;
+    }
+    const nb = [prev + mag, prev - mag].filter((b) => confirmed(b, i) && plausibleMisread(r.balance, b) && sideOk(b));
+    if (nb.length === 1) {
+      out.push({ line: r.line, field: 'balance', from: r.balance, to: nb[0] });
+      r.ocrFix = { field: 'balance', from: r.balance };
+      r.balance = nb[0];
+      prev = nb[0]; continue;
+    }
+    prev = r.balance; // can't tell: left for the break check
+  }
+  return out;
+}
+
 export async function parseStatementPdf(bytes, inflate, opts = {}) {
   const { pages, flags } = await extractPdfLines(bytes, inflate);
   const early = (title, detail) => ({
@@ -782,7 +861,7 @@ export async function parseStatementPdf(bytes, inflate, opts = {}) {
   if (!lines.length) {
     return early('No text in this PDF', flags.unreadableFonts
       ? 'The text uses embedded fonts with no mapping back to characters, so it cannot be read here. Copy the table out of a PDF viewer and paste it instead.'
-      : 'The PDF has no text layer, which means it is a scan or a photo. This tool does not do OCR. Download the statement as a PDF from your bank\'s website instead of scanning paper, or paste text.');
+      : 'The PDF has no text layer, which means it is a scan or a photo. Press Read the scan (OCR) to read the picture in this tab; or download the statement as a PDF from your bank\'s website, which has a text layer.');
   }
   lines.forEach((l, i) => { l.lineNo = i + 1; });
   const r = parseStatement(lines, opts);
