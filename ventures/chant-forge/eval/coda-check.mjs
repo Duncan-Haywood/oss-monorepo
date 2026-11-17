@@ -500,6 +500,11 @@
 //    shipped code. The gain is tested only if the default misses 3 or more of b's dark-vowel nasals; if fewer, lipHold
 //    stays opt-in, reported as untested. If all five hold and the gain is tested, lipHold becomes readCoda's default;
 //    otherwise it stays opt-in.
+//    Outcome (run 2026-11-17, after the registration above was committed as 87d1968): failed. (1) nasals after /u/ or
+//    /o/ 133 to 135 of 144 (the gain was tested: the default missed 11; 3 wanted); (2) bright-vowel nasals 48 and 48 of
+//    48, n-clusters as their nasal 47 and 47 of 48; (3) voiced stops 57 and 57 of 60, voiceless 33 and 33, others 47 and
+//    47, stops, others and vowel-only cells read as a nasal 3 and 3; (4) control 384 and 384 of 384; (5) the report
+//    rebuilt on the shipped code matches the development figures above. lipHold stays opt-in (`--hold on`).
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
