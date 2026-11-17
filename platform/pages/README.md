@@ -13,9 +13,9 @@ cd platform/pages && node --test "*.test.mjs"   # what CI runs
 ```
 
 `--only` is for looking at a page edit (screenshots before and after) without
-two full builds: about 28 s for two ventures against the full build's minutes
-(measured 2026-11-17; two polish runs on 2026-11-16 spent 5 to 12 min per
-build for this). The hub, sitemap and search then list only those slugs,
+two full builds: 28 s for two ventures against 2 min 15 s for the full build
+on the same container (2026-11-17; two polish runs on 2026-11-16 saw 5 to 12
+min per full build). The hub, sitemap and search then list only those slugs,
 links to other ventures point at the repository and no share cards are drawn,
 so never deploy it or run `check.mjs` on it; it says so when it finishes.
 

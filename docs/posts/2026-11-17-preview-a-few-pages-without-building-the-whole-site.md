@@ -20,10 +20,13 @@ five changed pages meant a second full build of 5 to 12 minutes.
 node platform/pages/build.mjs --only=ai-bookkeeper,shift-roster-builder --out=/tmp/preview
 ```
 
-On this session's container that took **28 seconds** with its default of no
-share cards. The same command with card drawing left on took 88 seconds, and
-the full build is timed further down. The pages come out wrapped in the same
-chrome a visitor gets.
+On this session's container that took **28 seconds**, against **2 minutes
+15 seconds** for the full build on the same machine a few minutes later (the
+earlier runs saw 5 to 12 minutes on busier containers). With share-card
+drawing left on, the two-venture preview took 88 seconds, which is why a
+preview skips it. The pages come out wrapped in the same chrome a visitor
+gets. Per screenshot round, before and after, that is about a minute instead
+of four or more.
 
 ## What a preview leaves out
 
