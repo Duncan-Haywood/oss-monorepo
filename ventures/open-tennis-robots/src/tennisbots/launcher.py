@@ -161,18 +161,19 @@ def _share(row, recovery_s):
     return 1.0 if row[4] else _tach_share(row[1], recovery_s)
 
 
-def _solve(rows, recovery_s, fit_spin):
+def _solve(rows, recovery_s, fit_spin, unsure_weight=1.0):
     sxx = sxy = syy = sxd = syd = 0.0
     for row in rows:
         d, rev, a, b = row[:4]
         g = _share(row, recovery_s)
         a, b = a * g, b * g
-        sxx += a * a
-        sxd += a * d
+        v = unsure_weight if row[5] else 1.0
+        sxx += v * a * a
+        sxd += v * a * d
         if fit_spin:
-            sxy += a * b
-            syy += b * b
-            syd += b * d
+            sxy += v * a * b
+            syy += v * b * b
+            syd += v * b * d
     if fit_spin:
         det = sxx * syy - sxy * sxy
         se = (sxd * syy - syd * sxy) / det
@@ -183,12 +184,13 @@ def _solve(rows, recovery_s, fit_spin):
     for row in rows:
         d, rev, a, b = row[:4]
         pred = _share(row, recovery_s) * (a * se + (b * sp if sp is not None else 0.0))
-        sse += (d - pred) ** 2
+        sse += (unsure_weight if row[5] else 1.0) * (d - pred) ** 2
     return se, sp, sse
 
 
 def fit_from_drops(records, *, inertia: float = WHEEL_INERTIA_KGM2, ball_kg: float = BALL_KG,
-                   base: WheelLauncher = WheelLauncher(), recovery_s: float | None = None) -> DropFit:
+                   base: WheelLauncher = WheelLauncher(), recovery_s: float | None = None,
+                   unsure_weight: float = 1.0) -> DropFit:
     """Fit the launcher's efficiencies from the feeder's per-shot wheel speed drops (2026-11-16,
     firmware/esp32/README.md "Shot log"), with no radar gun.
 
@@ -231,7 +233,7 @@ def fit_from_drops(records, *, inertia: float = WHEEL_INERTIA_KGM2, ball_kg: flo
     def best_of(rows):
         best = None
         for tau in grid:
-            se, sp, sse = _solve(rows, tau, fit_spin)
+            se, sp, sse = _solve(rows, tau, fit_spin, unsure_weight)
             if best is None or sse < best[3] - 1e-15:
                 best = (tau, se, sp, sse)
         return best
