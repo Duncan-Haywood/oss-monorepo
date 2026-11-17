@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [seo]
+date: 2026-11-17
+---
 # Polish 2026-11-17: a `household` section for household money tools
 
 Date: 2026-11-17. Track: polish/0. Picked item 1 of "Still weakest" in
