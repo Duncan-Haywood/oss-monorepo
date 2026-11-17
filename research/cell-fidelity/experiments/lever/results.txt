@@ -1,0 +1,38 @@
+cell-fidelity milestone 5zi: is the needed plating exponent kappa* = 25.3 x (measured separator-surface OCP
+rise) / (the law's lever rise)? All 768 committed designs (24 pools); no new simulation. Pool medians.
+m99, d99: measured and law lever rise from cycle 2 to 99 (mV); m10, d10: to cycle 10. k_path = 25.3 rho_path
+(cycles 3..99, diagnosis); k_10 = 25.3 rho_10 (cycles 3..10, forecast); clamped to [0, 100]. rho_in =
+within-pool Spearman(k_path, k*). Errors: median |ln(L_pred(99)/L_DFN(99))| at kappa 25.3 (phys), k_path,
+k_10 and 5zg's med over the set's other 160 designs (med160).
+
+pool                                  k* k_path   k_10   m99   d99   m10   d10 rho_in   phys   path   k_10 med160
+asym/Ai2020@0.6125x                 23.4   81.8   47.7 125.3  43.2  18.8   7.1   0.87  0.063  0.235  0.310  0.054
+asym/Chen2020@1.28125x              57.1   40.0    0.0  37.2  22.1   0.0   1.3   0.05  0.109  0.116  0.259  0.047
+asym/NCA_Kim2011@0.5625x            22.4   23.5   23.9 138.6 144.9  45.0  47.3   0.60  0.023  0.018  0.040  0.009
+asym/OKane2022@1.3125x              44.6   37.5   17.0  34.5  23.6   1.9   0.9   0.33  0.095  0.093  0.155  0.050
+consistent/Ai2020@0.575x            19.8   70.2   43.0 117.8  42.8  24.4   6.7   0.80  0.076  0.319  0.337  0.040
+consistent/Chen2020@1.3125x         53.3   47.6    0.1  39.4  22.5   0.0   0.9   0.42  0.104  0.072  0.250  0.052
+consistent/NCA_Kim2011@0.8125x      24.0   19.3   18.8 107.4 134.3  31.1  39.1   0.87  0.020  0.047  0.064  0.012
+consistent/OKane2022@1.4375x        32.9   35.6    2.8  36.4  29.5   0.5   0.7   0.72  0.064  0.093  0.208  0.053
+kappa/Ai2020@0.5875x                20.4   76.8   32.3 129.8  41.6  18.5   6.4   0.89  0.081  0.298  0.288  0.066
+kappa/Chen2020@1.34375x             45.4   22.7    0.1  32.4  26.2   0.0   0.6   0.46  0.099  0.102  0.239  0.055
+kappa/NCA_Kim2011@0.71875x          22.9   19.5   18.8 118.3 140.9  34.2  46.1   0.67  0.019  0.033  0.068  0.008
+kappa/OKane2022@1.40625x            31.7   26.0   11.8  32.3  28.9   1.2   0.7   0.66  0.059  0.093  0.155  0.055
+kinetic/Ai2020@0.65x                24.9   81.8   30.0 136.3  41.3  18.4   7.8   0.80  0.065  0.293  0.320  0.067
+kinetic/Chen2020@1.25x              52.9   34.1    0.1  37.0  21.1   0.0   0.6   0.43  0.102  0.083  0.245  0.041
+kinetic/NCA_Kim2011@0.5x            21.3   24.1   24.2 146.2 151.1  48.4  52.2   0.64  0.029  0.022  0.030  0.016
+kinetic/OKane2022@1.25x             49.0   41.8   12.0  38.4  22.4   1.6   1.7   0.46  0.097  0.073  0.169  0.066
+loaded/Ai2020@0.525x                19.9   54.8   51.3 102.0  42.9  20.0   5.8   0.88  0.065  0.286  0.323  0.053
+loaded/Chen2020@1.375x              32.9   20.1    0.0  30.8  25.3   0.0   0.5   0.42  0.080  0.120  0.267  0.078
+loaded/NCA_Kim2011@0.6875x          23.2   22.1   24.1 125.1 139.1  38.5  46.2   0.65  0.018  0.013  0.044  0.010
+loaded/OKane2022@1.375x             29.9   29.3   20.0  35.5  25.8   1.7   0.8   0.59  0.071  0.090  0.136  0.065
+setkappa/Ai2020@0.5375x             21.3   64.9   41.6 109.2  42.5  19.4   6.1   0.84  0.056  0.290  0.313  0.049
+setkappa/Chen2020@1.265625x         51.7   31.9    0.2  37.3  22.2   0.0   0.7   0.03  0.093  0.084  0.270  0.049
+setkappa/NCA_Kim2011@0.65625x       23.2   23.0   24.1 128.7 140.6  40.1  44.9   0.68  0.017  0.017  0.044  0.009
+setkappa/OKane2022@1.28125x         43.3   41.0   26.6  37.9  23.6   2.7   1.2   0.40  0.076  0.084  0.188  0.065
+
+H182 (LG M50: pool k_path within 25% of k* on at least 10 of 12): inconclusive (7/12)
+H183 (controls: the same on at least 8 of 12): inconclusive (6/12)
+H184 (Spearman of pool k_path against pool k* over 24 pools >= 0.6): refuted (-0.095)
+H185 (LG M50: median within-pool Spearman(k_path, k*) >= 0.4): supported (0.423)
+H186 (LG M50: the ten-cycle k_10 forecast beats phys on at least 9 of 12 pools): refuted (0/12)

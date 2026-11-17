@@ -1,0 +1,17 @@
+Milestone 7u, post hoc (not predicted): per-seed Mann-Whitney U (two-sided) on L2-45 counts, lag39 against lag36, per arm,
+       id 33 ms D^0    7l above: lag39 80 vs lag36 108, p = 0.091
+       id 33 ms D^0    7l below: lag39 107 vs lag36 124, p = 0.629
+       id 33 ms D^0 aware above: lag39 37 vs lag36 53, p = 0.257
+       id 33 ms D^0 aware below: lag39 46 vs lag36 56, p = 0.291
+      mid 36 ms D^0    7l above: lag39 109 vs lag36 149, p = 0.240
+      mid 36 ms D^0    7l below: lag39 132 vs lag36 161, p = 0.261
+      mid 36 ms D^0 aware above: lag39 61 vs lag36 63, p = 0.810
+      mid 36 ms D^0 aware below: lag39 59 vs lag36 82, p = 0.227
+     id 39.1 ms D^0    7l above: lag39 150 vs lag36 198, p = 0.126
+     id 39.1 ms D^0    7l below: lag39 167 vs lag36 195, p = 0.195
+     id 39.1 ms D^0 aware above: lag39 72 vs lag36 93, p = 0.146
+     id 39.1 ms D^0 aware below: lag39 73 vs lag36 117, p = 0.169
+   stress 45 ms D^0    7l above: lag39 215 vs lag36 248, p = 0.199
+   stress 45 ms D^0    7l below: lag39 225 vs lag36 251, p = 0.148
+   stress 45 ms D^0 aware above: lag39 149 vs lag36 168, p = 0.485
+   stress 45 ms D^0 aware below: lag39 141 vs lag36 190, p = 0.078

@@ -192,6 +192,18 @@ def holders(path, proc="/proc"):
     return found
 
 
+def short_cmd(cmd, width=80):
+    """The holder's command line, cut in the middle so its arguments survive.
+
+    A head-only cut at 60 characters showed 'run.py --draws 10' for
+    '--draws 1000', which read as the wrong job running (friction 2026-11-17).
+    The interpreter path at the front is what a reader can spare."""
+    if len(cmd) <= width:
+        return cmd
+    head = width // 3
+    return cmd[:head] + "..." + cmd[-(width - head - 3):]
+
+
 def progress(path, now=time.time, who=holders):
     """What a timed-out wait can say about the job, so "call again" is not a guess.
 
@@ -212,7 +224,7 @@ def progress(path, now=time.time, who=holders):
     open_by = who(path)
     if open_by:
         pid, cmd = max(open_by)  # the newest holder is the job itself, not the shell that started it
-        hint = (f"pid {pid} ({cmd[:60]!r}) still has it open, so the job is running"
+        hint = (f"pid {pid} ({short_cmd(cmd)!r}) still has it open, so the job is running"
                 + ("" if idle < 60 else ", quietly (it may print only at the end, or buffer: python3 -u)")
                 + "; call again")
     elif open_by is not None:
