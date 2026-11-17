@@ -97,3 +97,10 @@ test("ics lists only future notice and start dates of auto-renewals", () => {
   assert.ok(!ics.includes("DTSTART;VALUE=DATE:20260916"), "start date already passed");
   assert.equal((ics.match(/BEGIN:VEVENT/g) || []).length, (ics.match(/END:VEVENT/g) || []).length);
 });
+
+test("a quoted vendor and \"$12,000\" cost from a spreadsheet export parse (redteam 2026-11-17)", () => {
+  const r = parseRenewals('"Acme, Inc","$12,000",2027-01-15,30,yes,10,8,5');
+  assert.deepEqual(r.errors, []);
+  assert.equal(r.renewals[0].vendor, "Acme, Inc");
+  assert.equal(r.renewals[0].annualCost, 12000);
+});

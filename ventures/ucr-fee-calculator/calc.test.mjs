@@ -137,3 +137,10 @@ test("a fee must be a number: commas only as thousands separators", () => {
   assert.equal(parseFees("0-2: 1,234,567.50").brackets[0].fee, 1234567.5);
   assert.equal(parseFees("0-2: 1163").brackets[0].fee, 1163);
 });
+
+test("a quoted registrant name with a comma stays one field (redteam 2026-11-17)", () => {
+  const r = parseEntities('"Smith Trucking, LLC",12,motor-carrier');
+  assert.deepEqual(r.errors, []);
+  assert.equal(r.entities[0].name, "Smith Trucking, LLC");
+  assert.equal(r.entities[0].n, 12);
+});

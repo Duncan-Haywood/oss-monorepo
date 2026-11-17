@@ -7,6 +7,27 @@
 // target (floor less your ask), the date to start negotiating, and an email draft.
 // Pure functions, no network, no dependencies; dates are calendar dates in UTC.
 
+// Comma-separated, with spreadsheet-style double quotes so an exported
+// "$1,200" or "Smith, LLC" stays one field ("" inside quotes is a quote).
+const splitCsvLine = (line) => {
+  if (!line.includes('"')) return line.split(",").map((s) => s.trim());
+  const out = [];
+  let cur = "";
+  let quoted = false;
+  for (let i = 0; i < line.length; i += 1) {
+    const ch = line[i];
+    if (quoted) {
+      if (ch === '"' && line[i + 1] === '"') { cur += '"'; i += 1; }
+      else if (ch === '"') quoted = false;
+      else cur += ch;
+    } else if (ch === '"' && cur.trim() === "") { quoted = true; cur = ""; }
+    else if (ch === ",") { out.push(cur.trim()); cur = ""; }
+    else cur += ch;
+  }
+  out.push(cur.trim());
+  return out;
+};
+
 export const MODEL_NOTE =
   "Do-nothing renewal = annual cost x (1 + uplift). Seats needed = used seats x (1 + buffer), rounded up, never above seats paid. " +
   "Floor target = seats needed x price per seat, no uplift. Stretch target = floor target x (1 - ask). Savings = do-nothing renewal minus target. " +
@@ -52,7 +73,7 @@ export function parseRenewals(text) {
   const lines = String(text ?? "").split(/\r?\n/).map((l) => l.trim()).filter((l) => l && !l.startsWith("#"));
   lines.forEach((line, idx) => {
     if (idx === 0 && /^vendor\b/i.test(line)) return;
-    const c = line.split(",").map((x) => x.trim());
+    const c = splitCsvLine(line);
     const n = idx + 1;
     if (c.length < 8) return errors.push(`Row ${n}: expected vendor,annual cost,renewal date,notice days,auto-renews,seats paid,seats used,uplift % (got ${c.length} fields)`);
     const [vendor, cost, date, notice, auto, paid, used, uplift] = c;
