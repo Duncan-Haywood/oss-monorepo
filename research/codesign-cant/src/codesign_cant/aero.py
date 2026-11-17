@@ -59,7 +59,7 @@ def closure_root(update, shape, n=400, iters=60):
     return np.where(has, hi, M_CLAMP)
 
 
-# Motor-propeller first-order lag (s) = LAG_K (D / LAG_D0)^LAG_EXP: inherited from milestone 0 and not sourced (milestone 7s sweeps it).
+# Motor-propeller first-order lag (s) = LAG_K (D / LAG_D0)^LAG_EXP: inherited from milestone 0 (milestone 7s sweeps it); default kept so earlier milestones reproduce. Milestone 7t sources 33-39.1 ms at 5-5.1 in (data/motor_lag/) and tunes at LAG_K 0.036, LAG_EXP 0.
 LAG_K, LAG_D0, LAG_EXP = 0.015, 0.127, 1.5
 TWR_RANGE = (1.5, 4.0)   # thrust-to-weight range when motor headroom is a design variable (the fixed value elsewhere is TWR)
 
