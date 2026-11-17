@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [tools, showcase]
+topics: [product-build, design]
 date: 2026-11-17
 ---
 # Polish: Greenhouse Bench Planner's worked example grows the crops it can
