@@ -13,35 +13,30 @@
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does a deployment race not show up as a failed check?", "acceptedAnswer": {"@type": "Answer", "text": "Because nothing fails. Both runs do exactly what they were asked to do, and neither is aware the other existed. The branch ends up showing two green checks in commit order, so the obvious reading — that the newest commit is what is deployed — is wrong, and nothing on the page says so. The run that applied the older code does not report overwriting anything, because from inside that run nothing was overwritten."}}, {"@type": "Question", "name": "Why is a per-run concurrency group worse than no concurrency block at all?", "acceptedAnswer": {"@type": "Answer", "text": "The behaviour is identical: no run ever waits for another. The difference is that now there is a block to point at. A reviewer who sees a correctly spelled concurrency section with an obviously well-intentioned group key ticks the line off, so the defect is protected by the thing that looks like its fix. It usually arrives by copying a CI workflow, where keying the group on the ref is correct and useful, and then changing the key while keeping the shape."}}, {"@type": "Question", "name": "Why should a deploy queue instead of cancelling?", "acceptedAnswer": {"@type": "Answer", "text": "By the time a cancel signal arrives, a deploy may have uploaded 300 of 900 files, applied a migration the new code has not shipped for yet, or replaced half a release directory. The run stops where it is and nothing comes back to finish it, so the result is a state neither commit produced — which is worse than either of them being live. Queueing makes the newer run wait and then apply last, which is the order you wanted."}}, {"@type": "Question", "name": "Why can two correct workflow files still race each other?", "acceptedAnswer": {"@type": "Answer", "text": "A concurrency group is only a queue for the runs inside it. A repository with a push-triggered deploy and a manual deploy usually has two files, each declaring a group, each queueing rather than cancelling, and the two group names differ because nobody wrote them at the same time. Two names means two queues, which means no ordering between them. Reviewing either file alone shows nothing wrong, because the defect is in the relationship between the files and no single file contains it."}}, {"@type": "Question", "name": "Why is deploying a branch name a problem if the branch is correct?", "acceptedAnswer": {"@type": "Answer", "text": "A branch name is a pointer read at the moment the step executes, not when the run was queued. A job that waited twenty minutes for a runner checks out whatever that branch means twenty minutes later, and a re-run of last week's deploy clicked to redeploy that version deploys today's. The run log records the ref rather than the commit it resolved to, so afterwards there is often nothing that says which code actually went out."}}, {"@type": "Question", "name": "Does adding concurrency make a deployment safe?", "acceptedAnswer": {"@type": "Answer", "text": "No. Serializing runs makes them apply in queue order, which is what you want almost always. It does not make a deployment atomic, it does not help if the deploy step itself is not idempotent, and it does nothing about a target that pipelines outside this repository also write to. It is the cheapest correct thing, not the last word."}}]}</script>
 <style>
   :root {
-    color-scheme: light dark;
-    --bg: #fbfbfa; --fg: #1a1a19; --muted: #53534f; --card: #fff;
-    --border: #e2e2dd; --accent: #1f5f3f; --code: #f2f2ef;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #17181a; --fg: #ececeb; --muted: #a8a8a3; --card: #202124;
-      --border: #34353a; --accent: #7fd0a4; --code: #26272b;
-    }
+    --bg: #f2f4f7; --fg: #1b1f2a; --muted: #55606f; --card: #fff;
+    --border: #d5dbe3; --accent: #17604a; --code: #f7f9fb; --head: #17324a;
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--fg);
-    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    font: 16px/1.55 system-ui, sans-serif; }
   .wrap { max-width: 46rem; margin: 0 auto; padding: 2rem 1.1rem 4rem; }
-  h1 { font-size: 1.8rem; line-height: 1.22; margin: 0 0 .5rem; max-width: 24ch; }
-  h2 { font-size: 1.12rem; margin: 2.1rem 0 .5rem; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); letter-spacing: -.02em; line-height: 1.12; margin: 0 0 .5rem; color: var(--head); }
+  h2 { color: var(--head); font-size: 1.15rem; margin: 2.1rem 0 .5rem; }
   h3 { font-size: 1rem; margin: 1.5rem 0 .35rem; }
   p.lede { color: var(--muted); font-size: 1.05rem; }
   a { color: var(--accent); overflow-wrap: anywhere; }
   section { background: var(--card); border: 1px solid var(--border);
-    border-radius: 10px; padding: 1.1rem 1.15rem; margin-top: 1.25rem; }
-  pre { background: var(--code); border: 1px solid var(--border); border-radius: 6px;
+    border-radius: 14px; padding: 22px; margin-top: 18px;
+    box-shadow: 0 8px 24px #17324a10; }
+  pre { background: var(--code); border: 1px solid var(--border); border-radius: 8px;
     padding: .65rem .75rem; overflow-x: auto; font-size: .85rem; }
-  code { background: var(--code); padding: .08em .3em; border-radius: 4px; font-size: .92em; }
+  code { overflow-wrap: anywhere; word-break: break-word; }
   .fine { font-size: .87rem; color: var(--muted); }
   .timeline { list-style: none; padding-left: 0; margin: .8rem 0; }
   .timeline li { border-left: 2px solid var(--border); padding: .1rem 0 .7rem .85rem; }
   .timeline b { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     font-size: .85rem; color: var(--muted); font-weight: 600; }
+  section > h2:first-child { margin-top: 0; }
   a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 </style>
 </head>
