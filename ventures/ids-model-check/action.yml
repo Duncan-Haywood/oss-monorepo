@@ -29,6 +29,9 @@ inputs:
   fail-on-shared-globalids:
     description: '"true" also fails the step when, with two or more models, a GlobalId held in one model is also in another (the same element in two disciplines'' files, or two different elements), or two models are one model twice. Shared project, site, building, storey, space and grid GlobalIds of the same class are not counted. Off by default: a warning annotation either way.'
     default: 'false'
+  shared-globalids-allow:
+    description: 'Path (from the repository root) to a team allow list of GlobalIds shared between models on purpose, one rule per line: a GlobalId, a class (IFCGRID), a class and a quoted name (IFCBUILDINGELEMENTPROXY "origin", "*" in the name matches any run) or * and a name. A shared element every holder of which matches is not counted, nor are the types and relationships that only follow it. Rules that match nothing are listed in the summary. Empty for none.'
+    default: ''
   junit:
     description: Path for a JUnit XML report (empty for none).
     default: ids-report.xml
@@ -90,6 +93,7 @@ runs:
         IDS_FAIL_ON_AUDIT: ${{ inputs.fail-on-audit-warnings }}
         IDS_FAIL_ON_DUPLICATES: ${{ inputs.fail-on-duplicate-globalids }}
         IDS_FAIL_ON_SHARED: ${{ inputs.fail-on-shared-globalids }}
+        IDS_SHARED_ALLOW: ${{ inputs.shared-globalids-allow }}
       run: |
         major=$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo 0)
         if [ "$major" -lt 18 ]; then echo "::error title=IDS model check::needs Node 18 or newer (add actions/setup-node before this step)"; exit 2; fi
@@ -101,4 +105,5 @@ runs:
         [ "$IDS_FAIL_ON_AUDIT" = "true" ] && set -- "$@" --fail-on-audit-warnings
         [ "$IDS_FAIL_ON_DUPLICATES" = "true" ] && set -- "$@" --fail-on-duplicate-globalids
         [ "$IDS_FAIL_ON_SHARED" = "true" ] && set -- "$@" --fail-on-shared-globalids
+        [ -n "$IDS_SHARED_ALLOW" ] && set -- "$@" --shared-globalids-allow "$IDS_SHARED_ALLOW"
         node "$GITHUB_ACTION_PATH/ci-cli.mjs" "$@"
