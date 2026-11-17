@@ -379,10 +379,11 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "Checked
-      before a calibration drill". Next: set MIN_FIT_RPM (1,000; no floor looked as
-      good) on held-out builds; why a 0.8 s wheel braking to 526 rpm settles 3-4%
-      low under the scaled gains (costs ~2 s a shot); does the hold make shots late?
+      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "A ball
+      charged the integrator". Next: set MIN_FIT_RPM (1,000; no floor looked as
+      good) on held-out builds; does the hold make shots late? Ball hold (README "A
+      ball charged the integrator"): measure WHEEL_RPM_FULL error's cost on 0.2 s
+      wheels; an ESC with its own speed loop.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -467,12 +468,12 @@ flagships:
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
       (eval/ifcxml-xbim-2026-11-16.md); cross-check more public models from
       opensourceBIM/IFC-files and buildingSMART's Sample-Test-Files with
-      eval/crosscheck_ifctester.py; the IDS editor (editor.html; opens an IDS and a
-      model; several classes per spec 2026-11-17,
-      eval/several-classes-2026-11-17.md): applicability facets beyond the class, a
-      range for numeric attributes (OverallHeight; xs:double base,
-      eval/model-attr-codes-2026-11-17.md); more real exports through
-      eval/model-inventory.mjs.
+      eval/crosscheck_ifctester.py; the IDS editor (editor.html; README): a property
+      value with no dataType in the applicability (39 kept facets,
+      eval/applicability-rows-2026-11-17.md); exclusive bounds on an opened range
+      (numeric attribute ranges 2026-11-17, eval/model-attr-ranges-2026-11-17.md);
+      more real exports through eval/model-inventory.mjs and
+      eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked"). Next, most
@@ -490,9 +491,11 @@ flagships:
       own sets editable, 79.4% of public facets editable,
       eval/model-inventory-2026-11-16.md: 4 real exports, 347 of 395 class-set pairs
       own sets, 21 of 122 standard props in a non-template dataType): applicability
-      property/attribute facets (85); attribute values and classification codes
-      2026-11-17 (eval/model-attr-codes-2026-11-17.md: 242 of 242 offers pass; 143
-      of 210 Uniformat elements in Schultz have an empty code, Require a code); a
-      range for numeric attributes; a dataType-mismatch hint; a GitHub Action
-      wrapper; heap use on a 200 MB model; a BIM coordinator's real IDS and model
-      (needs a person).
+      rows 2026-11-17 (eval/applicability-rows-2026-11-17.md: counts equal the
+      checker's applicable; 83.5% of public facets editable, IDS-Audit-tool 21.5%);
+      a no-dataType value row; attribute values and classification codes 2026-11-17
+      (eval/model-attr-codes-2026-11-17.md: 242 of 242 offers pass; 143 of 210
+      Uniformat elements in Schultz have an empty code, Require a code); a range for
+      numeric attributes; a dataType-mismatch hint; a GitHub Action wrapper; heap
+      use on a 200 MB model; a BIM coordinator's real IDS and model (needs a
+      person).

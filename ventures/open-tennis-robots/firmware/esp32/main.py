@@ -402,7 +402,8 @@ class FeederHw:
             ramp = self.wheel_ramps[i]
             ramped = ramp.update(self.target_rpm[i], tach.rpm, dt, brake)
             # coasting: zero throttle (ESCs set with no brake at zero throttle), the loop's integrator held
-            self.esc_cmd[i] = 0.0 if ramp.coasting else self.wheel_loops[i].update(ramped, tach.rpm, dt)
+            self.esc_cmd[i] = 0.0 if ramp.coasting else self.wheel_loops[i].update(ramped, tach.rpm, dt,
+                                                                                   ramped > self.target_rpm[i])
             esc.frac(self.esc_cmd[i])
         steady = self.wheels_steady.update(self.target_rpm, (self.tach_top.rpm, self.tach_bottom.rpm), dt)
         if self.launch is not None:
@@ -438,6 +439,8 @@ class FeederHw:
             self.gate_back(now)           # first FEED since power-up or a stop: bring the shuttle back first
         elif self.feeding and ok and now >= self.gate_ready_at:
             self.gate.frac(1)
+            for loop in self.wheel_loops:
+                loop.ball()               # README "A ball charged the integrator"
             if self.launch is not None:
                 self.launch.start(self.target_rpm, now)
             self.gate_out = True

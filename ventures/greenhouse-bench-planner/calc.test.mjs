@@ -101,3 +101,25 @@ test("hold and late weeks are capped at a year, so an extra zero cannot hang the
   const late = analyze(DEFAULT_CROPS.replace("92, 3.50, 1.10, 1", "92, 3.50, 1.10, 100000"));
   assert.ok(late.warnings.some((w) => /Tomato 4in: selling late is capped/.test(w.text)));
 });
+
+test("the worked example finds room for a crop the plain margin-order pass strands", () => {
+  const r = analyze(DEFAULT_CROPS);
+  // The margin-per-sq-ft order alone sold 1,534 units for $3,801.60 and grew no peppers, baskets or geraniums.
+  // The best of all 5,040 booking orders, by brute force, is $4,548.10 and 1,723 units.
+  assert.ok(Math.abs(r.summary.margin - 4548.1) < 0.01, `margin ${r.summary.margin}`);
+  assert.equal(r.summary.planned, 1723);
+  for (const name of ["Petunia hanging basket", "Geranium 6in"]) assert.equal(r.rows.find((x) => x.crop === name).short, 0);
+  for (const w of r.weeks) { assert.ok(w.bench <= 400 + 1e-6); assert.ok(w.germ <= 30 + 1e-6); }
+});
+
+test("the search never does worse than the margin-order pass, and a long list stays quick", () => {
+  const text = "Rich, 2027-05-22, 100, 1, 5, 2, 100, 9, 1, 0\nCheap, 2027-05-22, 100, 1, 5, 2, 100, 2, 1.5, 0";
+  assert.equal(analyze(text, { benchSqft: 50, germSqft: 100 }).rows.find((x) => x.crop === "Rich").sold, 100);
+  const lines = [];
+  for (let i = 0; i < 40; i++) for (const l of DEFAULT_CROPS.split("\n").slice(1)) lines.push(l.replace(/^([^,]+)/, `$1 ${i}`));
+  const t0 = performance.now();
+  const r = analyze(lines.join("\n"), { maxHoldWeeks: 8 });
+  assert.ok(performance.now() - t0 < 5000);
+  assert.equal(r.rows.length, 280);
+  for (const w of r.weeks) assert.ok(w.bench <= 400 + 1e-6);
+});
