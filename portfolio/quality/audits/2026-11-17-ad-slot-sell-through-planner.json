@@ -194,7 +194,8 @@
    "what": "With the assumed elasticity -1.2 (< -1) recommend() tells any seller whose recent runs are not 100% full to cut price to the sell-out point; a 97%-sold, flat-price history gets 'You are close to sold out ... test a higher price' and 'Model says lower the price: About $372' on the same screen. The direction is an artifact of the default constant, not the data.",
    "where": "ventures/ad-slot-sell-through-planner/calc.mjs:184",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16902"
   },
   {
    "severity": "medium",
@@ -215,7 +216,8 @@
    "what": "Page tells the user to replace the booking curve with their own history, but there is no input; pacing() is always called with the default curve.",
    "where": "ventures/ad-slot-sell-through-planner/index.html:92",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16902"
   },
   {
    "severity": "medium",
@@ -229,9 +231,10 @@
    "what": "Footer typo 'does not replace an qualified advisor'.",
    "where": "ventures/ad-slot-sell-through-planner/index.html:120",
    "category": "other",
-   "origin": "audit"
+   "origin": "audit",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16902"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16902"],
  "verdict": "Small, clean, honest-in-intent tool whose arithmetic is right: six outputs (sell-through, unsold value, trend, fitted slope, a price scenario, pacing) recompute exactly by hand. It misses the bar on claims and verification, and on domain: the raise/hold/lower call the README sells as the main outcome is driven by the assumed elasticity being below -1, so a 97%-sold seller is told on one screen both to test a higher price and to lower it to $372 (run the r3.mjs command in checks). Three of four seeded mutants in the advice thresholds survived, the page promises a custom booking curve it has no input for, and plain comma CSV with 3-digit prices is rejected. Sell-through, unsold-revenue and pacing views are usable today; the price recommendation should be suppressed on an assumed response."
 }

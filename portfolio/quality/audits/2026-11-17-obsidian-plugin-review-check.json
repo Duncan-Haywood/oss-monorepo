@@ -209,7 +209,8 @@
    "what": "Sample-plugin author placeholder is \"Your Name\", a value the official template has never shipped (author has been \"Obsidian\" since 2020-10-28); the check cannot fire on a real template and the real leftover (author \"Obsidian\", template description) passes. Stated as fact on README, index.html, VENTURE.yaml.",
    "where": "ventures/obsidian-plugin-review-check/scan.mjs:42",
    "category": "source-data",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16902"
   },
   {
    "severity": "high",
@@ -230,7 +231,8 @@
    "what": "innerHTML heuristic misses `el.innerHTML += x` (regex requires = right after optional whitespace), and any line where a string containing '//' (a URL) precedes the assignment, because the line-comment strip runs before string stripping.",
    "where": "ventures/obsidian-plugin-review-check/scan.mjs:127",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16902"
   },
   {
    "severity": "low",
@@ -310,6 +312,6 @@
    "origin": "tests"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16902"],
  "verdict": "Does not meet the bar. The code is small, tidy and its 63 tests pass, but checked against the real obsidian-sample-plugin repository and docs.obsidian.md, its domain facts are wrong where it matters: the 'Your Name' author placeholder has never been in the template, isDesktopOnly is required but treated as optional, none of the documented id/name/version/description rules are checked (a manifest breaking five of them exits 0), the innerHTML heuristic misses `+=` and any line after a URL string, and its one check eslint-plugin-obsidianmd lacks (versions.json entry) guards a condition the docs do not treat as blocking while failing plugins that have no versions.json. Pages repeat the wrong facts as Obsidian's. Disclaimers and served URLs are fine."
 }

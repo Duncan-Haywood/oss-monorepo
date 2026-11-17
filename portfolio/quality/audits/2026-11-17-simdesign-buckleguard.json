@@ -207,7 +207,8 @@
    "what": "Headline claim 'the old rule cost about 12% of mass' (README, live page, research/README.md index) is a coarse-mesh artefact; the 'one mesh' limitation is disclosed but its known consequence (from simdesign-meshconverge/meshmargin) is not.",
    "where": "research/simdesign-buckleguard/README.md:36",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16902"
   },
   {
    "severity": "medium",
@@ -245,6 +246,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16902"],
  "verdict": "The buckling arithmetic is right: an independent implementation of the Timoshenko-Gere cantilever formulas reproduces every LTB factor in the tables (3.14, 0.98, 3.54, 6.73, 8.06, 17.23), masses match a hand area to 0.01 g, FE deflection sits between frame bounds, and the K>=5 infeasibility is certain in closed form. The result the project exists for is not: feasibility is decided by a peak fillet stress read on a 1.5 mm mesh, and on h <= 1.0 both compared optima exceed the 100 MPa limit by 8-13%; the old rule's 2 mm design vanishes (as the chain's own simdesign-meshconverge had shown), so the saving is about 30%, not 12%. The direction of the conclusion holds. Tests pin only the closed form (4 of 5 core mutants survive), K=3 is guessed where EN 1993-1-1 and AISC F11 give a check (which the 1.5 mm design passes), and the step is textbook practice, far from the PhD bar. Below the bar on correctness, verification and claims."
 }

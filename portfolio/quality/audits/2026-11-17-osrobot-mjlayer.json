@@ -158,7 +158,8 @@
    "what": "README says the budget (chi ~ 0.3 to 0.6) is inside the range the source studies; the grid's budget cells span chi 0.245 to 0.949 and the cited source validates the corrections only for chi < 0.4 (21 of 36 cells beyond), with delta/R up to 1.5 (6 cells beyond the source's delta/R = 1).",
    "where": "research/osrobot-mjlayer/README.md:38",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16902"
   },
   {
    "severity": "medium",
@@ -172,7 +173,8 @@
    "what": "Trial forces (53.3/20.2/12.6 N) and the 75,000 N/m lip stiffness come from osrobot-mjpress, built on the osrobot-mjface model whose 2026-11-13 correction (MuJoCo solref read per kg: face 22,500 N/m, worst b=1000 peak ~204 N) changes them; this README does not note it. The conclusion's direction survives (forces exceed the budget by more), the ratios do not.",
    "where": "research/osrobot-mjlayer/README.md:11",
    "category": "source-data",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16902"
   },
   {
    "severity": "medium",
@@ -196,6 +198,6 @@
    "origin": "design"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16902"],
  "verdict": "A genuine but small research note, not a stub: two published bottom-effect polynomials for a sphere on a bonded incompressible layer, evaluated on a 36-cell grid to give a 'force budget' at 30 % depth. Every number reproduces, the coefficients match the cited PDF and an independent derivation from Dimitriadis 2002, and the qualitative message (a newton-scale force cap, not 65 N) is robust. It misses the bar on verification (3 of 4 seeded mutants survive; no test pins a number) and claims: the README states the budget sits inside the source's validated range when most cells (chi up to 0.95, delta/R up to 1.5) are beyond it, and the upstream trial forces it compares against predate the osrobot-mjface solref correction. A contact-mechanics reviewer would also ask for a large-indentation correction and a hyperelastic or FE check. Median 2; finished (completeness 3) but not expert-grade."
 }
