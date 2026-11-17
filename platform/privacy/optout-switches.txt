@@ -265,6 +265,7 @@ ventures/convenience-store-gas-station-profit-calculator/usage.mjs
 ventures/cookie-security-check/usage.mjs
 ventures/cors-misconfig-check/usage.mjs
 ventures/cost-segregation-study-calculator/usage.mjs
+ventures/cost-sharing-calculator/usage.mjs
 ventures/cottage-food-pricing-calculator/usage.mjs
 ventures/countertop-bid-calculator/usage.mjs
 ventures/courier-van-route-profit-calculator/usage.mjs

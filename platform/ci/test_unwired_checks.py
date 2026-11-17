@@ -196,12 +196,26 @@ class PullRequestTrigger(unittest.TestCase):
             t = Path(d) / "test_plain.py"
             t.write_text("def test_x():\n    assert 1 == 2\n")
             name, rc, out = u.run_suite(t)
-            if u.has_module("pytest"):
+            if u.pytest_python():
                 self.assertNotEqual(rc, 0)
             else:
                 self.assertTrue(out.startswith(u.SKIPPED))
 
 
+    def test_a_plain_suite_runs_under_another_python_that_has_pytest(self):
+        # 2026-11-17: this python3 lacked pytest, /usr/bin/python3.x had it,
+        # and every plain suite showed as a skip.
+        u.pytest_python.cache_clear()
+        try:
+            with mock.patch.object(u, "has_module", side_effect=lambda n, py=sys.executable: py == "/other/python3"), \
+                    mock.patch("pyenv.candidates", return_value=[sys.executable, "/other/python3"]):
+                self.assertEqual(u.pytest_python(), "/other/python3")
+            with mock.patch.object(u, "has_module", return_value=False), \
+                    mock.patch("pyenv.candidates", return_value=[sys.executable]):
+                u.pytest_python.cache_clear()
+                self.assertIsNone(u.pytest_python())
+        finally:
+            u.pytest_python.cache_clear()
 
     def test_node_suites_resolve_globs_from_the_steps_working_directory(self):
         """2026-11-14: platform/proposal/term-ids.test.mjs was red on main and

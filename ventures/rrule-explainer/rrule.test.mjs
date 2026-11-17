@@ -214,3 +214,105 @@ test("a zoned rule with no clock-change occurrences gets no DST finding", () => 
   const g = analyze({ text: "DTSTART;TZID=America/New_York:20260306T023000\nRRULE:FREQ=DAILY;COUNT=4" }).findings.find((f) => f.code === "dst-gap");
   assert.match(JSON.stringify(g), /1 listed occurrence falls/);
 });
+
+// Red-team gaps, 2026-11-17: each of these assertions fails on a mutant that
+// the suite let through (rrule.mjs lines 171, 264 and 693).
+test("a bad COUNT and a bad INTERVAL each get their own advice", () => {
+  const detail = (text, code) => parseRule(text).findings.find((f) => f.code === code)?.detail;
+  assert.match(detail("FREQ=DAILY;COUNT=0", "bad-count"), /^COUNT is how many occurrences/);
+  assert.match(detail("FREQ=DAILY;INTERVAL=x", "bad-interval"), /^INTERVAL defaults to 1/);
+});
+
+test("only a date-only DTSTART without VALUE=DATE gets the VALUE=DATE warning", () => {
+  const warns = (text) => parseInput(text).findings.filter((f) => f.code === "dtstart-value").map((f) => f.level);
+  assert.deepEqual(warns("DTSTART:20260105\nRRULE:FREQ=DAILY;COUNT=2"), ["warning"]);
+  assert.deepEqual(warns("DTSTART;VALUE=DATE:20260105\nRRULE:FREQ=DAILY;COUNT=2"), []);
+  assert.deepEqual(warns("DTSTART:20260105T090000\nRRULE:FREQ=DAILY;COUNT=2"), []);
+  assert.deepEqual(warns("DTSTART;TZID=Europe/Paris:20260105T090000\nRRULE:FREQ=DAILY;COUNT=2"), []);
+});
+
+test("BYYEARDAY is flagged with DAILY, WEEKLY and MONTHLY, and only those", () => {
+  const forbidden = (freq) =>
+    analyze({ text: `DTSTART:20260105T090000\nRRULE:FREQ=${freq};BYYEARDAY=100;COUNT=2` }).findings
+      .some((f) => f.code === "forbidden-part" && /BYYEARDAY/.test(f.title));
+  for (const freq of ["DAILY", "WEEKLY", "MONTHLY"]) assert.equal(forbidden(freq), true, freq);
+  for (const freq of ["YEARLY", "HOURLY", "MINUTELY", "SECONDLY"]) assert.equal(forbidden(freq), false, freq);
+});
+
+// Red-team defect, 2026-11-17: a huge INTERVAL with a TZID or a UTC DTSTART
+// threw RangeError (Intl and toISOString stop near year 275760), so the page's
+// Run button did nothing. iCalendar years have four digits (RFC 5545 3.3.4).
+test("dates stop at the end of year 9999 instead of throwing or printing five-digit years", () => {
+  for (const text of [
+    "DTSTART;TZID=America/New_York:20260105T090000\nRRULE:FREQ=DAILY;INTERVAL=99999999",
+    "DTSTART:20260105T090000Z\nRRULE:FREQ=YEARLY;INTERVAL=300000",
+    "DTSTART:20260105T090000\nRRULE:FREQ=YEARLY;INTERVAL=5000",
+    "DTSTART;TZID=Europe/Paris:99981231T090000\nRRULE:FREQ=DAILY;COUNT=800",
+  ]) {
+    const r = analyze({ text, limit: 1000 });
+    assert.ok(r.occurrences.length >= 1, text);
+    for (const o of r.occurrences) assert.match(o.date, /^\d{4}-/, text);
+    assert.ok(r.findings.some((f) => f.code === "past-year-9999"), text);
+    assert.equal(r.truncated, false, text);
+  }
+  const r = analyze({ text: "DTSTART;TZID=Europe/Paris:99981231T090000\nRRULE:FREQ=DAILY;COUNT=800", limit: 1000 });
+  assert.equal(r.occurrences.at(-1).date, "9999-12-31 09:00");
+  assert.equal(r.occurrences.length, 366);
+  assert.ok(!analyze({ text: "DTSTART:20260105T090000\nRRULE:FREQ=DAILY;COUNT=3" }).findings.some((f) => f.code === "past-year-9999"));
+});
+
+// Class guard for the defect above: the page calls analyze() with no
+// try/catch, so any throw leaves the Run button dead. Seeded fuzz over hostile
+// rule parts and every DTSTART kind; it must answer, never throw.
+test("analyze answers, never throws, on 50 seeded hostile rules", () => {
+  let seed = 20261117;
+  const rnd = (n) => ((seed = (seed * 1103515245 + 12345) % 2147483648), Math.floor((seed / 2147483648) * n));
+  const pick = (xs) => xs[rnd(xs.length)];
+  const ints = ["0", "1", "-1", "2", "7", "53", "-53", "366", "-366", "999", "99999999", "99999999999", "1e9", "", "x", "+5", "-0"];
+  const parts = {
+    FREQ: ["SECONDLY", "MINUTELY", "HOURLY", "DAILY", "WEEKLY", "MONTHLY", "YEARLY", "FORTNIGHTLY"],
+    INTERVAL: ints, COUNT: ints, UNTIL: ["20261231", "20261231T235959Z", "99991231T235959Z", "00010101", "2026", "20250101T000000"],
+    BYDAY: ["MO", "-1FR", "5SU", "53MO", "0MO", "MO,WE,2TU", "XX"], BYMONTHDAY: ints, BYYEARDAY: ints, BYWEEKNO: ints,
+    BYMONTH: ["1", "2", "12", "13", "0"], BYHOUR: ["0", "23", "24"], BYMINUTE: ["0", "59", "60"], BYSECOND: ["0", "60", "61"],
+    BYSETPOS: ints, WKST: ["MO", "SU", "XX"],
+  };
+  const starts = ["DTSTART:20260105T090000", "DTSTART:20260105T090000Z", "DTSTART;TZID=America/New_York:20260308T023000", "DTSTART;VALUE=DATE:20260131", "DTSTART;TZID=Australia/Lord_Howe:99991231T013000", "DTSTART:00010101T000000"];
+  for (let i = 0; i < 50; i++) {
+    const names = Object.keys(parts).filter(() => rnd(3) === 0);
+    // A far "Show from" makes a sub-daily rule run its full 3,000,000-step search (~0.5 s): keep those few.
+    const rule = ["FREQ", ...names].map((n) => `${n}=${pick(parts[n])}`).join(";");
+    const text = `${pick(starts)}\nRRULE:${rule}`;
+    let r;
+    assert.doesNotThrow(() => (r = analyze({ text, limit: pick([1, 25, 400]), after: rnd(25) ? pick(["", "2026-03-08 02:30"]) : "9999-12-31" })), text);
+    for (const o of r.occurrences) assert.match(o.date, /^\d{4}-\d\d-\d\d/, text);
+    assert.doesNotThrow(() => reportCsv(r), text);
+  }
+});
+
+// Red-team defect, 2026-11-17: a sub-daily rule's search stops after
+// 3,000,000 steps; the stop was dropped, so a never-ending rule read as
+// "No dates." Now it is a finding and searchStopped is set.
+test("a sub-daily search that hits its step cap says so instead of listing no dates", () => {
+  for (const [text, after] of [["DTSTART:20260105T090000\nRRULE:FREQ=SECONDLY", "2026-03-01"], ["DTSTART:20260105T090000\nRRULE:FREQ=HOURLY", "2400-01-01"]]) {
+    const r = analyze({ text, after });
+    assert.equal(r.searchStopped, true, text);
+    assert.ok(r.findings.some((f) => f.code === "search-stopped" && f.level === "warning"), text);
+  }
+  const ok = analyze({ text: "DTSTART:20260105T090000\nRRULE:FREQ=MINUTELY;INTERVAL=15", after: "2026-02-01" });
+  assert.equal(ok.searchStopped, false);
+  assert.equal(ok.occurrences[0].date, "2026-02-01 00:00");
+});
+
+test("a UTC UNTIL ends a zoned sub-daily rule on the right second, far from and near the bound", () => {
+  const utcs = (text) => analyze({ text, limit: 5000 }).occurrences.map((o) => o.utc);
+  const s = utcs("DTSTART;TZID=America/New_York:20260105T090000\nRRULE:FREQ=SECONDLY;UNTIL=20260105T140003Z");
+  assert.deepEqual(s, ["2026-01-05T14:00:00Z", "2026-01-05T14:00:01Z", "2026-01-05T14:00:02Z", "2026-01-05T14:00:03Z"]);
+  const h = utcs("DTSTART;TZID=Pacific/Kiritimati:20260105T090000\nRRULE:FREQ=HOURLY;UNTIL=20260107T190000Z");
+  assert.equal(h.at(-1), "2026-01-07T19:00:00Z");
+  assert.equal(h.length, 73); // 09:00 at +14:00 is 19:00Z the day before
+  // A SECONDLY rule with a far UNTIL and a far "Show from" took 53 s (a zone
+  // lookup per step); the page must answer in well under that.
+  const t0 = Date.now();
+  analyze({ text: "DTSTART;TZID=America/New_York:20260308T023000\nRRULE:FREQ=SECONDLY;UNTIL=99991231T235959Z", after: "9999-12-31" });
+  assert.ok(Date.now() - t0 < 10000, `${Date.now() - t0} ms`);
+});

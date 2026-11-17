@@ -59,6 +59,9 @@ const VIEWPORT = { width: 1280, height: 800 };
 const HERO_VIEWPORT = { width: 720, height: 900 };
 const HERO_BOX = { width: 720, height: 450 };
 const HERO_SIZE = '600x375';
+// And a 1,200 px twin for the srcset: a 290 px gallery card on a 3x phone
+// wants 870 px (polish-2026-11-17-hero-srcset.md).
+const HERO_WIDE_SIZE = '1200x750';
 
 /** A close crop of `shot.hero` and what follows it, for the hub's hero (HERO_VIEWPORT). */
 async function heroCrop(page, shot, png) {
@@ -160,6 +163,8 @@ try {
       await heroCrop(heroPage, shot, heroPng);
       entry.hero = `${shot.slug}-hero.webp`;
       execFileSync('convert', [heroPng, '-resize', HERO_SIZE, '-quality', '78', path.join(HERE, entry.hero)]);
+      entry.heroWide = `${shot.slug}-hero-1200.webp`;
+      execFileSync('convert', [heroPng, '-resize', HERO_WIDE_SIZE, '-quality', '72', path.join(HERE, entry.heroWide)]);
       console.log(`hero crop: ${entry.hero}`);
     }
     manifest.shots.push(entry);

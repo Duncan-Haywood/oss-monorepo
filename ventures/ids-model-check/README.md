@@ -163,6 +163,64 @@ ifcXML (entity for entity, `iN` for `#N`) and `samples/tiny-house.ifczip` the
 
 No API key, account or server is involved, so there is nothing to configure.
 
+### On every commit: GitHub Action, JUnit and annotations (2026-11-17)
+
+A team that keeps its IFC exports and IDS files in a repository can check every
+model against every IDS on each push or pull request. `action.yml` is a
+composite action with no dependencies beyond the runner's Node (18+):
+
+```yaml
+# .github/workflows/ids.yml in your repository
+on: [push, pull_request]
+jobs:
+  ids:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Duncan-Haywood/oss-monorepo/ventures/ids-model-check@main
+        with:
+          models: "models/**/*.{ifc,ifczip,ifcxml}"
+          ids: "requirements/*.ids"
+          # pairing: name     # wall.ifc only against wall*.ids
+          # fail-on: warning  # also fail on optional specifications
+          bcf-dir: bcf        # one BCF 2.1 file per failing pair
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ids-report
+          path: |
+            ids-report.xml
+            bcf/
+```
+
+It writes a JUnit report (`ids-report.xml`, one test case per specification,
+read by GitHub test-report actions, GitLab, Jenkins and Azure DevOps), a job
+summary table, an annotation per failing specification placed on the first
+failing element's `#id=` line of a STEP model, and the outputs `result`,
+`passed`, `failed`, `warnings`, `invalid` and `elements-failed`. Required and
+prohibited failures, invalid specifications and unreadable files fail the step;
+optional ones are warnings unless `fail-on: warning`; `fail-on: never` only
+reports. A glob that matches nothing exits 2 rather than passing an empty
+check. Pinning `@main` follows this repository; pin a commit SHA for a
+repeatable build, or copy the folder (it runs from its own directory).
+
+Outside GitHub the same entry point runs anywhere Node does (GitLab CI,
+Jenkins, a pre-commit hook):
+
+```
+node ci-cli.mjs --models "models/**/*.ifc" --ids "req/*.ids" --junit report.xml \
+  [--summary summary.md] [--bcf-dir bcf/] [--json results.json] [--annotations] \
+  [--pairing all|name] [--fail-on error|warning|never] [--root DIR]
+node cli.mjs model.ifc spec.ids --junit report.xml   # one pair
+```
+
+Measured on four real exports (`eval/ci-action-2026-11-17.md`): 4 models (76 MB)
+against the two starter IDS files, 8 pairs, in 7.3-7.7 s on Node 22; 16
+annotations, every one of the 9 with a line number on the failing element's own
+line; JUnit valid XML. GitHub shows at most ten error annotations per step, so
+the job summary and JUnit file carry the full list. Each model is parsed once
+per IDS file, so N models by M IDS files cost N x M parses.
+
 ## How it was checked
 
 1. **buildingSMART's test suite.** `eval/fetch-testcases.sh` sparse-clones
@@ -413,7 +471,8 @@ faster than IfcTester; its point is needing no install.
   of 122 standard properties real exports write in another type.
 - More real models through the IfcTester cross-check (an MEP model, an IFC4X3
   infrastructure model).
-- A GitHub Action wrapper for checking models on every commit.
+- The GitHub Action (landed 2026-11-17): parse each model once for all its IDS
+  files; a team's real repository of exports running it.
 
 ## Sources
 
