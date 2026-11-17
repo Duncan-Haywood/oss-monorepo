@@ -2,7 +2,7 @@
 title: "The fix was in a file the friction ranker ignored on purpose"
 seo_title: "friction_rank.py flags rows a process commit already edited"
 date: 2026-11-17
-description: "Process runs kept checking doc-friction rows that were already fixed. A fix-track commit on the reported file now marks the row, and 4 of the 5 it marked were fixed."
+description: "Process runs kept rechecking doc-friction rows that were already fixed. A process commit on the reported file now marks the row; 4 of the first 5 were fixed."
 tags: [process, tooling, agents]
 ---
 
