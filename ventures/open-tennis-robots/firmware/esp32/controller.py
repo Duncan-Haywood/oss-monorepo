@@ -38,7 +38,7 @@ TELEMETRY_MS = 100
 ROLE_FEEDER = "feeder"
 ROLE_COLLECTOR = "collector"
 
-FEEDER_CMDS = (P.SET_WHEELS, P.SET_AIM, P.FEED, P.SET_BASE, P.RESET_LIFT_HUB)
+FEEDER_CMDS = (P.SET_WHEELS, P.SET_AIM, P.FEED, P.SET_BASE, P.RESET_LIFT_HUB, P.SURVEY_TAKE)
 COLLECTOR_CMDS = (P.DRIVE, P.PICKUP)
 
 MAX_RPM = 7000
@@ -355,6 +355,60 @@ ESC_SURVEY_GRID_US = (0, 20000, 50000, 100000, 200000, 400000)
 # trim and the plain sum scores 102; the trim stays as a guard for shapes the simulator lacks.
 SURVEY_TRIM = 5.0
 SURVEY_KEEP = 128      # wheels whose residuals the board keeps for the median (24 bytes each); the oldest goes first
+# The contact-time survey (2026-11-17, README "The contact time surveyed on the board"): as the ESC-lag survey, but each
+# turning wheel is refitted at these contact times (half-sine, take_offsets) with the board's own ESC lag, and the
+# least summed squared rms names the build's ball contact time for `config.TAKE_US`. tests/take_fit.py's candidates:
+# refitting each wheel at them and keeping the least did as well as the true contact time. Each fit costs four times the
+# exponentials of a step and keeps the tau refinement (36 steps a fit, not 15), about 5 s of control ticks a two-wheel
+# ball, so it runs only while the Pi has asked for it (SURVEY_TAKE, sent for a calibration drill, which then waits).
+TAKE_SURVEY_GRID_US = (0, 2000, 3000, 4000, 5000, 6000, 8000)
+
+
+class ResidualSurvey:
+    """Each surveyed wheel's squared residual rms per candidate on `grid` (the last SURVEY_KEEP wheels), summed over the
+    wheels whose best fit is within SURVEY_TRIM times the median wheel's best, and the least sum refined by
+    `survey_pick`. The ESC-lag survey's arithmetic (LaunchCheck.survey_add / _survey_sums) for another grid."""
+
+    def __init__(self, grid):
+        self.grid = tuple(grid)
+        self.wheels = []
+        self.n = 0
+        self.trimmed = 0
+        self._kept = 0
+        self._sums = None
+        self._sums_n = -1
+
+    def add(self, got):
+        self.wheels.append(array("f", got))
+        if len(self.wheels) > SURVEY_KEEP:
+            self.wheels.pop(0)
+        self.n += 1
+
+    def sums(self):
+        if self._sums_n != self.n:
+            best = sorted(min(w) for w in self.wheels)
+            cap = SURVEY_TRIM * SURVEY_TRIM * best[len(best) // 2] if best else 0.0
+            sums = [0.0] * len(self.grid)
+            kept = 0
+            for w in self.wheels:
+                if min(w) <= cap:
+                    kept += 1
+                    for i in range(len(sums)):
+                        sums[i] += w[i]
+            self._sums, self._kept, self.trimmed, self._sums_n = sums, kept, len(self.wheels) - kept, self.n
+        return self._sums
+
+    def report(self, unit_us):
+        """(wheels surveyed, the least sum's candidate and the refined one in `unit_us`, each candidate's mean rms in
+        1e-6 of the pre-ball speed) or None before the first wheel."""
+        if self.n == 0:
+            return None
+        sums = self.sums()
+        i, ref = survey_pick(self.grid, sums)
+        if i is None:
+            return None
+        rms = [min(65535, int(round(1e6 * math.sqrt(v / self._kept)))) for v in sums]
+        return (min(255, self.n), int(round(self.grid[i] / unit_us)), int(round(ref / unit_us)), rms)
 
 
 def survey_pick(grid, sums):
@@ -1519,8 +1573,14 @@ class LaunchCheck:
     s of the 0.9 s GATE_OUT_MS), and the Pi's re-aim comes after the end, so the drop it makes is always in the window."""
 
     def __init__(self, inertia, ball_kg, wheel_r, ball_r, speed_eff, spin_eff, share=0.25, dip_min=0.015, check_ms=250,
-                 esc_tau_us=0, survey=ESC_SURVEY_GRID_US):
+                 esc_tau_us=0, survey=ESC_SURVEY_GRID_US, take_us=None, take_grid=TAKE_SURVEY_GRID_US):
         self.model = (inertia, ball_kg, wheel_r, ball_r, speed_eff, spin_eff)
+        # The ball's contact time the drop fit models (config TAKE_US; README "A take that lasts a few milliseconds"):
+        # 0 or None keeps the module's LOOP_TAKE (the step unless a test sets it), else a half-sine of that time.
+        self.take_us = take_us
+        # The contact-time survey (README "The contact time surveyed on the board"): `take_on` while the Pi asks for it.
+        self.take_survey = ResidualSurvey(take_grid) if take_grid else None
+        self.take_on = False
         self.esc_tau_us = esc_tau_us  # the ESC's own lag for the drop fit (config ESC_TAU_US; 0: the wheel's lag only)
         self.share, self.dip_min, self.check_ms = share, dip_min, check_ms
         self.targets = None
@@ -1771,7 +1831,7 @@ class LaunchCheck:
                 continue
             e0 = edges0[k]
             tk = esc_lagged_ticks(snap[k], [(c - e0, us, u) for c, us, u in ticks[k]], self.esc_tau_us)
-            for item in drop_from_commands_steps(snap[k], tk, take=LOOP_TAKE):
+            for item in drop_from_commands_steps(snap[k], tk, take=self.take()):
                 if item is None:
                     yield None
                 else:
@@ -1786,12 +1846,58 @@ class LaunchCheck:
             drops = [int(round(10000 * dips[k])) for k in (0, 1)]
             self.record = (seq, int(round(speeds[0])), int(round(speeds[1])), min(32767, drops[0]),
                            min(32767, drops[1]), flags)
-        if self.survey:
+        if self.survey or (self.take_on and self.take_survey is not None):
             self.surveying = self._survey(snap, ticks, edges0, targets)
+
+    def take(self):
+        """The take offsets the record's drop fit runs with."""
+        return take_offsets(self.take_us) if self.take_us else LOOP_TAKE
+
+    def take_ms10(self):
+        """The contact time the drop fit models (`take_us`; 0 for the step), in 0.1 ms, for the TAKE_SURVEY frame."""
+        return int(round((self.take_us or 0) / 100))
 
     def _survey(self, snap, ticks, edges0, targets):
         """Each turning wheel refitted at every lag on `survey`, one step a tick; a wheel's squared residuals are added
-        once every lag fitted it (as tests/esc_lag_pick.py's pick)."""
+        once every lag fitted it (as tests/esc_lag_pick.py's pick). Then, while `take_on`, each turning wheel refitted at
+        every contact time of the take survey with the board's own ESC lag (`_take_survey`)."""
+        if self.survey:
+            for item in self._esc_survey(snap, ticks, edges0, targets):
+                yield item
+        if self.take_on and self.take_survey is not None:
+            for item in self._take_survey(snap, ticks, edges0, targets):
+                yield item
+
+    def _take_survey(self, snap, ticks, edges0, targets):
+        ts = self.take_survey
+        for k in (0, 1):
+            if targets[k] <= 0:
+                continue
+            e0 = edges0[k]
+            tk = esc_lagged_ticks(snap[k], [(c - e0, us, u) for c, us, u in ticks[k]], self.esc_tau_us)
+            got = []
+            for c in ts.grid:
+                fit = None
+                # with the tau refinement the record's fit has: without it (refine=0, as the ESC-lag survey) the fits
+                # missed by about 60 times the refined fit's rms and every candidate scored alike, so a 6 ms take
+                # picked 0 (README "The contact time surveyed on the board")
+                for item in drop_from_commands_steps(snap[k], tk, take=take_offsets(c)):
+                    if item is None:
+                        yield None
+                    else:
+                        fit = item[1]
+                if fit is None:
+                    break
+                got.append(fit[4] * fit[4])
+            if len(got) == len(ts.grid):
+                ts.add(got)
+
+    def take_report(self):
+        """The contact-time survey for the TAKE_SURVEY frame: (wheels, least and refined contact time in 0.1 ms, each
+        candidate's mean rms in 1e-6 of the pre-ball speed), or None before its first wheel."""
+        return self.take_survey.report(100) if self.take_survey is not None else None
+
+    def _esc_survey(self, snap, ticks, edges0, targets):
         for k in (0, 1):
             if targets[k] <= 0:
                 continue
@@ -1981,6 +2087,12 @@ class Controller:
             hw.drive(left, right)
         elif cmd == P.PICKUP:
             hw.pickup(bool(values[0]))
+        elif cmd == P.SURVEY_TAKE:
+            # The contact-time survey on or off (README "The contact time surveyed on the board"): the Pi turns it on
+            # for a calibration drill, since each ball's survey then costs about twice the board time.
+            on = getattr(hw, "take_survey", None)
+            if on is not None:
+                on(bool(values[0]))
         elif cmd == P.RESET_LIFT_HUB:
             reset = getattr(hw, "lift_hub_reset", None)
             if values[0] == P.RESET_LIFT_HUB_KEY and reset is not None:
@@ -2034,6 +2146,11 @@ class Controller:
         if sv is not None:
             rms = (list(sv[3]) + [65535] * P.ESC_SURVEY_LAGS)[:P.ESC_SURVEY_LAGS]
             out += P.encode(P.ESC_SURVEY, sv[0], min(65535, sv[1]), min(65535, sv[2]), *rms)
+        tv = getattr(self.hw, "take_survey_report", None)
+        tv = tv() if tv is not None and self.role == ROLE_FEEDER else None
+        if tv is not None:
+            rms = (list(tv[4]) + [65535] * P.TAKE_SURVEY_TIMES)[:P.TAKE_SURVEY_TIMES]
+            out += P.encode(P.TAKE_SURVEY, tv[0], min(65535, tv[1]), min(65535, tv[2]), min(65535, tv[3]), *rms)
         # The lag the drop fit runs with rides along too (README "Checked before a calibration drill"): the Pi compares
         # it with the last survey before a drill's first ball, since a board told the wrong lag reads spin far off.
         tau = getattr(self.hw, "esc_tau_ms", None)

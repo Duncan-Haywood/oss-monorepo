@@ -113,6 +113,9 @@ def cmd_run(a: argparse.Namespace) -> int:
     advice = host.esc_survey_advice(res.esc_survey, res.esc_tau_ms or 0)
     if advice:
         print(advice)
+    advice = host.take_survey_advice(res.take_survey)
+    if advice:
+        print(advice)
     return 0
 
 
@@ -127,6 +130,9 @@ def cmd_esc_lag(a: argparse.Namespace) -> int:
     ran = sv.get("esc_tau_ms")
     print(json.dumps({k: sv.get(k) for k in ("at", "drill", "wheels", "least_ms", "refined_ms", "esc_tau_ms")}))
     print(host.esc_survey_advice(sv, ran or 0))
+    tv = host.last_take_survey_from_log(a.log)
+    if tv is not None:
+        print(host.take_survey_advice(tv))
     return 0
 
 
