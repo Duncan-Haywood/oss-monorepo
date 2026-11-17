@@ -403,6 +403,20 @@ export const AUDIENCES = [
       'Going independent as a stylist, barber or lash artist? The booth rent vs commission calculator answers the first decision: at what weekly takings renting your own chair pays.',
     match: /salon|barber|booth-rent|stylist|(^|-)(lash|hair|nail)-|esthetic|tattoo/,
   },
+  {
+    id: 'retirees',
+    who: 'retirees',
+    name: 'Retirees & near-retirees',
+    title: 'Free retirement calculators for retirees and pre-retirees',
+    description:
+      'Free retirement calculators: RMDs, QCDs, Medicare IRMAA, Social Security claiming age and taxes, Roth conversions, pension lump sums and withdrawal order.',
+    intro:
+      'Calculators for the money decisions around retirement: when to claim Social Security and how much of it is taxed, required minimum distributions and giving them away as QCDs, the Medicare IRMAA and ACA subsidy cliffs, Roth conversions, a pension lump sum against the annuity, and which account to draw from first. Most follow US federal rules; the two marked UK cover the State Pension and pension withdrawals.',
+    starting:
+      'Retiring in the next few years? Start with the Social Security claiming age calculator and the withdrawal sequencer: the first sets your income floor, and the second shows how the order you draw from accounts moves your tax bill, IRMAA and RMDs.',
+    match:
+      /(^|-)rmd-|(^|-)qcd-|irmaa|pension-lump-sum|retirement-withdrawal|roth-conversion|social-security|fers-retirement|uk-pension-withdrawal|uk-state-pension|aca-subsidy-cliff/,
+  },
 ];
 
 export function audiencePageId(audience) {

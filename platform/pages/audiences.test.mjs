@@ -152,3 +152,25 @@ test('slug rules claim the UK section 24 and 1099-K tools for their audiences', 
   assert.ok(audienceMatches(byId.freelancers, '1099-k-threshold-checker'));
   assert.ok(!audienceMatches(byId.freelancers, '1100-k-threshold-checker'));
 });
+
+test('the retirees page claims the drawdown-years tools and leaves saving-years and employer ones out', () => {
+  for (const slug of [
+    'rmd-calculator',
+    'qcd-calculator',
+    'medicare-irmaa-cliff-calculator',
+    'social-security-claiming-age-calculator',
+    'retirement-withdrawal-sequencer',
+    'pension-lump-sum-vs-annuity-calculator',
+    'uk-state-pension-ni-years-checker',
+  ]) {
+    assert.ok(audienceMatches(byId.retirees, slug), slug);
+  }
+  for (const slug of [
+    'retirement-plan-startup-credit-calculator',
+    'uk-pension-annual-allowance-calculator',
+    'sep-ira-contribution-calculator',
+    'inherited-ira-10-year-withdrawal-planner',
+  ]) {
+    assert.ok(!audienceMatches(byId.retirees, slug), slug);
+  }
+});
