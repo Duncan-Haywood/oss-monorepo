@@ -1,0 +1,55 @@
+{
+ "date": "2026-11-17",
+ "session": "https://claude.ai/code/session_01EhTJVMMKzaBYaxWuXL7K2y",
+ "track": "process",
+ "prompt_version": 1,
+ "input": null,
+ "input_sha256": null,
+ "follow_up_inputs": [],
+ "model": null,
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-17T08:01:46Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": 16868,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "portfolio/router/flagship_field.py",
+   "issue": "park_candidates split items on every '; ', including inside parentheses, so a trim offered half-items (e.g. 'the Nexus 5X carries ForwardMatrix)'); fixed here with a bracket-aware split."
+  },
+  {
+   "file": "platform/ci/friction_rank.py",
+   "issue": "--record-verdict --match is checked against every report in the file, so a broad regex ('cap') would also have hidden the separate buildable: 600-cap clusters; it reported 99 matches without listing which clusters, so the scope had to be checked by hand."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "prompt.md",
+   "why": "The scheduled prompt asks for revenue product work; the router drew process. Followed the router: the fix saves time on every flagship venture run (18 reports in 3 days).",
+   "did": "process critique of the top live friction row",
+   "result": "shipped tool fix and trimmed 11 rows"
+  }
+ ],
+ "writeups": [],
+ "goal": null,
+ "notes": "Critique mode (backlog held only owner rows). Target: friction_rank.py --live --ungated --days 3 top row, flagships.yaml next: at cap (18x, 2026-11-14..17). Root cause: --make-room parked only to the cap so rows stayed full. Fix: FLAGSHIP_NEXT_TARGET=1700, auto make-room on over-cap next: edits, --trim, bracket-safe item split. Trimmed 11 rows to 1,502-1,691; 33 items moved to NEXT.md. Verdict recorded in friction_verdicts.json (regex narrowed to next:). Verification: pytest portfolio/router test_flagship_field/test_validate/test_allocate pass (5 new tests); flagship_field --check, validate.py, check_post_frontmatter clean; main_health 254/254 before the change. No backlog ids touched (none agent-owned open).",
+ "corrections": [],
+ "redteam": null
+}
