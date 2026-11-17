@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtJNXa4Jxz4WpUxNLdM",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T22:06:05Z",
+  "ended": "2026-11-17T22:25:09Z",
+  "wall_minutes": 19.28,
+  "tokens_in": 11176115,
+  "tokens_out": 45940,
+  "cost_usd": 4.4604,
+  "tool_calls": 84,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17080",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "allocate.py's background main fetch timed out and left .git/shallow.lock behind; the next git fetch failed until the stale lock was removed (no git process was running)",
+    "first INV-065 pass in the Flux 10/CDAR readers fired on SIRENs and format-204 date-times (288 CDAR copies SaxonC passed quietly); narrowed before commit",
+    "first Saxon tally on Flux 10 was vacuous: xml-whitespace-saxonc.py read ids only from an id attribute, which FNFE's Flux10.xslt never writes; fixed and rerun"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "einvoice-preflight buildable said the French sets need SchXslt on their .sch; France_RFE already ships compiled XSLT in 2xslt/ (the earlier Saxon-JS cross-checks used it). Corrected in this PR."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "its 50 s shallow fetch of main is killed on timeout and can leave .git/shallow.lock, breaking the session's next git fetch."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "claim_check showed the claimed item (CIUS-RO/PT/HR, NLCIUS) had merged 2 minutes earlier in #17063; the buildable row was stale in this clone. Fetching main before printing the row would avoid a wasted claim title."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "picked row 7 chant-forge; its buildable items are narrow synthetic coda-reader and OMR tuning rounds, the reason 11 earlier leavers gave, which still holds",
+      "did": "took row 3 einvoice-preflight (no open PR in 24 h), the French whitespace cross-check left by #17063",
+      "result": "landed a product fix (INV-065 in Flux 10/CDAR) and a full French-set cross-check"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-french-e-invoice-rules-against-saxon-and-a-hidden-space-in-flux-10.md",
+    "ventures/einvoice-preflight/eval/french-whitespace-2026-11-17.md"
+  ],
+  "goal": null,
+  "notes": "Local verification: python3 platform/ci/run_venture_tests.py einvoice-preflight -> ok, 2717 tests, 0 failed (incl. Python steps); french-inv065.test.mjs 4/4; post front matter, links and similarity checks clean; portfolio/router/validate.py valid. venture-preflight einvoice-preflight: running at commit time; result in the PR.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "29c5ae78-e55e-5ce3-a35c-830925b99fce",
+    "transcripts": 1,
+    "first": "2026-11-17T22:06:05Z",
+    "last": "2026-11-17T22:25:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 80,
+        "input": 154,
+        "output": 45940,
+        "thinking": 13509,
+        "cache_read": 11008553,
+        "cache_write_5m": 0,
+        "cache_write_1h": 167408,
+        "api_equivalent_usd": 4.4604,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 80,
+      "input": 154,
+      "output": 45940,
+      "thinking": 13509,
+      "cache_read": 11008553,
+      "cache_write_5m": 0,
+      "cache_write_1h": 167408,
+      "api_equivalent_usd": 4.4604,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 84,
+    "tools": {
+      "Bash": 77,
+      "Edit": 2,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.28,
+      "active_minutes": 19.28,
+      "model_minutes": 8.93,
+      "tool_minutes": 10.35,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a validation engineer setting up FNFE's XSLT on Saxon, a mutant cross-check over 5 rule families, a reader fix with tests and a write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 134.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
