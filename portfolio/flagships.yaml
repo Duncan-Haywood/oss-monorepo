@@ -253,16 +253,15 @@ flagships:
       a flow bound"); 2 s reserve at 300+ copies (4 s worse, 1.2 s ties); day sweeps
       LP-guided, by the open-hours LP when the pay floor is skipped (README "A guide
       when the pay floor is skipped"); pay floor tries past a spent budget, 4 s
-      (README "The pay floor once the budget is spent"); walk, repair and pay polish
-      stop at the budget (README "The pay polish stops at the budget's end"); re-run
-      the keep-usual-shifts sweep on real dated leave records; a manager's read on
-      whether the steadier plan is the one they would post; a real 7shifts account
-      through --import-7shifts (README "Reading 7shifts directly"); a real When I
-      Work account or response through --import-wheniwork (README "Reading When I
-      Work directly"); Homebase (docs need an account); a real Square account via
-      --import-square (README "Reading Square's schedule"); --cover-price moves two
-      shifts together (README "Moving two shifts together"). More open items:
-      NEXT.md.
+      (README "The pay floor once the budget is spent"); day sweeps keep 2 s past a
+      spent budget (2 of 11 open hours late; repeat ladders none, README "The day
+      sweeps past a spent budget"); re-run the keep-usual-shifts sweep on real dated
+      leave records; a manager's read on whether the steadier plan is the one they
+      would post; a real 7shifts account through --import-7shifts (README "Reading
+      7shifts directly"); a real When I Work account or response through
+      --import-wheniwork (README "Reading When I Work directly"); Homebase (docs
+      need an account); a real Square account via --import-square (README "Reading
+      Square's schedule"). More open items: NEXT.md.
   - venture: photo-editing
     hosts: [https://raw.pixls.us/, https://github.com/]
     why: >-
