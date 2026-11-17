@@ -185,7 +185,8 @@
    "what": "The one anomaly is explained wrongly: del@122:delete (deletes 'done <= 0;') prints all 2,000 OUT rows, done is X on the first 10 and 1 on the rest, latency 1 cycle on every vector (golden 20). The eda-verify checker's regex drops the 10 X rows and returns the row count 1990 as a vector index. README and the live summary say it 'returns 10 fewer output rows than vectors, not a wrong value', consistent with truncation; in fact it is wrong on every vector from vector 0.",
    "where": "research/eda-deepdraw/README.md:27",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16857"
   },
   {
    "severity": "medium",
@@ -227,9 +228,10 @@
    "what": "'about 12 minutes on 4 cores': the committed log sums 507 CPU-s, about 2 minutes wall on 4 cores.",
    "where": "research/eda-deepdraw/README.md:18",
    "category": "stale-docs",
-   "origin": "maintenance"
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16857"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16857"],
  "verdict": "The arithmetic is right and the headline holds: the 0-in-n bound (0.002338 down to 0.000141, 16.6x) matches an independent Clopper-Pearson calculation, analyse.py regenerates results.txt byte for byte, re-running run.py reproduces every row of draws.jsonl, and a golden-vs-mutant raw diff on 12,000 fresh vectors (uniform, corner-biased and sparse) finds no difference for any of the 25 survivors. The project's one explanatory finding is false. del@122:delete deletes 'done <= 0;'. It prints all 2,000 rows, done is X on the first 10, and latency is 1 cycle instead of 20 on every vector. The inherited checker's regex drops the X rows and reports the row count as a vector index, so '10 fewer output rows, not a wrong value' is an artefact of the parser, and analyse.py builds a classifier on it. Running one command on the simulator output would have shown this, and the README lists that step as future work. The 9 timeouts are reset-value and out-of-range-index edits that an RTL reading shows cannot be seen at the done-sampled port, so the 20,000-vector bound adds little and the proposed biased generator cannot help. Three of four seeded mutants survive tests that read the committed log, and no prior work is cited. Not at the bar on correctness, claims, verification, fitness or domain."
 }

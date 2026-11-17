@@ -198,7 +198,8 @@
    "what": "Served page summary is corrupted (a sentence pasted into itself four times with stray ';nbsp;') and its ranges contradict its own condition: one start '72-100%' and four '82-100%' come from the excluded mild n=200 cell (actual 78-100% and 93-100%), and '4 starts reach it in every such cell' is false (random K=4 = 0.93 at hard 1/3, n=200).",
    "where": "research/_homepage/projects.json:1933",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16857"
   },
   {
    "severity": "medium",
@@ -226,7 +227,8 @@
    "what": "Result 4 'mean utility differs by at most about 0.0002 within a cell' vs 0.3909-0.3912 (0.0003) in the null n=1000 cell.",
    "where": "research/ambient-startcount/README.md:35",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16857"
   },
   {
    "severity": "low",
@@ -236,6 +238,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16857"],
  "verdict": "The arithmetic is right and the output reproduces: the seeded rerun matches results.txt line for line, the sampler matches its exact joint (chi2 78.5 on 80 df), the generator's marginal accuracy is 0.8 in every cell, and an independent EM reproduces the fits. The study's central measurement is not. Re-running the null cell to a 50,000-iteration cap, 12 of 21 'missed optima' are fits stopped at the 2000 cap, so the claim that more starts keep finding better optima there is mostly an iteration-budget effect, which the README concedes it did not separate. The reported log-likelihood lags one iterate by more than the hit threshold. Three of five seeded mutants in the EM and the K-start selection survive the tests. The served page summary is garbled and quotes ranges from the cell it excludes. No starting-value literature is cited for a question it has studied since 2003. Below the bar on correctness, verification, claims and domain."
 }

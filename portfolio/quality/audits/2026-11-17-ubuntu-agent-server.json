@@ -167,7 +167,8 @@
    "what": "claude.sh passes --output-format stream-json with -p but no --verbose; Claude Code rejects this with 'requires --verbose' and exit 1, so every claude-tool run fails before starting and the issue is labelled agent:failed",
    "where": "ventures/ubuntu-agent-server/roles/agent_runner/files/runners/claude.sh:40",
    "category": "not-built-or-run",
-   "origin": "build"
+   "origin": "build",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16857"
   },
   {
    "severity": "high",
@@ -202,7 +203,8 @@
    "what": "README says 28 unit tests (43 now) and points at .github/workflows/ci.yml inside the subject (CI is the repo-level ubuntu-agent-server-ci.yml)",
    "where": "ventures/ubuntu-agent-server/README.md:464",
    "category": "stale-docs",
-   "origin": "maintenance"
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16857"
   },
   {
    "severity": "low",
@@ -226,6 +228,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16857"],
  "verdict": "A carefully commented Ansible + systemd agent runner whose pure helpers are well tested (43 pass; sync/fold verified against real git with an upstream commit landing mid-run) and whose playbook parses and lints clean, but the primary paths fail when actually run: the real Claude Code CLI rejects claude.sh's flags ('stream-json requires --verbose'), dry_run re-runs the agent on the same issue every poll (harness: 3 polls, 3 runs, 3 comments), and the GitHub labels the claim step needs are never created, so a fresh repo is silently never worked. The guardrail code (dry_run, secret-scan gate) has no test and two mutants there survive. It does not meet the bar; a senior SRE would not enable it until those three are fixed and the CLI argv is exercised against the real binaries."
 }

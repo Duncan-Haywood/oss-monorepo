@@ -164,14 +164,16 @@
    "what": "Headline 'The G1's wall is one joint: the waist pitch' is a single-pose result stated generally; the in-repo buildbot-holdheat pose search (earlier) moves the binding joint to wrist pitch at a closer-in hold, and is not cited, so 'upgrade the waist' (Next steps) is not the supported action",
    "where": "research/buildbot-torquewall/README.md:8",
    "category": "research-design",
-   "origin": "design"
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16857"
   },
   {
    "severity": "medium",
    "what": "Limits are Menagerie peak torques (actuatorfrcrange); a sustained carry is sized against the continuous rating, which buildbot-holdheat shows makes nothing sustainable at this pose for rho <= 0.5; not in Limitations",
    "where": "research/buildbot-torquewall/README.md:38",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16857"
   },
   {
    "severity": "medium",
@@ -185,7 +187,8 @@
    "what": "results.txt/README label the worst-joint tally 'cases that fail only on torque' but the filter (ik ok and ratio > 1) admits CoP failures: 4 of 7 G1 4 kg cases also have the CoP outside the sole",
    "where": "research/buildbot-torquewall/experiments/run.py:67",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16857"
   },
   {
    "severity": "low",
@@ -199,7 +202,8 @@
    "what": "Limits table omits limits that the groups scale: G1 waist_yaw 88, G1 wrist pitch/yaw 5, H1 torso 200 N.m",
    "where": "research/buildbot-torquewall/README.md:22",
    "category": "stale-docs",
-   "origin": "maintenance"
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16857"
   },
   {
    "severity": "low",
@@ -216,6 +220,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16857"],
  "verdict": "The numbers are right and reproducible: a full rerun under MuJoCo 3.3.7 is byte-identical, an independent statics calculation reproduces the waist-pitch torque within 1.7%, and the speed table and the physics invariants (limits never touch the dynamics) check exactly. It does not meet the bar: verification is 2 (run.py, which produces every headline number, is untested; 2 of 5 mutants survived) and claims are 2 (the 'one-joint wall' is a single-pose, peak-torque result stated generally, contradicted for posture by the repo's own buildbot-holdheat; the 'torque-only' tally includes CoP failures; the H1 story is mostly IK and CoP). As research it is a sensitivity run on a static torque budget with no prior work cited, a useful note inside a programme rather than a result a humanoid actuator engineer would act on."
 }
