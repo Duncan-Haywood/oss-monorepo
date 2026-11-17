@@ -52,3 +52,10 @@ test("normalizeCreditNote keeps the credited invoice line id", () => {
   const out = normalizeCreditNote({ id: "cn_2", invoice: "in_1", created: 1700100000, lines: { data: [{ id: "cnl_2", amount: 500, invoice_line_item: "il_9" }] } });
   assert.equal(out[0].credits, "il_9");
 });
+
+test("normalizeCreditNote: exclusive tax and a zero discount change nothing, the currency is kept", () => {
+  const out = normalizeCreditNote({ id: "cn_3", invoice: "in_1", created: 1700100000, currency: "eur", lines: { data: [{ id: "cnl_3", amount: 3000, discount_amounts: [{ amount: 0 }, { amount: 500 }], tax_amounts: [{ amount: 600, inclusive: false }, { amount: 100, inclusive: true }] }] } });
+  assert.equal(out[0].amount, -2400);
+  assert.equal(out[0].currency, "eur");
+  assert.equal(normalizeCreditNote({ id: "cn_4", created: 1, lines: { data: [{ id: "l", amount: 1 }] } })[0].currency, "usd");
+});
