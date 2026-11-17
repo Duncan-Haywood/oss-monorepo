@@ -1294,6 +1294,7 @@ ventures/vineyard-grape-vs-wine-calculator/usage.mjs
 ventures/vinyl-liner-bid-calculator/usage.mjs
 ventures/visit-keeper/usage.mjs
 ventures/voiceover-project-rate-calculator/usage.mjs
+ventures/voltage-drop-calculator/usage.mjs
 ventures/volunteer-shift-scheduler/usage.mjs
 ventures/vpat-acr-generator/usage.mjs
 ventures/vscode-extension-drift-check/usage.mjs
