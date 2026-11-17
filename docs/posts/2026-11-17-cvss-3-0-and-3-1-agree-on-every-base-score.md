@@ -2,7 +2,7 @@
 title: "CVSS 3.0 and 3.1 agree on every base score; a floating-point ceiling does not"
 seo_title: "CVSS 3.0 vs 3.1 score differences, measured over every vector"
 date: 2026-11-17
-description: "We scored all 259,200 CVSS base and temporal vectors under both versions. Base and temporal scores never differ. Environmental scores differ by 0.1 when scope is Changed, and naive 3.0 rounding is wrong 228 times."
+description: "All 259,200 CVSS base and temporal vectors score the same under 3.0 and 3.1. Environmental scores and naive 3.0 rounding are where they part."
 tags: [cvss-vector-check, security, cvss, measurement]
 ---
 
