@@ -30,6 +30,15 @@ A research programme ([`PROPOSAL.md`](PROPOSAL.md), [`LOG.md`](LOG.md)) on **aud
 
 ![Predicted against observed miss rate per cell, real phones](experiments/threshold/libriwasn_pred_vs_obs.png)
 
+**Step 3f (2026-11-17): what if both devices hear the same noise, as in a real room? Then it is signal, until the devices are more than a frame of sound travel apart.** Step 3c's windows replayed exactly, plus 180,000 windows where one noise source is heard by both devices through its own impulse responses, at a path difference set by geometry (devices 3, 10 or 30 m apart, talker and noise source placed at random around them). Errors are scored against the clock, which is what a camera rig needs:
+
+- **Every common sound lands within D / c of the clock offset** (triangle inequality), so at 30 fps a lock on shared noise cannot cost a frame while the devices are under 11.4 m apart (5.7 m at 60 fps).
+- **Inside that, shared noise helps.** At -10 dB with partial whitening, independent babble at each device makes 2 s windows miss a frame 59-64% of the time; one babble source heard by both, 0%. Shared noise beats independent noise for 9 of 10 noise types in each room at 3 and 10 m, and the confidence gate keeps 60-63% of -10 dB windows instead of 23-24%.
+- **The exception is sound that repeats.** Door-slam recordings that loop every 0.5 to 1.5 s give several equal correlation peaks: 24-27% of windows miss, and a gate calibrated without shared noise passes 19-20% wrong. Calibrating on the rig's own shared noise brings that to 3-13% at 3 m and under 2% at 10 m, mostly by refusing.
+- **Beyond the bound, geometry, not noise, sets the floor.** At 30 m the talker's own path difference exceeds a frame in 69% of layouts, so about 70% of windows miss at every noise level, even +10 dB, and the gate rightly refuses everything. For spread-out rigs, sync on a clap made equidistant from the cameras, or correct for known positions.
+
+![Share of 2 s windows a frame or more off the clock at -10 dB, independent against shared noise](experiments/gate/noiseshared_fail.png)
+
 ## What is and is not real
 
 | input | value | source |
@@ -54,7 +63,7 @@ A research programme ([`PROPOSAL.md`](PROPOSAL.md), [`LOG.md`](LOG.md)) on **aud
 ```bash
 pip install numpy scipy pytest matplotlib
 cd research/capture-sync
-python -m pytest -q tests                                     # 24 tests (22 synthetic; 2 check committed step 2b outputs)
+python -m pytest -q tests                                     # 36 tests (34 synthetic; 2 check committed step 2b outputs)
 python experiments/real-devices/fetch.py ~/libriwasn 200_0S 800_0S   # ~1 GB, phone channels only
 python experiments/real-devices/run.py ~/libriwasn --trials 40 --procs 4   # ~25 min on 4 cores
 python experiments/real-devices/figure.py
@@ -80,6 +89,9 @@ python experiments/gate/noiseclass_figure.py
 OMP_NUM_THREADS=1 python experiments/gate/noiselevel.py collect ~/ms-snsd /tmp/windows_e.npz --procs 4   # step 3e, ~8 min
 python experiments/gate/noiselevel.py score /tmp/windows_e.npz   # noiselevel_results.txt, noiselevel_summary.json
 python experiments/gate/noiselevel_figure.py
+OMP_NUM_THREADS=1 python experiments/gate/noiseshared.py collect ~/ms-snsd /tmp/windows_f.npz --procs 4   # step 3f, ~25 min
+python experiments/gate/noiseshared.py score /tmp/windows_f.npz   # noiseshared_results.txt, noiseshared_summary.json
+python experiments/gate/noiseshared_figure.py
 ```
 
 ## Results (from [`experiments/real-devices/results.txt`](experiments/real-devices/results.txt))
@@ -341,6 +353,35 @@ Predictions: (a) replay held; (b) `ms` orders levels at AUROC 0.90 for 7 of 9 ty
 
 **Limits of step 3e.** Everything in step 3c's limits (simulated rooms, one speech corpus, noise independent per device). The tracker is a simplified minimum-statistics estimator with fixed smoothing and no bias compensation; Martin's full tracker, or a speech-presence-based one, might rank steady-but-coloured noise better, but cannot change the impulsive case, where the noise's bursts look like speech to any single-channel level estimate (an interpretation, not tested here). Context is 4 s; noise that changes kind within it is not modelled.
 
+## Step 3f: noise heard by both devices (`experiments/gate/noiseshared.py`)
+
+**Question.** Steps 3c-3e gave each device its own noise recording. In a room both hear one air conditioner, one crowd, one door, and the correlation can lock onto that sound at its own lag. When is that lag wrong, and does the gate notice? Plan and eight predictions in `LOG.md`, written before the run.
+
+**Method.** Step 3c's 2 s windows replayed exactly (every independent-noise draw unchanged, checked bit for bit). New draws come from a separate generator per trial: devices at (&plusmn;D/2, 0), the talker and the noise source uniform in [-D, D]&sup2; (one layout per trial, scaled to D = 3, 10 and 30 m), speed of sound 343 m/s. One stretch of each noise type (white, or a random stretch of all its MS-SNSD test files) passes through a fresh statistical impulse response per device and reaches device b later than device a by the noise's path difference relative to the talker's (whole samples), scaled to each device's speech power at +10, 0 and -10 dB. Errors are scored against the clock truth (the speech-truth error plus the talker's path difference; sign checked by `tests/test_noiseshared.py`) at a 30 fps frame (60 fps secondary); independent-noise windows are scored against the same clock truth with the same trial's talker. Gates: step 3b's Mondrian-`snr_hat` LTT gate (alpha 1%, delta 0.1), calibrated on sessions 0-4 and tested on 5-9, with labels against the clock at the D tested: **T3** calibrated on independent noise of the same type, **T3s** on shared noise of that type at the same D.
+
+**Results** ([`experiments/gate/noiseshared_results.txt`](experiments/gate/noiseshared_results.txt); 2 s windows, gamma 0.25, -10 dB):
+
+| | 0.2 s room | 0.8 s room |
+|---|---|---|
+| share of layouts with the talker's path difference over a 30 fps frame: 3 / 10 / 30 m | 0 / 0 / 69% (both rooms pooled) | |
+| types where shared noise fails less than independent: 3 / 10 / 30 m | 9 / 9 / 7 of 10 | 9 / 9 / 7 of 10 |
+| types with shared-noise failure at or under 2%: 3 / 10 / 30 m | 8 / 8 / 0 of 10 | 8 / 8 / 0 of 10 |
+| raw failure, independent / shared, 3 m: Babble | 59% / 0.0% | 64% / 0.0% |
+| ... Typing | 78% / 2.4% | 80% / 3.0% |
+| ... ShuttingDoor | 21% / 24% | 23% / 27% |
+| raw failure at 30 m, any type and level, +10 dB included | 68-92% | 70-92% |
+| T3 at or under 2%: 3 / 10 m (ShuttingDoor the exception) | 9 / 9 of 10 | 9 / 9 of 10 |
+| T3 mean kept at 3 m, shared / independent | 63% / 24% | 60% / 23% |
+| T3, ShuttingDoor, 3 m: wrong among accepted (kept) | 19% (79%) | 20% (72%) |
+| T3s, ShuttingDoor, 3 m / 10 m: wrong among accepted (kept) | 13% (9%) / under 2% | 3.0% (7%) / under 2% |
+| T3 and T3s at 30 m | refuse every window | refuse every window |
+
+In 94-100% of shared -10 dB windows of 8 of 10 types the estimate sits within 2 ms of the noise source's own lag (Munching 83-87%, ShuttingDoor 58-62%): the correlation follows the louder shared sound, and inside the bound that is still the right answer. The door failures cluster at the periods of three looped ShuttingDoor test files (autocorrelation 0.94 to 0.98 at 0.53, 1.37 and 1.52 s): aliasing on repeated content, as in [`capture-aliaswin`](../capture-aliaswin).
+
+Predictions: (a) replay held; (b) shared below independent for 9 of 10 types inside the bound held; (c) at or under 2% for 9 of 10 failed (8, door and typing); (d) shared worse than independent at 30 m for 5 of 10 failed (3: both are about 70%, set by the talker's geometry); (e) the gate passing wrong windows at 30 m failed, vacuously, because it refuses everything; (f) T3 at 3 m for 10 of 10 failed (9, door) while keeping more held; (g) exploratory 60 fps at 10 m held in one room; (h) exploratory T3s beating T3 at 30 m failed.
+
+**Limits of step 3f.** Free-field path differences on a plane with statistical impulse responses: no geometric reflections, no near-field level differences (each device's noise is scaled to its own speech power), point sources. The noise is either fully shared or fully independent; a real rig hears a mix (a room's air conditioner plus the wind on one microphone). The periodic-door result rests on MS-SNSD files that are loops; that real repeating sounds do the same is a prediction, not a result. The 30 m case uses room impulse responses of 0.2 and 0.8 s, not an outdoor field.
+
 ## Step 2b: threshold theory on the real phones (`experiments/threshold/libriwasn.py`)
 
 **Question.** H4 proper: does the gross-error model of step 2a predict how often a window misses on real devices, rooms and clocks? The harness was written in step 2a and not changed; the plan and five predictions were written to `LOG.md` before the run.
@@ -390,7 +431,7 @@ The pattern holds for every weighting: at 2 and 4 s, PHAT agrees in 3 of 12 cell
 
 - Why the threshold model overpredicts long windows on real phones (step 2b): keep per-window outputs, regress predicted against observed failure on window SNR, speech activity and L, and try a nonstationary (segment-wise) version of the true-lag peak variance.
 - Babble shared between devices (one crowd heard by both), and why PHAT wins in babble: a whitening that adapts to the noise spectrum, not a fixed gamma.
-- Noise heard by both devices (shared noise), where a wrong peak at the noise's own lag is the expected failure; a confidence other than PSR (second-peak ratio, agreement of two weightings) for impulsive noise, which no level or class feature tamed in steps 3c to 3e; then the overlap subsets (two talkers at once) and the Paderborn time-varying-SRO set.
+- A mix of shared and independent noise (step 3f tested each alone), and real repeating sounds, where step 3f's looped door recordings gave several equal peaks; a confidence other than PSR (second-peak ratio, agreement of two weightings) for impulsive noise, which no level or class feature tamed in steps 3c to 3e; then the overlap subsets (two talkers at once) and the Paderborn time-varying-SRO set.
 - Baselines on equal windows: a Kammerl et al. (2014) style fingerprint sync and `paderwasn`'s online tracker.
 - Real ambient noise (licensed recordings) shared between devices, then owner camera clips with a clapper reference.
 

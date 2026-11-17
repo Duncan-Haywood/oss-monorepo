@@ -4,7 +4,7 @@
 // Amounts stay the strings written in the file so the checks convert them
 // once. DTD and entity declarations are rejected by parseXmlTree.
 
-import { parseXmlTree } from "./ubl.mjs";
+import { parseXmlTree, registrationPlace, xmlValue } from "./ubl.mjs";
 import { parseDecimal } from "./numbers.mjs";
 
 const CII_NS = "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100";
@@ -61,15 +61,49 @@ export function looksLikeCii(source) {
   return text.includes("CrossIndustryInvoice") || text.includes(CII_NS);
 }
 
-function ciiVatId(party) {
-  if (!party) return "";
+// BT-31/BT-48/BT-63, read with xmlValue (character references decoded, only
+// XML whitespace trimmed; see ubl.mjs) since 2026-11-17.
+function ciiVatNode(party) {
+  if (!party) return null;
   for (const registration of descendants(party, "SpecifiedTaxRegistration")) {
     const identifier = firstChild(registration, "ID");
     if (!identifier) continue;
     const scheme = (identifier.attrs && identifier.attrs.schemeID) ? identifier.attrs.schemeID.trim() : "";
-    if (scheme.toUpperCase() === "VA") return identifier.text.trim();
+    if (scheme.toUpperCase() === "VA") return identifier;
   }
-  return "";
+  return null;
+}
+
+function ciiVatId(party) {
+  const node = ciiVatNode(party);
+  return node ? xmlValue(node) : "";
+}
+
+// Every VA registration PEPPOL-COMMON-R056-2 reads that no party's vat_id
+// holds: its context is `ram:SpecifiedTaxRegistration[ram:ID/@schemeID =
+// 'VA']` anywhere, so it reaches PayeeTradeParty, ShipToTradeParty, a line's
+// ship-to and a second VA registration on the seller (added 2026-11-17).
+const CII_PARTY_KEYS = {
+  SellerTradeParty: ["supplier", "Seller"],
+  BuyerTradeParty: ["customer", "Buyer"],
+  SellerTaxRepresentativeTradeParty: ["tax_representative", "Tax representative"],
+  PayeeTradeParty: ["payee_party", "Payee"],
+  ShipToTradeParty: ["delivery_party", "Deliver-to party"],
+};
+function ciiVatRegistrations(root, primary) {
+  const found = [];
+  const walk = (node, ancestors) => {
+    if (node.name === "SpecifiedTaxRegistration") {
+      for (const identifier of node.children.filter((child) => child.name === "ID")) {
+        if (!identifier.attrs || identifier.attrs.schemeID !== "VA" || primary.has(identifier)) continue;
+        found.push({ ...registrationPlace(ancestors, CII_PARTY_KEYS, /^IncludedSupplyChainTradeLineItem$/, /TradeParty$/), value: xmlValue(identifier) });
+      }
+      return;
+    }
+    for (const child of node.children) walk(child, [...ancestors, node]);
+  };
+  walk(root, []);
+  return found;
 }
 
 // BT-30/BT-47 (legal_id) and BT-29/BT-46 with a scheme (party_ids), read the
@@ -362,6 +396,13 @@ export function parseCiiInvoice(source) {
   if (representative || representativeVat) {
     invoice.tax_representative = { ...(representative || {}), ...(representativeVat ? { vat_id: representativeVat } : {}) };
   }
+  const primary = new Set([
+    ciiVatNode(firstChild(agreement, "SellerTradeParty")),
+    ciiVatNode(firstChild(agreement, "BuyerTradeParty")),
+    ciiVatNode(representativeNode),
+  ]);
+  const registrations = ciiVatRegistrations(transaction || { name: "", children: [] }, primary);
+  if (registrations.length) invoice.vat_registrations = registrations;
   // BG-13 deliver-to: ShipToTradeParty's ID and GlobalID (BT-71, the delivery
   // location id) and any legal registration; Peppol's `ram:ID | ram:GlobalID`
   // contexts match them as they do the seller's (added 2026-11-17).
