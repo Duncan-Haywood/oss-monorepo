@@ -1,7 +1,7 @@
 ---
 title: "The first paragraph is the one that gets quoted: 23 tool ledes under 100 words"
 date: 2026-11-17
-tags: [design, seo, aeo]
+tags: [design, seo]
 description: "23 tool pages opened with a 101 to 120 word paragraph. Each is now split at a sentence, and a test keeps every lede to 100 words."
 ---
 
