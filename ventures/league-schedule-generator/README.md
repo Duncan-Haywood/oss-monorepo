@@ -570,7 +570,7 @@ is the next size of the 29, 35, 41 class. `eval/odd-lns.py` ran on it for the fi
 | seed 2 (fresh) | 1 at 300 s; 3, 4, 5 at 5,169, 6,024, 6,123 s | 5 of 16 at 9,166 s |
 | seed 11 (resumed from seed 1 at 2) | 3 at 3,650 s | 3 of 16 at 9,067 s |
 | seed 13 (resumed from seed 3 at 2) | 4 at 4,476 s, 5 at 5,370 s | 5 of 16 at 9,012 s |
-| seeds 31, 41, 51 (resumed at 5; 51 with `--also 15`) | 5 at 661 s (60 s re-checks); no gain by ~3,000 s | stopped at the session's end |
+| seeds 31, 41, 51, 61 (resumed at 5; 51, 61 with `--also 15`) | 5 at 661 s (60 s re-checks); no step accepted | lost to a second container restart (31: ~1.3 h in) |
 
 The climb is slower than 41 teams' (1 to 7 good nights in about 4,200 to 5,500 s there, 1 to 5 in
 5,000 to 6,000 s here), and a resume spends up to 180 s re-checking every unlaid night before its
