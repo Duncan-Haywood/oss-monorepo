@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { Model } from "./ids.mjs";
 import { resources, check, readModel } from "./node.mjs";
 import { modelInventory } from "./inventory.mjs";
-import { modelSets, setsFor, importIds, stateToDoc, buildIds, blankSpec, blankReq, valueTypes, modelAttributes, modelCodes, modelValueOffer, valueChoices } from "./editor.mjs";
+import { modelSets, setsFor, importIds, stateToDoc, buildIds, blankSpec, blankReq, valueTypes, modelAttributes, modelCodes, modelValueOffer, valueChoices, appMatchCount } from "./editor.mjs";
 import { parseIds } from "./ids.mjs";
 import { auditIds } from "./audit.mjs";
 
@@ -233,4 +233,77 @@ test("attribute and code offers pass the model they came from; an uncoded refere
   const any = check(ids([{ ...c, mode: "pattern", pattern: ".+" }]), uncoded).specs[0];
   assert.deepEqual([any.status, any.failed.length], ["fail", 1], "Require a code fails exactly the uncoded wall");
   assert.equal(check(ids([{ ...c, mode: "pattern", pattern: ".+" }]), house).specs[0].status, "fail", "the unclassified wall of the original fails a required classification");
+});
+
+// Applicability beyond the class (2026-11-17): a row narrows which elements a
+// specification is about. The page counts the model's matches from the
+// inventory; the count must be the checker's own `applicable`, or null.
+test("an applicability row's model count is the checker's applicable count, or null when the tally cannot say", () => {
+  const inv = inventoryOf(uncoded);
+  const run = (app, reqs = []) => check(buildIds(stateToDoc({ title: "t", schema: "IFC4", specs: [{ ...blankSpec(), name: "Walls", cls: "IFCWALL", withSub: false, reqs, app }] }, L4), S4), uncoded).specs[0];
+  const tallyFor = (r) => {
+    if (r.kind === "property") return modelSets(inv, ["IFCWALL"]).find((m) => m.name === r.set)?.props.find((q) => q.name === r.name) || null;
+    if (r.kind === "attribute") return modelAttributes(inv, ["IFCWALL"]).find((a) => a.name === r.name) || null;
+    return modelCodes(inv, ["IFCWALL"]).find((x) => x.system === r.system) || null;
+  };
+  const rows = [
+    { kind: "property", set: "Pset_WallCommon", name: "IsExternal", mode: "true" },
+    { kind: "property", set: "Pset_WallCommon", name: "IsExternal", mode: "false" },
+    { kind: "property", set: "Pset_WallCommon", name: "IsExternal", mode: "any" },
+    { kind: "property", set: "Pset_WallCommon", name: "LoadBearing", mode: "true" },
+    { kind: "property", set: "Pset_WallCommon", name: "FireRating", mode: "equals", equals: "60 min" },
+    { kind: "attribute", name: "PredefinedType", mode: "equals", equals: "SOLIDWALL" },
+    { kind: "attribute", name: "Name", mode: "pattern", pattern: "W-[0-9]+" },
+    { kind: "attribute", name: "Name", mode: "oneOf", oneOf: ["P-01", "W-02"] },
+    { kind: "attribute", name: "Description", mode: "any" },
+    { kind: "classification", system: "Uniclass 2015", mode: "any" },
+    { kind: "classification", system: "Uniformat", mode: "any" },
+  ].map((r) => ({ ...blankReq(), ...r }));
+  const seen = [];
+  for (const r of rows) {
+    const ch = valueChoices(L4, ["IFCWALL"], r);
+    const mp = tallyFor(r);
+    const n = appMatchCount(mp, modelValueOffer(mp, ch.kind, ch.enumVals), r, ch.kind || "text");
+    const got = run([r]);
+    assert.equal(n, got.applicable, `${r.kind} ${r.name || r.system} ${r.mode}`);
+    seen.push(n);
+  }
+  assert.deepEqual(seen, [2, 1, 3, 1, 1, 2, 2, 2, 0, 3, 0]);
+  // A code value: one object may carry several codes, so no count is claimed.
+  const code = { ...blankReq(), kind: "classification", system: "Uniclass 2015", mode: "equals", equals: "EF_25_10_25" };
+  assert.equal(appMatchCount(tallyFor(code), modelValueOffer(tallyFor(code), "text", null), code), null);
+  // The narrowed specification checks only those walls: external walls must have a fire rating.
+  const fr = run([rows[0]], [{ ...blankReq(), set: "Pset_WallCommon", name: "FireRating" }]);
+  assert.deepEqual([fr.applicable, fr.failed.length], [2, 1]);
+  // Written with no cardinality, and the document audits clean.
+  const xml = buildIds(stateToDoc({ title: "t", schema: "IFC4", specs: [{ ...blankSpec(), name: "Walls", cls: "IFCWALL", app: rows }] }, L4), S4);
+  assert.ok(!/<applicability[^]*cardinality=[^]*<\/applicability>/.test(xml));
+  const a = auditIds(parseIds(xml), { schemas: { IFC4: S4 }, typeMap: R.typeMap, psets: R.psets });
+  assert.deepEqual(a.filter((f) => f.level === "error"), []);
+});
+
+test("an opened IDS's applicability facets beyond the class open as editable rows and write back the same", () => {
+  const xml = `<?xml version="1.0"?><ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema"><info><title>t</title></info><specifications>
+    <specification name="external walls" ifcVersion="IFC4"><applicability minOccurs="1" maxOccurs="unbounded"><entity><name><simpleValue>IFCWALL</simpleValue></name></entity>
+      <classification><system><simpleValue>Uniclass 2015</simpleValue></system></classification>
+      <attribute><name><simpleValue>PredefinedType</simpleValue></name><value><simpleValue>SOLIDWALL</simpleValue></value></attribute>
+      <property dataType="IFCBOOLEAN"><propertySet><simpleValue>Pset_WallCommon</simpleValue></propertySet><baseName><simpleValue>IsExternal</simpleValue></baseName><value><simpleValue>true</simpleValue></value></property>
+      <property><propertySet><simpleValue>Acme_Wall</simpleValue></propertySet><baseName><simpleValue>Zone</simpleValue></baseName></property>
+      <property dataType="IFCLENGTHMEASURE"><propertySet><simpleValue>Qto_WallBaseQuantities</simpleValue></propertySet><baseName><simpleValue>Height</simpleValue></baseName><value><xs:restriction base="xs:double"><xs:minExclusive value="3"/></xs:restriction></value></property>
+    </applicability><requirements><property><propertySet><simpleValue>Pset_WallCommon</simpleValue></propertySet><baseName><simpleValue>FireRating</simpleValue></baseName></property></requirements></specification>
+  </specifications></ids>`;
+  const parsed = parseIds(xml);
+  const loadFor = (id) => ({ S: R.schemas[id], psets: R.psets[id], tm: R.typeMap });
+  const imp = importIds(parsed, loadFor);
+  const [s] = imp.state.specs;
+  assert.deepEqual(s.app.map((r) => `${r.kind}:${r.mode}`), ["classification:any", "attribute:equals", "property:true", "property:any"]);
+  assert.ok(s.app[3].custom, "a project's own set");
+  // The exclusive bound has no control on the page: kept as written.
+  assert.deepEqual(s.fixedApp.map((f) => f.kind), ["property"]);
+  const back = parseIds(buildIds(stateToDoc(imp.state, loadFor("IFC4")), S4));
+  const said = (sp) => sp.applicability.map((f) => `${f.kind} ${f.dataType || ""} ${f.describe()}`).sort();
+  assert.deepEqual(said(back.specs[0]), said(parsed.specs[0]));
+  // Run on the model, the narrowed specification applies to the external solid walls only.
+  const got = check(xml.replace(/<property><propertySet><simpleValue>Acme_Wall[^]*?<\/property>\s*<property dataType="IFCLENGTHMEASURE"[^]*?<\/property>/, ""), uncoded).specs[0];
+  assert.equal(got.applicable, 2);
 });

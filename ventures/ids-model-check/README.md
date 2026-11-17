@@ -85,6 +85,18 @@ open. MIT licensed, no dependencies, nothing uploaded.
   no code, so an IDS that names only the system passes them. The row says so
   and offers **Require a code** (a `.+` pattern), which fails exactly those.
   `eval/model-attr-codes-2026-11-17.md`.
+  **Conditions beyond the class** (2026-11-17): **Narrow it** adds a row to
+  the applicability, so a specification can be about external walls only
+  (Pset_WallCommon.IsExternal = true), solid walls, or elements classified in
+  Uniclass: a property, attribute, classification, material or place, with the
+  model's values offered as on requirement rows. With a model open, each
+  condition says how many of the class's objects it keeps; that count is the
+  checker's own `applicable` figure on 11 tested conditions, and the page
+  says nothing rather than guess where the inventory cannot tell. Opened files'
+  applicability facets now open as rows where they write back unchanged: 83.5%
+  of the public files' facets editable (was 82.0%), 14 of 64 files fully
+  editable (was 10), IDS-Audit-tool valid files 21.5% (was 9.7%), all still
+  writing back the same. `eval/applicability-rows-2026-11-17.md`.
   **A range for numeric attributes** (2026-11-17): OverallHeight, Elevation,
   NumberOfRiser and other real or integer attributes get a **between** mode
   and **Use the model's range**, written with an `xs:double` (or
@@ -392,10 +404,11 @@ faster than IfcTester; its point is needing no install.
   2026-11-16, `eval/model-inventory-2026-11-16.md`; several classes per
   specification 2026-11-17, `eval/several-classes-2026-11-17.md`; a model's
   property values 2026-11-17; attribute values and classification codes
-  2026-11-17, `eval/model-attr-codes-2026-11-17.md`; numeric attribute
-  ranges 2026-11-17, `eval/model-attr-ranges-2026-11-17.md`):
-  property/attribute facets in the applicability (85 kept facets on the
-  public files); a subclass checkbox per class, not only the first;
+  2026-11-17, `eval/model-attr-codes-2026-11-17.md`;
+  applicability rows 2026-11-17, `eval/applicability-rows-2026-11-17.md`;
+  numeric attribute ranges 2026-11-17, `eval/model-attr-ranges-2026-11-17.md`):
+  a value row for a property with no dataType (39 of the 63 applicability
+  facets still kept on the public files); a subclass checkbox per class, not only the first;
   exclusive bounds on an opened range; a "fix the dataType" hint built from the 21
   of 122 standard properties real exports write in another type.
 - More real models through the IfcTester cross-check (an MEP model, an IFC4X3

@@ -38,3 +38,23 @@ test("worked notice reduces payout; validation errors", () => {
   assert.ok(compute({}).errors.length >= 3);
   assert.ok(compute({ ...SAMPLE, endDate: "2016-01-01" }).errors[0].includes("before"));
 });
+
+test("s123(1): casual and fixed-term get no NES notice; apprentices keep notice but lose redundancy", () => {
+  // quality audit 2026-11-17: casuals were shown a notice payout the Act does not give them
+  for (const t of ["casual", "fixed-term"]) {
+    const r = compute({ ...SAMPLE, employmentType: t });
+    assert.equal(r.redundancy, 0);
+    assert.equal(r.noticeWeeks, 0);
+    assert.equal(r.noticePay, 0);
+  }
+  const ap = compute({ ...SAMPLE, employmentType: "apprentice" });
+  assert.equal(ap.redundancy, 0);
+  assert.equal(ap.noticeWeeks, compute(SAMPLE).noticeWeeks);
+  assert.ok(ap.noticePay > 0);
+});
+
+test("annual leave day rate divides by the days worked per week", () => {
+  const five = compute({ ...SAMPLE, daysPerWeek: "5" });
+  const four = compute({ ...SAMPLE, daysPerWeek: "4" });
+  assert.equal(four.leavePay * 4, five.leavePay * 5);
+});

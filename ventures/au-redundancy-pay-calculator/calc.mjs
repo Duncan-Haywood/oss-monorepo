@@ -89,10 +89,14 @@ export function compute(input) {
   else findings.push({ severity: "info", title: `${years} completed year(s) of service = ${weeks} weeks of base pay.` });
   if (!reason && years >= 9 && years < 10) findings.push({ severity: "medium", title: "At 9 years the entitlement is 16 weeks, but it drops to 12 weeks from 10 years. Check the date of termination against the anniversary." });
 
-  const nWeeks = noticeWeeks(years, age);
+  // s123(1)(a) and (c): fixed-term/task and casual employees are outside all of Division 11, so no NES
+  // notice either; apprentices lose only redundancy pay (s123(4)(a)) and keep their notice.
+  const noNotice = type === "casual" || type === "fixed-term";
+  const nWeeks = noNotice ? 0 : noticeWeeks(years, age);
   const unworked = Math.max(0, nWeeks - worked);
   const noticePay = unworked * weekly;
-  findings.push({ severity: "info", title: `Minimum notice is ${nWeeks} week(s)${age >= 45 && years >= 2 ? " (includes 1 extra week for age 45+ with 2+ years)" : ""}; ${unworked} unworked week(s) are paid out.` });
+  if (noNotice) findings.push({ severity: "info", title: `No NES minimum notice: s123(1) of the Fair Work Act takes ${type} employees out of the notice and redundancy rules (Division 11). An award, agreement or contract may still require notice.` });
+  else findings.push({ severity: "info", title: `Minimum notice is ${nWeeks} week(s)${age >= 45 && years >= 2 ? " (includes 1 extra week for age 45+ with 2+ years)" : ""}; ${unworked} unworked week(s) are paid out.` });
   const leavePay = leaveDays * (weekly / dpw);
   if (leaveDays) findings.push({ severity: "info", title: `${leaveDays} day(s) of accrued annual leave paid at ${money(weekly / dpw)} a day.` });
   const total = redundancy + noticePay + leavePay;

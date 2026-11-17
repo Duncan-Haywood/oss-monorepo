@@ -1,0 +1,19 @@
+plant        | loop      | drills | aborted | slow drill s, mean / worst | record/true: >2% off, range, 500-1,000 rpm >2% | spin error mean / worst | speed error mean / worst
+first-order  |    before |      6 |       0 |  140.8 /  151.9 |   0 of 360, 0.993-1.008, 0 of 72 | 0.16 / 0.33% | 0.06 / 0.09%
+first-order  |   shipped |      6 |       0 |  134.9 /  142.5 |   0 of 360, 0.990-1.009, 0 of 69 | 0.31 / 0.51% | 0.04 / 0.09%
+ESC 30 ms    |    before |      6 |       0 |  143.6 /  157.0 |   0 of 360, 0.994-1.009, 0 of 72 | 0.21 / 0.67% | 0.03 / 0.04%
+ESC 30 ms    |   shipped |      6 |       0 |  135.9 /  143.7 |   0 of 360, 0.991-1.010, 0 of 69 | 0.17 / 0.31% | 0.03 / 0.05%
+
+Per drill (slow drill seconds, before -> shipped):
+  first-order  lag 0.4 build 0.7/0.35: 129.65 -> 127.15
+  first-order  lag 0.4 build 0.95/0.35: 130.54999999999998 -> 127.44999999999999
+  first-order  lag 0.4 build 0.95/0.65: 130.54999999999998 -> 127.25
+  first-order  lag 0.8 build 0.7/0.35: 151.95 -> 142.54999999999998
+  first-order  lag 0.8 build 0.95/0.35: 151.95 -> 142.54999999999998
+  first-order  lag 0.8 build 0.95/0.65: 150.45 -> 142.25
+  ESC 30 ms    lag 0.4 build 0.7/0.35: 131.95 -> 128.85
+  ESC 30 ms    lag 0.4 build 0.95/0.35: 131.95 -> 128.15
+  ESC 30 ms    lag 0.4 build 0.95/0.65: 131.95 -> 128.85
+  ESC 30 ms    lag 0.8 build 0.7/0.35: 154.15 -> 143.25
+  ESC 30 ms    lag 0.8 build 0.95/0.35: 157.04999999999998 -> 142.45
+  ESC 30 ms    lag 0.8 build 0.95/0.65: 154.75 -> 143.65
