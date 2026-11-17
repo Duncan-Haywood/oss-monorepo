@@ -229,10 +229,12 @@ flagships:
       passes Mustang; open: a real business's PINT file. A run that lands a slice
       replaces its item here. More open items: NEXT.md.
     buildable: >-
-      R056-2 on the tax representative's VAT number (a warning; seller/buyer already
-      fail INV-022/023; read its PartyTaxScheme/CompanyID in both readers). Party
-      ids everywhere Peppol's COMMON contexts reach landed 2026-11-17 (UBL line
-      parties: eval/ubl-line-ids-peppol-differential-2026-11-17.md). No network.
+      R056-2 landed (BT-63 read, INV-064;
+      eval/nl-vat-r056-2-differential-2026-11-17.md): open, R056-2 on a payee or
+      deliver-to PartyTaxScheme and a trailing no-break space the readers' trim()
+      drops. Party ids everywhere Peppol's COMMON contexts reach landed 2026-11-17
+      (UBL line parties: eval/ubl-line-ids-peppol-differential-2026-11-17.md). No
+      network.
   - venture: shift-roster-builder
     inputs_only: >-
       a live deploy with real punches, a real payroll template, a manager's
