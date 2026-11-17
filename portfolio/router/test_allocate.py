@@ -922,6 +922,49 @@ class StartHereTests(unittest.TestCase):
         self.assertEqual(start_here(queue[:2], {}, now=now, session="abc"), (1, "v0"))
 
 
+class LeftRowsTests(unittest.TestCase):
+    def _runs(self, records):
+        d = tempfile.TemporaryDirectory()
+        self.addCleanup(d.cleanup)
+        for i, (date, rec) in enumerate(records):
+            Path(d.name, f"{date}-session_{i}.json").write_text(json.dumps(rec))
+        return Path(d.name)
+
+    def test_counts_departures_not_claim_races_or_old_records(self):
+        from datetime import datetime, timezone
+        from allocate import left_rows, left_note
+        now = datetime(2026, 11, 17, 12, 0, tzinfo=timezone.utc)
+        dev = lambda why, f="portfolio/router/allocate.py": {"file": f, "why": why}
+        runs = self._runs([
+            ("2026-11-17", {"projects": ["ids-model-check"], "deviations": [
+                dev("Start here named roster; nothing buildable, ids-model-check had an item")]}),
+            ("2026-11-16", {"projects": ["ventures/ids-model-check"], "deviations": [
+                dev("roster's next: is solver tuning", "prompts/ventures/prompt-2.md")]}),
+            # A claim race, an unrelated file, and a record too old are not departures.
+            ("2026-11-17", {"projects": ["bk"], "deviations": [
+                dev("roster was claimed by PR #1 a minute earlier")]}),
+            ("2026-11-17", {"projects": ["bk"], "deviations": [
+                dev("roster: skipped the post", "docs/posts")]}),
+            ("2026-11-14", {"projects": ["bk"], "deviations": [dev("roster had nothing")]}),
+            # Worked the row it names: not a departure.
+            ("2026-11-17", {"projects": ["roster"], "deviations": [dev("roster first, then bk")]}),
+            ("2026-11-17", "not a record"),
+        ])
+        left = left_rows(["roster", "ids-model-check", "bk"], runs, now=now)
+        self.assertEqual([(d, t) for d, t, _ in left["roster"]],
+                         [("2026-11-16", "ids-model-check"), ("2026-11-17", "ids-model-check")])
+        self.assertEqual(set(left), {"roster"})
+        note = left_note("roster", left)
+        self.assertIn("2 session(s)", note)
+        self.assertIn("ids-model-check (2)", note)
+        self.assertIn("nothing buildable", note)  # the newest reason
+        self.assertIsNone(left_note("bk", left))
+
+    def test_no_runs_dir_means_no_hint(self):
+        from allocate import left_rows
+        self.assertEqual(left_rows(["x"], Path("/nonexistent-runs-dir")), {})
+
+
 class VentureReportTests(unittest.TestCase):
     def test_prints_the_full_next_open_prs_and_last_landing(self):
         from datetime import datetime, timezone
