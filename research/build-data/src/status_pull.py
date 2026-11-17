@@ -58,5 +58,6 @@ if __name__ == "__main__":
     ap.add_argument("out")
     ap.add_argument("--cities", nargs="+", default=["sf", "seattle", "austin"])
     a = ap.parse_args()
+    os.makedirs(a.out, exist_ok=True)  # session 100: a fresh session's first pull crashed here
     for c in a.cities:
         print(c, pull(c, a.out), flush=True)
