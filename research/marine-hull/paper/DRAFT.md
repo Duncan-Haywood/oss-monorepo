@@ -208,6 +208,7 @@ Limits to carry with the section:
 - Five learning years give only five one-season draws and ten pairs. The brackets are the observed range over those draws, not confidence intervals, and draws within the same k share years.
 - Every rule was scored over every subset of one to five seasons (6zzj, 6zzk, 6zzr), but the three-season crossings are thin at high latitude (worst 31 for HR and HX and 34 for LHF, against 25). The guard rules of 6zzp and 6zzs were run only at one season.
 - Dominance counts sit near their ceiling, which compresses differences of a few cells.
+- The high-amplitude counts at 50 to 60 degrees score a boat that is mostly parked (6zzzd): with the 50 W payload, B sails 0 km in ten years at three of the eight band points and under 1,800 km at the two Southern Ocean points, every pooled loss at the eight is a km shortfall against the bolder B, and the per-point wins there are ties at zero km. Read the "above about 50 degrees" rows as a statement about P-30 and the North Sea, not about rule choice at high latitude.
 
 ## 2.4 Still to write
 
