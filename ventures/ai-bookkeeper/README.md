@@ -3061,6 +3061,21 @@ text and SROIE's 626 receipts score exactly as before. Details:
 [`eval/wildreceipt-tax-shapes-2026-11-17.md`](eval/wildreceipt-tax-shapes-2026-11-17.md).
 Tests: `receipt-wildreceipt-train1.test.mjs`.
 
+### WildReceipt re-scored; VAT tables with a row per rate (2026-11-17)
+
+With huggingface.co reachable again, shard 1 and the held-out test were read again and the
+four tax shapes above were scored. On shard 1 they add 3 taxes of 335 (CLI 273 to 276), and on
+the held-out test 1 of 272. Re-scoring also turned up a shape they missed: a VAT table with a
+row per rate (`TUA5.50% 10.26 0.56 10.82` over `TUA10.00% 9.07 0.91 9.98` on a 20.80 receipt),
+where only the first row's tax was kept. When the rows' gross amounts make the total, every
+row's tax is now added. A row right under a table row counts as a row, and a row of rate, tax
+and gross whose net was lost is read when the gross at that rate gives the tax. Held out, from
+before the four shapes to now: CLI taxes 207 to 209 of 272 and the page 205 to 208, with no
+right answer turned wrong and no total moved. CORD text and SROIE did not move. Details:
+[`eval/wildreceipt-rescore-2026-11-17.md`](eval/wildreceipt-rescore-2026-11-17.md); per-receipt
+diffs between two parser copies: `eval/receipt-version-diff.mjs`.
+Tests: `receipt-wildreceipt-train1.test.mjs`.
+
 ### CORD train shards 1-3: 600 more unseen photos (2026-11-17)
 
 The other three CORD train shards, read for the first time, score 356 of 583 totals (61.1%)
