@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { parseIds } from "./ids.mjs";
 import { auditIds } from "./audit.mjs";
 import { resources, check } from "./node.mjs";
-import { modelSubclassesLeftOut, modelSpec, classesWithSets, setsFor, propertiesOf, subclasses, predefinedTypes, buildIds, entityFacet, xsBase, PARTOF_RELATIONS, importIds, stateToDoc, idsSchema, specClassNames, commonSets, commonAttributes, sameAttributeType, commonPredefinedTypes, parseClassList, valueChoices, attributeValueKind, modelAttributes, modelValueOffer, typeRow, appMatchCount, untypeRow, blankReq, blankSpec, temporalType, modelSets, datePattern, numberValueProblem, NUMBER_ONEOF_MAX } from "./editor.mjs";
+import { modelSubclassesLeftOut, modelSpec, classesWithSets, setsFor, propertiesOf, subclasses, predefinedTypes, buildIds, entityFacet, xsBase, PARTOF_RELATIONS, importIds, stateToDoc, idsSchema, idsSchemaChoices, auditSchemaIds, schemaIdsOf, importIdsAs, specClassNames, commonSets, commonAttributes, sameAttributeType, commonPredefinedTypes, parseClassList, valueChoices, attributeValueKind, modelAttributes, modelValueOffer, typeRow, appMatchCount, untypeRow, blankReq, blankSpec, temporalType, modelSets, datePattern, numberValueProblem, NUMBER_ONEOF_MAX } from "./editor.mjs";
 import { Model } from "./ids.mjs";
 import { modelInventory } from "./inventory.mjs";
 
@@ -671,4 +671,49 @@ test("a one-of on numbers: offered, checked with IDS's tolerance on reals and ex
   const untyped = { ...blankReq(), kind: "property", set: "Pset_WallCommon", name: "ThermalTransmittance", untyped: true, mode: "oneOf", oneOf: ["0.25", "0.3"] };
   assert.deepEqual([typeRow(L, untyped).row.mode, typeRow(L, untyped).row.oneOf, typeRow(L, untyped).dropped], ["oneOf", ["0.25", "0.3"], false]);
   assert.equal(typeRow(L, { ...untyped, oneOf: ["0,25"] }).dropped, true);
+});
+
+test("an IDS whose specifications all name IFC2X3 and IFC4 opens in the schema that edits most, and is audited in both", () => {
+  const spec = (v, name, set, prop, dt) => `<ids:specification ifcVersion="${v}" name="${name}">
+<ids:applicability minOccurs="1" maxOccurs="unbounded"><ids:entity><ids:name><ids:simpleValue>IFCSPACE</ids:simpleValue></ids:name></ids:entity></ids:applicability>
+<ids:requirements><ids:property dataType="${dt}" cardinality="required"><ids:propertySet><ids:simpleValue>${set}</ids:simpleValue></ids:propertySet><ids:baseName><ids:simpleValue>${prop}</ids:simpleValue></ids:baseName></ids:property></ids:requirements>
+</ids:specification>`;
+  const doc = (...specs) => `<?xml version="1.0" encoding="UTF-8"?>
+<ids:ids xmlns:ids="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema"><ids:info><ids:title>NL-style</ids:title></ids:info><ids:specifications>
+${specs.join("\n")}
+</ids:specifications></ids:ids>`;
+  const loadFor = (id) => ({ S: R.schemas[id], psets: R.psets[id], tm: id === "IFC2X3" ? R.typeMap : null });
+  // Qto_SpaceBaseQuantities is an IFC4 set IFC2X3's templates lack (as in the
+  // Dutch NL-BIM Basis ILS files, written for "IFC2X3 IFC4").
+  const xml = doc(spec("IFC2X3 IFC4", "Spaces have a net floor area", "Qto_SpaceBaseQuantities", "NetFloorArea", "IFCAREAMEASURE"),
+    spec("IFC2X3 IFC4", "Spaces have a name", "Pset_SpaceCommon", "Reference", "IFCIDENTIFIER"));
+  const parsed = parseIds(xml);
+  assert.deepEqual(schemaIdsOf(["IFC2X3", "IFC4X3_ADD2"]), ["IFC2X3", "IFC4X3"]);
+  assert.equal(idsSchema(parsed), "IFC2X3", "the first named, as before");
+  assert.deepEqual(idsSchemaChoices(parsed), ["IFC2X3", "IFC4"]);
+  const old = importIdsAs(parsed, loadFor, "IFC2X3");
+  assert.equal(old.state.specs[0].reqs[0].fixed !== undefined, true, "IFC2X3 holds the IFC4 quantity set as written");
+  const imp = importIds(parsed, loadFor);
+  assert.equal(imp.state.schema, "IFC4");
+  assert.ok(imp.rows > old.rows);
+  assert.deepEqual(Object.keys(imp.schemaRows).sort(), ["IFC2X3", "IFC4"]);
+  assert.equal(imp.state.specs[0].reqs[0].set, "Qto_SpaceBaseQuantities");
+  assert.deepEqual(imp.state.specs[0].ifcVersion, ["IFC2X3", "IFC4"], "each specification keeps its versions");
+  // Written back, it asks the same and names the same versions.
+  const L = loadFor("IFC4");
+  const back = parseIds(buildIds(stateToDoc(imp.state, L), L.S));
+  assert.deepEqual(back.specs.map((s) => s.ifcVersion), parsed.specs.map((s) => s.ifcVersion));
+  // The page audits in every schema a specification names, in the CLI's order,
+  // so the IFC4 set is no error; IFC2X3 alone calls it a custom Pset.
+  assert.deepEqual(auditSchemaIds(imp.state), ["IFC2X3", "IFC4"]);
+  const errs = (ids) => auditIds(back, { schemas: Object.fromEntries(ids.map((id) => [id, R.schemas[id]])), typeMap: R.typeMap, psets: R.psets }).filter((x) => x.level === "error").map((x) => x.code);
+  assert.deepEqual(errs(["IFC2X3"]), ["pset-custom"]);
+  assert.deepEqual(errs(auditSchemaIds(imp.state)), []);
+  assert.deepEqual(errs(auditSchemaIds(imp.state)), auditIds(parsed, R).filter((x) => x.level === "error").map((x) => x.code), "the CLI's audit");
+  // Specifications with no schema in common keep the usual pick.
+  const mixed = parseIds(doc(spec("IFC2X3", "a", "Pset_SpaceCommon", "Reference", "IFCIDENTIFIER"), spec("IFC4", "b", "Pset_SpaceCommon", "Reference", "IFCIDENTIFIER"), spec("IFC4", "c", "Pset_SpaceCommon", "Reference", "IFCIDENTIFIER")));
+  assert.deepEqual(idsSchemaChoices(mixed), []);
+  assert.equal(importIds(mixed, loadFor).state.schema, "IFC4");
+  assert.equal(importIds(mixed, loadFor).schemaRows, undefined);
+  assert.deepEqual(auditSchemaIds(importIds(mixed, loadFor).state), ["IFC2X3", "IFC4"]);
 });

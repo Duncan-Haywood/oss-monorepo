@@ -944,11 +944,38 @@ function editableRow(L, classes, f) {
 
 // The schema an opened IDS is mostly written for: the one most specifications
 // name first (IFC4 on a tie or when none is named).
+const vid = (v) => (v.startsWith("IFC4X3") ? "IFC4X3" : v === "IFC4" ? "IFC4" : v === "IFC2X3" ? "IFC2X3" : null);
+// The schema ids an ifcVersion list names ("IFC2X3 IFC4" -> IFC2X3, IFC4).
+export const schemaIdsOf = (ifcVersion) => [...new Set((ifcVersion || []).map(vid).filter(Boolean))];
 export function idsSchema(parsed) {
-  const vid = (v) => (v.startsWith("IFC4X3") ? "IFC4X3" : v === "IFC4" ? "IFC4" : v === "IFC2X3" ? "IFC2X3" : null);
   const tally = {};
   for (const s of parsed.specs) { const id = s.ifcVersion.map(vid).find(Boolean); if (id) tally[id] = (tally[id] || 0) + 1; }
   return Object.entries(tally).sort((a, b) => b[1] - a[1] || (a[0] === "IFC4" ? -1 : b[0] === "IFC4" ? 1 : 0))[0]?.[0] || "IFC4";
+}
+
+// The schemas the page audits a draft against, as the CLI's audit does: the
+// page's own, and every one a specification's own ifcVersion names (an
+// "IFC2X3 IFC4" specification is valid when either schema has what it asks).
+// In the CLI's order (IFC2X3, IFC4, IFC4X3), which decides which schema's
+// reason an error names when every schema has one.
+export const auditSchemaIds = (doc) => {
+  const want = new Set([doc.schema, ...(doc.specs || []).flatMap((s) => schemaIdsOf(s.ifcVersion))]);
+  return ["IFC2X3", "IFC4", "IFC4X3"].filter((id) => want.has(id));
+};
+
+// The schemas every specification of an opened IDS is written for (a
+// specification naming none fits any). The page edits in one schema, so a
+// file whose specifications all say "IFC2X3 IFC4" can be opened in either;
+// importIds picks the one that leaves the most facets editable. Empty when no
+// schema is named by them all; then idsSchema's pick stands.
+export function idsSchemaChoices(parsed) {
+  let common = null;
+  for (const s of parsed.specs) {
+    const ids = schemaIdsOf(s.ifcVersion);
+    if (!ids.length) continue;
+    common = common ? common.filter((x) => ids.includes(x)) : ids;
+  }
+  return common || [];
 }
 
 // An opened IDS file as page state. `parsed` is parseIds(text); `loadFor(id)`
@@ -960,7 +987,23 @@ export function idsSchema(parsed) {
 // The state is built so that, written back, the IDS asks for what it asked
 // before; a facet the page's controls would change is kept as written.
 export function importIds(parsed, loadFor) {
-  const schema = idsSchema(parsed);
+  // Several schemas every specification names (IFC2X3 IFC4): open in the one
+  // that edits most, the usual pick on a tie. The audit reads each
+  // specification in every schema it names, so a standard set IFC4 has and
+  // IFC2X3 lacks (Qto_SpaceBaseQuantities) is valid there and editable here.
+  const first = idsSchema(parsed);
+  const choices = idsSchemaChoices(parsed);
+  if (choices.length > 1) {
+    const order = [first, "IFC4", "IFC4X3", "IFC2X3"];
+    const tried = choices.sort((a, b) => order.indexOf(a) - order.indexOf(b)).map((id) => importIdsAs(parsed, loadFor, id));
+    const best = tried.reduce((a, b) => (b.rows > a.rows ? b : a));
+    return { ...best, schemaRows: Object.fromEntries(tried.map((t) => [t.state.schema, t.rows])) };
+  }
+  return importIdsAs(parsed, loadFor, first);
+}
+
+// importIds in a given schema (eval/multi-version.mjs compares the picks).
+export function importIdsAs(parsed, loadFor, schema) {
   const L = loadFor(schema);
   const info = { ...(parsed.info || {}) };
   delete info.title; delete info.description;
