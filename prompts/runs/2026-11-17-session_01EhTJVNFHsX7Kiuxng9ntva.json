@@ -57,7 +57,7 @@
     "ventures/photo-editing/eval/noise-pca-estimator-2026-11-17.md"
   ],
   "goal": "--noise-from-frame read fine texture as noise (43 of 240 held Bayer tiles lost >0.1 dB, to -4.17 dB); find an estimator that does not",
-  "notes": "Bayer held: 0 of 240 tiles worse than directional by >0.1 dB (was 43, worst -4.17 -> -0.03), mean luma +0.52 vs +0.53. X-Trans held: 17 of 248 (was 45, worst -5.65 -> -1.48), mean luma +0.45 vs +0.63. Estimator accuracy (held Bayer, est/true p90): 8.01 -> 2.61. Local checks: tests/test_noise_pca.py + test_demosaic_noise_aware.py pass; run_venture_tests and venture-preflight output in the PR body.",
+  "notes": "Bayer held: 0 of 240 tiles worse than directional by >0.1 dB (was 43, worst -4.17 -> -0.03), mean luma +0.52 vs +0.53. X-Trans held: 17 of 248 (was 45, worst -5.65 -> -1.48), mean luma +0.45 vs +0.63. Estimator accuracy (held Bayer, est/true p90): 8.01 -> 2.61. Local checks: tests/test_noise_pca.py + test_demosaic_noise_aware.py pass; run_venture_tests.py photo-editing: 1285 tests, 0 failed (131.8 s); venture-preflight.mjs photo-editing: clean (first run failed on a 161-char post description, fixed).",
   "corrections": [],
   "redteam": null
 }
