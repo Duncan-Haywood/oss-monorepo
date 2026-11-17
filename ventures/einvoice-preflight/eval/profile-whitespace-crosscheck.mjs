@@ -21,13 +21,18 @@
 import { createRequire } from "node:module";
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync, appendFileSync } from "node:fs";
 import { join } from "node:path";
-import { detectSyntax, matchingProfile } from "../schematron-core.mjs";
+import { detectSyntax, matchingAddons, matchingProfile } from "../schematron-core.mjs";
 import { createPlainRunner, unreadableValues } from "../plain-schematron.mjs";
 
 const args = process.argv.slice(2);
 const take = (flag) => { const at = args.indexOf(flag); return at >= 0 ? args.splice(at, 2)[1] : null; };
 const outDir = take("--out");
 const roots = (take("--xsl-roots") ?? "").split(",").filter(Boolean);
+// --addons: also take files no profile matches but a plain-only national add-on does
+// (CIUS-RO, CIUS-PT, CIUS-HR, NLCIUS; added 2026-11-17). Only the add-on's own set is
+// compared, the EU base under it being xml-whitespace-crosscheck.mjs's job. A root may
+// then be the stylesheet's own folder (e.g. external/schematron/1.0.9).
+const addons = args.includes("--addons") && args.splice(args.indexOf("--addons"), 1).length > 0;
 if (!outDir || !roots.length) throw new Error("usage: --out DIR --xsl-roots R1,R2 [per-file] [seed] dir ...");
 mkdirSync(outDir, { recursive: true });
 writeFileSync(join(outDir, "manifest.jsonl"), "");
@@ -53,17 +58,17 @@ const xslFor = (name) => {
   const from = manifest[name]?.from;
   if (!from) throw new Error(`${name}: no 'from' in plain/manifest.json`);
   for (const r of roots) {
-    for (const p of [join(r, "external/schematron", from), join(r, "external/schematron/3.4.6", from)]) {
+    for (const p of [join(r, "external/schematron", from), join(r, "external/schematron/3.4.6", from), join(r, from)]) {
       if (existsSync(p)) return (map[name] = p);
     }
   }
   throw new Error(`${name}: ${from} not under ${roots.join(", ")}`);
 };
 
-const walk = (d) => readdirSync(d).sort().flatMap((f) => {
+const walk = (d) => (statSync(d).isFile() ? [d] : readdirSync(d).sort().flatMap((f) => {
   const p = join(d, f);
   return statSync(p).isDirectory() ? walk(p) : f.endsWith(".xml") ? [p] : [];
-});
+}));
 
 let written = 0;
 const record = (xml, row) => {
@@ -78,7 +83,11 @@ const plainIds = (runner, xml, sets) => {
   for (const name of sets) {
     const out = runner.runRules(plain(name), doc);
     if (out.castFailed) ids.add("#ERROR cast");
-    for (const f of out) ids.add((f.text.match(/^\[([^\]]+)\]/) || [])[1] || f.rule);
+    // The assert's own id first, then a [ID] text prefix: what report() in
+    // plain-schematron.mjs shows a user and what SaxonC's SVRL carries. (Until 2026-11-17
+    // this read the text first, so CIUS-RO's decimal rules, all "[BR-RO-Z2]...", and
+    // PINT SG's BR-NG-08-GST-SG showed as label mismatches the product never had.)
+    for (const f of out) ids.add(f.rule || (f.text.match(/^\[([^\]]+)\]/) || [])[1]);
   }
   if (ids.has("#ERROR cast")) castFields = unreadableValues(fontoxpath.evaluateXPathToNodes("//*[not(*)] | //@*", doc, null, null, {})).length;
   return [...ids].sort();
@@ -98,7 +107,11 @@ for (const dir of dirs) {
   for (const path of walk(dir)) {
     const xml = readFileSync(path, "utf8").replace(/^﻿/, "");
     const syntax = detectSyntax(xml);
-    const profile = syntax === "ubl" ? matchingProfile(xml, syntax) : null;
+    let profile = syntax === "ubl" ? matchingProfile(xml, syntax) : null;
+    if (!profile && addons && syntax) {
+      const found = matchingAddons(xml, syntax).filter(([, a]) => a.plainOnly);
+      if (found.length) profile = [found.map(([n]) => n).join("+"), { files: { ubl: found.map(([, a]) => a.files[syntax].replace(/\.sef\.json$/, "")) } }];
+    }
     if (!profile) { tally.skipped++; continue; }
     const sets = [].concat(profile[1].files.ubl).map((f) => f.replace(/\.json$/, ""));
     sets.forEach(xslFor);

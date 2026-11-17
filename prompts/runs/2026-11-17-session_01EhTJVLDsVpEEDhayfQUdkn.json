@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVLDsVpEEDhayfQUdkn",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products)",
+  "input_sha256": "d06985287d402957a41f6a151c3bedfc2a633c6c4ef4d3b85a37ca1e6f2013bc",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T21:53:54Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "einvoice-preflight: cross-check CIUS-RO/PT/HR and NLCIUS plain route against SaxonC-HE (flagship buildable item)",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": 17063,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "First called `promptctl route` without --task; it drew process for this ventures brief. Re-routed with --task per prompt.md."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Plain `route` drew process for the scheduled ventures brief again; I misread step 1 and ran it bare before re-routing with --task. The scheduled prompt could pass --track ventures (PR #16170 open for the control-plane fix)."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "einvoice-preflight's buildable said the national sets need SchXslt on their .sch; only the French sets do. CIUS-RO/PT/HR and NLCIUS are XSLT in phive jars already (build-*-rules.mjs say so). Fixed in the row."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "allocate picked row 7 chant-forge (left by 10 sessions in 2 days, narrow synthetic coda-reader tuning on a low-revenue product); took einvoice-preflight's buildable item instead, a B2B compliance product with mandates landing now.",
+      "did": "einvoice-preflight CIUS cross-check",
+      "result": "landed: 0 of 5,556 copies differ from SaxonC; eval labelling bug found and fixed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-romania-portugal-croatia-netherlands-e-invoice-rules-match-saxon.md",
+    "ventures/einvoice-preflight/eval/cius-whitespace-2026-11-17.md"
+  ],
+  "goal": null,
+  "notes": "CIUS-RO 1.0.9, CIUS-PT 2.1.1, CIUS-HR 2025 (1.0.4) and NLCIUS 2.0.3.13 against their official XSLT on SaxonC-HE 13.1: 445 files (phive-rules@80cf1e5 test files; Croatia's 20 example e-invoices from shunkica/fiskalizacija2@9119d47 read in place), 5,556 whitespace mutants, 0 rule-id differences with the rewrite (203 without). The first pass showed 46 RO 'differences': the eval read [BR-RO-Z2] text prefixes before assert ids, the product (plain-schematron.mjs report()) does the reverse; eval fixed, PINT report and Oman post corrected. NLCIUS's 1,064 Saxon aborts are all EU base rules bundled in si-ubl-2.0.3.13.xslt (mode M12), handled on the base route. No product code changed. Verification: node --test via run_venture_tests.py einvoice-preflight: 2713 tests, 0 failed; check_post_frontmatter ok; validate.py ok; run_workflow_locally --for-changes: 11/11 selected workflows passed (einvoice-preflight-ci 4/4, marked void only because main was merged in mid-run, touching no einvoice file); main_health 262/262 at start.",
+  "corrections": [],
+  "redteam": null
+}
