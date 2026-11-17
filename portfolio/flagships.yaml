@@ -194,10 +194,10 @@ flagships:
       fit (covariateBalance, eval/synth-balance-real.out.txt) 2026-11-17: CA 1.66 sd
       richer than its synthetic, MA balanced yet 6th; placeboWarning (>=80% matched
       better) holds every false find (README "Which imbalance biases the gap"); CLI
-      --donors/--covariates ships it 2026-11-17; two covariates (README "Two
-      covariates"): harmless one's warning 0 of 170 false finds, but 1.27x bias (bar
-      failed); next the table on the page, non-step shocks. More open items:
-      NEXT.md.
+      and page ship it 2026-11-17 (README "A synthetic control on the page", Prop 99
+      example); two covariates: harmless one's warning 0 of 170 false finds, 1.27x
+      bias (bar failed); next non-step shocks, a real deployer's panel. More open
+      items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     why: >-

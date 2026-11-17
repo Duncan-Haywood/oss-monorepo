@@ -94,6 +94,8 @@
       <div><label for="hingeTest"><input id="hingeTest" type="checkbox"> Also test one change of slope on the levels (30&ndash;600 points; for a series that wanders about a trend, like temperature; refuses one that drifts like GDP, and most real series under 100 points)</label></div>
       <div><label for="twoHingeTest"><input id="twoHingeTest" type="checkbox"> Also test two changes of slope (30&ndash;300 points; a curve that speeds up and levels off, or rises, holds and falls; same guard, so it still refuses most sticky series under 60 points)</label></div>
       <div><label for="knownDate">Test a date you name (a law, launch or price change: the label of the first row after it; uses the seasonal period and &ldquo;take logs&rdquo; when set)</label><input id="knownDate" type="text" placeholder="e.g. 1983-02"></div>
+      <div><label for="donors">Compare with other columns at that date (synthetic control): <code>all</code>, or column names, comma-separated. The column above is the treated one; the rest of the file must be complete series of the same thing elsewhere (other states, stores or regions)</label><input id="donors" type="text" placeholder="e.g. all, or UT, MT, NV"></div>
+      <div><label for="covariates">Optional covariates for the balance table: one row per unit (its column name first, then numbers), a header naming them</label><textarea id="covariates" rows="3" placeholder="state,ln income,price&#10;CA,9.9,1.08&#10;UT,9.4,0.97"></textarea></div>
       <div><label for="bursts"><input id="bursts" type="checkbox"> Cut back isolated spikes before fitting (counts model; e.g. a post going viral)</label></div>
       <div><label for="drift"><input id="drift" type="checkbox"> Seasonal shape drifts (needs a period)</label></div>
       <div><label for="period">Seasonal period in points (0 = none)</label><input id="period" type="number" min="0" step="1" value="0"></div>
@@ -104,6 +106,7 @@
     </div>
     <button type="button" id="run">Find changepoints</button>
     <button type="button" class="secondary" id="example">Load example: Nile river flow 1871–1970</button>
+    <button type="button" class="secondary" id="example-prop99">Load example: California's 1989 tobacco tax against 38 states (synthetic control)</button>
     <button type="button" class="secondary" id="example-fx">Load example: franc, pound and yen, 2012–2018 (several columns)</button>
     <p class="note" id="working" role="status" hidden>Working in the background: a long series takes a few seconds (several columns run the six-setting check on each column). The page stays usable, and a new run replaces this one.</p>
   </section>
@@ -121,6 +124,15 @@
     <h3 id="segments-h">Segments</h3>
     <div class="scroll"><table id="segments"></table></div>
     <button type="button" class="secondary" id="download">Download per-point results (CSV)</button>
+  </section>
+
+  <section class="card" aria-labelledby="synth-h" id="synth-results" hidden>
+    <h2 id="synth-h">Against a synthetic control</h2>
+    <p class="note">The treated column against a weighted blend of the other columns that tracked it before your date, with a placebo test that gives every donor the same date (Abadie, Diamond and Hainmueller 2010). Still in this tab.</p>
+    <div id="synth-body" aria-live="polite"></div>
+    <div class="legend"><span>— treated column</span><span style="color:#c0392b">- - synthetic control</span><span style="color:#888">┆ your date</span></div>
+    <div id="synth-chart"></div>
+    <button type="button" class="secondary" id="synth-download">Download treated, synthetic and gap (CSV)</button>
   </section>
 
   <section class="card" aria-labelledby="replay-h" id="replay-card" hidden>
@@ -254,6 +266,7 @@
     import { buyLink, checkLicence } from "./licence.mjs";
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
     import { analyzeJob } from "./analyze-job.mjs";
+    import { synthHtml, synthChartSvg, synthCsv } from "./synth-view.mjs";
     import { watchCheck, recordText, replayText, eagernessText, budgetFromPlain, suggestFor, HINT_BUDGET } from "./watch-core.mjs";
     import { multiChartSvg, agreedTableHtml, jointTableHtml, multiSummary, multiCsv } from "./multi-view.mjs";
     import { parseColumns } from "./multivariate.mjs";
@@ -440,6 +453,7 @@
     }
 
     function run() {
+      $("#synth-results").hidden = true; lastSynth = null;
       if ($("#shape").value === "multi") { stopAgreed(); return runMulti(); }
       $("#multi-results").hidden = true;
       $("#error").textContent = "";
@@ -449,7 +463,14 @@
       const wantAgreed = $("#model").value === "mean";
       stopAgreed();
       if (opts.model === "drift") return runDrift(opts);
-      startMain({ kind: "one", opts }, (out) => {
+      // Synthetic control (synth-cli.mjs, the CLI's --donors and --covariates): needs the date and a named treated column.
+      const donorList = $("#donors").value.split(",").map((d) => d.trim()).filter(Boolean);
+      let synth = null;
+      if (donorList.length) {
+        if (!opts.knownDate || !opts.column) { stopMain(); $("#results").hidden = true; $("#error").textContent = "A synthetic control needs the date you name and the treated column's name in the Column box."; return; }
+        synth = { csv: opts.csv, column: opts.column, date: opts.knownDate, donors: donorList.map((d) => (d.toLowerCase() === "all" ? "all" : d)), log: opts.log, covariatesCsv: $("#covariates").value.trim() || null };
+      }
+      startMain({ kind: "one", opts, ...(synth ? { synth } : {}) }, (out) => {
         if (out.error) { $("#results").hidden = true; $("#error").textContent = out.error; return; }
         show(out.result, wantAgreed ? agreedBase : null, opts);
       });
@@ -538,6 +559,18 @@
       resetReplay(r.n >= 10);
       record("analysis_run");
       if (r.knownDate) record("known_date_run");
+      showSynth(r);
+    }
+
+    let lastSynth = null;
+    function showSynth(r) {
+      lastSynth = r.synth || null;
+      if (!r.synth && !r.synthError) { $("#synth-results").hidden = true; return; }
+      $("#synth-body").innerHTML = r.synth ? synthHtml(r.synth) : `<p class="error" role="alert">Synthetic control not run: ${esc(r.synthError.replace(/--(known-date|donors|covariates|column|window)/g, (m, w) => ({ "known-date": "the date", donors: "the donor list", covariates: "the covariates box", column: "the Column box", window: "the window" })[w]))}</p>`;
+      $("#synth-chart").innerHTML = r.synth ? synthChartSvg(r.synth) : "";
+      $("#synth-download").hidden = !r.synth;
+      $("#synth-results").hidden = false;
+      if (r.synth) record(r.synth.balance ? "synth_balance_run" : "synth_run");
     }
 
 
@@ -619,6 +652,19 @@
     $("#eager-run").addEventListener("click", runEagerness);
     $("#eager-use").addEventListener("click", () => { $("#watch-detector").value = $("#eager-use").dataset.value; $("#watch-detector").focus(); });
     $("#run").addEventListener("click", run);
+    $("#example-prop99").addEventListener("click", async () => {
+      const { PROP99_CSV, PROP99_COVARIATES, PROP99_DONORS } = await import("./example-prop99.mjs");
+      $("#csv").value = PROP99_CSV; $("#shape").value = "one"; $("#columns").disabled = true; $("#column").disabled = false; $("#column").value = "CA"; $("#model").value = "mean";
+      $("#knownDate").value = "1989"; $("#donors").value = PROP99_DONORS; $("#covariates").value = PROP99_COVARIATES; $("#log").checked = false; $("#period").value = "0";
+      record("example_loaded"); run();
+    });
+    $("#synth-download").addEventListener("click", () => {
+      if (!lastSynth) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([synthCsv(lastSynth)], { type: "text/csv" }));
+      a.download = "synthetic-control.csv";
+      a.click();
+    });
     $("#example-fx").addEventListener("click", async () => {
       const { FX_CSV } = await import("./example-fx.mjs");
       $("#csv").value = FX_CSV; $("#shape").value = "multi"; $("#columns").value = ""; $("#columns").disabled = false; $("#column").disabled = true; $("#model").value = "meanvar";
