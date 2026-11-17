@@ -3,7 +3,7 @@ title: "Red-teaming a tip-credit calculator and a DKIM key parser: 22 faults, 13
 seo_title: "Mutation testing two small JavaScript tools: what their tests missed"
 date: 2026-11-17
 tags: [testing, mutation-testing, javascript, redteam, dkim, der, tax]
-description: "Faults seeded into the FICA tip credit calculator and the email authentication checker. 13 of 22 caught; seven holes closed with seven small tests, two faults provably harmless."
+description: "22 faults seeded into a FICA tip credit calculator and a DKIM key parser: 13 caught, seven holes closed with seven small tests, two proven harmless."
 ---
 
 Today's red-team run seeded faults into two tools that strangers type real
