@@ -29,8 +29,9 @@ export const MAX_H1_REM = 3;
  * Longest h1 a tool page may carry, in characters. At 390 px a 28.8 px h1 fits about 20
  * characters a line, so 101 to 125 characters wrapped to 5 or 6 lines (155 to 193 px) before the
  * lede; the second question moves to the lede (docs/reports/polish-2026-11-17-h1-length.md).
+ * 91 to 100 still wrapped to 5 lines, so the cap is 90 (docs/reports/polish-2026-11-17-h1-90.md).
  */
-export const MAX_H1_CHARS = 100;
+export const MAX_H1_CHARS = 90;
 
 /** The visible text of the first h1 in a page's HTML, entities decoded and whitespace collapsed, or null. */
 export function h1Text(html) {

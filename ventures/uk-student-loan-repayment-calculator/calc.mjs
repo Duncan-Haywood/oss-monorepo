@@ -18,7 +18,7 @@ export const PG = { threshold: 21000, rate: 0.06, term: 30 };
 export const YEARS = { 2025: "2025/26", 2026: "2026/27" };
 export const MAX_YEARS = 45;
 
-const money = (n) => "GBP " + Number(Math.round(n * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+const money = (n) => "GBP " + Number(Math.round(n * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\.\d$/, (m) => m + "0");
 const r2 = (n) => Math.round(n * 100) / 100;
 
 export function parse(input) {

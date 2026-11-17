@@ -22,7 +22,7 @@ export const MIN_PENSION = 0.03;
 export const MAX_SALARY = 1000000;
 
 const r2 = (n) => Math.round(n * 100) / 100;
-const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("GBP " + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 }));
+const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("GBP " + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\.\d$/, (m) => m + "0"));
 export const BASES = { qualifying: "Qualifying earnings (GBP 6,240 to GBP 50,270)", full: "Full salary" };
 export const STATUS = { standard: "Standard employee", under21: "Employee under 21", apprentice: "Apprentice under 25" };
 

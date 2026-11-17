@@ -1,4 +1,4 @@
-# How many cents a gallon do you actually keep after card fees, and is the store paying for itself?
+# How many cents a gallon do you actually keep after card fees?
 
 > Free convenience store and gas station profit calculator: fuel margin after card fees, inside sales mix, labor and rent become monthly profit, break-even gallons, debt coverage and fuel margin sensitivity. Private, runs in your browser.
 

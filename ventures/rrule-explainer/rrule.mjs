@@ -330,8 +330,10 @@ export function wallToInstant(day, sec, tz) {
   const valid = cands.filter((o) => zoneOffset(wall - o, tz) === o).map((o) => wall - o).sort((a, b) => a - b);
   if (valid.length >= 2) return { t: valid[0], offset: wall - valid[0], kind: "overlap" };
   if (valid.length === 1) return { t: valid[0], offset: wall - valid[0], kind: "ok" };
-  // In a gap: use the offset just before it.
-  const pre = zoneOffset(wall - before - 3 * 3600, tz);
+  // In a gap: use the offset just before it. Read with the later offset, the
+  // wall time lands on an instant before the shift, whatever the gap's length
+  // (a fixed look-back missed Samoa's whole skipped day, 30 Dec 2011).
+  const pre = zoneOffset(wall - after, tz);
   return { t: wall - pre, offset: pre, kind: "gap" };
 }
 

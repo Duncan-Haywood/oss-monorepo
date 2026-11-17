@@ -1283,6 +1283,50 @@ class PulseDropTest(unittest.TestCase):
         self.assertTrue(all(n < 8 for n in got[0][1]), got[0][1])
         self.assertEqual(got[0][2], 0)
 
+    def test_slow_wheel_is_watched_through_the_next_speed_change(self):
+        """2026-11-17, firmware/esp32/README.md "The fit floor on held-out builds": the Pi's hold made the shot after a
+        slow one late. With LOOP_THROUGH_CHANGE the board watches the slow wheel on through the next shot's speed change
+        (the loop fit models the commands), so the Pi sends the next speeds straight away: the second shot releases
+        sooner and the slow wheel's drop still reads within 1%. Off by default on both sides."""
+        self.assertFalse(controller.LOOP_THROUGH_CHANGE)
+        self.assertFalse(host.LOOP_THROUGH_CHANGE)
+        spec = {"machine": {"y": 0.0, "height": 1.0}, "interval": 3.0,
+                "shots": [{"x": 9.0, "y": 0.0, "speed": 22, "topspin": 3000},
+                          {"x": 10.5, "y": 0.0, "speed": 26, "topspin": 0}]}
+        shots = host.plan_drill(spec)
+        got = {}
+        try:
+            for through in (False, True):
+                controller.LOOP_THROUGH_CHANGE = host.LOOP_THROUGH_CHANGE = through
+                sim = SimFeeder(balls=None)
+                truth = []
+                take = sim._take_momentum
+
+                def taken():
+                    before = sim.wheel[1]
+                    take()
+                    truth.append(1 - sim.wheel[1] / before)
+                sim._take_momentum = taken
+                res = host.run_drill(host.FeederLink(sim, sim.clock), shots, sim.sleep)
+                self.assertTrue(res.ok, res.aborted)
+                rec = res.launches[0]
+                got[through] = (res.shots[1].released_at - res.shots[0].released_at, rec["drop_bottom"] / truth[0],
+                                rec["loop_bottom"], sim.hw.launch.extended)
+        finally:
+            controller.LOOP_THROUGH_CHANGE = host.LOOP_THROUGH_CHANGE = False
+        held, thru = got[False], got[True]
+        self.assertLess(thru[0], held[0] - 0.5)
+        self.assertTrue(thru[2] and thru[3] >= 1, thru)
+        self.assertLess(abs(thru[1] - 1), 0.01, thru)
+
+    def test_a_stop_still_ends_the_watch_through_changes(self):
+        """A coast down is the ESC's braking, which no command describes: LOOP_THROUGH_CHANGE keeps watching through a
+        change of speed, never through a stop."""
+        self.assertTrue(controller._stopped((5000, 600), (0, 0)))
+        self.assertTrue(controller._stopped((5000, 600), (5000, 0)))
+        self.assertFalse(controller._stopped((5000, 600), (4000, 4000)))
+        self.assertFalse(controller._stopped((0, 600), (0, 4000)))
+
     def test_hold_matches_the_board(self):
         """The Pi's hold and the board's watch past the verdict count the same revolutions over the same time."""
         self.assertEqual(host.LOOP_AFTER_REVS, controller.LOOP_AFTER_REVS)

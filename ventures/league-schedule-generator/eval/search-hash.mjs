@@ -8,6 +8,9 @@
 //
 // 2026-11-12: f61d94fa030609cb8c3e75fa486180a7ff898ca5309c4c787136405fb9bb9f4a, 142 results
 // (docs/history/ci-perf-2026-11-12-carryover-cached-costs.md).
+// 2026-11-17: 0e128af3d5c1fde4c72dbef14ee99d9fe458786063bd560f04a50e2fdfde7404, 142 results, the same
+// before and after the venue search's run move was priced locally
+// (docs/history/ci-perf-2026-11-17-league-venue-run-local.md).
 
 import { createHash } from "node:crypto";
 import { pathToFileURL } from "node:url";
