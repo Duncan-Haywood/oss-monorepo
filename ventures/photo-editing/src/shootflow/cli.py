@@ -759,6 +759,7 @@ def _run_develop_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
         preview_quality=args.preview_quality,
         warp_kernel=args.warp_kernel,
         demosaic=args.demosaic,
+        noise_from_frame=getattr(args, "noise_from_frame", False),
         lens_db=_load_lens_db(args.lens_db) if args.lens_db else None,
         lens_name=args.lens,
         lens_focal=args.lens_focal,
@@ -1338,9 +1339,19 @@ def _build_parser() -> argparse.ArgumentParser:
             "(four directions on Fujifilm X-Trans, row and column on Bayer) and follows the smoother one, which cuts "
             "the zippering and false colour bilinear leaves on edges; 'learned' (Bayer, numpy; in C when a compiler is present) is directional "
             "with a per-pixel detail weight from a fitted model: a little sharper and truer on real photos, about 3x slower; "
-            "'noise-aware' (numpy; DNGs with a NoiseProfile) blends directional toward bilinear wherever the "
+            "'noise-aware' (numpy; DNGs with a NoiseProfile, or any raw with --noise-from-frame) blends directional toward bilinear wherever the "
             "edge-keeping adds less than the sensor noise, which helps high-ISO and smooth frames; "
             "'bilinear' averages each 3x3 window (both engines, same bytes)."
+        ),
+    )
+    develop.add_argument(
+        "--noise-from-frame",
+        action="store_true",
+        help=(
+            "With --demosaic noise-aware on a file that carries no NoiseProfile (ARW, NEF, CR2, RW2, RAF and other "
+            "raws, many DNGs): read the sensor noise from the frame itself instead of falling back to directional. "
+            "Meant for high-ISO frames: there it gains most of what a true profile gains; on clean, finely "
+            "textured frames fine texture reads as noise and detail can soften."
         ),
     )
     develop.add_argument(
