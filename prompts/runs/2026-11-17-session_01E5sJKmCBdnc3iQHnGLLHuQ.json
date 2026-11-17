@@ -7,17 +7,19 @@
   "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T20:18:46Z",
   "ended": "2026-11-17T20:20:24Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 38.6,
+  "tokens_in": 7064902,
+  "tokens_out": 35875,
+  "cost_usd": 3.0176,
+  "tool_calls": 64,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17061",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +28,253 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 says fix the open list first, but all 11 open entries are control-plane edits (workflows, prompts/) that one session's branch can't land without owner approval; the list keeps growing with items no red-team run can act on. A flag in `redteam.py open` for control-plane entries would save the re-reading."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "suite_for runs the whole venture glob for ventures/<v>/*.mjs: for changepoint-detector that is ~250 files and ~3 min per mutant (campaign + rerun ~40 min) where synth-control.test.mjs + synth-cli.test.mjs take 21 s. Fine as a CI-faithful measure, but the estimate printed nothing until the baseline finished."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: did not fix the 11 open entries; each needs a control-plane PR with owner approval (several already have patches or PRs: #15945, docs/reports/patches/...).",
+      "did": "Left them patched: false and spent the run on the target and a sibling sweep.",
+      "result": "3 real defects found and fixed instead."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-redteam-three-3-5.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Target ventures/changepoint-detector/synth-control.mjs (never targeted; changed twice today). 8 mutants, 3 caught by the ~250-file suite; 3 equivalent, 2 gaps in simplexLeastSquaresRows' power iteration, guarded by an oracle test against simplexLeastSquares (caught_after_fix true for both). Hunt: the covariates parser (synth-cli.mjs) split semicolon/decimal-comma files; a grep for the same split found it in pay-transparency-directive-checker and wall-condensation-check, both reproduced (-6300% gap; R 6 for 0.06) and fixed with failing-first tests. Guard (4b): none automated; 7 more numeric line.split(/[,;\\t]/) parsers listed in the post for the next run (van-westendorp, gabor-granger, saas-feature-packaging x2, patent-maintenance-fee, aws-commitment, car-hauler). Verification: node --test synth-cli/synth-control/cli tests 27 pass; run_venture_tests pay-transparency + wall-condensation ok; rerun over the full changepoint suite.",
   "corrections": [],
-  "redteam": null
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/changepoint-detector/synth-control.mjs",
+        "test": "node --test ventures/changepoint-detector/**/*.test.mjs  (in .)",
+        "seed": 885599638,
+        "commit": "0a8af14e0",
+        "sites": 448,
+        "baseline_seconds": 178.2,
+        "mutants": [
+          {
+            "file": "ventures/changepoint-detector/synth-control.mjs",
+            "line": 29,
+            "col": 24,
+            "operator": "const-plus-one",
+            "before": "for (let it = 0; it < 200; it++) {",
+            "after": "for (let it = 0; it < 201; it++) {",
+            "line_text": "  for (let it = 0; it < 200; it++) {",
+            "caught": false,
+            "seconds": 181.7,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Power iteration on G already converged well before 200 steps; one more step changes L in the last bits, the step size by a factor within 1e-12, and FISTA converges to the same minimum."
+          },
+          {
+            "file": "ventures/changepoint-detector/synth-control.mjs",
+            "line": 39,
+            "col": 53,
+            "operator": "lt-to-le",
+            "before": "const obj = (w0) => { let s = 0; for (let t = 0; t < T; t++) { let f = 0; for (let j = 0; j < J; j++) f += X[t][j] * w0[j]; s += (y[t] - f) ** 2; } return s; };",
+            "after": "const obj = (w0) => { let s = 0; for (let t = 0; t <= T; t++) { let f = 0; for (let j = 0; j < J; j++) f += X[t][j] * w0[j]; s += (y[t] - f) ** 2; } return s; };",
+            "line_text": "  const obj = (w0) => { let s = 0; for (let t = 0; t < T; t++) { let f = 0; for (let j = 0; j < J; j++) f += X[t][j] * w0[j]; s += (y[t] - f) ** 2; } return s; };",
+            "caught": true,
+            "seconds": 175.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/changepoint-detector/synth-control.mjs",
+            "line": 64,
+            "col": 21,
+            "operator": "const-plus-one",
+            "before": "const t = (css - 1) / (i + 1);",
+            "after": "const t = (css - 2) / (i + 1);",
+            "line_text": "    const t = (css - 1) / (i + 1);",
+            "caught": true,
+            "seconds": 177.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/changepoint-detector/synth-control.mjs",
+            "line": 97,
+            "col": 12,
+            "operator": "const-plus-one",
+            "before": "let n = 0; for (let i = 0; i < P; i++) n += u[i] * u[i]; n = Math.sqrt(n);",
+            "after": "let n = 1; for (let i = 0; i < P; i++) n += u[i] * u[i]; n = Math.sqrt(n);",
+            "line_text": "    let n = 0; for (let i = 0; i < P; i++) n += u[i] * u[i]; n = Math.sqrt(n);",
+            "caught": false,
+            "seconds": 176.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "n starting at 1 inflates the eigenvalue estimate to sqrt(1+|Mv|^2): with tiny predictors (L about 1e-5) the step is ~1e5x too small and 2000 iterations stop 4.5e-4 above the minimum. Test: the row-form solver against simplexLeastSquares as an oracle on 1e-3-scale rows."
+          },
+          {
+            "file": "ventures/changepoint-detector/synth-control.mjs",
+            "line": 99,
+            "col": 24,
+            "operator": "const-plus-one",
+            "before": "L = n; for (let i = 0; i < P; i++) v[i] = u[i] / n;",
+            "after": "L = n; for (let i = 1; i < P; i++) v[i] = u[i] / n;",
+            "line_text": "    L = n; for (let i = 0; i < P; i++) v[i] = u[i] / n;",
+            "caught": false,
+            "seconds": 174.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "v[0] never updated: when the first predictor row dominates, the estimate settles near lambda/sqrt(P), the step is ~3x too big and FISTA oscillates (objective 4,301x the oracle with P=9). Test: same oracle test, dominant first row."
+          },
+          {
+            "file": "ventures/changepoint-detector/synth-control.mjs",
+            "line": 126,
+            "col": 56,
+            "operator": "const-plus-one",
+            "before": "if (Math.abs(prev - cur) <= tol * Math.max(bb, 1e-300)) { prev = cur; break; }",
+            "after": "if (Math.abs(prev - cur) <= tol * Math.max(bb, 1e-301)) { prev = cur; break; }",
+            "line_text": "      if (Math.abs(prev - cur) <= tol * Math.max(bb, 1e-300)) { prev = cur; break; }",
+            "caught": false,
+            "seconds": 178.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "The 1e-300 floor only matters when b is all zeros (bb = 0); a threshold of 1e-310 vs 1e-311 on an objective difference changes no break that a user could see."
+          },
+          {
+            "file": "ventures/changepoint-detector/synth-control.mjs",
+            "line": 177,
+            "col": 85,
+            "operator": "minus-to-plus",
+            "before": "const softmax = (th) => { const mx = Math.max(...th), e = th.map((a) => Math.exp(a - mx)), s = e.reduce((a, b) => a + b, 0); return e.map((a) => a / s); };",
+            "after": "const softmax = (th) => { const mx = Math.max(...th), e = th.map((a) => Math.exp(a + mx)), s = e.reduce((a, b) => a + b, 0); return e.map((a) => a / s); };",
+            "line_text": "  const softmax = (th) => { const mx = Math.max(...th), e = th.map((a) => Math.exp(a - mx)), s = e.reduce((a, b) => a + b, 0); return e.map((a) => a / s); };",
+            "caught": false,
+            "seconds": 174.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "exp(a + mx) is exp(a - mx) times the constant exp(2mx), cancelled by the normalisation; it differs only on overflow (max theta > ~355). Probed 600 synthFitCovariates fits (P 2-4, single and multi, maxEval 160 and 400; theta reached 428): 0 changed preRmspe, because an overflowed V gives a NaN loss that never replaces the best fit and only arises once the softmax has saturated on a plateau. Not proven unreachable; a future guard would be a fit forced to theta > 355 with a non-flat loss."
+          },
+          {
+            "file": "ventures/changepoint-detector/synth-control.mjs",
+            "line": 223,
+            "col": 41,
+            "operator": "plus-to-minus",
+            "before": "const ti = target < 0 ? 0 : target + 1;",
+            "after": "const ti = target < 0 ? 0 : target - 1;",
+            "line_text": "      const ti = target < 0 ? 0 : target + 1;",
+            "caught": true,
+            "seconds": 166.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/changepoint-detector/synth-cli.mjs",
+        "issue": "parseCovariates split every line on , ; and tab regardless of the file's delimiter: a semicolon file from a comma-decimal locale ('unit;income' / 'a;3,5') read as two covariates 3 and 5 under one header name (balance table with a phantom 'covariate 2' and a wrong income); a quoted unit name with a comma ('\"Washington, DC\"') was split; a repeated unit row silently replaced the first. Fixed: read with engine.mjs splitLine/numCell like the data CSV, rows must match the header's count, duplicates refused. Test: synth-cli.test.mjs 'covariates: decimal commas...'.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17061"
+      },
+      {
+        "file": "ventures/pay-transparency-directive-checker/calc.mjs",
+        "issue": "parsePayTable split on , ; and tab together: 'Engineers;3200,50;3400,00' (a comma-decimal locale, the EU Directive's own users) read women 3200, men 50, a -6300% gap flagged for joint pay assessment, no error. Fixed: a line with ; splits on ; and tab, decimal commas and dot thousands read (3.200,50 -> 3200.5, 52.000 -> 52000). Test in calc.test.mjs.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17061"
+      },
+      {
+        "file": "ventures/wall-condensation-check/calc.mjs",
+        "issue": "parseLayers: 'Gypsum;0,06;2860' in SI read as a layer 'Gypsum, 0' with R 6 (100x), no error. Same fix as the pay table. parseClimate has the same split but refuses the result ('too many values'), left alone.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17061"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "77b9da25-1099-5624-9b86-25d602464b32",
+    "transcripts": 1,
+    "first": "2026-11-17T20:18:46Z",
+    "last": "2026-11-17T20:57:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 67,
+        "input": 137,
+        "output": 35875,
+        "thinking": 9343,
+        "cache_read": 6951103,
+        "cache_write_5m": 0,
+        "cache_write_1h": 113662,
+        "api_equivalent_usd": 3.0176,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 67,
+      "input": 137,
+      "output": 35875,
+      "thinking": 9343,
+      "cache_read": 6951103,
+      "cache_write_5m": 0,
+      "cache_write_1h": 113662,
+      "api_equivalent_usd": 3.0176,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 64,
+    "tools": {
+      "Bash": 59,
+      "ToolSearch": 2,
+      "Write": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 38.6,
+      "active_minutes": 11.19,
+      "model_minutes": 7.85,
+      "tool_minutes": 3.34,
+      "waiting_on_human_minutes": 27.41,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a senior engineer: mutation triage with an oracle test (2h), three parser bugs reproduced, fixed and tested (2.5h), post (1.5h)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 198.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }

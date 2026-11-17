@@ -1,9 +1,9 @@
 ---
 title: "Three tools that read 3,5 as two numbers"
-seo_title: "Decimal commas in semicolon CSVs: three parsers that split 3,5 into 3 and 5"
+seo_title: "Decimal commas in semicolon CSVs: three parsers split 3,5 in two"
 date: 2026-11-17
 tags: [redteam, testing, csv, changepoint-detector, pay-transparency, building-science]
-description: "A red-team run on the synthetic control found its covariates file split 3,5 into two numbers. The same split was in a pay-gap checker (a -6300% gap) and a wall condensation check (R 6 for 0.06)."
+description: "Three tools split a semicolon CSV's 3,5 into two numbers: a -6300% pay gap, a wall R-value 100x too high, a phantom covariate. Found and fixed."
 ---
 
 Excel in a comma-decimal locale (most of Europe) saves a CSV with semicolons
