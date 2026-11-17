@@ -7,33 +7,153 @@
   "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T10:39:13Z",
   "ended": "2026-11-17T10:59:56Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
-  "repo": null,
+  "wall_minutes": 41.14,
+  "tokens_in": 22121084,
+  "tokens_out": 129498,
+  "cost_usd": 8.9474,
+  "tool_calls": 111,
+  "task": "explore: method-comparison research-algorithm tool (Passing-Bablok, Deming, Bland-Altman)",
+  "projects": [
+    "ventures/method-comparison"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16912",
+  "repo": "duncan-haywood/oss-monorepo",
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
-  "errors": [],
+  "tests_added": 38,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First local run_workflow_locally --for-changes: sibling-links failed (method-comparison was a crawlable orphan).",
+      "fix": "Linked it from inter-rater-agreement's sibling paragraph with a page test; siblings.mjs --check then 0 orphans."
+    },
+    {
+      "what": "A Python one-liner truncated platform/privacy/optout-switches.txt (opened for write before reading).",
+      "fix": "git checkout of the file, then a sorted insert; caught before commit."
+    },
+    {
+      "what": "Installing R + mcr through micromamba for a reference was denied by the auto-mode classifier.",
+      "fix": "Used an independent numpy/scipy reference written from the papers instead (closed form, scipy ODR, exact-fraction slope listing)."
+    },
+    {
+      "what": "ventures-tests: test_check_csv_formula_guard flagged csvCell's guard shape (a plain number like -12.50 defused to text).",
+      "fix": "Used the guard shape kriging-interpolation uses; unittest OK, ventures-tests 5/5."
+    }
+  ],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says run_workflow_locally --for-changes runs what the diff triggers, but it detaches after ~100 s and any tracked edit while it runs voids the rest; a first-run orphan fix therefore forces a second full run. A note to fix sibling links before the first run (or to run siblings.mjs --check first for a new venture) would save a cycle."
+    },
+    {
+      "file": "portfolio/research-tools/README.md",
+      "issue": "Says to add a row and the build.mjs slug when a tool lands, but not the other registrations a new venture needs (launched.json, optout-switches.txt, a sibling link from an existing page); found by copying the kriging PR's file list."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "A local ventures-tests run left `git config user.email ci@example.com` in the repository, so the next commit was Unverified until amended; the runner (or the test that sets it) should restore git config."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "engine.mjs (Passing & Bablok 1983 CUSUM)",
+      "why": "The normalisation by sqrt(points below the line + 1) I first used gave false-alarm rates rising with n (2.4/5.5/8.2% at n=30/60/200) in simulation, and the paper was not available to check its exact form.",
+      "did": "Normalised by sqrt(points off the line + 1) and documented it as conservative, with eval/cusum-normalisation.mjs reproducing both.",
+      "result": "At most 0.1% false alarms at nominal 5%, 87.8% power on a moderate quadratic; documented on the page, README and PAPERS."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-mercury-vs-cuff-least-squares-slope-087.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Explore idea: method comparison as a research-algorithm tool (ventures/method-comparison); no venture README mentioned Deming regression, Passing-Bablok or method comparison. Passing-Bablok with rank CIs and CUSUM; above 600 pairs order statistics by merge-sort inversion counting of y - t x plus bisection (8,850,570 slopes on NHANES, ~1-2 s in Chromium); Deming/weighted Deming with O(n) jackknife; Bland-Altman with CIs and percent scale; decision-level bias (Deming jackknife, PB bootstrap <=500 pairs); Kendall tau-b by Knight. Real data: NHANES 2017-2018 BP methodology study (mercury vs Omron HEM-907XL), 4,212 adults: cuff 1.31 mmHg lower (CI 1.01-1.61), LoA -20.87 to 18.25, OLS slope 0.872 vs PB 1.0232 / Deming 1.0172. Verification: independent numpy/scipy reference (eval/make_reference.py) on 33 sets + NHANES (Deming closed form 1e-10, ODR 1e-5, jackknife 1e-9, PB exact-fraction listing 1e-12 with N/K exact, Kendall vs scipy); fast vs brute PB on 400 tie-heavy sets; Bland & Altman 1986 PEFR reproduces -2.1/38.8/-79.7..75.5; 1,000-set simulation coverage Deming 95.5%, PB 95.4%, weighted Deming 96.7%. methcomp 1.0.0 read and not used (Deming uses np.cov(x,y)[1][1]). All 9 DOIs checked on Crossref. Chromium at 1200/390 px: no console errors, no external requests, no overflow. Local CI: run_workflow_locally --for-changes: control-plane-guard, checklist-coverage, conflict-markers, doc-refs, duplicate-symbols, link-contrast, readme-live-links, page-integrity, agent-permission-harness, pages 6/6 passed; sibling-links failed (orphan) then 2/2 after the inter-rater-agreement link; ventures-tests failed once (csv formula guard flagged csvCell shape) then 5/5 after the fix; portfolio-validate 100/100, portfolio-pages 12/12. uses: and secret-reading steps not run locally. No agent doc in docs/reports: the README Verification and the post carry what the next run needs. Next: repeated-measures Bland-Altman, regression-based LoA, lambda from duplicates.",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "cc4a220e-0418-5519-9090-794015012469",
+    "transcripts": 1,
+    "first": "2026-11-17T10:39:13Z",
+    "last": "2026-11-17T11:20:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 113,
+        "input": 226,
+        "output": 129498,
+        "thinking": 30559,
+        "cache_read": 21873120,
+        "cache_write_5m": 0,
+        "cache_write_1h": 247738,
+        "api_equivalent_usd": 8.9474,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 113,
+      "input": 226,
+      "output": 129498,
+      "thinking": 30559,
+      "cache_read": 21873120,
+      "cache_write_5m": 0,
+      "cache_write_1h": 247738,
+      "api_equivalent_usd": 8.9474,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.989,
+    "tool_calls": 111,
+    "tools": {
+      "Bash": 99,
+      "Write": 6,
+      "ToolSearch": 2,
+      "Monitor": 2,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 41.14,
+      "active_minutes": 24.08,
+      "model_minutes": 19.68,
+      "tool_minutes": 4.39,
+      "waiting_on_human_minutes": 17.07,
+      "human_prompts": 7,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 30.0,
+      "basis": "Estimate: a statistician building Passing-Bablok with fast slope selection, Deming/weighted Deming jackknife, Bland-Altman, an independent Python reference, simulations, page and tests (~3-4 working days)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 3000.0
+    },
+    "leverage": 335.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
