@@ -127,8 +127,11 @@ export function liability(p) {
   const divTax = slice(tNS + tSav + divAllowUsed, tDiv - divAllowUsed, DIVIDEND_RATES, basicTop, addTop);
 
   const grossTax = nsTax.tax + savTax.tax + divTax.tax;
+  // Finance-cost credit: 20% of the lowest of finance costs, property profits and
+  // adjusted total income, which excludes savings and dividend income (GOV.UK,
+  // "Calculating tax relief for residential property finance costs").
   let credit = 0;
-  if (p.mortgageInterest > 0 && !propUsedAllowance && propProfit > 0) credit = r2(0.2 * Math.min(p.mortgageInterest, propProfit, pos(totalIncome - pensionGross - giftGross - allowance)));
+  if (p.mortgageInterest > 0 && !propUsedAllowance && propProfit > 0) credit = r2(0.2 * Math.min(p.mortgageInterest, propProfit, pos(nonSavings - pensionGross - giftGross - allowance)));
   const incomeTax = r2(pos(grossTax - credit));
   const class4Nic = class4(tradingProfit);
 

@@ -9,3 +9,12 @@ After using this, you know what to set aside for 31 January 2027, and whether a 
 Open `index.html`. Tests: `node --test 'ventures/uk-self-assessment-tax-calculator/**/*.test.mjs'`.
 
 **No warranty.** Free and as-is; not tax advice. Written from memory of the published 2025/26 rules in a session without network access, so every result names the GOV.UK pages to verify against. See `VENTURE.yaml`.
+
+## Known gaps
+
+From the [2026-11-17 census quality audit](../../portfolio/quality/audits/2026-11-17-uk-self-assessment-tax-calculator.json), not yet fixed:
+
+- The £1,000 property allowance is taken whenever it beats expenses, even when it forfeits a larger mortgage-interest credit.
+- Student loan repayments count all savings and dividend income instead of only the unearned income above £2,000.
+- Plan 5 is charged for 2025/26, although Plan 5 repayments start in April 2026.
+- (Fixed in the same PR as the audit: the finance-cost credit limit now leaves out savings and dividends.)
