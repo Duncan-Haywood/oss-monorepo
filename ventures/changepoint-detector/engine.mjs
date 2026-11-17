@@ -19,7 +19,7 @@ import { NILE_CSV } from './example-data.mjs';
 import { slopeBreaks } from './slope-breaks.mjs';
 import { hingeTest } from './hinge-test.mjs';
 import { twoHingeTest } from './two-hinge.mjs';
-import { knownDateTest } from './known-date.mjs';
+import { knownDateTest, placeboCheck } from './known-date.mjs';
 
 import { groupRamps } from './ramps.mjs';
 import { updateRateChanges, updateRateLines } from './update-rate.mjs';
@@ -2569,7 +2569,16 @@ export function knownDateReport(values, labels, opt, { log = false, period = 0 }
     rho: Number(h.rho.toFixed(3)), gated: !!h.gated, rhoGen: h.rhoGen.map((v) => Number(v.toFixed(3))),
     calibrated: !h.admittedByCut, significant: !h.admittedByCut && h.p <= 0.05,
     ...(h.admittedByCut ? { admittedByCut: true, rhoLine: Number(h.rhoLine.toFixed(3)), cutBar: Number(h.cutBar.toFixed(3)) } : {}),
+    ...(o.placebo === false ? {} : { placebo: placeboFields(values, k, labels, period, Number(o.seed) || 1, Math.min(199, Number(o.reps) || 499)) }),
   };
+}
+
+// In-time placebos beside the named-date test (README "In-time placebos", eval/known-date-prereg-placebo-2026-11-17.md):
+// the same test on the before-period only, at up to three dates; `warn` when 2 or more give p <= 0.05. Off with
+// knownDate: { placebo: false }.
+function placeboFields(values, k, labels, period, seed, reps) {
+  const pc = placeboCheck(values, k, { period, seed, reps });
+  return { dates: pc.dates.map((d) => (d.refused ? { label: labels[d.k] ?? String(d.k), refused: true } : { label: labels[d.k] ?? String(d.k), refused: false, p: Number(d.p.toFixed(4)) })), tested: pc.tested, fired: pc.fired, warn: pc.warn };
 }
 
 /**

@@ -103,6 +103,8 @@ for the browser-extension, iOS and Android packagers.
 | [`kriging-interpolation`](../../ventures/kriging-interpolation/) | Matheron 1963; Krige 1951; Cressie & Hawkins 1980; Cressie 1985; Dubrule 1983; Shepard 1968; Gneiting 2013 | What is the value between my sample points and how sure is it, what are my data's nugget, sill and range, does kriging beat inverse distance here, and which readings disagree with their neighbours? |
 | [`scale-reliability`](../../ventures/scale-reliability/) | Cronbach 1951; Guttman 1945; McDonald 1999; Feldt, Woodruff & Salih 1987; Kelley & Pornprasertmanit 2016; Efron 1987; Sijtsma 2009; Spearman 1910; Brown 1910 | Is my questionnaire scale reliable, with what interval, does omega tell a different story from alpha, which items pull it down, and did I forget to reverse one? |
 | [`item-response-theory`](../../ventures/item-response-theory/) | Bock & Aitkin 1981; Birnbaum 1968; Rasch 1960; Orlando & Thissen 2000; Lord & Wingersky 1984; Bock & Mislevy 1982; Thissen et al. 1995 | Which questions on my test work, how hard is each and how well does it separate strong from weak, does a question misfit, is a key wrong, and where is the test precise? |
+| [`difference-in-differences`](../../ventures/difference-in-differences/) | Callaway & Sant'Anna 2021; Goodman-Bacon 2021; Card & Krueger 1994 | Did a change adopted at different times move the outcome, by how much at each time since adoption, were the adopters already drifting apart before, and how much of the usual two-way fixed effects estimate compares late adopters with units already treated? |
+| [`method-comparison`](../../ventures/method-comparison/) | Passing & Bablok 1983; Cornbleet & Gochman 1979; Linnet 1990, 1993; Bland & Altman 1986, 1999; Knight 1966; Sen 1968; Dillencourt, Mount & Netanyahu 1992 | Do two measurement methods agree, is the difference constant or proportional, what are the limits of agreement, and how far apart are they at a decision level? |
 
 The site files them under "Research algorithms & ML"
 (`platform/pages/build.mjs`, `research-algorithms`). Add a row here and the
@@ -110,7 +112,7 @@ slug there when a tool lands.
 
 ## Candidates
 
-Next papers to implement, each a job someone has: augmented synthetic
+Next papers to implement, each a job someone has: covariates by the doubly robust estimator (Sant'Anna & Zhao 2020), the imputation estimator (Borusyak, Jaravel & Spiess 2024) and HonestDiD sensitivity bounds (Rambachan & Roth 2023) as modes of `difference-in-differences`; augmented synthetic
 control (Ben-Michael, Feller & Rothstein 2021) as a bias-corrected mode for
 `synthetic-control`; several input columns
 with automatic relevance determination, and a forecast-calibrated mean, as

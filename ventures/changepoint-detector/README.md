@@ -5722,3 +5722,148 @@ straight line is the wrong baseline for this ratio over 14 years. The seat-belt 
 (the same test at dates in the before-period; refuse or warn when they fire), or a step-only test with the control,
 since the steps passed every placebo (0 of 5 at p 0.05, real pairs 4c and 4d); and real pairs beyond road deaths, such as a policy that
 covered some regions and not others.
+
+### In-time placebos: a warning beside the test when the line before your date is not a line (2026-11-17, pre-registered; ships)
+
+The control round above ended asking for "an in-time placebo check that ships beside the test". This is it, for the
+shipped one-series test: `placeboCheck(x, k, { period })` in `known-date.mjs` runs the same test (round 5's settings,
+199 replicates) on the points before your date only, at up to three dates spread through that before-period (each with
+`8 + period` points on both sides), where the event you named cannot act. It **warns** when 2 or more of the tested
+placebo dates give joint p <= 0.05. It is a warning beside the result; it does not change the named-date p. This is
+the "falsification" check of the interrupted-time-series tutorials (Lopez Bernal, Cummins and Gasparrini 2017).
+
+Pre-registration `eval/known-date-prereg-placebo-2026-11-17.md`, committed after an exploratory run (seed base 81000,
+100 series, `eval/known-date-placebo-explore.out.txt`) and before the confirmatory run (fresh seed base 87000, 200
+series per cell, `eval/known-date-placebo-confirm.out.txt`; `KD_SEED_BASE=87000 KD_SHARD=i/4 node
+eval/known-date-placebo-sim.mjs 200 199`) and the real series (`node eval/known-date-placebo-real.mjs`,
+`eval/known-date-placebo-real.out.txt`):
+
+| Bar (pre-registered) | Confirmatory | |
+|---|---|---|
+| 1. false warnings at most 8% of tested, 14 straight-line cells (n 40-240, rho 0-0.8) and a real 2 sd step at the date | 0-4.0% (the step cell 1.0%) | holds |
+| 2. warnings: a quadratic bend of 8 sd, n 120, rho 0, at least 70%; an earlier 3 sd shock, n 240 / n 120, rho 0, at least 80% / 25% | 91.5%; 92.5% / 44.5% | holds |
+| 3. among the named-date test's false rejections (bends and earlier shocks, no change at the date), at least 25% warned | 677 of 1,830 (37.0%) | holds |
+| 4. drivers / rear-seat ratio before 1983-02 warns (seen); Nile before 1899 and Nottingham before 1935-01 and 1930-01 do not | ratio 3 of 3 fired, warns; Nile 0 of 3, Nottingham 0 of 3 twice | holds |
+
+**What it catches and what it cannot.** Where the before-period itself bends or carries an earlier shock, the warning
+comes up often (bends 15-91.5% at n 120, earlier shocks 8.5-92.5%; stickier noise hides more). Where the series bends
+mostly *after* the date (a quadratic with the date at the middle of 240 points), the named-date test fires 59-100% of
+the time with nothing at the date and the placebos warn only 3.5-19%: they see only the before-period. So no warning is
+not a clean bill; a control series or a look at the after-period is still the check for that.
+
+**Real series** (reported without a bar): drivers alone before the 1983 belt law, 1 of 3 (1973-05, the fuel crisis)
+and no warning; front-seat passengers 2 of 3 and rear-seat passengers 2 of 3 both warn, which agrees with the control
+round's reading that the joint test on those series partly reads a slope shared by all three. Australian cafe turnover
+before the July 2000 GST would warn (2 of 2), but the named date is refused (a wander) so no placebos are reported;
+quarterly cement is refused at every date.
+
+**Use it.** Nothing to switch on: `--known-date` prints an "In-time placebos" line (and a WARNING line when it fires);
+`--json` has `placebo: { dates: [{ label, p }], tested, fired, warn }`; `analyze({ knownDate })` has the same field
+(`knownDate: { date, placebo: false }` leaves it out), and the page adds a sentence to "Test a date you name". Tests:
+`known-date-placebo.test.mjs`.
+
+### The step alone, with a control series: calibrated in simulation, refused on real state pairs (2026-11-17, pre-registered; not shipped)
+
+The control round above failed only on its placebo dates, where the joint test read a slow bend in the drivers-to-rear
+ratio through its slope term; the step's own p fired at none of the five. So this round keeps the statistic and changes
+the decision: with a control, a **finding** is the step's p (`pStep`, in the model that still fits a slope change) at
+0.05 with the in-time placebos, run on the same difference, not warning. Pre-registration
+`eval/known-date-prereg-control-step-2026-11-17.md`, committed after an exploratory run (seed base 91000,
+`eval/known-date-control-step-explore.out.txt`) and before the confirmatory run (fresh base 97000, 400 pairs a cell,
+`eval/known-date-control-step-confirm.out.txt`) and before any real pair was tested. The real pairs are new to this
+tool: state cigarette tax rises (CDC's *Tax Burden on Tobacco*, 1970-2019, `data/us-cigarette-packs-per-capita.csv`),
+each state's packs per head against the mean of Abadie, Diamond and Hainmueller's (2010) 38 donor states, on logs.
+
+| Bar (pre-registered) | Confirmatory | |
+|---|---|---|
+| 1. step size 2-8% of tested, six no-change cells (n 31-120, shared slopes, steps and walks) | 4.3-6.8% (joint p 4.0-7.3%) | holds |
+| 2. findings at most 8% where only the treated series bends or turns (six cells, no step) | 0-5.3%; the date-at-80% bends: step p fired 44.0% and 41.0%, the placebos warned 176 of 176 and 160 of 164 | holds |
+| 3. power, findings as a share of all pairs: P1 55%, P2 50%, P3 20%, P5 30%, and the step above the joint p | 65.5, 60.8, 24.0, 40.0% (joint 51.3, 49.5, 14.0, 14.0%) | holds |
+| 4. placebos warn at most 8% in the no-change cells | 1.3-4.3% | holds |
+| 5a. California, Proposition 99, 1989: a fall found | **refused** (the log ratio about a line has rho 0.98; the cut at 1989 is 0.67 against a walk bar of 0.72) | **fails** |
+| 5b. Massachusetts 1993, Arizona 1995, Oregon 1997: 2 of 3 found | **0 of 3: all three refused** as wanders | **fails** |
+| 5c. nine placebo states (state tax unchanged FY1985-FY1995), 1989: at most 1 of 9 found | 1 of 9 (Tennessee, +8.9%, step p 0.007); 7 of the 9 refused | holds |
+
+By its own rule nothing ships, and `control` stays an off-by-default option of `known-date.mjs`. In simulation the rule
+does what it was built to do: as calibrated as the joint test, more powerful wherever the change is a step (a 2 sd step
+at n 40 found 24% of the time against 14%), and the bends that fool the step are the ones the placebos see. The real
+pairs failed for a reason the simulation did not contain.
+
+**Why the real pairs were refused** (after the run, not pre-registered; `node eval/known-date-control-step-real-diag.mjs`,
+`eval/known-date-control-step-real-diag.out.txt`). The simulated pairs share a wander that the difference removes
+exactly and leave AR(1) noise at rho 0.4; a real state's share of national cigarette sales wanders on its own
+(cross-border buying, smuggling, demographics). Across all 38 donor states against the other 37 over 1970-2000, the
+log ratio about a straight line has a median bias-corrected rho of 0.76, and 26 of 38 are above the guard's 0.7 for
+series under 100 points; about the before-and-after lines at 1989, 14 of 38 still are. On 31 annual points the guard
+cannot tell such a ratio from a random walk, and that is a correct refusal, not a fault to tune away. With the guard
+switched off (not a calibrated test), California's ratio shows a step of -5.6% (step p 0.051) and a slope change of
+-0.033 a year (p 0.002): Proposition 99's effect grows over the decade, as in Abadie et al.'s synthetic-control
+estimate, so even uncensored a step-only rule would set aside the part of the effect a tobacco programme produces.
+Massachusetts and Oregon stay above 0.7 about their own before-and-after lines; Arizona shows -6.9% (p 0.14).
+
+**What a reader can use now.** A control series and a named date make a sharp test only where the control removes the
+wander, and a state against a national average on annual data usually does not: check the ratio's own stickiness first
+(this tool's refusal says it for you). **Next** (fresh pre-registration): monthly or quarterly state series, where 31
+years are 124-372 points and the guard reads rho on enough data; a synthetic control (weights fitted on the
+before-period, Abadie et al. 2010) instead of a plain mean; and, for programmes rather than one-off price changes, a
+test of the effect's path (the slope change) with the placebo warning, since that is where the real effect sat.
+
+### A synthetic control: Proposition 99's published gap, but California ranks third (2026-11-17, pre-registered; not shipped)
+
+The step-alone round ended asking for "a synthetic control (weights fitted on the before-period, Abadie et al. 2010)
+instead of a plain mean". `synthControlTest(y, donors, k)` in `synth-control.mjs` builds one: weights at least zero and
+summing to one, fitted so a mix of donor series tracks the treated series over every point before your date
+(accelerated projected gradient on the simplex), and the gap after the date is the estimate. The test is Abadie,
+Diamond and Hainmueller's (2010) in-space placebo: each donor is fitted the same way as if it were treated, and the
+treated series' ratio of after-date to before-date root mean squared gap is ranked among them, p = rank / (donors + 1).
+It matches on the outcome only, no covariates. A fit warning says when the treated series is matched worse before the
+date than 80% of the donors are.
+
+Pre-registration `eval/synth-prereg-2026-11-17.md`, committed after an exploratory run (seed base 11000,
+`eval/synth-explore.out.txt`) and before the confirmatory run (fresh base 13000, 400 panels a cell,
+`eval/synth-confirm.out.txt`) and before any real state was fitted (`node eval/synth-real.mjs`,
+`eval/synth-real.out.txt`):
+
+| Bar (pre-registered) | Confirmatory (400 panels a cell) | |
+|---|---|---|
+| 1. size, p <= 0.05 at most 6% and p <= 0.10 at most 14%, five no-change cells (exact: 2.6% and 10.3% with 38 donors, 5.0% and 10.0% with 19) | 5.5, 4.3, 5.0, 4.8, 3.3%; 9.0, 8.5, 9.3, 9.0, 10.0% | holds |
+| 2. treated outside the donors' range (E1): p <= 0.05 at most 6%, fit warning at least 90% | 1.3%; 99.5% | holds |
+| 3. power, p <= 0.05: a 2 sd step (P1) at least 28%; the same step with every unit wandering (P3) at least 18% | 34.8%; 22.8% (an effect growing to 3 sd in sticky noise, P2: 11.8%; short series, P4: 6.8%) | holds |
+| 4a. T1 California 1989: p <= 0.05, average gap -30 to -10 packs, gap at 2000 below 0 | gap -19.5 average, -26.5 at 2000; **rank 3 of 39, p 0.077** | **fails** |
+| 4b. T2-T4 Massachusetts 1993, Arizona 1995, Oregon 1997: 2 of 3 at p <= 0.10 with a negative gap | **0 of 3** (p 0.21, 0.50, 0.39; gaps -15.7, -8.1, -15.6) | **fails** |
+| 4c. in-time placebos, California cut at 1988, fake dates 1980 and 1984: neither p <= 0.05 | p 0.46, 0.28 | holds |
+| 4d. nine placebo states at 1989: at most 1 of 9 p <= 0.05 | 0 of 9 (Virginia closest, rank 2 of 38, p 0.053) | holds |
+
+N1's 5.5% is twice its exact level. A post-hoc re-run on fresh seeds (base 15000, `eval/synth-pool-without.out.txt`)
+gives 2.5% and 3.0% in N1 and N2, and the paper's placebo pool (the treated unit moved into each placebo's pool,
+`placeboPool: 'with'`, `eval/synth-pool-with.out.txt`) gives the same, so the excess is not the pool. It looks
+seed-specific: `eval/synth-sim.mjs` seeds a xorshift generator with consecutive integers and no scrambling, which can
+correlate neighbouring panels. A later round should hash its seeds.
+
+**The estimate replicates the paper.** California's synthetic control is Utah 0.391, Montana 0.227, Nevada 0.207,
+Connecticut 0.109, New Hampshire 0.043 and Colorado 0.024 (the paper's, with covariates: Utah 0.394, Nevada 0.234,
+Montana 0.199, Colorado 0.164, Connecticut 0.069). Before 1989 the gap is 1.66 packs a head (root mean square); after,
+it opens to -8.4 packs in 1989, -17.5 in 1993 and -26.5 in 2000, an average of -19.5 over 1989-2000. The paper reports
+"about 26 packs" by 2000 and about 20 on average. With the window cut at 1988, fake dates 1980 and 1984 give p 0.46 and
+0.28, and none of the nine placebo states is found.
+
+**The test does not.** California's ratio (12.4) ranks 3rd of 39, p 0.077, against the paper's 1st, p 0.026. Massachusetts
+(rank 8 of 39, gap -15.7), Arizona (18 of 36, -8.1) and Oregon (11 of 28, -15.6) all have negative gaps and none is
+near p 0.10, so T1 and T2-T4 fail and `--synth-control` is not offered (the CLI wiring written in this session was taken
+out; the module stays for reproducing these tables, `synth-control.test.mjs`).
+
+**Why California ranks third** (after the run, not pre-registered; `node eval/synth-real-diag.mjs`,
+`eval/synth-real-diag.out.txt`). The two states above it are Missouri (ratio 26.5) and Virginia (16.9), whose
+before-period fits are almost exact (RMSPE 0.41 and 0.86 packs against California's 1.66): a ratio divides by the
+before-gap, so a donor that a mix of other states tracks to under a pack gets a large ratio from a modest later gap
+(Missouri's after-gap is 10.9 packs, California's 20.5). Matching on all 19 before-years and no covariates fits the
+middle of the donor cloud too well; the paper's covariate-and-three-lags match leaves those placebos looser. The
+paper's own filters do not rescue it here: keeping placebos with before MSPE at most 20, 5 or 2 times California's
+leaves it 3rd of 35, 31 and 20 (p 0.086, 0.097, 0.150), and with California moved into each placebo's pool, as the
+paper does, it is still 3rd of 39, behind Missouri and Virginia again.
+
+**What a reader can use now.** For a single treated unit with a long before-period and a donor pool, this module gives
+the published-quality estimate of the gap (`node -e` with `synthControlTest`), but its p should not be read as a test
+when some donors fit almost exactly. **Next** (fresh pre-registration): a statistic that does not divide by a tiny
+before-gap (the after-gap alone, or the ratio with the before-gap floored at the donors' median), checked in simulation
+against cells where some donors are near-copies of others; monthly series; and the effect's path as the statistic.

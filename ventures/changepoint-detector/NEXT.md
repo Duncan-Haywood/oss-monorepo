@@ -14,3 +14,5 @@
 - (2026-11-17) nulls rho low
 - (2026-11-17) step/bend bootstrap tests (README "Step or bend, as two tests") fail: walks called bend, use the cut guard
 - (2026-11-17) cut-guard conditioning calibrated but blind (round 6), a control series was tried 2026-11-17 (README "A control series")
+- (2026-11-17) TSSB/HAS/UTSA (README): count, shape checks failed; next phase-tolerant shapes, 5th set.
+- (2026-11-17) in-time placebos ship beside it (README "In-time placebos": 0-4% false warnings)

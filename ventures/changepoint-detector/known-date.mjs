@@ -199,6 +199,8 @@ export function knownDateTest(x, k, { period = 0, reps = 499, seed = 1, rhoMax =
   // coefficient (held fixed in the bootstrap). README "A control series", eval/known-date-prereg-control-2026-11-17.md:
   // 'difference' met the simulation bars (size 3.3-7.8%) but fired on 3 of 3 placebo dates in the seat-belt ratio, and
   // 'regress' flagged 18% under a shared slope, so neither is in the CLI or the page; this option reproduces the table.
+  // A step-only rule with the placebos on the difference (README "The step alone, with a control series") met every
+  // simulation bar and failed on real state tobacco pairs: 11 of 13 annual log ratios to a donor mean were refused as wanders.
   let ctl = null;
   if (control != null) {
     ctl = Array.from(control, Number);
@@ -316,3 +318,30 @@ export const KNOWN_DATE_PAPERS = [
   'Prais, S. J. & Winsten, C. B. (1954). Trend estimators and serial correlation. Cowles Commission Discussion Paper 383.',
 ];
 
+
+/**
+ * In-time placebos (README "In-time placebos"; eval/known-date-prereg-placebo-2026-11-17.md): the same test, on the
+ * points before the date only, at up to `count` dates spread evenly through that before-period (each needs minSide +
+ * period points on both sides inside it). The real change cannot touch these, so when they fire the line before the
+ * date is not a stable baseline, and a small p at the named date may be that curve rather than the event (Lopez Bernal,
+ * Cummins and Gasparrini 2017, "falsification"). Returns { dates: [{ k, refused, p, pStep, pSlope }], tested, fired,
+ * warn, minFired }; warn when at least minFired of the tested dates have p <= alpha.
+ */
+export function placeboCheck(x, k, { period = 0, count = 3, reps = 199, seed = 1, minSide = 8, alpha = 0.05, minFired = 2, test = {} } = {}) {
+  x = Array.from(x, Number);
+  period = period > 1 ? Math.round(period) : 0;
+  const side = minSide + period, pre = x.slice(0, k), lo = side, hi = k - side;
+  const ks = [];
+  if (hi >= lo) {
+    for (let i = 1; i <= count; i++) {
+      const j = Math.round(lo + (hi - lo) * i / (count + 1));
+      if (!ks.includes(j)) ks.push(j);
+    }
+  }
+  const dates = ks.map((j, i) => {
+    const h = knownDateTest(pre, j, { period, reps, seed: seed + 104729 * (i + 1), minSide, rhoGenMethod: 'gated', gateRho: 0.5, ...test });
+    return h.refused ? { k: j, refused: true, reason: h.reason } : { k: j, refused: false, p: h.p, pStep: h.pStep, pSlope: h.pSlope, admittedByCut: h.admittedByCut };
+  });
+  const tested = dates.filter((d) => !d.refused).length, fired = dates.filter((d) => !d.refused && d.p <= alpha).length;
+  return { before: k, dates, tested, fired, alpha, minFired, warn: tested >= minFired && fired >= minFired };
+}

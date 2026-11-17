@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVMytRWWNWJEEMT4StK",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (ventures)",
+  "input_sha256": "46e97b6d54c46ca32c27a19c0e62bc27c6e10db5a1f5bbd36040806ae142c6c6",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T10:56:23Z",
+  "ended": "2026-11-17T11:04:31Z",
+  "wall_minutes": 8.53,
+  "tokens_in": 6754509,
+  "tokens_out": 32152,
+  "cost_usd": 3.0139,
+  "tool_calls": 60,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16913",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Pointed at ai-bookkeeper, whose only BUILDABLE item (page RapidOCR port on SRD) was already claimed by open PR #16910; the row's table showed the PR but the 'Start here' line still sent me there."
+    },
+    {
+      "file": "portfolio/router/claim_check.py",
+      "issue": "An empty claim PR (#16911, no files) opened 7 minutes before mine on the same item; I had pushed my claim commit but not opened the PR first, so the race was mine to lose. Opening the draft PR before reading anything is the step that matters."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Says open the draft PR before reading further; I pushed an empty claim commit but did not open the PR for ~40 min, and a session that did open one 7 minutes earlier took the same item. The push alone is invisible to claim_check."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Row 1 ai-bookkeeper's buildable item was already in PR #16910; took row 8 ids-model-check's buildable item instead.",
+      "did": "Built the CI subclass warning and the editor offer.",
+      "result": "Landed with real-export counts matching the earlier eval."
+    },
+    {
+      "file": "portfolio/router/claim_check.py",
+      "why": "Another session's #16911 (an empty claim when I checked) landed the same CI warning and editor offer on main while my PR #16913 waited for CI; claim_check had said YIELD and I pressed on.",
+      "did": "Closed #16913 as superseded and landed only the piece main lacked: 'Add a specification' from the model's class list starts with the model's own subclasses (modelSpec).",
+      "result": "About an hour of duplicated work; a small real improvement landed. No new blog post: #16911 already carries one on this topic (docs/posts/2026-11-17-ids-ci-21405-elements-never-checked.md), and a second would be a near-duplicate."
+    }
+  ],
+  "writeups": [
+    "ventures/ids-model-check/eval/ci-unchecked-2026-11-17.md (follow-up section)"
+  ],
+  "goal": null,
+  "notes": "Duplicate of #16911 built in parallel (closed #16913). Landed: modelSpec() so 'Add a specification' includes the open model's subclass objects (Schultz IFCWALL + 101 IFCWALLSTANDARDCASE). node --test 136 pass; Playwright: new spec lists IFCWALLSTANDARDCASE, no warning, no console errors.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "567b0163-b2e6-5d40-805e-a625221ac2da",
+    "transcripts": 1,
+    "first": "2026-11-17T10:56:23Z",
+    "last": "2026-11-17T11:04:55Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 56,
+        "input": 109,
+        "output": 32152,
+        "thinking": 3890,
+        "cache_read": 6623695,
+        "cache_write_5m": 0,
+        "cache_write_1h": 130705,
+        "api_equivalent_usd": 3.0139,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 56,
+      "input": 109,
+      "output": 32152,
+      "thinking": 3890,
+      "cache_read": 6623695,
+      "cache_write_5m": 0,
+      "cache_write_1h": 130705,
+      "api_equivalent_usd": 3.0139,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 60,
+    "tools": {
+      "Bash": 55,
+      "mcp__github__pull_request_read": 2,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.53,
+      "active_minutes": 8.53,
+      "model_minutes": 5.06,
+      "tool_minutes": 3.48,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "senior dev: CI renderings + editor offer + tests + real-export eval + docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 265.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -9,6 +9,8 @@
 // misspelt set, a property the set lacks or a dataType the standard does not
 // give: the faults auditIds() finds in 21 of 64 public IDS files.
 
+import { temporalKind, temporalKey } from "./temporal.mjs";
+
 const own = (o, k) => (o && Object.hasOwn(o, k) ? o[k] : undefined);
 
 // The ifcVersion token IDS 1.0 accepts for each schema id.
@@ -96,6 +98,76 @@ export function propertiesOf(psets, S, setName) {
   });
 }
 
+// The XSD date, time or duration a dataType holds (IDS's DataTypes table:
+// IFCDATE xs:date, IFCDATETIME xs:dateTime, IFCTIME xs:time, IFCDURATION
+// xs:duration), or null. IFC writes them as strings; ids.mjs orders range
+// bounds on them as dates, times and durations (temporal.mjs).
+const TEMPORAL = { IFCDATE: "date", IFCDATETIME: "dateTime", IFCTIME: "time", IFCDURATION: "duration" };
+export const temporalType = (dataType) => (dataType && Object.hasOwn(TEMPORAL, String(dataType).toUpperCase()) ? TEMPORAL[String(dataType).toUpperCase()] : null);
+// An example of each form, for a range row's placeholders and hints.
+export const TEMPORAL_EXAMPLE = { date: ["2024-01-01", "2030-12-31"], dateTime: ["2024-01-01T00:00:00", "2030-12-31T23:59:59"], time: ["07:00:00", "19:00:00"], duration: ["PT30M", "P1Y"] };
+
+// An XSD pattern that matches the ISO dates (YYYY-MM-DD, with or without a
+// time zone) a date range asks for, or null when a bound is not a plain date.
+// IfcTester 0.9.0 reads range bounds only as numbers (float("2024-01-01")
+// fails), so it fails every object on an xs:date range that this checker and
+// IDS 1.0's DataTypes table accept; a pattern both read the same way
+// (eval/date-ranges-2026-11-17.md). Fixed-width dates order as strings, so the
+// pattern is the lexical range between the bounds, built digit by digit.
+// Exclusive bounds move one day inward. The pattern matches only well-formed
+// dates' shape between the bounds; it does not check a day exists.
+const DAY = 86400000;
+const PLAIN_DATE = /^\d{4}-\d{2}-\d{2}$/;
+const isoDay = (t) => new Date(t).toISOString().slice(0, 10);
+function lexRange(lo, hi) {
+  // Strings of one shape (digits and fixed separators) from lo to hi inclusive.
+  if (lo === hi) return lo;
+  const any = (s) => s.replace(/\d/g, "\\d");
+  let i = 0;
+  while (lo[i] === hi[i]) i++;
+  const pre = lo.slice(0, i);
+  if (!/\d/.test(lo[i])) return null;
+  const a = +lo[i], b = +hi[i];
+  const geq = (s) => {
+    // Strings of s's shape at or above s.
+    if (!s) return "";
+    const j = s.search(/\d/);
+    if (j < 0) return s;
+    const head = s.slice(0, j), d = +s[j], rest = s.slice(j + 1);
+    if (!/[1-9]/.test(rest.replace(/[^\d]/g, "")) && !rest.replace(/[\d]/g, "").length) return head + (d === 9 ? "9" : `[${d}-9]`) + any(rest);
+    const alts = [s[j] + geq(rest)];
+    if (d < 9) alts.push((d + 1 === 9 ? "9" : `[${d + 1}-9]`) + any(rest));
+    return head + (alts.length > 1 ? `(${alts.join("|")})` : alts[0]);
+  };
+  const leq = (s) => {
+    if (!s) return "";
+    const j = s.search(/\d/);
+    if (j < 0) return s;
+    const head = s.slice(0, j), d = +s[j], rest = s.slice(j + 1);
+    if (!/[0-8]/.test(rest.replace(/[^\d]/g, "")) && !rest.replace(/[\d]/g, "").length) return head + (d === 0 ? "0" : `[0-${d}]`) + any(rest);
+    const alts = [s[j] + leq(rest)];
+    if (d > 0) alts.unshift((d - 1 === 0 ? "0" : `[0-${d - 1}]`) + any(rest));
+    return head + (alts.length > 1 ? `(${alts.join("|")})` : alts[0]);
+  };
+  const restLo = lo.slice(i + 1), restHi = hi.slice(i + 1);
+  const alts = [String(a) + geq(restLo)];
+  if (b - a > 1) alts.push((b - a === 2 ? String(a + 1) : `[${a + 1}-${b - 1}]`) + any(restLo));
+  alts.push(String(b) + leq(restHi));
+  return pre + `(${alts.join("|")})`;
+}
+export function datePattern(min, max, minEx = false, maxEx = false) {
+  const blank = (x) => x === "" || x == null;
+  if (blank(min) && blank(max)) return null;
+  if ((!blank(min) && !PLAIN_DATE.test(min)) || (!blank(max) && !PLAIN_DATE.test(max))) return null;
+  const t = (d) => Date.parse(d + "T00:00:00Z");
+  if ((!blank(min) && Number.isNaN(t(min))) || (!blank(max) && Number.isNaN(t(max)))) return null;
+  const lo = blank(min) ? "0000-00-00" : minEx ? isoDay(t(min) + DAY) : min;
+  const hi = blank(max) ? "9999-99-99" : maxEx ? isoDay(t(max) - DAY) : max;
+  if (lo > hi) return null;
+  const body = lexRange(lo, hi);
+  return body === null ? null : `${body}(Z|[+\\-]\\d{2}:\\d{2})?`;
+}
+
 // The XSD base IDS uses for a value restriction on this dataType.
 export function xsBase(S, dataType) {
   const p = dataType ? S.prim(dataType) : "string";
@@ -128,6 +200,8 @@ function valueXml(v, base) {
   } else if (v.oneOf && v.oneOf.length) for (const x of v.oneOf) parts.push(`<xs:enumeration value="${escAttr(x)}"/>`);
   else if (v.pattern) parts.push(`<xs:pattern value="${escAttr(v.pattern)}"/>`);
   else {
+    // A range on a date, time or duration is written on that XSD base.
+    if (v.base) base = v.base;
     if (v.min !== undefined && v.min !== "") parts.push(`<xs:${v.minEx ? "minExclusive" : "minInclusive"} value="${escAttr(v.min)}"/>`);
     if (v.max !== undefined && v.max !== "") parts.push(`<xs:${v.maxEx ? "maxExclusive" : "maxInclusive"} value="${escAttr(v.max)}"/>`);
   }
@@ -266,6 +340,36 @@ export function specClassNames(S, spec) {
   return [...new Set([...first, ...(spec.also || []).filter(Boolean)])];
 }
 
+// Classes in a loaded model (inv.classes: [{ cls, count }]) that are a
+// subclass of a class the specification names but are not named themselves:
+// IDS has no inheritance, so a facet naming IFCWALL never looks at the
+// model's IFCWALLSTANDARDCASE objects (most walls in Revit's IFC2X3 exports;
+// eval/corpus-crosscheck-2026-11-17.md). [{ cls, count, via }], most first.
+export function modelSubclassesLeftOut(S, spec, invClasses) {
+  const named = new Set(specClassNames(S, spec));
+  const bases = specBases(spec).filter((c) => S.entities[c]);
+  const out = [];
+  for (const { cls, count } of invClasses || []) {
+    if (!count || named.has(cls) || !S.entities[cls]) continue;
+    const up = ancestors(S, cls);
+    const via = bases.find((b) => up.includes(b));
+    if (via) out.push({ cls, count, via });
+  }
+  return out.sort((x, y) => y.count - x.count || (x.cls < y.cls ? -1 : 1));
+}
+
+// The specification "Add a specification" starts from a class in the open
+// model's list: the class, plus the model's own objects of its subclasses
+// (IFCWALL with the model's IFCWALLSTANDARDCASE), so the new specification
+// does not open with a "would not check" warning to click away. Only classes
+// the model has: the schema's other subclasses stay behind the checkbox.
+export function modelSpec(S, cls, invClasses) {
+  const nice = S.entities[cls] ? S.entities[cls].name.replace(/^Ifc/, "") : cls;
+  const spec = { ...blankSpec(), name: `${nice} requirements`, cls, withSub: false };
+  spec.also = modelSubclassesLeftOut(S, spec, invClasses).map((x) => x.cls);
+  return spec;
+}
+
 // Standard sets every one of `classes` can carry.
 export function commonSets(L, classes) {
   const cs = classes.filter(Boolean);
@@ -301,7 +405,8 @@ export function attributeValueKind(S, classes, name) {
   if (t && t.kind === "enum") return { kind: "text", enumVals: t.values, base: "xs:string" };
   const prim = S.prim(a.type);
   const kind = prim === "double" || prim === "integer" ? "number" : prim === "boolean" || prim === "logical" ? "bool" : "text";
-  return { kind, enumVals: null, base: kind === "text" ? "xs:string" : xsBase(S, a.type) };
+  const temporal = kind === "text" ? temporalType(a.type) : null;
+  return { kind, enumVals: null, base: kind === "text" ? "xs:string" : xsBase(S, a.type), ...(temporal ? { temporal } : {}) };
 }
 
 // Predefined types every one of `classes` allows (one predefinedType applies
@@ -464,6 +569,16 @@ export function appMatchCount(mp, offer, r, valueKind = "text") {
   if (r.mode === "true" || r.mode === "false") return tally((v) => v === r.mode);
   if (r.mode === "oneOf") return tally((v) => r.oneOf.some((w) => same(v, w)));
   if (r.mode === "range") {
+    const blank = (x) => x === "" || x == null;
+    // Dates, times and durations: the bounds and the model's values in one
+    // ISO form, ordered as ids.mjs orders them (temporal.mjs).
+    const tk = [r.min, r.max].filter((x) => !blank(x)).map((x) => temporalKind(String(x)));
+    if (tk.length && tk.every(Boolean)) {
+      if (tk.some((k) => k !== tk[0])) return 0;
+      const lo = blank(r.min) ? -Infinity : temporalKey(String(r.min)), hi = blank(r.max) ? Infinity : temporalKey(String(r.max));
+      const key = (v) => (temporalKind(v) === tk[0] ? temporalKey(v) : NaN);
+      return tally((v) => { const k = key(v); return (r.minEx ? k > lo : k >= lo) && (r.maxEx ? k < hi : k <= hi); });
+    }
     const lo = r.min === "" || r.min == null ? -Infinity : Number(r.min), hi = r.max === "" || r.max == null ? Infinity : Number(r.max);
     if (Number.isNaN(lo) || Number.isNaN(hi)) return null;
     return tally((v) => (r.minEx ? Number(v) > lo : Number(v) >= lo) && (r.maxEx ? Number(v) < hi : Number(v) <= hi));
@@ -500,7 +615,7 @@ export function outwardBound(v, dir) {
 export function valueChoices(L, cls, r) {
   const classes = Array.isArray(cls) ? cls : [cls];
   cls = classes[0];
-  let kind = "text", enumVals = null, p = null;
+  let kind = "text", enumVals = null, p = null, temporal = null;
   if (r.kind === "property" && r.untyped) {
     // A value with no dataType, as an opened file wrote it: IDS 1.0 allows it
     // and a checker compares the value with whatever type the model holds, so
@@ -511,6 +626,7 @@ export function valueChoices(L, cls, r) {
     p = { name: r.name, dataType: dt, dataTypes: dt ? [dt] : [], enum: null };
     const prim = dt ? L.S.prim(dt) : null;
     kind = !dt ? null : prim === "double" || prim === "integer" ? "number" : prim === "boolean" || prim === "logical" ? "bool" : "text";
+    temporal = temporalType(dt);
   } else if (r.kind === "property") {
     p = r.set ? propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name) : null;
     if (!p || !p.dataType) kind = null;
@@ -518,31 +634,34 @@ export function valueChoices(L, cls, r) {
       const prim = L.S.prim(p.dataType);
       kind = prim === "double" || prim === "integer" ? "number" : prim === "boolean" || prim === "logical" ? "bool" : "text";
       enumVals = p.enum;
+      temporal = temporalType(p.dataType);
     }
   } else if (r.kind === "attribute") {
-    ({ kind, enumVals } = attributeValueKind(L.S, classes, r.name));
+    ({ kind, enumVals, temporal = null } = attributeValueKind(L.S, classes, r.name));
   } else if (r.kind === "partOf") kind = null;
   const modes = [];
   if (kind) {
     modes.push("any", "equals");
     // "one of" a standard's enumeration, or of values the author lists (text).
     if (enumVals || kind === "text") modes.push("oneOf");
-    if (kind === "number") modes.push("range");
+    // A date, time or duration (IFCDATE, IFCDATETIME, IFCTIME, IFCDURATION)
+    // takes a range too: "built after 2024-01-01", "a warranty of at least P2Y".
+    if (kind === "number" || temporal) modes.push("range");
     if (kind === "text" && !enumVals) modes.push("pattern");
     if (kind === "bool") modes.splice(1, 1, "true", "false");
   }
-  return { kind, enumVals, modes, prop: p };
+  return { kind, enumVals, modes, prop: p, temporal };
 }
 
 // A range row's value: inclusive bounds unless the row says a bound is
 // exclusive ("more than" / "less than"), as IDS's restriction test cases write them.
-const rangeValue = (r) => ({ min: r.min, max: r.max, ...(r.minEx ? { minEx: true } : {}), ...(r.maxEx ? { maxEx: true } : {}) });
+const rangeValue = (r, temporal) => ({ min: r.min, max: r.max, ...(r.minEx ? { minEx: true } : {}), ...(r.maxEx ? { maxEx: true } : {}), ...(temporal ? { base: "xs:" + temporal } : {}) });
 function reqFacet(L, r, classes = []) {
   if (r.fixed) return r.fixed;
   const p = r.kind !== "property" ? null : r.untyped ? { dataType: null, untyped: true } : r.custom ? { dataType: r.dataType && L.S.types[r.dataType] ? r.dataType : null } : propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name);
   const value = r.cardinality === "prohibited" || (p && !p.dataType && !p.untyped) ? null
     : r.mode === "equals" ? { equals: r.equals } : r.mode === "true" || r.mode === "false" ? { equals: r.mode }
-    : r.mode === "oneOf" ? { oneOf: r.oneOf } : r.mode === "range" ? rangeValue(r) : r.mode === "pattern" ? { pattern: r.pattern } : null;
+    : r.mode === "oneOf" ? { oneOf: r.oneOf } : r.mode === "range" ? rangeValue(r, r.kind === "property" ? temporalType(p && p.dataType) : r.kind === "attribute" ? attributeValueKind(L.S, classes, r.name).temporal : null) : r.mode === "pattern" ? { pattern: r.pattern } : null;
   const base = r.kind === "attribute" && value ? attributeValueKind(L.S, classes, r.name).base : undefined;
   return { kind: r.kind, set: r.set, name: r.name, dataType: p ? p.dataType : null, value, base, cardinality: r.cardinality, system: r.system, relation: r.relation, entity: r.entity };
 }
@@ -663,8 +782,12 @@ function editableRow(L, classes, f) {
       if (!ownSetName(r.set) || (f.dataType && !valueTypes(L.S).includes(f.dataType))) return null;
       r.custom = true; r.dataType = f.dataType || "";
     }
-    // A value with no dataType stays without one (valueChoices, typeRow).
-    if (!f.dataType && f.value && f.value.present) r.untyped = true;
+    // A standard property with no dataType stays without one (valueChoices,
+    // typeRow), with a value or without: a presence-only requirement written
+    // with no dataType accepts the property in any type, and the template's
+    // dataType would narrow it (Rotterdam's permit checks, bim2sim's window
+    // ThermalTransmittance).
+    if (!f.dataType && (!r.custom || (f.value && f.value.present))) r.untyped = true;
   } else if (f.kind === "attribute") {
     r.name = simpleOf(f.name);
     if (!r.name || !commonAttributes(L.S, classes).includes(r.name)) return null;

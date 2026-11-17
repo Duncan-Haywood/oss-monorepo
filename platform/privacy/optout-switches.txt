@@ -316,6 +316,7 @@ ventures/deploy-concurrency-check/usage.mjs
 ventures/depop-fee-calculator/usage.mjs
 ventures/depreciation-recapture-calculator/usage.mjs
 ventures/devsec-toolkit/usage.mjs
+ventures/difference-in-differences/usage.mjs
 ventures/dining-room-table-mix-optimizer/usage.mjs
 ventures/discogs-fee-calculator/usage.mjs
 ventures/distillery-excise-tax-calculator/usage.mjs
@@ -713,6 +714,7 @@ ventures/meta-analysis/usage.mjs
 ventures/meta-catalog-csv-check/usage.mjs
 ventures/metal-roof-bid-calculator/usage.mjs
 ventures/meter-keeper/usage.mjs
+ventures/method-comparison/usage.mjs
 ventures/microgreens-tray-planner/usage.mjs
 ventures/midterm-rental-calculator/usage.mjs
 ventures/mileage-deduction-calculator/usage.mjs

@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { parseIds } from "./ids.mjs";
 import { auditIds } from "./audit.mjs";
 import { resources, check } from "./node.mjs";
-import { classesWithSets, setsFor, propertiesOf, subclasses, predefinedTypes, buildIds, entityFacet, xsBase, PARTOF_RELATIONS, importIds, stateToDoc, idsSchema, specClassNames, commonSets, commonAttributes, sameAttributeType, commonPredefinedTypes, parseClassList, valueChoices, attributeValueKind, modelAttributes, modelValueOffer, typeRow, appMatchCount, untypeRow, blankReq, blankSpec } from "./editor.mjs";
+import { modelSubclassesLeftOut, modelSpec, classesWithSets, setsFor, propertiesOf, subclasses, predefinedTypes, buildIds, entityFacet, xsBase, PARTOF_RELATIONS, importIds, stateToDoc, idsSchema, specClassNames, commonSets, commonAttributes, sameAttributeType, commonPredefinedTypes, parseClassList, valueChoices, attributeValueKind, modelAttributes, modelValueOffer, typeRow, appMatchCount, untypeRow, blankReq, blankSpec, temporalType, modelSets, datePattern } from "./editor.mjs";
 import { Model } from "./ids.mjs";
 import { modelInventory } from "./inventory.mjs";
 
@@ -396,4 +396,129 @@ test("untypeRow: a standard property the model writes in another type is checked
   assert.deepEqual([uh.row.mode, uh.row.min, uh.dropped, uh.real], ["any", "", true, true]);
   const n = untypeRow(L, { ...blankReq(), set: "Pset_StairCommon", name: "NumberOfRiser", mode: "equals", equals: "17" }, "IFCINTEGER");
   assert.deepEqual([n.row.mode, n.row.equals, n.dropped], ["equals", "17", false]);
+});
+
+// A door with a warranty: Pset_Warranty.WarrantyStartDate (IFCDATE) and
+// WarrantyPeriod (IFCDURATION), added to the sample house.
+const warrantyHouse = () => readFileSync(new URL("samples/tiny-house.ifc", import.meta.url), "utf8").replace(/ENDSEC;\s*END-ISO-10303-21;\s*$/, `#900=IFCPROPERTYSET('1Wty0000000000000000aa',$,'Pset_Warranty',$,(#901,#902));
+#901=IFCPROPERTYSINGLEVALUE('WarrantyStartDate',$,IFCDATE('2024-05-01'),$);
+#902=IFCPROPERTYSINGLEVALUE('WarrantyPeriod',$,IFCDURATION('P2Y'),$);
+#903=IFCRELDEFINESBYPROPERTIES('1Wty0000000000000000ab',$,$,$,(#23),#900);
+ENDSEC;
+END-ISO-10303-21;
+`);
+
+test("a date or duration property takes a range, written on its XSD base, checked, counted and reopened", () => {
+  const L = loadFor("IFC4");
+  assert.deepEqual(["IFCDATE", "IFCDATETIME", "IFCTIME", "IFCDURATION", "IFCLABEL", null].map(temporalType), ["date", "dateTime", "time", "duration", null, null]);
+  const text = warrantyHouse();
+  assert.ok(check(`<?xml version="1.0"?><ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema"><info><title>t</title></info><specifications/></ids>`, text));
+  const row = (name, min, max, minEx = false, maxEx = false) => ({ ...blankReq(), kind: "property", set: "Pset_Warranty", name, mode: "range", min, max, minEx, maxEx });
+  const ch = valueChoices(L, "IFCDOOR", row("WarrantyStartDate", "", ""));
+  assert.equal(ch.temporal, "date");
+  assert.ok(ch.modes.includes("range") && ch.modes.includes("pattern"), "a date keeps the text modes and gains a range");
+  assert.ok(!valueChoices(L, "IFCDOOR", { ...row("", "", ""), set: "Pset_DoorCommon", name: "FireRating" }).modes.includes("range"), "plain text has no range");
+  const rows = [
+    row("WarrantyStartDate", "2024-01-01", ""),           // on or after 1 Jan 2024: pass
+    row("WarrantyStartDate", "2024-05-01", "", true),     // after 1 May 2024: fail (it is 1 May)
+    row("WarrantyStartDate", "2024-05-01", "2024-05-01"), // on 1 May exactly: pass
+    row("WarrantyPeriod", "P1Y", ""),                      // at least a year: pass
+    row("WarrantyPeriod", "", "P2Y", false, true),         // under two years: fail
+    row("WarrantyPeriod", "P18M", "P730D"),                // 18 months to 730 days: pass (2 years is 730.485 days, so no)
+  ];
+  const spec = (r, i) => ({ name: `warranty ${i}`, optionality: "required", cls: "IFCDOOR", withSub: false, also: [], predefinedType: "", reqs: [r] });
+  const xml = buildIds(stateToDoc({ title: "t", schema: "IFC4", specs: rows.map(spec) }, L), L.S);
+  assert.match(xml, /<property dataType="IFCDATE">.*?<xs:restriction base="xs:date"><xs:minInclusive value="2024-01-01"\/><\/xs:restriction>/s);
+  assert.match(xml, /<xs:restriction base="xs:duration"><xs:maxExclusive value="P2Y"\/><\/xs:restriction>/);
+  assert.deepEqual(audit(xml).filter((i) => i.level === "error"), []);
+  assert.deepEqual(check(xml, text).specs.map((s) => s.status), ["pass", "fail", "pass", "pass", "fail", "fail"]);
+  // The applicability count agrees with the checker.
+  const inv = modelInventory(new Model(text, R.schemas), R.measureUnits);
+  const wset = modelSets(inv, ["IFCDOOR"]).find((x) => x.name === "Pset_Warranty");
+  const counts = rows.map((r) => { const mp = wset.props.find((x) => x.name === r.name); return appMatchCount(mp, modelValueOffer(mp, "text", null), r); });
+  assert.deepEqual(counts, [1, 0, 1, 1, 0, 0]);
+  // A bound in another form (a date against a duration) matches nothing.
+  assert.equal(appMatchCount({ count: 1 }, { complete: true, outside: [], values: [["P2Y", 1]] }, row("WarrantyPeriod", "2024-01-01", "")), 0);
+  // Reopened, each is an editable range row and writes the same IDS back.
+  const { imp, parsed, back } = reopen(xml);
+  assert.deepEqual(imp.state.specs.map((s) => (s.reqs[0].fixed ? "kept" : `${s.reqs[0].minEx ? ">" : ">="}${s.reqs[0].min} ${s.reqs[0].maxEx ? "<" : "<="}${s.reqs[0].max}`)),
+    [">=2024-01-01 <=", ">2024-05-01 <=", ">=2024-05-01 <=2024-05-01", ">=P1Y <=", ">= <P2Y", ">=P18M <=P730D"]);
+  for (let i = 0; i < rows.length; i++) assert.deepEqual(said(back.specs[i]), said(parsed.specs[i]));
+  // A date range written on xs:string (not the IDS DataTypes base) is kept as written.
+  const onString = xml.replace('<xs:restriction base="xs:date"><xs:minInclusive value="2024-01-01"/>', '<xs:restriction base="xs:string"><xs:minInclusive value="2024-01-01"/>');
+  assert.ok(reopen(onString).imp.state.specs[0].reqs[0].fixed);
+});
+
+test("a standard property asked for presence with no dataType opens as a row and writes no dataType back", () => {
+  const xml = `<?xml version="1.0"?><ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema"><info><title>t</title></info><specifications>
+    <specification name="windows" ifcVersion="IFC4"><applicability minOccurs="1" maxOccurs="unbounded"><entity><name><simpleValue>IFCWINDOW</simpleValue></name></entity></applicability>
+      <requirements><property><propertySet><simpleValue>Pset_WindowCommon</simpleValue></propertySet><baseName><simpleValue>ThermalTransmittance</simpleValue></baseName></property></requirements></specification></specifications></ids>`;
+  const { imp, parsed, back } = reopen(xml);
+  const r = imp.state.specs[0].reqs[0];
+  assert.ok(!r.fixed);
+  assert.deepEqual([r.set, r.name, r.untyped, r.mode], ["Pset_WindowCommon", "ThermalTransmittance", true, "any"]);
+  assert.deepEqual(said(back.specs[0]), said(parsed.specs[0]));
+  assert.equal(back.specs[0].requirements[0].dataType, null);
+  // typeRow still writes the template's dataType when the author asks.
+  const L = loadFor("IFC4");
+  const typed = typeRow(L, r).row;
+  assert.equal(typed.untyped, false);
+  assert.match(buildIds(stateToDoc({ ...imp.state, specs: [{ ...imp.state.specs[0], reqs: [typed] }] }, L), L.S), /<property dataType="IFCTHERMALTRANSMITTANCEMEASURE">/);
+});
+
+test("datePattern: the pattern of a date range matches exactly the dates the range does, with or without a time zone", () => {
+  const iso = (t) => new Date(t).toISOString().slice(0, 10);
+  const inRange = (d, [lo, hi, le, he]) => (!lo || (le ? d > lo : d >= lo)) && (!hi || (he ? d < hi : d <= hi));
+  const cases = [["2024-01-01", ""], ["2024-05-01", "", true], ["", "2024-05-01", false, true], ["2023-12-31", "2024-12-31"], ["1999-12-31", "2000-01-01", true, true], ["2024-02-28", "2024-03-01", false, true], ["2010-06-15", "2031-01-09"]];
+  let seed = 7;
+  const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
+  const day = () => iso(Date.parse("1990-01-01") + Math.floor(rnd() * 365 * 50) * 86400000);
+  for (let k = 0; k < 150; k++) { let a = day(), b = day(); if (a > b) [a, b] = [b, a]; cases.push([a, b, rnd() < 0.3, rnd() < 0.3]); }
+  for (const c of cases) {
+    const p = datePattern(...c);
+    if (c[0] && c[1] && iso(Date.parse(c[0]) + (c[2] ? 86400000 : 0)) > iso(Date.parse(c[1]) - (c[3] ? 86400000 : 0))) { assert.equal(p, null); continue; }
+    const re = new RegExp(`^(?:${p})$`);
+    for (let t = Date.parse("1985-01-01"); t < Date.parse("2045-01-01"); t += 86400000 * 3) {
+      const d = iso(t);
+      assert.equal(re.test(d), inRange(d, c), `${JSON.stringify(c)} ${d}`);
+    }
+    assert.equal(re.test(`${c[0] || c[1]}+01:00`), inRange(c[0] || c[1], c));
+  }
+  assert.equal(datePattern("2024-01-01T00:00:00", ""), null);
+  assert.equal(datePattern("", ""), null);
+  assert.equal(datePattern("2024-05-01", "2024-05-01"), "2024-05-01(Z|[+\\-]\\d{2}:\\d{2})?");
+  // The pattern audits clean on an IFCDATE property.
+  const L = loadFor("IFC4");
+  const xml = buildIds(stateToDoc({ title: "t", schema: "IFC4", specs: [{ name: "w", optionality: "required", cls: "IFCDOOR", withSub: false, also: [], predefinedType: "", reqs: [{ ...blankReq(), set: "Pset_Warranty", name: "WarrantyStartDate", mode: "pattern", pattern: datePattern("2024-01-01", "2024-12-31") }] }] }, L), L.S);
+  assert.deepEqual(audit(xml).filter((i) => i.level === "error"), []);
+  assert.equal(check(xml, warrantyHouse()).specs[0].status, "pass");
+});
+
+test("modelSubclassesLeftOut: the model's subclass objects a specification would not check", () => {
+  const S = R.schemas.IFC2X3;
+  const inv = [{ cls: "IFCWALL", count: 4 }, { cls: "IFCWALLSTANDARDCASE", count: 101 }, { cls: "IFCSLAB", count: 9 }];
+  const spec = { ...blankSpec(), cls: "IFCWALL", withSub: false };
+  assert.deepEqual(modelSubclassesLeftOut(S, spec, inv), [{ cls: "IFCWALLSTANDARDCASE", count: 101, via: "IFCWALL" }]);
+  // With its subclasses, or the class listed under "also", nothing is left out.
+  assert.deepEqual(modelSubclassesLeftOut(S, { ...spec, withSub: true }, inv), []);
+  assert.deepEqual(modelSubclassesLeftOut(S, { ...spec, also: ["IFCWALLSTANDARDCASE"] }, inv), []);
+  // An abstract parent checks nothing itself: every concrete class below it is offered.
+  const be = modelSubclassesLeftOut(S, { ...spec, cls: "IFCBUILDINGELEMENT" }, inv);
+  assert.deepEqual(be.map((x) => x.cls), ["IFCWALLSTANDARDCASE", "IFCSLAB", "IFCWALL"]);
+  assert.deepEqual(modelSubclassesLeftOut(S, { ...spec, cls: "IFCSLAB" }, inv), []);
+});
+
+test("Add a specification from the model's class list names the model's own subclasses of the class", () => {
+  // Schultz Residence counts (eval/corpus-crosscheck-2026-11-17.md): 4 IfcWall, 101 IfcWallStandardCase.
+  const S = R.schemas.IFC2X3;
+  const inv = [{ cls: "IFCWALL", count: 4 }, { cls: "IFCWALLSTANDARDCASE", count: 101 }, { cls: "IFCSLAB", count: 9 }];
+  const w = modelSpec(S, "IFCWALL", inv);
+  assert.equal(w.name, "Wall requirements");
+  assert.deepEqual(w.also, ["IFCWALLSTANDARDCASE"]);
+  assert.equal(w.withSub, false);
+  assert.deepEqual(modelSubclassesLeftOut(S, w, inv), [], "no warning on the new specification");
+  assert.deepEqual(specClassNames(S, w), ["IFCWALL", "IFCWALLSTANDARDCASE"]);
+  // a class with no subclass objects in the model gets none, and the schema's others are not added
+  assert.deepEqual(modelSpec(S, "IFCSLAB", inv).also, []);
+  assert.deepEqual(modelSpec(S, "IFCWALL", [{ cls: "IFCWALL", count: 4 }]).also, []);
 });

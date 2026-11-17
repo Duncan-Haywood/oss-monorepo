@@ -1,0 +1,23 @@
+{
+ "note": "Straight-line truth, constant normal error SD 4; rejection at the Kolmogorov 5% point 1.358.",
+ "rows": [
+  {
+   "n": 30,
+   "reps": 1000,
+   "falseAlarmPctBelowPlusOne": 2.4,
+   "falseAlarmPctOffLinePlusOne": 0
+  },
+  {
+   "n": 60,
+   "reps": 1000,
+   "falseAlarmPctBelowPlusOne": 5.5,
+   "falseAlarmPctOffLinePlusOne": 0
+  },
+  {
+   "n": 200,
+   "reps": 1000,
+   "falseAlarmPctBelowPlusOne": 8.2,
+   "falseAlarmPctOffLinePlusOne": 0.1
+  }
+ ]
+}

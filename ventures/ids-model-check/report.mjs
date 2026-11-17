@@ -15,6 +15,7 @@ export function textReport(r, { maxFailures = 10 } = {}) {
     out.push(`  applies to: ${s.applicability.join("; ") || "everything"}  -> ${s.applicable} element(s)`);
     if (s.requirements.length) out.push(`  requires: ${s.requirements.join("; ")}`);
     if (s.note) out.push(`  ${s.note}`);
+    if (s.hint) out.push(`  warning: ${s.hint}`);
     if (s.failed.length) {
       out.push(`  ${s.passed} pass, ${s.failed.length} fail:`);
       for (const f of s.failed.slice(0, maxFailures)) out.push(`    #${f.id} ${f.type}${f.name ? ` "${f.name}"` : ""}${f.globalId ? ` ${f.globalId}` : ""}: ${f.reasons.join("; ")}`);

@@ -127,13 +127,21 @@ export const BAR_BURST = { hz: 2000, lvl: 10, floor: -40, dark: 30, tail: 25, le
 // 4-6 dB darker than the vowel, which has almost nothing above 1 kHz to lose, so the level, step and near rules all
 // pass it by. What the closure does is drop the band above 1 kHz by `fall` dB or more within two hops, after a blip
 // up as the lips meet, while the vowel's own vibrato moves it 4-9 dB over the same span. See readCoda.
-export const LIP_SHUT = { fall: 12, dark: 8, lo: -20, hi: 0, hold: 4, hiHold: 6, minMs: 45 };
+// `span`, `settle` and `rise` (the twenty-fifth round, README "A dark-vowel m that closes slowly"; opt-in as
+// `lipShut: { span: 4, settle: 2, rise: 4 }`): the fall counted from any of `span` frames before, the hold looked for up
+// to `settle` frames after the fall, a late hold only when the band above 1 kHz climbs back no more than `rise` dB
+export const LIP_SHUT = { fall: 12, span: 2, settle: 0, rise: null, dark: 8, lo: -20, hi: 0, hold: 4, hiHold: 6, minMs: 45 };
 // A dark-vowel m that holds level (`lipHold`, opt-in; README "A dark-vowel m that holds level"): on D4-E4 after /u/
 // (part a's *bum*, *hum*, *fum*) the vowel's band above 1 kHz has already fallen 3-8 dB into the closure, so the m sits
 // no lower in that band than the vowel 25-45 ms before and lipShut's darkness test fails. What it does instead is hold:
 // after the lips' blip the band above 1 kHz falls `fall` dB within `span` hops, and the level settles `drop` dB or more
 // under the vowel and holds within `hold` dB for 30 ms. A vowel's fade at the note's end falls 1-3 dB per 10 ms.
 export const LIP_HOLD = { fall: 12, span: 3, drop: 3, lo: -20, hold: 2, minMs: 45 };
+// A vowel's release read as a murmur (`levelFade`, opt-in; README "A /u/ release read as a nasal"): a level-rule run
+// that starts within `tail` 5 ms frames of the read window's last frame (the window ends 20 ms before the next sound)
+// is thrown out. Every vowel-only nasal of c (A#3 quarters) and W (E3 eighths) started 5-6 frames from it; the earliest
+// right nasal on K-c, 7 (eval/level-tail-sweep.mjs).
+export const LEVEL_FADE = { tail: 6 };
 export const DEEP = { lo: -35, hi: -12, minMs: 60, silent: -50, gap: 5, tilt: 15, peak: true };
 const db = (a, b) => 10 * Math.log10((a + 1e-20) / (b + 1e-20));
 const median = (v) => { const s = [...v].sort((p, q) => p - q); return s.length ? s[Math.floor(s.length / 2)] : NaN; };
@@ -261,7 +269,7 @@ export const LOCAL_REF = { from: 6, to: 24, cap: 20, nasal: false };
 // No frame in a closure is vowel-like, so the anchor holds through it. Opt-in (`closeAnchor: true`); it replaces
 // localRef on the closure rule only, the nasal rule is untouched.
 export const ANCHOR = { frames: 10, drop: 12 };
-export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = false, deepOpts = {}, localRef = LOCAL_REF, closeAnchor = false, barLead = false, compactVelar = false, voicelessLow = VOICELESS_LOW, barBurst = true, voicedLead = VOICED_LEAD, lipShut = true, lipHold = false, trace = null } = {}) {
+export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = false, deepOpts = {}, localRef = LOCAL_REF, closeAnchor = false, barLead = false, compactVelar = false, voicelessLow = VOICELESS_LOW, barBurst = true, voicedLead = VOICED_LEAD, lipShut = true, lipHold = false, levelFade = false, trace = null } = {}) {
   const hop = Math.round(0.005 * rate), a = Math.round((vowelAt + 0.06) * rate), z = Math.round((tEnd - 0.02) * rate), zEnd = Math.round(tEnd * rate);
   const ref = [];
   for (let i = Math.round(vowelAt * rate); i < a; i += hop) ref.push(frameFeatures(x, i, rate));
@@ -544,15 +552,29 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
   const shutRun = () => {
     if (!SH) return null;
     for (let k = 9; k < fr.length; k++) {
-      const fall = Math.max(fr[k - 1].hiRel, fr[k - 2].hiRel) - fr[k].hiRel;
-      if (fall < SH.fall) continue;
+      let top = -Infinity; for (let i = 1; i <= SH.span; i++) top = Math.max(top, fr[k - i].hiRel);
+      if (top - fr[k].hiRel < SH.fall) continue;
       const pre = fr.slice(k - 9, k - 4), pl = median(pre.map((f) => f.lvl)), ph = median(pre.map((f) => f.hiRel));
       const ok = (f) => f.hiRel <= ph - SH.dark && f.lvl - pl >= SH.lo && f.lvl - pl <= SH.hi && tiltOf(f) <= -murmurTilt;
       let e = k; while (e < fr.length && ok(fr[e])) e++;
       const r = [k, e - 1];
       if (e === k || msOf(r) < SH.minMs) continue;
-      const held = fr.slice(k, k + 6), spread = (v) => Math.max(...v) - Math.min(...v);
-      if (spread(held.map((f) => f.lvl)) > SH.hold || spread(held.map((f) => f.hiRel)) > SH.hiHold) continue;
+      const spread = (v) => Math.max(...v) - Math.min(...v);
+      let steady = false, at = 0;
+      for (let s = 0; s <= SH.settle && !steady && k + s + 6 <= e; s++) {
+        const held = fr.slice(k + s, k + s + 6);
+        steady = spread(held.map((f) => f.lvl)) <= SH.hold && spread(held.map((f) => f.hiRel)) <= SH.hiHold;
+        at = s;
+      }
+      // the slow form: a hold that only starts `at` > 0 frames after the fall counts when the band above 1 kHz never
+      // climbs back more than SH.rise dB over its lowest point since the fall, up to the hold's end (a fading vowel's
+      // vibrato brings it back 6-10 dB; eval/coda-check.mjs A's /u/ on C4). A hold from the fall itself is the rule as before.
+      if (steady && at > 0 && SH.rise != null) {
+        let lo = Infinity;
+        for (const f of fr.slice(k, k + at + 6)) { lo = Math.min(lo, f.hiRel); if (f.hiRel - lo > SH.rise) { steady = false; break; } }
+      }
+      if (trace) (trace.shut = trace.shut || []).push({ k, t: fr[k].t, fall: top - fr[k].hiRel, ms: msOf(r), steady, again: vowelAgain(r), lv: fr.slice(k - 6, k + 10).map((f) => Math.round(f.lvl - pl)), hi: fr.slice(k - 6, k + 10).map((f) => Math.round(f.hiRel - ph)), tilt: fr.slice(k - 6, k + 10).map((f) => Math.round(tiltOf(f))) });
+      if (!steady) continue;
       if (vowelAgain(r)) continue;
       return r;
     }
@@ -608,7 +630,15 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
     if (yes && trace) (trace.leads = trace.leads || []).push({ before: stopRun[0] - r[0], len: r[1] - r[0] + 1, bar: !!barRun });
     return yes;
   };
-  const nasRules = [['level', runs(nasal, 30).find((r) => (msOf(r) >= 45 || !next.some((k) => k >= r[1] && k - r[1] <= 3)) && !vowelAgain(r) && murmur(r) && !barOf(r))], ['step', step], ['near', near], ['pre', pre], ['deep', deep], ['shut', shut], ['hold', lhold]]
+  // A release read as a murmur (opt-in `levelFade`; LEVEL_FADE above): a level-rule run that starts within LF.tail
+  // frames of the window's last frame is the vowel's release fading into the gap, not a nasal: a sung coda's murmur
+  // starts well before the next sound
+  const LF = levelFade ? { ...LEVEL_FADE, ...(levelFade === true ? {} : levelFade) } : null;
+  const fadeOf = (r) => fr.length - 1 - r[0] <= LF.tail;
+  const levelRun = runs(nasal, 30).find((r) => (msOf(r) >= 45 || !next.some((k) => k >= r[1] && k - r[1] <= 3)) && !vowelAgain(r) && murmur(r) && !barOf(r));
+  if (trace && levelRun) trace.level = { at: levelRun[0], t: fr[levelRun[0]].t, ms: msOf(levelRun), lv: fr.slice(levelRun[0], Math.min(levelRun[1] + 1, levelRun[0] + 7)).map((f) => +f.lvl.toFixed(1)), toEnd: levelRun[1] === fr.length - 1, left: fr.length - 1 - levelRun[0], endLeft: fr.length - 1 - levelRun[1] };
+  const levelKept = levelRun && LF && fadeOf(levelRun) ? null : levelRun;
+  const nasRules = [['level', levelKept], ['step', step], ['near', near], ['pre', pre], ['deep', deep], ['shut', shut], ['hold', lhold]]
     .filter(([name, r]) => r && !intoTap(r) && !(name !== 'deep' && leadOf(r)) && !(barRun && r[0] <= barRun[0] && barRun[0] - r[0] <= BB.lead)).sort((p, q) => p[1][0] - q[1][0]);
   const nas = nasRules[0]?.[1];
   const cands = [['closure', stopRun], ['fricative', fric], ['vfricative', vfric], ['nasal', nas], ['tap', tap]]

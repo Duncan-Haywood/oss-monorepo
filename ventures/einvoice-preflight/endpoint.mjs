@@ -18,6 +18,10 @@ const KNOWN_SCHEMES = new Set([
   "9939", "9940", "9941", "9942", "9943", "9944", "9945", "9946", "9947",
   "9948", "9950", "9951", "9952", "9953", "9955", "9956", "9957", "9958",
   "EM",
+  // In the EAS list EN 16931's BR-CL-25 carries (plain/en16931-ubl.json), added 2026-11-17:
+  // INV-039 called these unpublished, though the official rules accept them. 0225 is the
+  // French reform's directory address (FRCTC); 0217 the Dutch KVK establishment number.
+  "0147", "0170", "0194", "0203", "0205", "0217", "0225", "9960", "AN", "AQ", "AS", "AU",
 ]);
 
 function finding(rule, message, fix, path) {
@@ -47,8 +51,9 @@ function digits(identifier, length) {
 }
 
 function glnOk(identifier) {
-  const compact = identifier.replace(/\D/g, "");
-  if (compact.length !== 13) return false;
+  // Digits only, as PEPPOL-COMMON-R040 reads it; 13 of them, as a GLN has.
+  const compact = identifier;
+  if (!/^\d{13}$/.test(compact)) return false;
   let total = 0;
   for (let index = 0; index < 12; index += 1) {
     total += Number(compact[index]) * (index % 2 === 0 ? 1 : 3);
@@ -65,19 +70,119 @@ function emailOk(identifier) {
   return Boolean(local) && domain.includes(".") && !domain.startsWith(".") && !domain.endsWith(".");
 }
 
+// The checksummed and fixed-format schemes below follow OpenPeppol's fatal
+// PEPPOL-COMMON rules (plain/peppol-ubl.json: R040 GLN, R041 0192, R042 0184,
+// R043 0208, R049 0007, R050 0151, R052 0096, R053 0198) exactly, so an address
+// the Peppol network would reject is caught here too, in JSON input and in
+// files that do not claim the Peppol profile. Peppol reads the trimmed text, so
+// "0123.456.789" or "BE0123456789" is not a valid 0208 address.
+// eval/endpoint-peppol-differential.mjs runs these against Peppol's own XQuery.
+function mod11No(id) {
+  if (!/^\d{9}$/.test(id) || Number(id) === 0) return false;
+  let sum = 0;
+  for (let i = 0; i < 8; i += 1) sum += Number(id[7 - i]) * ((i % 6) + 2);
+  return (11 - (sum % 11)) % 11 === Number(id[8]);
+}
+
+function mod97Be(id) {
+  if (!/^\d{10}$/.test(id)) return false;
+  return Number(id.slice(8)) === 97 - (Number(id.slice(0, 8)) % 97);
+}
+
+function luhnSe(id) {
+  if (!/^\d{10}$/.test(id)) return false;
+  let sum = 0;
+  for (let pos = 1; pos <= 9; pos += 1) {
+    const digit = Number(id[9 - pos]);
+    sum += pos % 2 === 1 ? ((digit * 2) % 10) + Math.floor((digit * 2) / 10) : digit;
+  }
+  return (10 - (sum % 10)) % 10 === Number(id[9]);
+}
+
+function abnOk(id) {
+  if (!/^\d{11}$/.test(id)) return false;
+  const weights = [10, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19];
+  let sum = 0;
+  for (let i = 0; i < 11; i += 1) sum += (Number(id[i]) - (i === 0 ? 1 : 0)) * weights[i];
+  return sum % 89 === 0;
+}
+
+const SCHEME_CHECKS = {
+  "0088": glnOk,
+  "0192": mod11No,
+  "0184": (id) => /^(DK\d{8}|\d{8})$/.test(id),
+  "0096": (id) => /^\d{10}$/.test(id),
+  "0198": (id) => /^DK\d{8}$/.test(id),
+  "0208": mod97Be,
+  "0007": luhnSe,
+  "0151": abnOk,
+};
+
+// What a sender should type, for the fix text.
+const SCHEME_SHAPES = {
+  "0088": "13 digits with a GS1 check digit",
+  "0192": "9 digits with a mod-11 check digit, no spaces or MVA",
+  "0184": "8 digits, optionally after DK",
+  "0096": "10 digits",
+  "0198": "DK followed by 8 digits",
+  "0208": "10 digits (the KBO/BCE number with its leading 0), no dots or BE prefix; the last two digits are 97 minus the first eight mod 97",
+  "0007": "10 digits, no hyphen; the last is a Luhn check digit",
+  "0151": "11 digits, no spaces; the ABN checksum must hold",
+};
+
 function schemeIdOk(scheme, identifier) {
-  if (scheme === "0088") return glnOk(identifier);
+  if (SCHEME_CHECKS[scheme]) return SCHEME_CHECKS[scheme](identifier);
   if (scheme === "EM") return emailOk(identifier);
-  if (scheme === "0007") return digits(identifier, 10);
-  if (scheme === "0184") return digits(identifier, 8);
   if (scheme === "0190") return digits(identifier, 20);
-  if (scheme === "0192") return digits(identifier, 9);
-  if (scheme === "0208") return digits(identifier, 10);
   if (scheme === "0212") {
     const compact = identifier.replace(/[^A-Za-z0-9]/g, "");
     return (compact.length === 8 || compact.length === 9) && /^\d+$/.test(compact.slice(0, -1));
   }
   return identifier.replace(/[^A-Za-z0-9@.\-_:\/+]/g, "") !== "";
+}
+
+export { schemeIdOk as endpointIdOk };
+
+// OpenPeppol's warning-level PEPPOL-COMMON rules (plain/peppol-ubl.json, BIS
+// 3.0.22): R044 0201 IPA, R045 0210 codice fiscale, R047 0211 partita IVA, R054
+// 0106 KVK, R055 0190 OIN, R056-1 9944 Dutch VAT, R057 0217 KVK establishment.
+// Peppol only warns on these, so INV-061 is a warning, never blocking.
+// eval/endpoint-peppol-warnings.mjs runs them against Peppol's own XQuery.
+// Two places are stricter than Peppol, on purpose (counted apart in the eval):
+// an 11-digit 0210 or 0211 number must carry the partita IVA check digit
+// (Peppol checks it only after an IT prefix, and only for 0211), and a 0211
+// without IT must still be 11 digits (Peppol passes any text without IT).
+// Positions Peppol reads with "castable as xs:integer" must be digits here,
+// so "+1" or " 1" in a codice fiscale is not taken as a number.
+function pivaOk(id) {
+  if (!/^\d{11}$/.test(id)) return false;
+  let sum = 0;
+  for (let i = 0; i < 11; i += 1) {
+    const d = Number(id[i]);
+    sum += i % 2 === 0 ? d : Number("0246813579"[d]);
+  }
+  return sum % 10 === 0;
+}
+
+function codiceFiscaleOk(id) {
+  if (id.length === 11) return pivaOk(id);
+  return /^[A-Za-z]{6}\d{2}[A-Za-z]\d{2}...\d[A-Za-z]$/u.test(id);
+}
+
+const WARNING_CHECKS = {
+  "0201": { rule: "PEPPOL-COMMON-R044", ok: (id) => /^[A-Za-z0-9]{6}$/.test(id), shape: "6 letters or digits, the IPA office code (Codice Univoco Ufficio)" },
+  "0210": { rule: "PEPPOL-COMMON-R045", ok: codiceFiscaleOk, shape: "a 16-character personal codice fiscale (six letters, two digits, a letter, two digits, four characters, a letter) or an 11-digit number with its check digit" },
+  "0211": { rule: "PEPPOL-COMMON-R047", ok: (id) => pivaOk(/^it/i.test(id) ? id.slice(2) : id), shape: "IT followed by the 11-digit partita IVA, whose last digit is its check digit" },
+  "0106": { rule: "PEPPOL-COMMON-R054", ok: (id) => /^\d{8}$/.test(id), shape: "8 digits (12345678)" },
+  "0190": { rule: "PEPPOL-COMMON-R055", ok: (id) => /^\d{20}$/.test(id), shape: "20 digits with no spaces (12345678901234567890)" },
+  "9944": { rule: "PEPPOL-COMMON-R056-1", ok: (id) => /^NL\d{9}B\d{2}$/.test(id), shape: "NL, 9 digits, B and 2 digits (NL123456789B12)" },
+  "0217": { rule: "PEPPOL-COMMON-R057", ok: (id) => /^\d{12}$/.test(id), shape: "12 digits (123456789012)" },
+};
+
+// true or false for a scheme with a warning-level rule, null for any other.
+export function endpointWarningOk(scheme, identifier) {
+  const check = WARNING_CHECKS[scheme];
+  return check ? check.ok(identifier) : null;
 }
 
 export function inspectPartyEndpoint(party, partyName) {
@@ -118,9 +223,20 @@ export function inspectPartyEndpoint(party, partyName) {
     findings.push(finding(
       "INV-041",
       `${label} electronic address does not match the published ${scheme} shape.`,
-      `Correct the ${scheme} identifier. This is a format typo check, not a directory lookup.`,
+      `Correct the ${scheme} identifier${SCHEME_SHAPES[scheme] ? ` (${SCHEME_SHAPES[scheme]})` : ""}. This is a format typo check, not a directory lookup.`,
       `${path}/id`,
     ));
+  } else if (scheme !== null && identifier !== null && endpointWarningOk(scheme, identifier) === false) {
+    const check = WARNING_CHECKS[scheme];
+    findings.push({
+      ...finding(
+        "INV-061",
+        `${label} electronic address does not match the ${scheme} format OpenPeppol checks (${check.rule}, a warning).`,
+        `Check the ${scheme} identifier: ${check.shape}. Peppol warns on this rather than rejecting the file; this is a format check, not a directory lookup.`,
+        `${path}/id`,
+      ),
+      severity: "warning",
+    });
   }
   return findings;
 }
