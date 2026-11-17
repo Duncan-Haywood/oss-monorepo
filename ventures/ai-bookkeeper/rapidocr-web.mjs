@@ -20,6 +20,8 @@
 const CDN = "https://cdn.jsdelivr.net/npm";
 export const RAPID_URLS = {
   ort: `${CDN}/onnxruntime-web@1.20.1/dist/ort.min.js`,
+  // the same build as an ES module, for rapidocr-worker.mjs (a module worker has no importScripts)
+  ortModule: `${CDN}/onnxruntime-web@1.20.1/dist/ort.min.mjs`,
   wasm: `${CDN}/onnxruntime-web@1.20.1/dist/`,
   det: `${CDN}/@gutenye/ocr-models@1.4.2/assets/ch_PP-OCRv4_det_infer.onnx`,
   cls: `${CDN}/@gutenye/ocr-models@1.4.2/assets/ch_ppocr_mobile_v2.0_cls_infer.onnx`,
