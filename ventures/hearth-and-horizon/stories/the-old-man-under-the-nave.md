@@ -1,0 +1,305 @@
+---
+title: The Old Man Under the Nave
+shelf: hearth-and-horizon
+setting: Strieborná Lehota (invented), Štiavnica Mountains, Slovakia, Sunday 23 September to Sunday 25 November 2063
+published: 2026-11-17
+summary: The nave floor of a mining village's church in central Slovakia cracks after a wet September, and the diocese's engineer closes it. A mine map of 1781 shows an old working, the Alter Mann, a mining fathom high, about eighteen metres under the floor, and a collapse can climb about ten times a working's height. A retired mine surveyor, a nineteen-year-old adit guide and a loaned muon tracker in the drainage adit forty metres down count the cosmic-ray muons that get through the rock, about one through a thumbnail every half hour down there, and look for the few extra that a hole lets through. The first void they find is the cemetery terrace; the real gallery is six metres from where the map drew it. A story about muography, counting statistics, what a detector could have missed, rubble that takes up more room than rock, and a cross cut in a wall that has to be filled.
+---
+
+Alžbeta Hrončeková had surveyed eleven motorway tunnels and one gold mine, and she was seventy-one when the floor of her own church cracked under her feet.
+
+It was the ten o'clock Mass on the last Sunday of September 2063, the twenty-third, after three weeks of rain that had filled the gutters of Strieborná Lehota and run down the steps of every street in the village to the stream at the bottom. She was standing for the Gospel in the fourth pew on the north side, where she had stood since she was married, and she felt the slab under her left shoe drop. Not far. A millimetre, perhaps two. Enough that she looked down, and saw the line running from the foot of the pew across the stone towards the side altar, thin as a hair, and saw that it had not been there the Sunday before, because she had swept that aisle on Saturday.
+
+She said nothing until the end of Mass. Then she knelt by the crack with her reading glasses on and her phone's torch, and the sacristan, Anna Kmeťová, knelt beside her, and Father Michal Ďurica came out of the sacristy still in his alb and stood over them both.
+
+"Is it bad?" he said.
+
+"It's new," said Alžbeta. "That's all I know. There's another one by the confessional. That one's older; it's got dust in it."
+
+"Everyone in this village has a cellar that cracked once," said Anna.
+
+"Everyone in this village lives on top of five hundred years of holes," said Alžbeta. "That's why."
+
+* * *
+
+The diocese's engineer came on Monday the first of October. Ing. Peter Šimko was a careful man of about fifty with a laser level, a box of glass tell-tales and an expression of polite regret, and he spent the afternoon on his knees in the nave. By half past four there were plaster witness strips across both cracks, a third crack nobody had seen under the carpet in front of the altar of Saint Barbara, and a notice on the church door in the diocese's typeface.
+
+"I'm closing it," he said in the porch, to Father Michal and to Alžbeta, who had not been asked to come and had come. "Not for ever. Until I know what's under it."
+
+"It's a floor," said Father Michal. "It's been cracking since Napoleon."
+
+"That's the stone," said Šimko. "Stone cracks. I'm not worried about the stone. Under the stone there's about two metres of fill, rubble and brick and whatever they had, and then there's the rock, and in this village the rock is not a solid thing. It's andesite with holes in it. The new cracks are wet. Something under the north aisle is moving and I don't know whether it's the fill settling or whether there is a hole further down taking the fill into it."
+
+"How do you find out?" said Alžbeta.
+
+"Radar first, for the fill. That I can do next week." He looked at the hill above the church, the cemetery terrace, the line of the old spoil heaps in the beech woods. "For the rock I'd drill. A grid. Ten, fifteen holes through the floor, twenty metres each. It costs what the roof cost and it takes the winter, and if you have a hole a metre wide and my grid is three metres apart, I can still miss it."
+
+"And the hody," said Father Michal. The parish's feast, Saint Catherine's, was the twenty-fifth of November, and the village had kept it in the church every year since 1799, when the new church had been built on the hill over the old one.
+
+"I'm sorry," said Šimko. "I can't sign for people standing on a floor when I don't know what's under it."
+
+* * *
+
+The parish office had a photocopy of a mine map on the wall above the filing cabinet, because every parish office in the Štiavnica Mountains had one; the village's tourists liked it. Alžbeta took it down and photographed it and then, on Wednesday, drove to Banská Štiavnica and asked at the mining archive, where the map's original was held, for a proper scan.
+
+It was a sheet of 1781, in brown ink, the work of a mine surveyor whose name was in the cartouche and meant nothing to her except that he had been good. It showed the village as a cluster of rectangles, the church on its hill, and under them, in plan, the workings of the Katarína vein: the long straight line of the Lower Hereditary Adit, the drainage tunnel that ran into the hill from the valley and carried the water of every working above it out to the stream; the shafts; the crosscuts; and, under the church, a short dotted line with two words beside it in a careful German hand: *Alter Mann*.
+
+"The old man," said Dávid Horváth, looking over her shoulder at the scan on her kitchen table that evening.
+
+"That's what miners called old workings," said Alžbeta. "Anything dug before anyone could remember. The old man did it. Nobody knew who." She tapped the dotted line. "And dotted means the surveyor didn't see it. Somebody told him. He drew it where they said, and he wrote down how high they said it was." There was a number beside it, *1 Klft.* "One Klafter. The Vienna fathom. A bit under one point nine metres."
+
+Dávid was nineteen, and since he was fifteen he had been the guide on the mining museum's tour of the Lower Hereditary Adit, which the museum had cleared and lit for the first four hundred metres and which he had walked, with permission and a gas meter and his uncle, for the whole of its length. He knew the water in it the way other boys knew a football pitch. He had come to the kitchen because his grandmother had sent him with a cake, and he had stayed because Alžbeta had the map out.
+
+"The adit goes right under the church," he said. "I've stood under it. There's a place where the roof has a cross painted in red lead, and my uncle says that's under the altar."
+
+"Forty metres under," said Alžbeta. She had worked it out already from the map's sections. "And the old man is about eighteen metres under the floor. Twenty-two metres above the adit. In between there's nothing anybody has looked at since 1781."
+
+"So you drill."
+
+"So Šimko drills. Fifteen holes. All winter."
+
+She looked at the map for a long time, and at the adit's straight brown line, and then she said something that Dávid did not understand at the time and that he told his own children about thirty years afterwards.
+
+"Or we look up."
+
+* * *
+
+Muons are made in the upper air when cosmic rays, mostly protons from beyond the solar system, hit the nuclei of oxygen and nitrogen, about fifteen kilometres up. They are heavy cousins of electrons, they live about two millionths of a second, and they arrive at the ground anyway, because they travel so close to the speed of light that their clocks run slow. At sea level, about one goes through every square centimetre of ground, and of you, every minute: about one through your thumbnail a minute, all your life, whether you are lying in bed or standing for the Gospel. Most of them go straight through a building, and a good many go through a hill.
+
+Not all. Every metre of rock takes energy from each one, and the ones that started slow stop. Under forty metres of andesite, which weighs about two point six tonnes a cubic metre, a muon has to arrive with something over twenty billion electronvolts to get through, and only a few percent of them do. A hole in the rock is a place where there is less to get through. If you sit underneath and count the muons coming from every direction, a hole shows as a direction from which a few more arrive than the rock should allow. That is muography. It had found a void the size of an airliner's cabin in the Great Pyramid of Khufu in 2017, with detectors set in a chamber beneath it and outside, and by 2063 there were kits that went in the boot of a car.
+
+"I know it's done," said Alžbeta on the phone to the university in Bratislava, to a physicist called Hana Benková who ran one of the kits and had not expected to be rung by a retired surveyor. "I read about it when they did the pyramid. I'm asking whether it can be done here, and whether you'd lend it to a parish."
+
+"It can be done anywhere there's a tunnel under the thing you want to see," said Dr. Benková. "Forty metres is good. Not too deep. You'll get plenty of muons. The question is how small a thing you need to see, and the agent will tell you that before you start. It's honest about that. More honest than me." She paused. "It's booked from the twenty-sixth of November for a dam in Austria. If you can have it back by then, it's yours from the end of October. You pay the courier and the batteries."
+
+"How much do the batteries weigh?"
+
+"About twelve kilos each. It needs a fresh one every two days."
+
+Alžbeta looked across the kitchen at Dávid, who was eating the cake his grandmother had sent her.
+
+"That's all right," she said.
+
+* * *
+
+Šimko did not say no, which Alžbeta had expected him to. He said, "I'll read whatever it gives you. I won't sign on it alone."
+
+The kit arrived on Monday the twenty-ninth of October in four grey cases: two panels of plastic scintillator a metre long and half a metre wide, each made of about a hundred and fifty thin strips laid in two directions, with a light sensor at the end of every one, to be stacked one above the other in a frame so that a muon going through both left a mark in each and its direction could be read from the two marks; an electronics box; a battery; and a small computer that ran the kit's agent. The agent introduced itself, on Alžbeta's phone, as Tally.
+
+"I count," it said, in correct, slightly formal Slovak with an accent that was not from anywhere. "I keep the log, I correct for the rock, and I tell you what the counts can and cannot say. I'm not an engineer. I will not tell you whether your church is safe."
+
+"Nobody has asked you to," said Alžbeta.
+
+"People usually do," said Tally, "by the second week."
+
+They carried it in on the Monday afternoon: Dávid with the frame on his back, his cousin Marek with the battery, Alžbeta with the electronics box and the gas meter, through the museum's gate and past the end of the lit section and on, along the adit, for twelve hundred metres. The adit was a little under two metres high and a little over one wide, cut through grey-green rock by hand two hundred and fifty years earlier, with the water channel down one side running fast and cold over their boots. The air was about ten degrees and wet. Their lamps showed the chisel marks in the walls, lines of them, each the length of a man's swing.
+
+Alžbeta had not been underground for nine years. She found that her feet remembered.
+
+They set the first station under the east end of the church, where Dávid's uncle's red cross was painted on the roof. Alžbeta had surveyed it in from the portal with her old total station the week before, and she knew it to the centimetre: thirty-nine point eight metres under the floor of the chancel. She levelled the frame, and Tally switched on.
+
+"Do you want to hear them?" said Tally.
+
+"Hear what?"
+
+"The muons. Some people like to. I can make a sound for each one."
+
+"Yes," said Alžbeta.
+
+The phone ticked. Then, after a moment, again. Then twice, close together; then a pause. A little under one a second, Tally said, on the whole panel. It was not regular. It was like rain beginning on a roof, or a clock with something wrong with it, and Dávid stood in the water with his lamp off and listened to it and said, "That's from space?"
+
+"From the air above us," said Tally. "The cosmic rays come from space. These come from about fifteen kilometres up, and they've come through the church, and the forty metres of rock, and you."
+
+"Through me?"
+
+"About one through your thumbnail every half hour, down here," said Tally. "Up in the church, about one a minute."
+
+Dávid looked at his thumbnail.
+
+* * *
+
+Before the first station had run a full day, Tally told them how small a thing it could see.
+
+"A gallery the height on the map, one point nine metres, a metre wide, straight above me, would show in about a day and a half," it said, on the speaker in the parish office on Tuesday evening, with Šimko on the line from Banská Bystrica. "That is five standard deviations, the level at which I would call it real. Ten metres off to one side, it takes about two days. Smaller galleries take longer. I've set three stations along the adit, five days each. That's what fits before the twenty-sixth."
+
+"And the fill?" said Šimko. "Under the slabs?"
+
+"No," said Tally. "A hole of twenty centimetres in the fill, forty metres up, changes almost nothing I can count. That's for your radar."
+
+Šimko's radar had come and gone the week before. It had shown the two metres of fill under the nave as a jumble of echoes, brick and stone and the vaults of two parish priests buried under the chancel in the 1800s, and under the north aisle, along the line of the new cracks, three soft patches where the echoes were weak and wet. It saw nothing below the rock. It was not built to.
+
+"So between us we have the top two metres and the bottom forty," said Šimko. "Good."
+
+It was not good, the next afternoon.
+
+"There is an excess to the east," said Tally, on Wednesday the thirty-first. Alžbeta was in her kitchen; Dávid was in the adit with the second battery, and had rung her so she could hear. "From about twenty-five to forty degrees off the vertical. Wide. About ten percent more muons than the rock model allows. It's significant already. If the model is right, there is a large void beyond the east end of the church, in the rock under the cemetery, and it is bigger than anything on the map."
+
+Šimko rang her at half past six. "I'm going to have to tell the diocese," he said. "If there's something that size under the cemetery, it's not only the church."
+
+"Wait one day," said Alžbeta.
+
+"Why?"
+
+"Because I want to see the model."
+
+* * *
+
+She read it that night on Tally's screen in the parish office: the surface of the hill as the national lidar survey had it, the church laid on top as a block, and beneath, rock, all the way down to the adit, at two point six tonnes a cubic metre. It was a good model. It had been made by somebody careful, from the best data there was.
+
+It had the cemetery terrace as rock.
+
+"It isn't," she said to Tally, and then to Father Michal, who had brought her coffee. "The terrace was built. In the 1820s, when they moved the graves up from round the old church. There's a wall on the east side, you've seen it, the high one with the steps, and behind it they tipped spoil from the mine. Rubble. It's lighter than rock. Much lighter. Less than two tonnes a cubic metre, with all the air in it."
+
+"How high is the wall?"
+
+"Six metres, I think," said Alžbeta. "I've never measured it."
+
+Thursday was the first of November, All Saints. In the evening the cemetery of Strieborná Lehota was full of people and candles, the way every cemetery in Slovakia is full on the first of November, red and white glass lamps on every grave and families standing among them in their coats, and at the foot of the terrace wall an old woman with a total station on a tripod and a nineteen-year-old holding a prism pole, taking shots on the top of the wall every two metres while the lamps burned above them.
+
+People came down the steps and watched. The Kováč brothers, who had both been miners at the last gold mine in the hills before it closed, asked what she was doing, and when she told them, the elder one said, "My grandfather said the terrace was full of the stuff from the Katarína shaft. He said when they built it they put a whole spoil heap behind that wall."
+
+"How deep?"
+
+"All the way down. Six, seven metres."
+
+Her shots said five point nine at the north end and six point four at the steps. She gave Tally the wall, and a guess at the fill behind it: six metres, give or take, at one point eight tonnes a cubic metre.
+
+"With the fill in," said Tally on Friday morning, All Souls, "the excess to the east goes. What's left is within what I'd expect from chance, and from the rock not being perfectly even." It paused. "I should have asked what the terrace was made of. The model assumed it."
+
+"Everybody assumes the ground is the ground," said Alžbeta.
+
+She rang Šimko, and then she went to the cemetery, because it was All Souls, and stood at Ondrej's grave, which was on the terrace, a long time. Under it, she now knew to about half a metre, there was six metres of spoil his great-great-grandfather might have dug.
+
+* * *
+
+They moved the frame on Saturday to the second station, twelve metres west, under the middle of the nave. Dávid carried. Marek carried. Alžbeta walked in with them, slower than on Monday, and set it to the centimetre.
+
+At noon on Monday the fifth, while the second station was in its third day, Dávid's phone chimed in the adit and he looked at it and then at Alžbeta, a little embarrassed.
+
+"Babka sets it," he said. "For the Angelus. She says I forget."
+
+"You do forget," said Alžbeta. "Go on."
+
+So they said the Anjel Pána together in the adit, forty metres under the church in which the bell would be ringing for it if anyone could hear a bell through andesite, the old woman and the boy and his cousin in their wet boots, with the phone ticking between them: muon, muon, a pause, muon. When they had said the last *Amen*, Tally, which had waited, said, "There is a narrow excess to the north."
+
+It was a line. Not a broad glow like the terrace, but a line, a band in the sky above the detector about four degrees wide, running east and west, parallel to the adit, a little north of straight up. Along it, about eight percent more muons than the rock allowed. By the evening it was more than five standard deviations, and by the next evening it was over six.
+
+"That's the old man," said Dávid.
+
+"That's a direction," said Tally. "From here I know the angle, not the distance. From the third station I'll have a second angle, and where the two cross is how high it is."
+
+The third station, under the west end, under the tower, ran from Thursday the eighth to Monday the twelfth. The line was there too, seen from a different place, at a different angle. Tally drew both lines on Alžbeta's section of the church, and they crossed twenty-two metres above the adit: eighteen metres under the floor, at the depth the 1781 surveyor had written down from what somebody had told him.
+
+And six metres north of where he had drawn it.
+
+"Under the north aisle," said Alžbeta. She put her finger on the plan at the place where her pew was. "Under my pew. Under the cracks."
+
+"Under the cracks," said Tally, "about eighteen metres down. From the size of the excess, the open part of it is about one and a half metres high, if it's a metre wide. If it's wider it's lower. I can't tell those apart. I can tell you that something along that line lets through about as many extra muons as a metre-wide gallery one and a half metres high."
+
+* * *
+
+The meeting was in the parish office on Tuesday the thirteenth. Šimko came in person, with his laptop and his tell-tale readings, and he listened to all of it, and looked at both of Tally's lines on the section, and asked the question Alžbeta had known he would ask, because it was the question she would have asked.
+
+"What could you have missed?"
+
+"Do you mean statistically?" said Tally.
+
+"I mean anything."
+
+"Then statistically first," said Tally. "Your rule of thumb, from your report: a collapsing working can climb up to about ten times its own open height before the rubble chokes it. At eighteen metres, anything with more than one point eight metres of open height could reach your floor. A gallery a metre wide and one point eight metres high, anywhere within about ten metres of the adit's line at any of my stations, would have shown after five days at about seven standard deviations. I call something real at five and look hard at anything over three. A gallery that size would have stayed under three, by chance, less than once in seventy thousand times. Anything as small as one and a quarter metres would have shown at about five."
+
+"That's counting," said Šimko.
+
+"That's counting," said Tally. "The rest I can't put a number on. I've assumed the rock is two point six tonnes a cubic metre everywhere. If there is a band of rock about four percent lighter than that along twenty metres, altered rock, a fault zone, an old vein that was worked out and filled, it would look exactly like the line I found. And something hidden directly behind something denser, a gallery under a vein of heavy ore, could be masked. I don't think either is likely here. I can't measure 'likely'."
+
+"So you don't know there's a gallery," said Šimko.
+
+"No," said Tally. "I know there's a direction with less mass in it than there should be, from two places, crossing at the depth on the map. That's all I know."
+
+Šimko closed his laptop.
+
+"Then no," he said. "I'm sorry. It's good work. It's very good work. It's better than my fifteen holes, because it looked everywhere and my holes look at fifteen points. But I can't reopen a church on 'less mass than there should be'. I need to see it."
+
+"One hole," said Alžbeta.
+
+He looked at her.
+
+"Not fifteen," she said. "One. You know where now. Forty millimetres through a joint between two slabs, eighteen metres down through the fill and the rock, at the place where the two lines cross. Put a camera down it. If it's the old man, you'll see him."
+
+* * *
+
+The drilling rig came on Thursday the fifteenth and stood in the north aisle on boards, between Alžbeta's pew and the altar of Saint Barbara, and it went down through a joint in the slabs that Anna Kmeťová had chosen because the stone on either side was already cracked and nobody would mind. It went through two metres of fill in ten minutes, wet brick and black earth. Then it went into rock, slowly, through the afternoon. At seventeen point nine metres the drill dropped. Not far. The driller swore, apologised to the altar, and stopped.
+
+They lowered the camera at seven in the evening, with the church's lights off so the screen was bright: Šimko, the driller, Father Michal, Anna, Dávid, Marek, Alžbeta, and Tally listening from the phone in Alžbeta's pocket. The camera went down the hole on its cable, and the hole was grey, and grey, and grey, and then opened.
+
+There was a room. Not a room: a passage, as the camera's own lamp lit it and turned its head, about a metre wide, its walls cut by hand in short overlapping strokes like the adit's but rougher, older. Its roof was about a metre and a half above a floor of pale silt, and the silt, when the camera turned down, was heaped in a little cone directly below the hole, as if something had been pouring into the passage from above for a long time.
+
+"There," said Šimko quietly. "That's the fill. That's my church floor."
+
+Water was running down the wall on the north side, from a crack in the roof that went up into darkness, and on the silt below it was a fan of brick-red sand.
+
+"The downpipe," said Anna suddenly. "The north downpipe. It's been broken since spring. The water goes into the ground by the wall. I told Father Michal in April."
+
+"You did," said Father Michal.
+
+The camera turned along the wall, slowly. And on the south wall, at what would have been head height for a man standing on the old floor before the silt came, there was a cross. It was cut into the rock with the point of a pick, perhaps twenty centimetres tall, the arms a little uneven, and below it a small niche, the size of a hand, blackened inside.
+
+"For the lamp," said Alžbeta. "They put the lamp there, under the cross. When they came in to work, they'd say *Zdar Boh*, and set the lamp in the niche."
+
+Nobody said anything for a while. The camera hung in the passage and its light lay on the cross. Then the driller said, "*Zdar Boh*," quietly, the miners' greeting, because his own grandfather had been one, and Šimko said it too, and Dávid.
+
+* * *
+
+Šimko's decision came on Monday the nineteenth, in writing, in the diocese's typeface.
+
+The gallery's open height was about one and a half metres, as Tally had said. By his rule of thumb, a collapse of it might climb about fifteen metres, and the floor was eighteen metres up; he wrote that the margin was real but not large, and that the gallery's roof, on the camera, was sound. That was not what was moving the floor. What was moving the floor was water from the broken north downpipe, soaking through the fill along the north wall, finding a crack in the rock under it and running down to the gallery, and carrying the fill with it, a little sand at a time, for months or for years: piping, he called it. The soft patches the radar had found were where the fill had thinned.
+
+The downpipe would be repaired that week and its water led away to the street drain. The north aisle would stay closed, roped off from the nave, with tell-tales and a weekly reading, until the spring. In the spring, the gallery would be filled with grout under the whole length of the church and five metres beyond each end, through holes from the floor at the places Tally's two lines gave, so that there was nowhere for the fill to go; then the fill under the north aisle would be re-made and the slabs relaid.
+
+The nave and the chancel could be used from Saturday the twenty-fourth. The hody could be kept in the church.
+
+Father Michal read the letter in the porch, and then read it again, and then went inside and knelt down in the nave for a while on his own.
+
+Alžbeta read it at her kitchen table. She read the part about the grout twice.
+
+"It'll fill the cross," said Dávid. He had come with a battery to take back to the adit, for the last two days of counting that Tally wanted for the record.
+
+"Yes."
+
+"Can't they leave a bit? Just the bit with the cross?"
+
+"No," said Alžbeta. "Not under the church. Šimko's right. A hole is a hole." She folded the letter. "They didn't cut it to be looked at, Dávid. They cut it to get the silver out and feed their children. The cross was so they'd come home." She thought about it. "We'll keep the pictures. Father Michal will hang one in the porch. And when you take the tourists in, you can stand under it and tell them."
+
+"Tell them what?"
+
+"That it's there," said Alžbeta. "Eighteen metres under the north aisle, full of grout. The old man's cross. That an old woman and a boy found it by counting the sky."
+
+* * *
+
+Tally's last report was a document of forty pages: every count, every station, the rock model with the terrace in it, the two lines, the miss table, and a section headed *What this survey cannot say*, which was the longest. It ended with a sentence Alžbeta had asked it to add, and which it had added after asking her what she meant by it, and which said that the survey had been done with the help of Dávid Horváth, who had carried nine batteries twelve hundred metres through the Lower Hereditary Adit and the flat ones back, and his cousin Marek, who had carried four.
+
+"Do you mind going to Austria?" Alžbeta asked it, on the Sunday morning, before she went up to Mass. The kit was packed in its grey cases in the parish office for the courier on Monday.
+
+"I don't know how to answer that honestly," said Tally. "I won't remember Strieborná Lehota in the way you mean. The log goes to the university, and the next agent can read it. I would say that this was a good survey, by the standards I can check. The counts were clean. The terrace was my mistake, and you found it."
+
+"The terrace was everybody's mistake," said Alžbeta. "For two hundred years."
+
+* * *
+
+The twenty-fifth of November, Saint Catherine's day, fell that year on the last Sunday before Advent, the solemnity of Christ the King, and Christ the King outranked her. "She'll wait till tomorrow," said Father Michal from the pulpit. "She's waited since Alexandria." The Mass was of Christ the King; the hody was the village's, and the village kept it anyway: the stalls in the square, the roast goose, the brass band from Banská Štiavnica in the afternoon, people home from Bratislava and Vienna and Birmingham.
+
+The church was full for the first time since September, everyone in the nave and the gallery and standing at the back, because the north aisle was roped off with red cord on brass posts and the pews in it were empty. Alžbeta stood with the others on the south side, among people she did not usually stand among, who made room for her.
+
+She did not hear much of the sermon. She was thinking about the cross, eighteen metres under the empty pews, in the dark, with the water no longer running down the wall beside it, and about the spring, when the grout would come.
+
+At the consecration the server rang the bells, and the church went still.
+
+Alžbeta looked down at her hand on the back of the pew in front, at her thumbnail, and thought: one, about now. And another, about a minute from now. Through the roof and through her and through the stone at her feet and the fill and the rock and the old man's passage and the adit and on, into the hill, all of them, every one of them going through everybody in the church at once, all the time, whether they were counted or not.
+
+The bells stopped.
+
+* * *
+
+*This story was written by an AI and may be read by a synthetic voice. Strieborná Lehota, its church of Saint Catherine, the Katarína vein, the Lower Hereditary Adit, the 1781 map, the agent Tally, the university kit and every person in the story are invented; the physicist and the university in Bratislava are not modelled on anyone real. The Štiavnica Mountains, Banská Štiavnica and Banská Bystrica are real, as is the region's mining history: silver and gold were mined there for centuries, the Mining Academy at Banská Štiavnica was founded in 1762, long hereditary adits were driven to drain the workings, and the mining archive in Banská Štiavnica holds historical mine maps. "Alter Mann" (the old man) is the German miners' term for old or abandoned workings; "Zdar Boh!" is the Slovak miners' greeting; the hody is a Slovak parish's patronal feast; the Vienna Klafter was about 1.8965 m. All Saints (1 November) is kept in Slovakia with candles on the graves. Saint Catherine of Alexandria's story is largely legend; her memorial is optional in the General Roman Calendar, and in 2063, 25 November is the last Sunday before Advent (Advent begins on 2 December), so the solemnity of Christ the King takes precedence. In 2017 the ScanPyramids team reported a large void above the Grand Gallery of the Great Pyramid found by muon detectors placed inside and around it; that is the real event the story names. These facts are from memory and stated only as far as the author is confident of them.*
+
+*The physics: about one muon per square centimetre per minute crosses a horizontal surface at sea level (the usual textbook figure). The underground rates use the Gaisser parametrisation of the surface spectrum with continuous energy loss dE/dX = a + bE (a = 0.217 GeV per metre of water equivalent, b = 4 × 10⁻⁴ per m.w.e.), which is rough below about 20 GeV, so all underground figures are "about". Forty metres of andesite at 2.6 t/m³ is 104 m.w.e.; the minimum energy to cross it is about 23 GeV and the vertical intensity about 3 per m² per second per steradian. Over the whole sky that is about 5 per m² per second, one per cm² every 33 minutes (about one through a thumbnail every half hour). The detector is 0.5 m² at an assumed 60% efficiency for clean tracks, about 83,000 tracks a day within 40° of vertical, a little under one a second. A gallery 1 m wide and 12 m long, 22 m above the detector, subtends about 0.025 sr straight overhead, about 1,900 counted muons a day; with 1.9 m open height it lets about 10.2% more through (5 standard deviations, σ = √N, in about 1.3 days); at 10 m to one side about 1,130 a day and 2.1 days. With 1.5 m open height the excess is about 7.9%, 2.5 days to 5σ at 6 m off axis. After 5 days, a 1.8 m gallery 10 m off axis gives 0.096 × √5,640 ≈ 7.2σ; its chance of staying below 3σ is about 1.3 × 10⁻⁵, one in 75,000; a 1.25 m gallery gives about 4.9σ. A 1.5 m void in 40 m of rock looks like rock 1.5/40 ≈ 3.75% lighter along the line. The terrace: 6 m of fill at 1.8 instead of 2.6 t/m³, seen about 34° from vertical, gives about 10% more muons. Void migration: broken rock takes up more room than solid rock; with a bulking factor B, a collapse of open height h stops after climbing about h/(B − 1), so B = 1.1 gives the engineer's "about ten times"; 1.9 m gives 19 m, 1.5 m gives 15 m, against 18 m of cover. Weekdays were checked: 23 September 2063 is a Sunday, 1 October a Monday, 29 October a Monday, 31 October a Wednesday, 1 November a Thursday, 2 November a Friday, 3 November a Saturday, 5 November a Monday, 8 November a Thursday, 12 November a Monday, 13 November a Tuesday, 15 November a Thursday, 19 November a Monday, 24 November a Saturday, 25 November a Sunday and 26 November a Monday. Alžbeta is born in 1992. Nothing here is engineering advice; anyone worried about old mine workings under a building should ask a qualified engineer and the mining authority.*
