@@ -15,7 +15,7 @@ only, and scored the held-out test once with main and once with the final code.
   from the parquet gave a file byte-identical to `wildreceipt/test.jsonl`.
 - RapidOCR 1.4.4 (`eval/rapidocr-photos.py`) and tesseract 5.3.4's four readings
   (`eval/srd-cli.mjs`), 4 shards each, on train1, test and SRD's 200 US photos; scored with
-  `eval/cord-receipts.mjs`. About 95 minutes of OCR on 4 cores.
+  `eval/cord-receipts.mjs`. About 50 minutes of OCR on 4 cores (RapidOCR's ONNX Runtime ran more threads than OMP_NUM_THREADS=1 asks: load about 16).
 
 ## What the misses showed
 
