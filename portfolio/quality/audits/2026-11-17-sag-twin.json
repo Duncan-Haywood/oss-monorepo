@@ -1,0 +1,229 @@
+{
+ "date": "2026-11-17",
+ "subject": "research/sag-twin",
+ "stratum": "research",
+ "seed": "2026-11-17-5df2",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior battery-modelling / BMS engineer who does state-of-power and endurance estimation for UAV and EV packs (Thevenin equivalent-circuit models, HPPC voltage-limited power per the USABC/FreedomCAR battery test manual, Plett's SOP estimation); first checks: is the constant-power current root the right branch, is the voltage-limited power formula right, do the nondimensional units survive a change of R0, are the cell parameters sourced, and is the result new against the SOP literature. (Note: 'sag' here is battery terminal-voltage sag, not conductor sag.)",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "The model and seven of the eight result sections recompute; section 5 (cold cell) is wrong by a factor k. Reproduction: `cd research/sag-twin && PYTHONPATH=src python3 experiments/run.py > /tmp/claude-0/audit-sag/results.txt; diff` against experiments/results.txt: identical, 1.3 s. Independent physical-units simulation, no subject import (`python3 -I /tmp/claude-0/audit-sag/indep.py`: E0 4.2 V, Q 5 Ah, R0 20 mOhm, current from Newton on V*I = P, Euler in seconds): flat-EMF ratio at u0 = 0.6 is 0.8163 vs eta 0.8162 (README 0.816); droop+cutoff at u0 = 0.2 gives T = 15.079 units, s_cut 0.0857, ratio 0.8617 (results 15.079, 0.0857, 0.8616); max deliverable power at s = 0.2 by scanning terminal voltage >= cutoff is 0.2800 (results 0.280); burst-0.5 floor 0.5143 (results 0.5143). Monte Carlo predicted sd sigma/sqrt(sum i^2) recomputed with my own Newton current (`python3 -I /tmp/claude-0/audit-sag/fit.py`): 0.0190, 0.0095, 0.0048 (matches). Cold cell, same independent script, R = k R0 at fixed physical power: real/twin = 0.7146, 0.5712, 0.2975 at k = 1.5, 2, 3, but results.txt:51-53 and whitepaper.md:16 report 0.4764, 0.2856, 0.0992. Cause: run.py:53 compares endurance(k*u) (time in units of k R0 Q/E0, the cold cell's unit) with twin_endurance(base) (warm units) without the factor k. The table contradicts itself: section 2 gives real/twin 0.5712 at u0 = 0.4, section 5 gives 0.2856 at u0_eff = 0.40. The closed forms (eta, s_cut, max_power) are right by hand: v i = u0/4, low-current root, and the voltage-limited max power 4 vc (e - vc)/r is the HPPC discharge-power formula P = Vmin (OCV - Vmin)/R.",
+  "completeness": "Claimed and checked: '9 tests, under 1 s' (9 passed in 0.165 s); 'run.py ... about 10 s' (1.3 s: stale but harmless); every README number in results (1)-(5) (all match results.txt and recompute, see correctness); whitepaper sections 1-4 and 6-8 (match); experiments/figure.py exists and parses section 1; endurance_ratio.svg committed. No stubs or TODOs. Section 5 runs end to end but outputs a wrong ratio. Not done and not claimed: any sweep of the droop d or cutoff vc.",
+  "verification": "`cd research/sag-twin && PYTHONPATH=src python3 -m unittest discover -s tests -v`: 9 tests OK in 0.165 s. The tests are better than average: closed-form cutoff vs bisection, max_power as the inverse of s_cut, Euler vs quadrature, flat-EMF ratio = eta exactly, fit recovers R. But nothing pins a number with droop on, the twin is only tested at d = 0, and run.py (where the cold-cell bug lives) has no test. Six mutants via platform/ci/quality_mutate.py: 3 caught (s_cut denominator d + rho*k -> d + rho; VC 0.70 -> 0.65; max_power r(s) -> r = 1), 3 survived (twin_endurance mean EMF -> full-charge EMF at model.py:77, which moves every section-2 ratio; twin_current ignoring droop at model.py:37; D 0.25 -> 0.20 at model.py:10, which changes every headline number in sections 2-8).",
+  "craft": "Read model.py, run.py, figure.py, tests/test_model.py, pyproject.toml. Small, pure-Python, docstrings state the nondimensionalisation and closed forms; quadrature and an independent Euler stepper cross-check each other. Defects: s_cut divides by d + rho*k and raises ZeroDivisionError for d = 0, rho = 0 (`PYTHONPATH=src python3 -c 'from sag_twin.model import endurance; endurance(0.3, d=0.0)'` -> ZeroDivisionError), although the flat-EMF case is one the paper uses (it sidesteps it by passing s_to); empty __init__.py; figure.py is a generic copied plotter with dead branches (logx/logy/hline unused). run.py is one flat script with no functions, so its unit conversions (the cold-cell bug) are untestable. Acceptable research code.",
+  "claims": "README and research/README.md:289 and the projects.json summary: every number checked traces to results.txt and recomputes. The whitepaper's result 5 (paper/whitepaper.md:16, 'real/twin endurance 0.862, 0.476, 0.286, 0.099, 0.012 at k = 1, 1.5, 2, 3, 4') is backed by a file but the file is wrong (see correctness); the true values are 0.862, 0.715, 0.571, 0.298, 0.047, i.e. exactly the section-2 rows, so 'cold' adds nothing beyond relabelling u0. 'Stylised' and the Limitations section are present and honest; but research/CLAUDE.md ('Run the numbers; don't stylise them') asks for sourced parameters or a sweep, and d = 0.25, vc = 0.70 are invented and never swept, while they set every stranded-charge and burst-floor figure. 'Stranded' charge (README (2), summary) is charge left at cutoff at that power, recoverable at lower power, so 'stranded' overstates it slightly. Served page not loaded: proxy 403 on marisstella.app from this session.",
+  "fitness": "A researcher could reuse the closed forms as a teaching reference, but the result is not new. Nearest prior work: the USABC/FreedomCAR Battery Test Manual (INL, 2003) HPPC 'available power' P = Vmin (OCV - Vmin)/R, which is this project's max_power and burst floor exactly; Plett (2004), 'High-performance battery-pack power estimation using a dynamic cell model', IEEE TVT, state-of-power under voltage limits; Abdilla, Richards & Burrow (2015), 'Power and endurance modelling of battery-powered rotorcraft', IROS, which already puts an internal-resistance cell under a constant-power rotorcraft load to predict endurance; Traub (2011) J. Aircraft on battery endurance with Peukert. Only Plett 2015 and Chen & Rincon-Mora are cited. The eta(u) formula is the classical constant-power source with series resistance. The project is one micro-question in its own slug, not a programme step (research/CLAUDE.md, PROGRAMMES.md). Nothing is checked against a measured cell or datasheet.",
+  "domain": "Method is a standard R-only Thevenin model with a linear OCV and linear R(s), constant-power load, hard cutoff; correctly solved on the low-current branch. A BMS engineer would depart on: (a) parameters invented (d = 0.25 linear droop is far from a Li-ion OCV with a plateau and knee; vc = 0.70 E0) and not swept, although they drive the headline stranded-charge and burst-floor numbers; (b) the 'twin' is an R = 0 straw man and the 'constant derate' a straw man, while practice (HPPC-based SOP) already uses R; (c) no RC polarisation branch, so burst-floor numbers ignore that short bursts see only the ohmic part of R (the paper lists this as a limit); (d) the cold-cell section mishandles the nondimensional time unit when R0 changes, the kind of error a practitioner would catch with a one-line units check; (e) R identification is in-family with the OCV known exactly, so 1-2% is a best case (section 8 partly addresses this)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Flat-EMF real/twin endurance at u0 = 0.6",
+   "method": "independent physical-units Euler simulation (E0 4.2 V, 5 Ah, 20 mOhm), Newton for V*I = P, no subject import",
+   "command": "python3 -I /tmp/claude-0/audit-sag/indep.py",
+   "expected": "0.8162 (results.txt section 1)",
+   "observed": "0.8163",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Droop + cutoff at u0 = 0.2: endurance, cutoff SOC, ratio",
+   "method": "independent physical-units simulation",
+   "command": "python3 -I /tmp/claude-0/audit-sag/indep.py",
+   "expected": "15.079, 0.0857, 0.8616",
+   "observed": "15.079, 0.0857, 0.8617",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Largest deliverable power at s = 0.2 and burst-0.5 floor",
+   "method": "brute-force scan of P = V (e - V)/R over V >= cutoff (HPPC voltage-limited power)",
+   "command": "python3 -I /tmp/claude-0/audit-sag/indep.py",
+   "expected": "0.280; floor 0.5143",
+   "observed": "0.2800; floor 0.5143",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Cold cell real/twin endurance at fixed physical power, R = k R0, k = 1.5, 2, 3",
+   "method": "independent physical-units simulation with R = k R0 (time in seconds, no nondimensional unit)",
+   "command": "python3 -I /tmp/claude-0/audit-sag/indep.py",
+   "expected": "0.4764, 0.2856, 0.0992 (results.txt:51-53, whitepaper.md:16)",
+   "observed": "0.7146, 0.5712, 0.2975 (= section-2 rows at u0 = 0.3, 0.4, 0.6); reported values are low by the factor k",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "R0 identification predicted sd sigma/sqrt(sum i^2) for n = 10, 40, 160",
+   "method": "own Newton current solve, own sum",
+   "command": "python3 -I /tmp/claude-0/audit-sag/fit.py",
+   "expected": "0.0190, 0.0095, 0.0048",
+   "observed": "0.019, 0.0095, 0.0048",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Headline experiment reproduces",
+   "method": "rerun run.py, diff with committed results.txt",
+   "command": "cd research/sag-twin && PYTHONPATH=src python3 experiments/run.py > /tmp/claude-0/audit-sag/results.txt && diff /tmp/claude-0/audit-sag/results.txt experiments/results.txt",
+   "expected": "identical, about 10 s",
+   "observed": "identical, 1.3 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite runs",
+   "method": "unittest",
+   "command": "cd research/sag-twin && PYTHONPATH=src python3 -m unittest discover -s tests -v",
+   "expected": "9 tests, under 1 s",
+   "observed": "Ran 9 tests in 0.165s OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README results (1)-(5) numbers",
+   "method": "compare with results.txt sections 1-8",
+   "command": "cat research/sag-twin/README.md research/sag-twin/experiments/results.txt",
+   "expected": "0.987-0.500; 0.98,0.86,0.57,0.30,0.05; 0,9,37,66,94%; 0.84, 0.28; 51%; 35%; +12%, +473%; 1.9/0.9/0.5%; +42%, +85%; 72%, 80%",
+   "observed": "all present in results.txt and consistent",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Parameters sourced or swept (research/CLAUDE.md 'Run the numbers')",
+   "method": "read model.py:10-11, README:15, whitepaper",
+   "command": "grep -n 'D = \\|VC = ' research/sag-twin/src/sag_twin/model.py",
+   "expected": "d and vc from a datasheet, or a sweep showing conclusions survive",
+   "observed": "D = 0.25, VC = 0.70 'illustrative', no source, no sweep",
+   "result": "fail"
+  },
+  {
+   "dimension": "craft",
+   "what": "Flat-EMF endurance with default cutoff",
+   "method": "call endurance with d = 0",
+   "command": "cd research/sag-twin && PYTHONPATH=src python3 -c 'from sag_twin.model import endurance; print(endurance(0.3, d=0.0))'",
+   "expected": "a number (no cutoff reached, or 0)",
+   "observed": "ZeroDivisionError: float division by zero (model.py:52)",
+   "result": "fail"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Novelty of the burst floor / max-power result",
+   "method": "compare with USABC/FreedomCAR HPPC available-power formula and Plett 2004 SOP estimation",
+   "command": "sed -n 56,58p research/sag-twin/src/sag_twin/model.py",
+   "expected": "a result beyond the standard voltage-limited power formula",
+   "observed": "max_power = 4 vc (e - vc)/r is the HPPC formula P = Vmin (OCV - Vmin)/R in nondimensional form; not cited",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served page",
+   "method": "curl",
+   "command": "curl -sS https://marisstella.app/research/sag-twin/",
+   "expected": "200",
+   "observed": "CONNECT tunnel failed, response 403 (proxy); not verified",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/sag_twin/model.py:77",
+   "change": "mean_e = 0.5 * (emf(s_from, d) + emf(s_to, d)) -> mean_e = emf(s_from, d)",
+   "caught": false,
+   "test_cmd": "sh -c 'PYTHONPATH=src python3 -m unittest discover -s tests'"
+  },
+  {
+   "where": "src/sag_twin/model.py:52",
+   "change": "x = num / (d + rho * k) -> x = num / (d + rho)",
+   "caught": true,
+   "test_cmd": "sh -c 'PYTHONPATH=src python3 -m unittest discover -s tests'"
+  },
+  {
+   "where": "src/sag_twin/model.py:11",
+   "change": "VC = 0.70 -> VC = 0.65",
+   "caught": true,
+   "test_cmd": "sh -c 'PYTHONPATH=src python3 -m unittest discover -s tests'"
+  },
+  {
+   "where": "src/sag_twin/model.py:58",
+   "change": "max_power divides by res(s, rho) -> res(s, 0.0)",
+   "caught": true,
+   "test_cmd": "sh -c 'PYTHONPATH=src python3 -m unittest discover -s tests'"
+  },
+  {
+   "where": "src/sag_twin/model.py:37",
+   "change": "return u0 / (4.0 * emf(s, d)) -> return u0 / (4.0 * emf(s, 0.0))",
+   "caught": false,
+   "test_cmd": "sh -c 'PYTHONPATH=src python3 -m unittest discover -s tests'"
+  },
+  {
+   "where": "src/sag_twin/model.py:10",
+   "change": "D = 0.25 -> D = 0.20",
+   "caught": false,
+   "test_cmd": "sh -c 'PYTHONPATH=src python3 -m unittest discover -s tests'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Cold-cell section reports real/twin endurance low by the factor k: run.py compares endurance(k*u0) in the cold cell's time unit (k R0 Q/E0) with twin_endurance(base) in the warm unit (R0 Q/E0). Reported 0.476, 0.286, 0.099, 0.012 at k = 1.5, 2, 3, 4; correct 0.715, 0.571, 0.298, 0.047 (identical to section 2's rows at u0 = 0.3, 0.4, 0.6, 0.8, which the table itself contradicts). Published in whitepaper result 5.",
+   "where": "research/sag-twin/experiments/run.py:53",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests leave the droop path and the twin unpinned: changing D 0.25 -> 0.20, making the twin ignore droop, or replacing the twin's mean EMF with the full-charge EMF all leave 9/9 green, though each changes every section-2-to-8 headline. run.py (where the cold-cell bug lives) has no test.",
+   "where": "research/sag-twin/tests/test_model.py:51",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Cell parameters d = 0.25 (linear OCV droop) and vc = 0.70 are invented and never swept, although they set every stranded-charge and burst-floor number; research/CLAUDE.md asks for sourced parameters or a sweep showing the conclusion survives.",
+   "where": "research/sag-twin/src/sag_twin/model.py:10",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Nearest prior work not cited and novelty not positioned: the burst-floor / max-power result is the USABC/FreedomCAR HPPC voltage-limited available-power formula P = Vmin (OCV - Vmin)/R; state-of-power estimation (Plett 2004, IEEE TVT) and constant-power rotorcraft endurance with internal resistance (Abdilla, Richards & Burrow 2015, IROS) already cover the endurance and burst questions.",
+   "where": "research/sag-twin/paper/whitepaper.md:27",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "s_cut divides by d + rho*k and raises ZeroDivisionError for a flat EMF (d = 0, rho = 0), e.g. endurance(0.3, d=0.0); should return 0 (no cutoff before empty) when num >= 0.",
+   "where": "research/sag-twin/src/sag_twin/model.py:52",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "'Stranded' charge is charge left at the cutoff at that power; it is recoverable at lower power, so the word overstates the loss.",
+   "where": "research/sag-twin/README.md:3",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "README says run.py takes about 10 s; it takes 1.3 s.",
+   "where": "research/sag-twin/README.md:10",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A small, clean, reproducible equivalent-circuit study: results.txt regenerates byte-identically in 1.3 s, the closed forms (eta(u) = (1+sqrt(1-u))/2, the cutoff state, the voltage-limited max power) are right, and five reported numbers recompute in an independent physical-units simulation. It misses the bar: the cold-cell section (whitepaper result 5) is wrong by a factor k because the nondimensional time unit changes with R0 (0.286 reported at k = 2 where the true ratio is 0.571, which the same table's section 2 already shows), half the seeded mutants in the twin and droop path survive the 9 tests, the driving parameters are invented and unswept, and the main burst-floor result is the standard HPPC available-power formula, uncited, so the research contribution is a textbook consequence of an R-only Thevenin model rather than a new result."
+}

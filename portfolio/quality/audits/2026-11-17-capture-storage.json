@@ -1,0 +1,207 @@
+{
+ "date": "2026-11-17",
+ "subject": "research/capture-storage",
+ "stratum": "research",
+ "seed": "2026-11-17-5df2",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior digital imaging technician (DIT) / media-workflow engineer who designs on-set and travel offload kits (multi-destination checksum-verified copies with Hedge, ShotPut Pro or Silverstack, 3-2-1 backup practice), reading it as a systems-modelling researcher would; first checks: can one card be read by more than one reader, is a second backup copy a second read of the card or a multi-destination write, and does the evening-time headline survive the per-card read time",
+ "scores": {
+  "correctness": 1,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 1,
+  "domain": 1
+ },
+ "evidence": {
+  "correctness": "The arithmetic reproduces but the offload model, which carries the headline, is physically wrong. Independent recompute (/tmp/claude-0/audit-cs/recompute.py, run with /usr/bin/python3.13 -I, no subject import): GB/h 54/45/27/90 at 120/100/60/200 Mbit/s (decimal), 4-camera day 864 GB, 6.048 TB a week, one reader one copy 2.667 h, battery/card ratios 609/658/975/439, sourced day 900 GB: all match results.txt and README. But model.py:62 treats N readers as N x 90 MB/s of divisible bandwidth over the whole day's bytes, so the optimiser picks more readers than there are cards in every feasible row of results.txt table B (1 card/2 readers, 2/3, 3/4, 5/6, 6/7, 7/8). A card can be read by only one reader at a time. Re-modelled with per-card serial reads and an LPT schedule (/tmp/claude-0/audit-cs/makespan.py): under the subject's own two-pass copy assumption no rig of 1 to 8 cameras meets the 1 h limit (a single 216 GB card read twice at 90 MB/s takes 1.33 h), so the headline '6 readers, 4 SSDs, 452 g' and the 1-camera '160 g, 2 readers, 0.67 h' are infeasible plans. With per-card reads and a single-read multi-destination copy, the 4-camera plan is 3 readers, 377 g, 1.00 h. The qualitative conclusion (time, not card weight, binds) survives and is if anything stronger.",
+  "completeness": "Every claimed artefact runs end to end in a scratch copy: README 'pytest -q tests  # 15 tests' -> 15 passed in 0.03 s; experiments/run.py (0.05 s) regenerates results.txt byte-identically; experiments/sourced.py (5.5 s, README says about 10 s) regenerates sourced_results.txt identical except the machine-dependent hash timings (SHA-256 1,374 vs 1,464 MB/s on a 2.1 GHz Xeon, within the stated 'few percent'); experiments/figure.py regenerates offload_vs_cards.svg byte-identically. Next steps are listed as not done. No stubs or TODOs.",
+  "verification": "`/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests`: 15 passed. Five mutants via platform/ci/quality_mutate.py: 4 survived (dropping the copies factor at model.py:64; reader grams counted once instead of per reader at model.py:67; SSD headroom removed at model.py:61; battery grams per hour halved at model.py:80), 1 caught (GiB divisor at model.py:24, by the exact gb_per_hour test). Tests check monotonicity and inequalities, never a pinned plan; no test asserts readers <= cards, which would have caught the main defect.",
+  "craft": "Read model.py, sourced.py, run.py, sourced.py (experiments), figure.py, both test files. Short, readable, stdlib only, units in comments. Defects: sourced.use() swaps module globals by setattr (not re-entrant or thread-safe; a function-argument parameter set would be cleaner); PARAMS rows ssd_g, reader_g, reader_mbs_model are documentary only, sourced_set() never reads them, so editing them changes nothing, while the README tells a person to 'fill PARAMS'; per_cam is recomputed inside the 72-iteration loop though it depends only on the card size; `from .model import *` package API; no input validation (unknown camera name is a KeyError, hours<=0 is accepted).",
+  "claims": "README numbers trace to experiments/results.txt and sourced_results.txt (452/227/162/652 g, 352 g at 3 h, 60x, 439-975 ratio, 2.7/5.3 h, 426/351 g, 0.029 vs 31.8 g/h: all checked). AI assistance stated (README:3), assumed vs sourced figures labelled per parameter, Limitations section present, sourced bus ceilings (UHS-I 104 MB/s, UHS-II 312 MB/s half duplex) and GoPro HERO13 120 Mbit/s agree with the SD Association bus classes and GoPro's published maximum. But the headline 'a safe plan needs 6 parallel readers and 4 SSDs, about 450 g' (README:3, research/README.md:735, project.json summary) is backed by a file only in the sense that results.txt prints it: the plan is not physically realisable (see correctness). README:60 're-reading the cards too doubles the evening to 4.8 h' leaves out the 0.62 h SSD re-read the same sentence adds first. Served page https://marisstella.app/research/capture-storage/ could not be loaded (proxy 403 on CONNECT).",
+  "fitness": "A researcher can rerun everything in seconds, but there is little to build on: it is a back-of-envelope sizing calculation (bitrate x hours, divide by a throughput) with one optimiser whose core time model is wrong. Nearest prior work is DIT practice and tooling, none cited: multi-destination checksum-verified offload (Hedge, ShotPut Pro, Pomfort Silverstack, which read a card once and write N copies), the 3-2-1 backup rule, and camera-vendor offload guidance. The result (copy time, not card mass, binds; verify while copying) is what that practice already assumes. Nothing here is new or near the PhD/publishable bar in research/CLAUDE.md; it reads as one micro-question, not a programme step.",
+  "domain": "A DIT would reject the offload method on two points. (a) Parallelism: throughput is bounded per card (one card, one reader), so the evening is a makespan over card loads, and the largest card (the mirrorless body's 360 GB day on a 512 GB card, 1.11 h at 90 MB/s even read once) sets a floor no reader count removes; the model ignores it. (b) Copies: standard practice reads the card once and writes both SSD copies simultaneously (multi-destination), so the second copy costs SSD write bandwidth, not a second card read; the model doubles the card-read time (model.py:64). It also ignores the shared USB/host bus that 6 to 8 readers saturate (stated as a limit). The checksum section is sound and matches practice (hash inline while copying)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Data rates and 4-camera day volume",
+   "method": "own arithmetic: Mbit/s x 3600 / 8 / 1000 = GB/h (decimal SI), summed over 120/100/60/200 Mbit/s x 4 h",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-cs/recompute.py",
+   "expected": "54/45/27/90 GB/h; 864 GB/day; 6.05 TB/week; 2.67 h one reader one copy",
+   "observed": "54/45/27/90; 864; 6.048; 2.667 (results.txt identical)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Battery vs card grams per recording hour, ratio range 439-975",
+   "method": "own arithmetic: W x 700 g / 99 Wh against GB/h x 1.1 / 512 x 0.5 g",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-cs/recompute.py",
+   "expected": "ratios 609, 658, 975, 439",
+   "observed": "609, 658, 975, 439",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Headline offload plan (4 cameras, 2 SSD copies, 1 h): physically realisable?",
+   "method": "own model: each card read serially by one reader (SD/UHS cards are single-host devices), cards filled per camera, LPT schedule over readers; same constants and two-pass copy as the subject",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-cs/makespan.py",
+   "expected": "6 readers, 452 g, 0.89 h (README)",
+   "observed": "infeasible for every rig of 1-8 cameras; subject's plans use more readers than cards in every row (1/2, 2/3, 3/4, 5/6, 6/7, 7/8)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "1-camera offload plan",
+   "method": "one 216 GB card at 90 MB/s read twice: 216e9/90e6/3600 x 2",
+   "command": "cd research/capture-storage && PYTHONPATH=src /usr/bin/python3.13 -c \"from capture_storage import offload; print(offload(['360 camera'],4,7))\"",
+   "expected": "infeasible at 1 h (1.33 h), or readers <= cards = 1",
+   "observed": "cards=1, readers=2, offload_h=0.667, grams=160.4",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Sourced 4-camera day and card mass",
+   "method": "own arithmetic with 120/120/60/200 Mbit/s and 0.25 g microSD x 16 cards",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-cs/recompute.py",
+   "expected": "900 GB/day; cards-only 4.00 g",
+   "observed": "900; 4.00 (sourced_results.txt)",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Second SSD copy modelled as a second full card read",
+   "method": "DIT practice: multi-destination offload (Hedge, ShotPut Pro, Silverstack) reads the card once",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-cs/recompute.py (read_once column)",
+   "expected": "copy time independent of copies when SSD write >= reader speed",
+   "observed": "model.py:64 t *= copies; read-once gives 3 readers / 377 g instead of 6 / 452 g for the 4-camera rig",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiments reproduce",
+   "method": "rerun in scratch copy and diff against committed outputs",
+   "command": "cd /tmp/claude-0/audit-cs/copy && PYTHONPATH=src /usr/bin/python3.13 experiments/run.py && PYTHONPATH=src /usr/bin/python3.13 experiments/sourced.py; figure.py in /tmp/claude-0/audit-cs/x",
+   "expected": "results.txt, svg identical; sourced_results.txt identical except hash timings",
+   "observed": "as expected; SHA-256 1,374 MB/s here vs 1,464 recorded",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests",
+   "expected": "15 tests (README)",
+   "observed": "15 passed in 0.03 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Sourced parameters: UHS-I 104 MB/s, UHS-II 312 MB/s, GoPro HERO13 120 Mbit/s, microSD 0.25 g",
+   "method": "SD Association bus-speed classes and GoPro's published max bitrate (auditor knowledge, no fetch)",
+   "command": "sed -n 9,20p src/capture_storage/sourced.py",
+   "expected": "104, 312 (HD), 120 Mbit/s, ~0.25 g",
+   "observed": "104, 312, 120, 0.25",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:60 'reading the cards too doubles the evening to 4.8 h'",
+   "method": "own sum: copy 2.40 + SSD re-read 0.62 + card re-read 2.40",
+   "command": "cat experiments/sourced_results.txt",
+   "expected": "5.43 h if both re-reads, 4.81 only if the SSD re-read is dropped",
+   "observed": "4.81 h printed as the 'too' case",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "served page",
+   "method": "load https://marisstella.app/research/capture-storage/",
+   "command": "curl -sS -m 20 https://marisstella.app/research/capture-storage/",
+   "expected": "200 with disclaimer",
+   "observed": "proxy CONNECT 403; not checked",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/capture_storage/model.py:64",
+   "change": "t *= copies -> t *= 1",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/capture_storage/model.py:67",
+   "change": "readers * READER_G -> READER_G",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/capture_storage/model.py:61",
+   "change": "n_ssd = ceil(trip * HEADROOM / ssd) * copies -> n_ssd = ceil(trip / ssd) * copies",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/capture_storage/model.py:24",
+   "change": "mbps * 3600 / 8 / 1000 -> mbps * 3600 / 8 / 1024",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/capture_storage/model.py:80",
+   "change": "CAMERA_WATTS[cam] / PACK_WH_PER_G -> CAMERA_WATTS[cam] / PACK_WH_PER_G / 2",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Offload time treats readers as divisible bandwidth over the whole day (day / (readers x 90 MB/s)); a card can be read by only one reader, so every feasible plan in results.txt uses more readers than cards (1 card/2 readers for one camera) and, under the model's own two-pass copy, no rig of 1-8 cameras actually fits the 1 h limit. The headline '6 readers, 4 SSDs, 452 g' (README:3, research/README.md:735, project.json) is not a realisable plan. Repro: PYTHONPATH=src python3 -c \"from capture_storage import offload; print(offload(['360 camera'],4,7))\" -> readers=2, cards=1, offload_h=0.667; expected infeasible (one 216 GB card read twice at 90 MB/s = 1.33 h).",
+   "where": "research/capture-storage/src/capture_storage/model.py:62",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Second backup copy is modelled as a second full read of the cards (t *= copies), against standard multi-destination offload practice (read once, write N copies, checksum inline). It roughly doubles reader count and inflates the headline grams (6 readers/452 g vs 3 readers/377 g for the 4-camera rig with per-card reads); the README does not state the assumption.",
+   "where": "research/capture-storage/src/capture_storage/model.py:64",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests pin no plan and never check readers <= cards: 4 of 5 seeded mutants in core logic survive (copies factor dropped, reader grams once, SSD headroom removed, battery g/h halved).",
+   "where": "research/capture-storage/tests/test_storage.py:20",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "No prior work cited and no novelty: digital-imaging-technician offload practice (Hedge, ShotPut Pro, Silverstack multi-destination verified copies, 3-2-1 rule) already settles 'time binds, verify while copying'; the project is a single sizing calculation, far from the research/CLAUDE.md programme bar.",
+   "where": "research/capture-storage/README.md:7",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "'re-reading the cards too doubles the evening to 4.8 h' drops the 0.62 h SSD re-read the sentence has just added; with both re-reads the evening is 5.4 h.",
+   "where": "research/capture-storage/README.md:60",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "PARAMS rows ssd_g, reader_g and reader_mbs_model are never read by sourced_set(), so the README's advice to 'fill PARAMS in minutes' changes no result for those figures; use() monkeypatches module globals instead of passing parameters.",
+   "where": "research/capture-storage/src/capture_storage/sourced.py:26",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A tidy, fully reproducible sizing note (15 tests pass, results.txt and the figure regenerate byte-identically, every README number traces to a results file, data rates and battery/card ratios recompute exactly), whose central optimiser is physically wrong: it splits one evening's bytes over up to 8 readers as if bandwidth were divisible, so every reported plan uses more readers than there are cards, and once a card is read by one reader at a time no rig meets the 1 h limit under the project's own two-pass copy assumption. The headline '6 readers, 452 g' is therefore not a realisable kit; the qualitative finding (copy time, not card mass, binds) survives and is stronger than stated. Verification is weak (4 of 5 seeded bugs survive), the second-copy model departs from standard multi-destination offload practice, and no DIT prior work is cited. Finished as described, but well below the research bar."
+}
