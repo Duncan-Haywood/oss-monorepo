@@ -2,9 +2,7 @@
 
 **Live page:** https://marisstella.app/research/hanger-yieldcost/
 
-**Live page:** https://marisstella.app/research/hanger-yieldcost/
-
-[`hanger-lookahead`](../hanger-lookahead) found that steering clear of the other arm's *predicted next* pick loses garments an hour in 14 of 18 settings. Its first next step: yield only when the predicted clash would cost a wait longer than the garment is worth. **Gating the yield by predicted overlap removes most of the loss** (aiming at 0.15 m: −11.3 an hour ungated, −0.2 at a 20 s threshold) **and turns up one real gain: pinching with 0.30 m clearance gains +0.7 to +1.35 garments an hour over avoiding only the current pick, at every threshold from 0 to 20 s (best +1.35, interval 0.93 to 1.80).** In the other 8 settings no threshold gives a gain whose interval excludes zero except hairline cases noted below. Simulated, placeholder inputs.
+[`hanger-lookahead`](../hanger-lookahead) found that steering clear of the other arm's *predicted next* pick loses garments an hour in 14 of 18 settings. Its first next step: yield only when the predicted clash would cost a wait longer than the garment is worth. **Gating the yield by predicted overlap removes most of the loss** (aiming at 0.15 m: −11.3 an hour ungated, −0.2 at a 20 s threshold) **and turns up one real gain: pinching with 0.30 m clearance gains +0.7 to +1.35 garments an hour over avoiding only the current pick, at every threshold from 0 to 20 s (best +1.35, interval 0.93 to 1.80).** In the other 8 settings no threshold gives a gain whose interval excludes zero (none does). Simulated, placeholder inputs.
 
 Track 18 (`hanger`, [`PROJECTS.md`](../PROJECTS.md)). Built on none of the CU Boulder groups in `prompt.md`; no connection is claimed. Produced with AI assistance.
 
@@ -20,7 +18,7 @@ Tests (5): `tau = −∞` equals hanger-lookahead's pick sequence, `tau = ∞` e
 
 ## Results (`experiments/results.txt`, about 10 minutes)
 
-Mean paired difference in garments done per hour against avoiding only the current pick (95% interval). Redirects per load by the lookahead rule fall from 4 to 15 (ungated) to 0.01 to 1.9 at 20 s.
+Mean paired difference in garments done per hour against avoiding only the current pick (95% interval). Redirects per load by the lookahead rule fall from 0.2 to 15 (ungated) to 0.01 to 1.9 at 20 s.
 
 | policy | sep (m) | tau −∞ | tau 0 | tau 3 | tau 6 | tau 10 | tau 20 |
 |---|---|---|---|---|---|---|---|
@@ -34,7 +32,8 @@ Mean paired difference in garments done per hour against avoiding only the curre
 | pinch | **0.30** | −1.58 | **+0.70** (0.25 to 1.18) | **+0.88** (0.41 to 1.35) | **+1.14** (0.68 to 1.60) | **+1.35** (0.93 to 1.80) | **+1.13** (0.77 to 1.50) |
 | pinch | 0.45 | −0.11 | 0.00 | +0.01 | +0.02 | +0.02 | +0.04 |
 
-- A higher threshold monotonically cuts the redirects and the loss; the ungated rule is the worst column everywhere.
+- A higher threshold monotonically cuts the redirects. The loss shrinks broadly but not monotonically: within noise it reverses in 5 of 9 rows (e.g. see 0.15 m, −0.30 at 6 s and −0.36 at 10 s). The ungated rule is the worst column everywhere.
+- Seeded-bug check ([quality census 2026-11-17](../../portfolio/quality/audits/2026-11-17-hanger-yieldcost.json)): the tests pin only the `tau = ±∞` limits, so four of five seeded changes to the gating rule went uncaught; a test of an intermediate `tau` is still to add.
 - Only pinching at 0.30 m has a positive interval at five thresholds. Sweeping at 0.30 to 0.45 m shows +0.2 to +0.5 whose intervals include zero (best: 0.45 m, tau 6, +0.50, −0.15 to 1.20). With 54 intervals, a few would exclude zero by chance; the pinch row is the only one that does so consistently and at neighbouring thresholds, but treat it as one setting out of nine, not a general rule.
 - The threshold is a tuned parameter swept after seeing the earlier negative result; the pinch gain does not depend on one value (it holds from 0 to 20 s).
 - Why (interpretation, not tested): pinching has the longest and most variable picks, so a clash overlaps for long and the other arm's own avoidance costs more than the yielder's detour; short picks (aiming) rarely overlap enough to be worth a detour.
