@@ -5,7 +5,8 @@
 // get it. `cleanOcr` repairs the digit look-alikes OCR leaves in amounts and dates.
 import { readFileSync, mkdtempSync, rmSync, readdirSync } from "node:fs";
 import { spawnSync } from "node:child_process";
-import { extname, join } from "node:path";
+import { extname, join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
 import { cleanOcr } from "./cleanocr.mjs";
 import { decodeBytes } from "./textcodec.mjs";
@@ -87,6 +88,21 @@ export function receiptPassesFromFile(path, { run = spawnSync, env = process.env
     }
   } finally { copy.done(); }
   return copy.shrunk ? [...more, ...out] : [...out, ...more];
+}
+
+// A photo read by RapidOCR (rapidocr_rows.py next to this file: PaddleOCR's models through
+// ONNX Runtime, on this machine) instead of tesseract, for `receipts FILE --rapidocr`. Runs
+// `python3`, or the interpreter in RAPIDOCR_PYTHON. One reading: on 200 CORD train photos it
+// read 172 totals right where tesseract's four readings and their vote read 122 (README, "A
+// second OCR engine for photos"). Text and PDF files go the usual way.
+export const RAPIDOCR_SCRIPT = join(dirname(fileURLToPath(import.meta.url)), "rapidocr_rows.py");
+export function receiptTextRapid(path, { run = spawnSync, env = process.env } = {}) {
+  if (!IMAGE.has(extname(path).toLowerCase())) return receiptTextFromFile(path, { run, env });
+  const py = env.RAPIDOCR_PYTHON || "python3";
+  const r = run(py, [RAPIDOCR_SCRIPT, path], { encoding: "utf8", maxBuffer: 1 << 24 });
+  if (r.error) throw new Error(`could not read ${path} with RapidOCR: ${py} is needed (or set RAPIDOCR_PYTHON)`);
+  if (r.status !== 0) throw new Error(`could not read ${path} with RapidOCR: ${String(r.stderr || "").trim().split("\n").pop().slice(0, 160) || `${py} failed`}`);
+  return cleanOcr(r.stdout);
 }
 
 // The grey copy the page draws (photoocr.mjs greyCopy), made with ImageMagick:

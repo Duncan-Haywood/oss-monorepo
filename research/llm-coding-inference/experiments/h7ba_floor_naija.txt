@@ -1,0 +1,37 @@
+cells run: 27 (18 weak J < 0.3); errors (cell with < 2 labels): 0; p5j40 library check asserted on every draw
+nb p0.05 n 300 (J 0.422, pooled cov 94.9, cells in 686): t10 ratio 0.948 cov 95.5 adm 96.5 fired 0, p5j40 ratio 0.960 cov 95.5 adm 96.5 fired 106, p5j50 ratio 0.978 cov 95.5 adm 96.5 fired 247
+nb p0.05 n 500 (J 0.422, pooled cov 94.2, cells in 938): t10 ratio 0.919 cov 96.0 adm 96.4 fired 0, p5j40 ratio 0.920 cov 96.0 adm 96.4 fired 6, p5j50 ratio 0.922 cov 96.1 adm 96.5 fired 31
+nb p0.05 n 1000 (J 0.422, pooled cov 96.2, cells in 993): t10 ratio 0.919 cov 96.1 adm 96.1 fired 0, p5j40 ratio 0.919 cov 96.1 adm 96.1 fired 0, p5j50 ratio 0.919 cov 96.1 adm 96.1 fired 0
+nb p0.1 n 300 (J 0.394, pooled cov 95.4, cells in 894): t10 ratio 0.951 cov 95.2 adm 95.5 fired 0, p5j40 ratio 0.951 cov 95.3 adm 95.6 fired 1, p5j50 ratio 0.952 cov 95.3 adm 95.6 fired 6
+nb p0.1 n 500 (J 0.394, pooled cov 94.6, cells in 979): t10 ratio 0.946 cov 93.5 adm 93.4 fired 0, p5j40 ratio 0.946 cov 93.5 adm 93.4 fired 0, p5j50 ratio 0.946 cov 93.5 adm 93.4 fired 0
+nb p0.1 n 1000 (J 0.394, pooled cov 95.7, cells in 997): t10 ratio 0.950 cov 96.0 adm 96.0 fired 0, p5j40 ratio 0.950 cov 96.0 adm 96.0 fired 0, p5j50 ratio 0.950 cov 96.0 adm 96.0 fired 0
+nb pnative n 300 (J 0.402, pooled cov 94.7, cells in 584): t10 ratio 0.995 cov 94.0 adm 94.9 fired 0, p5j40 ratio 0.995 cov 94.0 adm 94.9 fired 0, p5j50 ratio 0.995 cov 94.0 adm 94.9 fired 0
+nb pnative n 500 (J 0.402, pooled cov 95.7, cells in 678): t10 ratio 0.996 cov 95.8 adm 96.8 fired 0, p5j40 ratio 0.996 cov 95.8 adm 96.8 fired 0, p5j50 ratio 0.996 cov 95.8 adm 96.8 fired 0
+nb pnative n 1000 (J 0.402, pooled cov 94.5, cells in 821): t10 ratio 0.996 cov 96.4 adm 96.6 fired 0, p5j40 ratio 0.996 cov 96.4 adm 96.6 fired 0, p5j50 ratio 0.996 cov 96.4 adm 96.6 fired 0
+q15 p0.05 n 300 (J 0.217, pooled cov 96.0, cells in 623): t10 ratio 0.973 cov 96.7 adm 96.6 fired 0, p5j40 ratio 0.989 cov 96.8 adm 96.8 fired 154, p5j50 ratio 0.997 cov 96.8 adm 96.8 fired 216
+q15 p0.05 n 500 (J 0.217, pooled cov 95.7, cells in 733): t10 ratio 0.971 cov 95.1 adm 95.1 fired 0, p5j40 ratio 0.971 cov 95.2 adm 95.2 fired 8, p5j50 ratio 0.972 cov 95.6 adm 95.8 fired 19
+q15 p0.05 n 1000 (J 0.217, pooled cov 96.4, cells in 881): t10 ratio 0.972 cov 94.5 adm 94.2 fired 0, p5j40 ratio 0.972 cov 94.5 adm 94.2 fired 0, p5j50 ratio 0.972 cov 94.5 adm 94.2 fired 0
+q15 p0.1 n 300 (J 0.225, pooled cov 96.6, cells in 700): t10 ratio 0.982 cov 95.5 adm 94.6 fired 0, p5j40 ratio 0.982 cov 95.5 adm 94.6 fired 0, p5j50 ratio 0.982 cov 95.5 adm 94.6 fired 1
+q15 p0.1 n 500 (J 0.225, pooled cov 94.5, cells in 830): t10 ratio 0.978 cov 94.2 adm 94.2 fired 0, p5j40 ratio 0.978 cov 94.2 adm 94.2 fired 0, p5j50 ratio 0.978 cov 94.2 adm 94.2 fired 0
+q15 p0.1 n 1000 (J 0.225, pooled cov 94.1, cells in 946): t10 ratio 0.978 cov 94.7 adm 95.0 fired 0, p5j40 ratio 0.978 cov 94.7 adm 95.0 fired 0, p5j50 ratio 0.978 cov 94.7 adm 95.0 fired 0
+q15 pnative n 300 (J 0.208, pooled cov 94.5, cells in 304): t10 ratio 0.999 cov 95.1 adm 96.1 fired 0, p5j40 ratio 0.999 cov 95.1 adm 96.1 fired 0, p5j50 ratio 0.999 cov 95.1 adm 96.1 fired 0
+q15 pnative n 500 (J 0.208, pooled cov 95.6, cells in 361): t10 ratio 0.999 cov 94.9 adm 94.7 fired 0, p5j40 ratio 0.999 cov 94.9 adm 94.7 fired 0, p5j50 ratio 0.999 cov 94.9 adm 94.7 fired 0
+q15 pnative n 1000 (J 0.208, pooled cov 95.3, cells in 457): t10 ratio 0.999 cov 95.0 adm 95.4 fired 0, p5j40 ratio 0.999 cov 95.0 adm 95.4 fired 0, p5j50 ratio 0.999 cov 95.0 adm 95.4 fired 0
+q3 p0.05 n 300 (J 0.069, pooled cov 95.4, cells in 10): t10 ratio 1.000 cov 95.3 adm 80.0 fired 0, p5j40 ratio 1.001 cov 95.5 adm 100.0 fired 5, p5j50 ratio 1.001 cov 95.5 adm 100.0 fired 7
+q3 p0.05 n 500 (J 0.069, pooled cov 95.1, cells in 39): t10 ratio 1.000 cov 94.7 adm 84.6 fired 0, p5j40 ratio 1.000 cov 94.7 adm 84.6 fired 0, p5j50 ratio 1.000 cov 94.7 adm 84.6 fired 0
+q3 p0.05 n 1000 (J 0.069, pooled cov 95.6, cells in 223): t10 ratio 0.998 cov 95.0 adm 94.2 fired 0, p5j40 ratio 0.998 cov 95.0 adm 94.2 fired 0, p5j50 ratio 0.998 cov 95.0 adm 94.2 fired 0
+q3 p0.1 n 300 (J 0.043, pooled cov 94.6, cells in 0): t10 ratio 1.000 cov 94.6 adm nan fired 0, p5j40 ratio 1.000 cov 94.6 adm nan fired 0, p5j50 ratio 1.000 cov 94.6 adm nan fired 0
+q3 p0.1 n 500 (J 0.043, pooled cov 95.7, cells in 0): t10 ratio 1.000 cov 95.7 adm nan fired 0, p5j40 ratio 1.000 cov 95.7 adm nan fired 0, p5j50 ratio 1.000 cov 95.7 adm nan fired 0
+q3 p0.1 n 1000 (J 0.043, pooled cov 95.1, cells in 0): t10 ratio 1.000 cov 95.1 adm nan fired 0, p5j40 ratio 1.000 cov 95.1 adm nan fired 0, p5j50 ratio 1.000 cov 95.1 adm nan fired 0
+q3 pnative n 300 (J 0.061, pooled cov 95.8, cells in 0): t10 ratio 1.000 cov 95.8 adm nan fired 0, p5j40 ratio 1.000 cov 95.8 adm nan fired 0, p5j50 ratio 1.000 cov 95.8 adm nan fired 0
+q3 pnative n 500 (J 0.061, pooled cov 95.5, cells in 0): t10 ratio 1.000 cov 95.5 adm nan fired 0, p5j40 ratio 1.000 cov 95.5 adm nan fired 0, p5j50 ratio 1.000 cov 95.5 adm nan fired 0
+q3 pnative n 1000 (J 0.061, pooled cov 95.3, cells in 0): t10 ratio 1.000 cov 95.3 adm nan fired 0, p5j40 ratio 1.000 cov 95.3 adm nan fired 0, p5j50 ratio 1.000 cov 95.3 adm nan fired 0
+t10: summed gain 0.531 (weak 0.151, nb 0.380); fired in 0 of 13677 admitted draws; weak admitted coverage 94.9% of 6107; under 93% where t10 is not: []
+p5j40: summed gain 0.501 (weak 0.134, nb 0.367); fired in 280 of 13677 admitted draws; weak admitted coverage 94.9% of 6107; under 93% where t10 is not: []
+p5j50: summed gain 0.471 (weak 0.125, nb 0.346); fired in 527 of 13677 admitted draws; weak admitted coverage 95.0% of 6107; under 93% where t10 is not: []
+P1 p5j40 no cell under 93% where t10 covers: yes
+P2 p5j40 weak admitted coverage 94.9% at least t10's 94.9%: yes
+P3 t10 cells with 30+ admitted draws under 88%: 1 (q3 p0.05 n 500 84.6 -> 84.6); lifted to 88%+: 0: no
+P4 p5j40 keeps 0.944 of t10's summed gain 0.531: yes
+P5 p5j50 keeps 0.887 and fires more than p5j40: yes
+Decision rule: p5j40 replicates; the library default stays NEG_FLOOR = (5, 0.40, 2)

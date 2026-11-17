@@ -195,8 +195,10 @@
       const st = lastStatements[Number($("#which").value || 0)];
       if (!st) return;
       const o = { fullAccount: $("#full-accounts").checked, accountType: $("#acct-type").value, dateOrder: $("#date-order").value, bankId: $("#bank-id").value.replace(/\D/g, "") || undefined };
+      let out;
+      try { out = make(st, o); } catch (e) { status.textContent = e.message; return; }
       record("converted_file_downloaded");
-      download(`${st.id.replace(/[^A-Za-z0-9._-]+/g, "_")}.${ext}`, make(st, o), type);
+      download(`${st.id.replace(/[^A-Za-z0-9._-]+/g, "_")}.${ext}`, out, type);
     });
     convert("#dl-ofx", "ofx", toOfx, "application/x-ofx");
     convert("#dl-qbo", "qbo", toOfx, "application/vnd.intu.qbo");

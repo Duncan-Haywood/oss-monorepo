@@ -35,3 +35,20 @@ test("crossover and providers work; bad input exits 2", () => {
   assert.equal(run("compare", "--records-k", "1").status, 2);
   assert.equal(run("bogus").status, 2);
 });
+
+test("bad --months or a --prices file that is not an object exit 2 (bad input), never 1 (over budget)", () => {
+  // red team 2026-11-17: both crashed with a stack trace and exit 1, which a CI gate reads as over budget
+  for (const m of ["0", "2.5"]) {
+    const r = run("compare", "--records-k", "10", "--searches-k", "10", "--budget", "1000", "--months", m);
+    assert.equal(r.status, 2, `--months ${m}: ${r.stderr}`);
+    assert.match(r.stderr, /--months/);
+  }
+  const dir = mkdtempSync(join(tmpdir(), "sapc-"));
+  for (const body of ["null", "[1]", "\"x\"", "{\"algolia\": 3}"]) {
+    const f = join(dir, "bad.json");
+    writeFileSync(f, body);
+    const r = run("compare", "--records-k", "10", "--searches-k", "10", "--prices", f);
+    assert.equal(r.status, 2, `${body}: ${r.stderr}`);
+    assert.match(r.stderr, /--prices/);
+  }
+});
