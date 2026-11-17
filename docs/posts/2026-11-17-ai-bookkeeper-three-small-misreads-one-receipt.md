@@ -1,6 +1,6 @@
 ---
 title: "Three small misreads on one receipt photo, and why each fix needed the others"
-seo_title: "Fixing receipt OCR totals: a lost C, a stray TL, a total under its subtotal"
+seo_title: "Receipt OCR: a lost C, a stray TL, a total under its own subtotal"
 date: 2026-11-17
 description: "One US restaurant receipt read 7.07 instead of 37.37. It took three narrow fixes to an open-source receipt reader, each useless alone, to get it right."
 tags: [ai-bookkeeper, receipts, ocr, evaluation]
@@ -40,7 +40,11 @@ comes after a tax word on the same line doesn't count.
 **3. A total below its own subtotal.** The reading that said 7.07 also read
 `SUBTOTAL: 29.88` above it. A total smaller than the subtotal in the same reading is suspect,
 so that reading's total line keeps its vote as a reading but loses the extra point for having
-a total line.
+a total line. That point goes only when some reading's cash less change is above the
+subtotal, meaning the money handed over says more was paid. The first version had no such
+condition. On Indonesian receipt photos (CORD) it moved two receipts that were already wrong
+to different wrong answers, and turned one missing tax into a wrong one. A wrong tax is worse
+than a missing one, because a missing tax makes the page ask. So the rule got narrower.
 
 With all three, 37.37 is backed by cash less change in one reading and printed in another, and
 it wins. The tax, 3.01, comes right with it.
@@ -51,12 +55,13 @@ it wins. The tax, 3.01, comes right with it.
 |---|---|---|
 | ExpressExpense photos (200 US receipts), totals | 154 of 196 | 155 of 196 |
 | same, tax | 134 of 185 | 135 of 185 |
-| CORD validation photos (Indonesian), totals | see eval note | see eval note |
-| CORD dataset text and SROIE (Malaysian) text | unchanged | unchanged |
+| CORD validation photos (Indonesian), totals | 69 of 98 | 69 of 98 |
+| CORD test photos (held out, scored once) | 53 of 95 | 53 of 95 |
+| CORD dataset text, SROIE (Malaysian) text, the page's two-reading path | unchanged | unchanged |
 
 One receipt out of 200. That is the honest size of it. The reader is now at the stage where
 each wrong receipt is wrong for its own reasons, and a fix like this one is narrow by nature.
-What makes it worth landing is that nothing else moved the wrong way, on four sets, and each
+What makes it worth landing is that a receipt-by-receipt comparison shows nothing else moved, and each
 of the three rules says something true about receipts in general: a change line is still a
 change line without its first letter, a tax line is not a total, and a total doesn't come in
 under its own subtotal.

@@ -502,11 +502,14 @@ test("a bare TL after a tax word is OCR noise, not a total line", () => {
   assert.equal(parseReceipt("CAFE\n10/29/2018\nCOFFEE 12.50\nTL 12.50").cents, 1250);
 });
 
-test("a total line under its own reading's subtotal loses its total-line vote", () => {
+test("a total line under its own reading's subtotal loses its total-line vote when cash less change is above it", () => {
   // SRD 1022 in shape: one reading's "TOTAL: 7.07" sits under its "SUBTOTAL: 29.88"; another
   // reading prints 37.37 with no total word, a third's cash less change makes 37.37
   const a = "CAFE\n10/29/2018\nWEEKDAY DINNER 29.88\nTax 3.01\nPep yh 37.37";
   const b = "CAFE\n10/29/2018\nSUBTOTAL: 29.88\nTOTAL: 7.07";
   const d = "CAFE\nCASH: 100.00\nHANGE 62.63";
   assert.equal(parseReceiptPasses([a, b, "CAFE\n29.88", d]).cents, 3737);
+  // with no cash less change above the subtotal the total line keeps its point (CORD
+  // validation-61 and -78: the rule alone traded one wrong total for another)
+  assert.equal(parseReceiptPasses([a, b, "CAFE\n29.88", "CAFE"]).cents, 707);
 });

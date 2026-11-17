@@ -720,8 +720,14 @@ function arithmeticTotals(ps, texts, votes) {
   }
   return out;
 }
-const belowOwnSubtotal = (p) => (p.subtotals ?? []).some((s) => s > p.cents);
 function voteTotal(ps, support, texts = []) {
+  // A reading's total line under a subtotal that same reading prints ("SUBTOTAL: 29.88" over
+  // "TOTAL: 7.07", SRD 1022) loses its total-line point when some reading's cash less change
+  // is above that subtotal: the money handed over says more was paid. Without the cash check
+  // it moved two CORD validation receipts from one wrong total to another, and one tax from
+  // none to wrong (eval/change-ocr-2026-11-17.md).
+  const paid = ps.flatMap((q) => q.checks.filter(([, w]) => w === "cash less change").map(([v]) => v));
+  const belowOwnSubtotal = (p) => (p.subtotals ?? []).some((s) => s > p.cents && paid.some((v) => v > s));
   const votes = new Map();
   ps.forEach((p, i) => {
     if (p.cents === null) return;
