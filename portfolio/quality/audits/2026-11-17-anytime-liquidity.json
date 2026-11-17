@@ -1,0 +1,206 @@
+{
+ "date": "2026-11-17",
+ "subject": "research/anytime-liquidity",
+ "stratum": "research",
+ "seed": "2026-11-17-d24f",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "an online-learning / prediction-market researcher (the Chen-Vaughan / Abernethy-Frongillo line of work on cost-function market makers as no-regret learners); first checks: is the time-varying-b regret bound the right one, is AdaHedge implemented as de Rooij et al. 2014 specify, does b_T ln N really bound the maker's loss when b changes mid-stream, and what is new against the anytime-Hedge and liquidity-sensitive-LMSR literature",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Every number I recomputed matched, from code I wrote without importing the subject (/tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/anytime-liquidity/indep.py). E1: closed-form sum_t t^(-1/2) = 2 sqrt(T) + zeta(1/2) + 1/(2 sqrt T) - T^(-3/2)/24 (zeta(1/2) = -1.4603545, DLMF 25.6) gives fixed 10.73/33.93/107.30/339.31 and anytime 14.64/47.44/151.19/479.30, ratios 1.3643/1.3981/1.4091/1.4126, identical to results.txt:2-5. E2: an independent eta-form Hedge with the CBL eta = sqrt(8 ln N/T) and its own best-response adversary gives regret 22.78 (fixed) and 31.13 (sqrt), bound 45.60, as results.txt:8-9. E4: AdaHedge written from de Rooij, van Erven, Grunwald, Koolen (JMLR 2014) pseudocode with exact FTL (uniform over leaders) at eta = inf gives regret 95.95/18.15/5.12/1.75 and Delta 64.08/11.83/3.44/1.27 at gaps 0/0.05/0.2/0.6, identical to results.txt:17-20 (the subject approximates eta = inf by b = 1e-9; no visible effect). E3: true concatenated doubling regret is 35.87/74.68/152.36 vs the reported sum-of-epoch upper bound 36.87/75.68/153.36; true ratio to anytime 1.65/1.68/1.69 vs reported 1.70, and an adversary reacting to the doubling market itself gives the same 36.87/75.68/153.36. Analytic: c* = 1/(2 sqrt ln N) minimises the integral bound to sqrt(T ln N) (whitepaper.md:12 algebra re-derived); the exact-sum optimum c differs (0.3177 vs 0.3295 at T=100, N=10) but only moves the ratio 1.3643 -> 1.3634. Ran experiments: `PYTHONPATH=src python3 experiments/run.py` output is byte-identical to experiments/results.txt (0.9 s).",
+  "completeness": "Claimed artefacts, each run: 12-test suite (pass), experiments/run.py reproduces results.txt byte-for-byte, experiments/figure.py regenerates regret_vs_gap.svg with no git diff, whitepaper tables match results.txt to the stated rounding, live page https://marisstella.app/research/anytime-liquidity/ returns 200 and shows the summary, figure and links (shows '12 tests'). The one thing named and not done is the b_max truncation, which whitepaper.md:27 says was not analysed. No stubs or TODOs.",
+  "verification": "`cd research/anytime-liquidity && PYTHONPATH=src python3 -m unittest discover -s tests -v`: 12 tests, OK, 0.13 s. Six mutants via platform/ci/quality_mutate.py: 3 caught (bound 1/(8b) -> 1/(4b); AdaHedge b = Delta/lnN -> Delta/(2 lnN); c* 2 -> 1.8), 3 survived: the adversary attacking the lightest instead of heaviest half (model.py:125, which produces every E2/E3 number), the doubling epoch using b for horizon 2n (model.py:75), and Delta over-counted by 1.5x (model.py:104, which makes the headline 'R <= 2 Delta' test easier, not harder). The tests check only inequalities against bounds; no test pins run.py output to results.txt (test_figure checks the SVG against results.txt, not results.txt against the code), so the reported constants 1.70, 22.78, 31.13 are unguarded.",
+  "craft": "Read model.py (131 lines), run.py, figure.py, both test files. model.py is small, pure, stdlib, docstrings state the bounds; softmax is shifted for stability. Defects: run.py:36-51 re-implements the adversary and the AdaHedge b rule inline instead of calling model.py (a change to run_adahedge would not reach the 'adaptive vs adversary' row), with dead variables L and bsched (run.py:37,39); `from .model import *` and star-imports in tests and run.py; test class named T. A reviewer would ask for an adversary_losses variant taking a stateful market, then accept.",
+  "claims": "Backed: every number in README:12, whitepaper abstract and section 2-4 tables is in results.txt and reproduces; 'regret analysis only, not a full trader model' and the limitations list (whitepaper.md:29-30) are present; MIT stated. Not backed / overstated: README:9 and whitepaper.md:33 say '10 tests', there are 12 (the live page says 12). whitepaper.md:30 lists 'the exact sqrt 2 price of an unknown horizon ... with the optimal constant c*' as a contribution: that is the standard anytime-Hedge/FTRL calculation (Cesa-Bianchi & Lugosi 2006 sec. 2.3; Orabona's online-learning notes), and the whitepaper cites no prior work at all beyond the sibling project market-routing; AdaHedge is named but de Rooij et al. 2014 is not cited. README:12 calls the bound ratio '1.36->1.41 measured' though it is a computed bound, and '1.70x worse ... against a reactive adversary' compares a sum-of-epoch upper bound (true ratio 1.65-1.69), disclosed only as whitepaper limitation (4).",
+  "fitness": "A researcher could reuse the code (stdlib, deterministic, 1 s) and the AdaHedge-as-liquidity framing. But nearest prior work is not engaged: LMSR = Hedge (Chen & Vaughan, EC 2010; Abernethy, Chen & Vaughan, TEAC 2013), liquidity-varying LMSR (Othman, Pennock, Reeves & Sandholm's LS-LMSR, 2013; Abernethy, Frongillo, Li & Vaughan's volume-parameterized framework, EC 2014; Li & Vaughan on liquidity axioms 2013), anytime Hedge (Cesa-Bianchi & Lugosi 2006; Auer, Cesa-Bianchi & Gentile 2002) and AdaHedge (de Rooij et al. 2014). Against that, the sqrt 2 and doubling constants are known and the new part is the reading 'AdaHedge's Delta is the maker's subsidy', which is a two-line remark. The market question that would make it publishable (whitepaper limitation 1, path dependence of a b_t schedule with traders) is left open, though my check below suggests the subsidy bound itself survives it. As a programme step it is sound; as a paper it is a note.",
+  "domain": "Against the online-learning standard: the time-varying bound b_T ln N + sum 1/(8 b_t) is the FTRL/decreasing-rate Hedge bound (de Rooij et al. 2014 Lemma 1 with Hoeffding delta_t <= eta_t/8), applied correctly for nondecreasing b; AdaHedge's b_t = Delta_{t-1}/ln N and R <= 2 Delta_T match the paper. Against market-maker practice: I simulated an LMSR whose b_t is nondecreasing with traders mostly buying the winning outcome (400 random runs, {S}/maker.py) and the maker's loss max_i q_i - revenue stayed <= 0.854 b_T ln N, consistent with the derivation C_b(q) increasing in b with derivative H(p) <= ln N; so the 'subsidy b_T ln N' reading holds for any nondecreasing schedule and the whitepaper's limitation (1) is more cautious than needed. Departures: one adversary family, N <= 10, i.i.d. Bernoulli data, no small-loss or second-order variants (all stated)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "E1 bound values and ratios at N=10, T=1e2..1e5",
+   "method": "closed-form Euler-Maclaurin sum with zeta(1/2) = -1.4603545 (DLMF 25.6), independent of model.py",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/anytime-liquidity/indep.py",
+   "expected": "ratios 1.3643/1.3981/1.4091/1.4126 as results.txt:2-5",
+   "observed": "fixed 10.73/33.93/107.30/339.31, anytime 14.64/47.44/151.19/479.30, ratios 1.3643/1.3981/1.4091/1.4126",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "E2 realised regret against best-response adversary, N=8, T=2000",
+   "method": "independent eta-form Hedge with eta = sqrt(8 ln N / T) (Cesa-Bianchi & Lugosi 2006, Thm 2.2) and own adversary",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/anytime-liquidity/indep.py",
+   "expected": "22.78 (fixed), 31.13 (sqrt), bound 45.60",
+   "observed": "22.78, 31.13, 45.60",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "E4 AdaHedge regret and Delta_T at four gaps, N=8, T=20000, seed 3",
+   "method": "AdaHedge from de Rooij, van Erven, Grunwald, Koolen (JMLR 2014) pseudocode with exact FTL at eta = inf",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/anytime-liquidity/indep.py",
+   "expected": "regret 95.95/18.15/5.12/1.75; Delta 64.08/11.83/3.44/1.27",
+   "observed": "regret 95.95/18.15/5.12/1.75; Delta 64.08/11.83/3.44/1.27; R<=2Delta True",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "E3 doubling/anytime ratio 1.70",
+   "method": "true concatenated regret (not sum of epoch regrets), and an adversary reacting to the doubling market",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/anytime-liquidity/indep.py",
+   "expected": "1.70 at T=1000/4000/16000",
+   "observed": "sum-of-epochs 1.70/1.70/1.70; true concatenated 1.65/1.68/1.69; doubling vs own adversary 36.87/75.68/153.36",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "LMSR maker loss with nondecreasing b_t is at most b_T ln N (the 'subsidy' reading)",
+   "method": "Hanson LMSR cost function simulated with traders, 400 random runs",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/anytime-liquidity/maker.py",
+   "expected": "max loss/(b_T ln N) <= 1",
+   "observed": "0.8539",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Experiments reproduce committed results",
+   "method": "rerun and diff",
+   "command": "cd research/anytime-liquidity && PYTHONPATH=src python3 experiments/run.py > /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/anytime-liquidity/rerun.txt && diff /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/anytime-liquidity/rerun.txt experiments/results.txt",
+   "expected": "no diff",
+   "observed": "identical, 0.9 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Figure regenerates from results.txt",
+   "method": "run figure.py, git status",
+   "command": "cd research/anytime-liquidity && python3 experiments/figure.py && git status --short .",
+   "expected": "no change",
+   "observed": "no change",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "cd research/anytime-liquidity && PYTHONPATH=src python3 -m unittest discover -s tests -v",
+   "expected": "pass",
+   "observed": "Ran 12 tests in 0.126s, OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'10 tests' (README:9, whitepaper.md:33)",
+   "method": "count from the run",
+   "command": "cd research/anytime-liquidity && PYTHONPATH=src python3 -m unittest discover -s tests",
+   "expected": "10",
+   "observed": "12 (live page also says 12)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Contribution 'the exact sqrt 2 price of an unknown horizon ... with the optimal constant c*' (whitepaper.md:30)",
+   "method": "Cesa-Bianchi & Lugosi 2006 sec. 2.3 anytime Hedge; FTRL decreasing-rate bound; grep for any citation",
+   "command": "grep -n -i 'vaughan\\|cesa\\|rooij\\|othman\\|abernethy\\|lugosi' research/anytime-liquidity/paper/whitepaper.md",
+   "expected": "prior work cited, novelty scoped",
+   "observed": "no matches; standard result presented as a contribution",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Live page summary and links",
+   "method": "load served page",
+   "command": "curl -sS https://marisstella.app/research/anytime-liquidity/",
+   "expected": "200 with summary, figure, paper links",
+   "observed": "200; summary, figure, White paper/Experiments/Code/Tests links, '12 tests', 'Regret analysis only. Stylised.'",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "research/anytime-liquidity/src/anytime_liquidity/model.py:37",
+   "change": "sum(1 / (8 * b) for b in bs) -> sum(1 / (4 * b) for b in bs)",
+   "caught": true,
+   "test_cmd": "sh -c PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "research/anytime-liquidity/src/anytime_liquidity/model.py:96",
+   "change": "b = max(Delta / lnN, 1e-9) -> b = max(Delta / (2 * lnN), 1e-9)",
+   "caught": true,
+   "test_cmd": "sh -c PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "research/anytime-liquidity/src/anytime_liquidity/model.py:27",
+   "change": "1 / (2 * math.sqrt(math.log(N))) -> 1 / (1.8 * math.sqrt(math.log(N)))",
+   "caught": true,
+   "test_cmd": "sh -c PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "research/anytime-liquidity/src/anytime_liquidity/model.py:125",
+   "change": "key=lambda i: -w[i]) -> key=lambda i: w[i]) (adversary attacks the lightest half)",
+   "caught": false,
+   "test_cmd": "sh -c PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "research/anytime-liquidity/src/anytime_liquidity/model.py:75",
+   "change": "b = b_fixed(n, N) -> b = b_fixed(2 * n, N)",
+   "caught": false,
+   "test_cmd": "sh -c PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "research/anytime-liquidity/src/anytime_liquidity/model.py:104",
+   "change": "Delta += max(0.0, h - m) -> Delta += max(0.0, h - m) * 1.5",
+   "caught": false,
+   "test_cmd": "sh -c PYTHONPATH=src python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Novelty overstated and no prior work cited: the whitepaper lists the sqrt 2 anytime price with c* as a contribution, but it is the standard anytime-Hedge/FTRL calculation; Chen & Vaughan 2010, Othman et al. (LS-LMSR), Abernethy et al. 2014, Cesa-Bianchi & Lugosi 2006 and de Rooij et al. 2014 (AdaHedge) are not cited.",
+   "where": "research/anytime-liquidity/paper/whitepaper.md:30",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests check only inequalities against bounds; 3 of 6 seeded mutants survive, including the adversary direction that produces every E2/E3 number and a 1.5x over-count of Delta that makes the headline R <= 2 Delta test easier. No test pins run.py output to results.txt.",
+   "where": "research/anytime-liquidity/tests/test_model.py:30",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "'doubling is 1.70x worse' compares a sum of per-epoch regrets (an upper bound) to true regret; the true concatenated ratio is 1.65-1.69. Disclosed only as limitation (4), not in README or abstract.",
+   "where": "research/anytime-liquidity/README.md:12",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "README and whitepaper say '10 tests'; the suite has 12 (the live page already says 12).",
+   "where": "research/anytime-liquidity/README.md:9",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "The 'adaptive vs adversary' experiment re-implements the adversary and the AdaHedge b rule inline instead of calling model.py, with dead variables L and bsched.",
+   "where": "research/anytime-liquidity/experiments/run.py:37",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "Small, correct and reproducible, but thinner than it says. Every number I recomputed from independent code matched: the E1 bound ratios from a zeta(1/2) closed form, the E2 regrets from a separate Hedge, and the E4 AdaHedge regrets and Delta from de Rooij et al.'s pseudocode; run.py reproduces results.txt byte-for-byte and a trader simulation confirms the 'subsidy b_T ln N' reading for nondecreasing b. The doubling penalty is 1.65-1.69 true rather than the reported 1.70 (an upper bound, disclosed as a limitation). The gaps are research-level: the headline sqrt 2 result is the textbook anytime-Hedge constant presented as a contribution with no prior work cited, and the market question that would make it new (trader path dependence under a b_t schedule) is left open; 3 of 6 seeded mutants survive because tests check only bound inequalities, and the test count in README and whitepaper is stale. Does not meet the bar (verification 2, claims 2; median 3). Fixable in a session: cite the LMSR-as-Hedge and anytime/AdaHedge literature and rescope the contribution, pin results.txt in a test, fix the test count."
+}
