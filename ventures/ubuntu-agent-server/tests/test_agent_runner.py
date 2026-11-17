@@ -591,6 +591,15 @@ def test_codex_runner_does_not_pass_removed_approval_flag():
     assert "--ask-for-approval" not in _runner_code("codex.sh")
 
 
+def test_claude_runner_stream_json_has_verbose():
+    """Regression (quality audit 2026-11-17): `claude -p --output-format
+    stream-json` without --verbose exits with "requires --verbose" before a
+    token is generated (checked against Claude Code 2.1.326)."""
+    code = _runner_code("claude.sh")
+    if "stream-json" in code:
+        assert "--verbose" in code
+
+
 def test_codex_runner_drops_api_key_unless_opted_in():
     """The included-quota path must not silently fall through to metered API
     billing just because OPENAI_API_KEY happens to be in the environment."""

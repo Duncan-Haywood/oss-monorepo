@@ -271,3 +271,23 @@ test("report, CSV and citations", () => {
   assert.ok(PAPERS.length >= 8);
   for (const p of PAPERS) for (const k of ["authors", "title", "venue", "year", "url", "implemented", "deviations"]) assert.ok(p[k], `${p.title} ${k}`);
 });
+
+test("Yue-Wang default holds its size on short white noise (quality audit 2026-11-17)", () => {
+  // Before the factor was floored at 1, 10.6-11.1% of n = 8-10 trend-free
+  // series were called trends at the 5% level.
+  let t = 20261117;
+  const r = () => {
+    t = (t + 0x6d2b79f5) | 0;
+    let u = Math.imul(t ^ (t >>> 15), t | 1);
+    u ^= u + Math.imul(u ^ (u >>> 7), u | 61);
+    return ((u ^ (u >>> 14)) >>> 0) / 4294967296;
+  };
+  const g = () => Math.sqrt(-2 * Math.log(r() || 1e-300)) * Math.cos(2 * Math.PI * r());
+  for (const n of [8, 10]) {
+    let rej = 0;
+    const N = 2000;
+    for (let k = 0; k < N; k++) if (analyze({ x: Array.from({ length: n }, g) }).tests["yue-wang"].p < 0.05) rej++;
+    assert.ok(rej / N < 0.07, `n=${n}: ${rej / N}`);
+  }
+  assert.equal(yueWangFactor([1, -1, 1, -1, 1, -1]), 1);
+});
