@@ -177,7 +177,7 @@ for (const [syntax, xml, parse] of [["ubl", UBL, parseUblInvoice], ["cii", CII, 
 }
 
 // --saxon-dir DIR writes every file, named with this oracle's verdict, under
-// DIR/ubl and DIR/cii for eval/r056-2-saxon.xq to re-check with Saxon.
+// DIR/ubl and DIR/cii for eval/r056-2-saxon.xq.txt to re-check with Saxon.
 const saxonAt = process.argv.indexOf("--saxon-dir");
 const saxonDir = saxonAt > 0 ? process.argv[saxonAt + 1] : "";
 if (saxonDir) for (const syntax of ["ubl", "cii"]) mkdirSync(join(saxonDir, syntax), { recursive: true });

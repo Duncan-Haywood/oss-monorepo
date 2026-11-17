@@ -44,7 +44,7 @@ Central only to check the oracle.
   eight more mutants (trailing U+00A0 literal, `&#160;`, `&#xA0;`, a leading U+00A0,
   `&#66;`/`&#x42;` for B, `&#78;` for N, `&#x20;` inside), the assertion evaluated with a
   spec copy of `normalize-space`, and `--saxon-dir` to write every file for
-  `eval/r056-2-saxon.xq`.
+  `eval/r056-2-saxon.xq.txt`.
 
 ## Results
 
@@ -65,13 +65,13 @@ Stricter on purpose, not counted (as before): R056-2's shape with a failing chec
 
 **The oracle against Saxon.** Every file of both runs (including the ones counted apart) was
 written with `--saxon-dir` and re-checked with Saxon-HE 12.5 running R056-2's context and test
-as an XQuery (`eval/r056-2-saxon.xq`): **0 of 7,767 (seed 7) and 0 of 7,772 (seed 11) differ**
+as an XQuery (`eval/r056-2-saxon.xq.txt`): **0 of 7,767 (seed 7) and 0 of 7,772 (seed 11) differ**
 from the JavaScript oracle. With fontoxpath's own `normalize-space` the oracle differed on the
 trailing no-break-space files (900 disagreements with this PR's readers before the oracle was
 fixed, all of them that case).
 
 ```
-java -cp Saxon-HE-12.5.jar:xmlresolver-5.2.2.jar net.sf.saxon.Query -q:eval/r056-2-saxon.xq dir=DIR '!method=text'
+java -cp Saxon-HE-12.5.jar:xmlresolver-5.2.2.jar net.sf.saxon.Query -q:eval/r056-2-saxon.xq.txt dir=DIR '!method=text'
 ```
 
 ## Integrity notes
