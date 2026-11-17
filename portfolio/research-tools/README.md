@@ -59,6 +59,14 @@ as tools".
 | `README.md`, `VENTURE.yaml`, `LICENSE` | As for any venture; the README opens with what the tool answers, in a searcher's words, links the live page, and has a "Verification" section. |
 | `*.test.mjs` | Tests against a **published or independently computed reference** (the paper's own example, a textbook result, or another implementation's output with its provenance), plus property tests (invariances, edge cases), plus `page.test.mjs`. |
 
+As soon as the page exists, run `node platform/pages/register-tool.mjs <slug> --research`
+(about 10 s). It adds the slug to build.mjs's `RESEARCH_ALGORITHM_SLUGS`, the
+launch date to `launched.json` and the usage module to
+`platform/privacy/optout-switches.txt`, and lists what needs words: the row in
+the table below, an inbound link from a sibling tool's page, and any CSV
+formula-guard or row-spread hit in this venture. Six run records (2026-11-14 to
+-17) found these one red CI job at a time.
+
 Before merging a new tool, run `node platform/pages/venture-preflight.mjs <slug>`: it
 catches the repository-wide steps a tool's own tests cannot see (the launch date in
 `launched.json`, a link from a sibling tool, the privacy-switch count), each of which
