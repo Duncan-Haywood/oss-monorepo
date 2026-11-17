@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtGWrp57yUujLf4fzyG",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T05:06:54Z",
+  "ended": "2026-11-17T05:29:40Z",
+  "wall_minutes": 23.06,
+  "tokens_in": 8858513,
+  "tokens_out": 34791,
+  "cost_usd": 3.4266,
+  "tool_calls": 80,
+  "task": "ai-bookkeeper flagship item (5): CORD train shards 1-3 (600 photos) as a receipt-photo development set",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16822",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "apt-get install tesseract-ocr failed with 'Unable to locate package' until apt-get update ran",
+      "fix": "apt-get update first; eval note's reproduce block now says so"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ai-bookkeeper/eval/cord-train-photos-2026-11-17.md",
+      "issue": "Reproduce block says `apt-get install -y tesseract-ocr`; in a fresh cloud container the package list is empty, so it fails until `apt-get update` runs (cost one retry)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-receipt-total-6008-is-6000.md",
+    "ventures/ai-bookkeeper/eval/cord-train-shards-2026-11-17.md"
+  ],
+  "goal": "deepen flagship ai-bookkeeper (receipt photo OCR accuracy)",
+  "notes": "Routed ventures/1; allocator row 1 ai-bookkeeper BUILDABLE item. Read CORD train shards 1-3 with tesseract 5.3.4 four-pass (about 11 min on 4 cores). Baseline 356/583 CLI, 341 page. Changes: zeroLastDigit (whole-unit total ending 00d -> 000 when printed) and settleTotals writing a lineless rupiah total as 'Total 110,000'. Train CLI 356->362, page 341->357 (0 lost); validation page 67->70; test scored once CLI 55->56, page 53->55; CORD text unchanged. Bottom-crop reading tested on 149 OCR-bound misses: 5 recovered (50%), 4 (35%): dropped, recorded. Verification: run_venture_tests.py ai-bookkeeper ok (3300 tests); post frontmatter/links/similarity checks clean; run_workflow_locally --for-changes run (result in PR body).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "12f4fd36-64d6-58b3-a12f-80087c606453",
+    "transcripts": 1,
+    "first": "2026-11-17T05:06:54Z",
+    "last": "2026-11-17T05:29:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 81,
+        "input": 162,
+        "output": 34791,
+        "thinking": 6135,
+        "cache_read": 8735477,
+        "cache_write_5m": 0,
+        "cache_write_1h": 122874,
+        "api_equivalent_usd": 3.4266,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 81,
+      "input": 162,
+      "output": 34791,
+      "thinking": 6135,
+      "cache_read": 8735477,
+      "cache_write_5m": 0,
+      "cache_write_1h": 122874,
+      "api_equivalent_usd": 3.4266,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 80,
+    "tools": {
+      "Bash": 69,
+      "Monitor": 3,
+      "ToolSearch": 2,
+      "Edit": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "ScheduleWakeup": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.06,
+      "active_minutes": 12.79,
+      "model_minutes": 7.19,
+      "tool_minutes": 5.6,
+      "waiting_on_human_minutes": 10.27,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an OCR engineer reading 600 photos, triaging 227 misses, writing and measuring two rules and a crop experiment",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 175.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
