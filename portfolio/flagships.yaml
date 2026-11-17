@@ -192,9 +192,10 @@ flagships:
       model: t-walk increments, biweight on fresh data, why it absorbs seat belts
       and quality control 4, its AR(1) term; (1) slopes: logs fail, 2 hinges ship
       (refuse short sticky series), given date: --known-date on CLI, page, engine;
-      control series (README) passes sims, fails seat-belt placebos 3/3, not
-      shipped: next an in-time placebo check.
-      More open items: NEXT.md.
+      in-time placebos ship beside it (README "In-time placebos": 0-4% false
+      warnings); control series fails seat-belt placebos 3/3: next a step-only test
+      with the control, real pairs (a policy covering some regions). More open
+      items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     why: >-
