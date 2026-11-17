@@ -474,8 +474,8 @@ flagships:
       (eval/ifcxml-xbim-2026-11-16.md); an allow list for GlobalIds shared across
       federated models on purpose (eval/federated-globalids-2026-11-17.md, 'Not
       done': the Simple-Scene 'origin' markers); the IDS editor (editor.html;
-      README): "Use the model's range" for dates, xs:date one-of rows
-      (eval/date-ranges-2026-11-17.md); more real exports through
+      README): xs:date one-of rows (eval/date-ranges-2026-11-17.md; the model's date
+      range landed, eval/model-date-range-2026-11-17.md); more real exports through
       eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
     next: >-

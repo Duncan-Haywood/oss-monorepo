@@ -134,6 +134,16 @@ open. MIT licensed, no dependencies, nothing uploaded.
   in the model's own units (millimetres or feet in these exports), not SI, in
   this checker and in IfcTester; the row says so.
   `eval/model-attr-ranges-2026-11-17.md`.
+  **The model's range on dates, times and durations** (2026-11-17): with a
+  model open, an IFCDATE, IFCDATETIME, IFCTIME or IFCDURATION row says
+  which dates the model's values run between and offers **Use the model's
+  range** beside "Allow exactly these values". The earliest and latest come
+  from every value (not the 50 listed), merged across classes; a property
+  holding any value of another form ("TBC" in a date) gets no range, since
+  none would pass it. On 600 generated doors the range passes the model in
+  the page, fails a door one day late, and "Write as a pattern" keeps both
+  verdicts. No public real export at hand holds a date to try it on.
+  `eval/model-date-range-2026-11-17.md`.
   **Exclusive bounds** (2026-11-17): each bound of a **between** row is
   "at least" or "more than", "at most" or "less than", written as
   `xs:minExclusive` / `xs:maxExclusive`, counted in a condition's model
@@ -663,8 +673,9 @@ faster than IfcTester; its point is needing no install.
   numeric attribute ranges 2026-11-17, `eval/model-attr-ranges-2026-11-17.md`;
   untyped value rows 2026-11-17, `eval/untyped-values-2026-11-17.md`;
   exclusive bounds 2026-11-17, `eval/exclusive-bounds-2026-11-17.md`;
-  date and duration ranges 2026-11-17, `eval/date-ranges-2026-11-17.md`):
-  "Use the model's range" for dates; `xs:date` one-of rows;
+  date and duration ranges 2026-11-17, `eval/date-ranges-2026-11-17.md`;
+  the model's range on dates 2026-11-17, `eval/model-date-range-2026-11-17.md`):
+  `xs:date` one-of rows; a real IFC4 export with dates to try the range on;
   a subclass checkbox per class, not only the first;
   a "fix the dataType" hint built from the 21
   of 122 standard properties real exports write in another type.
