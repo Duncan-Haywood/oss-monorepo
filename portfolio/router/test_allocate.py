@@ -1009,6 +1009,28 @@ class LeftRowsTests(unittest.TestCase):
         self.assertIn("nothing buildable", note)  # the newest reason
         self.assertIsNone(left_note("bk", left))
 
+    def test_worked_count_puts_leaves_in_proportion(self):
+        from datetime import datetime, timezone
+        from allocate import left_rows, left_note, worked_rows
+        now = datetime(2026, 11, 17, 12, 0, tzinfo=timezone.utc)
+        dev = {"file": "portfolio/router/allocate.py", "why": "roster had nothing buildable"}
+        runs = self._runs([
+            ("2026-11-17", {"projects": ["bk"], "deviations": [dev]}),
+            ("2026-11-17", {"projects": ["roster"]}),
+            ("2026-11-16", {"projects": ["ventures/roster"]}),
+            ("2026-11-14", {"projects": ["roster"]}),  # outside the window
+        ])
+        worked = worked_rows(["roster", "bk"], runs, now=now)
+        self.assertEqual(worked, {"roster": 2, "bk": 1})
+        left = left_rows(["roster", "bk"], runs, now=now)
+        note = left_note("roster", left, worked=worked["roster"], has_buildable=True)
+        self.assertIn("2 record(s) worked roster", note)
+        self.assertIn("Most sessions sent here found work", note)
+        self.assertIn("refresh its `buildable:`", note)
+        note = left_note("roster", left, worked=0)
+        self.assertNotIn("Most sessions", note)
+        self.assertIn("add `buildable:` or `inputs_only:`", note)
+
     def test_no_runs_dir_means_no_hint(self):
         from allocate import left_rows
         self.assertEqual(left_rows(["x"], Path("/nonexistent-runs-dir")), {})
