@@ -30,6 +30,7 @@ EXP = HERE.parent
 def _mod(name, path):
     spec = importlib.util.spec_from_file_location(name, path)
     m = importlib.util.module_from_spec(spec)
+    sys.modules[name] = m   # so multiprocessing can pickle the imported worker function
     spec.loader.exec_module(m)
     return m
 
