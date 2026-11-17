@@ -114,3 +114,16 @@ test('the comparison page links back to the calculator and to the small-site gui
   assert.match(html, /<a href="index\.html">/);
   assert.match(html, /href="how-many-extinguishers-make-a-site-worth-servicing\.html"/);
 });
+
+// Quality census 2026-11-17: effectiveHourlyRate is netProfit / labor hours, and netProfit already
+// pays the labor at targetHourlyRate. Calling it an "effective hourly rate" made Site B ($16.80)
+// read as below a $32 target when the owner earns $48.80 an hour there. The pages must say it is
+// profit on top of the labor rate.
+test('the hourly figure is labelled as profit on top of the labor rate, not an hourly wage', () => {
+  const page = fs.readFileSync(new URL('./vs-ranking-sites-by-extinguisher-count.html', import.meta.url), 'utf8');
+  assert.ok(!/effective hourly rate/i.test(page), 'the page still calls profit per hour an effective hourly rate');
+  assert.match(page, /profit per labor hour/);
+  const tool = fs.readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.ok(!tool.includes('/hr after all costs'), 'the tool page still calls profit per hour a rate after all costs');
+  assert.match(tool, /profit per labor hour, on top of the/);
+});
