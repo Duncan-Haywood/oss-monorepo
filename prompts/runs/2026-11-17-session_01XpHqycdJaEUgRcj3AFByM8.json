@@ -1,57 +1,135 @@
 {
- "date": "2026-11-17",
- "session": "https://claude.ai/code/session_01XpHqycdJaEUgRcj3AFByM8",
- "track": "research",
- "prompt_version": 0,
- "input": "follow the instructions in ./prompt.md",
- "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
- "follow_up_inputs": [],
- "model": "claude-opus-5-5",
- "models_seen": [],
- "started": null,
- "ended": "2026-11-17T03:40:50Z",
- "wall_minutes": null,
- "tokens_in": null,
- "tokens_out": null,
- "cost_usd": null,
- "tool_calls": null,
- "task": "research/aerolog-scaling milestone 11ae: exact_D against cf_D+ at 12 and 16 operators",
- "projects": [
-  "research/aerolog-scaling"
- ],
- "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16757",
- "repo": "Duncan-Haywood/oss-monorepo",
- "commits": [],
- "lines_added": null,
- "lines_removed": null,
- "merged": null,
- "ci_failures_before_green": null,
- "review_findings": null,
- "tests_added": 4,
- "outcome": "success",
- "errors": [
-  "The session worker restarted mid-run; the experiment's per-layout cache and copied results survived, so nothing was lost."
- ],
- "integrity_issues": [
-  "P9's committed text says the quadrature sub-rule check 'held at M = 8'; it did not (11aa refuted it the same way). Disclosed in LOG.md and the post; the prediction text was left as committed."
- ],
- "doc_friction": [
-  {
-   "file": "research/CLAUDE.md",
-   "issue": "pyenv.py found /usr/bin/python3.13 lacking numpy/pytest and installed them (~1 min); fine, but the note that python3.13 'may have' packages was not true in this container."
-  },
-  {
-   "file": "research/aerolog-scaling/LOG.md",
-   "issue": "11aa's P9 refutation and its post hoc 32-point check are easy to miss; I misremembered P9 as held when writing 11ae's predictions. A one-line 'known: 4-point sub-rules spread ~1-2%, 8-point converged' in the README limits would prevent that."
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqycdJaEUgRcj3AFByM8",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T00:38:28Z",
+  "ended": "2026-11-17T03:40:50Z",
+  "wall_minutes": 193.36,
+  "tokens_in": 7637883,
+  "tokens_out": 33298,
+  "cost_usd": 3.2219,
+  "tool_calls": 59,
+  "task": "research/aerolog-scaling milestone 11ae: exact_D against cf_D+ at 12 and 16 operators",
+  "projects": [
+    "research/aerolog-scaling"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16757",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "The session worker restarted mid-run; the experiment's per-layout cache and copied results survived, so nothing was lost."
+  ],
+  "integrity_issues": [
+    "P9's committed text says the quadrature sub-rule check 'held at M = 8'; it did not (11aa refuted it the same way). Disclosed in LOG.md and the post; the prediction text was left as committed."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py found /usr/bin/python3.13 lacking numpy/pytest and installed them (~1 min); fine, but the note that python3.13 'may have' packages was not true in this container."
+    },
+    {
+      "file": "research/aerolog-scaling/LOG.md",
+      "issue": "11aa's P9 refutation and its post hoc 32-point check are easy to miss; I misremembered P9 as held when writing 11ae's predictions. A one-line 'known: 4-point sub-rules spread ~1-2%, 8-point converged' in the README limits would prevent that."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-aerolog-exact-check-more-operators.md",
+    "research/aerolog-scaling/LOG.md (11ae entry)"
+  ],
+  "goal": null,
+  "notes": "Advanced aerolog-scaling (track 22 draw). exact_D on 8 x M=12 and 4 x M=16 layouts (7,070 s wall on 4 cores): cf_D+/exact_D pooled 1.0015 and 1.0016, pair r >= 0.99996, cf_D+'s best 2-layer split and 4-group partition equal exact_D's best in 12/12 each; recursive bisection 7.5% / 20.9% on exact_D vs 7.5% / 21.0% on cf_D+. 9/10 predictions held (P9, quadrature sub-rule bound, refuted as in 11aa). Local checks: aerolog-scaling tests 172 passed; research/_homepage/build.py ok; research_live_links, check_md_links, check_post_frontmatter, check_post_links, post_similarity, cite_check all clean. Post hoc 32-point quadrature check on 12:1202 and 16:1603: the 8-point en-route total is within 0.057% and 0.009% of K = 32.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "70563213-c6ed-5634-ba89-21108b91feea",
+    "transcripts": 1,
+    "first": "2026-11-17T00:38:28Z",
+    "last": "2026-11-17T03:51:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 127,
+        "output": 33298,
+        "thinking": 7452,
+        "cache_read": 7505974,
+        "cache_write_5m": 0,
+        "cache_write_1h": 131782,
+        "api_equivalent_usd": 3.2219,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 127,
+      "output": 33298,
+      "thinking": 7452,
+      "cache_read": 7505974,
+      "cache_write_5m": 0,
+      "cache_write_1h": 131782,
+      "api_equivalent_usd": 3.2219,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 59,
+    "tools": {
+      "Bash": 52,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 193.36,
+      "active_minutes": 29.57,
+      "model_minutes": 5.35,
+      "tool_minutes": 24.22,
+      "waiting_on_human_minutes": 163.79,
+      "human_prompts": 8,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a researcher writing the experiment, running and checking a 2-hour exact computation and writing up: about two working days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 496.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
   }
- ],
- "deviations": [],
- "writeups": [
-  "docs/posts/2026-11-17-aerolog-exact-check-more-operators.md",
-  "research/aerolog-scaling/LOG.md (11ae entry)"
- ],
- "goal": null,
- "notes": "Advanced aerolog-scaling (track 22 draw). exact_D on 8 x M=12 and 4 x M=16 layouts (7,070 s wall on 4 cores): cf_D+/exact_D pooled 1.0015 and 1.0016, pair r >= 0.99996, cf_D+'s best 2-layer split and 4-group partition equal exact_D's best in 12/12 each; recursive bisection 7.5% / 20.9% on exact_D vs 7.5% / 21.0% on cf_D+. 9/10 predictions held (P9, quadrature sub-rule bound, refuted as in 11aa). Local checks: aerolog-scaling tests 172 passed; research/_homepage/build.py ok; research_live_links, check_md_links, check_post_frontmatter, check_post_links, post_similarity, cite_check all clean. A post hoc 32-point quadrature check on layouts 12:1202 and 16:1603 was started; see LOG.md for whether it landed.",
- "corrections": [],
- "redteam": null
 }
