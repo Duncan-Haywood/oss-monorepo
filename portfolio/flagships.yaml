@@ -205,12 +205,14 @@ flagships:
     next: >-
       History: README and git (latest: France BR-FR (FNFE 1.4.0.04) on the plain
       route, 264/264 vs Saxon (eval/br-fr-crosscheck-2026-11-17.md); CDAR
-      (BR-FR-CDV) 780/780 vs Saxon (eval/cdar-crosscheck-*); open: Extended-CTC-FR
-      base sets, CDAR _WARNING set (37/43 rules hit, 6 dead: FR-CDV-105..107 cover
-      them), English BR-FR text, a real PA rejection or status; VERI*FACTU (README):
-      open: a production SIF's records and replies). Open: a real HU report with
-      NAV's businessValidationMessages or SCHEMA_VIOLATION text; HU: open: a real
-      chain with NAV's replies; a real business's signed Facturae or FACe rejection
+      (BR-FR-CDV) 780/780 vs Saxon (eval/cdar-crosscheck-*); Extended-CTC-FR and
+      Factur-X EXTENDED bases 175/175 vs Saxon
+      (eval/extended-base-crosscheck-2026-11-17.md); open: a real PA extended file,
+      CDAR _WARNING set (37/43 rules hit, 6 dead: FR-CDV-105..107 cover them),
+      English BR-FR text, a real PA rejection or status; VERI*FACTU (README): open:
+      a production SIF's records and replies). Open: a real HU report with NAV's
+      businessValidationMessages or SCHEMA_VIOLATION text; HU: open: a real chain
+      with NAV's replies; a real business's signed Facturae or FACe rejection
       (eval/facturae-gob-*); ZATCA: a real KSA note; SdI: open: a real FatturaPA
       rejection with its file; HR: a real HR invoice, cash accounting; CIUS-PT:
       which validator does AT run (AA/RED codes)?; FA(3) KOR/ZAL/ROZ totals landed
