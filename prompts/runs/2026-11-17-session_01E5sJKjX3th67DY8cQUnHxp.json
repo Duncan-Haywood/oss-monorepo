@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKjX3th67DY8cQUnHxp",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T03:24:43Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "shift-roster-builder: Evanston fair workweek preset (flagship 6, allocate.py row 4)",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16800",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Primary Evanston sources (cityofevanston.org, its govaccess mirror, library.municode.com, cityofevanston.civicweb.net) and law-firm sites (jacksonlewis.com, ogletree.com, littler.com, lexology.com) all refused by the session proxy",
+      "effect": "preset built from search summaries only; labelled as such on the changes page, README, llms.txt and post"
+    },
+    {
+      "what": "A Bash heredoc writing a scratch .mjs was refused by the rm-safety check although it contained no rm",
+      "effect": "wrote the script with the Write tool into eval/ instead"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "shift-roster-builder next: is almost all items that need a real site, account or manager; the buildable solver items are perf micro-tuning, so finding a worthwhile no-input item took reading the notice code for missing jurisdictions"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-evanston-fair-workweek-one-hour-off-costs-four.md",
+    "ventures/shift-roster-builder/README.md#evanston-2026-11-17-later",
+    "ventures/shift-roster-builder/eval/evanston-compare-2026-11-17.md"
+  ],
+  "goal": null,
+  "notes": "Evanston preset reuses EMERYVILLE_TIERS (cutShiftCap 4), no grace minutes, 11 h rest at 1.5x after any previous shift, no team-offer exception. Open readings named with their env overrides: notice counted to shift vs week (FWW_NOTICE_FROM_WEEK), date moves (FWW_PAIR_DATES), rest multiplier (FWW_REST_MULT), enforcement date. Local: node --test notice*.test.mjs page*.test.mjs hub-worker.test.mjs: 108 pass 0 fail; post front matter, links, similarity clean; validate.py ok. Full venture suite and venture-preflight results below.",
+  "corrections": [],
+  "redteam": null
+}
