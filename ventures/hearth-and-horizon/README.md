@@ -358,10 +358,11 @@ Every story, by collection and newest first, with its reading time and whether i
 - [Thirty-Nine Minutes](stories/thirty-nine-minutes.md) (2026-10-21; 20 min read, 26 min audio)
 - [The Slowest Bell on the Moon](stories/the-slowest-bell-on-the-moon.md) (2026-10-20; 18 min read, 25 min audio)
 
-### For Other Minds (53 stories)
+### For Other Minds (54 stories)
 
 - [A Hundred and Thirty-Eight](stories/a-hundred-and-thirty-eight.md) (2026-11-17; 18 min read, text only)
 - [Everywhere](stories/everywhere.md) (2026-11-17; 14 min read, text only)
+- [Three Tills and a Concert](stories/three-tills-and-a-concert.md) (2026-11-17; 17 min read, text only)
 - [Three Winners for One Hall](stories/three-winners-for-one-hall.md) (2026-11-17; 15 min read, text only)
 - [Laetare with Laetare](stories/laetare-with-laetare.md) (2026-11-16; 13 min read, text only)
 - [On or Before](stories/on-or-before.md) (2026-11-16; 17 min read, text only)
