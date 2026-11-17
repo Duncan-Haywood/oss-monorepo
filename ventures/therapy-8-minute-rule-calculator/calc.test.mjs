@@ -83,3 +83,15 @@ test("the shipped example runs clean and exports a CSV", () => {
   assert.equal(a.totals.nearMisses, 1);
   assert.match(toCsv(a), /^visit,code,minutes,cms_units,per_code_units,rate,cms_amount\n/);
 });
+
+// Quality census 2026-11-17: the headline netted dollars across all visits (visits where the
+// per-code count is lower cancelled the ones where it is higher), so it said "overbill by about
+// $48.90" where the over-billed visits alone come to $77.30, and could print a negative overbill.
+test("overbilling sums only the visits where per-code exceeds CMS", () => {
+  const a = analyze(EXAMPLE_SHARED);
+  assert.equal(a.totals.over, 3);
+  assert.ok(Math.abs(a.totals.overAmount - 77.3) < 0.005, String(a.totals.overAmount));
+  const b = analyze({ visits: "A\n97110 8\n97140 8\n97530 8\n\nB\n97110 7\n97140 7\n97530 7\n97112 7", rates: "", defaultRate: "30" });
+  assert.equal(b.totals.over, 1); // A: 3 per-code vs 2 CMS; B: 0 per-code vs 2 CMS
+  assert.equal(b.totals.overAmount, 30 * b.totals.over);
+});

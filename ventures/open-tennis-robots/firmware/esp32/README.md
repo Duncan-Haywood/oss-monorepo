@@ -1647,3 +1647,69 @@ the gate aborts the drill at `ready_timeout_s`, and raising `LOOP_I_FF_MAX` (or 
 throttle) is the fix. An ESC running its own speed loop may answer a ball differently. Tests:
 `test_ball_hold_keeps_the_drop_out_of_the_integrator`, `test_ball_hold_times_out_and_can_be_off` and
 `test_braking_does_not_wind_the_integrator` (tests/test_host.py).
+
+## The fit floor on held-out builds (2026-11-17)
+
+**The items.** "Slow wheels watched past the verdict" left `launcher.MIN_FIT_RPM` at 1,000 rpm until a held-out set
+decided it, and asked whether the Pi's hold for slow wheels (`host.hold_s`, up to 1.45 s after a release) makes shots
+late.
+
+**The held-out set.** `tests/min_fit_heldout.py` uses nothing the earlier sweeps used: true launchers 0.78 / 0.42,
+0.88 / 0.55 and 0.83 / 0.28; wheel lags 0.3 and 0.6 s; three plants, a first-order wheel whose free speed is 8,000 rpm,
+3 us of tach jitter on a 10,000 rpm wheel and a 50 ms ESC lag (told), all against the 9,000 the board is told;
+simulator seed 7; and a slow drill with other targets (540-1,450 rpm), a 20 m/s serve to 8.0 m, topspin and backspin
+swapped. The decision rule was committed with the script before it ran: drop the floor to 500 (in effect none) only if
+the pooled spin-efficiency error is lower at 500, lower or equal on two plants of three, and no plant's worst build is
+more than 0.25 points worse. 18 builds, none aborted (eval/min-fit-heldout-2026-11-17.txt, rows in the .jsonl beside it).
+
+**The floor stays at 1,000 rpm.** Every slow wheel reads its drop well (500-1,000 rpm: 0 of 180 over 2% off, range
+0.986-1.012), but counting them in the fit does not help on every plant. Spin efficiency error, mean / worst:
+
+| plant | floor 500 | floor 750 | floor 1,000 (shipped) |
+| --- | --- | --- | --- |
+| first-order, 8,000 rpm free | 0.27 / 0.54% | 0.55 / 0.83% | 0.58 / 1.56% |
+| tach 3 us, 10,000 rpm free | 0.61 / 0.97% | 0.71 / 1.97% | 0.56 / 1.26% |
+| ESC 50 ms, told | 0.84 / 2.33% | 0.43 / 1.48% | 0.53 / 1.47% |
+
+Pooled, 0.57% at 500 against 0.56% at 1,000: the rule fails on (a), (b) and (c), the last on the ESC plant, whose worst build
+is 2.33% against 1.47%. The speed efficiency is within 0.17% at every floor. The floor is no longer what
+limits the fit; on the first-order plant the slow wheels would help, behind an ESC lag they hurt.
+
+**The hold makes one shot in three late.** Each shot's release against the previous release plus the interval, paired
+with the same build run with no hold (every gap also carries the 1.0 s feed stroke):
+
+| interval | fast shot to slow | slow to the same slow | slow to fast |
+| --- | --- | --- | --- |
+| 3.0 s, hold as shipped | +0.00 s, 0 of 162 over 0.25 s | +0.00, 0 of 162 | **+0.63 s mean, worst 1.30; 113 of 144** |
+| 2.0 s, hold as shipped | +0.00, 0 of 162 | +0.00, 1 of 162 | **+0.88 s mean, worst 1.70; 141 of 144** |
+
+A slow shot followed by itself costs nothing (the next shot needs no speed change), but the shot after it that needs
+a big speed change waits out the hold before it can start spinning up. The slow drill took 117 s against 112 s.
+
+**The change, opt-in: watch through the speed change.** The watch past the verdict stopped when the targets changed,
+because a speed change's pulses are not the ball's. But the loop-command fit models the wheel as a lag of every command
+the board sent, and the next shot's speed change is only more commands: the drop stays separable from the command
+response while the wheel follows its commands. With `controller.LOOP_THROUGH_CHANGE` the board keeps logging a short
+wheel's periods and ticks through a change of speed (never through a stop: a coast down is the ESC's braking, which no
+command describes), and with `host.LOOP_THROUGH_CHANGE` the Pi sends the next speeds straight after the release. The
+verdict and the parabola's snapshot still freeze at the change. The hold before the drill's final stop stays.
+
+Same 18 builds and drills (no value in it was tuned, so these are not its design set):
+
+| plant | record/true, >2% off (range) | spin error at 1,000: hold / through | at 500: hold / through |
+| --- | --- | --- | --- |
+| first-order | 0 of 324 both (0.988-1.011 through) | 0.58 / 1.56% to **0.09 / 0.27%** | 0.27 / 0.54% to 0.22 / 0.38% |
+| tach 3 us | 3 to 8 of 324 (0.971-1.024) | 0.56 / 1.26% to 0.55 / **2.16%** | 0.61 / 0.97% to 0.59 / 1.27% |
+| ESC 50 ms told | 0 of 324 both (0.992-1.012) | 0.53 / 1.47% to **0.17 / 0.41%** | 0.84 / 2.33% to 1.28 / 3.53% |
+
+Lateness through: 0 of 468 gaps later than with no hold at either interval, so the slow drill's span is back to 112 s
+(99.5 s at 2.0 s). Slow wheels read as before (under 1,000 rpm, 0.986-1.012). The jittery tach is where it does worse:
+five more fast wheels past 2%, and one build's spin error worst 2.16% against 1.26%.
+
+**Off by default.** On the simulator the wheel *is* a first-order lag of its command, the model the fit assumes, so a
+fit across a 5x speed change is its best case. A real wheel that leaves that model over a big change (an ESC's own
+speed loop, a current limit on spin-up, belt slip) would bias the drop of every slow ball that comes before one. Turn
+it on (both constants) once a real wheel's tach and command log across a speed change fits as well as one without.
+
+**Not known.** All simulated. Tests: `test_slow_wheel_is_watched_through_the_next_speed_change`,
+`test_a_stop_still_ends_the_watch_through_changes` (tests/test_host.py).

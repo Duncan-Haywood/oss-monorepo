@@ -34,7 +34,7 @@ test("allowance phases out 50 cents per dollar over $100k and is gone at $150k",
   assert.equal(allowanceFor({ ...DEFAULTS, magi: 90000, activeParticipation: 0 }), 0);
 });
 
-// Hand-worked, defaults: both gates pass (900 > 750, 900 > 400, 600 >= 500), so year 1's
+// Hand-worked, defaults: both gates pass (900 > 750, 900 > 400, 600 > 500), so year 1's
 // 60,000 loss is deducted at 35% = 21,000. Passive path: MAGI 220k kills the allowance, all
 // 140,000 (60k + 4 x 20k) is suspended and released in year 5: 49,000 / 1.05^5 = 38,392.78.
 // REPS path: 21,000/1.05 + 7,000 x (1/1.05^2 + ... + 1/1.05^5) = 43,639.67.
@@ -77,4 +77,11 @@ test("hours grid marks a full-time job as failing at any realistic real estate h
   const row = g.find((r) => r.re === 1500);
   assert.deepEqual(row.cells.map((c) => c.pass), [true, true, true, false, false]);
   assert.equal(g.find((r) => r.re === 500).cells[0].pass, false);
+});
+
+// Temp. Reg. 1.469-5T(a)(1): material participation needs MORE than 500 hours. Exactly 500 fails
+// (quality census 2026-11-17: the tool passed it and deducted the full 60,000 loss).
+test("material participation is more than 500 hours, not 500 or more", () => {
+  assert.equal(analyze({ ...DEFAULTS, rentalHours: 500 }).nonPassive, false);
+  assert.equal(analyze({ ...DEFAULTS, rentalHours: 501 }).nonPassive, true);
 });

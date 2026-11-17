@@ -178,3 +178,27 @@ test("reports a response cookie set in both captures as still set", () => {
   assert.equal(diff.persistingCookies[0].name, "_ga");
   assert.equal(diff.summary.addedCookieCount, 0);
 });
+
+// Quality audit 2026-11-17 (portfolio/quality/audits/2026-11-17-consent-change-record.json):
+// cookies written by JavaScript (_ga) appear only in request.cookies; reading
+// Set-Cookie alone reported "Cookies appeared: 0" for the commonest finding.
+test("counts a JavaScript-set cookie the browser sends, once per host", () => {
+  const before = harOf([entry({ url: "https://example.com/" })]);
+  const sent = (url) => {
+    const e = entry({ url });
+    e.request.cookies = [{ name: "_ga", value: "GA1.1.1" }];
+    return e;
+  };
+  const after = harOf([entry({ url: "https://example.com/" }), sent("https://example.com/a"), sent("https://example.com/b")]);
+  const diff = diffHarCaptures(before, after);
+  assert.equal(diff.summary.addedCookieCount, 1);
+  assert.equal(diff.addedCookies[0].name, "_ga");
+});
+
+test("the same cookie name from a different host is a different cookie", () => {
+  const before = harOf([entry({ url: "https://a.example/", cookies: [{ name: "sid", value: "1" }] })]);
+  const after = harOf([entry({ url: "https://b.example/", cookies: [{ name: "sid", value: "1" }] })]);
+  const diff = diffHarCaptures(before, after);
+  assert.equal(diff.summary.addedCookieCount, 1);
+  assert.equal(diff.summary.removedCookieCount, 1);
+});
