@@ -1,0 +1,8 @@
+group,cost
+North,6.5
+Mill,4.2
+East,3.9
+North+Mill,8.9
+North+East,9.6
+Mill+East,6.1
+North+Mill+East,11.4
