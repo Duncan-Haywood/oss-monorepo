@@ -89,7 +89,7 @@
       $("#nt").innerHTML = p.notes.map(t => `<p class="notes">${esc(t)}</p>`).join("");
       $("#req").value = p.requestText;
     }
-    $("#copy").addEventListener("click", () => { $("#req").select(); try { navigator.clipboard.writeText($("#req").value); } catch {} recordUsage("testing_copy"); });
+    $("#copy").addEventListener("click", async () => { $("#req").select(); try { await navigator.clipboard.writeText($("#req").value); } catch { $("#req").select(); return; } recordUsage("testing_copy"); });
     $("#csv").addEventListener("click", () => { if (!last) return; const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([testPlanCsv(last)], { type: "text/csv" })); a.download = "safety-tests.csv"; a.click(); recordUsage("testing_csv"); });
     document.addEventListener("change", () => { run(); recordUsage("testing_calc"); });
     run(); recordUsage("testing_open");

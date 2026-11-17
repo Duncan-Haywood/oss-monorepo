@@ -688,7 +688,7 @@
         const ta = document.createElement("textarea"); ta.readOnly = true; ta.rows = Math.min(8, m.text.split("\n").length + 1);
         ta.value = m.text; ta.setAttribute("aria-label", "Message for " + m.person); ta.style.width = "100%";
         const b = document.createElement("button"); b.type = "button"; b.className = "secondary"; b.textContent = "Copy for " + m.person;
-        b.addEventListener("click", () => { ta.select(); try { navigator.clipboard.writeText(m.text); } catch (e) { document.execCommand("copy"); } record("messages_copied"); });
+        b.addEventListener("click", async () => { ta.select(); try { await navigator.clipboard.writeText(m.text); } catch (e) { ta.select(); if (!document.execCommand("copy")) { b.textContent = "Copy blocked: select the text and copy it"; return; } } b.textContent = "Copied"; record("messages_copied"); });
         row.append(ta, b); box.append(row);
       }
       record("messages_made");
@@ -703,7 +703,7 @@
       const ta = document.createElement("textarea"); ta.readOnly = true; ta.rows = Math.min(10, post.text.split("\n").length + 1);
       ta.value = post.text; ta.setAttribute("aria-label", "Post for the open shifts"); ta.style.width = "100%";
       const b = document.createElement("button"); b.type = "button"; b.className = "secondary"; b.textContent = "Copy the post";
-      b.addEventListener("click", () => { ta.select(); try { navigator.clipboard.writeText(post.text); } catch (e) { document.execCommand("copy"); } record("open_post_copied"); });
+      b.addEventListener("click", async () => { ta.select(); try { await navigator.clipboard.writeText(post.text); } catch (e) { ta.select(); if (!document.execCommand("copy")) { b.textContent = "Copy blocked: select the text and copy it"; return; } } b.textContent = "Copied"; record("open_post_copied"); });
       box.append(ta, b);
       record("open_post_made");
     });
@@ -726,11 +726,12 @@
     // Share link: the setup rides in the URL fragment, which browsers never send to a server.
     const b64 = (str) => btoa(String.fromCharCode(...new TextEncoder().encode(str))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
     const unb64 = (t) => new TextDecoder().decode(Uint8Array.from(atob(t.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0)));
-    $("#share-link").addEventListener("click", () => {
+    $("#share-link").addEventListener("click", async () => {
       const url = location.href.split("#")[0] + "#setup=" + b64(JSON.stringify(snapshot()));
-      try { navigator.clipboard.writeText(url); } catch (e) { /* shown below */ }
-      status.textContent = url.length > 8000 ? "That link is very long and some apps will cut it; use Save setup file instead." : "Share link copied. Anyone who opens it gets this setup; click the button to build.";
       try { history.replaceState(null, "", url); } catch (e) { /* optional */ }
+      // Awaited: a refused copy (iframe policy, lost focus, plain http) must not be reported as copied.
+      try { await navigator.clipboard.writeText(url); } catch (e) { status.textContent = "Copy was blocked by the browser. The share link is now in the address bar: copy it from there."; return; }
+      status.textContent = url.length > 8000 ? "That link is very long and some apps will cut it; use Save setup file instead." : "Share link copied. Anyone who opens it gets this setup; click the button to build.";
       record("share_link_copied");
     });
     const shareHash = /^#setup=([A-Za-z0-9_-]+)$/.exec(location.hash);
