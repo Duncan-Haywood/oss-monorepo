@@ -2930,6 +2930,21 @@ set; two taxes did, each after its total became right. Details:
 [`eval/rapidocr-parser-misses-2026-11-17.md`](eval/rapidocr-parser-misses-2026-11-17.md).
 Tests: `receipt-rapidocr-misses.test.mjs`.
 
+### RapidOCR's parser misses on US receipt photos (2026-11-17)
+
+The same exercise on the SRD US photos, choosing on the even-index half and holding out the odd.
+On a tilted photo RapidOCR boxes the word column and the amount column separately, and the rows
+can slip by one: `Subtotal $5.50 / Tax $86.65 / Total: $6.93 / ... $93.58`. When no check
+confirms the total read, the amount one row off the total line is taken if subtotal plus tax,
+read at the same offset, gives it to the cent (and exactly one amount does); the receipt says so.
+Also `TOTALDUE` is a total line, and a Paris phone number after `Tl:` (`01.48.28.44.81`) is not
+an amount. Choose half 90 to 95 of 99 (RapidOCR then tesseract's four: 91 to 94; the page 92 to
+95, wrong with no warning 5 to 2); held-out half 92 of 97, unchanged (it was scored once at 91,
+the loss fixed by limiting the rule to the line the total was read from, so it is no longer
+unseen for this rule); all 196, RapidOCR: 182 to 187; CORD text and SROIE text unchanged.
+Details: [`eval/rapidocr-srd-misses-2026-11-17.md`](eval/rapidocr-srd-misses-2026-11-17.md).
+Tests: `receipt-rapidocr-srd.test.mjs`.
+
 ### RapidOCR and tesseract together (2026-11-17)
 
 `--rapidocr --four-pass` reads the photo with RapidOCR first, then with tesseract's four
