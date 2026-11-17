@@ -1,5 +1,5 @@
 Real system: {'visc': 0.1, 'coul': 0.3, 'sd': 0.02, 'kind': 'student3', 'glo': 9.81}. Swing-up grid of 144 controllers (ke, kp, kd, cap), tuned on 150 twin starts, scored on 600 held-out real starts.
-Mean best real cost on the fine grid: 0.3550 (mimic-twinswing, 60-point grid: 0.353 for its own best point).
+Mean best real cost on the fine grid: 0.3550 (mimic-twinswing, 90-point grid: 0.355 for its own best point).
 Regret = real cost of the twin-tuned controller minus the best of the fine grid on the real system. Mean and sd over 12 tuning seeds.
 AUROC and paired RMSE are copied from mimic-twinswing/experiments/results.json.
 
