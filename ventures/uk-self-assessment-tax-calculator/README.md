@@ -12,9 +12,11 @@ Open `index.html`. Tests: `node --test 'ventures/uk-self-assessment-tax-calculat
 
 ## Known gaps
 
-From the [2026-11-17 census quality audit](../../portfolio/quality/audits/2026-11-17-uk-self-assessment-tax-calculator.json), not yet fixed:
+The [2026-11-17 census quality audit](../../portfolio/quality/audits/2026-11-17-uk-self-assessment-tax-calculator.json) found four errors. All four are fixed, each with a test in `calc.test.mjs`:
 
-- The £1,000 property allowance is taken whenever it beats expenses, even when it forfeits a larger mortgage-interest credit.
-- Student loan repayments count all savings and dividend income instead of only the unearned income above £2,000.
-- Plan 5 is charged for 2025/26, although Plan 5 repayments start in April 2026.
-- (Fixed in the same PR as the audit: the finance-cost credit limit now leaves out savings and dividends.)
+- The finance-cost credit limit leaves out savings and dividends (fixed in the audit's own PR).
+- The property allowance and the actual-expenses route (with the 20% mortgage-interest credit) are both priced, and the lower bill wins. Before, the allowance was taken whenever it beat expenses, even when that gave up a larger credit (red-team run, 2026-11-17).
+- Student loan leaves out unearned income (savings, dividends and property profit) of £2,000 or less. Above £2,000 all of it counts. GOV.UK's wording is "unearned income in excess of £2,000", and the tool reads that as a threshold, not an allowance taken off the top. Check your own case against HMRC's calculation (red-team run, 2026-11-17).
+- Plan 5 collects nothing for 2025/26, because repayments start in April 2026 (red-team run, 2026-11-17).
+
+Still not modelled: Scotland, losses, the marriage allowance and the other items listed on the page.

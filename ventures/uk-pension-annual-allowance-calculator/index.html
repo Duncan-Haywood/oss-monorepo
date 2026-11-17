@@ -146,7 +146,7 @@
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    const gbp = (n) => "£" + Number(n).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    const gbp = (n) => "£" + Number(n).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\.\d$/, (m) => m + "0");
     let last = null;
     const map = { year: "year", income: "income", own: "own", sacrificed: "sacrificed", employer: "employer", dbInput: "dbInput", dbOwn: "dbOwn", mpaa: "mpaa", used1: "used1", used2: "used2", used3: "used3", aa1: "aa1", aa2: "aa2", aa3: "aa3" };
     const IDLE = "Fill in the figures, then click Check my allowance.";

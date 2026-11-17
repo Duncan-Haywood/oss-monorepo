@@ -16,7 +16,7 @@ export const MAX_NOTICE_WEEKS = 12;
 export const CAPS = { 2025: { label: "dismissal 6 April 2025 to 5 April 2026", cap: 719 }, 2026: { label: "dismissal from 6 April 2026", cap: 751 } };
 export const RATES = { 0.2: "basic rate (20%)", 0.4: "higher rate (40%)", 0.45: "additional rate (45%)" };
 
-const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("GBP " + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 }));
+const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("GBP " + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\.\d$/, (m) => m + "0"));
 const r2 = (n) => Math.round(n * 100) / 100;
 
 function dateParts(s) {
