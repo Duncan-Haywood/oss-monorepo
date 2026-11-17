@@ -4,7 +4,7 @@ Does a new product spread through a village like news (one informed contact is e
 a behaviour that needs reinforcement from several adopters? And if the data cannot tell, whom
 should a rollout seed first? This programme asks that on the 43 Karnataka village networks of
 Banerjee, Chandrasekhar, Duflo and Jackson (2013), where a lender introduced microfinance
-through village leaders. **Latest step (milestone 12): survey respondents forget weak ties far more than strong ones, and the seeding advice still holds.** Stratifying the capture&ndash;recapture estimate by how many other survey questions name the same pair, a tie nothing else names is recalled 61% of the time, one other question 81%, two or more 94% ([`experiments/m12_strength/strength.txt`](experiments/m12_strength/strength.txt), figure [`strength.svg`](experiments/m12_strength/strength.svg)); the pooled 84% milestone 11 used was only a little high (stratified 81%). With that uneven forgetting built into the survey, the half-village survey loses a median 2.2% of adopters under its worst refitted model (beating top degree on a perfect census in 98% of draws), and degree discount on a census 0.9%, no worse than with every tie recorded; even with weak-tie recall halved, census degree discount beats top degree in every draw. Why uneven forgetting slightly helps the census rule is open, and the gap is under twice the harness's half-point re-draw noise ([`LOG.md`](LOG.md), 2026-11-17).
+through village leaders. **Latest step (milestone 13): milestone 12's surprise, that uneven forgetting helps degree discount on a census, was Monte Carlo noise.** With every randomised rule scored on its own random stream and four rules re-drawn five times, census degree discount scores a mean 1.51% under the measured, uneven recall and 1.58% under a uniform recall at the same level (gap &minus;0.07 point; milestone 12 had 0.9% against 1.8%). The re-draws show that one randomised rule's joint median moves by up to 0.47 point (sd) from one Monte Carlo copy to the next, which the bootstrap intervals do not include, so sub-point differences between randomised rules in milestones 10 to 12 are within noise; the advice itself (half survey about 2%, census degree discount about 1.5%, census top degree about 4%) is unchanged ([`experiments/m13_streams/verdicts.txt`](experiments/m13_streams/verdicts.txt), figure [`copies.svg`](experiments/m13_streams/copies.svg), [`LOG.md`](LOG.md), 2026-11-17). Before that, milestone 12 found survey respondents forget weak ties far more than strong ones (61% against 94% recall) without hurting the seeding advice.
 
 **Milestone 11: the survey advice survives respondents who forget ties, at the recall measured in the same villages.** Capture&ndash;recapture on the survey's converse questions (borrow from / lend to, visit / invite) shows a BCDJ respondent names about 84% of a household's ties (one question alone: 68&ndash;83%). With that much forgetting, the half-village survey (three quarters at random, then the most-named, ranked by degree discount) loses a median 1.8% of adopters under its worst refitted model, against 1.4% for a census with the same forgetting and 4.1% for top degree. Even with half of all ties forgotten, degree discount on the census still beats top degree on a perfect census in 99% of draws.
 
@@ -659,6 +659,38 @@ an unexpected direction: census degree discount scored 0.9% under the measured, 
 1.8% under one uniform recall at the same mean. That gap was under twice the harness's re-draw
 noise, which milestone 13 measures.
 
+## Milestone 13: is milestone 12's census gain real? (`experiments/m13_streams/`)
+
+Until now every extra randomised rule shared one scoring stream, so adding a rule re-drew the
+others, and milestone 12's unexpected gap (census degree discount 0.9% under uneven recall against
+1.8% under uniform recall) was under twice that re-draw noise. This step gives each rule its own
+stream, keyed by its name (`PER_RULE_STREAMS` in `m6_uncertainty/run.py`; `tests/test_streams.py`
+checks that adding a rule leaves another's score bit-identical), and re-draws four rules four extra
+times (surveys and scoring runs afresh), keeping the bootstrap draws, refits and every other rule
+fixed. Plan and hypotheses (H31&ndash;H33) logged before the run.
+
+![five Monte Carlo copies of four rules](experiments/m13_streams/copies.svg)
+
+| rule, joint median worst case | copy 0 | 1 | 2 | 3 | 4 | mean | sd |
+|---|---|---|---|---|---|---|---|
+| census dd, measured recall | 1.48% | 1.65% | 1.48% | 1.50% | 1.44% | 1.51% | 0.08 |
+| census dd, matched uniform recall | 1.73% | 0.94% | 1.47% | 1.53% | 2.23% | 1.58% | 0.47 |
+| half survey (s0.75), measured | 2.20% | 2.26% | 2.22% | 2.32% | 2.27% | 2.25% | 0.05 |
+| half survey (s0.75), matched | 1.80% | 2.32% | 2.40% | 2.44% | 2.17% | 2.23% | 0.26 |
+
+- **H31 refuted.** The Monte Carlo sd of a randomised rule's joint median reaches 0.47 point
+  (bar 0.25); two copies of the same rule differ by up to 1.29 point (median 0.14). The bootstrap
+  5&ndash;95% intervals reported since milestone 6 carry parameter uncertainty only, not this.
+- **H32 refuted.** Census degree discount, measured minus matched: &minus;0.25, +0.71, +0.01,
+  &minus;0.03, &minus;0.80 point (mean &minus;0.07); the paired share of draws in which measured
+  wins swings from 16% to 90% across copies. Milestone 12's H28 refutation for the census rule was
+  noise: unevenness at a matched level makes no measurable difference.
+- **H33 held.** The survey rule's gap averages +0.03 point.
+- Prediction missed: moving milestone 12's rows to their own streams shifted them by up to 0.80
+  point (bar 0.6), consistent with the noise above.
+- Not explained: why the matched rules vary five to six times more between copies than the
+  measured ones. Caveat: five copies give a rough sd; replicates re-draw only these four rules.
+
 ## What this does and does not say
 
 It says the archived code and data, ported, give q<sub>N</sub> &asymp; 0.05 and a weakly
@@ -676,7 +708,7 @@ villages. Adoption is observed once, not over time, so homophily and contagion a
 
 ```
 python3 data/build_dataset.py "<mirror>/datav4.0/Matlab Replication"   # optional, rebuilds the data
-python3 -m pytest -q tests                                                # 70 tests, about 2 s
+python3 -m pytest -q tests                                                # 79 tests, about 2 s
 python3 experiments/m1_reproduce/run.py      # about 2 minutes on 4 cores, writes results.txt
 python3 experiments/m1_reproduce/twostep.py  # seconds, needs run.py's dgrid.npz
 python3 experiments/m1_reproduce/periods.py  # about 12 minutes, periods.txt
@@ -705,20 +737,23 @@ python3 experiments/m10_survey_uncertainty/figure.py
 python3 experiments/m11_recall/measure_recall.py "<path to datav4.0>"  # 1 s, recall.txt (needs pandas)
 OMP_NUM_THREADS=1 python3 experiments/m11_recall/run.py         # about 14 minutes on 4 cores, verdicts.txt
 python3 experiments/m11_recall/figure.py
+python3 experiments/m12_strength/measure_strength.py "<path to datav4.0>"  # 2 s, strength.txt (needs pandas)
+OMP_NUM_THREADS=1 python3 experiments/m12_strength/run.py      # about 17 minutes on 4 cores, verdicts.txt
+OMP_NUM_THREADS=1 python3 experiments/m13_streams/run.py       # about 20 minutes on 4 cores, verdicts.txt
+python3 experiments/m13_streams/figure.py
 ```
 
 Needs numpy (and scipy for the data builder).
 
 ## Next steps
 
-Milestone 11 finds that the half-village survey advice survives the tie recall measured in the same
-villages (0.85): a median 1.8% of adopters lost, against 1.4% for a census with the same forgetting.
-Next: correlated recall (strong ties remembered more often; the number of questions naming a pair
-is a proxy for strength) and falsely reported ties; a finer split grid, and survey shares between a
-quarter and a half; a controlled threshold sweep for complex centrality (milestone 8); the two
-checks left from milestone 3b (moments standardised by their synthetic SD, and a degree-band moment
-to separate a threshold cascade from homophily); then the paper draft, with milestones 4 to 11 as
-its seeding section.
+Milestone 13 finds that a randomised rule's Monte Carlo noise (sd up to about half a point at the
+joint median) is as large as several differences milestones 10 to 12 read as findings. Next: pool
+several copies (or raise the draws per rule) for every randomised rule and report the Monte Carlo
+error beside the bootstrap interval, then re-read milestones 10 to 12's sub-point comparisons
+(split share, &rho; = 0.75 against 0.5) on the pooled scores; false-positive ties; tie strength in
+the contagion itself; the controlled threshold sweep for complex centrality (milestone 8); the two
+milestone-3b checks; then the paper draft, with milestones 4 to 13 as its seeding section.
 
 ## References
 
