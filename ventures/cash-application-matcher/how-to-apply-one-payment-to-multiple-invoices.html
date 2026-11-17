@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231f4e5f'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EC%3C/text%3E%3C/svg%3E">
+  <title>How to Apply One Payment to Multiple Invoices (Worked Example)</title>
+  <meta name="description" content="A customer paid several invoices in one ACH or wire, with a discount or a bank fee taken off. How to work out which invoices it covers, with worked numbers.">
+  <meta property="og:title" content="How to apply one payment to multiple invoices">
+  <meta property="og:description" content="Worked example: one wire for two invoices less a bank fee, a 2/10 net 30 discount, and a short-pay, and how to tell them apart.">
+  <link rel="canonical" href="./how-to-apply-one-payment-to-multiple-invoices.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"HowTo","name":"Apply one customer payment to several open invoices","step":[{"@type":"HowToStep","text":"Look for invoice numbers in the remittance or memo text and total those invoices."},{"@type":"HowToStep","text":"If there are none, identify the customer from the payer name and list their open invoices, oldest first."},{"@type":"HowToStep","text":"Find the combination of open invoices whose total equals the payment, allowing any early-payment discount the terms grant and a small bank charge."},{"@type":"HowToStep","text":"If more than one combination fits, apply to the oldest invoices and confirm with the customer's remittance advice."},{"@type":"HowToStep","text":"If nothing fits, treat the difference as a short-pay or unapplied cash and ask the customer."}]}</script>
+  <style>
+    :root{font-family:system-ui,sans-serif;color:#14232b;background:#f3f5f4;line-height:1.6}
+    body{max-width:760px;margin:auto;padding:1.5rem 1rem 3rem;background:#f3f5f4}
+    h1{color:#1f4e5f;line-height:1.15}h2{color:#1f4e5f}
+    table{border-collapse:collapse;width:100%;font-size:.95rem}th,td{border-bottom:1px solid #d6dcda;padding:.4rem;text-align:left}td.n{text-align:right}
+    .box{background:#fff;border:1px solid #d6dcda;border-radius:10px;padding:1rem 1.2rem;margin:1rem 0}
+    footer{margin-top:2rem;font-size:.9rem;color:#5a6a72}
+  </style>
+</head>
+<body>
+  <p><a href="./">Cash Application Matcher</a></p>
+  <h1>How do you apply one payment to multiple invoices?</h1>
+  <p>Find the open invoices of that customer whose amounts add up to the payment, after any early-payment discount their terms allow and any bank charge you are willing to absorb, and apply the payment to each of them. If the remittance names the invoices, start there. If two combinations add up, apply to the oldest and confirm with the customer. The numbers below are a made-up example; the same file ships with the tool so you can run it.</p>
+
+  <h2>The open invoices</h2>
+  <table>
+    <tr><th>Invoice</th><th>Customer</th><th>Date</th><th>Terms</th><th class="n">Open</th></tr>
+    <tr><td>INV-1006</td><td>Harbor Freight Logistics Inc</td><td>2026-10-05</td><td>Net 45</td><td class="n">3,400.00</td></tr>
+    <tr><td>INV-1007</td><td>Harbor Freight Logistics Inc</td><td>2026-10-19</td><td>Net 45</td><td class="n">1,775.25</td></tr>
+    <tr><td>INV-1004</td><td>Bluebird Bakery Co.</td><td>2026-10-28</td><td>2/10 Net 30</td><td class="n">1,000.00</td></tr>
+    <tr><td>INV-1003</td><td>Northwind Traders LLC</td><td>2026-10-15</td><td>Net 30</td><td class="n">2,115.40</td></tr>
+  </table>
+
+  <div class="box">
+    <h2>Case 1: one wire, two invoices, a bank fee</h2>
+    <p>Bank line: <code>2026-11-04 WIRE IN HARBOR FREIGHT LOGIST 5,160.25</code>. No invoice numbers. The payer name is truncated but is plainly Harbor Freight Logistics.</p>
+    <p>Their open invoices total 3,400.00 + 1,775.25 = <strong>5,175.25</strong>. The wire is 5,175.25 − 5,160.25 = <strong>15.00 short</strong>, the size of an incoming-wire fee. Apply 3,400.00 to INV-1006 and 1,760.25 to INV-1007, and write off 15.00 as a bank charge on INV-1007, if your policy absorbs fees that small. Both invoices close.</p>
+  </div>
+
+  <div class="box">
+    <h2>Case 2: a discount taken inside the window</h2>
+    <p>Bank line: <code>2026-11-03 ACH CREDIT BLUEBIRD BAKERY 980.00</code>. The only Bluebird invoice is 1,000.00 on 2/10 net 30: 2% off if paid within 10 days of the invoice date. 2% of 1,000.00 is 20.00, so 980.00 settles it in full if the payment is within the window. The invoice is dated 28 October and the money arrived on 3 November, 6 days later. Apply 980.00 and record a 20.00 discount allowed.</p>
+    <p>Had it arrived on 22 November (25 days after), the discount was not earned. The payment is then short by exactly the discount, which is not a bank fee: apply 980.00, leave 20.00 open, and decide whether to allow the late discount or ask for it.</p>
+  </div>
+
+  <div class="box">
+    <h2>Case 3: the remittance names an invoice, the amount is short</h2>
+    <p>Bank line: <code>2026-11-05 ONLINE TRANSFER INV 1003 NORTHWIND TRADERS 1,900.00</code>. INV-1003 is 2,115.40. The payment is 215.40 short, 10.2%: too much for a fee, no discount in the terms. Apply 1,900.00 to INV-1003, leave 215.40 open, and ask the customer: a dispute, a deduction (damaged goods, a pricing difference) or a mistake.</p>
+  </div>
+
+  <h2>When two combinations fit</h2>
+  <p>A dental practice on a monthly 395.00 retainer has three open 395.00 invoices and sends 395.00. Any one of them fits. The usual rule is first in, first out: apply to the oldest, so the aging report shows the newest invoices as the open ones, and note that the choice was yours, not the customer's.</p>
+
+  <h2>Doing it for a whole bank statement</h2>
+  <p>The <a href="./">Cash Application Matcher</a> runs these steps on every line of a bank export against an open-invoice export, in your browser, and gives each proposal a confidence (High, Medium, Review or Unmatched) and the sentence above. It searches combinations of up to 40 open invoices per customer, so "which three of these twenty invoices add up to 7,412.18" takes a moment rather than an afternoon. You still post the result.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Free and open source (<a href="LICENSE">MIT</a>). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</p>
+  </footer>
+</body>
+</html>

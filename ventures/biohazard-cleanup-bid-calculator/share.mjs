@@ -64,6 +64,15 @@ function usableNumber(value) {
   return Number.isFinite(result) && result >= 0 ? result : null;
 }
 
+// The cleaning a term gets before it is measured or carried. One function,
+// because `overlongTerms` must measure the same text `usableText` keeps:
+// measured raw, a clause with a few pasted control characters rode in the
+// link while the note told the sender it stayed behind (red team, 2026-11-17).
+function cleanTermText(value) {
+  // eslint-disable-next-line no-control-regex
+  return value.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '').trim();
+}
+
 // Prose is carried as typed, newlines included -- these are textareas, and a
 // multi-line exclusions list is multiple lines on the customer's sheet. Only
 // the control characters no textarea produces are stripped, plus surrounding
@@ -73,8 +82,7 @@ function usableNumber(value) {
 // terms is worse than the field arriving empty.
 function usableText(value) {
   if (typeof value !== 'string') return null;
-  // eslint-disable-next-line no-control-regex
-  const clean = value.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '').trim();
+  const clean = cleanTermText(value);
   if (!clean) return null;
   return clean.length > MAX_TERM_TEXT ? null : clean;
 }
@@ -126,6 +134,6 @@ export function formValues(decoded) {
 export function overlongTerms(values) {
   return TERM_TEXT_FIELD_IDS.filter((id) => {
     const raw = values?.[id];
-    return typeof raw === 'string' && raw.trim().length > MAX_TERM_TEXT;
+    return typeof raw === 'string' && cleanTermText(raw).length > MAX_TERM_TEXT;
   });
 }

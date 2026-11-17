@@ -23,7 +23,7 @@ export async function addOfficialFindings(result, inputs, { profile = "", fetchF
     if (!input || /\.json$/i.test(report.file)) continue;
     if (runner) {
       try {
-        const local = await runner(typeof input.source === "string" ? input.source : new TextDecoder().decode(input.source));
+        const local = await runner(typeof input.source === "string" ? input.source : new TextDecoder().decode(input.source), { profile });
         if (local.status === "ok") {
           report.schematron = "ok";
           report.schematronWhere = "browser";
