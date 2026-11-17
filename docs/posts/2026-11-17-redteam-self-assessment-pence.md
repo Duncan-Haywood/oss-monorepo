@@ -1,6 +1,6 @@
 ---
 title: "GBP 2,191.8, and three Self Assessment answers that were wrong"
-seo_title: "UK Self Assessment calculator: student loan on unearned income, Plan 5 in 2025/26, property allowance vs mortgage credit"
+seo_title: "Self Assessment fixes: student loan, Plan 5 and the mortgage credit"
 date: 2026-11-17
 tags: [redteam, uk-self-assessment-tax-calculator, greenhouse-bench-planner, testing, uk-tax]
 description: "A red-team run seeded 16 faults into two tools. The tests caught 4. It fixed three tax rules, and a pence bug copied into 55 files."

@@ -18,6 +18,7 @@ each hit.
 
 Usage: python3 platform/ci/check_money_pence.py [root ...]
 """
+import os
 import pathlib
 import re
 import sys
@@ -41,13 +42,14 @@ def scan_text(text):
 
 
 def files(roots):
+    # os.walk, not rglob: a test elsewhere may create and delete a temp dir under ventures/ mid-walk.
     for root in roots:
-        for p in sorted(pathlib.Path(root).rglob("*")):
-            if p.suffix not in SUFFIXES or not p.is_file():
-                continue
-            if SKIP_PARTS & set(p.parts) or ".test." in p.name or p.name.startswith("test_"):
-                continue
-            yield p
+        for d, dirs, names in os.walk(root):
+            dirs[:] = sorted(x for x in dirs if x not in SKIP_PARTS)
+            for name in sorted(names):
+                p = pathlib.Path(d) / name
+                if p.suffix in SUFFIXES and ".test." not in name and not name.startswith("test_"):
+                    yield p
 
 
 def main(argv):
