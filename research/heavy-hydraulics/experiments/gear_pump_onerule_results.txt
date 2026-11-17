@@ -1,0 +1,64 @@
+Milestone 7i: one selection rule fitted once over 7h's 22 idle conditions (18 idle settings at S = 0.38, four other idle shares at the central setting), 14 variants, 196 cells each, 4312 cells
+(motion: fuxi-robot/excavator-motion folder 75, CC BY-NC-SA 4.0; load-sensing pump: Kauranne 2022, Energies 15:4030, Fig. 13, CC BY; gear pumps and drive loss as gear_pump_stepup.py; neutral readings as excavator_idle_standby.py)
+
+Check, each condition's own refitted ow against 7h's (i): max difference 0.0000 over 22 of 22
+
+Fits to all 4312 cells (coefficients; in-sample RMS over all cells and over the 308 diagonals):
+  ow   +0.7961, +0.0053, -0.4350;  cells 0.0147, diagonals 0.0149
+  owl  +0.8216, +0.0202, -0.4350, -0.0247;  cells 0.0052, diagonals 0.0055
+  owh  +0.8214, +0.0329, -0.4350, -0.0402;  cells 0.0043, diagonals 0.0045
+  owd  +0.8112, +0.0364, -0.4350;  cells 0.0057, diagonals 0.0058
+  owh: -d/b = 1.22 (standby kW against drag kW, both per idle hour)
+
+(A) leave-one-condition-and-maker-family-out, RMS over 308 diagonals (max per-condition RMS; mean bias):
+  ow   0.0163  (max 0.0298; bias -0.0001)
+  owl  0.0065  (max 0.0117; bias -0.0000)
+  owh  0.0056  (max 0.0064; bias +0.0000)
+  owd  0.0068  (max 0.0121; bias +0.0000)
+  references using the held condition's own cells (7h): refitted ow median 0.0056, pooled over 308 0.0056 (RMS of per-condition RMS)
+
+Per condition, (A) RMS: ow / owl / owh / owd, and 7h's own refitted ow
+  PVG32        sb 2.0  n 1.0  S 0.38  LS 2.96   0.0091 / 0.0055 / 0.0056 / 0.0055   own 0.0056
+  PVG32        sb 0.0  n 1.0  S 0.38  LS 2.89   0.0088 / 0.0054 / 0.0055 / 0.0055   own 0.0056
+  PVG32        sb 0.0  n 0.5  S 0.38  LS 1.44   0.0298 / 0.0059 / 0.0059 / 0.0063   own 0.0062
+  PVG32        sb 2.0  n 0.5  S 0.38  LS 1.51   0.0279 / 0.0056 / 0.0056 / 0.0059   own 0.0059
+  PVG32        sb 5.0  n 1.0  S 0.38  LS 3.06   0.0103 / 0.0057 / 0.0058 / 0.0056   own 0.0056
+  PVG32        sb 5.0  n 0.5  S 0.38  LS 1.61   0.0257 / 0.0055 / 0.0055 / 0.0059   own 0.0058
+  Salami-text  sb 0.0  n 1.0  S 0.38  LS 2.89   0.0170 / 0.0052 / 0.0052 / 0.0059   own 0.0051
+  Salami-text  sb 0.0  n 0.5  S 0.38  LS 1.44   0.0122 / 0.0061 / 0.0061 / 0.0076   own 0.0061
+  Salami-text  sb 2.0  n 1.0  S 0.38  LS 2.96   0.0183 / 0.0053 / 0.0053 / 0.0061   own 0.0053
+  Salami-text  sb 2.0  n 0.5  S 0.38  LS 1.51   0.0108 / 0.0058 / 0.0058 / 0.0072   own 0.0059
+  Salami-text  sb 5.0  n 1.0  S 0.38  LS 3.06   0.0202 / 0.0052 / 0.0051 / 0.0059   own 0.0052
+  Salami-text  sb 5.0  n 0.5  S 0.38  LS 1.61   0.0094 / 0.0059 / 0.0058 / 0.0073   own 0.0059
+  Salami-curve sb 0.0  n 1.0  S 0.38  LS 2.89   0.0160 / 0.0057 / 0.0057 / 0.0068   own 0.0052
+  Salami-curve sb 0.0  n 0.5  S 0.38  LS 1.44   0.0124 / 0.0059 / 0.0058 / 0.0072   own 0.0059
+  Salami-curve sb 2.0  n 1.0  S 0.38  LS 2.96   0.0174 / 0.0055 / 0.0054 / 0.0066   own 0.0049
+  Salami-curve sb 2.0  n 0.5  S 0.38  LS 1.51   0.0110 / 0.0059 / 0.0058 / 0.0071   own 0.0059
+  Salami-curve sb 5.0  n 1.0  S 0.38  LS 3.06   0.0196 / 0.0054 / 0.0054 / 0.0068   own 0.0049
+  Salami-curve sb 5.0  n 0.5  S 0.38  LS 1.61   0.0096 / 0.0059 / 0.0059 / 0.0073   own 0.0060
+  PVG32        sb 2.0  n 1.0  S 0.20  LS 2.96   0.0067 / 0.0117 / 0.0048 / 0.0071   own 0.0047
+  PVG32        sb 2.0  n 1.0  S 0.30  LS 2.96   0.0069 / 0.0085 / 0.0053 / 0.0057   own 0.0052
+  PVG32        sb 2.0  n 1.0  S 0.40  LS 2.96   0.0102 / 0.0053 / 0.0057 / 0.0061   own 0.0057
+  PVG32        sb 2.0  n 1.0  S 0.50  LS 2.96   0.0185 / 0.0111 / 0.0064 / 0.0121   own 0.0064
+
+(B1) nine half-idle-speed conditions held out together (fit on the 13 working-speed ones), RMS over 126 diagonals (mean bias):
+  ow   0.0366  (+0.0361)
+  owl  0.0062  (+0.0019)
+  owh  0.0059  (+0.0002)
+  owd  0.0083  (+0.0058)
+(B2) S = 0.20 and 0.50 held out together (fit on the other 20), RMS over 28 diagonals (mean bias):
+  ow   0.0137  (-0.0055)
+  owl  0.0109  (+0.0005)
+  owh  0.0057  (+0.0012)
+  owd  0.0096  (-0.0024)
+
+Predictions (LOG.md 7i):
+  SI1 owh (A) at most 0.0070: held (0.0056)
+  SI2 owh (A) at least 50% below ow: held (-65%)
+  SI3 owh (A) below owl: held (0.0056 against 0.0065)
+  SI4 owh d < 0 and -d/b in [0.5, 2]: held (d -0.0402, -d/b 1.22)
+  SI5 owh (B1) at most 0.010: held (0.0059)
+  SI6 owd (A) within 10% of owh: refuted (+22%)
+  SI7 owh (B2) at most 0.010: held (0.0057)
+
+Sources: as gear_pump_settings.py (7h); idle hours per working hour H = S / (1 - S), the record's own still share dropped.
