@@ -118,6 +118,15 @@ class CampaignTest(unittest.TestCase):
                 self.assertEqual(redteam.draw_fast_target(pool, seed, 20).name, "fast.py")
             self.assertIn(redteam.draw_fast_target(pool, 0, 0).name, {"slow.py", "fast.py"})
 
+    def test_target_with_slow_suite_stops_unless_probe_is_zero(self):
+        import contextlib, io
+        with mock.patch.object(redteam, "suite_for", return_value=(["x"], Path("."))), \
+                mock.patch.object(redteam, "run_suite", return_value=(False, 20.0)), \
+                contextlib.redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit) as cm:
+                redteam.main(["campaign", "--target", "a.py", "--probe", "20"])
+            self.assertIn("takes over 20s", str(cm.exception))
+
     def test_targets_under_a_directory(self):
         self.assertEqual(redteam.list_targets(self.repo, under="ventures/"), [self.target])
         self.assertEqual(redteam.list_targets(self.repo, under="platform"), [])
