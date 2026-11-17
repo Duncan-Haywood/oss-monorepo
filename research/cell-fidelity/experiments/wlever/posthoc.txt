@@ -1,0 +1,8 @@
+5zl post hoc (after the verdicts): per-design counts, one-sided sign tests
+
+set           n  w<sep       p e_w<phys       p e_w<e_sep       p k_sep=0
+Ai2020        8      8  0.0039        4  0.6367         7  0.0352       0
+Chen2020     12     11  0.0032       11  0.0032        11  0.0032       1
+OKane2022    12     11  0.0032        9  0.0730        11  0.0032       2
+NCA_Kim2011   8      7  0.0352        4  0.6367         7  0.0352       0
+all          40     37  0.0000       28  0.0083        36  0.0000       3
