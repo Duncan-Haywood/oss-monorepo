@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": 1,
+  "ci_failures_before_green": 2,
   "review_findings": null,
   "tests_added": 7,
   "outcome": "success",
@@ -36,6 +36,11 @@
       "what": "decisionLevels string split on ',' broke '6,000' into 6 and 0",
       "caught_by": "changed-ventures / check_thousands_split.py",
       "fixed": "grouped-token split as in uk-vat-registration-checker parseMonths; page passes raw text"
+    },
+    {
+      "what": "the level split's w.split(',') tripped the test_csv_thousands_split ratchet (CSV row split + comma stripping in one file)",
+      "caught_by": "local run_venture_tests.py --since (unwired checks)",
+      "fixed": "reuse the engine's quote-aware splitLine for the comma split"
     }
   ],
   "integrity_issues": [],

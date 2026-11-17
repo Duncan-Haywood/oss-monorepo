@@ -806,7 +806,7 @@ export function analyze(input = {}) {
   const rawLevels = input.decisionLevels ?? [];
   // In a string, "6,000" is one level (thousands grouping), "120, 140" and "120;140" are two.
   const splitLevels = (t) => t.split(/[;\s]+/).map((w) => w.replace(/^,+|,+$/g, "")).filter(Boolean)
-    .flatMap((w) => (/^[+-]?\d{1,3}(,\d{3})+(\.\d+)?$/.test(w) ? [w.replace(/,/g, "")] : w.split(",")));
+    .flatMap((w) => (/^[+-]?\d{1,3}(,\d{3})+(\.\d+)?$/.test(w) ? [w.replace(/,/g, "")] : splitLine(w, ",")));
   const levels = (Array.isArray(rawLevels) ? rawLevels : splitLevels(String(rawLevels)))
     .map((v) => (typeof v === "number" ? v : typeof v === "string" ? toNumber(v) : NaN)).filter(Number.isFinite);
   const warnings = [];
