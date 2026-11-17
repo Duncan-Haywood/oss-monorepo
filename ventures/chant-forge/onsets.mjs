@@ -116,6 +116,9 @@ export const VOICELESS_LOW = 0.9;
 // Chosen on U's C#4 and D#4 cells (eval/burst-diag.mjs) and the development parts A-W of eval/coda-check.mjs.
 // voicedLead's hold form: the longest lead, in 5 ms frames, it drops before a closure (README "A voiced closure that holds to its burst")
 export const VOICED_HOLD_SPAN = 20;
+// readCoda's default voicedLead since the twenty-second round's registration held on part Z (`voicedLead: false` is the
+// reader before; `true` the bar form only)
+export const VOICED_LEAD = { hold: true };
 export const BAR_BURST = { hz: 2000, lvl: 10, floor: -40, dark: 30, tail: 25, lead: 4, hold: 6, holdMs: 20, after: 8 };
 // readCoda's deep murmur on a high short note before an obstruent (see its note; off by default, `deepMurmur: true`);
 // chosen on eval/coda-check.mjs J and N
@@ -246,7 +249,7 @@ export const LOCAL_REF = { from: 6, to: 24, cap: 20, nasal: false };
 // No frame in a closure is vowel-like, so the anchor holds through it. Opt-in (`closeAnchor: true`); it replaces
 // localRef on the closure rule only, the nasal rule is untouched.
 export const ANCHOR = { frames: 10, drop: 12 };
-export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = false, deepOpts = {}, localRef = LOCAL_REF, closeAnchor = false, barLead = false, compactVelar = false, voicelessLow = VOICELESS_LOW, barBurst = true, voicedLead = false, trace = null } = {}) {
+export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = false, deepOpts = {}, localRef = LOCAL_REF, closeAnchor = false, barLead = false, compactVelar = false, voicelessLow = VOICELESS_LOW, barBurst = true, voicedLead = VOICED_LEAD, trace = null } = {}) {
   const hop = Math.round(0.005 * rate), a = Math.round((vowelAt + 0.06) * rate), z = Math.round((tEnd - 0.02) * rate), zEnd = Math.round(tEnd * rate);
   const ref = [];
   for (let i = Math.round(vowelAt * rate); i < a; i += hop) ref.push(frameFeatures(x, i, rate));
@@ -532,6 +535,7 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
   // voiced stop's bar runs up to its burst. And the run dropped must start at most VL.span frames (100 ms) before the
   // closure: a voiced stop's lead (F1 falling, the bar's first frames) started 1-14 frames before it on A-Y, a final
   // nasal held 37-55 frames before a release blip the closure rule took for one
+  // The opt-in deep rule's run is never a lead: it fires only on a murmur that runs into frication or a silent closure
   const barHeld = (r) => !!BB && VL.hold && relOf.get(r) >= 0 && barRel(r) >= 0;
   const stopVoiced = (() => {
     if (!VL || !stopRun || (VL.bar && !barRun && !barHeld(stopRun))) return false;
@@ -545,7 +549,7 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
     return yes;
   };
   const nasRules = [['level', runs(nasal, 30).find((r) => (msOf(r) >= 45 || !next.some((k) => k >= r[1] && k - r[1] <= 3)) && !vowelAgain(r) && murmur(r) && !barOf(r))], ['step', step], ['near', near], ['pre', pre], ['deep', deep]]
-    .filter(([, r]) => r && !intoTap(r) && !leadOf(r) && !(barRun && r[0] <= barRun[0] && barRun[0] - r[0] <= BB.lead)).sort((p, q) => p[1][0] - q[1][0]);
+    .filter(([name, r]) => r && !intoTap(r) && !(name !== 'deep' && leadOf(r)) && !(barRun && r[0] <= barRun[0] && barRun[0] - r[0] <= BB.lead)).sort((p, q) => p[1][0] - q[1][0]);
   const nas = nasRules[0]?.[1];
   const cands = [['closure', stopRun], ['fricative', fric], ['vfricative', vfric], ['nasal', nas], ['tap', tap]]
     .filter(([, r]) => r).sort((p, q) => p[1][0] - q[1][0]);

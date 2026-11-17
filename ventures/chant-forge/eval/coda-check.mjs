@@ -435,6 +435,14 @@
 //    control (of 372) identical; (5) A-Y as above, re-run on the shipped code. The gain is tested only if the default
 //    reads 2 or more of Z's voiced stops as a nasal; if fewer, the hold form stays opt-in, reported as untested. If all
 //    five hold and the gain is tested, the hold form becomes readCoda's default; otherwise it stays opt-in.
+//    Outcome (run 2026-11-17, after the registration above was committed as d66844f): held. (1) voiced stop codas 171 to
+//    177 of 192; (2) read as a nasal 9 to 2 (the gain was tested: the default read 9); (3) nasal codas 42 and 42 of 48,
+//    n-clusters 68 and 68 of 72, read as a stop 3 and 3; (4) voiceless 36 and 36, others 24 and 24, control 359 and 359
+//    of 372; (5) the report rebuilt on the shipped code matches the A-Y figures above, but for O's opt-in
+//    deep-murmur column (226, as before the round, after the exemption below) and Y's second column, which stays the bar form. The hold form is readCoda's
+//    default (`--vlead off` is the reader before). After the result, sing.test.mjs showed the opt-in deepMurmur rule's
+//    runs dropped as leads on J's E4 eighths (*sunt*, *nunc*: 4 to 2 nasal); the deep rule only fires into frication or
+//    a silent closure, so its runs are exempt. That changes only readings with `deepMurmur: true`.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
@@ -484,7 +492,7 @@ const BBARG = args.includes('--barburst') ? args[args.indexOf('--barburst') + 1]
 // --vlead barN: only before a voice-bar-rule closure (voicedLead: true); --vlead holdN: also before a closure-rule closure
 // whose voicing holds up to its burst (the twenty-second round's form, `voicedLead: { hold: true }`)
 const VLEADARG = args.includes('--vlead') ? args[args.indexOf('--vlead') + 1] : '';
-const RC = { ...RC0, ...(VLEADARG && VLEADARG !== 'off' ? { voicedLead: VLEADARG.startsWith('hold') ? { gap: Number(VLEADARG.slice(4)) || 2, hold: true } : VLEADARG.startsWith('bar') ? { gap: Number(VLEADARG.slice(3)) || 2, bar: true } : Number(VLEADARG) } : {}), ...(BBARG === 'off' ? { barBurst: false } : {}), ...(VLOWARG === 'off' ? { voicelessLow: false } : {}), ...(VELARARG === 'on' ? { compactVelar: true } : {}), ...(BARARG && BARARG !== 'off' ? { barLead: Number(BARARG) } : {}), ...PREOPTS, ...(PREARG === 'off' ? { preObstruent: false } : {}), ...(AGAINARG === 'off' ? { againGap: false } : {}), ...(VFRICARG === 'off' ? { vfricHi5: false } : {}), ...(DEEPARG === 'on' ? { deepMurmur: true } : {}), ...(LOCALARG === 'off' ? { localRef: false } : {}), ...(ANCHORARG === 'on' ? { closeAnchor: true } : {}) };
+const RC = { ...RC0, ...(VLEADARG === 'off' ? { voicedLead: false } : {}), ...(VLEADARG && VLEADARG !== 'off' ? { voicedLead: VLEADARG.startsWith('hold') ? { gap: Number(VLEADARG.slice(4)) || 2, hold: true } : VLEADARG.startsWith('bar') ? { gap: Number(VLEADARG.slice(3)) || 2, bar: true } : Number(VLEADARG) } : {}), ...(BBARG === 'off' ? { barBurst: false } : {}), ...(VLOWARG === 'off' ? { voicelessLow: false } : {}), ...(VELARARG === 'on' ? { compactVelar: true } : {}), ...(BARARG && BARARG !== 'off' ? { barLead: Number(BARARG) } : {}), ...PREOPTS, ...(PREARG === 'off' ? { preObstruent: false } : {}), ...(AGAINARG === 'off' ? { againGap: false } : {}), ...(VFRICARG === 'off' ? { vfricHi5: false } : {}), ...(DEEPARG === 'on' ? { deepMurmur: true } : {}), ...(LOCALARG === 'off' ? { localRef: false } : {}), ...(ANCHORARG === 'on' ? { closeAnchor: true } : {}) };
 const rate = 44100, corpus = new URL('../corpus/', import.meta.url);
 const lines = [];
 const pct = (a, b) => `${a} of ${b} (${b ? ((100 * a) / b).toFixed(1) : '-'}%)`;
@@ -1273,7 +1281,7 @@ const VD = ['mog', 'fog', 'hog', 'tug', 'dug', 'lug', 'sob', 'cob', 'nub', 'pod'
 const NAS = ['gom', 'hun', 'son', 'tun'], CL = ['ponc', 'runc', 'ront', 'hont'], VLS = ['dop', 'hut', 'bic'], NEG = ['pof', 'mus'];
 const SY = [...VD, ...NAS, ...CL, ...VLS, ...NEG], tally = {}, yMiss = new Map(), yMissB = new Map(), asNas = {}, nasAsStop = {};
 const bump = (k, ok) => { tally[k] = tally[k] || [0, 0]; tally[k][1]++; if (ok) tally[k][0]++; };
-const ON = { ...RC, voicedLead: RC.voicedLead || true }, OFF = { ...RC, voicedLead: false };
+const ON = { ...RC, voicedLead: true }, OFF = { ...RC, voicedLead: false };
 for (const pulses of [4, 2]) for (const midi of [44, 57, 60, 61, 62, 64]) {
   const ev = []; for (const s of SY) ev.push({ type: 'note', midi, pulses, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
   const mid = eventsToMidi(ev, { bpm: 102, title: 'held-out voiced lead' });
