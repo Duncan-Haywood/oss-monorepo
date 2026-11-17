@@ -57,11 +57,12 @@ export async function interpret(text, design, config, { fetch } = {}) {
     const reply = await complete(cfg, { system: systemPrompt(), prompt: `${describeDesign(design)}\nDesigner said: ${String(text).slice(0, 600)}`, maxTokens: 300, fetch });
     const lines = cleanModelLines(reply.text);
     if (!lines.length) throw new Error("the model returned no commands");
-    const merged = { steps: [], unmatched: [] };
+    const merged = { steps: [], unmatched: [], declined: [] };
     for (const line of lines) {
       const r = parseCommand(line, design);
       merged.steps.push(...r.steps);
       merged.unmatched.push(...r.unmatched);
+      merged.declined.push(...(r.declined || []));
     }
     if (!merged.steps.length) throw new Error("none of the model's commands were understood");
     return { result: merged, rewritten: lines };
