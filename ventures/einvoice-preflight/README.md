@@ -123,8 +123,25 @@ and CIUS-RO compile byte-identical; ZATCA's BR-KSA-F-13 changed, and was wrong b
 checked against the buyer's scheme list; `zatca.test.mjs` pins it). CIUS-PT and PINT
 were not rebuilt (Maven Central answered 429). Extended files get their own base since
 2026-11-17 (next section). Not done: the CDAR life-cycle messages and Flux 10 e-reporting
-schematron, English text for the BR-FR messages, and a real platform's rejection
-compared.
+schematron and a real platform's rejection compared (English text landed, next section).
+
+**BR-FR in English (new, 2026-11-17).** FNFE-MPE publishes the BR-FR and BR-FR-CDV messages in
+French only, so a seller outside France who got `BR-FR-08/BT-23` back from a platform had a French
+sentence to decode. Every one of the 384 distinct messages in the three compiled sets
+(`plain/cius-fr-ubl.json`, `plain/cius-fr-cii.json`, `plain/cdar-fr.json`) now has an English
+translation made for this tool, kept in `plain/br-fr-en.json` keyed by FNFE's exact French text.
+`br-fr-en.mjs` writes it into each check as `en` (and `build-fr-rules.mjs` calls it on a rebuild, so
+a new FNFE release shows which messages lack English). A finding's `message` is the English and
+`message_fr` keeps FNFE's French; the page prints the French under the English. Both drop the rule
+code prefix and the empty `Valeur actuelle : ""` slot (the compiled set has no value-of, so it was
+always empty). Tests (`br-fr-en.test.mjs`): every check has its table entry, no stale entries,
+each translation keeps its `[code]`, every BT/BG/EXT-FR-FE/MDT id and every quoted status or
+reason code of the French, and no French phrase is left in the English. All 195 rule codes, English
+beside French, are listed on `br-fr-error-codes.html`, written by `build-br-fr-codes-page.mjs`
+from the same files (`br-fr-codes-page.test.mjs` fails when it drifts). **Not checked:** the
+translation was made by machine-assisted translation and read in part, not by a sworn translator;
+the French remains the reference, and the page says so. Source glitches (stray quotes, `"/>"`,
+"ans" for "dans") are kept or read for their evident meaning.
 
 **Extended-CTC-FR and Factur-X EXTENDED: their own base sets (new, 2026-11-17).** An
 extended invoice may carry what EN 16931 forbids (several sellers on one multi-vendor
