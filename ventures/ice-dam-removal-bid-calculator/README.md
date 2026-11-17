@@ -59,9 +59,11 @@ has can ride in it. See [`share.mjs`](share.mjs).
 ## Privacy and usage
 
 Everything runs in your browser. Your job details, prices, and hours are
-never uploaded, there is no account, and nothing is saved to storage —
-every field resets on refresh unless you opened or copied a share link,
-which lives only in the page's own URL. We count anonymous local feature
+never uploaded, there is no account, and no job detail is saved to storage —
+every job field resets on refresh unless you opened or copied a share link,
+which lives only in the page's own URL. The one exception is your own
+business details for the printed proposal, saved in this browser's
+localStorage so you type them once; the customer's details are never saved. We count anonymous local feature
 events only (`quote-priced`, `actual-hours-checked`, `share_link_copied`),
 with a visible opt-out. Do Not Track and Global Privacy Control disable
 counting automatically. No job details, prices, or hours are recorded. The
