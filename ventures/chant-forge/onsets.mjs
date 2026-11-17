@@ -127,7 +127,7 @@ export const BAR_BURST = { hz: 2000, lvl: 10, floor: -40, dark: 30, tail: 25, le
 // 4-6 dB darker than the vowel, which has almost nothing above 1 kHz to lose, so the level, step and near rules all
 // pass it by. What the closure does is drop the band above 1 kHz by `fall` dB or more within two hops, after a blip
 // up as the lips meet, while the vowel's own vibrato moves it 4-9 dB over the same span. See readCoda.
-export const LIP_SHUT = { fall: 12, dark: 8, lo: -20, hi: 0, hold: 4, hiHold: 6, minMs: 45 };
+export const LIP_SHUT = { fall: 12, span: 2, settle: 0, rise: null, dark: 8, lo: -20, hi: 0, hold: 4, hiHold: 6, minMs: 45 };
 // A dark-vowel m that holds level (`lipHold`, opt-in; README "A dark-vowel m that holds level"): on D4-E4 after /u/
 // (part a's *bum*, *hum*, *fum*) the vowel's band above 1 kHz has already fallen 3-8 dB into the closure, so the m sits
 // no lower in that band than the vowel 25-45 ms before and lipShut's darkness test fails. What it does instead is hold:
@@ -544,15 +544,29 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
   const shutRun = () => {
     if (!SH) return null;
     for (let k = 9; k < fr.length; k++) {
-      const fall = Math.max(fr[k - 1].hiRel, fr[k - 2].hiRel) - fr[k].hiRel;
-      if (fall < SH.fall) continue;
+      let top = -Infinity; for (let i = 1; i <= SH.span; i++) top = Math.max(top, fr[k - i].hiRel);
+      if (top - fr[k].hiRel < SH.fall) continue;
       const pre = fr.slice(k - 9, k - 4), pl = median(pre.map((f) => f.lvl)), ph = median(pre.map((f) => f.hiRel));
       const ok = (f) => f.hiRel <= ph - SH.dark && f.lvl - pl >= SH.lo && f.lvl - pl <= SH.hi && tiltOf(f) <= -murmurTilt;
       let e = k; while (e < fr.length && ok(fr[e])) e++;
       const r = [k, e - 1];
       if (e === k || msOf(r) < SH.minMs) continue;
-      const held = fr.slice(k, k + 6), spread = (v) => Math.max(...v) - Math.min(...v);
-      if (spread(held.map((f) => f.lvl)) > SH.hold || spread(held.map((f) => f.hiRel)) > SH.hiHold) continue;
+      const spread = (v) => Math.max(...v) - Math.min(...v);
+      let steady = false, at = 0;
+      for (let s = 0; s <= SH.settle && !steady && k + s + 6 <= e; s++) {
+        const held = fr.slice(k + s, k + s + 6);
+        steady = spread(held.map((f) => f.lvl)) <= SH.hold && spread(held.map((f) => f.hiRel)) <= SH.hiHold;
+        at = s;
+      }
+      // the slow form: a hold that only starts `at` > 0 frames after the fall counts when the band above 1 kHz never
+      // climbs back more than SH.rise dB over its lowest point since the fall, up to the hold's end (a fading vowel's
+      // vibrato brings it back 6-10 dB; eval/coda-check.mjs A's /u/ on C4). A hold from the fall itself is the rule as before.
+      if (steady && at > 0 && SH.rise != null) {
+        let lo = Infinity;
+        for (const f of fr.slice(k, k + at + 6)) { lo = Math.min(lo, f.hiRel); if (f.hiRel - lo > SH.rise) { steady = false; break; } }
+      }
+      if (trace) (trace.shut = trace.shut || []).push({ k, t: fr[k].t, fall: top - fr[k].hiRel, ms: msOf(r), steady, again: vowelAgain(r), lv: fr.slice(k - 6, k + 10).map((f) => Math.round(f.lvl - pl)), hi: fr.slice(k - 6, k + 10).map((f) => Math.round(f.hiRel - ph)), tilt: fr.slice(k - 6, k + 10).map((f) => Math.round(tiltOf(f))) });
+      if (!steady) continue;
       if (vowelAgain(r)) continue;
       return r;
     }

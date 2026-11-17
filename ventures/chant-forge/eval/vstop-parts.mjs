@@ -11,4 +11,5 @@ export const PARTS = {
   Y: { bpm: 102, pitches: [44, 57, 60, 61, 62, 64], all: ['mog', 'fog', 'hog', 'tug', 'dug', 'lug', 'sob', 'cob', 'nub', 'pod', 'gud', 'gad', 'bed', 'beg', 'bid', 'rig', 'gom', 'hun', 'son', 'tun', 'ponc', 'runc', 'ront', 'hont', 'dop', 'hut', 'bic', 'pof', 'mus'] },
   Z: { bpm: 98, pitches: [45, 54, 59, 61, 63, 64], all: ['log', 'pog', 'gog', 'mob', 'rod', 'vod', 'cug', 'hub', 'cud', 'bub', 'fud', 'lib', 'heg', 'rab', 'neb', 'sid', 'lum', 'bon', 'com', 'dun', 'bont', 'lonc', 'dunt', 'sant', 'hunt', 'conc', 'bot', 'luc', 'pap', 'rol', 'hus'] },
   a: { bpm: 94, pitches: [50, 56, 60, 62, 63, 64], all: ['bum', 'vum', 'fum', 'hum', 'mun', 'pun', 'gun', 'lun', 'tom', 'pom', 'mon', 'gon', 'bog', 'dod', 'vud', 'gug', 'fob', 'dem', 'ren', 'sim', 'ham', 'munc', 'gont', 'bunc', 'funt', 'nuc', 'tup', 'bup', 'gul', 'tur', 'bu', 'po'] },
+  b: { bpm: 90, pitches: [49, 57, 61, 62, 63, 64], all: ['mum', 'num', 'bun', 'cun', 'run', 'vun', 'dom', 'fom', 'hom', 'som', 'lon', 'ton', 'bud', 'dud', 'god', 'sod', 'vug', 'pem', 'fim', 'lam', 'rem', 'donc', 'tonc', 'nunt', 'vont', 'dup', 'loc', 'hoc', 'mul', 'bor', 'dul', 'fo'] },
 };
