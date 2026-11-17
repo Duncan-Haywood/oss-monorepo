@@ -3,7 +3,7 @@ title: "Two new starting points: parents, and people leaving a job"
 seo_title: "Free calculators for parents and for a layoff, gathered on two pages"
 date: 2026-11-17
 tags: [polish, seo, platform]
-description: "Seventeen existing household tools, from the Child Tax Credit to UK redundancy pay, now have two audience pages written for the search a parent or a laid-off worker types."
+description: "Seventeen household tools, from the Child Tax Credit to UK redundancy pay, now sit on two pages written for what a parent or a laid-off worker searches."
 ---
 
 The site has "for" pages that gather tools by who uses them: [roofers](https://marisstella.app/c/for-roofers/),
