@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqyfRdh3ZebNA4nxWRUu",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T16:39:17Z",
+  "ended": "2026-11-17T17:07:23Z",
+  "wall_minutes": 28.25,
+  "tokens_in": 5364728,
+  "tokens_out": 31812,
+  "cost_usd": 2.7109,
+  "tool_calls": 48,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16998",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Reproduction gate first reported FAIL because the script compared bare statuses against results_converge.json's 'status/qp' strings; fixed the format, gate PASS on 34 cases."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/infra-dcopf/src/infra_dcopf/ipopt_nlp.py",
+      "issue": "Planned a warm-started PIPS second opinion before noticing PYPOWER's pipsopf_solver always starts at the bound midpoint; the docstring says so but only IPOPT gives an independent check. Worth a line in the project README."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "cyipopt is not in the image; installing coinor-libipopt-dev + pip cyipopt took about 2 minutes in the background and worked; not listed next to the yosys/pdflatex install notes."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/infra-dcopf/LOG.md (plan)",
+      "why": "Two after-the-run checks not in the pre-registered plan: a reproduction gate and an IPOPT second solver on the 5 PIPS failures",
+      "did": "declared both in the outcome entry as after-the-run",
+      "result": "gate PASS; IPOPT confirmed 4 of 5 PIPS failures, overturned 1 (case179 SAD)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-the-grid-repair-was-aiming-at-an-empty-set.md",
+    "research/infra-dcopf/LOG.md (plan + outcome)",
+    "research/grid-linopf/LOG.md",
+    "research/grid-linopf/README.md bullet"
+  ],
+  "goal": null,
+  "notes": "Free-choice draw; chose grid-linopf's open Next (case73 API local-infeasibility test). Checks: research/_homepage/build.py ok, check_md_links ok, programme_check ok, post front matter/links/similarity ok. No src change, so infra-dcopf tests not rerun.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "95f13674-e83d-5c6e-b471-56e4b546d549",
+    "transcripts": 1,
+    "first": "2026-11-17T16:39:17Z",
+    "last": "2026-11-17T17:07:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 91,
+        "output": 31812,
+        "thinking": 8473,
+        "cache_read": 5236254,
+        "cache_write_5m": 0,
+        "cache_write_1h": 128383,
+        "api_equivalent_usd": 2.7109,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 91,
+      "output": 31812,
+      "thinking": 8473,
+      "cache_read": 5236254,
+      "cache_write_5m": 0,
+      "cache_write_1h": 128383,
+      "api_equivalent_usd": 2.7109,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 48,
+    "tools": {
+      "Bash": 44,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 28.25,
+      "active_minutes": 28.25,
+      "model_minutes": 5.04,
+      "tool_minutes": 23.21,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

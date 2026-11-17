@@ -134,6 +134,16 @@ open. MIT licensed, no dependencies, nothing uploaded.
   in the model's own units (millimetres or feet in these exports), not SI, in
   this checker and in IfcTester; the row says so.
   `eval/model-attr-ranges-2026-11-17.md`.
+  **The model's range on dates, times and durations** (2026-11-17): with a
+  model open, an IFCDATE, IFCDATETIME, IFCTIME or IFCDURATION row says
+  which dates the model's values run between and offers **Use the model's
+  range** beside "Allow exactly these values". The earliest and latest come
+  from every value (not the 50 listed), merged across classes; a property
+  holding any value of another form ("TBC" in a date) gets no range, since
+  none would pass it. On 600 generated doors the range passes the model in
+  the page, fails a door one day late, and "Write as a pattern" keeps both
+  verdicts. No public real export at hand holds a date to try it on.
+  `eval/model-date-range-2026-11-17.md`.
   **Exclusive bounds** (2026-11-17): each bound of a **between** row is
   "at least" or "more than", "at most" or "less than", written as
   `xs:minExclusive` / `xs:maxExclusive`, counted in a condition's model
@@ -155,6 +165,25 @@ open. MIT licensed, no dependencies, nothing uploaded.
   failing doors. Presence-only standard properties with no dataType now open
   as rows: 86.4% of public facets editable (was 85.2%), 17 of 64 files fully
   editable (was 14). `eval/date-ranges-2026-11-17.md`.
+  **One of on dates and durations** (2026-11-17): a one-of row on those types
+  writes its list on the same base (`xs:date`, ...), not `xs:string`; an opened
+  list on either base opens as a row, and one on `xs:string` (what the editor
+  wrote before) keeps it, so earlier files write back byte for byte, with a
+  **Write on xs:date** button. Both checkers compare the listed values as text
+  whatever the base: 8 rows on 61 doors give the same failing doors on both
+  bases, 16 of 16 the same in IfcTester 0.9.0, and the row says that P24M does
+  not match P2Y. 13 of the 29 date lists in the IDS-Audit-tool valid files now
+  open as rows (28.1% editable, was 26.5%). `eval/date-oneof-2026-11-17.md`.
+  **Specifications with no class** (2026-11-17): IDS lets a specification
+  select objects by an attribute or property alone ("anything with a Version",
+  "anything where Pset_WallCommon.IsExternal is true"). Such a specification now
+  offers every standard set and every attribute some class has (468 in IFC4),
+  typed only when every class that has the attribute types it the same
+  (OverallHeight is a length everywhere, so it gets a range; Name is
+  IFCSIUNITNAME on IFCSIUNIT, so it stays text), and opened ones edit as rows:
+  IDS-Audit-tool valid files 75.9% of facets editable (was 28.1%), public
+  files 89.2% (was 86.4%), every file still written back asking the same.
+  `eval/no-class-specs-2026-11-17.md`.
 - Exports: BCF 2.1 (one topic per failing element, selected by IfcGuid), CSV,
   JSON.
 - 22 MB Revit export (Schultz Residence, 424,819 entities): 1.4 s on the command
@@ -183,6 +212,22 @@ open. MIT licensed, no dependencies, nothing uploaded.
   structural file; on buildingSMART's Simple-Scene, the house roof in
   architecture and structure and two manholes in plumbing and electrical.
   `eval/federated-globalids-2026-11-17.md`.
+- **Shared on purpose: an allow list, and the types that follow an element**
+  (2026-11-17): a type, property set or relationship that only follows a
+  shared element (its IfcRelDefinesByType, its material link) is listed under
+  that element ("with it: ...") instead of being a finding of its own, and a
+  relationship whose one GlobalId links different objects in different files
+  is called out as such (a viewer merging by GlobalId keeps one and drops the
+  other's links). `--shared-globalids-allow FILE` (Action input
+  `shared-globalids-allow`) takes a team's list, one rule per line: a GlobalId,
+  a class (`IFCGRID`), a class and a name (`IFCBUILDINGELEMENTPROXY "origin"`,
+  `*` matching any run) or `* "name"`. A shared element every holder of which
+  matches is not counted, nor is what follows it; rules that matched nothing
+  are listed so a stale list does not hide a new mistake. On buildingSMART's
+  IFC4 Simple-Scene the findings go from 35 to 23 with no list (8 elements
+  carry 14 followers; 12 relationships reuse one GlobalId for different
+  links) and to 21 with two rules for its survey markers, which clear 8
+  GlobalIds. HHS Office is unchanged (1 wall). `eval/federation-allow-2026-11-17.md`.
 
 ## Why someone would use it
 
@@ -663,8 +708,13 @@ faster than IfcTester; its point is needing no install.
   numeric attribute ranges 2026-11-17, `eval/model-attr-ranges-2026-11-17.md`;
   untyped value rows 2026-11-17, `eval/untyped-values-2026-11-17.md`;
   exclusive bounds 2026-11-17, `eval/exclusive-bounds-2026-11-17.md`;
-  date and duration ranges 2026-11-17, `eval/date-ranges-2026-11-17.md`):
-  "Use the model's range" for dates; `xs:date` one-of rows;
+  date and duration ranges 2026-11-17, `eval/date-ranges-2026-11-17.md`;
+  the model's range on dates 2026-11-17, `eval/model-date-range-2026-11-17.md`;
+  one-of rows on dates 2026-11-17, `eval/date-oneof-2026-11-17.md`;
+  specifications with no class 2026-11-17, `eval/no-class-specs-2026-11-17.md`):
+  a one-of row on numbers (166 single-value numeric lists in the IDS-Audit-tool
+  files stay kept); 132 kept property requirements in public files'
+  class specifications (`node eval/kept-facets.mjs` tallies why); a real IFC4 export with dates to try the range on;
   a subclass checkbox per class, not only the first;
   a "fix the dataType" hint built from the 21
   of 122 standard properties real exports write in another type.

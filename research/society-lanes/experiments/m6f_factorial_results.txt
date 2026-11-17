@@ -1,0 +1,57 @@
+Milestone 6f: a 2 x 2 factorial on the robot (steering: people's rule or crowd-side line; speed: people's draw or 1.2 m/s cap) at 20% robots
+HERMES 3.6 m corridor, 16 m; 40 seeds per cell (SEED0 20320000); 120 s runs, the first 40 s warm-up; beta = multiplier x fitted (sf 0.1, cfsm 0.2, ORCA 1.0); bootstrap B = 2000 over seeds; runs pooled by the mean of their cell means
+
+== Cells, pooled over the two runs (people only; 95% bootstrap interval)
+  sf   x0.75 none     transit 7.460 [7.153, 7.791]  lane 0.861 [0.835, 0.886]  share 0.904 [0.881, 0.924]
+  sf   x0.75 control  transit 7.203 [6.960, 7.468]  lane 0.883 [0.862, 0.902]  share 0.913 [0.893, 0.932]
+  sf   x0.75 hp       transit 7.481 [7.229, 7.728]  lane 0.868 [0.847, 0.888]  share 0.912 [0.894, 0.929]
+  sf   x0.75 hc       transit 7.416 [7.090, 7.747]  lane 0.886 [0.862, 0.911]  share 0.913 [0.893, 0.933]
+  sf   x0.75 lp       transit 6.986 [6.774, 7.232]  lane 0.911 [0.893, 0.929]  share 0.958 [0.948, 0.967]
+  sf   x0.75 lc       transit 6.784 [6.579, 7.016]  lane 0.936 [0.918, 0.951]  share 0.968 [0.958, 0.976]
+  cfsm x0.5  none     transit 9.447 [9.335, 9.562]  lane 0.964 [0.953, 0.974]  share 0.958 [0.936, 0.976]
+  cfsm x0.5  control  transit 8.572 [8.496, 8.647]  lane 0.970 [0.965, 0.975]  share 0.955 [0.915, 0.986]
+  cfsm x0.5  hp       transit 9.405 [9.307, 9.508]  lane 0.971 [0.963, 0.978]  share 0.958 [0.937, 0.976]
+  cfsm x0.5  hc       transit 9.371 [9.257, 9.488]  lane 0.970 [0.962, 0.978]  share 0.937 [0.899, 0.967]
+  cfsm x0.5  lp       transit 9.135 [9.047, 9.220]  lane 0.971 [0.965, 0.977]  share 0.979 [0.970, 0.987]
+  cfsm x0.5  lc       transit 8.986 [8.909, 9.068]  lane 0.974 [0.967, 0.980]  share 0.982 [0.974, 0.990]
+  orca x0.02 none     transit 10.153 [9.321, 11.020]  lane 0.786 [0.766, 0.808]  share 0.669 [0.621, 0.719]
+  orca x0.02 control  transit 8.091 [7.750, 8.452]  lane 0.846 [0.828, 0.863]  share 0.702 [0.649, 0.751]
+  orca x0.02 hp       transit 9.975 [9.246, 10.777]  lane 0.806 [0.785, 0.826]  share 0.707 [0.660, 0.753]
+  orca x0.02 hc       transit 10.148 [9.002, 11.734]  lane 0.821 [0.796, 0.845]  share 0.716 [0.665, 0.765]
+  orca x0.02 lp       transit 9.020 [8.389, 9.695]  lane 0.835 [0.817, 0.853]  share 0.790 [0.749, 0.829]
+  orca x0.02 lc       transit 9.198 [8.632, 9.789]  lane 0.813 [0.791, 0.834]  share 0.815 [0.784, 0.843]
+  orca x1.0  none     transit 6.552 [6.520, 6.585]  lane 0.995 [0.993, 0.996]  share 0.999 [0.998, 0.999]
+  orca x1.0  control  transit 6.524 [6.485, 6.565]  lane 0.992 [0.990, 0.995]  share 0.998 [0.996, 0.999]
+  orca x1.0  hp       transit 6.599 [6.561, 6.636]  lane 0.993 [0.991, 0.995]  share 0.999 [0.998, 1.000]
+  orca x1.0  hc       transit 6.581 [6.554, 6.609]  lane 0.993 [0.991, 0.995]  share 0.998 [0.995, 0.999]
+  orca x1.0  lp       transit 6.546 [6.514, 6.583]  lane 0.995 [0.993, 0.996]  share 0.999 [0.999, 1.000]
+  orca x1.0  lc       transit 6.558 [6.530, 6.587]  lane 0.995 [0.993, 0.996]  share 0.999 [0.998, 0.999]
+
+== Effects (steer, cap: factorial main effects; inter = (lc - lp) - (hc - hp); robot = lc - hp; seed = lc - control; check = hp - none)
+  sf   x0.75 transit steer -0.564 [-0.819, -0.294]  cap -0.134 [-0.383, +0.121]  inter -0.136 [-0.652, +0.390]  robot -0.697 [-1.034, -0.356]  seed -0.419 [-0.755, -0.087]  check +0.021 [-0.380, +0.409]
+  sf   x0.75 lane    steer +0.047 [+0.026, +0.067]  cap +0.021 [+0.002, +0.041]  inter +0.006 [-0.034, +0.046]  robot +0.068 [+0.042, +0.095]  seed +0.053 [+0.028, +0.079]  check +0.007 [-0.025, +0.040]
+  sf   x0.75 share   steer +0.050 [+0.035, +0.065]  cap +0.005 [-0.009, +0.020]  inter +0.009 [-0.022, +0.039]  robot +0.055 [+0.036, +0.076]  seed +0.054 [+0.033, +0.076]  check +0.009 [-0.018, +0.036]
+  cfsm x0.5  transit steer -0.328 [-0.427, -0.231]  cap -0.092 [-0.185, +0.007]  inter -0.114 [-0.306, +0.086]  robot -0.419 [-0.546, -0.285]  seed +0.414 [+0.305, +0.523]  check -0.042 [-0.194, +0.106]
+  cfsm x0.5  lane    steer +0.002 [-0.005, +0.009]  cap +0.001 [-0.006, +0.008]  inter +0.003 [-0.011, +0.018]  robot +0.003 [-0.007, +0.013]  seed +0.004 [-0.005, +0.013]  check +0.007 [-0.006, +0.019]
+  cfsm x0.5  share   steer +0.034 [+0.014, +0.056]  cap -0.009 [-0.031, +0.011]  inter +0.024 [-0.016, +0.070]  robot +0.025 [+0.004, +0.047]  seed +0.027 [-0.006, +0.067]  check -0.000 [-0.028, +0.027]
+  orca x0.02 transit steer -0.952 [-1.948, -0.134]  cap +0.176 [-0.695, +1.178]  inter +0.005 [-1.892, +1.703]  robot -0.776 [-1.789, +0.172]  seed +1.107 [+0.397, +1.791]  check -0.178 [-1.283, +1.015]
+  orca x0.02 lane    steer +0.010 [-0.011, +0.031]  cap -0.004 [-0.025, +0.019]  inter -0.037 [-0.080, +0.004]  robot +0.007 [-0.021, +0.037]  seed -0.033 [-0.061, -0.003]  check +0.020 [-0.010, +0.050]
+  orca x0.02 share   steer +0.091 [+0.050, +0.133]  cap +0.017 [-0.026, +0.058]  inter +0.016 [-0.068, +0.100]  robot +0.107 [+0.052, +0.161]  seed +0.113 [+0.054, +0.171]  check +0.038 [-0.028, +0.105]
+  orca x1.0  transit steer -0.038 [-0.070, -0.006]  cap -0.003 [-0.034, +0.028]  inter +0.030 [-0.037, +0.090]  robot -0.042 [-0.088, +0.006]  seed +0.033 [-0.014, +0.082]  check +0.047 [-0.004, +0.097]
+  orca x1.0  lane    steer +0.001 [-0.000, +0.003]  cap -0.000 [-0.002, +0.002]  inter +0.000 [-0.004, +0.004]  robot +0.001 [-0.001, +0.004]  seed +0.002 [-0.000, +0.005]  check -0.001 [-0.004, +0.001]
+  orca x1.0  share   steer +0.001 [-0.000, +0.002]  cap -0.001 [-0.002, +0.000]  inter +0.001 [-0.002, +0.003]  robot +0.000 [-0.001, +0.001]  seed +0.001 [-0.001, +0.003]  check -0.000 [-0.002, +0.001]
+
+== Robots' own median speed (m/s), mean over runs and seeds
+  sf   x0.75 hp 1.224  hc 1.166  lp 1.269  lc 1.203
+  cfsm x0.5  hp 0.877  hc 0.901  lp 0.946  lc 0.981
+  orca x0.02 hp 1.059  hc 1.032  lp 1.118  lc 1.110
+  orca x1.0  hp 1.241  hc 1.194  lp 1.257  lc 1.200
+
+Predictions (LOG.md, milestone 6f):
+V1 (check (hp - none) transit interval contains 0 in all four settings): held (sf x0.75 +0.021 [-0.380, +0.409]; cfsm x0.5 -0.042 [-0.194, +0.106]; orca x0.02 -0.178 [-1.283, +1.015]; orca x1.0 +0.047 [-0.004, +0.097])
+V2 (seed (lc - control) transit interval above 0 in cfsm x0.5 and orca x0.02, below 0 in sf x0.75): held (sf x0.75 -0.419 [-0.755, -0.087]; cfsm x0.5 +0.414 [+0.305, +0.523]; orca x0.02 +1.107 [+0.397, +1.791]; orca x1.0 +0.033 [-0.014, +0.082])
+V3 (robot (lc - hp) transit interval above 0 in cfsm x0.5 and orca x0.02): refuted (cfsm x0.5 -0.419 [-0.546, -0.285]; orca x0.02 -0.776 [-1.789, +0.172])
+V4 (steer transit interval above 0 and larger than the cap effect (points) in cfsm x0.5 and orca x0.02): refuted (steer cfsm x0.5 -0.328 [-0.427, -0.231], cap -0.092; steer orca x0.02 -0.952 [-1.948, -0.134], cap +0.176)
+V5 (cap transit interval contains 0 in cfsm x0.5): held (cfsm x0.5 -0.092 [-0.185, +0.007])
+V6 (sf x0.75: steer transit interval below 0): held (sf x0.75 -0.564 [-0.819, -0.294])
+V7 (sf x0.75: steer lane order interval above 0): held (sf x0.75 +0.047 [+0.026, +0.067])

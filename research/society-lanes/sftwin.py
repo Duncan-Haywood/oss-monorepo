@@ -30,6 +30,11 @@ agents placed are robots and re-enter as robots, steered by a passing-side polic
 side bias, and the run also reports passes and their clearance. With robots = 0 and passes off
 the run is unchanged, random draws included.
 
+Milestone 6f adds two robot settings for a factorial on what makes a robot unlike a person:
+policy="human" (robots.HUMAN) leaves a robot on the people's own steering rule, side bias included, and
+robot_speed="people" (robots.PEOPLE_SPEED) gives each robot entry a desired speed drawn as a person's.
+A robot with both is a person in every respect except that the people-only measures leave it out.
+
 Needs numpy and jupedsim (`python3 platform/ci/pyenv.py jupedsim numpy`).
 """
 from __future__ import annotations
@@ -144,7 +149,8 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
     stage = sim.add_direct_steering_stage()
     journey = sim.add_journey(jps.JourneyDescription([stage]))
     agents = {}  # id -> [dir, goal_y, born_after_start, is_robot, robot_goal_y]
-    v_robot = R.ROBOT_SPEED if robot_speed is None else robot_speed
+    people_speed = robot_speed == R.PEOPLE_SPEED   # milestone 6f: robots draw people's free speed
+    v_robot = R.ROBOT_SPEED if robot_speed is None else (math.nan if people_speed else robot_speed)
 
     def goal_for(d):
         if not goals:
@@ -152,7 +158,7 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
         return width * (exit_frac if rng.random() < 0.5 else 1.0 - exit_frac)
 
     def add(x, y, d, v0, new, robot=False):
-        if robot:
+        if robot and not people_speed:
             v0 = v_robot
         if model == "sf":
             par = jps.SocialForceModelAgentParameters(
@@ -222,7 +228,7 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
                 ids = [a for a, kk in zip(ids, keep) if kk]
                 pos, d, g = pos[keep], d[keep], g[keep]
                 tx, ty = steer_targets(pos, d, g, beta, width, length, radius, rule)
-                if robots:
+                if robots and policy != R.HUMAN:
                     isr = np.array([agents[a][3] for a in ids], dtype=bool)
                     if isr.any():
                         rg = np.array([agents[a][4] for a in ids], dtype=float)
@@ -251,7 +257,8 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
                     if len(pos) and np.min((pos[:, 0] - x0) ** 2 + (pos[:, 1] - y0) ** 2) < CLEARANCE ** 2:
                         break
                     try:
-                        add(x0, y0, dd, v_robot, True, robot=True)
+                        add(x0, y0, dd, desired_speeds(rng, 1)[0] if people_speed else v_robot, True,
+                            robot=True)
                     except RuntimeError:
                         break
                     rqueue[dd] -= 1

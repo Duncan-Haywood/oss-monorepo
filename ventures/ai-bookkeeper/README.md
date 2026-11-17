@@ -3012,6 +3012,24 @@ move; the `voteTax` guard of the SRD run moves nothing on CORD. Details:
 [`eval/cord-shard0-lead-2026-11-17.md`](eval/cord-shard0-lead-2026-11-17.md). Tests:
 `receipt-shard0.test.mjs`.
 
+### WildReceipt: 472 held-out photos from a new source (2026-11-17)
+
+Every CORD photo had been read, so the reader was measured on a source no rule was written from:
+[WildReceipt](eval/wildreceipt/README.md) (Apache-2.0), shop, restaurant, fuel and hotel receipts
+from the US, Europe, Asia and Australia. On its 472 test photos, before any change, the CLI's five
+readings (`--rapidocr --four-pass`) read **357 of 405 totals (88.1%)** and 194 of 272 taxes;
+tesseract alone 291 (71.9%). Its first train shard (634 photos) was the development set. Rules
+written from its misses: a tax word glued to its rate or the word before (`MwSt19%`, `Tax1:`,
+`SalesTax`, `TOTAL-TAX`; RapidOCR drops spaces); `TOTAL SAVED`, `TOTAL INCLUDES GST OF`,
+`Total HT`, `TOTAL SIN IVA`, `Tax/Fee Total` and county tax lines are not the total; German
+`Netto` with cents is the amount before VAT (Indonesian `Netto 137,500` stays a total);
+`UKUPNO`, `RAZEM`, `CELKEM`, `TOPLAM` are total words. Held-out test, scored once after: CLI
+totals 357 to 359, tax 194 to 204; page 356 to 358, tax 191 to 202; RapidOCR alone tax 164 to 185.
+SRD tax 162 to 164, totals unchanged; CORD text tax 324 to 325. The run had seen the test miss
+list before moving to the train shard, so the test gain is not perfectly clean (the report says
+which rules that touches). Details: [`eval/wildreceipt-2026-11-17.md`](eval/wildreceipt-2026-11-17.md).
+Tests: `receipt-wildreceipt.test.mjs`.
+
 ### CORD train shards 1-3: 600 more unseen photos (2026-11-17)
 
 The other three CORD train shards, read for the first time, score 356 of 583 totals (61.1%)

@@ -19,3 +19,9 @@
 - (2026-11-17) control series: step-only rule calibrated in sims, but 11 of 13 annual state tobacco ratios refused as wanders (README "The step alone"): synthetic control (README "A floored ratio"): CA -26.5 packs at 2000, rank 1 of 39 with the floored ratio (default)
 - (2026-11-17) synthetic control with covariates: one-start V (README "Matched on covariates") and six-start V (README "Several starts for V") both fail the real bars (six starts also fail size in N7 and E1); Oregon cannot be fitted by any V on income, price and lags 1983/1988/1996 (eval/synth-multi-oregon-diag.out.txt)
 - (2026-11-17) (1) slopes: logs fail, 2 hinges ship (refuse short sticky series), given date: --known-date on CLI, page, engine
+- (2026-11-17) multi-start V (README "Several starts for V") failed too: no V fits Oregon
+- (2026-11-17) covariates (README "Matched on covariates") failed
+- (2026-11-17) MA, AZ, OR ranks 6-13
+- (2026-11-17) (2) synthetic control (README "A floored ratio"): CA rank 1 of 39
+- (2026-11-17) 3 log n led on all TCPD post hoc (0.754 vs 0.697 on the 34 non-sticky), test it on fresh labelled data
+- (2026-11-17) (b) sticky series on a drifting level: four repeat treatments failed the frozen-juice bar

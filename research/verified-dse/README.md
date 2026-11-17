@@ -161,6 +161,12 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   where the ladder fails (15.64% against 16.63%) and gives up 0.97 where it is perfect. Four of six predictions refuted; the
   probe-guard search for this rule closes here:
   [`experiments/delay_check/`](experiments/delay_check/results.txt).
+- **On 26 more blind designs at 65% placement utilisation the clipped ladder beats equal-cost random routing 22 to 4, and over
+  46 designs at 65% it wins 38 to 8 with the same edge as at 40% (milestone 142, flow run, all eight predictions held).** The rest
+  of milestone 141's seeded order (26 of 32 finished): SWC 2.41% mean regret against 5.75% (sign p = 0.0005). Over all 46: 2.46%
+  against 6.35%; the change from 40% is -0.61 points (95% interval -1.60 to +0.37) and the sign agrees on 39 of 46. Division is
+  the one family where SWC is no better than random on the mean:
+  [`experiments/util65_rest/`](experiments/util65_rest/results.txt).
 - **At a second operating point, 65% placement utilisation, the clipped ladder still beats equal-cost random routing on 16 of 20
   blind designs, with the same size of edge as at 40% (milestone 141, flow run, all seven predictions held).** Routing is dearer
   (median routed/r2 7.56 against 5.29) and the routed ranking moves (median tau-b 0.74 against the 40% table), yet SWC has 2.52%

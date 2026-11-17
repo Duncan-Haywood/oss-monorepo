@@ -24,7 +24,9 @@
 // value the editor offers is one a check of that model accepts. `values` is
 // [[lexical form, objects carrying it]] for the most common MAX_LISTED;
 // `distinct` counts different values up to MAX_TRACKED (`more` when there were
-// further ones); `min`/`max` are the numeric range, exact (not rounded).
+// further ones); `min`/`max` are the numeric range, exact (not rounded);
+// `tmin`/`tmax` the earliest and latest value when every value is an ISO date,
+// date-time, time or duration of one form `tkind` ("mixed" otherwise).
 //
 // Attributes (`attrs`, those the editor offers: stored, single, comparable;
 // not GlobalId, one value per object)
@@ -38,6 +40,7 @@
 
 import { psetsOf, classificationsOf, materialNames, QUANTITY_MEASURE, PropertyFacet } from "./ids.mjs";
 import { editableAttributes } from "./editor.mjs";
+import { temporalKind, temporalKey } from "./temporal.mjs";
 
 export const MAX_LISTED = 50;
 export const MAX_TRACKED = 500;
@@ -88,16 +91,31 @@ export function propertyDataType(model, p) {
 }
 
 const bump = (m, k, n = 1) => m.set(k, (m.get(k) || 0) + n);
-const tally = () => ({ count: 0, empty: 0, values: new Map(), more: false, min: null, max: null });
+const tally = () => ({ count: 0, empty: 0, values: new Map(), more: false, min: null, max: null, tkind: null, tmin: null, tmax: null });
+// The earliest and latest of a value list's dates, date-times, times or
+// durations, over every value (not only the listed ones), ordered as the
+// checker orders range bounds (temporal.mjs). tkind is the one ISO form every
+// value has, or "mixed" when a value has another form or none: then no range
+// passes them all, and the editor offers none.
+function addTemporal(t, text) {
+  if (t.tkind === "mixed") return;
+  const k = temporalKind(text);
+  if (!k || (t.tkind && t.tkind !== k)) { t.tkind = "mixed"; t.tmin = t.tmax = null; return; }
+  t.tkind = k;
+  const v = temporalKey(text);
+  if (t.tmin === null || v < temporalKey(t.tmin)) t.tmin = text;
+  if (t.tmax === null || v > temporalKey(t.tmax)) t.tmax = text;
+}
 // One object's distinct [text, num] values into a tally.
 function addValues(t, vals) {
   for (const [text, num] of vals) {
     if (t.values.has(text) || t.values.size < MAX_TRACKED) bump(t.values, text);
     else t.more = true;
     if (num !== null) { if (t.min === null || num < t.min) t.min = num; if (t.max === null || num > t.max) t.max = num; }
+    addTemporal(t, text);
   }
 }
-const tallyOut = (t) => ({ count: t.count, empty: t.empty, values: ranked(t.values).slice(0, MAX_LISTED), distinct: t.values.size, more: t.more, min: t.min, max: t.max });
+const tallyOut = (t) => ({ count: t.count, empty: t.empty, values: ranked(t.values).slice(0, MAX_LISTED), distinct: t.values.size, more: t.more, min: t.min, max: t.max, tkind: t.tkind, tmin: t.tmin, tmax: t.tmax });
 
 // The attributes of `cls` the editor offers, with their index and primitive.
 function attrSlots(S, cls) {
@@ -136,7 +154,7 @@ export function modelInventory(model, measureUnits = null) {
         s.count++;
         for (const [pn, p] of slot.props) {
           let pr = s.props.get(pn);
-          if (!pr) s.props.set(pn, (pr = { count: 0, types: new Map(), values: new Map(), more: false, min: null, max: null }));
+          if (!pr) s.props.set(pn, (pr = { ...tally(), types: new Map() }));
           pr.count++;
           addValues(pr, valuesOf(model, p));
           const dt = propertyDataType(model, p);
@@ -169,13 +187,13 @@ export function modelInventory(model, measureUnits = null) {
     withMaterial: c.withMaterial,
     systems: ranked(c.systems),
     attrs: [...c.attrs.entries()].map(([name, t]) => ({ name, ...tallyOut(t) })).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name)),
-    codes: [...c.codes.entries()].map(([system, t]) => { const { min, max, ...o } = tallyOut(t); return { system, ...o }; }).sort((a, b) => b.count - a.count || a.system.localeCompare(b.system)),
+    codes: [...c.codes.entries()].map(([system, t]) => { const { min, max, tkind, tmin, tmax, ...o } = tallyOut(t); return { system, ...o }; }).sort((a, b) => b.count - a.count || a.system.localeCompare(b.system)),
     sets: [...c.sets.entries()].map(([name, s]) => ({
       name,
       count: s.count,
       props: [...s.props.entries()].map(([pn, pr]) => {
         const types = ranked(pr.types).map(([t]) => t);
-        return { name: pn, count: pr.count, dataType: types[0] || null, dataTypes: types, values: ranked(pr.values).slice(0, MAX_LISTED), distinct: pr.values.size, more: pr.more, min: pr.min, max: pr.max };
+        return { name: pn, count: pr.count, dataType: types[0] || null, dataTypes: types, values: ranked(pr.values).slice(0, MAX_LISTED), distinct: pr.values.size, more: pr.more, min: pr.min, max: pr.max, tkind: pr.tkind, tmin: pr.tmin, tmax: pr.tmax };
       }).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name)),
     })).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name)),
   })).sort((a, b) => b.count - a.count || a.cls.localeCompare(b.cls));

@@ -360,7 +360,13 @@ This repo currently contains the first testable core utilities:
   RAW+JPEG pairs (same folder and stem) count as one shot: the JPEG is scored, the RAW is listed as a companion, one sidecar covers both (2026-11-04, made-up files only).
   is the standalone culling pass: it scores each still (JPEG, PNG, TIFF, or a
   RAW file's embedded preview), groups near-identical frames by dHash (Hamming
-  distance 8 or less, single linkage), keeps the best frame per group as the
+  distance 8 or less, single linkage, or, since 2026-11-17, a crop-tolerant match:
+  frames up to 24 apart also group when two of their 88% windows on a 5 x 5 grid
+  are within 6 and at least 5 closer than the whole frames, so a burst the
+  camera panned or zoomed a few percent through stays one group; on burst-like
+  pairs cut from 166 held-out real photos, pair recall 0.40 to 0.72 for 2 more
+  false merges in 13,695 pairs of distinct photos,
+  `eval/cull-crop-grouping-2026-11-17.md`), keeps the best frame per group as the
   keeper, and rejects blurred, badly exposed or (with `SHOOTFLOW_FACE_DETECTOR`)
   closed-eye frames. It writes `cull_report.json` and `cull_report.html`, and
   with `--write-xmp` a Lightroom/Bridge sidecar per photo (keeper 4 stars,
@@ -1461,6 +1467,14 @@ profile kept it. With no truth on those frames the check is behavioural: at ISO 
 1.5% of pixel values (PSNR 58 dB against directional), at ISO 800-6400 a median 23% (48 dB). It costs about
 0.5 s per megapixel and up to 6.4 GB on a 36 MP frame, which is why the default demosaic (`auto`) stays
 directional. `tools/noise_fallback_real.py`, `eval/noise-fallback-real-2026-11-17.md`.
+
+**A higher scale was tried and did not ship (2026-11-17, evening).** The frame-read model is scaled to 0.8 of
+what patch PCA reads, which keeps 41-71% of the true model's gain on noisy tiles. A scale picked on tune
+rows only, constant or switched per frame by three frame statistics (block spread over PCA, patches the texture
+test keeps, and how much the reading drops when the mosaic is binned), always climbs to 1.25 and loses up to
+2.51 dB on held tiles. Even 0.9 loses 0.21 dB. Every loss at 0.9-1.1 is on one fine-grained crop that the
+frame statistics cannot tell from noise, so 0.8 stays. `tools/noise_aware_estimated.py adapt`,
+`eval/noise-scale-per-frame-2026-11-17.md`.
 
 ## A directional demosaic for Bayer files (2026-11-15)
 

@@ -6027,3 +6027,103 @@ spread over the whole before-period (every fifth year, or the before-period's me
 crosses the pool's is matched on its path; or drop the predictor search and add covariates as a check on the
 outcome-only fit's weights (Abadie 2021, section 7: report the covariate balance of the outcome fit). Until then the
 outcome-only fit with the floored ratio is the one to use (California 1st of 39).
+
+### Covariate balance of the outcome-only fit: California is matched on sales, not on income (2026-11-17, a diagnostic; not pre-registered, changes no p)
+
+The multi-start round ended recommending the outcome-only fit and, as the alternative to more predictor searches,
+"add covariates as a check on the outcome-only fit's weights (Abadie 2021, section 7)". `covariateBalance(r,
+covariates)` in `synth-control.mjs` does that. It takes a `synthControlTest` result and any per-unit covariates, and
+for each one prints the treated value, the synthetic control's (the fit's donor weights applied to the donors' values),
+the plain donor average, and both gaps divided by the covariate's spread over all units (a standardised difference,
+flagged past 0.25, the usual matching rule of thumb, Stuart 2010). It also puts the treated fit among the placebos:
+every donor's own synthetic control (now kept on `r.placebos[i].donorWeights`) is scored the same way, and
+"placebos matched better" is the share closer on that covariate than the treated fit is. It is a description of the
+fit, not a test, and no p moves.
+
+Run on the four real tax rises with the covariate round's definitions plus the before-period mean of packs per head
+(`node eval/synth-balance-real.mjs`, `eval/synth-balance-real.out.txt`; standardised gaps, synthetic vs treated):
+
+| State, date | ln income | price per pack | packs, three lags | packs, before mean | floored p |
+|---|---|---|---|---|---|
+| California 1989 | **+1.66** (89% of placebos better) | **-0.33** (34%) | +0.01, -0.00, -0.08 | -0.00 | 0.026 |
+| Massachusetts 1993 | +0.13 | -0.05 | -0.17, -0.01, -0.02 | -0.00 | 0.154 |
+| Arizona 1995 | +0.17 | **-0.67** (60%) | -0.24, +0.15, -0.10 | -0.00 | 0.361 |
+| Oregon 1997 | **+0.39** (26%) | **+0.97** (81%) | **-0.33**, +0.03, -0.10 | -0.00 | 0.214 |
+
+**What it shows.** Matching every before-year of sales balances the sales lags and the before mean almost exactly, as it
+must. It does not balance income: California's synthetic control (Utah, Montana, Nevada, Connecticut) is 1.66 standard
+deviations poorer than California, worse than 89% of the placebos' own fits, and the plain donor average is no closer
+(1.73). The price gap is small in cents (2.3 cents a pack) but past the flag. So the published gap of about 20 packs a
+head rests on the assumption that income does not move cigarette sales differently in California and in its poorer
+synthetic control after 1989; a reader should say so when quoting it. **Massachusetts is the useful negative:** its
+outcome-only fit balances all six covariates (no gap past 0.13) and it still ranks 6th of 39 (p 0.154), so the earlier
+rounds' hope that covariates would rescue it is not supported: its weak rank is not an imbalance the covariates
+measure. Oregon's synthetic control is cheaper than Oregon by 13 cents a pack before 1997 (0.97 sd, worse than 81% of
+placebos), which is consistent with the covariate round's finding that no predictor weighting fits it.
+
+**Limits.** The paper's 15-24 population share and beer consumption are still missing (no documented source reached),
+the 0.25 flag is a convention, not a calibrated bar, and four states cannot say whether imbalance predicts a biased gap;
+a simulation where a covariate drives the outcome after the date would. **Next:** that simulation (does the flag pick
+out the panels whose gap is biased?), then print the balance table with the synthetic-control result once the CLI
+offers one.
+
+Sources: Abadie, A. (2021), "Using synthetic controls: feasibility, data requirements, and methodological aspects",
+Journal of Economic Literature 59(2), 391-425, doi:10.1257/jel.20191450; Abadie, A., Diamond, A. and Hainmueller, J.
+(2010), JASA 105(490), 493-505, doi:10.1198/jasa.2009.ap08746; Stuart, E. A. (2010), "Matching methods for causal
+inference: a review and a look forward", Statistical Science 25(1), 1-21, doi:10.1214/09-STS313.
+
+### Which imbalance biases the gap: read "placebos matched better", not the 0.25 flag (2026-11-17, pre-registered, all five bars passed)
+
+The balance round ended: "four states cannot say whether imbalance predicts a biased gap; a simulation where a
+covariate drives the outcome after the date would." `eval/synth-bias-sim.mjs` is that simulation (pre-registration
+`eval/synth-bias-prereg-2026-11-17.md`, committed before the confirmatory run). Panels are the shipped generator's
+(39 units, 19 points before the date, 12 after). Each unit gets one covariate Z (think income); before the date Z does
+nothing, and from the date on every unit, treated and donors alike, moves by beta x Z. The treated unit has no effect
+of its own, so any gap after the date is bias, and the part Z explains is exactly beta x sd(Z) x the standardised gap.
+Each panel is fitted the shipped way (outcome only, floored ratio) and scored with `covariateBalance`. Two candidate
+warnings: the 0.25 flag (`imbalanced`) and "placebos matched better" at 80% or more (the treated unit is matched worse
+on Z than at least 80% of the donors are by their own synthetic controls).
+
+Confirmatory run, fresh seeds (base 43000), 200 panels a cell (`eval/synth-bias-confirm.out.txt`):
+
+| cell | 0.25 flag fires | 80% warning fires | p <= 0.05, warned vs not | mean abs. bias, warned vs not | p <= 0.05 overall |
+|---|---|---|---|---|---|
+| B0 Z does nothing | 84% | 21% | 2.4% vs 1.3% | 0.40 vs 0.32 | 1.5% |
+| B1 beta 0.5 | 85% | 24% | **20.8% vs 0.0%** | **1.04 vs 0.43** | 5.0% |
+| B2 beta 1.0 | 84% | 20% | **12.8% vs 0.0%** | **1.88 vs 0.74** | 2.5% |
+| B3 beta 0.5, treated Z at 1.8 | 100% | 75% | 12.1% vs 2.0% | 1.04 vs 0.62 | 9.5% |
+| B4 beta 0.5, Z tied to the loadings | 79% | 21% | **16.7% vs 0.6%** | **0.80 vs 0.40** | 4.0% |
+| B5 = B3 + a true step of -1 | 100% | 71% | 0% vs 0% | | **0.0%** (power) |
+| B6 = B5 with beta 0 | 100% | 73% | | | **58.5%** (power) |
+
+Bars: (1) the 0.25 flag fires in at least 50% of B0: 84%, passed. (2) In B1, B2 and B4 the 80% warning's panels
+have at least 1.5x the mean absolute bias (2.4x, 2.5x, 2.0x) and a p <= 0.05 share at least 5 points higher (+20.8,
++12.8, +16.1): passed. (3) In B0 it fires in 10-30% of panels: 21%, passed. (4) Size at most 10% in B0-B4: 1.5-9.5%,
+passed (B3 is close). (5) B5's power at most half of B6's: 0% vs 58.5%, passed.
+
+**What it says.**
+- **The 0.25 flag is not a warning.** An outcome-only fit leans on four or five donors, so on any covariate it was not
+  matched on its gap is past 0.25 sd about five times in six, whether or not that covariate matters. It stays in the
+  output as a description.
+- **"Placebos matched better" is the one to read.** At 80% or more it fires on about one panel in five when nothing is
+  wrong, and when a covariate does move the outcome it holds every false finding: 13-21% of warned panels reach
+  p <= 0.05 with no effect at all, against 0-0.6% of the rest, and their gaps are 2-2.5x as biased. The placebo test
+  protects itself when the treated unit is matched no worse than the donors are (their gaps are biased the same way);
+  it stops protecting exactly when the treated unit is the outlier. `covariateBalance` now returns `placeboWarning`
+  (placeboShare >= 0.8, option `placeboQuantile`).
+- **An imbalance can hide a real effect as easily as invent one.** With the treated unit's Z at 1.8 (where
+  California's income sits) and a true drop of 1, the shock pushed the gap up by about as much as the drop, and the
+  test found it in 0 of 200 panels against 58.5% without the shock.
+
+**On the real states** (`eval/synth-balance-real.out.txt`, `!` marks the warning): California's income (89%) and
+Oregon's price (81%) are warned; so are one outcome lag each in MA, AZ and OR (85-87%, gaps of only 0.17-0.33 sd,
+on numbers the fit already matches year by year). So the published California gap carries the warning this simulation
+calibrates: if income moved cigarette sales differently after 1989, the gap and its p of 0.026 can be off in either
+direction, and the simulation cannot say which way. A post-hoc check found the warning never fired on a gap of 0.25 or
+under in simulation, so pairing it with the 0.25 flag would change nothing there; on real outcome lags it would drop
+the three small-gap warnings. Not adopted: not pre-registered.
+
+**Limits.** One covariate, a step shock and the N1 panel shape; real covariates are several and correlated, and their
+shocks need not be steps. The 80% cut was chosen from the exploratory run (50 a cell) before the confirmatory one.
+**Next:** print the balance table, with the warning, from the CLI once it offers a synthetic control; a two-covariate
+cell (one that matters, one that does not) to check the warning names the right one.

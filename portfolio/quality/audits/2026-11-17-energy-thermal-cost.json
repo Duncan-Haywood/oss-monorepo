@@ -1,0 +1,223 @@
+{
+ "date": "2026-11-17",
+ "subject": "research/energy-thermal-cost",
+ "stratum": "research",
+ "seed": "2026-11-17-5df2",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior energy-systems / thermal-storage techno-economics researcher (levelised cost of heat and storage, power-to-heat; PyPSA and Danish Energy Agency cost practice); first checks: do the cost inputs match their cited tables, is the annualisation standard, and is the storage round-trip efficiency taken at cyclic steady state rather than from a first charge from cold",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "The arithmetic and the inputs are right; the headline daily and weekly ratios are not. (1) All 82 rows of data/params.csv match the upstream PyPSA technology-data costs_2030.csv at both pinned revisions (v0.9.2 and 65244b4c), value and unit, 0 mismatches (`/usr/bin/python3.13 -I /tmp/claude-0/audit-etc/cmp_params.py research/energy-thermal-cost/data/params.csv` after fetching both files from raw.githubusercontent.com). (2) Hand recomputation with no subject import (`/usr/bin/python3.13 -I /tmp/claude-0/audit-etc/hand.py`): capital-recovery factor 7%/25 y = 0.085811 (textbook 0.08581); house heat pump 0.0758 EUR/kWh (results 0.076), district 0.0536 (0.054); house seasonal sand store+charger capital 1.534 EUR/kWh, total 1.729, ratio 120.0 (README 1.53 and 120); house resistive heater 0.062 (0.062). (3) Re-ran experiments/run.py in a scratch copy: results.txt byte-identical, 33 s. (4) But cost.py:96 bills every cycle for heating the whole store from ambient (10 C) to 500 C, and the sizing starts from a cold store with cold insulation, while the store only discharges to 100 C: a daily or weekly store never gives back the 10-100 C heat nor re-heats its insulation from cold. An independent cyclic simulation (my cycling loop, the subject's conduction solver only; `/usr/bin/python3.13 -I /tmp/claude-0/audit-etc/cyclic.py /tmp/claude-0/audit-etc/copy/energy-thermal/src`) gives steady-state out/in 0.824 for the house daily store against the 0.63 used, 0.607 against 0.48 weekly, 0.986 against 0.80 for the district daily store. With the steady-state figure the house daily ratio falls from 2.1 to 0.75, i.e. the store wins at equal electricity price; even the one-line partial fix (charge from the 100 C cut-off when cycles > 1) moves house daily/weekly/monthly to 0.91/3.5/13.3 and district daily/weekly to 1.34/1.95 against the README's 2.1/5.0/15.6 and 2.2/2.8 (`/usr/bin/python3.13 -I /tmp/claude-0/audit-etc/fixeffect.py /tmp/claude-0/audit-etc/fixcopy/energy-thermal-cost`). Seasonal (1 cycle a year, store cools between seasons) is unaffected. The parent energy-thermal README:7 had already warned that first-charge figures 'count the 10 to 100 C heat a store in daily use never gives back, so a cycling store does better'.",
+  "completeness": "Every claim checked runs end to end: '10 tests' (10 passed, 1.29 s); run.py writes results.txt deterministically (identical rerun); figure.py regenerates experiments/ratio.svg byte-identically from results.txt; fetch_params.py's pinned revisions reproduce params.csv exactly (checked against the upstream files); sections A-F of results.txt all present and the README headline, district, standby (section D) and water (section F) figures all trace to them. Next steps 1-3 are open and labelled as such; step 1 was done by energy-thermal-hourly. No stubs or TODOs. Minor drift: run.py docstring says 'a few minutes' (33 s).",
+  "verification": "`cd research/energy-thermal-cost && /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests`: 10 passed in 1.29 s. Good anchors exist (textbook annuity, heat-pump cost by hand, 142 kWh/m3, the 222 m3 / 26% anchor from energy-thermal), but nothing pins the store's capital or energy cost to an absolute value. Five mutants via platform/ci/quality_mutate.py: 3 survived (sand store cost /1000 -> /100, a 10x capital error, cost.py:83; charger efficiency multiplied instead of divided, cost.py:101; charger sized over the whole period instead of a quarter, cost.py:98), 2 caught (FOM /100 -> /1000 at cost.py:52 by the heat-pump hand test; heat_in from cut-off instead of ambient at cost.py:96 by the anchor and no-leak tests). The test that catches the last one pins the first-charge accounting that is itself the main defect.",
+  "craft": "Read src/energy_thermal_cost/cost.py (111 lines), __init__.py, tests/test_cost.py, experiments/run.py, experiments/figure.py, data/fetch_params.py, and the imported energy_thermal/model.py. Small, stdlib, deterministic, every cost read from a pinned table with a provenance column; a senior reviewer would accept it with notes. Defects: store_lcoh returns None when sizing fails (cost.py:94) but run.py sections B, C, E and F index r['total'] unchecked (only D checks); units() is read but never used to check the /1000 EUR/MWh conversion (cost.py:83) or the 'EUR/kWhth' label on the decentral resistive heater row that is used as EUR/kW; any kind other than 'sand' silently becomes water (cost.py:85); units() re-reads the CSV per call (run.py:35); results.txt sections print in order A, B, F, C, D, E.",
+  "claims": "Checked against results.txt: house 2.1/5.0/15.6/120.0 ('about 2, 5, 16, 120'), volumes 0.3/2.3/15.1/222, store capital 0.011 and 1.534, heat pump 0.076; district 2.2/2.8/5.3/37.9; standby 2/7, 5/21, 14/60 days; water 12.2, 4.2, 4.5/18.7; cost x3 7.3 and x10 15.2: all pass. AI assistance stated (README:3), headline labelled 'modelled', Limitations section discloses the utility-scale sand cost, the missing heat exchanger (favours the store), flat prices, constant COP, instant discharge. Not disclosed: that each cycle is charged from 10 C and the store starts with cold insulation, a bias against the store of the same order as the headline (README:55 says only 'charged once per cycle'). Small misstatement: README:16 'Daily house-size ratios run from 1.3 ... to 3.6' while section C has 3.9 (store electricity 0.10) and 3.4 (cost x10). Served page https://marisstella.app/research/energy-thermal-cost/ could not be loaded (proxy CONNECT 403); research/README.md:974 summary matches the README.",
+  "fitness": "A researcher can build on it and five later projects did (energy-thermal-hourly, energy-thermal-real, energy-store-flip, energy-store-modelprice, energy-store-cop all import or reuse cost.py), which means they all inherit the first-charge accounting; the 2026-11-13 audit of energy-store-modelprice already flagged the 400/490 part of it, and it was never fixed at source. Nearest prior work: levelised-cost-of-storage practice (Schmidt et al., Joule 2019; Julch, Applied Energy 2016), power-to-heat reviews comparing heat pumps with resistive heating plus storage (Bloess, Schill and Zerrahn, Applied Energy 2018), IRENA Innovation Outlook: Thermal Energy Storage (2020), and commercial sand stores (Polar Night Energy). None is cited; only data sources are. The break-even price-ratio framing is a clean, reusable building block but not new, and its daily/weekly numbers are overstated by a factor of about 1.4 to 2.8.",
+  "domain": "The levelised-cost method (annuity at the table's 4% plus fixed O&M, sized peak for the heat pump, efficiencies from DEA/PyPSA rows) matches PyPSA and DEA practice, and the sensitivity sweep is the right instinct. Departures a storage techno-economist would flag: (a) round-trip efficiency taken from a first charge from cold rather than cyclic steady state, the standard basis for storage efficiency, which is the main error; (b) a utility-scale sand cost (Viswanathan et al. 2022, unknown temperature swing) applied per kWh at a 400 K swing to a 0.3 m3 house store (disclosed, swept x0.5 to x10); (c) no discharge power or heat exchanger (disclosed); (d) constant annual-average COP and flat prices (disclosed)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "params.csv rows equal upstream PyPSA technology-data costs_2030.csv at v0.9.2 and 65244b4c",
+   "method": "fetched both upstream files, compared value and unit per (technology, parameter)",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-etc/cmp_params.py research/energy-thermal-cost/data/params.csv",
+   "expected": "0 mismatches",
+   "observed": "82 rows, 0 mismatches",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Annuity factor and heat-pump LCOH, house and district",
+   "method": "textbook capital-recovery factor r/(1-(1+r)^-n) plus FOM, own script, no subject import",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-etc/hand.py",
+   "expected": "CRF 7%/25y 0.08581; results.txt hp 0.076 (house), 0.054 (district)",
+   "observed": "0.085811; 0.0758; 0.0536",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "House seasonal sand store capital and ratio (V = 222 m3)",
+   "method": "hand: usable 222*1600*800*400/3.6e6 kWh at 8.4252 EUR/kWh, charger over a quarter year at 181.3 EUR/kW, CRF 35 y + FOM",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-etc/hand.py",
+   "expected": "README: capital EUR 1.53/kWh, ratio about 120",
+   "observed": "1.534 EUR/kWh, total 1.729, ratio 120.0",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Round-trip efficiency of a daily/weekly cycled store at cyclic steady state",
+   "method": "own cycling loop (charge to 500 C, stand, discharge to 100 C, repeat 40 cycles) on the energy-thermal conduction solver; compared with the first-charge figure the subject uses",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-etc/cyclic.py /tmp/claude-0/audit-etc/copy/energy-thermal/src",
+   "expected": "results.txt out/in: house daily 0.63, house weekly 0.48, district daily 0.80",
+   "observed": "steady state 0.824, 0.607, 0.986; house daily ratio 2.11 -> 0.75 with the steady-state value",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Headline ratios with the minimal correction (charge from the 100 C cut-off when cycles > 1)",
+   "method": "one-line change to cost.py:96 in a scratch copy, subject's own functions",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-etc/fixeffect.py /tmp/claude-0/audit-etc/fixcopy/energy-thermal-cost",
+   "expected": "README: house 2.1 / 5.0 / 15.6 / 120; district 2.2 / 2.8 / 5.3 / 38",
+   "observed": "house 0.91 / 3.50 / 13.32 / 120.04; district 1.34 / 1.95 / 4.38 / 37.90",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Headline experiment reproduces",
+   "method": "rerun run.py in a scratch copy and diff results.txt",
+   "command": "cd /tmp/claude-0/audit-etc/copy/energy-thermal-cost && PYTHONPATH=src:../energy-thermal/src /usr/bin/python3.13 experiments/run.py && diff experiments/results.txt /tmp/claude-0/audit-etc/results.orig.txt",
+   "expected": "identical (README: deterministic)",
+   "observed": "identical, 33 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Figure regenerates from results.txt",
+   "method": "run figure.py in scratch copy, cmp with committed SVG",
+   "command": "cd /tmp/claude-0/audit-etc/copy/energy-thermal-cost && /usr/bin/python3.13 experiments/figure.py && cmp experiments/ratio.svg /tmp/claude-0/audit-etc/ratio.orig.svg",
+   "expected": "identical",
+   "observed": "identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite runs and count matches README",
+   "method": "pytest",
+   "command": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests",
+   "expected": "10 tests pass",
+   "observed": "10 passed in 1.29 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README headline, district, standby, water and sensitivity numbers trace to results.txt",
+   "method": "read README.md:12-16 against results.txt sections B, C, D, F",
+   "command": "sed -n 9,18p README.md; cat experiments/results.txt",
+   "expected": "every number present",
+   "observed": "all present; one range misstated: 'daily ratios run from 1.3 to 3.6' while section C also has 3.9 (store electricity 0.10)",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "Limitations disclose the biases of the model",
+   "method": "read README.md:50-58 against cost.py:96 and energy-thermal README:7",
+   "command": "grep -n 'charged once\\|from 10\\|first' README.md",
+   "expected": "first-charge-from-cold accounting disclosed, as the parent project did",
+   "observed": "not disclosed; only 'the store is charged once per cycle' (README:55)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served page live",
+   "method": "curl",
+   "command": "curl -sS -m 30 https://marisstella.app/research/energy-thermal-cost/",
+   "expected": "200",
+   "observed": "proxy CONNECT 403 from this session; not checked",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Downstream reuse and whether the known accounting defect was fixed at source",
+   "method": "grep sibling READMEs and prior audits",
+   "command": "grep -n 'energy-thermal-cost' research/*/README.md; grep -l energy_thermal_cost portfolio/quality/audits/*.json",
+   "expected": "defect flagged 2026-11-13 fixed in cost.py",
+   "observed": "5 projects reuse cost.py; energy-store-modelprice README:46 records the 400/490 overstatement; cost.py:96 unchanged",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/energy_thermal_cost/cost.py:83",
+   "change": "store_eur_per_kwh = st[\"investment\"] / 1000.0 -> store_eur_per_kwh = st[\"investment\"] / 100.0",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/energy_thermal_cost/cost.py:101",
+   "change": "elec = cycles * heat_in_kwh / chg_eff * price -> elec = cycles * heat_in_kwh * chg_eff * price",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/energy_thermal_cost/cost.py:98",
+   "change": "charger_kw = heat_in_kwh / (charge_frac * period_h) -> charger_kw = heat_in_kwh / period_h",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/energy_thermal_cost/cost.py:52",
+   "change": "tech[\"FOM\"] / 100.0 -> tech[\"FOM\"] / 1000.0",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/energy_thermal_cost/cost.py:96",
+   "change": "(hot - T_AMB) -> (hot - cut)",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Every cycle is billed for heating the whole store from ambient (10 C) to 500 C, and the store is sized from a cold start with cold insulation, though it only discharges to 100 C: daily and weekly stores never give back the 10-100 C heat or re-heat their insulation. Steady-state out/in is 0.82 (house daily) and 0.99 (district daily) against the 0.63 and 0.80 used; the headline house daily ratio 2.1 becomes 0.75 (store wins at equal price), and even the minimal fix gives house 0.91 / 3.5 / 13.3 and district 1.34 / 1.95 for daily / weekly / monthly against the README's 2.1 / 5.0 / 15.6 and 2.2 / 2.8. Inherited by five downstream projects; flagged in part by the 2026-11-13 energy-store-modelprice audit and not fixed at source.",
+   "where": "research/energy-thermal-cost/src/energy_thermal_cost/cost.py:96",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "No test pins the store's capital or energy cost: a 10x sand-store cost error, an inverted charger efficiency and a 4x charger-size error all leave the 10 tests green. A by-hand test of store_lcoh for one case (like the existing heat-pump test) would catch all three.",
+   "where": "research/energy-thermal-cost/tests/test_cost.py:52",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "The first-charge-from-cold accounting, a bias against the store of the same size as the headline, is not in the Limitations, although the parent energy-thermal README:7 warns that such figures understate a cycling store; only biases in the store's favour are listed.",
+   "where": "research/energy-thermal-cost/README.md:55",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "No prior work cited beyond the data tables: LCOS methodology (Schmidt et al. 2019; Julch 2016), power-to-heat reviews (Bloess, Schill and Zerrahn 2018), IRENA thermal-storage outlook (2020) and commercial sand stores are the obvious comparators.",
+   "where": "research/energy-thermal-cost/README.md:3",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "store_lcoh returns None when sizing fails, but run.py sections B, C, E and F index r['total'] without a check (only section D checks); any kind other than 'sand' silently becomes a water store.",
+   "where": "research/energy-thermal-cost/src/energy_thermal_cost/cost.py:94",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Units are read (units()) but never checked: the EUR/MWh -> EUR/kWh /1000 conversion is hard-coded, and the decentral resistive heater row labelled 'EUR/kWhth' upstream is used as EUR/kW without comment.",
+   "where": "research/energy-thermal-cost/src/energy_thermal_cost/cost.py:83",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "README says daily house ratios 'run from 1.3 to 3.6' while section C also shows 3.9 (store electricity 0.10); run.py docstring says 'a few minutes' (33 s).",
+   "where": "research/energy-thermal-cost/README.md:16",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A tidy, fully reproducible levelised-cost comparison: all 82 cost rows match the pinned PyPSA technology-data tables, run.py and the figure regenerate byte-identically, and the heat-pump, annuity and seasonal-store numbers recompute by hand to the printed digits. It misses the bar on correctness and verification. The store's electricity is billed as a first charge from 10 C every cycle, so daily and weekly stores are charged for heat they never lose; at cyclic steady state the house daily store returns 0.82 of its input, not 0.63, and the headline 'about 2 times dearer' for daily cycling becomes 0.75 to 0.91 (the store wins at equal price), weekly 5.0 becomes about 3.5, district daily 2.2 becomes 1.34. That bias is not disclosed, five downstream projects inherit it, and 3 of 5 seeded bugs in the store-cost path (including a 10x capital error) survive the 10 tests. The seasonal conclusion (about 120 times at house scale, standby loss rules it out) is unaffected and sound."
+}

@@ -25,8 +25,23 @@ export function spread(line) {
 
 // Monthly roll-forward. Deferred revenue at month end = billed to date minus
 // recognised to date. Negative means revenue recognised before it was billed.
+// A credit note line that names the invoice line it credits (Stripe's
+// `invoice_line_item`) reverses that line's unearned remainder: it is spread
+// from its issue date to the credited line's period end, so a prorated refund
+// stops the original schedule instead of booking one day of negative revenue
+// while the cancelled subscription keeps earning (quality audit 2026-11-17).
+export function linkCredits(lines) {
+  const byId = new Map(lines.map((l) => [l.id, l]));
+  return lines.map((l) => {
+    const orig = l.credits && l.amount < 0 ? byId.get(l.credits) : undefined;
+    if (!orig || !(orig.end > orig.start) || !(l.start < orig.end)) return l;
+    return { ...l, start: Math.max(l.start, orig.start), end: orig.end };
+  });
+}
+
 export function schedule(lines, { asOf = Date.now() } = {}) {
   if (!lines.length) return [];
+  lines = linkCredits(lines);
   const billed = {}, rec = {};
   let first = monthOf(asOf), last = monthOf(asOf);
   for (const l of lines) {

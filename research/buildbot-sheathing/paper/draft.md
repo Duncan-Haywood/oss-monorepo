@@ -661,6 +661,18 @@ braked waist takes the G1's worst residual at a 5 N drag from 0.485 to 0.012 mm 
 and 0.11 points. Making only the waist roll and pitch rigid, as on the base G1, leaves 0.485 mm:
 the joint that flips is the yaw. With the pre-2017 sensor a braked waist still leaves 0.873 mm.
 
+Every nail but the first starts from a lifted nose (milestone 40). No recoil figure for a framing
+nailer is published; an 8d nail fired at chronograph speeds of 29.8 to 36.9 m/s [Buchalter et al.
+2002] carries 0.129 to 0.160 N s, a floor, and the force-plate unloading of Lowe et al. [2014]
+gives at most about 8.70 N s a nail, a bracket that straddles the 0.25 to 1 N s at which a
+simulated G1 arm loses the wall. The press then rises from zero. Modelled quasi-statically, that
+rise sets none of the 56 nose-moving joints the window leaves loose: 36 change sign inside the 25
+to 50 N window, and the 11 that stay below the holding threshold peak at 0.159 N m on the rise.
+So the braked spec keeps 0.012 mm at a 5 N drag with either compensator; only at a 20 N drag does
+the rise set one wrist joint, which costs 0.203 mm unless the compensator plans the rise. What the
+lift-off does change is the stance: at 12 of 35 poses the leaned stance balances only above 3.7 to
+11.8 N of press, so it cannot be used with a tool that lifts off.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every
@@ -876,8 +888,10 @@ BibTeX entries are in `paper/references.bib`. Identifiers were checked by
 - Chase, K.W., Parkinson, A.R. (1991). A survey of research in the application of tolerance analysis to the design of mechanical assemblies. *Research in Engineering Design* 3, 23–37. doi:10.1007/BF01580066.
 - Cote, N., Tish, D., Koehle, M., Koga, Y., Chitta, S. (2024). Adaptive robotic construction of wood frames. *Construction Robotics* 8, 8. doi:10.1007/s41693-024-00122-0.
 - Giftthaler, M., et al. (2017). Mobile robotic fabrication at 1:1 scale: the In situ Fabricator. *Construction Robotics*. doi:10.1007/s41693-017-0003-5.
+- Buchalter, G.M., Johnson, L.P., Reichman, M.V., Jacobs, J.B. (2002). Penetrating trauma to the head and neck from a nail gun: a unique mechanism of injury. *Ear, Nose & Throat Journal* 81(11), 779–783. (Nail velocities seen as quoted by NIOSH's 2013 Science Blog post on nail-gun speed; the article itself not read.)
 - Kumagai, I., et al. (2019). Toward industrialization of humanoid robots: autonomous plasterboard installation to improve safety and efficiency. *IEEE Robotics & Automation Magazine* 26(4), 20–29.
 - Lachmayer, L., Recker, T., Dielemans, G., Dörfler, K., Raatz, A. (2022). Autonomous sensing and localization of a mobile robot for multi-step additive manufacturing in construction. *ISPRS Archives* XLIII-B1-2022, 453–458. doi:10.5194/isprs-archives-XLIII-B1-2022-453-2022.
+- Lowe, B.D., Albers, J., Hudock, S.D. (2014). A biomechanical assessment of hand/arm force with pneumatic nail gun actuation systems. *International Journal of Industrial Ergonomics* 44(5), 715–722. doi:10.1016/j.ergon.2014.06.007.
 - Sandy, T., Giftthaler, M., Dörfler, K., Kohler, M., Buchli, J. (2016). Autonomous repositioning and localization of an in situ fabricator. ICRA 2016, 2852–2858.
 - Tobin, J., et al. (2017). Domain randomization for transferring deep neural networks from simulation to the real world. arXiv:1703.06907.
 - Todorov, E., Erez, T., Tassa, Y. (2012). MuJoCo: a physics engine for model-based control. IROS. doi:10.1109/IROS.2012.6386109.

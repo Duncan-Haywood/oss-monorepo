@@ -29,3 +29,10 @@ test("sample data parses cleanly and the schedule always rolls forward", () => {
   for (const x of rows) assert.equal(x.opening + x.billed - x.recognized, x.closing);
   assert.ok(rows.at(-1).closing === 0, "every demo term ends in the future window");
 });
+
+test("a blank amount is skipped, not read as 0, and a credits column links a refund (quality audit 2026-11-17)", () => {
+  const { lines, skipped } = linesFromCsv("id,date,period start,period end,amount,credits\nil_1,2026-01-01,2026-01-01,2027-01-01,1200,\nr1,2026-02-01,2026-02-01,,,\ncn1,2026-02-15,2026-02-15,,(1052.05),il_1\n");
+  assert.equal(lines.length, 2);
+  assert.deepEqual(skipped, [{ line: 3, why: "amount is blank" }]);
+  assert.equal(lines[1].credits, "il_1");
+});

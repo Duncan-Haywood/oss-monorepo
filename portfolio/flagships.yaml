@@ -111,21 +111,23 @@ flagships:
       payments up (99.97% of 445k, README), `--round up`; open: a lender's full
       table, a supplier's terms letter; (5) receipts OCR (five-reading vote keeps
       RapidOCR's total unless arithmetic confirms the majority, CORD train 542/583;
-      page SRD 190/196 (port as lead), page CORD taxes kept (train 205/267), SROIE
-      84.6%, US 79.6%, tax 74.6%; CLI 78.6%, tax 71.9%; CORD photos val 71.4%, train
-      62.2%, test 57.9%, tax 16/41; open: OCR-bound); (6) payroll (README): two
-      journal layouts read; open: a real Gusto or ADP export; (7) IRIS NEC and MISC
-      rents files on IRS TY2025 guidelines (HISTORY): open: a real upload, TY2026
-      template. A run that lands a slice replaces its item here; keep this under
-      2,000 characters. More open items: NEXT.md.
-    inputs_only: >-
-      every open item needs a real outside input (a hosted-model key, real Relay,
-      Gusto or ADP, merchant or lender exports, a real IRIS upload, the TY2026
-      template). The receipts item's last buildable work is two single-receipt
-      misses (train-28 has no narrow rule, eval/cord-shard0-lead-2026-11-17.md;
-      SRD 1009) on photo sets already fully read, and huggingface.co (CORD)
-      refused on 2026-11-17; three runs in two days were sent here and left. A
-      fresh public receipt photo set would make it buildable again.
+      page SRD 190/196 (port as lead), page CORD taxes kept (train 205/267),
+      WildReceipt held out 359/405, tax 204/272, SROIE 84.6%, US 79.6%, tax 74.6%;
+      CLI 78.6%, tax 71.9%; CORD photos val 71.4%, train 62.2%, test 57.9%, tax
+      16/41; open: OCR-bound); (6) payroll (README): two journal layouts read; open:
+      a real Gusto or ADP export; (7) IRIS NEC and MISC rents files on IRS TY2025
+      guidelines (HISTORY): open: a real upload, TY2026 template. A run that lands a
+      slice replaces its item here; keep this under 2,000 characters. More open
+      items: NEXT.md.
+    buildable: >-
+      Receipts, item (5): WildReceipt photos (eval/wildreceipt.py, Hugging Face
+      kaydee/wildreceipt; Apache-2.0), SRD (eval/srd-fetch.mjs), CORD
+      (eval/cord_images.py); tesseract via apt, RapidOCR via pip. WildReceipt test
+      held out: five readings 359 of 405 totals, tax 204 of 272
+      (eval/wildreceipt-2026-11-17.md). Next: train shard 1 (about 630 unread
+      photos) as fresh development; tax amounts in net/tax/gross column rows;
+      EC$/US$ read as ECS/USS before an amount. CORD leftovers: train-28, 1009
+      (eval/cord-shard0-lead-2026-11-17.md).
     hosts: [https://huggingface.co/, https://raw.githubusercontent.com/]
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
@@ -184,19 +186,16 @@ flagships:
       real shop's series through --suggest); (a) ar1 + floor 2 failed on 5 fresh bee
       dances (0.244 vs 0.337, README; muted note ships); ar1 alone led (0.353): a
       6th set, a season and a trend term per column (README "Wide sets in print");
-      (b) sticky series on a drifting level: four repeat treatments failed the
-      frozen-juice bar; 3 log n led on all TCPD post hoc (0.754 vs 0.697 on the 34
-      non-sticky), test it on fresh labelled data; update-rate check: date a
-      documented collection change. Stale feeds: clumped LR shipped; next a real
-      documented carry-forward. joint drift (measured, not offered) and its 2x
-      penalty on fresh multi-column labelled data. Open: (0) drift model: t-walk
-      increments, biweight on fresh data, why it absorbs seat belts and quality
-      control 4, its AR(1) term; (2) synthetic control (README "A floored ratio"):
-      CA rank 1 of 39; MA, AZ, OR ranks 6-13; covariates (README "Matched on
-      covariates") failed; multi-start V (README "Several starts for V") failed too:
-      no V fits Oregon (15.8+ vs 5.5 packs), 3 late lags miss its 1970s; next lags
-      spread over the before-period, or monthly series, then CLI. More open items:
-      NEXT.md.
+      update-rate check: date a documented collection change. Stale feeds: clumped
+      LR shipped; next a real documented carry-forward. joint drift (measured, not
+      offered) and its 2x penalty on fresh multi-column labelled data. Open: (0)
+      drift model: t-walk increments, biweight on fresh data, why it absorbs seat
+      belts and quality control 4, its AR(1) term; covariate balance of the outcome
+      fit (covariateBalance, eval/synth-balance-real.out.txt) 2026-11-17: CA 1.66 sd
+      richer than its synthetic, MA balanced yet 6th; covariate-shock sim (README
+      "Which imbalance biases the gap"): 0.25 flag fires on 84% of null fits;
+      placeboWarning (>=80% matched better) holds every false find; next CLI table,
+      2-covariate cell. More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     why: >-
@@ -204,9 +203,9 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History: README and git (latest: R056-2 on payee, deliver-to and line VAT
-      numbers, references and no-break spaces, 3,149 to 0, Saxon-checked
-      (eval/nl-vat-r056-2-payee-refs-2026-11-17.md); INV-041 endpoint ids as
+      History: README and git (latest: the browser's official rules read whitespace
+      as Saxon does, 161 of 528 to 0 vs SaxonC-HE, XML-VALUE-01 on 160 of 160 Saxon
+      aborts (eval/xml-whitespace-crosscheck-2026-11-17.md); INV-041 endpoint ids as
       OpenPeppol's PEPPOL-COMMON rules check them, 0 of 21,264 off
       (eval/endpoint-peppol-differential-2026-11-17.md); Peppol's warning-level
       IT/NL id formats as INV-061 warnings, 0 of 23,999 off
@@ -231,13 +230,13 @@ flagships:
       passes Mustang; open: a real business's PINT file. A run that lands a slice
       replaces its item here. More open items: NEXT.md.
     buildable: >-
-      R056-2's full reach landed 2026-11-17 (payee, deliver-to, line and second VAT
-      schemes; character references; trailing no-break space; oracle checked with
-      Saxon, eval/nl-vat-r056-2-payee-refs-2026-11-17.md). Next:
-      plain-schematron.mjs runs every rule set on fontoxpath, whose normalize-space
-      strips U+00A0 where XPath and Saxon do not: rewrite to a spec normalize-space
-      and cross-check with Saxon (Maven Central answers) on files with U+00A0 in
-      tested fields. No network beyond Maven.
+      Built-in checks report a number or date holding a no-break or other non-XML
+      space (INV-065, browser and CLI) since 2026-11-17: 13,920 of 13,920 copies
+      named, agreeing with SaxonC-HE (eval/nbsp-amounts-2026-11-17.md). Next:
+      cross-check the PINT and ZATCA sets against SaxonC as
+      eval/xml-whitespace-crosscheck.mjs does (SchXslt compiles their .sch); the
+      other readers (FatturaPA, FA(3), Facturae, NAV, ISDOC) trim with String.trim()
+      too: the same leaf scan there. No network beyond PyPI and Maven.
   - venture: shift-roster-builder
     inputs_only: >-
       a live deploy with real punches, a real payroll template, a manager's
@@ -289,9 +288,9 @@ flagships:
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
       eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`; its CIFF CRWs all read).
       Bayer trees parked: a range guard passes 6 fresh cameras, misses K-1 II/A7
-      III; no fresh frames left (eval/bayer-boosted-guard-*). Noise-aware: frame
-      noise is the default fallback since 2026-11-17 (eval/noise-fallback-real-*);
-      next: win back noisy-tile gain with a scale picked on tune rows only. DNG
+      III; no fresh frames left (eval/bayer-boosted-guard-*). Noise-aware: a
+      tune-only scale over 0.8 fails held tiles (eval/noise-scale-per-frame-*);
+      next: a card floor (sweep --card) on real multi-frame raw.pixls.us sets. DNG
       1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
@@ -360,7 +359,8 @@ flagships:
       rainouts, standings, officials, duty rota, team sheets; carry-over and break
       floors, frontier picker, blackout fit, WebAssembly step: README 2026-11-11 to
       2026-11-15 sections; 2026-11-17 shorter seasons with even strength of
-      schedule, eval/seed-balance.txt). 2026-11-15: 3-game nights
+      schedule, eval/seed-balance.txt; TeamSnap and SportsEngine import files,
+      eval/platform-templates-2026-11-17.md). 2026-11-15: 3-game nights
       (eval/three-game-nights.txt): SAT session designs (session-designs.mjs) take
       every even 10-48 teams on 6 slots, 16 of 19 sizes on 9, to 0 waits; 8 on 2x6,
       12 on 2x9 UNSAT. Odd leagues (eval/odd-night-sat.py, odd-designs.mjs): 11-25
@@ -471,11 +471,10 @@ flagships:
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
-      (eval/ifcxml-xbim-2026-11-16.md); an allow list for GlobalIds shared across
-      federated models on purpose (eval/federated-globalids-2026-11-17.md, 'Not
-      done': the Simple-Scene 'origin' markers); the IDS editor (editor.html;
-      README): "Use the model's range" for dates, xs:date one-of rows
-      (eval/date-ranges-2026-11-17.md); more real exports through
+      (eval/ifcxml-xbim-2026-11-16.md); the IDS editor (editor.html): a one-of row
+      on numbers (166 IDS-Audit-tool lists kept; no-class specs landed 2026-11-17,
+      eval/no-class-specs-2026-11-17.md); the 132 kept property requirements in
+      public files (node eval/kept-facets.mjs); more real exports through
       eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
     next: >-
@@ -502,7 +501,7 @@ flagships:
       2026-11-17 (eval/gitlab-codequality-2026-11-17.md: 18 of 18 real changes, 0
       for a renumbering re-export); duplicate GlobalIds in a model
       (eval/duplicate-globalids-2026-11-17.md) and across federated models in CI
-      2026-11-17 (eval/federated-globalids-2026-11-17.md: HHS architect+structural
-      share 1 wall; Simple-Scene roof, manholes); unchecked subclasses in CI and the
-      editor 2026-11-17 (eval/ci-unchecked-2026-11-17.md: 21,405 elements in 165 of
-      2,028 checks). More open items: NEXT.md.
+      2026-11-17 (eval/federated-globalids-2026-11-17.md; allow list and followers,
+      eval/federation-allow-2026-11-17.md: Simple-Scene 35 to 23); unchecked
+      subclasses in CI and the editor 2026-11-17 (eval/ci-unchecked-2026-11-17.md:
+      21,405 elements in 165 of 2,028 checks). More open items: NEXT.md.

@@ -184,7 +184,9 @@ export function planBatch(text, utm, rand = Math.random) {
   const out = [], taken = new Set();
   for (const raw of String(text).split("\n")) {
     const line = raw.trim(); if (!line) continue;
-    const [url, slug] = line.split(/[,\t]/).map((s) => s.trim());
+    // A tab, or a comma followed by a space, separates the short name. A bare
+    // comma is legal inside a URL (?ids=1,2), so it is never a separator.
+    const [url, slug] = line.split(/\t|,\s+/).map((s) => s.trim());
     const t = checkTarget(url);
     if (!t.ok) { out.push({ input: line, error: t.error }); continue; }
     let s = slug || "";

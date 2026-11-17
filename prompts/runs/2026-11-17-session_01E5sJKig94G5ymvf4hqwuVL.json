@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKig94G5ymvf4hqwuVL",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T17:18:45Z",
+  "ended": "2026-11-17T17:24:37Z",
+  "wall_minutes": 6.07,
+  "tokens_in": 4392575,
+  "tokens_out": 30769,
+  "cost_usd": 2.4026,
+  "tool_calls": 42,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17009",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/cell-fidelity/LOG.md",
+      "issue": "5zk's next step said 'compare the law's lever against the plating-weighted rise'; it did not flag that its own H193 compared pools at different currents (5z's Ai2020@0.45x vs 5zi's 0.525-0.65x), which turned out to drive its conclusion. Same-design comparisons should be the default when records allow."
+    },
+    {
+      "file": "research/cell-fidelity/experiments/crossset/bench.jsonl",
+      "issue": "5z's source pools lack q_ch and u_end, so per-design kappa* for 5z's designs needed the charge Ah rebuilt from 5zk's constant-current charge time; recording q_ch in every bench would avoid this."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/cell-fidelity/experiments/wlever/run.py",
+      "why": "added a post hoc sign-test command after the verdicts (not in the plan)",
+      "did": "labelled post hoc in LOG and README",
+      "result": "per-design counts support the set-level reading (37 of 40)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-same-designs-reverse-the-plating-verdict.md",
+    "research/cell-fidelity/LOG.md (5zl plan and outcome)"
+  ],
+  "goal": null,
+  "notes": "cell-fidelity milestone 5zl, stdlib, no new simulation. Checks run locally: test_wlever (8 OK), research/_homepage/build.py ok, research_live_links, check_md_links ok, programme_check ok, post frontmatter/links/similarity ok, cite_check ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c4a537ed-0338-5b6b-ad4d-f549253bdb73",
+    "transcripts": 1,
+    "first": "2026-11-17T17:18:45Z",
+    "last": "2026-11-17T17:24:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 83,
+        "output": 30769,
+        "thinking": 6597,
+        "cache_read": 4276032,
+        "cache_write_5m": 0,
+        "cache_write_1h": 116460,
+        "api_equivalent_usd": 2.4026,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 83,
+      "output": 30769,
+      "thinking": 6597,
+      "cache_read": 4276032,
+      "cache_write_5m": 0,
+      "cache_write_1h": 116460,
+      "api_equivalent_usd": 2.4026,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 42,
+    "tools": {
+      "Bash": 39,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.07,
+      "active_minutes": 6.07,
+      "model_minutes": 4.66,
+      "tool_minutes": 1.41,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a battery-modelling researcher reading 5zi/5zk code and records, writing the per-design analysis, tests and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 249.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

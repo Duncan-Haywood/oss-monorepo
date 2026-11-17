@@ -78,6 +78,13 @@ def twin_endurance(u0, s_from=1.0, s_to=0.0, d=D):
     return 4.0 / u0 * mean_e * (s_from - s_to)
 
 
+def cold_endurance(k, u0, vc=VC, d=D):
+    """Endurance of a cell whose R0 is multiplied by k, at the physical power that is u0 for the warm cell,
+    in WARM time units R0 Q/E0. Its own dimensionless power is k u0 and its own time unit is k times the warm one,
+    so the time is k * endurance(k u0)."""
+    return k * endurance(k * u0, vc=vc, d=d)
+
+
 def simulate(u0, dt=1e-3, vc=VC, d=D, rho=0.0):
     """Euler time stepping of ds/dt = -i until the cutoff (independent of the quadrature).  Returns (time, final s)."""
     s, t = 1.0, 0.0

@@ -2105,6 +2105,133 @@ export function scheduleCalendarCsv(schedule, teamIdx = null) {
   return lines.join("\r\n") + "\r\n";
 }
 
+/*
+ * League platforms' own schedule import files, so an organiser who runs registration and team messaging on
+ * TeamSnap or SportsEngine can build the season here and load it there in one upload instead of keying in
+ * every game. Column names, order and formats are copied from the platforms' published templates (read
+ * 2026-11-17; README "Import into TeamSnap or SportsEngine"):
+ *  - TeamSnap's organisation schedule template, TeamSnap-SportsOrg-Schedule-Import-Template.csv:
+ *    Date (MM/DD/YYYY), Start Time and End Time (h:mm AM/PM), Arrival Time (minutes before the start),
+ *    Short Label, Event Type, Division, Home Team, Away Team, Location, Location Details. TeamSnap says
+ *    End Time, Arrival Time, Short Label, Event Type and Location Details may be deleted and every other
+ *    column is required; names must match TeamSnap exactly and symbols such as % @ # * can trip the import.
+ *  - SportsEngine HQ's Schedule Upload Template.csv (28 columns, Start_Date ... Division_Override) and its
+ *    fields guide: MM/DD/YYYY dates, 24-hour HH:MM or TBD start times, Event_Type "Game" makes the team
+ *    columns required, Team1_ID / Team2_ID are HQ's own team IDs, Team1_Is_Home 1 or 0, and the columns
+ *    after Tags must stay even when blank.
+ * Both return { csv, errors, warnings }: errors say why the platform would refuse the file (the csv is
+ * still written, so the organiser sees what is missing), warnings are what may trip it.
+ */
+const PLATFORM_SYMBOLS = /[%@#*]/;
+const usDate = (day) => { const [y, m, d] = dayIso(day).split("-"); return `${m}/${d}/${y}`; };
+const clock12 = (min) => { const h = Math.floor(min / 60) % 24; return `${h % 12 || 12}:${String(min % 60).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`; };
+const clock24 = (min) => `${String(Math.floor(min / 60) % 24).padStart(2, "0")}:${String(min % 60).padStart(2, "0")}`;
+const startMinutes = (time) => { const [hh, mm] = time.split(":").map(Number); return hh * 60 + mm; };
+const platformMatches = (schedule) => schedule.rounds.flatMap((r) => r.matches.map((m) => ({ r, m })));
+
+export const TEAMSNAP_COLUMNS = ["Date", "Start Time", "End Time", "Arrival Time", "Short Label", "Event Type", "Division", "Home Team", "Away Team", "Location", "Location Details"];
+
+/**
+ * TeamSnap organisation schedule import. `division` is the TeamSnap division name (required), `location` the
+ * TeamSnap location name; without it each game's court is its Location. `arrival` (whole minutes, 0-1440)
+ * fills Arrival Time; without it that optional column is left out, as TeamSnap allows.
+ */
+export function teamSnapCsv(schedule, { division = "", location = "", arrival = null } = {}) {
+  const errors = [];
+  const warnings = [];
+  division = String(division).trim();
+  location = String(location).trim();
+  if (!division) errors.push("TeamSnap needs the Division column: type the division name exactly as it is in TeamSnap.");
+  const withArrival = arrival !== null && arrival !== "";
+  if (withArrival && !(Number.isInteger(Number(arrival)) && Number(arrival) >= 0 && Number(arrival) <= 1440)) {
+    errors.push("Arrival time must be a whole number of minutes before the start, 0 to 1440.");
+  }
+  const cols = TEAMSNAP_COLUMNS.filter((c) => withArrival || c !== "Arrival Time");
+  const minutes = schedule.config.minutes || 60;
+  const lines = [cols.join(",")];
+  const noTime = [];
+  const noPlace = [];
+  for (const { r, m } of platformMatches(schedule)) {
+    let start = "";
+    let end = "";
+    if (m.time) {
+      const s = startMinutes(m.time);
+      start = clock12(s);
+      end = clock12(s + minutes);
+      // TeamSnap's template has no end date: a game past midnight would end before it starts.
+      if (s + minutes >= 1440) warnings.push(`${r.label}: ${m.homeName} v ${m.awayName} ends after midnight; TeamSnap has no end date, so check its end time after the import.`);
+    } else noTime.push(r.label);
+    const place = location || m.court || "";
+    if (!place) noPlace.push(r.label);
+    const row = {
+      Date: usDate(r.day), "Start Time": start, "End Time": end, "Arrival Time": withArrival ? String(Number(arrival)) : "",
+      "Short Label": r.label, "Event Type": "Game", Division: division, "Home Team": m.homeName, "Away Team": m.awayName,
+      Location: place, "Location Details": location ? (m.court || "") : "",
+    };
+    lines.push(cols.map((c) => csvCell(row[c])).join(","));
+  }
+  if (noTime.length) errors.push(`TeamSnap requires a start time, and ${noTime.length} game(s) have none (${[...new Set(noTime)].slice(0, 3).join(", ")}${noTime.length > 3 ? ", ..." : ""}): list time slots, like 18:00, then build again.`);
+  if (noPlace.length) errors.push("TeamSnap requires a Location: type the location name as it is in TeamSnap, or list courts.");
+  const symbolNames = [...schedule.teams, division, location].filter((t) => t && PLATFORM_SYMBOLS.test(t));
+  if (symbolNames.length) warnings.push(`TeamSnap says symbols such as % @ # * can make an import fail: ${symbolNames.join(", ")}.`);
+  if (!location) warnings.push("With no location name typed, each game's court name is its Location; TeamSnap needs a location of that name.");
+  warnings.push("Team, division and location names must match TeamSnap exactly, capitals included.");
+  return { csv: lines.join("\r\n") + "\r\n", errors, warnings };
+}
+
+export const SPORTSENGINE_COLUMNS = ["Start_Date", "Start_Time", "End_Date", "End_Time", "Title", "Description", "Location", "Location_URL", "Location_Details", "All_Day_Event", "Event_Type", "Tags", "Team1_ID", "Team1_Division_ID", "Team1_Is_Home", "Team2_ID", "Team2_Division_ID", "Team2_Name", "Custom_Opponent", "Event_ID", "Game_ID", "Affects_Standings", "Points_Win", "Points_Loss", "Points_Tie", "Points_OT_Win", "Points_OT_Loss", "Division_Override"];
+
+/** Lines like "Hawks = 2270996_271208", "Hawks: 22" or "Hawks, 22": each team's SportsEngine HQ team ID. */
+export function parseTeamIds(text, teams) {
+  const ids = new Array(teams.length).fill(null);
+  const errors = [];
+  const byName = new Map(teams.map((t, i) => [t.toLowerCase(), i]));
+  String(text || "").split(/\r?\n/).forEach((raw, n) => {
+    const line = raw.trim();
+    if (!line) return;
+    const m = line.match(/^(.*?)\s*[=:,\t]\s*([A-Za-z0-9_-]+)$/);
+    if (!m) { errors.push(`Team ID line ${n + 1}: write it as "Team name = ID".`); return; }
+    const idx = byName.get(m[1].trim().toLowerCase());
+    if (idx === undefined) { errors.push(`Team ID line ${n + 1}: "${m[1].trim()}" is not one of the teams.`); return; }
+    ids[idx] = m[2];
+  });
+  return { ids, errors };
+}
+
+/**
+ * SportsEngine HQ schedule upload. `ids` is the text of team IDs (parseTeamIds); `location` the venue name,
+ * without which each game's court is its Location. A game with no time is uploaded with Start_Time TBD.
+ */
+export function sportsEngineCsv(schedule, { ids = "", location = "" } = {}) {
+  const parsed = parseTeamIds(ids, schedule.teams);
+  const errors = [...parsed.errors];
+  const warnings = [];
+  location = String(location).trim();
+  const missing = schedule.teams.filter((_, i) => parsed.ids[i] === null);
+  if (missing.length) errors.push(`SportsEngine needs each team's HQ team ID (Event_Type Game requires Team1_ID and Team2_ID); missing for ${missing.join(", ")}. HQ lists them in the template's Team/Division ID tab.`);
+  const minutes = schedule.config.minutes || 60;
+  const lines = [SPORTSENGINE_COLUMNS.join(",")];
+  for (const { r, m } of platformMatches(schedule)) {
+    let start = "TBD";
+    let end = "";
+    let endDay = r.day;
+    if (m.time) {
+      const s = startMinutes(m.time);
+      start = clock24(s);
+      end = clock24((s + minutes) % 1440);
+      endDay = r.day + Math.floor((s + minutes) / 1440);
+    }
+    const row = {
+      Start_Date: usDate(r.day), Start_Time: start, End_Date: usDate(endDay), End_Time: end, Description: r.label,
+      Location: location || m.court || "", Location_Details: location ? (m.court || "") : "", All_Day_Event: "0", Event_Type: "Game",
+      Team1_ID: parsed.ids[m.home] ?? "", Team1_Is_Home: "1", Team2_ID: parsed.ids[m.away] ?? "", Custom_Opponent: "0",
+    };
+    lines.push(SPORTSENGINE_COLUMNS.map((c) => csvCell(row[c] ?? "")).join(","));
+  }
+  if (platformMatches(schedule).some(({ m }) => !m.time)) warnings.push("Games with no time slot go up with Start_Time TBD; set the time in HQ later, or list time slots and build again.");
+  return { csv: lines.join("\r\n") + "\r\n", errors, warnings };
+}
+
 /** The standings table as a CSV (rank, team, played, won, drawn, lost, goals for/against, goal difference, points). */
 export function standingsCsv(table) {
   const lines = [["Rank", "Team", "Played", "Won", "Drawn", "Lost", "For", "Against", "GD", "Points"].join(",")];
@@ -3088,7 +3215,7 @@ export function bracketText(bracket) {
 
 // ---------------------------------------------------------------- share link
 
-const SHARE_KEYS = ["teams", "double", "carryOver", "carryOverPick", "carryOverKeep", "start", "weekdays", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "seed", "minutes", "rounds", "balanceSeeds", "gamesPerNight", "results", "playoff", "playoffDouble", "playoffThird", "pins", "rainouts", "withdrawals", "lateTeams", "finishBy", "officials", "grounds", "linked", "scoring", "duties", "sheetTitle", "sheetContact"];
+const SHARE_KEYS = ["teams", "double", "carryOver", "carryOverPick", "carryOverKeep", "start", "weekdays", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "seed", "minutes", "rounds", "balanceSeeds", "gamesPerNight", "results", "playoff", "playoffDouble", "playoffThird", "pins", "rainouts", "withdrawals", "lateTeams", "finishBy", "officials", "grounds", "linked", "scoring", "duties", "sheetTitle", "sheetContact", "platformLocation", "teamSnapDivision", "teamSnapArrival", "sportsEngineIds"];
 
 /** Page fields -> URL-safe text for the `#` part of a link. The fragment is never sent to a server. */
 export function encodeFields(f) {
@@ -3121,6 +3248,7 @@ export function decodeFields(text) {
       playoffDouble: o.playoffDouble === true, playoffThird: o.playoffThird === true,
       pins: str(o.pins), rainouts: str(o.rainouts), withdrawals: str(o.withdrawals), lateTeams: str(o.lateTeams), finishBy: /^\d{4}-\d{2}-\d{2}$/.test(str(o.finishBy)) ? o.finishBy : "", officials: str(o.officials), grounds: str(o.grounds), linked: str(o.linked), scoring: str(o.scoring),
       duties: str(o.duties), sheetTitle: str(o.sheetTitle), sheetContact: str(o.sheetContact),
+      platformLocation: str(o.platformLocation), teamSnapDivision: str(o.teamSnapDivision), teamSnapArrival: str(o.teamSnapArrival), sportsEngineIds: str(o.sportsEngineIds),
     };
   } catch { return null; }
 }

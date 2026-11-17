@@ -21,6 +21,9 @@ Python, so nothing beyond ffmpeg is needed:
   0..1 score that is 1.0 when level; a crooked horizon costs a little story score.
 - ``dhash``: 64-bit difference hash of the middle frame, for near-duplicate
   grouping by Hamming distance.
+- ``dhash_crops``: the same hash over a 5 x 5 grid of windows, each 88% of the
+  frame, so two frames of one burst that the camera panned or zoomed a few
+  percent between can still be matched window to window (``crop_distance``).
 
 These are technical signals. There is no face detector and no semantic model
 here, so ``framing`` finds where the detail is, not what it is, and ``story``
@@ -34,6 +37,7 @@ import re
 import subprocess
 from dataclasses import dataclass
 import tempfile
+from collections.abc import Sequence
 from pathlib import Path
 
 from shootflow.ffmpeg_media import FfmpegMediaError, FfmpegTools
@@ -85,6 +89,7 @@ class FrameMetrics:
     noise_sigma: float
     frames_sampled: int
     duration_seconds: float | None
+    dhash_crops: tuple[str, ...] = ()
 
     @property
     def level(self) -> float:
@@ -193,6 +198,7 @@ def metrics_from_frames(
         clipped_shadows=round(shadows, 6),
         clipped_highlights=round(highlights, 6),
         dhash=dhash_hex(middle, width, height),
+        dhash_crops=crop_dhashes(middle, width, height),
         tilt_degrees=round(tilt, 3),
         tilt_confidence=round(tilt_confidence, 6),
         noise_sigma=round(noise_sigma, 3),
@@ -367,6 +373,77 @@ def dhash_hex(frame: bytes, width: int = FRAME_WIDTH, height: int = FRAME_HEIGHT
         for col in range(cols - 1):
             bits = (bits << 1) | (1 if cells[row][col] > cells[row][col + 1] else 0)
     return f"{bits:016x}"
+
+
+# Crop windows for burst grouping: each window is (1 - margin) of the frame, at
+# CROP_STEPS x CROP_STEPS offsets from the top-left to the bottom-right corner.
+# Measured 2026-11-17 on 331 real photos (eval/cull-crop-grouping-2026-11-17.md).
+CROP_MARGIN = 0.12
+CROP_STEPS = 5
+_CROP_CENTRE = (CROP_STEPS * CROP_STEPS) // 2
+
+
+def _integral(frame: bytes, width: int, height: int) -> list[list[int]]:
+    rows = [[0] * (width + 1)]
+    for y in range(height):
+        previous = rows[-1]
+        running = 0
+        row = [0]
+        base = y * width
+        for x in range(width):
+            running += frame[base + x]
+            row.append(previous[x + 1] + running)
+        rows.append(row)
+    return rows
+
+
+def _window_dhash(table: list[list[int]], x0: float, y0: float, w: float, h: float) -> int:
+    cols, rows = 9, 8
+    xs = [round(x0 + col * w / cols) for col in range(cols + 1)]
+    ys = [round(y0 + row * h / rows) for row in range(rows + 1)]
+    bits = 0
+    for row in range(rows):
+        top, bottom = table[ys[row]], table[ys[row + 1]]
+        span = ys[row + 1] - ys[row]
+        cells = [
+            (bottom[xs[c + 1]] - bottom[xs[c]] - top[xs[c + 1]] + top[xs[c]]) / (span * (xs[c + 1] - xs[c]))
+            for c in range(cols)
+        ]
+        for col in range(cols - 1):
+            bits = (bits << 1) | (1 if cells[col] > cells[col + 1] else 0)
+    return bits
+
+
+def crop_dhashes(frame: bytes, width: int = FRAME_WIDTH, height: int = FRAME_HEIGHT) -> tuple[str, ...]:
+    """Difference hashes of CROP_STEPS x CROP_STEPS windows, row by row; the middle one is centred."""
+
+    table = _integral(frame, width, height)
+    hashes = []
+    for j in range(CROP_STEPS):
+        for i in range(CROP_STEPS):
+            x0 = CROP_MARGIN * width * i / (CROP_STEPS - 1)
+            y0 = CROP_MARGIN * height * j / (CROP_STEPS - 1)
+            bits = _window_dhash(table, x0, y0, (1 - CROP_MARGIN) * width, (1 - CROP_MARGIN) * height)
+            hashes.append(f"{bits:016x}")
+    return tuple(hashes)
+
+
+def crop_distance(crops_a: Sequence[int], crops_b: Sequence[int]) -> int:
+    """Smallest Hamming distance between one frame's centre window and any window of the other.
+
+    A pan or zoom of a few percent moves the shared content by about one
+    window step, so one of these pairs lines it up again. Takes parsed hashes
+    (ints) because the cull compares every pair of photos. Returns 64 when
+    either frame has no crop hashes.
+    """
+
+    if len(crops_a) != CROP_STEPS * CROP_STEPS or len(crops_b) != len(crops_a):
+        return 64
+    centre_a, centre_b = crops_a[_CROP_CENTRE], crops_b[_CROP_CENTRE]
+    best = 64
+    for a, b in zip(crops_a, crops_b):
+        best = min(best, (a ^ centre_b).bit_count(), (centre_a ^ b).bit_count())
+    return best
 
 
 def hamming_distance(hash_a: str, hash_b: str) -> int:

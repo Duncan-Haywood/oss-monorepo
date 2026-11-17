@@ -52,6 +52,9 @@ test("2026/27 uses the higher ordinary and upper rates", () => {
 test("marginal cost of the next 1,000 follows the top band", () => {
   assert.equal(run({}).next, 337.5);
   assert.equal(run({ other: 110000, dividends: 20000 }).next, 393.5);
+  // Taper zone (quality audit 2026-11-17): the next 1,000 also removes 500 of
+  // personal allowance, taxed at 40% (200) on top of 1,000 x 33.75% (337.50).
+  assert.equal(run({ other: 100000, dividends: 5000 }).next, 537.5);
 });
 
 test("self assessment duty appears only when dividends are charged", () => {
