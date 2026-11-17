@@ -1,5 +1,19 @@
 # sensing-selfcal research log
 
+## 2026-11-17 · Milestone 3j planned: the TUM re-solve. Do the first-order verdicts of milestones 3g and 3i survive when each natural-feature window is re-solved with the board's distortion, principal point, or both pinned?
+
+Written before `experiments/m3j_tumpin/run.py` was first run and before any pinned TUM solve was computed. The TUM host answers the proxy again today (cvg.cit.tum.de redirects to webshare.cvg.cit.tum.de, 200, 448 MB for fr1/xyz), so the re-solve that milestones 3g, 3h and 3i deferred can run. Seen before this plan: nothing from the TUM video beyond the downloads; the board references are 3i's.
+
+- **Method** (`experiments/m3j_tumpin/run.py`). Milestone 3c's 57 scored windows, each rebuilt exactly as 3c did (3b's pipeline from its lowest-cost start, 3c's OpenCV RNG seed, then 3c's refit); the analysis asserts the free f equals 3c's. From that solution, milestone 3h's `bundle_pinned` re-solves with **k** = (k<sub>1</sub>, k<sub>2</sub>), **c** = (c<sub>x</sub>, c<sub>y</sub>) and **ck** = all four pinned at the board's Zhang k<sub>1</sub> + k<sub>2</sub> values (milestone 3i's `board_ref`, asserted equal to 3i's). First order f<sub>c</sub> from the fresh covariance with milestone 3g's formula. Error e = (f &minus; f<sub>ref</sub>)/f<sub>ref</sub> against milestone 3c's per-window reference, as in 3c&ndash;3i.
+- **H161 (pinning the board's distortion hurts, re-solved).** Median |e<sub>p,k</sub>| &ge; the free median |e| (3g first order 8.72% against 5.25%; 3h's shrunk transfer 7.12%).
+- **H162 (pinning the board's principal point hurts, re-solved).** Median |e<sub>p,c</sub>| &ge; the free median |e| (3i first order 6.76%).
+- **H163 (pinning all four does not rescue it).** Median |e<sub>p,ck</sub>| &ge; the free median |e| (3i first order 7.17%).
+- **H164 (first order points the right way on TUM).** For each of k, c and ck, sign(f<sub>c</sub> &minus; f) = sign(f<sub>p</sub> &minus; f) in &ge; 90% of windows. Refuted if any of the three fails.
+- **H165 (first order is the right size on TUM, within 3h's overshoot).** For each of k, c and ck, the median of (f<sub>p</sub> &minus; f)/(f<sub>c</sub> &minus; f) lies in [0.67, 1.5]. Refuted if any fails.
+- **H166 (the narrowed bar is real on TUM).** For k, median |(sd<sub>p</sub>/sd<sub>free</sub>) &minus; r<sub>c</sub>|/r<sub>c</sub> &le; 0.2 (r<sub>c</sub> the first-order sd ratio), as 3h's H152 on board windows.
+- **Reported, unscored.** Per sequence: median |e| free and pinned, median step and ratio; the robust cost rise when pinned (how hard the data resist each pin); the ratio by first-order step bin (3h's bins); `tumpin.png`.
+- **Caveat set in advance.** 57 windows, three sequences, two Kinect units; the TUM reference is the board calibration the error is scored against; a pinned solve is started at the free solution and can stop in a nearby local minimum; the rebuild relies on OpenCV reproducing 3c's SIFT tracks (asserted, not assumed).
+
 ## 2026-11-17 · Milestone 3i result: the principal point is not what a natural-feature window's focal length compensates: pinning the board's (c<sub>x</sub>, c<sub>y</sub>) raises the TUM median error from 5.25% to 6.76% (first order), while on clean board windows the same pin, re-solved, lowers it from 0.55% to 0.37%
 
 - **Run.** `tum.py` (seconds; analysis only) and `run.py` (about 2 min on 4 cores) then `analyse.py`, exactly as planned below. Part A: 57 windows; the script reproduced milestone 3g's f<sub>c2</sub> for every one and the board reference reproduced milestone 4n's f and d. Part B: 149 of 150 windows converged (the same left 4-view draw as milestone 3h hit the iteration cap); every free solution equalled 3h's (asserted); all 447 principal-point re-solves and all 149 four-term re-solves converged with their pins held. `tests/test_m3i.py` (4 tests) passed before the run.
