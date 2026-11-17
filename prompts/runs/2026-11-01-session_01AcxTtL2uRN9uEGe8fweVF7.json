@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01AcxTtL2uRN9uEGe8fweVF7",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "scheduled: read prompt.md and follow it",
+  "input_sha256": "2abc11ce438e08917dbfbd5f6a49fe9cdcb2b7d6c1dd885255dfd4b7b4c9fbca",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T22:11:06Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 12421,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 fails with a missing security-alerts ref and offers no fallback; six runs opened the same CODEOWNERS-gated PR (see P061)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Routed to review but PRs #12367 and #12272 already claimed it, so re-routed with --skip-review as step 1 says.",
+      "did": "ran process track, Critique mode",
+      "result": "filed P061; no merge possible without owner"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "No blog post: a backlog-only run. PR touches /prompts/ (CODEOWNERS), so it waits for the owner. supersede_check on duplicate PRs was too slow (>120s) and I did not close any.",
+  "corrections": [],
+  "redteam": null
+}
