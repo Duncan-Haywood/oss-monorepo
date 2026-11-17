@@ -7,6 +7,8 @@
 //   schema, schemaRaw, format, entityCount,
 //   classes: [{ cls, count, predefinedTypes: [[PT, n]], withMaterial,
 //               systems: [[name, n]],
+//               attrs: [{ name, count, empty, values, distinct, more, min, max }],
+//               codes: [{ system, count, empty, values, distinct, more }],
 //               sets: [{ name, count, props: [{ name, count, dataType, dataTypes,
 //                        values, distinct, more, min, max }] }] }],
 //   systems: [[name, n]]   (every classification system, by elements using it)
@@ -23,8 +25,19 @@
 // [[lexical form, objects carrying it]] for the most common MAX_LISTED;
 // `distinct` counts different values up to MAX_TRACKED (`more` when there were
 // further ones); `min`/`max` are the numeric range, exact (not rounded).
+//
+// Attributes (`attrs`, those the editor offers: stored, single, comparable;
+// not GlobalId, one value per object)
+// are read as AttributeFacet reads them: the value as written, enumerations by
+// name, no unit conversion; `count` objects have it set, `empty` of those hold
+// an empty string or UNKNOWN (a check fails them whatever it asks). Codes
+// (`codes`, one per classification system) are each reference's own code, as
+// ClassificationFacet compares them (classificationsOf, a type's references
+// inherited); `count` objects are classified in the system and `empty` of them
+// carry no code, so a check that asks for a code fails them.
 
 import { psetsOf, classificationsOf, materialNames, QUANTITY_MEASURE, PropertyFacet } from "./ids.mjs";
+import { editableAttributes } from "./editor.mjs";
 
 export const MAX_LISTED = 50;
 export const MAX_TRACKED = 500;
@@ -75,6 +88,22 @@ export function propertyDataType(model, p) {
 }
 
 const bump = (m, k, n = 1) => m.set(k, (m.get(k) || 0) + n);
+const tally = () => ({ count: 0, empty: 0, values: new Map(), more: false, min: null, max: null });
+// One object's distinct [text, num] values into a tally.
+function addValues(t, vals) {
+  for (const [text, num] of vals) {
+    if (t.values.has(text) || t.values.size < MAX_TRACKED) bump(t.values, text);
+    else t.more = true;
+    if (num !== null) { if (t.min === null || num < t.min) t.min = num; if (t.max === null || num > t.max) t.max = num; }
+  }
+}
+const tallyOut = (t) => ({ count: t.count, empty: t.empty, values: ranked(t.values).slice(0, MAX_LISTED), distinct: t.values.size, more: t.more, min: t.min, max: t.max });
+
+// The attributes of `cls` the editor offers, with their index and primitive.
+function attrSlots(S, cls) {
+  const names = new Set(editableAttributes(S, cls));
+  return S.attrs(cls).map((a, i) => ({ a, i, prim: S.prim(a.type) })).filter((x) => names.has(x.a.name) && !x.a.derived && x.a.name !== "GlobalId");
+}
 const ranked = (m) => [...m.entries()].sort((a, b) => b[1] - a[1] || String(a[0]).localeCompare(String(b[0])));
 
 // measureUnits: the checker's measure-units.json (resources().measureUnits);
@@ -86,8 +115,19 @@ export function modelInventory(model, measureUnits = null) {
   const allSystems = new Map();
   for (const [type, list] of model.byType) {
     if (!S.entities[type] || !S.isA(type, "IFCOBJECTDEFINITION")) continue;
-    const c = { cls: type, count: list.length, pts: new Map(), sets: new Map(), systems: new Map(), withMaterial: 0 };
+    const c = { cls: type, count: list.length, pts: new Map(), sets: new Map(), systems: new Map(), withMaterial: 0, attrs: new Map(), codes: new Map() };
+    const slots = attrSlots(S, type);
     for (const e of list) {
+      for (const { a, i, prim } of slots) {
+        const v = e.args[i];
+        if (v === null || v === undefined || (v && v.derived)) continue;
+        let t = c.attrs.get(a.name);
+        if (!t) c.attrs.set(a.name, (t = tally()));
+        t.count++;
+        if (v === "" || (v && v.unknown) || Array.isArray(v) || (v && (v.ref !== undefined || v.typed))) { t.empty++; continue; }
+        const l = lexical({ v, prim });
+        if (l) addValues(t, [[l.text, l.num]]); else t.empty++;
+      }
       const pt = model.attr(e, "PredefinedType");
       if (pt && pt.enum) bump(c.pts, pt.enum);
       for (const [name, slot] of psetsOf(model, e)) {
@@ -98,17 +138,25 @@ export function modelInventory(model, measureUnits = null) {
           let pr = s.props.get(pn);
           if (!pr) s.props.set(pn, (pr = { count: 0, types: new Map(), values: new Map(), more: false, min: null, max: null }));
           pr.count++;
-          for (const [text, num] of valuesOf(model, p)) {
-            if (pr.values.has(text) || pr.values.size < MAX_TRACKED) bump(pr.values, text);
-            else pr.more = true;
-            if (num !== null) { if (pr.min === null || num < pr.min) pr.min = num; if (pr.max === null || num > pr.max) pr.max = num; }
-          }
+          addValues(pr, valuesOf(model, p));
           const dt = propertyDataType(model, p);
           if (dt) bump(pr.types, dt);
         }
       }
       const seen = new Set();
-      for (const r of classificationsOf(model, e)) if (typeof r.system === "string" && r.system && !seen.has(r.system)) { seen.add(r.system); bump(c.systems, r.system); bump(allSystems, r.system); }
+      const codes = new Map();
+      for (const r of classificationsOf(model, e)) {
+        if (typeof r.system !== "string" || !r.system) continue;
+        if (!seen.has(r.system)) { seen.add(r.system); bump(c.systems, r.system); bump(allSystems, r.system); codes.set(r.system, new Set()); }
+        if (typeof r.codes[0] === "string" && r.codes[0] !== "") codes.get(r.system).add(r.codes[0]);
+      }
+      for (const [sys, set] of codes) {
+        let t = c.codes.get(sys);
+        if (!t) c.codes.set(sys, (t = tally()));
+        t.count++;
+        if (!set.size) t.empty++;
+        addValues(t, [...set].map((x) => [x, null]));
+      }
       const mats = materialNames(model, e);
       if (mats && mats.length) c.withMaterial++;
     }
@@ -120,6 +168,8 @@ export function modelInventory(model, measureUnits = null) {
     predefinedTypes: ranked(c.pts),
     withMaterial: c.withMaterial,
     systems: ranked(c.systems),
+    attrs: [...c.attrs.entries()].map(([name, t]) => ({ name, ...tallyOut(t) })).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name)),
+    codes: [...c.codes.entries()].map(([system, t]) => { const { min, max, ...o } = tallyOut(t); return { system, ...o }; }).sort((a, b) => b.count - a.count || a.system.localeCompare(b.system)),
     sets: [...c.sets.entries()].map(([name, s]) => ({
       name,
       count: s.count,

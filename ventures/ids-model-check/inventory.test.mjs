@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { Model } from "./ids.mjs";
 import { resources, check, readModel } from "./node.mjs";
 import { modelInventory } from "./inventory.mjs";
-import { modelSets, setsFor, importIds, stateToDoc, buildIds, blankSpec, blankReq, valueTypes } from "./editor.mjs";
+import { modelSets, setsFor, importIds, stateToDoc, buildIds, blankSpec, blankReq, valueTypes, modelAttributes, modelCodes, modelValueOffer, valueChoices } from "./editor.mjs";
 import { parseIds } from "./ids.mjs";
 import { auditIds } from "./audit.mjs";
 
@@ -183,4 +183,54 @@ test("the model's range is rounded outward: IDS ranges take no tolerance, and 0.
   const ids = (min, max) => buildIds(stateToDoc({ title: "t", schema: "IFC4", specs: [{ ...blankSpec(), name: "Walls", cls: "IFCWALL", withSub: false, reqs: [{ ...blankReq(), set: "Qto_WallBaseQuantities", name: "Length", cardinality: "optional", mode: "range", min, max }] }] }, L4), S4);
   assert.equal(check(ids(o.rangeMin, o.rangeMax), model).specs[0].status, "pass");
   assert.equal(check(ids("0.254", "0.254"), model).specs[0].status, "fail");
+});
+
+test("the inventory lists attribute values (enumerations by name, no GlobalId) and each system's codes", () => {
+  const inv = inventoryOf(house);
+  const wall = inv.classes.find((c) => c.cls === "IFCWALL");
+  const attr = (n) => wall.attrs.find((a) => a.name === n);
+  assert.ok(!attr("GlobalId"), "an identifier per object is not offered");
+  assert.deepEqual(attr("Name").values, [["P-01", 1], ["W-01", 1], ["W-02", 1]]);
+  assert.deepEqual(attr("PredefinedType").values, [["SOLIDWALL", 2], ["PARTITIONING", 1]]);
+  assert.equal(attr("Name").empty, 0);
+  // Only the leaf code: EF_25_10_25, not its parent EF_25_10.
+  assert.deepEqual(wall.codes, [{ system: "Uniclass 2015", count: 2, empty: 0, values: [["EF_25_10_25", 2]], distinct: 1, more: false }]);
+  const merged = modelAttributes(inv, ["IFCWALL", "IFCSLAB"]).find((a) => a.name === "Name");
+  assert.ok(merged.of >= 3 && merged.count >= 3);
+});
+
+// The tiny house with its partition wall given a Uniclass reference with no
+// code, as Revit writes one when the assembly code is left blank.
+const uncoded = house.replace(/ENDSEC;\s*END-ISO/, "#84=IFCCLASSIFICATIONREFERENCE($,'','',#80,$,$);\n#85=IFCRELASSOCIATESCLASSIFICATION('0Pq1Ww2Ee3Rr4Tt5Yy6Uu8',$,$,$,(#22),#84);\nENDSEC;\nEND-ISO");
+
+test("attribute and code offers pass the model they came from; an uncoded reference is counted and fails a code check", () => {
+  const ids = (reqs) => buildIds(stateToDoc({ title: "t", schema: "IFC4", specs: [{ ...blankSpec(), name: "Walls", cls: "IFCWALL", withSub: false, reqs }] }, L4), S4);
+  const inv = inventoryOf(house);
+  // Attribute: "Allow exactly these values" from the model passes it; drop one and that wall fails.
+  const r = { ...blankReq(), kind: "attribute", name: "Name", cardinality: "optional" };
+  const ch = valueChoices(L4, ["IFCWALL"], r);
+  const o = modelValueOffer(modelAttributes(inv, ["IFCWALL"]).find((a) => a.name === "Name"), ch.kind, ch.enumVals);
+  assert.deepEqual(o.oneOf, ["P-01", "W-01", "W-02"]);
+  assert.equal(check(ids([{ ...r, mode: "oneOf", oneOf: o.oneOf }]), house).specs[0].status, "pass");
+  assert.equal(check(ids([{ ...r, mode: "oneOf", oneOf: ["W-01", "W-02"] }]), house).specs[0].failed.length, 1);
+  // An enumerated attribute: the offer is limited to the schema's values.
+  const pt = { ...blankReq(), kind: "attribute", name: "PredefinedType", cardinality: "optional" };
+  const cp = valueChoices(L4, ["IFCWALL"], pt);
+  const op = modelValueOffer(modelAttributes(inv, ["IFCWALL"]).find((a) => a.name === "PredefinedType"), cp.kind, cp.enumVals);
+  assert.deepEqual([op.oneOf, op.outside], [["PARTITIONING", "SOLIDWALL"], []]);
+  assert.equal(check(ids([{ ...pt, mode: "oneOf", oneOf: op.oneOf }]), house).specs[0].status, "pass");
+
+  // Codes: the uncoded partition wall is in the system but has no code.
+  const inv2 = inventoryOf(uncoded);
+  const k = modelCodes(inv2, ["IFCWALL"]).find((x) => x.system === "Uniclass 2015");
+  assert.deepEqual([k.count, k.empty, k.of], [3, 1, 3]);
+  const oc = modelValueOffer(k, "text", null);
+  assert.deepEqual([oc.oneOf, oc.empty], [["EF_25_10_25"], 1]);
+  const c = { ...blankReq(), kind: "classification", system: "Uniclass 2015" };
+  assert.equal(check(ids([c]), uncoded).specs[0].status, "pass", "naming only the system passes the uncoded wall");
+  const one = check(ids([{ ...c, mode: "oneOf", oneOf: oc.oneOf }]), uncoded).specs[0];
+  assert.deepEqual([one.status, one.failed.length], ["fail", 1]);
+  const any = check(ids([{ ...c, mode: "pattern", pattern: ".+" }]), uncoded).specs[0];
+  assert.deepEqual([any.status, any.failed.length], ["fail", 1], "Require a code fails exactly the uncoded wall");
+  assert.equal(check(ids([{ ...c, mode: "pattern", pattern: ".+" }]), house).specs[0].status, "fail", "the unclassified wall of the original fails a required classification");
 });
