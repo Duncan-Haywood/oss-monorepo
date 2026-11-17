@@ -731,4 +731,20 @@ year (Orzechowski and Walker compile state tax-paid sales; the fiscal year ends 
 - **Cite (the policies tested):** Abadie, A., Diamond, A. and Hainmueller, J. (2010). Synthetic control methods for
   comparative case studies: estimating the effect of California's tobacco control program. *J. Am. Stat. Assoc.*
   105(490), 493-505. doi:10.1198/jasa.2009.ap08746 (California's Proposition 99 and its 38-state donor pool).
-- **Used by:** `eval/known-date-control-step-real.mjs`, `known-date-control.test.mjs`, `eval/synth-real.mjs`, `eval/synth-real-diag.mjs`, `synth-control.test.mjs`.
+- **Used by:** `eval/known-date-control-step-real.mjs`, `known-date-control.test.mjs`, `eval/synth-real.mjs`, `eval/synth-real-diag.mjs`, `synth-control.test.mjs`, `eval/synth-cov-real.mjs`.
+
+`us-cigarette-retail-price.csv`: the average retail price of a pack of cigarettes in each state, in dollars, same
+rows and columns (the dataset's measure "Average Cost per pack"), 1970-2019. Same retrieval (2026-11-17), source,
+licence and attribution as the two files above; reshaped to one column per state, no values changed.
+
+# US per capita personal income by state, 1970-2019
+
+`us-personal-income-per-capita.csv`: per capita personal income in current dollars, one column per state (postal
+code) and DC, calendar years 1970-2019.
+
+- **Retrieved:** 2026-11-17 from the U.S. Bureau of Economic Analysis, Regional Economic Accounts, table SAINC1
+  ("Personal income summary"), <https://apps.bea.gov/regional/zip/SAINC.zip>, file
+  `SAINC1__ALL_AREAS_1929_2025.csv`, line code 3 ("Per capita personal income (dollars)"); reshaped, no values changed.
+- **Licence:** a U.S. federal government work, public domain in the United States. Attribution: U.S. Bureau of
+  Economic Analysis.
+- **Used by:** `eval/synth-cov-real.mjs` (a covariate of the synthetic control, README "Matched on covariates").

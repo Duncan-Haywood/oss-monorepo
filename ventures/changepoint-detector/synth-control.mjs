@@ -80,6 +80,108 @@ export function synthFit(y, donors, k) {
   return { weights: w, synth, gap, preRmspe: pre, postRmspe: post, ratio: post / Math.max(pre, 1e-12) };
 }
 
+// Weights w >= 0, sum w = 1, minimising ||b - A w||^2 with A given by its rows (p x J, p small). The gradient is
+// formed through the p residuals, so a step costs p*J rather than J^2: the inner solve of the covariate fit below runs
+// thousands of times per test.
+export function simplexLeastSquaresRows(A, b, { iters = 2000, tol = 1e-10, start = null } = {}) {
+  const P = A.length, J = A[0].length;
+  const a = new Float64Array(P * J);
+  for (let i = 0; i < P; i++) for (let j = 0; j < J; j++) a[i * J + j] = A[i][j];
+  // L = largest eigenvalue of A A' (equal to that of A'A), by power iteration on the p x p matrix
+  const M = new Float64Array(P * P);
+  for (let i = 0; i < P; i++) for (let q = 0; q < P; q++) { let s = 0; for (let j = 0; j < J; j++) s += a[i * J + j] * a[q * J + j]; M[i * P + q] = s; }
+  let v = new Float64Array(P).fill(1 / Math.sqrt(P)), L = 0;
+  for (let it = 0; it < 100; it++) {
+    const u = new Float64Array(P);
+    for (let i = 0; i < P; i++) { let s = 0; for (let q = 0; q < P; q++) s += M[i * P + q] * v[q]; u[i] = s; }
+    let n = 0; for (let i = 0; i < P; i++) n += u[i] * u[i]; n = Math.sqrt(n);
+    if (!(n > 0)) break;
+    L = n; for (let i = 0; i < P; i++) v[i] = u[i] / n;
+  }
+  if (!(L > 0)) L = 1;
+  const step = 1 / (L * 1.0001);
+  let bb = 0; for (let i = 0; i < P; i++) bb += b[i] * b[i];
+  const r = new Float64Array(P), tmp = new Float64Array(J), srt = new Float64Array(J);
+  const resid = (w0) => { let s = 0; for (let i = 0; i < P; i++) { let f = 0; const o = i * J; for (let j = 0; j < J; j++) f += a[o + j] * w0[j]; r[i] = b[i] - f; s += r[i] * r[i]; } return s; };
+  const project = (x, out) => { // onto the simplex, into out
+    srt.set(x); srt.sort();
+    let css = 0, theta = 0;
+    for (let q = J - 1, c = 1; q >= 0; q--, c++) { css += srt[q]; const t = (css - 1) / c; if (srt[q] - t > 0) theta = t; }
+    for (let j = 0; j < J; j++) out[j] = Math.max(0, x[j] - theta);
+  };
+  let w = new Float64Array(J);
+  if (start) project(Float64Array.from(start), w); else w.fill(1 / J);
+  let z = w.slice(), wn = new Float64Array(J), tk = 1, prev = resid(w);
+  for (let it = 0; it < iters; it++) {
+    resid(z);
+    for (let j = 0; j < J; j++) tmp[j] = z[j];
+    for (let i = 0; i < P; i++) { const o = i * J, ri = step * r[i]; for (let j = 0; j < J; j++) tmp[j] += a[o + j] * ri; }
+    project(tmp, wn);
+    const tn = (1 + Math.sqrt(1 + 4 * tk * tk)) / 2, beta = (tk - 1) / tn;
+    for (let j = 0; j < J; j++) { z[j] = wn[j] + beta * (wn[j] - w[j]); }
+    const sw = w; w = wn; wn = sw; tk = tn;
+    if (it % 20 === 19) {
+      const cur = resid(w);
+      if (cur > prev) { z.set(w); tk = 1; }
+      if (Math.abs(prev - cur) <= tol * Math.max(bb, 1e-300)) { prev = cur; break; }
+      prev = cur;
+    }
+  }
+  return Array.from(w);
+}
+
+// Nelder-Mead on R^d (deterministic; Lagarias et al. 1998 coefficients), at most maxEval objective calls.
+function nelderMead(f, x0, { step = 1, maxEval = 160, tol = 1e-9 } = {}) {
+  const d = x0.length;
+  let pts = [x0.slice(), ...x0.map((_, i) => x0.map((v, j) => v + (i === j ? step : 0)))].map((x) => ({ x, f: f(x) }));
+  let evals = d + 1;
+  const comb = (a, b, t) => a.map((v, i) => v + t * (b[i] - v));
+  while (evals < maxEval) {
+    pts.sort((p, q) => p.f - q.f);
+    if (Math.abs(pts[d].f - pts[0].f) <= tol * Math.max(1e-12, Math.abs(pts[0].f))) break;
+    const c = new Array(d).fill(0);
+    for (let i = 0; i < d; i++) for (let j = 0; j < d; j++) c[j] += pts[i].x[j] / d;
+    const worst = pts[d];
+    const xr = comb(c, worst.x, -1), fr = f(xr); evals++;
+    if (fr < pts[0].f) {
+      const xe = comb(c, worst.x, -2), fe = f(xe); evals++;
+      pts[d] = fe < fr ? { x: xe, f: fe } : { x: xr, f: fr };
+    } else if (fr < pts[d - 1].f) pts[d] = { x: xr, f: fr };
+    else {
+      const xc = fr < worst.f ? comb(c, worst.x, -0.5) : comb(c, worst.x, 0.5), fc = f(xc); evals++;
+      if (fc < Math.min(fr, worst.f)) pts[d] = { x: xc, f: fc };
+      else {
+        for (let i = 1; i <= d; i++) { const x = comb(pts[0].x, pts[i].x, 0.5); pts[i] = { x, f: f(x) }; evals++; }
+      }
+    }
+  }
+  pts.sort((p, q) => p.f - q.f);
+  return pts[0];
+}
+
+// One fit matched on predictors (Abadie, Diamond and Hainmueller 2010, section 2.3; Abadie 2021, section 3.2): x1 (p
+// predictor values of the treated unit, already scaled) and X0 (p x J, the donors'). For a diagonal V (v >= 0, sum 1),
+// W(V) minimises sum_m v_m (x1_m - X0_m W)^2 on the simplex; V is chosen to minimise the before-date squared gap of
+// the outcome under W(V) (the "data-driven" V of Synth). v = softmax(theta), theta by Nelder-Mead from equal weights.
+// The same procedure, with the same starting point, is applied to every placebo, so the test stays symmetric.
+export function synthFitCovariates(y, donors, k, x1, X0, { maxEval = 160 } = {}) {
+  const P = x1.length, J = donors.length;
+  const yb = y.slice(0, k);
+  let warm = null; // each inner solve starts from the last weights (deterministic: the same sequence for every unit)
+  const weightsFor = (v) => (warm = simplexLeastSquaresRows(X0.map((r, m) => r.map((e) => e * Math.sqrt(v[m]))), x1.map((e, m) => e * Math.sqrt(v[m])), { start: warm }));
+  const preLoss = (w) => { let s = 0; for (let t = 0; t < k; t++) { let f = 0; for (let j = 0; j < J; j++) f += w[j] * donors[j][t]; s += (yb[t] - f) ** 2; } return s; };
+  const softmax = (th) => { const mx = Math.max(...th), e = th.map((a) => Math.exp(a - mx)), s = e.reduce((a, b) => a + b, 0); return e.map((a) => a / s); };
+  let best = null;
+  const f = (th) => { const v = softmax(th), w = weightsFor(v), l = preLoss(w); if (!best || l < best.l) best = { l, v, w }; return l; };
+  if (P === 1) f([0]); else nelderMead(f, new Array(P).fill(0), { maxEval });
+  const w = best.w;
+  const synth = y.map((_, t) => donors.reduce((s, d, j) => s + w[j] * d[t], 0));
+  const gap = y.map((val, t) => val - synth[t]);
+  const pre = rms(gap.slice(0, k)), post = rms(gap.slice(k));
+  const xfit = rms(x1.map((e, m) => e - X0[m].reduce((s, q, j) => s + q * w[j], 0)));
+  return { weights: w, v: best.v, synth, gap, preRmspe: pre, postRmspe: post, ratio: post / Math.max(pre, 1e-12), predictorRmse: xfit };
+}
+
 // The test. y: the treated series; donors: { name: series }; k: date index. Returns the fit, the gap after the date,
 // each donor's placebo ratio, the rank-based p, and a fit warning when the treated series is matched worse before
 // the date than most donors are (the placebo distribution then says little: Abadie et al. 2010, section 4.3).
@@ -87,7 +189,12 @@ export function synthFit(y, donors, k) {
 // unit left out, so it has one donor fewer than the treated fit. 'with': the treated unit is moved into each placebo's
 // pool (Abadie et al. 2010: "shifting California to the donor pool"), so every unit is fitted against the same number
 // of others and the ranks are exchangeable when nothing happened (README "A synthetic control", the diagnostic).
-export function synthControlTest(y, donors, k, { minBefore = 5, minAfter = 2, fitWarnQuantile = 0.8, placeboPool = 'without', statistic = 'floored' } = {}) {
+// predictors (optional, README "Matched on covariates"): { treated: [p numbers], donors: { name: [p numbers] } }, for
+// example a covariate's before-date average and the outcome at a few before-date points. Each predictor is divided by
+// its standard deviation over all units (treated and donors, one scale for every fit), and every fit, the treated
+// one and each placebo's, chooses its own V as synthFitCovariates says. Without predictors, the fit matches every
+// before-date outcome (the default).
+export function synthControlTest(y, donors, k, { minBefore = 5, minAfter = 2, fitWarnQuantile = 0.8, placeboPool = 'without', statistic = 'floored', predictors = null, maxEval = 160 } = {}) {
   const names = Object.keys(donors);
   const n = y.length;
   if (names.length < 4) throw new Error(`a synthetic control needs at least 4 donor series (got ${names.length})`);
@@ -95,11 +202,26 @@ export function synthControlTest(y, donors, k, { minBefore = 5, minAfter = 2, fi
   for (const s of names) if (donors[s].length !== n) throw new Error(`donor ${s} has ${donors[s].length} points, the treated series ${n}`);
   if ([y, ...names.map((s) => donors[s])].some((a) => a.some((v) => !Number.isFinite(v)))) throw new Error('a synthetic control needs every series complete (no blanks) over the window');
   const series = names.map((s) => donors[s]);
-  const fit = synthFit(y, series, k);
+  let fitOne = (target, others) => synthFit(series[target] ?? y, others.map((i) => (i < 0 ? y : series[i])), k);
+  if (predictors) {
+    const px = [predictors.treated, ...names.map((s) => predictors.donors?.[s])];
+    if (px.some((a) => !Array.isArray(a) || a.length !== px[0].length || a.some((v) => !Number.isFinite(v)))) throw new Error('predictors need the same count of finite numbers for the treated unit and every donor');
+    const P = px[0].length;
+    const sd = Array.from({ length: P }, (_, m) => { const col = px.map((a) => a[m]), mu = col.reduce((a, b) => a + b, 0) / col.length; return Math.sqrt(col.reduce((a, b) => a + (b - mu) ** 2, 0) / (col.length - 1)) || 1; });
+    const scaled = px.map((a) => a.map((v, m) => v / sd[m])); // index 0 = treated, j + 1 = donor j
+    fitOne = (target, others) => {
+      const ti = target < 0 ? 0 : target + 1;
+      const oi = others.map((i) => (i < 0 ? 0 : i + 1));
+      const X0 = Array.from({ length: P }, (_, m) => oi.map((i) => scaled[i][m]));
+      return synthFitCovariates(target < 0 ? y : series[target], others.map((i) => (i < 0 ? y : series[i])), k, scaled[ti], X0, { maxEval });
+    };
+  }
+  const all = names.map((_, i) => i);
+  const fit = fitOne(-1, all);
   const placebos = names.map((s, j) => {
-    const others = series.filter((_, i) => i !== j);
-    if (placeboPool === 'with') others.push(y);
-    const f = synthFit(series[j], others, k);
+    const others = all.filter((i) => i !== j);
+    if (placeboPool === 'with') others.push(-1);
+    const f = fitOne(j, others);
     return { name: s, preRmspe: f.preRmspe, postRmspe: f.postRmspe, ratio: f.ratio };
   });
   // Three placebo statistics, each ranked the same way (README "A floored ratio"): 'ratio' (the 2010 paper's),
@@ -126,7 +248,7 @@ export function synthControlTest(y, donors, k, { minBefore = 5, minAfter = 2, fi
   const after = fit.gap.slice(k);
   const weights = names.map((s, j) => ({ name: s, weight: fit.weights[j] })).filter((e) => e.weight >= 0.001).sort((a, b) => b.weight - a.weight);
   return {
-    k, n, donors: names.length, weights, synth: fit.synth, gap: fit.gap,
+    k, n, donors: names.length, weights, synth: fit.synth, gap: fit.gap, v: fit.v ?? null, predictorRmse: fit.predictorRmse ?? null,
     preRmspe: fit.preRmspe, postRmspe: fit.postRmspe, ratio: fit.ratio,
     effectAverage: after.reduce((s, e) => s + e, 0) / after.length, effectAtEnd: after[after.length - 1],
     rank, p, statistic, tests, floor, minP: 1 / (names.length + 1), placebos,
