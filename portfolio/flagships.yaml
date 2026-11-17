@@ -229,9 +229,10 @@ flagships:
       passes Mustang; open: a real business's PINT file. A run that lands a slice
       replaces its item here. More open items: NEXT.md.
     buildable: >-
-      PayeeParty and TaxRepresentativeParty ids, which Peppol's PEPPOL-COMMON
-      contexts also match (extend eval/party-id-peppol-differential.mjs's PLACES);
-      R056-2 (an NL VAT number in PartyTaxScheme, a warning). No network.
+      DeliveryParty and CII ShipToTradeParty ids, which Peppol's PEPPOL-COMMON
+      contexts also match (payee and tax representative landed 2026-11-17:
+      eval/side-party-ids-peppol-differential-2026-11-17.md); R056-2 (an NL VAT
+      number in PartyTaxScheme, a warning). No network.
   - venture: shift-roster-builder
     inputs_only: >-
       a live deploy with real punches, a real payroll template, a manager's

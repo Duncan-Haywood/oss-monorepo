@@ -290,6 +290,20 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
             **_optional_monetary_totals(total),
         },
     }
+    # BG-10 payee and BG-11 tax representative: only their schemed ids (ubl.mjs).
+    for key, tag in (("payee_party", "PayeeParty"), ("tax_representative", "TaxRepresentativeParty")):
+        node = next((child for child in root if child.tag.rsplit("}", 1)[-1] == tag), None)
+        if node is None:
+            continue
+        side: dict[str, Any] = {}
+        legal = _legal_id(node)
+        if legal:
+            side["legal_id"] = legal
+        ids = _party_ids(node)
+        if ids:
+            side["party_ids"] = ids
+        if side:
+            invoice[key] = side
     payment = _payee_payment(root)
     terms_days = _payment_terms_days(root)
     if terms_days:

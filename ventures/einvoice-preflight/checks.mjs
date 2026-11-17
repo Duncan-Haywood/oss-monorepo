@@ -136,6 +136,15 @@ export function checkInvoice(invoice) {
       }
     }
   }
+  // BG-10 payee and BG-11 tax representative: Peppol's PEPPOL-COMMON id
+  // contexts match their PartyIdentification/ID and CompanyID (UBL) and
+  // ID/GlobalID (CII) as they do the seller's and buyer's (added 2026-11-17;
+  // eval/party-id-peppol-differential.mjs).
+  for (const [key, label] of [["payee_party", "Payee"], ["tax_representative", "Tax representative"]]) {
+    for (const finding of inspectPartyIdentifiers(invoice[key], key, label)) {
+      fail(finding.rule, finding.message, finding.fix, finding.path, finding.severity);
+    }
+  }
   for (const finding of inspectPaymentIban(invoice)) {
     fail(finding.rule, finding.message, finding.fix, finding.path);
   }
