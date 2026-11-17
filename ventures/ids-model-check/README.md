@@ -11,7 +11,10 @@ open. MIT licensed, no dependencies, nothing uploaded.
   `870f9c4`, 2026-09-25; see "How it was checked").
 - **Same answers as IfcTester** on five real models and two IDS files, element by
   element, except where IfcTester 0.9.0.post1 disagrees with the XSD standard
-  and buildingSMART's suite (multiple `xs:pattern`s; below).
+  and buildingSMART's suite (multiple `xs:pattern`s; below); and on
+  buildingSMART's twelve IFC 4.3 and HVAC Simple-Scene models (bridge, road,
+  rail, earthworks, plumbing, ducts) with three IDS files, 348 of 348
+  specification results identical (`eval/infra-mep-crosscheck-2026-11-17.md`).
 - STEP `.ifc`, ifcXML (`.ifcxml`, both the IFC2X3 and IFC4 layouts) and `.ifczip`
   (either one zipped), read into the same entities: xBIM's ifcXML export of a
   Revit model agrees with its STEP file on 2,205 of 2,205 attribute values.
@@ -309,6 +312,22 @@ it now fails its own pairs with "unterminated ...".
    expect that; IfcTester 0.9.0.post1 requires all of them to match, so it
    fails every wall there and this checker does not.
 
+   IFC 4.3 infrastructure and MEP (2026-11-17,
+   `eval/infra-mep-crosscheck-2026-11-17.md`): buildingSMART's ten IFC 4.3
+   Simple-Scene models (bridge, road, rail, earthworks, plumbing, electrical,
+   landscaping, HVAC) and its HVAC model in IFC4 and IFC2X3, with the two
+   starters and `samples/infrastructure-and-mep.ids.xml` (18 specifications:
+   predefined types from type objects, `partOf` through the bridge, road and
+   railway trees, millimetre quantities compared in metres). 348 of 348
+   results identical, element by element, with IfcTester 0.8.0; the verdicts
+   were also checked against the data with IfcOpenShell. The only differences
+   (3) are on the IFC2X3 copy: its air terminals and duct are `IfcFlowTerminal`
+   and `IfcFlowSegment` typed by `IfcAirTerminalType` and `IfcDuctSegmentType`;
+   this checker maps them to IFCAIRTERMINAL and IFCDUCTSEGMENT (buildingSMART's
+   type mapping table) and IfcTester 0.8.0 finds nothing applicable.
+   `infra.test.mjs` pins the counts on three committed models
+   (`samples/bsi-ifc43/`, CC BY 4.0).
+
 3. **The IDS audit** (`audit.mjs`, 2026-11-16). The same script prints a
    strict score: an `invalid-*` pair must come back INVALID (not merely not
    passing), and a `pass-*` or `fail-*` pair must come back exactly pass or
@@ -510,8 +529,10 @@ faster than IfcTester; its point is needing no install.
   a subclass checkbox per class, not only the first;
   a "fix the dataType" hint built from the 21
   of 122 standard properties real exports write in another type.
-- More real models through the IfcTester cross-check (an MEP model, an IFC4X3
-  infrastructure model).
+- More real models through the IfcTester cross-check: buildingSMART's IFC 4.3
+  infrastructure and HVAC samples agree 348 of 348 (2026-11-17); next, an
+  authoring tool's own IFC 4.3 export (Civil 3D, OpenRoads, Allplan Bridge)
+  and a Revit MEP export with systems and ports.
 - The GitHub Action (landed 2026-11-17; parse-once and failure cap 2026-11-17):
   a run on GitHub's own runner; a team's real repository of exports running it;
   a failure cap with a streamed "download all" in the browser page.
