@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { analyzeJob } from './analyze-job.mjs';
-import { synthHtml, synthChartSvg, synthCsv } from './synth-view.mjs';
+import { synthHtml, synthChartSvg, synthCsv, csvCell } from './synth-view.mjs';
 import { PROP99_CSV, PROP99_COVARIATES, PROP99_DONORS } from './example-prop99.mjs';
 
 // The synthetic control on the page (README "A synthetic control on the page"): the donor and covariate boxes feed
@@ -51,6 +51,9 @@ test('view: summary, weights, balance table with its warning row, chart and CSV'
   assert.equal(csv[0], 'label,treated,synthetic,gap');
   assert.equal(csv.length, 32);
   assert.ok(synthHtml({ ...h, treated: '<b>' }).includes('&lt;b&gt;'));
+  assert.equal(csvCell('=HYPERLINK("x")'), `"'=HYPERLINK(""x"")"`);
+  assert.equal(csvCell('-5'), '-5');
+  assert.equal(csvCell('@a'), "'@a");
 });
 
 test('page: the donor and covariate boxes, the example button and the counted run are wired', () => {

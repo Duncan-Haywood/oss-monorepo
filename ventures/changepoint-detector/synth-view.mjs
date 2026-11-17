@@ -48,7 +48,13 @@ export function synthHtml(h) {
   return P.join('');
 }
 
-// Per-point CSV: label, treated, synthetic, gap.
+// Per-point CSV: label, treated, synthetic, gap. A label that starts like a spreadsheet formula (=, +, -, @, tab or CR)
+// gets an apostrophe (formula-injection guard), unless it is a plain number such as -5.
+export function csvCell(v) {
+  let s = String(v);
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`;
+  return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
 export function synthCsv(h) {
-  return ['label,treated,synthetic,gap', ...h.labels.map((l, i) => `${/[",\n]/.test(l) ? `"${String(l).replace(/"/g, '""')}"` : l},${h.treatedSeries[i]},${h.synthetic[i]},${h.gap[i]}`)].join('\n');
+  return ['label,treated,synthetic,gap', ...h.labels.map((l, i) => `${csvCell(l)},${h.treatedSeries[i]},${h.synthetic[i]},${h.gap[i]}`)].join('\n');
 }
