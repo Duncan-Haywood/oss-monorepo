@@ -56,3 +56,7 @@ def test_sentences_split():
 
 def test_repository_ventures_are_clean():
     assert c.main([str(c.ROOT / "ventures"), "--strict"]) == 0
+
+
+def test_empty_root_refuses(tmp_path):
+    assert c.main([str(tmp_path)]) == 2

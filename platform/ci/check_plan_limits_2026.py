@@ -39,7 +39,8 @@ and skip it. A line checked and intended may carry `plan-limits: ok`.
 
     python3 platform/ci/check_plan_limits_2026.py [--json] [--strict] [root ...]
 
-A report: exit 0 unless --strict is passed and something is found.
+A report: exit 0 unless --strict is passed and something is found; exit 2
+when the roots hold no files to scan.
 """
 from __future__ import annotations
 
@@ -149,7 +150,9 @@ def main(argv=None) -> int:
     ap.add_argument("--strict", action="store_true")
     a = ap.parse_args(argv)
     found = []
+    files = 0
     for p in shipped(a.roots):
+        files += 1
         try:
             text = p.read_text(encoding="utf-8")
         except (UnicodeDecodeError, OSError):
@@ -160,6 +163,9 @@ def main(argv=None) -> int:
             except ValueError:
                 h["file"] = str(p)
             found.append(h)
+    if not files:
+        print(f"no shipped venture files under {a.roots}: wrong root?", file=sys.stderr)
+        return 2
     if a.json:
         print(json.dumps({"source": SOURCE, "hits": found}, indent=1))
     else:
