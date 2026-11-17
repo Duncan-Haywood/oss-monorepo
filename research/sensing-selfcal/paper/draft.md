@@ -161,8 +161,10 @@ hand-held video) reach a 2.5% sd. Two candidate fixes for the bias that remains 
 the optical axis, which the solved poses read as well as motion capture does, does not predict a window's error
 (Spearman +0.08). And although a window's k<sub>1</sub> tracks its focal error (Spearman +0.59), conditioning f on the
 board's k<sub>1</sub> with k<sub>2</sub> free raises the median error from 5.25% to 7.01%: the windows draw nearly the board's
-distortion curve over the inner image but split it differently between k<sub>1</sub> and k<sub>2</sub>. A prior
-calibration should therefore be pinned whole, not one coefficient at a time.
+distortion curve over the inner image but split it differently between k<sub>1</sub> and k<sub>2</sub>. Pinning both terms,
+from the full covariances the solves stored, is worse still: the median error rises to 8.72% and the conditional bar
+narrows by about 40%, so pooled windows become confidently wrong (rms z 3.07). At first order a past board calibration's
+distortion is not a usable prior for a 1.2 s window; the re-solve with it pinned is the open test.
 
 ## 5. An accept/reject test on disjoint view sets
 
@@ -475,9 +477,9 @@ were found after a pre-registered prediction failed and are labelled so in the l
 - A second camera and board captured for this purpose (programme milestone 6, an owner step): a
   physically changed lens (zoom or refocus) for a real focal change, and enough views per unit to
   estimate each unit's own tail on views the test never touches.
-- Done for natural features on two cameras (milestones 3b–3f, Section 4): σ is 4–12× too small per 1.2 s window,
+- Done for natural features on two cameras (milestones 3b–3g, Section 4): σ is 4–12× too small per 1.2 s window,
   a keyframe jackknife makes it honest and random-effects pooling keeps it honest across windows; neither axis swing
-  nor a one-coefficient distortion prior explains the remaining bias. Still needed: a re-solve with the whole prior
+  nor a one- or two-coefficient distortion prior (first order) explains the remaining bias. Still needed: a re-solve with the whole prior
   distortion model pinned, rolling shutter, and longer windows with loop closures.
 - Done for two units (Section 7, TUM RGB-D): the twin reference stays at or below nominal at 5–6 new
   views. Warm-started subset solves do not recover the power (milestone 4k: the far minima are real).

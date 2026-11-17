@@ -5532,8 +5532,8 @@ F and both t statistics with a parametric bootstrap from the null fit. A 95% ran
 change uses the bootstrap's 97.5th percentile of |t|. The bar to ship (CLI `--known-date`, the page, the engine)
 was size within 2-8% at p 0.05 in every synthetic cell plus four real predictions. Rounds 1-3 were too eager in
 short sticky series; round 4 fixed that and became too cautious in one cell; **round 5 (below) met every bar and
-ships in the CLI** (`--known-date <label>`, with `--period` and `--log`; the page and the engine have not followed
-yet). Series that only the random-walk cut lets through are reported as not calibrated (round 5, "after the run").
+ships in the CLI** (`--known-date <label>`, with `--period` and `--log`; on the page and in `analyze({ knownDate })`
+since round 6). Series that only the random-walk cut lets through are reported as not calibrated (round 5, "after the run").
 
 | Round (pre-registration) | Generator rho; guard | Worst size cells (of series tested) | Random walks rejected (of all) | Real A-D |
 |---|---|---|---|---|
@@ -5635,7 +5635,44 @@ finds. The pre-registered rule is unchanged, but the CLI marks these results `ca
 that conditions on admission (simulate the null, apply the same guard, take the p among admitted replicates), and
 the page and engine wiring.
 
+### Round 6: a bootstrap conditioned on the cut is calibrated and blind (2026-11-17, exploratory then replicated; not shipped)
+
+Round 5's diagnosis left one question: a series the line checks would refuse, let through only because a step at the
+date cuts its stickiness more than random walks are cut, gets a p that ignores that selection. The textbook answer is
+to condition on it (selective inference; Lee, Sun, Sun and Taylor 2016 for the lasso): simulate the null, keep only the
+replicates the same guard lets through the same way, and take the p among those. `knownDateTest(..., { cutConditional:
+true })` does that by Monte Carlo (admission runs 2-4% of null draws, so it draws until 199 are admitted, up to 200
+times that many; 0.2-0.5 s a series). `eval/known-date-conditional.mjs` screens thousands of simulated series per cell,
+keeps the first 40 the cut admits, and scores round 5's test and the conditional one on the same series.
+
+Not pre-registered: the first run (seed base 41000, `eval/known-date-conditional-explore.out.txt`) was meant to pick
+settings, and it showed the idea cannot ship whatever the settings, so the same script was rerun unchanged on fresh
+seeds (base 45000, `node eval/known-date-conditional.mjs 4000 40 199`, `eval/known-date-conditional-replicate.out.txt`)
+to fix the numbers the CLI and page quote:
+
+| Series the cut lets through (fresh seeds) | admitted | round 5's p <= 0.05 | conditional p <= 0.05 |
+|---|---|---|---|
+| no change: AR(1) rho 0.8-0.95, n 40-120, and random walks (10 cells) | 306 | **77.5%** | 4.9% |
+| a real step of 2-4 innovation sd at the date (5 cells) | 156 | 91.0% | **2.6%** |
+
+Both rows matter. Round 5's p flags no-change series 77.5% of the time and real steps 91.0%: on this path it barely
+tells them apart, worse than the 17 of 26 the round-5 diagnosis saw. The conditional p is calibrated (4.9%, cells
+0-7.5%, walks 5.0-12.5%) but flags real steps less often than no-change series. The reason is the selection itself:
+what admits a series is a step at the date cutting its stickiness, and that is the same evidence the F test reads, so
+once you condition on it nothing is left to test. Two variants, scored on 25 series per cell
+(`eval/known-date-conditional-sticky-explore.out.txt`, `-walkgen-`, `-sticky-walkgen-`), did no better.
+Conditioning only on "sticky about a line" kept round 5's rates (60% no change, 92% step 4 at n 60). Adding a
+random-walk generator to the full conditioning took walks to 12% and power to 0.
+
+**What ships:** the test reaches the page ("Test a date you name") and `analyze({ knownDate: label | { date, reps,
+seed } })`, with round 5's settings and the CLI's fields plus `calibrated` and `significant` (never true on a
+cut-admitted series). The CLI and page warnings now quote 237 of 306 against 142 of 156. `cutConditional` and
+`cutWalkGen` stay in `known-date.mjs` as off-by-default options, for reproducing the table. Tests:
+`known-date-page.test.mjs`. **Next:** a test for this path needs evidence the guard does not use: a control series
+(the rear-seat passengers did this job for the seat-belt law), or several dates across series. A slower route is a
+likelihood ratio of "step at the date" against "random walk" that is scored on its own, not after the cut.
+
 **Use it.** `node cli.mjs data.csv --column deaths --known-date 1983-02 --period 12 --log` (the label is the first
 row after the change; `--json` for the fields: `step`, `stepRange95`, `pStep`, `slopeChange`, `pSlope`, `p`,
 `pTable`, `effectAverage`, `effectAtEnd`, `gated`, `rhoGen`, `calibrated`). Tests: `known-date.test.mjs`,
-`known-date-cli.test.mjs`.
+`known-date-cli.test.mjs`, `known-date-page.test.mjs`. On the page: type the label in "Test a date you name".

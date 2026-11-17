@@ -50,7 +50,7 @@ test('a series passed only by the random-walk cut is reported as not calibrated'
     const h = knownDateResult({ csv, date: '30', reps: 19, seed: 25000 + s + 1 });
     if (h.refused || !h.admittedByCut) { if (!h.refused) assert.equal(h.calibrated, true); continue; }
     assert.equal(h.calibrated, false);
-    assert.match(knownDateText(h), /NOT A CALIBRATED TEST HERE.*17 of 26/);
+    assert.match(knownDateText(h), /NOT A CALIBRATED TEST HERE.*237 of 306 with no change.*142 of 156 with a real step/);
     return;
   }
   assert.fail('no cut-admitted series in the cell');

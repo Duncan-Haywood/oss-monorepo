@@ -113,19 +113,17 @@ flagships:
       test 57.9%, tax 16/41; open: OCR-bound); (6) payroll (README): two journal
       layouts read; open: a real Gusto or ADP export; (7) IRIS NEC and MISC rents
       files on IRS TY2025 guidelines (HISTORY): open: a real upload, TY2026
-      template; (8) `salestax return`: the last six listed states read
-      (eval/state-pages-2026-11-14e.md); 23 discounts, IN's band and day from the
-      book (README); open: AR statutes, a real return layout; (8b) `annualized`
-      (Schedule AI): penalty, box D, Jan 31 rule, 2026 draft (README); open: line 9b
-      once the 2026 instructions print. A run that lands a slice replaces its item
-      here; keep this under 2,000 characters. More open items: NEXT.md.
+      template. A run that lands a slice replaces its item here; keep this under
+      2,000 characters. More open items: NEXT.md.
     buildable: >-
       Receipts, item (5): SRD photos (eval/srd-fetch.mjs), CORD photos
       (eval/cord_images.py); tesseract via apt, RapidOCR via pip. CORD train shards
       1-3: tesseract four 362 of 583, `--rapidocr` 515, `--rapidocr --four-pass` 510
       with tax 172 to 203 of 267 (eval/second-ocr-engine-2026-11-17.md); test 80 of
-      95. Next: RapidOCR's parser misses on shards 1-3 (68; Rp57,000, cash taken as
-      total); ONNX Runtime Web for the page. CORD test stays held out.
+      95. RapidOCR runs on the page (rapidocr-web.mjs, ONNX Runtime Web;
+      eval/rapidocr-web-2026-11-17.md). Next: RapidOCR's parser misses on shards 1-3
+      (68; Rp57,000, cash taken as total); the page's RapidOCR in a Web Worker (it
+      blocks the tab). CORD test stays held out.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
@@ -140,24 +138,28 @@ flagships:
       sales-cadence-builder, sales-call-notes-desk and deal-keeper as its tools. The hard problems are reading
       real replies reliably, keeping consent records, and earning each step of autonomy with measurements.
     next: >-
-      History and every measurement: README, eval/README and git (inbox agent, daily run, Today's queue, self-host
-      server with TLS and XOAUTH2, research agent, call prep, follow-ups, meeting slots, CRM write-back against
-      fake servers only; nineteen agent-written reply sets; .eml and .mbox files). Real mail (eval/enron.mjs,
-      Enron): seven blind rule rounds reached the reader's noise; away policy 2026-11-11; "we are not interested"
-      stops as a decline since 2026-11-12. Third readers 2026-11-12 (eval/README "A third reader from another
-      model family" and "A 14B local model on the same replies"): Llama 3.1 8B, Qwen2.5 7B and Qwen2.5 14B all
-      agree with the agent readers less than the agents agree with each other (14B 70-75%, kappa 0.56-0.64 vs 81%,
-      0.71) and all lean toward the rules, so none is an independent reader. Next: (1) a strong second reader from
-      READER.md, a person or a strong model of another family, on the 298 stops (`model-reader.mjs compare`); (2)
-      real replies to outreach and a real rep's call notes to check the reply rules, prep rules and follow-up
-      sorter; (3) M2: Qwen2.5 7B on all 792 replies (alone 86% of fresh vs rules-before-tuning 69%; merged
-      735/792, 2 false opt-outs) and Qwen2.5 14B on the first 181 (alone 144 vs 136, merged 146 vs 147, 9 false
-      opt-outs vs 6, and on all 792 merged 732 vs the 7B's 735 with 27 false opt-outs alone vs 10; a
-      pre-registered test of letting its closes act alone failed on the 611 it had not been read on: 2 of 7 right,
-      4 live replies lost); next a hosted model of another family (needs a key), merge limits unchanged; (4) run
-      the self-host server, OAuth and CRM write-back against a real mailbox, Google or Microsoft app and HubSpot
-      or Pipedrive account (all fakes so far); (5) a real HubSpot or Pipedrive export for the research agent (none
-      found public).
+      History and every measurement: README, eval/README and git (inbox agent, daily
+      run, Today's queue, self-host server with TLS and XOAUTH2, research agent,
+      call prep, follow-ups, meeting slots, CRM write-back against fake servers
+      only; nineteen agent-written reply sets; .eml and .mbox files). Real mail
+      (eval/enron.mjs, Enron): seven blind rule rounds reached the reader's noise;
+      away policy 2026-11-11; "we are not interested" stops as a decline since
+      2026-11-12. Third readers 2026-11-12 (eval/README "A third reader from another
+      model family" and "A 14B local model on the same replies"): Llama 3.1 8B,
+      Qwen2.5 7B and Qwen2.5 14B all agree with the agent readers less than the
+      agents agree with each other (14B 70-75%, kappa 0.56-0.64 vs 81%, 0.71) and
+      all lean toward the rules, so none is an independent reader. Next: (1) a
+      strong second reader from READER.md, a person or a strong model of another
+      family, on the 298 stops (`model-reader.mjs compare`); (2) real replies to
+      outreach and a real rep's call notes to check the reply rules, prep rules and
+      follow-up sorter; (3) M2: Qwen2.5 7B on all 792 replies (alone 86% of fresh vs
+      rules-before-tuning 69%; merged 735/792, 2 false opt-outs) and Qwen2.5 14B on
+      the first 181 (alone 144 vs 136, merged 146 vs 147, 9 false opt-outs vs 6, and
+      on all 792 merged 732 vs the 7B's 735 with 27 false opt-outs alone vs 10; a
+      pre-registered test of letting its closes act alone failed on the 611 it had
+      not been read on: 2 of 7 right, 4 live replies lost); next a hosted model of
+      another family (needs a key), merge limits unchanged. More open items:
+      NEXT.md.
   # Added 2026-10-20 first, on the owner's direction that day for research
   # algorithms as tools (prompts/goals.md). New tools of that kind follow
   # portfolio/research-tools/README.md; this entry deepens the first one.
@@ -188,11 +190,7 @@ flagships:
       shape checks failed; next phase-tolerant shapes, 5th set. Open: (0) drift
       model: t-walk increments, biweight on fresh data, why it absorbs seat belts
       and quality control 4, its AR(1) term; (1) slopes: logs fail, 2 hinges ship
-      (refuse short sticky series), given date: --known-date ships (round 5); next a
-      bootstrap conditioned on the cut guard (cut-only admits 17/26 false), page,
-      engine; step/bend bootstrap tests (README "Step or bend, as two tests") fail:
-      walks called bend, use the cut guard; nulls rho low; a real step inside a
-      cycle, a cycle check not tied to rho, real documented ramps and close steps;
+      (refuse short sticky series), given date: --known-date on CLI, page, engine.
       More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
@@ -203,29 +201,25 @@ flagships:
     next: >-
       History: README and git (latest: France BR-FR (FNFE 1.4.0.04) on the plain
       route, 264/264 vs Saxon (eval/br-fr-crosscheck-2026-11-17.md); CDAR
-      (BR-FR-CDV) 780/780 vs Saxon (eval/cdar-crosscheck-*); open: Extended-CTC-FR
-      base sets, CDAR multi-ref/212 rules (17/43 hit), English BR-FR text, a real PA
-      rejection or status; VERI*FACTU (README): open: a production SIF's records and
-      replies). Open: a real HU report with NAV's businessValidationMessages or
-      SCHEMA_VIOLATION text; HU: open: a real chain with NAV's replies; a real
-      business's signed Facturae or FACe rejection (eval/facturae-gob-*); ZATCA: a
-      real KSA note; SdI: open: a real FatturaPA rejection with its file; HR: a real
-      HR invoice, cash accounting; CIUS-PT: which validator does AT run (AA/RED
-      codes)?; FA(3) KOR/ZAL/ROZ totals landed (README): open: a real KSeF
-      rejection, a business's real KOR/ZAL file; repair keeps PDF/A (veraPDF
-      155/155), PDF/A-3b writer passes Mustang; open: a real business's PINT file;
-      open: RO_CIUS on a real ANAF file; NLCIUS on a real Dutch file; India's INV-01
-      check on a real IRP payload; mandate texts: IL, ES, NRS, SRO 1852, Jordan
-      open; SK landed (README): open: a real SK file; Mexico CFDI 4.0 landed: open:
-      SAT's CP error matrix to map MX-070..080 to CP codes (omawww blocked), a real
-      payroll or export file, a PAC rejection compared; cCredPres rules and
-      cClassTrib at IT 1.71 landed (README): RTC events (211110, 12 others incl.
-      112120, 110001) landed, 211120 (removed in v1.40) flagged (README): open: a
-      real event; a real reform NF-e from a SEFAZ test environment, a real SEFAZ
-      rejection for a cClassTrib; national NFS-e landed: open: a national rejection
-      compared; ISS: SP, Rio, Curitiba rates, Rio codes (ABR-026) landed: open: BH
-      (hosts 403), a Rio rejection. A run that lands a slice replaces its item here.
-      More open items: NEXT.md.
+      (BR-FR-CDV) 780/780 vs Saxon (eval/cdar-crosscheck-*); Extended-CTC-FR and
+      Factur-X EXTENDED bases 175/175 vs Saxon
+      (eval/extended-base-crosscheck-2026-11-17.md); open: a real PA extended file,
+      CDAR _WARNING set (37/43 rules hit, 6 dead: FR-CDV-105..107 cover them),
+      English BR-FR text, a real PA rejection or status; VERI*FACTU (README): open:
+      a production SIF's records and replies). Open: a real HU report with NAV's
+      businessValidationMessages or SCHEMA_VIOLATION text; HU: open: a real chain
+      with NAV's replies; a real business's signed Facturae or FACe rejection
+      (eval/facturae-gob-*); ZATCA: a real KSA note; SdI: open: a real FatturaPA
+      rejection with its file; HR: a real HR invoice, cash accounting; CIUS-PT:
+      which validator does AT run (AA/RED codes)?; FA(3) KOR/ZAL/ROZ totals landed
+      (README): open: a real KSeF rejection, a business's real KOR/ZAL file; repair
+      keeps PDF/A (veraPDF 155/155), PDF/A-3b writer passes Mustang; open: a real
+      business's PINT file; open: RO_CIUS on a real ANAF file; NLCIUS on a real
+      Dutch file; India's INV-01 check on a real IRP payload; mandate texts: IL, ES,
+      NRS, SRO 1852, Jordan open; SK landed (README): open: a real SK file; Mexico
+      CFDI 4.0 landed: open: SAT's CP error matrix to map MX-070..080 to CP codes
+      (omawww blocked), a real payroll or export file, a PAC rejection compared. A
+      run that lands a slice replaces its item here. More open items: NEXT.md.
   - venture: shift-roster-builder
     inputs_only: >-
       a live deploy with real punches, a real payroll template, a manager's
@@ -260,11 +254,7 @@ flagships:
       spent budget (2 of 11 open hours late; repeat ladders none, README "The day
       sweeps past a spent budget"); re-run the keep-usual-shifts sweep on real dated
       leave records; a manager's read on whether the steadier plan is the one they
-      would post; a real 7shifts account through --import-7shifts (README "Reading
-      7shifts directly"); a real When I Work account or response through
-      --import-wheniwork (README "Reading When I Work directly"); Homebase (docs
-      need an account); a real Deputy install via --import-deputy (README "Reading
-      Deputy directly"). More open items: NEXT.md.
+      would post. More open items: NEXT.md.
     buildable: >-
       Deputy staff and wages from its API (no account needed to build):
       resource/Employee and EmployeeAgreement field names are in the MIT
@@ -307,12 +297,7 @@ flagships:
       maker-against-lensfun DNG pair; a real DNG carrying any opcode run only on
       synthetic files so far, or the SDK to check them; lateral colour measured on a
       real frame with sharp corner edges; a real Adobe `.dcp` through the profile
-      chooser; a real tiled CR3 (C-RAW tiles 2026-11-16, eval/canon-cr3-*tiled-*);
-      the DJI Phantom 4 DNG's vignette lift against DJI's own render
-      (eval/opcode-quality-flag-*); a real DNG with opcode flag bit 1 set; a phone
-      DNG with its own JPEG of the frame (corrected corners); a tungsten-lit colour
-      chart to say which colour model is closer (the 70D frame, 4,700 K and
-      green-tinted, is where they part most; the Nexus 5X carries ForwardMatrix).
+      chooser; a real tiled CR3 (C-RAW tiles 2026-11-16, eval/canon-cr3-*tiled-*).
       More open items: NEXT.md.
 
   - venture: quick-pick-survey
@@ -345,11 +330,7 @@ flagships:
       times, whether times depend on which slot is clicked (the d9 bound assumes
       not), whether real people have warm-ups, blocks, slot runs or spread-out
       carelessness, and how noisy real pairwise answers are
-      (scripts/coin-flip-gate-real.ts --honest-lapse); (d11) bounded turn measured,
-      not shipped (selector doc 2026-11-15); on real times, count back moves it
-      backs; (bw) answer times in codes (RANK-PAGE.md "Answer times"): read real
-      s/screen vs s/pick; (h) share-drop beat both pace cuts at q = 1 but taxes a
-      camp by up to 0.030: decide on a real panel's times.
+      (scripts/coin-flip-gate-real.ts --honest-lapse). More open items: NEXT.md.
 
   - venture: league-schedule-generator
     why: >-
@@ -379,11 +360,7 @@ flagships:
       longer run, now ~4x cheaper; or a starter family climbed with the floor as its
       score); 30 teams in the page (README "Half the table": 104 s with the
       symmetric step, 2x 28 teams; next: keep tables in the module, copy-in/out now
-      as large as the step; 29 adds nothing); the walk's last heavy tail (22 teams:
-      20 of 280 walks out of budget either way, eval/walk-guide.txt); home-and-away
-      breaks exact since 2026-11-13 (pairLeastBreaks, eval/pair-exact.txt): a
-      floor-priced home-and-away timetable search on it, and its cost at 18-20 teams
-      (26-76 s, PAIR_EXACT_NODES) cut. More open items: NEXT.md.
+      as large as the step; 29 adds nothing). More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
@@ -418,12 +395,8 @@ flagships:
       a flight, film the empty strands; drag a capped cleat over a strip; scope the
       lift shunt on a start and a stall; read the gearmotor's rotor inertia; set a
       built slip hub with a scale, hold a flight, watch it slip and trip; twist a
-      jaw coupling with a lever and a scale for its stiffness and play; measure the
-      lift gearmotor's shaft and body (75 mm face to back at most) and press F626s
-      into the printed fit ring (lift_bearing_fit_ring), run `fit-ring` and set
-      lift_bearing_fit_mm. Scope GPIO 39 at part duty. Actuator's lead: cut 220 mm,
-      209-231 fits; find where a real actuator's cable leaves its housing and bend a
-      built lead through the travel.
+      jaw coupling with a lever and a scale for its stiffness and play. More open
+      items: NEXT.md.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
   # "would be fun to make as a long term project. also being able to publish to
@@ -454,13 +427,7 @@ flagships:
       staves straightened (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
       (eval/broken-stroke-check.md); next: worn pages (new GABC needed), mottled
       squares, one-step cephalici read (eval/one-step-cephalicus-check.md), 10 of 84
-      tuning misses left, 3408's strokes, 3464's cephalicus; --split-voices (by
-      phrase or at a word, --split-words, eval/word-split-report.md) and --overlap
-      (both sections sing the seam note at a direct tenor/bass swap,
-      eval/overlap-report.md) need a singer's check of the ranges, of a mid-phrase
-      handoff against a whole phrase and of a one-note overlap against a clean
-      handoff; --baritones, --entrance-cost N and --second-tenors (TTBB; README)
-      need the same check. Next: a real choir's range test. More open items:
+      tuning misses left, 3408's strokes, 3464's cephalicus. More open items:
       NEXT.md.
   # Added 2026-11-16 (new venture, construction direction): buildingSMART IDS 1.0
   # checking of IFC models, in a browser tab or CI. Depth: a full IDS engine
@@ -501,8 +468,4 @@ flagships:
       (eval/model-attr-codes-2026-11-17.md: 242 of 242 offers pass; 143 of 210
       Uniformat elements in Schultz have an empty code, Require a code); a range for
       numeric attributes; a dataType-mismatch hint, Accept any data type 2026-11-17
-      (eval/model-any-type-2026-11-17.md); GitHub Action and ci-cli.mjs 2026-11-17
-      (eval/ci-action-2026-11-17.md: 8 pairs on 4 real exports in 7.5 s, 9 of 9
-      annotations on the element's line); heap 2026-11-17
-      (eval/heap-200mb-2026-11-17.md: 219 MB model 2.5 to 1.0 GB; next:
-      no-entity-facet IDS 4.7 GB, lazy ifcXML). More open items: NEXT.md.
+      (eval/model-any-type-2026-11-17.md). More open items: NEXT.md.

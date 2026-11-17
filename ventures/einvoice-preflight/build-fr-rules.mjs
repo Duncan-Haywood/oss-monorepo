@@ -9,12 +9,37 @@
 // The "fatal" files are used, not the _WARNING copies meant for the transition.
 // Add-on sets over the EN 16931 base: cius-fr-ubl.json, cius-fr-cii.json. Also the life-cycle
 // status message rules (BR-FR-CDV, CDAR D22B): cdar-fr.json, a set of its own (no EN 16931 base).
+// And the base sets that stand in for the EN 16931 base on an extended file: FNFE's
+// EXTENDED-CTC-FR (UBL, CII; derived from EN 16931 1.3.16, extensions allowed) and Factur-X
+// 1.09.2 EXTENDED (CII): extended-ctc-fr-ubl.json, extended-ctc-fr-cii.json,
+// facturx-extended-cii.json.
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { compileSchematron } from "./plain-compile.mjs";
+
+// The Factur-X sets look codes up in a side file (document('FACTUR-X_EXTENDED_codedb.xml')),
+// which fontoxpath cannot open, so those checks were skipped (30 to 40 per invoice). Inline
+// each list as a sequence: `$v = ('380', '381', ...)`. Returns how many lookups were inlined.
+function inlineCodeDb(rules, dir) {
+  const lookup = /document\('([\w.-]+_codedb\.xml)'\)\/codedb\/cl\[@id=(\d+)\]\/enumeration\[@value=(\$[\w.-]+)\]/g;
+  const dbs = {};
+  const list = (file, id) => {
+    dbs[file] ??= Object.fromEntries([...readFileSync(join(dir, file), "utf8").matchAll(/<cl id="(\d+)">([\s\S]*?)<\/cl>/g)]
+      .map(([, n, body]) => [n, [...body.matchAll(/value="([^"]*)"/g)].map(([, v]) => v.replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&apos;/g, "'"))]));
+    const values = dbs[file][id];
+    if (!values) throw new Error(`${file}: no code list ${id}`);
+    return `(${values.map((v) => `'${v.replace(/'/g, "''")}'`).join(", ")})`;
+  };
+  let n = 0;
+  for (const p of rules.patterns) for (const r of p.rules) for (const c of r.checks) {
+    c.test = c.test.replace(lookup, (m, file, id, v) => { n++; return `${v} = ${list(file, id)}`; });
+    if (c.test.includes("document(")) throw new Error(`${c.id}: a document() lookup was left`);
+  }
+  return n;
+}
 
 const here = dirname(fileURLToPath(import.meta.url));
 const out = join(here, "plain");
@@ -51,5 +76,20 @@ for (const [syntax, files] of Object.entries(sets)) {
   writeFileSync(join(out, "cdar-fr.json"), JSON.stringify(rules) + "\n");
   manifest.sets["cdar-fr"] = { source: `FNFE-MPE BR-FR-CDV (CDAR life-cycle statuses) ${cdarVersion}, github.com/fnfempe/France_RFE (Apache-2.0)`, commit, from: from.split("/").pop(), checks };
   console.log(`cdar-fr: ${checks} checks`);
+}
+for (const [name, from, re] of [
+  ["extended-ctc-fr-ubl", "UBL/EXTENDED-CTC-FR/schematron/EXTENDED-CTC-FR-UBL.sch", /EXTENDED-CTC-FR-UBL-V([\d.]+)/],
+  ["extended-ctc-fr-cii", "CII/EXTENDED-CTC-FR/schematron/EXTENDED-CTC-FR-CII.sch", /EXTENDED-CTC-FR-CII-V([\d.]+)/],
+  ["facturx-extended-cii", "Factur-X/EXTENDED/schematron/FACTUR-X_EXTENDED.sch", /Version: ([\d.]+)/],
+]) {
+  const v = readFileSync(join(root, from), "utf8").match(re)?.[1] ?? "?";
+  const rules = compileSchematron(join(root, from));
+  const inlined = inlineCodeDb(rules, join(root, dirname(from)));
+  const checks = rules.patterns.reduce((n, p) => n + p.rules.reduce((m, r) => m + r.checks.length, 0), 0);
+  if (inlined) console.log(`${name}: ${inlined} code-list lookups inlined`);
+  writeFileSync(join(out, `${name}.json`), JSON.stringify(rules) + "\n");
+  const what = name.startsWith("facturx") ? `Factur-X EXTENDED ${v} (FNFE-MPE)` : `FNFE-MPE EXTENDED-CTC-FR ${v}`;
+  manifest.sets[name] = { source: `${what}, github.com/fnfempe/France_RFE (Apache-2.0)`, commit, from: from.split("/").pop(), checks };
+  console.log(`${name}: ${checks} checks`);
 }
 writeFileSync(manifestFile, JSON.stringify(manifest, null, 2) + "\n");

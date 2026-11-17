@@ -74,7 +74,14 @@ class LineFig(unittest.TestCase):
         self.assertIn(">0.5<", svg)
         self.assertNotIn(">0.853125<", svg)
 
+    def test_hline_at_zero_is_drawn(self):
+        # a zero reference line (effects that change sign) was dropped because 0 is falsy
+        svg = linefig.svg_lines("t", "a", "x", "y", [("s", [1, 2], [-1.0, 1.0])], hline=0)
+        self.assertIn('stroke-dasharray="4 3"', svg)
+        self.assertNotIn('stroke-dasharray="4 3"', linefig.svg_lines("t", "a", "x", "y", [("s", [1, 2], [-1.0, 1.0])]))
+
 
 if __name__ == "__main__":
     unittest.main()
+
 
