@@ -2,6 +2,20 @@
 
 Newest first.
 
+## 2026-11-17 · Milestone 6d: is 6c's lane-order gain real, and is it the robots' side or just their bodies? (predictions written before the full run)
+- Why this step: 6c read, after its run and unregistered, that crowd-side robots at 20% raised people's lane order beyond a density-matched control in the social-force crowd at 0.25&times; (+0.080) and 0.75&times; (+0.055) the fitted bias. README Next steps 6 asks for a registered test. 6c's control (N &minus; k people, no robots) also differs from the robot cells by k bodies, so a gain could come from any k extra walkers, not from holding a side. A fleet operator needs to know which: "hold the crowd's side" is a policy; "be there" is not.
+- Tool: `experiments/m6d_lane_test.py` reuses `sftwin.simulate`, `robots.py` and `m5_robots.py`'s constants unchanged. People-only measures.
+- Design (fixed now): four arms per cell: *none* (N people), *control* (N &minus; k people), *crowd* (N &minus; k people + k crowd-side robots), *goal* (N &minus; k people + k robots with a 50/50 lateral goal, robots.py "goal": same bodies and speed, no side-holding). Effects: seed = crowd &minus; control (6c's), side = crowd &minus; goal, body = goal &minus; control, density = control &minus; none. Social force (&beta; 0.1) at 0.25, 0.5 and 0.75 &times; the fitted bias; collision-free speed (&beta; 0.2) at 0.25 and 0.5 &times; (6c's left-over: does its crowd move at all). The two HERMES 3.6 m runs with `m5_robots.RUNS` walker counts (social force 30/60, collision-free speed 20/60); shares 20% and 30%; robots 1.2 m/s; 40 **fresh** seeds per cell (SEED0 20300000, disjoint from 5a to 6c); 120 s runs, first 40 s warm-up. 70 cells, 2,800 runs. Percentile bootstrap over seeds within each cell (B = 2,000), runs pooled by the mean of their cell means.
+- Disclosure: a 1-seed, 45 s smoke run checked the script end to end; only its exit status and line count were read, not its numbers.
+- **Predictions:**
+  - T1 (the registered test of 6c's read): social force, 20%: crowd &minus; control lane order, 95% interval above 0 at both 0.25&times; and 0.75&times;. Prior 55% (6c's intervals cleared 0 by 0.03 and 0.02; regression to the mean is likely).
+  - T2: social force, 20%: crowd &minus; goal lane order, interval above 0 at all three multipliers (the gain is side-holding, not bodies). Prior 60%.
+  - T3: social force: the crowd &minus; control lane gain is larger at 30% than at 20% at every multiplier (point estimates). Prior 55%.
+  - T4: social force, 20%: no crowd &minus; control transit interval lies wholly below 0 (6c's "no speed-up beyond density" replicates). Prior 70%.
+  - T5: social force, 30%: crowd &minus; control transit interval below 0 at one multiplier or more. Prior 25%.
+  - T6: collision-free speed at 0.25&times; with no robots keeps above 0.85 on its own right (its convention barely moves even at a quarter of the bias). Prior 65%.
+  - T7: collision-free speed: crowd &minus; control lane order interval contains 0 in all four multiplier-share cells (lanes at the ceiling). Prior 60%.
+
 ## 2026-11-16 · Milestone 6c: do crowd-side robots seed lanes in a weak-convention crowd, or do they only thin it? (predictions written before any run)
 - Why this step: 6a read, after its run and unregistered, that in the half-bias social-force crowd crowd-side robots at 20% *cut* people's transit by 1.59 s and raised people's lane order from 0.756 to 0.873. Robots there replace people at a fixed agent count, so those cells also hold fewer people; the lead cannot tell a lane seed from a thinner crowd. If the robots do seed lanes, a fleet operator has a reason to deploy crowd-side robots beyond "they collide less" (6a). This also starts README Next steps 2 (sweep the human side bias toward the street value 0.65). Milestone 6b (SARL in each twin) is a sibling's open PR #16714; this step does not touch it.
 - Tool: `experiments/m6c_lane_seeds.py` reuses `sftwin.simulate` and `m5_robots.py`'s constants unchanged. People-only measures (robots are excluded by `sftwin.measure`).
