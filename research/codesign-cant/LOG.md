@@ -2,6 +2,22 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-17 · Milestone 7u: tune at the slow end of the identified lag; does that alone cover the identified range? (predictions written and committed before `experiments/m7u_slow_end/run.py` was run at full budget; outcome below)
+
+- Why: milestone 7t's first next step. 7t retuned at 36 ms, the midpoint of the two identifications (33 ms NeuroBEM, 39.1 ms Agilicious), and found the lag error asymmetric: designs tuned for a slower lag than they fly lose little (its 36 ms designs crash less at 15 ms than the 15 ms tunes), designs tuned for a faster one fail outright. If that holds across the identified range, a tuner without an identified lag should tune at the slow end and pay nothing for it; if it does not, the range has to be trained or certified across.
+- Plan (`experiments/m7u_slow_end/run.py`): 7t's two arms exactly (`7l` and lever-aware objectives, closure `src_li` solved exactly, 45° tilt limit, A_P cap, wide kp box, integrator feed-forward, margin constraint, TWR 2, 3200 CMA-ES evaluations, 6 seeds × 2 starts × 2 geometries) with only the lag law changed to **39.1 ms for every propeller** (the slower identification, D<sup>0</sup>); vehicle and nominal model together, plant randomisation (lag × 1-2) on top. Held-out as 7t (seed 9999, 64 episodes; lever 1 at 45°, lever 2 at 20° and 45°, lever 3 at 20°, all capped; margin test) under five laws: 33, 36 and 39.1 ms D<sup>0</sup>; a **stress value of 45 ms** D<sup>0</sup> (not sourced: 15% beyond the slower identification, standing in for an unidentified slower motor or a sagging pack); and the inherited 15 ms D<sup>1.5</sup>. Designs scored: the 24 new ones (`lag39`) and 7t's 24 (`lag36`).
+- Looked at before writing these: a smoke run (64 evaluations, 2 seeds, 8 episodes on seed 4242, not the held-out seed) to check the script runs; its `lag39` designs are unconverged and say nothing about the questions. It also scored 7t's converged designs on those 8 episodes of seed 4242 (at 45 ms they lose the margin test in 3 of 4 smoke designs).
+- Predictions (L2-45 = diverged flights at lever 2, 45°, cap, summed over 6 seeds, of 384; "worst identified" = the largest L2-45 over the 33, 36 and 39.1 ms laws):
+  - U1 (prior 85%): at least 22 of the 24 `lag39` designs pass the margin test at 39.1 ms.
+  - U2 (prior 60%): tuning for the lag pays at the slow end: at 39.1 ms, `lag39` crashes on fewer L2-45 flights than `lag36` (7t: 198, 195, 93, 117) in at least 3 of 4 arm-geometries.
+  - U3 (prior 55%): the slow-end tune costs little at the midpoint: at 36 ms, `lag39`'s L2-45 is at most 1.15 × `lag36`'s (149, 161, 63, 82) in at least 3 of 4 arm-geometries.
+  - U4 (prior 55%): minimax: `lag39`'s worst identified L2-45 is below `lag36`'s in at least 3 of 4 arm-geometries.
+  - U5 (prior 60%): the certificate covers the range: at least 22 of 24 `lag39` designs pass the margin test under all three identified laws, against at most 21 of 24 `lag36` designs (7t: 21 of 24 at 39.1 ms).
+  - U6 (prior 50%): beyond the range: at 45 ms at least 12 of 24 `lag39` designs pass the margin test, and `lag39` crashes on fewer L2-45 flights than `lag36` in all 4 arm-geometries.
+  - U7 (prior 65%): 7i's finding survives again: at 39.1 ms the lever-aware `lag39` crashes on fewer L2-45 flights than `7l lag39` in both geometries and is at least 5% heavier in both.
+  - U8 (prior 60%): the tuner slows the position loop further: mean position kp of `lag39` is below `lag36`'s in all 4 arm-geometries.
+- Analysis: counts per set, geometry, law and condition; margin validity; mass, propeller, kp; Spearman ρ(mass, L2-45) per law. No test beyond counts (six seeds, one held-out set).
+
 ## 2026-11-17 · Milestone 7t: retune at the motor lag two published identifications give (predictions written and committed before `experiments/m7t_lag_src/run.py` was run at full budget; outcome below)
 
 - Why: milestone 7s's first next step. 7s found that the programme's counts, its stability certificate and the retuned designs' parity with the published ones depend on a motor lag law, 0.015 (D / 0.127 m)^1.5 s, that was never sourced, and that at 30 ms almost no design passes the margin test.
