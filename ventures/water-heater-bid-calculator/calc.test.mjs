@@ -241,3 +241,15 @@ test('MAX bounds stay at the residential envelope', () => {
   assert.equal(MAX_GALLONS, 120);
   assert.equal(MAX_GPM, 15);
 });
+
+test('a $0 heater says the price excludes the heater, and the scope does not promise to supply one', () => {
+  const none = calculateBid(defaultInputs());
+  assert.ok(none.warnings.some((line) => /does not include the water heater/.test(line)));
+  const supplied = calculateBid({ ...defaultInputs(), heaterHardware: 650 });
+  assert.ok(!supplied.warnings.some((line) => /does not include the water heater/.test(line)));
+});
+
+test('the typical-swap ratio carries the same heater on both sides', () => {
+  const swap = calculateBid({ ...defaultInputs(), heaterHardware: 650 });
+  assert.ok(Math.abs(swap.vsBaseline - 1) < 1e-9, `typical swap vs itself reads ${swap.vsBaseline}`);
+});
