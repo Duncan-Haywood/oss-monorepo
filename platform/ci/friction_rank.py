@@ -57,6 +57,16 @@ match the regex and whose last report is no newer than the verdict; `--live`
 hides those, and a report filed after the verdict brings the cluster back
 with the old verdict shown, so a fix that did not hold is not buried.
 
+A doc or data file is too busy to hide on (a venture run edits flagships.yaml
+or its README every hour), but a commit from a fix track, a subject starting
+`process` or `perf`, that edits the reported file itself after the last report
+usually is the fix. On 2026-11-17 four of the five live ungated rows it named
+in a 3-day window were (heavy-hydraulics HOSTS, the saints-by-candlelight
+next-up list, platform/pages/README's --only preview, chant-forge's archive.org
+`hosts:` line); runs kept checking them by hand. Such a row shows "edited since by a fix commit" and `--live` lists it
+after the unhinted ones, still visible because the edit may have fixed a
+neighbouring problem in the same file.
+
 Software for the routine (prompts/goals.md): the counting is done here, so a
 run spends its time on the fix, not on grepping 4,000 records.
 """
@@ -278,6 +288,19 @@ def annotate(ranked, commits, edge=None, counts=None):
     return ranked
 
 
+FIX_SUBJECT = re.compile(r"^(process|perf)\b", re.I)
+
+
+def fix_hints(ranked, commits):
+    """Set c["fixes"] to the fix-track commits ((date, sha, subject), newest
+    first) after the cluster's last report that edit its reported file."""
+    for c in ranked:
+        after = utc(c["last_at"])
+        c["fixes"] = [(when[:10], sha, subj) for when, sha, subj, paths in commits
+                      if utc(when) > after and FIX_SUBJECT.match(subj) and c["file"] in paths]
+    return ranked
+
+
 def load_verdicts(path=VERDICTS):
     """The recorded verdicts, each with a compiled `re`; a malformed entry is skipped
     (test_friction_rank checks the real file has none)."""
@@ -493,6 +516,7 @@ def main(argv=None):
             rev = revs()
             commits, edge = changes(oldest, rev)
         annotate(ranked, commits, edge, basename_counts())
+        fix_hints(ranked, commits)
     prs = None if a.no_prs or not ranked else open_prs()
     claims(ranked, prs, codeowner_rules())
     apply_verdicts(ranked, load_verdicts(a.verdicts))
@@ -503,6 +527,7 @@ def main(argv=None):
         hidden = sum(1 for c in ranked if c.get("touched"))
         settled = sum(1 for c in ranked if c.get("verdict") and not c.get("touched"))
         ranked = [c for c in ranked if not c.get("touched") and not c.get("verdict")]
+        ranked.sort(key=lambda c: bool(c.get("fixes")))  # stable: rank kept within each group
     ranked = ranked[: a.top]
     for c in ranked:
         c.pop("issues", None)
@@ -531,6 +556,10 @@ def main(argv=None):
             print(f"       touched since: {t[3]} {t[0]} {t[1]} {t[2][:90]}")
         elif c.get("shallow"):
             print("       (last report predates the fetched history: touched-since unknown)")
+        f = c.get("fixes")
+        if f and not t:
+            more = f" (+{len(f) - 1} more)" if len(f) > 1 else ""
+            print(f"       edited since by a fix commit: {f[0][0]} {f[0][1]} {f[0][2][:90]}{more}")
         v = c.get("verdict")
         if v:
             print(f"       verdict {v['at'][:10]}: {v['verdict']} ({v['by']}) {v.get('note', '')[:120]}")
