@@ -26,14 +26,16 @@ test("labels in rupiah style read as whole units", () => {
 // later: rules written from 200 CORD train photos (SUB. TOTAL, Bayar/Kembali, Qty Amount, no
 // barcodes as amounts; eval/cord-train-photos-2026-11-17.md) took test 92 -> 93, train 749 -> 761. 2026-11-17, latest: rules written from RapidOCR's misses on
 // CORD train shards 1-3 photos (Change:5,000, Pay Cash ... Change on one line, Discount total,
-// TAX10%; eval/rapidocr-parser-misses-2026-11-17.md) took test 93 -> 94, train 761 -> 767.
+// TAX10%; eval/rapidocr-parser-misses-2026-11-17.md) took test 93 -> 94, train 761 -> 767. 2026-11-17,
+// WildReceipt: a tax word glued to its rate ("TAX10% 107.100", written from WildReceipt train
+// photos; eval/wildreceipt-2026-11-17.md) took train tax 324 -> 325 (train-558).
 test("CORD-v2 receipts: totals and tax read as in the README", () => {
   const t = score(load("test"));
   assert.deepEqual([t.total.right, t.total.labelled, t.tax.right, t.tax.labelled], [94, 95, 41, 41]);
   const v = score(load("validation"));
   assert.deepEqual([v.total.right, v.total.labelled, v.tax.right, v.tax.labelled], [97, 98, 46, 47]);
   const tr = score(load("train"));
-  assert.deepEqual([tr.total.right, tr.total.labelled, tr.tax.right, tr.tax.labelled], [767, 779, 324, 352]);
+  assert.deepEqual([tr.total.right, tr.total.labelled, tr.tax.right, tr.tax.labelled], [767, 779, 325, 352]);
 });
 
 test("whole-unit receipts: yen with a symbol, and decimal receipts unchanged", () => {
