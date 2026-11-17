@@ -53,10 +53,12 @@ await new Promise((r) => server.listen(0, "127.0.0.1", r));
 let failed = 0;
 const check = (ok, what) => { console.log(`${ok ? "ok  " : "FAIL"} ${what}`); if (!ok) failed++; };
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined });
-const page = await browser.newPage();
+// routes on the context, so RapidOCR's worker (its module, ONNX Runtime, the models) is answered too
+const context = await browser.newContext();
+const page = await context.newPage();
 const errors = []; page.on("pageerror", (e) => errors.push(e.message));
 const external = [];
-await page.route(/^https?:\/\/(?!127\.0\.0\.1)/, async (route) => {
+await context.route(/^https?:\/\/(?!127\.0\.0\.1)/, async (route) => {
   const u = route.request().url(); external.push(u);
   const f = local(u);
   if (f && existsSync(f)) {
@@ -93,7 +95,7 @@ for (const rapid of [true, false]) {
   const before = external.length;
   const { status, text } = await readOne(drawn, rapid);
   check(/Read 1 photo/.test(status), `the photo was read (RapidOCR ${rapid ? "on" : "off"})`);
-  check(rapid ? /RapidOCR's, then/.test(status) && !/could not be loaded/.test(status) : !/RapidOCR/.test(status), rapid ? "RapidOCR read it first" : "tesseract read it alone");
+  check(rapid ? /RapidOCR's, then/.test(status) && !/could not be loaded/.test(status) : !/RapidOCR/.test(status), rapid ? "RapidOCR read it first, in its background worker" : "tesseract read it alone");
   if (!rapid) check(!external.slice(before).some((u) => /onnx|ocr-models/.test(u)), "with the box unticked no RapidOCR file is requested");
   check(/10\.62/.test(text) && /0\.87/.test(text), "the total and tax came out of the image");
   check(/blue\s*bottle/i.test(text), "the merchant came out of the image");

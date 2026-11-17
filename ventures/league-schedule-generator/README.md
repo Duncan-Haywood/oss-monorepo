@@ -535,6 +535,38 @@ Open: the same class at 47 on 8 x 9 (41 on 7 x 9 closed, next sections) (3 spare
 a night, no group of order k), and the fully booked 49 on 8 x 9 (43 on 7 x 9 closed 2026-11-17 by
 `eval/odd-orbit.py`, the section after next).
 
+### 47 teams on 8 x 9: 5 to 13 of 16 nights, and why the repairs fail (2026-11-17, later)
+
+The state saved by the last run (5 of 16, "47 teams on 8 x 9: 5 of 16 nights" below) is now **13 of 16** wait-free nights,
+stored in `eval/lns-states/47-8x9.json` and checked by `lns-state.test.mjs`. The tool still anneals
+47 on 8 x 9, with waits, until the last three nights lay out. Same script, `eval/odd-lns.py`, four
+cores, about 4.5 hours, one container restart; full logs in `eval/odd-lns.txt`.
+
+- **A relay, not one long run.** Each time a run found a better state it was committed, and the
+  slowest run was restarted from it: seed 71 took the state from 5 to 11 (12,757 s, steps at
+  2,915, 6,496, 8,614, 9,201, 12,202 and 12,757 s), seed 78 found a 10 of its own from 9, and after
+  the restart seed 103 took 11 to 12 on its first step (372 s) and to 13 at 1,348 s. Seed 112
+  reached 12 separately.
+- **Every failed repair ran out of time; none was proved impossible.** The script now counts failed
+  repairs by cause (`timeout`, `unsat`, `unconfirmed`, printed with each step). Over the instrumented
+  runs: at least 98 failed repairs, every one a timeout, 0 UNSAT, 0 unconfirmed. That differs from 41 teams, whose last bad
+  night was UNSAT on its own pairs (`eval/lns-bad-night.py`), and says the step budget, not the
+  pairs, is what stops a step here.
+- **But a longer budget did worse.** Seed 92 with 900 s repairs made one sideways step in about
+  6,500 s and never climbed; the 300 s runs climbed in the same time. Most climbs came within one to
+  four repairs of a sideways step (as many good nights, pairs re-dealt), which the search tries only
+  after 6 failures in a row. `--sideways-after N` (default 6) makes that number an option; seed 112
+  with 2 reached 12 from 11 at 841 s, seed 103 with 6 at 372 s, so there is no verdict yet. The
+  last two runs, from 13 with `--also 15` (one with `--sideways-after 2`), took 8 sideways steps
+  between them in about 4,000 s each and no climb.
+- **Freeing the short night helps here.** At 41 teams `--also` (always free the short last night
+  with a bad one) was untested. At 47, both of seed 103's climbs, 11 to 12 and 12 to 13, freed night
+  15 with a bad night, so its 2 rounds (46 matches in 72 slots) took the pairs that did not fit.
+
+Next: `python3 eval/odd-lns.py 47 --courts 8 --times 9 --seed S --step 300 --also 15 --resume-check 60
+--resume eval/lns-states/47-8x9.json --save /tmp/47.json` on four cores (two of them with
+`--sideways-after 2`), then, once the season is whole, `node eval/write-odd-designs.mjs --append`.
+
 ### 43 teams on 7 x 9: one fully booked night, turned fourteen times (2026-11-17)
 
 **43 teams on 7 courts x 9 slots now plays three back-to-back games a night for every team, every
@@ -553,8 +585,8 @@ every slot and every team plays rows r, r + 1, r + 2.
   and `doubleheader.test.mjs`'s stored-designs test re-checks its rows like the others.
 
 At 9 slots on the least courts every odd league from 11 to 45 teams is now wait-free except 47 (8 x 9,
-n = 3k + 2, the neighbourhood search: best state 5 of 16 nights, `eval/lns-states/47-8x9.json`, next
-section) and 49 (8 x 9, fully booked; at the 4x trend the orbit model needs about 11 hours on a core).
+n = 3k + 2, the neighbourhood search: best state 13 of 16 nights since 2026-11-17 later,
+`eval/lns-states/47-8x9.json`, section above) and 49 (8 x 9, fully booked; at the 4x trend the orbit model needs about 11 hours on a core).
 
 ### 47 teams on 8 x 9: 5 of 16 nights, saved for the next run (2026-11-17)
 

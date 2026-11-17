@@ -418,6 +418,23 @@ function predefinedType(model, e) {
   return r === undefined ? null : r;
 }
 
+// The IFC2X3 type mapping table indexed by occurrence class, rows in the
+// table's order. Building Object.entries(typeMap) for every entity was over
+// half the time of an IDS applying to every entity (eval/no-entity-facet-2026-11-17.md).
+const TYPE_MAP_INDEX = new WeakMap();
+function typeMapByOcc(typeMap) {
+  let idx = TYPE_MAP_INDEX.get(typeMap);
+  if (idx) return idx;
+  idx = new Map();
+  for (const [idsName, [occ, tyName]] of Object.entries(typeMap)) {
+    let rows = idx.get(occ);
+    if (!rows) idx.set(occ, (rows = []));
+    rows.push([tyName, idsName]);
+  }
+  TYPE_MAP_INDEX.set(typeMap, idx);
+  return idx;
+}
+
 export class EntityFacet {
   constructor(node) {
     this.kind = "entity";
@@ -428,10 +445,9 @@ export class EntityFacet {
   names(model, e, typeMap) {
     const out = [e.type];
     if (model.schemaId === "IFC2X3" && typeMap) {
-      const ty = model.typeOf.get(e.id);
-      for (const [idsName, [occ, tyName]] of Object.entries(typeMap)) {
-        if (e.type === occ && ty && ty.type === tyName) out.push(idsName);
-      }
+      const rows = typeMapByOcc(typeMap).get(e.type);
+      const ty = rows && model.typeOf.get(e.id);
+      if (ty) for (const [tyName, idsName] of rows) if (ty.type === tyName) out.push(idsName);
     }
     return out;
   }
@@ -865,8 +881,59 @@ function applies(spec, model, ctx) {
       if (c) { pool = c; break; }
     }
   }
-  if (!pool) pool = [...model.entities.values()];
-  return pool.filter((e) => spec.applicability.every((f) => f.test(e, model, ctx).ok));
+  // A cheap test per facet that reads no arguments (the entity's type, or
+  // whether it appears in a relationship index) and is false only where the
+  // facet's own test fails. Without an entity facet the pool is every entity
+  // in the model (3.7 million on a 219 MB federated model, three quarters of
+  // them geometry), so these keep the full tests, which parse arguments, to the
+  // entities that can match (eval/no-entity-facet-2026-11-17.md).
+  const pre = spec.applicability.map((f) => prefilter(f, model)).filter(Boolean);
+  const keep = (e) => pre.every((p) => p(e)) && spec.applicability.every((f) => f.test(e, model, ctx).ok);
+  if (!pool) {
+    const out = [];
+    for (const e of model.entities.values()) if (keep(e)) out.push(e);
+    return out;
+  }
+  return pool.filter(keep);
+}
+
+function prefilter(f, model) {
+  const m = model;
+  switch (f.kind) {
+    case "attribute": {
+      // AttributeFacet.test fails when the type has no attribute by that name.
+      const byType = new Map();
+      return (e) => {
+        let ok = byType.get(e.type);
+        if (ok === undefined) byType.set(e.type, (ok = m.schema.attrs(e.type).some((a) => f.name.matchString(a.name))));
+        return ok;
+      };
+    }
+    case "property": {
+      // psetsOf's sources: the element's type, a type object's own sets, the
+      // property relationships, a material's properties.
+      const typeObj = new Map();
+      return (e) => {
+        if (m.typeOf.has(e.id) || m.psetRels.has(e.id) || m.materialProps.has(e.id)) return true;
+        let ok = typeObj.get(e.type);
+        if (ok === undefined) typeObj.set(e.type, (ok = m.schema.isA(e.type, "IFCTYPEOBJECT")));
+        return ok;
+      };
+    }
+    case "classification":
+      // classificationsOf: own associations, external references, the type's.
+      return (e) => m.classRels.has(e.id) || m.extRefs.has(e.id) || m.typeOf.has(e.id);
+    case "material":
+      // materialNames: own association or the type's.
+      return (e) => m.matRels.has(e.id) || m.typeOf.has(e.id);
+    case "partOf": {
+      // PartOfFacet.wholes takes its first step through these relationships.
+      const rels = (f.relation === VOIDS_FILLS ? ["IFCRELFILLSELEMENT", "IFCRELVOIDSELEMENT"] : f.relation ? [f.relation] : PARTOF_RELS).map((r) => m.parents[r]).filter(Boolean);
+      return (e) => rels.some((map) => map.has(e.id));
+    }
+    default:
+      return null;
+  }
 }
 
 function checkRequirement(f, e, model, ctx) {
@@ -925,7 +992,25 @@ export function checkIds(idsText, ifcText, opts = {}) {
     // export (665,224 entities) one such spec held ~440 MB of reasons.
     const maxFailed = opts.maxFailed ?? Infinity;
     let failing = 0;
+    // Where a requirement facet's prefilter is false the facet is absent, so
+    // its verdict follows from the cardinality alone, with no arguments read.
+    // An element is first judged that way, stopping at the first unmet
+    // requirement; the full tests run only to write the reasons of a failing
+    // element the report keeps. Specifications applying to every entity check
+    // millions of geometry items this way (eval/no-entity-facet-2026-11-17.md).
+    const reqPre = spec.requirements.map((f) => prefilter(f, model));
+    const meets = (e) => {
+      for (let k = 0; k < spec.requirements.length; k++) {
+        const f = spec.requirements[k];
+        const p = reqPre[k];
+        const pass = p && !p(e) ? f.cardinality === "prohibited" || f.cardinality === "optional" : checkRequirement(f, e, model, ctx).pass;
+        if (!pass) return false;
+      }
+      return true;
+    };
     for (const e of hits) {
+      if (meets(e)) { s.passed++; continue; }
+      if (failing >= maxFailed) { failing++; continue; }
       const reasons = [];
       for (const f of spec.requirements) {
         const r = checkRequirement(f, e, model, ctx);

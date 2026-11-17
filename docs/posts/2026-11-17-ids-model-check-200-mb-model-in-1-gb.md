@@ -62,6 +62,11 @@ geometry is parsed again on each read. On the smallest export, a 3.9 MB
 construction model that is mostly not geometry, the peak rose by 55 MB. The
 ifcXML reader still reads everything up front.
 
+*Update, later the same day:* the 4.7 GB was garbage the collector had not
+cleared yet, not memory the run needs; the same run finishes under a 2 GB
+heap. A follow-up change also cut its time from 515 s to 111 s:
+[IDS specifications that apply to every entity](2026-11-17-ids-specs-that-apply-to-every-entity.md).
+
 The measurements, scripts and the federation tool are in the
 [venture's eval folder](https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/ids-model-check/eval)
 (`heap-200mb-2026-11-17.md`, `federate.mjs`, `heap-compare.mjs`).
