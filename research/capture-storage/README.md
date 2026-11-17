@@ -2,6 +2,8 @@
 
 Follow-up to `capture-kit` (track 13, autonomous multi-angle capture), which budgeted weight and battery but not the footage. **Headline:** a four-camera rig recording 4 h a day each makes about 860 GB a day (6 TB over a week). The cards for that, as one copy, weigh about 8 g; per recording hour a camera's battery is 440 to 980 times heavier than its card. So storage *weight* is not the constraint. The evening is: copying one day to a single SSD from one card reader takes 2.7 h, so a safe plan (two SSD copies, offload done in 1 h) needs 6 parallel readers and 4 SSDs, about 450 g, and half an hour is infeasible. Halving the bitrate shrinks that plan from 452 g to 227 g. Carrying only cards instead leaves all 6 TB in one copy on tiny cards that can be lost. Every device figure is assumed (see Limitations). Produced with AI assistance (Claude).
 
+**Known gap (quality audit 2026-11-17, high; [audit file](../../portfolio/quality/audits/2026-11-17-capture-storage.json)): the offload plans are not realisable as stated.** `offload()` (`src/capture_storage/model.py:62`) splits a day's footage evenly over any number of readers, but a card can be read by only one reader at a time. Every feasible plan in `experiments/results.txt` uses more readers than cards (for example `offload(['360 camera'], 4, 7)` returns 1 card and 2 readers), so the "6 readers, 4 SSDs, about 450 g" headline is a lower bound, not a kit. With one reader per card and the model's two full reads of each card, no rig of 1 to 8 cameras fits the 1 h limit; reading each card once and writing both SSD copies from it (common practice in offload tools) gives about 3 readers and 377 g for the four-camera rig, right at the limit. The structural finding (copy time binds, card weight does not) survives; the plan sizes need the per-card model before they are cited.
+
 **Live page:** https://marisstella.app/research/capture-storage/
 
 **Builds on.** `capture-kit` (the cameras, their draw in watts and the 99 Wh pack it carries). Data rates are simple arithmetic from assumed bitrates. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them. Why a new question rather than another variant: milestones 1 to 6 of the track are done, and none of the projects counts the footage itself.
@@ -66,6 +68,7 @@ The first version used round numbers chosen by the author. `src/capture_storage/
 - Recording hours are assumed per camera; `capture-kit`'s battery hours for a given kit are not enforced here. Variable bitrate, proxies and cloud upload are not modelled.
 
 ## Next steps
+- Replace the even-split offload time with a per-card schedule (each card's load on one reader, largest first, readers no more than cards) and model the read-once, write-twice copy; regenerate `results.txt` and the headline (see the known gap above).
 - Source the remaining assumed figures: 360-camera, phone and mirrorless bitrates, SSD masses and read rates (their manufacturer pages are scripted or blocked from this environment; a person with a browser can fill `PARAMS` in minutes), then bench-measure a real card-to-SSD copy.
 - Couple with `capture-kit`: choose cameras and storage together under one weight and offload-time budget.
 - Model checksum verification and a cloud or phone-hotspot backup path.
