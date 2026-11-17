@@ -1,7 +1,7 @@
 # README "Stopping a refused trial early" (2026-11-17). Can a floor-priced trial at 30 teams stop before its
 # last step once a lower bound shows the move will be refused? Measured: no, not by enough to show in the time.
 # All runs on one shared 4-CPU cloud machine, one process at a time, list cached (eval/floor-priced.mjs 30 1
-# --page --max-teams 30 --cache dir). The code is eval/trial-cutoff.patch (git apply it to try again); it is
+# --page --max-teams 30 --cache dir). The code is eval/trial-cutoff.patch.txt (git apply it to try again); it is
 # not on main because it bought nothing measurable.
 
 0. The idea. carryover.mjs floorPricedSingleRounds refuses a move whose cost is over the acceptance line, so a

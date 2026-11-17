@@ -46,7 +46,7 @@ slower (67 to 69 s).
 ## What we kept
 
 None of the code went into the page. The patch, the numbers and the profile are in
-the repository (`eval/trial-cutoff.txt` and `eval/trial-cutoff.patch`), so the next
+the repository (`eval/trial-cutoff.txt` and `eval/trial-cutoff.patch.txt`), so the next
 attempt can start from a measurement instead of the same idea. The profile also
 says the step itself (about 3.8 billion table entries a second in WebAssembly) is
 close to what this programme can do. The next saving at 30 teams has to come from

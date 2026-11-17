@@ -2781,7 +2781,7 @@ The flagship row asked for a cheaper 30-team floor-priced step: the step is 31 o
 spend fewer steps is to stop a trial once it is sure to be refused. The search only needs to know whether a
 timetable's break floor is at most `maxBreaks + floor((line - carry-over) / over)`, so a trial could stop as
 soon as a lower bound on its floor passes that. Tried, measured, and left out of `main`, because it bought
-nothing the machine's noise does not hide (`eval/trial-cutoff.txt`; the code is `eval/trial-cutoff.patch`).
+nothing the machine's noise does not hide (`eval/trial-cutoff.txt`; the code is `eval/trial-cutoff.patch.txt`).
 
 - **Two rounds alone never force a break in an even league.** The cheapest bound counts the odd cycles the
   teams of two consecutive rounds form (each such cycle forces one break; checked by brute force on 400 random

@@ -29,7 +29,12 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "partial",
-  "errors": [],
+  "errors": [
+    {
+      "what": "portfolio-pages check.mjs rejected eval/trial-cutoff.patch (unknown .patch extension for the served site)",
+      "fix": "renamed to trial-cutoff.patch.txt"
+    }
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -41,7 +46,7 @@
     {
       "file": "prompts/ventures/prompt-1.md",
       "why": "Flagship item asked for a cheaper 30-team floor-priced step; the measured idea (early-stopping refused trials with lower bounds) gave no measurable speed-up, so the code was not merged.",
-      "did": "Landed the measurement (eval/trial-cutoff.txt), the patch (eval/trial-cutoff.patch), a README section, a post, and rewrote the flagship next: item so the next run does not repeat it.",
+      "did": "Landed the measurement (eval/trial-cutoff.txt), the patch (eval/trial-cutoff.patch.txt), a README section, a post, and rewrote the flagship next: item so the next run does not repeat it.",
       "result": "Null result recorded; no user-facing change."
     }
   ],
@@ -50,7 +55,7 @@
     "ventures/league-schedule-generator/eval/trial-cutoff.txt"
   ],
   "goal": null,
-  "notes": "30 teams seed 1 page step: cutoff on 55.5/56.3/54.1 s vs off 60.4/56.0/55.3 s, same seasons (1152/82, 2542/64). Pair odd-cycle bound is 0 at 30 teams; refusals miss by 1-5 breaks; exact window cache (w=4,6) costs more steps than it saves. Shuffle-free step_i16 inner loop: same tables, same speed. Checks: run_workflow_locally --for-changes (see PR).",
+  "notes": "30 teams seed 1 page step: cutoff on 55.5/56.3/54.1 s vs off 60.4/56.0/55.3 s, same seasons (1152/82, 2542/64). Pair odd-cycle bound is 0 at 30 teams; refusals miss by 1-5 breaks; exact window cache (w=4,6) costs more steps than it saves. Shuffle-free step_i16 inner loop: same tables, same speed. Checks: run_workflow_locally --for-changes: venture tests (node --test, 235 s) ok; portfolio-pages 'Check the built artifact' failed on the .patch extension, fixed by renaming, then portfolio-pages re-run.",
   "corrections": [],
   "redteam": null,
   "usage": {
