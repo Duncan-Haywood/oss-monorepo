@@ -1,5 +1,10 @@
 # Research log
 
+## 2026-11-17 · What stalls the repair on case73 and case118 API: outcome. case73 API is a local infeasibility of the repair's controls (the l1 voltage violation is within 1.6 &times; 10<sup>&minus;5</sup> of stationary); case118 API is the acceptance test; acceptance on the penalty changes no verdict
+- Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-17); numbers in `research/infra-dcopf/experiments/results_elastic.txt`. S1, S2, V1 refuted; S3, S4, V2 held.
+- On case73 API from round 22 the elastic QP can lower the margin-shifted voltage violation by at most 8.8 &times; 10<sup>&minus;6</sup> at any box scale from 1 to 10<sup>&minus;3</sup>: two PQ buses sit up to 0.002 pu below V<sub>min</sub>, 14 of 33 setpoints are on their upper bound and the lines on their margins. Proposition 2 applies; the earlier Q7 reading (not stationary, because the step scales with the box) is withdrawn: the step moves along directions that leave the violation flat.
+- On case118 API every late elastic step lowers the QP's penalty (sum of overloads) and is rejected by the merit (worst overload). Accepting elastic rounds on the penalty instead finishes neither case and loses none of the 31 development finishers (one finishes a round later, +0.68 % instead of +0.34 %).
+
 ## 2026-11-17 · Is case73 API's stall a stationary point of the elastic penalty? (plan)
 - Plan and predictions S1 to S4 (arm T, the elastic QP's own penalty logged per round with a box probe) and V1, V2 (arm P, acceptance on the penalty on elastic rounds): `research/infra-dcopf/LOG.md` (2026-11-17); script `research/infra-dcopf/experiments/run_elastic.py`.
 
