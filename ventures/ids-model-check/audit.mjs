@@ -199,6 +199,27 @@ function abstractIssues(f, ctx, where, spec, isApplicability) {
   });
 }
 
+// A required entity requirement whose every name is abstract, under an
+// applicability with no entity facet (with one, entityContradiction already
+// catches it): no object is of an abstract class itself, so every applicable
+// element fails for a fault in the IDS. Invalid, like entityContradiction;
+// in a schema where some name is concrete, a warning from the applicability
+// rule's wording instead.
+function abstractRequirement(f, spec, ctx) {
+  if (f.cardinality === "optional" || f.cardinality === "prohibited") return [];
+  if (spec.applicability.some((x) => x.kind === "entity")) return [];
+  const names = listedNames(f.name);
+  if (!names) return [];
+  const dead = (id, S, n) => (!S.has(n) ? !(id === "IFC2X3" && own(ctx.typeMap, n)) : S.entities[n].abstract && !(id === "IFC2X3" && own(ctx.typeMap, n)));
+  const deadIn = ctx.list.filter(({ id, S }) => names.every((n) => dead(id, S, n))).map(({ id }) => id);
+  if (!deadIn.length || !names.some((n) => ctx.list.some(({ S }) => S.has(n) && S.entities[n].abstract))) return [];
+  const { S } = ctx.list.find(({ id }) => id === deadIn[0]);
+  const sub = [...new Set(names.flatMap((n) => (S.has(n) ? concreteBelow(S, n) : [])))];
+  const subs = sub.length ? `; to require objects below it, name their classes (${sub.slice(0, 8).join(", ")}${sub.length > 8 ? ` and ${sub.length - 8} more` : ""})` : "";
+  const all = deadIn.length === ctx.list.length;
+  return [{ level: all ? "error" : "warning", code: "class-abstract", message: `the requirement asks for entity ${f.name}, which is abstract${all ? "" : ` in ${deadIn.join(" and ")}`}: no object has it as its own class, and IDS class names do not include subclasses, so every applicable element${all ? "" : ` in ${deadIn.join(" and ")} models`} would fail${subs}` }];
+}
+
 // A required entity facet that no applicable class can satisfy: the
 // applicability picks exact classes, and the requirement names others (a
 // subclass is not its parent; IFCSLAB is never IFCWALL). Every applicable
@@ -466,6 +487,7 @@ export function auditIds(ids, { schemas, typeMap, psets } = {}) {
           issues.push(...entityNameIssues(f, ctx, ""));
           if (where === "applicability" && !issues.some((x) => x.level === "error")) issues.push(...abstractIssues(f, ctx, "", spec, true));
           if (where === "requirements" && !issues.some((x) => x.level === "error")) issues.push(...entityContradiction(f, spec, ctx));
+          if (where === "requirements" && !issues.some((x) => x.level === "error")) issues.push(...abstractRequirement(f, spec, ctx));
         }
         else if (f.kind === "attribute") issues.push(...attributeIssues(f, spec, ctx));
         else if (f.kind === "property") issues.push(...propertyIssues(f, ctx, spec, where));
