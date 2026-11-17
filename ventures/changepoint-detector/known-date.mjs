@@ -242,9 +242,12 @@ export function knownDateTest(x, k, { period = 0, reps = 499, seed = 1, rhoMax =
   // admitted replicates: a conditional test on the selection event (Lee, Sun, Sun and Taylor 2016 in spirit, by Monte
   // Carlo). Draws stop at reps admitted or reps * maxDrawFactor tries; fewer than minAdmitted leaves it uncalibrated.
   const conditional = cutConditional && admittedByCut;
+  // cutConditional 'sticky' conditions on less: only that the plain line's residuals are above the guard, so the size
+  // of the cut stays evidence (the full event left no power: a 4 sd step at rho 0.9 was found 2.5% of the time).
   const admits = (z) => {
     const rL = corrected(lag1(ols(z, X0).e), n);
     if (!(rL > rhoMax)) return false;
+    if (cutConditional === 'sticky') return true;
     const rC = corrected(lag1(ols(z, X1).e), n);
     return rC <= rhoMax && rL - rC > cutBar;
   };
@@ -263,7 +266,7 @@ export function knownDateTest(x, k, { period = 0, reps = 499, seed = 1, rhoMax =
       if (conditional) { draws++; if (!admits(z)) continue; }
       const s = stats(z, X1, rhoCap);
       if (!s) continue;
-      if (conditional && corrected(lag1(s.u), n) > rhoMax) continue;
+      if (conditional && cutConditional !== 'sticky' && corrected(lag1(s.u), n) > rhoMax) continue;
       fs.push(s.f); tds.push(Math.abs(s.tD)); tcs.push(Math.abs(s.tC));
     }
     if (conditional) admittedReps = Math.min(admittedReps, fs.length);

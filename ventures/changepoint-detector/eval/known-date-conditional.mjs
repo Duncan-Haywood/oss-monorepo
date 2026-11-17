@@ -8,7 +8,7 @@ const gauss = (r) => Math.sqrt(-2 * Math.log(1 - r())) * Math.cos(2 * Math.PI * 
 const SCREEN = Number(process.argv[2]) || 3000, CAP = Number(process.argv[3]) || 60, REPS = Number(process.argv[4]) || 199;
 const BASE = Number(process.env.KD_SEED_BASE) || 41000;
 const OPT = { rhoGenMethod: 'gated', genCap: 0.95, guard: 'cut' };
-const COND = { cutConditional: true, ...(process.env.KD_WALKGEN ? { cutWalkGen: true } : {}) };
+const COND = { cutConditional: process.env.KD_COND === 'sticky' ? 'sticky' : true, ...(process.env.KD_WALKGEN ? { cutWalkGen: true } : {}) };
 function series(n, rho, r, k, step, walk) {
   const x = []; let u = walk ? 0 : gauss(r) / Math.sqrt(1 - rho * rho);
   for (let t = 0; t < n; t++) { if (t) u = (walk ? 1 : rho) * u + gauss(r); x.push(0.05 * t + u + (t >= k ? step : 0)); }
@@ -36,6 +36,7 @@ function cell(kind, n, rho, frac, step = 0, walk = false) {
 }
 console.log(`# round 6${COND.cutWalkGen ? ' (with the walk generator)' : ''}, seed base ${BASE}, screen ${SCREEN}, cap ${CAP}, ${REPS} replicates; only series the cut admits are scored`);
 console.log('## Size (null: line + AR(1), and random walks)');
+if (process.env.KD_CELLS === 'few') { cell('null', 60, 0.9, 0.5); cell('walk', 60, 0, 0.5, 0, true); cell('step', 60, 0.9, 0.5, 4); cell('step', 120, 0.9, 0.5, 4); process.exit(0); }
 for (const [n, rho, frac] of [[40, 0.9, 0.5], [60, 0.8, 0.5], [60, 0.9, 0.5], [60, 0.95, 0.5], [120, 0.9, 0.5], [120, 0.95, 0.5], [60, 0.9, 0.8]]) cell('null', n, rho, frac);
 for (const n of [40, 60, 120]) cell('walk', n, 0, 0.5, 0, true);
 console.log('## Power (step in innovation sds at the date)');
