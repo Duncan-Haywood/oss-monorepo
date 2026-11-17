@@ -52,3 +52,34 @@ test("a dollar with its country letters is a dollar, with the $ read or read as 
   assert.equal(cleanOcr("PLUS 5.00"), "PLUS 5.00");
   assert.equal(parseReceipt("ISLAND MART\nRUM 150.00\nTOTAL ECS161.04\nCASH ECS200.00").cents, 16104);
 });
+
+// The four tax misses left in eval/wildreceipt-train1-2026-11-17.md "Next" (2026-11-17, second run).
+test("'Total HTVA' is the net before French VAT: two TVA lines add onto it to make the total", () => {
+  // the TTC total line lost: before, "Total HTVA 69.06" was read as the total and one TVA line as the tax
+  const r = parseReceipt("BRASSERIE\nPLAT 45.73\nVIN 23.33\nTotal HTVA 69.06\nTVA10.00% 45.73) 4.57\nTVA20.00% 23.33) 4.67\n78.30\nCB 78.30");
+  assert.equal(r.cents, 7830);
+  assert.equal(r.taxCents, 924);
+  // "CODE HTVA TVA TTC" stays a tax-table header, not a subtotal
+  assert.equal(parseReceipt("TABAC\nTOTAL  6,60\nCODE  HTVA  TVA  TTC\nA21,00%  5,45  1,15  6,60").taxCents, 115);
+});
+
+test("a French net / rate / gross row under an OCR-bent 'HT TIC TUA' header, in mixed decimal marks", () => {
+  const r = parseReceipt("HOTEL\nLOCAL 412.50\nHT TIC TUA\nLOCAL 412.50 20% 495,00\nTOTAL 495,00");
+  assert.equal(r.cents, 49500);
+  assert.equal(r.taxCents, 8250);
+  // a header with no HT and TTC beside it is not taken as one
+  assert.equal(parseReceipt("SHOP\nTUA\nLOCAL 412.50 20% 495,00\nTOTAL 495,00").taxCents, null);
+});
+
+test("VAT printed inside a subtotal line is the tax when the total split at that rate gives it", () => {
+  const r = parseReceipt("FASTFOOD\nCHICKEN 300.00\nSubtotal(12%VAT) Php32.14\nTOTAL Php300.00\nCASH 300.00");
+  assert.equal(r.cents, 30000);
+  assert.equal(r.taxCents, 3214);
+  // an amount the rate does not give stays a subtotal, not a tax
+  assert.equal(parseReceipt("FASTFOOD\nCHICKEN 300.00\nSubtotal(12%VAT) Php31.00\nTOTAL Php300.00").taxCents, null);
+});
+
+test("a 0.00 tax on a 0.00 receipt is the tax; a tax equal to a non-zero total is not", () => {
+  assert.equal(parseReceipt("FREEBIE\nSAMPLE 0.00\nSUBTOTAL 0.00\nTAX 0.00\nTOTAL 0.00").taxCents, 0);
+  assert.equal(parseReceipt("SHOP\nX 5.00\nTAX 5.00\nTOTAL 5.00").taxCents, null);
+});

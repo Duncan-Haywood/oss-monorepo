@@ -3046,6 +3046,21 @@ do not move.
 Details: [`eval/wildreceipt-train1-2026-11-17.md`](eval/wildreceipt-train1-2026-11-17.md).
 Tests: `receipt-wildreceipt-train1.test.mjs`.
 
+### Four tax shapes left from WildReceipt shard 1: HTVA, TUA, VAT in a subtotal, 0.00 (2026-11-17)
+
+The four tax misses that [`eval/wildreceipt-train1-2026-11-17.md`](eval/wildreceipt-train1-2026-11-17.md)
+left open, each now read: `Total HTVA 69.06` (French net before VAT) is a subtotal, not the
+total, so two TVA lines at 10% and 20% add onto it to make 78.30; a `HT TIC TUA` header (TVA and
+TTC bent by OCR) heads a net / rate / gross row, read in either decimal mark
+(`LOCAL 412.50 20% 495,00`, tax 82.50); `Subtotal(12%VAT) Php32.14` is the VAT inside the total
+when the total split at 12% gives it (else it stays a subtotal); and a `0.00` tax on a `0.00`
+slip is kept. The OCR readings of those photos could not be re-scored here (huggingface.co is
+refused from this session), so each fix is held by a test written in the photo's shape, and the
+text corpora that are reachable confirm nothing else moved: CORD validation, train and test
+text and SROIE's 626 receipts score exactly as before. Details:
+[`eval/wildreceipt-tax-shapes-2026-11-17.md`](eval/wildreceipt-tax-shapes-2026-11-17.md).
+Tests: `receipt-wildreceipt-train1.test.mjs`.
+
 ### CORD train shards 1-3: 600 more unseen photos (2026-11-17)
 
 The other three CORD train shards, read for the first time, score 356 of 583 totals (61.1%)
