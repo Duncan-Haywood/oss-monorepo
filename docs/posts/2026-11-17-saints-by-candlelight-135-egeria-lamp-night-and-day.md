@@ -1,6 +1,6 @@
 ---
 title: "Saints by Candlelight 135: Egeria and the Lamp That Burned Night and Day"
-seo_title: "How Jerusalem prayed every day in the 380s: Egeria's letter as a bedtime story"
+seo_title: "How Jerusalem prayed in the 380s: Egeria as a bedtime story"
 date: 2026-11-17
 tags: [fiction, saints-by-candlelight, bedtime-story, saints, egeria, jerusalem, epiphany, candlemas, presentation-of-the-lord, kyrie-eleison]
 description: "Episode 135 of the bedtime saints podcast: Jerusalem's daily prayer, the Epiphany walk from Bethlehem and the first Candlemas, from Egeria's letter."
