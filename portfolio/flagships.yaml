@@ -378,10 +378,11 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "Checked
-      before a calibration drill". Next: set MIN_FIT_RPM (1,000; no floor looked as
-      good) on held-out builds; why a 0.8 s wheel braking to 526 rpm settles 3-4%
-      low under the scaled gains (costs ~2 s a shot); does the hold make shots late?
+      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "A ball
+      charged the integrator". Next: set MIN_FIT_RPM (1,000; no floor looked as
+      good) on held-out builds; does the hold make shots late? Ball hold (README "A
+      ball charged the integrator"): measure WHEEL_RPM_FULL error's cost on 0.2 s
+      wheels; an ESC with its own speed loop.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

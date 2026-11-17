@@ -1542,3 +1542,63 @@ build's own balls" was measured before the survey, the trim and the slow-wheel c
 ESC_TAU frame adds 5 bytes per 100 ms telemetry period, which is negligible at 115,200 baud, but this has not been
 run on an ESP32. A survey logged before an ESC or its firmware was changed is stale, and the check cannot tell. In
 that case run the rally drill again, or pass `--esc-lag-ok` once.
+
+## A ball charged the integrator (2026-11-17)
+
+**The item.** "The slow drill's release timeout" left this open: under the speed-scaled gains a 0.8 s wheel braking to
+526 rpm settles 3-4% low and takes about 2 s to creep back. Why?
+
+**The cause: the undershoot is the second half of an overshoot, and the ball made both.** The integrator logged
+through shot 1 of that build (first-order plant, 0.8 s wheel, 0.95 / 0.35; tests/ball_integrator_trace.py,
+eval/ball-integrator-trace-2026-11-17.txt): the ball takes the 526 rpm wheel to about 300 rpm. The tach's four-revolution
+average shows that about 0.3 s late, and through the whole climb back the loop integrates a large error. The integrator
+reaches +0.022 of full throttle, about 200 rpm of command on top of the feedforward, and the wheel runs through its
+target to 625 rpm, 19% high. Discharging, the integrator passes zero and reaches -0.004, which holds the wheel 3.6%
+under target (507 rpm); at the scaled gains it creeps back at about 10 rpm a second. The braking before shot 1 played
+no part: this is the recovery from shot 1's own ball, and the same happens at every speed, worst where the ball takes
+the largest share of the wheel's speed and the loop is slowest.
+
+**The change.** A ball is a known kick, not an offset for the integrator to learn, and the board starts every stroke
+itself. `WheelLoop.ball()` is called for both wheels as each stroke starts (`FeederHw.update`). From then until the
+wheel has read `controller.BALL_DROP_SEEN` (3%) under target and come back to it, or `LOOP_BALL_MS` (3 s) passes (an
+empty pocket), the integrator sees its error clamped to +-`controller.LOOP_BALL_BAND` (0.5%) of the target.
+Feedforward and the proportional term do the recovery, and the integrator keeps the offset it had learned before the
+ball. `LOOP_BALL_BAND = None` is the loop before.
+
+**Clamping all the time was tried first, and is wrong.** Clamping the integrated error everywhere fixed the ball's
+recovery as well, but it is the integrator's job to learn a wheel whose free speed is not the configured one, and
+that needs a large error integrated at full rate. On `tests/low_speed_loop_sweep.py` (336 slow-wheel spin-ups, free
+speeds 7,000 and 11,000 rpm against the 9,000 told) a 1% clamp everywhere left 125 cases never steady in 12 s (0 on
+main), median time to steady 6.16 s against 3.76 s; `tests/wheel_loop_sweep.py` slowed from 5.12 to 6.70 s at worst.
+Holding the integrator's value as a share of the feedforward, so that one learned at one target carries to the next,
+got that to 20 never steady, still far from 0. Tied to the ball, spin-ups are untouched: the loop runs exactly as
+before until a stroke starts.
+
+**One ball, simulated.** `tests/ball_recovery_sweep.py --band off,0,0.005` spins a wheel pair up from rest on the
+firmware's tach, loop, ramp and gate, waits 1.5 s past the gate, sends one FEED, and from the release times the gate
+until it passes again (after it has shut on the drop): nine wheel pairs (fast over slow drill shots, the drill's
+pairs, even pairs), four plants (first-order, 5 us tach jitter, 30 and 80 ms ESC lag), wheel lags 0.2 / 0.4 / 0.8 s,
+free speeds 7,000 and 11,000 rpm against the 9,000 told: 216 cases (eval/ball-recovery-hold-2026-11-16.txt).
+
+| ball hold | gate passes again: median / mean / worst | 6,065 / 526 rpm, mean | over 3% off at the gate | overshoot worst | undershoot over 2% (0.8 s wheels) |
+| --- | --- | --- | --- | --- | --- |
+| off (before) | 0.93 / 1.37 / 4.96 s | 3.03 s | 11 | 17.8% | 24 of 216 (12 of 72) |
+| 0 (frozen) | 0.70 / 0.89 / 2.47 s | 1.78 s | 1 | 5.7% | 22 (0) |
+| 0.5% (now) | 0.70 / 0.90 / 2.47 s | 1.81 s | 1 | 6.0% | 19 (0) |
+
+On the 0.8 s wheels the undershoot's worst fell from 5.7% to 0.6%. The 0, 0.5%, 1% and 1.5% bands are within a few
+hundredths of a second of each other (1% and 1.5% from an earlier run of the sweep); 0.5% is the one with the fewest
+undershoots of the two best. So the value is not sharply fitted, but it was picked on these cases.
+
+**Where it does worse.** On 0.2 s wheels the undershoots over 2% went from 7 to 17 of 72. Every one of them is a wheel
+whose free speed is 11,000 rpm against the 9,000 told: there the proportional term overshoots on its own (the plant's
+gain is 1.22 times what the loop assumes), and the integrator's charge used to cushion the approach. The worst is
+4.0% (4.4% before), only one ball in the 216 would leave over 3% off, and most of those cases recover sooner than
+before. Measuring `WHEEL_RPM_FULL` on the build removes the mismatch.
+
+DRILL_SECTION
+
+**Not known.** All of it is the simulator's first-order wheel and first-order ESC. An ESC running its own speed loop
+may answer a ball differently. A dry stroke holds the integrator to the band for 3 s; at steady speed that changes
+nothing measurable here, but it was not swept. Tests: `test_ball_hold_keeps_the_drop_out_of_the_integrator` and
+`test_ball_hold_times_out_and_can_be_off` (tests/test_host.py).

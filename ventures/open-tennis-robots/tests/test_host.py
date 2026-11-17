@@ -281,6 +281,42 @@ class WheelLoopTest(unittest.TestCase):
         off = controller.WheelLoop(9000, low_rpm=0)
         self.assertAlmostEqual(off.update(750, 650, 10) - 750 / 9000, 2e-4 * 100 + 6e-7 * 100 * 10)
 
+    def test_ball_hold_keeps_the_drop_out_of_the_integrator(self):
+        # README "A ball charged the integrator": from the stroke until the wheel is back on target, the integrator
+        # only sees +-ball_band of the target; then it integrates as before
+        loop = controller.WheelLoop(9000, ball_band=0.01)
+        loop.update(3000, 2990, 10)
+        i0 = loop.i
+        loop.ball()
+        loop.update(3000, 3000, 10)                 # stroke under way, no drop yet
+        for _ in range(50):
+            loop.update(3000, 2000, 10)             # 33% low: counts as 1%
+        self.assertAlmostEqual(loop.i - i0, 50 * 6e-7 * 30 * 10)
+        self.assertEqual(loop.recover, 2)
+        loop.update(3000, 3001, 10)                 # back on target: the hold ends
+        self.assertEqual(loop.recover, 0)
+        i1 = loop.i
+        loop.update(3000, 2000, 10)
+        self.assertAlmostEqual(loop.i - i1, 6e-7 * 1000 * 10)
+
+    def test_ball_hold_times_out_and_can_be_off(self):
+        loop = controller.WheelLoop(9000, ball_band=0.0, ball_ms=3000)
+        loop.ball()
+        for _ in range(299):
+            loop.update(3000, 3000, 10)            # an empty pocket: no drop comes
+        self.assertEqual(loop.recover, 1)
+        loop.update(3000, 3000, 10)
+        self.assertEqual(loop.recover, 0)
+        off = controller.WheelLoop(9000, ball_band=None)
+        off.ball()
+        self.assertEqual(off.recover, 0)
+        moved = controller.WheelLoop(9000, ball_band=0.0)
+        moved.ball()
+        moved.update(3000, 2000, 10)
+        self.assertEqual(moved.recover, 2)
+        moved.update(4000, 2100, 10)               # the Pi sent the next shot's speeds: the hold ends
+        self.assertEqual(moved.recover, 0)
+
     def test_gate_needs_the_speed_held(self):
         gate = controller.SteadyGate()
         self.assertFalse(gate.update((3000, 2500), (3050, 2510), 100))
