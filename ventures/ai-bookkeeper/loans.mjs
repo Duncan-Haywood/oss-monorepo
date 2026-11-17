@@ -22,10 +22,14 @@ const addMonths = (date, n) => {
 };
 const dayGap = (a, b) => Math.abs((Date.parse(a) - Date.parse(b)) / 864e5);
 
-export function levelPayment(cents, rateBp, months) {
-  if (rateBp === 0) return Math.round(cents / months);
-  const r = rateBp / 10000 / 12;
-  return Math.round((cents * r) / (1 - Math.pow(1 + r, -months)));
+// `rounding`: "nearest" (default) or "up". Many consumer and small-business lenders round
+// the instalment up to the next cent so the last payment comes out slightly smaller:
+// LendingClub's own instalment is the rounded-up one on 99.97% of its 2011-2014 loans
+// (eval/lendingclub-loans-2026-11-15.md); rounding to the nearest cent matches half.
+export function levelPayment(cents, rateBp, months, rounding = "nearest") {
+  const exact = rateBp === 0 ? cents / months : (() => { const r = rateBp / 10000 / 12; return (cents * r) / (1 - Math.pow(1 + r, -months)); })();
+  // the 1e-6 keeps a payment that is a whole cent but for float noise from going up a cent
+  return rounding === "up" ? Math.ceil(exact - 1e-6) : Math.round(exact);
 }
 
 // [{ n, date, payment, interest, principal, balance, extra }] for every payment.
@@ -50,8 +54,9 @@ export function loanSchedule(loan) {
   return out;
 }
 
-// addLoan(books, { name, amount, rate (percent, e.g. "6.5"), months, first, payment? }) -> { books, loan } or throws.
-export function addLoan(booksIn, { name, amount, rate, months, first, payment } = {}) {
+// addLoan(books, { name, amount, rate (percent, e.g. "6.5"), months, first, payment?, rounding? }) -> { books, loan } or throws.
+// rounding: "nearest" (default) or "up" (the lender rounds the payment up to the cent).
+export function addLoan(booksIn, { name, amount, rate, months, first, payment, rounding } = {}) {
   const books = clone(booksIn);
   const cents = typeof amount === "number" ? Math.round(amount * 100) : parseCents(String(amount ?? ""));
   if (!name?.trim()) throw new Error("A loan needs a name.");
@@ -64,13 +69,14 @@ export function addLoan(booksIn, { name, amount, rate, months, first, payment } 
   if (!Number.isInteger(months) || months < 1 || months > 600) throw new Error("Months must be a whole number, 1 to 600.");
   if (!/^\d{4}-\d{2}-\d{2}$/.test(first ?? "") || !parseDate(first)) throw new Error(`First payment date ${first} is not a YYYY-MM-DD date.`);
   const rateBp = Math.round(pct * 100);
-  let pay = levelPayment(cents, rateBp, months);
+  if (rounding !== undefined && rounding !== null && rounding !== "nearest" && rounding !== "up") throw new Error(`Rounding is "nearest" or "up", not ${rounding}.`);
+  let pay = levelPayment(cents, rateBp, months, rounding ?? "nearest");
   if (payment !== undefined && payment !== null) {
     pay = typeof payment === "number" ? Math.round(payment * 100) : parseCents(String(payment));
     if (!Number.isFinite(pay) || pay <= 0 || pay > MAX_CENTS) throw new Error("Payment must be a positive amount.");
   }
   books.loans ??= [];
-  const loan = { id: `LN-${books.loans.length + 1}`, name: name.trim(), cents, rateBp, months, first, payment: pay };
+  const loan = { id: `LN-${books.loans.length + 1}`, name: name.trim(), cents, rateBp, months, first, payment: pay, ...(rounding === "up" && (payment === undefined || payment === null) ? { rounding: "up" } : {}) };
   if (loanSchedule(loan).at(-1).payment > pay * 1.5 + 100) throw new Error(`Payment ${(pay / 100).toFixed(2)} is too small to pay off the loan in ${months} months.`);
   books.loans.push(loan);
   for (const [code, nm, type] of [[LOAN_ACCOUNT, "Loan payable", "liability"], [INTEREST_ACCOUNT, "Interest and finance charges", "expense"]])
@@ -183,7 +189,10 @@ export function checkLenderSchedule(loan, text, { tolerance = 2 } = {}) {
   if (!first && ours.length === theirs.length) notes.push(`The lender's schedule matches within ${tolerance} cents on every row.`);
   if (theirs.length !== ours.length) notes.push(`The lender lists ${theirs.length} payments and this loan has ${ours.length}: ${theirs.length < ours.length ? "only the first rows were pasted, or it pays off sooner (extra principal, or a larger payment)" : "extra rows, or a longer term"}.`);
   const p0 = compared[0]?.diff.payment;
-  if (p0 !== undefined && Math.abs(p0) > tolerance && compared.length > 2 && compared.slice(0, -1).every((r) => r.diff.payment === p0)) notes.push(`Every payment is ${fmtC(p0)} different: re-add the loan with --payment ${fmtC(loan.payment + p0).replace(/^\$/, "")} to match the lender's payment.`);
+  const upPay = levelPayment(loan.cents, loan.rateBp, loan.months, "up");
+  const roundsUp = p0 !== undefined && p0 !== 0 && loan.payment + p0 === upPay && upPay !== levelPayment(loan.cents, loan.rateBp, loan.months) && compared.length > 1 && compared.slice(0, -1).every((r) => r.diff.payment === undefined || r.diff.payment === p0);
+  if (roundsUp) notes.push(`The lender rounds the payment up to the next cent (${fmtC(upPay)} where this loan has ${fmtC(loan.payment)}), as many lenders do: re-add the loan with --round up so balances and the last payment match.`);
+  else if (p0 !== undefined && Math.abs(p0) > tolerance && compared.length > 2 && compared.slice(0, -1).every((r) => r.diff.payment === p0)) notes.push(`Every payment is ${fmtC(p0)} different: re-add the loan with --payment ${fmtC(loan.payment + p0).replace(/^\$/, "")} to match the lender's payment.`);
   else if (first && first.diff.interest !== undefined && Math.abs(first.diff.interest) > tolerance && first.n === 1) notes.push(`Interest differs from the first row (${fmtC(first.diff.interest)}): the lender may charge by actual days over a 360 or 365-day year, or the rate or first-payment date typed here differs.`);
   else if (first && first.n > 1) notes.push(`Rows agree through payment ${first.n - 1}, then differ at ${first.date}: look for a fee, a skipped payment, a rate change or an extra payment the lender applied.`);
   const maxAbs = Math.max(0, ...compared.flatMap((r) => Object.values(r.diff).map(Math.abs)));

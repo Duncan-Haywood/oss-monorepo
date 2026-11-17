@@ -53,19 +53,25 @@ export const WELL_KNOWN_PATH = '/.well-known/security.txt';
  */
 export function unwrapSignature(text) {
   const startIdx = text.indexOf(PGP_SIGNED_HEADER);
-  if (startIdx === -1) return { signed: false, body: text };
+  if (startIdx === -1) return { signed: false, body: text, lineOffset: 0 };
 
   const afterHeader = text.slice(startIdx + PGP_SIGNED_HEADER.length);
   // Armour headers run until the first blank line.
   const blankLine = afterHeader.search(/\r?\n\r?\n/);
-  if (blankLine === -1) return { signed: true, body: '' };
+  if (blankLine === -1) return { signed: true, body: '', lineOffset: 0 };
   const payloadStart = blankLine + afterHeader.slice(blankLine).match(/\r?\n\r?\n/)[0].length;
   const payload = afterHeader.slice(payloadStart);
+  // Lines above the payload (anything before BEGIN, the BEGIN line, armour
+  // headers, the blank line), so findings can name the line in the file the
+  // user pasted rather than line N of an invisible payload.
+  const before = text.slice(0, startIdx + PGP_SIGNED_HEADER.length + payloadStart);
+  const lineOffset = (before.match(/\n/g) ?? []).length;
 
   const sigIdx = payload.indexOf('-----BEGIN PGP SIGNATURE-----');
   return {
     signed: true,
     body: sigIdx === -1 ? payload : payload.slice(0, sigIdx),
+    lineOffset,
   };
 }
 
@@ -74,7 +80,7 @@ export function unwrapSignature(text) {
  * Field names are case-insensitive per RFC 9116; values are not.
  */
 export function parseSecurityTxt(text) {
-  const { signed, body } = unwrapSignature(text ?? '');
+  const { signed, body, lineOffset } = unwrapSignature(text ?? '');
   const hadBom = (text ?? '').charCodeAt(0) === 0xfeff;
   const clean = hadBom ? body.replace(/^﻿/, '') : body;
 
@@ -83,7 +89,7 @@ export function parseSecurityTxt(text) {
   const lines = clean.split(/\r?\n/);
 
   lines.forEach((rawLine, i) => {
-    const lineNo = i + 1;
+    const lineNo = i + 1 + lineOffset;
     // A cleartext-signed payload escapes a leading "-" as "- -"; undo it
     // before anything else looks at the line.
     const line = signed ? rawLine.replace(/^- /, '') : rawLine;
@@ -134,8 +140,13 @@ export function parseExpires(value) {
   if (!m) return { valid: false, date: null };
 
   const [, y, mo, d, h, mi, s] = m;
-  const ms = Date.parse(value);
-  if (Number.isNaN(ms)) return { valid: false, date: null };
+  // RFC 3339 allows a leap second (time-second 60), which Date.parse rejects
+  // as NaN: parse :59 and add the second back, so 23:59:60Z is the instant
+  // after 23:59:59Z, which is how JavaScript time (no leap seconds) sees it.
+  const leap = s === '60';
+  const parsed = Date.parse(leap ? value.replace(/(T\d{2}:\d{2}):60/i, '$1:59') : value);
+  if (Number.isNaN(parsed)) return { valid: false, date: null };
+  const ms = leap ? parsed + 1000 : parsed;
 
   const date = new Date(ms);
   // Reject a date that parsed only because it rolled over (2026-02-30).
@@ -369,7 +380,7 @@ export function buildReport({ text, now = new Date(), servedFrom = null, content
     if (media !== 'text/plain') {
       findings.push(finding('content-type', 'notice', `Served as ${media || '(no type)'} rather than text/plain`,
         'RFC 9116 says the file must be served with a text/plain media type (and charset=utf-8). Some consumers refuse to parse anything else, and a browser handed text/html may try to render it.'));
-    } else if (!/charset\s*=\s*utf-8/i.test(contentType)) {
+    } else if (!/;\s*charset\s*=\s*("?)utf-8\1\s*(;|$)/i.test(contentType)) {
       findings.push(finding('content-type-charset', 'notice', 'Served as text/plain without charset=utf-8',
         'RFC 9116 asks for "text/plain; charset=utf-8". Without the charset a consumer has to guess the encoding, which matters as soon as a name or address is not ASCII.'));
     }

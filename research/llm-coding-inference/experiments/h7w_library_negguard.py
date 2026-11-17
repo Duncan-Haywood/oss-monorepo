@@ -18,9 +18,11 @@ sys.path.insert(0, str(HERE)); sys.path.insert(0, str(HERE.parent))
 import rare_audit as R  # noqa: E402
 import h7l_fixed_lambda as L  # noqa: E402
 from llmci import audit_design as A  # noqa: E402
+A.RARE_FALLBACK = None  # pinned: replays as committed (LOG.md 7aw)
+A.NEG_FLOOR = None  # pinned (LOG.md 7az): replays as committed
 
 SEED, N, CORPUS = 20261105, 1000, 6000
-RULES = (("pooled", 2.0, 0, 0), ("lib default", A.TAU, A.GUARD, 0), ("lib neg_guard=3", 0.0, 0, A.NEG_GUARD), ("lib default+neg3", A.TAU, A.GUARD, A.NEG_GUARD))
+RULES = (("pooled", 2.0, 0, 0), ("lib default", A.TAU_6AM, A.GUARD_6AM, 0), ("lib neg_guard=3", 0.0, 0, A.NEG_GUARD), ("lib default+neg3", A.TAU_6AM, A.GUARD_6AM, A.NEG_GUARD))
 
 
 def load():
@@ -60,7 +62,7 @@ def main():
         cov = nc = 0; hw = 0.0
         for d, pilot in enumerate(draws):
             labels = {i: human[i] for i in pilot}
-            plan = A.plan_audit(f, labels, N, tau=tau, guard=guard, neg_guard=ng)
+            plan = A.plan_audit_pre7ar(f, labels, N, tau=tau, guard=guard, neg_guard=ng, width_margin=None)
             nc += plan["design"] == "cells"
             for cell, t in zip(plan["cells"], plan["to_label"]):
                 for i in sb[d].sample([i for i in cell if i not in labels], t): labels[i] = human[i]

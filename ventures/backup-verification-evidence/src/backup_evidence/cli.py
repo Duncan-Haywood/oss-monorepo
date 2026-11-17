@@ -203,7 +203,7 @@ def build_parser() -> argparse.ArgumentParser:
     record = sub.add_parser("record", help="run a backup command and save an observed run record")
     record.add_argument("--tool", required=True, help="name of the backup tool being run")
     record.add_argument("--artifact", help="path to the file/directory the command is expected to produce")
-    record.add_argument("--max-age-hours", type=float, default=None)
+    record.add_argument("--max-age-hours", type=_positive_hours, default=None)
     record.add_argument("--min-size-bytes", type=int, default=None)
     record.add_argument("--log-lines", type=int, default=20)
     record.add_argument(

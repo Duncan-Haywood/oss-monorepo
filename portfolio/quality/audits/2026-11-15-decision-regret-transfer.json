@@ -1,0 +1,247 @@
+{
+ "date": "2026-11-15",
+ "subject": "research/decision-regret-transfer",
+ "stratum": "research",
+ "seed": "2026-11-15-1fba",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a learning theorist who reviews surrogate-regret / calibration-function papers (COLT, JMLR). They would check first that the average-case certificate psi^{-1}(E[D]) is a valid upper bound, i.e. that the computed psi really lies below delta everywhere (Jensen needs psi <= delta), then whether the binary result is already known (Reid & Williamson 2009/2011 surrogate regret bounds for proper losses; Steinwart 2007 calibration functions), then the abstain/audit extension against the classification-with-reject literature",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 1,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "The exact calibration function delta is right: independent numpy/scipy recomputation (rel_entr KL, own region logic, 4001^2 numpy brute force) reproduces E1 to 6 digits (e.g. tau=0.02 eps=0.05 log 0.038991), E4 within brute-force grid error (c=0.1 log 0.04440 vs grid 0.04468, grid can only overestimate), E2 log bounds 0.0706/0.0584/0.0432/0.0226 and 0.0129 vs reported 0.0128 (shipped 0.012846: chord error), E5 S and regret within Monte Carlo error with a different RNG (noisy brier 0.0086/0.0077, log 0.0220). But the headline deliverable, the average-case certificate psi^{-1}(E[D]), is not a valid bound: envelope() (model.py:115) takes the lower convex hull of delta sampled on a 400-point grid, which for a convex delta is the piecewise-linear chord ABOVE delta between nodes, so psi >= delta there and Jensen fails. A point-mass verifier at a tight pair violates the certificate: Costs(1,1,c=0.2), Brier, eps=0.001: E[D]=1e-6, realised regret 0.001, certificate 0.0004 (2.5x); scanning eps from 1e-4 the worst ratio is 25x for both rules. The very pair E6 uses to show the certificate is 'attained' (tau=0.1, eta=0.15, q=0.1) gives regret 0.050000 against certificate 0.049993. Realistic smooth verifiers (sigma 0.01-0.1) do not violate it, so E5's 'never violated' is true but not a guarantee.",
+  "completeness": "README promises: 7 tests (Ran 7 tests in 5.9 s, OK), run.py reproduces results.txt (rerun in a scratch copy, byte-identical, 6.9 s), figure regenerated from results.txt (byte-identical SVG), whitepaper with R1-R5, live page https://marisstella.app/research/decision-regret-transfer/ (HTTP 200, '7 tests', findings text, figure at .../regret_bound.svg 200 image/svg+xml). Every claimed artefact exists and runs end to end. README:10 says run.py takes '~1 min'; it takes 7 s.",
+  "verification": "`cd research/decision-regret-transfer && PYTHONPATH=src python3 -m unittest discover -s tests -v`: 7 OK in 5.9 s. Six mutants via platform/ci/quality_mutate.py, 5 SURVIVED: audit/reject boundary 1-c/R -> 1-c/A (every audit test uses A=R), the audit-optimality cutoff A*R/(A+R) -> min(A,R)/2, max_regret evaluated at eta 0.9 instead of 1, regret_bound flat-segment branch x1 -> x0, and multiplying every envelope point by 1.5 (a 1.5x too-optimistic certificate). Only swapping the region edge in delta() was caught (4 failures). The last survivor exposes a test written in the wrong direction: test_envelope_is_convex_and_below_delta (tests/test_model.py:57) asserts regret_bound(h, delta(eps)) <= eps + 1e-2, but psi <= delta means regret_bound(h, delta(eps)) >= eps; the test can only catch a too-conservative envelope, never the unsound one. Nothing pins results.txt.",
+  "craft": "Read model.py (159 lines), __init__.py, tests/test_model.py, experiments/run.py, figure.py. Compact stdlib code with a docstring that states the math. Defects: wildcard `from .model import *` with no __all__ (exports math, EPS); Costs.action returns None for q outside [0,1] and cost() then KeyErrors on None; delta_bruteforce is O(n^2) pure Python; envelope sampling has no lower-bound correction although the module docstring calls the result exact; test name test_bound_holds_and_is_tight checks no tightness; test comment 'with equality reachable' for the hinge is wrong (ratio is 1+|f|, infimum not attained, E3 prints 1.0100); figure.py carries an unused generic table() parser; run.py inserts src into sys.path.",
+  "claims": "Backed by files: E1 closed forms, E2 values (0.071 -> 0.013), E4 audit tightening, E5 '8-26%' (0.08-0.26) and 'never violated in simulation', R1 9-digit match (test places=9). Not backed: (1) the page and research/README.md:65 call the output a 'certified cap', and the whitepaper (whitepaper.md:20, Implication 1 at :43) an 'auditable cap', but the grid envelope under-certifies by up to 25x at small gaps; (2) README:14 and whitepaper.md:40 'attained by a two-point verifier' / 'exactly attained': E6 only shows delta is attained pointwise, and the shipped certificate at that pair is 0.049993 < realised 0.05, i.e. violated, not attained; (3) whitepaper.md:44 Implication 2 'log score is preferable when fault cost >> slashing cost' contradicts its own R2 caveat (whitepaper.md:29: different units, 'compares each rule's own guarantee, not the rules'); (4) README:10 '~1 min' vs 7 s measured. 'Stylised' disclaimer present; Limits section mentions grid error but not that the error is in the unsafe direction.",
+  "fitness": "Job: a protocol researcher wants to turn a verifier's measured excess score into a cap on decision loss for given (A, R, c). They can call delta() and trust it (it recomputes), but cannot trust regret_bound(envelope(...)) as a certificate without the lower-step fix, and the binary closed forms are textbook: Reid & Williamson (ICML 2009 'Surrogate regret bounds for proper losses'; JMLR 2011) give exactly the tight cost-weighted regret bound of a proper loss as its Bregman divergence at the threshold, and Steinwart (2007) the calibration-function machinery; the audit band is the classification-with-reject setting (Chow 1970; Bartlett & Wegkamp 2008; Ramaswamy, Tewari & Agarwal 2018 on abstain-consistent surrogates). None of these is cited; the README does not claim novelty, but nothing says what is new. What is plausibly new is the three-action exact delta for log and Brier with the audit band; that part is sound. Not part of a programme in research/PROGRAMMES.md.",
+  "domain": "Against the standard calibration-function / surrogate-regret method (Bartlett, Jordan & McAuliffe 2006; Steinwart 2007; Reid & Williamson 2009): delta defined correctly as an infimum over pairs, the inner minimisation at the region edge is right for Bregman divergences (monotone in |eta-q|), and Jensen through the convex envelope is the textbook route. It departs in the one place a reviewer checks first: the convex envelope must lower-bound delta, and a hull of point samples of a nondecreasing function does not; the standard fix is to hull the lower step corners (k*h, delta((k-1)*h)), which I verified in a scratch copy gives 0 violations over 3,000 tight pairs on four configurations and loosens the s=0.01 log bound by about 2-4%. Uses one-component Brier (eta-q)^2 without saying so (the two-component convention doubles D). Missing citations above."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "E1 binary log calibration function KL(tau+eps||tau) for 6 (tau, eps) pairs",
+   "method": "scipy.special.rel_entr Bernoulli KL, min over both sides of the threshold",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/drt/indep/indep.py (numpy 2.5 / scipy; imports nothing from decision_regret_transfer)",
+   "expected": "results.txt E1 log column",
+   "observed": "0.000200, 0.005008, 0.000540, 0.012235, 0.002215, 0.038991: all identical to 6 digits",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "E4 three-action exact delta at eps=0.1 for c in None, 0.4, 0.25, 0.1 (A=R=1)",
+   "method": "auditor's own numpy brute force over a 4001^2 (eta, q) grid with q restricted to region interiors",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/drt/indep/indep.py (numpy 2.5 / scipy; imports nothing from decision_regret_transfer)",
+   "expected": "brier 0.00250/0.01000/0.01000/0.01000, log 0.00501/0.02041/0.02475/0.04440",
+   "observed": "brier 0.00253/0.01005x3, log 0.00506/0.02062/0.02488/0.04468 (grid over-estimates the infimum by <1%, as expected)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "E2 log certificate at 0.01 nats for A/R in 1, 4, 10, 50, 200",
+   "method": "exact delta_bin with brentq root and a 200,001-point convex envelope, own hull code",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/drt/indep/indep.py (numpy 2.5 / scipy; imports nothing from decision_regret_transfer)",
+   "expected": "0.0706 0.0584 0.0432 0.0226 0.0128",
+   "observed": "0.0706 0.0584 0.0432 0.0226 0.0129 (shipped 0.012846 sits below the exact value: chord error in the unsafe direction)",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "E5 mean excess score and realised regret for five miscalibrated verifiers",
+   "method": "independent numpy simulation (default_rng, 400k draws, own regret function)",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/drt/indep/e5.py (numpy default_rng, 400k draws, own regret function)",
+   "expected": "e.g. noisy brier 0.0086 / log 0.0221 / regret 0.0076; noisier 0.0590/0.1823/0.0599",
+   "observed": "noisy 0.0086/0.0220/0.0077; noisier 0.0587/0.1815/0.0597; all five within MC error",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "average-case certificate is a valid upper bound for a point-mass verifier at a tight pair",
+   "method": "Jensen requires psi <= delta; test psi^{-1}(delta(eps)) >= eps for eps on a 1e-4 grid, Costs(1,1,c=0.2)",
+   "command": "cd research/decision-regret-transfer && PYTHONPATH=src python3 -c \"from decision_regret_transfer import *; C=Costs(1,1,c=0.2); h=envelope(C,'brier'); print(regret_bound(h, delta(C,'brier',0.001)))\"",
+   "expected": ">= 0.001",
+   "observed": "0.0004 (2.5x violation); worst over eps scan 25x for Brier and log",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:14 / whitepaper.md:40 certificate 'attained' at the E6 tight pair",
+   "method": "evaluate the shipped certificate at the E6 pair",
+   "command": "cd research/decision-regret-transfer && PYTHONPATH=src python3 -c \"from decision_regret_transfer import *; C=Costs(0.9,0.1); print(regret_bound(envelope(C,'log'), log_D(0.15,0.1)), C.regret(0.15,'accept'))\"",
+   "expected": "certificate == realised regret 0.05",
+   "observed": "certificate 0.049993 < realised regret 0.050000: violated, not attained",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "whitepaper.md:44 'log score is preferable when fault cost >> slashing cost'",
+   "method": "read against whitepaper.md:29 caveat",
+   "command": "sed -n '27,29p;44p' research/decision-regret-transfer/paper/whitepaper.md",
+   "expected": "a cross-rule comparison the paper supports",
+   "observed": "R2 says the units differ and it 'compares each rule's own guarantee, not the rules'; Implication 2 then compares the rules",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:10 run.py runtime '~1 min'",
+   "method": "time it",
+   "command": "cd <scratch copy> && time PYTHONPATH=src python3 experiments/run.py",
+   "expected": "~1 min",
+   "observed": "6.9 s",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "run.py and figure.py reproduce committed outputs",
+   "method": "rerun in a scratch copy and diff",
+   "command": "cp -r research/decision-regret-transfer $S/copy && cd $S/copy && PYTHONPATH=src python3 experiments/run.py && diff experiments/results.txt <repo>/experiments/results.txt; python3 experiments/figure.py && diff svg",
+   "expected": "no diff",
+   "observed": "RESULTS_IDENTICAL, SVG_IDENTICAL",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page and figure",
+   "method": "HTTP fetch",
+   "command": "curl -sS -w '%{http_code}' https://marisstella.app/research/decision-regret-transfer/ ; .../regret_bound.svg",
+   "expected": "200",
+   "observed": "200; '7 tests', findings text; SVG 200 image/svg+xml",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd research/decision-regret-transfer && PYTHONPATH=src python3 -m unittest discover -s tests -v",
+   "expected": "7 pass",
+   "observed": "Ran 7 tests in 5.940s OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test_envelope_is_convex_and_below_delta checks psi <= delta",
+   "method": "read the assertion against the definition; 1.5x-inflated envelope mutant",
+   "command": "sed -n 51,57p research/decision-regret-transfer/tests/test_model.py",
+   "expected": "assert regret_bound(h, delta(eps)) >= eps",
+   "observed": "asserts <= eps + 1e-2 (wrong direction); inflated-envelope mutant survives",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "proposed lower-step envelope restores soundness",
+   "method": "hull of (k h, delta((k-1) h)) in a scratch copy; scan 3,000 tight pairs on Costs(0.9,0.1) and Costs(1,1,c=0.2), both rules",
+   "command": "scratch copy with model.py:115 patched; PYTHONPATH=src python3 scan",
+   "expected": "0 violations, tests still pass",
+   "observed": "0 violations in all 4; s=0.01 log bound 0.0472 / 0.0609; 7 tests OK",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/decision_regret_transfer/model.py:49",
+   "change": "audit/reject edge 1 - c/R -> 1 - c/A",
+   "caught": false,
+   "test_cmd": "env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/decision_regret_transfer/model.py:95",
+   "change": "D(eta, hi if side > 0 else lo) -> D(eta, lo if side > 0 else hi)",
+   "caught": true,
+   "test_cmd": "env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/decision_regret_transfer/model.py:129",
+   "change": "flat-segment inverse returns x1 -> x0",
+   "caught": false,
+   "test_cmd": "env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/decision_regret_transfer/model.py:43",
+   "change": "cross = A*R/(A+R) -> min(A,R)/2",
+   "caught": false,
+   "test_cmd": "env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/decision_regret_transfer/model.py:67",
+   "change": "max_regret at eta in (0,1) -> (0,0.9)",
+   "caught": false,
+   "test_cmd": "env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/decision_regret_transfer/model.py:115",
+   "change": "every envelope point delta(eps) -> 1.5*delta(eps) (over-optimistic certificate)",
+   "caught": false,
+   "test_cmd": "env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "The average-case certificate is unsound: envelope() hulls point samples of a convex delta, so between grid nodes psi lies ABOVE delta and Jensen fails. A point-mass verifier at a tight pair beats the 'certified cap' by up to 25x at small score gaps (Costs(1,1,c=0.2), Brier, E[D]=1e-6: regret 0.001, certificate 0.0004), and the E6 pair itself gives regret 0.050000 > certificate 0.049993. Fix: hull (k h, delta((k-1) h)) instead (delta is nondecreasing), verified 0 violations",
+   "where": "research/decision-regret-transfer/src/decision_regret_transfer/model.py:115",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16204"
+  },
+  {
+   "severity": "medium",
+   "what": "test_envelope_is_convex_and_below_delta asserts regret_bound(h, delta(eps)) <= eps + 1e-2, the opposite of psi <= delta; it can never catch an unsound envelope (a 1.5x inflated envelope passes). 5 of 6 seeded mutants survive: every audit test uses A=R so the 1-c/R edge and the audit cutoff are unpinned; nothing pins results.txt",
+   "where": "research/decision-regret-transfer/tests/test_model.py:57",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16204"
+  },
+  {
+   "severity": "medium",
+   "what": "'certified cap' (page, research/README.md:65), 'auditable cap' (whitepaper Implication 1) and 'attained by a two-point verifier' (README:14, whitepaper.md:40) are not backed: the shipped certificate is violated at small gaps and at the E6 pair; E6 only shows delta, not psi^{-1}, is attained",
+   "where": "research/decision-regret-transfer/README.md:14",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16204"
+  },
+  {
+   "severity": "medium",
+   "what": "Implication 2 'log score is preferable when fault cost >> slashing cost' contradicts R2's own caveat that the nats-vs-squared-error certificates compare each rule's guarantee, not the rules",
+   "where": "research/decision-regret-transfer/paper/whitepaper.md:44",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16204"
+  },
+  {
+   "severity": "medium",
+   "what": "The binary result (tight regret bound of a proper loss for cost-weighted decisions = its Bregman divergence at the threshold) is Reid & Williamson (ICML 2009; JMLR 2011); Steinwart 2007 (calibration functions) and the classification-with-reject literature (Chow 1970; Bartlett & Wegkamp 2008; Ramaswamy, Tewari & Agarwal 2018) cover the audit band; none is cited and nothing states what is new",
+   "where": "research/decision-regret-transfer/paper/whitepaper.md:8",
+   "category": "research-design",
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16204"
+  },
+  {
+   "severity": "low",
+   "what": "README says run.py takes '~1 min'; measured 6.9 s",
+   "where": "research/decision-regret-transfer/README.md:10",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16204"
+  },
+  {
+   "severity": "low",
+   "what": "Wildcard export with no __all__; Costs.action returns None for q outside [0,1], then cost() raises KeyError(None); test comment claims hinge equality is reachable (ratio is 1+|f|, infimum only)",
+   "where": "research/decision-regret-transfer/src/decision_regret_transfer/model.py:60",
+   "category": "code-craft",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16204"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16204"
+ ],
+ "verdict": "A tidy, reproducible note whose exact calibration function is right and whose headline certificate is not. delta recomputes independently (E1 to 6 digits with scipy KL, E4 against a 4001^2 numpy brute force, E5 with a separate RNG), and run.py and figure.py reproduce their committed outputs byte for byte. But psi^{-1}(E[D]), sold as a 'certified cap', is built from a convex hull of grid samples that lies above delta between nodes, so a point-mass verifier beats it by up to 25x at small gaps and the E6 'attained' pair violates it (0.050000 vs 0.049993); the test meant to guard this asserts the wrong inequality, and 5 of 6 seeded mutants survive. The binary result is Reid & Williamson (2009) uncited, and Implication 2 contradicts the paper's own caveat. A one-line lower-step envelope fixes the soundness."
+}

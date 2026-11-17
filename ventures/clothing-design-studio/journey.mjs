@@ -12,7 +12,7 @@
  */
 export const STAGES = [
   { id: "design", title: "1. Design the thing", why: "Everything downstream (cost, size run, safety tests) depends on what you are making.",
-    pages: [["./", "Design studio: voice, typing or drag"], ["sunglasses.html", "Sunglasses designer"], ["wardrobe.html", "Capsule wardrobe planner"], ["fit.html", "Size finder and size run"], ["camera.html", "Try it on from a photo"], ["pattern.html", "Pattern pieces, graded, SVG and DXF"]] },
+    pages: [["./", "Design studio: voice, typing or drag"], ["sunglasses.html", "Sunglasses designer"], ["wardrobe.html", "Capsule wardrobe planner"], ["fit.html", "Size finder and size run"], ["camera.html", "Try it on from a photo"], ["artwork.html", "Public-domain paintings, checked for print"], ["pattern.html", "Pattern pieces, graded, SVG and DXF"], ["drape.html", "Virtual drape: sew the pattern onto a body"]] },
   { id: "cost", title: "2. Know what one piece costs", why: "Landed cost is the floor under every price and every minimum-order decision.",
     pages: [["how-much-does-it-cost-to-make-a-t-shirt.html", "Worked example: what a t-shirt costs"], ["bom.html", "Bill of materials and order"], ["quotes.html", "Compare factory quotes"], ["tiers.html", "Fabric price tiers"], ["shrink.html", "Fabric shrinkage allowance"], ["gsm.html", "Fabric gsm, kilos and metres"], ["freight.html", "Freight per garment"], ["duty.html", "Import duty by destination"], ["import-duty-on-clothing.html", "Worked example: duty on a hoodie"], ["parcel.html", "Duty on a single parcel"], ["fx.html", "Factory currency risk"]] },
   { id: "price", title: "3. Set the price", why: "A price has to survive VAT, fees, returns and discounts before it is a margin.",
@@ -77,4 +77,32 @@ export function hubHtml() {
 ${s.pages.map(([h, l]) => `      <li><a href="${esc(h)}">${esc(l)}</a></li>`).join("\n")}
     </ul>
   </section>`).join("\n");
+}
+
+export const TOOLS_MARK = ["<!-- tools -->", "<!-- /tools -->"];
+
+/**
+ * The studio page's "Every tool" section, grouped by stage. It replaced a
+ * hand-kept list of 40 links in the header (two near-copies that had drifted
+ * apart) which pushed the design box to 1,613 px on a phone
+ * (docs/reports/polish-2026-11-13-studio-header.md). `node buildhub.mjs` fills it.
+ */
+export function studioToolsHtml() {
+  const stages = STAGES.map(s => {
+    const pages = s.pages.filter(([h]) => h !== "./");
+    return `    <div class="stage">
+      <h3>${esc(s.title)}</h3>
+      <ul>
+${pages.map(([h, l]) => `        <li><a href="${esc(h)}">${esc(l)}</a></li>`).join("\n")}
+      </ul>
+    </div>`;
+  }).join("\n");
+  const n = allPages().filter(p => p.href !== "./").length;
+  return `  <section id="tools" aria-labelledby="tools-h">
+    <h2 id="tools-h">Every tool, in launch order (${n})</h2>
+    <p class="muted">Each runs in your browser, free. The <a href="launch.html">launch path</a> says why each stage comes where it does.</p>
+    <div class="stages">
+${stages}
+    </div>
+  </section>`;
 }

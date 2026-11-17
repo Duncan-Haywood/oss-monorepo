@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Ghostwriter Book Quote Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Price a ghostwritten book from hours: drafting, interviews, research, revisions and management, with confidentiality and rush premiums, platform fee, payment schedule and overrun risk. Runs in your browser.", "featureList": "Hours-first book quote, per-word and per-page rate, client budget check, overrun risk, payment schedule, CSV export"}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much does a ghostwriter charge for a book?", "acceptedAnswer": {"@type": "Answer", "text": "Quotes for a full-length nonfiction book commonly run from low five figures to well over $100,000 depending on experience, and the range is wide because scope differs. The honest way to price is from hours: drafting, interviews, research, revision rounds and project management, times the hourly rate you need, plus premiums. This tool does that arithmetic and shows the per-word and per-page rate that falls out. The figures are not market data."}}, {"@type": "Question", "name": "Should a ghostwriter charge per word, per hour or a flat fee?", "acceptedAnswer": {"@type": "Answer", "text": "Clients usually want a flat fee and writers are safest when that flat fee was derived from hours. Per-word pricing hides interview and revision time; hourly pricing worries clients who cannot cap the cost. Build the flat fee from hours, then check the implied per-word rate against what the client expects."}}, {"@type": "Question", "name": "Why charge more for uncredited work?", "acceptedAnswer": {"@type": "Answer", "text": "Credited work gives you a portfolio line and referrals; uncredited work gives you neither and often an NDA. Many ghostwriters add a confidentiality premium for that. The tool lets you set the percentage, and shows how much of the fee it accounts for."}}, {"@type": "Question", "name": "How do I handle clients who want unlimited revisions?", "acceptedAnswer": {"@type": "Answer", "text": "Price a fixed number of revision rounds into the fee and a separate price for each extra round. The tool shows what one extra round costs at your rate so you can write it into the agreement."}}, {"@type": "Question", "name": "What if the client's budget is below my number?", "acceptedAnswer": {"@type": "Answer", "text": "Type their budget. The tool shows the hourly rate you would earn at that fee, and how many words of book that budget buys at your target rate with the same interviews and research, so you can offer a shorter book or a smaller scope instead of a discount."}}, {"@type": "Question", "name": "Is this legal or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on figures you type. Contracts, rights and tax treatment of your income are for you and a qualified professional."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #334155; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #334155; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #334155; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #334155; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #334155; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #334155; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -106,12 +144,12 @@
       for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
       if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
       const o = a.opts, k = a.hours;
-      h += `<div class="finding"><h4>Quote ${money(a.invoice)} for ${o.wordCount.toLocaleString("en-US")} words</h4><p>That is ${money2(a.perWord)} per word or ${money(a.perPage)} per 250-word page, built from ${hr(k.total)} of work at ${money(o.targetHourly)} an hour${o.confidentialityPremium > 0 ? ", of which " + money(a.confidentialityValue) + " is the uncredited-work premium" : ""}${o.platformFee > 0 ? ", grossed up for a " + pct(o.platformFee, 0) + " commission" : ""}${o.expenses > 0 ? ", plus " + money(o.expenses) + " of expenses at cost" : ""}.</p></div>`;
-      h += `<div class="finding"><h4>Where the hours go</h4>${table(["Part of the job", "Hours"], [["Drafting", hr(k.draft)], ["Interviews with prep and transcripts", hr(k.interviews)], ["Research", hr(k.research)], ["Revision rounds (" + o.revisionRounds + ")", hr(k.revisions)], ["Management", hr(k.management)], ["<strong>Total</strong>", "<strong>" + hr(k.total) + "</strong>"]])}<p>One extra revision round beyond the included ones is worth ${money(a.extraRound)} at your rate. Put that number in the agreement.</p></div>`;
-      h += `<div class="finding"><h4>If the job runs ${pct(o.overrun, 0)} over</h4><p>You would earn ${money(a.atRisk)} an hour instead of the ${money(o.targetHourly)} you priced for. A fixed fee carries that risk, so the scope, the revision cap and the milestone dates are what protect the rate.</p></div>`;
-      if (a.atBudget !== null) h += `<div class="finding"><h4>At the client's ${money(o.clientBudget)} budget</h4><p>${a.budgetGap > 0 ? "That is " + money(a.budgetGap) + " under your quote and pays " + money(a.atBudget) + " an hour for the planned work." : "That covers your quote with " + money(-a.budgetGap) + " to spare."} At your target rate the same interviews and research with that budget buy about ${a.budgetWords.toLocaleString("en-US")} words of book. Offering a shorter book beats discounting the rate.</p></div>`;
-      h += `<div class="finding"><h4>Payment schedule</h4>${table(["Payment", "Amount"], a.schedule.map(([n, v]) => [esc(n), money(v)]))}</div>`;
-      h += `<div class="finding"><h4>If the book were a different length</h4>${table(["Words", "Hours", "Quote"], a.grid.map((g) => [g.words.toLocaleString("en-US"), hr(g.hours), money(g.invoice)]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      h += `<div class="finding"><h3>Quote ${money(a.invoice)} for ${o.wordCount.toLocaleString("en-US")} words</h3><p>That is ${money2(a.perWord)} per word or ${money(a.perPage)} per 250-word page, built from ${hr(k.total)} of work at ${money(o.targetHourly)} an hour${o.confidentialityPremium > 0 ? ", of which " + money(a.confidentialityValue) + " is the uncredited-work premium" : ""}${o.platformFee > 0 ? ", grossed up for a " + pct(o.platformFee, 0) + " commission" : ""}${o.expenses > 0 ? ", plus " + money(o.expenses) + " of expenses at cost" : ""}.</p></div>`;
+      h += `<div class="finding"><h3>Where the hours go</h3>${table(["Part of the job", "Hours"], [["Drafting", hr(k.draft)], ["Interviews with prep and transcripts", hr(k.interviews)], ["Research", hr(k.research)], ["Revision rounds (" + o.revisionRounds + ")", hr(k.revisions)], ["Management", hr(k.management)], ["<strong>Total</strong>", "<strong>" + hr(k.total) + "</strong>"]])}<p>One extra revision round beyond the included ones is worth ${money(a.extraRound)} at your rate. Put that number in the agreement.</p></div>`;
+      h += `<div class="finding"><h3>If the job runs ${pct(o.overrun, 0)} over</h3><p>You would earn ${money(a.atRisk)} an hour instead of the ${money(o.targetHourly)} you priced for. A fixed fee carries that risk, so the scope, the revision cap and the milestone dates are what protect the rate.</p></div>`;
+      if (a.atBudget !== null) h += `<div class="finding"><h3>At the client's ${money(o.clientBudget)} budget</h3><p>${a.budgetGap > 0 ? "That is " + money(a.budgetGap) + " under your quote and pays " + money(a.atBudget) + " an hour for the planned work." : "That covers your quote with " + money(-a.budgetGap) + " to spare."} At your target rate the same interviews and research with that budget buy about ${a.budgetWords.toLocaleString("en-US")} words of book. Offering a shorter book beats discounting the rate.</p></div>`;
+      h += `<div class="finding"><h3>Payment schedule</h3>${table(["Payment", "Amount"], a.schedule.map(([n, v]) => [esc(n), money(v)]))}</div>`;
+      h += `<div class="finding"><h3>If the book were a different length</h3>${table(["Words", "Hours", "Quote"], a.grid.map((g) => [g.words.toLocaleString("en-US"), hr(g.hours), money(g.invoice)]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       const c = $("csv");

@@ -1,0 +1,34 @@
+Milestone 6zzp post hoc (no predictions): DG's failure modes, and DG gated to |lat| >= 50 (DGX)
+points with |lat| >= 50: P-60, P-50, P+50, P+60, A-50, A+50, A+60, North-Sea, Gulf-of-Alaska (9); high-amplitude: P-60, P-30, P+50, P+60, A-50, A+50, A+60, North-Sea, Gulf-of-Alaska
+other 21 points (oth168): P-50, P-40, P-20, P-10, P+0, P+10, P+20, P+30, P+40, A-40, A-30, A-20, A-10, A+0, A+10, A+20, A+30, A+40, Equator-Pacific, Florida-Straits, Gulf-of-Maine
+check: LC and DG all168 reproduce run_dark_summer_guard.py  ok
+
+  rule   |  all168 |   real8 |   hi168 |  oth168 |   pp240
+  AT_90  |     139 |       8 |      25 |     133 |     126
+  LC_1   |      97 |       4 |      77 |      94 |     106
+  LC_2   |     117 |       7 |     153 |     112 |     121
+  LC_3   |     132 |       8 |       1 |     145 |     107
+  LC_4   |     152 |       8 |     124 |     149 |     131
+  LC_5   |     111 |       7 |      50 |     100 |     105
+  DG_1   |      89 |       5 |     105 |      83 |     109
+  DG_2   |     105 |       6 |     152 |      98 |     121
+  DG_3   |     136 |       7 |      74 |     127 |     120
+  DG_4   |     131 |       6 |     124 |     123 |     133
+  DG_5   |      69 |       3 |      91 |      62 |     113
+  DGX_1  |      97 |       4 |      77 |      94 |     106
+  DGX_2  |     121 |       7 |     151 |     112 |     121
+  DGX_3  |     135 |       8 |       2 |     146 |     108
+  DGX_4  |     152 |       8 |     124 |     149 |     131
+  DGX_5  |     111 |       7 |      51 |     100 |     105
+
+Per rule over the five lags: mean [min, max]
+  LC  |  121.8 [ 97,152] |    6.8 [  4,  8] |   81.0 [  1,153] |  120.0 [ 94,149] |  114.0 [105,131]
+  DG  |  106.0 [ 69,136] |    5.4 [  3,  7] |  109.2 [ 74,152] |   98.6 [ 62,127] |  119.2 [109,133]
+  DGX |  123.2 [ 97,152] |    6.8 [  4,  8] |   81.0 [  2,151] |  120.2 [ 94,149] |  114.2 [105,131]
+
+Failing cells by mode (km only / dark only / both)
+  all168 LC: lag 1 15/56/0; lag 2 6/45/0; lag 3 17/19/0; lag 4 6/10/0; lag 5 2/55/0
+  all168 DG: lag 1 0/79/0; lag 2 0/63/0; lag 3 0/32/0; lag 4 0/37/0; lag 5 0/99/0
+  oth168 LC: lag 1 15/59/0; lag 2 6/50/0; lag 3 2/21/0; lag 4 3/16/0; lag 5 2/66/0
+  oth168 DG: lag 1 0/85/0; lag 2 0/70/0; lag 3 0/41/0; lag 4 0/45/0; lag 5 0/106/0
+  AT_90: all168 16/13/0, oth168 14/21/0

@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -149,7 +149,7 @@
       last = r;
       const s = r.summary;
       $("#report-stats").innerHTML = `${s.entries} entries, ${s.clients} client(s), ${money(s.hours)} hours, $${money(s.revenue)} revenue. ` + (s.blended === null ? "" : `<strong>Blended $${money(s.blended)}/hour against your $${money(s.target)} target</strong>; ${s.belowCount} client(s) are below it.`);
-      $("#report-findings").innerHTML = r.findings.length ? r.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out.</p>`;
+      $("#report-findings").innerHTML = r.findings.length ? r.findings.map((x) => `<div class="finding"><h3><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h3><p>${esc(x.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out.</p>`;
       $("#by-client").innerHTML = r.clients.map((c) => `<tr><th scope="row">${esc(c.label)}</th><td class="n">${c.hours.toFixed(1)}</td><td class="n">${c.nonBillableHours.toFixed(1)}</td><td class="n">${money(c.revenue)}</td><td class="n">${dash(c.effective, (v) => money(v))}</td><td class="n">${dash(c.vsTarget, pct)}</td><td class="n">${c.shortfall > 0 ? money(c.shortfall) : "–"}</td><td class="n">${s.hours > 0 ? pct(c.hours / s.hours) : "–"}</td><td class="n">${s.revenue > 0 ? pct(c.revenue / s.revenue) : "–"}</td></tr>`).join("") + `<tr><th scope="row">Total</th><td class="n">${s.hours.toFixed(1)}</td><td class="n">${s.nonBillable.toFixed(1)}</td><td class="n">${money(s.revenue)}</td><td class="n">${dash(s.blended, (v) => money(v))}</td><td class="n">${dash(s.blended, (v) => pct(v / s.target))}</td><td class="n">${money(s.upside)}</td><td class="n">100%</td><td class="n">${s.revenue > 0 ? "100%" : "–"}</td></tr>`;
       const notes = [];
       if (n.skipped.length) notes.push(`${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : ""));

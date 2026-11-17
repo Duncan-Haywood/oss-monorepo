@@ -9,7 +9,7 @@
 //
 //   git clone --depth 1 https://github.com/OpenDataScotland/govspend.opendata.scot
 //   node eval/scotgov-card.mjs --dir govspend.opendata.scot/_data/spendsOver500 [--from 2020-01] [--to 2025-12]
-//        [--skip mcc|mcc-memory] [--mcc-before] [--misses 20] [--names 30]
+//        [--skip mcc|mcc-memory] [--mcc-before] [--plurality] [--misses 20] [--names 30]
 //
 // The run of 2026-11-11 read commit 33ab7a7 (2016-05 to 2026-08, 13,998 lines).
 //
@@ -27,6 +27,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { suggest, trainClassifier, buildMemory, buildMccMemory, trainNewPayee, historyRecord, payeeKey, MCC_MEMORY } from "../categorize.mjs";
 import { mccAccount, normaliseMccName } from "../mcc.mjs";
+import { pathToFileURL } from "node:url";
 
 // Staff expense description (lower case) -> chart accounts a careful bookkeeper could accept.
 // Equipment may be expensed as supplies or capitalised, so both are accepted.
@@ -117,9 +118,11 @@ export function replay(rows, { skip = new Set(), scoreFrom = "", scoreTo = "9999
 const pct = (a, b) => (b ? (100 * a / b).toFixed(1) + "%" : "-");
 export const fmt = (o) => `n=${o.n} right ${pct(o.right, o.n)} wrong ${pct(o.wrong, o.n)} blank ${pct(o.blank, o.n)} (right of suggested ${pct(o.right, o.right + o.wrong)})`;
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const arg = (k, d = null) => { const i = process.argv.indexOf(k); return i === -1 ? d : process.argv[i + 1]; };
   if (process.argv.includes("--mcc-before")) MCC_MEMORY.before = true;
+  // --plurality: the split-category guess (off by default; README "Split categories").
+  if (process.argv.includes("--plurality")) MCC_MEMORY.plurality = true;
   const rows = loadDir(arg("--dir"));
   const scoreFrom = arg("--from", ""), scoreTo = arg("--to", "9999");
   const skip = new Set((arg("--skip") ?? "").split(",").filter(Boolean));

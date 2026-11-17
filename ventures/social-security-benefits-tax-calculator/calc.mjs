@@ -13,7 +13,7 @@ export const BASES = {
 
 export const SAMPLE = { status: "single", benefits: 30000, other: 28000, bracket: 22, b1: "", b2: "" };
 
-export const dollars = (n) => (n < 0 ? "-$" : "$") + Math.abs(Math.round(n)).toLocaleString("en-US");
+export const dollars = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(n)).toLocaleString("en-US"));
 
 const num = (v) => {
   if (v === "" || v === null || v === undefined) return NaN;

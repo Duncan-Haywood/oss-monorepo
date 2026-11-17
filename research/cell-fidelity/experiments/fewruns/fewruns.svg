@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Pools where the per-set plating exponent calibrated on k earlier 100-cycle runs beats the physical exponent">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Milestone 5zh: pools (of 24) where k earlier runs beat alpha F/RT</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="271.3" y2="271.3" stroke="#ddd"/><text x="58" y="275.3" text-anchor="end" font-family="sans-serif" font-size="11">5</text>
+<line x1="64" x2="624" y1="218.7" y2="218.7" stroke="#ddd"/><text x="58" y="222.7" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="166.0" y2="166.0" stroke="#ddd"/><text x="58" y="170.0" text-anchor="end" font-family="sans-serif" font-size="11">15</text>
+<line x1="64" x2="624" y1="113.3" y2="113.3" stroke="#ddd"/><text x="58" y="117.3" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
+<line x1="64" x2="624" y1="60.6" y2="60.6" stroke="#ddd"/><text x="58" y="64.6" text-anchor="end" font-family="sans-serif" font-size="11">25</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="318.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="572.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">100</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">earlier 100-cycle runs k</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">pools beating kappa = 25.3 (of 24)</text>
+<line x1="64" x2="624" y1="71.2" y2="71.2" stroke="#555" stroke-dasharray="4 3"/>
+<polyline points="64.0,324.0 140.5,271.3 185.2,271.3 241.6,208.1 318.1,176.5 394.6,134.4 446.4,123.8 471.0,123.8 547.5,102.8 624.0,81.7" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="140.5" cy="271.3" r="3" fill="#c0392b"/>
+<circle cx="185.2" cy="271.3" r="3" fill="#c0392b"/>
+<circle cx="241.6" cy="208.1" r="3" fill="#c0392b"/>
+<circle cx="318.1" cy="176.5" r="3" fill="#c0392b"/>
+<circle cx="394.6" cy="134.4" r="3" fill="#c0392b"/>
+<circle cx="446.4" cy="123.8" r="3" fill="#c0392b"/>
+<circle cx="471.0" cy="123.8" r="3" fill="#c0392b"/>
+<circle cx="547.5" cy="102.8" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="81.7" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">scattered runs, 90th percentile</text>
+<polyline points="64.0,144.9 140.5,102.8 185.2,113.3 241.6,102.8 318.1,81.7 394.6,71.2 446.4,71.2 471.0,71.2 547.5,81.7 624.0,81.7" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="144.9" r="3" fill="#1f6fb2"/>
+<circle cx="140.5" cy="102.8" r="3" fill="#1f6fb2"/>
+<circle cx="185.2" cy="113.3" r="3" fill="#1f6fb2"/>
+<circle cx="241.6" cy="102.8" r="3" fill="#1f6fb2"/>
+<circle cx="318.1" cy="81.7" r="3" fill="#1f6fb2"/>
+<circle cx="394.6" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="446.4" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="471.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="547.5" cy="81.7" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="81.7" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">scattered runs, median</text>
+<polyline points="64.0,324.0 140.5,271.3 185.2,271.3 241.6,260.8 318.1,176.5 394.6,155.4 446.4,134.4" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="324.0" r="3" fill="#2e8b57"/>
+<circle cx="140.5" cy="271.3" r="3" fill="#2e8b57"/>
+<circle cx="185.2" cy="271.3" r="3" fill="#2e8b57"/>
+<circle cx="241.6" cy="260.8" r="3" fill="#2e8b57"/>
+<circle cx="318.1" cy="176.5" r="3" fill="#2e8b57"/>
+<circle cx="394.6" cy="155.4" r="3" fill="#2e8b57"/>
+<circle cx="446.4" cy="134.4" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">one earlier campaign, 90th percentile</text>
+<polyline points="64.0,144.9 140.5,113.3 185.2,113.3 241.6,113.3 318.1,81.7 394.6,81.7 446.4,81.7" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="144.9" r="3" fill="#8e44ad"/>
+<circle cx="140.5" cy="113.3" r="3" fill="#8e44ad"/>
+<circle cx="185.2" cy="113.3" r="3" fill="#8e44ad"/>
+<circle cx="241.6" cy="113.3" r="3" fill="#8e44ad"/>
+<circle cx="318.1" cy="81.7" r="3" fill="#8e44ad"/>
+<circle cx="394.6" cy="81.7" r="3" fill="#8e44ad"/>
+<circle cx="446.4" cy="81.7" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">one earlier campaign, median</text>
+</svg>

@@ -185,7 +185,45 @@ export const CLAIM_STATUS = {
 
 // Reads one or more 835 transactions (one ST..SE per payment) from a text. Never
 // throws: anything unreadable goes to `issues` with the segment that caused it.
+// Start offsets of each ISA header. ISA is fixed width, so a real header repeats its element
+// separator at offsets 3, 6 and 17; "ISA" inside data does not.
+export function interchangeStarts(text) {
+  const t = String(text ?? "");
+  const starts = [];
+  for (let i = t.indexOf("ISA"); i !== -1; i = t.indexOf("ISA", i + 3)) {
+    const sepc = t[i + 3];
+    if (sepc && !/[A-Za-z0-9 ]/.test(sepc) && t[i + 6] === sepc && t[i + 17] === sepc && (i === 0 || !/[A-Za-z0-9]/.test(t[i - 1]))) starts.push(i);
+  }
+  return starts;
+}
+
+// Several files (or one file with several interchanges) may use different separators, so each
+// interchange is parsed with its own ISA. Joining them and reading the first ISA only lost every
+// code in a second payer's file (quality census 2026-11-17).
 export function parseEra(text) {
+  const t = String(text ?? "").replace(/^\uFEFF/, "");
+  const starts = interchangeStarts(t);
+  if (starts.length < 2) return parseInterchange(t);
+  const chunks = starts.map((st, k) => t.slice(k === 0 ? 0 : st, starts[k + 1] ?? t.length));
+  const parts = chunks.map(parseInterchange);
+  const good = parts.filter((p) => !p.error);
+  if (!good.length) return parts[0];
+  const out = { transactions: [], claims: [], lines: [], plb: [], issues: [], segmentCount: 0, sep: good[0].sep, interchanges: parts.length };
+  parts.forEach((p, k) => {
+    if (p.error) { out.issues.push(`Interchange ${k + 1} of ${parts.length} skipped: ${p.error}`); return; }
+    const offset = out.transactions.length;
+    for (const tr of p.transactions) tr.id += offset;
+    for (const c of p.claims) c.tx += offset;
+    for (const l of p.lines) l.tx += offset;
+    for (const b of p.plb) b.tx += offset;
+    out.transactions.push(...p.transactions); out.claims.push(...p.claims); out.lines.push(...p.lines); out.plb.push(...p.plb);
+    out.issues.push(...p.issues);
+    out.segmentCount += p.segmentCount;
+  });
+  return out;
+}
+
+function parseInterchange(text) {
   const { segs, sep } = splitSegments(text);
   const out = { transactions: [], claims: [], lines: [], plb: [], issues: [], segmentCount: segs.length, sep };
   if (!segs.length) { out.error = "The file is empty."; return out; }
@@ -374,8 +412,8 @@ export function analyze(parsed, opts = {}) {
   const summary = {
     payments: transactions.length, claims: claims.length, lines: lines.length,
     billed: round2(billed), paid: round2(paid), patientResp: round2(patientResp), plbNet: round2(plbNet),
-    firstPay: transactions.map((t) => t.payDate).filter((d) => d !== null).sort()[0] ?? null,
-    lastPay: transactions.map((t) => t.payDate).filter((d) => d !== null).sort().at(-1) ?? null,
+    firstPay: transactions.map((t) => t.payDate).filter((d) => d !== null).sort((a, b) => a - b)[0] ?? null,
+    lastPay: transactions.map((t) => t.payDate).filter((d) => d !== null).sort((a, b) => a - b).at(-1) ?? null,
     collectRate: billed > CENT ? paid / billed : null,
   };
 

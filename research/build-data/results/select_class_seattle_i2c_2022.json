@@ -1,0 +1,137 @@
+{
+ "held_out": "seattle",
+ "target": "i2c",
+ "test_year": 2022,
+ "selection_year": 2021,
+ "seeds": 3,
+ "classes": [
+  "cascade2",
+  "type",
+  "cascade2_minsupdrop1000"
+ ],
+ "n_test": 4777,
+ "n_selection": 4859,
+ "note": "selection = transfer loss on the held-out city's year Y-1 (never read by the transfer model); test = all rows of year Y; days of mean pinball loss; minus_first < 0 = better than cascade2",
+ "minsup": {
+  "cascade2_minsupdrop1000": {
+   "k": 1000,
+   "into": "_missing",
+   "fold": {
+    "fire": "_missing"
+   },
+   "n_source": {
+    "new_construction": 262632,
+    "alteration": 850076,
+    "electrical": 547504,
+    "plumbing": 417067,
+    "mechanical": 416324,
+    "demolition": 17471,
+    "sign": 11027,
+    "fire": 3,
+    "other": 7770
+   }
+  }
+ },
+ "by_tau": {
+  "0.5": {
+   "selection": {
+    "mean": {
+     "cascade2": 127.55135625256874,
+     "type": 128.78770415672784,
+     "cascade2_minsupdrop1000": 127.77776490557387
+    },
+    "minus_first": {
+     "type": {
+      "diff": 1.2363479041591228,
+      "lo": 0.5203971249340088,
+      "hi": 1.913250156751811
+     },
+     "cascade2_minsupdrop1000": {
+      "diff": 0.2264086530051281,
+      "lo": 0.050390285998155225,
+      "hi": 0.4064148371412202
+     }
+    }
+   },
+   "picks": {
+    "argmin": "cascade2",
+    "gated": "cascade2"
+   },
+   "test_loss": {
+    "cascade2": 115.04835486672897,
+    "type": 115.68623770806737,
+    "cascade2_minsupdrop1000": 115.17150813599017
+   },
+   "test_best": "cascade2",
+   "regret": {
+    "argmin": 0.0,
+    "gated": 0.0,
+    "always_cascade2": 0.0,
+    "always_type": 0.6378828413383957,
+    "always_cascade2_minsupdrop1000": 0.12315326926119496
+   },
+   "test_minus_first": {
+    "type": {
+     "diff": 0.6378828413384016,
+     "lo": 0.08597691685334206,
+     "hi": 1.2079265619493125
+    },
+    "cascade2_minsupdrop1000": {
+     "diff": 0.12315326926119312,
+     "lo": -0.027187718211405656,
+     "hi": 0.2905361705483946
+    }
+   }
+  },
+  "0.9": {
+   "selection": {
+    "mean": {
+     "cascade2": 89.35989368384391,
+     "type": 96.74567016193492,
+     "cascade2_minsupdrop1000": 89.80998491473075
+    },
+    "minus_first": {
+     "type": {
+      "diff": 7.385776478091015,
+      "lo": 5.36777313667269,
+      "hi": 9.415143064065665
+     },
+     "cascade2_minsupdrop1000": {
+      "diff": 0.45009123088684594,
+      "lo": 0.10773454032960511,
+      "hi": 0.7946618256737629
+     }
+    }
+   },
+   "picks": {
+    "argmin": "cascade2",
+    "gated": "cascade2"
+   },
+   "test_loss": {
+    "cascade2": 73.12802525088415,
+    "type": 79.388966922031,
+    "cascade2_minsupdrop1000": 73.49142643055725
+   },
+   "test_best": "cascade2",
+   "regret": {
+    "argmin": 0.0,
+    "gated": 0.0,
+    "always_cascade2": 0.0,
+    "always_type": 6.260941671146853,
+    "always_cascade2_minsupdrop1000": 0.3634011796731045
+   },
+   "test_minus_first": {
+    "type": {
+     "diff": 6.260941671146848,
+     "lo": 4.036707733631745,
+     "hi": 8.718409521176659
+    },
+    "cascade2_minsupdrop1000": {
+     "diff": 0.3634011796730948,
+     "lo": -0.04030760701019619,
+     "hi": 0.7396618663293847
+    }
+   }
+  }
+ }
+}

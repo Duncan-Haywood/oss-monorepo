@@ -92,17 +92,17 @@
 <main>
 <h1>S3 Bucket Exposure Checker</h1>
 <p>
-  Enter an S3 bucket name. This sends two plain, <strong>unsigned</strong> GET requests to the
-  bucket's own REST endpoint — a <code>ListBucket</code> request and a <code>GetBucketAcl</code>
-  request — and reports whether anonymous listing is enabled, and whether the ACL grants read or
-  write access to <code>AllUsers</code> (anyone on the internet, no AWS account required) or
-  <code>AuthenticatedUsers</code> (any AWS account holder anywhere — a commonly misunderstood
-  setting). <strong>Object file contents are never fetched by this tool — only the key (file)
-  names S3's own listing response already returns, and ACL grant metadata.</strong> See
-  <a href="why-s3-buckets-end-up-public.html">why S3 buckets end up publicly exposed</a> for the
-  common causes and the fix for each, or
-  <a href="vs-checking-by-hand.html">how this compares to checking by hand</a>. Only run this
-  against a bucket you own or are authorised to test.
+  Enter an S3 bucket name. This sends two plain, <strong>unsigned</strong> GET requests
+  (<code>ListBucket</code> and <code>GetBucketAcl</code>) to the bucket's own REST endpoint and
+  reports whether anyone can list it, and whether its ACL grants read or write to
+  <code>AllUsers</code> (anyone on the internet) or <code>AuthenticatedUsers</code> (any AWS
+  account holder anywhere, a commonly misunderstood setting). <strong>Object contents are never
+  fetched: only the key names S3's own listing returns, and the ACL grant metadata.</strong>
+  Only run this against a bucket you own or are authorised to test.
+</p>
+<p class="status-note">
+  <a href="why-s3-buckets-end-up-public.html">Why S3 buckets end up publicly exposed</a>, with the
+  fix for each cause · <a href="vs-checking-by-hand.html">How this compares to checking by hand</a>
 </p>
 
 <div class="card">
@@ -155,7 +155,7 @@
 <script type="module">
   import { checkBucket } from './probe.mjs';
   import { buildReport } from './analyze.mjs';
-  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+  import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
   const $ = (sel) => document.querySelector(sel);
   const els = {
@@ -223,7 +223,7 @@
       } else {
         els.status.textContent = 'Done. This ran entirely in your browser; nothing was sent to us.';
       }
-      recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'check_run');
+      recordUsage(usageStorage(), document.getElementById('usageOptOut')?.checked ?? false, 'check_run');
     } catch (err) {
       els.status.innerHTML = `<span class="error">${escapeHtml(err.message || String(err))}</span>`;
     } finally {
@@ -236,7 +236,7 @@
   $('#load-example').addEventListener('click', () => {
     render(EXAMPLE_REPORT);
     els.status.textContent = 'Worked example: anonymous listing enabled and a public-read ACL grant.';
-    recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'example_loaded');
+    recordUsage(usageStorage(), document.getElementById('usageOptOut')?.checked ?? false, 'example_loaded');
   });
 
   $('#clear').addEventListener('click', () => {
@@ -248,8 +248,8 @@
   {
     const usageControl = document.getElementById('usageOptOut');
     if (usageControl) {
-      usageControl.checked = readOptOut(localStorage);
-      usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      usageControl.checked = readOptOut(usageStorage());
+      usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
     }
   }
 </script>

@@ -104,7 +104,10 @@ export function plan(input) {
 }
 
 function fmt(x) {
-  return "$" + Math.round(x).toLocaleString("en-US");
+  const format = (x) => "$" + Math.round(x).toLocaleString("en-US");
+  if (!(Number(x) < 0)) return format(x);
+  const text = format(Math.abs(x));
+  return /[1-9]/.test(text) ? `-${text}` : text;
 }
 
 export function sampleInput() {

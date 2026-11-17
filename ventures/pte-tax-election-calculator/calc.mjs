@@ -35,7 +35,7 @@ const pc = (x) => nz(x) / 100;
 
 export function money(x) {
   const n = Math.round(x);
-  return (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US");
+  return ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toLocaleString("en-US"));
 }
 
 // Effective SALT cap at a given MAGI: base cap reduced by phaseoutRate x (MAGI - threshold),

@@ -94,6 +94,12 @@ export function dateOrder(rows) {
 const cents = (n) => Math.round(n * 100);
 const keyName = (s) => String(s || "").toLowerCase().replace(/\s+/g, " ").trim();
 const pad = (n) => String(n).padStart(2, "0");
+// A real calendar day: 30 February and 31 April are not, nor 29 February in a common year.
+const realDay = (y, m, d) => {
+  if (!(m >= 1 && m <= 12 && d >= 1)) return false;
+  const t = new Date(Date.UTC(y, m - 1, d));
+  return t.getUTCMonth() === m - 1 && t.getUTCDate() === d;
+};
 
 // Transactions: TRNS ... SPL ... ENDTRNS. `closed` is false when the next TRNS or the end of file came first.
 function transactions(rows) {
@@ -173,7 +179,7 @@ export function validate(text, opts = {}) {
       if (!d) add("error", "Date not readable", `"${raw}" is not a date like 12/31/2024.`, r.line);
       else {
         const [mo, da] = d.kind === "iso" ? [d.a, d.b] : order === "dmy" ? [d.b, d.a] : [d.a, d.b];
-        if (mo < 1 || mo > 12 || da < 1 || da > 31) add("error", "Impossible date", d.kind === "slash" && d.a > 12 ? `"${raw}" has a first number over 12. QuickBooks in a US locale reads MM/DD/YYYY, so this is read as month ${d.a}.` : `"${raw}" has a day or month out of range.`, r.line);
+        if (!realDay(d.y, mo, da)) add("error", "Impossible date", d.kind === "slash" && d.a > 12 ? `"${raw}" has a first number over 12. QuickBooks in a US locale reads MM/DD/YYYY, so this is read as month ${d.a}.` : `"${raw}" has a day or month out of range, or a day the month does not have.`, r.line);
         else if (d.kind === "iso") add("warning", "Date is year-first", `"${raw}" is not the MM/DD/YYYY form QuickBooks expects from a US-locale computer, and is imported as a different date or refused.`, r.line, true);
         else if (d.twoDigit) add("info", "Two-digit year", `"${raw}" — QuickBooks guesses the century.`, r.line);
         if (d.kind === "slash" && order === "dmy" && d.a > 12) add("error", "Date reads day-first", `"${raw}" can only be day/month/year. QuickBooks with US regional settings reads month first and refuses or misdates it.`, r.line, false);
@@ -251,8 +257,8 @@ export function repair(text, opts = {}) {
           if (a && a.fixed !== null) { c = a.fixed; nAmt++; touched = true; }
         } else if (col === "DATE") {
           const d = dateParts(c);
-          if (d && d.kind === "iso" && d.a >= 1 && d.a <= 12 && d.b >= 1 && d.b <= 31) { c = `${pad(d.a)}/${pad(d.b)}/${d.y}`; nDate++; touched = true; }
-          else if (d && d.kind === "slash" && dayFirst && opts.fixDates === "dmy" && d.b >= 1 && d.b <= 12 && d.a >= 1 && d.a <= 31) { c = `${pad(d.b)}/${pad(d.a)}/${d.y}`; nDate++; touched = true; }
+          if (d && d.kind === "iso" && realDay(d.y, d.a, d.b)) { c = `${pad(d.a)}/${pad(d.b)}/${d.y}`; nDate++; touched = true; }
+          else if (d && d.kind === "slash" && dayFirst && opts.fixDates === "dmy" && realDay(d.y, d.b, d.a)) { c = `${pad(d.b)}/${pad(d.a)}/${d.y}`; nDate++; touched = true; }
         } else if (col === "NAME" && c !== c.trim()) { c = c.trim(); nTrim++; touched = true; }
         cells[k] = c;
       }

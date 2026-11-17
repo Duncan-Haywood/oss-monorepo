@@ -36,6 +36,15 @@
     .scroll { overflow-x: auto; }
       select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebdd0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 740px) { div.grid:has(#payModel) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 343px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
@@ -165,7 +174,7 @@
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const keys = ["classesPerWeek", "capacity", "bookedPerClass", "lateCancelPct", "classMin", "turnoverMin", "roomHoursAvailable", "dropInPct", "packPct", "dropInPrice", "packPrice", "packClasses", "packBreakagePct", "membershipPrice", "memberBookingsPerMonth", "lateFee", "lateFeeEnforcePct", "processingPct", "flatPay", "perHeadPay", "perHeadMin", "sharePct", "payrollPct", "rentMonth", "utilitiesMonth", "softwareMonth", "insuranceMonth", "otherMonth", "ownerRate", "adminHours", "ownerMaxTeachHours", "roomRentHour", "rentedFillPct", "rentedAdminHours", "targetMarginPct", "payModel"];
-    const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const usd = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
     const be = (x) => (x === null ? "not even full" : x);
     const SETUPS = [["owner", "You teach every class"], ["hire", "Hire teachers"], ["rent", "Rent a room by the hour"]];
     let last = null;

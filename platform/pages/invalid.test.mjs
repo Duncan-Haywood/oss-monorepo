@@ -85,6 +85,14 @@ test('messageSubject splits the row prefix a repeated-row calculator writes', ()
   });
 });
 
+test('messageSubject splits a one-letter row prefix too', () => {
+  // A row named by a single letter ("A", "B") is a real shape; a colon at
+  // index 1 is still a prefix (redteam 2026-11-14: `colon > 1` escaped).
+  assert.deepEqual(messageSubject('A: linear feet must be at least 0'), {
+    scope: 'A', subject: 'linear feet',
+  });
+});
+
 test('messageSubject keeps a whole sentence that names no field', () => {
   const parsed = messageSubject('Add at least one fence run to price');
   assert.equal(parsed.subject, 'Add at least one fence run to price');
@@ -516,4 +524,28 @@ test('a field is scrolled to only when its box is wholly outside the viewport', 
   assert.equal(scrolls({ top: -20, bottom: 0 }), 0, 'bottom edge exactly on the top of the viewport is not scrolled');
   assert.equal(scrolls({ top: 100, bottom: 120 }), 0, 'top edge exactly on the bottom of the viewport is not scrolled');
   assert.equal(scrolls({ top: 10, bottom: 20 }), 0, 'inside');
+});
+
+test('a repeated-row message matches a row headed by a caption, with no picker', () => {
+  // The row's own text is half of rowMatchesScope (redteam 2026-11-14: reading
+  // `row.textContent && ''` escaped because the only row test used selects).
+  const rowA = new FakeNode('div', { text: 'Gate A', attrs: { 'data-row': '' } });
+  const rowB = new FakeNode('div', { text: 'Gate B', attrs: { 'data-row': '' } });
+  const first = labelled('Linear feet');
+  const second = labelled('Linear feet');
+  rowA.append(first.parentElement);
+  rowB.append(second.parentElement);
+  runInvalidModule({ message: 'Gate B: linear feet must be at least 0', fields: [rowA, rowB] });
+  assert.equal(second.attrs['aria-invalid'], 'true');
+  assert.equal(first.attrs['aria-invalid'], undefined);
+});
+
+test('two fields that score the same: the first in the page is marked', () => {
+  // Document order breaks a tie (redteam 2026-11-14: `score >= bestScore`
+  // escaped and marked the last one).
+  const first = labelled('Linear feet');
+  const second = labelled('Linear feet');
+  runInvalidModule({ message: 'Linear feet must be at least 0', fields: [first.parentElement, second.parentElement] });
+  assert.equal(first.attrs['aria-invalid'], 'true');
+  assert.equal(second.attrs['aria-invalid'], undefined);
 });

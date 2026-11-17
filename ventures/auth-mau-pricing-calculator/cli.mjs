@@ -10,7 +10,7 @@ const USAGE = `usage: node cli.mjs compare --mau <n> [--growth <pct/month>] [--m
        node cli.mjs providers
 
 --prices is a JSON object of provider overrides, merged over the defaults, e.g.
-  {"clerk":{"freeMau":10000,"base":25,"includedMau":10000,"tiers":[{"upTo":null,"rate":0.02}]}}
+  {"clerk":{"freeMau":50000,"base":25,"includedMau":50000,"tiers":[{"upTo":null,"rate":0.02}]}}
 (use null for an unbounded last tier).`;
 
 function fail(msg) { console.error(msg); process.exit(2); }
@@ -45,7 +45,7 @@ const num = (k, d) => {
 };
 
 if (cmd === "providers") {
-  for (const [k, p] of Object.entries(DEFAULT_PROVIDERS)) console.log(`${k.padEnd(10)} ${p.label.padEnd(30)} free to ${p.freeMau} MAU  ${p.url}`);
+  for (const [k, p] of Object.entries(DEFAULT_PROVIDERS)) console.log(`${k.padEnd(10)} ${p.label.padEnd(30)} free to ${p.freeMau} MAU  checked ${p.checked ?? "?"}  ${p.url}${p.note ? `  (${p.note})` : ""}`);
   console.log(`\n${PRICES_AS_OF}`);
 } else if (cmd === "compare") {
   if (opt.mau === undefined) fail(`--mau is required\n${USAGE}`);

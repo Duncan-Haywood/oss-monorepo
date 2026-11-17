@@ -31,7 +31,7 @@ input,button{font:inherit;padding:8px 10px;border-radius:8px;border:1px solid #b
 const $=(i)=>document.getElementById(i);let KEY="";
 const el=(t,x,c)=>{const e=document.createElement(t);e.textContent=x==null?"":String(x);if(c)e.className=c;return e};
 const pct=(n)=>n==null?"–":n+"%";
-const money=(minor,cur)=>{try{return new Intl.NumberFormat(undefined,{style:"currency",currency:(cur||"usd").toUpperCase()}).format((minor||0)/100)}catch{return ((minor||0)/100).toFixed(2)}};
+const money=(minor,cur)=>{try{return new Intl.NumberFormat('en-US',{style:"currency",currency:(cur||"usd").toUpperCase()}).format((minor||0)/100)}catch{return ((minor||0)/100).toFixed(2)}};
 const row=(tb,cells)=>{const tr=document.createElement("tr");for(const c of cells)tr.append(c instanceof Node?c:el("td",c));tb.append(tr)};
 const td=(n)=>{const c=document.createElement("td");c.append(n);return c};
 const api=async(p)=>{const r=await fetch(p,{headers:{authorization:"Bearer "+KEY}});if(r.status===401)throw new Error("That key was not accepted.");if(!r.ok)throw new Error("The server returned "+r.status+".");return r.json()};

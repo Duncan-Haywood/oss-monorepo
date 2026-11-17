@@ -41,7 +41,7 @@
     {
       "@type": "Question",
       "name": "Why does this check the response body instead of just the HTTP status code?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Because a bare status check produces false positives on a common pattern: a webserver or CDN configured to answer every unknown path with a 200-status custom error page (a \"soft 404\"), rather than a real 404. Under a status-only check, that server would incorrectly report .git/HEAD as \"exposed\" for every site behind it. This tool instead checks that the response body is exactly what a real .git/HEAD file contains (a \"ref: refs/heads/...\" line, or a bare 40-character commit SHA for a detached HEAD) and that .git/config contains the [core] section every real git config opens with -- content no generic error page would happen to produce." }
+      "acceptedAnswer": { "@type": "Answer", "text": "Because a bare status check produces false positives on a common pattern: a webserver or CDN configured to answer every unknown path with a 200-status custom error page (a \"soft 404\"), rather than a real 404. Under a status-only check, that server would incorrectly report .git/HEAD as \"exposed\" for every site behind it. This tool instead checks that the response body is exactly what a real .git/HEAD file contains (a \"ref: refs/heads/...\" line, or a bare 40-character (64 in a SHA-256 repository) commit SHA for a detached HEAD) and that .git/config contains the [core] section every real git config opens with -- content no generic error page would happen to produce." }
     },
     {
       "@type": "Question",
@@ -139,7 +139,7 @@
   <h3>What can someone actually do with an exposed .git directory?</h3>
   <p>A tool such as git-dumper or GitTools can reconstruct the entire repository from the raw files a webserver serves under <code>.git/</code> -- not just the current checkout, but the full commit history. That includes any file or secret that was ever committed and later removed in a subsequent commit: an API key rotated out of the code, a config file with a database password, an internal comment. A live directory listing of the deployed site would never show any of that, because it was deleted before deploy -- it is only present in the git history the <code>.git</code> directory carries.</p>
   <h3>Why does this check the response body instead of just the HTTP status code?</h3>
-  <p>Because a bare status check produces false positives on a common pattern: a webserver or CDN configured to answer every unknown path with a 200-status custom error page (a "soft 404"), rather than a real 404. Under a status-only check, that server would incorrectly report <code>.git/HEAD</code> as "exposed" for every site behind it. This tool instead checks that the response body is exactly what a real <code>.git/HEAD</code> file contains (a "ref: refs/heads/..." line, or a bare 40-character commit SHA for a detached HEAD) and that <code>.git/config</code> contains the <code>[core]</code> section every real git config opens with -- content no generic error page would happen to produce.</p>
+  <p>Because a bare status check produces false positives on a common pattern: a webserver or CDN configured to answer every unknown path with a 200-status custom error page (a "soft 404"), rather than a real 404. Under a status-only check, that server would incorrectly report <code>.git/HEAD</code> as "exposed" for every site behind it. This tool instead checks that the response body is exactly what a real <code>.git/HEAD</code> file contains (a "ref: refs/heads/..." line, or a bare 40-character (64 in a SHA-256 repository) commit SHA for a detached HEAD) and that <code>.git/config</code> contains the <code>[core]</code> section every real git config opens with -- content no generic error page would happen to produce.</p>
   <h3>Why only .git/HEAD and .git/config, and not the rest of the repository?</h3>
   <p>Those two are small (normally well under 200 bytes each), and matching real git-internal content in either is already conclusive: if HEAD or config is exposed, the rest of the <code>.git</code> directory almost always is too, since a webserver serving one static file under a path normally serves every file under it. Reading further -- the object database, packed refs, the full index -- would start to look like this tool downloading the repository itself rather than checking whether it is exposed, which is a different, higher-liability action this tool deliberately does not take.</p>
   <h3>Why does this need a CLI instead of just checking a URL I type into the page?</h3>
@@ -151,7 +151,7 @@
 
 <script type="module">
   import { buildReport } from './analyze.mjs';
-  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+  import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
   const $ = (sel) => document.querySelector(sel);
   const els = {
@@ -223,7 +223,7 @@
     }
     render(report);
     els.status.textContent = '';
-    recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, event);
+    recordUsage(usageStorage(), document.getElementById('usageOptOut')?.checked ?? false, event);
   }
 
   $('#check').addEventListener('click', () => {
@@ -262,8 +262,8 @@
   {
     const usageControl = document.getElementById('usageOptOut');
     if (usageControl) {
-      usageControl.checked = readOptOut(localStorage);
-      usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      usageControl.checked = readOptOut(usageStorage());
+      usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
     }
   }
 </script>

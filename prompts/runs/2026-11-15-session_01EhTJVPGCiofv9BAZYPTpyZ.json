@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVPGCiofv9BAZYPTpyZ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo ... revenue generating software products)",
+  "input_sha256": "10da92409a39141f39a8a5a7699a4bcff42a9cb95da7bb1191077333847ca0c9",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T06:16:31Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "chant-forge (flagship row 9): --sing opening consonants",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": 16112,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/runs (model field)",
+      "why": "The session's harness instructions forbid writing a model identifier into any pushed artifact, so model is left null.",
+      "did": "model: null",
+      "result": "record validates"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-teaching-a-synthetic-choir-its-consonants.md"
+  ],
+  "goal": "Land the flagship's next item: the singing preview choir sings each syllable's opening consonants, checked from the audio.",
+  "notes": "sing.mjs: latinOnset (Liber Usualis consonant rules) and PHONES (stops as closure+burst, affricates, fricatives as 4th-order band noise, nasals with damped upper formants, l, tapped r, glides) on the same source/cascade. render.mjs: consonants sung before the beat (up to half the previous note, spill into own note up to 30%), previous note's crossfade 15 ms before obstruents/taps; sing:'vowels' keeps the vocalise. onsets.mjs: a rule-based acoustic onset reader (closure/burst/frication/murmur/tap). eval/consonant-check.mjs: VCV 184/210 (tuning set), held-out corpus 698/934 exact (74.7%, 77.5% by class; vowel-only chance 6.7%). Consonants inside the note first scored 66.9% held out; moving them before the beat gave 74.7%. eval/vowel-check.mjs window now stops at the next syllable's consonant: 97.6% on the 920 notes with >=0.1 s of steady vowel (was 95.3% on 1,571). Checks run here: run_venture_tests chant-forge ok; eval/browser-e2e.mjs 115/115 (sung WAV equals render-cli --sing); venture-preflight (see PR). Nobody has listened to it.",
+  "corrections": [],
+  "redteam": null
+}

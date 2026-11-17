@@ -1,0 +1,68 @@
+{
+ "base_period_ns": {
+  "cordic12x16": 39.74,
+  "cordic8x16": 27.92,
+  "funnel128": 5.27,
+  "fir8x16": 4.06,
+  "fir8x12": 4.03,
+  "funnel64": 2.82
+ },
+ "n_sequences": 120,
+ "seed": 108,
+ "designs": {
+  "funnel64": [
+   "funnel_w",
+   "funnel_w",
+   {
+    "W": 64,
+    "SW": 6
+   },
+   ""
+  ],
+  "funnel128": [
+   "funnel_w",
+   "funnel_w",
+   {
+    "W": 128,
+    "SW": 7
+   },
+   ""
+  ],
+  "fir8x12": [
+   "fir_w",
+   "fir_w",
+   {
+    "N": 8,
+    "W": 12
+   },
+   ""
+  ],
+  "fir8x16": [
+   "fir_w",
+   "fir_w",
+   {
+    "N": 8,
+    "W": 16
+   },
+   ""
+  ],
+  "cordic8x16": [
+   "cordic_w",
+   "cordic_w",
+   {
+    "N": 8,
+    "W": 16
+   },
+   ""
+  ],
+  "cordic12x16": [
+   "cordic_w",
+   "cordic_w",
+   {
+    "N": 12,
+    "W": 16
+   },
+   ""
+  ]
+ }
+}

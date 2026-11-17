@@ -7,8 +7,17 @@ that lists and searches them.
 ```
 node platform/pages/build.mjs                    # build into platform/pages/dist
 node platform/pages/check.mjs                    # check that artifact (--dist=DIR for another)
+node platform/pages/served-copy.mjs <slug>      # one product as the deploy writes it, in under a second
+node platform/pages/build.mjs --only=<slug>[,<slug>] --out=DIR   # preview: those pages in full site chrome, ~30 s
 cd platform/pages && node --test "*.test.mjs"   # what CI runs
 ```
+
+`--only` is for looking at a page edit (screenshots before and after) without
+two full builds: 28 s for two ventures against 2 min 15 s for the full build
+on the same container (2026-11-17; two polish runs on 2026-11-16 saw 5 to 12
+min per full build). The hub, sitemap and search then list only those slugs,
+links to other ventures point at the repository and no share cards are drawn,
+so never deploy it or run `check.mjs` on it; it says so when it finishes.
 
 The site's experiments live in the lab (`lab/`, built by `lab.mjs`); its charter, roadmap and log are in [`LAB.md`](LAB.md).
 
@@ -278,7 +287,7 @@ node --test platform/pages/updates.test.mjs
   it, or if it names one that did not ship.
 
 - **`feed.xml`.** An Atom feed of tools as they are published, newest first,
-  capped at the 40 most recent. Every other surface here answers *what exists*;
+  capped at the 20 most recent (`FEED_MAX_ENTRIES`). Every other surface here answers *what exists*;
   this is the only one that answers *what changed*, which is the question every
   distribution channel the portfolio is allowed to use actually asks. Ad spend
   is ruled out by `portfolio/DIRECTION.md` and posting into communities
@@ -305,7 +314,11 @@ in-cluster build clones `--depth 1` (`gitops/prod/portfolio-site.yaml`), so the
 build container has one commit and no history.
 
 So the dates are derived once on a machine that has the history and committed
-to `platform/pages/launched.json`. After landing a new tool:
+to `platform/pages/launched.json`. In a shallow clone (agent sessions, CI) a
+tool whose add lies beyond the clone's horizon is dated today rather than with
+the boundary commit's date, which git would otherwise report as the add of
+every file; deepen first (`git fetch --deepen=500 origin main`) when dating
+older tools. After landing a new tool:
 
 ```
 node platform/pages/launched.mjs --write     # or without --write to preview
@@ -1515,7 +1528,7 @@ python3 -m http.server 8793 --directory dist &
 node platform/pages/journey.mjs
 
 # or against the live site, once publishing is on:
-BASE_URL=https://duncan-haywood.github.io/oss-monorepo node platform/pages/journey.mjs
+BASE_URL=https://marisstella.app node platform/pages/journey.mjs
 ```
 
 It covers the hub and its grouping, search (narrowing, the empty state, and
@@ -1665,6 +1678,26 @@ Two viewports because two of those existed at exactly one width. The overflowing
 table is a *desktop* bug — the sticky panel is narrow on a wide screen and the
 venture's own media query already handles the phone — so the 390px sweep
 `sweep.mjs` rightly uses would have found none of it.
+
+**Sticky panels are measured twice.** axe reads text inside a sticky (or
+internally scrolling) result panel against whatever sits behind the panel's
+box at that moment, usually the light page, not the panel's dark fill. On
+2026-11-14 a 1-in-25 sample reported 66 colour findings, 64 of them near-white
+panel ink "at 1.01 to 1.07:1" that a screenshot showed as legible. So when a
+page has colour findings, the check lays sticky and scrolling panels out as
+plain blocks (positions and heights only, no colours) and runs the colour rule
+again; a node counts only if it fails both times, and the run prints how many
+were dropped. Removing a real fix (StockX's comparison header, `#1857a8` on
+`#0d3d7a`, 1.5:1, also in a sticky panel) still fails, so the second pass
+hides layout noise, not ink.
+
+In a cloud session the npm registry is reachable through the proxy, so axe-core
+is one install away; keep it out of the tree:
+`npm i --no-save --prefix "$SCRATCH/axe" axe-core@4.10.2`, then
+`AXE=$SCRATCH/axe/node_modules/axe-core/axe.min.js
+PLAYWRIGHT=/opt/node-tools/node_modules/playwright/index.js`. `SAMPLE_EVERY`,
+`SKIP_PREFIXES` and slug arguments keep a run inside the tool timeout (160
+pages at four viewport/scheme runs took about 5 minutes).
 
 Not in CI: axe-core and Playwright are not dependencies of this repo, the same
 reason `journey.mjs` and `sweep.mjs` are not. The parts that can be asserted
@@ -1930,6 +1963,23 @@ it never made.
 
 Not in CI, for the same reason as the four above.
 
+### Checking nothing hugs the site band
+
+`band-gap.mjs` measures the space between the bottom of the site band and the
+first text or box below it, on every tool page that carries the band, and fails
+under 8px. The chrome zeroes each venture body's top padding so the band meets
+the top edge; on 2026-11-13 that left 120 pages with an eyebrow or `h1` 0 to 2px
+under the band or 3px into it. The build now gives a band over a padded body a
+16px margin (`bodyTopPadded` in `build.mjs`, `data-pfs-gap`); this check finds the
+next page that hugs it some other way. About 4.5 minutes for both widths here.
+
+```bash
+node platform/pages/band-gap.mjs               # 1280 and 390, MIN=8; same BASE_URL / PLAYWRIGHT / DIST env vars
+WIDTH=390 MIN=12 SLUGS=status-keeper node platform/pages/band-gap.mjs
+```
+
+Not in CI, for the same reason as the others.
+
 ### Checking no page scrolls sideways on a phone
 
 `sideways.mjs` asks the question the other five pass straight through: **is the
@@ -1959,6 +2009,15 @@ The default is 360 because that is the phone this audience carries. `WIDTH=320`
 is the width the standard names and is also clean; run it before believing a
 narrow-viewport change.
 
+The default is now `360,820` (2026-11-12). 820 is a tablet or a half-screen
+laptop window: above a page's single-column breakpoint, where its two columns
+have the least room. A `1fr` grid track never shrinks below its content's
+min-content width, even when that content is a scroll box, so a row of
+default-width inputs or a wide table pushed 5 of 8,679 pages sideways by 115 to
+477 px there while all of them passed at 360. `minmax(0,1fr)` fixes it.
+`WIDTH` takes a comma list (`WIDTH=360,820,1040`); each page is loaded once and
+resized in place for the later widths.
+
 Not in CI, for the same reason as the five above.
 
 ### Checking the floating mic on every tool page
@@ -1975,6 +2034,26 @@ not yet in `browser_checks.py` (control-plane CI, its own PR).
 
 ```
 node platform/pages/ask-voice-icon.mjs
+```
+
+### Checking a stuck result card fits the window
+
+Most calculators keep their result in a `position: sticky` card beside a long
+form. On 2026-11-11, 122 of the 193 such cards were taller than a 1280x800
+window with room to travel, so their lower part (copy buttons, the hour split,
+the notes) was out of reach while the card was stuck. `pf-site.js` now caps a
+card like that at the window's height and lets it scroll inside; the headline
+stays where it was (`sticky-fit.mjs`, pinned in a real browser by
+`sticky-fit.test.mjs`, which skips without Playwright). It is released on
+print, on a taller window, and when a recalculation shortens the card, and it
+leaves alone a card with no room to travel, so capping never moves the page.
+`sticky-fit-check.mjs` sweeps every tool page with a sticky element and exits 1
+listing any stuck card that still runs past the window. Same `BASE_URL` /
+`DIST` / `PLAYWRIGHT` variables as `sideways.mjs`, plus `HEIGHT` (default 800)
+and `ONLY_SLUGS`. Not in CI (Playwright).
+
+```
+node platform/pages/sticky-fit-check.mjs
 ```
 
 ### Lighthouse on the pages a visitor sees first
@@ -2013,6 +2092,38 @@ Two things that cost the second run time (2026-11-11):
   throttling showed first paint at about 1.45 s either way and the tool ready
   about 0.3 s *sooner* with them. They stayed. Layout shift (CLS) is measured,
   not simulated, so trust it in either mode.
+- **Pass `--pages` without a doubled slash.** `--pages=stories//` serves the
+  page, but its relative `../pf-site.css` then resolves inside `/stories/` and
+  404s, so Lighthouse scores an unstyled page (a false `target-size` failure,
+  2026-11-11).
+
+Run three, 2026-11-11: desktop (`--form=desktop`) scores 100/100/100 on
+performance, accessibility and SEO on all 16 default pages. A mobile sample of
+other page types found two classes the default list cannot see. `/ask/` had
+CLS 0.219 (the assistant panel mounting above the article), and the blog,
+compare and flat category pages skipped from `h1` to `h3`.
+`heading-order.mjs` now scans a build for heading skips. It exits 1 when a
+page the site build writes has one, and `heading-order.test.mjs` renders
+every real post through `renderPost` so CI catches a skip before it ships:
+
+```
+node platform/pages/heading-order.mjs [--dist=DIR] [--list]
+```
+
+`heading-order.mjs` strips `<script>`, so it cannot see headings a tool's
+script draws into its result. `rendered-headings.mjs` serves the build, clicks
+each tool's sample and run buttons in Chromium, and checks the headings
+actually on screen (every venture page whose script draws a heading by
+default, `--slugs=a,b` for some, `--json=FILE` for the per-page list; exit 1 on
+any skip; not in CI). On 2026-11-12 it found 281 tool pages that jumped from
+`<h2>Result</h2>` to script-drawn `<h4>` findings; all now draw `<h3>`, and
+`finding-heading.test.mjs` stops a new page drawing `.finding` `<h4>` unless it
+is on the list of pages whose findings sit under an `h3`
+(docs/reports/polish-2026-11-12-finding-headings.md):
+
+```
+node platform/pages/rendered-headings.mjs [--dist=DIR] [--slugs=a,b] [--json=FILE]
+```
 
 ## Reflow, and the two things that widen a page
 

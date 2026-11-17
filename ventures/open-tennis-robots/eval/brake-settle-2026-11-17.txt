@@ -1,0 +1,27 @@
+
+LOOP_RAMP_HOLD=False,LOOP_I_FF_MAX=None,LOOP_BALL_BAND=None: all never  0/192 | steady median 5.50 s, mean 5.91, slowest 10.97 | over 3% at gate 12 | slow wheel lowest: worst 11%, under 90% 192 | overshoot worst 31.1%
+  to 6065/ 526: never  0/48 | steady median 5.83 s, mean 6.69, slowest  9.93 | over 3% at gate  4 | slow wheel lowest: worst 11%, under 90%  48 | overshoot worst 30.8%
+  to 3500/ 510: never  0/48 | steady median 5.89 s, mean 6.88, slowest 10.97 | over 3% at gate  2 | slow wheel lowest: worst 11%, under 90%  48 | overshoot worst 31.1%
+  to 3500/ 750: never  0/48 | steady median 5.17 s, mean 5.51, slowest  7.94 | over 3% at gate  6 | slow wheel lowest: worst 26%, under 90%  48 | overshoot worst 27.9%
+  to 3500/1000: never  0/48 | steady median 4.38 s, mean 4.54, slowest  6.60 | over 3% at gate  0 | slow wheel lowest: worst 43%, under 90%  48 | overshoot worst 19.2%
+  wheel 0.2 s   : never  0/64 | steady median 4.71 s, mean 4.68, slowest  6.04 | over 3% at gate  1 | slow wheel lowest: worst 11%, under 90%  64 | overshoot worst 21.5%
+  wheel 0.4 s   : never  0/64 | steady median 5.21 s, mean 5.19, slowest  7.52 | over 3% at gate  0 | slow wheel lowest: worst 12%, under 90%  64 | overshoot worst 22.2%
+  wheel 0.8 s   : never  0/64 | steady median 8.14 s, mean 7.85, slowest 10.97 | over 3% at gate 11 | slow wheel lowest: worst 12%, under 90%  64 | overshoot worst 31.1%
+
+LOOP_I_FF_MAX=None: all never  0/192 | steady median 5.66 s, mean 5.89, slowest 10.44 | over 3% at gate  9 | slow wheel lowest: worst 20%, under 90% 124 | overshoot worst 17.5%
+  to 6065/ 526: never  0/48 | steady median 6.18 s, mean 6.87, slowest 10.33 | over 3% at gate  2 | slow wheel lowest: worst 24%, under 90%  32 | overshoot worst 17.1%
+  to 3500/ 510: never  0/48 | steady median 6.28 s, mean 6.99, slowest 10.44 | over 3% at gate  1 | slow wheel lowest: worst 20%, under 90%  32 | overshoot worst 17.5%
+  to 3500/ 750: never  0/48 | steady median 5.10 s, mean 5.36, slowest  8.46 | over 3% at gate  4 | slow wheel lowest: worst 54%, under 90%  32 | overshoot worst 13.5%
+  to 3500/1000: never  0/48 | steady median 4.26 s, mean 4.33, slowest  7.15 | over 3% at gate  2 | slow wheel lowest: worst 72%, under 90%  28 | overshoot worst  9.8%
+  wheel 0.2 s   : never  0/64 | steady median 4.99 s, mean 5.03, slowest  6.93 | over 3% at gate  3 | slow wheel lowest: worst 20%, under 90%  32 | overshoot worst 13.5%
+  wheel 0.4 s   : never  0/64 | steady median 5.11 s, mean 5.06, slowest  7.38 | over 3% at gate  0 | slow wheel lowest: worst 51%, under 90%  28 | overshoot worst 15.8%
+  wheel 0.8 s   : never  0/64 | steady median 7.52 s, mean 7.57, slowest 10.44 | over 3% at gate  6 | slow wheel lowest: worst 56%, under 90%  64 | overshoot worst 17.5%
+
+shipped: all never  0/192 | steady median 5.07 s, mean 4.97, slowest  7.85 | over 3% at gate  7 | slow wheel lowest: worst 69%, under 90% 155 | overshoot worst 10.2%
+  to 6065/ 526: never  0/48 | steady median 5.45 s, mean 5.61, slowest  7.72 | over 3% at gate  2 | slow wheel lowest: worst 70%, under 90%  48 | overshoot worst 10.2%
+  to 3500/ 510: never  0/48 | steady median 5.53 s, mean 5.69, slowest  7.85 | over 3% at gate  4 | slow wheel lowest: worst 69%, under 90%  48 | overshoot worst 10.2%
+  to 3500/ 750: never  0/48 | steady median 4.50 s, mean 4.61, slowest  6.34 | over 3% at gate  1 | slow wheel lowest: worst 75%, under 90%  37 | overshoot worst  9.4%
+  to 3500/1000: never  0/48 | steady median 3.93 s, mean 3.96, slowest  5.37 | over 3% at gate  0 | slow wheel lowest: worst 78%, under 90%  22 | overshoot worst  8.5%
+  wheel 0.2 s   : never  0/64 | steady median 4.38 s, mean 4.29, slowest  5.63 | over 3% at gate  0 | slow wheel lowest: worst 69%, under 90%  51 | overshoot worst 10.2%
+  wheel 0.4 s   : never  0/64 | steady median 5.04 s, mean 4.82, slowest  6.28 | over 3% at gate  0 | slow wheel lowest: worst 72%, under 90%  54 | overshoot worst  7.7%
+  wheel 0.8 s   : never  0/64 | steady median 5.77 s, mean 5.79, slowest  7.85 | over 3% at gate  7 | slow wheel lowest: worst 70%, under 90%  50 | overshoot worst  4.6%

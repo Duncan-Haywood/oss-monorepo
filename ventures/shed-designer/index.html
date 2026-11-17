@@ -33,7 +33,7 @@
     body { max-width: 1280px; margin: auto; padding: 26px 16px 40px; }
     header { max-width: 860px; }
     .eyebrow { color: var(--accent); font-weight: 800; letter-spacing: .12em; font-size: .75rem; margin: 0; text-transform: uppercase; }
-    h1 { font: 800 clamp(2rem, 5.2vw, 3.6rem)/1 Georgia, serif; letter-spacing: -.035em; margin: 8px 0 12px; }
+    h1 { font: 800 clamp(2rem, 5.2vw, 3rem)/1 Georgia, serif; letter-spacing: -.035em; margin: 8px 0 12px; }
     p { line-height: 1.55; }
     section, .panel { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px; box-shadow: 0 8px 24px #3328170b; }
     h2 { margin: 0 0 10px; font-size: 1.1rem; }
@@ -351,6 +351,23 @@
   </style>
 
 <style>@media (prefers-reduced-motion: reduce){*,*::before,*::after{transition:none!important;animation:none!important}}</style>
+<!-- The ready-design strip is filled by app.mjs, 641 px tall at every width (fixed-width cards); empty at first paint it pushed the editor down: CLS 0.236 at 1,280 px. Hold most of its height until the module has run (docs/reports/polish-2026-11-13-late-reveal.md). -->
+<!-- late-reveal:start --><style>@media (scripting:enabled){html:not(.pf-rows-ready) #starts .pick-list:empty{min-height:620px}}</style><script>document.addEventListener('DOMContentLoaded',()=>document.documentElement.classList.add('pf-rows-ready'))</script><!-- late-reveal:end -->
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 460px) { div.fields:has(#style) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 494px), 1fr)); } }
+    @media (min-width: 460px) { div.fields:has(#roofType) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 322px), 1fr)); } }
+    @media (min-width: 460px) { div.fields:has(#floor) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 505px), 1fr)); } }
+    @media (min-width: 460px) { div.fields:has(#northDeg) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 197px), 1fr)); } }
+    @media (min-width: 460px) { div.fields:has(#sidingType) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 582px), 1fr)); } }
+    @media (min-width: 460px) { div.fields:has(#maxHaulFt) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 264px), 1fr)); } }
+    @media (min-width: 440px) { div.fields:has(#quote-store) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 286px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
@@ -434,6 +451,7 @@
       <div class="toolrow">
         <button type="button" class="btn" id="presentation" aria-pressed="false">Presentation</button>
         <button type="button" class="btn" id="save-picture">Save picture</button>
+        <button type="button" class="btn" id="save-model" title="Every board as its own named piece, at full size in metres, for Blender, Windows 3D Viewer or any glTF viewer">3D model (.glb)</button>
         <button type="button" class="btn" id="framing-only">Framing only</button>
         <button type="button" class="btn" id="finished">Finished</button>
         <button type="button" class="btn" id="view-front">Front</button>
@@ -731,7 +749,7 @@
     <details><summary>Is the design checked for strength or against building code?</summary><p>Not by an engineer. The Structure tab runs allowable-stress (NDS) checks on the floor joists, rafters, ridge beam and posts, headers and wall studs under the snow and wind loads you set, the kind of check a span table encodes. It also checks the skids between blocks and the blocks' pressure on the soil, the rafter ties against wind uplift, the walls against racking, and that every piece bears on what is under it; the tests check that no piece floats or overlaps another. It works out whether the wind would tip the shed and what anchors would hold it, but does not check hold-downs, the anchors themselves, or your local code. Many places need a permit for a shed over a certain size; ask your building department.</p></details>
     <details><summary>Can I open the plans in CAD?</summary><p>Yes. Each sheet downloads as DXF (full size, in inches, with layers for framing, outlines, hidden lines, openings, dimensions and text) or SVG, and the whole set prints from the browser.</p></details>
     <details><summary>Is my design uploaded anywhere?</summary><p>No. Everything runs in your browser. Your designs are saved in this browser's local storage so they are there next time (you can turn that off), and a shared link carries the design inside the link itself.</p></details>
-    <p>More: <a href="shed-plans-with-cut-list.html">how much lumber an 8x12 shed takes, worked through</a>, and <a href="shed-lumber-list-by-size.html">the lumber list for 12 other sizes</a>. Related free tools: <a href="../cut-list-optimizer/">Cut List Optimizer</a> for any list of boards or sheets, <a href="../wall-framing-takeoff/">Wall Framing Takeoff</a> for a whole house, and <a href="../shed-install-bid-calculator/">Shed Install Bid Calculator</a> if you install sheds for a living.</p>
+    <p>More: <a href="shed-plans-with-cut-list.html">how much lumber an 8x12 shed takes, worked through</a>, and <a href="shed-lumber-list-by-size.html">the lumber list for 12 other sizes</a>. Related free tools: <a href="../cut-list-optimizer/">Cut List Optimizer</a> for any list of boards or sheets, <a href="../wall-framing-takeoff/">Wall Framing Takeoff</a> for a whole house, <a href="../continuous-beam-calculator/">Continuous Beam Calculator</a> for a beam over several posts, and <a href="../shed-install-bid-calculator/">Shed Install Bid Calculator</a> if you install sheds for a living.</p>
   </section>
 
   <section class="card" id="pack-card" aria-labelledby="h-pack" hidden>

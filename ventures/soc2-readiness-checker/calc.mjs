@@ -101,8 +101,12 @@ function addWeeks(iso, weeks) {
   return new Date(base + Math.round(weeks * 7) * 86400000).toISOString().slice(0, 10);
 }
 function addMonths(iso, months) {
+  // Clamp to the target month's last day: a Type I ready on 31 Aug plus 6 months is 28 Feb, not 3 March.
   const d = new Date(`${iso}T00:00:00Z`);
+  const day = d.getUTCDate();
+  d.setUTCDate(1);
   d.setUTCMonth(d.getUTCMonth() + months);
+  d.setUTCDate(Math.min(day, new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)).getUTCDate()));
   return d.toISOString().slice(0, 10);
 }
 

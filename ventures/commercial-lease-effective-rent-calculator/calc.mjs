@@ -10,8 +10,8 @@
 // at the end, so the offers are compared on present value at the tenant's own
 // discount rate and reduced to one levelized cost per square foot per year.
 
-export const money = (v) => (v == null || !Number.isFinite(v) ? "n/a" : (v < 0 ? "-" : "") + "$" + Math.round(Math.abs(v)).toLocaleString("en-US"));
-export const money2 = (v) => (v == null || !Number.isFinite(v) ? "n/a" : (v < 0 ? "-" : "") + "$" + Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+export const money = (v) => (v == null || !Number.isFinite(v) ? "n/a" : ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.round(Math.abs(v)).toLocaleString("en-US")));
+export const money2 = (v) => (v == null || !Number.isFinite(v) ? "n/a" : ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })));
 export const pct = (v) => (v == null || !Number.isFinite(v) ? "n/a" : (v * 100).toFixed(1) + "%");
 
 const num = (v, d = 0) => {

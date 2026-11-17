@@ -1,0 +1,9 @@
+T1 held: 24 of 24 new designs pass the margin test under the training law (need >= 20)
+T2 held: new vs 7r retuned at 36 ms, L2-45: 7l above 149 vs 380; 7l below 161 vs 383; aware above 63 vs 374; aware below 82 vs 376
+T3 held (4 of 4): new at 36 ms vs 7r at its own 15 ms law: 7l above 149 vs 106; 7l below 161 vs 131; aware above 63 vs 54; aware below 82 vs 64
+T4 held: aware lag36 vs 7l lag36 at 36 ms: above 63 vs 149; below 82 vs 161
+T5 held: aware mass over 7l mass: above +14.4%; below +27.5%
+T6 refuted: mean D of new designs: 7l above 0.121 m; 7l below 0.124 m; aware above 0.117 m; aware below 0.111 m (7r: 7l above 0.112; 7l below 0.115; aware above 0.106; aware below 0.107)
+T7 refuted: 21 of 24 new designs pass the margin test at 39.1 ms (need <= 12)
+T8 held: mean position kp new vs 7r: 7l above 25.26 vs 30.79; 7l below 24.59 vs 30.98; aware above 23.69 vs 26.77; aware below 21.26 vs 27.09
+check: 7r retuned under the inherited law reproduce 7r's L2-45 counts (106, 131, 54, 64): 106, 131, 54, 64

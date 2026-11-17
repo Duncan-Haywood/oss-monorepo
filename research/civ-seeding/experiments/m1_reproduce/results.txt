@@ -1,0 +1,20 @@
+# Milestone 1: reproduce Banerjee, Chandrasekhar, Duflo and Jackson (2013)
+villages 43, households 9126, ties 44367, leaders/village 26.5
+H1 non-leader take-up mean 0.1868 sd 0.0819 (paper 0.185, 0.084)
+H1 leader take-up mean 0.2471 sd 0.1264 (paper 0.248, 0.125)
+leader logit beta (const, z1..z6): -1.210(0.322) 0.007(0.085) -0.283(0.143) 0.156(0.123) 0.179(0.080) -1.023(0.392) 1.147(0.656)
+empirical moments (village means): 0.1108 0.1952 0.2114 0.0625 0.3933
+H2 seed 0: qN = 0.050, qP = 0.300, Q = 1.074e-03 (paper 0.10, 0.50)
+   restricted qN = qP: q = 0.100, Q = 2.317e-03
+H2 seed 1: qN = 0.050, qP = 0.300, Q = 1.076e-03 (paper 0.10, 0.50)
+   restricted qN = qP: q = 0.100, Q = 2.452e-03
+H2 seed 2: qN = 0.050, qP = 0.300, Q = 1.249e-03 (paper 0.10, 0.50)
+   restricted qN = qP: q = 0.100, Q = 2.607e-03
+bootstrap (B = 1000, seed 0 grid): qN mean 0.053 sd 0.013; qP mean 0.380 sd 0.231
+H3 share of draws with qP > qN: 0.984; qP - qN mean 0.327 sd 0.232
+   qN 95% bootstrap interval [0.050, 0.100]
+   qP 95% bootstrap interval [0.150, 1.000]
+H4 at our estimate (0.050, 0.300): take-up 0.1944, informed 0.778; qN = 0: take-up 0.1288, informed 0.554; drop 0.337
+   at the paper's (0.10, 0.50): take-up 0.2280, informed 0.892; qN = 0: take-up 0.1616, informed 0.664; drop 0.291 (paper: 20.2% -> 13.7%, informed 81% -> 57%, drop 0.32)
+criterion Q / Q_min at the paper's point (0.10, 0.50): 11.32
+runtime 123 s

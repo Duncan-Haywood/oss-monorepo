@@ -32,7 +32,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5268; }
     .finding { border-bottom: 1px solid #e3eaf8; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -125,14 +125,14 @@
       const o = read();
       const a = analyze(o);
       const p = a.now;
-      let h = `<div class="finding"><h4>${money(p.profit)} for the season at ${Math.round(o.visitors)} visitors a day</h4><p class="stats">${money(p.gross)} billed over ${p.days.toFixed(1)} open days (${Math.round(p.visits)} visits) − ${money(p.fees)} fees − ${money(p.variable)} crop and food cost − ${money(p.labor)} crew − ${money(p.fixed)} season costs · each visitor leaves ${money2(p.pv.net)} before crew</p></div>`;
-      h += `<div class="finding"><h4>What gets you there</h4><p>Break-even attendance: ${a.be === null ? "not reachable, visitors lose money" : Math.ceil(a.be) + " visitors per open day"}. Attendance for your goal: ${a.goal === null ? "not reachable" : Math.ceil(a.goal) + " per open day"}. Admission to break even at ${Math.round(o.visitors)} a day: ${a.beAdmission === null ? "n/a" : money2(a.beAdmission)}. Admission for your goal: ${a.goalAdmission === null ? "n/a" : money2(a.goalAdmission)}.</p></div>`;
+      let h = `<div class="finding"><h3>${money(p.profit)} for the season at ${Math.round(o.visitors)} visitors a day</h3><p class="stats">${money(p.gross)} billed over ${p.days.toFixed(1)} open days (${Math.round(p.visits)} visits) − ${money(p.fees)} fees − ${money(p.variable)} crop and food cost − ${money(p.labor)} crew − ${money(p.fixed)} season costs · each visitor leaves ${money2(p.pv.net)} before crew</p></div>`;
+      h += `<div class="finding"><h3>What gets you there</h3><p>Break-even attendance: ${a.be === null ? "not reachable, visitors lose money" : Math.ceil(a.be) + " visitors per open day"}. Attendance for your goal: ${a.goal === null ? "not reachable" : Math.ceil(a.goal) + " per open day"}. Admission to break even at ${Math.round(o.visitors)} a day: ${a.beAdmission === null ? "n/a" : money2(a.beAdmission)}. Admission for your goal: ${a.goalAdmission === null ? "n/a" : money2(a.goalAdmission)}.</p></div>`;
       const od = a.odds;
-      h += `<div class="finding"><h4><span class="pill ${od.pLoss > 0.25 ? "high" : od.pLoss > 0.1 ? "medium" : "info"}">Risk</span>${od.pLoss < 0.005 && od.pLoss > 0 ? "Under 1%" : percent(od.pLoss)} chance the season loses money</h4><p>Weather comes in streaks, so this mixes a normal season (each open day lost ${percent(o.rainoutPct)} of the time) with a wet one (${percent(o.wetChance)} chance, ${percent(o.wetLossPct)} of days lost). Expected season profit ${money(od.expected)}; a good season (90th percentile) ${money(od.p90)}, a typical one ${money(od.p50)}, a bad one (10th percentile) ${money(od.p10)}.</p></div>`;
-      for (const f of a.findings) h += `<div class="finding"><h4><span class="pill ${f.level}">${LABEL[f.level]}</span>${esc(f.title)}</h4><p>${esc(f.text)}</p></div>`;
-      h += `<div class="finding"><h4>Season profit if the weather takes more days</h4><div class="scroll"><table><thead><tr><th>Days lost</th><th class="n">Season profit</th></tr></thead><tbody>${a.risk.map((r) => `<tr><td>${percent(r.share)}</td><td class="n">${money(r.profit)}</td></tr>`).join("")}</tbody></table></div></div>`;
+      h += `<div class="finding"><h3><span class="pill ${od.pLoss > 0.25 ? "high" : od.pLoss > 0.1 ? "medium" : "info"}">Risk</span>${od.pLoss < 0.005 && od.pLoss > 0 ? "Under 1%" : percent(od.pLoss)} chance the season loses money</h3><p>Weather comes in streaks, so this mixes a normal season (each open day lost ${percent(o.rainoutPct)} of the time) with a wet one (${percent(o.wetChance)} chance, ${percent(o.wetLossPct)} of days lost). Expected season profit ${money(od.expected)}; a good season (90th percentile) ${money(od.p90)}, a typical one ${money(od.p50)}, a bad one (10th percentile) ${money(od.p10)}.</p></div>`;
+      for (const f of a.findings) h += `<div class="finding"><h3><span class="pill ${f.level}">${LABEL[f.level]}</span>${esc(f.title)}</h3><p>${esc(f.text)}</p></div>`;
+      h += `<div class="finding"><h3>Season profit if the weather takes more days</h3><div class="scroll"><table><thead><tr><th>Days lost</th><th class="n">Season profit</th></tr></thead><tbody>${a.risk.map((r) => `<tr><td>${percent(r.share)}</td><td class="n">${money(r.profit)}</td></tr>`).join("")}</tbody></table></div></div>`;
       const s = sensitivity(o);
-      h += `<div class="finding"><h4>Season profit by daily visitors and admission</h4><div class="scroll"><table><thead><tr><th>Visitors/day</th>${s.admissions.map((r) => `<th class="n">${money2(r)}</th>`).join("")}</tr></thead><tbody>${s.rows.map((r) => `<tr><td>${r.visitors}</td>${r.cells.map((c) => `<td class="n">${money(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div></div>`;
+      h += `<div class="finding"><h3>Season profit by daily visitors and admission</h3><div class="scroll"><table><thead><tr><th>Visitors/day</th>${s.admissions.map((r) => `<th class="n">${money2(r)}</th>`).join("")}</tr></thead><tbody>${s.rows.map((r) => `<tr><td>${r.visitors}</td>${r.cells.map((c) => `<td class="n">${money(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div></div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       record("plan_run");

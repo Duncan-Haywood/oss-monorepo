@@ -38,7 +38,7 @@ export function idempotencyKey(route, headers, bodyText) {
   if (id) return `${route}:${id}`;
   try {
     const j = JSON.parse(bodyText);
-    if (j && typeof j.id === "string" && typeof j.type === "string") return `${route}:${j.id}`; // Stripe-shaped
+    if (j && typeof j.id === "string" && j.id.trim() && typeof j.type === "string") return `${route}:${j.id}`; // Stripe-shaped
   } catch { /* not JSON */ }
   return null;
 }

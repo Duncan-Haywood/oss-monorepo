@@ -47,6 +47,7 @@ import { procurement, procurementText, procurementCsv } from "./procurement.mjs"
 import { schedule, scheduleText, scheduleCsv, resolveRates, templateSchedule } from "./schedule.mjs";
 import { planFromDxf } from "./dxf.mjs";
 import { stackFloors } from "./stackfloors.mjs";
+import { pathToFileURL } from "node:url";
 
 /** `--wall-layer=RE`, `--door-layer=RE`, `--window-layer=RE`: layer-name patterns (case-insensitive) for drawings whose layers are not named like "wall". */
 function layerOptions(argv) {
@@ -679,7 +680,7 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
   return { code: scheduleRefused ? 1 : 0, out: dxfNotes + lines.join("\n") };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { code, out, bytes } = main(process.argv.slice(2));
   if (bytes) process.stdout.write(bytes);
   else if (code && process.argv.includes("--json") && !/^\s*[\[{]/.test(out)) {

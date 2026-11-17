@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtK8nM4a26A1fmT9b4V",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T10:06:57Z",
+  "ended": "2026-11-12T10:30:29Z",
+  "wall_minutes": 24.22,
+  "tokens_in": 8393256,
+  "tokens_out": 41243,
+  "cost_usd": 3.4887,
+  "tool_calls": 88,
+  "task": "perf: slowest untouched venture suite (shift-roster-builder)",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15093",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "First timing loop used /usr/bin/time, which this container lacks; every file logged FAIL until rerun with date stamps.",
+    "My first hypothesis (stop coverPass at a floor) gave no gain on the sample week because the walk ends at 19 h, above the 15 h floor; the profile's line ticks then found the per-step Math.pow."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both perf backlog items (P063, P064) are owner-gated again; the prompt's fallback to items 2-4 worked, and docs/reports/venture-suite-times-2026-11-11.md made item 3 a two-minute choice."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Foreground sleep is blocked by a hook and Monitor needs a ToolSearch load first; waiting on a long background loop took three attempts."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Default asks product PRs to refresh llms.txt and a marketing page; this is a pure speed-up with identical output, so neither changes.",
+      "did": "Left llms.txt and pages untouched.",
+      "result": "No user-visible text needed updating."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-a-search-that-did-not-know-when-to-stop.md",
+    "docs/history/ci-perf-2026-11-12-shift-roster-plateau-floor.md"
+  ],
+  "goal": "Faster venture suite and faster builds for users, with identical answers",
+  "notes": "Metric: shift-roster-builder solver and suite time. Before/after, same method each (4-core cloud container, Node v22.23.4): buildRoster on the cafe sample 1.40-1.57 s -> 0.96-1.09 s (5 runs in one process); eval/same-answers.mjs on 83 weeks 67.7 s -> 19.3 s total solver time with 83/83 byte-identical results (41.2 s with only the loop fixes, so the max-flow floor exit is the other half); suite run file by file with `node --test <file>` and wall clock summed 388 s -> 250 s (calc.test 144->99, cli.test 70->46, page-callout 42->27). All 31 test files pass; open-floor.test.mjs checks the floor never exceeds brute-force least open hours on 60 small weeks (exact on 16 of 52). PR #15085 (another session, same venture) edits exactOn and EXACT_AUTO_SLOTS, not coverPass/anneal/ejectPass; no overlapping hunks.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b513105f-ac01-52ee-bafe-12bfd22759db",
+    "transcripts": 1,
+    "first": "2026-11-12T10:06:57Z",
+    "last": "2026-11-12T10:31:10Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 84,
+        "input": 161,
+        "output": 41243,
+        "thinking": 10823,
+        "cache_read": 8266865,
+        "cache_write_5m": 0,
+        "cache_write_1h": 126230,
+        "api_equivalent_usd": 3.4887,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 84,
+      "input": 161,
+      "output": 41243,
+      "thinking": 10823,
+      "cache_read": 8266865,
+      "cache_write_5m": 0,
+      "cache_write_1h": 126230,
+      "api_equivalent_usd": 3.4887,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 88,
+    "tools": {
+      "Bash": 80,
+      "Write": 3,
+      "Monitor": 2,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 24.22,
+      "active_minutes": 24.22,
+      "model_minutes": 8.9,
+      "tool_minutes": 15.32,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "profile, max-flow bound with brute-force test, equivalence harness and write-up for a senior engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 172.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKijEqRqYBq29sVyZ76",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T23:09:36Z",
+  "ended": "2026-11-15T23:30:47Z",
+  "wall_minutes": 21.55,
+  "tokens_in": 12210936,
+  "tokens_out": 43949,
+  "cost_usd": 4.3902,
+  "tool_calls": 90,
+  "task": "changepoint-detector (flagship row 2): steep-bend clumpy-count cell; found the cause in negbinSize and fixed it",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16374",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "Round 1 (median estimator) failed its pre-registered Poisson bar (68/100 instead of 90); replaced by a capped-mean round 2 on fresh seeds.",
+    "First post description was 161 characters; venture-preflight caught it."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "next: was at 1989 of 2000 characters, so even a shorter replacement for the landed item failed twice in flagship_field.py before a 60-character one fit; the cap makes recording what landed awkward."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Monitor and the background-wait pattern cost a few round trips: a foreground sleep is blocked and Monitor's schema must be loaded with ToolSearch first; not documented in cloud-session.md."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "eval/nb-size-local-preregistration.md",
+      "why": "Round 1 failed bar 2; rather than stop, a second estimator was tuned on the round-1 seeds and pre-registered on fresh ones, as earlier rounds in this venture did.",
+      "did": "round 2 with new seeds written down before running",
+      "result": "all five bars held on fresh seeds"
+    },
+    {
+      "file": "engine.mjs",
+      "why": "A temporary CPD_NB_OLD env switch was used to measure the old estimator on the same seeds, then removed before merge; the engine also runs in the browser.",
+      "did": "old numbers recorded in eval/*.out.txt; negbinSizeGlobal kept exported",
+      "result": "comparison reproducible from the parent commit"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-changepoint-clumpy-counts-that-grow.md",
+    "ventures/changepoint-detector/README.md (Clumpy counts that grow)",
+    "ventures/changepoint-detector/eval/nb-size-local-preregistration.md"
+  ],
+  "goal": "Deepen a flagship: fix a real estimation bug behind an open item",
+  "notes": "negbinSize read clumping against the global mean, so on growing counts it returned Infinity and --overdispersion nb fell back to Poisson. The new local-level capped-mean estimator: steep bends located 280/500 (was 81/500), range covers 278/280 (was 72%), false bends on straight growth 0/100 (was 11/100), Poisson still Poisson 99/100. 8 pinned real-series tests moved to fewer changes; no documented date lost (Ansett stop/restart, seat-belt law still found). Verification: run_venture_tests.py changepoint-detector ok (749 tests, 222.8 s); venture-preflight clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "895a672b-590f-519f-8fa6-d2944e97d0f8",
+    "transcripts": 1,
+    "first": "2026-11-15T23:09:36Z",
+    "last": "2026-11-15T23:31:09Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 97,
+        "input": 206,
+        "output": 43949,
+        "thinking": 11344,
+        "cache_read": 12073772,
+        "cache_write_5m": 0,
+        "cache_write_1h": 136958,
+        "api_equivalent_usd": 4.3902,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 97,
+      "input": 206,
+      "output": 43949,
+      "thinking": 11344,
+      "cache_read": 12073772,
+      "cache_write_5m": 0,
+      "cache_write_1h": 136958,
+      "api_equivalent_usd": 4.3902,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.989,
+    "tool_calls": 90,
+    "tools": {
+      "Bash": 85,
+      "ToolSearch": 2,
+      "Monitor": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.55,
+      "active_minutes": 15.34,
+      "model_minutes": 8.83,
+      "tool_minutes": 6.51,
+      "waiting_on_human_minutes": 6.22,
+      "human_prompts": 10,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "diagnosing the estimator bug, two pre-registered rounds of simulation, updating 8 pinned tests, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 227.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -8,6 +8,7 @@ ESC for BLDC,2,"24 V, 50 A+, servo-pulse input",35,
 Launcher wheel,2,"150 mm, polyurethane tread",20,
 IR reflective sensor,2,TCRT5000 module or similar,2,tachometers
 High-torque servo or linear actuator,1,elevation,30,
+Ceramic capacitor,1,"1 uF X7R, 10 V or more",0.2,"elevation pot wiper (GPIO 39) to GND at the ESP32: the actuator's PWM in the same lead (cad/README.md, ""The pot's pickup"")"
 Servo,2,standard metal gear,15,azimuth + feed gate
 DC gearmotor with encoder,2,"24 V, ~200 rpm",35,base drive
 Dual H-bridge driver,1,"Cytron MDD10A or similar, 10 A/ch",30,
@@ -18,9 +19,15 @@ Knotless netting,1,"25-35 mm mesh, ~3.5 x 3 m",40,
 Hopper + chute,1,"PETG sheet or cut tub, 70 mm tube",30,
 LiFePO4 battery,1,"24 V (8S) 20 Ah with BMS",220,
 Charger,1,29.2 V LiFePO4,40,
-E-stop switch + contactor,1,NC mushroom + 24 V contactor,30,
+E-stop switch + contactor,1,"NC mushroom + 24 V coil contactor, 30 A DC or more",30,
 Wireless e-stop relay remote,1,latching,25,
 5 V 5 A buck converter,1,for the Pi,12,
 6-7.4 V BEC,1,for servos,10,
-Fuse holder + fuses,1,30 A,10,
+Main fuse + inline holder,1,30 A (ATO blade or MIDI),10,battery positive within 150 mm of the terminal
+Blade fuse block + fuses,1,"8-way with negative bus; 15 A x2, 7.5 A, 3 A, 2 A x2, 1 A x2",15,branch fuses (hardware/electronics.md)
+Inline ATO fuse holder,1,for the Pi's 2 A fuse,3,before the contactor
+Precharge resistor,1,"4.7 ohm, aluminium-housed 50 W class",8,charges the ESC capacitors before the contactor closes (hardware/electronics.md)
+Regen return diode,1,"Schottky, 45 V 20 A or more (TO-220 class)",3,"across the contactor and precharge relay, anode on the switched bus: braking current returns to the pack with the contactor open (hardware/electronics.md)"
+Precharge relay,1,"24 V coil, 10 A contacts",5,switches the resistor; coil through the e-stop
+On-delay timer relay module,1,"24 V, set 0.5 s",8,closes the contactor coil after the precharge
 Wiring + connectors + fasteners,1,,50,

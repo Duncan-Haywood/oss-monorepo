@@ -1,6 +1,19 @@
 // A browser-level opt-out is an opt-out. Chrome and Firefox send Do Not Track,
 // and Global Privacy Control is treated as a valid opt-out signal under CCPA
 // and several state privacy laws, so honour both before counting anything.
+// Reading the `localStorage` global throws SecurityError when the visitor
+// blocks site data (Chrome's "block all cookies", Safari with cookies
+// blocked), and a default parameter is evaluated before any try in the body.
+// So the defaults below, and the page's calls, go through this instead of
+// naming the global: a blocked store reads as "no storage", never a crash.
+export function usageStorage() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+
 function honorsBrowserSignal() {
   try {
     return globalThis.navigator?.doNotTrack === '1' || globalThis.navigator?.globalPrivacyControl === true;
@@ -9,17 +22,21 @@ function honorsBrowserSignal() {
   }
 }
 
-export function recordUsage(storage = globalThis.localStorage, optOut = false, event = 'report_generated') {
-  // The visitor's stored choice, consulted before anything else: the
-  // caller passes its own idea of it, and on most pages here that came
-  // from a control that had forgotten.
-  if (readOptOut(storage)) return;
-  if (optOut || !storage || honorsBrowserSignal()) return;
-  const key = 'ada-title-ii-evidence-usage';
-  let current = {};
-  try { current = JSON.parse(storage.getItem(key) || '{}'); } catch { current = {}; }
-  current[event] = Number(current[event] || 0) + 1;
-  storage.setItem(key, JSON.stringify(current));
+export function recordUsage(storage = usageStorage(), optOut = false, event = 'report_generated') {
+  try {
+    // The visitor's stored choice, consulted before anything else: the
+    // caller passes its own idea of it, and on most pages here that came
+    // from a control that had forgotten.
+    if (readOptOut(storage)) return;
+    if (optOut || !storage || honorsBrowserSignal()) return;
+    const key = 'ada-title-ii-evidence-usage';
+    let current = {};
+    try { current = JSON.parse(storage.getItem(key) || '{}'); } catch { current = {}; }
+    current[event] = Number(current[event] || 0) + 1;
+    storage.setItem(key, JSON.stringify(current));
+  } catch {
+    // A full or blocked store, or a corrupt counter, must never break the page.
+  }
 }
 
 // The opt-out choice is kept in its own key, not in the counters:
@@ -27,7 +44,7 @@ export function recordUsage(storage = globalThis.localStorage, optOut = false, e
 // be deleted by the very act it records. The recorder above consults it
 // directly, so the promise does not depend on a caller remembering to
 // pass the choice in.
-export function readOptOut(storage = globalThis.localStorage) {
+export function readOptOut(storage = usageStorage()) {
   try {
     return storage?.getItem('ada-title-ii-evidence-usage-opt-out') === '1';
   } catch {
@@ -36,7 +53,7 @@ export function readOptOut(storage = globalThis.localStorage) {
   }
 }
 
-export function writeOptOut(storage = globalThis.localStorage, optedOut = false) {
+export function writeOptOut(storage = usageStorage(), optedOut = false) {
   if (!storage) return;
   // Independent writes, counters first: sharing one try means a setItem
   // that throws on a full quota skips the delete entirely, and the

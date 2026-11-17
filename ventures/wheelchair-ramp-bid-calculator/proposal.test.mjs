@@ -480,3 +480,35 @@ test('a price too large to split into deposit and balance is refused', () => {
   assert.throws(() => buildProposal({ companyName: 'A Co', clientName: 'B', price: 1e308, depositPercent: 30 }), /Price must be at most/);
   assert.equal(buildProposal({ companyName: 'A Co', clientName: 'B', price: 1e9 }).pricing.price, 1e9);
 });
+
+test('deposit and balance add up to the printed total when the calculated price has sub-cent digits', () => {
+  // Before: a calculator's price of 32.855 printed a $32.85 total over a
+  // $10.19 deposit and a $22.67 balance, which add to $32.86: the cent the
+  // rounding comment above buildProposal says it prevents.
+  const base = { companyName: 'A Co', clientName: 'B', issuedOn: '2026-01-01' };
+  const cents = (figure) => Math.round(Number(figure.replace(/[$,]/g, '')) * 100);
+  for (const [price, depositPercent] of [[32.855, 31], [788.685, 7], [498.525, 74], [1234.5678, 33.3]]) {
+    const { pricing } = buildProposal({ ...base, price, depositPercent });
+    assert.equal(
+      cents(money(pricing.depositAmount)) + cents(money(pricing.balanceAmount)),
+      cents(money(pricing.price)),
+      `${price} at ${depositPercent}%`,
+    );
+    assert.equal(pricing.price, Math.round(price * 100) / 100);
+  }
+});
+
+test('a price that rounds to $0.00 is refused like a zero price', () => {
+  // Before: 0.004 passed the "price a job" check and printed a $0.00 proposal.
+  const base = { companyName: 'A Co', clientName: 'B' };
+  assert.throws(() => buildProposal({ ...base, price: 0.004 }), /Price a job/);
+  assert.equal(buildProposal({ ...base, price: 0.005 }).pricing.price, 0.01);
+});
+
+test('valid days must be a whole number', () => {
+  // Before: 0.5 printed "held until <the issue date> (0.5 days from issue)".
+  const base = { companyName: 'A Co', clientName: 'B', price: 100, issuedOn: '2026-01-01' };
+  assert.throws(() => buildProposal({ ...base, validDays: 0.5 }), /whole number/);
+  assert.throws(() => buildProposal({ ...base, validDays: 29.9 }), /whole number/);
+  assert.equal(buildProposal({ ...base, validDays: 30 }).validUntil, '2026-01-31');
+});

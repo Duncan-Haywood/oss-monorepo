@@ -1,0 +1,124 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtLGu3GXMJaHR6hrbQj",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T02:06:53Z",
+  "ended": "2026-11-17T02:14:05Z",
+  "wall_minutes": 7.33,
+  "tokens_in": 3373328,
+  "tokens_out": 23369,
+  "cost_usd": 1.9381,
+  "tool_calls": 37,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16779",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/verified-dse/paper/build.sh",
+      "issue": "PAPER.md edits need a manual paper/build.sh rerun to keep main.tex in sync; nothing in the research checklist says so, found by reading the paper/ directory."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-verified-dse-losses-near-theta.md",
+    "research/verified-dse/LOG.md (milestone 139)"
+  ],
+  "goal": null,
+  "notes": "verified-dse milestone 139: pre-registered replay (predictions in commit 35928f4b7 before the table) of milestone 138's post-hoc reading on 99 earlier ladder-branch cells. Clock effect refuted (paired 19 vs 23, p=0.64); low-ratio effect held (AUC 0.67, p=0.006); guard SWCT(4) 4.01% vs SWC 4.21%, interval -1.25 to +0.78, so theta=3 stays. Local checks: tests/test_tight_theta.py 4 passed; research/_homepage/build.py ok; check_md_links ok; post front matter, links and similarity clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e1a4a5c1-787c-561d-a59e-a7bd01849685",
+    "transcripts": 1,
+    "first": "2026-11-17T02:06:53Z",
+    "last": "2026-11-17T02:14:13Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 65,
+        "output": 23369,
+        "thinking": 5229,
+        "cache_read": 3271239,
+        "cache_write_5m": 0,
+        "cache_write_1h": 102024,
+        "api_equivalent_usd": 1.9381,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 65,
+      "output": 23369,
+      "thinking": 5229,
+      "cache_read": 3271239,
+      "cache_write_5m": 0,
+      "cache_write_1h": 102024,
+      "api_equivalent_usd": 1.9381,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.97,
+    "tool_calls": 37,
+    "tools": {
+      "Bash": 33,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.33,
+      "active_minutes": 7.33,
+      "model_minutes": 4.8,
+      "tool_minutes": 2.52,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "designing a pre-registered replay test, writing the analysis and tests, and the log, paper and post updates",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 309.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

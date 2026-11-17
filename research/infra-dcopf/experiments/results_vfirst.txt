@@ -1,0 +1,44 @@
+Raise the voltages first (research/grid-linopf; plan in LOG.md 2026-11-14). V: reactive stage (V, Q
+with P pinned) at each stall, then continue the DC dispatch in load at its setpoints. W: the AC OPF's
+voltage schedule at reduced load (mu*, else mu*/2), then the DC dispatch's continuation from mu = 0.
+
+Arm V stages: mu -> mu reached [sigma_min, lowest V at the stall before; mean/max |dV| of V_k vs file]
+case300_ieee/typ (mu* 0.8547): 0.8547 [sig 2.44e-03, Vmin 0.718, rs 2s] reactive stage has no solution
+case1888_rte/typ (mu* 0.7984): 0.7984 [sig 1.17e-04, Vmin 0.777, rs 8s] reactive stage has no solution
+case1888_rte/api (mu* 0.4750): 0.4750 [sig 1.90e-04, Vmin 0.787, rs 7s] reactive stage has no solution
+case1888_rte/sad (mu* 0.7984): 0.7984 [sig 1.76e-04, Vmin 0.784, rs 31s] reactive stage has no solution
+case1951_rte/typ (mu* 0.5719): 0.5719 [sig 1.42e-04, Vmin 0.777, rs 7s] reactive stage has no solution
+case1951_rte/sad (mu* 0.5719): 0.5719 [sig 1.42e-04, Vmin 0.777, rs 7s] reactive stage has no solution
+
+case           kind arm  mu_end clean  +R  final: nOv maxLd% slkMW nAng V Q       cost  +R cost
+case300_ieee   typ  V    0.8547     -   -  -                                         -        -
+case300_ieee   typ  W    0.8922     -   -  -                                         -        -
+case1888_rte   typ  V    0.7984     -   -  -                                         -        -
+case1888_rte   typ  W         -     -   -  -                                         -        -
+case1888_rte   api  V    0.4750     -   -  -                                         -        -
+case1888_rte   api  W         -     -   -  -                                         -        -
+case1888_rte   sad  V    0.7984     -   -  -                                         -        -
+case1888_rte   sad  W         -     -   -  -                                         -        -
+case1951_rte   typ  V    0.5719     -   -  -                                         -        -
+case1951_rte   typ  W         -     -   -  -                                         -        -
+case1951_rte   sad  V    0.5719     -   -  -                                         -        -
+case1951_rte   sad  W         -     -   -  -                                         -        -
+
+Arm W: reduced-load AC OPF
+case300_ieee/typ: AC OPF at mu 0.8547 (frac 1.0), dV 0.038/0.060, mean V 1.028; mu*_W 0.8922 vs mu* 0.8547 [sig 3.20e-03, Vmin 0.745]
+case1888_rte/typ: no reduced-load AC optimum
+case1888_rte/api: no reduced-load AC optimum
+case1888_rte/sad: no reduced-load AC optimum
+case1951_rte/typ: no reduced-load AC optimum
+case1951_rte/sad: no reduced-load AC optimum
+
+Scored cases: 6 of 6
+V1 stage-1 reactive stage solves on >= 4: 0/6 -> REFUTED
+V2 not testable
+V3 V reaches mu = 1 on >= 3: 0/6 -> REFUTED
+V4 V or V+R fully clean on >= 2: 0/6 -> REFUTED
+V5 not testable (no clean point)
+W1 reduced-load AC OPF solves on >= 4: 1/6 -> REFUTED
+W2 mu*_W > mu* on every case with a schedule: 1/1 -> HELD
+W3 W reaches mu = 1 on >= 2: 0/6 -> REFUTED
+Wall time (s): case300_ieee/typ 10, case1888_rte/typ 60, case1888_rte/api 55, case1888_rte/sad 83, case1951_rte/typ 27, case1951_rte/sad 28

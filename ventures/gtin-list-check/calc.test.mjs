@@ -179,3 +179,18 @@ test("a GTIN-14 case code is linked to the item code it wraps when both are list
   const alone = validate(`sku,gtin\nB,${pack}\n`);
   assert.ok(!alone.findings.some((x) => x.title === "Case-pack code of another row"));
 });
+
+test("scientific notation with lost digits is never 'confirmed', even when the zero-filled guess passes the check digit (quality audit 2026-11-12)", () => {
+  assert.ok(checkDigitOk("100090000000"));
+  assert.equal(classify("1.0009E+11").kind, "sci-lost");
+  assert.equal(repair("gtin\n1.0009E+11\n").text?.includes("100090000000") ?? false, false);
+});
+
+test("restricted-prefix rules read a GTIN-14's item body, not its indicator digit (quality audit 2026-11-12)", () => {
+  const titles = (code) => validate(`gtin\n${code}\n`).findings.map((f) => f.title);
+  assert.ok(!titles("04006381333931").some((t) => t.startsWith("Restricted prefix")));
+  assert.ok(!titles("05000159484695").some((t) => t.startsWith("Restricted prefix")));
+  const inStoreCase = "1" + "2001234567890".slice(0, 12);
+  const full = inStoreCase + computeCheck(inStoreCase);
+  assert.ok(titles(full).some((t) => t.startsWith("Restricted prefix 2")), full);
+});

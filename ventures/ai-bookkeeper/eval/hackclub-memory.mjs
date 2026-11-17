@@ -15,6 +15,7 @@
 import { readFileSync } from "node:fs";
 import { suggest, trainClassifier, buildMemory, historyRecord } from "../categorize.mjs";
 import { MAP, INCOME } from "./hackclub-ledger.mjs";
+import { pathToFileURL } from "node:url";
 
 export function parseDated(text) {
   const rows = [];
@@ -66,7 +67,7 @@ export function run(rows, { seedShare = null, learn = true } = {}) {
   return { total, buckets, conf };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const arg = (k, d) => { const i = process.argv.indexOf(k); return i === -1 ? d : +process.argv[i + 1]; };
   const file = process.argv[2] && !process.argv[2].startsWith("--") ? process.argv[2] : "/tmp/hc/main.ledger";
   const rows = parseDated(readFileSync(file, "utf8"));

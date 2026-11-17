@@ -1,0 +1,398 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtL2aKmHNKRYxagRKGV",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T23:06:27Z",
+  "ended": "2026-11-14T23:08:22Z",
+  "wall_minutes": 7.98,
+  "tokens_in": 3773599,
+  "tokens_out": 19921,
+  "cost_usd": 1.8124,
+  "tool_calls": 46,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16014",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "run_workflow_locally flagged my new post's description (191 chars) and seo_title (78) as over limit; shortened, check_post_frontmatter clean",
+    "committed the run record while platform/pages tests were building, which made the two-build determinism test differ; rerun clean"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 open list held 12 entries, all control-plane (workflow wiring or prompts/redteam.py) awaiting owner approval; nothing a run on a non-owned branch can patch, so step 0 cost a read and changed nothing. Grouping control-plane-only entries separately in `redteam.py open` would save that."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 says fix open entries first; every one is control plane needing owner approval, several already have PRs waiting.",
+      "did": "Left them open and went to seeding.",
+      "result": "Found and patched 3 new defects instead."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-redteam-thirty-february-third-spelling.md"
+  ],
+  "goal": null,
+  "notes": "Targets: restaurant-delivery-commission-analyzer/calc.mjs and oncall-load-analyzer/calc.mjs (both changed on main in the last 3 days; suites ~1 s). Guard tightened: check_calendar_dates.py one-sided '|| d > 31' spelling; on the pre-fix tree it flagged oncall calc.mjs:47 and mailchimp calc.mjs:206; sales-agent slots.mjs 'b > 12 && b <= 31' left unflagged since slots.mjs round-trips at line 82 (verified: findSlots('2/30 at 3pm') returns []). Verification: run_venture_tests.py for the 3 ventures ok; python3 -m unittest test_check_calendar_dates 13 OK; check_calendar_dates clean; check_post_frontmatter clean; distribution hub and after the front matter fix: platform/distribution hub tests 62/62; platform/pages full suite 1662 pass 1 fail ('identical build produces an identical cache name', because I wrote and committed this record mid-run and the two builds read prompts/runs/); build.test.mjs rerun on a still tree 313/313. GitHub checks were queued (runners starved) at merge time.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+        "test": "node --test ventures/restaurant-delivery-commission-analyzer/**/*.test.mjs  (in .)",
+        "seed": 97279504,
+        "commit": "017cbb635",
+        "sites": 590,
+        "baseline_seconds": 1.2,
+        "mutants": [
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 120,
+            "col": 39,
+            "operator": "const-plus-one",
+            "before": "const tm = rest.match(/(\\d{1,2}):(\\d{2})(?::\\d{2})?\\s*([ap]\\.?m\\.?)?/i);",
+            "after": "const tm = rest.match(/(\\d{1,2}):(\\d{3})(?::\\d{2})?\\s*([ap]\\.?m\\.?)?/i);",
+            "line_text": "  const tm = rest.match(/(\\d{1,2}):(\\d{2})(?::\\d{2})?\\s*([ap]\\.?m\\.?)?/i);",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 122,
+            "col": 13,
+            "operator": "const-plus-one",
+            "before": "hh = +tm[1]; mm = +tm[2]; hasTime = true;",
+            "after": "hh = +tm[2]; mm = +tm[2]; hasTime = true;",
+            "line_text": "    hh = +tm[1]; mm = +tm[2]; hasTime = true;",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 244,
+            "col": 23,
+            "operator": "const-plus-one",
+            "before": "let neg = 0, pos = 0;",
+            "after": "let neg = 0, pos = 1;",
+            "line_text": "    let neg = 0, pos = 0;",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 278,
+            "col": 103,
+            "operator": "const-plus-one",
+            "before": "return { key, label, orders: 0, records: 0, gross: 0, commission: 0, delivery: 0, marketing: 0, ads: 0, errors: 0, charges: 0, net: 0, foodCost: 0, packaging: 0, netAfter: 0, payout: 0, payoutRows: 0, base: 0 };",
+            "after": "return { key, label, orders: 0, records: 0, gross: 0, commission: 0, delivery: 0, marketing: 0, ads: 1, errors: 0, charges: 0, net: 0, foodCost: 0, packaging: 0, netAfter: 0, payout: 0, payoutRows: 0, base: 0 };",
+            "line_text": "  return { key, label, orders: 0, records: 0, gross: 0, commission: 0, delivery: 0, marketing: 0, ads: 0, errors: 0, charges: 0, net: 0, foodCost: 0, packaging: 0, netAfter: 0, payout: 0, payoutRows: 0, base: 0 };",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 354,
+            "col": 59,
+            "operator": "or-to-and",
+            "before": "add(get(plats, x.platform, PLATFORM_LABELS[x.platform] || x.platform), r);",
+            "after": "add(get(plats, x.platform, PLATFORM_LABELS[x.platform] && x.platform), r);",
+            "line_text": "    add(get(plats, x.platform, PLATFORM_LABELS[x.platform] || x.platform), r);",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 393,
+            "col": 61,
+            "operator": "const-plus-one",
+            "before": "const plain = live.filter((r) => r.marketing + r.ads === 0);",
+            "after": "const plain = live.filter((r) => r.marketing + r.ads === 1);",
+            "line_text": "    const plain = live.filter((r) => r.marketing + r.ads === 0);",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 459,
+            "col": 46,
+            "operator": "ge-to-gt",
+            "before": "const wd = byWeekday.filter((d) => d.orders >= MIN_ORDERS).sort((a, b) => b.netAfterPerOrder - a.netAfterPerOrder);",
+            "after": "const wd = byWeekday.filter((d) => d.orders > MIN_ORDERS).sort((a, b) => b.netAfterPerOrder - a.netAfterPerOrder);",
+            "line_text": "  const wd = byWeekday.filter((d) => d.orders >= MIN_ORDERS).sort((a, b) => b.netAfterPerOrder - a.netAfterPerOrder);",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "exactly MIN_ORDERS orders per weekday was untested (existing test used 6)"
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 516,
+            "col": 97,
+            "operator": "const-plus-one",
+            "before": "lines.push([`${p.name.slice(0, 2).toUpperCase()}${id++}`, p.name, d.toISOString().slice(0, 16).replace(\"T\", \" \"), cancelled ? \"Cancelled\" : \"Delivered\", f(gross), f(-commission), f(-delivery), f(-marketing), f(-ads), f(-errors), f(net)].join(\",\"));",
+            "after": "lines.push([`${p.name.slice(0, 2).toUpperCase()}${id++}`, p.name, d.toISOString().slice(0, 17).replace(\"T\", \" \"), cancelled ? \"Cancelled\" : \"Delivered\", f(gross), f(-commission), f(-delivery), f(-marketing), f(-ads), f(-errors), f(net)].join(\",\"));",
+            "line_text": "      lines.push([`${p.name.slice(0, 2).toUpperCase()}${id++}`, p.name, d.toISOString().slice(0, 16).replace(\"T\", \" \"), cancelled ? \"Cancelled\" : \"Delivered\", f(gross), f(-commission), f(-delivery), f(-marketing), f(-ads), f(-errors), f(net)].join(\",\"));",
+            "caught": false,
+            "seconds": 1.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "sample CSV dates gained a trailing ':'; no test checked the example's date shape"
+          }
+        ]
+      },
+      {
+        "target": "ventures/oncall-load-analyzer/calc.mjs",
+        "test": "node --test ventures/oncall-load-analyzer/**/*.test.mjs  (in .)",
+        "seed": 134227604,
+        "commit": "017cbb635",
+        "sites": 377,
+        "baseline_seconds": 1.2,
+        "mutants": [
+          {
+            "file": "ventures/oncall-load-analyzer/calc.mjs",
+            "line": 72,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "const rt = idx.resolved >= 0 ? parseTime(r[idx.resolved]) : null;",
+            "after": "const rt = idx.resolved >= 1 ? parseTime(r[idx.resolved]) : null;",
+            "line_text": "    const rt = idx.resolved >= 0 ? parseTime(r[idx.resolved]) : null;",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "resolved column at header index 0 was never tested"
+          },
+          {
+            "file": "ventures/oncall-load-analyzer/calc.mjs",
+            "line": 98,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "tzOffsetHours: 0,",
+            "after": "tzOffsetHours: 1,",
+            "line_text": "  tzOffsetHours: 0,",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "default timezone never pinned by a test"
+          },
+          {
+            "file": "ventures/oncall-load-analyzer/calc.mjs",
+            "line": 126,
+            "col": 58,
+            "operator": "minus-to-plus",
+            "before": "const v = values.filter((x) => x >= 0).sort((a, b) => a - b);",
+            "after": "const v = values.filter((x) => x >= 0).sort((a, b) => a + b);",
+            "line_text": "  const v = values.filter((x) => x >= 0).sort((a, b) => a - b);",
+            "caught": false,
+            "seconds": 1.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gini only tested on sorted input"
+          },
+          {
+            "file": "ventures/oncall-load-analyzer/calc.mjs",
+            "line": 130,
+            "col": 32,
+            "operator": "const-plus-one",
+            "before": "v.forEach((x, i) => { acc += (2 * (i + 1) - n - 1) * x; });",
+            "after": "v.forEach((x, i) => { acc += (3 * (i + 1) - n - 1) * x; });",
+            "line_text": "  v.forEach((x, i) => { acc += (2 * (i + 1) - n - 1) * x; });",
+            "caught": true,
+            "seconds": 1.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/oncall-load-analyzer/calc.mjs",
+            "line": 131,
+            "col": 18,
+            "operator": "times-to-div",
+            "before": "return acc / (n * sum);",
+            "after": "return acc / (n / sum);",
+            "line_text": "  return acc / (n * sum);",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gini only tested with > 0.7, not an exact value"
+          },
+          {
+            "file": "ventures/oncall-load-analyzer/calc.mjs",
+            "line": 157,
+            "col": 119,
+            "operator": "const-plus-one",
+            "before": "const p = get(people, inc.person, () => ({ person: inc.person, pages: 0, night: 0, offHours: 0, business: 0, high: 0, weighted: 0, avoidable: 0, resolve: [] }));",
+            "after": "const p = get(people, inc.person, () => ({ person: inc.person, pages: 0, night: 0, offHours: 0, business: 0, high: 1, weighted: 0, avoidable: 0, resolve: [] }));",
+            "line_text": "    const p = get(people, inc.person, () => ({ person: inc.person, pages: 0, night: 0, offHours: 0, business: 0, high: 0, weighted: 0, avoidable: 0, resolve: [] }));",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "per-person high-urgency count never asserted"
+          },
+          {
+            "file": "ventures/oncall-load-analyzer/calc.mjs",
+            "line": 212,
+            "col": 36,
+            "operator": "div-to-times",
+            "before": "nightShare: total ? kinds.night / total : 0,",
+            "after": "nightShare: total ? kinds.night * total : 0,",
+            "line_text": "    nightShare: total ? kinds.night / total : 0,",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/oncall-load-analyzer/calc.mjs",
+            "line": 247,
+            "col": 81,
+            "operator": "const-plus-one",
+            "before": "export function humanMin(m) { return m === null || m === undefined ? \"n/a\" : m < 60 ? `${Math.round(m)} min` : `${(m / 60).toFixed(1)} h`; }",
+            "after": "export function humanMin(m) { return m === null || m === undefined ? \"n/a\" : m < 61 ? `${Math.round(m)} min` : `${(m / 60).toFixed(1)} h`; }",
+            "line_text": "export function humanMin(m) { return m === null || m === undefined ? \"n/a\" : m < 60 ? `${Math.round(m)} min` : `${(m / 60).toFixed(1)} h`; }",
+            "caught": false,
+            "seconds": 1.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "humanMin boundary at exactly 60 untested"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/oncall-load-analyzer/calc.mjs",
+        "issue": "parseTime accepted 2026-02-30 (read as 2 March), 2026-04-31, seconds of 60 and offsets like +25:00 or +05:99, so a typo'd or corrupt export row was counted on the wrong day instead of skipped. Fixed: Date.UTC round trip, seconds <= 59, offset hours <= 14 and minutes <= 59; failing-first test.",
+        "patched": true
+      },
+      {
+        "file": "ventures/mailchimp-audience-csv-check/calc.mjs",
+        "issue": "Birthday check passed 02/30, 31/04 and 11/31 as real month-day values (only 1-31 range), so the report called a file clean that Mailchimp would reject. Fixed with a month-length table (29 February allowed, no year); failing-first test.",
+        "patched": true
+      },
+      {
+        "file": "platform/ci/check_calendar_dates.py",
+        "issue": "The lint knew `d >= 1 && d <= 31` and `d < 1 || d > 31` but not the one-sided reject `|| d > 31` in a chain, so both defects above passed CI. Added that spelling with tests; the sales-agent `b > 12 && b <= 31` rewrite is safe (round-tripped downstream) and is not flagged.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "df440530-c72b-5a8d-9d01-66ab6069eb2f",
+    "transcripts": 1,
+    "first": "2026-11-14T23:06:27Z",
+    "last": "2026-11-14T23:14:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 84,
+        "output": 19921,
+        "thinking": 3863,
+        "cache_read": 3689041,
+        "cache_write_5m": 0,
+        "cache_write_1h": 84474,
+        "api_equivalent_usd": 1.8124,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 84,
+      "output": 19921,
+      "thinking": 3863,
+      "cache_read": 3689041,
+      "cache_write_5m": 0,
+      "cache_write_1h": 84474,
+      "api_equivalent_usd": 1.8124,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 46,
+    "tools": {
+      "Bash": 42,
+      "Edit": 1,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.98,
+      "active_minutes": 7.98,
+      "model_minutes": 3.73,
+      "tool_minutes": 4.25,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "mutation triage, 8 tests, 3 parser fixes and a lint extension by a senior engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 220.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

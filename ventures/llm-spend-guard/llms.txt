@@ -2,7 +2,7 @@
 
 > Stop a runaway OpenAI or Anthropic bill before it happens: hard per-user, per-feature and per-run dollar caps, an output-token ceiling, and circuit breakers that trip on agent loops. Free, open source, self-hosted proxy or a zero-dependency library.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free and open source (MIT). Not a billing system: costs come from the prices you configure and may differ from your invoice, and the pre-call hold does not see images, documents or server-side tool fees. Not legal, financial or professional advice.
 
 ## Pages
 

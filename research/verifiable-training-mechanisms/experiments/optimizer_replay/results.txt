@@ -1,0 +1,115 @@
+Milestone 86. Replay referee (fp16) and arbiter (float32 reorder, convicts above 10x its honest calibration max)
+under four optimisers; committed state = weights and moments. Calibration seeds 100-139, test seeds 0-39,
+75 segments of s = 20 each, so 3,000 test segments per cell. skip q = the worker skips the last q of the 20 steps.
+d = share flagged AND convicted. wratio = ||w_committed - w_replay|| / mean replayed step.
+
+Honest statistics (calibration): fp16 median and max (= flag threshold), reorder median and max
+  opt       sched     fp16 med  fp16 max  reord med  reord max fp16 m-max
+  sgd       cosine     0.00862      0.34   1.15e-05     0.0197          -
+  sgd       step       0.00623     0.236   1.13e-05   0.000504          -
+  sgd       warmcos     0.0091     0.436   1.07e-05   0.000481          -
+  sgd       sgdr       0.00794     0.417   1.09e-05   0.000475          -
+  momentum  cosine      0.0225      1.27   1.67e-05    0.00694       0.06
+  momentum  step        0.0176     0.792    1.7e-05   6.14e-05     0.0751
+  momentum  warmcos     0.0214     0.865   1.58e-05   0.000988     0.0459
+  momentum  sgdr        0.0204     0.624   1.65e-05   0.000646      0.115
+  adam15    cosine      0.0216      2.23   1.45e-05    0.00477     0.0622
+  adam15    step        0.0169      1.47   1.46e-05   5.04e-05     0.0574
+  adam15    warmcos     0.0229      2.69   1.37e-05    0.00753     0.0689
+  adam15    sgdr         0.021       1.8   1.39e-05    0.00272      0.116
+  adam60    cosine      0.0228      4.16   1.55e-05     0.0012      0.171
+  adam60    step        0.0176      2.62   1.54e-05    0.00025      0.164
+  adam60    warmcos     0.0239      2.02   1.45e-05     0.0015      0.232
+  adam60    sgdr        0.0199      3.14   1.41e-05    0.00056      0.218
+
+Honest test segments (false alarms): fp16 flag rate, arbiter conviction rate
+  sgd: cosine 0.0017/0.0000, step 0.0000/0.0000, warmcos 0.0000/0.0000, sgdr 0.0003/0.0000
+  momentum: cosine 0.0000/0.0000, step 0.0000/0.0000, warmcos 0.0000/0.0000, sgdr 0.0013/0.0000
+  adam15: cosine 0.0003/0.0000, step 0.0003/0.0000, warmcos 0.0000/0.0000, sgdr 0.0000/0.0000
+  adam60: cosine 0.0000/0.0000, step 0.0000/0.0000, warmcos 0.0013/0.0000, sgdr 0.0000/0.0007
+
+Detection d by skipped steps q (flag / convict / both); smallest stalled fp16 wratio over threshold
+  opt       sched         q=1      q=2      q=5     q=10     q=20  full-stall min/thr
+  sgd       cosine      0.979    0.986    0.989    1.000    1.000                6.91
+  sgd       step        0.998    1.000    1.000    1.000    1.000                9.86
+  sgd       warmcos     0.960    0.986    0.987    1.000    1.000                5.27
+  sgd       sgdr        0.952    0.980    0.987    1.000    1.000                5.31
+  momentum  cosine      0.049    0.950    0.987    1.000    1.000                6.47
+  momentum  step        0.882    0.999    1.000    1.000    1.000               10.17
+  momentum  warmcos     0.675    0.982    0.987    1.000    1.000                9.10
+  momentum  sgdr        0.927    0.979    0.987    1.000    1.000               11.11
+  adam15    cosine      0.000    0.073    0.985    0.996    1.000                5.03
+  adam15    step        0.002    0.980    1.000    1.000    1.000                7.20
+  adam15    warmcos     0.000    0.017    0.977    0.989    1.000                4.05
+  adam15    sgdr        0.010    0.550    0.981    1.000    1.000                5.48
+  adam60    cosine      0.000    0.000    0.618    0.987    1.000                2.17
+  adam60    step        0.000    0.038    0.993    1.000    1.000                3.47
+  adam60    warmcos     0.002    0.296    0.987    0.999    1.000                4.32
+  adam60    sgdr        0.000    0.015    0.931    0.988    1.000                2.70
+
+Flag rate alone (fp16) and conviction alone (arbiter), by q
+  sgd       cosine   flag 0.980 0.987 0.989 1.000 1.000 | convict 0.986 0.987 0.995 1.000 1.000
+  sgd       step     flag 0.998 1.000 1.000 1.000 1.000 | convict 1.000 1.000 1.000 1.000 1.000
+  sgd       warmcos  flag 0.960 0.986 0.987 1.000 1.000 | convict 0.990 1.000 1.000 1.000 1.000
+  sgd       sgdr     flag 0.952 0.980 0.987 1.000 1.000 | convict 0.993 1.000 1.000 1.000 1.000
+  momentum  cosine   flag 0.049 0.950 0.987 1.000 1.000 | convict 0.987 0.987 1.000 1.000 1.000
+  momentum  step     flag 0.882 0.999 1.000 1.000 1.000 | convict 1.000 1.000 1.000 1.000 1.000
+  momentum  warmcos  flag 0.675 0.982 0.987 1.000 1.000 | convict 0.987 0.997 1.000 1.000 1.000
+  momentum  sgdr     flag 0.928 0.979 0.987 1.000 1.000 | convict 0.987 1.000 1.000 1.000 1.000
+  adam15    cosine   flag 0.000 0.073 0.985 0.996 1.000 | convict 0.987 0.987 1.000 1.000 1.000
+  adam15    step     flag 0.002 0.980 1.000 1.000 1.000 | convict 1.000 1.000 1.000 1.000 1.000
+  adam15    warmcos  flag 0.000 0.017 0.977 0.989 1.000 | convict 0.987 0.987 1.000 1.000 1.000
+  adam15    sgdr     flag 0.010 0.550 0.981 1.000 1.000 | convict 0.987 0.993 1.000 1.000 1.000
+  adam60    cosine   flag 0.000 0.000 0.618 0.987 1.000 | convict 0.987 0.997 1.000 1.000 1.000
+  adam60    step     flag 0.000 0.038 0.993 1.000 1.000 | convict 1.000 1.000 1.000 1.000 1.000
+  adam60    warmcos  flag 0.002 0.296 0.987 0.999 1.000 | convict 0.987 0.996 1.000 1.000 1.000
+  adam60    sgdr     flag 0.000 0.015 0.931 0.988 1.000 | convict 0.988 1.000 1.000 1.000 1.000
+
+First-moment statistic (fp16 mratio) flag rate by q (threshold = honest calibration max); full-stall min/max-honest
+  momentum  cosine   1.000 1.000 1.000 1.000 1.000   9.52
+  momentum  step     1.000 1.000 1.000 1.000 1.000   6.65
+  momentum  warmcos  1.000 1.000 1.000 1.000 1.000   8.24
+  momentum  sgdr     0.997 1.000 1.000 1.000 1.000   5.00
+  adam15    cosine   1.000 1.000 1.000 1.000 1.000   7.62
+  adam15    step     1.000 1.000 1.000 1.000 1.000   7.14
+  adam15    warmcos  0.993 1.000 1.000 1.000 1.000   3.74
+  adam15    sgdr     0.989 1.000 1.000 1.000 1.000   4.08
+  adam60    cosine   0.946 0.999 1.000 1.000 1.000   2.31
+  adam60    step     0.958 0.999 1.000 1.000 1.000   3.20
+  adam60    warmcos  0.802 0.954 0.990 0.998 1.000   1.85
+  adam60    sgdr     0.866 0.992 1.000 1.000 1.000   2.52
+
+Post hoc: d when the referee flags on EITHER statistic (weights or first moment), then the arbiter, by q
+  momentum  cosine   0.987 0.987 1.000 1.000 1.000
+  momentum  step     1.000 1.000 1.000 1.000 1.000
+  momentum  warmcos  0.987 0.997 1.000 1.000 1.000
+  momentum  sgdr     0.987 1.000 1.000 1.000 1.000
+  adam15    cosine   0.987 0.987 1.000 1.000 1.000
+  adam15    step     1.000 1.000 1.000 1.000 1.000
+  adam15    warmcos  0.979 0.987 1.000 1.000 1.000
+  adam15    sgdr     0.975 0.993 1.000 1.000 1.000
+  adam60    cosine   0.933 0.997 1.000 1.000 1.000
+  adam60    step     0.958 1.000 1.000 1.000 1.000
+  adam60    warmcos  0.791 0.989 1.000 1.000 1.000
+  adam60    sgdr     0.855 0.992 1.000 1.000 1.000
+
+Resolution: smallest q with d >= 0.9
+  sgd       cosine 1, step 1, warmcos 1, sgdr 1
+  momentum  cosine 2, step 2, warmcos 2, sgdr 1
+  adam15    cosine 5, step 2, warmcos 5, sgdr 5
+  adam60    cosine 10, step 5, warmcos 5, sgdr 5
+
+== Figure table: warmcos, d by skipped steps q (sgd, momentum, adam15, adam60 on weights; adam60 weights or moment)
+  q      sgd  momentum  adam15  adam60  adam60_w_or_m
+  1     0.960     0.675   0.000   0.002          0.791
+  2     0.986     0.982   0.017   0.296          0.989
+  5     0.987     0.987   0.977   0.987          1.000
+  10    1.000     1.000   0.989   0.999          1.000
+  20    1.000     1.000   1.000   1.000          1.000
+
+Diagnostic after the run: plain SGD with float64 weights (milestones 80-84's worker; numpy promoted it)
+  sched     fp16 med  fp16 max  reord med  reord max  d by q
+  cosine     0.00859     0.339          0   3.34e-07  0.980 0.987 0.989 1.000 1.000
+  step        0.0062     0.236          0   3.32e-07  0.998 1.000 1.000 1.000 1.000
+  warmcos    0.00905     0.439          0   3.51e-08  0.959 0.986 0.987 1.000 1.000
+  sgdr       0.00788     0.238          0   3.78e-07  0.982 0.987 0.994 1.000 1.000

@@ -1,0 +1,69 @@
+Milestone 7 (research/grid-linopf): convergence diagnostics of the frozen J-m-a repair, 30-round budget.
+Plan and predictions: LOG.md 2026-11-13 (committed before this ran). Per round: QP kind, merit phi,
+step 2-norm ||d|| (pu), rho = largest row remainder / margin (signed towards the bound), kappa =
+max |remainder|/margin / ||d||^2, sigma_min of the Newton power-flow Jacobian at the base point.
+
+Reproduction gate (first 10 rounds = the nominal run): PASS
+
+case               kind clean@ acc rej ela curv oth  smin_min   kap_lo   kap_hi      phi0   phi_end       B
+case14_ieee        typ       4   3   0   0    3   0  4.83e-01 1.25e+03 1.75e+04 1.283e+00 3.620e-03 176463.5
+case24_ieee_rts    typ       2   1   0   0    1   0  1.28e+00 4.43e+02 1.49e+03 7.075e-01 4.546e-04     6.0
+case30_ieee        typ       6   4   1   0    5   0  2.14e-01 3.96e+03 3.42e+04 1.354e+00 1.071e-04  7441.5
+case39_epri        typ       6   4   1   0    5   0  6.36e-01 3.45e+02 2.53e+04 1.012e+00 7.718e-05   942.2
+case57_ieee        typ      12   8   3   0   11   0  1.71e-01 1.82e+01 5.24e+01 4.707e+00 3.266e-03 27205.3
+case73_ieee_rts    typ       6   3   2   0    5   0  2.73e-01 5.40e+02 2.72e+04 2.381e+00 1.037e-03   905.1
+case118_ieee       typ      11   7   3   0   10   0  1.79e-01 4.30e+01 1.67e+03 9.225e+00 4.067e-03  1481.3
+case162_ieee_dtc   typ       8   4   3   2    5   0  1.12e-01 6.70e+01 1.06e+02 7.135e-01 2.465e-03    66.4
+case179_goc        typ      10   7   2   1    8   0  4.72e-02 2.83e+01 2.21e+03 1.091e+00 1.937e-04  1020.4
+case200_activ      typ       1   0   0   0    0   0  1.44e-01 2.96e+03 2.96e+03 1.228e-02 1.228e-02     5.0
+case240_pserc      typ      15   9   5   0   14   0  3.62e-01 1.80e+00 1.30e+01 3.204e+01 2.755e-05 177262.4
+case300_ieee       typ       -   0   0   0    0   0       nan      nan      nan       nan       nan     nan
+case14_ieee        api       3   2   0   0    2   0  4.32e-01 7.69e+01 1.76e+03 1.624e+00 9.979e-04    30.0
+case24_ieee_rts    api      10   6   3   1    8   0  7.40e-01 5.02e+01 3.33e+04 2.367e+00 5.568e-04   435.0
+case30_ieee        api       7   4   2   2    4   0  1.92e-01 1.30e+03 1.29e+04 1.223e+00 1.956e-04 30459.2
+case39_epri        api       7   4   2   0    6   0  5.02e-01 5.25e+01 2.07e+02 2.098e+00 3.821e-05   966.6
+case57_ieee        api      12   8   3   5    6   0  1.48e-01 2.97e+01 5.55e+01 2.305e+00 7.664e-04  2209.7
+case73_ieee_rts    api       -  12  18  30    0   0  2.51e-01      nan      nan 5.202e+00 1.956e-02     nan
+case118_ieee       api       -  20  10  28    2   0  1.92e-01 9.94e+01 2.91e+02 7.510e+00 2.210e-03     nan
+case162_ieee_dtc   api      11   7   3   2    8   0  1.14e-01 7.95e+01 3.03e+02 2.486e+00 1.457e-03  1308.1
+case200_activ      api      10   6   3   9    0   0  1.40e-01      nan      nan 8.103e-01 2.946e-05   833.6
+case240_pserc      api      17  12   4   2   14   0  3.63e-01 4.52e+00 3.75e+01 1.821e+01 2.874e-03 20921.1
+case300_ieee       api      12   7   4   5    5   0  3.07e-03 2.08e+01 3.63e+01 3.569e+01 5.849e-03   494.9
+case14_ieee        sad       2   1   0   1    0   0  4.83e-01 1.16e+02 1.16e+02 1.322e+00 5.400e-02     5.0
+case24_ieee_rts    sad       6   3   2   0    5   0  1.28e+00 6.01e+01 6.01e+03 8.022e-01 1.548e-04  2577.0
+case30_ieee        sad       7   5   1   1    5   0  2.14e-01 3.98e+02 3.42e+04 1.368e+00 5.053e-04 299076.1
+case39_epri        sad       3   2   0   0    2   0  6.36e-01 2.09e+01 2.37e+04 1.074e+00 9.157e-05    13.7
+case57_ieee        sad       7   4   2   0    6   0  1.75e-01 5.85e+02 7.47e+04 1.599e+00 8.134e-04   446.8
+case73_ieee_rts    sad       8   5   2   0    7   0  2.73e-01 3.08e+01 1.76e+06 2.508e+00 6.781e-04 19657.4
+case118_ieee       sad      12   7   4   1   10   0  1.79e-01 1.27e+02 1.72e+03 9.380e+00 2.691e-04 120645.5
+case162_ieee_dtc   sad      10   6   3   1    8   0  1.12e-01 2.11e+01 1.99e+02 7.318e-01 5.573e-04   411.3
+case179_goc        sad      11   7   3   2    8   0  4.91e-02 6.22e+00 9.31e+00 1.295e+00 4.431e-04 10924.5
+case200_activ      sad       3   2   0   2    0   0  1.44e-01 2.95e+03 2.95e+03 2.483e-02 1.885e-03     9.9
+case240_pserc      sad      20  14   5   2   17   0  3.62e-01 2.62e+00 6.18e+00 3.216e+01 1.395e-04 1107434.7
+
+Cases with an AC optimum: 34. Fully clean within 10 rounds: 21; within 30: 31.
+P7f (30 rounds add at most 3 clean cases): refuted (+10).
+Clean by round k (cumulative): 1: 1, 3: 6, 5: 7, 8: 17, 10: 21, 12: 28, 15: 29, 20: 31, 30: 31
+Cost of clean points finished in rounds 1-10 over the AC optimum: mean +0.380 %, median +0.112 %, max +3.845 % (21 cases)
+Cost of clean points finished in rounds 11-30 over the AC optimum: mean +0.413 %, median +0.346 %, max +1.017 % (10 cases)
+  late finisher case57_ieee/typ: clean at 12, cost +0.057 %, repair 1 s
+  late finisher case118_ieee/typ: clean at 11, cost +0.087 %, repair 7 s
+  late finisher case240_pserc/typ: clean at 15, cost +0.303 %, repair 77 s
+  late finisher case57_ieee/api: clean at 12, cost +0.710 %, repair 1 s
+  late finisher case162_ieee_dtc/api: clean at 11, cost +0.317 %, repair 1 s
+  late finisher case240_pserc/api: clean at 17, cost +0.052 %, repair 84 s
+  late finisher case300_ieee/api: clean at 12, cost +1.017 %, repair 57 s
+  late finisher case118_ieee/sad: clean at 12, cost +0.379 %, repair 9 s
+  late finisher case179_goc/sad: clean at 11, cost +0.830 %, repair 3 s
+  late finisher case240_pserc/sad: clean at 20, cost +0.374 %, repair 105 s
+
+Not-clean trials, rounds 1-10: 224 ({'elastic': 56, 'curvature': 168, 'other': 0}); all 30 rounds: 287 ({'elastic': 97, 'curvature': 190, 'other': 0}).
+P7a (curvature >= half of rounds 1-10's not-clean trials): held (168/224).
+P7b (Proposition 1: 'other' at most 2 % of hard not-clean trials, and no hard not-clean trial with rho <= 1): held (other 0/190; rho <= 1 yet not clean: 0).
+Broken rows in curvature failures, by family: {'q': 436, 'load': 477, 'slack': 73, 'v': 29, 'ang': 74}
+
+P7c (kappa within 10x across a case's hard rounds, >= 75 % of 26 cases with 3+ rounds): refuted (13/26); ratios: case14_ieee/typ 14.0, case30_ieee/typ 8.6, case39_epri/typ 73.5, case57_ieee/typ 2.9, case73_ieee_rts/typ 50.5, case118_ieee/typ 38.7, case162_ieee_dtc/typ 1.6, case179_goc/typ 78.1, case240_pserc/typ 7.2, case14_ieee/api 22.9, case24_ieee_rts/api 664.8, case30_ieee/api 9.9, case39_epri/api 3.9, case57_ieee/api 1.9, case162_ieee_dtc/api 3.8, case240_pserc/api 8.3, case300_ieee/api 1.7, case24_ieee_rts/sad 100.0, case30_ieee/sad 85.9, case39_epri/sad 1136.2, case57_ieee/sad 127.7, case73_ieee_rts/sad 57201.2, case118_ieee/sad 13.5, case162_ieee_dtc/sad 9.4, case179_goc/sad 1.5, case240_pserc/sad 2.4
+P7d (B within 10x of observed on >= 75 % of 31 finishers): refuted (6/31). B/observed: case14_ieee/typ 176463/4 (k* 3, dmin 7.3e-06), case24_ieee_rts/typ 6/2 (k* 4, dmin 7.1e-01), case30_ieee/typ 7442/6 (k* 4, dmin 1.8e-04), case39_epri/typ 942/6 (k* 7, dmin 1.1e-03), case57_ieee/typ 27205/12 (k* 6, dmin 1.7e-04), case73_ieee_rts/typ 905/6 (k* 7, dmin 2.7e-03), case118_ieee/typ 1481/11 (k* 9, dmin 6.3e-03), case162_ieee_dtc/typ 66/8 (k* 6, dmin 1.2e-02), case179_goc/typ 1020/10 (k* 8, dmin 1.1e-03), case200_activ/typ 5/1 (k* 4, dmin None), case240_pserc/typ 177262/15 (k* 8, dmin 1.8e-04), case14_ieee/api 30/3 (k* 5, dmin 6.8e-02), case24_ieee_rts/api 435/10 (k* 9, dmin 5.6e-03), case30_ieee/api 30459/7 (k* 6, dmin 4.0e-05), case39_epri/api 967/7 (k* 6, dmin 2.2e-03), case57_ieee/api 2210/12 (k* 6, dmin 1.0e-03), case162_ieee_dtc/api 1308/11 (k* 6, dmin 1.9e-03), case200_activ/api 834/10 (k* 8, dmin 9.8e-04), case240_pserc/api 20921/17 (k* 8, dmin 8.7e-04), case300_ieee/api 495/12 (k* 7, dmin 7.3e-02), case14_ieee/sad 5/2 (k* 3, dmin 1.3e+00), case24_ieee_rts/sad 2577/6 (k* 8, dmin 3.1e-04), case30_ieee/sad 299076/7 (k* 5, dmin 4.6e-06), case39_epri/sad 14/3 (k* 10, dmin 3.9e-01), case57_ieee/sad 447/7 (k* 7, dmin 3.6e-03), case73_ieee_rts/sad 19657/8 (k* 13, dmin 1.3e-04), case118_ieee/sad 120645/12 (k* 8, dmin 7.8e-05), case162_ieee_dtc/sad 411/10 (k* 6, dmin 1.8e-03), case179_goc/sad 10924/11 (k* 7, dmin 1.2e-04), case200_activ/sad 10/3 (k* 4, dmin 5.1e-03), case240_pserc/sad 1107435/20 (k* 8, dmin 2.9e-05)
+P7e (a non-finisher with sigma_min >= 1e-3 on every round and merit down < 1 % over rounds 21-30): held: H4 as written is refuted (1 of 2 non-finishers).
+  case73_ieee_rts/api: condition holds, stalled True, phi@20 1.956e-02 phi@30 1.956e-02, accepted 12, rejected 18
+  case118_ieee/api: condition holds, stalled False, phi@20 4.097e-03 phi@30 2.210e-03, accepted 20, rejected 10

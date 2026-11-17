@@ -38,3 +38,11 @@ taken offline without notice. Do not use this as a system of record.
 Free and open source (MIT, see `LICENSE`). Optional support:
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood).
 
+## Known gaps
+
+From quality audit [`2026-11-13-junk-car-buyer-offer-calculator.json`](../../portfolio/quality/audits/2026-11-13-junk-car-buyer-offer-calculator.json). Fixed since: a blank or mistyped field is now reported instead of silently taking the example value, the buy verdict between break-even and the target is tested, and a car with no parts no longer reads "never" when the ask already works. Still open:
+
+- The tow is costed on one-way miles; a buyer running their own truck also drives the empty leg.
+- The headline rounds the most you can offer to the nearest dollar while the counter rounds down, so the page can show $354 and $353 for the same figure.
+- The $220 a ton default sits above the $145 to $210 range junk-car buyers quoted in 2025; it is a placeholder, so enter your crusher's quote.
+

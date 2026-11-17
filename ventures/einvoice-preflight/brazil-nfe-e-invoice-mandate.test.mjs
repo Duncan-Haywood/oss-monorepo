@@ -56,3 +56,37 @@ test("links to Mexico and the hub and the sitemap entry is its own url block", (
   assert.match(html, /href="e-invoicing-mandates-by-country\.html"/);
   assert.match(sitemap, /<\/url>\s*<url>\s*<loc>[^<]*brazil-nfe-e-invoice-mandate\.html<\/loc>\s*<\/url>/);
 });
+
+test("the NF-e file check is on the page and its sample draws exactly the three planted findings", async () => {
+  assert.match(html, /import\{checkNfe\}from"\.\/nfe\.mjs"/);
+  assert.match(html, /id="nfe-file"/);
+  const { checkNfe } = await import("./nfe.mjs");
+  const sample = html.match(/const SAMPLE=`([\s\S]*?)`;/)[1];
+  assert.deepEqual(checkNfe(sample).findings.map((f) => f.rule).sort(), ["BR-013", "BR-030", "BR-042"]);
+});
+
+test("the national NFS-e check is on the page and its sample draws exactly the three planted findings", async () => {
+  assert.match(html, /import\{checkNfse\}from"\.\/nfse\.mjs"/);
+  assert.match(html, /id="nfse-file"/);
+  const { checkNfse } = await import("./nfse.mjs");
+  const sample = html.match(/const SAMPLE_NFSE=`([\s\S]*?)`;/)[1];
+  assert.deepEqual(checkNfse(sample).findings.map((f) => f.rule).sort(), ["NFSE-013", "NFSE-021", "NFSE-032"]);
+  assert.doesNotMatch(html, /do not read NFS-e/);
+});
+
+test("the ABRASF municipal NFS-e check is on the page and its sample draws exactly the three planted findings", async () => {
+  assert.match(html, /import\{checkAbrasf\}from"\.\/abrasf\.mjs"/);
+  assert.match(html, /id="abrasf-file"/);
+  const { checkAbrasf } = await import("./abrasf.mjs");
+  const sample = html.match(/const SAMPLE_ABRASF=`([\s\S]*?)`;/)[1];
+  assert.deepEqual(checkAbrasf(sample).findings.map((f) => f.rule).sort(), ["ABR-010", "ABR-011", "ABR-022"]);
+  assert.doesNotMatch(html, /does not read municipal/);
+});
+
+test("the DSF municipal NFS-e check is on the page and its sample draws exactly the three planted findings", async () => {
+  assert.match(html, /import\{checkDsf\}from"\.\/dsf\.mjs"/);
+  assert.match(html, /id="dsf-file"/);
+  const { checkDsf } = await import("./dsf.mjs");
+  const sample = html.match(/const SAMPLE_DSF=`([\s\S]*?)`;/)[1];
+  assert.deepEqual(checkDsf(sample).findings.map((f) => f.rule).sort(), ["DSF-010", "DSF-011", "DSF-020"]);
+});

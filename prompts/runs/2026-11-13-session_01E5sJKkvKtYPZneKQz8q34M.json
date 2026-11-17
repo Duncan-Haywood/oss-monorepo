@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKkvKtYPZneKQz8q34M",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T09:18:12Z",
+  "ended": "2026-11-13T09:34:37Z",
+  "wall_minutes": 16.58,
+  "tokens_in": 10749569,
+  "tokens_out": 46815,
+  "cost_usd": 4.3272,
+  "tool_calls": 82,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15444",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [
+    "A published doc claim (5.4-14.3% wrong-way clear pairs on sparse 150-item lists) was an artefact of an rd cap in the sweep harness; withdrawn in docs/INFORMATION-GAIN-SELECTOR.md with the corrected figures (0-0.4%). The same cap weakened the weighted schemes (loo-w, gate-w, self-w) in earlier sections; 20-person cells re-run, 8- and 60-person cells not."
+  ],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "quick-pick-survey item (f) named two suspects but not the harness; the bug was in scripts/careless-pattern-sweep.ts pooled() (rd capped at 349), found only by writing an independent harness."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Item (f) asked to 'fix the ranges' in groupRanking.ts; the ranges were not broken, so the fix went to the sweep harnesses and the docs instead.",
+      "did": "Diagnosed with an independent script, fixed both sweeps, added an opt-in answeredOnly to groupRanking for weighted callers, re-ran 48 long-list and 18 short-list cells.",
+      "result": "Ranking unchanged; doc claim withdrawn with corrected numbers; earlier decisions hold."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-quick-pick-survey-the-overclaim-was-the-harness.md",
+    "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md (new section 'The sparse long-list overclaim was the harness')"
+  ],
+  "goal": null,
+  "notes": "Local verification: npx tsc --noEmit (0), npm run lint (0), npm run test:fast 49 files / 469 tests passed; groupRanking answeredOnly test fails with the old filter restored. run_venture_tests.py skips this venture (its CI is quick-pick-survey-ci.yml).",
+  "corrections": [],
+  "redteam": null,
+  "venture": "quick-pick-survey",
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "330a8b05-b26a-5878-a561-ae2e05d0580d",
+    "transcripts": 1,
+    "first": "2026-11-13T09:18:12Z",
+    "last": "2026-11-13T09:34:47Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 80,
+        "input": 155,
+        "output": 46815,
+        "thinking": 13285,
+        "cache_read": 10590384,
+        "cache_write_5m": 0,
+        "cache_write_1h": 159030,
+        "api_equivalent_usd": 4.3272,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 80,
+      "input": 155,
+      "output": 46815,
+      "thinking": 13285,
+      "cache_read": 10590384,
+      "cache_write_5m": 0,
+      "cache_write_1h": 159030,
+      "api_equivalent_usd": 4.3272,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 82,
+    "tools": {
+      "Bash": 75,
+      "ToolSearch": 2,
+      "Write": 2,
+      "Monitor": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.58,
+      "active_minutes": 16.58,
+      "model_minutes": 7.48,
+      "tool_minutes": 9.09,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a statistician diagnosing a simulation discrepancy, writing an independent harness, re-running sweeps and correcting docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 231.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

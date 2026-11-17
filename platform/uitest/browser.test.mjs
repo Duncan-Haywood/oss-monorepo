@@ -2,7 +2,8 @@
 // stand-in for an OpenAI-compatible model server so the agent path runs
 // through byok.mjs and HTTP exactly as it would with a real key.
 //
-// Skips when Playwright cannot be loaded (set PLAYWRIGHT to its entry file).
+// Skips when Playwright cannot be loaded (set PLAYWRIGHT to its entry file;
+// a global install on NODE_PATH, as in cloud sessions, is found too).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
@@ -23,7 +24,7 @@ try { await loadPlaywright(); } catch (err) { skip = `Playwright unavailable: ${
 
 function uitest(args, env = {}) {
   return new Promise(resolve => {
-    execFile(process.execPath, [cli, ...args], { env: { PATH: process.env.PATH, PLAYWRIGHT: process.env.PLAYWRIGHT || '', CHROME_PATH: process.env.CHROME_PATH || '', PLAYWRIGHT_BROWSERS_PATH: process.env.PLAYWRIGHT_BROWSERS_PATH || '', ...env }, timeout: 120000 },
+    execFile(process.execPath, [cli, ...args], { env: { PATH: process.env.PATH, PLAYWRIGHT: process.env.PLAYWRIGHT || '', CHROME_PATH: process.env.CHROME_PATH || '', PLAYWRIGHT_BROWSERS_PATH: process.env.PLAYWRIGHT_BROWSERS_PATH || '', NODE_PATH: process.env.NODE_PATH || '', ...env }, timeout: 120000 },
       (err, stdout, stderr) => resolve({ code: err ? err.code : 0, stdout, stderr }));
   });
 }

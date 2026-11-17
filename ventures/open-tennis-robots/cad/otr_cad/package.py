@@ -27,7 +27,7 @@ from dataclasses import asdict
 from itertools import combinations
 from pathlib import Path
 
-from build123d import Compound, ExportDXF, ExportSVG, LineType, Unit, export_step, export_stl
+from build123d import Axis, Compound, ExportDXF, ExportSVG, LineType, Unit, export_step, export_stl
 
 from . import __version__
 from . import collector as C
@@ -124,23 +124,114 @@ def elevation_sweep(p: Feeder, steps: int = 4) -> list[str]:
     return out
 
 
+# At the hard stops the sector is meant to press into its pad and onto the home switch's lever (both drawn free).
+REACH_CONTACTS = {("az_gear_sector", "az_stop_pad"), ("az_gear_sector", "home_switch_lever")}
+
+
 def azimuth_sweep(p: Feeder) -> list[str]:
     """Clashes between what turns and what stays put, with the turntable at both ends of its range and the head at
-    both ends of its elevation range (the elevation sweep covers azimuth 0)."""
+    both ends of its elevation range (the elevation sweep covers azimuth 0). Since 2026-11-12 also at the hard stops'
+    reach (`az_reach_deg`: a stop with its pad squeezed), at three elevations, since a runaway or a hand can turn the
+    head that far: there only the sector's own contacts with its pad and the home lever are expected."""
     out = []
-    for e in (p.elev_min, p.elev_max):
-        for az in (-p.az_max, p.az_max):
+    poses = [(e, az) for e in (p.elev_min, p.elev_max) for az in (-p.az_max, p.az_max)]
+    poses += [(e, az) for e in (p.elev_min, (p.elev_min + p.elev_max) / 2 + 10.0, p.elev_max)
+              for az in (-p.az_reach_deg, p.az_reach_deg)]
+    for e, az in poses:
+        reach = abs(az) > p.az_max
+        moving, fixed = F.turned_solids(p, e, az)
+        fb = [(n, s, s.bounding_box()) for n, s in fixed]
+        for na, a in moving:
+            ba = a.bounding_box()
+            for nb, b, bb in fb:
+                if reach and (na.split("[")[0], nb.split("[")[0]) in REACH_CONTACTS:
+                    continue
+                if (ba.max.X <= bb.min.X or bb.max.X <= ba.min.X or ba.max.Y <= bb.min.Y or bb.max.Y <= ba.min.Y
+                        or ba.max.Z <= bb.min.Z or bb.max.Z <= ba.min.Z):
+                    continue
+                v = (a & b).volume
+                if v > 1.0:
+                    out.append(f"at {e:+.0f} deg turned {az:+.1f} deg: {na} x {nb}: {v:.0f} mm^3")
+    return out
+
+
+def cable_sweep(p: Feeder, poses=None, azimuths=None) -> list[str]:
+    """Clashes of the head's free cable loop (2026-11-13), drawn at its cut length along the curve it takes at each
+    design pose (the actuator's two limits and -15 to +45 deg), against every part (hose parts excepted, as in the
+    azimuth sweep), with the turntable straight and turned to the hard stops' reach either way. The loop's ends sit
+    in the gland and the clip, so those two are left out, and so is the actuator's lead against the loop's first
+    segment (the lead shares the gland's bore and turns off it 12 mm up, 2026-11-14). `poses` and `azimuths` narrow the sweep (a test of a
+    known clash need not walk all 21 poses)."""
+    out = []
+    axis = Axis((p.head_x, 0.0, 0.0), (0, 0, 1))
+    skip = {"cable_gland", "cable_clip"}
+    for e in (p.cable_loop_poses() if poses is None else poses):
+        loop = F.cable_loop_solids(p, e)
+        for az in ((0.0, -p.az_reach_deg, p.az_reach_deg) if azimuths is None else azimuths):
             moving, fixed = F.turned_solids(p, e, az)
-            fb = [(n, s, s.bounding_box()) for n, s in fixed]
-            for na, a in moving:
+            others = [(n, s, s.bounding_box()) for n, s in moving + fixed if n.split("[")[0] not in skip]
+            for k, seg in enumerate(loop):
+                a = seg.rotate(axis, az)
                 ba = a.bounding_box()
-                for nb, b, bb in fb:
+                for nb, b, bb in others:
+                    if k == 0 and nb.split("[")[0] == "elev_lead_fixed":
+                        continue   # both leave the gland's one bore side by side; the lead turns -y 12 mm up
                     if (ba.max.X <= bb.min.X or bb.max.X <= ba.min.X or ba.max.Y <= bb.min.Y or bb.max.Y <= ba.min.Y
                             or ba.max.Z <= bb.min.Z or bb.max.Z <= ba.min.Z):
                         continue
                     v = (a & b).volume
                     if v > 1.0:
-                        out.append(f"at {e:+.0f} deg turned {az:+.0f} deg: {na} x {nb}: {v:.0f} mm^3")
+                        out.append(f"at {e:+.1f} deg turned {az:+.1f} deg: cable loop segment {k} x {nb}: {v:.0f} mm^3")
+    return out
+
+
+def elev_lead_sweep(p: Feeder, poses=None, azimuths=None) -> list[str]:
+    """Clashes of the elevation actuator's free lead (2026-11-14), drawn at its cut length along the curve it takes at
+    each design pose (the actuator's two limits and -15 to +45 deg), against every part but itself (hose parts
+    excepted), with the turntable straight and turned to the hard stops' reach either way. A pose where the cut length
+    does not fit is reported too. The elevation and azimuth sweeps also see the lead, at their own poses."""
+    out = []
+    axis = Axis((p.head_x, 0.0, 0.0), (0, 0, 1))
+    for e in (p.elev_lead_poses() if poses is None else poses):
+        lead = F.elev_lead_solid(p, e)
+        if lead is None:
+            out.append(f"at {e:+.1f} deg: the elevation lead's cut length does not fit")
+            continue
+        for az in ((0.0, -p.az_reach_deg, p.az_reach_deg) if azimuths is None else azimuths):
+            moving, fixed = F.turned_solids(p, e, az)
+            a = lead.rotate(axis, az)
+            ba = a.bounding_box()
+            for nb, b in moving + fixed:
+                if nb.split("[")[0] == "elev_lead":
+                    continue
+                bb = b.bounding_box()
+                if (ba.max.X <= bb.min.X or bb.max.X <= ba.min.X or ba.max.Y <= bb.min.Y or bb.max.Y <= ba.min.Y
+                        or ba.max.Z <= bb.min.Z or bb.max.Z <= ba.min.Z):
+                    continue
+                v = (a & b).volume
+                if v > 1.0:
+                    out.append(f"at {e:+.1f} deg turned {az:+.1f} deg: elevation lead x {nb}: {v:.0f} mm^3")
+    return out
+
+
+def feed_stroke_sweep(p: Feeder, thetas=(45.0, 90.0, 135.0, 180.0)) -> list[str]:
+    """Clashes of the shuttle, its rod and its crank along the feed stroke (the drawn pose is crank angle 0), at both
+    ends of the elevation range (2026-11-11)."""
+    out = []
+    for e in (p.elev_min, p.elev_max):
+        for th in thetas:
+            moving, other = F.feed_stroke_solids(p, e, th)
+            ob = [(n, s, s.bounding_box()) for n, s in other]
+            for na, a in moving:
+                ba = a.bounding_box()
+                for nb, b, bb in ob:
+                    if (ba.max.X <= bb.min.X or bb.max.X <= ba.min.X or ba.max.Y <= bb.min.Y or bb.max.Y <= ba.min.Y
+                            or ba.max.Z <= bb.min.Z or bb.max.Z <= ba.min.Z):
+                        continue
+                    v = (a & b).volume
+                    if v > 1.0:
+                        out.append(f"at {e:+.0f} deg, crank {th:.0f} deg: {na} x {nb}: {v:.0f} mm^3")
+            out += [f"at {e:+.0f} deg, crank {th:.0f} deg: {c}" for c in clashes(moving)]
     return out
 
 
@@ -211,15 +302,24 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
     rules = p.check()
     parts = M.all_parts(p)
     clash = collisions(parts)
-    turning = None
+    turning = gravity = None
     if feeder:
         clash += elevation_sweep(p)
         clash += azimuth_sweep(p)
+        clash += feed_stroke_sweep(p)
+        clash += cable_sweep(p)
+        clash += elev_lead_sweep(p)
         turning = max((F.turning_inertia(p, e) for e in (p.elev_min, 0.0, p.elev_max)), key=lambda t: t[0])
         if turning[0] > p.az_inertia_kgm2:
             rules = rules + [f"turning inertia from the CAD is {turning[0]:.4f} kg m^2, above the "
                              f"{p.az_inertia_kgm2:g} the azimuth check assumed: raise az_inertia_kgm2"]
         rules = rules + [r for r in p.check_azimuth(turning[0]) if r not in rules]
+        rules = rules + [r for r in p.check_az_stops(turning[0]) if r not in rules]
+        gravity = F.gravity_table(p)
+        rules = rules + p.check_elevation(gravity)
+        rules = rules + p.check_shuttle_drive(F.shuttle_kg(p))
+        peak = p.shuttle_drive(F.shuttle_kg(p))["peak_torque_nm"]
+        rules = rules + [r for r in p.check_cables(peak) if r not in rules]
     contacts = ground_contacts(parts, ('wheel', 'levelling_foot') if feeder else ('wheel', 'ball_caster', 'drum_disc'))
     ground_ok = all(abs(z) < 0.05 for z in contacts.values())
 
@@ -251,7 +351,7 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
                                "settings": "0.2 mm layers, 4 walls, 40% gyroid", "notes": part.notes})
         elif part.kind == "stock":
             cut_rows.append({"part": part.name, "qty": part.qty, "stock": part.spec, "notes": part.notes})
-        if part.material in DENSITY:
+        if part.material in DENSITY and part.placements:   # a test print (no placement) is not on the machine
             part_g = DENSITY[part.material] * part.shape.volume / 1000 * part.qty
             mass_g += part_g
             if part.name.startswith("hopper"):
@@ -279,7 +379,7 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
         _drawings(assembly, out / "drawings")
 
     if feeder:
-        checks, derived = F.summary(p, mass_g, rules, clash, contacts, ground_ok, hopper_g, turning)
+        checks, derived = F.summary(p, mass_g, rules, clash, contacts, ground_ok, hopper_g, turning, gravity)
     else:
         length, width = p.overall
         checks = [
@@ -342,8 +442,9 @@ ORDER
                tap M5 into the extrusion ends where noted.
 4. bom.csv     Buy the rest. Check bought-in dimensions against params.py.
 
-NOT IN THIS PACKAGE YET: netting and trough, hopper agitator, shuttle actuator
-bracket, elevation actuator and bracket, cabling. See hardware/feeder-catcher.md.
+NOT IN THIS PACKAGE YET: the netting, the deck-side cabling (the trough, the ball lift and the hopper agitator are in it since 2026-11-13). See hardware/feeder-catcher.md. The elevation actuator is
+bought to the window in the elevation check below (any make whose retracted and
+extended lengths span it).
 
 CHECKS RUN WHEN THIS PACKAGE WAS BUILT
 {checks}

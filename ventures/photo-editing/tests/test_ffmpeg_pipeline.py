@@ -123,6 +123,21 @@ class FfmpegCommandTests(unittest.TestCase):
             payload["ProgramArguments"],
         )
         self.assertEqual(payload["EnvironmentVariables"]["PYTHONPATH"], "/Users/me/shootflow/src")
+        self.assertNotIn("--grade-scope", payload["ProgramArguments"])
+
+    def test_launchd_plist_passes_the_grade_scope(self) -> None:
+        arguments = plistlib.loads(
+            launchd_plist_bytes(
+                ingest_manifests=("/Volumes/SSD/shoot/ingest_manifest.json",),
+                hour=1,
+                minute=30,
+                max_concurrency=2,
+                log_path="/tmp/shootflow.log",
+                source_root="/tmp/src",
+                grade_scope="selected",
+            )
+        )["ProgramArguments"]
+        self.assertEqual(arguments[arguments.index("--grade-scope") + 1], "selected")
 
 
 @unittest.skipUnless(FFMPEG and FFPROBE, "ffmpeg and ffprobe are required for media tests")
@@ -212,6 +227,89 @@ class LocalPipelineTests(unittest.TestCase):
             self.assertEqual(rerun.needs_review_ids, ())
             self.assertEqual((workspace / "deliverables" / "instagram_reel.mp4").read_bytes(), before)
 
+    def test_selected_grade_scope_masters_only_the_picked_clip(self) -> None:
+        # Two 46 s takes of the same shot: the hero reel keeps one per scene and
+        # the 45 s variants fit neither, so exactly one clip is ever rendered.
+        # A001's 1 s audio track only makes the takes differ; the container
+        # still runs 46 s (the video's length). A 46 s AAC track cost about
+        # 1.4 s per encode of it (ffmpeg's native AAC encoder) for nothing the
+        # test checks (docs/history/ci-perf-2026-11-12-photo-editing-fixture-audio.md).
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            card = base / "card" / "DCIM"
+            card.mkdir(parents=True)
+            for name, audio in (("A001.MOV", True), ("A002.MOV", False)):
+                _run(
+                    "-f", "lavfi", "-i", "testsrc2=size=1280x720:rate=1:duration=46",
+                    *(("-f", "lavfi", "-i", "sine=duration=1", "-c:a", "aac") if audio else ()),
+                    "-c:v", "libx264", "-pix_fmt", "yuv420p", str(card / name),
+                )
+            _make_photo(card / "IMG_0001.JPG", color="red")
+            plan = plan_import(base / "card", base / "ssd", shoot_date="2026-10-18", shoot_slug="scope-test")
+            manifest = execute_copy_plan(plan).manifest_path
+            workspace = manifest.parent
+
+            self.assertNotIn("SHOOTFLOW_GRADE_SCOPE", os.environ)
+            result = run_local_pipeline(manifest, clock=_ticking_clock(), grade_scope="selected")
+            self.assertNotIn("SHOOTFLOW_GRADE_SCOPE", os.environ, "the run must restore the environment")
+
+            self.assertTrue(result.rendered, result)
+            self.assertEqual(result.needs_review_ids, ())
+            masters = sorted((workspace / "graded").glob("*/A00*.MOV"))
+            self.assertEqual(len(masters), 2)
+            notes = sorted((workspace / "graded").glob("*/*.review-grade.json"))
+            self.assertEqual(len(notes), 1)
+            note = json.loads(notes[0].read_text())
+            self.assertEqual(note["kind"], "review_grade")
+            self.assertTrue(note["graded_from"].startswith("proxies/"))
+            review = Path(str(notes[0]).removesuffix(".review-grade.json"))
+            full = next(path for path in masters if path != review)
+            self.assertEqual(_probe(full)["width"], 1280)
+            self.assertEqual(_probe(review)["width"], 960)
+            self.assertEqual(_probe(review)["codec_name"], "prores")
+            storyline = json.loads((workspace / "analysis" / "instagram_storylines.json").read_text())
+            picked = {
+                path
+                for sequence in storyline["sequences"] + storyline["reel_variants"]
+                for path in sequence["asset_paths"]
+            }
+            graded_root = workspace
+            self.assertIn(full.relative_to(graded_root).as_posix(), picked)
+            self.assertNotIn(review.relative_to(graded_root).as_posix(), picked)
+            # The photo set takes every photo, so photos always get a full master.
+            self.assertEqual([p.name for p in (workspace / "graded").glob("*/IMG_0001.JPG.review-grade.json")], [])
+
+    def test_bad_grade_scope_is_refused(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            manifest = _ingested_shoot(Path(tmp))
+            with self.assertRaises(ValueError):
+                run_local_pipeline(manifest, grade_scope="some")
+            with patch.dict(os.environ, {"SHOOTFLOW_GRADE_SCOPE": "some"}):
+                result = run_local_pipeline(manifest, clock=_ticking_clock())
+            self.assertFalse(result.rendered)
+            status = json.loads((manifest.parent / "production_status.json").read_text())
+            messages = [job["error_message"] or "" for job in status["job_statuses"]]
+            self.assertTrue(any("SHOOTFLOW_GRADE_SCOPE must be one of" in message for message in messages))
+
+    def test_story_stage_refuses_a_pick_that_holds_only_a_review_grade(self) -> None:
+        from shootflow.production_adapter import ProductionAdapterError, _refuse_review_grades_in_storyline
+        from shootflow.story import AssetAnalysis, build_storyline_plan
+
+        clip = "graded/grade_asset_00000/A001.MOV"
+        plan = build_storyline_plan([
+            AssetAnalysis(
+                asset_path=clip, media_type="video", scene_label="s", aesthetic_score=0.5,
+                story_score=0.5, technical_score=0.5, motion_score=0.5, duration_seconds=2.0,
+            )
+        ])
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _refuse_review_grades_in_storyline(root, plan)
+            (root / clip).parent.mkdir(parents=True)
+            (root / (clip + ".review-grade.json")).write_text("{}")
+            with self.assertRaisesRegex(ProductionAdapterError, "review grade"):
+                _refuse_review_grades_in_storyline(root, plan)
+
     def test_raw_files_stop_before_render_and_are_listed_for_review(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             manifest = _ingested_shoot(Path(tmp), extra_files={"IMG_0003.CR3": b"not decodable by ffmpeg"})
@@ -263,12 +361,17 @@ class LocalPipelineTests(unittest.TestCase):
             self.assertEqual(dng_analysis["analysis_method"], "frame_metrics")
             self.assertEqual(_hidden_temp_files(workspace), [])
 
-    def test_non_dng_raw_with_a_preview_stops_at_grade_naming_the_dng_route(self) -> None:
+    def test_unreadable_raw_with_a_preview_stops_at_grade_naming_the_dng_route(self) -> None:
+        # Every RAW extension ShootFlow ingests is developed since 2026-11-15 (CR3 then, C-RAW too, and C-RAW in
+        # several tiles since 2026-11-16), but a CR3 whose codec version is unknown is not read: it is scored from its
+        # preview and stops at the grade stage.
+        from test_cr3 import make_cr3
+
         with tempfile.TemporaryDirectory() as tmp:
             preview = Path(tmp) / "preview.jpg"
             _make_photo(preview, color="green")
-            fake_cr2 = b"II*\x00\x08\x00\x00\x00" + b"\x00" * 64 + preview.read_bytes() + b"\x00" * 16
-            manifest = _ingested_shoot(Path(tmp) / "shoot", extra_files={"IMG_0003.CR2": fake_cr2})
+            c_raw = make_cr3(version=0x300, levels=3) + preview.read_bytes() + b"\x00" * 16
+            manifest = _ingested_shoot(Path(tmp) / "shoot", extra_files={"IMG_0003.CR3": c_raw})
 
             result = run_local_pipeline(manifest, clock=_ticking_clock())
 
@@ -276,7 +379,7 @@ class LocalPipelineTests(unittest.TestCase):
             self.assertTrue(any(job_id.startswith("grade_asset_") for job_id in result.needs_review_ids), result)
             status = json.loads((manifest.parent / "production_status.json").read_text())
             messages = [job["error_message"] for job in status["job_statuses"] if job.get("error_message")]
-            self.assertTrue(any("convert CR2 to DNG" in message for message in messages), messages)
+            self.assertTrue(any("codec version" in message and "DNG Converter" in message for message in messages), messages)
 
     def test_cli_exit_code_reports_review_needed(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

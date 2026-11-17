@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKmVd7p93CbfdUkCZxy",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T02:09:29Z",
+  "ended": "2026-11-12T02:23:50Z",
+  "wall_minutes": 14.72,
+  "tokens_in": 6956224,
+  "tokens_out": 56561,
+  "cost_usd": 3.7202,
+  "tool_calls": 64,
+  "task": "research programme buildbot-sheathing, milestone 2 (as-built studs), drawn by pick_track.py",
+  "projects": [
+    "research/buildbot-sheathing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14969",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "max_feasible_bow first returned 4W instead of 2W (doubled the window width); a test against the Monte Carlo caught it before any result was reported",
+      "fixed": true
+    },
+    {
+      "what": "a test expected a single read to fail every sheet at a 6 mm bow; it passes exactly a quarter (one bow sign per joint stud is harmless); the test was wrong, not the model",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "every data and standards host tried (spib.org, nelma.org, fpl.fs.usda.gov, research.fs.usda.gov, core.ac.uk, doi.org, crossref) failed DNS through WebFetch/curl; the warp limits and means had to come from search snippets. A list of hosts known reachable from cloud sessions would save probing."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py found no interpreter with numpy (the session image's python3 lacks it) and installed into /usr/bin/python3.13; fine, but the bare python3 used by build.py and other CI scripts has no numpy, so project tests cannot use the default interpreter."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/buildbot-sheathing/LOG.md",
+      "why": "section H (wider joint framing) was not pre-registered; added after C-F showed no sensing policy reached 95% on single-2x joints",
+      "did": "ran it and labelled it unplanned in the README, LOG and results",
+      "result": "became the headline actionable result, disclosed as post hoc"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-a-bowed-stud-closes-the-sheathing-joint.md",
+    "research/buildbot-sheathing/LOG.md (milestone 2 plan and result)"
+  ],
+  "goal": "advance a PhD-level programme by one milestone with sourced inputs",
+  "notes": "Local checks: pytest 14 passed (research/buildbot-sheathing); research/_homepage/build.py ok; research_live_links --write ok; check_md_links ok; programme_check ok; cite_check: 0 DOIs/arXiv ids in README. Results: H6 held, H7 held, H8 refuted (three reads 0.80 < 0.95), H9 held; 3x or doubled 2x joints + three reads give 1.0000 clean sheets at both published warp levels.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "50d1f8f2-a989-532c-bda7-b62e213687ea",
+    "transcripts": 1,
+    "first": "2026-11-12T02:09:29Z",
+    "last": "2026-11-12T02:24:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 55,
+        "input": 105,
+        "output": 56561,
+        "thinking": 19070,
+        "cache_read": 6802609,
+        "cache_write_5m": 0,
+        "cache_write_1h": 153510,
+        "api_equivalent_usd": 3.7202,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 105,
+      "output": 56561,
+      "thinking": 19070,
+      "cache_read": 6802609,
+      "cache_write_5m": 0,
+      "cache_write_1h": 153510,
+      "api_equivalent_usd": 3.7202,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 64,
+    "tools": {
+      "Bash": 41,
+      "WebSearch": 8,
+      "WebFetch": 5,
+      "Write": 5,
+      "ToolSearch": 2,
+      "Read": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.72,
+      "active_minutes": 14.72,
+      "model_minutes": 9.99,
+      "tool_minutes": 4.73,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a construction-robotics researcher sourcing grading rules, writing and testing a warped-stud tolerance model and its experiments, and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 430.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

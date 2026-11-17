@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVKpreecTipKjFLHGYH",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell revenue software; merge when done)",
+  "input_sha256": "190a6f12e1e74c8d866f70b0c4646410776f6d1e6fa6213ce83b266467659830",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T16:04:46Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "sensing-selfcal milestone 7: first full paper draft (RA-L), numbers checked against stored results",
+  "projects": [
+    "sensing-selfcal"
+  ],
+  "pr": 15532,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/cite_check.py",
+      "issue": "doi.org and arxiv.org refused the proxy (403); all 16 citations stay unchecked"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "The scheduled prompt asked for venture work, but the router drew the research track, so I followed the router. Within that track, the 4d next step (a per-unit threshold) cannot be tested on 13 views without overlap. I looked for a larger real set in opencv_extra and found only a fisheye rig, so I drafted the paper (milestone 7) instead.",
+      "did": "paper draft + check_numbers.py",
+      "result": "82/82 checks pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-a-checkerboard-print-worth-more-error-than-self-calibration.md"
+  ],
+  "goal": null,
+  "notes": "Local checks: check_numbers 82/82, research homepage build ok, live links no change, md links ok, programme_check ok. No src/experiments code changed.",
+  "corrections": [],
+  "redteam": null
+}

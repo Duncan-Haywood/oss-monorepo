@@ -142,7 +142,14 @@
     for (const f of result.findings) {
       const li = document.createElement("li");
       li.className = f.severity;
-      li.innerHTML = `<span class="cat">${categoryLabel(f.category)} · ${f.severity}</span><br><span class="server">${f.serverName}</span> — ${f.detail}`;
+      // Server names and finding text come from the pasted config, so they go in as text, never as HTML.
+      const cat = document.createElement("span");
+      cat.className = "cat";
+      cat.textContent = `${categoryLabel(f.category)} · ${f.severity}`;
+      const server = document.createElement("span");
+      server.className = "server";
+      server.textContent = f.serverName;
+      li.append(cat, document.createElement("br"), server, document.createTextNode(` — ${f.detail}`));
       list.appendChild(li);
     }
     $("serverCount").textContent = String(result.servers.length);

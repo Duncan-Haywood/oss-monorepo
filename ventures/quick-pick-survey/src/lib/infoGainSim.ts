@@ -13,6 +13,7 @@ import {
   selectNextPair,
   type PairItem,
 } from "@/lib/pairing";
+import { pickProbability, type LapseAnswer } from "@/lib/lapseEstimate";
 
 function mulberry32(seed: number): () => number {
   let s = seed;
@@ -26,17 +27,43 @@ function mulberry32(seed: number): () => number {
 }
 
 export type Policy = typeof selectNextPair;
+/**
+ * Reads the lapse share for the next update. With `oracle` set, each answer's
+ * `p` is the respondent's true chance of that pick (an upper bound on what
+ * their answers can say about e), not the ratings' chance before it. With
+ * `point`, the ratings' chance ignores rd (point ratings, no Glicko g).
+ */
+export type LapseSource = ((answers: readonly LapseAnswer[], states: ReadonlyMap<string, GlickoState>) => number) & { oracle?: boolean; point?: boolean };
 
 /**
  * `lapse` is the share of answers given at random (an inconsistent respondent);
  * `positionBias` is the share of answers that take the first option shown whatever
  * the items are (negative: the second option). Both draw nothing extra at 0, so older seeds reproduce.
- * `updateLapse` is the lapse share the Glicko update assumes (glicko2.ts; 0 is the published update).
+ * Caution: the first option here is the policy's first id, which the selectors do not shuffle; the
+ * route shuffles slots per pair. Unshuffled, a first-option bias lands on the item the selector chose
+ * first and costs far more than it does live (information selector, 30 items, 300 answers, bias 0.5:
+ * 0.351 here, 0.611 shuffled; docs/INFORMATION-GAIN-SELECTOR.md, "Careless patterns that are not
+ * random"). Wrap the policy in a slot shuffle to measure what the route sees, as
+ * scripts/position-bias-shuffled-sweep.ts does ("Position bias behind the slot shuffle").
+ * `updateLapse` is the lapse share the Glicko update assumes (glicko2.ts; 0 is the published update),
+ * or a function that reads it before each answer from the answers so far and the current states
+ * (lapseEstimate.ts, the per-respondent estimate). `onLapse` sees the share each update used.
  * `coverage95` is the share of item pairs whose 95% interval on the rating
  * difference, sqrt(rd_a^2 + rd_b^2) wide each side, holds the true difference
  * (truth is on a logit scale with slope 2, so true mu difference = 2 dt).
+ * `truthFor`, when given, replaces item i's drawn truth (the draw still happens,
+ * so the rest of the seed's stream is unchanged): a survey whose respondents
+ * share one truth plus a personal deviation (scripts/anchor-weight-sweep.ts).
+ * `chooser`, when given, may answer in the respondent's place: it sees the two
+ * ids in slot order, the honest chance of the first and the run's rand, and
+ * returns true (first), false (second) or undefined (answer as usual). A
+ * careless pattern that is not random, such as a favourite item or a trait
+ * shared across respondents (scripts/careless-pattern-sweep.ts). Undefined
+ * draws nothing extra, so older seeds reproduce.
  */
-export function simulate(policy: Policy, itemCount: number, budget: number, seed: number, lapse = 0, positionBias = 0, lapseFrom = 0, useAgreement = false, onAnswer?: (answered: number, rds: number[]) => void, updateLapse = 0) {
+export type Chooser = (aId: string, bId: string, pA: number, rand: () => number) => boolean | undefined;
+
+export function simulate(policy: Policy, itemCount: number, budget: number, seed: number, lapse = 0, positionBias = 0, lapseFrom = 0, useAgreement = false, onAnswer?: (answered: number, rds: number[]) => void, updateLapse: number | LapseSource = 0, onLapse?: (answered: number, e: number) => void, truthFor?: (index: number, drawn: number) => number, chooser?: Chooser) {
   const rand = mulberry32(seed);
   const truth = new Map<string, number>();
   const state = new Map<string, GlickoState>();
@@ -44,7 +71,8 @@ export function simulate(policy: Policy, itemCount: number, budget: number, seed
   const items: PairItem[] = [];
   for (let i = 0; i < itemCount; i++) {
     const id = `item-${String(i).padStart(3, "0")}`;
-    truth.set(id, rand() * 2 - 1);
+    const drawn = rand() * 2 - 1;
+    truth.set(id, truthFor ? truthFor(i, drawn) : drawn);
     state.set(id, { ...DEFAULT_GLICKO_STATE });
     items.push({
       id,
@@ -56,6 +84,7 @@ export function simulate(policy: Policy, itemCount: number, budget: number, seed
   }
   const recent: string[] = [];
   const picks: DecidedPick[] = [];
+  const history: LapseAnswer[] = [];
   let firstPicks = 0;
   for (let answered = 0; answered < budget; answered++) {
     const live = items.map((item) => {
@@ -75,10 +104,17 @@ export function simulate(policy: Policy, itemCount: number, budget: number, seed
       rand,
     });
     const pA = 1 / (1 + Math.exp(-2 * (truth.get(aId)! - truth.get(bId)!)));
-    const pickedFirst = positionBias > 0 && rand() < positionBias ? true : positionBias < 0 && rand() < -positionBias ? false : lapse > 0 && answered >= lapseFrom && rand() < lapse ? rand() < 0.5 : rand() < pA;
+    const pickedFirst = chooser?.(aId, bId, pA, rand) ?? (positionBias > 0 && rand() < positionBias ? true : positionBias < 0 && rand() < -positionBias ? false : lapse > 0 && answered >= lapseFrom && rand() < lapse ? rand() < 0.5 : rand() < pA);
     if (pickedFirst) firstPicks++;
     { const sa = state.get(aId)!, sb = state.get(bId)!; picks.push(pickedFirst ? { picked: sa.rating, other: sb.rating, pickedRd: sa.rd, otherRd: sb.rd } : { picked: sb.rating, other: sa.rating, pickedRd: sb.rd, otherRd: sa.rd }); }
-    const { a, b } = applyComparison(state.get(aId)!, state.get(bId)!, pickedFirst ? "A" : "B", updateLapse);
+    const src = typeof updateLapse === "number" ? undefined : updateLapse;
+    const sa0 = state.get(aId)!, sb0 = state.get(bId)!;
+    const pModelA = src?.point ? 1 / (1 + Math.exp(-(sa0.rating - sb0.rating) / GLICKO_SCALE)) : pickProbability(sa0, sb0);
+    const before = src?.oracle ? (pickedFirst ? pA : 1 - pA) : pickedFirst ? pModelA : 1 - pModelA;
+    const e = typeof updateLapse === "number" ? updateLapse : Math.min(updateLapse(history, state), 0.95);
+    onLapse?.(answered, e);
+    const { a, b } = applyComparison(state.get(aId)!, state.get(bId)!, pickedFirst ? "A" : "B", e);
+    history.push(pickedFirst ? { picked: aId, other: bId, p: before } : { picked: bId, other: aId, p: before });
     state.set(aId, a);
     state.set(bId, b);
     timesShown.set(aId, (timesShown.get(aId) ?? 0) + 1);
@@ -106,7 +142,7 @@ export function simulate(policy: Policy, itemCount: number, budget: number, seed
     }
   }
   const coverage95 = pairs === 0 ? 1 : held / pairs;
-  return { under, rankAccuracy, coverage95, touched: timesShown.size, truth };
+  return { under, rankAccuracy, coverage95, touched: timesShown.size, truth, states: state, history };
 }
 
 export function spearman(xs: number[], ys: number[]): number {

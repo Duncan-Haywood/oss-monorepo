@@ -38,24 +38,26 @@ export function detectDelimiter(text) {
 
 export function parseCsv(text, delim = ",") {
   const rows = [];
-  let row = [], field = "", quoted = false;
+  // Each row carries a non-enumerable `line`: the file line it starts on,
+  // so a reader can name it after blank lines or quoted line breaks.
+  let row = [], field = "", quoted = false, line = 1, start = 1;
   const src = String(text ?? "").replace(/^﻿/, "");
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (quoted) {
       if (c === '"') { if (src[i + 1] === '"') { field += '"'; i++; } else quoted = false; }
-      else field += c;
+      else { field += c; if (c === "\n" || (c === "\r" && src[i + 1] !== "\n")) line++; }
     } else if (c === '"') quoted = true;
     else if (c === delim) { row.push(field); field = ""; }
     else if (c === "\n" || c === "\r") {
       if (c === "\r" && src[i + 1] === "\n") i++;
       row.push(field); field = "";
-      if (row.some((f) => f.trim() !== "")) rows.push(row);
-      row = [];
+      if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
+      row = []; start = ++line;
     } else field += c;
   }
   row.push(field);
-  if (row.some((f) => f.trim() !== "")) rows.push(row);
+  if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
   return rows;
 }
 
@@ -63,7 +65,7 @@ export function parseCsv(text, delim = ",") {
 export function parseNumber(v, decimalComma = false) {
   let s = String(v ?? "").trim();
   if (s === "" || /^[-–—\s]+$/.test(s)) return 0;
-  const neg = /^\(.*\)$/.test(s) || /^[-−]/.test(s);
+  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−–—]/.test(s);
   s = s.replace(/[^0-9.,]/g, "");
   s = decimalComma ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, "");
   const n = Number(s);
@@ -77,11 +79,11 @@ export function parseNumber(v, decimalComma = false) {
 export function parseDate(v, dmy = false) {
   const s = String(v ?? "").trim();
   if (!s) return NaN;
-  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)/);
   let y, mo, d;
   if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; }
   else {
-    m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})/);
+    m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(?!\d)/);
     if (!m) return NaN;
     const a = +m[1], b = +m[2];
     y = +m[3]; if (y < 100) y += 2000;
@@ -95,14 +97,18 @@ export function parseDate(v, dmy = false) {
 // A file is day-first if any slash date has a first part above 12 and none has
 // a second part above 12. Ambiguous files default to month-first (US).
 export function detectDmy(values) {
-  let first = false, second = false;
+  // Dots ("03.06.2026") are the European day.month.year form; no locale
+  // writes month.day.year, so a dotted file is day-first unless a second part
+  // is above 12 (red team 2026-11-15).
+  let first = false, second = false, dotted = false;
   for (const v of values) {
-    const m = String(v ?? "").trim().match(/^(\d{1,2})[/.-](\d{1,2})[/.-]\d{2,4}/);
+    const m = String(v ?? "").trim().match(/^(\d{1,2})([/.-])(\d{1,2})\2\d{2,4}/);
     if (!m) continue;
     if (+m[1] > 12) first = true;
-    if (+m[2] > 12) second = true;
+    if (+m[3] > 12) second = true;
+    if (m[2] === ".") dotted = true;
   }
-  return first && !second;
+  return (first || dotted) && !second;
 }
 
 const DAY = 86400000;
@@ -150,17 +156,17 @@ export function normalizeRows(table, { decimalComma = false } = {}) {
     const amount = parseNumber(get(line, "amount"), decimalComma);
     const cur = get(line, "currency").toUpperCase();
     if (isAdj) {
-      if (!Number.isFinite(amount)) { skipped.push({ line: r + 1, reason: "unreadable amount" }); continue; }
-      adjustments.push({ line: r + 1, listing, amount, type: get(line, "type"), code: get(line, "code") });
+      if (!Number.isFinite(amount)) { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable amount" }); continue; }
+      adjustments.push({ line: table[r].line ?? r + 1, listing, amount, type: get(line, "type"), code: get(line, "code") });
       if (cur) tally[cur] = (tally[cur] || 0) + 1;
       continue;
     }
     const start = parseDate(get(line, "start"), dmy);
-    if (!Number.isFinite(start)) { skipped.push({ line: r + 1, reason: "unreadable start date" }); continue; }
+    if (!Number.isFinite(start)) { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable start date" }); continue; }
     let end = parseDate(get(line, "end"), dmy);
     let nights = get(line, "nights") === "" ? NaN : parseNumber(get(line, "nights"), decimalComma);
     if (!Number.isFinite(nights) || nights <= 0) nights = Number.isFinite(end) && end > start ? Math.round((end - start) / DAY) : NaN;
-    if (!Number.isFinite(nights) || nights <= 0) { skipped.push({ line: r + 1, reason: "no usable night count" }); continue; }
+    if (!Number.isFinite(nights) || nights <= 0) { skipped.push({ line: table[r].line ?? r + 1, reason: "no usable night count" }); continue; }
     if (!Number.isFinite(end)) end = start + nights * DAY;
     const service = Math.abs(parseNumber(get(line, "service"), decimalComma)) || 0;
     const fastPay = Math.abs(parseNumber(get(line, "fastPay"), decimalComma)) || 0;
@@ -168,11 +174,11 @@ export function normalizeRows(table, { decimalComma = false } = {}) {
     const taxes = Math.abs(parseNumber(get(line, "taxes"), decimalComma)) || 0;
     let gross = get(line, "gross") === "" ? NaN : parseNumber(get(line, "gross"), decimalComma);
     let net = amount;
-    if (!Number.isFinite(gross) && !Number.isFinite(net)) { skipped.push({ line: r + 1, reason: "no gross earnings or amount" }); continue; }
+    if (!Number.isFinite(gross) && !Number.isFinite(net)) { skipped.push({ line: table[r].line ?? r + 1, reason: "no gross earnings or amount" }); continue; }
     if (!Number.isFinite(gross)) gross = net + service + fastPay;
     if (!Number.isFinite(net) || get(line, "amount") === "") net = gross - service - fastPay;
     if (cur) tally[cur] = (tally[cur] || 0) + 1;
-    stays.push({ line: r + 1, code: get(line, "code"), guest: get(line, "guest"), listing, start, end, nights, gross, service, fastPay, cleaning, taxes, net });
+    stays.push({ line: table[r].line ?? r + 1, code: get(line, "code"), guest: get(line, "guest"), listing, start, end, nights, gross, service, fastPay, cleaning, taxes, net });
   }
   const currency = Object.entries(tally).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "";
   return { stays, adjustments, payouts, skipped, ignored, currency, columns: cols, dmy, error: stays.length ? null : "No reservation rows with a start date and night count were found." };
@@ -306,3 +312,23 @@ export function sampleCsv() {
 export const money = (n) => (n < 0 ? "−" : "") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 export const pct = (x) => `${(x * 100).toFixed(1)}%`;
 export const dateStr = (t) => new Date(t).toISOString().slice(0, 10);
+
+// Decimal comma or decimal point, read from the amounts themselves: a last
+// separator followed by one or two digits ("12,50", "1.234,56" or "12.50",
+// "1,234.56") is a vote, as is a "1.234,"/"1,234." grouping pattern. With no
+// telling value (whole numbers, "1,234") a semicolon-delimited file is taken
+// as decimal comma, as before. `table` is the parsed rows, header included.
+export function detectDecimalComma(table, delim = ",") {
+  let comma = 0, dot = 0;
+  for (const row of table) {
+    for (const cell of row) {
+      const s = String(cell ?? "").trim();
+      if (!/\d/.test(s) || /[a-z]{3,}/i.test(s.replace(/usd|eur|gbp|cad|aud/gi, ""))) continue;
+      if (/^\d{1,4}[/.-]\d{1,2}[/.-]\d{2,4}/.test(s) || /\d:\d\d/.test(s)) continue;
+      const v = s.replace(/[^0-9.,]/g, "");
+      if (/,\d{1,2}$/.test(v) || /\.\d{3},/.test(v)) comma += 1;
+      else if (/\.\d{1,2}$/.test(v) || /,\d{3}\./.test(v)) dot += 1;
+    }
+  }
+  return comma === dot ? delim === ";" : comma > dot;
+}

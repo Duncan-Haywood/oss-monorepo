@@ -59,6 +59,7 @@ import { mergeInvoicePayments } from "./invoices.mjs";
 import { invoiceRoutes } from "./invoices-server.mjs";
 import { mergeWaitlist } from "./waitlist.mjs";
 import { waitlistRoutes } from "./waitlist-server.mjs";
+import { pathToFileURL } from "node:url";
 
 const MAX_BODY = 64 * 1024;
 const MAX_DESK = 8 * 1024 * 1024;
@@ -319,7 +320,7 @@ export async function dailyDigest(state, save, env, today, fetchImpl = globalThi
   return { sent, items: items.length };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const statePath = process.env.STATE || "desk.json";
   const state = { desk: loadDesk(statePath, { dir: backupDir(process.env) }).desk }; // a damaged file is moved aside, never overwritten
   const save = () => atomicWrite(statePath, JSON.stringify(state.desk));

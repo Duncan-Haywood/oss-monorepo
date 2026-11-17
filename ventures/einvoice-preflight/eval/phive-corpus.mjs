@@ -26,6 +26,7 @@
 import { readdirSync, readFileSync, statSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { preflightDocuments, isBlocking } from "../report.mjs";
+import { plainAvailable } from "../plain-node.mjs";
 
 const root = process.argv[2];
 if (!root || !existsSync(root)) { console.error("usage: node eval/phive-corpus.mjs <phive-rules checkout> [--set name] [--files] [--json]"); process.exit(2); }
@@ -36,6 +37,11 @@ const flag = (k) => process.argv.includes(k);
 export const SETS = {
   "pint-aunz/1.1.3": "phive-rules-peppol-pint/src/test/resources/external/test-files/pint-aunz/1.1.3",
   "pint-sg/1.4.1": "phive-rules-peppol-pint/src/test/resources/external/test-files/pint-sg/1.4.1",
+  "pint-jp/1.1.3": "phive-rules-peppol-pint/src/test/resources/external/test-files/pint-jp/1.1.3",
+  "pint-jp-ntr/1.1.3": "phive-rules-peppol-pint/src/test/resources/external/test-files/pint-jp-ntr/1.1.3",
+  "pint-my/1.3.1": "phive-rules-peppol-pint/src/test/resources/external/test-files/pint-my/1.3.1",
+  "pint-ae/2026.5": "phive-rules-peppol-pint/src/test/resources/external/test-files/pint-ae/2026.5",
+  "pint-om/1.0.1": "phive-rules-peppol-pint/src/test/resources/external/test-files/pint-om/1.0.1",
   "nlcius/SI-UBL-2.0.3.2": "phive-rules-simplerinvoicing/src/test/resources/external/test-files/simplerinvoicing/SI-UBL-2.0.3.2",
   "nlcius-cii/1.0.3": "phive-rules-simplerinvoicing/src/test/resources/external/test-files/simplerinvoicing/NLCIUS-CII-1.0.3",
   "cius-ro/1.0.9": "phive-rules-cius-ro/src/test/resources/external/test-files/1.0.9",
@@ -47,6 +53,11 @@ export const SETS = {
 export const MODULES = {
   "pint-aunz/1.1.3": "phive-rules-peppol-pint",
   "pint-sg/1.4.1": "phive-rules-peppol-pint",
+  "pint-jp/1.1.3": "phive-rules-peppol-pint",
+  "pint-jp-ntr/1.1.3": "phive-rules-peppol-pint",
+  "pint-my/1.3.1": "phive-rules-peppol-pint",
+  "pint-ae/2026.5": "phive-rules-peppol-pint",
+  "pint-om/1.0.1": "phive-rules-peppol-pint",
   "nlcius/SI-UBL-2.0.3.2": "phive-rules-simplerinvoicing",
   "nlcius-cii/1.0.3": "phive-rules-simplerinvoicing",
   "cius-ro/1.0.9": "phive-rules-cius-ro",
@@ -103,6 +114,10 @@ export async function runSet(dir, good = null) {
   return out;
 }
 
+// Without slimdom/fontoxpath every file reports schematron "unavailable" and only the
+// built-in checks run, so INV ids the official sets would step aside for (INV-022 under
+// PINT, for one) fill the table (2026-11-12: 0 of 49 Oman files clean, not 45).
+if (!flag("--builtin") && !plainAvailable()) console.error("warning: slimdom/fontoxpath not installed, so the official rule sets do not run and every count is the built-in checks alone (npm i --no-save slimdom fontoxpath)");
 const only = arg("--set");
 const results = {};
 for (const [name, rel] of Object.entries(SETS)) {

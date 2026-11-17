@@ -118,7 +118,7 @@ export function bodyBlock(g) {
   return { Q, hn, frontDrop, backDrop, sx, sd, ad, L: g.length };
 }
 
-function armholeCurve(b, side) {
+export function armholeCurve(b, side) {
   const sc = side === "front" ? 1.25 : 0.6;               // front scoops deeper than back
   const P0 = [b.sx, b.sd], P3 = [b.Q, b.ad];
   const span = b.Q - b.sx, drop = b.ad - b.sd;
@@ -174,11 +174,20 @@ export function solveCap(w, targetFront, targetBack) {
 
 function sleevePiece(g, b, front, back, garment, o) {
   const bc = g.bodyChest;
-  const w = 0.22 * bc + 0.1 * (g.chest - bc) + 1;            // bicep width, flat
-  const sl = o.sleeveLenCm[garment] - (o.rib ? o.cuffRibCm : 0);
-  const hemW = garment === "tee" ? w - 2.5 : Math.max(0.13 * bc, w * 0.62);
+  // The piece is the whole sleeve opened out, so its width is the sleeve's full
+  // girth at the bicep: twice the flat (laid-down) bicep measurement. Until
+  // 2026-11-13 the flat figure was used as the full width, a 24 cm sleeve at M
+  // that the drape (arms added) stretched 37% round a 31 cm upper arm.
+  const flatBicep = Number(o.bicepCm) > 0 ? Number(o.bicepCm) : 0.17 * bc + 0.1 * (g.chest - bc); // o.bicepCm: the designer's own flat bicep
+  const w = 2 * flatBicep;
   const solved = solveCap(w, front.armholeLen + o.capEaseCm / 2, back.armholeLen + o.capEaseCm / 2);
   if (!solved.ok) return { error: "no sleeve cap reaches the armhole length at this width" };
+  // Sleeve length is measured from the shoulder point (the cap's top) to the cuff, as in
+  // the spec sheet (spec.mjs, tryon.mjs). Until 2026-11-13 it ran from the underarm,
+  // so every sleeve came out a cap height (9 to 17 cm) too long.
+  const sl = o.sleeveLenCm[garment] - (o.rib ? o.cuffRibCm : 0) - solved.h;
+  if (!(sl > 3)) return { error: "the sleeve is shorter than its cap: lengthen the sleeve" };
+  const hemW = garment === "tee" ? w * 0.85 : Math.max(0.21 * bc, w * 0.52);
   const cp = solved.cap.pts;
   const hemL = [-hemW / 2, sl], hemR = [hemW / 2, sl];
   const segs = [
@@ -189,7 +198,7 @@ function sleevePiece(g, b, front, back, garment, o) {
   ];
   const t = solved.t;
   return {
-    name: "sleeve", qty: 2, cutOnFold: false, segs, solved,
+    name: "sleeve", qty: 2, cutOnFold: false, segs, solved, girthCm: w, lengthCm: solved.h + sl,
     notches: [
       { at: [t, -solved.h], label: "shoulder" },
       { at: solved.cap.left[Math.round(solved.cap.left.length * 0.55)], label: "F" },
@@ -362,6 +371,7 @@ export function draft(garment, size, { fit = "regular", sizeChart = BODY_CHEST_C
     capFrontCm: r2(s.frontLen), capBackCm: r2(s.backLen),
     capEaseCm: r2(s.frontLen + s.backLen - front.armholeLen - back.armholeLen),
     capHeightCm: r2(s.h), capHeightRatio: r2(s.h / (front.armholeLen + back.armholeLen)),
+    sleeveBicepGirthCm: r2(sleeve.girthCm), sleeveLengthCm: r2(sleeve.lengthCm), // girth = the piece's width; length from the shoulder point (cap top) to the cuff seam
     allSimple: pieces.every(p => p.simple),
   };
   if (o.rib) {

@@ -1,0 +1,4 @@
+Milestone 6l diagnostic (post hoc): R3 = rule over three random observed days, cell1, 400 triples
+  load 70%: R3 smallest S 63; P(W>300) at S = 58, 63, 68: 0.0621, 0.0479, 0.0377; E[N_q] at 06:00 of the scored day: mean 3.9, 95th pct 17.1, max 72.9 (chargers 8)
+  load 85%: R3 smallest S 108; P(W>300) at S = 103, 108, 113: 0.0573, 0.0496, 0.0430; E[N_q] at 06:00 of the scored day: mean 16.4, 95th pct 78.6, max 138.7 (chargers 8)
+  runtime 670 s

@@ -1,8 +1,14 @@
 # Are your lien deadlines still open?
 
-> Free calculator for the preliminary notice and lien filing deadlines a subcontractor or supplier faces in California, Texas, Florida, Arizona, Washington and Georgia. Enter your first and last day on the job; see both dates, weekend flags, and days left. Entirely client-side, nothing uploaded.
+> Free calculator for the preliminary notice and lien filing deadlines a subcontractor or supplier faces in California, Texas, Florida, Arizona, Washington, Georgia and Colorado. Enter your first and last day on the job; see both dates, weekend flags, and days left. Entirely client-side, nothing uploaded.
 
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## What it covers
+
+- Texas: one notice date per month of unpaid work (15th day of the 3rd month after it, 2nd on residential), lien affidavit 15th of the 4th (3rd) month; rules for original contracts from 2022-01-01, the same for every tier.
+- Georgia: Notice to Contractor shown only for second-tier claimants (hired by a subcontractor), as the statute requires it only without privity with the contractor.
+- California, Arizona, Florida, Washington, Colorado: the same clocks for first- and second-tier claimants.
 
 ## Pages
 

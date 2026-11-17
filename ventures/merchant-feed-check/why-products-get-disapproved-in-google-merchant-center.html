@@ -59,7 +59,7 @@
   <div class="card">
     <h2>Wiring the CLI into a deploy pipeline</h2>
     <p>Run it as a step right before whatever job uploads or syncs your feed — a scheduled GitHub Action, a cron job, or a step in the same pipeline that regenerates the feed from your product database:</p>
-    <pre><code>- name: Check product feed
+    <pre tabindex="0"><code>- name: Check product feed
   run: node cli.mjs check feed.csv</code></pre>
     <p>Exit code 1 fails the job on any data-specification error, so a broken feed never reaches the sync step. Ecosystem note: this reads the feed file itself, so it works the same whether that file came from Shopify's native feed app, a WooCommerce plugin export, or a hand-rolled script — nothing here depends on which platform generated it.</p>
   </div>

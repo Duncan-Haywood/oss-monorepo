@@ -1,0 +1,127 @@
+Part 1. teams times courts | least courts for a wait-free night: old bound / new bound | blocks | waits off (3 seeds) | waits on | ms on (avg) | valid
+6 4 3 | 3 / 3 | - | 0 | 0 | 42 | true
+6 5 3 | 3 / 3 | - | 0 | 0 | 25 | true
+6 6 2 | 2 / 2 | - | 6 | 6 | 252 | true
+7 4 3 | 2 / 3 | - | 0 | 0 | 72 | true
+7 5 3 | 2 / 3 | - | 0 | 0 | 62 | true
+7 6 2 | 1 / 2 | - | 7 | 7 | 236 | true
+8 4 4 | 4 / 4 | - | 0 | 0 | 44 | true
+8 5 4 | 4 / 4 | - | 0 | 0 | 44 | true
+8 6 2 | 2 / 2 | 4+4 | 31 | 31 | 521 | true
+9 4 4 | 3 / 4 | - | 0 | 0 | 143 | true
+9 5 4 | 3 / 4 | - | 0 | 0 | 169 | true
+9 6 2 | 2 / 2 | - | 31 | 31 | 844 | true
+10 4 5 | 5 / 5 | - | 0 | 0 | 94 | true
+10 5 5 | 5 / 5 | - | 0 | 0 | 87 | true
+10 6 3 | 3 / 3 | 6+4 | 36 | 0 | 135 | true
+11 4 5 | 4 / 5 | - | 0 | 0 | 160 | true
+11 5 5 | 4 / 5 | - | 0 | 0 | 172 | true
+11 6 3 | 2 / 3 | - | 22 | 0 | 182 | true
+12 4 6 | 6 / 6 | - | 0 | 0 | 177 | true
+12 5 6 | 6 / 6 | - | 0 | 0 | 156 | true
+12 6 3 | 3 / 3 | 6+6 | 68 | 0 | 245 | true
+13 4 6 | 5 / 6 | - | 0 | 0 | 257 | true
+13 5 6 | 5 / 6 | - | 0 | 0 | 223 | true
+13 6 3 | 3 / 3 | - | 52 | 0 | 245 | true
+14 4 7 | 7 / 7 | - | 0 | 0 | 224 | true
+14 5 7 | 7 / 7 | - | 0 | 0 | 199 | true
+14 6 4 | 4 / 4 | 8+6 | 54 | 0 | 303 | true
+16 4 8 | 8 / 8 | - | 0 | 0 | 267 | true
+16 5 8 | 8 / 8 | - | 0 | 0 | 259 | true
+16 6 4 | 4 / 4 | 8+8 | 114 | 0 | 445 | true
+18 4 9 | 9 / 9 | - | 0 | 0 | 288 | true
+18 5 9 | 9 / 9 | - | 0 | 0 | 234 | true
+18 6 5 | 5 / 5 | 10+8 | 98 | 0 | 431 | true
+20 4 10 | 10 / 10 | - | 0 | 0 | 259 | true
+20 5 10 | 10 / 10 | - | 0 | 0 | 245 | true
+20 6 5 | 5 / 5 | 10+10 | 181 | 0 | 490 | true
+24 4 12 | 12 / 12 | - | 0 | 0 | 281 | true
+24 5 12 | 12 / 12 | - | 0 | 0 | 258 | true
+24 6 6 | 6 / 6 | 12+12 | 242 | 0 | 721 | true
+
+39 settings x 3 seeds: total waits 942 -> 75; settings with no waits 26 -> 35; invalid 0
+
+Part 2. 7 teams, 3 games, 2 courts x 5 times: 32970 distinct nights (unordered), 0 can be laid out with every team's games back to back. Old bound: possible; new bound: impossible.
+
+Part 3. 8 teams, 3 games, 2 courts x 6 times (every slot booked): 35 splits into two groups of four, 0 edge-disjoint pairs of splits, so at most one of the season's two three-game nights can be wait-free.
+
+Part 4. teams times courts | blocks | designed | waits off (3 seeds) | waits on | ms on (avg) | valid
+22 6 6 | 12+10 | yes | 157 | 0 | 546 | true
+26 6 7 | 14+12 | yes | 235 | 0 | 658 | true
+28 6 7 | 14+14 | yes | 375 | 0 | 759 | true
+30 6 8 | 16+14 | yes | 316 | 0 | 760 | true
+32 6 8 | 16+16 | yes | 499 | 0 | 874 | true
+34 6 9 | 18+16 | yes | 456 | 0 | 969 | true
+36 6 9 | 18+18 | yes | 601 | 0 | 1309 | true
+38 6 10 | 20+18 | yes | 594 | 0 | 1087 | true
+40 6 10 | 20+20 | yes | 863 | 0 | 1306 | true
+42 6 11 | 22+20 | yes | 753 | 0 | 1403 | true
+44 6 11 | 22+22 | yes | 1022 | 0 | 1643 | true
+46 6 12 | 24+22 | yes | 1043 | 0 | 1681 | true
+48 6 12 | 24+24 | yes | 1273 | 0 | 2522 | true
+
+Part 5. teams times courts | blocks | stored 3-session design | waits off (3 seeds) | waits on | ms on (avg) | valid
+12 9 2 | 4+4+4 | no | 78 | 78 | 2049 | true
+14 9 3 | 6+4+4 | no | 0 | 0 | 420 | true
+16 9 3 | 6+6+4 | yes | 89 | 0 | 501 | true
+18 9 3 | 6+6+6 | yes | 148 | 0 | 615 | true
+20 9 4 | 8+6+6 | yes | 0 | 0 | 537 | true
+22 9 4 | 8+8+6 | yes | 192 | 0 | 656 | true
+24 9 4 | 8+8+8 | yes | 302 | 0 | 782 | true
+26 9 5 | 10+8+8 | yes | 0 | 0 | 1000 | true
+28 9 5 | 10+10+8 | yes | 349 | 0 | 946 | true
+30 9 5 | 10+10+10 | yes | 401 | 0 | 983 | true
+32 9 6 | 12+10+10 | yes | 0 | 0 | 894 | true
+34 9 6 | 12+12+10 | yes | 521 | 0 | 1211 | true
+36 9 6 | 12+12+12 | yes | 687 | 0 | 1339 | true
+38 9 7 | 14+12+12 | no | 0 | 0 | 651 | true
+40 9 7 | 14+14+12 | yes | 794 | 0 | 1631 | true
+42 9 7 | 14+14+14 | yes | 1013 | 0 | 1593 | true
+44 9 8 | 16+14+14 | yes | 0 | 0 | 2048 | true
+46 9 8 | 16+16+14 | yes | 1201 | 0 | 2098 | true
+48 9 8 | 16+16+16 | yes | 1521 | 0 | 2456 | true
+
+Part 6. odd leagues at 6 times: teams courts | least courts by the count bound | stored odd design (its courts x times) | waits off (3 seeds) | waits on | ms on (avg) | valid
+5 2 | 1 | yes (2x6) | 0 | 0 | 67 | true
+7 3 | 2 | yes (3x6) | 0 | 0 | 96 | true
+9 3 | 2 | yes (3x6, 2x9) | 0 | 0 | 174 | true
+11 3 | 3 | yes (3x6, 2x9) | 22 | 0 | 173 | true
+13 3 | 3 | yes (3x6, 2x9) | 52 | 0 | 254 | true
+15 4 | 4 | yes (4x6, 3x9) | 53 | 0 | 425 | true
+17 4 | 4 | yes (4x6, 3x9) | 86 | 0 | 425 | true
+19 5 | 5 | yes (5x6, 3x9) | 89 | 0 | 500 | true
+21 5 | 5 | yes (5x6, 4x9) | 148 | 0 | 546 | true
+23 6 | 6 | yes (6x6, 4x9) | 125 | 0 | 645 | true
+25 6 | 6 | yes (6x6, 4x9) | 217 | 0 | 780 | true
+27 7 | 7 | yes (7x6, 5x9) | 201 | 0 | 960 | true
+29 7 | 7 | yes (7x6) | 293 | 0 | 1012 | true
+
+Part 7. odd leagues at 9 times: teams courts | least courts by the count bound | stored odd design (its courts x times) | waits off (3 seeds) | waits on | ms on (avg) | valid
+5 2 | 1 | yes (2x6) | 0 | 0 | 63 | true
+7 3 | 1 | yes (3x6) | 0 | 0 | 107 | true
+9 2 | 2 | yes (3x6, 2x9) | 0 | 0 | 187 | true
+11 2 | 2 | yes (3x6, 2x9) | 31 | 0 | 189 | true
+13 2 | 2 | yes (3x6, 2x9) | 95 | 0 | 274 | true
+15 3 | 3 | yes (4x6, 3x9) | 0 | 0 | 379 | true
+17 3 | 3 | yes (4x6, 3x9) | 60 | 0 | 497 | true
+19 3 | 3 | yes (5x6, 3x9) | 171 | 0 | 534 | true
+21 4 | 4 | yes (5x6, 4x9) | 102 | 0 | 422 | true
+23 4 | 4 | yes (6x6, 4x9) | 184 | 0 | 777 | true
+25 4 | 4 | yes (6x6, 4x9) | 281 | 0 | 839 | true
+27 5 | 5 | yes (7x6, 5x9) | 231 | 0 | 493 | true
+29 5 | 5 | yes (7x6) | 334 | 334 | 3537 | true
+
+Part 7 before (main's odd-designs.mjs and PROVED_NO_WAIT_FREE, 2026-11-15, same command with --part 7):
+5 1 | 1 | yes (2x6) | 9 | 9 | 392 | true
+7 1 | 1 | yes (3x6) | 30 | 30 | 388 | true
+9 2 | 2 | yes (3x6) | 0 | 0 | 173 | true
+11 2 | 2 | yes (3x6) | 31 | 31 | 1372 | true
+13 2 | 2 | yes (3x6) | 95 | 95 | 1083 | true
+15 3 | 3 | yes (4x6) | 0 | 0 | 783 | true
+17 3 | 3 | yes (4x6) | 60 | 60 | 1769 | true
+19 3 | 3 | yes (5x6) | 171 | 171 | 1656 | true
+21 4 | 4 | yes (5x6) | 102 | 102 | 2444 | true
+23 4 | 4 | yes (6x6) | 184 | 184 | 2724 | true
+25 4 | 4 | yes (6x6) | 281 | 281 | 4909 | true
+27 5 | 5 | no | 231 | 231 | 4182 | true
+29 5 | 5 | yes (7x6) | 334 | 334 | 4559 | true

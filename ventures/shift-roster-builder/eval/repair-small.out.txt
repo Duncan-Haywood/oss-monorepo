@@ -1,0 +1,2 @@
+40 seeded weeks (6-10 people, 22-40 shifts, no time budget): open hours and score identical under main (b92b1c892), guided and unguided repair on 40 of 40.
+Total build time: main 4909 ms, guided 4804 ms, unguided 4400 ms.

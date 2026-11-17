@@ -1,12 +1,12 @@
 # Which forecast can you trust, and how much stock does it need?
 
-> Free demand forecasting for small sellers. Upload a sales CSV to get a back-tested forecast per SKU, safety stock and reorder points at your service level, ABC-XYZ classes, and an honest check of whether the forecast beats repeating last month. Runs in your browser; nothing is uploaded.
+> Free demand forecasting for small sellers. Upload a sales CSV to get a back-tested forecast per SKU, safety stock and reorder points at your service level, ABC-XYZ classes, and an honest check of whether the forecast beats repeating last month. With a cost per order and unit costs, it plans the cheapest order calendar per SKU (exact Wagner-Whitin lot sizing) and shows what Silver-Meal, a fixed EOQ and ordering every period would cost instead. Runs in your browser; nothing is uploaded.
 
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
-- [The tool](https://duncan-haywood.github.io/oss-monorepo/demand-forecast-backtester/)
+- [The tool](https://marisstella.app/demand-forecast-backtester/)
 
 ## Source
 

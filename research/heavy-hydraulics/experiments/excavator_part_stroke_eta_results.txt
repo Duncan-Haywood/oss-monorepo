@@ -1,0 +1,51 @@
+Milestone 6g: excavator break-even rest-of-machine fuel rate with part-stroke pump efficiency
+(motion: fuxi-robot/excavator-motion folder 75, CC BY-NC-SA 4.0; efficiency: Kauranne 2022, Energies 15:4030, Fig. 13, CC BY, digitised)
+central: 60 C (21 cSt), margin 20.0 bar, p 130 bar (load-sensing outlet 150 bar), b 0.2203 L/kWh (6f); fixed pump at full stroke, load-sensing at min(q, 219)/219 of stroke
+
+Digitised efficiency used (fraction of 45 cm3/r -> total efficiency):
+  60 C, 100 bar: 0.27: 0.682, 0.40: 0.746, 0.60: 0.814, 0.80: 0.832, 1.00: 0.835
+  60 C, 150 bar: 0.27: 0.672, 0.40: 0.743, 0.60: 0.817, 0.80: 0.840, 1.00: 0.840
+  60 C, 200 bar: 0.27: 0.634, 0.40: 0.718, 0.60: 0.806, 0.80: 0.835, 1.00: 0.840
+  25 C, 100 bar: 0.27: 0.661, 0.40: 0.726, 0.60: 0.797, 0.80: 0.827, 1.00: 0.840
+  25 C, 150 bar: 0.27: 0.681, 0.40: 0.746, 0.60: 0.822, 0.80: 0.850, 1.00: 0.856
+  25 C, 200 bar: 0.27: 0.674, 0.40: 0.746, 0.60: 0.822, 0.80: 0.850, 1.00: 0.856
+
+Central geometry (levers 1/1/1, bucket +1, swing 0.5):
+  check: the new formula with eta_LS = eta_OC = 0.818 gives f_t,max 2.3256, 6c's formula 2.3256 L/h (b 0.2203)
+  60 C: eta_LS 0.7694 (flow-weighted), eta_OC at the maximising pump 0.8395; f_t,max 5.495 L/h at q_p 101.0 L/min (tau 1.144); 6c at b 0.2203: 2.326
+  25 C: eta_LS 0.7748, eta_OC 0.8549; f_t,max 5.936 L/h at q_p 103.0
+  f_t*(q_p) at 60 C, L/h:
+    q_p   40.0: 0.962
+    q_p   60.0: 2.061
+    q_p   80.0: 3.989
+    q_p  100.0: 5.493
+    q_p  120.0: 2.562
+    q_p  140.0: 0.000
+    q_p  160.0: 0.000
+    q_p  180.0: 0.000
+    q_p  200.0: 0.000
+
+Over the 384 geometries, 60 C, central parameters: eta_LS 0.681 to 0.791 (median 0.734); f_t,max min 1.42, p10 2.07, median 3.32, p90 5.84, max 9.37 L/h; maximising pump median 72.0 L/min
+  share of geometries where a smaller fixed pump beats 6f's 2100 rpm no-load rate: 3.986 L/h: 32.8%; 4.022 L/h: 32.8%; 4.298 L/h: 28.9%; 4.689 L/h: 23.7%; 4.731 L/h: 22.1%; 5.056 L/h: 17.2%
+  stock 219 L/min fixed pump, pump-fuel gap over load-sensing: min +3.086, median +5.308 L/h (open-centre loses in 100.0%)
+Over the 384 geometries, 25 C, central parameters: eta_LS 0.689 to 0.798 (median 0.741); f_t,max min 1.53, p10 2.20, median 3.57, p90 6.31, max 10.12 L/h; maximising pump median 73.0 L/min
+  share of geometries where a smaller fixed pump beats 6f's 2100 rpm no-load rate: 3.986 L/h: 39.1%; 4.022 L/h: 37.0%; 4.298 L/h: 32.8%; 4.689 L/h: 27.9%; 4.731 L/h: 27.3%; 5.056 L/h: 22.4%
+  stock 219 L/min fixed pump, pump-fuel gap over load-sensing: min +2.904, median +5.071 L/h (open-centre loses in 100.0%)
+Fixed-pump efficiency at which load-sensing wins back (60 C, central parameters), as a multiple of the curve's full-stroke value (0.840 at 150 bar):
+  at 3.986 L/h: central geometry 0.9622 (eta_OC 0.808); over the 126 geometries where a fixed pump wins at the curve's value: median 0.9681, min 0.8986, max 0.9979
+  at 5.056 L/h: central geometry 0.9895 (eta_OC 0.831); over the 66 geometries where a fixed pump wins at the curve's value: median 0.9791, min 0.9237, max 0.9995
+  (a fixed pump less efficient than that, e.g. a gear pump or a smaller unit, hands the geometry back to load-sensing)
+For comparison, 6c's formula (eta 0.818 both) at b 0.2203: median 0.945, max 2.838 L/h
+Sweep at 60 C (4 margins x 3 pressures x 3 b = 36 sets): f_t,max over all cases 0.88 to 17.72 L/h
+  at 3.986 L/h: fixed pump wins under every set in 6.2%, under at least one set in 84.1% of geometries
+  at 5.056 L/h: fixed pump wins under every set in 2.6%, under at least one set in 65.9% of geometries
+
+Predictions (LOG.md 6g):
+  G1 central eta_LS in 0.72-0.80 and full-stroke eta in 0.82-0.86: held (0.769, 0.840)
+  G2 central f_t,max >= 2 x 2.326: held (5.495)
+  G3 median over 384 >= 2.0 L/h: held (3.32)
+  G4 share above 3.986 L/h >= 10%: held (32.8%)
+  G5 stock pump loses in every geometry: held (100.0%)
+  G6 25 C central within 25% of 60 C: held (5.936 vs 5.495, 8.0%)
+
+Sources: fuxi-robot/excavator-motion (CC BY-NC-SA 4.0; derived statistics only); Kauranne 2022 Fig. 13 (CC BY 4.0), digitised.

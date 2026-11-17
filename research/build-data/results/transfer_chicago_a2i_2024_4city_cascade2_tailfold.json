@@ -1,0 +1,218 @@
+{
+ "held_out": "chicago",
+ "sources": [
+  "sf",
+  "austin",
+  "seattle"
+ ],
+ "test_year": 2024,
+ "n_source_train": 3452437,
+ "n_own_train": 727114,
+ "n_test": 33064,
+ "seeds": 3,
+ "features": [
+  "log_cost",
+  "desc_len",
+  "month",
+  "dow",
+  "cls"
+ ],
+ "class_share_test": {
+  "new_construction": 0.0,
+  "alteration": 0.0,
+  "electrical": 0.0,
+  "plumbing": 0.025223808371642873,
+  "mechanical": 0.0,
+  "demolition": 0.0,
+  "sign": 0.06717275586740866,
+  "fire": 0.0,
+  "other": 0.9076034357609485
+ },
+ "class_share_source_train": {
+  "new_construction": 0.0,
+  "alteration": 0.0,
+  "electrical": 0.0,
+  "plumbing": 0.14339957543034093,
+  "mechanical": 0.0,
+  "demolition": 0.0,
+  "sign": 0.006115969675912986,
+  "fire": 0.0,
+  "other": 0.850484454893746
+ },
+ "pinball": {
+  "own_baseline": {
+   "0.1": 2.688873094604404,
+   "0.5": 12.592502419549964,
+   "0.9": 11.08444531817082
+  },
+  "transfer": {
+   "0.1": 2.7643357665268766,
+   "0.5": 14.738991526108826,
+   "0.9": 15.822914315403642
+  },
+  "own_boosted": {
+   "0.1": 2.6960881394799867,
+   "0.5": 12.811916542607664,
+   "0.9": 12.14130079885661
+  }
+ },
+ "h4": {
+  "transfer": {
+   "0.1": {
+    "diff": 0.07546267192247272,
+    "lo": 0.06215526933676974,
+    "hi": 0.09031646056078105,
+    "rel": 0.028064794903820123
+   },
+   "0.5": {
+    "diff": 2.1464891065588625,
+    "lo": 1.7480014942881679,
+    "hi": 2.568852668151743,
+    "rel": 0.17045770848742664
+   },
+   "0.9": {
+    "diff": 4.738468997232821,
+    "lo": 4.199878173441783,
+    "hi": 5.270686991665658,
+    "rel": 0.42748814768971893
+   },
+   "coverage_80": 0.866219049923381
+  },
+  "own_boosted": {
+   "0.1": {
+    "diff": 0.007215044875583175,
+    "lo": 0.006572804819776186,
+    "hi": 0.007863224383091678,
+    "rel": 0.0026832969135141263
+   },
+   "0.5": {
+    "diff": 0.21941412305769986,
+    "lo": 0.19372391171162143,
+    "hi": 0.24525758766221145,
+    "rel": 0.01742418748453505
+   },
+   "0.9": {
+    "diff": 1.0568554806857895,
+    "lo": 0.9217375692865052,
+    "hi": 1.1919120585503977,
+    "rel": 0.09534581572189975
+   },
+   "coverage_80": 0.8748790225018146
+  }
+ },
+ "coverage_80_own_baseline": 0.8852528429712073,
+ "tailfold": {
+  "fold": {
+   "new_construction": "other",
+   "alteration": "other",
+   "electrical": "other",
+   "mechanical": "other",
+   "demolition": "other",
+   "fire": "other"
+  },
+  "diagnostics": {
+   "new_construction": {
+    "n_source": 317130,
+    "n_held_history": 37211,
+    "q90": {
+     "q_source": 239.0,
+     "q_held": 99.0,
+     "ratio": 2.414141414141414,
+     "lo": 2.3333333333333335,
+     "hi": 2.4742268041237114
+    }
+   },
+   "alteration": {
+    "n_source": 1458889,
+    "n_held_history": 254354,
+    "q90": {
+     "q_source": 70.0,
+     "q_held": 65.0,
+     "ratio": 1.0769230769230769,
+     "lo": 1.0606060606060606,
+     "hi": 1.0923076923076922
+    }
+   },
+   "electrical": {
+    "n_source": 630365,
+    "n_held_history": 188868,
+    "q90": {
+     "q_source": 107.0,
+     "q_held": 21.0,
+     "ratio": 5.095238095238095,
+     "lo": 5.095238095238095,
+     "hi": 5.4
+    }
+   },
+   "plumbing": {
+    "n_source": 495078,
+    "n_held_history": 21324,
+    "q90": {
+     "q_source": 171.0,
+     "q_held": 0.0,
+     "ratio": null,
+     "lo": null,
+     "hi": null
+    }
+   },
+   "mechanical": {
+    "n_source": 470600,
+    "n_held_history": 9098,
+    "q90": {
+     "q_source": 157.0,
+     "q_held": 1.0,
+     "ratio": 157.0,
+     "lo": 155.0,
+     "hi": 159.0
+    }
+   },
+   "demolition": {
+    "n_source": 37931,
+    "n_held_history": 22427,
+    "q90": {
+     "q_source": 327.0,
+     "q_held": 84.0,
+     "ratio": 3.892857142857143,
+     "lo": 3.781609195402299,
+     "hi": 4.036144578313253
+    }
+   },
+   "sign": {
+    "n_source": 21115,
+    "n_held_history": 47490,
+    "q90": {
+     "q_source": 104.0,
+     "q_held": 202.0,
+     "ratio": 0.5148514851485149,
+     "lo": 0.4951923076923077,
+     "hi": 0.5333333333333333
+    }
+   },
+   "fire": {
+    "n_source": 98,
+    "n_held_history": 5579,
+    "q90": {
+     "q_source": 279.4,
+     "q_held": 66.0,
+     "ratio": 4.233333333333333,
+     "lo": 2.280281690140845,
+     "hi": 5.512861736334417
+    }
+   },
+   "other": {
+    "n_source": 21231,
+    "n_held_history": 140763,
+    "q90": {
+     "q_source": 271.0,
+     "q_held": 8.0,
+     "ratio": 33.875,
+     "lo": 33.125,
+     "hi": 40.142857142857146
+    }
+   }
+  },
+  "min_n": 50,
+  "rule": "fold a class whose source/held-history q0.9 ratio 95% CI is above 1"
+ },
+ "classes": "cascade2_tailfold"
+}

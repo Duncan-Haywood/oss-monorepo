@@ -23,13 +23,16 @@ Stage order and adapters:
 3. ``ffmpeg-grade-production-local``: full-resolution graded masters, with
    ``color/shoot_look.cube`` applied when present. A DNG still is developed
    from its sensor data first (``raw_develop.py``) and graded into a 16-bit
-   TIFF; other RAW formats stop here for conversion to DNG.
+   TIFF; other RAW formats stop here for conversion to DNG. With
+   ``grade_scope="selected"`` only the assets the storyline will pick get a
+   full master; the rest are graded from their review proxy.
 4. ``story-production-local``: storyline selection over the graded masters.
 5. ``ffmpeg-local`` render: the reel MP4 and the 4:5 carousel/photo-set JPEGs.
 """
 
 from __future__ import annotations
 
+import os
 import plistlib
 import sys
 from collections.abc import Callable, Sequence
@@ -44,6 +47,7 @@ from shootflow.assembly import (
 )
 from shootflow.catalog import load_ingest_manifest, production_assets_from_manifest
 from shootflow.production import build_production_plan
+from shootflow.production_adapter import GRADE_SCOPE_ENV, GRADE_SCOPES
 from shootflow.production_scheduler import (
     run_dry_run_production_scheduler,
     write_dry_run_production_scheduler_report,
@@ -102,8 +106,14 @@ def run_local_pipeline(
     stale_after: timedelta = timedelta(hours=6),
     retry_retryable: bool = False,
     clock: Callable[[], datetime] | None = None,
+    grade_scope: str | None = None,
 ) -> LocalPipelineResult:
     """Advance one ingested shoot as far as it can go without a person.
+
+    ``grade_scope="selected"`` makes full-resolution masters only of the
+    assets the storyline picks; the rest are graded from their review proxy
+    (``SHOOTFLOW_GRADE_SCOPE``, see ``production_adapter.grade_scope``).
+    ``None`` leaves the environment's setting alone (default ``all``).
 
     Running leases older than ``stale_after`` (a run killed by sleep or a
     power cut) are expired into retryable review states by the schedulers'
@@ -118,6 +128,44 @@ def run_local_pipeline(
         raise LocalPipelineError("max_iterations must be at least 1")
     if stale_after <= timedelta(0):
         raise LocalPipelineError("stale_after must be positive")
+    if grade_scope is None:
+        return _run_local_pipeline(
+            ingest_manifest_path,
+            max_concurrency=max_concurrency,
+            max_iterations=max_iterations,
+            stale_after=stale_after,
+            retry_retryable=retry_retryable,
+            clock=clock,
+        )
+    if grade_scope not in GRADE_SCOPES:
+        raise LocalPipelineError(f"grade_scope must be one of {', '.join(GRADE_SCOPES)}")
+    previous = os.environ.get(GRADE_SCOPE_ENV)
+    os.environ[GRADE_SCOPE_ENV] = grade_scope
+    try:
+        return _run_local_pipeline(
+            ingest_manifest_path,
+            max_concurrency=max_concurrency,
+            max_iterations=max_iterations,
+            stale_after=stale_after,
+            retry_retryable=retry_retryable,
+            clock=clock,
+        )
+    finally:
+        if previous is None:
+            os.environ.pop(GRADE_SCOPE_ENV, None)
+        else:
+            os.environ[GRADE_SCOPE_ENV] = previous
+
+
+def _run_local_pipeline(
+    ingest_manifest_path: Path | str,
+    *,
+    max_concurrency: int,
+    max_iterations: int,
+    stale_after: timedelta,
+    retry_retryable: bool,
+    clock: Callable[[], datetime] | None,
+) -> LocalPipelineResult:
     now = clock or _utc_now
 
     manifest_path = Path(ingest_manifest_path)
@@ -269,6 +317,7 @@ def launchd_plist_bytes(
     source_root: Path | str,
     python: str | None = None,
     label: str = LAUNCHD_LABEL_PREFIX,
+    grade_scope: str | None = None,
 ) -> bytes:
     """Build a macOS LaunchAgent that runs the pipeline nightly.
 
@@ -297,6 +346,10 @@ def launchd_plist_bytes(
         "--max-concurrency",
         str(max_concurrency),
     ]
+    if grade_scope is not None:
+        if grade_scope not in GRADE_SCOPES:
+            raise LocalPipelineError(f"grade_scope must be one of {', '.join(GRADE_SCOPES)}")
+        arguments += ["--grade-scope", grade_scope]
     for manifest in ingest_manifests:
         arguments += ["--ingest-manifest", str(Path(manifest).expanduser().absolute())]
     log = str(Path(log_path).expanduser().absolute())

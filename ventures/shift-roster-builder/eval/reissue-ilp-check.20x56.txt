@@ -1,0 +1,29 @@
+20x56w0  P0 Wed   ilp open 151 h, least changes 1   rebuild 151 h 14 improved   keep/shift 1 151 h  1 optimal   0.1s
+20x56w0  P5 Wed   ilp open 151 h, least changes 1   rebuild 151 h 17 improved   keep/shift 1 151 h  2 improved   0.1s
+20x56w0  P9 Wed   ilp open 151 h, least changes 1   rebuild 151 h 14 improved   keep/shift 1 151 h  1 optimal   0.1s
+20x56w0  P15 Wed  ilp open 151 h, least changes 1   rebuild 151 h 12 improved   keep/shift 1 151 h  1 optimal   0.1s
+20x56w0  P2 Thu   ilp open 151 h, least changes 1   rebuild 151 h  4 improved   keep/shift 1 151 h  1 optimal   0.1s
+20x56w0  P7 Thu   ilp open 151 h, least changes 1   rebuild 151 h 10 improved   keep/shift 1 151 h  2 improved   0.1s
+20x56w0  P15 Thu  ilp open 151 h, least changes 1   rebuild 151 h  6 improved   keep/shift 1 151 h  1 optimal   0.1s
+20x56w0  P19 Thu  ilp open 151 h, least changes 1   rebuild 151 h 11 improved   keep/shift 1 151 h  2 improved   0.1s
+20x56w0  P0 Fri   ilp open 160 h, least changes 0   rebuild 160 h  1 improved   keep/shift 1 160 h  0 optimal   0.1s
+20x56w0  P6 Fri   ilp open 157 h, least changes 1   rebuild 157 h  5 improved   keep/shift 1 157 h  1 optimal   0.1s
+20x56w0  P11 Fri  ilp open 155 h, least changes 0   rebuild 155 h  1 improved   keep/shift 1 155 h  0 optimal   0.1s
+20x56w0  P17 Fri  ilp open 160 h, least changes 0   rebuild 160 h  2 improved   keep/shift 1 160 h  0 optimal   0.0s
+20x56w1  P0 Wed   ilp open 86 h, least changes 0   rebuild 86 h 17 improved   keep/shift 1 86 h  0 optimal   1.0s
+20x56w1  P6 Wed   ilp open 79 h, least changes 9   rebuild 79 h 22 improved   keep/shift 1 79 h  9 improved   0.9s
+20x56w1  P12 Wed  ilp open 82 h, least changes 1   rebuild 82 h 14 improved   keep/shift 1 82 h  1 optimal   1.6s
+20x56w1  P17 Wed  ilp open 86 h, least changes 1   rebuild 86 h 30 improved   keep/shift 1 86 h  1 optimal   0.9s
+20x56w1  P0 Thu   ilp open 83 h, least changes 0   rebuild 83 h 16 improved   keep/shift 1 83 h  0 optimal   0.3s
+20x56w1  P5 Thu   ilp open 79 h, least changes 2   rebuild 79 h 13 improved   keep/shift 1 79 h  2 improved   0.2s
+20x56w1  P13 Thu  ilp open 82 h, least changes 1   rebuild 82 h 16 improved   keep/shift 1 82 h  1 optimal   0.2s
+20x56w1  P18 Thu  ilp open 83 h, least changes 0   rebuild 83 h 15 improved   keep/shift 1 83 h  0 optimal   0.4s
+20x56w1  P0 Fri   ilp open 84 h, least changes 0   rebuild 84 h  5 improved   keep/shift 1 84 h  0 optimal   0.0s
+20x56w1  P5 Fri   ilp open 83 h, least changes 0   rebuild 83 h  2 improved   keep/shift 1 83 h  0 optimal   0.1s
+20x56w1  P10 Fri  ilp open 83 h, least changes 0   rebuild 83 h  3 improved   keep/shift 1 83 h  0 optimal   0.1s
+20x56w1  P15 Fri  ilp open 87 h, least changes 0   rebuild 87 h  3 improved   keep/shift 1 87 h  0 optimal   0.1s
+24 weeks; least changes in total 23; rebuild 253 (24 weeks above the least); keep/shift 1 26 (3 weeks above the least)
+engine change counts differing from the ILP count: 0; engine rosters breaking an ILP rule: 0; ILP stages stopped on the time limit: 0
+keep/shift 1 at the least open hours on 24 of 24, and at the least changes there on 21; above the least open hours on 0 (least changes at its own open hours on 0 of 0)
+  engine status optimal: 19 weeks, at the least changes on 19, 0 changes above the least in total
+  engine status improved: 5 weeks, at the least changes on 2, 3 changes above the least in total

@@ -32,10 +32,10 @@ def readme_ledes():
     text = (RESEARCH / "README.md").read_text()
     ledes = {}
     for slug, lede in re.findall(r"^- \[`research/([\w-]+)`\]\([^)]*\)\s*[—-]+\s*(.+)$", text, re.M):
-        # Escape, then turn `code` spans into <code>.
+        # Escape (keeping the entities authors write, like &minus;), then `code` and *em*.
         lede = lede.strip()
         lede = lede[:1].upper() + lede[1:]
-        ledes[slug] = re.sub(r"`([^`]+)`", r"<code>\1</code>", html.escape(lede, quote=False))
+        ledes[slug] = md_spans(lede)
     return ledes
 
 
@@ -44,6 +44,37 @@ def test_count(slug):
         len(re.findall(r"^\s*def test_", f.read_text(errors="ignore"), re.M))
         for f in (RESEARCH / slug).rglob("test*.py")
     )
+
+
+# A module counts as the project's own when any file or directory under research/ carries its
+# name (each project's src/ packages, research/_shared helpers such as linefig). Anything else
+# outside the standard library is a third-party package. Imports are read from every .py file
+# outside tests/, including optional ones inside try blocks, so the count of projects needing
+# none is a lower bound. It replaced a hard-coded "0 runtime dependencies" tile (2026-11-14).
+IMPORT_RE = re.compile(r"^\s*(?:from\s+([A-Za-z_]\w*)[\w.]*\s+import|import\s+([A-Za-z_][\w., ]*))", re.M)
+_OWN = None
+
+
+def own_modules():
+    global _OWN
+    if _OWN is None:
+        _OWN = ({f.stem for f in RESEARCH.rglob("*.py")}
+                | {d.name for d in RESEARCH.rglob("*") if d.is_dir()})
+    return _OWN
+
+
+def third_party_imports(slug):
+    std = set(sys.stdlib_module_names) | {"__future__"}
+    found = set()
+    root = RESEARCH / slug
+    for f in root.rglob("*.py"):
+        parts = f.relative_to(root).parts
+        if "tests" in parts or "__pycache__" in parts:
+            continue
+        for a, b in IMPORT_RE.findall(f.read_text(errors="ignore")):
+            names = [a] if a else [n.strip().split(" ")[0].split(".")[0] for n in b.split(",")]
+            found.update(n for n in names if n and n not in std)
+    return found - own_modules()
 
 
 def plain(s):
@@ -227,13 +258,57 @@ def project_links(slug):
     return links
 
 
-def inline_md(text):
-    """Escape, then the four inline forms a log uses: `code`, **bold**, *em* and [text](url)."""
-    t = html.escape(text, quote=False)
-    t = re.sub(r"`([^`]+)`", r"<code>\1</code>", t)
-    t = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", t)
-    t = re.sub(r"\*([^*]+)\*", r"<em>\1</em>", t)
-    return re.sub(r"\[([^\]]+)\]\((https?://[^)\s]+)\)", r'<a href="\2">\1</a>', t)
+# An HTML entity an author typed (&minus;, &times;, &#8722;) survives escaping as itself, so the
+# page shows "−" rather than the literal text "&minus;" (157 log lines and ledes did, 2026-11-14).
+ENTITY = re.compile(r"&amp;(#\d+|#x[0-9a-fA-F]+|[a-zA-Z][a-zA-Z0-9]{1,31});")
+# *em* only around a word: "η*=0.25" or "a*b and c*d" stay as typed.
+EM = re.compile(r"(?<![\w*])\*(?=[^\s*])([^*]*?[^\s*])\*(?![\w*])")
+STRONG = re.compile(r"(?<![\w*])\*\*(?=\S)(.+?)(?<=\S)\*\*(?![\w*])")
+
+
+# A code span is a run of backticks closed by a run of the same length, so ``` `` `x` `` ``` shows
+# `x` with its backticks (CommonMark; one space either side is trimmed). Single runs only before
+# 2026-11-14, which left double-backtick spans as raw text.
+CODE = re.compile(r"(?<!`)(`+)(?!`)(.+?)(?<!`)\1(?!`)")
+# [text](target): http(s) kept; a relative path is a file in the project, linked on GitHub.
+LINK = re.compile(r"\[([^\]]+)\]\(([^)\s]+)\)")
+
+
+def md_spans(text, links=False, slug=None):
+    """Escape (keeping typed entities), then `code`, **bold**, *em* and, with links, [text](url).
+
+    Code spans are set aside first so an asterisk or bracket inside one stays literal. With
+    `slug`, a relative link ("paper/draft.md") goes to that file in research/<slug>/ on GitHub;
+    without it a relative link shows its text only (it used to show as raw "[...](...)": three
+    sensing-selfcal log lines did until 2026-11-14)."""
+    t = ENTITY.sub(r"&\1;", html.escape(text, quote=False))
+    codes = []
+
+    def keep(m):
+        code = m.group(2)
+        if len(code) > 2 and code[0] == " " and code[-1] == " " and code.strip():
+            code = code[1:-1]
+        codes.append(f"<code>{code}</code>")
+        return f"\x00{len(codes) - 1}\x00"
+
+    t = CODE.sub(keep, t)
+    t = STRONG.sub(r"<strong>\1</strong>", t)
+    t = EM.sub(r"<em>\1</em>", t)
+    if links:
+        def link(m):
+            label, href = m.group(1), html.unescape(m.group(2))
+            if re.match(r"https?://", href):
+                return f'<a href="{html.escape(href)}">{label}</a>'
+            if slug and not re.match(r"[a-z][a-z0-9+.-]*:", href, re.I) and not href.startswith(("/", "#")) and ".." not in href:
+                return f'<a href="{REPO_URL}/blob/main/research/{slug}/{html.escape(href.lstrip("./"))}">{label}</a>'
+            return label
+        t = LINK.sub(link, t)
+    return re.sub(r"\x00(\d+)\x00", lambda m: codes[int(m.group(1))], t)
+
+
+def inline_md(text, slug=None):
+    """The four inline forms a log uses: `code`, **bold**, *em* and [text](url)."""
+    return md_spans(text, links=True, slug=slug)
 
 
 def read_log(slug):
@@ -266,16 +341,16 @@ def log_html(slug):
     out = ['  <h2 id="log">Research log</h2>',
            f'  <p class="log-intro">Ongoing: each run adds a batch and an entry, newest first. Source: <a href="{REPO_URL}/blob/main/research/{slug}/LOG.md">LOG.md</a>.</p>']
     for head, body in entries:
-        out.append(f'  <article class="log-entry"><h3>{inline_md(head)}</h3>')
+        out.append(f'  <article class="log-entry"><h3>{inline_md(head, slug)}</h3>')
         items, paras = [], []
         for kind, text in body:
             if kind == "li":
-                items.append(f"<li>{inline_md(text)}</li>")
+                items.append(f"<li>{inline_md(text, slug)}</li>")
             else:
                 if items:
                     paras.append("<ul>" + "".join(items) + "</ul>")
                     items = []
-                paras.append(f"<p>{inline_md(text)}</p>")
+                paras.append(f"<p>{inline_md(text, slug)}</p>")
         if items:
             paras.append("<ul>" + "".join(items) + "</ul>")
         out.append("    " + "\n    ".join(paras) + "\n  </article>")
@@ -289,8 +364,11 @@ def with_site_chrome(page, chrome, root, replace_topbar, header_key="header", fi
 
     `chrome` is the JSON platform/pages/build.mjs writes from site-nav.mjs, so the
     markup is defined once, in JavaScript, for every page on the site. On the
-    research index the site header replaces this page's own top bar; on a project
-    page it sits above it, and the bar stays as the "← All projects" sub-nav.
+    research index, a topic page and a project page the site header replaces the
+    page's own top bar. (Until 2026-11-15 topic and project pages kept the bar under
+    the header as a "← All projects | GitHub" row: 56 px that repeated the trail's
+    Research link, led to the topic index rather than a project list, and pointed
+    GitHub at the whole repository. The project's own code links sit in "Links".)
 
     Topic and project pages take the breadcrumb variants (`topic_header`, `project_header`);
     `fill` supplies their other placeholders as already-escaped text."""
@@ -327,15 +405,31 @@ def text(s):
     return html.escape(plain(s).strip(), quote=True)
 
 
-def shared_title(p, themes):
+def title_index(themes):
+    """({title: slugs}, {clipped <title> text: slugs}) over every project in `themes`.
+
+    Built once per build and handed to each project page. Until 2026-11-16 each of the 1,080
+    pages re-clipped every other project's title to compare (1.16 M `plain` calls), about
+    half of a build; tests build the site four times
+    (docs/history/ci-perf-2026-11-16-research-title-index.md)."""
+    full, clipped = {}, {}
+    for t in themes:
+        for q in t["projects"]:
+            full.setdefault(q["title"], set()).add(q["slug"])
+            clipped.setdefault(title_tag(plain(q["title"])), set()).add(q["slug"])
+    return full, clipped
+
+
+def shared_title(p, themes, index=None):
     """Whether another project has the same title, so the page title needs the slug to be unique."""
-    return any(q["title"] == p["title"] and q["slug"] != p["slug"] for t in themes for q in t["projects"])
+    full, _ = index or title_index(themes)
+    return bool(full.get(p["title"], set()) - {p["slug"]})
 
 
-def clipped_title_taken(p, themes):
+def clipped_title_taken(p, themes, index=None):
     """True when another project's <title> clips to the same text as this one's."""
-    mine = title_tag(plain(p["title"]))
-    return any(title_tag(plain(q["title"])) == mine and q["slug"] != p["slug"] for t in themes for q in t["projects"])
+    _, clipped = index or title_index(themes)
+    return bool(clipped.get(title_tag(plain(p["title"])), set()) - {p["slug"]})
 
 
 def topic_chips(themes, current, root):
@@ -371,7 +465,7 @@ def more_in_topic(theme, i, ledes):
 
 
 def project_page(p, theme, lede, tests, tokens, theme_vars, tmpl, out, base_url=None, chrome=None,
-                 themes=(), index=0, ledes=None):
+                 themes=(), index=0, ledes=None, titles=None):
     slug = p["slug"]
     if not (RESEARCH / slug / "README.md").is_file():
         raise ValueError(f"research/{slug} has no README.md")
@@ -413,8 +507,8 @@ def project_page(p, theme, lede, tests, tokens, theme_vars, tmpl, out, base_url=
         "TOKENS": tokens, "THEME_VARS": theme_vars, "SLUG": slug, "TITLE": p["title"], "LEDE": lede, "SUMMARY": p["summary"],
         "DESC": html.escape(plain(p["summary"])[:240]), "THEME_ID": theme["id"], "THEME_NAME": theme["name"],
         "STATS": stats, "FIGURE": figure, "LOG": log_html(slug), "LINKS": links, "REPO_URL": REPO_URL, "REPO": REPO,
-        "TITLE_TEXT": text(p["title"]) + (f" (research/{slug})" if shared_title(p, themes) else ""),
-        "TITLE_TAG": html.escape(title_tag(plain(p["title"]))) + (f" (research/{slug})" if shared_title(p, themes) or clipped_title_taken(p, themes) else ""), "THEME_COUNT": str(len(theme["projects"])),
+        "TITLE_TEXT": text(p["title"]) + (f" (research/{slug})" if shared_title(p, themes, titles) else ""),
+        "TITLE_TAG": html.escape(title_tag(plain(p["title"]))) + (f" (research/{slug})" if shared_title(p, themes, titles) or clipped_title_taken(p, themes, titles) else ""), "THEME_COUNT": str(len(theme["projects"])),
         "PAGER": pager(theme, index), "MORE": more_in_topic(theme, index, ledes or {}),
         "TOPICS": topic_chips(themes, theme["id"], "../"),
     }.items():
@@ -426,16 +520,18 @@ def project_page(p, theme, lede, tests, tokens, theme_vars, tmpl, out, base_url=
         page = published_page(page, slug, base_url, chrome is None)
         page = page.replace("</head>", project_ld(p, theme, base_url) + "</head>", 1)
     if chrome:
-        page = with_site_chrome(page, chrome, "../../", replace_topbar=False, header_key="project_header",
+        page = with_site_chrome(page, chrome, "../../", replace_topbar=True, header_key="project_header",
                                 fill={"TOPIC_ID": theme["id"], "TOPIC": text(theme["name"]), "TITLE": text(p["title"])})
     (d / "index.html").write_text(page)
 
 
 def topic_card(p, lede, tests):
+    """One project on its topic page. The lede (the result) is clamped to two lines by the template
+    until "Result and abstract" is opened, which unclamps it; the text is in the page once, in full."""
     count = f" · {tests} tests" if tests else ""
     return (f'  <article class="proj" id="{p["slug"]}"><h2><a href="../../{p["slug"]}/">{p["title"]}</a></h2>'
-            f'<p class="meta">research/{p["slug"]}{count}</p><p>{lede}</p>'
-            f'<details><summary>Abstract</summary><p>{p["summary"]}</p></details></article>')
+            f'<p class="meta">research/{p["slug"]}{count}</p><p class="res">{lede}</p>'
+            f'<details><summary>Result and abstract</summary><p>{p["summary"]}</p></details></article>')
 
 
 def topic_page(theme, themes, ledes, tests, tokens, theme_vars, tmpl, out, base_url=None, chrome=None):
@@ -462,9 +558,57 @@ def topic_page(theme, themes, ledes, tests, tokens, theme_vars, tmpl, out, base_
             [(text(p["title"]), f"research/{p['slug']}/") for p in theme["projects"]],
             [("Research", "research/"), (text(theme["name"]), f"research/{TOPICS_DIR}/{theme['id']}/")]) + "</head>", 1)
     if chrome:
-        page = with_site_chrome(page, chrome, "../../../", replace_topbar=False, header_key="topic_header",
+        page = with_site_chrome(page, chrome, "../../../", replace_topbar=True, header_key="topic_header",
                                 fill={"TOPIC": text(theme["name"])})
     (d / "index.html").write_text(page)
+
+
+# Research logs on the index: the newest few as cards, every one in a compact list.
+# With all 32 logs as cards the block was 10,300 px tall on a 390 px phone.
+LOG_CARDS = 6
+LOG_DATE = re.compile(r"^(\d{4}-\d{2}-\d{2})\s*[·:-]?\s*(.*)$")
+
+
+def latest_logs(by_slug):
+    """[(slug, date, rest_of_heading)] for every project with a LOG.md, newest entry first
+    (ties keep registry order); a heading with no leading date sorts last."""
+    out = []
+    for s in by_slug:
+        entries = read_log(s)
+        if not entries:
+            continue
+        m = LOG_DATE.match(entries[0][0])
+        out.append((s, m.group(1) if m else "", m.group(2) if m else entries[0][0]))
+    return sorted(out, key=lambda e: e[1], reverse=True)
+
+
+def logs_section(by_slug, ledes=None):
+    logs = latest_logs(by_slug)
+    if not logs:
+        return ""
+    def head(date, rest):
+        return f"{date} · {inline_md(rest)}" if date else inline_md(rest)
+    cards = "\n".join(
+        f'    <a class="feat t-{by_slug[s][1]["id"]}" href="{s}/#log"><span class="theme-tag">Ongoing · {s}</span>'
+        f'<h3>{by_slug[s][0]["title"]}</h3><p>Latest: {head(d, r)}</p><span class="go">Read the log →</span></a>'
+        for s, d, r in logs[:LOG_CARDS]
+    )
+    rest = logs[LOG_CARDS:]
+    listing = ""
+    if rest:
+        items = "\n".join(
+            f'      <li class="t-{by_slug[s][1]["id"]}"><a href="{s}/#log">{by_slug[s][0]["title"]}</a>'
+            f'<span>{d + " · " if d else ""}{s}</span></li>'
+            for s, d, r in rest
+        )
+        listing = (f'\n  <details class="log-more"><summary>{len(rest)} more research logs</summary>\n'
+                   f'    <ul class="log-list">\n{items}\n    </ul>\n  </details>')
+    return f'''<section class="featured" id="logs"><div class="wrap">
+  <h2 class="label">Research logs: the {min(LOG_CARDS, len(logs))} most recent of {len(logs)}</h2>
+  <div class="feat-grid">
+{cards}
+  </div>{listing}
+</div></section>'''
 
 
 # Cards per theme on the index page itself; the rest load on demand.
@@ -552,18 +696,7 @@ def build(out, base_url=None, chrome=None):
       <h3>{p['title']}</h3><p>{ledes[s]}</p><span class="go">Read more →</span></a>"""
         for s in data["featured"] for p, t in [by_slug[s]]
     )
-    logs = [(s, read_log(s)[0][0]) for s in by_slug if read_log(s)]
-    log_items = "\n".join(
-        f'    <a class="feat t-{by_slug[s][1]["id"]}" href="{s}/#log"><span class="theme-tag">Ongoing · {s}</span>'
-        f'<h3>{by_slug[s][0]["title"]}</h3><p>Latest: {inline_md(head)}</p><span class="go">Read the log →</span></a>'
-        for s, head in logs
-    )
-    log_section = (f'''<section class="featured" id="logs"><div class="wrap">
-  <h2 class="label">Research logs</h2>
-  <div class="feat-grid">
-{log_items}
-  </div>
-</div></section>''' if logs else "")
+    log_section = logs_section(by_slug, ledes)
     # The index shows the first INDEX_CARDS projects of each theme; the rest are
     # in more-cards.json, which the page fetches when someone searches or asks
     # for them (and each theme's topic page lists them all, no script needed).
@@ -588,7 +721,8 @@ def build(out, base_url=None, chrome=None):
     for key, val in {
         "FONTS": font_faces(""),
         "THEME_VARS": theme_vars, "MAP": rmap, "CHIPS": chips, "FEATURED": featured, "LOGS": log_section, "SECTIONS": sections,
-        "PROJECT_COUNT": str(len(by_slug)), "TEST_COUNT": f"{sum(tests.values()):,}",
+        "PROJECT_COUNT": f"{len(by_slug):,}", "TEST_COUNT": f"{sum(tests.values()):,}",
+        "STDLIB_COUNT": f"{sum(1 for s in by_slug if not third_party_imports(s)):,}",
         "THEME_COUNT": str(len(data["themes"])), "SOCIAL_META": social_meta(base_url), "REPO_URL": REPO_URL, "REPO": REPO,
     }.items():
         page = page.replace("{{" + key + "}}", val)
@@ -600,7 +734,7 @@ def build(out, base_url=None, chrome=None):
         # The index lists the topics, not every project: each topic page carries its own list.
         page = page.replace("</head>", collection_ld(
             base_url, f"Open research: {len(by_slug)} reproducible projects", "research/",
-            f"{len(by_slug)} open-source research projects in {len(data['themes'])} topics, each with its code, tests and results.",
+            f"{len(by_slug):,} open-source research projects in {len(data['themes'])} topics, each with its code, tests and results.",
             [(text(t["name"]), f"research/{TOPICS_DIR}/{t['id']}/") for t in data["themes"]],
             [("Research", "research/")]) + "</head>", 1)
     if chrome:
@@ -616,11 +750,12 @@ def build(out, base_url=None, chrome=None):
     head = (HERE / "template.html").read_text()
     tokens = head[head.index("<style>") + len("<style>"):head.index("*{box-sizing")].strip()
     failures = []
+    titles = title_index(data["themes"])
     for t in data["themes"]:
         for i, p in enumerate(t["projects"]):
             try:
                 project_page(p, t, ledes[p["slug"]], tests[p["slug"]], tokens, theme_vars, tmpl, out, base_url, chrome,
-                             data["themes"], i, ledes)
+                             data["themes"], i, ledes, titles)
             except Exception as e:  # noqa: BLE001
                 failures.append(f"project page for research/{p['slug']}: {e}")
     # One page per topic: research/topics/<id>/index.html.

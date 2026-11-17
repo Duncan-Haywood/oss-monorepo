@@ -35,6 +35,12 @@ class T(unittest.TestCase):
         w = exact_error(0.15, a, b, 3.0)[0]
         self.assertAlmostEqual(mc_error(0.15, a, b, 3.0, rng, 40000), w, delta=0.01)
 
+    def test_expected_commit_time_one_step(self):
+        # threshold below both step sizes: every walk commits at the first observation
+        w, et, left = exact_error(0.15, a, b, 1.0)
+        self.assertAlmostEqual(w, 0.15, places=12)
+        self.assertAlmostEqual(et, 1.0, places=12)
+
     def test_occupied_reflection(self):
         # missed detection with the twin overestimating the hit rate equals the reflected free-cell walk
         p1 = 0.6

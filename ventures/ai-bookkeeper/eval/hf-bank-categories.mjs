@@ -12,6 +12,7 @@
 // are tuned looking only at the other four fifths.
 import { readFileSync } from "node:fs";
 import { suggest } from "../categorize.mjs";
+import { pathToFileURL } from "node:url";
 
 export const MAP = {
   Restaurants: ["6130"], Travel: ["6120"], Transportation: ["6160", "6120"], Subscription: ["6060"],
@@ -47,7 +48,7 @@ export function score(rows) {
   return out;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const arg = (k, d) => { const i = process.argv.indexOf(k); return i === -1 ? d : process.argv[i + 1]; };
   const file = process.argv[2]?.endsWith(".csv") ? process.argv[2] : "/tmp/ds/t.csv";
   const split = arg("--split", "test");

@@ -1,0 +1,53 @@
+# Milestone 21: Weiss's wall under the CUREE protocol with energy-degrading nails (buildbot-sheathing)
+Milestone 20's wall and SAWS nails (Anderson et al. 2007, fyb 115), anchor rods with a 1/16 in gap and a 2.55 FU cap, lambda 1. Every spring's envelope and pinching lines scaled by s = 1 - E/(gamma FU Du), E the work done on it after its first reversal past yield. gamma swept (not sourced). Loads in FU.
+
+## A. One nail through the CUREE history at delta = 2 Du (calibration)
+gamma   inf: envelope peak 1.000 of the undegraded peak
+gamma 100.0: envelope peak 0.956 of the undegraded peak
+gamma  50.0: envelope peak 0.915 of the undegraded peak
+gamma  20.0: envelope peak 0.814 of the undegraded peak
+gamma  10.0: envelope peak 0.728 of the undegraded peak
+gamma   5.0: envelope peak 0.613 of the undegraded peak
+
+## B. Code checks
+H98: gamma inf against milestone 20's Saws, CUREE trace: largest difference 0.0e+00 N; OpenSees trace 0.0e+00 N
+H99: gamma 10, 224 steps on the envelope: largest |F - s E(d)| and |s - s_hand| FU 1.2e+01 N (9.0e-03 FU)
+
+monotonic pushes 8, cyclic runs 72 (2099 s); largest residual 1.0e-07 FU; steps per run 3066-9336
+H98: monotonic peaks at gamma 5 against gamma inf (m 1): largest difference 1.6e-05 FU; registered-point cyclic peaks at gamma inf against milestone 20: largest difference 0.0e+00 FU
+H98: refuted; H99 (1e-9 FU): refuted
+
+## C. By gamma and end-nail strength m: shares kept 6-12 | 3-12, intact cyclic/monotonic 6-12 | 3-12, intact ratio 3-12/6-12 (tested 1.87), rms against the tested shares, strength left in the nails (mean s)
+m 0.25 gamma   inf: 57.9%|31.3%; intact 99.9%|100.2%; ratio 1.91; rms 2.1 pts; s 1.00/1.00/1.00/1.00 (6c/6d/3c/3d)
+m 0.25 gamma 100.0: 59.1%|31.5%; intact 96.4%|96.9%; ratio 1.91; rms 2.5 pts; s 0.97/0.99/0.97/1.00 (6c/6d/3c/3d)
+m 0.25 gamma  50.0: 60.3%|31.8%; intact 92.9%|93.9%; ratio 1.92; rms 3.1 pts; s 0.94/0.98/0.94/0.99 (6c/6d/3c/3d)
+m 0.25 gamma  20.0: 62.5%|33.3%; intact 85.5%|85.3%; ratio 1.90; rms 4.3 pts; s 0.86/0.96/0.87/0.99 (6c/6d/3c/3d)
+m 0.25 gamma  10.0: 65.5%|34.8%; intact 75.8%|76.2%; ratio 1.91; rms 6.4 pts; s 0.81/0.93/0.78/0.98 (6c/6d/3c/3d)
+m 0.25 gamma   5.0: 68.1%|38.1%; intact 64.0%|64.5%; ratio 1.92; rms 8.7 pts; s 0.77/0.86/0.71/0.96 (6c/6d/3c/3d)
+m 0.47 gamma   inf: 72.8%|44.1%; intact 99.9%|100.0%; ratio 1.93; rms 13.6 pts; s 1.00/1.00/1.00/1.00 (6c/6d/3c/3d)
+m 0.47 gamma 100.0: 73.1%|44.6%; intact 96.6%|96.5%; ratio 1.93; rms 14.0 pts; s 0.96/0.97/0.96/0.99 (6c/6d/3c/3d)
+m 0.47 gamma  50.0: 73.4%|45.1%; intact 93.6%|93.1%; ratio 1.92; rms 14.3 pts; s 0.94/0.94/0.93/0.99 (6c/6d/3c/3d)
+m 0.47 gamma  20.0: 74.0%|46.2%; intact 84.9%|84.2%; ratio 1.91; rms 15.2 pts; s 0.87/0.89/0.85/0.98 (6c/6d/3c/3d)
+m 0.47 gamma  10.0: 75.5%|47.7%; intact 75.5%|75.1%; ratio 1.92; rms 16.6 pts; s 0.82/0.81/0.79/0.96 (6c/6d/3c/3d)
+m 0.47 gamma   5.0: 75.9%|49.6%; intact 63.4%|63.4%; ratio 1.93; rms 17.7 pts; s 0.71/0.75/0.68/0.93 (6c/6d/3c/3d)
+m 1.0  gamma   inf: 77.8%|70.6%; intact 99.9%|100.0%; ratio 1.94; rms 30.0 pts; s 1.00/1.00/1.00/1.00 (6c/6d/3c/3d)
+m 1.0  gamma 100.0: 78.1%|70.9%; intact 96.8%|96.7%; ratio 1.94; rms 30.3 pts; s 0.96/0.96/0.96/0.97 (6c/6d/3c/3d)
+m 1.0  gamma  50.0: 78.4%|71.1%; intact 93.9%|93.6%; ratio 1.94; rms 30.5 pts; s 0.93/0.93/0.92/0.93 (6c/6d/3c/3d)
+m 1.0  gamma  20.0: 79.3%|72.4%; intact 85.7%|84.9%; ratio 1.92; rms 31.6 pts; s 0.87/0.85/0.86/0.84 (6c/6d/3c/3d)
+m 1.0  gamma  10.0: 79.3%|73.2%; intact 75.1%|74.7%; ratio 1.93; rms 32.1 pts; s 0.78/0.80/0.76/0.78 (6c/6d/3c/3d)
+m 1.0  gamma   5.0: 79.3%|73.5%; intact 63.2%|62.9%; ratio 1.93; rms 32.4 pts; s 0.72/0.74/0.69/0.72 (6c/6d/3c/3d)
+tested: 56.5%|33.9%, intact ratio 1.87
+
+## D. Registered checks
+H100 (m 1: decayed 3-12 keeps >= 50% for gamma >= 10): inf: 70.6%, 100.0: 70.9%, 50.0: 71.1%, 20.0: 72.4%, 10.0: 73.2%: held
+H101 (m 1: each share within 10 points of gamma inf): inf: +0.0|+0.0, 100.0: +0.3|+0.3, 50.0: +0.6|+0.5, 20.0: +1.5|+1.8, 10.0: +1.5|+2.6, 5.0: +1.5|+2.9: held
+H102 (no m >= 0.75 point within 10 points of both): 0 such points: held
+best overall: m 0.25, gamma inf: 57.9%|31.3% (rms 2.1), intact 99.9%|100.2% of monotonic, ratio 1.91
+  best at gamma   inf: m 0.25, 57.9%|31.3% (rms 2.1)
+  best at gamma 100.0: m 0.25, 59.1%|31.5% (rms 2.5)
+  best at gamma  50.0: m 0.25, 60.3%|31.8% (rms 3.1)
+  best at gamma  20.0: m 0.25, 62.5%|33.3% (rms 4.3)
+  best at gamma  10.0: m 0.25, 65.5%|34.8% (rms 6.4)
+  best at gamma   5.0: m 0.25, 68.1%|38.1% (rms 8.7)
+
+(run time 2099 s; 4 CPUs; python 3.13.18, numpy 2.5.3, scipy 1.18.1)

@@ -22,6 +22,7 @@ import {
   ACTION_REPLACE,
   ACTION_NOOP,
 } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 /**
  * What counts as a failure, loosest last.
@@ -193,7 +194,7 @@ export async function run(argv, { readFile = (p) => fs.readFile(p, "utf8") } = {
   return { exitCode, output: renderHuman(report, args.failOn) };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { exitCode, output } = await run(process.argv.slice(2));
   console.log(output);
   process.exitCode = exitCode;

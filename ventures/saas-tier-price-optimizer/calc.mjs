@@ -21,7 +21,7 @@ function exampleSurvey() {
   return ["Starter, Pro, Team", ...rows.map((r) => r.map((x) => round(x)).join(", "))].join("\n");
 }
 
-export const money = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: n % 1 === 0 ? 0 : 2 });
+export const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: n % 1 === 0 ? 0 : 2 }));
 
 const nums = (text) => String(text ?? "").split(/[,;\t]+/).map((t) => t.trim()).filter((t) => t !== "");
 

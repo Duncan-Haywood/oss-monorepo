@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtLqV79d3j4BYQL6XHt",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T05:05:59Z",
+  "ended": "2026-11-16T05:17:35Z",
+  "wall_minutes": 16.15,
+  "tokens_in": 5424940,
+  "tokens_out": 26369,
+  "cost_usd": 2.3461,
+  "tool_calls": 61,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16465",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A stray `cat > file` with no heredoc in a compound command waited on stdin and hung a tool call until stopped; the edit before it had already applied.",
+    "Ran the full pages test suite in the background while `git stash` was briefly active for a before-build; killed it and reran on the final tree (1,732/1,732), then reran writing.test.mjs after the last two edits (52/52)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/writing.mjs",
+      "issue": "invokedDirectly matched the script basename as a suffix, so importing the module from a scratch script named g.mjs ran a full 5,141-page blog build; fixed in this PR."
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Suggests screenshotting builds; a writing-only build (`writing.mjs --out`) lacks the site header CSS, so its pages show scrollWidth 438 at 390 px and an unstyled header. Easy to misread as a sideways-scroll defect; noted in the report."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Did not run the full `build.mjs` (3-20 min) or screenshot the hub, a flagship, the stories page and a post: the last polish report already named the next weakest surface, and the change touches only the blog's programme pages.",
+      "did": "Built only the blog (`writing.mjs --out`) before and after, and screenshotted the marine-hull hero at 390 and 1,280 px; checked the live site for the header overflow.",
+      "result": "Enough to measure the change (24/24 specific deks, fold positions); the full build runs in CI on merge."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-programme-pages-say-what-they-study.md",
+    "docs/reports/polish-2026-11-16-programme-dek.md"
+  ],
+  "goal": null,
+  "notes": "Local checks: node --test 'platform/pages/*.test.mjs' 1732/1732 pass; writing.test.mjs 52/52 after final edits; check_post_frontmatter, check_post_links, post_similarity clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3f2b27f2-a4be-51f7-88bb-d5d4552ff461",
+    "transcripts": 1,
+    "first": "2026-11-16T05:05:59Z",
+    "last": "2026-11-16T05:22:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 110,
+        "output": 26369,
+        "thinking": 4259,
+        "cache_read": 5330811,
+        "cache_write_5m": 0,
+        "cache_write_1h": 94019,
+        "api_equivalent_usd": 2.3461,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 110,
+      "output": 26369,
+      "thinking": 4259,
+      "cache_read": 5330811,
+      "cache_write_5m": 0,
+      "cache_write_1h": 94019,
+      "api_equivalent_usd": 2.3461,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 54,
+      "ToolSearch": 2,
+      "Read": 2,
+      "TaskStop": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.15,
+      "active_minutes": 16.15,
+      "model_minutes": 6.16,
+      "tool_minutes": 9.98,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "senior front-end engineer: extraction function with sentence splitting, tests, before/after measurement and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 127.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

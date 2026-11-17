@@ -1,0 +1,2396 @@
+[
+ {
+  "case": "case14_ieee",
+  "kind": "typ",
+  "ac_ok": true,
+  "ac": 2178.081399068129,
+  "plain": {
+   "losses": 15.977269302511786,
+   "n_over": 0,
+   "max_load": 0.6480954585593571,
+   "vviol": 0,
+   "qviol": 0,
+   "slack_out_mw": 0.0,
+   "cost": 2178.081476267972,
+   "clean": true
+  },
+  "A": {
+   "status": "clean",
+   "check": {
+    "losses": 15.977269291195341,
+    "n_over": 0,
+    "max_load": 0.6480954583327486,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 2178.081478757874,
+    "clean": true
+   }
+  },
+  "B": {
+   "status": "clean",
+   "check": {
+    "losses": 15.977269291194773,
+    "n_over": 0,
+    "max_load": 0.6480954583327476,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 2178.081478757865,
+    "clean": true
+   }
+  },
+  "C": [
+   {
+    "it": 1,
+    "status": "clean",
+    "qp": "hard",
+    "losses": 15.977269291194773,
+    "n_over": 0,
+    "max_load": 0.6480954583327476,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 2178.081478757865,
+    "clean": true
+   }
+  ],
+  "secs": 0.423555850982666
+ },
+ {
+  "case": "case14_ieee",
+  "kind": "api",
+  "ac_ok": true,
+  "ac": 5999.363513221997,
+  "plain": {
+   "losses": 48.714874688966006,
+   "n_over": 1,
+   "max_load": 1.0896771739507498,
+   "vviol": 0,
+   "qviol": 1,
+   "slack_out_mw": 48.71487468794845,
+   "cost": 5050.225658578058,
+   "clean": false
+  },
+  "A": {
+   "status": "clean",
+   "check": {
+    "losses": 41.94790276003755,
+    "n_over": 0,
+    "max_load": 0.9999999999063054,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 5999.363485336756,
+    "clean": true
+   }
+  },
+  "B": {
+   "status": "not clean",
+   "check": {
+    "losses": 42.013853201855056,
+    "n_over": 1,
+    "max_load": 1.0009806683689684,
+    "vviol": 0,
+    "qviol": 1,
+    "slack_out_mw": 0.0,
+    "cost": 5988.797809513775,
+    "clean": false
+   }
+  },
+  "C": [
+   {
+    "it": 1,
+    "status": "not clean",
+    "qp": "hard",
+    "losses": 42.013853201855056,
+    "n_over": 1,
+    "max_load": 1.0009806683689684,
+    "vviol": 0,
+    "qviol": 1,
+    "slack_out_mw": 0.0,
+    "cost": 5988.797809513775,
+    "clean": false
+   },
+   {
+    "it": 2,
+    "status": "clean",
+    "qp": "trust",
+    "losses": 41.94796679181309,
+    "n_over": 0,
+    "max_load": 1.0000009533360725,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 5999.353211112921,
+    "clean": true
+   }
+  ],
+  "secs": 0.5687553882598877
+ },
+ {
+  "case": "case24_ieee_rts",
+  "kind": "typ",
+  "ac_ok": true,
+  "ac": 63352.203343828485,
+  "plain": {
+   "losses": 48.57885476386582,
+   "n_over": 0,
+   "max_load": 0.92998868721631,
+   "vviol": 0,
+   "qviol": 6,
+   "slack_out_mw": 0.0,
+   "cost": 63431.264542146666,
+   "clean": true
+  },
+  "A": {
+   "status": "clean",
+   "check": {
+    "losses": 46.769959405176905,
+    "n_over": 0,
+    "max_load": 0.9329115678238483,
+    "vviol": 0,
+    "qviol": 1,
+    "slack_out_mw": 0.0,
+    "cost": 63352.2063641883,
+    "clean": true
+   }
+  },
+  "B": {
+   "status": "clean",
+   "check": {
+    "losses": 46.33258603540071,
+    "n_over": 0,
+    "max_load": 0.9338644708845537,
+    "vviol": 1,
+    "qviol": 1,
+    "slack_out_mw": 0.0,
+    "cost": 63380.580753584174,
+    "clean": true
+   }
+  },
+  "C": [
+   {
+    "it": 1,
+    "status": "clean",
+    "qp": "hard",
+    "losses": 46.33258603540071,
+    "n_over": 0,
+    "max_load": 0.9338644708845537,
+    "vviol": 1,
+    "qviol": 1,
+    "slack_out_mw": 0.0,
+    "cost": 63380.580753584174,
+    "clean": true
+   }
+  ],
+  "secs": 0.928102970123291
+ },
+ {
+  "case": "case24_ieee_rts",
+  "kind": "api",
+  "ac_ok": true,
+  "ac": 161222.58498765941,
+  "plain": {
+   "losses": 157.91290042995934,
+   "n_over": 3,
+   "max_load": 1.148188647030792,
+   "vviol": 7,
+   "qviol": 0,
+   "slack_out_mw": 0.0,
+   "cost": 157477.41161557983,
+   "clean": false
+  },
+  "A": {
+   "status": "not clean",
+   "check": {
+    "losses": 142.73414170414344,
+    "n_over": 3,
+    "max_load": 1.0015250983102055,
+    "vviol": 4,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 160581.5759591708,
+    "clean": false
+   }
+  },
+  "B": {
+   "status": "QP infeasible"
+  },
+  "C": [
+   {
+    "it": 1,
+    "status": "not clean",
+    "qp": "elastic",
+    "losses": 128.98200577076204,
+    "n_over": 3,
+    "max_load": 1.0075564956713254,
+    "vviol": 3,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 160543.9277165142,
+    "clean": false
+   },
+   {
+    "it": 2,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 142.74813779666783,
+    "n_over": 3,
+    "max_load": 1.0011003644466618,
+    "vviol": 4,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 160588.92486362802,
+    "clean": false
+   },
+   {
+    "it": 3,
+    "status": "QP infeasible"
+   },
+   {
+    "it": 4,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 140.41831596593147,
+    "n_over": 3,
+    "max_load": 1.0000200158518555,
+    "vviol": 4,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 160471.8094110837,
+    "clean": false
+   },
+   {
+    "it": 5,
+    "status": "clean",
+    "qp": "trust",
+    "losses": 140.36871483208233,
+    "n_over": 0,
+    "max_load": 1.0000009951834907,
+    "vviol": 4,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 160469.28437162723,
+    "clean": true
+   }
+  ],
+  "secs": 1.9312069416046143
+ },
+ {
+  "case": "case30_ieee",
+  "kind": "typ",
+  "ac_ok": true,
+  "ac": 8208.515098992517,
+  "plain": {
+   "losses": 16.115625355325733,
+   "n_over": 1,
+   "max_load": 1.0786642975587855,
+   "vviol": 0,
+   "qviol": 1,
+   "slack_out_mw": 0.0,
+   "cost": 7801.314905745545,
+   "clean": false
+  },
+  "A": {
+   "status": "clean",
+   "check": {
+    "losses": 15.49792783237217,
+    "n_over": 0,
+    "max_load": 1.0000001696012941,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 8208.515143661989,
+    "clean": true
+   }
+  },
+  "B": {
+   "status": "not clean",
+   "check": {
+    "losses": 15.500255192557006,
+    "n_over": 1,
+    "max_load": 1.0003084542908016,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 8206.910233461898,
+    "clean": false
+   }
+  },
+  "C": [
+   {
+    "it": 1,
+    "status": "not clean",
+    "qp": "hard",
+    "losses": 15.500255192557006,
+    "n_over": 1,
+    "max_load": 1.0003084542908016,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 8206.910233461898,
+    "clean": false
+   },
+   {
+    "it": 2,
+    "status": "clean",
+    "qp": "trust",
+    "losses": 15.497933249532252,
+    "n_over": 0,
+    "max_load": 1.0000008872774315,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 8208.511407398975,
+    "clean": true
+   }
+  ],
+  "secs": 0.4976809024810791
+ },
+ {
+  "case": "case30_ieee",
+  "kind": "api",
+  "ac_ok": true,
+  "ac": 18036.58839194027,
+  "plain": {
+   "losses": 43.503917378997414,
+   "n_over": 2,
+   "max_load": 1.1989246908432631,
+   "vviol": 0,
+   "qviol": 0,
+   "slack_out_mw": 0.0,
+   "cost": 16986.47256425481,
+   "clean": false
+  },
+  "A": {
+   "status": "clean",
+   "check": {
+    "losses": 41.83750302330435,
+    "n_over": 0,
+    "max_load": 0.9999999999097011,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 18036.58828624249,
+    "clean": true
+   }
+  },
+  "B": {
+   "status": "not clean",
+   "check": {
+    "losses": 41.84165167270004,
+    "n_over": 2,
+    "max_load": 1.0005465523663122,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 18033.64503157408,
+    "clean": false
+   }
+  },
+  "C": [
+   {
+    "it": 1,
+    "status": "not clean",
+    "qp": "hard",
+    "losses": 41.84165167270004,
+    "n_over": 2,
+    "max_load": 1.0005465523663122,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 18033.64503157408,
+    "clean": false
+   },
+   {
+    "it": 2,
+    "status": "clean",
+    "qp": "trust",
+    "losses": 41.8375083113545,
+    "n_over": 0,
+    "max_load": 1.0000006967682835,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 18036.58453333363,
+    "clean": true
+   }
+  ],
+  "secs": 0.5596649646759033
+ },
+ {
+  "case": "case39_epri",
+  "kind": "typ",
+  "ac_ok": true,
+  "ac": 138415.56324833332,
+  "plain": {
+   "losses": 38.896312144166586,
+   "n_over": 1,
+   "max_load": 1.012244427676739,
+   "vviol": 0,
+   "qviol": 2,
+   "slack_out_mw": 38.89631214307053,
+   "cost": 137388.22844710652,
+   "clean": false
+  },
+  "A": {
+   "status": "clean",
+   "check": {
+    "losses": 38.31873518748216,
+    "n_over": 0,
+    "max_load": 0.9999999997722869,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 138415.5632595058,
+    "clean": true
+   }
+  },
+  "B": {
+   "status": "not clean",
+   "check": {
+    "losses": 38.31947789132391,
+    "n_over": 2,
+    "max_load": 1.0000187746045823,
+    "vviol": 0,
+    "qviol": 2,
+    "slack_out_mw": 0.07348712334919583,
+    "cost": 138413.68555485818,
+    "clean": false
+   }
+  },
+  "C": [
+   {
+    "it": 1,
+    "status": "not clean",
+    "qp": "hard",
+    "losses": 38.31947789132391,
+    "n_over": 2,
+    "max_load": 1.0000187746045823,
+    "vviol": 0,
+    "qviol": 2,
+    "slack_out_mw": 0.07348712334919583,
+    "cost": 138413.68555485818,
+    "clean": false
+   },
+   {
+    "it": 2,
+    "status": "clean",
+    "qp": "trust",
+    "losses": 38.31875033515098,
+    "n_over": 0,
+    "max_load": 1.0000009995024166,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 138415.5393281393,
+    "clean": true
+   }
+  ],
+  "secs": 0.7938141822814941
+ },
+ {
+  "case": "case39_epri",
+  "kind": "api",
+  "ac_ok": true,
+  "ac": 256769.33760460152,
+  "plain": {
+   "losses": 90.71897807139794,
+   "n_over": 10,
+   "max_load": 1.0637185633180568,
+   "vviol": 2,
+   "qviol": 0,
+   "slack_out_mw": 90.7189780677461,
+   "cost": 254100.3392506662,
+   "clean": false
+  },
+  "A": {
+   "status": "clean",
+   "check": {
+    "losses": 89.18494425422432,
+    "n_over": 0,
+    "max_load": 0.9999999998663083,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 256769.3370301837,
+    "clean": true
+   }
+  },
+  "B": {
+   "status": "not clean",
+   "check": {
+    "losses": 89.2029906191874,
+    "n_over": 8,
+    "max_load": 1.0042249353791508,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 256715.06705325283,
+    "clean": false
+   }
+  },
+  "C": [
+   {
+    "it": 1,
+    "status": "not clean",
+    "qp": "hard",
+    "losses": 89.2029906191874,
+    "n_over": 8,
+    "max_load": 1.0042249353791508,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 256715.06705325283,
+    "clean": false
+   },
+   {
+    "it": 2,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 89.18502884622103,
+    "n_over": 7,
+    "max_load": 1.000005988060424,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 256769.20086594028,
+    "clean": false
+   },
+   {
+    "it": 3,
+    "status": "clean",
+    "qp": "trust",
+    "losses": 89.18501398915942,
+    "n_over": 0,
+    "max_load": 1.0000009994825474,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 256769.24616578594,
+    "clean": true
+   }
+  ],
+  "secs": 0.9059758186340332
+ },
+ {
+  "case": "case57_ieee",
+  "kind": "typ",
+  "ac_ok": true,
+  "ac": 37589.33949743774,
+  "plain": {
+   "losses": 85.88177839242508,
+   "n_over": 0,
+   "max_load": 0.9589931763785366,
+   "vviol": 0,
+   "qviol": 3,
+   "slack_out_mw": 85.88177839206224,
+   "cost": 36229.5564463799,
+   "clean": false
+  },
+  "A": {
+   "status": "not clean",
+   "check": {
+    "losses": 90.02932332303953,
+    "n_over": 0,
+    "max_load": 0.994204324793422,
+    "vviol": 0,
+    "qviol": 4,
+    "slack_out_mw": 5.696520621835646,
+    "cost": 37654.81373022058,
+    "clean": false
+   }
+  },
+  "B": {
+   "status": "not clean",
+   "check": {
+    "losses": 18.445274066224783,
+    "n_over": 0,
+    "max_load": 0.3397347053411671,
+    "vviol": 1,
+    "qviol": 1,
+    "slack_out_mw": 81.80039863521154,
+    "cost": 37951.99109267106,
+    "clean": false
+   }
+  },
+  "C": [
+   {
+    "it": 1,
+    "status": "not clean",
+    "qp": "hard",
+    "losses": 18.445274066224783,
+    "n_over": 0,
+    "max_load": 0.3397347053411671,
+    "vviol": 1,
+    "qviol": 1,
+    "slack_out_mw": 81.80039863521154,
+    "cost": 37951.99109267106,
+    "clean": false
+   },
+   {
+    "it": 2,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 18.870786570318387,
+    "n_over": 0,
+    "max_load": 0.434709766663018,
+    "vviol": 1,
+    "qviol": 1,
+    "slack_out_mw": 7.798574675178855,
+    "cost": 38218.46866721091,
+    "clean": false
+   },
+   {
+    "it": 3,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 28.67380278302562,
+    "n_over": 0,
+    "max_load": 0.5758284467816652,
+    "vviol": 1,
+    "qviol": 2,
+    "slack_out_mw": 3.388887771075588,
+    "cost": 37832.276434418476,
+    "clean": false
+   },
+   {
+    "it": 4,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 45.38678265357089,
+    "n_over": 0,
+    "max_load": 0.7266668931958853,
+    "vviol": 1,
+    "qviol": 2,
+    "slack_out_mw": 3.3669705731338695,
+    "cost": 37597.281713680364,
+    "clean": false
+   },
+   {
+    "it": 5,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 65.85741000017356,
+    "n_over": 0,
+    "max_load": 0.8645692739545445,
+    "vviol": 0,
+    "qviol": 2,
+    "slack_out_mw": 2.7854140254552817,
+    "cost": 37571.446319631614,
+    "clean": false
+   },
+   {
+    "it": 6,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 42.32316016736581,
+    "n_over": 0,
+    "max_load": 0.7022674408837883,
+    "vviol": 1,
+    "qviol": 2,
+    "slack_out_mw": 3.61246961142308,
+    "cost": 37587.94088392916,
+    "clean": false
+   },
+   {
+    "it": 7,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 53.38827523766804,
+    "n_over": 0,
+    "max_load": 0.784681824569854,
+    "vviol": 1,
+    "qviol": 1,
+    "slack_out_mw": 0.8682554326165643,
+    "cost": 37589.74228894192,
+    "clean": false
+   },
+   {
+    "it": 8,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 64.2607692189506,
+    "n_over": 0,
+    "max_load": 0.8544280800758108,
+    "vviol": 0,
+    "qviol": 3,
+    "slack_out_mw": 0.7036298192999482,
+    "cost": 37594.520452551486,
+    "clean": false
+   },
+   {
+    "it": 9,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 51.71726910177313,
+    "n_over": 0,
+    "max_load": 0.7723178414477804,
+    "vviol": 1,
+    "qviol": 1,
+    "slack_out_mw": 0.9171144779159306,
+    "cost": 37581.83070743851,
+    "clean": false
+   },
+   {
+    "it": 10,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 57.81414141356163,
+    "n_over": 0,
+    "max_load": 0.8137010838378641,
+    "vviol": 0,
+    "qviol": 2,
+    "slack_out_mw": 0.22568630862502914,
+    "cost": 37590.73392266723,
+    "clean": false
+   }
+  ],
+  "secs": 1.1585814952850342
+ },
+ {
+  "case": "case57_ieee",
+  "kind": "api",
+  "ac_ok": true,
+  "ac": 36242.461952974576,
+  "plain": {
+   "losses": 128.10806737820803,
+   "n_over": 2,
+   "max_load": 1.156620013178761,
+   "vviol": 3,
+   "qviol": 3,
+   "slack_out_mw": 0.0,
+   "cost": 36069.672697663715,
+   "clean": false
+  },
+  "A": {
+   "status": "not clean",
+   "check": {
+    "losses": 95.47119982902814,
+    "n_over": 2,
+    "max_load": 1.0151519341572142,
+    "vviol": 1,
+    "qviol": 2,
+    "slack_out_mw": 0.0,
+    "cost": 36464.11355285135,
+    "clean": false
+   }
+  },
+  "B": {
+   "status": "not clean",
+   "check": {
+    "losses": 79.82046015212518,
+    "n_over": 1,
+    "max_load": 1.0837828580678026,
+    "vviol": 2,
+    "qviol": 1,
+    "slack_out_mw": 0.0,
+    "cost": 35746.98406627261,
+    "clean": false
+   }
+  },
+  "C": [
+   {
+    "it": 1,
+    "status": "not clean",
+    "qp": "hard",
+    "losses": 79.82046015212518,
+    "n_over": 1,
+    "max_load": 1.0837828580678026,
+    "vviol": 2,
+    "qviol": 1,
+    "slack_out_mw": 0.0,
+    "cost": 35746.98406627261,
+    "clean": false
+   },
+   {
+    "it": 2,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 71.0484257343337,
+    "n_over": 1,
+    "max_load": 1.0053090297139342,
+    "vviol": 1,
+    "qviol": 1,
+    "slack_out_mw": 0.0,
+    "cost": 36211.97795388546,
+    "clean": false
+   },
+   {
+    "it": 3,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 77.75275972831355,
+    "n_over": 1,
+    "max_load": 1.0045940367952655,
+    "vviol": 1,
+    "qviol": 2,
+    "slack_out_mw": 0.0,
+    "cost": 36248.23612715454,
+    "clean": false
+   },
+   {
+    "it": 4,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 70.9807685177816,
+    "n_over": 1,
+    "max_load": 1.0046598511330267,
+    "vviol": 1,
+    "qviol": 1,
+    "slack_out_mw": 0.0,
+    "cost": 36217.447336135665,
+    "clean": false
+   },
+   {
+    "it": 5,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 73.07767975781621,
+    "n_over": 1,
+    "max_load": 1.0011714464687234,
+    "vviol": 1,
+    "qviol": 2,
+    "slack_out_mw": 0.0,
+    "cost": 36234.46846743168,
+    "clean": false
+   },
+   {
+    "it": 6,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 70.61381545581935,
+    "n_over": 1,
+    "max_load": 1.001130343185942,
+    "vviol": 1,
+    "qviol": 1,
+    "slack_out_mw": 0.0,
+    "cost": 36247.21566741571,
+    "clean": false
+   },
+   {
+    "it": 7,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 73.07403627470035,
+    "n_over": 1,
+    "max_load": 1.0011365701104071,
+    "vviol": 1,
+    "qviol": 2,
+    "slack_out_mw": 0.0,
+    "cost": 36234.76306511611,
+    "clean": false
+   },
+   {
+    "it": 8,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 71.52915223922673,
+    "n_over": 1,
+    "max_load": 1.0002859623196387,
+    "vviol": 0,
+    "qviol": 1,
+    "slack_out_mw": 0.0,
+    "cost": 36241.4124103182,
+    "clean": false
+   },
+   {
+    "it": 9,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 72.98569372850875,
+    "n_over": 1,
+    "max_load": 1.0002906513517988,
+    "vviol": 1,
+    "qviol": 2,
+    "slack_out_mw": 0.0,
+    "cost": 36241.91009942305,
+    "clean": false
+   },
+   {
+    "it": 10,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 72.17786340015209,
+    "n_over": 1,
+    "max_load": 1.0000744015486411,
+    "vviol": 0,
+    "qviol": 1,
+    "slack_out_mw": 0.0,
+    "cost": 36241.76729078573,
+    "clean": false
+   }
+  ],
+  "secs": 1.2635202407836914
+ },
+ {
+  "case": "case73_ieee_rts",
+  "kind": "typ",
+  "ac_ok": true,
+  "ac": 189764.08562578465,
+  "plain": {
+   "losses": 142.49003537732642,
+   "n_over": 0,
+   "max_load": 0.9307888721682467,
+   "vviol": 0,
+   "qviol": 14,
+   "slack_out_mw": 21.74890595942324,
+   "cost": 190227.33959451647,
+   "clean": false
+  },
+  "A": {
+   "status": "clean",
+   "check": {
+    "losses": 134.46897548593552,
+    "n_over": 0,
+    "max_load": 0.9317943084250487,
+    "vviol": 0,
+    "qviol": 7,
+    "slack_out_mw": 0.0,
+    "cost": 189764.0954384539,
+    "clean": true
+   }
+  },
+  "B": {
+   "status": "clean",
+   "check": {
+    "losses": 134.04069289195104,
+    "n_over": 0,
+    "max_load": 0.932401469439188,
+    "vviol": 2,
+    "qviol": 8,
+    "slack_out_mw": 0.0,
+    "cost": 189906.206603403,
+    "clean": true
+   }
+  },
+  "C": [
+   {
+    "it": 1,
+    "status": "clean",
+    "qp": "hard",
+    "losses": 134.04069289195104,
+    "n_over": 0,
+    "max_load": 0.932401469439188,
+    "vviol": 2,
+    "qviol": 8,
+    "slack_out_mw": 0.0,
+    "cost": 189906.206603403,
+    "clean": true
+   }
+  ],
+  "secs": 2.385169506072998
+ },
+ {
+  "case": "case73_ieee_rts",
+  "kind": "api",
+  "ac_ok": true,
+  "ac": 509847.9992647122,
+  "plain": {
+   "losses": 369.6672189208293,
+   "n_over": 7,
+   "max_load": 1.142768893332627,
+   "vviol": 10,
+   "qviol": 1,
+   "slack_out_mw": 128.80092651063728,
+   "cost": 493095.7634028927,
+   "clean": false
+  },
+  "A": {
+   "status": "QP infeasible"
+  },
+  "B": {
+   "status": "QP infeasible"
+  },
+  "C": [
+   {
+    "it": 1,
+    "status": "QP infeasible"
+   },
+   {
+    "it": 2,
+    "status": "not clean",
+    "qp": "trust+elastic",
+    "losses": 384.2708787304655,
+    "n_over": 6,
+    "max_load": 1.0632890443912575,
+    "vviol": 10,
+    "qviol": 1,
+    "slack_out_mw": 9.739274535993445,
+    "cost": 505797.36544392916,
+    "clean": false
+   },
+   {
+    "it": 3,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 368.77638240713713,
+    "n_over": 4,
+    "max_load": 1.0018788782855768,
+    "vviol": 7,
+    "qviol": 1,
+    "slack_out_mw": 0.0,
+    "cost": 503224.98194608884,
+    "clean": false
+   },
+   {
+    "it": 4,
+    "status": "not clean",
+    "qp": "trust+elastic",
+    "losses": 367.77450566590414,
+    "n_over": 3,
+    "max_load": 1.0001243613223503,
+    "vviol": 8,
+    "qviol": 1,
+    "slack_out_mw": 0.0,
+    "cost": 503109.31734895543,
+    "clean": false
+   },
+   {
+    "it": 5,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 369.2048012521409,
+    "n_over": 3,
+    "max_load": 1.0002231244811601,
+    "vviol": 8,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 502962.4543489508,
+    "clean": false
+   },
+   {
+    "it": 6,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 369.1164026577644,
+    "n_over": 3,
+    "max_load": 1.0002061886455216,
+    "vviol": 7,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 503026.87569299695,
+    "clean": false
+   },
+   {
+    "it": 7,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 368.04434631551703,
+    "n_over": 3,
+    "max_load": 1.0000530756014419,
+    "vviol": 8,
+    "qviol": 1,
+    "slack_out_mw": 0.0,
+    "cost": 503032.0528756738,
+    "clean": false
+   },
+   {
+    "it": 8,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 367.9242812548182,
+    "n_over": 3,
+    "max_load": 1.000001690510352,
+    "vviol": 8,
+    "qviol": 1,
+    "slack_out_mw": 0.0,
+    "cost": 502983.3179851339,
+    "clean": false
+   },
+   {
+    "it": 9,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 368.075232581039,
+    "n_over": 3,
+    "max_load": 1.000003442725848,
+    "vviol": 8,
+    "qviol": 1,
+    "slack_out_mw": 0.0,
+    "cost": 502942.6363699672,
+    "clean": false
+   },
+   {
+    "it": 10,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 368.0278910008492,
+    "n_over": 2,
+    "max_load": 1.000002172309759,
+    "vviol": 8,
+    "qviol": 1,
+    "slack_out_mw": 0.0,
+    "cost": 502962.3533654428,
+    "clean": false
+   }
+  ],
+  "secs": 10.41586422920227
+ },
+ {
+  "case": "case118_ieee",
+  "kind": "typ",
+  "ac_ok": true,
+  "ac": 97213.60781267252,
+  "plain": {
+   "losses": 165.31695861397748,
+   "n_over": 4,
+   "max_load": 1.0693557380126664,
+   "vviol": 1,
+   "qviol": 13,
+   "slack_out_mw": 0.0,
+   "cost": 97390.98657798547,
+   "clean": false
+  },
+  "A": {
+   "status": "not clean",
+   "check": {
+    "losses": 161.68484011733835,
+    "n_over": 1,
+    "max_load": 1.0031405863589002,
+    "vviol": 1,
+    "qviol": 10,
+    "slack_out_mw": 0.0,
+    "cost": 97418.30844836104,
+    "clean": false
+   }
+  },
+  "B": {
+   "status": "not clean",
+   "check": {
+    "losses": 159.63415723267644,
+    "n_over": 5,
+    "max_load": 1.2208236939787827,
+    "vviol": 0,
+    "qviol": 11,
+    "slack_out_mw": 0.0,
+    "cost": 98872.42112542343,
+    "clean": false
+   }
+  },
+  "C": [
+   {
+    "it": 1,
+    "status": "not clean",
+    "qp": "hard",
+    "losses": 159.63415723267644,
+    "n_over": 5,
+    "max_load": 1.2208236939787827,
+    "vviol": 0,
+    "qviol": 11,
+    "slack_out_mw": 0.0,
+    "cost": 98872.42112542343,
+    "clean": false
+   },
+   {
+    "it": 2,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 152.5949036916245,
+    "n_over": 2,
+    "max_load": 1.0005190310326657,
+    "vviol": 1,
+    "qviol": 11,
+    "slack_out_mw": 0.0,
+    "cost": 97524.64072612487,
+    "clean": false
+   },
+   {
+    "it": 3,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 143.74061581102524,
+    "n_over": 1,
+    "max_load": 1.0004577151674143,
+    "vviol": 1,
+    "qviol": 11,
+    "slack_out_mw": 0.0,
+    "cost": 97403.22849947309,
+    "clean": false
+   },
+   {
+    "it": 4,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 137.24609032692751,
+    "n_over": 1,
+    "max_load": 1.000473937163501,
+    "vviol": 0,
+    "qviol": 6,
+    "slack_out_mw": 0.0,
+    "cost": 97346.92535767773,
+    "clean": false
+   },
+   {
+    "it": 5,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 140.1796361606548,
+    "n_over": 1,
+    "max_load": 1.000118591554227,
+    "vviol": 1,
+    "qviol": 10,
+    "slack_out_mw": 0.0,
+    "cost": 97368.15428080715,
+    "clean": false
+   },
+   {
+    "it": 6,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 143.25740024060542,
+    "n_over": 1,
+    "max_load": 1.000123252667954,
+    "vviol": 0,
+    "qviol": 11,
+    "slack_out_mw": 0.0,
+    "cost": 97324.57482213934,
+    "clean": false
+   },
+   {
+    "it": 7,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 141.63870651955312,
+    "n_over": 1,
+    "max_load": 1.0000304499918753,
+    "vviol": 0,
+    "qviol": 11,
+    "slack_out_mw": 0.0,
+    "cost": 97344.60688389833,
+    "clean": false
+   },
+   {
+    "it": 8,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 143.2540394199259,
+    "n_over": 1,
+    "max_load": 1.0000301745319342,
+    "vviol": 0,
+    "qviol": 11,
+    "slack_out_mw": 0.0,
+    "cost": 97324.95993660267,
+    "clean": false
+   },
+   {
+    "it": 9,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 141.45196086779197,
+    "n_over": 1,
+    "max_load": 1.0000303668439767,
+    "vviol": 0,
+    "qviol": 11,
+    "slack_out_mw": 0.0,
+    "cost": 97306.09528997022,
+    "clean": false
+   },
+   {
+    "it": 10,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 142.3337176533032,
+    "n_over": 1,
+    "max_load": 1.0000083769540706,
+    "vviol": 0,
+    "qviol": 11,
+    "slack_out_mw": 0.0,
+    "cost": 97315.10483493253,
+    "clean": false
+   }
+  ],
+  "secs": 5.43164587020874
+ },
+ {
+  "case": "case118_ieee",
+  "kind": "api",
+  "ac_ok": true,
+  "ac": 249614.52444357282,
+  "plain": {
+   "losses": 285.0322657570023,
+   "n_over": 9,
+   "max_load": 1.1542760479259355,
+   "vviol": 3,
+   "qviol": 5,
+   "slack_out_mw": 228.03226575709726,
+   "cost": 241510.62148640063,
+   "clean": false
+  },
+  "A": {
+   "status": "clean",
+   "check": {
+    "losses": 297.9934332593557,
+    "n_over": 0,
+    "max_load": 1.000000001490174,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 249614.52441193903,
+    "clean": true
+   }
+  },
+  "B": {
+   "status": "not clean",
+   "check": {
+    "losses": 296.4543890426903,
+    "n_over": 9,
+    "max_load": 1.0065778222334216,
+    "vviol": 0,
+    "qviol": 4,
+    "slack_out_mw": 0.0,
+    "cost": 248839.69216984077,
+    "clean": false
+   }
+  },
+  "C": [
+   {
+    "it": 1,
+    "status": "not clean",
+    "qp": "hard",
+    "losses": 296.4543890426903,
+    "n_over": 9,
+    "max_load": 1.0065778222334216,
+    "vviol": 0,
+    "qviol": 4,
+    "slack_out_mw": 0.0,
+    "cost": 248839.69216984077,
+    "clean": false
+   },
+   {
+    "it": 2,
+    "status": "not clean",
+    "qp": "trust+elastic",
+    "losses": 297.61596084627945,
+    "n_over": 9,
+    "max_load": 1.001225296175919,
+    "vviol": 0,
+    "qviol": 3,
+    "slack_out_mw": 0.0,
+    "cost": 249503.74900757323,
+    "clean": false
+   },
+   {
+    "it": 3,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 297.9930757746906,
+    "n_over": 6,
+    "max_load": 1.0000023220491112,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 249614.21171664153,
+    "clean": false
+   },
+   {
+    "it": 4,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 297.99331207007435,
+    "n_over": 1,
+    "max_load": 1.0000010000053932,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 249614.2831506966,
+    "clean": false
+   },
+   {
+    "it": 5,
+    "status": "clean",
+    "qp": "trust",
+    "losses": 297.99331205206636,
+    "n_over": 0,
+    "max_load": 1.0000009999744233,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 249614.28315925354,
+    "clean": true
+   }
+  ],
+  "secs": 4.027923583984375
+ },
+ {
+  "case": "case162_ieee_dtc",
+  "kind": "typ",
+  "ac_ok": true,
+  "ac": 108075.64869428812,
+  "plain": {
+   "losses": 172.7727196979331,
+   "n_over": 9,
+   "max_load": 1.2943476621533907,
+   "vviol": 3,
+   "qviol": 2,
+   "slack_out_mw": 0.0,
+   "cost": 102324.23304859246,
+   "clean": false
+  },
+  "A": {
+   "status": "clean",
+   "check": {
+    "losses": 162.27390969970475,
+    "n_over": 0,
+    "max_load": 0.999999999970183,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 108075.64716740383,
+    "clean": true
+   }
+  },
+  "B": {
+   "status": "not clean",
+   "check": {
+    "losses": 158.2405210648094,
+    "n_over": 9,
+    "max_load": 1.2098439822900056,
+    "vviol": 2,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 107591.62539452239,
+    "clean": false
+   }
+  },
+  "C": [
+   {
+    "it": 1,
+    "status": "not clean",
+    "qp": "hard",
+    "losses": 158.2405210648094,
+    "n_over": 9,
+    "max_load": 1.2098439822900056,
+    "vviol": 2,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 107591.62539452239,
+    "clean": false
+   },
+   {
+    "it": 2,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 162.14902502106725,
+    "n_over": 10,
+    "max_load": 1.0052744811133596,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 108051.1831813261,
+    "clean": false
+   },
+   {
+    "it": 3,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 162.27347076945625,
+    "n_over": 10,
+    "max_load": 1.0000166144518257,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 108075.50431677465,
+    "clean": false
+   },
+   {
+    "it": 4,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 162.27381387286732,
+    "n_over": 5,
+    "max_load": 1.0000010283057519,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 108075.55198129576,
+    "clean": false
+   },
+   {
+    "it": 5,
+    "status": "clean",
+    "qp": "trust",
+    "losses": 162.27381448058895,
+    "n_over": 0,
+    "max_load": 1.0000009999801707,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 108075.5520465816,
+    "clean": true
+   }
+  ],
+  "secs": 1.8875129222869873
+ },
+ {
+  "case": "case162_ieee_dtc",
+  "kind": "api",
+  "ac_ok": true,
+  "ac": 120881.14329816436,
+  "plain": {
+   "losses": 192.8116085206275,
+   "n_over": 10,
+   "max_load": 1.3292257378121752,
+   "vviol": 5,
+   "qviol": 0,
+   "slack_out_mw": 180.8116085204756,
+   "cost": 112924.92367103367,
+   "clean": false
+  },
+  "A": {
+   "status": "clean",
+   "check": {
+    "losses": 192.57746557643713,
+    "n_over": 0,
+    "max_load": 0.9999999999889837,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 120881.14258699103,
+    "clean": true
+   }
+  },
+  "B": {
+   "status": "not clean",
+   "check": {
+    "losses": 176.68055550825466,
+    "n_over": 10,
+    "max_load": 1.620932018430308,
+    "vviol": 5,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 119405.10497153547,
+    "clean": false
+   }
+  },
+  "C": [
+   {
+    "it": 1,
+    "status": "not clean",
+    "qp": "hard",
+    "losses": 176.68055550825466,
+    "n_over": 10,
+    "max_load": 1.620932018430308,
+    "vviol": 5,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 119405.10497153547,
+    "clean": false
+   },
+   {
+    "it": 2,
+    "status": "not clean",
+    "qp": "trust+elastic",
+    "losses": 184.0537301517843,
+    "n_over": 10,
+    "max_load": 1.3277700902737264,
+    "vviol": 3,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 120407.70998013517,
+    "clean": false
+   },
+   {
+    "it": 3,
+    "status": "not clean",
+    "qp": "trust+elastic",
+    "losses": 190.80637757482782,
+    "n_over": 10,
+    "max_load": 1.0540314330950478,
+    "vviol": 2,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 120755.52775754116,
+    "clean": false
+   },
+   {
+    "it": 4,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 192.53427802248825,
+    "n_over": 10,
+    "max_load": 1.0010764461346817,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 120876.8074631732,
+    "clean": false
+   },
+   {
+    "it": 5,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 192.5769970803476,
+    "n_over": 9,
+    "max_load": 1.0000046815546637,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 120881.022335788,
+    "clean": false
+   },
+   {
+    "it": 6,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 192.57713370064357,
+    "n_over": 4,
+    "max_load": 1.0000010104496624,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 120881.03319699442,
+    "clean": false
+   },
+   {
+    "it": 7,
+    "status": "clean",
+    "qp": "trust",
+    "losses": 192.57713411465738,
+    "n_over": 0,
+    "max_load": 1.0000009999808606,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 120881.03323251662,
+    "clean": true
+   }
+  ],
+  "secs": 2.185250759124756
+ },
+ {
+  "case": "case179_goc",
+  "kind": "typ",
+  "ac_ok": true,
+  "ac": 754266.4197431607,
+  "plain": null,
+  "A": {
+   "status": "clean",
+   "check": {
+    "losses": 251.35121625934698,
+    "n_over": 0,
+    "max_load": 0.999999999938019,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 754266.4195106239,
+    "clean": true
+   }
+  },
+  "B": {
+   "status": "PF failed at point"
+  },
+  "C": [
+   {
+    "it": 1,
+    "status": "PF failed at point"
+   }
+  ],
+  "secs": 5.435086965560913
+ },
+ {
+  "case": "case179_goc",
+  "kind": "api",
+  "ac_ok": false,
+  "plain": {
+   "losses": 464.34158458218735,
+   "n_over": 10,
+   "max_load": 1.1499186463371254,
+   "vviol": 19,
+   "qviol": 0,
+   "slack_out_mw": 464.34158458152524,
+   "cost": 1825263.619470399,
+   "clean": false
+  },
+  "B": {
+   "status": "not clean",
+   "check": {
+    "losses": 483.71479568352515,
+    "n_over": 7,
+    "max_load": 1.921435930694461,
+    "vviol": 23,
+    "qviol": 0,
+    "slack_out_mw": 120.73932115880416,
+    "cost": 1885527.2432425518,
+    "clean": false
+   }
+  },
+  "C": [
+   {
+    "it": 1,
+    "status": "not clean",
+    "qp": "hard",
+    "losses": 483.71479568352515,
+    "n_over": 7,
+    "max_load": 1.921435930694461,
+    "vviol": 23,
+    "qviol": 0,
+    "slack_out_mw": 120.73932115880416,
+    "cost": 1885527.2432425518,
+    "clean": false
+   },
+   {
+    "it": 2,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 440.6077095384535,
+    "n_over": 7,
+    "max_load": 1.013192518810237,
+    "vviol": 24,
+    "qviol": 0,
+    "slack_out_mw": 73.97997505453986,
+    "cost": 1902636.2620023657,
+    "clean": false
+   },
+   {
+    "it": 3,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 459.67052910415805,
+    "n_over": 8,
+    "max_load": 1.2008082306474217,
+    "vviol": 24,
+    "qviol": 0,
+    "slack_out_mw": 16.582185061042765,
+    "cost": 1919109.7758788555,
+    "clean": false
+   },
+   {
+    "it": 4,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 430.58428497168643,
+    "n_over": 6,
+    "max_load": 1.0712382921107062,
+    "vviol": 31,
+    "qviol": 0,
+    "slack_out_mw": 54.86681069381666,
+    "cost": 1907103.702557518,
+    "clean": false
+   },
+   {
+    "it": 5,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 444.35640892744414,
+    "n_over": 6,
+    "max_load": 1.0321955382085224,
+    "vviol": 31,
+    "qviol": 0,
+    "slack_out_mw": 21.02037421614841,
+    "cost": 1917384.0791107076,
+    "clean": false
+   },
+   {
+    "it": 6,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 460.203781620934,
+    "n_over": 5,
+    "max_load": 1.0023631409885716,
+    "vviol": 24,
+    "qviol": 0,
+    "slack_out_mw": 19.33382824644923,
+    "cost": 1910469.7081956759,
+    "clean": false
+   },
+   {
+    "it": 7,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 445.0124769262766,
+    "n_over": 6,
+    "max_load": 1.0250707920674829,
+    "vviol": 31,
+    "qviol": 0,
+    "slack_out_mw": 23.966930708499603,
+    "cost": 1916649.1142811084,
+    "clean": false
+   },
+   {
+    "it": 8,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 442.0194975411141,
+    "n_over": 5,
+    "max_load": 1.0008581656214242,
+    "vviol": 30,
+    "qviol": 0,
+    "slack_out_mw": 7.954753589521715,
+    "cost": 1926973.1382473402,
+    "clean": false
+   },
+   {
+    "it": 9,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 449.6275390691444,
+    "n_over": 4,
+    "max_load": 1.0004385461174974,
+    "vviol": 31,
+    "qviol": 0,
+    "slack_out_mw": 3.0457157814807942,
+    "cost": 1927378.0349569533,
+    "clean": false
+   },
+   {
+    "it": 10,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 442.39891488311696,
+    "n_over": 5,
+    "max_load": 1.0010198735268878,
+    "vviol": 31,
+    "qviol": 0,
+    "slack_out_mw": 4.64759211477849,
+    "cost": 1925084.171845725,
+    "clean": false
+   }
+  ],
+  "secs": 6.188157320022583
+ },
+ {
+  "case": "case200_activ",
+  "kind": "typ",
+  "ac_ok": true,
+  "ac": 27557.57089589216,
+  "plain": {
+   "losses": 11.613665853165003,
+   "n_over": 0,
+   "max_load": 0.7126010223847858,
+   "vviol": 0,
+   "qviol": 0,
+   "slack_out_mw": 0.0,
+   "cost": 27557.571003903533,
+   "clean": true
+  },
+  "A": {
+   "status": "clean",
+   "check": {
+    "losses": 11.613665843310628,
+    "n_over": 0,
+    "max_load": 0.7126010223832449,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 27557.571009893007,
+    "clean": true
+   }
+  },
+  "B": {
+   "status": "clean",
+   "check": {
+    "losses": 11.61366584332086,
+    "n_over": 0,
+    "max_load": 0.7126010223832506,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 27557.571009893076,
+    "clean": true
+   }
+  },
+  "C": [
+   {
+    "it": 1,
+    "status": "clean",
+    "qp": "hard",
+    "losses": 11.61366584332086,
+    "n_over": 0,
+    "max_load": 0.7126010223832506,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 27557.571009893076,
+    "clean": true
+   }
+  ],
+  "secs": 1.6436715126037598
+ },
+ {
+  "case": "case200_activ",
+  "kind": "api",
+  "ac_ok": true,
+  "ac": 40700.07344579378,
+  "plain": {
+   "losses": 49.75812342714653,
+   "n_over": 9,
+   "max_load": 1.0293366280171836,
+   "vviol": 0,
+   "qviol": 0,
+   "slack_out_mw": 49.75812342705535,
+   "cost": 40463.63920211002,
+   "clean": false
+  },
+  "A": {
+   "status": "clean",
+   "check": {
+    "losses": 24.885533180704442,
+    "n_over": 0,
+    "max_load": 1.0000000887764786,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.00035823655241529195,
+    "cost": 40700.07431226275,
+    "clean": true
+   }
+  },
+  "B": {
+   "status": "not clean",
+   "check": {
+    "losses": 34.12320842575173,
+    "n_over": 3,
+    "max_load": 1.1280446310656835,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 56.439085879273705,
+    "cost": 40360.69853224298,
+    "clean": false
+   }
+  },
+  "C": [
+   {
+    "it": 1,
+    "status": "not clean",
+    "qp": "hard",
+    "losses": 34.12320842575173,
+    "n_over": 3,
+    "max_load": 1.1280446310656835,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 56.439085879273705,
+    "cost": 40360.69853224298,
+    "clean": false
+   },
+   {
+    "it": 2,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 37.704831983208805,
+    "n_over": 3,
+    "max_load": 1.0005932142858591,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 2.262611915375089,
+    "cost": 40848.95667291631,
+    "clean": false
+   },
+   {
+    "it": 3,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 30.837592060833686,
+    "n_over": 3,
+    "max_load": 1.000240134209846,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 1.9468589326321535,
+    "cost": 40751.960688372674,
+    "clean": false
+   },
+   {
+    "it": 4,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 27.173674610309718,
+    "n_over": 3,
+    "max_load": 1.00007207032077,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 1.0969267963134826,
+    "cost": 40719.9883883283,
+    "clean": false
+   },
+   {
+    "it": 5,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 26.725931259797562,
+    "n_over": 3,
+    "max_load": 1.0000136145194092,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.3514045114370674,
+    "cost": 40712.33709210002,
+    "clean": false
+   },
+   {
+    "it": 6,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 24.78364806856507,
+    "n_over": 0,
+    "max_load": 0.999995849393883,
+    "vviol": 1,
+    "qviol": 0,
+    "slack_out_mw": 1.1469521716834947,
+    "cost": 40702.78949367952,
+    "clean": false
+   },
+   {
+    "it": 7,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 25.39562156755528,
+    "n_over": 1,
+    "max_load": 1.0000175672947387,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.33851917819862365,
+    "cost": 40706.21236258701,
+    "clean": false
+   },
+   {
+    "it": 8,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 25.944535363576506,
+    "n_over": 3,
+    "max_load": 1.0000147604086398,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.33591975018038056,
+    "cost": 40703.15962886864,
+    "clean": false
+   },
+   {
+    "it": 9,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 24.880694211763966,
+    "n_over": 0,
+    "max_load": 0.9999952290175286,
+    "vviol": 1,
+    "qviol": 0,
+    "slack_out_mw": 0.30241953161305446,
+    "cost": 40701.00285171972,
+    "clean": false
+   },
+   {
+    "it": 10,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 25.711229906059998,
+    "n_over": 2,
+    "max_load": 1.0000159826166546,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.32853467408114057,
+    "cost": 40700.59604983699,
+    "clean": false
+   }
+  ],
+  "secs": 4.855258941650391
+ },
+ {
+  "case": "case240_pserc",
+  "kind": "typ",
+  "ac_ok": true,
+  "ac": 3329670.1062308457,
+  "plain": null,
+  "A": {
+   "status": "clean",
+   "check": {
+    "losses": 1488.328063900699,
+    "n_over": 0,
+    "max_load": 1.000000016344538,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 3329670.1004856834,
+    "clean": true
+   }
+  },
+  "secs": 4.120491981506348
+ },
+ {
+  "case": "case240_pserc",
+  "kind": "api",
+  "ac_ok": true,
+  "ac": 4692231.526596802,
+  "plain": {
+   "losses": 1700.0720922565088,
+   "n_over": 8,
+   "max_load": 1.197075625331212,
+   "vviol": 3,
+   "qviol": 0,
+   "slack_out_mw": 1700.0720922544238,
+   "cost": 4684198.939092549,
+   "clean": false
+  },
+  "A": {
+   "status": "clean",
+   "check": {
+    "losses": 1710.7613559946767,
+    "n_over": 0,
+    "max_load": 1.0000000001510694,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 4692231.526852718,
+    "clean": true
+   }
+  },
+  "B": {
+   "status": "not clean",
+   "check": {
+    "losses": 1709.5834516296745,
+    "n_over": 8,
+    "max_load": 1.003119709964524,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 34.47744748954483,
+    "cost": 4691881.351107488,
+    "clean": false
+   }
+  },
+  "C": [
+   {
+    "it": 1,
+    "status": "not clean",
+    "qp": "hard",
+    "losses": 1709.5834516296745,
+    "n_over": 8,
+    "max_load": 1.003119709964524,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 34.47744748954483,
+    "cost": 4691881.351107488,
+    "clean": false
+   },
+   {
+    "it": 2,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 1710.7626364591997,
+    "n_over": 6,
+    "max_load": 1.0000047651724757,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.06963642699747652,
+    "cost": 4692231.109172512,
+    "clean": false
+   },
+   {
+    "it": 3,
+    "status": "clean",
+    "qp": "trust",
+    "losses": 1710.7622140279564,
+    "n_over": 0,
+    "max_load": 1.0000009998888342,
+    "vviol": 0,
+    "qviol": 0,
+    "slack_out_mw": 0.0,
+    "cost": 4692231.309349105,
+    "clean": true
+   }
+  ],
+  "secs": 12.445495843887329
+ },
+ {
+  "case": "case300_ieee",
+  "kind": "typ",
+  "ac_ok": true,
+  "ac": 565219.99224243,
+  "plain": null,
+  "A": {
+   "status": "not clean",
+   "check": {
+    "losses": 779.0170237566199,
+    "n_over": 12,
+    "max_load": 1.3662686716743888,
+    "vviol": 25,
+    "qviol": 40,
+    "slack_out_mw": 277.00235791659964,
+    "cost": 543370.8077344296,
+    "clean": false
+   }
+  },
+  "B": {
+   "status": "PF failed at point"
+  },
+  "C": [
+   {
+    "it": 1,
+    "status": "PF failed at point"
+   }
+  ],
+  "secs": 2.837568759918213
+ },
+ {
+  "case": "case300_ieee",
+  "kind": "api",
+  "ac_ok": true,
+  "ac": 686040.7148019865,
+  "plain": {
+   "losses": 796.3072938805344,
+   "n_over": 10,
+   "max_load": 1.8023703109462836,
+   "vviol": 19,
+   "qviol": 14,
+   "slack_out_mw": 795.0072938804628,
+   "cost": 665000.4114553042,
+   "clean": false
+  },
+  "A": {
+   "status": "not clean",
+   "check": {
+    "losses": 597.7270196259669,
+    "n_over": 7,
+    "max_load": 1.0390839537020682,
+    "vviol": 6,
+    "qviol": 7,
+    "slack_out_mw": 34.28552932737216,
+    "cost": 685642.9558009984,
+    "clean": false
+   }
+  },
+  "B": {
+   "status": "not clean",
+   "check": {
+    "losses": 788.5254017967018,
+    "n_over": 9,
+    "max_load": 1.673036428273677,
+    "vviol": 18,
+    "qviol": 11,
+    "slack_out_mw": 722.3588911821337,
+    "cost": 677881.4882244578,
+    "clean": false
+   }
+  },
+  "C": [
+   {
+    "it": 1,
+    "status": "not clean",
+    "qp": "hard",
+    "losses": 788.5254017967018,
+    "n_over": 9,
+    "max_load": 1.673036428273677,
+    "vviol": 18,
+    "qviol": 11,
+    "slack_out_mw": 722.3588911821337,
+    "cost": 677881.4882244578,
+    "clean": false
+   },
+   {
+    "it": 2,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 613.571953256549,
+    "n_over": 4,
+    "max_load": 1.0028794701018264,
+    "vviol": 5,
+    "qviol": 4,
+    "slack_out_mw": 152.5488862759329,
+    "cost": 687041.6482983157,
+    "clean": false
+   },
+   {
+    "it": 3,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 570.5659615197837,
+    "n_over": 4,
+    "max_load": 1.0074057002741394,
+    "vviol": 3,
+    "qviol": 4,
+    "slack_out_mw": 21.782595300662592,
+    "cost": 688009.5139910636,
+    "clean": false
+   },
+   {
+    "it": 4,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 528.7649990586651,
+    "n_over": 5,
+    "max_load": 1.0014940590411627,
+    "vviol": 5,
+    "qviol": 2,
+    "slack_out_mw": 17.71569311879489,
+    "cost": 686394.2486107211,
+    "clean": false
+   },
+   {
+    "it": 5,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 566.3913764791105,
+    "n_over": 5,
+    "max_load": 1.0098383324106903,
+    "vviol": 5,
+    "qviol": 5,
+    "slack_out_mw": 30.388431204774065,
+    "cost": 685500.9080046685,
+    "clean": false
+   },
+   {
+    "it": 6,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 540.1445678849705,
+    "n_over": 4,
+    "max_load": 1.0024985664707202,
+    "vviol": 4,
+    "qviol": 4,
+    "slack_out_mw": 7.853161866672963,
+    "cost": 686179.8395570923,
+    "clean": false
+   },
+   {
+    "it": 7,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 532.283369525805,
+    "n_over": 4,
+    "max_load": 1.000518926493135,
+    "vviol": 3,
+    "qviol": 4,
+    "slack_out_mw": 5.078513259378383,
+    "cost": 685913.1458300627,
+    "clean": false
+   },
+   {
+    "it": 8,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 555.9505963955053,
+    "n_over": 4,
+    "max_load": 1.0012336824808534,
+    "vviol": 5,
+    "qviol": 6,
+    "slack_out_mw": 8.09978205163543,
+    "cost": 685785.2556218649,
+    "clean": false
+   },
+   {
+    "it": 9,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 541.830351756078,
+    "n_over": 3,
+    "max_load": 1.0000539605316947,
+    "vviol": 4,
+    "qviol": 5,
+    "slack_out_mw": 1.9778455666037758,
+    "cost": 685913.2046383445,
+    "clean": false
+   },
+   {
+    "it": 10,
+    "status": "not clean",
+    "qp": "trust",
+    "losses": 546.6198356170135,
+    "n_over": 4,
+    "max_load": 1.000118151613802,
+    "vviol": 3,
+    "qviol": 5,
+    "slack_out_mw": 0.7833297621918405,
+    "cost": 685891.9425914959,
+    "clean": false
+   }
+  ],
+  "secs": 11.307299137115479
+ }
+]

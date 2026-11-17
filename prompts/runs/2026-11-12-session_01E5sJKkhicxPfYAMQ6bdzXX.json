@@ -1,0 +1,400 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKkhicxPfYAMQ6bdzXX",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T22:18:15Z",
+  "ended": "2026-11-12T22:22:53Z",
+  "wall_minutes": 13.14,
+  "tokens_in": 2810330,
+  "tokens_out": 16180,
+  "cost_usd": 1.3876,
+  "tool_calls": 38,
+  "task": "redteam campaigns on platform/distribution/launch-kit.mjs and ghaction.mjs",
+  "projects": [
+    "platform/distribution"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15280",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "timed node --test over all of ventures/shift-roster-builder (>120 s) before choosing a target",
+      "fix": "switched to --under platform random draw"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "step 0 says to fix every open entry, but all 7 are control-plane workflow edits with owner-gated PRs already open; it could say to check for an existing PR first and skip those"
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "`targets --probe 20` lists only a sample, so grepping it for a specific recently changed file (shift-roster-builder/calc.mjs) found nothing; it is unclear how to probe one named file's suite time"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "step 0 open list: all 7 entries are control-plane and already have open owner-gated PRs",
+      "did": "left them unpatched, listed the PRs in the PR body",
+      "result": "no duplicate control-plane PRs"
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "4b asks for a guard that runs without a red-team run; the new tests run in distribution-versions-ci.yml already, and the sibling word-cut helpers were checked and are safe",
+      "did": "no new lint or workflow",
+      "result": "the property test guards launch-kit in CI"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-redteam-a-sixty-one-character-tagline.md"
+  ],
+  "goal": null,
+  "notes": "Step 0: 7 open entries, all control plane with open PRs (#12928, #14612, #14698, #14877, #15201, #15248). Campaign 1 launch-kit.mjs 1/8 -> 8/8; campaign 2 ghaction.mjs 7/8 -> 8/8. Real defect: words() could return n+1 chars (61-char PH tagline); patched with a failing test first. launch-kit.test.mjs 7/7 and ghaction.test.mjs 7/7 pass locally.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/distribution/launch-kit.mjs",
+        "test": "node --test platform/distribution/launch-kit.test.mjs  (in .)",
+        "seed": 129206644,
+        "commit": "87c5350a",
+        "sites": 33,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "platform/distribution/launch-kit.mjs",
+            "line": 28,
+            "col": 52,
+            "operator": "const-plus-one",
+            "before": "const clip = (s, n) => (s.length <= n ? s : s.slice(0, n - 1).trimEnd() + '\u2026');",
+            "after": "const clip = (s, n) => (s.length <= n ? s : s.slice(1, n - 1).trimEnd() + '\u2026');",
+            "line_text": "const clip = (s, n) => (s.length <= n ? s : s.slice(0, n - 1).trimEnd() + '\u2026');",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "clip dropped the first character; no test checked clipped text keeps its start"
+          },
+          {
+            "file": "platform/distribution/launch-kit.mjs",
+            "line": 42,
+            "col": 67,
+            "operator": "const-plus-one",
+            "before": "title: words(`Show HN: ${name} \u2013 ${one.replace(/\\.$/, '')}`, 80),",
+            "after": "title: words(`Show HN: ${name} \u2013 ${one.replace(/\\.$/, '')}`, 81),",
+            "line_text": "      title: words(`Show HN: ${name} \u2013 ${one.replace(/\\.$/, '')}`, 80),",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Show HN title limit off by one; only a short description was tested"
+          },
+          {
+            "file": "platform/distribution/launch-kit.mjs",
+            "line": 50,
+            "col": 56,
+            "operator": "const-plus-one",
+            "before": "description: clip(`${description} ${disclosure}`, 260),",
+            "after": "description: clip(`${description} ${disclosure}`, 261),",
+            "line_text": "      description: clip(`${description} ${disclosure}`, 260),",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "PH description limit 261; no long description tested"
+          },
+          {
+            "file": "platform/distribution/launch-kit.mjs",
+            "line": 56,
+            "col": 37,
+            "operator": "const-plus-one",
+            "before": "description: clip(description, 300),",
+            "after": "description: clip(description, 301),",
+            "line_text": "      description: clip(description, 300),",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "AlternativeTo limit 301; untested"
+          },
+          {
+            "file": "platform/distribution/launch-kit.mjs",
+            "line": 84,
+            "col": 22,
+            "operator": "and-to-or",
+            "before": "const meta = html && readMeta(html);",
+            "after": "const meta = html || readMeta(html);",
+            "line_text": "    const meta = html && readMeta(html);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/launch-kit.mjs",
+            "line": 92,
+            "col": 54,
+            "operator": "const-plus-one",
+            "before": "export async function run({ argv = process.argv.slice(2), now = new Date(), log = console.log } = {}) {",
+            "after": "export async function run({ argv = process.argv.slice(3), now = new Date(), log = console.log } = {}) {",
+            "line_text": "export async function run({ argv = process.argv.slice(2), now = new Date(), log = console.log } = {}) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "default argv slice(3) drops the first CLI flag; CLI never spawned in tests"
+          },
+          {
+            "file": "platform/distribution/launch-kit.mjs",
+            "line": 98,
+            "col": 32,
+            "operator": "or-to-and",
+            "before": "days: Number(arg('--days')) || DEFAULT_DAYS, max: Number(arg('--max')) || DEFAULT_MAX,",
+            "after": "days: Number(arg('--days')) && DEFAULT_DAYS, max: Number(arg('--max')) || DEFAULT_MAX,",
+            "line_text": "    days: Number(arg('--days')) || DEFAULT_DAYS, max: Number(arg('--max')) || DEFAULT_MAX,",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "--days ignored (always 7); run() untested"
+          },
+          {
+            "file": "platform/distribution/launch-kit.mjs",
+            "line": 104,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "if (process.argv[1] === fileURLToPath(import.meta.url)) {",
+            "after": "if (process.argv[2] === fileURLToPath(import.meta.url)) {",
+            "line_text": "if (process.argv[1] === fileURLToPath(import.meta.url)) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "entry-point guard never fires; CLI never spawned in tests"
+          }
+        ]
+      },
+      {
+        "target": "platform/distribution/ghaction.mjs",
+        "test": "node --test platform/distribution/ghaction.test.mjs  (in .)",
+        "seed": 308092122,
+        "commit": "87c5350a",
+        "sites": 26,
+        "baseline_seconds": 0.8,
+        "mutants": [
+          {
+            "file": "platform/distribution/ghaction.mjs",
+            "line": 41,
+            "col": 31,
+            "operator": "le-to-lt",
+            "before": "const short = (d) => (d.length <= 125 ? d : d.slice(0, 124).replace(/\\s+\\S*$/, '') + '\u2026');",
+            "after": "const short = (d) => (d.length < 125 ? d : d.slice(0, 124).replace(/\\s+\\S*$/, '') + '\u2026');",
+            "line_text": "const short = (d) => (d.length <= 125 ? d : d.slice(0, 124).replace(/\\s+\\S*$/, '') + '\u2026');",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/ghaction.mjs",
+            "line": 41,
+            "col": 55,
+            "operator": "const-plus-one",
+            "before": "const short = (d) => (d.length <= 125 ? d : d.slice(0, 124).replace(/\\s+\\S*$/, '') + '\u2026');",
+            "after": "const short = (d) => (d.length <= 125 ? d : d.slice(0, 125).replace(/\\s+\\S*$/, '') + '\u2026');",
+            "line_text": "const short = (d) => (d.length <= 125 ? d : d.slice(0, 124).replace(/\\s+\\S*$/, '') + '\u2026');",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/ghaction.mjs",
+            "line": 41,
+            "col": 83,
+            "operator": "plus-to-minus",
+            "before": "const short = (d) => (d.length <= 125 ? d : d.slice(0, 124).replace(/\\s+\\S*$/, '') + '\u2026');",
+            "after": "const short = (d) => (d.length <= 125 ? d : d.slice(0, 124).replace(/\\s+\\S*$/, '') - '\u2026');",
+            "line_text": "const short = (d) => (d.length <= 125 ? d : d.slice(0, 124).replace(/\\s+\\S*$/, '') + '\u2026');",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/ghaction.mjs",
+            "line": 69,
+            "col": 4,
+            "operator": "minus-to-plus",
+            "before": "- shell: bash",
+            "after": "+ shell: bash",
+            "line_text": "    - shell: bash",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/ghaction.mjs",
+            "line": 122,
+            "col": 24,
+            "operator": "and-to-or",
+            "before": "if (e.isDirectory() && !ok.some((p) => p.slug === e.name)) bad.push(`${ACTIONS_DIR}/${e.name} (no longer qualifies)`);",
+            "after": "if (e.isDirectory() || !ok.some((p) => p.slug === e.name)) bad.push(`${ACTIONS_DIR}/${e.name} (no longer qualifies)`);",
+            "line_text": "    if (e.isDirectory() && !ok.some((p) => p.slug === e.name)) bad.push(`${ACTIONS_DIR}/${e.name} (no longer qualifies)`);",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/ghaction.mjs",
+            "line": 131,
+            "col": 70,
+            "operator": "true-to-false",
+            "before": "await fs.mkdir(path.dirname(path.join(root, rel)), { recursive: true });",
+            "after": "await fs.mkdir(path.dirname(path.join(root, rel)), { recursive: false });",
+            "line_text": "      await fs.mkdir(path.dirname(path.join(root, rel)), { recursive: true });",
+            "caught": false,
+            "seconds": 0.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "write() was never tested; recursive:false fails only into a tree without platform/distribution/actions, which a temp-root test now builds"
+          },
+          {
+            "file": "platform/distribution/ghaction.mjs",
+            "line": 138,
+            "col": 20,
+            "operator": "eq-flip",
+            "before": "if (process.argv[1] === fileURLToPath(import.meta.url)) {",
+            "after": "if (process.argv[1] !== fileURLToPath(import.meta.url)) {",
+            "line_text": "if (process.argv[1] === fileURLToPath(import.meta.url)) {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/ghaction.mjs",
+            "line": 142,
+            "col": 18,
+            "operator": "eq-flip",
+            "before": "} else if (flag === '--check') {",
+            "after": "} else if (flag !== '--check') {",
+            "line_text": "  } else if (flag === '--check') {",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "platform/distribution/launch-kit.mjs",
+        "issue": "words() returned more than n characters when the first word is longer than the limit (a 61-character Product Hunt tagline for a 60 limit; PH rejects it). Now cut hard at n; guarded by a test.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f3f2a986-5675-588a-9d78-7b5f76a5fbed",
+    "transcripts": 1,
+    "first": "2026-11-12T22:18:15Z",
+    "last": "2026-11-12T22:31:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 72,
+        "output": 16180,
+        "thinking": 4073,
+        "cache_read": 2745946,
+        "cache_write_5m": 0,
+        "cache_write_1h": 64312,
+        "api_equivalent_usd": 1.3876,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 72,
+      "output": 16180,
+      "thinking": 4073,
+      "cache_read": 2745946,
+      "cache_write_5m": 0,
+      "cache_write_1h": 64312,
+      "api_equivalent_usd": 1.3876,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 38,
+    "tools": {
+      "Bash": 36,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.14,
+      "active_minutes": 13.14,
+      "model_minutes": 3.65,
+      "tool_minutes": 9.48,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.5,
+      "basis": "two mutation campaigns, five tests, one fix and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 250.0
+    },
+    "leverage": 180.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -2,6 +2,7 @@
 // node make-guide.mjs   (page.test.mjs fails if the committed page drifts from this output)
 import { writeFileSync } from "node:fs";
 import { buildPlan, CADENCES, CHANNEL_LABELS, SAMPLE_PROSPECTS, SAMPLE_SENDER } from "./calc.mjs";
+import { pathToFileURL } from "node:url";
 
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const PURPOSE = {
@@ -100,4 +101,4 @@ ${faq.map(([q, a]) => `    <h3>${q}</h3>\n    <p>${a}</p>`).join("\n")}
 </html>
 `;
 }
-if (import.meta.url === `file://${process.argv[1]}`) writeFileSync(new URL("./sales-cadence-template.html", import.meta.url), guide());
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) writeFileSync(new URL("./sales-cadence-template.html", import.meta.url), guide());

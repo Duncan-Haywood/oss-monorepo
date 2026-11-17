@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -159,7 +159,7 @@
       const s = r.summary, st = r.stats;
       const km = st ? (st.distanceM / 1000).toFixed(2) : "0";
       $("#report-stats").innerHTML = `<strong>${s.errors} error${s.errors === 1 ? "" : "s"}</strong>, ${s.warnings} warning${s.warnings === 1 ? "" : "s"} · ${s.points} point${s.points === 1 ? "" : "s"}` + (st ? ` · ${km} km, ${Math.round(st.durationS / 60)} min, +${st.gainM} m / -${st.lossM} m (as recorded, including any bad points)` : "");
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.code)}</h4><p>${esc(f.message)}</p></div>`).join("") || "<p>No problems found.</p>";
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.code)}</h3><p>${esc(f.message)}</p></div>`).join("") || "<p>No problems found.</p>";
       const fix = repair(text);
       fixedText = fix.text;
       sourceText = fix.text; thinText = null;

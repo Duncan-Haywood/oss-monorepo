@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKiQ3gQ5cF4SX1FXZxJ",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T19:18:20Z",
+  "ended": "2026-11-16T19:32:13Z",
+  "wall_minutes": 20.71,
+  "tokens_in": 8247669,
+  "tokens_out": 32437,
+  "cost_usd": 3.2621,
+  "tool_calls": 85,
+  "task": "polish: shared site header one row on tool pages whose column is 960-1,017 px",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16679",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First compact-header CSS showed the word 'Search' beside the glass on tool pages: VENTURE_CHROME_CSS's nav.pf-chrome.pf-chrome-top[data-pfs-head] a{font:inherit} and .pfs-searchlink{padding} outrank SITE_HEADER_CSS. Caught by screenshot; fixed with a matching container-query override in VENTURE_CHROME_CSS and a test."
+    },
+    {
+      "what": "First full-site measurement read heights at domcontentloaded and saw unstyled 20 px bars on 1,278 pages (53 two-row instead of 885); rerun at load."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/reports/polish-2026-11-16-programme-dek.md",
+      "issue": "'Still weakest' item 2 (tool project pages have a generic dek) had already shipped (ventureLede in writing.mjs); the list was stale within the same day."
+    },
+    {
+      "file": "docs/reports/polish-2026-11-16-hero-crops.md",
+      "issue": "Item 3 (lone grey 'Saved bids' button) had already been addressed by JOBS_FIRST_VISIT_STATUS; again stale the same day. Polish runs in parallel make Still-weakest lists go stale fast."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Full build + full-site sweep took ~25 min; I patched the built pf-chrome.css/pf-site.css in dist instead of rebuilding to measure after, since the change is CSS only and those files carry SITE_HEADER_CSS verbatim.",
+      "did": "string-replaced the old CSS in dist and measured all 1,388 tool pages before and after",
+      "result": "885 -> 51 two-row headers at 1,280 px; tests pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-one-header-row-on-885-tool-pages.md",
+    "docs/reports/polish-2026-11-16-header-row.md"
+  ],
+  "goal": null,
+  "notes": "Measured with Playwright on a served full build: two-row header at 1,280 px 885 -> 51 of 1,388 tool pages; at 1,024 px 1,388 -> 51; bar height uniform 57 px on 1,322 pages. node --test site-nav.test.mjs 23/23; node --test 'platform/pages/*.test.mjs': 1750/1752, the 2 failures were the post I wrote mid-run (165-char description, since cut; the test itself named the mid-run edit); build.test.mjs re-run on the clean tree 316/316.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "432c01a6-d06a-549b-ba4e-80d1a968ace8",
+    "transcripts": 1,
+    "first": "2026-11-16T19:18:20Z",
+    "last": "2026-11-16T19:39:02Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 74,
+        "input": 144,
+        "output": 32437,
+        "thinking": 8867,
+        "cache_read": 8124032,
+        "cache_write_5m": 0,
+        "cache_write_1h": 123493,
+        "api_equivalent_usd": 3.2621,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 74,
+      "input": 144,
+      "output": 32437,
+      "thinking": 8867,
+      "cache_read": 8124032,
+      "cache_write_5m": 0,
+      "cache_write_1h": 123493,
+      "api_equivalent_usd": 3.2621,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 85,
+    "tools": {
+      "Bash": 68,
+      "Read": 9,
+      "Edit": 5,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.71,
+      "active_minutes": 20.7,
+      "model_minutes": 5.43,
+      "tool_minutes": 15.27,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "front-end dev: measure header across 1,388 pages, CSS container-query fix, tests, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 122.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

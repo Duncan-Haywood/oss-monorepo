@@ -34,7 +34,7 @@ export function linesFromCsv(text) {
   const rows = parseCsv(text);
   if (rows.length < 2) return { lines: [], skipped: [], missing: ["header and at least one row"] };
   const head = rows[0].map(norm), col = {};
-  for (const [k, names] of Object.entries(ALIASES)) col[k] = head.findIndex((h) => names.includes(h));
+  for (const [k, names] of Object.entries(ALIASES)) col[k] = (names.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1);
   const missing = ["amount", "billed", "start"].filter((k) => col[k] < 0);
   if (missing.length) return { lines: [], skipped: [], missing };
   const lines = [], skipped = [];
@@ -60,8 +60,15 @@ export function sampleCsv(now = Date.UTC(2026, 9, 15)) {
   const DAY = 86400000; let n = 0;
   for (let i = 0; i < 40; i++) {
     const start = now - (30 + ((i * 53) % 480)) * DAY, annual = i % 4 === 0, price = annual ? 290 : [29, 79, 249][i % 3];
-    for (let t = start; t < now; ) {
-      const d = new Date(t), next = annual ? Date.UTC(d.getUTCFullYear() + 1, d.getUTCMonth(), d.getUTCDate()) : Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate());
+    // Bill on the start date's day each period, clamped to short months the way Stripe anchors a
+    // subscription (31 Jan, 28 Feb, 31 Mar), so no period is "31 Jan to 3 Mar".
+    const s0 = new Date(start), step = annual ? 12 : 1;
+    const at = (k) => {
+      const y = s0.getUTCFullYear(), mo = s0.getUTCMonth() + k * step;
+      return Date.UTC(y, mo, Math.min(s0.getUTCDate(), new Date(Date.UTC(y, mo + 1, 0)).getUTCDate()));
+    };
+    for (let k = 0, t = start; t < now; k++) {
+      const next = at(k + 1);
       out.push(`il_${++n},${f(t)},${f(t)},${f(next)},${price}`); t = next;
     }
   }

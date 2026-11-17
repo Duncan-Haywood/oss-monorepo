@@ -1,0 +1,45 @@
+Build completed successfully.
+'TheismFormal.Anderson.model_has_row_block' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.Anderson.row_block_gives_model' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.Anderson.no_contingent_proposition' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.Anderson.full_semantics_collapse' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.Anderson.a5'_holds' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.Anderson.ne_everyone' does not depend on any axioms
+'TheismFormal.ontological_fails_S4' does not depend on any axioms
+'TheismFormal.honorius' does not depend on any axioms
+'TheismFormal.Anderson.weak_model_form' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.Anderson.weak_model_of' does not depend on any axioms
+'TheismFormal.Anderson.weak_full_semantics_model' does not depend on any axioms
+'TheismFormal.Varying.godlike_exists_everywhere' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.Varying.godlike_unique_full' does not depend on any axioms
+'TheismFormal.Varying.full_godlike_necessary' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.Varying.nev_everyone_full' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.Varying.full_model_of_necessary' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.Actualist.godlike_exists_everywhereA' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.Actualist.de_re_fails' does not depend on any axioms
+'TheismFormal.Actualist.full_godlike_necessaryA' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.Plain.godlike_necessary_plain' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.Plain.de_re_plain' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.Plain.ne0_imp_nea' does not depend on any axioms
+'TheismFormal.Plain.cm_a5_not_a5z' does not depend on any axioms
+'TheismFormal.Closure.nea_iff' does not depend on any axioms
+'TheismFormal.Closure.a5a_iff_closed' does not depend on any axioms
+'TheismFormal.Closure.full_a5z_imp_a5a' does not depend on any axioms
+'TheismFormal.Closure.cm8' depends on axioms: [propext]
+'TheismFormal.Models.model_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.Models.godlike_iff' depends on axioms: [propext]
+'TheismFormal.Models.positive_set_unique' does not depend on any axioms
+'TheismFormal.Models.a5a_iff' does not depend on any axioms
+'TheismFormal.Models.a5z_iff' does not depend on any axioms
+'TheismFormal.Models.model_a5z_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.Models.model_a5a_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.Fitting.exists_god' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.Fitting.ne_iff' does not depend on any axioms
+'TheismFormal.Fitting.ne_in_algebra' does not depend on any axioms
+'TheismFormal.Fitting.model_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.Fitting.model_a5_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.Fitting.de_dicto' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.Fitting.god_unique_full' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.Fitting.de_re_full' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.Fitting.cm_de_re' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.Fitting.cm_no_a4' depends on axioms: [propext, Classical.choice, Quot.sound]

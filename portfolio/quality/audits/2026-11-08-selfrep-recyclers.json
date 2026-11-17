@@ -23,6 +23,6 @@
     {"severity": "low", "what": "Extruder BOM omits puller, cooling and diameter control; sensitivity scales masses only, not the parts list; y_metal reused for MDF undocumented.", "where": "machines.py:47-53, 81-83"},
     {"severity": "low", "what": "Dead parameter variant_scale, unused imports, positional Part reconstruction and global-dict monkey-patching in run.py.", "where": "machines.py:68; experiments/run.py:3-4,38-42"}
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/15792"],
   "verdict": "The arithmetic is right and reproducible: five outputs recomputed by hand from the BOM files (0.098 kg/copy saving, 11.35 kg import, 116 and 99 copies, 94 furnace copies, 31 and 12 with retired plastic) and an independent Monte Carlo with another seed gave 92/124/165 against the reported 91/123/164. The README is candid that everything is assumed and mass-only, and every claim traces to results.txt, so it is finished and honestly labelled. It does not meet the bar: tests are order checks only and a mutation that moves the headline from 116 to about 98 copies survived, the furnace result rests on a physically unsupported premise (offcuts to sheet), the part lists are invented where real open designs exist, and no recycling literature is cited. A recycling engineer would call it a tidy toy model that frames a good question (do the recyclers repay their own imports?) but cannot yet answer it."
 }

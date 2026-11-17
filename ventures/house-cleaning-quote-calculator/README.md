@@ -20,3 +20,11 @@ acquisition cost or employment rules. Unverified against a real company's books:
 tested on hand-calculated examples.
 
 MIT licence, see `LICENSE`.
+
+## Known gaps
+
+From the quality census of 2026-11-15 ([audit](../../portfolio/quality/audits/2026-11-15-house-cleaning-quote-calculator.json)); the worst defect it found is fixed.
+
+- No overhead or owner-pay input, so margin and profit are before office, software and owner costs.
+- Add-ons apply to every visit and their minutes scale with each frequency's time multiplier.
+- The structured data lists profit per labor hour, which the page does not show yet.

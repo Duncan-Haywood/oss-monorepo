@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqydMGwyoEVU1t1SW43N",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T09:39:06Z",
+  "ended": "2026-11-15T09:40:10Z",
+  "wall_minutes": 9.25,
+  "tokens_in": 14862826,
+  "tokens_out": 173874,
+  "cost_usd": 10.2067,
+  "tool_calls": 183,
+  "task": "quality census (mode drawn by quality_audit.py mode), seed 2026-11-15-1fba",
+  "projects": [
+    "research/decision-regret-transfer",
+    "research/flex-twin",
+    "research/codesign-aero",
+    "research/energy-store-flip",
+    "ventures/dunning-engine",
+    "ventures/studio-class-slot-optimizer"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16169",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "Two parallel auditors wrote scripts to the same scratchpad/indep/ folder and one overwrote the other's (energy-store-flip auditor moved to esflip-audit/)."
+  ],
+  "integrity_issues": [
+    "Found, not caused: decision-regret-transfer's 'certified cap' is not a valid bound (0.0004 vs realised regret 0.001); codesign-aero's headline optimum has no closing battery mass. Both now carry README known-defect notes and expected-failure tests."
+  ],
+  "doc_friction": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "Step 5 describes only the sample-round post; census mode's post naming is only implied by earlier posts (README says fix posts are named for the fix, nothing for census)."
+    },
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "No advice that parallel auditors should use per-subject scratch folders; two collided in scratchpad/indep/."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Step 4 says fix small things; the two research headline defects need a re-run, so I recorded them as README known defects plus unittest.expectedFailure tests instead of fixing",
+      "did": "known-defect notes + xfail tests",
+      "result": "defects visible to readers and pinned; a later fix flips the xfail to a pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-quality-census-two-certificates-that-do-not-certify.md"
+  ],
+  "goal": null,
+  "notes": "Mode census, seed 2026-11-15-1fba. Subjects: research/decision-regret-transfer, research/flex-twin, research/codesign-aero, research/energy-store-flip, ventures/dunning-engine, ventures/studio-class-slot-optimizer. Meeting the bar: 0 of 6 (census, not in sampled share; sampled share unchanged 33/306). Seeded mutants caught 10 of 33. Every worst finding reproduced by me before acceptance (dunning stop_payment_order -> soft; studio header row drop; flex-twin zeta values 0.0141/0.0707/0.2844 and 1.0055; energy-store-flip vintage diffs older-table +0.002..+0.007; codesign-aero m_new-m>0 for m in 0.5..20 and cost cap removing 198/1269 grid points; decision-regret bound 0.0004<0.001). Fix PR: #16169 (fixes in same PR, separate commits). Local checks: node --test for dunning-engine (101 pass) and studio (33 pass); unittest/pytest for flex-twin (10), energy-store-flip (7), codesign-aero (10 + 1 xfail), decision-regret-transfer (8, 1 expected failure); research homepage build ok; check_md_links ok; quality_audit validate 0 problems.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa",
+    "transcripts": 7,
+    "first": "2026-11-15T09:39:06Z",
+    "last": "2026-11-15T09:48:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 174,
+        "input": 351,
+        "output": 173874,
+        "thinking": 54247,
+        "cache_read": 14145820,
+        "cache_write_5m": 611516,
+        "cache_write_1h": 105139,
+        "api_equivalent_usd": 10.2067,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 174,
+      "input": 351,
+      "output": 173874,
+      "thinking": 54247,
+      "cache_read": 14145820,
+      "cache_write_5m": 611516,
+      "cache_write_1h": 105139,
+      "api_equivalent_usd": 10.2067,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.952,
+    "tool_calls": 183,
+    "tools": {
+      "Bash": 159,
+      "Read": 7,
+      "Agent": 6,
+      "SubagentHandback": 6,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.25,
+      "active_minutes": 5.53,
+      "model_minutes": 4.47,
+      "tool_minutes": 1.05,
+      "waiting_on_human_minutes": 3.73,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 28.02
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "six expert audits at ~3-4 h each plus fixes",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 235.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

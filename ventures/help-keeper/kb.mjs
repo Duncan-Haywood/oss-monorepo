@@ -102,7 +102,7 @@ export function stats(state) {
   return { articles: arts.length, published: arts.filter((a) => a.status === "published").length, views: arts.reduce((s, a) => s + a.views, 0), searches, zero, helpfulPct: (() => { const y = arts.reduce((s, a) => s + a.yes, 0), n = arts.reduce((s, a) => s + a.no, 0); return y + n ? Math.round((100 * y) / (y + n)) : null; })() };
 }
 
-const cell = (v) => { let s = String(v ?? ""); if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+const cell = (v) => { let s = String(v ?? ""); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 export function gapsCsv(state) {
   return [["search", "times", "no_result_times", "opened", "kind", "last_seen_utc"], ...gaps(state).map((r) => [r.q, r.n, r.zero, r.clicks, r.kind, new Date(r.last).toISOString()])].map((r) => r.map(cell).join(",")).join("\n") + "\n";
 }

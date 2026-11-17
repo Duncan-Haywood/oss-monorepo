@@ -3,7 +3,7 @@ Name: tennisbots
 Version: 0.1.0
 Summary: Open-source tennis robots: ball machine shot planner, moving catch-net simulation, ball-collector route planning, ESP32 protocol, Amazon listing tool for sellers
 License: MIT
-Project-URL: Homepage, https://duncan-haywood.github.io/monorepo-projects/open-tennis-robots/
+Project-URL: Homepage, https://marisstella.app/open-tennis-robots/
 Project-URL: Source, https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/open-tennis-robots
 Keywords: tennis,ball machine,robotics,ball collector,raspberry pi,esp32,open hardware
 Classifier: License :: OSI Approved :: MIT License

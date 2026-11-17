@@ -129,7 +129,7 @@ export function decisionSummary({ freshInputTokens, cachedInputTokens, outputTok
   const { ranked, spread } = compareProviders(providers);
   const share = cachedInputShare({ freshInputTokens, cachedInputTokens });
   const lines = [
-    `LLM API monthly cost estimate: ${freshInputTokens.toLocaleString()} fresh input + ${cachedInputTokens.toLocaleString()} cached input + ${outputTokens.toLocaleString()} output tokens/month`,
+    `LLM API monthly cost estimate: ${freshInputTokens.toLocaleString('en-US')} fresh input + ${cachedInputTokens.toLocaleString('en-US')} cached input + ${outputTokens.toLocaleString('en-US')} output tokens/month`,
     share === null ? null : `Cached share of input tokens: ${(share * 100).toFixed(1)}%`,
     ...ranked.map((r, i) => `${i + 1}. ${r.name}: $${r.total.toFixed(2)}/month (input $${r.inputCost.toFixed(2)}, cached input $${r.cachedInputCost.toFixed(2)}, output $${r.outputCost.toFixed(2)})`),
     spread > 0

@@ -1,0 +1,26 @@
+| Teams | Season | Setting | Circle start (carry-over / breaks) | Field start | Floor |
+|---|---|---|---|---|---|
+| 7 | single | carry-over only | 35 / 4 | 35 / 4 | 35 |
+| 7 | single | break weight 10 | 47 / 2 | 47 / 2 | 35 |
+| 7 | home and away | carry-over only | 147 / 20 | 147 / 22 | 147 |
+| 7 | home and away | break weight 10 | 151 / 7 | 151 / 7 | 147 |
+| 8 | single | carry-over only | 48 / 8 | 48 / 8 | 48 |
+| 8 | single | break weight 10 | 48 / 8 | 48 / 8 | 48 |
+| 8 | home and away | carry-over only | 200 / 24 | 200 / 22 | 200 |
+| 8 | home and away | break weight 10 | 224 / 20 | 216 / 16 | 200 |
+| 15 | single | carry-over only | 259 / 43 | 195 / 41 | 195 |
+| 15 | single | break weight 10 | 323 / 46 | 195 / 41 | 195 |
+| 15 | home and away | carry-over only | 895 / 141 | 843 / 99 | 795 |
+| 15 | home and away | break weight 10 | 977 / 74 | 945 / 67 | 795 |
+| 16 | single | carry-over only | 316 / 32 | 224 / 24 | 224 |
+| 16 | single | break weight 10 | 350 / 22 | 224 / 24 | 224 |
+| 16 | home and away | carry-over only | 1,048 / 110 | 912 / 64 | 912 |
+| 16 | home and away | break weight 10 | 1,166 / 64 | 912 / 64 | 912 |
+| 31 | single | carry-over only | 1,459 / 232 | 899 / 245 | 899 |
+| 31 | single | break weight 10 | 1,607 / 254 | 899 / 245 | 899 |
+| 31 | home and away | carry-over only | 4,441 / 668 | 3,977 / 547 | 3,627 |
+| 31 | home and away | break weight 10 | 4,823 / 475 | 4,321 / 443 | 3,627 |
+| 32 | single | carry-over only | 1,538 / 140 | 960 / 106 | 960 |
+| 32 | single | break weight 10 | 1,746 / 136 | 960 / 106 | 960 |
+| 32 | home and away | carry-over only | 4,768 / 482 | 3,872 / 242 | 3,872 |
+| 32 | home and away | break weight 10 | 5,226 / 334 | 3,872 / 242 | 3,872 |

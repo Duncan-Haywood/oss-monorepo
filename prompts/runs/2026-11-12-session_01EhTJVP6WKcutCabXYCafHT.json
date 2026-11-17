@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVP6WKcutCabXYCafHT",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work ... revenue generating software products)",
+  "input_sha256": "cc1bf1e174fd836ef04a5338d11e5895b49e9f5c2929c47ccc48a31eaf56dde4",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T08:56:37Z",
+  "ended": "2026-11-12T09:05:15Z",
+  "wall_minutes": 8.78,
+  "tokens_in": 3997798,
+  "tokens_out": 26484,
+  "cost_usd": 2.0406,
+  "tool_calls": 43,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15069",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The routine's brief is a ventures brief, but a bare `promptctl.py route` drew research. Only `--task` with the brief's text routed it to ventures. The scheduled prompt could pass --task by default."
+    },
+    {
+      "file": "platform/ci/run_venture_tests.py",
+      "issue": "It skips photo-editing because the venture has no *.test.mjs and points at .github/workflows/photo-editing-ci.yml, which does not exist. I ran unittest discover by hand."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-raw-decoding-ten-times-faster-without-a-dependency.md",
+    "ventures/photo-editing/eval/ljpeg-native-huffman-2026-11-12.md"
+  ],
+  "goal": null,
+  "notes": "Flagship photo-editing, the native Huffman item. Optional ctypes C reader, compiled on first use. Real Canon CR2: decode 8.8-11.7 s to 1.2-1.7 s, samples identical to the pure loop, and 0 of 22,032,768 sensels differ from LibRaw (rawpy 0.28). Full unittest suite: 649 OK on Python 3.13 with numpy. On bare python3 there is 1 error, the container's broken system PIL, which is environmental.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b48c3328-faae-5ca9-90a4-69be0eb1b44a",
+    "transcripts": 1,
+    "first": "2026-11-12T08:56:37Z",
+    "last": "2026-11-12T09:05:24Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 43,
+        "input": 84,
+        "output": 26484,
+        "thinking": 4175,
+        "cache_read": 3906557,
+        "cache_write_5m": 0,
+        "cache_write_1h": 91157,
+        "api_equivalent_usd": 2.0406,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 43,
+      "input": 84,
+      "output": 26484,
+      "thinking": 4175,
+      "cache_read": 3906557,
+      "cache_write_5m": 0,
+      "cache_write_1h": 91157,
+      "api_equivalent_usd": 2.0406,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 40,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.78,
+      "active_minutes": 8.78,
+      "model_minutes": 4.59,
+      "tool_minutes": 4.19,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer writing and validating a ctypes C Huffman decoder with benchmarks",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 294.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

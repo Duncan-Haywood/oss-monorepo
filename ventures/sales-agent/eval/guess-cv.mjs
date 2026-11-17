@@ -5,11 +5,12 @@
 // Scored on the replies the rules hand to a person (category "unclear"): that is where the product shows the guess.
 import { readFileSync, readdirSync } from "node:fs";
 import { triage, CATEGORIES, stripQuoted } from "../engine.mjs";
-import { train, guess, TRAINING_FILE } from "../learn.mjs";
+import { train, guess, TRAINING_FILE, trainingLabel } from "../learn.mjs";
+import { pathToFileURL } from "node:url";
 
 const dir = new URL("./", import.meta.url);
 export const REPLY_FILES = readdirSync(dir).filter((f) => TRAINING_FILE.test(f)).sort();
-export const load = (f) => readFileSync(new URL(f, dir), "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
+export const load = (f) => readFileSync(new URL(f, dir), "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l)).map(trainingLabel).filter(Boolean); // the labels learn.mjs trains on
 const over = (got, truth) => CATEGORIES[got].outbound && CATEGORIES[got].rank > CATEGORIES[truth].rank;
 
 /** Score guesses on one file's hand-offs. minMargin: below it the guess is withheld (the person sees "could not tell"). */
@@ -44,7 +45,7 @@ export function crossValidate({ minMargin = 0, files = REPLY_FILES } = {}) {
   return { minMargin, per, totals: { cv: sum("cv", (p) => p.cv), cvFresh: sum("cv", (p) => (p.shipped ? p.cv : null)), shippedFresh: sum("shipped", (p) => p.shipped) }, freshFiles: fresh.length };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const m = Number((process.argv.find((a) => a.startsWith("--min-margin=")) || "=0").split("=")[1]);
   const r = crossValidate({ minMargin: m });
   if (process.argv.includes("--json")) console.log(JSON.stringify(r, null, 2));

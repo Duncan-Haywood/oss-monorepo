@@ -1,0 +1,1 @@
+60x168 week 0 (245 copies): moves 0, pair hours 27 -> 27 | no pair price: 1688 ms, 0 moves | stop on: 46815 ms, 484 walks, 352 cut off, 6 skipped, 1818194 pairs searched | stop off: 89681 ms, 490 walks, 0 cut off, 0 skipped, 4229868 pairs searched | identical: true | 1.9x

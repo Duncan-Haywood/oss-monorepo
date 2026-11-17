@@ -11,7 +11,7 @@ tau   k2    mean pole  real pole  sd formula  sd simulated
 0.1   0.05  1.0444     1.0500     0.2490      0.2552
 
 == 1. Held-out validation is blind to the dither (n=500, 300 fits; tau=0 is the minimum-norm fit) ==
-Held-out = one-step MSE of the fitted twin on 20000 fresh transitions of the SAME logging controller, divided by sigma^2=1.
+Held-out = one-step MSE of the fitted twin on 4000 fresh transitions of the SAME logging controller, divided by sigma^2=1.
 tau    heldout MSE  mean b_hat  mean pole(k2=0.05)  sd pole(k2=0.05)  P(pole<1)
 1      1.0037       0.999       1.045               0.037             0.107
 0.3    1.0027       1.009       1.055               0.090             0.267

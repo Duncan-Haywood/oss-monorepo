@@ -26,5 +26,5 @@
 {"label": "interested", "subject": "Re: quick question", "body": "Can you remove the pricing section from the deck and resend it? I'd like to forward it."}
 {"label": "not_now", "subject": "Re: quick question", "body": "Please don't contact me until January, we're in a freeze."}
 {"label": "interested", "subject": "Re: quick question", "body": "Stop by our office Thursday if you're nearby, happy to see a demo."}
-{"label": "wrong_person", "subject": "Re: quick question", "body": "Please remove Dana from this thread, she left the company; talk to Marcus Lee instead."}
+{"label": "left_company", "subject": "Re: quick question", "body": "Please remove Dana from this thread, she left the company; talk to Marcus Lee instead."}
 {"label": "question", "subject": "Re: quick question", "body": "Do you stop sending data after the trial ends?"}

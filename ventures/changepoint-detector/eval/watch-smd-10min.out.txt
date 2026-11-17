@@ -1,0 +1,31 @@
+
+H: 60-minute buckets, checked every 1 point, baseline 24 points (344 s).
+  machine        cols  L    k R     k S (non-loud; loud own k)        k K   segments scored
+  machine-1-1      30   4      43.05  43.05                                15.62  8
+  machine-2-1      33   3      40.30  5.90 (m11: 60.8, m10: 57.2, m9: 36.7, m30: 16.3)     12.66  13
+  machine-3-1      30   4      21.24  21.24                            3.005e+12  3
+  chance: 11.2% of scored points lie inside a segment window
+  arm   lines  at a mark  per 100 h  caught  under 60 min / longer  median delay h  by machine
+  Q     1080     24.1%      84.8   22/24   12/14, 10/10             4.0      8 11 3
+  R       61     45.9%       4.8   12/24    4/14, 8/10             4.5      4 7 1
+  S       66     53.0%       5.2   14/24    6/14, 8/10             4.0      4 9 1
+  K       19     63.2%       1.5    4/24    1/14, 3/10             4.5      2 2 0
+
+T: 10-minute buckets, checked every 6 points, baseline 144 points (3818 s).
+  machine        cols  L    k R     k S (non-loud; loud own k)        k K   segments scored
+  machine-1-1      30   4      91.04  8.08 (m7: 162.5, m6: 97.5)           67.78  8
+  machine-2-1      33   3       3780  12.47 (m33: 3.4, m10: 3779.8, m9: 238.2, m5: 18.7)     118.2  13
+  machine-3-1      30   4      44.12  18.55 (m10: 87.0)                    11.28  3
+  chance: 6.3% of scored points lie inside a segment window
+  arm   lines  at a mark  per 100 h  caught  under 60 min / longer  median delay h  by machine
+  Q     5193     10.7%     407.6   24/24   14/14, 10/10             0.7      8 13 3
+  R       39     66.7%       3.1   12/24    3/14, 9/10             1.1      5 4 3
+  S      289     32.2%      22.7   16/24    7/14, 9/10             0.8      8 5 3
+  K       62     24.2%       4.9    9/24    1/14, 8/10             1.0      4 2 3
+
+D19 (under T, X catches at least Q - floor(0.06 Q)) and D19' (X's kept share of Q's catches rises 20+ points, H to T):
+  R: kept 55% under H, 50% under T; D19 NOT MET (12 vs 24 - 1); D19' NOT MET.
+  S: kept 64% under H, 67% under T; D19 NOT MET (16 vs 24 - 1); D19' NOT MET.
+  K: kept 18% under H, 38% under T; D19 NOT MET (9 vs 24 - 1); D19' NOT MET.
+
+4162 s wall on 4 cores.

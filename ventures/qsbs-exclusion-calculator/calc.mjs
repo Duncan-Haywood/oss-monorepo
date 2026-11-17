@@ -59,7 +59,7 @@ function num(v) {
 
 export function money(n) {
   const value = Number(n) || 0;
-  const format = (v) => `$${v.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  const format = (v) => `$${v.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
   const text = format(Math.abs(value));
   return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 }
@@ -130,8 +130,8 @@ export function qsbsExclusionOutcome({
   if (nextTier) {
     findings.push({
       severity: "medium",
-      title: `Next tier: ${nextTier.percent * 100}% at ${nextTier.years} years`,
-      detail: `Your exclusion increases at each holding-period milestone under the new tiered rule. Right now you are excluding ${money(excludedGain)} of ${money(eligibleGain)} eligible gain (${percent * 100}%).`,
+      title: `Next tier: ${+(nextTier.percent * 100).toFixed(4)}% at ${nextTier.years} years`,
+      detail: `Your exclusion increases at each holding-period milestone under the new tiered rule. Right now you are excluding ${money(excludedGain)} of ${money(eligibleGain)} eligible gain (${+(percent * 100).toFixed(4)}%).`,
     });
   }
 

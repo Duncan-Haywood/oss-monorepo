@@ -4,6 +4,32 @@ them into that same interpreter if none can.
 
     PY=$(python3 platform/ci/pyenv.py pytest numpy) && "$PY" -m pytest ...
     PY=$(python3 platform/ci/pyenv.py pytest -r requirements.txt)   # a project's whole list
+    PY=$(python3 platform/ci/pyenv.py --for research/marine-hull)   # what its .py files import
+    PY=$(python3 platform/ci/pyenv.py -r research/infra-dcopf/pyproject.toml)  # declared deps
+    python3 platform/ci/pyenv.py --for research/marine-hull -- -m pytest research/marine-hull
+
+Everything after `--` is run with the interpreter found, in the same call
+(`os.execv`, so its exit code and output are the command's own). Use it when
+your shell does not keep variables between commands, as in cloud agent
+sessions: `PY=$(...)` set in one tool call is empty in the next, and
+`"$PY" script.py` then fails or, inside a heredoc, silently runs nothing
+(doc friction 2026-11-13/14, research/CLAUDE.md). Repeating the lookup per call
+costs about 3 s when an interpreter already has the modules (2026-11-14:
+`pytest numpy -- -c pass` took 3.3 s in a cloud session).
+
+`--for DIR` reads every .py file under DIR and asks for the third-party modules
+they import (stdlib, relative imports, imports inside `try:` and modules the
+repository itself holds are left out), plus pytest and the dependencies the
+nearest pyproject.toml declares (its test/tests/dev extras included); point it at a subfolder
+(`DIR/tests`) to skip, say, a data fetcher's heavy imports. Only 5 of 1,083
+research projects carry a requirements.txt, and runs kept naming too few
+modules by hand (doc friction 2026-11-12: `pyenv.py pytest` returned an
+interpreter without numpy for marine-hull; `pytest numpy matplotlib` one
+without scikit-learn).
+
+A version specifier (`pybamm==26.10.1.1`, `numpy>=2`) is honoured: pip is
+asked for it, and an interpreter whose installed version misses it does not
+count. Names read from `-r` and `--for` stay unpinned.
 
 When the pip name and the import name differ and are not in PIP_NAMES, pass
 `pip-name:module` (e.g. `OpenDSSDirect.py:opendssdirect`).
@@ -22,14 +48,24 @@ it lacks (pip then always targets that interpreter). If none works, a private ve
 python3-<module>` is tried; the first interpreter that imports everything is
 printed. Progress goes to stderr; stdout is only the path. Exit 1 when nothing works, with what
 was tried.
+
+Every install keeps Debian's setuptools in the shared /usr/lib/python3/dist-packages
+(see SHARED_DIST): pip run by python3.13 for torch upgraded setuptools by
+uninstalling the copy python3.11 and 3.12 share, which left an orphaned
+distutils-precedence.pth, so every later python3 call printed a
+`No module named '_distutils_hack'` traceback (doc friction in ten run records,
+2026-11-12 to 17). pyenv.py now puts those files back after pip, and on start
+it parks a .pth already orphaned by an older install.
 """
 import fcntl
+import functools
 import glob
 import os
 import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 
@@ -69,16 +105,57 @@ def pip_timeout(modules):
 IMPORT_NAMES = {v.lower(): k for k, v in PIP_NAMES.items()}
 
 
+# import name -> the requirement a caller pinned (`pybamm==26.10.1.1`). A pin
+# used to be dropped: pip installed the latest release and an interpreter with
+# any version passed, so a result could be rerun on a version it was never
+# checked against (doc friction 2026-11-13). Filled by import_name.
+PINS = {}
+
+SPEC_RE = re.compile(r"[<>=!~]")
+
+
 def import_name(arg):
     """Import name for a module or pip name; other dashes become underscores.
     `pip-name:module` names both when neither table knows the pair (it is
-    remembered in PIP_NAMES for the install)."""
+    remembered in PIP_NAMES for the install). A version specifier is kept in
+    PINS, so the install asks for it and the check requires it."""
     if ":" in arg:
         pkg, mod = arg.split(":", 1)
-        PIP_NAMES.setdefault(mod, pkg)
+        PIP_NAMES.setdefault(mod, re.split(r"[<>=!~\[; ]", pkg, maxsplit=1)[0])
+        if SPEC_RE.search(pkg):
+            PINS[mod] = pkg.replace(" ", "")
         return mod
-    arg = re.split(r"[<>=!~\[; ]", arg, maxsplit=1)[0]  # drop a version specifier or extras
-    return IMPORT_NAMES.get(arg.lower(), arg.replace("-", "_"))
+    base = re.split(r"[<>=!~\[; ]", arg, maxsplit=1)[0]  # drop a version specifier or extras
+    mod = IMPORT_NAMES.get(base.lower(), base.replace("-", "_"))
+    if SPEC_RE.search(arg.split(";", 1)[0]):
+        PINS[mod] = arg.split(";", 1)[0].replace(" ", "")
+    return mod
+
+
+# Run inside the candidate interpreter: does the installed distribution meet
+# the requirement? `packaging` when present, else exact `==` only (other
+# operators then pass, as before).
+PIN_CHECK = """def _pin_ok(req):
+    import importlib.metadata as md, re
+    try:
+        from packaging.requirements import Requirement
+        r = Requirement(req)
+        return r.specifier.contains(md.version(r.name), prereleases=True)
+    except ImportError:
+        name = re.split(r"[<>=!~\\[ ]", req, maxsplit=1)[0]
+        m = re.search(r"==([^,;]+)", req)
+        return not m or md.version(name) == m.group(1).strip()
+    except Exception:
+        return False
+"""
+
+
+def pin_code(modules):
+    """Python that fails unless every pinned module's version matches."""
+    reqs = [PINS[m] for m in modules if m in PINS]
+    if not reqs:
+        return ""
+    return "\n" + PIN_CHECK + "".join(f"assert _pin_ok({r!r}), {r!r}\n" for r in reqs)
 
 
 def candidates(path=None, extra_globs=("/usr/bin/python3*", "/usr/local/bin/python3*")):
@@ -101,7 +178,7 @@ def candidates(path=None, extra_globs=("/usr/bin/python3*", "/usr/local/bin/pyth
 
 
 def imports(py, modules, run=subprocess.run):
-    code = "import " + ", ".join(modules) if modules else "pass"
+    code = ("import " + ", ".join(modules) if modules else "pass") + pin_code(modules)
     try:
         return run([py, "-c", code], capture_output=True, timeout=60).returncode == 0
     except (OSError, subprocess.TimeoutExpired):
@@ -119,7 +196,7 @@ def index_reachable(url=TORCH_CPU_INDEX, timeout=8):
 
 def pip_install(py, modules, run=subprocess.run, log=lambda m: print(m, file=sys.stderr),
                 reachable=index_reachable):
-    pkgs = [PIP_NAMES.get(m, m) for m in modules]
+    pkgs = [PINS.get(m) or PIP_NAMES.get(m, m) for m in modules]
     base = [py, "-m", "pip", "install", "--quiet", "--disable-pip-version-check"]
     if TORCH_FAMILY & set(modules) and not os.environ.get("PYENV_TORCH_CUDA"):
         base += ["--extra-index-url", TORCH_CPU_INDEX]
@@ -127,6 +204,14 @@ def pip_install(py, modules, run=subprocess.run, log=lambda m: print(m, file=sys
             # 2026-10-28: the proxy refused this host and pip silently fell back
             # to PyPI's CUDA build (about 25 min); say so up front.
             log(f"pyenv: {TORCH_CPU_INDEX} is unreachable, so pip will pull PyPI's ~3 GB CUDA torch (25 to 35 min); prefer an interpreter that already has torch")
+    keep = backup_shared()
+    try:
+        return _pip_attempts(base, pkgs, modules, py, run, log)
+    finally:
+        restore_shared(keep, log=log)
+
+
+def _pip_attempts(base, pkgs, modules, py, run, log):
     for extra in ([], ["--break-system-packages"], ["--user", "--break-system-packages"]):
         try:
             done = run(base + extra + pkgs, capture_output=True, timeout=pip_timeout(modules))
@@ -142,6 +227,91 @@ def pip_install(py, modules, run=subprocess.run, log=lambda m: print(m, file=sys
             # resolve, so go on to the next interpreter or the venv.
             return False
     return False
+
+
+# Debian's dist-packages is on the path of every /usr/bin/python3.x, so a pip
+# run by one version can uninstall what the others rely on. Reproduced
+# 2026-11-17: `python3.13 -m pip install --break-system-packages
+# setuptools==84.2.1` (what torch pulls in) printed "Uninstalling
+# setuptools-68.1.2" and left distutils-precedence.pth importing a deleted
+# _distutils_hack. The new setuptools lands in python3.13's own site-packages
+# and shadows the restored one there, so putting the old files back is safe.
+SHARED_DIST = "/usr/lib/python3/dist-packages"
+GUARDED = ("setuptools", "_distutils_hack", "pkg_resources", "distutils-precedence.pth",
+           "setuptools-*.egg-info", "setuptools-*.dist-info")
+ORPHAN_PTH = "distutils-precedence.pth"
+
+
+def _guarded_entries(shared):
+    found = []
+    for pattern in GUARDED:
+        found += sorted(glob.glob(os.path.join(shared, pattern)))
+    return found
+
+
+def backup_shared(shared=None):
+    """Copy the setuptools files in SHARED_DIST aside; return the copy's dir (or None)."""
+    shared = shared or SHARED_DIST
+    entries = _guarded_entries(shared) if os.path.isdir(shared) else []
+    if not entries:
+        return None
+    keep = tempfile.mkdtemp(prefix="pyenv-shared-")
+    try:
+        for path in entries:
+            dest = os.path.join(keep, os.path.basename(path))
+            if os.path.isdir(path):
+                shutil.copytree(path, dest, symlinks=True)
+            else:
+                shutil.copy2(path, dest)
+    except OSError:
+        shutil.rmtree(keep, ignore_errors=True)
+        return None
+    return keep
+
+
+def restore_shared(keep, shared=None, log=lambda m: print(m, file=sys.stderr)):
+    """Put back whatever pip removed from SHARED_DIST; return the names restored."""
+    shared = shared or SHARED_DIST
+    if not keep:
+        return []
+    put_back = []
+    try:
+        for name in sorted(os.listdir(keep)):
+            dest = os.path.join(shared, name)
+            if os.path.lexists(dest):
+                continue
+            src = os.path.join(keep, name)
+            try:
+                if os.path.isdir(src):
+                    shutil.copytree(src, dest, symlinks=True)
+                else:
+                    shutil.copy2(src, dest)
+                put_back.append(name)
+            except OSError as err:
+                log(f"pyenv: could not restore {dest}: {err}")
+    finally:
+        shutil.rmtree(keep, ignore_errors=True)
+    if put_back:
+        log(f"pyenv: pip removed {', '.join(put_back)} from {shared} (shared by every "
+            "python3.x); restored them so other interpreters keep setuptools and print no "
+            "_distutils_hack traceback")
+    return put_back
+
+
+def heal_orphan_pth(shared=None, log=lambda m: print(m, file=sys.stderr)):
+    """Park a distutils-precedence.pth whose _distutils_hack is gone (left by an
+    install before this guard existed); return True if it did."""
+    shared = shared or SHARED_DIST
+    pth = os.path.join(shared, ORPHAN_PTH)
+    if not os.path.isfile(pth) or os.path.exists(os.path.join(shared, "_distutils_hack")):
+        return False
+    try:
+        os.replace(pth, pth + ".orphaned")
+    except OSError:
+        return False
+    log(f"pyenv: {pth} imported a deleted _distutils_hack (an earlier pip removed it), so "
+        "every python3 printed a traceback; moved it to .orphaned")
+    return True
 
 
 def apt_install(modules, run=subprocess.run):
@@ -203,8 +373,10 @@ def find(modules, cands, run=subprocess.run, log=lambda m: print(m, file=sys.std
 MISSING_PROBE = """import importlib, sys
 bad = []
 for m in sys.argv[1:]:
+    m, _, req = m.partition("=")
     try:
         importlib.import_module(m)
+        assert not req or _pin_ok(req)
     except Exception:
         bad.append(m)
 print(" ".join(bad))"""
@@ -213,7 +385,8 @@ print(" ".join(bad))"""
 def missing(py, modules, run=subprocess.run):
     """The modules `py` cannot import, in one subprocess (all of them on error)."""
     try:
-        done = run([py, "-c", MISSING_PROBE, *modules], capture_output=True, timeout=120)
+        args = [f"{m}={PINS[m]}" if m in PINS else m for m in modules]
+        done = run([py, "-c", PIN_CHECK + MISSING_PROBE, *args], capture_output=True, timeout=120)
     except (OSError, subprocess.TimeoutExpired):
         return list(modules)
     out = getattr(done, "stdout", None)
@@ -236,7 +409,10 @@ def install(modules, cands, run, log, venv_dir):
         "(can take over 120 s, torch-class wheels 15 min or more: if your shell tool times out, rerun with run_in_background "
         "and read the path from its output)")
     for py, lacks in nearest_first(modules, cands, run):
-        log(f"pyenv: trying {py} -m pip install {' '.join(lacks) or '(nothing missing?)'}")
+        # Print pip names, not import names: a log of `pip install cv2` (no such
+        # package) led runs to hand-install opencv (doc friction 2026-11-11).
+        pkgs = ' '.join(PINS.get(m) or PIP_NAMES.get(m, m) for m in lacks) or '(nothing missing?)'
+        log(f"pyenv: trying {py} -m pip install {pkgs}")
         if pip_install(py, lacks or modules, run, log) and imports(py, modules, run):
             log(f"pyenv: installed with {py} -m pip")
             return py
@@ -259,7 +435,10 @@ def read_requirements(path):
     """Distribution names in a requirements file (versions, extras, markers,
     comments, and pip option lines dropped), so `-r requirements.txt` works.
     Doc friction 2026-11-06/07: the hint named numpy and pytest, then runs
-    hand-installed pandas, scipy, lightgbm, xgboost."""
+    hand-installed pandas, scipy, lightgbm, xgboost. A `pyproject.toml` is
+    read with read_pyproject."""
+    if os.path.basename(path) == "pyproject.toml":
+        return read_pyproject(path)
     names = []
     with open(path) as f:
         for line in f:
@@ -272,23 +451,158 @@ def read_requirements(path):
     return names
 
 
+# Extras a test run needs; `figure`/`sim` style extras are left to the run.
+TEST_EXTRAS = ("test", "tests", "dev")
+
+
+def read_pyproject(path):
+    """Distribution names in a pyproject.toml's `[project] dependencies` plus
+    its test/tests/dev optional dependencies. 918 research projects carry a
+    pyproject.toml and 6 a requirements.txt (2026-11-13), and a run that named
+    `pytest numpy scipy pypower` by hand still lacked infra-dcopf's pandapower
+    (doc friction 2026-11-12, twice)."""
+    try:
+        raw = open(path, "rb").read()
+    except OSError:
+        return []
+    try:
+        import tomllib
+        project = tomllib.loads(raw.decode("utf-8", "replace")).get("project", {})
+        specs = list(project.get("dependencies", []))
+        for extra in TEST_EXTRAS:
+            specs += project.get("optional-dependencies", {}).get(extra, [])
+    except ImportError:  # Python < 3.11: the `dependencies = [...]` array only
+        m = re.search(r"^dependencies\s*=\s*\[(.*?)\]", raw.decode("utf-8", "replace"), re.M | re.S)
+        specs = re.findall(r"[\"']([^\"']+)[\"']", m.group(1)) if m else []
+    except ValueError:  # a malformed file asks for nothing rather than failing the call
+        return []
+    names = []
+    for spec in specs:
+        name = re.split(r"[<>=!~\[ @;]", str(spec).strip(), 1)[0]
+        if name and name not in names:
+            names.append(name)
+    return names
+
+
+def nearest_pyproject(directory, stop):
+    """The pyproject.toml in `directory` or the closest folder above it, not
+    above `stop` (so `--for proj/tests` still finds `proj/pyproject.toml`)."""
+    d, stop = os.path.abspath(directory), os.path.abspath(stop)
+    while True:
+        f = os.path.join(d, "pyproject.toml")
+        if os.path.isfile(f):
+            return f
+        if d == stop or os.path.dirname(d) == d or not d.startswith(stop):
+            return None
+        d = os.path.dirname(d)
+
+
+SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv", "site-packages", "build", "dist"}
+
+
+@functools.lru_cache(maxsize=None)
+def _local_names(stop):
+    """Module names the repository itself provides: every .py stem and every
+    folder holding a .py file under `stop`. Scripts reach siblings with
+    sys.path.insert (research/_shared/linefig, ../mimic-loop/core), so a name
+    found anywhere in the tree is not a pip package. None of the common
+    third-party names (numpy, scipy, torch, yaml, ...) occur as one (2026-11-12)."""
+    names = set()
+    for root, dirs, files in os.walk(stop):
+        dirs[:] = [d for d in dirs if d not in SKIP_DIRS and not d.startswith(".")]
+        py = [f for f in files if f.endswith(".py")]
+        if py:
+            names.add(os.path.basename(root))
+            names.update(f[:-3] for f in py)
+    return names
+
+
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+
+def project_imports(directory, stop=None):
+    """Third-party top-level modules imported by the .py files under `directory`,
+    sorted. Optional imports (inside a `try:` body) are dropped, as a script that
+    guards an import runs without it."""
+    import ast
+    stop = stop or os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    stdlib = set(getattr(sys, "stdlib_module_names", ())) | {"__future__"}
+    local = _local_names(stop)
+    found = set()
+    for root, dirs, files in os.walk(directory):
+        dirs[:] = [d for d in dirs if d not in SKIP_DIRS and not d.startswith(".")]
+        for f in files:
+            if not f.endswith(".py"):
+                continue
+            try:
+                tree = ast.parse(open(os.path.join(root, f), encoding="utf-8", errors="replace").read())
+            except (SyntaxError, ValueError, OSError):
+                continue
+            guarded = set()
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Try):
+                    for inner in node.body:
+                        guarded.update(id(n) for n in ast.walk(inner))
+            for node in ast.walk(tree):
+                if id(node) in guarded:
+                    continue
+                if isinstance(node, ast.Import):
+                    found.update(a.name.split(".")[0] for a in node.names)
+                elif isinstance(node, ast.ImportFrom) and not node.level and node.module:
+                    found.add(node.module.split(".")[0])
+    return sorted(m for m in found if m not in stdlib and m not in local and not m.startswith("_"))
+
+
 def expand_args(args):
-    """Replace `-r FILE` pairs with the file's names; other `-` args stay."""
+    """Replace `-r FILE` pairs with the file's names and `--for DIR` with what
+    DIR's code imports (plus pytest); other `-` args stay."""
     out, it = [], iter(args)
     for a in it:
         if a == "-r":
             out += read_requirements(next(it, os.devnull))
+        elif a == "--for":
+            d = next(it, None)
+            if not d or not os.path.isdir(d):
+                print(f"pyenv: --for needs a directory, got {d!r}", file=sys.stderr)
+                out.append("--for")
+                continue
+            mods = project_imports(d)
+            print(f"pyenv: {d} imports {', '.join(mods) or 'nothing outside the stdlib'}", file=sys.stderr)
+            # The project's declared dependencies too: a module imported only
+            # by a file the scan skipped, or loaded by name, is still listed there.
+            stop = REPO_ROOT if os.path.abspath(d).startswith(REPO_ROOT) else os.path.abspath(d)
+            pp = nearest_pyproject(d, stop)
+            if pp:
+                local = _local_names(REPO_ROOT)
+                declared = [n for n in read_pyproject(pp) if import_name(n) not in local]
+                extra = [n for n in declared if import_name(n) not in mods]
+                if extra:
+                    print(f"pyenv: {os.path.relpath(pp)} also declares {', '.join(extra)}", file=sys.stderr)
+                mods = mods + extra
+            for m in ["pytest"] + mods:
+                if m not in out:
+                    out.append(m)
         else:
             out.append(a)
     return out
 
 
-def main(argv=None):
-    modules = expand_args(argv if argv is not None else sys.argv[1:]) or ["pytest"]
+def split_command(argv):
+    """(pyenv args, command args): what follows the first `--` is the command."""
+    if "--" in argv:
+        i = argv.index("--")
+        return argv[:i], argv[i + 1:]
+    return argv, None
+
+
+def main(argv=None, execv=os.execv):
+    argv, command = split_command(list(argv if argv is not None else sys.argv[1:]))
+    modules = expand_args(argv) or ["pytest"]
     if any(m.startswith("-") for m in modules):
         print(__doc__, file=sys.stderr)
         return 2
     modules = [import_name(m) for m in modules]
+    heal_orphan_pth()
     cands = candidates()
     venv_dir = os.environ.get("PYENV_VENV") or os.path.join(os.path.expanduser("~"), ".cache", "pyenv-venv")
     # Fast path: an interpreter that already imports everything needs no
@@ -296,7 +610,7 @@ def main(argv=None):
     # 2026-11-07: two overlapping calls made the second wait for nothing).
     py = next((c for c in cands if imports(c, modules)), None)
     if py:
-        return report(py)
+        return report(py, command, execv)
     # One install at a time: a second call waits here, then finds the first's
     # result importable instead of starting a duplicate pip.
     lock = open(os.path.join(os.path.dirname(venv_dir) or ".", ".pyenv.lock"), "w") if os.path.isdir(os.path.dirname(venv_dir)) else None
@@ -313,14 +627,26 @@ def main(argv=None):
         print(f"pyenv: no interpreter imports {', '.join(modules)} after pip and apt; "
               f"tried {cands}", file=sys.stderr)
         return 1
-    return report(py)
+    return report(py, command, execv)
 
 
-def report(py):
+def report(py, command=None, execv=os.execv):
+    if command is not None:
+        # Run it now: no path to capture, so no shell variable to lose.
+        print(f"pyenv: running {py} {' '.join(command)}", file=sys.stderr)
+        sys.stdout.flush()
+        sys.stderr.flush()
+        execv(py, [py, *command])
+        return 0  # only reached when execv is a test double
     default = shutil.which("python3")
     if default and os.path.realpath(default) == os.path.realpath(py):
         print(f"pyenv: interpreter {py} (also the default python3, so plain python3 imports them too); "
               "stdout carries this path, capture it with PY=$(...)", file=sys.stderr)
+    # Worded as a tip after an "ok": the old question ("shell variables not kept
+    # between commands?") read like an error on every successful PY=$(...) call
+    # (doc_friction 2026-11-15, four run records).
+    print(f"pyenv: ok, {py} on stdout. Tip: if $PY will not survive to your next call, "
+          "add `-- <args>` to run them with it in this one", file=sys.stderr)
     print(py)
     return 0
 

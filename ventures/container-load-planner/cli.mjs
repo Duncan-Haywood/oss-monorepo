@@ -21,6 +21,7 @@ import {
   SYSTEMS, PRESETS, parseCargo, planLoad, verifyPacking, balanceReport, stopReport, compareOptions, priceOptions, parseRates, fmtInt,
   suggestRestarts, reportCsv, planReportHtml, sampleCargo, pct, fmtNum, wtText, lenText, dimsText,
 } from "./calc.mjs";
+import { pathToFileURL } from "node:url";
 
 const USAGE = `Plan a container, trailer or truck load from a cargo list.
 
@@ -187,6 +188,6 @@ export async function main(argv) {
   return 0;
 }
 
-if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   process.exitCode = await main(process.argv.slice(2));
 }

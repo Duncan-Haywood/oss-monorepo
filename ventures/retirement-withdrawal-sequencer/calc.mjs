@@ -46,7 +46,7 @@ export const num = (v, d = 1) => {
 };
 export const money = (n) => {
   const v = Math.round(Number(n) || 0);
-  return (v < 0 ? "-$" : "$") + Math.abs(v).toLocaleString("en-US");
+  return ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(v).toLocaleString("en-US"));
 };
 const pos = (v) => {
   const n = Number(v);

@@ -6,7 +6,10 @@
 // and `margin:0` -> `margin:1` in the shared site chrome (platform/pages/site-nav.mjs) passed
 // every test. Plain string work, no CSS parser: comments are stripped, then each `prop:value`
 // declaration whose property takes only lengths is checked token by token, skipping anything
-// inside parentheses (calc(100% / 3) and var(--x, 4) take bare numbers legitimately).
+// inside parentheses (calc(100% / 3) takes bare numbers legitimately) except a var() fallback.
+// `margin:var(--m, 8px 1 0)` falls back to `8px 1 0` when --m is unset, which is invalid at
+// computed-value time, so the margin silently becomes 0: the fallback is a length like any
+// other (red team 2026-11-16: `var(--jump-margin,8px 0 0)` -> `8px 1 0` in jump-row.mjs passed).
 
 // Properties whose values are lengths or percentages (or keywords), never bare numbers.
 const LENGTH_PROPS = new Set([
@@ -36,7 +39,26 @@ function topLevelTokens(value) {
     cur += ch;
   }
   if (cur) out.push(cur);
-  return out.filter((t) => !t.includes('('));
+  const flat = [];
+  for (const t of out) {
+    if (!t.includes('(')) flat.push(t);
+    else { const fb = varFallback(t); if (fb !== null) flat.push(...topLevelTokens(fb)); }
+  }
+  return flat;
+}
+
+// The fallback of a token that is exactly `var(--name, fallback)`, or null (no fallback, or
+// any other function: calc(), min(), color-mix() ...).
+function varFallback(token) {
+  const m = /^var\(\s*--[\w-]+\s*,([\s\S]*)\)$/i.exec(token);
+  if (!m) return null;
+  // The match must close the var( it opened: `var(--a,1) calc(2)` is not one var().
+  let depth = 0;
+  for (const ch of m[1]) {
+    if (ch === '(') depth++;
+    else if (ch === ')' && --depth < 0) return null;
+  }
+  return depth === 0 ? m[1] : null;
 }
 
 /**

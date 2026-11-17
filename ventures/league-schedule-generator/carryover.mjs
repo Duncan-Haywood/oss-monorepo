@@ -1,0 +1,2587 @@
+// Carry-over effect: who you play right after whom.
+//
+// In a round robin, team k "carries over" team i to team j when k plays i and then plays j in its
+// next game. If i is the strongest side (or plays a bruising style), j keeps meeting opponents who
+// have just faced i. Russell (1980) measured this with the carry-over matrix c[i][j] (how many teams
+// play i and then j next) and the carry-over effect value COE = sum of c[i][j]^2. Every team plays
+// n - 1 games, so the c[i][j] sum to a fixed total and COE is smallest when they are spread evenly:
+// ideally every c[i][j] is 0 or 1. The circle method, the textbook construction this site uses,
+// is close to the worst case: the same few pairs carry over again and again.
+//
+// This module measures COE on any schedule (built here or read from a published fixture list) and
+// searches for a round robin with a low COE and, after that, as few home/away breaks as it can.
+// Pure functions, seeded, no DOM, so the page, the CLI and the tests share it.
+
+import { mulberry32 } from "./calc.mjs";
+import { leastBreaks, floorTable, pairLeastBreaks, FLOOR_PRICED_MAX_MATCHES } from "./orient.mjs";
+
+/**
+ * Carry-over matrix from each team's opponents in playing order. `opponents[k]` is team k's list of
+ * opponent indexes in the order k plays them (byes skipped). With `cyclic` the last opponent also
+ * carries over to the first, Russell's original definition, used for the published lower bounds.
+ * Returns { matrix, value, max, pairs, total, lowerBound }: value is sum c^2, max the largest entry,
+ * pairs the count of (i, j) with c >= 2, total the sum of entries, and lowerBound the least value any
+ * schedule with that total could have (entries as even as possible; reached only if the schedule
+ * allows it).
+ */
+export function carryOverFromOpponents(opponents, { cyclic = false } = {}) {
+  const n = opponents.length;
+  const matrix = Array.from({ length: n }, () => Array(n).fill(0));
+  for (const seq of opponents) {
+    const L = seq.length;
+    const steps = cyclic ? L : L - 1;
+    for (let s = 0; s < steps; s++) matrix[seq[s]][seq[(s + 1) % L]]++;
+  }
+  let value = 0, max = 0, pairs = 0, total = 0;
+  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+    const v = matrix[i][j];
+    value += v * v; total += v;
+    if (v > max) max = v;
+    if (v >= 2) pairs++;
+  }
+  // In a single round robin c[i][i] is always 0, so the total spreads over n(n-1) cells; in a
+  // double one a team can meet the same side twice running (end of one leg, start of the next),
+  // so when a schedule does that the diagonal counts too.
+  let diagonal = 0;
+  for (let i = 0; i < n; i++) diagonal += matrix[i][i];
+  const cells = diagonal ? n * n : n * (n - 1);
+  const q = Math.floor(total / cells), r = total - q * cells;
+  const lowerBound = cells ? r * (q + 1) ** 2 + (cells - r) * q * q : 0;
+  // A single round robin, all n teams playing, non-cyclic: the floor above is not always reachable,
+  // and for some n an exact search has proved a higher least value (PROVEN_LEAST).
+  const single = !cyclic && !diagonal && n % 2 === 0 && opponents.every((s) => s.length === n - 1);
+  const proven = single ? PROVEN_LEAST[n] || null : null;
+  return { matrix, value, max, pairs, total, lowerBound, repeats: diagonal, proven };
+}
+
+/**
+ * Least non-cyclic carry-over of a single round robin with n teams, all playing, as far as it is
+ * proved. `least` is a value no such round robin goes below; `exact` says a round robin reaches it.
+ * 6: all 720 ordered 1-factorizations enumerated (carryover.test.mjs), eval/carryover-sat.py and
+ * eval/carryover-bnb.c (none at 40 or under). 8: reaches the floor. 10: eval/carryover-bnb.c, an
+ * exhaustive branch and bound, finds none at 92 or under (145 s; CaDiCaL had proved 88 and stopped
+ * with no answer at 90 after 69 min) and finds a 94 in 2 s, so 94 is the least (README "The least
+ * carry-over at 10 teams is 94"). 12: the same search with an exact per-round matching bound and
+ * round 1 fixed per cycle type finds none at 120 (4 x 3 min) or 122 (4 x 25 min); the best known
+ * timetable is 132 (eval/window-refill.c; 136 before), so the least is 124 to 132 and not known to
+ * be reached (README "12 teams cannot reach 122", "12 teams at 132").
+ */
+export const PROVEN_LEAST = {
+  6: { least: 42, exact: true },
+  8: { least: 48, exact: true },
+  10: { least: 94, exact: true },
+  12: { least: 124, exact: false },
+};
+
+/** Each team's opponents in order from schedule rounds (`{ matches: [{ home, away }] }` or [h, a] pairs). */
+export function opponentsFromRounds(rounds, n) {
+  const opp = Array.from({ length: n }, () => []);
+  for (const r of rounds) {
+    for (const m of r.matches) {
+      const [h, a] = Array.isArray(m) ? m : [m.home, m.away];
+      opp[h].push(a); opp[a].push(h);
+    }
+  }
+  return opp;
+}
+
+/** Carry-over of a schedule (built by buildSchedule, or any { teams, rounds }). Non-cyclic: a season does not wrap. */
+export function carryOver(schedule, opts = {}) {
+  const n = schedule.teams.length;
+  return carryOverFromOpponents(opponentsFromRounds(schedule.rounds, n), opts);
+}
+
+// ------------------------------------------------------------------ search
+
+// The search works on N (even) teams; an odd league adds a phantom team N - 1 whose opponent has
+// the bye. A state is opp[r][t] = opponent of t in round r. Two moves keep it a valid round robin:
+// swapping two whole rounds (the order) and the partial round swap of the sports-scheduling
+// literature: in rounds r and s the matches form disjoint even cycles; swapping the r and s
+// opponents of every team on one cycle leaves both rounds perfect matchings and every pair still
+// meeting exactly once.
+
+export function circleOpp(N) {
+  const rounds = [];
+  for (let r = 0; r < N - 1; r++) {
+    const o = new Int16Array(N);
+    o[r] = N - 1; o[N - 1] = r;
+    for (let k = 1; k < N / 2; k++) {
+      const a = (r + k) % (N - 1), b = (r - k + (N - 1)) % (N - 1);
+      o[a] = b; o[b] = a;
+    }
+    rounds.push(o);
+  }
+  return rounds;
+}
+
+// ------------------------------------------------------------ field construction
+//
+// When N (the even count, a phantom included) is a power of two, a perfectly balanced round robin
+// exists (Russell 1980): label the teams with the elements of the finite field GF(N) (bit strings,
+// addition is XOR) and let team x meet x + a^r in round r, where a generates the field's
+// multiplicative group. Each round pairs x with x + a^r and back (addition is its own inverse, and
+// a^r is never 0), and each pair {x, y} meets in the one round where a^r = x + y. Team t plays
+// t + a^r and then t + a^(r+1), and those two always differ by a^r (1 + a), which fixes r, so every
+// ordered pair (i, j) is a carry-over step for exactly one team: every c[i][j] is 1, the least
+// value there is (n(n - 1) cyclic, n(n - 2) not). Dropping one team as the bye keeps the counts at
+// 0 or 1 too, so 7, 15 and 31 teams also reach the floor (checked in carryover.test.mjs).
+//
+// The annealing search falls well short at these sizes (16 teams: 316 against the floor 224; 32
+// teams: 1,538 against 960), so lowCarryOverRounds starts from this timetable when it applies.
+
+// GF(2^k) reduction polynomials (primitive, so x itself generates the group), k = 1 .. 7
+const FIELD_POLY = { 2: 0b11, 4: 0b111, 8: 0b1011, 16: 0b10011, 32: 0b100101, 64: 0b1000011, 128: 0b10001001 };
+
+/** True when the field construction applies to N teams (a power of two from 4 to 128). */
+export function fieldApplies(N) {
+  return N >= 4 && FIELD_POLY[N] !== undefined;
+}
+
+function fieldMul(x, y, N) {
+  const p = FIELD_POLY[N];
+  let r = 0;
+  while (y) {
+    if (y & 1) r ^= x;
+    y >>= 1; x <<= 1;
+    if (x & N) x ^= p;
+  }
+  return r;
+}
+
+/** The generators of GF(N)'s multiplicative group (elements of order N - 1). */
+export function fieldGenerators(N) {
+  if (!fieldApplies(N)) throw new Error(`The field construction needs a power of two from 4 to 128 teams, not ${N}.`);
+  const gens = [];
+  for (let g = 2; g < N; g++) {
+    let x = g, order = 1;
+    while (x !== 1) { x = fieldMul(x, g, N); order++; }
+    if (order === N - 1) gens.push(g);
+  }
+  return gens;
+}
+
+/**
+ * The field round robin on N teams (a power of two) as opp[r][t]: team t meets t XOR g^(r + start)
+ * in round r. Every generator g and every start gives a perfectly balanced timetable; they differ
+ * in how few home/away breaks they allow.
+ */
+export function fieldOpp(N, { generator = 2, start = 0 } = {}) {
+  if (!fieldApplies(N)) throw new Error(`The field construction needs a power of two from 4 to 128 teams, not ${N}.`);
+  let a = 1;
+  for (let i = 0; i < start; i++) a = fieldMul(a, generator, N);
+  const rounds = [];
+  for (let r = 0; r < N - 1; r++) {
+    const o = new Int16Array(N);
+    for (let x = 0; x < N; x++) o[x] = x ^ a;
+    rounds.push(o);
+    a = fieldMul(a, generator, N);
+  }
+  return rounds;
+}
+
+/**
+ * Of every generator and start, the field timetable the greedy venue pass gives the fewest breaks
+ * (all have the same, least carry-over); ties go to the first found, so the result is fixed.
+ */
+function bestFieldOpp(N, n) {
+  let best = null, bestB = Infinity;
+  for (const generator of fieldGenerators(N)) {
+    for (let start = 0; start < N - 1; start++) {
+      const o = fieldOpp(N, { generator, start });
+      const b = greedyBreaks(o, n);
+      if (b < bestB) { bestB = b; best = o; }
+    }
+  }
+  return best;
+}
+
+// ---------------------------------------------------------- starter construction
+//
+// Other even sizes have no field, but most have a starter timetable far better than the circle
+// method. A starter in Z_p (p = N - 1, odd) pairs up the residues 1 .. p - 1 so that the pair
+// differences +-(y - x) cover every nonzero residue exactly once. Team p plays the part of
+// "infinity": in round r, with s = step * (r + start) mod p, every starter pair {x, y} becomes the
+// match {x + s, y + s} and s meets team p. Each round is a perfect matching, and each pair {a, b}
+// meets once, in the one round whose shift carries the starter pair with difference +-(b - a) onto
+// it (or, for team p, the round where s = a). The circle method is the starter {i, -i}, the worst
+// of them for carry-over; eval/starter-search.mjs samples random starters with every step and
+// start and keeps the lowest non-cyclic carry-over for each size, with all N teams playing ("even")
+// and with team p as the bye ("odd"). Measured in eval/starter-search.txt: 20 teams reach the
+// floor (360, every count 0 or 1), where the annealing search from the circle start stopped at 448.
+
+/** The searched starters: N -> { even, odd }, each [step, x1, y1, x2, y2, ...] (eval/starter-search.mjs). */
+export const STARTERS = {
+  6: { even: [1, 1, 4, 2, 3], odd: [1, 1, 4, 2, 3] },
+  10: { even: [4, 1, 4, 2, 6, 3, 5, 7, 8], odd: [4, 1, 4, 2, 6, 3, 5, 7, 8] },
+  12: { even: [2, 1, 4, 2, 8, 3, 10, 5, 6, 7, 9], odd: [2, 1, 4, 2, 8, 3, 10, 5, 6, 7, 9] },
+  14: { even: [2, 1, 2, 3, 6, 4, 11, 5, 9, 7, 12, 8, 10], odd: [2, 1, 5, 2, 9, 3, 8, 4, 6, 7, 10, 11, 12] },
+  18: { even: [5, 1, 8, 2, 13, 3, 11, 4, 16, 5, 7, 6, 10, 9, 12, 14, 15], odd: [5, 1, 8, 2, 13, 3, 11, 4, 16, 5, 7, 6, 10, 9, 12, 14, 15] },
+  20: { even: [9, 1, 6, 2, 11, 3, 7, 4, 16, 5, 18, 8, 10, 9, 17, 12, 15, 13, 14], odd: [9, 1, 6, 2, 11, 3, 7, 4, 16, 5, 18, 8, 10, 9, 17, 12, 15, 13, 14] },
+  22: { even: [1, 10, 4, 2, 5, 6, 17, 16, 18, 20, 8, 12, 13, 7, 14, 9, 1, 19, 3, 11, 15], odd: [1, 9, 1, 6, 17, 11, 15, 8, 20, 12, 13, 5, 2, 18, 16, 3, 19, 7, 14, 10, 4] },
+  24: { even: [1, 1, 3, 2, 19, 4, 18, 5, 8, 6, 11, 7, 17, 9, 13, 10, 22, 12, 20, 14, 21, 15, 16], odd: [1, 20, 22, 19, 5, 2, 9, 1, 13, 7, 8, 10, 14, 6, 16, 12, 17, 21, 4, 3, 11, 15, 18] },
+  26: { even: [1, 10, 11, 5, 19, 6, 22, 15, 8, 4, 14, 7, 13, 17, 12, 2, 23, 9, 1, 20, 18, 16, 3, 24, 21], odd: [1, 1, 12, 2, 4, 3, 16, 5, 8, 6, 23, 7, 17, 9, 10, 11, 18, 13, 22, 14, 19, 15, 21, 20, 24] },
+  28: { even: [1, 26, 21, 23, 11, 12, 9, 20, 6, 1, 10, 5, 13, 7, 24, 15, 8, 19, 25, 3, 14, 22, 18, 2, 4, 16, 17], odd: [1, 15, 8, 13, 4, 9, 19, 16, 24, 14, 18, 23, 2, 20, 22, 5, 6, 3, 17, 12, 7, 10, 21, 25, 1, 11, 26] },
+  30: { even: [1, 1, 3, 2, 5, 4, 19, 6, 26, 7, 11, 8, 25, 9, 15, 10, 21, 12, 17, 13, 20, 14, 27, 16, 24, 18, 28, 22, 23], odd: [1, 1, 20, 2, 24, 3, 6, 4, 18, 5, 23, 7, 9, 8, 17, 10, 27, 11, 15, 12, 28, 13, 21, 14, 19, 16, 22, 25, 26] },
+  34: { even: [1, 7, 8, 19, 27, 23, 29, 28, 17, 21, 30, 11, 1, 31, 24, 26, 9, 20, 16, 6, 3, 5, 10, 13, 25, 15, 2, 18, 32, 12, 14, 4, 22], odd: [1, 1, 9, 2, 23, 3, 12, 4, 21, 5, 6, 7, 10, 8, 31, 11, 29, 13, 26, 14, 19, 15, 22, 16, 20, 17, 28, 18, 32, 24, 30, 25, 27] },
+  36: { even: [1, 1, 23, 2, 4, 3, 6, 5, 14, 7, 12, 8, 32, 9, 25, 10, 28, 11, 19, 13, 34, 15, 22, 16, 20, 17, 29, 18, 33, 21, 31, 24, 30, 26, 27], odd: [1, 1, 28, 2, 18, 3, 34, 4, 6, 5, 14, 7, 8, 9, 21, 10, 16, 11, 25, 12, 23, 13, 30, 15, 22, 17, 32, 19, 29, 20, 33, 24, 27, 26, 31] },
+  38: { even: [1, 1, 11, 2, 6, 3, 22, 4, 10, 5, 20, 7, 24, 8, 29, 9, 33, 12, 19, 13, 15, 14, 26, 16, 27, 17, 31, 18, 21, 23, 32, 25, 30, 28, 36, 34, 35], odd: [1, 1, 9, 2, 36, 3, 22, 4, 25, 5, 15, 6, 7, 8, 21, 10, 19, 11, 23, 12, 14, 13, 28, 16, 27, 17, 34, 18, 32, 20, 26, 24, 31, 29, 33, 30, 35] },
+  40: { even: [1, 1, 8, 2, 24, 3, 18, 4, 27, 5, 13, 6, 19, 7, 16, 9, 28, 10, 20, 11, 22, 12, 15, 14, 35, 17, 29, 21, 25, 23, 37, 26, 32, 30, 31, 33, 38, 34, 36], odd: [1, 1, 23, 2, 32, 3, 7, 4, 17, 5, 37, 6, 26, 8, 29, 9, 14, 10, 18, 11, 12, 13, 19, 15, 30, 16, 28, 20, 31, 21, 35, 22, 38, 24, 34, 25, 27, 33, 36] },
+};
+
+/**
+ * Starters picked on carry-over + 10 x breaks of the full venue search instead of carry-over alone
+ * (eval/starter-breaks.mjs, eval/starter-breaks.txt); same shape as STARTERS. With a break weight,
+ * the search runs from this entry too and keeps it only when strictly better. Kept only where the
+ * run through the search scored lower at weight 10 (eval/starter-breaks-search.txt), plus 36, 38
+ * and 40 teams, not measured through the search (README "Starters picked with their breaks").
+ */
+export const STARTERS_WEIGHTED = {
+  12: { even: [1, 1, 5, 2, 10, 3, 9, 4, 6, 7, 8] },
+  14: { even: [1, 1, 4, 2, 7, 3, 12, 5, 11, 6, 8, 9, 10] },
+  18: { even: [1, 1, 7, 2, 10, 3, 6, 4, 8, 5, 12, 9, 14, 11, 13, 15, 16] },
+  26: { even: [1, 1, 24, 2, 6, 3, 15, 4, 13, 5, 10, 7, 21, 8, 11, 9, 17, 12, 22, 14, 20, 16, 23, 18, 19], odd: [1, 1, 23, 2, 11, 3, 15, 4, 5, 6, 24, 7, 9, 8, 19, 10, 18, 12, 22, 13, 17, 14, 20, 16, 21] },
+  28: { even: [1, 1, 8, 2, 13, 3, 22, 4, 19, 5, 11, 6, 23, 7, 9, 10, 14, 12, 26, 15, 20, 16, 25, 17, 18, 21, 24] },
+  30: { even: [1, 1, 4, 2, 9, 3, 26, 5, 20, 6, 15, 7, 24, 8, 16, 10, 23, 11, 12, 13, 17, 14, 25, 18, 28, 19, 21, 22, 27] },
+  34: { even: [1, 1, 17, 2, 7, 3, 11, 4, 8, 5, 19, 6, 29, 9, 31, 10, 28, 12, 32, 13, 25, 14, 16, 15, 22, 18, 24, 20, 23, 21, 30, 26, 27], odd: [1, 1, 28, 2, 10, 3, 16, 4, 9, 5, 7, 6, 27, 8, 19, 11, 25, 12, 13, 14, 24, 15, 31, 17, 32, 18, 21, 20, 29, 22, 26, 23, 30] },
+  36: { even: [1, 1, 14, 2, 20, 3, 13, 4, 11, 5, 26, 6, 30, 7, 22, 8, 27, 9, 10, 12, 17, 15, 18, 16, 25, 19, 23, 21, 33, 24, 32, 28, 34, 29, 31] },
+  38: { even: [1, 1, 3, 2, 11, 4, 5, 6, 17, 7, 31, 8, 15, 9, 24, 10, 22, 12, 32, 13, 27, 14, 33, 16, 26, 18, 21, 19, 35, 20, 25, 23, 29, 28, 36, 30, 34] },
+  40: { even: [1, 1, 34, 2, 17, 3, 35, 4, 32, 5, 21, 6, 24, 7, 16, 8, 30, 9, 14, 10, 18, 11, 31, 12, 22, 13, 27, 15, 19, 20, 33, 23, 26, 25, 37, 28, 29, 36, 38] },
+};
+
+/**
+ * Starters picked on carry-over + 10 x the breaks of their shift venues (shiftVenues below), by
+ * eval/starter-orient.mjs (eval/starter-orient.txt); same shape as STARTERS. Used only as a
+ * shift-venue candidate with a break weight (shiftStarts), kept when strictly better.
+ */
+export const STARTERS_SHIFT = {
+  12: { odd: [1, 1, 9, 2, 8, 3, 4, 5, 7, 6, 10] },
+  14: { odd: [1, 1, 7, 2, 12, 3, 5, 4, 8, 6, 11, 9, 10] },
+  18: { odd: [1, 1, 6, 2, 11, 3, 14, 4, 5, 7, 10, 8, 12, 9, 16, 13, 15] },
+  22: { even: [1, 1, 13, 2, 19, 3, 17, 4, 9, 5, 20, 6, 14, 7, 18, 8, 11, 10, 12, 15, 16], odd: [1, 1, 16, 2, 19, 3, 14, 4, 18, 5, 6, 7, 15, 8, 20, 9, 11, 10, 13, 12, 17] },
+  26: { odd: [1, 1, 14, 2, 8, 3, 12, 4, 21, 5, 7, 6, 10, 9, 19, 11, 18, 13, 24, 15, 16, 17, 22, 20, 23] },
+  28: { odd: [1, 1, 5, 2, 23, 3, 8, 4, 22, 6, 20, 7, 14, 9, 25, 10, 13, 11, 21, 12, 24, 15, 16, 17, 19, 18, 26] },
+  16: { odd: [1, 1, 12, 2, 9, 3, 4, 5, 10, 6, 8, 7, 13, 11, 14] },
+  30: { even: [1, 1, 4, 2, 25, 3, 10, 5, 17, 6, 15, 7, 26, 8, 21, 9, 14, 11, 22, 12, 16, 13, 28, 18, 20, 19, 27, 23, 24], odd: [1, 1, 6, 2, 9, 3, 28, 4, 17, 5, 23, 7, 10, 8, 20, 11, 21, 12, 27, 13, 19, 14, 15, 16, 25, 18, 26, 22, 24] },
+  32: { odd: [1, 1, 28, 2, 8, 3, 18, 4, 21, 5, 17, 6, 9, 7, 15, 10, 30, 11, 13, 12, 22, 14, 23, 16, 29, 19, 24, 20, 27, 25, 26] },
+  34: { even: [1, 1, 2, 3, 30, 4, 17, 5, 26, 6, 21, 7, 18, 8, 10, 9, 32, 11, 15, 12, 20, 13, 27, 14, 31, 16, 23, 19, 28, 22, 25, 24, 29], odd: [1, 1, 18, 2, 21, 3, 28, 4, 25, 5, 8, 6, 10, 7, 30, 9, 20, 11, 17, 12, 14, 13, 31, 15, 24, 16, 29, 19, 26, 22, 23, 27, 32] },
+  36: { even: [1, 1, 32, 2, 18, 3, 9, 4, 16, 5, 13, 6, 23, 7, 14, 8, 30, 10, 34, 11, 31, 12, 26, 15, 20, 17, 27, 19, 21, 22, 25, 24, 33, 28, 29], odd: [1, 1, 28, 2, 17, 3, 21, 4, 9, 5, 12, 6, 19, 7, 16, 8, 33, 10, 24, 11, 14, 13, 32, 15, 26, 18, 20, 22, 34, 23, 27, 25, 31, 29, 30] },
+  38: { even: [1, 1, 10, 2, 7, 3, 18, 4, 33, 5, 25, 6, 9, 8, 19, 11, 34, 12, 24, 13, 32, 14, 35, 15, 16, 17, 30, 20, 22, 21, 28, 23, 29, 26, 36, 27, 31], odd: [1, 1, 36, 2, 26, 3, 20, 4, 15, 5, 10, 6, 24, 7, 32, 8, 30, 9, 16, 11, 25, 12, 21, 13, 23, 14, 35, 17, 18, 19, 27, 22, 28, 29, 33, 31, 34] },
+  40: { even: [1, 1, 38, 2, 3, 4, 21, 5, 25, 6, 17, 7, 10, 8, 13, 9, 36, 11, 24, 12, 33, 14, 37, 15, 22, 16, 30, 18, 26, 19, 29, 20, 35, 23, 32, 27, 31, 28, 34], odd: [1, 1, 36, 2, 9, 3, 27, 4, 23, 5, 16, 6, 33, 7, 29, 8, 26, 10, 35, 11, 20, 12, 28, 13, 14, 15, 18, 17, 22, 19, 25, 21, 31, 24, 37, 30, 38, 32, 34] },
+};
+
+/**
+ * The partner map f of a starter entry [step, x1, y1, ...] at step 1: starter S at step k is the
+ * timetable of S / k at step 1 with the teams renamed (carry-over and breaks unchanged), so every
+ * entry can be played at step 1. f[x] is x's partner; f[0] is unused (team 0 meets the fixed team
+ * in round 0).
+ */
+export function starterPartner(N, entry) {
+  const p = N - 1, [step, ...flat] = entry;
+  let inv = 1;
+  while ((inv * step) % p !== 1) inv++;
+  const f = new Int16Array(p);
+  for (let i = 0; i < flat.length; i += 2) { const x = (flat[i] * inv) % p, y = (flat[i + 1] * inv) % p; f[x] = y; f[y] = x; }
+  return f;
+}
+
+/**
+ * Home/away for a starter timetable in closed form, the "shift orientation" (eval/starter-orient.mjs).
+ * At step 1 round r plays each starter pair {x, y} as {x + r, y + r}; give every pair a host and keep
+ * it in every round, and let the fixed team alternate. H[u] = 1 when position u hosts. Team t is at
+ * position t - r in round r, so with E the number of u in 2 .. p - 1 where H[u] = H[u - 1]:
+ * breaks = (p - 1)(E + 1) with all N teams playing, (p - 1) E with team p as the bye, and every
+ * team is balanced. This walks every orientation in Gray-code order (the first pair fixed: flipping
+ * all of them changes nothing) and returns the least E with its H. At most 2^18 steps (40 teams,
+ * about 40 ms).
+ */
+export function shiftOrientation(f, p) {
+  const xs = [];
+  for (let x = 1; x < p; x++) if (x < f[x]) xs.push(x);
+  const H = new Uint8Array(p);
+  for (const x of xs) { H[x] = 1; H[f[x]] = 0; }
+  const eq = (u) => (u >= 2 && u < p && H[u] === H[u - 1] ? 1 : 0);
+  let E = 0;
+  for (let u = 2; u < p; u++) E += eq(u);
+  let best = E, bestH = Uint8Array.from(H);
+  const total = 2 ** Math.max(0, xs.length - 1);
+  for (let g = 1; g < total && best > 0; g++) {
+    let i = 0;
+    while (!((g >> i) & 1)) i++;
+    const x = xs[i + 1], y = f[x];
+    // the neighbour pairs (u - 1, u) touching x or y, each once
+    const a = x, b = x + 1, c = y, d = y + 1;
+    E -= eq(a) + (b !== c ? eq(b) : 0) + eq(c) + (d !== a ? eq(d) : 0);
+    H[x] ^= 1; H[y] ^= 1;
+    E += eq(a) + (b !== c ? eq(b) : 0) + eq(c) + (d !== a ? eq(d) : 0);
+    if (E < best) { best = E; bestH = Uint8Array.from(H); }
+  }
+  return { E: best, H: bestH };
+}
+
+/** venues[r][t] = 1 when t hosts in round r, for starterOpp(N, pairs of f, { step: 1 }) and host bits H. */
+export function shiftVenues(N, f, H) {
+  const p = N - 1, venues = [];
+  for (let r = 0; r < p; r++) {
+    const v = new Uint8Array(N);
+    v[p] = r % 2 === 0 ? 1 : 0;
+    for (let t = 0; t < p; t++) { const u = (((t - r) % p) + p) % p; v[t] = u === 0 ? 1 - v[p] : H[u]; }
+    venues.push(v);
+  }
+  return venues;
+}
+
+/**
+ * The shift-venue candidates for N teams (n real): every built-in starter (STARTERS,
+ * STARTERS_WEIGHTED, STARTERS_SHIFT) as a timetable at step 1 with its least-break shift venues,
+ * not annealed. With a break weight lowCarryOverRounds scores each and keeps one only when it
+ * beats every searched start (odd leagues of 17 to 35 teams: about half the breaks at the same
+ * carry-over, README "Home and away that moves with the starter").
+ */
+export function shiftStarts(N, n) {
+  const kind = n === N ? "even" : "odd", p = N - 1, out = [];
+  for (const [which, table] of [["starter", STARTERS], ["weighted starter", STARTERS_WEIGHTED], ["shift starter", STARTERS_SHIFT]]) {
+    const entry = table[N]?.[kind];
+    if (!entry) continue;
+    const f = starterPartner(N, entry);
+    const pairs = [];
+    for (let x = 1; x < p; x++) if (x < f[x]) pairs.push([x, f[x]]);
+    const { H } = shiftOrientation(f, p);
+    out.push({ which, opp: starterOpp(N, pairs, { step: 1 }), venues: shiftVenues(N, f, H) });
+  }
+  return out;
+}
+
+/**
+ * `best` (a lowCarryOverRounds result) against every shift candidate (shiftStarts): the built-in
+ * starters as they are, with home/away that shifts with them (shiftVenues), which no venue search
+ * gets near on odd leagues, and, with `shiftCapped`, each one annealed on carry-over with its
+ * home/away carried and its breaks as the cap (lowCarryOverCappedRounds from that start; 11 and 13
+ * teams gain, README "Shift venues carried through the search"). A candidate is kept only when its
+ * carry-over + breakWeight x breaks is strictly lower.
+ */
+function withShiftCandidates(best, N, n, { seed, effort, cyclic, breakWeight, shiftCapped }) {
+  const score = (r) => r.coe + breakWeight * r.breaks;
+  for (const c of shiftStarts(N, n)) {
+    const st = finish(c.opp, n, cyclic, best.circleCoe, best.lowerBound, best.iterations, seed, c.venues);
+    if (score(st) < score(best)) best = { ...st, start: `${c.which}, shift venues` };
+    if (!shiftCapped) continue;
+    const { maxBreaks, ...cap } = lowCarryOverCappedRounds(n, { seed, effort, cyclic, start: c });
+    if (score(cap) < score(best)) best = { ...cap, circleCoe: best.circleCoe, lowerBound: best.lowerBound, start: `${c.which}, shift venues, capped` };
+  }
+  return best;
+}
+
+/** True when a searched starter or stored timetable is built in for N teams (N even, a bye team included). */
+export function starterApplies(N) {
+  return STARTERS[N] !== undefined || TIMETABLES[N] !== undefined;
+}
+
+// ---------------------------------------------------------- stored timetables
+//
+// Below 22 teams no starter found by sampling, annealing or the O(p) climb reaches the floor, and
+// at 12 teams none goes below 156 (floor 120). eval/round-refill.mjs searches every round robin
+// instead: it takes 2 to 5 rounds out and refills their games with the least-carry-over split, by
+// depth-first search (eval/window-refill.c does the same move in C, 2026-11-14: 12 teams 136 -> 132).
+// Its best timetables are stored here whole, as opp[r][t] (team t meets
+// opp[r][t] in round r; team N - 1 is the bye in "odd"). The search runs from it as a third start,
+// beside the circle method and the starter, and keeps the best result (constructionStarts).
+
+/**
+ * N -> { even?, odd?, evenAlt?, oddAlt? }, each a list of rounds, each round the opponent of every
+ * team. An "Alt" entry is a further start (constructionStarts: "second timetable"), kept when a
+ * lower-carry-over timetable replaced it but did not beat it on every setting.
+ */
+export const TIMETABLES = {
+  12: {
+    even: [ // non-cyclic carry-over 132 (floor 120, proved least >= 124), eval/window-refill.c seed 14
+      [9, 11, 6, 10, 5, 4, 2, 8, 7, 0, 3, 1],
+      [3, 4, 11, 0, 1, 10, 7, 6, 9, 8, 5, 2],
+      [7, 2, 1, 9, 6, 11, 4, 0, 10, 3, 8, 5],
+      [1, 0, 10, 6, 7, 8, 3, 4, 5, 11, 2, 9],
+      [11, 3, 9, 1, 10, 7, 8, 5, 6, 2, 4, 0],
+      [5, 6, 4, 8, 2, 0, 1, 11, 3, 10, 9, 7],
+      [2, 8, 0, 11, 9, 6, 5, 10, 1, 4, 7, 3],
+      [6, 9, 5, 7, 8, 2, 0, 3, 4, 1, 11, 10],
+      [4, 5, 3, 2, 0, 1, 10, 9, 11, 7, 6, 8],
+      [8, 10, 7, 5, 11, 3, 9, 2, 0, 6, 1, 4],
+      [10, 7, 8, 4, 3, 9, 11, 1, 2, 5, 0, 6],
+    ],
+    // the earlier 136 timetable (eval/round-refill.mjs seed 12), kept as a fourth start: the 132
+    // above gives a worse carry-over-only home-and-away season at seed 1 (538 / 62 against 530 / 68)
+    evenAlt: [ // non-cyclic carry-over 136
+      [8, 7, 3, 2, 11, 9, 10, 1, 0, 5, 6, 4],
+      [4, 9, 5, 8, 0, 2, 7, 6, 3, 1, 11, 10],
+      [9, 4, 7, 6, 1, 11, 3, 2, 10, 0, 8, 5],
+      [3, 6, 4, 0, 2, 7, 1, 5, 11, 10, 9, 8],
+      [7, 8, 11, 9, 6, 10, 4, 0, 1, 3, 5, 2],
+      [6, 3, 9, 1, 10, 8, 0, 11, 5, 2, 4, 7],
+      [5, 11, 10, 7, 9, 0, 8, 3, 6, 4, 2, 1],
+      [10, 2, 1, 5, 7, 3, 11, 4, 9, 8, 0, 6],
+      [2, 10, 0, 11, 8, 6, 5, 9, 4, 7, 1, 3],
+      [1, 0, 6, 10, 5, 4, 2, 8, 7, 11, 3, 9],
+      [11, 5, 8, 4, 3, 1, 9, 10, 2, 6, 7, 0],
+    ],
+  },
+  14: {
+    even: [ // non-cyclic carry-over 210 (floor 168; the starter's 212), eval/refill-search.c WMAX=3 seed 44
+      [3, 2, 1, 0, 10, 11, 8, 9, 6, 7, 4, 5, 13, 12],
+      [4, 3, 13, 1, 0, 12, 11, 10, 9, 8, 7, 6, 5, 2],
+      [12, 11, 10, 9, 8, 7, 13, 5, 4, 3, 2, 1, 0, 6],
+      [8, 7, 6, 5, 13, 3, 2, 1, 0, 12, 11, 10, 9, 4],
+      [10, 9, 8, 7, 6, 13, 4, 3, 2, 1, 0, 12, 11, 5],
+      [7, 6, 5, 4, 3, 2, 1, 0, 12, 11, 13, 9, 8, 10],
+      [6, 5, 4, 13, 2, 1, 0, 12, 11, 10, 9, 8, 7, 3],
+      [11, 10, 9, 8, 12, 6, 5, 13, 3, 2, 1, 0, 4, 7],
+      [5, 4, 3, 2, 1, 0, 12, 11, 10, 13, 8, 7, 6, 9],
+      [9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 12, 13, 10, 11],
+      [2, 13, 0, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 1],
+      [13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0],
+      [1, 0, 12, 11, 7, 9, 10, 4, 13, 5, 6, 3, 2, 8],
+    ],
+  },
+  10: {
+    odd: [ // non-cyclic carry-over 69 (floor 63), eval/round-refill.mjs seed 1
+      [5, 9, 7, 6, 8, 0, 3, 2, 4, 1],
+      [9, 5, 6, 4, 3, 1, 2, 8, 7, 0],
+      [4, 2, 1, 5, 0, 3, 7, 6, 9, 8],
+      [8, 6, 4, 7, 2, 9, 1, 3, 0, 5],
+      [1, 0, 3, 2, 9, 7, 8, 5, 6, 4],
+      [7, 3, 9, 1, 6, 8, 4, 0, 5, 2],
+      [3, 8, 5, 0, 7, 2, 9, 4, 1, 6],
+      [6, 7, 8, 9, 5, 4, 0, 1, 2, 3],
+      [2, 4, 0, 8, 1, 6, 5, 9, 3, 7],
+    ],
+  },
+  26: {
+    even: [ // non-cyclic carry-over 670 (floor 624; the starter's 716): the least over every starter,
+      // eval/starter-exhaust.c (starter  at step 1)
+      [25, 2, 1, 13, 20, 24, 18, 10, 16, 11, 7, 9, 23, 3, 19, 22, 8, 21, 6, 14, 4, 17, 15, 12, 5, 0],
+      [6, 25, 3, 2, 14, 21, 0, 19, 11, 17, 12, 8, 10, 24, 4, 20, 23, 9, 22, 7, 15, 5, 18, 16, 13, 1],
+      [14, 7, 25, 4, 3, 15, 22, 1, 20, 12, 18, 13, 9, 11, 0, 5, 21, 24, 10, 23, 8, 16, 6, 19, 17, 2],
+      [18, 15, 8, 25, 5, 4, 16, 23, 2, 21, 13, 19, 14, 10, 12, 1, 6, 22, 0, 11, 24, 9, 17, 7, 20, 3],
+      [21, 19, 16, 9, 25, 6, 5, 17, 24, 3, 22, 14, 20, 15, 11, 13, 2, 7, 23, 1, 12, 0, 10, 18, 8, 4],
+      [9, 22, 20, 17, 10, 25, 7, 6, 18, 0, 4, 23, 15, 21, 16, 12, 14, 3, 8, 24, 2, 13, 1, 11, 19, 5],
+      [20, 10, 23, 21, 18, 11, 25, 8, 7, 19, 1, 5, 24, 16, 22, 17, 13, 15, 4, 9, 0, 3, 14, 2, 12, 6],
+      [13, 21, 11, 24, 22, 19, 12, 25, 9, 8, 20, 2, 6, 0, 17, 23, 18, 14, 16, 5, 10, 1, 4, 15, 3, 7],
+      [4, 14, 22, 12, 0, 23, 20, 13, 25, 10, 9, 21, 3, 7, 1, 18, 24, 19, 15, 17, 6, 11, 2, 5, 16, 8],
+      [17, 5, 15, 23, 13, 1, 24, 21, 14, 25, 11, 10, 22, 4, 8, 2, 19, 0, 20, 16, 18, 7, 12, 3, 6, 9],
+      [7, 18, 6, 16, 24, 14, 2, 0, 22, 15, 25, 12, 11, 23, 5, 9, 3, 20, 1, 21, 17, 19, 8, 13, 4, 10],
+      [5, 8, 19, 7, 17, 0, 15, 3, 1, 23, 16, 25, 13, 12, 24, 6, 10, 4, 21, 2, 22, 18, 20, 9, 14, 11],
+      [15, 6, 9, 20, 8, 18, 1, 16, 4, 2, 24, 17, 25, 14, 13, 0, 7, 11, 5, 22, 3, 23, 19, 21, 10, 12],
+      [11, 16, 7, 10, 21, 9, 19, 2, 17, 5, 3, 0, 18, 25, 15, 14, 1, 8, 12, 6, 23, 4, 24, 20, 22, 13],
+      [23, 12, 17, 8, 11, 22, 10, 20, 3, 18, 6, 4, 1, 19, 25, 16, 15, 2, 9, 13, 7, 24, 5, 0, 21, 14],
+      [22, 24, 13, 18, 9, 12, 23, 11, 21, 4, 19, 7, 5, 2, 20, 25, 17, 16, 3, 10, 14, 8, 0, 6, 1, 15],
+      [2, 23, 0, 14, 19, 10, 13, 24, 12, 22, 5, 20, 8, 6, 3, 21, 25, 18, 17, 4, 11, 15, 9, 1, 7, 16],
+      [8, 3, 24, 1, 15, 20, 11, 14, 0, 13, 23, 6, 21, 9, 7, 4, 22, 25, 19, 18, 5, 12, 16, 10, 2, 17],
+      [3, 9, 4, 0, 2, 16, 21, 12, 15, 1, 14, 24, 7, 22, 10, 8, 5, 23, 25, 20, 19, 6, 13, 17, 11, 18],
+      [12, 4, 10, 5, 1, 3, 17, 22, 13, 16, 2, 15, 0, 8, 23, 11, 9, 6, 24, 25, 21, 20, 7, 14, 18, 19],
+      [19, 13, 5, 11, 6, 2, 4, 18, 23, 14, 17, 3, 16, 1, 9, 24, 12, 10, 7, 0, 25, 22, 21, 8, 15, 20],
+      [16, 20, 14, 6, 12, 7, 3, 5, 19, 24, 15, 18, 4, 17, 2, 10, 0, 13, 11, 8, 1, 25, 23, 22, 9, 21],
+      [10, 17, 21, 15, 7, 13, 8, 4, 6, 20, 0, 16, 19, 5, 18, 3, 11, 1, 14, 12, 9, 2, 25, 24, 23, 22],
+      [24, 11, 18, 22, 16, 8, 14, 9, 5, 7, 21, 1, 17, 20, 6, 19, 4, 12, 2, 15, 13, 10, 3, 25, 0, 23],
+      [1, 0, 12, 19, 23, 17, 9, 15, 10, 6, 8, 22, 2, 18, 21, 7, 20, 5, 13, 3, 16, 14, 11, 4, 25, 24],
+    ],
+  },
+  28: {
+    even: [ // non-cyclic carry-over 778 (floor 728; the starter's 828): the least over every starter,
+      // eval/starter-exhaust.c (starter 1 5 2 21 3 23 4 14 6 24 7 19 8 11 9 15 10 26 12 25 13 18 16 17 20 22 at step 1)
+      [27, 5, 21, 23, 14, 1, 24, 19, 11, 15, 26, 8, 25, 18, 4, 9, 17, 16, 13, 7, 22, 2, 20, 3, 6, 12, 10, 0],
+      [11, 27, 6, 22, 24, 15, 2, 25, 20, 12, 16, 0, 9, 26, 19, 5, 10, 18, 17, 14, 8, 23, 3, 21, 4, 7, 13, 1],
+      [14, 12, 27, 7, 23, 25, 16, 3, 26, 21, 13, 17, 1, 10, 0, 20, 6, 11, 19, 18, 15, 9, 24, 4, 22, 5, 8, 2],
+      [9, 15, 13, 27, 8, 24, 26, 17, 4, 0, 22, 14, 18, 2, 11, 1, 21, 7, 12, 20, 19, 16, 10, 25, 5, 23, 6, 3],
+      [7, 10, 16, 14, 27, 9, 25, 0, 18, 5, 1, 23, 15, 19, 3, 12, 2, 22, 8, 13, 21, 20, 17, 11, 26, 6, 24, 4],
+      [25, 8, 11, 17, 15, 27, 10, 26, 1, 19, 6, 2, 24, 16, 20, 4, 13, 3, 23, 9, 14, 22, 21, 18, 12, 0, 7, 5],
+      [8, 26, 9, 12, 18, 16, 27, 11, 0, 2, 20, 7, 3, 25, 17, 21, 5, 14, 4, 24, 10, 15, 23, 22, 19, 13, 1, 6],
+      [2, 9, 0, 10, 13, 19, 17, 27, 12, 1, 3, 21, 8, 4, 26, 18, 22, 6, 15, 5, 25, 11, 16, 24, 23, 20, 14, 7],
+      [15, 3, 10, 1, 11, 14, 20, 18, 27, 13, 2, 4, 22, 9, 5, 0, 19, 23, 7, 16, 6, 26, 12, 17, 25, 24, 21, 8],
+      [22, 16, 4, 11, 2, 12, 15, 21, 19, 27, 14, 3, 5, 23, 10, 6, 1, 20, 24, 8, 17, 7, 0, 13, 18, 26, 25, 9],
+      [26, 23, 17, 5, 12, 3, 13, 16, 22, 20, 27, 15, 4, 6, 24, 11, 7, 2, 21, 25, 9, 18, 8, 1, 14, 19, 0, 10],
+      [1, 0, 24, 18, 6, 13, 4, 14, 17, 23, 21, 27, 16, 5, 7, 25, 12, 8, 3, 22, 26, 10, 19, 9, 2, 15, 20, 11],
+      [21, 2, 1, 25, 19, 7, 14, 5, 15, 18, 24, 22, 27, 17, 6, 8, 26, 13, 9, 4, 23, 0, 11, 20, 10, 3, 16, 12],
+      [17, 22, 3, 2, 26, 20, 8, 15, 6, 16, 19, 25, 23, 27, 18, 7, 9, 0, 14, 10, 5, 24, 1, 12, 21, 11, 4, 13],
+      [5, 18, 23, 4, 3, 0, 21, 9, 16, 7, 17, 20, 26, 24, 27, 19, 8, 10, 1, 15, 11, 6, 25, 2, 13, 22, 12, 14],
+      [13, 6, 19, 24, 5, 4, 1, 22, 10, 17, 8, 18, 21, 0, 25, 27, 20, 9, 11, 2, 16, 12, 7, 26, 3, 14, 23, 15],
+      [24, 14, 7, 20, 25, 6, 5, 2, 23, 11, 18, 9, 19, 22, 1, 26, 27, 21, 10, 12, 3, 17, 13, 8, 0, 4, 15, 16],
+      [16, 25, 15, 8, 21, 26, 7, 6, 3, 24, 12, 19, 10, 20, 23, 2, 0, 27, 22, 11, 13, 4, 18, 14, 9, 1, 5, 17],
+      [6, 17, 26, 16, 9, 22, 0, 8, 7, 4, 25, 13, 20, 11, 21, 24, 3, 1, 27, 23, 12, 14, 5, 19, 15, 10, 2, 18],
+      [3, 7, 18, 0, 17, 10, 23, 1, 9, 8, 5, 26, 14, 21, 12, 22, 25, 4, 2, 27, 24, 13, 15, 6, 20, 16, 11, 19],
+      [12, 4, 8, 19, 1, 18, 11, 24, 2, 10, 9, 6, 0, 15, 22, 13, 23, 26, 5, 3, 27, 25, 14, 16, 7, 21, 17, 20],
+      [18, 13, 5, 9, 20, 2, 19, 12, 25, 3, 11, 10, 7, 1, 16, 23, 14, 24, 0, 6, 4, 27, 26, 15, 17, 8, 22, 21],
+      [23, 19, 14, 6, 10, 21, 3, 20, 13, 26, 4, 12, 11, 8, 2, 17, 24, 15, 25, 1, 7, 5, 27, 0, 16, 18, 9, 22],
+      [10, 24, 20, 15, 7, 11, 22, 4, 21, 14, 0, 5, 13, 12, 9, 3, 18, 25, 16, 26, 2, 8, 6, 27, 1, 17, 19, 23],
+      [20, 11, 25, 21, 16, 8, 12, 23, 5, 22, 15, 1, 6, 14, 13, 10, 4, 19, 26, 17, 0, 3, 9, 7, 27, 2, 18, 24],
+      [19, 21, 12, 26, 22, 17, 9, 13, 24, 6, 23, 16, 2, 7, 15, 14, 11, 5, 20, 0, 18, 1, 4, 10, 8, 27, 3, 25],
+      [4, 20, 22, 13, 0, 23, 18, 10, 14, 25, 7, 24, 17, 3, 8, 16, 15, 12, 6, 21, 1, 19, 2, 5, 11, 9, 27, 26],
+    ],
+    odd: [ // the same timetable with team 27 as the bye: 773 for 27 teams (the odd starter's 823)
+      [27, 5, 21, 23, 14, 1, 24, 19, 11, 15, 26, 8, 25, 18, 4, 9, 17, 16, 13, 7, 22, 2, 20, 3, 6, 12, 10, 0],
+      [11, 27, 6, 22, 24, 15, 2, 25, 20, 12, 16, 0, 9, 26, 19, 5, 10, 18, 17, 14, 8, 23, 3, 21, 4, 7, 13, 1],
+      [14, 12, 27, 7, 23, 25, 16, 3, 26, 21, 13, 17, 1, 10, 0, 20, 6, 11, 19, 18, 15, 9, 24, 4, 22, 5, 8, 2],
+      [9, 15, 13, 27, 8, 24, 26, 17, 4, 0, 22, 14, 18, 2, 11, 1, 21, 7, 12, 20, 19, 16, 10, 25, 5, 23, 6, 3],
+      [7, 10, 16, 14, 27, 9, 25, 0, 18, 5, 1, 23, 15, 19, 3, 12, 2, 22, 8, 13, 21, 20, 17, 11, 26, 6, 24, 4],
+      [25, 8, 11, 17, 15, 27, 10, 26, 1, 19, 6, 2, 24, 16, 20, 4, 13, 3, 23, 9, 14, 22, 21, 18, 12, 0, 7, 5],
+      [8, 26, 9, 12, 18, 16, 27, 11, 0, 2, 20, 7, 3, 25, 17, 21, 5, 14, 4, 24, 10, 15, 23, 22, 19, 13, 1, 6],
+      [2, 9, 0, 10, 13, 19, 17, 27, 12, 1, 3, 21, 8, 4, 26, 18, 22, 6, 15, 5, 25, 11, 16, 24, 23, 20, 14, 7],
+      [15, 3, 10, 1, 11, 14, 20, 18, 27, 13, 2, 4, 22, 9, 5, 0, 19, 23, 7, 16, 6, 26, 12, 17, 25, 24, 21, 8],
+      [22, 16, 4, 11, 2, 12, 15, 21, 19, 27, 14, 3, 5, 23, 10, 6, 1, 20, 24, 8, 17, 7, 0, 13, 18, 26, 25, 9],
+      [26, 23, 17, 5, 12, 3, 13, 16, 22, 20, 27, 15, 4, 6, 24, 11, 7, 2, 21, 25, 9, 18, 8, 1, 14, 19, 0, 10],
+      [1, 0, 24, 18, 6, 13, 4, 14, 17, 23, 21, 27, 16, 5, 7, 25, 12, 8, 3, 22, 26, 10, 19, 9, 2, 15, 20, 11],
+      [21, 2, 1, 25, 19, 7, 14, 5, 15, 18, 24, 22, 27, 17, 6, 8, 26, 13, 9, 4, 23, 0, 11, 20, 10, 3, 16, 12],
+      [17, 22, 3, 2, 26, 20, 8, 15, 6, 16, 19, 25, 23, 27, 18, 7, 9, 0, 14, 10, 5, 24, 1, 12, 21, 11, 4, 13],
+      [5, 18, 23, 4, 3, 0, 21, 9, 16, 7, 17, 20, 26, 24, 27, 19, 8, 10, 1, 15, 11, 6, 25, 2, 13, 22, 12, 14],
+      [13, 6, 19, 24, 5, 4, 1, 22, 10, 17, 8, 18, 21, 0, 25, 27, 20, 9, 11, 2, 16, 12, 7, 26, 3, 14, 23, 15],
+      [24, 14, 7, 20, 25, 6, 5, 2, 23, 11, 18, 9, 19, 22, 1, 26, 27, 21, 10, 12, 3, 17, 13, 8, 0, 4, 15, 16],
+      [16, 25, 15, 8, 21, 26, 7, 6, 3, 24, 12, 19, 10, 20, 23, 2, 0, 27, 22, 11, 13, 4, 18, 14, 9, 1, 5, 17],
+      [6, 17, 26, 16, 9, 22, 0, 8, 7, 4, 25, 13, 20, 11, 21, 24, 3, 1, 27, 23, 12, 14, 5, 19, 15, 10, 2, 18],
+      [3, 7, 18, 0, 17, 10, 23, 1, 9, 8, 5, 26, 14, 21, 12, 22, 25, 4, 2, 27, 24, 13, 15, 6, 20, 16, 11, 19],
+      [12, 4, 8, 19, 1, 18, 11, 24, 2, 10, 9, 6, 0, 15, 22, 13, 23, 26, 5, 3, 27, 25, 14, 16, 7, 21, 17, 20],
+      [18, 13, 5, 9, 20, 2, 19, 12, 25, 3, 11, 10, 7, 1, 16, 23, 14, 24, 0, 6, 4, 27, 26, 15, 17, 8, 22, 21],
+      [23, 19, 14, 6, 10, 21, 3, 20, 13, 26, 4, 12, 11, 8, 2, 17, 24, 15, 25, 1, 7, 5, 27, 0, 16, 18, 9, 22],
+      [10, 24, 20, 15, 7, 11, 22, 4, 21, 14, 0, 5, 13, 12, 9, 3, 18, 25, 16, 26, 2, 8, 6, 27, 1, 17, 19, 23],
+      [20, 11, 25, 21, 16, 8, 12, 23, 5, 22, 15, 1, 6, 14, 13, 10, 4, 19, 26, 17, 0, 3, 9, 7, 27, 2, 18, 24],
+      [19, 21, 12, 26, 22, 17, 9, 13, 24, 6, 23, 16, 2, 7, 15, 14, 11, 5, 20, 0, 18, 1, 4, 10, 8, 27, 3, 25],
+      [4, 20, 22, 13, 0, 23, 18, 10, 14, 25, 7, 24, 17, 3, 8, 16, 15, 12, 6, 21, 1, 19, 2, 5, 11, 9, 27, 26],
+    ],
+  },
+  30: {
+    even: [ // non-cyclic carry-over 894 (floor 840; the starter's 948): the least over every starter,
+      // eval/starter-exhaust.c (starter 1 2 3 19 4 21 5 16 6 13 7 11 8 17 9 28 10 24 12 15 14 22 18 23 20 26 25 27 at step 1)
+      [29, 2, 1, 19, 21, 16, 13, 11, 17, 28, 24, 7, 15, 6, 22, 12, 5, 8, 23, 3, 26, 4, 14, 18, 10, 27, 20, 25, 9, 0],
+      [10, 29, 3, 2, 20, 22, 17, 14, 12, 18, 0, 25, 8, 16, 7, 23, 13, 6, 9, 24, 4, 27, 5, 15, 19, 11, 28, 21, 26, 1],
+      [27, 11, 29, 4, 3, 21, 23, 18, 15, 13, 19, 1, 26, 9, 17, 8, 24, 14, 7, 10, 25, 5, 28, 6, 16, 20, 12, 0, 22, 2],
+      [23, 28, 12, 29, 5, 4, 22, 24, 19, 16, 14, 20, 2, 27, 10, 18, 9, 25, 15, 8, 11, 26, 6, 0, 7, 17, 21, 13, 1, 3],
+      [2, 24, 0, 13, 29, 6, 5, 23, 25, 20, 17, 15, 21, 3, 28, 11, 19, 10, 26, 16, 9, 12, 27, 7, 1, 8, 18, 22, 14, 4],
+      [15, 3, 25, 1, 14, 29, 7, 6, 24, 26, 21, 18, 16, 22, 4, 0, 12, 20, 11, 27, 17, 10, 13, 28, 8, 2, 9, 19, 23, 5],
+      [24, 16, 4, 26, 2, 15, 29, 8, 7, 25, 27, 22, 19, 17, 23, 5, 1, 13, 21, 12, 28, 18, 11, 14, 0, 9, 3, 10, 20, 6],
+      [21, 25, 17, 5, 27, 3, 16, 29, 9, 8, 26, 28, 23, 20, 18, 24, 6, 2, 14, 22, 13, 0, 19, 12, 15, 1, 10, 4, 11, 7],
+      [12, 22, 26, 18, 6, 28, 4, 17, 29, 10, 9, 27, 0, 24, 21, 19, 25, 7, 3, 15, 23, 14, 1, 20, 13, 16, 2, 11, 5, 8],
+      [6, 13, 23, 27, 19, 7, 0, 5, 18, 29, 11, 10, 28, 1, 25, 22, 20, 26, 8, 4, 16, 24, 15, 2, 21, 14, 17, 3, 12, 9],
+      [13, 7, 14, 24, 28, 20, 8, 1, 6, 19, 29, 12, 11, 0, 2, 26, 23, 21, 27, 9, 5, 17, 25, 16, 3, 22, 15, 18, 4, 10],
+      [5, 14, 8, 15, 25, 0, 21, 9, 2, 7, 20, 29, 13, 12, 1, 3, 27, 24, 22, 28, 10, 6, 18, 26, 17, 4, 23, 16, 19, 11],
+      [20, 6, 15, 9, 16, 26, 1, 22, 10, 3, 8, 21, 29, 14, 13, 2, 4, 28, 25, 23, 0, 11, 7, 19, 27, 18, 5, 24, 17, 12],
+      [18, 21, 7, 16, 10, 17, 27, 2, 23, 11, 4, 9, 22, 29, 15, 14, 3, 5, 0, 26, 24, 1, 12, 8, 20, 28, 19, 6, 25, 13],
+      [26, 19, 22, 8, 17, 11, 18, 28, 3, 24, 12, 5, 10, 23, 29, 16, 15, 4, 6, 1, 27, 25, 2, 13, 9, 21, 0, 20, 7, 14],
+      [8, 27, 20, 23, 9, 18, 12, 19, 0, 4, 25, 13, 6, 11, 24, 29, 17, 16, 5, 7, 2, 28, 26, 3, 14, 10, 22, 1, 21, 15],
+      [22, 9, 28, 21, 24, 10, 19, 13, 20, 1, 5, 26, 14, 7, 12, 25, 29, 18, 17, 6, 8, 3, 0, 27, 4, 15, 11, 23, 2, 16],
+      [3, 23, 10, 0, 22, 25, 11, 20, 14, 21, 2, 6, 27, 15, 8, 13, 26, 29, 19, 18, 7, 9, 4, 1, 28, 5, 16, 12, 24, 17],
+      [25, 4, 24, 11, 1, 23, 26, 12, 21, 15, 22, 3, 7, 28, 16, 9, 14, 27, 29, 20, 19, 8, 10, 5, 2, 0, 6, 17, 13, 18],
+      [14, 26, 5, 25, 12, 2, 24, 27, 13, 22, 16, 23, 4, 8, 0, 17, 10, 15, 28, 29, 21, 20, 9, 11, 6, 3, 1, 7, 18, 19],
+      [19, 15, 27, 6, 26, 13, 3, 25, 28, 14, 23, 17, 24, 5, 9, 1, 18, 11, 16, 0, 29, 22, 21, 10, 12, 7, 4, 2, 8, 20],
+      [9, 20, 16, 28, 7, 27, 14, 4, 26, 0, 15, 24, 18, 25, 6, 10, 2, 19, 12, 17, 1, 29, 23, 22, 11, 13, 8, 5, 3, 21],
+      [4, 10, 21, 17, 0, 8, 28, 15, 5, 27, 1, 16, 25, 19, 26, 7, 11, 3, 20, 13, 18, 2, 29, 24, 23, 12, 14, 9, 6, 22],
+      [7, 5, 11, 22, 18, 1, 9, 0, 16, 6, 28, 2, 17, 26, 20, 27, 8, 12, 4, 21, 14, 19, 3, 29, 25, 24, 13, 15, 10, 23],
+      [11, 8, 6, 12, 23, 19, 2, 10, 1, 17, 7, 0, 3, 18, 27, 21, 28, 9, 13, 5, 22, 15, 20, 4, 29, 26, 25, 14, 16, 24],
+      [17, 12, 9, 7, 13, 24, 20, 3, 11, 2, 18, 8, 1, 4, 19, 28, 22, 0, 10, 14, 6, 23, 16, 21, 5, 29, 27, 26, 15, 25],
+      [16, 18, 13, 10, 8, 14, 25, 21, 4, 12, 3, 19, 9, 2, 5, 20, 0, 23, 1, 11, 15, 7, 24, 17, 22, 6, 29, 28, 27, 26],
+      [28, 17, 19, 14, 11, 9, 15, 26, 22, 5, 13, 4, 20, 10, 3, 6, 21, 1, 24, 2, 12, 16, 8, 25, 18, 23, 7, 29, 0, 27],
+      [1, 0, 18, 20, 15, 12, 10, 16, 27, 23, 6, 14, 5, 21, 11, 4, 7, 22, 2, 25, 3, 13, 17, 9, 26, 19, 24, 8, 29, 28],
+    ],
+    odd: [ // the same timetable with team 29 as the bye: 889 for 29 teams (the odd starter's 891)
+      [29, 2, 1, 19, 21, 16, 13, 11, 17, 28, 24, 7, 15, 6, 22, 12, 5, 8, 23, 3, 26, 4, 14, 18, 10, 27, 20, 25, 9, 0],
+      [10, 29, 3, 2, 20, 22, 17, 14, 12, 18, 0, 25, 8, 16, 7, 23, 13, 6, 9, 24, 4, 27, 5, 15, 19, 11, 28, 21, 26, 1],
+      [27, 11, 29, 4, 3, 21, 23, 18, 15, 13, 19, 1, 26, 9, 17, 8, 24, 14, 7, 10, 25, 5, 28, 6, 16, 20, 12, 0, 22, 2],
+      [23, 28, 12, 29, 5, 4, 22, 24, 19, 16, 14, 20, 2, 27, 10, 18, 9, 25, 15, 8, 11, 26, 6, 0, 7, 17, 21, 13, 1, 3],
+      [2, 24, 0, 13, 29, 6, 5, 23, 25, 20, 17, 15, 21, 3, 28, 11, 19, 10, 26, 16, 9, 12, 27, 7, 1, 8, 18, 22, 14, 4],
+      [15, 3, 25, 1, 14, 29, 7, 6, 24, 26, 21, 18, 16, 22, 4, 0, 12, 20, 11, 27, 17, 10, 13, 28, 8, 2, 9, 19, 23, 5],
+      [24, 16, 4, 26, 2, 15, 29, 8, 7, 25, 27, 22, 19, 17, 23, 5, 1, 13, 21, 12, 28, 18, 11, 14, 0, 9, 3, 10, 20, 6],
+      [21, 25, 17, 5, 27, 3, 16, 29, 9, 8, 26, 28, 23, 20, 18, 24, 6, 2, 14, 22, 13, 0, 19, 12, 15, 1, 10, 4, 11, 7],
+      [12, 22, 26, 18, 6, 28, 4, 17, 29, 10, 9, 27, 0, 24, 21, 19, 25, 7, 3, 15, 23, 14, 1, 20, 13, 16, 2, 11, 5, 8],
+      [6, 13, 23, 27, 19, 7, 0, 5, 18, 29, 11, 10, 28, 1, 25, 22, 20, 26, 8, 4, 16, 24, 15, 2, 21, 14, 17, 3, 12, 9],
+      [13, 7, 14, 24, 28, 20, 8, 1, 6, 19, 29, 12, 11, 0, 2, 26, 23, 21, 27, 9, 5, 17, 25, 16, 3, 22, 15, 18, 4, 10],
+      [5, 14, 8, 15, 25, 0, 21, 9, 2, 7, 20, 29, 13, 12, 1, 3, 27, 24, 22, 28, 10, 6, 18, 26, 17, 4, 23, 16, 19, 11],
+      [20, 6, 15, 9, 16, 26, 1, 22, 10, 3, 8, 21, 29, 14, 13, 2, 4, 28, 25, 23, 0, 11, 7, 19, 27, 18, 5, 24, 17, 12],
+      [18, 21, 7, 16, 10, 17, 27, 2, 23, 11, 4, 9, 22, 29, 15, 14, 3, 5, 0, 26, 24, 1, 12, 8, 20, 28, 19, 6, 25, 13],
+      [26, 19, 22, 8, 17, 11, 18, 28, 3, 24, 12, 5, 10, 23, 29, 16, 15, 4, 6, 1, 27, 25, 2, 13, 9, 21, 0, 20, 7, 14],
+      [8, 27, 20, 23, 9, 18, 12, 19, 0, 4, 25, 13, 6, 11, 24, 29, 17, 16, 5, 7, 2, 28, 26, 3, 14, 10, 22, 1, 21, 15],
+      [22, 9, 28, 21, 24, 10, 19, 13, 20, 1, 5, 26, 14, 7, 12, 25, 29, 18, 17, 6, 8, 3, 0, 27, 4, 15, 11, 23, 2, 16],
+      [3, 23, 10, 0, 22, 25, 11, 20, 14, 21, 2, 6, 27, 15, 8, 13, 26, 29, 19, 18, 7, 9, 4, 1, 28, 5, 16, 12, 24, 17],
+      [25, 4, 24, 11, 1, 23, 26, 12, 21, 15, 22, 3, 7, 28, 16, 9, 14, 27, 29, 20, 19, 8, 10, 5, 2, 0, 6, 17, 13, 18],
+      [14, 26, 5, 25, 12, 2, 24, 27, 13, 22, 16, 23, 4, 8, 0, 17, 10, 15, 28, 29, 21, 20, 9, 11, 6, 3, 1, 7, 18, 19],
+      [19, 15, 27, 6, 26, 13, 3, 25, 28, 14, 23, 17, 24, 5, 9, 1, 18, 11, 16, 0, 29, 22, 21, 10, 12, 7, 4, 2, 8, 20],
+      [9, 20, 16, 28, 7, 27, 14, 4, 26, 0, 15, 24, 18, 25, 6, 10, 2, 19, 12, 17, 1, 29, 23, 22, 11, 13, 8, 5, 3, 21],
+      [4, 10, 21, 17, 0, 8, 28, 15, 5, 27, 1, 16, 25, 19, 26, 7, 11, 3, 20, 13, 18, 2, 29, 24, 23, 12, 14, 9, 6, 22],
+      [7, 5, 11, 22, 18, 1, 9, 0, 16, 6, 28, 2, 17, 26, 20, 27, 8, 12, 4, 21, 14, 19, 3, 29, 25, 24, 13, 15, 10, 23],
+      [11, 8, 6, 12, 23, 19, 2, 10, 1, 17, 7, 0, 3, 18, 27, 21, 28, 9, 13, 5, 22, 15, 20, 4, 29, 26, 25, 14, 16, 24],
+      [17, 12, 9, 7, 13, 24, 20, 3, 11, 2, 18, 8, 1, 4, 19, 28, 22, 0, 10, 14, 6, 23, 16, 21, 5, 29, 27, 26, 15, 25],
+      [16, 18, 13, 10, 8, 14, 25, 21, 4, 12, 3, 19, 9, 2, 5, 20, 0, 23, 1, 11, 15, 7, 24, 17, 22, 6, 29, 28, 27, 26],
+      [28, 17, 19, 14, 11, 9, 15, 26, 22, 5, 13, 4, 20, 10, 3, 6, 21, 1, 24, 2, 12, 16, 8, 25, 18, 23, 7, 29, 0, 27],
+      [1, 0, 18, 20, 15, 12, 10, 16, 27, 23, 6, 14, 5, 21, 11, 4, 7, 22, 2, 25, 3, 13, 17, 9, 26, 19, 24, 8, 29, 28],
+    ],
+  },
+  // TIMETABLES-DATA
+};
+
+/** The stored timetable for N teams, n real (n = N - 1: team N - 1 is the bye), or null. */
+export function storedTimetable(N, n, alt = false) {
+  const rounds = TIMETABLES[N]?.[(n === N ? "even" : "odd") + (alt ? "Alt" : "")];
+  return rounds ? rounds.map((o) => Int16Array.from(o)) : null;
+}
+
+/**
+ * The starter round robin on N teams (N even) as opp[r][t]. `pairs` is the starter, [[x, y], ...]
+ * over Z_(N-1); team N - 1 is the fixed point. Throws if `pairs` is not a starter or `step` is not
+ * coprime to N - 1 (either would break the round robin).
+ */
+export function starterOpp(N, pairs, { step = 1, start = 0 } = {}) {
+  const p = N - 1;
+  if (!Number.isInteger(N) || N < 4 || N % 2) throw new Error(`A starter timetable needs an even number of teams, not ${N}.`);
+  const seen = new Uint8Array(p), diff = new Uint8Array(p);
+  for (const [x, y] of pairs) {
+    if (!(x > 0 && x < p && y > 0 && y < p) || seen[x] || seen[y] || x === y) throw new Error("Not a starter: every residue 1 .. N - 2 must appear once.");
+    seen[x] = seen[y] = 1;
+    const d = (y - x + p) % p, e = Math.min(d, p - d);
+    if (diff[e]) throw new Error("Not a starter: two pairs share a difference.");
+    diff[e] = 1;
+  }
+  if (pairs.length !== (p - 1) / 2) throw new Error("Not a starter: every residue 1 .. N - 2 must appear once.");
+  let g = step, h = p;
+  while (h) [g, h] = [h, g % h];
+  if (g !== 1) throw new Error(`The step must be coprime to ${p}.`);
+  const rounds = [];
+  for (let r = 0; r < p; r++) {
+    const s = (((step * (r + start)) % p) + p) % p;
+    const o = new Int16Array(N);
+    o[s] = p; o[p] = s;
+    for (const [x, y] of pairs) { const a = (x + s) % p, b = (y + s) % p; o[a] = b; o[b] = a; }
+    rounds.push(o);
+  }
+  return rounds;
+}
+
+/**
+ * The built-in starter for N teams (n real; n = N - 1 means team N - 1 is the bye), at the start
+ * with the least carry-over and, among those, the fewest breaks after the greedy venue pass.
+ * Every start gives the same timetable up to renaming the teams (start t's round r is start 0's
+ * round r + t with team u renamed u - t), so the loop over starts only settles the greedy venue
+ * pass's ties. "weighted starter" takes the STARTERS_WEIGHTED entry.
+ * Null when no starter is built in for N.
+ */
+function bestStarterOpp(N, n, cyclic, which = "starter") {
+  if (which === "timetable") return storedTimetable(N, n);
+  if (which === "second timetable") return storedTimetable(N, n, true);
+  return bestStarterOnly(N, n, cyclic, which === "weighted starter");
+}
+
+/**
+ * The construction starts built in for N teams (n real), in the order they are tried: "starter"
+ * (STARTERS) and "timetable" (TIMETABLES). A stored timetable is a third start, not a replacement:
+ * its lower carry-over can leave a break-weighted season search worse off than the starter
+ * (12 teams, seed 2, weight 10: 596 / 46 against 618 / 40), so every start runs and the best is kept.
+ */
+function constructionStarts(N, n, weighted = false) {
+  const kind = n === N ? "even" : "odd";
+  const out = [];
+  if (STARTERS[N]?.[kind]) out.push("starter");
+  if (TIMETABLES[N]?.[kind]) out.push("timetable");
+  if (TIMETABLES[N]?.[kind + "Alt"]) out.push("second timetable");
+  // with a break weight: the starter picked on carry-over + 10 x breaks (STARTERS_WEIGHTED), kept
+  // only when strictly better, like every start here
+  if (weighted && STARTERS_WEIGHTED[N]?.[kind]) out.push("weighted starter");
+  return out;
+}
+
+function bestStarterOnly(N, n, cyclic, weighted = false) {
+  const entry = (weighted ? STARTERS_WEIGHTED : STARTERS)[N]?.[n === N ? "even" : "odd"];
+  if (!entry) return null;
+  const [step, ...flat] = entry;
+  const pairs = [];
+  for (let i = 0; i < flat.length; i += 2) pairs.push([flat[i], flat[i + 1]]);
+  let best = null, bestC = Infinity, bestB = Infinity, bestStart = 0;
+  for (let start = 0; start < N - 1; start++) {
+    const o = starterOpp(N, pairs, { step, start });
+    const c = coeOf(o, n, cyclic);
+    if (c > bestC) continue;
+    const b = greedyBreaks(o, n);
+    if (c < bestC || b < bestB) { best = o; bestC = c; bestB = b; bestStart = start; }
+  }
+  // who hosts whom under the starter's least-break shift venues, for seeding the venue search
+  // after the carry-over moves (pairHostsOf, README "Shift venues carried through the search")
+  best.hosts = pairHostsOf(best, starterShiftVenues(N, entry, bestStart));
+  return best;
+}
+
+/**
+ * The least-break shift venues of starterOpp(N, pairs of entry, { step, start }). That timetable is
+ * the step-1 timetable of starterPartner(N, entry) with team t renamed step * (t + start) mod p
+ * (the fixed team p stays p): both play the fixed team against those teams in round r.
+ */
+export function starterShiftVenues(N, entry, start = 0) {
+  const p = N - 1, step = entry[0];
+  const f = starterPartner(N, entry);
+  const { H } = shiftOrientation(f, p);
+  return shiftVenues(N, f, H).map((v) => {
+    const w = new Uint8Array(N);
+    for (let t = 0; t < N; t++) w[t === p ? p : (step * (t + start)) % p] = v[t];
+    return w;
+  });
+}
+
+/**
+ * hosts[t * N + u] = 1 when t hosts u under `venues` for timetable `opp` (a single round robin, so
+ * every pair meets once). Every carry-over move keeps the set of pairs, so this map gives a valid,
+ * equally balanced home/away for any timetable the search reaches from `opp` (venuesFromHosts).
+ */
+export function pairHostsOf(opp, venues) {
+  const N = opp[0].length, hosts = new Uint8Array(N * N);
+  for (let r = 0; r < opp.length; r++) for (let t = 0; t < N; t++) hosts[t * N + opp[r][t]] = venues[r][t] ? 1 : 0;
+  return hosts;
+}
+
+/** venues[r][t] for timetable `opp` with every pair keeping the host `hosts` gives it. */
+export function venuesFromHosts(opp, hosts) {
+  const N = opp[0].length;
+  return opp.map((o) => { const v = new Uint8Array(N); for (let t = 0; t < N; t++) v[t] = hosts[t * N + o[t]]; return v; });
+}
+
+/**
+ * COE over real teams only (a phantom's "games" are byes and are skipped).
+ * The annealers call this once per move, so the pair counts live in one scratch table reused across
+ * calls: an entry counts only when its stamp is this call's, which clears the table in O(1) instead
+ * of allocating and zeroing N * N cells each time (the allocation was most of the cost at 6 to 12 teams).
+ */
+let coeStamp = new Uint32Array(0), coeCount = new Int32Array(0), coeGen = 0;
+function coeOf(opp, n, cyclic) {
+  const R = opp.length;
+  const N = opp[0].length;
+  if (coeStamp.length < N * N) { coeStamp = new Uint32Array(N * N); coeCount = new Int32Array(N * N); coeGen = 0; }
+  if (++coeGen > 0xfffffffe) { coeStamp.fill(0); coeGen = 1; }
+  const gen = coeGen, stamp = coeStamp, c = coeCount;
+  let value = 0;
+  for (let k = 0; k < n; k++) {
+    let first = -1, prev = -1;
+    for (let r = 0; r < R; r++) {
+      const o = opp[r][k];
+      if (o >= n) continue;
+      if (prev >= 0) {
+        const idx = prev * N + o;
+        if (stamp[idx] !== gen) { stamp[idx] = gen; c[idx] = 1; value += 1; }
+        else { value += 2 * c[idx] + 1; c[idx]++; }
+      } else first = o;
+      prev = o;
+    }
+    if (cyclic && prev >= 0 && first >= 0 && prev !== first) {
+      const idx = prev * N + first;
+      if (stamp[idx] !== gen) { stamp[idx] = gen; c[idx] = 1; value += 1; }
+      else { value += 2 * c[idx] + 1; c[idx]++; }
+    }
+  }
+  return value;
+}
+
+/**
+ * Partial team swap: the smallest set of rounds, starting from round r, over which teams a and b
+ * meet the same opponents; swapping a and b in just those rounds keeps every pair meeting once.
+ * Needed because the circle method is a perfect 1-factorization whenever n - 1 is prime (every two
+ * rounds form one long cycle), so partial round swaps alone cannot leave it.
+ */
+function teamSwapRounds(opp, a, b, r, lo = 0, hi = opp.length) {
+  // X and Y are the opponents a and b meet over S, each in first-seen order (the order the search
+  // used to read them out of a Set, so the same round is added); S only grows, so each round's two
+  // opponents are appended once rather than the sets being rebuilt every pass.
+  // The membership marks live in scratch tables shared across calls (the annealers call this once
+  // per move): a mark counts only when it holds this call's stamp, as in coeOf.
+  const N = opp[0].length;
+  if (swapStamp.length < opp.length + 2 * N) { swapStamp = new Uint32Array(opp.length + 2 * N); swapGen = 0; }
+  if (++swapGen > 0xfffffffe) { swapStamp.fill(0); swapGen = 1; }
+  const gen = swapGen, mark = swapStamp, xAt = opp.length, yAt = opp.length + N;
+  const X = [], Y = [];
+  const S = [r]; mark[r] = gen;
+  let seen = 0;
+  for (;;) {
+    for (; seen < S.length; seen++) {
+      const q = S[seen], x = opp[q][a], y = opp[q][b];
+      if (x !== b && mark[xAt + x] !== gen) { mark[xAt + x] = gen; X.push(x); }
+      if (y !== a && mark[yAt + y] !== gen) { mark[yAt + y] = gen; Y.push(y); }
+    }
+    let add = -1;
+    for (let i = 0; i < Y.length; i++) {
+      const y = Y[i];
+      if (mark[xAt + y] !== gen) { for (let q = lo; q < hi; q++) if (opp[q][a] === y) { add = q; break; } break; }
+    }
+    if (add < 0) for (let i = 0; i < X.length; i++) {
+      const x = X[i];
+      if (mark[yAt + x] !== gen) { for (let q = lo; q < hi; q++) if (opp[q][b] === x) { add = q; break; } break; }
+    }
+    if (add < 0) return S;
+    if (mark[add] === gen) return S; // cannot happen for a valid round robin; stop safely
+    mark[add] = gen; S.push(add);
+  }
+}
+let swapStamp = new Uint32Array(0), swapGen = 0;
+
+function swapTeamsIn(opp, S, a, b) {
+  for (const q of S) {
+    const o = opp[q], oa = o[a], ob = o[b];
+    if (oa === b) continue;
+    o[a] = ob; o[b] = oa; o[oa] = b; o[ob] = a;
+  }
+}
+
+function cycleOf(opp, r, s, t) {
+  const cyc = [];
+  let x = t;
+  do {
+    cyc.push(x);
+    const y = opp[r][x];
+    cyc.push(y);
+    x = opp[s][y];
+  } while (x !== t);
+  return cyc;
+}
+
+/**
+ * A round robin (as [{ matches: [[home, away]], bye }], the shape roundRobin returns) chosen for a
+ * low carry-over value, then home/away set for few breaks. Simulated annealing from the circle
+ * method over round swaps and partial round swaps, seeded, so the same seed gives the same rounds.
+ * `effort` scales the iterations (1 is about a quarter of a second for 20 teams in Node).
+ * `field` (default true): when the league size, a bye team included, is a power of two (4, 8, 16,
+ * 32, ...), start from the perfectly balanced field timetable (fieldOpp) instead of the circle method;
+ * at other sizes with a built-in starter (STARTERS: 6 to 40 teams), the search runs from both the
+ * circle method and the starter timetable (starterOpp) and keeps the better (`start` says which).
+ * With a break weight the built-in starters are also scored as they are, with shift venues
+ * (shiftStarts; `shift: false` turns it off), and one is kept only when strictly better.
+ * Returns { rounds, coe, circleCoe, lowerBound, breaks, iterations }.
+ */
+export function lowCarryOverRounds(n, { seed = 1, effort = 1, cyclic = false, breakWeight = 0, field = true, fromStarter = false, weightedStarter = true, shift = true, shiftCapped = true, carryHosts = false } = {}) {
+  const opts = { seed, effort, cyclic, breakWeight, field, fromStarter, weightedStarter, shift, shiftCapped, carryHosts };
+  if (!searchMemo) return searchRounds(n, opts);
+  // inside withSearchMemo: the same arguments give the same season (the search is seeded and
+  // keeps no state between calls), so a repeat is a copy of the first answer
+  const key = JSON.stringify([n, seed, effort, cyclic, breakWeight, field, fromStarter, weightedStarter, shift, shiftCapped, carryHosts]);
+  let hit = searchMemo.get(key);
+  if (!hit) { hit = searchRounds(n, opts); searchMemo.set(key, hit); }
+  return structuredClone(hit);
+}
+
+function searchRounds(n, { seed = 1, effort = 1, cyclic = false, breakWeight = 0, field = true, fromStarter = false, weightedStarter = true, shift = true, shiftCapped = true, carryHosts = false } = {}) {
+  if (!Number.isInteger(n) || n < 2) throw new Error("A round robin needs at least two teams.");
+  const N = n % 2 === 0 ? n : n + 1;
+  if (field && !fromStarter && !fieldApplies(N) && starterApplies(N)) {
+    // A starter start is far better at some sizes (20 teams: the floor, 360, against 448) and
+    // worse after annealing at others (11, 13 and 30 teams), so both run in full and the better on
+    // the search's own score is kept; a tie keeps the circle start, so no size gets worse.
+    const score = (r) => r.coe + breakWeight * r.breaks;
+    let best = { ...lowCarryOverRounds(n, { seed, effort, cyclic, breakWeight, field: false }), start: "circle" };
+    for (const which of constructionStarts(N, n, breakWeight > 0 && weightedStarter)) {
+      const st = lowCarryOverRounds(n, { seed, effort, cyclic, breakWeight, field, fromStarter: which, carryHosts });
+      if (score(st) < score(best)) best = { ...st, start: which };
+    }
+    if (breakWeight > 0 && shift) best = withShiftCandidates(best, N, n, { seed, effort, cyclic, breakWeight, shiftCapped });
+    return best;
+  }
+  if (field && !fromStarter && fieldApplies(N) && breakWeight > 0 && shift && shiftStarts(N, n).length) {
+    // 15 and 31 teams: the field timetable with a bye leaves 41 and 245 breaks; a shift starter
+    // (STARTERS_SHIFT 16 and 32, odd) is a candidate here too
+    const best = lowCarryOverRounds(n, { seed, effort, cyclic, breakWeight, field, shift: false });
+    return withShiftCandidates({ ...best, start: "field" }, N, n, { seed, effort, cyclic, breakWeight, shiftCapped });
+  }
+  const rand = mulberry32(seed);
+  let opp = circleOpp(N);
+  const circleCoe = coeOf(opp, n, cyclic);
+  // a power of two (a phantom included): start from the perfectly balanced field timetable, which
+  // is already at the floor, so the carry-over pass stops at once (see fieldOpp)
+  let useField = field && fieldApplies(N);
+  if (useField) opp = bestFieldOpp(N, n);
+  else if (fromStarter) {
+    // other even sizes: the searched starter (see starterOpp); the caller compares the result
+    // with the circle start's
+    opp = bestStarterOpp(N, n, cyclic, fromStarter === true ? "starter" : fromStarter);
+    useField = true;
+  }
+  // with a break weight, the starter's shift home/away rides along: every move keeps the set of
+  // pairs, so each pair keeps its host and the venue search gets that as one more start
+  const hosts = breakWeight > 0 && shift && carryHosts && opp.hosts ? opp.hosts : null;
+  const R = N - 1;
+  let cur = coeOf(opp, n, cyclic);
+  let best = cur, bestOpp = opp.map((o) => o.slice());
+  const lb = carryOverFromOpponents(opponentsFromOpp(opp, n), { cyclic }).lowerBound;
+  // each step costs about N * N, so the budget is in steps of work, not a fixed count
+  const iterations = N <= 6 ? 20000 : Math.max(2000, Math.round((effort * 4e7) / (N * N)));
+  let T0 = Math.max(4, cur / (N * 4));
+  if (N <= 2) return finish(bestOpp, n, cyclic, circleCoe, lb, 0, seed);
+  const coeCost = (o) => coeOf(o, n, cyclic);
+  ({ best, bestOpp } = anneal(opp, coeCost, { iterations, T0, rand, stopAt: lb }));
+  if (breakWeight > 0) {
+    // second pass: trade some carry-over for fewer home/away breaks, scored with a fast greedy
+    // venue pass; the full venue search runs once on the result
+    // with carried pair hosts (see `hosts` above), the breaks they give are a second stand-in:
+    // the cheaper of the two prices each move, so moves that keep the starter's home/away pattern
+    // are not charged for breaks the greedy pass would add
+    const mixed = hosts && carryHosts !== "seed"
+      ? (o) => coeOf(o, n, cyclic) + breakWeight * Math.min(greedyBreaks(o, n), fixedHostBreaks(o, n, hosts))
+      : (o) => coeOf(o, n, cyclic) + breakWeight * greedyBreaks(o, n);
+    const start = bestOpp.map((o) => o.slice());
+    const floorOpp = start.map((o) => o.slice());
+    ({ bestOpp } = anneal(start, mixed, { iterations: Math.round(iterations / 2), T0: T0 / 2, rand, stopAt: -Infinity }));
+    if (useField) {
+      // The greedy stand-in can trade the field timetable's floor for breaks the full venue search
+      // then does not deliver (16 teams: 224 / 24 breaks became 256 / 24), so score both exactly.
+      const traded = finish(bestOpp, n, cyclic, circleCoe, lb, iterations, seed, null, hosts);
+      const kept = finish(floorOpp, n, cyclic, circleCoe, lb, iterations, seed, null, hosts);
+      return kept.coe + breakWeight * kept.breaks <= traded.coe + breakWeight * traded.breaks ? kept : traded;
+    }
+  }
+  return finish(bestOpp, n, cyclic, circleCoe, lb, iterations, seed, null, hosts);
+}
+
+let searchMemo = null;
+
+/**
+ * Runs fn with lowCarryOverRounds memoised on its arguments, for callers that search the same
+ * leg several times (eval/carryover-real.mjs: each double round robin re-runs the circle-start and
+ * starter-start leg ones its single round robin already searched). Off everywhere else, so tests
+ * that call the search twice to check it is seeded still run it twice.
+ */
+export function withSearchMemo(fn) {
+  const outer = searchMemo;
+  searchMemo = outer ?? new Map();
+  try { return fn(); } finally { searchMemo = outer; }
+}
+
+/**
+ * Carry-over under a cap on breaks. Starts from the circle method with the fewest breaks it allows
+ * (n - 2 for an even league, the least any round robin can have; venues from assignVenues), then
+ * anneals carry-over alone over oriented timetables: every move carries each match's home and away
+ * with it, and a move is kept only if the season still has at most `maxBreaks` breaks (default
+ * the start's count) and every team's home and away games differ by at most one. Moves are the
+ * three of lowCarryOverRounds (partial team swap, where a takes over b's match and ground in each
+ * round of the swap; round swap; partial round swap) plus flipping one match's venue. This is the
+ * fewest-breaks end of the trade, where the breakWeight pass is the low-carry-over end.
+ * Returns the lowCarryOverRounds shape plus { maxBreaks }.
+ */
+export function lowCarryOverCappedRounds(n, { seed = 1, effort = 1, cyclic = false, maxBreaks = null, start = null } = {}) {
+  if (!Number.isInteger(n) || n < 2) throw new Error("A round robin needs at least two teams.");
+  const N = n % 2 === 0 ? n : n + 1;
+  const R = N - 1;
+  const rand = mulberry32((seed * 40503 + 7) >>> 0);
+  const circle = circleOpp(N);
+  const circleCoe = coeOf(circle, n, cyclic);
+  const lb = carryOverFromOpponents(opponentsFromOpp(circle, n), { cyclic }).lowerBound;
+  // `start` ({ opp, venues }, e.g. a shift candidate) replaces the circle method and its venues
+  const opp = start ? start.opp.map((o) => o.slice()) : circle;
+  const ven = start ? start.venues.map((v) => v.slice()) : assignVenues(opp, n, seed);
+  const breaksOf = () => { let b = 0; for (let t = 0; t < n; t++) b += teamBreaks(ven, opp, t, n); return b; };
+  const balanced = (ts) => {
+    for (const t of ts) {
+      if (t >= n) continue;
+      let h = 0, g = 0;
+      for (let r = 0; r < R; r++) if (opp[r][t] < n) { g++; h += ven[r][t]; }
+      if (Math.abs(2 * h - g) > 1) return false;
+    }
+    return true;
+  };
+  const startBreaks = breaksOf();
+  const cap = maxBreaks == null ? startBreaks : Math.max(startBreaks, maxBreaks);
+  let curBreaks = startBreaks;
+  const iterations = N <= 6 ? 20000 : Math.max(2000, Math.round((effort * 4e7) / (N * N)));
+  let cur = coeOf(opp, n, cyclic);
+  let best = cur, bestOpp = opp.map((o) => o.slice()), bestVen = ven.map((v) => v.slice());
+  const T0 = Math.max(4, cur / (N * 4));
+  // a timetable move either keeps every team's ground in each round (the pattern stays; the move
+  // must leave a team at home facing one away) or carries each match's ground with it (the pattern
+  // changes; the cap and the balance are checked)
+  const fits = (q) => {
+    const o = opp[q], h = ven[q];
+    for (let t = 0; t < n; t++) { const u = o[t]; if (u < n && h[t] === h[u]) return false; }
+    return true;
+  };
+  let curCoe = cur;
+  const odd = N > n, everyone = Array.from({ length: n }, (_, t) => t);
+  for (let it = 0; it < iterations && best > lb && N > 2; it++) {
+    const T = T0 * (1 - it / iterations) + 0.05;
+    const r = Math.floor(rand() * R);
+    let s = Math.floor(rand() * (R - 1)); if (s >= r) s++;
+    const mv = rand();
+    const keep = rand() < 0.5; // keep the pattern, or carry grounds with the matches
+    let undo, fitsNow, touched = null, flip = false;
+    if (mv < 0.4) {
+      const a = Math.floor(rand() * N);
+      let b = Math.floor(rand() * (N - 1)); if (b >= a) b++;
+      const S = teamSwapRounds(opp, a, b, r);
+      if (S.length >= R) continue;
+      undo = () => {
+        if (!keep) for (const q of S) {
+          if (opp[q][a] === b) continue;
+          const x = ven[q][a]; ven[q][a] = ven[q][b]; ven[q][b] = x;
+        }
+        swapTeamsIn(opp, S, a, b);
+      };
+      fitsNow = () => S.every(fits);
+      touched = [a, b];
+    } else if (mv < 0.55) {
+      undo = () => { [opp[r], opp[s]] = [opp[s], opp[r]]; if (!keep) [ven[r], ven[s]] = [ven[s], ven[r]]; };
+      fitsNow = () => fits(r) && fits(s);
+    } else if (mv < 0.9) {
+      const t = Math.floor(rand() * N);
+      const cyc = cycleOf(opp, r, s, t);
+      if (cyc.length === N) continue;
+      undo = () => {
+        for (const x of cyc) {
+          const a = opp[r][x]; opp[r][x] = opp[s][x]; opp[s][x] = a;
+          if (!keep) { const v = ven[r][x]; ven[r][x] = ven[s][x]; ven[s][x] = v; }
+        }
+      };
+      fitsNow = () => fits(r) && fits(s);
+    } else {
+      // flip one match's venue: the timetable, and so the carry-over, is unchanged
+      const t = Math.floor(rand() * N), u = opp[r][t];
+      if (t >= n || u >= n) continue;
+      undo = () => { ven[r][t] ^= 1; ven[r][u] ^= 1; };
+      touched = [t, u]; flip = true;
+    }
+    undo(); // the move and its undo are the same swap
+    // keeping the pattern, a move must still put a home team against an away one, and leaves the
+    // breaks and the balance alone; carrying grounds, a round or partial round swap moves whole
+    // grounds between two rounds (each team's home count is unchanged), while a team swap or a
+    // flip can tip a team's balance
+    // With a bye (odd league) any timetable move can hand a team the bye in another round, which
+    // changes its breaks and its home count, so then everything is rechecked.
+    if (keep && !flip && !fitsNow()) { undo(); continue; }
+    if (odd ? !balanced(everyone) : (!keep || flip) && touched && !balanced(touched)) { undo(); continue; }
+    const nb = keep && !flip && !odd ? curBreaks : breaksOf();
+    const nc = flip ? curCoe : coeOf(opp, n, cyclic);
+    if (nb > cap || !(nc <= curCoe || rand() < Math.exp((curCoe - nc) / T))) { undo(); continue; }
+    curCoe = nc; curBreaks = nb;
+    if (curCoe < best) { best = curCoe; bestOpp = opp.map((o) => o.slice()); bestVen = ven.map((x) => x.slice()); }
+  }
+  const rounds = bestOpp.map((o, r) => {
+    const matches = [];
+    let bye = null;
+    for (let t = 0; t < N; t++) {
+      const u = o[t];
+      if (t > u) continue;
+      if (u >= n) { bye = t; continue; }
+      matches.push(bestVen[r][t] ? [t, u] : [u, t]);
+    }
+    return { leg: 0, matches, bye };
+  });
+  let breaks = 0;
+  for (let t = 0; t < n; t++) breaks += teamBreaks(bestVen, bestOpp, t, n);
+  return { rounds, coe: coeOf(bestOpp, n, cyclic), circleCoe, lowerBound: lb, breaks, iterations, maxBreaks: cap };
+}
+
+// `blocks` splits the rounds into legs that must each stay a round robin of their own (a double
+// round robin played leg by leg); every move picks one block and stays inside it.
+function anneal(opp, costOf, { iterations, T0, rand, stopAt, blocks = [[0, opp.length]] }) {
+  const N = opp[0].length;
+  let cur = costOf(opp);
+  let best = cur, bestOpp = opp.map((o) => o.slice());
+  for (let it = 0; it < iterations && best > stopAt; it++) {
+    const T = T0 * (1 - it / iterations) + 0.05;
+    const [lo, hi] = blocks[blocks.length === 1 ? 0 : Math.floor(rand() * blocks.length)];
+    const R = hi - lo;
+    const r = lo + Math.floor(rand() * R);
+    let s = lo + Math.floor(rand() * (R - 1)); if (s >= r) s++;
+    const mv = rand();
+    if (mv < 0.4) {
+      const a = Math.floor(rand() * N);
+      let b = Math.floor(rand() * (N - 1)); if (b >= a) b++;
+      const S = teamSwapRounds(opp, a, b, r, lo, hi);
+      if (S.length >= R) continue;
+      swapTeamsIn(opp, S, a, b);
+      const v = costOf(opp);
+      if (v <= cur || rand() < Math.exp((cur - v) / T)) cur = v;
+      else swapTeamsIn(opp, S, a, b);
+    } else if (mv < 0.6) {
+      [opp[r], opp[s]] = [opp[s], opp[r]];
+      const v = costOf(opp);
+      if (v <= cur || rand() < Math.exp((cur - v) / T)) cur = v;
+      else [opp[r], opp[s]] = [opp[s], opp[r]];
+    } else {
+      const t = Math.floor(rand() * N);
+      const cyc = cycleOf(opp, r, s, t);
+      if (cyc.length === N) continue; // the whole round: same as a round swap
+      const swap = () => { for (const x of cyc) { const a = opp[r][x]; opp[r][x] = opp[s][x]; opp[s][x] = a; } };
+      swap();
+      const v = costOf(opp);
+      if (v <= cur || rand() < Math.exp((cur - v) / T)) cur = v;
+      else swap();
+    }
+    if (cur < best) { best = cur; bestOpp = opp.map((o) => o.slice()); }
+  }
+  return { best, bestOpp };
+}
+
+/** Breaks when every pair keeps the host `hosts` gives it (pairHostsOf), byes resetting a streak. */
+function fixedHostBreaks(opp, n, hosts) {
+  const R = opp.length, N = opp[0].length;
+  let b = 0;
+  for (let t = 0; t < n; t++) {
+    let last = -1;
+    for (let r = 0; r < R; r++) {
+      const u = opp[r][t];
+      if (u >= n) { last = -1; continue; }
+      const v = hosts[t * N + u];
+      if (v === last) b++;
+      last = v;
+    }
+  }
+  return b;
+}
+
+/** Breaks after the greedy venue pass alone (no annealing): a cheap stand-in inside the search. */
+let greedyPhase = new Int8Array(0); // scratch, reused across calls (see coeOf)
+function greedyBreaks(opp, n) {
+  const R = opp.length, N = opp[0].length;
+  if (greedyPhase.length < N) greedyPhase = new Int8Array(N);
+  const phase = greedyPhase;
+  phase.fill(-1, 0, N);
+  let changes = 0;
+  for (let r = 0; r < R; r++) for (let t = 0; t < N; t++) {
+    const u = opp[r][t];
+    if (t > u) continue;
+    if (u >= n) { phase[t] = -1; continue; } // a bye resets the streak, as countBreaks does
+    const keepT = phase[t] < 0 ? 0 : (phase[t] === 1 ? 1 : -1);
+    const keepU = phase[u] < 0 ? 0 : (phase[u] === 0 ? 1 : -1);
+    const tPhase = keepT + keepU >= 0 ? 1 : 0;
+    if (phase[t] >= 0 && phase[t] !== tPhase) changes++;
+    if (phase[u] >= 0 && phase[u] !== 1 - tPhase) changes++;
+    phase[t] = tPhase; phase[u] = 1 - tPhase;
+  }
+  return changes;
+}
+
+function opponentsFromOpp(opp, n) {
+  const out = Array.from({ length: n }, () => []);
+  for (const o of opp) for (let t = 0; t < n; t++) if (o[t] < n) out[t].push(o[t]);
+  return out;
+}
+
+function finish(opp, n, cyclic, circleCoe, lowerBound, iterations, seed, venues = null, hosts = null) {
+  if (!venues) venues = assignVenues(opp, n, seed, 8, { hosts });
+  const rounds = opp.map((o, r) => {
+    const matches = [];
+    let bye = null;
+    for (let t = 0; t < o.length; t++) {
+      const u = o[t];
+      if (t > u) continue;
+      if (u >= n) { bye = t; continue; }
+      if (t >= n) { bye = u; continue; }
+      matches.push(venues[r][t] ? [t, u] : [u, t]);
+    }
+    return { leg: 0, matches, bye };
+  });
+  const coe = coeOf(opp, n, cyclic);
+  let breaks = 0;
+  for (let t = 0; t < n; t++) breaks += teamBreaks(venues, opp, t, n);
+  return { rounds, coe, circleCoe, lowerBound, breaks, iterations };
+}
+
+function teamBreaks(venues, opp, t, n) {
+  let last = null, b = 0;
+  for (let r = 0; r < opp.length; r++) {
+    if (opp[r][t] >= n) { last = null; continue; }
+    const v = venues[r][t];
+    if (last === v) b++;
+    last = v;
+  }
+  return b;
+}
+
+/**
+ * Home/away for a fixed opponent table: venues[r][t] is true when t is at home in round r (the two
+ * sides of a match always disagree). Annealing with cost breaks plus a heavy penalty for any team
+ * whose home and away games differ by more than one. Two moves: flip one match, or flip a whole
+ * run (every match of one team over a stretch where it alternates home and away, so its own run
+ * stays alternating and only the run's two ends and its opponents' rounds change). Restarts
+ * alternate two starts: the greedy "phase" pass, and, when every team has at most one bye (an odd
+ * league's single round robin), a two-colouring of the stretches between byes, which is a
+ * zero-break, balanced home/away whenever the timetable allows one (the circle method always does).
+ * `legacy: true` is the single-flip search with the greedy start only, kept for the measurements
+ * in eval/venue-runs.mjs.
+ */
+export function assignVenues(opp, n, seed = 1, restarts = 8, { legacy = false, hosts = null } = {}) {
+  let best = null, bestCost = Infinity;
+  if (hosts) {
+    // one more restart, from the pair hosts carried through the search (see pairHostsOf); kept
+    // only when strictly better than every unseeded restart, so a size can only gain
+    const plain = assignVenues(opp, n, seed, restarts, { legacy });
+    const seeded = assignVenuesOnce(opp, n, (seed * 7919 + 0x51ed) >>> 0, { start: venuesFromHosts(opp, hosts) });
+    return venueCost(seeded, opp, n) < venueCost(plain, opp, n) ? seeded : plain;
+  }
+  const colour = !legacy && byeStretches(opp, n);
+  for (let k = 0; k < restarts; k++) {
+    const start = colour && k % 2 === 0 ? colourStart(opp, n, colour, (seed * 31 + k) >>> 0) : null;
+    const v = assignVenuesOnce(opp, n, (seed * 7919 + k * 104729) >>> 0, { start, runs: !legacy });
+    const c = venueCost(v, opp, n);
+    if (c < bestCost) { best = v; bestCost = c; }
+    if (bestCost === 0) break; // no breaks and balanced: nothing left to find
+  }
+  if (!legacy && bestCost > 0) {
+    // never worse than the single-flip search on the same seed
+    const old = assignVenues(opp, n, seed, restarts, { legacy: true });
+    if (venueCost(old, opp, n) < bestCost) best = old;
+  }
+  return best;
+}
+
+/**
+ * Each team's stretch number in each round (byes split a team's games into stretches), or null if
+ * some team has more than one bye or no team has any (an even league: one stretch each, and the
+ * colouring below cannot help).
+ */
+function byeStretches(opp, n) {
+  const R = opp.length, N = opp[0].length;
+  const seg = opp.map(() => new Int8Array(N));
+  let anyBye = false;
+  for (let t = 0; t < n; t++) {
+    let s = 0;
+    for (let r = 0; r < R; r++) {
+      if (opp[r][t] >= n) { s++; anyBye = true; if (s > 1) return null; }
+      seg[r][t] = s;
+    }
+  }
+  return anyBye ? seg : null;
+}
+
+/**
+ * Venues from a two-colouring of the stretch graph (one node per team stretch, one edge per match):
+ * a stretch's colour c sets home in round r to c XOR (r odd), so a stretch alternates with no break,
+ * and two teams in a match get opposite colours whenever the graph allows it. A match whose two
+ * stretches end up the same colour (an odd cycle) takes a seeded coin and costs one break, which
+ * the annealing then works on.
+ */
+function colourStart(opp, n, seg, seed) {
+  const R = opp.length, N = opp[0].length;
+  const rand = mulberry32(seed ^ 0x5bd1e995);
+  const adj = Array.from({ length: 2 * n }, () => []);
+  for (let r = 0; r < R; r++) for (let t = 0; t < n; t++) {
+    const u = opp[r][t];
+    if (u < n) adj[2 * t + seg[r][t]].push(2 * u + seg[r][u]);
+  }
+  const col = new Int8Array(2 * n).fill(-1);
+  const order = Array.from({ length: 2 * n }, (_, i) => i);
+  for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
+  for (const s0 of order) {
+    if (col[s0] >= 0) continue;
+    col[s0] = rand() < 0.5 ? 1 : 0;
+    const q = [s0];
+    for (let h = 0; h < q.length; h++) for (const v of adj[q[h]]) if (col[v] < 0) { col[v] = 1 - col[q[h]]; q.push(v); }
+  }
+  const venues = opp.map(() => new Uint8Array(N));
+  for (let r = 0; r < R; r++) for (let t = 0; t < N; t++) {
+    const u = opp[r][t];
+    if (t > u) continue;
+    let home;
+    if (u >= n) home = 1; // t's bye (the phantom's side does not count)
+    else {
+      const ct = col[2 * t + seg[r][t]], cu = col[2 * u + seg[r][u]];
+      home = ct !== cu ? (ct ^ (r & 1)) : (rand() < 0.5 ? 1 : 0);
+    }
+    venues[r][t] = home; venues[r][u] = home ? 0 : 1;
+  }
+  return venues;
+}
+
+/** Breaks plus 50 per game of home/away imbalance beyond one: the venue search's cost. */
+export function venueCost(venues, opp, n) {
+  let c = 0;
+  for (let t = 0; t < n; t++) {
+    let h = 0, g = 0;
+    for (let r = 0; r < opp.length; r++) if (opp[r][t] < n) { g++; if (venues[r][t]) h++; }
+    const d = Math.abs(2 * h - g);
+    c += teamBreaks(venues, opp, t, n) + (d > 1 ? 50 * (d - 1) : 0);
+  }
+  return c;
+}
+
+function assignVenuesOnce(opp, n, seed, { start = null, runs = true } = {}) {
+  const R = opp.length, N = opp[0].length;
+  const rand = mulberry32(seed ^ 0x9e3779b9);
+  const venues = start ? start.map((v) => v.slice()) : opp.map(() => new Uint8Array(N));
+  // Start greedy, in "phase" terms: phase = venue XOR round parity, so an alternating team keeps
+  // one phase and every break is a phase change. Each match takes the orientation that keeps its
+  // two teams' phases from the round before; ties go to a seeded coin.
+  const phase = new Int8Array(N).fill(-1);
+  if (!start) for (let r = 0; r < R; r++) for (let t = 0; t < N; t++) {
+    const u = opp[r][t];
+    if (t > u) continue;
+    const keepT = phase[t] < 0 ? 0 : (phase[t] === 1 ? 1 : -1); // +1 favours t phase 1
+    const keepU = phase[u] < 0 ? 0 : (phase[u] === 0 ? 1 : -1); // +1 favours t phase 1 (u phase 0)
+    const score = keepT + keepU;
+    const tPhase = score > 0 ? 1 : score < 0 ? 0 : (rand() < 0.5 ? 1 : 0);
+    if (t < n && u < n) { phase[t] = tPhase; phase[u] = 1 - tPhase; }
+    const home = (tPhase ^ (r & 1)) === 1;
+    venues[r][t] = home ? 1 : 0; venues[r][u] = home ? 0 : 1;
+  }
+  const homeCount = new Int32Array(N);
+  for (let r = 0; r < R; r++) for (let t = 0; t < n; t++) if (opp[r][t] < n && venues[r][t]) homeCount[t]++;
+  const games = new Int32Array(N);
+  for (let r = 0; r < R; r++) for (let t = 0; t < n; t++) if (opp[r][t] < n) games[t]++;
+  const imb = (t) => { const d = Math.abs(2 * homeCount[t] - games[t]); return d > 1 ? (d - 1) : 0; };
+  const local = (r, t) => {
+    // breaks touching round r for team t
+    if (t >= n || opp[r][t] >= n) return 0;
+    let b = 0;
+    const v = venues[r][t];
+    if (r > 0 && opp[r - 1][t] < n && venues[r - 1][t] === v) b++;
+    if (r < R - 1 && opp[r + 1][t] < n && venues[r + 1][t] === v) b++;
+    return b;
+  };
+  const PEN = 50;
+  // tb[t]: team t's breaks now, kept current by both moves, so a run move recounts only the
+  // touched teams after the flip, not before it too
+  const tb = new Int32Array(N);
+  let cost = 0;
+  for (let t = 0; t < n; t++) { tb[t] = teamBreaks(venues, opp, t, n); cost += tb[t] + PEN * imb(t); }
+  const iters = Math.max(5000, 60 * R * N);
+  const after = new Int32Array(R + 1), near = new Int32Array(R + 1);
+  // local() summed over the rounds a run move on t flips for touched[i]: all of a..b for t
+  // itself (i = 0), else the rounds in a..b where x meets t
+  const flippedLocal = (x, i, t, a, b) => {
+    let s = 0;
+    if (i === 0) { for (let q = a; q <= b; q++) s += local(q, x); }
+    else for (let q = a; q <= b; q++) if (opp[q][t] === x) s += local(q, x);
+    return s;
+  };
+  const flipMatch = (q, x) => {
+    const y = opp[q][x], hx = venues[q][x];
+    venues[q][x] = hx ? 0 : 1; venues[q][y] = hx ? 1 : 0;
+    if (x < n) homeCount[x] += hx ? -1 : 1;
+    if (y < n) homeCount[y] += hx ? 1 : -1;
+  };
+  let best = cost, bestVenues = runs ? venues.map((v) => v.slice()) : null;
+  for (let it = 0; it < iters; it++) {
+    const T = 1.5 * (1 - it / iters) + 0.02;
+    const r = Math.floor(rand() * R);
+    const t = Math.floor(rand() * N);
+    const u = opp[r][t];
+    if (t >= n || u >= n) continue;
+    if (runs && rand() < 0.3) {
+      // a run move: t's alternating stretch through round r, or the part of it before or after r
+      let a = r, b = r;
+      while (a > 0 && opp[a - 1][t] < n && venues[a - 1][t] !== venues[a][t]) a--;
+      while (b < R - 1 && opp[b + 1][t] < n && venues[b + 1][t] !== venues[b][t]) b++;
+      const side = rand();
+      if (side < 0.33) a = r; else if (side < 0.66) b = r;
+      const touched = [t];
+      for (let q = a; q <= b; q++) touched.push(opp[q][t]);
+      let before = 0;
+      for (const x of touched) before += tb[x] + PEN * imb(x);
+      // A team's breaks change only next to the rounds where its venue flips, so each touched
+      // team's breaks after the flip are tb plus the change in local() over those rounds (a pair
+      // of rounds both flipped is counted on both sides, before and after alike, so it cancels):
+      // the same counts teamBreaks gives over the whole season, at a few rounds per team
+      // (docs/history/ci-perf-2026-11-17-league-venue-run-local.md).
+      for (let i = 0; i < touched.length; i++) near[i] = -flippedLocal(touched[i], i, t, a, b);
+      for (let q = a; q <= b; q++) flipMatch(q, t);
+      let d = -before;
+      for (let i = 0; i < touched.length; i++) { const x = touched[i]; after[i] = tb[x] + near[i] + flippedLocal(x, i, t, a, b); d += after[i] + PEN * imb(x); }
+      if (d <= 0 || rand() < Math.exp(-d / T)) { cost += d; for (let i = 0; i < touched.length; i++) tb[touched[i]] = after[i]; }
+      else for (let q = a; q <= b; q++) flipMatch(q, t);
+    } else {
+      const lt = local(r, t), lu = local(r, u);
+      const before = lt + lu + PEN * (imb(t) + imb(u));
+      const ht = venues[r][t];
+      venues[r][t] = ht ? 0 : 1; venues[r][u] = ht ? 1 : 0;
+      homeCount[t] += ht ? -1 : 1; homeCount[u] += ht ? 1 : -1;
+      const lt2 = local(r, t), lu2 = local(r, u);
+      const d = lt2 + lu2 + PEN * (imb(t) + imb(u)) - before;
+      if (d <= 0 || rand() < Math.exp(-d / T)) { cost += d; tb[t] += lt2 - lt; tb[u] += lu2 - lu; }
+      else { venues[r][t] = ht; venues[r][u] = ht ? 0 : 1; homeCount[t] += ht ? 1 : -1; homeCount[u] += ht ? -1 : 1; }
+    }
+    // the legacy search returned where it ended; the run search keeps the best it saw
+    if (runs && cost < best) { best = cost; bestVenues = venues.map((v) => v.slice()); if (best === 0) break; }
+  }
+  return runs ? bestVenues : venues;
+}
+
+// ------------------------------------------------------------------ double round robin as a whole
+
+// Mirroring the first leg (the same rounds again, home and away swapped) repeats every carry-over
+// step, so every count c[i][j] doubles and the value roughly quadruples. Here the second leg is its
+// own ordered round robin, searched together with the first: each pair still meets once per leg
+// (phased, as buildSchedule plays leg by leg), and the second meeting is at the other team's ground,
+// so every team has n - 1 home and n - 1 away games. The value is counted over the whole season,
+// including the step from the last game of leg one to the first of leg two.
+
+/** Breaks over the whole season when `host` (who hosts each pair in leg one) sets every venue. */
+function hostBreaks(opp, n, R, host) {
+  const N = opp[0].length;
+  let b = 0;
+  for (let t = 0; t < n; t++) {
+    let last = -1;
+    for (let r = 0; r < opp.length; r++) {
+      const u = opp[r][t];
+      if (u >= n) { last = -1; continue; }
+      const h1 = host[Math.min(t, u) * N + Math.max(t, u)] === t ? 1 : 0;
+      const h = r < R ? h1 : 1 - h1;
+      if (h === last) b++;
+      last = h;
+    }
+  }
+  return b;
+}
+
+/**
+ * A double round robin with a low carry-over value over the whole season. Leg one starts from
+ * lowCarryOverRounds, leg two from a copy of it, then both are annealed together (moves stay inside
+ * a leg). `breakWeight` adds a pass that trades carry-over for fewer home/away breaks, as in the
+ * single version. Returns { rounds (2(N-1), leg 0 then leg 1), coe, mirroredCoe, circleCoe,
+ * lowerBound, breaks, iterations }; mirroredCoe is the value the same leg one would score mirrored.
+ * `maxBreaks` (a season cap) replaces `breakWeight` with caps: leg one is lowCarryOverCappedRounds
+ * at `legBreaks` (default a third of the season cap) and leg two moves on carry-over alone without
+ * the season going over `maxBreaks` (or over the fewest its starts allow, if that is more).
+ */
+export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight = 0, maxBreaks = null, legBreaks = null, field = true, fromStarter = false, weightedStarter = true, shift = true, shiftCapped = "small", fieldShift = false, leg1: givenLeg1 = null } = {}) {
+  if (!Number.isInteger(n) || n < 2) throw new Error("A round robin needs at least two teams.");
+  const N = n % 2 === 0 ? n : n + 1;
+  const doubleScore = (r) => r.coe + REPEAT_PENALTY * r.repeats + breakWeight * r.breaks;
+  if (fieldShift && field && !fromStarter && !givenLeg1 && maxBreaks == null && fieldApplies(N) && breakWeight > 0 && shift && shiftStarts(N, n).length) {
+    // 15 and 31 teams (16 and 32 with a bye): the field-start season, and the 16 and 32 shift
+    // starters (STARTERS_SHIFT) as leg ones. Off by default: on seeds 1 and 2 at weight 10 it
+    // changed nothing (the field search's leg one already takes a shift starter when it wins) and
+    // doubled the time (README "Shift candidates in a home-and-away season, part two")
+    const best = { ...lowCarryOverDoubleRounds(n, { seed, effort, breakWeight, field, shift: false }), start: "field" };
+    return withShiftLegOnes(best, N, n, { seed, effort, breakWeight, field, shiftCapped, score: doubleScore });
+  }
+  if (field && !fromStarter && maxBreaks == null && !fieldApplies(N) && starterApplies(N)) {
+    // as in lowCarryOverRounds: the season searched from a circle-start leg and from a
+    // starter-start leg, the better kept (a tie keeps the circle start)
+    const score = (r) => r.coe + REPEAT_PENALTY * r.repeats + breakWeight * r.breaks;
+    let best = { ...lowCarryOverDoubleRounds(n, { seed, effort, breakWeight, field: false }), start: "circle" };
+    for (const which of constructionStarts(N, n, breakWeight > 0 && weightedStarter)) {
+      const st = lowCarryOverDoubleRounds(n, { seed, effort, breakWeight, field, fromStarter: which });
+      if (score(st) < score(best)) best = { ...st, start: which };
+    }
+    // The built-in starters with shift venues as leg one (README "Shift venues for a home-and-away
+    // season", 2026-11-11), and their capped versions (2026-11-12, later)
+    if (breakWeight > 0 && shift) best = withShiftLegOnes(best, N, n, { seed, effort, breakWeight, field, shiftCapped, score });
+    return best;
+  }
+  const R = N - 1;
+  const rand = mulberry32((seed * 2654435761) >>> 0);
+  // with a season cap, leg one is the capped search at half of it (each leg's breaks are about
+  // the same, as leg two starts as leg one backwards)
+  const capped = maxBreaks != null;
+  const single = givenLeg1 && !capped ? givenLeg1 : capped
+    ? lowCarryOverCappedRounds(n, { seed, effort, maxBreaks: legBreaks ?? Math.floor(maxBreaks / 3) })
+    : fromStarter
+      ? lowCarryOverRounds(n, { seed, effort, breakWeight, field, fromStarter })
+      : lowCarryOverRounds(n, { seed, effort, breakWeight, field });
+  const leg1 = oppFromRounds(single.rounds, N, n);
+  // host[t * N + u] = t when t hosts u in leg one (the single search's home/away)
+  const host = new Int16Array(N * N).fill(-1);
+  for (const r of single.rounds) for (const [h, a] of r.matches) { host[Math.min(h, a) * N + Math.max(h, a)] = h; }
+  let opp = [...leg1.map((o) => o.slice()), ...leg1.map((o) => o.slice())];
+  const mirroredCoe = coeOf(opp, n, false);
+  const circleCoe = coeOf([...circleOpp(N), ...circleOpp(N)], n, false);
+  const lb = carryOverFromOpponents(opponentsFromOpp(opp, n)).lowerBound;
+  const blocks = [[0, R], [R, 2 * R]];
+  const iterations = N <= 4 ? 0 : N <= 6 ? 20000 : Math.max(2000, Math.round((effort * 4e7) / (2 * N * N)));
+  if (iterations) {
+    // Leg two starts as leg one played backwards with leg one's last round moved to the end (no
+    // team meets the same side twice running). Backwards turns each carry-over step i -> j into
+    // j -> i, so the counts spread instead of doubling, and each team's home/away pattern is its
+    // leg-one pattern reversed and flipped: the same breaks.
+    const back = [];
+    for (let r = R - 2; r >= 0; r--) back.push(leg1[r].slice());
+    back.push(leg1[R - 1].slice());
+    opp = [...leg1.map((o) => o.slice()), ...back];
+    // a team never meets the same side twice running (last game of leg one, first of leg two)
+    const coeCost = (o) => coeOf(o, n, false) + REPEAT_PENALTY * repeatsAcross(o, n, R);
+    const startCoe = coeCost(opp);
+    const T0 = Math.max(2, startCoe / (N * 16));
+    if (capped) {
+      // Leg one stays as the capped search left it; leg two moves on carry-over alone under a hard
+      // season cap, venues from leg one. Played backwards, nearly every team breaks at the halfway
+      // point and again where leg one's last round rejoins (about 2n more breaks), so leg two
+      // starts from whichever of three orders is best inside the cap: backwards, the mirror (leg
+      // one again, grounds swapped: the fewest breaks, every carry-over count doubled), or the
+      // mirror with its first and last rounds swapped. If none fits, the cap rises to the fewest.
+      const mirror = leg1.map((o) => o.slice());
+      const turned = leg1.map((o) => o.slice());
+      [turned[0], turned[R - 1]] = [turned[R - 1], turned[0]];
+      const starts = [opp.slice(R), mirror, turned].map((leg) => [...leg1.map((o) => o.slice()), ...leg.map((o) => o.slice())]);
+      const fewest = Math.min(...starts.map((o) => hostBreaks(o, n, R, host) + REPEAT_PENALTY * repeatsAcross(o, n, R)));
+      const cap = Math.max(maxBreaks, fewest);
+      const startCost = (o) => { const b = hostBreaks(o, n, R, host); return coeCost(o) + (b > cap ? 1e9 : 0); };
+      opp = starts.reduce((a, b) => (startCost(b) < startCost(a) ? b : a));
+      const leg2 = legTwoScorer(leg1, n, host);
+      const within = (o) => { const b = leg2.breaks(o); return leg2.coe(o) + REPEAT_PENALTY * repeatsAcross(o, n, R) + (b > cap ? 1e9 : 0); };
+      ({ bestOpp: opp } = anneal(opp, within, { iterations, T0, rand, stopAt: -Infinity, blocks: [[R, 2 * R]] }));
+    } else if (breakWeight > 0) {
+      // Leg one keeps the rounds and home/away the single search chose for it (already traded for
+      // breaks); only leg two moves, and its venues follow from leg one, so the breaks in the cost
+      // are exact rather than estimated.
+      const leg2 = legTwoScorer(leg1, n, host);
+      const exact = (o) => leg2.coe(o) + REPEAT_PENALTY * repeatsAcross(o, n, R) + breakWeight * leg2.breaks(o);
+      ({ bestOpp: opp } = anneal(opp, exact, { iterations, T0, rand, stopAt: -Infinity, blocks: [[R, 2 * R]] }));
+    } else {
+      ({ bestOpp: opp } = anneal(opp, coeCost, { iterations, T0, rand, stopAt: lb, blocks }));
+    }
+  }
+  const venues = assignVenuesDouble(opp, n, seed, 6, breakWeight > 0 || capped ? host : null);
+  const rounds = opp.map((o, r) => {
+    const matches = [];
+    let bye = null;
+    for (let t = 0; t < N; t++) {
+      const u = o[t];
+      if (t > u) continue;
+      if (u >= n) { bye = t; continue; }
+      matches.push(venues[r][t] ? [t, u] : [u, t]);
+    }
+    return { leg: r < R ? 0 : 1, matches, bye };
+  });
+  let breaks = 0;
+  for (let t = 0; t < n; t++) breaks += teamBreaks(venues, opp, t, n);
+  const searched = { rounds, coe: coeOf(opp, n, false), repeats: repeatsAcross(opp, n, R), mirroredCoe, circleCoe, lowerBound: lb, breaks, iterations };
+  if (capped) return searched;
+  // The plain mirror (leg one again, grounds swapped) as a candidate too: when leg one is perfectly
+  // balanced (a field or a 20-team starter leg) the mirror is already at the floor, and the
+  // second-leg search can only add breaks (20 teams, weight 10: 1,478 / 122 against the
+  // mirror's 1,460 / 116). Kept only when strictly better on the search's own score.
+  const mOpp = [...leg1, ...leg1];
+  const mVenues = Array.from({ length: 2 * R }, () => new Uint8Array(N));
+  const mRounds = [];
+  for (let leg = 0; leg < 2; leg++) single.rounds.forEach((r, i) => {
+    const matches = r.matches.map(([h, a]) => (leg ? [a, h] : [h, a]));
+    for (const [h] of matches) mVenues[leg * R + i][h] = 1;
+    mRounds.push({ leg, matches, bye: r.bye });
+  });
+  let mBreaks = 0;
+  for (let t = 0; t < n; t++) mBreaks += teamBreaks(mVenues, mOpp, t, n);
+  const mirrored = { rounds: mRounds, coe: mirroredCoe, repeats: repeatsAcross(mOpp, n, R), mirroredCoe, circleCoe, lowerBound: lb, breaks: mBreaks, iterations, mirrored: true };
+  const score = (r) => r.coe + REPEAT_PENALTY * r.repeats + breakWeight * r.breaks;
+  return score(mirrored) < score(searched) ? mirrored : searched;
+}
+
+const REPEAT_PENALTY = 1000;
+
+/**
+ * `best` (a lowCarryOverDoubleRounds result) against a season built on each shift candidate as leg
+ * one: the built-in starter as it is with its shift venues (shiftStarts), and, with `shiftCapped`,
+ * that starter annealed on carry-over with its home/away carried and its breaks as the cap
+ * (lowCarryOverCappedRounds from that start, as the single search's withShiftCandidates does).
+ * Leg two is searched against each leg one's hosts as usual, and the plain mirror is tried too. A
+ * season is kept only when strictly lower on the search's own score.
+ */
+function withShiftLegOnes(best, N, n, { seed, effort, breakWeight, field, shiftCapped, score }) {
+  // "small" (the default): capped leg ones only up to 16 slots (11 to 16 teams), the only sizes where
+  // they gained in the single or the double search; from 17 teams up the climbed shift starters are
+  // local minima for these moves and the extra leg-two searches only added 30-40% to the time
+  const capped = shiftCapped === "small" ? N <= 16 : Boolean(shiftCapped);
+  for (const c of shiftStarts(N, n)) {
+    const legOnes = [[finish(c.opp, n, false, best.circleCoe, best.lowerBound, 0, seed, c.venues), `${c.which}, shift venues`]];
+    if (capped) legOnes.push([lowCarryOverCappedRounds(n, { seed, effort, start: c }), `${c.which}, shift venues, capped`]);
+    for (const [legOne, label] of legOnes) {
+      const st = lowCarryOverDoubleRounds(n, { seed, effort, breakWeight, field, fromStarter: "shift", leg1: legOne });
+      if (score(st) < score(best)) best = { ...st, start: label };
+    }
+  }
+  return best;
+}
+
+/**
+ * coeOf(o, n, false) and hostBreaks(o, n, R, host) for a season whose leg one is fixed (the two
+ * annealing passes that move leg two only): leg one's carry-over counts, its breaks and where each
+ * team stands at its end are counted once here, so each call walks leg two alone, about half the
+ * work. The values are the same integers the full counts give.
+ */
+function legTwoScorer(leg1, n, host) {
+  const R = leg1.length, N = leg1[0].length;
+  const base = new Int32Array(N * N);
+  const lastOpp = new Int32Array(N).fill(-1), lastHome = new Int32Array(N).fill(-1), breaks1 = new Int32Array(N);
+  let baseCoe = 0, baseBreaks = 0;
+  for (let k = 0; k < n; k++) {
+    let prev = -1, last = -1;
+    for (let r = 0; r < R; r++) {
+      const o = leg1[r][k];
+      if (o >= n) { last = -1; continue; }
+      if (prev >= 0) { const idx = prev * N + o; baseCoe += 2 * base[idx] + 1; base[idx]++; }
+      prev = o;
+      const h = host[Math.min(k, o) * N + Math.max(k, o)] === k ? 1 : 0;
+      if (h === last) breaks1[k]++;
+      last = h;
+    }
+    lastOpp[k] = prev; lastHome[k] = last; baseBreaks += breaks1[k];
+  }
+  let stamp = new Uint32Array(N * N), count = new Int32Array(N * N), gen = 0;
+  const coe = (opp) => {
+    if (++gen > 0xfffffffe) { stamp.fill(0); gen = 1; }
+    let value = baseCoe;
+    for (let k = 0; k < n; k++) {
+      let prev = lastOpp[k];
+      for (let r = R; r < opp.length; r++) {
+        const o = opp[r][k];
+        if (o >= n) continue;
+        if (prev >= 0) {
+          const idx = prev * N + o;
+          if (stamp[idx] !== gen) { stamp[idx] = gen; count[idx] = base[idx]; }
+          value += 2 * count[idx] + 1; count[idx]++;
+        }
+        prev = o;
+      }
+    }
+    return value;
+  };
+  const breaks = (opp) => {
+    let b = baseBreaks;
+    for (let t = 0; t < n; t++) {
+      let last = lastHome[t];
+      for (let r = R; r < opp.length; r++) {
+        const u = opp[r][t];
+        if (u >= n) { last = -1; continue; }
+        const h = host[Math.min(t, u) * N + Math.max(t, u)] === t ? 0 : 1;
+        if (h === last) b++;
+        last = h;
+      }
+    }
+    return b;
+  };
+  return { coe, breaks };
+}
+
+/** Teams whose last opponent in leg one is their first in leg two (byes skipped), plus a back-to-back bye. */
+function repeatsAcross(opp, n, R) {
+  let c = 0;
+  for (let t = 0; t < n; t++) {
+    let a = -1, b = -1;
+    for (let r = R - 1; r >= 0; r--) if (opp[r][t] < n) { a = opp[r][t]; break; }
+    for (let r = R; r < opp.length; r++) if (opp[r][t] < n) { b = opp[r][t]; break; }
+    if (a >= 0 && a === b) c++;
+  }
+  // odd league: the same team sitting out the last round of leg one and the first of leg two
+  const N = opp[0].length;
+  if (N > n && opp[R - 1][N - 1] === opp[R][N - 1]) c++;
+  return c;
+}
+
+function oppFromRounds(rounds, N, n) {
+  return rounds.map((r) => {
+    const o = new Int16Array(N);
+    for (const [h, a] of r.matches) { o[h] = a; o[a] = h; }
+    if (N > n) { const b = r.bye; o[b] = N - 1; o[N - 1] = b; }
+    return o;
+  });
+}
+
+/**
+ * Home/away for a double round robin played leg by leg, where each pair's second meeting is at the
+ * other ground: one choice per pair (who hosts in leg one) sets both games. Annealing over pair
+ * flips, cost = breaks over the whole season plus 50 per game of leg-one imbalance beyond one, with
+ * restarts. venues[r][t] is 1 when t is at home in round r.
+ */
+export function assignVenuesDouble(opp, n, seed = 1, restarts = 6, initialHost = null) {
+  const N = opp[0].length, R = opp.length / 2;
+  const roundOf = new Int16Array(N * N).fill(-1); // leg-one round of pair (t, u), and leg two at +N*N offset via second table
+  const round2 = new Int16Array(N * N).fill(-1);
+  for (let r = 0; r < 2 * R; r++) for (let t = 0; t < N; t++) (r < R ? roundOf : round2)[t * N + opp[r][t]] = r;
+  const build = (host) => {
+    const v = opp.map(() => new Uint8Array(N));
+    for (let r = 0; r < 2 * R; r++) for (let t = 0; t < N; t++) {
+      const u = opp[r][t];
+      const h = host[Math.min(t, u) * N + Math.max(t, u)] === t ? 1 : 0;
+      v[r][t] = r < R ? h : 1 - h;
+    }
+    return v;
+  };
+  const PEN = 50;
+  const teamCost = (v, t) => {
+    if (t >= n) return 0;
+    let h = 0, g = 0;
+    for (let r = 0; r < R; r++) if (opp[r][t] < n) { g++; h += v[r][t]; }
+    const d = Math.abs(2 * h - g);
+    return teamBreaks(v, opp, t, n) + (d > 1 ? PEN * (d - 1) : 0);
+  };
+  const start = assignVenues(opp.slice(0, R), n, seed);
+  let best = null, bestCost = Infinity;
+  for (let k = 0; k < restarts; k++) {
+    const rand = mulberry32((seed * 7919 + k * 104729 + 17) >>> 0);
+    const host = new Int16Array(N * N).fill(-1);
+    for (let r = 0; r < R; r++) for (let t = 0; t < N; t++) {
+      const u = opp[r][t];
+      if (t < u) host[t * N + u] = k === 0 && initialHost ? initialHost[t * N + u] : (k <= 1 ? start[r][t] : rand() < 0.5) ? t : u;
+    }
+    const v = build(host);
+    // each team's cost reads only its own column, and a flip touches only t and u, so the cost
+    // before a move is the cached one (recounting it doubled the work of every move)
+    const tc = new Int32Array(N);
+    let cost = 0;
+    for (let t = 0; t < n; t++) { tc[t] = teamCost(v, t); cost += tc[t]; }
+    const iters = Math.max(8000, 80 * R * N);
+    // the given host is already good: search it cold so it is only improved on
+    const hot = k === 0 && initialHost ? 0.3 : 1.5;
+    for (let it = 0; it < iters; it++) {
+      const T = hot * (1 - it / iters) + 0.02;
+      const r1 = Math.floor(rand() * R), t = Math.floor(rand() * N), u = opp[r1][t];
+      if (t >= n || u >= n) continue;
+      const r2 = round2[t * N + u];
+      v[r1][t] ^= 1; v[r1][u] ^= 1; v[r2][t] ^= 1; v[r2][u] ^= 1;
+      const ct = teamCost(v, t), cu = teamCost(v, u);
+      const d = ct + cu - tc[t] - tc[u];
+      if (d <= 0 || rand() < Math.exp(-d / T)) { cost += d; tc[t] = ct; tc[u] = cu; }
+      else { v[r1][t] ^= 1; v[r1][u] ^= 1; v[r2][t] ^= 1; v[r2][u] ^= 1; }
+    }
+    if (cost < bestCost) { bestCost = cost; best = v.map((x) => x.slice()); }
+  }
+  return best;
+}
+
+/**
+ * Best of several searches. One search is a sample, not the curve: at 20 teams the same settings
+ * give 1,678 to 1,820 carry-over and 108 to 124 breaks across seeds (eval/double-frontier.txt).
+ * This runs `tries` searches, cycling through `weights` (the break weight inside each search) with
+ * a fresh seed per try, and keeps the one with the least carry-over + `pick` x breaks. `pick` is
+ * the organiser's trade: 0 keeps the fairest carry-over, a large value the fewest breaks.
+ * `effort` scales each search, so tries x effort is the total work (tries 4 at effort 0.25 costs one
+ * plain search). Seeded: the same arguments give the same rounds. `onTry(i, candidate)` reports
+ * progress (the page's Web Worker posts it). Returns the chosen search's result plus `tries`
+ * (every candidate's seed, weight, coe and breaks), `chosen` (its index) and `frontier` (the
+ * candidates no other one beats on both counts, by carry-over). `capped` more tries after those
+ * run the capped search (lowCarryOverCappedRounds; caps from cappedTryBreaks), the fewest-breaks end
+ * of the trade the weights do not reach (eval/capped-breaks.txt).
+ */
+export function bestCarryOverRounds(n, { double = false, seed = 1, tries = 4, capped = 0, gap = 0, squeeze = 0, polish = 0, floorPriced = 0, pure = false, keep = null, weights = [10, 20, 40, 80], pick = 10, effort = 1, onTry = null } = {}) {
+  checkBestOfK(tries, pick);
+  if (!Number.isInteger(capped) || capped < 0) throw new Error("capped must be a whole number of 0 or more.");
+  if (!Number.isInteger(gap) || gap < 0) throw new Error("gap must be a whole number of 0 or more.");
+  // every count is checked before the first try, so a bad one fails at once, not after the search
+  if (!Number.isInteger(squeeze) || squeeze < 0) throw new Error("squeeze must be a whole number of 0 or more.");
+  if (!Number.isInteger(polish) || polish < 0) throw new Error("polish must be a whole number of 0 or more.");
+  if (!Number.isInteger(floorPriced) || floorPriced < 0) throw new Error("floorPriced must be a whole number of 0 or more.");
+  const results = [];
+  // `gap` more capped tries continue the cap sequence (j = capped, capped + 1, ...) and are only
+  // ever kept when `keep` names one (combineCarryOverTries `among`)
+  for (let i = 0; i < tries + capped + gap; i++) {
+    const t = carryOverTry(n, i, { double, seed, weights, effort, weighted: tries });
+    results.push(t);
+    if (onTry) onTry(i, candidateOf(t, pick));
+  }
+  // `squeeze` more seasons after every try: squeezeDoubleRounds (squeezeSingleRounds) into the
+  // widest gaps of the tries' frontier (carryOverSqueeze); like the gap tries, only kept by `keep`
+  if (squeeze) {
+    for (let j = 0; j < squeeze; j++) {
+      const t = carryOverSqueeze(n, results, { seed, effort });
+      if (!t) break;
+      results.push(t);
+      if (onTry) onTry(t.index, candidateOf(t, pick));
+    }
+  }
+  // `polish` more: frontier seasons regrounded with fewer breaks (carryOverPolish); only kept by `keep`
+  if (polish) for (const t of carryOverPolish(n, results, { seed, count: polish })) {
+    results.push(t);
+    if (onTry) onTry(t.index, candidateOf(t, pick));
+  }
+  // `floorPriced` more: timetables searched on their proved break floor into the widest gap
+  // (carryOverFloorPriced, single round robins); only kept by `keep`
+  if (floorPriced) for (const t of carryOverFloorPriced(n, results, { seed, count: floorPriced })) {
+    results.push(t);
+    if (onTry) onTry(t.index, candidateOf(t, pick));
+  }
+  // `pure`: one more season searched on carry-over alone (carryOverPure); "the most even carry-over"
+  // (pick 0) chooses among every season, so it can keep this one, the other choices cannot
+  if (pure) for (const t of carryOverPure(n, results, { seed, effort })) {
+    results.push(t);
+    if (onTry) onTry(t.index, candidateOf(t, pick));
+  }
+  return combineCarryOverTries(results, pick, { among: pick === 0 && pure ? Infinity : tries + capped, keep });
+}
+
+function checkBestOfK(tries, pick) {
+  if (!Number.isInteger(tries) || tries < 1) throw new Error("tries must be a whole number of at least 1.");
+  // a NaN pick scores every try NaN, nothing beats Infinity and the result has no rounds at all
+  if (typeof pick !== "number" || !Number.isFinite(pick) || pick < 0) throw new Error("pick must be a number of 0 or more (CARRY_OVER_PICK).");
+}
+
+/** The seed try i of a best-of-k search uses: try 0 is the base seed itself. */
+export function carryOverTrySeed(seed, i) {
+  if (i === 0) return seed;
+  // Past about 1.1e12, seed * 7919 is no longer a safe integer and swamps i * 104729 in floating
+  // point: a typed seed of 1e21 gave every try after the first the same seed, so "best of ten" ran
+  // two distinct searches. Such a seed is folded to seed >>> 0 first, the only part the search
+  // (mulberry32) ever reads; every smaller seed keeps exactly the tries it always had.
+  const base = Number.isSafeInteger(seed * 7919) ? seed : seed >>> 0;
+  return ((base * 7919 + i * 104729) % 2147483647) || 1;
+}
+
+/**
+ * Try i of bestCarryOverRounds on its own, so a pool of workers can run the tries in parallel and
+ * combineCarryOverTries can pick among them: the result is the same whichever thread ran which try.
+ * Returns the search result plus { index, seed, breakWeight }.
+ */
+export function carryOverTry(n, i, { double = false, seed = 1, weights = [10, 20, 40, 80], effort = 1, weighted = Infinity } = {}) {
+  if (!Number.isInteger(i) || i < 0) throw new Error("try index must be a whole number of 0 or more.");
+  // try 0 is exactly the plain search at `seed` and the first weight, so tries 1 changes nothing
+  const s = carryOverTrySeed(seed, i);
+  if (i >= weighted) {
+    // a capped try: the fewest-breaks end of the trade (lowCarryOverCappedRounds)
+    const caps = cappedTryBreaks(n, i - weighted, double);
+    const r = double
+      ? lowCarryOverDoubleRounds(n, { seed: s, effort, maxBreaks: caps.season, legBreaks: caps.leg })
+      : lowCarryOverCappedRounds(n, { seed: s, effort, maxBreaks: caps.leg });
+    if (n % 2 === 1) {
+      // An odd league: the capped search starts at zero breaks (assignVenues' colouring) but at
+      // small sizes a heavy break weight sometimes lands on fewer breaks still (9 teams: 2 or 3
+      // against 5 or 6, eval/odd-capped.txt), so the try runs both and keeps the one with fewer
+      // breaks, then less carry-over: the capped tries are there for the low-break end.
+      const w = 160 * (i - weighted + 1);
+      const h = double ? lowCarryOverDoubleRounds(n, { seed: s, effort, breakWeight: w }) : lowCarryOverRounds(n, { seed: s, effort, breakWeight: w });
+      if (h.breaks < r.breaks || (h.breaks === r.breaks && h.coe < r.coe)) return { ...h, index: i, seed: s, breakWeight: w };
+    }
+    return { ...r, index: i, seed: s, breakWeight: null, maxBreaks: double ? caps.season : caps.leg };
+  }
+  const w = weights[i % weights.length];
+  const r = double ? lowCarryOverDoubleRounds(n, { seed: s, effort, breakWeight: w }) : lowCarryOverRounds(n, { seed: s, effort, breakWeight: w });
+  return { ...r, index: i, seed: s, breakWeight: w };
+}
+
+/**
+ * The caps capped try j runs at: j = 0 the least breaks (n - 2 a leg for an even league, the
+ * minimum; 3(n - 2) over a home-and-away season, the mirrored minimum), each later try 4 more a leg
+ * and 12 more a season (eval/capped-breaks.txt has the curve these were picked from). An odd league
+ * can have no breaks at all (the circle method, home and away set by assignVenues' colouring), but
+ * at 0 the search cannot leave the circle method, so its base is n - 3 a leg (eval/odd-capped.txt).
+ */
+export function cappedTryBreaks(n, j, double = false) {
+  const base = n % 2 === 0 ? n - 2 : Math.max(0, n - 3);
+  return { leg: base + 4 * j, season: double ? 3 * base + 12 * j : null };
+}
+
+function candidateOf(t, pick) {
+  return { seed: t.seed, breakWeight: t.breakWeight, ...(t.maxBreaks != null ? { maxBreaks: t.maxBreaks } : {}), coe: t.coe, breaks: t.breaks, score: t.coe + pick * t.breaks + (t.repeats || 0) * REPEAT_PENALTY };
+}
+
+/**
+ * Keep the try with the least carry-over + pick x breaks among results from carryOverTry (one per
+ * index 0..k-1, in any order). Ties go to the lower index, as in a serial run, so a pool of any
+ * size returns exactly what bestCarryOverRounds returns.
+ */
+export function combineCarryOverTries(results, pick = 10, { among = Infinity, keep = null } = {}) {
+  checkBestOfK(Array.isArray(results) ? results.length : 0, pick);
+  const byIndex = [...results].sort((a, b) => a.index - b.index);
+  byIndex.forEach((t, i) => { if (t.index !== i) throw new Error(`carry-over tries must be numbered 0 to ${byIndex.length - 1}; try ${i} is missing.`); });
+  const cands = byIndex.map((t) => candidateOf(t, pick));
+  // `among`: the choice looks only at tries 0 to among - 1, so tries added after them (the gap
+  // tries, CARRY_OVER_GAP) widen the frontier a person picks from without moving the season any
+  // of the four choices keeps. `keep`: the try a person picked from that frontier, which wins.
+  const pool = Math.max(1, Math.min(cands.length, Number.isInteger(among) ? among : cands.length));
+  let chosen = 0;
+  for (let i = 1; i < pool; i++) if (cands[i].score < cands[chosen].score) chosen = i;
+  const kept = Number.isInteger(keep) && keep >= 0 && keep < cands.length;
+  if (kept) chosen = keep;
+  const frontier = cands
+    .map((c, i) => ({ ...c, index: i }))
+    .filter((c) => !cands.some((d) => d.coe <= c.coe && d.breaks <= c.breaks && (d.coe < c.coe || d.breaks < c.breaks)))
+    .sort((a, b) => a.coe - b.coe || a.breaks - b.breaks);
+  const { index, seed, breakWeight, ...best } = byIndex[chosen];
+  return { ...best, tries: cands, chosen, frontier, pick, kept, among: pool };
+}
+
+/**
+ * Capped tries the page runs after its 8 weighted + 2 capped ones (cappedTryBreaks j = 2 and 3),
+ * offered only in the list a person picks from (combineCarryOverTries `among`). At 17 to 20 teams
+ * over a home-and-away season the weighted tries stop around 83 to 87 breaks and the two capped
+ * ones start near 48 to 59; these land in between (19 teams: 3,203 / 72 between 1,311 / 87 and
+ * 3,731 / 59; eval/frontier-gap.txt).
+ */
+export const CARRY_OVER_GAP = 2;
+
+/**
+ * Squeezed seasons the page runs after its 12 tries in a home-and-away season (carryOverSqueeze,
+ * README "Squeezing a season under a cap"): listed with the other frontier seasons, never picked
+ * by the four choices. At 17 to 20 teams they add 3 or 4 seasons to the frontier and cut the widest
+ * break gap from 10-24 to 6-12 for about 1.5 s on one thread (eval/squeeze-gap.txt).
+ */
+export const CARRY_OVER_SQUEEZE = 4;
+
+/**
+ * A kept frontier pick as the share link stores it: the try's index plus the settings the search
+ * depends on, so a pick made for 20 teams is never applied to 19, another seed or a single round
+ * robin. Returns the index when `text` matches these settings, otherwise null.
+ */
+export function carryOverKeepText(index, { n, double, seed }) {
+  return `${index}@${n}${double ? "d" : "s"}${seed}`;
+}
+export function carryOverKeepIndex(text, { n, double, seed, tries }) {
+  const m = /^(\d{1,3})@(\d+)([ds])(-?\d+)$/.exec(String(text ?? ""));
+  if (!m) return null;
+  const i = Number(m[1]);
+  if (Number(m[2]) !== n || (m[3] === "d") !== Boolean(double) || Number(m[4]) !== Number(seed)) return null;
+  return Number.isInteger(tries) && i >= tries ? null : i;
+}
+
+/**
+ * Which try indices each of `workers` threads runs: round-robin, so with k tries and w threads the
+ * longest queue is ceil(k / w) tries. Thread j gets j, j + w, j + 2w, ...
+ */
+export function splitCarryOverTries(tries, workers) {
+  const w = Math.max(1, Math.min(tries, Math.floor(workers) || 1));
+  return Array.from({ length: w }, (_, j) => Array.from({ length: Math.ceil((tries - j) / w) }, (_, q) => j + q * w));
+}
+
+/** The organiser's choice among the tries: carry-over + pick x breaks (see bestCarryOverRounds). */
+// `fewest` prices a break above any carry-over a capped try saves, so it keeps the capped try at the
+// minimum (3(n - 2) over an even home-and-away season) and, among equal breaks, the lower carry-over.
+export const CARRY_OVER_PICK = { fair: 0, balanced: 10, breaks: 40, fewest: 1000 };
+
+/**
+ * The tries of a best-of-k search as the page lists them: carry-over/breaks in try order, with a
+ * repeated result folded into its first appearance ("1311/87 x7"). At the field sizes most weighted
+ * tries land on the same season (19 teams: seven of eight give 1,311 / 87, eval/best-of-k-page.txt),
+ * so the plain list read as ten choices when it held four.
+ */
+export function carryOverCandidatesText(candidates) {
+  const seen = new Map();
+  for (const c of candidates || []) {
+    const k = `${c.coe}/${c.breaks}`;
+    seen.set(k, (seen.get(k) || 0) + 1);
+  }
+  return [...seen].map(([k, m]) => (m > 1 ? `${k} \u00d7${m}` : k)).join(", ");
+}
+
+/** How many different carry-over/breaks results the tries reached. */
+export function carryOverDistinct(candidates) {
+  return new Set((candidates || []).map((c) => `${c.coe}/${c.breaks}`)).size;
+}
+
+/** A small, JSON-safe account of a best-of-k search, for the page's read-out and share-safe caching. */
+export function carryOverSummary(best) {
+  return {
+    tries: best.tries.length,
+    chosen: best.chosen,
+    pick: best.pick,
+    coe: best.coe,
+    breaks: best.breaks,
+    candidates: best.tries.map((c) => ({ coe: c.coe, breaks: c.breaks, breakWeight: c.breakWeight, ...(c.maxBreaks != null ? { maxBreaks: c.maxBreaks } : {}) })),
+    frontier: best.frontier.map((c) => ({ coe: c.coe, breaks: c.breaks, index: c.index })),
+    ...(best.kept ? { kept: true } : {}),
+    ...(Number.isInteger(best.among) && best.among < best.tries.length ? { among: best.among } : {}),
+  };
+}
+
+/**
+ * Re-search a home-and-away season under a cap on its breaks, moving the timetable and the grounds
+ * together (README "Squeezing a season under a cap"). Each pair keeps one host: it hosts in leg one
+ * and visits in leg two, so a timetable move inside a leg carries every match's ground with it and
+ * never changes a team's home count. Three moves change grounds: flip one pair, flip two pairs of
+ * one team that it hosts and visits (the team's count is unchanged), and flip a whole alternating
+ * run (every pair one team meets over a stretch of a leg where it alternates home and away, so the
+ * run stays alternating and only its two ends move). Cost: carry-over + `over` per break above
+ * `maxBreaks` + REPEAT_PENALTY per repeat across the halfway point; a move that leaves a team's
+ * leg-one home and away games more than one apart is refused. `start` is a lowCarryOverDoubleRounds
+ * (or carryOverTry) result. Seeded; returns the same shape as lowCarryOverDoubleRounds, the best
+ * season found within the cap (or with the fewest breaks over it, if none got under).
+ */
+export function squeezeDoubleRounds(n, start, opts = {}) {
+  return squeezeLegs(n, start, 2, opts);
+}
+
+/**
+ * The same squeeze on a single round robin (README "Squeezing a single round robin"): every match
+ * keeps its ground through the timetable moves, and the three ground moves flip one match, two
+ * matches of one team (one at home, one away) or a whole alternating run. A move that leaves a
+ * team's home and away games more than one apart is refused. No repeats to price: one leg has no
+ * halfway point. `cycles: true` adds a three-cycle ground move (measured, off by default). `start` is a lowCarryOverRounds, lowCarryOverCappedRounds or carryOverTry result
+ * (not cyclic). Seeded; returns the shape lowCarryOverRounds does, plus { maxBreaks, squeezed }.
+ */
+export function squeezeSingleRounds(n, start, opts = {}) {
+  return squeezeLegs(n, start, 1, opts);
+}
+
+function squeezeLegs(n, start, legs, { seed = 1, effort = 1, maxBreaks, over = 200, cycles = false } = {}) {
+  if (!Number.isInteger(n) || n < 4) throw new Error("A squeezed season needs at least four teams.");
+  if (!Number.isInteger(maxBreaks) || maxBreaks < 0) throw new Error("maxBreaks must be a whole number of 0 or more.");
+  const N = n % 2 === 0 ? n : n + 1, R = N - 1;
+  if (!start || !Array.isArray(start.rounds) || start.rounds.length !== legs * R) throw new Error(legs === 2 ? "start must be a home-and-away season for this many teams." : "start must be a single round robin for this many teams.");
+  const opp = oppFromRounds(start.rounds, N, n);
+  const host = new Int16Array(N * N).fill(-1); // host[min * N + max]: the team at home in leg one
+  start.rounds.forEach((r, i) => { if (i < R) for (const [h, a] of r.matches) host[Math.min(h, a) * N + Math.max(h, a)] = h; });
+  const P = (t, u) => (t < u ? t * N + u : u * N + t);
+  const homeIn = (r, t) => { const u = opp[r][t]; return (host[P(t, u)] === t) === (r < R) ? 1 : 0; };
+  const leg1Home = new Int32Array(N);
+  for (let r = 0; r < R; r++) for (let t = 0; t < n; t++) if (opp[r][t] < n) leg1Home[t] += homeIn(r, t);
+  const games = N > n ? R - 1 : R;
+  const ok = (t) => t >= n || Math.abs(2 * leg1Home[t] - games) <= 1;
+  const flip = (t, u) => { const p = P(t, u); const h = host[p]; host[p] = h === t ? u : t; leg1Home[t] += h === t ? -1 : 1; leg1Home[u] += h === t ? 1 : -1; };
+  const breaksNow = () => hostBreaks(opp, n, R, host);
+  const coeNow = () => coeOf(opp, n, false) + (legs === 2 ? REPEAT_PENALTY * repeatsAcross(opp, n, R) : 0);
+  const costOf = (c, b) => c + over * Math.max(0, b - maxBreaks);
+  const rand = mulberry32((seed * 2246822519 + 13) >>> 0);
+  const iterations = Math.max(4000, Math.round((effort * 6e7) / (2 * N * N)));
+  let coe = coeNow(), br = breaksNow(), cur = costOf(coe, br);
+  const snap = () => ({ opp: opp.map((o) => o.slice()), host: host.slice(), coe, br });
+  let best = snap();
+  const better = (c, b) => (b <= maxBreaks ? best.br > maxBreaks || c < best.coe || (c === best.coe && b < best.br) : best.br > maxBreaks && (b < best.br || (b === best.br && c < best.coe)));
+  const T0 = Math.max(2, coe / (N * 16));
+  for (let it = 0; it < iterations; it++) {
+    const T = T0 * (1 - it / iterations) + 0.05;
+    const mv = rand();
+    let undo = null, groundsOnly = false;
+    if (mv < 0.55) {
+      // a timetable move inside one leg (the grounds travel with the pairs)
+      const lo = legs === 2 && rand() < 0.5 ? R : 0, hi = lo + R;
+      const r = lo + Math.floor(rand() * R);
+      let s = lo + Math.floor(rand() * (R - 1)); if (s >= r) s++;
+      const k = rand();
+      if (k < 0.4) {
+        const a = Math.floor(rand() * N);
+        let b = Math.floor(rand() * (N - 1)); if (b >= a) b++;
+        const S = teamSwapRounds(opp, a, b, r, lo, hi);
+        if (S.length >= R) continue;
+        swapTeamsIn(opp, S, a, b); undo = () => swapTeamsIn(opp, S, a, b);
+      } else if (k < 0.6) {
+        [opp[r], opp[s]] = [opp[s], opp[r]]; undo = () => { [opp[r], opp[s]] = [opp[s], opp[r]]; };
+      } else {
+        const cyc = cycleOf(opp, r, s, Math.floor(rand() * N));
+        if (cyc.length === N) continue;
+        const sw = () => { for (const x of cyc) { const a = opp[r][x]; opp[r][x] = opp[s][x]; opp[s][x] = a; } };
+        sw(); undo = sw;
+      }
+    } else {
+      groundsOnly = true;
+      const t = Math.floor(rand() * n), r = Math.floor(rand() * legs * R);
+      if (opp[r][t] >= n) continue;
+      if (cycles && rand() < 0.4) {
+        // `cycles` (off): reverse a directed three-cycle of hosts (x hosts y, y hosts z, z hosts
+        // x), so every team keeps its home count, the one ground move left when every team is
+        // exactly balanced (an even number of games). Measured and not shipped: over 24 single
+        // round robins the squeezes cut 1.4% on, 1.5% off; at 19 teams home and away it found
+        // nothing the plain moves did not (README "Squeezing a single round robin")
+        const H = (x, y) => host[P(x, y)] === x;
+        const u = opp[r][t];
+        const [x, y] = H(t, u) ? [t, u] : [u, t]; // x hosts y
+        const q = Math.floor(rand() * n);
+        let z = -1;
+        for (let d = 0; d < n; d++) { const w = (q + d) % n; if (w !== x && w !== y && H(y, w) && H(w, x)) { z = w; break; } }
+        if (z < 0) continue;
+        const tri = () => { flip(x, y); flip(y, z); flip(z, x); };
+        tri(); undo = tri;
+      } else {
+      const pairs = [];
+      if (mv < 0.7) pairs.push(opp[r][t]);
+      else if (mv < 0.85) {
+        // two pairs of t on opposite grounds in leg one: t's own count is unchanged
+        const want = homeIn(Math.min(r, r < R ? r : r - R), t) ^ 1;
+        const q = Math.floor(rand() * R);
+        for (let d = 0; d < R; d++) { const x = (q + d) % R, u = opp[x][t]; if (u < n && u !== opp[r][t] && homeIn(x, t) === want) { pairs.push(opp[Math.min(r, r < R ? r : r - R)][t], u); break; } }
+        if (pairs.length < 2) continue;
+      } else {
+        const lo = r < R ? 0 : R, hi = lo + R;
+        let a = r, b = r;
+        while (a > lo && opp[a - 1][t] < n && homeIn(a - 1, t) !== homeIn(a, t)) a--;
+        while (b + 1 < hi && opp[b + 1][t] < n && homeIn(b + 1, t) !== homeIn(b, t)) b++;
+        for (let x = a; x <= b; x++) pairs.push(opp[x][t]);
+      }
+      for (const u of pairs) flip(t, u);
+      undo = () => { for (const u of pairs) flip(t, u); };
+      if (!ok(t) || pairs.some((u) => !ok(u))) { undo(); continue; }
+      }
+    }
+    const nc = groundsOnly ? coe : coeNow();
+    const nb = breaksNow();
+    const v = costOf(nc, nb);
+    if (v <= cur || rand() < Math.exp((cur - v) / T)) {
+      cur = v; coe = nc; br = nb;
+      if (better(coe, br)) best = snap();
+    } else undo();
+  }
+  const venues = best.opp.map((o, r) => {
+    const v = new Uint8Array(N);
+    for (let t = 0; t < N; t++) { const u = o[t]; if (t < n && u < n) v[t] = (best.host[P(t, u)] === t) === (r < R) ? 1 : 0; }
+    return v;
+  });
+  const rounds = best.opp.map((o, r) => {
+    const matches = [];
+    let bye = null;
+    for (let t = 0; t < N; t++) {
+      const u = o[t];
+      if (t > u) continue;
+      if (u >= n) { bye = t; continue; }
+      matches.push(venues[r][t] ? [t, u] : [u, t]);
+    }
+    return { leg: r < R ? 0 : 1, matches, bye };
+  });
+  let breaks = 0;
+  for (let t = 0; t < n; t++) breaks += teamBreaks(venues, best.opp, t, n);
+  if (legs === 1) return { rounds, coe: coeOf(best.opp, n, false), circleCoe: start.circleCoe, lowerBound: start.lowerBound, breaks, iterations, maxBreaks, squeezed: true };
+  return { rounds, coe: coeOf(best.opp, n, false), repeats: repeatsAcross(best.opp, n, R), lowerBound: start.lowerBound, breaks, iterations, maxBreaks, squeezed: true };
+}
+
+/**
+ * The squeezes the page runs after its tries (CARRY_OVER_SQUEEZE): for the widest break gaps
+ * between two neighbouring seasons on the tries' frontier (at least `minGap` apart), a cap halfway
+ * across, searched from the season below the gap (squeezeDoubleRounds); then the frontier seasons
+ * themselves at their own breaks, lowest carry-over first, until `count` targets are listed.
+ * Returns [{ from, maxBreaks }] (from: an index into `results`), in the order they run; a function
+ * of the tries alone, so the same tries always give the same squeezes. Either kind of season.
+ */
+export function squeezeTargets(results, { count = 4, minGap = 8, even = false } = {}) {
+  const c = results.map((t, i) => ({ i, coe: t.coe + (t.repeats || 0) * REPEAT_PENALTY, breaks: t.breaks }));
+  const front = c.filter((x) => !c.some((y) => y.coe <= x.coe && y.breaks <= x.breaks && (y.coe < x.coe || y.breaks < x.breaks)))
+    .filter((x, k, a) => a.findIndex((y) => y.coe === x.coe && y.breaks === x.breaks) === k)
+    .sort((a, b) => b.breaks - a.breaks || a.i - b.i);
+  const gaps = [];
+  for (let k = 1; k < front.length; k++) {
+    const hi = front[k - 1], lo = front[k], g = hi.breaks - lo.breaks;
+    if (g < minGap) continue;
+    let cap = lo.breaks + Math.floor(g / 2);
+    if (even && cap % 2) cap--;
+    gaps.push({ g, from: lo.i, maxBreaks: cap });
+  }
+  gaps.sort((a, b) => b.g - a.g || a.maxBreaks - b.maxBreaks);
+  const out = gaps.slice(0, count).map(({ from, maxBreaks }) => ({ from, maxBreaks }));
+  for (const x of [...front].sort((a, b) => a.coe - b.coe || a.i - b.i)) {
+    if (out.length >= count) break;
+    if (!out.some((o) => o.from === x.i && o.maxBreaks === x.breaks)) out.push({ from: x.i, maxBreaks: x.breaks });
+  }
+  return out;
+}
+
+/**
+ * The next squeeze of a best-of-k search (single or home and away): `results` are the tries plus any squeezes
+ * already run (in index order), and the target is the first of squeezeTargets(results) that no
+ * earlier squeeze ran, so each squeeze aims at the widest gap the ones before it left. Returns the
+ * squeezed season numbered `results.length` for combineCarryOverTries, with { index, seed,
+ * breakWeight: null, maxBreaks, squeezedFrom }, or null when there is nothing left to aim at.
+ * A function of `results` alone: the same tries always give the same squeezes.
+ */
+export function carryOverSqueeze(n, results, { seed = 1, effort = 1, cycles } = {}) {
+  const done = new Set(results.filter((t) => t.squeezedFrom != null).map((t) => `${t.squeezedFrom}@${t.maxBreaks}`));
+  // a squeezed season is never polished at its own breaks again: it was searched at that cap
+  const fresh = (x) => !done.has(`${x.from}@${x.maxBreaks}`) && !(results[x.from].squeezedFrom != null && x.maxBreaks >= results[x.from].breaks && x.maxBreaks <= results[x.from].maxBreaks);
+  // a single round robin (one leg of rounds) squeezes one leg; a home-and-away season both
+  const N = n % 2 === 0 ? n : n + 1;
+  const double = results[0].rounds.length === 2 * (N - 1);
+  // one leg has about a third of a season's breaks, so its gaps count from half the width
+  const target = squeezeTargets(results, { count: results.length + 1, even: double && n % 2 === 0, minGap: double ? 8 : 4 }).find(fresh);
+  if (!target) return null;
+  const { from, maxBreaks } = target;
+  const index = results.length;
+  const s = carryOverTrySeed(seed, index);
+  const r = (double ? squeezeDoubleRounds : squeezeSingleRounds)(n, results[from], { seed: s, effort, maxBreaks, ...(cycles != null ? { cycles } : {}) });
+  return { ...r, index, seed: s, breakWeight: null, maxBreaks, squeezedFrom: from };
+}
+
+/** `count` squeezes after `tries` (carryOverSqueeze one after another); returns tries + squeezes. */
+export function carryOverSqueezes(n, tries, count, { seed = 1, effort = 1, cycles } = {}) {
+  const out = [...tries].sort((a, b) => a.index - b.index);
+  for (let j = 0; j < count; j++) {
+    const t = carryOverSqueeze(n, out, { seed, effort, cycles });
+    if (!t) break;
+    out.push(t);
+  }
+  return out;
+}
+
+/**
+ * The fewest breaks the venue search finds for a season's own timetable (README "Polishing the
+ * grounds of the frontier"). Carry-over depends only on who meets whom in which round, so the same
+ * timetable with other grounds has the same carry-over; a MaxSAT check (eval/orient-maxsat.py)
+ * showed the capped, gap and squeezed tries often keep 2 to 5 more breaks than their timetable
+ * needs. A single round robin reruns assignVenues seeded with the season's own hosts (each team's
+ * home and away games within one); a home-and-away season reruns assignVenuesDouble from its own
+ * pair hosts (the pair's leg-one host is away in leg two; leg one balanced within one). Returns the
+ * season with the new grounds when it has strictly fewer breaks and passes those checks, else null.
+ * Seeded; the timetable and carry-over are untouched.
+ */
+export function polishSeasonVenues(n, season, { seed = 1, pairNodes = PAIR_EXACT_NODES } = {}) {
+  const N = n % 2 === 0 ? n : n + 1, R = N - 1;
+  const legs = season?.rounds?.length === 2 * R ? 2 : season?.rounds?.length === R ? 1 : 0;
+  if (!legs) throw new Error("season must be a single or home-and-away round robin for this many teams.");
+  const opp = oppFromRounds(season.rounds, N, n);
+  const own = season.rounds.map((r) => { const v = new Uint8Array(N); for (const [h] of r.matches) v[h] = 1; return v; });
+  let venues;
+  let proved = false;
+  if (legs === 1) {
+    // exact first (orient.mjs: a programme over rounds, then the least balanced host choice); the
+    // annealing only when the timetable is too big for it or its search budget runs out
+    const exact = leastBreaks(opp, n, { seed, budget: 2000000 });
+    if (exact && exact.balanced) { venues = exact.venues; proved = exact.proved; }
+    else venues = assignVenues(opp, n, seed, 8, { hosts: pairHostsOf(opp, own) });
+  }
+  else {
+    const host = new Int16Array(N * N).fill(-1);
+    for (let r = 0; r < R; r++) for (const [h, a] of season.rounds[r].matches) host[Math.min(h, a) * N + Math.max(h, a)] = h;
+    venues = assignVenuesDouble(opp, n, seed, 6, host);
+    // then the exact search on pairs (orient.mjs pairLeastBreaks), bounded by the annealing's own
+    // breaks: it returns grounds only when strictly fewer exist, and proves the least when its tree
+    // is walked to the end within the node budget (counted, not timed, so a share link rebuilds it)
+    if (pairNodes > 0) {
+      let annealed = 0;
+      for (let t = 0; t < n; t++) annealed += teamBreaks(venues, opp, t, n);
+      const exact = pairLeastBreaks(opp, n, { span: R, upperHint: Math.min(annealed, season.breaks), maxNodes: pairNodes });
+      if (exact) {
+        if (exact.venues) venues = exact.venues;
+        proved = exact.proved && exact.least <= annealed;
+      }
+    }
+  }
+  // the checks the season's own grounds pass: balance (leg one of a season), and a pair's two
+  // meetings at opposite grounds
+  const span = legs === 2 ? R : opp.length;
+  for (let t = 0; t < n; t++) {
+    let h = 0, g = 0;
+    for (let r = 0; r < span; r++) if (opp[r][t] < n) { g++; h += venues[r][t]; }
+    if (Math.abs(2 * h - g) > 1) return null;
+  }
+  if (legs === 2) {
+    const first = new Int8Array(N * N).fill(-1);
+    for (let r = 0; r < 2 * R; r++) for (let t = 0; t < n; t++) {
+      const u = opp[r][t];
+      if (u >= n || t > u) continue;
+      if (first[t * N + u] < 0) first[t * N + u] = venues[r][t];
+      else if (first[t * N + u] === venues[r][t]) return null;
+    }
+  }
+  let breaks = 0;
+  for (let t = 0; t < n; t++) breaks += teamBreaks(venues, opp, t, n);
+  if (breaks >= season.breaks) return null;
+  const rounds = season.rounds.map((rd, r) => ({ ...rd, matches: rd.matches.map(([a, b]) => (venues[r][a] ? [a, b] : [b, a])) }));
+  // leastProved: no balanced home/away on this timetable has fewer breaks
+  return proved ? { ...season, rounds, breaks, leastProved: true } : { ...season, rounds, breaks };
+}
+
+/**
+ * Seasons the page adds after its squeezes (README "Polishing the grounds of the frontier"): each
+ * season of `results` (tries and squeezes, by index, one per distinct carry-over/breaks, none
+ * polished already) is regrounded by polishSeasonVenues; a polished season is kept when nothing in
+ * `results` or the other polished seasons beats it on both counts, so a season the tries' frontier
+ * left out can join it (14 teams: 314 / 20 regrounded to 314 / 16 beats 334 / 16). At most `count`,
+ * by source index, each numbered after the results (index = results.length, + 1, ...) with
+ * `polishedFrom` set. A function of `results` and `seed` alone, so a share link that keeps a
+ * polished season rebuilds it.
+ */
+export function carryOverPolish(n, results, { seed = 1, count = CARRY_OVER_POLISH } = {}) {
+  const base = [...results].sort((a, b) => a.index - b.index);
+  const done = new Set(base.filter((t) => t.polishedFrom != null).map((t) => t.polishedFrom));
+  const score = (t) => ({ coe: t.coe + (t.repeats || 0) * REPEAT_PENALTY, breaks: t.breaks });
+  const seen = new Set();
+  const polished = [];
+  base.forEach((t, i) => {
+    if (t.polishedFrom != null || done.has(i)) return;
+    const key = `${t.coe}/${t.repeats || 0}/${t.breaks}`; // the same season found by several tries is regrounded once
+    if (seen.has(key)) return;
+    seen.add(key);
+    // the seed is the source's own (the output index is not known until the kept ones are counted)
+    const p = polishSeasonVenues(n, t, { seed: carryOverTrySeed(seed, i) });
+    if (p) polished.push({ from: i, season: p });
+  });
+  const all = [...base.map(score), ...polished.map((x) => score(x.season))];
+  const beaten = (x) => all.some((y) => y.coe <= x.coe && y.breaks <= x.breaks && (y.coe < x.coe || y.breaks < x.breaks));
+  const out = [];
+  for (const { from, season } of polished) {
+    if (out.length >= count) break;
+    if (beaten(score(season))) continue;
+    const { squeezedFrom, maxBreaks, squeezed, ...rest } = season; // a polished season is not a squeeze
+    out.push({ ...rest, index: base.length + out.length, seed: carryOverTrySeed(seed, from), breakWeight: null, polishedFrom: from });
+  }
+  return out;
+}
+
+/** Polished seasons the page adds after its squeezes, at most (carryOverPolish). */
+export const CARRY_OVER_POLISH = 4;
+
+/**
+ * Node budget of the exact home-and-away regrounding (orient.mjs pairLeastBreaks) in
+ * polishSeasonVenues; 0 leaves home and away to the annealing alone (README "Fewest breaks of a
+ * home-and-away season").
+ */
+export const PAIR_EXACT_NODES = 40;
+
+/**
+ * Every way to re-deal the matches of rounds rs = [r, s, t] of a single round robin into three
+ * rounds, as [[pr, ps, pt], ...] partner arrays (pr[x] the team x meets in round r). The three
+ * rounds' matches form a cubic graph; a perfect matching of it is round r's, the rest is a union of
+ * cycles (one with an odd cycle cannot be split, so it is skipped), and each even cycle's two
+ * alternate halves go one to round s and one to round t, so the list is complete: every ordered 1-factorisation, the current one included. Stops at `cap`.
+ * The neighbourhood behind "round re-solves" (README "Re-dealing three rounds at once").
+ */
+export function threeRoundDeals(opp, rs, cap = 20000) {
+  const N = opp[0].length;
+  const adj = Array.from({ length: N }, (_, x) => rs.map((q) => opp[q][x]));
+  const out = [];
+  const m = new Int32Array(N).fill(-1);
+  const deal = () => {
+    // the rest: each vertex has two unused neighbours; walk the cycles
+    const ps = new Int32Array(N).fill(-1), pt = new Int32Array(N).fill(-1);
+    const cycles = [], seen = new Uint8Array(N);
+    for (let v = 0; v < N; v++) {
+      if (seen[v]) continue;
+      const cyc = [v]; seen[v] = 1;
+      let prev = -1, x = v;
+      for (;;) {
+        const nb = adj[x].filter((y) => y !== m[x]);
+        const nx = nb[0] !== prev ? nb[0] : nb[1];
+        if (nx === v) break;
+        if (seen[nx]) break;
+        seen[nx] = 1; cyc.push(nx); prev = x; x = nx;
+      }
+      if (cyc.length % 2) return; // an odd cycle cannot split into two rounds
+      cycles.push(cyc);
+    }
+    const c = cycles.length;
+    for (let mask = 0; mask < 1 << c && out.length < cap; mask++) {
+      for (let k = 0; k < c; k++) {
+        const cyc = cycles[k], L = cyc.length, flip = (mask >> k) & 1;
+        for (let i = 0; i < L; i++) {
+          const a = cyc[i], b = cyc[(i + 1) % L];
+          const toS = (i % 2 === 0) !== !!flip;
+          if (toS) { ps[a] = b; ps[b] = a; } else { pt[a] = b; pt[b] = a; }
+        }
+      }
+      out.push([Int32Array.from(m), Int32Array.from(ps), Int32Array.from(pt)]);
+    }
+  };
+  const walk = () => {
+    if (out.length >= cap) return;
+    let v = 0;
+    while (v < N && m[v] >= 0) v++;
+    if (v === N) { deal(); return; }
+    for (const u of adj[v]) {
+      if (m[u] >= 0 || u === v) continue;
+      m[v] = u; m[u] = v;
+      walk();
+      m[v] = -1; m[u] = -1;
+    }
+  };
+  walk();
+  return out;
+}
+
+/**
+ * A single round robin's timetable searched with its breaks priced exactly (README "Pricing the
+ * break floor"). squeezeSingleRounds moves the timetable with every match's ground carried along, so
+ * a timetable move that would need other grounds looks worse than it is. Here the grounds are not
+ * carried at all: each timetable is scored on its carry-over plus `over` per break of its proved
+ * floor (orient.mjs leastBreaks: the fewest breaks any host choice allows) above `maxBreaks`, and the
+ * grounds are chosen at the end, exactly, for the best timetable. Annealing over the three timetable
+ * moves (partial team swap, round swap, partial round swap); a move whose carry-over alone already
+ * fails the acceptance draw is refused before its floor is computed. The floor ignores the balance
+ * rule, so the last step asks leastBreaks for the least balanced choice, which may be a break or two
+ * above the floor; the best few timetables seen within the cap are tried, and the season returned is
+ * the one with the least carry-over among those whose balanced least is within the cap (else the
+ * fewest breaks). `start` is a single round robin (carryOverTry, lowCarryOverRounds, a squeeze).
+ * Up to 28 teams (14 matches a round, FLOOR_PRICED_MAX_MATCHES). `iterations` caps the moves; `timeMs` stops early. Seeded.
+ * Returns the shape squeezeSingleRounds does, plus { floor, leastProved, floorPriced: true }, or null
+ * when no balanced choice was found for any kept timetable.
+ */
+export function floorPricedSingleRounds(n, start, { seed = 1, maxBreaks, over = 60, iterations = 3000, timeMs = Infinity, keep = 6, deals = CARRY_OVER_DEALS, dealFloors = 3, balanced = true, balancedBudget = 50000 } = {}) {
+  if (!Number.isInteger(n) || n < 4 || n > 28) throw new Error("A floor-priced season needs 4 to 28 teams.");
+  if (!Number.isInteger(maxBreaks) || maxBreaks < 0) throw new Error("maxBreaks must be a whole number of 0 or more.");
+  const N = n % 2 === 0 ? n : n + 1, R = N - 1;
+  if (!start || !Array.isArray(start.rounds) || start.rounds.length !== R) throw new Error("start must be a single round robin for this many teams.");
+  const opp = oppFromRounds(start.rounds, N, n);
+  const table = floorTable(opp, n, { maxMatches: FLOOR_PRICED_MAX_MATCHES });
+  const costOf = (c, f) => c + over * Math.max(0, f - maxBreaks);
+  // the breaks a timetable is priced on: its floor, or, when the floor is within the cap and
+  // `balanced` is on, its least balanced host choice if that is within the cap too, else the cap + 2
+  // (the floor ignores the balance rule, and searches priced on it alone ended 1 to 3 over the cap:
+  // README "Pricing the balanced least"). The walk reuses the table of the last trial.
+  let walks = 0;
+  const priced = (f) => {
+    if (!balanced || f > maxBreaks) return f;
+    walks++;
+    const b = table.balanced(maxBreaks, { seed, budget: balancedBudget });
+    return b.least != null ? b.least : maxBreaks + 2;
+  };
+  const rand = mulberry32((seed * 3266489917 + 7) >>> 0);
+  let coe = coeOf(opp, n, false), fl = priced(table.floor), cur = costOf(coe, fl);
+  // the best `keep` distinct timetables within the cap, least carry-over first
+  const kept = [];
+  const remember = () => {
+    if (fl > maxBreaks) return;
+    const key = opp.map((o) => o.join(",")).join(";");
+    if (kept.some((k) => k.key === key)) return;
+    if (kept.length >= keep && coe >= kept[kept.length - 1].coe) return;
+    kept.push({ key, coe, fl, opp: opp.map((o) => o.slice()) });
+    kept.sort((a, b) => a.coe - b.coe || a.fl - b.fl);
+    if (kept.length > keep) kept.pop();
+  };
+  let fallback = { coe, fl, opp: opp.map((o) => o.slice()) };
+  const origin = fallback; // the start's own timetable, so a search that finds nothing is never worse
+  remember();
+  const T0 = Math.max(2, coe / (N * 16));
+  const t0 = Date.now();
+  let floors = 0, it = 0, dealt = 0;
+  for (; it < iterations; it++) {
+    if ((it & 15) === 0 && Date.now() - t0 > timeMs) break;
+    const T = T0 * (1 - it / iterations) + 0.05;
+    if (deals && rand() < deals) {
+      // re-deal three rounds' matches (threeRoundDeals): every other deal is scored on carry-over,
+      // the `dealFloors` least under the acceptance line are priced on the floor, the cheapest
+      // within the line is taken
+      const rs = [];
+      while (rs.length < 3) { const q = Math.floor(rand() * R); if (!rs.includes(q)) rs.push(q); }
+      const line = cur - T * Math.log(rand() || 1e-12);
+      const was = rs.map((q) => opp[q].slice());
+      const put = (d) => { for (let j = 0; j < 3; j++) opp[rs[j]].set(d[j]); };
+      const scored = [];
+      for (const d of threeRoundDeals(opp, rs)) {
+        if (d.every((p, j) => p.every((y, x) => y === was[j][x]))) continue;
+        put(d);
+        const nc = coeOf(opp, n, false);
+        if (nc <= line) scored.push({ d, nc });
+      }
+      put(was);
+      scored.sort((a, b) => a.nc - b.nc);
+      const lo = Math.min(...rs), hi = Math.max(...rs);
+      let take = null;
+      for (const c of scored.slice(0, dealFloors)) {
+        put(c.d);
+        const nf = priced(table.trial(lo, hi)); floors++;
+        const v = costOf(c.nc, nf);
+        if (v <= line && (!take || v < take.v)) take = { ...c, nf, v };
+        put(was);
+      }
+      if (take) {
+        put(take.d); table.trial(lo, hi); table.commit();
+        cur = take.v; coe = take.nc; fl = take.nf; dealt++;
+        remember();
+        if (fl < fallback.fl || (fl === fallback.fl && coe < fallback.coe)) fallback = { coe, fl, opp: opp.map((o) => o.slice()) };
+      }
+      continue;
+    }
+    const r = Math.floor(rand() * R);
+    let s = Math.floor(rand() * (R - 1)); if (s >= r) s++;
+    const k = rand();
+    let undo, lo = Math.min(r, s), hi = Math.max(r, s);
+    if (k < 0.4) {
+      const a = Math.floor(rand() * N);
+      let b = Math.floor(rand() * (N - 1)); if (b >= a) b++;
+      const S = teamSwapRounds(opp, a, b, r);
+      if (S.length >= R) continue;
+      swapTeamsIn(opp, S, a, b); undo = () => swapTeamsIn(opp, S, a, b);
+      lo = Math.min(...S); hi = Math.max(...S);
+    } else if (k < 0.6) {
+      [opp[r], opp[s]] = [opp[s], opp[r]]; undo = () => { [opp[r], opp[s]] = [opp[s], opp[r]]; };
+    } else {
+      const cyc = cycleOf(opp, r, s, Math.floor(rand() * N));
+      if (cyc.length === N) continue;
+      const sw = () => { for (const x of cyc) { const a = opp[r][x]; opp[r][x] = opp[s][x]; opp[s][x] = a; } };
+      sw(); undo = sw;
+    }
+    // accept when v <= cur - T ln u; the floor's penalty is never negative, so carry-over alone
+    // above that line is a refusal with no floor to compute
+    const line = cur - T * Math.log(rand() || 1e-12);
+    const nc = coeOf(opp, n, false);
+    if (nc > line) { undo(); continue; }
+    const nf = priced(table.trial(lo, hi)); floors++;
+    const v = costOf(nc, nf);
+    if (v <= line) {
+      cur = v; coe = nc; fl = nf; table.commit();
+      remember();
+      if (fl < fallback.fl || (fl === fallback.fl && coe < fallback.coe)) fallback = { coe, fl, opp: opp.map((o) => o.slice()) };
+    } else undo();
+  }
+  // the start's own timetable always competes, so a search that finds nothing better than it
+  // returns it regrounded rather than something with more breaks
+  const cands = [...(kept.length ? kept : [fallback]), ...(kept.includes(origin) || fallback === origin ? [] : [origin])];
+  let best = null;
+  for (const c of cands) {
+    const x = leastBreaks(c.opp, n, { seed, budget: 2000000, maxMatches: FLOOR_PRICED_MAX_MATCHES });
+    if (!x || !x.balanced) continue;
+    const within = x.breaks <= maxBreaks;
+    const b = { c, x, within };
+    if (!best || (within && !best.within) || (within === best.within && (within ? c.coe < best.c.coe || (c.coe === best.c.coe && x.breaks < best.x.breaks) : x.breaks < best.x.breaks))) best = b;
+  }
+  if (!best) return null;
+  const { c, x } = best;
+  const rounds = c.opp.map((o, r) => {
+    const matches = [];
+    let bye = null;
+    for (let t = 0; t < N; t++) {
+      const u = o[t];
+      if (t > u) continue;
+      if (u >= n) { bye = t; continue; }
+      matches.push(x.venues[r][t] ? [t, u] : [u, t]);
+    }
+    return { leg: 0, matches, bye };
+  });
+  let breaks = 0;
+  for (let t = 0; t < n; t++) breaks += teamBreaks(x.venues, c.opp, t, n);
+  return { rounds, coe: c.coe, circleCoe: start.circleCoe, lowerBound: start.lowerBound, breaks, floor: x.floor, leastProved: x.proved, maxBreaks, iterations: it, floors, walks, dealt, floorPriced: true };
+}
+
+/**
+ * The carry-over-only season the page adds last (README "The least carry-over at 10 teams is 94"):
+ * every other try weighs breaks against carry-over (CARRY_OVER_PICK's weights 10 to 80, or a cap), so
+ * none of them searches carry-over alone, and at 10 teams the best of them was 102 where 94, the
+ * proved least, is reachable. This runs lowCarryOverRounds (or the double) with no break weight at the
+ * base seed and returns it numbered after the others, or nothing when an earlier try already has
+ * carry-over at or under it (nothing new for the list). It is added after every other season so the
+ * squeezes, polishes and floor-priced seasons, which read the frontier, are unchanged.
+ */
+export function carryOverPure(n, results, { seed = 1, effort = 1 } = {}) {
+  const base = [...results].sort((a, b) => a.index - b.index);
+  if (!base.length || base.some((t) => t.pure)) return [];
+  const N = n % 2 === 0 ? n : n + 1;
+  const double = base[0].rounds.length === 2 * (N - 1);
+  const r = double ? lowCarryOverDoubleRounds(n, { seed, effort, breakWeight: 0 }) : lowCarryOverRounds(n, { seed, effort, breakWeight: 0 });
+  const score = (t) => t.coe + (t.repeats || 0) * REPEAT_PENALTY;
+  if (base.some((t) => score(t) <= score(r))) return [];
+  return [{ ...r, index: base.length, seed, breakWeight: 0, pure: true }];
+}
+
+/** Floor-priced seasons the page adds after its regrounded ones, at most (carryOverFloorPriced). */
+export const CARRY_OVER_FLOOR_PRICED = 2;
+
+/**
+ * The share of a floor-priced search's moves that re-deal three rounds at once (threeRoundDeals)
+ * rather than swap: 0.15, measured at 20 teams (README "Re-dealing three rounds at once").
+ */
+export const CARRY_OVER_DEALS = 0.15;
+
+/**
+ * Seasons the page adds after the regrounded ones (README "Pricing the break floor"): for a single
+ * round robin of 6 to `maxTeams` (28) teams (26 until 2026-11-15's balance-guided walk and start under
+ * the gap let 28 teams land seasons on every seed: README "Starting under the gap", eval/under-start.txt;
+ * 25 until 2026-11-15, when the whole-break step went to
+ * int16 SIMD and 26 teams went from 71 s to 34 s: README "Whole-break tables in int16", eval/int16-step.txt;
+ * 22 until 2026-11-14, when the step's kernel moved to
+ * WebAssembly and 24 teams went from 90-178 s to 21-42 s: README "minPlusStep in WebAssembly",
+ * eval/wasm-step.txt), the widest break gap (at least `minGap`) between neighbouring
+ * seasons on the frontier of `results`, searched by floorPricedSingleRounds from the season above
+ * it (least carry-over, most breaks) at caps of its breaks - 2, - 4, ... while above the season
+ * under the gap, `count` + 1 caps at most, each searched twice (swaps alone and with three-round
+ * re-deals, `deals`) and the better kept. A season is kept when nothing in `results` or an earlier kept one beats it on both
+ * counts. At most `count`, numbered after the results with `floorPricedFrom` set. A function of
+ * `results` and `seed` alone, so a share link that keeps one rebuilds it. [] for a home-and-away
+ * season or when the frontier has no such gap.
+ */
+export function carryOverFloorPriced(n, results, { seed = 1, count = CARRY_OVER_FLOOR_PRICED, minGap = 4, iterations = 3000, deals = CARRY_OVER_DEALS, balanced = true, maxTeams = 28, underStart = true } = {}) {
+  const N = n % 2 === 0 ? n : n + 1, R = N - 1;
+  const base = [...results].sort((a, b) => a.index - b.index);
+  if (n < 6 || n > maxTeams || !count || base.some((t) => t.rounds.length !== R)) return [];
+  const pts = base.map((t, i) => ({ i, coe: t.coe, breaks: t.breaks }));
+  const front = pts.filter((x) => !pts.some((y) => y.coe <= x.coe && y.breaks <= x.breaks && (y.coe < x.coe || y.breaks < x.breaks)))
+    .filter((x, k, a) => a.findIndex((y) => y.coe === x.coe && y.breaks === x.breaks) === k)
+    .sort((a, b) => a.coe - b.coe || a.breaks - b.breaks);
+  let gi = -1;
+  for (let k = 1; k < front.length; k++) {
+    const g = front[k - 1].breaks - front[k].breaks;
+    if (g >= minGap && (gi < 0 || g > front[gi - 1].breaks - front[gi].breaks)) gi = k;
+  }
+  if (gi < 0) return [];
+  const top = front[gi - 1], under = front[gi];
+  const all = pts.slice();
+  const out = [];
+  // once the search from the season above the gap lands nothing within a cap, it starts from the
+  // season under the gap instead, at that cap and every lower one (README "Starting under the gap"):
+  // at 28 teams the season above is a starter timetable no move of the search gets under its
+  // breaks, while from under the gap the same search lands inside it
+  let from = top;
+  for (let cap = top.breaks - 2, k = 0; cap > under.breaks && out.length < count && k <= count; cap -= 2, k++) {
+    // both neighbourhoods at this cap, the better kept: swaps alone, and swaps with three-round
+    // re-deals (README "Re-dealing three rounds at once"; each wins on some sizes and seeds)
+    const search = (f, ds) => ds.filter((d, i, a) => a.indexOf(d) === i)
+      .map((d) => floorPricedSingleRounds(n, base[f.i], { seed: carryOverTrySeed(seed, f.i), maxBreaks: cap, iterations, deals: d, balanced }))
+      .filter(Boolean);
+    let two = search(from, [0, deals]);
+    let within = two.filter((r) => r.breaks <= cap);
+    if (!within.length && from === top && underStart) {
+      from = under;
+      two = search(from, [deals]);
+      within = two.filter((r) => r.breaks <= cap);
+    }
+    let s = null;
+    // within the cap the least carry-over wins; when neither search got under it, the fewest breaks
+    if (within.length) for (const r of within) { if (!s || r.coe < s.coe || (r.coe === s.coe && r.breaks < s.breaks)) s = r; }
+    else for (const r of two) { if (!s || r.breaks < s.breaks || (r.breaks === s.breaks && r.coe < s.coe)) s = r; }
+    if (!s) continue;
+    if (all.some((y) => y.coe <= s.coe && y.breaks <= s.breaks)) continue;
+    all.push({ coe: s.coe, breaks: s.breaks });
+    out.push({ ...s, index: base.length + out.length, seed: carryOverTrySeed(seed, from.i), breakWeight: null, floorPricedFrom: from.i });
+  }
+  return out;
+}

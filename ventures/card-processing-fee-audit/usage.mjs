@@ -56,7 +56,8 @@ export function recordEvent(eventName) {
   try {
     const ls = storage();
     if (!ls) return;
-    const current = JSON.parse(ls.getItem(KEY) || '{}');
+    let current = JSON.parse(ls.getItem(KEY) || '{}');
+    if (!current || typeof current !== 'object' || Array.isArray(current)) current = {};
     current[eventName] = (current[eventName] || 0) + 1;
     ls.setItem(KEY, JSON.stringify(current));
   } catch {

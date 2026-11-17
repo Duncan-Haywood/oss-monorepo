@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%233b4a8c'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E1%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why Instant Runoff and Condorcet Can Pick Different Winners: A Worked Example</title>
+  <meta name="description" content="One set of 100 ranked ballots, three answers: most first choices elects Memphis, instant runoff elects Knoxville, and Nashville beats every city head to head. The rounds and the head-to-head table, counted step by step.">
+  <meta property="og:title" content="Why instant runoff and Condorcet can disagree">
+  <meta property="og:description" content="The four-city example counted round by round, with the head-to-head table.">
+  <link rel="canonical" href="./instant-runoff-vs-condorcet-four-city-example.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Why instant runoff and Condorcet can pick different winners", "about": "ranked-choice voting counting methods"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can instant runoff elect someone other than the Condorcet winner?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. In the four-city example Nashville beats every other city head to head, but it has only 26 first choices and is eliminated in the second round, so instant runoff elects Knoxville."}}, {"@type": "Question", "name": "Which method should a club use?", "acceptedAnswer": {"@type": "Answer", "text": "The one its rules name. Instant runoff is the most widely used for one seat, STV for several seats, and Condorcet methods such as Schulze are used by some organisations that want the head-to-head winner. Agree the method and the tie rule before the vote, not after."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1b2b; background: #f4f4f8; }
+    body { max-width: 860px; margin: auto; padding: 28px; }
+    a { color: #34428a; }
+    h1 { font-size: clamp(1.7rem, 4.5vw, 2.4rem); line-height: 1.1; margin: 0 0 14px; color: #232d5e; }
+    h2 { font-size: 1.15rem; margin: 22px 0 8px; color: #232d5e; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.6; }
+    code { font: 0.92em ui-monospace, Menlo, Consolas, monospace; background: #ebebf3; padding: 1px 4px; border-radius: 4px; }
+    .note, footer { font-size: .86rem; color: #50506a; }
+    table { border-collapse: collapse; margin: 8px 0; font-size: .92rem; }
+    th, td { text-align: right; padding: 5px 10px; border-bottom: 1px solid #dcdce8; }
+    th:first-child, td:first-child { text-align: left; }
+    .scroll { overflow-x: auto; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    footer { margin-top: 28px; border-top: 1px solid #dcdce8; padding-top: 16px; }
+  </style>
+</head>
+<body>
+<main>
+  <p class="note"><a href="./">Ranked-Choice Ballot Counter</a> · guide</p>
+  <h1>Why instant runoff and Condorcet can pick different winners</h1>
+  <p>This is the standard teaching example from Wikipedia's articles on instant-runoff voting and the Condorcet method: 100 voters rank four cities, each by how close it is to home. The ballots are:</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Ballots</th><th>Ranking</th></tr></thead>
+    <tbody>
+      <tr><td>42</td><td style="text-align:left">Memphis &gt; Nashville &gt; Chattanooga &gt; Knoxville</td></tr>
+      <tr><td>26</td><td style="text-align:left">Nashville &gt; Chattanooga &gt; Knoxville &gt; Memphis</td></tr>
+      <tr><td>15</td><td style="text-align:left">Chattanooga &gt; Knoxville &gt; Nashville &gt; Memphis</td></tr>
+      <tr><td>17</td><td style="text-align:left">Knoxville &gt; Chattanooga &gt; Nashville &gt; Memphis</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>Most first choices: Memphis</h2>
+  <p>Memphis has 42 first choices, more than any other city, but 58 voters rank it last.</p>
+
+  <h2>Instant runoff: Knoxville</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>Round</th><th>Memphis</th><th>Nashville</th><th>Chattanooga</th><th>Knoxville</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>42</td><td>26</td><td>15</td><td>17</td></tr>
+      <tr><td>2</td><td>42</td><td>26</td><td>–</td><td>32</td></tr>
+      <tr><td>3</td><td>42</td><td>–</td><td>–</td><td>58</td></tr>
+    </tbody>
+  </table></div>
+  <p>Chattanooga is last and its 15 ballots move to Knoxville. Then Nashville is last; its 26 ballots pass over the eliminated Chattanooga to Knoxville, which wins with 58 of 100.</p>
+
+  <h2>Head to head: Nashville</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>Ballots ranking the row above the column</th><th>Memphis</th><th>Nashville</th><th>Chattanooga</th><th>Knoxville</th></tr></thead>
+    <tbody>
+      <tr><td>Memphis</td><td>–</td><td>42</td><td>42</td><td>42</td></tr>
+      <tr><td>Nashville</td><td>58</td><td>–</td><td>68</td><td>68</td></tr>
+      <tr><td>Chattanooga</td><td>58</td><td>32</td><td>–</td><td>83</td></tr>
+      <tr><td>Knoxville</td><td>58</td><td>32</td><td>17</td><td>–</td></tr>
+    </tbody>
+  </table></div>
+  <p>Nashville beats every other city one on one: 58 to 42 against Memphis and 68 to 32 against both Chattanooga and Knoxville. A candidate who wins every head-to-head contest is the Condorcet winner, and the Schulze method, like every Condorcet method, elects it. Its full ranking here is Nashville &gt; Chattanooga &gt; Knoxville &gt; Memphis.</p>
+  <p>Instant runoff never asks whether Nashville beats Knoxville. It only sees first choices among the cities still standing, and Nashville runs out of them in round 2. That is the trade: instant runoff is simple to explain and count by hand; Condorcet methods find the candidate a majority prefers to each rival, at the cost of a count that needs the whole table.</p>
+
+  <h2>Questions</h2>
+  <h3>Can instant runoff elect someone other than the Condorcet winner?</h3>
+  <p>Yes. In the four-city example Nashville beats every other city head to head, but it has only 26 first choices and is eliminated in the second round, so instant runoff elects Knoxville.</p>
+  <h3>Which method should a club use?</h3>
+  <p>The one its rules name. Instant runoff is the most widely used for one seat, STV for several seats, and Condorcet methods such as Schulze are used by some organisations that want the head-to-head winner. Agree the method and the tie rule before the vote, not after.</p>
+  <p><a href="./">Count your own ballots</a>; the "Load the four-city example" button reproduces every number on this page.</p>
+  <p class="note">Sources: Wikipedia, "Instant-runoff voting" and "Condorcet method" (the four-city example); M. Schulze, "A new monotonic, clone-independent, reversal symmetric, and Condorcet-consistent single-winner election method", Social Choice and Welfare 36 (2011) 267–303.</p>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> This guide and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. It is not legal or professional advice, and the tool is not certified election software. Your organisation's rules decide which method applies and how ties are settled. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with or endorsed by Google, any election authority or electoral reform organisation, or Markus Schulze.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p class="support">Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+</footer>
+</body>
+</html>

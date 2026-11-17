@@ -3,14 +3,14 @@ import assert from "node:assert/strict";
 import { DEFAULT_PROVIDERS, providerCost, compare, project, cheapestSegments, summarize } from "./engine.mjs";
 
 test("free allowance bills nothing; just above it the paid plan base applies", () => {
-  assert.equal(providerCost(DEFAULT_PROVIDERS.clerk, 10000), 0);
-  assert.equal(providerCost(DEFAULT_PROVIDERS.clerk, 10001), 25.02);
+  assert.equal(providerCost(DEFAULT_PROVIDERS.clerk, 50000), 0);
+  assert.equal(providerCost(DEFAULT_PROVIDERS.clerk, 50001), 25.02);
   assert.equal(providerCost(DEFAULT_PROVIDERS.cognito, 10000), 0);
 });
 
 test("tiers are marginal, not retroactive", () => {
-  // clerk 150k: 25 + 90k*0.02 + 50k*0.018 = 2725
-  assert.equal(providerCost(DEFAULT_PROVIDERS.clerk, 150000), 2725);
+  // clerk 150k: 25 + 50k*0.02 + 50k*0.018 = 1925
+  assert.equal(providerCost(DEFAULT_PROVIDERS.clerk, 150000), 1925);
   // supabase 150k: 25 + 50k*0.00325 = 187.5
   assert.equal(providerCost(DEFAULT_PROVIDERS.supabase, 150000), 187.5);
 });
@@ -52,4 +52,29 @@ test("summarize gates on budget for the cheapest or a named provider", () => {
   assert.equal(s.overBudget, true);
   assert.equal(s.errors, 1);
   assert.equal(summarize(rows, { provider: "nope" }).status, "error");
+});
+
+// Recomputed by hand from the vendors' pages (read 2026-11-08, quality audit
+// portfolio/quality/audits/2026-11-08-auth-mau-pricing-calculator.json), not
+// from this engine. A stale rate card fails here.
+test("rate cards match the vendors' published examples", () => {
+  const c = (k, m) => providerCost(DEFAULT_PROVIDERS[k], m);
+  assert.equal(c("clerk", 40000), 0); // 50,000 MRUs free per app
+  assert.equal(c("clerk", 60000), 225); // Clerk's own explainer: 25 + 10,000 x 0.02
+  assert.equal(c("clerk", 20000000), 25 + 50000 * 0.02 + 900000 * 0.018 + 9000000 * 0.015 + 10000000 * 0.012);
+  assert.equal(c("cognito", 950000), 14100); // Essentials: 940,000 x 0.015, the page's example
+  assert.equal(c("cognito", 150000), 2100);
+  assert.equal(c("supabase", 150000), 187.5);
+  assert.equal(c("workos", 5000000), 10000);
+  assert.equal(c("firebase", 150000), 505);
+});
+
+test("every default provider says when it was checked", () => {
+  for (const [k, p] of Object.entries(DEFAULT_PROVIDERS)) assert.match(p.checked ?? "", /^\d{4}-\d{2}-\d{2}$/, k);
+});
+
+test("summarize names every provider tied for cheapest", () => {
+  const t = summarize(compare(40000)).text;
+  assert.match(t, /tied at about \$0\.00 per month: Clerk, Firebase \/ Identity Platform, Supabase Auth, WorkOS AuthKit\./);
+  assert.match(summarize(compare(2000000)).text, /^Cheapest at this user count: /);
 });

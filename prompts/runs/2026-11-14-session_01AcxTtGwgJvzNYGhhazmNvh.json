@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtGwgJvzNYGhhazmNvh",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T18:06:45Z",
+  "ended": "2026-11-14T18:22:19Z",
+  "wall_minutes": 15.81,
+  "tokens_in": 7767731,
+  "tokens_out": 46714,
+  "cost_usd": 3.6401,
+  "tool_calls": 65,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15935",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First `tables` call failed: energy_cell is importable only after frontcut/run.py is loaded (it inserts the path); fixed by loading _fc() before the import."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py returned /usr/bin/python3.13, which lacks scipy, so 8 cell-fidelity tests (test_average, test_location, test_mfbo) fail with ModuleNotFoundError on main too; and the system python3.11 cannot even collect the suite (a 3.12 nested f-string in one test file). The guide does not say which interpreter a project's suite expects."
+    },
+    {
+      "file": "research/cell-fidelity/README.md",
+      "issue": "5q's next step proposed PyBaMM's electrode-SOH solver; a ~60-line stdlib OCV-window solver on tabulated OCPs was simpler and fully testable, so the README's suggested tool was not used."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Step 2 (land open research PRs first) was checked only via pick_track's CLAIM CHECK (no open PR names cell-fidelity) rather than a full sweep of all open research PRs, to keep the run inside one milestone.",
+      "did": "Advanced the drawn programme directly.",
+      "result": "No conflict; claim PR opened within the first half hour."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-same-lithium-lost-different-energy-lost.md",
+    "research/cell-fidelity/LOG.md (5r plan and outcome)"
+  ],
+  "goal": null,
+  "notes": "Milestone 5r of cell-fidelity: zero-simulation electrode-balance (OCV window) map from lost lithium to lost energy. Dev on 5p's 31 designs, then pre-registered H104-H107 on 128 fresh DFN runs (13 min wall, 4 cores); all four supported (34/40 within 0.05, MAE 0.038 vs 0.053, ranking >= LLI on 5/5, error vs E2/Eocv Spearman -0.73). Local checks: research-ci run: steps passed via run_workflow_locally --for-changes; homepage build ok; check_md_links ok; post frontmatter/links ok; tests/test_balance.py 8 passed (suite: 153 passed, 8 pre-existing scipy-import failures).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b7b31070-688f-5405-a360-4b293b0ed827",
+    "transcripts": 1,
+    "first": "2026-11-14T18:06:45Z",
+    "last": "2026-11-14T18:22:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 118,
+        "output": 46714,
+        "thinking": 10480,
+        "cache_read": 7619941,
+        "cache_write_5m": 0,
+        "cache_write_1h": 147672,
+        "api_equivalent_usd": 3.6401,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 118,
+      "output": 46714,
+      "thinking": 10480,
+      "cache_read": 7619941,
+      "cache_write_5m": 0,
+      "cache_write_1h": 147672,
+      "api_equivalent_usd": 3.6401,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 65,
+    "tools": {
+      "Bash": 58,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.81,
+      "active_minutes": 15.81,
+      "model_minutes": 8.76,
+      "tool_minutes": 7.05,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a battery-modelling researcher building and testing an OCV electrode-balance solver, a 128-run DFN bench and the write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 439.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

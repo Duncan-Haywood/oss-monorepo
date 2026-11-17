@@ -10,10 +10,18 @@ book and page it was transcribed from.
 | `dies-irae.gabc` | 3441 | Graduale Romanum (Vatican), 1908, p. 83* | 1 |
 | `pange-lingua.gabc` | 3855 | Graduale Romanum (Vatican), 1908, p. 123* (first verse only) | 3 |
 | `veni-creator.gabc` | 3431 | Graduale Romanum (Vatican), 1908, p. 121* (first verse only) | 8 |
-| `te-deum.gabc` | 16704 | Graduale Romanum, Solesmes, 1974, p. 841 | 3 |
-| `salve-regina.gabc` | 2715 | Liber Usualis, 1961, p. 276 (simple tone) | 1 |
+| `te-deum.gabc` | 3656 | Graduale Romanum (Vatican), 1908, pp. 118*-121* (Roman tone; one note corrected from the scan, 2026-11-13) | 3 |
+| `salve-regina.gabc` | 2715 | Liber Usualis, 1961, p. 276 (solemn tone); melody read against Antiphonale Romanum (Vatican), 1912, pp. 56-57, and by eye against Liber Usualis 1913, pp. 62-63 | 1 |
+| `te-deum-simple.gabc` | 16704 | Graduale Romanum, Solesmes, 1974, p. 841: the simple tone (*tonus simplex*), the file `te-deum.gabc` held before 2026-11-13; read by eye against Liber Usualis 1913, pp. 25*-28*, every note matches | 3 |
+| `pange-lingua-full.gabc` | (3855) | Graduale Romanum, Vatican, 1908, p. 123*: all six verses on the checked verse-1 neumes | 3 |
+| `veni-creator-full.gabc` | (3431) | Graduale Romanum, Vatican, 1908, pp. 121*-122*: all seven verses on the checked verse-1 neumes | 8 |
 
-Files are unmodified GregoBase downloads (`download.php?id=N&format=gabc&elem=1`).
+Files are unmodified GregoBase downloads (`download.php?id=N&format=gabc&elem=1`),
+except `te-deum.gabc` (header lines added, and `si(f)ne` corrected to `si(e)ne` as
+printed on p. 120*; see its `correction:` header) and `gregobase-1908/3427.gabc`
+(2026-11-14: the verse's last three notes `ni(ed) tas.(d)` corrected to `ni(fe) tas.(e)` as
+printed on p. [161], so the mode-7 alleluia ends on its final; `gregobase:` and
+`correction:` header lines added; `../eval/scan-check-verdicts.md`).
 Their headers carry the original transcribers. `chant-forge.test.mjs` parses
 every file here and checks the final against the `mode:` header.
 
@@ -25,19 +33,44 @@ alleluias, 12 introits, 10 communions, 9 graduals, 6 tracts, 5 offertories and a
 few others. Pre-1929 source, CC0 transcription. `batch.test.mjs` and
 `node eval/batch-check.mjs` run the converter over them.
 
+`gregobase-1908/3670.gabc` (*Qui timetis*, gradual, mode 1, p. 398, transcriber Andrew Hinkley)
+was added on 2026-11-14, an unmodified download like the rest. It is the piece printed on leaf 424
+of the archive.org scan, the tilted page whose staves the reader could not find until pages were
+straightened (`../eval/deskew-check.md`), and it is in `../eval/scan-pages.json`. 60 files in all.
+
 ## Licence of the GregoBase files
 
 GregoBase's FAQ (gregobase.selapa.net, read 2026-11-03) says: "All chant
 transcriptions are released under CC0 (a.k.a. Public Domain) license." So the
-GABC text is usable. Two caveats:
+GABC text is usable.
 
-- The Te Deum (1974) and Salve Regina (1961) come from post-1929 books. The
-  melodies are old and GregoBase releases its transcription as CC0, but we
-  have not checked those two against a pre-1929 scan. The three Vatican 1908
-  pieces are the cleanest. A pre-1929 source for those two is wanted before a
-  release.
-- Nobody here has compared the transcriptions with the page scans. They are
-  as good as GregoBase's volunteers.
+### Checked against page scans (2026-11-13)
+
+`node ../eval/scan-check.mjs` reads the notes off public-domain scans and lines them up
+with these files (`../eval/scan-check-report.md`, verdicts in
+`../eval/scan-check-verdicts.md`). Every note the reader found agrees with the book
+for Dies irae, Veni Creator and Pange lingua (1908 Graduale) and the Salve Regina
+(1912 Antiphonale). The Te Deum was replaced: the earlier file (GregoBase 16704,
+Solesmes 1974) is a different tone from the 1908 book's, so the corpus now has the
+1908 Roman tone (GregoBase 3656) with one note corrected from the scan. All five
+pieces now have a pre-1929 printed source. Notes the reader cannot see (a few rhombi,
+quilismas and liquescents per piece) are not machine-checked.
+
+### Read by eye as well (2026-11-13)
+
+A second, independent reading was done by eye, note by note, including the rhombi,
+quilismas and liquescents the machine reader skips (`scan-read-by-eye.json`,
+`../eval/scan-read-by-eye/README.md`). Dies irae, Veni Creator and Pange lingua were read
+against the 1908 Graduale, the Salve Regina against the 1913 Liber Usualis, and the
+earlier Te Deum file, kept as `te-deum-simple.gabc`, against the 1913 Liber Usualis
+*tonus simplex*. There were no differences in 1,492 notes. So the 1974 Te Deum is the
+simple tone, a second Te Deum melody with its own pre-1929 source, not a garbled copy of
+the Roman tone. `scan-read-by-eye.test.mjs` fails if any of those files changes without
+a fresh reading. Later the same day the current `te-deum.gabc` (the 1908 Roman tone, with
+its one scan correction) was read by eye against the 1908 Graduale, pp. 118*-121*: all 637
+notes match, quilismas, rhombi and liquescents included. Every corpus piece except the
+`gregobase-1908/` batch has now been read note by note, 2,129 notes in all, with no
+differences.
 
 Each file's header carries:
 
@@ -59,3 +92,22 @@ Rules:
   here before copying any of them (done for GregoBase above).
 - **Every piece must pass** `node ../cli.mjs piece.gabc`'s mode/final check, or
   the file must say why it doesn't (for example, a transposed final).
+
+## Scan-checked additions from the 1908 Graduale (added 2026-11-14)
+
+`gregobase-1908-checked/` holds twelve more unmodified GregoBase downloads (ids 3462, 3486, 3497,
+3523, 3606, 3650, 3727, 3831, 3905, 3912, 3948, 3949; transcriber Andrew Hinkley, CC0 per the
+GregoBase FAQ). They are every piece citing the 1908 Graduale among ids 3461-3999 with a
+liquescent ending a porrectus, fetched for `../eval/porrectus-liquescent-check.md`. Each was read
+against its page of the 1908 scan with `../eval/scan-check.mjs --manifest`: 2,030 notes agree, 5
+differ (not yet looked at). They sit in their own folder so the arrangement figures counted over
+`gregobase-1908/` (split, choir, three- and four-section reports) stay as published; a later
+session can fold them in and restate those figures together.
+
+## Liquescents on a staff line (added 2026-11-16)
+
+`gregobase-1908-hook/` holds fifteen more unmodified GregoBase downloads (ids 3463, 3484, 3488,
+3489, 3490, 3491, 3492, 3498, 3499, 3502, 3505, 3508, 3509, 3510, 3512; CC0 per the GregoBase FAQ):
+the first fifteen ids from 3463 in no earlier list that cite the 1908 Graduale and have a liquescent
+whose small note sits on a staff line, chosen by `../eval/hook-fresh.mjs` as the held-out list for
+`../eval/hook-on-line-check.md`. Kept in their own folder for the same reason as the folder above.

@@ -32,7 +32,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
     .pill.info { background: #e3e9ef; color: #1f4a5d; }
@@ -202,7 +202,7 @@
       else f.push({ severity: "medium", title: "You would overpay by " + money(r.overpayBy) + " against your target profit of " + money(r.target), detail: "Your maximum offer is " + money(r.mao) + " against " + money(r.p.purchase) + " planned. The 70% rule would say " + money(r.rule70) + "." });
       f.push({ severity: "info", title: "Financing and holding cost " + money(b.interest + b.points + b.holding) + " over " + b.months + " months", detail: "Interest " + money(b.interest) + ", points " + money(b.points) + ", holding costs " + money(b.holding) + ". Selling costs are " + money(b.selling) + "." });
       f.push({ severity: "medium", title: "The sale price can fall " + pct(r.marginOfSafety) + " before you lose money", detail: r.monthsToZero == null ? "Profit survives more than ten extra years on the market." : "Alternatively, about " + r.monthsToZero.toFixed(1) + " extra months on the market would erase the whole profit." });
-      $("#report-findings").innerHTML = f.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = f.map((x) => `<div class="finding"><h3><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h3><p>${esc(x.detail)}</p></div>`).join("");
       const rows = [
         ["Purchase price", -r.p.purchase], ["Buying closing costs", -r.p.buyClosing],
         ["Rehab budget", -r.p.rehab], ["Contingency", -(b.rehabTotal - r.p.rehab)],

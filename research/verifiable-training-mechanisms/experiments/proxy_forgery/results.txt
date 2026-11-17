@@ -1,0 +1,170 @@
+Milestone 88. Sub-batch proxy forgeries: for the last q of a segment's 20 steps the worker takes the gradient of
+only b of the step's 64 rows. Saved compute = q (64 - b) / 1280 of the segment. fp16 replay referee (W for SGD,
+WM for momentum, WMV for Adam); main = thresholds zoned by 5 segments; arbiter = float32 reorder on the same
+statistics, 10x its honest calibration max. Calibration seeds 100-139, test 0-39, 3,000 test segments per cell.
+d = share of test segments flagged and convicted.
+
+F1 code check: sub64 statistics identical to honest in every mode, statistic and seed
+  sgd/cosine True, sgd/step True, sgd/warmcos True, sgd/sgdr True, momentum/cosine True, momentum/step True, momentum/warmcos True, momentum/sgdr True, adam15/cosine True, adam15/step True, adam15/warmcos True, adam15/sgdr True, adam60/cosine True, adam60/step True, adam60/warmcos True, adam60/sgdr True
+
+F2 control: skip q global d against milestone 87's same-statistics referee and arbiter (max abs difference)
+  sgd       cosine 0.0000, step 0.0000, warmcos 0.0000, sgdr 0.0000
+  momentum  cosine 0.0000, step 0.0000, warmcos 0.0000, sgdr 0.0000
+  adam15    cosine 0.0000, step 0.0000, warmcos 0.0000, sgdr 0.0000
+  adam60    cosine 0.0000, step 0.0000, warmcos 0.0000, sgdr 0.0000
+
+F8 honest test segments: global flag (milestone 87's) | zoned flag | two-stage convictions global / zoned
+  sgd       cosine   0.0017 (0.0017) | 0.0063 | 0.0000 / 0.0000
+  sgd       step     0.0000 (0.0000) | 0.0073 | 0.0000 / 0.0000
+  sgd       warmcos  0.0000 (0.0000) | 0.0070 | 0.0000 / 0.0000
+  sgd       sgdr     0.0003 (0.0003) | 0.0063 | 0.0000 / 0.0000
+  momentum  cosine   0.0003 (0.0003) | 0.0103 | 0.0000 / 0.0000
+  momentum  step     0.0003 (0.0003) | 0.0100 | 0.0000 / 0.0000
+  momentum  warmcos  0.0027 (0.0027) | 0.0120 | 0.0000 / 0.0000
+  momentum  sgdr     0.0013 (0.0013) | 0.0090 | 0.0000 / 0.0000
+  adam15    cosine   0.0017 (0.0017) | 0.0120 | 0.0000 / 0.0000
+  adam15    step     0.0013 (0.0013) | 0.0127 | 0.0000 / 0.0000
+  adam15    warmcos  0.0013 (0.0013) | 0.0183 | 0.0000 / 0.0000
+  adam15    sgdr     0.0000 (0.0000) | 0.0127 | 0.0000 / 0.0000
+  adam60    cosine   0.0007 (0.0007) | 0.0113 | 0.0000 / 0.0000
+  adam60    step     0.0000 (0.0000) | 0.0147 | 0.0000 / 0.0000
+  adam60    warmcos  0.0040 (0.0040) | 0.0133 | 0.0000 / 0.0000
+  adam60    sgdr     0.0000 (0.0000) | 0.0140 | 0.0000 / 0.0000
+
+Main d (zoned referee + arbiter) at q = 1, by b (skip1 = naive skip control)
+  opt       sched    skip      1     8    16    32    48    56    60    62    63    64
+  sgd       cosine   0.982 0.985 0.986 0.985 0.982 0.936 0.624 0.307 0.152 0.074 0.000
+  sgd       step     1.000 1.000 1.000 1.000 1.000 0.989 0.854 0.559 0.302 0.157 0.000
+  sgd       warmcos  0.972 0.977 0.984 0.981 0.970 0.914 0.796 0.528 0.318 0.196 0.000
+  sgd       sgdr     0.975 0.980 0.985 0.983 0.973 0.933 0.797 0.476 0.248 0.130 0.000
+  momentum  cosine   1.000 1.000 1.000 1.000 1.000 0.998 0.956 0.715 0.415 0.235 0.000
+  momentum  step     1.000 1.000 1.000 1.000 1.000 0.999 0.970 0.778 0.443 0.239 0.000
+  momentum  warmcos  1.000 1.000 1.000 1.000 1.000 1.000 0.970 0.760 0.460 0.275 0.000
+  momentum  sgdr     1.000 0.999 1.000 0.999 0.999 0.992 0.942 0.743 0.446 0.248 0.000
+  adam15    cosine   1.000 1.000 1.000 1.000 1.000 0.996 0.929 0.718 0.455 0.247 0.000
+  adam15    step     1.000 1.000 1.000 1.000 1.000 0.998 0.963 0.829 0.571 0.343 0.000
+  adam15    warmcos  1.000 1.000 1.000 1.000 0.999 0.998 0.965 0.828 0.567 0.339 0.000
+  adam15    sgdr     1.000 0.999 1.000 0.999 0.999 0.995 0.964 0.842 0.579 0.310 0.000
+  adam60    cosine   0.998 0.993 0.996 0.997 0.979 0.866 0.618 0.370 0.188 0.092 0.000
+  adam60    step     1.000 0.992 0.996 0.996 0.984 0.911 0.760 0.511 0.304 0.157 0.000
+  adam60    warmcos  1.000 0.985 0.993 0.991 0.977 0.882 0.667 0.442 0.259 0.148 0.000
+  adam60    sgdr     0.998 0.992 0.995 0.997 0.979 0.898 0.704 0.425 0.222 0.108 0.000
+
+Main d (zoned referee + arbiter) at q = 2, by b (skip2 = naive skip control)
+  opt       sched    skip      1     8    16    32    48    56    60    62    63    64
+  sgd       cosine   0.986 0.988 0.987 0.987 0.986 0.980 0.885 0.525 0.267 0.133 0.000
+  sgd       step     1.000 1.000 1.000 1.000 1.000 1.000 0.972 0.780 0.479 0.268 0.000
+  sgd       warmcos  0.986 0.986 0.987 0.986 0.985 0.961 0.898 0.728 0.473 0.292 0.000
+  sgd       sgdr     0.986 0.987 0.987 0.987 0.986 0.969 0.922 0.715 0.417 0.220 0.000
+  momentum  cosine   1.000 1.000 1.000 1.000 1.000 1.000 0.997 0.904 0.629 0.381 0.000
+  momentum  step     1.000 1.000 1.000 1.000 1.000 1.000 0.997 0.939 0.690 0.414 0.000
+  momentum  warmcos  1.000 1.000 1.000 1.000 1.000 1.000 0.999 0.937 0.671 0.421 0.000
+  momentum  sgdr     1.000 1.000 1.000 1.000 1.000 0.999 0.984 0.912 0.663 0.406 0.000
+  adam15    cosine   1.000 1.000 1.000 1.000 1.000 1.000 0.993 0.902 0.671 0.417 0.000
+  adam15    step     1.000 1.000 1.000 1.000 1.000 1.000 0.998 0.959 0.807 0.542 0.000
+  adam15    warmcos  1.000 1.000 1.000 1.000 1.000 1.000 0.998 0.963 0.800 0.529 0.000
+  adam15    sgdr     1.000 1.000 1.000 1.000 1.000 1.000 0.999 0.968 0.834 0.541 0.000
+  adam60    cosine   1.000 0.999 1.000 1.000 0.997 0.965 0.841 0.603 0.343 0.171 0.000
+  adam60    step     1.000 1.000 1.000 1.000 0.999 0.978 0.896 0.735 0.504 0.282 0.000
+  adam60    warmcos  1.000 0.999 1.000 1.000 0.998 0.972 0.853 0.637 0.416 0.242 0.000
+  adam60    sgdr     1.000 1.000 1.000 1.000 0.997 0.967 0.873 0.655 0.383 0.195 0.000
+
+Main d (zoned referee + arbiter) at q = 5, by b (skip5 = naive skip control)
+  opt       sched    skip      1     8    16    32    48    56    60    62    63    64
+  sgd       cosine   0.989 0.996 0.998 0.997 0.988 0.987 0.982 0.873 0.530 0.272 0.000
+  sgd       step     1.000 1.000 1.000 1.000 1.000 1.000 1.000 0.967 0.771 0.490 0.000
+  sgd       warmcos  0.987 0.994 0.996 0.992 0.987 0.986 0.963 0.912 0.717 0.484 0.000
+  sgd       sgdr     0.987 0.993 0.996 0.992 0.988 0.987 0.972 0.922 0.708 0.424 0.000
+  momentum  cosine   1.000 1.000 1.000 1.000 1.000 1.000 1.000 0.993 0.865 0.614 0.000
+  momentum  step     1.000 1.000 1.000 1.000 1.000 1.000 1.000 0.995 0.917 0.669 0.000
+  momentum  warmcos  1.000 1.000 1.000 1.000 1.000 1.000 1.000 0.999 0.901 0.657 0.000
+  momentum  sgdr     1.000 1.000 1.000 1.000 1.000 1.000 0.996 0.981 0.887 0.649 0.000
+  adam15    cosine   1.000 1.000 1.000 1.000 1.000 1.000 1.000 0.991 0.904 0.671 0.000
+  adam15    step     1.000 1.000 1.000 1.000 1.000 1.000 1.000 0.999 0.961 0.824 0.000
+  adam15    warmcos  1.000 1.000 1.000 1.000 1.000 1.000 1.000 0.998 0.976 0.840 0.000
+  adam15    sgdr     1.000 1.000 1.000 1.000 1.000 1.000 1.000 0.999 0.987 0.886 0.000
+  adam60    cosine   1.000 1.000 1.000 1.000 1.000 0.991 0.952 0.851 0.625 0.360 0.000
+  adam60    step     1.000 1.000 1.000 1.000 1.000 0.999 0.967 0.890 0.752 0.530 0.000
+  adam60    warmcos  1.000 1.000 1.000 1.000 1.000 0.998 0.969 0.860 0.657 0.421 0.000
+  adam60    sgdr     1.000 1.000 1.000 1.000 1.000 0.991 0.956 0.865 0.636 0.379 0.000
+
+Global-threshold d at q = 1, by b (milestone 87's referee, for comparison)
+  sgd       cosine   0.979 0.983 0.985 0.984 0.973 0.753 0.318 0.144 0.071 0.032 0.000
+  sgd       step     0.998 1.000 0.999 1.000 0.999 0.954 0.581 0.275 0.131 0.064 0.000
+  sgd       warmcos  0.960 0.971 0.982 0.979 0.948 0.582 0.188 0.079 0.034 0.015 0.000
+  sgd       sgdr     0.952 0.967 0.979 0.972 0.939 0.590 0.210 0.090 0.038 0.015 0.000
+  momentum  cosine   1.000 1.000 1.000 1.000 1.000 0.990 0.810 0.419 0.210 0.110 0.000
+  momentum  step     1.000 1.000 1.000 1.000 1.000 0.958 0.688 0.338 0.170 0.088 0.000
+  momentum  warmcos  1.000 1.000 1.000 1.000 1.000 0.989 0.887 0.520 0.269 0.144 0.000
+  momentum  sgdr     1.000 0.999 1.000 0.999 0.987 0.863 0.444 0.213 0.104 0.049 0.000
+  adam15    cosine   1.000 1.000 1.000 1.000 0.999 0.991 0.798 0.416 0.214 0.106 0.000
+  adam15    step     1.000 1.000 1.000 1.000 1.000 0.993 0.842 0.461 0.235 0.120 0.000
+  adam15    warmcos  1.000 1.000 1.000 1.000 0.999 0.978 0.746 0.382 0.195 0.099 0.000
+  adam15    sgdr     0.998 0.998 1.000 0.999 0.993 0.866 0.436 0.206 0.100 0.043 0.000
+  adam60    cosine   0.946 0.947 0.973 0.971 0.898 0.544 0.204 0.095 0.042 0.021 0.000
+  adam60    step     0.961 0.952 0.978 0.975 0.913 0.582 0.230 0.103 0.051 0.023 0.000
+  adam60    warmcos  0.858 0.889 0.939 0.932 0.812 0.433 0.213 0.131 0.083 0.054 0.000
+  adam60    sgdr     0.866 0.896 0.942 0.934 0.801 0.372 0.124 0.057 0.023 0.010 0.000
+
+F4 model check: median q = 1 mratio of sub b over (skip median x sqrt(64/b - 1)), b = 8, 16, 32, 48
+  momentum  cosine   0.69 0.84 0.94 0.87
+  momentum  step     0.69 0.85 0.93 0.87
+  momentum  warmcos  0.68 0.83 0.93 0.86
+  momentum  sgdr     0.71 0.86 0.95 0.88
+  adam15    cosine   0.69 0.86 0.94 0.87
+  adam15    step     0.70 0.85 0.95 0.87
+  adam15    warmcos  0.68 0.85 0.94 0.86
+  adam15    sgdr     0.73 0.86 0.95 0.88
+  adam60    cosine   0.63 0.82 0.90 0.83
+  adam60    step     0.63 0.81 0.90 0.82
+  adam60    warmcos  0.62 0.81 0.91 0.80
+  adam60    sgdr     0.63 0.80 0.91 0.82
+
+Evasion frontier: largest saved share of a segment's compute among (b, q) with main d <= 0.5; F3 monotone
+  sgd       cosine   0.39%  (b = 63, q = 5, d = 0.272)  monotone True
+  sgd       step     0.39%  (b = 63, q = 5, d = 0.490)  monotone True
+  sgd       warmcos  0.39%  (b = 63, q = 5, d = 0.484)  monotone True
+  sgd       sgdr     0.39%  (b = 63, q = 5, d = 0.424)  monotone True
+  momentum  cosine   0.16%  (b = 63, q = 2, d = 0.381)  monotone True
+  momentum  step     0.16%  (b = 63, q = 2, d = 0.414)  monotone True
+  momentum  warmcos  0.16%  (b = 63, q = 2, d = 0.421)  monotone True
+  momentum  sgdr     0.16%  (b = 63, q = 2, d = 0.406)  monotone True
+  adam15    cosine   0.16%  (b = 63, q = 2, d = 0.417)  monotone True
+  adam15    step     0.08%  (b = 63, q = 1, d = 0.343)  monotone True
+  adam15    warmcos  0.08%  (b = 63, q = 1, d = 0.339)  monotone True
+  adam15    sgdr     0.08%  (b = 63, q = 1, d = 0.310)  monotone True
+  adam60    cosine   0.39%  (b = 63, q = 5, d = 0.360)  monotone True
+  adam60    step     0.16%  (b = 63, q = 2, d = 0.282)  monotone True
+  adam60    warmcos  0.39%  (b = 63, q = 5, d = 0.421)  monotone True
+  adam60    sgdr     0.39%  (b = 63, q = 5, d = 0.379)  monotone True
+
+Predictions
+  F1 held
+  F2 held (max difference 0.0000)
+  F3 held (non-monotone cells: [])
+  F4 REFUTED (ratio range 0.62 to 0.95)
+  F5 held (smallest main d at q = 1, b <= 32: 0.977)
+  F6 held (largest momentum/Adam frontier 0.39%)
+  F7 REFUTED (SGD frontiers 0.39%, 0.39%, 0.39%, 0.39%; larger than momentum on 4 of 4)
+  F8 held (global flags reproduce 87: True; largest zoned honest flag 0.0183; largest honest conviction 0.0000)
+  Refutation line (frontier >= 5% in a momentum or Adam cell): not crossed
+
+Post hoc (declared after reading the outcome): frontier under milestone 87's global thresholds vs zoned (main)
+  sgd       cosine 0.78% vs 0.39%, step 0.78% vs 0.39%, warmcos 1.56% vs 0.39%, sgdr 1.56% vs 0.39%
+  momentum  cosine 0.39% vs 0.16%, step 0.39% vs 0.16%, warmcos 0.39% vs 0.16%, sgdr 0.78% vs 0.16%
+  adam15    cosine 0.39% vs 0.16%, step 0.39% vs 0.08%, warmcos 0.39% vs 0.08%, sgdr 0.78% vs 0.08%
+  adam60    cosine 1.56% vs 0.39%, step 1.56% vs 0.16%, warmcos 1.56% vs 0.39%, sgdr 3.12% vs 0.39%
+  (b = 63 at q = 5, 0.39%, is the largest saving the grid offers with one row shaved per step, so 0.39% frontiers sit at
+  the grid's edge: a forger shaving one row from more than 5 steps was not tested)
+
+== Figure table: main d against saved share of the segment (%), q = 1, warmcos; sgd momentum adam15 adam60
+  4.922 0.977 1.000 1.000 0.985
+  4.375 0.984 1.000 1.000 0.993
+  3.750 0.981 1.000 1.000 0.991
+  2.500 0.970 1.000 0.999 0.977
+  1.250 0.914 1.000 0.998 0.882
+  0.625 0.796 0.970 0.965 0.667
+  0.312 0.528 0.760 0.828 0.442
+  0.156 0.318 0.460 0.567 0.259
+  0.078 0.196 0.275 0.339 0.148
+  0.000 0.000 0.000 0.000 0.000

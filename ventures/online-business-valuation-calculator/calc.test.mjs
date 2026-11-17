@@ -101,3 +101,24 @@ test("sample, csv and formatters", () => {
   assert.equal(pct(0.256), "25.6%");
   assert.equal(money(NaN), "n/a");
 });
+
+// Quality audit 2026-11-13 (round 67): a lever's value is the change in the midpoint when
+// that factor's penalty is removed, so it averages SDE and ARR and respects the 0.8x floor.
+test("SaaS lever value counts both the SDE and the ARR method", () => {
+  const r = value({ type: "saas", revenue: 300000, sde: 100000, mrr: 25000, growth: 10, monthlyChurn: 2, topShare: 20, ownerHours: 50, ageMonths: 30 });
+  const owner = r.levers.find((l) => l.key === "owner");
+  // (0.5 x 100,000 SDE + 0.9 x 0.5 x 300,000 ARR) / 2 methods
+  assert.equal(owner.valueGain, 92500);
+});
+
+test("a lever at the 0.8x floor reports only the value it actually adds", () => {
+  const inp = { type: "agency", revenue: 400000, sde: 100000, growth: -20, topShare: 60, ownerHours: 60, ageMonths: 6 };
+  const r = value(inp);
+  assert.equal(r.sdeMult, 0.8);
+  for (const l of r.levers) {
+    const f = r.factors.find((x) => x.key === l.key);
+    const base = 2.0 + r.factors.reduce((s, x) => s + (x === f ? 0 : x.delta), 0);
+    assert.equal(l.valueGain, Math.round(100000 * Math.max(0.8, base) - r.mid));
+  }
+  assert.equal(r.levers.find((l) => l.key === "concentration").valueGain, 0);
+});

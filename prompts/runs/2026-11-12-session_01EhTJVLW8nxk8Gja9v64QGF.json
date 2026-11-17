@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVLW8nxk8Gja9v64QGF",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled routine 4: continue work on the repo (ventures brief)",
+  "input_sha256": "6f991423f11d51bc6edb035bd37a70d2c50dfd2ee8357c640d04a54c1b73867b",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T19:20:57Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 5 (einvoice-preflight): Carta Porte 3.1 waybill complement on the Mexico CFDI route",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": 15229,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    "omawww.sat.gob.mx (SAT's CP error matrix) and two mirrors of it refused through the proxy; rules carry this tool's ids and cite the XSD documentation or catalogue column instead"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "run_venture_tests.py for a venture with its own workflow ran in about 9 s; the full node --test '*.test.mjs' (1,672 tests) was run separately to be sure the suite was covered"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-what-322-public-mexican-waybills-show.md",
+    "ventures/einvoice-preflight/eval/cartaporte-public-files.md"
+  ],
+  "goal": "Land a working, measured slice of the einvoice-preflight flagship",
+  "notes": "Carta Porte 3.1: schema from CartaPorte31.xsd + catCartaPorte.xsd, catalogue columns from phpcfdi, rules MX-070..079. Measured: 125/125 planted defects caught, 0 findings on 5 clean seeds; 1,848/1,848 xmllint verdicts on mutations; 314/314 xmllint agreement on public CFDI files with the complement found by GitHub code search (322 distinct; 8 not CFDIs). The five real-PAC-stamped files: 3 clean, 1 RFC-digit warnings only, 1 a dangling IDDestino. Found and fixed a shared bug: fractionDigits counted trailing zeros (a stamped 27.8900 drew MX-003). Local checks: node --test '*.test.mjs' in the venture 1,672 tests, 0 fail; run_venture_tests.py einvoice-preflight ok; inherited_keys 0 new; post front matter, links, similarity ok; venture-preflight and run_workflow_locally --for-changes results below.",
+  "corrections": [],
+  "redteam": null
+}

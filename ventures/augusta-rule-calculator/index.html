@@ -32,7 +32,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
     .pill.info { background: #e3e9ef; color: #1f4a5d; }
@@ -44,6 +44,16 @@
     .best td { background: #e3f1e6; font-weight: 600; }
     td.hot { background: #e3f1e6; font-weight: 700; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 500px) { div.grid:has(#entity) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 429px), 1fr)); } }
+    @media (min-width: 500px) { div.grid:has(#ssBase) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 245px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
@@ -141,7 +151,7 @@
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
+    const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(money(Math.abs(n)));
     const KEYS = ["days", "rate", "entity", "fedRate", "stateRate", "qbi", "ssBase", "seRate", "setupCost", "annualCost", "years"];
     const DEFAULTS = { entity: "se", qbi: "no", ssBase: "under" };
     let last = null;
@@ -156,7 +166,7 @@
       const tiles = [[usd(a.rent), "Rent excluded from your income"], [usd(a.gross), "Total tax saved per year"], [usd(a.yearNet), "Net saving per year after costs"], [usd(a.totalNet), "Net over " + a.p.years + " years after setup"]];
       if (a.p.days > 0) tiles.push([usd(a.perDay), "Tax saved per day rented"]);
       $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
-      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       $("#days-table tbody").innerHTML = a.dayTable.map((d) => `<tr><td>${d.days}</td><td class="n">${usd(d.rent)}</td><td class="n">${usd(d.gross)}</td></tr>`).join("");
       $("#rate-table tbody").innerHTML = a.rateTable.map((s) => `<tr class="${s.label === "Your rate" ? "best" : ""}"><td>${esc(s.label)}</td><td class="n">${usd(s.rate)}</td><td class="n">${usd(s.gross)}</td><td class="n">${usd(s.net)}</td></tr>`).join("");
       report.hidden = false;

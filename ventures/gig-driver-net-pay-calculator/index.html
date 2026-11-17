@@ -26,7 +26,7 @@
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef1f6; }
     body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
     header { max-width: 760px; margin-bottom: 26px; }
-    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
     p { line-height: 1.5; }
     .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1a5a8a; margin: 0 0 6px; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .85fr); gap: 18px; align-items: start; }
@@ -202,7 +202,7 @@
 
   <script type="module">
     import { calculateSession } from './calc.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
     import { encodeInputs, decodeInputs } from './share.mjs';
     import { toLogEntry, byWeek, byWeekday, extremes, parseLog, toCsv } from './log.mjs';
 
@@ -225,7 +225,7 @@
     }
 
     function count(event) {
-      recordUsage(localStorage, el('usageOptOut').checked, event);
+      recordUsage(usageStorage(), el('usageOptOut').checked, event);
     }
 
     function clearOutputs(message) {
@@ -409,8 +409,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
 
@@ -422,7 +422,7 @@
       const writeLog = (entries) => { try { localStorage.setItem(LOG_KEY, JSON.stringify(entries)); return true; } catch { return false; } };
       const pct = value => value === null ? 'n/a' : `${(value * 100).toFixed(0)}%`;
       let memory = readLog();
-      el('logDate').value = new Date().toISOString().slice(0, 10);
+      el('logDate').value = new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
 
       function renderLog() {
         const body = el('logWeeks').querySelector('tbody');

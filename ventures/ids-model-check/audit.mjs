@@ -1,0 +1,448 @@
+// IDS audit: is the IDS itself valid against the IFC schema, before any model?
+//
+// auditIds(ids, { schemas, typeMap }) -> [{ spec, specName, level, code, facet, message }]
+//
+// level "error" means the specification is invalid: it names a class or an
+// attribute the schema does not have, compares a value IDS cannot compare, or
+// writes a number, integer or boolean in a form IDS does not accept. The
+// checker then reports the specification as INVALID instead of running it,
+// because a check run as written would only report every element as failing
+// for a reason that is the IDS author's, not the model's. level "warning" is a
+// specification that is valid but probably not what was meant (a value that no
+// IFC enumeration member can equal, a property value with no dataType).
+//
+// The rules follow the IDS 1.0 implementer documentation and buildingSMART's
+// test cases (the invalid-* pairs); eval/run-testcases.mjs scores both.
+//
+// Property facets naming a standard set (Pset_ or Qto_) are also checked
+// against buildingSMART's property set templates (`psets`, from
+// schema/psets-*.json), as buildingSMART's IDS-Audit-tool does: a set the
+// templates lack (IDS reserves the prefixes for standard sets), a property the
+// standard set lacks, a dataType other than the template's, and a required set
+// the applicable classes cannot carry are errors, with the near standard name
+// when one is a slip away (Pset_WallComon, FireRatng). A value outside a
+// standard enumeration is a warning.
+//
+// `ids` is parseIds() output; `schemas` maps IFC2X3/IFC4/IFC4X3 to Schema
+// objects (any subset: a specification is audited against the schemas its
+// ifcVersion names that were passed, or every passed schema when none match).
+
+import { temporalKind } from "./temporal.mjs";
+
+const own = (o, k) => (o && Object.hasOwn(o, k) ? o[k] : undefined);
+
+const DOUBLE = /^[-+]?([0-9]+(\.[0-9]*)?|\.[0-9]+)([eE][-+]?[0-9]+)?$|^(NaN|INF|\+INF|-INF)$/;
+const INTEGER = /^[-+]?[0-9]+$/;
+const BOOLEAN = /^(true|false|0|1)$/;
+// The relation values ids.xsd allows; voids and fills are one value, a token pair.
+const PARTOF_RELS = ["IFCRELAGGREGATES", "IFCRELASSIGNSTOGROUP", "IFCRELCONTAINEDINSPATIALSTRUCTURE", "IFCRELNESTS", "IFCRELVOIDSELEMENT IFCRELFILLSELEMENT"];
+const VERSIONS = ["IFC2X3", "IFC4", "IFC4X3", "IFC4X3_ADD2"];
+
+const versionId = (v) => (v.startsWith("IFC4X3") ? "IFC4X3" : v === "IFC4" ? "IFC4" : v === "IFC2X3" ? "IFC2X3" : null);
+
+// Schemas to audit one specification against.
+function schemasFor(spec, schemas) {
+  const all = Object.entries(schemas || {}).filter(([, s]) => s);
+  const named = all.filter(([id]) => spec.ifcVersion.some((v) => versionId(v) === id));
+  return (named.length ? named : all).map(([id, s]) => ({ id, S: s }));
+}
+
+// Class names an IdsValue lists outright (simple value or enumeration), or null
+// for a pattern or an empty value.
+function listedNames(v) {
+  if (v.simple !== undefined) return [v.simple];
+  if (v.r && v.r.enumeration.length && !v.r.pattern.length) return v.r.enumeration;
+  return null;
+}
+
+// Every attribute name a class answers to, with how: explicit, derived, inverse.
+function attributeKinds(S, cls) {
+  const out = new Map();
+  for (const a of S.attrs(cls)) out.set(a.name, { kind: a.derived ? "derived" : "explicit", attr: a });
+  for (let t = cls; t && S.entities[t]; t = S.entities[t].super) {
+    const e = S.entities[t];
+    for (const n of e.ownDerived || []) if (!out.has(n)) out.set(n, { kind: "derived" });
+    for (const n of e.inverse || []) if (!out.has(n)) out.set(n, { kind: "inverse" });
+  }
+  return out;
+}
+
+// Is a literal written the way IDS needs for this primitive? Returns a reason
+// or null.
+function literalProblem(text, prim, what) {
+  if (prim === "double") {
+    if (!DOUBLE.test(text)) return `${what} ${JSON.stringify(text)} is not a number IDS can read (write it like 42.3, with a point and no thousands separator)`;
+  } else if (prim === "integer") {
+    if (!INTEGER.test(text)) return DOUBLE.test(text) ? `${what} ${JSON.stringify(text)} is not an integer, and the value is an integer (write ${Number.isInteger(Number(text)) ? String(Number(text)) : "a whole number"})` : `${what} ${JSON.stringify(text)} is not an integer`;
+  } else if (prim === "boolean" || prim === "logical") {
+    if (!BOOLEAN.test(text)) return `${what} ${JSON.stringify(text)} is not a boolean; IDS writes booleans in lower case, true or false`;
+  }
+  return null;
+}
+
+// Problems with a value restriction against the primitive it is compared with.
+// Returns { error } or { warning } or null.
+function valueProblem(value, prim, enumValues) {
+  if (!value.present) return null;
+  const numeric = prim === "double" || prim === "integer";
+  if (value.simple !== undefined) {
+    const p = literalProblem(value.simple, prim, "value");
+    if (p) return { error: p };
+    if (prim === "enum" && enumValues && !enumValues.includes(value.simple)) return { warning: `value ${JSON.stringify(value.simple)} is not a member of the enumeration (${enumValues.slice(0, 8).join(", ")}${enumValues.length > 8 ? ", ..." : ""}), so it can never match` };
+    return null;
+  }
+  const r = value.r;
+  if (!r) return null;
+  // IDS's DataTypes table allows a pattern on xs:boolean (matched against
+  // true or false), but buildingSMART's test cases make one on a number invalid.
+  if (r.pattern.length && numeric) return { error: `a pattern only applies to text; this value is ${prim === "double" ? "a number" : "an integer"}, so the pattern can never match` };
+  if (r.pattern.length && (prim === "boolean" || prim === "logical") && (r.regexes || []).every(Boolean) && !["true", "false"].some((t) => r.regexes.some((re) => re.test(t)))) return { warning: `the pattern matches neither true nor false, so this boolean can never match` };
+  for (const [i, re] of (r.regexes || []).entries()) if (!re) return { error: `pattern /${r.pattern[i]}/ is not a valid regular expression` };
+  for (const t of r.enumeration) {
+    const p = literalProblem(t, prim, "enumeration value");
+    if (p) return { error: p };
+  }
+  for (const k of ["minInclusive", "maxInclusive", "minExclusive", "maxExclusive"]) {
+    if (r[k] === undefined) continue;
+    // A date, time or duration bound on a text-based type (IFCDATE,
+    // IFCDATETIME, IFCTIME, IFCDURATION) is an XSD range IDS allows.
+    if (!numeric && temporalKind(r[k])) continue;
+    if (!DOUBLE.test(r[k])) return { error: `${k} ${JSON.stringify(r[k])} is not a number${numeric ? "" : ", a date, a time or a duration"}` };
+    if (!numeric && prim !== "unknown") return { warning: `${k} compares numbers, but this value is ${prim === "enum" ? "an enumeration" : "text"}, so it can never match` };
+  }
+  if (prim === "enum" && enumValues && r.enumeration.length && !r.enumeration.some((t) => enumValues.includes(t))) return { warning: `no listed value is a member of the enumeration, so it can never match` };
+  return null;
+}
+
+// Every class a specification's applicability names outright, by schema.
+function applicableClasses(spec, S, typeMap, id) {
+  const ef = spec.applicability.find((f) => f.kind === "entity");
+  if (!ef) return null;
+  let names = listedNames(ef.name);
+  // A class-name pattern selects the classes it matches in full.
+  if (!names && ef.name.r && ef.name.r.pattern.length && !ef.name.r.enumeration.length && ef.name.r.regexes.every(Boolean)) {
+    names = Object.keys(S.entities).filter((n) => ef.name.matchString(n));
+    if (!names.length) return null;
+  }
+  if (!names) return null;
+  const out = [];
+  for (const n of names) {
+    if (S.has(n)) out.push(n);
+    else if (id === "IFC2X3" && own(typeMap, n)) out.push(own(typeMap, n)[0]);
+  }
+  return out;
+}
+
+function entityNameIssues(f, ctx, where) {
+  const issues = [];
+  const names = listedNames(f.name);
+  const known = (n) => ctx.list.some(({ id, S }) => S.has(n) || (id === "IFC2X3" && own(ctx.typeMap, n)));
+  const label = ctx.list.map((x) => x.id).join(" or ");
+  if (names) {
+    for (const n of names) {
+      if (known(n)) continue;
+      if (n !== n.toUpperCase() && known(n.toUpperCase())) issues.push({ level: "error", code: "class-case", message: `${where}class ${JSON.stringify(n)} must be written in upper case: ${n.toUpperCase()}` });
+      else issues.push({ level: "error", code: "class-unknown", message: `${where}${JSON.stringify(n)} is not an ${label} class` });
+    }
+  } else if (f.name.r && f.name.r.pattern.length) {
+    const res = f.name.r.regexes || [];
+    if (res.some((re) => !re)) issues.push({ level: "error", code: "pattern-invalid", message: `${where}class name pattern is not a valid regular expression` });
+    else if (!ctx.list.some(({ S }) => Object.keys(S.entities).some((n) => res.some((re) => re.test(n))))) issues.push({ level: "warning", code: "class-pattern-empty", message: `${where}class name pattern ${f.name} matches no ${label} class` });
+  }
+  // A predefined type the class's enumeration lacks only matches USERDEFINED
+  // objects whose ObjectType says so: legal, but worth a word.
+  if (names && f.predefinedType.simple !== undefined) {
+    const pt = f.predefinedType.simple;
+    const enumsFor = names.flatMap((n) => ctx.list.map(({ S }) => {
+      if (!S.has(n)) return null;
+      const a = S.attrs(n).find((x) => x.name === "PredefinedType");
+      const d = a && S.types[a.type];
+      return d && d.kind === "enum" ? d.values : null;
+    })).filter(Boolean);
+    if (pt !== pt.toUpperCase() && enumsFor.some((v) => v.includes(pt.toUpperCase()))) issues.push({ level: "warning", code: "predefined-case", message: `${where}predefined type ${JSON.stringify(pt)} differs from the enumeration member ${pt.toUpperCase()} only in case; it matches only USERDEFINED objects named exactly ${JSON.stringify(pt)}` });
+    else if (enumsFor.length && !enumsFor.some((v) => v.includes(pt))) issues.push({ level: "warning", code: "predefined-custom", message: `${where}predefined type ${JSON.stringify(pt)} is not in the class's enumeration, so it matches only USERDEFINED objects whose ObjectType (or the type's ElementType) is ${JSON.stringify(pt)}` });
+  }
+  return issues;
+}
+
+// A required entity facet that no applicable class can satisfy: the
+// applicability picks exact classes, and the requirement names others (a
+// subclass is not its parent; IFCSLAB is never IFCWALL). Every applicable
+// element would fail for a reason in the IDS, so it is invalid.
+function entityContradiction(f, spec, ctx) {
+  const ef = spec.applicability.find((x) => x.kind === "entity");
+  const names = ef && listedNames(ef.name);
+  if (!names || f.cardinality === "optional" || f.cardinality === "prohibited") return [];
+  const canMatch = names.some((a) => {
+    if (f.name.matchString(a)) return true;
+    // IFC2X3 elements also answer to the IDS type-mapping names of their class.
+    const occ = own(ctx.typeMap, a) ? own(ctx.typeMap, a)[0] : a;
+    return ctx.list.some(({ id }) => id === "IFC2X3") && Object.entries(ctx.typeMap || {}).some(([k, [o]]) => (o === a || o === occ) && f.name.matchString(k));
+  });
+  if (canMatch) return [];
+  return [{ level: "error", code: "entity-contradiction", message: `the applicability selects ${names.join(", ")} (exact classes, no subclasses), and the requirement asks for entity ${f.name}, which none of them can be, so every applicable element would fail` }];
+}
+
+function attributeIssues(f, spec, ctx) {
+  // Per schema and applicable class, the first problem (or null when fine).
+  const outcomes = [];
+  const warnings = [];
+  for (const { id, S } of ctx.list) {
+    const classes = applicableClasses(spec, S, ctx.typeMap, id);
+    if (classes === null) {
+      // No class named: only a name no class has anywhere is an error.
+      const names = listedNames(f.name);
+      if (!names) { outcomes.push(null); continue; }
+      const all = attributeIndex(S);
+      const bad = names.filter((n) => !all.has(n));
+      outcomes.push(bad.length === names.length ? { code: "attribute-unknown", message: `no ${id} class has an attribute ${JSON.stringify(bad[0])}` } : null);
+      continue;
+    }
+    for (const cls of classes) {
+      const kinds = attributeKinds(S, cls);
+      const hits = [...kinds.entries()].filter(([n]) => f.name.matchString(n));
+      const explicit = hits.filter(([, k]) => k.kind === "explicit");
+      if (!explicit.length) {
+        const first = hits[0];
+        const pretty = S.entities[cls].name || cls;
+        if (first && first[1].kind === "inverse") outcomes.push({ code: "attribute-inverse", message: `${first[0]} is an inverse attribute of ${pretty}; IDS checks only explicit attributes` });
+        else if (first && first[1].kind === "derived") outcomes.push({ code: "attribute-derived", message: `${first[0]} is a derived attribute of ${pretty}; IDS checks only explicit attributes` });
+        else outcomes.push({ code: "attribute-unknown", message: `${pretty} (${id}) has no attribute ${f.name}` });
+        continue;
+      }
+      let problem = null;
+      if (f.value.present) {
+        for (const [n, { attr }] of explicit) {
+          const prim = S.prim(attr.type);
+          if (attr.aggregate || prim === "aggregate") { problem = { code: "value-list", message: `${n} is a list; IDS cannot compare a list with a value` }; break; }
+          if (prim === "entity") { problem = { code: "value-object", message: `${n} refers to an object; IDS cannot compare an object with a value` }; break; }
+          if (prim === "select") { problem = { code: "value-select", message: `${n} is a select (${attr.type}); IDS cannot compare a select with a value` }; break; }
+          if (prim === "binary") { problem = { code: "value-binary", message: `${n} is binary; IDS cannot compare it with a value` }; break; }
+          const d = S.types[attr.type];
+          const vp = valueProblem(f.value, prim, d && d.kind === "enum" ? d.values : enumOf(S, attr.type));
+          if (vp && vp.error) { problem = { code: "value-format", message: `${n}: ${vp.error}` }; break; }
+          if (vp && vp.warning) warnings.push(`${n}: ${vp.warning}`);
+        }
+      }
+      outcomes.push(problem);
+    }
+  }
+  const issues = [];
+  if (outcomes.length && outcomes.every(Boolean)) issues.push({ level: "error", code: outcomes[0].code, message: outcomes[0].message });
+  else if (warnings.length) issues.push({ level: "warning", code: "value-never", message: warnings[0] });
+  return issues;
+}
+
+function enumOf(S, type) {
+  for (let t = type, g = 0; t && g < 20; g++) {
+    const d = S.types[t];
+    if (!d) return null;
+    if (d.kind === "enum") return d.values;
+    if (d.kind !== "defined") return null;
+    t = d.of;
+  }
+  return null;
+}
+
+const attrIndexCache = new WeakMap();
+function attributeIndex(S) {
+  let s = attrIndexCache.get(S);
+  if (!s) {
+    s = new Set();
+    for (const e of Object.values(S.entities)) for (const a of e.attrs) s.add(a.name);
+    attrIndexCache.set(S, s);
+  }
+  return s;
+}
+
+// Levenshtein distance, capped: returns cap + 1 once it is exceeded.
+function editDistance(a, b, cap = 2) {
+  if (Math.abs(a.length - b.length) > cap) return cap + 1;
+  let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++) {
+    const cur = [i];
+    let best = i;
+    for (let j = 1; j <= b.length; j++) {
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      if (cur[j] < best) best = cur[j];
+    }
+    if (best > cap) return cap + 1;
+    prev = cur;
+  }
+  return prev[b.length];
+}
+
+// The standard name a misspelt one most likely meant: same letters ignoring
+// case, or one or two edits away (only for names long enough that two edits
+// are a slip, not another word). Null when none, or when two tie.
+function nearName(name, candidates) {
+  const lower = name.toLowerCase();
+  const exact = candidates.filter((c) => c.toLowerCase() === lower);
+  if (exact.length) return exact[0];
+  const cap = name.length >= 12 ? 2 : name.length >= 5 ? 1 : 0;
+  if (!cap) return null;
+  let best = null;
+  let bestD = cap + 1;
+  let tie = false;
+  for (const c of candidates) {
+    const d = editDistance(lower, c.toLowerCase(), cap);
+    if (d < bestD) { best = c; bestD = d; tie = false; }
+    else if (d === bestD && d <= cap) tie = true;
+  }
+  return bestD <= cap && !tie ? best : null;
+}
+
+// Is `cls` the class `anc` or one of its subclasses?
+function isA(S, cls, anc) {
+  for (let t = cls, g = 0; t && S.entities[t] && g < 40; t = S.entities[t].super, g++) if (t === anc) return true;
+  return false;
+}
+
+// Can an object of exact class `cls` carry a set that applies to `classes`?
+// Yes when it is one of them or a subclass, when it is the type object of one
+// (IFCWALLTYPE for IFCWALL), or, generously, when it is a superclass of one
+// (an applicability naming IFCBUILDINGELEMENT in IFC2X3 may mean any wall).
+// An occurrence also carries the sets of its type, which it inherits, so
+// <cls>TYPE is tried too; with the superclass rule that covers IFC2X3, where
+// an IfcFlowTerminal typed by IfcAirTerminalType (an IfcFlowTerminalType) has
+// Pset_AirTerminalTypeCommon. (applicableClasses has already mapped IFC2X3
+// names through the type map, so no lookup by `cls` is needed here.)
+function canCarry(S, cls, classes) {
+  const names = S.entities[cls + "TYPE"] ? [cls, cls + "TYPE"] : [cls];
+  return names.some((c) => classes.some((t) => isA(S, c, t) || isA(S, t, c) || (c.endsWith("TYPE") && (isA(S, c, t + "TYPE") || isA(S, c, t.replace(/STANDARDCASE$/, "") + "TYPE"))) || (/^IFC(TYPEOBJECT|TYPEPRODUCT|ELEMENTTYPE)$/.test(t) && isA(S, c, "IFCTYPEOBJECT"))));
+}
+
+// Standard property set template checks, following buildingSMART's
+// IDS-Audit-tool: a Pset_/Qto_ set the templates lack, a property its standard
+// set lacks, a dataType the template does not give, and a set the applicable
+// classes cannot carry are errors. `templates` is [{ id, sets, S }] for the
+// schemas the specification is audited against.
+function templateIssues(f, spec, ctx, where) {
+  const templates = ctx.templates || [];
+  if (!templates.length) return [];
+  const setNames = listedNames(f.propertySet);
+  if (!setNames || !setNames.every((n) => /^(Pset|Qto)_/.test(n))) return [];
+  const label = templates.map((t) => t.id).join(" or ");
+  // Per schema: { error } or { warning } or null when fine. An error counts
+  // only when every schema has one, as for classes and attributes.
+  const perSchema = templates.map(({ id, sets, S }) => {
+    const found = [];
+    for (const setName of setNames) {
+      const set = own(sets, setName);
+      if (!set) {
+        const near = nearName(setName, Object.keys(sets));
+        if (near) return { error: { code: "pset-name", message: `${setName} is not an ${label} standard property set; did you mean ${near}?` } };
+        return { error: { code: "pset-custom", message: `${setName} is not a standard ${label} property set, and IDS reserves the ${setName.slice(0, 4)} prefix for those; a project's own set needs another name (e.g. ${"e" + setName} or ${setName.replace(/^(Pset|Qto)_/, "Project_")})` } };
+      }
+      found.push([setName, set]);
+    }
+    // Applicability: can any class the specification selects carry the set?
+    if (where === "requirements") {
+      // An IFC2X3 type-mapping name (IFCACTUATOR: an
+      // IfcDistributionControlElement typed by an IfcActuatorType) also
+      // carries its type's sets, as the property facet reads type properties.
+      const ef = spec.applicability.find((x) => x.kind === "entity");
+      const mappedTypes = id === "IFC2X3" && ef ? (listedNames(ef.name) || []).map((n) => own(ctx.typeMap, n)).filter((m) => m && m[1]).map((m) => m[1]) : [];
+      for (const [setName, set] of found) {
+        const classes = applicableClasses(spec, S, ctx.typeMap, id);
+        if (classes && classes.length && set.classes.length && !classes.some((c) => canCarry(S, c, set.classes)) && !mappedTypes.some((t) => S.has(t) && canCarry(S, t, set.classes))) {
+          return { error: { code: "pset-class", message: `${setName} applies to ${set.classes.slice(0, 4).join(", ")}${set.classes.length > 4 ? ", ..." : ""} in ${id}; the applicability selects ${classes.join(", ")}, which cannot carry it` } };
+        }
+      }
+    }
+    const propNames = listedNames(f.baseName);
+    if (!propNames) return null;
+    let warning = null;
+    for (const [setName, set] of found) {
+      for (const pn of propNames) {
+        const tpl = own(set.props, pn);
+        if (!tpl) {
+          const near = nearName(pn, Object.keys(set.props));
+          const names = Object.keys(set.props);
+          return { error: { code: "pset-property", message: `${setName} has no standard property ${pn}${near ? `; did you mean ${near}?` : ` (it has ${names.slice(0, 6).join(", ")}${names.length > 6 ? ", ..." : ""})`}` } };
+        }
+        // Template types the schema lacks (a few in the IFC4.3 development
+        // templates) are not compared.
+        const allowed = (tpl.types || (tpl.type ? [tpl.type] : [])).filter((t) => S.types[t]);
+        if (f.dataType && allowed.length && !allowed.includes(f.dataType)) return { error: { code: "pset-datatype", message: `${setName}.${pn} is ${allowed.join(" or ")} in the ${id} templates, not ${f.dataType}, so a model that follows the standard can never pass` } };
+        if (!f.dataType && allowed.length && f.value.present) {
+          // TRUE or True on a boolean: IDS writes booleans true/false, and with
+          // no dataType checkers part ways (this one matches no object,
+          // IfcTester 0.8.0 matches the true ones; README, 2026-11-17).
+          const sv = f.value.simple;
+          const caps = typeof sv === "string" && /^(true|false)$/i.test(sv) && sv !== sv.toLowerCase() && allowed.some((t) => ["boolean", "logical"].includes(S.prim(t)));
+          warning ||= { code: "value-no-datatype", message: `property ${setName}.${pn} has a value but no dataType; IDS 1.0 expects one, and the ${id} templates give ${allowed.join(" or ")}${caps ? `. ${sv} is not how IDS writes a boolean (${sv.toLowerCase()}): with no dataType, checkers disagree on whether it matches` : ""}` };
+        }
+        if (tpl.enum && tpl.enum.length && f.value.present) {
+          const listed = listedNames(f.value);
+          if (listed && !listed.some((v) => tpl.enum.includes(v))) warning ||= { code: "value-never", message: `${setName}.${pn} is an enumeration (${tpl.enum.slice(0, 8).join(", ")}${tpl.enum.length > 8 ? ", ..." : ""}); ${listed.length === 1 ? JSON.stringify(listed[0]) + " is" : "none of the listed values is"} not a member, so a model that follows the standard cannot match` };
+        }
+      }
+    }
+    return warning ? { warning } : null;
+  });
+  // Every schema finds an error: report the one from a schema that has the set
+  // (its reason is the more specific), else the first.
+  if (perSchema.length && perSchema.every((x) => x && x.error)) {
+    const specific = perSchema.find((x) => !["pset-custom", "pset-name"].includes(x.error.code)) || perSchema[0];
+    return [{ level: "error", ...specific.error }];
+  }
+  const w = perSchema.find((x) => x && x.warning);
+  return w && perSchema.every((x) => x) ? [{ level: "warning", ...w.warning }] : [];
+}
+
+function propertyIssues(f, ctx, spec, where) {
+  const issues = [];
+  if (f.dataType) {
+    const found = ctx.list.filter(({ S }) => S.types[f.dataType] && S.types[f.dataType].kind !== "select");
+    if (!found.length) {
+      issues.push({ level: "error", code: "datatype-unknown", message: `dataType ${f.dataType} is not an ${ctx.list.map((x) => x.id).join(" or ")} data type` });
+      return issues;
+    }
+    if (f.value.present) {
+      const results = found.map(({ S }) => valueProblem(f.value, S.prim(f.dataType), enumOf(S, f.dataType)));
+      if (results.every((r) => r && r.error)) issues.push({ level: "error", code: "value-format", message: `${f.dataType}: ${results[0].error}` });
+      else { const w = results.find((r) => r && r.warning); if (w) issues.push({ level: "warning", code: "value-never", message: `${f.dataType}: ${w.warning}` }); }
+    }
+  } else if (f.value.present) {
+    issues.push({ level: "warning", code: "value-no-datatype", message: `property ${f.propertySet}.${f.baseName} has a value but no dataType; IDS 1.0 expects one, and without it the value is compared with every type the property might hold` });
+  }
+  if (issues.some((x) => x.level === "error")) return issues;
+  const tpl = templateIssues(f, spec, ctx, where);
+  // The template's own no-dataType warning names the type to use.
+  if (tpl.some((x) => x.code === "value-no-datatype")) return tpl;
+  if (tpl.some((x) => x.level === "error")) return tpl;
+  return [...issues, ...tpl];
+}
+
+export function auditIds(ids, { schemas, typeMap, psets } = {}) {
+  const out = [];
+  ids.specs.forEach((spec, i) => {
+    const add = (facet, issue) => out.push({ spec: i, specName: spec.name, facet, ...issue });
+    for (const v of spec.ifcVersion) if (!VERSIONS.includes(v)) add(null, { level: "error", code: "version-unknown", message: `ifcVersion ${v} is not one of IFC2X3, IFC4, IFC4X3_ADD2` });
+    const list = schemasFor(spec, schemas);
+    const ctx = { list, typeMap, templates: list.filter(({ id }) => psets && own(psets, id)).map(({ id, S }) => ({ id, S, sets: psets[id] })) };
+    if (!ctx.list.length) return;
+    if (!spec.applicability.length) add("applicability", { level: "error", code: "applicability-empty", message: "the applicability has no facet; IDS needs at least one" });
+    if (spec.optionality === "prohibited" && spec.requirements.length) add("requirements", { level: "error", code: "prohibited-requirements", message: "a prohibited specification (maxOccurs 0) cannot have requirements: it fails when anything matches its applicability, so write the requirement into the applicability or make the specification required" });
+    for (const [where, list] of [["applicability", spec.applicability], ["requirements", spec.requirements]]) {
+      for (const f of list) {
+        const issues = [];
+        if (f.kind === "entity") {
+          issues.push(...entityNameIssues(f, ctx, ""));
+          if (where === "requirements" && !issues.some((x) => x.level === "error")) issues.push(...entityContradiction(f, spec, ctx));
+        }
+        else if (f.kind === "attribute") issues.push(...attributeIssues(f, spec, ctx));
+        else if (f.kind === "property") issues.push(...propertyIssues(f, ctx, spec, where));
+        else if (f.kind === "classification" && !f.system.present) issues.push({ level: "error", code: "classification-no-system", message: "a classification facet needs a system in IDS 1.0 (ids.xsd), and tools that validate the file refuse it without one; to accept any system, give a pattern such as .*" });
+        else if (f.kind === "partOf") {
+          if (f.relation === "IFCRELVOIDSELEMENT" || f.relation === "IFCRELFILLSELEMENT") issues.push({ level: "error", code: "relation-voids-fills", message: `partOf relation ${f.relation} on its own is not an IDS 1.0 value, and tools that validate against ids.xsd (IfcTester among them) refuse the file; write relation="IFCRELVOIDSELEMENT IFCRELFILLSELEMENT" for an element in an opening of another` });
+          else if (f.relation && !PARTOF_RELS.includes(f.relation)) issues.push({ level: "error", code: "relation-unknown", message: `partOf relation ${f.relation} is not one of ${PARTOF_RELS.map((r) => JSON.stringify(r)).join(", ")}` });
+          if (f.entity) issues.push(...entityNameIssues(f.entity, ctx, "partOf: "));
+        }
+        for (const x of issues) add(where + " " + f.describe(), x);
+      }
+    }
+  });
+  return out;
+}

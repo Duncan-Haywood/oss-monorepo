@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { groupRanking } from "./groupRanking";
-import { answerAsRespondent, meanPositions, parseSoc, rankRanges, scorePanel, summarise } from "./realRankings";
+import { answerAsRespondent, answerWithHistory, meanPositions, parseSoc, rankRanges, scorePanel, summarise } from "./realRankings";
 
 // A made-up four-option soc file in PrefLib's layout (not real data).
 const SOC = `# FILE NAME: made-up.soc
@@ -62,6 +62,25 @@ describe("answerAsRespondent", () => {
     expect(rating(0)).toBeGreaterThan(rating(3));
     expect(rating(3)).toBeGreaterThan(rating(1));
     expect(rows.every((r) => r.rd < 350)).toBe(true);
+  });
+
+  it("answerWithHistory returns the same rows plus every answer, each by the order (no lapse)", () => {
+    const lcg = () => { let s = 7; return () => ((s = (s * 16807) % 2147483647) / 2147483647); };
+    const order = [2, 0, 3, 1];
+    const rows = answerAsRespondent(order, 12, "staged", lcg());
+    const h = answerWithHistory(order, 12, "staged", lcg());
+    expect(h.rows).toEqual(rows);
+    expect(h.answers).toHaveLength(12);
+    const pos = (id: string) => order.indexOf(Number(id.slice(4)));
+    expect(h.answers.every((a) => pos(a.winner) < pos(a.loser))).toBe(true);
+  });
+
+  it("answerWithHistory with a full lapse sometimes answers against the order", () => {
+    let s = 3;
+    const rand = () => ((s = (s * 16807) % 2147483647) / 2147483647);
+    const order = [0, 1, 2, 3, 4];
+    const h = answerWithHistory(order, 40, "shipped", rand, 1);
+    expect(h.answers.some((a) => Number(a.winner.slice(4)) > Number(a.loser.slice(4)))).toBe(true);
   });
 });
 

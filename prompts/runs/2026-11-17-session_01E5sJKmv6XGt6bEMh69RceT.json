@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKmv6XGt6bEMh69RceT",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T02:09:27Z",
+  "ended": "2026-11-17T02:16:15Z",
+  "wall_minutes": 7.15,
+  "tokens_in": 2606672,
+  "tokens_out": 35268,
+  "cost_usd": 2.0054,
+  "tool_calls": 29,
+  "task": "Saints by Candlelight episode 133, egeria-and-the-great-week-in-jerusalem (text only)",
+  "projects": [
+    "saints-by-candlelight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16781",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "thelatinlibrary.com, la.wikisource.org and gutenberg.org refused by the egress proxy (403 connect_rejected)",
+      "impact": "could not check the Latin as episode 132's run did"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The 400 MB audio-cap section still says Pages serves audio. PRODUCTION.md and docs/reports/2026-11-13-audio-cap-is-stale.md say jsDelivr has served it since 2026-10-24. The two disagree on whether voicing is allowed; I followed the higher-layer track prompt and shipped text only."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The suggested git log -15 over the creative paths shows only 3 commits in a depth-60 shallow clone. platform/ci/creative_due.py, named only in PRODUCTION.md, answers the 'which shelf is due' question directly and should be the step the track prompt names."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/saints-by-candlelight/PRODUCTION.md",
+      "why": "Sources rule asks for confidence in what each source says, and episode 132's run checked against the Latin. No Latin host was reachable from the session.",
+      "did": "Wrote from the standard English translations, paraphrased rather than quoting closely, flagged as 'our own plain rendering, shortened', and kept only details I was confident of. An adversarial pass fixed two errors (the manuscript date and 'Feast of the Ascension').",
+      "result": "Episode landed; a later run with Latin access could spot-check chapters 29-39."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-saints-by-candlelight-133-egeria-holy-week.md"
+  ],
+  "goal": null,
+  "notes": "Creative track, Saints by Candlelight (drawn by creative_due.py), episode 133 egeria-and-the-great-week-in-jerusalem, text only (audio 577 MB, cap 400 MB). check-script ok at 8,458 words incl. front matter; node --test 18/18; post front matter and links clean. run_workflow_locally --for-changes: control-plane-guard, conflict-markers, doc-refs, link-contrast, readme-live-links, sibling-links, page-integrity and pages all passed their run steps; ventures-tests handed off and GitHub CI got runners, so CI is the gate. No agent doc: nothing new for the next run beyond the doc_friction above.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "214e3899-fcaa-5847-b3bf-5647e755bf38",
+    "transcripts": 1,
+    "first": "2026-11-17T02:09:27Z",
+    "last": "2026-11-17T02:16:36Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 28,
+        "input": 55,
+        "output": 35268,
+        "thinking": 9856,
+        "cache_read": 2506811,
+        "cache_write_5m": 0,
+        "cache_write_1h": 99806,
+        "api_equivalent_usd": 2.0054,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 28,
+      "input": 55,
+      "output": 35268,
+      "thinking": 9856,
+      "cache_read": 2506811,
+      "cache_write_5m": 0,
+      "cache_write_1h": 99806,
+      "api_equivalent_usd": 2.0054,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.962,
+    "tool_calls": 29,
+    "tools": {
+      "Bash": 24,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.15,
+      "active_minutes": 7.15,
+      "model_minutes": 6.59,
+      "tool_minutes": 0.57,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "researching Egeria ch 29-39 and writing a checked 8,000-word script plus post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 398.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

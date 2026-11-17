@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKoD8VJQd6j8bT3WeKC",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T09:18:11Z",
+  "ended": "2026-11-15T09:25:00Z",
+  "wall_minutes": 7.07,
+  "tokens_in": 2303916,
+  "tokens_out": 19904,
+  "cost_usd": 1.4798,
+  "tool_calls": 29,
+  "task": "research/verified-dse milestone 130: hedged fall-back SWH(32, h) for the pilot-probe guard, priced by replay",
+  "projects": [
+    "research/verified-dse"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16165",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/verified-dse/experiments/shift_power/analyse.py",
+      "issue": "pool.compare's tie rule differs from a 0.01-point threshold, so the same comparison reads 27/3 in compare_lines and 24/1 in the grid; both are reported, but the convention is undocumented"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "bare python3 lacked pytest; pyenv.py resolved to /usr/local/bin/python3 quickly in the background, as documented"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-verified-dse-hedged-fallback.md",
+    "research/verified-dse/LOG.md (milestone 130)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; IDEAS.md and website requests empty; routed research/0, pick_track drew verified-dse. Rule and six predictions committed in a1f0fd90a before the table. All six held; SWH(32,3) 4.37% vs SWP(32) 4.39% (paired, interval -0.04 to -0.01). One descriptive 'hit share' line was added to the output after the first run, labelled descriptive. Local checks: tests/test_hedge_probe.py + test_pilot_probe.py 7 passed; research/_homepage/build.py ok; check_md_links ok; research_live_links ok; cite_check 0 ids.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8df04742-61a1-530d-ba63-19dcec3516b8",
+    "transcripts": 1,
+    "first": "2026-11-15T09:18:11Z",
+    "last": "2026-11-15T09:25:15Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 27,
+        "input": 54,
+        "output": 19904,
+        "thinking": 3979,
+        "cache_read": 2224281,
+        "cache_write_5m": 0,
+        "cache_write_1h": 79581,
+        "api_equivalent_usd": 1.4798,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 27,
+      "input": 54,
+      "output": 19904,
+      "thinking": 3979,
+      "cache_read": 2224281,
+      "cache_write_5m": 0,
+      "cache_write_1h": 79581,
+      "api_equivalent_usd": 1.4798,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.965,
+    "tool_calls": 29,
+    "tools": {
+      "Bash": 27,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.07,
+      "active_minutes": 7.07,
+      "model_minutes": 3.74,
+      "tool_minutes": 3.33,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "design a paired replay variant, run, write up: half a researcher-day",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 270.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

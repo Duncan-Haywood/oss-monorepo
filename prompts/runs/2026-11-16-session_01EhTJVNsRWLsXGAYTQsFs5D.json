@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVNsRWLsXGAYTQsFs5D",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (scheduled ventures brief)",
+  "input_sha256": "1380f9eea91bde311ad7325e3c2c41452af57fa9bead7b098a672fd19b3898b6",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T18:56:26Z",
+  "ended": "2026-11-16T19:24:18Z",
+  "wall_minutes": 35.39,
+  "tokens_in": 15354400,
+  "tokens_out": 72190,
+  "cost_usd": 6.0754,
+  "tool_calls": 107,
+  "task": "Deepen (flagship 7) photo-editing: BUILDABLE item 'X-Trans: a per-frame choice'",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16669",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "git sparse-checkout of metadata-extractor-images ran twice concurrently (a second call while the first was still fetching) and left an index.lock; waiting for the first was the fix.",
+    "First measurement runs were ~2 h (per-row np.interp loops in the blend, one process); restarted with a matrix interpolation and four processes sharing a truth cache: ~25 min."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pkill/pgrep hook note says bracket the first letter; the hook also refuses the command when the unbracketed name appears anywhere else on the same line (e.g. a later python3 edit of that file), which the note does not say."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "The BUILDABLE item named 'X-Trans: a per-frame choice' but the cases it cited (A7 IV, GF7, NX1) were borrowed Bayer scenes on the X-Trans layout; reading the eval note was needed to see that."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml (buildable item)",
+      "why": "The item asked for a frame-level measure; the oracle showed a frame-level rule's ceiling is below what a per-block blend reaches, so the shipped mode is per-block, and the frame-level rule is reported as measured, not shipped.",
+      "did": "Measured frame-level and per-block rules side by side, both layouts, held out.",
+      "result": "Per-block with known noise +0.43/+0.31 dB, never worse; frame-level worst -2.6 dB."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The brief's default is product depth; this flagship's next step is image-quality engineering, so the deliverable is an opt-in developer mode plus its evaluation rather than a page or a marketing change.",
+      "did": "Shipped --demosaic noise-aware with tests, README, llms.txt and a post.",
+      "result": "landed with the PR"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-photo-editing-noise-aware-demosaic.md",
+    "ventures/photo-editing/eval/xtrans-noise-aware-blend-2026-11-16.md"
+  ],
+  "goal": "Answer the per-frame demosaic question on held-out truths and ship what the answer supports.",
+  "notes": "46 public sample raws (drewnoakes/metadata-extractor-images), 21 tune / 25 held by name hash, 4 noise levels, X-Trans and Bayer layouts. Held out, per-block blend with known noise: +0.43 dB (X-Trans), +0.31 dB (Bayer) colour PSNR over directional, 0 of 124 rows worse by >0.1 dB; estimated noise: worst -5.1 dB. Real LG Nexus 5X NoiseProfile within ~20% of the in-frame estimate. Verification: run_venture_tests.py photo-editing 1269 tests ok (system python, numpy tests skipped); venv with numpy: new + demosaic + raw_develop + raf suites 78 passed; full suite with numpy (PYTHONPATH=src): 1259 passed, 10 skipped; node platform/pages/venture-preflight.mjs photo-editing: clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "28cd5443-68b0-53b3-b1c9-2b3cec23fb76",
+    "transcripts": 1,
+    "first": "2026-11-16T18:56:26Z",
+    "last": "2026-11-16T19:31:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 102,
+        "input": 195,
+        "output": 72190,
+        "thinking": 14977,
+        "cache_read": 15154209,
+        "cache_write_5m": 0,
+        "cache_write_1h": 199996,
+        "api_equivalent_usd": 6.0754,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 102,
+      "input": 195,
+      "output": 72190,
+      "thinking": 14977,
+      "cache_read": 15154209,
+      "cache_write_5m": 0,
+      "cache_write_1h": 199996,
+      "api_equivalent_usd": 6.0754,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 107,
+    "tools": {
+      "Bash": 100,
+      "Write": 4,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 35.39,
+      "active_minutes": 35.39,
+      "model_minutes": 13.37,
+      "tool_minutes": 22.02,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "an imaging engineer: evaluation harness over 46 raws, two layouts, held-out fit, developer integration and tests, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 263.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

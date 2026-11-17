@@ -50,7 +50,7 @@
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #15202b; background: #eef2f6; }
     body { max-width: 1080px; margin: 0 auto; padding: 32px 18px 64px; }
     header { max-width: 760px; margin-bottom: 24px; }
-    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; letter-spacing: -.04em; margin: 0 0 12px; }
+    h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: .98; letter-spacing: -.04em; margin: 0 0 12px; }
     p { line-height: 1.5; }
     .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #0b5f8a; margin: 0 0 6px; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .95fr); gap: 18px; align-items: start; }
@@ -83,6 +83,13 @@
     a.cta { display: inline-block; padding: 11px 18px; border-radius: 8px; background: #0b5f8a; color: #fff; font-weight: 700; text-decoration: none; }
     a.cta.alt { background: #dcebf3; color: #084a6d; }
     a.cta:focus-visible { outline: 3px solid #084a6d; outline-offset: 2px; }
+    .lede { font-size: 1.08rem; max-width: 62ch; margin: 0 0 10px; }
+    details.checks, details.more-examples { margin: 0 0 4px; }
+    details.checks summary, details.more-examples summary { cursor: pointer; color: #084a6d; font-weight: 600; padding: 6px 0; }
+    details.checks summary:focus-visible, details.more-examples summary:focus-visible { outline: 3px solid #084a6d; outline-offset: 2px; border-radius: 4px; }
+    details.checks ul { margin: 6px 0 0; padding-left: 1.2em; columns: 2 22rem; column-gap: 28px; }
+    details.checks li { margin: 0 0 6px; line-height: 1.4; break-inside: avoid; }
+    details.more-examples .actions { margin-top: 6px; }
   </style>
 </head>
 <body>
@@ -90,24 +97,30 @@
     <p class="eyebrow">FOR BOOKKEEPERS AND ERP ADAPTERS</p>
     <h1>Catch invoice defects before you submit.</h1>
     <p class="cta-row"><a class="cta" href="#drop">Check an invoice</a> <a class="cta alt" href="#drop" id="cta-example">Try a broken example</a></p>
-    <p>
-      Drop a JSON, UBL, CII, or Factur-X PDF invoice or credit note — or paste the JSON shape —
-      and get rule IDs plus a suggested fix for missing fields, totals that do
-      not add up, a credit sent as a commercial invoice, a missing original
-      invoice reference, a prepaid that does not leave the stated amount due, a
-      missing remittance on an IBAN transfer, mixed VAT rates without a
-      per-rate breakdown, a 0% line without an exemption
-      reason, a buyer electronic address that fails its GLN or EAS scheme,
-      an invoice period that is incomplete or ends before it starts,
-      a SEPA payment means without an IBAN,
-      a purchase-order field that repeats the invoice number,
-      a header discount that does not match its percent,
-      payment terms days that do not match the due date,
-      and transposed VAT, IBAN, BIC, or
-      RF values. After using this, you can now review a structured invoice in
-      the browser in seconds, which used to mean running a CLI or waiting for a
-      network rejection. Everything stays on this page.
+    <p class="lede">
+      Drop a JSON, UBL, CII or Factur-X PDF invoice or credit note, or paste the JSON shape.
+      Each fault comes back with a rule ID and the change that fixes it, and the
+      official EN 16931, XRechnung and Peppol rules can run here too.
+      Everything stays in this browser tab.
     </p>
+    <details class="checks">
+      <summary>What the built-in rules catch</summary>
+      <ul>
+        <li>Missing fields, and totals that do not add up</li>
+        <li>A credit sent as a commercial invoice, or a credit note without the original invoice reference</li>
+        <li>A prepaid amount that does not leave the stated amount due</li>
+        <li>A missing remittance on an IBAN transfer</li>
+        <li>Mixed VAT rates without a per-rate breakdown</li>
+        <li>A 0% line without an exemption reason</li>
+        <li>A buyer electronic address that fails its GLN or EAS scheme</li>
+        <li>An invoice period that is incomplete or ends before it starts</li>
+        <li>A SEPA payment means without an IBAN</li>
+        <li>A purchase-order field that repeats the invoice number</li>
+        <li>A header discount that does not match its percent</li>
+        <li>Payment terms days that do not match the due date</li>
+        <li>Transposed VAT, IBAN, BIC or RF values</li>
+      </ul>
+    </details>
   </header>
   <main class="layout">
     <section>
@@ -122,6 +135,12 @@
       <div class="actions">
         <button id="check" type="button">Check invoices</button>
         <button id="sample" class="secondary" type="button">Load a broken example</button>
+        <button id="validSample" class="secondary" type="button">Load a passing example</button>
+        <button id="repair" class="secondary" type="button">Repair the arithmetic (JSON, UBL, CII or a dropped Factur-X PDF)</button>
+      </div>
+      <details class="more-examples">
+        <summary>More broken examples (9)</summary>
+        <div class="actions">
         <button id="creditSample" class="secondary" type="button">Load a credit note without a reference</button>
         <button id="zeroSample" class="secondary" type="button">Load a 0% line without a reason</button>
         <button id="mixedSample" class="secondary" type="button">Load mixed rates without a breakdown</button>
@@ -131,9 +150,8 @@
         <button id="referenceSample" class="secondary" type="button">Load a PO that repeats the invoice number</button>
         <button id="adjustmentSample" class="secondary" type="button">Load a header discount that does not match its percent</button>
         <button id="termsSample" class="secondary" type="button">Load terms days that do not match the due date</button>
-        <button id="validSample" class="secondary" type="button">Load a passing example</button>
-        <button id="repair" class="secondary" type="button">Repair the arithmetic (JSON, UBL, CII or a dropped Factur-X PDF)</button>
-      </div>
+        </div>
+      </details>
       <p id="inputError" class="error" role="alert"></p>
       <div id="repairLog" aria-live="polite"></div>
     </section>
@@ -208,7 +226,7 @@
   <p>France: every business must receive e-invoices from 1 September 2026, and large and mid-size companies must issue them; the rest follow on 1 September 2027. See <a href="france-e-invoice-mandate.html">the French dates, formats and mentions</a>.</p>
   <p>All countries side by side: <a href="e-invoicing-mandates-by-country.html">e-invoicing mandates by country, with dates, formats and what this checker covers</a>.</p>
   <p>Slovakia: domestic B2B and B2G e-invoicing is reported to become mandatory on 1 January 2027 over Peppol; vendor sources only, said plainly. See <a href="slovakia-e-invoice-mandate.html">the Slovak dates and what this checker does not cover</a>.</p>
-  <p>Hungary: every domestic B2B invoice is reported to NAV (Online Számla) but there is no general structured e-invoice mandate yet; vendor sources only, said plainly. See <a href="hungary-e-invoice-mandate.html">the Hungarian rules and what this checker does not cover</a>.</p>
+  <p>Hungary: every domestic B2B invoice is reported to NAV (Online Számla) but there is no general structured e-invoice mandate yet; vendor sources only, said plainly. Drop the NAV report itself (an <code>InvoiceData</code> XML or a <code>manageInvoice</code> request) and it is checked against NAV's schema, its published blocking rules and its warning arithmetic (product fee totals included), offline. See <a href="hungary-e-invoice-mandate.html">the Hungarian rules and what this checker does and does not cover</a>.</p>
   <p>Denmark: no general B2B e-invoice date, but the Bookkeeping Act pulls businesses onto registered systems and NemHandel in 2027; secondary sources only, said plainly. See <a href="denmark-e-invoice-mandate.html">the Danish dates and what this checker does not cover</a>.</p>
   <p>Estonia: public buyers have taken e-invoices since 2019 and, since 1 July 2025, a business registered as an e-invoice recipient can require them from suppliers; a full B2B mandate is only discussed for 2027. See <a href="estonia-e-invoice-mandate.html">the Estonian dates, where sources disagree, and what this checker does not cover</a>.</p>
   <p>Latvia: e-invoices for state budget bodies since 1 January 2025; the domestic B2B mandate was postponed from 2026 to 1 January 2028 (vendor sources only). See <a href="latvia-e-invoice-mandate.html">the Latvian dates and what this checker does not cover</a>.</p>
@@ -238,10 +256,10 @@
   <p>South Korea: tax invoices must be electronic and reported to the National Tax Service by the next day. <a href="south-korea-e-invoice-mandate.html">Check a business registration number and see what the sources leave open</a>.</p>
   <p>Egypt: B2B and B2G invoices go through the Egyptian Tax Authority's e-invoicing system, signed and validated, and B2C sales use e-receipts. <a href="egypt-eta-e-invoice-mandate.html">Check a tax registration number's format and see what the sources leave open</a>.</p>
   <p>Kenya: invoices go through the Kenya Revenue Authority's eTIMS, and expenses without one are reported as non-deductible. <a href="kenya-etims-e-invoice-mandate.html">Check a KRA PIN's format and see what the sources leave open</a>.</p>
-  <p>Thailand: e-Tax Invoice is voluntary, with a full signed-XML route and a lighter by-email route. See what the sources say. <a href="thailand-rd-e-invoice-mandate.html">Read the Thailand page</a>.</p>
+  <p>Thailand: the e-Tax Invoice is optional; the Revenue Department's 2023 notification lets a business choose electronic or paper. See what the notification says. <a href="thailand-rd-e-invoice-mandate.html">Read the Thailand page</a>.</p>
   <p>Taiwan: Government Uniform Invoices (eGUI) go through the Ministry of Finance platform. See where the sources disagree on whether it is mandatory. <a href="taiwan-gui-e-invoice-mandate.html">Read the Taiwan page</a>.</p>
   <p>Oman: Fawtara is a Peppol five-corner system, with 2027 dates reported under Decision 189/2026. See which dates the sources disagree on. <a href="oman-fawtara-e-invoice-mandate.html">Read the Oman page</a>.</p>
-  <p>Pakistan: sales are reported to the Federal Board of Revenue in real time, starting with Tier-1 retailers. See what the sources say. <a href="pakistan-fbr-e-invoice-mandate.html">Read the Pakistan page</a>.</p>
+  <p>Pakistan: every sales tax registered person invoices through a system integrated with the Federal Board of Revenue (S.R.O. 69 and 1413 of 2025). See what the rules say. <a href="pakistan-fbr-e-invoice-mandate.html">Read the Pakistan page</a>.</p>
   <p>Dominican Republic: large and medium taxpayers move to electronic-only fiscal receipts in November 2026, small and micro on 15 November. See what the sources say. <a href="dominican-republic-dgii-e-invoice-mandate.html">Read the Dominican Republic page</a>.</p>
   <p>Costa Rica: Hacienda vouchers are signed XML, and version 4.4 is reported mandatory since September 2025. See where the guides differ. <a href="costa-rica-hacienda-e-invoice-mandate.html">Read the Costa Rica page</a>.</p>
   <p>Kazakhstan: e-invoices are issued in the IS ESF, and 2026 added VAT-balance control that can hold an invoice. See what the sources say. <a href="kazakhstan-is-esf-e-invoice-mandate.html">Read the Kazakhstan page</a>.</p>
@@ -269,7 +287,7 @@
   <p>Georgia: electronic VAT invoices on the Revenue Service portal, with guides giving 2012 or a 2022 to 2024 phase-in. See where the sources disagree. <a href="georgia-rs-e-invoice-mandate.html">Read the Georgia page</a>.</p>
   <p>Moldova: the SFS e-Factura system, with B2B use reported mandatory from 1 October 2026 after a pilot. See where the sources disagree. <a href="moldova-e-factura-e-invoice-mandate.html">Read the Moldova page</a>.</p>
   <p>Qatar: a draft e-invoicing law was approved in May 2026 with no start date or format yet. See what is confirmed and what is guesswork. <a href="qatar-e-invoice-mandate.html">Read the Qatar page</a>.</p>
-  <p>Jordan: invoices are cleared through the JoFotara system run by the Income and Sales Tax Department. See what the sources say. <a href="jordan-jofotara-e-invoice-mandate.html">Read the Jordan page</a>.</p>
+  <p>Jordan: invoices go through JoFotara, run by the Income and Sales Tax Department, under Regulation No. 34 of 2019. See what the regulation says. <a href="jordan-jofotara-e-invoice-mandate.html">Read the Jordan page</a>.</p>
   <p>Nigeria: clearance through the Nigeria Revenue Service&#39;s Merchant Buyer Solution, phased by taxpayer size. <a href="nigeria-mbs-e-invoice-mandate.html">See who is in scope and where the sources disagree</a>.</p>
   <p>Philippines: the BIR Electronic Invoicing System, first deadline reported as 31 December 2026. <a href="philippines-bir-eis-e-invoice-mandate.html">See what the sources say and where they differ</a>.</p>
   <p>Israel: tax invoices above NIS 5,000 (before VAT, from 1 June 2026) need an allocation number from the Tax Authority. <a href="israel-allocation-number-e-invoice-mandate.html">Check an ID or company number and see what sources differ on</a>.</p>
@@ -295,18 +313,20 @@
   <p>Saudi Arabia: ZATCA e-invoicing integrates taxpayers with the Fatoora platform in waves; Wave 24 was due on 30 June 2026 and Wave 25 (taxable turnover above SAR 187,500) must integrate by 1 February 2027. See <a href="saudi-arabia-zatca-e-invoice-mandate.html">the waves and what this checker covers</a>.</p>
   <p>Portugal: no B2B e-invoicing date is confirmed; B2G is phased in, certified software and monthly reporting apply, and PDFs need a qualified signature from 2027 per most sources. See <a href="portugal-e-invoice-mandate.html">what applies and where sources disagree</a>.</p>
   <p>Greece: B2B invoices are cleared through AADE's myDATA platform via a certified provider (MARK number), phased in from early 2026 for larger businesses and from October 2026 for the rest; the format is not EN 16931. See <a href="greece-mydata-e-invoice-mandate.html">the Greek dates and model</a>.</p>
-  <p>Spain: B2B e-invoicing starts 6 October 2027 for businesses with turnover above 8 million euro and 6 October 2028 for the rest (Order HAC/1028/2026, as reported); Verifactu, a separate rule for invoicing software, is delayed to 2027. See <a href="spain-verifactu-e-invoice-mandate.html">the dates and what this checker does</a>.</p>
-  <p>Italy: e-invoices have gone through the SdI exchange as FatturaPA XML since 2019, a national format rather than EN 16931. See <a href="italy-sdi-e-invoice-mandate.html">how SdI works and what this checker covers</a>.</p>
+  <p>Spain: B2B e-invoicing starts 6 October 2027 for businesses with turnover above 8 million euro and 6 October 2028 for the rest (Order HAC/1028/2026, as reported); Verifactu, a separate rule for invoicing software, is delayed to 2027. Drop your billing software's Verifactu records (RegistroAlta, RegistroAnulacion) and each fingerprint is recomputed, the chain followed across the files, and a mismatch explained (rules VF-001 to VF-047, 19 of them taken from the AEAT's own error list, which they cover for 142 of its 203 record codes). Got the AEAT's reply back? Drop it in with the records and each error code is explained and checked against the record it answers. See <a href="spain-verifactu-e-invoice-mandate.html">the dates and what this checker does</a>.</p>
+  <p>Italy: e-invoices have gone through the SdI exchange as FatturaPA XML since 2019, a national format rather than EN 16931. See <a href="italy-sdi-e-invoice-mandate.html">how SdI works and what this checker covers</a>. Got a rejection back? Drop the SdI receipt (the <code>_NS_</code> file) in with the invoice: every code is explained (<a href="sdi-error-codes.html">SdI error codes explained</a>) and checked against the file.</p>
+  <p>Spain: invoices to public bodies go through FACe as Facturae XML. Drop a Facturae 3.2.1 or 3.2.2 file and it is checked against the Ministry's XSD and its totals formulas (rules ES-001 to ES-037), and a signed file's XAdES signature is verified offline: every signed digest, the SignatureValue against the certificate in the file, and the Facturae policy's XAdES-EPES properties (ES-SIG-01 to ES-SIG-16; the certificate chain is not checked). See <a href="spain-verifactu-e-invoice-mandate.html">Spain's e-invoicing dates and what this checker covers</a>.</p>
   <p>Netherlands: e-invoices are mandatory for government suppliers (NLCIUS, a Dutch EN 16931 profile); domestic B2B is still voluntary. See <a href="netherlands-e-invoice-mandate.html">the dates, format and what this checker covers</a>.</p>
   <h3>Should I use this checker or a platform like Avalara?</h3>
   <p>Different jobs: Avalara (or a comparable platform) calculates and files tax and routes e-invoices across a whole operation as an ongoing subscription. This checker is a free, local, no-account validation of one invoice file's fields and arithmetic before it reaches that pipeline — see <a href="vs-avalara.html">this checker vs. Avalara</a>.</p>
 
   <footer>
-    <p><strong>Need to <em>create</em> an XRechnung or Peppol invoice rather than check one?</strong> Use the free <a href="create.html">e-invoice creator</a> &mdash; form in, UBL or CII XML out, checked before you download.</p>
+    <p><strong>Need to <em>create</em> an XRechnung or Peppol invoice rather than check one?</strong> Use the free <a href="create.html">e-invoice creator</a> &mdash; form in, UBL or CII XML or a Factur-X / ZUGFeRD PDF out, checked before you download.</p>
     <p>Not sure which e-invoicing deadline applies to you? The <a href="../eu-einvoicing-mandate-checker/">EU e-invoicing mandate checker</a> shows receive and issue dates by country.</p>
     <label><input id="xrechnung" type="checkbox" style="width:auto"> Also apply the German XRechnung rules (BR-DE, Leitweg-ID check digits) &mdash; for invoices to German public bodies</label><br>
     <label><input id="peppol" type="checkbox" style="width:auto"> Also apply the Peppol BIS Billing 3.0 rules (business process, specification id, electronic addresses) &mdash; for invoices sent through a Peppol access point</label><br>
     <label><input id="france" type="checkbox" style="width:auto"> Also apply the French rules (SIREN/SIRET check digits, late-penalty, 40&nbsp;&euro; recovery indemnity and early-payment-discount mentions) &mdash; for invoices to French buyers under the 2026 e-invoicing reform</label><br>
+    <label><input id="slovakia" type="checkbox" style="width:auto"> Also apply the Slovak rules (the Peppol rules plus the address, DIČ electronic address and payment account fields the Financial Administration's table requires) &mdash; for domestic Slovak invoices from 1 January 2027</label><br>
     <label><input id="official" type="checkbox" style="width:auto"> Also run the official EN 16931 Schematron (and the XRechnung / Peppol add-ons for the chosen profile) &mdash; XML invoices only; runs in your browser from the rules published with this page (the file stays on your machine); only a copy without those rules <strong>sends the file to the server this page is served from</strong></label><br>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
@@ -327,7 +347,7 @@
     import { auditPackHtml } from "./auditpack.mjs";
     import { buyLink, checkLicence } from "./licence.mjs";
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
-    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from "./usage.mjs";
 
     const VALID_EXAMPLE = {
       invoice_number: "INV-1001",
@@ -544,7 +564,7 @@
       });
       $("pack-open").addEventListener("click", () => {
         if (!latest) { $("pack-state").textContent = "Run a check first."; return; }
-        const html = auditPackHtml(latest, { title: $("pack-title").value, author: $("pack-author").value, contact: $("pack-contact").value, accent: $("pack-accent").value, scope: $("pack-scope").value, logo: packLogo, notes: $("pack-notes").value, date: new Date().toISOString().slice(0, 10) });
+        const html = auditPackHtml(latest, { title: $("pack-title").value, author: $("pack-author").value, contact: $("pack-contact").value, accent: $("pack-accent").value, scope: $("pack-scope").value, logo: packLogo, notes: $("pack-notes").value, date: new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10) });
         const url = URL.createObjectURL(new Blob([html], { type: "text/html" }));
         window.open(url, "_blank", "noopener");
       });
@@ -553,7 +573,7 @@
     document.getElementById("check").addEventListener("click", async () => {
       inputError.textContent = "";
       copyStatus.textContent = "";
-      recordUsage(localStorage, optedOut(), "invoice_preflight_attempted");
+      recordUsage(usageStorage(), optedOut(), "invoice_preflight_attempted");
       const inputs = await readFiles();
       if (!inputs.length) {
         inputError.textContent = "Drop a file or paste a JSON invoice first.";
@@ -568,12 +588,12 @@
         downloadRemediationCsv.disabled = true;
         return;
       }
-      const profile = document.getElementById("xrechnung").checked ? "xrechnung" : document.getElementById("peppol").checked ? "peppol" : document.getElementById("france").checked ? "france" : "";
+      const profile = document.getElementById("xrechnung").checked ? "xrechnung" : document.getElementById("peppol").checked ? "peppol" : document.getElementById("france").checked ? "france" : document.getElementById("slovakia").checked ? "slovakia" : "";
       const result = await preflightDocuments(inputs, { profile });
       if (document.getElementById("official").checked) await addOfficialFindings(result, inputs, { profile });
       render(result);
       for (const report of result.reports) {
-        recordUsage(localStorage, optedOut(), "invoice_preflight_checked");
+        recordUsage(usageStorage(), optedOut(), report.receipt ? "sdi_receipt_read" : report.aeatResponse ? "aeat_response_read" : "invoice_preflight_checked");
       }
     });
 
@@ -655,7 +675,7 @@
       try {
         await copyText(text);
         copyStatus.textContent = "Checklist copied. It contains filenames and rule IDs, not invoice values.";
-        recordUsage(localStorage, optedOut(), "checklist_copied");
+        recordUsage(usageStorage(), optedOut(), "checklist_copied");
       } catch {
         copyStatus.textContent = "Clipboard is blocked in this browser. Use Download Markdown instead.";
       }
@@ -663,17 +683,17 @@
     downloadMd.addEventListener("click", () => {
       if (!latest) return;
       download("einvoice-preflight.md", buildMarkdown(latest), "text/markdown");
-      recordUsage(localStorage, optedOut(), "report_downloaded");
+      recordUsage(usageStorage(), optedOut(), "report_downloaded");
     });
     downloadJson.addEventListener("click", () => {
       if (!latest) return;
       download("einvoice-preflight.json", JSON.stringify(buildJsonReport(latest), null, 2) + "\n", "application/json");
-      recordUsage(localStorage, optedOut(), "report_downloaded");
+      recordUsage(usageStorage(), optedOut(), "report_downloaded");
     });
     downloadRemediationCsv.addEventListener("click", () => {
       if (!latest) return;
       download("einvoice-preflight-remediation.csv", buildRemediationCsv(latest), "text/csv");
-      recordUsage(localStorage, optedOut(), "report_downloaded");
+      recordUsage(usageStorage(), optedOut(), "report_downloaded");
     });
 
     // Remember the visitor's usage-counting choice between visits. The
@@ -684,8 +704,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

@@ -29,11 +29,11 @@ test("the module scripts import only local files", () => {
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
 });
 
-test("page states its limits plainly: no OCR, untested on a library of real bank PDFs, layouts from memory", () => {
+test("page states its limits plainly: no OCR, no real customer statements tested, layouts from memory", () => {
   const html = page("index.html");
   assert.match(html, /Not checked/);
   assert.match(html, /No OCR/);
-  assert.match(html, /not on a library of real bank PDFs/);
+  assert.match(html, /None is a real customer.s statement/);
   assert.match(html, /written from memory of their public import help/);
 });
 

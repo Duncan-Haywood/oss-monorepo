@@ -430,12 +430,12 @@ test("built-in 2026 earned income credit reproduces Rev. Proc. 2025-32", () => {
   assert.equal(estimatedTax(books("1.00"), { year: 2026, wages: 1500000, eitcChildren: 1, investmentIncome: 1250000, qbi: false }).eitcCredit, 0);
 });
 
-test("eitcTable computes the credit at the midpoint of Schedule EIC's $50 bands", () => {
+test("eitcTable computes the credit at the midpoint of Schedule EIC's $50 bands, to the dollar", () => {
   const eic = (wages, eitcTable) => estimatedTax(books("1.00"), { year: 2026, wages: wages * 100, withholding: 0, eitcChildren: 0, qbi: false, eitcTable }).eitcCredit;
   assert.ok(Math.abs(eic(5010, false) - 38327) < 10); // exact: 0.0765 x 5,010 = 383.27 (plus the $1 book's profit)
-  assert.ok(Math.abs(eic(5010, true) - 38441) < 10); // band 5,000-5,050, midpoint 5,025 -> 384.41
+  assert.equal(eic(5010, true), 38400); // band 5,000-5,050, midpoint 5,025 -> 384.41, printed as $384 (the 2025 table prints the same rule; eic-table.test.mjs)
   assert.equal(eic(5040, true), eic(5010, true));
-  assert.equal(eic(9010, true), 66402);      // plateau unchanged
+  assert.equal(eic(9010, true), 66400);      // plateau: the maximum to the dollar (664, Rev. Proc. 2025-32)
 });
 
 test("a flat state rate is applied to AGI less the state deduction and kept out of the federal total", () => {

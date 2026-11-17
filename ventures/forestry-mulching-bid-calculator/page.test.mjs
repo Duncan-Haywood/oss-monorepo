@@ -374,7 +374,7 @@ test('the usage counter is opt-out from the page and never records a figure', ()
   // The name is also what platform/proposal/adopt.mjs generates a call to.
   assert.match(
     html,
-    /function count\(event\) \{ recordUsage\(globalThis\.localStorage, el\('optout'\)\.checked, event\); \}/,
+    /function count\(event\) \{ recordUsage\(usageStorage\(\), el\('optout'\)\.checked, event\); \}/,
   );
   assert.equal((html.match(/recordUsage\(/g) || []).length, 1, 'a second counting path appeared');
   assert.match(html, /Do&nbsp;Not&nbsp;Track/);

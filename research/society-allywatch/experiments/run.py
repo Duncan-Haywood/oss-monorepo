@@ -1,4 +1,4 @@
-"""Write experiments/results.txt.   PYTHONPATH=src python3 experiments/run.py   (about 10 minutes, seeded)"""
+"""Write experiments/results.txt.   PYTHONPATH=src python3 experiments/run.py   (about 2 minutes, seeded)"""
 import sys
 from pathlib import Path
 

@@ -96,6 +96,12 @@ test("dates: unambiguous mix is an error, ambiguous alone a note, impossible an 
   assert.ok(codes(validate(file(row({ d: "2026-13-40" })))).includes("date-invalid"));
   assert.ok(codes(validate(file(row({ d: "yesterday" })))).includes("date-unreadable"));
   assert.equal(parseDate("14/03/2026").order, "dm");
+  assert.equal(parseDate("02/30/2026").order, "bad", "30 February is not a day");
+  assert.equal(parseDate("31/04/2026").order, "bad", "31 April is not a day");
+  assert.equal(parseDate("2027-02-29").order, "bad");
+  assert.equal(parseDate("2028-02-29").order, "ymd");
+  assert.equal(parseDate("31/01/2026").order, "dm");
+  assert.ok(codes(validate(file(row({ d: "2026-02-30" })))).includes("date-invalid"));
 });
 
 test("repair: emails, picklist capitals, one-way dates, exact duplicate row; names untouched", () => {

@@ -124,7 +124,12 @@ const mask = (acct) => {
   const t = acct.trim();
   return t.length <= 4 ? t : "…" + t.slice(-4);
 };
-const cents = (n) => "$" + (n / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const cents = (n) => {
+  const format = (n) => "$" + (n / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  if (!(Number(n) < 0)) return format(n);
+  const text = format(Math.abs(n));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 
 function newFinding(severity, code, line, title, detail) {
   return { severity, code, line, title, detail };

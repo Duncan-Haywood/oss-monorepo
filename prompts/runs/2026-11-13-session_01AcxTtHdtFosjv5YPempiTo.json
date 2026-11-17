@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtHdtFosjv5YPempiTo",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T19:06:53Z",
+  "ended": "2026-11-13T19:32:33Z",
+  "wall_minutes": 37.37,
+  "tokens_in": 11434248,
+  "tokens_out": 51874,
+  "cost_usd": 4.5761,
+  "tool_calls": 87,
+  "task": "Deepen (flagship 6) shift-roster-builder: --cover-price moves two shifts together (relief, trade, relay of a stand-in's shifts)",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15586",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "First pair-move design (relay/relief only where the stand-in could take j outright) generated zero candidates: coverRisk's chains already credit exactly those, so a risky day never has one. Diagnosed and broadened to any shift of the stand-in plus two-person trades.",
+    "Unscreened pair moves took 38 s on the 60-person week; a per-case screen then lost every gain (the freed stand-in covers other days). Shipped a screen over all risky days the movers could stand in on, and a 200-copy default cap.",
+    "First accepted version took a relief that kept risk equal and only saved score; measured exposure on that roster rose 54 -> 66 h. Added the rule that a two-shift move must cut risk hours."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "A Bash heredoc that wrote a JS file containing template literals was refused by the rm-safety check ('could not be checked for dangerous rm operations') though it had no rm; writing the file with the Write tool worked. Worth a line in cloud-session.md."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-shift-roster-moving-two-shifts.md",
+    "ventures/shift-roster-builder/README.md#moving-two-shifts-together-2026-11-13-later"
+  ],
+  "goal": null,
+  "notes": "Verification: eval/cover-pairs.mjs (templates + seeded 20/40/60-person weeks, pairs off vs on, $25 and $100), eval/cover-pairs-exposure.mjs (calloutExposure: 20x56 week 2 113 -> 68 h for $35.27). cover-price.test.mjs 18/18 locally; run_venture_tests.py shift-roster-builder result in the PR body. No agent doc in docs/reports: the README section carries what the next run needs, and flagships.yaml next: is updated.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3beb649d-cec1-5b0a-a7cd-7ddeb9195ca1",
+    "transcripts": 1,
+    "first": "2026-11-13T19:06:53Z",
+    "last": "2026-11-13T19:44:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 83,
+        "input": 163,
+        "output": 51874,
+        "thinking": 11391,
+        "cache_read": 11273682,
+        "cache_write_5m": 0,
+        "cache_write_1h": 160403,
+        "api_equivalent_usd": 4.5761,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 83,
+      "input": 163,
+      "output": 51874,
+      "thinking": 11391,
+      "cache_read": 11273682,
+      "cache_write_5m": 0,
+      "cache_write_1h": 160403,
+      "api_equivalent_usd": 4.5761,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 87,
+    "tools": {
+      "Bash": 79,
+      "ToolSearch": 2,
+      "Write": 2,
+      "Monitor": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 37.37,
+      "active_minutes": 37.37,
+      "model_minutes": 11.12,
+      "tool_minutes": 26.25,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "design, implement and measure a local-search move class with two eval harnesses and tests for a scheduling optimizer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 218.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

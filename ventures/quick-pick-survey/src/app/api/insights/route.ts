@@ -1,7 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { loadRatedItems } from "@/lib/participantRatings";
-import { confidenceInterval95 } from "@/lib/glicko2";
+import { confidenceInterval95, GLICKO_SCALE } from "@/lib/glicko2";
+import { differenceSd, EB_MAX_ITEMS, empiricalPriorPhi, refitRatings, REFIT_MAX_ITEMS, type RefitResult } from "@/lib/btRefit";
+import { clearPick } from "@/lib/clearPick";
+import { contenders } from "@/lib/favouriteSet";
+import { setPriorPhi, type StoredPrior } from "@/lib/surveyPrior";
+import { refreshSurveyPrior, storedSurveyPrior } from "@/lib/surveyPriorStore";
 import { answersUntilNextLevel, INSIGHTS, levelForAnswers } from "@/lib/insights";
 import { RANGES } from "@/lib/financialProfiles";
 import { describeDimensions, scoreDimensions } from "@/lib/dimensions";
@@ -37,11 +42,20 @@ export async function POST(req: NextRequest) {
     let fitParams: { name: string; value: number; se: number }[] | null = null;
     let fitNTrials = 0;
     const headToHead: HeadToHead[] = [];
+    // Which refit (one per participant) an entry's rating came from, so two
+    // items from the same person's answers are compared with the covariance
+    // of their difference, not as if independent (lib/btRefit.ts).
+    const fitOf = new WeakMap<RankedItem, { fit: RefitResult; itemId: string }>();
+    // The same answers refitted with the person's own empirical-Bayes prior
+    // sd, used only for the "it's between" set (see below).
+    const setFitOf = new WeakMap<RankedItem, { fit: RefitResult; itemId: string }>();
 
     // Skipped rather than refused, for the same reason as `session/status`:
     // the client sends whatever ids it has, and one that is not the caller's
     // should not turn the insights screen into an error page.
     const allowed = await accessibleParticipantIds(entries.map(([, id]) => id));
+    // Each ITEMS survey's stored pooled prior sd for the set (lib/surveyPrior.ts), read once per request.
+    const surveyPriors = new Map<string, StoredPrior>();
 
     for (const [, participantId] of entries) {
       if (!allowed.has(participantId)) continue;
@@ -60,6 +74,8 @@ export async function POST(req: NextRequest) {
             where: { participantId, result: { not: null } },
             select: {
               result: true,
+              itemAId: true,
+              itemBId: true,
               itemA: { select: { dimensions: true } },
               itemB: { select: { dimensions: true } },
             },
@@ -67,18 +83,72 @@ export async function POST(req: NextRequest) {
           }),
         ]);
         totalAnswers += answered;
+        // Ratings and rds from a Bradley-Terry refit of every answer at once
+        // (lib/btRefit.ts): the stored one-game-at-a-time Glicko rds are too
+        // narrow under the information selector (95% intervals held for about
+        // 90% of pairs against 95% for the refit at the same width;
+        // docs/INFORMATION-GAIN-SELECTOR.md, "Per-person intervals from a
+        // refit"). The stored states stay what the pair selector reads; this
+        // screen only reports. Past REFIT_MAX_ITEMS answered items the dense
+        // refit gets slow, so the stored states are used as before.
+        const answeredIds = new Set(decided.flatMap((t) => [t.itemAId, t.itemBId]));
+        const valid = decided.filter((t) => t.result === "A" || t.result === "B" || t.result === "EQUAL");
+        const answersForFit = valid.map((t) =>
+          t.result === "B"
+            ? { winner: t.itemBId, loser: t.itemAId }
+            : { winner: t.itemAId, loser: t.itemBId, tie: t.result === "EQUAL" }
+        );
+        const fit =
+          valid.length > 0 && answeredIds.size <= REFIT_MAX_ITEMS
+            ? refitRatings([...answeredIds], answersForFit)
+            : undefined;
+        // The favourite's credible set is drawn from a refit whose prior sd is
+        // estimated from this person's answers (importance-sampled evidence,
+        // lib/btRefit.ts empiricalPriorPhi). With the fixed sd of 2.0 the set
+        // held the true favourite for 88-92% of synthetic respondents at the
+        // 95% level, and 76-83% with careless answers; with the estimated sd
+        // 93-96% and 90-95% (docs/INFORMATION-GAIN-SELECTOR.md, "An
+        // empirical-Bayes prior"). Not used for the ratings, the intervals or
+        // the clear-pick rule: there the narrower prior undercovers.
+        //
+        // Since 2026-11-12 (latest) the set uses the narrower of the person's
+        // estimate and the survey's stored pooled one (once that pools at
+        // least 10 respondents; lib/surveyPrior.ts setPriorPhi): in a mixed
+        // synthetic survey that raised coverage from 0.92-0.94 to 0.95-0.96 (two seed bases),
+        // where the pooled value alone held 0.83-0.92 for people whose
+        // likes are close together (docs/INFORMATION-GAIN-SELECTOR.md, "A
+        // stored survey prior"). The stored value is refreshed after this
+        // response is sent.
+        let setFit = fit;
+        if (fit && answeredIds.size <= EB_MAX_ITEMS) {
+          let stored = surveyPriors.get(participant.surveyId);
+          if (!stored) {
+            stored = await storedSurveyPrior(participant.surveyId);
+            surveyPriors.set(participant.surveyId, stored);
+          }
+          const own = empiricalPriorPhi(fit.ids, answersForFit);
+          setFit = refitRatings(fit.ids, answersForFit, { priorPhi: setPriorPhi(own, stored) });
+        }
         for (const i of items) {
-          if (i.rd >= 349) continue; // never actually shown — no signal
-          const [lo, hi] = confidenceInterval95(i.rating, i.rd);
-          ranked.push({
+          const fromFit = fit?.rating.has(i.id);
+          const rating = fromFit ? fit!.rating.get(i.id)! : i.rating;
+          const rd = fromFit ? fit!.rd.get(i.id)! : i.rd;
+          if (rd >= 349) continue; // never actually shown — no signal
+          const [lo, hi] = confidenceInterval95(rating, rd);
+          const entry: RankedItem = {
             label: i.label,
             category: i.category,
-            rating: i.rating,
-            rd: i.rd,
+            rating,
+            rd,
             lo,
             hi,
             dimensions: i.dimensions ?? [],
-          });
+          };
+          if (fromFit) {
+            fitOf.set(entry, { fit: fit!, itemId: i.id });
+            setFitOf.set(entry, { fit: setFit!, itemId: i.id });
+          }
+          ranked.push(entry);
         }
         for (const t of decided) {
           headToHead.push({
@@ -97,6 +167,18 @@ export async function POST(req: NextRequest) {
           fitParams = fit.params as { name: string; value: number; se: number }[];
           fitNTrials = fit.nTrials;
         }
+      }
+    }
+
+    // Refresh each survey's pooled prior after the response (a no-op unless
+    // enough answers have arrived since it was stored). `after` needs a
+    // request scope; outside one (unit and integration tests calling the
+    // handler directly) the refresh is skipped, and the stored value stands.
+    for (const surveyId of surveyPriors.keys()) {
+      try {
+        after(() => refreshSurveyPrior(surveyId).catch((e) => console.error("survey prior refresh failed", e)));
+      } catch {
+        // No request scope.
       }
     }
 
@@ -119,21 +201,50 @@ export async function POST(req: NextRequest) {
 
     if (ranked.length >= 2) {
       // A single "#1" is only claimable when the leader is measurably clear
-      // of the runner-up. When it isn't, say who it's between rather than
-      // going silent — the ordering is visible in the top-few card anyway,
-      // so refusing to comment here just reads as a broken card.
-      const [first, second] = ranked;
-      const leaderIsClear = first.rating - second.rating > 0.5 * first.rd;
-      content["top-pick"] = leaderIsClear
-        ? { ...first, contested: false }
-        : { ...first, contested: true, rivals: ranked.slice(0, 3).map((r) => r.label) };
+      // of every other item: ahead by more than 1.645 sd of the difference
+      // (one-sided 95%, lib/clearPick.ts). The rule before 2026-11-12, "ahead
+      // of the runner-up by half the leader's rd", fired for about three
+      // respondents in four and named the wrong item in more than half of
+      // those (docs/INFORMATION-GAIN-SELECTOR.md, "The clear-top-pick claim").
+      // When it isn't clear, say who it's between rather than going silent —
+      // the ordering is visible in the top-few card anyway, so refusing to
+      // comment here just reads as a broken card.
+      const sd = (a: RankedItem, b: RankedItem) => {
+        const fa = fitOf.get(a), fb = fitOf.get(b);
+        return fa && fb && fa.fit === fb.fit ? GLICKO_SCALE * differenceSd(fa.fit, fa.itemId, fb.itemId) : Math.hypot(a.rd, b.rd);
+      };
+      // Who it's between: the refit's 95% credible set for the favourite
+      // (lib/favouriteSet.ts), most likely first. Until 2026-11-12 this was
+      // the three highest-rated items, which held the true favourite for only
+      // 68-74% of synthetic respondents shown the line; the set holds it for
+      // 88-92% (docs/INFORMATION-GAIN-SELECTOR.md, "Who it's between").
+      // Items from different refits (or stored states) are independent.
+      // Since 2026-11-12 (later) the set is drawn from the empirical-Bayes refit (setFitOf).
+      const covariance = (a: RankedItem, b: RankedItem) => {
+        if (a === b) {
+          const fa = setFitOf.get(a);
+          if (!fa) return a.rd * a.rd;
+          const i = fa.fit.ids.indexOf(fa.itemId), n = fa.fit.ids.length;
+          return GLICKO_SCALE * GLICKO_SCALE * fa.fit.cov[i * n + i];
+        }
+        const fa = setFitOf.get(a), fb = setFitOf.get(b);
+        if (!fa || !fb || fa.fit !== fb.fit) return 0;
+        const n = fa.fit.ids.length;
+        return GLICKO_SCALE * GLICKO_SCALE * fa.fit.cov[fa.fit.ids.indexOf(fa.itemId) * n + fa.fit.ids.indexOf(fb.itemId)];
+      };
+      const setScore = (x: RankedItem) => {
+        const f = setFitOf.get(x);
+        return f ? f.fit.rating.get(f.itemId)! : x.rating;
+      };
+      const top = clearPick(ranked, sd)!;
+      content["top-pick"] = top.clear
+        ? { ...top.leader, contested: false }
+        : { ...top.leader, contested: true, rivals: contenders(ranked, covariance, { score: setScore }).map((r) => r.label) };
 
-      const last = ranked[ranked.length - 1];
-      const penultimate = ranked[ranked.length - 2];
-      const trailerIsClear = penultimate.rating - last.rating > 0.5 * last.rd;
-      content["bottom-pick"] = trailerIsClear
-        ? { ...last, contested: false }
-        : { ...last, contested: true, rivals: ranked.slice(-3).map((r) => r.label) };
+      const bottom = clearPick(ranked, sd, { bottom: true })!;
+      content["bottom-pick"] = bottom.clear
+        ? { ...bottom.leader, contested: false }
+        : { ...bottom.leader, contested: true, rivals: contenders(ranked, covariance, { bottom: true, score: setScore }).map((r) => r.label) };
     }
 
     if (ranked.length >= 5) {

@@ -4,13 +4,20 @@ import { readFileSync } from "node:fs";
 import { parseCsv, normalizeRows, analyze, humanHours } from "./calc.mjs";
 
 const args = process.argv.slice(2);
-const tzAt = args.indexOf("--tz");
-const file = args.find((a, i) => !a.startsWith("--") && (tzAt < 0 || i !== tzAt + 1));
-if (!file) { console.error("usage: node cli.mjs incidents.csv [--tz <utc offset hours>] [--json]"); process.exit(2); }
+const usage = "usage: node cli.mjs incidents.csv [--tz <utc offset hours, -12 to 14>] [--json]";
+const tzAt = args.findIndex((a) => a === "--tz" || a.startsWith("--tz="));
+const file = args.find((a, i) => !a.startsWith("--") && (tzAt < 0 || args[tzAt] !== "--tz" || i !== tzAt + 1));
+if (!file) { console.error(usage); process.exit(2); }
+// A --tz the CLI cannot read is refused: falling back to UTC would move every night page silently.
+let tz = 0;
+if (tzAt >= 0) {
+  const raw = args[tzAt] === "--tz" ? args[tzAt + 1] : args[tzAt].slice("--tz=".length);
+  tz = raw === undefined || raw.trim() === "" ? NaN : Number(raw);
+  if (!Number.isFinite(tz) || tz < -12 || tz > 14) { console.error(`--tz needs a UTC offset in hours from -12 to 14, got ${JSON.stringify(raw ?? "")}\n${usage}`); process.exit(2); }
+}
 const n = normalizeRows(parseCsv(readFileSync(file, "utf8")));
 if (n.error) { console.error(n.error); process.exit(2); }
-const tz = tzAt >= 0 ? Number(args[tzAt + 1]) : 0;
-const r = analyze(n.incidents, { tzOffsetHours: Number.isFinite(tz) ? tz : 0 });
+const r = analyze(n.incidents, { tzOffsetHours: tz });
 if (args.includes("--json")) console.log(JSON.stringify(r, null, 2));
 else {
   const s = r.summary;

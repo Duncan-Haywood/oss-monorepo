@@ -64,7 +64,7 @@ ITEMS = [
     # ------------------------------------------------ Christianity vs the rest
     dict(id="resurrection", level="christian", favours=CHRISTIAN, lo=0.00, hi=44.0, basis="argued",
          what="The testimony to Jesus's resurrection (empty tomb, appearances, Paul, the disciples' transformation)",
-         sources="hi: T. & L. McGrew, The Argument from Miracles, Blackwell Companion to Natural Theology (2009) pp. 593-662, a combined Bayes factor reported as of order 10^44 (secondary report; exact figure to be checked against the chapter); lo: LR 1 for the Humean reading that legend and visions explain the record"),
+         sources="hi: T. & L. McGrew, The Argument from Miracles, Blackwell Companion to Natural Theology (2009) pp. 593-662: women 10^2 x disciples 10^39 (13 x 10^3, under independence) x Paul 10^3 = 10^44, read in the authors' draft (E26); lo: LR 1 for the Humean reading that legend and visions explain the record"),
     # ------------------------------------------------ Catholic vs Orthodox (and everyone else)
     # No published likelihood ratios exist for these.  Each range is symmetric about 0
     # on purpose: they are placeholders for a structured elicitation from scholars of
@@ -100,5 +100,20 @@ PUBLISHED_POSTERIORS = [
               "religious experience 0.1). Their product is 2.5e-4, so Unwin's own formula gives 0.025%, not the "
               "'2 percent' the column states: the published bottom line does not follow from its published inputs (E6)."),
     dict(who="R. Swinburne, The Resurrection of God Incarnate (OUP 2003)", claim="P(God incarnate and risen) ~ 0.97",
-         reproduce=None, note="NDPR review https://ndpr.nd.edu/news/the-resurrection-of-god-incarnate/"),
+         reproduce={"p_theism": "1/2", "p_divided_incarnation_given_theism": "1/2",
+                    "p_f_given_c": "1/10", "p_f_given_not_c": "1/1000"},
+         note="Four inputs as quoted verbatim, with the book's page numbers, in R. Otte's review, NDPR 2003.09.04, "
+              "https://ndpr.nd.edu/reviews/the-resurrection-of-god-incarnate/ : P(t|k) = 1/2 (review note 2), "
+              "P(divided incarnation | God) = 1/2 (pp. 50, 211), P(f|c&k) = 1/10 (p. 212), P(f|~c&k) = 1/1000 (p. 213). "
+              "Bayes gives exactly 100/103 = 0.9709 (E25). Not yet checked against the book itself."),
+    dict(who="T. & L. McGrew, The Argument from Miracles, Blackwell Companion to Natural Theology (2009)",
+         claim="Bayes factor 10^44 for R; a 10^-40 prior gives a posterior 'in excess of .9999'",
+         reproduce={"women": 100, "per_disciple": 1000, "n_disciples": 13, "paul": 1000,
+                    "illustrative_prior": "1/10000000000000000000000000000000000000000"},
+         note="Transcribed from the authors' draft (addenda 2025-09-14 and 2025-12-02), draft pages: women W "
+              "'a factor of 100' (p. 31); one disciple 'at least three orders of magnitude' (p. 39); thirteen "
+              "multiplied 'under the assumption of independence' to 10^39 (p. 39), an assumption they say 'almost "
+              "certainly breaks down' while arguing dependence favours R (pp. 42-46); Paul 'at least 10^3' (p. 41); "
+              "product 10^44 against an illustrative prior of 10^-40 (p. 41). The 10^-40 is not their estimate of the "
+              "prior. E26 reproduces it and computes what the disciples' factor needs."),
 ]

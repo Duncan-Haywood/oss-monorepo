@@ -26,6 +26,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, relative, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 
 export const TYPESCRIPT = "5.9.3";
 export const TYPES_NODE = "22.18.0";
@@ -122,7 +123,7 @@ function candidates(slug) {
   return 0;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   if (process.argv[2] === "--candidates") process.exit(candidates(process.argv[3]));
   const slugs = process.argv.length > 2 ? process.argv.slice(2) : readdirSync(join(ROOT, "ventures"));
   const files = optedInFiles(slugs);

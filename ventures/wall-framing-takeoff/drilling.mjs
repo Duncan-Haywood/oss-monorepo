@@ -84,7 +84,7 @@ export function layoutDrilling(d, plan) {
 /** @param {any} t */
 export function drillingText(t) {
   const l = [];
-  l.push(`  ${t.rows.length} runs checked, ${t.failing} over the limit (bearing bore ${100 * t.limits.boreBearing}%, doubled or non-bearing bore ${100 * t.limits.boreDoubledOrNonBearing}%, notch ${100 * t.limits.notchBearing}% / ${100 * t.limits.notchNonBearing}%, edge ${t.limits.edge} in).`);
+  l.push(`  ${t.rows.length} runs checked, ${t.failing} over the limit (bearing bore ${+(100 * t.limits.boreBearing).toFixed(4)}%, doubled or non-bearing bore ${+(100 * t.limits.boreDoubledOrNonBearing).toFixed(4)}%, notch ${+(100 * t.limits.notchBearing).toFixed(4)}% / ${+(100 * t.limits.notchNonBearing).toFixed(4)}%, edge ${t.limits.edge} in).`);
   for (const r of t.rows) l.push(`    ${r.ok ? "ok  " : "OVER"} ${r.wall}${r.label ? ` (${r.label})` : ""}: ${r.kind} ${r.size} in in a ${r.stud}${r.bearing ? " bearing" : " non-bearing"}${r.doubled ? " doubled" : ""} stud = ${r.usedPct}% of its width, max ${r.maxSize} in${r.fix ? `; ${r.fix}` : ""}`);
   l.push("  Limits are the common residential-code ones, typed in `limits`; the code edition and local amendments are yours to check. A hole and a notch at one section of a stud are never allowed.");
   return l;

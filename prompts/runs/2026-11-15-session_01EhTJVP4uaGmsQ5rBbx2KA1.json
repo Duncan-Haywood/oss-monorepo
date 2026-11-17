@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVP4uaGmsQ5rBbx2KA1",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled ventures brief: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (owner's standing brief, prompts/ventures/prompt-1.md)",
+  "input_sha256": "9bbc3e3781275b213d9b5013c38a0705efe8dc58be8c94363f156524dfb137a3",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T00:56:20Z",
+  "ended": "2026-11-15T01:12:12Z",
+  "wall_minutes": 16.19,
+  "tokens_in": 11807975,
+  "tokens_out": 54684,
+  "cost_usd": 4.7615,
+  "tool_calls": 87,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16039",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "An old-code regression run hung (a failed assertion left the test's HTTP server open); re-ran with --test-force-exit --test-timeout."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "A hook refuses `pkill -f '[w]rangler dev'` when 'wrangler' appears anywhere else in the same command line (e.g. a path to the wrangler binary); CLAUDE.md mentions bracketing but not that the word must not appear elsewhere in the command."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "The router drew 'creative' on a plain draw although the scheduled message is the ventures brief; --task with 'revenue' fixed it. prompt.md says so, but the default route command in CLAUDE.md does not."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Took a slice not listed in shift-roster-builder's next: (the remaining buildable items are solver internals with little user value); the owner's brief asks for deployable, sellable products and the venture finish line is a one-click self-deploy, which the team hub lacked on any free host.",
+      "did": "Team hub on Cloudflare's free Workers plan (Worker + SQLite Durable Object), roster built in the browser, request checks from the published week; added it to next: as landed with 'next a live-account deploy'.",
+      "result": "Verified locally on workerd via wrangler dev and Chromium; not deployed to a live account."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-a-team-schedule-page-on-ten-milliseconds.md",
+    "ventures/shift-roster-builder/README.md (Free on Cloudflare section)"
+  ],
+  "goal": null,
+  "notes": "Venture: shift-roster-builder (flagship row 4). Tests: hub-worker.test.mjs 7/7, roster-from-owner.test.mjs 2/2, server.test.mjs 20/20 (the two new regression tests fail on the old server.mjs), page+deploy 26/26. eval/hub-worker-cpu.out.txt: Worker requests 0.1-1.3 ms vs builds 11-154 ms. wrangler 4.40.0 dev: assets filtered by .assetsignore, DO persisted across restart, hub-browser.check.mjs passed against it ($3,690 sample week).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e367bfe3-fc32-51a9-984b-3cf7459275bf",
+    "transcripts": 1,
+    "first": "2026-11-15T00:56:20Z",
+    "last": "2026-11-15T01:12:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 81,
+        "input": 157,
+        "output": 54684,
+        "thinking": 17442,
+        "cache_read": 11640431,
+        "cache_write_5m": 0,
+        "cache_write_1h": 167387,
+        "api_equivalent_usd": 4.7615,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 81,
+      "input": 157,
+      "output": 54684,
+      "thinking": 17442,
+      "cache_read": 11640431,
+      "cache_write_5m": 0,
+      "cache_write_1h": 167387,
+      "api_equivalent_usd": 4.7615,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 87,
+    "tools": {
+      "Bash": 84,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.19,
+      "active_minutes": 16.19,
+      "model_minutes": 10.05,
+      "tool_minutes": 6.14,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "port a Node server to Workers + Durable Objects, browser-side build, regression fixes, tests, workerd verification, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 252.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

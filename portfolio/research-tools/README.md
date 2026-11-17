@@ -59,6 +59,11 @@ as tools".
 | `README.md`, `VENTURE.yaml`, `LICENSE` | As for any venture; the README opens with what the tool answers, in a searcher's words, links the live page, and has a "Verification" section. |
 | `*.test.mjs` | Tests against a **published or independently computed reference** (the paper's own example, a textbook result, or another implementation's output with its provenance), plus property tests (invariances, edge cases), plus `page.test.mjs`. |
 
+Before merging a new tool, run `node platform/pages/venture-preflight.mjs <slug>`: it
+catches the repository-wide steps a tool's own tests cannot see (the launch date in
+`launched.json`, a link from a sibling tool, the privacy-switch count), each of which
+otherwise surfaces as a red CI job (run record, 2026-11-14).
+
 Agents get each tool for free: `node platform/agents/tools.mjs search
 changepoint`, `describe <slug>` (prints `PAPERS`), `call <slug> analyze
 --input '{...}'`, and the same through the MCP server. The page is eligible
@@ -71,6 +76,30 @@ for the browser-extension, iOS and Android packagers.
 | [`changepoint-detector`](../../ventures/changepoint-detector/) | Adams & MacKay 2007; Killick, Fearnhead & Eckley 2012 | Did this series change level or volatility, when, and how sure? |
 | [`conformal-prediction-intervals`](../../ventures/conformal-prediction-intervals/) | Lei et al. 2018; Romano, Patterson & Candès 2019 | How wide must a prediction interval be to cover 90% of new cases, with no distributional assumption? |
 | [`matrix-profile-explorer`](../../ventures/matrix-profile-explorer/) | Yeh et al. 2016; Zhu et al. 2016 | Which stretch of this series repeats (motif), and which is unlike anything else (discord)? |
+| [`survival-analysis`](../../ventures/survival-analysis/) | Kaplan & Meier 1958; Mantel 1966; Cox 1972; Efron 1977; Grambsch & Therneau 1994 | How long until the event, do groups differ, and by what hazard ratio once covariates are adjusted for? |
+| [`fdr-multiple-testing`](../../ventures/fdr-multiple-testing/) | Benjamini & Hochberg 1995; Benjamini & Yekutieli 2001; Benjamini, Krieger & Yekutieli 2006; Storey 2002; Wang & Ramdas 2022; Javanmard & Montanari 2018; Ramdas, Yang, Wainwright & Jordan 2017; Ramdas, Zrnic, Wainwright & Jordan 2018 | I ran many tests: which results still stand, at a chosen false discovery rate or family-wise error rate? And when tests arrive one at a time, which do I keep before the next one comes? |
+| [`synthetic-control`](../../ventures/synthetic-control/) | Abadie & Gardeazabal 2003; Abadie, Diamond & Hainmueller 2010, 2015; Abadie 2021 | Did this intervention change one unit's outcome, by how much, and is the gap unusual against placebo runs on every donor? |
+| [`stl-decomposition`](../../ventures/stl-decomposition/) | Cleveland, Cleveland, McRae & Terpenning 1990; Cleveland 1979; Wang, Smith & Hyndman 2006; Bandara, Hyndman & Bergmeir 2021 (MSTL) | Is it the season or the trend: what are this series' trend, seasonal pattern (or daily, weekly and yearly patterns at once) and remainder, and which points stand out from both? |
+| [`fuzzy-dedupe`](../../ventures/fuzzy-dedupe/) | Fellegi & Sunter 1969; Winkler 1988, 1990; Jaro 1989 | Which rows of this contact or customer file are the same person, even spelled differently, and what does the merged file look like? |
+| [`spc-control-charts`](../../ventures/spc-control-charts/) | Shewhart 1931; Nelson 1984; Tippett 1925; Bissell 1990; Rigdon, Cruthis & Champ 1994 | Has this process changed or is it noise: which points break which run rule, are the subgroups hiding batch-to-batch variation, and is Cpk worth quoting? |
+| [`isolation-forest`](../../ventures/isolation-forest/) | Liu, Ting & Zhou 2008, 2012 | Which rows of this table are unusual across all their numeric columns at once, how unusual, and which columns make each one stand out? |
+| [`gaussian-process-regression`](../../ventures/gaussian-process-regression/) | Rasmussen & Williams 2006; Liu & Nocedal 1989; MacKay 1998 | What smooth curve runs through these points, how sure is it at each x, what are its length scale, period and noise in my units, which kernel do the data favour, and how honest is the band? |
+| [`wasserstein-distance`](../../ventures/wasserstein-distance/) | Cuturi 2013; Altschuler, Weed & Rigollet 2017; Peyré & Cuturi 2019; Székely & Rizzo 2013 | How far apart are two groups' distributions in my units, what moved up and what moved down, and across several columns, how far by optimal transport, with a certified range on the exact value? |
+| [`ranked-ballot-counter`](../../ventures/ranked-ballot-counter/) | Schulze 2011; Droop 1881 | Who won our ranked-choice vote: by instant runoff, by STV for several seats, and by Schulze, and is there a candidate who beats every other head to head? |
+| [`assembly-line-balancer`](../../ventures/assembly-line-balancer/) | Sewell & Jacobson 2012; Scholl & Klein 1997; Jackson 1956; Helgeson & Birnie 1961 | How few stations can this line run on at takt (or how short a cycle on the stations I have), and is that proved optimal or only the best found? |
+| [`job-shop-scheduler`](../../ventures/job-shop-scheduler/) | Nowicki & Smutnicki 1996; Taillard 1994; Giffler & Thompson 1960; Carlier 1982 | Which order should each machine run its jobs in so the last one finishes soonest, and how far from the best possible is that schedule? |
+| [`robust-pca`](../../ventures/robust-pca/) | Candès, Li, Ma & Wright 2011; Lin, Chen & Ma 2010; Hestenes 1958 | Which cells of this table break the pattern the rows share, by how much, what should the empty cells be, and how close to optimal is that split? |
+| [`lomb-scargle-periodogram`](../../ventures/lomb-scargle-periodogram/) | Lomb 1976; Scargle 1982; Zechmeister & Kürster 2009; Baluev 2008; VanderPlas 2018 | Which periods are in these unevenly spaced measurements, could the strongest be noise, is there another once it is removed, and is any of them an alias of the sampling? |
+| [`mann-kendall-trend`](../../ventures/mann-kendall-trend/) | Mann 1945; Kendall 1975; Sen 1968; Hamed & Rao 1998; Yue & Wang 2004; Yue, Pilon, Phinney & Cavadias 2002; Hirsch, Slack & Smith 1982; Hirsch & Slack 1984; van Belle & Hughes 1984 | Is this series going up or down, by how much per year with what interval, does that survive the correlation between readings, and with a seasonal cycle, do all the seasons share the trend? |
+| [`inter-rater-agreement`](../../ventures/inter-rater-agreement/) | Krippendorff 2004, 2011; Hayes & Krippendorff 2007; Cohen 1960, 1968; Fleiss, Cohen & Everitt 1969; Fleiss 1971; Gwet 2008; Shrout & Fleiss 1979; McGraw & Wong 1996 | Do my raters, coders or annotators agree beyond chance, with what interval, which category and which rater pull agreement down, and for numeric scores, which intraclass correlation fits the design? |
+| [`probability-calibration`](../../ventures/probability-calibration/) | Dimitriadis, Gneiting & Jordan 2021; Ayer et al. 1955; Brier 1950; Murphy 1973; Spiegelhalter 1986; Cox 1958; Naeini, Cooper & Hauskrecht 2015 | When these forecasts said 70%, did it happen 70% of the time: a bin-free reliability diagram, the Brier and log scores split into miscalibration, discrimination and uncertainty, and a recalibration map? |
+| [`hdbscan-clustering`](../../ventures/hdbscan-clustering/) | Campello, Moulavi & Sander 2013; Campello, Moulavi, Zimek & Sander 2015; McInnes & Healy 2017 | Which groups are in this table, how many, which rows belong to none, and what sets each group apart? |
+| [`kalman-smoother`](../../ventures/kalman-smoother/) | Durbin & Koopman 2012; Koopman 1997; Harvey 1989; Harvey & Koopman 1992; de Jong & Penzer 1998 | What is the real level under this noisy series and how sure is it, what are the missing values, where is it heading, and which points are one-off outliers and which are level shifts? |
+| [`extreme-value-analysis`](../../ventures/extreme-value-analysis/) | Coles 2001; Jenkinson 1955; Pickands 1975; Davison & Smith 1990; Hosking, Wallis & Wood 1985; Hosking 1990 | How big is the 100-year flood, gust or load, how much higher could it plausibly be, is the tail heavy or bounded, and has the level drifted over the record? |
+| [`dynamic-time-warping`](../../ventures/dynamic-time-warping/) | Sakoe & Chiba 1978; Itakura 1975; Giorgino 2009; Tormene, Giorgino, Quaglini & Stefanelli 2009; Müller 2007 | How alike are these two series once timing can stretch, where does one run ahead of the other and is that gap timing or level, and where in a long series does this short pattern recur? |
+| [`meta-analysis`](../../ventures/meta-analysis/) | DerSimonian & Laird 1986; Viechtbauer 2005; Paule & Mandel 1982; Knapp & Hartung 2003; Higgins & Thompson 2002; Viechtbauer 2007; Riley, Higgins & Deeks 2011; Egger et al. 1997; Hedges 1981 | What do these studies say together, how much do they disagree, where would the next study land, and does a study-level variable explain the differences? |
+| [`cost-sharing-calculator`](../../ventures/cost-sharing-calculator/) | Shapley 1953; Schmeidler 1969; Maschler, Peleg & Shapley 1979; Young, Okada & Hashimoto 1982; Littlechild & Owen 1973; Aumann & Maschler 1985; O'Neill 1982 | Who should pay what for something we share, would any subgroup pay less on its own, how should neighbours split a private road, and how do you divide an estate that cannot pay every claim? |
+| [`stable-matching`](../../ventures/stable-matching/) | Gale & Shapley 1962; McVitie & Wilson 1971; Gusfield & Irving 1989; Irving, Leather & Gusfield 1987; Gusfield 1987; Roth 1982, 1984, 1986; Dubins & Freedman 1981 | Who should be matched with whom so no pair would rather have each other, how many stable answers are there and which is fairest to both sides, and is the matching I made by hand stable? |
 
 The site files them under "Research algorithms & ML"
 (`platform/pages/build.mjs`, `research-algorithms`). Add a row here and the
@@ -78,11 +107,21 @@ slug there when a tool lands.
 
 ## Candidates
 
-Next papers to implement, each a job someone has: synthetic control (Abadie,
-Diamond & Hainmueller 2010) for "did my intervention work"; Kaplan-Meier with
-log-rank and Cox (1972) for churn and time-to-event; Sinkhorn optimal
-transport (Cuturi 2013) for comparing distributions; Gaussian-process
-regression with marginal-likelihood fitting (Rasmussen & Williams 2006);
-isolation forest (Liu, Ting & Zhou 2008); robust PCA by principal component
-pursuit (Candès et al. 2011); STL decomposition (Cleveland et al. 1990);
-Benjamini-Hochberg and e-value multiple testing (1995; Vovk & Wang 2021).
+Next papers to implement, each a job someone has: augmented synthetic
+control (Ben-Michael, Feller & Rothstein 2021) as a bias-corrected mode for
+`synthetic-control`; several input columns
+with automatic relevance determination, and a forecast-calibrated mean, as
+modes of `gaussian-process-regression`;
+the debiased Sinkhorn divergence (Genevay, Peyré & Cuturi 2018) and unbalanced
+transport as modes of `wasserstein-distance`;
+stable PCP with an explicit noise level (Zhou, Li, Wright, Candès & Ma 2010) as a mode of `robust-pca`; ADDIS (Tian & Ramdas 2019) for online FDR with conservative nulls, and online rules under dependence, as modes of `fdr-multiple-testing` (LOND, LORD++ and SAFFRON landed 2026-11-16);
+p-to-e calibrators (Vovk & Wang 2021) so e-BH in `fdr-multiple-testing` can take p-values;
+the extended isolation forest's random-hyperplane cuts (Hariri, Carrasco Kind & Brunner 2021) as a mode of `isolation-forest`;
+multiclass and ordinal calibration, and calibration tracked over time with a monitoring chart, as modes of `probability-calibration`;
+predicting the cluster of new rows (McInnes & Healy's approximate_predict) and the DBSCAN-style `cluster_selection_epsilon` cut (Malzer & Baum 2020) as modes of `hdbscan-clustering`;
+multivariate DTW, DTW barycentre averaging (Petitjean, Ketterlin & Gançarski 2011) and LB_Keogh-pruned search (Keogh & Ratanamahatana 2005) as modes of `dynamic-time-warping`;
+trigonometric seasonals, a stochastic cycle, regressors with intervention dummies (the seat-belt law as a level dummy, Harvey & Durbin 1986) and simulation smoothing (Durbin & Koopman 2002) as modes of `kalman-smoother`;
+historical and censored floods (Stedinger & Cohn 1986), covariates beyond the year in the GEV parameters, and the point-process likelihood (Smith 1989) as modes of `extreme-value-analysis`;
+the kernel and the tau-value, Monte Carlo Shapley sampling past 14 members (Castro, Gómez & Tejada 2009), and the airport game's closed-form nucleolus (Littlechild 1974) as modes of `cost-sharing-calculator`;
+ties in the lists with weak and super-stability (Irving 1994), stable roommates for one-sided pairing (Irving 1985), the rotation poset for egalitarian matchings past the listing limit (Irving, Leather & Gusfield 1987), and couples (Roth & Peranson 1999) as modes of `stable-matching`;
+trim-and-fill (Duval & Tweedie 2000), subgroup tests on a categorical column, Mantel-Haenszel pooling for sparse tables, and multilevel models for several effects per study as modes of `meta-analysis`.

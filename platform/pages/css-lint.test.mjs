@@ -21,12 +21,21 @@ test('flags a bare non-zero number on a length property', () => {
   assert.deepEqual(unitlessLengths('a{gap:4px 8}').map((h) => h.token), ['8']);
 });
 
+test('checks a var() fallback, which the browser uses as the length when the variable is unset', () => {
+  assert.deepEqual(unitlessLengths('a{margin:var(--m, 4)}').map((h) => h.token), ['4']);
+  assert.deepEqual(unitlessLengths('a{margin:var(--jump-margin,8px 1 0)}').map((h) => h.token), ['1']);
+  assert.deepEqual(unitlessLengths('a{padding:var(--a,var(--b,2px 3))}').map((h) => h.token), ['3']);
+  assert.deepEqual(unitlessLengths('a{line-height:var(--lh, 1.4)}'), []);
+});
+
 test('leaves zero, units, unitless properties and function arguments alone', () => {
   for (const css of [
     'a{margin:0;padding:0 auto}',
     'a{margin:4px auto;padding:1em 2rem;width:100%}',
     'a{line-height:1.4;flex:1 1 auto;font-weight:400;z-index:2;opacity:.5}',
-    'a{width:calc(100% / 3);margin:var(--m, 4)}',
+    'a{width:calc(100% / 3);margin:var(--m, 4px)}',
+    'a{margin:var(--m);padding:var(--p, 0 auto);gap:var(--g, calc(1 * 4px))}',
+    'a{margin:var(--a, var(--b, 2px 3em))}',
     'a{grid-template-columns:repeat(3,1fr)}',
     '/* margin:1 */ a{margin:0}',
     'a{--pad:4}',
@@ -72,4 +81,25 @@ test('no page or stylesheet in the tree gives a length a bare number', () => {
   }
   assert.ok(seen > 1000, `only ${seen} pages found: is the walk broken?`);
   assert.deepEqual(bad.slice(0, 20), [], `${bad.length} unitless length(s); add px/em/% (only 0 may go bare)`);
+});
+
+// The walk above reads files on disk; the CSS that platform/pages modules write into every built
+// page (rates.mjs, jobs.mjs, share.mjs ...) lives in template literals and was linted only for
+// site-nav.mjs. Red team 2026-11-13: `.pf-rates{padding:8px 14px 0}` -> `14px 1` in rates.mjs
+// passed every test. This scans every template literal in every module here instead.
+test('no CSS a platform/pages module emits gives a length a bare number', () => {
+  const bad = [];
+  let literals = 0;
+  for (const name of readdirSync(HERE).filter((f) => f.endsWith('.mjs') && !f.includes('.test.'))) {
+    const src = readFileSync(path.join(HERE, name), 'utf8');
+    for (const m of src.matchAll(/`((?:[^`\\]|\\.)*)`/g)) {
+      literals++;
+      const text = m[1].replace(/\$\{[^}]*\}/g, 'X');
+      // A quote in the value means JavaScript string concatenation (lab.mjs builds an embed
+      // snippet that way), never a CSS length.
+      for (const h of unitlessLengths(text)) if (!/['"]/.test(h.value)) bad.push(`${name}: ${h.prop}:${h.value}`);
+    }
+  }
+  assert.ok(literals > 200, `only ${literals} template literals found: is the scan broken?`);
+  assert.deepEqual(bad, [], 'add px/em/% (only 0 may go bare)');
 });

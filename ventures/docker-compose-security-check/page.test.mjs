@@ -126,3 +126,7 @@ test('every finding type the scanner can emit is described on the guide page', a
 test('index links one hop to the docker-build-secrets-check sibling', () => {
   assert.match(index, /href="\.\.\/docker-build-secrets-check\/"/);
 });
+
+test('index links one hop to the systemd-unit-hardening-check sibling', () => {
+  assert.match(index, /href="\.\.\/systemd-unit-hardening-check\/"/);
+});

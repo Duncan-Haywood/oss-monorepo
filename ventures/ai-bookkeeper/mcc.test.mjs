@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { mccAccount, mccFromName, mccKey, normaliseMccName, MCC_RANGES } from "./mcc.mjs";
-import { suggest, buildMemory, buildMccMemory, trainClassifier, trainNewPayee, historyRecord } from "./categorize.mjs";
+import { suggest, buildMemory, buildMccMemory, trainClassifier, trainNewPayee, historyRecord, MCC_MEMORY } from "./categorize.mjs";
 import { readStatement } from "./bank.mjs";
 import { wantFor } from "./eval/scotgov-card.mjs";
 
@@ -95,4 +95,31 @@ test("eval label map: every alternative must name an account", () => {
   assert.deepEqual(wantFor("Specialist softwares OR Specialist software - renewal"), ["6060"]);
   assert.equal(wantFor("Not specified in data source"), null);
   assert.equal(wantFor("Catering OR External support services"), null);
+});
+
+test("split category: off by default; when on, the commonest account at low confidence, never over a majority", () => {
+  // 7399 is a catch-all code (no fixed-table account), filed 2 / 2 / 1 here: no majority.
+  const mcc = "7399 Business services";
+  const hist = [
+    ["ALPHA CONSULTING", "6050"], ["BETA ADVISORY", "6050"], ["GAMMA EVENTS", "6170"], ["DELTA SEMINARS", "6170"], ["EPSILON PRINT", "6070"],
+  ].map(([desc, account], i) => historyRecord({ desc, cents: -1000 * (i + 3), mcc }, account));
+  const txn = { desc: "ZQX NEWCO", cents: -4200, mcc };
+  const was = MCC_MEMORY.plurality;
+  try {
+    assert.equal(MCC_MEMORY.plurality, false);
+    assert.notEqual(suggest(txn, modelFrom(hist)).source, "mcc");
+    MCC_MEMORY.plurality = true;
+    const s = suggest(txn, modelFrom(hist));
+    assert.equal(s.source, "mcc");
+    assert.equal(s.account, "6050", "ties go to the lower code, so a rerun gives the same guess");
+    assert.ok(s.confidence <= MCC_MEMORY.pluralityConfidence);
+    assert.match(s.reason, /2 of 5 earlier lines, no majority/);
+    assert.notEqual(suggest(txn, { ...modelFrom(hist), skip: new Set(["mcc-plurality"]) }).source, "mcc");
+    // A majority is the existing layer's, unchanged; under three lines says nothing.
+    const major = hist.concat([historyRecord({ desc: "ZETA CONSULTING", cents: -900, mcc }, "6050"), historyRecord({ desc: "ETA CONSULTING", cents: -800, mcc }, "6050")]);
+    assert.match(suggest(txn, modelFrom(major)).reason, /4 of 7 earlier lines .* went here/);
+    assert.notEqual(suggest(txn, modelFrom(hist.slice(0, 2))).source, "mcc");
+    // Money in is never guessed from a card category.
+    assert.notEqual(suggest({ ...txn, cents: 4200 }, modelFrom(hist)).source, "mcc");
+  } finally { MCC_MEMORY.plurality = was; }
 });

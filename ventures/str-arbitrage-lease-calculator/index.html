@@ -141,7 +141,7 @@
     let last = null;
     const map = { rent: "rent", utilities: "utilities", othermonthly: "otherMonthly", deposit: "deposit", furnish: "furnish", setup: "setup", resalepct: "resalePct", adr: "adr", occ: "occ", avgstay: "avgStay", cleaningfee: "cleaningFee", turncost: "turnCost", varnight: "varNight", platformpct: "platformPct", leasemonths: "leaseMonths", rampmonths: "rampMonths", ramppct: "rampPct" };
     const IDLE = "Fill in your unit, then click Work out the lease.";
-    const whole = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
+    const whole = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(Math.round(n)).toLocaleString("en-US"));
 
     function download(name, body, type) {
       const a = document.createElement("a");

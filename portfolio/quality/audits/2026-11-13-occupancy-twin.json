@@ -1,0 +1,245 @@
+{
+ "date": "2026-11-13",
+ "subject": "research/occupancy-twin",
+ "stratum": "research",
+ "seed": "2026-11-13-r-1b81",
+ "drawn_by": "sample",
+ "round": 72,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a robotics researcher in probabilistic occupancy mapping and sim-to-real sensor modelling who also knows sequential analysis (the kind who reviews for RA-L/ICRA or IEEE T-RO). They would check first that the exact error and the optional-stopping sandwich are right, whether the exponent theta* is anything other than Wald's OC-function root h (Wald 1947), whether the sensor rates come from any real sensor or a standard mapper's defaults (OctoMap prob_hit 0.7 / prob_miss 0.4, clamping 0.12/0.97), and whether the single-cell absorbing walk says anything about a production mapper with clamping and correlated beams",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Every reported number I recomputed matched, from sources the author did not write. (1) theta* for p0=0.05..0.30 from Wald's (1947) closed-form binomial-SPRT OC parametrisation p(h)=(1-r^h)/(R^h-r^h), R=q1/q0, r=(1-q1)/(1-q0), inverted by bisection: 1.000 0.701 0.509 0.361 0.124, identical to results.txt. (2) My own DP over integer (hits, misses) states gives free-cell error 1.4453e-2 and E[T]=8.221 at p0=0.15 (results.txt 1.45e-2, 8.2); a vectorised numpy Monte Carlo with 2e6 paths gives 1.4385e-2 +- 8.4e-5. (3) Occupied side simulated directly on the lower barrier with no use of reflect(): DP 2.5805e-2, MC 2.5875e-2 +- 1.1e-4 (results.txt 2.58e-2, 25.8x). (4) Tempered threshold at p0=0.15: A_T=13.565, DP error 5.400e-4, E[T] 15.80; MC (4e6) 5.23e-4 +- 1.1e-5, E[T] 15.80 (results.txt 13.56, 5.40e-4, 15.8). (5) Hand derivation of the sandwich from E[exp(theta* S_T)]=1 with overshoot in [A,A+a) and (-A-b,-A]: P=(1-L)/(U-L) is decreasing in U and L, so the code's lo/hi (model.py:48-49) pick the right corners. Command: /usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/2857b237-e613-5436-b436-362d4f26d0ba/scratchpad/recompute.py. Not 4: the MC columns in results.txt carry no standard errors, and the model functions fail on edge inputs (below).",
+  "completeness": "README promises 7 tests in about 1 s and an experiment script whose output is experiments/results.txt; the paper promises four results. Ran both: 7 tests OK in 0.58 s; `PYTHONPATH=src python3 experiments/run.py` took 66 s and its output is byte-identical to the committed results.txt (diff empty). All four paper sections (inflation, occupied side, tempering, calibration budget) and the figure script exist; the live page https://marisstella.app/research/occupancy-twin/ returns 200 with the headline numbers. No TODOs or stubs. Within its stated scope it is finished; the scope itself is one stylised cell.",
+  "verification": "`cd research/occupancy-twin && PYTHONPATH=src python3 -m unittest discover -s tests -v`: Ran 7 tests ... OK. The tests are good where they exist (theta* solves its equation, exact lies inside the sandwich, DP vs MC, reflection vs direct simulation, tempering below target). Mutations with platform/ci/quality_mutate.py: 2 of 4 survived. E[T] accumulation on the upper branch (model.py:69, mass*(n+1) -> mass*n) survives: no test checks expected commit time, yet the paper's latency claims (1.4x-16x) rest on it. The delta-method sd losing its (1-p) factor (model.py:102) survives because the 10% tolerance on the sd ratio admits sqrt(0.85)=0.92. Changing the tempered threshold numerator (model.py:90) and the sandwich upper bound (model.py:49) are caught. A one-line analytic test (A=1.0 < min(a,b), so every walk stops at step 1 and E[T]=1) catches the surviving E[T] mutant; I checked that with quality_mutate.",
+  "craft": "Read src/occupancy_twin/model.py (102 lines), tests/test_model.py, experiments/run.py, experiments/figure.py. The code is small, clear, documented, and has no dependencies. Defects: no input checks. theta_star(0.0, a, b) doubles `hi` until math.exp overflows (OverflowError at model.py:32). error_bounds and tempered_threshold divide by zero when drift >= 0 because theta_star returns 0.0 (model.py:48, 90); ZeroDivisionError at p=0.5. exact_error returns the unresolved mass but run.py drops it (`w, et, _`). It was ~1e-84 in every case I probed, so nothing is wrong today, but nothing guards it. Star imports in __init__ and the tests. A careful researcher would accept this for a 100-line companion script.",
+  "claims": "Checked against results.txt: README 14.5x, 1.45e-2 exact, 1.32e-2 simulation, 25.8x occupied, tempering 1.4-16x latency all match; paper sections 1-4 numbers all match the table; 'rigorous by optional stopping' holds (derived by hand); '7 tests, ~1 s' holds. The 'Stylised' disclosure and a Limitations section are present. Weaker: 'several hundred samples' rests on a grid with nothing between n=200 (26% exceed target) and n=1000 (7%). Paper 4 says the delta-method sd 'matches resampling for n>=50' while quoting 0.166 vs 0.181, a 9% gap. The README and paper say the project builds on the ARPG group's (Heckman, CU Boulder) sensor-simulation work, and claim 'ARPG-style perception pipelines are trained and validated on simulated sensors', but cite no ARPG paper. The twin rates q1=0.8, q0=0.05 and real p0 values are uncited and their choice is not explained, contrary to research/CLAUDE.md 'Run the numbers; don't stylise them'. No headline number is wrong, so 3, at the low end.",
+  "fitness": "A researcher building on this gets correct, reproducible numbers for one absorbing random walk. The nearest prior work is Wald (1947, Sequential Analysis, ch. 3): for an SPRT run under any true distribution, the operating characteristic is governed by the nonzero root h of E[exp(hZ)]=1, with exactly these overshoot-corrected bounds. I recomputed theta* from Wald's binomial OC parametrisation and got identical values. Siegmund (1985) gives the overshoot corrections, and Huber (1965) treats robust tests under misspecification. On the mapping side, Thrun (2003) learns forward sensor models, and OctoMap (Hornung et al. 2013) uses clamped log-odds rather than absorbing commits. The paper cites Wald 1945 but attributes the exponent to Lundberg's risk theory and never says the misspecified-SPRT error rate is Wald's OC function. So the theory is textbook and the tempering fix (rescale the threshold) is its direct corollary. The occupancy framing is new only as an application, with no real-sensor data and no programme in research/PROGRAMMES.md behind it. It does not reach the research/CLAUDE.md PhD+ bar or a venue.",
+  "domain": "Compared with occupancy-mapping practice (Elfes 1989; Thrun et al. 2005 ch. 9; OctoMap defaults prob_hit 0.7, prob_miss 0.4, clamping thresholds 0.12/0.97, i.e. log-odds about -2 and +3.5): production mappers clamp log-odds and threshold at 0.5 rather than committing at +-6.9. The paper concedes this, but its whole result depends on the absorbing commit. Beams are correlated and incidence-dependent, and cells are updated through an inverse sensor model, not a per-cell Bernoulli. The parameters (twin 0.8/0.05, real p0 0.10-0.30) come from no sensor datasheet, dataset or simulator. As sequential analysis the method is sound. As a mapping result, a practitioner would not sign it off: it shows no mapper, sensor, dataset or simulator behaving this way, and it does not use the field's standard model (clamped OctoMap updates)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Lundberg exponent theta* for p0=0.05,0.10,0.15,0.20,0.30 (twin 0.8/0.05)",
+   "method": "Wald (1947) Sequential Analysis, binomial SPRT OC parametrisation p(h)=(1-r^h)/(R^h-r^h), inverted by bisection; no subject code imported",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/2857b237-e613-5436-b436-362d4f26d0ba/scratchpad/recompute.py",
+   "expected": "results.txt: 1.000 0.701 0.509 0.361 0.124",
+   "observed": "1.000 0.701 0.509 0.361 0.124",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Exact free-cell wrong-commit probability and E[T] at p0=0.15, A=6.907",
+   "method": "own DP over integer (hits, misses) states plus vectorised numpy Monte Carlo, 2e6 paths",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/2857b237-e613-5436-b436-362d4f26d0ba/scratchpad/recompute.py",
+   "expected": "results.txt: 1.45e-02 (14.5x), E[T] 8.2",
+   "observed": "DP 1.4453e-2, E[T] 8.221; MC 1.4385e-2 +- 8.4e-5",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Occupied-cell missed detection at real p1=0.6 (twin 0.8)",
+   "method": "direct simulation and own DP on the lower barrier, no reflection, 2e6 MC paths",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/2857b237-e613-5436-b436-362d4f26d0ba/scratchpad/recompute.py",
+   "expected": "results.txt: 2.58e-02, 25.8x",
+   "observed": "DP 2.5805e-2; MC 2.5875e-2 +- 1.1e-4 (25.9x)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Tempered threshold, error and latency at p0=0.15",
+   "method": "A_T from Wald-h exponent, own DP, MC 4e6 paths",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/2857b237-e613-5436-b436-362d4f26d0ba/scratchpad/recompute.py",
+   "expected": "results.txt: A_temp 13.56, error 5.40e-04, E[T] 15.8",
+   "observed": "A_T 13.565, DP 5.400e-4, E[T] 15.80; MC 5.23e-4 +- 1.1e-5 (1.5 SE), E[T] 15.80",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Optional-stopping sandwich formulas in error_bounds",
+   "method": "hand derivation from E[exp(theta* S_T)]=1 with overshoot ranges; P=(1-L)/(U-L) is decreasing in U and L, so the extreme corners give the bounds",
+   "command": "by hand vs research/occupancy-twin/src/occupancy_twin/model.py:48-49",
+   "expected": "lo=(1-e^{-tA})/(e^{t(A+a)}-e^{-tA}), hi=(1-e^{-t(A+b)})/(e^{tA}-e^{-t(A+b)})",
+   "observed": "same as code and README formula",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiments/run.py reproduces committed results.txt",
+   "method": "rerun and diff",
+   "command": "cd research/occupancy-twin && PYTHONPATH=src python3 experiments/run.py > out.txt && diff out.txt experiments/results.txt",
+   "expected": "identical",
+   "observed": "byte-identical, 66 s wall time",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "cd research/occupancy-twin && PYTHONPATH=src python3 -m unittest discover -s tests -v",
+   "expected": "7 tests pass, ~1 s (README)",
+   "observed": "Ran 7 tests in 0.584s OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README headline numbers 14.5x, 1.32e-2 sim, 25.8x, 1.4-16x latency",
+   "method": "compare against experiments/results.txt",
+   "command": "cat research/occupancy-twin/experiments/results.txt",
+   "expected": "as README",
+   "observed": "all present in results.txt sections 1-3",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'several hundred samples' calibration budget (README) and 'delta method matches for n>=50' (paper 4)",
+   "method": "compare against results.txt section 4",
+   "command": "cat research/occupancy-twin/experiments/results.txt",
+   "expected": "a grid that pins the threshold; agreement within a few percent",
+   "observed": "grid jumps from n=200 (26% exceed) to 1000 (7%); delta 0.166 vs resampled 0.181 at n=50 (9% gap)",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "positioning as building on ARPG (Heckman, CU Boulder) sensor-simulation work and 'ARPG-style pipelines are trained and validated on simulated sensors'",
+   "method": "look for a cited ARPG paper in README and paper references",
+   "command": "grep -n -i 'arpg\\|heckman' research/occupancy-twin/README.md research/occupancy-twin/paper/whitepaper.md",
+   "expected": "a citation",
+   "observed": "named in README:3 and whitepaper:6, no ARPG reference in the reference list",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "live page serves the project with headline numbers",
+   "method": "load served page",
+   "command": "curl -sS https://marisstella.app/research/occupancy-twin/",
+   "expected": "200, numbers as README",
+   "observed": "200; 14.5 and 'several hundred' present",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "nearest prior work cited and novelty stated",
+   "method": "compare with Wald 1947 OC function, Siegmund 1985, Huber 1965, Thrun 2003, Hornung et al. 2013 (OctoMap)",
+   "command": "sed -n 22,27p research/occupancy-twin/paper/whitepaper.md",
+   "expected": "theta* identified as Wald's OC root h; misspecified-SPRT literature cited",
+   "observed": "exponent attributed to Lundberg (1903); Wald 1945 cited but not the OC function; no misspecification or sensor-model-learning work",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "sensor model and commit rule against standard mapper practice",
+   "method": "OctoMap defaults (prob_hit 0.7, prob_miss 0.4, clamping 0.12/0.97, threshold 0.5); Thrun et al. 2005 ch. 9 inverse sensor model",
+   "command": "sed -n 1,5p research/occupancy-twin/paper/whitepaper.md",
+   "expected": "cited or measured rates; clamped walk or a reason not to model it",
+   "observed": "q1=0.8/q0=0.05 and p0 0.10-0.30 uncited; absorbing +-6.9 commit; clamping only in Limitations",
+   "result": "partial"
+  },
+  {
+   "dimension": "craft",
+   "what": "edge inputs to the model functions",
+   "method": "call with p=0 and with positive drift (p=0.5)",
+   "command": "cd research/occupancy-twin && PYTHONPATH=src python3 -c 'from occupancy_twin import *; a,b=llr(0.8,0.05); error_bounds(0.5,a,b,6.9)'",
+   "expected": "a ValueError or a defined result",
+   "observed": "theta_star(0.0): OverflowError; error_bounds/tempered_threshold at p=0.5: ZeroDivisionError",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/occupancy_twin/model.py:69",
+   "change": "et += mass * (n + 1) -> et += mass * n (upper-barrier E[T] accumulation)",
+   "caught": false,
+   "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/occupancy_twin/model.py:102",
+   "change": "math.sqrt(p * (1 - p) / n) -> math.sqrt(p / n)",
+   "caught": false,
+   "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/occupancy_twin/model.py:90",
+   "change": "math.log(1 / eps) / theta_star -> math.log(0.5 / eps) / theta_star",
+   "caught": true,
+   "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/occupancy_twin/model.py:49",
+   "change": "hi = (1 - math.exp(-t * (A + b))) -> hi = (1 - math.exp(-t * A))",
+   "caught": true,
+   "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Nearest prior work omitted, so the novelty is overstated by omission. theta* is Wald's (1947) OC-function root h for an SPRT run under a misspecified model, and the sandwich is Wald's overshoot bound; the paper credits Lundberg's risk theory and cites only Wald 1945, with no misspecified-SPRT or sensor-model-learning literature (Siegmund 1985, Huber 1965, Thrun 2003, OctoMap).",
+   "where": "research/occupancy-twin/paper/whitepaper.md:9",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Expected commit time (E[T]) is untested. The upper-branch accumulation mutant mass*(n+1) -> mass*n survives all 7 tests, yet the paper's latency results (1.4x-16x, 6.9->9.6 ... 13.6->218 observations) rest on it.",
+   "where": "research/occupancy-twin/src/occupancy_twin/model.py:69",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "The delta-method sd test tolerance (10%) is too loose: dropping the (1-p) factor (a 7.8% error at p=0.15) survives.",
+   "where": "research/occupancy-twin/tests/test_model.py:65",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Every parameter is uncited and its choice unexplained: twin q1=0.8, q0=0.05 and real p0 0.10-0.30, p1 0.5-0.7 come from no sensor datasheet, dataset, simulator or standard mapper default (OctoMap uses 0.7/0.4). The paper does sweep p0, but the headline '14.5x' is a single invented pair, against research/CLAUDE.md 'Run the numbers; don't stylise them'.",
+   "where": "research/occupancy-twin/paper/whitepaper.md:3",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Production occupancy mappers clamp log-odds (OctoMap about -2/+3.5) and threshold continuously; the result depends on an absorbing commit at +-6.9 that no cited mapper uses. Clamping, correlated beams and the inverse sensor model appear only as limitations.",
+   "where": "research/occupancy-twin/paper/whitepaper.md:17",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Claims to build on the ARPG group's (Heckman, CU Boulder) sensor-simulation work and that 'ARPG-style perception pipelines are trained and validated on simulated sensors', with no ARPG paper cited.",
+   "where": "research/occupancy-twin/README.md:3",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "No input validation. theta_star(0.0) loops until math.exp overflows; error_bounds and tempered_threshold raise ZeroDivisionError whenever drift >= 0 (theta_star returns 0.0).",
+   "where": "research/occupancy-twin/src/occupancy_twin/model.py:28",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "'Matches resampling for n >= 50' while quoting 0.166 vs 0.181 (9% off), and 'several hundred samples' rests on a grid with nothing between n=200 and n=1000. The MC column has no standard errors.",
+   "where": "research/occupancy-twin/paper/whitepaper.md:14",
+   "category": "overclaim",
+   "origin": "claims"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15600"
+ ],
+ "verdict": "A small, correct and fully reproducible piece of sequential analysis. Every number I recomputed matches: theta* from Wald's binomial OC formula, exact errors from my own DP and 2e6-path Monte Carlo, the occupied side without reflection, and the tempered threshold. experiments/run.py reproduces results.txt byte for byte in 66 s. It misses the bar on verification: E[T] is untested and 2 of 4 seeded mutants survive. As research it is thin. theta* is Wald's 1947 OC-function root, which the paper never says, and the tempering fix is its corollary. The parameters are invented, there is no real sensor or mapper, and the absorbing +-6.9 commit is not how clamped production mappers (OctoMap) work. A mapping researcher would read it as a correct textbook exercise in a robotics frame, not a publishable result. Correctness 3, claims 3, verification 2: does not meet the bar; finished within its stated scope."
+}

@@ -8,6 +8,7 @@
 
 import { readFile } from "node:fs/promises";
 import { assess } from "./analyze.mjs";
+import { pathToFileURL } from "node:url";
 
 const USAGE = `subpath-robots-check -- can this site's robots.txt actually govern it?
 
@@ -267,7 +268,7 @@ export async function main(argv, io = {}) {
 
 // Only run when invoked directly, so the tests can import `main` freely.
 const invokedDirectly =
-  process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href;
+  process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (invokedDirectly) {
   main(process.argv.slice(2)).then(
     (code) => {

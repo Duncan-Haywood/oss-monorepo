@@ -1,0 +1,15 @@
+# check_loose_number_pattern.py ratchet: file and count of ([\d,]+-style captures. Only shrinks.
+ventures/ai-bookkeeper/bank.mjs 2
+ventures/ai-bookkeeper/eval/hackclub-ledger.mjs 1
+ventures/ai-bookkeeper/sepa.mjs 3
+ventures/camt053-to-ofx-converter/calc.mjs 1
+ventures/commercial-lease-abstract-reader/calc.mjs 5
+ventures/crypto-cost-basis-calculator/importers.mjs 2
+ventures/eu-bank-statement-reader/calc.mjs 1
+ventures/freight-accessorial-auditor/import.mjs 5
+ventures/insurance-denial-appeal-builder/engine.mjs 1
+ventures/lambda-memory-rightsizer/engine.mjs 6
+ventures/shed-designer/catalog.mjs 2
+ventures/texas-electricity-plan-checker/engine.mjs 5
+ventures/texas-electricity-plan-checker/form.mjs 6
+ventures/vendor-contract-clause-reader/calc.mjs 3

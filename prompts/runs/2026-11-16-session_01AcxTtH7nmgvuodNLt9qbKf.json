@@ -1,0 +1,151 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtH7nmgvuodNLt9qbKf",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T02:06:30Z",
+  "ended": "2026-11-16T02:18:15Z",
+  "wall_minutes": 25.43,
+  "tokens_in": 6893260,
+  "tokens_out": 60387,
+  "cost_usd": 3.7652,
+  "tool_calls": 57,
+  "task": "Hearth & Horizon story from the bible proposal 'the frost on the north side of the roof'",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16418",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First git push was blocked by the front-matter hook: the post's seo_title was 78 characters (limit 70).",
+      "fix": "Shortened it in a separate commit and pushed again."
+    },
+    {
+      "what": "The first draft said the 65-degree wall panels take the 09:00 sun at 'more than sixty degrees' to the glass, and that the north slope gets no direct sun at all at 09:00. Recomputing gave 46 degrees and 2 degrees.",
+      "fix": "Fixed the text and the closing note before committing."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The proposal's suggested failed fix (tilting the north panels flatter so they see more sky and frost worse) does not hold up numerically: the sky view fraction only goes from 0.97 to 1.0, a few tenths of a degree. Proposals that name a failed fix should have its size checked before they are written down."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The repo-wide pre-push front-matter hook caught a seo_title over 70 characters. The 70-character limit is not mentioned in prompts/creative/prompt-0.md or the post examples, so it is only found when the push is blocked."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "Locally the portfolio-pages build check flagged engineering/index.html ('86540 post' without a thousands separator), but the same job on PR CI passed. A local-only false red costs time to classify."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "why": "The proposal's failed first fix (flatter north panels) is physically too small to carry a scene.",
+      "did": "Used the inverter's snow-melt mode as the failed fix (spends 10.1 kWh to win 3.0 against a 1.7 kWh estimate), sized by the same energy balance, and said so in the DONE entry and the post.",
+      "result": "The story keeps a failed fix that the sums actually produce."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-eleven-degrees-to-the-glass-frost-on-solar-panels.md",
+    "ventures/hearth-and-horizon/stories/eleven-degrees-to-the-glass.md (closing note with every number)"
+  ],
+  "goal": null,
+  "notes": "Creative track, project hearth-and-horizon (science fiction shelf), piece slug eleven-degrees-to-the-glass. The science fiction shelf had the oldest last piece among the recent creative landings. Text only: audio folders at 577 MB, over the 400 MB cap. Numbers come from scratchpad scripts: an NOAA-style sun position, Meinel clear-sky irradiance, Swinbank sky temperature, and a minute-step energy balance for clearing; ranges are stated in the note. All dates were checked for weekday. node --test in ventures/hearth-and-horizon passed 17/17; check_post_frontmatter is clean; run_workflow_locally --for-changes: 10 of 11 workflows passed. portfolio-pages 'Check the built artifact' failed locally with 'engineering/index.html: count written without a thousands separator: 86540 post', on a page this PR does not touch. The sweep also reported an unstable checkout because the seo_title fix was committed mid-run. PR CI on the head commit was all green, including the portfolio-pages build and test jobs, so the local failure looks like a local-environment artifact.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ed39cfe0-6ddc-5ebb-8340-cd8a6fab8792",
+    "transcripts": 1,
+    "first": "2026-11-16T02:06:30Z",
+    "last": "2026-11-16T02:31:56Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 54,
+        "input": 106,
+        "output": 60387,
+        "thinking": 25666,
+        "cache_read": 6742081,
+        "cache_write_5m": 0,
+        "cache_write_1h": 151073,
+        "api_equivalent_usd": 3.7652,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 54,
+      "input": 106,
+      "output": 60387,
+      "thinking": 25666,
+      "cache_read": 6742081,
+      "cache_write_5m": 0,
+      "cache_write_1h": 151073,
+      "api_equivalent_usd": 3.7652,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 51,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 25.43,
+      "active_minutes": 25.43,
+      "model_minutes": 12.18,
+      "tool_minutes": 13.25,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a ~4,700-word researched short story with a worked thermal/solar model and a blog post: about 10 hours for a skilled writer with an engineering background",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 265.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

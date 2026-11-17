@@ -29,6 +29,22 @@ def _number(value: str) -> int | float:
     return int(number) if number == number.to_integral_value() else float(number)
 
 
+def _line_tax_amount(line: ElementTree.Element) -> str:
+    """cac:ItemPriceExtension/cac:TaxTotal/cbc:TaxAmount on a line, or ""."""
+    for extension in (c for c in line if c.tag.rsplit("}", 1)[-1] == "ItemPriceExtension"):
+        for total in (c for c in extension if c.tag.rsplit("}", 1)[-1] == "TaxTotal"):
+            return _text(total, "TaxAmount", required=False)
+    return ""
+
+
+def _line_amount_with_vat(line: ElementTree.Element) -> str:
+    """cac:ItemPriceExtension/cbc:Amount on a line (UAE BTAE-10, Oman BTOM-017), or ""."""
+    for extension in (c for c in line if c.tag.rsplit("}", 1)[-1] == "ItemPriceExtension"):
+        for amount in (c for c in extension if c.tag.rsplit("}", 1)[-1] == "Amount"):
+            return (amount.text or "").strip()
+    return ""
+
+
 def _nested_text(element: ElementTree.Element, container: str, field: str) -> str:
     """Text of ``<container><field>``, scoped to that container.
 
@@ -136,7 +152,13 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
         quantity = _text(line, quantity_name)
         price = _text(line, "PriceAmount")
         net = _text(line, "LineExtensionAmount")
-        category = next(iter(_children(line, "ClassifiedTaxCategory")), line)
+        # Two categories on a line (PINT MY: SST and the tourism tax, scheme AAL): the
+        # VAT/GST one is the line's rate, whichever comes first (as ubl.mjs).
+        categories = _children(line, "ClassifiedTaxCategory")
+        category = next(
+            (c for c in categories if _nested_text(c, "TaxScheme", "ID").upper() in ("", "VAT", "GST")),
+            categories[0] if categories else line,
+        )
         percent = _text(category, "Percent", required=False)
         price_node = next(iter(_children(line, "Price")), None)
         base_quantity = _text(price_node, "BaseQuantity", required=False) if price_node is not None else ""
@@ -150,6 +172,13 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
         }
         if base_quantity:
             mapped_line["price_base_quantity"] = _number(base_quantity)
+        # A line's own VAT amount where PINT states one (Oman's BTOM-016).
+        line_tax = _line_tax_amount(line)
+        if parse_decimal(line_tax) is not None:
+            mapped_line["tax_amount"] = _number(line_tax)
+        line_amount = _line_amount_with_vat(line)
+        if parse_decimal(line_amount) is not None:
+            mapped_line["amount_with_vat"] = _number(line_amount)
         line_adjustments = _line_adjustments(line)
         if line_adjustments:
             mapped_line["adjustments"] = line_adjustments
@@ -159,7 +188,7 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
     supplier = next(iter(_children(root, "AccountingSupplierParty")), root)
     customer = next(iter(_children(root, "AccountingCustomerParty")), root)
     total = next(iter(_children(root, "LegalMonetaryTotal")), root)
-    tax_totals = _children(root, "TaxTotal")
+    tax_totals = _header_tax_totals(root)
     if not tax_totals:
         raise ValueError("UBL field TaxAmount is missing")
     # BT-110 is in the document currency; a second TaxTotal in the VAT
@@ -172,6 +201,16 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
         return not code or not doc_currency or code == doc_currency
 
     chosen = [item for item in tax_totals if _same_currency(item)] or tax_totals
+    # When the VAT accounting currency is the document currency (ZATCA requires
+    # BT-111 in SAR), the repeat is the TaxTotal with no TaxSubtotal.
+    # That repeat is kept as totals.tax_accounting_currency so INV-059 can compare it.
+    with_subtotal = [item for item in chosen if _has_subtotal(item)]
+    accounting_repeat = None
+    if len(chosen) > 1 and with_subtotal:
+        repeats = [item for item in chosen if not _has_subtotal(item)]
+        if len(repeats) == 1:
+            accounting_repeat = parse_decimal(_text(repeats[0], "TaxAmount", required=False))
+        chosen = with_subtotal
     tax_total = sum((Decimal(_text(item, "TaxAmount")) for item in chosen), Decimal("0"))
     due_date = _text(root, "DueDate", required=False)
     type_code = (
@@ -180,6 +219,7 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
         or _text(root, "DebitNoteTypeCode", required=False)
     )
     original = _billing_reference(root)
+    reasons = _credit_reason_codes(root)
     invoice = {
         "invoice_number": _text(root, "ID"),
         "issue_date": _text(root, "IssueDate"),
@@ -188,6 +228,7 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
         "document_type": document_type,
         **({"document_code": type_code} if type_code else {}),
         **({"original_invoice": original} if original else {}),
+        **({"credit_reason_codes": reasons} if reasons else {}),
         "currency": _text(root, "DocumentCurrencyCode"),
         "supplier": _party(supplier),
         "customer": _party(customer),
@@ -197,6 +238,7 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
             # UBL permits a TaxTotal per tax scheme; the invoice tax is their sum.
             "tax": _number(str(tax_total)),
             "gross": _number(_text(total, "TaxInclusiveAmount")),
+            **({"tax_accounting_currency": accounting_repeat} if accounting_repeat is not None else {}),
             **_optional_monetary_totals(total),
         },
     }
@@ -218,6 +260,13 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
     if period:
         invoice["period"] = period
     invoice.update(_commercial_references(root))
+    # BT-24 and the UBL ProfileID: aside.py reads them to spot PINT and ZATCA files.
+    specification = _text(root, "CustomizationID", required=False)
+    if specification:
+        invoice["specification_id"] = specification
+    business_process = _text(root, "ProfileID", required=False)
+    if business_process:
+        invoice["profile_id"] = business_process
     adjustments = _header_adjustments(root)
     if adjustments:
         invoice["adjustments"] = adjustments
@@ -257,10 +306,38 @@ def _tax_category_fields(category: ElementTree.Element) -> dict[str, str]:
     return extras
 
 
+def _local(element: ElementTree.Element) -> str:
+    return element.tag.rsplit("}", 1)[-1]
+
+
+def _header_tax_totals(root: ElementTree.Element) -> list[ElementTree.Element]:
+    """Document-level TaxTotal elements (BG-22/BG-23): children of the root.
+
+    A line may carry its own TaxTotal (ZATCA's KSA-11/12 line VAT and its
+    prepayment lines' KSA-31/32 subtotal), which is not the document's
+    breakdown. Fall back to every TaxTotal only when none sits at the root.
+    """
+    direct = [child for child in list(root) if _local(child) == "TaxTotal"]
+    return direct or _children(root, "TaxTotal")
+
+
+def _has_subtotal(total: ElementTree.Element) -> bool:
+    return any(_local(child) == "TaxSubtotal" for child in list(total))
+
+
+def _header_subtotals(root: ElementTree.Element) -> list[ElementTree.Element]:
+    return [
+        child
+        for total in _header_tax_totals(root)
+        for child in list(total)
+        if _local(child) == "TaxSubtotal"
+    ]
+
+
 def _tax_breakdown(root: ElementTree.Element) -> list[dict[str, Any]]:
-    """Map TaxTotal/TaxSubtotal rows into tax_breakdown."""
+    """Map document-level TaxTotal/TaxSubtotal rows into tax_breakdown."""
     rows: list[dict[str, Any]] = []
-    for subtotal in _children(root, "TaxSubtotal"):
+    for subtotal in _header_subtotals(root):
         taxable = _text(subtotal, "TaxableAmount", required=False)
         tax = _text(subtotal, "TaxAmount", required=False)
         category = next(iter(_children(subtotal, "TaxCategory")), None)
@@ -281,6 +358,11 @@ def _tax_breakdown(root: ElementTree.Element) -> list[dict[str, Any]]:
             row["tax"] = _number(tax)
         if tax_id:
             row["tax_category"] = tax_id
+        # A tax other than VAT/GST (Malaysia's tourism tax, scheme AAL) can be a flat
+        # amount with no percentage; the scheme is kept only then (as ubl.mjs).
+        scheme_id = _nested_text(category, "TaxScheme", "ID").upper() if category is not None else ""
+        if scheme_id and scheme_id not in ("VAT", "GST"):
+            row["tax_scheme"] = scheme_id
         if row:
             rows.append(row)
     return rows
@@ -289,7 +371,7 @@ def _tax_breakdown(root: ElementTree.Element) -> list[dict[str, Any]]:
 def _document_exemption(root: ElementTree.Element) -> dict[str, str]:
     """Map TaxSubtotal/TaxCategory exemption reason when present."""
     extras: dict[str, str] = {}
-    for subtotal in _children(root, "TaxSubtotal"):
+    for subtotal in _header_subtotals(root):
         for category in _children(subtotal, "TaxCategory"):
             reason = _text(category, "TaxExemptionReason", required=False)
             if reason and "tax_exemption_reason" not in extras:
@@ -365,6 +447,21 @@ def _invoice_period(root: ElementTree.Element) -> dict[str, str] | None:
                 period["end"] = end
             return period
     return None
+
+
+def _credit_reason_codes(root: ElementTree.Element) -> list[str]:
+    """Header-level DiscrepancyResponse/ResponseCode values (BTAE-03); mirrors ubl.mjs."""
+    codes: list[str] = []
+    for child in root:
+        if child.tag.rsplit("}", 1)[-1] != "DiscrepancyResponse":
+            continue
+        for code in child:
+            if code.tag.rsplit("}", 1)[-1] == "ResponseCode":
+                value = (code.text or "").strip()
+                if value:
+                    codes.append(value)
+                break
+    return codes
 
 
 def _billing_reference(root: ElementTree.Element) -> str:

@@ -40,7 +40,7 @@ Needs `clang`, `ld.lld`, `llvm-nm`, `llvm-objcopy`, `llvm-size` (LLVM 18); tests
 
 ## Limitations
 
-- Instruction counts, not cycles. Cortex-M4 loads, taken branches and flash wait states cost more than one cycle, and the 64-bit multiply-accumulate and the divide are excluded or approximated.
+- Instruction counts, not cycles. Cortex-M4 loads, taken branches and flash wait states cost more than one cycle. The 64-bit divide is not counted, which inflates every percentage. Unicorn's code hook also skips instructions in an IT block whose condition fails, which a Cortex-M4 still issues: counting those gives 3486 / 2122 / 1982 instructions per frame at blocks 1 / 10 / 125 (-Os), a floor-scan share of 43% and a block-10 cut of 39% (the 2026-11-13 quality audit, [`portfolio/quality/audits/2026-11-13-ambient-gatem4.json`](../../portfolio/quality/audits/2026-11-13-ambient-gatem4.json)). The counts include the 5-instruction `bench_push` wrapper. The block-minimum floor is compared only with a naive scan, not with a streaming minimum filter (Lemire 2006, about 3 comparisons per sample).
 - One compiler (clang 18), two optimisation levels, one 6-line driver. A vendor GCC would differ.
 - Synthetic audio from one seed per room; instruction counts barely depend on the audio (the branches are few), so more seeds were not run.
 - No real microcontroller, flash, RAM map or interrupt load. Stack use was not measured.

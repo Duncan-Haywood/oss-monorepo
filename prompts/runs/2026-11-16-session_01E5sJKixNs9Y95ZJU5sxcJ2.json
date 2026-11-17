@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKixNs9Y95ZJU5sxcJ2",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T14:23:29Z",
+  "ended": "2026-11-16T14:56:46Z",
+  "wall_minutes": 36.46,
+  "tokens_in": 11153720,
+  "tokens_out": 47050,
+  "cost_usd": 4.3889,
+  "tool_calls": 89,
+  "task": "open-tennis-robots (flagship 10): retest MIN_FIT_RPM, the buildable item named by allocate.py",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16601",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "the first full sweep aborted on one build (shot 1 aim and wheels not done in 10 s) because wheels() asserted res.ok",
+      "fix": "the sweep records aborted builds and goes on; the aborts are reported (ESC 30 ms plant, 0.2 s wheel lag)"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "the buildable item was a fragment of a 597-of-600-character field; replacing it in place overflowed the cap, so the field had to be rewritten whole with --set"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md (LLM docs and a marketing page)",
+      "why": "a firmware/host calibration change with no user-facing surface; llms.txt and the marketing page describe the machine, not this loop detail",
+      "did": "left llms.txt and index.html unchanged",
+      "result": "none to measure"
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md (retest MIN_FIT_RPM)",
+      "why": "the retest found the floor's misses came from the Pi freezing the board's snapshot, not from the fit",
+      "did": "shipped a host-side hold (host.HOLD_RPM) and kept the floor at 1,000 rpm after a 750 floor scored mixed",
+      "result": "750-1,000 rpm wheels 0 of 54 over 2% off (was 16 / 19) on two plants; spin worst at the 1,000 floor 2.39 to 0.52% and 8.11 to 4.16%"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-the-tennis-feeder-was-cutting-its-slow-wheels-short.md",
+    "ventures/open-tennis-robots/firmware/esp32/README.md (The 1,000 rpm floor retested)",
+    "ventures/open-tennis-robots/eval/min-fit-rpm-retest-2026-11-16.txt"
+  ],
+  "goal": "deepen flagship 10 (open-tennis-robots) with a measured firmware/host slice",
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py open-tennis-robots: ok, 335 tests (58 skipped, build123d not installed), 206.9 s. node platform/pages/venture-preflight.mjs open-tennis-robots: clean. New test test_slow_wheel_keeps_its_revolutions_until_the_verdict passes. Sweep: tests/min_fit_rpm_sweep.py, three plants run in parallel (~15 min each), output in eval/min-fit-rpm-retest-2026-11-16.txt. Simulator only; the floor and HOLD_RPM were judged on the same builds.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "eef44a62-9a62-57bf-8b2e-ba8b32f3b227",
+    "transcripts": 1,
+    "first": "2026-11-16T14:23:29Z",
+    "last": "2026-11-16T14:59:56Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 86,
+        "input": 166,
+        "output": 47050,
+        "thinking": 13992,
+        "cache_read": 10997587,
+        "cache_write_5m": 0,
+        "cache_write_1h": 155967,
+        "api_equivalent_usd": 4.3889,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 86,
+      "input": 166,
+      "output": 47050,
+      "thinking": 13992,
+      "cache_read": 10997587,
+      "cache_write_5m": 0,
+      "cache_write_1h": 155967,
+      "api_equivalent_usd": 4.3889,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 89,
+    "tools": {
+      "Bash": 80,
+      "Monitor": 4,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 36.46,
+      "active_minutes": 36.46,
+      "model_minutes": 7.98,
+      "tool_minutes": 28.48,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an embedded engineer building a slow-wheel sweep on the simulator, finding the snapshot freeze, adding the host hold and test, and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 136.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

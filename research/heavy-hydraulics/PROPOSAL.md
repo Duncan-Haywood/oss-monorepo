@@ -98,7 +98,7 @@ Control (short paper), 8 to 12 pages; an aim, not a claim of acceptance.
 
 ## Citation status
 
-`cite_check.py` could not run (Crossref 403). A web search confirmed the Vukovic, Eriksson and
+`cite_check.py` could not run at first (Crossref 403); on 2026-11-12 it resolved all three DOIs and the arXiv id here, and all seven DOIs in `paper/draft.md`, to the cited titles (`cite_check.json`, `paper/cite_check.json`). Before that, a web search confirmed the Vukovic, Eriksson and
 Palmberg, Pearce and HEAP entries (an earlier draft had HEAP in the wrong journal; corrected).
 Williamson's thesis was found by title. Found by search title only (not opened): the two review/IJFP entries. Not opened: Reece, McKyes, Wong, Merritt, Manring and
 Fales (book details only), the valve-maker notes, the Busquets and Ivantysynova paper and the ISO

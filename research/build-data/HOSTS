@@ -1,0 +1,8 @@
+# Hosts build-data's next steps cannot run without (research/_shared/pick_track.py
+# probes these and skips the programme when one does not answer). Every transfer run
+# pulls all four cities' Socrata permit feeds (src/permits.py); sessions 68, 70, 72
+# and 73 found them refused at CONNECT. Delete a line when no next step needs it.
+https://data.sf.gov/
+https://data.cityofchicago.org/
+https://data.austintexas.gov/
+https://data.seattle.gov/

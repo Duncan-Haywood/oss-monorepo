@@ -83,7 +83,7 @@ def main(argv=None):
     with tempfile.TemporaryDirectory() as tmp:
         found = []
         for f in sorted(Path(a.root).rglob("*.html")):
-            if "node_modules" in f.parts:
+            if not {"node_modules", ".next"}.isdisjoint(f.parts):
                 continue
             for line, module, src in inline_scripts(f.read_text(encoding="utf8", errors="replace")):
                 found.append((f, line, module, src))

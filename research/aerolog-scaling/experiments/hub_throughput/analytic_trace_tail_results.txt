@@ -1,0 +1,171 @@
+Milestone 6k: exact time-varying analytic rule (time-indexed charger count + cyclic pack pool) against 6f's simulator under the Chicago daily profile
+hub: 8 pads, 8 chargers, charge 2520 s, swap+load 180 s, limit 11.43 flights/h; order-time grid 60 s; 4 days, first 20% of orders trimmed; target p95 wait <= 300 s; simulator seeds pooled: 2000 (k=1), 4000 (k=4); se = standard error across seeds
+
+== P1. Constant rate: this rule (4 days from empty, trimmed) against 6i's share and 6j's tail
+  load | k | S  | P(W>0) here | 6i     | P(W>300) here | 6j     | |diff| max
+  70%  | 1 | 11 |      0.0682 | 0.0682 |        0.0402 | 0.0399 | 0.0003
+  70%  | 4 | 24 |      0.0510 | 0.0510 |        0.0435 | 0.0434 | 0.0001
+  85%  | 1 | 16 |      0.0623 | 0.0623 |        0.0460 | 0.0459 | 0.0001
+  85%  | 4 | 44 |      0.0468 | 0.0508 |        0.0432 | 0.0471 | 0.0040
+  P1 worst |diff|: 0.0040
+
+== load 70% (8.00/h mean), k=1, day 2019-10-09: peak bin 14.07/h, 20 of 96 bins at or above the 11.43/h limit (PSA undefined there)
+  S  | rule P(W>300) | sim P(W>300) | sim se | diff    | sim p95 (s)
+   18 |        0.1215 |       0.1242 | 0.0016 | -0.0027 |     1783
+   19 |        0.1012 |       0.1040 | 0.0015 | -0.0028 |     1466
+   20 |        0.0837 |       0.0861 | 0.0014 | -0.0024 |     1153
+   21 |        0.0688 |       0.0709 | 0.0013 | -0.0021 |      839
+   22 |        0.0562 |       0.0579 | 0.0012 | -0.0017 |      526
+   23 |        0.0455 |       0.0470 | 0.0011 | -0.0015 |      206
+   24 |        0.0366 |       0.0379 | 0.0010 | -0.0013 |        0
+   25 |        0.0292 |       0.0302 | 0.0009 | -0.0009 |        0
+   26 |        0.0232 |       0.0237 | 0.0008 | -0.0006 |        0
+   27 |        0.0182 |       0.0185 | 0.0007 | -0.0003 |        0
+   28 |        0.0142 |       0.0144 | 0.0006 | -0.0002 |        0
+  smallest S with p95 <= 300 s: rule 23, simulator (Poisson orders) 23, simulator (6f generator) 15; stationary at the mean rate (6j) 11
+
+== load 70% (8.00/h mean), k=1, day 2019-10-12: peak bin 13.44/h, 22 of 96 bins at or above the 11.43/h limit (PSA undefined there)
+  S  | rule P(W>300) | sim P(W>300) | sim se | diff    | sim p95 (s)
+   19 |        0.1180 |       0.1202 | 0.0018 | -0.0023 |     1805
+   20 |        0.0994 |       0.1016 | 0.0017 | -0.0022 |     1493
+   21 |        0.0832 |       0.0853 | 0.0016 | -0.0021 |     1180
+   22 |        0.0692 |       0.0709 | 0.0015 | -0.0017 |      862
+   23 |        0.0571 |       0.0584 | 0.0013 | -0.0013 |      547
+   24 |        0.0469 |       0.0478 | 0.0012 | -0.0009 |      232
+   25 |        0.0382 |       0.0389 | 0.0011 | -0.0006 |        0
+   26 |        0.0309 |       0.0313 | 0.0010 | -0.0004 |        0
+   27 |        0.0249 |       0.0251 | 0.0009 | -0.0002 |        0
+   28 |        0.0199 |       0.0200 | 0.0008 | -0.0002 |        0
+   29 |        0.0158 |       0.0159 | 0.0007 | -0.0001 |        0
+  smallest S with p95 <= 300 s: rule 24, simulator (Poisson orders) 24, simulator (6f generator) 14; stationary at the mean rate (6j) 11
+
+== load 70% (8.00/h mean), k=4, day 2019-10-09: peak bin 14.07/h, 20 of 96 bins at or above the 11.43/h limit (PSA undefined there)
+  S  | rule P(W>300) | sim P(W>300) | sim se | diff    | sim p95 (s)
+   35 |        0.0784 |       0.0846 | 0.0013 | -0.0062 |     2071
+   36 |        0.0704 |       0.0763 | 0.0012 | -0.0059 |     1718
+   37 |        0.0648 |       0.0704 | 0.0012 | -0.0056 |     1439
+   38 |        0.0591 |       0.0644 | 0.0011 | -0.0053 |     1140
+   39 |        0.0534 |       0.0585 | 0.0011 | -0.0050 |      811
+   40 |        0.0478 |       0.0525 | 0.0010 | -0.0047 |      460
+   41 |        0.0438 |       0.0483 | 0.0010 | -0.0045 |      188
+   42 |        0.0399 |       0.0440 | 0.0009 | -0.0042 |       70
+   43 |        0.0359 |       0.0398 | 0.0009 | -0.0039 |        8
+   44 |        0.0319 |       0.0356 | 0.0008 | -0.0036 |        0
+   45 |        0.0292 |       0.0326 | 0.0008 | -0.0034 |        0
+  smallest S with p95 <= 300 s: rule 40, simulator (Poisson orders) 41; stationary at the mean rate (6j) 24
+
+== load 70% (8.00/h mean), k=4, day 2019-10-12: peak bin 13.44/h, 22 of 96 bins at or above the 11.43/h limit (PSA undefined there)
+  S  | rule P(W>300) | sim P(W>300) | sim se | diff    | sim p95 (s)
+   37 |        0.0754 |       0.0802 | 0.0012 | -0.0048 |     1912
+   38 |        0.0692 |       0.0736 | 0.0012 | -0.0044 |     1610
+   39 |        0.0630 |       0.0671 | 0.0011 | -0.0041 |     1279
+   40 |        0.0568 |       0.0605 | 0.0011 | -0.0037 |      923
+   41 |        0.0524 |       0.0557 | 0.0010 | -0.0033 |      650
+   42 |        0.0479 |       0.0508 | 0.0010 | -0.0029 |      354
+   43 |        0.0434 |       0.0459 | 0.0009 | -0.0025 |      107
+   44 |        0.0390 |       0.0411 | 0.0009 | -0.0021 |       25
+   45 |        0.0358 |       0.0378 | 0.0009 | -0.0020 |        0
+   46 |        0.0326 |       0.0345 | 0.0008 | -0.0019 |        0
+   47 |        0.0294 |       0.0312 | 0.0008 | -0.0018 |        0
+  smallest S with p95 <= 300 s: rule 42, simulator (Poisson orders) 43; stationary at the mean rate (6j) 24
+
+== load 85% (9.71/h mean), k=1, day 2019-10-09: peak bin 17.09/h, 39 of 96 bins at or above the 11.43/h limit (PSA undefined there)
+  S  | rule P(W>300) | sim P(W>300) | sim se | diff    | sim p95 (s)
+   38 |        0.0882 |       0.0909 | 0.0015 | -0.0027 |     1803
+   39 |        0.0787 |       0.0809 | 0.0014 | -0.0023 |     1486
+   40 |        0.0699 |       0.0716 | 0.0014 | -0.0018 |     1169
+   41 |        0.0618 |       0.0632 | 0.0013 | -0.0014 |      853
+   42 |        0.0545 |       0.0555 | 0.0012 | -0.0010 |      540
+   43 |        0.0479 |       0.0484 | 0.0011 | -0.0005 |      227
+   44 |        0.0419 |       0.0420 | 0.0011 | -0.0001 |        0
+   45 |        0.0366 |       0.0364 | 0.0010 | +0.0002 |        0
+   46 |        0.0318 |       0.0314 | 0.0009 | +0.0004 |        0
+   47 |        0.0275 |       0.0270 | 0.0009 | +0.0005 |        0
+   48 |        0.0238 |       0.0231 | 0.0008 | +0.0006 |        0
+  smallest S with p95 <= 300 s: rule 43, simulator (Poisson orders) 43, simulator (6f generator) 31; stationary at the mean rate (6j) 16
+
+== load 85% (9.71/h mean), k=1, day 2019-10-12: peak bin 16.32/h, 36 of 96 bins at or above the 11.43/h limit (PSA undefined there)
+  S  | rule P(W>300) | sim P(W>300) | sim se | diff    | sim p95 (s)
+   40 |        0.0897 |       0.0911 | 0.0015 | -0.0014 |     1746
+   41 |        0.0797 |       0.0807 | 0.0014 | -0.0010 |     1431
+   42 |        0.0705 |       0.0711 | 0.0014 | -0.0006 |     1118
+   43 |        0.0621 |       0.0623 | 0.0013 | -0.0002 |      805
+   44 |        0.0545 |       0.0544 | 0.0012 | +0.0001 |      490
+   45 |        0.0476 |       0.0472 | 0.0011 | +0.0004 |      174
+   46 |        0.0414 |       0.0408 | 0.0010 | +0.0006 |        0
+   47 |        0.0359 |       0.0351 | 0.0010 | +0.0007 |        0
+   48 |        0.0310 |       0.0301 | 0.0009 | +0.0009 |        0
+   49 |        0.0266 |       0.0256 | 0.0008 | +0.0010 |        0
+   50 |        0.0228 |       0.0218 | 0.0007 | +0.0010 |        0
+  smallest S with p95 <= 300 s: rule 45, simulator (Poisson orders) 45, simulator (6f generator) 33; stationary at the mean rate (6j) 16
+
+== load 85% (9.71/h mean), k=4, day 2019-10-09: peak bin 17.09/h, 39 of 96 bins at or above the 11.43/h limit (PSA undefined there)
+  S  | rule P(W>300) | sim P(W>300) | sim se | diff    | sim p95 (s)
+   62 |        0.0678 |       0.0730 | 0.0015 | -0.0052 |     2104
+   63 |        0.0635 |       0.0683 | 0.0014 | -0.0048 |     1773
+   64 |        0.0593 |       0.0637 | 0.0014 | -0.0044 |     1425
+   65 |        0.0559 |       0.0599 | 0.0013 | -0.0041 |     1144
+   66 |        0.0525 |       0.0562 | 0.0013 | -0.0037 |      839
+   67 |        0.0490 |       0.0524 | 0.0013 | -0.0034 |      515
+   68 |        0.0456 |       0.0487 | 0.0012 | -0.0030 |      179
+   69 |        0.0429 |       0.0457 | 0.0012 | -0.0027 |      101
+   70 |        0.0402 |       0.0427 | 0.0011 | -0.0025 |       60
+   71 |        0.0375 |       0.0397 | 0.0011 | -0.0022 |       28
+   72 |        0.0348 |       0.0367 | 0.0011 | -0.0019 |        2
+  smallest S with p95 <= 300 s: rule 67, simulator (Poisson orders) 68; stationary at the mean rate (6j) 44
+
+== load 85% (9.71/h mean), k=4, day 2019-10-12: peak bin 16.32/h, 36 of 96 bins at or above the 11.43/h limit (PSA undefined there)
+  S  | rule P(W>300) | sim P(W>300) | sim se | diff    | sim p95 (s)
+   63 |        0.0694 |       0.0703 | 0.0014 | -0.0008 |     1905
+   64 |        0.0647 |       0.0654 | 0.0014 | -0.0007 |     1560
+   65 |        0.0610 |       0.0616 | 0.0013 | -0.0006 |     1276
+   66 |        0.0572 |       0.0577 | 0.0013 | -0.0005 |      964
+   67 |        0.0534 |       0.0538 | 0.0012 | -0.0004 |      634
+   68 |        0.0497 |       0.0500 | 0.0012 | -0.0003 |      298
+   69 |        0.0467 |       0.0469 | 0.0012 | -0.0003 |      122
+   70 |        0.0437 |       0.0439 | 0.0011 | -0.0002 |       71
+   71 |        0.0407 |       0.0408 | 0.0011 | -0.0001 |       36
+   72 |        0.0377 |       0.0377 | 0.0011 | -0.0001 |        5
+   73 |        0.0353 |       0.0353 | 0.0010 | -0.0000 |        0
+  smallest S with p95 <= 300 s: rule 68, simulator (Poisson orders) 68; stationary at the mean rate (6j) 44
+
+== Time of day. Wed profile, 85% mean load, k=1, S=43: hourly order rate and P(wait > 300 s) for orders in that hour on day 4, rule and simulator (2000 seeds)
+  hour | rate (/h) | rule P(W>300) | sim P(W>300)
+     0 |      4.18 |        0.0908 |       0.0959
+     1 |      2.51 |        0.0286 |       0.0252
+     2 |      1.64 |        0.0061 |       0.0052
+     3 |      1.42 |        0.0007 |       0.0011
+     4 |      2.26 |        0.0001 |       0.0000
+     5 |      4.26 |        0.0000 |       0.0000
+     6 |      7.08 |        0.0000 |       0.0000
+     7 |     12.07 |        0.0000 |       0.0000
+     8 |     15.44 |        0.0000 |       0.0000
+     9 |     12.99 |        0.0000 |       0.0000
+    10 |     10.21 |        0.0001 |       0.0000
+    11 |      9.81 |        0.0001 |       0.0000
+    12 |      9.92 |        0.0001 |       0.0000
+    13 |     10.29 |        0.0002 |       0.0000
+    14 |     10.43 |        0.0003 |       0.0000
+    15 |     11.84 |        0.0005 |       0.0001
+    16 |     12.90 |        0.0012 |       0.0003
+    17 |     15.47 |        0.0044 |       0.0037
+    18 |     16.70 |        0.0187 |       0.0167
+    19 |     15.93 |        0.0607 |       0.0609
+    20 |     13.83 |        0.1178 |       0.1176
+    21 |     13.59 |        0.1735 |       0.1706
+    22 |     10.91 |        0.2097 |       0.2121
+    23 |      7.46 |        0.1703 |       0.1671
+
+Summary
+  P1 worst |rule - 6i/6j| at constant rate: 0.0040
+  load 70% k=1 2019-10-09: rule 23, simulated 23 (diff +0), 6f generator 15; mean-rate stationary 11; PSA bins over limit 20 (peak 14.07/h)
+  load 70% k=1 2019-10-12: rule 24, simulated 24 (diff +0), 6f generator 14; mean-rate stationary 11; PSA bins over limit 22 (peak 13.44/h)
+  load 70% k=4 2019-10-09: rule 40, simulated 41 (diff -1); mean-rate stationary 24; PSA bins over limit 20 (peak 14.07/h)
+  load 70% k=4 2019-10-12: rule 42, simulated 43 (diff -1); mean-rate stationary 24; PSA bins over limit 22 (peak 13.44/h)
+  load 85% k=1 2019-10-09: rule 43, simulated 43 (diff +0), 6f generator 31; mean-rate stationary 16; PSA bins over limit 39 (peak 17.09/h)
+  load 85% k=1 2019-10-12: rule 45, simulated 45 (diff +0), 6f generator 33; mean-rate stationary 16; PSA bins over limit 36 (peak 16.32/h)
+  load 85% k=4 2019-10-09: rule 67, simulated 68 (diff -1); mean-rate stationary 44; PSA bins over limit 39 (peak 17.09/h)
+  load 85% k=4 2019-10-12: rule 68, simulated 68 (diff +0); mean-rate stationary 44; PSA bins over limit 36 (peak 16.32/h)
+  k=1: mean rule - sim P(W>300) over the scanned rows -0.0008, largest |diff| / se 1.8
+  k=4: mean rule - sim P(W>300) over the scanned rows -0.0029, largest |diff| / se 5.0
+  runtime 197 s

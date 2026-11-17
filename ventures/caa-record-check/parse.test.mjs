@@ -99,3 +99,13 @@ test('parseIssueValue: is case-insensitive on the issuer domain', () => {
   const v = parseIssueValue('LetsEncrypt.org');
   assert.equal(v.issuerDomain, 'letsencrypt.org');
 });
+
+test('parseIssueValue: an empty issuer with parameters still means disallow all (red team 2026-11-11)', () => {
+  // RFC 8659 4.2: the issuer domain name is optional; with none, no CA is authorized.
+  for (const raw of ['; accounturi=https://example.test/acct/1', ';validationmethods=dns-01', '  ;  foo=bar']) {
+    const v = parseIssueValue(raw);
+    assert.equal(v.disallowAll, true, raw);
+    assert.equal(v.issuerDomain, null, raw);
+    assert.equal(Object.keys(v.parameters).length, 1, raw);
+  }
+});

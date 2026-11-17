@@ -190,7 +190,7 @@
 
   <script type="module">
     import { compareBundleDiscount, bundleDiscountNote } from "./calc.mjs";
-    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from "./usage.mjs";
 
     const FIELD_IDS = [
       "itemPrice", "bundleQuantity", "bundleDiscountPct", "referralRate",
@@ -204,7 +204,7 @@
       return `${sign}$${Math.abs(value).toFixed(2)}`;
     };
     const el = (id) => document.getElementById(id);
-    const count = (event) => recordUsage(localStorage, el("usageOptOut").checked, event);
+    const count = (event) => recordUsage(usageStorage(), el("usageOptOut").checked, event);
 
     function readInput() {
       const value = (id) => el(id).value;
@@ -273,8 +273,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

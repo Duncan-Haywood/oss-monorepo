@@ -8,7 +8,7 @@
 
 **Why this one.** The garment track's recent chain was variants of one two-node thermal model; this asks a different question, the volume and learning effect that `garment-teardown`'s limitations list as ignored.
 
-**Builds on.** Wright, T. P. (1936), "Factors affecting the cost of airplanes", *Journal of the Aeronautical Sciences* 3(4):122-128 (the learning curve: unit time falls by a fixed share with each doubling of cumulative output; I cite it from memory and did not fetch it). Replica materials and minutes come from `garment-teardown`. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
+**Builds on.** Wright, T. P. (1936), "Factors affecting the cost of airplanes", *Journal of the Aeronautical Sciences* 3(4):122-128 (the learning curve: unit time falls by a fixed share with each doubling of cumulative output; I cite it from memory and did not fetch it). Wright's own model is the *cumulative-average* form; the unit-time form used here is Crawford's (1944). The choice matters: under the cumulative-average form, 4x / 0.85 reaches 2x experienced time in about 7 coats rather than 20, and 4x / 0.90 in about 33 rather than 96 (quality audit [`2026-11-13-garment-learning.json`](../../portfolio/quality/audits/2026-11-13-garment-learning.json)). Prior work on plateaus (De Jong 1957), forgetting (Jaber and Bonney 1996) and measured sewing-operator learning (Nembhard and Uzumeri 2000) is not modelled. Replica materials and minutes come from `garment-teardown`. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method
 - `src/garment_learning/model.py`: unit time `t(n) = max(floor, t1 * n^b)`, `b = log2(rate)`; exact cumulative sums; coats-to-target; labour cost per unit at a wage and line efficiency. Floor = the experienced-operator minutes (sewing 51 + cutting 25 = 76).
@@ -34,7 +34,7 @@ python experiments/figure.py                    # writes experiments/max_wage.sv
 
 - Own time at $0/h: every coat costs the $43 of materials. At $6/h the coats cost $73, $63, $58, $53 for coats 1, 5, 20, 100; at $15/h, $119, $95, $80, $68.
 - Break-even wage for a $50 coat (4x, 0.85): $1.45, $2.12, $2.93, $4.28 per hour for coats 1, 5, 20, 100. In these assumptions a $50 replica is a hobby price, not a wage-paying one: the $43 of materials leaves only $7 of headroom.
-- Factory run (D): mean sewing labour per coat is $27.6 for a single coat, $22.1 over 10, $14.9 over 200 and $14.0 over 1,000, against a steady state of $13.8. With a 2x first coat and a 0.90 rate, the learning surcharge is under 8% after 200 coats.
+- Factory run (D): mean sewing labour per coat is $27.6 for a single coat, $22.1 over 10, $14.9 over 200 and $14.0 over 1,000, against a steady state of $13.8. With a 2x first coat and a 0.90 rate, the learning surcharge is about 8.2% after 200 coats (14.94 / 13.82).
 
 ## Limitations
 - **Every parameter is assumed**: the first-coat multiple (4x, 8x), the learning rates (0.80 to 0.90), and the floor. Real learning rates for home sewing were not measured or sourced here. The 2x-time answer ranges over three orders of magnitude on those two numbers.

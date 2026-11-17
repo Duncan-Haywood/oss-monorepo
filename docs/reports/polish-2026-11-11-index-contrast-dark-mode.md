@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [accessibility, contrast, dark-mode, design]
+topics: [accessibility, design]
 date: 2026-11-11
 tagged: auto
 ---

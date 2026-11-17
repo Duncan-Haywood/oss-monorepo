@@ -32,7 +32,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
     .pill.info { background: #e3e9ef; color: #1f4a5d; }
@@ -44,6 +44,15 @@
     .best td { background: #e3f1e6; font-weight: 600; }
     td.hot { background: #e3f1e6; font-weight: 700; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 500px) { div.grid:has(#lookback) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 357px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
@@ -138,7 +147,7 @@
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
+    const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(money(Math.abs(n)));
     const FIELDS = ["offerFmv", "purchaseFmv", "discount", "lookback", "shares", "offerMonths", "ordRate", "ltcgRate", "salePrice", "otherGains"];
     let last = null;
 
@@ -151,7 +160,7 @@
       last = a;
       const tiles = [[usd(a.sellNow.netProfit), "profit after tax if you sell at purchase"], [usd(a.holdQ.netProfit), "profit after tax if held " + a.qm + " months and sold at $" + a.salePrice.toFixed(2)], [a.breakeven === null ? "n/a" : "$" + a.breakeven.toFixed(2), "breakeven price: below this, waiting loses"], [usd(a.taxPrize), "tax saved by qualifying"]];
       $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
-      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       const rows = [["Sell at purchase", a.sellNow]];
       if (a.hold12) rows.push(["Hold 12 months", a.hold12]);
       rows.push(["Hold to qualifying date", a.holdQ]);

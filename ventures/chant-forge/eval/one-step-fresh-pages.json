@@ -1,0 +1,317 @@
+{
+  "note": "Fresh held-out pieces for the one-step cephalicus rule (scan.mjs oneStepCephalicus, ONE_STEP), chosen on 2026-11-16 by eval/one-step-fresh.mjs after the rule was set from two cephalici (GregoBase 3490, leaf 773; 3508, leaf 382) and frozen, and listed before any of their pages was downloaded: in id order from 3463, the first 15 GregoBase ids in no earlier piece list, none of whose four leaves any earlier list (or an earlier piece of this list) reads, whose book: header names only the Graduale Romanum, 1908, and whose GABC has a one-step cephalicus (a liquescent whose note before it in the group is a plain pitch one letter higher). Arabic page p is printed on leaf p+26, bracketed page [p] on leaf p+585; the two leaves before it and the one after are read and the piece found by local alignment. GABC files are unmodified GregoBase downloads (CC0), in corpus/gregobase-1908-onestep/.",
+  "pieces": [
+    {
+      "name": "GregoBase 3511 (Miserere mei... tribulor)",
+      "gabc": "corpus/gregobase-1908-onestep/3511.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "oneStepCephalici": 1,
+      "pages": [
+        {
+          "page": "leaf 690",
+          "leaf": 690
+        },
+        {
+          "page": "leaf 691",
+          "leaf": 691
+        },
+        {
+          "page": "[107]",
+          "leaf": 692
+        },
+        {
+          "page": "leaf 693",
+          "leaf": 693
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3547 (Laetamini cum Jerusalem (All.))",
+      "gabc": "corpus/gregobase-1908-onestep/3547.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "oneStepCephalici": 1,
+      "pages": [
+        {
+          "page": "leaf 473",
+          "leaf": 473
+        },
+        {
+          "page": "leaf 474",
+          "leaf": 474
+        },
+        {
+          "page": "449",
+          "leaf": 475
+        },
+        {
+          "page": "leaf 476",
+          "leaf": 476
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3573 (Ego autem cum)",
+      "gabc": "corpus/gregobase-1908-onestep/3573.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "oneStepCephalici": 1,
+      "pages": [
+        {
+          "page": "leaf 465",
+          "leaf": 465
+        },
+        {
+          "page": "leaf 466",
+          "leaf": 466
+        },
+        {
+          "page": "441",
+          "leaf": 467
+        },
+        {
+          "page": "leaf 468",
+          "leaf": 468
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3580 (Calix benedictionis)",
+      "gabc": "corpus/gregobase-1908-onestep/3580.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "oneStepCephalici": 1,
+      "pages": [
+        {
+          "page": "leaf 500",
+          "leaf": 500
+        },
+        {
+          "page": "leaf 501",
+          "leaf": 501
+        },
+        {
+          "page": "476",
+          "leaf": 502
+        },
+        {
+          "page": "leaf 503",
+          "leaf": 503
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3616 (Quicumque fecerit)",
+      "gabc": "corpus/gregobase-1908-onestep/3616.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "oneStepCephalici": 2,
+      "pages": [
+        {
+          "page": "leaf 414",
+          "leaf": 414
+        },
+        {
+          "page": "leaf 415",
+          "leaf": 415
+        },
+        {
+          "page": "390",
+          "leaf": 416
+        },
+        {
+          "page": "leaf 417",
+          "leaf": 417
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3642 (Christo confixus sum)",
+      "gabc": "corpus/gregobase-1908-onestep/3642.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "oneStepCephalici": 1,
+      "pages": [
+        {
+          "page": "leaf 439",
+          "leaf": 439
+        },
+        {
+          "page": "leaf 440",
+          "leaf": 440
+        },
+        {
+          "page": "415",
+          "leaf": 441
+        },
+        {
+          "page": "leaf 442",
+          "leaf": 442
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3648 (Deus Israel)",
+      "gabc": "corpus/gregobase-1908-onestep/3648.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "oneStepCephalici": 3,
+      "pages": [
+        {
+          "page": "leaf 694",
+          "leaf": 694
+        },
+        {
+          "page": "leaf 695",
+          "leaf": 695
+        },
+        {
+          "page": "[111]",
+          "leaf": 696
+        },
+        {
+          "page": "leaf 697",
+          "leaf": 697
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3708 (Justi epulentur (Intr.))",
+      "gabc": "corpus/gregobase-1908-onestep/3708.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "oneStepCephalici": 1,
+      "pages": [
+        {
+          "page": "leaf 387",
+          "leaf": 387
+        },
+        {
+          "page": "leaf 388",
+          "leaf": 388
+        },
+        {
+          "page": "363",
+          "leaf": 389
+        },
+        {
+          "page": "leaf 390",
+          "leaf": 390
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3753 (Caritas Dei)",
+      "gabc": "corpus/gregobase-1908-onestep/3753.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "oneStepCephalici": 1,
+      "pages": [
+        {
+          "page": "leaf 458",
+          "leaf": 458
+        },
+        {
+          "page": "leaf 459",
+          "leaf": 459
+        },
+        {
+          "page": "434",
+          "leaf": 460
+        },
+        {
+          "page": "leaf 461",
+          "leaf": 461
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3789 (Posuerunt)",
+      "gabc": "corpus/gregobase-1908-onestep/3789.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "oneStepCephalici": 2,
+      "pages": [
+        {
+          "page": "leaf 478",
+          "leaf": 478
+        },
+        {
+          "page": "leaf 479",
+          "leaf": 479
+        },
+        {
+          "page": "454",
+          "leaf": 480
+        },
+        {
+          "page": "leaf 481",
+          "leaf": 481
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3792 (Factus est (cum alleluia))",
+      "gabc": "corpus/gregobase-1908-onestep/3792.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "oneStepCephalici": 2,
+      "pages": [
+        {
+          "page": "leaf 275",
+          "leaf": 275
+        },
+        {
+          "page": "leaf 276",
+          "leaf": 276
+        },
+        {
+          "page": "251",
+          "leaf": 277
+        },
+        {
+          "page": "leaf 278",
+          "leaf": 278
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3821 (Venite filii)",
+      "gabc": "corpus/gregobase-1908-onestep/3821.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "oneStepCephalici": 1,
+      "pages": [
+        {
+          "page": "leaf 548",
+          "leaf": 548
+        },
+        {
+          "page": "leaf 549",
+          "leaf": 549
+        },
+        {
+          "page": "524",
+          "leaf": 550
+        },
+        {
+          "page": "leaf 551",
+          "leaf": 551
+        }
+      ]
+    }
+  ]
+}

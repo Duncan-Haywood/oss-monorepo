@@ -1,0 +1,107 @@
+# Milestone 138: SWC against random on a second confirmatory blind set, right and 256-bit shifters (flow run)
+
+theta = 3; design bootstrap 2000 resamples, seed 138.
+
+## Candidates: features and cost probe (computed before the flow run; keep if probe routed/r2 > 3.3)
+
+design | shifter | amount_depth | amount_gate_depth | amount_gates | probe routed/r2 | base period ns | kept | clock
+div8r | 128-bit right | 15 | 113 | 230 | 22.80 | 37.45 | True | tight
+div10r | 128-bit right | 19 | 151 | 311 | 86.22 | 40.52 | True | relaxed
+div12r | 128-bit right | 23 | 196 | 409 | 78.19 | 42.98 | True | tight
+div14r | 128-bit right | 27 | 237 | 501 | 70.35 | 45.85 | True | relaxed
+div8l | 256-bit left | 15 | 113 | 230 | 77.03 | 76.86 | True | tight
+div10l | 256-bit left | 19 | 154 | 314 | 96.52 | 82.57 | True | relaxed
+div12l | 256-bit left | 23 | 192 | 418 | 99.81 | 91.40 | True | tight
+div14l | 256-bit left | 27 | 237 | 500 | 121.79 | 91.81 | True | relaxed
+clamp2r | 128-bit right | 9 | 102 | 329 | 10.45 | 15.71 | True | tight
+clamp3r | 128-bit right | 14 | 158 | 535 | 65.17 | 18.71 | True | relaxed
+clamp4r | 128-bit right | 19 | 225 | 756 | 96.53 | 22.15 | True | tight
+clamp6r | 128-bit right | 29 | 333 | 1191 | 126.35 | 28.83 | True | relaxed
+clamp2l | 256-bit left | 9 | 103 | 345 | 32.02 | 27.18 | True | tight
+clamp3l | 256-bit left | 14 | 163 | 544 | 144.42 | 30.56 | True | relaxed
+clamp4l | 256-bit left | 19 | 218 | 767 | 175.97 | 33.67 | True | tight
+clamp6l | 256-bit left | 29 | 322 | 1213 | 170.85 | 40.38 | True | relaxed
+rng4r | 128-bit right | 7 | 86 | 489 | 4.49 | 14.68 | True | tight
+rng6r | 128-bit right | 11 | 134 | 760 | 29.66 | 17.45 | True | relaxed
+rng8r | 128-bit right | 15 | 178 | 1056 | 158.39 | 20.56 | True | tight
+rng12r | 128-bit right | 23 | 273 | 1623 | 132.19 | 27.62 | True | relaxed
+rng4l | 256-bit left | 7 | 85 | 479 | 19.15 | 30.32 | True | tight
+rng6l | 256-bit left | 11 | 133 | 760 | 101.89 | 33.37 | True | relaxed
+rng8l | 256-bit left | 15 | 185 | 1028 | 133.77 | 38.38 | True | tight
+rng12l | 256-bit left | 23 | 280 | 1603 | 203.82 | 43.83 | True | relaxed
+dot4r | 128-bit right | 4 | 51 | 277 | 4.23 | 10.18 | True | tight
+dot6r | 128-bit right | 6 | 69 | 424 | 3.90 | 10.09 | True | relaxed
+dot8r | 128-bit right | 8 | 84 | 592 | 4.96 | 13.82 | True | tight
+dot12r | 128-bit right | 12 | 116 | 910 | 4.49 | 12.98 | True | relaxed
+dot4l | 256-bit left | 4 | 52 | 278 | 6.56 | 44.01 | True | tight
+dot6l | 256-bit left | 6 | 69 | 444 | 7.36 | 42.93 | True | relaxed
+dot8l | 256-bit left | 8 | 86 | 590 | 16.25 | 21.58 | True | tight
+dot12l | 256-bit left | 12 | 117 | 945 | 13.30 | 22.14 | True | relaxed
+gtc8r | 128-bit right | 8 | 42 | 215 | 3.98 | 11.02 | True | tight
+gtc12r | 128-bit right | 12 | 60 | 346 | 3.61 | 11.61 | True | relaxed
+gtc16r | 128-bit right | 16 | 77 | 468 | 5.42 | 17.67 | True | tight
+gtc24r | 128-bit right | 24 | 110 | 762 | 8.72 | 17.87 | True | relaxed
+gtc8l | 256-bit left | 8 | 41 | 216 | 9.29 | 23.22 | True | tight
+gtc12l | 256-bit left | 12 | 60 | 346 | 5.07 | 22.66 | True | relaxed
+gtc16l | 256-bit left | 16 | 79 | 476 | 7.20 | 35.77 | True | tight
+gtc24l | 256-bit left | 24 | 108 | 757 | 11.59 | 36.69 | True | relaxed
+
+## Confirmatory test: 25 cells, one per design
+
+design | shifter | clock | routed/r2 | routed delay/period | random % | SWC % | SWC - random
+rng6l | 256-bit left | relaxed | 12.24 | 0.337 | 13.58 | 0.00 | -13.58
+gtc24l | 256-bit left | relaxed | 8.16 | 0.178 | 12.16 | 0.00 | -12.16
+rng4l | 256-bit left | tight | 12.35 | 0.419 | 11.68 | 0.00 | -11.68
+rng8r | 128-bit right | tight | 5.49 | 0.897 | 7.72 | 0.00 | -7.72
+clamp3r | 128-bit right | relaxed | 4.28 | 0.591 | 7.53 | 0.00 | -7.53
+gtc24r | 128-bit right | relaxed | 4.94 | 0.341 | 6.17 | 0.00 | -6.17
+rng8l | 256-bit left | tight | 12.42 | 0.530 | 15.08 | 9.24 | -5.84
+div8r | 128-bit right | tight | 3.53 | 0.444 | 5.73 | 0.00 | -5.73
+dot6r | 128-bit right | relaxed | 3.99 | 0.491 | 5.17 | 0.00 | -5.17
+clamp2r | 128-bit right | tight | 4.14 | 0.781 | 5.03 | 0.00 | -5.03
+gtc8l | 256-bit left | tight | 5.10 | 0.289 | 4.98 | 0.00 | -4.98
+dot8l | 256-bit left | tight | 7.27 | 0.441 | 4.34 | 0.00 | -4.34
+gtc12l | 256-bit left | relaxed | 6.42 | 0.213 | 4.16 | 0.00 | -4.16
+dot6l | 256-bit left | relaxed | 8.24 | 0.136 | 3.84 | 0.00 | -3.84
+div14l | 256-bit left | relaxed | 7.88 | 0.211 | 3.78 | 0.00 | -3.78
+rng4r | 128-bit right | tight | 4.76 | 0.753 | 3.58 | 0.00 | -3.58
+dot12l | 256-bit left | relaxed | 8.62 | 0.302 | 10.21 | 6.82 | -3.39
+div10r | 128-bit right | relaxed | 3.38 | 0.309 | 2.10 | 0.00 | -2.10
+div14r | 128-bit right | relaxed | 3.62 | 0.361 | 5.51 | 3.80 | -1.70
+dot12r | 128-bit right | relaxed | 4.37 | 0.435 | 1.68 | 0.00 | -1.68
+gtc16l | 256-bit left | tight | 6.10 | 0.251 | 6.56 | 5.00 | -1.56
+gtc16r | 128-bit right | tight | 3.79 | 0.474 | 5.91 | 7.48 | +1.56
+div12l | 256-bit left | tight | 8.09 | 0.285 | 8.93 | 11.88 | +2.95
+div12r | 128-bit right | tight | 3.35 | 0.507 | 2.11 | 7.47 | +5.36
+gtc8r | 128-bit right | tight | 3.33 | 0.606 | 3.48 | 9.64 | +6.16
+
+mean regret %: SWC 2.45, random 6.44; ladder branch 25 of 25; SWC <= 0.5% on 17; SWC loses by > 1 point on 4
+design level (25 designs): SWC better on 21, worse on 4, tied on 0; two-sided sign p = 0.0009
+design-bootstrap 95% interval of mean (SWC - random): -5.80 to -2.05 points
+
+## By shifter and by family (descriptive)
+
+group | cells | random % | SWC % | SWC better | SWC worse
+128-bit right | 13 | 4.75 | 2.18 | 10 | 3
+256-bit left | 12 | 8.27 | 2.74 | 11 | 1
+divsh_w | 6 | 4.69 | 3.86 | 4 | 2
+clampsh_w | 2 | 6.28 | 0.00 | 2 | 0
+rngsh_w | 5 | 10.33 | 1.85 | 5 | 0
+dotsh_w | 5 | 5.05 | 1.36 | 5 | 0
+gtcntsh_w | 7 | 6.20 | 3.16 | 5 | 2
+
+## Pooled with milestone 137's blind designs (33 + 25 = 58 designs)
+
+design level: SWC better on 42, worse on 13, tied on 3; two-sided sign p = 0.0001
+design-level mean (SWC - random) -2.47 points, sd 5.45; normal 95% interval -3.87 to -1.06; a 95% interval below zero needs about 19 designs at this spread
+
+## Predictions
+
+(1) every kept design on the ladder branch: True (25 of 25; lowest routed/r2 3.33)
+(2) SWC below random on mean regret: True (2.45% against 6.44%)
+(3) PRIMARY: SWC better on more designs and sign p < 0.05: True (21 better, 4 worse, p = 0.0009)
+(4) SWC <= 0.5% on at least half the cells: True (17 of 25)
+(5) pooled design-level sign p < 0.05, SWC better on more: True (42 better, 13 worse, p = 0.0001)
+(6) pooled normal 95% interval below zero: True (-3.87 to -1.06)
+(7) SWC fails on at most a quarter of the new cells: True (4 of 25)
+(8) SWC below random on each shifter: True (128-bit right 2.18% against 4.75%; 256-bit left 2.74% against 8.27%)

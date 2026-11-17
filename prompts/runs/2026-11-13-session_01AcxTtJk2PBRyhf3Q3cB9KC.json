@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtJk2PBRyhf3Q3cB9KC",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T12:07:17Z",
+  "ended": "2026-11-13T12:13:46Z",
+  "wall_minutes": 6.79,
+  "tokens_in": 3123133,
+  "tokens_out": 19056,
+  "cost_usd": 1.6676,
+  "tool_calls": 36,
+  "task": "Deepen flagship 11 (chant-forge): per-section singer guidance in the cue sheet (allocate.py row 9)",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15491",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "my first interval test asserted 52->47 is a 5th; it is a 4th (5 semitones). Test fixed, code was right."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/chant-forge/*.test.mjs",
+      "issue": "Two --auto-final tests fail when node --test is run from the repo root (cwd-relative paths) and pass under run_venture_tests.py; cost a stash-and-rerun to see they were pre-existing."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "No --dry-run to list what --for-changes would run before committing to a long run."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-where-a-singer-loses-the-pitch-in-a-chant-track.md",
+    "ventures/chant-forge/README.md (Singer guidance in the cue sheet)"
+  ],
+  "goal": "Give singers a pitch reference at the a cappella entry, breakdown and key change of a sectioned chant track",
+  "notes": "cues.mjs sectionCues: guidance line on the first note after the double bar opening each section (same note liftEvents lifts from). Without --sections the sheet is unchanged. run_venture_tests.py chant-forge: ok (25.7s). Sample sheet eval/cues-sections-pange-lingua.txt. flagships.yaml next rewritten: studio-page cue-sheet download replaces this item. Not tried with singers. No agent doc in docs/reports/: the README section and flagships next carry what the next run needs. run_workflow_locally --for-changes: agent-cross-review, checklist-coverage, conflict-markers, control-plane-guard, doc-refs, pages (run steps) pass; agent-permission-harness had 2 failures from a file-count race (15325 vs 15326) because this record was written mid-run; re-run on the settled tree: 94 tests OK. pages.yml build steps not run locally.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c88df4bc-a58c-57c9-a064-aa1cc1b1263c",
+    "transcripts": 1,
+    "first": "2026-11-13T12:07:17Z",
+    "last": "2026-11-13T12:14:04Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 35,
+        "input": 70,
+        "output": 19056,
+        "thinking": 3409,
+        "cache_read": 3038243,
+        "cache_write_5m": 0,
+        "cache_write_1h": 84820,
+        "api_equivalent_usd": 1.6676,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 35,
+      "input": 70,
+      "output": 19056,
+      "thinking": 3409,
+      "cache_read": 3038243,
+      "cache_write_5m": 0,
+      "cache_write_1h": 84820,
+      "api_equivalent_usd": 1.6676,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 36,
+    "tools": {
+      "Bash": 32,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.79,
+      "active_minutes": 6.79,
+      "model_minutes": 3.91,
+      "tool_minutes": 2.88,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "feature + 4 tests + docs and post, estimated",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 179.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

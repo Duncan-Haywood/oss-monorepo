@@ -19,6 +19,8 @@
     h3 { font-size: 1rem; margin: 18px 0 4px; }
     p, li { line-height: 1.55; }
     .note, footer { font-size: .86rem; color: #4a4f5e; }
+    .mailfile { border: 2px dashed #b8bdd0; border-radius: 10px; padding: 10px 12px; margin-top: 10px; }
+    .mailfile.over { border-color: #3d4fd6; background: #f3f5ff; }
     .card { background: #fff; border: 1px solid #d6d9e4; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f2a5512; margin: 18px 0; }
     label { display: block; font-weight: 600; margin: 12px 0 4px; }
     input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5b6076; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
@@ -53,12 +55,21 @@
     a.cta.alt { background: #e4edf0; color: #17394a; }
     a.cta:focus-visible { outline: 3px solid #17394a; outline-offset: 2px; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 480px) { div.row3:has(#ai-provider) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 361px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
     <p class="note">SALES AGENT · INBOX AGENT · RUNS IN YOUR BROWSER · SENDS NOTHING</p>
     <h1>The AI sales agent for your replies, with you in the loop</h1>
-    <p>Paste the <strong>replies your outreach got back</strong>. The agent decides what each one means, <strong>honours every unsubscribe</strong> (with their words kept as the record), <strong>pauses</strong> out-of-office and not-now prospects until the right date, <strong>stops the cadence</strong> for anyone who answered, and <strong>drafts the replies worth sending</strong> for you to approve.</p>
+    <p>Paste the <strong>replies your outreach got back</strong>, or open your exported mail. The agent decides what each one means, <strong>honours every unsubscribe</strong> (with their words kept as the record), <strong>pauses</strong> out-of-office and not-now prospects until the right date, <strong>stops the cadence</strong> for anyone who answered, and <strong>drafts the replies worth sending</strong> for you to approve.</p>
     <p class="cta-row"><a class="cta" href="#start">Paste your replies</a> <a class="cta alt" href="#start" id="cta-example">Try an example</a></p>
     <p class="note">One rule runs through it: <strong>the agent may always do less on its own; it may never do more without you.</strong> Stopping and pausing happen automatically. Anything that would contact a person waits for your approval, and you send it yourself. Pairs with the <a href="../sales-cadence-builder/">sales cadence builder</a> (the outreach) and <a href="../deal-keeper/">Deal Keeper</a> (the pipeline).</p>
   </header>
@@ -67,6 +78,13 @@
     <h2>1. The replies</h2>
     <label for="replies">Paste replies. Start each one with <code>From:</code> (and optionally <code>Subject:</code>), or separate them with a line of <code>---</code>. Quoted history below "On … wrote:" is ignored.</label>
     <textarea id="replies" rows="12" placeholder="From: Dana Reyes &lt;dana@brightline.example&gt;&#10;Subject: Re: route planning&#10;Sounds interesting. Could you send a few times next week?&#10;---&#10;From: omar@peakdental.example&#10;Please remove me from your list."></textarea>
+    <div class="mailfile" id="mail-drop">
+      <label for="mail-files"><strong>Or open exported mail:</strong> <code>.eml</code> files or an <code>.mbox</code> (Gmail via Google Takeout, Thunderbird, Apple Mail "Export Mailbox": open the <code>mbox</code> file inside the exported folder). Read in your browser, never uploaded. Only replies, bounces and auto-replies are kept; your own sent mail is left out.</label>
+      <input type="file" id="mail-files" multiple>
+      <label for="mail-own">Your own address(es), comma separated, so your sent mail is skipped (Gmail's "Sent" label is skipped anyway)</label>
+      <input id="mail-own" autocomplete="email" placeholder="sam@example-routing.co">
+      <p class="note" id="mail-status" aria-live="polite"></p>
+    </div>
     <details>
       <summary>Optional: your prospect list and suppression list</summary>
       <label for="prospects">Prospects CSV (needs an <code>email</code> column; <code>first_name</code> and <code>company</code> help the drafts). Its status columns come back updated.</label>
@@ -104,13 +122,19 @@
   </section>
   <section class="card" id="daily">
     <h2>4. Today's queue (the daily run)</h2>
-    <p class="note">Paste the task CSV from <a href="../sales-cadence-builder/">Sales Cadence Builder</a>. It lists what is due today, leaving out anyone who unsubscribed, bounced, replied, is paused or suppressed, including the replies you just ran above. It sends nothing.</p>
+    <p class="note">Paste the task CSV from <a href="../sales-cadence-builder/">Sales Cadence Builder</a>. It lists what is due today, leaving out anyone who unsubscribed, bounced, replied, is paused or suppressed, including the replies you just ran above. If the mail file you opened above holds your sent mail too (Gmail's Takeout does; in Thunderbird add the Sent mbox), an email step you already sent is not queued again. It sends nothing.</p>
     <label for="cadence-tasks">Cadence task list (CSV)</label>
     <textarea id="cadence-tasks" rows="6" placeholder="date,call_window,channel,step,prospect,company,email,phone,subject,body,voicemail,issues"></textarea>
     <label for="done">Touches you already did (optional, one per line: email,step)</label>
     <textarea id="done" rows="2"></textarea>
+    <label for="calls">Calls you made (optional, CSV: email,step,outcome,date; outcome spoke, voicemail or no_answer)</label>
+    <textarea id="calls" rows="3" placeholder="email,step,outcome,date"></textarea>
+    <label for="holidays">Days off (optional: <code>us</code> for US federal holidays, <code>us-business</code> for the six most offices close, <code>gb-eng</code>, <code>gb-sct</code> or <code>gb-nir</code> for UK bank holidays, <code>ca</code> for Canada's federal holidays, a province such as <code>ca-qc</code>, a US state's own holidays such as <code>us-tx</code> (the days its offices close), or YYYY-MM-DD dates)</label>
+    <input id="holidays" placeholder="us-business or gb-eng, 2026-12-24">
+    <p class="note">A call due today gets three buttons below the queue. Spoke or Voicemail ends the step. No answer brings the call back the next business day, up to three tries, and moves that person's later steps back by the days the call slipped, so a retry never lands on the next email's day. Retries and moved steps skip your days off. A prospect row with a <code>holidays</code>, <code>region</code> or <code>country</code> column (<code>ca-qc</code>, <code>GB-SCT</code>, <code>US</code>, or a country name such as <code>United States</code> or <code>Scotland</code>) skips theirs too: a call due on their holiday waits for their next working day. Each button adds a line to the calls box; delete the line to undo it. The task list, done list, calls and days off stay in this browser only.</p>
     <button type="button" id="go-daily">Build today's queue</button>
     <p id="daily-status" role="status" class="note"></p>
+    <div id="daily-calls" hidden></div>
     <pre id="daily-brief" hidden style="white-space:pre-wrap"></pre>
     <div id="daily-dl" hidden>
       <button type="button" id="dl-queue">Today's queue (CSV)</button>
@@ -159,7 +183,7 @@
   <section class="card">
     <details>
       <summary>Optional: let an AI model read the replies and polish the drafts, on your own key</summary>
-      <p class="note">Off by default. With a key, each reply and draft goes from this browser straight to the provider you pick, never to us. The model's reading is merged under one rule: it may lower how much contact follows (turn "unclear" into "unsubscribe"), never raise it (it cannot turn a "no" into a meeting). Its drafts are thrown away if they state a number you did not give or make a promise. The key is kept only in this browser if you tick the box.</p>
+      <p class="note">Off by default. With a key, each reply and draft goes from this browser straight to the provider you pick, never to us. The model's reading is merged under one rule: it may lower how much contact follows (turn "unclear" into "not now"), never raise it (it cannot turn a "no" into a meeting). An opt-out or a bounce that only the model sees comes to you as a note to confirm; it never adds anyone to your suppression list by itself. Measured with a free local model (Qwen2.5 7B on a 4-core CPU, no GPU) on 792 labelled replies: it reads unfamiliar replies far better than keyword rules (86% against 69%), but on its own it took 10 live replies for opt-outs; under these limits it adds none. Its drafts are thrown away if they state a number you did not give or make a promise. The key is kept only in this browser if you tick the box.</p>
       <p class="note">To keep everything on your own computer, run a model with Ollama, LM Studio or llama.cpp and pick it below: no key, no cost per use. The local server must allow this page: start Ollama with <code>OLLAMA_ORIGINS=https://marisstella.app</code>, or switch on CORS in LM Studio. Your browser may ask whether this site may reach devices on your network.</p>
       <div class="row3">
         <div><label for="ai-provider">Provider</label><select id="ai-provider"><option value="">None (rules only)</option><option value="anthropic">Anthropic</option><option value="openai">OpenAI</option><option value="gemini">Google Gemini</option><option value="ollama">Ollama (on your computer, no key)</option><option value="lmstudio">LM Studio (on your computer, no key)</option><option value="llamacpp">llama.cpp server (on your computer, no key)</option><option value="openai-compatible">Other (OpenAI-compatible, e.g. OpenRouter)</option></select></div>
@@ -214,12 +238,14 @@
   <script type="module">
     import { runInbox, checkDraft, csv, CATEGORIES, SAMPLE_REPLIES, SAMPLE_PROSPECTS, SAMPLE_OFFER, iso } from "./engine.mjs";
     import { runInboxWithModel } from "./ai.mjs";
-    import { runDaily, csvQueue, csvLeftOut } from "./daily.mjs";
+    import { runDaily, csvQueue, csvLeftOut, callMarks, callLog, addCall } from "./daily.mjs";
+    import { holidayChecker } from "./holidays.mjs";
     import { runResearch, csvAccounts, csvLeftOutResearch, SAMPLE_CRM } from "./research.mjs";
     import { runPrep } from "./prep.mjs";
     import { runFollowUp } from "./followup.mjs";
     import { appendDictation, speakable } from "./voice.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    import { createCollector, MboxSplitter, isMbox, describe } from "./mailfile.mjs";
     const $ = (s) => document.querySelector(s);
     const SAVE = "sales-agent:setup", AIKEY = "sales-agent:ai";
     const OFFER = { sender: "sender", company: "company", address: "address", product: "product", booking_link: "booking", value: "value" };
@@ -259,7 +285,7 @@
         card.append(el("strong", "", " " + (it.name || it.from || "Unknown sender") + (it.subject ? " · " + it.subject : "")));
         card.append(el("blockquote", "", it.body.slice(0, 600)));
         if (t.evidence) card.append(el("div", "note", "Decided on: “" + t.evidence + "”" + (t.why ? " (" + t.why + ")" : "")));
-        if (t.guess) card.append(el("div", "warn", "The rules could not read this. Best guess: " + CATEGORIES[t.guess.category].label.toLowerCase() + ". Nothing was done on the guess except pausing."));
+        if (t.guess) card.append(el("div", "warn", "The rules could not read this. " + (t.guess.source === "model" ? "The model reads it as " : "Best guess: ") + CATEGORIES[t.guess.category].label.toLowerCase() + ". Nothing was done on the guess except pausing."));
         if (it.applied.length) { const ul = el("ul", "applied"); for (const a of it.applied) ul.append(el("li", "", "Done: " + a)); card.append(ul); }
         if (it.draft) {
           const id = "d" + it.n;
@@ -307,6 +333,45 @@
       const a = el("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); URL.revokeObjectURL(a.href); record("csv_downloaded");
     }
     $("#go").addEventListener("click", run);
+    // Exported mail: each file is streamed from disk (an mbox can be gigabytes), split, parsed and filtered here.
+    let mailSent = []; // your own sent messages from the last mail file: the daily run's done list for email touches
+    async function readMail(files) {
+      if (!files || !files.length) return;
+      const own = $("#mail-own").value.split(/[,;\s]+/).filter(Boolean);
+      const c = createCollector({ own });
+      let cut = 0;
+      $("#mail-status").textContent = "Reading " + files.length + " file" + (files.length === 1 ? "" : "s") + "…";
+      try {
+        for (const f of files) {
+          const head = await f.slice(0, 1000).text();
+          if (!isMbox(head)) { c.add((await f.slice(0, 200000).text()).replace(/^\uFEFF/, "")); continue; }
+          const s = new MboxSplitter((raw) => c.add(raw));
+          const reader = f.stream().pipeThrough(new TextDecoderStream()).getReader();
+          for (let n = 0; ; n++) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            s.push(value);
+            if (n % 64 === 0) $("#mail-status").textContent = "Reading " + f.name + ": " + c.stats.messages + " messages, " + c.stats.kept + " replies so far…";
+          }
+          s.end(); cut += s.truncated;
+        }
+      } catch (e) { $("#mail-status").textContent = "Could not read the file: " + e.message; return; }
+      const r = c.finish();
+      r.stats.truncated += cut;
+      let msg = describe(r);
+      if (!own.length && r.topSender && r.stats.messages >= 5 && r.topSender.count / r.stats.messages > 0.3) msg += " The most frequent sender is " + r.topSender.address + "; if that is you, enter it above and open the file again.";
+      mailSent = r.sent || [];
+      $("#mail-status").textContent = msg;
+      if (!r.stats.kept) return;
+      $("#replies").value = r.replies;
+      record("mail_file_read");
+      run();
+    }
+    $("#mail-files").addEventListener("change", (e) => readMail(e.target.files));
+    const drop = $("#mail-drop");
+    drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
+    drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+    drop.addEventListener("drop", (e) => { e.preventDefault(); drop.classList.remove("over"); readMail(e.dataTransfer.files); });
     $("#load-example").addEventListener("click", () => {
       $("#replies").value = SAMPLE_REPLIES; $("#prospects").value = SAMPLE_PROSPECTS;
       for (const [k, id] of Object.entries(OFFER)) if (!$("#" + id).value) $("#" + id).value = SAMPLE_OFFER[k] || "";
@@ -314,15 +379,45 @@
     });
     $("#clear-all").addEventListener("click", () => { for (const id of ["#replies", "#prospects", "#suppression"]) $(id).value = ""; $("#out").hidden = true; result = null; approved.clear(); try { localStorage.removeItem(SAVE); } catch { /* optional */ } });
     let daily = null;
+    // The daily run's inputs are kept in this browser (never sent anywhere), so the calls marked today are there tomorrow.
+    const DAILY = "sales-agent:daily", DAILY_FIELDS = { tasks: "#cadence-tasks", done: "#done", calls: "#calls", holidays: "#holidays" };
+    const saveDaily = () => { try { localStorage.setItem(DAILY, JSON.stringify(Object.fromEntries(Object.entries(DAILY_FIELDS).map(([k, id]) => [k, $(id).value])))); } catch { /* storage is optional */ } };
+    try { const d = JSON.parse(localStorage.getItem(DAILY) || "null"); if (d) for (const [k, id] of Object.entries(DAILY_FIELDS)) if (typeof d[k] === "string" && !$(id).value) $(id).value = d[k]; } catch { /* optional */ }
+    for (const id of Object.values(DAILY_FIELDS)) $(id).addEventListener("change", saveDaily);
+    const OUTCOME_BUTTONS = [["spoke", "Spoke"], ["voicemail", "Voicemail"], ["no_answer", "No answer"]];
+    function showCalls(day) {
+      const box = $("#daily-calls"), calls = daily.queue.filter((q) => q.channel === "call");
+      box.replaceChildren(); box.hidden = !calls.length;
+      if (!calls.length) return;
+      const h = document.createElement("h3"); h.textContent = "Calls due today: mark each one"; box.append(h);
+      for (const q of calls) {
+        const row = document.createElement("p"), who = document.createElement("span");
+        who.textContent = (q.prospect || q.email) + (q.company ? ", " + q.company : "") + " (step " + q.step + ")" + (q.phone ? " " + q.phone : "") + (q.tries ? " — try " + (q.tries + 1) : "") + (q.their_day_off ? " — moved from " + q.their_day_off.date + ", their " + q.their_day_off.name : "") + " ";
+        row.append(who);
+        for (const [outcome, label] of OUTCOME_BUTTONS) {
+          const b = document.createElement("button"); b.type = "button"; b.className = "secondary"; b.textContent = label;
+          b.dataset.email = q.email; b.dataset.step = q.step; b.dataset.outcome = outcome;
+          b.addEventListener("click", () => { $("#calls").value = addCall($("#calls").value, { email: q.email, step: q.step, outcome, date: day }); saveDaily(); record("call_outcome"); $("#go-daily").click(); });
+          row.append(b, " ");
+        }
+        box.append(row);
+      }
+    }
     $("#go-daily").addEventListener("click", () => {
       const tasks = $("#cadence-tasks").value;
       if (!tasks.trim()) { $("#daily-status").textContent = "Paste the task CSV from the cadence builder first."; return; }
+      let holidays;
+      try { holidays = holidayChecker($("#holidays").value); } catch (e) { $("#daily-status").textContent = String(e.message).replace(/^holidays: /, "Days off: "); return; }
+      saveDaily();
+      const day = $("#today").value || iso(Date.now());
+      const marks = callMarks(callLog($("#calls").value), 3, { holidays });
       // After an inbox run, use its updated prospects and new suppressions, so today's replies count.
       const prospects = result ? result.prospects : $("#prospects").value;
       const suppression = [$("#suppression").value, ...(result ? result.suppression.map((x) => x.email) : [])].join("\n");
-      daily = runDaily({ tasks, prospects, suppression, done: $("#done").value, today: $("#today").value || iso(Date.now()) });
+      daily = runDaily({ tasks, prospects, suppression, done: [$("#done").value, ...marks.done].filter(Boolean).join("\n"), retry: marks.retry, moved: marks.moved, holidays, sent: mailSent, today: day });
+      showCalls(day);
       $("#daily-brief").textContent = daily.brief; $("#daily-brief").hidden = false; $("#daily-dl").hidden = false;
-      $("#daily-status").textContent = daily.summary.due + " touches due today" + (result ? ", after the replies above" : "") + ". Nothing was sent.";
+      $("#daily-status").textContent = daily.summary.due + " touches due today" + (result ? ", after the replies above" : "") + (daily.summary.alreadySent ? "; " + daily.summary.alreadySent + " already in your sent mail" : "") + ". Nothing was sent.";
       record("daily_run");
     });
     let research = null;
@@ -347,6 +442,7 @@
       email: $("#call-email").value, prospects: result ? result.prospects : $("#prospects").value, replies: $("#replies").value, crm: $("#crm").value,
       suppression: [$("#suppression").value, ...(result ? result.suppression.map((x) => x.email) : [])].join("\n"),
       offer: offer(), today: $("#today").value || iso(Date.now()), notes: $("#call-notes").value,
+      calls: callLog($("#calls").value).filter((c) => c.email === $("#call-email").value.trim().toLowerCase()),
     });
     const callOut = (text, status) => { $("#call-out").textContent = text; $("#call-out").hidden = false; $("#call-status").textContent = status + " Nothing was sent."; };
     $("#go-prep").addEventListener("click", () => {

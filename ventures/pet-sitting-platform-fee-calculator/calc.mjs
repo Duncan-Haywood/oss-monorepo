@@ -33,7 +33,7 @@ export const num = (s) => {
   return t === "" ? NaN : Number(t);
 };
 export const money = (x) => `${x < 0 ? "-" : ""}$${Math.abs(Math.round(x)).toLocaleString("en-US")}`;
-export const money2 = (x) => `${x < 0 ? "-" : ""}$${Math.abs(x).toFixed(2)}`;
+export const money2 = (x) => `${x < 0 && Math.abs(x).toFixed(2) !== "0.00" ? "-" : ""}$${Math.abs(x).toFixed(2)}`;
 export const pct = (x, d = 1) => `${(x * 100).toFixed(d)}%`;
 
 export const platformNet = (o) => o.price * (1 - o.platformFee) - o.costPerBooking;
@@ -54,7 +54,7 @@ export function analyze(raw) {
   const o = { ...DEFAULTS, ...raw };
   const warnings = [];
   for (const k of Object.keys(DEFAULTS)) {
-    if (!Number.isFinite(o[k])) warnings.push(`${k} must be a number.`);
+    if (!Number.isFinite(o[k])) warnings.push(`${k} must be a number (a blank field is not read as 0 or as the example: type 0 for none).`);
     else if (o[k] < 0) warnings.push(`${k} cannot be negative.`);
   }
   if (warnings.length) return { opts: o, warnings, result: null };

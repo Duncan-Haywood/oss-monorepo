@@ -44,7 +44,12 @@ export const isoDay = (t) => new Date(t).toISOString().slice(0, 10);
 export function longDay(t) {
   return new Date(t).toLocaleDateString("en-US", { timeZone: "UTC", weekday: "long", year: "numeric", month: "long", day: "numeric" });
 }
-export const dollars = (c) => "$" + (c / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const dollars = (c) => {
+  const format = (c) => "$" + (c / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  if (!(Number(c) < 0)) return format(c);
+  const text = format(Math.abs(c));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 
 export function parseMoney(s) {
   if (typeof s === "number") return Number.isFinite(s) && s >= 0 ? Math.round(s * 100) : NaN;

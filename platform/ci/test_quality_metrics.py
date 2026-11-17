@@ -112,6 +112,109 @@ class SignalsTest(unittest.TestCase):
         self.assertEqual([r["what"] for r in rows], ["wrong Section 179 cap"])
         self.assertEqual(len(m.queue([a], "low")), 2)
 
+    def test_queue_seed_spreads_parallel_sessions(self):
+        # Two fix sessions took the same top row the same minute (doc_friction 2026-11-16T16:41).
+        subs = [audit(subject=f"ventures/s{i}", _file=f"2026-11-0{i}-s{i}.json",
+                      defects=[{"severity": "medium", "what": f"s{i} first"}, {"severity": "medium", "what": f"s{i} second"}])
+                for i in range(1, 9)]
+        subs.append(audit(subject="ventures/hi", _file="2026-11-09-hi.json",
+                          defects=[{"severity": "high", "what": "hi"}]))
+        fixed = [r["subject"] for r in m.queue(subs, "medium")]
+        self.assertEqual(fixed[:3], ["ventures/hi", "ventures/s1", "ventures/s1"])
+        tops = {m.queue(subs, "medium", seed=f"2026-11-16-{t}")[1]["subject"] for t in ("aa", "bb", "cc", "dd", "ee")}
+        self.assertGreater(len(tops), 1)  # different seeds lead with different medium subjects
+        for seed in ("x", "y"):
+            rows = m.queue(subs, "medium", seed=seed)
+            self.assertEqual(rows, m.queue(subs, "medium", seed=seed))  # a seed repeats its order
+            self.assertEqual(rows[0]["subject"], "ventures/hi")  # severity still comes first
+            self.assertEqual(sorted(map(str, rows), key=str), sorted(map(str, m.queue(subs, "medium")), key=str))
+            for i in range(1, len(rows)):  # a subject's defects stay together, in index order
+                if rows[i]["subject"] == rows[i - 1]["subject"]:
+                    self.assertEqual(rows[i]["index"], rows[i - 1]["index"] + 1)
+
+    def test_queue_reads_fixed_by_per_defect(self):
+        url = "https://example.test/pull/1"
+        a = audit(fix_prs=[url], defects=[{"severity": "medium", "what": "fixed one", "fixed_by": url},
+                                          {"severity": "medium", "what": "left open"}])
+        self.assertEqual([r["what"] for r in m.queue([a], "medium")], ["left open"])
+        self.assertEqual([r["fixed"] for r in m.defect_rows([a])], [True, False])
+        legacy = dict(a, defects=[{"severity": "medium", "what": "x"}, {"severity": "high", "what": "y"}])
+        self.assertEqual(m.queue([legacy], "medium"), [])
+        self.assertEqual(len(m.unmarked_fixes([legacy], "medium")), 1)
+        self.assertEqual(m.unmarked_fixes([a], "medium"), [])
+
+
+class FixLoopTest(unittest.TestCase):
+    """Reflection 2 (2026-11-17): fixes were recorded but never re-checked, and the mutation share saturated."""
+    URL = "https://example.test/pull/7"
+
+    def test_reaudit_lists_unchecked_fixes_highs_first(self):
+        fixed_low = audit(subject="ventures/a", date="2026-11-08", fix_prs=[self.URL],
+                          defects=[{"severity": "low", "what": "x"}])
+        fixed_high = audit(subject="ventures/b", date="2026-11-12", fix_prs=[self.URL],
+                           defects=[{"severity": "high", "what": "y", "fixed_by": self.URL},
+                                    {"severity": "medium", "what": "z"}])
+        rechecked = [audit(subject="ventures/c", date="2026-11-08", fix_prs=[self.URL],
+                           defects=[{"severity": "high", "what": "w"}]),
+                     audit(subject="ventures/c", date="2026-11-14")]
+        untouched = audit(subject="ventures/d", defects=[{"severity": "high", "what": "v"}])
+        rows = m.reaudit_due([fixed_low, fixed_high, untouched] + rechecked)
+        self.assertEqual([r["subject"] for r in rows], ["ventures/b", "ventures/a"])
+        self.assertEqual((rows[0]["fixed"], rows[0]["explicit"], rows[0]["high_fixed"]), (1, 1, 1))
+        self.assertEqual(sorted(r["subject"] for r in m.reaudit_due([fixed_low, fixed_high], "s")),
+                         ["ventures/a", "ventures/b"])
+
+    def test_documented_open_goes_first(self):
+        import tempfile
+        root = Path(tempfile.mkdtemp())
+        (root / "ventures" / "a").mkdir(parents=True)
+        (root / "ventures" / "a" / "README.md").write_text(
+            "## Known gaps\n\nFrom `portfolio/quality/audits/2026-11-12-a.json`: not yet fixed.\n")
+        (root / "ventures" / "b").mkdir(parents=True)
+        (root / "ventures" / "b" / "README.md").write_text("All fixed.\n")
+        high = [{"severity": "high", "what": "y"}]
+        a = audit(subject="ventures/a", date="2026-11-12", fix_prs=[self.URL], defects=high)
+        a["_file"] = "2026-11-12-a.json"
+        b = audit(subject="ventures/b", date="2026-11-08", fix_prs=[self.URL], defects=high)
+        rows = m.reaudit_due([b, a], root=root)
+        self.assertEqual([(r["subject"], r["documented_open"]) for r in rows], [("ventures/a", True), ("ventures/b", False)])
+        self.assertFalse(m.documented_open(dict(a, subject="ventures/missing"), root))
+
+    def test_fix_confirmation_separates_marked_from_assumed(self):
+        marked = audit(subject="ventures/a", fix_prs=[self.URL],
+                       defects=[{"severity": "high", "what": "y", "fixed_by": self.URL}, {"severity": "low", "what": "z"}])
+        blanket = audit(subject="ventures/b", fix_prs=[self.URL],
+                        defects=[{"severity": "low", "what": "x"}, {"severity": "medium", "what": "w"}])
+        later = [audit(subject="ventures/c", date="2026-11-07", fix_prs=[self.URL]), audit(subject="ventures/c", date="2026-11-09")]
+        f = m.fix_confirmation([marked, blanket] + later)
+        self.assertEqual((f["explicit"], f["assumed"], f["open"]), (1, 2, 1))
+        self.assertEqual((f["rechecked_after_fix"], f["awaiting_recheck"]), (1, 2))
+
+    def test_kill_rate_moves_where_the_audit_share_cannot(self):
+        mut = lambda caught: {"where": "calc.mjs:1", "change": "a -> b", "caught": caught}
+        weak = audit(subject="ventures/a", mutations=[mut(True)] * 5 + [mut(False)])
+        weaker = audit(subject="ventures/b", mutations=[mut(True)] + [mut(False)] * 5)
+        self.assertEqual(m.mutation_outcome(weak), m.mutation_outcome(weaker))  # both "survived"
+        self.assertEqual(m.mutation_kill([weak])["kill_rate"], 0.833)
+        self.assertEqual(m.mutation_kill([weak, weaker]), {"mutants": 12, "killed": 6, "audits": 2, "kill_rate": 0.5,
+                                                            "per_audit": 6.0})
+
+    def test_bar_by_instrument_splits_prose_from_structured(self):
+        mut = [{"where": "x:1", "change": "a -> b", "caught": True}]
+        rows = [audit(subject="ventures/a"), audit(subject="ventures/b", mutations=mut),
+                audit(subject="ventures/c", mutations=mut, drawn_by="census"),
+                audit(subject="ventures/d", stratum="flagship")]
+        b = m.bar_by_instrument(rows, q.meets_bar)
+        self.assertEqual(b, {"prose": {"n": 1, "meets_bar": 1}, "structured": {"n": 1, "meets_bar": 1}})
+
+    def test_reaudit_mode_drops_out_when_nothing_waits(self):
+        modes = {m.mode_for("2026-11-11", seed=str(i), last_reflect="2026-11-10", reaudit_waiting=0)["mode"]
+                 for i in range(200)}
+        self.assertNotIn("reaudit", modes)
+        self.assertIn("reaudit", {m.mode_for("2026-11-11", seed=str(i), last_reflect="2026-11-10", reaudit_waiting=3)["mode"]
+                                  for i in range(200)})
+        self.assertEqual(q.validate_audit(audit(drawn_by="reaudit")), [])
+
 
 class CoverageTest(unittest.TestCase):
     POP = {"flagship": ["ventures/a"], "venture": ["ventures/a", "ventures/b", "ventures/c"],
@@ -134,6 +237,16 @@ class CoverageTest(unittest.TestCase):
         self.assertNotIn("ventures/b", subjects)  # four never-audited subjects come first
         self.assertEqual(picks, m.census(audits, self.POP, 4, "s"))
         self.assertEqual(m.census(audits, self.POP, 5, "s")[-1]["subject"], "ventures/b")
+
+    def test_census_free_passes_over_subjects_an_open_pr_names(self):
+        audits = [audit(subject="ventures/b", date="2026-11-01")]
+        first = m.census(audits, self.POP, 1, "s")[0]["subject"]
+        prs = [(901, f"quality: census {first} audit")]
+        picks, skipped = m.census_free(audits, self.POP, 4, "s", prs)
+        self.assertNotIn(first, [p["subject"] for p in picks])
+        self.assertEqual(len(picks), 4)  # the next subject fills the gap
+        self.assertEqual(skipped, [(first, prs)])
+        self.assertEqual(m.census_free(audits, self.POP, 4, "s", [])[0], m.census(audits, self.POP, 4, "s"))
 
 
 class ModeTest(unittest.TestCase):
@@ -192,6 +305,104 @@ class RealCorpusTest(unittest.TestCase):
         out = m.metrics(audits, q.population(), dt.date(2026, 11, 10), q.meets_bar, q.wilson)
         self.assertEqual(out["subjects"], sum(v["n"] for v in q.summarize(audits)["strata"].values()))
         self.assertIn("Coverage of the repository", m.render_md(out))
+
+
+class ChangesSinceTest(unittest.TestCase):
+    """queue's 'changed since audit' note: a fix can land without fix_prs (PR #14329, photo-editing)."""
+
+    def fake(self, log="", boundary_date=None, has_ref=True, shallow=None):
+        def git(args):
+            if args[0] == "rev-parse" and args[1] == "--verify":
+                return "abc\n" if has_ref else ""
+            if args[:2] == ["rev-parse", "--git-path"]:
+                return str(shallow) if shallow else ""
+            if args[0] == "log" and args[1] == "-1":
+                return (boundary_date or "") + "\n"
+            if args[0] == "log":
+                return log
+            return ""
+        return git
+
+    def shallow_file(self, sha):
+        import tempfile
+        f = Path(tempfile.mkdtemp()) / "shallow"
+        f.write_text(sha + "\n")
+        return f
+
+    def test_changed_drops_the_shallow_boundary_commit(self):
+        log = "f1\tf596041\tquality: audit round 30 + photo-editing page fix (#14329)\nb0\tb0short\tboundary\n"
+        out = m.changes_since("ventures/photo-editing", "2026-11-09",
+                              git=self.fake(log, "2026-11-01", shallow=self.shallow_file("b0")))
+        self.assertEqual(out["status"], "changed")
+        self.assertEqual([c["sha"] for c in out["commits"]], ["f596041"])  # audit-round commits that touch the subject count
+
+    def test_history_starting_after_the_audit_is_unknown(self):
+        out = m.changes_since("ventures/x", "2026-11-07", git=self.fake("", "2026-11-10", shallow=self.shallow_file("b0")))
+        self.assertEqual(out["status"], "unknown")
+        self.assertIn("--shallow-since=2026-11-07", out["why"])
+
+    def test_untouched_and_no_git(self):
+        self.assertEqual(m.changes_since("ventures/x", "2026-11-07", git=self.fake(""))["status"], "untouched")
+        self.assertEqual(m.changes_since("ventures/x", "2026-11-07", git=self.fake("", has_ref=False))["status"], "unknown")
+
+    def test_deepen_fetches_back_to_the_oldest_audit_once(self):
+        calls = []
+        git = self.fake("", "2026-11-13", shallow=self.shallow_file("b0"))
+        note = m.deepen_for("2026-11-07", m.dt.date(2026, 11, 14), git=git, git_run=lambda c: calls.append(c) or 0)
+        self.assertEqual(calls, [["git", "fetch", "-q", "--shallow-since=2026-11-07", "origin", "main"]])
+        self.assertIn("fetched main since 2026-11-07", note)
+
+    def test_deepen_skips_complete_or_deep_enough_history_and_old_audits(self):
+        never = lambda c: self.fail("fetched")
+        self.assertEqual(m.deepen_for("2026-11-07", m.dt.date(2026, 11, 14), git=self.fake(""), git_run=never), "")
+        deep = self.fake("", "2026-11-01", shallow=self.shallow_file("b0"))
+        self.assertEqual(m.deepen_for("2026-11-07", m.dt.date(2026, 11, 14), git=deep, git_run=never), "")
+        late = self.fake("", "2026-11-13", shallow=self.shallow_file("b0"))
+        self.assertIn("not fetching", m.deepen_for("2026-09-01", m.dt.date(2026, 11, 14), git=late, git_run=never))
+
+    def test_deepen_reports_a_failed_fetch(self):
+        late = self.fake("", "2026-11-13", shallow=self.shallow_file("b0"))
+        self.assertIn("failed", m.deepen_for("2026-11-07", m.dt.date(2026, 11, 14), git=late, git_run=lambda c: 128))
+
+
+class OpenPrTest(unittest.TestCase):
+    """queue marks rows an open PR already names: osrobot-pairprice was fixed twice in one morning
+    and platform/agents read as unfixed while PR #14674 sat open (2026-11-14 run records)."""
+
+    PRS = [(14674, "quality fix: platform/agents toJson writes shared references in full (control plane)"),
+           (15746, "quality fix: osrobot-pairprice pays the drone pilot"),
+           (15760, "ai-bookkeeper: (claim, work in progress)"),
+           (15000, "platform/agents-extra: something else"),
+           (15001, "research: osrobot-pairprice-v2 notes")]
+
+    def test_names(self):
+        self.assertEqual(m.subject_names("platform/agents"), ["platform/agents"])  # "agents" alone is too generic
+        self.assertEqual(m.subject_names("research/osrobot-pairprice"), ["research/osrobot-pairprice", "osrobot-pairprice"])
+
+    def test_matches_whole_names_only(self):
+        self.assertEqual([n for n, _ in m.prs_naming("platform/agents", self.PRS)], [14674])
+        self.assertEqual([n for n, _ in m.prs_naming("research/osrobot-pairprice", self.PRS)], [15746])
+        self.assertEqual([n for n, _ in m.prs_naming("ventures/ai-bookkeeper", self.PRS)], [15760])
+        self.assertEqual(m.prs_naming("ventures/agents", self.PRS), [])
+
+    def test_pulls_list_first_newest_first_without_forks(self):
+        own = {"full_name": "duncan-haywood/oss-monorepo"}
+        pulls = [{"number": 5, "title": "a", "head": {"repo": own}},
+                 {"number": 9, "title": "b", "head": {"repo": own}},
+                 {"number": 7, "title": "fork", "head": {"repo": {"full_name": "x/oss-monorepo"}}}]
+        self.assertEqual(m.open_pr_titles(pulls=lambda: pulls), [(9, "b"), (5, "a")])
+
+    def test_search_pages_and_fails_soft(self):
+        import subprocess
+        pages = {1: "\n".join(f"{i}\tt{i}" for i in range(100)), 2: "7\tlast"}
+        got = m.open_pr_titles(run=lambda p: subprocess.CompletedProcess([], 0, pages.get(p, ""), ""))
+        self.assertEqual(len(got), 101)
+        self.assertEqual(got[-1], (7, "last"))
+        self.assertIsNone(m.open_pr_titles(run=lambda p: subprocess.CompletedProcess([], 1, "", "rate limited")))
+
+        def boom(p):
+            raise OSError("no gh")
+        self.assertIsNone(m.open_pr_titles(run=boom))
 
 
 if __name__ == "__main__":

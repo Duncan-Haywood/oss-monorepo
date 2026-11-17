@@ -61,10 +61,18 @@ export function parseContentLine(s) {
   const params = {};
   for (const p of segs) {
     const eq = p.indexOf("=");
-    if (eq > 0) params[p.slice(0, eq).toUpperCase()] = p.slice(eq + 1).replace(/^"|"$/g, "");
+    if (eq <= 0) continue;
+    const key = p.slice(0, eq).toUpperCase(), val = p.slice(eq + 1).replace(/^"|"$/g, "");
+    // Enumerated parameter values are case-insensitive (RFC 5545 2.1): VALUE=date means VALUE=DATE.
+    params[key] = key === "VALUE" ? val.toUpperCase() : val;
   }
   return { name, params, value };
 }
+
+// A duration (RFC 5545 3.3.6) with at least one number: "P" or "-PT" alone is not one.
+const DUR_RE = /^([+-])?P(\d+W|(?=\d|T\d)(\d+D)?(T(?=\d)(\d+H)?(\d+M)?(\d+S)?)?)$/i;
+// Same parameter written back: quote a value that holds a separator, or the line re-parses differently.
+const paramText = (params) => Object.entries(params).map(([k, v]) => `;${k}=${/[:;,"]/.test(v) ? `"${v.replace(/"/g, "")}"` : v}`).join("");
 
 const DATE_RE = /^(\d{4})(\d{2})(\d{2})$/;
 const DT_RE = /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(Z?)$/;
@@ -75,6 +83,31 @@ function validYMD(y, m, d) {
 }
 
 // Returns { kind: "date"|"datetime", utc, ms, value } or { error }.
+// The UTC instant of a wall-clock time in an IANA zone, or null when the zone is not one Intl knows
+// (a custom VTIMEZONE name, for example). Two passes settle the offset across a DST change.
+export function zonedToUtcMs(wallMs, tzid) {
+  let fmt;
+  try { fmt = new Intl.DateTimeFormat("en-US", { timeZone: tzid, hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" }); }
+  catch { return null; }
+  const wallOf = (ms) => {
+    const p = Object.fromEntries(fmt.formatToParts(new Date(ms)).map((x) => [x.type, x.value]));
+    return Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour % 24, +p.minute, +p.second);
+  };
+  let guess = wallMs;
+  for (let i = 0; i < 2; i++) guess = wallMs - (wallOf(guess) - guess);
+  return guess;
+}
+
+// Compare DTSTART and DTEND as instants. Same zone (or both UTC, or both floating): wall clocks compare directly.
+// Different zones: convert each to UTC; if either zone is unknown, return null (not comparable, so no finding).
+function instantCompare(s, sTz, e, eTz) {
+  const zs = s.utc ? "Z" : (sTz || ""), ze = e.utc ? "Z" : (eTz || "");
+  if (zs === ze) return e.ms - s.ms;
+  const toUtc = (t, z) => (z === "Z" ? t.ms : z === "" ? null : zonedToUtcMs(t.ms, z));
+  const a = toUtc(s, zs), b = toUtc(e, ze);
+  return a == null || b == null ? null : b - a;
+}
+
 export function parseTime(value) {
   let m = DATE_RE.exec(value);
   if (m) {
@@ -137,7 +170,7 @@ const walk = (c, f) => { f(c); c.children.forEach((k) => walk(k, f)); };
 
 export function parseRrule(value) {
   const o = {};
-  for (const part of value.split(";")) { const [k, v] = part.split("="); if (k) o[k.toUpperCase()] = v; }
+  for (const part of value.split(";")) { const [k, v] = part.split("="); if (k) o[k.toUpperCase()] = v === undefined ? v : v.toUpperCase(); /* values are case-insensitive (RFC 5545 2.1) */ }
   return o;
 }
 
@@ -158,6 +191,7 @@ function rruleByProblems(r) {
   range("BYWEEKNO", -53, 53, true);
   range("BYHOUR", 0, 23);
   range("BYMINUTE", 0, 59);
+  range("BYSECOND", 0, 60);
   range("BYSETPOS", -366, 366, true);
   if (r.BYDAY !== undefined) {
     for (const x of nums(r.BYDAY)) {
@@ -168,10 +202,15 @@ function rruleByProblems(r) {
     }
   }
   if (r.WKST !== undefined && !/^(SU|MO|TU|WE|TH|FR|SA)$/i.test(r.WKST)) out.push({ title: `bad WKST value ${r.WKST}`, detail: "WKST must be a two-letter day such as MO or SU." });
+  if (r.BYWEEKNO !== undefined && r.FREQ && r.FREQ !== "YEARLY") out.push({ title: `BYWEEKNO needs FREQ=YEARLY`, detail: `The standard allows BYWEEKNO only in a yearly rule; with FREQ=${r.FREQ} importers ignore it or reject the event.` });
+  if (r.BYYEARDAY !== undefined && ["DAILY", "WEEKLY", "MONTHLY"].includes(r.FREQ)) out.push({ title: `BYYEARDAY with FREQ=${r.FREQ}`, detail: "The standard forbids BYYEARDAY in daily, weekly and monthly rules. Use FREQ=YEARLY." });
+  if (r.BYSETPOS !== undefined && !Object.keys(r).some((k) => k.startsWith("BY") && k !== "BYSETPOS")) out.push({ title: "BYSETPOS without another BY part", detail: "BYSETPOS picks from the set another BY part (BYDAY, BYMONTHDAY...) builds, so on its own it means nothing and importers reject or ignore it." });
   if (r.BYMONTHDAY !== undefined && ["WEEKLY"].includes(r.FREQ)) out.push({ title: "BYMONTHDAY with FREQ=WEEKLY", detail: "The standard forbids BYMONTHDAY in a weekly rule. Use FREQ=MONTHLY, or BYDAY for weekly." });
   return out;
 }
 
+// RFC 5545 3.3.10: INTERVAL and COUNT are 1*DIGIT, so leading zeros are allowed; zero is not.
+const posInt = (v) => /^\d+$/.test(v) && /[1-9]/.test(v);
 const F = (severity, line, title, detail, extra = {}) => ({ severity, line, title, detail, ...extra });
 
 export function validate(text) {
@@ -245,13 +284,19 @@ export function validate(text) {
         else {
           if (s.kind === "datetime" && !s.utc && !ds.params.TZID) findings.push(F("info", ds.line, `${at}floating time`, "DTSTART has no Z and no TZID, so it means 'this local time wherever you are'. That is correct for some uses (a reminder at 9:00 anywhere) but a meeting will land at a different hour for people in other zones."));
           if (ds.params.VALUE === "DATE" && s.kind !== "date") findings.push(F("error", ds.line, `${at}VALUE=DATE with a time`, "DTSTART says it is a date but carries a time."));
+          if (du) {
+            const m = DUR_RE.exec(du.value.trim());
+            if (!m) findings.push(F("error", du.line, `${at}bad DURATION`, `"${du.value.slice(0, 30)}" is not a duration such as PT1H, PT30M, P1D or P1W. Importers drop the end of the event or reject it.`));
+            else if (m[1] === "-") findings.push(F("error", du.line, `${at}bad DURATION`, `"${du.value.slice(0, 30)}" is negative. An event's DURATION must be positive; a negative one is only for VALARM TRIGGER.`));
+          }
           if (de && du) findings.push(F("error", de.line, `${at}both DTEND and DURATION`, "An event may have one or the other, not both. Several importers reject the event. Not fixed automatically because it is not provable which is intended."));
           if (de) {
             const e = parseTime(de.value);
             if (e.error) findings.push(F("error", de.line, `${at}bad DTEND`, e.error));
             else {
               if (e.kind !== s.kind) findings.push(F("error", de.line, `${at}DTSTART and DTEND are different types`, `DTSTART is a ${s.kind} and DTEND is a ${e.kind}. They must match.`));
-              else if (e.ms < s.ms) findings.push(F("error", de.line, `${at}ends before it starts`, `DTEND ${de.value} is earlier than DTSTART ${ds.value}. Often a swapped pair, or an end time typed without the next day.`));
+              else if (s.kind === "datetime" && (instantCompare(s, ds.params.TZID, e, de.params.TZID) ?? 0) < 0) findings.push(F("error", de.line, `${at}ends before it starts`, `DTEND ${de.value} is earlier than DTSTART ${ds.value}. Often a swapped pair, or an end time typed without the next day.`));
+              else if (s.kind === "date" && e.ms < s.ms) findings.push(F("error", de.line, `${at}ends before it starts`, `DTEND ${de.value} is earlier than DTSTART ${ds.value}. Often a swapped pair, or an end time typed without the next day.`));
               else if (e.ms === s.ms && s.kind === "date") findings.push(F("warning", de.line, `${at}all-day event with zero length`, "For all-day events DTEND is the day after the last day (exclusive). With DTEND equal to DTSTART the event has no duration and may not display. DTEND moved forward one day automatically.", { fixable: true, code: "allday-end", ev: ev.line }));
             }
           }
@@ -267,11 +312,13 @@ export function validate(text) {
               else {
                 if (u.kind !== s.kind) findings.push(F("error", rr.line, `${at}UNTIL type does not match DTSTART`, `DTSTART is a ${s.kind} but UNTIL is a ${u.kind}. Google Calendar and Outlook may drop the end of the series or reject it.`));
                 else if (s.kind === "datetime" && (ds.params.TZID || s.utc) && !u.utc) findings.push(F("warning", rr.line, `${at}UNTIL should be in UTC`, "When DTSTART has a time zone or is UTC, the RFC says UNTIL must be UTC (end in Z), otherwise the last occurrence may be dropped."));
-                if (!u.error && u.ms < s.ms) findings.push(F("error", rr.line, `${at}UNTIL is before DTSTART`, "The series ends before it begins."));
+                // Compare instants: a zoned DTSTART against a UTC UNTIL needs the zone's offset. An unknown zone falls back to wall clocks.
+                const untilGap = u.kind === "datetime" && s.kind === "datetime" ? instantCompare(s, ds.params.TZID, u, null) ?? (u.ms - s.ms) : u.ms - s.ms;
+                if (untilGap < 0) findings.push(F("error", rr.line, `${at}UNTIL is before DTSTART`, "The series ends before it begins."));
               }
             }
-            if (r.INTERVAL && !/^[1-9]\d*$/.test(r.INTERVAL)) findings.push(F("error", rr.line, `${at}bad INTERVAL`, "INTERVAL must be a positive whole number."));
-            if (r.COUNT && !/^[1-9]\d*$/.test(r.COUNT)) findings.push(F("error", rr.line, `${at}bad COUNT`, "COUNT must be a positive whole number."));
+            if (r.INTERVAL && !posInt(r.INTERVAL)) findings.push(F("error", rr.line, `${at}bad INTERVAL`, "INTERVAL must be a positive whole number."));
+            if (r.COUNT && !posInt(r.COUNT)) findings.push(F("error", rr.line, `${at}bad COUNT`, "COUNT must be a positive whole number."));
             for (const msg of rruleByProblems(r)) findings.push(F("error", rr.line, `${at}${msg.title}`, msg.detail));
           }
           for (const name of ["EXDATE", "RDATE"]) {
@@ -290,7 +337,7 @@ export function validate(text) {
         if (!act) findings.push(F("error", al.line, `${at}VALARM has no ACTION`, "Every reminder needs ACTION (DISPLAY, AUDIO or EMAIL). Google Calendar and Outlook drop or reject the reminder without it."));
         else if (!["DISPLAY", "AUDIO", "EMAIL"].includes(act.value.trim().toUpperCase())) findings.push(F("warning", act.line, `${at}VALARM ACTION ${act.value.slice(0, 20)} is not standard`, "RFC 5545 defines DISPLAY, AUDIO and EMAIL. Other values are ignored by most calendar apps."));
         if (!trig) findings.push(F("error", al.line, `${at}VALARM has no TRIGGER`, "A reminder needs TRIGGER, for example TRIGGER:-PT15M for 15 minutes before. Without it importers skip the reminder or reject the event."));
-        else if (!/^[+-]?P(\d+W|(\d+D)?(T(\d+H)?(\d+M)?(\d+S)?)?)$/i.test(trig.value.trim()) && trig.params.VALUE !== "DATE-TIME") findings.push(F("error", trig.line, `${at}bad VALARM TRIGGER`, `"${trig.value.slice(0, 30)}" is not a duration such as -PT15M or -P1D. Use VALUE=DATE-TIME for an absolute time.`));
+        else if (!DUR_RE.test(trig.value.trim()) && trig.params.VALUE !== "DATE-TIME") findings.push(F("error", trig.line, `${at}bad VALARM TRIGGER`, `"${trig.value.slice(0, 30)}" is not a duration such as -PT15M or -P1D. Use VALUE=DATE-TIME for an absolute time.`));
         if (act && act.value.trim().toUpperCase() === "DISPLAY" && !get(al, "DESCRIPTION")) findings.push(F("warning", al.line, `${at}DISPLAY alarm has no DESCRIPTION`, "RFC 5545 requires DESCRIPTION on a DISPLAY alarm; strict importers reject it."));
       }
       if (!get(ev, "SUMMARY")) findings.push(F("info", ev.line, `${at}no SUMMARY`, "The event will show as untitled."));
@@ -333,7 +380,7 @@ export function repair(text, { now = Date.now() } = {}) {
       if (ds && de && !get(ev, "DURATION")) {
         const s = parseTime(ds.value), e = parseTime(de.value);
         if (!s.error && !e.error && s.kind === "date" && e.kind === "date" && s.ms === e.ms) {
-          replace.set(de.line, `${de.name}${Object.entries(de.params).map(([k, v]) => `;${k}=${v}`).join("")}:${fmtDate(e.ms + 86400000)}`);
+          replace.set(de.line, `${de.name}${paramText(de.params)}:${fmtDate(e.ms + 86400000)}`);
           changes.push(`${label}: all-day DTEND moved to ${fmtDate(e.ms + 86400000)}`);
         }
       }

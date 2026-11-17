@@ -48,16 +48,32 @@ where it departs from the paper.
   `node cli.mjs series.csv --column sales --model meanvar` (`--model poisson` for counts), `--json` for
   machine-readable output, `--example` for the Nile data, `--help` for all options. With the level
   model (the default) the text output leads with the changes all six settings agree on, as the page
-  does (`--no-agreed` to skip it; skipped on its own above 2,000 points, see "Agreed changes in the CLI
-  and the report").
+  does (`--no-agreed` to skip it). The panel runs on worker threads beside the main analysis and is
+  skipped on its own above 10,000 points (see "Agreed changes on worker threads in the CLI").
+- **Watch a metric** (2026-11-12): `node watch.mjs daily.csv --state watch-state.json` after each new row
+  reports each new change once, after 5 points on its far side, and can post to a Slack, Discord, Teams or
+  Mattermost webhook (`--webhook-env NAME`). `deploy/make-watch-repo.sh <folder>` makes a standalone
+  repository with a daily GitHub Actions workflow, so anyone can run it in their own account; page:
+  [watch-a-metric-for-changes.html](watch-a-metric-for-changes.html). How the defaults were chosen:
+  "Watching a growing series" below. Since 2026-11-12 (later) the page replays the watch on the series
+  you just analysed ("What a daily watch would have sent"), and agents call `replayWatch` in `watch-core.mjs`
+  (README "Replaying the watch on your own history").
+- **Watch several metrics in one run** (2026-11-13): `node watch.mjs kpi.csv --state s.json --columns all` (or
+  `--columns orders:poisson,revenue,signups:poisson`, a model per column) watches every column of one CSV, keeps a
+  record per column in one state file and sends the day's new changes as one webhook message. README "Several metrics in
+  one watch".
+- **Watch your Stripe account** (2026-11-16): `STRIPE_API_KEY=rk_live_... node stripe-metrics.mjs --out data/stripe.csv`
+  writes payments, revenue and failed payments per complete day from your own account; the self-deploy workflow
+  fetches and watches it when the secret `STRIPE_API_KEY` is set. README "Stripe as a source".
 - **AI agents / MCP:** from a clone of the repository,
   `node platform/agents/tools.mjs call changepoint-detector analyze --input '{"values":[...]}'`
+  (the watch replay: `call changepoint-detector replayWatch --module watch-core.mjs --args '[[...]]'`)
   or the `call_tool` tool of the repository's MCP server
   ([`platform/agents/`](../../platform/agents/README.md)).
 
 ## Verification
 
-`node --test` (343 tests). What they check:
+`node --test` (581 tests on 2026-11-12). What they check:
 
 - **Against an independent PELT:** on 100 seeded cases (60-200 points, 0-3
   planted changes, mean and mean-and-variance models, several penalties) the
@@ -217,7 +233,8 @@ series, 40 each, in `engine.test.mjs`):
   Bayesian pass as a check that no longer cries wolf; a negative-binomial cost might recover power. Page: "Counts are clumpy or sticky".
 - **Independent clumpy counts (`--overdispersion nb`, added 2026-10-20).** A negative-binomial cost (`makeCost(..., 'negbin')`,
   variance mu + mu^2 / r, one mean per segment, PELT still exact) with r estimated from the series (`negbinSize`: the median
-  of squared first differences gives a variance that a step does not spoil). 200 counts, rate 10, each count drawn at a
+  of squared first differences gives a variance that a step does not spoil; since 2026-11-15 each difference is read against its
+  local level, see "Clumpy counts that grow" at the end). 200 counts, rate 10, each count drawn at a
   lognormal rate (sd 0.35) independently, seeds 1700..1739: false changes per series on a flat series 3.55 with the Poisson
   cost, 0.78 with the quasi-Poisson penalty (`--overdispersion`), 0.13 with the negative binomial. With a 1.8x step at 100 the
   step was found within 10 points on 39 of 40 with either correction, at 1.27 changes per series against 1.50. Sticky counts
@@ -418,6 +435,9 @@ series, 40 each, in `engine.test.mjs`):
 Steps by default: a gradual drift is approximated by several steps unless you choose `--model trend` (a line per segment, no curvature). Seasonality is
 removed with `--period` (`--drift` follows a changing shape with a running median; no full STL). A changepoint describes the data, not its cause.
 Up to 100,000 points; the Bayesian pass is the slow part on long series.
+A change of **shape** at an unchanged level and spread (one waveform giving way to another) is outside what it models: on
+TSSB's 75 such series the agreed changes scored below reporting none, and on long repeating waveforms (heartbeats, gestures) all
+six settings can agree on the cycle's own peaks. For that job use a shape method such as ClaSP ("Long series from outside TCPD").
 
 ## Disclaimer
 
@@ -445,6 +465,10 @@ Free and open source (MIT, see `LICENSE`). Optional support:
   need a programming environment. This runs the same class of method in a browser tab, from a CSV.
 - **Eyeballing a chart:** fast, but cannot say whether a dip is noise or a shift, or how sure to be.
 - **Anomaly alerts in a monitoring product:** flag single odd points, not a lasting change in level.
+  `watch.mjs` is the lasting-change alert, run in the user's own account (see "Watching a growing series").
+- **Stripe analytics apps (Baremetrics, ChartMogul, ProfitWell and the like):** subscription dashboards, mostly
+  paid, holding the merchant's data. `stripe-metrics.mjs` plus the watch sends one message when payments, revenue
+  or declines move to a new level, from the merchant's own GitHub account, free (see "Stripe as a source").
 
 
 **Page (2026-10-21).** The web page now has a "Known holidays" box (comma-separated dates or row numbers, counts model) that passes `holidays` to the engine. Checked on 200 seeded daily counts with every 17th day at 0.3x: 6 changes without the list, 0 with it (factor 0.304).
@@ -799,29 +823,177 @@ left is a joint likelihood where the variance path may break at a changepoint wh
 segment-independent cost cannot express (the recursion depends on the previous segment's state). Not shipped as an option;
 the function and the script stay so the next attempt starts from this baseline. Simulated noise only.
 
-### Pruning meanvar cuts with a segment-wise GARCH likelihood: fewer extra cuts, GARCH false alarms only partly (2026-11-02, measured, not shipped)
+### Pruning meanvar cuts with a segment-wise GARCH likelihood (2026-11-02; table withdrawn and re-measured 2026-11-13, not shipped)
 
 The joint likelihood named above, in its cheapest form. `eval/meanvar-garch-segments.mjs` (output
-`eval/meanvar-garch-segments.out.txt`, 100 series per cell, same seeds and noise kinds as the filter run) takes the plain
-meanvar PELT cuts as candidates. Every segment gets its own mean and scale, and inside a segment the standardised residual
-follows a unit-variance GARCH(1,1) whose a and b are shared by all segments (small grid). The cut whose removal costs least
-quasi-log-likelihood is dropped while that cost is under `pen x ln n`. Plain, then pruned: null series with any change / sd
-1 to 2 break found exactly once / mean +1.5 sd shift found exactly once.
+`eval/meanvar-garch-segments.out.txt`) takes the plain meanvar PELT cuts as candidates. Every segment gets its own mean
+and scale, and inside a segment the standardised residual follows a unit-variance GARCH(1,1) whose a and b are shared by
+all segments (small grid). The cut whose removal costs least quasi-log-likelihood is dropped while that cost is under
+`pen x ln n` (log-likelihood units).
 
-| n, noise | plain | pruned, pen 12 | pruned, pen 16 |
+**The 2026-11-02 table measured nothing.** The script passed `analyze()`'s changepoint objects into the segment
+likelihood, which needs indexes, so every total was NaN and the "pruned" columns were whatever the NaN comparisons left
+(found 2026-11-13). The table is withdrawn; its conclusions (pen 12 to 16, "barely moves at n = 200") do not stand.
+`pruneByGarch` now refuses anything but integer cuts, and `garch-prune.test.mjs` checks it keeps a real break and drops
+false cuts.
+
+**Re-measured** (100 series per cell, the original seeds, so in-sample): null series with any change / sd 1 to 2 break
+found exactly once / mean +1.5 sd shift found exactly once. Plain meanvar first, then pruned at three penalties.
+
+| n, noise | plain | pen 1 ln n | pen 1.5 ln n | pen 2 ln n |
+|---|---|---|---|---|
+| 100, Gaussian | 4% / 94% / 95% | 4% / 92% / 95% | 3% / 61% / 95% | 0% / 26% / 100% |
+| 100, GARCH | 41% / 63% / 63% | 28% / 61% / 65% | 10% / 45% / 77% | 3% / 26% / 94% |
+| 100, t3 | 37% / 58% / 48% | 36% / 57% / 48% | 33% / 57% / 48% | 20% / 56% / 65% |
+| 200, Gaussian | 0% / 97% / 96% | 0% / 97% / 96% | 0% / 94% / 96% | 0% / 76% / 99% |
+| 200, GARCH | 50% / 58% / 52% | 29% / 63% / 68% | 9% / 61% / 89% | 1% / 45% / 97% |
+| 200, t3 | 63% / 55% / 34% | 63% / 57% / 34% | 61% / 56% / 35% | 51% / 66% / 55% |
+
+The prune does what it was meant to on clustered volatility: at 1.5 ln n the GARCH false alarms fall to 9% at n = 200
+(`--bootstrap`: 16%) and mean shifts are found more often. It does nothing for t3 or AR(1) noise, as expected of a
+GARCH model. The cost is the real variance break, which a shared GARCH partly explains away: at 3 ln n it is found 4% to
+11% of the time, the filter's failure again.
+
+**Pre-registered on fresh seeds (2026-11-13; `eval/meanvar-garch-segments-prereg-2026-11-13.md`).** Hypothesis: grid
+points with a + b above 0.9 are what absorb a lasting step, so a grid capped at 0.9 keeps it. Fixed beforehand: pen 1.5 ln
+n, cap 0.9, 200 series per cell, every seed moved by 1,000,003. Bar: GARCH null false alarms at n = 200 at most 10%; sd
+break on GARCH noise at n = 200 at least 74% (`--bootstrap`); Gaussian null at most 2%, sd break at least 90% (n = 200)
+and 80% (n = 100); mean shift at least the plain rate.
+
+| n, noise | plain | pruned, cap 0.9 (pre-registered) | pruned, no cap (diagnostic, after) |
 |---|---|---|---|
-| 100, GARCH | 41% / 63% / 63% | 21% / 86% / 82% | 5% / 58% / 36% |
-| 100, t3 | 37% / 58% / 48% | 12% / 88% / 90% | 4% / 62% / 31% |
-| 200, GARCH | 50% / 58% / 52% | 48% / 97% / 100% | 28% / 97% / 100% |
-| 200, t3 | 63% / 55% / 34% | 56% / 99% / 100% | 40% / 99% / 100% |
-| 200, Gaussian | 0% / 97% / 96% | 0% / 100% / 100% | 0% / 100% / 100% |
+| 100, Gaussian | 1% / 92% / 95% | 1% / **74%** / 96% | 1% / 68% / 96% |
+| 100, GARCH | 36% / 67% / 71% | 14% / 39% / 85% | 14% / 39% / 85% |
+| 200, Gaussian | 3% / 98% / 98% | 2% / 96% / 99% | 2% / 93% / 99% |
+| 200, GARCH | 49% / 51% / 49% | 10% / **55%** / 82% | 9% / 54% / 83% |
 
-Unlike the filter, the real sd break survives (97% to 100% at n = 200), and the clusters of extra cuts that made "exactly one"
-rates low go away. But the false-alarm rate on a null GARCH series barely moves at n = 200 with pen 12 (50% to 48%) and needs
-pen 16 to reach 28%, while at n = 100 pen 16 already costs the true breaks (mean shift 82% to 36%). So the penalty would have
-to depend on n and the result is still far from the filter's 1%. A single surviving cut is usually a volatility cluster that
-a segment-own scale explains better than any shared (a, b). Not wired into `analyze`; next is a joint fit where the cut
-candidates are searched, not only pruned. Simulated noise only; the penalty was swept on the same seeds it is reported on.
+**It fails** on two of the four lines: the sd break on GARCH noise (55% against 74%) and Gaussian at n = 100 (74%
+against 80%). False alarms (10%) and mean shifts pass. The hypothesis is mostly wrong too: without the cap the GARCH-noise
+break is found 54% of the time, so high persistence is not what absorbs it. On GARCH noise at n = 100 the plain fit finds
+the break alone 67% of the time and the prune keeps it 39%, so the prune is removing the true break, not failing to add
+one. Not shipped; `--bootstrap` stays the option for clustered volatility. The open route is unchanged: candidates
+searched jointly with the GARCH fit, or a penalty for the prune read off a block bootstrap as `--bootstrap` does for
+plain meanvar. Simulated noise only.
+
+### Cuts searched jointly with a GARCH likelihood: `--garch` (2026-11-13, pre-registered; ships)
+
+The prune above only ever removes meanvar's cuts, and it removed the true variance break. The route it left open was to
+search the cuts with the GARCH fit. `garchCuts` in `engine.mjs` (`analyze({ model: 'meanvar', garch: true })`, CLI
+`--model meanvar --garch`, page box "Volatility comes in clusters") uses the same segment likelihood (own mean and scale per
+segment, a unit-variance GARCH(1,1) inside, a and b shared and read off the 18-point grid, a + b under 0.98). A greedy
+forward search adds, at each step, the cut at any position that raises the best-over-grid quasi-log-likelihood most. It
+runs twice, once with independent noise (a = b = 0) and once on the grid, and keeps the cut set with the highest
+LL - 1.5 ln n per cut - 0.25 ln n if GARCH. Without that second term the search let a GARCH path absorb a plain variance
+step on Gaussian noise (61% found at n = 100, against 94% plain).
+
+**Tuned in sample** (the prune's seeds, 100 per cell, `eval/meanvar-garch-choose-tuning.out.txt`): the per-cut penalty and
+the GARCH penalty (0.25, 0.5 or 1 ln n). The first same-seed comparison with `--bootstrap`
+(`eval/meanvar-garch-compare.out.txt`) showed why: earlier tables had put `--bootstrap` on other seeds.
+
+**Pre-registered on fresh seeds** (`eval/meanvar-garch-choose-prereg-2026-11-13.md`, committed before the run; every seed
+moved by 2,000,003, 200 series per cell, `--bootstrap` on the same series; `eval/meanvar-garch-choose-prereg.out.txt`).
+Null series with any change / sd 1 to 2 break found exactly once / mean +1.5 sd found exactly once:
+
+| n, noise | `--bootstrap` | `--garch` |
+|---|---|---|
+| 100, Gaussian | 3% / 76% / 98% | 3% / 77% / 99% |
+| 100, GARCH | 12% / 53% / 85% | 11% / 51% / 87% |
+| 100, t3 | 9% / 43% / 83% | 44% / 68% / 56% |
+| 200, Gaussian | 1% / 99% / 97% | 1% / 95% / 97% |
+| 200, GARCH | 19% / 69% / 69% | **7%** / 65% / **90%** |
+| 200, t3 | 13% / 61% / 83% | 49% / 50% / 49% |
+
+**It passes** every line of the bar: GARCH false alarms at n = 200 are 7% (at most 10% and half of 19%); mean shifts on
+GARCH noise 87% and 90% (bootstrap 85%, 69%); the variance break on GARCH noise 51% and 65% (at least 48% and 57%);
+Gaussian false alarms 3% and 1%, the variance break 77% and 95% (at least 75% and 95%, the second exactly at the bar), mean
+shifts 99% and 97%. So on clustered volatility it trades about 4 points of power on a lasting variance step for a third of
+`--bootstrap`'s false alarms and 21 more points on mean shifts. It is bad on heavy tails without clustering (t3: 44% to 49%
+false alarms), as a GARCH model is expected to be, so `--bootstrap` stays the option there and the note says so. The
+pre-registration said "24-point grid"; the code it ran excluded a + b of 0.98 or more, which leaves 18 (the test checks it).
+The run scored at most two cuts; the shipped default allows 40 and gives the same table
+(`eval/meanvar-garch-shipped.out.txt`). Simulated noise only.
+
+**What it does on real returns** (descriptions, not evidence; `garch-search.test.mjs`). DAX 1991-1998 (1,859 days): cuts at
+rows 28, 39 and 1482 with a = 0.1, b = 0.85, the same three dates `--bootstrap` and `--dispersion` find give or take 4 rows.
+SMI: 29, 39, 1489. CAC: 1171 and 1502. FTSE: none. The Dow, 1980-2012 (8,609 days, 2.5 s): **no cut at all**: the shared
+GARCH explains both October 1987 and the 2008 crisis as volatility clustering, where `--bootstrap` cuts 11 times including
+both. That is what the model says, not a bug: it asks whether anything changed beyond what clustering explains, and a
+crash followed by slow calm is what GARCH describes. For bursts as changes, use `--bootstrap`; the output says this.
+
+Costs and limits. Each step rescans every segment, so above 250 points the search scans every `ceil(n / 250)` points and
+then every point within that stride of the best (`garch-search.test.mjs` checks it lands on the same cut as the full scan
+on a clear step); 20,000 points at most. Since 2026-11-13 (later) the 95% ranges come from the GARCH fit when it reads the
+noise as clustered (next section); before that they came from the independent-noise cost and held the date on a volatility
+step only 75-77% of the time. Not with `--robust`, `--dispersion`, `--bootstrap`, `--ar1`, `--trend` or `--period`.
+
+### A range from the GARCH fit (2026-11-13, pre-registered; ships)
+
+The output used to warn that `--garch` ranges were "too narrow", because they came from the independent-noise meanvar cost,
+not the model that chose the cuts. That was never measured. `garchCost` in `engine.mjs` is the GARCH segment likelihood
+at the fitted shared (a, b) used as a `changeIntervals` cost: the same profile-likelihood range as every other model
+(positions between the neighbouring cuts weighted by exp(-cost / 2), the smallest set holding 95%). It is used only when
+the search reads the noise as clustered; otherwise the GARCH and meanvar costs are the same model. There is no free
+parameter, so nothing was tuned.
+
+**Pre-registered** (`eval/meanvar-garch-range-prereg-2026-11-13.md`, committed before the run; `node
+eval/meanvar-garch-range.mjs 400 4000003 200,400`, output `eval/meanvar-garch-range-prereg.out.txt`). GARCH(1,1) noise, one
+change at n / 2, 400 series per cell, scored among series where `--garch` reads the noise as clustered and finds exactly one
+cut within 15 points. Planted index held by the range (median width in points):
+
+| n, change | kept | independent-noise range | GARCH range |
+|---|---|---|---|
+| 200, sd 1 to 2 | 142 | 77% (14) | **93%** (26) |
+| 200, mean +1.5 | 294 | 94% (6) | **97%** (6) |
+| 400, sd 1 to 2 | 248 | 75% (15) | **98%** (37) |
+| 400, mean +1.5 | 374 | 92% (6) | **96%** (6) |
+
+**It passes** (at least 90% in every cell and at least the old range's coverage). The old warning was right about
+volatility steps: the independent-noise range missed the date a quarter of the time, because clustering makes a stretch
+of high volatility look like the new regime arriving early or late. Mean shifts were already close to 95% and keep their
+6-point width. So `--garch` ranges now come from the GARCH fit and the warning is gone. Conditioned on a kept cut near the
+truth, as every coverage table in this README is; simulated noise only.
+
+On the real returns (descriptions, not evidence): the DAX's early cuts keep 3-point ranges (rows 25-27, 37-39), but its late
+volatility rise at row 1480 widens from rows 1469-1495 to **273-1576**: under the GARCH fit the data say volatility was
+higher at the end, not when it rose. The SMI's matching cut narrows (1450-1567 to 1442-1500); the CAC's widen a little
+(1155-1226 to 1130-1232, 1395-1500 to 1390-1500). Test: `garch-search.test.mjs`.
+
+### Heavy tails in the GARCH search: Student t innovations (2026-11-13, pre-registered; fails one line, not shipped)
+
+`--garch` raised a false change on 44-49% of t3 series: a Gaussian segment likelihood reads one heavy-tailed move as a
+change of volatility. `garchCuts(x, { tPen })` adds two paths to the model choice: independent Student t noise and t-GARCH
+(Bollerslev 1987), the standardised residual a unit-variance t with nu from {4, 8} shared across segments. Each segment's
+mean and scale come from four EM passes (weights (nu + 1) / (nu - 2 + z^2)); `garch-t.test.mjs` checks the EM against a
+brute-force grid over mean and scale and the t likelihood against the Gaussian at large nu. A t path pays tPen on top of
+the per-cut and GARCH-term penalties. Tuned in sample (shift 0, 100 per cell, `eval/meanvar-tgarch-tuning.out.txt`):
+tPen in {0.25, 0.5, 1} ln n; 0.5 taken. Known bias, stated in the pre-registration: the shipped Gaussian GARCH path is
+slightly under-converged (two scale passes, unweighted mean), so a t path at very large nu scores up to ~0.3 higher per
+segment against a penalty of 2.3 at n = 100.
+
+**Pre-registered on fresh seeds** (`eval/meanvar-tgarch-prereg-2026-11-13.md`; `node eval/meanvar-tgarch.mjs 200 3000003
+off,0.5`, run split across four processes, output `eval/meanvar-tgarch-prereg.out.txt`). Null any change / sd 1 to 2 found
+exactly once / mean +1.5 found exactly once; t-GARCH noise is GARCH with t5 innovations:
+
+| n, noise | shipped `--garch` | with t paths |
+|---|---|---|
+| 100, Gaussian | 2% / 80% / 96% | 2% / 78% / 97% |
+| 100, GARCH | 13% / 53% / 82% | 13% / 53% / 82% |
+| 100, t3 | 38% / 67% / 65% | **4%** / **58%** / **96%** |
+| 100, t-GARCH | 37% / 58% / 60% | 20% / 51% / 73% |
+| 200, Gaussian | 1% / 96% / 100% | 1% / 95% / 100% |
+| 200, GARCH | 9% / 64% / 89% | 9% / 64% / 89% |
+| 200, t3 | 54% / 57% / 42% | **3%** / **90%** / **98%** |
+| 200, t-GARCH | 38% / 62% / 49% | 12% / 54% / 77% |
+
+**It fails one line of the bar**: the t3 variance break at n = 100 is found exactly once in 58% of series, under the bar of
+the shipped search's 67% minus 5. Every other line passes: t3 false alarms 4% and 3% (bar at most 10%, from 38% and 54%),
+t3 mean shifts 96% and 98%, t-GARCH false alarms 12% at n = 200 and 20% (below 37%) at n = 100, Gaussian and GARCH cells
+within a point or two. The pre-registration said nothing ships on a failure, so `analyze` does not use it and `--garch`'s
+note still says to use `--bootstrap` on heavy tails. Reading it plainly: the shipped search's 67% comes with a 38% false
+alarm rate on the same noise, so its "found" is less trustworthy than the t search's 58%; but that argument was available
+before the run and the bar did not make it. Next: a pre-registration that scores the variance break jointly with false
+alarms (for instance found-exactly-once minus null false alarms), or nu read off a finer grid, on new seeds. On the real
+returns the t paths take nu = 8 (DAX cuts 37 and 1437; the Dow still none) at 4x to 10x the run time (15 s on 8,609 points).
 
 ### A second dispersion round does not help (2026-10-26, negative result)
 
@@ -1828,7 +2000,7 @@ Annual global temperature anomaly, 1880-2024 (`data/global-temp-annual.csv`, 145
 - **The slope model dates one bend, 1913, with a 95% range of 1895 to 1992.** It does not find 1976, the best-known acceleration; `--trend bends` returns the same single bend. The range is nearly a century, so this is a bend the series cannot place, not a date to quote.
 - **Reading:** on a drifting series the step models cut a staircase (8 cuts for the level model), as on GDP and beer. The agreement at 1946 is the useful result; the other cuts have no documentation behind them. One series, one recalled date: it says the detector can date a real step on real data, not how often it will.
 
-Still wanted: the 1976 acceleration found by a bend model on a series long enough to place it (a longer or less smooth record).
+Still wanted: the 1976 acceleration found by a bend model on a series long enough to place it (a longer or less smooth record). **Answered 2026-11-13 by a test on the levels, not the differences:** see "The 1976 acceleration, dated and tested on the levels" below (knot 1976, p 0.001 on GCAG and GISTEMP).
 
 ## Mauna Loa CO2: a smooth acceleration, no step (2026-11-09)
 
@@ -2119,7 +2291,7 @@ What it says:
 
 - **The rule is met, so `auto` is the default.** Mean F1 0.172 to 0.286, cuts down by a third to four fifths, and no cost on white noise. Over-cut columns: both apple columns, all four bee columns, two of four occupancy sensors (the output lists the sd each got).
 - **`auto` is still below the column-by-column reading (0.521) and "no change" (0.621).** The page keeps leading with the agreed changes, and the over-cut warning still fires on occupancy (89 cuts in 509 points).
-- **AR(1) plus floor 2 on every column scored best here (0.564), above the consensus.** It was listed in advance but is not the primary, so that is a lead, not a finding: three series is a panel, and in simulation it gives up most of the power on smooth columns. It ships as a page and CLI option ("Autocorrelation and a floor on every column (fewest cuts)", `--joint-floor 2 --joint-ar1`), to be tested on fresh multi-column data before it is anything more.
+- **AR(1) plus floor 2 on every column scored best here (0.564), above the consensus.** It was listed in advance but is not the primary, so that is a lead, not a finding: three series is a panel, and in simulation it gives up most of the power on smooth columns. It ships as a page and CLI option ("Autocorrelation and a floor on every column (fewest cuts)", `--joint-floor 2 --joint-ar1`), to be tested on fresh multi-column data before it is anything more. **Tested 2026-11-16 on five fresh bee dance sequences and failed** (see "The AR(1)-plus-floor lead on fresh labelled data" below).
 - **A real pair checked after the rule was applied:** German unemployment, unadjusted and adjusted, quarterly 1962-1991 (`data/german-unemployment.csv`). Plain joint fit: 22 changes and the over-cut warning. With `auto` (both columns floored): 1974Q4 (+3.4 points, the first oil shock's recession), 1982Q1 (+4.3, the early-1980s recession) and 1989Q2 (-1.8), no warning. With AR(1) as well: one change, 1981Q3. Pinned in `multi-view.test.mjs`.
 
 **What shipped.** `columnSigmas` and the `floor`/`ar1` options of `multiPelt`; `analyzeMulti` defaults to `floor: 'auto'` for the level model and reports `floor`, `ar1` and `flooredColumns`; the text output and the page summary name the floored columns; CLI `--joint-floor auto|off|k` and `--joint-ar1`; a page select, "One segmentation for all columns: noise per column". `eval/tcpd-multi.mjs` and `eval/multi-sim.mjs` call `multiPelt` with no floor, so their figures above are unchanged. Tests: `multivariate.test.mjs` (auto floors a random walk and leaves white noise alone, the shared step survives, the pre-registered figures and the white-noise equality from the output files) and `multi-view.test.mjs` (German unemployment both ways).
@@ -2200,8 +2372,88 @@ shows the report card as an unlocked key would, opens the report, and compares i
 
 **Not done.** The CLI has no report output for one column or several (the report is the paid
 extra; an open-source CLI flag would be honest but is the owner's pricing call). A wide joint table
-(many columns) scrolls sideways on screen and may be clipped in print; a column-per-page layout for
-more than about six columns is open.
+(many columns) scrolls sideways on screen; in print it was clipped, fixed the same day (next section).
+
+### Wide sets in print: one chart and one table per group of columns (2026-11-11)
+
+The several-column report put every column in one small-multiples chart and one joint table. On a
+printed page neither can bend: the joint table sat in a box that scrolls sideways, which paper cannot
+do, and the chart is one image that cannot split. `eval/multi-report-print.mjs` (headless Chromium,
+print media, A4 with 15 mm margins, so 680 by 1009 CSS px printable; output
+`eval/multi-report-print.out.txt`) measured it on a real seven-column set, the UK road-casualty
+series behind the seat-belt studies (`data/uk-road-casualties.csv`, R's `Seatbelts`; Harvey 1989),
+and on synthetic 12- and 20-column sets:
+
+| case | joint table, before | after | tallest chart, before | after |
+|---|---|---|---|---|
+| road casualties, 7 columns, level | 648 px (fits, wrapped) | 648 px | 631 px | 363 px |
+| road casualties, 7 columns, level and volatility | **814 px** | 648 px | 631 px | 363 px |
+| synthetic, 12 columns, level | **1,081 px** | 648 px | **1,078 px** | 542 px |
+| synthetic, 20 columns, level and volatility | **2,156 px** | 648 px | **1,792 px** | 363 px |
+
+Now `columnGroups` (`multi-report.mjs`) splits the columns into balanced groups of at most
+`COLUMNS_PER_GROUP` (6 under the level model, 4 under level and volatility, whose cells also carry
+the sd ratio; on the road data 5 volatility columns still fit at 648 px and 6 reach 710, so 4 leaves
+room for longer numbers). Each group gets its own chart and its own joint table, captioned
+"Columns 1 to 4 of 7: DriversKilled, drivers, front, rear", each kept whole on a page. Every chart
+draws the same joint and agreed changes, so the groups line up by date. Sets that fit in one group
+(the usual 2 to 4 columns, and the FX sample) are laid out exactly as before: the three sample reports
+regenerate byte-identical.
+
+**What the road data says** (pinned in `multi-report.test.mjs`): the joint level-and-volatility fit
+has a change at 1983-02, the first full month of the front-seat belt law, among 5; but the only
+changes every column-by-column setting agrees on are the petrol price's three steps (1974-04,
+1977-08, 1979-06). The casualty counts are strongly seasonal and the several-column mode has no
+season term, so the per-column panel cannot settle on the law there; one column at a time,
+`--period 12` does find it (the seat-belt section under Verification). A season term per column is
+open.
+
+**Checked.** `multi-report.test.mjs` (7 tests, 2 new): the groups cover every column once and never
+exceed the limit; on the seven real columns the report has two charts, each equal to
+`multiChartSvg` on its group, two joint tables with each column's header exactly once, and no single
+tall chart. `node eval/multi-report-print.mjs`: before, 3 of 4 cases did not fit the printed page;
+after, all 4 do.
+
+## The wandering-level model in the branded report (2026-11-11)
+
+The branded change report (the planned paid extra, dark until `checkout.mjs` has a link) now covers
+`--model drift` too. Before, **Open the report** after a wandering-level run refused and pointed at
+the CSV. Now it builds `driftReportHtml` (`drift-report.mjs`) from the last run, without rerunning it,
+on the shared letterhead (`reportShell` in `report.mjs`; the one-column and several-column reports
+are unchanged, pinned by their sample tests). In order:
+
+- the lead: how many jumps stand out from the drift and the largest in noise sds, or, when none
+  does, that the movement reads as wander rather than a change;
+- the page's plain-language summary (`driftSummary`), the heavy-tail check when it fires and the
+  TCPD score (`driftNotes`), and a note naming any page options the model ignored (logs, season,
+  trend, AR(1), noise floor, growth-rate test, heavy-tailed noise), so a reader of the PDF knows;
+- the page's chart with the fitted level drawn per stretch (`driftChartSvg`, the same function);
+- the jumps table and the stretches table (the page's, the same functions), then noise sd, wander
+  sd, penalty and any steady growth taken out;
+- the analyst's notes, and assumptions written for a wandering level: a random walk plus Gaussian
+  noise after Romano, Rigaill, Runge and Fearnhead (2022); slow wander is never listed, so a gradual
+  shift is not a jump; season, trends other than a steady growth, autocorrelation and heavy tails are
+  not modelled; a jump does not show a cause; no warranty.
+
+**Sample.** `sample-drift-change-report.html`, built by `build-sample-report.mjs` from the real code
+on Canada's total fertility rate, 1931-1968 (`data/canada-fertility.csv`), for an invented firm. The
+plain level model cuts that series into 8 flat segments (1933, 1942, 1946, 1953, 1963, 1965, 1967;
+`canada-fertility.test.mjs`); the wandering-level model lists 3 jumps, 1946 (+388, 7.0 noise sd), 1965
+(-461, 8.3) and 1967 (-320, 5.8), and reads the rest (the 1930s fall, the 1950s rise to the peak)
+as wander. The marketing page (`change-report-for-analysts.html`) links it under "Series that wander".
+
+**Verification.** `drift-report.test.mjs` (5 tests): the report contains the page's chart, tables and
+summary for the Nile (1899 alone); the no-jump lead on Lake Huron; every typed string, label and
+ignored option escaped, SVG logos and non-hex colours refused; the sample equals the real code's
+output; the page imports `drift-report.mjs` and no longer refuses. `eval/drift-report-browser.mjs`
+(headless Chromium, `eval/drift-report-browser.out.txt`): Canada's fertility rate pasted, the drift
+model chosen with "take logs first" ticked, the report card shown as an unlocked key would, **Open
+the report** clicked; the opened report equals `driftReportHtml` in Node byte for byte (9,420
+characters), lists 1946, 1965 and 1967, names the ignored option, and the page raised no errors.
+
+**Not done.** The CLI has no report flag for any model (the report is a page feature); the
+several-columns mode still does not take the drift model; the report has no Bayesian panel for it
+because the model has none.
 
 ## Main analysis off the main thread (2026-11-11)
 
@@ -2244,3 +2496,3146 @@ flagship's item (c), "next: main analysis in a worker".
 - **Not done.** The CLI's panel still runs in one thread with its 2,000-point cap
   (`worker_threads` would lift it); whether the agreed summary earns its cost on the long TCPD
   series is still open.
+
+## Agreed changes on worker threads in the CLI (2026-11-11)
+
+The CLI led its text output with the six-setting panel only up to 2,000 points, because on one
+thread the panel cost about five times the main analysis (2026-11-10 measurement above). The page
+already ran it in Web Workers; the CLI now does the same with Node's `worker_threads`.
+
+- **What changed.** `consensus-threads.mjs` (`runPanelThreaded`) hands the settings to up to
+  one thread per core (`consensus-thread.mjs`), slowest first (the two AR(1) settings, then level,
+  noise floor and the trend pair), and returns `runSetting` results in panel order for
+  `mergeConsensus`. The CLI starts the threads *before* its main analysis and runs that analysis on
+  its own thread meanwhile, leaving one core for it. When the options cannot move a cut away from
+  the panel's "level" setting (`levelRunFromMain`, the page's rule; `--label-column` and
+  `--min-segment` go to both alike), the main result stands in for that setting and five settings
+  run, not six. `--consensus` uses the same threads (all six). If threads cannot start, or one
+  dies, the missing settings run on the main thread, so the answer never depends on the threads.
+  The length cap (`AGREED_MAX_POINTS`) goes from 2,000 to 10,000 points.
+- **Same answer.** `consensus-threads.test.mjs` pins the threaded merge to one-thread `consensus()`
+  with three threads, one thread, and the main level run standing in; the CLI's lead line and
+  `--consensus` output on a 2,400-point series (above the old cap) equal the one-thread text, and
+  with `--ar1` (no reuse) too. The eval below checks the same on every input.
+- **Measured** (`node eval/cli-panel-threads.mjs [file.csv ...]`, 4 cores, wall clock of a whole
+  `node cli.mjs` run, output `eval/cli-panel-threads.out.txt`):
+
+  | series | CLI, panel on threads | CLI, `--no-agreed` | main + panel on one thread |
+  |---|---|---|---|
+  | tree-ring, first 1,000 points | 0.9 s | 0.3 s | 1.1 s |
+  | tree-ring, first 2,000 points | 2.1 s | 0.8 s | 3.8 s |
+  | tree-ring, first 4,000 points | 4.3 s | 1.6 s | 10.4 s |
+  | tree-ring, all 7,980 points | 9.5 s | 4.0 s | 23.5 s |
+  | DJIA daily returns, 8,609 points | 6.4 s | 2.3 s | 15.9 s |
+
+  So the panel now adds about 1.4 to 2.4 times the plain run, against about 3 to 6 times before;
+  the full tree-ring series, which the old cap skipped, now gets its agreed line in under ten
+  seconds. The threads run slower than one setting alone (the AR(1) setting takes 5.1 s alone on
+  tree-ring, more beside four other busy threads), so the wall clock sits above the slowest
+  setting; four cores are the ceiling here. The cap of 10,000 covers every committed series; above
+  it the CLI still says the panel was not run and points to `--consensus`.
+- **"Is the agreed summary worth its cost on the long TCPD series?" has no subject.** The open item
+  assumed TCPD has univariate series above 2,000 points. It does not: of the 31 series that ship
+  (fetched with `eval/tcpd-fetch.sh` 2026-11-11) the longest is `us_population` at 816 points, and
+  of the 7 held out the longest is `measles` at 991. Every TCPD series was already under the old
+  cap, so the held-out F1 figures quoted in the agreed line (0.71 vs 0.30) are from series of 52 to
+  991 points. Whether the panel earns its cost on long real series needs labelled long series
+  from elsewhere; the tool now says so rather than implying TCPD covers them.
+- **Not done.** The several-column panel (`--columns`) still runs its per-column panels on one
+  thread; the page's 2,000-point no-worker fallback is unchanged.
+
+
+## Jumps on a drifting level: `--model drift` (2026-11-11)
+
+Open item (0) of the flagship: the plain level model cuts smooth or wandering series into staircases
+(406 cuts on TCPD's 816-month US population). Every fix tried so far kept the flat-level model and
+changed its noise (`--ar1`, the noise floors, the over-cut warning's refit). This one changes the
+model: between changes the level follows a random walk, so slow wander is paid for by a per-step
+variance omega^2 and only a jump too big for the walk is a change.
+
+- **What it is.** `drift-level.mjs`. The model is the phi = 0 case of DeCAFS (Romano, Rigaill,
+  Runge and Fearnhead, "Detecting Abrupt Changes in the Presence of Local Fluctuations and
+  Autocorrelated Noise", JASA 2022, doi 10.1080/01621459.2021.1909598; the arXiv abstract page
+  2005.01379 was read for the title and DOI, the paper's body was not re-read here). It is solved
+  differently: a change restarts the level from a flat prior, so segments are independent and each
+  costs the -2 log likelihood of a local-level Kalman filter over it; exact optimal partitioning
+  over all segment starts (the filter's variances depend only on the position in the segment, so
+  every start costs one multiply-add per point; O(n^2), 44 ms for all 38 TCPD series). sigma and
+  omega come first, robustly: the lag-k difference has variance 2 sigma^2 + k omega^2, so a
+  least-squares line through the MAD variances at lags 1 to 10 gives both. Penalty 2 log n, the
+  plain level model's BIC. `driftLevelPath` gives the smoothed level, so each jump is reported as
+  the level just before and just after it.
+- **Pre-registered on TCPD** (`node eval/tcpd-drift.mjs tcpd-data`, output `eval/tcpd-drift.out.txt`;
+  the settings and the decision rule are in the script's header, written before any TCPD series was
+  run through it). Rule: offer it if the primary setting beats the plain level model on both the 31
+  shipped and the 7 held-out series; put it in the default panel only if it also beats the level
+  model following the over-cut warning on both.
+
+  | setting | F1 shipped (31) | cover | cuts | F1 held out (7) | cover | cuts |
+  |---|---|---|---|---|---|---|
+  | drift level, 2 log n (primary) | 0.677 | 0.592 | 247 | 0.420 | 0.524 | 284 |
+  | drift level, 4 log n | 0.682 | 0.620 | 117 | **0.538** | 0.606 | 182 |
+  | drift level, min segment 5 | **0.715** | 0.616 | 160 | 0.493 | 0.534 | 153 |
+  | drift level + median slope (post hoc) | 0.680 | 0.604 | 249 | 0.429 | 0.502 | 286 |
+  | level (default) | 0.477 | 0.374 | 1329 | 0.296 | 0.191 | 585 |
+  | level, following the over-cut warning | 0.655 | 0.561 | 653 | 0.497 | 0.394 | 233 |
+  | `--consensus` every setting | 0.702 | 0.633 | 59 | 0.711 | 0.742 | 25 |
+  | zero (published) | 0.663 | 0.568 | | 0.639 | 0.597 | |
+  | binseg (published) | 0.714 | 0.671 | | 0.727 | 0.731 | |
+
+- **Verdict: offered, not in the panel.** Primary minus plain level: +0.200 F1 shipped (95%
+  bootstrap 0.115 to 0.286, better on 24 of 31) and +0.124 held out (0.070 to 0.195, better on 7
+  of 7). Primary minus following the warning: +0.022 shipped (-0.055 to 0.099) and -0.077 held out
+  (-0.151 to -0.001). So it beats the plain model everywhere and the warning's refit nowhere
+  reliably; the second half of the rule fails and the panel is unchanged. It does not beat
+  "no change" or binseg either.
+- **Where it helps and where it does not.** It takes US population from 406 cuts to 1 (F1 0.015 to
+  0.615), JFK passengers 57 to 0, seat belts 24 to 1 (0.333 to 0.824), Japan's GDP 17 to 2, and
+  dates Brent's changes better than any level setting (0.726). It fails on series whose trouble is
+  heavy tails or volatility bursts, not drift: `bank` 48 cuts where annotators mark none, bitcoin
+  103, measles 30, Ratner's stock 46. Those are the held-out set's bulk, which is why it drops there.
+  And it pays the absorbing price: Nile's 1899 drop (2.15 noise sd on a flat level) is read as
+  wander, because the robust omega estimate (45 on noise sd 118) is inflated by the step's own
+  lag-k differences. Of the secondary settings, 4 log n does best held out (0.538, above the
+  warning's 0.497) and min segment 5 best shipped (0.715); neither wins on both, and choosing
+  between them now would be tuning on the test.
+- **Synthetic, where the truth is known** (`node eval/drift-sim.mjs`, output
+  `eval/drift-sim.out.txt`; n 200, noise sd 1, random-walk step sd omega, one step at t = 100,
+  60 series per cell): with omega 0.3 and no step the plain model reports 5.40 cuts, the local
+  floor 1.70 and the drift model 0.30; a 5-sd step is found 60, 59 and 60 of 60 times with 5.05,
+  1.28 and 0.08 other cuts. A 3-sd step on that wander is found 57, 46 and 44 times. On white noise
+  (omega 0) all three agree (3-sd step 60, 60, 58 of 60).
+- **Steady growth: `--drift-slope` (post hoc).** A random walk without a drift term cannot follow a
+  steady slope, so Australian residents (smooth quarterly growth, no documented break) still gave
+  31 cuts (plain level 43). Taking out the median first difference first (`slope: true`) gives 0;
+  US real GDP 2 cuts (1978Q2, 1999Q4) without it and 0 with it; Mauna Loa CO2 16 to 10 (the season
+  is not modelled). Added after the TCPD scoring, so its TCPD row (+0.003 / +0.009 over the primary)
+  is in-sample and is not evidence; it stays an opt-in flag.
+- **Shipped.** `node cli.mjs series.csv --model drift [--drift-slope] [--penalty <number>]
+  [--min-segment n] [--json]` (`drift-cli.mjs`; the text quotes the TCPD figures above, which a test
+  checks against the eval output, and cites the paper). Not on the page or in the agent tool yet (both since 2026-11-11, "Jumps on a wandering level, on the page" below).
+  Tests: `drift-level.test.mjs` (noise estimates, a step on white noise and on a walk, the optimal
+  partition is exact against every single-change move, US GDP, Australian residents, the Nile miss,
+  the CLI).
+- **Next.** The AR(1) term (DeCAFS's phi) for sticky noise around the walk; a volatility-robust
+  cost (bitcoin, `bank`) or a check that tells drift from heavy tails before choosing this model;
+  an omega estimate that a single large step does not inflate (Nile); the model as a panel member
+  scored on fresh labelled data, not TCPD again.
+
+
+## A step-robust omega: wander chosen with the changes (2026-11-11, later)
+
+Open item from "Jumps on a drifting level": the lag-difference estimate of the wander omega is
+inflated by the very steps the model is meant to find (Nile: omega 45 on noise sd 118, so the 1899
+drop of 2.1 noise sd is read as wander). Now `--model drift` keeps sigma from the lag fit's
+intercept, which a few jumps barely move, and chooses omega *together with the changes*: for each
+q = omega^2 / sigma^2 one exact partition gives the penalised cost, q is profiled on a log grid
+(0 and 1e-4 to 1e4) and refined by golden section (`driftNoiseML` in `drift-level.mjs`). A step is
+then absorbed as wander only if a larger omega costs less than one change at the penalty.
+
+- **Check of the likelihood.** With no change allowed, the segment cost's minimum on the Nile is
+  Durbin and Koopman's local level fit (sigma_eps^2 15,099 and sigma_eta^2 1,469, *Time Series
+  Analysis by State Space Methods*, 2nd ed., section 2.10; our grid lands within 100 and 50 of
+  them; `drift-level.test.mjs`). With changes allowed, omega drops to 0.9 and 1899 is the one cut.
+- **Two estimators that did not work, kept here so nobody retries them.** First, profiling sigma
+  too. Each segment's first point is diffuse, so the likelihood in the data's units drops one
+  log sigma^2 per change: a change is worth -log sigma^2, a bonus that depends on the data's units,
+  and the first coded version also reported a sigma one step ahead of its changes. Its TCPD run
+  (seen, then discarded): F1 0.649 shipped, 0.413 held out. Second, charging that point log sigma^2
+  too: scale-free, but unbounded (sigma to 0 and q at the grid's top, 1e4, on each of the TCPD series looked at; looked
+  at as q values and cut counts, not scored). The third, sigma held, is what ships. Because the
+  first two were seen on TCPD, the figures below are not as clean as a first, pre-registered run.
+- **TCPD** (`node eval/tcpd-drift-ml.mjs tcpd-data`, output `eval/tcpd-drift-ml.out.txt`; the rule
+  is in the script's header, written before the first run: ML wander becomes `--model drift`'s
+  default if its mean F1 beats the lag estimate on both sets; the model joins the consensus panel
+  only if it also beats the level model following the over-cut warning on both).
+
+  | setting | F1 shipped (31) | cover | cuts | F1 held out (7) | cover | cuts |
+  |---|---|---|---|---|---|---|
+  | drift level, wander by likelihood (now the default) | **0.694** | 0.622 | 226 | **0.527** | 0.576 | 180 |
+  | drift level, lag-difference wander | 0.677 | 0.592 | 247 | 0.420 | 0.524 | 284 |
+  | level, following the over-cut warning | 0.655 | 0.561 | 653 | 0.497 | 0.394 | 233 |
+  | level (default) | 0.477 | 0.374 | 1329 | 0.296 | 0.191 | 585 |
+  | `--consensus` every setting | 0.702 | 0.633 | 59 | 0.711 | 0.742 | 25 |
+  | zero / binseg (published) | 0.663 / 0.714 | | | 0.639 / 0.727 | | |
+
+  Paired, ML minus lags: +0.018 shipped (95% bootstrap -0.036 to 0.071; better on 14, worse on 10)
+  and +0.107 held out (-0.043 to 0.321; 5 and 2). ML minus the warning's refit: +0.040 (-0.048 to
+  0.131) and +0.031 (-0.115 to 0.199). Both halves of the rule pass on the means; no interval
+  excludes zero.
+- **Decision: the default for `--model drift`, not a panel member.** The first half is taken. The
+  second half also passes on the means, but the panel step is not taken this run: the gaps are
+  inside noise on 7 and 31 series, the estimator is a third version chosen after seeing TCPD output,
+  and the panel's agreed line is the tool's headline. That needs fresh labelled data (a deviation
+  from the written rule, recorded in the run record). `--drift-noise lags` keeps the earlier
+  estimate; the library default stays `lags` so existing callers see no change.
+- **Where it helps:** Nile 0 to 1 cut (F1 0.824 to 1.000), quality control 1 and 2 (to 1.000),
+  `businv` 18 cuts to 3 (0.348 to 0.559), US population 1 to 0, Iceland tourism 5 to 0 (0.281 to
+  0.947), bitcoin 103 to 52, scanline 42049 69 to 27, Brent 0.726 to 0.773, Dutch unemployment
+  0.817 to 0.930. **Where it loses:** quality control 3 and 4 (0.571 to 0.333, 0.936 to 0.638), Iran's
+  GDP (0.888 to 0.655), Japan's GDP (0.800 to 0.571), seat belts (0.824 to 0.621, the 1983 law's
+  step now absorbed), robocalls (0.966 to 0.778), and `bank` stays at 63 false cuts (heavy tails, not
+  drift). On the committed series: Mauna Loa CO2 16 cuts to 4; Australian residents with
+  `--drift-slope` 0 to 4 (worse; no documented break); US real GDP 2 to 6, and with `--drift-slope`
+  0 to 11, several near recession dates (1958Q1, 1975Q1, 1980Q2, 1982Q1, 1990Q4; not scored).
+- **Synthetic** (`eval/drift-sim.mjs`, new last column, data unchanged): white noise with a 3-sd
+  step found 60 of 60 (lags 58); omega 0.1 with no step 0.08 false cuts (lags 0.47); omega 0.3 with
+  a 3-sd step 42 of 60 (lags 44) and 0.18 other cuts (0.28); with a 5-sd step 0.25 other cuts
+  (0.08), the one cell where it is clearly worse.
+- **Cost.** About 30 exact O(n^2) partitions a series instead of one: 566 ms for all 38 TCPD series
+  (lags: 44 ms); a 10,000-point series takes seconds, not milliseconds.
+- **Next.** A heavy-tail check before choosing this model (`bank`, bitcoin); why ML absorbs the
+  seat-belt law and quality control 4's step (omega chosen high on a seasonal or trending series);
+  the AR(1) term; the model as a panel member on fresh labelled data, not TCPD again.
+
+## Several columns on worker threads, in the CLI and on the page (2026-11-11, later)
+
+"Several columns" ran each column's six-setting panel one after another, on one thread: on the
+1,751-day currency example that was 8.0 s of an 8.2 s analysis (the joint fit takes 0.2 s). The
+flagship's item (c) ended "next: --columns per-column panels on threads". Both front ends now
+hand those 6 x columns settings to a pool, slowest setting first across every column, and merge
+them exactly as before.
+
+- **What changed.** `consensus-threads.mjs` has a general job pool (`runJobsThreaded`: jobs of
+  `{ base, setting }`, the next job to whichever thread finishes first, everything missing run here
+  if threads cannot start or one dies). `runPanelThreaded` (the one-column panel) now uses it, and
+  `runColumnPanelsThreaded(cols)` is new. `columnConsensus` and `analyzeMulti` take the runs done
+  elsewhere (`runs`, `columnRuns`) and merge each column with `mergeConsensus`, the same call
+  `consensus()` makes. `cli.mjs --columns` parses the columns, runs the pool, then the joint fit.
+  On the page, several-columns mode feeds every column's settings to the panel's Web Workers
+  (`consensus-worker.mjs` now echoes a `column`), then sends the finished runs with the job to the
+  main analysis worker; a newer click stops both. With no workers, or a worker that fails, the
+  main worker runs the panels itself, as before.
+- **Same answer.** `columns-threads.test.mjs` pins the threaded `columnConsensus` to the one-thread
+  result with 1, 2 and 4 threads, `analyzeMulti` with runs done elsewhere to `analyzeMulti` alone,
+  the CLI's text and `--json` to the one-thread text and JSON, and the currency example's two agreed
+  dates (chf 2015-01-20, gbp 2016-06-24). The evals below compare text and tables on every input.
+- **Measured, CLI** (`node eval/cli-columns-threads.mjs`, 4 cores, wall clock of a whole
+  `node cli.mjs file --columns` run against `analyzeMulti` in-process on one thread, output
+  `eval/cli-columns-threads.out.txt`):
+
+  | input | CLI, panels on threads | one thread, in-process | text equal |
+  |---|---|---|---|
+  | German unemployment, 2 columns, 120 quarters | 0.4 s | 0.2 s | yes |
+  | currency returns, 3 columns, 1,751 days | 3.6 s | 8.8 s | yes |
+  | the same, level and volatility | 3.0 s | 7.3 s | yes |
+  | European index returns (DAX, CAC, FTSE, SMI), 4 columns, 1,859 days | 6.1 s | 16.4 s | yes |
+
+- **Measured, page** (`node eval/columns-workers-browser.mjs`, headless Chromium, 4 cores, click to
+  results shown; "before" blocks the panel workers so the page takes its fallback, every panel in
+  the one main worker, which is what it did until now; output `eval/columns-workers-browser.out.txt`):
+  currency returns 3.8 s against 7.5 s, European indices 7.2 s against 15.8 s. Summary and agreed
+  table equal `analyzeMulti` in Node in all three modes (panel workers, one worker, no workers).
+- **What it does not change.** The answers, the cap-free several-column path (there is no length
+  cap there; a long multi-column file still takes seconds per column on 4 cores), and the small
+  case: on 120 points thread start-up makes the CLI slower than one thread in-process (0.4 s
+  against 0.2 s, process start included). Timings are one run each on a shared container.
+- **Found on the way, and fixed.** `node cli.mjs --columns file.csv` read `file.csv` as the
+  column list (the option takes an optional list) and then waited on stdin. Now a list of one
+  name ending in `.csv`, `.tsv` or `.txt`, with no other file given, is read as the file; decided
+  by the name, not by whether the file exists, so the command means the same in every folder
+  (`columns-threads.test.mjs`).
+
+## Heavy tails on a drifting level: a bounded loss makes it worse (2026-11-11, latest, negative result)
+
+Open item from "A step-robust omega": `--model drift` still makes 63 false cuts on TCPD's `bank`
+(annotators mark none) and 52 on bitcoin. Both look heavy-tailed, so the obvious fix is a loss that
+an outlier cannot dominate. `drift-level.mjs` now takes `loss: 'biweight' | 'huber'` and `lossK`
+on the standardised innovation z = v / sqrt(F) of the segment's Kalman filter. Biweight charges
+min(z^2, K^2) and leaves the level unchanged past K. That is the bounded loss of Fearnhead and Rigaill,
+"Changepoint Detection in the Presence of Outliers" (JASA 114(525), 2019, doi
+10.1080/01621459.2017.1385466; abstract read, not the body), applied inside the filter instead of to
+a flat segment mean. Huber charges 2K|z| - K^2 and moves the level by the clipped innovation. The
+variances are untouched, so the cost stays O(n^2) and the ML wander is profiled under the same loss.
+
+- **Synthetic first** (`node eval/drift-robust-sim.mjs`, output `eval/drift-robust-sim.out.txt`;
+  n 200, one step at 100, 60 series a cell). Student t3 noise with no step: Gaussian 1.58 false
+  cuts a series, Huber 0.15, biweight 0.03. A 3-sd step on t3 noise is found 55, 58 and 60 times
+  out of 60. With wander (omega 0.3), the 3-sd step is found 32, 45 and 45 times. On Gaussian noise
+  all three agree to within one series a cell. So where the tails are in the *observation* noise,
+  the robust losses work as intended.
+- **Pre-registered on TCPD** (`node eval/tcpd-drift-robust.mjs tcpd-data`, output
+  `eval/tcpd-drift-robust.out.txt`; settings and rule in the script's header, written before any
+  TCPD series went through either loss). Primary: biweight K 3. Rule: it becomes an opt-in if its
+  mean F1 beats the shipped Gaussian drift on both sets, and the default only if it is also better
+  on more series than worse on both. Huber K 2 is reported, not acted on.
+
+  | setting | F1 shipped (31) | cover | cuts | F1 held out (7) | cover | cuts |
+  |---|---|---|---|---|---|---|
+  | drift ML, biweight K 3 (primary) | 0.681 | 0.624 | 341 | 0.448 | 0.408 | 278 |
+  | drift ML, Huber K 2 (reported only) | 0.709 | 0.622 | 265 | 0.533 | 0.563 | 216 |
+  | drift ML, Gaussian (shipped default) | 0.694 | 0.622 | 226 | 0.527 | 0.576 | 180 |
+  | level, following the over-cut warning | 0.655 | 0.561 | 653 | 0.497 | 0.394 | 233 |
+  | `--consensus` every setting | 0.702 | 0.633 | 59 | 0.711 | 0.742 | 25 |
+
+- **Verdict: rejected. Nothing changes for users.** Biweight minus Gaussian: -0.013 shipped (95%
+  bootstrap -0.050 to 0.027; better on 5, worse on 9) and -0.080 held out (-0.186 to 0.007; 1 and 4).
+  It makes the two series it was aimed at worse: `bank` 63 cuts to 111, bitcoin 52 to 98 (F1 0.407 to
+  0.164), scanline 42049 27 to 56, UK coal employment 11 to 31. Its one clear gain is `well_log`
+  (21 cuts to 15, F1 0.764 to 0.874), the series in TCPD that has isolated outliers. No CLI flag ships.
+  The option stays in the library, with tests (`drift-robust.test.mjs`), for the evals and the next try.
+- **Why: the tails are in the walk, not the noise.** On the fitted Gaussian drift model the
+  wander-to-noise ratio q = omega^2 / sigma^2 is 6,400 on `bank`, 4,100 on bitcoin and 3,900 on
+  scanline 42049, against 0.016 on `well_log` and 0.00006 on the Nile. So the model reads the first
+  three as near-pure random walks. Their large moves are big *increments of the level*, and once the
+  cuts are in, the standardised innovations look ordinary: 1.4 to 2.9% beyond 3, sd 1.00. A bounded
+  loss on the observation then does the wrong thing. It refuses to follow a big increment, the level is
+  left behind, and every later point is "an outlier" until a cut restarts it, which means more cuts,
+  not fewer. Huber follows the increment partway, which is why it does less harm. (Diagnostic run
+  once in the session on the fitted filters, not committed as an eval; numbers above.)
+- **What it means for the next try.** The heavy tail belongs in the state equation: a level whose
+  increments are heavy-tailed (a t or a mixture walk) treats a big move as part of the walk. Or
+  `--model drift` should say "this looks like a random walk with heavy-tailed steps; its jumps are
+  its largest steps" when q is far above 1. Either needs fresh labelled data to score, not TCPD again.
+  Huber K 2 beat the Gaussian on both TCPD means (+0.015 shipped, +0.006 held out). That is a lead
+  for fresh data, not a finding: it was reported only, and the gaps are within noise.
+
+## The heavy-tail check: walk or noise (2026-11-11, after "a bounded loss makes it worse")
+
+The section above ends with "`--model drift` should say 'this looks like a random walk with
+heavy-tailed steps; its jumps are its largest steps' when q is far above 1". Every `--model drift`
+text and JSON (`tails`) now carries that check (`driftTailCheck` in `drift-level.mjs`). A second
+session ran the same pre-registered loss study in parallel and reached the same verdict; its
+duplicate is not committed, and this section keeps only what it adds.
+
+- **The check.** Kurtosis of the first differences above 6 (a t distribution with 6 degrees of
+  freedom). Then **walk** if the lag fit finds no noise around the level beyond its 2% floor (the
+  series reads as a pure random walk, so its differences are the walk's own steps), else **noise**.
+  'walk' says the jumps may be the walk's largest steps, not changes, that a robust cost does not help,
+  and to try `--model meanvar` on the differences. 'noise' says lone outliers may be read as jumps,
+  and that the bounded cost which helps there is not offered yet because it failed its pre-registered
+  rule. The CLI flag stays out, as the rule above decided.
+- **Synthetic, where the truth is known** (`node eval/drift-tails-sim.mjs`, output
+  `eval/drift-tails-sim.out.txt`; n 400, 60 series a cell, t3 tails scaled to sd 1, biweight K 3 and
+  Huber K 2 as in the TCPD run; cells written after the TCPD run, before this one):
+
+  | cell | Gaussian: found / other cuts | biweight: found / other | check says |
+  |---|---|---|---|
+  | Gaussian noise, 3-sd step | 60 / 0.00 | 60 / 0.00 | nothing 60 of 60 |
+  | t3 noise, 3-sd step | 57 / 3.07 | 60 / 0.07 | noise 36, nothing 24 |
+  | t3 noise, wander 0.2, 5-sd step | 60 / 2.68 | 60 / 0.52 | noise 44, nothing 16 |
+  | t3 noise, no step | - / 3.00 | - / 0.07 | noise 30, nothing 30 |
+  | Gaussian random walk, no noise | - / 2.33 | - / 2.30 | nothing 60 |
+  | t3 random walk, no noise | - / 17.40 | - / 18.18 | walk 42, noise 12 |
+  | t3 random walk, noise 0.1 | - / 16.50 | - / 17.12 | walk 43, noise 9 |
+
+  On a heavy-tailed walk no loss helps (Huber 18.30 and 16.65), and the check says 'walk' on 42
+  and 43 of 60. It is a check, not a test: on single t3-noise series it fires about half the time.
+- **On TCPD (in-sample: the bar of 6 was set after looking at TCPD's per-series kurtosis;
+  `eval/tcpd-drift-tails.mjs`, output `eval/tcpd-drift-tails.out.txt`).** The lag fit's noise is at
+  its floor on 21 of 38 series. 'walk' on 12 (bank, bitcoin, measles, both scanlines, usd_isk,
+  children per woman, ...): Gaussian drift F1 0.552 there against 0.595 for reporting nothing.
+  'noise' on 5 (well_log, homeruns, lga, shanghai, ratner): biweight 0.619 against Gaussian 0.573.
+  Using biweight only where the check says 'noise' would score 0.702 shipped and 0.526 held out
+  (Gaussian 0.694 and 0.527). That is post hoc, so it is a rule to pre-register on fresh labelled
+  data, not a default.
+- Tests: `drift-tails.test.mjs` (the check on known walks and noise, the text for each case, the
+  JSON, the quoted figures against both eval outputs).
+
+## Jumps on a wandering level, on the page (2026-11-11)
+
+`--model drift` was CLI-only. It is the model that stops the plain level model cutting a smooth or
+wandering series into a staircase (TCPD F1 0.694 / 0.527 against the plain model's 0.477 / 0.296),
+so it belongs where most people meet the tool: the page.
+
+- **What changed.** "Look for a change in" has a fifth choice, **Sudden jumps on a level that
+  wanders (random walk)**, and a box **Take out a steady growth first** (the CLI's `--drift-slope`).
+  The run goes through the page's existing background worker (`analyze-job.mjs`, new job
+  `{ kind: 'drift', opts }` calling `driftResult`), so the page answers while the about 30 exact
+  partitions run. `drift-view.mjs` words the result for the page: a summary (the jumps with their
+  size in noise sds, the wander and the noise), the heavy-tail check in page words (the CLI's
+  "try `--model meanvar` on its differences" becomes the "Level and volatility" model), the TCPD
+  figures, a chart of the series with the fitted level drawn per stretch and a dashed line at each
+  jump, a jumps table (level before and after, jump, jump in noise sds), a stretches table and a
+  per-point CSV (`label,value,stretch,fitted_level`). The penalty takes BIC or a custom number; AIC
+  and Hannan-Quinn are refused with a message (they are not defined for this model here). Boxes the
+  model ignores (logs, season, trend, AR(1), noise floor, growth-rate test) are named in a note
+  rather than dropped silently. The branded report covers it since 2026-11-11 ("The wandering-level model in the branded report"). Usage
+  counter `drift_run`, local like the others. The method section cites the paper (BibTeX added).
+- **Agents.** `node platform/agents/tools.mjs call changepoint-detector analyzeJob --input
+  '{"kind":"drift","opts":{"csv":"..."}}'` now reaches the model, since the page imports the
+  module (the tool exposes what the page imports).
+- **A fix found on the way.** With `--drift-slope`, each jump's size included one step of the
+  removed growth, because the fitted path adds the growth back. On Australian residents (growth
+  51.3 a quarter) the 1988 jump read +79.8 (+62.2 noise sd); it is +28.5 (+22.2). Where the jumps
+  fall is unchanged; only their reported size moves (`drift-level.mjs` `driftLevel`).
+- **Checked.** `drift-page.test.mjs`: the worker job equals `driftResult` after a structured
+  clone; Nile's summary, table, chart, stretches and CSV (1899 alone, -249, -2.11 noise sd); the
+  notes with and without the heavy-tail check; the penalty mapping and ignored options; the slope
+  fix; a flat series draws no NaN; labels escaped; the page wiring. `eval/drift-page-browser.mjs`
+  (headless Chromium, 4 cores, output `eval/drift-page-browser.out.txt`): summary, notes, jumps
+  table and CSV on the page equal Node's; AIC refused; logs reported as ignored; on tree-ring's
+  7,980 points the click returns at once, results show after about 5.7 s (5.7 s in Node) and a
+  50 ms timer is never more than 35 to 86 ms late across runs; without workers the same Nile
+  summary; switching back to the level model restores its legend, headings and tables; no page
+  errors.
+- **Not done.** The model is not in the agreed-changes panel (that needs fresh labelled data, as
+  "A step-robust omega" decided) and has no Bayesian view; the several-columns mode does not take it
+  (the branded report does since 2026-11-11).
+
+## The drift model on several columns: measured, not offered; and a fix for sticky series (2026-11-11, last)
+
+Flagship item (b): the drift model (`--model drift`, random-walk level between jumps) with one
+segmentation shared by every column. `multi-drift.mjs` (`multiDriftChanges`, `multiDrift`): each
+column keeps its own sigma and omega (sized by that column's own `ml` fit), a change restarts every
+column's level, and a segment's cost is the sum of the columns' Kalman filter costs. Penalty
+(1 + d) log n, which is the one-column default 2 log n at d = 1; with one column the changes and the
+cost are exactly `driftLevelChanges` (pinned in `multi-drift.test.mjs`). O(d n^2): 2 s for all
+three TCPD multi-column series, including the per-column `ml` fits.
+
+**Pre-registered** (settings and rule in the headers of `eval/tcpd-multi-drift.mjs` and
+`eval/multi-drift-sim.mjs`, written before either was run): offer `--columns --model drift` if the
+primary beats the joint level default (floor auto, mean F1 0.286) on TCPD's three multi-column
+series *and* the simulation shows (i) fewer false changes on wandering columns at every d and
+(ii) white-noise power within 10 points of the joint level fit at every d and step of 1 sd or more.
+
+- **TCPD, as first run** (`eval/tcpd-multi-drift-before-fix.out.txt`): mean F1 **0.245**, below 0.286.
+  Fails.
+- **Simulation** (`eval/multi-drift-sim.out.txt`, n 200, 60 series a cell): on wandering columns
+  (omega 0.3) with no step the joint drift fit reports 0.12 to 0.25 false changes where the joint
+  level fit reports 3.0 to 4.8, so (i) holds, by a factor of 12 to 40. (ii) fails: a 1 sd step on
+  white noise is found 43% / 63% / 85% of the time at d = 1 / 2 / 4, against 90% / 90% / 97%. At
+  2 sd and above both find it 97 to 100%.
+- **Verdict: not offered.** The drift model is the one to use when columns wander; the price is
+  power on small steps in plain noise, and the panel on TCPD did not favour it. The CLI's
+  `--columns` still takes `mean` and `meanvar` only; `multi-drift.mjs` stays as a library and
+  measured baseline.
+
+**A defect the run turned up, fixed for the one-column model too.** On occupancy, column V3 is 0 on
+329 of its 508 differences (a sensor that sits still), so the median absolute difference at every
+lag is 0 and `driftNoise` left sigma at its 1e-6 numerical floor, in the data's own units: every move
+became a change. It now falls back to the plain variance of the differences, as `robustSd` in
+`engine.mjs` already did for the level model. On V3 alone, `--model drift`: 86 cuts to 23, F1
+0.418 to 0.724. None of the 38 one-column TCPD drift results moves (`eval/tcpd-drift*.out.txt`
+regenerate byte-identical apart from timings), and the other three occupancy columns are unchanged.
+With the fix (post hoc, so not a test of the rule) the joint primary scores 0.334 on the three
+series (`eval/tcpd-multi-drift.out.txt`): occupancy 0.359 to 0.625. The 2x-penalty secondary scores
+0.767, but 0.929 of that is bee_waggle_6 with no cut at all, the score "no change" gets; a lead for
+fresh multi-column labelled data, not a finding.
+
+Where it still fails: apple's volume has volatility bursts, and the drift model reads them as
+jumps (30 cuts, 20 of them in 250-317), the same failure as `bank` and bitcoin in one column.
+
+## Volatility on a drifting level: a scale per segment (2026-11-11, measured, not offered)
+
+Flagship item (b): `--model drift` reads a burst of volatility as a run of jumps (`bank` 63 cuts where
+annotators mark none, bitcoin 52, apple's volume 30 in several-columns mode). `drift-level.mjs` now
+takes `scale: 'segment'`: every segment gets its own scale s, which multiplies both its noise sd and its
+wander sd (the wander-to-noise ratio q stays shared), so a calm stretch and a wild one are two segments,
+not a staircase of jumps. Each segment's s^2 is profiled out of its Kalman innovations
+(j log s^2 + sum log F + S / s^2 with s^2 = max(S / j, 0.01) in global-sigma units, `scaleCost`), the
+ML wander is chosen under the same cost, and the default penalty is 3 log n (a level and a scale per
+change, as `meanvar` has). Same O(n^2) exact partition: 1.5 s for all 38 TCPD series with the wander
+search. `driftLevel` reports each change's scale before and after (`scaleRatio`). No CLI flag.
+
+**Pre-registered** (headers of `eval/drift-scale-sim.mjs` and `eval/tcpd-drift-scale.mjs`, written
+before either was run): offer `--drift-scale segment` as an opt-in if (i) on a near-pure random walk
+whose step sd is 5x for 60 of 300 points it reports at most half the shipped model's cuts, (ii) on a
+3-sd step in white noise and a 5-sd step on a wander it finds the step at most 6 of 60 series less often,
+and (iii) its TCPD mean F1 is no more than 0.02 below the shipped drift on both sets. TCPD has been
+through many drift settings already, so (iii) is a guard, not evidence of a gain.
+
+- **Synthetic** (`eval/drift-scale-sim.out.txt`, n 300, 60 series a cell): the volatility-burst walk
+  goes from **17.00 cuts to 2.43**, with both burst edges found 1.98 times of 2 (shipped 1.83); the
+  same walk without a burst from 1.98 to 0.13; white noise whose sd triples for 60 points from 7.12 to
+  2.02. Steps: 60 and 60 of 60 on white noise, 60 and 59 on the wander. (i) and (ii) pass.
+- **TCPD** (`eval/tcpd-drift-scale.out.txt`):
+
+  | setting | F1 shipped (31) | cover | cuts | F1 held out (7) | cover | cuts |
+  |---|---|---|---|---|---|---|
+  | drift, scale per segment, 3 log n (primary) | **0.756** | 0.661 | 285 | 0.464 | 0.390 | 173 |
+  | drift, scale per segment, min segment 5 | 0.749 | 0.654 | 175 | 0.479 | 0.400 | 138 |
+  | drift, scale per segment, 2 log n | 0.618 | 0.516 | 511 | 0.352 | 0.247 | 348 |
+  | drift, one scale (shipped `--model drift`) | 0.694 | 0.622 | 226 | 0.527 | 0.576 | 180 |
+  | `--consensus` every setting | 0.702 | 0.633 | 59 | 0.711 | 0.742 | 25 |
+  | binseg (published) | 0.714 | 0.671 | | 0.727 | 0.731 | |
+
+- **Verdict: (iii) fails on the held-out set; nothing changes for users.** Primary minus shipped drift:
+  +0.062 shipped (95% bootstrap -0.001 to 0.127; better on 16, worse on 7) and **-0.064 held out**
+  (-0.176 to 0.043; 3 and 4). The shipped-set mean is the highest any setting of this detector has
+  scored there, binseg included, but the rule asked for both sets and the held-out set says no. The
+  option stays in the library with tests (`drift-scale.test.mjs`).
+- **Where it helps:** bitcoin 52 cuts to 28 (F1 0.407 to 0.535), quality control 4 3 to 1 (0.638 to
+  0.936), JFK 0 to 1 (0.723 to 0.868), Croatia's GDP 6 to 1, well log 21 to 18 (0.764 to 0.832).
+  **Where it hurts:** `bank` 63 to **170** cuts, scanline 42049 27 to 75, iceland tourism 0 to 1
+  (0.947 to 0.643), US population 0 to 3.
+- **Why `bank` gets worse (diagnostic, run once in the session, not an eval):** it is sticky, not
+  bursty. 246 of its 580 steps are exactly zero (scanline 42049: 233 of 480), so every flat run is a
+  stretch with no innovation at all; the profiled scale drops to its floor (81 of `bank`'s 171
+  segments, 44 of scanline's 76) and each flat run buys about j log 100 of likelihood, far above the
+  3 log n penalty. Median segment length 3. A floor tied to the data's resolution (the smallest nonzero
+  step), or a zero-inflated noise term, is the obvious next try; it is post hoc, so it needs a fresh
+  pre-registration, and the held-out loss on iceland tourism (a single cut on a smooth seasonal
+  series) is a separate failure it would not fix.
+
+## Sticky series: exact repeats (2026-11-11, two fixes measured and not offered; a warning ships)
+
+The last section left `bank` going from 63 to 170 cuts under a scale per segment, because it is
+sticky: 246 of its 580 steps repeat the previous value exactly (scanline 42049: 233 of 480,
+ratner_stock 138 of 599, children per woman 75 of 300). A stale quote or a sensor that sits still
+gives a flat run, the drift model reads it as a stretch of almost no noise, and a cut at each end
+buys a lot of likelihood. Simulation first showed this is not only a scale-per-segment problem:
+on a random walk with no change, the **shipped** `--model drift` reports 2.05 false changes a series
+with no repeats, 4.75 when 15% of points are stale repeats, **8.38 at 20% and 37.95 at 40%**
+(`eval/drift-sticky-share.mjs`, `.out.txt`, n 300, 60 series a share).
+
+**First try, pre-registered: drop the repeats** (`repeats: 'drop'` in `drift-level.mjs`; rules in the
+headers of `eval/drift-repeats-sim.mjs` and `eval/tcpd-drift-repeats.mjs`, committed in 94deb19c
+before either was run). Fit the model to the series with every exact repeat taken out and map the
+changes back. Continuous data has no repeats and is untouched (360 of 360 synthetic fits identical).
+
+- Sticky walk, no change (F): shipped 34.50 cuts, global with drop **3.68**; scale per segment 60.12,
+  with drop **0.98**. Sticky walk with a 5x volatility burst (H): 26.60 / 9.83 / 67.07 / **3.10**.
+- **Sticky walk with a 5-sd level step (G): found 59 / 51 / 58 / 38 of 60.** The rule allowed 6 fewer
+  than shipped. Both fail.
+- TCPD, mean F1 (shipped 31 / held out 7): scale per segment with drop **0.764 / 0.590**, against the
+  shipped drift 0.694 / 0.527 (+0.069, 95% 0.007 to 0.135, better on 17 and worse on 6; held out
+  +0.063, -0.093 to 0.203); global with drop 0.695 / 0.589. Both pass the TCPD guard. Held out,
+  scanline 42049 goes 0.593 to **0.963** (27 cuts to 13, annotators' median 7) and ratner_stock 0.324
+  to 0.549; `bank` 63 to 52 cuts (39 global). TCPD has been through many drift settings, so these
+  are a guard, not evidence of a gain.
+
+**Second try, post hoc: repeats as missing observations** (`repeats: 'missing'`, `gapPartition`;
+headers of `eval/drift-missing-sim.mjs` and `eval/tcpd-drift-missing.mjs`, committed before they
+ran, same rules, a new seed). Dropping a repeat charges the k + 1 steps of wander behind the next
+new value as one step, which I guessed made a real jump look like wander. The Kalman filter now keeps
+the time axis: the predicted variance grows by q for every step and only new values are charged
+(Durbin and Koopman, section 4.10); with no repeats it is the shipped partition to 1e-12. The guess
+was wrong: on G the step is found **46 and 33 of 60** (global, per segment) against shipped 60, worse
+than dropping; F falls further (1.28 and 0.20 cuts), and TCPD is within 0.006 of `drop`.
+
+**Verdict: neither is offered.** Each fails its pre-registered power rule, and shipped's 59 to 60 of
+60 on G is partly bought by 35 cuts a series (35 random cuts land within 5 points of the step about
+three times in four), but that reading came after the rule, so it does not change the verdict. Both
+stay in the library with tests (`drift-sticky.test.mjs`). The next try is a model in which a repeat
+is its own event (a zero-inflated observation with a shared stale probability), tested first on why
+a 5-sd step goes missing in G.
+
+**What ships: a sticky-series check.** `driftLevel` now returns `sticky` (`stickyCheck`: the share of
+steps that repeat exactly), and when at least 20% do (where the shipped model's false changes reach
+about four times the no-repeat rate on the table above; the threshold comes from that synthetic table,
+not from TCPD) the CLI text, the JSON and the page's "Read with care" notes say so, quote the table
+and tell the reader to treat jumps at the ends of flat runs as suspect. On TCPD it fires on `bank`,
+children per woman, ratner_stock and scanline 42049, and on no other series.
+
+### The same power loss on real shocks: frozen orange juice (2026-11-11, not pre-registered)
+
+The power cell above is synthetic. `eval/frozen-juice-sticky.mjs` (`.out.txt`) asks whether real shocks
+go missing too, on Florida frozen orange-juice prices (612 months, `data/frozen-juice.csv`; 253 of 611
+steps, **41%**, repeat the previous month exactly, so the sticky warning fires). Truth, as in "Shocks with a
+measured cause" above: the eight months with 19 or more Orlando freezing degree days, found if a change
+lies within 2 months. Run once, after both options had been declined. It informs the next try and is
+not a decision rule.
+
+| setting | cuts | freezes found | cuts near a freeze |
+|---|---|---|---|
+| shipped `--model drift` | 67 | **8 of 8** | 11 |
+| drop, global scale | 15 | 6 of 8 (misses 1970, 1985) | 6 |
+| drop, scale per segment | 15 | 4 of 8 | 5 |
+| missing, global scale | 18 | 5 of 8 | 7 |
+| missing, scale per segment | 15 | 5 of 8 | 5 |
+
+Handling the repeats removes about three quarters of the cuts and raises the share near a freeze (11
+of 67 is 16%; 6 of 15 is 40%), but it loses two to four documented shocks, which is the synthetic
+power loss on real data. The freezes it keeps are the largest (1963, 1977, 1984 and 1990 in every
+row). A second session reached the same option independently on 2026-11-11 with a rule that had no
+step-in-a-sticky-walk cell. Its rule passed (TCPD 0.764 / 0.585 with the penalty on the kept length,
+matching the 0.764 / 0.590 above), and it was not merged once this section's verdict was on `main`.
+A benchmark guard alone would have shipped an option that misses real shocks. Test:
+`frozen-juice-sticky.test.mjs`.
+
+### Why the step goes missing: the repeats hide when it happened (2026-11-12, pre-registered)
+
+The open question from the sections above: on the sticky walk (step sd 1, noise 0.1, 40% of points a
+stale repeat) a 5-unit level step is found 60 of 60 times by the shipped `--model drift` and 46 by
+repeats `missing`. `eval/drift-sticky-why.mjs` (`.out.txt`; predictions and rule in its header, committed
+before it ran, fresh seed, 120 series a cell) asks why, and whether the rule that declined `missing`
+compared the two at the same false-alarm rate.
+
+**Why.** Under `missing` the step is seen only at the first new value at or after it, and the jump there
+also carries k steps of wander, k the steps since the last new value before it. Its chi-square is about
+25 / k against a penalty of 2 log 300 = 11.4. All three predictions held:
+
+| reveal gap k | series | found | share | median z^2 of the jump |
+|---|---|---|---|---|
+| 1 (no repeat at the step) | 43 | 39 | 0.91 | 22.9 |
+| 2 | 36 | 24 | 0.67 | 15.2 |
+| 3 | 26 | 9 | 0.35 | 5.7 |
+| 4 or more | 15 | 5 | 0.33 | 4.4 |
+
+39 of the 43 misses have k of 2 or more, and the fitted wander is not inflated by the step (median 0.917
+on the step cell, 0.891 with no step; true 1). So the step is not absorbed by a bad estimate. It is
+hidden by the data. Once repeats cover the step, nothing in the series says it was one jump rather than
+k ordinary steps of wander, and no model of the repeats can get that back.
+
+**What that means for the next idea.** A zero-inflated observation with one stale probability p for the
+whole series (the flagship's next item) adds -2 [r log p + (n - 1 - r) log(1 - p)] to every partition's
+cost, r the number of repeats. That is the same constant for every partition, so it picks exactly the
+partition `missing` picks. It cannot change this cell, so it was not built. Only a stale probability
+per segment, where a change in stickiness is itself a change, could add anything. That is a different
+question.
+
+**The operating point.** Mean false cuts on the walk with no step (F) and steps found (G), by penalty
+multiplier m on the default 2 log n:
+
+| 40% repeats | m 0.5 | 1 | 2 | 4 |
+|---|---|---|---|---|
+| shipped: F cuts / G found | 89.9 / 120 | 34.8 / 117 | **1.35 / 82** | 0.03 / 17 |
+| `missing`: F cuts / G found | 29.5 / 114 | **1.35 / 77** | 0.00 / 33 | 0.00 / 0 |
+
+| 20% repeats | m 0.5 | 1 | 2 | 4 |
+|---|---|---|---|---|
+| shipped | 61.7 / 120 | 7.76 / 118 | 0.28 / 85 | 0.00 / 9 |
+| `missing` | 35.9 / 119 | 1.52 / 100 | 0.02 / 56 | 0.00 / 0 |
+
+At 40% repeats the shipped model at twice its penalty has exactly the false-cut rate of `missing` at the
+default (1.35 a series), and finds the step 82 times against 77. So most of the "power loss" behind the
+declines was an operating-point difference: shipped's 60 of 60 was bought with 35 false cuts. But
+`missing` is not more powerful at any matched rate, and at 20% repeats the shipped model is ahead
+(0.28 cuts and 85 found at m 2, against 0.02 and 56 for `missing` at m 2). **The pre-registered rule
+(missing at least as powerful at no more false cuts, at every shipped m and both shares) fails, so
+nothing changes for users.**
+
+**A lead, not a finding.** On a sticky series, the shipped model with a doubled penalty behaves about as
+well as any repeat model tried here, and it needs no new code: `--penalty` with 4 log n. Seen after the
+rule was written, so it needs its own pre-registration, on TCPD's four sticky series and on frozen orange
+juice (where it must still find the big freezes), before the sticky-series warning can suggest it. Test:
+`drift-sticky-why.test.mjs`.
+
+### A doubled penalty on sticky series: fewer cuts, lost freezes (2026-11-12, pre-registered, negative)
+
+The lead above, tested. `eval/drift-sticky-penalty.mjs` (`.out.txt`; rule in its header, committed in
+ad6c8a60 before any real series was fitted at 4 log n) runs the shipped `--model drift` at 2 log n
+(shipped) and 4 log n on every real series where the sticky check fires: TCPD's four (scored with TCPD's
+F1, margin 5, and cover) and frozen orange juice (the eight freezes, found within 2 months). The rule
+said the warning could suggest 4 log n only if mean F1 on the four did not fall, mean cover fell by no
+more than 0.02, juice kept at least 7 of 8 freezes, and juice's cuts at least halved.
+
+| series (repeats) | cuts / F1 / cover at 2 log n | at 3 log n (descriptive) | at 4 log n |
+|---|---|---|---|
+| bank (42%) | 63 / 0.031 / 0.048 | 50 / 0.038 / 0.048 | 43 / 0.044 / 0.048 |
+| children per woman (25%) | 19 / 0.571 / 0.756 | 14 / 0.628 / 0.781 | 6 / 0.367 / 0.793 |
+| ratner_stock (23%) | 30 / 0.324 / 0.592 | 9 / 0.547 / 0.726 | 3 / 0.308 / 0.746 |
+| scanline 42049 (49%) | 27 / 0.593 / 0.702 | 13 / 0.700 / 0.740 | 8 / 0.805 / 0.847 |
+| **mean of the four** | 0.380 F1 / 0.524 cover | 0.478 / 0.574 | **0.381 / 0.609** |
+| frozen juice (41%) | 67 cuts, **8 of 8** freezes | 24 cuts, 6 of 8 | 9 cuts, **5 of 8** |
+
+**Verdict: fails on R3, so the warning is unchanged.** On TCPD the doubled penalty passes (F1 level,
+cover +0.085), but on frozen juice it keeps only five freezes, dropping 1958, 1970 and 1985: the same
+smaller shocks the repeat models dropped. The synthetic cell's "same power at matched false cuts" does
+not carry to real shocks. On a sticky series every option tried so far (drop, missing, a doubled
+penalty) buys its fewer cuts by losing documented shocks, so the warning keeps telling the reader to
+check jumps at the ends of flat runs against the raw data rather than offering a setting.
+
+Seen after the rule, deciding nothing: 3 log n is best on F1 of the three on the sticky four (0.478) and
+also on the 34 TCPD series where the check does not fire (0.754 against 0.697 shipped; 4 log n 0.706),
+and finds 6 of 8 freezes. TCPD has been tuned against many times, so that is a lead for a fresh labelled
+set, not a default to change. Test: `drift-sticky-penalty.test.mjs`.
+
+### A stale probability per segment: it dates a change in stickiness, not the lost freezes (2026-11-12, pre-registered, negative)
+
+"Why the step goes missing" left one repeat model untried: each segment with its own stale
+probability, so that a change in how often a series updates counts toward a cut. It is now in the
+library (`repeats: 'missing', stale: 'segment'` in `drift-level.mjs`; each segment adds the profiled
+Bernoulli cost `staleCost(r, m)` of its r repeats among m steps; with no repeats it is plain `missing`).
+The hypothesis was that a freeze moves the juice price and also makes it update more often, so this
+term would recover the freezes (1958, 1970, 1985) that `missing` and a doubled penalty both drop.
+`eval/drift-stale-segment.mjs` (`.out.txt`; rule in its header, committed in dfe02989e before the option
+ran on anything) tested it at the default 2 log n. The first run stopped on a loader bug (two TCPD
+series sit in `heldout/`) after the synthetic table and two TCPD rows had printed; the lookup was fixed
+and the whole file rerun with the rule unchanged.
+
+| | shipped | `missing` | per-segment stale |
+|---|---|---|---|
+| F: sticky walk, no change (cuts a series) | 35.43 | 1.59 | 3.98 |
+| G: same with a 5-unit step (found of 120) | 119 | 93 | 97 |
+| S: repeats 10% then 60%, no step (cut within 5 of the switch) | 71 | 4 | **103** |
+| TCPD sticky four, mean F1 / cover | 0.380 / 0.524 | 0.476 / 0.570 | 0.381 / **0.435** |
+| frozen juice: cuts, freezes found | 67, 8 of 8 | 18, 5 of 8 | 24, **5 of 8** (the same five) |
+
+**Verdict: fails R1, R2 and R3 (R4 passes), so nothing changes for users.** The term does what it says:
+it dates a pure change in stickiness 103 times in 120. But that is not what the freezes needed. It adds
+six cuts on juice and finds the same five freezes, and on TCPD it cuts where annotators saw no change
+(children per woman: cover 0.780 under `missing`, 0.408 here). A descriptive check run afterwards
+(`eval/frozen-juice-staleness.mjs`, `.out.txt`) shows why: the repeat share does fall after five of the
+eight freezes, but at the three lost ones it barely moves (1958: 0.67 before and after; 1970: 0.58 to 0.42;
+1985: 0 and 0). Those shocks are small jumps in a series that updates at the same rate on both sides,
+which no model of the repeats can tell from wander.
+
+What it leaves: four repeat treatments (drop, missing, a doubled penalty, a stale probability per
+segment) now fail the same frozen-juice bar, so the sticky-series warning's advice (check jumps at the
+ends of flat runs against the raw data) stands. A per-segment stale rate may still be worth showing as a
+*description* ("this series began updating less often here"), which is a different product question
+from finding level changes. Test: `drift-stale-segment.test.mjs`.
+
+## When a series starts updating less often (2026-11-12, pre-registered; ships as a description)
+
+"A stale probability per segment" left one product idea: the drift model's per-segment stale rate dated a
+pure change in stickiness 103 times in 120, but did nothing for level changes, so it could only be worth
+showing as a *description*. That is now a separate pass, `update-rate.mjs`, apart from any level model:
+optimal partitioning (PELT) of the 0/1 indicators "this step repeats the previous value exactly", each
+stretch with its own repeat behaviour. A stretch is a two-state chain (P(repeat | the last step repeated),
+P(repeat | it updated)), so a quote that sits for months, which makes long flat runs, is not read as a
+change of rate. Missing values never count as repeats. It runs only with 10 or more repeats.
+
+**Round one: cost and penalty** (`eval/update-rate-sim.mjs`, `.out.txt`; rule in its header, committed in
+27308c125 before any run). On a calibration seed, independent-repeat costs needed 4 x 2 log n to keep
+false changes at or under 0.05 a series once flat runs clump (at 2 log n they reported 2.1 to 6.9 false
+changes a series on clumped chains), while the chain cost met it at 2 x 2 log n and found more, so that
+was chosen. On the confirmation seed false changes stayed at or under 0.005 a series in all 18
+no-change cells (repeat shares 10% to 60%, independent and clumped, n 100 to 600), but the rule also asked
+for a date within 5 steps: **S1 (10% to 60% repeats) 179 of 200, needed 180; S4 (a clumped stale feed
+fixed to 5% repeats) 121 of 200, needed 150. Fails, so it did not ship.** A diagnostic on another seed
+(not a decision input) showed why S4 fell short: only 16 of 200 had no change at all, 49 were dated 6 to
+20 steps early. In a clumped chain the last flat run before the switch ends at random, so the data do not
+say to the step when the rate changed.
+
+**Round two: a date range** (`eval/update-rate-range.mjs`, `.out.txt`; rule committed in 9302534ae after
+round one's verdict and before the range ran). Each change gets every position between its neighbours
+whose two-stretch cost is within a slack of the best. The slack was chosen on seed 20261203 as the
+smallest of {2, 3.84, 6, 9, 2 log n} with coverage 0.90 in every power cell (9; 6 gave 0.89 on S4), then
+checked on fresh seeds:
+
+| confirmation (200 series a cell) | result | rule |
+|---|---|---|
+| no-change cells, worst mean false changes | 0.010 | <= 0.10, pass |
+| S1, 10% to 60% repeats: range holds the switch | 200 of 200, median width 17 steps | >= 170, pass |
+| S4, clumped stale feed fixed: range holds the switch | 181 of 200 (a change found in 185), width 44 | >= 150, pass |
+| S2, 20% to 50% / S3, 40% to 10% (descriptive) | 172 of 200 / 197 of 200 | |
+
+**Verdict: ships.** `--model drift` (CLI text and JSON field `updateRate`), the page's "Read with care"
+notes and the branded drift report now say, when it finds one, "from about X (between A and B) it began
+updating less often (repeats p% of steps before, q% after)", and that jumps near those dates may be
+catch-ups after a stale stretch.
+
+**On real series** (`eval/update-rate-real.mjs`, `.out.txt`, run after the verdict, descriptive; no labels
+exist for this). Of 38 TCPD series it runs on 6 and speaks on 3: children per woman (37% repeats, then 5%
+from row 108, then 59% from row 255, the stretch where the series reads as projected), scanline 42049 (six
+switches between about 10% and 80 to 86% repeats, the image row's flat bright bands) and measles (6% to
+0% from row 519). It stays silent on `bank` (42%) and ratner_stock (23%), sticky at a steady rate. On
+Florida frozen orange juice it says repeats fell from **60% of months before about 1981-08 (between
+1980-09 and 1982-04) to 12% after**. Whatever changed in how that price was collected, a reader looking
+for freezes before 1981 should know that most months then were carried forward, which is why four
+repeat models lost the smaller early freezes. Test: `update-rate.test.mjs` (pruning against exhaustive
+search, the committed verdicts, the juice description and its wording in the CLI and page notes).
+
+Next: show it beside the other models too (it depends only on the values), and a long series with a
+documented change in collection to check a date against.
+
+## The update-rate check beside every model, and on long series (2026-11-12, later)
+
+The update-rate check above reads only the values, so it now runs beside the level models too, not only
+`--model drift`: `analyze()` adds `updateRateWarning` and `updateRate` (changes and stretches) when it finds
+a change, the CLI prints the line after the likely ranges, and the page's "Read with care" notes and the
+branded report carry it. It reads the values as given, before `--log`. Frozen orange juice with the default
+level model (and meanvar, trend, `--log`) now says the same thing the drift model does: repeats fell from
+60% to 12% of months around 1981-08 (between 1980-09 and 1982-04). The Nile, with no repeats, says nothing.
+Test: `update-rate-everywhere.test.mjs`.
+
+**The check on long series.** Wiring it in exposed a cost: PELT prunes little when changes are few, so the
+exact search grew as n squared (24 s at 20,000 steps, 48 s on a steady series; a 100,000-point series did
+not finish in two minutes). That was already true of `--model drift`. Two changes: the segment cost no
+longer allocates arrays (a constant factor), and above 1,500 steps (`EXACT_UP_TO`; the calibration and
+confirmation sims ran at 100 to 600, so they are unaffected) the search places cuts on a grid of about
+1,500 positions and then moves each cut, neighbours fixed, to its best position anywhere between them,
+repeating until nothing moves.
+
+Checked against the exact search by a rule committed with the code before it ran (`eval/update-rate-long.mjs`,
+`.out.txt`; seed 20261210; 20 series a cell, n 4,000 and 8,000; two no-change cells, a switch, a fixed
+clumped stale feed and a switch and back):
+
+| | result | rule |
+|---|---|---|
+| G1, same number of changes as the exact search, every cell | 20 of 20 in all 10 cells | >= 18 of 20 |
+| G2, grid change inside the exact change's range | 160 of 160, and at the same step every time | >= 95% |
+| time over the 200 series (not judged) | 14.0 s against 302.9 s | |
+
+**Verdict: the grid ships.** A 100,000-point series with one switch now takes about 0.15 s through
+`updateRateChanges` (tested under 8 s, with the switch inside its range). Next: the multi-column and
+`--consensus` outputs, which do not show it yet, and a long series with a documented change in collection.
+
+## The update-rate check on every output, and repeats from rounding (2026-11-12, last)
+
+**Several columns and `--consensus`.** The two outputs that did not show the update-rate check now do.
+`--columns` (CLI text and JSON `updateRate` / `updateRateWarnings`, the page's several-columns "Read with
+care" notes and the branded multi-column report) runs it on each column alone and names the column. A
+cell the parser carries forward to keep the columns aligned is read as missing, never as a repeat:
+`parseColumns` now lists those cells (`missing`), because a column with scattered blanks would otherwise
+show a change of update rate that is not in the data (tested: 40 scattered blanks from row 40 read as a
+change when carried forward, nothing when read as missing). `--consensus` (text and JSON) reads the
+values before `--log`, as beside every single model.
+
+**What it found on the juice file's second column.** Run on all of `data/frozen-juice.csv`, the check
+also speaks on `ppi`, the producer price index: repeats fell from 33% of months before about 1969-04
+(between 1968-03 and 1974-01) to 8% after. The index was published every month. It is recorded to 0.1,
+and in the 1950s and 1960s it moved less than that in a third of months; half of the months it did move,
+it moved by exactly 0.1. Those repeats are rounding of a slow series, not a stale feed, and the old
+sentence ("this describes how often the data was refreshed ... a stale feed") would have misled.
+The juice `price` column is the other case: when its stickier stretch moved, the median move was 19.5
+ticks, so a repeat there is a month nobody refreshed the figure.
+
+**The rounding sentence** (`eval/update-rate-rounding.mjs`, `.out.txt`; rule in its header, committed
+with the code, run once on seed 20261212 with no retuning; both real columns were seen before the rule
+was written, so they illustrate it and are not evidence for it). For each change, take the stretch with
+more repeats; its tick is its own smallest move between neighbours (to 9 significant digits, so a series
+that later gains a decimal is judged on its own precision). If the median move, among steps that moved,
+is at most 1.5 ticks (`ROUNDING_TICKS`: half the moves are one tick), the change is flagged `rounding` and
+the text says the repeats may only mean the series moved less than its recorded precision.
+
+| 200 series a cell, n 300, switch at 150 | with a change | flagged rounding | rule |
+|---|---|---|---|
+| R1 rounded walk, step sd 0.04 -> 0.40 (tick 0.1) | 200 | 200 | >= 90%, pass |
+| R2 rounded walk, 0.40 -> 0.05 | 200 | 200 | >= 90%, pass |
+| R3 rounded walk, 0.06 -> 1.0 | 200 | 200 | >= 90%, pass |
+| F1 stale feed, walk sd 2.0, carried forward 60% -> 10% | 200 | 0 | <= 5%, pass |
+| F2 stale feed, walk sd 0.5 (5 ticks), 10% -> 60% | 200 | 0 | <= 5%, pass |
+| F3 clumped stale feed fixed, walk sd 2.0 | 183 | 0 | <= 5%, pass |
+
+**Verdict: ships.** The cells are well apart; a stale feed whose moves are themselves about one tick is
+the case it cannot tell apart, and there it says "may". On the real series (`eval/update-rate-real.out.txt`,
+descriptive): children per woman (2 decimals, moving 0.01 a year in its sticky stretches) and every
+switch on scanline 42049 (integer pixel values) are flagged rounding; measles and the juice price are not.
+Test: `update-rate-columns.test.mjs`.
+
+Next: a long series with a documented change in collection to check a date against; a stale feed whose
+moves are about one tick (the case the rounding sentence cannot separate).
+
+### One-tick stale feeds: the catch-up check (2026-11-12, pre-registered twice; negative, not offered)
+
+The rounding sentence above names the case it cannot separate: a stale feed whose real moves are about
+one tick also has a median move of one tick, so it reads as `rounding`. What differs is the move that
+*ends* a run of repeats. A rounded slow walk leaves a run by crossing the next rounding boundary, so that
+move stays about one tick however long the run was. A stale figure catches up on every step it skipped,
+so after k repeats its move has about k + 1 times the variance. `catchUpRatio` (update-rate.mjs) is the
+mean squared move, in ticks, ending a run of `minRun` or more repeats over the mean squared move that
+follows a move: near 1 for rounding, about 2 to 4 for a one-tick stale feed.
+
+**Round one** (`eval/update-rate-catchup.mjs`, `.out.txt`; rule committed in 344f58cb3 before the
+confirmation ran; setting chosen on calibration seed 1, runs of 2+ and ratio 1.4). Cells as in the
+rounding check (R1-R3 rounded walks, F1-F3 stale feeds with large moves), plus three one-tick stale feeds
+(T1 walk sd 1 tick, carried forward 10% then 60%; T2 1.2 ticks, 60% then 10%; T3 1 tick, clumped).
+
+| seed 20261213, change nearest step 150 | catch-up among one-tick series | rule |
+|---|---|---|
+| R1 / R2 / R3, rounded walks | 3.0% / 0.5% / **6.0%** | <= 5% each: **fails on R3** |
+| T1 / T2 / T3, one-tick stale feeds | 89.7% / 95.8% / 93.2% | >= 80% each: pass |
+| F1-F3, rounding <= 5% (unchanged) | 0 / 0 / 0 | pass |
+
+R3 is a walk of 0.6 ticks a step: after a long run it now and then moves two ticks, and with five or so
+such moves the ratio is noisy enough to cross 1.4.
+
+**Round two** (`eval/update-rate-catchup-2.mjs`, `.out.txt`; rule committed after round one's verdict and
+before either step ran): pick on a new calibration seed (2) the setting with the best worst T cell among
+those with every R cell at or under 2.5%, then run round one's rule once on fresh seed 20261214. It picked
+runs of 3+ and ratio 1.8. R cells 1.5% / 0.0% / 1.5% (pass), F cells pass, T2 85.5% and T3 84.6%, but
+**T1 79.5% (116 of 146), bar 80%: fails**, by one series.
+
+**Verdict: not offered.** Two rounds bracket the trade-off: a ratio low enough to catch 90% of one-tick
+stale feeds calls a 0.6-tick rounded walk stale about 5% of the time, and one high enough to keep that to
+1.5% catches only about 80%. With about 300 steps there are too few catch-ups in a stretch to do better
+with this statistic. A third round tuned on the same cells would be a forking path, so there is none.
+`CATCHUP.ratio` is `Infinity`: the `rounding` flag and every sentence are exactly as before; each change
+carries `catchUpRatio` as a number, with no sentence. Test: `update-rate-catchup.test.mjs`.
+
+**On the juice file** (descriptive, seen after both verdicts): `ppi`, the rounded index, has a ratio of
+0.48 (runs 3+), what rounding predicts; the move that ends a run is *smaller* than a typical move. The
+`price` column, which the median-move test already calls stale (19.5 ticks), has 1.73: its moves after
+long runs are larger, but by less than a carried-forward random walk's k + 1 would give. Why is open
+(a price that mean-reverts, or one reset on its own schedule, would both do it); nothing here decides it.
+
+Next for this question: longer stretches (the ratio's noise falls with the number of catch-ups, so a
+power curve in n would say where a setting could pass both bars), or a likelihood for a rounded walk
+against a rounded walk carried forward; and a real series with documented carry-forward to check against.
+
+### One-tick stale feeds: a likelihood (2026-11-15, pre-registered round three; negative, not offered)
+
+The catch-up ratio reads only the moves that end a run of repeats, and 300 steps hold too few of them.
+`rounded-walk.mjs` uses every step. Two models for the stickier stretch, in ticks: **M0**, a hidden
+Gaussian random walk (step sd s) recorded rounded; **M1**, the same walk, but with probability p each step
+repeats the last recorded value whatever the hidden value did. A forward filter over the hidden value on a
+grid (10 cells a tick; 20 and 40 move LR by under 0.02) gives each likelihood exactly up to the grid,
+maximised over s and p. Under M0 the statistic LR = 2 (l1 - l0) is a 50:50 mix of 0 and chi-square(1),
+since p = 0 is a boundary, so the threshold was set from theory at its 1% point, **5.41**, not tuned.
+
+Pre-registered in `eval/update-rate-stale-lr.mjs` (committed in 259872106 before the confirmation ran):
+the same cells and rule K1-K3 as rounds one and two, fresh seed 20261215, plus a K4 that would only have
+changed the wording: two rounded slow series that are not Gaussian walks (X1, Student t steps with 3
+degrees of freedom; X2, mean-reverting, rho 0.95).
+
+| seed 20261215, change nearest step 150 | called stale among one-tick series | rule |
+|---|---|---|
+| R1 / R2 / R3, rounded walks | 7.0% / **11.5%** / 9.0% | <= 5% each: **fails** |
+| T1 / T2 / T3, one-tick stale feeds | 100% / 100% / 98.3% | >= 80% each: pass (rounds one, two: 80-96%) |
+| F1-F3, rounding <= 5% | 0 / 0 / 0 | pass |
+| X1 heavy-tailed walk / X2 mean-reverting | **61.5%** / 9.5% | <= 10% each (wording only): fails on X1 |
+
+**Verdict: not offered.** `method: 'lr'` stays an opt-in (`updateRateChanges(values, { catchUp: { method:
+'lr', test: staleTest } })`, with `staleTest` from `rounded-walk.mjs`, returns `staleLR` and `staleP`); `CATCHUP` and every sentence are as before.
+
+**Why the rounded walks failed** (`eval/update-rate-stale-lr-why.mjs`, `.out.txt`; post hoc, fresh seed 5,
+80 series a cell, descriptive). On the true slow half the test is calibrated: 1, 0 and 1 of 80 rounded
+walks called stale (the 1% design rate). On the stretch the update-rate partition hands it, 11, 3 and 11.
+The partition's cut lands a few steps late, so the "sticky" stretch ends with fast, 10-tick moves; a
+Gaussian walk with one s cannot have both, and M1 explains the big moves as catch-ups. Trimming 15 steps
+on the side of the cut removes them (1, 0, 0 of 80). That points at a round four: test the stretch inside
+the cut's range, not up to the cut, on new seeds.
+
+**Why that would not be enough:** X1. A slow series whose hidden steps are heavy-tailed (most steps tiny,
+a few large) is called stale 61.5% of the time on its own true slow half (49 of 80 post hoc): to M0 its rare
+big jumps after quiet runs look exactly like catch-ups. A real slow price or index often moves that way.
+So a likelihood that assumes Gaussian steps cannot tell "stale" from "jumpy" on real data; a round four
+needs a heavy-tailed M0 (a t or a mixture of two step sizes) as well as the trimmed stretch.
+
+On the juice file (descriptive): `ppi`, the rounded index, has LR 1.26 (p 0.05): rounding, as the
+catch-up ratio also said. `price` is not one-tick, so the test does not run on it. Test: `rounded-walk.test.mjs`.
+
+### One-tick stale feeds: a heavy-tailed walk (2026-11-15, pre-registered round four; ships)
+
+Round three's post hoc named two causes of its false calls, and this round changes exactly those two:
+
+1. **The stretch.** The update-rate partition's cut lands a few steps late, so the "sticky" stretch ends
+   with the fast regime's moves. Now the likelihood sees the stretch only inside its cuts' date ranges
+   (`cutRanges`, the shipped slack 6): it starts after the latest date its left cut could have and ends
+   before the earliest its right cut could have (`trim: 'range'` in `update-rate.mjs`). Not the post
+   hoc's 15 steps, a number seen on the data.
+2. **The walk.** Both models now have Student t steps (`rounded-walk.mjs` `staleTestHeavy`), with the
+   degrees of freedom profiled over {2, 4, 10, Infinity}; Infinity is round three's Gaussian, so the old
+   M0 is inside the new one. M0 can now explain a rare big jump by a heavy tail; M1 has to win on
+   catch-ups whose size grows with the run of repeats before them. The grid was written down before any
+   run and does not contain X1's own 3. The threshold stays 5.41 (theory; the degrees of freedom are a
+   nuisance shared by both models).
+
+Pre-registered in `eval/update-rate-stale-lr-4.mjs` (committed in 3b049bf88 before the confirmation ran,
+with a 20-series smoke run on seed 6 in its commit message, used to choose nothing). Same cells and K1-K3
+as rounds one to three, round three's X1 and X2, and **K4 now binding**: a check that calls a jumpy slow
+series stale would mislead on real prices. One new cell reported, not judged: X3, X1's heavy-tailed walk
+carried forward 60% of steps. Fresh seed 20261216, 200 series a cell, run once (551 s on four threads):
+
+| seed 20261216, change nearest step 150 | called stale among one-tick series | rule |
+|---|---|---|
+| R1 / R2 / R3, rounded walks | 0.0% / 0.0% / 0.0% | <= 5% each: pass (round three 7.0-11.5%) |
+| T1 / T2 / T3, one-tick stale feeds | 98.0% / 96.9% / 81.3% | >= 80% each: pass |
+| F1-F3, rounding <= 5% | 0 / 0 / 0 | pass |
+| X1 heavy-tailed walk / X2 mean-reverting | 3.0% / 0.5% | <= 10% each: pass (round three 61.5% / 9.5%) |
+| X3 heavy-tailed walk carried forward (not judged) | 81.9% | power on a jumpy stale feed |
+
+**Verdict: ships.** `CATCHUP` is now `{ method: 'lr', test: staleTestHeavy, trim: 'range', lr: 5.41 }`:
+a one-tick sticky stretch where the likelihood ratio clears 5.41 is flagged `catchUp` instead of
+`rounding`, and the update-rate line says so ("the moves that end runs of repeats grow with the run, as a
+stale figure catching up would (a rounded walk carried forward on about N% of steps fits it better than
+the same walk only rounded, even allowing heavy-tailed jumps (likelihood ratio X, against 5.4 at the 1%
+level))"). Passing any `catchUp` option replaces the default whole over the ratio-only base, so rounds one
+to three still reproduce their files; `catchUp: { method: null }` is the median-move test alone.
+
+What it costs: T3, the clumped stale feed, is the weak cell (81.3%, just over the bar): long clumps look
+like a slow walk to both models. The heavy test takes about 0.5 s on a 150-step stretch (four model
+fits per side), and runs only on stretches that already pass the one-tick test. On the juice file,
+`ppi` (the rounded index) now has LR 0.0 (round three's Gaussian test gave 1.26): rounding, as before.
+
+Still open: a real series with documented carry-forward to check a call against (all the evidence here
+is simulated); clumped carry-forward (T3) is the cell to improve. Tests: `rounded-walk-heavy.test.mjs`,
+`rounded-walk.test.mjs`, `update-rate-catchup.test.mjs`.
+
+### One-tick stale feeds: clumped carry-forward (2026-11-15, pre-registered round five; ships)
+
+Round four's weak cell was T3, the clumped stale feed (once it repeats, it repeats again with
+probability 0.7; after a fresh value, 0.2): 81.3%, just over the 80% bar. Its M1 carries each step forward
+with one probability, so it expects runs of repeats to be short and geometric; a feed that sits for
+several steps at a time looks to it more like a slow walk. Round five changes only M1. It is now a
+**Markov carry-forward**: one chance to start repeating after a fresh record (`pEnter`), another to keep
+repeating after a carried one (`pStay`). Whether the last record was carried is hidden too, since a
+repeat may be rounding, so the forward filter runs over the hidden value and that flag
+(`roundedWalkLogLikMarkov` in `rounded-walk.mjs`). With `pStay = pEnter` it is round four's M1 exactly (a
+test checks the likelihoods agree to 1e-9). It is fitted from round four's M1, for each degree of freedom
+in round four's grid, so its statistic is never below round four's. Steps, grid, trim and the one-tick
+test are all round four's.
+
+**The threshold had to come from simulation.** Under M0 (`pEnter = 0`), `pStay` is not identified, so the
+chi-square boundary mix behind 5.41 no longer holds. The rule, committed with the code before anything
+ran (`eval/update-rate-stale-lr-5.mjs`, commit 4cd7a9b45, with a 10-series smoke run in its message),
+set tau on the null cells only (R1-R3, X1, X2) of a new calibration seed, 31. Tau is the smallest value at
+which no null cell has more than 2% of its one-tick series at or above it, and never below 5.41. No stale
+cell was run on that seed. X1, the heavy-tailed walk, was the binding cell, and **tau = 6.56**
+(`eval/update-rate-stale-lr-5-calibration.out.txt`; the first calibration run crashed in its table printer
+after the fits and was rerun unchanged on the same seed). Then one confirmation on fresh seed 20261217
+with round four's K1-K4, plus a K5: T3 at 85% or more, and at least 5 points above round four's rule on the
+same series. Round four's statistic comes out of the same fit, so the comparison uses identical stretches.
+200 series a cell, 1,619 s on four threads:
+
+| seed 20261217, change nearest step 150 | called stale, Markov (LR >= 6.56) | round four (LR >= 5.41), same series | rule |
+|---|---|---|---|
+| R1 / R2 / R3, rounded walks | 1.0% / 0.0% / 0.0% | 0.5% / 0 / 0 | <= 5% each: pass |
+| T1 / T2 / T3, one-tick stale feeds | 98.6% / 100% / **96.8%** (60 of 62) | 97.8% / 100% / 80.6% (50 of 62) | >= 80% each: pass; T3 >= 85% and +5 points: pass |
+| F1-F3, rounding <= 5% | 0 / 0 / 0 | 0 / 0 / 0 | pass |
+| X1 heavy-tailed walk / X2 mean-reverting | 1.5% / 0.0% | 2.0% / 0.0% | <= 10% each: pass |
+| X3 heavy-tailed walk carried forward (not judged) | 81.5% | 83.5% | reported |
+
+**Verdict: ships.** `CATCHUP` is now `{ method: 'lr', test: staleTestMarkov, trim: 'range', lr: 6.56 }`.
+The update-rate line names the clumping it found ("carried forward in runs (after a fresh value the next
+repeats about A% of the time, after a repeat about B%)") and the threshold with what it means ("against
+6.6, which about 2% of rounded slow series clear in simulation"). Each change also carries `staleLRIid`
+(round four's statistic), `staleEnter` and `staleStay`. Rounds one to four still reproduce when their
+options are passed.
+
+What it costs: X3, a heavy-tailed stale feed with no clumping, falls 2 points (167 to 163 of 200), because
+the threshold is higher. The test takes about three times as long as round four's (four extra fits a
+degree of freedom; 2.7 s against 0.9 s a series on these cells). It still runs only on stretches that
+pass the one-tick test. On the juice file, `ppi` stays rounding. On the rounding check's own seed (20261212, `eval/update-rate-rounding.mjs`), 2 of
+200 R1 walks now read as catch-ups (198 rounding, Q1 still passes); that file predates the catch-up, so its
+test now reproduces it with the catch-up off.
+
+Still open: a real series with documented carry-forward to check a call against (all the evidence here
+is simulated), and a faster fit (the Markov ascent could skip the degrees of freedom that round four's
+M1 already places far behind). Tests: `rounded-walk-markov.test.mjs`, `rounded-walk-heavy.test.mjs`,
+`rounded-walk.test.mjs`.
+
+## Stripe as a source (2026-11-16)
+
+Most people who want to hear "sales moved to a new level" sell through Stripe, and asking them to export a CSV every
+day is where a watch dies. `stripe-metrics.mjs` turns the deployer's own Stripe account into the daily CSV the watch
+reads, with a read-only restricted key (Charges; Customers too for `--customers`) from an environment variable:
+
+- one row per **complete** day in the deployer's `--utc-offset` (today is left out, so a half day never reads as a
+  fall), zeros on days with nothing, so a count series has no holes;
+- `payments`: succeeded charges in any currency; `revenue`: their gross amount in one currency, major units, summed
+  in minor units so it stays exact (zero- and three-decimal currencies from Stripe's currency list); `failed`:
+  charges with status `failed`; `new_customers` with `--customers`. Pending charges count once they settle; refunds
+  are not subtracted (a refund belongs to the day it was made, which a charge list does not date);
+- an existing CSV is extended: its last `--refetch` days (default 3) are fetched again for late settles, the rest
+  kept, and the currency summed is remembered beside it (`<file>.currency`) so a column never mixes two;
+- list pages followed with `starting_after`, 429 and 5xx retried with backoff (1, 2, 4, 8, 16 s), a 401 or 403
+  answered with what to fix; a publishable key is refused before any call. `STRIPE_API_BASE` (tests only) takes a
+  loopback address and nothing else, so the key cannot be pointed at another host.
+
+`deploy/watch-metric.yml` runs it before the watch when the secret `STRIPE_API_KEY` is set (options in the variable
+`STRIPE_OPTIONS`), caches `data/stripe.csv` with `actions/cache` so a run fetches days, not 400 days, and with
+`METRIC_CSV` unset watches `--columns payments:poisson,revenue,failed:poisson`. `make-watch-repo.sh` copies the
+script and writes a `.gitignore` for the CSV. The repository should be private: `watch-state.json` records the
+level around each change, which for revenue is the business's revenue.
+
+**Checked** (`stripe-metrics.test.mjs`, 10 tests, one the CSV formula guard): against a stand-in for Stripe's list API with its documented
+shape (`{object: 'list', data, has_more}`, newest first, `created[gte]`, `created[lt]`, `starting_after`, `limit`
+capped at 100): every charge read once across pages; retries and error messages; day boundaries at an offset;
+complete days only; the incremental refetch window; the currency guard; then the made repository's workflow run
+under `deploy/run-workflow.mjs` against the stand-in served over HTTP (fetch step writes 400 days, state holds the
+three columns, the CSV is not committed, the key never printed). **Not checked against a live Stripe account**: no
+session holds a key. A deployer's first run is that check; the field names used (`id`, `created`, `amount`,
+`currency`, `status`) are the stable core of the Charge object.
+
+**How the default watch behaves on it** (`eval/stripe-declines.mjs`, output `eval/stripe-declines.out.txt`;
+synthetic shops, 40 Poisson payments a day of $10-50, declines 2% of attempts, watched daily over the last 30 of
+120 days, 20 seeds per row; measured once, no setting tuned on it):
+
+| case | decline jump heard | days after the jump | payments/revenue alerts at the jump | other alert lines / 620 checks |
+|---|---|---|---|---|
+| declines 2% to 25%, 12 days before the end | 20 of 20 | 5 (all) | 12 | 0 |
+| declines 2% to 10% | 16 of 20 | median 5, 4-7 | 0 | 0 |
+| no change | - | - | - | 0 |
+
+The 12 payments/revenue alerts in the first row are true: a quarter of attempts declined takes about a quarter off
+succeeded payments. The quiet is optimistic: these shops have no weekly cycle, promotions or growth, all of which a
+real shop has and which the watch's own history replay (`--suggest`) is there to measure. Next: a real shop's
+daily Stripe series (a deployer's, or a public one) through `--suggest`, and a weekly cycle (`--period 7`) per column.
+
+## Watching a growing series (2026-11-12, four pre-registered rounds; ships)
+
+The page and CLI answer "did this series change?" once. Most people with a metric want the other
+question: tell me, once, when it changes from now on. `watch.mjs` does that. Each run refits the newest
+`--window` points (default 1,000) with the same engine, compares the changes with the ones in a state
+file, and reports a change only when `--confirm` points (default 5) are on its far side and no change
+already on record lies within `--tolerance` points (default 5), so a change re-dated by a point or two as
+data arrives is not a second alert. The first run on a file with history records its changes as the
+baseline instead of alerting (`--alert-history` reports them). A change on record is found again by its
+label, so a rolling file that drops old rows keeps it; a shorter file or a vanished last label is
+reported as a note. `--webhook-env NAME` posts each alert to the URL in that environment variable as
+`{text, content}` (Slack, Teams and Mattermost read `text`, Discord `content`); when the webhook fails
+the state is not saved, so the next run retries. `--fail-on-alert` exits 1, which turns a CI run red and
+emails its owner. Tests: `watch.test.mjs` (12; a local HTTP server stands in for the webhook; no real
+chat service was called).
+
+**Self-deploy.** `sh deploy/make-watch-repo.sh <folder>` (or the `curl ... | sh -s -- <folder>` line in
+the script's header, which needs no clone) writes the engine, `watch.mjs`, the MIT licence, a README and
+`.github/workflows/watch-metric.yml`: a daily run that reads the `METRIC_CSV` variable (a file in the
+repository or an https link, such as a published Google Sheet's CSV), posts to the `WATCH_WEBHOOK_URL`
+secret if set, and commits `watch-state.json` back. Nothing in it calls anything the owner runs. The
+workflow's own shell steps are replayed over simulated weeks of daily runs by `watch-workflow.test.mjs`
+(section "The self-deploy workflow, run as a deployer's repository runs it" below); it has still not run on
+GitHub itself.
+
+**Round 1: which detector and how much confirmation** (`eval/watch-replay.mjs`, output
+`eval/watch-replay.out.txt`). The rule was written in the script's header before the first run:
+candidates PELT level, PELT level and volatility, and the engine's Bayesian detections, each at
+`--confirm` 3, 5 and 10; among those reporting at least 90% of 2-sd steps in independent noise, take the
+fewest false alerts per 1,000 checks averaged over three null streams (independent, AR(1) 0.5, t with 3
+degrees of freedom); ties within 0.5 go to the shorter delay. Each stream is 500 points, watched from
+point 100 with one check per new point, 10 seeds per cell. All nine passed the power bar; the Bayesian
+detections with `--confirm 5` won: 0 / 7.5 / 2.5 false alerts per 1,000 checks on the three nulls
+against PELT level's 2.5 / 49.75 / 12.75, 9 of 10 two-sd steps reported with a median delay of 5 points.
+Its blind spot showed at once: 0 of 10 one-sd steps (PELT level 9 of 10). Level and volatility needs 10
+points per segment, so its confirmation setting changes nothing.
+
+Then the 31 univariate TCPD series, scored once and changing nothing, each watched from 20% of its
+length (6,369 checks):
+
+| setting (`--confirm 5`) | alerts | at an annotated change | per 1,000 checks | majority-marked changes reached | median delay |
+|---|---|---|---|---|---|
+| **Bayesian detections (default)** | 193 | 63 (33%) | 30.3 | 38 of 52 | 5 |
+| PELT level | 626 | 134 (21%) | 98.2 | 52 of 52 | 5 |
+| PELT level and volatility | 446 | 100 (22%) | 70.0 | 50 of 52 | 9 |
+
+`bank` alone gave 42 of the default's 193 alerts and none at a mark: a level that wanders all the time
+keeps alerting, so the page tells people to watch a quantity that holds a level, or its daily change.
+
+**Round 2: a windowed probability** (`--round2`, output `eval/watch-replay-round2.out.txt`). A unit
+test then found a clear 3-sd step that the default never reports: its Bayesian probability was split
+over neighbouring points (0.15, 0.03, 0.17, 0.36), so no single point reached 0.5. Candidate
+`bocpd-window` sums the probability over 5 neighbouring points. The rule, written before the run, on
+fresh seeds 11-20: adopt it if it reports at least as many steps in every step cell and more overall,
+and its mean null false-alert rate is at most 1.0 per 1,000 above the default's. It reported far more
+(2-sd steps 10 of 10 against 6 of 10; 3-sd 10 against 8; 2-sd in AR(1) noise 10 against 7) but raised
+false alerts from 3.92 to 7.58 per 1,000 (AR(1): 7.0 to 15.0). **Not adopted**; it is the option
+`--detector bocpd-window`. On TCPD it sent 307 alerts, 85 at a mark (28%), 46 of 52 marked changes.
+
+The fresh seeds also undercut round 1's pass: the default reported 6 of 10 two-sd steps there, so over
+both rounds it is 15 of 20, below the 90% the rule asked for. The default stays as pre-registered, and
+the page states the trade plainly: quiet, and it misses small steps; `--detector pelt` reaches every
+marked change at about three times the alerts.
+
+**Round 3: the AR(1) term in the Bayesian pass** (`--round3`, output `eval/watch-replay-round3.out.txt`;
+rule committed before the run). Sticky noise is where round 2 lost, and the engine's Bayesian pass already
+has an AR(1) term (`--ar1`: rho from the lag-1 correlation of the clipped first differences, then the
+conditional AR(1) likelihood in every run). Candidates `bocpd-ar1` and `bocpd-ar1-window` (the same pass,
+probability summed over 5 neighbours), each at `--confirm 5`, against `bocpd`, on fresh seeds 21-30, with two
+cells added: AR(1) 0.8 noise with no change, and a 4 marginal-sd step in it. Rule: replace the default only if
+the mean false-alert rate over the four nulls is at or below `bocpd`'s and the steps found over the five step
+cells are at least as many.
+
+| detector (`--confirm 5`) | iid | AR(1) 0.5 | t3 | AR(1) 0.8 | 1-sd | 2-sd | 3-sd | 2-sd AR(1) 0.5 | 4-sd AR(1) 0.8 |
+|---|---|---|---|---|---|---|---|---|---|
+| `bocpd` (old default) | 0.00 | 6.25 | 3.75 | **32.25** | 0/10 | 7/10 | 10/10 | 8/10 | 10/10 |
+| `bocpd-ar1` | 0.00 | 0.75 | 3.75 | 1.00 | 0/10 | 7/10 | 10/10 | 3/10 | 10/10 |
+| **`bocpd-ar1-window` (new default)** | 0.50 | 0.75 | 6.75 | 1.50 | 2/10 | 10/10 | 10/10 | 6/10 | 10/10 |
+
+(False alerts per 1,000 checks on the four nulls, then steps reported.) `bocpd-ar1-window` passed both parts
+(mean false alerts 2.38 against 10.56; 38 steps against 35) and **is the default from 2026-11-12** for the
+level model. `bocpd-ar1` passed the false-alert part and failed on steps (30). What it costs: on t3 noise
+false alerts rose from 3.75 to 6.75, and the 2-sd step in AR(1) 0.5 noise was found 6 times in 10 against 8,
+because the AR(1) term explains part of a modest step as noise. The AR(1) term is for the level model only:
+with `--model poisson` or `meanvar` the default stays `bocpd`.
+
+The TCPD replay, scored once and deciding nothing, shows the same trade on real series, and the loss is
+larger than on the synthetic cells:
+
+| detector | alerts | at an annotated change | per 1,000 checks | majority-marked changes reached |
+|---|---|---|---|---|
+| `bocpd` | 193 | 63 (33%) | 30.3 | 38 of 52 |
+| `bocpd-ar1` | 76 | 29 (38%) | 11.9 | 23 of 52 |
+| **`bocpd-ar1-window`** | 103 | 39 (38%) | 16.2 | 29 of 52 |
+
+About half the alerts, a slightly larger share of them at a marked change, and 9 fewer of the 52 marked
+changes reached. Many TCPD series are short and smooth (yearly GDP, population), where the estimated rho is
+high and a real move reads as persistence. So the page now says: the default is the quiet one; if a missed
+change costs more than a false alarm, use `--detector bocpd` (38 of 52) or `--detector pelt` (52 of 52 at
+about six times the alerts).
+
+**Why the AR(1) pass lost marked changes** (`node eval/watch-rho.mjs tcpd-data --why`, output
+`eval/watch-rho-why.out.txt`; diagnostic, decides nothing). The same replay, per series, with the rho the AR(1)
+pass used at each check. Of the 17 majority-marked changes the plain windowed pass reaches and the AR(1) pass does
+not, 15 were confirmed at a check where rho sat at the engine's 0.95 clip (median 0.95, range 0.55-0.95); the 29 it
+reaches had median rho 0.48. 20 of the 30 series long enough to watch are at the clip from the baseline on, and all
+are smooth or wandering: Brent crude (4 marked changes, 4 reached by the plain pass, 0 by the AR(1) pass), CO2 in
+Canada (4 against 1), fertility (2 against 0), business inventories. At rho 0.95 the conditional AR(1) likelihood
+expects each point to sit almost on the last, so a real move reads as persistence. A rho frozen at the baseline
+cannot help: it is 0.95 there too.
+
+**Round 4: a cap on rho** (`node eval/watch-rho.mjs tcpd-data --round4`, output
+`eval/watch-replay-round4.out.txt`; the rule is in the script's header, committed before the run). Candidates: rho
+capped at 0.8 and at 0.5, against the uncapped estimate, on round 3's nine synthetic cells with fresh seeds 31-40
+plus AR(1) 0.95 noise (reported, deciding nothing). Unlike rounds 1-3, the TCPD series count, because the fault only
+shows on real series. Rule: (a) mean false alerts over the four round-3 nulls at most 1.0 per 1,000 above the
+uncapped default, (b) at least as many synthetic steps, (c) more TCPD marked changes reached with the share of
+alerts at a mark at most 5 points lower.
+
+| rho (`--confirm 5`, window 5) | iid | AR(1) 0.5 | t3 | AR(1) 0.8 | AR(1) 0.95 | steps (5 cells) | TCPD alerts | at a mark | marked changes reached |
+|---|---|---|---|---|---|---|---|---|---|
+| uncapped (round 3 default) | 0.50 | 0.25 | 5.25 | 0.25 | 1.25 | 36 | 103 | 39 (38%) | 29 of 52 |
+| **capped at 0.8 (default from round 4)** | 0.50 | 0.25 | 5.25 | 0.00 | 3.00 | 36 | 115 | 47 (41%) | 33 of 52 |
+| capped at 0.5 | 0.50 | 0.50 | 5.25 | 15.00 | 27.25 | 37 | 169 | 66 (39%) | 41 of 52 |
+
+The 0.8 cap passed all three parts and **is the default from 2026-11-12** (`--rho-cap`, default 0.8; `--rho-cap
+0.95` is the uncapped estimate). On the synthetic cells it changed nothing except the stickiest noise: AR(1) 0.95
+with no change rose from 1.25 to 3.0 false alerts per 1,000 checks. The 0.5 cap reaches 41 of 52 at 15 and 27 false
+alerts per 1,000 on AR(1) 0.8 and 0.95 noise; it failed (a) and is not offered as a default, though `--rho-cap 0.5`
+runs it. On the real series shipped with the tool (`watch.test.mjs`), the capped watch reports the S&P 500's
+October 2008 fall and Canada's 1946 fertility rise, which the uncapped estimate read as persistence. TCPD now
+counted in a rule, so its 33 of 52 is no longer a held-out figure: a fresh labelled set is the test.
+
+## Round 5: flicker after the baseline (2026-11-12, pre-registered; `hold` ships)
+
+The fault is the one the replay found on `ausair`: right after a quiet first check, a short history can make the
+engine find changes well in the past for one check, and the watch alerted on them. Two guards, written as `advance`
+options in `watch-core.mjs` and pre-registered with the rule in the header of `eval/watch-flicker.mjs` (committed
+before the first run; output `eval/watch-flicker.out.txt`, 349 s on 4 cores):
+
+- `hold` (`holdHistory`): a change dated where the first check already had 5 points after it is history the
+  baseline called quiet; it is recorded as held, never alerted. The state keeps that row's label (`quietUntil`).
+- `persist2` (`persist: 2`): a change is alerted only if a detection within 5 points of it was also there at the
+  previous check, so a one-check blip is never sent; it costs one check of delay.
+
+All candidates use the shipped detector (AR(1) Bayesian pass, rho cap 0.8, probability over 5 neighbours,
+`--confirm 5`), so the detections are identical and only what is sent differs. Rule: replace the default only with
+mean false alerts on the four synthetic nulls no higher, at least as many synthetic steps with the median delay at
+most 2 points longer, and on TCPD's 31 shipped series at least as many majority-marked changes reached, fewer alerts
+and no lower share at an annotated change.
+
+| policy | null false alerts / 1,000 (mean of 4) | steps (5 cells, 50) | median delay | TCPD alerts | at a mark | marked reached | flicker alerts |
+|---|---|---|---|---|---|---|---|
+| now (old default) | 1.44 | 40 | 5 | 115 | 47 (41%) | 33 of 52 | 8 |
+| **hold (default from round 5)** | 1.44 | 40 | 5 | **106** | 45 (42%) | **33 of 52** | 7 |
+| persist2 | 1.25 | 40 | 5 | 112 | 46 (41%) | 32 of 52 | 4 |
+| hold + persist2 | 1.25 | 40 | 5 | 103 | 44 (43%) | 32 of 52 | 4 |
+
+(Flicker alert: one whose change has no detection within 5 points at the very next check.) `hold` passed all three
+parts and **is the default from 2026-11-12** in the CLI, the page's watch card, the replay and the agent tools;
+`--alert-old-history` (or `holdHistory: false`) turns it off. On the synthetic cells it changes nothing, because
+their baseline is at point 100 and the changes come later: the guard only acts on short histories. On TCPD it took
+9 alerts off six series (bank 3, children per woman 2, and one each on ozone, quality control 4, Dutch unemployment
+and the krona-dollar rate) and lost no majority-marked change; two of the 9 were at a change at least one annotator (not a majority) marked
+(ozone, the krona), so the share at a mark moved only from 41% to 42%. `persist2` removed half the flicker alerts
+and the most false alerts on sticky noise, but it lost the one majority-marked change it reached on `children_per_woman` (why
+was not traced), so it failed the rule and stayed an option (`--persist 2`) until round 7, which traced the lost mark to the replay ending and made it the default (below). On
+`ausair` the replay now sends 1 alert (2011, for the 1991 rise) instead of 3; the 1979 and 1985 detections that
+showed at row 1990 are listed as held (`watch.test.mjs`).
+
+**On fresh data.** Part C of the same run scored the 7 univariate TCPD series TCPD does not ship (bitcoin, Iceland
+tourism, measles, Ratner stock, robocalls, two scan lines; `tcpd-data/heldout`, never used by a watch round),
+deciding nothing for round 5. `hold` went from 68 alerts to 61 with the same 9 of 12 marked changes (38% to 43% at a
+mark). The same run made round 4's pre-registered check of the rho cap on fresh data: capped at 0.8 the watch
+reaches 9 of 12 marked changes with 38% of alerts at a mark; the uncapped estimate 6 of 12 at 43%. **The cap held
+on fresh data** (the bar was at least as many marks, share no more than 5 points lower). The plain windowed pass
+without the AR(1) term reached all 12 at 161 alerts (24% at a mark), so the quiet default still trades about a
+quarter of the marked changes for 60% fewer alerts; measles alone gave the shipped watch 20 alerts and no mark.
+Seven series and 12 marks are few; these are leads, not tight estimates.
+
+Old state files have no `quietUntil`, so a watch that was already running keeps alerting as before until it is
+reset; a new watch or a forgotten one starts with the guard.
+
+### Round 5, after the round: the other two settings, the coarse replay, and why persist 2 lost a mark (2026-11-12, deciding nothing)
+
+Three checks of the round-5 result, run after it and changing nothing.
+
+**The page's other "How eager" settings with `hold`** (`node eval/watch-hold-detectors.mjs tcpd-data --detector pelt`
+or `bocpd`; outputs `eval/watch-hold-pelt.out.txt`, `eval/watch-hold-bocpd.out.txt`). Round 5 scored only the quiet
+default, but the guard applies to every detector. With Eager (`pelt`), TCPD alerts go from 626 to 611 and the watch
+still reaches 52 of 52 marked changes. The 7 held-out series go from 289 to 286, still 12 of 12. With Middle (`bocpd`),
+TCPD goes from 193 to 183, still 38 of 52, and held-out from 122 to 112, still 11 of 12. Neither setting now sends an
+alert about history before the baseline (Eager had 15 on TCPD and 3 held out; Middle 10 and 10). So the page's labels
+still hold: Middle sends about 1.7 times the default's 106 TCPD alerts, and Eager reaches every marked change.
+
+**The coarse replay agrees a little more** (`node eval/watch-replay-bisect.mjs`, output
+`eval/watch-replay-bisect-hold.out.txt`; the pre-round file is kept). On the 57 series in `data/`, the every-point
+replay sends 130 alerts (was 141). Checking every 5 points gives 114 identical alerts (88%, was 85%) and every 15
+gives 110 (85%, was 80%). Hold removes some flicker but not all of it, so a coarse replay of a long series still
+undercounts.
+
+**Why persist 2 lost a mark** (`node eval/watch-persist-why.mjs tcpd-data`, output `eval/watch-persist-why.out.txt`).
+`children_per_woman` is 301 yearly points, 1800 to 2100. With persist 1, the alert that reaches the majority mark
+(row 145, the 1940s) is the change at row 142. The engine first detects it at point 301, the last row of the
+series, and sends it there, 159 rows late. With persist 2 it is still waiting for its second check when the
+series ends. The replay has no next point, so it scores the change as missed. A watch on a live series would have
+sent it the next day if the detection held. The mark was lost to censoring at the end of a finite replay, not to the
+guard. A fair retry of persist 2 scores changes still waiting at the end apart from misses (or adds one check past
+the end), and that rule needs pre-registering before the run.
+
+### The watch on the page and as an agent tool (2026-11-12)
+
+The watch needed a GitHub repository and a scheduled workflow; someone who looks at a metric every few days
+needed neither. The logic moved, unchanged, from `watch.mjs` to `watch-core.mjs` (no file, network or process
+access; `watch.mjs` re-exports it and keeps the state file, the CSV link, the webhook and the exit code), and
+gained `watchCheck({ csv, state, column, model, detector, ... })`, one call that parses, detects and advances the
+state and returns `{ alerts, pending, baseline, notes, state, text }`.
+
+- **On the page:** a card, "Keep watching a series", under the results. It reads the data box or an https CSV link
+  (a published Google Sheet answers with CORS; a link that does not is reported with "paste the rows instead"),
+  takes the value column, model, period and logs from the boxes above (the trend, drift and robust models are
+  watched as a level, and the card says so), and offers the three measured settings as "How eager": quiet
+  (`bocpd-ar1-window`, the default), middle (`bocpd`), eager (`pelt`). The state is kept in the browser's
+  localStorage under the watch's name (the link, or "pasted series"); "Forget this watch" drops it. A new local
+  counter, `watch_check`. The one `fetch` on the page is that link, a GET without cookies; `page.test.mjs` now
+  allows exactly that call and nothing else.
+- **As an agent tool:** the page imports `watch-core.mjs`, so `platform/agents/tools.mjs` exposes it (its gate
+  refuses modules that touch the network or the process, which is why the CLI's `watch.mjs` could not be).
+  `node platform/agents/tools.mjs call changepoint-detector watchCheck --input '{"csv":"...","state":null}'`;
+  the agent keeps `state` for its next call.
+- **Checked:** `watch-page.test.mjs` (4: a baseline, then one new step reported exactly once across 80 one-row
+  checks with the state round-tripped through JSON as the page stores it, at 5 to 15 points after the step; the
+  CLI and the page share one copy; bad input; the page's wiring). `eval/watch-page-browser.mjs` in headless
+  Chromium (output `eval/watch-page-browser.out.txt`, 8 of 8): the baseline survives a reload, a second step is
+  reported once and then not again, an unreachable link explains itself, a CORS link (answered by Playwright, no
+  real sheet was read) is read into the data box, Forget starts a fresh baseline, no page errors. The deploy
+  script now copies `watch-core.mjs` too (`watch.test.mjs`'s self-deploy test runs the folder it makes). No
+  detection numbers changed: same defaults, same engine.
+- **Not done:** no person has used the card yet; a browser that clears storage forgets the watch (the card says
+  so); there is no reminder to come back, which is what the self-hosted daily run is for.
+
+Next: a real deployer's repository run end to end on GitHub Actions; the cap on fresh labelled series from outside TCPD; the
+plain pass's remaining lead (38 against 33 marked changes) is on series whose level wanders, where the drift model
+(`--model drift`) may be the better watch.
+
+## Replaying the watch on your own history (2026-11-12, later)
+
+The question before anyone sets an alert up is "how often would this have pinged me, and how late?".
+`replayWatch(values, labels, opts)` in `watch-core.mjs` (re-exported by `watch.mjs`) answers it by running the watch's own
+`detectChanges` and `advance` after each new point of a finished series. As a real first run does, the
+first check (default: at 20% of the series, at least 20 points) records the changes already there as the
+baseline. Each later alert comes back with the change's date, the row whose arrival sent it, and its delay
+in rows. On the page it is the card "3. What a daily watch would have sent" after any one-column run. It
+runs in the page's background worker (`analyzeJob` kind `replay`) and is counted as `watch_replay`. Agents
+call `node platform/agents/tools.mjs call changepoint-detector replayWatch --module watch-core.mjs --args
+'[[...values], [...labels], {"from": 100}]'`. It complements "Keep watching a series" (`watchCheck`, the
+section above), which checks from today on with the state in the browser; the replay answers what that
+check would have said on every past day.
+
+**Cost, and a coarse replay.** Each check refits up to `window` points, and the Bayesian pass is about
+quadratic in that: 175 ms for 1,000 points on one core of this session's machine, so replaying a
+1,000-point series after every point took 25 s. A replay is therefore held to a work budget
+(`REPLAY_BUDGET`, 3e7 point-squares, about 5 s here). Series up to about 450 points are checked after
+every point; longer ones are checked every `step` points (2 at 500 points, 12 at 1,000, 48 at 2,000).
+When a coarse check finds an alert, the replay bisects back to the first row whose arrival sends it.
+Timings on synthetic steps: 500 points 5.1 s, 1,000 points 6.5 s, 2,000 points 7.3 s, each step alert
+found and dated 5 or 6 rows late.
+
+**Does the coarse replay give the same alerts?** `node eval/watch-replay-bisect.mjs` (output
+`eval/watch-replay-bisect.out.txt`) ran it on every real series in `data/` with 40 to 800 points (57
+series, default settings, last numeric column). The every-point replay sent 141 alerts. The coarse
+replays compared with it:
+
+| checked every | alerts identical (same change, same row) | sent at another row | missed | extra | checks |
+|---|---|---|---|---|---|
+| 1 point (reference) | 141 | | | | 10,724 |
+| 5 points | 120 (85%) | 9 | 12 | 3 | 2,622 |
+| 15 points | 113 (80%) | 12 | 16 | 3 | 1,398 |
+
+The differences are not bisection errors. They come from detections that flicker: present at one check
+and gone at the next. One example is `ausair` (47 points). The first check at 20 points sees no change.
+At 21 points the engine finds two changes, at rows 9 and 15, both with enough rows after them, so the
+every-point watch alerts on both, about history it had just called quiet. At 22 points both are gone, and
+from 23 on there is one change at row 16. The coarse replay never sees the 21-point check, sends one alert
+(row 16), and then, because row 21 is within the 5-row tolerance of 16 and not of 15, misses a third.
+So a coarse replay undercounts the flicker alerts a real daily watch would send (12 of 141 missed at
+step 5). That is the price of keeping long series to a few seconds in a browser tab. The page checks
+every point up to about 450 points, so most pasted series are replayed exactly. Above that, the
+replay's own text says how often it checked.
+
+**What the replay shows about the watch itself.** The `ausair` case is a weakness of the watch, not
+only of the replay: right after the baseline, a short history can produce alerts about changes well in
+the past, sent the day the engine first finds them. Two fixes were then tested in a
+pre-registered round and one ships: "Round 5" below.
+
+Tests: `watch.test.mjs` (2 new). A clear 3-sd step at row 200 of 260 is alerted once, 5 to 7 rows late,
+and checking every 7 points with bisection gives the same change and row. A step before the first check
+is baseline, not alert; quiet noise (seed 22) sends nothing with the budget raising the step. Under 10
+points is refused. Page: headless Chromium at 390 px on the Nile example. The card appears after the run,
+the replay reports 1 alert (sent at 1904 for the 1899 change, 6 rows late, level 1,098 to 826, 62%),
+there are no console errors, and the page has no horizontal scroll.
+
+## Round 6: which "How eager" suits this series? A hint from your own history (2026-11-12, pre-registered; ships, narrowly)
+
+Rounds 1-5 chose one default for every series, and the held-out replay showed what that costs: the plain pass
+reached 12 of 12 held-out marks where the quiet default reached 9, while on measles alone the default sent 20 alerts
+and reached none. The one thing the tool knows about a person's series before the watch starts is its history. So:
+replay that history once per setting (quiet `bocpd-ar1-window`, middle `bocpd`, eager `pelt`), count alerts per 100
+daily checks, and suggest the most eager setting that stayed at or under a budget.
+
+**The round** (`eval/watch-eagerness.mjs`, output `eval/watch-eagerness.out.txt`, 101 s on 4 cores; the rule is in the
+script's header, committed in its own commit before the first run). Each univariate TCPD series is cut in half: the
+first half is the history, the second the future. The watch is replayed after every point with the shipped policy
+(confirm 5, tolerance 5, hold). The hint at B = 2 alerts per 100 checks picks a setting from the first half; it is
+scored on the second half only. Rule: (a) more future majority-marked changes reached than fixed quiet, (b) future
+alerts per 1,000 checks at most fixed middle's, (c) share at a mark at most 5 points below quiet's. Series with fewer
+than 30 points of history are skipped (8 of the 31, all short yearly series), leaving 23.
+
+| policy (future halves, 23 TCPD series) | alerts | at a mark | per 1,000 checks | majority-marked reached | picks q/m/e |
+|---|---|---|---|---|---|
+| fixed quiet (default) | 62 | 27 (44%) | 16.0 | 16 of 31 | 23/0/0 |
+| fixed middle | 107 | 35 (33%) | 27.6 | 23 of 31 | |
+| fixed eager | 369 | 80 (22%) | 95.2 | 31 of 31 | |
+| **hint, B = 2 (pre-registered; ships)** | 68 | 28 (41%) | 17.5 | **17 of 31** | 15/6/2 |
+| hint, B = 1 | 62 | 27 (44%) | 16.0 | 16 of 31 | 17/5/1 |
+| hint, B = 5 | 97 | 37 (38%) | 25.0 | 21 of 31 | 7/11/5 |
+
+All three parts passed, so **the hint ships**, but read the margin: one more marked change than quiet (17 against 16)
+for 6 more alerts. It moved 8 of 23 series off quiet: the two airport passenger series, seat belts, US population and four
+quality-control series, where every setting was nearly silent on the history (which series gained the mark was not
+traced). The B = 5 row shows the trade a person can make by hand: 21 of 31 at 25 alerts
+per 1,000, still under fixed middle on both counts.
+
+**Held out** (6 of the 7 held-out series; robocalls is too short; deciding nothing): every series' quiet rate on the
+history was under 2 but middle's and eager's were over, so the hint picked quiet everywhere and changed nothing (6 of 9
+marks at 22.7 per 1,000, the same as the default). B = 5 would have reached 8 of 9 at 39.7 per 1,000.
+
+**The rate as a forecast.** The page shows "on your history it would have sent r alerts per 100 checks". The
+pre-registered bar for showing it was a Spearman correlation of at least 0.5 between history and future rate across
+the scored TCPD series for quiet; it was 0.616 (middle 0.687, eager 0.739), so it ships. On the 6 held-out series it was
+-0.20 for quiet and -0.43 for middle: six series is too few to rank, but it is the wrong sign, so the page words the
+number as what the history would have sent, not a promise. Iceland tourism is the example: quiet sent 3.8 per 100 on
+the history and none on the future.
+
+**Where it is.** `eagernessReplay(values, labels, opts)` and `eagernessText` in `watch-core.mjs` (each setting's
+`replayWatch`, each with its own work budget; for `meanvar` and `poisson` the quiet default is already `bocpd`, so
+there are two settings). On the page, the replay card has a button "Which How eager suits this series?" that runs it
+in the background worker (`analyzeJob` kind `eagerness`), shows a table of the settings, and a button "Use Middle for
+the watch below" that sets the "Keep watching" card's select; counted locally as `watch_eagerness`. Agents:
+`node platform/agents/tools.mjs call changepoint-detector eagernessReplay --module watch-core.mjs --args '[[...values]]'`.
+Tests: `watch-eagerness.test.mjs` (6); `eval/watch-eagerness-browser.mjs` in headless Chromium at 390 px on the Nile
+example (output `eval/watch-eagerness-browser.out.txt`, 8 of 8: Nile suggests Middle, the button sets the select, no
+page errors, no sideways scroll). Not done: the CLI `watch.mjs` has no flag for it yet; no person has used it.
+
+Next for the watch: a second labelled set to test the hint where it matters (only 23 series and 31 future marks
+here); a budget the person sets in plain terms ("about one alert a month at a daily check" is B = 3.3); the drift model as
+the watch for wandering levels.
+
+## The hint in the CLI watch, and a budget in plain terms (2026-11-12)
+
+Round 6's hint was on the page and the agent tool only; the scheduled watch (`watch.mjs`, the one that runs daily
+in a deployer's own GitHub repository) still needed the person to pick "How eager" by hand. Now:
+
+- `node watch.mjs daily.csv --suggest` replays the history once per setting and prints the same table and
+  suggestion as the page, then stops (no state read or written; `--json` for the numbers).
+- `--detector auto` makes the first run pick the setting from the history by the round 6 rule and store it in the
+  state file as `choice` (detector, setting, budget, the number of points it was picked from, the history rate).
+  Later runs reuse it, so the watch does not switch setting under the person as the series grows; deleting
+  `choice` from the state file picks again. Under 30 points of history (round 6 skipped those series) it keeps
+  Quiet and says why. `advance` now carries `choice` from one state to the next.
+- The budget in plain terms: `--alerts-per 1/month` (also `<n>/week`, `<n>/year`) with `--check-every day`
+  (default; `hour`, `week`), or `--budget <alerts per 100 checks>`. A month is a twelfth of 365.25 days, so one
+  alert a month at a daily check is 3.29 per 100 checks; the default budget, 2 per 100, reads back as "about
+  7.3 alerts a year at a daily check". `budgetFromPlain` and `plainBudgetText` are in `watch-core.mjs`, so the
+  page and agents can use them; `eagernessText` now prints the budget in both forms.
+- The scheduled workflow (`deploy/watch-metric.yml`) and the README `deploy/make-watch-repo.sh` writes suggest
+  `WATCH_OPTIONS="--detector auto --alerts-per 1/month"`.
+
+**What the plain budgets do on TCPD** (round 6's script re-run with the extra budgets via `WATCH_BUDGETS`, deciding
+nothing; output `eval/watch-eagerness-plain.out.txt`; every original row reproduced exactly). Future halves of the
+23 scored series, then the 6 held-out ones:
+
+| budget | as asked | alerts | at a mark | per 1,000 checks | marked changes reached | held out: per 1,000, reached |
+|---|---|---|---|---|---|---|
+| fixed quiet (default) | | 62 | 27 (44%) | 16.0 | 16 of 31 | 22.7, 6 of 9 |
+| 1.64 | 6 a year | 67 | 28 (42%) | 17.3 | 17 of 31 | 22.7, 6 of 9 |
+| 2 (pre-registered default) | about 7 a year | 68 | 28 (41%) | 17.5 | 17 of 31 | 22.7, 6 of 9 |
+| 3.29 | 1 a month | 76 | 34 (45%) | 19.6 | 19 of 31 | 30.6, 6 of 9 |
+| 14.3 | 1 a week | 292 | 74 (25%) | 75.3 | 29 of 31 | 93.5, 9 of 9 |
+| fixed middle | | 107 | 35 (33%) | 27.6 | 23 of 31 | 41.9, 8 of 9 |
+
+Read it as a menu, not a result: "1 a month" reached 19 of 31 future marks at 19.6 alerts per 1,000 checks with the
+best share at a mark of any row (45%), but on the held-out series it sent a third more alerts for the same 6 of 9.
+"1 a week" is close to eager. The budget caps what a setting sent on the history; the future rate came out well under
+it at every budget up to a month (19.6 per 1,000 is about 0.6 a month), because most series are quiet in their second
+half. The shipped default stays 2 per 100, the pre-registered budget.
+
+Tests: `watch-auto.test.mjs` (5): the conversions and their round trip; `--suggest` prints all three settings and the
+plain budget and writes nothing; `--detector auto` picks Eager at a 100-per-100 budget on 150 points, stores it, keeps it
+for 70 one-row runs even when later runs pass a budget that would pick otherwise, and alerts the step at row 200 once;
+under 30 points and over budget it keeps Quiet; bad flags are refused. Run on the Nile (59 then 60 points, 1 a month):
+picked Eager at 2.56 per 100 on the history, recorded 1899 as the baseline, then kept the pick.
+
+Not done: the page's hint button still uses the fixed budget (a plain-terms box is next); no person has used it.
+
+## A budget box on the page (2026-11-12)
+
+The page's "Which How eager suits this series?" button used the fixed budget of 2 alerts per 100 checks; only the CLI
+(`--alerts-per`) took one in plain terms. Now the replay card has a box above the button: "About [n] alerts a
+[year | month | week], checked every [day | hour | week]". Blank is the tested default (2 per 100, about 7.3 a year at a
+daily check). The summary reads the budget back in both forms, so a person sees what their words meant.
+
+- **No second replay.** Alerts per 100 checks do not depend on how often the checks run, so the box only moves the
+  cut. `suggestFor(settings, budget, n)` (new in `watch-core.mjs`, used by `eagernessReplay` too) re-picks from the
+  last replay as the box changes; the replay itself runs once per button press.
+- **Off the tested budget, the evidence says so.** The "not a promise" line was measured at 2 per 100. At any other
+  budget `eagernessText` adds that those numbers are for the tested budget and gives the plain-budget menu from the
+  section above (about 1 a month: 19 of 31 future marks at 19.6 per 1,000; about 1 a week: 29 of 31 at 75.3).
+- **Two edge cases the browser check found.** "30 a week at a daily check" is 429 alerts per 100 checks, more than one
+  per check; `budgetFromPlain` now refuses it ("That is more than one alert per check (7 daily checks a week); give
+  at most 7"), in the CLI as well. And a budget of 0 a year printed the "a level that wanders all the time" advice,
+  which is wrong when the person simply asked for few alerts: under the default budget the text now says Quiet is
+  the least eager setting and leaves the wandering-level advice to budgets at or above 2. The old error said
+  "dayly"; fixed.
+- **Under 30 points the hint keeps Quiet**, as `--detector auto` already did (round 6 skipped those series). Before,
+  the page and `--suggest` would suggest Eager on, for example, the 24-point airmiles series, where every setting sent
+  nothing on a history too short to judge.
+
+What the box changes on real series in `data/` (default settings; rate = alerts per 100 daily checks on the
+history; computed with `suggestFor` on one replay each, not a round, deciding nothing):
+
+| series | points | quiet | middle | eager | default (7.3/yr) | 6 a year | 1 a month | 1 a week |
+|---|---|---|---|---|---|---|---|---|
+| nile | 100 | 1.25 | 1.25 | 2.50 | Middle | Middle | Eager | Eager |
+| uk-driver-deaths | 192 | 0.00 | 1.95 | 5.84 | Middle | Quiet | Middle | Eager |
+| lake-huron | 98 | 0.00 | 3.85 | 8.97 | Quiet | Quiet | Quiet | Eager |
+| us-unemployment | 202 | 3.70 | 6.79 | 12.96 | Quiet | Quiet | Quiet | Eager |
+| ausbeer | 218 | 0.00 | 0.00 | 1.71 | Eager | Middle | Eager | Eager |
+| payroll-views | 731 | 0.00 | 0.17 | 4.27 | Middle | Middle | Middle | Eager |
+| gold | 1074 | 1.51 | 3.60 | 9.53 | Quiet | Quiet | Quiet | Eager |
+
+uk-driver-deaths shows why the box matters: Middle sent 1.95 per 100 on the history, just under the default's 2, so
+"6 a year" (1.64) and "about 7 a year" give different answers. A person can now see that cliff instead of trusting
+one fixed number. "1 a week" picks Eager on every one of them, which matches round 6's B = 5 and plain-budget rows:
+a weekly budget is close to always-eager.
+
+Tests: `watch-eagerness.test.mjs` (7: re-picking from one replay matches a fresh replay at five plain budgets; the
+off-budget caveat; the under-30 rule), `watch-auto.test.mjs` (the over-one-per-check refusal and 7 a week = 100 per
+100), `watch-page.test.mjs` (the import). `eval/watch-eagerness-browser.mjs` in headless Chromium at 390 px on the Nile
+example (output `eval/watch-eagerness-browser.out.txt`, 15 of 15): 0 a year suggests Quiet without the wandering
+advice, 3 a week suggests Eager and reads back "42.9 alerts per 100 checks, about 13 alerts a month", "Use Eager" sets
+the watch select to `pelt`, -1 and 8 a week are refused in words, blank returns to the default, no page errors, no
+sideways scroll.
+
+Not done: the budget box does not carry into the "Keep watching" card's state (the card stores the setting, not the
+budget); no person has used it; the next real test of the hint is still a fresh labelled set.
+
+## The self-deploy workflow, run as a deployer's repository runs it (2026-11-12, last; a bug found and fixed)
+
+Every earlier test ran `watch.mjs` in the folder `make-watch-repo.sh` writes, never the workflow file that wraps it,
+so the YAML's shell, its `if: always()` save step and its `git push` were untested. `deploy/run-workflow.mjs` now runs
+`watch-metric.yml`'s own `run:` blocks the way a GitHub-hosted runner does: a fresh shallow clone per run (as
+`actions/checkout`), GitHub's default shell (`bash --noprofile --norc -eo pipefail`), `${{ vars.* }}` and
+`${{ secrets.* }}` substituted (empty when unset), `GITHUB_STEP_SUMMARY` as a file, and later steps skipped after a
+failure unless marked `always()`. A local bare repository stands in for GitHub; a second clone plays the deployer's
+data job, committing one row a day. `watch-workflow.test.mjs` (5 tests, about 18 s) replays 20 daily runs after a
+60-row history, with orders around 100 a day (sd 5) stepping to 120 on day 70:
+
+- **No webhook:** the baseline run is green and its state reaches the remote; exactly one run goes red, on day 72,
+  for a change dated day 68 (within the 5-point tolerance of the true day 70, after 5 points on its far side); the
+  state is committed on that red run too, so no later run repeats it.
+- **A failing webhook:** the run whose POST got a 500 is red and saves nothing ("the state was not saved"); the
+  next day's run posts the same dated change once more, gets a 200 and stays green. Two POSTs in all, `text` and
+  `content` identical. The stand-in chat service is a local HTTP server; no real one was called.
+- **`METRIC_CSV` unset:** the first step exits 2 with the instruction; the save step still runs and commits nothing.
+- **The bug: a row pushed while the run is in progress.** A deployer whose CSV is updated by another scheduled job,
+  or by hand, can push between the checkout and the save step. The old save step ran a plain `git push`, which the
+  remote refused ("fetch first"): the run went red, `watch-state.json` was lost, and the next day the same change
+  would have been reported again. The test reproduced it against the old file (it fails there and passes now). The
+  save step now replays its one commit on top with `git pull --rebase` and pushes again, up to four tries 0, 5, 15
+  and 30 s apart, and says so if it still cannot. Only the bot writes `watch-state.json`, so the rebase has
+  nothing to conflict with.
+
+Not done: this is an emulation, not GitHub. `actions/checkout` and `actions/setup-node` are replaced by `git clone`
+and the local Node 22 (the workflow asks for 20); the YAML reader handles only the subset this workflow uses; GitHub's
+60-day pause of scheduled workflows in quiet repositories, run timing and the token's push permission are not
+exercised. A real deployer's repository on GitHub is still the open check.
+
+
+## Round 7: persist 2 retried, with the end of the replay scored apart (2026-11-12, pre-registered; ships, narrowly)
+
+Round 5's `persist2` guard (send a change only when the next check still finds it) cut flicker alerts by half but
+failed its rule by one majority-marked change, on `children_per_woman`. The diagnosis afterwards (Round 5, "after the
+round") found the cause: the change at row 142 is first detected at point 301, the series' last row. Persist 1 sends it
+there. Persist 2 is still waiting for its second check when the replay runs out of rows, and the replay scored that as
+a miss. A live watch would get its next check.
+
+`eval/watch-persist-censor.mjs` retries the comparison. Its rule was committed before the first run (git history of
+this PR). It compares `hold+persist2` with the default `hold` and scores **end-pending** changes apart: a change that
+has its 5 points after it and is waiting only for the second check when the replay ends. A majority-marked change is
+censored when one policy has such a change near it and no alert there. It is then dropped from both policies' totals.
+An alert sent at the last check, at a change the other policy holds end-pending, is set apart in the same way. To
+adopt, all four parts had to pass: (a) and (b) on fresh synthetic seeds 51-60 (round 5's null and step cells), (c) on
+TCPD's 31 series (reach no fewer marks, send fewer alerts, keep no lower a share at a mark), and (d) on the 7
+held-out series (no fewer marks, no more alerts). Output: `eval/watch-persist-censor.out.txt`, 278 s on 4 cores.
+
+| part | hold | hold + persist2 |
+|---|---|---|
+| (a) false alerts / 1,000 checks, mean of 4 nulls (fresh seeds) | 2.13 | 2.06 |
+| (b) steps found (50), median delay | 39, 5 | 39, 5 |
+| (c) TCPD, censored: marks reached, alerts, share at a mark | 32 of 51, 105, 41.9% | 32 of 51, 103, 42.7% |
+| (d) held out, censored: marks reached, alerts | 9 of 12, 61 | 9 of 12, 59 |
+| 57 unlabelled series in `data/` (deciding nothing): alerts | 130 | 125 |
+
+All four passed, so **persist 2 is the watch's default from round 7** in `WATCH_DEFAULTS` (CLI, page watch card,
+replay, eagerness hint and agent tools). `--persist 1` sends at once. Only one mark was censored, the
+`children_per_woman` one. No held-out series and none of the 57 in `data/` ended with a change waiting.
+
+How much this rests on, said plainly. Parts (c) and (d) re-score data round 5 already reported for this policy, under
+a rule written after seeing it. The header of the script predicted (c) to the alert before the run, and the run
+matched. Only (a) and (b) are on unseen data. There persist 2 ties on every step cell and every rule null except
+AR(1) 0.8 (1.00 against 1.25 false alerts per 1,000) and 0.95 (2.00 against 2.50, reported only). Its delay is one
+point longer on the 1-sd and 2-sd iid cells (6 against 5). So the gain is small: about 2% fewer alerts on real
+series, a fifth fewer on very sticky noise, no marked change lost. The cost is one check of delay on every alert,
+which is a day on a daily watch. Adopted because the pre-registered bar was met, not because the margin is large.
+
+Two things in the scripts were fixed after the run, and neither changes a decision. `advance` fills any option a
+policy leaves out from `WATCH_DEFAULTS`, so since round 5 the `now` policy (`{}`) in `eval/watch-flicker.mjs` and in
+this script had silently meant `hold`. In this run's first output `now` equals `hold`. Once persist 2 became the
+default, `hold` would likewise have meant `hold+persist2`. Every policy in both scripts now names both options. The
+output file is the rerun with the pinned policies. Its `hold` and `hold+persist2` rows and the decision match the
+first run's exactly, and its `now` row again matches round 5's (115 TCPD alerts, 68 held out, 141 on the 57 in `data/`).
+
+Old watch-state files have no `seen` list, so after upgrading, a running watch's first newly confirmed change waits
+one check more than it would have. Nothing is lost.
+
+## Round 6 again, under persist 2 (2026-11-12, pre-registered re-check; the budget stands)
+
+Round 7 made persist 2 the watch's default, and the page's and CLI's eagerness hint replays with the defaults, so
+since round 7 the hint has been picking from replays that round 6 never scored. The round 6 script had the same
+silent drift: its replay named confirm, tolerance and hold but not `persist`, so `advance` would have filled in
+persist 2. `eval/watch-eagerness.mjs` now names it (`WATCH_PERSIST`, default 1, so the published round 6 output
+reproduces line for line, which it did). The re-check's rule was committed in the script's header before the run:
+keep `HINT_BUDGET` = 2 if round 6's parts (a), (b) and (c) all pass under persist 2; if any fails, record it and
+adopt no other budget from this run, since every other row is post hoc.
+
+Output: `eval/watch-eagerness-persist2.out.txt` (104 s on 4 cores; `WATCH_PERSIST=2 WATCH_BUDGETS=1.64,3.29,14.3`).
+Future halves of the 23 scored TCPD series:
+
+| policy | persist 1 (round 6): alerts, at a mark, per 1,000, reached | persist 2 (shipped): alerts, at a mark, per 1,000, reached |
+|---|---|---|
+| fixed quiet (default) | 62, 27 (44%), 16.0, 16 of 31 | 61, 26 (43%), 15.7, 16 of 31 |
+| fixed middle | 107, 35 (33%), 27.6, 23 of 31 | 106, 35 (33%), 27.3, 23 of 31 |
+| fixed eager | 369, 80 (22%), 95.2, 31 of 31 | 364, 79 (22%), 93.9, 31 of 31 |
+| **hint, B = 2** | 68, 28 (41%), 17.5, 17 of 31 | **68, 27 (40%), 17.5, 17 of 31** |
+| hint, about 1 a month (3.29) | 76, 34 (45%), 19.6, 19 of 31 | 75, 32 (43%), 19.3, 19 of 31 |
+| hint, about 1 a week (14.3) | 292, 74 (25%), 75.3, 29 of 31 | 287, 73 (25%), 74.0, 29 of 31 |
+
+**All three parts pass, so the budget stands at 2:** (a) 17 marks against quiet's 16; (b) 17.5 per 1,000 against
+middle's 27.3; (c) 39.7% at a mark against quiet's 42.6%, inside the 5-point allowance. The forecast claim's
+Spearman for quiet is 0.616 again (middle 0.600, eager 0.767), so the "on your history it would have sent" line
+stays. Held out (6 series, deciding nothing): the hint still picks Quiet on all six, 6 of 9 marks at 22.1 per 1,000.
+
+What persist 2 changed, read plainly: about 1-2% fewer alerts at every setting, the same marks reached, and one pick.
+`children_per_woman`'s Middle setting sent 3.3 alerts per 100 history checks under persist 1 and 1.7 under persist
+2 (the flicker persist 2 exists to cut), so the hint moved it from Quiet to Middle (picks 14/7/2 against 15/6/2).
+That did not change the totals. One mark fewer at a mark under the hint (27 against 28) is the cost of that move.
+The margin is what it was in round 6: one marked change over the default for 7 more alerts on 23 series. The fresh
+labelled set is still the real test.
+
+The page's and CLI's off-budget caveat (`eagernessText`) quoted round 6's persist-1 numbers for the plain budgets;
+it now quotes this run's (1 a month: 19 of 31 at 19.3 per 1,000; 1 a week: 29 of 31 at 74.0), and the
+default-budget line says the 15.7 baseline is under the shipped persist 2. Test: `watch-eagerness.test.mjs`
+("round 6 re-checked under persist 2"), which reads the output file and the text.
+
+## The 1976 acceleration, dated and tested on the levels (2026-11-13, pre-registered; ships as `--hinge-test`)
+
+The slope-break test above works on the differences because, on a drifting series (GDP, productivity), the residuals
+about any line are close to a unit root and a level fit's gain is meaningless. That safety costs power: on annual
+global temperature it finds the recalled 1976 acceleration as its best split but gives p 0.80. Temperature does not
+drift that way: about a trend its year-to-year scatter is a stationary AR(1) with rho near 0.5. So `hinge-test.mjs`
+tests on the levels: one continuous hinge (`x = a + b t + c (t - k)+`), a sup-F over knots with 15% trimmed at each
+end (Andrews 1993; the knot is not identified under the null, Davies 1987, so no table applies), the series and the
+regressors Prais-Winsten transformed with the rho of the best least-squares hinge's residuals, and a p-value from a
+parametric bootstrap that reruns the whole procedure on the fitted straight line plus AR(1) noise. It refuses when the
+straight line's residuals have bias-corrected rho above 0.9 (0.7 under 100 points), the unit-root case the differences
+test is for.
+
+**Size, synthetic** (`node eval/hinge-test-sim.mjs 300 99 line size`, `eval/hinge-test-sim-size.out.txt`; straight
+line plus AR(1) noise, 300 series per cell, 99 replicates each): rejections at p <= 0.05 between 3.0% and 7.7% in all
+12 cells (n 60, 145, 300; rho 0, 0.3, 0.6, 0.8). Two choices were made on synthetic size alone, before any real run:
+the bootstrap draws its noise with the rho of the straight-line residuals, not the hinge's (the hinge's gave 10.0% and
+20.0% at n 60, rho 0.6 and 0.8), and under 100 points the guard is 0.7 (with 0.9, n 60 rho 0.8 rejected 10.7%; now
+195 of 300 such series are refused and the rest reject 3.3%).
+
+**Power, synthetic** (`node eval/hinge-test-sim.mjs 150 99 line power`, `eval/hinge-test-sim-power.out.txt`; one
+slope change at 65% of the series, innovation sd 1):
+
+| n | rho | slope change per step | levels: p <= 0.05 | levels: also dated within 5% of n | differences: p <= 0.05 |
+|---|---|---|---|---|---|
+| 145 | 0.5 | 0.02 | 14% | 3% | 0% |
+| 145 | 0.5 | 0.04 | 40% | 14% | 0% |
+| 145 | 0.5 | 0.08 | 94% | 51% | 0% |
+| 145 | 0.3 | 0.04 | 71% | 31% | 0% |
+| 300 | 0.6 | 0.02 | 57% | 21% | 0% |
+| 300 | 0.6 | 0.04 | 99% | 51% | 0% |
+| 60 | 0.3 | 0.10 | 35% | 10% | 0% |
+| 60 | 0.3 | 0.20 | 83% | 52% | 0% |
+
+The differences test finds none of these: differencing AR(1) noise with rho 0.5 leaves noise about as large as the
+original, against a mean shift of a few hundredths. The levels test detects far more often than it dates: a hinge is
+a gentle feature, and the best knot wanders. Read the date with the slopes, not alone.
+
+**Real series, pre-registered** (`eval/hinge-test-prereg-2026-11-13.md` committed before the run;
+`node eval/hinge-test-real.mjs`, `eval/hinge-test-real.out.txt`; 999 replicates, seed 1). GISTEMP annual and GCAG
+1850-2024 are new fixtures made from the same monthly file as the existing one (`data/SOURCE.md`).
+
+| series | knot | F (bar) | p | slope before -> after, degrees per century | differences test p |
+|---|---|---|---|---|---|
+| A. GCAG 1880-2024 | 1976 | 72.0 (11.7) | 0.001 | 0.44 -> 2.03 | 0.800 |
+| B. GISTEMP 1880-2024 | 1976 | 85.6 (13.2) | 0.001 | 0.35 -> 2.12 | 0.746 |
+| C. GCAG 1850-2024 | 1976 | 93.1 (13.0) | 0.001 | 0.30 -> 2.16 | 0.763 |
+| D. log US real GDP | refused (rho 0.97) | | | | |
+| D. log US labour productivity | refused (rho 0.98) | | | | |
+| E. GCAG 1910-2024 (no prediction) | 1985 | 47.8 (11.3) | 0.001 | 0.59 -> 2.30 | 0.907 |
+| E. GCAG 1930-2024 (no prediction) | refused (rho 0.76 above the short-series 0.7) | | | | |
+
+Every prediction held (A, B and C: p <= 0.01, knot in 1960-1985; both D refused), so the test ships. p 0.001 is the
+floor at 999 replicates. B is a second analysis of largely the same thermometer readings, not independent evidence.
+The mid-1970s date is recalled from the literature, not read from a source here, so the knot is a plausibility check,
+not a labelled hit.
+
+**What it does not say.** A small p rejects the straight line; it does not say one hinge is the right model (the
+record also rises in 1910-1940 and has the 1945 step). The 1930-2024 refusal shows the guard's weak point: it reads
+the straight line's residuals, which a real hinge makes stickier, so on a short window with a strong bend it can
+refuse a series it could have tested. Dependence beyond AR(1) (long memory) would make it over-reject; this was not
+measured on real data. Up to 600 points in `analyze` (the bootstrap reruns a quadratic scan).
+
+**Use it.** CLI `--hinge-test`; `analyze({ ..., hingeTest: true })` returns `hingeTest: { index, label, f, bar95, p,
+rho, slopeBefore, slopeAfter, significant, note }` or `{ refused, reason }`; on the page, the "Also test one change of
+slope on the levels" box. Test: `hinge-test.test.mjs`.
+
+
+### A guard read off the hinge's residuals (2026-11-15, pre-registered; fails, not the default)
+
+The guard above reads the straight line's residuals, and a real bend makes those stickier, so on GCAG 1930-2024
+(95 points) it refused at rho 0.76, above the short-series 0.7. `guard: 'hinge'` reads the guard off the best OLS
+hinge's residuals instead, and its bootstrap null still draws with the straight-line rho, capped at 0.95. Four bars
+were written down first (`eval/hinge-guard-prereg-2026-11-15.md`); both guards ran on the same series
+(`node eval/hinge-guard-sim.mjs 300 99`, `eval/hinge-guard-sim.out.txt`; `node eval/hinge-guard-real.mjs`,
+`eval/hinge-guard-real.out.txt`). Each figure is the share of **all** series with p <= 0.05, with refusals counted as
+not rejecting.
+
+| bar | cell | line guard (shipped) | hinge guard | holds? |
+|---|---|---|---|---|
+| R | GCAG 1930-2024 | refused | knot 1974, p 0.001, slope -0.00 -> 2.08 per century | yes |
+| R | GCAG/GISTEMP 1880, GCAG 1850; log GDP, productivity | 1976, p 0.001; refused | same; refused (hinge rho 0.95, 0.96) | yes |
+| P | n 95, rho 0.5, slope change 0.2 | 20.7% (64 tested) | 98.7% (300 tested) | yes |
+| P | slope change 0.1 / 0.05 | 63.3% / 25.0% | 70.3% / 25.3% | |
+| S1 | n 60, rho 0.8 (straight line, no bend) | 3.3% | **10.7%** | no (8% cap) |
+| S1 | other 11 cells | 3.0-7.7% | identical to the line guard but n 60 rho 0.6 (6.7%) | |
+| S2 | random walk with drift, n 60 / 145 / 300 | 0.3% / 2.0% / 0.0% | **11.0% / 16.0%** / 3.0% | no |
+| S2 | AR(1) rho 0.9, n 60 / 145 / 300 | 1.0% / 5.7% / 6.3% | **8.3% / 8.3%** / 7.3% | no |
+| S2 | AR(1) rho 0.95, n 60 / 145 / 300 | 0.7% / 3.0% / 0.3% | **9.0% / 8.7%** / 5.3% | no |
+
+Two bars fail, so the default stays `line`. The risk named in the pre-registration is what happened: a hinge fits a
+random walk's wander better than a line does, so a hinge-residual guard admits random walks (171 of 300 at n 145),
+and on those the level test rejects about one time in six. The power is real, though. With a 0.2 slope change at
+n 95, the line guard refuses 236 of 300 series, and the hinge guard tests all 300 and finds 98.7%. That is the
+1930-2024 problem: the stronger the bend, the more often the shipped guard refuses it. `guard: 'hinge'` stays in
+`hingeTest` for evaluation, and it is not in the CLI or on the page.
+
+**What the table suggests, not tested.** The failures are at n 60 and 145 and near a unit root. A guard that needs
+both rhos to clear, or one that refuses when a hinge cuts the rho by less than a unit root's typical cut, would
+target the gap; each needs its own pre-registration and fresh seeds, since these cells are now seen.
+Test: `hinge-test.test.mjs` ("hinge-residual guard").
+
+### A guard that asks how much the bend cut the stickiness (2026-11-15, later; pre-registered on fresh seeds; ships as the default)
+
+The section above ended with an untested idea: refuse when a hinge cuts rho by less than a unit root's typical cut.
+A real bend makes a straight line's residuals sticky and the hinge removes most of that; a random walk's wander is
+cut far less. `guard: 'cut'` keeps the line guard where it admits a series, and where it would refuse, admits only
+when (1) the best OLS hinge's residuals clear the guard (0.9; 0.7 under 100 points) and (2) the cut, line rho minus
+hinge rho (both bias corrected), is above the 99th percentile of the same cut over 299 random walks of the same length
+(seed 7; detrending removes a walk's drift and rho ignores scale, so the bar depends on n alone: 0.42 at n 60, 0.25 at
+95, 0.21 at 145, 0.09 at 300, 0.05 at 600). An admitted series' null draws with its line rho capped at 0.95.
+
+The bars were the four of the hinge-guard pre-registration, written down before the guard ran through `hingeTest`
+(`eval/hinge-cut-guard-prereg-2026-11-15.md`), after one look at cut distributions on development seeds that are not
+reused. The synthetic cells are the same as above with every seed moved by 50,000,000, so the series are fresh
+(`node eval/hinge-cut-guard-sim.mjs 300 99`, `eval/hinge-cut-guard-sim.out.txt`; `node eval/hinge-cut-guard-real.mjs`,
+`eval/hinge-cut-guard-real.out.txt`). Share of **all** series with p <= 0.05, refusals counted as not rejecting:
+
+| bar | cell | line guard | cut guard | holds? |
+|---|---|---|---|---|
+| R | GCAG 1930-2024 | refused (rho 0.76) | knot 1974, p 0.001, slope -0.00 -> 2.08 per century (hinge rho 0.33, cut 0.43 against a bar of 0.25) | yes |
+| R | GCAG/GISTEMP 1880, GCAG 1850; log GDP, productivity | 1976, p 0.001; refused | same; refused (hinge rho 0.95, 0.96) | yes |
+| P | n 95, rho 0.5, slope change 0.2 | 15.3% (47 tested) | **83.0%** (250 tested) | yes |
+| P | slope change 0.1 / 0.05 | 62.0% / 19.0% | 64.0% / 19.0% | |
+| S1 | 12 cells, straight line plus AR(1) | 2.0-8.0% | identical but n 60 rho 0.8 (3.7% against 3.0%); 8.0% at n 300 rho 0.6 sits on the bar under both guards | yes |
+| S2 | random walk with drift, n 60 / 145 / 300 | 1.3% / 1.7% / 0.0% | 4.0% / 2.7% / 3.3% | yes |
+| S2 | AR(1) rho 0.9, n 60 / 145 / 300 | 1.3% / 5.3% / 2.7% | 2.3% / 5.3% / 2.7% | yes |
+| S2 | AR(1) rho 0.95, n 60 / 145 / 300 | 1.3% / 2.7% / 0.7% | 2.3% / 3.0% / 2.0% | yes |
+
+All four bars hold, so `cut` is now the default of `hingeTest`, `--hinge-test` and the page box; `guard: 'line'`
+gives the old rule. Against the `hinge` guard it keeps most of the power on strong bends (83% against 98.7% on the
+earlier seeds) without the random-walk leak: at n 145 the hinge guard admitted 171 of 300 walks and rejected 16.0%
+of all of them; the cut guard admits 34 of 300 fresh walks and rejects 2.7%. The CLI and the page say when a series was admitted by the cut, with both rhos and
+the bar.
+
+**What it does not say.** The 99% bar means about one random walk in a hundred is admitted by the cut alone, and
+admitted walks then reject more often than not; S2 shows the total stays at or under 4%. The bar is calibrated on
+Gaussian walks; a walk with heavy-tailed steps was not measured. R's 1930 cell is the case that motivated the guard,
+so it is seen, not fresh evidence. Test: `hinge-test.test.mjs` ("rho-cut guard", "random-walk cut bar", "the CLI
+says when a sticky series was admitted by the cut").
+
+### Step or bend? A check beside the hinge test, and the test on eight fresh real series (2026-11-15, latest; pre-registered; the check fails, not offered)
+
+The hinge test asks "one bend against a straight line", so a level jump on a trend can reject the line and come back
+as a change of slope; its note said so but nothing measured how often. `stepOrBend(x, rho)` in `hinge-test.mjs` fits,
+with the test's Prais-Winsten rho and the same knot range, the best hinge and the best single level step on the same
+line. Both have three coefficients and one knot, so the smaller transformed residual sum of squares names the kind.
+The bars and the real predictions were written down first (`eval/hinge-step-or-bend-prereg-2026-11-15.md`, committed
+before the code existed); `node eval/hinge-step-or-bend-sim.mjs 200 99` (`eval/hinge-step-or-bend-sim.out.txt`, seeds
+from 61,000,000) and `node eval/hinge-step-or-bend-real.mjs` (`eval/hinge-step-or-bend-real.out.txt`, 999 replicates).
+
+**Synthetic** (line 0.02 t plus AR(1) noise, innovation sd 1, change at 60% of n, 200 series per cell). "Right kind"
+is among the series the hinge test rejects at p <= 0.05:
+
+| cell | hinge test rejects (share of all) | right kind (pre-registered, GLS) | post hoc: OLS | bar |
+|---|---|---|---|---|
+| step 1, n 100, rho 0.5 | 5.5% | 54.5% | 54.5% | reported |
+| step 2, n 100, rho 0.5 | 14.0% | 82.1% (28 rejections) | 71.4% | too few to decide |
+| step 3, n 100, rho 0.5 | 15.5% | 90.3% | 90.3% | SS holds |
+| step 2, n 145, rho 0.5 | 20.5% | 85.4% | 80.5% | SS holds |
+| step 2, n 100, rho 0 | 42.0% | 98.8% | 98.8% | SS holds |
+| bend 0.04, n 100, rho 0.5 | 17.0% | 29.4% | 35.3% | reported |
+| bend 0.08, n 100, rho 0.5 | 60.0% | **44.2%** | 56.7% | **SB fails** |
+| bend 0.04, n 145, rho 0.5 | 49.5% | 35.4% | 53.5% | reported |
+| bend 0.08, n 100, rho 0 | 100% | **82.0%** | 81.0% | **SB fails** |
+
+**Real, bar R** (recalled kinds, plausibility labels): it holds. The Nile is tested (n 100, rho 0.24) and the hinge
+test **rejects**, knot 1913, F 12.5 against 8.7, p 0.017, a slope of -8.1 a year turning flat: a bend that is not
+there. The check says `step`, after 1898, size -284, step RSS 0.90 of the bend's: the documented drop. GCAG
+1880/1850, GISTEMP and GCAG 1930-2024 all say `bend` (step RSS 1.16 to 1.25 of the bend's).
+
+**Verdict.** SB fails in both cells, so the check is not in `hingeTest`'s output, the CLI or the page (it is exported
+for evaluation). It is lopsided: given a real step it says `step` 85-99% of the time, but given a real bend at
+rho 0.5 it says `step` more often than not. With 40 points after the knot and sticky noise, a ramp of 3.2 is fit
+about as well by a jump half-way along it. The OLS column (looked at after the result, not pre-registered) does not
+rescue it. Two things do ship, as text: the report note now says a level step can pass for a hinge, with the Nile
+and the measured rate (a 2 sd step on a line makes the test reject in 14-42% of series, against about 5% with no
+change), and asks the reader to run the step models too.
+
+**The test on fresh real series: 4 of 5 predictions fail, all by refusal.** None of these had been run through
+`--hinge-test`:
+
+| series | n | prediction | result |
+|---|---|---|---|
+| P1 Australian gas, annual totals 1956-1994 | 39 | tested, p <= 0.05, knot 1966-1973 | refused: line rho 0.97, hinge 0.83 (guard 0.7) |
+| P2 US electricity, annual totals 1973-2012 | 40 | tested, p <= 0.05, knot 1998-2008 | refused: line 0.82, hinge 0.72 |
+| P3 US female murder rate 1950-2004 | 55 | tested, p <= 0.05, knot 1975-1995 | refused: line 0.97, hinge 0.80 |
+| P4 Lake Huron 1875-1972 | 98 | p > 0.05 | refused: line 0.80, hinge 0.75 |
+| P5 UK gas, annual totals 1960-1986 | 27 | refused (under 30) | refused, as predicted |
+| Canada fertility 1931-1968 (no prediction) | 38 | | refused: line 0.92, hinge 0.77 |
+| Michigan-Huron 1918-2009 (no prediction) | 92 | | refused: line 0.87, hinge 0.80 |
+| CO2 annual means 1959-2025 (no prediction) | 67 | | refused: line 0.97, hinge 0.92 |
+
+So, counting GCAG 1930-2024, the test has now run on one of eight real series under 100 points. Under 100 points the
+guard is 0.7 on the best hinge's residuals, and every one of these left the hinge's residuals above it: a growth
+curve (gas, CO2), a rise and fall (murder rate: two bends, one hinge), a near-random-walk lake. That is the guard
+doing what its size table asked for (it was set to keep n 60, rho 0.8 at 3.3%), and the predictions were wrong
+about how sticky these series are, not about their shapes. The page box now says it refuses most real series under
+100 points. **Next** (not run): a second hinge, or a hinge on the log for growth curves, would cut these rhos further
+and might admit them; each needs its own size check on fresh seeds. A step-or-bend rule with a margin (call it only
+when one RSS is clearly smaller, else "can't tell") is the obvious repair to the check; it needs fresh seeds too.
+Test: `hinge-test.test.mjs` ("step or bend").
+
+### Step or bend, as two tests (2026-11-15, last; pre-registered on fresh seeds; fails two bars, not offered)
+
+The RSS check above names whichever kind fits better even when the two fit equally, and that is where it failed. Its
+named repair was a rule that can say "can't tell". `stepOrBendTest(x)` in `hinge-test.mjs` does that with two tests:
+T = log(step RSS / bend RSS), and each kind in turn is the null, drawn from its best OLS fit plus AR(1) noise and
+rerun through the whole procedure 199 times. A kind is named only when its rival is rejected at 0.05 and it is not;
+otherwise "unclear". Guard: refused under 30 points, or when both fits' residuals have bias-corrected rho above 0.9
+(0.7 under 100). The bars were written down and committed before the fresh run
+(`eval/hinge-step-or-bend-boot-prereg-2026-11-15.md`), after one look at the old check's seeds, which showed why
+the bars are over **all** series and not only those the hinge test rejects: there, 9 of 28 and 10 of 41 sticky steps
+were called bends. The hinge test fires on a sticky step mainly when the noise happens to bend it, and no check on the
+same data can undo that selection. `node eval/hinge-step-or-bend-boot-sim.mjs 200 199` (seeds from 62,000,000,
+`eval/hinge-step-or-bend-boot-sim.out.txt`, about 45 min on 4 cores) and `node eval/hinge-step-or-bend-boot-real.mjs`
+(`eval/hinge-step-or-bend-boot-real.out.txt`, 999 replicates).
+
+| cell (200 series) | step | bend | unclear | bar |
+|---|---|---|---|---|
+| step 2, n 100, rho 0.5 | 68 | 9 (4.5%) | 123 | W holds |
+| step 3, n 100, rho 0.5 | 134 | 6 (3.0%) | 60 | W holds |
+| step 2, n 145, rho 0.5 | 86 | 10 (5.0%) | 104 | W holds |
+| step 2, n 100, rho 0 | 178 (89%) | 0 | 22 | W, U hold |
+| bend 0.08, n 100, rho 0.5 | **22 (11.0%)** | 52 | 126 | **W fails** (cap 8%) |
+| bend 0.08, n 100, rho 0 | 11 (5.5%) | 149 (74.5%) | 40 | W, U hold |
+| no change, n 100 rho 0 / n 100 rho 0.5 / n 145 rho 0.5 | 13 / 16 / 11 | 8 / 10 / 13 | 179 / 174 / 176 | N holds (all <= 8%) |
+| random walk with drift, n 100 (195 tested) | 5 | **129** | 61 | **RW fails** (cap 10% of all) |
+| random walk with drift, n 145 (162 tested) | 3 | **112** | 47 | **RW fails** |
+| reported: step 1 / bend 0.04 n 100 / bend 0.04 n 145, all rho 0.5 | 17 / 13 / 14 | 8 / 21 / 41 | 175 / 166 / 145 | |
+
+**Bar R holds:** the Nile is called `step` (after 1898, size -284;
+pStep 0.52, pBend 0.014), and GCAG 1880, GISTEMP and GCAG 1850 are called `bend` at 1976 (pStep 0.001, pBend 0.69 to
+0.76). Not predicted: GCAG 1930-2024 `bend` at 1974; Canada fertility (a rise and fall) rejects both kinds, so
+`unclear`; Lake Huron `unclear`; five short sticky series refused.
+
+**Verdict: two bars fail, so it is not offered** (it was wired into the CLI as `--step-or-bend` while the run went;
+that wiring was removed before merge). It is honest where its guard is: with white noise it names a clear step 89%
+of the time and a clear bend 75%, with wrong calls at or under 5.5%, and with no change it names a kind in 10.5-13% of
+series. Two things break it. (1) **The guard.** Read off the fitted step's and bend's residuals, it admits nearly every
+random walk at n 100 (where the limit is 0.9), and a walk's wander fits a bend far better than a step. On the same walks the
+hinge test, behind its rho-cut guard, rejected only 14 and 6: the next round should reuse that guard. (2) **Sticky bends.** Post hoc,
+on the development seeds: with true rho 0.5 the fitted bend's residuals give a bias-corrected rho of about 0.44 (the
+knot search soaks up stickiness), so the bend null's noise is too smooth and it rejects a real bend too often. A
+bootstrap bias correction of rho (fit, simulate, refit, shift by the mean bias) is the obvious repair; it needs fresh
+seeds. `stepOrBendTest` is exported for evaluation. Test: `hinge-test.test.mjs` ("step or bend as two bootstrap
+tests").
+
+### The hinge test on the logs, and its size at 40 points (2026-11-15, latest; pre-registered; size holds, logs admit nothing)
+
+"Step or bend" ended with the test refusing 7 of 8 real series under 100 points, and named a hinge on the log for
+growth curves as one way in. `--log --hinge-test` (and the page's "Take logs first" box) already passed logged values
+to the test, but nobody had run it, and the report still said "on the levels". The bars, the predictions and the
+decision rule were committed before any run (`eval/hinge-log-prereg-2026-11-15.md`). The two growth series that
+motivated it have 39 and 40 points, below the n 60 where the shipped size tables start, so the synthetic half measures
+the shipped test (guard `cut`) at n 40 on fresh seeds: `node eval/hinge-log-sim.mjs 300 99`
+(`eval/hinge-log-sim.out.txt`, seeds from 63,000,000, under a minute) and `node eval/hinge-log-real.mjs`
+(`eval/hinge-log-real.out.txt`, 999 replicates). One smoke run of the sim script (20 series, 19 replicates, the same
+first seeds) came before the full run; it only checked that the script ran.
+
+| bar | cell (n 40, 300 series) | share of all series with p <= 0.05 | tested | holds? |
+|---|---|---|---|---|
+| S1 | line plus AR(1), rho 0 / 0.3 / 0.6 / 0.8 | 3.7% / 5.0% / 6.7% / 3.3% | 300 / 300 / 266 / 134 | yes (cap 8%) |
+| S2 | AR(1) rho 0.9 / 0.95, random walk with drift | 4.0% / 1.7% / 2.3% | 93 / 57 / 72 | yes (cap 8%) |
+
+| series | logs | levels | prediction (logs) |
+|---|---|---|---|
+| L1 Australian gas, annual 1956-1994 (39) | refused: line rho 1.00, hinge 0.95 | refused: 0.97, 0.83 | tested, p <= 0.05, knot 1966-1976: **fails** |
+| L2 US electricity, annual 1973-2012 (40) | refused: line 0.89, hinge 0.71 (guard 0.7) | refused: 0.82, 0.72 | tested, p <= 0.05, knot 1998-2008: **fails** |
+| C Lake Huron, Michigan-Huron, US female murder rate | refused (0.75, 0.80, 0.79) | refused | refused: holds |
+| CO2 annual means 1959-2025 (reported) | refused: 0.96, 0.90 | refused | refused |
+| Canada fertility 1931-1968 (reported) | refused: 0.91, 0.79 | refused | none |
+
+**Verdict.** Size holds at 40 points, so the 30-point minimum stands: under 100 points the 0.7 guard keeps every cell,
+random walks included, at or under 6.7%. Logs do not help, and bar L fails. Logging gas makes it worse (a supply that
+grew from almost nothing in the 1960s is far from a straight line on the log scale, hinge rho 0.95), and electricity
+misses the guard by 0.01. What blocks these series is the stickiness left after one bend, not the scale. As the decision
+rule set out, no refusal suggests logs. The one change that ships is the wording: with logs on, the CLI, the page and
+`hingeTest.note` say the test ran on the logs and that a slope there is a growth rate (0.02 a step is about 2% a step),
+and the report carries `scale: 'log' | 'levels'`. **Next** (not run): the series' hinge residuals sit at 0.71-0.95, so a
+second hinge or a smooth trend term, not a transform, is the remaining route; it needs its own size check at n 40.
+Test: `hinge-test.test.mjs` ("with logs on, the report says the test ran on the logs").
+
+## Round 8: a watch for a level that wanders (2026-11-13, pre-registered; ships as an option)
+
+The watch took the level, volatility and count models only, so a series whose level drifts all the time (a price, a
+stock of inventory, a slowly growing count) was watched with the level detectors, which read the drift itself as a run
+of steps and keep alerting. `--model drift` ("Jumps on a drifting level") models the drift as a random walk and cuts
+only jumps the walk does not explain. Now the watch can use it: detector `drift` (`detectDrift` in `watch-core.mjs`:
+`driftLevel` on the newest `window` points, wander chosen with the changes, `noise: 'ml'`, as `--model drift` does;
+level model only; no seasonal period; `--log` honoured). The alert gives the smoothed level on each side of the jump.
+
+**The round.** `eval/watch-drift.mjs` holds the rule, committed before the first run (this PR's first commit). The
+candidate is measured against the default `bocpd-ar1-window` under the shipped advance policy (confirm 5, tolerance 5,
+hold, persist 2), so only the detections differ. To be offered as a setting, not the default, it had to (a) at least
+halve the default's false alerts on two random-walk nulls and (b) find as many jumps on four walk-plus-jump cells
+with a median delay at most 3 points longer. The synthetic generator is new (seeds 81-90, noise sd 1, walk step sd
+omega, jump at point 301 of 500, a check after every point from 100). Output: `eval/watch-drift.out.txt`, 253 s on
+4 cores.
+
+| cell | default: false alerts / 1,000 checks, jumps found, delay | drift |
+|---|---|---|
+| walk 0.1 | 2.00 | 1.00 |
+| walk 0.3 | 7.00 | 0.50 |
+| walk 0.1 + jump 3 sd | 0.50, 10/10, 5 | 0.50, 10/10, 5 |
+| walk 0.1 + jump 5 sd | 0.25, 10/10, 5 | 0.50, 10/10, 5 |
+| walk 0.3 + jump 5 sd | 6.00, 10/10, 5 | 0.25, 10/10, 5 |
+| walk 0.3 + jump 8 sd | 5.25, 10/10, 5 | 0.25, 10/10, 5 |
+| null iid (reported only) | 0.00 | 0.00 |
+| null AR(1) 0.8 (reported only) | 3.25 | 1.75 |
+| step 2 sd iid (reported only) | 0.25, 10/10, 5 | 0.00, 10/10, 5 |
+
+**Both parts pass:** (a) 0.75 against 4.50 false alerts per 1,000 checks on the walk nulls; (b) 40 of 40 jumps against
+40 of 40, median delay 5 against 5. So `drift` ships as an option: "Wandering level" in the page's "How eager"
+select (also used when the page's model is the wandering-level one and no setting is picked), `--detector drift` in
+`watch.mjs`, and `detector: "drift"` for agents calling `watchCheck`. The default does not change. The gain is where
+the pre-registration said it would be: at the larger wander (omega 0.3, about a third of the noise sd each step) the
+default sends 6 to 7 false alerts per 1,000 daily checks, about 2.5 a year, and the drift watch about 0.2 a year. At
+omega 0.1 the two are close.
+
+**TCPD, deciding nothing, and a prediction that was wrong.** On TCPD's 31 univariate series (watched from 20% of their
+length, as in rounds 4-7) the drift watch sent 202 alerts against the default's 103, 40.6% at an annotated change
+against 42.7%, and reached **44 of 52** majority-marked changes against 32. The header predicted that the default
+would reach more marks. It did not: the drift watch reached more on brent_spot, businv, children_per_woman,
+co2_canada, gdp_iran, ozone, uk_coal_employ and usd_isk, all of them series whose level moves for years at a time,
+and lost one on construction and one on lga_passengers. The extra alerts come from the same wandering series (co2_canada
+23, children_per_woman 15, bank 47 against 29 on a series with no marks). That is about the trade the "Middle"
+setting makes (README "Round 6": 23 of 31 on the future halves at 1.7 times the default's alerts), here at twice the
+alerts for 12 more marks. It is one run on seen series and decided nothing: it says the drift watch is worth trying
+on a series that clearly wanders, not that it should be the default. A pre-registered round on fresh labelled data
+would be the test for that.
+
+Not done: the "Which How eager suits this series?" hint does not consider `drift` (round 6's replay scored three
+settings), and the budget box cannot pick it. The drift fit costs about 25 ms at 500 points and 90 ms at 1,000, about
+half the default's time per check, so a replay is no slower.
+
+Tests: `watch-drift.test.mjs` (4: it is a named detector for the level model only; a 6-sd jump on a wander of 0.3 is
+found within 2 rows with its levels; a watch from 100 to 260 points sends that jump once and nothing for the wander;
+`window` and `--log` are honoured). `eval/watch-drift-browser.mjs` in headless Chromium at 390 px (output
+`eval/watch-drift-browser.out.txt`, 5 of 5): 150 rows of wander send nothing under "Wandering level"; checks at 250, 259
+and 260 rows send the row-201 jump once (level 88.7 to 96.3, 7.75 noise sd); the wandering-level model with the setting
+blank uses the drift watch; no page errors, no sideways scroll. `deploy/make-watch-repo.sh` now copies `drift-level.mjs`, which `watch-core.mjs`
+imports.
+
+## Round 9: the drift watch in the "How eager" hint (2026-11-13, pre-registered; negative result, the hint keeps three settings)
+
+Round 8 left the hint ("Which How eager suits this series?", `--suggest`, `--detector auto`) scoring three settings, so a
+person whose level wanders was never pointed at "Wandering level". Round 9 asked whether it should be. `eval/watch-hint-drift.mjs`
+holds the rule, committed in its own commit before the first run: round 6's design unchanged (each univariate TCPD series cut in
+half, the watch replayed after every point under the shipped policy, confirm 5, tolerance 5, hold, persist 2; picked from the
+first half, scored on the second), with drift added to the ladder as quiet < middle < drift < eager and the hint taking the most
+eager setting whose history rate is at most 2 alerts per 100 checks. Rule: against the shipped three-setting hint, (a) more
+future majority-marked changes reached, (b) future alerts per 1,000 checks at most fixed middle's, (c) share at a mark at most
+5 points lower. Output `eval/watch-hint-drift.out.txt`, 153 s on 4 cores; the shipped hint's row reproduces round 6b's exactly
+(68 alerts, 27 at a mark, 17.5 per 1,000, 17 of 31).
+
+| policy (future halves, 23 TCPD series) | alerts | at a mark | per 1,000 checks | majority-marked reached | picks q/m/d/e |
+|---|---|---|---|---|---|
+| fixed quiet (default) | 61 | 26 (43%) | 15.7 | 16 of 31 | |
+| fixed middle | 106 | 35 (33%) | 27.3 | 23 of 31 | |
+| fixed drift | 98 | 45 (46%) | 25.3 | 25 of 31 | |
+| fixed eager | 364 | 79 (22%) | 93.9 | 31 of 31 | |
+| hint, three settings, B = 2 (shipped) | 68 | 27 (40%) | 17.5 | 17 of 31 | 14/7/0/2 |
+| **hint, four settings, B = 2 (candidate)** | 59 | 23 (39%) | 15.2 | **15 of 31** | 12/1/8/2 |
+| four settings, drift below middle, B = 2 (reported) | 62 | 25 (40%) | 16.0 | 16 of 31 | 12/7/2/2 |
+
+**(a) fails** (15 against 17); (b) and (c) pass. The prediction in the header said (a) was where it could fail, but for the wrong
+reason: it expected too few wandering series to move to drift. None did. The eight series the candidate moved to drift were
+mostly the quietest ones (construction, the two airport series, seat belts, three quality-control series, US population), where drift sent 0
+to 1.6 alerts per 100 history checks. On a flat level the drift model explains a modest step as wander, so it is quiet there
+because it is insensitive, not because the series is calm; the hint reads "few alerts on the history" as "room to be more eager"
+and gets it backwards. Construction and seat belts each lost their one future mark that way. The wandering series did not move
+because drift was over the budget on their histories: co2_canada 15.1 per 100 (quiet 3.5), children_per_woman 9.2, businv 5.3,
+usd_isk 10.1. Of the 9 series where even Quiet was over 2 per 100, drift's history rate was higher than Quiet's on 5, equal on 3
+and lower on 1 (quality_control_4), so the page's advice there, to watch the daily change, stands; pointing those people at
+"Wandering level" would have made it worse.
+
+The hint's rule assumes the settings are nested: each more eager one sends at least the alerts of the one below on any series.
+Quiet, middle and eager nearly are (one engine, fewer assumptions each step). Drift is a different model, quieter than Quiet on a
+flat level and louder than Middle on a wandering one, so no single place on the ladder fits it. Held out (6 series, deciding
+nothing) said the same: the candidate moved iceland_tourism and scanline_126007 to drift and lost scanline_126007's mark (5 of 9
+against 6 of 9).
+
+**Post hoc, deciding nothing: fixed drift beat fixed middle on all three counts** on these future halves (25 of 31 against 23, at
+25.3 against 27.3 per 1,000, 46% at a mark against 33%), and on the held out ties it on marks (8 of 9) at 44.2 against 41.4 per
+1,000. That is on series rounds 3-8 have all seen, and round 8 already looked at drift on them, so it is a lead for a fresh
+labelled set, not a reason to change the Middle setting.
+
+What changed: nothing in the hint. `eagerSettings` says why drift is not on the ladder, and `watch-eagerness.test.mjs` pins the
+round's result. Next for the hint: a rule that does not assume nested settings (for example, pick drift only when it sends fewer
+alerts than Quiet on the history *and* the drift fit's wander is a material share of the noise), pre-registered on a fresh
+labelled set.
+
+## Several metrics in one watch (2026-11-13; `--columns` ships, a split budget was pre-registered and fails)
+
+A business rarely watches one number. Orders, revenue, sign-ups and tickets usually sit as columns of one sheet, and
+until now the self-deployed watch took one column, so five metrics meant five repositories, five state files and five
+messages a morning.
+
+**What shipped.** `watch.mjs --columns <list|all>`: `all` takes every numeric column but the label column (the same
+detection as the analysis's several-columns mode, `parseColumns`); a list names columns by header or 0-based index, and
+a column may carry its own model after a colon (`orders:poisson,revenue:meanvar`), so counts and money can share a
+sheet. Each column runs exactly the one-column watch (same detectors, guards and defaults), with its record under
+`columns.<name>` in one state file; a day's new changes from every column go out as one webhook message naming each
+column, and `--fail-on-alert` fails on any. A one-column state file is refused rather than reused, `--column` and
+`--columns` together are refused, a column listed twice is refused. `--suggest` and `--detector auto` work per column.
+`deploy/make-watch-repo.sh` now copies `multivariate.mjs` and `consensus.mjs`, so the standalone repository runs
+`--columns` (tested), and its README, the workflow's header and the watch page explain it. Tests: four in
+`watch.test.mjs` (spec parsing and refusals; per-column records with a step in one column sent once, naming only it;
+`--detector auto` per column; the standalone folder).
+
+**The budget question, pre-registered.** Five columns give noise five chances a day. The obvious fix is to split the
+`--alerts-per` budget across the columns (1/k each) when `--detector auto` picks each column's setting.
+`eval/watch-columns.mjs` fixed the rule before any result was printed (two run-time changes made before output, noted
+in its header: 10 seeds, not 20, and one eagerness replay per column shared by both arms): ship the split if, on 5
+independent N(0,1) columns of 300 points with no change, the split's whole-watch rate is at or under 2 alerts per 100
+checks and the unsplit rate is above it. Output: `eval/watch-columns.out.txt`.
+
+| set | columns | unsplit (2 each) | split (2/k each) |
+|---|---|---|---|
+| synthetic null, 10 seeds | 5 | 1.33 per 100 checks | 0.13 |
+| UK road casualties, monthly, `--period 12` | 5 | 3.25 (5 alerts) | 5.19 (8 alerts) |
+| bike share daily, `poisson --period 7` | 2 | 15.21 (89) | 15.21 (89) |
+| German unemployment, quarterly | 2 | 5.21 (5) | 5.21 (5) |
+| frozen orange juice price and PPI, `--log` | 2 | 4.08 (20) | 4.08 (20) |
+
+**Fails.** The unsplit picks already kept five noise columns under the budget (1.33 per 100 checks for the whole
+watch), so the rule's second half is false and the split does not ship: each column is picked against the whole
+budget, as a one-column watch is. The real sets say why the split is not even a safe default. On three of four the
+budget never binds: the hint already picks Quiet, and the split changes nothing. On the seat-belt set (Harvey and
+Durbin's UK driver casualties) it made the watch noisier: the split pushed DriversKilled and drivers from Middle to
+Quiet, and on these seasonal monthly series Quiet sent more alerts than Middle (drivers 4 against 2), because the
+"How eager" settings are not nested in their alert counts here (Round 9 met the same thing). The documented 1983-02
+seat-belt law was alerted within 3 months in drivers and front under both arms. The bike-share columns send about 15
+alerts per 100 checks on every setting, even with the weekly cycle removed: a level that moves with weather and season
+keeps tripping a level watch, one more reason to replay the history (`--suggest`, or the page's replay) before setting
+one up.
+
+Not done: a budget rule for the whole watch that does not assume the settings are nested (the same open item as the
+hint's non-nested rule); a several-columns card on the page (the page's watch card is still one column).
+## Round 10: the watch on a fresh labelled set, NAB's 47 real series (2026-11-13, pre-registered; all three rules fail)
+
+Since round 6 every watch decision has waited on "a fresh labelled set". Every round so far scored TCPD, which rounds 3-9
+had all seen. The Numenta Anomaly Benchmark (NAB; Lavin and Ahmad 2015, arXiv:1510.03336; MIT, Copyright 2014-2024
+Numenta Inc.) is one nobody here had looked at. It has 47 real series from AWS CloudWatch, an ad exchange, known-cause
+failures (a machine's temperature before a breakdown, the NYC taxi holidays), Twin Cities traffic sensors and Twitter
+volumes, with labelled anomaly windows. `sh eval/nab-fetch.sh nab-data && node eval/watch-nab.mjs nab-data` (output
+`eval/watch-nab.out.txt`, 1,730 s on 4 cores). The rule, the code and three predictions were committed in this PR's
+first commit, before any run that printed a score. The data is not committed.
+
+**Design.** Round 9's design, with one change. Each series is averaged into clock-hour buckets: an hourly watch, 48,163
+points. At NAB's native 5-minute rows a check after every row would have taken about 15 hours. The watch is replayed after
+every point (no coarse checks) under the shipped policy (window 1,000, confirm 5, tolerance 5, hold, persist 2). Each series
+is cut in half; the hint picks from the first half and is scored on the second. A future alert is "at a window" when its
+change date lies inside any labelled window; a future window is "reached" when some future alert's change lies inside it.
+NAB's windows are wide (10% of each file split among its anomalies), so 11.8% of future points lie inside one: that is
+the chance rate for "at a window".
+
+| policy (future halves, 47 NAB series, 61 windows) | alerts | at a window | per 1,000 hourly checks | windows reached | picks q/m/d/e |
+|---|---|---|---|---|---|
+| fixed quiet (default) | 798 | 109 (13.7%) | 33.1 | 50 | |
+| fixed middle | 1,273 | 159 (12.5%) | 52.8 | 52 | |
+| fixed drift ("Wandering level") | 405 | 83 (**20.5%**) | **16.8** | 48 | |
+| fixed eager | 2,073 | 268 (12.9%) | 86.0 | 56 | |
+| hint3, B = 2 (shipped) | 791 | 109 (13.8%) | 32.8 | 49 | 39/7/0/1 |
+| hintNN, B = 2 (candidate) | 408 | 88 (21.6%) | 16.9 | 48 | 22/6/19/0 |
+
+- **T1, the shipped hint against Quiet: not confirmed.** (a) 49 windows against 50 fails; (b) and (c) pass. On most of
+  these histories even Quiet sent more than 2 alerts per 100 checks, so the hint picked Quiet on 39 of 47 and changed
+  little. The one series it moved to Eager (`rogue_agent_key_updown`) lost its window. As pre-registered, the hint stays
+  (it is opt-in advice, not a default) and `eagernessText` now says, on the page, in `--suggest` and in the agent tool,
+  that it was not confirmed on NAB.
+- **T2, round 9's lead (drift beats middle): dropped.** Drift reached 48 windows against Middle's 52. It did send under a
+  third of Middle's alerts, and its share at a window was the highest of any setting.
+- **T3, a hint that does not assume nested settings: does not ship.** The candidate rule was "drift when the history is
+  too loud for Quiet and drift is quieter on it". It moved 19 series to drift, roughly halved the alerts (791 to 408) and
+  raised the share at a window from 13.8% to 21.6%. It reached 48 windows against 49, so it fails (a) by one. `nyc_taxi`
+  decided it: drift reached 1 of its 5 holiday windows against Quiet's 4. Those holidays are dips a day or two long, and
+  the drift model absorbs short dips as wander. Drift gained a window on `ec2_request_latency` and on
+  `machine_temperature`.
+
+**Predictions, scored.** T1: predicted to pass by a few windows. It failed by one. T2: predicted to fail on (a) because drift
+absorbs short excursions; it did. T3: predicted to fail on (a) "by a tie or near tie"; it failed by one, but I did not
+predict it would move 19 series.
+
+**What the round says beyond the rules (deciding nothing).** The level detectors' alerts on these operational metrics sit
+inside an anomaly window barely more often than chance: 13.7% for Quiet, 12.5% Middle, 12.9% Eager, against 11.8%. The
+windows are reached because the watch alerts often (33 per 1,000 hourly checks for Quiet, about 0.8 a day), not because
+its alerts point at the anomalies. Drift is the only setting clearly above chance (20.5%, 1.7 times), at half Quiet's
+alerts. That is the opposite of TCPD's picture, where the three level settings had 22-44% at a mark. NAB measures
+something different: anomalies (spikes and failures) in noisy, daily-cycling server metrics, judged by wide windows,
+against TCPD's annotated level changes. Two caveats on the hourly design. Averaging over an hour dilutes 5-minute
+spikes. The round ran with no seasonal period, as pre-registered, although the level settings take `--period`. So no setting
+here removed the daily cycle, and much of what Quiet alerts on is probably the cycle itself.
+
+So the next round should remove the season, not tune the hint. NAB's server, traffic and Twitter series cycle daily
+(period 24 hourly). The useful round is the level settings with `--period 24` against drift (which takes no period), pre-registered on
+these same 47 series, which are now seen. Another option is a third labelled set. Neither the hint nor the default changes from this round.
+
+Tests: `watch-nab.test.mjs` (6: hourly buckets, step 1, the two hint rules on made-up rates, the committed output's
+three verdicts, and the hint text's NAB line).
+
+## Round 11: the daily cycle removed, on the same 47 NAB series (2026-11-14, pre-registered; both rules fail)
+
+Round 10 ended on a caveat: no setting removed the daily cycle, although NAB's server, traffic, taxi and Twitter series
+cycle daily and the level settings take `--period`. So perhaps Quiet's alerts sat near chance because they were alerting
+on the cycle itself. This round tests that. `sh eval/nab-fetch.sh nab-data && node eval/watch-nab-season.mjs nab-data`
+(output `eval/watch-nab-season.out.txt`, 1,767 s on 4 cores). The rules, predictions and code were committed in PR #15440
+on 2026-11-13, before any run that printed a score. This PR adopted that PR's branch after its session stopped, and ran it.
+
+**Design.** Round 10's, with five settings: Quiet and drift with no period, and Quiet, Middle and Eager with period 24
+(`quiet24`, `middle24`, `eager24`). Every setting starts after two full days (`max(48, 0.2 h)`). The 47 series have now
+been seen once, so this is a second look at a seen set.
+
+**One fix before the scored run.** The first run crashed after about an hour, before it printed anything.
+`watch-nab-season.mjs` imports `watch-nab.mjs`, and that file's worker listener also answered every job, with no
+period. So each job got two replies, and the job count reached its total at about half the work. If the timing had gone the other
+way, the period-24 rows could have been silently scored with no period. Each script's listener now answers only workers
+it started, and a second reply for the same job is an error. A test runs two real worker jobs and checks that each gets
+the same alerts as a direct call with its own period. The rules, settings and data are unchanged. As a consistency
+check, Quiet and drift came out within one alert of round 10 (797 against 798, 404 against 405) despite the later start.
+
+| setting (future halves, 47 series, 61 windows) | alerts | at a window | per 1,000 hourly checks | windows reached |
+|---|---|---|---|---|
+| Quiet, no period (default) | 797 | 108 (13.6%) | 33.1 | 50 |
+| drift ("Wandering level") | 404 | 83 (**20.5%**) | **16.8** | 48 |
+| Quiet, period 24 | 833 | 124 (14.9%) | 34.6 | 52 |
+| Middle, period 24 | 1,297 | 187 (14.4%) | 53.8 | 52 |
+| Eager, period 24 | 2,096 | 294 (14.0%) | 87.0 | **57** |
+
+Chance is 11.8% (the share of future points inside a labelled window).
+
+- **T4, the season helps the default: fails.** Quiet with period 24 reached two more windows (52 against 50), but it sent
+  slightly *more* alerts (34.6 against 33.1 per 1,000), and its share at a window rose 1.3 points, short of the 2 the
+  rule asked. As pre-registered, the page, `watch.mjs --help`, the standalone repository's README and the agent tool say
+  nothing new about period 24 for hourly metrics.
+- **T5, the level watch with the season against drift: fails** on share (14.9% against 20.5%) and on alert rate. It
+  does reach four more windows than drift (52 against 48). With T4 failed, there is no new advice for this to rank.
+- Nothing in the default or the hint changes.
+
+**Predictions, scored.** T4: I predicted about two thirds of Quiet's alerts, 16-18% at a window, and a window or two
+fewer. All three were wrong in direction: alerts went up, the share rose only to 14.9%, and two more windows were reached.
+T5: predicted to fail on (b) because drift's share is out of the season's reach; it did. But I predicted it would reach
+about as many windows as drift, and it reached four more.
+
+**What the round says (deciding nothing).** The daily cycle was not what kept Quiet's alerts near chance. Taking it out
+moved the share from 13.6% to 14.9%, still close to 11.8%, and the alert count barely changed. On these hourly server
+and traffic metrics, the level watch alerts at about the same rate with or without the cycle. Its alerts mostly mark
+level moves that NAB does not label as anomalies. Where the season did help, it helped on reach. `nyc_taxi`, which decided round 10 against drift
+(holiday dips a day or two long), went from 4 of 5 windows to 5 of 5 with period 24, and the known-cause folder's share
+went from 10.3% to 15.7%. Drift stays the setting whose alerts point at anomalies (20.5%, 1.7 times chance, at half the
+alerts), and the level settings, with or without the season, are the ones that reach more windows. On the 29 series with no missing hour,
+the picture is the same (Quiet 12.6%, Quiet period 24 14.3%, drift 19.2%).
+
+So neither the season nor the eagerness ladder makes the level watch a good anomaly pointer on NAB, and the trade
+between drift's precision and the level settings' reach is real, not an artefact of the cycle. The next useful round is
+a third labelled set, not a third look at NAB.
+
+Tests: `watch-nab-season.test.mjs` (8: the settings, the start, gap-free marking, the period-ladder hint, the rules on
+made-up totals, a period-24 replay on a daily cycle, one reply per worker job with its period applied, and the
+committed output's verdicts with Quiet and drift checked against round 10's).
+
+## Round 12: a third labelled set, SKAB's 33 pump faults, every sensor watched (2026-11-14, pre-registered; all three rules fail)
+
+Rounds 10 and 11 ended on "the next useful round is a third labelled set, not a third look at NAB". This is that round, and
+the first with labels on several columns at once. The Skoltech Anomaly Benchmark (SKAB v0.9; Katser and Kozitsin 2020,
+doi:10.34740/KAGGLE/DSV/1693952; GPL-3.0, so fetched and not committed) logs 8 sensors of a water-circulation testbed
+once a second: two accelerometers, motor current, pressure, motor temperature, fluid thermocouple, voltage and flow rate.
+33 runs each hold one fault made on purpose: a valve closed at the pump's inlet (16) or outlet (3), and 14 others (leaks,
+rotor imbalance of five shapes, water added, cavitation, hot water). Each run marks the fault's start, the end of its
+transition, the start of the return and the return: 123 marks. A separate 2.6-hour run is anomaly-free. `sh
+eval/skab-fetch.sh skab-data && node eval/watch-skab.mjs skab-data` (output `eval/watch-skab.out.txt`, 1,001 s on 4
+cores). The rules, design and predictions were committed in this PR's first commit, before any run that printed a score.
+
+**Design.** 5-second buckets (a check after every 1-second row would have taken about 6 hours; a timing-only pilot chose
+this), about 230 points a run. All 8 columns are watched, as `--columns all` does, under the shipped policy, replayed
+after every point from point 20. The hint reads the anomaly-free run (a person sets up a watch on a machine by replaying
+a normal day), so each column's pick is made once and applied to all 33 fault runs. A mark's window runs from 5 s before
+to 60 s after it (SKAB's own leaderboard uses 60 s after). An alert line is one column's alert.
+
+| policy (33 fault runs, 8 columns, 123 marks) | alert lines | at a mark | per 1,000 checks | marks reached | faults caught | median delay | normal run, lines per 100 checks |
+|---|---|---|---|---|---|---|---|
+| fixed Quiet (default) | 457 | 168 (**36.8%**) | **69.4** | 97 | 33/33 | 30 s | **8.54** |
+| fixed Middle | 1,203 | 314 (26.1%) | 182.7 | 115 | 33/33 | 25 s | 20.47 |
+| fixed drift ("Wandering level") | 1,153 | 297 (25.8%) | 175.1 | 112 | 33/33 | 25 s | 9.94 |
+| fixed Eager | 2,995 | 740 (24.7%) | 454.9 | **123** | 33/33 | 20 s | 37.24 |
+| hint3, B = 2 (shipped) | 1,076 | 306 (28.4%) | 163.4 | 118 | 33/33 | 25 s | 9.56 (in-sample) |
+| hintNN, B = 2 | 1,229 | 332 (27.0%) | 186.7 | 118 | 33/33 | 25 s | 9.30 (in-sample) |
+
+Chance for "at a mark" is 23.1% (the share of scored points inside a mark window).
+
+- **T6, the hint on a third set: not confirmed.** (a) 118 marks against Quiet's 97 and (b) 163.4 lines per 1,000 checks
+  against Middle's 182.7 both pass; (c) fails: 28.4% of its alerts sat at a mark against Quiet's 36.8%, more than the 5
+  points allowed. The normal run is calm on current, pressure and voltage, so the hint picked Eager there and Middle on
+  three more columns. That reached more of the transition and return marks and sent more than twice Quiet's lines. As
+  pre-registered, `eagernessText` (the page, `--suggest`, the agent tool) now says it was not confirmed on SKAB either.
+- **T7, NAB's drift reading: fails** on both parts. Drift's share at a mark was 25.8%, against Quiet's 36.8% and
+  chance's 23.1%, and it sent 2.5 times Quiet's lines. NAB's 20.5% does not carry to a second set, so nothing new is said
+  about drift.
+- **T8, unsplit `--columns all` on a real normal run: fails.** Quiet on all 8 columns sent 8.54 lines per 100 whole-watch
+  checks of the anomaly-free run, every one of them false, against the budget of 2. As pre-registered, `watch.mjs --help`
+  and the watch page now say so, and to replay with `--suggest` first. The page also says which columns to drop.
+- Nothing in the default changes.
+
+**Predictions, scored.** T6: predicted (a) pass and (b) fail; (a) passed, (b) passed too, and (c), which I expected to
+hold, failed. T7: predicted to pass on both parts with drift catching fewer faults. Wrong on all three: it failed both
+and caught all 33. T8: predicted to fail; it did, at 8.54.
+
+**What the round says (deciding nothing).** Every setting caught all 33 faults. A closed valve or a drained tank moves the
+flow rate a lot, and every detector sees it. The settings differ on the other marks and on noise. Quiet sat at a mark
+1.6 times as often as chance and was the most precise setting here, the reverse of NAB, where it sat near chance. One
+column did most of the work. Watched alone under Quiet, flow rate caught 29 of the 33 faults with 118 lines, 61.9% of
+them at a mark. Pressure, voltage and current sent 15 lines between them and caught none alone. Motor temperature sent
+97 lines, 18.6% at a mark, and the thermocouple 76 at 27.6%. Both drift with the room over a run, and they are the loud
+columns on the normal run. So the advice the page now gives (replay first, keep the columns that matter) comes from this
+table, not from a rule. A budget for the whole watch that is not per column is still open: the split failed on
+synthetic noise (README "Several metrics in one watch"), and here even Quiet, the floor of the ladder, is over budget on
+the normal run, so a split could not have fixed it.
+
+Caveats. The runs are short (about 19 minutes each in 5-second buckets) and 16 of the 33 are near-copies of one valve
+fault (the inlet valve closed). The hint's history is a different run from the scored ones. The 5-second buckets smooth the accelerometers. SKAB
+labels collective anomalies, not every level move. The anomaly-free run has 556 two-second gaps between rows; buckets are
+by row count, so those buckets span more than 5 s.
+
+Tests: `watch-skab.test.mjs` (8: the round's settings, the file parser, buckets, marks and the fault start, the score on
+made-up alerts, the hint rules, the three rules on made-up totals, the committed output's verdicts, and the hint and
+`--columns` texts).
+
+## Round 13: wait for two columns to agree (2026-11-14, pre-registered on a seen set; fails, not offered)
+
+Round 12 left the many-column watch over budget: on SKAB's anomaly-free run, Quiet on all 8 sensors sent 8.54 alert lines
+per 100 checks, all false, and a budget split could not help because Quiet is already the floor of the ladder. A column
+screen by loudness would have kept the sensors that caught nothing (pressure, voltage, current) and risked dropping flow
+rate, which caught 29 of 33 faults alone. So this round tested a rule on the whole watch instead: send a message only when
+at least two columns date a change within 12 points (60 s) of each other. Independent noise rarely lands on the same
+point twice; a fault on a machine usually moves more than one sensor. `agreeAlerts` (watch-core.mjs) is the rule;
+`sh eval/skab-fetch.sh skab-data && node eval/watch-skab-agree.mjs skab-data` runs the round (output
+`eval/watch-skab-agree.out.txt`, 1,233 s on 4 cores). The rule, design and predictions were committed in this PR's
+second commit, before any scored run. It is a second look at a seen set: round 12's per-column output was known, which
+columns' alerts coincide was not.
+
+The baseline is the same lines merged into one message per change (A1, k = 1), so both arms are counted the same way.
+
+| every column on Quiet (33 fault runs, 123 marks) | messages | at a mark | per 1,000 checks | marks reached | faults caught | median delay | normal run, per 100 checks |
+|---|---|---|---|---|---|---|---|
+| A1, one message per change | 238 | 31.5% | 36.1 | 81 | 31/33 | 30 s | 4.19 |
+| **A2, two columns agree** | 129 | 37.2% | 19.6 | 54 | **22/33** | 50 s | **2.69** |
+| A3, three agree | 52 | 46.2% | 7.9 | 30 | 12/33 | 58 s | 1.13 |
+| A2 on Middle | 312 | 25.6% | 47.4 | 88 | 31/33 | 45 s | 4.41 |
+| A2 on Drift | 286 | 26.2% | 43.4 | 83 | 28/33 | 50 s | 2.58 |
+
+- **T9 fails on two of three parts.** (a) the normal run still sent 2.69 messages per 100 checks, over the budget of 2;
+  (b) A2 caught 22 faults against A1's 31 (the rule allowed losing 2); (c) its share at a mark rose, 37.2% against 31.5%.
+  As pre-registered, nothing ships: `watch.mjs --help` under `--columns` and the watch page record the result.
+
+**Predictions, scored.** (a) I predicted about 1.5 and "could fail": it failed, at 2.69. (b) I predicted 30 or more caught:
+wrong, 22. The inlet-valve faults decided it: A2 caught 8 of 16, because a closed inlet valve moves the flow rate
+clearly and the other sensors often do not alert within 60 s of it. (c) I predicted about 50% against 37%: it rose, but only to
+37.2% against 31.5%.
+
+**Why the noise still agrees (deciding nothing).** The pairs that completed A2's false messages on the normal run were
+mostly coupled sensors: the two accelerometers (8 of the run's 50 messages), accelerometer 1
+with flow rate (8), the thermocouple with flow rate (7). On a real machine the columns are not independent, so their
+noise is not either. On synthetic noise (5 independent N(0,1) columns) Quiet sent one column line in 2,400 checks, so
+the synthetic check could not tell the rules apart; only the real normal run could. Agreement trades away exactly the
+faults a single sensor sees best. Three columns (A3) brought the normal run under budget (1.13) and caught 12 of 33.
+
+Caveat on the baseline. A1 caught 31 faults, not round 12's 33, though it is built from the same lines: merging drops
+a line whose change lies within 12 points of a change already sent, and on two runs the message already sent was dated
+just before the fault's window. Both arms carry the same merging, so the rule's comparison stands.
+
+Open: a whole-watch budget that respects sensor groups (agreement only across groups that measure different things,
+named by the person who sets the watch up), or a per-column rate cap from the normal history. Neither is pre-registered.
+
+Tests: `watch-agree.test.mjs` (7: agreement on made-up lines, k = 1 as one message per change, order and argument
+checks, the round's window, T9 on made-up totals, the seeded noise, and the committed output's verdict with the help
+and page texts).
+
+## Round 14: a smallest-move floor per column from the normal history (2026-11-14, pre-registered on a seen set; fails, `auto` not offered; hand-set `--min-shift` ships)
+
+Rounds 12 and 13 left the many-column watch over budget on SKAB's normal run, and neither eagerness, a budget split nor
+agreement between columns fixed it. An operator's own answer to a loud sensor is "don't tell me about moves smaller than
+X". This round tested that answer with X read off the normal history, so the person sets nothing by hand. For each
+column, replay Quiet on the anomaly-free run and take the size (|level after - level before|, the move the alert message
+states) of every line it sent. Then set the column's floor so that at most m = 4 of those lines clear it, its equal
+share of the whole-watch budget (2 per 100 of 1,861 checks, over 8 columns). The floor sits in the watch
+(`minShift`, `aboveFloor` in watch-core.mjs): a detection under it is dropped at every check, before the guards, so a
+change too small at first can clear it a few points later and is then sent. The fault runs were replayed with the floor
+in the watch, not filtered afterwards. The out-of-sample null is each fault run's stretch before its fault (SKAB marks
+it normal; 2,997 checks over the 33 runs, recorded on other days than the normal run): every line sent before the
+fault's window opens is false. `sh eval/skab-fetch.sh skab-data && node eval/watch-skab-floor.mjs skab-data` (output
+`eval/watch-skab-floor.out.txt`, 800 s on 4 cores). The rule, design, predictions and the `minShift` code were committed
+in this PR's second commit, before any scored run.
+
+Floors read off the normal run: accelerometers 0.0050 and 0.0043, temperature 0.45, thermocouple 0.79, flow rate 1.67;
+current, pressure and voltage sent 4 or fewer lines there and got no floor.
+
+| every column on Quiet (33 fault runs, 123 marks) | lines | at a mark | per 1,000 checks | marks reached | faults caught | median delay | pre-fault, per 100 checks | normal run, per 100 (F in-sample) |
+|---|---|---|---|---|---|---|---|---|
+| Q, no floor | 457 | 36.8% | 69.4 | 97 | 33/33 | 30 s | 6.34 (190) | 8.54 |
+| **F, floor in the watch** | 198 | **46.5%** | 30.1 | 74 | **28/33** | 52.5 s | **2.27** (68) | 1.93 |
+| P, Q's lines with the floor applied after the fact | 165 | 46.1% | 25.1 | 62 | 22/33 | 27.5 s | 2.00 (60) | 1.34 |
+
+- **T10 fails on two of three parts.** (a) Pre-fault false lines 2.27 per 100 checks, over the budget of 2 (Q: 6.34);
+  (b) F caught 28 faults against Q's 33 (the rule allowed losing 2); (c) its share at a mark rose, 46.5% against 36.8%.
+  As pre-registered, `--min-shift auto` does not ship. The hand-set `--min-shift <x>` (or `column=x,...` with
+  `--columns`) ships either way, as the rule said: it is the person's own threshold, not a claim this round tested.
+
+**Predictions, scored.** (a) I predicted Q's pre-fault rate near 8.5 and F's about 1.5: Q was 6.34, F 2.27, a fail by
+0.27. (b) I predicted 31 or more caught: wrong, 28. Flow rate's floor (1.67) was set by its own normal-run moves and cut
+the column's fault catches from 29 alone to 18; the inlet-valve folder went from 16 of 16 to 13. (c) I predicted about
+45% against 36.8%: 46.5%.
+
+**What the round says (deciding nothing).** The floor is the best whole-watch rule tried so far on this set: of rounds
+12-14 it is the only one that cut the false lines by about two thirds out of sample (190 to 68) while keeping most
+faults, and the lines it keeps sit at a mark half again as often (46.5% against 36.8%). Agreement (round 13) cut fewer
+false lines and lost more faults (22 of 33). The two misses were near the line and have one cause: an equal split of the
+budget gives every loud column the same 4 lines, so flow rate, the column that sees the faults, was floored as hard as
+the thermocouple, which sees almost none. Temperature shows the other side: its floor (0.45) held on the normal run
+(27 lines to 7), but the fault runs were recorded on other days and it still sent 67 lines there, 21% at a mark. A floor
+read off one normal day does not carry to every other day. Putting the floor in the watch beat applying it afterwards
+(28 faults against 22): a fault's move is often small for the first few points and clears the floor a check or two
+later. That is also why F's median delay grew from 30 s to 52.5 s.
+
+So for a loud many-column watch the advice is now concrete: set `--min-shift` by hand on the loud columns that do not
+matter (here the two temperatures), and leave the column that sees the faults alone. A rule that picks floors by how
+much each column matters needs labelled faults, which a person setting up a watch rarely has. Open: an unequal split
+(floors on the columns whose normal-run lines are not followed by any labelled event), or floors re-read on a rolling
+normal window so a new day's temperature level does not trip them. Neither is pre-registered.
+
+Tests: `watch-floor.test.mjs` (8: the floor on made-up changes, a replay with and without a floor, `--min-shift`
+parsing and refusals, the CLI with a per-column floor, the round's floor rule, pre-fault counting, T10 on made-up
+totals, and the committed output's verdict with the help and page texts).
+
+## Round 15: one floor for every column, in units of its own recent spread (2026-11-14, pre-registered on a seen set; fails on faults caught, not offered)
+
+Round 14's floor gave each column an equal share of the budget, so flow rate, the column that sees the faults, was
+floored as hard as the thermocouple, and temperature's floor, read off one day, did not carry to the fault runs' other
+days. Its own suggestion, an unequal split, needs labelled faults. This round tested a label-free one: measure each move
+against how much its column wandered just before it. A detection is dropped when its |shift| is under k times the
+column's spread over the 60 points (5 minutes) before the change (1.4826 times the MAD, or the SD when the MAD is 0;
+`minSpreadRatio`, `spreadBefore`, `aboveSpreadFloor` in watch-core.mjs). One k serves all 8 columns, read off the normal
+run so that at most 37 of the whole watch's lines clear it (2 per 100 of 1,861 checks); nothing is set per column. The
+floor sits in the watch at every check, as round 14's did, and the scoring, the out-of-sample null (each fault run's
+stretch before its fault, 2,997 checks) and the three-part rule are round 14's. `sh eval/skab-fetch.sh skab-data && node
+eval/watch-skab-spread.mjs skab-data` (output `eval/watch-skab-spread.out.txt`, 618 s on 4 cores). The rule, design,
+predictions and the code were committed in this PR's second commit, before any scored run. k came out at 4.94.
+
+| every column on Quiet (33 fault runs, 123 marks) | lines | at a mark | per 1,000 checks | marks reached | faults caught | median delay | pre-fault, per 100 checks | normal run, per 100 (in-sample) |
+|---|---|---|---|---|---|---|---|---|
+| Q, no floor | 457 | 36.8% | 69.4 | 97 | 33/33 | 30 s | 6.34 (190) | 8.54 |
+| **R, spread floor in the watch** | 150 | **59.3%** | 22.8 | 75 | **27/33** | 50 s | **1.40** (42) | 2.69 |
+| P, Q's lines with the spread floor after the fact | 105 | 67.6% | 15.9 | 66 | 24/33 | 35 s | 0.83 (25) | 1.99 |
+| F, round 14's equal-split floors (quoted) | 198 | 46.5% | 30.1 | 74 | 28/33 | 52.5 s | 2.27 (68) | 1.93 |
+
+- **T11 fails on one of three parts.** (a) passes: 1.40 false lines per 100 pre-fault checks, the first whole-watch rule
+  in rounds 12-15 under the budget of 2 out of sample; (c) passes: 59.3% of its lines sat at a mark, against Q's 36.8%
+  and round 14's 46.5%; (b) fails: 27 faults caught, against the 31 the rule allowed (Q 33, round 14 28). As
+  pre-registered, nothing ships to the CLI; `watch.mjs --help` under `--columns` and the watch page record the result,
+  and the option stays in watch-core.mjs for later rounds.
+
+**Predictions, scored.** (b) I predicted 31 or more and more than round 14's 28: wrong on both, 27. (c) I predicted about
+45%: it was 59.3%, better than predicted. (a) I called a coin flip near 2.0: 1.40, a clear pass.
+
+**What the round says (deciding nothing).** The ratio did make the split unequal without a label, and mostly in the
+right direction: temperature's normal-run lines had a median ratio of 0.64 (slow drift, about one spread) and all 27 of
+them fell; flow rate kept 60 of its 118 fault-run lines, 75% of them at a mark, and caught 19 faults alone against
+round 14's 18. But one column set k: the thermocouple's normal-run moves were sharp steps on a flat trace (median ratio
+7.90), so 31 of its 42 lines cleared a k that the other seven columns' noise alone would have set much lower, and that
+k cost the inlet-valve folder 4 of its 16 faults (12/16, against round 14's 13). The normal run's in-sample rate (2.69)
+is over budget though k was read off it: k came from the lines Q sent, and with the floor in the watch a move that is
+small at first can clear it a few checks later, as round 14 found. Putting the floor in the watch again caught more than
+filtering afterwards (27 against 24 faults), at a longer median delay (50 s against 35 s).
+
+So the two floors fail on opposite sides of the same bar: round 14's let too much noise through, this one cuts too many
+faults. Open, neither pre-registered: k read with the loudest column's lines left out (a k for the other seven would
+have been lower, keeping more valve faults), or a ratio floor only on the columns whose own normal-run lines are mostly
+small ratios (drift), leaving the sharp ones to the detector. Both are second looks at the same set; a fresh labelled
+multi-sensor set is still the stronger test.
+
+Tests: `watch-spread.test.mjs` (6: the spread on made-up noise, quantized and constant stretches and the window; one k
+keeping a move on a flat column and dropping it on a wandering one; a replay with the floor; the k rule and T11 on
+made-up totals; the committed output's verdict with the help and page texts).
+
+## Round 16: the spread floor with the loud column given its own k (2026-11-14, pre-registered on a seen set; fails, not offered; hand-set `--min-spread` ships)
+
+Round 15's single k (4.94) was set by one column: 31 of the 37 normal-run lines that cleared it were the thermocouple's
+sharp steps on a flat trace, and that k cost the valve faults. Its first open item was a k read with the loudest column's
+lines left out. This round tested a label-free version (`loudSplit` in `eval/watch-skab-loud.mjs`): read the common k as
+round 15 did; a column is loud when more than half of the normal-run lines that clear it are its own; the loudest gets
+its own k, read so that at most m = floor(37 / 8) = 4 of its own normal-run lines clear it; its 4 lines leave the shared
+budget and the common k is read again from the other columns, until no column is loud. Nothing is set by hand and no
+label is read. Data, replay, policy, scoring, out-of-sample null (2,997 pre-fault checks) and the three-part rule are
+round 15's. `sh eval/skab-fetch.sh skab-data && node eval/watch-skab-loud.mjs skab-data` (output
+`eval/watch-skab-loud.out.txt`, 842 s on 4 cores; round 15's R is re-run there and matches its committed output). The
+rule, design, predictions and code were committed in this PR's second commit, before any scored run.
+
+The split took one column off: the thermocouple got k = 22.4; the other seven share k = 2.60.
+
+| every column on Quiet (33 fault runs, 123 marks) | lines | at a mark | per 1,000 checks | marks reached | faults caught | median delay | pre-fault, per 100 checks | normal run, per 100 (in-sample) |
+|---|---|---|---|---|---|---|---|---|
+| Q, no floor | 457 | 36.8% | 69.4 | 97 | 33/33 | 30 s | 6.34 (190) | 8.54 |
+| R, round 15's one k (re-run) | 150 | 59.3% | 22.8 | 75 | 27/33 | 50 s | 1.40 (42) | 2.69 |
+| **S, loud split in the watch** | 218 | 50.5% | 33.1 | 84 | **30/33** | 35 s | **2.47** (74) | 2.90 |
+| P, Q's lines with S's floors after the fact | 180 | 53.3% | 27.3 | 79 | 29/33 | 30 s | 2.04 (61) | 1.99 |
+
+- **T12 fails on two of three parts.** (a) 2.47 false lines per 100 pre-fault checks, over the budget of 2; (b) 30
+  faults caught against the 31 the rule allowed; (c) passes, 50.5% at a mark against Q's 36.8%. As pre-registered,
+  `--min-spread auto` does not ship. The hand-set `--min-spread <k>` (or `column=k,...` with `--columns`) ships either
+  way, as the rule said: the person's own threshold in units of the column's recent spread, not a claim this round
+  tested.
+
+**Predictions, scored.** I predicted the shared k "near 3": 2.60. (b) 30, a narrow fail: exactly that. (c) about 50%:
+50.5%. (a) about 1.9, a coin flip: wrong, 2.47.
+
+**What the round says (deciding nothing).** Splitting the thermocouple off did what it was meant to on the faults: the
+valve folder went from 12 of 16 under R to 15 of 16, flow rate alone caught 25 faults (R 19, Q 29) with 70.5% of its 88
+lines at a mark, and the median delay fell from 50 s to 35 s. The thermocouple went from 22 fault-run lines to 2. The
+false lines came back through temperature. On the normal run its 27 lines were all slow drift (median ratio 0.64) and
+none cleared even k = 2.60; on the fault runs, recorded on other days, it sent 47 lines, 17% of them at a mark. That is
+round 14's finding again: the motor temperature's normal day does not describe its other days, whatever the floor is
+measured in. Rounds 14-16 now bracket the bar from both sides (round 14: 28 faults, 2.27 false; round 15: 27, 1.40;
+round 16: 30, 2.47), and each miss traces to one column whose normal run did not predict the fault days.
+
+So the advice for a loud many-column watch stands and is sharper: put a hand-set floor on the slow-drifting columns that
+do not matter (`--min-spread temperature=8`, or leave temperature out), and a low spread floor, about 2.5, on the rest.
+Open, neither pre-registered: a floor re-read on a rolling normal window, so a new day's temperature resets it; and a
+fresh labelled multi-sensor set, which remains the stronger test than another look at SKAB.
+
+Tests: `watch-loud.test.mjs` (7: the loud split on made-up ratios, with and without a loud column; T12 on made-up totals;
+`--min-spread` parsing and refusals; the CLI with a per-column and a one-column spread floor; the committed output's
+verdict with the help and page texts).
+
+## Round 17: a floor re-read on a rolling window of the same run (2026-11-15, pre-registered on a seen set; fails, not offered)
+
+Rounds 14-16 read their floors off one anomaly-free day and applied them to fault runs recorded on other days, and each
+missed the bar through a column whose normal day did not describe its fault days, mostly the motor temperature. Round 16's
+open item was a floor re-read on a rolling normal window, so a new day resets it. This round tested the simplest such
+floor, with nothing read from another day: tell me about a move only when it is bigger than any move the same column made
+in the five minutes before it. `largestMoveBefore` (watch-core.mjs) takes the 60 points before the change and the largest
+|mean of 12 points - mean of the 12 before them| over every split; `minMoveRatio` drops a detection whose |shift| is under
+k times that. Unlike round 15's spread (the MAD of the points), it sees drift: a ramp of 0.1 a point reads as a move of
+1.2. W, the tested arm, fixes k = 1 before the run. K (reported only) reads k off the normal run by round 15's rule
+(at most 37 of the whole watch's lines clear it). Data, replay, policy, scoring and the out-of-sample null (2,997 pre-fault
+checks) are rounds 14-16's. `sh eval/skab-fetch.sh skab-data && node eval/watch-skab-rolling.mjs skab-data` (output
+`eval/watch-skab-rolling.out.txt`, 842 s on 4 cores). The rule, design, predictions and code were committed in this PR's
+first commit, before any scored run.
+
+| every column on Quiet (33 fault runs, 123 marks) | lines | at a mark | per 1,000 checks | marks reached | faults caught | median delay | pre-fault, per 100 checks | normal run, per 100 |
+|---|---|---|---|---|---|---|---|---|
+| Q, no floor | 457 | 36.8% | 69.4 | 97 | 33/33 | 30 s | 6.34 (190) | 8.54 |
+| **W, rolling floor, k = 1** | 352 | 38.4% | 53.5 | 87 | **32/33** | 27.5 s | **4.67** (140) | 6.13 (out of sample) |
+| K, rolling floor, k = 4.03 read off the normal run (reported only) | 134 | 55.2% | 20.4 | 64 | 29/33 | 50 s | 1.50 (45) | 2.69 (in-sample) |
+| P, Q's lines with W's floor after the fact | 312 | 39.4% | 47.4 | 83 | 31/33 | 25 s | 4.27 (128) | 5.37 |
+
+- **T13 fails on one of three parts.** (a) 4.67 false lines per 100 pre-fault checks, far over the budget of 2;
+  (b) passes, 32 faults caught against the 31 allowed; (c) passes, 38.4% at a mark against Q's 36.8%. As pre-registered,
+  nothing ships to the CLI; `--columns`'s help and the watch page record it, and the option stays in watch-core.mjs.
+
+**Predictions, scored.** (b) 32 caught: exactly. (c) about 45%: 38.4%, a pass but by less. (a) about 3.0, a fail: it
+failed, and worse, at 4.67. The normal run, about 4 predicted: 6.13. K's k, near 2 predicted: 4.03, catching 29 (28
+predicted).
+
+**What the round says (deciding nothing).** The idea behind the round was wrong about temperature. Its fault-run lines are
+not drift that a same-day window would explain: their median move was 1.07 times the largest move in the five minutes
+before, so 68 of 97 cleared k = 1, and only 16% of them sat at a mark. On the normal day its lines were smaller than its
+recent wander (median 0.70) and half fell. The thermocouple shows the same in reverse: its normal-day lines were sharp
+steps, 6.3 times its recent moves, while on the fault days its lines were 1.37. So on this testbed the columns behave
+differently on different days in ways no one-day reading, fixed or rolling, picks up. A rolling window at k = 1 is close
+to no floor at all on noisy columns (white noise reads about 0.9 sd), which is why the accelerometers kept most of their
+lines. With k read off the normal run (K), the rolling floor sits where rounds 14-16 sat: 1.50 false lines per 100 and
+29 of 33 faults, between round 15 (1.40, 27) and round 16 (2.47, 30). Five rounds of label-free floors now bracket the
+bar without meeting it; the trade between false lines and faults looks set by the data, not the floor's form.
+
+So the advice for a loud many-column watch does not change: replay first, drop or hand-floor the columns that do not
+matter (the two temperatures here), and leave the one that sees the faults alone. Open: a fresh labelled multi-sensor set
+(the stronger test, now overdue), or a floor named per sensor group by the person who sets the watch up. More floor shapes
+on SKAB are not worth a sixth round.
+
+Tests: `watch-rolling.test.mjs` (5: the move reading on a step, a ramp, a constant stretch and white noise; the floor
+keeping a step and dropping a drift-made move, in a replay; T13 on made-up totals; the committed output's verdict with the
+help, page and llms.txt texts).
+
+## Round 18: the label-free floors on a fresh multi-sensor set, SMD's 28 servers (2026-11-15, pre-registered on unseen data; all three fail)
+
+Rounds 14-17 tried four label-free floors for a loud many-column watch on SKAB, and every one missed the three-part bar
+narrowly, from both sides. Round 17 closed with "a fresh labelled multi-sensor set (the stronger test, now overdue)".
+This is that test. The Server Machine Dataset (SMD; Su et al. 2019, KDD, "OmniAnomaly"; github.com/NetManAIOps/OmniAnomaly,
+MIT, fetched and not committed) holds 28 servers of a large internet company, 38 metrics each, one row a minute for
+about five weeks: a train half with no labels, which the benchmark treats as normal, and a test half with 327 labelled
+anomaly segments. Nobody here had scored it. `sh eval/smd-fetch.sh smd-data && node eval/watch-smd.mjs smd-data` (output
+`eval/watch-smd.out.txt`, 5,361 s on 4 cores). The rule, design, predictions and code were committed in this PR's
+second commit, before any run that printed a score.
+
+**Design.** Hourly buckets (a timing-only pilot: 30-minute buckets would have cost about 8 times as much). The 862
+metrics that vary over the first half of a machine's train half are watched, 27-34 a machine, under the shipped Quiet
+policy, replayed after every point. Each floor's k is read per machine, by its own round's rule, off Quiet's lines on
+the first half of the train half, at a whole-watch budget of 2 lines per 100 checks (3-4 lines a machine). The
+out-of-sample null is the second half of the train half (other days, 5,899 whole-watch checks): every line sent there
+counts false. The test halves are scored from point 24 (one day of baseline); a segment's window is its hours plus one
+each side; 309 segments start after the baseline. The arms are Q (no floor), R (round 15's one spread k), S (round 16's
+loud split) and K (round 17's rolling move floor with k read off the setup lines). Round 14's equal split was left out:
+with about 30 columns its per-column share is 0 lines.
+
+| every metric on Quiet (28 test halves, 309 segments) | lines | at a mark | per 1,000 checks | segments caught | under 60 min / longer | median delay | null, per 100 checks |
+|---|---|---|---|---|---|---|---|
+| Q, no floor | 10,039 | 23.5% | 902.8 | **290** | 204/222, 86/87 | 4 h | 75.79 |
+| R, one spread k (round 15) | 522 | 35.2% | 46.9 | 88 | 38, 50 | 5 h | 3.05 |
+| S, loud split (round 16) | 679 | **38.7%** | 61.1 | 106 | 52, 54 | 5 h | 4.25 |
+| K, rolling move floor, k read (round 17) | 300 | 35.3% | 27.0 | 42 | 15, 27 | 4 h | **1.24** |
+
+Chance for "at a mark" is 12.4% (the share of scored hours inside a segment window).
+
+- **T14 fails for all three arms.** Every arm fails (b) by a wide margin: the rule allowed losing 17 of Q's 290 caught
+  segments, and the arms lost 184 to 248. R and S also fail (a), at 3.05 and 4.25 false lines per 100 null checks; K
+  passes (a) at 1.24. All three pass (c): their lines sat at a segment 35-39% of the time, against Q's 23.5%.
+  As pre-registered, nothing ships: `--columns`'s help, the watch page and llms.txt say the label-free floors missed the
+  bar on a second, fresh set too, and the advice (replay first, hand floors on the columns that do not matter) stands.
+
+**Predictions, scored.** Q's null: I predicted about 15 lines per 100 whole-watch checks. It was 75.79, five times that:
+on 30 server metrics Quiet sent about three lines every four hours of normal operation. (a): I predicted a pass for all
+three, about 2-4, with one or two under 2. Only K passed (1.24); R was 3.05 and S 4.25. (b): I predicted a fail for all
+three, each under 80% of Q's catches. They all failed, and by far more than I predicted: 30%, 37% and 14% of Q's
+catches. (c): I predicted a pass for all three, and all three passed.
+
+**What the round says (deciding nothing).** Five floors over two labelled sets have now missed the same bar, and SMD
+shows why more plainly than SKAB did. Without a floor, Quiet on a server's 30 metrics alerts at almost every hourly
+check: 0.9 lines a check on the test halves and 0.76 on the normal days. It reaches 290 of 309 segments only because it
+alerts nearly everywhere: its share at a segment (23.5%) is under twice chance. A budget of 2 lines per 100 checks for
+the whole watch leaves 3 or 4 setup lines a machine to read a k from. Any k read that way sits in the far tail of
+normal moves, so it also silences most labelled events. Two thirds of SMD's segments (222 of 309) last under an hour.
+In hourly buckets they are diluted, and every floor caught few of them (K 15, R 38, S 52). On the 87 longer segments
+the spread floors caught 50-54. There was one failure of mechanism, not of trade-off. On some machines a metric sits
+almost constant and then steps, so the spread before the step is nearly zero and the ratio is enormous: R's k came out
+at 2.7 x 10^13 on machine-3-5 and K's at 3.0 x 10^12 on machine-3-1. A spread or move floor in units of recent
+wiggle is undefined in practice on step-like counters, which servers have many of. The metrics the publishers name for
+a segment sent the first line that caught it 52% of the time under Q and 66% under R, so a floor did favour the
+"right" metric, at the cost of most of the catches. Round 13's two-metric agreement, applied after the fact to Q's
+lines, sent 6.22 false messages per 100 null checks and caught 132.
+
+So the conclusion is stronger than "the floors narrowly miss": no label-free floor read off a normal stretch gets a
+30-metric server watch near a 2-per-100 budget without losing most labelled events. The trade is set by the data and
+the budget, not by the floor's shape. For the product this means three things. The watch's job on many metrics is
+level changes in the few metrics a person chooses, not anomaly detection across everything on a box; the page now says
+so. Hand floors and dropping columns stay the advice. And a whole-watch budget for 30 metrics should be stated per
+metric-day, not per check, before anyone tunes for it. Open, not pre-registered: per-group floors named by the person
+(SMD's metric names are not published, so this needs another set); a floor that skips columns that were constant
+before the move; and SMD at 10-minute buckets on a few machines, to see how much of the miss is hourly dilution.
+
+Tests: `watch-smd.test.mjs` (7: the round's constants, segments and the interpretation labels, a machine in hourly
+buckets, the score on made-up lines, T14 on made-up totals, the floors' reading with a loud column, and the committed
+output's verdicts).
+
+## Round 19: SMD at 10-minute buckets on three machines, to see how much of round 18's miss is hourly dilution (2026-11-15, pre-registered; no arm meets either line)
+
+Round 18 left open "SMD at 10-minute buckets on a few machines, to see how much of the miss is hourly dilution": two
+thirds of SMD's segments last under an hour, and an hourly mean shrinks a 10-minute event to a sixth. This round runs
+round 18's pipeline twice on the same three machines, chosen by name before anything was looked at (the first of each
+SMD group: machine-1-1, machine-2-1, machine-3-1; 93 watched metrics, 24 scored segments), changing only the bucket:
+H is hourly buckets replayed after every point (round 18 exactly), T is 10-minute buckets checked once an hour
+(replayWatch's `step` of 6, each alert dated back by bisection to the point that would have sent it). The whole-watch
+budget (2 lines per 100 hourly checks, so 3-4 setup lines a machine) is the same in both. The policy and the floors'
+rolling windows are kept in points, as shipped. The null stretch was not run (it would have doubled a 70-minute run);
+round 18 measured it under H on all 28 machines. `node eval/watch-smd-10min.mjs smd-data [cache]` (output
+`eval/watch-smd-10min.out.txt`, 4,162 s on 4 cores). The rule, design, predictions and code were committed in this PR's
+second commit, before any run that printed a score.
+
+| three machines, 24 segments | H lines | H caught (under 60 min, longer) | H median delay | T lines | T caught (under 60 min, longer) | T median delay | T at a mark |
+|---|---|---|---|---|---|---|---|
+| Q, no floor | 1,080 | 22 (12/14, 10/10) | 4 h | 5,193 | **24** (14/14, 10/10) | **0.7 h** | 10.7% |
+| R, one spread k (round 15) | 61 | 12 (4, 8) | 4.5 h | 39 | 12 (3, 9) | 1.1 h | **66.7%** |
+| S, loud split (round 16) | 66 | 14 (6, 8) | 4 h | 289 | 16 (7, 9) | 0.8 h | 32.2% |
+| K, rolling move floor (round 17) | 19 | 4 (1, 3) | 4.5 h | 62 | 9 (1, 8) | 1 h | 24.2% |
+
+Chance for "at a mark" is 11.2% under H and 6.3% under T (the windows are a bucket wide each side, so they shrink with
+the bucket). H reproduced round 18's by-machine catches for every arm (Q 8/11/3, R 4/7/1, S 4/9/1, K 2/2/0).
+
+- **D19 (under T an arm keeps Q's catches less 6%) is not met by any arm**: R 12, S 16 and K 9 against the 23 needed.
+- **D19' (an arm's kept share of Q's catches rises 20 points from H to T) is not met either**: R went from 55% to 50%,
+  S from 64% to 67%, K from 18% to 38% (19.3 points, one short).
+- As pre-registered, nothing changes for the product: finer buckets did not rescue the floors on these machines, and
+  round 18's reading (the miss is set by the data and the budget, not the bucket) stands.
+
+**Predictions, scored.** H reproduces round 18: right, exactly. Q under T catches about as many: right (24 of 24, from
+22). No arm meets D19: right. R and S meet D19': wrong for both; R's kept share fell and S's rose 3 points. K does not
+meet D19': right, by 0.7 points.
+
+**What the round says (deciding nothing).** The short segments are not where finer buckets help the floors. Under T the
+floors caught 3, 7 and 1 of the 14 segments under an hour, against 4, 6 and 1 under H. What T changes is the long
+segments and the delay: the floors caught 8-9 of the 10 longer ones (3-8 under H), and every arm's median delay fell
+from 4-4.5 hours to 0.7-1.1 hours, because a step is seen within a few 10-minute points rather than after several
+hourly ones. Without a floor, T's Quiet is far louder: 408 lines per 100 hourly checks (85 under H), with 10.7% at a
+mark against chance 6.3%, so on 30 server metrics it alerts on almost every 10-minute wiggle. The k's read off the
+finer setup lines are higher (R's 91 against 43 on machine-1-1, and 3,780 on machine-2-1, where a step-like counter
+had a near-zero spread before its step, round 18's failure of mechanism again), so a short event in a busy metric
+still sits under the floor. So the honest summary for a person: on server metrics, finer data makes the watch faster
+on the changes it does catch (a quarter of the delay), not able to catch short spikes under a budget. Short spikes are
+anomaly detection, which this watch does not claim. Three machines and 24 segments is a small sample; the delay
+finding is the one worth testing on the other 25 machines with the null, if anyone runs a server watch on finer data.
+
+Tests: `watch-smd-10min.test.mjs` (4: the round's constants, a machine in 10-minute buckets with its windows and
+baseline, D19 and D19' on made-up totals including the tie, and the committed output's verdicts).
+
+## Long series from outside TCPD: TSSB's 75 labelled series (2026-11-15, pre-registered; the headline fails off its domain)
+
+Every default here was chosen on TCPD, whose series are 15 to 991 points. The flagship asked for long labelled series
+from outside it. The Time Series Segmentation Benchmark (TSSB; Ermshaus, Schäfer and Leser 2023, Data Mining and
+Knowledge Discovery, doi 10.1007/s10618-023-00923-x; BSD-3 code, pinned commit e0c7a1f) has 75 series of 240 to 20,700
+points (359,497 in all, 190 annotated changes) and publishes each method's per-series covering. Each TSSB series is
+UCR classification instances grouped by class, **each instance z-scored**, and concatenated, so a labelled change is
+mostly a change of **shape** at an unchanged level and spread: outside what this detector models. The round therefore
+asks whether the shipped settings stay quiet off their domain. The lines, settings (exactly `eval/tcpd-heldout.mjs`'s)
+and predictions were committed before any run (`eval/tssb-prereg-2026-11-15.md`).
+`sh eval/tssb-fetch.sh tssb-data && node eval/tssb.mjs tssb-data` (output `eval/tssb.out.txt`, 2.4 min on 4 cores; the
+data is not committed). The metric port is checked against the published sheet: on all 75 series a published method
+that cut nothing scores exactly this port's "zero" covering.
+
+| 75 series | cover | F1 margin 5 | cuts per 1,000 points |
+|---|---|---|---|
+| ClaSP (published, a shape method) | 0.855 | | |
+| PELT / BinSeg as TSSB ran them (published) | 0.581 / 0.575 | | |
+| zero (no change) | **0.401** | 0.513 | 0 |
+| **every-setting consensus (the page's "Agreed changes")** | **0.344** | 0.414 | 1.6 |
+| level following the over-cut warning | 0.304 | 0.349 | 9.2 |
+| level+volatility | 0.235 | 0.189 | 26.9 |
+| BOCPD detections | 0.165 | 0.119 | 31.4 |
+| consensus, half or more | 0.156 | 0.139 | 7.2 |
+| level (plain) | 0.094 | 0.086 | 123.5 |
+
+- **T1 fails: the agreed changes do harm here.** Every-setting covering 0.344 against zero's 0.401 (bar 0.381):
+  -0.057, 95% bootstrap interval -0.099 to -0.022, worse on 15 series and better on 1. 59 of 75 series get no agreed
+  change at all (so they score exactly zero's), but 16 get 579, of which 7 (1%) are within one TSSB window of a
+  labelled change. Most of those 16 are repeating waveforms (ECG, EOG, gun-point and trace gestures, freezer and
+  olive-oil spectra): all six settings cut the same peaks, so they agree, and agreement is no evidence of a change. Two
+  of them (UMD, DodgerLoopDay) have no labelled change and get 31 and 23.
+- **T2 holds:** the over-cut warning fires on 61 of 75. **T3 holds:** following it beats the plain level model on 59 of
+  those 61 (+0.258 covering, interval 0.199 to 0.320), as on TCPD; it still loses to zero (-0.097).
+- **T4 fails:** the consensus is 0.237 below published PELT, not within 0.05. The pre-registration assumed TSSB's PELT
+  scored near "no change"; it scores 0.18 above it (on Crop 0.987), so TSSB's runs found shape changes a mean-shift
+  cost does not see (the paper gives its competitors' settings; they are not re-run here).
+- **Predictions, scored:** T1 met: wrong. T2, T3 met: right. T4 met: wrong (the assumption above). Consensus near zero:
+  wrong by 0.057. No setting within 0.15 of ClaSP: right. Plain level worst, under 0.35: right (0.094). BOCPD over-cuts
+  and scores below zero: right (0.165).
+
+**The existing cycle warning does not mark these series** (`node eval/tssb-cycle.mjs tssb-data`, output
+`eval/tssb-cycle.out.txt`, run after the verdicts, deciding nothing): of the 15 series with 10 or more agreed
+changes it fires on 3. What does mark them is the count. TCPD's 31 shipped series got 59 agreed changes between them
+and the 7 held-out at most 12 on one series; here 14 series get 23 to 50, near the panel's ceiling (changes are merged
+within 2% of the length, so about 50 at most). A guard on "many agreed changes, evenly spread" is the candidate for a
+next, separately pre-registered round, to be checked on TCPD (where it must stay quiet) and a fresh set.
+
+**What changes now.** As pre-registered, this round only measures; no default moves. The limits (here, on the page and
+in `llms.txt`) now say that a change of shape at an unchanged level and spread is outside what this detector finds,
+that on long repeating waveforms the agreed changes can be the cycle itself, and name a shape method (ClaSP) for that
+job. Tests: `tssb.test.mjs` (5: desc parsing, the pinned round, single-annotator covering, every setting on a made-up
+step, and the committed output's four verdicts).
+
+## Many agreed changes spread through a series: a guard, and a fresh activity set (2026-11-15, pre-registered; fails two of three lines, not offered)
+
+The TSSB round above found the page's headline ("every setting agrees on these changes") scoring below "no change" on
+long repeating waveforms, and named a guard on "many agreed changes, evenly spread" as the next round. Fixed before it
+ran on anything (`eval/repeat-guard-prereg-2026-11-15.md`): the guard (`consensus.mjs` `repeatGuard`) fires on 15 or
+more every-setting changes falling in at least 8 of the series' 10 equal tenths; when it fires, the series is scored as
+reporting no agreed change. Three sets: TSSB (seen: the guard was designed on its counts), TCPD's 38 univariate series
+(it must stay quiet) and a **fresh** labelled set, the Human Activity Segmentation Challenge 2023 (HAS; 250 smartphone
+recordings of people moving through routines of activities, 1.93 M points, 785 labelled activity changes; CC BY-NC-SA,
+fetched by `eval/has-fetch.sh` with a pinned sha256, never committed), read as the accelerometer magnitude.
+`node eval/repeat-guard.mjs tssb-data tcpd-data has-data` (output `eval/repeat-guard.out.txt`, 10 min on 4 cores).
+
+| covering (one annotator) | TSSB, 75 | HAS 2023, 250 (fresh) |
+|---|---|---|
+| zero (no change) | 0.401 | 0.444 |
+| every-setting consensus (the page's headline) | 0.344 | **0.619** |
+| guarded every-setting | **0.403** | 0.611 |
+| guard fires on | 14 (all repeating waveforms) | 31 |
+
+- **G1 holds (seen set).** On TSSB the guard fires on exactly the 14 series with 23 or more agreed changes, holding 568
+  of the 579 agreed changes; guarded covering 0.403 against zero's 0.401 (+0.059 over unguarded, better on 14, worse on 0).
+- **G2 fails.** It fires on one TCPD series, `bank` (30 agreed changes). The pre-registration's premise, "TCPD's most on
+  any one series is 12", was wrong: 12 was the held-out seven's most; the shipped 31 were not checked per series. (Post
+  hoc, deciding nothing: `bank` has no annotated change, so firing there would raise its score.)
+- **G3 fails (fresh set).** On HAS the guard costs 0.008 covering (bar -0.005; 95% interval -0.020 to 0.003) and is worse
+  on 20 of the 31 series where it fires, better on 11. Repeated motions (steps, jumps, sit-ups) do produce evenly spread
+  agreed changes, but a routine of several activities spread through a recording does too, and there the agreed
+  changes carry real ones: on has-195 (8 labelled changes) dropping them takes covering from 0.743 to 0.117. Count and
+  spread alone cannot tell the two apart. The count-only arm (descriptive) is worse still: 0.587.
+- **Predictions, scored:** G1 met: right. G2 met: wrong (the premise above). G3 met: wrong. Fires on 10 to 60 HAS series:
+  right (31). Consensus above zero on HAS: right.
+
+**The finding that matters more: on a fresh set nearer the detector's domain the headline holds.** HAS's activity
+changes move the level and spread of the accelerometer magnitude, and there the every-setting consensus beats reporting
+no change by +0.175 covering (95% 0.142 to 0.207; better on 160 series, worse on 32), with 1.15 cuts per 1,000 points;
+24% of its 2,220 agreed changes lie within 2% of the length of a labelled change. Following the over-cut warning lifts the
+plain level model from 0.131 to 0.492. This is the third labelled set the agreed-changes headline has been scored on
+(TCPD held out F1 0.711, TSSB covering 0.344 below zero, HAS 0.619 above zero), and it is the first fresh one of over a
+million points.
+
+**What changes now.** As pre-registered, nothing ships: `repeatGuard` stays in `consensus.mjs` for the eval, uncalled by
+`consensus()`. The limits keep saying that many evenly spread agreed changes on a long periodic signal can be the cycle,
+now with the counter-case: on a routine of activities they can be real. A next guard would need a reading of the
+waveform between cuts (are the segments the same shape repeated?), not their count or spread. Tests:
+`repeat-guard.test.mjs` (7: the thresholds, firing and quiet cases, the tenth at the end, `consensus()` without the
+warning, the HAS line parser, the committed verdicts and the HAS headline).
+
+## Agreed changes that are the same waveform repeated: a shape check, and a fresh fourth set (2026-11-15, pre-registered; fails one of four lines, not offered)
+
+The count-and-spread guard above failed on HAS because a routine of activities spreads agreed changes through a
+recording just as a repeating waveform does, and the round ended asking for "a reading of the waveform between cuts".
+This round is that reading. Fixed before it was computed on any series (`eval/shape-repeat-prereg-2026-11-15.md`), the
+check (`consensus.mjs` `shapeRepeats`) cuts the series at the every-setting changes, reduces each segment of 4 or more
+points to a 32-point z-normalised shape, calls two segments a match when their lengths are within 1.5x and their shapes
+correlate at 0.8 or more, calls a segment a repeat when it matches 2 or more others, and drops an agreed change when the
+segments on both sides of it repeat. Nothing reads labels or a period. Four sets: TSSB (seen), TCPD's 38 univariate
+series, HAS 2023 (seen) and a **fresh** one, the UCR Semantic Segmentation Benchmark (UTSA; Gharghabi et al., ICDM
+2017; 32 real physiological and mechanical repeating signals of 2,000 to 40,000 points with one or two labelled regime
+changes; fetched by `eval/utsa-fetch.sh` with a pinned sha256, never committed).
+`node eval/shape-repeat.mjs tssb-data tcpd-data has-data utsa-data` (output `eval/shape-repeat.out.txt`, 2.2 min on 4
+cores once the TSSB and HAS detections are cached).
+
+| covering (one annotator) | TSSB, 75 | HAS 2023, 250 | UTSA, 32 (fresh) |
+|---|---|---|---|
+| zero (no change) | 0.401 | 0.444 | 0.512 |
+| every-setting consensus (the page's headline) | 0.344 | 0.619 | 0.458 |
+| shape-filtered every-setting | 0.365 | **0.620** | **0.522** |
+| agreed changes dropped (series touched) | 113 of 579 (11) | 21 of 2,220 (7) | 176 of 301 (5) |
+
+- **S1 fails (TSSB, seen).** Shape-filtered 0.365 against a bar of 0.381 (zero minus 0.02). It helps on all 11 series it
+  touches (+0.021, 95% 0.008 to 0.037; worse on none) but drops only a fifth of the agreed changes: on most of TSSB's
+  waveforms the six settings cut at slightly different phases of each cycle, so neighbouring segments differ in length
+  or shape and do not count as repeats. The count guard, which drops everything, reached 0.403.
+- **S2 holds (TCPD).** F1 0.704 to 0.703, covering 0.653 to 0.656. It drops 8 of `bank`'s 30 agreed changes (bank has
+  no labelled change) and 1 of `bitcoin`'s 12, which costs bitcoin F1 0.570 to 0.521: the one loss anywhere in the round.
+- **S3 holds (HAS, seen).** +0.001 (95% 0.000 to 0.001), better on 6, worse on 0; it drops 21 of 2,220 agreed changes,
+  so the routines of activities that broke the count guard keep their real changes.
+- **S4 holds (fresh UTSA).** +0.064 (95% 0.015 to 0.124), better on all 5 series it touches, worse on none. Those five
+  (gun-draw motion, pig airway and arterial pressure, tilt-table ABP and ECG) are long repeating signals where the
+  headline listed 34 to 50 agreed changes against one labelled one; the filter drops 23 to 47 of each. Covering rises
+  from 0.04-0.12 to 0.24-0.67.
+- **Predictions, scored:** S1 met: wrong. S2, S3 met: right. S4 met: right, but it touched 5 UTSA series, not 10 to 25
+  (so S4 was one series from "not informative"). UTSA consensus below zero: right (-0.054, interval -0.136 to 0.026;
+  6 of 301 agreed changes lie within the file's window of a labelled change).
+
+**What it shows.** On the three long-series sets (357 series) it made covering worse on none; on TCPD it cost one
+series (`bitcoin`) one true change. It is a safe but timid filter: it catches the waveforms whose
+cycles every setting cuts at the same phase and misses the rest. Post hoc (deciding nothing): every series it touched
+on TSSB, UTSA and 6 of 7 on HAS is one where the count guard also fires, so the two read the same thing from
+different sides, the count guard too eagerly, the shape check too cautiously.
+
+**What changes now.** As pre-registered, a failed line means nothing ships: `shapeRepeats` stays in `consensus.mjs`
+for the eval, uncalled by `consensus()`, and the page's headline is unchanged. Also fixed: `eval/repeat-guard.mjs`
+read `consensus().repeatWarning`, which `consensus()` no longer sets, so a rerun reported G2 met; it now calls
+`repeatGuard` itself and reproduces the committed output. The next candidate, to be pre-registered on a fifth
+labelled set (none of TSSB, HAS or UTSA may decide it): segments matched with a tolerance for phase (a lag search or
+cross-correlation), or the count guard confirmed by the share of segments that repeat. Tests: `shape-repeat.test.mjs`
+(8: the settings, segment shapes, a sawtooth whose cuts all drop, a staircase that keeps all, the length rule, that
+`consensus()` does not call it, the UTSA name parser, the committed verdicts).
+
+## Clumpy counts that grow: the clumping size read against the local level (2026-11-15, pre-registered twice; round 2 ships)
+
+`--overdispersion nb` needs the negative binomial's size r, and `negbinSize` estimated it by comparing the median squared
+first difference with the series' **global** mean. On counts whose level moves a lot that is wrong in one direction: the
+typical local spread belongs to a typical local level, far below the global mean squared, so r came out too large, and on
+steep growth (rate 7 to about 700) it came out Infinity. Infinity means "not clumpy", so the NB path quietly ran the plain
+Poisson cost, steps soaked up the growth, and the bend landed at the edge of the scan. That is why only 14% of the steep
+cell's bends were located before (2026-11-08 entry above, "Steep-bend range, replicated"), and why the range under them
+was short (80%).
+
+The new `negbinSize` reads each difference against the mean of the 7 points around it. Under NB2 a pair at level m has
+E d^2 = 2 (m + m^2 / r), so with z = d^2 / (2 (m + c m^2)) it solves mean min(z, 6.635) = 0.9813 for c = 1 / r (the cap is
+chi-square(1)'s 99th percentile, so a step's few big differences do not set the size; 0.9813 is E min(chi-square(1), cap)),
+and calls the series Poisson unless the mean at c = 0 clears 0.9813 by two standard errors. The old estimator stays as
+`negbinSizeGlobal` for comparison. Bars written first: `eval/nb-size-local-preregistration.md`.
+
+- **Round 1 failed.** The same idea with a median instead of the capped mean held the size and the false-bend bars, but
+  plain Poisson counts at rate 10 read as clumpy on 32 of 100 (bar: at most 10): at small counts d^2 takes a few lattice
+  values and the median jumps. Not shipped.
+- **Round 2, fresh seeds, all five bars hold** (`eval/nb-size-local.mjs 9501 9502 9503`, `eval/nb-size-local.out.txt`;
+  steep cell `eval/nb-size-local-steep.out.txt`):
+
+| 200 clumpy counts, lognormal sd 0.35 (true size 7.67) | global-mean size (before) | local size (now) |
+|---|---|---|
+| median size, no bend / bump 0.015 / 0.025 / 0.04 | 8.6 / 31 / 123 / Infinity | 8.2 / 8.2 / 8.4 / 8.6 |
+| Poisson counts read as Poisson, rate 10 / ramp 7 to 700 | 95 / 100 of 100 | 99 / 100 of 100 |
+| steep bend (bump 0.04) located within 20 points | 81 of 500 (16%) | **280 of 500 (56%)** |
+| ... and its 95% range holds the true knot | 58 of 81 (72%) | **278 of 280 (99%)** |
+| straight growth 0.02 per point: a bend kept | 11 of 100 | 0 of 100 |
+| straight growth 0.02 per point: step changes per series | 1.86 | 0.08 |
+
+- **Real series (bar 5).** 739 of 747 tests passed unchanged. The 8 that moved are pinned counts on real series, all
+  toward fewer changes, because the old size was too large wherever the level moved: bike-share days (size 58 before, 32
+  now, raw counts), Wikipedia "Payroll" views (45 to 27), UK lung deaths (104 to 59). No documented date was lost: the
+  Ansett 1989 stop and restart are found in every setup (23 and 24 other changes, was 37 and 30), the stop's range holds
+  on 29 of 30 routes as before, and the fewest changes outside the closure on any route fell from 8 to 4. UK lung deaths
+  (no documented step) lose the 1979-10 cut. Payroll 47 to 26 changes (45 to 25 with holidays). US births: the holiday
+  list still removes changes in every year (239 to 205 before, 205 to 179 now). Bike-share at period 7: 56 to 30 changes,
+  and the holiday factor no longer adds any (61 before). One pinned observation reversed: at period 365 bike-share goes
+  134 to 29 changes, and the holiday list now adds changes there (29 to 36) instead of removing them.
+- **Milder bends too (measured after, not a bar).** On the earlier held-out seeds 3 and 11 (bumps 0.015, 0.025, 0.04, 100
+  series each; `eval/growth-change-interval-nb-local-size.out.txt`) bends found went from 114 to 301 of 600 and the range
+  held 299 of them (99%, was 107 of 114, 94%). The 1.4 temper was not retuned, so the ranges are now probably wider than a
+  95% range needs; the note under them says 99% and says so.
+- **Not checked.** A real count series with a documented steep slope break (still wanted, as before); clumping that
+  itself changes with the level (NB1-like, variance proportional to the mean), which a single r cannot describe.
+
+
+## Clumping that grows with the level: an NB1 cost and a law check (2026-11-16, pre-registered; ships)
+
+`--overdispersion nb` uses the NB2 law, variance mu + mu^2 / r with one size r. Counts that arrive in batches of a
+typical size clump in proportion to their level instead (NB1, variance phi mu), and on a series whose level moves a
+lot one r cannot describe that: it overstates the spread where the level is high and understates it where it is low,
+so the low stretch sprouts changes. Measured first (`eval/nb1-probe.mjs`, `eval/nb1-probe.out.txt`): on NB1 counts
+(phi 3) ramping 100-fold with `--trend bend` and no change, the NB2 cost gave 0.38 to 0.68 false changes per series,
+4 to 7 times what it gives when its law is right; the quasi-Poisson route (`--overdispersion`) was worse everywhere,
+up to 8 per series on NB2 ramps.
+
+**What shipped.**
+
+- `--overdispersion nb1` (CLI, API `overdispersion: "nb1"`, the page's counts box): the NB1 negative-binomial
+  likelihood, size lam e_t / delta per point (delta = phi - 1), with `--period` and `--trend` exposures as `nb` has.
+  The segment's rate has no closed-form maximum, so the moment estimate is polished by a Newton step on the exact
+  score (digamma, trigamma), warm-started along PELT's scan; within 1e-3 of a brute-force grid (`nb1.test.mjs`).
+  It costs about 2.5 times `nb` with `--trend bend` (1.3 s against 0.5 s on 200 points). The Bayesian pass has no
+  NB1 conjugate, so it tempers the Poisson likelihood by phi there.
+- `nb1Dispersion`: phi read against each point's local 7-point level, the same capped-mean equation `negbinSize` uses
+  for NB2 (so growth is not read as clumping), and phi 1 unless Poisson is rejected by two standard errors.
+- `clumpingLaw` and the output's `clumping` field: both laws fitted to the same differences; the right law leaves the
+  scaled differences equal on the lower and upper halves of the level. It says `nb1`, `nb2` or `either` (the level
+  spans under 3 times, or neither is clearly worse). When the other law fits better, `clumpingWarning` says which
+  setting to use, on the page and in the report.
+
+**Pre-registered bars, fresh seeds, run once** (`eval/nb1-preregistration.md`, `eval/nb1.mjs 9701 9702 9703 9704`,
+`eval/nb1.out.txt`; 100 series of 200 counts per cell):
+
+| | NB2 cost (`nb`) | NB1 cost (`nb1`) |
+|---|---|---|
+| NB1 phi 3, ramp 7 to 700, false changes per series | 0.45 | **0.19** |
+| NB1 phi 3, ramp 2 to 200, false changes per series | 0.47 | **0.15** |
+| NB1 ramp with a x1.6 step: found within 5 points | 100 of 100 | 100 of 100 |
+| ... other changes per series | 0.50 | 0.47 |
+| NB2 r 8 ramps, false changes per series (no bar) | 0.15 / 0.12 | 3.50 / 2.67 |
+
+The law check said `nb1` on 94 of 100 NB1 ramps in each cell (the rest `either`, never `nb2`) and `nb2` on 100 of 100
+NB2 ramps. phi came out 2.91 (flat) and 3.00 (ramp) against the true 3, and plain Poisson ramps read phi 1 on 97 of 100.
+
+**Read with care.** The wrong law costs more in the NB1-on-NB2 direction (3.5 false changes against 0.45 the other
+way), so `nb` stays the default clumpy-count cost and `nb1` is opt-in, with the law check to say when to take it. Two
+changes were made on development seeds before the run (the Newton polish, and a bug in the trend fit that subtracted
+an exposure term the NB1 likelihood already holds: a bend won on 8 of 8 straight ramps until it was fixed); they are
+listed in the pre-registration. On development seeds the 2-to-200 cell read 0.30 against the 0.2 bar; the bars were
+not moved, and the pre-registered run decided. Remaining false changes are short bursts and short runs of zeros on
+series whose phi comes out low. Not checked: a real count series known to clump in proportion to its level (call
+centre arrivals in batches, insurance claims per event; real call-centre arrivals were checked on 2026-11-16 and turned out
+Poisson around a wandering rate, see the next section), and the law check under a season (it reads the raw counts).
+Tests: `nb1.test.mjs` (6: the special functions, the cost against a grid with and without exposures, phi on flat and
+growing counts, the law check both ways and on a flat series, analyze's output and hint, a flat series kept whole).
+
+## Two changes of slope: a second hinge for the short sticky series (2026-11-16, pre-registered; ships as `--two-hinge-test`)
+
+"Step or bend?" and "The hinge test on the logs" ended the same way: `--hinge-test` refused 7 of 8 real series under
+100 points because the residuals about its best single bend stayed sticky (rho 0.71-0.95), and a second hinge was the
+route both named. `two-hinge.mjs` (`twoHingeTest`) is the same procedure with two knots: `x = a + b t + c1 (t - k1)+
++ c2 (t - k2)+` plus AR(1) noise, a sup-F with 2 and n - 4 degrees of freedom over knot pairs (each knot 15% from either
+end, the two at least 15% of n apart), rho from the best OLS pair's residuals, Prais-Winsten GLS, and a bootstrap from
+the GLS straight line. The guard is the one-hinge `cut` guard with the random-walk bar recomputed for two hinges (0.90
+at n 39, 0.82 at 40, 0.65 at 55, 0.64 at 60, 0.40 at 95: two bends cut a walk's stickiness much more than one does).
+The scan precomputes the Gram matrix of the hinge columns, so a pair costs a 2 x 2 solve; 499 replicates on 145 points
+take about 1.3 s, and 300 points (the cap) about 8 s. Bars, predictions and the decision rule were committed before any run
+(`eval/two-hinge-prereg-2026-11-16.md`; development seeds 900,000+ looked at once for speed, not reused).
+`node eval/two-hinge-sim.mjs 300 99 size <n>` (`eval/two-hinge-sim-size.out.txt`, seeds from 64,000,000),
+`node eval/two-hinge-sim.mjs 300 99 power` (`eval/two-hinge-sim-power.out.txt`), `node eval/two-hinge-real.mjs`
+(`eval/two-hinge-real.out.txt`, 999 replicates).
+
+**Size (S1) and unit roots (S2): all 21 cells hold** (share of all series with p <= 0.05, refusals counted as not
+rejecting; cap 8%):
+
+| n | line + AR(1) rho 0 / 0.3 / 0.6 / 0.8 | AR(1) 0.9 / 0.95 / random walk with drift |
+|---|---|---|
+| 40 | 5.7% / 4.3% / 7.3% / 4.7% | 2.7% / 3.7% / 2.3% |
+| 60 | 4.7% / 7.0% / 5.3% / 2.7% | 1.3% / 2.7% / 1.7% |
+| 95 | 3.3% / 5.0% / 5.3% / 2.3% | 0.7% / 1.0% / 2.0% |
+
+**Power (P): holds.** Flat to n/3, rising 0.25 a step to 2n/3, flat after, rho 0.5, on the same series:
+
+| cell | two hinges | one hinge (shipped) | difference |
+|---|---|---|---|
+| n 60, rise 0.25 (bar: at least 10 points) | 30.7% (224 tested) | 7.3% (224 tested) | **+23.3** |
+| n 95, rise 0.25 (reported) | 46.3% (144 tested) | 1.7% (77 tested) | +44.7 |
+| n 60, rise 0.15 (reported) | 17.0% | 7.7% | +9.3 |
+
+**Real series: 6 of 7 predictions hold, and the motivating ones are still refused.**
+
+| series | n | two hinges | one hinge | prediction |
+|---|---|---|---|---|
+| R1 Australian gas, annual | 39 | refused: line 0.97, two 0.47, cut bar 0.90 | refused | refused: holds |
+| R2 US electricity, annual | 40 | refused: line 0.82, two 0.49, cut bar 0.82 | refused | refused: holds |
+| R3 US female murder rate | 55 | refused: line 0.97, two 0.68, cut 0.29 against 0.65 | refused | tested, p <= 0.05: **fails** |
+| R4 Canada fertility | 38 | refused: line 0.92, two 0.61, cut bar 0.93 | refused | refused: holds |
+| C Lake Huron / Michigan-Huron | 98 / 92 | refused (two 0.71 / 0.78) | refused | refused: holds |
+| G GCAG 1880-2024 | 145 | knots 1904 and 1985, p 0.002; -0.26 -> 0.62 -> 2.27 degrees per century | 1976, p 0.001 | knot in 1965-1985: holds |
+| CO2 annual means (reported) | 67 | refused: line 0.97, two 0.77 | refused | |
+| Nile (reported) | 100 | knots 1892 and 1907, p 0.019, a slope of -18.6 a year between | 1913, p 0.017 | |
+
+**Verdict: ships.** S1, S2 and P hold, so the decision rule puts it in `analyze({ twoHingeTest })`, the CLI
+(`--two-hinge-test`) and the page ("Also test two changes of slope"), 30 to 300 points. On a series the shipped test
+already admits, it finds two-bend shapes the one-hinge test misses (the plateau: 31% against 7% at n 60). It does
+**not** rescue the short sticky series it was built for. Two hinges do take their stickiness down (gas 0.83 to 0.47,
+fertility 0.77 to 0.61, murder rate 0.80 to 0.68), but two hinges take a random walk's down by about as much, so the
+random-walk bar rises with them and the cut never clears it under 60 points. That is the guard working: S2 at n 40 is
+at most 3.7%, and a rule loose enough to admit the gas series would admit walks. Under 60 points, these series need
+outside information (a documented break date, which would fix the knots and remove the search) rather than another
+shape. GCAG's pair dates the early-century warming's start and the late acceleration; 1976 sits between 1904 and 1985
+as one hinge's compromise. The Nile result is the familiar warning: two close knots make a 15-year plunge that stands
+in for the 1898 drop, and the note says so.
+
+**Use it.** CLI `--two-hinge-test`; `analyze({ ..., twoHingeTest: true })` returns `twoHingeTest: { index1, index2,
+label1, label2, f, bar95, p, rho, slopes: [before, between, after], significant, note }` or `{ refused, reason }`; with
+`--log` it runs on the logs. Test: `two-hinge.test.mjs`. **Next** (not run): a hinge test with the knot or knots given
+by the user (a documented date: no search, so a far smaller null and a looser guard), which is the remaining route for
+the 39-55 point series.
+
+## The clumping-law check on real call-centre arrivals (2026-11-16, pre-registered; fails its bar by abstaining, nothing changed)
+
+The NB1 section left open "a real count series known to clump in proportion to its level". This is the first real
+one: `fpp2::calls`, five-minute calls handled by a large North American bank, 164 weekdays of 169 slots from
+3 March 2003 (`data/bank-calls-5min.csv`, `data/SOURCE.md`). The reference law was read across days, which the
+check never sees: a weekday-by-slot profile times a day level, then the mean of (y - E)^2 / E by decile of E
+(`eval/calls-law-preregistration.md`, written before any check ran; `node eval/calls-law.mjs`,
+`eval/calls-law.out.txt`).
+
+| | Pre-registered | Result |
+|---|---|---|
+| Reference law | `nb2`, `nb1` or `unclear` by a fixed rule | `nb1`: top / bottom decile 0.83, bottom 1.60 |
+| L1: check says `nb1` on at least 99 of 164 days | | **0 of 164: fails** |
+| L1/L2: check says `nb2` (a wrong warning) on at most 16 | | 0 of 164: holds |
+
+`clumpingLaw` said `either` on every day and `nb1Dispersion` read phi 1 (Poisson) on 161 of 164. The level inside a
+day spans 2.16 times (median, upper half against lower), under the check's 3. Both NB costs gave the same changes
+on the first five whole weeks with `--period 169` (7 to 13 a week, 0.1 s each), with no warning.
+
+**Why, post hoc (not pre-registered; `eval/calls-law-posthoc.mjs`, `eval/calls-law-posthoc.out.txt`).** The
+pre-registration named this weakness in advance: a profile that differs from the fitted one leaves residuals that
+look like clumping. That is what happened. Pooled over all 27,552 within-day first differences, d^2 / (2m) is 1.005,
+Poisson to the third digit, so adjacent five-minute counts do not clump. The across-day residuals are correlated
+inside a day (lag 1: 0.31), and their dispersion grows with the block they are summed over: 1.34 at 5 minutes, 2.18
+at 15, 3.25 at 30, 5.17 at an hour, 8.02 at two hours. Independent clumping would stay flat. So these arrivals are
+Poisson around a rate that wanders slowly away from the weekday profile, the doubly stochastic picture of the
+call-centre literature, and the reference's "NB1" was that wander, not batches.
+
+**What it means for use.** On counts like these the law check abstaining is the right answer, and the NB costs add
+nothing over plain Poisson. The 7 to 13 changes a week are the wandering rate cut into steps, not clumping. Nothing
+in `clumpingLaw` was changed (decided in advance: one series does not retune it). Still open: a real series that does
+clump in batches (insurance claims per event, orders per basket), and, for wandering rates on counts, a drift model
+like "Wandering level" (the mean model has one) for the Poisson cost. Test: `calls-law.test.mjs` (2: the reference
+reads `nb1` by the pre-registered rule; the check says `either` on all 164 days and a week run warns nothing).
+
+
+## The AR(1)-plus-floor lead on fresh labelled data: five bee dance sequences (2026-11-16, pre-registered; fails, a muted-column note ships)
+
+On TCPD's three multi-column series the joint level fit with an AR(1) long-run sd and a floor of 2 on every column
+scored best (mean F1 0.564), but it was not the primary there, so it was recorded as a lead to test on fresh
+multi-column labelled data. The bee dance set (Oh et al. 2008, via KL-CPD's BSD-3 repository; `data/SOURCE.md`) is
+that: six tracked dances, three columns each (x, y, heading), 602 to 1124 frames, with 15 to 28 labelled switches
+between left-turn, right-turn and waggle phases. Sequence 6 is TCPD's `bee_waggle_6` (seen, and TCPD's annotators
+marked 2 changes where this set marks 15), so only 1 to 5 enter the rule. The settings (the six of
+`eval/tcpd-multi-floor.mjs`, now shared through `eval/tcpd-multi-floor-settings.mjs`), the primary and the rule were
+committed in `eval/beedance-multi.mjs` before any score: the lead confirms if (1) it has the best mean F1 of the six,
+(2) it beats the column consensus and (3) it beats `floor auto` on at least 4 of the 5. `node eval/beedance-multi.mjs`
+(output `eval/beedance-multi.out.txt`), F1 at margin 5, TCPDBench definitions:
+
+| joint level fit | bee 1 | bee 2 | bee 3 | bee 4 | bee 5 | mean F1 | cover | cuts | bee 6 (seen) |
+|---|---|---|---|---|---|---|---|---|---|
+| plain | 0.204 | 0.242 | 0.248 | 0.283 | 0.319 | 0.259 | 0.242 | 101-165 | 0.281 |
+| floor auto (default) | 0.354 | 0.306 | 0.340 | 0.357 | 0.328 | 0.337 | 0.443 | 35-61 | 0.231 |
+| floor 2, every column | 0.354 | 0.310 | 0.340 | 0.357 | 0.328 | 0.338 | 0.447 | 35-60 | 0.231 |
+| floor 1, every column | 0.279 | 0.299 | 0.376 | 0.262 | 0.436 | 0.330 | 0.343 | 65-103 | 0.342 |
+| ar1 per column | 0.296 | 0.316 | 0.400 | 0.308 | 0.446 | **0.353** | 0.480 | 7-91 | 0.337 |
+| **ar1 + floor 2 (primary)** | 0.273 | 0.245 | 0.111 | 0.267 | 0.327 | 0.244 | 0.446 | 0-25 | 0.150 |
+| columns: every setting (consensus) | 0.375 | 0.217 | 0.111 | 0.250 | 0.255 | 0.242 | 0.469 | 0-27 | 0.324 |
+| zero (no changes) | 0.095 | 0.083 | 0.111 | 0.105 | 0.067 | 0.092 | 0.056 | 0 | 0.118 |
+
+- **The lead fails.** (1) not met: plain AR(1) has the best mean F1 (0.353); (2) met, by 0.002 over the consensus;
+  (3) not met: it beats `floor auto` on 0 of 5. It is the worst joint setting here bar none, and on bee 3 it reports no
+  change at all against 16 labelled.
+- **Why: the two corrections stack until a column goes silent.** The floor already raises a smooth column's sd, and the
+  AR(1) long-run sd multiplies it again by sqrt((1+rho)/(1-rho)), which grows without bound as rho nears 1. A bee's
+  position is a smooth path (rho near 1), so a column scaled to [0, 1] got a noise sd of 1.07 to 1.88: no move inside
+  its own range can pay the penalty, and the segmentation came from the remaining columns or from none.
+- **No setting does well on this set.** Every joint fit cuts 35 to 165 times except the two with AR(1) + floor; the best
+  mean F1 is 0.353 against 16 to 28 labels. Unlike TCPD's three series, where "no change" scored 0.621,
+  this set labels many changes, so "zero" scores 0.092 and every method clears it. Published methods were not rerun.
+- **Nothing in the defaults changes.** The joint default stays `floor auto` whatever this showed (decided in advance:
+  a floor on every column costs most of the power on small shared steps in white noise, `eval/multi-floor-sim.mjs`).
+
+**What ships: a muted-column note.** `mutedColumns` in `multivariate.mjs` names any column whose noise sd the floor
+or the AR(1) correction raised to more than 3 times the column's own whole-series sd, and `analyzeMulti` returns it
+as `mutedWarning` ("Read with care") in the CLI text, the page and the branded report. The plain sd is never flagged
+(a column with no change has a plain sd close to its whole-series sd). The 3 was set after this run and checked on
+simulations, not tuned on the bees (`node eval/muted-sim.mjs`, output `eval/muted-sim.out.txt`, 300 columns per
+cell): under the default it fires on no column of white noise, AR(1) at rho 0.5 or 0.9, random walks or smooth sines;
+under AR(1) + floor 2 it fires on no white-noise column, but on 282 to 296 of 300 autocorrelated or random-walk columns,
+which is what that option does to them. On the bees it names x on 1 and 2, x and y on 3, y on 4, nothing on 5, and
+nothing under the default. The page's option now reads "fewest cuts; can mute autocorrelated columns".
+
+Not done: the heading column wraps at the scale's edge and was left in as distributed (it is noisy enough that no
+setting mutes it); TCPD's three series were not rerun for the note (the TCPD files are fetched, not committed);
+published methods (bocpd, KL-CPD) were not rerun on 1 to 5. Next for (a): a per-column trend term instead of a blunt
+floor, or the AR(1) correction alone (best here, 0.353) on a sixth fresh multi-column set before it is anything more.
+Tests: `beedance-muted.test.mjs` (3: the rule fails with the committed numbers; white noise never flagged under the
+default or a floor of 2; bee 3 under AR(1) + floor 2 names x and y in the text and the default names nothing).
+
+## A date you name: five pre-registered rounds; round 5 ships as `--known-date` (2026-11-16)
+
+The question: a law, launch or price change happened on a date fixed before anyone looked at the chart; did the
+level or the slope change there? That is an interrupted time series (segmented regression; Wagner et al. 2002,
+Bernal, Cummins and Gasparrini 2017). The module `known-date.mjs` fits a line, a step and a slope change at the
+given date (plus seasonal dummies with a period), AR(1) noise by iterated Prais-Winsten, and calibrates the joint
+F and both t statistics with a parametric bootstrap from the null fit. A 95% range for the step and the slope
+change uses the bootstrap's 97.5th percentile of |t|. The bar to ship (CLI `--known-date`, the page, the engine)
+was size within 2-8% at p 0.05 in every synthetic cell plus four real predictions. Rounds 1-3 were too eager in
+short sticky series; round 4 fixed that and became too cautious in one cell; **round 5 (below) met every bar and
+ships in the CLI** (`--known-date <label>`, with `--period` and `--log`; the page and the engine have not followed
+yet). Series that only the random-walk cut lets through are reported as not calibrated (round 5, "after the run").
+
+| Round (pre-registration) | Generator rho; guard | Worst size cells (of series tested) | Random walks rejected (of all) | Real A-D |
+|---|---|---|---|---|
+| 1 (`eval/known-date-prereg-2026-11-16.md`) | Kendall-corrected, capped at the guard; full-model residuals | n 40 rho 0.8: 13.6% (date at 50%), 8.9% (80%) | 18.0% (n 40), 10.8% (n 120) | all met |
+| 2 (`...-round2-2026-11-16.md`) | matched by indirect inference, capped at 0.95; same | n 40 rho 0.8 date 80%: 9.2% | 5.0%, 8.7% | (not rerun) |
+| 3 (`...-round3-2026-11-16.md`) | matched; plus the hinge test's random-walk cut guard | n 40 rho 0.8 date 80%: 9.4%; n 60 rho 0.8: 8.9% | 1.3%, 1.0% | all met |
+| 4 (`...-round4-2026-11-16.md`) | round 3, plus a 90% upper bound for rho; the larger p of the two | every cell 1.1-5.9% (max n 60 rho 0.8); **n 40 rho 0.4 date 80%: 1.8%, under the 2% floor** | 0.3%, 1.0% | all met |
+| 5 (`...-round5-2026-11-16.md`) | round 4's upper bound only when the line rho is above 0.5 | every cell 1.0-5.8%; rho 0 / 0.4 cells 3.3-5.8% | 0.3%, 0.5% | all met; **ships** |
+
+400 series per cell, 199 replicates; outputs in
+`eval/known-date-sim-round1.out.txt`, `-round2`, and `eval/known-date-sim.out.txt` (round 3). Every other size cell
+in round 3 was 3.8-7.3%, and as a share of *all* series (refusals count as no rejection) no cell rejected more than
+7.3%: the excess is among the short sticky series the guard lets through, whose rho reads low.
+
+**Real series, 999 replicates** (`eval/known-date-real.out.txt`, round 3's code; round 1's in `-round1`):
+
+- A. UK car drivers killed or seriously injured, logs, monthly seasons, date 1983-02 (the front-seat belt law of
+  31 January 1983): step -0.237 (a 21% fall), range -0.354 to -0.119, p 0.001; slope change p 0.13. Met.
+- B. Front-seat passengers: step -0.309 (27%), p 0.001. Met.
+- C. Rear-seat passengers, whom the 1983 law did not cover (the control): step +0.043, range -0.080 to 0.165, p 0.50.
+  Met. The joint test is significant (p 0.006), because the slope after 1983 rises in all three series by the same
+  0.007 a month: whatever moved the post-law trend was not the belt law, which is why a control series matters.
+- D. Nile flow, date 1899 (after the 1898 Aswan dam): step -289, range -436 to -143, p 0.001; slope change p 0.90. Met.
+- E. Placebo dates on Nottingham temperatures (1925, 1930, 1935): p 0.30, 0.39, 0.97.
+
+**What a reader can use now.** The F table (what a regression package reports) is far too eager on autocorrelated
+data even with the AR(1) correction: on straight lines with rho 0.4 it rejected 13-15% of 40-point series at p 0.05,
+and with rho 0.8 11-30% at every length (round 3 table). The bootstrap brings every 120-point cell to 3.8-6.8%.
+
+### Round 4: an upper bound for rho fixes the eager cells and overshoots (2026-11-16, pre-registered; fails one line)
+
+Round 3's excess came from short sticky series whose rho reads low, so the bootstrap drew too-tame nulls. Round 4
+(`eval/known-date-prereg-round4-2026-11-16.md`, written after a 200-series exploratory run on seed base 333 and before
+the confirmatory run on fresh base 13000) adds one thing: a one-sided 90% upper bound for rho by test inversion (the
+grid rho whose simulated 10th-percentile estimate reaches the observed one, 200 null series per design, cached), a
+second bootstrap at that rho, and the larger p and wider range of the two: a two-point version of a maximised Monte
+Carlo test (Dufour 2006; Berger and Boos 1994). The exploratory run already showed it conservative, so before the
+confirmatory run the 2% size floor was restricted to the eight rho 0 and 0.4 cells and two power lines were added.
+`node eval/known-date-sim.mjs 400 199 upper` (`eval/known-date-sim-round4.out.txt`):
+
+| Bar (pre-registered) | Round 3 | Round 4 | |
+|---|---|---|---|
+| 1a. size at most 8% of tested, 12 cells + n 60 rho 0.8 | worst 9.4% | worst 5.9% (n 60 rho 0.8); n 40 rho 0.8 date 80%: 3.7% | holds |
+| 1b. size at least 2% in the eight rho 0 / 0.4 cells | (all met) | n 40 rho 0.4 date 80%: **1.8%** (7 of 391); date 50%: 2.3% | **fails** |
+| 2. random walks rejected, share of all | 1.3%, 1.0% | 0.3%, 1.0% | holds |
+| 3. power, step 1 sd, n 120: rho 0 at least 55%, rho 0.4 at least 20% | 64.8%, 26.0% | 62.8%, 27.3% | holds |
+| 4. real series A-D (`eval/known-date-real-round4.out.txt`) | met | met (seat belts: step -0.237, p 0.001; rear-seat control p 0.50; Nile -289, p 0.001; placebos 0 of 3) | holds |
+
+Reported without a bar: n 60 rho 0.9, 7.3% of tested (round 3: 24.5%). The price is power on short series: a step of
+1 sd at n 40 is found 15.8% of the time with white noise (round 3: 19.3%) and 4.8% with rho 0.4 (9.3%), where the
+test now rejects less often under the change than its nominal size under none. At n 120 power is near round 3's.
+
+**Reading.** The over-eager cells are gone at every length and stickiness tried, and the real predictions hold, but
+at n 40 the upper bound is far above the truth even at rho 0.4 (40 points carry little information about rho), so
+the two-point maximum spends the error budget on a worst case that rarely holds. By its own pre-registration nothing
+ships. **Next round** (fresh pre-registration and seeds): use the upper bound only when the guard's line-residual rho
+is above a value fixed in advance (where round 3 failed), or a Berger-Boos p (the maximum over the bound's interval
+plus its gamma) with a narrower 1-gamma; either way state the 2% floor for every cell again. The CLI wiring
+(`--known-date <label>` with a plain-text report) was written in this session and taken out when the bar failed.
+
+### Round 5: the upper bound only where the line rho is high (2026-11-16, pre-registered; ships as `--known-date`)
+
+Round 4's two-point test spent the error budget on rho 0.4 series at 40 points, where the 90% upper bound sits far
+above the truth. Round 5 (`eval/known-date-prereg-round5-2026-11-16.md`, committed on its own before the
+confirmatory run) runs it only when the plain line's residual rho (OLS, bias corrected, the guard's own reading) is
+above **0.5**, and round 3's matched-rho bootstrap alone otherwise (`rhoGenMethod: 'gated'`). The gate was chosen on
+an exploratory run (seed base 21000, 200 series; `eval/known-date-gate-explore.mjs`, `.out.txt`) that kept each
+series' line rho and both p-values, so gates 0.3-0.7 were scored on the same series: 0.7 let n 60 rho 0.9 back to
+11.8%, 0.5 and 0.6 differed little, and 0.5 is the safer. The 2% floor stays on the eight rho 0 and 0.4 cells, not
+every cell as round 4's note suggested: where the gate fires the test takes a maximum of two p-values, the
+exploratory run showed 1.0-1.2% in two rho 0.8 cells under any gate at or below 0.6, and a floor there would be a bar
+set to fail; a power bar on the short rho 0.4 series (3b) takes its place.
+Confirmatory run on fresh seed base 25000: `node eval/known-date-sim.mjs 400 199 gated`
+(`eval/known-date-sim-round5.out.txt`), real series `node eval/known-date-real.mjs gated`
+(`eval/known-date-real-round5.out.txt`):
+
+| Bar (pre-registered) | Round 4 | Round 5 | |
+|---|---|---|---|
+| 1a. size at most 8% of tested, 12 cells + n 60 rho 0.8 | worst 5.9% | worst 5.8% (n 40 rho 0 date 50%); n 60 rho 0.8: 4.3% | holds |
+| 1b. size at least 2% in the eight rho 0 / 0.4 cells | 1.8% (n 40 rho 0.4 date 80%) | lowest 3.3% (same cell) | holds |
+| 2. random walks rejected, share of all | 0.3%, 1.0% | 0.3%, 0.5% | holds |
+| 3a. power, step 1 sd, n 120: rho 0 at least 55%, rho 0.4 at least 20% | 62.8%, 27.3% | 64.0%, 24.3% | holds |
+| 3b. power, step 1 sd, n 40, rho 0.4: at least 5% | 4.8% | 10.4% | holds |
+| 4. real series A-D | met | met: drivers step -0.237 (range -0.354 to -0.119), joint p 0.003; front -0.309, p 0.001; rear-seat control step p 0.50; Nile -289, p 0.001; placebos 0 of 3 | holds |
+
+Power on 40 points came back: a 1 sd step at rho 0 is found 20.8% of the time (round 4: 15.8%), a slope change
+9.0% (6.3%). The seat-belt series are sticky about a plain line (rho 0.62 and 0.66), so both bootstraps ran on them;
+the rear-seat control and the Nile were below the gate.
+
+**After the run: series passed only by the cut are not calibrated** (not pre-registered; a diagnosis,
+`node eval/known-date-cut-admitted.mjs`, `eval/known-date-cut-admitted.out.txt`). Reported without a bar, n 60 rho
+0.9 rejected 23.6% of the 55 series it tested (round 4: 7.3% on other seeds; 3.3% of all 400, since most are
+refused). Replaying round 5's eight sticky null cells on the same seeds and splitting tested series by how they
+passed the guard: those the line checks pass were rejected 0.7-4.9% in every cell (n 60 rho 0.9: 2 of 41); those
+passed only by the random-walk cut were rejected **17 times in 26**. The cut admits a sticky series when a step at
+the date makes its residuals much less sticky, and a spurious step that does that is just what the F test then
+finds. The pre-registered rule is unchanged, but the CLI marks these results `calibrated: false` and its text says
+"NOT A CALIBRATED TEST HERE", with the 17 of 26. None of the real series A-D took that path. **Next:** a bootstrap
+that conditions on admission (simulate the null, apply the same guard, take the p among admitted replicates), and
+the page and engine wiring.
+
+**Use it.** `node cli.mjs data.csv --column deaths --known-date 1983-02 --period 12 --log` (the label is the first
+row after the change; `--json` for the fields: `step`, `stepRange95`, `pStep`, `slopeChange`, `pSlope`, `p`,
+`pTable`, `effectAverage`, `effectAtEnd`, `gated`, `rhoGen`, `calibrated`). Tests: `known-date.test.mjs`,
+`known-date-cli.test.mjs`.

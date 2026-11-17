@@ -4,9 +4,16 @@
 
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
+## The federal limits it applies
+
+- Ordinary debt judgment: the lesser of 25% of disposable earnings or the amount above 30 times the federal minimum wage ($7.25). Nothing can be garnished from disposable pay at or below $217.50 a week, $435 every two weeks, $471.25 twice a month or $942.50 a month (15 U.S.C. 1673(a); 29 CFR 870.10; U.S. Department of Labor Fact Sheet #30, checked 2026-11-13).
+- Child support or alimony: 50% if the worker supports another spouse or child, 60% if not, 5 points more for arrears over 12 weeks (15 U.S.C. 1673(b)).
+- Defaulted federal student loan (administrative garnishment): 15% (31 CFR 285.11; 34 CFR 34.4).
+- Federal law is a floor: many states protect more. Tax levies and bankruptcy plans follow other rules and are not modelled.
+
 ## Pages
 
-- [The tool](https://duncan-haywood.github.io/oss-monorepo/wage-garnishment-limit-calculator/)
+- [The tool](https://marisstella.app/wage-garnishment-limit-calculator/)
 
 ## Source
 

@@ -1,0 +1,90 @@
+Why the DC OPF has no solution on five held-out PGLib-OPF v23.07 cases (plan: LOG.md 2026-11-16).
+Reference at the largest live unit (the one protocol). DC objective ($/h); 'none' = no solution reported.
+PIPS = PYPOWER rundcopf; Clarabel = the same B-theta model on a second solver (declared after the first run).
+PGLib = published PowerModels DCP objective (BASELINE.md, 5 significant figures).
+
+Table 1. With angle limits.
+case             kind      PGLib |    MP PIPS    MP Clar |    PM PIPS    PM Clar |  MPx0 PIPS  MPx0 Clar |  MPnt PIPS   PMt PIPS | PMClar/PGLib-1
+case500_goc      typ   4.406e+05 |  4.404e+05  4.404e+05 |  4.405e+05  4.405e+05 |  4.404e+05  4.404e+05 |  4.405e+05  4.405e+05 | -0.000%
+case588_sdet     typ   3.101e+05 |  3.101e+05  3.101e+05 |  3.101e+05  3.101e+05 |  3.101e+05  3.101e+05 |  3.101e+05  3.101e+05 | -0.001%
+case793_goc      typ   2.583e+05 |  2.588e+05  2.588e+05 |  2.583e+05  2.583e+05 |  2.588e+05  2.588e+05 |  2.588e+05  2.583e+05 | -0.001%
+case1354_pegase  typ   1.218e+06 |  1.218e+06  1.218e+06 |  1.218e+06  1.218e+06 |  1.218e+06  1.218e+06 |  1.218e+06  1.218e+06 | -0.001%
+case1803_snem    typ    8.77e+04 |    none       none    |    none     8.771e+04 |    none     8.801e+04 |  8.318e+04    none    | +0.012%  *
+case1888_rte     typ   1.353e+06 |  1.353e+06  1.353e+06 |  1.353e+06  1.353e+06 |  1.353e+06  1.353e+06 |  1.353e+06  1.353e+06 | -0.002%
+case1951_rte     typ   2.032e+06 |  2.032e+06  2.032e+06 |  2.032e+06  2.032e+06 |  2.032e+06  2.032e+06 |  2.032e+06  2.032e+06 | +0.001%
+case2000_goc     typ    9.43e+05 |  9.436e+05  9.436e+05 |   9.43e+05   9.43e+05 |  9.436e+05  9.436e+05 |  9.436e+05  9.431e+05 | +0.000%
+case500_goc      api   6.469e+05 |    none     6.489e+05 |  6.469e+05  6.469e+05 |    none     6.489e+05 |  6.484e+05  6.473e+05 | +0.000%
+case588_sdet     api    3.93e+05 |  3.929e+05  3.929e+05 |   3.93e+05   3.93e+05 |  3.929e+05  3.929e+05 |  3.929e+05  3.929e+05 | +0.001%
+case793_goc      api   3.722e+05 |  3.737e+05  3.737e+05 |  3.722e+05  3.722e+05 |  3.737e+05  3.737e+05 |  3.736e+05  3.723e+05 | +0.000%
+case1354_pegase  api   1.558e+06 |  1.559e+06  1.559e+06 |  1.559e+06  1.559e+06 |  1.559e+06  1.559e+06 |  1.559e+06  1.558e+06 | +0.001%
+case1803_snem    api   6.172e+04 |    none       none    |    none     6.206e+04 |    none     6.288e+04 |    none       none    | +0.552%  *
+case1888_rte     api   1.962e+06 |    none     1.961e+06 |    none     1.961e+06 |    none     1.961e+06 |    none       none    | -0.007%
+case1951_rte     api   2.412e+06 |    none     2.426e+06 |    none     2.413e+06 |    none     2.426e+06 |    none       none    | +0.081%  *
+case2000_goc     api    1.41e+06 |    none     1.415e+06 |    none      1.41e+06 |    none     1.415e+06 |    none       none    | -0.000%  *
+case500_goc      sad     none    |    none       none    |    none       none    |    none       none    |    none       none    | -
+case588_sdet     sad     none    |    none       none    |    none       none    |    none       none    |    none       none    | -
+case793_goc      sad     none    |    none       none    |    none       none    |    none       none    |    none       none    | -
+case1354_pegase  sad     none    |    none       none    |    none       none    |    none       none    |    none       none    | -
+case1803_snem    sad     none    |    none       none    |    none       none    |    none       none    |    none       none    | -  *
+case1888_rte     sad   1.353e+06 |  1.353e+06  1.353e+06 |  1.353e+06  1.353e+06 |  1.353e+06  1.353e+06 |  1.353e+06  1.353e+06 | -0.002%
+case1951_rte     sad     none    |    none       none    |    none       none    |    none       none    |    none       none    | -
+case2000_goc     sad     none    |    none     9.996e+05 |    none       none    |    none     9.996e+05 |    none       none    | -
+
+Table 2. Without angle limits.
+case             kind |    MP PIPS    MP Clar |    PM PIPS    PM Clar |  MPx0 PIPS  MPx0 Clar |  MPnt PIPS   PMt PIPS
+case500_goc      typ  |  4.404e+05  4.404e+05 |  4.405e+05  4.405e+05 |  4.404e+05  4.404e+05 |  4.405e+05  4.405e+05
+case588_sdet     typ  |  3.101e+05  3.101e+05 |  3.101e+05  3.101e+05 |  3.101e+05  3.101e+05 |  3.101e+05  3.101e+05
+case793_goc      typ  |  2.588e+05  2.588e+05 |  2.583e+05  2.583e+05 |  2.588e+05  2.588e+05 |  2.588e+05  2.583e+05
+case1354_pegase  typ  |  1.218e+06  1.218e+06 |  1.218e+06  1.218e+06 |  1.218e+06  1.218e+06 |  1.218e+06  1.218e+06
+case1803_snem    typ  |    none       none    |    none     8.741e+04 |    none     8.801e+04 |  8.305e+04    none     *
+case1888_rte     typ  |  1.353e+06  1.353e+06 |  1.353e+06  1.353e+06 |  1.353e+06  1.353e+06 |  1.353e+06  1.353e+06
+case1951_rte     typ  |  2.032e+06  2.032e+06 |  2.032e+06  2.032e+06 |  2.032e+06  2.032e+06 |  2.032e+06  2.032e+06
+case2000_goc     typ  |  9.436e+05  9.436e+05 |   9.43e+05   9.43e+05 |  9.436e+05  9.436e+05 |  9.436e+05  9.431e+05
+case500_goc      api  |  6.489e+05  6.489e+05 |    none     6.469e+05 |  6.489e+05  6.489e+05 |  6.484e+05  6.473e+05
+case588_sdet     api  |  3.929e+05  3.929e+05 |   3.93e+05   3.93e+05 |  3.929e+05  3.929e+05 |  3.929e+05  3.929e+05
+case793_goc      api  |  3.737e+05  3.737e+05 |  3.722e+05  3.722e+05 |  3.737e+05  3.737e+05 |  3.736e+05  3.723e+05
+case1354_pegase  api  |  1.559e+06  1.559e+06 |  1.559e+06  1.559e+06 |  1.559e+06  1.559e+06 |  1.559e+06  1.558e+06
+case1803_snem    api  |    none       none    |    none     6.113e+04 |    none     6.276e+04 |    none       none     *
+case1888_rte     api  |  1.961e+06  1.961e+06 |    none     1.961e+06 |  1.961e+06  1.961e+06 |  1.961e+06    none   
+case1951_rte     api  |    none     2.419e+06 |    none     2.413e+06 |    none     2.419e+06 |    none       none     *
+case2000_goc     api  |    none     1.415e+06 |    none      1.41e+06 |    none     1.415e+06 |    none       none     *
+case500_goc      sad  |  4.404e+05  4.404e+05 |  4.405e+05  4.405e+05 |  4.404e+05  4.404e+05 |  4.405e+05  4.405e+05
+case588_sdet     sad  |  3.101e+05  3.101e+05 |  3.101e+05  3.101e+05 |  3.101e+05  3.101e+05 |  3.101e+05  3.101e+05
+case793_goc      sad  |  2.588e+05  2.588e+05 |  2.583e+05  2.583e+05 |  2.588e+05  2.588e+05 |  2.588e+05  2.583e+05
+case1354_pegase  sad  |  1.218e+06  1.218e+06 |  1.218e+06  1.218e+06 |  1.218e+06  1.218e+06 |  1.218e+06  1.218e+06
+case1803_snem    sad  |    none       none    |    none     8.741e+04 |    none     8.801e+04 |  8.305e+04    none     *
+case1888_rte     sad  |  1.353e+06  1.353e+06 |  1.353e+06  1.353e+06 |  1.353e+06  1.353e+06 |  1.353e+06  1.353e+06
+case1951_rte     sad  |  2.032e+06  2.032e+06 |  2.032e+06  2.032e+06 |  2.032e+06  2.032e+06 |  2.032e+06  2.032e+06
+case2000_goc     sad  |  9.436e+05  9.436e+05 |   9.43e+05   9.43e+05 |  9.436e+05  9.436e+05 |  9.436e+05  9.431e+05
+* = unscored under the one protocol (no MP solution from PIPS with or without angle limits).
+Clarabel statuses other than Solved: case1803_snem typ MP ang: B non-finite; case1803_snem typ MP noang: B non-finite; case1803_snem api MP ang: B non-finite; case1803_snem api MP noang: B non-finite; case1951_rte api MP ang: AlmostSolved; case1951_rte api MP noang: AlmostSolved; case1951_rte api PM noang: AlmostSolved; case1951_rte api MP-x0 ang: AlmostSolved; case1951_rte api MP-x0 noang: AlmostSolved; case500_goc sad MP ang: PrimalInfeasible; case500_goc sad PM ang: PrimalInfeasible; case500_goc sad MP-x0 ang: PrimalInfeasible; case588_sdet sad MP ang: PrimalInfeasible; case588_sdet sad PM ang: PrimalInfeasible; case588_sdet sad MP-x0 ang: PrimalInfeasible; case793_goc sad MP ang: PrimalInfeasible; case793_goc sad PM ang: PrimalInfeasible; case793_goc sad MP-x0 ang: PrimalInfeasible; case1354_pegase sad MP ang: PrimalInfeasible; case1354_pegase sad PM ang: PrimalInfeasible; case1354_pegase sad MP-x0 ang: PrimalInfeasible; case1803_snem sad MP ang: B non-finite; case1803_snem sad MP noang: B non-finite; case1803_snem sad PM ang: PrimalInfeasible; case1803_snem sad MP-x0 ang: PrimalInfeasible; case1951_rte sad MP ang: PrimalInfeasible; case1951_rte sad PM ang: PrimalInfeasible; case1951_rte sad MP-x0 ang: PrimalInfeasible; case2000_goc sad PM ang: PrimalInfeasible
+
+Table 3. Aggregates (MW) and the elastic MP LP (no angle limits; l1 slack on rated rows and unit PMIN/PMAX;
+where the MP B matrix is non-finite, the LP is run on MP-x0 and marked x0).
+case             kind      load      GS   sumPMIN   sumPMAX  comp  act  taps  shft  x=0 |  slack MW      rate    PMIN    PMAX  rows
+case500_goc      typ    17772.9     0.0    7525.7   23304.0     1    1   104     0    0 |      0.00      0.00    0.00    0.00     0
+case588_sdet     typ    10661.1     0.0    5633.2   23613.9     1    1    86     0    0 |      0.00      0.00    0.00    0.00     0
+case793_goc      typ    13198.3     0.0    2881.8   24604.1     1    1    64     0    0 |      0.00      0.00    0.00    0.00     0
+case1354_pegase  typ    73059.7     0.0   23037.7  128738.6     1    1   234     6    0 |      0.00      0.00    0.00    0.00     0
+case1803_snem    typ    29226.9     0.0       0.0   51960.0     1    1  1021     0    2 |      0.00      0.00    0.00    0.00     0 x0
+case1888_rte     typ    59110.5     0.0   24847.1   89364.5     1    1   405     4    0 |      0.00      0.00    0.00    0.00     0
+case1951_rte     typ    80656.5     0.0   27080.5   97706.1     1    1   486     4    0 |      0.00      0.00    0.00    0.00     0
+case2000_goc     typ    32972.9     0.0   13167.0   44578.8     1    1   561     0    0 |      0.00      0.00    0.00    0.00     0
+case500_goc      api    27536.9     0.0    3762.8   43560.0     1    1   104     0    0 |      0.00      0.00    0.00    0.00     0
+case588_sdet     api    14157.3     0.0    2016.6   26139.0     1    1    86     0    0 |      0.00      0.00    0.00    0.00     0
+case793_goc      api    18542.1     0.0    1440.9   28815.0     1    1    64     0    0 |      0.00      0.00    0.00    0.00     0
+case1354_pegase  api    80176.6     0.0    6255.1  116144.0     1    1   234     6    0 |      0.00      0.00    0.00    0.00     0
+case1803_snem    api    38412.1     0.0       0.0   62014.0     1    1  1021     0    2 |      0.00      0.00    0.00    0.00     0 x0
+case1888_rte     api    79956.6     0.0   12423.5  119196.0     1    1   405     4    0 |      0.00      0.00    0.00    0.00     0
+case1951_rte     api    95554.4     0.0   13536.2  142085.0     1    1   486     4    0 |      1.61      1.61    0.00    0.00     1
+case2000_goc     api    50948.0     0.0    6583.5   80800.0     1    1   561     0    0 |      0.00      0.00    0.00    0.00     0
+case500_goc      sad    17772.9     0.0    7525.7   23304.0     1    1   104     0    0 |      0.00      0.00    0.00    0.00     0
+case588_sdet     sad    10661.1     0.0    5633.2   23613.9     1    1    86     0    0 |      0.00      0.00    0.00    0.00     0
+case793_goc      sad    13198.3     0.0    2881.8   24604.1     1    1    64     0    0 |      0.00      0.00    0.00    0.00     0
+case1354_pegase  sad    73059.7     0.0   23037.7  128738.6     1    1   234     6    0 |      0.00      0.00    0.00    0.00     0
+case1803_snem    sad    29226.9     0.0       0.0   51960.0     1    1  1021     0    2 |      0.00      0.00    0.00    0.00     0 x0
+case1888_rte     sad    59110.5     0.0   24847.1   89364.5     1    1   405     4    0 |      0.00      0.00    0.00    0.00     0
+case1951_rte     sad    80656.5     0.0   27080.5   97706.1     1    1   486     4    0 |      0.00      0.00    0.00    0.00     0
+case2000_goc     sad    32972.9     0.0   13167.0   44578.8     1    1   561     0    0 |      0.00      0.00    0.00    0.00     0
+
+In-service branches with x = 0 (from bus, to bus, r pu, RATE_A MVA): case1803_snem typ: [[101, 10008, 8.02335494106e-06, 1500.0], [101, 10009, 0.000996808510195, 1500.0]]; case1803_snem api: [[101, 10008, 8.02335494106e-06, 1500.0], [101, 10009, 0.000996808510195, 1500.0]]; case1803_snem sad: [[101, 10008, 8.02335494106e-06, 1500.0], [101, 10009, 0.000996808510195, 1500.0]]

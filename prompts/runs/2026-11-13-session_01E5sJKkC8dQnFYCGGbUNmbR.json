@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKkC8dQnFYCGGbUNmbR",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T05:22:36Z",
+  "ended": "2026-11-13T06:03:22Z",
+  "wall_minutes": 41.24,
+  "tokens_in": 8006368,
+  "tokens_out": 37643,
+  "cost_usd": 3.4507,
+  "tool_calls": 73,
+  "task": "Deepen (flagship 6) shift-roster-builder: --steady at each reissue",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15389",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "pkill/pgrep -f hook blocks: a bracketed pattern still matched because the same word appeared later in the command line",
+      "fix": "split the kill into its own call with a shortened bracketed pattern"
+    },
+    {
+      "what": "a heredoc writing an eval file was refused by the rm safety check (could not parse)",
+      "fix": "wrote the file with the Write tool"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/shift-roster-builder/README.md",
+      "issue": "'A quicker call-out check' said the caf\u00e9's remaining 20 s was mostly its six exact builds; measured, the builds are about 6 s of 17.6 s and the call-out rebuilds the rest. The flagships.yaml next: item copied the claim. Both corrected."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "next: listed '--steady at each reissue' as open work; the eval shows it cannot change anything with keepShift 1 (0 of 983). Rewritten."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "the flagship item tried was a negative result (no product change to --steady at reissue), so the shipped product change is the tie-counting fix found along the way rather than the planned feature",
+      "did": "shipped rosterKey + honest tie counts, the eval, docs corrections and a post",
+      "result": "product text now reports true tie counts; the open item is closed on evidence"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-shift-roster-ties-that-were-not.md",
+    "ventures/shift-roster-builder/README.md#how-many-rosters-really-tie"
+  ],
+  "goal": null,
+  "notes": "eval/steady-reissue.mjs: 16 cells (cafe, spare, retail, clinic x 4 rate settings), 510 disrupted weeks, 983 reissues, 170 with distinct ties, 0 changed by the tie-break, 192 s vs 2,696 s. eval/distinct-ties.mjs: salon 5 file-order ties are 3 schedules; others unchanged. steady.test.mjs 10/10 pass locally. python3 platform/ci/run_venture_tests.py shift-roster-builder: ok (167.8 s), 1 suite, 0 failed. node platform/pages/venture-preflight.mjs shift-roster-builder: preflight clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "150d048f-f717-57b9-8ea7-ecfc8f8b74e0",
+    "transcripts": 1,
+    "first": "2026-11-13T05:22:36Z",
+    "last": "2026-11-13T06:03:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 65,
+        "input": 126,
+        "output": 37643,
+        "thinking": 8095,
+        "cache_read": 7865721,
+        "cache_write_5m": 0,
+        "cache_write_1h": 140521,
+        "api_equivalent_usd": 3.4507,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 65,
+      "input": 126,
+      "output": 37643,
+      "thinking": 8095,
+      "cache_read": 7865721,
+      "cache_write_5m": 0,
+      "cache_write_1h": 140521,
+      "api_equivalent_usd": 3.4507,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 73,
+    "tools": {
+      "Bash": 65,
+      "Write": 6,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 41.24,
+      "active_minutes": 41.24,
+      "model_minutes": 7.97,
+      "tool_minutes": 33.27,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer designing and running the reissue eval, finding and fixing the tie-dedupe bug, and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 173.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

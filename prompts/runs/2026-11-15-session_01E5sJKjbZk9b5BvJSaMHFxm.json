@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKjbZk9b5BvJSaMHFxm",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T13:18:06Z",
+  "ended": "2026-11-15T13:39:31Z",
+  "wall_minutes": 21.88,
+  "tokens_in": 8590099,
+  "tokens_out": 36189,
+  "cost_usd": 3.4186,
+  "tool_calls": 79,
+  "task": "perf: shed-designer buildAuto probes skip the 3/12 comparison framing",
+  "projects": [
+    "shed-designer"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16228",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First cold leverOptions baseline (4.6 s) taken while a background per-file test sweep loaded the 4 cores; a clean cold rerun showed no difference, so I switched to interleaved in-process medians",
+      "cost_minutes": 5
+    },
+    {
+      "what": "The PR body first said 2,480 seeded sheds; the true count is 1,880 (320+320+620+620). Corrected in the PR body and the docs",
+      "cost_minutes": 1
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/venture_suite_times.json",
+      "issue": "No reader or key is documented: I guessed at the shape (top-level 'seconds' and 'failed' maps) by trial."
+    },
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "'The slowest local step' points at the top suites, but the top three (league, shift-roster, changepoint) have had many passes this week. A line saying 'check docs/history for passes in the last 3 days first' would save the survey."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "The suite wall time is the stated metric, but this change barely moves it (161 to 159 s). I landed it anyway because the gain is user-facing: the page's per-edit build for auto designs (79 to 58 ms for 4 sheds) and the cost-lever table (2,025 to 1,560 ms). That is 'what visitors wait on', item 4.",
+      "did": "Reported both, and called the suite number noise",
+      "result": "Landed with byte-identical output"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-the-shed-nobody-looked-at.md",
+    "docs/history/ci-perf-2026-11-15-shed-auto-probe-peak-warning.md"
+  ],
+  "goal": "perf",
+  "notes": "Metric: buildFramed calls for one leverOptions(defaultDesign()), 1,444 before and 760 after (counter in a scratch copy). Lever table for 8x10, 12x16 and default: median 2,025 ms before, 1,560 ms after (8 interleaved rounds, one process, cache defeated by renaming). buildShed on 4 designs (2 auto): 78.7 to 58.4 ms (30 rounds). shed-designer node --test: 161 s before, 159 s after (one sequential run each; noise). Equivalence: sha256 over the JSON of 1,880 seeded sheds plus 12 lever tables, identical on seeds 1, 2 and 3. Local checks: run_venture_tests.py shed-designer ok (524 tests, 151 s); check_post_frontmatter ok; run_workflow_locally --for-changes, see the PR. Survey: ai-bookkeeper is 324 files at about 0.3 s each, startup-bound with no hot spot. wall-framing engine.test is 8 s, 3.5 s of it in exactStock (already bitset DP).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8e53f09e-c313-50f6-a39e-2b59a2546556",
+    "transcripts": 1,
+    "first": "2026-11-15T13:18:06Z",
+    "last": "2026-11-15T13:39:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 77,
+        "input": 146,
+        "output": 36189,
+        "thinking": 9465,
+        "cache_read": 8464789,
+        "cache_write_5m": 0,
+        "cache_write_1h": 125164,
+        "api_equivalent_usd": 3.4186,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 77,
+      "input": 146,
+      "output": 36189,
+      "thinking": 9465,
+      "cache_read": 8464789,
+      "cache_write_5m": 0,
+      "cache_write_1h": 125164,
+      "api_equivalent_usd": 3.4186,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 79,
+    "tools": {
+      "Bash": 72,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.88,
+      "active_minutes": 21.88,
+      "model_minutes": 8.63,
+      "tool_minutes": 13.26,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "survey of three suites, profiling, a deferred-warning refactor, an equivalence harness and a test, by a senior JS engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 146.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

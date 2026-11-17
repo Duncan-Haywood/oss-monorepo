@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtKKpdTvLk7m1tw2pyw",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T11:05:42Z",
+  "ended": "2026-11-11T11:14:27Z",
+  "wall_minutes": 9.25,
+  "tokens_in": 6097275,
+  "tokens_out": 40575,
+  "cost_usd": 3.1095,
+  "tool_calls": 57,
+  "task": "Deepen (flagship 2) ai-bookkeeper item (8b): Schedule AI against the federal form text",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14769",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 12,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first preflight run failed: post description 166 characters (limit 160)",
+      "fix": "shortened; preflight rerun"
+    },
+    {
+      "what": "two hand-written test expectations wrong (Section A carry, penalty day list)",
+      "fix": "rechecked against the form lines; code was right"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "item (8b) said 'irs.gov answers since 2026-11-11' but not which pages; the quarterly-interest-rates page and the f2210/i2210 PDFs all answer, worth saying so runs plan around them"
+    },
+    {
+      "file": "ventures/ai-bookkeeper/annualized.mjs",
+      "issue": "old comment listed the 2/28-4/30-7/31-10/31 periods as unmodelled; the form says they are 11/30 and for estates and trusts only"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-reading-form-2210-the-400-dollar-column.md",
+    "ventures/ai-bookkeeper/README.md (Form 2210 read and the penalty added)"
+  ],
+  "goal": null,
+  "notes": "Read 2025 Form 2210 + instructions (pdftotext) and irs.gov quarterly interest rates. Fixed the period $400 SE-tax rule in Schedule AI Part II, added penalty2210.mjs (Part III Section A + penalty worksheet), shown both ways in CLI and page. run_venture_tests.py ai-bookkeeper: ok (51 s). Worked example regular 602.92 vs Schedule AI 37.28, hand-checked.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "dc014b3e-252c-5a0b-81ad-383f667e22af",
+    "transcripts": 1,
+    "first": "2026-11-11T11:05:42Z",
+    "last": "2026-11-11T11:14:57Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 98,
+        "output": 40575,
+        "thinking": 12225,
+        "cache_read": 5958955,
+        "cache_write_5m": 0,
+        "cache_write_1h": 138222,
+        "api_equivalent_usd": 3.1095,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 98,
+      "output": 40575,
+      "thinking": 12225,
+      "cache_read": 5958955,
+      "cache_write_5m": 0,
+      "cache_write_1h": 138222,
+      "api_equivalent_usd": 3.1095,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 51,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.25,
+      "active_minutes": 9.25,
+      "model_minutes": 7.73,
+      "tool_minutes": 1.52,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "reading Form 2210 and its instructions, coding Part III and the worksheet, tests from the IRS examples",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 193.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

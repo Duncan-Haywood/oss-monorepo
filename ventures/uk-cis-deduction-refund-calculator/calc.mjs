@@ -14,7 +14,7 @@ export const CLASS4_LOWER = 12_570;
 export const CLASS4_UPPER = 50_270;
 export const GROSS_TURNOVER_TEST = 30_000;
 
-const gbp = (n) => (n < 0 ? "-" : "") + "£" + Math.abs(Math.round(n * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const gbp = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("£" + Math.abs(Math.round(n * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 const r2 = (n) => Math.round(n * 100) / 100;
 const num = (v) => (v === undefined || v === null || v === "" ? 0 : Number(v));
 

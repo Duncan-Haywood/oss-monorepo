@@ -131,7 +131,7 @@ function buildReport(text, fileName) {
   const counts = { production: 0, "build-only": 0 };
   for (const row of rows) counts[row.surface] += 1;
   return {
-    generatedOn: new Date().toISOString().slice(0, 10),
+    generatedOn: new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10),
     lockfile: fileName || "package-lock.json",
     componentCount: rows.length,
     counts,

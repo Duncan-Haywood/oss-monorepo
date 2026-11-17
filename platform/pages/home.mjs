@@ -8,6 +8,8 @@
 // search, counting and saved-bid code. Everything here is static markup and
 // inline SVG: no image is fetched, nothing needs JavaScript to read or click.
 
+import { formatCount } from './count.mjs';
+
 const esc = (value) =>
   String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
@@ -64,7 +66,7 @@ export function renderHowItWorks({ toolCount = 0, appCount = 0 } = {}) {
     {
       glyph: 'browser',
       title: 'Open a tool and type your numbers',
-      body: `${toolCount ? `${toolCount} tools` : 'Every tool'} run entirely in your browser. No account, no upload: the arithmetic happens on your device, and works offline once opened.`,
+      body: `${toolCount ? `${formatCount(toolCount)} tools` : 'Every tool'} run entirely in your browser. No account, no upload: the arithmetic happens on your device, and works offline once opened.`,
     },
     {
       glyph: 'code',
@@ -105,7 +107,7 @@ export function renderCategoryCard({ id, href, title, blurb, count, examples = [
           <div class="cat-head">
             <span class="cat-ico">${icon(id)}</span>
             <h3><a href="${esc(href)}" data-category="${esc(id)}">${esc(title)}</a></h3>
-            <span class="cat-count">${count}</span>
+            <span class="cat-count">${formatCount(count)}</span>
           </div>
           <p class="cat-blurb">${esc(blurb)}</p>
           <ul class="cat-examples">
@@ -113,7 +115,7 @@ ${examples
   .map((s) => `            <li><a href="${esc(s.slug)}/" data-tool="${esc(s.slug)}">${esc(cardName(s.title))}</a></li>`)
   .join('\n')}
           </ul>
-          <a class="cat-all" href="${esc(href)}" aria-label="${esc(`${note || `All ${count} tools`} in ${title}`)}">${esc(note || `All ${count} tools`)} →</a>
+          <a class="cat-all" href="${esc(href)}" aria-label="${esc(`${note || `All ${formatCount(count)} tools`} in ${title}`)}">${esc(note || `All ${formatCount(count)} tools`)} →</a>
         </li>`;
 }
 
@@ -175,7 +177,7 @@ export function renderResearchBand({ featured = [], themes = [], projects = [] }
   const chips = themes.map((t) => `<a href="${esc(`${researchPath}${topicsDir}/${t.id}/`)}" style="--theme:${colourFor(t.id)}">${esc(t.name)} <span>${t.count}</span></a>`);
   return `    <section class="band night" id="research" aria-labelledby="research-h">
       <p class="section-eyebrow">Open research</p>
-      <h2 id="research-h">${researchCount} reproducible research projects</h2>
+      <h2 id="research-h">${formatCount(researchCount)} reproducible research projects</h2>
       <p class="band-lede">Verification markets, scoring rules, decentralised training, chip design, energy and robotics. Each project states its question, ships runnable code and tests, and writes up what it found and where it falls short. <a href="${esc(researchPath)}">Browse all research →</a></p>
 ${cards.length ? `      <ul class="rcards">\n${cards.join('\n')}\n      </ul>` : ''}
 ${chips.length ? `      <p class="research-themes">${chips.join(' ')}</p>` : ''}
@@ -195,7 +197,7 @@ export function renderLatestWriting(posts = [], { writingPath = 'writing/', limi
   return `    <section class="band" id="writing" aria-labelledby="writing-h">
       <p class="section-eyebrow">Writing</p>
       <h2 id="writing-h">Notes from building it in public</h2>
-      <p class="band-lede">What the tools turned up and how they were built, written from the repository's own records and numbers. <a href="${esc(writingPath)}">Read all ${posts.length} posts →</a></p>
+      <p class="band-lede">What the tools turned up and how they were built, written from the repository's own records and numbers. <a href="${esc(writingPath)}">Read all ${formatCount(posts.length)} posts →</a></p>
       <ul class="posts">
 ${latest
   .map(

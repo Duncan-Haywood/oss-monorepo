@@ -89,3 +89,13 @@ test("price raise break-even never exceeds 100% when utilities and fees outrun t
   const r = analyze(rows("W,10,5,4,4.9,5000"), { cardFeePct: 3 });
   for (const x of r.raises) near(x.breakEvenLoss, 1);
 });
+
+test("an unquoted thousands comma skips the line instead of reading $4,800 as $4 (quality audit 2026-11-13)", () => {
+  const p = parseMachines("Washer 20 lb,8,$4.25,4.5,$0.95,$4,800\nDryer,10,0.25,6,0.1,3000");
+  assert.equal(p.rows.length, 1);
+  assert.equal(p.rows[0].name, "Dryer");
+  assert.match(p.warnings.join(" "), /unquoted comma/);
+  assert.ok(parseMachines("W,8,4.25,4.5,0.95,$4,800").error);
+  const q = parseMachines('Washer,8,4.25,4.5,0.95,"$4,800"');
+  assert.equal(q.rows[0].install, 4800);
+});

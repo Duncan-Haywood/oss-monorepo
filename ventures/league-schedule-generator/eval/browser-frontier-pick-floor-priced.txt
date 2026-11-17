@@ -1,0 +1,12 @@
+# node eval/browser-frontier-pick.mjs --teams=18 --single --polished, 2026-11-13: the page lists the floor-priced seasons 392/36 and 418/34 (tries 17 and 18) after the regrounded 348/38
+ok   the frontier list shows (9 other season(s)): Other seasons from the same searches, each the most even carry-over found for its number of back-to-back home or away games. Click one to use it: 348 carry-over, 38 back-to-back 392 carry-over, 36 back-to-back 418 carry-over, 34 back-to-back 430 carry-over, 30 back-to-back 444 carry-over, 28 back-to-back 454 carry-over, 24 back-to-back 496 carry-over, 22 back-to-back 510 carry-over, 20 back-to-back (shown) 620 carry-over, 18 back-to-back 662 carry-over, 16 back-to-back
+ok   a squeezed season is on the list (try numbers 16, 17, 18, 5, 3, 10, 14, 13, 8)
+ok   a regrounded season is on the list (index 16 and up)
+ok   picking "348 carry-over, 38 back-to-back" keeps that season (was 510/20)
+ok   the report's own recount (348) agrees with the kept try (348)
+ok   share link copied
+ok   the share link opens on the picked season
+ok   Back to the choice above restores the first season
+ok   changing the choice drops a picked season
+ok   no page errors
+

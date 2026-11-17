@@ -233,7 +233,11 @@ function totalsFrom(settlement) {
   const currency = textOf(settlement, "InvoiceCurrencyCode");
   const taxAmounts = summation ? descendants(summation, "TaxTotalAmount") : [];
   const taxNode = taxAmounts.find((node) => !node.attrs || !node.attrs.currencyID || !currency || node.attrs.currencyID === currency) || taxAmounts[0];
+  // Two TaxTotalAmounts both marked in the invoice currency: the second is BT-111 in
+  // a VAT accounting currency that is the invoice currency, kept for INV-059.
+  const marked = currency ? taxAmounts.filter((node) => node.attrs && node.attrs.currencyID === currency) : [];
   return {
+    tax_accounting_currency: marked.length === 2 && marked[0] === taxNode ? marked[1].text.trim() : "",
     net: textOf(summation, "TaxBasisTotalAmount") || textOf(summation, "LineTotalAmount"),
     tax: taxNode ? taxNode.text.trim() : "",
     gross: textOf(summation, "GrandTotalAmount"),
@@ -327,6 +331,7 @@ export function parseCiiInvoice(source) {
   if (totals.prepaid !== "") invoice.totals.prepaid = totals.prepaid;
   if (totals.payable !== "") { invoice.totals.payable = totals.payable; invoice.totals.due = totals.payable; }
   if (totals.rounding !== "") invoice.totals.rounding = totals.rounding;
+  if (totals.tax_accounting_currency !== "") invoice.totals.tax_accounting_currency = totals.tax_accounting_currency;
 
   const taxBreakdown = [];
   for (const row of breakdown) {

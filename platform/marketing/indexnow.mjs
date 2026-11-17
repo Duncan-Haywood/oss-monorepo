@@ -87,14 +87,36 @@ import { publishedBaseUrl, SERVING_BRANCH } from '../pages/published-base-url.mj
 export const INDEXNOW_ENDPOINT = 'https://api.indexnow.org/indexnow';
 
 // The protocol's own ceiling (https://www.indexnow.org/documentation) — a
-// single request may name at most 10,000 URLs. This catalogue is under that
-// — 973 on the 2026-09-11 snapshot, counting every page the published
-// sitemaps enumerate and not just the one-per-venture catalogue entries — but
-// the margin is roughly 10x rather than the 40x it looked like when only
-// `catalog.json` was read, so the guard matters more than it did. It fails
-// loudly with a name for the fix (batch the calls) rather than filing a
-// request the API silently truncates.
+// single request may name at most 10,000 URLs. The site was 973 URLs on
+// 2026-09-11 and 10,023 by 2026-11-15, when the old guard ("this script does
+// not batch yet") began refusing every deploy's announcement: the step's red
+// was soft (it must not hold back the GitHub Pages deploy), so the deploy job
+// stayed green and nothing reached IndexNow. The CLI now sends
+// `batches(urls)`, each at most this many, in order.
 export const MAX_URLS_PER_REQUEST = 10000;
+
+/** Split `urls` into consecutive lists of at most `size` (the protocol ceiling). */
+export function batches(urls, size = MAX_URLS_PER_REQUEST) {
+  if (!Number.isInteger(size) || size < 1) throw new Error(`batch size must be a positive integer, got ${size}`);
+  const out = [];
+  for (let i = 0; i < urls.length; i += size) out.push(urls.slice(i, i + size));
+  return out;
+}
+
+/**
+ * POST every batch in order, stopping at the first one that is not accepted
+ * (a refused key or a missing egress will refuse the rest the same way, and
+ * the CLI reports that one). Returns one `{ size, result }` per batch sent.
+ */
+export async function submitInBatches({ baseUrl, urls, send = submit, size = MAX_URLS_PER_REQUEST }) {
+  const sent = [];
+  for (const list of batches(urls, size)) {
+    const result = await send(buildPayload({ baseUrl, urls: list }));
+    sent.push({ size: list.length, result });
+    if (!result.ok) break;
+  }
+  return sent;
+}
 
 // Exit code for "the request never left this machine". Distinct from 1 so a
 // caller can tell "this host cannot reach IndexNow" (expected, and not a
@@ -224,10 +246,11 @@ export async function urlsFromSitemaps(readFile, baseUrl) {
 
   // A root `<urlset>` (no index) is a legitimate small-site shape and needs
   // no second pass — its locs are already pages.
-  if (!isSitemapIndex(root)) return { urls: locsIn(root).sort(), warnings, childCount: 0 };
+  if (!isSitemapIndex(root)) return { urls: locsIn(root).sort(), warnings, childCount: 0, readCount: 0 };
 
   const children = locsIn(root);
   const urls = new Set();
+  let readCount = 0;
   for (const child of children) {
     if (!child.startsWith(baseUrl)) {
       warnings.push(`child sitemap ${child} is not under ${baseUrl} — skipped`);
@@ -240,9 +263,43 @@ export async function urlsFromSitemaps(readFile, baseUrl) {
       warnings.push(`child sitemap ${child} is named by sitemap.xml but absent from the artifact — skipped`);
       continue;
     }
+    readCount += 1;
     for (const loc of locsIn(xml)) urls.add(loc);
   }
-  return { urls: [...urls].sort(), warnings, childCount: children.length };
+  return { urls: [...urls].sort(), warnings, childCount: children.length, readCount };
+}
+
+/**
+ * Keep only the URLs this submission may name: same scheme and host as
+ * `baseUrl`, and at or under its path (which is where `keyLocation` sits).
+ *
+ * The IndexNow documentation says a request naming a URL off the declared
+ * `host`, or outside the folder the key file covers, is rejected as a whole
+ * (422), so one stray `<loc>` in a child sitemap cost the whole announcement.
+ * Quality audit 2026-11-07 (portfolio/quality/audits/2026-11-07-marketing.json,
+ * defect 0) reproduced it: a fixture's `evil.test` and `/outside/` URLs were
+ * both in the dry-run payload. Dropped URLs are returned so the caller can
+ * print them; a systematic drop must stay visible.
+ */
+export function scopeToSite(urls, baseUrl) {
+  const base = new URL(baseUrl);
+  const kept = [];
+  const dropped = [];
+  for (const url of urls) {
+    let parsed;
+    try {
+      parsed = new URL(url);
+    } catch {
+      dropped.push(url);
+      continue;
+    }
+    if (parsed.protocol === base.protocol && parsed.host === base.host && parsed.pathname.startsWith(base.pathname)) {
+      kept.push(url);
+    } else {
+      dropped.push(url);
+    }
+  }
+  return { kept, dropped };
 }
 
 /**
@@ -495,13 +552,23 @@ export async function submit(payload) {
   return { status: res.status, ok: res.ok, body };
 }
 
-function parseArgs(argv) {
+/**
+ * Unknown flags and a flag missing its value throw instead of being ignored:
+ * a typo such as `--sumbit` used to fall through to a dry run that looked
+ * like success (quality audit 2026-11-07, defect 2).
+ */
+export function parseArgs(argv) {
   const args = { submit: false, ref: 'gh-pages', dir: null, baseUrl: null };
+  const valued = { '--ref': 'ref', '--dir': 'dir', '--base-url': 'baseUrl' };
   for (let i = 0; i < argv.length; i++) {
-    if (argv[i] === '--submit') args.submit = true;
-    else if (argv[i] === '--ref') args.ref = argv[++i];
-    else if (argv[i] === '--dir') args.dir = argv[++i];
-    else if (argv[i] === '--base-url') args.baseUrl = argv[++i];
+    const flag = argv[i];
+    if (flag === '--submit') args.submit = true;
+    else if (flag in valued) {
+      const value = argv[i + 1];
+      if (value === undefined || value.startsWith('--')) throw new Error(`${flag} needs a value`);
+      args[valued[flag]] = value;
+      i += 1;
+    } else throw new Error(`unknown argument ${JSON.stringify(flag)} (known: --submit, --ref, --dir, --base-url)`);
   }
   return args;
 }
@@ -509,18 +576,32 @@ function parseArgs(argv) {
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
 if (isMain) {
-  const args = parseArgs(process.argv.slice(2));
+  let args;
+  try {
+    args = parseArgs(process.argv.slice(2));
+  } catch (err) {
+    console.error(`indexnow: ${err.message}`);
+    process.exit(2);
+  }
   const readFile = readerFor(args);
-  const catalog = await readCatalog(readFile);
-
-  const resolved = resolveBaseUrl({
-    explicit: args.baseUrl,
-    catalog,
-    published: publishedBaseUrl(),
-    // publishedBaseUrl() reads the serving branch, so it is a second reading
-    // of *this* artifact only when this artifact is that branch's snapshot.
-    comparable: !args.dir && args.ref === SERVING_BRANCH,
-  });
+  // A missing ref or a bad --base-url is a user error with a message already
+  // written for it; print that, not a stack trace (audit 2026-11-07, defect 2).
+  let catalog;
+  let resolved;
+  try {
+    catalog = await readCatalog(readFile);
+    resolved = resolveBaseUrl({
+      explicit: args.baseUrl,
+      catalog,
+      published: publishedBaseUrl(),
+      // publishedBaseUrl() reads the serving branch, so it is a second reading
+      // of *this* artifact only when this artifact is that branch's snapshot.
+      comparable: !args.dir && args.ref === SERVING_BRANCH,
+    });
+  } catch (err) {
+    console.error(`indexnow: ${err?.message || err}`);
+    process.exit(1);
+  }
   if (resolved.source === 'conflict') {
     const { artifact, published, via } = resolved.conflict;
     console.error(
@@ -543,7 +624,9 @@ if (isMain) {
   try {
     const walked = await urlsFromSitemaps(readFile, baseUrl);
     fromSitemaps = walked.urls;
-    sitemapNote = `${fromSitemaps.length} from ${walked.childCount} published sitemap(s)`;
+    const read =
+      walked.readCount === walked.childCount ? `${walked.childCount}` : `${walked.readCount} of ${walked.childCount}`;
+    sitemapNote = `${fromSitemaps.length} from ${read} published sitemap(s)`;
     for (const warning of walked.warnings) console.error(`indexnow: warning — ${warning}`);
   } catch (err) {
     // Not fatal: the catalogue floor is still a correct, useful submission,
@@ -558,23 +641,26 @@ if (isMain) {
         `  ${err?.message || err}`,
     );
   }
-  const urls = [...new Set([...fromCatalog, ...fromSitemaps])].sort();
+  const { kept: urls, dropped } = scopeToSite([...new Set([...fromCatalog, ...fromSitemaps])].sort(), baseUrl);
+  if (dropped.length) {
+    console.error(
+      `indexnow: warning — ${dropped.length} URL(s) are not under ${baseUrl} and were left out ` +
+        '(IndexNow rejects a whole request that names one): ' +
+        `${dropped.slice(0, 5).join(', ')}${dropped.length > 5 ? ', …' : ''}`,
+    );
+  }
 
   if (urls.length === 0) {
     console.error('indexnow: catalog.json named no URLs — refusing to submit an empty list.');
     process.exit(1);
   }
-  if (urls.length > MAX_URLS_PER_REQUEST) {
-    console.error(
-      `indexnow: ${urls.length} URLs exceeds the ${MAX_URLS_PER_REQUEST}-per-request protocol ` +
-        'limit. This script does not batch yet — split the call or extend it before running.',
-    );
-    process.exit(1);
-  }
-
   const payload = buildPayload({ baseUrl, urls });
+  const planned = batches(urls);
 
   console.log(`indexnow: ${urls.length} URL(s) from ${args.dir ? `dir ${args.dir}` : `ref ${args.ref}`}`);
+  if (planned.length > 1) {
+    console.log(`  batches:     ${planned.length} requests (${planned.map((b) => b.length).join(' + ')}; at most ${MAX_URLS_PER_REQUEST} each)`);
+  }
   console.log(`  sources:     ${fromCatalog.length} from catalog.json, ${sitemapNote}`);
   console.log(`  origin:      ${baseUrl} (from ${resolved.source})`);
   console.log(`  host:        ${payload.host}`);
@@ -588,7 +674,9 @@ if (isMain) {
 
   await assertKeyFilePublished(readFile);
 
-  const result = await submit(payload);
+  const sent = await submitInBatches({ baseUrl, urls });
+  const { result } = sent[sent.length - 1];
+  const where = planned.length > 1 ? ` (batch ${sent.length} of ${planned.length})` : '';
 
   // Both shapes of "this host cannot reach IndexNow" land here: the request
   // rejecting outright, and an egress proxy answering in IndexNow's place.
@@ -599,7 +687,7 @@ if (isMain) {
       ? `${result.status}, from this host's egress proxy rather than from IndexNow`
       : null;
   if (noEgress) {
-    console.error(`\nPOST ${INDEXNOW_ENDPOINT} -> ${noEgress}`);
+    console.error(`\nPOST ${INDEXNOW_ENDPOINT}${where} -> ${noEgress}`);
     if (result.body) console.error(`  ${String(result.body).trim()}`);
     console.error(
       'indexnow: the request never reached IndexNow, so nothing was submitted and nothing\n' +
@@ -610,10 +698,17 @@ if (isMain) {
     process.exit(EXIT_NO_EGRESS);
   }
 
-  console.log(`\nPOST ${INDEXNOW_ENDPOINT} -> ${result.status}`);
-  if (result.body) console.log(result.body);
+  for (const [i, s] of sent.entries()) {
+    const label = planned.length > 1 ? ` (batch ${i + 1} of ${planned.length}, ${s.size} URLs)` : '';
+    console.log(`\nPOST ${INDEXNOW_ENDPOINT}${label} -> ${s.result.status}`);
+    if (s.result.body) console.log(s.result.body);
+  }
   if (!result.ok) {
-    console.error('indexnow: submission was not accepted — see status and body above.');
+    const done = sent.slice(0, -1).reduce((n, s) => n + s.size, 0);
+    console.error(
+      `indexnow: submission was not accepted${where} — see status and body above` +
+        (done ? `; the ${done} URL(s) in earlier batches were accepted.` : '.'),
+    );
     process.exit(1);
   }
 }

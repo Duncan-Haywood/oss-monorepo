@@ -1,0 +1,272 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqybjzPDgTQ5vqDxdSPG",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T18:39:27Z",
+  "ended": "2026-11-16T18:39:57Z",
+  "wall_minutes": 10.78,
+  "tokens_in": 3547298,
+  "tokens_out": 24251,
+  "cost_usd": 1.8025,
+  "tool_calls": 47,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16667",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/README.md",
+      "issue": "'Where the launch dates come from' still describes the retired in-cluster --depth 1 build (gitops/prod/portfolio-site.yaml) and Hetzner ingress; hosting is Cloudflare since 2026-10-30. Left as is apart from a shallow-clone note."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 asks to fix open entries first; all 9 are control-plane fixes already sitting in open owner-approval PRs.",
+      "did": "Checked each was still unfixed on main and had a PR; changed none.",
+      "result": "Run time went to the campaign and three real defects instead."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-redteam-a-shallow-clone-thinks-everything-is-new.md"
+  ],
+  "goal": null,
+  "notes": "Guard added: platform/pages/shallow-boundary-lint.test.mjs (runs in portfolio-pages pages suite). First run against pre-fix tree flagged exactly devstats.mjs and launched.mjs. Verification: platform/pages suite 1762/1762, devstats+daily 54/54. ventures_added remains a lower bound when the 30-day window exceeds the 3000-commit deploy clone.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/pages/launched.mjs",
+        "test": "node --test platform/pages/launched.test.mjs  (in .)",
+        "seed": 34591181,
+        "commit": "beba8639d",
+        "sites": 28,
+        "baseline_seconds": 1.2,
+        "mutants": [
+          {
+            "file": "platform/pages/launched.mjs",
+            "line": 57,
+            "col": 32,
+            "operator": "const-plus-one",
+            "before": "export const FEED_MAX_ENTRIES = 20;",
+            "after": "export const FEED_MAX_ENTRIES = 21;",
+            "line_text": "export const FEED_MAX_ENTRIES = 20;",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "The only cap test reads the constant, so any value passes. New test pins the README-stated cap to the constant; it also found the README still said 40."
+          },
+          {
+            "file": "platform/pages/launched.mjs",
+            "line": 67,
+            "col": 86,
+            "operator": "and-to-or",
+            "before": "Object.entries(parsed?.launched ?? {}).filter(([slug, date]) => isIsoDate(date) && slug),",
+            "after": "Object.entries(parsed?.launched ?? {}).filter(([slug, date]) => isIsoDate(date) || slug),",
+            "line_text": "      Object.entries(parsed?.launched ?? {}).filter(([slug, date]) => isIsoDate(date) && slug),",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/launched.mjs",
+            "line": 75,
+            "col": 177,
+            "operator": "const-plus-one",
+            "before": "return typeof value === 'string' && /^\\d{4}-\\d{2}-\\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`)) && new Date(`${value}T00:00:00Z`).toISOString().slice(0, 10) === value;",
+            "after": "return typeof value === 'string' && /^\\d{4}-\\d{2}-\\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`)) && new Date(`${value}T00:00:00Z`).toISOString().slice(1, 10) === value;",
+            "line_text": "  return typeof value === 'string' && /^\\d{4}-\\d{2}-\\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`)) && new Date(`${value}T00:00:00Z`).toISOString().slice(0, 10) === value;",
+            "caught": true,
+            "seconds": 22.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/launched.mjs",
+            "line": 91,
+            "col": 26,
+            "operator": "times-to-div",
+            "before": "{ cwd, maxBuffer: 8 * 1024 * 1024 },",
+            "after": "{ cwd, maxBuffer: 8 / 1024 * 1024 },",
+            "line_text": "      { cwd, maxBuffer: 8 * 1024 * 1024 },",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/launched.mjs",
+            "line": 91,
+            "col": 35,
+            "operator": "const-plus-one",
+            "before": "{ cwd, maxBuffer: 8 * 1024 * 1024 },",
+            "after": "{ cwd, maxBuffer: 8 * 1024 * 1025 },",
+            "line_text": "      { cwd, maxBuffer: 8 * 1024 * 1024 },",
+            "caught": false,
+            "seconds": 1.0,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Changes the git log buffer limit by 8 KiB (8 MiB -> 8.008 MiB); output is one ~33-byte line per add of one venture dir, so no reachable input lands between the two limits."
+          },
+          {
+            "file": "platform/pages/launched.mjs",
+            "line": 139,
+            "col": 11,
+            "operator": "neq-flip",
+            "before": "if (da !== db) return db.localeCompare(da);",
+            "after": "if (da === db) return db.localeCompare(da);",
+            "line_text": "    if (da !== db) return db.localeCompare(da);",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/launched.mjs",
+            "line": 184,
+            "col": 49,
+            "operator": "const-plus-one",
+            "before": "if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))) {",
+            "after": "if (process.argv[1] && path.resolve(process.argv[2]) === path.resolve(fileURLToPath(import.meta.url))) {",
+            "line_text": "if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/launched.mjs",
+            "line": 184,
+            "col": 53,
+            "operator": "eq-flip",
+            "before": "if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))) {",
+            "after": "if (process.argv[1] && path.resolve(process.argv[1]) !== path.resolve(fileURLToPath(import.meta.url))) {",
+            "line_text": "if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))) {",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "platform/pages/launched.mjs",
+        "issue": "firstCommitDate's docstring promised null in a shallow clone, but git log --diff-filter=A reports the shallow boundary commit as adding every file, so in any agent session or CI checkout an undated tool launched long ago got the clone's boundary date and would be announced in feed.xml as new. Reproduced with a two-commit repo cloned --depth 1 (returned 2026-06-07, launch was 2026-01-02). Fixed: the add commit is checked against .git/shallow and null is returned at the boundary.",
+        "patched": true
+      },
+      {
+        "file": "platform/pages/README.md",
+        "issue": "README said feed.xml is 'capped at the 40 most recent'; FEED_MAX_ENTRIES has been 20 since 2026-10-04. Fixed, and a test now ties the README number to the constant.",
+        "patched": true
+      },
+      {
+        "file": "platform/devstats/devstats.mjs",
+        "issue": "fromGit counted git log --diff-filter=A adds from the shallow boundary commit, which git diffs against nothing, so the live marisstella.app/dev page read '1,377 ventures added' in 30 days (the whole portfolio; the deploy clones 3000 commits, under 30 days). Reproduced locally (1377) and with a --depth 3 fixture test. Fixed by skipping commits listed in .git/shallow, as platform/daily/collect.mjs already did; a new lint (platform/pages/shallow-boundary-lint.test.mjs) fails any non-test git log --diff-filter=A reader that does not read the boundary list.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9ac5e7da-7bd8-57fd-a834-0be1f9d22a23",
+    "transcripts": 1,
+    "first": "2026-11-16T18:39:27Z",
+    "last": "2026-11-16T18:50:13Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 85,
+        "output": 24251,
+        "thinking": 5649,
+        "cache_read": 3469300,
+        "cache_write_5m": 0,
+        "cache_write_1h": 77913,
+        "api_equivalent_usd": 1.8025,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 85,
+      "output": 24251,
+      "thinking": 5649,
+      "cache_read": 3469300,
+      "cache_write_5m": 0,
+      "cache_write_1h": 77913,
+      "api_equivalent_usd": 1.8025,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 47,
+    "tools": {
+      "Bash": 44,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.78,
+      "active_minutes": 10.78,
+      "model_minutes": 4.14,
+      "tool_minutes": 6.63,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "senior engineer: mutation triage, two git shallow-clone fixes with fixture tests, lint, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 221.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

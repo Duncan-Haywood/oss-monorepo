@@ -68,3 +68,12 @@ measurement.
 3. `optout.mjs` and `sideways.mjs` keep their own synchronous
    `publishedPages`; they are separate scripts, not on the build path.
 4. P063 and P064, once the owner applies them.
+
+## Landed 2026-11-17
+
+Landed six days after it was written, merged with that day's `main`. By then
+`share.mjs`'s `listHtml` had gone synchronous on purpose
+(`docs/history/pages-build-perf-2026-11-12-share-identity-preload-sync.md`),
+so this change keeps `main`'s version of it. Only the two `build.mjs` walkers
+(`listFiles`, `publishedPages`) became concurrent. The share-pass part of the
+measurements above no longer applies.

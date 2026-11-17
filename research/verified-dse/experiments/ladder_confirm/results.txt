@@ -1,0 +1,58 @@
+# Milestone 137: SWC against random on a confirmatory blind set, one clock per design (flow run)
+
+theta = 3; design bootstrap 2000 resamples, seed 137.
+
+## Candidates: features and cost probe (computed before the flow run; keep if probe routed/r2 > 3.3)
+
+design | amount_depth | amount_gate_depth | amount_gates | probe routed/r2 | base period ns | kept | clock
+isq8 | 11 | 29 | 58 | 2.41 | 20.53 | False | -
+isq10 | 14 | 48 | 98 | 5.24 | 26.56 | True | tight
+isq12 | 17 | 66 | 153 | 8.44 | 44.35 | True | relaxed
+isq14 | 20 | 95 | 221 | 34.42 | 49.82 | True | tight
+amin4 | 6 | 51 | 123 | 2.85 | 17.68 | False | -
+amin6 | 10 | 86 | 217 | 2.96 | 14.02 | False | -
+amin8 | 14 | 121 | 320 | 4.61 | 17.35 | True | relaxed
+amin12 | 22 | 189 | 516 | 70.08 | 28.38 | True | tight
+csum3 | 4 | 70 | 128 | 4.32 | 12.14 | True | relaxed
+csum4 | 6 | 103 | 192 | 4.87 | 14.16 | True | tight
+csum6 | 10 | 169 | 320 | 14.71 | 16.51 | True | relaxed
+csum8 | 14 | 235 | 448 | 101.73 | 19.21 | True | tight
+eqc6 | 6 | 27 | 117 | 3.25 | 12.01 | False | -
+eqc10 | 10 | 46 | 212 | 4.81 | 10.55 | True | relaxed
+eqc16 | 16 | 71 | 356 | 3.74 | 16.93 | True | tight
+eqc24 | 24 | 108 | 571 | 9.44 | 16.81 | True | relaxed
+
+## Confirmatory test: 12 cells, one per design
+
+design | clock | routed/r2 | routed delay/period | random % | SWC % | SWC - random
+csum3 | relaxed | 4.97 | 0.459 | 4.51 | 0.00 | -4.51
+eqc16 | tight | 4.00 | 0.408 | 4.50 | 0.00 | -4.50
+csum6 | relaxed | 4.39 | 0.549 | 3.44 | 0.00 | -3.44
+amin12 | tight | 3.88 | 0.650 | 3.25 | 0.00 | -3.25
+eqc10 | relaxed | 3.66 | 0.347 | 3.03 | 0.00 | -3.03
+isq12 | relaxed | 3.90 | 0.180 | 7.16 | 4.42 | -2.74
+eqc24 | relaxed | 5.39 | 0.295 | 2.63 | 0.00 | -2.63
+amin8 | relaxed | 3.39 | 0.462 | 2.59 | 0.00 | -2.59
+csum8 | tight | 4.83 | 0.891 | 2.94 | 2.94 | +0.00
+csum4 | tight | 4.39 | 0.727 | 0.88 | 1.66 | +0.79
+isq14 | tight | 3.65 | 0.297 | 5.80 | 9.69 | +3.89
+isq10 | tight | 3.49 | 0.327 | 9.13 | 16.21 | +7.08
+
+mean regret %: SWC 2.91, random 4.15; ladder branch 12 of 12; SWC <= 0.5% on 7; SWC loses by > 1 point on 2
+design level (12 designs): SWC better on 8, worse on 4, tied on 0; two-sided sign p = 0.3877
+design-bootstrap 95% interval of mean (SWC - random): -2.97 to +0.79 points
+
+## Pooled with milestone 136's blind designs (21 + 12 = 33 designs)
+
+design level: SWC better on 21, worse on 9, tied on 3; two-sided sign p = 0.0428
+design-level mean (SWC - random) -1.32 points, sd 5.70; normal 95% interval -3.26 to +0.63; a 95% interval below zero needs about 73 designs at this spread
+
+## Predictions
+
+(1) every kept design on the ladder branch: True (12 of 12; lowest routed/r2 3.39)
+(2) SWC below random on mean regret: True (2.91% against 4.15%)
+(3) PRIMARY: SWC better on more designs and sign p < 0.05: False (8 better, 4 worse, p = 0.3877)
+(4) SWC <= 0.5% on at least half the cells: True (7 of 12)
+(5) pooled design-level sign p < 0.05, SWC better on more: True (21 better, 9 worse, p = 0.0428)
+(6) pooled normal 95% interval below zero: False (-3.26 to +0.63)
+(7) SWC fails on at most a quarter of the new cells: True (2 of 12)

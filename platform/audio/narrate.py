@@ -46,6 +46,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 import re
 import subprocess
@@ -156,9 +157,15 @@ def ensure_models(models: Path = DEFAULT_MODELS) -> Path:
     for name in MODEL_FILES:
         if not (models / name).exists():
             print(f"downloading {name}", flush=True)
-            part = models / f"{name}.part"
-            urllib.request.urlretrieve(MODEL_URL + name, part)
-            part.rename(models / name)
+            # Per-process temp name: parallel renders sharing one models dir otherwise
+            # write the same "<name>.part" and one renames the other's partial file.
+            part = models / f"{name}.{os.getpid()}.part"
+            try:
+                urllib.request.urlretrieve(MODEL_URL + name, part)
+            except BaseException:
+                part.unlink(missing_ok=True)
+                raise
+            os.replace(part, models / name)
     return models
 
 
@@ -315,6 +322,12 @@ LOUDNESS = -16.0  # LUFS, the podcast norm (Apple, Spotify)
 TRUE_PEAK = -1.5  # dBTP
 HIGHPASS = 60  # Hz: below a voice's fundamental, only rumble lives here
 OUT_RATE = 32000  # Hz in the MP3; see the report for the sweep
+# Quietest input master() will lift to LOUDNESS (a gain of at most 34 dB). Narration
+# comes out of the voice at about -20 to -40 LUFS; below this the clip is silence or
+# a noise floor, and EBU R128's -70 LUFS absolute gate makes ffmpeg report -inf for
+# it, which used to become `volume=inf dB` and a file nobody could hear (quality
+# audit 2026-11-07-audio.json, defect 1).
+MIN_INPUT_LUFS = -50.0
 
 
 def _ffmpeg(args: list[str], pcm: np.ndarray) -> subprocess.CompletedProcess:
@@ -336,7 +349,15 @@ def master(pcm: np.ndarray, out: Path, *, bitrate: str = "40k", rate: int = OUT_
 
     Returns the manifest fields every caller records: bytes, seconds, sha256.
     """
+    pcm = np.asarray(pcm, dtype=np.float32)
+    if pcm.size == 0:
+        raise ValueError("master(): empty audio, nothing to write")
+    if not np.all(np.isfinite(pcm)):
+        raise ValueError("master(): audio contains NaN or infinite samples")
     m = measure(pcm)
+    if not math.isfinite(m["lufs"]) or m["lufs"] < MIN_INPUT_LUFS:
+        raise ValueError(f"master(): input is silent or near-silent ({m['lufs']} LUFS, floor {MIN_INPUT_LUFS}); "
+                         f"lifting it to {LOUDNESS} LUFS would only amplify noise")
     gain = LOUDNESS - m["lufs"]
     limit = 10 ** (TRUE_PEAK / 20)
     # Fixed gain, then a lookahead limiter for the few peaks the gain pushes past the

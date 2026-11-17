@@ -42,3 +42,14 @@ test('a free plan staying free is already at break-even, not unreachable', () =>
   assert.equal(result.maxChurnRate, 100);
   assert.equal(result.revenueChange, 0);
 });
+
+test('a cleared field is an error, not a silent $0 (blank current price once read as 100% churn headroom)', () => {
+  const base = { customers: 100, currentPrice: '20', proposedPrice: '25', monthlyCosts: '500' };
+  for (const id of Object.keys(base)) {
+    for (const blank of ['', '   ', null, undefined]) {
+      assert.throws(() => calculateImpact({ ...base, [id]: blank }), /Enter /, `${id}=${JSON.stringify(blank)}`);
+    }
+  }
+  // A typed 0 is still a real answer.
+  assert.equal(calculateImpact({ ...base, monthlyCosts: '0' }).monthlyCosts, 0);
+});

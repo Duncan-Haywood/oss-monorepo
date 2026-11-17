@@ -20,7 +20,6 @@ an upper nor a lower bound on what a real walking controller achieves; it is the
 this one stated gait supports.
 """
 from dataclasses import dataclass
-from math import floor
 
 import mujoco
 import numpy as np

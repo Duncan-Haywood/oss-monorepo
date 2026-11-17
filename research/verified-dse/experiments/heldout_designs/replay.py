@@ -38,8 +38,18 @@ EXP = HERE.parent
 sys.path.insert(0, str(EXP.parent / "src"))
 sys.path.insert(0, str(EXP / "fresh_pool"))
 from verified_dse import flow  # noqa: E402
-from analyse import CLOCKS, regret, rand_regret  # noqa: E402
-from price import costs, equal_k, sign_p, stage_times  # noqa: E402
+def _sibling(path, name):
+    """Load a sibling experiment module by file path, so another experiment's module of the same name on sys.path cannot shadow it."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(name, path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+_a = _sibling(EXP / "fresh_pool" / "analyse.py", "verified_dse_fresh_analyse")
+_p = _sibling(EXP / "fresh_pool" / "price.py", "verified_dse_fresh_price")
+CLOCKS, regret, rand_regret = _a.CLOCKS, _a.regret, _a.rand_regret
+costs, equal_k, sign_p, stage_times = _p.costs, _p.equal_k, _p.sign_p, _p.stage_times
 
 TABLES = ["hostile/results.jsonl", "large/results.jsonl", "nonarith/results.jsonl", "unseen/results.jsonl",
           "fanout_rich/results.jsonl", "unfaithful/results.jsonl", "unfaithful/results_w36_40.jsonl"]

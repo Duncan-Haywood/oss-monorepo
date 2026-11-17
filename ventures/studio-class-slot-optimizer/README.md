@@ -29,6 +29,10 @@ it pays for the instructor.
 Membership and pack revenue that does not depend on one class, seasons, instructor draw and class-to-class feeding
 are not modelled, and a full room hides demand. Verified only against simulated timetables.
 
+Known gap (quality census 2026-11-15, [`portfolio/quality/audits/2026-11-15-studio-class-slot-optimizer.json`](../../portfolio/quality/audits/2026-11-15-studio-class-slot-optimizer.json)):
+a booking export with separate Day, Time and Class columns is grouped by the first matching column only (often
+"Day"), so different classes on the same day merge. Combine them into one slot column before pasting.
+
 ## Run
 
 Open `index.html`, or `node --test` to run the tests. No build step, no dependencies, no network calls.

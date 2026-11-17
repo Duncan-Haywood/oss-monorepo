@@ -1,0 +1,17 @@
+{
+ "SPM": {
+  "seconds": 0.9865498150000462,
+  "ok": true,
+  "cycles_done": 100
+ },
+ "SPMe": {
+  "seconds": 3.91630440199998,
+  "ok": true,
+  "cycles_done": 100
+ },
+ "DFN": {
+  "seconds": 27.913274484,
+  "ok": true,
+  "cycles_done": 100
+ }
+}

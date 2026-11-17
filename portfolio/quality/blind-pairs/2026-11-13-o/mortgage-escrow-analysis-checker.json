@@ -1,0 +1,236 @@
+{
+ "date": "2026-11-13",
+ "subject": "ventures/mortgage-escrow-analysis-checker",
+ "stratum": "venture",
+ "seed": "2026-11-13-o",
+ "drawn_by": "sample",
+ "round": 69,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a mortgage servicing escrow analyst / RESPA (Regulation X) compliance specialist; they check first that the aggregate trial balance reproduces Appendix E, that the cushion is capped at 1/6 of projected disbursements (two months), that shortage and deficiency are classified by the 1024.17(b) definitions (deficiency = a negative balance in the account; shortage = current balance below the target balance), that the 12-month repayment rule for a shortage of one month's payment or more is applied, and that a surplus of $50 or more is refunded within 30 days only when the borrower is current",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 3,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "node /tmp/claude-0/-home-user-oss-monorepo/c337335d-2523-5f19-bd28-910dc6cbc8ea/scratchpad/escrow/check.mjs runs calc.mjs analyze() on independent inputs. Appendix E aggregate example (Jul start; $500 Jul, $360 Sep, $700 Dec): monthly 130, cushion max 260, needed start balance 1,040 and closing balances 670 800 570 700 830 260 390 520 650 780 910 1040 match Appendix E Step 3 to the dollar; with start 0 the initial trial balance (-370 ... -780 ... 0) matches Step 1. Surplus boundary per 1024.17(f)(2): $50.00 flagged, $49.99 not, not-current suppresses the refund finding. Cushion: exactly 1/6 not flagged, $1 over flagged. Held at 2: the 'deficiency' figure is defined as the projected shortfall below a zero low point (calc.mjs:138), but 1024.17(b) defines deficiency as 'the amount of a negative balance in an escrow account'. With a positive $200 start balance, a projected low point of -$580 and an $840 shortage (>= one month's $130 payment) collected at $140/month (6 months), the tool raises no spread finding at all (Reg X 1024.17(f)(3)(ii) requires at least 12 months), and reports a $580 'deficiency' that does not exist; a -$300 start balance is reported as a $1,080 deficiency where Reg X gives $300.",
+  "completeness": "Every claimed feature runs in node: aggregate projection, monthly 1/12, 1/6 cushion check, servicer-projected-bills check, payment-above-supported check, stated-shortage check, spread check, surplus check, what-if (test and manual), request letter, CSV export, input validation. Served page https://marisstella.app/mortgage-escrow-analysis-checker/ returns 200 and the served llms.txt points at marisstella.app. The spread check, one of the six named checks, works only when the projected low point stays above zero, so it is partly delivered. No TODOs or stubs.",
+  "verification": "cd ventures/mortgage-escrow-analysis-checker && node --test '*.test.mjs': 46 tests, 46 pass (170 ms). Five seeded mutations with platform/ci/quality_mutate.py: 3 caught (cushion 1/6 -> 1/4, current-borrower gate removed, one-month threshold for spread changed), 2 survived (surplus >= $50 -> > $50 at calc.mjs:195, cushion tolerance 50 cents -> $50 at calc.mjs:148). A sixth, replacing the deficiency definition with the Reg X one (calc.mjs:138), fails the test 'a deficiency is not held to the 12-month rule' (calc.test.mjs:109): the test pins the misreading rather than the rule. No test of the Appendix E example.",
+  "craft": "Read calc.mjs (311 lines; pure, integer cents, no I/O), calc.test.mjs, page.test.mjs, index.html module script (lines 186-285). Clean, small, cited constants, input validation with messages, CSV quoting. Defects: the cushion check compares the stated cushion with 1/6 of the user's bills even when the user typed the servicer's larger projected total (stated annual $2,400, cushion $400 = exactly 1/6 of it, still flagged high, though the detail text explains); dense one-line findings make review harder; deficiency concept baked into several places (calc.mjs:138, 183, 187; index.html:146, 236).",
+  "claims": "Disclaimer (No warranty, not legal/tax/financial advice, keep paying while you ask) present at index.html:176 and README; independent-of-servicer line; usage counting local with opt-out (record() calls at index.html:250,253,279; usage.mjs). README limits are honest ('Unverified against a real servicer's worksheet', not checked: state law, waivers). Not backed: index.html:146 and calc.mjs:13-14 define deficiency as 'the balance would go negative' (projected), contradicting 1024.17(b); the headline claim 'whether a shortage is being collected faster than Regulation X allows' fails silently whenever the projected low point is negative; calc.mjs:185 says the 12-month rule 'only applies while the account is current', but 1024.17(f)(3) carries no current-borrower condition ((f)(2)(ii) and (f)(4)(iii) do). README 'Tests: node --test' works on this Node.",
+  "fitness": "Walked the homeowner job with the sample statement: enter bills and statement figures, see the supported payment ($700 + shortage spread), the cushion over 1/6, the servicer's higher projected bills, the twelve-month schedule with the low row shaded, copy a letter that asks for the worksheet and cites Regulation X without accusing. That gets the user to a precise question for the servicer. First-hour miss: the user with a big tax jump (the main audience) and a positive balance whose shortage is collected over 6 months gets no flag and is told part of the gap is a 'deficiency that may be repaid faster'.",
+  "domain": "Compared with 12 CFR 1024.17 text from govinfo.gov CFR-2024-title12-vol8-sec1024-17.xml (fetched 2026-11-13; ecfr.gov returned 403 'IP blocked' through the proxy) and 12 CFR 1024 Appendix E, aggregate-analysis example, from consumerfinance.gov/rules-policy/regulations/1024/E/ (fetched 2026-11-13). Matches: aggregate accounting, deposit before disbursement (Appendix E order), 1/12 payment, 1/6 cushion (two months), target balance = cushion minus lowest cumulative net, shortage < one month's payment may be collected in 30 days, >= one month over at least 12 months, surplus >= $50 refunded within 30 days if current. Departs: deficiency defined by projected low point instead of an actual negative account balance (1024.17(b)), which exempts real shortages from (f)(3)(ii); deficiency rule (f)(4) also has a < one month's payment / 30-day branch not modelled; shortage rule wrongly conditioned on being current in the text. Reg X has no $50 threshold for shortage or deficiency; the thresholds are one month's escrow payment, which the tool uses (from the user's bills, not the servicer's payment)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Appendix E aggregate example: monthly payment, cushion, required start balance, month-end balances",
+   "method": "12 CFR 1024 Appendix E, aggregate-analysis example, from consumerfinance.gov/rules-policy/regulations/1024/E/ (fetched 2026-11-13)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/c337335d-2523-5f19-bd28-910dc6cbc8ea/scratchpad/escrow/check.mjs",
+   "expected": "130; 260; 1040; 670 800 570 700 830 260 390 520 650 780 910 1040",
+   "observed": "130; 260; 1040; 670 800 570 700 830 260 390 520 650 780 910 1040",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Appendix E initial trial balance with no starting balance (low point)",
+   "method": "12 CFR 1024 Appendix E, aggregate-analysis example, from consumerfinance.gov/rules-policy/regulations/1024/E/ (fetched 2026-11-13), Step 1",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/c337335d-2523-5f19-bd28-910dc6cbc8ea/scratchpad/escrow/check.mjs",
+   "expected": "-370 -240 -470 -340 -210 -780 -650 -520 -390 -260 -130 0",
+   "observed": "-370 -240 -470 -340 -210 -780 -650 -520 -390 -260 -130 0",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "surplus refund threshold $50 and current-borrower condition",
+   "method": "12 CFR 1024.17 text from govinfo.gov CFR-2024-title12-vol8-sec1024-17.xml (fetched 2026-11-13; ecfr.gov returned 403 'IP blocked' through the proxy), 1024.17(f)(2)(i)-(ii): refund if >= $50 within 30 days, only if current",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/c337335d-2523-5f19-bd28-910dc6cbc8ea/scratchpad/escrow/check.mjs",
+   "expected": "$50.00 flagged; $49.99 not; not current: no refund finding",
+   "observed": "$50.00 surplus:medium; $49.99 none; not current none",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "cushion limit 1/6 of annual disbursements (two months)",
+   "method": "12 CFR 1024.17 text from govinfo.gov CFR-2024-title12-vol8-sec1024-17.xml (fetched 2026-11-13; ecfr.gov returned 403 'IP blocked' through the proxy), 1024.17(c)(1)(ii) and (c)(5)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/c337335d-2523-5f19-bd28-910dc6cbc8ea/scratchpad/escrow/check.mjs",
+   "expected": "stated cushion 260 on $1,560 not flagged; 261 flagged",
+   "observed": "260 none; 261 cushion:high",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "shortage >= one month's payment collected over 6 months, positive account balance, projected low point negative",
+   "method": "12 CFR 1024.17 text from govinfo.gov CFR-2024-title12-vol8-sec1024-17.xml (fetched 2026-11-13; ecfr.gov returned 403 'IP blocked' through the proxy), 1024.17(b) deficiency = negative balance in the account; (f)(3)(ii) shortage >= one month's payment repaid over at least 12 months",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/c337335d-2523-5f19-bd28-910dc6cbc8ea/scratchpad/escrow/check.mjs  (case spread6mo: start 200, stated shortage 840 at 140/mo)",
+   "expected": "spread finding (about 6.0 months, not 12); deficiency 0",
+   "observed": "no finding at all; deficiency reported 580",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "deficiency amount for an account already negative at the start of the year",
+   "method": "12 CFR 1024.17 text from govinfo.gov CFR-2024-title12-vol8-sec1024-17.xml (fetched 2026-11-13; ecfr.gov returned 403 'IP blocked' through the proxy), 1024.17(b)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/c337335d-2523-5f19-bd28-910dc6cbc8ea/scratchpad/escrow/check.mjs  (case negstart: start -300)",
+   "expected": "deficiency 300 (the negative balance), rest shortage",
+   "observed": "deficiency 1080, shortageOnly 260",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "shortage under one month's payment collected within 30 days is allowed",
+   "method": "12 CFR 1024.17 text from govinfo.gov CFR-2024-title12-vol8-sec1024-17.xml (fetched 2026-11-13; ecfr.gov returned 403 'IP blocked' through the proxy), 1024.17(f)(3)(i)(B)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/c337335d-2523-5f19-bd28-910dc6cbc8ea/scratchpad/escrow/check.mjs  (case short100)",
+   "expected": "no spread finding",
+   "observed": "no spread finding",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "cd ventures/mortgage-escrow-analysis-checker && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "46 tests, 46 pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer, no-warranty, keep-paying line on the page",
+   "method": "read index.html:55,176 and page.test.mjs",
+   "command": "grep -n -i 'warranty\\|not legal' ventures/mortgage-escrow-analysis-checker/index.html",
+   "expected": "present",
+   "observed": "present at :55 and :176; asserted in page.test.mjs",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "page definition of deficiency (index.html:146) against Reg X",
+   "method": "12 CFR 1024.17 text from govinfo.gov CFR-2024-title12-vol8-sec1024-17.xml (fetched 2026-11-13; ecfr.gov returned 403 'IP blocked' through the proxy), 1024.17(b)",
+   "command": "grep -n -i deficien ventures/mortgage-escrow-analysis-checker/index.html",
+   "expected": "deficiency = a negative balance in the account",
+   "observed": "'the balance would go negative' (projected low point)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README/page claim: checks whether a shortage is collected faster than Regulation X allows",
+   "method": "recomputed cases spread6mo and spread6mo-b",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/c337335d-2523-5f19-bd28-910dc6cbc8ea/scratchpad/escrow/check.mjs",
+   "expected": "flag in both",
+   "observed": "flagged only when projected low point stays positive",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "usage tracking with opt-out and served page/llms.txt host",
+   "method": "read index.html; curl served page",
+   "command": "curl -sS https://marisstella.app/mortgage-escrow-analysis-checker/llms.txt",
+   "expected": "record() calls with opt-out; 200; marisstella.app links",
+   "observed": "record at :250,:253,:279, opt-out :281; 200; served llms.txt links marisstella.app (source still github.io, rewritten at deploy)",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "shortage 12-month rule conditioned on borrower being current (calc.mjs:185 text)",
+   "method": "12 CFR 1024.17 text from govinfo.gov CFR-2024-title12-vol8-sec1024-17.xml (fetched 2026-11-13; ecfr.gov returned 403 'IP blocked' through the proxy), (f)(3) has no current condition; (f)(2)(ii), (f)(4)(iii) do",
+   "command": "grep -n 'only applies while the account is current' ventures/mortgage-escrow-analysis-checker/calc.mjs",
+   "expected": "no current condition for shortages",
+   "observed": "text says it only applies while current",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:131",
+   "change": "Math.round(annualCents / 6) -> Math.round(annualCents / 4)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:195",
+   "change": "surplusCents >= 5000 -> surplusCents > 5000",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:148",
+   "change": "cents(st.cushion) > cushionMaxCents + 50 -> cents(st.cushion) > cushionMaxCents + 5000",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:197",
+   "change": "if (n.current) { -> if (true) {",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:183",
+   "change": "cents(st.shortage) >= oneMonthLimit -> cents(st.shortage) > oneMonthLimit * 2",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Deficiency is computed as the projected shortfall below a zero low point (neededZero - startBalance) instead of Reg X 1024.17(b)'s 'amount of a negative balance in an escrow account'. Because the 12-month spread check is gated on deficiencyCents === 0 (calc.mjs:183), a shortage of one month's payment or more collected in 6 months is not flagged whenever the projected low point is negative, which is the typical large-tax-increase case; the page then tells the user part of the gap is a deficiency that may be repaid faster.",
+   "where": "ventures/mortgage-escrow-analysis-checker/calc.mjs:138",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Page and header comment define deficiency as 'the balance would go negative' (projected), contradicting 1024.17(b); the result text at index.html:236 repeats it.",
+   "where": "ventures/mortgage-escrow-analysis-checker/index.html:146",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "The test 'a deficiency is not held to the 12-month rule' encodes the projected-deficiency misreading, so correcting the rule fails a test; no test reproduces Appendix E.",
+   "where": "ventures/mortgage-escrow-analysis-checker/calc.test.mjs:109",
+   "category": "tests-check-a-copy",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Spread finding text says the 12-month shortage rule 'only applies while the account is current'; 1024.17(f)(3) has no such condition (only surplus (f)(2)(ii) and deficiency (f)(4)(iii) do).",
+   "where": "ventures/mortgage-escrow-analysis-checker/calc.mjs:185",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Seeded changes to the $50 surplus boundary (>= to >) and to the cushion tolerance (50 cents to $50) leave every test green.",
+   "where": "ventures/mortgage-escrow-analysis-checker/calc.mjs:195",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Cushion check uses 1/6 of the user's bills even when the servicer's projected total is entered, so a cushion exactly 1/6 of the servicer's figure is flagged high (detail text explains the input difference).",
+   "where": "ventures/mortgage-escrow-analysis-checker/calc.mjs:148",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Deficiency rule (f)(4)(i) (under one month's payment: may be collected within 30 days) is not modelled; spread-def only checks fewer than 2 payments.",
+   "where": "ventures/mortgage-escrow-analysis-checker/calc.mjs:187",
+   "category": "scope-gap",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15569",
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15570"
+ ],
+ "verdict": "A small, clean, honest tool whose aggregate-accounting arithmetic reproduces 12 CFR 1024 Appendix E exactly (needed start balance $1,040, all twelve month-end balances) and applies the 1/6 cushion, the one-month shortage threshold and the $50 / 30-day / current-borrower surplus rule correctly. It misses the bar on one rule a RESPA escrow analyst checks first: it treats any projected negative low point as a 'deficiency', whereas Reg X 1024.17(b) defines deficiency as an actual negative account balance. As a result its headline 'shortage collected faster than 12 months' check stays silent in the most common heavy-shortage case (start balance $200, $840 shortage at $140/month: no finding), the page's deficiency definition is wrong, and the test suite pins the misreading. Two of five seeded mutations survived. Scores: correctness 2, completeness 3, verification 2, craft 3, claims 2, fitness 3, domain 2; does not meet the bar. The fix is small: deficiency = max(0, -startBalance), drop the deficiencyCents gate on the spread check, correct index.html:146, and replace the test at calc.test.mjs:109 with an Appendix E test."
+}

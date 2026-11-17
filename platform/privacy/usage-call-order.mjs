@@ -78,7 +78,14 @@ function walk(dir, predicate, found = []) {
   for (const entry of readdirSync(dir)) {
     if (entry === "node_modules" || entry.startsWith(".")) continue;
     const full = join(dir, entry);
-    if (statSync(full).isDirectory()) walk(full, predicate, found);
+    // Skip an entry gone between readdir and stat (a parallel test's scratch
+    // venture under ventures/), as browser-signals.mjs does.
+    let stats;
+    try { stats = statSync(full); } catch (error) {
+      if (error.code === "ENOENT") continue;
+      throw error;
+    }
+    if (stats.isDirectory()) walk(full, predicate, found);
     else if (predicate(entry)) found.push(full);
   }
   return found;

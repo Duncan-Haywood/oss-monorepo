@@ -133,3 +133,36 @@ def scenario_load(inp, climate, p: Params, hp_frac=0.0, ev_frac=0.0, smart=False
 def size_for_peak(peak_kw, loading):
     """Rated kVA so that peak_kw is `loading` per unit of rating (power factor 1)."""
     return peak_kw / loading
+
+
+def simulate_dt(load_kw, amb_c, x: Xfmr, dt_h=1.0, tau_w_h=0.0, warm_cycles=2):
+    """simulate() at any step dt_h (hours), vectorised over leading axes of load_kw (..., T); amb_c is (T,).
+    tau_w_h > 0 lags the hot-spot gradient with the winding time constant (exact exponential per step);
+    0 keeps it instantaneous, as in simulate(). Cyclic in time. Returns (hot spot, top oil, FAA)."""
+    k = np.asarray(load_kw, float) / x.rated_kva
+    amb = np.asarray(amb_c, float)
+    dto_u = x.d_to_r * ((k * k * x.r + 1.0) / (x.r + 1.0)) ** x.n
+    dh_u = x.d_h_r * k ** (2.0 * x.m)
+
+    def lag(u, tau):
+        if tau <= 0:
+            return u
+        a = math.exp(-dt_h / tau)
+        y = np.empty_like(u)
+        cur = u[..., 0].copy()
+        for _ in range(warm_cycles):
+            for i in range(u.shape[-1]):
+                cur = u[..., i] + (cur - u[..., i]) * a
+                y[..., i] = cur
+        return y
+
+    dto = lag(dto_u, x.tau_to)
+    dh = lag(dh_u, tau_w_h)
+    theta_h = amb + dto + dh
+    return theta_h, amb + dto, aging_factor(theta_h)
+
+
+def annual_lol_pct_dt(load_kw, amb_c, x: Xfmr, dt_h=1.0, tau_w_h=0.0):
+    """Annual loss of life (%) for each series along the last axis (a whole year at step dt_h)."""
+    _, _, faa = simulate_dt(load_kw, amb_c, x, dt_h, tau_w_h)
+    return faa.sum(axis=-1) * dt_h / x.life_h * 100.0 * 8760.0 / (faa.shape[-1] * dt_h)

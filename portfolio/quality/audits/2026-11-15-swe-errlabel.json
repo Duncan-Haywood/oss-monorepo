@@ -1,0 +1,246 @@
+{
+ "date": "2026-11-15",
+ "subject": "research/swe-errlabel",
+ "stratum": "research",
+ "seed": "2026-11-15-census",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior content-analysis / annotation methodologist (the kind who reviews coding-scheme validation for Communication Methods and Measures or an MSR/ICSE empirical track). They would check first whether the codebook was fixed before labelling, whether there is a second independent coder and an inter-coder kappa with an interval, whether the headline category ('ci-or-tooling') is well defined enough that two coders agree on it, and whether the diagnosis of why the rules miss it is right",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Every reported number recomputes with tools the author did not use. Rerun `cd research/swe-errlabel && python3 experiments/run.py` is byte-identical to experiments/results.txt; `python3 experiments/sample.py` is byte-identical to data/to_label.tsv (222 entries, seed 20261018); figure.py regenerates precision_recall.svg identically. Independent script indep.py (scikit-learn + statsmodels, its own regex application, its own redraw of the seeded sample): accuracy 40/60 = 0.6667, statsmodels Wilson (0.5406, 0.7727) = README 54.1% to 77.3%; sklearn cohen_kappa_score 0.5862 = 0.59; sklearn confusion_matrix equals the results.txt matrix cell for cell; precision/recall 0.556/1.0, 0.857/1.0, 0.923/0.923, n/a/0, 0.706/0.545, 0.357/1.0 = README; the 222-entry population counts (environment 62, unclassified 54, own-mistake 47, collision 38, timeout 15, ci-or-tooling 6) equal swe-errors' results.txt. Not 4: the hand labels are the measurement and rest on one non-independent coder; my own (non-blind) second reading agrees with them at kappa 0.87 but moves 6 entries, 5 of them out of ci-or-tooling, under a defensible tie-break.",
+  "completeness": "README promises: tests (5 OK in 0.004 s), sample.py reproduces the committed blind sample (byte-identical), run.py reproduces results.txt (byte-identical), figure.py reproduces the SVG (identical), every disagreement listed with its text (20 rows present), live page https://marisstella.app/research/swe-errlabel/ (HTTP 200, title 'Do the swe-errors keyword rules sort...', figure served at /research/swe-errlabel/precision_recall.svg 200 image/svg+xml). Everything claimed as done is present and runs end to end. The second labeller, held-out rule fix and swe-orgs check are honestly listed as Next steps, not done.",
+  "verification": "`cd research/swe-errlabel && PYTHONPATH=src python3 -m unittest discover -s tests -v`: Ran 5 tests in 0.004s OK (plus ResourceWarning for unclosed files from read_tsv). Five non-equivalent mutants via platform/ci/quality_mutate.py: 3 caught (confusion transposed, Wilson n*n -> n, kappa denominator 1-pe -> 1+pe), 2 survived: cohen_kappa's expected agreement using the hand marginals twice (__init__.py:44, a Scott's-pi-style change; the only chance test has a degenerate setup where both give 0) and run.py:23 computing precision as tp/hand (swaps precision and recall in results.txt and the figure; run.py has no test and nothing pins results.txt). No test checks the headline 40/60 or kappa 0.59 against the committed data.",
+  "craft": "Read src/swe_errlabel/__init__.py (56 lines), tests/test_errlabel.py, experiments/run.py, sample.py, figure.py. Stdlib only, small pure functions, sample and figure scripted rather than hand-typed, figure parsed from results.txt. Defects: read_tsv opens files without closing (ResourceWarning in the test run, __init__.py:14); the package mutates sys.path at import to reach the sibling swe-errors source (__init__.py:7), so it is not installable as the pyproject claims; precision/recall division lives untested in run.py rather than in per_class; confusion() raises KeyError on an unknown label with no message.",
+  "claims": "Checked against files: 40/60, Wilson interval, kappa, confusion, per-class numbers and the seven own-mistake -> unclassified entries are all in results.txt and recompute. Three claims are wrong or misstated: (1) README:8 explains that ci-or-tooling never wins because 'earlier rules in the ordered list (collision, environment, own-mistake) match first, or no keyword fires'; own-mistake is AFTER ci-or-tooling in swe-errors' RULES, environment matches none of the nine, and by direct regex test 8 of 9 hand-labelled ci entries contain no ci-or-tooling keyword at all; only 957.0 is lost to rule order. (2) README:8 'So swe-errors reports no such category': swe-errors/experiments/results.txt reports ci-or-tooling 6 entries (2.7%) on the full 222. (3) README:10 says the three ci entries read as collisions 'mention a conflict or stale check'; the matching words are 'sibling' (651.0, 957.0) and 'conflict' (976.0), none 'stale'. research/README.md:666 calls the sample 'blind hand-labelled' while README:31 says the labeller had read the keyword lists. Limitations section is otherwise candid and specific.",
+  "fitness": "Job: a researcher wanting to know whether swe-errors' category shares can be trusted, or to build a better classifier. The committed sample, labels and disagreement list make the check reproducible and extensible, which is useful. But the actionable conclusion is weak: the proposed fix (Next steps, README:39, 'ordering ci-or-tooling before collision') would recover 1 of the 9 missed entries, because the miss is vocabulary, not order; and the ci-or-tooling class itself is codebook-dependent (5 of its 9 entries are a repository check correctly catching the run's own change, which a second coder can as defensibly call own-mistake: under that reading the class has 3 entries and rule agreement is 45/60 = 75%, kappa 0.68). Nearest prior work: validation of automatic/recorded labels against manual coding in SE (Herzig, Just & Zeller, ICSE 2013, 'It's not a bug, it's a feature': 33.8% of issue reports misclassified), dictionary-method validation in text-as-data (Grimmer & Stewart 2013, 'validate, validate, validate'), and LLM-agent failure taxonomies with multi-annotator kappa (Cemri et al. 2025, MAST, kappa 0.88). None is cited. The result is new only as an internal measurement of this repository's own rules; its arithmetic is sound, its mechanism explanation is not. Not part of any programme in research/PROGRAMMES.md and well short of the PhD bar.",
+  "domain": "Against standard content-analysis practice (Krippendorff 2018; Landis & Koch 1977 for interpreting kappa): a single, non-independent coder (disclosed); no evidence the codebook was fixed before labelling beyond the README's say-so; kappa reported with no interval (my percentile bootstrap, 5000 reps: 0.44 to 0.72, spanning 'moderate' to 'substantial'); the 'moderate' reading uses Landis & Koch's bands without citing them; the ci-or-tooling definition ('a repository check ... failing or misbehaving') does not separate a check that correctly caught the run's change from a check that malfunctioned, and that ambiguity drives the headline finding. Paired entries from the same run treated as independent (disclosed). A methodologist would accept the computation and reject the headline as stated."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "overall agreement 40/60 and its Wilson 95% interval",
+   "method": "statsmodels proportion_confint(method='wilson'), sklearn accuracy_score",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/swe-errlabel/indep.py /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/swe-errlabel /home/user/oss-monorepo (sklearn 1.x / statsmodels installed to /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/swe-errlabel/pylib; imports nothing from swe_errlabel)",
+   "expected": "66.7%, 54.1% to 77.3%",
+   "observed": "0.6667, (0.5406, 0.7727)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Cohen's kappa of keyword rule vs hand label",
+   "method": "sklearn.metrics.cohen_kappa_score with the six labels",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/swe-errlabel/indep.py /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/swe-errlabel /home/user/oss-monorepo (sklearn 1.x / statsmodels installed to /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/swe-errlabel/pylib; imports nothing from swe_errlabel)",
+   "expected": "0.59",
+   "observed": "0.5862",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "confusion matrix and per-class precision/recall",
+   "method": "sklearn confusion_matrix and precision_recall_fscore_support, regex rules re-applied by the auditor's script",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/swe-errlabel/indep.py /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/swe-errlabel /home/user/oss-monorepo (sklearn 1.x / statsmodels installed to /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/swe-errlabel/pylib; imports nothing from swe_errlabel)",
+   "expected": "results.txt matrix; precision 56/86/92/na/71/36, recall 100/100/92/0/55/100",
+   "observed": "identical matrix; 0.556/0.857/0.923/nan/0.706/0.357 and 1.0/1.0/0.923/0/0.545/1.0",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "seeded sample draw and population category counts",
+   "method": "auditor's own flatten + random.Random(20261018).shuffle of swe-errors/experiments/errors_snapshot.jsonl",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/swe-errlabel/indep.py /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/swe-errlabel /home/user/oss-monorepo (sklearn 1.x / statsmodels installed to /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/swe-errlabel/pylib; imports nothing from swe_errlabel)",
+   "expected": "same 60 ids as data/to_label.tsv; population counts as in swe-errors results.txt",
+   "observed": "ids match; 222 entries: environment 62, other 54, own-mistake 47, collision 38, timeout 15, ci-or-tooling 6",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiment, sample and figure reproduce committed outputs",
+   "method": "rerun and diff in a scratch copy",
+   "command": "cd research/swe-errlabel && python3 experiments/run.py > $S/results.txt && diff $S/results.txt experiments/results.txt; python3 experiments/sample.py > $S/to_label.tsv && diff - data/to_label.tsv; figure.py in a copy, diff svg",
+   "expected": "no diff",
+   "observed": "no diff in all three",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd research/swe-errlabel && PYTHONPATH=src python3 -m unittest discover -s tests -v",
+   "expected": "all pass",
+   "observed": "Ran 5 tests in 0.004s OK (ResourceWarning: unclosed file)",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page and its figure",
+   "method": "HTTP fetch",
+   "command": "curl -sS -w '%{http_code}' https://marisstella.app/research/swe-errlabel/ ; .../research/swe-errlabel/precision_recall.svg",
+   "expected": "200, numbers as README",
+   "observed": "200 with 66.7%, 54.1-77.3%, kappa 0.59; SVG 200 image/svg+xml",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:8 mechanism: ci-or-tooling never wins because earlier rules (collision, environment, own-mistake) match first, or no keyword fires",
+   "method": "apply each swe-errors RULES regex separately to the 9 hand-labelled ci-or-tooling entries",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/swe-errlabel/indep.py /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/swe-errlabel /home/user/oss-monorepo (sklearn 1.x / statsmodels installed to /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/swe-errlabel/pylib; imports nothing from swe_errlabel)",
+   "expected": "most lost to earlier rules",
+   "observed": "8 of 9 match no ci-or-tooling keyword (208.0, 245.1 none; 222.1, 541.0, 590.0, 590.1 only own-mistake via 'fixed'/'failed', which is a LATER rule; 651.0, 976.0 only collision); only 957.0 matches ci-or-tooling and loses to collision on order",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:8 'So swe-errors reports no such category'",
+   "method": "read research/swe-errors/experiments/results.txt and recount population",
+   "command": "sed -n 1,12p research/swe-errors/experiments/results.txt; cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/swe-errlabel/indep.py /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/swe-errlabel /home/user/oss-monorepo (sklearn 1.x / statsmodels installed to /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/swe-errlabel/pylib; imports nothing from swe_errlabel)",
+   "expected": "ci-or-tooling 0",
+   "observed": "ci-or-tooling 6 entries, 2.7%",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:10 three ci entries read as collisions 'mention a conflict or stale check'",
+   "method": "regex match text for the collision rule on 651.0, 957.0, 976.0",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/swe-errlabel/indep.py /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/swe-errlabel /home/user/oss-monorepo (sklearn 1.x / statsmodels installed to /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/swe-errlabel/pylib; imports nothing from swe_errlabel)",
+   "expected": "conflict / stale",
+   "observed": "'sibling', 'sibling', 'conflict'; no 'stale'",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "interval on kappa",
+   "method": "percentile bootstrap over entries, 5000 reps, sklearn kappa",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/swe-errlabel/indep.py /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/swe-errlabel /home/user/oss-monorepo (sklearn 1.x / statsmodels installed to /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/swe-errlabel/pylib; imports nothing from swe_errlabel)",
+   "expected": "reported with the point estimate",
+   "observed": "not reported; bootstrap 0.44 to 0.72",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "robustness of the headline to a second coder's tie-break",
+   "method": "auditor relabelled the 60 (not blind: labels already seen) with the rule 'a check correctly catching the run's own change is own-mistake; a conflict with another run's PR is collision'",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/swe-errlabel/indep.py /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/swe-errlabel /home/user/oss-monorepo (sklearn 1.x / statsmodels installed to /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/swe-errlabel/pylib; imports nothing from swe_errlabel) (auditor labels in mine.tsv)",
+   "expected": "ci-or-tooling class stable",
+   "observed": "auditor vs hand kappa 0.87 (54/60); ci-or-tooling 9 -> 3; rules vs auditor agree 45/60 = 75% (Wilson 62.8-84.2%), kappa 0.68",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Next steps fix 'ordering ci-or-tooling before collision' would recover the missed class",
+   "method": "same per-rule regex test",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/swe-errlabel/indep.py /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/swe-errlabel /home/user/oss-monorepo (sklearn 1.x / statsmodels installed to /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/swe-errlabel/pylib; imports nothing from swe_errlabel)",
+   "expected": "most of 9 recovered",
+   "observed": "recovers 1 of 9 (957.0); the miss is vocabulary, not order",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/swe_errlabel/__init__.py:44",
+   "change": "cohen_kappa expected agreement: keyword marginal (b == c) -> hand marginal (a == c)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/swe_errlabel/__init__.py:37",
+   "change": "m[hand][kw] += 1 -> m[kw][hand] += 1",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/swe_errlabel/__init__.py:29",
+   "change": "z * z / (4 * n * n) -> z * z / (4 * n)",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/swe_errlabel/__init__.py:45",
+   "change": "(po - pe) / (1 - pe) -> (po - pe) / (1 + pe)",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "experiments/run.py:23",
+   "change": "precision tp/assigned -> tp/hand (swaps precision and recall in results.txt and figure)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Wrong diagnosis of the headline finding: README says ci-or-tooling never wins because earlier rules (collision, environment, own-mistake) match first; own-mistake is a later rule, environment matches none, and 8 of 9 hand-labelled ci entries contain no ci-or-tooling keyword. Only 957.0 is lost to order, so the Next-steps fix (README:39, reorder ci-or-tooling before collision) would recover 1 of 9",
+   "where": "research/swe-errlabel/README.md:8",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16065"
+  },
+  {
+   "severity": "medium",
+   "what": "'So swe-errors reports no such category' is false: swe-errors' results.txt reports ci-or-tooling at 6 entries (2.7%) of 222; it never wins in this 60-entry sample only",
+   "where": "research/swe-errlabel/README.md:8",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16065"
+  },
+  {
+   "severity": "medium",
+   "what": "The ci-or-tooling class definition does not separate a repository check that correctly caught the run's own change (541.0, 590.0, 590.1, 651.0, 222.1) from tooling that malfunctioned; under a defensible alternative tie-break the class shrinks from 9 to 3 and rule agreement rises from 66.7% to 75% (kappa 0.59 -> 0.68). The headline finding rests on this single non-independent coder's convention, and kappa is reported without an interval (bootstrap 0.44 to 0.72)",
+   "where": "research/swe-errlabel/README.md:26",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests do not pin results: no test checks 40/60 or kappa against the committed data; cohen_kappa's expected-agreement marginal can be swapped (Scott's pi style) and run.py's precision can be computed as tp/hand, both with all tests green",
+   "where": "research/swe-errlabel/tests/test_errlabel.py:22",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16065"
+  },
+  {
+   "severity": "low",
+   "what": "Nearest prior work on validating automatic/recorded labels against manual coding is not cited (Herzig, Just & Zeller ICSE 2013; Grimmer & Stewart 2013; Cemri et al. 2025 MAST agent-failure taxonomy), nor Landis & Koch (1977) for the 'moderate' reading of kappa",
+   "where": "research/swe-errlabel/README.md:47",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "README says the three ci entries read as collisions 'mention a conflict or stale check'; the matching words are 'sibling' (twice) and 'conflict', none 'stale'",
+   "where": "research/swe-errlabel/README.md:10",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16065"
+  },
+  {
+   "severity": "low",
+   "what": "research index calls the sample 'blind hand-labelled' while the project README says the labeller had read the keyword lists (blind only to the rules' output)",
+   "where": "research/README.md:666",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16065"
+  },
+  {
+   "severity": "low",
+   "what": "read_tsv leaves files open (ResourceWarning in every test run) and the package inserts the sibling swe-errors src into sys.path at import, so it is not installable on its own despite pyproject.toml",
+   "where": "research/swe-errlabel/src/swe_errlabel/__init__.py:7",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16065"
+ ],
+ "verdict": "A small, honest, reproducible validation note whose arithmetic is right and whose headline explanation is not. Every number recomputes with scikit-learn and statsmodels (40/60, Wilson 54.1-77.3%, kappa 0.586, the full confusion matrix and per-class precision/recall), the seeded sample redraws to the same 60 ids, and run.py, sample.py and figure.py reproduce their committed outputs byte for byte. It misses the bar on claims and verification: the README attributes the ci-or-tooling miss to rule order when 8 of 9 such entries have no ci keyword at all (so its proposed reorder fixes 1 of 9), says swe-errors reports no such category when it reports 6 entries (2.7%), and 2 of 5 seeded mutants survive because nothing pins the committed results. The ci-or-tooling class is itself codebook-fragile: a second (non-blind) reading moves 5 of its 9 entries to own-mistake and lifts agreement to 75%. One non-independent coder, no kappa interval and no cited prior work keep it well short of the research bar."
+}

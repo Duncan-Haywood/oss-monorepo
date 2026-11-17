@@ -17,7 +17,7 @@ export function titleOf(html) {
 }
 
 const isEmail = (s) => /^[^\s@<>"']+@[^\s@<>"']+\.[^\s@<>"']+$/.test(s) && s.length <= 254;
-const isDay = (s) => /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(s + "T00:00:00Z"));
+const isDay = (s) => /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(s + "T00:00:00Z")) && new Date(s + "T00:00:00Z").toISOString().slice(0, 10) === s;
 
 export function publish(state, { html, title, clientEmail, expires }, { id, token, now }) {
   if (typeof html !== "string" || !/<html[\s>]/i.test(html)) throw fail(400, "html must be the proposal file downloaded from Proposal Maker");
@@ -86,7 +86,7 @@ export function stats(state, now) {
 }
 
 export function toCsv(state, now) {
-  const q = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) ? `"'${s.replace(/"/g, '""')}"` : /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  const q = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? `"'${s.replace(/"/g, '""')}"` : /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
   const iso = (t) => (t ? new Date(t).toISOString() : "");
   const head = "id,title,status,created,views,signed_by,signed_at";
   return [head, ...Object.values(state.docs).map((d) => summary(d, now)).map((r) => [r.id, r.title, r.status, iso(r.createdAt), r.views, r.signedBy, iso(r.signedAt)].map(q).join(","))].join("\n") + "\n";

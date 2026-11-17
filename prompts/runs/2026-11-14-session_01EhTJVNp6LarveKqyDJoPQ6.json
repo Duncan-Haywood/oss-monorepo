@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVNp6LarveKqyDJoPQ6",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (revenue products); routed to creative/0",
+  "input_sha256": "16868dc8cab8a0cf906c4b0254cf05f2a19199b6054c874c27d64f4be6f84bdc",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T07:00:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Saints by Candlelight episode 113, Paul at Athens (Acts 17), text only, plus blog post",
+  "projects": [
+    "saints-by-candlelight"
+  ],
+  "pr": 15764,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "The stored scheduled prompt asks for revenue-product work, but the master prompt's weighted route drew the creative track (weight 0.1). I followed the route, which is how the owner set up the fleet.",
+      "did": "creative track run",
+      "result": "one finished episode landed"
+    },
+    {
+      "file": "prompts/promptctl.py",
+      "why": "The session rules forbid a model identifier in pushed artifacts, so the model field is left null.",
+      "did": "model null",
+      "result": "record validates"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-saints-by-candlelight-113-paul-at-athens.md"
+  ],
+  "goal": null,
+  "notes": "Project saints-by-candlelight, piece paul-and-the-altar-to-an-unknown-god-at-athens (episode 113, 5878 words, text only: audio folders at 474 MB, over the 400 MB line). Adversarial re-read removed a misattributed 'easier to meet a god than a man' line (Petronius, about Campania, not Athens) and added Aeschylus, Eumenides to the sources for the no-resurrection line. Checks: node generate.mjs --check-script ok; node generate.mjs; node --test in the venture, 0 failures. PRODUCTION.md list updated; next up is Paul at Corinth with Aquila and Priscilla.",
+  "corrections": [],
+  "redteam": null
+}

@@ -6,7 +6,7 @@ never loads, and no other `check_*.py` looks for it. Absolute URLs, data URIs,
 template placeholders (`${...}`, `{{...}}`) and root-absolute paths that a
 bundler resolves (Vite's `/src/main.tsx`) are skipped.
 
-    python3 platform/ci/check_local_assets.py [--root DIR]   # exit 1 if any found
+    python3 platform/ci/check_local_assets.py [--root DIR]   # exit 1 if any found, 2 if no pages
 """
 import argparse
 import re
@@ -43,13 +43,16 @@ def main(argv=None):
     bad = []
     pages = 0
     for page in sorted(Path(args.root).rglob("*.html")):
-        if "node_modules" in page.parts:
+        if not {"node_modules", ".next"}.isdisjoint(page.parts):
             continue
         pages += 1
         bad += [(page, u) for u in broken(page)]
     for page, u in bad:
         print(f"{page}: missing {u}")
     print(f"{pages} pages, {len(bad)} missing local references")
+    if not pages:
+        print(f"no .html pages under {args.root}: wrong --root? A scan of nothing is not a pass.")
+        return 2
     return 1 if bad else 0
 
 

@@ -8,6 +8,7 @@
 //   node cli.mjs plan --slo 99.9 --json
 
 import { budgetTable, buildPolicy, detectionTime, lint, generateRules, summarize, validateInputs, fmtDuration, promDuration, METHOD_NOTE } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 function parseArgs(argv) {
   const args = { json: false, period: 30, failOn: "error" };
@@ -80,7 +81,7 @@ export async function run(argv) {
   return { exitCode, output: lines.join("\n") };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { exitCode, output } = await run(process.argv.slice(2));
   console.log(output);
   process.exitCode = exitCode;

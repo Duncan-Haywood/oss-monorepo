@@ -1,3 +1,7 @@
+---
+kind: note
+tagged: auto
+---
 # Thousands commas in pasted lines: what is fixed, what is left
 
 Agent doc for the next quality or polish run. Written 2026-11-11 (PR #14663).

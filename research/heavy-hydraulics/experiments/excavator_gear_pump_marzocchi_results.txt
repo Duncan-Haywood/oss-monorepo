@@ -1,0 +1,110 @@
+Milestone 6o: excavator break-even with a third gear-pump maker (Marzocchi ALP3) as the fixed pump
+(motion: fuxi-robot/excavator-motion folder 75, CC BY-NC-SA 4.0; load-sensing pump: Kauranne 2022, Energies 15:4030, Fig. 13, CC BY; gear pumps: Marzocchi 'Serie ALP' catalogue, printed pp. 38 and 43-46, 50 C, 30 cSt; Casappa KAPPA K 05 T A (2012) pp. 4 and 9-11, 50 C; both read from vector paths)
+
+Marzocchi ALP3 at 2100 r/min, from the catalogue curves:
+  size  V cm3/r  Q20 L/min  Q25/(Vn) at 2000  eta_v(150)  eta_t(100)  eta_t(150)  eta_t(hi)  hi bar  P(0) kW  drag bar  P/(Mn/9549) at 2000
+    30    20.0      41.84             0.996       0.979       0.865       0.882      0.900     250     0.78     11.17  0.996 to 0.996
+    33    22.0      44.97             0.973       0.957       0.874       0.892      0.910     250     0.68      9.05  1.000 to 1.000
+    40    26.0      53.64             0.982       0.965       0.870       0.890      0.909     250     0.94     10.49  1.002 to 1.003
+    50    33.0      68.45             0.987       0.965       0.887       0.908      0.913     250     1.26     11.08  0.999 to 1.000
+    60    39.0      79.93             0.976       0.955       0.891       0.905      0.911     250     1.79     13.47  0.999 to 0.999
+    66    44.0      87.80             0.950       0.929       0.852       0.894      0.898     250     1.28      8.74  1.000 to 1.000
+    80    52.0     104.56             0.956       0.933       0.831       0.854      0.878     250     2.01     11.56  1.000 to 1.001
+    94    61.0     121.97             0.951       0.929       0.867       0.861      0.853     250     1.73      8.52  1.000 to 1.000
+   110    71.0     145.60             0.976       0.944       0.796       0.801      0.797     200     2.07      8.53  1.000 to 1.000
+   120    78.0     159.75             0.974       0.940       0.868       0.859      0.848     200     1.91      7.18  1.000 to 1.000
+   135    87.0     180.53             0.986       0.937       0.869       0.859      0.842     200     3.03     10.08  1.000 to 1.000
+  (eta_v(150) is over the page 38 displacement; Q25/(Vn) checks the drawing against that table)
+  overall efficiency at 150 bar over the eleven sizes: 0.801 to 0.908, median 0.882
+  power over M n / 9549 at 2000 r/min, all curves: median 0.9998 (0.9957 to 1.0027); the torque curves are the power curves redrawn, not an independent reading
+  6n index 1 (median eta_t(150) over sizes with Q20 in 55.81 to 157.35 L/min: 50, 60, 66, 80, 94, 110): 0.8773; index 2 (at Q20 85 L/min): 0.8975
+  (6n: Casappa 0.7605 / 0.7593, Danfoss 0.8320 / 0.8485)
+  Marzocchi minus Casappa eta_t at 150 bar over the shared 55.8 to 157.3 L/min: median +0.090 (range +0.025 to +0.180)
+  piston pump (6g table, 60 C, full stroke): eta 0.840 at 150 bar
+
+Idle power, kW (PVG32 neutral, working speed): q_p 60: Marzocchi 2.30 / Casappa 2.23, 80: Marzocchi 3.27 / Casappa 3.35, 100: Marzocchi 4.21 / Casappa 4.10, 150: Marzocchi 6.65 / Casappa 6.81
+  Marzocchi idle power equals load-sensing standby (2.96 kW) at q_p 73.8 L/min (Casappa 6k: 75.6; piston 6j: 83.4)
+
+check: the casappa (6k) variant at S = 0.38: central 1.884 (committed 1.884), share 9.9% (committed 9.9%)
+check: the piston (6j) variant at S = 0.38: central 5.070 (committed 5.07), share 74.0% (committed 74.0%)
+central geometry, fixed-pump efficiency at q_p 85 L/min (p + m* = 136.2 bar): marzocchi 0.892, casappa 0.759, piston 0.839
+median Marzocchi minus piston full-stroke efficiency over pump sizes, per geometry: median +0.019 (range +0.017 to +0.037)
+
+marzocchi, central setting (PVG32 neutral, standby 2 L/min, working speed):
+  record only (S = s0): central 6.770 L/h at q_p 97.0; median 6.95 (p10 5.00, p90 14.17); beats 3.986: 100.0%, 5.056: 89.3%; median maximising q_p 82.0
+  S = 0.20: central 6.494 L/h at q_p 95.0; median 6.85 (p10 4.96, p90 14.15); beats 3.986: 100.0%, 5.056: 89.1%; median maximising q_p 81.5
+  S = 0.30: central 6.315 L/h at q_p 93.5; median 6.76 (p10 4.85, p90 14.28); beats 3.986: 99.7%, 5.056: 88.3%; median maximising q_p 81.0
+  S = 0.38: central 6.161 L/h at q_p 92.5; median 6.67 (p10 4.79, p90 14.28); beats 3.986: 99.5%, 5.056: 87.0%; median maximising q_p 80.5
+  S = 0.40: central 6.120 L/h at q_p 92.0; median 6.65 (p10 4.77, p90 14.28); beats 3.986: 99.5%, 5.056: 86.7%; median maximising q_p 80.2
+  S = 0.50: central 5.912 L/h at q_p 90.0; median 6.57 (p10 4.69, p90 14.54); beats 3.986: 97.4%, 5.056: 84.6%; median maximising q_p 78.0
+
+marzocchi moving, casappa idle, central setting (PVG32 neutral, standby 2 L/min, working speed):
+  record only (S = s0): central 6.771 L/h at q_p 97.5; median 6.95 (p10 5.01, p90 14.19); beats 3.986: 100.0%, 5.056: 89.6%; median maximising q_p 82.0
+  S = 0.20: central 6.485 L/h at q_p 96.0; median 6.80 (p10 4.95, p90 14.40); beats 3.986: 100.0%, 5.056: 88.8%; median maximising q_p 80.0
+  S = 0.30: central 6.281 L/h at q_p 94.5; median 6.65 (p10 4.82, p90 14.56); beats 3.986: 99.2%, 5.056: 87.8%; median maximising q_p 79.5
+  S = 0.38: central 6.089 L/h at q_p 93.5; median 6.60 (p10 4.73, p90 14.62); beats 3.986: 97.7%, 5.056: 86.2%; median maximising q_p 78.0
+  S = 0.40: central 6.036 L/h at q_p 93.5; median 6.59 (p10 4.69, p90 14.67); beats 3.986: 96.9%, 5.056: 84.9%; median maximising q_p 77.5
+  S = 0.50: central 5.715 L/h at q_p 92.5; median 6.56 (p10 4.57, p90 15.05); beats 3.986: 95.1%, 5.056: 81.5%; median maximising q_p 75.0
+
+Marzocchi, all settings at S = 0.38 (reading, standby flow L/min, idle speed ratio):
+  PVG32        q_sb 2 n_r 1.0: central 6.161 L/h at q_p 92.5; median 6.67 (p10 4.79, p90 14.28); beats 3.986: 99.5%, 5.056: 87.0%; median maximising q_p 80.5
+  PVG32        q_sb 0 n_r 1.0: central 6.115 L/h at q_p 92.0; median 6.59 (p10 4.75, p90 14.10); beats 3.986: 99.5%, 5.056: 86.7%; median maximising q_p 80.0
+  PVG32        q_sb 0 n_r 0.5: central 7.080 L/h at q_p 97.5; median 7.52 (p10 5.43, p90 16.54); beats 3.986: 100.0%, 5.056: 92.7%; median maximising q_p 82.5
+  PVG32        q_sb 2 n_r 0.5: central 7.135 L/h at q_p 97.5; median 7.59 (p10 5.49, p90 16.80); beats 3.986: 100.0%, 5.056: 93.5%; median maximising q_p 82.8
+  PVG32        q_sb 5 n_r 1.0: central 6.229 L/h at q_p 92.5; median 6.76 (p10 4.85, p90 14.59); beats 3.986: 99.7%, 5.056: 88.0%; median maximising q_p 80.8
+  PVG32        q_sb 5 n_r 0.5: central 7.216 L/h at q_p 97.5; median 7.71 (p10 5.58, p90 17.20); beats 3.986: 100.0%, 5.056: 95.3%; median maximising q_p 83.0
+  Salami-text  q_sb 0 n_r 1.0: central 6.430 L/h at q_p 92.0; median 7.26 (p10 5.10, p90 16.11); beats 3.986: 100.0%, 5.056: 90.1%; median maximising q_p 82.0
+  Salami-text  q_sb 0 n_r 0.5: central 7.684 L/h at q_p 99.0; median 8.23 (p10 6.00, p90 18.93); beats 3.986: 100.0%, 5.056: 97.9%; median maximising q_p 85.0
+  Salami-text  q_sb 2 n_r 1.0: central 6.475 L/h at q_p 92.0; median 7.33 (p10 5.14, p90 16.35); beats 3.986: 100.0%, 5.056: 90.4%; median maximising q_p 82.0
+  Salami-text  q_sb 2 n_r 0.5: central 7.741 L/h at q_p 99.0; median 8.30 (p10 6.05, p90 19.23); beats 3.986: 100.0%, 5.056: 98.4%; median maximising q_p 85.0
+  Salami-text  q_sb 5 n_r 1.0: central 6.541 L/h at q_p 92.0; median 7.44 (p10 5.19, p90 16.72); beats 3.986: 100.0%, 5.056: 90.9%; median maximising q_p 82.5
+  Salami-text  q_sb 5 n_r 0.5: central 7.827 L/h at q_p 99.0; median 8.45 (p10 6.13, p90 19.65); beats 3.986: 100.0%, 5.056: 99.0%; median maximising q_p 85.5
+  Salami-curve q_sb 0 n_r 1.0: central 6.316 L/h at q_p 91.5; median 7.15 (p10 5.02, p90 15.83); beats 3.986: 99.7%, 5.056: 89.6%; median maximising q_p 81.5
+  Salami-curve q_sb 0 n_r 0.5: central 7.660 L/h at q_p 99.0; median 8.20 (p10 5.98, p90 18.88); beats 3.986: 100.0%, 5.056: 97.9%; median maximising q_p 85.0
+  Salami-curve q_sb 2 n_r 1.0: central 6.359 L/h at q_p 91.5; median 7.21 (p10 5.06, p90 16.06); beats 3.986: 99.7%, 5.056: 89.8%; median maximising q_p 81.5
+  Salami-curve q_sb 2 n_r 0.5: central 7.717 L/h at q_p 99.0; median 8.28 (p10 6.04, p90 19.18); beats 3.986: 100.0%, 5.056: 98.4%; median maximising q_p 85.0
+  Salami-curve q_sb 5 n_r 1.0: central 6.425 L/h at q_p 91.5; median 7.32 (p10 5.11, p90 16.43); beats 3.986: 100.0%, 5.056: 90.1%; median maximising q_p 82.0
+  Salami-curve q_sb 5 n_r 0.5: central 7.802 L/h at q_p 99.0; median 8.43 (p10 6.11, p90 19.61); beats 3.986: 100.0%, 5.056: 99.0%; median maximising q_p 85.2
+  share beating 3.986 L/h over the 18 settings: 99.5% to 100.0%
+
+marzocchi: moving efficiency scaled by c, idle as read, S = 0.38, central setting (index 1 = c x 0.8773, index 2 = c x 0.8975):
+  c 0.86: central 2.414 L/h; median 2.71; beats 3.986: 27.3%; index 1 0.7545, index 2 0.7719
+  c 0.88: central 2.875 L/h; median 3.17; beats 3.986: 34.6%; index 1 0.7721, index 2 0.7898
+  c 0.90: central 3.369 L/h; median 3.65; beats 3.986: 45.3%; index 1 0.7896, index 2 0.8078
+  c 0.91: central 3.634 L/h; median 3.91; beats 3.986: 48.7%; index 1 0.7984, index 2 0.8168
+  c 0.92: central 3.913 L/h; median 4.17; beats 3.986: 54.4%; index 1 0.8072, index 2 0.8257
+  c 0.93: central 4.193 L/h; median 4.46; beats 3.986: 64.1%; index 1 0.8159, index 2 0.8347
+  c 0.94: central 4.473 L/h; median 4.74; beats 3.986: 73.4%; index 1 0.8247, index 2 0.8437
+  c 0.95: central 4.747 L/h; median 5.02; beats 3.986: 82.6%; index 1 0.8335, index 2 0.8527
+  c 0.96: central 5.019 L/h; median 5.31; beats 3.986: 88.3%; index 1 0.8423, index 2 0.8616
+  c 0.98: central 5.581 L/h; median 5.95; beats 3.986: 93.5%; index 1 0.8598, index 2 0.8796
+  c 1.00: central 6.161 L/h; median 6.67; beats 3.986: 99.5%; index 1 0.8773, index 2 0.8975
+  50% crossing: c 0.9123; index 1 0.8004; index 2 0.8188
+
+marzocchi moving, casappa idle: moving efficiency scaled by c, idle as read, S = 0.38, central setting (index 1 = c x 0.8773, index 2 = c x 0.8975):
+  c 0.86: central 2.381 L/h; median 2.77; beats 3.986: 28.1%; index 1 0.7545, index 2 0.7719
+  c 0.88: central 2.837 L/h; median 3.24; beats 3.986: 36.5%; index 1 0.7721, index 2 0.7898
+  c 0.90: central 3.275 L/h; median 3.71; beats 3.986: 45.6%; index 1 0.7896, index 2 0.8078
+  c 0.91: central 3.506 L/h; median 3.97; beats 3.986: 49.2%; index 1 0.7984, index 2 0.8168
+  c 0.92: central 3.760 L/h; median 4.23; beats 3.986: 57.0%; index 1 0.8072, index 2 0.8257
+  c 0.93: central 4.023 L/h; median 4.49; beats 3.986: 66.1%; index 1 0.8159, index 2 0.8347
+  c 0.94: central 4.298 L/h; median 4.78; beats 3.986: 75.5%; index 1 0.8247, index 2 0.8437
+  c 0.95: central 4.580 L/h; median 5.05; beats 3.986: 81.5%; index 1 0.8335, index 2 0.8527
+  c 0.96: central 4.870 L/h; median 5.34; beats 3.986: 87.5%; index 1 0.8423, index 2 0.8616
+  c 0.98: central 5.469 L/h; median 5.92; beats 3.986: 93.2%; index 1 0.8598, index 2 0.8796
+  c 1.00: central 6.089 L/h; median 6.60; beats 3.986: 97.7%; index 1 0.8773, index 2 0.8975
+  50% crossing: c 0.9110; index 1 0.7993; index 2 0.8177
+
+Three makers on 6n's axes (50% crossings; Casappa and Danfoss from gear_pump_crux.py):
+  index 1: casappa 0.8295, danfoss 0.8147, marzocchi 0.8004; spread 0.0291
+  index 2: casappa 0.8281, danfoss 0.8309, marzocchi 0.8188; spread 0.0121
+
+Predictions (LOG.md 6o):
+  GM1 share at S 0.38 on the side 6n's rule gives from index 2 (0.8975 >= 0.83, so >= 50%): held (99.5%)
+  GM2 index-2 crossing within 0.02 of 0.8295: held (0.8188, -0.0107)
+  GM3 index 2 between Casappa 0.7593 and Danfoss 0.8485: refuted (0.8975)
+  GM4 Q25/(Vn) at 2000 r/min within 0.97-1.03 for every size: refuted (0.950 to 0.996)
+  GM5 median P/(Mn/9549) at 2000 r/min in 0.97-1.03: held (0.9998; redrawn, so no independent check)
+  GM6 ALP3-60 eta_t(150 bar, 2100 r/min) in 0.78-0.86: refuted (0.905)
+
+Sources: fuxi-robot/excavator-motion (CC BY-NC-SA 4.0; derived statistics only); Kauranne 2022 Fig. 13 (CC BY 4.0); Marzocchi Pompe 'Serie ALP' catalogue, printed pp. 38 and 43-46; Casappa KAPPA catalogue K 05 T A (2012), pp. 4 and 9-11; PVG 32 and Salami neutral curves; Moore 2020 (idle shares).

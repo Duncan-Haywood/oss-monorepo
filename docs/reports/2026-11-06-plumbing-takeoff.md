@@ -1,5 +1,6 @@
 ---
 kind: analysis
+subjects: [wall-framing-takeoff]
 date: 2026-11-06
 tagged: auto
 ---

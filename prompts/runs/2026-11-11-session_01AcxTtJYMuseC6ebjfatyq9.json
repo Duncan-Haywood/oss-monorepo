@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtJYMuseC6ebjfatyq9",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T21:06:58Z",
+  "ended": "2026-11-11T21:24:30Z",
+  "wall_minutes": 17.85,
+  "tokens_in": 7480244,
+  "tokens_out": 48250,
+  "cost_usd": 3.6361,
+  "tool_calls": 62,
+  "task": "research/sensing-selfcal milestone 6: source of the column-wise residual correlation, alternative corner detectors, column-clustered sandwich sigma",
+  "projects": [
+    "research/sensing-selfcal"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14888",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "First SB corner-matching tolerance (3 px) rejected images whose 4-8 px detector disagreements were the finding; raised to 10 px with the one-to-one check kept.",
+    "A synthetic test asserted the column-clustered sandwich exceeds the reported sigma by 1.5x on one draw; it does not (1.01x on that draw, median 1.2x over 30). Rewrote the test to compare medians over 8 draws."
+  ],
+  "integrity_issues": [
+    "This run found that milestone 5's headline (flat-board assumption moves c_y by 5-9 px), merged earlier the same day in PR #14882, was mostly a corner-detector artefact (1.2-1.4 px with findChessboardCornersSB). Corrected in the README, LOG, project card, research/README.md bullet and the earlier blog post, each with a correction note."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py returned /usr/bin/python3.13 without cv2 for 'pytest numpy scipy matplotlib'; the project's requirements needed opencv-python-headless named explicitly (or `-r requirements.txt`). Cost one extra background install."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-the-23-pixel-window-that-bent-our-checkerboard.md",
+    "docs/posts/2026-11-11-the-flat-checkerboard-moves-the-principal-point.md (correction note)"
+  ],
+  "goal": "Advance the sensing-selfcal programme (track 15 draw) by one pre-registered milestone",
+  "notes": "Routed research/0 by weighted draw; pick_track drew track 15 (sensing); took sensing-selfcal's listed next step. Security queue empty, IDEAS.md and website requests empty. Only open research PR (#14886 aerolog) was a sibling's 4-minute-old draft; left alone. Pre-registered H14-H17 in LOG.md and pushed before any run. 1,680 subset solves (3 detectors x 560), 1,679 converged. Results: H14 refuted, H15 held, H16 refuted, H17 refuted (opposite direction). Checks run locally: pytest 16/16, research/_homepage/build.py ok, check_md_links ok, research_live_links ok, check_post_frontmatter and check_post_links ok, post_similarity 0 pairs. cite_check: README has no DOIs; new citation Duda and Frese 2018 (BMVC, no DOI) marked unchecked.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b2e28a8a-61d7-543a-8587-1b678c727008",
+    "transcripts": 1,
+    "first": "2026-11-11T21:06:58Z",
+    "last": "2026-11-11T21:24:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 58,
+        "input": 111,
+        "output": 48250,
+        "thinking": 12749,
+        "cache_read": 7329541,
+        "cache_write_5m": 0,
+        "cache_write_1h": 150592,
+        "api_equivalent_usd": 3.6361,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 58,
+      "input": 111,
+      "output": 48250,
+      "thinking": 12749,
+      "cache_read": 7329541,
+      "cache_write_5m": 0,
+      "cache_write_1h": 150592,
+      "api_equivalent_usd": 3.6361,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 62,
+    "tools": {
+      "Bash": 56,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.85,
+      "active_minutes": 17.85,
+      "model_minutes": 9.05,
+      "tool_minutes": 8.8,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a PhD student re-running a calibration study with three corner detectors, 1,680 solves, diagnosing the edge-corner bias and writing up: about two working days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 440.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

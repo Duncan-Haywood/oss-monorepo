@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVNEbwtA8XkKjPuWYdi",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell, support revenue-generating products); merge when done",
+  "input_sha256": "707354335feaaa1513c3d3d4087906d147e8cd9ba6f5f2f912d2453fc6665198",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T17:14:33Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "quality audit round 52 (sample mode)",
+  "projects": [
+    "ventures/ucr-fee-calculator",
+    "ventures/home-inspection-fee-calculator",
+    "research/compressed-outer",
+    "research/society-allywatch"
+  ],
+  "pr": 15193,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [
+    {
+      "what": "docs/posts/2026-11-03-ucr-fees-2027-schedule.md said 2027 UCR fees were 'checked on plan.ucr.gov 2026-11-03' but listed the 2025/2026 amounts and a prior-top-bracket pair matching no schedule; dated correction added"
+    }
+  ],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "run_workflow_locally.py --for-changes on a docs+venture+research diff exceeded the 10-minute foreground tool limit; had to background it"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "applied small fixes to research READMEs (wording, citations) in the same PR as the audits rather than separate PRs, to keep one landable PR",
+      "did": "one PR, fix commits separate from audit commits",
+      "result": "fix_prs lists 15193 for all four"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-quality-audit-round-52.md"
+  ],
+  "goal": null,
+  "notes": "mode sample, seed 2026-11-12-k, round 52. Subjects: ventures/ucr-fee-calculator (no: correctness 1, claims 1; shipped 2025/2026 UCR fees as 2027, freight forwarders flat-fee), ventures/home-inspection-fee-calculator (no: claims 2, verification 2; add-ons marked up), research/compressed-outer (no: claims 2; H(K|U) rate), research/society-allywatch (no: verification 1). Share meeting bar this round 0/4; sampled total 31/222 (Wilson 10-19%). Seeded bugs caught 15/23. Fix PR: #15193 (UCR 2027 table and forwarder rule, 7 new tests failing on old engine; home-inspection 2 tests now killing both surviving mutants; research wording/citations). Spot-checks by the lead: UCR 5-vehicle total 138 vs 167; home-inspection worked example 1199.92 reproduced; compressed-outer 21.72 by hand and 3-bit 0.0233 vs 0.0222 (4.7%); allywatch 36 allies at rho 0.10 (20% of 180). ecfr.gov/federalregister.gov unreachable: 2027 UCR amounts from multiple secondary sources quoting FR 2026-17893.",
+  "corrections": [],
+  "redteam": null
+}

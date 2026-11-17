@@ -89,7 +89,9 @@
 </main><script type="module">
     (() => {
       const usagePreference = 'mega-backdoor-roth-calculator-usage-preference';
-      if (typeof document === 'undefined' || typeof localStorage === 'undefined') return;
+      if (typeof document === 'undefined') return;
+      // Even `typeof localStorage` throws when the visitor blocks site data.
+      try { if (typeof localStorage === 'undefined') return; } catch { return; }
       const usageControl = document.getElementById('usage');
       if (!usageControl) return;
       try {

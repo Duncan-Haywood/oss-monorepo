@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKiQedua7ghjHwxM7uX",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T00:17:42Z",
+  "ended": "2026-11-13T00:21:04Z",
+  "wall_minutes": 3.51,
+  "tokens_in": 1787596,
+  "tokens_out": 12176,
+  "cost_usd": 1.0287,
+  "tool_calls": 26,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15305",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "route printed '2629/40 runs toward the next review' again; the counter still reads as broken (control-plane path, so not fixed in this PR)."
+    },
+    {
+      "file": "platform/ci/pyenv.py",
+      "issue": "-r read only requirements.txt although 918 research projects use pyproject.toml; fixed in this PR."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-pyenv-reads-pyproject.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode: backlog had owner/blocked rows only. main_health 62/62 pass. Lens: doc friction by file. Fixed the pyenv/pyproject friction (2026-11-12, reported twice). Checks: test_pyenv 31 OK; live pyenv --for research/hanger-knit returned /usr/bin/python3.13. No backlog ids touched. No agent doc: the post and pyenv's docstring say what the next run needs. Fix-forward: main went red after #15300 (portfolio/router/validate.py: shift-roster-builder next: 2043 chars, cap 2000); condensed its 20-60-person reissue history clause (detail stays in the venture README); validate.py now passes.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ed5e178f-3473-5a0f-8387-2a01ae0370f5",
+    "transcripts": 1,
+    "first": "2026-11-13T00:17:42Z",
+    "last": "2026-11-13T00:21:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 26,
+        "input": 51,
+        "output": 12176,
+        "thinking": 2150,
+        "cache_read": 1732740,
+        "cache_write_5m": 0,
+        "cache_write_1h": 54805,
+        "api_equivalent_usd": 1.0287,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 26,
+      "input": 51,
+      "output": 12176,
+      "thinking": 2150,
+      "cache_read": 1732740,
+      "cache_write_5m": 0,
+      "cache_write_1h": 54805,
+      "api_equivalent_usd": 1.0287,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.969,
+    "tool_calls": 26,
+    "tools": {
+      "Bash": 24,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.51,
+      "active_minutes": 3.51,
+      "model_minutes": 2.63,
+      "tool_minutes": 0.88,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "survey of 918 pyprojects, parser, tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 145.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

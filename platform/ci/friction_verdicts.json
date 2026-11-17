@@ -1,0 +1,60 @@
+{
+ "verdicts": [
+  {
+   "file": "ventures/saints-by-candlelight/PRODUCTION.md",
+   "match": "Next up.{0,80}(Done|struck)|Done.{0,20}list.{0,40}long|grep -v",
+   "verdict": "fixed",
+   "by": "PR #16132 (list_done.mjs moves done items to DONE.md; node --test fails while one is left)",
+   "at": "2026-11-15T20:24:00Z",
+   "note": "Episode list now holds only open suggestions (checked 2026-11-15)."
+  },
+  {
+   "file": "ventures/saints-by-candlelight/PRODUCTION.md",
+   "match": "github\\.io|300 MB",
+   "verdict": "fixed",
+   "by": "PRODUCTION.md Publishing section",
+   "at": "2026-11-15T20:24:01Z",
+   "note": "Now names marisstella.app and the creative prompt's 400 MB line (checked 2026-11-15)."
+  },
+  {
+   "file": "ventures/hearth-and-horizon/BIBLE.md",
+   "match": "Wet Bulb",
+   "verdict": "fixed",
+   "by": "BIBLE.md Next up",
+   "at": "2026-11-15T20:24:01Z",
+   "note": "The Wet Bulb proposal is gone from Next up; an empty shelf means write a proposal (BIBLE.md line 315)."
+  },
+  {
+   "file": "ventures/hearth-and-horizon/BIBLE.md",
+   "match": "(almost|nearly|mostly)( entirely)? (all )?.{0,10}Done (entries|lines)|hundreds of Done|360 lines|no (undone|open) proposals|Done lines have spilled",
+   "verdict": "fixed",
+   "by": "3573ba55d (bible_done.mjs moves Done proposals to DONE.md)",
+   "at": "2026-11-15T20:24:01Z",
+   "note": "Next up is ~25 lines of open proposals (checked 2026-11-15)."
+  },
+  {
+   "file": "portfolio/flagships.yaml",
+   "match": "(1,?9\\d\\d|2,?0\\d\\d) (of|against) (the )?2,?000|(at|near|against) the 2,?000[- ]char|2,?000[- ]char(acter)? cap",
+   "verdict": "by-design",
+   "by": "portfolio/router/validate.py FLAGSHIP_NEXT_MAX + flagship_field.py --landed/--replace",
+   "at": "2026-11-15T20:24:02Z",
+   "note": "The cap keeps allocate's table short; validate's error names the safe edit and --landed lists cut candidates; history belongs in the README."
+  },
+  {
+   "file": "docs/posts",
+   "match": "(160|110|70)[- ]char|description (limit|cap)|seo_title",
+   "verdict": "fixed",
+   "by": "0dfa820ed (allocate.py, pick_track.py and creative_due.py print the post front-matter caps)",
+   "at": "2026-11-15T20:24:46Z",
+   "note": "Every venture, research and creative brief now prints title <= 110, description 60-160, seo_title <= 70 before the first draft."
+  },
+  {
+   "file": "platform/ci/run_workflow_locally.py",
+   "match": "research-only|research \\+ docs/posts",
+   "verdict": "fixed",
+   "by": "PR #16456",
+   "at": "2026-11-16T04:46:10Z",
+   "note": "selects() reads only the pull_request block when one exists; post diffs still select portfolio-pages as PR CI does"
+  }
+ ]
+}

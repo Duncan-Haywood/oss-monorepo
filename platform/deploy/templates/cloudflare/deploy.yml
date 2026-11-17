@@ -27,7 +27,13 @@ jobs:
         with:
           node-version: 20
       - name: Create the Pages project (a no-op if it already exists)
-        run: npx --yes wrangler@3.99.0 pages project create "$PROJECT" --production-branch=main || true
+        # Only "already exists" is tolerated; a bad token or account id fails here
+        # with wrangler's own message instead of later in Deploy.
+        run: |
+          if ! out="$(npx --yes wrangler@3.99.0 pages project create "$PROJECT" --production-branch=main 2>&1)"; then
+            echo "$out"
+            echo "$out" | grep -qi 'already exists' || exit 1
+          fi
       - name: Deploy
         run: npx --yes wrangler@3.99.0 pages deploy app --project-name="$PROJECT" --branch=main --commit-dirty=true
       - name: Live URL

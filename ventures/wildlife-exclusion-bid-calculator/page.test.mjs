@@ -263,7 +263,7 @@ test('the privacy note names every usage event the page can record', () => {
 
 test('the opt-out is on the page and the counter reads it', () => {
   assert.match(index, /id="usageOptOut"/);
-  assert.match(index, /recordUsage\(localStorage, optedOut\(\), event\)/);
+  assert.match(index, /recordUsage\(usageStorage\(\), optedOut\(\), event\)/);
 });
 
 // --- the flags are prompts, never determinations ----------------------------

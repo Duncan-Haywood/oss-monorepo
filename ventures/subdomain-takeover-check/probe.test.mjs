@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { fetchHost } from './probe.mjs';
+import { fetchHost, fetchHostname } from './probe.mjs';
 
 // A tiny local HTTP server standing in for a real third-party provider --
 // every request in this file goes to 127.0.0.1 only, nothing external, so
@@ -74,4 +74,42 @@ test('fetchHost never throws on a slow response, timing out instead', async () =
     assert.equal(result.ok, false);
     assert.ok(result.error);
   });
+});
+
+// Red team 2026-11-13: fetchHostname tried HTTPS only. An S3 website endpoint
+// serves no HTTPS and an unclaimed Heroku or GitHub Pages name fails the
+// certificate check, so the typical dangling CNAME could never be confirmed.
+function schemeFetch({ https, http }) {
+  const asked = [];
+  const impl = async (url) => {
+    asked.push(url);
+    const handler = url.startsWith('https:') ? https : http;
+    if (handler instanceof Error) throw handler;
+    return new Response(handler.body, { status: handler.status });
+  };
+  return { impl, asked };
+}
+
+test('fetchHostname retries over plain HTTP when HTTPS gets no response at all', async () => {
+  const { impl, asked } = schemeFetch({ https: new Error('certificate mismatch'), http: { status: 404, body: 'Code: NoSuchBucket' } });
+  const result = await fetchHostname('www.example.com', { fetchImpl: impl });
+  assert.deepEqual(asked, ['https://www.example.com/', 'http://www.example.com/']);
+  assert.equal(result.ok, true);
+  assert.equal(result.url, 'http://www.example.com/');
+  assert.match(result.text, /NoSuchBucket/);
+  assert.equal(result.httpsError, 'certificate mismatch');
+});
+
+test('fetchHostname sends no HTTP request when HTTPS answered, whatever the status', async () => {
+  const { impl, asked } = schemeFetch({ https: { status: 404, body: 'No such app' }, http: new Error('unused') });
+  const result = await fetchHostname('blog.example.com', { fetchImpl: impl });
+  assert.deepEqual(asked, ['https://blog.example.com/']);
+  assert.equal(result.url, 'https://blog.example.com/');
+});
+
+test('fetchHostname keeps the HTTPS error when both schemes fail', async () => {
+  const { impl } = schemeFetch({ https: new Error('blocked by CORS'), http: new Error('mixed content') });
+  const result = await fetchHostname('blog.example.com', { fetchImpl: impl });
+  assert.equal(result.ok, false);
+  assert.equal(result.error, 'blocked by CORS');
 });

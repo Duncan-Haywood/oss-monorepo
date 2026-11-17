@@ -1,0 +1,77 @@
+# Milestone 19: Weiss's wall pushed over, softening nails and slack at the anchor rods (buildbot-sheathing)
+Milestone 17's bodies (sill fixed; top plate pushed along the wall without rotating; 7 studs, 2 sheets) joined by springs: milestone 16's sourced 8d backbone along each sheathing nail's slip; 16d end-nail joints as 1-D backbones along the wall (peak m x 1.297 Fp a nail, slip scale lambda); stiff one-sided bearing, stiff ties at the held-down end-stud bottoms; an anchor rod there that bears after a gap g (NDS modulus, capped at c Fp). Pushed to 150 mm in 0.5 mm steps; least-energy state at each step. Loads in units of Fp.
+
+## A. Inputs
+sheathing nail: Fp 0.972 kN, K at 0.4 Fp 0.496 kN/mm, du 28.7 mm (monotonic), dp swept [6, 12] mm
+rod: k = 2 x 270,000 x 0.625^1.5 lb/in = 46.7 kN/mm; cap [2.55, 5.1] Fp (milestone 18's design value and twice it); gaps (in) 0.0000, 0.0312, 0.0625, 0.1250, 0.2500
+joints: m [0.25, 0.47, 0.75, 1.0] of the NDS ratio, lambda [0.25, 0.5, 1.0]
+
+## B. H87: elastic-perfectly-plastic springs (0.1 mm yield) against the wall LP
+6-12 intact m 0.47 cap 0.00: push  18.868 F, LP  18.860 F (+0.042%), residual 7.9e-08
+6-12 decay  m 0.47 cap 0.00: push  10.973 F, LP  10.973 F (+0.000%), residual 3.7e-01
+6-12 intact m 0.47 cap 2.55: push  18.868 F, LP  18.860 F (+0.042%), residual 9.0e-08
+6-12 decay  m 0.47 cap 2.55: push  14.251 F, LP  14.246 F (+0.033%), residual 9.2e-02
+6-12 intact m 1.00 cap 0.00: push  19.083 F, LP  19.075 F (+0.044%), residual 9.9e-08
+6-12 decay  m 1.00 cap 0.00: push  15.179 F, LP  15.173 F (+0.041%), residual 3.4e-02
+6-12 intact m 1.00 cap 2.55: push  19.083 F, LP  19.075 F (+0.044%), residual 1.0e-07
+6-12 decay  m 1.00 cap 2.55: push  15.179 F, LP  15.173 F (+0.041%), residual 2.5e-07
+3-12 intact m 0.47 cap 0.00: push  36.339 F, LP  36.324 F (+0.041%), residual 9.8e-08
+3-12 decay  m 0.47 cap 0.00: push  10.973 F, LP  10.973 F (+0.000%), residual 9.9e-08
+3-12 intact m 0.47 cap 2.55: push  36.428 F, LP  36.414 F (+0.039%), residual 9.2e-08
+3-12 decay  m 0.47 cap 2.55: push  16.073 F, LP  16.073 F (+0.000%), residual 1.0e-07
+3-12 intact m 1.00 cap 0.00: push  36.849 F, LP  36.834 F (+0.040%), residual 9.4e-08
+3-12 decay  m 1.00 cap 0.00: push  23.348 F, LP  23.348 F (+0.000%), residual 8.1e-01
+3-12 intact m 1.00 cap 2.55: push  36.849 F, LP  36.834 F (+0.040%), residual 8.6e-08
+3-12 decay  m 1.00 cap 2.55: push  27.071 F, LP  27.061 F (+0.039%), residual 1.6e-03
+H87 (within 2% in all 16): max 0.044%: held
+
+## C. H88: one sheet with pinned joints against milestone 16's pushover (dp 12 mm)
+milestone 15's studs (registered), intact: 9.923 kN against 9.801 kN (+1.238%); drift at peak 55.0 against 55.5 mm
+milestone 15's studs (registered), Weiss pattern: 7.905 kN against 7.802 kN (+1.315%); drift at peak 55.0 against 56.0 mm
+pins on the edge-nail lines, intact: 9.801 kN against 9.801 kN (-0.000%); drift at peak 55.5 against 55.5 mm
+pins on the edge-nail lines, Weiss pattern: 7.802 kN against 7.802 kN (+0.000%); drift at peak 56.0 against 56.0 mm
+(milestone 16's parallelogram moves every stud nail along the wall only; a rigid stud pinned on its centre line also moves a nail 3/8 in off that line vertically, by theta x 3/8 in. With the pins on the nail lines the two models are the same.)
+H88 (registered studs, within 1%): refuted
+
+## D. Grid: 960 pushovers; largest residual up to the peak 1.0e-07 Fp (0 runs above 1e-3 Fp), over the whole push 3.6e+02 Fp (after the peak a softening wall can snap, and Newton then reports the step it could not settle); share of held nails read back down before the peak: median 0.0%, 90th percentile 5.2%, largest 100.0%
+
+### Share kept 6-12 | 3-12 (decay ratio), dp 12 mm, cap 2.55 F; rows m and lambda, columns gap (in)
+m     lam                   0.0000                0.0312                0.0625                0.1250                0.2500
+0.25  0.25      58.2%|32.4% (1.04)    58.2%|32.4% (1.04)    57.8%|32.5% (1.05)    56.5%|31.8% (1.05)    52.3%|29.0% (1.04)
+0.25  0.50      59.4%|31.8% (1.01)    59.4%|31.8% (1.01)    59.4%|31.8% (1.01)    59.2%|31.8% (1.02)    57.9%|31.4% (1.03)
+0.25  1.00      60.2%|31.5% (1.00)    60.1%|31.5% (1.00)    60.2%|31.5% (1.00)    60.2%|31.5% (1.00)    60.3%|31.6% (1.00)
+0.47  0.25      69.5%|44.1% (1.23)    69.1%|44.1% (1.24)    68.4%|44.1% (1.25)    66.8%|42.6% (1.23)    63.4%|38.3% (1.17)
+0.47  0.50      72.9%|44.3% (1.18)    72.9%|44.3% (1.18)    72.6%|44.3% (1.18)    72.0%|44.3% (1.19)    70.7%|43.5% (1.19)
+0.47  1.00      74.7%|44.4% (1.16)    74.6%|44.4% (1.16)    74.6%|44.4% (1.16)    74.4%|44.4% (1.16)    73.9%|44.5% (1.17)
+0.75  0.25      78.2%|61.0% (1.51)    78.0%|61.0% (1.52)    78.0%|60.8% (1.51)    78.0%|58.7% (1.46)    78.0%|52.0% (1.29)
+0.75  0.50      79.0%|61.6% (1.52)    78.9%|61.6% (1.52)    78.9%|61.6% (1.52)    78.9%|61.6% (1.52)    78.9%|60.0% (1.48)
+0.75  1.00      78.9%|62.0% (1.53)    79.0%|62.0% (1.53)    79.0%|62.0% (1.53)    79.0%|62.0% (1.53)    79.0%|62.0% (1.53)
+1.00  0.25      79.6%|71.3% (1.74)    79.7%|71.3% (1.74)    79.7%|71.0% (1.73)    79.7%|69.3% (1.69)    79.7%|62.7% (1.53)
+1.00  0.50      79.6%|72.4% (1.77)    79.6%|72.4% (1.77)    79.6%|72.4% (1.77)    79.6%|72.3% (1.77)    79.6%|71.1% (1.74)
+1.00  1.00      79.5%|72.8% (1.78)    79.6%|72.8% (1.78)    79.6%|72.8% (1.78)    79.6%|72.9% (1.78)    79.6%|72.8% (1.78)
+tested: 56.5%|33.9% (1.12)
+
+## E. Registered checks
+H89: m 1, lambda 1, cap 2.55, no gap: pushover keeps 79.5% and 72.8%; LP 79.5% and 73.5%; largest difference 0.6 points: held
+H90: m 0.47, lambda 1, cap 2.55: gap 0 keeps 74.7%|44.4%, 1/16 in 74.6%|44.4%; largest drop 0.1 points: held
+H91: m 1, lambda 0.25, cap 2.55, no gap: decayed 3-12 keeps 71.3% (6-12 79.6%): refuted
+H92: grid points with m >= 0.75 and both shares within 10 points: 0: refuted
+best overall: m 0.25, lambda 0.25, gap 0.0625 in, cap 2.55, dp 12 mm: keeps 57.8%|32.5% (rms 1.4 points), decay ratio 1.05, intact 3-12/6-12 1.87; drift at peak (mm) c6 35.5, d6 16.5, c3 27.0, d3 7.0
+best with m >= 0.75: m 0.75, lambda 0.25, gap 0.2500 in, cap 2.55, dp 12 mm: keeps 78.0%|52.0% (rms 19.9 points), decay ratio 1.29, intact 3-12/6-12 1.94; drift at peak (mm) c6 49.0, d6 36.5, c3 51.0, d3 18.0
+grid points within 5 points rms: 30
+  m 0.25, lambda 0.25, gap 0.0625, cap 2.55, dp 12: 57.8%|32.5% rms 1.4, ratio 1.05
+  m 0.25, lambda 0.25, gap 0.1250, cap 2.55, dp 12: 56.5%|31.8% rms 1.4, ratio 1.05
+  m 0.25, lambda 0.25, gap 0.0000, cap 2.55, dp 12: 58.2%|32.4% rms 1.6, ratio 1.04
+  m 0.25, lambda 0.25, gap 0.0312, cap 2.55, dp 12: 58.2%|32.4% rms 1.6, ratio 1.04
+  m 0.25, lambda 0.25, gap 0.0625, cap 2.55, dp 6: 57.8%|32.0% rms 1.6, ratio 1.03
+  m 0.25, lambda 0.25, gap 0.0000, cap 2.55, dp 6: 58.3%|32.2% rms 1.7, ratio 1.03
+  m 0.25, lambda 0.25, gap 0.0312, cap 2.55, dp 6: 58.3%|32.2% rms 1.7, ratio 1.03
+  m 0.25, lambda 0.5, gap 0.2500, cap 2.55, dp 12: 57.9%|31.4% rms 2.0, ratio 1.03
+  m 0.25, lambda 0.25, gap 0.1250, cap 2.55, dp 6: 56.3%|31.0% rms 2.0, ratio 1.03
+  m 0.25, lambda 0.5, gap 0.2500, cap 2.55, dp 6: 57.2%|31.0% rms 2.1, ratio 1.02
+  m 0.25, lambda 0.5, gap 0.1250, cap 2.55, dp 6: 59.0%|31.9% rms 2.2, ratio 1.02
+  m 0.25, lambda 0.5, gap 0.0312, cap 2.55, dp 6: 59.2%|32.1% rms 2.3, ratio 1.02
+
+at the best point, decayed 6-12 at its peak: energy in sheathing nails 78.7%, end-nail joints 20.6%, rods 0.8%; of the sheathing nails' energy 55.9% is on the double end studs, 25.7% on the middle stud
+
+runtime 573 s

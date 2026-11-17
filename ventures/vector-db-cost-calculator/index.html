@@ -201,7 +201,7 @@
     try {
       const s = sizing();
       const storageGb = estimatedStorageGb(s);
-      $("storageOut").innerHTML = `Estimated index storage: <strong>${storageGb.toFixed(2)} GB</strong> (${s.vectorCount.toLocaleString()} vectors &times; ${s.dimension} dims &times; 4 bytes${s.metadataBytesPerVector ? ` + ${s.metadataBytesPerVector} B metadata/vector` : ""}, &times;${s.indexOverhead} overhead).`;
+      $("storageOut").innerHTML = `Estimated index storage: <strong>${storageGb.toFixed(2)} GB</strong> (${s.vectorCount.toLocaleString('en-US')} vectors &times; ${s.dimension} dims &times; 4 bytes${s.metadataBytesPerVector ? ` + ${s.metadataBytesPerVector} B metadata/vector` : ""}, &times;${s.indexOverhead} overhead).`;
       const providers = providerRows(storageGb, +$("queriesMillion").value);
       renderResults(storageGb, +$("queriesMillion").value, providers);
       clearTimeout(usageTimer);

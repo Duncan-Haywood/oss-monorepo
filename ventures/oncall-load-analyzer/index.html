@@ -145,7 +145,7 @@
     function run(text) {
       const n = normalizeRows(parseCsv(text));
       if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
-      const r = analyze(n.incidents, { tzOffsetHours: num("#tz", 0), nightStart: num("#nstart", 22), nightEnd: num("#nend", 7), flapMinutes: Math.max(0, num("#flap", 5)) });
+      const r = analyze(n.incidents, { tzOffsetHours: Math.min(14, Math.max(-12, num("#tz", 0))), nightStart: num("#nstart", 22), nightEnd: num("#nend", 7), flapMinutes: Math.max(0, num("#flap", 5)) });
       last = r.people;
       const s = r.summary;
       $("#report-stats").innerHTML = `<strong>${s.pages}</strong> pages to <strong>${s.people}</strong> people across ${s.services} service${s.services === 1 ? "" : "s"}, ${s.from} to ${s.to} (${s.perDay.toFixed(1)} a day). <strong>${(s.nightShare * 100).toFixed(0)}%</strong> landed at night. <strong>${(s.avoidableShare * 100).toFixed(0)}%</strong> were self-resolved or repeats, about <strong>${humanHours(s.avoidableHours)}</strong> of an estimated ${humanHours(s.hours)} of interruption.`;

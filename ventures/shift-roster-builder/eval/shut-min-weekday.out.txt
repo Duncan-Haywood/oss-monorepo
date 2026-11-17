@@ -1,0 +1,8 @@
+French bakery: ticket-minutes by weekday Mon 119694, Tue 110892, Wed 79086, Thu 112578, Fri 111660, Sat 128610, Sun 156186; busiest two: Sat/Sun.
+
+Plan from the whole file (one week); after: heads in the first hour after the last trading hour, Mon..Sun. Backtest: mean person-hours per tested week.
+--shut-min                          hours  after Mon..Sun     short    over
+one closer every day                  198  1 1 1 1 1 1 1       44.5    30.6
+two every day                         243  2 2 2 2 2 2 2       36.4    52.0
+two on Fri/Sat only                   208  1 1 1 1 2 2 1       41.8    38.1
+two on Sat/Sun (busiest)              208  1 1 1 1 1 2 2       42.4    37.7

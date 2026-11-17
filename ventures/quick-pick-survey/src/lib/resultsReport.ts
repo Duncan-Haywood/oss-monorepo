@@ -6,7 +6,8 @@
 // any person, and the report says so on its face.
 import type { Coverage, RankedItem } from "./groupRanking";
 
-export type Brand = { name?: string; logo?: string; colour?: string; note?: string };
+/** Branding the owner types, plus `agreement`: the route's data-quality notes (slot clickers left out, respondent agreement; groupRanking.ts), never a query parameter. */
+export type Brand = { name?: string; logo?: string; colour?: string; note?: string; agreement?: string };
 
 const esc = (s: unknown) =>
   String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] as string);
@@ -51,6 +52,7 @@ export function resultsReportHtml(
     )
     .join("");
   const thin = cov.thin.length ? `<p class="warn">Too few people rated: ${cov.thin.map(esc).join(", ")}. Their places are not reliable.</p>` : "";
+  const agreement = brand.agreement ? `<p class="warn">${esc(brand.agreement)}</p>` : "";
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(title)}: results</title><style>
 body{font:15px/1.5 system-ui,sans-serif;margin:0;color:#1a1a1a}main{max-width:860px;margin:0 auto;padding:24px}
@@ -60,7 +62,7 @@ h1{font-size:24px;margin:0;color:${colour}}table{border-collapse:collapse;width:
 .bar b{position:absolute;top:50%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:${colour}}small{color:#666}.warn{background:#fff4e0;padding:8px;border-radius:4px}
 .fine{color:#555;font-size:13px;margin-top:24px}@media print{main{padding:0}}</style></head><body><main>
 <header>${logo ? `<img src="${esc(logo)}" alt="">` : ""}<div><h1>${esc(title)}</h1><div>${esc(brand.name ?? "")} · ${esc(today)} · ${esc(participants)} respondents</div></div></header>
-${brand.note ? `<p>${esc(brand.note)}</p>` : ""}${thin}
+${brand.note ? `<p>${esc(brand.note)}</p>` : ""}${thin}${agreement}
 <table><thead><tr><th>Place</th><th>Option</th><th>Score with 95% range</th><th>Score</th><th>Raters</th></tr></thead><tbody>${rows}</tbody></table>
 <p class="fine">How to read this: a place shown as a range (for example 2–4) means the picks cannot separate those options; treat them as tied. The bar is the 95% interval for the group score. This is an estimate from a limited number of pairwise picks, not a fact about any person, and not a basis for a decision about anyone. Provided as-is with no warranty; the authors accept no liability for its use. Made with Quick pick (MIT licensed, open source).</p>
 </main></body></html>`;

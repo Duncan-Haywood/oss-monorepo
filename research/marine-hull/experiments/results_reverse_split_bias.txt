@@ -1,0 +1,7 @@
+Milestone 6zu post hoc: test-window harvest / the climatology it is planned with
+All   R (climatology 2020-2024, test 2015-2019): 0.9893
+All   T (climatology 2015-2019, test 2020-2024): 1.0108
+AtlC  R (climatology 2020-2024, test 2015-2019): 0.9978
+AtlC  T (climatology 2015-2019, test 2020-2024): 1.0022
+PacC  R (climatology 2020-2024, test 2015-2019): 0.9861
+PacC  T (climatology 2015-2019, test 2020-2024): 1.0141

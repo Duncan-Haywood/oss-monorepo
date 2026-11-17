@@ -1,0 +1,22 @@
+20x56 w0 cp0 | 500: 0 capped, 0 h, 2 ms | 2000: 0 capped, 0 h, 2 ms | 10000: 0 capped, 0 h, 0 ms | 1000000: 0 capped, 0 h, 1 ms
+20x56 w0 cp25 | 500: 0 capped, 0 h, 0 ms | 2000: 0 capped, 0 h, 0 ms | 10000: 0 capped, 0 h, 0 ms | 1000000: 0 capped, 0 h, 0 ms
+20x56 w1 cp0 | 500: 0 capped, 0 h, 0 ms | 2000: 0 capped, 0 h, 0 ms | 10000: 0 capped, 0 h, 0 ms | 1000000: 0 capped, 0 h, 2 ms
+20x56 w1 cp25 | 500: 0 capped, 0 h, 0 ms | 2000: 0 capped, 0 h, 0 ms | 10000: 0 capped, 0 h, 0 ms | 1000000: 0 capped, 0 h, 0 ms
+20x56 w2 cp0 | 500: 53 capped, 321 h, 8 ms | 2000: 23 capped, 187 h, 18 ms | 10000: 0 capped, 179 h, 15 ms | 1000000: 0 capped, 179 h, 14 ms
+20x56 w2 cp25 | 500: 485 capped, 3119 h, 29 ms | 2000: 284 capped, 2303 h, 74 ms | 10000: 80 capped, 1884 h, 171 ms | 1000000: 0 capped, 1696 h, 242 ms
+40x112 w0 cp0 | 500: 308 capped, 1832 h, 19 ms | 2000: 193 capped, 1171 h, 44 ms | 10000: 90 capped, 690 h, 128 ms | 1000000: 0 capped, 327 h, 187 ms
+40x112 w0 cp25 | 500: 13 capped, 123 h, 16 ms | 2000: 2 capped, 51 h, 11 ms | 10000: 0 capped, 51 h, 13 ms | 1000000: 0 capped, 51 h, 9 ms
+40x112 w1 cp0 | 500: 1 capped, 7 h, 11 ms | 2000: 0 capped, 0 h, 11 ms | 10000: 0 capped, 0 h, 11 ms | 1000000: 0 capped, 0 h, 11 ms
+40x112 w1 cp25 | 500: 1 capped, 7 h, 11 ms | 2000: 0 capped, 0 h, 11 ms | 10000: 0 capped, 0 h, 10 ms | 1000000: 0 capped, 0 h, 11 ms
+40x112 w2 cp0 | 500: 20 capped, 115 h, 37 ms | 2000: 0 capped, 0 h, 31 ms | 10000: 0 capped, 0 h, 32 ms | 1000000: 0 capped, 0 h, 31 ms
+40x112 w2 cp25 | 500: 20 capped, 115 h, 39 ms | 2000: 0 capped, 0 h, 30 ms | 10000: 0 capped, 0 h, 28 ms | 1000000: 0 capped, 0 h, 33 ms
+cafe cp0 | 500: 2 capped, 16 h, 0 ms | 2000: 1 capped, 16 h, 0 ms | 10000: 0 capped, 16 h, 0 ms | 1000000: 0 capped, 16 h, 0 ms
+cafe cp25 | 500: 22 capped, 360 h, 6 ms | 2000: 7 capped, 360 h, 7 ms | 10000: 0 capped, 360 h, 9 ms | 1000000: 0 capped, 360 h, 19 ms
+spare cp0 | 500: 0 capped, 0 h, 0 ms | 2000: 0 capped, 0 h, 0 ms | 10000: 0 capped, 0 h, 0 ms | 1000000: 0 capped, 0 h, 0 ms
+spare cp25 | 500: 8 capped, 51 h, 1 ms | 2000: 0 capped, 51 h, 1 ms | 10000: 0 capped, 51 h, 1 ms | 1000000: 0 capped, 51 h, 4 ms
+salon cp0 | 500: 0 capped, 48 h, 0 ms | 2000: 0 capped, 48 h, 0 ms | 10000: 0 capped, 48 h, 0 ms | 1000000: 0 capped, 48 h, 0 ms
+salon cp25 | 500: 0 capped, 48 h, 0 ms | 2000: 0 capped, 48 h, 0 ms | 10000: 0 capped, 48 h, 0 ms | 1000000: 0 capped, 48 h, 0 ms
+retail cp0 | 500: 6 capped, 180 h, 1 ms | 2000: 0 capped, 180 h, 1 ms | 10000: 0 capped, 180 h, 2 ms | 1000000: 0 capped, 180 h, 6 ms
+retail cp25 | 500: 5 capped, 360 h, 2 ms | 2000: 0 capped, 360 h, 2 ms | 10000: 0 capped, 360 h, 2 ms | 1000000: 0 capped, 360 h, 2 ms
+clinic cp0 | 500: 0 capped, 79 h, 0 ms | 2000: 0 capped, 79 h, 0 ms | 10000: 0 capped, 79 h, 0 ms | 1000000: 0 capped, 79 h, 0 ms
+clinic cp25 | 500: 0 capped, 79 h, 0 ms | 2000: 0 capped, 79 h, 0 ms | 10000: 0 capped, 79 h, 0 ms | 1000000: 0 capped, 79 h, 0 ms

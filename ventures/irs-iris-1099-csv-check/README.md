@@ -24,7 +24,16 @@ Tyler-LeDuc/leducsystems). Where they differ (`Last Name` with or without `(Surn
 required columns, the 1099-MISC `FATCA Filing Requirements` and `Box 14` columns) every spelling is
 accepted. The old layout is still read as a fallback.
 
-**Unverified:** every other rule (limits, thresholds, accepted values for Name Type, TIN Type and
+**Checked on irs.gov (2026-11-11):** the IRS's own TY2025 IRIS CSV template formatting guidelines
+(irs.gov/pub/irs-efile/ty2025-template-formatting-guidelines.zip, linked from "E-file information
+returns with IRIS") list every column by letter; both layouts above match them, and the 1099-MISC has
+`FATCA Filing Requirements` in AK and no Box 14 column. For tax year 2026 the 1099-MISC reporting
+amounts come from the Instructions for Forms 1099-MISC and 1099-NEC (Rev. December 2026): $2,000 for
+rents, other income, medical payments, crop insurance, 409A deferrals and nonqualified deferred
+compensation; $600 for attorney proceeds and fish for resale; $10 for royalties and substitute
+payments. Earlier years keep the amounts below.
+
+**Unverified:** every other rule (limits, pre-2026 thresholds, accepted values for Name Type, TIN Type and
 the check-box columns, the 100-record file limit) is from memory or from those open-source
 readings. No IRS template or IRIS account was available. See `VENTURE.yaml` for the list.
 
@@ -47,10 +56,24 @@ recipients; totals and record counts against numbers you type in.
 
 ## Safe fixes
 
-`repair()` changes only delimiter, header capitals, stray spaces, TIN dashes, state and form
+`repair()` changes only delimiter, header capitals, stray spaces, TIN format (dashed as the IRS template guidelines require for the row's TIN type), state and form
 capitals, a lost ZIP zero in zero-ZIP states, and `$`/commas in amounts, and lists every change.
 It never changes a name, an address or an amount's value.
 
 ## Run
 
 Open `index.html` through any static server. Tests: `node --test`.
+
+## Known gaps
+
+From the quality audit of 2026-11-12
+([`portfolio/quality/audits/2026-11-12-irs-iris-1099-csv-check.json`](../../portfolio/quality/audits/2026-11-12-irs-iris-1099-csv-check.json)),
+checked against the IRS TY2025 IRIS template formatting guidelines. Fixed in the same PR: TINs are now
+checked and written in the dashed format the guidelines require (the old safe fix stripped the dashes),
+QI-EIN and UND are accepted TIN types, and FM, MH and PW are accepted state codes. Still open:
+
+- A row with Box 1 blank and Box 2 (direct sales of $5,000 or more) = Y is reported as having no reportable amount; the guidelines accept either.
+- The CF/SF column is read as a Y/N flag; the guidelines define it as a quoted list of states (for example `"AL,CA,DE"`).
+- Name and address character rules differ from the guidelines: business names allow `.`, `,` and `/` the guidelines forbid and warn on `#` and parentheses they allow; first and last names (20 characters) and city (letters only) are not checked; the address limit is 40 rather than 35.
+- ZIP: `12345-6789` passes although the guidelines ask for digits only, and a 12-digit foreign postal code is rejected.
+- Payer TIN Type accepts ITIN and ATIN (only EIN and SSN are listed), and Recipient TIN Type `NONE` hides a blank TIN.

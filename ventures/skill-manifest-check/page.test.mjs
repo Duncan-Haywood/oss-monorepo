@@ -114,3 +114,9 @@ test("sitemap lists every published page and no extras", () => {
 test("robots.txt allows crawling", () => {
   assert.match(robots, /Allow:\s*\//);
 });
+
+test("finding text (which quotes pasted input) is never written with innerHTML (quality audit 2026-11-13)", () => {
+  const js = scripts.join("\n");
+  assert.ok(!/innerHTML\s*=\s*`[^`]*\$\{[^}]*f\./.test(js), "no innerHTML template interpolating a finding");
+  assert.match(js, /createTextNode\(/);
+});

@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKk7ZnqDQf3Not3LLrn",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T05:18:21Z",
+  "ended": "2026-11-16T05:23:23Z",
+  "wall_minutes": 5.23,
+  "tokens_in": 3109316,
+  "tokens_out": 17551,
+  "cost_usd": 1.6169,
+  "tool_calls": 39,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16468",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "check_post_frontmatter: first description was 179 chars (cap 160); shortened"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Backlog held only owner rows again; friction_rank.py --live --ungated --days 3 plus a grep of run records for flagship_field found the target faster than measure's doc-friction table, as earlier records said."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "PY=$(python3 platform/ci/pyenv.py pytest numpy) printed only the path on its last line here; capturing it without | tail -1 would have been fine, but an empty $PY in a later call (shell state does not persist between tool calls) cost one retry."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-full-flagship-rows-one-call.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode. main_health.py 235/235 green. Target: flagship_field.py retry cluster (friction_rank --live --ungated; 25 newest reports about the cap/tool, most describe 2-3 calls per edit). Shipped --make-room, allocate.py hint naming it plus the 600-char buildable cap. Verified: pytest portfolio/router 151 passed; validate.py clean; scratch-copy repro of a 106-over edit landed in one call. No backlog ids touched (none agent-owned). No agent doc in docs/reports: the post and the tool docstring carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "02e479f9-c5d1-542a-9434-864e6e33d13c",
+    "transcripts": 1,
+    "first": "2026-11-16T05:18:21Z",
+    "last": "2026-11-16T05:23:35Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 36,
+        "input": 69,
+        "output": 17551,
+        "thinking": 3973,
+        "cache_read": 3026719,
+        "cache_write_5m": 0,
+        "cache_write_1h": 82528,
+        "api_equivalent_usd": 1.6169,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 36,
+      "input": 69,
+      "output": 17551,
+      "thinking": 3973,
+      "cache_read": 3026719,
+      "cache_write_5m": 0,
+      "cache_write_1h": 82528,
+      "api_equivalent_usd": 1.6169,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 36,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.23,
+      "active_minutes": 5.23,
+      "model_minutes": 3.46,
+      "tool_minutes": 1.77,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "reproduce, implement, test and document a small CLI flag",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 123.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

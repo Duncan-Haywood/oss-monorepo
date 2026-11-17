@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Cafe Drink Margin Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Per-drink margin for a coffee shop after beans, milk, cup, card fees and barista make time, with profit per barista-hour, target prices, alternative-milk surcharge and break-even drinks per day. Runs in your browser.","featureList":"Margin per drink, profit per barista-hour, price for target margin, oat milk surcharge, break-even drinks per day, cost sensitivity, CSV export"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a good margin on a latte?","acceptedAnswer":{"@type":"Answer","text":"Most cafes aim for ingredient and cup cost under 25-30% of the price, which leaves room for labor and rent. This tool goes further than ingredient cost: it subtracts the card fee and the barista's time making the drink, so you see what the drink actually earns. Set your own target margin and it shows the price that reaches it."}},{"@type":"Question","name":"Why does make time matter?","acceptedAnswer":{"@type":"Answer","text":"A barista can only make so many drinks an hour. A flavored 16 oz latte that takes 95 seconds and earns $3 uses the same scarce hour as a drip coffee that takes 25 seconds and earns $2. The per-barista-hour column shows which drinks earn the most from that hour, which matters in a rush when the line, not the milk, is the limit."}},{"@type":"Question","name":"How do I price an oat milk upcharge?","acceptedAnswer":{"@type":"Answer","text":"Enter what you pay per gallon for the alternative milk. The tool computes the extra cost per drink at your average milk pour, adds the card fee on the surcharge, and shows the break-even surcharge. Charging more than that makes alternative milk a profit, charging less makes each one a small loss."}},{"@type":"Question","name":"How many drinks a day do I need to break even?","acceptedAnswer":{"@type":"Answer","text":"Divide daily fixed costs (rent, utilities, base staffing, software) by the average contribution per drink after ingredients, card fees and make-time labor. The result assumes your drink mix stays the same, so check it again if you add a high-margin or low-margin drink."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #6b3f1d; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #6b3f1d; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #6b3f1d; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #6b3f1d; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #6b3f1d; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #6b3f1d; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
   <style>
     .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     .menu input { width: 100%; min-width: 4.5em; box-sizing: border-box; }
@@ -151,11 +189,11 @@
       if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
       last = a;
       const t = a.totals;
-      h += '<div class="finding"><h4>' + (t.profitMonth >= 0 ? "Left after fixed costs: " : "Short of fixed costs by ") + money(Math.abs(t.profitMonth)) + " a month</h4><p>" + Math.round(t.drinks) + " drinks a day bring in " + money(t.revenue) + " and contribute " + money(t.contribution) + " after ingredients, card fees and make-time labor, against " + money(t.fixedDay) + " a day of fixed costs. " + (a.breakEvenDrinks == null ? "Contribution per drink is not positive, so no volume breaks even." : "At this mix you break even at about " + a.breakEvenDrinks + " drinks a day.") + "</p></div>";
-      h += '<div class="finding"><h4>Each drink</h4>' + table(["Drink", "Price", "Ingredients + cup", "Card fee", "Make-time labor", "Earns", "Margin", "Per barista-hour", "Price for " + a.v.target + "%"], a.rows.map((r) => [esc(r.name), money2(r.price), money2(r.ingredients), money2(r.card), money2(r.labor), money2(r.contribution), pct(r.margin), money(r.perBaristaHour), r.targetPrice == null ? "—" : money2(r.targetPrice)])) + '<p class="note">Per barista-hour is what the drink earns before labor, if the barista made only that drink for an hour. It shows which drinks best use a busy hour.</p></div>';
-      h += '<div class="finding"><h4>Busy-hour winner and loser</h4><p>' + esc(a.bestPerHour.name) + " earns the most per barista-hour (" + money(a.bestPerHour.perBaristaHour) + "); " + esc(a.worstPerHour.name) + " earns the least (" + money(a.worstPerHour.perBaristaHour) + ").</p></div>";
-      h += '<div class="finding"><h4>Alternative milk surcharge</h4><p>At your average pour of ' + (Math.round(a.alt.milkOz * 10) / 10) + " oz, switching a drink costs " + money2(a.alt.delta) + " more. A surcharge of at least " + money2(a.alt.surcharge) + " covers that and the card fee on it.</p></div>";
-      h += '<div class="finding"><h4>If costs move (monthly profit)</h4>' + table(["Change", "Monthly profit", "Difference"], a.scenarios.map((s) => [esc(s.label), money(s.profitMonth), money(s.change)])) + "</div>";
+      h += '<div class="finding"><h3>' + (t.profitMonth >= 0 ? "Left after fixed costs: " : "Short of fixed costs by ") + money(Math.abs(t.profitMonth)) + " a month</h3><p>" + Math.round(t.drinks) + " drinks a day bring in " + money(t.revenue) + " and contribute " + money(t.contribution) + " after ingredients, card fees and make-time labor, against " + money(t.fixedDay) + " a day of fixed costs. " + (a.breakEvenDrinks == null ? "Contribution per drink is not positive, so no volume breaks even." : "At this mix you break even at about " + a.breakEvenDrinks + " drinks a day.") + "</p></div>";
+      h += '<div class="finding"><h3>Each drink</h3>' + table(["Drink", "Price", "Ingredients + cup", "Card fee", "Make-time labor", "Earns", "Margin", "Per barista-hour", "Price for " + a.v.target + "%"], a.rows.map((r) => [esc(r.name), money2(r.price), money2(r.ingredients), money2(r.card), money2(r.labor), money2(r.contribution), pct(r.margin), money(r.perBaristaHour), r.targetPrice == null ? "—" : money2(r.targetPrice)])) + '<p class="note">Per barista-hour is what the drink earns before labor, if the barista made only that drink for an hour. It shows which drinks best use a busy hour.</p></div>';
+      h += '<div class="finding"><h3>Busy-hour winner and loser</h3><p>' + esc(a.bestPerHour.name) + " earns the most per barista-hour (" + money(a.bestPerHour.perBaristaHour) + "); " + esc(a.worstPerHour.name) + " earns the least (" + money(a.worstPerHour.perBaristaHour) + ").</p></div>";
+      h += '<div class="finding"><h3>Alternative milk surcharge</h3><p>At your average pour of ' + (Math.round(a.alt.milkOz * 10) / 10) + " oz, switching a drink costs " + money2(a.alt.delta) + " more. A surcharge of at least " + money2(a.alt.surcharge) + " covers that and the card fee on it.</p></div>";
+      h += '<div class="finding"><h3>If costs move (monthly profit)</h3>' + table(["Change", "Monthly profit", "Difference"], a.scenarios.map((s) => [esc(s.label), money(s.profitMonth), money(s.change)])) + "</div>";
       h += '<p><button type="button" class="secondary" id="csv">Download drink table (CSV)</button></p>';
       $("result").innerHTML = h;
       $("out").hidden = false;

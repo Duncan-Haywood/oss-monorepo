@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%230f3d3e'/%3E%3Cpath%20d='M5%2024%20L28%208'%20stroke='%23ffd166'%20stroke-width='2.4'/%3E%3Ccircle%20cx='8'%20cy='19'%20r='2'%20fill='%23fff'/%3E%3Ccircle%20cx='13'%20cy='22'%20r='2'%20fill='%23fff'/%3E%3Ccircle%20cx='18'%20cy='13'%20r='2'%20fill='%23fff'/%3E%3Ccircle%20cx='24'%20cy='14'%20r='2'%20fill='%23fff'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mann-Kendall Trend Test Online — Sen's slope, seasonal Kendall, free</title>
+  <meta name="description" content="Free online Mann-Kendall trend test with Sen's slope and its confidence interval. Corrects for autocorrelation (Yue-Wang, Hamed-Rao, pre-whitening), runs the seasonal Kendall test with the Hirsch-Slack covariance for monthly data, and checks whether the seasons share one trend. Matches pymannkendall and scipy. Runs in your browser.">
+  <meta property="og:title" content="Mann-Kendall trend test in your browser: is this series going up or down, and is it more than noise?">
+  <meta property="og:description" content="Mann-Kendall test, Sen's slope with a confidence interval, autocorrelation corrections and the seasonal Kendall test with between-season covariance. On 95 years of Potomac River flow, the covariance turns a p = 0.004 trend into p = 0.11.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Mann-Kendall trend test with Sen's slope", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste a time series of dates or years and values. The Mann-Kendall test (Mann 1945; Kendall 1975) says whether it trends up or down, Sen's slope (1968) says by how much per year with a confidence interval, the Yue-Wang (2004) and Hamed-Rao (1998) corrections account for serial correlation, and the seasonal Kendall test (Hirsch, Slack and Smith 1982) with the Hirsch-Slack (1984) covariance handles monthly data. Runs in your browser.", "featureList": "Mann-Kendall test online, Sen's slope, Theil-Sen estimator, confidence interval for Sen's slope, seasonal Kendall test, seasonal Mann-Kendall, Hirsch-Slack covariance, modified Mann-Kendall, Hamed-Rao correction, Yue-Wang correction, trend-free pre-whitening, homogeneity of trend test, exact p-value small samples, water quality trend, streamflow trend, groundwater trend, climate trend, CSV upload, CSV download", "citation": ["https://doi.org/10.2307/1907187", "https://doi.org/10.1080/01621459.1968.10480934", "https://doi.org/10.1016/S0022-1694(97)00125-X", "https://doi.org/10.1023/B:WARM.0000043140.61082.60", "https://doi.org/10.1002/hyp.1095", "https://doi.org/10.1029/WR018i001p00107", "https://doi.org/10.1029/WR020i006p00727", "https://doi.org/10.1029/WR020i001p00127"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does the Mann-Kendall test tell me?", "acceptedAnswer": {"@type": "Answer", "text": "Whether a series tends to go up or down over time, without assuming the change is a straight line or the values are normally distributed. It compares every pair of readings: later-higher pairs count +1, later-lower pairs count -1. If there is no trend the total is close to zero, and the p-value says how unusual the observed total would be by chance."}}, {"@type": "Question", "name": "What is Sen's slope?", "acceptedAnswer": {"@type": "Answer", "text": "The median of the slopes between every pair of readings, in your units per year (or per time unit). Because it is a median, a few outliers or a skewed distribution barely move it, unlike a least-squares line. The interval comes from the same variance as the test, so a 95% interval that excludes zero goes with a significant test."}}, {"@type": "Question", "name": "Why correct for autocorrelation?", "acceptedAnswer": {"@type": "Answer", "text": "When each reading is like the one before it, as with river flow, groundwater levels or monthly temperatures, a run of high values happens by chance more often than the plain test assumes, so its p-values are too small. The corrections widen the variance of the statistic by an estimate of how much the correlation inflates it. In this tool's simulations of 1,000 trend-free series of 100 readings with lag-1 correlation 0.6, the plain test found a trend 30% of the time at the 5% level and the default Yue-Wang correction 6%."}}, {"@type": "Question", "name": "When should I use the seasonal Kendall test?", "acceptedAnswer": {"@type": "Answer", "text": "When the data have a seasonal cycle, such as monthly flows, temperatures or concentrations. The seasonal test compares January with January, February with February and so on, and adds the results, so the cycle itself cannot pose as a trend. With at least 10 years the Hirsch-Slack covariance also accounts for a wet year making every month high together."}}, {"@type": "Question", "name": "What does the homogeneity test mean?", "acceptedAnswer": {"@type": "Answer", "text": "It asks whether every season trends the same way. If spring rises while autumn falls, the seasonal test can add them up to no trend, or report one slope that fits no season. A small homogeneity p-value says look at the per-season table instead of the overall slope."}}, {"@type": "Question", "name": "How many readings do I need?", "acceptedAnswer": {"@type": "Answer", "text": "At least 4, but power is low below about 10. With 20 or fewer readings and no ties the tool uses the exact distribution of the statistic instead of the normal approximation. With fewer than 10 years the seasonal covariance is not used."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analysed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #12292a; background: #eef4f3; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #17605f; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0f3d3e; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0f3d3e; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46595a; }
+    .card { background: #fff; border: 1px solid #d3e0de; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0f3d3e10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6f8786; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17605f; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e0ecea; color: #0f3d3e; }
+    button:disabled { opacity: .6; cursor: progress; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e3ecea; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46595a; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.chosen td { background: #f0f7f5; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d3e0de; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 160px; padding: 9px 10px; border: 1px solid #6f8786; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .summary { font-size: 1.02rem; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 12px 0; }
+    .stat { background: #eff6f5; border-radius: 10px; padding: 10px 12px; }
+    .stat b { display: block; font-size: 1.35rem; color: #0f3d3e; font-variant-numeric: tabular-nums; }
+    .stat span { font-size: .82rem; color: #46595a; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    .key { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 4px; }
+    pre { background: #f2f7f6; border: 1px solid #dbe7e5; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">MANN-KENDALL TREND TEST · SEN'S SLOPE · SEASONAL KENDALL · AUTOCORRELATION CORRECTIONS · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is this series going up or down, and is it more than noise?</h1>
+    <p>Paste readings over time: monthly river flow, a well's nitrate concentrations, yearly counts of a species, a sensor's daily means, sales by quarter. The <strong>Mann-Kendall test</strong> says whether they trend up or down without assuming a straight line or a normal distribution, and <strong>Sen's slope</strong> says by how much per year, with a confidence interval. Readings that follow on from each other (a wet month after a wet month) get a <strong>serial-correlation correction</strong>, because without one the test finds trends in pure noise. Monthly or quarterly data get the <strong>seasonal Kendall test</strong>, which compares each month only with the same month in other years, accounts for months moving together, and tells you whether every season shares the trend.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Statistical output from data you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your data</h2>
+    <label for="csv">A CSV with a header row: a time column (dates like 2024-03-05 or 2024-03, or numbers such as years) and a value column (comma, tab, semicolon or space separated)</label>
+    <textarea id="csv" spellcheck="false" placeholder="date,nitrate_mg_l&#10;2015-01-14,2.1&#10;2015-04-09,2.6&#10;2015-07-22,1.9&#10;..."></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,.dat,text/csv">
+    <button type="button" class="secondary" id="load-example">Load example: Potomac River monthly flow, 1930-2026 (seasonal)</button>
+    <button type="button" class="secondary" id="load-peaks">Load example: its 96 annual flood peaks (one series)</button>
+    <p class="note" id="data-status">Rows with a missing time or value are skipped and counted.</p>
+
+    <div class="grid">
+      <div><label for="time-col">Time column</label><select id="time-col"></select></div>
+      <div><label for="value-col">Value column</label><select id="value-col"></select></div>
+      <div><label for="seasons">Seasons</label><select id="seasons"><option value="auto" selected>Automatic (monthly dates: by month)</option><option value="none">None: one series</option><option value="month">By month (needs dates)</option><option value="quarter">By quarter (needs dates)</option></select></div>
+      <div><label for="season-col">Or a season column</label><select id="season-col"></select></div>
+    </div>
+    <div class="grid">
+      <div><label for="correction">Serial-correlation correction (one series)</label><select id="correction"><option value="yue-wang" selected>Yue-Wang, AR(1) (recommended)</option><option value="hamed-rao">Hamed-Rao, all lags</option><option value="hamed-rao-3">Hamed-Rao, first 3 lags</option><option value="tfpw">Trend-free pre-whitening</option><option value="none">None: independent readings</option></select></div>
+      <div><label for="covariance">Between-season covariance (seasonal)</label><select id="covariance"><option value="auto" selected>Automatic (on with 10+ years)</option><option value="on">On</option><option value="off">Off: independent seasons</option></select></div>
+      <div><label for="alpha">Significance level</label><select id="alpha"><option value="0.01">1%</option><option value="0.05" selected>5%</option><option value="0.1">10%</option></select></div>
+      <div><label for="confidence">Interval for Sen's slope</label><select id="confidence"><option value="0.9">90%</option><option value="0.95" selected>95%</option><option value="0.99">99%</option></select></div>
+    </div>
+    <button type="button" id="analyze">Test for a trend</button>
+    <p id="status" class="note" role="status"></p>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="summary" id="summary"></p>
+    <div class="stats" id="stats"></div>
+    <div id="warnings"></div>
+    <h3>The readings and Sen's line</h3>
+    <p class="note"><span class="key" style="background:#17605f"></span>readings <span class="key" style="background:#e07a1f"></span>Sen's line through the median point <span class="key" style="background:#e9b98f"></span>the interval's slopes</p>
+    <div id="series" role="img" aria-label="The readings against time, with Sen's trend line and the lines at the interval's lower and upper slopes"></div>
+    <h3>Every test on these data</h3>
+    <p class="note">The highlighted row is the one the summary uses. If the rows disagree, the verdict depends on how the correlation between readings is handled.</p>
+    <div class="scroll">
+      <table id="test-table">
+        <thead><tr><th>Test</th><th class="n">S</th><th class="n">Variance ×</th><th class="n">Z</th><th class="n">p-value</th><th>Verdict</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div id="season-block" hidden>
+      <h3>Season by season</h3>
+      <div id="season-chart" role="img" aria-label="Sen's slope in each season, a bar per season, darker when that season's own test is significant"></div>
+      <p class="note" id="homog-line"></p>
+      <div class="scroll">
+        <table id="season-table">
+          <thead><tr><th>Season</th><th class="n">Readings</th><th class="n">Median</th><th class="n">S</th><th class="n">p-value</th><th class="n">Sen's slope</th><th>Verdict</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <p class="note" id="settings-line"></p>
+    <button type="button" class="secondary" id="download">Download readings with the trend line (CSV)</button>
+    <button type="button" class="secondary" id="download-report">Download the report (text)</button>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p><strong>The test.</strong> For n readings ordered by time, <code>S = Σ_(i&lt;j) sign(x_j − x_i)</code>: every later-higher pair adds one, every later-lower pair takes one away (Mann 1945). With no trend S has mean 0 and variance <code>[n(n−1)(2n+5) − Σ t(t−1)(2t+5)]/18</code> over groups of t tied values (Kendall 1975, whose fuller formula is used when times are tied too), and <code>Z = (S ∓ 1)/√Var S</code> is close to normal. With 20 or fewer readings and no ties the p-value comes from the exact distribution of S instead. Kendall's tau is <code>S / (n(n−1)/2)</code>.</p>
+    <p><strong>The slope.</strong> Sen's (1968) slope is the median of <code>(x_j − x_i)/(t_j − t_i)</code> over all pairs, per year when the time column holds dates. Its interval takes the sorted slopes of rank <code>(N ∓ z√Var S)/2</code>, so it uses the same variance as the test. The line is drawn through the median time and median value (Conover 1980).</p>
+    <p><strong>Serial correlation.</strong> Correlated readings make Var S larger than the formula says. The default, Yue &amp; Wang (2004), multiplies it by <code>1 + 2 Σ_k (1 − k/n) r₁^k</code>, where r₁ is the lag-1 autocorrelation after Sen's trend is removed. Hamed &amp; Rao (1998) use the significant autocorrelations of the ranks of the detrended values instead, and trend-free pre-whitening (Yue et al. 2002) removes the lag-1 correlation from the data before testing. All of them are computed and shown so you can see whether the verdict depends on the choice.</p>
+    <p><strong>Seasons.</strong> The seasonal Kendall test (Hirsch, Slack &amp; Smith 1982) computes S and its variance within each month or quarter and adds them; its slope is the median of the within-season slopes. With 10 or more years and one value per season per year, Hirsch &amp; Slack (1984) add the covariance between seasons, <code>σ_gh = [K_gh + 4 Σ R_ig R_ih − n(n_g+1)(n_h+1)]/3</code>, which is large when a wet year raises every month together. The homogeneity test of van Belle &amp; Hughes (1984), <code>χ² = Σ Z_g² − M·mean(Z)²</code> on M−1 degrees of freedom, asks whether the seasons share one trend.</p>
+    <p>Verified by tests in the source: on the example's 96 annual peaks and 1,140 complete monthly flows, S, its variance, Z and p for the plain, Hamed-Rao and pre-whitened tests match <strong>pymannkendall 1.4.3</strong> to 10⁻⁹, as do the seasonal test's statistic, variance and slope and the Hirsch-Slack covariance; Sen's interval matches <strong>scipy 1.17.1</strong>'s <code>theilslopes</code> at 90% and 95%; exact p-values match scipy's exact Kendall tau; Kendall's tie-corrected variance equals the variance of S over all 5,040 orderings of a tied sample; the Hirsch-Slack variance with missing years equals the variance seen in 3,000 simulated series; and on 300 trend-free series with lag-1 correlation 0.6 the default correction finds a trend under 12% of the time where the plain test finds one over 20% of the time. The Yue-Wang test as pymannkendall runs it by default, summing every lag, is reproduced too but not offered: it called a trend in 45-51% of trend-free series, white noise included.</p>
+    <h3>BibTeX</h3>
+    <pre>@article{mann1945nonparametric,
+  author  = {Mann, Henry B.},
+  title   = {Nonparametric tests against trend},
+  journal = {Econometrica},
+  volume  = {13}, number = {3}, pages = {245--259}, year = {1945},
+  doi     = {10.2307/1907187}
+}
+@book{kendall1975rank,
+  author    = {Kendall, Maurice G.},
+  title     = {Rank Correlation Methods},
+  edition   = {4th}, publisher = {Charles Griffin}, address = {London}, year = {1975}
+}
+@article{sen1968estimates,
+  author  = {Sen, Pranab Kumar},
+  title   = {Estimates of the regression coefficient based on {K}endall's tau},
+  journal = {Journal of the American Statistical Association},
+  volume  = {63}, number = {324}, pages = {1379--1389}, year = {1968},
+  doi     = {10.1080/01621459.1968.10480934}
+}
+@article{hamed1998modified,
+  author  = {Hamed, Khaled H. and Rao, A. Ramachandra},
+  title   = {A modified {M}ann-{K}endall trend test for autocorrelated data},
+  journal = {Journal of Hydrology},
+  volume  = {204}, number = {1--4}, pages = {182--196}, year = {1998},
+  doi     = {10.1016/S0022-1694(97)00125-X}
+}
+@article{yue2004mann,
+  author  = {Yue, Sheng and Wang, ChunYuan},
+  title   = {The {M}ann-{K}endall test modified by effective sample size to detect trend in serially correlated hydrological series},
+  journal = {Water Resources Management},
+  volume  = {18}, number = {3}, pages = {201--218}, year = {2004},
+  doi     = {10.1023/B:WARM.0000043140.61082.60}
+}
+@article{yue2002influence,
+  author  = {Yue, Sheng and Pilon, Paul and Phinney, Bob and Cavadias, George},
+  title   = {The influence of autocorrelation on the ability to detect trend in hydrological series},
+  journal = {Hydrological Processes},
+  volume  = {16}, number = {9}, pages = {1807--1829}, year = {2002},
+  doi     = {10.1002/hyp.1095}
+}
+@article{hirsch1982techniques,
+  author  = {Hirsch, Robert M. and Slack, James R. and Smith, Richard A.},
+  title   = {Techniques of trend analysis for monthly water quality data},
+  journal = {Water Resources Research},
+  volume  = {18}, number = {1}, pages = {107--121}, year = {1982},
+  doi     = {10.1029/WR018i001p00107}
+}
+@article{hirsch1984nonparametric,
+  author  = {Hirsch, Robert M. and Slack, James R.},
+  title   = {A nonparametric trend test for seasonal data with serial dependence},
+  journal = {Water Resources Research},
+  volume  = {20}, number = {6}, pages = {727--732}, year = {1984},
+  doi     = {10.1029/WR020i006p00727}
+}
+@article{vanbelle1984nonparametric,
+  author  = {van Belle, Gerald and Hughes, James P.},
+  title   = {Nonparametric tests for trend in water quality},
+  journal = {Water Resources Research},
+  volume  = {20}, number = {1}, pages = {127--136}, year = {1984},
+  doi     = {10.1029/WR020i001p00127}
+}</pre>
+    <h3>Limits</h3>
+    <ul>
+      <li><strong>A trend is not a cause.</strong> A significant test says the readings tend to rise or fall over the record. It does not say why: a change in the measuring method, the site, the lab, withdrawals upstream or the season you happened to sample can all make a real trend that is not the one you care about.</li>
+      <li><strong>Monotonic, not linear, and not a forecast.</strong> The test asks whether later readings tend to be higher (or lower). A series that rose and then fell can show no trend. Sen's slope is a typical rate over the record; it says nothing about next year.</li>
+      <li><strong>The corrections are estimates.</strong> In this tool's simulations (<code>eval/size-simulation.mjs</code>), with 100 trend-free readings and lag-1 correlation 0.6, the tests called a trend at the 5% level this often: plain 30%, Yue-Wang 6%, Hamed-Rao 19% (first 3 lags 11%), trend-free pre-whitening 40%. At correlation 0.8 with 50 readings even Yue-Wang reached 13%. Long memory is worse still. Lags count rows, so very uneven spacing weakens them; the tool warns when it sees that.</li>
+      <li><strong>Values below a detection limit</strong> (like <code>&lt;0.5</code>) are skipped, which biases the trend when many readings are censored. Methods for censored data (Helsel 2012) are not implemented here.</li>
+      <li><strong>Size.</strong> Up to 20,000 readings and 8 million pairs for Sen's slope; aggregate daily data to monthly means first.</li>
+      <li>Not modelled: covariates (the partial Mann-Kendall test), several sites at once (the regional Kendall test) and changepoints; see the <a href="../changepoint-detector/">changepoint detector</a> for when a series shifted, and <a href="../stl-decomposition/">STL decomposition</a> to separate trend from season in evenly spaced data.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What does the Mann-Kendall test tell me?</h3>
+    <p>Whether a series tends to go up or down over time, without assuming the change is a straight line or the values are normally distributed. It compares every pair of readings: later-higher pairs count +1, later-lower pairs count -1. If there is no trend the total is close to zero, and the p-value says how unusual the observed total would be by chance.</p>
+    <h3>What is Sen's slope?</h3>
+    <p>The median of the slopes between every pair of readings, in your units per year (or per time unit). Because it is a median, a few outliers or a skewed distribution barely move it, unlike a least-squares line. The interval comes from the same variance as the test, so a 95% interval that excludes zero goes with a significant test.</p>
+    <h3>Why correct for autocorrelation?</h3>
+    <p>When each reading is like the one before it, as with river flow, groundwater levels or monthly temperatures, a run of high values happens by chance more often than the plain test assumes, so its p-values are too small. The corrections widen the variance of the statistic by an estimate of how much the correlation inflates it. In this tool's simulations of 1,000 trend-free series of 100 readings with lag-1 correlation 0.6, the plain test found a trend 30% of the time at the 5% level and the default Yue-Wang correction 6%.</p>
+    <h3>When should I use the seasonal Kendall test?</h3>
+    <p>When the data have a seasonal cycle, such as monthly flows, temperatures or concentrations. The seasonal test compares January with January, February with February and so on, and adds the results, so the cycle itself cannot pose as a trend. With at least 10 years the Hirsch-Slack covariance also accounts for a wet year making every month high together.</p>
+    <h3>What does the homogeneity test mean?</h3>
+    <p>It asks whether every season trends the same way. If spring rises while autumn falls, the seasonal test can add them up to no trend, or report one slope that fits no season. A small homogeneity p-value says look at the per-season table instead of the overall slope.</p>
+    <h3>How many readings do I need?</h3>
+    <p>At least 4, but power is low below about 10. With 20 or fewer readings and no ties the tool uses the exact distribution of the statistic instead of the normal approximation. With fewer than 10 years the seasonal covariance is not used.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The file is read and analysed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+    <p class="note">Example data: the U.S. Geological Survey's monthly mean discharge, in cubic feet per second, and annual peak flows of the Potomac River near Washington, DC at Little Falls (gauge 01646500), retrieved from the National Water Information System on 2026-11-15. USGS data are in the public domain; recent months may be provisional. The gauge sits below the Washington Aqueduct's intakes, so the measured flow excludes what the city withdraws; USGS also publishes an adjusted record that adds the withdrawals back (01646502), which is in the source as a third data file.</p>
+  </section>
+</main>
+
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician or a regulatory method. Results are statistical estimates from the data you enter; a significant trend is not proof of an error or of a cause. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, the U.S. Geological Survey, the pymannkendall or scipy projects, or any software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs series.csv</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mann-kendall-trend" rel="noopener">source</a>.</p>
+    <p>More research algorithms on your own data: the <a href="../changepoint-detector/">changepoint detector</a> finds when a series changed, <a href="../stl-decomposition/">STL decomposition</a> separates trend from season, the <a href="../lomb-scargle-periodogram/">Lomb-Scargle periodogram</a> finds periods in unevenly spaced data, <a href="../gaussian-process-regression/">Gaussian process regression</a> fits a curve with an honest uncertainty band, <a href="../spc-control-charts/">control charts</a> tell a process change from noise, <a href="../matrix-profile-explorer/">the matrix profile explorer</a> finds repeated patterns, <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> gives intervals with guaranteed coverage, <a href="../survival-analysis/">survival analysis</a> estimates time to an event, <a href="../fdr-multiple-testing/">multiple testing correction</a> says which of many results still stand, the <a href="../isolation-forest/">isolation forest</a> finds unusual rows, <a href="../robust-pca/">robust PCA</a> finds the cells that break a table's pattern, and the <a href="../inter-rater-agreement/">inter-rater agreement</a> tool measures whether your coders agree.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, parseCsv, profileColumns, toCsv, report, fmt, fmtP, fmtSigned } from "./engine.mjs";
+    import { EXAMPLE_CSV, PEAKS_CSV } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    let last = null;
+
+    function options(sel, names, chosen, blank) {
+      sel.innerHTML = (blank ? `<option value="">${blank}</option>` : "") + names.map((n) => `<option value="${esc(n)}"${n === chosen ? " selected" : ""}>${esc(n)}</option>`).join("");
+    }
+
+    function refreshColumns() {
+      const text = $("#csv").value;
+      let p;
+      try {
+        p = parseCsv(text);
+      } catch (e) {
+        for (const id of ["#time-col", "#value-col", "#season-col"]) $(id).innerHTML = "";
+        $("#data-status").textContent = text.trim() ? e.message : "Paste a table or load the example.";
+        return;
+      }
+      const prof = profileColumns(p);
+      const timeable = prof.filter((c) => c.kind === "number" || c.kind === "date").map((c) => c.name);
+      const t = (prof.find((c) => c.kind === "date") || prof.find((c) => c.kind === "number") || {}).name;
+      const nums = prof.filter((c) => c.kind === "number" && c.name !== t).map((c) => c.name);
+      options($("#time-col"), timeable, t);
+      options($("#value-col"), nums, nums[0]);
+      options($("#season-col"), prof.filter((c) => c.name !== t && c.kind !== "empty").map((c) => c.name), "", "(none)");
+      $("#data-status").textContent = `${p.rows.length.toLocaleString("en-US")} rows, ${p.header.length} columns.`;
+    }
+    $("#csv").addEventListener("input", refreshColumns);
+    $("#file").addEventListener("change", async (event) => {
+      const f = event.target.files && event.target.files[0];
+      if (!f) return;
+      $("#csv").value = await f.text();
+      refreshColumns();
+    });
+
+    function inputs() {
+      return {
+        csv: $("#csv").value,
+        timeColumn: $("#time-col").value || null,
+        valueColumn: $("#value-col").value || null,
+        seasons: $("#seasons").value,
+        seasonColumn: $("#season-col").value || null,
+        correction: $("#correction").value,
+        covariance: $("#covariance").value,
+        alpha: Number($("#alpha").value),
+        confidence: Number($("#confidence").value),
+      };
+    }
+
+    // ---------- charts (plain SVG) ----------
+    const W = 900;
+    function axes(h, xTicks, yTicks, xLabel, yLabel) {
+      let s = `<rect x="70" y="10" width="${W - 90}" height="${h - 50}" fill="none" stroke="#c6d6d3"/>`;
+      for (const [x, lab] of xTicks) s += `<line x1="${x}" x2="${x}" y1="${h - 40}" y2="${h - 35}" stroke="#6f8786"/><text x="${x}" y="${h - 22}" font-size="12" text-anchor="middle" fill="#46595a">${esc(lab)}</text>`;
+      for (const [y, lab] of yTicks) s += `<line x1="65" x2="70" y1="${y}" y2="${y}" stroke="#6f8786"/><text x="62" y="${y + 4}" font-size="12" text-anchor="end" fill="#46595a">${esc(lab)}</text>`;
+      s += `<text x="${(W + 50) / 2}" y="${h - 4}" font-size="12" text-anchor="middle" fill="#46595a">${esc(xLabel)}</text>`;
+      s += `<text x="14" y="${(h - 40) / 2}" font-size="12" text-anchor="middle" fill="#46595a" transform="rotate(-90 14 ${(h - 40) / 2})">${esc(yLabel)}</text>`;
+      return s;
+    }
+    function niceTicks(lo, hi, n = 5) {
+      const span = hi - lo || 1;
+      const step = Math.pow(10, Math.floor(Math.log10(span / n)));
+      const m = [1, 2, 5, 10].find((k) => span / (k * step) <= n) * step;
+      const out = [];
+      for (let v = Math.ceil(lo / m) * m; v <= hi + 1e-9 * span; v += m) out.push(Number(v.toPrecision(10)));
+      return out;
+    }
+
+    function drawSeries(r) {
+      const h = 300;
+      const t = r.times;
+      const y = r.values;
+      let ymin = Infinity, ymax = -Infinity;
+      for (const v of y) { ymin = Math.min(ymin, v); ymax = Math.max(ymax, v); }
+      const pad = (ymax - ymin) * 0.05 || 1;
+      ymin -= pad; ymax += pad;
+      const tmin = r.start, tmax = r.end;
+      const sx = (v) => 70 + ((v - tmin) / (tmax - tmin || 1)) * (W - 90);
+      const sy = (v) => h - 40 - ((Math.max(ymin, Math.min(ymax, v)) - ymin) / (ymax - ymin)) * (h - 50);
+      let s = axes(h, niceTicks(tmin, tmax).map((v) => [sx(v), r.columns.timeKind === "date" ? String(Math.round(v)) : fmt(v, 6)]), niceTicks(ymin, ymax).map((v) => [sy(v), fmt(v, 4)]), r.columns.timeKind === "date" ? "year" : r.columns.time, r.columns.value);
+      const big = t.length > 600;
+      for (let i = 0; i < t.length; i++) s += `<circle cx="${sx(t[i]).toFixed(1)}" cy="${sy(y[i]).toFixed(1)}" r="${big ? 1.5 : 2.6}" fill="#17605f" fill-opacity="${big ? 0.45 : 0.75}"/>`;
+      // Sen's line through the median point, and the interval's slopes through the same point
+      const tm = (r.median - r.sen.intercept) / r.sen.slope;
+      const at = (b, tt) => r.median + b * (tt - (Number.isFinite(tm) ? tm : (tmin + tmax) / 2));
+      for (const [b, col, w] of [[r.sen.lower, "#e9b98f", 1.5], [r.sen.upper, "#e9b98f", 1.5], [r.sen.slope, "#e07a1f", 2.6]]) {
+        if (!Number.isFinite(b)) continue;
+        s += `<line x1="${sx(tmin)}" y1="${sy(at(b, tmin)).toFixed(1)}" x2="${sx(tmax)}" y2="${sy(at(b, tmax)).toFixed(1)}" stroke="${col}" stroke-width="${w}"/>`;
+      }
+      $("#series").innerHTML = `<svg viewBox="0 0 ${W} ${h}" xmlns="http://www.w3.org/2000/svg">${s}</svg>`;
+    }
+
+    function drawSeasons(r) {
+      const per = r.seasonal.per;
+      const h = 260;
+      const vals = per.map((p) => p.slope).filter(Number.isFinite);
+      let lo = Math.min(0, ...vals), hi = Math.max(0, ...vals);
+      const pad = (hi - lo) * 0.08 || 1;
+      lo -= pad; hi += pad;
+      const bw = (W - 90) / per.length;
+      const sy = (v) => h - 40 - ((v - lo) / (hi - lo)) * (h - 50);
+      let s = axes(h, per.map((p, i) => [70 + bw * (i + 0.5), String(p.season)]), niceTicks(lo, hi).map((v) => [sy(v), fmt(v, 3)]), "season", `Sen's slope per ${r.unit}`);
+      s += `<line x1="70" x2="${W - 20}" y1="${sy(0)}" y2="${sy(0)}" stroke="#6f8786"/>`;
+      per.forEach((p, i) => {
+        if (!Number.isFinite(p.slope)) return;
+        const y0 = sy(0), y1 = sy(p.slope);
+        const sig = p.trend !== "no trend";
+        s += `<rect x="${(70 + bw * i + bw * 0.18).toFixed(1)}" y="${Math.min(y0, y1).toFixed(1)}" width="${(bw * 0.64).toFixed(1)}" height="${Math.max(1, Math.abs(y1 - y0)).toFixed(1)}" fill="${p.slope >= 0 ? "#17605f" : "#c0392b"}" fill-opacity="${sig ? 0.95 : 0.4}"/>`;
+      });
+      $("#season-chart").innerHTML = `<svg viewBox="0 0 ${W} ${h}" xmlns="http://www.w3.org/2000/svg">${s}</svg>`;
+    }
+
+    function render(r) {
+      last = r;
+      $("#results").hidden = false;
+      $("#summary").textContent = r.summary;
+      const u = r.unit;
+      const stats = [
+        [r.test.trend, `at the ${fmt(r.alpha * 100, 3)}% level`],
+        [fmtP(r.test.p), "p-value"],
+        [`${fmtSigned(r.sen.slope)}`, `Sen's slope per ${u}`],
+        [Number.isFinite(r.sen.lower) ? `${fmtSigned(r.sen.lower)} to ${fmtSigned(r.sen.upper)}` : "n/a", `${Math.round(r.confidence * 100)}% interval`],
+        [fmt(r.tau, 3), "Kendall's tau"],
+        [r.n.toLocaleString("en-US"), r.mode === "seasonal" ? `readings in ${r.seasonal.per.length} seasons` : "readings"],
+      ];
+      $("#stats").innerHTML = stats.map(([b, sp]) => `<div class="stat"><b>${esc(b)}</b><span>${esc(sp)}</span></div>`).join("");
+      $("#warnings").innerHTML = [...(r.skipped ? [`${r.skipped} row${r.skipped === 1 ? " was" : "s were"} skipped (missing or unreadable time or value).`] : []), ...r.warnings].map((w) => `<p class="warn">${esc(w)}</p>`).join("");
+      drawSeries(r);
+      $("#test-table tbody").innerHTML = Object.entries(r.tests).map(([k, v]) => `<tr${k === r.test.key ? ' class="chosen"' : ""}><td>${esc(v.name)}</td><td class="n">${v.s.toLocaleString("en-US")}</td><td class="n">${v.factor == null ? "pre-whitened" : fmt(v.factor, 3)}</td><td class="n">${v.z.toFixed(3)}</td><td class="n">${fmtP(v.p)}${v.exactP != null ? " (exact)" : ""}</td><td>${esc(v.trend)}</td></tr>`).join("");
+      if (r.mode === "seasonal") {
+        $("#season-block").hidden = false;
+        drawSeasons(r);
+        $("#season-table tbody").innerHTML = r.seasonal.per.map((p) => `<tr><td>${esc(p.season)}</td><td class="n">${p.n}</td><td class="n">${fmt(p.median, 4)}</td><td class="n">${p.s}</td><td class="n">${fmtP(p.p)}</td><td class="n">${fmtSigned(p.slope)}</td><td>${esc(p.trend)}</td></tr>`).join("");
+        const hm = r.seasonal.homogeneity;
+        $("#homog-line").textContent = hm ? `Do the seasons share one trend? Homogeneity chi-square ${fmt(hm.chi2, 4)} on ${hm.df} degrees of freedom, p = ${fmtP(hm.p)}: ${hm.p < r.alpha ? "no, they trend differently; read the table rather than the overall slope." : "no evidence that they differ."} Bars are darker where that season's own test is significant.` : "";
+      } else $("#season-block").hidden = true;
+      $("#settings-line").textContent = `Columns: time ${r.columns.time}, value ${r.columns.value}${r.columns.season ? `, season ${r.columns.season}` : ""}. ${r.mode === "seasonal" ? `Seasons: ${r.seasonMode}, ${r.seasonal.years} years.` : `Correction: ${r.correction}.`} Record ${fmt(r.start, 6)} to ${fmt(r.end, 6)}.`;
+    }
+
+    function run() {
+      $("#status").textContent = "Computing…";
+      $("#analyze").disabled = true;
+      setTimeout(() => {
+        try {
+          const t0 = performance.now();
+          const r = analyze(inputs());
+          render(r);
+          record("analysis_run");
+          $("#status").textContent = `Done in ${((performance.now() - t0) / 1000).toFixed(1)} s.`;
+        } catch (e) {
+          $("#results").hidden = true;
+          $("#status").textContent = e.message;
+        } finally {
+          $("#analyze").disabled = false;
+        }
+      }, 20);
+    }
+    $("#analyze").addEventListener("click", run);
+    function loadExample(csv) {
+      $("#csv").value = csv;
+      refreshColumns();
+      $("#seasons").value = "auto";
+      $("#correction").value = "yue-wang";
+      $("#covariance").value = "auto";
+      record("example_loaded");
+      run();
+    }
+    $("#load-example").addEventListener("click", () => loadExample(EXAMPLE_CSV));
+    $("#load-peaks").addEventListener("click", () => loadExample(PEAKS_CSV));
+    function save(text, name, type) {
+      const blob = new Blob([text], { type });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("report_downloaded");
+    }
+    $("#download").addEventListener("click", () => last && save(toCsv(last), "trend.csv", "text/csv"));
+    $("#download-report").addEventListener("click", () => last && save(report(last) + "\n", "trend-report.txt", "text/plain"));
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

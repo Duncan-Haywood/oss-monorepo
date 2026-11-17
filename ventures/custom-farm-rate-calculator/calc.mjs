@@ -36,6 +36,11 @@ export const DEFAULTS = {
 };
 
 function number(value, label, { min = 0, max = null, exclusiveMax = false, exclusiveMin = false } = {}) {
+  // A blank field must not silently become 0 (Number('') === 0): a blank
+  // ownership cost once priced the default job at $8.45/ac instead of $19.19.
+  if (value === null || value === undefined || (typeof value === 'string' && value.trim() === '')) {
+    throw new Error(`${label} is required.`);
+  }
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) throw new Error(`${label} must be a number.`);
   if (exclusiveMin ? parsed <= min : parsed < min) {

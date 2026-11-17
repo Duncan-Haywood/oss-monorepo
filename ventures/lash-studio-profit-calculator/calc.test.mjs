@@ -98,3 +98,27 @@ test("exports and save/load round trip", () => {
   assert.ok(parseState("nope").error);
   assert.ok(parseState(JSON.stringify({ app: "other", input: {} })).error);
 });
+
+// Quality audit 2026-11-07 (portfolio/quality/audits/2026-11-07-lash-studio-profit-calculator.json, defect 0):
+// the headline monthly profit had no test; replacing *52/12 with *4 left every test green.
+test("weekly totals, monthly profit and client lifetime for a hand-worked two-service schedule", () => {
+  const i = { ...sampleInput(), cardFeePct: 3, cardFixedFee: 0, noShowPct: 0, depositPct: 0, monthlyOverhead: 0, turnoverMinutes: 0, hoursOpenPerWeek: 35, rebookPct: 50, maxFills: 2,
+    services: [
+      { name: "Fill", kind: "fill", price: 100, minutes: 60, supply: 10, perWeek: 3 },
+      { name: "Set", kind: "set", price: 200, minutes: 120, supply: 20, perWeek: 2 },
+    ] };
+  const r = solve(i);
+  // Fill: 100 x 0.97 - 10 = 87 profit in 1 h. Set: 200 x 0.97 - 20 = 174 profit in 2 h.
+  near(r.weekly.profit, 3 * 87 + 2 * 174); // 609
+  near(r.weekly.hours, 3 * 1 + 2 * 2); // 7
+  near(r.weekly.revenue, 3 * 100 + 2 * 200); // 700
+  near(r.weekly.impliedUtilPct, 20); // 7 of 35 open hours
+  near(r.monthlyProfit, 609 * 52 / 12); // 2,639: 52 weeks over 12 months, not 4 weeks a month
+  assert.match(resultText(r), /about \$2,639 a month profit/);
+  // Lifetime: one set plus 0.5 + 0.25 = 0.75 expected fills.
+  near(r.client.expectedFills, 0.75);
+  near(r.client.lifetimeRevenue, 200 + 0.75 * 100);
+  near(r.client.lifetimeProfit, 174 + 0.75 * 87);
+  near(r.client.lifetimeHours, 2 + 0.75);
+  near(r.client.lifetimePerHour, (174 + 0.75 * 87) / 2.75);
+});

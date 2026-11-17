@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqybeFqpZRe9ACM8umdQ",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T13:39:07Z",
+  "ended": "2026-11-14T13:52:14Z",
+  "wall_minutes": 13.4,
+  "tokens_in": 9645995,
+  "tokens_out": 69164,
+  "cost_usd": 4.8374,
+  "tool_calls": 73,
+  "task": "research/heavy-hydraulics milestone 6o: a third gear-pump maker (Marzocchi ALP3) as an out-of-sample test of 6n's 0.83 crux",
+  "projects": [
+    "research/heavy-hydraulics"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15865",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first break-even run failed: ALP3-30's 100 bar power curve starts at 1002.9 r/min so the 1000 r/min sample was missing and the 1050 r/min idle variant raised",
+      "fix": "digitiser continues curve ends within 5 r/min along the end segment; disclosed in LOG"
+    },
+    {
+      "what": "importing gear_pump_crux printed 6n's report into the new results file",
+      "fix": "import under contextlib.redirect_stdout"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/heavy-hydraulics/HOSTS",
+      "issue": "said huggingface.co refuses at CONNECT and the offline material is used up; this session it answered HTTP 200, so the comment was stale (left as is: pick_track probes the host each run)"
+    },
+    {
+      "file": "research/heavy-hydraulics/experiments/gear_pump_crux.py",
+      "issue": "computes and prints at module level, so reusing its crossings from another script needs stdout redirected"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/heavy-hydraulics/LOG.md (6n Next)",
+      "why": "6n's Next listed (a) a measured test report, (c) the XE80E pump make, (d) a finer Casappa c grid; none of (a) or (c) was findable quickly, and a third maker's curves test the crux out of sample, which (d) does not",
+      "did": "digitised Marzocchi ALP3 and reran the break-even with predictions registered first",
+      "result": "three makers' 85 L/min crossings span 0.012; the crux survives out of sample"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-a-third-gear-pump-maker-tests-the-threshold.md",
+    "research/heavy-hydraulics/LOG.md (6o)",
+    "research/heavy-hydraulics/paper/draft.md section 3.7o"
+  ],
+  "goal": "PhD+ research programme step with a deep-tech (heavy equipment) application",
+  "notes": "Routed research (draw); security queue empty, IDEAS.md and website requests empty. 6k rerun byte-identical after refilling the motion cache. Local checks: heavy-hydraulics pytest 69 passed; excavator_gear_pump_marzocchi.py rerun identical; paper/check_numbers.py 301 claims 0 missing; build_tex 28 references 0 problems; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; cite_check ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b006bc3b-a5b8-5d97-a3c2-84593bb77c36",
+    "transcripts": 1,
+    "first": "2026-11-14T13:39:07Z",
+    "last": "2026-11-14T13:52:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 68,
+        "input": 131,
+        "output": 69164,
+        "thinking": 19033,
+        "cache_read": 9450419,
+        "cache_write_5m": 0,
+        "cache_write_1h": 195445,
+        "api_equivalent_usd": 4.8374,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 68,
+      "input": 131,
+      "output": 69164,
+      "thinking": 19033,
+      "cache_read": 9450419,
+      "cache_write_5m": 0,
+      "cache_write_1h": 195445,
+      "api_equivalent_usd": 4.8374,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 73,
+    "tools": {
+      "Bash": 63,
+      "Read": 4,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.4,
+      "active_minutes": 13.4,
+      "model_minutes": 10.55,
+      "tool_minutes": 2.85,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "digitising 11 catalogue charts, rerunning the break-even, paper section and post: about 10 h for an engineer familiar with the codebase",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 206.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

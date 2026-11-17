@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVKemRDaoTpAVcST93K",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (ventures brief)",
+  "input_sha256": "a372f5532eaf1427e680bfca426c38d03eba700db7e876d70d0ffb8f9d68093a",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T12:55:35Z",
+  "ended": "2026-11-14T13:14:49Z",
+  "wall_minutes": 20.01,
+  "tokens_in": 14195946,
+  "tokens_out": 72096,
+  "cost_usd": 6.0353,
+  "tool_calls": 85,
+  "task": "Deepen flagship 10 (open-tennis-robots): power-distribution model (BUILDABLE item)",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15853",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 13,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Sent this session to einvoice-preflight (row 3); every open item in its next: needs a real file or a blocked host (boe.es, sede.agenciatributaria.gob.es, financnasprava.sk, slov-lex.sk, gov.il all returned no connection from this container). The row has no inputs_only/buildable marker, so later runs will repeat the probe."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Second choice (photo-editing, the explicit BUILDABLE row) was claimed by #15854 one minute after allocate ran; the table cannot see same-minute claims, as its own text warns."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Assigned row (einvoice-preflight) had nothing buildable from this container; did not add inputs_only because only some hosts were probed and the CIUS-PT validator question might still be readable.",
+      "did": "Took open-tennis-robots, whose buildable list named the power-distribution model, and landed it.",
+      "result": "Landed the model, a firmware fault fix (spin-up ramp) and tests."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-a-tennis-feeder-that-would-trip-its-own-battery.md",
+    "ventures/open-tennis-robots/cad/README.md (Power distribution)",
+    "ventures/open-tennis-robots/hardware/electronics.md (Fuses and branch wiring)"
+  ],
+  "goal": "Deepen a flagship with a hard engineering slice",
+  "notes": "Feeder.power_distribution/check_power: branch fuses and gauges, 30 A main fuse and contactor, 23.3 A worst draw vs 24 A (80% of an assumed 30 A BMS). Found: speed loop feedforward stepped ESC throttle at once (unramped ~49 A per ESC). Added controller.SpinupRamp (1500 rpm/s then 100 W shaft power); tests/spinup_ramp_sweep.py on the simulated feeder: unramped median per-wheel peak 871 W, 6000 rpm/s cap 436 W, 1500 rpm/s worst 110 W; steady from rest 4.9 s worst (was 2.4 s). Manufacturing package rebuilt (BOM/manifest/README only, 0 design rules, 0 collisions). Verification: run_venture_tests.py open-tennis-robots ok (124.8 s); pytest tests 89 pass; cad PowerParamsTest+PowerBomTest pass; full cad suite 92 passed (249 s, includes the committed-package-is-current check); venture-preflight clean (first run failed only on this record's then-empty outcome).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "acfb682a-e0c8-5081-9f57-d74b4a230878",
+    "transcripts": 1,
+    "first": "2026-11-14T12:55:35Z",
+    "last": "2026-11-14T13:15:36Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 81,
+        "input": 160,
+        "output": 72096,
+        "thinking": 28409,
+        "cache_read": 13970968,
+        "cache_write_5m": 0,
+        "cache_write_1h": 224818,
+        "api_equivalent_usd": 6.0353,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 81,
+      "input": 160,
+      "output": 72096,
+      "thinking": 28409,
+      "cache_read": 13970968,
+      "cache_write_5m": 0,
+      "cache_write_1h": 224818,
+      "api_equivalent_usd": 6.0353,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 85,
+    "tools": {
+      "Bash": 76,
+      "ToolSearch": 2,
+      "Edit": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.01,
+      "active_minutes": 20.01,
+      "model_minutes": 13.63,
+      "tool_minutes": 6.38,
+      "waiting_on_human_minutes": 0.01,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "an electrical engineer sizing branch fuses, contactor and BMS budget for a mixed-load robot, plus a firmware soft-start and its simulation sweep",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 198.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

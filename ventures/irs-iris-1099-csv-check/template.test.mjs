@@ -5,9 +5,9 @@ import assert from "node:assert/strict";
 import { validate, repair, toCsv, parseCsv, sampleFile, sampleLegacyFile, sampleLegacyBrokenFile, TEMPLATE_NEC, TEMPLATE_MISC, isTemplateHeader } from "./calc.mjs";
 
 const codes = (r) => r.findings.map((f) => f.code);
-const base = { "Form Type": "1099-NEC", "Tax Year": "2025", "Payer TIN Type": "EIN", "Payer Taxpayer ID Number": "123456780", "Payer Name Type": "B",
+const base = { "Form Type": "1099-NEC", "Tax Year": "2025", "Payer TIN Type": "EIN", "Payer Taxpayer ID Number": "12-3456780", "Payer Name Type": "B",
   "Payer Business or Entity Name Line 1": "Acme", "Payer Country": "US", "Payer Address Line 1": "1 A St", "Payer City/Town": "Austin", "Payer State/Province/Territory": "TX",
-  "Payer ZIP/Postal Code": "78701", "Recipient TIN Type": "SSN", "Recipient Taxpayer ID Number": "412345678", "Recipient Name Type": "I", "Recipient First Name": "Jo",
+  "Payer ZIP/Postal Code": "78701", "Recipient TIN Type": "SSN", "Recipient Taxpayer ID Number": "412-34-5678", "Recipient Name Type": "I", "Recipient First Name": "Jo",
   "Recipient Last Name (Surname)": "Doe", "Recipient Country": "US", "Recipient Address Line 1": "2 B St", "Recipient City/Town": "Dallas",
   "Recipient State/Province/Territory": "TX", "Recipient ZIP/Postal Code": "75201", "Box 1 - Nonemployee Compensation": "1000.00" };
 const file = (cols, ...os) => toCsv([cols, ...os.map((o) => cols.map((c) => ({ ...base, ...o })[c] ?? ""))]);
@@ -101,7 +101,7 @@ test("more than 100 records warns", () => {
 
 test("safe fixes rename to the template's spelling and keep its labels", () => {
   const cols = TEMPLATE_NEC.map((c) => (c === "Recipient City/Town" ? "recipient city/town" : c));
-  const rows = parseCsv(file(TEMPLATE_NEC, { "Recipient Taxpayer ID Number": "412-34-5678", "State 1": "tx" })).rows.map((x) => x.cells);
+  const rows = parseCsv(file(TEMPLATE_NEC, { "Recipient Taxpayer ID Number": "412345678", "State 1": "tx" })).rows.map((x) => x.cells);
   rows[0] = cols;
   const out = repair(toCsv(rows));
   assert.ok(out.changes.some((c) => c.includes('renamed header "recipient city/town" to "Recipient City/Town"')));

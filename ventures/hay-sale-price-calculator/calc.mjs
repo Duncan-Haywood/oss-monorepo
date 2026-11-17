@@ -2,7 +2,9 @@
 // Compares selling channels (small square, large square, round) on net per ton and per acre.
 
 const r2 = (x) => Math.round(x * 100) / 100;
-export const money = (x) => (x == null ? "—" : (x < 0 ? "-$" : "$") + Math.abs(Math.round(x)).toLocaleString("en-US"));
+export const money = (x) => (x == null ? "—" : ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(x)).toLocaleString("en-US")));
+// Per-bale amounts to the cent: a small square's break-even is a few dollars, so whole dollars hide up to 10% of it.
+export const money2 = (x) => (x == null ? "—" : (x < 0 && Math.abs(x) >= 0.005 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 
 const COMMON = {
   acres: 60,
@@ -19,7 +21,9 @@ export const CHANNELS = [
   { key: "round", label: "Round bales (5x5)", baleLbs: 1000, baleCostPerTon: 10, sellCostPerTon: 6, lossExtraPct: 4, pricePerBale: 105 },
 ];
 
+// Blank or missing means "use the default"; anything else must parse as a finite number ("abc", "1,200" -> NaN, caught below).
 const num = (o, k, d) => (o[k] === undefined || o[k] === null || o[k] === "" ? d : Number(o[k]));
+const bad = (obj) => Object.entries(obj).find(([, v]) => typeof v === "number" && !Number.isFinite(v));
 
 export function analyzeChannel(common, ch) {
   const acres = common.acres, tpa = common.tonsPerAcre;
@@ -45,6 +49,8 @@ export function analyzeChannel(common, ch) {
 export function analyze(input = {}) {
   const common = {};
   for (const k of Object.keys(COMMON)) common[k] = num(input, k, COMMON[k]);
+  const badCommon = bad(common);
+  if (badCommon) return { error: `${badCommon[0]} must be a number (no commas or units).` };
   if (!(common.acres > 0)) return { error: "Enter the acres." };
   if (!(common.tonsPerAcre > 0)) return { error: "Enter tons per acre." };
   if (common.growCostPerAcre < 0 || common.makeCostPerTon < 0) return { error: "Costs cannot be negative." };
@@ -58,6 +64,8 @@ export function analyze(input = {}) {
       sellCostPerTon: num(input, base.key + "SellCost", base.sellCostPerTon),
       pricePerBale: num(input, base.key + "Price", base.pricePerBale),
     };
+    const badCh = bad({ baleLbs: ch.baleLbs, baleCostPerTon: ch.baleCostPerTon, sellCostPerTon: ch.sellCostPerTon, pricePerBale: ch.pricePerBale });
+    if (badCh) return { error: `${base.label}: ${badCh[0]} must be a number (no commas or units).` };
     if (!(ch.baleLbs > 0)) return { error: `${base.label}: bale weight must be above 0.` };
     if (ch.pricePerBale < 0 || ch.baleCostPerTon < 0 || ch.sellCostPerTon < 0) return { error: `${base.label}: price and costs cannot be negative.` };
     if (common.storageLossPct + ch.lossExtraPct >= 100) return { error: "Total loss must stay below 100 percent." };
@@ -68,8 +76,8 @@ export function analyze(input = {}) {
   const advice = [];
   advice.push(`${common.acres} acres at ${common.tonsPerAcre} t/acre. Best channel on your prices: ${best.label}, netting ${money(best.net)} (${money(best.netPerAcre)}/acre, ${money(best.netPerTon)}/ton sold), against ${money(worst.net)} for ${worst.label}.`);
   for (const c of channels) {
-    if (c.net < 0) advice.push(`${c.label} loses ${money(-c.net)} at ${money(c.pricePerTon)}/ton. It needs ${money(c.breakEvenPerTon)}/ton (${money(c.breakEvenPerBale)} a bale) to break even.`);
-    else advice.push(`${c.label}: ${money(c.pricePerTon)}/ton equivalent, break-even ${money(c.breakEvenPerTon)}/ton (${money(c.breakEvenPerBale)} a bale), margin ${money(c.pricePerTon - c.breakEvenPerTon)}/ton.`);
+    if (c.net < 0) advice.push(`${c.label} loses ${money(-c.net)} at ${money(c.pricePerTon)}/ton. It needs ${money(c.breakEvenPerTon)}/ton (${money2(c.breakEvenPerBale)} a bale) to break even.`);
+    else advice.push(`${c.label}: ${money(c.pricePerTon)}/ton equivalent, break-even ${money(c.breakEvenPerTon)}/ton (${money2(c.breakEvenPerBale)} a bale), margin ${money(c.pricePerTon - c.breakEvenPerTon)}/ton.`);
   }
   if (best.net < 0) advice.push("No channel covers your costs on these numbers. Look at growing cost per acre and yield first; they move the result more than the bale type does.");
   return { inputs: common, channels, best: best.key, ranked: ranked.map((c) => c.key), advice, anyProfit: best.net >= 0 };

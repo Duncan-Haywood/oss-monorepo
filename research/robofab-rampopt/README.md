@@ -4,8 +4,10 @@ A follow-up to `research/robofab-edgeconv` (track `robofab`), taking the first i
 
 **Live page:** https://marisstella.app/research/robofab-rampopt/
 
+> **Correction, 2026-11-14.** The refinement searches only between the grid optimum's neighbours, and the grid's floor is 0.002, which was the optimum for most parts at 1 rad/s, so it could not reach the true optimum (as low as 7e-5). `research/robofab-edgeconv/experiments/trapconv.py` searches [1e-5, 0.5] with every optimum interior: the edge at n = 6400 is **-0.02% to +0.26%, negative in 2 of 12 rows**, so "still positive in all 12 rows" below does not hold. See the correction in [`robofab-edgeconv`](../robofab-edgeconv/README.md).
+
 - **Golden-section refinement of the ramp fraction (between the grid optimum's two neighbours) lowers the six-part trapezoid total by 0.00 to 0.60%** across the 12 rows (3 arm sizes x jaw cap 5x hold force or none x speed limit 2 or 1 rad/s); the gain is above 0.005% in 10 of 12 rows and is largest (0.60%) for the 0.2 m arm at 2 rad/s with the jaw cap.
-- **With the solver at n = 6400, the time-optimal edge over the refined trapezoid is still positive in all 12 rows, but smaller: +0.05% to +0.28%**, against +0.11% to +0.88% over the grid-tuned trapezoid (the grid figures reproduce `robofab-edgeconv`).
+- **(Superseded, see the correction above.) With the solver at n = 6400, the time-optimal edge over the refined trapezoid is still positive in all 12 rows, but smaller: +0.05% to +0.28%**, against +0.11% to +0.88% over the grid-tuned trapezoid (the grid figures reproduce `robofab-edgeconv`).
 - **Reading:** in this toy a time-optimal planner saves at most about 0.3% over a trapezoid whose single shape parameter is tuned finely, and in several rows under 0.1%. The earlier 0.8 to 2.9% (`robofab-scurve`) and 0.1 to 0.9% (`robofab-edgeconv`) were upper bounds that included ramp-tuning slack.
 
 ```bash

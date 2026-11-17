@@ -1,0 +1,22 @@
+# node eval/score-floor.mjs 60 168 2; 80 224 3 (one cloud machine, nothing else running)
+60 x 168 week 0: 245 copies; open-hours LP 300.000 h in 1213 ms; score floor 30,019,980.21 (LP open 300.000 h, pay and penalties above 100,000 x open 19,980.21), 676 rows, 13779 columns, 3655 pivots, 4024 ms
+60 x 168 week 1: 238 copies; open-hours LP 308.000 h in 830 ms; score floor 30,819,981.32 (LP open 308.000 h, pay and penalties above 100,000 x open 19,981.32), 664 rows, 13972 columns, 1860 pivots, 1728 ms
+80 x 224 week 0: 304 copies; open-hours LP 257.000 h in 2729 ms; score floor 25,727,226.43 (LP open 257.000 h, pay and penalties above 100,000 x open 27,226.43), 893 rows, 21310 columns, 6711 pivots, 13315 ms
+80 x 224 week 1: 314 copies; open-hours LP 331.000 h in 3817 ms; score floor 33,127,068.00 (LP open 331.000 h, pay and penalties above 100,000 x open 27,068.00), 928 rows, 21552 columns, 3896 pivots, 7160 ms
+80 x 224 week 2: 326 copies; open-hours LP 281.000 h in 4263 ms; score floor 28,128,389.60 (LP open 281.000 h, pay and penalties above 100,000 x open 28,389.60), 907 rows, 22195 columns, 5337 pivots, 10179 ms
+
+# node eval/end-to-end.mjs 60 168 2, with OPTS={"timeBudgetMs":20000} and with no budget, after cliqueScoreFloor
+60 people, 168 shift lines, exact on, options {"timeBudgetMs":20000}
+week 0: 245 copies, open 300 h, 57 shifts, pay $19119.00, status bounded, coverage proven true, gap $30.11, 19122 ms total
+  anneal 192, eject 922, scoreCG 10725, cliqueFloor 1054, coverPass 1709, coverRepair 309, exactSearch 0, scoreFloor 4169, summary 1, critical 4, hireTest 0
+  scoreCG proven false, root 27518456.71, bound 27518456.71, nodes 1, 10715 ms
+week 1: 238 copies, open 308 h, 49 shifts, pay $19021.00, status improved, coverage proven true, gap $2099784.42, 8486 ms total
+  anneal 127, eject 1227, scoreCG 7125, exactSearch 1, summary 1, critical 3, hireTest 0
+  scoreCG proven true, root 30819981.75, bound 30819981.75, nodes 8, 7116 ms
+60 people, 168 shift lines, exact on, options {}
+week 0: 245 copies, open 300 h, 57 shifts, pay $19119.00, status bounded, coverage proven true, gap $30.11, 41143 ms total
+  anneal 191, eject 1059, scoreCG 32501, cliqueFloor 1172, coverPass 1934, coverRepair 299, exactSearch 0, scoreFloor 3960, summary 2, critical 4, hireTest 0
+  scoreCG proven false, root 27518456.71, bound 27518456.71, nodes 1, 32490 ms
+week 1: 238 copies, open 308 h, 49 shifts, pay $19021.00, status improved, coverage proven true, gap $2099784.42, 7865 ms total
+  anneal 136, eject 1379, scoreCG 6341, exactSearch 1, summary 1, critical 4, hireTest 0
+  scoreCG proven true, root 30819981.75, bound 30819981.75, nodes 8, 6332 ms

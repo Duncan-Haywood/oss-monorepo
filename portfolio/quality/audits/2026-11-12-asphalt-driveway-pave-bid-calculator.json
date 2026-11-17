@@ -1,0 +1,250 @@
+{
+  "date": "2026-11-12",
+  "subject": "ventures/asphalt-driveway-pave-bid-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-12-b",
+  "drawn_by": "sample",
+  "round": 43,
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a senior asphalt paving estimator / residential paving contractor; they check tons per square foot at the stated lift first, then how crew labor is built (crew size x hours x loaded wage), then whether demo, millings and base are priced as their own tickets",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Independent Python model (scratchpad/asphalt/model.py, not the author's code) recomputed four outputs and all match calc.mjs to the cent: 800 sq ft 2 in overlay 9.667 t (145 pcf) vs 9.778 t by the NAPA/DOT 110 lb/sy/in rule (1.1% apart, within normal practice), price $3,076.25; 1,000 sq ft full-depth preset 20.058 t, walk-away $4,701.72, price $6,530.17; failed-base gravel 200 sq ft x 4 in at 135 pcf = 4.50 t (calc baseTons 4.4999); 1,200 sq ft mill-and-overlay $5,073.38; fabric delta $1,905.14 = 2,150 x 0.55 x 1.16 / 0.72. Every README and how-much-page figure ($3,076, $6,530, $5,287, $5,787, $5,073, $10,801, 16.4 t, 11.2 h) reproduces. The arithmetic is right; the labor model's meaning is the problem (domain).",
+    "completeness": "Checked: three methods, mix tons, apron lift, failed base, sawcut, fabric, walk-away, method comparison (compareMethods returns overlay 5287 / mill 5787 / full-depth 6530 on the preset), proposed-price check, copy summary, share link, saved bid, printable proposal (proposal.mjs present, 482-line test). Served page https://marisstella.app/asphalt-driveway-pave-bid-calculator/ returns 200 and served llms.txt carries marisstella.app URLs. No stubs or TODOs found. Not modelled (stated in README limitations): night work, traffic control.",
+    "verification": "node --test '*.test.mjs': 149 pass, 0 fail. Nine hand-seeded mutations in calc.mjs (density 145->140, margin divide->markup, hoursBase=0, demoTons on wrong method, fabric on driveway area only, tack hours on full-depth, millings off, apron hours off, failed-base guard disabled): all nine caught. Page figures are pinned to calc.mjs by tests. Held at 3, not 4, because the fabric-page test builds its own copy of the page defaults and omits hoursTrip and siteHours, so it pins the page to numbers the tool never shows (tests-check-a-copy).",
+    "craft": "Read calc.mjs (449 lines), index.html script (readInput/update/applyJob), the fabric-page test. calc.mjs is pure, validated, readable, no dead code. Defect: number() treats a blank string as 0 (Number('') === 0) and the page passes raw field strings, so clearing Crew hourly wage silently prices labor at $0 (price 3,076.25 -> 2,624.50) and clearing Mix cost / ton prices mix free (-> 1,440.97); clearing Existing depth on full-depth silently drops all demo tons (6,530.17 -> 5,951.98). '1,200' and negatives are rejected with a message (good).",
+    "claims": "Disclaimer present on every page. Backed: README and how-much-page dollar figures; vs-flat-rate $4,700 / $3,780. Not backed: fabric page table ($8,714.45 / $10,619.59) disagrees with the tool on the same preset ($8,896.28 / $10,801.42) and with the sibling how-much page ($10,801), served live; vs-flat-rate says 800 sq ft overlay vs 1,000 sq ft full-depth is a 'several-times difference in mix tons' (9.67 t vs 20.06 t, about 2.1x); vs-jobnimbus calls the method 'full-depth reclaim' (FDR is in-place pulverizing and stabilizing, which this tool does not model; it models remove-and-replace) and states JobNimbus founders and HQ with no source file, and carries session-meta text ('not reachable from this session') on a public page. JobNimbus is not misrepresented on price (none given).",
+    "fitness": "Walked a contractor's job: preset 800 sq ft overlay. The page shows 5.6 'crew hours' and multiplies them by one $38 wage, so total labor is $280 for paving a driveway; a real crew is 4-6 people plus paver and roller operators for half a day or more (roughly 15-30 man-hours). There is no crew-size field, so a contractor typing their real crew-hours and a worker's wage under-prices labor by the crew size; one typing man-hours with the shipped per-sq-ft rates is far below real production. The bid can be made right only by reinterpreting the wage field as an all-hands crew cost, which the page never says.",
+    "domain": "Compared against NAPA/state DOT practice: tonnage (145 pcf ~ 109 lb/sy/in vs the 110 rule) is sound, margin-on-price is correct, separate millings and demo dump tickets match practice, tack skipped on new base in full-depth is reasonable. Departures: labor has no crew size (estimators price crew-hours x crew size x loaded wage, or a crew day rate); full-depth prices aggregate only on the failed-base patch, with no fine grading/compaction of base across the whole area; aggregate at 135 pcf is the low end for compacted crushed base (~140-150 pcf). 'Full-depth reclaim' on the JobNimbus page misnames the method."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Mix tons, 800 sq ft at 2 in",
+      "method": "Hand: 145 pcf compacted and NAPA/DOT rule of thumb 110 lb per sq yd per inch",
+      "command": "python3 scratchpad/asphalt/model.py vs node scratchpad/asphalt/run.mjs",
+      "expected": "9.667 t (145 pcf); 9.778 t (110 lb/sy/in)",
+      "observed": "9.667 t",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Default 800 sq ft overlay price at index.html defaults",
+      "method": "Independent Python model of hours x loaded wage + tickets, overhead on direct, price = cost/(1-m)",
+      "command": "python3 scratchpad/asphalt/model.py",
+      "expected": "$3,076.25 (5.59 h, cost $2,214.90)",
+      "observed": "$3,076.25 (5.59 h, cost $2,214.90)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "1,000 sq ft full-depth preset: tons, walk-away, price",
+      "method": "Independent Python model; gravel 200 sq ft x 4 in x 135 pcf by hand",
+      "command": "python3 scratchpad/asphalt/model.py",
+      "expected": "20.058 t, gravel 4.50 t, walk-away $4,701.72, price $6,530.17",
+      "observed": "20.058 t, 4.4999 t, $4,701.72, $6,530.17",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Fabric add-on delta on the 2,000 sq ft fabric preset",
+      "method": "Hand: 2,150 x 0.55 x 1.16 / 0.72",
+      "command": "python3 scratchpad/asphalt/model.py",
+      "expected": "$1,905.14",
+      "observed": "$1,905.14",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Fabric page table absolute prices for the preset",
+      "method": "calculateBid with index.html defaults incl. hoursTrip 1.5, siteHours 0.75; compared with served page",
+      "command": "node scratchpad/asphalt/run.mjs; curl -sSL https://marisstella.app/asphalt-driveway-pave-bid-calculator/should-i-only-charge-material-cost-for-paving-fabric",
+      "expected": "$8,896.28 without / $10,801.42 with (cost $6,405.32 / $7,777.02)",
+      "observed": "served page shows $8,714.45 / $10,619.59 (cost $6,274.40 / $7,646.10)",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "vs-flat-rate: 'several-times difference in mix tons' between the 800 sq ft overlay and 1,000 sq ft full-depth",
+      "method": "Hand tonnage",
+      "command": "node scratchpad/asphalt/run.mjs",
+      "expected": "several times",
+      "observed": "9.67 t vs 20.06 t = 2.07x",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "vs-flat-rate $4,700 walk-away and $3,780 flat quote",
+      "method": "Hand: 1,080 x 3.50; model walk-away",
+      "command": "python3 scratchpad/asphalt/model.py",
+      "expected": "$3,780; ~$4,700",
+      "observed": "$3,780; $4,701.72",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "vs-jobnimbus: method called 'full-depth reclaim'; founders and HQ stated",
+      "method": "Paving practice (FDR = in-place pulverize and stabilize) vs calc.mjs full-depth (demo, dump, repave); look for a source file for JobNimbus facts",
+      "command": "grep -n 'reclaim\\|Ben Hodson' ventures/asphalt-driveway-pave-bid-calculator/*.html",
+      "expected": "method named as modelled; competitor facts sourced",
+      "observed": "FDR misnamed; founders/HQ unsourced; no price claims made",
+      "result": "fail"
+    },
+    {
+      "dimension": "craft",
+      "what": "Input handling: '1,200', blank, 0, negative",
+      "method": "Call calculateBid with page-style string inputs",
+      "command": "node scratchpad/asphalt/run.mjs",
+      "expected": "blank required cost fields rejected, not zeroed",
+      "observed": "'1,200' rejected; '' driveway rejected; blank wage -> $2,624.50, blank mix -> $1,440.97, blank existing depth -> demo 0 t ($5,951.98), all silent",
+      "result": "partial"
+    },
+    {
+      "dimension": "verification",
+      "what": "Test suite",
+      "method": "run",
+      "command": "cd ventures/asphalt-driveway-pave-bid-calculator && node --test '*.test.mjs'",
+      "expected": "pass",
+      "observed": "149 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "fitness",
+      "what": "Labor on the default 800 sq ft overlay",
+      "method": "Paving production practice: 4-6 person crew, half day or more",
+      "command": "node scratchpad/asphalt/run.mjs (laborCost)",
+      "expected": "labor built from crew size x hours x wage (~$750-$1,500)",
+      "observed": "5.59 h x one $50.16 loaded wage = $280; no crew-size input",
+      "result": "fail"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Served tool and llms.txt",
+      "method": "load served page",
+      "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/asphalt-driveway-pave-bid-calculator/",
+      "expected": "200, marisstella.app URLs",
+      "observed": "200; llms.txt URLs rewritten to marisstella.app",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "ventures/asphalt-driveway-pave-bid-calculator/calc.mjs:21",
+      "change": "COMPACTED_ASPHALT_LB_PER_CF 145 -> 140",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/asphalt-driveway-pave-bid-calculator/calc.mjs:277",
+      "change": "totalCost / (1 - m) -> totalCost * (1 + m)",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/asphalt-driveway-pave-bid-calculator/calc.mjs:254",
+      "change": "hoursBase = failedBaseSqFt * rate -> 0",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/asphalt-driveway-pave-bid-calculator/calc.mjs:244",
+      "change": "demoTons on 'full-depth' -> on 'mill-overlay'",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/asphalt-driveway-pave-bid-calculator/calc.mjs:268",
+      "change": "fabric on pavedSqFt -> drivewaySqFt",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/asphalt-driveway-pave-bid-calculator/calc.mjs:255",
+      "change": "tack hours charged on full-depth too",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/asphalt-driveway-pave-bid-calculator/calc.mjs:241",
+      "change": "millTons always 0",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/asphalt-driveway-pave-bid-calculator/calc.mjs:257",
+      "change": "hoursApron = 0",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/asphalt-driveway-pave-bid-calculator/calc.mjs:195",
+      "change": "failed-base > paved-area guard disabled",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "Labor is total hours x one worker's loaded wage with no crew size, while the page labels the hours 'Crew hours' and the wage 'Crew hourly wage'. A contractor entering real crew-hours and a hand's wage under-prices labor by the crew size; the shipped defaults put labor for an 800 sq ft overlay at $280 (5.59 h x $50.16), far below a 4-6 person paving crew's real cost.",
+      "where": "ventures/asphalt-driveway-pave-bid-calculator/calc.mjs:260",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Fabric decision page table shows $8,714.45 / $10,619.59 (cost $6,274.40 / $7,646.10) for the fabric preset; the tool shows $8,896.28 / $10,801.42 and the sibling how-much page says $10,801. Its test omits the page's default trip (1.5 h) and site (0.75 h) hours, so it pins the page to numbers the tool never displays. Served live.",
+      "where": "ventures/asphalt-driveway-pave-bid-calculator/should-i-only-charge-material-cost-for-paving-fabric.html:39",
+      "category": "tests-check-a-copy",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "Blank fields silently become 0: number('') is 0 and the page passes raw strings, so a cleared wage, mix price or existing depth prices that line at zero (blank mix: $3,076.25 -> $1,440.97) with no warning.",
+      "where": "ventures/asphalt-driveway-pave-bid-calculator/calc.mjs:86",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "vs-jobnimbus calls the method 'full-depth reclaim'; full-depth reclamation is in-place pulverizing and stabilizing, which this tool does not price (it prices remove, dump and repave).",
+      "where": "ventures/asphalt-driveway-pave-bid-calculator/vs-jobnimbus.html:57",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "'several-times difference in mix tons' between the 800 sq ft overlay and the 1,000 sq ft full-depth; the calculator's own figures are 9.67 t vs 20.06 t, about 2x.",
+      "where": "ventures/asphalt-driveway-pave-bid-calculator/vs-a-flat-rate-per-square-foot.html:58",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "JobNimbus founders and headquarters stated with no source in the repo, and public page carries session-meta text ('not reachable from this session').",
+      "where": "ventures/asphalt-driveway-pave-bid-calculator/vs-jobnimbus.html:42",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "Full-depth prices aggregate and base hours only on the failed-base patch; no fine grading or compaction of base across the whole replaced area, and 135 pcf is the low end for compacted crushed aggregate.",
+      "where": "ventures/asphalt-driveway-pave-bid-calculator/calc.mjs:247",
+      "category": "scope-gap",
+      "origin": "spec"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/14975"
+  ],
+  "verdict": "The arithmetic is right and well tested: four outputs recomputed independently (tonnage against the NAPA 110 lb/sy/in rule within 1.1%, three full bids to the cent) and all nine seeded mutations were caught. It misses the bar on claims (2): the fabric page's live price table disagrees with the tool by $181.83 because its test copies the defaults without trip and site hours, a comparison page misnames the method as full-depth reclaim, and another overstates a 2x tonnage gap as several-fold. A paving estimator's first check, labor, exposes the larger gap: hours are multiplied by one worker's wage with no crew size, so fitness and domain are 2. Finished (completeness 3), not at the senior-professional bar."
+}

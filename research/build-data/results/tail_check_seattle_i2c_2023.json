@@ -1,0 +1,83 @@
+{
+ "held_out": "seattle",
+ "sources": [
+  "sf",
+  "austin"
+ ],
+ "test_year": 2023,
+ "classes": {
+  "new_construction": {
+   "n_source": 271168,
+   "n_held": 980,
+   "q50_source": 168.0,
+   "q50_held": 434.0,
+   "q90": {
+    "q_source": 471.0,
+    "q_held": 826.0,
+    "ratio": 0.5702179176755447,
+    "lo": 0.552414605418139,
+    "hi": 0.6137043297360552
+   }
+  },
+  "alteration": {
+   "n_source": 875070,
+   "n_held": 2714,
+   "q50_source": 109.0,
+   "q50_held": 237.0,
+   "q90": {
+    "q_source": 412.0,
+    "q_held": 599.0,
+    "ratio": 0.6878130217028381,
+    "lo": 0.6655896607431341,
+    "hi": 0.7190226876090751
+   }
+  },
+  "electrical": {
+   "n_source": 567172,
+   "n_held": 21
+  },
+  "plumbing": {
+   "n_source": 435776,
+   "n_held": 0
+  },
+  "mechanical": {
+   "n_source": 427906,
+   "n_held": 12
+  },
+  "demolition": {
+   "n_source": 18585,
+   "n_held": 438,
+   "q50_source": 133.0,
+   "q50_held": 321.5,
+   "q90": {
+    "q_source": 673.0,
+    "q_held": 612.3,
+    "ratio": 1.0991344112363222,
+    "lo": 1.0064083002746445,
+    "hi": 1.2115732368896925
+   }
+  },
+  "sign": {
+   "n_source": 11236,
+   "n_held": 0
+  },
+  "fire": {
+   "n_source": 3,
+   "n_held": 1
+  },
+  "other": {
+   "n_source": 7826,
+   "n_held": 221,
+   "q50_source": 180.0,
+   "q50_held": 366.0,
+   "q90": {
+    "q_source": 513.5,
+    "q_held": 786.0,
+    "ratio": 0.6533078880407125,
+    "lo": 0.5987074030552292,
+    "hi": 0.7109375
+   }
+  }
+ },
+ "target": "i2c"
+}

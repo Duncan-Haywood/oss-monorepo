@@ -1,0 +1,64 @@
+Milestone 6d: screening rule for the excavator break-even rest-of-machine fuel rate
+(input: 6c's excavator_breakeven_geometry_cases.csv, 384 geometry cases, central parameters)
+cases 384; f_t,max median 1.001 L/h; Spearman inputs as 6c
+
+Rule A: ln f_t,max ~ ln(r219 - 1)
+  coefficients (intercept, slopes): +0.7520, -1.0816
+  in-sample R^2 on ln f_t,max: 0.595
+  grouped CV (16 folds by boom/arm lever pair) relative error: median 0.253, p90 0.521, max 0.907
+  1.48 L/h call right (CV): 315/384 = 82.0%  (says fixed wins wrongly 22, misses a fixed win 47)
+    swing share 0: median CV error 0.288, max 0.907
+    swing share 0.5: median CV error 0.268, max 0.586
+    swing share 1: median CV error 0.199, max 0.850
+
+Rule B: ln f_t,max ~ ln(r219 - 1) + ln(p99/mean)
+  coefficients (intercept, slopes): +2.7444, -0.9164, -2.3739
+  in-sample R^2 on ln f_t,max: 0.749
+  grouped CV (16 folds by boom/arm lever pair) relative error: median 0.173, p90 0.410, max 1.203
+  1.48 L/h call right (CV): 338/384 = 88.0%  (says fixed wins wrongly 18, misses a fixed win 28)
+    swing share 0: median CV error 0.158, max 1.203
+    swing share 0.5: median CV error 0.198, max 0.438
+    swing share 1: median CV error 0.152, max 0.504
+
+Rule C (not registered, added after B): Rule B + indicator swing share 0
+  coefficients (intercept, slopes): +1.7186, -0.5917, -1.3290, -0.4794
+  in-sample R^2 on ln f_t,max: 0.831
+  grouped CV (16 folds by boom/arm lever pair) relative error: median 0.158, p90 0.355, max 0.665
+  1.48 L/h call right (CV): 336/384 = 87.5%  (says fixed wins wrongly 12, misses a fixed win 36)
+    swing share 0: median CV error 0.126, max 0.592
+    swing share 0.5: median CV error 0.148, max 0.378
+    swing share 1: median CV error 0.207, max 0.665
+
+Rule B in a builder's units (full sample fit): f_t,max ~ 15.555 x (r219 - 1)^-0.916 x (p99/mean)^-2.374 L/h
+  r219 1.800, p99/mean 2.400: 2.388 L/h
+  r219 2.175, p99/mean 2.376: 1.720 L/h
+  r219 2.500, p99/mean 2.500: 1.219 L/h
+  r219 3.000, p99/mean 2.800: 0.715 L/h
+
+Decision curve: share of the 384 cases in which a smaller fixed pump beats load-sensing
+ f_t_lph  every_set_pct  central_pct  some_set_pct
+   0.25          65.9        100.0         100.0
+   0.50          21.4         81.5         100.0
+   0.75           2.3         66.7          99.7
+   1.00           0.3         50.3          90.1
+   1.25           0.0         32.0          78.6
+   1.48           0.0         18.2          72.1
+   1.75           0.0          9.4          65.9
+   2.00           0.0          4.9          59.6
+   2.50           0.0          0.8          40.4
+   3.00           0.0          0.3          24.2
+   4.00           0.0          0.0           8.6
+   5.15           0.0          0.0           1.6
+   6.00           0.0          0.0           0.3
+
+Spread from parameters against spread from geometry
+  central geometry, 108 parameter sets: f_t,max 0.89 to 5.24 L/h (x5.90)
+  central parameters, 384 geometries: f_t,max 0.33 to 3.00 L/h (x9.21)
+  per-case max/min over the 108 sets: median x6.80, range x5.13 to x9.24
+
+Predictions (LOG.md 6d):
+  E1 Rule A in-sample R^2 > 0.5: held (0.595)
+  E2 Rule B grouped-CV median relative error < 15%: refuted (17.3%)
+  E3 Rule B right on the 1.48 L/h call in >= 90%: refuted (88.0%)
+  E4 < 5% of cases win under all 108 sets at 1.48: held (0.0%)
+  E5 > 50% of cases win under some set at 1.48: held (72.1%)

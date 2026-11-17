@@ -133,7 +133,7 @@ export function calculateBooking(input) {
   }
   if (b.extraRounds > 0) {
     findings.push({ severity: "medium", title: `Revision creep: ${b.extraRounds} round(s) past the cap`,
-      detail: `You included ${c.revisionRoundsIncluded} and used ${c.revisionRoundsUsed}, about ${(b.revisionHours).toFixed(1)} hours of revisions. ${c.extraRevisionFee > 0 ? `Charging ${money(c.extraRevisionFee)} per extra round recovers ${money(b.revisionRevenue)}.` : "No extra-round fee is set, so those hours are unpaid."}` });
+      detail: `You included ${c.revisionRoundsIncluded} and used ${c.revisionRoundsUsed}. The ${b.extraRounds} round(s) past the cap took about ${(b.extraRounds * c.hoursPerRevision).toFixed(1)} of the ${b.revisionHours.toFixed(1)} revision hours. ${c.extraRevisionFee > 0 ? `Charging ${money(c.extraRevisionFee)} per extra round recovers ${money(b.revisionRevenue)}.` : "No extra-round fee is set, so those hours are unpaid."}` });
   }
   findings.push({ severity: "info", title: "Check the numbers before you rely on this",
     detail: "Example presets are unverified approximations. Replace every figure with your own hours, costs and fees." });
@@ -141,7 +141,13 @@ export function calculateBooking(input) {
   return { input: c, ...b, headlineHourly, editShare, minPrice, sensitivity, breakEvenEditHours, findings };
 }
 
-/** Same booking at each deliverable tier: price and edit hours replace the base ones. */
+/**
+ * Same booking at each deliverable tier: the tier's price and total edit hours
+ * replace the package price and the three edit fields. Shoot, travel, planning
+ * and revision hours and every cost stay as entered, so tiers differ only in
+ * deliverables. `base` is the booking as entered, for comparison, because a
+ * tier's edit hours are not the user's own ceremony and speeches figures.
+ */
 export function deliverableLadder(input, tiers = DEFAULT_LADDER) {
   let c;
   try { c = clean(input); } catch (e) { return { error: e.message }; }
@@ -160,7 +166,13 @@ export function deliverableLadder(input, tiers = DEFAULT_LADDER) {
       profit: b.profit, trueHourly: b.trueHourly, minPrice: c.targetHourly > 0 ? minimumPrice(tc) : null });
   }
   const best = rows.reduce((a, r) => (r.trueHourly > a.trueHourly ? r : a), rows[0]);
-  return { rows, best };
+  const b = core(c);
+  const base = { name: "Your booking above", price: c.price,
+    editHours: c.highlightEditHours + c.ceremonyEditHours + c.speechesEditHours,
+    hoursWorked: b.hoursWorked, profit: b.profit, trueHourly: b.trueHourly,
+    minPrice: c.targetHourly > 0 ? minimumPrice(c) : null };
+  const nonEditHours = c.shootHours + c.travelHours + c.prepHours + b.revisionHours;
+  return { rows, best, base, nonEditHours };
 }
 
 export function money(n) {

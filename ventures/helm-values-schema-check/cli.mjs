@@ -9,6 +9,7 @@
 
 import fs from "node:fs/promises";
 import { checkValues, SEVERITY } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 function parseArgs(argv) {
   const args = { json: false, strict: false, positional: [] };
@@ -95,7 +96,7 @@ export async function run(argv, { readFile = (p) => fs.readFile(p, "utf8") } = {
   return { exitCode: 2, output: `Unknown subcommand "${args.sub}". Try --help.` };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { exitCode, output } = await run(process.argv.slice(2));
   console.log(output);
   process.exitCode = exitCode;

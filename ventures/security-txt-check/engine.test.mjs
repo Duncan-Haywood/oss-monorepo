@@ -282,8 +282,9 @@ test('parseExpires requires a full RFC 3339 timestamp, not a loose date', () => 
 });
 
 test('parseExpires rejects a calendar date Date.parse would silently roll over', () => {
-  // Date.parse('2027-02-30T00:00:00Z') is NaN in Node, but the month-overflow
-  // shape is the one a hand-rolled check misses, so both are pinned.
+  // Date.parse('2027-02-30T00:00:00Z') is NOT NaN in Node: it rolls over to
+  // 2027-03-02, which is why parseExpires checks the calendar itself. Month 13
+  // and hour 25 are NaN already; they are pinned so a parser swap can't regress.
   assert.equal(parseExpires('2027-02-30T00:00:00Z').valid, false);
   assert.equal(parseExpires('2027-13-01T00:00:00Z').valid, false);
   assert.equal(parseExpires('2027-01-31T25:00:00Z').valid, false);
@@ -302,4 +303,42 @@ test('a value containing a colon keeps everything after the first one', () => {
 test('CRLF line endings parse the same as LF', () => {
   const crlf = buildReport({ text: GOOD.replace(/\n/g, '\r\n'), now: NOW });
   assert.deepEqual(ids(crlf), []);
+});
+
+// --- Red-team findings, 2026-11-11 -----------------------------------------
+
+test('a signed file reports line numbers in the file as pasted, not in the payload', () => {
+  // The armour (BEGIN line, Hash header, blank line) sits above the payload,
+  // so payload line 1 is file line 4. A finding that points three lines too
+  // high sends the reader to the wrong line of their own file.
+  const text = SIGNED.replace('Expires:', 'oops no colon\nExpires:');
+  const report = buildReport({ text, now: NOW });
+  assert.deepEqual(report.fields.map((f) => [f.key, f.line]), [['contact', 4], ['expires', 6]]);
+  const bad = report.findings.find((f) => f.id === 'malformed-line');
+  assert.equal(bad.line, 5);
+  assert.match(bad.title, /^Line 5 /);
+  // Text before the BEGIN line counts too, and so does CRLF.
+  const crlf = `# note\r\n${SIGNED.replace(/\n/g, '\r\n')}`;
+  assert.deepEqual(buildReport({ text: crlf, now: NOW }).fields.map((f) => f.line), [5, 6]);
+});
+
+test('parseExpires accepts an RFC 3339 leap second', () => {
+  // RFC 3339 section 5.6 allows time-second 60; Date.parse returns NaN for it.
+  const r = parseExpires('2027-06-30T23:59:60Z');
+  assert.equal(r.valid, true);
+  assert.equal(r.date.toISOString(), '2027-07-01T00:00:00.000Z');
+  assert.equal(parseExpires('2027-06-30T23:59:61Z').valid, false);
+  assert.equal(parseExpires('2027-01-31T24:00:00Z').valid, false, 'Date.parse accepts 24:00; RFC 3339 does not');
+});
+
+test('a quoted charset parameter is still utf-8', () => {
+  // RFC 2045 lets a parameter value be a quoted string.
+  for (const contentType of ['text/plain; charset="utf-8"', 'text/plain;charset="UTF-8"']) {
+    const r = buildReport({ text: GOOD, now: NOW, servedFrom: `https://example.com${WELL_KNOWN_PATH}`, contentType });
+    assert.ok(!ids(r).includes('content-type-charset'), contentType);
+  }
+  const latin = buildReport({ text: GOOD, now: NOW, contentType: 'text/plain; charset="iso-8859-1"' });
+  assert.ok(ids(latin).includes('content-type-charset'));
+  const utf8ish = buildReport({ text: GOOD, now: NOW, contentType: 'text/plain; charset=utf-8x' });
+  assert.ok(ids(utf8ish).includes('content-type-charset'), 'a charset that merely starts with utf-8 is not utf-8');
 });

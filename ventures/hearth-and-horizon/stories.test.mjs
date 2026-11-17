@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { buildAll, loadAudio, loadStories, speechFor } from './generate.mjs';
-import { SHELVES, markdownToHtml, markdownToSpeech, parseStory, renderFeed } from './stories.mjs';
+import { SHELVES, markdownToHtml, markdownToSpeech, parseStory, renderFeed, spliceReadme } from './stories.mjs';
 
 const stories = loadStories();
 
@@ -106,4 +106,65 @@ test('every "<weekday> <day> <month> <year>" in a story is a real weekday', () =
   }
   assert.ok(checked > 100, `only ${checked} dated weekdays found; is the pattern still matching?`);
   assert.deepEqual(wrong, []);
+});
+
+test('the README lists every story, once, from the generated block', () => {
+  const readme = buildAll()['README.md'];
+  for (const s of stories) {
+    const hits = readme.split(`](stories/${s.slug}.md)`).length - 1;
+    assert.equal(hits, 1, `${s.slug} listed ${hits} times`);
+  }
+  assert.throws(() => spliceReadme('# no markers', stories), /markers/);
+});
+
+test('BIBLE.md holds no Done entries (run node bible_done.mjs)', async () => {
+  const { split, appendDone } = await import('./bible_done.mjs');
+  const { moved } = split(readFileSync(new URL('BIBLE.md', import.meta.url), 'utf8'));
+  assert.deepEqual(moved.map((m) => m.lines[0].slice(0, 60)), []);
+  const sample = '# B\n\n## Next up\n\nIntro.\n\n**Shelf A**\n\n- *(Done: X.)* a\n  b\n- *Open:* c\n  d\n\n**Shelf B**\n\n- *(Done: Y.)* e\n\n## After\n';
+  const out = split(sample);
+  assert.equal(out.bible, '# B\n\n## Next up\n\nIntro.\n\n**Shelf A**\n\n- *Open:* c\n  d\n\n**Shelf B**\n\n## After\n');
+  const done = appendDone(appendDone('', out.moved), [{ shelf: 'Shelf A', lines: ['- *(Done: Z.)* f'] }]);
+  assert.match(done, /## Shelf A\n\n- \*\(Done: X\.\)\* a\n  b\n- \*\(Done: Z\.\)\* f\n\n## Shelf B\n\n- \*\(Done: Y\.\)\* e\n$/);
+});
+
+test('bible_done moves a Done marker written at the end of a proposal', async () => {
+  const { split, leadDone } = await import('./bible_done.mjs');
+  assert.deepEqual(leadDone(['- *Open:* c *(Done: Q, here, 2050.)*']), ['- *(Done: Q, here, 2050.)* *Open:* c']);
+  assert.deepEqual(leadDone(['- *Open:* c', '  d', '  *(Done: R,', '  there.)*']), ['- *(Done: R, there.)* *Open:* c', '  d']);
+  assert.equal(leadDone(['- mark it `*(Done: Title.)*` like this']), null);
+  assert.equal(leadDone(['- *Open:* nothing done']), null);
+  const out = split('## Next up\n\n**Shelf A**\n\n- *Open:* c *(Done: Q.)*\n- *Still:* e\n');
+  assert.equal(out.bible, '## Next up\n\n**Shelf A**\n\n- *Still:* e\n');
+  assert.deepEqual(out.moved, [{ shelf: 'Shelf A', lines: ['- *(Done: Q.)* *Open:* c'] }]);
+});
+
+// A proposal that carries its own "close to a finished story" note reads as
+// available but is not: The Wet Bulb sat flagged as the headline shelf's only
+// proposal from 2026-11-13, and nine run records in two days said they found
+// it unusable and had to invent a subject (doc friction on BIBLE.md). A run
+// that finds an overlap rewrites the angle or deletes the proposal instead.
+const OVERLAP_FLAG = /\b(?:too )?close to (?:the |a )?finished\b|\boverlaps? (?:with )?(?:the |a )?finished\b|\bduplicates? (?:the |a )?finished\b|\b(?:main )?angle (?:is|was) already done\b/i;
+
+test('no Next up proposal is flagged as overlapping a finished story', () => {
+  const bible = readFileSync(new URL('BIBLE.md', import.meta.url), 'utf8');
+  const next = bible.split(/^## Next up$/m)[1].split(/^## /m)[0];
+  const entries = next.split(/\n(?=- )/).filter((e) => e.startsWith('- '));
+  const flagged = entries.filter((e) => OVERLAP_FLAG.test(e)).map((e) => e.slice(0, 70));
+  assert.deepEqual(flagged, [], 'rewrite the angle or delete the proposal (node overlap.mjs <terms> finds overlaps)');
+  assert.ok(OVERLAP_FLAG.test('(note: close to the finished *The Stone*)'));
+  assert.ok(!OVERLAP_FLAG.test('Keep clear of length bias (*Gone Before Thursday*)'));
+});
+
+test('overlap.mjs finds terms in stories and DONE-only entries', async () => {
+  const { overlap, doneEntries } = await import('./overlap.mjs');
+  const done = doneEntries('- *(Done: Old One, Somewhere, 2050.)* uses the capstan\n  and a winch\n- *(Done: New, X.)* y');
+  assert.deepEqual(done.map((d) => d.title), ['Old One', 'New']);
+  const stories = [{ title: 'New', shelf: 'a', slug: 'new', setting: '', summary: '', body: 'a winch' }];
+  const [winch, capstan, none] = overlap(['WINCH', 'capstan', 'peukert'], stories, done);
+  assert.deepEqual([winch.stories.length, winch.done], [1, ['Old One']]);
+  assert.deepEqual([capstan.stories.length, capstan.done], [0, ['Old One']]);
+  assert.deepEqual([none.stories.length, none.done.length], [0, 0]);
+  const [sump, cap] = overlap(['sump', 'caps*'], [{ ...stories[0], body: 'an assumption' }], done);
+  assert.deepEqual([sump.stories.length, cap.done], [0, ['Old One']]);
 });

@@ -1,12 +1,18 @@
 """Tests for pyenv.py with a fake subprocess runner."""
 import os
+import shutil
 import stat
 import sys
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 
 import pyenv
+
+# Tests must never touch the machine's real dist-packages (pip_install backs it
+# up and main() heals it); the shared-dir tests below point at a temp tree.
+pyenv.SHARED_DIST = os.path.join(tempfile.gettempdir(), "pyenv-test-no-such-shared-dist")
 
 
 class Result:
@@ -52,6 +58,13 @@ class T(unittest.TestCase):
         self.assertEqual(py, "/usr/local/bin/python3")
         pip = [c for c in run.calls if c[1:3] == ["-m", "pip"]]
         self.assertEqual(pip[0][0], py)
+
+    def test_trying_line_names_pip_packages_not_import_names(self):
+        logs = []
+        pyenv.find(["cv2"], ["/usr/bin/python3"], FakeRun(pip_ok={"/usr/bin/python3"}), logs.append)
+        trying = [m for m in logs if "trying" in m]
+        self.assertIn("opencv-python-headless", trying[0])
+        self.assertNotIn(" cv2", trying[0])
 
     def test_install_notice_mentions_background(self):
         logs = []
@@ -234,11 +247,40 @@ class T(unittest.TestCase):
         self.assertEqual(rc, 0)
         self.assertTrue(out.getvalue().strip())
 
+    def test_split_command_at_double_dash(self):
+        self.assertEqual(pyenv.split_command(["numpy", "--", "-m", "pytest", "-x"]),
+                         (["numpy"], ["-m", "pytest", "-x"]))
+        self.assertEqual(pyenv.split_command(["numpy"]), (["numpy"], None))
+        self.assertEqual(pyenv.split_command(["--", "-"]), ([], ["-"]))
+
+    def test_main_runs_the_command_with_the_interpreter_it_found(self):
+        import io, contextlib
+        calls = []
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+            rc = pyenv.main(["json", "--", "-c", "print(1)"],
+                            execv=lambda py, args: calls.append((py, args)))
+        self.assertEqual(rc, 0)
+        self.assertEqual(len(calls), 1)
+        py, args = calls[0]
+        self.assertEqual(args, [py, "-c", "print(1)"])
+        self.assertEqual(out.getvalue(), "")  # no path on stdout: the command owns it
+
+    def test_command_mode_end_to_end_keeps_stdin_and_exit_code(self):
+        import subprocess
+        here = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pyenv.py")
+        done = subprocess.run([sys.executable, here, "json", "--", "-"],
+                              input=b"import json, sys\nprint(json.dumps([1]))\nsys.exit(3)\n",
+                              capture_output=True, timeout=120)
+        self.assertEqual(done.stdout.decode().strip(), "[1]")
+        self.assertEqual(done.returncode, 3)
+
     def test_real_interpreter_imports_stdlib(self):
         self.assertTrue(pyenv.imports(sys.executable, ["json"]))
         self.assertFalse(pyenv.imports(sys.executable, ["no_such_module_xyz"]))
 
     def test_version_specifiers_are_not_part_of_the_import_name(self):
+        self.addCleanup(pyenv.PINS.clear)
         self.assertEqual(pyenv.import_name("pillow>=9"), "PIL")
         self.assertEqual(pyenv.import_name("scikit-learn==1.4"), "sklearn")
         self.assertEqual(pyenv.import_name("numpy"), "numpy")
@@ -263,6 +305,58 @@ class T(unittest.TestCase):
                              ["scipy", "numpy", "torch", "cadquery", "pytest"])
         finally:
             os.unlink(f.name)
+
+    def test_for_dir_lists_third_party_imports_only(self):
+        # 2026-11-12: runs named too few modules by hand (numpy, scikit-learn missing)
+        with tempfile.TemporaryDirectory() as repo:
+            proj = Path(repo, "research", "proj")
+            (proj / "pkg").mkdir(parents=True)
+            (proj / "pkg" / "__init__.py").write_text("")
+            Path(repo, "research", "_shared").mkdir()
+            Path(repo, "research", "_shared", "linefig.py").write_text("")
+            (proj / "run.py").write_text(
+                "import os, json\nimport numpy as np\nfrom sklearn.linear_model import Ridge\n"
+                "from . import x\nimport pkg.sub\nfrom linefig import write\n"
+                "try:\n    import torch\nexcept ImportError:\n    torch = None\n"
+                "def f():\n    import scipy.stats\n")
+            (proj / "broken.py").write_text("def (:\n")
+            self.assertEqual(pyenv.project_imports(str(proj), stop=repo), ["numpy", "scipy", "sklearn"])
+
+    def test_for_dir_expands_with_pytest_once(self):
+        with tempfile.TemporaryDirectory() as d:
+            Path(d, "t.py").write_text("import pytest\nimport numpy\n")
+            with unittest.mock.patch.object(pyenv, "project_imports", return_value=["numpy", "pytest"]):
+                self.assertEqual(pyenv.expand_args(["--for", d]), ["pytest", "numpy"])
+        self.assertEqual(pyenv.expand_args(["--for", "/no/such/dir"]), ["--for"])
+
+    def test_pyproject_dependencies_and_test_extras(self):
+        # 2026-11-12: infra-dcopf's pyproject listed pandapower; the run named it by hand
+        with tempfile.TemporaryDirectory() as d:
+            pp = Path(d, "pyproject.toml")
+            pp.write_text('[project]\nname = "x"\ndependencies = ["numpy>=1.24", "pandapower", '
+                          '"scikit-learn[all] ; python_version>\'3\'"]\n'
+                          '[project.optional-dependencies]\ntest = ["pytest", "numpy"]\nfigure = ["matplotlib"]\n')
+            self.assertEqual(pyenv.read_pyproject(str(pp)), ["numpy", "pandapower", "scikit-learn", "pytest"])
+            self.assertEqual(pyenv.read_requirements(str(pp)), ["numpy", "pandapower", "scikit-learn", "pytest"])
+            Path(d, "pyproject.toml").write_text("[project\n")
+            self.assertEqual(pyenv.read_pyproject(str(pp)), [])
+        self.assertEqual(pyenv.read_pyproject("/no/such/pyproject.toml"), [])
+
+    def test_nearest_pyproject_walks_up_to_stop(self):
+        with tempfile.TemporaryDirectory() as repo:
+            proj = Path(repo, "research", "proj")
+            (proj / "tests").mkdir(parents=True)
+            (proj / "pyproject.toml").write_text("[project]\n")
+            self.assertEqual(pyenv.nearest_pyproject(str(proj / "tests"), repo), str(proj / "pyproject.toml"))
+            self.assertIsNone(pyenv.nearest_pyproject(str(Path(repo, "research")), repo))
+
+    def test_for_dir_adds_declared_dependencies_not_local_ones(self):
+        # hanger-knit imports numpy only through its sibling hanger_fit
+        with tempfile.TemporaryDirectory() as d:
+            Path(d, "pyproject.toml").write_text('[project]\ndependencies = ["numpy", "hanger-fit", "scipy"]\n')
+            with unittest.mock.patch.object(pyenv, "project_imports", return_value=["scipy"]), \
+                 unittest.mock.patch.object(pyenv, "_local_names", return_value={"hanger_fit"}):
+                self.assertEqual(pyenv.expand_args(["--for", d]), ["pytest", "scipy", "numpy"])
 
     def test_install_starts_with_the_interpreter_missing_fewest(self):
         # 2026-11-10: pip ran on PATH's python3 and 3.12 for 10+ min while 3.13 lacked one module
@@ -289,6 +383,30 @@ class T(unittest.TestCase):
         self.assertEqual(len(pip), 1)
         self.assertEqual(pip[0][-1:], ["scipy"])
 
+    def test_a_version_pin_is_installed_and_required(self):
+        # Doc friction 2026-11-13: `pybamm==26.10.1.1` installed plain pybamm.
+        self.addCleanup(pyenv.PINS.clear)
+        self.assertEqual(pyenv.import_name("pybamm==26.10.1.1"), "pybamm")
+        self.assertEqual(pyenv.import_name("OpenDSSDirect.py>=0.9:opendssdirect"), "opendssdirect")
+        self.assertEqual(pyenv.PINS, {"pybamm": "pybamm==26.10.1.1",
+                                      "opendssdirect": "OpenDSSDirect.py>=0.9"})
+        run = FakeRun(pip_ok={"/a"})
+        pyenv.pip_install("/a", ["pybamm", "numpy"], run, quiet)
+        self.assertEqual(run.calls[0][-2:], ["pybamm==26.10.1.1", "numpy"])
+
+    def test_a_real_interpreter_must_meet_the_pin(self):
+        import importlib.metadata as md
+        have = md.version("pip")
+        self.addCleanup(pyenv.PINS.clear)
+        mod = pyenv.import_name(f"pip=={have}")
+        self.assertTrue(pyenv.imports(sys.executable, [mod]))
+        self.assertEqual(pyenv.missing(sys.executable, ["json", mod]), [])
+        pyenv.import_name("pip==0.0.1")
+        self.assertFalse(pyenv.imports(sys.executable, [mod]))
+        self.assertEqual(pyenv.missing(sys.executable, ["json", mod]), ["pip"])
+        pyenv.import_name(f"pip>=0.1,<={have}")
+        self.assertTrue(pyenv.imports(sys.executable, [mod]))
+
     def test_missing_probes_a_real_interpreter(self):
         self.assertEqual(pyenv.missing(sys.executable, ["json", "no_such_module_xyz"]),
                          ["no_such_module_xyz"])
@@ -300,6 +418,66 @@ class T(unittest.TestCase):
         time.sleep(0.1)
         stop.set()
         self.assertTrue(any("still installing" in m for m in logs))
+
+
+class SharedDistTest(unittest.TestCase):
+    """2026-11-17: python3.13's pip uninstalled Debian's setuptools from the
+    dist-packages every python3.x shares, orphaning distutils-precedence.pth."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.shared = Path(self.tmp.name)
+        (self.shared / "_distutils_hack").mkdir()
+        (self.shared / "_distutils_hack" / "__init__.py").write_text("x = 1\n")
+        (self.shared / "setuptools").mkdir()
+        (self.shared / "setuptools" / "__init__.py").write_text("")
+        (self.shared / "setuptools-68.1.2.egg-info").mkdir()
+        (self.shared / "distutils-precedence.pth").write_text("import os\n")
+        (self.shared / "numpy").mkdir()
+        self.old, pyenv.SHARED_DIST = pyenv.SHARED_DIST, str(self.shared)
+
+    def tearDown(self):
+        pyenv.SHARED_DIST = self.old
+        self.tmp.cleanup()
+
+    def pip_that_uninstalls_setuptools(self, cmd, **kw):
+        if cmd[1:3] == ["-m", "pip"]:
+            for name in ("_distutils_hack", "setuptools", "setuptools-68.1.2.egg-info"):
+                shutil.rmtree(self.shared / name)
+            return Result(0)
+        raise AssertionError(cmd)
+
+    def test_pip_install_puts_back_what_pip_removed(self):
+        logs = []
+        self.assertTrue(pyenv.pip_install("/usr/bin/python3.13", ["torch"],
+                                          self.pip_that_uninstalls_setuptools, logs.append, lambda: True))
+        self.assertEqual((self.shared / "_distutils_hack" / "__init__.py").read_text(), "x = 1\n")
+        self.assertTrue((self.shared / "setuptools-68.1.2.egg-info").is_dir())
+        self.assertTrue(any("restored" in m for m in logs), logs)
+
+    def test_untouched_shared_dir_logs_nothing(self):
+        logs = []
+        pyenv.pip_install("/p/python3", ["numpy"], FakeRun(pip_ok={"/p/python3"}), logs.append)
+        self.assertEqual(logs, [])
+        self.assertEqual(sorted(p.name for p in self.shared.iterdir()),
+                         ["_distutils_hack", "distutils-precedence.pth", "numpy",
+                          "setuptools", "setuptools-68.1.2.egg-info"])
+
+    def test_orphaned_pth_is_parked(self):
+        shutil.rmtree(self.shared / "_distutils_hack")
+        self.assertTrue(pyenv.heal_orphan_pth(log=quiet))
+        self.assertFalse((self.shared / "distutils-precedence.pth").exists())
+        self.assertTrue((self.shared / "distutils-precedence.pth.orphaned").exists())
+
+    def test_healthy_pth_is_left_alone(self):
+        self.assertFalse(pyenv.heal_orphan_pth(log=quiet))
+        self.assertTrue((self.shared / "distutils-precedence.pth").exists())
+
+    def test_missing_shared_dir_is_a_no_op(self):
+        pyenv.SHARED_DIST = str(self.shared / "absent")
+        self.assertIsNone(pyenv.backup_shared())
+        self.assertEqual(pyenv.restore_shared(None), [])
+        self.assertFalse(pyenv.heal_orphan_pth(log=quiet))
 
 
 if __name__ == "__main__":

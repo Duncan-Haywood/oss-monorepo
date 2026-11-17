@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKkG2YHx7BAEkYJtiPQ",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T14:19:07Z",
+  "ended": "2026-11-12T14:24:35Z",
+  "wall_minutes": 5.61,
+  "tokens_in": 3652562,
+  "tokens_out": 20733,
+  "cost_usd": 2.0085,
+  "tool_calls": 35,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15154",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/verified-dse/paper/build.sh",
+      "issue": "paper/main.tex had drifted 335 lines behind PAPER.md (no run since about milestone 94 regenerated it), and nothing checks this; a CI diff of build.sh output against the committed main.tex would catch it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Landing step 2 says to work through open research PRs before building; I relied on pick_track's CLAIM CHECK (none of 96 open PRs names verified-dse) and did not triage other programmes' PRs.",
+      "did": "advanced the drawn programme directly",
+      "result": "no conflict; milestone landed in one PR"
+    },
+    {
+      "file": "research/verified-dse/paper/main.pdf",
+      "why": "pdflatex is absent and the install takes about 10 min",
+      "did": "regenerated main.tex only; main.pdf is stale",
+      "result": "the PDF lags the tex until a run with texlive rebuilds it"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-verified-dse-what-the-blind-cells-say.md",
+    "research/verified-dse/LOG.md (milestone 117)"
+  ],
+  "goal": null,
+  "notes": "No flow run. New pool.py splits the switch's evidence by test status: the plain switch ties random on unseen designs (2.71 vs 2.80%); the clipped switch has 1.60 vs 2.91% on 24 blind cells (18/5, sign p 0.011), design-bootstrap CI -2.45 to +0.22. Local checks: pytest tests/test_switch_pooled.py tests/test_pilot_clip.py 9 passed; homepage build ok; check_md_links ok; post checks ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "05595be6-b25a-5ceb-a443-fb0b3624e4dc",
+    "transcripts": 1,
+    "first": "2026-11-12T14:19:07Z",
+    "last": "2026-11-12T14:24:44Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 35,
+        "input": 69,
+        "output": 20733,
+        "thinking": 4758,
+        "cache_read": 3541840,
+        "cache_write_5m": 0,
+        "cache_write_1h": 110653,
+        "api_equivalent_usd": 2.0085,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 35,
+      "input": 69,
+      "output": 20733,
+      "thinking": 4758,
+      "cache_read": 3541840,
+      "cache_write_5m": 0,
+      "cache_write_1h": 110653,
+      "api_equivalent_usd": 2.0085,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.97,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 33,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.61,
+      "active_minutes": 5.61,
+      "model_minutes": 3.53,
+      "tool_minutes": 2.08,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

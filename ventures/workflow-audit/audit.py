@@ -40,13 +40,13 @@ RANK = {"high": 3, "medium": 2, "low": 1, "none": 4}
 CHECKS = [
     ("injection", "type", {"pwn-request-checkout": "high", "script-injection": "high"}),
     ("secret-leak", "type", {"transformed-secret": "high", "unmasked-env-export": "medium"}),
-    ("artifact-poisoning", "type", {"artifact-executed": "high", "unscoped-artifact-download": "medium"}),
+    ("artifact-poisoning", "type", {"artifact-executed-after-untrusted-download": "high", "unscoped-artifact-download": "medium"}),
     ("cache-poisoning", "type", {"cache-write-on-untrusted-trigger": "high", "unscoped-restore-keys": "medium"}),
     ("self-hosted-exposure", "classification", {"fork-exposed": "high", "self-hosted-other-trigger": "low"}),
     ("secrets-inherit", "type", {"secrets-inherit-untrusted-trigger": "high", "secrets-inherit-external-workflow": "medium"}),
     ("permissions", "classification", {"write-all": "medium", "unspecified": "low"}),
-    ("checkout-credentials", "type", {"checkout-persists-credentials": "medium"}),
-    ("runtime-deprecation", "type", {"deprecated-runtime": "low"}),
+    ("checkout-credentials", "type", {"checkout-persists-credentials-with-upload": "high", "checkout-persists-credentials": "medium"}),
+    ("runtime-deprecation", "type", {"deprecated-runtime": "low", "shut-down-version": "medium"}),
     ("timeout", "type", {"job-missing-timeout": "low", "job-timeout-at-default": "low"}),
     ("unpinned-action", "type", {"unpinned-third-party-action": "medium", "unpinned-first-party-action": "low", "unpinned-docker-action": "low"}),
     ("deploy-concurrency", "type", {"no-concurrency": "medium", "per-run-concurrency-group": "medium", "cancel-in-progress-on-deploy": "medium", "split-concurrency-group": "low", "mutable-ref-checkout": "low"}),
@@ -287,7 +287,7 @@ def render_sarif(findings):
             "id": f["rule"],
             "name": f["rule"],
             "shortDescription": {"text": f"{f['check']}: {f['rule']}"},
-            "helpUri": "https://duncan-haywood.github.io/monorepo-projects/workflow-audit/",
+            "helpUri": "https://marisstella.app/workflow-audit/",
         })
     level = {"high": "error", "medium": "warning", "low": "note"}
     results = [{

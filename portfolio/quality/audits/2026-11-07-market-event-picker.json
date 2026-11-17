@@ -28,12 +28,12 @@
   {
    "severity": "medium",
    "what": "The 'negotiable' finding recommends a fee cut equal to the swap shortfall, with no cap at the event's actual fee and no margin over a tie: for the shipped example it says a $480.00 cut would make Harvest Fair the better pick although Harvest Fair's flat fee is $150 and its percentage fee is 0, so no fee cut can get there; at exactly $480.00 the two plans tie. A vendor could go into a fee negotiation on this number.",
-   "where": "ventures/market-event-picker/engine.mjs:281-283 (negotiable) and :307-308 (finding text)"
+   "where": "ventures/market-event-picker/engine.mjs:281-283 (negotiable) and :307-308 (finding text)", "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15848"
   },
   {
    "severity": "medium",
    "what": "Untested advisory layer: seeded mutation of the negotiable threshold (`s.shortfall < s.net * 1.5` -> `* 3`) passed all 29 tests; no test asserts the negotiable, plan-flips or long-week findings or their wording.",
-   "where": "ventures/market-event-picker/engine.test.mjs"
+   "where": "ventures/market-event-picker/engine.test.mjs", "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15848"
   },
   {
    "severity": "medium",
@@ -56,6 +56,6 @@
    "where": "ventures/market-event-picker/index.html (EXAMPLE_SOURCE), fixtures/events.csv"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/15848"],
  "verdict": "A small, genuinely correct tool: the optimiser matches an independent Python brute force on the 10-event fixture (8,721.00, same six events, all ten per-event nets), per-event nets and break-evens were recomputed by hand, four of five seeded engine mutations (weekly cap, overlap tolerance, weekly clustering, week boundary) were caught by the 29 passing tests, and the page loads cleanly in Chromium with local-only usage counting that the opt-out really stops. It does not meet the bar because claims scores 2: the advisory 'a fee cut of $480.00 would make Harvest Fair the better pick' is impossible for a $150 fee (and only ties at that figure), the CLI promises exit 2 on bad input but silently turns --cogs 150 into 35, llms.txt is calculator boilerplate pointing at the retired host, and the sitemap, robots and canonical URLs are relative so they likely do not work. The untested advisory layer (a seeded change to the negotiable threshold passed all tests) is where the one wrong output lives. Correctness 3, verification 3, claims 2 (so not at the bar); finished (completeness 3). Fixes are small: cap and pad the fee-cut finding, reject out-of-range options, fix llms.txt and the SEO URLs."
 }

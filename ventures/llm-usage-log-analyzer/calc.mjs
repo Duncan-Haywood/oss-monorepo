@@ -248,7 +248,7 @@ export function analyze(records, rates, options = {}) {
       title: `${g.key}: only ${(g.cacheHitRate * 100).toFixed(0)}% of input tokens were cache reads`,
       detail:
         `Reaching a ${(cacheTarget * 100).toFixed(0)}% cache-read share on this model's input would have moved ` +
-        `${Math.round(moved).toLocaleString()} tokens from the fresh rate to the cached rate. Upper bound: it ignores ` +
+        `${Math.round(moved).toLocaleString('en-US')} tokens from the fresh rate to the cached rate. Upper bound: it ignores ` +
         `cache-write cost and assumes the repeated prefix is long and stable enough to cache. ` +
         `Check that stable content (system prompt, tools, documents) comes first and is byte-identical between calls.`,
     });
@@ -278,7 +278,7 @@ export function analyze(records, rates, options = {}) {
         savings: null,
         title: `${big.length} request${big.length === 1 ? "" : "s"} sent more than ${outlierFactor}x the median input and cost ${(bigCost / total * 100).toFixed(0)}% of spend`,
         detail:
-          `Median input is ${Math.round(med).toLocaleString()} tokens. Look for unbounded conversation history, ` +
+          `Median input is ${Math.round(med).toLocaleString('en-US')} tokens. Look for unbounded conversation history, ` +
           `whole files pasted in place of a retrieved excerpt, or tool results that are never truncated.`,
       });
     }
@@ -328,11 +328,11 @@ export function reportText(analysis) {
     const text = format(Math.abs(n));
     return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
   };
-  const lines = [`LLM usage: ${analysis.requests.toLocaleString()} requests, ${usd(analysis.totalCost)} at the rates entered.`];
+  const lines = [`LLM usage: ${analysis.requests.toLocaleString('en-US')} requests, ${usd(analysis.totalCost)} at the rates entered.`];
   if (analysis.forecast) {
     lines.push(`Run rate: ${usd(analysis.forecast.dailyAvg)}/day over ${analysis.forecast.spanDays} days, about ${usd(analysis.forecast.projected30Days)} per 30 days.`);
   }
-  for (const g of analysis.byModel.slice(0, 5)) lines.push(`  ${g.key}: ${usd(g.cost)} (${g.requests.toLocaleString()} requests)`);
+  for (const g of analysis.byModel.slice(0, 5)) lines.push(`  ${g.key}: ${usd(g.cost)} (${g.requests.toLocaleString('en-US')} requests)`);
   if (analysis.unpricedRequests) lines.push(`Not priced (no rate entered): ${analysis.unpricedModels.join(", ")}.`);
   for (const f of analysis.findings) lines.push(`- ${f.title}${f.savings ? ` -- up to ${usd(f.savings)}` : ""}`);
   return lines.join("\n");

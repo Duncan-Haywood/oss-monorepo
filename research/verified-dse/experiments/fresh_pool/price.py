@@ -30,7 +30,17 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[1] / "src"))
 sys.path.insert(0, str(HERE))
 from verified_dse import flow  # noqa: E402
-from analyse import CLOCKS, regret, rand_regret  # noqa: E402
+
+def _sibling(path, name):
+    """Load a sibling experiment module by file path, so another experiment's module of the same name on sys.path cannot shadow it."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(name, path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+_a = _sibling(HERE / "analyse.py", "verified_dse_fresh_analyse")
+CLOCKS, regret, rand_regret = _a.CLOCKS, _a.regret, _a.rand_regret
 
 DRAWS = 200
 

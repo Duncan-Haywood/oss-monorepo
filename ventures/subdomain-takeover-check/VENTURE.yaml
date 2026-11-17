@@ -2,7 +2,7 @@ name: subdomain-takeover-check
 description: >-
   A free browser tool + CLI for developers, DevOps engineers, and security
   researchers: follows a hostname's real CNAME chain over public
-  DNS-over-HTTPS, matches the final target against 25 known takeover-prone
+  DNS-over-HTTPS, matches any target in the chain against 24 known takeover-prone
   hosting providers (S3, Heroku, GitHub Pages, Azure, Fastly, Shopify, and
   more), and -- for a match -- sends one live GET request checked against
   that specific provider's own "nothing is claimed at this name" fingerprint

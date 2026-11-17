@@ -1,0 +1,37 @@
+cell-fidelity milestone 5f, development replay (post hoc: these cells built the rule; pilot 8 SPMe runs, DFN on 2, r* 0.1, 30 draws)
+
+OKane2022: 128 designs (0 dropped)
+  branches: rule 1268 s (22 DFN calls, gap 0.0000) vs all-DFN 3499 s; cheaper rule (decisive)
+  switch over 30 pilots of 8: switched 0%, right branch 100%; median predicted share 0.27; median calls 23
+  wall time: median 1298 s = 1.024 x the cheaper branch (worst 1.048); worst pick gap 0.0000; worst recall when not switched 1.00
+  variant A (DFN on all 8 pilot designs): switched 0%, right 100%, median wall 1.149 x the cheaper branch, worst gap 0.0000
+Ecker2015: 64 designs (0 dropped)
+  branches: rule 401 s (7 DFN calls, gap 0.0000) vs all-DFN 1029 s; cheaper rule (decisive)
+  switch over 30 pilots of 8: switched 0%, right branch 100%; median predicted share 0.27; median calls 8
+  wall time: median 421 s = 1.051 x the cheaper branch (worst 1.102); worst pick gap 0.0000; worst recall when not switched 1.00
+  variant A (DFN on all 8 pilot designs): switched 0%, right 100%, median wall 1.279 x the cheaper branch, worst gap 0.0000
+Ai2020: 64 designs (0 dropped)
+  branches: rule 1452 s (61 DFN calls, gap 0.0000) vs all-DFN 1321 s; cheaper all-DFN (within 10%)
+  switch over 30 pilots of 8: switched 33%, right branch 33%; median predicted share 0.92; median calls 61
+  wall time: median 1452 s = 1.099 x the cheaper branch (worst 1.099); worst pick gap 0.0000; worst recall when not switched 1.00
+  variant A (DFN on all 8 pilot designs): switched 77%, right 77%, median wall 1.018 x the cheaper branch, worst gap 0.0000
+Mohtat2020: 64 designs (0 dropped)
+  branches: rule 255 s (3 DFN calls, gap 0.0000) vs all-DFN 524 s; cheaper rule (decisive)
+  switch over 30 pilots of 8: switched 0%, right branch 100%; median predicted share 0.36; median calls 5
+  wall time: median 272 s = 1.065 x the cheaper branch (worst 1.077); worst pick gap 0.0000; worst recall when not switched n/a
+  variant A (DFN on all 8 pilot designs): switched 0%, right 100%, median wall 1.245 x the cheaper branch, worst gap 0.0000
+NCA_Kim2011: 64 designs (0 dropped)
+  branches: rule 1255 s (58 DFN calls, gap 0.0000) vs all-DFN 1153 s; cheaper all-DFN (within 10%)
+  switch over 30 pilots of 8: switched 97%, right branch 97%; median predicted share 1.35; median calls 64
+  wall time: median 1175 s = 1.019 x the cheaper branch (worst 1.088); worst pick gap 0.0000; worst recall when not switched 1.00
+  variant A (DFN on all 8 pilot designs): switched 57%, right 57%, median wall 1.025 x the cheaper branch, worst gap 0.0000
+Marquis2019: 64 designs (0 dropped)
+  branches: rule 299 s (6 DFN calls, gap 0.0000) vs all-DFN 590 s; cheaper rule (decisive)
+  switch over 30 pilots of 8: switched 0%, right branch 100%; median predicted share 0.41; median calls 7
+  wall time: median 309 s = 1.034 x the cheaper branch (worst 1.073); worst pick gap 0.0000; worst recall when not switched n/a
+  variant A (DFN on all 8 pilot designs): switched 0%, right 100%, median wall 1.212 x the cheaper branch, worst gap 0.0000
+Chen2020: 64 designs (0 dropped)
+  branches: rule 371 s (15 DFN calls, gap 0.0000) vs all-DFN 427 s; cheaper rule (decisive)
+  switch over 30 pilots of 8: switched 10%, right branch 90%; median predicted share 0.78; median calls 15
+  wall time: median 371 s = 1.000 x the cheaper branch (worst 1.240); worst pick gap 0.0000; worst recall when not switched 1.00
+  variant A (DFN on all 8 pilot designs): switched 3%, right 97%, median wall 1.098 x the cheaper branch, worst gap 0.0000

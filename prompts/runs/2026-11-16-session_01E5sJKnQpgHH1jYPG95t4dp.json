@@ -1,0 +1,505 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKnQpgHH1jYPG95t4dp",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T14:22:53Z",
+  "ended": "2026-11-16T14:23:25Z",
+  "wall_minutes": 5.72,
+  "tokens_in": 2731674,
+  "tokens_out": 14802,
+  "cost_usd": 1.4032,
+  "tool_calls": 35,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16602",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam.py",
+      "issue": "`targets --probe 20` with no --under samples a random list; finding whether a specific recently-changed venture is fast needed --under ventures/<slug> per venture (shift-roster-builder: every file >20s)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b (leave an automated guard) not done beyond the new tests: the defect was a one-off comparison edge, and the class guard (JS/Python parity for continuations) already exists as a shell-out parity test; all 9 step-0 entries are control-plane with PRs already awaiting owner approval, so no duplicate PRs were opened.",
+      "did": "Added failing-first tests in both suites only.",
+      "result": "rerun: both gaps caught_after_fix true."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-redteam-a-forty-dollar-rate-that-covers-forty-dollars.md"
+  ],
+  "goal": null,
+  "notes": "node --test in moving-bid-calculator: 141 pass; docker-base-image-pin-check classify.test.mjs 37 pass, test_check OK. Catch rate 0.913 -> 1.0.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/moving-bid-calculator/calc.mjs",
+        "test": "node --test ventures/moving-bid-calculator/**/*.test.mjs  (in .)",
+        "seed": 807979984,
+        "commit": "b6c5b2ac3",
+        "sites": 197,
+        "baseline_seconds": 0.7,
+        "mutants": [
+          {
+            "file": "ventures/moving-bid-calculator/calc.mjs",
+            "line": 127,
+            "col": 73,
+            "operator": "false-to-true",
+            "before": "const crewSize = number(input.crewSize ?? 0, 'Crew size', { allowZero: false });",
+            "after": "const crewSize = number(input.crewSize ?? 0, 'Crew size', { allowZero: true });",
+            "line_text": "  const crewSize = number(input.crewSize ?? 0, 'Crew size', { allowZero: false });",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/moving-bid-calculator/calc.mjs",
+            "line": 143,
+            "col": 49,
+            "operator": "const-plus-one",
+            "before": "const clockHours = number(item.clockHours ?? 0, `${label}: clock hours`);",
+            "after": "const clockHours = number(item.clockHours ?? 1, `${label}: clock hours`);",
+            "line_text": "    const clockHours = number(item.clockHours ?? 0, `${label}: clock hours`);",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test priced an inventory row with clockHours omitted; added \"an inventory row with no clock hours adds none\" in calc.test.mjs."
+          },
+          {
+            "file": "ventures/moving-bid-calculator/calc.mjs",
+            "line": 153,
+            "col": 36,
+            "operator": "plus-to-minus",
+            "before": "const stairHours = (originFlights + destFlights) * (minutesPerFlight / 60) * factor;",
+            "after": "const stairHours = (originFlights - destFlights) * (minutesPerFlight / 60) * factor;",
+            "line_text": "  const stairHours = (originFlights + destFlights) * (minutesPerFlight / 60) * factor;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/moving-bid-calculator/calc.mjs",
+            "line": 153,
+            "col": 71,
+            "operator": "div-to-times",
+            "before": "const stairHours = (originFlights + destFlights) * (minutesPerFlight / 60) * factor;",
+            "after": "const stairHours = (originFlights + destFlights) * (minutesPerFlight * 60) * factor;",
+            "line_text": "  const stairHours = (originFlights + destFlights) * (minutesPerFlight / 60) * factor;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/moving-bid-calculator/calc.mjs",
+            "line": 192,
+            "col": 40,
+            "operator": "eq-flip",
+            "before": "const minimumHours = breakEvenHours === null ? null : Math.max(FLOOR_MINIMUM_HOURS, ceilTo(breakEvenHours, HOURS_STEP));",
+            "after": "const minimumHours = breakEvenHours !== null ? null : Math.max(FLOOR_MINIMUM_HOURS, ceilTo(breakEvenHours, HOURS_STEP));",
+            "line_text": "    const minimumHours = breakEvenHours === null ? null : Math.max(FLOOR_MINIMUM_HOURS, ceilTo(breakEvenHours, HOURS_STEP));",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/moving-bid-calculator/calc.mjs",
+            "line": 195,
+            "col": 32,
+            "operator": "times-to-div",
+            "before": "const billed = quotedRate * billedHours;",
+            "after": "const billed = quotedRate / billedHours;",
+            "line_text": "      const billed = quotedRate * billedHours;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/moving-bid-calculator/calc.mjs",
+            "line": 227,
+            "col": 42,
+            "operator": "times-to-div",
+            "before": "releasedLiabilityCap: estimatedWeight * releasedPerLb,",
+            "after": "releasedLiabilityCap: estimatedWeight / releasedPerLb,",
+            "line_text": "    releasedLiabilityCap: estimatedWeight * releasedPerLb,",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/moving-bid-calculator/calc.mjs",
+            "line": 261,
+            "col": 33,
+            "operator": "eq-flip",
+            "before": "pricePerCuFt: totalCubicFeet === 0 ? null : price / totalCubicFeet,",
+            "after": "pricePerCuFt: totalCubicFeet !== 0 ? null : price / totalCubicFeet,",
+            "line_text": "    pricePerCuFt: totalCubicFeet === 0 ? null : price / totalCubicFeet,",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/git-exposure-check/analyze.mjs",
+        "test": "node --test ventures/git-exposure-check/**/*.test.mjs  (in .)",
+        "seed": 834926693,
+        "commit": "b6c5b2ac3",
+        "sites": 29,
+        "baseline_seconds": 0.5,
+        "mutants": [
+          {
+            "file": "ventures/git-exposure-check/analyze.mjs",
+            "line": 48,
+            "col": 52,
+            "operator": "const-plus-one",
+            "before": "const HEAD_DETACHED_RE = /^(?:[0-9a-f]{40}|[0-9a-f]{64})$/i;",
+            "after": "const HEAD_DETACHED_RE = /^(?:[0-9a-f]{40}|[0-9a-f]{65})$/i;",
+            "line_text": "const HEAD_DETACHED_RE = /^(?:[0-9a-f]{40}|[0-9a-f]{64})$/i;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/git-exposure-check/analyze.mjs",
+            "line": 73,
+            "col": 17,
+            "operator": "false-to-true",
+            "before": "ok: p.ok !== false,",
+            "after": "ok: p.ok !== true,",
+            "line_text": "    ok: p.ok !== false,",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/git-exposure-check/analyze.mjs",
+            "line": 90,
+            "col": 34,
+            "operator": "eq-flip",
+            "before": "const p = probe && typeof probe === 'object' ? probe : {};",
+            "after": "const p = probe && typeof probe !== 'object' ? probe : {};",
+            "line_text": "  const p = probe && typeof probe === 'object' ? probe : {};",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/git-exposure-check/analyze.mjs",
+            "line": 97,
+            "col": 47,
+            "operator": "eq-flip",
+            "before": "const headExposed = head.ok && head.status === 200 && looksLikeGitHead(head.bodySample);",
+            "after": "const headExposed = head.ok && head.status !== 200 && looksLikeGitHead(head.bodySample);",
+            "line_text": "    const headExposed = head.ok && head.status === 200 && looksLikeGitHead(head.bodySample);",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/git-exposure-check/analyze.mjs",
+            "line": 97,
+            "col": 55,
+            "operator": "and-to-or",
+            "before": "const headExposed = head.ok && head.status === 200 && looksLikeGitHead(head.bodySample);",
+            "after": "const headExposed = head.ok && head.status === 200 || looksLikeGitHead(head.bodySample);",
+            "line_text": "    const headExposed = head.ok && head.status === 200 && looksLikeGitHead(head.bodySample);",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/git-exposure-check/analyze.mjs",
+            "line": 98,
+            "col": 57,
+            "operator": "const-plus-one",
+            "before": "const configExposed = config.ok && config.status === 200 && looksLikeGitConfig(config.bodySample);",
+            "after": "const configExposed = config.ok && config.status === 201 && looksLikeGitConfig(config.bodySample);",
+            "line_text": "    const configExposed = config.ok && config.status === 200 && looksLikeGitConfig(config.bodySample);",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/git-exposure-check/analyze.mjs",
+            "line": 100,
+            "col": 20,
+            "operator": "and-to-or",
+            "before": "if (headExposed && configExposed) {",
+            "after": "if (headExposed || configExposed) {",
+            "line_text": "    if (headExposed && configExposed) {",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/git-exposure-check/analyze.mjs",
+            "line": 156,
+            "col": 20,
+            "operator": "and-to-or",
+            "before": "ok: !incomplete && dangerCount === 0,",
+            "after": "ok: !incomplete || dangerCount === 0,",
+            "line_text": "    ok: !incomplete && dangerCount === 0,",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/docker-base-image-pin-check/classify.mjs",
+        "test": "node --test ventures/docker-base-image-pin-check/**/*.test.mjs  (in .)",
+        "seed": 1034686301,
+        "commit": "b6c5b2ac3",
+        "sites": 44,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 42,
+            "col": 69,
+            "operator": "plus-to-minus",
+            "before": "return { name: ref.slice(0, at), tag: null, digest: ref.slice(at + 1) };",
+            "after": "return { name: ref.slice(0, at), tag: null, digest: ref.slice(at - 1) };",
+            "line_text": "    return { name: ref.slice(0, at), tag: null, digest: ref.slice(at + 1) };",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 98,
+            "col": 14,
+            "operator": "const-plus-one",
+            "before": "let start = 0;",
+            "after": "let start = 1;",
+            "line_text": "  let start = 0;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "start is assigned i + 1 every time a new buffer opens, before any read; the initial value is never observed (same in check.py)."
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 100,
+            "col": 20,
+            "operator": "lt-to-le",
+            "before": "for (let i = 0; i < lines.length; i++) {",
+            "after": "for (let i = 0; i <= lines.length; i++) {",
+            "line_text": "  for (let i = 0; i < lines.length; i++) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 112,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "buffer += trimmed.slice(0, -1) + \" \";",
+            "after": "buffer += trimmed.slice(0, -2) + \" \";",
+            "line_text": "      buffer += trimmed.slice(0, -1) + \" \";",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Every continuation fixture had a space before the backslash, so slicing two characters looked the same. Added a FROM node:20\\\\ AS build case to classify.test.mjs and test_check.py."
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 112,
+            "col": 37,
+            "operator": "plus-to-minus",
+            "before": "buffer += trimmed.slice(0, -1) + \" \";",
+            "after": "buffer += trimmed.slice(0, -1) - \" \";",
+            "line_text": "      buffer += trimmed.slice(0, -1) + \" \";",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 114,
+            "col": 30,
+            "operator": "plus-to-minus",
+            "before": "out.push([start, buffer + line]);",
+            "after": "out.push([start, buffer - line]);",
+            "line_text": "      out.push([start, buffer + line]);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 132,
+            "col": 24,
+            "operator": "const-plus-one",
+            "before": "const alias = match[2];",
+            "after": "const alias = match[3];",
+            "line_text": "    const alias = match[2];",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 137,
+            "col": 23,
+            "operator": "eq-flip",
+            "before": "if (classification === MUTABLE) {",
+            "after": "if (classification !== MUTABLE) {",
+            "line_text": "    if (classification === MUTABLE) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/moving-bid-calculator/calc.mjs",
+        "issue": "hourly quote: with no fixed job cost and 0% margin the suggested rate equals the loaded labor rate exactly (crew 2 x $20 -> $40/h), and the page said the rate 'does not cover the crew's loaded labor ... every extra hour loses more', break-even 'never', minimum 'none works', though every hour nets $0 (the code comment said belowLaborCost is never true for the suggested rate). Fixed: belowLaborCost is strict, and break-even/margin hours are 0 when nothing is left per hour and nothing fixed needs covering.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5059c9c7-b3f8-59f4-a67d-e56b03eb0504",
+    "transcripts": 1,
+    "first": "2026-11-16T14:22:53Z",
+    "last": "2026-11-16T14:28:36Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 35,
+        "input": 69,
+        "output": 14802,
+        "thinking": 4370,
+        "cache_read": 2659737,
+        "cache_write_5m": 0,
+        "cache_write_1h": 71868,
+        "api_equivalent_usd": 1.4032,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 35,
+      "input": 69,
+      "output": 14802,
+      "thinking": 4370,
+      "cache_read": 2659737,
+      "cache_write_5m": 0,
+      "cache_write_1h": 71868,
+      "api_equivalent_usd": 1.4032,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 33,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.72,
+      "active_minutes": 5.72,
+      "model_minutes": 2.57,
+      "tool_minutes": 3.15,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "seeding/triaging 24 mutants, one edge-case fix with tests, short post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 213.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

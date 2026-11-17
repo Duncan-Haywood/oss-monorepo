@@ -202,7 +202,7 @@
   </footer>
   <script type="module">
     import { applyPlanPreset, expectedProfitAfterRefunds, refundRateSweep } from "./calc.mjs";
-    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from "./usage.mjs";
 
     const ids = [
       "price", "shippingCharged", "refundRatePercent", "returnShippingCost",
@@ -288,14 +288,13 @@
       document.getElementById("shopifyTxnRate").value = filled.shopifyTxnRate;
       document.getElementById("monthlyPlan").value = filled.monthlyPlan;
       update();
-      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "plan_preset_applied");
+      recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "plan_preset_applied");
     }
 
     document.getElementById("plan").addEventListener("change", applyPlan);
     ids.forEach((id) => document.getElementById(id).addEventListener("input", update));
     ids.forEach((id) => document.getElementById(id).addEventListener("change", () => {
-      recordUsage(
-        localStorage,
+      recordUsage(usageStorage(),
         document.getElementById("usageOptOut").checked,
         id === "refundRatePercent" ? "refund_rate_compared" : "order_profit_calculated",
       );
@@ -303,12 +302,12 @@
     document.querySelectorAll('input[name="paymentMethod"]').forEach((el) => {
       el.addEventListener("change", () => {
         update();
-        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "payment_path_compared");
+        recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "payment_path_compared");
       });
     });
     document.getElementById("usageOptOut").addEventListener("change", update);
     update();
-    recordUsage(localStorage, document.getElementById("usageOptOut").checked, "refund_rate_compared");
+    recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "refund_rate_compared");
 
     // Remember the visitor's usage-counting choice between visits, and
     // show it on arrival. The control was read on every record call and
@@ -318,16 +317,16 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl && 'checked' in usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       } else if (usageControl) {
         const paint = () => {
-          usageControl.textContent = readOptOut(localStorage)
+          usageControl.textContent = readOptOut(usageStorage())
             ? 'Usage counting is off'
             : 'Turn off local usage counting';
         };
         usageControl.addEventListener('click', () => {
-          writeOptOut(localStorage, !readOptOut(localStorage));
+          writeOptOut(usageStorage(), !readOptOut(usageStorage()));
           paint();
         });
         paint();

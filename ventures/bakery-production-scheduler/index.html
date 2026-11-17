@@ -32,7 +32,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5268; }
     .finding { border-bottom: 1px solid #e3eaf8; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -124,13 +124,13 @@
       const open = parseTime($("open").value);
       let h = "";
       if (!Number.isFinite(open)) errors.push('The earliest start must be a time like 1:00am.');
-      if (errors.length) h += `<div class="finding"><h4><span class="pill high">Fix</span>Some lines were not understood</h4>${errors.map((e) => `<p class="error">${esc(e)}</p>`).join("")}</div>`;
+      if (errors.length) h += `<div class="finding"><h3><span class="pill high">Fix</span>Some lines were not understood</h3>${errors.map((e) => `<p class="error">${esc(e)}</p>`).join("")}</div>`;
       if (!orders.length || !Number.isFinite(open)) { $("result").innerHTML = h || '<p class="error">Add at least one order.</p>'; $("out").hidden = false; return; }
       const opts = { ovens: Math.max(1, num($("ovens").value) || 1), bakers: Math.max(1, num($("bakers").value) || 1), open, cool: Math.max(0, num($("cool").value) || 0) };
       const plan = schedule(products, orders, opts);
       const eco = orders.map(orderEconomics);
       const rev = eco.reduce((a, e) => a + e.revenue, 0), cost = eco.reduce((a, e) => a + e.cost, 0);
-      h += `<div class="finding"><h4><span class="pill ${plan.feasible ? "info" : "high"}">${plan.feasible ? "Fits" : "Does not fit"}</span>First person starts at ${formatTime(plan.earliest)}</h4><p class="stats">${plan.batches.length} batches · ${Math.round(plan.ovenMinutes / 60 * 10) / 10} oven hours · ${money(rev)} sold − ${money(cost)} unit cost = ${money(rev - cost)}</p>`;
+      h += `<div class="finding"><h3><span class="pill ${plan.feasible ? "info" : "high"}">${plan.feasible ? "Fits" : "Does not fit"}</span>First person starts at ${formatTime(plan.earliest)}</h3><p class="stats">${plan.batches.length} batches · ${Math.round(plan.ovenMinutes / 60 * 10) / 10} oven hours · ${money(rev)} sold − ${money(cost)} unit cost = ${money(rev - cost)}</p>`;
       if (plan.feasible) h += `<p>That is ${Math.round(plan.earliest - plan.open)} minutes of slack: the first prep starts that long after the earliest start you allowed.</p>`;
       else {
         h += `<p>The plan has to start ${Math.round(plan.shortBy)} minutes before your earliest start of ${formatTime(open)}.</p>`;
@@ -141,9 +141,9 @@
         if (d.dropped.length) h += `<p><strong>Or turn down</strong> (lowest profit per oven hour first): ${d.dropped.map((o) => esc(`${o.label} — ${o.qty} ${o.product.name}`)).join("; ")}. What remains starts at ${d.plan.earliest === null ? "—" : formatTime(d.plan.earliest)}.</p>`;
       }
       h += `</div>`;
-      h += `<div class="finding"><h4>Timeline (earliest start first)</h4>${timeline(plan)}</div>`;
-      h += `<div class="finding"><h4>By order</h4><div class="scroll"><table><thead><tr><th>Order</th><th class="n">Batches</th><th class="n">Left over</th><th class="n">Oven min</th><th class="n">Profit</th><th class="n">Profit / oven hour</th></tr></thead><tbody>${orders.map((o, i) => `<tr><td>${esc(o.label)} — ${o.qty} ${esc(o.product.name)}</td><td class="n">${eco[i].batches}</td><td class="n">${eco[i].leftover}</td><td class="n">${eco[i].ovenMinutes}</td><td class="n">${money(eco[i].profit)}</td><td class="n">${money(eco[i].profitPerOvenHour)}</td></tr>`).join("")}</tbody></table></div></div>`;
-      h += `<div class="finding"><h4>Day totals (production pull list)</h4><div class="scroll"><table><thead><tr><th>Product</th><th class="n">Ordered</th><th class="n">Batches</th><th class="n">To make</th></tr></thead><tbody>${dayTotals(orders).map((t) => `<tr><td>${esc(t.name)}</td><td class="n">${t.ordered}</td><td class="n">${t.batches}</td><td class="n">${t.made}</td></tr>`).join("")}</tbody></table></div></div>`;
+      h += `<div class="finding"><h3>Timeline (earliest start first)</h3>${timeline(plan)}</div>`;
+      h += `<div class="finding"><h3>By order</h3><div class="scroll"><table><thead><tr><th>Order</th><th class="n">Batches</th><th class="n">Left over</th><th class="n">Oven min</th><th class="n">Profit</th><th class="n">Profit / oven hour</th></tr></thead><tbody>${orders.map((o, i) => `<tr><td>${esc(o.label)} — ${o.qty} ${esc(o.product.name)}</td><td class="n">${eco[i].batches}</td><td class="n">${eco[i].leftover}</td><td class="n">${eco[i].ovenMinutes}</td><td class="n">${money(eco[i].profit)}</td><td class="n">${money(eco[i].profitPerOvenHour)}</td></tr>`).join("")}</tbody></table></div></div>`;
+      h += `<div class="finding"><h3>Day totals (production pull list)</h3><div class="scroll"><table><thead><tr><th>Product</th><th class="n">Ordered</th><th class="n">Batches</th><th class="n">To make</th></tr></thead><tbody>${dayTotals(orders).map((t) => `<tr><td>${esc(t.name)}</td><td class="n">${t.ordered}</td><td class="n">${t.batches}</td><td class="n">${t.made}</td></tr>`).join("")}</tbody></table></div></div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       record("plan_run");

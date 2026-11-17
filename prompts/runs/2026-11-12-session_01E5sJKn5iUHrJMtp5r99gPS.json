@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKn5iUHrJMtp5r99gPS",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T21:25:29Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship changepoint-detector (allocate.py row 2): plain-terms budget box on the page's How eager hint button",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15263",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First browser-check run failed two checks: 30 a week gave a 429-per-100 budget (more than one alert per check) and the error message said 'dayly'",
+      "fix": "budgetFromPlain refuses over one alert per check; adjective map for the cadence"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Starting run_venture_tests.py with a shell '&' inside a foreground Bash call left it attached and its log empty until killed; run_in_background is the only reliable way, as cloud-session.md says"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-how-many-alerts-a-month-would-you-put-up-with.md",
+    "ventures/changepoint-detector/README.md (A budget box on the page)"
+  ],
+  "goal": "Flagship depth: the watch's eagerness hint usable with a budget a person states in plain words",
+  "notes": "Page: budget box (about n alerts a year/month/week, checked every day/hour/week) re-picks via new suggestFor() without a second replay; off-budget caveat in eagernessText; budgetFromPlain refuses >1 alert per check; under-default budgets no longer get the wandering-level advice; under 30 points the hint keeps Quiet on page, --suggest and agent tool (as --detector auto did). Checks: watch-eagerness/watch-auto/watch-page/page tests pass; eval/watch-eagerness-browser.mjs 15/15 in headless Chromium at 390px; full venture suite and venture-preflight run locally (see PR). Real-series reading of 7 data/ series at 4 budgets in README; deciding nothing.",
+  "corrections": [],
+  "redteam": null
+}

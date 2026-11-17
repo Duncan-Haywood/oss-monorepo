@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-labelledby="t d" font-family="sans-serif" font-size="12">
-<title id="t">Rank agreement does not predict screen payoff</title>
+<title id="t">Screens with the same rank agreement pay off very differently (k = 3)</title>
 <desc id="d">Each dot is a cheap screen for the mapped latency of 40 MAC engines. Horizontal: Spearman rank agreement with the truth. Vertical: probability the best design of a random pool of 20 is among the 3 the screen sends to the mapper.</desc>
 <rect width="640" height="420" fill="#fff"/>
 <line x1="70.0" y1="50" x2="70.0" y2="360" stroke="#e3e6ea"/><text x="70.0" y="376" text-anchor="middle" fill="#333">0.5</text>

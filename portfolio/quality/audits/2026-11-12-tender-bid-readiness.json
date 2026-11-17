@@ -1,0 +1,276 @@
+{
+  "date": "2026-11-12",
+  "subject": "ventures/tender-bid-readiness",
+  "stratum": "venture",
+  "seed": "2026-11-12-l",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a senior capture / proposal manager who runs bid/no-bid on US federal and state construction solicitations (APMP-trained). They would check first that a bid-guarantee or bond requirement written in FAR 52.228-1 language is caught, that the bid deadline is not confused with the question deadline, that amendments (SF 30) and a mandatory site visit are flagged, and that set-aside / size-standard eligibility is checked",
+  "scores": {
+    "correctness": 1,
+    "completeness": 3,
+    "verification": 1,
+    "craft": 2,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran check.mjs (identical to the served https://marisstella.app/tender-bid-readiness/check.mjs) on FAR clause text fetched from acquisition.gov (52.228-1, 52.228-15, 52.236-27, 52.214-7, 52.215-1, 52.204-7) and on hand-written standard solicitation sentences, with expected results from reading the text as a capture manager would. Passes: 52.228-15 performance/payment bonds found, 52.236-27 site visit found, 52.204-7 SAM registration found (3). Failures: 52.228-1(a)+(c) bid guarantee requirement scores 0 (bond missed because the FAR says 'bid guarantee'); the full 52.228-1 scores 43% with insurance found inside 'coinsurance' and certification on 'certified check'; 52.214-7(a) deadline evidence is the single word 'due.'; with a question deadline before the bid deadline the question date is shown as the submission deadline; 'received no later than', 'publicly opened at' and 'acknowledge ... amendments ... SF 30' all score 0; negations ('A bid bond is not required', 'No site visit will be held') count as found; 'Due to' counts as a deadline. 3 pass, 1 partial, 5 fail of 9 recomputed rows. False positives are cheap (an excerpt is shown); the false negatives on federal standard vocabulary are not. 1.",
+    "completeness": "Every feature README and page name works end to end: paste, Check readiness, seven signals with action text and evidence excerpt, Clear, '% signal coverage' with the 'Green means a phrase was found' caveat, local-only usage counter honoring DNT/GPC with the opt-out persisted, guide and vs pages, links to existing sibling ventures (tender-radar, rfp-compliance-matrix, contractor-bid-readiness), sitemap/robots. No TODOs or stubs. Served page, llms.txt and vs page return 200. 3.",
+    "verification": "`cd ventures/tender-bid-readiness && node --test '*.test.mjs'`: 16 tests, 16 pass, 0.13 s. Only 4 tests touch check.mjs, all on the author's own phrasing; the rest are page-string greps. quality_mutate.py on check.mjs: 2 of 6 mutants caught (insurance alternative removed; site-visit alternative removed); survived: performance/payment bond dropped from the bond rule, bare 'due' dropped from the deadline rule, Math.round -> Math.floor in the score, and the all-found warning boundary off by one. No test uses real solicitation text. 1.",
+    "craft": "Read check.mjs (27 lines), index.html script, all three test files. The engine is a list of seven case-insensitive regexes with String.match: no word boundaries (\\bdue\\b, insurance inside coinsurance), first match only, no negation handling, no handling of the FAR vocabulary, the evidence window cut at a newline. Page script is minified one-liners with mixed indentation in the preference IIFE (index.html:33-34); escapeHtml used correctly on all output. Small and readable, but the matching is naive for its job. 2.",
+    "claims": "Backed: local-only processing (no fetch in check.mjs or index.html script, usage counter writes localStorage only), disclaimers (No warranty and no-SLA on index, guide, vs page and README), 'heuristic' and 'green means found, not satisfied' caveats, GovWin IQ identity (Deltek's own page: 'Find Leads First', forecasting, agency history, competitive context, SLED/Canada), non-affiliation line, no invented price. Not backed or unfair: vs-govwin.html:54 says reading one solicitation's requirements 'is not that platform's job' and :34 'This checker does none of what GovWin IQ does', and the table routes the go/no-go question to this checker alone, while Deltek's page markets 'Dela AI ... summarize documents, and score lead fit', 'Smart Fit Scores' and 'go/no-go decisions'; the index FAQ's 'within 100 characters of a match' misdescribes the matcher; llms.txt says 'numbers typed in'; the vs page publishes an internal note that pricing was 'not reachable from this session'. 2.",
+    "fitness": "Walked the job: a small contractor pastes a federal construction IFB built from standard FAR clauses. The checklist of seven things to verify is a useful reminder, but on the FAR's own wording the bond finding can read 'Not found' (bid guarantee), amendments are not flagged, the deadline excerpt can be the question deadline or the single word 'due.', and set-aside eligibility is not mentioned. Spurious matches raise the percentage, so the score is not a usable signal. A contractor still has to read the whole notice for exactly the items the tool lists. Usable as a printed checklist, not as an extractor. 2.",
+    "domain": "A senior capture/proposal manager (APMP practice) separates a compliance gate (eligibility, set-aside and size standard, SAM/UEI, bonding capacity, insurance, licences, mandatory site visit, amendment acknowledgement, deadlines, submission method) from the scored bid/no-bid (customer, competition, capability, past performance, price-to-win). The tool covers part of the gate and none of the scoring, which the README states. Within the gate it misses the FAR terms (bid guarantee per FAR 28.101/52.228-1, amendment per 52.214-3/15.208, time set for receipt/bid opening per 52.214-7 and 14.402) and has no set-aside, acceptance-period or wage-determination signal. The guide page's practice advice (two deadlines, additional insured, surety relationship) is sound but not implemented. 2."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "FAR 52.228-1 Bid Guarantee, paragraphs (a) and (c) only (a bid-guarantee requirement worded as the FAR words it, without the phrase 'bid bond')",
+      "method": "FAR 52.228-1 (Sept 1996) text from acquisition.gov; FAR 28.101 calls the requirement a 'bid guarantee'. A capture manager reads (a)+(c) as 'bond required, amount ___% of bid price'",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/64a26cf7-11a6-5ac2-8c81-609a7f7e7d3d/scratchpad/far && node probe.mjs  (probe.mjs imports ventures/tender-bid-readiness/check.mjs; FAR clause text fetched with curl from https://www.acquisition.gov/far/<clause> on 2026-11-12)",
+      "expected": "bond: found (bid guarantee required, evidence on (a) or (c))",
+      "observed": "score 0; bond not found; no finding at all",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "FAR 52.228-1 full clause text: which signals are real",
+      "method": "Hand reading of FAR 52.228-1: it requires a bid guarantee (bond); it says nothing about insurance limits or licences. 'coinsurance or reinsurance agreements' refers to surety reinsurance; 'certified check' is a form of guarantee",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/64a26cf7-11a6-5ac2-8c81-609a7f7e7d3d/scratchpad/far && node probe.mjs  (probe.mjs imports ventures/tender-bid-readiness/check.mjs; FAR clause text fetched with curl from https://www.acquisition.gov/far/<clause> on 2026-11-12)",
+      "expected": "bond found; insurance not found; certification not found (score 14%)",
+      "observed": "score 43%; bond found (good); insurance found on 'insurance or reinsurance agreements' (matched inside 'coinsurance'); certification found on 'certified check, cashier's check'",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "FAR 52.214-7(a) and 52.215-1(c)(3)(i): submission deadline",
+      "method": "FAR text: deadline is 'the time specified in the IFB' / '4:30 p.m., local time ... on the date that bids are due'",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/64a26cf7-11a6-5ac2-8c81-609a7f7e7d3d/scratchpad/far && node probe.mjs  (probe.mjs imports ventures/tender-bid-readiness/check.mjs; FAR clause text fetched with curl from https://www.acquisition.gov/far/<clause> on 2026-11-12)",
+      "expected": "deadline found with an excerpt that locates the time",
+      "observed": "deadline found, but the evidence excerpt is the single word 'due.' (end of the line), so it points at no time or date; submission found on 'submitting bids'",
+      "result": "partial"
+    },
+    {
+      "dimension": "correctness",
+      "what": "FAR 52.236-27 Site Visit (Construction), basic provision",
+      "method": "FAR 52.236-27 text: offerors 'urged and expected to inspect the site'; 'Site visits may be arranged'",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/64a26cf7-11a6-5ac2-8c81-609a7f7e7d3d/scratchpad/far && node probe.mjs  (probe.mjs imports ventures/tender-bid-readiness/check.mjs; FAR clause text fetched with curl from https://www.acquisition.gov/far/<clause> on 2026-11-12)",
+      "expected": "site-visit found (action correctly asks whether it is mandatory)",
+      "observed": "site-visit found, evidence 'Site Visit (Construction) (Feb 1995)'",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "FAR 52.228-15(b) performance and payment bonds (100% of contract price)",
+      "method": "FAR 52.228-15 (Jun 2020) text",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/64a26cf7-11a6-5ac2-8c81-609a7f7e7d3d/scratchpad/far && node probe.mjs  (probe.mjs imports ventures/tender-bid-readiness/check.mjs; FAR clause text fetched with curl from https://www.acquisition.gov/far/<clause> on 2026-11-12)",
+      "expected": "bond found",
+      "observed": "bond found: 'payment bonds to the Contracting Officer as follows:'",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "FAR 52.204-7(b)(1) SAM registration requirement",
+      "method": "FAR 52.204-7 text: offeror must be registered in SAM",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/64a26cf7-11a6-5ac2-8c81-609a7f7e7d3d/scratchpad/far && node probe.mjs  (probe.mjs imports ventures/tender-bid-readiness/check.mjs; FAR clause text fetched with curl from https://www.acquisition.gov/far/<clause> on 2026-11-12)",
+      "expected": "certification/registration found",
+      "observed": "certification found on 'registration is not possible when submitting...'",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "two deadlines: 'Questions must be submitted by 1 December 2026.' newline 'Bids are due 15 December 2026 at 2:00 PM local time.'",
+      "method": "The venture's own guide (should-i-bid-on-this-tender.html, 'Two deadlines, not one') and standard practice: the bid deadline and the question deadline are different dates",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/64a26cf7-11a6-5ac2-8c81-609a7f7e7d3d/scratchpad/far && node probe.mjs  (probe.mjs imports ventures/tender-bid-readiness/check.mjs; FAR clause text fetched with curl from https://www.acquisition.gov/far/<clause> on 2026-11-12)",
+      "expected": "deadline evidence = the bid due date (15 December); questions evidence = 1 December",
+      "observed": "deadline evidence 'submitted by 1 December 2026.' (the question deadline reported as the submission deadline); the 15 December bid deadline is never shown",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "common deadline / amendment / opening phrasings without the trigger words",
+      "method": "Standard US solicitation wording (SF 30 amendment acknowledgement per FAR 52.214-3 / 15.208; public bid opening per FAR 14.402); inputs: 'Proposals must be received no later than 2:00 PM EST on 15 December 2026.', 'Offerors must acknowledge receipt of all amendments to this solicitation on SF 30.', 'Bids will be publicly opened at 2:00 PM local time on 15 December 2026.'",
+      "command": "node -e (checkTender on each string)",
+      "expected": "deadline found for the first and third; questions/addenda found for the amendment sentence",
+      "observed": "all three score 0, nothing found",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "negations and loose matches",
+      "method": "Hand reading: 'A bid bond is not required for this procurement. No site visit will be held.'; 'Due to site constraints, deliveries are limited to weekdays.'; 'Contractor shall submit certified payroll weekly (Davis-Bacon).'",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/64a26cf7-11a6-5ac2-8c81-609a7f7e7d3d/scratchpad/far && node probe.mjs  (probe.mjs imports ventures/tender-bid-readiness/check.mjs; FAR clause text fetched with curl from https://www.acquisition.gov/far/<clause> on 2026-11-12)",
+      "expected": "bond and site visit flagged as not required (or at least not counted toward coverage); no deadline; no licence requirement",
+      "observed": "bond and site-visit counted as found (29%); 'Due to' counted as the deadline; 'certified payroll' counted as a licence/certification",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run",
+      "command": "cd ventures/tender-bid-readiness && node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "16 tests, 16 pass, 0.13 s (check.test.mjs 4, page.test.mjs 3, vs-govwin.test.mjs 9)",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "README/page features end to end",
+      "method": "read index.html script and check.mjs; probe runs",
+      "command": "grep and node probe",
+      "expected": "paste, check, seven signals with evidence excerpts and actions, clear, local usage counter honoring DNT/GPC with persisted opt-out, links to guide, vs page and siblings",
+      "observed": "all present and working; sibling dirs ventures/tender-radar, rfp-compliance-matrix, contractor-bid-readiness exist; no TODOs",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "served page and llms.txt",
+      "method": "curl -sSL https://marisstella.app/tender-bid-readiness/{,llms.txt,check.mjs,vs-govwin.html}",
+      "command": "curl",
+      "expected": "200, served check.mjs equals source",
+      "observed": "200 for all (.html 307 to extensionless); served check.mjs identical to source; served llms.txt has marisstella.app URLs (source github.io URLs are rewritten at deploy)",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "vs-govwin.html: 'reading one solicitation's own bond, insurance, and deadline requirements is not that platform's job' and 'This checker does none of what GovWin IQ does'",
+      "method": "Deltek's own GovWin IQ page, curl -sSL https://www.deltek.com/en/government-contracting/govwin -> https://www.deltek.com/products/govwin/ (2026-11-12)",
+      "command": "curl + text search",
+      "expected": "the comparison describes GovWin IQ's document and go/no-go features fairly",
+      "observed": "Deltek's page says 'Dela AI builds on that foundation to surface opportunities, summarize documents, and score lead fit', answers 'Can GovWin IQ help me decide which opportunities are worth pursuing? Yes. Smart Fit Scores...', and markets 'go/no-go decisions based on evidence'. The vs page omits document summaries and fit scoring and routes the go/no-go row to this checker only",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "vs-govwin.html identity claims: GovWin IQ from Deltek, opportunity discovery/forecasting, agency history, competitive context, account-based; non-affiliation; no price claimed",
+      "method": "Deltek GovWin IQ page (as above)",
+      "command": "curl + text search",
+      "expected": "backed",
+      "observed": "backed: 'Find Leads First', forecast/pre-RFP tracking, 'agency history, and competitive context', SLED and Canada coverage; non-affiliation line present; no $ figure (test enforces)",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "index.html FAQ: patterns matched 'within 100 characters of a match'; llms.txt 'Results are estimates from the numbers typed in'",
+      "method": "check.mjs:2-8 regexes",
+      "command": "read",
+      "expected": "accurate description",
+      "observed": "the 100 characters are the excerpt captured after the keyword up to a newline, not a match window; llms.txt boilerplate talks of numbers though the tool takes text",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "disclaimer on every surface",
+      "method": "read index.html footer, both content pages, README, llms.txt",
+      "command": "grep -c 'No warranty'",
+      "expected": "present",
+      "observed": "No warranty + no-SLA on index, guide and vs page, README; llms.txt has a short not-advice line; 'Green means a phrase was found, not that the requirement is satisfied' on the result",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "coverage of US public-bid gating items",
+      "method": "Standard capture/proposal practice (APMP Body of Knowledge bid/no-bid; FAR Part 19 set-asides, 52.204-7 SAM, 52.214-3 amendments, 28.101 bid guarantee, 28.102 Miller Act bonds), from my own knowledge except the FAR clauses fetched above",
+      "command": "read check.mjs rules",
+      "expected": "set-aside / size-standard eligibility, amendment acknowledgement, bid acceptance period, bonding capacity, wage determinations at least flagged",
+      "observed": "none of these has a signal; the small-business set-aside sentence scores 0. No weighting of the multi-factor bid/no-bid (customer, competition, capability, price-to-win) that the page title 'Should I bid' suggests, though the README limits the claim to paperwork",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "ventures/tender-bid-readiness/check.mjs:4",
+      "change": "insurance regex drops bare 'insurance' alternative",
+      "caught": true,
+      "test_cmd": "cd ventures/tender-bid-readiness && node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/tender-bid-readiness/check.mjs:6",
+      "change": "site-visit regex drops '|site visit' alternative",
+      "caught": true,
+      "test_cmd": "cd ventures/tender-bid-readiness && node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/tender-bid-readiness/check.mjs:3",
+      "change": "(?:bid|tender|performance|payment) bond -> (?:bid|tender) bond (performance and payment bonds no longer detected)",
+      "caught": false,
+      "test_cmd": "cd ventures/tender-bid-readiness && node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/tender-bid-readiness/check.mjs:2",
+      "change": "deadline regex drops bare 'due' alternative ('Bids are due ...' no longer detected)",
+      "caught": false,
+      "test_cmd": "cd ventures/tender-bid-readiness && node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/tender-bid-readiness/check.mjs:20",
+      "change": "Math.round -> Math.floor in the coverage score",
+      "caught": false,
+      "test_cmd": "cd ventures/tender-bid-readiness && node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/tender-bid-readiness/check.mjs:24",
+      "change": "found < rules.length -> found < rules.length - 1 (6 of 7 reported as 'All common readiness signals were found')",
+      "caught": false,
+      "test_cmd": "cd ventures/tender-bid-readiness && node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "Misses the FAR's own wording for core requirements: a bid-guarantee requirement worded as FAR 52.228-1(a)/(c) ('bid guarantee', no 'bid bond') scores 0; amendment acknowledgement ('amendments', SF 30) is not a questions/addenda signal; 'must be received no later than' and 'publicly opened at' are not deadlines. A user reads 'Not found: bond' on a federal IFB that requires one",
+      "where": "ventures/tender-bid-readiness/check.mjs:3",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Only the first match per signal is kept, so with 'Questions must be submitted by 1 December' before 'Bids are due 15 December' the deadline finding shows the question deadline; the guide page's own 'two deadlines, not one' rule is not implemented",
+      "where": "ventures/tender-bid-readiness/check.mjs:15",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "No word boundaries or negation: 'coinsurance' -> insurance, 'certified check' and 'certified payroll' -> certification, 'Due to site constraints' -> deadline, 'A bid bond is not required' and 'No site visit will be held' -> found; all raise the coverage percentage. FAR 52.228-1 alone scores 43% with 2 of 3 findings spurious",
+      "where": "ventures/tender-bid-readiness/check.mjs:2",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "Tests only use the author's own phrasing; 4 of 6 seeded mutations survive, including dropping performance/payment bond detection and dropping bare 'due' from the deadline rule, and the partial-coverage score and the all-found warning boundary are untested",
+      "where": "ventures/tender-bid-readiness/check.test.mjs:5",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "vs-govwin.html says reading one solicitation's requirements 'is not that platform's job' and that this checker 'does none of what GovWin IQ does' while routing go/no-go to this checker; Deltek's GovWin IQ page (2026-11-12) markets Dela AI document summaries, Smart Fit Scores and go/no-go decision support. The comparison understates the competitor",
+      "where": "ventures/tender-bid-readiness/vs-govwin.html:54",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "medium",
+      "what": "No signal for small-business set-aside / NAICS size-standard eligibility, bid acceptance period or wage determinations, which a capture manager checks first on a US public bid",
+      "where": "ventures/tender-bid-readiness/check.mjs:1",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "FAQ says patterns are matched 'within 100 characters of a match'; the 100 characters are only the evidence excerpt after the keyword, cut at a newline (a FAR 52.214-7(a) deadline excerpt is just 'due.'). llms.txt says 'Results are estimates from the numbers typed in' for a text tool. vs-govwin.html tells the public that pricing was 'not reachable from this session'",
+      "where": "ventures/tender-bid-readiness/index.html:13",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15198"
+  ],
+  "verdict": "A seven-regex keyword checker that does what its page says it does (paste, seven signals with excerpts, local only, honest heuristic caveats, full disclaimers), but its outputs are not reliable on real solicitation language. On FAR clause text fetched from acquisition.gov, a bid-guarantee requirement worded as FAR 52.228-1(a)/(c) scores 0, the full clause scores 43% with two spurious findings ('coinsurance', 'certified check'), amendment acknowledgement and 'received no later than' deadlines are missed, negations count as found, and the question deadline is shown as the bid deadline when it comes first. 4 of 6 seeded mutations survive the 16 tests. The GovWin IQ comparison is accurate on identity but omits Deltek's own advertised document summaries, fit scoring and go/no-go support while saying reading a solicitation is not that platform's job. Does not meet the bar (correctness 1, verification 1, claims 2, median 2); finished at its own stated scope (completeness 3)."
+}

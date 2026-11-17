@@ -16,6 +16,7 @@ export const FORM_STATES = { CA: "California", TX: "Texas", FL: "Florida", GA: "
 const norm = (s) => String(s || "").replace(/\s+/g, " ").trim();
 const iso = (y, m, d) => {
   if (m < 1 || m > 12 || d < 1 || d > 31) return null;
+  if (new Date(Date.UTC(y, m - 1, d)).getUTCDate() !== d) return null; // no 30 February
   return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 };
 

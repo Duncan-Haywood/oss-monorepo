@@ -1,0 +1,6 @@
+seed 3: 1578 triangles, same set as Qhull: True; cut 39795.991 vs 39795.991 ft3, fill 31133.138 vs 31133.138 ft3
+seed 5: 1580 triangles, same set as Qhull: True; cut 40916.422 vs 40916.422 ft3, fill 31124.130 vs 31124.130 ft3
+seed 8: 1580 triangles, same set as Qhull: True; cut 40305.819 vs 40305.819 ft3, fill 31137.790 vs 31137.790 ft3
+seed 13: 1576 triangles, same set as Qhull: True; cut 40602.557 vs 40602.557 ft3, fill 31023.807 vs 31023.807 ft3
+seed 21: 1581 triangles, same set as Qhull: True; cut 40391.102 vs 40391.102 ft3, fill 30792.610 vs 30792.610 ft3
+worst relative volume difference: 6.04e-14

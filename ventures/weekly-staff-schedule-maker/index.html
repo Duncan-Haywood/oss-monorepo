@@ -147,7 +147,12 @@
     const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const later = (fn) => setTimeout(fn, 0);
     const hm = (m) => `${String(Math.floor((m % 1440) / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
-    const money = (n) => (n === null || n === undefined ? "—" : "$" + n.toFixed(2));
+    const money = (n) => {
+      const format = (n) => (n === null || n === undefined ? "—" : "$" + n.toFixed(2));
+      if (!(Number(n) < 0)) return format(n);
+      const text = format(Math.abs(n));
+      return /[1-9]/.test(text) ? `-${text}` : text;
+    };
 
     function setFields(f) {
       $("#staff").value = f.staff; $("#shifts").value = f.shifts;

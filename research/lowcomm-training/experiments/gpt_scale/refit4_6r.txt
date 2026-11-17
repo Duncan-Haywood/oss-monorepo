@@ -1,0 +1,10 @@
+cells (omega, excess, se): [(3, -0.0068, 0.0044), (7, -0.0016, 0.0038), (11, 0.0167, 0.0044), (15, 0.044, 0.0041)]
+observed fit: chi2 (dof = 4 - params), a, p, LOO RMS (se units), prediction at omega 31:
+  linear  chi2  38.48 a 0.001987 p  0.00  LOO  4.92  pred31 +0.0616
+  power   chi2   4.18 a 0.000002 p  3.75  LOO 78.26  pred31 +0.6766
+  hinge   chi2   2.66 a 0.006759 p  8.50  LOO  1.63  pred31 +0.1521
+share of draws in which each form has the lowest chi2: {'linear': 0.0, 'power': 0.148, 'hinge': 0.852}
+hinge w0 bootstrap 2.5/50/97.5: 6.25 8.5 10.0
+omega-31 prediction band linear  2.5/50/97.5: +0.0488 +0.0615 +0.0744
+omega-31 prediction band power   2.5/50/97.5: +0.2714 +0.6839 +2.7271
+omega-31 prediction band hinge   2.5/50/97.5: +0.1081 +0.1521 +0.2048

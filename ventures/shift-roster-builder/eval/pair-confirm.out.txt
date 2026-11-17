@@ -1,0 +1,27 @@
+spare (32 copies) priced: pass 56 ms, moves 2, score 3955.72, risk 167 h, pair hours 51 (0 capped)
+spare (32 copies) pair, screen only: pass 448 ms, moves 10, score 3967.39, risk 103 h, pair hours 401 (0 capped), reported 0 -> 404 (screen)
+spare (32 copies) pair, confirmed: pass 473 ms, moves 10, score 3967.39, risk 103 h, pair hours 401 (0 capped), reported 0 -> 401
+retail (20 copies) priced: pass 1 ms, moves 1, score 2257.64, risk 0 h, pair hours 360 (0 capped)
+retail (20 copies) pair, screen only: pass 13 ms, moves 1, score 2257.64, risk 0 h, pair hours 360 (0 capped), reported 180 -> 360 (screen)
+retail (20 copies) pair, confirmed: pass 17 ms, moves 1, score 2257.64, risk 0 h, pair hours 360 (0 capped), reported 180 -> 360
+cafe (32 copies) priced: pass 10 ms, moves 3, score 1503758.95, risk 108 h, pair hours 360 (0 capped)
+cafe (32 copies) pair, screen only: pass 61 ms, moves 3, score 1503758.95, risk 108 h, pair hours 360 (0 capped), reported 16 -> 360 (screen)
+cafe (32 copies) pair, confirmed: pass 62 ms, moves 3, score 1503758.95, risk 108 h, pair hours 360 (0 capped), reported 16 -> 360
+20x56 week 0 (76 copies) priced: pass 161 ms, moves 0, score 15105833.93, risk 216 h, pair hours 0 (0 capped)
+20x56 week 0 (76 copies) pair, screen only: pass 147 ms, moves 0, score 15105833.93, risk 216 h, pair hours 0 (0 capped), reported 0 -> 0 (screen)
+20x56 week 0 (76 copies) pair, confirmed: pass 142 ms, moves 0, score 15105833.93, risk 216 h, pair hours 0 (0 capped), reported 0 -> 0
+20x56 week 1 (82 copies) priced: pass 392 ms, moves 0, score 7806928.96, risk 419 h, pair hours 0 (0 capped)
+20x56 week 1 (82 copies) pair, screen only: pass 404 ms, moves 0, score 7806928.96, risk 419 h, pair hours 0 (0 capped), reported 0 -> 0 (screen)
+20x56 week 1 (82 copies) pair, confirmed: pass 405 ms, moves 0, score 7806928.96, risk 419 h, pair hours 0 (0 capped), reported 0 -> 0
+20x56 week 2 (75 copies) priced: pass 237 ms, moves 4, score 4806808.63, risk 107 h, pair hours 1696 (0 capped)
+20x56 week 2 (75 copies) pair, screen only: pass 2805 ms, moves 6, score 4806799.21, risk 107 h, pair hours 688 (0 capped), reported 321 -> 1127 (screen)
+20x56 week 2 (75 copies) pair, confirmed: pass 3192 ms, moves 4, score 4806799.21, risk 107 h, pair hours 688 (0 capped), reported 179 -> 688
+40x112 week 0 (149 copies) priced: pass 2528 ms, moves 1, score 16912617.25, risk 427 h, pair hours 51 (0 capped)
+40x112 week 0 (149 copies) pair, screen only: pass 33920 ms, moves 29, score 16912628.94, risk 427 h, pair hours 8 (0 capped), reported 1832 -> 16 (screen)
+40x112 week 0 (149 copies) pair, confirmed: pass 40339 ms, moves 11, score 16912622.94, risk 427 h, pair hours 8 (0 capped), reported 327 -> 8
+40x112 week 1 (148 copies) priced: pass 2350 ms, moves 0, score 14612836.63, risk 440 h, pair hours 0 (0 capped)
+40x112 week 1 (148 copies) pair, screen only: pass 3534 ms, moves 3, score 14612837.24, risk 440 h, pair hours 0 (0 capped), reported 7 -> 0 (screen)
+40x112 week 1 (148 copies) pair, confirmed: pass 8156 ms, moves 0, score 14612836.63, risk 440 h, pair hours 0 (0 capped), reported 0 -> 0
+40x112 week 2 (162 copies) priced: pass 374 ms, moves 0, score 28112520.67, risk 160 h, pair hours 0 (0 capped)
+40x112 week 2 (162 copies) pair, screen only: pass 1614 ms, moves 8, score 28112521.01, risk 160 h, pair hours 0 (0 capped), reported 115 -> 0 (screen)
+40x112 week 2 (162 copies) pair, confirmed: pass 4490 ms, moves 0, score 28112521.01, risk 160 h, pair hours 0 (0 capped), reported 0 -> 0

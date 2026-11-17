@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Grape Grower Sell vs Bottle Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Compare what a vineyard nets selling grapes by the ton with bottling and selling its own wine: break-even sell-through, direct price, grape price and acreage. Runs in your browser.","featureList":"Sell-vs-bottle net, break-even sell-through, break-even bottle price, break-even grape price, break-even acres, sensitivity tables, CSV export"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I sell my grapes or make wine?","acceptedAnswer":{"@type":"Answer","text":"Compare the two on the same acreage. Selling the fruit nets the price per ton times your tons, less growing and picking. Making wine nets the bottles you actually sell times what you keep per bottle, less winemaking, dry goods, labour, the money tied up while it ages, excise tax, marketing and fixed winery overhead, less the same growing cost. This tool puts the two side by side and shows which one is ahead at your figures."}},{"@type":"Question","name":"How many cases of wine does a ton of grapes make?","acceptedAnswer":{"@type":"Answer","text":"A common rule of thumb is about 150 gallons, roughly 60 twelve-bottle cases, per ton of fruit before losses. Your figure depends on the variety, the press and how much you lose in processing; both are inputs here."}},{"@type":"Question","name":"What sell-through do I need for bottling to beat selling fruit?","acceptedAnswer":{"@type":"Answer","text":"The tool finds the share of bottled wine you must sell for the two paths to tie, and shows the gap at sell-through from 40% to 100%. Unsold bottles are counted at zero, which is deliberately cautious."}},{"@type":"Question","name":"How many acres does it take to justify a winery?","acceptedAnswer":{"@type":"Answer","text":"Fixed yearly costs such as licences, insurance and accounting are spread over every case. If each acre earns more as wine than as fruit, the tool shows the acreage above which the overhead is absorbed; if it never does, it says so."}},{"@type":"Question","name":"Is this financial, tax or legal advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on figures you type. Alcohol licensing, excise tax, labelling and shipping rules are set by federal, state and local law; check yours with a qualified professional."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1e40af; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #1c3ca5; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #1c3ca5; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1e40af; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1e40af; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #1c3ca5; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -105,7 +143,7 @@
     const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
-    const ladder = (title, label, key, rows, fmt) => `<div class="finding"><h4>${title}</h4>${table([label, "Wine nets", "Fruit nets", "Wine minus fruit"], rows.map((x) => [fmt(x[key]), money(x.wine), money(x.fruit), money(x.gain)]))}</div>`;
+    const ladder = (title, label, key, rows, fmt) => `<div class="finding"><h3>${title}</h3>${table([label, "Wine nets", "Fruit nets", "Wine minus fruit"], rows.map((x) => [fmt(x[key]), money(x.wine), money(x.fruit), money(x.gain)]))}</div>`;
     let last = null;
     function run() {
       const a = analyze(opts());
@@ -114,14 +152,14 @@
       for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
       if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
       const r = a.result, w = r.wine, f = r.fruit, o = a.opts;
-      h += `<div class="finding"><h4>${r.winePays ? "Bottling" : "Selling the fruit"} is ahead by ${money(Math.abs(r.gain))} a year</h4>${table(["", "Sell the fruit", "Bottle it"], [["Net for the year", money(f.net), money(w.net)], ["Net per acre", money(f.perAcre), money(w.perAcre)], ["Revenue", money(f.revenue), money(w.revenue)]])}<p>${Math.round(w.bottledCases)} cases bottled, ${Math.round(w.soldCases)} sold, about ${money(w.cashInWine)} of your money in wine before it sells.</p></div>`;
-      h += `<div class="finding"><h4>Where the two tie</h4>${table(["What would have to be true", "Needed", "Your figure"], [
+      h += `<div class="finding"><h3>${r.winePays ? "Bottling" : "Selling the fruit"} is ahead by ${money(Math.abs(r.gain))} a year</h3>${table(["", "Sell the fruit", "Bottle it"], [["Net for the year", money(f.net), money(w.net)], ["Net per acre", money(f.perAcre), money(w.perAcre)], ["Revenue", money(f.revenue), money(w.revenue)]])}<p>${Math.round(w.bottledCases)} cases bottled, ${Math.round(w.soldCases)} sold, about ${money(w.cashInWine)} of your money in wine before it sells.</p></div>`;
+      h += `<div class="finding"><h3>Where the two tie</h3>${table(["What would have to be true", "Needed", "Your figure"], [
         ["Share of bottled wine that sells", Number.isNaN(r.breakEvenSellThrough) ? "never" : pct(r.breakEvenSellThrough), pct(o.sellThroughPct)],
         ["Direct bottle price", Number.isNaN(r.breakEvenDtcPrice) ? "n/a" : "$" + r.breakEvenDtcPrice.toFixed(2), "$" + o.dtcPrice.toFixed(2)],
         ["Net you keep per bottle (blended)", "$" + r.requiredBottleNet.toFixed(2), "$" + w.perBottle.toFixed(2)],
         ["Grape price at which selling matches bottling", money(Math.max(0, r.breakEvenGrapePrice)) + " a ton", money(o.grapePrice) + " a ton"],
         ["Acres to absorb the fixed overhead", Number.isFinite(r.breakEvenAcres) ? r.breakEvenAcres.toFixed(1) : "never at these figures", String(o.acres)]])}</div>`;
-      h += `<div class="finding"><h4>Where the wine path spends the money</h4>${table(["Cost", "Per year"], [["Winemaking, dry goods and labour", money(w.production)], ["Carrying the stock while it ages", money(w.carry)], ["Marketing and selling", money(w.marketing)], ["Excise and state tax", money(w.excise)], ["Fixed winery overhead", money(w.fixed)]])}</div>`;
+      h += `<div class="finding"><h3>Where the wine path spends the money</h3>${table(["Cost", "Per year"], [["Winemaking, dry goods and labour", money(w.production)], ["Carrying the stock while it ages", money(w.carry)], ["Marketing and selling", money(w.marketing)], ["Excise and state tax", money(w.excise)], ["Fixed winery overhead", money(w.fixed)]])}</div>`;
       h += ladder("If more or fewer bottles sell", "Sell-through", "sellThroughPct", a.sellThrough, (x) => x + "%");
       h += ladder("If you sell more direct", "Sold direct", "dtcSharePct", a.directShare, (x) => x + "%");
       h += ladder("If the grape price moves", "Price per ton", "grapePrice", a.grapePrice, money);

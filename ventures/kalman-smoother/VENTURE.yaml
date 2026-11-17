@@ -1,0 +1,64 @@
+name: kalman-smoother
+description: >-
+  Free browser tool, CLI and agent call for analysts, researchers, operations
+  and finance people: paste a time series and get its underlying level with a
+  band from a Kalman smoother on a structural time-series model (local level,
+  drift, local linear trend, optional seasonal; Durbin & Koopman 2012), with
+  variances by maximum likelihood, missing values filled, forecasts, and
+  outliers told apart from level shifts. Checked against statsmodels to 1e-10.
+  Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-16 on an explore run, as a new tool of "research algorithms
+# as tools" (portfolio/research-tools/README.md). The repository had no
+# state-space model: changepoint-detector dates changes, stl-decomposition
+# splits trend and season without a likelihood, and nothing filled gaps or
+# separated outliers from level shifts. Implemented from Durbin & Koopman
+# (2012), Koopman (1997), Harvey (1989), Harvey & Koopman (1992) and de Jong &
+# Penzer (1998); no third-party code was ported. statsmodels 0.15.0 (BSD-3)
+# was used only to produce eval/reference.json.
+# Example data: Nile flow (public domain) and UK driver casualties
+# (Harvey & Durbin 1986), copied from changepoint-detector; data/SOURCE.md.
+#
+# First visitor: searches such as "kalman filter online", "kalman smoother
+# csv", "local level model", "structural time series online", "smooth noisy
+# time series", "fill missing values time series", "unobserved components
+# model". Analysts, students of time series, lab and field researchers.
+# Volume not measured with an external tool.
+#
+# Alternatives: statsmodels UnobservedComponents (Python), R's StructTS and
+# KFAS, STAMP (commercial). All need an environment and code. Differentiators
+# here: no install, the trend form chosen by AIC, outliers and level shifts in
+# words, filter and smoother pinned to statsmodels.
+#
+# Liability: statistical output from supplied data, not financial, legal or
+# professional advice; the page says a flag is not proof and a forecast is not
+# a promise. Data never leave the browser (tests assert no network calls).
+
+hypotheses:
+  - claim: >-
+      Analysts and researchers who want the trend under a noisy series, with
+      gaps filled and shifts told apart from outliers, will use a no-install
+      Kalman smoother that answers in words.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a smoothed level or loglikelihood that disagrees with statsmodels' exact diffuse UnobservedComponents at the same variances, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/kalman-smoother/
+  analytics: null

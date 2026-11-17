@@ -411,8 +411,8 @@ export function priceBreaks(products, resources, opts = {}) {
   });
 }
 
-export function money(x) { return Number.isFinite(x) ? (x < 0 ? "-$" : "$") + Math.round(Math.abs(x)).toLocaleString("en-US") : "—"; }
-export function money2(x) { return Number.isFinite(x) ? (x < 0 ? "-$" : "$") + Math.abs(x).toFixed(2) : "—"; }
+export function money(x) { return Number.isFinite(x) ? ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.round(Math.abs(x)).toLocaleString("en-US")) : "—"; }
+export function money2(x) { return Number.isFinite(x) ? ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(x).toFixed(2)) : "—"; }
 export function pct(x, d = 0) { return Number.isFinite(x) ? `${(x * 100).toFixed(d)}%` : "—"; }
 export function fmt(x, d = 1) { return Number.isFinite(x) ? x.toLocaleString("en-US", { maximumFractionDigits: d, minimumFractionDigits: d }) : "—"; }
 

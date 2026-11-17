@@ -94,7 +94,7 @@ export function summary(state, now) {
 }
 
 // Spreadsheet-formula-safe CSV.
-const cell = (v) => { let s = String(v ?? ""); if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+const cell = (v) => { let s = String(v ?? ""); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 export function toCsv(state) {
   const rows = [["id", "event", "start_utc", "end_utc", "name", "email", "status", "notes", "booked_at_utc"]];
   for (const b of Object.values(state.bookings).sort((a, c) => a.start - c.start)) rows.push([b.id, b.eventName, new Date(b.start).toISOString(), new Date(b.end).toISOString(), b.name, b.email, b.status, b.notes, new Date(b.created).toISOString()]);

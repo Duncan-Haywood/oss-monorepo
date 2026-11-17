@@ -1,0 +1,8 @@
+# Hosts heavy-hydraulics' next steps cannot run without (research/_shared/pick_track.py
+# probes these each run and skips the programme when one does not answer, so this file
+# states no reachability of its own). Every break-even rerun range-reads
+# fuxi-robot/excavator-motion from Hugging Face (experiments/hf_range.py). Its answer has
+# varied by session: refused at CONNECT (403) on 2026-11-14, answering (307) on 2026-11-16
+# in three sessions that rebuilt the caches. Trust the probe, not a date written here.
+# Delete the line when no next step needs it.
+https://huggingface.co/

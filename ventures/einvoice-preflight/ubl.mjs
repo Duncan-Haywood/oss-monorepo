@@ -255,9 +255,32 @@ function taxCategoryFields(category) {
   return extras;
 }
 
+// The document-level TaxTotal elements (BG-22/BG-23): children of the root. A line
+// may carry its own TaxTotal (ZATCA's KSA-11/12 line VAT, and its prepayment lines'
+// KSA-31/32 subtotal at the advance's rate), which is not the document's breakdown.
+// Fall back to every TaxTotal only when none sits at the root.
+function headerTaxTotals(root) {
+  const direct = root.children.filter((child) => child.name === "TaxTotal");
+  return direct.length ? direct : descendants(root, "TaxTotal");
+}
+
+const hasSubtotal = (taxTotal) => taxTotal.children.some((child) => child.name === "TaxSubtotal");
+
+function headerSubtotals(root) {
+  // PINT JP breaks the tax down again in the tax accounting currency (IBG-38, a JPY TaxTotal
+  // with its own TaxSubtotal beside the EUR one, OpenPeppol's Example2-TaxAcctCur): that is
+  // the same tax, so when a TaxTotal is in the document currency only those rows are read.
+  const totals = headerTaxTotals(root);
+  const docCurrency = textOf(root, "DocumentCurrencyCode", false);
+  const currencyOf = (total) => total.children.find((child) => child.name === "TaxAmount")?.attrs?.currencyID || "";
+  const own = docCurrency ? totals.filter((total) => currencyOf(total) === docCurrency) : [];
+  const read = own.length && own.length < totals.length ? own : totals;
+  return read.flatMap((total) => total.children.filter((child) => child.name === "TaxSubtotal"));
+}
+
 function taxBreakdown(root) {
   const rows = [];
-  for (const subtotal of descendants(root, "TaxSubtotal")) {
+  for (const subtotal of headerSubtotals(root)) {
     const taxable = textOf(subtotal, "TaxableAmount", false);
     const tax = textOf(subtotal, "TaxAmount", false);
     const category = descendants(subtotal, "TaxCategory")[0];
@@ -274,6 +297,11 @@ function taxBreakdown(root) {
     if (taxable) row.taxable = asNumber(taxable);
     if (tax) row.tax = asNumber(tax);
     if (taxId) row.tax_category = taxId;
+    // A tax other than VAT/GST (Malaysia's tourism tax, scheme AAL) can be a flat amount
+    // with no percentage; the scheme is kept only then, so EU rows read as before.
+    const scheme = category ? descendants(category, "TaxScheme")[0] : null;
+    const schemeId = scheme ? textOf(scheme, "ID", false).trim().toUpperCase() : "";
+    if (schemeId && !["VAT", "GST"].includes(schemeId)) row.tax_scheme = schemeId;
     if (Object.keys(row).length) rows.push(row);
   }
   return rows;
@@ -281,7 +309,7 @@ function taxBreakdown(root) {
 
 function documentExemption(root) {
   const extras = {};
-  for (const subtotal of descendants(root, "TaxSubtotal")) {
+  for (const subtotal of headerSubtotals(root)) {
     for (const category of descendants(subtotal, "TaxCategory")) {
       const reason = textOf(category, "TaxExemptionReason", false);
       if (reason && !extras.tax_exemption_reason) extras.tax_exemption_reason = reason;
@@ -290,6 +318,37 @@ function documentExemption(root) {
     }
   }
   return extras;
+}
+
+// A line's own VAT amount where PINT states one: Oman's BTOM-016,
+// cac:ItemPriceExtension/cac:TaxTotal/cbc:TaxAmount. "" when absent.
+function lineTaxAmount(line) {
+  const extension = line.children.find((child) => child.name === "ItemPriceExtension");
+  const taxTotal = extension ? extension.children.find((child) => child.name === "TaxTotal") : null;
+  return taxTotal ? textOf(taxTotal, "TaxAmount", false) : "";
+}
+
+// The line's own amount with VAT where PINT states one: UAE's BTAE-10, Oman's BTOM-017,
+// cac:ItemPriceExtension/cbc:Amount. "" when absent.
+function lineAmountWithVat(line) {
+  const extension = line.children.find((child) => child.name === "ItemPriceExtension");
+  const amount = extension ? extension.children.find((child) => child.name === "Amount") : null;
+  return amount ? amount.text.trim() : "";
+}
+
+// BTAE-03 and the like: the reason codes of the document's own DiscrepancyResponse
+// (header level only; a line's DiscrepancyResponse is about that line). PINT AE's
+// ibr-055-ae reads them: a credit note with reason VD (volume discount) names no
+// preceding invoice, since a period discount may cover many (aside.mjs).
+function creditReasonCodes(root) {
+  const codes = [];
+  for (const child of root.children) {
+    if (child.name !== "DiscrepancyResponse") continue;
+    const code = child.children.find((c) => c.name === "ResponseCode");
+    const value = code ? code.text.trim() : "";
+    if (value) codes.push(value);
+  }
+  return codes;
 }
 
 function billingReference(root) {
@@ -311,7 +370,15 @@ export function parseUblInvoice(source) {
   const kind = DOCUMENT_ROOTS[root.name];
 
   const lines = descendants(root, kind.line).map((line) => {
-    const category = descendants(line, "ClassifiedTaxCategory")[0] || line;
+    // A line can carry two categories (PINT MY: SST and the tourism tax, scheme AAL);
+    // the VAT/GST one is the line's rate, whichever comes first.
+    const categories = descendants(line, "ClassifiedTaxCategory");
+    const vatScheme = (c) => {
+      const scheme = descendants(c, "TaxScheme")[0];
+      const id = scheme ? textOf(scheme, "ID", false).trim().toUpperCase() : "";
+      return !id || id === "VAT" || id === "GST";
+    };
+    const category = categories.find(vatScheme) || categories[0] || line;
     const percent = textOf(category, "Percent", false);
     const priceNode = line.children.find((child) => child.name === "Price");
     const baseQuantity = priceNode ? textOf(priceNode, "BaseQuantity", false) : "";
@@ -323,6 +390,8 @@ export function parseUblInvoice(source) {
       // Category O has no Percent element (EN 16931 BR-O-05); leave it empty.
       tax_percent: percent === "" ? "" : asNumber(percent),
       net: asNumber(textOf(line, "LineExtensionAmount")),
+      ...(parseDecimal(lineTaxAmount(line)) !== null ? { tax_amount: parseDecimal(lineTaxAmount(line)) } : {}),
+      ...(parseDecimal(lineAmountWithVat(line)) !== null ? { amount_with_vat: parseDecimal(lineAmountWithVat(line)) } : {}),
       ...(baseQuantity ? { price_base_quantity: asNumber(baseQuantity) } : {}),
       ...(adjustments.length ? { adjustments } : {}),
       ...taxCategoryFields(category),
@@ -332,16 +401,26 @@ export function parseUblInvoice(source) {
   const supplier = descendants(root, "AccountingSupplierParty")[0] || root;
   const customer = descendants(root, "AccountingCustomerParty")[0] || root;
   const total = descendants(root, "LegalMonetaryTotal")[0] || root;
-  const taxTotals = descendants(root, "TaxTotal");
+  const taxTotals = headerTaxTotals(root);
   if (taxTotals.length === 0) throw new Error("UBL field TaxAmount is missing");
   // BT-110 is in the document currency; a second TaxTotal in the VAT
   // accounting currency (BT-111) is the same tax again and must not be added.
   const docCurrency = textOf(root, "DocumentCurrencyCode", false);
-  const sameCurrency = taxTotals.filter((item) => {
+  let sameCurrency = taxTotals.filter((item) => {
     const amount = item.children.find((child) => child.name === "TaxAmount");
     const code = amount && amount.attrs ? amount.attrs.currencyID : "";
     return !code || !docCurrency || code === docCurrency;
   });
+  // When the VAT accounting currency is the document currency (ZATCA requires
+  // BT-111 in SAR, so every SAR invoice repeats its tax), the repeat is the
+  // TaxTotal with no TaxSubtotal: BT-110 is the one that carries the breakdown.
+  // That repeat is kept as totals.tax_accounting_currency so INV-059 can compare it.
+  let accountingRepeat = null;
+  if (sameCurrency.length > 1 && sameCurrency.some(hasSubtotal)) {
+    const repeats = sameCurrency.filter((item) => !hasSubtotal(item));
+    if (repeats.length === 1) accountingRepeat = parseDecimal(textOf(repeats[0], "TaxAmount", false));
+    sameCurrency = sameCurrency.filter(hasSubtotal);
+  }
   const taxTotal = (sameCurrency.length ? sameCurrency : taxTotals)
     .reduce((sum, item) => sum + asNumber(textOf(item, "TaxAmount")), 0);
   const dueDate = textOf(root, "DueDate", false);
@@ -349,6 +428,7 @@ export function parseUblInvoice(source) {
     || textOf(root, "CreditNoteTypeCode", false)
     || textOf(root, "DebitNoteTypeCode", false);
   const original = billingReference(root);
+  const reasons = creditReasonCodes(root);
   const invoice = {
     invoice_number: textOf(root, "ID"),
     issue_date: textOf(root, "IssueDate"),
@@ -357,6 +437,7 @@ export function parseUblInvoice(source) {
     document_type: kind.type,
     ...(typeCode ? { document_code: typeCode } : {}),
     ...(original ? { original_invoice: original } : {}),
+    ...(reasons.length ? { credit_reason_codes: reasons } : {}),
     currency: textOf(root, "DocumentCurrencyCode"),
     supplier: party(supplier),
     customer: party(customer),
@@ -365,6 +446,7 @@ export function parseUblInvoice(source) {
       net: asNumber(textOf(total, "TaxExclusiveAmount")),
       tax: asNumber(String(taxTotal)),
       gross: asNumber(textOf(total, "TaxInclusiveAmount")),
+      ...(accountingRepeat !== null ? { tax_accounting_currency: accountingRepeat } : {}),
       ...optionalMonetaryTotals(total),
     },
   };

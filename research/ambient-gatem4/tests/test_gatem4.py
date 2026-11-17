@@ -43,3 +43,10 @@ def test_one_divide_per_frame_and_cost_falls_with_block(stream):
     r1, r10 = run(1, x), run(10, x)
     assert (r1[:, 3] == 1).all() and (r10[:, 3] == 1).all()
     assert r10[len(r10) // 2:, 2].mean() < 0.75 * r1[len(r1) // 2:, 2].mean()
+
+
+def test_flash_sizes_match_the_published_table():
+    # Quality audit round 71 (portfolio/quality/audits/2026-11-13-ambient-gatem4.json): reading the
+    # wrong llvm-size column left every test green. Values from experiments/results.txt (-Os).
+    assert Image(1).text_bytes == 252
+    assert Image(10).text_bytes == 258

@@ -1,0 +1,64 @@
+name: meta-analysis
+description: >-
+  Free browser tool, CLI and agent call for anyone pooling study results:
+  researchers, students, clinicians and analysts writing a review. Paste one
+  row per study (2x2 counts, means and SDs, or estimates with confidence
+  intervals) and get a random-effects meta-analysis with REML, DerSimonian-
+  Laird or Paule-Mandel, Hartung-Knapp intervals, I-squared with its interval,
+  a prediction interval, forest and funnel plots, Egger's test, leave-one-out
+  and a meta-regression. Matches statsmodels and metafor. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-16 on an explore run, as the twenty-fourth tool of "research
+# algorithms as tools" (portfolio/research-tools/README.md). No venture in the
+# tree pooled study results; fdr-multiple-testing corrects many tests but does
+# not combine estimates. Implemented from the papers' mathematics; no
+# third-party code was ported. statsmodels 0.15.0 and scipy (BSD-3-Clause) were
+# used only to produce eval/reference.json; metafor's README output is quoted
+# in a test as a published reference, not ported.
+# Example data: the 13 BCG vaccine trials of Colditz et al. (1994), published
+# trial counts (data/SOURCE.md).
+#
+# First visitor: searches such as "meta analysis calculator online", "forest
+# plot generator", "random effects meta analysis online", "i squared
+# calculator", "prediction interval meta analysis"; students and researchers
+# with a table of studies in a spreadsheet who do not use R or Stata. Volume
+# not measured with an external tool.
+#
+# Alternatives: R's metafor and meta packages, Stata's meta suite, RevMan,
+# Comprehensive Meta-Analysis (paid), JASP and jamovi (installs), statsmodels.
+# The differentiators here: no install and no upload, Hartung-Knapp and a
+# prediction interval by default beside the Wald interval, every estimator side
+# by side, and the coverage simulation that shows why.
+#
+# Liability: statistical output from supplied data, not medical or professional
+# advice; the page says a pooled number is only as good as the review behind
+# it. Data never leave the browser (tests assert no network calls).
+
+hypotheses:
+  - claim: >-
+      Students and researchers pooling a handful of studies will use a
+      no-install meta-analysis page that shows Hartung-Knapp and prediction
+      intervals over learning metafor or paying for desktop software.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a result that disagrees with metafor or statsmodels on the same data and settings beyond rounding (outside the documented convention differences), and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/meta-analysis/
+  analytics: null

@@ -181,3 +181,10 @@ test("formatDate returns null for a null date and a stable string otherwise", ()
   assert.equal(formatDate(null), null);
   assert.equal(formatDate(new Date(Date.UTC(2026, 0, 1))), "Thu, Jan 1, 2026");
 });
+
+test("a separation date of 30 February gives no deadline rather than one computed from 2 March", () => {
+  const r = finalPaycheckDeadline({ state: "CA", separationType: "involuntary", separationDate: "2026-02-30" });
+  assert.equal(r.deadlineDate, null);
+  const ok = finalPaycheckDeadline({ state: "CA", separationType: "involuntary", separationDate: "2024-02-29" });
+  assert.equal(ok.deadlineDate.toISOString().slice(0, 10), "2024-02-29");
+});

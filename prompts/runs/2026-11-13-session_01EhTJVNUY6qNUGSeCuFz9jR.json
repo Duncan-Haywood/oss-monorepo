@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVNUY6qNUGSeCuFz9jR",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell, support products)",
+  "input_sha256": "a0e1751fc7a7ed18eb6980749aa5b31c15f2c0dc7e2be247e9528d71b238b34b",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T17:01:59Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "civ track 24, milestone 7 sixth run: exact split of political stress",
+  "projects": [
+    "civ-levers"
+  ],
+  "pr": 15551,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "draw said open a civ programme proposal, but doi.org/crossref/arXiv were unreachable (curl 000), so cite_check could not verify the ten related works a proposal needs"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "advanced the civ track's open milestone 7 instead of writing a new programme proposal, because the proposal's citations could not be checked from this session",
+      "did": "sixth run of civ-history with pre-registered H1-H4",
+      "result": "H1, H4 held; H2 held barely; H3 refuted; found the neutral closure has no endogenous crisis"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-population-pressure-cancels-out-of-a-toy-civilization.md"
+  ],
+  "goal": null,
+  "notes": "pytest research/civ-levers/tests: 66 passed; research/_homepage/build.py ok (1078 projects); check_md_links ok; research_live_links 0 updated; check_post_frontmatter, check_post_links, post_similarity, programme_check ok. run_split.py 22 s on 4 cores.",
+  "corrections": [],
+  "redteam": null
+}

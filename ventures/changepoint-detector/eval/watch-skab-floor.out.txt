@@ -1,0 +1,49 @@
+Round 14: a smallest-move floor per column from the normal history, on SKAB (33 fault runs and the anomaly-free run, 8 sensors, 5-second buckets, Quiet, from point 20).
+
+  Normal run: 1861 checks; each column's share of B = 2 per 100 is m = 4 lines.
+
+  column                  floor (|shift|, column units)   normal-run lines Q -> F   fault-run lines Q -> F
+  Accelerometer1RMS            0.004981                    39 -> 7                  74 -> 37
+  Accelerometer2RMS            0.004251                    23 -> 5                  77 -> 26
+  Current                             0                     0 -> 0                  12 -> 12
+  Pressure                            0                     3 -> 3                   0 -> 0
+  Temperature                    0.4491                    27 -> 7                  97 -> 67
+  Thermocouple                   0.7947                    42 -> 6                  76 -> 4
+  Voltage                             0                     2 -> 2                   3 -> 3
+  Volume Flow RateRMS             1.671                    23 -> 6                 118 -> 49
+
+  arm (33 fault runs, 8 columns)                lines  at a mark (share)  per 1000 checks  marks reached  faults caught  median delay s  pre-fault per 100  normal per 100
+  Q  Quiet, no floor                              457     168 (36.8%)        69.4       97/123       33/33         30         6.34 (190/2997)     8.54
+  F  Quiet, floor in the watch (T10)              198      92 (46.5%)        30.1       74/123       28/33       52.5         2.27 (68/2997)     1.93
+  P  Q's lines, floor after the fact              165      76 (46.1%)        25.1       62/123       22/33       27.5         2.00 (60/2997)     1.34
+
+  T10 F vs Q: (a) pre-fault 2.27 per 100 checks vs 2 FAIL; (b) 28 vs 33 - 2 FAIL; (c) 46.5% vs 36.8% PASS. FAILS.
+
+  Reported only, deciding nothing.
+
+  valve1 (16): faults caught / marks reached / share at a mark (lines)
+  Q  16/16  48/63  33.9%  (180)
+  F  13/16  32/63  42.0%  (69)
+  P  10/16  25/63  38.9%  (54)
+
+  valve2 (3): faults caught / marks reached / share at a mark (lines)
+  Q  3/3  8/12  42.1%  (38)
+  F  2/3  6/12  41.2%  (17)
+  P  1/3  5/12  42.9%  (14)
+
+  other (14): faults caught / marks reached / share at a mark (lines)
+  Q  14/14  41/48  38.1%  (239)
+  F  13/14  36/48  50.0%  (112)
+  P  11/14  32/48  50.5%  (97)
+
+  by column under F: lines, at a mark, faults caught alone
+  Accelerometer1RMS         37    17 (45.9%)  8/33
+  Accelerometer2RMS         26    17 (65.4%)  8/33
+  Current                   12     1 (8.3%)  0/33
+  Pressure                   0     0 (0.0%)  0/33
+  Temperature               67    14 (20.9%)  4/33
+  Thermocouple               4     3 (75.0%)  3/33
+  Voltage                    3     0 (0.0%)  0/33
+  Volume Flow RateRMS       49    40 (81.6%)  18/33
+
+800 s wall on 4 cores.

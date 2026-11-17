@@ -19,9 +19,31 @@ SET_WHEELS = 0x10     # int16 rpm_top, int16 rpm_bottom
 SET_AIM = 0x11        # int16 elevation_cdeg, int16 azimuth_cdeg
 FEED = 0x12           # uint8 balls
 SET_BASE = 0x13       # int16 target_y_mm, uint16 max_speed_mm_s
+RESET_LIFT_HUB = 0x14  # uint16 key (RESET_LIFT_HUB_KEY): the lift's slip hub was re-set on the bench; restart its jam count
 DRIVE = 0x20          # int16 left_mm_s, int16 right_mm_s
 PICKUP = 0x21         # uint8 on
-TELEMETRY = 0x80      # uint16 flags, int16 base_y_mm, int16 rpm_top, int16 rpm_bottom, uint16 battery_mv
+TELEMETRY = 0x80      # uint16 flags, int16 base_y_mm, int16 rpm_top, int16 rpm_bottom, uint16 battery_mv,
+                      # uint8 balls_fed (feeder: balls released through the gate since power-up, mod 256)
+LAUNCH = 0x81         # feeder, after TELEMETRY once a stroke has been judged (2026-11-16): uint8 seq (verdicts mod 256),
+                      # int16 rpm_top, int16 rpm_bottom (each wheel's speed just before the ball), int16 drop_top,
+                      # int16 drop_bottom (the fall below that, in 1/10000 of it), uint8 flags: bit 0 a ball went;
+                      # bit 1 / bit 2 the top / bottom drop is the whole drop fitted from the pulse times, else the
+                      # lowest single-revolution reading's fall (README "The drop from the pulse times"); bit 3 / bit 4
+                      # that drop came from the loop's own commands (README "A recovery shaped by the loop's own
+                      # commands"): the board re-sends the record under the same seq once that fit is done; bit 5 that
+                      # fit is still under way (the Pi waits for it before a re-plan and at a drill's end); bit 6 /
+                      # bit 7 the top / bottom loop fit's own misses give its drop a standard error over LOOP_SE_MAX
+                      # (1%) of it (README "When the wheel is not a first-order lag")
+ESC_SURVEY = 0x82     # feeder, after LAUNCH once the board has surveyed a wheel (2026-11-16, README "The ESC lag surveyed
+                      # on the board"): uint8 wheels summed (to 255), uint16 the lag with the least summed residual, ms,
+                      # uint16 that lag refined between its neighbours, ms, then uint16 x ESC_SURVEY_LAGS: each grid lag's
+                      # mean residual rms in 1e-6 of the pre-ball speed (65535: no such lag); since 2026-11-16 the
+                      # sums leave out a wheel fitting over SURVEY_TRIM (5) x worse than the median one. The grid is the
+                      # firmware's ESC_SURVEY_GRID_US, 0 / 20 / 50 / 100 / 200 / 400 ms.
+ESC_SURVEY_LAGS = 6
+ESC_TAU = 0x83        # feeder, after TELEMETRY every period (2026-11-16, README "Checked before a calibration drill"):
+                      # uint16 the ESC lag the board's drop fit runs with (config ESC_TAU_US), ms, so the Pi can compare
+                      # it with the last drill's ESC_SURVEY before it feeds a ball
 
 FORMATS = {
     HEARTBEAT: "",
@@ -31,19 +53,34 @@ FORMATS = {
     SET_AIM: "<hh",
     FEED: "<B",
     SET_BASE: "<hH",
+    RESET_LIFT_HUB: "<H",
     DRIVE: "<hh",
     PICKUP: "<B",
-    TELEMETRY: "<HhhhH",
+    TELEMETRY: "<HhhhHB",
+    LAUNCH: "<BhhhhB",
+    ESC_SURVEY: "<BHH" + "H" * ESC_SURVEY_LAGS,
+    ESC_TAU: "<H",
 }
 
 # TELEMETRY flag bits
 FLAG_ESTOP = 1
 FLAG_WATCHDOG = 2       # stopped because heartbeats stopped
 FLAG_BUMPER = 4
-FLAG_HOPPER_EMPTY = 8
+FLAG_HOPPER_EMPTY = 8     # feeder: the last feed stroke put no ball through the wheels (their speed did not drop: an empty
+                          # pocket, so an empty tub, a bridged outlet or a stuck ball); cleared by the next FEED (2026-11-16)
 FLAG_HOPPER_FULL = 16
 FLAG_LOW_BATTERY = 32
 FLAG_AZ_UNHOMED = 64     # azimuth stepper has no position yet (homing, or lost after an abrupt stop)
+FLAG_AIM_SETTLING = 128  # elevation or azimuth not yet at its goal (or homing): the feed gate waits for it
+FLAG_ELEV_FAULT = 256    # elevation actuator stopped: feedback lost or stalled; power-cycle the board to retry
+FLAG_WHEELS_SETTLING = 512  # launcher wheels not yet held within 3% of target for 150 ms (or stopped): the gate waits
+FLAG_BUS_OFF = 1024       # switched bus not up (contactor open, or closed under CONTACTOR_SETTLE_MS ago): motors unpowered
+FLAG_LIFT_JAM = 2048      # ball lift stalled again after its retries and is off: clear the jam, press and release the e-stop
+FLAG_LIFT_HUB_DUE = 4096  # the lift has cut LIFT_SLIP_JAMS jams since its slip hub was last set (or the count in flash is
+                          # unreadable): re-set the hub on the bench, then send RESET_LIFT_HUB. The lift still runs.
+
+# RESET_LIFT_HUB's payload must be this, so a stray or mistyped command cannot zero the count.
+RESET_LIFT_HUB_KEY = 0x4855
 
 
 def crc8(data):

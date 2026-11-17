@@ -1,0 +1,203 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { bestCarryOverRounds, lowCarryOverRounds, lowCarryOverDoubleRounds, carryOverSummary, CARRY_OVER_PICK, carryOverTry, combineCarryOverTries, splitCarryOverTries } from "./carryover.mjs";
+import { buildSchedule, readSpec, validateSchedule, encodeFields, decodeFields } from "./calc.mjs";
+
+function pairsMet(rounds) {
+  const m = new Map();
+  for (const r of rounds) for (const [h, a] of r.matches) { const k = `${Math.min(h, a)}-${Math.max(h, a)}`; m.set(k, (m.get(k) || 0) + 1); }
+  return m;
+}
+
+test("one try is the plain search at the same seed and the first weight", () => {
+  const a = bestCarryOverRounds(6, { seed: 3, tries: 1 });
+  const b = lowCarryOverRounds(6, { seed: 3, breakWeight: 10 });
+  assert.deepEqual(a.rounds, b.rounds);
+  const c = bestCarryOverRounds(6, { double: true, seed: 3, tries: 1 });
+  const d = lowCarryOverDoubleRounds(6, { seed: 3, breakWeight: 10 });
+  assert.deepEqual(c.rounds, d.rounds);
+});
+
+test("keeps the try with the least carry-over + pick x breaks, and is seeded", () => {
+  for (const pick of [0, 10, 40]) {
+    const r = bestCarryOverRounds(6, { double: true, seed: 2, tries: 4, pick });
+    const scores = r.tries.map((c) => c.coe + pick * c.breaks);
+    assert.equal(scores[r.chosen], Math.min(...scores));
+    assert.equal(r.coe, r.tries[r.chosen].coe);
+    assert.deepEqual(r.tries.map((c) => c.breakWeight), [10, 20, 40, 80]);
+    const again = bestCarryOverRounds(6, { double: true, seed: 2, tries: 4, pick });
+    assert.deepEqual(again.rounds, r.rounds);
+  }
+});
+
+test("pick 0 never keeps more carry-over than any try; a large pick never keeps more breaks", () => {
+  const fair = bestCarryOverRounds(6, { double: true, seed: 5, tries: 4, pick: 0 });
+  assert.equal(fair.coe, Math.min(...fair.tries.map((c) => c.coe)));
+  const few = bestCarryOverRounds(6, { double: true, seed: 5, tries: 4, pick: 1e6 });
+  assert.equal(few.breaks, Math.min(...few.tries.map((c) => c.breaks)));
+});
+
+test("frontier holds exactly the tries nobody beats on both counts, sorted by carry-over", () => {
+  const r = bestCarryOverRounds(6, { double: true, seed: 1, tries: 6 });
+  const beats = (d, c) => d.coe <= c.coe && d.breaks <= c.breaks && (d.coe < c.coe || d.breaks < c.breaks);
+  const want = r.tries.filter((c) => !r.tries.some((d) => beats(d, c)));
+  assert.equal(r.frontier.length, want.length);
+  for (let i = 1; i < r.frontier.length; i++) assert.ok(r.frontier[i - 1].coe <= r.frontier[i].coe);
+  assert.ok(r.frontier.some((c) => c.index === r.chosen), "the kept try is on the frontier");
+});
+
+test("the kept double round robin is still a valid home-and-away season", () => {
+  const r = bestCarryOverRounds(8, { double: true, seed: 1, tries: 2, effort: 0.25 });
+  const met = pairsMet(r.rounds);
+  assert.equal(met.size, 28);
+  for (const c of met.values()) assert.equal(c, 2);
+  assert.equal(r.repeats, 0);
+  const s = carryOverSummary(r);
+  assert.equal(s.tries, 2);
+  assert.equal(JSON.parse(JSON.stringify(s)).candidates.length, 2);
+});
+
+test("rejects a bad number of tries", () => {
+  assert.throws(() => bestCarryOverRounds(6, { tries: 0 }), /tries/);
+});
+
+const fields = (extra = {}) => ({ teams: "A\nB\nC\nD\nE\nF", start: "2026-01-05", weekdays: ["Mon"], carryOver: true, double: true, ...extra });
+
+test("buildSchedule runs best-of-k with carryOverTries and reports it", () => {
+  const { spec } = readSpec(fields({ carryOverPick: "fair" }));
+  assert.equal(spec.carryOverPick, CARRY_OVER_PICK.fair);
+  spec.carryOverTries = 3;
+  const s = buildSchedule(spec);
+  assert.deepEqual(validateSchedule(s).errors, []);
+  assert.equal(s.carryOverSearch.tries, 3);
+  assert.equal(s.carryOverSearch.pick, 0);
+  assert.equal(s.stats.carryOver.value, s.carryOverSearch.coe);
+});
+
+test("buildSchedule uses rounds searched in the worker, and ignores ones for another league", () => {
+  const { spec } = readSpec(fields());
+  const best = bestCarryOverRounds(6, { double: true, seed: spec.seed, tries: 3, pick: spec.carryOverPick });
+  const plan = { teams: 6, double: true, rounds: best.rounds, summary: carryOverSummary(best) };
+  const s = buildSchedule({ ...spec, carryOverPlan: plan });
+  assert.deepEqual(validateSchedule(s).errors, []);
+  assert.equal(s.stats.carryOver.value, best.coe);
+  assert.equal(s.carryOverSearch.tries, 3);
+  const other = buildSchedule({ ...spec, carryOverPlan: { ...plan, teams: 8 } });
+  assert.equal(other.carryOverSearch, undefined);
+  assert.deepEqual(validateSchedule(other).errors, []);
+});
+
+test("an unknown trade falls back to balanced, and the share link keeps the choice", () => {
+  assert.equal(readSpec(fields({ carryOverPick: "nonsense" })).spec.carryOverPick, CARRY_OVER_PICK.balanced);
+  const back = decodeFields(encodeFields(fields({ carryOverPick: "breaks", skip: "", blackouts: "" })));
+  assert.equal(back.carryOverPick, "breaks");
+  assert.equal(decodeFields(encodeFields(fields({ carryOverPick: "<x>" }))).carryOverPick, "balanced");
+});
+
+test("a trade name that is an Object key (constructor, toString) falls back to balanced, not a crash", () => {
+  for (const name of ["constructor", "toString", "__proto__", "hasOwnProperty"]) {
+    const { spec } = readSpec(fields({ carryOverPick: name }));
+    assert.equal(spec.carryOverPick, CARRY_OVER_PICK.balanced, name);
+    const s = buildSchedule({ ...spec, carryOverTries: 2 });
+    assert.deepEqual(validateSchedule(s).errors, [], name);
+  }
+});
+
+test("a pick that is not a number of 0 or more is refused, not a result with no rounds", () => {
+  for (const pick of [NaN, Infinity, -1, "10", () => 0, null]) {
+    assert.throws(() => bestCarryOverRounds(6, { tries: 2, pick }), /pick/, String(pick));
+  }
+  // left out, it is the balanced default
+  assert.equal(bestCarryOverRounds(6, { tries: 2 }).rounds.length, 5);
+});
+
+test("the page runs the search in a worker, with a main-thread fallback and a trade picker", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /new Worker\("\.\/carryover-worker\.mjs", \{ type: "module" \}\)/);
+  assert.match(html, /id="carryOverPick"/);
+  for (const v of ["balanced", "fair", "breaks"]) assert.match(html, new RegExp(`<option value="${v}"`));
+  assert.match(html, /carryOverTry\(n, i, \{ double: spec.double, seed: spec.seed, weighted: CARRY_WEIGHTED \}\)/, "fallback when workers are unavailable: the same tries on the page thread");
+  const worker = readFileSync(new URL("./carryover-worker.mjs", import.meta.url), "utf8");
+  assert.match(worker, /bestCarryOverRounds/);
+  assert.match(worker, /type: "done"/);
+});
+
+test("splitCarryOverTries hands every try to exactly one thread, round robin", () => {
+  for (const [k, w] of [[8, 1], [8, 2], [8, 3], [8, 4], [8, 8], [8, 16], [4, 3], [1, 4], [5, 0]]) {
+    const q = splitCarryOverTries(k, w);
+    assert.equal(q.length, Math.max(1, Math.min(k, w)));
+    assert.deepEqual(q.flat().sort((a, b) => a - b), Array.from({ length: k }, (_, i) => i));
+    assert.equal(Math.max(...q.map((x) => x.length)), Math.ceil(k / q.length));
+  }
+  assert.deepEqual(splitCarryOverTries(8, 3), [[0, 3, 6], [1, 4, 7], [2, 5]]);
+});
+
+test("a pool of any size, finishing in any order, returns exactly the serial search", () => {
+  for (const double of [false, true]) {
+    // A try depends on neither the pick nor the thread that runs it, so each is searched once here,
+    // apart from one serial run, and every pool gets its own copy, as a worker message would (this
+    // test used to search the same 8 tries 9 times over: 245 s of the suite's critical path).
+    const searched = Array.from({ length: 8 }, (_, i) => carryOverTry(8, i, { double, seed: 4 }));
+    // The serial search's tries do not depend on the pick either; only its last step,
+    // combineCarryOverTries over tries 0 to 7 in order, does. So one serial run per season shape
+    // (pick 0 for single, 40 for home and away) checks the whole serial path, and the other picks
+    // are checked against that last step over the in-order tries (this test ran the serial search
+    // six times: docs/history/ci-perf-2026-11-16-league-serial-once.md).
+    const fullAt = double ? 40 : 0;
+    for (const pick of [0, 10, 40]) {
+      const serial = pick === fullAt
+        ? bestCarryOverRounds(8, { double, seed: 4, tries: 8, pick })
+        : combineCarryOverTries(searched.map((t) => structuredClone(t)), pick, { among: 8 });
+      for (const workers of [1, 3, 8]) {
+        const done = splitCarryOverTries(8, workers).map((q) => q.map((i) => structuredClone(searched[i])));
+        // threads report in reverse: the combine must not depend on arrival order
+        const pooled = combineCarryOverTries(done.reverse().flat(), pick);
+        assert.deepEqual(pooled.rounds, serial.rounds);
+        assert.deepEqual(carryOverSummary(pooled), carryOverSummary(serial));
+      }
+    }
+  }
+});
+
+test("combineCarryOverTries refuses a missing try and survives a JSON round trip (worker messages)", () => {
+  const all = [0, 1, 2, 3].map((i) => carryOverTry(6, i, { double: true, seed: 2 }));
+  assert.throws(() => combineCarryOverTries([all[0], all[1], all[3]], 10), /try 2 is missing/);
+  assert.throws(() => combineCarryOverTries([], 10), /tries must be/);
+  const viaJson = combineCarryOverTries(JSON.parse(JSON.stringify(all)), 10);
+  assert.deepEqual(viaJson.rounds, bestCarryOverRounds(6, { double: true, seed: 2, tries: 4 }).rounds);
+  assert.equal("index" in viaJson, false);
+});
+
+test("a huge typed seed still gives every try its own seed (redteam 2026-11-12)", async () => {
+  const { carryOverTrySeed } = await import("./carryover.mjs");
+  // the form keeps any finite seed (readSpec), so 1e21 reaches the search; seed * 7919 then swamps
+  // i * 104729 in floating point and tries 1 to 9 all used one seed
+  for (const seed of [1, 2 ** 31, 2 ** 40, 1e21, 1e300, -1e21]) {
+    const seen = new Set(Array.from({ length: 10 }, (_, i) => carryOverTrySeed(seed, i) >>> 0));
+    assert.equal(seen.size, 10, `seed ${seed}`);
+  }
+  // seeds that were already fine keep exactly the tries they had, so old share links reproduce
+  assert.deepEqual([1, 2, 3].map((i) => carryOverTrySeed(1, i)), [112648, 217377, 322106]);
+  assert.equal(carryOverTrySeed(2 ** 40, 3), ((2 ** 40 * 7919 + 3 * 104729) % 2147483647) || 1);
+});
+
+test("the read-out folds repeated tries: 19 teams' seven identical weighted tries list once", async () => {
+  const { carryOverCandidatesText, carryOverDistinct } = await import("./carryover.mjs");
+  const c = [[1311, 87], [1311, 87], [1311, 87], [1311, 87], [1311, 87], [1311, 87], [1311, 87], [1517, 84], [5741, 48], [3731, 59]].map(([coe, breaks]) => ({ coe, breaks }));
+  assert.equal(carryOverCandidatesText(c), "1311/87 ×7, 1517/84, 5741/48, 3731/59");
+  assert.equal(carryOverDistinct(c), 4);
+  // all different: the list is exactly the old one
+  const d = [{ coe: 1, breaks: 2 }, { coe: 3, breaks: 4 }];
+  assert.equal(carryOverCandidatesText(d), d.map((x) => x.coe + "/" + x.breaks).join(", "));
+  assert.equal(carryOverDistinct(d), 2);
+  assert.equal(carryOverCandidatesText([]), "");
+  // same carry-over, different breaks are different results
+  assert.equal(carryOverDistinct([{ coe: 5, breaks: 1 }, { coe: 5, breaks: 2 }]), 2);
+});
+
+test("the page's read-out uses the folded list", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /carryOverCandidatesText\(s\.carryOverSearch\.candidates\)/);
+  assert.doesNotMatch(html, /candidates\.map\(\(c\) => c\.coe \+ "\/" \+ c\.breaks\)/);
+});

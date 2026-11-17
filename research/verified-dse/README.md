@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 110 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 139 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -29,6 +29,226 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   Where routing is cheap, random routing is safer (1.29% against 6.21%), because a misleading mapped rung sends the
   ladder to a bad 8: over all 52 cells it wins 37 and loses 13 (sign test p = 0.001) but loses on the mean (4.38% against
   2.31%): [`experiments/heldout_designs/`](experiments/heldout_designs/results.txt).
+- **A rule fixed before any routing (milestone 111): time one point, run the ladder only if routing costs over 3x a
+  mapped score, else route randomly.** Chosen by leave-one-design-out on the 26 held-out designs (every fold picks 3), it
+  has 1.66% mean regret against 2.29% for random routing and 4.38% for always running the ladder, at the same wall-clock,
+  and its worst cell is 13% instead of 50%. Testing the mapped rung on a small routed pilot (tau-b on 3 to 6 points) does
+  not help; routing a few random points inside the ladder's budget hedges as well. On the small designs it costs 0.17
+  points against always running the ladder, within noise: [`experiments/switch_guard/`](experiments/switch_guard/results.txt).
+- **The rule's ladder branch holds on fresh data where routing is dear (milestone 112, flow run).** 120 new pass sequences on
+  six designs where a routed point costs 3.6 to 19.5 times a mapped score (12 cells, about 103 points each, newer tools):
+  "score everything at the mapped rung, route the best 8" has 1.05% mean regret against 3.16% for random routing of the
+  same wall-clock (better in 9 cells, worse in 3; design bootstrap interval of the difference -3.95 to -0.06 points). The
+  six-point random hedge milestone 111 preferred by 0.07 points in-sample is worse than random routing here (3.55%), so it
+  is dropped from the rule; relaxed-clock 24-bit multipliers and a crossbar remain the failures:
+  [`experiments/fresh_dear/`](experiments/fresh_dear/results.txt).
+- **The switch holds on eight designs no table had run (milestone 113, flow run).** Unseen multiplier widths, a squarer (a new
+  family), a 32-port crossbar, a 64-bit GF(2) matrix, a 32-bit adder, popcount and barrel shifter, 120 fresh sequences, both
+  clocks: the rule, with theta = 3 fixed in advance, has 0.91% mean regret against 2.64% for random routing and 1.44% for
+  always running the ladder (better than random in 9 of 16 cells, worse in 1, sign test p = 0.02). Each branch picked the
+  better policy on average; the one miss is a relaxed-clock 18-bit multiplier (10.5%), the family's known failure:
+  [`experiments/fresh_designs/`](experiments/fresh_designs/results.txt).
+- **No guard from the mapped rung alone (milestone 114, no flow run).** A guard on the mapped slack and delay spread, chosen
+  on the held-out cells (where it caught exactly the five failing relaxed multipliers, 1.66% to 1.25% leave-one-family-out),
+  missed both relaxed multipliers on 28 fresh dear-pool cells and raised regret from 0.97% to 1.16%: the spread is a property
+  of the sequence pool, not the design, and the stable slack does not separate the failures. The switch stays the rule:
+  [`experiments/r2_guard/`](experiments/r2_guard/results.txt).
+- **A mapped score clipped at the clock fixes the relaxed-clock multiplier miss, blind (milestone 115, flow run).** At a relaxed
+  clock the routed flow repairs timing up to the period and stops, so routed delay is the period (median 0.993 to 1.000 of it
+  on every relaxed multiplier and squarer) and routed area x delay ranks by area alone; the mapped score keeps rewarding mapped
+  speed nobody will see. Scoring a point as area x max(period, 1.25 x mapped delay), chosen on the 52 held-out cells (1.66% to
+  0.77% in-sample; 1.66% leave-one-family-out, since the gain is all in one family), then run blind on seven new designs
+  (1,680 flow runs, predictions committed first): the switch's mean regret falls from 2.73% to 0.83%, better in 5 cells and
+  worse in none, every relaxed cell on the ladder at 0.00% (mult26 9.58%, sq24 11.30% before); design bootstrap interval of the
+  difference -3.63 to -0.41 points. All six predictions held. It can hurt where routed delay sits far below the period: on an
+  earlier, already seen table it sent barrel128 relaxed from 0.00% to 19.2%:
+  [`experiments/clip_score/`](experiments/clip_score/results.txt).
+- **The switch's routed pilot cannot tell when to clip (milestone 116, flow run, negative).** A guard that keeps the clip only
+  when the timing pilot's routed delay is at least 0.9 of the period, fixed by mechanism before five blind designs ran (1,200
+  flow runs): the pilot share does separate barrel shifters (0.41 to 0.59) from multipliers and squarers (1.00), but the clip
+  helped on two of three blind relaxed barrels (barrel192 8.21% to 0.00%, barrel256 8.66% to 0.00%) and hurt on one (barrel96,
+  3.18% to 9.42%). Blind mean regret: unguarded clip 2.69%, guarded 3.76%, plain switch 5.58%, equal-cost random 3.28%. Over
+  all 124 cells of milestones 110 to 116 the unguarded clip has 1.02% against 1.87% for the plain switch and 2.36% for random
+  routing, so it stays the rule: [`experiments/pilot_clip/`](experiments/pilot_clip/results.txt).
+- **Counted by what each rule had seen, the clip is what beats random routing (milestone 117, no flow run).** The plain
+  switch (theta fixed in milestone 111) is level with equal-cost random routing on the 20 designs it had not seen (2.71% against
+  2.80% mean regret, 40 cells). The clipped switch (alpha fixed in milestone 115) has 1.60% against 2.91% on its only test cells,
+  the 24 of the 12 designs run blind in milestones 115 and 116: better in 18, worse in 5 (sign p = 0.011), design-bootstrap
+  interval of the difference -2.45 to +0.22 points, so not yet significant across designs. Squarers, multipliers and crossbars
+  carry the win; wide barrel shifters split 3 to 3: [`experiments/switch_pooled/`](experiments/switch_pooled/results.txt).
+- **On three families no table had run, the clipped switch loses to random routing because of one shifter (milestone 118,
+  flow run, mostly negative).** Funnel shifters, FIR tap sums and CORDIC stages; six designs and eight predictions committed
+  before 1,440 flow runs. Blind mean regret: clipped switch 8.34%, plain switch 9.19%, equal-cost random 2.48%. funnel128's
+  routed-best point ranks 70.5 of 103 on the mapped score, so a top-8 ladder costs it 39 to 51% at both clocks. FIR and the
+  larger CORDIC go to 0.00 to 1.31%. Over the clipped switch's 36 test cells it is better than random in 22 and worse in 11, but
+  the design-bootstrap interval is -1.68 to +5.55 points. Without the two shifter families (post hoc) it is 0.79% against
+  2.59%, interval -2.53 to -1.03. A 4-point rank-agreement guard halves the funnel loss but does not fix it:
+  [`experiments/new_families/`](experiments/new_families/results.txt).
+- **A guard that reads the RTL for a wide data shifter fixes the shifter failure, run blind (milestone 119, flow run).** SWS(64)
+  is the clipped switch, except that it routes randomly when the RTL has a data shifter of 64 bits or more. It was chosen on 136
+  seen cells (1.08% against 1.67% for SWC). On three families no table had run (rotate-and-mask, leading-zero normaliser,
+  maximum tree), it has 4.03% blind regret against 5.27% for SWC and 4.79% for equal-cost random routing. It is better than
+  random in 3 cells and worse in none. It acts on only 3 of the 12 cells, so the interval is -1.58 to +0.00 points. The max-tree
+  decoy, mux-heavy but no shifter, stays on the ladder and wins (0.73% against 2.99%):
+  [`experiments/struct_guard/`](experiments/struct_guard/results.txt).
+- **The RTL shifter guard fails its second blind test (milestone 120, flow run, mostly negative).** A barrel written as explicit
+  mux stages (proved equal to `barrel_w`) has no shift operator, so SWS(64) does not flag it, and the clipped switch loses there
+  (muxshl128 19.68% and 17.85% against 2.99% and 2.37% random). A mux-share band catches it. But the guard also flags a 128-bit
+  leading-zero normaliser where the ladder reaches 0.00% against 11.4 to 11.8% random. Blind regret: SWS(64) 9.84%, the
+  band-extended guard SWG 7.16%, random 7.16%, the unguarded rule 8.38%. The property that defeats the ladder looks like a shift
+  amount taken straight from an input, not a shift operator:
+  [`experiments/shift_power/`](experiments/shift_power/results.txt).
+- **Where the shift amount comes from decides it (milestone 121, flow run, three new families run blind).** A left shifter whose
+  amount is the popcount of a mask (a counter chain 63 to 127 cells deep) is where the clipped ladder wins: 0.00% regret in all 4
+  cells against 0.92 to 1.81% for random routing. One adder (`x >> (a + b)`) or an exponent difference (`x >> |ea - eb|`) in front
+  of the amount is not enough: the ladder still loses (8.60% and 13.29% against 1.69% and 6.98%). The registered guard "route
+  randomly on a 64-bit-plus shifter whose amount is under 8 word-level cells deep", SWD(8), has 2.89% blind regret against 3.34%
+  for random routing and 7.30% for the unguarded rule (better in 4 cells, worse in none); the primary "pins only" version was too
+  literal: [`experiments/amount_depth/`](experiments/amount_depth/results.txt).
+- **The cut is between depth 2 and 4, not 8 (milestone 122, flow run, three new 128-bit families run blind from both sides of
+  k = 8).** On every cell where the rule takes its ladder branch, the clipped ladder reaches 0.00% regret, against 2.79 to 5.65%
+  for random routing, including an amount only 4 word-level cells deep (a short xor-add chain) that SWD(8) wrongly routes randomly.
+  Over the 24 blind cells of milestones 121 and 122, SWD(8) has 2.99% against 3.94% random and 4.93% unguarded, better than random
+  in 8 cells and worse in none (sign p = 0.008); post hoc, SWD(3) does better (2.73%):
+  [`experiments/amount_threshold/`](experiments/amount_threshold/results.txt).
+- **Gates in front of the shift amount decide it, not word-level cells (milestone 123, flow run, three new 128-bit families built so
+  the two counts disagree).** A guard that routes randomly when fewer than 36 AND/NOT gates feed a wide shifter's amount, SWG(36),
+  has 1.28% blind regret against 5.33% for the word-level guard SWD(3) and 3.95% for random routing (better than random in 7 of
+  12 cells, worse in 1). A 7-way xor of 7-bit fields (7 word-level cells, 15 gates) costs the unguarded ladder 16.9% against
+  0.02% random, while two chained 12-bit multiplies (2 cells, 159 gates) give it 0.00%. All seven registered predictions held.
+  Over milestones 121 to 123's 36 blind cells SWG(36) has 2.25% against 3.94% random (better in 17, worse in 1):
+  [`experiments/amount_cut/`](experiments/amount_cut/results.txt).
+- **The gate cut sits between 31 and 33, not at 36 (milestone 124, flow run, seven blind 128- and 64-bit shifters from three new
+  families with 31 to 41 gates in front of the amount).** In this test the clipped ladder reaches 0.00 to 1.59% regret on every
+  ladder-branch cell from 33 gates up (against 3.25 to 22.73% for random routing), including two the registered SWG(36) routes randomly; at 31
+  gates (an 8-bit absolute difference) it loses at the tight clock (27.73% against 4.32%). SWG(36) still beats random routing in 6
+  cells and loses in none (2.84% against 8.11%); post hoc SWG(32) has 1.38%. Six of seven predictions held; the refuted one said
+  the ladder would lose at 33 gates. The 64-bit twin falls under the routing-cost threshold, so width scaling stays untested.
+  Over milestones 121 to 124's 50 blind cells SWG(36) has 2.41% against 5.11% random (better in 23, worse in 1):
+  [`experiments/amount_place/`](experiments/amount_place/results.txt).
+- **Hedging the pilot-probe guard's fall-back is nearly free and nearly useless (milestone 130, replay of the same 90 cells,
+  no flow run).** When the pilot beats the subset's best, routing the subset's next 3 clipped-ladder ranks before the random
+  fall-back (SWH(32, 3)) moves mean regret from 4.39% to 4.37% (paired draws; better on 24 cells, worse on 1; interval -0.04 to
+  -0.01 points). The hedge holds the cell's best point in only 19% of false alarms on the 40 cells where the ladder is perfect,
+  because a 32-point subset rarely contains the global winner. Mapping the rest first and routing the global ladder's next 3
+  (SWHM(32, 3)) halves the false-alarm cost (0.53 points) but starves the fall-back where the ladder fails (14.94% against
+  11.83%), 4.69% overall. All six predictions held; the false alarms are the test's, not the fall-back's:
+  [`experiments/hedge_probe/`](experiments/hedge_probe/results.txt).
+- **Confirming the pilot-probe guard's alarm with a second random probe trades true alarms for false ones (milestone 131,
+  replay of the same 90 cells, no flow run).** SWQ(32, 1) falls back only when one more of the subset's mapped points (one the
+  fall-back routes first anyway) also beats the subset's best. False alarms on the 40 cells where the ladder is perfect drop from
+  12% to 4% of draws (cost 1.15 to 0.39 points), but true alarms on the 17 failing cells drop from 34% to 14% (11.83% to 14.40%),
+  so mean regret rises to 4.53% against SWP(32)'s 4.39%, though SWQ is better on 47 cells and worse on 20 (interval -0.24 to
+  +0.57 points). Given an alarm, the second probe confirms 42% of the time on failing cells and 30% on perfect ones: one more
+  random point carries little evidence. A relative margin of 0.5% to 5% on y[u] - y[t] is flat (4.38% to 4.42%). Two of six
+  predictions refuted; the subset test with random probes looks exhausted, and SWG(32) (3.91%) stays ahead:
+  [`experiments/confirm_probe/`](experiments/confirm_probe/results.txt).
+- **Why the clipped ladder fails where it fails: the delay half, not the area half (milestone 134, replay, no flow run).** On the
+  36 blind ladder-branch cells of milestones 125, 132 and 133, mapped area ranks routed area almost exactly in both groups (Kendall
+  tau-b 0.95 on the 8 failing cells, 0.93 on the 26 winning ones). On the failing cells the ladder's best routed pick is 0.4% to
+  16% *smaller* than the routed optimum but 3% to 27% *slower*, so delay carries 149% of its log regret. Mapped delay says
+  nothing about routed delay there (tau 0.00, against 0.13 where the ladder wins), and among the mapped points smaller area means
+  slower routing (tau of mapped area against routed delay -0.15 against +0.10; AUC 0.06). The clip is not the cause: it binds on
+  fewer points where the ladder fails (0.42 against 0.55; prediction refuted), and the unclipped key does worse (16.9% against
+  14.3%). The trade-off appears only after routing: mapped area and mapped delay rise together on every cell (tau 0.47 against
+  0.37, AUC 0.68, post hoc), so no mapped-rung statistic seen so far flags these cells. Five of six predictions held:
+  [`experiments/ladder_diagnosis/`](experiments/ladder_diagnosis/results.txt).
+- **Checking routed delay inside the ladder's own top 3 does not find its failures (milestone 135, replay of the 90 seen cells,
+  no flow run, negative).** The guard SWX(3, 0.02) routes the clipped ladder's top 3 (points it routes anyway) and, if the
+  smallest-area one routes more than 2% slower than the fastest, spends the other 5 routes in the larger-area band. It alarms on
+  45% of failing cells and 47% of winning ones: a smaller netlist routing slower than a slightly larger one is the common case
+  near the top, not a failure sign. Mean regret 5.01% against 4.77% for the unguarded SWC and 3.91% for SWG(32); it saves 1 point
+  where the ladder fails (15.64% against 16.63%) and gives up 0.97 where it is perfect. Four of six predictions refuted; the
+  probe-guard search for this rule closes here:
+  [`experiments/delay_check/`](experiments/delay_check/results.txt).
+- **The clipped ladder's losses sit near the switch threshold, not at the tight clock, and a raised threshold buys nothing
+  (milestone 139, replay, pre-registered).** Milestone 138's post-hoc reading tested on the 99 earlier ladder-branch cells that
+  did not suggest it. Clock: refuted (failure rate 14/51 tight against 11/48 relaxed, Fisher p = 0.39; paired by design 19
+  against 23, p = 0.64). Ratio: held (failing cells have lower routed/r2, AUC 0.67, permutation p = 0.006; 16 of the 25
+  failures have routed/r2 at most 4). But the band (3, 4] holds big wins too, so there SWC and random tie on the mean
+  (6.20% against 6.03%); above 4 SWC has 2.65% against 4.44%. The guard SWCT(4) (random at the tight clock when routed/r2 <= 4)
+  gives 4.01% against SWC's 4.21%, better on 12 designs and worse on 11 (interval -1.25 to +0.78 points); theta = 3 stays:
+  [`experiments/tight_theta/`](experiments/tight_theta/results.txt).
+- **A second confirmatory blind set, on 128-bit right and 256-bit left shifters: the clipped ladder beats equal-cost random
+  routing on 21 of 25 new designs (sign p = 0.0009), and over all 58 blind designs its mean advantage is now significant
+  (milestone 138, flow run).** Five new families (restoring division, chained clamps, max - min range, 3-bit dot product,
+  threshold count), each dial at both shifters; all 40 candidates passed the cost probe, and the flow stopped at its time
+  limit after 25 complete designs, the analysed set by a run-order rule fixed beforehand. SWC 2.45% mean regret against 6.44%
+  for random (right shifters 2.18% against 4.75%, 256-bit left 2.74% against 8.27%); its four losses are all at the tight
+  clock. Pooled with the 33 earlier blind designs: better on 42, worse on 13 (p = 0.0001), design-level mean -2.47 points
+  with a 95% interval of -3.87 to -1.06. All eight predictions held:
+  [`experiments/ladder_confirm2/`](experiments/ladder_confirm2/results.txt).
+- **A confirmatory blind set at one clock per design: the clipped ladder wins on 21 of 33 blind designs and loses on 9 (sign
+  p = 0.043), but the size of its edge is not yet pinned down (milestone 137, flow run).** Twelve new 128-bit left shifters from
+  four families (integer square root, argmin index, ones'-complement checksum, nibble-match count), kept from 16 by milestone
+  133's cost probe and run at one clock each: SWC 2.91% mean regret against 4.15% for equal-cost random routing, better on 8
+  designs and worse on 4 (p = 0.39, the registered primary test refuted). Two square-root designs carry most of the loss
+  (+3.89 and +7.08 points). Pooled with the 21 earlier blind designs the design-level mean difference is -1.32 points with a 95%
+  interval of -3.26 to +0.63, so about 73 designs would be needed to put it below zero. Five of seven predictions held:
+  [`experiments/ladder_confirm/`](experiments/ladder_confirm/results.txt).
+- **The blind evaluation, rule by rule: the unguarded ladder is the rule to report, but its edge over random routing is not yet
+  established at the design level (milestone 136, replay of the 42 blind cells, no flow run).** Each rule is scored only on the
+  cells that were out of sample for it. Over all 42 cells (21 designs) the clipped ladder SWC has 3.30% mean regret, random
+  routing 4.65%, the gate-depth guard 4.26%; no guard beats SWC on its own blind cells after a Holm correction (smallest adjusted
+  p 0.23), though SWG(32)'s flag in front of the pilot probe comes out lower on its 26 (2.85% against 3.14%, interval -2.40 to
+  +1.64 points). SWC beats random on 28 cells and loses on 8 (p = 0.001), but cells within a design move together: by design it
+  is 13 better, 5 worse (p = 0.096), and at the observed spread about 95 blind designs would be needed for a 95% interval below
+  zero. A perfect guard would sit 1.99 points below SWC, all of it on 8 cells of 5 designs. Four of six predictions held:
+  [`experiments/blind_pooled/`](experiments/blind_pooled/results.txt).
+- **On a blind set probed so every cell reaches the ladder branch, the unguarded ladder beats random routing and every guard
+  loses to it (milestone 133, flow run).** Seven new 128-bit left shifters (a CRC-7, BCD-to-binary, compare-select and
+  multiplicative-hash amount; 18 to 58 gates) were kept from nine by a one-point routing-cost probe written before it ran, and
+  nine predictions were fixed before a 1,680-point flow run. All 14 cells are on the ladder branch. Blind mean regret: unguarded
+  clipped ladder SWC 2.70%, the 32-gate rule SWG(32) 3.09%, the pilot-probe guard SWP(32) 3.35%, random 5.57%; SWC is perfect on
+  11 cells and fails on crc7s16 relaxed and bcd3. Routing fresh points on distrust (SWPF) is 0.12 points better than SWP, all of
+  it where the ladder was right. Pooled over all 42 blind cells (milestones 125, 132, 133): SWC 3.30%, SWG(32) 4.26%, random
+  4.65%; SWC better than random on 28 cells, worse on 8: [`experiments/ladder_blind/`](experiments/ladder_blind/results.txt).
+- **Tested blind on six new 128-bit shifters, neither guard beats random routing (milestone 132, flow run).** SWP(32), the
+  pilot-probe guard, and SWG(32), the 32-gate rule, were registered side by side with eight predictions before a 1,440-point flow
+  run on three new families: Gray decode (gray0, 24 gates in front of the amount; gray1, 43), a value mod 97 (mod8, mod10, mod12;
+  27 to 80 gates) and one round of a 7-bit substitution table (lut1, 51). The mod family's right shifters all fell under the
+  routing-cost threshold (routed/r2 about 2.2), so 6 of 12 cells are informative. Blind mean regret: SWG(32) 2.25%, SWP(32)
+  3.01%, unguarded SWC 3.65%, random 2.20%. The ladder fails on gray0 (24 gates; 8.67% against 0.31% random), which SWG(32)
+  flags, and on lut1 at the tight clock (51 gates; 12.66% against 5.11%), which it does not: a second blind miss above the cut
+  after milestone 125's pmul4. SWP(32)'s test does see the failures (distrust 0.31 of draws where SWC loses, 0.04 where SWC is
+  at most 0.5%), but its fall-back recovers only part of the loss (7.20% against 10.00% unguarded and 1.91% random). Five of
+  eight predictions held; (3), (4) and (6) refuted. Over SWG(32)'s two blind sets (28 cells) it has 4.85% against 4.19% random
+  and 3.60% for no guard: [`experiments/blind_probe/`](experiments/blind_probe/results.txt).
+- **A probe the ladder pays for anyway makes the first measured guard that beats the unguarded ladder on mean (milestone 129,
+  replay of the same 90 cells, no flow run).** Routing a mapped 32-point subset's clipped-ladder best against the timing pilot SWC
+  already routes, and routing randomly with the unspent budget when the pilot wins (SWP(32)), has 4.39% mean regret against 4.77%
+  unguarded and 5.44% random. A trusting draw routes exactly the unguarded ladder's 8 points in 90% to 99% of trusting draws, so the guard
+  costs only its false alarms (12% of draws on the 40 cells where the ladder is perfect, 1.15 points) and falls back in 34% of draws
+  on the 17 cells where it fails (16.63% to 11.83%). It loses to SWC on 48 cells and wins on 19 (interval -1.13 to +0.34 points),
+  and stays behind the 32-gate rule's 3.91%. Four of six predictions held:
+  [`experiments/pilot_probe/`](experiments/pilot_probe/results.txt).
+- **Deciding before the pool is mapped gives the fall-back its budget back, but the probes cost more than they save (milestone 128,
+  replay of the same 90 cells, no flow run).** Mapping a uniform 24-point subset, routing its clipped-ladder best 3 against 3 of
+  its other points, and routing randomly with the unspent budget when the ladder's best loses (SWS(24, 3)) cuts regret on the 17
+  cells where the ladder fails from 16.63% unguarded (13.32% for milestone 127's guard) to 9.16%, falling back in 40% of draws
+  there and 9% where the ladder wins. On those 40 winning cells the 6 probes displace ladder routes and cost 4.23 points, so the
+  mean over 90 cells is 5.31% against 4.77% unguarded and 5.44% random. Five of six predictions held. One probe (m = 1) costs
+  less (4.50% to 4.55% for s from 16 to 32, read after the table, not chosen), still behind the 32-gate rule's 3.91%:
+  [`experiments/staged_probe/`](experiments/staged_probe/results.txt).
+- **A top-probe guard sees the ladder's failures but cannot afford to act on them (milestone 127, replay of the same 90 cells,
+  no flow run).** Routing the clipped ladder's best 3 and 3 uniform points and trusting the ladder only when its best wins (SWT(3))
+  falls back in 54% of draws where the ladder fails and 7% where it wins, far sharper than milestone 126's random probes (12% and 7%).
+  But the whole pool is mapped before the test, so the fall-back has only 2 more routes: SWT(3) has 5.11% mean regret against 4.77%
+  unguarded and 5.44% random. Even a free fall-back (a bound, not a schedule) reaches only 4.19%:
+  [`experiments/top_probe/`](experiments/top_probe/results.txt).
+- **A probe-rank guard cannot see the ladder's failures (milestone 126, replay of milestones 119 to 125's 90 cells, no flow run).**
+  Routing 4 uniformly drawn probes and trusting the clipped ladder only when its order agrees with routed order on them (SWCV)
+  gives 5.14% mean regret, worse than the unguarded ladder (4.77%) and barely better than random routing (5.44%). It falls back
+  in 12% of draws where the ladder fails and 7% where it wins, because the mapped score orders a failing cell's points about as
+  well overall (tau-b +0.45 against +0.53) and goes wrong only among its own top 16 (-0.18 against +0.23, post hoc):
+  [`experiments/pilot_rank/`](experiments/pilot_rank/results.txt).
+- **The gate-depth guard fails its second blind test (milestone 125, flow run, eight blind shifters from four new families,
+  five 128-bit and three 64-bit multi-lane).** The clipped ladder reaches 0.00% regret at both clocks with 28, 31, 33 and 35 gates
+  in front of the amount (random routing 2.40 to 12.44%), so the registered 32-gate guard routes two winning designs randomly; on a
+  4-bit by 7-bit product (36 gates) it has 21 to 25% against about 4%. Unguarded, the ladder has 3.56% blind regret against 5.69%
+  for random routing; SWG(32) has 6.79%. Four of eight predictions held. Wider data paths around a 64-bit shift do reach the
+  ladder branch (routed/r2 up to 5.6), and there the ladder wins (1.20% against 3.84% at 48 gates). Gate depth is not the
+  variable: [`experiments/amount_lanes/`](experiments/amount_lanes/results.txt).
 - **Proof success (H5) is predicted by design size, not by the rewrite**; it is not testable on this benchmark as built.
 - Limits: one corner and utilisation, global-route estimates, cached tables from tens of designs.
 
@@ -70,6 +290,9 @@ routed design, with a coverage guarantee that holds whatever the rung bias?
 ```bash
 # OpenROAD 26Q2 from the nixpkgs binary cache, Yosys 0.33 (apt), SKY130 platform files at chip-pnr's pinned ORFS commit
 research/chip-pnr/fetch_pdk.sh /tmp/pdk
+# Milestones 108 to 113 use Yosys 0.70 and OpenROAD 26Q3 instead (about a minute from the nixpkgs cache; put both bin/ dirs on PATH):
+#   nix --extra-experimental-features 'nix-command flakes' build --no-link --print-out-paths nixpkgs#openroad nixpkgs#yosys
+# Those flows run 1 to 2 hours on 4 cores: in a cloud session start them in the background with a long timeout, and use --resume if one stops.
 python3 experiments/rung_bias/run.py --openroad <openroad> --pdk /tmp/pdk/orfs/flow/platforms/sky130hd   # ~40 min on 4 cores
 python3 experiments/rung_bias/analyse.py                                                            # writes results.txt, summary.json
 python3 -m unittest discover -s tests                                                               # rank statistics

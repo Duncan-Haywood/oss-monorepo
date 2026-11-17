@@ -134,6 +134,8 @@
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
+    // A blank or unreadable field takes the fallback; a typed 0 stays 0 (`|| d` would turn 0 into d).
+    const numOr = (s, d) => { const t = String(s ?? "").trim(); const n = parseFloat(t); return t === "" || !Number.isFinite(n) ? d : n; };
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     let last = null;
@@ -144,7 +146,7 @@
       a.download = name;
       a.click();
     }
-    const opts = () => ({ creepPct: parseFloat($("#creep").value) || 5, spikePct: parseFloat($("#spike").value) || 8 });
+    const opts = () => ({ creepPct: numOr($("#creep").value, 5), spikePct: numOr($("#spike").value, 8) });
     const PILL = { "over contract": "high", "one-off spike": "high", "creeping up": "medium", cheaper: "ok", steady: "info", "one purchase": "info" };
 
     function run(text) {

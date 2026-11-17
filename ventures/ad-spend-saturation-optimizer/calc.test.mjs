@@ -13,6 +13,16 @@ test("nelderMead finds the minimum of a quadratic", () => {
   near(r.x[0], 3, 1e-4); near(r.x[1], -1, 1e-4);
 });
 
+test("curves: bind(p) returns exactly f(p, s), the fit's inner loop depends on it", () => {
+  const ps = { exp: [[80, 5], [42000, 9000], [1e-3, 1e6]], hill: [[80, 5, 2.2], [80, 5, 0.8], [60000, 14000, 1.6], [3, 0.5, 3]] };
+  for (const t of ["exp", "hill"]) for (const p of ps[t]) {
+    const g = CURVES[t].bind(p);
+    for (const s of [-2, 0, 1e-9, 0.37, 1, 4, 9, 123.456, 1e5, 7e7, Infinity, NaN]) {
+      assert.ok(Object.is(g(s), CURVES[t].f(p, s)), `${t} ${p} at ${s}: ${g(s)} vs ${CURVES[t].f(p, s)}`);
+    }
+  }
+});
+
 test("percentile interpolates", () => {
   near(percentile([1, 2, 3, 4], 0.5), 2.5, 1e-12);
   near(percentile([1, 2, 3, 4], 0), 1, 0);
@@ -153,6 +163,46 @@ test("allocate respects limits and never beats the unconstrained optimum", () =>
 test("allocate reports an infeasible split", () => {
   const r = allocate([{ f: (s) => s, lo: 30, hi: 40 }], 20, { steps: 100 });
   assert.match(r.error, /no feasible split/);
+});
+
+test("frontier equals the plain every-u-at-every-b programme, lower limits, ties and gaps included", () => {
+  // The reference is the loop frontier() ran before it learned which totals are reachable:
+  // every b from 0, every u from lo, unreachable bases skipped, strict > so the first u wins ties.
+  const reference = (curves, unit) => {
+    const lo = curves.map((c) => Math.max(0, Math.floor(c.lo / unit)));
+    const hi = curves.map((c, i) => Math.max(lo[i], Math.ceil(c.hi / unit)));
+    const T = hi.reduce((a, b) => a + b, 0);
+    let prev = new Array(T + 1).fill(-Infinity); prev[0] = 0;
+    const choice = [];
+    for (let j = 0; j < curves.length; j++) {
+      const cur = new Array(T + 1).fill(-Infinity), ch = new Array(T + 1).fill(-1);
+      for (let b = 0; b <= T; b++) for (let u = lo[j]; u <= Math.min(hi[j], b); u++) {
+        if (prev[b - u] === -Infinity) continue;
+        const v = prev[b - u] + curves[j].f(u * unit);
+        if (v > cur[b]) { cur[b] = v; ch[b] = u; }
+      }
+      choice.push(ch); prev = cur;
+    }
+    return { T, prev, choice };
+  };
+  const hill = (s) => CURVES.hill.f([100, 10, 3], s);
+  const sets = [
+    [{ f: hill, lo: 2, hi: 14 }, { f: (s) => 30 * Math.log1p(s), lo: 1, hi: 9 }, { f: (s) => CURVES.hill.f([80, 4, 2], s), lo: 0.5, hi: 30 }, { f: (s) => (s < 3 ? NaN : 5 * s), lo: 0, hi: 6 }],
+    [{ f: () => 7, lo: 0, hi: 5 }, { f: () => 7, lo: 0, hi: 5 }], // flat: every split ties
+    [{ f: () => -Infinity, lo: 0, hi: 3 }, { f: hill, lo: 1, hi: 4 }],
+  ];
+  for (const curves of sets) {
+    const fr = frontier(curves, 0.25), ref = reference(curves, 0.25);
+    assert.equal(fr.maxUnits, ref.T);
+    for (let b = 0; b <= ref.T; b++) {
+      assert.ok(Object.is(fr.revenueAt(b), b < fr.minUnits ? NaN : ref.prev[b]), `revenue at ${b}`);
+      const at = fr.at(b);
+      if (b < fr.minUnits || ref.prev[b] === -Infinity) { assert.equal(at, null, `at ${b}`); continue; }
+      const units = []; let r = b;
+      for (let j = curves.length - 1; j >= 0; j--) { units[j] = ref.choice[j][r]; r -= units[j]; }
+      assert.deepEqual(at.units, units, `units at ${b}`);
+    }
+  }
 });
 
 test("frontier revenue rises with budget for increasing curves", () => {
@@ -402,4 +452,10 @@ test("compareSnapshot reads follow-through from last time's recommendation", () 
   const gone = compareSnapshot({ ...prev, channels: [...prev.channels, { name: "Podcast", current: 1, mroas: 1, recommended: 1 }] }, res);
   assert.deepEqual(gone.dropped, ["Podcast"]);
   assert.ok(describeComparison(cmp).some((t) => t.startsWith(mover.name) && /You made 100%/.test(t)));
+});
+
+test("parseDay refuses a day the month does not have instead of rolling it into the next month", () => {
+  assert.ok(Number.isNaN(parseDay("2026-02-30")));
+  assert.ok(Number.isNaN(parseDay("4/31/2026")));
+  assert.equal(dayToIso(parseDay("2024-02-29")), "2024-02-29");
 });

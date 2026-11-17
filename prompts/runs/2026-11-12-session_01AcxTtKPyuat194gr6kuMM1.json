@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtKPyuat194gr6kuMM1",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T17:06:17Z",
+  "ended": "2026-11-12T17:12:12Z",
+  "wall_minutes": 8.3,
+  "tokens_in": 3386272,
+  "tokens_out": 16126,
+  "cost_usd": 1.726,
+  "tool_calls": 38,
+  "task": "heavy-hydraulics milestone 6a: run the registered smaller-fixed-pump trade on measured excavator demand",
+  "projects": [
+    "research/heavy-hydraulics"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15194",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first push blocked by the post front-matter hook (description 175 > 160, seo_title 74 > 70)",
+      "fix": "shortened both in a separate commit"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/heavy-hydraulics/LOG.md",
+      "issue": "6a had been registered but blocked by a 403 on huggingface.co earlier today; at 17:07 UTC the host answered 200, so blocked-host notes should be re-probed rather than trusted (cdn-lfs.huggingface.co still answered 502, but the range reads did not need it)."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes on a research + post diff runs portfolio-pages 'Test the site builder', which failed 172 of 1592 tests in this container; unrelated to a research/post-only change, so CI was used as the verdict."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-half-size-pump-excavator-costs-eleven-percent.md",
+    "research/heavy-hydraulics/LOG.md (6a outcome entry)",
+    "research/heavy-hydraulics/paper/draft.md section 3.7c"
+  ],
+  "goal": null,
+  "notes": "Ran the registered 6a script unchanged (24 s incl. Hugging Face range reads). Equal-energy fixed pump on the measured excavator: 108.0 L/min (0.450 of p99 demand) at 1.114x load-sensing record time (1.069 to 1.191 over margins/pressures; 1.046 to 1.686 over 384 geometry cases), against 1.39 on the loader. A1, A5, A6 held; A2, A3, A4 refuted. Local checks: heavy-hydraulics tests 50 passed; paper/check_numbers.py 194 checked, 0 missing; research/_homepage/build.py ok; check_md_links ok; cite_check ok; research_live_links ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2dc71c67-7cb9-5143-9ea9-2df85b0065f2",
+    "transcripts": 1,
+    "first": "2026-11-12T17:06:17Z",
+    "last": "2026-11-12T17:14:35Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 36,
+        "input": 70,
+        "output": 16126,
+        "thinking": 2107,
+        "cache_read": 3293127,
+        "cache_write_5m": 0,
+        "cache_write_1h": 93075,
+        "api_equivalent_usd": 1.726,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 36,
+      "input": 70,
+      "output": 16126,
+      "thinking": 2107,
+      "cache_read": 3293127,
+      "cache_write_5m": 0,
+      "cache_write_1h": 93075,
+      "api_equivalent_usd": 1.726,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 38,
+    "tools": {
+      "Bash": 33,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.3,
+      "active_minutes": 8.3,
+      "model_minutes": 3.42,
+      "tool_minutes": 4.88,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "running a registered analysis on a public dataset, grading six predictions, a paper section with number checks and a blog post: about a day for a fluid-power researcher",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 347.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

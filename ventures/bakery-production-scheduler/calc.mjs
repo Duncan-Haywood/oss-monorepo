@@ -10,7 +10,7 @@ export function num(v) {
   const n = typeof v === "number" ? v : parseFloat(String(v ?? "").replace(/[$,%\s]/g, ""));
   return Number.isFinite(n) ? n : NaN;
 }
-export const money = (n) => (n < 0 ? "-$" : "$") + Math.abs(Math.round(n)).toLocaleString("en-US");
+export const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(n)).toLocaleString("en-US"));
 
 // "6:30", "06:30", "6:30pm", "18:30", "6pm" -> minutes after midnight; NaN if it is not a time.
 export function parseTime(s) {

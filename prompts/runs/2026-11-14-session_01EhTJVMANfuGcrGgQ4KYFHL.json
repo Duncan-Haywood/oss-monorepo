@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVMANfuGcrGgQ4KYFHL",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (prompts/ventures/prompt-1.md)",
+  "input_sha256": "81e5291c5a6f5ce849df079cc13c27fdbb43204449c00ae7b9c6f7742db70807",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T13:35:33Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "photo-editing flagship 7 (allocate.py row 5): lensfun vignetting SSE path and 16-bit fixed-point output check",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": 15854,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "First full sweep (serial, numpy model on every row) hit the 30-minute background limit; rewritten to run on 4 processes and model a sample of cases (43 s at 1,202 px)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "The buildable item asked for four-component images 'through lensfunpy, if it allows them'; lensfunpy rejects them (shape check in apply_color_modification), so the route is ctypes on its bundled liblensfun. Noted in the eval so later runs skip the probe."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-lensfun-16-bit-stripes.md",
+    "ventures/photo-editing/eval/lensfun-vignetting-paths-2026-11-14.md"
+  ],
+  "goal": "Know which of liblensfun's devignetting routines (plain, SSE, SSE2; float and 16-bit) ShootFlow's float64 vignetting matches, and how far the others are off.",
+  "notes": "tools/lensfun_vignetting_paths_check.py drives liblensfun 0.3.4 (bundled with lensfunpy 1.18.0) through ctypes with RGBA rows, aligned (SIMD) or offset by one sample (plain control), on 40,730 cases (474 lenses) at 1,202 and 6,002 px. Float SSE equals plain to float rounding but scales the UNKNOWN/alpha channel (up to 6.9x); 16-bit plain truncates the gain to 1/1024 (mean -3.97 steps at 8192, model exact); 16-bit SSE2 lanes drift (p99 4.2% at 1,202 px, 0.91% at 6,002 px; worst 24.8%/7.1%) and the w%4 tail is wrong in every case; a numpy model with both faults matches the library on all 1,628 + 212 sampled cases within one fraction unit plus _mm_rcp_ps's bound. Same loop on lensfun master (read 2026-11-14). darktable's lens.cc confirmed to pass LF_CR_4 float rows. Local verification: venture suite via platform/ci/run_venture_tests.py photo-editing ok (149.9 s); new tests 8 pass with numpy+lensfunpy and skip under bare python3; 5 of 6 seeded faults caught (SSE2 fraction rounding is inside the rcp tolerance by design). Not filed upstream (outward-facing; left to the owner).",
+  "corrections": [],
+  "redteam": null
+}

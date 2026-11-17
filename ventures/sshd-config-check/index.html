@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231e3a8a'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E%24%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>sshd_config Check — Which Setting Wins, Ignored Lines, Unread Drop-ins, Match Blocks</title>
+  <meta name="description" content="Paste sshd_config and sshd_config.d: see the value sshd really uses (first wins), why PasswordAuthentication no is ignored, drop-ins never read, Match traps, root and password logins, weak ciphers. Free, in your browser.">
+  <meta property="og:title" content="What will your SSH server really do?">
+  <meta property="og:description" content="Paste sshd_config and its drop-ins, read in sshd's order: the value that wins, the lines it ignores, and who can log in how. Nothing uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "sshd_config Check", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; CLI needs Node 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "A static read of sshd_config and the files its Include lines pull in, in the order OpenSSH reads them: which value wins for each setting (sshd keeps the first), lines sshd ignores, drop-ins it never reads, Match blocks that turn passwords or root login back on, settings that stop sshd starting, and PermitRootLogin yes, password and PAM logins, weak ciphers and other risky options. Runs in the browser or as a zero-dependency Node CLI; nothing is uploaded."}
+  </script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why is my PasswordAuthentication no ignored?", "acceptedAnswer": {"@type": "Answer", "text": "sshd keeps the first value it reads for a setting and ignores later ones, the opposite of most config files. On Ubuntu and Debian, the first line of /etc/ssh/sshd_config is Include /etc/ssh/sshd_config.d/*.conf, so any drop-in that says PasswordAuthentication yes (cloud-init writes one, 50-cloud-init.conf, when an image asks for password logins) wins over your line further down. Put your setting in a drop-in that sorts first, such as 00-hardening.conf, or remove the other one, then check with sudo sshd -T | grep -i passwordauthentication."}}, {"@type": "Question", "name": "Why is my file in sshd_config.d not read?", "acceptedAnswer": {"@type": "Answer", "text": "The stock Include line matches only names ending in .conf, so /etc/ssh/sshd_config.d/hardening or hardening.cfg is never read. Rename it, for example to 10-hardening.conf."}}, {"@type": "Question", "name": "Does indentation end a Match block?", "acceptedAnswer": {"@type": "Answer", "text": "No. sshd ignores indentation: every line after a Match line belongs to that block until the next Match line or the end of the file. A setting written flush left after an indented Match body applies only to the connections that Match selects. Put global settings above the first Match, or write Match all before them."}}, {"@type": "Question", "name": "Is PasswordAuthentication no enough to stop password logins?", "acceptedAnswer": {"@type": "Answer", "text": "Not always. With UsePAM yes (the Ubuntu and Debian default), keyboard-interactive login asks PAM, which asks for the Unix password. KbdInteractiveAuthentication defaults to yes; Ubuntu's stock file sets it to no, but older files and other distributions may not. Set both to no unless PAM drives a second factor."}}, {"@type": "Question", "name": "Does a clean result mean my SSH server is secure?", "acceptedAnswer": {"@type": "Answer", "text": "No. It reads only the patterns listed on this page, from the files you paste. It does not know your OpenSSH version's compiled-in defaults if they differ from 9.6, the keys in authorized_keys, your PAM stack, firewall or fail2ban, or which users have passwords. Confirm with sshd -T on the server, and have a qualified person review anything that protects valuable data."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 170px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; margin-bottom: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1e3a8a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    button.small { padding: 6px 10px; font-size: .8rem; font-weight: 600; }
+    .file-block { border: 1px solid #e6eaf0; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+    .file-block-head { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+    .file-block-head input { margin-bottom: 0; }
+    .verdict { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #166534; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; padding: 3px 8px; border-radius: 999px; background: #fde8e8; color: #9a3412; }
+    .pill.low { background: #e8eef5; color: #17324a; }
+    .pill.ok { background: #e7f5ec; color: #166534; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .84rem; line-height: 1.55; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .conn { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; }
+    .conn label { font-size: .82rem; color: #55606f; }
+    .pill.err { background: #fee2e2; color: #7f1d1d; }
+    .tableWrap { overflow-x: auto; }
+    @media (max-width: 640px) {
+      #report-card table, #report-card tbody, #report-card tr, #report-card td { display: block; }
+      #report-card thead { display: none; }
+      #report-card tr { border-bottom: 1px solid #e6eaf0; padding: 10px 0; }
+      #report-card td { border: 0; padding: 3px 0; }
+    }
+  </style>
+  <!-- rows-reserve:start -->
+  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #files:empty{min-height:241px}}</style>
+  <script>addEventListener('DOMContentLoaded',function(){document.documentElement.classList.add('pf-rows-ready')})</script>
+  <!-- rows-reserve:end -->
+</head>
+<body>
+  <header>
+    <p class="note">SSHD_CONFIG CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>What will your SSH server really do?</h1>
+    <p><code>sshd</code> keeps the <strong>first</strong> value it reads for a setting and silently ignores the rest. On Ubuntu and Debian the first line of <code>sshd_config</code> pulls in every <code>sshd_config.d/*.conf</code> file, so a cloud-init drop-in that says <code>PasswordAuthentication yes</code> beats your <code>no</code> further down. A drop-in named <code>hardening</code> without <code>.conf</code> is never read, and a line written flush left after a <code>Match</code> block still belongs to it. Paste <code>/etc/ssh/sshd_config</code> and its drop-ins below: this page reads them in <code>sshd</code>'s order and shows which value wins, the lines that do nothing, and the settings that let people in more easily than you meant.</p>
+    <p class="note">Nothing is uploaded. What you paste is read in this browser and never leaves your device, and the tool makes no network calls of its own. It reads the files, not a running server: it is not <code>sshd -T</code> and not a security audit.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>1. Paste your sshd_config files</h2>
+    <p class="note">Name each block like its path under <code>/etc/ssh</code>. The block named <code>sshd_config</code> is read first, and its <code>Include</code> lines pull in the blocks they match (<code>sshd_config.d/50-cloud-init.conf</code>), in name order, the way <code>sshd</code> does. On the server, <code>sudo head -n 200 /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*</code> shows them.</p>
+    <div id="files"></div>
+    <p><button type="button" class="secondary small" id="add-file">+ Add a drop-in file</button></p>
+    <details>
+      <summary>Optional: check one connection against the Match blocks</summary>
+      <p class="note">Fill in what you know about a login. Blocks whose criteria you leave blank count as not matching.</p>
+      <div class="conn">
+        <label>User <input type="text" id="conn-user" placeholder="deploy"></label>
+        <label>Groups (comma) <input type="text" id="conn-groups" placeholder="sudo,sftp"></label>
+        <label>Client address <input type="text" id="conn-addr" placeholder="203.0.113.9"></label>
+        <label>Client host name <input type="text" id="conn-host" placeholder="ci.example.com"></label>
+      </div>
+    </details>
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste at least sshd_config above and click Check.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Findings</h2>
+    <p class="verdict" id="verdict"></p>
+    <p class="note" id="order"></p>
+    <div class="tableWrap">
+      <table>
+        <thead><tr><th>File : Line</th><th>Type</th><th>What happens</th><th>Fix</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <h2 style="margin-top:18px">How people can log in</h2>
+    <ul id="login"></ul>
+    <h2 style="margin-top:18px">The value that wins for each setting</h2>
+    <p class="note">What <code>sshd -T</code> would print for the lines given (plus the defaults that matter most), and where each value came from.</p>
+    <div class="tableWrap">
+      <table>
+        <thead><tr><th>Setting</th><th>Value</th><th>From</th></tr></thead>
+        <tbody id="effective"></tbody>
+      </table>
+    </div>
+    <ul class="note" id="notes"></ul>
+  </section>
+
+  <section class="card">
+    <h2>What it checks</h2>
+    <ul>
+      <li><strong>Stops sshd starting:</strong> an unknown or misspelt keyword, a value <code>sshd</code> does not accept (<code>PermitRootLogin maybe</code>), a keyword with no value, a global-only keyword (<code>Port</code>, <code>Ciphers</code>, <code>UsePAM</code>) inside a <code>Match</code> block, a bad <code>Match</code> line.</li>
+      <li><strong>High:</strong> <code>PermitRootLogin yes</code> with passwords on; <code>PermitEmptyPasswords yes</code>; <code>PermitUserEnvironment yes</code> (or a list admitting <code>LD_PRELOAD</code>); RC4 ciphers.</li>
+      <li><strong>Medium:</strong> password logins on, including by default; keyboard-interactive through PAM (<code>UsePAM yes</code>) even after <code>PasswordAuthentication no</code>; a security setting that is ignored because an earlier file set it first; a drop-in that is never read; a setting written like a global one that sits inside a <code>Match</code>; CBC ciphers, MD5 MACs, the 1024-bit group1 key exchange, <code>ssh-dss</code>; <code>StrictModes no</code>; <code>IgnoreRhosts no</code>. A <code>Match</code> block that turns any of these back on is reported in its scope.</li>
+      <li><strong>Low:</strong> <code>X11Forwarding yes</code>; <code>GatewayPorts</code>; <code>PermitTunnel</code>; host-based login; <code>MaxAuthTries</code> over 10; <code>LoginGraceTime 0</code>; SHA-1 MACs, key exchange and <code>ssh-rsa</code>; deprecated options that do nothing; other ignored repeats.</li>
+    </ul>
+    <p class="note">The reading follows OpenSSH 9.6p1's own parser (<code>servconf.c</code>, <code>match.c</code>) and the <a href="https://github.com/openssh/openssh-portable/blob/V_9_6_P1/sshd_config.5" rel="noopener">sshd_config(5) manual</a> of that release: first value wins, case-insensitive keywords, an optional <code>=</code>, quotes and trailing comments, <code>Include</code> globs relative to <code>/etc/ssh</code> in byte order, a <code>Match</code> block running to the next <code>Match</code> or the end of its file, <code>Match all</code>, and <code>Match</code> values replacing global ones. This tool is not affiliated with the OpenSSH project. Every type, with the <code>sshd</code> behaviour behind it: <a href="sshd-config-mistakes-explained.html">sshd_config mistakes explained</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this in your own CI?</h2>
+    <p>Same engine, zero dependencies, Node 18 or later:</p>
+    <pre class="cmd"><code>sudo node check.mjs /etc/ssh                    # sshd_config and everything it Includes
+node check.mjs ./ssh                           # a copy in your repo, read as /etc/ssh
+node check.mjs /etc/ssh --user deploy --addr 10.20.1.5   # what one login gets
+node check.mjs /etc/ssh --format json          # machine-readable
+node check.mjs ./ssh --fail-on-risk            # exit 2 on an error, high or medium finding</code></pre>
+    <p class="note">Get <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sshd-config-check" rel="noopener">check.mjs and scan.mjs from the repo</a>: nothing to install, no network calls, and it never runs <code>sshd</code>. On the server, <code>sudo sshd -t</code> checks syntax and <code>sudo sshd -T</code> prints the values it will use.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why is my PasswordAuthentication no ignored?</h3>
+    <p><code>sshd</code> keeps the first value it reads for a setting and ignores later ones, the opposite of most config files. On Ubuntu and Debian, the first line of <code>/etc/ssh/sshd_config</code> is <code>Include /etc/ssh/sshd_config.d/*.conf</code>, so any drop-in that says <code>PasswordAuthentication yes</code> (cloud-init writes one, <code>50-cloud-init.conf</code>, when an image asks for password logins) wins over your line further down. Put your setting in a drop-in that sorts first, such as <code>00-hardening.conf</code>, or remove the other one, then check with <code>sudo sshd -T | grep -i passwordauthentication</code>.</p>
+    <h3>Why is my file in sshd_config.d not read?</h3>
+    <p>The stock <code>Include</code> line matches only names ending in <code>.conf</code>, so <code>/etc/ssh/sshd_config.d/hardening</code> or <code>hardening.cfg</code> is never read. Rename it, for example to <code>10-hardening.conf</code>.</p>
+    <h3>Does indentation end a Match block?</h3>
+    <p>No. <code>sshd</code> ignores indentation: every line after a <code>Match</code> line belongs to that block until the next <code>Match</code> line or the end of the file. A setting written flush left after an indented <code>Match</code> body applies only to the connections that <code>Match</code> selects. Put global settings above the first <code>Match</code>, or write <code>Match all</code> before them.</p>
+    <h3>Is PasswordAuthentication no enough to stop password logins?</h3>
+    <p>Not always. With <code>UsePAM yes</code> (the Ubuntu and Debian default), keyboard-interactive login asks PAM, which asks for the Unix password. <code>KbdInteractiveAuthentication</code> defaults to yes; Ubuntu's stock file sets it to no, but older files and other distributions may not. Set both to no unless PAM drives a second factor.</p>
+    <h3>Does a clean result mean my SSH server is secure?</h3>
+    <p>No. It reads only the patterns listed on this page, from the files you paste. It does not know your OpenSSH version's compiled-in defaults if they differ from 9.6, the keys in <code>authorized_keys</code>, your PAM stack, firewall or fail2ban, or which users have passwords. Confirm with <code>sshd -T</code> on the server, and have a qualified person review anything that protects valuable data.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is a static read of the files you paste, not a security audit, a penetration test or a guarantee of any system's security, and it does not replace a qualified security professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> Test an sshd_config change with <code>sudo sshd -t</code> and keep your current session open until a new login works, so a mistake cannot lock you out.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get the CLI from the repo and run it yourself.</p>
+    <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks: <a href="../sudoers-check/">sudoers Check</a> reads what a user can do once logged in, <a href="../systemd-unit-hardening-check/">systemd Unit Hardening Check</a> reads service units, and <a href="../nginx-config-security-check/">nginx Config Security Check</a> reads the web server config.</p>
+    <p class="support">Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { scanFiles, hasRisk, summaryLine } from "./scan.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      files: $("#files"), status: $("#status"), reportCard: $("#report-card"), order: $("#order"),
+      verdict: $("#verdict"), rows: $("#rows"), notes: $("#notes"), login: $("#login"), effective: $("#effective"),
+    };
+
+    const EXAMPLE = [
+      {"name": "sshd_config", "text": "# /etc/ssh/sshd_config on a cloud VM, edited by hand\nInclude /etc/ssh/sshd_config.d/*.conf\n\nPort 22\nPermitRootLogin yes\nPasswordAuthentication no\nKbdInteractiveAuthentication no\nUsePAM yes\nX11Forwarding yes\nCiphers +aes128-cbc\nAcceptEnv LANG LC_*\nSubsystem sftp /usr/lib/openssh/sftp-server\n\nMatch User deploy\n    AllowTcpForwarding no\n    ForceCommand /usr/local/bin/deploy-shell\n\nClientAliveInterval 300\nMatch Address 10.20.0.0/16\n    PasswordAuthentication yes\n"},
+      {"name": "sshd_config.d/50-cloud-init.conf", "text": "PasswordAuthentication yes\n"},
+      {"name": "sshd_config.d/hardening", "text": "# meant to lock things down\nPermitRootLogin no\nMaxAuthTries 3\n"},
+    ];
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    function fileBlock(name = "", text = "") {
+      const wrap = document.createElement("div");
+      wrap.className = "file-block";
+      wrap.innerHTML = `
+        <div class="file-block-head">
+          <input type="text" class="fname" aria-label="File name" placeholder="sshd_config or sshd_config.d/10-hardening.conf" value="${escapeHtml(name)}">
+          <button type="button" class="secondary small remove-file">Remove</button>
+        </div>
+        <textarea aria-label="Paste the file here" class="ftext" spellcheck="false" placeholder="Include /etc/ssh/sshd_config.d/*.conf&#10;PermitRootLogin no&#10;PasswordAuthentication no"></textarea>
+      `;
+      wrap.querySelector(".ftext").value = text;
+      wrap.querySelector(".remove-file").addEventListener("click", () => {
+        if (els.files.children.length > 1) wrap.remove();
+      });
+      return wrap;
+    }
+
+    function addFile(name = "", text = "") {
+      els.files.appendChild(fileBlock(name, text));
+    }
+
+    function collectFiles() {
+      return [...els.files.querySelectorAll(".file-block")]
+        .map((block, i) => ({
+          name: block.querySelector(".fname").value.trim() || (i ? `sshd_config.d/file${i + 1}.conf` : "sshd_config"),
+          text: block.querySelector(".ftext").value,
+        }))
+        .filter((f) => f.text.trim().length > 0);
+    }
+
+    function connection() {
+      const c = {};
+      const v = (id) => $(id).value.trim();
+      if (v("#conn-user")) c.user = v("#conn-user");
+      if (v("#conn-groups")) c.groups = v("#conn-groups").split(",").map((g) => g.trim()).filter(Boolean);
+      if (v("#conn-addr")) c.addr = v("#conn-addr");
+      if (v("#conn-host")) c.host = v("#conn-host");
+      return Object.keys(c).length ? c : null;
+    }
+
+    function runCheck(files) {
+      if (!files.length) {
+        els.status.innerHTML = `<span class="error">Paste at least sshd_config first.</span>`;
+        return;
+      }
+      let result;
+      const conn = connection();
+      try {
+        result = scanFiles(files, conn ? { connection: conn } : {});
+      } catch (err) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+        els.reportCard.hidden = true;
+        return;
+      }
+      const { findings, notes, login, perMatch, effective, order } = result;
+      els.verdict.className = `verdict ${hasRisk(findings) ? "risk" : ""}`;
+      els.verdict.textContent = summaryLine(findings);
+      els.order.innerHTML = `Read in this order: ${order.map((o) => `<code>${escapeHtml(o.name)}</code>`).join(" → ")}`;
+      els.rows.innerHTML = findings.map((f) => `
+        <tr>
+          <td>${f.line ? `<code>${escapeHtml(f.file)}:${f.line}</code>` : `<span class="note">not set (default)</span>`}${f.scope !== "global" ? `<br><span class="note">${escapeHtml(f.scope)}</span>` : ""}</td>
+          <td><span class="pill ${f.severity === "low" ? "low" : f.severity === "error" ? "err" : ""}">${escapeHtml(f.type)}</span> <span class="note">${f.severity === "error" ? "won't start" : f.severity}</span></td>
+          <td>${escapeHtml(f.detail)}</td>
+          <td>${escapeHtml(f.remediation)}</td>
+        </tr>`).join("");
+      const items = [
+        `<li><strong>Root:</strong> PermitRootLogin <code>${escapeHtml(login.root)}</code> <span class="note">(${escapeHtml(login.rootAt)})</span></li>`,
+        `<li><strong>Passwords:</strong> <span class="pill ${login.passwords ? "" : "ok"}">${login.passwords ? "on" : "off"}</span> ${login.passwords ? `via ${escapeHtml(login.passwordVia)} <span class="note">(${escapeHtml(login.passwordAt)})</span>` : ""}</li>`,
+        `<li><strong>Keys:</strong> ${login.keys ? "on" : "off"}${login.allowUsers ? `; only users ${escapeHtml(login.allowUsers.join(" "))}` : ""}${login.allowGroups ? `; only groups ${escapeHtml(login.allowGroups.join(" "))}` : ""}</li>`,
+        ...perMatch.map((m) => `<li><strong>${escapeHtml(m.match)}</strong> <span class="note">(${escapeHtml(m.file)}:${m.line})</span>: ${escapeHtml(m.sets.join("; ") || "sets nothing")}; passwords ${m.passwords ? "on" : "off"}, root ${escapeHtml(m.rootLogin)}</li>`),
+      ];
+      if (result.connection) {
+        const c = result.connection;
+        items.push(`<li><strong>Your connection:</strong> ${c.applied.length ? `gets ${escapeHtml(c.applied.join(", "))}` : "matches no Match block"}; passwords ${c.passwords ? "on" : "off"}, root ${escapeHtml(c.root)}</li>`);
+      }
+      els.login.innerHTML = items.join("");
+      els.effective.innerHTML = effective.map((e) => `<tr><td><code>${escapeHtml(e.keyword)}</code></td><td><code>${escapeHtml(e.value)}</code></td><td class="note">${escapeHtml(e.at)}</td></tr>`).join("");
+      els.notes.innerHTML = notes.map((n) => `<li>${escapeHtml(n)}</li>`).join("");
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+    }
+
+    $("#add-file").addEventListener("click", () => addFile());
+    $("#check").addEventListener("click", () => runCheck(collectFiles()));
+
+    $("#load-example").addEventListener("click", () => {
+      els.files.innerHTML = "";
+      for (const f of EXAMPLE) addFile(f.name, f.text);
+      runCheck(EXAMPLE);
+      record("example_loaded");
+      els.status.textContent = "Worked example: a cloud VM whose cloud-init drop-in turns passwords back on over the main file's PasswordAuthentication no, a hardening drop-in without .conf that is never read, PermitRootLogin yes, an added CBC cipher, X11 forwarding, a ClientAliveInterval written flush left inside Match User deploy, and a Match Address block for the office network.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.files.innerHTML = "";
+      addFile("sshd_config");
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste at least sshd_config above and click Check.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    addFile("sshd_config");
+
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

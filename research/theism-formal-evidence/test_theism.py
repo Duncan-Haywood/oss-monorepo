@@ -200,7 +200,252 @@ def test_e11_anderson_own_a2_matches_prediction():
     assert e11.predicted(3, 2, [[c] for c in range(6)]) == 2
 
 
+
+def test_e12_varying_domains_matches_prediction():
+    """Varying domains (E12): search counts equal H17's formula on every 2x2 frame, the
+    conclusion holds in every model of all four axioms, and A5' binds somewhere."""
+    e12 = _load("e12_varying_domains")
+    binds = fails = 0
+    for Ex in e12.domains(2, 2):
+        for blocks in _load("e8_restricted").partitions(4):
+            fr = e12.Frame(2, 2, blocks, Ex)
+            models, _ = e12.search(fr)
+            assert (len(models), sum(m["a5"] for m in models)) == e12.predicted(fr)
+            assert all(m["concl"] for m in models if m["a5"])
+            binds += any(not m["a5"] for m in models)
+            fails += any(not m["concl"] for m in models)
+    assert binds > 0 and fails > 0
+    e12.test_contingent_existent_full_semantics(); e12.test_no_necessary_existent_no_model()
+
+
+def test_e13_actualist_necessity_matches_prediction():
+    """Actualist "has f necessarily" (E13): search counts equal H18's formula on every 2x2
+    frame, de dicto holds in every model of all four axioms, de re fails in some."""
+    e13 = _load("e13_actualist_necessity")
+    re_fails = 0
+    for Ex in e13.e12.domains(2, 2):
+        for blocks in _load("e8_restricted").partitions(4):
+            fr = e13.ActualFrame(2, 2, blocks, Ex)
+            models = e13.search(fr)
+            assert (len(models), sum(m["a5"] for m in models)) == e13.predicted(fr)
+            assert all(m["dicto"] for m in models if m["a5"])
+            re_fails += sum(m["a5"] and not m["re"] for m in models)
+    assert re_fails == 10
+    e13.test_constant_domain_readings_agree(); e13.test_shared_essence_de_re_fails()
+
+
+def test_e14_plain_necessity_closes_de_re():
+    """Plain necessary existence positive (E14): search counts equal H19's formula on every 2x2
+    frame, every God-like individual of a model exists at every world, and each model also
+    satisfies Anderson's A5'."""
+    e14 = _load("e14_plain_necessity")
+    n = 0
+    for Ex in e14.e12.domains(2, 2):
+        for blocks in e14.e8.partitions(4):
+            fr = e14.e13.ActualFrame(2, 2, blocks, Ex)
+            models = [m for m in e14.search(fr) if m["a50"]]
+            assert len(models) == e14.predicted(fr)
+            assert all(m["re_all"] and m["dicto"] and m["a5"] for m in models)
+            n += len(models)
+    assert n == 35
+    e14.test_e13_countermodel_fails_a50(); e14.test_constant_domain_a50_is_a5()
+
+
+def test_e15_a5z_does_not_imply_a5():
+    """E15: the census's exact model enumeration agrees with E14's definition-level search on
+    every frame up to 4 cells, and the 2-world, 4-individual frame is a model of A5₀ where
+    Anderson's A5' fails (E14's conjecture refuted)."""
+    e15 = _load("e15_a5z_not_a5")
+    e15.test_countermodel(); e15.test_crosscheck()
+
+
+def test_e17_fitting_matches_prediction():
+    """E17: Fitting's variant over block algebras of individuals.  The definition-level search
+    equals H21's closed form on every frame up to 3 worlds x 3 individuals; with A5 de dicto
+    never fails; with A4 de re fails only in coarse algebras; without A4 it fails under full
+    semantics too."""
+    e17 = _load("e17_fitting")
+    stats, mism, ex = e17.run([(d, w) for d in (1, 2, 3) for w in (1, 2, 3)])
+    assert mism == []
+    tot = lambda k: sum(st[k] for st in stats.values())
+    assert tot("dedicto_fail_withA5") == 0 and tot("dedicto_fail_withA5_noA4") == 0
+    assert tot("ne_not_in_algebra") == 0
+    assert tot("dere_fail_A4") > 0 and tot("full_dere_fail_A4") == 0
+    assert tot("full_dere_fail_noA4") > 0 and tot("full_multi_god") == 0
+    assert ex["de_re_fail_A4"]["partition"] == [0, 0]
+
+
+
+def test_e18_afp_fitting_claims_reproduce():
+    """Every AFP FittingProof theorem holds and every Nitpick claim has a countermodel (small sizes)."""
+    e18 = _load("e18_afp_crosscheck")
+    recs, _ = e18.run([(1, 2, False), (2, 1, False), (2, 2, False), (2, 3, False), (3, 1, False)])
+    afp = {n: rep for n, _, _, rep in e18.MODEL_STATEMENTS + e18.GLOBAL_STATEMENTS}
+    for (name, stage, logic, sem), r in recs.items():
+        if sem != "all" or stage == "III-noA4" or name not in afp:
+            continue
+        if afp[name] == "proved":
+            assert r["fail"] == 0, (name, stage, logic)
+    k = lambda n, s, l="K": recs[(n, s, l, "all")]
+    assert k("T3_deDicto", "I")["smallest"][:2] == [2, 2]
+    assert k("modal collapse", "III", "S5")["smallest"][:2] == [2, 1]
+    assert k("T1b", "I")["fail"] > 0
+    # without A4 (B&F 2020 Fig. 6): de re survives in K, de dicto does not; both survive in S5
+    assert k("GodNecExists_v2 (de re)", "III-noA4")["fail"] == 0
+    assert k("GodNecExists_v1 (de dicto)", "III-noA4")["fail"] > 0
+    assert k("GodNecExists_v1 (de dicto)", "III-noA4", "S5")["fail"] == 0
+
+
+def test_e19_afp_anderson_claims_and_frame_conditions():
+    """AFP AndersonProof theorems hold at their stages; symmetry is what the conclusion needs."""
+    e19 = _load("e19_afp_anderson")
+    res = e19.run([(1, 2, "all", 9), (2, 1, "all", 9), (2, 2, "all", 9), (3, 1, "all", 9)])
+    agg = e19.summary(res)
+    bad = lambda name, st, cls: sum(agg[(name, st)].get(cls, [0, 0, 0, 0])[0::2])
+    names = {n.split(":")[0]: n for n, *_ in e19.WORLD + e19.GLOBAL}
+    for st in ("III", "III-noA4"):
+        for cls in ("KB", "B", "S5"):          # symmetric frames: the conclusion always holds
+            assert bad(names["GodNecExists"], st, cls) == 0
+        assert bad(names["GodNecExists"], st, "S4") > 0     # reflexive + transitive is not enough
+    for cls in e19.ORDER:
+        if cls in ("T", "B", "S4", "S5", "KB"):    # reflexive or symmetric (Lean: essential_*)
+            assert bad(names["GodIsEssential"], "II", cls) == 0
+        assert bad(names["T3"], "I", cls) == 0
+    assert bad(names["A4b"], "II", "S4") > 0 and bad(names["A4b"], "II", "B") == 0
+    assert res["e12"]["agree_III"] == res["e12"]["frames"] > 0
+    assert res["smallest"]["modal collapse|III|S5"]["worlds"] == 2
+    assert res["smallest"]["modal collapse|III|S5"]["individuals"] == 1
+
+
+def test_e20_separating_algebras_need_no_frame_condition():
+    """H24: GodIsEssential and GEINE never fail when singletons, complements and E! are properties;
+    every GodIsEssential failure has a second existing God-like individual at a successor."""
+    e20 = _load("e20_full_semantics")
+    res = e20.run([(1, 2), (2, 1), (2, 2), (3, 1)])
+    for key, (bad, n) in res["table"].items():
+        if "|separating|" in key:
+            assert bad == 0, key
+    assert res["h24d_failures_without"] == 0
+    e20.test_full_semantics_is_separating(); e20.test_trivial_algebra_is_not_separating()
+
+
+
+def test_e21_frame_conditions_for_god_is_essential():
+    """H25 (a) on every model, and no failure at a world the proved sufficient conditions cover."""
+    e21 = _load("e21_frame_characterisation")
+    res = e21.run([(1, 2), (2, 1), (2, 2), (3, 1)])
+    assert res["a_mismatches"] == 0 and res["a_checked"] > 0
+    for st in e21.STAGES:
+        assert res["by_relation"][st]["seen_not_pred"] == 0, st
+        assert res["posthoc"][st]["seen_not_cond"] == 0, st
+    e21.test_closure_cycle(); e21.test_symmetric_and_reflexive_safe()
+
+
+def test_e22_transient_countermodel_is_an_e19_model():
+    """H26: the Lean countermodel, built in E19's semantics, is a stage-III model failing at w."""
+    e22 = _load("e22_transient_countermodel")
+    res = e22.run(exhaustive=(1, 2, 3), sampled=((4, 300),), seed=1)
+    assert res["sizes"]["3 (all)"]["pairs"] == 24      # E21's 24 failing (relation, world) pairs with A4a
+    for s in res["sizes"].values():
+        assert all(v == 0 for v in s["failed_checks"].values())
+    # negative control: v0 on a cycle (reflexive) breaks (b) and (e)
+    r = e22.check([0b011, 0b010, 0b001], 3, 2, 0)
+    assert not r["e"] and not r["b"]
+
+
+def test_e23_horn_countermodel_definition_level():
+    """H27: the Lean Horn-closed countermodel checked from AndersonK's definitions (stage I, III-noA4)."""
+    e23 = _load("e23_horn_countermodel")
+    # 2 -> 0, 0 -> {0, 1}, 1 -> 1: E21's example miss (no block-algebra model fails at 2)
+    R = (0b011, 0b010, 0b001)
+    assert not e23.back(R, 3, 2, 0)
+    r = e23.check(R, 3, 2, 0)
+    assert all(v for k, v in r.items() if k != "block") and not r["block"]
+    # negative control: with 2 -> 1 instead, u = 1 is a back witness and the model cannot fail
+    R2 = (0b011, 0b010, 0b010)
+    assert e23.back(R2, 3, 2, 1)
+    assert not e23.check(R2, 3, 2, 1)["d_fails"]
+
+
+
+def test_e24_separability_block_algebra():
+    """H28: separability is the exact no-A4a condition over complement-closed collections."""
+    import itertools
+    e24 = _load("e24_block_separation")
+    # E21's example miss (2 -> 0, 0 -> {0, 1}, 1 -> 1): no back witness, yet not separable
+    R = (0b011, 0b010, 0b001)
+    assert not e24.back(R, 3, 2, 0) and next(e24.separations(R, 3, 2, 0), None) is None
+    # 0 -> 0, 1 -> 0, 2 -> 1: v = 1 separable from w = 2; the four-block model fails there
+    R2 = (0b001, 0b001, 0b010)
+    wit = next(e24.separations(R2, 3, 2, 1))
+    r, nblocks = e24.check(R2, 3, 2, 1, *wit)
+    assert all(r.values()) and nblocks <= 4
+    # at 3 worlds: 36 (relation, world) pairs with a separable successor, none with a back witness
+    pairs = set()
+    for Rr in itertools.product(range(1, 8), repeat=3):
+        for w in range(3):
+            for v in range(3):
+                if Rr[w] >> v & 1 and next(e24.separations(Rr, 3, w, v), None) is not None:
+                    assert not e24.back(Rr, 3, w, v)
+                    pairs.add((Rr, w))
+    assert len(pairs) == 36
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):
             fn(); print("ok", name)
+
+
+def test_swinburne_reproduced_exactly():
+    """E25: Swinburne's four inputs (as quoted in Otte's NDPR review) give exactly 100/103."""
+    import importlib.util
+    from fractions import Fraction as F
+    spec = importlib.util.spec_from_file_location(
+        "e25", Path(__file__).resolve().parent / "experiments" / "e25_swinburne" / "run.py")
+    e25 = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(e25)
+    x = e25.INPUTS
+    post = e25.posterior(x["p_theism"], x["p_divided_incarnation_given_theism"], x["p_f_given_c"], x["p_f_given_not_c"])
+    assert post == F(100, 103)
+    th = e25.thresholds(F(1, 2), x)
+    assert th["P(c|k)"] == F(1, 101) and th["P(f|~c&k)"] == F(1, 30) and th["LR"] == 3
+    # each threshold, plugged back in, gives exactly 1/2
+    assert e25.posterior(F(1), th["P(c|k)"], x["p_f_given_c"], x["p_f_given_not_c"]) == F(1, 2)
+    assert e25.posterior(x["p_theism"], x["p_divided_incarnation_given_theism"], th["P(f|c&k)"], x["p_f_given_not_c"]) == F(1, 2)
+    assert e25.posterior(x["p_theism"], x["p_divided_incarnation_given_theism"], x["p_f_given_c"], th["P(f|~c&k)"]) == F(1, 2)
+
+
+def test_mcgrew_reproduced_and_mixture_bound():
+    """E26: the McGrews' factors multiply to 10^44, and a shared explanation caps the disciples' factor at 1/q."""
+    import importlib.util
+    from fractions import Fraction as F
+    spec = importlib.util.spec_from_file_location(
+        "e26", Path(__file__).resolve().parent / "experiments" / "e26_mcgrew" / "run.py")
+    e26 = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(e26)
+    assert e26.W * e26.PER_DISCIPLE ** e26.N_DISCIPLES * e26.PAUL == F(10) ** 44
+    assert e26.post(e26.PRIOR_R, F(10) ** 44) > F(9999, 10000)
+    for q in (F(1, 10), F(1, 1000), F(1, 10**20)):
+        bd = e26.bf_disciples_mixture(q)
+        assert bd <= 1 / q and bd > (1 / q) * F(99, 100)
+    assert e26.bf_disciples_mixture(F(0)) == F(10) ** 39
+    # 12 independent disciples reach 1/2 at the 1e-40 prior, 11 do not
+    assert e26.post(e26.PRIOR_R, e26.W * e26.PER_DISCIPLE ** 12 * e26.PAUL) > F(1, 2)
+    assert e26.post(e26.PRIOR_R, e26.W * e26.PER_DISCIPLE ** 11 * e26.PAUL) < F(1, 2)
+    assert e26.post(F(1, 4), F(50)) == F(50, 53)
+
+
+def test_e27_separability_is_hypergraph_two_colouring():
+    """E27: on H31's reduction frame, v is separable from w iff the hypergraph is 2-colourable;
+    the Fano plane gives a non-separable successor with no back witness."""
+    e27 = _load("e27_separability_np")
+    fano = [(0, 1, 2), (0, 3, 4), (0, 5, 6), (1, 3, 5), (1, 4, 6), (2, 3, 6), (2, 4, 5)]
+    R = e27.frame(list(range(7)), fano)
+    assert e27.separable_bt(R, 0, 1) is None and not e27.back(R, 0, 1)
+    R6 = e27.frame(list(range(7)), fano[:6])
+    assert e27.check_witness(R6, 0, 1, *e27.separable_bt(R6, 0, 1))
+    for edges in [((0, 1),), ((0,),), ((0, 1), (1, 2), (0, 2)), ((0, 1, 2), (0, 1))]:
+        pts = sorted({p for e in edges for p in e})
+        R = e27.frame(pts, edges)
+        assert (e27.separable_bt(R, 0, 1) is not None) == e27.two_col(pts, edges)
+        assert e27.separable_brute(R, len(R), 0, 1) == e27.two_col(pts, edges)

@@ -18,6 +18,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { parseSnapshot, diffSnapshots, summarizeDiff } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 // Default install locations across VS Code and the forks that share its
 // extension format. First one that exists wins; `--dir` overrides.
@@ -310,7 +311,7 @@ export async function run(argv, {
   return { exitCode: 2, output: `Unknown subcommand "${args.sub}". Try --help.` };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { exitCode, output } = await run(process.argv.slice(2));
   console.log(output);
   process.exitCode = exitCode;

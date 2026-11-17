@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKn7mWCXBwVA76bJovW",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T03:18:08Z",
+  "ended": "2026-11-13T03:34:14Z",
+  "wall_minutes": 18.99,
+  "tokens_in": 9414199,
+  "tokens_out": 49857,
+  "cost_usd": 4.0382,
+  "tool_calls": 75,
+  "task": "Deepen (flagship 4) changepoint-detector: item (3), GARCH prune loses sd breaks",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15357",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "A first call to the record command ran from the venture directory (a backgrounded cd did not carry) and failed; rerun from the root.",
+    "portfolio-validate failed once: the flagship next: grew past its 2,000-character cap; shortened my item and moved a landed round-6 note out (it is in the README). Run python3 portfolio/router/validate.py locally before pushing a flagships edit."
+  ],
+  "integrity_issues": [
+    "The pre-registration text says the GARCH grid has 24 points; the code it ran (and ships) has 18 (a + b under 0.98). Recorded in the README and checked by a test; the pre-registration file was not edited after the run."
+  ],
+  "doc_friction": [
+    {
+      "file": "ventures/changepoint-detector/README.md",
+      "issue": "Earlier --bootstrap and GARCH-prune tables used different seeds, so the bar in the 2026-11-13 GARCH pre-registration compared methods across seed sets; a same-seed script (eval/meanvar-garch-compare.mjs) now exists."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-a-change-or-just-clustered-volatility.md",
+    "ventures/changepoint-detector/README.md (Cuts searched jointly with a GARCH likelihood)"
+  ],
+  "goal": "Close the open GARCH route for meanvar on clustered volatility with a pre-registered, shippable option",
+  "notes": "Joint greedy forward search on the segment-wise GARCH(1,1) likelihood with a penalty on the GARCH terms; tuned on old seeds, pre-registered and passed on fresh seeds (200 per cell) against --bootstrap on the same series: GARCH n=200 7%/65%/90% vs 19%/69%/69%. Ships as --garch (engine, CLI, page box, llms.txt). Fails on t3 heavy tails (44-49% false alarms), stated in output. DJIA 1980-2012: no cut (clustering explains 1987 and 2008). Verification: node --test garch-search.test.mjs garch-prune.test.mjs pass 11; python3 platform/ci/run_venture_tests.py changepoint-detector: ok (180.9 s); node platform/pages/venture-preflight.mjs changepoint-detector: preflight clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ee9001a2-8192-554a-8c6e-0e3bb6d57675",
+    "transcripts": 1,
+    "first": "2026-11-13T03:18:08Z",
+    "last": "2026-11-13T03:37:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 74,
+        "input": 140,
+        "output": 49857,
+        "thinking": 15969,
+        "cache_read": 9265641,
+        "cache_write_5m": 0,
+        "cache_write_1h": 148418,
+        "api_equivalent_usd": 4.0382,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 74,
+      "input": 140,
+      "output": 49857,
+      "thinking": 15969,
+      "cache_read": 9265641,
+      "cache_write_5m": 0,
+      "cache_write_1h": 148418,
+      "api_equivalent_usd": 4.0382,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 69,
+      "Write": 2,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.99,
+      "active_minutes": 18.99,
+      "model_minutes": 10.8,
+      "tool_minutes": 8.19,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a statistician designing, tuning, pre-registering and shipping a GARCH change-point search with tests and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 247.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

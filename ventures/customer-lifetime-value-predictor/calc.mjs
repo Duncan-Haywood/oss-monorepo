@@ -116,15 +116,18 @@ function splitLine(line, d) {
 
 export function parseDay(s) {
   s = String(s ?? "").trim();
-  let m = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+  let m = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?!\d)/);
   let y, mo, d;
   if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; }
-  else if ((m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})/))) {
+  else if ((m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(?!\d)/))) {
     let a = +m[1], b = +m[2]; y = +m[3]; if (y < 100) y += 2000;
     if (a > 12) { d = a; mo = b; } else { mo = a; d = b; }
   } else return NaN;
   if (mo < 1 || mo > 12 || d < 1 || d > 31) return NaN;
-  return Math.floor(Date.UTC(y, mo - 1, d) / DAY_MS);
+  const t = Date.UTC(y, mo - 1, d);
+  // Date.UTC rolls 30 February over to 2 March; refuse a day the month does not have.
+  if (new Date(t).getUTCDate() !== d) return NaN;
+  return Math.floor(t / DAY_MS);
 }
 
 export function dayToIso(day) { return new Date(day * DAY_MS).toISOString().slice(0, 10); }
@@ -168,10 +171,15 @@ export function parseOrders(text) {
 
 // ---------- summarising ----------
 
+// Loops, not Math.max(...orders.map()): spreading 125k+ values overflows the
+// call stack, and a store's order export can hold that many.
+function maxDay(orders) { let m = -Infinity; for (const o of orders) if (o.day > m) m = o.day; return m; }
+function minDay(orders) { let m = Infinity; for (const o of orders) if (o.day < m) m = o.day; return m; }
+
 // One row per customer: x repeat purchase days, tx weeks from first to last,
 // T weeks from first to `end`, m mean value of the repeat orders.
 export function summarize(orders, end = null) {
-  const last = end ?? Math.max(...orders.map((o) => o.day));
+  const last = end ?? maxDay(orders);
   const by = new Map();
   for (const o of orders) {
     if (o.day > last) continue;
@@ -299,7 +307,7 @@ export function expectedOrderValue(gg, x, m, fallback) {
 // ---------- backtest ----------
 
 export function backtest(orders, holdoutWeeks) {
-  const end = Math.max(...orders.map((o) => o.day));
+  const end = maxDay(orders);
   const calEnd = end - Math.round(holdoutWeeks * 7);
   const cal = summarize(orders, calEnd);
   if (cal.length < 50) return null;
@@ -331,7 +339,7 @@ export function backtest(orders, holdoutWeeks) {
 // the model, the shop-wide average repeat rate, and each customer's own past
 // rate carried forward. All three use only data before the cut.
 export function compareForecasts(orders, holdoutWeeks) {
-  const end = Math.max(...orders.map((o) => o.day));
+  const end = maxDay(orders);
   const calEnd = end - Math.round(holdoutWeeks * 7);
   const cal = summarize(orders, calEnd);
   if (cal.length < 50) return null;
@@ -375,7 +383,7 @@ export function analyze(orders, opts = {}) {
   if (!(margin > 0 && margin <= 1)) return { error: "Margin must be between 1% and 100%." };
   if (!(annualDiscount >= 0 && annualDiscount < 1)) return { error: "Discount rate must be between 0% and 99%." };
   const rows = summarize(orders);
-  const spanWeeks = (Math.max(...orders.map((o) => o.day)) - Math.min(...orders.map((o) => o.day))) / 7;
+  const spanWeeks = (maxDay(orders) - minDay(orders)) / 7;
   if (rows.length < 30) return { error: `Only ${rows.length} customers found. The model needs at least 30, and works well from a few hundred.` };
   const repeaters = rows.filter((c) => c.x > 0);
   if (repeaters.length < 10) return { error: `Only ${repeaters.length} customers bought more than once. The model learns repeat behaviour from repeat buyers; this shop or period has too few.` };
@@ -424,7 +432,7 @@ export function analyze(orders, opts = {}) {
   const corr = correlation(repeaters.map((c) => c.x), repeaters.map((c) => c.m));
   const summary = {
     customers: customers.length, repeaters: repeaters.length, repeatShare: repeaters.length / customers.length,
-    orders: orders.length, spanWeeks, firstDay: Math.min(...orders.map((o) => o.day)), lastDay: Math.max(...orders.map((o) => o.day)),
+    orders: orders.length, spanWeeks, firstDay: minDay(orders), lastDay: maxDay(orders),
     historicRevenue: orders.reduce((s, o) => s + o.amount, 0),
     totalClv, avgClv: totalClv / customers.length, topShare,
     expectedActive: customers.reduce((s, c) => s + c.pAlive, 0),
@@ -471,7 +479,7 @@ export function paybackCurve(res, cac, { maxMonths = 36, target = 3 } = {}) {
 export const COHORT_WINDOWS = [30, 90, 180, 365];
 export function cohortRetention(orders, windows = COHORT_WINDOWS) {
   if (!orders?.length) return { cohorts: [], windows };
-  const lastDay = Math.max(...orders.map((o) => o.day));
+  const lastDay = maxDay(orders);
   const by = new Map();
   for (const o of orders) {
     let c = by.get(o.id);
@@ -489,7 +497,7 @@ export function cohortRetention(orders, windows = COHORT_WINDOWS) {
   }
   const cohorts = [...groups.keys()].sort().map((month) => {
     const members = groups.get(month);
-    const latestFirst = Math.max(...members.map((m) => m.first));
+    const latestFirst = members.reduce((m, x) => (x.first > m ? x.first : m), -Infinity);
     const out = { month, customers: members.length, firstOrder: 0, repeat: {}, revenue: {} };
     out.firstOrder = members.reduce((s, m) => s + m.list.filter((o) => o.day === m.first).reduce((t, o) => t + o.amount, 0), 0) / members.length;
     for (const w of windows) {
@@ -540,6 +548,11 @@ function buildFindings({ summary, params, gg, bt, corr, newCustomer, seg }) {
 // ---------- output helpers ----------
 
 export function money(v) {
+  // The sign goes outside the symbol, and only on a nonzero amount: -$9.24, never $-9.24.
+  if (Number(v) < 0) {
+    const text = money(Math.abs(v));
+    return /[1-9]/.test(text) ? `-${text}` : text;
+  }
   if (!Number.isFinite(v)) return "n/a";
   return "$" + v.toLocaleString("en-US", { maximumFractionDigits: v < 100 ? 2 : 0, minimumFractionDigits: v < 100 ? 2 : 0 });
 }

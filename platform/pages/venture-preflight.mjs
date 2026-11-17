@@ -13,13 +13,55 @@
 //      rounds on one venture came from these (publish-kit NEXT.md, 2026-10-21).
 //      The apex-mirror check that used to sit here left with `gitops/` on
 //      2026-10-30.
+//      Also the front matter of the posts this branch adds or edits
+//      (`check_post_frontmatter.py` on just those files): runs kept learning
+//      the 160-character description and 70-character seo_title limits from
+//      the build five minutes in (three run records on 2026-11-12 alone).
+//      Also `inherited_keys.py <slug>` (a lookup of user input in an
+//      object map without an own-key check; ventures-tests fails on a new
+//      one) and where build.mjs files the slug: a trade tool that no
+//      SUBCATEGORY_RULES keyword claims fails build.test.mjs, which this
+//      preflight skips, and a slug in the catch-all section is printed as a
+//      note. New-venture runs met all three only in CI (run records
+//      2026-11-11 explore #14822, 2026-11-12 explore #14962).
+//      Also `portfolio/router/validate.py` (3 s) when the branch edits
+//      portfolio/flagships.yaml or a VENTURE.yaml: a flagship `next:` over its
+//      2000-character cap failed CI for runs that appended to it (three run
+//      records on 2026-11-13).
+//      Also every argument-free platform/ci/check_*.py, through
+//      `main_health.py` (about 20 s on 4 cores): the elevator-traffic run
+//      (#15700, 2026-11-14) passed this preflight and then failed CI on
+//      check_step_grid.py and check_doc_counts.py, two of the ~60 tree checks
+//      CI runs that the steps above did not.
+//   4. The site's own tests, the same `node --test "*.test.mjs"
+//      "cloudflare/*.test.mjs"` glob CI's "Test the site builder" step runs,
+//      minus the two files that build the whole site (SITE_BUILD_TESTS, about
+//      five minutes and more each). The rest are source scans of every
+//      venture page (FAQ markup shown on the page, heading order, schema,
+//      post rules): 1,249 tests in about 35 s on 4 cores. A preflight that
+//      passed while CI failed faq-visible.test.mjs on the new page cost a
+//      ventures run a CI round (run record, 2026-11-12). Also
+//      platform/privacy/*.test.mjs (112 tests, about 5 s), which CI's validate
+//      job runs over every venture's source (share-location.test.mjs failed
+//      #15700 in CI only).
+//
+//   Also, in step 1b, the git-ignored untracked files under ventures/<slug>
+//   that the local build would publish (copyTree's rules), printed as a note:
+//   CI's fresh checkout has none of them, so a check.mjs failure on one is
+//   local only and is demoted to a note in step 2. A fetched eval set inside
+//   the venture (changepoint-detector's utsa-data/, a .ppt in it) failed a
+//   preflight that CI would have passed (run record, 2026-11-15). Ignore rules
+//   in the root .gitignore that name a ventures/ path are build outputs CI
+//   makes too (einvoice-preflight/browser/), so they are not counted.
 //
 //   node platform/pages/venture-preflight.mjs <slug> [--skip-build]
 //
-// Takes about five minutes (the build is most of it); the cheap checks fail first, in seconds. Exit 0: clean for this
-// slug. Exit 1: a problem names the slug, or the launch date / counts are
-// wrong. Problems from other slugs are printed as notes and do not fail you.
-// `--skip-build` runs steps 1 and 3 only (about 15 s).
+// Takes about six and a half minutes (the build is most of it); the cheap checks fail first, in seconds. Exit 0: clean for this
+// slug. Exit 1: a problem names the slug, the launch date / counts are
+// wrong, or a site test fails (CI runs the same tests on the PR, so a red
+// one fails it whoever caused it; the message says whether it names the slug).
+// Problems check.mjs finds on other slugs are printed as notes and do not fail you.
+// `--skip-build` runs steps 1, 3 and 4 only (about a minute).
 
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -54,6 +96,151 @@ export const COUNT_CHECKS = [
   { script: 'platform/ci/publish_surface.py', fix: 'python3 platform/ci/publish_surface.py --write' },
 ];
 
+/** Posts this branch adds or edits: `git diff --name-only` against origin/main
+ * (HEAD when that ref is missing) plus untracked files, as newline-separated text. */
+export function changedPostPaths(...outputs) {
+  const seen = new Set();
+  for (const out of outputs) {
+    for (const line of (out || '').split('\n')) {
+      const p = line.trim();
+      if (/^docs\/posts\/[^/]+\.md$/.test(p)) seen.add(p);
+    }
+  }
+  return [...seen].sort();
+}
+
+/** Paths under `pathspecs` this branch adds or edits, as diff + untracked text. */
+function changedText(...pathspecs) {
+  const git = (args) => spawnSync('git', args, { cwd: ROOT, encoding: 'utf8' });
+  let diff = git(['diff', '--name-only', '--diff-filter=AM', 'origin/main', '--', ...pathspecs]);
+  if (diff.status !== 0) diff = git(['diff', '--name-only', '--diff-filter=AM', 'HEAD', '--', ...pathspecs]);
+  const untracked = git(['ls-files', '--others', '--exclude-standard', '--', ...pathspecs]);
+  return [diff.stdout, untracked.stdout];
+}
+
+function changedPosts() {
+  return changedPostPaths(...changedText('docs/posts')).filter((p) => fs.existsSync(path.join(ROOT, p)));
+}
+
+/** Whether the diff text names portfolio/flagships.yaml or a ventures/<slug>/VENTURE.yaml. */
+export function touchesRouterInputs(...outputs) {
+  return outputs.some((out) => (out || '').split('\n').some((line) =>
+    /^(portfolio\/flagships\.yaml|ventures\/[^/]+\/VENTURE\.yaml)$/.test(line.trim())));
+}
+
+/** null when validate.py passed; else its output. */
+export function routerProblem(status, output) {
+  if (status === 0) return null;
+  return `portfolio/router/validate.py (flagships.yaml / VENTURE.yaml):\n${output.trim().split('\n').map((l) => `      ${l}`).join('\n')}`;
+}
+
+export function postProblem(status, output) {
+  if (status === 0) return null;
+  return `post front matter (check_post_frontmatter.py):\n${output.trim().split('\n').map((l) => `      ${l}`).join('\n')}`;
+}
+
+/** null when inherited_keys.py passed on the slug; else its output and the fix. */
+export function inheritedKeysProblem(status, output) {
+  if (status === 0) return null;
+  const body = output.trim().split('\n').map((l) => `      ${l}`).join('\n');
+  return `inherited_keys.py (use \`Object.hasOwn(MAP, key) ? MAP[key] : fallback\`; ventures-tests fails on a new hit):\n${body}`;
+}
+
+/**
+ * Where build.mjs files the slug. `categoryFor` / `subcategoryFor` are passed
+ * in (build.mjs's own) so the preflight cannot drift from the site. A trade
+ * tool in the trades catch-all sub-group fails build.test.mjs ("every
+ * published trade tool lands in a named sub-group"); a slug in the site-wide
+ * catch-all is allowed, so it is only a note.
+ */
+export function placementProblems(slug, { categoryFor, subcategoryFor }) {
+  const category = categoryFor(slug);
+  const sub = subcategoryFor(slug);
+  const failures = [];
+  const notes = [];
+  if (sub && /-other$/.test(sub.id)) {
+    failures.push(`${slug} lands in the ${sub.id} catch-all sub-group, which build.test.mjs fails: add a keyword for it to SUBCATEGORY_RULES.${category.id} in platform/pages/build.mjs`);
+  }
+  if (category.id === 'more') {
+    notes.push(`${slug} lands in the catch-all "${category.title}" section; if a named section fits, add a keyword to CATEGORY_RULES in platform/pages/build.mjs`);
+  }
+  return { category: category.id, subcategory: sub?.id ?? null, failures, notes };
+}
+
+/**
+ * Git-ignored, untracked paths under ventures/<slug> the local build would
+ * publish. `checkIgnoreOutput` is `git check-ignore -v --no-index --stdin`
+ * over `git ls-files --others --ignored --exclude-standard --directory`:
+ * lines `source:line:pattern<TAB>path`, a directory path ending in `/`.
+ * Paths whose rule is a root .gitignore line naming `ventures/` are CI build
+ * outputs and are dropped; so are paths copyTree skips (`copiesDir`,
+ * `isPublishable`). `listDir(dir)` expands an ignored directory to its files
+ * (repo-relative); the return is the sorted repo-relative files.
+ */
+export function localOnlyFiles(checkIgnoreOutput, slug, { copiesDir, isPublishable, listDir }) {
+  const base = `ventures/${slug}/`;
+  const files = new Set();
+  const publishes = (rel, isDir) => {
+    const parts = rel.slice(base.length).split('/').filter(Boolean);
+    const dirs = isDir ? parts : parts.slice(0, -1);
+    if (!dirs.every(copiesDir)) return false;
+    return isDir || isPublishable(parts[parts.length - 1]);
+  };
+  for (const line of (checkIgnoreOutput || '').split('\n')) {
+    const tab = line.indexOf('\t');
+    if (tab < 0) continue;
+    const rule = line.slice(0, tab);
+    const rel = line.slice(tab + 1).trim();
+    if (!rel.startsWith(base)) continue;
+    const [source, , ...pattern] = rule.split(':');
+    if (source === '.gitignore' && pattern.join(':').includes('ventures/')) continue;
+    const isDir = rel.endsWith('/');
+    if (!publishes(rel, isDir)) continue;
+    if (!isDir) { files.add(rel); continue; }
+    for (const f of listDir(rel)) if (publishes(f, false)) files.add(f);
+  }
+  return [...files].sort();
+}
+
+/** Recursively list a repo-relative directory's files, repo-relative, skipping what copyTree skips. */
+function listRepoDir(rel, copiesDir) {
+  const out = [];
+  const walk = (dir) => {
+    for (const e of fs.readdirSync(path.join(ROOT, dir), { withFileTypes: true })) {
+      const child = `${dir.replace(/\/$/, '')}/${e.name}`;
+      if (e.isDirectory()) { if (copiesDir(e.name)) walk(child); } else if (e.isFile()) out.push(child);
+    }
+  };
+  walk(rel);
+  return out;
+}
+
+function gitLocalOnlyFiles(slug, site) {
+  const git = (args, input) => spawnSync('git', args, { cwd: ROOT, encoding: 'utf8', input, maxBuffer: 1 << 26 });
+  const listed = git(['ls-files', '--others', '--ignored', '--exclude-standard', '--directory', '--', `ventures/${slug}`]);
+  if (listed.status !== 0 || !listed.stdout.trim()) return [];
+  const rules = git(['check-ignore', '-v', '--no-index', '--stdin'], listed.stdout);
+  return localOnlyFiles(rules.stdout, slug, { ...site, listDir: (rel) => listRepoDir(rel, site.copiesDir) });
+}
+
+/**
+ * Split this slug's check.mjs failures into real ones and ones on a local-only
+ * file. A failure line starts with the published path `<slug>/<rest>`; it is
+ * local only when `<rest>` is a local-only file's path below ventures/<slug>
+ * (or below a subdirectory the venture publishes from).
+ */
+export function splitLocalOnly(failures, slug, localFiles) {
+  const tails = localFiles.map((f) => f.slice(`ventures/${slug}/`.length));
+  const local = [];
+  const real = [];
+  for (const f of failures) {
+    const m = f.match(new RegExp(`^${slug.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/([^:\\s]+)`));
+    const rest = m?.[1];
+    if (rest && tails.some((t) => t === rest || t.endsWith(`/${rest}`))) local.push(f); else real.push(f);
+  }
+  return { real, local };
+}
+
 export function countProblem({ script, fix }, status) {
   if (status === 0) return null;
   return `${script} --check exited ${status}: run \`${fix}\` and commit the result`;
@@ -77,6 +264,68 @@ export function checkProblems(checked, slug) {
   return { failures, other };
 }
 
+/**
+ * null when main_health.py passed; else each red check's block (its
+ * `FAIL|TIME <name> (exit n)` line and the output tail main_health prints under
+ * it) and whether the slug is named, as for the site tests.
+ */
+export function treeCheckProblem(status, output, slug) {
+  if (status === 0) return null;
+  const lines = (output || '').split('\n');
+  const blocks = [];
+  for (let i = 0; i < lines.length; i++) {
+    if (!/^(FAIL|TIME)\s+\S+ \(exit -?\d+\)$/.test(lines[i])) continue;
+    const block = [lines[i]];
+    // A block runs to the next red header or the summary line; a check's own
+    // output can hold blank lines (check_step_grid.py puts one after its count).
+    for (let j = i + 1; j < lines.length && !/^(FAIL|TIME)\s+\S+ \(exit -?\d+\)$|^\d+\/\d+ checks pass$/.test(lines[j]); j++) {
+      if (lines[j].trim()) block.push(lines[j]);
+    }
+    blocks.push(block);
+  }
+  const named = new RegExp(`(^|[^A-Za-z0-9_-])${slug.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![A-Za-z0-9_-])`).test(output);
+  const who = named
+    ? `the output names ${slug}`
+    : `none of the output names ${slug}; if main fails the same way it is not yours, but CI will still be red`;
+  const body = blocks.length
+    ? blocks.map((b) => b.map((l) => `      ${l}`).join('\n')).join('\n')
+    : (output || '').trim().split('\n').slice(-15).map((l) => `      ${l}`).join('\n');
+  return `repository checks failed (platform/ci/main_health.py; ${who}); rerun one with \`python3 platform/ci/<name>\`:\n${body}`;
+}
+
+/** Site tests that build the whole site; the preflight's own build covers that ground. */
+export const SITE_BUILD_TESTS = ['build.test.mjs', 'custom-domain.test.mjs'];
+
+/** CI's site-test glob (`*.test.mjs`, `cloudflare/*.test.mjs` in platform/pages), minus SITE_BUILD_TESTS. */
+export function siteTestFiles(dir = path.join(ROOT, 'platform', 'pages')) {
+  const top = fs.readdirSync(dir).filter((f) => f.endsWith('.test.mjs') && !SITE_BUILD_TESTS.includes(f));
+  const cf = path.join(dir, 'cloudflare');
+  const nested = fs.existsSync(cf)
+    ? fs.readdirSync(cf).filter((f) => f.endsWith('.test.mjs')).map((f) => `cloudflare/${f}`)
+    : [];
+  return [...top, ...nested].sort();
+}
+
+/** null when the site tests passed; else the failing tests (TAP `not ok` lines) and the rerun command. */
+export function siteTestProblem(r, slug) {
+  if (r.status === 0) return null;
+  const output = (r.stdout || '') + (r.stderr || '');
+  const failing = [...new Set(output.split('\n')
+    .map((l) => l.match(/^\s*not ok \d+ - (.+)$/)?.[1]?.trim())
+    .filter(Boolean))];
+  const named = new RegExp(`(^|[^A-Za-z0-9_-])${slug.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![A-Za-z0-9_-])`).test(output);
+  // TAP puts each failure's `location: '<path>/x.test.mjs:12:1'` in its YAML block.
+  const files = [...new Set([...output.matchAll(/location: '[^']*?((?:cloudflare\/)?[\w.-]+\.test\.mjs):\d+/g)].map((m) => m[1]))];
+  const who = named
+    ? `the output names ${slug}`
+    : `none of the output names ${slug}; if main fails the same way it is not yours, but CI will still be red`;
+  const list = failing.length
+    ? failing.slice(0, 15).map((t) => `      not ok: ${t}`).join('\n')
+    : output.slice(-1500).split('\n').map((l) => `      ${l}`).join('\n');
+  const rerun = `cd platform/pages && node --test ${files.length ? files.join(' ') : '<file>'}`;
+  return `site tests failed (${who}); rerun with \`${rerun}\`:\n${list}`;
+}
+
 async function main(argv) {
   const slug = argv.find((a) => !a.startsWith('--'));
   if (!slug) {
@@ -88,17 +337,66 @@ async function main(argv) {
     return 2;
   }
   const failures = [];
+  let localFiles = [];
 
   console.log('1/3 launched.json');
   failures.push(...(await launchedProblems(slug)));
 
   // The count checks take seconds and the build takes minutes, so answer
   // them first and stop early.
-  console.log('1b/3 hand-written counts (--check)');
+  console.log('1b/3 hand-written counts (--check), inherited keys, section placement, changed posts\' front matter, repository checks, router inputs');
   for (const check of COUNT_CHECKS) {
     const r = spawnSync('python3', [check.script, '--check'], { cwd: ROOT, encoding: 'utf8' });
     const problem = countProblem(check, r.status);
     if (problem) failures.push(problem);
+  }
+  {
+    const r = spawnSync('python3', ['platform/ci/inherited_keys.py', slug], { cwd: ROOT, encoding: 'utf8' });
+    const problem = inheritedKeysProblem(r.status, (r.stdout || '') + (r.stderr || ''));
+    if (problem) failures.push(problem);
+    const site = await import('./build.mjs');
+    const placed = placementProblems(slug, site);
+    console.log(`   filed under ${placed.category}${placed.subcategory ? ` / ${placed.subcategory}` : ''}`);
+    for (const note of placed.notes) console.log(`   note: ${note}`);
+    failures.push(...placed.failures);
+    localFiles = gitLocalOnlyFiles(slug, site);
+    if (localFiles.length) {
+      console.log(`   note: ${localFiles.length} git-ignored file(s) under ventures/${slug} that this local build publishes and CI's checkout lacks; `
+        + 'a check.mjs failure on one is local only (keep fetched data outside the venture to silence it):');
+      for (const f of localFiles.slice(0, 10)) console.log(`      ${f}`);
+      if (localFiles.length > 10) console.log(`      (+${localFiles.length - 10} more)`);
+    }
+  }
+  const posts = changedPosts();
+  if (posts.length) {
+    const r = spawnSync('python3', ['platform/ci/check_post_frontmatter.py', ...posts], { cwd: ROOT, encoding: 'utf8' });
+    const problem = postProblem(r.status, (r.stdout || '') + (r.stderr || ''));
+    if (problem) failures.push(problem);
+  }
+  {
+    console.log('   repository checks (platform/ci/main_health.py, about 20 s)');
+    const r = spawnSync('python3', ['platform/ci/main_health.py'], { cwd: ROOT, encoding: 'utf8', maxBuffer: 1 << 26 });
+    const problem = treeCheckProblem(r.status, (r.stdout || '') + (r.stderr || ''), slug);
+    if (problem) failures.push(problem);
+  }
+  if (touchesRouterInputs(...changedText('portfolio/flagships.yaml', 'ventures/*/VENTURE.yaml'))) {
+    const r = spawnSync('python3', ['portfolio/router/validate.py'], { cwd: ROOT, encoding: 'utf8' });
+    const problem = routerProblem(r.status, (r.stdout || '') + (r.stderr || ''));
+    if (problem) failures.push(problem);
+  }
+  if (!failures.length) {
+    console.log(`1c/3 site tests (${siteTestFiles().length} files, CI's glob minus ${SITE_BUILD_TESTS.join(', ')}; about 35 s)`);
+    const r = spawnSync('node', ['--test', '--test-reporter=tap', ...siteTestFiles()], {
+      cwd: path.join(ROOT, 'platform', 'pages'), encoding: 'utf8', maxBuffer: 1 << 28,
+    });
+    const problem = siteTestProblem(r, slug);
+    if (problem) failures.push(problem);
+    console.log('   privacy tests (platform/privacy/*.test.mjs, about 5 s)');
+    const privacy = fs.readdirSync(path.join(ROOT, 'platform', 'privacy'))
+      .filter((f) => f.endsWith('.test.mjs')).sort().map((f) => `platform/privacy/${f}`);
+    const pr = spawnSync('node', ['--test', '--test-reporter=tap', ...privacy], { cwd: ROOT, encoding: 'utf8', maxBuffer: 1 << 28 });
+    const privacyProblem = siteTestProblem(pr, slug);
+    if (privacyProblem) failures.push(privacyProblem.replace('site tests failed', 'privacy tests failed').replace('cd platform/pages && ', 'cd platform/privacy && '));
   }
   if (failures.length) {
     console.log(`\nPREFLIGHT FAILED for ${slug} (stopped before the build; fix, then rerun):`);
@@ -118,7 +416,9 @@ async function main(argv) {
         const checked = run(['platform/pages/check.mjs', out]);
         if (checked.status !== 0) {
           const { failures: mine, other } = checkProblems(checked, slug);
-          failures.push(...mine);
+          const { real, local } = splitLocalOnly(mine, slug, localFiles);
+          failures.push(...real);
+          if (local.length) console.log(`   note: ${local.length} problem(s) on git-ignored local files CI never sees (not counted):\n${local.map((l) => `      ${l}`).join('\n')}`);
           if (other.length) console.log(`   note: ${other.length} problem(s) on other slugs (not yours):\n${other.join('\n')}`);
         }
       }

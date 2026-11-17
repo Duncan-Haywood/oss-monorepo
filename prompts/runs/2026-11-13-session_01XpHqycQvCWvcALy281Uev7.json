@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqycQvCWvcALy281Uev7",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T23:38:56Z",
+  "ended": "2026-11-13T23:49:10Z",
+  "wall_minutes": 10.42,
+  "tokens_in": 7953701,
+  "tokens_out": 55736,
+  "cost_usd": 4.0165,
+  "tool_calls": 69,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15654",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "digitise_danfoss_snp3.py first runs picked up the rotated axis titles and missed a '0' label; fixed by tightening each axis's glyph x-window (three iterations)",
+    "First 6m run took SNP3 090's chart at face value (eta_t 0.50, drag 48 bar); caught by reading the table, kept as data but flagged, and a without-090 variant added (no figure changes)"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py first install of pytest+numpy+h5py and the 6k motion-cache refill together took under 2 min in background; guidance was accurate, no friction beyond needing h5py, which the 'pytest numpy matplotlib' example omits for this programme"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/CLAUDE.md",
+      "why": "Landing step 2 (land other open research PRs first): the four open research PRs (#15649-#15652) were opened by concurrent sessions minutes earlier and are being driven by them",
+      "did": "left them alone and took the drawn programme's next milestone",
+      "result": "no collision; no heavy-hydraulics commits landed on main during the run"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-two-gear-pump-catalogues-disagree-on-the-excavator-answer.md",
+    "research/heavy-hydraulics/LOG.md (6m)",
+    "research/heavy-hydraulics/README.md (Milestone 6m)"
+  ],
+  "goal": null,
+  "notes": "heavy-hydraulics milestone 6m: Danfoss GearMe Group 3 gear-pump curves (10 sizes, vector-digitised) as the fixed pump. Median eta_t 0.839 at 150 bar vs Casappa 0.71-0.80; fixed pump beats 3.99 L/h in 70.1% of 384 geometries (Casappa 9.9%, piston 74.0%); flip at ~0.98x Danfoss / 1.09x Casappa, a gear pump of ~0.82. 6k rerun byte-identical; Casappa and piston variants reproduce 6k/6j. 66 tests pass; build.py ok; check_md_links ok; cite_check ok. Predictions GD1-GD6 committed in the PR's first commit before digitising: 2 held, 4 refuted.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bd755713-737c-585d-b210-fb55d4e6acd6",
+    "transcripts": 1,
+    "first": "2026-11-13T23:38:56Z",
+    "last": "2026-11-13T23:49:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 118,
+        "output": 55736,
+        "thinking": 16009,
+        "cache_read": 7785560,
+        "cache_write_5m": 0,
+        "cache_write_1h": 168023,
+        "api_equivalent_usd": 4.0165,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 118,
+      "output": 55736,
+      "thinking": 16009,
+      "cache_read": 7785560,
+      "cache_write_5m": 0,
+      "cache_write_1h": 168023,
+      "api_equivalent_usd": 4.0165,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 69,
+    "tools": {
+      "Bash": 52,
+      "Read": 8,
+      "Write": 3,
+      "ToolSearch": 2,
+      "WebSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.42,
+      "active_minutes": 10.42,
+      "model_minutes": 8.73,
+      "tool_minutes": 1.69,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "locating and vector-digitising a second maker's ten pump charts, rerunning the 384-geometry break-even with robustness variants, and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 249.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

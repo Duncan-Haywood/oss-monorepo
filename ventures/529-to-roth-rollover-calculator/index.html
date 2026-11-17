@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "529 to Roth IRA Rollover Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Plan a 529-to-Roth IRA rollover under SECURE 2.0: the 15-year rule, the five-year contribution lock, the $35,000 lifetime cap, annual limits and earned income, year by year. Runs in your browser.", "featureList": "Year-by-year rollover schedule, five-year lock, lifetime cap, non-qualified withdrawal comparison, value at retirement, CSV export"}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I move leftover 529 money into a Roth IRA?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, since 2024, under SECURE 2.0: up to $35,000 per beneficiary over their lifetime, if the 529 has been open for the same beneficiary at least 15 years. The money goes directly from the 529 to a Roth IRA in the beneficiary's name, and it is not taxed or penalised when the rules are met."}}, {"@type": "Question", "name": "Why can't I roll over contributions I made recently?", "acceptedAnswer": {"@type": "Answer", "text": "Contributions made in the last five years, and the earnings on them, are not eligible. This tool keeps each recent contribution locked until it is five full years old, with its growth, and lets only the older money move."}}, {"@type": "Question", "name": "How much can be rolled over each year?", "acceptedAnswer": {"@type": "Answer", "text": "No more than the Roth IRA contribution limit for the year, minus any other IRA contributions the beneficiary makes, and no more than the beneficiary's earned income. Roth income phase-outs do not apply to the rollover. At the usual limit it takes about five years to move the full $35,000."}}, {"@type": "Question", "name": "Is this better than a non-qualified withdrawal?", "acceptedAnswer": {"@type": "Answer", "text": "A non-qualified withdrawal taxes the earnings part at the beneficiary's rate and adds a 10% penalty on it. The tool shows that cost for the same amount next to the rollover, and what the rolled money could grow to by retirement."}}, {"@type": "Question", "name": "What about switching the beneficiary instead?", "acceptedAnswer": {"@type": "Answer", "text": "Often the best answer: changing the 529 beneficiary to a sibling, a cousin or yourself keeps the money for education at no tax cost. This tool covers only the Roth rollover path; it does not decide which is best for your family."}}, {"@type": "Question", "name": "Is this tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on figures you type. IRS guidance on the rollover is still developing, and state rules can differ: some states recapture a deduction you took. Confirm with your plan administrator and a qualified professional before moving money."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1d4ed8; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #173da9; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #173da9; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1d4ed8; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4ed8; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #173da9; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -109,11 +147,11 @@
       const r = a.result;
       for (const n of a.notes) h += `<div class="finding"><span class="pill">Note</span> ${esc(n)}</div>`;
       if (r.total > 0) {
-        h += `<div class="finding"><h4>You can move ${money(r.total)} into the Roth IRA over ${r.yearsToFinish} year${r.yearsToFinish === 1 ? "" : "s"}</h4><p>That is ${pct(r.capUsedPct, 0)} of the lifetime cap, starting ${r.firstYearOffset === 0 ? "this year" : "in " + r.firstYearOffset + " year(s)"}. ${money(r.remainingInAccount)} stays in the 529 afterwards (still usable for education, or for a new beneficiary).</p></div>`;
-        h += `<div class="finding"><h4>What it could be worth</h4><p>If the rolled money grows at ${a.opts.rothGrowthPct}% a year in the Roth IRA, it is about ${money(r.rothValueAtRetirement)} at age ${a.opts.retireAge}, tax-free in retirement if the Roth rules are met. Taking the same amount out as a non-qualified withdrawal would cost about ${money(r.altTaxAndPenalty)} in tax and penalty on its earnings (${pct(r.earningsShare, 0)} of the account is earnings).</p></div>`;
+        h += `<div class="finding"><h3>You can move ${money(r.total)} into the Roth IRA over ${r.yearsToFinish} year${r.yearsToFinish === 1 ? "" : "s"}</h3><p>That is ${pct(r.capUsedPct, 0)} of the lifetime cap, starting ${r.firstYearOffset === 0 ? "this year" : "in " + r.firstYearOffset + " year(s)"}. ${money(r.remainingInAccount)} stays in the 529 afterwards (still usable for education, or for a new beneficiary).</p></div>`;
+        h += `<div class="finding"><h3>What it could be worth</h3><p>If the rolled money grows at ${a.opts.rothGrowthPct}% a year in the Roth IRA, it is about ${money(r.rothValueAtRetirement)} at age ${a.opts.retireAge}, tax-free in retirement if the Roth rules are met. Taking the same amount out as a non-qualified withdrawal would cost about ${money(r.altTaxAndPenalty)} in tax and penalty on its earnings (${pct(r.earningsShare, 0)} of the account is earnings).</p></div>`;
       }
       const rows = a.schedule.filter((s) => s.roll > 0 || s.year < 8).slice(0, 12).map((s) => [s.year === 0 ? "This year" : "+" + s.year + " yr", s.open ? money(s.roll) : "waiting (under 15 years)", s.roll > 0 ? s.binding : "-", money(s.eligibleAfter)]);
-      h += `<div class="finding"><h4>Year by year</h4>${table(["Year", "Rollover", "Limited by", "Eligible left in 529"], rows)}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      h += `<div class="finding"><h3>Year by year</h3>${table(["Year", "Rollover", "Limited by", "Eligible left in 529"], rows)}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       const c = $("csv");

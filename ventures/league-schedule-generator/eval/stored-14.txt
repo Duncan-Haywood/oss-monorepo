@@ -1,0 +1,14 @@
+| Seed | Season | Setting | Without (carry-over / breaks) | With the stored 14 | Start kept |
+|---|---|---|---|---|---|
+| 1 | single | carry-over only | 212 / 32 | 210 / 26 | timetable |
+| 1 | single | break weight 10 | 252 / 18 | 252 / 18 | starter |
+| 1 | home and away | carry-over only | 732 / 84 | 732 / 84 | starter |
+| 1 | home and away | break weight 10 | 870 / 50 | 870 / 50 | weighted starter |
+| 2 | single | carry-over only | 212 / 32 | 210 / 26 | timetable |
+| 2 | single | break weight 10 | 240 / 18 | 240 / 18 | starter |
+| 2 | home and away | carry-over only | 734 / 74 | 734 / 74 | starter |
+| 2 | home and away | break weight 10 | 834 / 50 | 834 / 50 | starter |
+| 3 | single | carry-over only | 212 / 32 | 210 / 26 | timetable |
+| 3 | single | break weight 10 | 238 / 20 | 238 / 20 | starter |
+| 3 | home and away | carry-over only | 728 / 86 | 728 / 86 | starter |
+| 3 | home and away | break weight 10 | 842 / 54 | 842 / 54 | starter |

@@ -19,6 +19,10 @@ def test_face_hit_rules():
     assert s.face_hit((102, 98, 38, 44), ref)
     assert not s.face_hit((100, 100, 100, 100), ref)  # too wide
     assert not s.face_hit((300, 300, 40, 40), ref)  # elsewhere
+    # centre inside the box, so only the width-within-2x rule decides (quality audit 2026-11-12)
+    assert not s.face_hit((75, 75, 90, 90), ref)  # 2.25x wide
+    assert not s.face_hit((111, 111, 18, 18), ref)  # 0.45x wide
+    assert s.face_hit((109, 109, 22, 22), ref)  # 0.55x wide
 
 
 def test_wilson_contains_p_and_handles_empty():
@@ -71,3 +75,21 @@ def test_face_turn_proxy():
     assert s.face_turn((40, 50), (60, 50), (50, 70)) == 0.0  # nose under the eye midpoint
     assert abs(s.face_turn((40, 50), (60, 50), (60, 70)) - 0.5) < 1e-12  # nose under the far eye
     assert abs(s.face_turn((40, 50), (60, 50), (40, 70)) - 0.5) < 1e-12  # symmetric left/right
+
+
+def test_bootstrap_resamples_subjects_and_brackets_the_fit():
+    # Subjects with different 50% points: resampling them must give a range of width > 0 that
+    # holds the pooled fit; a bootstrap that stops resampling collapses to one subject's value.
+    def subject(mid):
+        t = []
+        for px in [4 * 1.25 ** i for i in range(18)]:
+            p = s.recall_curve(px, mid, 3.0)
+            t += [(px, 1)] * round(p * 6) + [(px, 0)] * (6 - round(p * 6))
+        return t
+
+    groups = [subject(10 + 4 * i) for i in range(8)]
+    mid, _ = s.fit_recall([t for g in groups for t in g])
+    (lo, hi), (klo, khi) = s.bootstrap_fit(groups, n_boot=20, seed=3)
+    assert lo < mid < hi
+    assert hi / lo > 1.1
+    assert klo <= khi

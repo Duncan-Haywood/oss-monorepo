@@ -1,0 +1,228 @@
+{
+ "held_out": "austin",
+ "target": "i2c",
+ "test_year": 2021,
+ "sources": [
+  "sf",
+  "seattle"
+ ],
+ "note": "per cascade2 class; src rows are the transfer model's training rows (years <= Y-2)",
+ "classes": {
+  "alteration": {
+   "n_test": 6614,
+   "test_q90": 602.0,
+   "share_test_same_under_type": 0.0,
+   "n_src_type": 610001,
+   "n_src_cascade2": 660833,
+   "src_q90_type": 403.0,
+   "src_q90_cascade2": 430.0,
+   "share_src_cascade2_from_same_type": 0.9230789019313502
+  },
+  "demolition": {
+   "n_test": 1059,
+   "test_q90": 543.0,
+   "share_test_same_under_type": 0.0,
+   "n_src_type": 11726,
+   "n_src_cascade2": 12720,
+   "src_q90_type": 858.5,
+   "src_q90_cascade2": 880.0,
+   "share_src_cascade2_from_same_type": 0.9218553459119497
+  },
+  "electrical": {
+   "n_test": 19668,
+   "test_q90": 438.0,
+   "share_test_same_under_type": 0.9998983119788489,
+   "n_src_type": 0,
+   "n_src_cascade2": 466,
+   "src_q90_type": null,
+   "src_q90_cascade2": 727.5,
+   "share_src_cascade2_from_same_type": 0.0
+  },
+  "mechanical": {
+   "n_test": 11582,
+   "test_q90": 357.0,
+   "share_test_same_under_type": 1.0,
+   "n_src_type": 0,
+   "n_src_cascade2": 141,
+   "src_q90_type": null,
+   "src_q90_cascade2": 977.0,
+   "share_src_cascade2_from_same_type": 0.0
+  },
+  "new_construction": {
+   "n_test": 8483,
+   "test_q90": 742.0,
+   "share_test_same_under_type": 0.0,
+   "n_src_type": 9682,
+   "n_src_cascade2": 21661,
+   "src_q90_type": 1132.0,
+   "src_q90_cascade2": 1029.0,
+   "share_src_cascade2_from_same_type": 0.4469784405152117
+  },
+  "other": {
+   "n_test": 45,
+   "test_q90": 603.4000000000001,
+   "share_test_same_under_type": 1.0,
+   "n_src_type": 72765,
+   "n_src_cascade2": 8215,
+   "src_q90_type": 680.0,
+   "src_q90_cascade2": 831.6000000000004,
+   "share_src_cascade2_from_same_type": 1.0
+  },
+  "plumbing": {
+   "n_test": 18709,
+   "test_q90": 469.0,
+   "share_test_same_under_type": 0.9999465497888717,
+   "n_src_type": 0,
+   "n_src_cascade2": 42,
+   "src_q90_type": null,
+   "src_q90_cascade2": 789.0,
+   "share_src_cascade2_from_same_type": 0.0
+  }
+ },
+ "by_source": {
+  "sf": {
+   "alteration": {
+    "n_test": 6614,
+    "test_q90": null,
+    "share_test_same_under_type": 0.0,
+    "n_src_type": 610001,
+    "n_src_cascade2": 610040,
+    "src_q90_type": 403.0,
+    "src_q90_cascade2": 403.0,
+    "share_src_cascade2_from_same_type": 0.999936069765917
+   },
+   "demolition": {
+    "n_test": 1059,
+    "test_q90": null,
+    "share_test_same_under_type": 0.0,
+    "n_src_type": 4304,
+    "n_src_cascade2": 4316,
+    "src_q90_type": 706.0,
+    "src_q90_cascade2": 711.5,
+    "share_src_cascade2_from_same_type": 0.9972196478220574
+   },
+   "electrical": {
+    "n_test": 19668,
+    "test_q90": null,
+    "share_test_same_under_type": 0.9998983119788489,
+    "n_src_type": 0,
+    "n_src_cascade2": 1,
+    "src_q90_type": null,
+    "src_q90_cascade2": 932.0,
+    "share_src_cascade2_from_same_type": 0.0
+   },
+   "mechanical": {
+    "n_test": 11582,
+    "test_q90": null,
+    "share_test_same_under_type": 1.0,
+    "n_src_type": 0,
+    "n_src_cascade2": 0,
+    "src_q90_type": null,
+    "src_q90_cascade2": null,
+    "share_src_cascade2_from_same_type": null
+   },
+   "new_construction": {
+    "n_test": 8483,
+    "test_q90": null,
+    "share_test_same_under_type": 0.0,
+    "n_src_type": 9682,
+    "n_src_cascade2": 9710,
+    "src_q90_type": 1132.0,
+    "src_q90_cascade2": 1132.0,
+    "share_src_cascade2_from_same_type": 0.9971163748712667
+   },
+   "other": {
+    "n_test": 45,
+    "test_q90": null,
+    "share_test_same_under_type": 1.0,
+    "n_src_type": 353,
+    "n_src_cascade2": 271,
+    "src_q90_type": 1220.0,
+    "src_q90_cascade2": 1201.0,
+    "share_src_cascade2_from_same_type": 1.0
+   },
+   "plumbing": {
+    "n_test": 18709,
+    "test_q90": null,
+    "share_test_same_under_type": 0.9999465497888717,
+    "n_src_type": 0,
+    "n_src_cascade2": 1,
+    "src_q90_type": null,
+    "src_q90_cascade2": 824.0,
+    "share_src_cascade2_from_same_type": 0.0
+   }
+  },
+  "seattle": {
+   "alteration": {
+    "n_test": 6614,
+    "test_q90": null,
+    "share_test_same_under_type": 0.0,
+    "n_src_type": 0,
+    "n_src_cascade2": 50793,
+    "src_q90_type": null,
+    "src_q90_cascade2": 571.0,
+    "share_src_cascade2_from_same_type": 0.0
+   },
+   "demolition": {
+    "n_test": 1059,
+    "test_q90": null,
+    "share_test_same_under_type": 0.0,
+    "n_src_type": 7422,
+    "n_src_cascade2": 8404,
+    "src_q90_type": 1053.0,
+    "src_q90_cascade2": 1034.499999999999,
+    "share_src_cascade2_from_same_type": 0.8831508805330794
+   },
+   "electrical": {
+    "n_test": 19668,
+    "test_q90": null,
+    "share_test_same_under_type": 0.9998983119788489,
+    "n_src_type": 0,
+    "n_src_cascade2": 465,
+    "src_q90_type": null,
+    "src_q90_cascade2": 720.2,
+    "share_src_cascade2_from_same_type": 0.0
+   },
+   "mechanical": {
+    "n_test": 11582,
+    "test_q90": null,
+    "share_test_same_under_type": 1.0,
+    "n_src_type": 0,
+    "n_src_cascade2": 141,
+    "src_q90_type": null,
+    "src_q90_cascade2": 977.0,
+    "share_src_cascade2_from_same_type": 0.0
+   },
+   "new_construction": {
+    "n_test": 8483,
+    "test_q90": null,
+    "share_test_same_under_type": 0.0,
+    "n_src_type": 0,
+    "n_src_cascade2": 11951,
+    "src_q90_type": null,
+    "src_q90_cascade2": 903.0,
+    "share_src_cascade2_from_same_type": 0.0
+   },
+   "other": {
+    "n_test": 45,
+    "test_q90": null,
+    "share_test_same_under_type": 1.0,
+    "n_src_type": 72412,
+    "n_src_cascade2": 7944,
+    "src_q90_type": 676.0,
+    "src_q90_cascade2": 818.0,
+    "share_src_cascade2_from_same_type": 1.0
+   },
+   "plumbing": {
+    "n_test": 18709,
+    "test_q90": null,
+    "share_test_same_under_type": 0.9999465497888717,
+    "n_src_type": 0,
+    "n_src_cascade2": 41,
+    "src_q90_type": null,
+    "src_q90_cascade2": 771.0,
+    "share_src_cascade2_from_same_type": 0.0
+   }
+  }
+ }
+}

@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, accessibility, tooling]
+topics: [design, accessibility]
 date: 2026-11-10
 ---
 # Polish 2026-11-10: `sideways.mjs SAMPLE=N` now always probes the section index pages

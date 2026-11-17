@@ -1,0 +1,17 @@
+cell-fidelity milestone 5v: 5s's map fed the ten-cycle lithium law corrected for self-limiting loss,
+L_corr = L_law / exp(0.658 + 0.577 log(L_law / n_Li)), constants frozen from 5u's Ai2020 pools;
+fresh pools: 64 Sobol designs (seed 15) x 3 conditions, DFN (SEI + plating) to cycle 100
+
+condition          n drop b_med   law rhoE raw  sqrtE    law   corr  trueL  noisy   self rhoL law   corr |lnerr| law   corr  gap 5n   corr   self  fade
+Ai2020@0.35x      62    2  0.87  sqrt    0.534  0.670  0.610  0.918  0.961  0.445  0.934    0.989  0.993       0.112  0.039  0.0000 0.0000 0.0000 0.498
+Ai2020@0.45x      63    1  0.89  sqrt    0.884  0.618  0.681  0.955  0.963  0.590  0.947    0.976  0.990       0.158  0.036  0.0000 0.0000 0.0000 0.465
+Ai2020@0.6x       64    0  0.92  sqrt    0.976  0.590  0.816  0.963  0.969  0.777  0.961    0.970  0.989       0.182  0.040  0.0000 0.0000 0.0000 0.431
+
+H122 (corrected map ranks DFN@100 above 5n's sqrt energy fit on all 3 and at >= 0.85 on each): supported (3 of 3; rho 0.918, 0.955, 0.963)
+H123 (median |ln(L_corr / L_DFN)| at cycle 99 <= 0.06 on every pool): supported (0.039, 0.036, 0.040)
+H124 (union raw top 4 + corrected top 4 within 0.5% of the DFN best and within 0.5 points of 5n's union on every pool): supported (worst gap 0.0000, worst excess over 5n +0.0000)
+H125 (a 10% lognormal error on the true loss drops the map's rank by >= 0.2 on every pool): mixed (drops 0.516, 0.374, 0.192)
+
+Descriptive: 'self' refits A, S on 8 random designs of the same pool run to cycle 100 Ai2020@0.35x A = 0.611, S = 0.566; Ai2020@0.45x A = 0.682, S = 0.600; Ai2020@0.6x A = 0.724, S = 0.601
+'noisy' is the map fed the true loss x exp(N(0, 0.1)), mean over 20 draws; 'fade' the median DFN fade from cycle 10 to 100.
+resumed designs, mean: 5n 7.7, corr 6.3

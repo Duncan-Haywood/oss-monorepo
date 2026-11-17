@@ -23,7 +23,7 @@ serial = ["pyserial"]
 mowerbot = "mowerbot.cli:main"
 
 [project.urls]
-Homepage = "https://duncan-haywood.github.io/monorepo-projects/open-robot-mower/"
+Homepage = "https://marisstella.app/open-robot-mower/"
 Source = "https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/open-robot-mower"
 
 [tool.setuptools.packages.find]

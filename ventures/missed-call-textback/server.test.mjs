@@ -28,6 +28,10 @@ test("signature: matches the documented algorithm and rejects tampering", () => 
   assert.ok(!validSignature("tok", url, { ...p, From: "+2" }, sig));
   assert.ok(!validSignature("other", url, p, sig));
   assert.ok(!validSignature("tok", url, p, ""));
+  // Red-team 2026-11-15: with no auth token (TWILIO_AUTH_TOKEN set empty and
+  // REQUIRE_SIGNATURE=1), a signature anyone can compute with an empty HMAC
+  // key must still be refused. `!authToken && !header` let it through.
+  assert.ok(!validSignature("", url, p, twilioSignature("", url, p)));
 });
 
 test("twiml escapes the message", () => { assert.equal(twiml("a<b&"), '<?xml version="1.0" encoding="UTF-8"?><Response><Message>a&lt;b&amp;</Message></Response>'); assert.match(twiml(null), /<Response><\/Response>/); });

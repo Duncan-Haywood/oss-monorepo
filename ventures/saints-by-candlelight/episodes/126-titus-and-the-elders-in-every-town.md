@@ -1,0 +1,338 @@
+---
+number: 126
+slug: titus-and-the-elders-in-every-town
+title: Titus and the Elders in Every Town
+published: 2026-11-15
+summary: Saint Paul leaves Titus on Crete to set things in order and appoint elders in every town, then writes him a short letter with a list of what an elder should be, a sharp line borrowed from a Cretan poet, and the words the Church now reads at Midnight Mass. Told from the Letter to Titus, with Titus's year on the island imagined and labelled as imagined.
+figures: Saint Titus, Saint Paul the Apostle, Zenas the lawyer, Saint Apollos, Artemas, Saint Tychicus, and invented Cretans we call Myrto, Damon, Euphranor and Nikandros
+tradition: Catholic and Orthodox; the letter is Scripture for both; Titus, Paul, Apollos and Tychicus are honoured as saints in both, and Zenas and Artemas are counted among the seventy disciples in Eastern tradition
+feast: Saint Titus on the twenty-sixth of January in the Roman calendar, together with Saint Timothy, and on the twenty-fifth of August in the Orthodox calendar
+history: the letter is the Letter to Titus, which Catholic and Orthodox Christians read as Scripture; Titus going up to Jerusalem uncircumcised is in the Letter to the Galatians, and his errands to Corinth and the comfort of his coming are in the Second Letter to the Corinthians; Paul's ship at Fair Havens near Lasea is in the Acts of the Apostles, chapter twenty-seven; the line about Cretans is a verse of Greek poetry that Clement of Alexandria and other early writers give to Epimenides of Crete, and whose first words also open a line of Callimachus; Gortyn's law code and the ruins of its church of Saint Titus can still be seen; the Roman lectionary reads Titus at the Christmas Masses during the night and at dawn
+legend: that Titus was the first bishop of Crete is an early tradition, recorded by Eusebius; that he died on Crete at a great age comes from later accounts and is labelled as such; the evergreen plane tree of Gortyn and its story are from Theophrastus and are Greek myth, told as such; whether Titus reached Nicopolis that winter is not known, and the episode says so
+fiction: Titus's year on the island is imagined and labelled as imagined in the story itself; that Zenas and Apollos carried the letter is a common guess and is said to be one; Myrto, Damon, Euphranor and Nikandros, the town where an elder is chosen, the olive press, the food packed for the road and every conversation are our own invention, told in the spirit of the original; nothing the letter says is changed, and Paul's words are in our own plain rendering, shortened in places, with nothing added
+sources:
+  - The Letter to Titus, the whole of it, and especially chapter one, verses one to sixteen, chapter two, verses one to eight and eleven to fifteen, and chapter three, verses one to fifteen (Catholic and Orthodox New Testament)
+  - The Letter to the Galatians, chapter two, verses one to three, for Titus at Jerusalem
+  - The Second Letter to the Corinthians, chapter two, verses twelve and thirteen, chapter seven, verses five to sixteen, chapter eight, verses six and sixteen to twenty-three, and chapter twelve, verse eighteen, on Titus
+  - The Second Letter to Timothy, chapter four, verses ten and twelve, for Titus gone to Dalmatia and Tychicus sent to Ephesus
+  - The Acts of the Apostles, chapter two, verse eleven, for Cretans at Pentecost, and chapter twenty-seven, verses seven to thirteen, for Fair Havens, Lasea and Phoenix
+  - The Acts of the Apostles, chapter eighteen, verses twenty-four to twenty-eight, for Apollos
+  - Homer, the Iliad, book two, for Crete of the hundred cities, and the Odyssey, book nineteen, for its ninety cities
+  - Callimachus, Hymn to Zeus, for Cretans always liars and the tomb of Zeus
+  - Clement of Alexandria, the Stromata, book one, chapter fourteen, naming Epimenides as the poet Paul quotes
+  - Theophrastus, Enquiry into Plants, book one, on the plane tree at Gortyn that keeps its leaves
+  - Eusebius, Ecclesiastical History, book three, chapter four, on Titus and the churches of Crete
+  - The Roman Missal and Lectionary, the readings for the Nativity of the Lord, Mass during the Night and Mass at Dawn
+---
+
+It is evening, in a small town on the south coast of the island of Crete.
+
+There is a room with a low ceiling and a big olive press in the corner, and about twenty people are crowded into it, sitting on sacks and benches and the edge of the press itself. Somebody's baby is asleep. Somebody's goat is complaining outside.
+
+At the front, a man in his forties is holding a letter up to a lamp and reading it aloud. He reads slowly, because the handwriting is not his and the light is not good. And everything is going nicely, until he comes to a line, and stops, and looks up, and then reads it anyway.
+
+One of their own, a prophet of their own, said: Cretans are always liars, wicked beasts, lazy bellies.
+
+The room goes completely silent. Even the goat stops.
+
+And then, from the back, an old fisherman starts to laugh. He laughs until he has to wipe his eyes. And he says, I know that one. My grandfather used to say that one. He's quoting us at ourselves.
+
+But we're getting ahead of ourselves.
+
+[pause]
+
+Hello, and welcome to Saints by Candlelight, stories of saints, angels and patriarchs from the Catholic and Orthodox traditions, told for bedtime. These episodes are written by an AI and read by a synthetic voice, and they try very hard to be faithful. Tonight's story is from the Letter to Titus, which Catholic and Orthodox Christians read as Scripture, and Titus's year on the island of Crete, with its towns and its olive press and all its conversations, is our own imagining, told in the spirit of the original. So get comfortable. Dim the lights. And let's begin.
+
+[pause]
+
+Last time, we heard about Saint Timothy, and a cloak left behind at Troas, and the last letter Saint Paul ever wrote. Tonight is about Timothy's friend. They share a feast day in the Roman calendar, these two, the twenty-sixth of January, which seems right, because they spent half their lives running Paul's errands, often in opposite directions.
+
+His name was Titus. And here is the odd thing about Titus. He was one of Paul's closest companions for something like fifteen years, and he is never once named in the Acts of the Apostles. Not once. Luke, who wrote the Acts, mentions sailors, jailers, a girl called Rhoda who left Peter standing at the gate, and a young man who fell asleep during a sermon and out of a window. But not Titus. Nobody quite knows why. Some people have guessed that Titus was related to Luke and that Luke was being modest on his family's behalf. That is only a guess, and I mention it only because it is a nice one.
+
+So everything we know about Titus, we know from Paul's letters. And it is quite a lot, once you put it together.
+
+He was a Greek. Not a Jew, like Paul, and not half and half, like Timothy. A Greek, all the way through. And Paul took him, as a sort of living example, up to Jerusalem, to meet the leaders of the church there, at the time when the first Christians were deciding whether people like Titus had to become Jews first before they could follow Jesus. Paul says, in his Letter to the Galatians, that Titus was with him, and that even though he was a Greek, nobody made him be circumcised. Which means that one of the biggest questions in the early Church was, at one point, standing in the room in sandals, listening to everyone discuss him. I imagine he found it an interesting afternoon.
+
+After that, Titus became the person Paul sent when something was going wrong. In particular, he was the person Paul sent to Corinth. Corinth was a city full of Christians whom Paul loved very much and who gave him more headaches than any other church he ever founded. At one point things were so bad that Paul wrote them a letter in tears. Titus went to Corinth, perhaps carrying it, to see how things stood. And Paul could not bear to wait. He went up to Troas, hoping to meet Titus coming back. And Titus was not there. And Paul says, in his Second Letter to the Corinthians, that he had no rest in his spirit, because he did not find his brother Titus. So he crossed over into Macedonia to look for him. And there, at last, Titus came. And he brought good news. The Corinthians were sorry. They missed Paul. They wanted to make things right.
+
+And Paul writes one of the loveliest lines in all his letters. God, who comforts the downcast, comforted us by the coming of Titus.
+
+I would like that on my gravestone, if I am honest. Not the downcast part. The other part. That somebody was comforted by the coming of me.
+
+Paul calls him my partner and fellow worker. He says Titus went to Corinth of his own accord. He says Titus's heart went out to them, more and more, as he remembered how they had received him. You get the picture of a man who was steady, and kind, and very good at walking into a room full of upset people and calming everybody down. Which, as we shall see, was exactly what was needed on Crete.
+
+* * *
+
+Now. Crete.
+
+If you have never been there, Crete is a long, narrow, mountainous island at the bottom of the Aegean Sea, south of mainland Greece, about two hundred and sixty kilometres from end to end. It has snow on its mountains in winter and some of the hottest, sunniest coast in Europe in summer. It has olives, and vines, and goats, and gorges you can walk down for a whole day. And it has always had a great many towns.
+
+Homer, the old poet, calls it Crete of the hundred cities. In the other of his two great poems, he says it had ninety. Either Homer counted twice and got different answers, which happens to all of us, or ten cities were knocked down in between. Either way, keep that number in your head. Ninety or a hundred towns. It will matter later.
+
+By the time of our story, Crete had been part of the Roman Empire for over a hundred years. The Romans ran it together with a stretch of North Africa across the water, around the city of Cyrene, as one province, which tells you something about how the Romans thought of the sea. It was not a wall to them. It was a road. The capital was a city called Gortyn, in a wide flat plain in the south of the island, with mountains on the skyline and wheat and olives all around it.
+
+Gortyn was old. Much older than Rome. It had a famous wall covered in laws carved into stone, hundreds of years before Titus's time, about who inherits what, and who may marry whom, and what you pay if you damage somebody else's property. The lines of writing go back and forth, left to right and then right to left, the way an ox ploughs a field. And they are still there today. You can go to Gortyn and stand in front of them.
+
+Gortyn also had a plane tree. The old Greek writer Theophrastus, who was a pupil of Aristotle and wrote a great book about plants, says that near a spring at Gortyn there was a plane tree that never lost its leaves in winter, when every other plane tree did. And the Gortynians told a story from their old religion, that one of their gods had once sat in its shade, and that was why. I tell you that as a Greek myth, which is what it is. But I like that Theophrastus, who was a careful man, wrote the tree down as a thing people told him, and did not pretend to more.
+
+And there were Christians on Crete before Titus came. We do not know exactly how the faith arrived. But we do know that on the day of Pentecost, in Jerusalem, when the apostles came out of the upper room and started speaking and everyone heard them in their own language, the Acts of the Apostles has a list of where those listeners had come from. And near the end of the list it says, Cretans and Arabians. So there were people from Crete in that crowd. Some of them, perhaps, went home with something to tell their neighbours. Perhaps that is where it started. Nobody can say for sure.
+
+Paul himself had seen Crete once, from the deck of a ship. If you were here a few nights ago, you will remember it. He was being taken to Rome as a prisoner, and his ship crept along the south coast of Crete, in bad weather, and put in at a little bay called Fair Havens, near a town called Lasea. Paul warned them that if they sailed on they would lose the cargo and the ship. But the centurion listened to the pilot and the owner of the ship instead, and they set out for a better harbour further west, and the wind came down off the mountains and blew them out to sea for fourteen days, all the way to Malta. So Paul's first memory of Crete was, I suppose, of a nice quiet bay that nobody listened to him about.
+
+After that, the story runs off the edge of the Acts of the Apostles, and we have to put it together from the letters. The way the Church has usually read it, Paul was released from his first imprisonment in Rome, and travelled again for a while, and at some point he and Titus went to Crete together, and worked there. And then Paul had to go on somewhere else, and Titus stayed behind.
+
+We know that much, because it is the first thing Paul says in his letter. This is why I left you in Crete.
+
+* * *
+
+From here on, until we get to the letter itself, I am going to tell you about Titus's year on the island the way I imagine it. The letter tells us what Titus was asked to do. It does not tell us what he had for breakfast, or who he stayed with, or whether he got seasick. So the people you will meet in this part, apart from Titus himself, are invented, and I will try to keep them honest.
+
+Let us say that when Paul sails away, Titus is standing on a quay in the early morning, and the ship is getting smaller. And Paul, at the rail, has shouted something back across the water that the wind mostly took. Titus thinks it was set things in order. It might have been mind the goats. Paul's voice was not built for harbours.
+
+And Titus walks back up from the harbour, and looks at the island. The long blue spine of mountains. The villages stuck on the hillsides like swallows' nests. Somewhere between ninety and a hundred towns, if Homer is to be believed. And in some of them, a handful of people who had heard about Jesus and been baptized, and were meeting in somebody's house, and were trying very hard, and were not at all sure what they were doing.
+
+And Paul has said to him, appoint elders in every town.
+
+Every town.
+
+Let us give Titus somewhere to stay. In Gortyn, let us say, there is a widow called Myrto, who has a house near the market with a courtyard and a fig tree in it, and who has decided that the Christians of Gortyn will meet in her courtyard whether they like it or not. Myrto is about sixty. She is small, and quick, and she remembers everybody's name, and everybody's mother's name, and what everybody owes everybody else. When Titus arrives, she gives him a room, and a blanket, and a bowl of lentils, and a list.
+
+What is this, says Titus.
+
+Those are the towns, says Myrto. The ones where there are believers. I asked around.
+
+Titus looks at it. It is not ninety towns. It is eleven. That is a great relief. And then he looks again, and sees that for each town Myrto has written a name or two, and next to some of the names she has written a little note, in very small letters. Next to one it says, good man, drinks. Next to another it says, kind, but tells everyone's secrets. Next to another it just says, no.
+
+Myrto, says Titus, these are very useful.
+
+I know, says Myrto. Eat your lentils.
+
+* * *
+
+So Titus begins to go round the island.
+
+Let us say he goes on foot, mostly, with a donkey for the baggage and the odd ride in an ox cart when one is going his way. Up into the hills, along goat paths, down into the gorges and out again. He sleeps in farmhouses and on boats. He is fed, everywhere he goes, more than he can eat, because on Crete it was a point of honour to feed a guest until he could not move, and from what I hear it still is. He comes back to Gortyn after each journey thinner in the purse and fatter in the face.
+
+And in every town he does the same thing. He finds the little group of believers. He sits with them. He teaches them what Paul taught him. He prays with them, and he breaks bread with them. And then, at some point, he asks them, gently, who among you should look after the others when I am gone?
+
+This is harder than it sounds. Because in most of these towns there is somebody who would very much like to be asked.
+
+Let us take one town. A small place near the south coast, not far, let us say, from the bay of Fair Havens where Paul's ship once put in. There are about twenty believers there. They meet in the house of a man called Euphranor, who owns an olive press. He is in his fifties. He has a wife, and four grown-up children, two of whom are believers and two of whom are thinking about it. He says very little. He has big hands, cracked from the press, and when people come to his house he gives them oil to take home, and he does not seem to notice that he has done it.
+
+And there is also, in that town, a man called Nikandros.
+
+Nikandros is clever. Nikandros is a wonderful talker. He can explain anything, and he does, at length. He knows a great deal of philosophy. He has views on the prophets and views on the stars and views about what Paul really meant, which are not always the same as what Paul said. He has very fine sandals. On the second evening, after the meal, he takes Titus aside and explains to him, in some detail, why the town would be very well served if Titus chose Nikandros to lead it.
+
+And Titus, let us be honest, is tempted. Because Nikandros is the sort of man who would get things done. He would write things down. He could argue with anybody who came through town with a strange new teaching. He has, Titus thinks, all the right equipment.
+
+So that evening, Titus sits by the fire with an old fisherman called Damon, who is Euphranor's neighbour, and who has been a believer since he heard about Jesus from his cousin, who heard about him from someone who had been in Jerusalem at Pentecost. Damon is mending a net. And Titus says, carefully, what do you think of Nikandros?
+
+And Damon says, no.
+
+Just like that. No.
+
+Titus waits.
+
+Damon goes on mending the net. Then he says, you know what I've never done in twenty years? Eaten at Nikandros's house. Nobody has. He's always at other people's. He'll tell you what Paul meant, and he'll tell you what Moses meant, and he'll tell you what you meant, and he'll charge you for the telling if he can get away with it. He's a good talker. I'm not saying he's a bad man. But you asked.
+
+And Titus says, what about Euphranor?
+
+And Damon says, Euphranor? Euphranor gave my wife oil every week the year I broke my leg and couldn't fish. Never said a word about it. Never told anybody. I only found out because she told me.
+
+And Damon bites off a thread, and says, but he won't want it. You'll have to make him.
+
+* * *
+
+And it is just about then, in our imagining, that the letter arrives.
+
+The letter itself tells us one thing about how it might have travelled. Near the end, Paul says to Titus, do your best to speed Zenas the lawyer and Apollos on their way, and see that they lack nothing. So Zenas and Apollos were going to be passing through Crete, or were there already. And a great many readers have guessed that they were the ones who carried the letter. That is only a guess. But it is a good one, and we will take it.
+
+Apollos, you may remember from a few nights ago. He was the eloquent preacher from Alexandria, in Egypt, who knew the Scriptures backwards and who was taught the rest of the way by Priscilla and Aquila in Ephesus. Zenas we know nothing about except that he was a lawyer. The Greek word could mean a Roman lawyer or an expert in the Jewish law. We cannot tell which. Eastern tradition counts him among the seventy disciples that Jesus sent out. Beyond that he is a name, and a profession, and a friend of Paul's who needed provisions for the road.
+
+So let us say that Zenas and Apollos come up the track from the harbour on a bright windy morning, with dust on their cloaks, and find Titus sitting outside Euphranor's olive press, helping Damon with the net, because he has discovered that he has no gift at all for nets and enjoys it anyway. And Apollos, who has never in his life been able to deliver a message without making a small speech first, makes a small speech, and then hands over the letter.
+
+It is not a long letter. In our Bibles it is three short chapters. You could read it aloud, slowly, in about ten minutes. And Titus does read it aloud, that evening, to everyone crowded into the room with the olive press, because that is what you did with letters from Paul. You did not keep them. You read them to the church.
+
+Here is what it says. I am going to tell it to you in my own plain words, a little shortened, and I will not add anything to it.
+
+* * *
+
+It begins the way Paul always began. Paul, a servant of God and an apostle of Jesus Christ, to Titus, my true child in the faith we share. Grace and peace from God the Father and Christ Jesus our Saviour.
+
+My true child. Titus was a grown man by now. But that is what Paul called him.
+
+And then Paul gets straight to the point. This is why I left you in Crete: so that you would put in order what was still left undone, and appoint elders in every town, as I told you.
+
+And then the list. What kind of person should an elder be?
+
+Someone, Paul says, whom nobody can point at and accuse. Faithful to his one wife. With children who believe, and who are not known for running wild or refusing to listen. Because a bishop, Paul says, is God's steward, God's housekeeper, so he must be someone nobody can accuse. Not arrogant. Not quick-tempered. Not a drinker. Not violent. Not greedy for money. But hospitable. A lover of what is good. Sensible. Fair. Holy. In control of himself. Holding on to the true teaching he was taught, so that he can encourage people with it, and set right the ones who argue against it.
+
+In the room, Titus reads this out, and he does not look at anyone. But Damon, at the back, looks very hard at Euphranor. And Euphranor looks very hard at the floor. And a few people, without quite meaning to, glance across at Nikandros's fine sandals, and then away.
+
+Not greedy for money. Hospitable.
+
+Then the letter goes on. There are a lot of people, Paul says, who will not be told. Empty talkers and deceivers. They are turning whole households upside down, teaching things they have no business teaching, for the sake of what they can earn. They have to be stopped.
+
+And then comes the line.
+
+One of their own, a prophet of their own, said: Cretans are always liars, wicked beasts, lazy bellies.
+
+And Paul adds: and that is true. So correct them sharply, so that they may be sound in the faith.
+
+* * *
+
+So there is that silence in the room. You can imagine it. Twenty Cretans sitting on sacks in an olive press, having just been read a letter that calls them liars, wicked beasts and lazy bellies. And then Damon at the back starts to laugh.
+
+Because they all knew that line. It was theirs.
+
+Here is what we know about it. That line is a verse of old Greek poetry. Several of the early Christian writers, including Clement of Alexandria, who lived about a hundred and fifty years after Paul, say it came from a poet called Epimenides, who was himself a Cretan, from the old city of Knossos, and who lived about six hundred years before Paul. The Cretans remembered Epimenides as a wise man and something of a seer, which is why Paul calls him a prophet of their own. Not a prophet like Isaiah. A prophet in the sense of the man the Cretans themselves looked up to as their wise man.
+
+And the first three words of the line, Cretans always liars, also turn up in another poem, by a Greek poet called Callimachus, about three hundred years before Paul. Callimachus is writing a hymn to Zeus, the chief of the old Greek gods. And he says, Cretans are always liars. They even built a tomb for you, O lord, but you did not die. Because the Cretans, you see, used to show visitors the tomb of Zeus. And everybody else in Greece thought that was outrageous, because the whole point of a god, they said, is that he does not die.
+
+So the saying had been going round the Greek world for centuries. It was the sort of thing people from other places said about Cretans, and the sort of thing Cretans said about themselves, with a grin, the way people from a certain town will tell you, before you can say it, that everyone there is stubborn, or tight with money, or can't drive.
+
+Paul is not making a joke. He is quite serious. He has had real trouble on this island with people who were teaching for money and upsetting families, and he wants Titus to be firm. But he is not inventing an insult either. He is quoting the Cretans' own wise man back to them, the way you might quote your own grandmother's saying about your own family back at your own brother, when your brother is being impossible. That's what Gran always said about us, you know. And she was right.
+
+There is a footnote to this that I cannot resist. Many centuries later, logicians noticed that if a Cretan says that all Cretans are always liars, you get a puzzle. Because if he is telling the truth, then he is lying. And if he is lying, then perhaps he is telling the truth. They named it after Epimenides, and you will find it in logic books today as the Epimenides paradox. Paul, I promise you, was not doing a logic puzzle. He was writing to a tired friend about some difficult people. But it is a fine thing to think about when you cannot sleep. Which, if you are listening to this, is perhaps why you are here.
+
+And the thing to notice, the thing Damon notices, laughing in the back of the room, is the next part. Correct them sharply. So that they may be sound in the faith. Paul does not say, give up on Crete. He does not say, the Cretans are hopeless, come home. He says, there is work here, and it is worth doing, and the people are worth it. Then he goes back to the list.
+
+* * *
+
+The second part of the letter is about how everybody should live. Titus, Paul says, teach what goes with sound teaching. Tell the older men to be sober, and serious, and sensible, and sound in faith, and in love, and in patience. Tell the older women to be reverent, not to go about gossiping, not to be slaves to wine, and to teach what is good, so that they can train the younger women. Tell the younger men to be in control of themselves.
+
+And as for you, Titus, he says, show them yourself. Be an example of good deeds. Let your teaching be honest and serious, and your words sound, so that anyone who wants to oppose you will be ashamed, because he can find nothing bad to say about us.
+
+In the room with the olive press, everybody is now checking which group they belong to. Older men. Older women. Younger men. Damon, I think, is pleased to be told to be sensible, because he already thinks he is. Myrto, if she were there, would want it noted that she has never once been a slave to wine, and has quite a lot to say about who has.
+
+And then the letter turns, and gets bigger, and quieter, and Titus's voice changes as he reads it.
+
+For the grace of God has appeared, bringing salvation to all people. It trains us to say no to ungodliness and worldly passions, and to live sensible, upright and godly lives in this present age, while we wait for our blessed hope, the appearing of the glory of our great God and Saviour Jesus Christ, who gave himself for us to set us free from all wickedness, and to make for himself a people of his own, eager to do what is good.
+
+If you have ever been to Midnight Mass at Christmas, in a Catholic church, you may know those words. Because that is the second reading. Every year, in the dark, in the middle of the night, with the candles lit and the crib in the corner and half the congregation trying to stay awake, somebody goes up to the lectern and reads this. A reading from the Letter of Saint Paul to Titus. The grace of God has appeared.
+
+And at the Mass at dawn on Christmas morning, they read another piece of the same letter, from the next chapter. When the goodness and loving kindness of God our Saviour appeared, he saved us, not because of any good things we had done, but because of his own mercy.
+
+So this short letter to a tired man on a rocky island, which is mostly about who should be in charge of the church in each town, and how to behave, and how to deal with difficult people, is the letter the Church picked, out of the whole Bible, to read in the middle of the night when we celebrate the birth of Christ. I find that very moving. It is as if the Church is saying: this is what Christmas is for. Not for sweeping away all the ordinary, practical, difficult business of looking after each other. But for appearing right in the middle of it.
+
+* * *
+
+The last part of the letter is about getting along. Remind them, Paul says, to respect the people in authority, and be ready for any honest work. To speak evil of no one. To avoid quarrelling. To be gentle, and to show every courtesy to everybody.
+
+And then he says something that I think is the real secret of the whole letter. He says: for we ourselves were once foolish too. Disobedient. Led astray. Slaves to all kinds of wants and pleasures. Spending our days in spite and envy, hated and hating one another. But when the goodness and loving kindness of God our Saviour appeared, he saved us. Not because of anything good we had done. But because of his mercy. By the washing of new birth, and the renewal of the Holy Spirit, which he poured out on us richly.
+
+We ourselves were once foolish too.
+
+So, Paul is saying, when you correct the Cretans, Titus, correct them as a man who remembers what he was. Not as a man who thinks he was never like that.
+
+And then, near the end, some practical advice that every committee in the history of the Church could have done with. Avoid stupid arguments, Paul says, and genealogies, and quarrels about the law. They are useless and worthless. If someone keeps causing divisions, warn him once, warn him twice, and then have nothing more to do with him.
+
+Once. Twice. Then stop. Not, argue with him for eleven years. I have known some parish councils that might have benefited from this verse being painted on the wall.
+
+* * *
+
+And then the very end of the letter. The part where you can hear Paul, as it were, packing his bag.
+
+When I send Artemas to you, or Tychicus, do your best to come to me at Nicopolis, because I have decided to spend the winter there.
+
+Nicopolis means victory city. There were several cities by that name, but most readers think Paul meant the big one on the west coast of Greece, which the emperor Augustus founded to celebrate the sea battle where he won the empire. It was a good place to winter. It had a harbour and roads, and in the spring you could sail north, or west, or anywhere.
+
+Do your best to speed Zenas the lawyer and Apollos on their way. See that they lack nothing.
+
+And let our people learn to devote themselves to good works, to help with urgent needs, so that they will not be unfruitful.
+
+Everyone who is with me sends you greetings. Greet those who love us in the faith. Grace be with you all.
+
+And that is the end.
+
+* * *
+
+So let us go back, for the last part of our imagining, to the room with the olive press.
+
+The letter is finished. Titus rolls it up. There is a pause. And then, because this is Crete, everyone starts talking at once.
+
+Nikandros, to his credit, laughs about the liars line louder than anybody. Then he goes home early. Titus watches him go, and feels sorry for him, and also feels that a great weight has been lifted, because now it is not Titus who has to say no to Nikandros. Paul has said it, without ever meeting him, from the other side of the sea.
+
+And Titus goes over to Euphranor, who is still looking at the floor.
+
+And Euphranor says, before Titus can speak, I can't. I'm not clever. I can't argue with people like Nikandros. I've never read a book in my life. I press olives.
+
+And Titus says, did you hear the list?
+
+And Euphranor says, yes.
+
+And Titus says, it didn't say clever. It said hospitable. It said a lover of what is good. It said not greedy for money. Damon tells me you gave his wife oil every week for a year.
+
+Euphranor looks at Damon. Damon looks at the ceiling.
+
+And Titus says, you won't have to argue with people like Nikandros. You'll have to feed people like Nikandros. Which, from what I hear, nobody has ever tried.
+
+So that is how, in our imagining, an olive presser becomes the first elder of a small town on the south coast of Crete. Titus lays hands on him and prays over him, the way the apostles did, with the whole little church gathered round. Euphranor's wife cries. One of his sons, who was thinking about it, decides to stop thinking about it and be baptized. And Damon goes back to mending his net, very pleased with himself, and tells nobody that it was his idea.
+
+* * *
+
+The next morning, they speed Zenas and Apollos on their way, and they see that they lack nothing.
+
+This turns into a project. Because it is Crete, and because Paul has said lack nothing, and the Cretans have just been called lazy bellies and are not going to have anyone say they sent two guests off hungry. So when Zenas and Apollos go down to the harbour, they are carrying two jars of Euphranor's oil, a round cheese the size of a cartwheel, three strings of dried figs, a sack of barley rusks hard enough to build a wall with, a pot of honey, a pot of olives, a spare cloak each, and a goat.
+
+Zenas, being a lawyer, points out that they did not ask for a goat.
+
+Damon, being a Cretan, explains that the goat was not asked for, and the goat is not optional.
+
+The goat goes on the boat.
+
+I want to stress, very firmly, that the goat is my own invention. The letter does not mention a goat. But the letter does say lack nothing, and I think the goat is in the spirit of the original.
+
+* * *
+
+And then Titus goes on round the island. Ten more towns on Myrto's list, and others she has not heard about yet. In each one he finds someone like Euphranor, or tries to. Sometimes it takes weeks. Sometimes he gets it wrong, and has to come back. Sometimes the person he thinks is quiet and hospitable turns out to be quiet because he is sulking. It is slow, ordinary work. Walking, eating, listening, praying, waiting. Warning someone once, and twice, and then stopping.
+
+And at the end of the summer, let us say, a ship comes into the harbour, and on it is Artemas, or perhaps Tychicus. And Titus knows what that means. It means it is time to hand over and go to Paul at Nicopolis for the winter.
+
+He goes to see Myrto, in the courtyard with the fig tree, to say goodbye. And Myrto gives him another list. This one has the names of the elders he has appointed, and next to each one, in very small letters, a note. Next to Euphranor it says, good. Next to one of the others it says, watch him. And at the bottom, she has written, come back.
+
+* * *
+
+[pause]
+
+And now, let us leave our imagining behind, and come back to what we actually know. And let us go slowly.
+
+We do not know whether Titus reached Nicopolis that winter. The letter asks him to. It does not tell us whether he did.
+
+We do know, from Paul's very last letter, the one we heard about last time, the Second Letter to Timothy, that some while later, when Paul was in his final prison in Rome, Titus was not there. Paul says, Titus has gone to Dalmatia. Dalmatia is the coast of what is now Croatia, up the Adriatic Sea, north of Nicopolis. Paul does not say why he went. People have sometimes read that line as if Titus had abandoned Paul, because in the same sentence Paul says that Demas had deserted him. But the letter does not say Titus deserted anyone. The most natural reading is that Paul sent him, the way he had sent him everywhere else, for years. Titus has gone to Dalmatia. On another errand. Into another room full of upset people.
+
+After that, the New Testament falls silent about him.
+
+But the Church of Crete did not forget him. In the fourth century, Eusebius, the first great historian of the Church, writes that Titus was remembered as the bishop of the churches in Crete, just as Timothy was remembered at Ephesus. And later accounts say that Titus came back to the island, and stayed, and looked after the churches there for the rest of his life, and died on Crete at a great age, and was buried at Gortyn. Those later accounts are tradition, and I give them to you as tradition. But they are an old tradition, and the Cretans have held on to it very firmly.
+
+At Gortyn, a few centuries after Titus, a great church was built in his honour. Its ruins are still standing, in the middle of the old Roman city, not far from the wall with the old laws on it. You can walk in through what was its door, and stand in the curve of the stone apse, with the sky for a roof and the wild flowers coming up between the paving stones.
+
+And the line of bishops at Gortyn went on. If you heard our episode about Saint Andrew of Crete, the man who wrote the Great Canon that the Orthodox sing in Lent, you will remember that he was the archbishop of Gortyn, about six hundred and fifty years after Titus, and that he built churches and a home for the poor, which is, I think, the kind of thing an elder who is hospitable and a lover of what is good would do. So the island that Paul called liars, wicked beasts and lazy bellies gave the Church, in time, a great many saints. Which is, I suppose, the whole point. Correct them sharply, Paul said, so that they may be sound in the faith. And they were.
+
+There is one more story, and it is a true one. For a long time, the Cretans kept what they believed was the head of Saint Titus as a relic. In the sixteen hundreds, when the island was taken in a long war, it was carried away to Venice for safekeeping, and stayed there for nearly three hundred years. And then, in nineteen sixty-six, it was given back. And it was brought home to Crete, to the church of Saint Titus in the city of Heraklion, where it is still kept today. The Cretans had not forgotten. They had waited three hundred years for him to come home. Which is, I think, the opposite of lazy.
+
+So Myrto's last note, in the end, was answered. Come back.
+
+Saint Titus is remembered on the twenty-sixth of January in the Roman calendar, side by side with his friend Saint Timothy, the two errand-runners together. In the Orthodox calendar, he is remembered on the twenty-fifth of August.
+
+And every year, in the middle of the night, on the night of Christmas, his letter is read in churches all over the world, by candlelight. The grace of God has appeared.
+
+[pause]
+
+Here are the notes for the curious.
+
+Tonight's story comes from the Letter to Titus, which Catholic and Orthodox Christians read as Scripture, and which the Church has always received as a letter of Saint Paul. Many modern scholars think it may have been written by a follower of Paul, in his name, after his death. The Church has always read it as Paul's, and we have told it that way. Everything the letter says is kept, in our own plain rendering, shortened in places, with nothing added. A few verses, mostly about the duties of the members of a household, are not read out in full.
+
+What we know of Titus apart from this letter comes from the Letter to the Galatians and the Second Letter to the Corinthians, and from one line in the Second Letter to Timothy. Fair Havens and Lasea are in the Acts of the Apostles. That Zenas and Apollos carried the letter is a guess, and so is the guess that Titus was related to Luke.
+
+The line about Cretans is given to Epimenides by Clement of Alexandria and other early writers, and its first words also appear in Callimachus's hymn to Zeus. The hundred cities and the ninety are in Homer. The plane tree of Gortyn is in Theophrastus and the story attached to it is Greek myth. Titus as bishop of Crete is in Eusebius. His death at Gortyn at a great age comes from later accounts. The return of his relic to Heraklion in nineteen sixty-six is history. The readings at Christmas are those of the Roman lectionary.
+
+Titus's year on the island is our own imagining: Myrto and her lists, Damon and his net, Euphranor and his olive press, Nikandros and his sandals, the cheese and the figs and, above all, the goat.
+
+[pause]
+
+That's the story of Saint Titus, and the elders in every town, for tonight. Saint Titus is remembered on the twenty-sixth of January in the Roman calendar, together with Saint Timothy, and on the twenty-fifth of August in the Orthodox calendar. Thank you for listening to Saints by Candlelight. If you enjoyed it, share it with someone who could use a gentle story at the end of a long day.
+
+And here is a blessing, from the letter itself. When the goodness and loving kindness of God our Saviour appeared, he saved us, not because of anything we had done, but because of his mercy. May he pour out his Holy Spirit on you richly. Grace be with you all.
+
+Goodnight, and God bless.

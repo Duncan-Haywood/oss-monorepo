@@ -1,0 +1,114 @@
+{
+ "decider_check": {
+  "1": {
+   "separable_triples": 0,
+   "mismatches": 0
+  },
+  "2": {
+   "separable_triples": 0,
+   "mismatches": 0
+  },
+  "3": {
+   "separable_triples": 36,
+   "mismatches": 0
+  },
+  "4": {
+   "separable_triples": 11592,
+   "mismatches": 0
+  }
+ },
+ "reduction_check": {
+  "1p_1e": {
+   "hypergraphs": 1,
+   "2-colourable": 0,
+   "mismatches": 0
+  },
+  "1p_2e": {
+   "hypergraphs": 0,
+   "2-colourable": 0,
+   "mismatches": 0
+  },
+  "1p_3e": {
+   "hypergraphs": 0,
+   "2-colourable": 0,
+   "mismatches": 0
+  },
+  "1p_4e": {
+   "hypergraphs": 0,
+   "2-colourable": 0,
+   "mismatches": 0
+  },
+  "2p_1e": {
+   "hypergraphs": 3,
+   "2-colourable": 1,
+   "mismatches": 0
+  },
+  "2p_2e": {
+   "hypergraphs": 3,
+   "2-colourable": 0,
+   "mismatches": 0
+  },
+  "2p_3e": {
+   "hypergraphs": 1,
+   "2-colourable": 0,
+   "mismatches": 0
+  },
+  "2p_4e": {
+   "hypergraphs": 0,
+   "2-colourable": 0,
+   "mismatches": 0
+  },
+  "3p_1e": {
+   "hypergraphs": 7,
+   "2-colourable": 4,
+   "mismatches": 0
+  },
+  "3p_2e": {
+   "hypergraphs": 21,
+   "2-colourable": 6,
+   "mismatches": 0
+  },
+  "3p_3e": {
+   "hypergraphs": 35,
+   "2-colourable": 3,
+   "mismatches": 0
+  },
+  "3p_4e": {
+   "hypergraphs": 35,
+   "2-colourable": 0,
+   "mismatches": 0
+  },
+  "4p_1e": {
+   "hypergraphs": 15,
+   "2-colourable": 11,
+   "mismatches": 0
+  },
+  "4p_2e": {
+   "hypergraphs": 105,
+   "2-colourable": 55,
+   "mismatches": 0
+  },
+  "4p_3e": {
+   "hypergraphs": 455,
+   "2-colourable": 161,
+   "mismatches": 0
+  },
+  "4p_4e": {
+   "hypergraphs": 1365,
+   "2-colourable": 294,
+   "mismatches": 0
+  }
+ },
+ "fano": {
+  "worlds": 16,
+  "serial": true,
+  "two_colourable": false,
+  "separable": false,
+  "back_witness": false
+ },
+ "fano_minus_line": {
+  "separable": true,
+  "witness_valid": true
+ },
+ "seconds": 34.7
+}

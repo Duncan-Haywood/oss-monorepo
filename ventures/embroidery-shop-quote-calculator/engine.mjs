@@ -86,9 +86,18 @@ const FIELDS = [
   ["flatPer1000", "flat rate per 1000 stitches", 0, 1000, false],
 ];
 
+// "12 48 1,500" is three breaks (1,500 is one quantity); "12,48,1500" is a comma list.
+// A part that only makes sense as a thousands group ("1,000,2,000" -> "000") is NaN, so it is rejected.
 export function parseQtyList(v) {
   if (Array.isArray(v)) return v.map(Number);
-  return String(v ?? "").split(/[\s,;]+/).filter(Boolean).map(Number);
+  const out = [];
+  for (const raw of String(v ?? "").split(/[\s;]+/)) {
+    const tok = raw.replace(/^,+|,+$/g, "");
+    if (!tok) continue;
+    if (/^\d{1,3}(,\d{3})+$/.test(tok)) { out.push(Number(tok.replace(/,/g, ""))); continue; }
+    for (const part of tok.split(",")) out.push(/^0\d/.test(part) || part === "" ? NaN : Number(part));
+  }
+  return out;
 }
 
 // Returns { job, errors }. Missing or blank fields take the default; present

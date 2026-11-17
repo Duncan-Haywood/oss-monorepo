@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKksUzhy8WzuRNNbthf",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T05:09:04Z",
+  "ended": "2026-11-14T05:18:20Z",
+  "wall_minutes": 9.42,
+  "tokens_in": 4264861,
+  "tokens_out": 31037,
+  "cost_usd": 2.3639,
+  "tool_calls": 41,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15738",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "check_post_frontmatter.py failed twice on the new post (seo_title 74 > 70, description 195 > 160); shortened both."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py returned /usr/bin/python3.13 after an install; plain python3 had no numpy. Worked as documented, about a minute in the background."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/civ-seeding/LOG.md",
+      "why": "Added a post-hoc check (real held-out losses against each process's synthetic spread) after seeing that the real 13/43 village count was extreme under every process.",
+      "did": "Labelled it post hoc in run.py, results.txt, LOG.md, README and the post; pre-registered results unchanged (deterministic rerun, identical digits).",
+      "result": "It became the main finding: all three models are too homogeneous across villages."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-can-the-data-tell-simple-from-complex-contagion.md",
+    "research/civ-seeding/LOG.md (milestone 3 entry)",
+    "research/civ-seeding/README.md (milestone 3 section)"
+  ],
+  "goal": null,
+  "notes": "civ-seeding milestone 3 (identification by simulation): 600 synthetic datasets on the real networks, 850-point refit grid, 107 s on 4 cores. H2 held (in-sample BCDJ5 recovery I 14.5%, T 8.5%, R 82.5%); LOO ext8 recovery 58.5/82/55.5%; H2b held (R preferred to I in 67% under R). Jacobian prediction (qP vs gamma weakest) failed: weakest is delta vs qN and gamma, condition 79. Post hoc: real LOO losses 2-4x above every process's 95th percentile. Checks: pytest 19 passed; build.py ok; research_live_links ok; check_md_links ok; programme_check ok; post frontmatter/links/similarity ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5f44979f-9ba9-5839-8f52-1811b66f6d9a",
+    "transcripts": 1,
+    "first": "2026-11-14T05:09:04Z",
+    "last": "2026-11-14T05:18:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 39,
+        "input": 78,
+        "output": 31037,
+        "thinking": 7569,
+        "cache_read": 4150691,
+        "cache_write_5m": 0,
+        "cache_write_1h": 114092,
+        "api_equivalent_usd": 2.3639,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 39,
+      "input": 78,
+      "output": 31037,
+      "thinking": 7569,
+      "cache_read": 4150691,
+      "cache_write_5m": 0,
+      "cache_write_1h": 114092,
+      "api_equivalent_usd": 2.3639,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 36,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.42,
+      "active_minutes": 9.42,
+      "model_minutes": 5.71,
+      "tool_minutes": 3.71,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "design and run an identification-by-simulation study with confusion matrices, Jacobian and write-up, as a PhD student would",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 676.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

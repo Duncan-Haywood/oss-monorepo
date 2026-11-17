@@ -14,7 +14,7 @@
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #13202c; background: #e8f0f4; }
     body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
     header { max-width: 740px; margin-bottom: 26px; }
-    h1 { font-size: clamp(2rem, 6vw, 3.5rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
     p { line-height: 1.5; }
     .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #0f6b7a; margin: 0 0 6px; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .78fr); gap: 18px; align-items: start; }
@@ -106,6 +106,18 @@
       @page { margin: 16mm; }
     }
   </style>
+  <!-- select-span:start -->
+  <style>
+    /* A field whose longest choice is wider than its column takes the whole row, so the choice
+       reads in full instead of being cut under the arrow. Written by platform/pages/select-span.mjs
+       (docs/reports/polish-2026-11-14-select-span.md); re-run it after changing the options. */
+    div.fields > label:has(> #systemPreset),
+    div.fields > label:has(> #headTypePreset),
+    div.fields > label:has(> #electricalPreset),
+    div.fields > label:has(> #condensatePreset),
+    div.fields > label:has(> #hoursPerExtraTenFeet) { grid-column: 1 / -1; }
+  </style>
+  <!-- select-span:end -->
 </head>
 <body>
   <header>
@@ -280,6 +292,7 @@
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your bid is saved in this browser so it is still here next visit, and &ldquo;Start a fresh bid&rdquo; deletes it; a bid link you copy holds those same numbers in the address itself, so treat one like your rate sheet. Usage counts are anonymous tallies of which features were used, stored locally, and never include your head count, wages, costs, or prices.</p>
     <p>See also: <a href="./how-much-to-charge-to-install-a-mini-split.html">how much to charge to install a mini split</a> &middot; <a href="./vs-servicetitan.html">this calculator vs. ServiceTitan</a> &middot; <a href="./vs-a-flat-2800-per-head-quote.html">this calculator vs. a flat $2,800-a-head quote</a>.</p>
     <p>Pricing a furnace or heat-pump replacement instead of a ductless install? The <a href="../furnace-bid-calculator/">furnace bid calculator</a> prices attic versus basement, matching coil, and gas upsize &mdash; nothing uploaded.</p>
+    <p>Not sure how many BTUs each room needs? The <a href="../hvac-load-calc/">room-by-room HVAC load calculator</a> works out each room&rsquo;s heating and cooling load and the whole-house tonnage from walls, windows and sun &mdash; nothing uploaded.</p>
     <p class="support">Free and open source. If it keeps you from matching a losing per-head quote, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
@@ -293,7 +306,7 @@
       CONDENSATE_PRESETS,
       SYSTEM_PRESETS,
     } from './calc.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
     import {
       COMPANY_FIELDS, buildProposal, renderProposalHtml, loadCompany, saveCompany, forgetCompany,
     } from './proposal.mjs';
@@ -348,7 +361,7 @@
     };
 
     function count(event) {
-      recordUsage(localStorage, el('usageOptOut').checked, event);
+      recordUsage(usageStorage(), el('usageOptOut').checked, event);
     }
 
     function readInput() {
@@ -609,8 +622,15 @@
       + 'browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no '
       + 'warranty. It is not a mechanical, electrical, building-code, refrigerant, or load-calculation determination.';
 
+    // Reading the `localStorage` global throws SecurityError when the
+    // visitor blocks site data. The business block is a convenience: with no
+    // store it is simply not remembered, and the proposal still prints.
+    function companyStorage() {
+      try { return localStorage; } catch { return null; }
+    }
+
     function restoreCompany() {
-      const saved = loadCompany(localStorage, COMPANY_KEY);
+      const saved = loadCompany(companyStorage(), COMPANY_KEY);
       for (const field of COMPANY_FIELDS) {
         if (saved[field]) el(field).value = saved[field];
       }
@@ -668,7 +688,7 @@
     function showProposal() {
       const result = calculateBid(readInput());
       const proposal = buildProposal(readProposalInput(result));
-      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+      saveCompany(companyStorage(), COMPANY_KEY, Object.fromEntries(
         COMPANY_FIELDS.map(field => [field, el(field).value]),
       ));
       el('proposalDoc').innerHTML =
@@ -726,7 +746,7 @@
     document.addEventListener('change', refreshProposal);
     el('printProposal').addEventListener('click', printProposal);
     el('forgetCompany').addEventListener('click', () => {
-      forgetCompany(localStorage, COMPANY_KEY);
+      forgetCompany(companyStorage(), COMPANY_KEY);
       for (const field of COMPANY_FIELDS) el(field).value = '';
       el('proposalDoc').hidden = true;
       el('proposalStatus').textContent = 'Business details removed from this device';
@@ -746,8 +766,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

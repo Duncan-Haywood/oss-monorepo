@@ -54,5 +54,18 @@ class T(unittest.TestCase):
         self.assertEqual(R.capture(truth, truth, 10, 1, 500), (1.0, 1.0))
 
 
+
+class AuditRound61(unittest.TestCase):
+    """Quality audit round 61 (portfolio/quality/audits/2026-11-13-eda-rankpayoff.json):
+    two seeded mutants (tau-b -> tau-a, the best_rank tie-break) left the suite green."""
+
+    def test_kendall_is_tau_b_with_ties(self):
+        # c=5, d=0, one tie in x: tau-b = 5/sqrt(6*5); tau-a would give 5/6.
+        self.assertAlmostEqual(R.kendall([1, 1, 2, 3], [1, 2, 3, 4]), 5 / math.sqrt(30), places=9)
+
+    def test_best_rank_breaks_ties_by_index(self):
+        self.assertEqual(R.best_rank([1, 1, 1], [3, 2, 1]), 3)
+
+
 if __name__ == "__main__":
     unittest.main()

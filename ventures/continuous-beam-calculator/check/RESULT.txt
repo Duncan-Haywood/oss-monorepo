@@ -1,0 +1,3 @@
+60 random beams (1-5 spans, pin/fixed/free, point loads, point moments, partial trapezoids), 201 stations each
+worst relative difference vs exact Macaulay: moment 6.5e-12, deflection 8.8e-12, reactions 5.9e-12
+PASS

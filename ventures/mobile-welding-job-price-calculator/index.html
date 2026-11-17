@@ -11,7 +11,45 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Mobile Welding Job Price Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Price a mobile welding job: on-site and drive hours, welder pay, rig, consumables, truck miles, materials, fixed costs, card fees and target margin give a job price, a travel-distance table, an overrun check and break-even jobs per month. Runs in your browser; nothing is uploaded.","featureList":"Job price, cost breakdown, travel distance table, overrun impact, offered-price check, break-even jobs per month"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I price a mobile welding job?","acceptedAnswer":{"@type":"Answer","text":"Add up the hours on site and the drive, the welder's pay, the rig and consumables, the truck cost per mile, materials, and a share of your fixed monthly costs, then divide by what is left after the card fee and the margin you want. The calculator does that and shows each line so you can see what the customer is paying for."}},{"@type":"Question","name":"Should I charge for travel time?","acceptedAnswer":{"@type":"Answer","text":"The drive costs you hours you cannot bill elsewhere plus truck cost per mile, so the calculator prices both and shows what share of the quote is the drive. The distance table shows how the price climbs from 0 to 80 miles out, which is where a flat call-out fee stops covering the trip."}},{"@type":"Question","name":"What does it cost me when a welding job runs over?","acceptedAnswer":{"@type":"Answer","text":"With the price fixed, extra hours on site are pure cost. The planner shows profit and margin if setup, welding and helper time run over by the percentage you choose. The drive does not stretch, so only on-site time is affected."}},{"@type":"Question","name":"How many jobs a month do I need to break even?","acceptedAnswer":{"@type":"Answer","text":"Each job leaves a contribution after variable costs and card fees. Fixed monthly costs divided by that contribution is the number of jobs needed, and the planner also warns if your jobs per month need more hours than you said you have."}},{"@type":"Question","name":"Is this a quote, a code or a legal document?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type in. It does not decide weld procedure, code compliance, inspection, licensing, insurance or tax treatment, and the defaults are placeholders, not market rates."}}]}</script>
-    </head>
+    
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #c2410c; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #862d08; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #862d08; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #c2410c; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #c2410c; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #862d08; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style></head>
 <body>
   <header>
     <p class="note">MOBILE WELDING JOB PRICE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
@@ -112,15 +150,15 @@
       if (!q.valid) { $("result").innerHTML = '<div class="finding"><span class="pill">Check inputs</span> Your margin and card fee leave nothing to price against. Keep them well under 100% together.</div>'; $("out").hidden = false; return; }
       if (!(q.totalHours > 0)) { $("result").innerHTML = '<div class="finding"><span class="pill">No hours</span> Enter welding, setup or driving time.</div>'; $("out").hidden = false; return; }
       let h = "";
-      h += `<div class="finding"><h4>Price this job at</h4><p class="stats"><strong>${money(q.price)}</strong>${q.minBinds ? " (your minimum call-out; the cost-based price is only " + money(q.calc) + ")" : ""}. It covers ${q.totalHours.toFixed(1)} hours away (${q.onSite.toFixed(1)} on site, ${q.travelHours.toFixed(1)} driving), leaves <strong>${money(q.profit)}</strong> profit (${pct(q.margin)} margin) after costs and card fees, and pays about ${money(q.perHour)} for every hour away before your pay and fixed costs. The no-profit floor is ${money(lowestSafePrice(o))}; below that you pay to work.</p></div>`;
-      h += `<div class="finding"><h4>Where the money goes</h4>${table(["Line", "This job"], [["Your time on site and driving", money(q.labor)], ["Helper", money(q.helper)], ["Rig, machine and tools", money(q.rig)], ["Wire, rod, gas and discs", money(q.consumables)], ["Truck miles", money(q.travel)], ["Materials at cost", money(q.materials)], ["Share of fixed costs (" + money2(q.overheadPerHour) + " an hour)", money(q.overhead)], ["Card fee", money(q.fees)], ["Profit", money(q.profit)]])}<p class="note">The drive is about ${pct(q.travelShare)} of the price.</p></div>`;
+      h += `<div class="finding"><h3>Price this job at</h3><p class="stats"><strong>${money(q.price)}</strong>${q.minBinds ? " (your minimum call-out; the cost-based price is only " + money(q.calc) + ")" : ""}. It covers ${q.totalHours.toFixed(1)} hours away (${q.onSite.toFixed(1)} on site, ${q.travelHours.toFixed(1)} driving), leaves <strong>${money(q.profit)}</strong> profit (${pct(q.margin)} margin) after costs and card fees, and pays about ${money(q.perHour)} for every hour away before your pay and fixed costs. The no-profit floor is ${money(lowestSafePrice(o))}; below that you pay to work.</p></div>`;
+      h += `<div class="finding"><h3>Where the money goes</h3>${table(["Line", "This job"], [["Your time on site and driving", money(q.labor)], ["Helper", money(q.helper)], ["Rig, machine and tools", money(q.rig)], ["Wire, rod, gas and discs", money(q.consumables)], ["Truck miles", money(q.travel)], ["Materials at cost", money(q.materials)], ["Share of fixed costs (" + money2(q.overheadPerHour) + " an hour)", money(q.overhead)], ["Card fee", money(q.fees)], ["Profit", money(q.profit)]])}<p class="note">The drive is about ${pct(q.travelShare)} of the price.</p></div>`;
       const ov = overrunImpact(o, o.overrunPct);
-      if (ov) h += `<div class="finding"><h4>If it runs ${o.overrunPct}% long</h4><p>Held at ${money(ov.price)}, ${o.overrunPct}% more time on site adds ${money(ov.extraCost)} of cost, leaves ${money(ov.profit)} profit and a ${pct(ov.margin)} margin. ${ov.profit < 0 ? "You would lose money on this job. Quote a fixed price only when the scope is clear, or add a clause to bill extra time." : "That is " + money(ov.lostProfit) + " of your margin gone."}</p></div>`;
-      h += `<div class="finding"><h4>Price by distance</h4>${table(["Miles one way", "Drive hours", "Price", "Drive share of price"], distanceLadder(o).map((x) => [x.miles, x.travelHours.toFixed(1), money(x.price), pct(x.travelShare)]))}<p class="note">Same job, same margin, moved further out. Compare with the flat travel fee you charge today.</p></div>`;
+      if (ov) h += `<div class="finding"><h3>If it runs ${o.overrunPct}% long</h3><p>Held at ${money(ov.price)}, ${o.overrunPct}% more time on site adds ${money(ov.extraCost)} of cost, leaves ${money(ov.profit)} profit and a ${pct(ov.margin)} margin. ${ov.profit < 0 ? "You would lose money on this job. Quote a fixed price only when the scope is clear, or add a clause to bill extra time." : "That is " + money(ov.lostProfit) + " of your margin gone."}</p></div>`;
+      h += `<div class="finding"><h3>Price by distance</h3>${table(["Miles one way", "Drive hours", "Price", "Drive share of price"], distanceLadder(o).map((x) => [x.miles, x.travelHours.toFixed(1), money(x.price), pct(x.travelShare)]))}<p class="note">Same job, same margin, moved further out. Compare with the flat travel fee you charge today.</p></div>`;
       const c = checkPrice(o, o.quotedPrice);
-      if (c) h += `<div class="finding"><h4>The price you entered: ${money(c.price)}</h4><p>It leaves ${money(c.profit)} profit (${isFinite(c.margin) ? pct(c.margin) : "n/a"} margin), ${c.gapToTarget >= 0 ? money(c.gapToTarget) + " above" : money(-c.gapToTarget) + " below"} the price that earns your target margin.</p></div>`;
+      if (c) h += `<div class="finding"><h3>The price you entered: ${money(c.price)}</h3><p>It leaves ${money(c.profit)} profit (${isFinite(c.margin) ? pct(c.margin) : "n/a"} margin), ${c.gapToTarget >= 0 ? money(c.gapToTarget) + " above" : money(-c.gapToTarget) + " below"} the price that earns your target margin.</p></div>`;
       const m = monthly(o);
-      if (m) h += `<div class="finding"><h4>The month</h4><p>Each job like this leaves ${money(m.contribution)} before fixed costs. At ${m.jobs} jobs a month that is ${money(m.revenue)} of work and <strong>${money(m.profit)}</strong> after ${money(m.fixed)} of fixed costs. ` + (m.breakEvenJobs === null ? "At this price a job never covers fixed costs." : `You break even at about <strong>${m.breakEvenJobs.toFixed(1)} jobs</strong>.`) + (m.overCapacity ? ` These jobs need ${m.hours.toFixed(0)} hours a month, more than the ${o.billableHoursPerMonth} you said you can bill.` : "") + `</p></div>`;
+      if (m) h += `<div class="finding"><h3>The month</h3><p>Each job like this leaves ${money(m.contribution)} before fixed costs. At ${m.jobs} jobs a month that is ${money(m.revenue)} of work and <strong>${money(m.profit)}</strong> after ${money(m.fixed)} of fixed costs. ` + (m.breakEvenJobs === null ? "At this price a job never covers fixed costs." : `You break even at about <strong>${m.breakEvenJobs.toFixed(1)} jobs</strong>.`) + (m.overCapacity ? ` These jobs need ${m.hours.toFixed(0)} hours a month, more than the ${o.billableHoursPerMonth} you said you can bill.` : "") + `</p></div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       record("quote_run");

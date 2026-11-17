@@ -25,6 +25,7 @@ import json
 import math
 import random
 import re
+import secrets
 import statistics
 import sys
 from pathlib import Path
@@ -52,7 +53,7 @@ FLAGSHIP_REAUDIT_DAYS = 7
 # the owner, 2026-11-10: "more detail in it ... detailed metrics on quality and correctness".
 DETAIL_FROM = "2026-11-11"
 CHECK_RESULTS = ("pass", "fail", "partial")
-DRAWN_BY = ("sample", "census", "fix")  # how the subject was chosen; only "sample" feeds the unbiased share
+DRAWN_BY = ("sample", "census", "fix", "reaudit")  # how the subject was chosen; only "sample" feeds the unbiased share
 FILE_RE = re.compile(r"^(\d{4}-\d{2}-\d{2})-[a-z0-9][a-z0-9._-]*\.json$")
 
 
@@ -123,16 +124,84 @@ def free_seed(date: str, audits: list[dict]) -> str:
     (rounds 39, 40 and 41 all ran on seed 2026-11-10) and each post had to
     explain why; picking the suffix by hand was the -b/-c rule in the README."""
     used = {str(a.get("seed", "")) for a in audits}
+    used |= {re.sub(r"-[0-9a-f]{4}$", "", s) for s in used}  # a claim_seed tail still uses its letter
     for suffix in [""] + [f"-{c}" for c in "bcdefghijklmnopqrstuvwxyz"]:
         if date + suffix not in used:
             return date + suffix
     return date + "-" + hashlib.sha256(repr(sorted(used)).encode()).hexdigest()[:6]
 
 
+def claim_seed(base: str, token: str | None = None) -> str:
+    """`base` plus a short random tail, so two sessions that run `sample`
+    minutes apart draw different subjects. The letter alone did not do it:
+    seeds 2026-11-13-e, -h and -o were each drawn by two sessions that started
+    before either's claim PR was visible, and each pair audited the same four
+    subjects (portfolio/quality/blind-pairs/). The seed is still printed and
+    recorded, so `--seed` reproduces any draw."""
+    return f"{base}-{token or secrets.token_hex(2)}"
+
+
 ROUND_RE = re.compile(r"quality-audit-round-(\d+)\.md$")
 
 
-def next_round(posts: Path = ROOT / "docs" / "posts", ref: str = "origin/main") -> int:
+def post_limits() -> str:
+    """The round post's front-matter caps, printed with its name: two quality runs
+    on 2026-11-12 had a first draft refused on all three (run records)."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    try:
+        from check_post_frontmatter import limits_line
+    except ImportError:  # a sparse checkout without it
+        return "front matter: see platform/ci/check_post_frontmatter.py --limits"
+    return limits_line()
+
+
+# "quality: round 60 (seed 2026-11-13-f), ..." -- the title every round PR uses.
+PR_ROUND_RE = re.compile(r"^quality:\s*round\s+(\d+)(?:\s*\(seed\s+([\w-]+)\))?", re.I)
+
+
+def open_round_prs(timeout: int = 20) -> list[tuple[int, str | None]]:
+    """(round, seed) of every open `quality: round N (seed S)` PR.
+
+    A round's number and seed reach main only when its PR merges, so two
+    rounds in flight got the same ones: round 55 twice (doc_friction on this
+    file, 2026-11-13) and, on the day this was written, `sample` offered
+    round 60 / seed 2026-11-13-f while open PR #15385 held both. One `gh api`
+    search (works unauthenticated in cloud sessions); fail-soft to []."""
+    import subprocess
+    try:
+        proc = subprocess.run(
+            ["gh", "api", "-X", "GET", "search/issues", "-f",
+             "q=repo:duncan-haywood/oss-monorepo is:pr is:open in:title quality round",
+             "-f", "per_page=100", "--jq", ".items[].title"],
+            capture_output=True, text=True, timeout=timeout)
+    except Exception:
+        return []
+    if proc.returncode != 0:
+        return []
+    return parse_round_titles(proc.stdout.splitlines())
+
+
+def parse_round_titles(titles) -> list[tuple[int, str | None]]:
+    out = []
+    for t in titles:
+        if m := PR_ROUND_RE.match(t.strip()):
+            out.append((int(m.group(1)), m.group(2)))
+    return out
+
+
+def fetch_main(timeout: int = 60) -> bool:
+    """`git fetch --depth=1 origin main`, fail-soft. `sample` read a stale
+    origin/main and drew a seed round 58 had already used (doc_friction,
+    2026-11-13); the README's "fetch first" step was the fix, so do it here."""
+    import subprocess
+    try:
+        return subprocess.run(["git", "fetch", "-q", "--depth=1", "origin", "main"], capture_output=True,
+                              timeout=timeout, cwd=ROOT).returncode == 0
+    except Exception:
+        return False
+
+
+def next_round(posts: Path = ROOT / "docs" / "posts", ref: str = "origin/main", in_flight: tuple[int, ...] = ()) -> int:
     """One more than the highest `*-quality-audit-round-N.md` post here or on `ref`.
 
     Round numbers lived only in post filenames, so runs read them off by hand
@@ -144,7 +213,7 @@ def next_round(posts: Path = ROOT / "docs" / "posts", ref: str = "origin/main") 
         names += subprocess.run(["git", "ls-tree", "--name-only", ref, rel + "/"], capture_output=True, text=True, timeout=20, cwd=ROOT).stdout.split()
     except Exception:
         pass
-    nums = [int(m.group(1)) for n in names if (m := ROUND_RE.search(n))]
+    nums = [int(m.group(1)) for n in names if (m := ROUND_RE.search(n))] + list(in_flight)
     return max(nums, default=0) + 1
 
 
@@ -197,6 +266,8 @@ def validate_audit(a: dict) -> list[str]:
             errs.append(f"{name}: defects[{i}].severity must be one of {SEVERITIES}")
         if not d.get("what"):
             errs.append(f"{name}: defects[{i}] needs 'what'")
+        if "fixed_by" in d and d["fixed_by"] not in (a.get("fix_prs") or []):
+            errs.append(f"{name}: defects[{i}].fixed_by must be one of the URLs in fix_prs")
     if not isinstance(a.get("fix_prs", []), list):
         errs.append(f"{name}: fix_prs must be a list")
     if a.get("drawn_by", "sample") not in DRAWN_BY:
@@ -351,14 +422,32 @@ def draw(seed: str, k: int = 2, k_platform: int = 1, audits: list[dict] | None =
 
 # --- cli ---------------------------------------------------------------------
 
+def mode_note(date: str, audits: list[dict]) -> str | None:
+    """A first line for `sample` when today's mode is not `sample`, else None.
+
+    The track prompt (prompts/quality/prompt-0.md, step 1) says run `sample`;
+    the README's "Five modes" says run `mode` first. Ten quality runs in five
+    days reported the two procedures (friction_rank.py, 2026-11-10..14), and
+    the prompt is owner-held, so the tool that runs first says it.
+    """
+    sys.path.insert(0, str(Path(__file__).parent))
+    import quality_metrics as qm
+    m = qm.mode_for(date, None, qm.last_reflection(), len(qm.queue(audits, "high")), len(qm.reaudit_due(audits)))
+    if m["mode"] == "sample":
+        return None
+    return (f"NOTE: today's mode is `{m['mode']}`, not sample ({m['why']}): {qm.MODES[m['mode']]}. "
+            "portfolio/quality/README.md, \"Five modes\", says how; a sample round today is a deviation to record.")
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
     sp = sub.add_parser("sample", help="draw this round's subjects")
-    sp.add_argument("--seed", default=None, help="default: today's date, suffixed -b, -c ... past seeds audits already used")
+    sp.add_argument("--seed", default=None, help="default: today's date, suffixed -b, -c ... past seeds audits already used, plus a random tail so concurrent sessions draw differently")
     sp.add_argument("--k", type=int, default=2, help="subjects per venture and research stratum")
     sp.add_argument("--k-platform", type=int, default=1)
     sp.add_argument("--json", action="store_true")
+    sp.add_argument("--offline", action="store_true", help="skip the origin/main fetch and the open-PR read")
     sub.add_parser("validate", help="check every audit file")
     sm = sub.add_parser("summary", help="the scoreboard over every audit")
     sm.add_argument("--md", action="store_true")
@@ -367,25 +456,56 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("coverage", help="share of the whole repository ever audited")
     ce = sub.add_parser("census", help="the full-repository sweep: never-audited subjects first")
     ce.add_argument("--n", type=int, default=6)
-    ce.add_argument("--seed", default=dt.date.today().isoformat())
+    ce.add_argument("--seed", default=None,
+                    help="default: today's date plus a random tail, so concurrent census sessions draw differently")
+    ce.add_argument("--no-prs", action="store_true", help="skip the open-PR search that passes over subjects in flight")
     qu = sub.add_parser("queue", help="open defects with no fix PR, worst first")
     qu.add_argument("--severity", choices=SEVERITIES, default="medium")
     qu.add_argument("--limit", type=int, default=40)
+    qu.add_argument("--no-git", action="store_true", help="skip the per-subject 'changed since audit' git check")
+    qu.add_argument("--no-prs", action="store_true", help="skip the open-PR search that marks rows another PR already names")
+    qu.add_argument("--seed", default=None,
+                    help="default: today's date plus a random tail; subjects are shuffled by it within a severity")
+    qu.add_argument("--oldest-first", action="store_true", help="the fixed order (oldest audit first), no shuffle")
+    qu.add_argument("--no-fetch", action="store_true",
+                    help="in a shallow clone, do not fetch main back to the oldest shown audit (the check may say unknown)")
+    mf = sub.add_parser("mark-fixed", help="record a fix PR on an audit's defects, editing the file in place (no reformat)")
+    mf.add_argument("file", help="audit file (path, or a name in portfolio/quality/audits/)")
+    mf.add_argument("defects", nargs="*", type=int, help="defect indices, from 0 as validate numbers them")
+    mf.add_argument("--pr", required=True, help="the fix PR's URL")
+    mf.add_argument("--all", action="store_true", help="every defect that has no fixed_by yet")
+    mf.add_argument("--force", action="store_true", help="replace a different fixed_by")
+    mf.add_argument("--dry-run", action="store_true")
     mo = sub.add_parser("mode", help="which mode today's quality session runs")
     mo.add_argument("--date", default=dt.date.today().isoformat())
     mo.add_argument("--seed", default=None)
+    ra = sub.add_parser("reaudit", help="subjects with a recorded fix that no later audit has checked, highs first")
+    ra.add_argument("--limit", type=int, default=15)
+    ra.add_argument("--seed", default=None, help="default: today's date plus a random tail, so parallel sessions spread out")
+    ra.add_argument("--no-prs", action="store_true", help="skip the open-PR search that puts subjects in flight last")
     args = ap.parse_args(argv)
 
     if args.cmd == "sample":
+        fetched = False if args.offline else fetch_main()
+        prs = [] if args.offline else open_round_prs()
         local = load_audits()
         every = local + remote_audits(local)
-        seed = args.seed or free_seed(dt.date.today().isoformat(), every)
+        held = [{"seed": sd} for _, sd in prs if sd]  # seeds open round PRs hold
+        seed = args.seed or claim_seed(free_seed(dt.date.today().isoformat(), every + held))
         picks = draw(seed, args.k, args.k_platform, audits=every)
-        rnd = next_round()
+        rnd = next_round(in_flight=tuple(r for r, _ in prs))
         if args.json:
             print(json.dumps({"seed": seed, "round": rnd, "subjects": picks}, indent=1))
         else:
+            note = None if args.seed else mode_note(dt.date.today().isoformat(), local)
+            if note:
+                print(note)
             print(f"seed {seed}   round {rnd} (next post: docs/posts/<date>-quality-audit-round-{rnd}.md)")
+            if not args.offline:
+                held_txt = ", ".join(f"{r}/{sd or '?'}" for r, sd in sorted(prs)) or "none"
+                print(f"  open round PRs (round/seed, skipped): {held_txt}"
+                      + ("" if fetched else "; origin/main NOT fetched, so merged rounds may be missing"))
+            print(f"  post {post_limits()}")
             for p in picks:
                 extra = f" (of {p['population']})" if p.get("population") else ""
                 print(f"  {p['stratum']:<9} {p['subject']}{extra}  last audited: {p['last_audited'] or 'never'}")
@@ -395,8 +515,22 @@ def main(argv: list[str] | None = None) -> int:
                     days = FLAGSHIP_REAUDIT_DAYS if st == "flagship" else SKIP_DAYS
                     print(f"  {st:<9} none drawn: every subject was audited in the last {days} days (or none exist)")
         return 0
+    if args.cmd == "mark-fixed":
+        if not args.defects and not args.all:
+            ap.error("mark-fixed: name defect indices or pass --all")
+        sys.path.insert(0, str(Path(__file__).parent))
+        import quality_mark_fixed
+        return quality_mark_fixed.run(args.file, args.defects, args.pr, args.all, args.force, args.dry_run, validate_audit)
     audits = load_audits()
-    if args.cmd in ("metrics", "coverage", "census", "queue", "mode"):
+    if args.cmd == "census" and not args.seed:
+        # The date alone gave every census session on a day the same draw (doc_friction, 2026-11-15T07:08).
+        args.seed = claim_seed(dt.date.today().isoformat())
+    if args.cmd == "reaudit" and not args.seed:
+        args.seed = claim_seed(dt.date.today().isoformat())
+    if args.cmd == "queue":
+        # Two fix sessions took the same top row the same minute (doc_friction, 2026-11-16T16:41).
+        args.seed = None if args.oldest_first else (args.seed or claim_seed(dt.date.today().isoformat()))
+    if args.cmd in ("metrics", "coverage", "census", "queue", "mode", "reaudit"):
         sys.path.insert(0, str(Path(__file__).parent))
         import quality_metrics
         return quality_metrics.main_metrics(args, audits, population(), meets_bar, wilson)

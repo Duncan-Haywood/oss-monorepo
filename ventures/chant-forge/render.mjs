@@ -7,6 +7,7 @@
 // voices are recorded singers (RECORDING-GUIDE.md). Deterministic: a seeded noise
 // source, so the same MIDI gives the same bytes.
 import { readWav, integratedLufs, truePeak } from './master.mjs';
+import { singNote, latinVowel, latinOnset, latinCoda, onsetLength, PHONES } from './sing.mjs';
 export { readWav };
 
 // ---- MIDI reading (format 0/1, running status, tempo map, channel programs) ----
@@ -26,7 +27,9 @@ export function parseMidi(bytes) {
   const notes = [];
   const tempos = [[0, 500000]];
   const programs = new Map(); // channel -> [[tick, program]]
+  const names = new Map(); // channel -> name of the first track that plays on it (meta 0x03)
   for (let t = 0; t < ntrk && pos + 8 <= b.length; t++) {
+    let trackName = null, named = false, lyric = null, lyricId = 0;
     if (b.toString('latin1', pos, pos + 4) !== 'MTrk') throw new Error('bad track chunk');
     const end = Math.min(b.length, pos + 8 + b.readUInt32BE(pos + 4));
     let p = pos + 8, tick = 0, status = 0;
@@ -39,11 +42,14 @@ export function parseMidi(bytes) {
       if (s === 0xff) {
         const type = b[p++], len = vlq();
         if (type === 0x51 && len === 3) tempos.push([tick, (b[p] << 16) | (b[p + 1] << 8) | b[p + 2]]);
+        if (type === 0x03 && trackName === null) trackName = new TextDecoder().decode(b.subarray(p, Math.min(end, p + len)));
+        if (type === 0x05) { lyric = new TextDecoder().decode(b.subarray(p, Math.min(end, p + len))); lyricId++; }
         p += len;
         if (type === 0x2f) break;
       } else if (s === 0xf0 || s === 0xf7) { p += vlq(); }
       else {
         const hi = s & 0xf0, ch = s & 0x0f;
+        if (!named && trackName !== null && !names.has(ch)) { names.set(ch, trackName); named = true; }
         if (hi === 0xc0 || hi === 0xd0) {
           if (hi === 0xc0) { if (!programs.has(ch)) programs.set(ch, []); programs.get(ch).push([tick, b[p]]); }
           p += 1;
@@ -53,20 +59,24 @@ export function parseMidi(bytes) {
           const key = ch * 128 + d1;
           if (hi === 0x90 && d2 > 0) {
             if (!open.has(key)) open.set(key, []);
-            open.get(key).push({ tick, vel: d2 });
+            open.get(key).push({ tick, vel: d2, lyric, syl: lyric === null ? null : `${t}:${lyricId}` });
           } else if (hi === 0x80 || (hi === 0x90 && d2 === 0)) {
             const q = open.get(key);
-            if (q && q.length) { const o = q.shift(); notes.push({ ch, note: d1, vel: o.vel, tick: o.tick, end: tick }); }
+            if (q && q.length) { const o = q.shift(); notes.push(withLyric({ ch, note: d1, vel: o.vel, tick: o.tick, end: tick }, o)); }
           }
         }
       }
     }
-    for (const [key, q] of open) for (const o of q) notes.push({ ch: Math.floor(key / 128), note: key % 128, vel: o.vel, tick: o.tick, end: tick });
+    for (const [key, q] of open) for (const o of q) notes.push(withLyric({ ch: Math.floor(key / 128), note: key % 128, vel: o.vel, tick: o.tick, end: tick }, o));
     pos = end;
   }
   tempos.sort((x, y) => x[0] - y[0]);
-  return { division, notes, tempos, programs };
+  return { division, notes, tempos, programs, names };
 }
+
+// a note keeps the lyric (meta 0x05) last seen on its track, and `syl` names which lyric event
+// that was, so the notes of one melisma share it; notes before any lyric carry neither
+function withLyric(n, o) { if (o.syl !== null) { n.lyric = o.lyric; n.syl = o.syl; } return n; }
 
 // tick -> seconds through the tempo map
 export function tickToSeconds(tick, division, tempos) {
@@ -178,11 +188,16 @@ const limitCeiling = (c) => Math.min(c, 0.8);
 
 // Per-sample gain (<= 1) that keeps max(|L|,|R|) under `ceil`: a 5 ms lookahead minimum,
 // then a 5 ms moving average of that minimum, which can only be lower than needed.
-export function limiterCurve(L, R, rate, ceil, ms = 5) {
+// `scratch` (optional, {}) keeps the working arrays between calls of the same length:
+// renderMidi's limiter makes up to 8 passes, and every array is fully rewritten
+// before it is read, so reuse returns the same curve. The returned array is
+// scratch's own, overwritten by the next call with that scratch.
+export function limiterCurve(L, R, rate, ceil, ms = 5, scratch = null) {
   const n = L.length, w = Math.max(1, Math.round(rate * ms / 1000));
-  const need = new Float64Array(n);
+  const buf = scratch && scratch.n === n ? scratch : { n, need: new Float64Array(n), mn: new Float64Array(n), dq: new Int32Array(n), out: new Float64Array(n), cs: new Float64Array(n + 1) };
+  if (scratch && scratch !== buf) Object.assign(scratch, buf);
+  const { need, mn, dq, out, cs } = buf;
   for (let i = 0; i < n; i++) { const a = Math.max(Math.abs(L[i]), Math.abs(R[i])); need[i] = a > ceil ? ceil / a : 1; }
-  const mn = new Float64Array(n), dq = new Int32Array(n);
   let h = 0, t = 0;
   for (let i = n - 1; i >= 0; i--) { // min over need[i..i+w]
     while (t > h && need[dq[t - 1]] >= need[i]) t--;
@@ -190,14 +205,56 @@ export function limiterCurve(L, R, rate, ceil, ms = 5) {
     while (dq[h] > i + w) h++;
     mn[i] = need[dq[h]];
   }
-  const out = new Float64Array(n), cs = new Float64Array(n + 1);
+  cs[0] = 0;
   for (let i = 0; i < n; i++) cs[i + 1] = cs[i] + mn[i];
   for (let i = 0; i < n; i++) { const a = Math.max(0, i - w + 1); out[i] = (cs[i + 1] - cs[a]) / (i + 1 - a); }
   return out;
 }
 
-export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0.8, targetLufs = null, ceiling = 0.89, stems = false, limit = false } = {}) {
+export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0.8, targetLufs = null, ceiling = 0.89, stems = false, limit = false, learn = null, sing = false, nasalCut = true, voiceBar = true, voiceBarWall = false } = {}) {
   const m = parseMidi(midiBytes);
+  // sing: the choir sings each note's Latin syllable (sing.mjs) instead of the pad's fixed "ah":
+  // its consonants on the syllable's first note, then its vowel, then its final consonants at the end of
+  // its last note ('vowels': the vowel alone); a diphthong glides on the syllable's last note, found as the last note on that
+  // channel carrying the syllable's lyric event
+  const lastOfSyl = new Set(), firstOfSyl = new Set();
+  const nextOn = new Map(); // note -> start tick of the next note on its channel (legato release)
+  const nextNote = new Map(); // note -> the next note on its channel
+  if (sing) {
+    const byCh = new Map();
+    for (const n of m.notes) { if (!byCh.has(n.ch)) byCh.set(n.ch, []); byCh.get(n.ch).push(n); }
+    for (const list of byCh.values()) {
+      list.sort((a, b) => a.tick - b.tick);
+      for (let k = 0; k < list.length; k++) { const later = list.slice(k + 1).find((x) => x.tick > list[k].tick); if (later) { nextOn.set(list[k], later.tick); nextNote.set(list[k], later); } }
+    }
+    const bySyl = new Map();
+    for (const n of m.notes) if (n.syl) { const k = `${n.ch}|${n.syl}`; const b = bySyl.get(k); if (!b || n.tick >= b.tick) bySyl.set(k, n); }
+    for (const n of bySyl.values()) lastOfSyl.add(n);
+    const firstBy = new Map();
+    for (const n of m.notes) if (n.syl) { const k = `${n.ch}|${n.syl}`; const b = firstBy.get(k); if (!b || n.tick < b.tick) firstBy.set(k, n); }
+    for (const n of firstBy.values()) firstOfSyl.add(n);
+  }
+  // the consonants a note opens with: the syllable's onset on its first note, none on a melisma's later notes
+  const onsetOf = (n) => (sing === true && firstOfSyl.has(n) ? latinOnset(n.lyric) : []);
+  // and the consonants it closes with: the syllable's coda at the end of its last note
+  const codaOf = (n) => (sing === true && lastOfSyl.has(n) ? latinCoda(n.lyric) : []);
+  // Choirs sing the consonant before the beat so the vowel lands on it. A note's consonant takes its
+  // full length where it can: up to half the previous note (and any rest before it) goes to it, and
+  // what does not fit spills into the note itself, at most 30% of it, shortened in proportion when
+  // even that is too little. lead: seconds before the beat; len: the consonant's whole length.
+  const sec0 = (t) => tickToSeconds(t, m.division, m.tempos);
+  const prevNote = new Map();
+  for (const [a, b] of nextNote) prevNote.set(b, a);
+  const leadOf = new Map(); // note -> { lead, len }
+  if (sing === true) for (const n of m.notes) {
+    const on = onsetOf(n); if (!on.length) continue;
+    const want = onsetLength(on), p = prevNote.get(n), start = sec0(n.tick), dur = sec0(n.end) - start;
+    const before = p ? 0.5 * (sec0(p.end) - sec0(p.tick)) + Math.max(0, start - sec0(p.end)) : start;
+    const lead = Math.max(0, Math.min(want, before, start)), len = Math.min(want, lead + 0.3 * dur);
+    leadOf.set(n, { lead, len });
+  }
+  // how much of a note the next note's consonant takes from its end
+  const cutOf = (n) => { const nx = nextNote.get(n), l = nx && leadOf.get(nx); return l ? Math.max(0, l.lead - (sec0(nx.tick) - sec0(n.end))) : 0; };
   const sec = (t) => tickToSeconds(t, m.division, m.tempos);
   const progAt = (ch) => (m.programs.get(ch) || [[0, 0]])[0][1];
   let endSec = 0;
@@ -212,19 +269,42 @@ export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0
   const gain = { choir: 0.9, organ: 0.35, bass: 0.7, chords: 0.28, drums: 0.8 };
   for (const n of m.notes) {
     const v = voiceFor(n.ch, progAt(n.ch));
-    const start = Math.round(sec(n.tick) * rate);
-    const dur = Math.max(0.03, sec(n.end) - sec(n.tick));
+    const ld = leadOf.get(n) || { lead: 0, len: null }, cut = sing === true ? cutOf(n) : 0;
+    const start = Math.round((sec(n.tick) - ld.lead) * rate);
+    const dur = Math.max(0.03, sec(n.end) - sec(n.tick) - cut);
+    if (learn && learn.mode === 'minus' && v === 'choir' && n.ch === learn.ch) continue;
     let wave;
     if (v === 'drums') {
       if (!drumCache.has(n.note)) drumCache.set(n.note, drum(n.note, rate, rand));
       wave = drumCache.get(n.note);
     } else {
-      const key = `${v}:${n.note}:${Math.round(dur * 1000)}`;
-      if (!waveCache.has(key)) waveCache.set(key, (v === 'choir' ? choir : v === 'organ' ? organ : v === 'bass' ? bass : chordPad)(hz(n.note), dur, rate));
+      const sung = sing && v === 'choir' ? (latinVowel(n.lyric) || { vowel: 'a', glide: null }) : null;
+      const glide = sung && sung.glide && lastOfSyl.has(n) ? sung.glide : null;
+      // the same singers go straight on to the next note: a 50 ms crossfade into it, not the pad's
+      // 0.25 s release over the next syllable (which covered the quieter /i/ and /u/ on short notes)
+      // before a stop, an affricate or a fricative the voices stop for the consonant: 15 ms, so the
+      // closure is silent and the hiss is not sung over, and before a tap, so its dip is heard; and before
+      // a nasal, whose lips or tongue close the mouth as a stop's do: the 50 ms tail of the vowel covered
+      // the first 50 of the murmur's 70 ms, and a third of the sung nasals read as none (README "Nasal
+      // openings: the mouth closes"; `nasalCut: false` keeps the 50 ms). l and the glides keep the 50 ms.
+      const nx = sung && nextNote.get(n), nxOn = nx ? onsetOf(nx) : [];
+      const overlap = nxOn.length && (PHONES[nxOn[0]].F === undefined || nxOn[0] === 'r' || (nasalCut && PHONES[nxOn[0]].kind === 'nasal')) ? 0.015 : 0.05;
+      // the gap to the next sound: the next note's start, or where its consonant starts before the beat
+      const nxl = nx && leadOf.get(nx) ? leadOf.get(nx).lead : 0;
+      const release = sung ? (nextOn.has(n) ? Math.min(0.25, Math.max(overlap, sec(nextOn.get(n)) - nxl - (sec(n.end) - cut) + overlap)) : 0.25) : 0;
+      const onset = sung ? onsetOf(n) : [], coda = sung ? codaOf(n) : [];
+      const leadMs = Math.round(ld.lead * 1000), lenMs = ld.len === null ? -1 : Math.round(ld.len * 1000);
+      const key = `${v}:${n.note}:${Math.round(dur * 1000)}${sung ? `:${sung.vowel}${glide || ''}:${Math.round(release * 1000)}:${onset.join('.')}:${leadMs}:${lenMs}:${coda.join('.')}` : ''}`;
+      if (!waveCache.has(key)) waveCache.set(key, sung ? singNote(hz(n.note), dur, rate, { vowel: sung.vowel, glide, release, onset, coda, lead: leadMs / 1000, onsetLen: lenMs < 0 ? null : lenMs / 1000, seed: n.note * 7919 + Math.round(dur * 1000), ...(voiceBar ? {} : { voiceBarLevel: false }), ...(voiceBarWall ? { voiceBarWall } : {}) }) : (v === 'choir' ? choir : v === 'organ' ? organ : v === 'bass' ? bass : chordPad)(hz(n.note), dur, rate));
       wave = waveCache.get(key);
     }
-    const g = (n.vel / 127) * gain[v];
-    const p = pan[v], gl = g * (1 - Math.max(0, p)), gr = g * (1 + Math.min(0, p));
+    let g = (n.vel / 127) * gain[v], p = pan[v];
+    if (learn) { // rehearsal track: the learner's section up front, the other sections and the band behind
+      if (v === 'choir' && n.ch === learn.ch) p = learn.pan;
+      else if (v === 'choir') { g *= learn.others; p = -learn.pan; }
+      else g *= learn.backing;
+    }
+    const gl = g * (1 - Math.max(0, p)), gr = g * (1 + Math.min(0, p));
     for (let i = 0; i < wave.length && start + i < total; i++) { L[start + i] += wave[i] * gl; R[start + i] += wave[i] * gr; }
     if (stemBuf) {
       if (!stemBuf.has(v)) stemBuf.set(v, [new Float64Array(total), new Float64Array(total)]);
@@ -250,13 +330,16 @@ export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0
       const base = [L.slice(), R.slice()];
       const stemBase = stemBuf ? [...stemBuf].map(([, ch]) => [ch[0].slice(), ch[1].slice()]) : null;
       let curve = null, gUsed = g, c = limitCeiling(ceiling);
+      const x0 = new Float64Array(total), x1 = new Float64Array(total); // reused by every pass
+      const lim = {}; // limiterCurve's working arrays, reused by every pass
+      const b0 = base[0], b1 = base[1];
       for (let pass = 0; pass < 8; pass++) {
         gUsed = g;
-        const x0 = base[0].map((v) => v * g), x1 = base[1].map((v) => v * g);
-        curve = limiterCurve(x0, x1, rate, c);
+        for (let i = 0; i < total; i++) { x0[i] = b0[i] * g; x1[i] = b1[i] * g; }
+        curve = limiterCurve(x0, x1, rate, c, 5, lim);
         for (let i = 0; i < total; i++) { L[i] = x0[i] * curve[i]; R[i] = x1[i] * curve[i]; }
         const now = integratedLufs([L, R], rate).lufs;
-        const tp = Math.max(truePeak(L), truePeak(R));
+        const tp = truePeak(R, 4, 16, truePeak(L)); // = Math.max of the two
         const tpDb = 20 * Math.log10(tp || 1e-9);
         const loud = Number.isFinite(now) && Math.abs(now - targetLufs) < 0.05;
         if (loud && tpDb <= -1.05) break;
@@ -294,4 +377,36 @@ export function encodeWav({ rate, channels }) {
     buf.writeInt16LE(Math.max(-32768, Math.min(32767, Math.round(channels[k][i] * 32767))), 44 + (i * c + k) * 2);
   }
   return buf;
+}
+
+// ---- rehearsal ("learning") tracks: one pair per choir section ----
+// The tracks choirs buy per part: "part" puts the learner's section loud on the left with
+// the other sections at `others` (default -12 dB) on the right and the band at `backing`
+// (default -6 dB), so a singer hears their line and where it sits; "minus" is the full
+// mix with the learner's section taken out, to sing the part against. A section is a
+// choir-program channel; its name is the MIDI track name (chant-forge writes Tenors,
+// Second tenors, Baritones, Basses with --split-voices; a unison chant has one section).
+export const LEARN_DEFAULTS = { others: 10 ** (-12 / 20), backing: 10 ** (-6 / 20), pan: -0.5 };
+
+export function choirSections(midiBytes) {
+  const m = parseMidi(midiBytes);
+  const progAt = (ch) => (m.programs.get(ch) || [[0, 0]])[0][1];
+  const chans = [...new Set(m.notes.map((n) => n.ch))].filter((ch) => voiceFor(ch, progAt(ch)) === 'choir').sort((a, b) => a - b);
+  return chans.map((ch) => {
+    const name = (m.names.get(ch) || '').trim() || (chans.length === 1 ? 'Choir' : `Choir ${ch + 1}`);
+    const mine = m.notes.filter((n) => n.ch === ch);
+    return { ch, name, slug: name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''), notes: mine.length, mean: mine.reduce((a, n) => a + n.note, 0) / mine.length };
+  }).sort((a, b) => rank(a) - rank(b) || b.mean - a.mean || a.ch - b.ch); // score order: highest section first
+}
+// chant-forge's own track names in score order; other names sort after them by average pitch
+const SCORE_ORDER = ['tenors', 'first-tenors', 'second-tenors', 'baritones', 'basses'];
+const rank = (s) => { const k = SCORE_ORDER.indexOf(s.slug); return k < 0 ? SCORE_ORDER.length : k; };
+
+export function learningTracks(midiBytes, { rate = 44100, others = LEARN_DEFAULTS.others, backing = LEARN_DEFAULTS.backing, minus = true, targetLufs = null, sing = false } = {}) {
+  const out = [];
+  for (const s of choirSections(midiBytes)) {
+    out.push({ ...s, mode: 'part', wav: renderMidi(midiBytes, { rate, targetLufs, sing, learn: { ch: s.ch, mode: 'part', others, backing, pan: LEARN_DEFAULTS.pan } }) });
+    if (minus) out.push({ ...s, mode: 'minus', wav: renderMidi(midiBytes, { rate, targetLufs, sing, learn: { ch: s.ch, mode: 'minus', others: 1, backing: 1, pan: 0 } }) });
+  }
+  return out;
 }

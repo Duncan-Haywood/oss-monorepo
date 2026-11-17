@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [accessibility, performance, tooling]
+topics: [accessibility, performance]
 date: 2026-11-11
 ---
 # Polish 2026-11-11: the first Lighthouse numbers, and the index-page fixes they pointed at

@@ -1,0 +1,2487 @@
+[
+ {
+  "case": "case14_ieee",
+  "kind": "typ",
+  "ac_ok": true,
+  "ac": 2178.081399068129,
+  "start_rule": "DC+ang",
+  "start": {
+   "n_over": 0,
+   "max_load": 0.6431628528412775,
+   "slack_out_mw": 0.0,
+   "n_ang": 0,
+   "ang_exc_deg": 0.0,
+   "vviol": 0,
+   "v_exc_pu": 0.0,
+   "qviol": 3,
+   "q_exc_mvar": 128.286411971017,
+   "cost": 2201.324082387476,
+   "losses": 18.91158945163329,
+   "p_clean": true,
+   "clean": false
+  },
+  "J_secs": 0.10475540161132812,
+  "J_pf": 9,
+  "J_qp": {
+   "calls": 4,
+   "rows_full": 432,
+   "rows_used": 432,
+   "passes": 4,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 4,
+   "clean_at": 4,
+   "p_clean_at": 1,
+   "statuses": [
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "clean/hard"
+   ],
+   "final": {
+    "it": 4,
+    "status": "clean",
+    "qp": "hard",
+    "n_over": 0,
+    "max_load": 0.6508158274884058,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 2178.815518002388,
+    "losses": 16.069940212938377,
+    "p_clean": true,
+    "clean": true
+   },
+   "vg_range": [
+    0.9899876327607801,
+    1.0589999999554043
+   ]
+  },
+  "secs": 0.41168785095214844
+ },
+ {
+  "case": "case24_ieee_rts",
+  "kind": "typ",
+  "ac_ok": true,
+  "ac": 63352.203343828485,
+  "start_rule": "DC+ang",
+  "start": {
+   "n_over": 0,
+   "max_load": 0.8791906007861329,
+   "slack_out_mw": 0.0,
+   "n_ang": 0,
+   "ang_exc_deg": 0.0,
+   "vviol": 0,
+   "v_exc_pu": 0.0,
+   "qviol": 7,
+   "q_exc_mvar": 70.75171394392062,
+   "cost": 63680.12071491014,
+   "losses": 53.515892284557594,
+   "p_clean": true,
+   "clean": false
+  },
+  "J_secs": 0.08075571060180664,
+  "J_pf": 5,
+  "J_qp": {
+   "calls": 2,
+   "rows_full": 488,
+   "rows_used": 488,
+   "passes": 2,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 2,
+   "clean_at": 2,
+   "p_clean_at": 1,
+   "statuses": [
+    "not clean/hard",
+    "clean/hard"
+   ],
+   "final": {
+    "it": 2,
+    "status": "clean",
+    "qp": "hard",
+    "n_over": 0,
+    "max_load": 0.8674651260843141,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 63452.383543327975,
+    "losses": 49.14010340233972,
+    "p_clean": true,
+    "clean": true
+   },
+   "vg_range": [
+    1.000000000224748,
+    1.0489999998819013
+   ]
+  },
+  "secs": 0.412339448928833
+ },
+ {
+  "case": "case30_ieee",
+  "kind": "typ",
+  "ac_ok": true,
+  "ac": 8208.515098992517,
+  "start_rule": "DC+ang",
+  "start": {
+   "n_over": 1,
+   "max_load": 1.1442105668357825,
+   "slack_out_mw": 0.0,
+   "n_ang": 0,
+   "ang_exc_deg": 0.0,
+   "vviol": 0,
+   "v_exc_pu": 0.0,
+   "qviol": 3,
+   "q_exc_mvar": 120.96338457923775,
+   "cost": 7852.165843678335,
+   "losses": 18.876033608799048,
+   "p_clean": false,
+   "clean": false
+  },
+  "J_secs": 0.1705167293548584,
+  "J_pf": 13,
+  "J_qp": {
+   "calls": 6,
+   "rows_full": 1344,
+   "rows_used": 1344,
+   "passes": 6,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 6,
+   "clean_at": 6,
+   "p_clean_at": 6,
+   "statuses": [
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "clean/hard"
+   ],
+   "final": {
+    "it": 6,
+    "status": "clean",
+    "qp": "hard",
+    "n_over": 0,
+    "max_load": 0.9993795447250747,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 8214.778701499043,
+    "losses": 15.587629955687873,
+    "p_clean": true,
+    "clean": true
+   },
+   "vg_range": [
+    0.9850595595519072,
+    1.0589999999474855
+   ]
+  },
+  "secs": 0.4649057388305664
+ },
+ {
+  "case": "case39_epri",
+  "kind": "typ",
+  "ac_ok": true,
+  "ac": 138415.56324833332,
+  "start_rule": "DC+ang",
+  "start": {
+   "n_over": 2,
+   "max_load": 1.0064733671233976,
+   "slack_out_mw": 43.12064517391377,
+   "n_ang": 0,
+   "ang_exc_deg": 0.0,
+   "vviol": 0,
+   "v_exc_pu": 0.0,
+   "qviol": 3,
+   "q_exc_mvar": 57.3823084908705,
+   "cost": 137450.3583531993,
+   "losses": 43.120645175009486,
+   "p_clean": false,
+   "clean": false
+  },
+  "J_secs": 0.15201640129089355,
+  "J_pf": 13,
+  "J_qp": {
+   "calls": 6,
+   "rows_full": 1572,
+   "rows_used": 1572,
+   "passes": 6,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 6,
+   "clean_at": 6,
+   "p_clean_at": 6,
+   "statuses": [
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "clean/hard"
+   ],
+   "final": {
+    "it": 6,
+    "status": "clean",
+    "qp": "hard",
+    "n_over": 0,
+    "max_load": 0.9990203479861262,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 138444.49615000302,
+    "losses": 38.37534872333799,
+    "p_clean": true,
+    "clean": true
+   },
+   "vg_range": [
+    1.000067693539908,
+    1.058999999371793
+   ]
+  },
+  "secs": 0.6336557865142822
+ },
+ {
+  "case": "case57_ieee",
+  "kind": "typ",
+  "ac_ok": true,
+  "ac": 37589.33949743774,
+  "start_rule": "DC+ang",
+  "start": {
+   "n_over": 0,
+   "max_load": 0.9599014906356155,
+   "slack_out_mw": 91.55879949288692,
+   "n_ang": 0,
+   "ang_exc_deg": 0.0,
+   "vviol": 3,
+   "v_exc_pu": 0.017827191926648056,
+   "qviol": 5,
+   "q_exc_mvar": 361.34641727287624,
+   "cost": 36325.84226671106,
+   "losses": 91.55879949324958,
+   "p_clean": false,
+   "clean": false
+  },
+  "J_secs": 0.31688880920410156,
+  "J_pf": 21,
+  "J_qp": {
+   "calls": 10,
+   "rows_full": 4340,
+   "rows_used": 4340,
+   "passes": 10,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 10,
+   "clean_at": null,
+   "p_clean_at": null,
+   "statuses": [
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard"
+   ],
+   "final": {
+    "it": 10,
+    "status": "not clean",
+    "qp": "hard",
+    "n_over": 0,
+    "max_load": 0.8272284076072445,
+    "slack_out_mw": 0.16476320329448413,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 1,
+    "q_exc_mvar": 0.1618428868433739,
+    "cost": 37614.53068548345,
+    "losses": 60.00161649750589,
+    "p_clean": false,
+    "clean": false
+   },
+   "vg_range": [
+    0.9927941106401781,
+    1.0589999999215014
+   ]
+  },
+  "JR": {
+   "ok": true,
+   "final": {
+    "n_over": 0,
+    "max_load": 0.8270537825857172,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 37612.613899148855,
+    "losses": 59.86240411477047,
+    "p_clean": true,
+    "clean": true
+   }
+  },
+  "secs": 0.9402387142181396
+ },
+ {
+  "case": "case73_ieee_rts",
+  "kind": "typ",
+  "ac_ok": true,
+  "ac": 189764.08562578465,
+  "start_rule": "DC+ang",
+  "start": {
+   "n_over": 0,
+   "max_load": 0.8730552457721165,
+   "slack_out_mw": 37.12170420980377,
+   "n_ang": 0,
+   "ang_exc_deg": 0.0,
+   "vviol": 0,
+   "v_exc_pu": 0.0,
+   "qviol": 21,
+   "q_exc_mvar": 200.93496431142233,
+   "cost": 191024.07302335388,
+   "losses": 157.86283362770882,
+   "p_clean": false,
+   "clean": false
+  },
+  "J_secs": 2.5292482376098633,
+  "J_pf": 13,
+  "J_qp": {
+   "calls": 6,
+   "rows_full": 4548,
+   "rows_used": 4548,
+   "passes": 6,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 6,
+   "clean_at": 6,
+   "p_clean_at": 1,
+   "statuses": [
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "clean/hard"
+   ],
+   "final": {
+    "it": 6,
+    "status": "clean",
+    "qp": "hard",
+    "n_over": 0,
+    "max_load": 0.9264177014448941,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 189840.84259371168,
+    "losses": 135.8536763074153,
+    "p_clean": true,
+    "clean": true
+   },
+   "vg_range": [
+    1.0224999986026473,
+    1.0489999999557347
+   ]
+  },
+  "secs": 3.0242176055908203
+ },
+ {
+  "case": "case118_ieee",
+  "kind": "typ",
+  "ac_ok": true,
+  "ac": 97213.60781267252,
+  "start_rule": "DC+ang",
+  "start": {
+   "n_over": 4,
+   "max_load": 1.1443765052414383,
+   "slack_out_mw": 0.0,
+   "n_ang": 0,
+   "ang_exc_deg": 0.0,
+   "vviol": 0,
+   "v_exc_pu": 0.0,
+   "qviol": 26,
+   "q_exc_mvar": 908.0701234606141,
+   "cost": 97887.62742031545,
+   "losses": 184.59766054191095,
+   "p_clean": false,
+   "clean": false
+  },
+  "J_secs": 5.708131313323975,
+  "J_pf": 21,
+  "J_qp": {
+   "calls": 10,
+   "rows_full": 9800,
+   "rows_used": 9800,
+   "passes": 10,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 10,
+   "clean_at": null,
+   "p_clean_at": null,
+   "statuses": [
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard"
+   ],
+   "final": {
+    "it": 10,
+    "status": "not clean",
+    "qp": "hard",
+    "n_over": 1,
+    "max_load": 1.004067400659701,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 97324.6990740222,
+    "losses": 135.3308505551513,
+    "p_clean": false,
+    "clean": false
+   },
+   "vg_range": [
+    0.9830409938315294,
+    1.058999999458391
+   ]
+  },
+  "JR": {
+   "ok": true,
+   "final": {
+    "n_over": 0,
+    "max_load": 1.0000000014812842,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 97263.84933232838,
+    "losses": 132.9659889213517,
+    "p_clean": true,
+    "clean": true
+   }
+  },
+  "secs": 7.102596282958984
+ },
+ {
+  "case": "case162_ieee_dtc",
+  "kind": "typ",
+  "ac_ok": true,
+  "ac": 108075.64869428812,
+  "start_rule": "DC+ang",
+  "start": {
+   "n_over": 9,
+   "max_load": 1.3223155489655785,
+   "slack_out_mw": 0.0,
+   "n_ang": 0,
+   "ang_exc_deg": 0.0,
+   "vviol": 6,
+   "v_exc_pu": 0.028006732224925557,
+   "qviol": 1,
+   "q_exc_mvar": 11.113597213621759,
+   "cost": 102293.43888632226,
+   "losses": 167.7341794581007,
+   "p_clean": false,
+   "clean": false
+  },
+  "J_secs": 0.7422285079956055,
+  "J_pf": 17,
+  "J_qp": {
+   "calls": 10,
+   "rows_full": 14600,
+   "rows_used": 14600,
+   "passes": 10,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 8,
+   "clean_at": 8,
+   "p_clean_at": 8,
+   "statuses": [
+    "not clean/elastic",
+    "not clean/elastic",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "clean/hard"
+   ],
+   "final": {
+    "it": 8,
+    "status": "clean",
+    "qp": "hard",
+    "n_over": 0,
+    "max_load": 0.9993676155997945,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 108357.37158329239,
+    "losses": 163.6248113233023,
+    "p_clean": true,
+    "clean": true
+   },
+   "vg_range": [
+    0.9410000000313852,
+    1.0453672740431112
+   ]
+  },
+  "secs": 1.6143980026245117
+ },
+ {
+  "case": "case179_goc",
+  "kind": "typ",
+  "ac_ok": true,
+  "ac": 754266.4197431607,
+  "start_rule": "DC+ang",
+  "start": {
+   "n_over": 8,
+   "max_load": 1.1705182160538574,
+   "slack_out_mw": 0.0,
+   "n_ang": 0,
+   "ang_exc_deg": 0.0,
+   "vviol": 13,
+   "v_exc_pu": 0.09201610240385127,
+   "qviol": 0,
+   "q_exc_mvar": 0.0,
+   "cost": 760497.458910827,
+   "losses": 338.17050942186324,
+   "p_clean": false,
+   "clean": false
+  },
+  "J_secs": 2.4514284133911133,
+  "J_pf": 21,
+  "J_qp": {
+   "calls": 11,
+   "rows_full": 15510,
+   "rows_used": 15510,
+   "passes": 11,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 10,
+   "clean_at": 10,
+   "p_clean_at": 10,
+   "statuses": [
+    "not clean/elastic",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "clean/hard"
+   ],
+   "final": {
+    "it": 10,
+    "status": "clean",
+    "qp": "hard",
+    "n_over": 0,
+    "max_load": 0.9999528467764495,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 754289.1330310869,
+    "losses": 248.15521456508577,
+    "p_clean": true,
+    "clean": true
+   },
+   "vg_range": [
+    0.8990000001824502,
+    1.068829189903201
+   ]
+  },
+  "secs": 8.367741584777832
+ },
+ {
+  "case": "case200_activ",
+  "kind": "typ",
+  "ac_ok": true,
+  "ac": 27557.57089589216,
+  "start_rule": "DC+ang",
+  "start": {
+   "n_over": 0,
+   "max_load": 0.7124855607291235,
+   "slack_out_mw": 0.0,
+   "n_ang": 0,
+   "ang_exc_deg": 0.0,
+   "vviol": 0,
+   "v_exc_pu": 0.0,
+   "qviol": 1,
+   "q_exc_mvar": 1.2278594145832438,
+   "cost": 27571.25955457052,
+   "losses": 13.653688307260836,
+   "p_clean": true,
+   "clean": false
+  },
+  "J_secs": 0.3215060234069824,
+  "J_pf": 3,
+  "J_qp": {
+   "calls": 1,
+   "rows_full": 1380,
+   "rows_used": 1380,
+   "passes": 1,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 1,
+   "clean_at": 1,
+   "p_clean_at": 1,
+   "statuses": [
+    "clean/hard"
+   ],
+   "final": {
+    "it": 1,
+    "status": "clean",
+    "qp": "hard",
+    "n_over": 0,
+    "max_load": 0.7144568983436523,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 27568.34767226746,
+    "losses": 13.219726598244506,
+    "p_clean": true,
+    "clean": true
+   },
+   "vg_range": [
+    0.9700000050873918,
+    1.0299999994035436
+   ]
+  },
+  "secs": 0.9954590797424316
+ },
+ {
+  "case": "case240_pserc",
+  "kind": "typ",
+  "ac_ok": true,
+  "ac": 3329670.1062308457,
+  "start_rule": "DC, no ang",
+  "start": {
+   "n_over": 18,
+   "max_load": 1.2574654777703662,
+   "slack_out_mw": 1738.820644073633,
+   "n_ang": 0,
+   "ang_exc_deg": 0.0,
+   "vviol": 2,
+   "v_exc_pu": 0.05250881745411651,
+   "qviol": 6,
+   "q_exc_mvar": 1386.8379106852979,
+   "cost": 3331820.825126003,
+   "losses": 1738.8206440786016,
+   "p_clean": false,
+   "clean": false
+  },
+  "J_secs": 40.74777603149414,
+  "J_pf": 21,
+  "J_qp": {
+   "calls": 10,
+   "rows_full": 24520,
+   "rows_used": 24520,
+   "passes": 10,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 10,
+   "clean_at": null,
+   "p_clean_at": null,
+   "statuses": [
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard"
+   ],
+   "final": {
+    "it": 10,
+    "status": "not clean",
+    "qp": "hard",
+    "n_over": 0,
+    "max_load": 0.9990816040006301,
+    "slack_out_mw": 0.30603886819881154,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 3341013.2537371404,
+    "losses": 1470.8374918433256,
+    "p_clean": false,
+    "clean": false
+   },
+   "vg_range": [
+    0.9010000000081679,
+    1.0989999999984223
+   ]
+  },
+  "JR": {
+   "ok": true,
+   "final": {
+    "n_over": 0,
+    "max_load": 0.9999999999681691,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 3340432.572313443,
+    "losses": 1454.3683990194404,
+    "p_clean": true,
+    "clean": true
+   }
+  },
+  "secs": 45.5677011013031
+ },
+ {
+  "case": "case300_ieee",
+  "kind": "typ",
+  "ac_ok": true,
+  "ac": 565219.99224243,
+  "start_rule": "DC+ang",
+  "start": null,
+  "J_secs": 0.21989989280700684,
+  "J_pf": 2,
+  "J_qp": {
+   "calls": 0,
+   "rows_full": 0,
+   "rows_used": 0,
+   "passes": 0,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 1,
+   "clean_at": null,
+   "p_clean_at": null,
+   "statuses": [
+    "PF failed at point"
+   ],
+   "final": null,
+   "vg_range": null
+  },
+  "secs": 2.3598999977111816
+ },
+ {
+  "case": "case14_ieee",
+  "kind": "api",
+  "ac_ok": true,
+  "ac": 5999.363513221997,
+  "start_rule": "DC+ang",
+  "start": {
+   "n_over": 2,
+   "max_load": 1.0944233007219644,
+   "slack_out_mw": 57.47305104092004,
+   "n_ang": 0,
+   "ang_exc_deg": 0.0,
+   "vviol": 1,
+   "v_exc_pu": 0.007904528904851715,
+   "qviol": 2,
+   "q_exc_mvar": 87.59255351364334,
+   "cost": 5119.598744319304,
+   "losses": 57.47305104193754,
+   "p_clean": false,
+   "clean": false
+  },
+  "J_secs": 0.06711578369140625,
+  "J_pf": 7,
+  "J_qp": {
+   "calls": 3,
+   "rows_full": 324,
+   "rows_used": 324,
+   "passes": 3,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 3,
+   "clean_at": 3,
+   "p_clean_at": 2,
+   "statuses": [
+    "not clean/hard",
+    "not clean/hard",
+    "clean/hard"
+   ],
+   "final": {
+    "it": 3,
+    "status": "clean",
+    "qp": "hard",
+    "n_over": 0,
+    "max_load": 0.9996808264656977,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 6067.006248956179,
+    "losses": 41.77015543502284,
+    "p_clean": true,
+    "clean": true
+   },
+   "vg_range": [
+    0.9790264608997699,
+    1.058999999998923
+   ]
+  },
+  "secs": 0.38281869888305664
+ },
+ {
+  "case": "case24_ieee_rts",
+  "kind": "api",
+  "ac_ok": true,
+  "ac": 161222.58498765941,
+  "start_rule": "DC+ang",
+  "start": {
+   "n_over": 5,
+   "max_load": 1.1013910981604598,
+   "slack_out_mw": 0.0,
+   "n_ang": 0,
+   "ang_exc_deg": 0.0,
+   "vviol": 10,
+   "v_exc_pu": 0.08846215749432529,
+   "qviol": 1,
+   "q_exc_mvar": 138.10398665302228,
+   "cost": 158714.0347293874,
+   "losses": 180.0436562248551,
+   "p_clean": false,
+   "clean": false
+  },
+  "J_secs": 0.4018368721008301,
+  "J_pf": 21,
+  "J_qp": {
+   "calls": 11,
+   "rows_full": 2684,
+   "rows_used": 2684,
+   "passes": 11,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 10,
+   "clean_at": 10,
+   "p_clean_at": 10,
+   "statuses": [
+    "not clean/hard",
+    "not clean/elastic",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "clean/hard"
+   ],
+   "final": {
+    "it": 10,
+    "status": "clean",
+    "qp": "hard",
+    "n_over": 0,
+    "max_load": 0.9997217333074694,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 162368.5234956292,
+    "losses": 127.78543721094957,
+    "p_clean": true,
+    "clean": true
+   },
+   "vg_range": [
+    0.9964789551198661,
+    1.0490000000000723
+   ]
+  },
+  "secs": 0.7483036518096924
+ },
+ {
+  "case": "case30_ieee",
+  "kind": "api",
+  "ac_ok": true,
+  "ac": 18036.58839194027,
+  "start_rule": "DC+ang",
+  "start": {
+   "n_over": 3,
+   "max_load": 1.285601983199537,
+   "slack_out_mw": 0.0,
+   "n_ang": 0,
+   "ang_exc_deg": 0.0,
+   "vviol": 3,
+   "v_exc_pu": 0.02891158608029787,
+   "qviol": 1,
+   "q_exc_mvar": 64.79155396764142,
+   "cost": 17031.313861224877,
+   "losses": 45.93809639878697,
+   "p_clean": false,
+   "clean": false
+  },
+  "J_secs": 0.24547791481018066,
+  "J_pf": 15,
+  "J_qp": {
+   "calls": 9,
+   "rows_full": 2016,
+   "rows_used": 2016,
+   "passes": 9,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 7,
+   "clean_at": 7,
+   "p_clean_at": 7,
+   "statuses": [
+    "not clean/elastic",
+    "not clean/hard",
+    "not clean/elastic",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "clean/hard"
+   ],
+   "final": {
+    "it": 7,
+    "status": "clean",
+    "qp": "hard",
+    "n_over": 0,
+    "max_load": 0.9994572657396632,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 18097.3125047815,
+    "losses": 42.68431444109257,
+    "p_clean": true,
+    "clean": true
+   },
+   "vg_range": [
+    0.9560000024316405,
+    1.058999999997204
+   ]
+  },
+  "secs": 0.5204622745513916
+ },
+ {
+  "case": "case39_epri",
+  "kind": "api",
+  "ac_ok": true,
+  "ac": 256769.33760460152,
+  "start_rule": "DC+ang",
+  "start": {
+   "n_over": 12,
+   "max_load": 1.100315467494422,
+   "slack_out_mw": 101.32649974995502,
+   "n_ang": 0,
+   "ang_exc_deg": 0.0,
+   "vviol": 3,
+   "v_exc_pu": 0.006422299203347692,
+   "qviol": 1,
+   "q_exc_mvar": 92.06428504925339,
+   "cost": 254256.35070174746,
+   "losses": 101.326499753608,
+   "p_clean": false,
+   "clean": false
+  },
+  "J_secs": 0.19585227966308594,
+  "J_pf": 15,
+  "J_qp": {
+   "calls": 7,
+   "rows_full": 1834,
+   "rows_used": 1834,
+   "passes": 7,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 7,
+   "clean_at": 7,
+   "p_clean_at": 7,
+   "statuses": [
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "clean/hard"
+   ],
+   "final": {
+    "it": 7,
+    "status": "clean",
+    "qp": "hard",
+    "n_over": 0,
+    "max_load": 0.9995265432919548,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 256957.21374559612,
+    "losses": 89.5504614008405,
+    "p_clean": true,
+    "clean": true
+   },
+   "vg_range": [
+    1.0121683612318608,
+    1.0589999998678565
+   ]
+  },
+  "secs": 0.6398248672485352
+ },
+ {
+  "case": "case57_ieee",
+  "kind": "api",
+  "ac_ok": true,
+  "ac": 36242.461952974576,
+  "start_rule": "DC+ang",
+  "start": {
+   "n_over": 2,
+   "max_load": 1.1576136399523185,
+   "slack_out_mw": 0.0,
+   "n_ang": 0,
+   "ang_exc_deg": 0.0,
+   "vviol": 6,
+   "v_exc_pu": 0.03899571731546825,
+   "qviol": 2,
+   "q_exc_mvar": 175.70052079708216,
+   "cost": 36081.771802689815,
+   "losses": 128.82143175832175,
+   "p_clean": false,
+   "clean": false
+  },
+  "J_secs": 0.3269822597503662,
+  "J_pf": 21,
+  "J_qp": {
+   "calls": 14,
+   "rows_full": 6076,
+   "rows_used": 6076,
+   "passes": 14,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 10,
+   "clean_at": null,
+   "p_clean_at": 9,
+   "statuses": [
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/elastic",
+    "not clean/elastic",
+    "not clean/hard",
+    "not clean/elastic",
+    "not clean/elastic"
+   ],
+   "final": {
+    "it": 10,
+    "status": "not clean",
+    "qp": "elastic",
+    "n_over": 0,
+    "max_load": 0.999992269057551,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 1,
+    "q_exc_mvar": 0.07663826541174501,
+    "cost": 36475.34622392077,
+    "losses": 75.70672891687695,
+    "p_clean": true,
+    "clean": false
+   },
+   "vg_range": [
+    0.9830751666807637,
+    1.04928636244074
+   ]
+  },
+  "JR": {
+   "ok": true,
+   "final": {
+    "n_over": 0,
+    "max_load": 0.9999999929480266,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 36326.23683768808,
+    "losses": 66.9350859181759,
+    "p_clean": true,
+    "clean": true
+   }
+  },
+  "secs": 0.9179186820983887
+ },
+ {
+  "case": "case73_ieee_rts",
+  "kind": "api",
+  "ac_ok": true,
+  "ac": 509847.9992647122,
+  "start_rule": "DC+ang",
+  "start": {
+   "n_over": 6,
+   "max_load": 1.1002046637184784,
+   "slack_out_mw": 179.8893645066812,
+   "n_ang": 0,
+   "ang_exc_deg": 0.0,
+   "vviol": 30,
+   "v_exc_pu": 0.07268865360341537,
+   "qviol": 3,
+   "q_exc_mvar": 257.5518873950116,
+   "cost": 496141.2887190097,
+   "losses": 420.7556569168737,
+   "p_clean": false,
+   "clean": false
+  },
+  "J_secs": 9.41228437423706,
+  "J_pf": 21,
+  "J_qp": {
+   "calls": 20,
+   "rows_full": 15160,
+   "rows_used": 15160,
+   "passes": 20,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 10,
+   "clean_at": null,
+   "p_clean_at": null,
+   "statuses": [
+    "not clean/elastic",
+    "not clean/elastic",
+    "not clean/elastic",
+    "not clean/elastic",
+    "not clean/elastic",
+    "not clean/elastic",
+    "not clean/elastic",
+    "not clean/elastic",
+    "not clean/elastic",
+    "not clean/elastic"
+   ],
+   "final": {
+    "it": 9,
+    "status": "not clean",
+    "qp": "elastic",
+    "n_over": 1,
+    "max_load": 1.0004056145625224,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 2,
+    "v_exc_pu": 0.001970134814797575,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 509584.17496788065,
+    "losses": 341.39668257189624,
+    "p_clean": false,
+    "clean": false
+   },
+   "vg_range": [
+    0.998131372999811,
+    1.0489999999995254
+   ]
+  },
+  "JR": {
+   "ok": false
+  },
+  "secs": 10.767509937286377
+ },
+ {
+  "case": "case118_ieee",
+  "kind": "api",
+  "ac_ok": true,
+  "ac": 249614.52444357282,
+  "start_rule": "DC+ang",
+  "start": {
+   "n_over": 9,
+   "max_load": 1.2224393335251287,
+   "slack_out_mw": 223.3279189830796,
+   "n_ang": 0,
+   "ang_exc_deg": 0.0,
+   "vviol": 0,
+   "v_exc_pu": 0.0,
+   "qviol": 14,
+   "q_exc_mvar": 505.45151430379497,
+   "cost": 241389.44484287422,
+   "losses": 280.32791898298547,
+   "p_clean": false,
+   "clean": false
+  },
+  "J_secs": 8.616525650024414,
+  "J_pf": 21,
+  "J_qp": {
+   "calls": 18,
+   "rows_full": 17640,
+   "rows_used": 17640,
+   "passes": 18,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 10,
+   "clean_at": null,
+   "p_clean_at": null,
+   "statuses": [
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/elastic",
+    "not clean/elastic",
+    "not clean/elastic",
+    "not clean/elastic",
+    "not clean/elastic",
+    "not clean/elastic",
+    "not clean/elastic",
+    "not clean/elastic"
+   ],
+   "final": {
+    "it": 10,
+    "status": "not clean",
+    "qp": "elastic",
+    "n_over": 4,
+    "max_load": 1.0242330427823443,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 251700.69083210177,
+    "losses": 291.7994099208918,
+    "p_clean": false,
+    "clean": false
+   },
+   "vg_range": [
+    0.9429191689018876,
+    1.0589999999994508
+   ]
+  },
+  "JR": {
+   "ok": false
+  },
+  "secs": 10.479944467544556
+ },
+ {
+  "case": "case162_ieee_dtc",
+  "kind": "api",
+  "ac_ok": true,
+  "ac": 120881.14329816436,
+  "start_rule": "DC+ang",
+  "start": {
+   "n_over": 10,
+   "max_load": 1.3888067737588925,
+   "slack_out_mw": 185.1559158798824,
+   "n_ang": 0,
+   "ang_exc_deg": 0.0,
+   "vviol": 7,
+   "v_exc_pu": 0.024593350874944186,
+   "qviol": 0,
+   "q_exc_mvar": 0.0,
+   "cost": 112951.47487424122,
+   "losses": 197.15591588003372,
+   "p_clean": false,
+   "clean": false
+  },
+  "J_secs": 0.8598015308380127,
+  "J_pf": 21,
+  "J_qp": {
+   "calls": 12,
+   "rows_full": 17520,
+   "rows_used": 17520,
+   "passes": 12,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 10,
+   "clean_at": null,
+   "p_clean_at": null,
+   "statuses": [
+    "not clean/hard",
+    "not clean/elastic",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/elastic",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard"
+   ],
+   "final": {
+    "it": 9,
+    "status": "not clean",
+    "qp": "hard",
+    "n_over": 5,
+    "max_load": 1.001456986360463,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 121237.58193447736,
+    "losses": 192.33547683962115,
+    "p_clean": false,
+    "clean": false
+   },
+   "vg_range": [
+    0.9410000000145773,
+    1.0364999992326471
+   ]
+  },
+  "JR": {
+   "ok": true,
+   "final": {
+    "n_over": 0,
+    "max_load": 0.9999999624731324,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 121232.33473206146,
+    "losses": 191.75661608984046,
+    "p_clean": true,
+    "clean": true
+   }
+  },
+  "secs": 3.027540445327759
+ },
+ {
+  "case": "case179_goc",
+  "kind": "api",
+  "ac_ok": false,
+  "secs": 2.7399709224700928
+ },
+ {
+  "case": "case200_activ",
+  "kind": "api",
+  "ac_ok": true,
+  "ac": 40700.07344579378,
+  "start_rule": "DC+ang",
+  "start": {
+   "n_over": 9,
+   "max_load": 1.0531511956189974,
+   "slack_out_mw": 61.33616386327276,
+   "n_ang": 0,
+   "ang_exc_deg": 0.0,
+   "vviol": 0,
+   "v_exc_pu": 0.0,
+   "qviol": 2,
+   "q_exc_mvar": 14.383394079903525,
+   "cost": 40541.32785343703,
+   "losses": 61.33616386336371,
+   "p_clean": false,
+   "clean": false
+  },
+  "J_secs": 6.7649500370025635,
+  "J_pf": 21,
+  "J_qp": {
+   "calls": 20,
+   "rows_full": 27600,
+   "rows_used": 27600,
+   "passes": 20,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 10,
+   "clean_at": 10,
+   "p_clean_at": 10,
+   "statuses": [
+    "not clean/elastic",
+    "not clean/elastic",
+    "not clean/elastic",
+    "not clean/elastic",
+    "not clean/elastic",
+    "not clean/elastic",
+    "not clean/elastic",
+    "not clean/elastic",
+    "not clean/elastic",
+    "clean/elastic"
+   ],
+   "final": {
+    "it": 10,
+    "status": "clean",
+    "qp": "elastic",
+    "n_over": 0,
+    "max_load": 0.9990336080297348,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 40753.12351899004,
+    "losses": 27.353795526202248,
+    "p_clean": true,
+    "clean": true
+   },
+   "vg_range": [
+    1.0,
+    1.0749999997764341
+   ]
+  },
+  "secs": 7.367991924285889
+ },
+ {
+  "case": "case240_pserc",
+  "kind": "api",
+  "ac_ok": true,
+  "ac": 4692231.526596802,
+  "start_rule": "DC+ang",
+  "start": {
+   "n_over": 11,
+   "max_load": 1.1817781953801538,
+   "slack_out_mw": 1757.9296464206814,
+   "n_ang": 0,
+   "ang_exc_deg": 0.0,
+   "vviol": 3,
+   "v_exc_pu": 0.0453211423821438,
+   "qviol": 0,
+   "q_exc_mvar": 0.0,
+   "cost": 4686227.439463864,
+   "losses": 1757.9296464227373,
+   "p_clean": false,
+   "clean": false
+  },
+  "J_secs": 51.72074341773987,
+  "J_pf": 21,
+  "J_qp": {
+   "calls": 12,
+   "rows_full": 29424,
+   "rows_used": 29424,
+   "passes": 12,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 10,
+   "clean_at": null,
+   "p_clean_at": null,
+   "statuses": [
+    "not clean/elastic",
+    "not clean/elastic",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard"
+   ],
+   "final": {
+    "it": 10,
+    "status": "not clean",
+    "qp": "hard",
+    "n_over": 0,
+    "max_load": 0.9996471996486284,
+    "slack_out_mw": 1.6146463987142852,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 4695749.792319188,
+    "losses": 1695.0355021306896,
+    "p_clean": false,
+    "clean": false
+   },
+   "vg_range": [
+    0.9010000007233373,
+    1.0989999999791722
+   ]
+  },
+  "JR": {
+   "ok": true,
+   "final": {
+    "n_over": 0,
+    "max_load": 1.0000000017331645,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 4694716.508465527,
+    "losses": 1665.5884361021162,
+    "p_clean": true,
+    "clean": true
+   }
+  },
+  "secs": 56.7149863243103
+ },
+ {
+  "case": "case300_ieee",
+  "kind": "api",
+  "ac_ok": true,
+  "ac": 686040.7148019865,
+  "start_rule": "DC+ang",
+  "start": {
+   "n_over": 10,
+   "max_load": 2.2565792084324716,
+   "slack_out_mw": 1054.5298731939936,
+   "n_ang": 2,
+   "ang_exc_deg": 17.91337348650498,
+   "vviol": 69,
+   "v_exc_pu": 0.31187614682374587,
+   "qviol": 19,
+   "q_exc_mvar": 2045.495929849836,
+   "cost": 666776.3431511725,
+   "losses": 1055.829873194063,
+   "p_clean": false,
+   "clean": false
+  },
+  "J_secs": 42.628889322280884,
+  "J_pf": 21,
+  "J_qp": {
+   "calls": 16,
+   "rows_full": 35904,
+   "rows_used": 35904,
+   "passes": 16,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 10,
+   "clean_at": null,
+   "p_clean_at": 9,
+   "statuses": [
+    "PF failed",
+    "not clean/elastic",
+    "not clean/elastic",
+    "not clean/elastic",
+    "not clean/elastic",
+    "not clean/elastic",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard"
+   ],
+   "final": {
+    "it": 9,
+    "status": "not clean",
+    "qp": "hard",
+    "n_over": 0,
+    "max_load": 0.9993676499108023,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 4,
+    "q_exc_mvar": 0.5849047690589941,
+    "cost": 693589.7178418464,
+    "losses": 537.6733771166801,
+    "p_clean": true,
+    "clean": false
+   },
+   "vg_range": [
+    0.9606517938067782,
+    1.0589999999966595
+   ]
+  },
+  "JR": {
+   "ok": true,
+   "final": {
+    "n_over": 0,
+    "max_load": 0.9999999801543642,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 693526.5588654932,
+    "losses": 530.2462767761644,
+    "p_clean": true,
+    "clean": true
+   }
+  },
+  "secs": 46.222015619277954
+ },
+ {
+  "case": "case14_ieee",
+  "kind": "sad",
+  "ac_ok": true,
+  "ac": 2776.788943989082,
+  "start_rule": "DC, no ang",
+  "start": {
+   "n_over": 0,
+   "max_load": 0.6431628528404191,
+   "slack_out_mw": 0.0,
+   "n_ang": 2,
+   "ang_exc_deg": 2.2508328727436044,
+   "vviol": 0,
+   "v_exc_pu": 0.0,
+   "qviol": 3,
+   "q_exc_mvar": 128.28641197063035,
+   "cost": 2201.3240823966385,
+   "losses": 18.911589451581904,
+   "p_clean": false,
+   "clean": false
+  },
+  "J_secs": 0.05057716369628906,
+  "J_pf": 5,
+  "J_qp": {
+   "calls": 3,
+   "rows_full": 324,
+   "rows_used": 324,
+   "passes": 3,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 2,
+   "clean_at": 2,
+   "p_clean_at": 2,
+   "statuses": [
+    "not clean/elastic",
+    "clean/hard"
+   ],
+   "final": {
+    "it": 2,
+    "status": "clean",
+    "qp": "hard",
+    "n_over": 0,
+    "max_load": 0.5841946827379797,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 2883.5659591544327,
+    "losses": 13.582765571470588,
+    "p_clean": true,
+    "clean": true
+   },
+   "vg_range": [
+    1.0031206205203078,
+    1.0540424219459323
+   ]
+  },
+  "secs": 0.30777859687805176
+ },
+ {
+  "case": "case24_ieee_rts",
+  "kind": "sad",
+  "ac_ok": true,
+  "ac": 76917.970261333,
+  "start_rule": "DC, no ang",
+  "start": {
+   "n_over": 0,
+   "max_load": 0.8791906007856666,
+   "slack_out_mw": 0.0,
+   "n_ang": 8,
+   "ang_exc_deg": 5.424960316671287,
+   "vviol": 0,
+   "v_exc_pu": 0.0,
+   "qviol": 7,
+   "q_exc_mvar": 70.7517139441102,
+   "cost": 63680.12071495271,
+   "losses": 53.515892284855454,
+   "p_clean": false,
+   "clean": false
+  },
+  "J_secs": 0.19372963905334473,
+  "J_pf": 13,
+  "J_qp": {
+   "calls": 6,
+   "rows_full": 1464,
+   "rows_used": 1464,
+   "passes": 6,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 6,
+   "clean_at": 6,
+   "p_clean_at": 6,
+   "statuses": [
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "clean/hard"
+   ],
+   "final": {
+    "it": 6,
+    "status": "clean",
+    "qp": "hard",
+    "n_over": 0,
+    "max_load": 0.9993762089482334,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 77077.7073494081,
+    "losses": 36.83933911668646,
+    "p_clean": true,
+    "clean": true
+   },
+   "vg_range": [
+    1.0229961069645093,
+    1.048999999986868
+   ]
+  },
+  "secs": 0.6303019523620605
+ },
+ {
+  "case": "case30_ieee",
+  "kind": "sad",
+  "ac_ok": true,
+  "ac": 8208.515134952386,
+  "start_rule": "DC+ang",
+  "start": {
+   "n_over": 1,
+   "max_load": 1.1442105668330345,
+   "slack_out_mw": 0.0,
+   "n_ang": 1,
+   "ang_exc_deg": 0.802046810009335,
+   "vviol": 0,
+   "v_exc_pu": 0.0,
+   "qviol": 3,
+   "q_exc_mvar": 120.96338457914555,
+   "cost": 7852.165843691996,
+   "losses": 18.876033608772616,
+   "p_clean": false,
+   "clean": false
+  },
+  "J_secs": 0.16588592529296875,
+  "J_pf": 15,
+  "J_qp": {
+   "calls": 8,
+   "rows_full": 1792,
+   "rows_used": 1792,
+   "passes": 8,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 7,
+   "clean_at": 7,
+   "p_clean_at": 7,
+   "statuses": [
+    "not clean/elastic",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "clean/hard"
+   ],
+   "final": {
+    "it": 7,
+    "status": "clean",
+    "qp": "hard",
+    "n_over": 0,
+    "max_load": 0.9993804701878923,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 8214.775519076115,
+    "losses": 15.587689496897553,
+    "p_clean": true,
+    "clean": true
+   },
+   "vg_range": [
+    0.9850537142923579,
+    1.0589999999369373
+   ]
+  },
+  "secs": 0.4195394515991211
+ },
+ {
+  "case": "case39_epri",
+  "kind": "sad",
+  "ac_ok": true,
+  "ac": 148340.509194747,
+  "start_rule": "DC, no ang",
+  "start": {
+   "n_over": 2,
+   "max_load": 1.006473367123779,
+   "slack_out_mw": 43.12064517439728,
+   "n_ang": 7,
+   "ang_exc_deg": 3.5539705132429633,
+   "vviol": 0,
+   "v_exc_pu": 0.0,
+   "qviol": 3,
+   "q_exc_mvar": 57.382308491183494,
+   "cost": 137450.35835313096,
+   "losses": 43.12064517510498,
+   "p_clean": false,
+   "clean": false
+  },
+  "J_secs": 0.08555054664611816,
+  "J_pf": 7,
+  "J_qp": {
+   "calls": 3,
+   "rows_full": 786,
+   "rows_used": 786,
+   "passes": 3,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 3,
+   "clean_at": 3,
+   "p_clean_at": 3,
+   "statuses": [
+    "not clean/hard",
+    "not clean/hard",
+    "clean/hard"
+   ],
+   "final": {
+    "it": 3,
+    "status": "clean",
+    "qp": "hard",
+    "n_over": 0,
+    "max_load": 0.9990012325465287,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 148506.11704766884,
+    "losses": 36.57195703789148,
+    "p_clean": true,
+    "clean": true
+   },
+   "vg_range": [
+    0.9699999996238867,
+    1.0589999999885187
+   ]
+  },
+  "secs": 0.48357701301574707
+ },
+ {
+  "case": "case57_ieee",
+  "kind": "sad",
+  "ac_ok": true,
+  "ac": 38663.282820449225,
+  "start_rule": "DC+ang",
+  "start": {
+   "n_over": 0,
+   "max_load": 0.31425480787291854,
+   "slack_out_mw": 15.489995999543225,
+   "n_ang": 1,
+   "ang_exc_deg": 0.1495998035751498,
+   "vviol": 1,
+   "v_exc_pu": 0.002037257752646182,
+   "qviol": 4,
+   "q_exc_mvar": 142.12155922106814,
+   "cost": 38666.91754676598,
+   "losses": 15.48999600008733,
+   "p_clean": false,
+   "clean": false
+  },
+  "J_secs": 0.15020251274108887,
+  "J_pf": 15,
+  "J_qp": {
+   "calls": 7,
+   "rows_full": 3038,
+   "rows_used": 3038,
+   "passes": 7,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 7,
+   "clean_at": 7,
+   "p_clean_at": 7,
+   "statuses": [
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "clean/hard"
+   ],
+   "final": {
+    "it": 7,
+    "status": "clean",
+    "qp": "hard",
+    "n_over": 0,
+    "max_load": 0.36248594029763287,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 38676.21781194188,
+    "losses": 16.443370833159406,
+    "p_clean": true,
+    "clean": true
+   },
+   "vg_range": [
+    0.9859436649766363,
+    1.0589999999804272
+   ]
+  },
+  "secs": 0.41056323051452637
+ },
+ {
+  "case": "case73_ieee_rts",
+  "kind": "sad",
+  "ac_ok": true,
+  "ac": 227603.7558686557,
+  "start_rule": "DC, no ang",
+  "start": {
+   "n_over": 0,
+   "max_load": 0.8730552457700494,
+   "slack_out_mw": 37.12170422477149,
+   "n_ang": 22,
+   "ang_exc_deg": 7.327132661083594,
+   "vviol": 0,
+   "v_exc_pu": 0.0,
+   "qviol": 21,
+   "q_exc_mvar": 200.9349643182224,
+   "cost": 191024.07302449894,
+   "losses": 157.8628336340862,
+   "p_clean": false,
+   "clean": false
+  },
+  "J_secs": 3.924781322479248,
+  "J_pf": 17,
+  "J_qp": {
+   "calls": 8,
+   "rows_full": 6064,
+   "rows_used": 6064,
+   "passes": 8,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 8,
+   "clean_at": 8,
+   "p_clean_at": 8,
+   "statuses": [
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "clean/hard"
+   ],
+   "final": {
+    "it": 8,
+    "status": "clean",
+    "qp": "hard",
+    "n_over": 0,
+    "max_load": 0.9994220839692358,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 228017.05100640675,
+    "losses": 107.67666800995539,
+    "p_clean": true,
+    "clean": true
+   },
+   "vg_range": [
+    1.0266993143279883,
+    1.0489999999371333
+   ]
+  },
+  "secs": 4.6315295696258545
+ },
+ {
+  "case": "case118_ieee",
+  "kind": "sad",
+  "ac_ok": true,
+  "ac": 105155.05781589293,
+  "start_rule": "DC, no ang",
+  "start": {
+   "n_over": 4,
+   "max_load": 1.1443765052440122,
+   "slack_out_mw": 0.0,
+   "n_ang": 7,
+   "ang_exc_deg": 8.871712207670578,
+   "vviol": 0,
+   "v_exc_pu": 0.0,
+   "qviol": 26,
+   "q_exc_mvar": 908.0701234614048,
+   "cost": 97887.62742028666,
+   "losses": 184.59766054220017,
+   "p_clean": false,
+   "clean": false
+  },
+  "J_secs": 6.374863862991333,
+  "J_pf": 21,
+  "J_qp": {
+   "calls": 11,
+   "rows_full": 10780,
+   "rows_used": 10780,
+   "passes": 11,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 10,
+   "clean_at": null,
+   "p_clean_at": null,
+   "statuses": [
+    "not clean/elastic",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard"
+   ],
+   "final": {
+    "it": 10,
+    "status": "not clean",
+    "qp": "hard",
+    "n_over": 1,
+    "max_load": 1.0002690621504935,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 105569.70723459,
+    "losses": 147.4740788099407,
+    "p_clean": false,
+    "clean": false
+   },
+   "vg_range": [
+    0.9410000000645078,
+    1.0589999999998256
+   ]
+  },
+  "JR": {
+   "ok": true,
+   "final": {
+    "n_over": 0,
+    "max_load": 0.9999998133495637,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 3.5068919324032777e-07,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 105488.13444683266,
+    "losses": 144.35231465631114,
+    "p_clean": true,
+    "clean": true
+   }
+  },
+  "secs": 7.688352108001709
+ },
+ {
+  "case": "case162_ieee_dtc",
+  "kind": "sad",
+  "ac_ok": true,
+  "ac": 108690.69972736653,
+  "start_rule": "DC+ang",
+  "start": {
+   "n_over": 8,
+   "max_load": 1.3241255697303176,
+   "slack_out_mw": 0.0,
+   "n_ang": 1,
+   "ang_exc_deg": 1.1360294263337956,
+   "vviol": 6,
+   "v_exc_pu": 0.028036891705895517,
+   "qviol": 1,
+   "q_exc_mvar": 10.74331861033832,
+   "cost": 104862.91479603258,
+   "losses": 169.1298811394363,
+   "p_clean": false,
+   "clean": false
+  },
+  "J_secs": 0.6973795890808105,
+  "J_pf": 21,
+  "J_qp": {
+   "calls": 11,
+   "rows_full": 16060,
+   "rows_used": 16060,
+   "passes": 11,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 10,
+   "clean_at": 10,
+   "p_clean_at": 10,
+   "statuses": [
+    "not clean/elastic",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "clean/hard"
+   ],
+   "final": {
+    "it": 10,
+    "status": "clean",
+    "qp": "hard",
+    "n_over": 0,
+    "max_load": 0.999289922202463,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 109249.67880463606,
+    "losses": 164.1833632064281,
+    "p_clean": true,
+    "clean": true
+   },
+   "vg_range": [
+    0.9410000000001958,
+    1.046873252953269
+   ]
+  },
+  "secs": 1.4364838600158691
+ },
+ {
+  "case": "case179_goc",
+  "kind": "sad",
+  "ac_ok": true,
+  "ac": 762532.5377438443,
+  "start_rule": "DC, no ang",
+  "start": {
+   "n_over": 8,
+   "max_load": 1.170518216030061,
+   "slack_out_mw": 0.0,
+   "n_ang": 15,
+   "ang_exc_deg": 11.724517994090684,
+   "vviol": 13,
+   "v_exc_pu": 0.09201610240683689,
+   "qviol": 0,
+   "q_exc_mvar": 0.0,
+   "cost": 760497.4589110077,
+   "losses": 338.1705094118224,
+   "p_clean": false,
+   "clean": false
+  },
+  "J_secs": 2.4106318950653076,
+  "J_pf": 21,
+  "J_qp": {
+   "calls": 12,
+   "rows_full": 16920,
+   "rows_used": 16920,
+   "passes": 12,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 10,
+   "clean_at": null,
+   "p_clean_at": 8,
+   "statuses": [
+    "not clean/elastic",
+    "not clean/elastic",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard"
+   ],
+   "final": {
+    "it": 9,
+    "status": "not clean",
+    "qp": "hard",
+    "n_over": 0,
+    "max_load": 0.999437520317094,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 1,
+    "q_exc_mvar": 0.044309645218959304,
+    "cost": 769262.6809001499,
+    "losses": 192.6010827803475,
+    "p_clean": true,
+    "clean": false
+   },
+   "vg_range": [
+    0.899000000046562,
+    1.1069999996644648
+   ]
+  },
+  "JR": {
+   "ok": true,
+   "final": {
+    "n_over": 0,
+    "max_load": 0.9968523979743331,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 769256.3497732738,
+    "losses": 192.30793166673539,
+    "p_clean": true,
+    "clean": true
+   }
+  },
+  "secs": 5.069182634353638
+ },
+ {
+  "case": "case200_activ",
+  "kind": "sad",
+  "ac_ok": true,
+  "ac": 27557.571048660197,
+  "start_rule": "DC, no ang",
+  "start": {
+   "n_over": 0,
+   "max_load": 0.7124855607291009,
+   "slack_out_mw": 0.0,
+   "n_ang": 4,
+   "ang_exc_deg": 0.7188939126194009,
+   "vviol": 0,
+   "v_exc_pu": 0.0,
+   "qviol": 1,
+   "q_exc_mvar": 1.2278594145758004,
+   "cost": 27571.259554635373,
+   "losses": 13.653688307130324,
+   "p_clean": false,
+   "clean": false
+  },
+  "J_secs": 1.8420021533966064,
+  "J_pf": 7,
+  "J_qp": {
+   "calls": 5,
+   "rows_full": 6900,
+   "rows_used": 6900,
+   "passes": 5,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 3,
+   "clean_at": 3,
+   "p_clean_at": 3,
+   "statuses": [
+    "not clean/elastic",
+    "not clean/elastic",
+    "clean/hard"
+   ],
+   "final": {
+    "it": 3,
+    "status": "clean",
+    "qp": "hard",
+    "n_over": 0,
+    "max_load": 0.7114944155988678,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 27558.659330076112,
+    "losses": 11.775860172487455,
+    "p_clean": true,
+    "clean": true
+   },
+   "vg_range": [
+    1.0,
+    1.0899999940720797
+   ]
+  },
+  "secs": 2.6640706062316895
+ },
+ {
+  "case": "case240_pserc",
+  "kind": "sad",
+  "ac_ok": true,
+  "ac": 3405363.7957383273,
+  "start_rule": "DC, no ang",
+  "start": {
+   "n_over": 18,
+   "max_load": 1.2574654777703662,
+   "slack_out_mw": 1738.820644073633,
+   "n_ang": 31,
+   "ang_exc_deg": 6.698366815457142,
+   "vviol": 2,
+   "v_exc_pu": 0.05250881745411651,
+   "qviol": 6,
+   "q_exc_mvar": 1386.8379106852979,
+   "cost": 3331820.825126003,
+   "losses": 1738.8206440786016,
+   "p_clean": false,
+   "clean": false
+  },
+  "J_secs": 68.84187269210815,
+  "J_pf": 21,
+  "J_qp": {
+   "calls": 12,
+   "rows_full": 29424,
+   "rows_used": 29424,
+   "passes": 12,
+   "fallback": 0
+  },
+  "J": {
+   "rounds": 10,
+   "clean_at": null,
+   "p_clean_at": null,
+   "statuses": [
+    "not clean/elastic",
+    "not clean/elastic",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard",
+    "not clean/hard"
+   ],
+   "final": {
+    "it": 9,
+    "status": "not clean",
+    "qp": "hard",
+    "n_over": 2,
+    "max_load": 1.0005431903607596,
+    "slack_out_mw": 8.189629348267772,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 4,
+    "q_exc_mvar": 0.8984873729667697,
+    "cost": 3419157.6293463283,
+    "losses": 1433.8766558612115,
+    "p_clean": false,
+    "clean": false
+   },
+   "vg_range": [
+    0.9010000001665023,
+    1.0989999999991122
+   ]
+  },
+  "JR": {
+   "ok": true,
+   "final": {
+    "n_over": 0,
+    "max_load": 0.9999999994271795,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 3417990.9047272443,
+    "losses": 1400.725838707178,
+    "p_clean": true,
+    "clean": true
+   }
+  },
+  "secs": 73.06627631187439
+ },
+ {
+  "case": "case300_ieee",
+  "kind": "sad",
+  "ac_ok": false,
+  "secs": 1.2114651203155518
+ }
+]

@@ -1,0 +1,92 @@
+ok   score-sheets-20-officials Letter: short labels on one line
+ok   score-sheets-20-officials: no empty column
+ok   score-sheets-20-officials Letter: fits the printable width (739 px of 739)
+ok   score-sheets-20-officials Letter: 19 pages, no blank page
+ok   score-sheets-20-officials Letter: no heading stranded at the foot of a page
+ok   score-sheets-20-officials Letter: one sheet per page (19 sheets, 19 pages)
+ok   score-sheets-20-officials A4: short labels on one line
+ok   score-sheets-20-officials A4: fits the printable width (717 px of 717)
+ok   score-sheets-20-officials A4: 19 pages, no blank page
+ok   score-sheets-20-officials A4: no heading stranded at the foot of a page
+ok   score-sheets-20-officials A4: one sheet per page (19 sheets, 19 pages)
+ok   score-sheets-10 Letter: short labels on one line
+ok   score-sheets-10: no empty column
+ok   score-sheets-10 Letter: fits the printable width (739 px of 739)
+ok   score-sheets-10 Letter: 9 pages, no blank page
+ok   score-sheets-10 Letter: no heading stranded at the foot of a page
+ok   score-sheets-10 Letter: one sheet per page (9 sheets, 9 pages)
+ok   score-sheets-10 A4: short labels on one line
+ok   score-sheets-10 A4: fits the printable width (717 px of 717)
+ok   score-sheets-10 A4: 9 pages, no blank page
+ok   score-sheets-10 A4: no heading stranded at the foot of a page
+ok   score-sheets-10 A4: one sheet per page (9 sheets, 9 pages)
+ok   league-page-10 Letter: short labels on one line
+ok   league-page-10: no empty column
+ok   league-page-10 Letter: fits the printable width (739 px of 739)
+ok   league-page-10 Letter: 4 pages, no blank page
+ok   league-page-10 Letter: no heading stranded at the foot of a page
+ok   league-page-10 A4: short labels on one line
+ok   league-page-10 A4: fits the printable width (717 px of 717)
+ok   league-page-10 A4: 3 pages, no blank page
+ok   league-page-10 A4: no heading stranded at the foot of a page
+ok   print-pack-10 Letter: short labels on one line
+ok   print-pack-10: no empty column
+ok   print-pack-10 Letter: fits the printable width (739 px of 739)
+ok   print-pack-10 Letter: 15 pages, no blank page
+ok   print-pack-10 Letter: no heading stranded at the foot of a page
+ok   print-pack-10 A4: short labels on one line
+ok   print-pack-10 A4: fits the printable width (717 px of 717)
+ok   print-pack-10 A4: 15 pages, no blank page
+ok   print-pack-10 A4: no heading stranded at the foot of a page
+ok   division-score-sheets Letter: short labels on one line
+ok   division-score-sheets: no empty column
+ok   division-score-sheets Letter: fits the printable width (739 px of 739)
+ok   division-score-sheets Letter: 11 pages, no blank page
+ok   division-score-sheets Letter: no heading stranded at the foot of a page
+ok   division-score-sheets Letter: one sheet per page (11 sheets, 11 pages)
+ok   division-score-sheets A4: short labels on one line
+ok   division-score-sheets A4: fits the printable width (717 px of 717)
+ok   division-score-sheets A4: 11 pages, no blank page
+ok   division-score-sheets A4: no heading stranded at the foot of a page
+ok   division-score-sheets A4: one sheet per page (11 sheets, 11 pages)
+ok   division-team-sheets Letter: short labels on one line
+ok   division-team-sheets: no empty column
+ok   division-team-sheets Letter: fits the printable width (739 px of 739)
+ok   division-team-sheets Letter: 21 pages, no blank page
+ok   division-team-sheets Letter: no heading stranded at the foot of a page
+ok   division-team-sheets A4: short labels on one line
+ok   division-team-sheets A4: fits the printable width (717 px of 717)
+ok   division-team-sheets A4: 21 pages, no blank page
+ok   division-team-sheets A4: no heading stranded at the foot of a page
+ok   single-team-sheets Letter: short labels on one line
+ok   single-team-sheets: no empty column
+ok   single-team-sheets Letter: fits the printable width (739 px of 739)
+ok   single-team-sheets Letter: 12 pages, no blank page
+ok   single-team-sheets Letter: no heading stranded at the foot of a page
+ok   single-team-sheets A4: short labels on one line
+ok   single-team-sheets A4: fits the printable width (717 px of 717)
+ok   single-team-sheets A4: 12 pages, no blank page
+ok   single-team-sheets A4: no heading stranded at the foot of a page
+ok   main-page-print: #make is not printed
+ok   main-page-print: #build is not printed
+ok   main-page-print Letter: short labels on one line
+ok   main-page-print: no empty column
+ok   main-page-print Letter: fits the printable width (739 px of 739)
+ok   main-page-print Letter: 3 pages, no blank page
+ok   main-page-print Letter: no heading stranded at the foot of a page
+ok   main-page-print A4: short labels on one line
+ok   main-page-print A4: fits the printable width (717 px of 717)
+ok   main-page-print A4: 3 pages, no blank page
+ok   main-page-print A4: no heading stranded at the foot of a page
+ok   divisions-page-print: #build is not printed
+ok   divisions-page-print: #load-example is not printed
+ok   divisions-page-print Letter: short labels on one line
+ok   divisions-page-print: no empty column
+ok   divisions-page-print Letter: fits the printable width (739 px of 739)
+ok   divisions-page-print Letter: 3 pages, no blank page
+ok   divisions-page-print Letter: no heading stranded at the foot of a page
+ok   divisions-page-print A4: short labels on one line
+ok   divisions-page-print A4: fits the printable width (717 px of 717)
+ok   divisions-page-print A4: 3 pages, no blank page
+ok   divisions-page-print A4: no heading stranded at the foot of a page
+all print checks passed

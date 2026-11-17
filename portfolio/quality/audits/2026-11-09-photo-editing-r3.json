@@ -24,6 +24,6 @@
     {"severity": "low", "what": "Two tests fail in a root/minimal sandbox without a guard: chmod(0) test as root, and a Pillow-dependent calibration test with no importorskip.", "where": "ventures/photo-editing/tests/test_workspace_health.py:117 and tests/test_real_photo_calibration.py:14"},
     {"severity": "low", "what": "ruff reports 69 errors; per-pixel pure-Python loops with a full sort for the noise median; duplicated dry-run engine.", "where": "ventures/photo-editing/src/shootflow/"}
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/14329"],
   "verdict": "A third look, with no fix landed since round 2. The numeric core again reproduces against independent numpy code (Laplacian, Immerkaer noise, dHash, luma, exposure, contrast to every printed digit; tilt within 0.03 degrees across -12 to 8 degrees), and colour luma through ffmpeg matches BT.601 within one level, though that is not the BT.709 matrix a modern photographer's files use. It still does not meet the bar. The public page says it does not render or grade (false against README and llms.txt) and gives a command that is not installed, so claims stays 2, and three of five seeded mutations pass the suite, including the exposure target flagged twice before, so verification stays 2. Correctness and completeness are 3 on synthetic media; the rest are 2 because nothing has been tried on a real shoot and the highest-severity defect, a one-file page edit, has now survived three rounds."
 }

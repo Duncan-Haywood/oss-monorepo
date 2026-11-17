@@ -113,7 +113,7 @@
 
 <script type="module">
   import { parseManifest, parseVersions, detectSamplePluginDefaults, checkVersionsEntry, detectUnsafeDom, detectGlobalListeners, detectConsoleLog, buildReport } from './scan.mjs';
-  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+  import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
   const fileInput = document.getElementById('fileInput');
   const fileCountEl = document.getElementById('fileCount');
@@ -150,7 +150,7 @@
     renderReport(report, sourceFiles.length);
 
     const optedOut = document.getElementById('usageOptOut')?.checked ?? false;
-    recordUsage(localStorage, optedOut, event);
+    recordUsage(usageStorage(), optedOut, event);
   }
 
   runBtn.addEventListener('click', async () => {
@@ -292,8 +292,8 @@ export default class ExamplePlugin extends Plugin {
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
 </script>

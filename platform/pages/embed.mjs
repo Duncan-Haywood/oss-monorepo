@@ -149,6 +149,29 @@ function offerMarkup(canonicalUrl, title) {
 `;
 }
 
+// Controls the site itself adds to a page: the embed box below and the
+// chrome's search form (site-nav.mjs, a plain GET form). Neither makes a page
+// a tool, so `hasOwnControls` and the noscript notice (`addNoscriptNotice`,
+// build.mjs) both look past them.
+export const SITE_OWNED_CONTROLS_RE = /<details class="pf-chrome pf-embed-offer"[\s\S]*?<\/details>|<form class="pfs-search"[\s\S]*?<\/form>/gi;
+const OWN_CONTROL_RE = /<(?:input|select|button|textarea|canvas)\b/i;
+
+/**
+ * Whether the page has a field, button or drawing surface of its own, outside
+ * what the site adds and outside script/style bodies (JSON-LD may quote a tag).
+ *
+ * Measured 2026-11-15: 7 of the 1,368 entry pages that offered "Embed this
+ * tool" had nothing to embed: the ShootFlow docs index, the Garmin watch face,
+ * the self-hosted SaaS stack list, quick-pick-survey, photos-import-tools,
+ * vendor-watch and the AI Engineering Academy hub. They are product and docs
+ * pages; framing one on a stranger's site gives the stranger a brochure, and
+ * the offer promised "the calculator runs in the visitor's browser".
+ */
+export function hasOwnControls(html) {
+  if (typeof html !== 'string') return false;
+  return OWN_CONTROL_RE.test(maskScriptAndStyleBodies(html).replace(SITE_OWNED_CONTROLS_RE, ''));
+}
+
 /**
  * Add the embed offer and the framing-detection script to one already-chromed
  * entry page.
@@ -157,12 +180,14 @@ function offerMarkup(canonicalUrl, title) {
  * the calculator, and offering to embed one of them would be offering the
  * wrong page. Also unchanged when the page carries no footer chrome to attach
  * to (nothing `injectChrome` skipped, per its own contract) or when the pass
- * has already run.
+ * has already run, or when the page has no control of its own to embed
+ * (`hasOwnControls`).
  */
 export function injectEmbedWidget(html, { slug, toRoot = './', canonical, title, isEntry } = {}) {
   if (typeof html !== 'string') return html;
   if (!isEntry || !canonical || !title) return html;
   if (html.includes(EMBED_MARKER)) return html;
+  if (!hasOwnControls(html)) return html;
 
   const footer = html.match(/<aside class="pf-chrome pf-chrome-foot"[\s\S]*?<\/aside>/i);
   if (!footer) return html;

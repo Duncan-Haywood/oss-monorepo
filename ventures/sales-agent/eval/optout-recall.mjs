@@ -21,6 +21,7 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { triage } from "../engine.mjs";
 import { readAsServer, looksAuto, looksBounce } from "./enron.mjs";
+import { pathToFileURL } from "node:url";
 
 // The net. Wider than RULES.unsubscribe on purpose: every way a sentence can talk about lists, removal, or not
 // receiving things. It finds far more than opt-outs; reading the candidates decides which are.
@@ -80,7 +81,7 @@ export function score(cands, labels) {
   return s;
 }
 
-if (process.argv[1] && import.meta.url === new URL(`file://${path.resolve(process.argv[1])}`).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const args = process.argv.slice(2);
   const opt = (k) => (args.includes(k) ? args[args.indexOf(k) + 1] : null);
   const dir = args.find((a, i) => !a.startsWith("--") && args[i - 1] !== "--labels");

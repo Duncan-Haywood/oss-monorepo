@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 400" font-family="sans-serif" font-size="12">
+<rect width="520" height="400" fill="#fff"/>
+<line x1="60.0" y1="340.0" x2="460.0" y2="60.0" stroke="#999" stroke-dasharray="4 3"/>
+<line x1="60" y1="340" x2="460" y2="340" stroke="#333"/>
+<line x1="60" y1="60" x2="60" y2="340" stroke="#333"/>
+<text x="100.0" y="356" text-anchor="middle">0.0</text>
+<text x="52" y="316.0" text-anchor="end">0.0</text>
+<text x="180.0" y="356" text-anchor="middle">0.2</text>
+<text x="52" y="260.0" text-anchor="end">0.2</text>
+<text x="260.0" y="356" text-anchor="middle">0.4</text>
+<text x="52" y="204.0" text-anchor="end">0.4</text>
+<text x="340.0" y="356" text-anchor="middle">0.6</text>
+<text x="52" y="148.0" text-anchor="end">0.6</text>
+<text x="420.0" y="356" text-anchor="middle">0.8</text>
+<text x="52" y="92.0" text-anchor="end">0.8</text>
+<text x="260.0" y="382" text-anchor="middle">slope derived from the plating law (no fit)</text>
+<text x="16" y="200.0" text-anchor="middle" transform="rotate(-90 16 200.0)">slope fitted to 100-cycle DFN</text>
+<text x="260.0" y="24" text-anchor="middle" font-size="13">Milestone 5x: ten pools, dashed line = equal</text>
+<circle cx="80" cy="70" r="5" fill="#2a6fdb"/><text x="90" y="74">Ai2020</text>
+<circle cx="80" cy="86" r="5" fill="#d1495b"/><text x="90" y="90">NCA_Kim2011</text>
+<circle cx="80" cy="102" r="5" fill="#3a9d5d"/><text x="90" y="106">Chen2020</text>
+<circle cx="80" cy="118" r="5" fill="#8e6bbf"/><text x="90" y="122">OKane2022</text>
+<circle cx="217.2" cy="152.1" r="6" fill="#2a6fdb" fill-opacity="0.8"/>
+<circle cx="226.4" cy="143.5" r="6" fill="#2a6fdb" fill-opacity="0.8"/>
+<circle cx="230.6" cy="145.4" r="6" fill="#2a6fdb" fill-opacity="0.8"/>
+<circle cx="352.5" cy="86.1" r="6" fill="#d1495b" fill-opacity="0.8"/>
+<circle cx="225.8" cy="147.2" r="6" fill="#2a6fdb" fill-opacity="0.8"/>
+<circle cx="230.4" cy="143.3" r="6" fill="#2a6fdb" fill-opacity="0.8"/>
+<circle cx="229.2" cy="150.4" r="6" fill="#2a6fdb" fill-opacity="0.8"/>
+<circle cx="339.4" cy="113.4" r="6" fill="#d1495b" fill-opacity="0.8"/>
+<circle cx="108.3" cy="214.3" r="6" fill="#3a9d5d" fill-opacity="0.8"/>
+<circle cx="94.3" cy="217.1" r="6" fill="#8e6bbf" fill-opacity="0.8"/>
+</svg>

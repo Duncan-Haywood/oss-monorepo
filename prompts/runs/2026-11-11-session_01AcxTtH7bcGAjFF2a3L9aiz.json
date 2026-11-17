@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtH7bcGAjFF2a3L9aiz",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T07:07:07Z",
+  "ended": "2026-11-11T07:20:39Z",
+  "wall_minutes": 48.65,
+  "tokens_in": 6696632,
+  "tokens_out": 28722,
+  "cost_usd": 2.8565,
+  "tool_calls": 61,
+  "task": "verified-dse milestone 112: test the cost-ratio switch's ladder branch on a fresh dear-routing pool (flow run)",
+  "projects": [
+    "research/verified-dse"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14724",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "The first flow job (run_in_background with the default timeout) was killed at the 30-minute background limit after 887 of 1,440 points; added run.py --resume and restarted with a 2 h timeout.",
+    "tests/test_fresh_dear.py first imported run.py, which replaced flow.DESIGNS at import and made test_heldout_designs fail when run after it; fixed by restoring the table unless main() installs it."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "'Long commands' says to use run_in_background but the default background timeout is 30 min; a ~50 min flow job was killed. Say: pass timeout up to 7200000 for flow runs, and give run scripts a resume flag."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "EDA tooling note says apt yosys; this programme's runs use Yosys 0.70 and OpenROAD 26Q3 from the nixpkgs cache (both downloaded in about 3 min); the nix build lines live only in verified-dse/LOG.md."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-verified-dse-dear-routing-test.md",
+    "research/verified-dse/LOG.md (milestone 112)",
+    "research/verified-dse/PAPER.md (milestone 112 paragraph)"
+  ],
+  "goal": null,
+  "notes": "Predictions committed in 77ce534d before results.jsonl was read. Outcome: 12/12 cells routed/r2 > 3; skip-r1 (=SW) 1.05% vs equal-cost random 3.16% mean regret, 9 better/3 worse (sign p=0.15), bootstrap CI -3.95 to -0.06; hedge G(6,-1) 3.55% (prediction 6 refuted). Checks run here: verified-dse pytest 59 passed 1 skipped; research/_homepage/build.py ok; research_live_links ok; check_md_links ok. unittest discover's test_proof_success import error is pre-existing (missing scikit-learn in system python3.11).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b2cf8555-979a-52ef-ac49-108a408b4c2e",
+    "transcripts": 1,
+    "first": "2026-11-11T07:07:07Z",
+    "last": "2026-11-11T07:55:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 115,
+        "output": 28722,
+        "thinking": 6225,
+        "cache_read": 6575710,
+        "cache_write_5m": 0,
+        "cache_write_1h": 120807,
+        "api_equivalent_usd": 2.8565,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 115,
+      "output": 28722,
+      "thinking": 6225,
+      "cache_read": 6575710,
+      "cache_write_5m": 0,
+      "cache_write_1h": 120807,
+      "api_equivalent_usd": 2.8565,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 58,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 48.65,
+      "active_minutes": 48.65,
+      "model_minutes": 5.99,
+      "tool_minutes": 42.66,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an EDA researcher setting up and running 1,440 flow points, the pre-registered analysis and the write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 350.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

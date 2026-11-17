@@ -100,7 +100,7 @@ export function planGtins(plan, { prefix, start = 0, style = "Style", existing =
 /** Quantity table as CSV. A leading = + - @ in a name is defused so a spreadsheet will not run it. */
 export function matrixCsv(plan, { style = "", gtins = null } = {}) {
   if (!plan || !plan.ok) return "";
-  const cell = v => { let t = String(v); if (/^[=+\-@\t\r]/.test(t)) t = "'" + t; return /[",\n\r]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
+  const cell = v => { let t = String(v); if (/^[=+\-@\t\r]/.test(t) && !/^-?\d+(\.\d+)?$/.test(t)) t = "'" + t; return /[",\n\r]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
   const out = [["Style", "Colour", "Size", "Order qty", "Cut qty (with spares)"].concat(gtins ? ["GTIN"] : []).join(",")];
   plan.rows.forEach((r, i) => { for (const n of plan.sizeNames) {
     const row = [style, r.colour, n, r.sizes[n], r.cutSizes[n]].map(cell);

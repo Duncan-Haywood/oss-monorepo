@@ -1,0 +1,239 @@
+# Milestone 114: a guard read from the mapped rung alone, chosen on 26 held-out designs, tested on 48 fresh cells (cached tables, no flow run)
+
+Chosen guard: AB(0.15, 0.3); SW theta = 3; 200 draws per cell (rule.cell, earlier seeds).
+
+## Held-out cells (selection set)
+
+SW 1.66%, SWX in-sample 1.15%, SWX leave-one-family-out 1.25%
+
+Guard grid on the held-out cells (mean SWX regret %, cells flagged where SW runs the ladder):
+  A(0.15): 1.65, flagged 10
+  A(0.2): 1.35, flagged 8
+  A(0.25): 1.35, flagged 8
+  A(0.3): 1.27, flagged 7
+  A(0.35): 1.72, flagged 1
+  B(0.2): 2.02, flagged 20
+  B(0.25): 1.81, flagged 16
+  B(0.3): 1.60, flagged 14
+  B(0.35): 1.75, flagged 9
+  AB(0.15, 0.2): 1.40, flagged 8
+  AB(0.15, 0.25): 1.25, flagged 6
+  AB(0.15, 0.3): 1.15, flagged 5
+  AB(0.15, 0.35): 1.47, flagged 3
+  AB(0.2, 0.2): 1.30, flagged 7
+  AB(0.2, 0.25): 1.15, flagged 5
+  AB(0.2, 0.3): 1.15, flagged 5
+  AB(0.2, 0.35): 1.47, flagged 3
+  AB(0.25, 0.2): 1.30, flagged 7
+  AB(0.25, 0.25): 1.15, flagged 5
+  AB(0.25, 0.3): 1.15, flagged 5
+  AB(0.25, 0.35): 1.47, flagged 3
+  AB(0.3, 0.2): 1.21, flagged 6
+  AB(0.3, 0.25): 1.15, flagged 5
+  AB(0.3, 0.3): 1.15, flagged 5
+  AB(0.3, 0.35): 1.47, flagged 3
+  AB(0.35, 0.2): 1.66, flagged 0
+  AB(0.35, 0.25): 1.66, flagged 0
+  AB(0.35, 0.3): 1.66, flagged 0
+  AB(0.35, 0.35): 1.66, flagged 0
+
+## Held-out (selection): 52 cells
+
+table | clock | design | routed/r2 | slack | dcv | skip-r1 % | random % | SW % | flag | SWX %
+fanout_rich | relaxed | bcastadd64 | 4.68 | +0.148 | 0.519 | 0.00 | 3.04 | 0.00 | - | 0.00
+fanout_rich | tight | bcastadd64 | 5.62 | -0.278 | 0.519 | 0.36 | 1.03 | 0.36 | - | 0.36
+fanout_rich | relaxed | fanao96 | 2.87 | +0.308 | 0.314 | 10.67 | 0.65 | 0.65 | - | 0.65
+fanout_rich | tight | fanao96 | 2.88 | -0.039 | 0.313 | 11.56 | 0.52 | 0.52 | - | 0.52
+hostile | relaxed | bcastmix192 | 2.05 | +0.333 | 0.267 | 49.85 | 0.00 | 0.00 | - | 0.00
+hostile | tight | bcastmix192 | 2.06 | +0.000 | 0.267 | 49.85 | 0.00 | 0.00 | - | 0.00
+hostile | relaxed | cmp128 | 1.53 | +0.439 | 0.123 | 0.00 | 3.03 | 3.03 | - | 3.03
+hostile | tight | cmp128 | 1.65 | +0.159 | 0.124 | 0.00 | 0.64 | 0.64 | - | 0.64
+hostile | relaxed | gf2mat48 | 2.69 | +0.291 | 0.069 | 1.14 | 0.10 | 0.10 | - | 0.10
+hostile | tight | gf2mat48 | 13.01 | -0.067 | 0.070 | 0.00 | 1.40 | 0.00 | - | 0.00
+hostile | relaxed | rotmix64 | 2.96 | +0.333 | 0.334 | 0.00 | 7.06 | 7.06 | - | 7.06
+hostile | tight | rotmix64 | 3.21 | +0.000 | 0.334 | 0.00 | 5.55 | 0.00 | - | 0.00
+hostile | relaxed | xbar16 | 3.16 | +0.442 | 0.156 | 0.00 | 2.87 | 0.00 | - | 0.00
+hostile | tight | xbar16 | 4.85 | +0.164 | 0.156 | 0.00 | 9.98 | 0.00 | - | 0.00
+large | relaxed | adder_op64 | 2.19 | +0.173 | 0.748 | 0.00 | 0.69 | 0.69 | - | 0.69
+large | tight | adder_op64 | 3.04 | -0.241 | 0.749 | 0.00 | 1.17 | 0.00 | - | 0.00
+large | relaxed | adder_ripple64 | 1.39 | +0.209 | 0.043 | 0.00 | 0.00 | 0.00 | - | 0.00
+large | tight | adder_ripple64 | 2.33 | -0.187 | 0.043 | 0.00 | 0.00 | 0.00 | - | 0.00
+large | relaxed | mult16 | 3.74 | +0.325 | 0.205 | 0.00 | 3.36 | 0.00 | - | 0.00
+large | tight | mult16 | 8.94 | -0.013 | 0.205 | 0.74 | 0.86 | 0.74 | - | 0.74
+large | relaxed | mult24 | 5.87 | +0.336 | 0.311 | 11.35 | 3.30 | 11.35 | yes | 3.30
+large | tight | mult24 | 14.76 | +0.004 | 0.311 | 0.00 | 1.18 | 0.00 | - | 0.00
+large | relaxed | mult32 | 8.18 | +0.329 | 0.342 | 13.17 | 4.58 | 13.17 | yes | 4.58
+large | tight | mult32 | 19.86 | -0.007 | 0.342 | 0.00 | 2.35 | 0.00 | - | 0.00
+nonarith | relaxed | alu32 | 1.91 | +0.466 | 0.185 | 0.00 | 1.25 | 1.25 | - | 1.25
+nonarith | tight | alu32 | 2.43 | +0.199 | 0.185 | 0.00 | 2.28 | 2.28 | - | 2.28
+nonarith | relaxed | barrel128 | 4.03 | +0.187 | 0.267 | 0.00 | 5.52 | 0.00 | - | 0.00
+nonarith | tight | barrel128 | 4.01 | -0.221 | 0.267 | 0.00 | 5.48 | 0.00 | - | 0.00
+nonarith | relaxed | barrel64 | 2.50 | +0.328 | 0.154 | 29.22 | 6.99 | 6.99 | - | 6.99
+nonarith | tight | barrel64 | 2.51 | -0.008 | 0.154 | 26.26 | 7.00 | 7.00 | - | 7.00
+nonarith | relaxed | popcount128 | 1.93 | +0.404 | 0.042 | 0.00 | 0.56 | 0.56 | - | 0.56
+nonarith | tight | popcount128 | 2.77 | +0.107 | 0.042 | 0.00 | 0.84 | 0.84 | - | 0.84
+nonarith | relaxed | popcount64 | 1.57 | +0.375 | 0.047 | 0.00 | 0.33 | 0.33 | - | 0.33
+nonarith | tight | popcount64 | 2.22 | +0.064 | 0.047 | 0.00 | 0.57 | 0.57 | - | 0.57
+unfaithful | relaxed | mult20 | 5.76 | +0.299 | 0.221 | 0.00 | 4.43 | 0.00 | - | 0.00
+unfaithful | tight | mult20 | 16.72 | -0.050 | 0.221 | 0.00 | 2.74 | 0.00 | - | 0.00
+unfaithful | relaxed | mult28 | 8.35 | +0.311 | 0.367 | 6.89 | 2.69 | 6.89 | yes | 2.69
+unfaithful | tight | mult28 | 21.02 | -0.034 | 0.367 | 0.00 | 3.48 | 0.00 | - | 0.00
+unfaithful | relaxed | mult36 | 9.75 | +0.322 | 0.373 | 6.46 | 2.68 | 6.46 | yes | 2.68
+unfaithful | tight | mult36 | 21.69 | -0.018 | 0.373 | 0.00 | 3.83 | 0.00 | - | 0.00
+unfaithful | relaxed | mult40 | 9.99 | +0.306 | 0.383 | 8.52 | 6.40 | 8.52 | yes | 6.40
+unfaithful | tight | mult40 | 22.02 | -0.041 | 0.383 | 0.00 | 2.33 | 0.00 | - | 0.00
+unseen | relaxed | crc32 | 1.60 | +0.393 | 0.079 | 0.00 | 0.04 | 0.04 | - | 0.04
+unseen | tight | crc32 | 2.03 | +0.090 | 0.079 | 0.00 | 0.48 | 0.48 | - | 0.48
+unseen | relaxed | decmux64 | 1.24 | +0.397 | 0.086 | 0.00 | 0.53 | 0.53 | - | 0.53
+unseen | tight | decmux64 | 1.32 | +0.091 | 0.086 | 0.00 | 0.50 | 0.50 | - | 0.50
+unseen | relaxed | prio64 | 1.21 | +0.339 | 0.029 | 0.00 | 0.28 | 0.28 | - | 0.28
+unseen | tight | prio64 | 1.32 | +0.011 | 0.029 | 0.00 | 0.62 | 0.62 | - | 0.62
+unseen | relaxed | sbox | 1.68 | +0.408 | 0.086 | 1.59 | 0.37 | 0.37 | - | 0.37
+unseen | tight | sbox | 1.89 | +0.112 | 0.086 | 0.00 | 1.31 | 1.31 | - | 1.31
+unseen | relaxed | sort8x8 | 2.11 | +0.377 | 0.077 | 0.00 | 1.43 | 1.43 | - | 1.43
+unseen | tight | sort8x8 | 2.72 | +0.065 | 0.077 | 0.00 | 0.79 | 0.79 | - | 0.79
+
+mean regret: SW 1.66%, SWX 1.15%, skip-r1 4.38%, random 2.29%, oracle 0.70%; SWX vs SW better 5, worse 0 (sign p = 0.062)
+
+## Dear-pool test cells (milestones 112, 113): 28 cells
+
+table | clock | design | routed/r2 | slack | dcv | skip-r1 % | random % | SW % | flag | SWX %
+fresh_dear | relaxed | barrel128 | 5.57 | +0.250 | 0.238 | 0.00 | 4.24 | 0.00 | - | 0.00
+fresh_dear | tight | barrel128 | 5.56 | -0.126 | 0.237 | 0.00 | 4.07 | 0.00 | - | 0.00
+fresh_dear | relaxed | bcastadd64 | 5.62 | +0.154 | 0.336 | 0.00 | 5.31 | 0.00 | yes | 5.31
+fresh_dear | tight | bcastadd64 | 8.22 | -0.269 | 0.336 | 0.00 | 3.50 | 0.00 | - | 0.00
+fresh_dear | relaxed | gf2mat48 | 3.62 | +0.291 | 0.085 | 0.00 | 3.49 | 0.00 | - | 0.00
+fresh_dear | tight | gf2mat48 | 14.34 | -0.059 | 0.085 | 0.14 | 5.93 | 0.14 | - | 0.14
+fresh_dear | relaxed | mult16 | 4.75 | +0.322 | 0.169 | 0.17 | 0.71 | 0.17 | - | 0.17
+fresh_dear | tight | mult16 | 13.54 | -0.015 | 0.169 | 0.00 | 2.41 | 0.00 | - | 0.00
+fresh_dear | relaxed | mult24 | 7.76 | +0.340 | 0.262 | 6.46 | 3.17 | 6.46 | - | 6.46
+fresh_dear | tight | mult24 | 19.51 | +0.011 | 0.262 | 0.27 | 2.64 | 0.27 | - | 0.27
+fresh_dear | relaxed | xbar16 | 7.10 | +0.448 | 0.104 | 2.43 | 1.95 | 2.43 | - | 2.43
+fresh_dear | tight | xbar16 | 10.75 | +0.173 | 0.104 | 3.18 | 0.46 | 3.18 | - | 3.18
+fresh_designs | relaxed | adder_op32 | 2.01 | +0.264 | 0.481 | 0.00 | 0.22 | 0.22 | - | 0.22
+fresh_designs | tight | adder_op32 | 2.75 | -0.104 | 0.481 | 0.00 | 0.46 | 0.46 | - | 0.46
+fresh_designs | relaxed | barrel32 | 2.26 | +0.332 | 0.119 | 3.37 | 0.00 | 0.00 | - | 0.00
+fresh_designs | tight | barrel32 | 2.42 | -0.000 | 0.119 | 3.38 | 0.00 | 0.00 | - | 0.00
+fresh_designs | relaxed | gf2mat64 | 6.57 | +0.364 | 0.065 | 0.00 | 2.29 | 0.00 | - | 0.00
+fresh_designs | tight | gf2mat64 | 14.43 | +0.046 | 0.065 | 0.00 | 3.46 | 0.00 | - | 0.00
+fresh_designs | relaxed | mult18 | 5.48 | +0.301 | 0.186 | 10.48 | 1.00 | 10.48 | - | 10.48
+fresh_designs | tight | mult18 | 15.76 | -0.047 | 0.186 | 0.00 | 5.07 | 0.00 | - | 0.00
+fresh_designs | relaxed | mult22 | 7.00 | +0.355 | 0.251 | 0.00 | 3.57 | 0.00 | - | 0.00
+fresh_designs | tight | mult22 | 19.38 | +0.031 | 0.251 | 2.73 | 2.89 | 2.73 | - | 2.73
+fresh_designs | relaxed | popcount32 | 1.61 | +0.376 | 0.044 | 0.00 | 0.28 | 0.28 | - | 0.28
+fresh_designs | tight | popcount32 | 1.93 | +0.066 | 0.044 | 3.04 | 0.35 | 0.35 | - | 0.35
+fresh_designs | relaxed | sq20 | 5.90 | +0.333 | 0.220 | 0.00 | 4.48 | 0.00 | - | 0.00
+fresh_designs | tight | sq20 | 18.68 | +0.000 | 0.220 | 0.00 | 5.70 | 0.00 | - | 0.00
+fresh_designs | relaxed | xbar32x4 | 21.06 | +0.260 | 0.145 | 0.00 | 4.01 | 0.00 | - | 0.00
+fresh_designs | tight | xbar32x4 | 58.94 | -0.116 | 0.146 | 0.00 | 8.40 | 0.00 | - | 0.00
+
+mean regret: SW 0.97%, SWX 1.16%, skip-r1 1.27%, random 2.86%, oracle 0.37%; SWX vs SW better 0, worse 1 (sign p = 1.000)
+
+## Fresh pool test cells (milestone 108): 20 cells
+
+table | clock | design | routed/r2 | slack | dcv | skip-r1 % | random % | SW % | flag | SWX %
+fresh_pool | relaxed | adder_op16 | 1.47 | +0.199 | 0.290 | 0.00 | 0.23 | 0.23 | - | 0.23
+fresh_pool | tight | adder_op16 | 1.70 | -0.197 | 0.291 | 1.56 | 0.09 | 0.09 | - | 0.09
+fresh_pool | relaxed | adder_ripple16 | 1.34 | +0.236 | 0.115 | 0.00 | 2.41 | 2.41 | - | 2.41
+fresh_pool | tight | adder_ripple16 | 1.59 | -0.146 | 0.115 | 0.00 | 4.58 | 4.58 | - | 4.58
+fresh_pool | relaxed | alu8 | 1.46 | +0.537 | 0.083 | 0.00 | 0.04 | 0.04 | - | 0.04
+fresh_pool | tight | alu8 | 1.48 | +0.306 | 0.083 | 2.20 | 0.78 | 0.78 | - | 0.78
+fresh_pool | relaxed | barrel16 | 1.53 | +0.434 | 0.090 | 0.00 | 0.79 | 0.79 | - | 0.79
+fresh_pool | tight | barrel16 | 1.63 | +0.155 | 0.090 | 0.00 | 1.52 | 1.52 | - | 1.52
+fresh_pool | relaxed | cmp_sat12 | 1.41 | +0.366 | 0.161 | 0.00 | 1.08 | 1.08 | - | 1.08
+fresh_pool | tight | cmp_sat12 | 1.65 | +0.046 | 0.161 | 0.00 | 0.57 | 0.57 | - | 0.57
+fresh_pool | relaxed | crc16 | 1.32 | +0.328 | 0.096 | 6.24 | 0.28 | 0.28 | - | 0.28
+fresh_pool | tight | crc16 | 1.45 | -0.000 | 0.098 | 2.22 | 0.00 | 0.00 | - | 0.00
+fresh_pool | relaxed | fifo8x4 | 2.94 | +0.364 | 0.101 | 5.19 | 3.28 | 3.28 | - | 3.28
+fresh_pool | tight | fifo8x4 | 3.11 | +0.045 | 0.101 | 3.35 | 1.02 | 3.35 | - | 3.35
+fresh_pool | relaxed | mac4 | 1.40 | +0.288 | 0.068 | 0.00 | 0.61 | 0.61 | - | 0.61
+fresh_pool | tight | mac4 | 2.04 | -0.067 | 0.068 | 0.00 | 2.24 | 2.24 | - | 2.24
+fresh_pool | relaxed | mult8 | 1.86 | +0.369 | 0.087 | 0.00 | 0.45 | 0.45 | - | 0.45
+fresh_pool | tight | mult8 | 3.40 | +0.052 | 0.087 | 0.00 | 1.78 | 0.00 | - | 0.00
+fresh_pool | relaxed | popcount16 | 1.36 | +0.382 | 0.050 | 0.00 | 1.24 | 1.24 | - | 1.24
+fresh_pool | tight | popcount16 | 1.46 | +0.073 | 0.050 | 0.00 | 0.67 | 0.67 | - | 0.67
+
+mean regret: SW 1.21%, SWX 1.21%, skip-r1 1.04%, random 1.18%, oracle 0.27%; SWX vs SW better 0, worse 0 (sign p = 1.000)
+
+## Milestone 1 table (further line): 20 cells
+
+table | clock | design | routed/r2 | slack | dcv | skip-r1 % | random % | SW % | flag | SWX %
+rung_bias | relaxed | adder_op16 | 1.29 | +0.168 | 0.310 | 0.00 | 1.12 | 1.12 | - | 1.12
+rung_bias | tight | adder_op16 | 1.49 | -0.248 | 0.309 | 0.00 | 3.93 | 3.93 | - | 3.93
+rung_bias | relaxed | adder_ripple16 | 1.20 | +0.236 | 0.030 | 0.00 | 0.00 | 0.00 | - | 0.00
+rung_bias | tight | adder_ripple16 | 1.33 | -0.146 | 0.030 | 0.00 | 0.00 | 0.00 | - | 0.00
+rung_bias | relaxed | alu8 | 1.29 | +0.414 | 0.077 | 0.00 | 0.43 | 0.43 | - | 0.43
+rung_bias | tight | alu8 | 1.43 | +0.121 | 0.077 | 0.00 | 0.87 | 0.87 | - | 0.87
+rung_bias | relaxed | barrel16 | 1.33 | +0.336 | 0.100 | 11.83 | 0.04 | 0.04 | - | 0.04
+rung_bias | tight | barrel16 | 1.38 | +0.008 | 0.102 | 6.78 | 0.03 | 0.03 | - | 0.03
+rung_bias | relaxed | cmp_sat12 | 1.24 | +0.308 | 0.160 | 0.00 | 0.56 | 0.56 | - | 0.56
+rung_bias | tight | cmp_sat12 | 1.41 | -0.038 | 0.161 | 0.00 | 0.74 | 0.74 | - | 0.74
+rung_bias | relaxed | crc16 | 1.19 | +0.328 | 0.081 | 0.00 | 0.01 | 0.01 | - | 0.01
+rung_bias | tight | crc16 | 1.29 | +0.000 | 0.084 | 0.00 | 0.00 | 0.00 | - | 0.00
+rung_bias | relaxed | fifo8x4 | 2.21 | +0.491 | 0.186 | 0.00 | 0.51 | 0.51 | - | 0.51
+rung_bias | tight | fifo8x4 | 2.31 | +0.236 | 0.186 | 0.00 | 1.71 | 1.71 | - | 1.71
+rung_bias | relaxed | mac4 | 1.25 | +0.330 | 0.040 | 0.00 | 0.24 | 0.24 | - | 0.24
+rung_bias | tight | mac4 | 1.62 | -0.006 | 0.040 | 0.00 | 0.62 | 0.62 | - | 0.62
+rung_bias | relaxed | mult8 | 1.51 | +0.361 | 0.089 | 0.00 | 0.62 | 0.62 | - | 0.62
+rung_bias | tight | mult8 | 2.65 | +0.041 | 0.089 | 0.45 | 1.00 | 1.00 | - | 1.00
+rung_bias | relaxed | popcount16 | 1.21 | +0.376 | 0.061 | 0.00 | 0.09 | 0.09 | - | 0.09
+rung_bias | tight | popcount16 | 1.29 | +0.064 | 0.061 | 0.00 | 0.08 | 0.08 | - | 0.08
+
+mean regret: SW 0.63%, SWX 0.63%, skip-r1 0.95%, random 0.63%, oracle 0.03%; SWX vs SW better 0, worse 0 (sign p = 1.000)
+
+design bootstrap 95% interval of mean (SWX - SW) on the dear-pool cells: +0.00 to +0.57 points
+
+(1) leave-one-family-out SWX below SW on held-out: True
+(2) dear-pool SWX below SW: False
+(3) flags mult24 relaxed (112) and mult18 relaxed (113): False
+(4) false alarms at most 4 (ladder cells with skip-r1 <= random): True (1 of 18)
+(5) fresh pool SWX within 0.1 points of SW: True
+(6) all 48 test cells, SWX better than SW in more cells than worse: False (0 better, 1 worse)
+
+## Post hoc (added after the first run; descriptive, not a test)
+
+Every guard in the grid on the 28 dear-pool test cells (mean SWX regret %, flagged ladder cells, misses caught of mult24/mult18 relaxed, false alarms):
+  A(0.15): 1.40, flagged 12, caught 2, false alarms 8
+  A(0.2): 1.30, flagged 10, caught 2, false alarms 7
+  A(0.25): 1.30, flagged 10, caught 2, false alarms 7
+  A(0.3): 0.89, flagged 7, caught 2, false alarms 4
+  A(0.35): 1.16, flagged 3, caught 0, false alarms 2
+  B(0.2): 2.05, flagged 10, caught 1, false alarms 9
+  B(0.25): 1.39, flagged 6, caught 1, false alarms 5
+  B(0.3): 1.29, flagged 2, caught 0, false alarms 2
+  B(0.35): 0.97, flagged 0, caught 0, false alarms 0
+  AB(0.15, 0.2): 1.48, flagged 5, caught 1, false alarms 4
+  AB(0.15, 0.25): 1.17, flagged 3, caught 1, false alarms 2
+  AB(0.15, 0.3): 1.16, flagged 1, caught 0, false alarms 1
+  AB(0.15, 0.35): 0.97, flagged 0, caught 0, false alarms 0
+  AB(0.2, 0.2): 1.29, flagged 4, caught 1, false alarms 3
+  AB(0.2, 0.25): 0.98, flagged 2, caught 1, false alarms 1
+  AB(0.2, 0.3): 0.97, flagged 0, caught 0, false alarms 0
+  AB(0.2, 0.35): 0.97, flagged 0, caught 0, false alarms 0
+  AB(0.25, 0.2): 1.29, flagged 4, caught 1, false alarms 3
+  AB(0.25, 0.25): 0.98, flagged 2, caught 1, false alarms 1
+  AB(0.25, 0.3): 0.97, flagged 0, caught 0, false alarms 0
+  AB(0.25, 0.35): 0.97, flagged 0, caught 0, false alarms 0
+  AB(0.3, 0.2): 1.14, flagged 3, caught 1, false alarms 2
+  AB(0.3, 0.25): 0.98, flagged 2, caught 1, false alarms 1
+  AB(0.3, 0.3): 0.97, flagged 0, caught 0, false alarms 0
+  AB(0.3, 0.35): 0.97, flagged 0, caught 0, false alarms 0
+  AB(0.35, 0.2): 1.10, flagged 1, caught 0, false alarms 1
+  AB(0.35, 0.25): 1.10, flagged 1, caught 0, false alarms 1
+  AB(0.35, 0.3): 0.97, flagged 0, caught 0, false alarms 0
+  AB(0.35, 0.35): 0.97, flagged 0, caught 0, false alarms 0
+best guard in hindsight on the dear-pool cells: A(0.3) at 0.89% against SW 0.97%
+
+Same design and clock in a held-out table and in milestone 112's fresh pool (slack, dcv):
+  barrel128 relaxed: held-out +0.187, 0.267; fresh +0.250, 0.238; skip-r1 0.00 -> 0.00%
+  barrel128 tight: held-out -0.221, 0.267; fresh -0.126, 0.237; skip-r1 0.00 -> 0.00%
+  bcastadd64 relaxed: held-out +0.148, 0.519; fresh +0.154, 0.336; skip-r1 0.00 -> 0.00%
+  bcastadd64 tight: held-out -0.278, 0.519; fresh -0.269, 0.336; skip-r1 0.36 -> 0.00%
+  gf2mat48 relaxed: held-out +0.291, 0.069; fresh +0.291, 0.085; skip-r1 1.14 -> 0.00%
+  gf2mat48 tight: held-out -0.067, 0.070; fresh -0.059, 0.085; skip-r1 0.00 -> 0.14%
+  mult16 relaxed: held-out +0.325, 0.205; fresh +0.322, 0.169; skip-r1 0.00 -> 0.17%
+  mult16 tight: held-out -0.013, 0.205; fresh -0.015, 0.169; skip-r1 0.74 -> 0.00%
+  mult24 relaxed: held-out +0.336, 0.311; fresh +0.340, 0.262; skip-r1 11.35 -> 6.46%
+  mult24 tight: held-out +0.004, 0.311; fresh +0.011, 0.262; skip-r1 0.00 -> 0.27%
+  xbar16 relaxed: held-out +0.442, 0.156; fresh +0.448, 0.104; skip-r1 0.00 -> 2.43%
+  xbar16 tight: held-out +0.164, 0.156; fresh +0.173, 0.104; skip-r1 0.00 -> 3.18%

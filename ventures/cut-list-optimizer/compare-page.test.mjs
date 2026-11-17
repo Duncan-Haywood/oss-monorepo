@@ -57,3 +57,10 @@ test('every module import resolves to a real export', async () => {
     }
   }
 });
+
+test('the form grid shrinks below its inputs\' default width (no sideways scroll at 641 to 800 px)', () => {
+  // 2026-11-12: `1fr 1fr 1fr` of default-width inputs held the page 112 px
+  // wider than a 700 px window.
+  assert.match(html, /\.fields \{ display: grid; grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);/);
+  assert.match(html, /input, textarea \{[^}]*min-width: 0; width: 100%;/);
+});

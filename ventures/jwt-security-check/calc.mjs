@@ -119,7 +119,9 @@ export function parseJwt(token) {
     errors.push("Payload segment decoded to JSON but is not an object.");
     payload = null;
   }
-  if (signatureSeg === "") {
+  // An empty signature is the shape of an unsigned "alg": "none" token (RFC 7519 6.1); let the alg check report it.
+  const algIsNone = typeof header?.alg === "string" && header.alg.trim().toLowerCase() === "none";
+  if (signatureSeg === "" && !algIsNone) {
     errors.push('Signature segment is empty (this is only valid for an explicitly unsigned "alg": "none" token).');
   }
 
@@ -277,7 +279,7 @@ export function checkTimingClaims(payload, now = Date.now()) {
     out.push(finding("payload", "missing-exp", "high", '"exp" is present but is not a NumericDate (seconds since the Unix epoch) as RFC 7519 4.1.4 requires -- check what produced this token.'));
   } else {
     const expMs = exp * SECONDS_TO_MS;
-    if (expMs < now) {
+    if (expMs <= now) { // RFC 7519 4.1.4: the current time must be before exp
       out.push(finding(
         "payload", "expired", "low",
         `"exp" (${isoOrRaw(exp)}) is already in the past as of the time this was checked (${new Date(now).toISOString()}). Not itself a vulnerability -- if you expect this token to still be accepted, check the verifying service's clock and configured leeway.`,

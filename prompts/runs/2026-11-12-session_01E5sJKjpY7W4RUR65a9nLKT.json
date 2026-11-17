@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKjpY7W4RUR65a9nLKT",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T13:21:58Z",
+  "ended": "2026-11-12T13:36:56Z",
+  "wall_minutes": 15.21,
+  "tokens_in": 6593409,
+  "tokens_out": 28856,
+  "cost_usd": 2.8005,
+  "tool_calls": 60,
+  "task": "Deepen (flagship 8) quick-pick-survey: item (a), the PrefLib panels through the refit, clear pick and contender set",
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15138",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "The branch named in the session's git instructions already existed locally at main, so `git checkout -b` failed; harmless but cost a step."
+    },
+    {
+      "file": "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md",
+      "issue": "No single place says which selector the server runs by default; found it only in the prisma comment and trials/next route (PAIR_SELECTOR unset = standard)."
+    },
+    {
+      "file": "platform/pages/percent-float.test.mjs",
+      "issue": "Scans gitignored ventures/*/.next build output, so venture-preflight fails after a local `npm run verify` (Next build) with minified chunks; deleting .next fixed it. The scan should skip .next/."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Item (a) also asked for a heavier-tailed prior for the pairwise intervals; this run did only the PrefLib half and kept the prior half in next:.",
+      "did": "Measured clear pick and set on real rankings, added a builder note, left default selector and prior unchanged",
+      "result": "Found the standard selector almost never names a clear pick; recorded as the new top next item"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-quick-pick-survey-top-pick-on-real-rankings.md",
+    "ventures/quick-pick-survey/docs/REAL-RANKINGS.md (new section)"
+  ],
+  "goal": null,
+  "notes": "New scripts/real-favourite-set.ts (shared PrefLib loader moved to scripts/preflib.ts; realRankings.answerWithHistory). 36 cells x 200 people, both panels, both selectors, lapse 0/0.1/0.2, 2/4/8 answers per item: clear pick wrong 5 of 860, set coverage 97-100%, pooled sd at ceiling in 29/36, standard selector clear-pick rate 0.5-5.5% at 8/item vs staged 35-100% (#1 vs #2 asked 1.9 vs 8.7 times in 120 answers). Verification: npm run verify (typecheck, lint, 59 files / 481 tests, build) exit 0; check_post_frontmatter, check_post_links and post_similarity clean. venture-preflight quick-pick-survey: clean (after removing the local .next build output, see doc_friction).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1d18a2ce-3345-574d-b221-ca99cdb32f71",
+    "transcripts": 1,
+    "first": "2026-11-12T13:21:58Z",
+    "last": "2026-11-12T13:37:11Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 58,
+        "input": 114,
+        "output": 28856,
+        "thinking": 5775,
+        "cache_read": 6477360,
+        "cache_write_5m": 0,
+        "cache_write_1h": 115935,
+        "api_equivalent_usd": 2.8005,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 58,
+      "input": 114,
+      "output": 28856,
+      "thinking": 5775,
+      "cache_read": 6477360,
+      "cache_write_5m": 0,
+      "cache_write_1h": 115935,
+      "api_equivalent_usd": 2.8005,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 60,
+    "tools": {
+      "Bash": 56,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.21,
+      "active_minutes": 15.21,
+      "model_minutes": 6.53,
+      "tool_minutes": 8.68,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a statistician building the replay harness, running and checking 36 cells, writing the doc section and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 357.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

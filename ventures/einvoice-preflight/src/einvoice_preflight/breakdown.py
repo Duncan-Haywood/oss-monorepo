@@ -15,7 +15,7 @@ from typing import Any
 
 from .numbers import parse_decimal
 
-from .linenet import tax_groups, tax_key, tax_percent_of
+from .linenet import is_flat_tax_row, tax_groups, tax_key, tax_percent_of
 
 
 def inspect_tax_breakdown(invoice: dict[str, Any]) -> list[dict[str, str]]:
@@ -60,6 +60,16 @@ def _check_rows(rows: list[Any], expected: dict[Any, dict[str, Decimal]], with_c
         percent = tax_percent_of(row)
         taxable = _money(row.get("taxable"))
         tax = _money(row.get("tax"))
+        # A flat-amount tax has no rate to check and no line group to match (breakdown.mjs).
+        if is_flat_tax_row(row):
+            if tax is None:
+                findings.append(_finding(
+                    "INV-038",
+                    f"Tax breakdown row {index + 1} tax amount is missing or invalid.",
+                    "Set tax to the flat amount charged under this tax scheme.",
+                    f"{path}/tax",
+                ))
+            continue
         if percent is None or percent < 0 or percent > 100:
             findings.append(_finding(
                 "INV-038",
@@ -98,7 +108,9 @@ def _check_rows(rows: list[Any], expected: dict[Any, dict[str, Decimal]], with_c
             ))
             continue
         expected_tax = (taxable * percent / Decimal("100")).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-        if tax != expected_tax:
+        # PINT Oman: the row's tax may be the sum of its lines' own VAT amounts (linenet.py).
+        line_tax = (expected.get(key) or {}).get("line_tax")
+        if tax != expected_tax and not (line_tax is not None and not unattributed and tax == line_tax):
             findings.append(_finding(
                 "INV-038",
                 f"Tax breakdown row {index + 1} tax amount does not equal taxable times the percentage.",
@@ -124,7 +136,12 @@ def _check_rows(rows: list[Any], expected: dict[Any, dict[str, Decimal]], with_c
                 f"Set taxable to {group['taxable']} or correct the line nets.",
                 f"{path}/taxable",
             ))
-    for key in expected:
+    for key, group in expected.items():
+        # The mirror of the zero row above: lines whose nets sum to zero at a
+        # rate carry no tax, so no row is needed (ZATCA's prepayment-deduction
+        # line at the advance's old rate: quantity 0, net 0.00).
+        if group is not None and group["taxable"] == 0:
+            continue
         if key not in seen and not unattributed:
             findings.append(_finding(
                 "INV-038",

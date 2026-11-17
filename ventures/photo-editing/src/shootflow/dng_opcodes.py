@@ -1,0 +1,1720 @@
+"""DNG opcode lists: read them all; run ``GainMap``, the two warps, ``FixVignetteRadial``, ``MapPolynomial``, ``MapTable``, the four per-row and per-column fixes, the two bad-pixel fixes and ``TrimBounds``; name the rest.
+
+DNG 1.3 added three opcode lists, each a tag holding a big-endian byte blob:
+``OpcodeList1`` (51008) runs on the raw values as stored, ``OpcodeList2``
+(51009) after they are mapped to linear values (black subtracted, scaled to
+0..1, cropped to the active area) and ``OpcodeList3`` (51022) after demosaic.
+Each opcode has an id, a DNG version, flags (bit 0: optional, so a reader may
+skip it; bit 1: needed only at full quality, so a "preview quality" render may
+skip it) and a parameter block.
+
+Phones are the reason this matters. Android's camera API writes the lens
+shading map it measured into ``OpcodeList2`` as four ``GainMap`` opcodes, one
+per Bayer position, and leaves the sensor data uncorrected, so a reader that
+ignores them shows the dark, often tinted corners the phone's own JPEG never
+has. ``GainMap`` (opcode 9) is run here, and so is ``WarpRectilinear``
+(opcode 1, lens distortion and lateral colour in ``OpcodeList3``, as cameras
+with corrected lenses write it: the Leica T marks it required).
+``FixVignetteRadial`` (opcode 3, a radial brightness fall-off) and
+``MapPolynomial`` (opcode 8, a tone or linearisation polynomial) run in
+``OpcodeList2`` and ``OpcodeList3``, in the order the list gives them.
+``FixBadPixelsConstant`` and ``FixBadPixelsList`` (opcodes 4 and 5) run in
+``OpcodeList1`` on CFA data, on the stored raw values before anything else
+touches them. ``MapTable`` (opcode 7) and ``DeltaPerRow``, ``DeltaPerColumn``,
+``ScalePerRow`` and ``ScalePerColumn`` (opcodes 10 to 13) run in ``OpcodeList2``
+and ``OpcodeList3``; ``MapTable``, ``ScalePerRow`` and ``ScalePerColumn`` run in
+``OpcodeList1`` too, on 16-bit CFA data (see "In ``OpcodeList1``" below). Every
+other opcode, and anything else in ``OpcodeList1``, is named in the report and
+left undone.
+
+GainMap, as the DNG specification (1.4, chapter 7) and Adobe's DNG SDK
+(``dng_gain_map_interpolator``) define it, in the stage-2 image (the active
+area, ``h`` x ``w``):
+
+* the opcode applies to rows ``top <= y < bottom`` stepping ``row_pitch``,
+  columns ``left <= x < right`` stepping ``col_pitch``, planes ``plane`` ..
+  ``plane + planes - 1``;
+* the map is ``points_v`` x ``points_h`` gains (``map_planes`` per point,
+  float32), placed in relative image coordinates: point (i, j) at
+  ``origin_v + i * spacing_v`` of the image height, ``origin_h + j * spacing_h``
+  of its width. A pixel at row ``y`` sits at index
+  ``(y / h - origin_v) / spacing_v``, clamped to the map's first and last
+  point, and its gain is the bilinear blend of the four nearest points (rows
+  first, then columns);
+* the value becomes ``min(value * gain, 1)``.
+
+The SDK interpolates in float32; this module uses float64 throughout, and the
+pure-Python and numpy paths repeat the same operations in the same order, so
+both engines give the same bytes.
+
+WarpRectilinear (DNG specification 1.4, chapter 7), in the stage-3 image (after
+demosaic, ``w`` x ``h``, still linear):
+
+* the parameters are a plane count ``n`` and, per plane, the radial terms
+  ``kr0..kr3`` and tangential terms ``kt0, kt1`` (float64), then the optical
+  centre ``(cx, cy)`` as fractions of the image width and height; a plane past
+  ``n`` uses the last plane's terms;
+* for each output pixel, ``(dx, dy)`` is its offset from the optical centre
+  divided by ``m``, the distance from the centre to the farthest pixel, so
+  ``r = 1`` at that pixel's centre (the centre is ``x0 + cx (x1 - x0)`` between
+  the top-left and bottom-right pixels, as the specification defines it); ``r2 = dx*dx + dy*dy`` and
+  ``f = kr0 + kr1 r2 + kr2 r2^2 + kr3 r2^3``;
+* the pixel takes its value from the source point
+  ``centre + m * (f dx + kt0 2 dx dy + kt1 (r2 + 2 dx^2),
+  f dy + kt1 2 dx dy + kt0 (r2 + 2 dy^2))`` (``m`` the distance to the farthest pixel):
+  the opcode maps the corrected image back into the distorted one.
+
+The centre and ``m`` follow the DNG 1.7.1.0 text (read 2026-11-12, pages
+106-110): pixel coordinates of the top-left and bottom-right pixels, so
+``(0.5, 0.5)`` is the middle pixel and ``m`` reaches the farthest pixel, not the
+image corner. Before 2026-11-12 this module measured both from the image edges
+(``cx * w``, corner at ``(w, h)``); on the Leica T's terms the two put a source
+point at most 0.048 px apart. Choices the specification does leave open, named
+so a later check against Adobe's output can find them: the source is sampled
+bilinearly by default, or, with ``kernel="cubic"`` (``develop --warp-kernel
+cubic``, since 2026-11-13), by the Catmull-Rom cubic spline (Keys' cubic
+convolution with a = -0.5, 4 x 4 taps), the kind of kernel the specification
+recommends ("a suitable resampling kernel, such as a cubic spline", 1.7.1.0
+p. 107); the SDK's own kernel and its constant are not checked here. A cubic
+can overshoot at an edge, so its result is clipped to the plane's range, as the
+specification clips after every opcode. A source point outside the image takes
+the nearest edge pixel, and so does a cubic tap past the edge.
+
+WarpFisheye (DNG specification 1.4, chapter 7; opcode 2), in the stage-3 image,
+unwraps a fisheye lens's equidistant-style projection into a rectilinear one:
+
+* the parameters are a plane count ``n`` and, per plane, the radial terms
+  ``kr0..kr3`` (float64), then the optical centre ``(cx, cy)`` as fractions of
+  the image width and height; a plane past ``n`` uses the last plane's terms;
+* ``(dx, dy)`` and ``r`` are as for WarpRectilinear (``r = 1`` at the farthest
+  pixel); ``t = atan(r)`` and ``rd = kr0 t + kr1 t^3 + kr2 t^5 + kr3 t^7``;
+* the pixel takes its value from ``centre + m * (rd / r) * (dx, dy)``, and at
+  the centre itself (``r = 0``), where ``rd / r`` tends to ``kr0``, from
+  ``centre + m * kr0 * (dx, dy)``, which is the centre.
+
+So with ``kr0 = 1`` and the rest zero a pixel at normalised radius ``r`` reads
+from radius ``atan(r)``: an ideal equidistant fisheye (image radius
+proportional to the angle off axis) becomes a pinhole image (radius
+proportional to its tangent). Sampling, pixel centres and the edge are as for
+WarpRectilinear, and both warps run through the same resampler.
+
+WarpRectilinear2 (DNG specification 1.7.1, chapter 7; opcode 14, DNG 1.6), in
+the stage-3 image, is WarpRectilinear with a longer radial polynomial:
+
+* the parameters are a plane count ``n`` and, per plane, the radial terms
+  ``kr0..kr14``, the tangential terms ``kt0, kt1`` and ``min_valid_radius``,
+  ``max_valid_radius`` (19 float64), then the optical centre ``(cx, cy)`` and a
+  LONG ``reciprocalRadial``; a plane past ``n`` uses the last plane's terms;
+* ``(dx, dy)``, ``r`` and the distance ``m`` to the farthest pixel are as for WarpRectilinear;
+  ``f = kr0 + kr1 rc + kr2 rc^2 + ... + kr14 rc^14`` with
+  ``rc = clamp(r, min_valid_radius, max_valid_radius)``: odd and even powers of
+  ``r`` itself, where WarpRectilinear's ``kr1..kr3`` multiply ``r^2, r^4, r^6``
+  (so its ``kr1`` is this opcode's ``kr2``);
+* the radial part of the source offset is ``f * (dx, dy)``, or with
+  ``reciprocalRadial`` non-zero ``(dx, dy) / f``; the tangential part is
+  WarpRectilinear's, on the unclamped ``(dx, dy)`` ("the meaning of the other
+  parameters is the same as WarpRectilinear");
+* skip rule: when a WarpRectilinear2 marked optional is applied, a
+  WarpRectilinear or WarpFisheye immediately after it in the same list is the
+  fallback for older readers and is skipped.
+
+The specification asks for ``0 <= min_valid_radius < max_valid_radius <= 1``;
+a file outside that, or a reciprocal ``f`` that reaches zero on the valid
+range (checked at 1,025 points), is named and skipped. Sampling, pixel centres
+and the edge are as for WarpRectilinear.
+
+FixVignetteRadial (DNG specification 1.4, chapter 7), on every plane of the
+stage-2 or stage-3 image:
+
+* the parameters are ``k0..k4`` and the optical centre ``(cx, cy)`` as
+  fractions of the image width and height (seven float64);
+* ``r`` is a pixel's distance from the centre divided by the distance from the
+  centre to the farthest pixel (``r = 1`` there; centre and ``m`` as for the
+  warp, from the specification's top-left and bottom-right pixels);
+* the gain is ``1 + k0 r^2 + k1 r^4 + k2 r^6 + k3 r^8 + k4 r^10`` and the
+  value becomes ``min(value * gain, 1)``.
+
+Choices: the gain is evaluated
+at every pixel in float64, where the SDK builds a fixed-point gain mask on a
+coarser grid and interpolates it, so the two can differ in the last few bits.
+
+MapPolynomial (DNG specification 1.4, chapter 7), over an area, planes and
+pitches laid out as GainMap's:
+
+* the parameters are ``top, left, bottom, right, plane, planes, row_pitch,
+  col_pitch`` (uint32), the degree ``d`` (uint32, at most 8) and ``d + 1``
+  float64 coefficients ``c0..cd``;
+* the value ``x`` becomes ``c0 + c1 x + ... + cd x^d``, pinned to ``0..1`` (as
+  the SDK pins it).
+
+In stage 3 this module holds white-balanced values (``develop`` keeps them that
+way for the warp), so each plane is divided by its white-balance scale before
+the polynomial and multiplied back after, and the vignette's ``1`` becomes that
+scale: the opcodes see the 0..1 camera values the specification describes. An
+area given in full-size pixels is clamped to the image, so on a half-size
+develop a MapPolynomial with a partial area lands on the wrong rows; cameras
+write it over the whole frame.
+
+FixBadPixelsConstant and FixBadPixelsList (DNG specification 1.4, chapter 7),
+in ``OpcodeList1``, on the stored CFA image (the whole stored frame, not just
+the active area: coordinates and the Bayer phase count from its top-left):
+
+* FixBadPixelsConstant's parameters are ``Constant`` and ``BayerPhase``
+  (uint32); every sensel holding exactly ``Constant`` is bad;
+* FixBadPixelsList's are ``BayerPhase``, ``BadPointCount``, ``BadRectCount``
+  (uint32), then the points as ``(row, column)`` and the rectangles as
+  ``(top, left, bottom, right)`` (uint32, bottom and right exclusive); every
+  sensel listed is bad;
+* ``BayerPhase`` names the colour of the top-left sensel: 0 red, 1 green on a
+  red row, 2 green on a blue row, 3 blue. Only green against not-green matters
+  for the repair: green sensels sit on one chequerboard parity, red and blue
+  each on every other row and column.
+
+A bad sensel becomes the mean of the nearest good sensels of its own colour:
+the same-colour sensels at the smallest Chebyshev distance ``d`` (1 to 8) where
+at least one is good, bad ones left out, rounded half up to an integer. For
+green that is the four diagonal neighbours at ``d = 1``; for red and blue the
+eight at ``d = 2`` (two rows or columns away, and the diagonals). Every repair
+reads only the original good values, so the order of repairs does not matter.
+On a plane ``a + b*row + c*col`` the symmetric ring gives the exact value back,
+which is what the tests check. Choices: the SDK's own interpolation weights
+(it treats lone pixels and rectangles separately) are not reproduced; a
+sensel with no good same-colour neighbour within ``d = 8`` is left as is; and
+a FixBadPixelsConstant that would flag more than 1% of the frame is not run
+(a frame that dark is under-exposed, not a defect map) and the report says so.
+
+MapTable, DeltaPerRow, DeltaPerColumn, ScalePerRow and ScalePerColumn (DNG
+specification 1.4, chapter 7) share MapPolynomial's area, planes and pitches
+(``top, left, bottom, right, plane, planes, row_pitch, col_pitch``, uint32),
+then:
+
+* MapTable: ``TableSize`` (uint32, 1 to 65536) and that many uint16 entries.
+  A 16-bit value ``v`` becomes ``table[min(v, TableSize - 1)]``. This module
+  holds values as 0..1 floats, as the DNG SDK does when it converts 16-bit
+  data to float (``v / 65535``), so a value ``x`` indexes the table at
+  ``floor(x * 65535 + 0.5)`` (``x`` pinned to 0..1 first) and becomes the entry
+  over 65535;
+* DeltaPerRow / DeltaPerColumn: ``Count`` (uint32) and that many float32
+  offsets, one per row (column) of the area in pitch steps; ``Count`` must be
+  ``ceil((bottom - top) / row_pitch)`` (``ceil((right - left) / col_pitch)``
+  for columns), as the SDK requires. The value becomes ``x + delta`` pinned to
+  0..1;
+* ScalePerRow / ScalePerColumn: the same layout with float32 scales, and the
+  value becomes ``x * scale`` pinned to 0..1.
+
+Row ``y`` of the area takes entry ``(y - top) // row_pitch``, column ``x``
+entry ``(x - left) // col_pitch``. In stage 3 the white-balance scale is taken
+off and put back as for MapPolynomial.
+
+In ``OpcodeList1`` (since 2026-11-13). The DNG 1.7.1.0 text, chapter 6, says
+values are clipped after each opcode "to the logical range of the image being
+modified. For OpcodeList1, this range is 0 to 2^32-1 for images with a bit depth
+greater than 16, otherwise 0 to 2^16-1". Two of the five need no more than that:
+
+* MapTable on 16-bit stored values: the stored value ``v`` is the table index,
+  and ``table[min(v, TableSize - 1)]`` is the new stored value, an integer in
+  range by construction. (The SDK's float view, ``v / 65535`` indexed at
+  ``floor(x * 65535 + 0.5)``, picks the same entry, so this is one rule in
+  every list.) On 32-bit stored data a 16-bit table has no stated index and
+  is named and left undone;
+* ScalePerRow / ScalePerColumn: a gain has no unit, so ``v * scale`` is the
+  same whatever the white level; it is rounded half up and clipped to
+  ``0 .. 65535`` (``0 .. 2^32 - 1`` on 32-bit data). Choice: the SDK multiplies
+  in float32, so a product within float32 rounding of a half step may land one
+  count away from this module's float64 result.
+
+DeltaPerRow, DeltaPerColumn and MapPolynomial do need a unit (an offset of
+``0.01`` is 0.01 of what?), the text does not give one for stored values, and no
+camera file in the evaluation set carries them, so in ``OpcodeList1`` they stay
+named and undone. Areas count from the stored frame's top-left, as for the
+bad-pixel fixes, and ``Plane``/``Planes`` must take in plane 0 (a CFA image has
+one plane).
+
+TrimBounds (DNG specification 1.4, chapter 7; opcode 6), in ``OpcodeList2`` or
+``OpcodeList3``:
+
+* the parameters are ``top, left, bottom, right`` (uint32, bottom and right
+  exclusive), in the coordinates of the image as it stands when the opcode
+  runs;
+* the image is cropped to that rectangle, and its top-left becomes (0, 0): an
+  opcode after it in the list sees the smaller image, so its area, its
+  relative map positions and a warp's optical centre and ``m`` all
+  count from the trimmed frame (Adobe's DNG SDK trims a simple image in place
+  and resets its origin, ``dng_simple_image::Trim``);
+* the SDK rejects a rectangle that is empty or does not lie inside the image;
+  here such a TrimBounds is skipped and the report says so.
+
+The crop does not move pixels while the opcodes run. ``frame_trims`` walks a
+list once the image size is known, takes each TrimBounds out and wraps every
+opcode after one in a ``Framed`` (the frame's top, left, height and width in
+the untrimmed image); ``apply_row``, ``apply_plane`` and ``run_stage3_*`` run a
+framed opcode on that sub-image alone, in its own coordinates, and the
+developer crops its output to the last frame after encoding. An
+``OpcodeList2`` trim is the starting frame of ``OpcodeList3``. Choices, named
+for a later check against Adobe's output: the demosaic runs on the whole
+active area, so pixels on the edge of an ``OpcodeList2`` trim are interpolated
+from neighbours just outside it, where the SDK sees only the trimmed image (a
+difference in the outermost pixel or two); on a half-size develop the
+rectangle is halved (rounded down); the DefaultCrop, given relative to the
+active area, is moved by the trim's top-left and cut to the trimmed image,
+and ignored if nothing is left. A TrimBounds in ``OpcodeList1`` (which would
+crop the stored frame, Bayer phase and all) is named and left undone.
+"""
+
+from __future__ import annotations
+
+import math
+import os
+import struct
+from dataclasses import dataclass, field
+from typing import Callable
+
+TAG_OPCODE_LIST_1 = 51008
+TAG_OPCODE_LIST_2 = 51009
+TAG_OPCODE_LIST_3 = 51022
+
+OPCODE_NAMES = {
+    1: "WarpRectilinear",
+    2: "WarpFisheye",
+    3: "FixVignetteRadial",
+    4: "FixBadPixelsConstant",
+    5: "FixBadPixelsList",
+    6: "TrimBounds",
+    7: "MapTable",
+    8: "MapPolynomial",
+    9: "GainMap",
+    10: "DeltaPerRow",
+    11: "DeltaPerColumn",
+    12: "ScalePerRow",
+    13: "ScalePerColumn",
+    14: "WarpRectilinear2",
+}
+
+GAIN_MAP = 9
+WARP_RECTILINEAR = 1
+WARP_FISHEYE = 2
+WARP_RECTILINEAR_2 = 14
+FIX_VIGNETTE_RADIAL = 3
+MAP_POLYNOMIAL = 8
+FIX_BAD_PIXELS_CONSTANT = 4
+FIX_BAD_PIXELS_LIST = 5
+MAP_TABLE = 7
+DELTA_PER_ROW = 10
+DELTA_PER_COLUMN = 11
+SCALE_PER_ROW = 12
+SCALE_PER_COLUMN = 13
+TRIM_BOUNDS = 6
+PER_LINE_KINDS = {
+    DELTA_PER_ROW: ("delta", "row"),
+    DELTA_PER_COLUMN: ("delta", "column"),
+    SCALE_PER_ROW: ("scale", "row"),
+    SCALE_PER_COLUMN: ("scale", "column"),
+}
+
+# A FixBadPixelsConstant that matches more than this share of the frame is not run (module docstring).
+BAD_CONSTANT_MAX_SHARE = 0.01
+# Farthest Chebyshev distance searched for good same-colour neighbours.
+BAD_PIXEL_MAX_DISTANCE = 8
+
+
+class OpcodeError(ValueError):
+    pass
+
+
+@dataclass(frozen=True)
+class Opcode:
+    id: int
+    version: int
+    flags: int
+    params: bytes
+
+    @property
+    def name(self) -> str:
+        return OPCODE_NAMES.get(self.id, f"opcode {self.id}")
+
+    @property
+    def optional(self) -> bool:
+        return bool(self.flags & 1)
+
+    @property
+    def full_quality_only(self) -> bool:
+        """Flag bit 1. DNG 1.7.1.0, chapter 6 (p. 104): "the opcode can be skipped when doing
+        'preview quality' processing, and only needs to be applied when doing 'full quality'
+        processing". Not "preview only": a full-quality render runs it like any other opcode."""
+
+        return bool(self.flags & 2)
+
+
+@dataclass(frozen=True)
+class GainMap:
+    top: int
+    left: int
+    bottom: int
+    right: int
+    plane: int
+    planes: int
+    row_pitch: int
+    col_pitch: int
+    points_v: int
+    points_h: int
+    spacing_v: float
+    spacing_h: float
+    origin_v: float
+    origin_h: float
+    map_planes: int
+    gains: tuple[float, ...]  # points_v * points_h * map_planes, row-major, planes innermost
+
+    def gain(self, i: int, j: int, p: int) -> float:
+        return self.gains[(i * self.points_h + j) * self.map_planes + min(p, self.map_planes - 1)]
+
+
+@dataclass(frozen=True)
+class WarpRectilinear:
+    terms: tuple[tuple[float, float, float, float, float, float], ...]  # per plane: kr0..kr3, kt0, kt1
+    cx: float
+    cy: float
+
+    def plane_terms(self, p: int) -> tuple[float, float, float, float, float, float]:
+        return self.terms[min(p, len(self.terms) - 1)]
+
+
+@dataclass(frozen=True)
+class WarpFisheye:
+    terms: tuple[tuple[float, float, float, float], ...]  # per plane: kr0..kr3
+    cx: float
+    cy: float
+
+    def plane_terms(self, p: int) -> tuple[float, float, float, float]:
+        return self.terms[min(p, len(self.terms) - 1)]
+
+
+@dataclass(frozen=True)
+class WarpRectilinear2:
+    terms: tuple[tuple[float, ...], ...]  # per plane: kr0..kr14, kt0, kt1, min_valid_radius, max_valid_radius
+    cx: float
+    cy: float
+    reciprocal: bool
+
+    def plane_terms(self, p: int) -> tuple[float, ...]:
+        return self.terms[min(p, len(self.terms) - 1)]
+
+
+WARP_TYPES = (WarpRectilinear, WarpRectilinear2, WarpFisheye)
+
+@dataclass(frozen=True)
+class VignetteRadial:
+    k: tuple[float, float, float, float, float]
+    cx: float
+    cy: float
+
+
+@dataclass(frozen=True)
+class MapPolynomial:
+    top: int
+    left: int
+    bottom: int
+    right: int
+    plane: int
+    planes: int
+    row_pitch: int
+    col_pitch: int
+    coeffs: tuple[float, ...]  # c0..cd
+
+
+@dataclass(frozen=True)
+class MapTable:
+    top: int
+    left: int
+    bottom: int
+    right: int
+    plane: int
+    planes: int
+    row_pitch: int
+    col_pitch: int
+    table: tuple[int, ...]  # uint16 entries
+
+
+@dataclass(frozen=True)
+class TrimBounds:
+    """Crop the image to ``top <= y < bottom``, ``left <= x < right`` (module docstring)."""
+
+    top: int
+    left: int
+    bottom: int
+    right: int
+
+
+@dataclass(frozen=True)
+class Framed:
+    """An opcode that runs after a TrimBounds: on the sub-image ``top .. top + height``, ``left .. left + width`` alone."""
+
+    op: object
+    top: int
+    left: int
+    height: int
+    width: int
+
+
+@dataclass(frozen=True)
+class PerLine:
+    """DeltaPerRow, DeltaPerColumn, ScalePerRow or ScalePerColumn."""
+
+    top: int
+    left: int
+    bottom: int
+    right: int
+    plane: int
+    planes: int
+    row_pitch: int
+    col_pitch: int
+    kind: str  # "delta" or "scale"
+    axis: str  # "row" or "column"
+    values: tuple[float, ...]
+
+    @property
+    def name(self) -> str:
+        return ("Delta" if self.kind == "delta" else "Scale") + ("PerRow" if self.axis == "row" else "PerColumn")
+
+
+@dataclass(frozen=True)
+class BadPixelsConstant:
+    constant: int
+    bayer_phase: int
+
+
+@dataclass(frozen=True)
+class BadPixelsList:
+    bayer_phase: int
+    points: tuple[tuple[int, int], ...]  # (row, column)
+    rects: tuple[tuple[int, int, int, int], ...]  # (top, left, bottom, right), bottom and right exclusive
+
+
+def parse_bad_pixels_constant(op: Opcode) -> BadPixelsConstant:
+    p = op.params
+    if len(p) < 8:
+        raise OpcodeError("FixBadPixelsConstant parameters shorter than 8 bytes")
+    constant, phase = struct.unpack_from(">2I", p, 0)
+    if phase > 3:
+        raise OpcodeError(f"FixBadPixelsConstant with Bayer phase {phase} (0 to 3)")
+    return BadPixelsConstant(constant, phase)
+
+
+def parse_bad_pixels_list(op: Opcode) -> BadPixelsList:
+    p = op.params
+    if len(p) < 12:
+        raise OpcodeError("FixBadPixelsList parameters shorter than 12 bytes")
+    phase, npts, nrects = struct.unpack_from(">3I", p, 0)
+    if phase > 3:
+        raise OpcodeError(f"FixBadPixelsList with Bayer phase {phase} (0 to 3)")
+    if len(p) < 12 + 8 * npts + 16 * nrects:
+        raise OpcodeError(f"FixBadPixelsList holds fewer than its {npts} points and {nrects} rectangles")
+    flat = struct.unpack_from(f">{2 * npts}I", p, 12)
+    points = tuple((flat[2 * i], flat[2 * i + 1]) for i in range(npts))
+    flat = struct.unpack_from(f">{4 * nrects}I", p, 12 + 8 * npts)
+    rects = tuple(tuple(flat[4 * i : 4 * i + 4]) for i in range(nrects))
+    if any(b <= t or r <= lf for t, lf, b, r in rects):
+        raise OpcodeError("FixBadPixelsList with an empty rectangle")
+    return BadPixelsList(phase, points, rects)
+
+
+def parse_vignette_radial(op: Opcode) -> VignetteRadial:
+    p = op.params
+    if len(p) < 56:
+        raise OpcodeError("FixVignetteRadial parameters shorter than 56 bytes")
+    vals = struct.unpack_from(">7d", p, 0)
+    k, cx, cy = vals[:5], vals[5], vals[6]
+    if not all(math.isfinite(v) and abs(v) < 1e6 for v in k) or not (0.0 <= cx <= 1.0 and 0.0 <= cy <= 1.0):
+        raise OpcodeError("FixVignetteRadial with terms out of range")
+    return VignetteRadial(tuple(k), cx, cy)
+
+
+def parse_map_polynomial(op: Opcode) -> MapPolynomial:
+    p = op.params
+    if len(p) < 36:
+        raise OpcodeError("MapPolynomial parameters shorter than 36 bytes")
+    top, left, bottom, right, plane, planes, rp, cp, degree = struct.unpack_from(">9I", p, 0)
+    if degree > 8:
+        raise OpcodeError(f"MapPolynomial of degree {degree} (at most 8)")
+    if len(p) < 36 + 8 * (degree + 1):
+        raise OpcodeError(f"MapPolynomial holds fewer than its {degree + 1} coefficients")
+    if rp < 1 or cp < 1 or bottom <= top or right <= left or planes < 1:
+        raise OpcodeError("MapPolynomial with an empty area or zero pitch")
+    coeffs = struct.unpack_from(f">{degree + 1}d", p, 36)
+    if not all(math.isfinite(c) and abs(c) < 1e6 for c in coeffs):
+        raise OpcodeError("MapPolynomial with coefficients out of range")
+    return MapPolynomial(top, left, bottom, right, plane, planes, rp, cp, tuple(coeffs))
+
+
+def _parse_area(op: Opcode, name: str) -> tuple[int, ...]:
+    p = op.params
+    if len(p) < 36:
+        raise OpcodeError(f"{name} parameters shorter than 36 bytes")
+    top, left, bottom, right, plane, planes, rp, cp, n = struct.unpack_from(">9I", p, 0)
+    if rp < 1 or cp < 1 or bottom <= top or right <= left or planes < 1:
+        raise OpcodeError(f"{name} with an empty area or zero pitch")
+    return top, left, bottom, right, plane, planes, rp, cp, n
+
+
+def parse_map_table(op: Opcode) -> MapTable:
+    top, left, bottom, right, plane, planes, rp, cp, n = _parse_area(op, "MapTable")
+    if not 1 <= n <= 65536:
+        raise OpcodeError(f"MapTable of {n} entries (1 to 65536)")
+    if len(op.params) < 36 + 2 * n:
+        raise OpcodeError(f"MapTable holds fewer than its {n} entries")
+    table = struct.unpack_from(f">{n}H", op.params, 36)
+    return MapTable(top, left, bottom, right, plane, planes, rp, cp, table)
+
+
+def parse_trim_bounds(op: Opcode) -> TrimBounds:
+    if len(op.params) < 16:
+        raise OpcodeError("TrimBounds parameters shorter than 16 bytes")
+    top, left, bottom, right = struct.unpack_from(">4I", op.params, 0)
+    if bottom <= top or right <= left:
+        raise OpcodeError(f"TrimBounds with an empty rectangle ({top}, {left}, {bottom}, {right})")
+    return TrimBounds(top, left, bottom, right)
+
+
+def parse_per_line(op: Opcode) -> PerLine:
+    kind, axis = PER_LINE_KINDS[op.id]
+    top, left, bottom, right, plane, planes, rp, cp, n = _parse_area(op, op.name)
+    steps = (bottom - top + rp - 1) // rp if axis == "row" else (right - left + cp - 1) // cp
+    if n != steps:
+        raise OpcodeError(f"{op.name} with {n} entries for {steps} {axis}s of its area")
+    if len(op.params) < 36 + 4 * n:
+        raise OpcodeError(f"{op.name} holds fewer than its {n} entries")
+    values = struct.unpack_from(f">{n}f", op.params, 36)
+    if not all(math.isfinite(v) and abs(v) < 1e6 for v in values):
+        raise OpcodeError(f"{op.name} with entries out of range")
+    return PerLine(top, left, bottom, right, plane, planes, rp, cp, kind, axis, values)
+
+
+def parse_warp_rectilinear(op: Opcode) -> WarpRectilinear:
+    p = op.params
+    if len(p) < 4:
+        raise OpcodeError("WarpRectilinear parameters shorter than their plane count")
+    (n,) = struct.unpack_from(">I", p, 0)
+    if n < 1:
+        raise OpcodeError("WarpRectilinear with no planes")
+    if len(p) < 4 + 48 * n + 16:
+        raise OpcodeError(f"WarpRectilinear holds fewer than its {n} planes of terms and a centre")
+    terms = tuple(struct.unpack_from(">6d", p, 4 + 48 * i) for i in range(n))
+    cx, cy = struct.unpack_from(">2d", p, 4 + 48 * n)
+    if not all(math.isfinite(v) and abs(v) < 1e6 for t in terms for v in t) or not (0.0 <= cx <= 1.0 and 0.0 <= cy <= 1.0):
+        raise OpcodeError("WarpRectilinear with terms out of range")
+    return WarpRectilinear(terms, cx, cy)
+
+
+def _wr2_radial(kr: tuple[float, ...], rc: float) -> float:
+    """WarpRectilinear2's ``f(rc) = sum kr[p] rc^p`` (Horner, highest power first; the numpy path repeats it)."""
+
+    f = kr[14]
+    for k in kr[13::-1]:
+        f = f * rc + k
+    return f
+
+
+def parse_warp_rectilinear2(op: Opcode) -> WarpRectilinear2:
+    p = op.params
+    if len(p) < 4:
+        raise OpcodeError("WarpRectilinear2 parameters shorter than their plane count")
+    (n,) = struct.unpack_from(">I", p, 0)
+    if n < 1:
+        raise OpcodeError("WarpRectilinear2 with no planes")
+    if len(p) < 4 + 152 * n + 20:
+        raise OpcodeError(f"WarpRectilinear2 holds fewer than its {n} planes of terms, a centre and its reciprocal flag")
+    terms = tuple(struct.unpack_from(">19d", p, 4 + 152 * i) for i in range(n))
+    cx, cy = struct.unpack_from(">2d", p, 4 + 152 * n)
+    (recip,) = struct.unpack_from(">I", p, 4 + 152 * n + 16)
+    if not all(math.isfinite(v) and abs(v) < 1e6 for t in terms for v in t) or not (0.0 <= cx <= 1.0 and 0.0 <= cy <= 1.0):
+        raise OpcodeError("WarpRectilinear2 with terms out of range")
+    for t in terms:
+        lo, hi = t[17], t[18]
+        if not (0.0 <= lo < hi <= 1.0):
+            raise OpcodeError(f"WarpRectilinear2 valid radius {lo}..{hi} outside 0 <= min < max <= 1")
+        if recip:
+            vals = [_wr2_radial(t[:15], lo + (hi - lo) * i / 1024) for i in range(1025)]
+            if not (all(v > 0.0 for v in vals) or all(v < 0.0 for v in vals)):
+                raise OpcodeError("WarpRectilinear2 reciprocal radial term reaches zero on its valid radius")
+    return WarpRectilinear2(terms, cx, cy, bool(recip))
+
+
+def parse_warp_fisheye(op: Opcode) -> WarpFisheye:
+    p = op.params
+    if len(p) < 4:
+        raise OpcodeError("WarpFisheye parameters shorter than their plane count")
+    (n,) = struct.unpack_from(">I", p, 0)
+    if n < 1:
+        raise OpcodeError("WarpFisheye with no planes")
+    if len(p) < 4 + 32 * n + 16:
+        raise OpcodeError(f"WarpFisheye holds fewer than its {n} planes of terms and a centre")
+    terms = tuple(struct.unpack_from(">4d", p, 4 + 32 * i) for i in range(n))
+    cx, cy = struct.unpack_from(">2d", p, 4 + 32 * n)
+    if not all(math.isfinite(v) and abs(v) < 1e6 for t in terms for v in t) or not (0.0 <= cx <= 1.0 and 0.0 <= cy <= 1.0):
+        raise OpcodeError("WarpFisheye with terms out of range")
+    return WarpFisheye(terms, cx, cy)
+
+
+def parse_list(blob) -> list[Opcode]:
+    """The opcodes in one opcode-list tag (raw bytes, or the reader's tuple of byte values)."""
+
+    data = bytes(blob)
+    if len(data) < 4:
+        raise OpcodeError("opcode list shorter than its count")
+    (count,) = struct.unpack_from(">I", data, 0)
+    pos, out = 4, []
+    for _ in range(count):
+        if pos + 16 > len(data):
+            raise OpcodeError("opcode list ends inside an opcode header")
+        oid, ver, flags, size = struct.unpack_from(">IIII", data, pos)
+        pos += 16
+        if pos + size > len(data):
+            raise OpcodeError(f"{OPCODE_NAMES.get(oid, oid)}: parameters run past the end of the list")
+        out.append(Opcode(oid, ver, flags, data[pos : pos + size]))
+        pos += size
+    return out
+
+
+def parse_gain_map(op: Opcode) -> GainMap:
+    p = op.params
+    if len(p) < 76:
+        raise OpcodeError("GainMap parameters shorter than 76 bytes")
+    top, left, bottom, right, plane, planes, rp, cp, pv, ph = struct.unpack_from(">10I", p, 0)
+    sv, sh, ov, oh = struct.unpack_from(">4d", p, 40)
+    (mp,) = struct.unpack_from(">I", p, 72)
+    n = pv * ph * mp
+    if pv < 1 or ph < 1 or mp < 1:
+        raise OpcodeError("GainMap with no map points")
+    if len(p) < 76 + 4 * n:
+        raise OpcodeError(f"GainMap holds fewer than its {n} gains")
+    if rp < 1 or cp < 1 or bottom <= top or right <= left:
+        raise OpcodeError("GainMap with an empty area or zero pitch")
+    if (pv > 1 and sv <= 0) or (ph > 1 and sh <= 0):
+        raise OpcodeError("GainMap with a non-positive map spacing")
+    gains = struct.unpack_from(f">{n}f", p, 76)
+    return GainMap(top, left, bottom, right, plane, planes, rp, cp, pv, ph, sv, sh, ov, oh, mp, tuple(gains))
+
+
+def _index(f: float, points: int) -> tuple[int, int, float]:
+    """Map index ``f`` to the two points either side and the fraction between them (SDK rules)."""
+
+    if f <= 0.0:
+        return 0, 0, 0.0
+    if f >= points - 1:
+        return points - 1, points - 1, 0.0
+    i = int(f)
+    return i, i + 1, f - i
+
+
+def _axis_index(pos: int, size: int, origin: float, spacing: float, points: int) -> tuple[int, int, float]:
+    if points == 1:
+        return 0, 0, 0.0
+    return _index((pos * (1.0 / size) - origin) / spacing, points)
+
+
+@dataclass
+class Plan:
+    """What a raw image's opcode lists hold, and the opcodes this module will run.
+
+    ``stage2`` and ``stage3`` are the runnable opcodes of ``OpcodeList2`` and
+    ``OpcodeList3`` in list order (what ``apply_row``/``apply_plane`` and
+    ``run_stage3_rgb``/``run_stage3_planes`` take); ``gain_maps`` and
+    ``warps`` are the GainMap and WarpRectilinear among them.
+    """
+
+    gain_maps: list[GainMap]
+    notes: list[str]
+    warps: list[WarpRectilinear | WarpRectilinear2 | WarpFisheye] = field(default_factory=list)
+    stage2: list = field(default_factory=list)
+    stage3: list = field(default_factory=list)
+    stage1: list = field(default_factory=list)  # FixBadPixels*, MapTable, ScalePer*, for ``run_stage1``
+
+    def __bool__(self) -> bool:
+        return bool(self.gain_maps or self.warps or self.stage1 or self.stage2 or self.stage3)
+
+
+def plan(ifd, ifd0, cfa: bool = True, preview: bool = False) -> Plan:
+    """Read the three opcode lists from the raw IFD (or IFD0) and decide what runs.
+
+    ``preview`` is the specification's "preview quality" processing: opcodes
+    with flag bit 1 are then skipped (and counted in the notes). A full-quality
+    render, the default, runs them; before 2026-11-13 this module skipped them
+    in every render, which left a full-quality develop short of what the file asks.
+
+    ``GainMap`` in ``OpcodeList2`` on CFA data runs, and ``WarpRectilinear`` in
+    ``OpcodeList3`` (on any image: it runs after demosaic). Everything else is
+    named in the notes, and a required (non-optional) opcode left undone says
+    so, since the DNG specification expects a reader to run it.
+    """
+
+    gain_maps: list[GainMap] = []
+    warps: list[WarpRectilinear | WarpRectilinear2 | WarpFisheye] = []
+    fallbacks_skipped = 0
+    stage1: list = []
+    stage2: list = []
+    stage3: list = []
+    applied: list[tuple[str, str]] = []
+    notes: list[str] = []
+    for tag, label in (
+        (TAG_OPCODE_LIST_1, "OpcodeList1"),
+        (TAG_OPCODE_LIST_2, "OpcodeList2"),
+        (TAG_OPCODE_LIST_3, "OpcodeList3"),
+    ):
+        blob = ifd.get(tag) or ifd0.get(tag)
+        if not blob:
+            continue
+        try:
+            ops = parse_list(blob)
+        except OpcodeError as exc:
+            notes.append(f"{label} unreadable and skipped: {exc}")
+            continue
+        skipped: dict[str, int] = {}
+        preview_skipped: dict[str, int] = {}
+        after_optional_wr2 = False
+        for op in ops:
+            # The skip rule (WarpRectilinear2): only the opcode right after an applied optional one.
+            fallback, after_optional_wr2 = after_optional_wr2, False
+            if preview and op.full_quality_only:
+                # Not applied, so it cannot arm the skip rule: a fallback warp after it still runs.
+                preview_skipped[op.name] = preview_skipped.get(op.name, 0) + 1
+                continue
+            if fallback and op.id in (WARP_RECTILINEAR, WARP_FISHEYE):
+                fallbacks_skipped += 1
+                continue
+            if tag == TAG_OPCODE_LIST_2 and op.id == GAIN_MAP and cfa:
+                try:
+                    gm = parse_gain_map(op)
+                except OpcodeError as exc:
+                    notes.append(f"{label} GainMap unreadable and skipped: {exc}")
+                    continue
+                gain_maps.append(gm)
+                stage2.append(gm)
+                continue
+            if tag == TAG_OPCODE_LIST_3 and op.id in _WARP_PARSERS:
+                try:
+                    wp = _WARP_PARSERS[op.id](op)
+                except OpcodeError as exc:
+                    notes.append(f"{label} {op.name} unreadable and skipped: {exc}")
+                    continue
+                warps.append(wp)
+                stage3.append(wp)
+                after_optional_wr2 = op.id == WARP_RECTILINEAR_2 and op.optional
+                continue
+            if tag == TAG_OPCODE_LIST_1 and op.id in (FIX_BAD_PIXELS_CONSTANT, FIX_BAD_PIXELS_LIST) and cfa:
+                try:
+                    if op.id == FIX_BAD_PIXELS_CONSTANT:
+                        stage1.append(parse_bad_pixels_constant(op))
+                    else:
+                        stage1.append(parse_bad_pixels_list(op))
+                except OpcodeError as exc:
+                    notes.append(f"{label} {op.name} unreadable and skipped: {exc}")
+                continue
+            if tag == TAG_OPCODE_LIST_1 and op.id in (MAP_TABLE, SCALE_PER_ROW, SCALE_PER_COLUMN) and cfa:
+                try:
+                    stage1.append(_STAGE23_PARSERS[op.id](op))
+                except OpcodeError as exc:
+                    notes.append(f"{label} {op.name} unreadable and skipped: {exc}")
+                continue
+            if tag != TAG_OPCODE_LIST_1 and op.id in _STAGE23_PARSERS:
+                parser = _STAGE23_PARSERS[op.id]
+                try:
+                    parsed = parser(op)
+                except OpcodeError as exc:
+                    notes.append(f"{label} {op.name} unreadable and skipped: {exc}")
+                    continue
+                (stage2 if tag == TAG_OPCODE_LIST_2 else stage3).append(parsed)
+                if not isinstance(parsed, TrimBounds):  # ``frame_trims`` reports a trim, once the size is known
+                    applied.append((label, op.name))
+                continue
+            key = op.name + ("" if op.optional else " (required)")
+            skipped[key] = skipped.get(key, 0) + 1
+        for key, n in skipped.items():
+            notes.append(f"{label}: {n} x {key} not applied")
+        for key, n in preview_skipped.items():
+            notes.append(f"{label}: {n} x {key} skipped (full quality only; this is a preview-quality render)")
+    if gain_maps:
+        notes.append(f"OpcodeList2: {len(gain_maps)} GainMap applied (lens shading)")
+    n_rect = sum(isinstance(wp, WarpRectilinear) for wp in warps)
+    if n_rect:
+        notes.append(f"OpcodeList3: {n_rect} WarpRectilinear applied (lens distortion)")
+    n_rect2 = sum(isinstance(wp, WarpRectilinear2) for wp in warps)
+    if n_rect2:
+        notes.append(f"OpcodeList3: {n_rect2} WarpRectilinear2 applied (lens distortion, higher order)")
+    if len(warps) - n_rect - n_rect2:
+        notes.append(f"OpcodeList3: {len(warps) - n_rect - n_rect2} WarpFisheye applied (fisheye unwrap)")
+    if fallbacks_skipped:
+        notes.append(
+            f"OpcodeList3: {fallbacks_skipped} fallback warp skipped after an optional WarpRectilinear2 (DNG skip rule)"
+        )
+    for (label, name) in dict.fromkeys(applied):
+        what = _WHAT.get(name, "value mapping")
+        notes.append(f"{label}: {applied.count((label, name))} {name} applied ({what})")
+    return Plan(gain_maps, notes, warps, stage2, stage3, stage1)
+
+
+_WARP_PARSERS: dict[int, Callable[[Opcode], WarpRectilinear | WarpRectilinear2 | WarpFisheye]] = {
+    WARP_RECTILINEAR: parse_warp_rectilinear,
+    WARP_RECTILINEAR_2: parse_warp_rectilinear2,
+    WARP_FISHEYE: parse_warp_fisheye,
+}
+_STAGE23_PARSERS = {
+    FIX_VIGNETTE_RADIAL: parse_vignette_radial,
+    MAP_POLYNOMIAL: parse_map_polynomial,
+    MAP_TABLE: parse_map_table,
+    TRIM_BOUNDS: parse_trim_bounds,
+    **{k: parse_per_line for k in PER_LINE_KINDS},
+}
+_WHAT = {
+    "FixVignetteRadial": "lens vignetting",
+    "DeltaPerRow": "row offsets",
+    "DeltaPerColumn": "column offsets",
+    "ScalePerRow": "row gains",
+    "ScalePerColumn": "column gains",
+}
+
+
+# --- FixBadPixelsConstant and FixBadPixelsList ---------------------------------------------------------------------
+
+
+def _same_colour_ring(green: bool, d: int) -> list[tuple[int, int]]:
+    """Offsets at Chebyshev distance ``d`` that land on the same CFA colour."""
+
+    out = []
+    for dy in range(-d, d + 1):
+        for dx in range(-d, d + 1):
+            if max(abs(dy), abs(dx)) != d:
+                continue
+            if (green and (dy + dx) % 2 == 0) or (not green and dy % 2 == 0 and dx % 2 == 0):
+                out.append((dy, dx))
+    return out
+
+
+_RINGS = {g: [_same_colour_ring(g, d) for d in range(1, BAD_PIXEL_MAX_DISTANCE + 1)] for g in (False, True)}
+
+
+def _green_parity(phase: int) -> int:
+    """``(row + col) % 2`` of the green sensels for a DNG Bayer phase."""
+
+    return 1 if phase in (0, 3) else 0
+
+
+def _constant_hits(vals, constant: int) -> list[int]:
+    try:
+        import numpy as np
+    except ImportError:  # pragma: no cover - the pure path, same answer
+        return [i for i, v in enumerate(vals) if v == constant]
+    arr = np.frombuffer(vals, dtype=np.uint16 if vals.typecode == "H" else np.uint32)
+    return np.flatnonzero(arr == constant).tolist()
+
+
+def repair_bad_pixels(vals, w: int, h: int, bad: list[int], phase: int) -> tuple[int, int]:
+    """Replace each sensel index in ``bad`` with its nearest good same-colour mean, in place.
+
+    Returns (repaired, left as is). ``vals`` is the stored row-major CFA image.
+    """
+
+    mask = bytearray(w * h)
+    for i in bad:
+        mask[i] = 1
+    gp = _green_parity(phase)
+    fixes: list[tuple[int, int]] = []
+    left = 0
+    for i in sorted(set(bad)):
+        y, x = divmod(i, w)
+        rings = _RINGS[(y + x) % 2 == gp]
+        for ring in rings:
+            tot = n = 0
+            for dy, dx in ring:
+                yy, xx = y + dy, x + dx
+                if 0 <= yy < h and 0 <= xx < w:
+                    j = yy * w + xx
+                    if not mask[j]:
+                        tot += vals[j]
+                        n += 1
+            if n:
+                fixes.append((i, (2 * tot + n) // (2 * n)))
+                break
+        else:
+            left += 1
+    for i, v in fixes:
+        vals[i] = v
+    return len(fixes), left
+
+
+def frame_trims(
+    ops: list,
+    h: int,
+    w: int,
+    label: str,
+    notes: list[str],
+    start: tuple[int, int, int, int] | None = None,
+    factor: float = 1.0,
+) -> tuple[list, tuple[int, int, int, int]]:
+    """Take the TrimBounds out of a stage-2 or stage-3 list for an ``h`` x ``w`` image; returns ``(ops, frame)``.
+
+    Every opcode after a trim comes back wrapped in a ``Framed``; ``frame`` is
+    the image's last ``(top, left, height, width)``, to crop the output to.
+    ``start`` is the frame the list begins in (the ``OpcodeList2`` trim, for
+    ``OpcodeList3``); ``factor`` scales a trim's rectangle (0.5 on a half-size
+    develop, rounded down). A trim that is empty or does not lie inside the
+    frame is skipped, with a note.
+    """
+
+    top, left, fh, fw = start if start is not None else (0, 0, h, w)
+    out: list = []
+    done = 0
+    for op in ops:
+        if not isinstance(op, TrimBounds):
+            out.append(op if (top, left, fh, fw) == (0, 0, h, w) else Framed(op, top, left, fh, fw))
+            continue
+        t, lf, b, r = (int(v * factor) for v in (op.top, op.left, op.bottom, op.right))
+        if not (0 <= t < b <= fh and 0 <= lf < r <= fw):
+            notes.append(
+                f"{label}: TrimBounds ({op.top}, {op.left}, {op.bottom}, {op.right}) lies outside "
+                f"the {fw}x{fh} image and was skipped"
+            )
+            continue
+        top, left, fh, fw = top + t, left + lf, b - t, r - lf
+        done += 1
+    if done:
+        notes.append(f"{label}: {done} TrimBounds applied (image trimmed to {fw}x{fh} at x {left}, y {top})")
+    return out, (top, left, fh, fw)
+
+
+def _stored_area(op: "MapTable | PerLine", out, w: int, h: int, notes: list[str]) -> int:
+    """Run a MapTable or ScalePerRow/Column on stored CFA values in place (module docstring); returns samples changed."""
+
+    name = op.name if isinstance(op, PerLine) else "MapTable"
+    if not op.plane <= 0 < op.plane + op.planes:
+        notes.append(f"OpcodeList1: {name} names planes {op.plane}..{op.plane + op.planes - 1} of a one-plane CFA image; not run")
+        return -1
+    if isinstance(op, MapTable) and out.typecode != "H":
+        notes.append("OpcodeList1: MapTable not applied (a 16-bit table on 32-bit stored values has no stated index)")
+        return -1
+    rows, cols = _rows_cols(op, h, w)
+    if not len(rows) or not len(cols):
+        return 0
+    top_cap = 65535 if out.typecode == "H" else 0xFFFFFFFF
+    try:
+        import numpy as np
+    except ImportError:  # pragma: no cover - the pure path below, same answer
+        np = None  # type: ignore[assignment]
+    if np is not None:
+        dt = np.uint16 if out.typecode == "H" else np.uint32
+        arr = np.frombuffer(out, dtype=dt).reshape(h, w)  # a view: writes land in ``out``
+        sub = arr[rows.start : rows.stop : rows.step, cols.start : cols.stop : cols.step]
+        if isinstance(op, MapTable):
+            tbl = np.array(op.table, dtype=np.uint16)
+            new = tbl[np.minimum(sub, len(op.table) - 1)]
+        else:
+            vals = np.array(op.values, dtype=np.float64)
+            if op.axis == "row":
+                g = vals[(np.arange(rows.start, rows.stop, rows.step) - op.top) // op.row_pitch][:, None]
+            else:
+                g = vals[(np.arange(cols.start, cols.stop, cols.step) - op.left) // op.col_pitch][None, :]
+            new = np.clip(np.floor(sub * g + 0.5), 0, top_cap).astype(dt)
+        changed = int(np.count_nonzero(new != sub))
+        arr[rows.start : rows.stop : rows.step, cols.start : cols.stop : cols.step] = new
+        return changed
+    changed = 0
+    n = len(op.table) if isinstance(op, MapTable) else 0
+    for y in rows:
+        base = y * w
+        rg = op.values[(y - op.top) // op.row_pitch] if isinstance(op, PerLine) and op.axis == "row" else 0.0
+        for x in cols:
+            v = out[base + x]
+            if isinstance(op, MapTable):
+                nv = op.table[v if v < n else n - 1]
+            else:
+                g = rg if op.axis == "row" else op.values[(x - op.left) // op.col_pitch]
+                nv = math.floor(v * g + 0.5)
+                nv = 0 if nv < 0 else (top_cap if nv > top_cap else nv)
+            if nv != v:
+                out[base + x] = nv
+                changed += 1
+    return changed
+
+
+def run_stage1(ops: list, vals, w: int, h: int, notes: list[str]):
+    """Run ``Plan.stage1`` in list order on a copy of the stored CFA values; returns the copy.
+
+    Each opcode's outcome goes into ``notes``.
+    """
+
+    from array import array
+
+    out = array(vals.typecode, vals)
+    for op in ops:
+        if isinstance(op, (MapTable, PerLine)):
+            changed = _stored_area(op, out, w, h, notes)
+            if changed >= 0:
+                name = op.name if isinstance(op, PerLine) else "MapTable"
+                notes.append(f"OpcodeList1: {name} applied ({changed} stored values changed)")
+            continue
+        if isinstance(op, BadPixelsConstant):
+            hits = _constant_hits(out, op.constant)
+            if len(hits) > BAD_CONSTANT_MAX_SHARE * w * h:
+                notes.append(
+                    f"OpcodeList1: FixBadPixelsConstant not run: {len(hits)} sensels hold {op.constant}, "
+                    f"over {BAD_CONSTANT_MAX_SHARE:.0%} of the frame"
+                )
+                continue
+            done, left = repair_bad_pixels(out, w, h, hits, op.bayer_phase)
+            name = "FixBadPixelsConstant"
+        else:
+            bad = [r * w + c for r, c in op.points if r < h and c < w]
+            for t, lf, b, r in op.rects:
+                for y in range(t, min(b, h)):
+                    bad.extend(range(y * w + lf, y * w + min(r, w)))
+            done, left = repair_bad_pixels(out, w, h, bad, op.bayer_phase)
+            name = "FixBadPixelsList"
+        msg = f"OpcodeList1: {name} applied ({done} bad sensels repaired"
+        notes.append(msg + (f", {left} with no good neighbour left as is)" if left else ")"))
+    return out
+
+
+def _row_entries(gm: GainMap, y: int, h: int, p: int) -> list[float]:
+    """The map interpolated down to row ``y``: one value per map column (rows first)."""
+
+    i1, i2, rf = _axis_index(y, h, gm.origin_v, gm.spacing_v, gm.points_v)
+    return [(1.0 - rf) * gm.gain(i1, j, p) + rf * gm.gain(i2, j, p) for j in range(gm.points_h)]
+
+
+def _rows_cols(gm: "GainMap | MapPolynomial | MapTable | PerLine", h: int, w: int):
+    rows = range(max(gm.top, 0), min(gm.bottom, h), gm.row_pitch)
+    cols = range(max(gm.left, 0), min(gm.right, w), gm.col_pitch)
+    return rows, cols
+
+
+def apply_row(maps: list, y: int, row: list[float], h: int, w: int, spp: int) -> None:
+    """Run the stage-2 opcodes (``Plan.stage2``) on one normalised active-area row, in place (pure Python)."""
+
+    for gm in maps:
+        if isinstance(gm, TrimBounds):
+            continue  # ``frame_trims`` takes these out; a list with one left in is run untrimmed
+        if isinstance(gm, Framed):
+            if gm.top <= y < gm.top + gm.height:
+                a, b = gm.left * spp, (gm.left + gm.width) * spp
+                sub = row[a:b]
+                apply_row([gm.op], y - gm.top, sub, gm.height, gm.width, spp)
+                row[a:b] = sub
+            continue
+        if isinstance(gm, VignetteRadial):
+            _vignette_row(gm, y, row, 0, h, w, spp, None)
+            continue
+        if isinstance(gm, MapPolynomial):
+            _poly_row(gm, y, row, 0, h, w, spp, None)
+            continue
+        if isinstance(gm, (MapTable, PerLine)):
+            _area_row(gm, y, row, 0, h, w, spp, None)
+            continue
+        rows, cols = _rows_cols(gm, h, w)
+        if y not in rows:
+            continue
+        col_idx = [_axis_index(x, w, gm.origin_h, gm.spacing_h, gm.points_h) for x in cols]
+        for p in range(gm.plane, min(gm.plane + gm.planes, spp)):
+            ent = _row_entries(gm, y, h, p - gm.plane)
+            for x, (j1, j2, cf) in zip(cols, col_idx):
+                g = (1.0 - cf) * ent[j1] + cf * ent[j2]
+                k = x * spp + p
+                v = row[k] * g
+                row[k] = 1.0 if v > 1.0 else v
+
+
+def apply_plane(maps: list, plane, h: int, w: int, spp: int) -> None:
+    """Run the stage-2 opcodes (``Plan.stage2``) on the normalised (h, w * spp) float64 plane, in place (numpy)."""
+
+    import numpy as np
+
+    for gm in maps:
+        if isinstance(gm, TrimBounds):
+            continue  # as in ``apply_row``
+        if isinstance(gm, Framed):
+            sub = plane[gm.top : gm.top + gm.height, gm.left * spp : (gm.left + gm.width) * spp]
+            apply_plane([gm.op], sub, gm.height, gm.width, spp)  # a view: written in place
+            continue
+        if isinstance(gm, VignetteRadial):
+            _vignette_plane(gm, plane, h, w, spp, None)
+            continue
+        if isinstance(gm, MapPolynomial):
+            _poly_plane(gm, plane, h, w, spp, None)
+            continue
+        if isinstance(gm, (MapTable, PerLine)):
+            _area_plane(gm, plane, h, w, spp, None)
+            continue
+        rows, cols = _rows_cols(gm, h, w)
+        if not len(rows) or not len(cols):
+            continue
+        ci = [_axis_index(x, w, gm.origin_h, gm.spacing_h, gm.points_h) for x in cols]
+        j1 = np.array([c[0] for c in ci], dtype=np.int64)
+        j2 = np.array([c[1] for c in ci], dtype=np.int64)
+        cf = np.array([c[2] for c in ci], dtype=np.float64)
+        ri = [_axis_index(y, h, gm.origin_v, gm.spacing_v, gm.points_v) for y in rows]
+        i1 = np.array([r[0] for r in ri], dtype=np.int64)
+        i2 = np.array([r[1] for r in ri], dtype=np.int64)
+        rf = np.array([r[2] for r in ri], dtype=np.float64)[:, None]
+        ys = np.array(list(rows), dtype=np.int64)
+        for p in range(gm.plane, min(gm.plane + gm.planes, spp)):
+            q = min(p - gm.plane, gm.map_planes - 1)
+            table = np.array(gm.gains, dtype=np.float64).reshape(gm.points_v, gm.points_h, gm.map_planes)[
+                ..., q
+            ]
+            ent = (1.0 - rf) * table[i1] + rf * table[i2]  # (rows, points_h)
+            g = (1.0 - cf) * ent[:, j1] + cf * ent[:, j2]
+            xs = np.array(list(cols), dtype=np.int64) * spp + p
+            sub = plane[ys[:, None], xs[None, :]] * g
+            plane[ys[:, None], xs[None, :]] = np.where(sub > 1.0, 1.0, sub)
+
+
+# --- FixVignetteRadial and MapPolynomial ----------------------------------------------------------------------------
+#
+# Each runs on a flat buffer of ``h`` rows of ``w * spp`` samples: the stage-2
+# row (offset 0) or the interleaved stage-3 RGB image (offset ``y * w * 3``).
+# ``scale`` is None in stage 2; in stage 3 it is the per-plane white-balance
+# scale the values carry (module docstring). The pure and numpy paths repeat
+# the same float64 operations in the same order, so both give the same bytes.
+
+
+def _vignette_frame(vg: VignetteRadial, w: int, h: int) -> tuple[float, float, float]:
+    return _spec_frame(vg.cx, vg.cy, w, h)
+
+
+def _spec_frame(cx: float, cy: float, w: int, h: int) -> tuple[float, float, float]:
+    """The optical centre and ``m`` as the DNG specification defines them, in this module's coordinates.
+
+    The specification (1.7.1.0, WarpRectilinear, WarpFisheye, FixVignetteRadial) puts the centre at
+    ``x0 + cx (x1 - x0)`` with ``x0, x1`` the pixel coordinates of the top-left and bottom-right pixels, and
+    ``m = sqrt(mx^2 + my^2)``, ``mx = max(|x0 - cx|, |x1 - cx|)``: the distance to the farthest pixel. Here
+    pixel ``x`` sits at ``x + 0.5``, so the centre is returned as ``cx (w - 1) + 0.5``.
+    """
+
+    ci, cj = cx * (w - 1), cy * (h - 1)
+    m = math.hypot(max(ci, w - 1 - ci), max(cj, h - 1 - cj))
+    return ci + 0.5, cj + 0.5, (m if m > 0 else 1.0)
+
+
+def vignette_gain(vg: VignetteRadial, x: float, y: float, w: int, h: int) -> float:
+    """The FixVignetteRadial gain at pixel (x, y) of a ``w`` x ``h`` image (the reference)."""
+
+    k0, k1, k2, k3, k4 = vg.k
+    cxp, cyp, m = _vignette_frame(vg, w, h)
+    dx = (x + 0.5 - cxp) / m
+    dy = (y + 0.5 - cyp) / m
+    r2 = dx * dx + dy * dy
+    return 1.0 + r2 * (k0 + r2 * (k1 + r2 * (k2 + r2 * (k3 + r2 * k4))))
+
+
+def _vignette_row(vg: VignetteRadial, y: int, buf, off: int, h: int, w: int, spp: int, scale) -> None:
+    for x in range(w):
+        g = vignette_gain(vg, x, y, w, h)
+        for p in range(spp):
+            k = off + x * spp + p
+            cap = 1.0 if scale is None else scale[p]
+            v = buf[k] * g
+            buf[k] = cap if v > cap else v
+
+
+def _vignette_plane(vg: VignetteRadial, plane, h: int, w: int, spp: int, scale) -> None:
+    import numpy as np
+
+    k0, k1, k2, k3, k4 = vg.k
+    cxp, cyp, m = _vignette_frame(vg, w, h)
+    dx = ((np.arange(w, dtype=np.float64) + 0.5 - cxp) / m)[None, :]
+    dy = ((np.arange(h, dtype=np.float64) + 0.5 - cyp) / m)[:, None]
+    r2 = dx * dx + dy * dy
+    g = 1.0 + r2 * (k0 + r2 * (k1 + r2 * (k2 + r2 * (k3 + r2 * k4))))
+    for p in range(spp):
+        cap = 1.0 if scale is None else scale[p]
+        v = plane[:, p::spp] * g
+        plane[:, p::spp] = np.where(v > cap, cap, v)
+
+
+def _poly(coeffs: tuple[float, ...], x: float) -> float:
+    acc = coeffs[-1]
+    for c in reversed(coeffs[:-1]):
+        acc = acc * x + c
+    return 0.0 if acc < 0.0 else (1.0 if acc > 1.0 else acc)
+
+
+def _poly_row(mp: MapPolynomial, y: int, buf, off: int, h: int, w: int, spp: int, scale) -> None:
+    rows, cols = _rows_cols(mp, h, w)
+    if y not in rows:
+        return
+    for p in range(mp.plane, min(mp.plane + mp.planes, spp)):
+        for x in cols:
+            k = off + x * spp + p
+            if scale is None:
+                buf[k] = _poly(mp.coeffs, buf[k])
+            else:
+                buf[k] = _poly(mp.coeffs, buf[k] / scale[p]) * scale[p]
+
+
+def _poly_plane(mp: MapPolynomial, plane, h: int, w: int, spp: int, scale) -> None:
+    import numpy as np
+
+    rows, cols = _rows_cols(mp, h, w)
+    if not len(rows) or not len(cols):
+        return
+    rsl = slice(rows.start, rows.stop, rows.step)
+    for p in range(mp.plane, min(mp.plane + mp.planes, spp)):
+        csl = slice(cols.start * spp + p, cols.stop * spp, cols.step * spp)
+        v = plane[rsl, csl]
+        if scale is not None:
+            v = v / scale[p]
+        acc = np.full(v.shape, mp.coeffs[-1], dtype=np.float64)
+        for c in reversed(mp.coeffs[:-1]):
+            acc = acc * v + c
+        acc = np.where(acc < 0.0, 0.0, np.where(acc > 1.0, 1.0, acc))
+        plane[rsl, csl] = acc if scale is None else acc * scale[p]
+
+
+# --- MapTable, DeltaPerRow/Column, ScalePerRow/Column ----------------------------------------------------------------
+#
+# Same buffers, scale and byte-for-byte promise as FixVignetteRadial and MapPolynomial above.
+
+
+def _table_value(table: tuple[int, ...], v: float) -> float:
+    i = int(v * 65535.0 + 0.5) if v > 0.0 else 0
+    return table[i if i < len(table) else len(table) - 1] / 65535.0
+
+
+def _area_row(op: "MapTable | PerLine", y: int, buf, off: int, h: int, w: int, spp: int, scale) -> None:
+    rows, cols = _rows_cols(op, h, w)
+    if y not in rows:
+        return
+    table: tuple[int, ...] = op.table if isinstance(op, MapTable) else ()
+    values: tuple[float, ...] = () if isinstance(op, MapTable) else op.values
+    add = isinstance(op, PerLine) and op.kind == "delta"
+    rowwise = isinstance(op, PerLine) and op.axis == "row"
+    rv = values[(y - op.top) // op.row_pitch] if rowwise else 0.0
+    for p in range(op.plane, min(op.plane + op.planes, spp)):
+        for x in cols:
+            k = off + x * spp + p
+            v = buf[k] if scale is None else buf[k] / scale[p]
+            if table:
+                v = _table_value(table, v)
+            else:
+                d = rv if rowwise else values[(x - op.left) // op.col_pitch]
+                v = v + d if add else v * d
+                v = 0.0 if v < 0.0 else (1.0 if v > 1.0 else v)
+            buf[k] = v if scale is None else v * scale[p]
+
+
+def _area_plane(op: "MapTable | PerLine", plane, h: int, w: int, spp: int, scale) -> None:
+    import numpy as np
+
+    rows, cols = _rows_cols(op, h, w)
+    if not len(rows) or not len(cols):
+        return
+    rsl = slice(rows.start, rows.stop, rows.step)
+    if isinstance(op, MapTable):
+        tbl = np.array(op.table, dtype=np.float64) / 65535.0
+    else:
+        vals = np.array(op.values, dtype=np.float64)
+        if op.axis == "row":
+            d = vals[(np.arange(rows.start, rows.stop, rows.step) - op.top) // op.row_pitch][:, None]
+        else:
+            d = vals[(np.arange(cols.start, cols.stop, cols.step) - op.left) // op.col_pitch][None, :]
+    for p in range(op.plane, min(op.plane + op.planes, spp)):
+        csl = slice(cols.start * spp + p, cols.stop * spp, cols.step * spp)
+        v = plane[rsl, csl]
+        if scale is not None:
+            v = v / scale[p]
+        if isinstance(op, MapTable):
+            idx = np.where(v > 0.0, np.floor(v * 65535.0 + 0.5), 0.0)
+            idx = np.minimum(idx, len(op.table) - 1).astype(np.int64)
+            out = tbl[idx]
+        else:
+            out = v + d if op.kind == "delta" else v * d
+            out = np.where(out < 0.0, 0.0, np.where(out > 1.0, 1.0, out))
+        plane[rsl, csl] = out if scale is None else out * scale[p]
+
+
+def run_stage3_rgb(ops: list, rgb, w: int, h: int, scale=(1.0, 1.0, 1.0), kernel: str = "bilinear"):
+    """Run ``Plan.stage3`` in order on interleaved linear RGB (``array('d')``); returns the result (pure Python).
+
+    ``kernel`` is how the warps sample their source: ``"bilinear"`` or ``"cubic"`` (``WARP_KERNELS``).
+    """
+
+    for op in ops:
+        if isinstance(op, TrimBounds):
+            continue  # as in ``apply_row``
+        if isinstance(op, Framed):
+            from array import array
+
+            sub = array("d")
+            for y in range(op.top, op.top + op.height):
+                s = (y * w + op.left) * 3
+                sub.extend(rgb[s : s + op.width * 3])
+            sub = run_stage3_rgb([op.op], sub, op.width, op.height, scale, kernel)
+            for i, y in enumerate(range(op.top, op.top + op.height)):
+                s = (y * w + op.left) * 3
+                rgb[s : s + op.width * 3] = sub[i * op.width * 3 : (i + 1) * op.width * 3]
+            continue
+        if isinstance(op, (WarpRectilinear, WarpRectilinear2, WarpFisheye)):
+            rgb = warp_rgb([op], rgb, w, h, kernel, scale)
+        elif isinstance(op, VignetteRadial):
+            for y in range(h):
+                _vignette_row(op, y, rgb, y * w * 3, h, w, 3, scale)
+        elif isinstance(op, (MapTable, PerLine)):
+            for y in range(h):
+                _area_row(op, y, rgb, y * w * 3, h, w, 3, scale)
+        else:
+            for y in range(h):
+                _poly_row(op, y, rgb, y * w * 3, h, w, 3, scale)
+    return rgb
+
+
+def run_stage3_planes(ops: list, img, scale=(1.0, 1.0, 1.0), kernel: str = "bilinear"):
+    """Run ``Plan.stage3`` in order on a linear (h, w, 3) float64 image; returns the result (numpy, same bytes)."""
+
+    import numpy as np
+
+    h, w = img.shape[0], img.shape[1]
+    for op in ops:
+        if isinstance(op, TrimBounds):
+            continue  # as in ``apply_row``
+        if isinstance(op, Framed):
+            img = np.array(img, dtype=np.float64)  # own, writable copy
+            sl = (slice(op.top, op.top + op.height), slice(op.left, op.left + op.width))
+            img[sl] = run_stage3_planes([op.op], img[sl].copy(), scale, kernel)
+            continue
+        if isinstance(op, (WarpRectilinear, WarpRectilinear2, WarpFisheye)):
+            img = warp_planes([op], img, kernel=kernel, scale=scale)
+            continue
+        flat = np.ascontiguousarray(img).reshape(h, w * 3)
+        if isinstance(op, VignetteRadial):
+            _vignette_plane(op, flat, h, w, 3, scale)
+        elif isinstance(op, (MapTable, PerLine)):
+            _area_plane(op, flat, h, w, 3, scale)
+        else:
+            _poly_plane(op, flat, h, w, 3, scale)
+        img = flat.reshape(h, w, 3)
+    return img
+
+
+# --- WarpRectilinear -------------------------------------------------------------------------------------------------
+
+
+def _warp_frame(wp: WarpRectilinear, w: int, h: int) -> tuple[float, float, float]:
+    """Optical centre (pixel ``x`` at ``x + 0.5``) and the distance from it to the farthest pixel (``_spec_frame``)."""
+
+    return _spec_frame(wp.cx, wp.cy, w, h)
+
+
+def warp_source(wp, p: int, x: float, y: float, w: int, h: int) -> tuple[float, float]:
+    """Where output pixel (x, y) of plane p reads from, in pixel-index units (pure Python, the reference).
+
+    ``wp`` is a ``WarpRectilinear``, a ``WarpRectilinear2`` or a ``WarpFisheye``.
+    """
+
+    cxp, cyp, m = _warp_frame(wp, w, h)
+    dx = (x + 0.5 - cxp) / m
+    dy = (y + 0.5 - cyp) / m
+    if isinstance(wp, WarpRectilinear2):
+        terms = wp.plane_terms(p)
+        kt0, kt1, lo, hi = terms[15], terms[16], terms[17], terms[18]
+        r2 = dx * dx + dy * dy
+        rc = min(max(math.sqrt(r2), lo), hi)
+        f = _wr2_radial(terms, rc)
+        if wp.reciprocal:
+            sx, sy = dx / f, dy / f
+        else:
+            sx, sy = f * dx, f * dy
+        sx = sx + (kt0 * (2.0 * dx * dy) + kt1 * (r2 + 2.0 * dx * dx))
+        sy = sy + (kt1 * (2.0 * dx * dy) + kt0 * (r2 + 2.0 * dy * dy))
+        return cxp + m * sx - 0.5, cyp + m * sy - 0.5
+    if isinstance(wp, WarpFisheye):
+        k0, k1, k2, k3 = wp.plane_terms(p)
+        r = math.sqrt(dx * dx + dy * dy)
+        if r == 0.0:
+            ratio = k0
+        else:
+            t = math.atan(r)
+            t2 = t * t
+            ratio = t * (k0 + t2 * (k1 + t2 * (k2 + t2 * k3))) / r
+        return cxp + m * (ratio * dx) - 0.5, cyp + m * (ratio * dy) - 0.5
+    kr0, kr1, kr2, kr3, kt0, kt1 = wp.plane_terms(p)
+    r2 = dx * dx + dy * dy
+    f = kr0 + r2 * (kr1 + r2 * (kr2 + r2 * kr3))
+    sx = f * dx + kt0 * (2.0 * dx * dy) + kt1 * (r2 + 2.0 * dx * dx)
+    sy = f * dy + kt1 * (2.0 * dx * dy) + kt0 * (r2 + 2.0 * dy * dy)
+    return cxp + m * sx - 0.5, cyp + m * sy - 0.5
+
+
+def _clamp_split(v: float, n: int) -> tuple[int, int, float]:
+    if v <= 0.0:
+        return 0, 0, 0.0
+    if v >= n - 1:
+        return n - 1, n - 1, 0.0
+    i = int(v)
+    return i, i + 1, v - i
+
+
+WARP_KERNELS = ("bilinear", "cubic")
+_CR_A = -0.5  # Keys' cubic convolution constant: -0.5 is the Catmull-Rom spline (interpolating, exact on quadratics)
+
+
+def _cubic_weights(t):
+    """Catmull-Rom weights of the taps at offsets -1, 0, 1, 2 for a fraction ``t`` in [0, 1).
+
+    Only arithmetic, so the same operations in the same order run on a float (pure Python) or an array (numpy),
+    and the two engines give the same bytes. Keys (1981): inner ``(a+2)|x|^3 - (a+3)|x|^2 + 1`` for |x| < 1, outer
+    ``a|x|^3 - 5a|x|^2 + 8a|x| - 4a`` for 1 <= |x| < 2; the four weights sum to 1.
+    """
+
+    a = _CR_A
+    u = 1.0 - t
+    o0 = 1.0 + t
+    o3 = 2.0 - t
+    w0 = ((a * o0 - 5.0 * a) * o0 + 8.0 * a) * o0 - 4.0 * a
+    w1 = ((a + 2.0) * t - (a + 3.0)) * t * t + 1.0
+    w2 = ((a + 2.0) * u - (a + 3.0)) * u * u + 1.0
+    w3 = ((a * o3 - 5.0 * a) * o3 + 8.0 * a) * o3 - 4.0 * a
+    return w0, w1, w2, w3
+
+
+def _cubic_taps(v: float, n: int) -> tuple[tuple[int, int, int, int], float]:
+    """The four tap indices (clamped to the image) and the fraction for a source coordinate ``v``."""
+
+    v = 0.0 if v <= 0.0 else (n - 1.0 if v >= n - 1 else v)
+    i = int(v)
+    t = v - i
+    return (max(i - 1, 0), i, min(i + 1, n - 1), min(i + 2, n - 1)), t
+
+
+def warp_rgb(warps: list, rgb, w: int, h: int, kernel: str = "bilinear", scale=None):
+    """Run the warps on an interleaved linear RGB image (``array('d')``, h * w * 3); returns a new array (pure Python).
+
+    ``kernel="cubic"`` samples a 4 x 4 Catmull-Rom neighbourhood instead of 2 x 2 and clips the result to
+    ``[0, scale[p]]`` (``[0, 1]`` with no ``scale``).
+    """
+
+    from array import array
+
+    if kernel not in WARP_KERNELS:
+        raise ValueError(f"warp kernel must be one of {WARP_KERNELS}, not {kernel!r}")
+    for wp in warps:
+        out = array("d", bytes(8 * len(rgb)))
+        if kernel == "cubic":
+            for p in range(3):
+                cap = 1.0 if scale is None else scale[p]
+                for y in range(h):
+                    base = y * w
+                    for x in range(w):
+                        sx, sy = warp_source(wp, p, x, y, w, h)
+                        xs, tx = _cubic_taps(sx, w)
+                        ys, ty = _cubic_taps(sy, h)
+                        wx0, wx1, wx2, wx3 = _cubic_weights(tx)
+                        wy = _cubic_weights(ty)
+                        acc = 0.0
+                        for j in range(4):
+                            r = ys[j] * w
+                            row = (
+                                wx0 * rgb[(r + xs[0]) * 3 + p]
+                                + wx1 * rgb[(r + xs[1]) * 3 + p]
+                                + wx2 * rgb[(r + xs[2]) * 3 + p]
+                                + wx3 * rgb[(r + xs[3]) * 3 + p]
+                            )
+                            acc = acc + wy[j] * row
+                        out[(base + x) * 3 + p] = 0.0 if acc < 0.0 else (cap if acc > cap else acc)
+            rgb = out
+            continue
+        for p in range(3):
+            for y in range(h):
+                base = y * w
+                for x in range(w):
+                    sx, sy = warp_source(wp, p, x, y, w, h)
+                    x0, x1, fx = _clamp_split(sx, w)
+                    y0, y1, fy = _clamp_split(sy, h)
+                    a = rgb[(y0 * w + x0) * 3 + p]
+                    b = rgb[(y0 * w + x1) * 3 + p]
+                    c = rgb[(y1 * w + x0) * 3 + p]
+                    d = rgb[(y1 * w + x1) * 3 + p]
+                    out[(base + x) * 3 + p] = (1.0 - fy) * ((1.0 - fx) * a + fx * b) + fy * ((1.0 - fx) * c + fx * d)
+        rgb = out
+    return rgb
+
+
+def _warp_threads(rows: int, band: int) -> int:
+    """How many threads run the warp's bands: ``SHOOTFLOW_THREADS`` if set, else the CPUs, at most one per band.
+
+    Each band writes only its own rows of the output and numpy releases the GIL inside its array operations,
+    so the bands run in parallel and the result does not depend on the thread count.
+    """
+
+    env = os.environ.get("SHOOTFLOW_THREADS", "").strip()
+    n = int(env) if env.isdigit() and int(env) > 0 else (os.cpu_count() or 1)
+    return max(1, min(n, -(-rows // band)))
+
+
+def warp_planes(warps: list, img, band: int = 64, kernel: str = "bilinear", scale=None, threads: int | None = None):
+    """Run the warps (WarpRectilinear or WarpFisheye) on a linear (h, w, 3) float64 image; returns a new array (numpy, same bytes as ``warp_rgb``).
+
+    The cubic kernel reads its 16 taps from an edge-padded copy of each plane (``_np_cubic``), and the bands run
+    on ``threads`` threads (``_warp_threads`` when None); neither changes a byte of the output.
+    """
+
+    import numpy as np
+
+    if kernel not in WARP_KERNELS:
+        raise ValueError(f"warp kernel must be one of {WARP_KERNELS}, not {kernel!r}")
+    h, w = img.shape[0], img.shape[1]
+    nthreads = _warp_threads(h, band) if threads is None else max(1, int(threads))
+    for wp in warps:
+        cxp, cyp, m = _warp_frame(wp, w, h)
+        out = np.empty_like(img)
+        xs = (np.arange(w, dtype=np.float64) + 0.5 - cxp) / m
+        fisheye = isinstance(wp, WarpFisheye)
+        dx = xs[None, :]
+        planes = [np.ascontiguousarray(img[..., p]) for p in range(3)]
+        padded = [_np_pad2(np, s) for s in planes] if kernel == "cubic" else None
+
+        def run_band(y0, wp=wp, cxp=cxp, cyp=cyp, m=m, out=out, planes=planes, padded=padded, dx=dx, fisheye=fisheye):
+            y1 = min(h, y0 + band)
+            dy = ((np.arange(y0, y1, dtype=np.float64) + 0.5 - cyp) / m)[:, None]
+            # WarpFisheye's radius and angle depend only on where the pixel is: taken once per band, for every plane.
+            geo = _np_fisheye_geometry(np, dx, dy) if fisheye else None
+            for p in range(3):
+                src = planes[p]
+                if fisheye:
+                    sx, sy = _np_fisheye(wp.plane_terms(p), geo)
+                elif isinstance(wp, WarpRectilinear2):
+                    sx, sy = _np_rect2(np, wp, p, dx, dy)
+                else:
+                    kr0, kr1, kr2, kr3, kt0, kt1 = wp.plane_terms(p)
+                    r2 = dx * dx + dy * dy
+                    f = kr0 + r2 * (kr1 + r2 * (kr2 + r2 * kr3))
+                    sx = f * dx + kt0 * (2.0 * dx * dy) + kt1 * (r2 + 2.0 * dx * dx)
+                    sy = f * dy + kt1 * (2.0 * dx * dy) + kt0 * (r2 + 2.0 * dy * dy)
+                sx = cxp + m * sx - 0.5
+                sy = cyp + m * sy - 0.5
+                if kernel == "cubic":
+                    cap = 1.0 if scale is None else scale[p]
+                    out[y0:y1, :, p] = _np_cubic(np, padded[p], sx, sy, w, h, cap)
+                    continue
+                flat = src.ravel()
+                xi0, xi1, fx = _np_split(np, sx, w)
+                yi0, yi1, fy = _np_split(np, sy, h)
+                r0 = yi0 * w
+                r1 = yi1 * w
+                a = flat.take(r0 + xi0)
+                b = flat.take(r0 + xi1)
+                c = flat.take(r1 + xi0)
+                d = flat.take(r1 + xi1)
+                out[y0:y1, :, p] = (1.0 - fy) * ((1.0 - fx) * a + fx * b) + fy * ((1.0 - fx) * c + fx * d)
+
+        starts = range(0, h, band)
+        if nthreads > 1:
+            from concurrent.futures import ThreadPoolExecutor
+
+            with ThreadPoolExecutor(max_workers=nthreads) as ex:
+                for _ in ex.map(run_band, starts):
+                    pass
+        else:
+            for y0 in starts:
+                run_band(y0)
+        img = out
+    return img
+
+
+def _np_fisheye_geometry(np, dx, dy):
+    """``(dx, dy, r, t, r == 0)`` on arrays for WarpFisheye, with ``r`` and ``t = atan(r)`` as ``warp_source`` takes them.
+
+    ``atan`` is taken with ``math.atan``, not ``np.arctan``: numpy may use a vectorised arctan that differs from the
+    C library's in the last bit, and the two engines must give the same bytes.
+    """
+
+    dx, dy = np.broadcast_arrays(dx, dy)
+    r = np.sqrt(dx * dx + dy * dy)
+    flat = r.ravel()
+    t = np.fromiter(map(math.atan, flat.tolist()), dtype=np.float64, count=flat.size).reshape(r.shape)
+    return dx, dy, r, t, r == 0.0
+
+
+def _np_fisheye(terms, geo):
+    """WarpFisheye's normalised source offsets for one plane, the same operations in the same order as ``warp_source``."""
+
+    import numpy as np
+
+    k0, k1, k2, k3 = terms
+    dx, dy, r, t, zero = geo
+    t2 = t * t
+    ratio = np.where(zero, k0, t * (k0 + t2 * (k1 + t2 * (k2 + t2 * k3))) / np.where(zero, 1.0, r))
+    return ratio * dx, ratio * dy
+
+
+def _np_rect2(np, wp: WarpRectilinear2, p: int, dx, dy):
+    """WarpRectilinear2's normalised source offsets for one plane, the same operations in the same order as ``warp_source``."""
+
+    t = wp.plane_terms(p)
+    kt0, kt1, lo, hi = t[15], t[16], t[17], t[18]
+    dx, dy = np.broadcast_arrays(dx, dy)
+    r2 = dx * dx + dy * dy
+    rc = np.minimum(np.maximum(np.sqrt(r2), lo), hi)
+    f = np.full(rc.shape, t[14])
+    for k in t[13::-1]:
+        f = f * rc + k
+    if wp.reciprocal:
+        sx, sy = dx / f, dy / f
+    else:
+        sx, sy = f * dx, f * dy
+    sx = sx + (kt0 * (2.0 * dx * dy) + kt1 * (r2 + 2.0 * dx * dx))
+    sy = sy + (kt1 * (2.0 * dx * dy) + kt0 * (r2 + 2.0 * dy * dy))
+    return sx, sy
+
+
+def _np_pad2(np, src):
+    """One plane edge-padded by two pixels on every side, flattened, with its padded row length.
+
+    A Catmull-Rom tap past the edge takes the edge pixel (``_cubic_taps`` clamps the index); in the padded
+    plane that pixel is already there, so the 16 taps are fixed offsets from one index and need no clamping.
+    """
+
+    return np.pad(src, 2, mode="edge").ravel(), src.shape[1] + 4
+
+
+def _np_cubic(np, padded, sx, sy, w: int, h: int, cap: float):
+    """Catmull-Rom samples of one plane at (sx, sy), the same operations in the same order as ``warp_rgb``.
+
+    ``padded`` is ``_np_pad2`` of the plane. The source point is clamped to the image as ``_cubic_taps`` does;
+    the top-left tap (offsets -1, -1) of pixel ``(i, j)`` sits at ``(j + 1) * pw + (i + 1)`` in the padded plane,
+    and the other 15 at fixed offsets from it, each read with one ``take`` on a shifted view (no index array
+    per tap). Edge taps read the replicated edge pixel, the value the clamped index reads, so the bytes match.
+    """
+
+    flat, pw = padded
+    sx, sy = np.broadcast_arrays(sx, sy)
+    vx = np.where(sx <= 0.0, 0.0, np.where(sx >= w - 1, w - 1.0, sx))
+    vy = np.where(sy <= 0.0, 0.0, np.where(sy >= h - 1, h - 1.0, sy))
+    ix = vx.astype(np.intp)  # v >= 0 here, so truncation is int()
+    iy = vy.astype(np.intp)
+    tx = vx - ix
+    ty = vy - iy
+    base = iy * pw
+    base += ix
+    base += pw + 1
+    wx0, wx1, wx2, wx3 = _cubic_weights(tx)
+    wy = _cubic_weights(ty)
+    acc = np.zeros(sx.shape)
+    for j in range(4):
+        o = j * pw
+        row = (
+            wx0 * flat[o:].take(base)
+            + wx1 * flat[o + 1 :].take(base)
+            + wx2 * flat[o + 2 :].take(base)
+            + wx3 * flat[o + 3 :].take(base)
+        )
+        acc = acc + wy[j] * row
+    return np.where(acc < 0.0, 0.0, np.where(acc > cap, cap, acc))
+
+
+def _np_split(np, v, n: int):
+    """``_clamp_split`` on an array."""
+
+    lo = v <= 0.0
+    hi = v >= n - 1
+    edge = lo | hi
+    i0 = np.floor(np.clip(v, 0.0, n - 1)).astype(np.int64)  # int(v) for 0 < v < n - 1, as in the pure path
+    i1 = np.where(edge, i0, i0 + 1)
+    fr = np.where(edge, 0.0, v - i0)
+    return i0, i1, fr

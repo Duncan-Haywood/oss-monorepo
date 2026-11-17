@@ -1,0 +1,421 @@
+# Proposal: can a robot sheath a wood-frame wall to code tolerance, and what decides it?
+
+Programme `buildbot-sheathing`, opened 2026-11-11 (track 20, robots on the residential building
+site). Written with AI assistance (Claude Code). This is a plan: nothing below is a result
+unless it cites a file in this repository. **Citation status.** `research/_shared/cite_check.py`
+could not reach Crossref, doi.org or arXiv from this session (the proxy refused all three), and
+publisher pages would not load. Each work below was checked against a catalogue record (DBLP, the
+publisher's or arXiv's listing, a university repository) seen through web search on 2026-11-11:
+authors, venue, year and identifier match that record. None was read in full in this session, so
+the one-line summaries come from abstracts and records, and each says what we could and could not
+see. Identifiers marked **[memory]** were not found in any record this session; check them before
+reuse.
+
+## Question
+
+Can a robot (a stock humanoid, a mobile manipulator with a lift, or a purpose-built gantry) hang
+and nail the wall sheathing of a wood-frame house so that every fastener lands where the code and
+the panel maker require, at a lower cost per sheet than a two-person crew, and which error source
+(framing as built, stud sensing, sheet placement, arm control, tool recoil) and which seconds of
+the cycle decide that?
+
+It is open because the pieces have been studied apart. Mobile construction robots have been
+localised to a few millimetres (Sandy et al. 2016; Lachmayer et al. 2022), factory and
+multi-robot timber assembly correct their paths from measurement (Willmann et al. 2016; Adel et
+al. 2024), a humanoid has screwed plasterboard to a wall (Kumagai et al. 2019), and stud pose
+has been estimated from images (Cote et al. 2024). Our own 26 `buildbot-*` projects
+priced reach, push, recoil, stud sensing and cost one at a time. What no work we found does is
+carry every error source through to the outcome a builder inspects, the share of sheets with
+every nail inside its window, on the geometry a real wall has (panel gaps, sheets that are not
+quite 48 in, studs that are not quite on 16 in), and ask which robot design meets it.
+
+## Why it matters
+
+Fastening is the largest share of the framing crew's hours in our task book (31%,
+[`buildbot-taskbook`](../buildbot-taskbook)), and sheathing is its most repetitive part: 62 nails
+a 4x8 sheet ([`buildbot-fasten`](../buildbot-fasten)). Panel-line integrators and construction-robot
+start-ups decide what sensing and fixturing to build on exactly this question: if the joint nails
+need sub-millimetre placement, a robot must see the sheet edge and the stud, or the line must
+hold the sheet in a jig, and a stock humanoid that cannot hang a sheet plumb to a few hundredths
+of a degree is the wrong machine. A nail that misses the framing holds nothing, and where the sheathing braces the wall the
+nailing schedule is structural, so the clean-sheet rate is the number a builder acts on, not a
+robot's repeatability.
+
+## Related work
+
+*On-site and mobile construction robots.*
+- Sandy, Giftthaler, Dörfler, Kohler and Buchli (2016), "Autonomous repositioning and
+  localization of an in situ fabricator", ICRA 2016, 2852–2858
+  (https://dblp.org/rec/conf/icra/SandyGDKB16). On-board sensing keeps a mobile arm's end
+  effector accurate across repositioning (a brick stack). Settles that a site robot can be
+  localised; does not budget a fastening task against it.
+- Giftthaler et al. (2017), "Mobile robotic fabrication at 1:1 scale: the In situ Fabricator",
+  *Construction Robotics* (doi:10.1007/s41693-017-0003-5; arXiv:1701.03573). The full system
+  and two building-scale demonstrations (a brick wall, Mesh Mould). Shows the accuracy problem
+  and a solution at the scale of one robot; no fastener windows.
+- Lachmayer et al. (2022), ISPRS Archives XLIII-B1-2022, 453
+  (https://isprs-archives.copernicus.org/articles/XLIII-B1-2022/453/2022/). Frames the main
+  difficulty of mobile construction robots as the gap between the precision a task needs and the
+  positioning accuracy a robot achieves, and refines the base pose with a laser scanner. Exactly
+  our framing, for a different task; title not confirmed beyond the record.
+- Kumagai et al. (2019), "Toward industrialization of humanoid robots: autonomous plasterboard
+  installation to improve safety and efficiency", *IEEE Robotics & Automation Magazine* 26(4),
+  20–29 (https://dblp.org/rec/journals/ram/KumagaiKMSNKKKB19). The HRP-5P humanoid carries an
+  11 kg board and screws it to a wall, localising against a 3-D map. The closest work to a
+  humanoid sheathing a wall; we could not see whether it measures screw placement against the
+  framing.
+
+*Timber framing and panel assembly with robots.*
+- Willmann, Knauss, Bonwetsch, Apolinarska, Gramazio and Kohler (2016), "Robotic timber
+  construction — expanding additive fabrication to new dimensions", *Automation in Construction*
+  61, 16–23 (doi:10.1016/j.autcon.2015.09.011). Robotic spatial assembly of timber members in a
+  factory; positioning, not fastener windows on sheathing.
+- Adel, Ruan, McGee and Mozaffari (2024), "Feedback-driven adaptive multi-robot timber
+  construction", *Automation in Construction* 164, 105444 (https://par.nsf.gov/biblio/10567690;
+  dataset doi:10.34770/0w80-p436, CC BY 4.0). Pose-based and topology-based adaptation from
+  as-built measurement; reduced deviations on nail-laminated panels and built a two-robot wall
+  frame. The strongest recent baseline for "measure, then correct" and the most promising real
+  as-built data set for milestone 2.
+- Construction Robotics (2024), coarse-to-fine stud pose estimation for robot-assisted wood
+  light-frame assembly (doi:10.1007/s41693-024-00122-0; Autodesk Research,
+  https://research.autodesk.com/?p=5898). Deep-learning stud pose plus classical refinement with
+  consumer sensors, on walls of good and poor lumber. The real-sensor counterpart of our swept
+  stud error; authors and accuracy figures not confirmed in this session.
+- ISARC 2019 paper 107 (https://www.iaarc.org/publications/fulltext/ISARC_2019_Paper_107.pdf).
+  Argues off-site timber-frame module production misses the accuracy it needs and corrects the
+  robot's path from a camera measurement of the grasped element. Authors and title not confirmed.
+
+*Tolerance analysis.*
+- Chase and Parkinson (1991), "A survey of research in the application of tolerance analysis to
+  the design of mechanical assemblies", *Research in Engineering Design* 3, 23–37
+  (doi:10.1007/BF01580066). Worst-case against statistical stack-up and allocation; the
+  machinery we use, from mechanical assembly, not applied to construction fastening.
+
+*Simulation and control the later milestones use.*
+- Todorov, Erez and Tassa (2012), "MuJoCo: a physics engine for model-based control", IROS
+  (doi:10.1109/IROS.2012.6386109). The simulator of every `buildbot-*` project.
+- Castro, Permenter and Han (2023), "An unconstrained convex formulation of compliant contact",
+  *IEEE Transactions on Robotics* (arXiv:2110.10107; checked by `cite_check.py`
+  2026-11-12). Drake's SAP solver; the second contact model of milestone 6.
+- Castro, Qu, Kuppuswamy, Alspach and Sherman (2020), "A transition-aware method for the
+  simulation of compliant contact with regularized friction", *IEEE Robotics and Automation
+  Letters* (arXiv:1909.05700; checked by `cite_check.py` 2026-11-12). Drake's TAMSI solver,
+  the third check of milestone 6.
+- Zakka et al. (2025), "MuJoCo Playground" (arXiv:2502.08844). GPU training of locomotion and
+  manipulation policies, including Unitree G1 locomotion; the route to a learned hang-and-hold
+  policy.
+- Kajita et al. (2003), biped walking pattern generation by preview control of the zero-moment
+  point, ICRA (doi:10.1109/ROBOT.2003.1241826 **[memory]**). The model-based baseline for
+  walking with a sheet.
+- Tobin et al. (2017), domain randomization for sim-to-real transfer (arXiv:1703.06907
+  **[memory]**). The standard way to train the placement policy for a variable sheet and wall.
+
+*Practice the windows come from.* APA builder tips on panel spacing and fastener edge distance
+(1/8 in gap at panel edges and ends, a recommendation, not a requirement; fasteners 3/8 in from
+panel edges; https://www.apawood.org/buildertips/pages/M300.html) and APA's technical topic on
+panels "sized for spacing" (trimmed up to 1/8 in at the maker's option;
+https://www.apawood.org/guides-tools-training/technical-document-library/technical-topics/sized-for-spacing/),
+both seen as search-result records, not opened.
+
+*Our own prior work* (cited as prior work, not as evidence from outside):
+[`buildbot-fasten`](../buildbot-fasten) (the 62-nail schedule and ±3.9 mm joint window),
+[`buildbot-studfind`](../buildbot-studfind) (a single stud read good to 0.89 mm),
+[`buildbot-recoil`](../buildbot-recoil) and [`buildbot-nailseq`](../buildbot-nailseq) (recoil
+moves the tip 1–4 mm and costs no time), [`buildbot-cohold`](../buildbot-cohold) (a co-held
+sheet tilts 2–6° during the lift), [`buildbot-stance`](../buildbot-stance),
+[`buildbot-mobilebase`](../buildbot-mobilebase) and [`buildbot-custom`](../buildbot-custom)
+(cycle time by robot class), [`buildbot-skills`](../buildbot-skills) and
+[`buildbot-mjsheet`](../buildbot-mjsheet) (sim-to-sim of the sheet-follow skill),
+[`house-offsite`](../house-offsite) (factory wall panels).
+
+## Gap
+
+No published work we found, and none of our own, propagates the full chain (as-built framing,
+stud sensing, panel gap and width, sheet placement, arm, tool) to the clean-sheet rate of
+sheathing nailing, compares aiming strategies (at the design window, from the measured edge,
+measure-then-tack) on that outcome, or ranks robot classes by the cost of a clean sheet. The
+claim is narrow: a tolerance-allocation analysis for one construction fastening task, checked in
+a physics simulator and, where data allow, on measured as-built framing, with the robot designs
+priced on the same budget.
+
+## Hypotheses
+
+- **H-A (the edge decides).** Once the panel gap and the sheet's pose are in the budget, the
+  joint nails' window, not stud sensing alone, sets the clean-sheet rate, and aiming each joint
+  nail from the measured sheet edge is needed to reach 95%. Refuted if a robot aiming at the
+  design window reaches 95% clean sheets with sensing and placement errors a commercial system
+  achieves.
+- **H-B (placement is the humanoid's bottleneck).** The sheet rotation a 95% clean-sheet rate
+  allows (milestone 1: about 0.03° 1σ) is far tighter than a stock humanoid co-holding a sheet
+  can hang it; a humanoid needs a guide (a ledger board, a jig) or a tack-then-measure strategy.
+  Refuted if a MuJoCo hang policy for the G1 or H1 places sheets within the budget in ≥ 95% of
+  randomised episodes.
+- **H-C (rows need stud referencing).** Sheets butted against each other drift off their studs
+  within a wall unless each is set from its own studs. Refuted if butted rows of commercially
+  trimmed panels stay inside the joint windows along a 40 ft wall.
+- **H-D (the cheapest clean sheet).** On cost per clean sheet, a mobile base with a lift beats a
+  walking humanoid at every sensing quality, and a gantry beats both above a volume we will
+  state. Refuted if the ranking flips inside the swept ranges.
+- **H-E (sim-to-sim).** Clean-sheet rates of the final policies agree within 10 percentage
+  points between two contact models (MuJoCo's soft contact and a second model or simulator).
+
+## Method
+
+*Theory.* Statistical tolerance analysis (Chase and Parkinson 1991) with the error structure of a
+wall: errors shared by every nail on a stud, by every nail on a sheet edge, and drifting along a
+row, propagated to the probability that all 62 nails land inside their windows. Closed forms or
+quadrature where they exist, checked against Monte Carlo (milestone 1 does this for translation
+and rotation; `tests/`).
+
+*Experiments.* (1) The budget model with sourced windows (APA, the code) and swept errors.
+(2) As-built framing variation from real data: the Adel et al. (2024) data set if it can be
+fetched, otherwise lumber grading limits on crook and twist, swept. (3) A MuJoCo scene: a framed
+wall, a flexing sheet (`buildbot-mjsheet`), the Menagerie G1 and H1, a mobile base with a lift;
+placement policies (impedance follow, a ledger guide, tack-then-measure) scored on the sheet pose
+they leave. (4) The full cycle with the nailer recoil of `buildbot-recoil` and the sequence of
+`buildbot-nailseq`. (5) A second contact model for sim-to-sim. (6) Cost per clean sheet through
+`buildbot-cost` and `house-cost`.
+
+## Evaluation
+
+Metrics: clean-sheet rate (all 62 nails inside), nails missed per sheet, seconds per sheet, cost
+per clean sheet. Baselines: a two-person hand crew (time from `buildbot-taskbook`, swept);
+aiming at the design window (the implicit assumption of `buildbot-fasten`/`studfind`); measure
+and correct (the pose-based adaptation of Adel et al. 2024) as the strongest published strategy;
+the gantry of `buildbot-custom` as the purpose-built baseline. Statistics: fixed seeds, at least
+20,000 Monte Carlo sheets per cell (binomial standard error under 0.002 at 95%), Wilson
+intervals on simulated episode rates, 10+ seeds for learned policies with their spread.
+Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming policy.
+
+## Milestones
+
+1. **Gap, pose and row drift in the joint budget** (done 2026-11-11, `experiments/m1_gap_placement/`).
+2. **As-built studs** (done 2026-11-12, `experiments/m2_asbuilt_studs/`): bow and twist from
+   grading limits and published means; bow closes single-2x joints, wider joint framing reopens them.
+   Still open: measured stud profiles in place of means.
+3. Placement in MuJoCo: the sheet pose a G1/H1 co-hold, a lift and a ledger guide leave. First
+   part done 2026-11-12 (`experiments/m3_ledger/`): a released sheet seats on a ledger to 0.0001°
+   below a press of about 100 N; then panel squareness (PS 2) leaves 100% clean sheets on doubled
+   joints and at most 84–95% on single 2x. Second part done 2026-11-12 (`experiments/m3b_humanoid/`):
+   neither a G1 (8.7 kg) nor an H1 (18.8 kg) can carry the sheet to the wall, both can press it
+   on the ledger (66–110 N, 128–281 N), and at Unitree's stock gains both are soft enough for the
+   ledger to seat it, except an H1 with a rigid clamp. Still open: the dynamic hand-off.
+4. **Tack-then-measure** (done 2026-11-12, `experiments/m4_tack_measure/`): the hang allowed is
+   0.03° and 0.4 mm on single 2x joints and 0.54° and 10 mm on doubled ones; re-hanging cannot
+   lift single-2x joints to 95%. Run before milestone 3, to give it a target.
+5. **End-to-end cycle** (done 2026-11-12, `experiments/m5_cycle/`): ledger or lift-tack
+   placement, sensing, recoil and rework in one steady-state cycle. Two 2x at the joint with one
+   read a stud: 0.9994 clean, 76–216 s a sheet; the best single-2x pipeline (three reads) 0.56
+   clean and 18–65 s slower, which is what the extra joint stud may cost. Still open: a measured
+   time for each stage.
+6. **Sim-to-sim on a second contact model** (done 2026-11-12, `experiments/m6_drake/`): the
+   ledger seat and slide rebuilt in Drake (SAP). Clean sheets of all 24 ledger pipelines agree
+   within 0.05 points (H-E held); Drake's press thresholds sit at 97–100% of the closed form,
+   MuJoCo's at 87–99%. Still open: how far a bowed bottom edge rocks the sheet (0.11–0.15°,
+   model-dependent).
+   **6b. The bowed bottom edge** (done 2026-11-13, `experiments/m6b_bowed_edge/`): modelled as a
+   curve, a 1/16 in bow is a stable rocker (R = 117 m against h0 = 1.22 m) and seats inside the
+   friction band θ_s = μ F_n r̄ / (m g (R − h0)) in both engines (99th percentile 0.06° against the
+   0.149° three-foot rock); the best single-2x pipeline goes from 0.56 to 0.625 clean. A kink or
+   1 mm of grit keeps a rock of up to 0.09–0.15°, set by the approach.
+7. **Cost per clean sheet by robot class** (done 2026-11-12, `experiments/m7_cost/`): the G1 on a
+   drive-and-lift base is the cheapest robot below about 500 houses a year and beats the walking H1
+   in every draw; it beats a hand crew in 37% of draws at 100 houses a year and 74% at 300. Doubled
+   joints never pay in dollars unless a missed nail costs about $6.50 more than its re-drive.
+8. **Paper draft** (done 2026-11-12, `paper/draft.md`): the article for *Automation in Construction*
+   in its structure, with `paper/check_numbers.py` tying each quoted figure to its results file.
+   Still open: the Elsevier LaTeX template, the unconfirmed citations and authorship.
+9. **Straighten the joint stud instead of doubling it** (done 2026-11-13, `experiments/m9_straighten/`):
+   a mid-height push onto the line takes 48 E I b / L³, a median of 28 N and a 99th percentile of
+   126 N at the published warp (376 N at the grade limit), which a stock G1 can just manage
+   (81–88 N sideways, covering 93% of low-warp studs). It lifts single-2x clean sheets from 0.56
+   to 0.71 (low warp) and 0.31 to 0.68 (high), but not to 95%: on straight studs the same pipeline
+   gives 0.74, so the sheet's pose, not bow, is the remaining cap. Still open: a mock-up push to
+   pin the end restraint, and whether a pushed stud stays put between sheets.
+10. **What the straight-stud ceiling is made of** (done 2026-11-13, `experiments/m10_ceiling/`):
+   by Shapley share the tool's 0.9 mm scatter carries 45–47% of single 2x's misses on straight
+   studs, the pose 39–44% and the reads the rest, and neither group misses alone. Sliding the sheet
+   to centre its gap and shimming it plumb before tacking lift the ceiling from 0.74–0.81 to
+   0.92–0.94; 95% then needs a tool held to about 0.8 mm. Still open: the slide and shim as
+   mechanisms, and a measured tool scatter.
+
+11. **Measured studs** (done 2026-11-13, `experiments/m11_measured/`): six installed studs from the
+   Adel et al. (2024) laser scan of a robot-built 2x4 wall (CC BY 4.0). Bow amplitudes sit on the
+   published mean (median 0.106 in at 8 ft), but the shape is not a parabola (0.6–0.9 mm RMS left,
+   0.3–0.6 mm after removing what is common to every member), and on measured shapes the best
+   single-2x pipeline gives 0.43–0.47 clean sheets against 0.58 for parabolas at the same bows.
+   Doubled joints stay at 1.000. Still open: a population of framer-built walls scanned along
+   the studs.
+12. **The single-2x remedies on measured studs** (done 2026-11-13, `experiments/m12_remedies/`):
+   reading each stud at every nail height recovers most of milestone 11's loss (0.425 to 0.530;
+   waviness costs 4.7 points instead of 15.4), a mid push measured from the end chord still adds
+   12.6 points, and per-nail reads, push and a slide and shim together reach 0.771 (0.860 on the
+   same studs' parabolas). 95% then needs a tool held to 0.61 mm. Doubled joints stay at 1.000.
+   Still open: a line-laser stud read on a robot, timed.
+13. **What the remedies cost** (done 2026-11-13, `experiments/m13_price/`): with each remedy's
+   seconds charged in milestone 7's cost model, the full single-2x stack costs $7.42 per clean sheet
+   at 100 houses a year against $7.10 for three reads (0.771 against 0.425 first-pass clean); the
+   doubled joint stud ($12.17, 1.000 clean) loses in every draw and pays only if a missed nail costs
+   about $5.51 more than its re-drive. Still open: the cost and detection rate of a missed nail at
+   inspection, and measured remedy times.
+14. **What an escaped missed nail costs in capacity** (done 2026-11-13, `experiments/m14_escaped/`): a
+   rigid-plastic fully anchored shear-wall model (Källsner and Girhammar 2009), checked against SDPWS's
+   spacing table (within 6%), scores the simulated miss patterns. One joint-edge miss costs about 2% of
+   its sheet; on measured studs with three reads the mean sheet loses 2.3% but the 99th percentile
+   11.5%, because misses cluster. Nailing the joint edges at 4 in carries every escaped miss (99.98% of
+   sheets at or above the intact 6 in sheet) for less than re-driving them. The model loses only 20% where
+   Weiss (2017)'s walls with the bottom foot unnailed lost about half, so its losses are lower bounds.
+   Still open: a racking test of sheets with shiners at the simulated positions.
+15. **Framing joints of finite strength** (done 2026-11-14, `experiments/m15_frame_joints/`): the framed
+   sheet as a rigid-body limit analysis (an LP), with stud-to-plate joints at the NDS yield-limit ratio
+   (2.55 sheathing nails). It reproduces milestone 14 with rigid joints (0.09%), but at code-strength
+   joints Weiss's unnailed bottom foot still costs only 20–21%: 40–50% needs joints at 0.46–0.56 of that
+   ratio, or no hold-downs (64–100%). A lone sheet whose top plate can tilt loses 7% intact and 16.7% at
+   the escaped-miss tail; a sliding top plate restores milestone 14's numbers; 4 in joint edges carry the
+   misses either way. Still open: Weiss's anchorage, and ultimate (not design) joint and nail strengths.
+16. **Softening nails** (done 2026-11-14, `experiments/m16_soft_nails/`): milestone 14's sheet pushed over
+   with each nail on the tested backbone of an 8d common nail in 7/16 in OSB (Shameli Derakshan et al.
+   2019). It reduces to milestone 14 for rigid-plastic nails (0.000%) and tracks SDPWS's spacing ratios
+   within 6%; the unnailed bottom foot costs 20.1–20.4% at every slip-at-peak from 6 to 15 mm (rigid-plastic
+   20.4%), because the perimeter nails slip almost equally. Escaped misses: 2.39% mean, 11.8% at the 99th
+   percentile; 4 in joint edges carry them. Still open: the anchorage (hold-down and sill stiffness, uplift).
+17. **Weiss's own wall** (done 2026-11-14, `experiments/m17_weiss_wall/`): with the thesis full text read,
+   the limit analysis is rebuilt as her tested 8 by 8 ft wall (two sheets on a shared middle stud, hold-downs
+   only at the wall's ends). It matches the controls' spacing ratio (1.93 against 1.87) but at NDS-ratio
+   joints the decayed walls keep 80% and 63% where hers kept 57% and 34%, so the anchorage as tested does
+   not explain them. Post hoc, end nails at 0.47 of the NDS ratio fit both groups (58%, 30%): the decayed
+   wall then slides on its 18 sill nails whatever the sheathing schedule, as Weiss observed. Escaped misses
+   cost the same on the two-sheet wall (2.7% mean, 10.4% at the 99th percentile). Still open: a tested
+   ultimate for end-nailed stud-to-plate joints, and the hold-downs' and anchor bolts' shear.
+18. **The anchor rods' shear path** (done 2026-11-14, `experiments/m18_holddown_shear/`): adding the HTT4
+   rods' shear through the sill stops milestone 17's slide at about 420 lb a rod (below the rod's 617 lb
+   design value), and then no end-nail strength fits the 3 in wall (64–74% kept against 34%). Fits need the
+   rods and end nails both below their design values.
+19. **The wall pushed over** (done 2026-11-14, `experiments/m19_wall_pushover/`): the same wall as a
+   displacement model (sourced nail curves, softening stud joints, rods that bear after a gap). It matches
+   the LP to 0.04%; a 1/16 in gap moves the decayed walls 0.1 point, early-peaking joints leave the 3 in wall
+   at 71%, and all 30 fits within 5 points (960 pushovers) need end nails at a quarter of the NDS ratio.
+   Still open: a tested end-nail ultimate and load-slip curve, and cyclic loading.
+20. **The wall under the CUREE protocol** (done 2026-11-14, `experiments/m20_cyclic/`): SAWS pinching nails
+   fitted to Weiss's materials (Anderson et al. 2007), checked against OpenSees to 2e-13. Cyclic loading
+   moves the intact peaks 0.1% and the decayed 3 in wall's share 0.1 point (70.6% against 34% tested); fits
+   still need end nails at a quarter of NDS. Still open: a tested end-nail ultimate, and nail fatigue and
+   tear-out (a degrading nail model).
+21. **Nails that lose strength with dissipated energy** (done 2026-11-15, `experiments/m21_degrading/`): the
+   Rahnama–Krawinkler energy rule (c = 1) on every SAWS spring, rate swept. The intact walls' CUREE peaks fall to
+   63–97% of monotonic, but the decayed shares rise 0.3–2.9 points at code-strength joints (3 in wall 70.6% to
+   73.5%); the best fit stays at end nails of a quarter of NDS with no degradation. Still open: a local failure
+   model for nails at the unnailed bottom edge, the middle stud splitting, and a tested 16d end-nail ultimate.
+22. **The paper's capacity half** (done 2026-11-15, `paper/draft.md` sections 4.9–4.10 and 5.13–5.14): milestones
+   14–21 written into the draft, with a table of the five decayed-wall models and 60 more numbers tied to their
+   results files (190 checks).
+23. **The submission source** (done 2026-11-15, `paper/build_latex.py`): the draft built into Elsevier's
+   `elsarticle` class with natbib citations keyed to `references.bib` (23 works cited, 4 standards listed),
+   checked for unconverted citations, missing keys, section/table/figure numbering and Elsevier's highlight
+   limits; compiles to 27 pages with no undefined citation. Sections 4.7 and 4.8 were out of order and the
+   eight highlights all ran past 85 characters (now five). Cote et al. (2024) and Lachmayer et al. (2022)
+   completed from catalogue records. Still open: authorship, the abstract's length (469 words), the NDS and
+   SDPWS editions.
+24. **Submission limits** (done 2026-11-15, `paper/build_latex.py`): the abstract cut from 469 to 150 words,
+   the journal's limit as excerpted from its guide for authors, and the build now fails on a longer abstract,
+   on a single-author citation left as plain text (milestone 23's check missed them) and on a .bib entry
+   cited nowhere; Ghazinader (2024) is cited where Folz and Filiatrault's set is used. 26 pages, 24 works
+   cited. Still open: authorship, the NDS and SDPWS editions.
+25. **Reproducibility check** (done 2026-11-15, `reproduce.py`): one command per experiment, and
+   `--check`, which re-runs experiments in a temporary copy and diffs their results files against
+   the committed ones. Twelve re-run (m1, m2, m4, m5, m7, m10–m14, m17, m18); milestones 5 and 12 had drifted from later edits to shared
+   code (milestone 9 reordered two random draws; milestone 14 changed how a mean is rounded), so
+   m5, m7, m12 and m13 are refreshed and every moved number in the paper updated (H22 0.5833 to
+   0.5814, two 2x 0.9997 to 0.9994, break-even $6.51 to $6.47); no verdict changes.
+
+27. **The slide as a mechanism** (done 2026-11-15, `experiments/m27_slide_mech/`): stick-slip on the ledger with
+   a push-only hand of the stock G1's stiffness along the wall (63 N/m, a force source in effect). Tapping from
+   either edge leaves 0.19–0.64 mm rms if the push is dropped within 20 ms of the sheet moving and 2.5–10 mm at
+   100 ms (friction swept); the best single-2x stack goes from 0.771 (0.5 mm assumed) to 0.79 at 20 ms and 0.32 at
+   100 ms (μ_k/μ_s 0.8). Still open: the OSB-on-lumber friction pair, a measured release latency, and the shim.
+28. **The shim as a mechanism** (done 2026-11-16, `experiments/m28_shim_mech/`): plumbing the sheet needs a corner lift of
+   a median 0.95 mm (p99 3.0 mm). A stack of 1/16 in horseshoe shims leaves 0.458 mm rms and keeps the best single-2x
+   stack at 0.796 (0.791 with the assumed 0.5 mm). A 1:32 composite wedge needs a 118.5 N push at μ 0.4, against the
+   stock G1's 65.6 N at a 0.5 m ledger (H1 132 N), and, because a hand weighs under 1 kg along the push, leaves 0.132 mm
+   at a 20 ms release. Still open: the shim and OSB friction pairs measured, and a shim-placing end effector.
+29. **The nailer's length and the nail's lean** (done 2026-11-16, `experiments/m29_tool_lean/`): the 0.9 mm tool scatter
+   was the hand point. Carried to a nose 0.3 m ahead and to the shank 44.4 mm deep, the G1's 11-bit error is 1.31/1.38 mm
+   and the best single-2x stack falls from 0.796 to 0.264 (H1 0.571); 12-bit joints restore 0.934. An independent lean
+   of 0.43° (1σ) costs 2 points more. Doubled joints stay at 1.000. Still open: backlash and deflection at the tool
+   point, a measured nose length, and the paper's headline restated for a tool-point spec.
+30. **Backlash at the tool point** (done 2026-11-16, `experiments/m30_backlash/`): backlash randomises only joints that gravity
+   and the press do not hold one way. At the stud pose (3.4 kg nailer, 25–50 N press) 16–19 of the G1's 22 joints that move the
+   nose are held; the two ankle rolls carry no torque under an even ground reaction. 5 arcmin on every joint costs the 12-bit
+   G1 17 points (0.934 to 0.765); preloaded 2.1 points; with the ankle rolls biased to one side, nothing up to 25 arcmin. The
+   NR90AES1's 12-11/16 in height puts the grip 0.29–0.32 m behind the nose; a grip 0.15 m above the drive axis costs the 11-bit
+   G1 8 points, below it gains 4. Still open: deflection under the press, the pose range, and the paper's headline for a
+   tool-point spec.
+31. **Backlash across the poses along a wall** (done 2026-11-16, `experiments/m31_pose_range/`): over 15 G1 poses
+   (0.4–1.2 m, ±0.15 m along the wall) 13–20 of 22 nose-moving joints stay held; per-pose calibration leaves 5 arcmin costing
+   0.3–9.9 points (worst at the top of the reach). Both hip yaws and the waist roll are held everywhere but flip sign, so one
+   tool-frame calibration leaves up to 3.4 mm along the wall: 12-bit joints tolerate 2.5 arcmin calibrated per pose, 0.44
+   calibrated once. Still open: deflection under the press, a balance controller's ground-reaction split, and the paper's
+   headline for a tool-point spec.
+32. **The ground reaction through real soles** (done 2026-11-16, `experiments/m32_grf_qp/`): with friction cones at the
+   soles' contact points, the upright poses balance only 26–39 N of press above 0.8 m (G1), so the robot must lean
+   0.04–0.12 m into the wall. On the leaned poses the hip-yaw and waist flips vanish under every ground-reaction model;
+   holding all leg joints one-signed is infeasible, holding the hip rolls, hip yaws and ankle rolls is feasible and cuts the
+   worst per-pose loss to 3.7 points, but one calibration still leaves 1.1–2.6 mm. Still open: deflection under the press
+   and the paper's headline for a tool-point spec.
+33. **Model-based backlash compensation** (done 2026-11-16, `experiments/m33_compensate/`): predicting each held joint's
+   side from the static torques and subtracting the bias removes the residual entirely when the compensator models the
+   robot's balance controller; then a full 64-nail magazine left out of the model costs 0.017 mm and +1 kg 0.057 mm on a
+   G1 holding its light leg joints, against 0.41–0.84 mm under the torque-minimising controller. A wrong ground-reaction
+   model leaves 1.16–1.92 mm, little better than no compensation (1.40–2.63), and a guard band on predicted torque only
+   adds missed joints. Still open: deflection under the press and the paper's headline for a tool-point spec.
+34. **Deflection under the press** (done 2026-11-16, `experiments/m34_windup/`): the joints' elastic windup over the
+   25–50 N press window, swept over transmission stiffness k_t (none published). A nose free to slide needs k_t ≥ 1.8e4
+   N m/rad on every joint to stay within 2 points (G1 5.5 points lost at 1e4); stuck by friction, the windup only tilts
+   the tool (0.02 mm at the nail's tip), and at mu 0.4 the G1's nose sticks at 10 of 15 poses (friction-limited, 1e4
+   suffices). The mean windup is a pose bias a model removes; an unmodelled magazine droops the servo by 32–51 mm under
+   Unitree's gains, which the joint encoders see. Still open: the paper's headline for a tool-point spec, the hose as
+   a force, and the nailer's recoil.
+35. **The air hose as a force** (done 2026-11-16, `experiments/m35_hose/`): a 3/8 in hose (listed 0.152–0.274 kg/m)
+   hanging as a catenary from the grip and dragged along the floor (tension swept 0–20 N, eight directions). At k_t 1e4 a
+   5 N pull winds the G1's free nose up 1.25 mm (worst towards the wall, where it acts like a change of press) and leaves
+   milestone 33's matched compensator 1.0 mm along the wall; even the hanging hose leaves 0.47 mm. With the tension
+   uniform over 0–5 N the worst pose loses 2.2 points, over 0–10 N 21 points. Take the hose off the tool, measure the
+   tool's wrench, or keep the drag under a few newtons. Still open: the paper's headline for a tool-point spec, a wrist
+   force-torque sensor, and the nailer's recoil.
+36. **A wrist force-torque sensor** (done 2026-11-16, `experiments/m36_wrist_ft/`): the compensator predicts from the
+   measured wrench (Robotiq FT 300, 0.1 N noise; its pre-2017 version, 1.2 N; ATI Mini45, 1/16 N resolution). It cuts the
+   G1's worst residual at a 20 N drag from 2.34 to 0.29 mm and the 0–20 N stack loss from 91.6 to 1.6 points, and k_t
+   misjudged by 25% leaves at most 0.4 mm. But any sensor error (0.01 N is enough) flips a held joint that sits at the
+   friction threshold, so a floor of 0.3–0.5 mm remains (0.82 mm at 5 N); the pre-2017 sensor is worse than none.
+   Still open: a held-joint preload against that floor, the paper's headline for a tool-point spec, and the nailer's
+   recoil.
+37. **A held-joint preload** (done 2026-11-17, `experiments/m37_preload/`): with the controller planning from the
+   measured force and the robot settling under the true one, 92% of the mispredicted joints are the balance
+   controller's own held joints, pinned exactly at the threshold; a 0.1 N m preload on every leg joint removes them and
+   brings the G1's 0–20 N stack loss from 56.5 points back to 1.6 (milestone 36's figure) for 1.7% more leg torque and
+   one of 15 poses. The 0.3–0.8 mm left is in the waist and arm joints, which the ground reaction cannot move; a hedged
+   compensator does not help. Still open: a two-handed squeeze to preload the arms, the paper's headline for a
+   tool-point spec, and the nailer's recoil.
+38. **A two-hand squeeze** (done 2026-11-17, `experiments/m38_squeeze/`): a force pair along the line between the grip
+   points has no net wrench, so it moves only the arm joints (to 1e-16 N m elsewhere). Chosen from the plan within
+   10 N it clears all 14 arm flips and, with milestone 37's leg preload and the FT 300, takes the 0–20 N stack loss
+   from 1.64 points to 0.05 (G1) and 2.19 to 0.02 (H1); the G1's worst residual at a 5 N drag falls from 0.83 to
+   0.49 mm. The 0.48–0.50 mm left is in the waist and the H1's torso. Side finding: the G1's wrist pitch carries more
+   than its 5 N m MJCF rating at 7 of 14 poses. Still open: the paper's headline for a tool-point spec, a grip that
+   changes the waist's share, and the nailer's recoil.
+
+## Target venue
+
+*Automation in Construction* (Elsevier; full research article, no fixed page limit; the field's
+main journal, and where Willmann et al. 2016 and Adel et al. 2024 appeared). Fallback: ISARC
+(the International Symposium on Automation and Robotics in Construction; 8-page papers). This is
+an aim, not a claim of acceptance.
+
+## Deep-tech application
+
+The system is a sheathing station: a wall-panel line in a factory (the `house-offsite` setting)
+or a robot on site. The number it moves is the clean-sheet rate at a given sensing and placement
+spend, and from that the cost per sheet. Panel-line integrators and construction-robot companies
+would act on it when choosing between edge sensing, jigs and tighter placement. Trying it on the
+real thing takes a framed mock-up wall, a nailer on a robot arm or a G1, and a risk assessment
+under ISO 10218 and ISO/TS 15066 (an owner step; track 20, milestone 9).

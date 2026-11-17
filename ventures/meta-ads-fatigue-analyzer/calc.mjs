@@ -37,33 +37,39 @@ export function detectDelimiter(text) {
 
 export function parseCsv(text, delim = ",") {
   const rows = [];
-  let row = [], field = "", quoted = false;
+  // Each row carries a non-enumerable `line`: the file line it starts on,
+  // so a reader can name it after blank lines or quoted line breaks.
+  let row = [], field = "", quoted = false, line = 1, start = 1;
   const src = String(text ?? "").replace(/^﻿/, "");
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (quoted) {
       if (c === '"') { if (src[i + 1] === '"') { field += '"'; i++; } else quoted = false; }
-      else field += c;
+      else { field += c; if (c === "\n" || (c === "\r" && src[i + 1] !== "\n")) line++; }
     } else if (c === '"') quoted = true;
     else if (c === delim) { row.push(field); field = ""; }
     else if (c === "\n" || c === "\r") {
       if (c === "\r" && src[i + 1] === "\n") i++;
       row.push(field); field = "";
-      if (row.some((f) => f.trim() !== "")) rows.push(row);
-      row = [];
+      if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
+      row = []; start = ++line;
     } else field += c;
   }
   row.push(field);
-  if (row.some((f) => f.trim() !== "")) rows.push(row);
+  if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
   return rows;
 }
 
 // "1,234.56", "$12", "12.5%", "--", "(3)". Blank is 0. NaN only for text that
 // is not a number at all.
+// Semicolon files use decimal commas; a tab file does when a cell ends in a
+// comma and one or two digits (512,40) rather than a thousands group (1,234).
+export const detectDecimalComma = (text, delim) => delim === ";" || (delim === "\t" && /(^|\t)"?-?[\d.]*\d,\d{1,2}"?(?=\t|\r?$)/m.test(text));
+
 export function parseNumber(v, decimalComma = false) {
   let s = String(v ?? "").trim();
   if (s === "" || /^[-–—\s]+$/.test(s)) return 0;
-  const neg = /^\(.*\)$/.test(s) || s.startsWith("-");
+  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−–—]/.test(s);
   s = s.replace(/[^0-9.,]/g, "");
   s = decimalComma ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, "");
   const n = Number(s);
@@ -75,11 +81,11 @@ export function parseNumber(v, decimalComma = false) {
 export function parseDate(v, dmy = false) {
   const s = String(v ?? "").trim();
   if (!s) return NaN;
-  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)/);
   let y, mo, d;
   if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; }
   else {
-    m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})/);
+    m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(?!\d)/);
     if (!m) return NaN;
     const a = +m[1], b = +m[2];
     y = +m[3]; if (y < 100) y += 2000;
@@ -93,14 +99,18 @@ export function parseDate(v, dmy = false) {
 // Day-first if any slash date has a first part above 12 and none has a second
 // part above 12. Ambiguous files default to month-first.
 export function detectDmy(values) {
-  let first = false, second = false;
+  // Dots ("03.06.2026") are the European day.month.year form; no locale
+  // writes month.day.year, so a dotted file is day-first unless a second part
+  // is above 12 (red team 2026-11-15).
+  let first = false, second = false, dotted = false;
   for (const v of values) {
-    const m = String(v ?? "").trim().match(/^(\d{1,2})[/.-](\d{1,2})[/.-]\d{2,4}/);
+    const m = String(v ?? "").trim().match(/^(\d{1,2})([/.-])(\d{1,2})\2\d{2,4}/);
     if (!m) continue;
     if (+m[1] > 12) first = true;
-    if (+m[2] > 12) second = true;
+    if (+m[3] > 12) second = true;
+    if (m[2] === ".") dotted = true;
   }
-  return first && !second;
+  return (first || dotted) && !second;
 }
 
 export const dateStr = (t) => new Date(t).toISOString().slice(0, 10);
@@ -159,9 +169,9 @@ export function normalizeRows(table, { decimalComma = false } = {}) {
       return n;
     };
     const spend = num("spend"), impr = num("impr"), results = num("results");
-    if (!Number.isFinite(spend) || spend < 0) { skipped.push({ line: r + 1, reason: "unreadable amount spent" }); continue; }
-    if (!Number.isFinite(impr) || impr < 0) { skipped.push({ line: r + 1, reason: "unreadable impressions" }); continue; }
-    if (!Number.isFinite(results) || results < 0) { skipped.push({ line: r + 1, reason: "unreadable results" }); continue; }
+    if (!Number.isFinite(spend) || spend < 0) { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable amount spent" }); continue; }
+    if (!Number.isFinite(impr) || impr < 0) { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable impressions" }); continue; }
+    if (!Number.isFinite(results) || results < 0) { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable results" }); continue; }
     const clicks = num("clicks"), reach = num("reach"), freq = num("freq");
     let value = cols.value === undefined ? 0 : parseNumber(get(line, "value"), decimalComma);
     if (cols.value === undefined && cols.roas !== undefined) {
@@ -175,7 +185,7 @@ export function normalizeRows(table, { decimalComma = false } = {}) {
     if (Number.isFinite(s)) lo = Math.min(lo, s);
     if (Number.isFinite(e)) hi = Math.max(hi, e);
     rows.push({
-      line: r + 1, campaign: get(line, "campaign"), adset: get(line, "adset"), ad,
+      line: table[r].line ?? r + 1, campaign: get(line, "campaign"), adset: get(line, "adset"), ad,
       day: cols.day !== undefined && Number.isFinite(day) ? day : null,
       spend, impr, reach: Number.isFinite(reach) ? reach : 0, freq: Number.isFinite(freq) ? freq : 0,
       clicks: Number.isFinite(clicks) ? clicks : 0, results, value: Number.isFinite(value) ? value : 0,
@@ -315,7 +325,7 @@ export function analyze(rows, { targetCpa = null, freqThreshold = 3, minImpr = 1
   return { summary, ads: [...ads].sort((a, b) => b.spend - a.spend), fatigued, zero: [...zero].sort((a, b) => b.spend - a.spend), scale, buckets, byCampaign: groupBy(ads, (a) => a.campaign), byAdset: groupBy(ads, (a) => a.adset), findings };
 }
 
-export function money(v) { return (v < 0 ? "-" : "") + Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+export function money(v) { return ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })); }
 export function pct(v) { return v === null || v === undefined ? "–" : `${(v * 100).toFixed(2)}%`; }
 
 export function adsCsv(result) {

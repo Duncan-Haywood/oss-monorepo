@@ -1,0 +1,510 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKmNaTLQF2YBT8EGVF6",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T13:22:50Z",
+  "ended": "2026-11-14T13:23:25Z",
+  "wall_minutes": 5.43,
+  "tokens_in": 3063827,
+  "tokens_out": 23007,
+  "cost_usd": 1.731,
+  "tool_calls": 37,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15864",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 says fix every open entry first, but all 11 open entries are control-plane workflow edits that already have open owner-approval PRs (#14877, #15248, #14808, #15561, #14612); redteam.py open could show the pending PR per entry so runs do not re-check them."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "git merge origin/main after a depth-1 fetch says 'refusing to merge unrelated histories'; --deepen=50 fixed it. The shallow-merge note in CLAUDE.md covers it, but only under Duplicate PRs."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b prefers a lint for the class. A regex scan for let-variables written but never read found 32 hits across ventures; 6 sampled were harmless dead counters, so a lint would be noise.",
+      "did": "Added a random-list invariant test in the target's suite instead, which fails on the old code.",
+      "result": "Guard catches the defect class for this product; no repo-wide lint."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-wash-sale-checker-phantom-cent.md"
+  ],
+  "goal": null,
+  "notes": "Target ventures/wash-sale-checker/calc.mjs (changed on main within 2 days, money-facing). 3 campaigns x 8 mutants (suite 0.2 s). Catch 13/22 -> 20/20 non-equivalent after 9 tests. Real defect: unused rounding remainder in disallowed-loss split (phantom cent). Guard added: random-list exact-sum invariant for replacement shares. Dead-let scan (32 hits, scratch script, not committed) left as a lead. Checks: node --test (68 pass), run_venture_tests.py wash-sale-checker ok, check_post_frontmatter/check_post_links ok.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/wash-sale-checker/calc.mjs",
+        "test": "node --test ventures/wash-sale-checker/**/*.test.mjs  (in .)",
+        "seed": 192642802,
+        "commit": "85008e4f7",
+        "sites": 217,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 26,
+            "col": 38,
+            "operator": "div-to-times",
+            "before": "const r2 = (x) => Math.round(x * 100) / 100;",
+            "after": "const r2 = (x) => Math.round(x * 100) * 100;",
+            "line_text": "const r2 = (x) => Math.round(x * 100) / 100;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 95,
+            "col": 19,
+            "operator": "const-plus-one",
+            "before": "if (!(price >= 0) && amount >= 0 && qty > 0) price = amount / qty;",
+            "after": "if (!(price >= 1) && amount >= 0 && qty > 0) price = amount / qty;",
+            "line_text": "    if (!(price >= 0) && amount >= 0 && qty > 0) price = amount / qty;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 140,
+            "col": 129,
+            "operator": "const-plus-one",
+            "before": "const sale = { line: s.line, date: s.date, sym: s.sym, qty: s.qty, proceeds, basis: r2(basis), gain, disallowed: 0, allowed: 0, replacements: [], permanent: 0 };",
+            "after": "const sale = { line: s.line, date: s.date, sym: s.sym, qty: s.qty, proceeds, basis: r2(basis), gain, disallowed: 0, allowed: 1, replacements: [], permanent: 0 };",
+            "line_text": "    const sale = { line: s.line, date: s.date, sym: s.sym, qty: s.qty, proceeds, basis: r2(basis), gain, disallowed: 0, allowed: 0, replacements: [], permanent: 0 };",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "allowed starts at 0 for a gain sale; evaluate() output (llms.txt/API callers) would show 1. Test: a gain sale reports no allowed loss."
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 145,
+            "col": 71,
+            "operator": "times-to-div",
+            "before": "const lo = s.date - WINDOW_DAYS * DAY, hi = s.date + WINDOW_DAYS * DAY;",
+            "after": "const lo = s.date - WINDOW_DAYS * DAY, hi = s.date + WINDOW_DAYS / DAY;",
+            "line_text": "      const lo = s.date - WINDOW_DAYS * DAY, hi = s.date + WINDOW_DAYS * DAY;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 148,
+            "col": 43,
+            "operator": "or-to-and",
+            "before": "if (b.sym !== s.sym || b.date < lo || b.date > hi) continue;",
+            "after": "if (b.sym !== s.sym || b.date < lo && b.date > hi) continue;",
+            "line_text": "        if (b.sym !== s.sym || b.date < lo || b.date > hi) continue;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 154,
+            "col": 20,
+            "operator": "min-to-max",
+            "before": "const use = Math.min(avail, remaining);",
+            "after": "const use = Math.max(avail, remaining);",
+            "line_text": "        const use = Math.min(avail, remaining);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 166,
+            "col": 54,
+            "operator": "minus-to-plus",
+            "before": "rep.disallowedShare = share; left = r2(left - share);",
+            "after": "rep.disallowedShare = share; left = r2(left + share);",
+            "line_text": "          rep.disallowedShare = share; left = r2(left - share);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "left was computed but never used, the real defect: shares of a split disallowed loss could sum a cent off. Fix gives the last replacement the remainder; test: no phantom cent."
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 180,
+            "col": 49,
+            "operator": "minus-to-plus",
+            "before": "grossLoss, disallowed, allowed: r2(grossLoss - disallowed), permanent, deferred: r2(disallowed - permanent),",
+            "after": "grossLoss, disallowed, allowed: r2(grossLoss + disallowed), permanent, deferred: r2(disallowed - permanent),",
+            "line_text": "    grossLoss, disallowed, allowed: r2(grossLoss - disallowed), permanent, deferred: r2(disallowed - permanent),",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/wash-sale-checker/calc.mjs",
+        "test": "node --test ventures/wash-sale-checker/**/*.test.mjs  (in .)",
+        "seed": 786786832,
+        "commit": "85008e4f7",
+        "sites": 217,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 21,
+            "col": 27,
+            "operator": "neq-flip",
+            "before": "if (chk.getUTCFullYear() !== y || chk.getUTCMonth() !== mo - 1 || chk.getUTCDate() !== d) return null;",
+            "after": "if (chk.getUTCFullYear() === y || chk.getUTCMonth() !== mo - 1 || chk.getUTCDate() !== d) return null;",
+            "line_text": "  if (chk.getUTCFullYear() !== y || chk.getUTCMonth() !== mo - 1 || chk.getUTCDate() !== d) return null;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 110,
+            "col": 88,
+            "operator": "const-plus-one",
+            "before": "const sorted = [...trades].sort((a, b) => a.date - b.date || (a.side === \"buy\" ? -1 : 1) - (b.side === \"buy\" ? -1 : 1) || a.line - b.line);",
+            "after": "const sorted = [...trades].sort((a, b) => a.date - b.date || (a.side === \"buy\" ? -1 : 2) - (b.side === \"buy\" ? -1 : 1) || a.line - b.line);",
+            "line_text": "  const sorted = [...trades].sort((a, b) => a.date - b.date || (a.side === \"buy\" ? -1 : 1) - (b.side === \"buy\" ? -1 : 1) || a.line - b.line);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "sell-vs-sell compares as 1 whichever comes first, an inconsistent comparator. V8's insertion sort hides it when trades arrive in line order, so the guard feeds analyze() the trades reversed: same-day sells are ordered by line even when the trades arrive out of order."
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 122,
+            "col": 83,
+            "operator": "minus-to-plus",
+            "before": "if (lot.sym !== s.sym || lot.date > s.date || lot.soldFromTaxable >= lot.qty - 1e-9) continue;",
+            "after": "if (lot.sym !== s.sym || lot.date > s.date || lot.soldFromTaxable >= lot.qty + 1e-9) continue;",
+            "line_text": "      if (lot.sym !== s.sym || lot.date > s.date || lot.soldFromTaxable >= lot.qty - 1e-9) continue;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "a fully sold lot is no longer skipped, but take = min(need, 0) = 0 and consumed is never read, so no output changes."
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 134,
+            "col": 49,
+            "operator": "const-plus-one",
+            "before": "const unmatchedShares = need > 1e-9 ? need : 0;",
+            "after": "const unmatchedShares = need > 1e-9 ? need : 1;",
+            "line_text": "    const unmatchedShares = need > 1e-9 ? need : 0;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "every sale without a basis column got the unknown-basis note. Test: fully covered sale has no note."
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 147,
+            "col": 22,
+            "operator": "le-to-lt",
+            "before": "if (remaining <= 1e-9) break;",
+            "after": "if (remaining < 1e-9) break;",
+            "line_text": "        if (remaining <= 1e-9) break;",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "remaining only reaches 0 exactly or a float residue far from 1e-9; when it is <= 1e-9 every later avail check makes use ~0 and the loop ends with no visible change. Strict about it: only remaining == 1e-9 exactly differs."
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 153,
+            "col": 18,
+            "operator": "le-to-lt",
+            "before": "if (avail <= 1e-9) continue;",
+            "after": "if (avail < 1e-9) continue;",
+            "line_text": "        if (avail <= 1e-9) continue;",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "only avail exactly 1e-9 differs (0 is skipped either way); a dust buy of 0.000000001 shares is that case. Test: a dust buy of a billionth of a share is not a replacement."
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 189,
+            "col": 49,
+            "operator": "const-plus-one",
+            "before": "if (!p.trades.length) return { error: p.errors[0] || \"No readable trades.\" };",
+            "after": "if (!p.trades.length) return { error: p.errors[1] || \"No readable trades.\" };",
+            "line_text": "  if (!p.trades.length) return { error: p.errors[0] || \"No readable trades.\" };",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "the first row error was replaced by the fallback text. Test: no readable trade returns the first row error."
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 189,
+            "col": 52,
+            "operator": "or-to-and",
+            "before": "if (!p.trades.length) return { error: p.errors[0] || \"No readable trades.\" };",
+            "after": "if (!p.trades.length) return { error: p.errors[0] && \"No readable trades.\" };",
+            "line_text": "  if (!p.trades.length) return { error: p.errors[0] || \"No readable trades.\" };",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "same line; test: no readable trade returns the first row error."
+          }
+        ]
+      },
+      {
+        "target": "ventures/wash-sale-checker/calc.mjs",
+        "test": "node --test ventures/wash-sale-checker/**/*.test.mjs  (in .)",
+        "seed": 124656782,
+        "commit": "85008e4f7",
+        "sites": 217,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 17,
+            "col": 58,
+            "operator": "const-plus-one",
+            "before": "else if ((m = t.match(/^(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4}|\\d{2})(?!\\d)/))) { mo = +m[1]; d = +m[2]; y = +m[3]; if (y < 100) y += 2000; }",
+            "after": "else if ((m = t.match(/^(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4}|\\d{3})(?!\\d)/))) { mo = +m[1]; d = +m[2]; y = +m[3]; if (y < 100) y += 2000; }",
+            "line_text": "  else if ((m = t.match(/^(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4}|\\d{2})(?!\\d)/))) { mo = +m[1]; d = +m[2]; y = +m[3]; if (y < 100) y += 2000; }",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 55,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "const RETIREMENT = /(?<![a-z0-9])(?:ira|roth|sep|hsa|retire(?:ment)?|401(?:\\s*\\(?k\\)?)?|403(?:\\s*\\(?b\\)?)?)(?![a-z0-9])/i;",
+            "after": "const RETIREMENT = /(?<![a-z0-10])(?:ira|roth|sep|hsa|retire(?:ment)?|401(?:\\s*\\(?k\\)?)?|403(?:\\s*\\(?b\\)?)?)(?![a-z0-9])/i;",
+            "line_text": "const RETIREMENT = /(?<![a-z0-9])(?:ira|roth|sep|hsa|retire(?:ment)?|401(?:\\s*\\(?k\\)?)?|403(?:\\s*\\(?b\\)?)?)(?![a-z0-9])/i;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 92,
+            "col": 26,
+            "operator": "or-to-and",
+            "before": "const sym = (f[c.sym] || \"\").toUpperCase().replace(/\\s+/g, \"\");",
+            "after": "const sym = (f[c.sym] && \"\").toUpperCase().replace(/\\s+/g, \"\");",
+            "line_text": "    const sym = (f[c.sym] || \"\").toUpperCase().replace(/\\s+/g, \"\");",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 122,
+            "col": 40,
+            "operator": "gt-to-ge",
+            "before": "if (lot.sym !== s.sym || lot.date > s.date || lot.soldFromTaxable >= lot.qty - 1e-9) continue;",
+            "after": "if (lot.sym !== s.sym || lot.date >= s.date || lot.soldFromTaxable >= lot.qty - 1e-9) continue;",
+            "line_text": "      if (lot.sym !== s.sym || lot.date > s.date || lot.soldFromTaxable >= lot.qty - 1e-9) continue;",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "a same-day buy before a sale could not be the shares sold. Test: shares bought the same day before a sale are the shares sold."
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 122,
+            "col": 49,
+            "operator": "or-to-and",
+            "before": "if (lot.sym !== s.sym || lot.date > s.date || lot.soldFromTaxable >= lot.qty - 1e-9) continue;",
+            "after": "if (lot.sym !== s.sym || lot.date > s.date && lot.soldFromTaxable >= lot.qty - 1e-9) continue;",
+            "line_text": "      if (lot.sym !== s.sym || lot.date > s.date || lot.soldFromTaxable >= lot.qty - 1e-9) continue;",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "a lot bought after the sale was used as basis when earlier lots ran short. Test: a lot bought after the sale is never its basis."
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 128,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "const c = lot.carried[0], k = Math.min(rest, c.qty);",
+            "after": "const c = lot.carried[1], k = Math.min(rest, c.qty);",
+            "line_text": "        const c = lot.carried[0], k = Math.min(rest, c.qty);",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 152,
+            "col": 18,
+            "operator": "minus-to-plus",
+            "before": ": b.qty - b.soldFromTaxable - (b.carried || []).reduce((a, c) => a + c.qty, 0);",
+            "after": ": b.qty + b.soldFromTaxable - (b.carried || []).reduce((a, c) => a + c.qty, 0);",
+            "line_text": "          : b.qty - b.soldFromTaxable - (b.carried || []).reduce((a, c) => a + c.qty, 0);",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 195,
+            "col": 48,
+            "operator": "plus-to-minus",
+            "before": "export const safeRebuyDate = (saleMs) => saleMs + (WINDOW_DAYS + 1) * DAY;",
+            "after": "export const safeRebuyDate = (saleMs) => saleMs - (WINDOW_DAYS + 1) * DAY;",
+            "line_text": "export const safeRebuyDate = (saleMs) => saleMs + (WINDOW_DAYS + 1) * DAY;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/wash-sale-checker/calc.mjs",
+        "issue": "Per-replacement disallowed shares were each rounded and the rounding remainder (left) was computed but never applied, so a loss of 100.01 split over three one-share buys added 100.02 to replacement basis (a later sale's basis read 250.02, not 250.01) and IRA permanent losses could be a cent off. Reproduced with evaluate(); fixed by giving the last replacement the remainder, test 'no phantom cent'.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8fd7f104-2c86-5cae-b652-56b2d59537d4",
+    "transcripts": 1,
+    "first": "2026-11-14T13:22:50Z",
+    "last": "2026-11-14T13:28:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 35,
+        "input": 70,
+        "output": 23007,
+        "thinking": 6906,
+        "cache_read": 2979419,
+        "cache_write_5m": 0,
+        "cache_write_1h": 84338,
+        "api_equivalent_usd": 1.731,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 35,
+      "input": 70,
+      "output": 23007,
+      "thinking": 6906,
+      "cache_read": 2979419,
+      "cache_write_5m": 0,
+      "cache_write_1h": 84338,
+      "api_equivalent_usd": 1.731,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 37,
+    "tools": {
+      "Bash": 34,
+      "ToolSearch": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.43,
+      "active_minutes": 5.43,
+      "model_minutes": 4.22,
+      "tool_minutes": 1.21,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "senior engineer: read a tax calc, triage 22 mutants, write 10 tests, a fix and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 231.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

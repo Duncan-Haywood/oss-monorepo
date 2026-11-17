@@ -240,3 +240,48 @@ FROM ubuntu@not-a-real-digest
     assert.equal(js.remediation ?? null, py.remediation ?? null, `remediation mismatch at index ${i}`);
   }
 });
+
+// Red-team 2026-11-16: the digest grammar's edges, which three escaped
+// mutants of DIGEST_RE showed no test pinned.
+test("classifyFrom: a digest using every hex digit, zeros included, is pinned", () => {
+  const hex = "0123456789abcdef".repeat(4);
+  assert.equal(classifyFrom(`node@sha256:${hex}`, new Set()).classification, PINNED);
+});
+
+test("classifyFrom: a 32-hex digest is the shortest one pinned; 31 is mutable", () => {
+  assert.equal(classifyFrom(`node@md5:${"a".repeat(32)}`, new Set()).classification, PINNED);
+  assert.equal(classifyFrom(`node@md5:${"a".repeat(31)}`, new Set()).classification, MUTABLE);
+});
+
+test("classifyFrom: an algorithm with a separator and digits (multihash+sha256) is pinned", () => {
+  assert.equal(classifyFrom(`node@multihash+sha256:${"a".repeat(64)}`, new Set()).classification, PINNED);
+});
+
+// Red-team 2026-11-16, real defect: BuildKit matches stage names
+// case-insensitively, so `FROM build` after `AS Build` is the stage, not a pull.
+test("scanText: a stage named with different case is still the stage", () => {
+  const findings = scanText("FROM node:18 AS Build\nRUN make\nFROM build\nFROM B\n", "Dockerfile");
+  assert.equal(findings.length, 2);
+  assert.equal(findings[0].image, "node");
+  assert.equal(findings[1].image, "B");
+  assert.equal(scanText("FROM node:18 AS b\nFROM B\n", "Dockerfile").length, 1);
+});
+
+// Red-team 2026-11-16, real defect: a FROM split with a backslash continuation
+// was reported as image "\" with a nonsense remediation command.
+test("scanText: a backslash right after the tag drops only the backslash", () => {
+  // No space before the continuation: only the "\\" goes, so the tag keeps
+  // its last character (node:20, not node:2) and the alias still applies.
+  const findings = scanText("FROM node:20\\\n  AS build\nFROM build\n", "Dockerfile");
+  assert.equal(findings.length, 1);
+  assert.deepEqual([findings[0].line, findings[0].image, findings[0].tag], [1, "node", "20"]);
+});
+
+test("scanText: a FROM split across lines with a backslash is read as one instruction", () => {
+  const text = `FROM --platform=linux/amd64 \\\n    node:20 \\\n    AS build\nFROM build\nFROM \\\r\n  # a comment inside the continuation\n  ubuntu@${DIGEST}\r\n`;
+  const findings = scanText(text, "Dockerfile");
+  assert.equal(findings.length, 2);
+  assert.deepEqual([findings[0].line, findings[0].image, findings[0].tag, findings[0].classification], [1, "node", "20", MUTABLE]);
+  assert.equal(findings[0].remediation, "docker buildx imagetools inspect node:20");
+  assert.deepEqual([findings[1].line, findings[1].image, findings[1].classification], [5, "ubuntu", PINNED]);
+});

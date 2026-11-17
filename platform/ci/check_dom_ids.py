@@ -41,7 +41,7 @@ def main(argv=None):
     args = ap.parse_args(argv)
     pages = bad = 0
     for page in sorted(Path(args.root).rglob("*.html")):
-        if "node_modules" in page.parts:
+        if not {"node_modules", ".next"}.isdisjoint(page.parts):
             continue
         try:
             text = page.read_text(encoding="utf8")
@@ -53,6 +53,9 @@ def main(argv=None):
             bad += 1
             print(f"{page}: duplicate ids {dup}; dangling references {dangling}")
     print(f"{pages} pages, {bad} with duplicate ids or dangling references")
+    if not pages:
+        print(f"no pages under {args.root}: wrong --root? A scan of nothing is not a pass.")
+        return 2
     return 1 if bad else 0
 
 

@@ -232,3 +232,11 @@ test("the default job quotes sensibly and the flat rule undercuts it at 24 piece
   assert.ok(a.verdict.status === "take");
   assert.equal(a.breaks.length, 5);
 });
+
+test("quantity breaks: a thousands comma is one quantity, not two (red team 2026-11-12)", async () => {
+  const { parseQtyList } = await import("./engine.mjs");
+  assert.deepEqual(parseQtyList("12 48 1,500"), [12, 48, 1500]);
+  assert.deepEqual(parseQtyList("12,48,1500"), [12, 48, 1500]);
+  assert.deepEqual(parseQtyList("12, 48, 144"), [12, 48, 144]);
+  assert.ok(parseQtyList("1,000,2,000").some((q) => Number.isNaN(q)));
+});

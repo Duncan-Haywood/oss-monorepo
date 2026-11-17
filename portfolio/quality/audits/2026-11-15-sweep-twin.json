@@ -1,0 +1,217 @@
+{
+ "date": "2026-11-15",
+ "subject": "research/sweep-twin",
+ "stratum": "research",
+ "seed": "2026-11-15-8ced",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior lidar-SLAM / state-estimation researcher (the kind who reviews motion-compensation and continuous-time odometry papers for ICRA/IROS or RA-L). They would check first that the closed forms match a simulation and an independent derivation, whether sign conventions hold under the spin/seam variants claimed, whether 'one scan reveals speed' is identifiable outside the toy room, and how the work relates to VICP, CT-ICP and scan-skew analyses",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Independent numpy re-simulation (own vectorised ray cast into the rectangle, own fan selection via complex angle, SVD principal-axis line fit, numpy RNG with a different seed and 400 trials) reproduces every reported number: front/back wall 9.7500/-8.7500 and length bias 0.5000 at 10 m/s; tilts -0.9182/1.0232 deg and convergence 1.9414 deg (first order 2.0518) at 10 m/s, 3.7685 at 20 m/s; velocity inversion mean 9.821 sd 0.137 (-1.8%) at 10 m/s and 4.904 (-1.9%) at 5 m/s vs README 9.829/0.133 and 4.909; bearing bias by interpolating a simulated yaw sweep (36000 beams) -1.4100, -2.8199, -5.5528 deg = closed form -k beta/(1+k) (first-order -k beta would be 1.6-3% off, so the exact form matters); odometry bias 0.0500, -0.0750, 0.1250 = a tau/4 with scans placed in the world frame rather than by shifting the room; v_max = 2 tol/tau gives bias = tol. By hand: tilt at phi=0 from dx~/dphi = -v tau/2pi, dy~/dphi = x~ gives -v tau/(2 pi x~), consistent with the TLS results (front 9.75 m and back 8.75 m effective ranges; at 20 m/s both are 9.5 m, which is why front and back tilts coincide at 1.8843). One wrong closed form: length_bias returns s v tau/2, but for the paper's own clockwise configuration (phi0=+pi/2) the simulated bias is +0.5 m and the function returns -0.5 m; the sign depends on where the seam sits relative to the spin, not on spin alone. Not 4 because of that formula and because deskew-with-true-motion is exact by construction.",
+  "completeness": "README promises 12 tests under 1 s (12 run, 0.32 s, OK), run.py reproduces results.txt (rerun in 5.0 s, byte-identical diff), figure.py reproduces convergence.svg (identical in a scratch copy), six numbered results all present in results.txt. Item 5's non-accumulation is derived arithmetic printed by run.py, not simulated (disclosed in the whitepaper and results.txt, not in README). Live page https://marisstella.app/research/sweep-twin/ could not be loaded: the session proxy refused marisstella.app (403 CONNECT), so it is unverified, not failed. Listed next steps (noisy-velocity deskew residual, joint v/omega fit, 3-D) are honestly marked as not done.",
+  "verification": "`cd research/sweep-twin && PYTHONPATH=src python3 -m unittest discover -s tests`: Ran 12 tests in 0.323s OK. Five mutants via platform/ci/quality_mutate.py: 2 caught (bearing_bias closed form -> first order; odometry dropping a*t0 from the second scan's velocity), 3 survived: dropping yaw from the simulator itself (model.py:59, psi + phi -> phi: no test runs scan() with omega != 0, the bearing test checks the closed form against a separate bisection that never calls scan()); a 2.5% error in the velocity inversion constant (model.py:134, test delta 0.03 at v=1); removing the spin factor from length_bias (model.py:124, no test exercises spin=-1 for length). No test pins results.txt.",
+  "craft": "Read src/sweep_twin/model.py (168 lines), tests/test_model.py, experiments/run.py, experiments/figure.py. Small pure functions, stdlib only, figure parsed from results.txt, seeded RNG. Defects: unused `import random` in model.py:8 and tests:2; run.py imports `cast` and never uses it and sets dead `vs = 0.0` (run.py:86); naive_wall_x computes t from (phi - phi0) without wrapping mod 2 pi, so it is only right for the azimuth branch the fan happens to return; the 'closed forms' section header says spin +1 while the functions multiply by lid.spin, which is what produced the length_bias sign error.",
+  "claims": "Checked against files: items 1-6 numbers (results.txt and independent re-simulation, all pass), '12 tests, under 1 s' (pass), 'halving tau = halving v' (rows identical, pass), 'back wall 11% off' (1.1399 vs 1.0232: 11.4% of measured, 10.2% of first order, partial), backward driving 5% magnitude change (0.8735 vs 0.9182 = 4.9%, pass). Failed: whitepaper:11 'biased by exactly s v tau/2' with s the spin sign is wrong for the clockwise configuration the paper itself uses in item 2 (sim +0.50, formula -0.50). README:3 item (3) 'one scan reveals the speed' and research/README.md:234 'one scan gives speed to 0.13 m/s' omit the assumptions (truly parallel walls perpendicular to motion, known heading, no yaw) that whitepaper:13 states make it 'a consistency check, not an odometer'. README 'Builds on' names three CU Boulder groups with no paper reproduced: disclosed, but it is affiliation colour, not prior work. Disclaimer 'Stylised ... no measured scans' present.",
+  "fitness": "Job: a researcher wanting to know how much a snapshot lidar simulator misleads a map or odometry pipeline. The scripted, reproducible closed forms are a decent teaching note and the yaw scale-error result is cleanly stated. But it is elementary rigid-body kinematics in a 2-D rectangle, and the nearest prior work is not cited: Hong, Ko & Kim (ICRA 2010) VICP estimates velocity inside ICP precisely to undo this distortion (the 'one scan reveals speed' idea in a general scene); Al-Nuaimi et al. (IPIN 2016) 'Analyzing LiDAR scan skewing and its impact on scan matching' quantifies the same skew and its effect on matching; Dellenbach et al. (ICRA 2022) CT-ICP and Park et al. (Elastic LiDAR Fusion, 2018) estimate intra-scan motion continuously; Ait-Aider et al. (ECCV 2006) recover object velocity from a single rolling-shutter view, the exact camera analogue. Only LOAM and Bosse & Zlot are cited; the third reference (sim-to-real RL survey) is tangential. Not part of a research/PROGRAMMES.md programme; well short of the PhD bar; new only as a compact worked example.",
+  "domain": "Against lidar-odometry practice (per-point timestamps and IMU/constant-velocity deskew are standard in LOAM, LIO-SAM, FAST-LIO, CT-ICP): the 'deskew removes it to 1e-15 m' result is a tautology (inverse of the same model with the true motion); the practically important case, deskew with an estimated velocity, is listed as not simulated. The velocity estimator relies on a prior that walls are parallel, which a scan cannot distinguish from real wall convergence (disclosed in the whitepaper). The first-order inversion's -1.8% bias is reported rather than removed, though the exact x~ form is derived in the same paragraph. The length-bias sign convention is wrong for one spin/seam case. A practitioner would accept the kinematics and reject any transfer to hardware, as the author says."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "wall placement and length bias at v=10 m/s, seam on side wall",
+   "method": "independent numpy ray-cast simulation",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/sweep-twin/indep.py (numpy 2.5.3, own ray cast, SVD line fit, own RNG; imports nothing from sweep_twin)",
+   "expected": "9.7500, -8.7500, bias 0.5000",
+   "observed": "9.7500, -8.7500, 0.5000",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "TLS wall tilts and convergence at 10 and 20 m/s",
+   "method": "SVD principal-axis fit on independently simulated points; hand derivation tilt = -v tau/(2 pi x~)",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/sweep-twin/indep.py (numpy 2.5.3, own ray cast, SVD line fit, own RNG; imports nothing from sweep_twin)",
+   "expected": "-0.9182 / 1.0232 / 1.9414 deg; 3.7685 at 20 m/s",
+   "observed": "-0.9182 / 1.0232 / 1.9414; 3.7685",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "single-scan velocity inversion with 1 cm noise",
+   "method": "own Monte Carlo, numpy default_rng(12345), 400 trials",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/sweep-twin/indep.py (numpy 2.5.3, own ray cast, SVD line fit, own RNG; imports nothing from sweep_twin)",
+   "expected": "v=10: mean 9.829 sd 0.133 (-1.7%); v=5: 4.909 (-1.8%)",
+   "observed": "v=10: 9.821 sd 0.137 (-1.8%); v=5: 4.904 (-1.9%)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "yaw bearing bias -k beta/(1+k)",
+   "method": "interpolate world angle -> scan azimuth on a simulated 36000-beam yaw sweep; derivation phi = beta/(1+k)",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/sweep-twin/indep.py (numpy 2.5.3, own ray cast, SVD line fit, own RNG; imports nothing from sweep_twin)",
+   "expected": "-1.4100, -2.8199, -5.5528 deg",
+   "observed": "-1.4100, -2.8199, -5.5528",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "acceleration odometry bias a t_f",
+   "method": "two scans simulated in the world frame (not by shifting the room)",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/sweep-twin/indep.py (numpy 2.5.3, own ray cast, SVD line fit, own RNG; imports nothing from sweep_twin)",
+   "expected": "0.0500, -0.0750, 0.1250",
+   "observed": "0.0500, -0.0750, 0.1250",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "length_bias closed form s v tau/2 under clockwise spin, phi0=+pi/2 (the paper's spin-reversed setup)",
+   "method": "author's own simulator and independent numpy simulator vs the closed form",
+   "command": "cd research/sweep-twin && PYTHONPATH=src python3 -c \"import math; from sweep_twin.model import *; R=Room(); L=Lidar(spin=-1,phi0=math.pi/2); sc=scan(R,L,10.0); nv=naive_points(sc); print(wall_x(nv,fan(sc,0,0.3))-wall_x(nv,fan(sc,math.pi,0.3))-18, length_bias(L,10.0))\"",
+   "expected": "closed form equals simulated bias",
+   "observed": "simulated +0.5 (both simulators), length_bias returns -0.5",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "run.py and figure.py reproduce committed outputs",
+   "method": "rerun and diff in scratch",
+   "command": "cd research/sweep-twin && PYTHONPATH=src python3 experiments/run.py > $S/results.txt && diff $S/results.txt experiments/results.txt; figure.py in a copy, diff svg",
+   "expected": "no diff",
+   "observed": "no diff (5.0 s); SVG identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd research/sweep-twin && env PYTHONPATH=src python3 -m unittest discover -s tests",
+   "expected": "12 tests pass under 1 s",
+   "observed": "Ran 12 tests in 0.323s OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page",
+   "method": "HTTP fetch",
+   "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/research/sweep-twin/",
+   "expected": "200",
+   "observed": "proxy 403 CONNECT refused; not verifiable from this session",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:3 and research/README.md:234 'one scan reveals/gives speed to 0.13 m/s'",
+   "method": "compare with whitepaper:13 assumptions",
+   "command": "sed -n 3p research/sweep-twin/README.md; sed -n 13p research/sweep-twin/paper/whitepaper.md; sed -n 234p research/README.md",
+   "expected": "assumptions stated wherever the claim is made",
+   "observed": "whitepaper says 'a consistency check, not an odometer' needing parallel walls, no yaw; README and index state it unqualified",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'back wall 11% off' and 'backward 5% different'",
+   "method": "arithmetic on results.txt",
+   "command": "grep -n '10.0     0.10\\|reversing' research/sweep-twin/experiments/results.txt",
+   "expected": "11%, 5%",
+   "observed": "11.4% of measured (10.2% of first order); 4.9%",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "nearest prior work cited",
+   "method": "literature comparison",
+   "command": "grep -rn 'VICP\\|Al-Nuaimi\\|CT-ICP\\|Ait-Aider' research/sweep-twin",
+   "expected": "VICP (Hong 2010), Al-Nuaimi 2016 scan skew, CT-ICP 2022, Ait-Aider 2006",
+   "observed": "none cited",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/sweep_twin/model.py:59",
+   "change": "r = cast(room, x, 0.0, psi + phi) -> r = cast(room, x, 0.0, phi)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/sweep_twin/model.py:134",
+   "change": "return theta * 2 * math.pi / -> return theta * 2.05 * math.pi /",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/sweep_twin/model.py:124",
+   "change": "return lid.spin * v * lid.tau / 2 -> return v * lid.tau / 2",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/sweep_twin/model.py:140",
+   "change": "return -k * beta / (1 + k) -> return -k * beta",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/sweep_twin/model.py:163",
+   "change": "vk = v0 + a * t0 -> vk = v0",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "length_bias closed form `s v tau/2` (and whitepaper result 1) has the wrong sign for the paper's own clockwise configuration (spin=-1, phi0=+pi/2): simulated bias +0.50 m, formula -0.50 m. The sign depends on the firing order of front vs back wall (seam position relative to spin), not on spin alone",
+   "where": "research/sweep-twin/src/sweep_twin/model.py:124",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16361"
+  },
+  {
+   "severity": "medium",
+   "what": "The simulator's yaw path is untested: dropping yaw from scan() leaves all 12 tests green, because the bearing-bias test compares the closed form to a separate bisection that never calls scan(); spin=-1 length bias and the velocity inversion constant (2.5% error survives) are likewise unpinned",
+   "where": "research/sweep-twin/tests/test_model.py:78",
+   "category": "tests-check-a-copy",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Nearest prior work not cited: VICP (Hong, Ko & Kim, ICRA 2010) estimates velocity from intra-scan distortion; Al-Nuaimi et al. (IPIN 2016) analyse lidar scan skew and its effect on scan matching; CT-ICP (Dellenbach et al., ICRA 2022); Ait-Aider et al. (ECCV 2006) single-view velocity from a rolling shutter. Novelty of 'one scan reveals the speed' is therefore overstated",
+   "where": "research/sweep-twin/paper/whitepaper.md:24",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "README and research index state 'one scan reveals the speed' / 'gives speed to 0.13 m/s' without the parallel-walls, no-yaw, known-heading assumptions the whitepaper says make it 'a consistency check, not an odometer'",
+   "where": "research/sweep-twin/README.md:3",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "'deskewing with the true motion removes it to 1e-15 m' is true by construction (the inverse of the same model) and is presented as a result; the informative case, deskew with an estimated velocity, is not simulated",
+   "where": "research/sweep-twin/README.md:3",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Dead code: unused `import random` (model.py:8, tests:2), unused `cast` import and dead `vs = 0.0` in run.py:86",
+   "where": "research/sweep-twin/src/sweep_twin/model.py:8",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16361"],
+ "verdict": "A clean, reproducible 2-D kinematics note whose reported numbers are all right and one of whose closed forms is not. An independent numpy re-simulation reproduces every table value (length bias 0.5000 m, tilts -0.9182/1.0232 deg, convergence 1.9414 deg, velocity inversion 9.82 +- 0.14 m/s, bearing bias -k beta/(1+k) to four decimals, odometry bias a tau/4), and run.py and figure.py regenerate their committed outputs byte for byte. It misses the bar on verification, claims and the research gates: length_bias's `s v tau/2` gives -0.5 m where both simulators give +0.5 m for the clockwise setup the paper itself uses; 3 of 5 seeded mutants survive, including deleting yaw from the simulator; README states the single-scan speed result without the assumptions the whitepaper admits; and the nearest prior work (VICP, Al-Nuaimi 2016, CT-ICP, Ait-Aider 2006) is uncited, so a lidar-SLAM reviewer would read it as a worked example of known distortion, not a contribution."
+}

@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, accessibility, tooling]
+topics: [design, accessibility]
 date: 2026-11-10
 ---
 # Polish 2026-11-10: floating mic icon drew a white square on 65 tool pages

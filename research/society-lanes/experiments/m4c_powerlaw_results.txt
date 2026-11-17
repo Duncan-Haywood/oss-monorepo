@@ -1,0 +1,95 @@
+Milestone 4c: the anticipatory power law (Karamouzas, Skinner and Guy 2014; UMANS parameters) as a fourth family
+seeds: calibration 3, fit 5, score 20; 120 s per run after 40 s warm-up; exits at 0.25 of the width from a wall
+rows for sf, avm and cfsm are milestone 3, 4a and 4b results, read from m4b_yield_cfsm_runs.csv, not rerun
+
+Calibration (walker count whose beta = 0 median speed is nearest the observed):
+  bo-360-050-050     HERMES observed speed 1.48 -> N= 20, simulated 1.29 m/s at 0.35/m2 (miss 0.18; jammed 0)
+  bo-360-075-075     HERMES observed speed 1.42 -> N= 20, simulated 1.29 m/s at 0.34/m2 (miss 0.13; jammed 0)
+  bo-360-090-090     HERMES observed speed 1.25 -> N= 40, simulated 1.27 m/s at 0.67/m2 (miss 0.02; jammed 0)
+  bo-360-120-120     HERMES observed speed 0.85 -> N=100, simulated 0.87 m/s at 1.17/m2 (miss 0.01; jammed 0)
+  bo-360-160-160     HERMES observed speed 0.72 -> N=130, simulated 0.74 m/s at 1.23/m2 (miss 0.02; jammed 0)
+  bi_corr_400_a_02   BaSiGo observed speed 0.33 -> N=200, simulated 0.62 m/s at 1.46/m2 (miss 0.29; jammed 0)
+  bi_corr_400_a_03   BaSiGo observed speed 0.31 -> N=100, simulated 0.70 m/s at 1.09/m2 (miss 0.39; jammed 0)
+  bi_corr_400_a_04   BaSiGo observed speed 0.28 -> N=200, simulated 0.33 m/s at 1.45/m2 (miss 0.05; jammed 0)
+  bi_corr_400_a_05   BaSiGo observed speed 0.28 -> N=160, simulated 0.50 m/s at 1.44/m2 (miss 0.22; jammed 0)
+Fit (milestone 3's loss over the 9 free runs, 5 seeds):
+  beta 0.0   loss     2912.3   pooled share 0.560   mean seed sd 0.260   mean lane 0.828   failed 0 jammed 0
+  beta 0.05  loss      580.4   pooled share 0.769   mean seed sd 0.152   mean lane 0.878   failed 0 jammed 0
+  beta 0.1   loss      435.2   pooled share 0.830   mean seed sd 0.097   mean lane 0.898   failed 0 jammed 0
+  beta 0.2   loss      156.8   pooled share 0.908   mean seed sd 0.076   mean lane 0.963   failed 0 jammed 0
+  beta 0.35  loss       82.2   pooled share 0.978   mean seed sd 0.032   mean lane 0.988   failed 0 jammed 0
+  beta 0.5   loss      108.1   pooled share 0.994   mean seed sd 0.009   mean lane 0.997   failed 0 jammed 0
+  beta 0.75  loss      118.0   pooled share 0.997   mean seed sd 0.004   mean lane 0.999   failed 0 jammed 0
+  beta 1.0   loss      120.5   pooled share 0.999   mean seed sd 0.001   mean lane 0.999   failed 0 jammed 0
+  fitted beta = 0.35
+Free runs at beta = 0.35, 20 seeds:
+  bo-360-050-050     share sim 1.000 (sd 0.000) obs 0.975 [0.941, 1.000] in  lane sim 0.989 obs 0.996 ok  speed sim 1.32 obs 1.48  density 0.35
+  bo-360-075-075     share sim 1.000 (sd 0.002) obs 0.985 [0.963, 1.000] in  lane sim 0.989 obs 0.994 ok  speed sim 1.32 obs 1.42  density 0.35
+  bo-360-090-090     share sim 1.000 (sd 0.001) obs 1.000 [1.000, 1.000] OUT  lane sim 0.993 obs 0.996 ok  speed sim 1.31 obs 1.25  density 0.69
+  bo-360-120-120     share sim 0.995 (sd 0.006) obs 0.974 [0.954, 0.990] OUT  lane sim 0.994 obs 0.960 ok  speed sim 1.28 obs 0.85  density 1.21
+  bo-360-160-160     share sim 0.981 (sd 0.028) obs 0.822 [0.777, 0.864] OUT  lane sim 0.993 obs 0.907 ok  speed sim 1.26 obs 0.72  density 1.24
+  bi_corr_400_a_02   share sim 0.986 (sd 0.017) obs 0.979 [0.966, 0.990] in  lane sim 0.986 obs 0.827 MISS  speed sim 1.22 obs 0.33  density 1.38
+  bi_corr_400_a_03   share sim 0.999 (sd 0.001) obs 0.965 [0.948, 0.980] OUT  lane sim 0.999 obs 0.836 MISS  speed sim 1.30 obs 0.31  density 1.07
+  bi_corr_400_a_04   share sim 0.932 (sd 0.103) obs 0.879 [0.851, 0.906] OUT  lane sim 0.982 obs 0.771 MISS  speed sim 1.15 obs 0.28  density 1.37
+  bi_corr_400_a_05   share sim 0.937 (sd 0.051) obs 0.878 [0.850, 0.905] OUT  lane sim 0.976 obs 0.819 MISS  speed sim 1.20 obs 0.28  density 1.40
+
+Held-out assigned-exit runs: share on own right by family and bias rule (obs = people)
+  run                   obs    sf:alw    sf:yie    sf:sca   avm:alw   avm:yie   avm:sca  cfsm:alw  cfsm:yie  cfsm:sca    pl:alw    pl:yie    pl:sca
+  bot-360-050-050     0.585     0.777     0.596     0.661     0.989     0.877     0.954     0.914     0.517     0.571     0.979     0.506     0.600
+  bot-360-075-075     0.646     0.749     0.608     0.639     0.994     0.919     0.933     0.908     0.515     0.603     0.974     0.505     0.573
+  bot-360-090-090     0.637     0.756     0.560     0.588     0.990     0.892     0.951     0.909     0.537     0.583     0.980     0.768     0.774
+  bot-360-120-120     0.498     0.794     0.613     0.661     0.997     0.910     0.957     0.933     0.567     0.679     0.979     0.722     0.764
+  bot-360-120-120v2   0.543     0.794     0.613     0.661     0.999     0.909     0.929     0.953     0.624     0.703     0.979     0.722     0.764
+  bot-360-160-160     0.471     0.765     0.595     0.650     0.998     0.845     0.949     0.940     0.685     0.728     0.968     0.712     0.756
+  bot-360-200-200     0.523     0.796     0.643     0.616     0.999     0.781     0.818     0.922     0.707     0.725     0.964     0.716     0.785
+  bot-360-250-250     0.546     0.790     0.630     0.643     0.999     0.922     0.949     0.944     0.686     0.718     0.952     0.741     0.774
+  bi_corr_400_b_03    0.754     0.825     0.615     0.679     0.970     0.774     0.909     0.965     0.709     0.768     0.995     0.707     0.810
+  bi_corr_400_b_04    0.687     0.820     0.682     0.623     0.997     0.922     0.959     0.958     0.710     0.767     0.984     0.713     0.807
+  bi_corr_400_b_05    0.532     0.812     0.648     0.606     0.991     0.904     0.993     0.949     0.709     0.777     0.980     0.719     0.853
+  bi_corr_400_b_06    0.594     0.802     0.677     0.652     0.983     0.752     0.900     0.955     0.714     0.807     0.976     0.801     0.837
+  bi_corr_400_b_07    0.588     0.851     0.641     0.711     0.965     0.723     0.919     0.928     0.724     0.774     0.993     0.714     0.848
+  bi_corr_400_b_08    0.505     0.717     0.576     0.572     0.767     0.619     0.462     0.866     0.665     0.707     0.910     0.670     0.670
+  pooled bot-360      0.541     0.781     0.610     0.640     0.996     0.877     0.926     0.931     0.623     0.680     0.971     0.698     0.745
+Held-out lane order (obs = people):
+  bot-360-050-050     0.848     0.749     0.672     0.727     0.993     0.974     0.979     0.925     0.829     0.803     0.974     0.876     0.875
+  bot-360-075-075     0.760     0.746     0.672     0.664     0.994     0.970     0.978     0.924     0.800     0.789     0.967     0.858     0.869
+  bot-360-090-090     0.744     0.730     0.649     0.675     0.991     0.960     0.974     0.919     0.802     0.792     0.956     0.766     0.781
+  bot-360-120-120     0.733     0.640     0.551     0.576     0.995     0.942     0.969     0.912     0.739     0.769     0.946     0.632     0.684
+  bot-360-120-120v2   0.681     0.640     0.551     0.576     0.995     0.946     0.971     0.932     0.717     0.747     0.946     0.632     0.684
+  bot-360-160-160     0.672     0.617     0.502     0.505     0.995     0.909     0.952     0.914     0.677     0.726     0.931     0.625     0.683
+  bot-360-200-200     0.591     0.609     0.504     0.453     0.996     0.858     0.879     0.885     0.626     0.660     0.934     0.822     0.749
+  bot-360-250-250     0.591     0.630     0.546     0.544     0.998     0.920     0.956     0.903     0.667     0.700     0.902     0.714     0.807
+  bi_corr_400_b_03    0.840     0.708     0.536     0.537     1.000     0.873     0.960     0.954     0.708     0.764     0.987     0.636     0.768
+  bi_corr_400_b_04    0.789     0.685     0.486     0.547     0.997     0.953     0.987     0.951     0.749     0.796     0.975     0.825     0.859
+  bi_corr_400_b_05    0.756     0.700     0.523     0.521     0.998     0.971     0.991     0.937     0.728     0.783     0.973     0.807     0.841
+  bi_corr_400_b_06    0.675     0.678     0.607     0.570     0.976     0.882     0.941     0.944     0.716     0.758     0.961     0.837     0.849
+  bi_corr_400_b_07    0.626     0.720     0.498     0.551     0.968     0.811     0.934     0.914     0.725     0.769     0.979     0.668     0.759
+  bi_corr_400_b_08    0.737     0.510     0.514     0.480     0.883     0.801     0.750     0.722     0.575     0.633     0.827     0.801     0.808
+Power-law held-out calibration and speed (rule 'always'):
+  bot-360-050-050    N= 20 (speed 1.51 observed; sim 1.31 m/s, 0.33/m2) jammed 0 failed 0
+  bot-360-075-075    N= 20 (speed 1.33 observed; sim 1.30 m/s, 0.33/m2) jammed 0 failed 0
+  bot-360-090-090    N=160 (speed 1.22 observed; sim 1.27 m/s, 0.73/m2) jammed 0 failed 0
+  bot-360-120-120    N=100 (speed 0.84 observed; sim 1.27 m/s, 0.85/m2) jammed 0 failed 0
+  bot-360-120-120v2  N=100 (speed 0.91 observed; sim 1.27 m/s, 0.85/m2) jammed 0 failed 0
+  bot-360-160-160    N=100 (speed 0.61 observed; sim 1.26 m/s, 0.93/m2) jammed 0 failed 0
+  bot-360-200-200    N=160 (speed 0.54 observed; sim 1.18 m/s, 1.00/m2) jammed 0 failed 0
+  bot-360-250-250    N=130 (speed 0.55 observed; sim 1.19 m/s, 1.18/m2) jammed 0 failed 0
+  bi_corr_400_b_03   N=100 (density 1.01 measured; sim 1.30 m/s, 0.74/m2) jammed 0 failed 0
+  bi_corr_400_b_04   N=200 (speed 0.46 observed; sim 1.27 m/s, 0.84/m2) jammed 0 failed 0
+  bi_corr_400_b_05   N=200 (speed 0.42 observed; sim 1.25 m/s, 0.95/m2) jammed 0 failed 0
+  bi_corr_400_b_06   N=200 (speed 0.31 observed; sim 1.22 m/s, 1.07/m2) jammed 0 failed 0
+  bi_corr_400_b_07   N=100 (speed 0.29 observed; sim 1.30 m/s, 0.90/m2) jammed 0 failed 0
+  bi_corr_400_b_08   N=200 (density 3.79 measured; sim 1.12 m/s, 1.24/m2) jammed 0 failed 0
+Mean absolute share error over the 14 held-out runs: sf:always 0.210, sf:yield 0.079, sf:scaled 0.089, avm:always 0.395, avm:yield 0.260, avm:scaled 0.326, cfsm:always 0.353, cfsm:yield 0.118, cfsm:scaled 0.144, pl:always 0.393, pl:yield 0.153, pl:scaled 0.189
+Held-out lane order within 0.10 (of 14): sf:always 11, sf:yield 5, sf:scaled 4, avm:always 0, avm:yield 2, avm:scaled 1, cfsm:always 2, cfsm:yield 12, cfsm:scaled 11, pl:always 1, pl:yield 9, pl:scaled 9
+
+P1 (beta = 0 pooled free share in [0.40, 0.60]): held (0.559, mean seed sd 0.260)
+P2 (H3 side: share inside the 95% interval in >= 6 of 9): refuted (3 of 9)
+P3 (H3 lanes: within 0.10 in >= 6 of 9): refuted (5 of 9)
+P4 (H3 speed: b_03 and b_08 within 0.15 m/s at the calibrated count): refuted (b_03: sim 1.30 vs 1.02 m/s, density 0.74 vs 1.01/m2; b_08: sim 1.12 vs 0.24 m/s, density 1.24 vs 3.79/m2)
+P5 (always: pooled bot-360 held-out share > 0.70): held (0.971)
+P6 (yield: within 0.10 of the observed 0.541): refuted (0.698)
+P7 (yield closer than scaled): held (yield 0.698, scaled 0.745)
+P8 (best loss below social force's 43.2): refuted (82.2; AVM 106.8, CFSM 53.9)
+H3 for the power law (P2, P3 and P4 all hold): fails
+Yield within 0.10 of the HERMES pooled share: 2 of 4 families (social force, collision-free speed)

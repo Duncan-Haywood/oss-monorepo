@@ -29,24 +29,26 @@ const ALIASES = {
 
 export function parseCsv(text) {
   const rows = [];
-  let row = [], field = "", quoted = false;
+  // Each row carries a non-enumerable `line`: the file line it starts on,
+  // so a reader can name it after blank lines or quoted line breaks.
+  let row = [], field = "", quoted = false, line = 1, start = 1;
   const src = String(text ?? "").replace(/^﻿/, "");
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (quoted) {
       if (c === '"') { if (src[i + 1] === '"') { field += '"'; i++; } else quoted = false; }
-      else field += c;
+      else { field += c; if (c === "\n" || (c === "\r" && src[i + 1] !== "\n")) line++; }
     } else if (c === '"') quoted = true;
     else if (c === ",") { row.push(field); field = ""; }
     else if (c === "\n" || c === "\r") {
       if (c === "\r" && src[i + 1] === "\n") i++;
       row.push(field); field = "";
-      if (row.some((f) => f.trim() !== "")) rows.push(row);
-      row = [];
+      if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
+      row = []; start = ++line;
     } else field += c;
   }
   row.push(field);
-  if (row.some((f) => f.trim() !== "")) rows.push(row);
+  if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
   return rows;
 }
 
@@ -62,7 +64,7 @@ export function parseDate(value) {
   if (m && MONTHS[m[1].toLowerCase()] !== undefined) return { y: +m[3], mo: MONTHS[m[1].toLowerCase()], d: +m[2] };
   m = s.match(/^(\d{1,2})\s+([A-Za-z]{3})[a-z]*\.?\s+(\d{4})/);
   if (m && MONTHS[m[2].toLowerCase()] !== undefined) return { y: +m[3], mo: MONTHS[m[2].toLowerCase()], d: +m[1] };
-  m = s.match(/^(\d{1,2})[/.](\d{1,2})[/.](\d{4})/);
+  m = s.match(/^(\d{1,2})[/.](\d{1,2})[/.](\d{4})(?!\d)/);
   if (m) return { y: +m[3], mo: +m[1] - 1, d: +m[2] };
   return null;
 }
@@ -124,7 +126,7 @@ export function normalizeReport(table) {
   const rows = [], skipped = [];
   for (let i = h + 1; i < table.length; i++) {
     const r = table[i];
-    const line = i + 1;
+    const line = table[i].line ?? i + 1;
     if (r.length < 3) continue; // trailing summary lines
     const date = parseDate(get(r, "date"));
     if (!date) { skipped.push({ line, reason: `unreadable date “${get(r, "date")}”` }); continue; }
@@ -309,7 +311,7 @@ export function analyze(rows, { costs = {}, returnsResellable = true } = {}) {
   return { summary, items: itemList, months: monthList, findings: findings(summary, itemList, monthList) };
 }
 
-const $ = (n) => (n < 0 ? "-$" : "$") + Math.abs(Math.round(n)).toLocaleString("en-US");
+const $ = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(n)).toLocaleString("en-US"));
 const P = (x, d = 1) => (x * 100).toFixed(d) + "%";
 
 function findings(s, list, months) {
@@ -441,7 +443,7 @@ export function sampleData() {
   const head = "Transaction creation date,Type,Order number,Legacy order ID,Buyer username,Buyer name,Ship to city,Ship to province/region/state,Ship to zip,Ship to country,Net amount,Payout currency,Payout date,Payout ID,Payout method,Payout status,Reason for hold,Item ID,Transaction ID,Item title,Custom label,Quantity,Item subtotal,Shipping and handling,Seller collected tax,eBay collected tax,Final Value Fee - fixed,Final Value Fee - variable,\"Very high \"\"not as described\"\" fee\",Below standard performance fee,International fee,Deposit processing fee,Gross transaction amount,Transaction currency,Exchange rate,Reference ID,Description";
   const out = ["Transaction report", "Seller ID,samplestore", "Report period,\"Jun 1, 2026 - Sep 30, 2026\"", "", head];
   const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
-  const m = (n) => (n < 0 ? "-" : "") + Math.abs(n).toFixed(2);
+  const m = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(n).toFixed(2));
   const row = (o) => {
     const c = new Array(37).fill("--");
     const set = (name, v) => { c[head.split(",").indexOf(name)] = v; };

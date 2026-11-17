@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKifZKnR5t4Rf2Suk5K",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T13:22:12Z",
+  "ended": "2026-11-12T13:30:39Z",
+  "wall_minutes": 8.67,
+  "tokens_in": 4487570,
+  "tokens_out": 28175,
+  "cost_usd": 2.3267,
+  "tool_calls": 46,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15137",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "huggingface.co refused by the egress proxy (403 on CONNECT, policy denial) at 13:25 UTC, so milestone 6a could not read folder-75 data; 5y and 5z read the same host earlier the same day",
+    "auto-mode classifier denied a `git reset --hard origin/main` on the pre-existing work branch (it already equalled origin/main, so nothing was lost) and a multi-host curl probe"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "'Data hosts often 403' names irs.gov and data hosts, not huggingface.co; a programme now depends on HF range reads, and its availability changes between sessions on the same day, so a step planned on HF data can be blocked after its predictions are registered. A note to probe the host before registering a data step would have saved the re-plan."
+    },
+    {
+      "file": "research/heavy-hydraulics/paper/draft.md",
+      "issue": "the note after section 3.7 cited 'Section 4, item 4' (lift-phase gravity) for the working-pressure threat, which is item 1; fixed."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "the planned step (6a) could not run: its data host was refused",
+      "did": "kept 6a's predictions registered and blind, committed the script and a tested library identity, smoke-tested the script on Gaussian noise only (not committed or quoted), and spent the run on 5z's other Next: section 3.7b of the paper draft plus a corrected abstract and threats",
+      "result": "paper current to 5z with 183 numbers checked; 6a is one command away for a run that can reach huggingface.co"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-a-hydraulic-bet-written-before-the-data.md",
+    "research/heavy-hydraulics/LOG.md (6a status, paper 3.7b entry)"
+  ],
+  "goal": null,
+  "notes": "Local checks: heavy-hydraulics pytest 50 passed; research/_homepage/build.py ok; check_md_links ok; research_live_links 0 updates; paper/check_numbers.py 183 checked, 0 missing; run_workflow_locally --for-changes: research-ci 3/3 run steps passed, agent-cross-review and portfolio-pages jobs not run locally.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0e184c3c-a837-590a-9d7e-693897b185f0",
+    "transcripts": 1,
+    "first": "2026-11-12T13:22:12Z",
+    "last": "2026-11-12T13:30:52Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 43,
+        "input": 81,
+        "output": 28175,
+        "thinking": 5969,
+        "cache_read": 4376546,
+        "cache_write_5m": 0,
+        "cache_write_1h": 110943,
+        "api_equivalent_usd": 2.3267,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 43,
+      "input": 81,
+      "output": 28175,
+      "thinking": 5969,
+      "cache_read": 4376546,
+      "cache_write_5m": 0,
+      "cache_write_1h": 110943,
+      "api_equivalent_usd": 2.3267,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 46,
+    "tools": {
+      "Bash": 43,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.67,
+      "active_minutes": 8.67,
+      "model_minutes": 5.86,
+      "tool_minutes": 2.82,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "paper section from existing results plus a scripted, tested experiment; similar to 5w's scope",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 171.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

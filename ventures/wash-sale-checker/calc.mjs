@@ -11,10 +11,10 @@ const DAY = 86400000;
 
 export function parseDate(s) {
   const t = String(s).trim();
-  let m = t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  let m = t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)/);
   let y, mo, d;
   if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; }
-  else if ((m = t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/))) { mo = +m[1]; d = +m[2]; y = +m[3]; if (y < 100) y += 2000; }
+  else if ((m = t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4}|\d{2})(?!\d)/))) { mo = +m[1]; d = +m[2]; y = +m[3]; if (y < 100) y += 2000; }
   else return null;
   const ms = Date.UTC(y, mo - 1, d);
   const chk = new Date(ms);
@@ -22,14 +22,21 @@ export function parseDate(s) {
   return ms;
 }
 export const isoDate = (ms) => new Date(ms).toISOString().slice(0, 10);
-export const money = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+export const money = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(x).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 const r2 = (x) => Math.round(x * 100) / 100;
+// One amount: "$1,234.50", "(1,200)", "-100", "$-1,200", "USD 500", "100-", "1.5E+04". Anything that is not exactly
+// one number ("12-34", "1.2.3", "5 6") is NaN, so the line is refused rather than read as a different amount.
 const num = (s) => {
   const t = String(s ?? "").trim();
-  if (!t) return NaN;
-  const neg = /^\(.*\)$/.test(t) || t.startsWith("-");
-  const v = parseFloat(t.replace(/[^0-9.]/g, ""));
-  return neg ? -v : v;
+  if (!t || /\d\s+[\d.]/.test(t)) return NaN;
+  const paren = /^\(.*\)$/.test(t);
+  let b = (paren ? t.slice(1, -1) : t).replace(/\u2212/g, "-").replace(/\b(?:USD|US\$)/gi, "").replace(/[$\s,]/g, "");
+  let neg = paren;
+  if (/^[-+]/.test(b)) { neg = neg || b[0] === "-"; b = b.slice(1); }
+  else if (/-$/.test(b)) { neg = true; b = b.slice(0, -1); }
+  if (!/^(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?$/i.test(b)) return NaN;
+  const v = Number(b);
+  return Number.isFinite(v) ? (neg ? -v : v) : NaN;
 };
 
 function splitLine(line, delim) {
@@ -43,27 +50,62 @@ function splitLine(line, delim) {
   return out.map((x) => x.trim());
 }
 
-export function parseTrades(text) {
-  const lines = String(text).split(/\r?\n/).filter((l) => l.trim());
-  if (!lines.length) return { error: "No rows found." };
-  const delim = lines[0].includes("\t") ? "\t" : ",";
-  const head = splitLine(lines[0], delim).map((h) => h.toLowerCase());
-  const col = (names) => head.findIndex((h) => names.some((n) => h.includes(n)));
-  const c = {
-    date: col(["date"]), sym: col(["symbol", "ticker", "security"]), side: col(["action", "side", "type", "buy/sell"]),
+// Retirement-account words as whole tokens: "Roth IRA", "SEP-IRA", "401(k)", "ROTH_IRA". A bare substring test read
+// account numbers such as "Z40123456" and names such as "September Growth" as IRAs and dropped their sales.
+const RETIREMENT = /(?<![a-z0-9])(?:ira|roth|sep|hsa|retire(?:ment)?|401(?:\s*\(?k\)?)?|403(?:\s*\(?b\)?)?)(?![a-z0-9])/i;
+
+// Headers matched by name, not position: names are tried in order of preference, each against every header, so
+// "Trade Date" beats a "Settlement Date" that comes first; `avoid` keeps "Security Type" or "Account Type" from being
+// read as the symbol or the action.
+function columnsOf(head) {
+  const col = (names, avoid) => {
+    for (const n of names) {
+      const i = head.findIndex((h) => h.includes(n) && !(avoid && avoid.test(h)));
+      if (i >= 0) return i;
+    }
+    return -1;
+  };
+  return {
+    date: col(["trade date", "run date", "activity date", "transaction date", "date"], /settle|process|acqui|expir|record|pay/),
+    sym: col(["symbol", "ticker", "instrument", "security"], /type|desc|name/),
+    side: col(["action", "side", "buy/sell", "trans code", "transaction type", "type"], /account|security|asset|instrument|order|option/),
     qty: col(["quantity", "shares", "qty"]), price: col(["price"]), amount: col(["amount", "proceeds", "total"]),
     basis: col(["basis", "cost"]), acct: col(["account"]),
   };
-  const miss = ["date", "sym", "side", "qty"].filter((k) => c[k] < 0);
+}
+const missingCols = (c) => ["date", "sym", "side", "qty"].filter((k) => c[k] < 0);
+// How far down a title or account block above the header is looked past (Schwab's older export starts with
+// "Transactions for account ... as of ..."; others put an account number and a blank line first).
+const HEADER_SCAN = 10;
+
+export function parseTrades(text) {
+  // Keep each row's line number in the file, blank lines counted, so "Line 8" points at line 8.
+  const lines = String(text).split(/\r?\n/).map((l, i) => ({ l, ln: i + 1 })).filter((x) => x.l.trim());
+  if (!lines.length) return { error: "No rows found." };
+  const delim = lines[0].l.includes("\t") ? "\t" : ",";
+  let hi = 0, head = null, c = null;
+  for (let i = 0; i < Math.min(lines.length, HEADER_SCAN); i++) {
+    const h = splitLine(lines[i].l, delim).map((x) => x.toLowerCase());
+    const cc = columnsOf(h);
+    if (!missingCols(cc).length && (cc.price >= 0 || cc.amount >= 0)) { hi = i; head = h; c = cc; break; }
+  }
+  if (!head) { head = splitLine(lines[0].l, delim).map((h) => h.toLowerCase()); c = columnsOf(head); }
+  const miss = missingCols(c);
   if (miss.length) return { error: `Need columns for: ${miss.map((k) => ({ date: "date", sym: "symbol", side: "action (buy/sell)", qty: "quantity" })[k]).join(", ")}.` };
   if (c.price < 0 && c.amount < 0) return { error: "Need a price or an amount column." };
   const trades = [], errors = [];
-  lines.slice(1).forEach((line, n) => {
+  lines.slice(hi + 1).forEach(({ l: line, ln }) => {
     const f = splitLine(line, delim);
-    const ln = n + 2;
+    // An unquoted thousands separator ("1,000" shares) splits one field in two and shifts every later column, so
+    // "buy,1,000,150.00" read as 1 share at $0 with no error. Extra non-empty fields mean the row is refused.
+    if (delim === "," && f.length > head.length && f.slice(head.length).some((x) => x !== ""))
+      return errors.push(`Line ${ln}: ${f.length} fields but the header has ${head.length}. If an amount has a thousands separator, put it in quotes ("1,000") or remove the comma.`);
     const date = parseDate(f[c.date]);
     const sideRaw = (f[c.side] || "").toLowerCase();
-    const side = /^(buy|bought|purchase|b\b|bto|btc)/.test(sideRaw) ? "buy" : /^(sell|sold|sale|s\b|sto|stc)/.test(sideRaw) ? "sell" : null;
+    // A dividend reinvestment is a purchase and can wash a loss (Pub. 550); Schwab's "Reinvest Dividend" is the cash
+    // leg with no shares, its "Reinvest Shares" (Fidelity: "REINVESTMENT ...") the buy. Fidelity writes "YOU BOUGHT".
+    const side = /^(?:you\s+)?(?:buy|bought|purchase|b\b|bto\b|btc\b)|^reinvest(?:ment|ed)?\b(?!\s+div)/.test(sideRaw) ? "buy"
+      : /^(?:you\s+)?(?:sell|sold|sale|s\b|sto\b|stc\b)/.test(sideRaw) ? "sell" : null;
     const qty = Math.abs(num(f[c.qty]));
     const sym = (f[c.sym] || "").toUpperCase().replace(/\s+/g, "");
     let price = c.price >= 0 ? Math.abs(num(f[c.price])) : NaN;
@@ -75,7 +117,7 @@ export function parseTrades(text) {
     if (!(qty > 0)) return errors.push(`Line ${ln}: quantity must be above zero.`);
     if (!(price >= 0)) return errors.push(`Line ${ln}: price or amount missing.`);
     const basis = c.basis >= 0 && side === "sell" && f[c.basis] !== "" ? Math.abs(num(f[c.basis])) : null;
-    const ira = c.acct >= 0 && /ira|roth|401|403|sep|retire|hsa/i.test(f[c.acct] || "");
+    const ira = c.acct >= 0 && RETIREMENT.test(f[c.acct] || "");
     trades.push({ line: ln, date, sym, side, qty, price, total: r2(price * qty), basis: Number.isFinite(basis) ? basis : null, ira });
   });
   return { trades, errors };
@@ -97,7 +139,14 @@ export function analyze(trades) {
       if (need <= 1e-9) break;
       if (lot.sym !== s.sym || lot.date > s.date || lot.soldFromTaxable >= lot.qty - 1e-9) continue;
       const take = Math.min(need, lot.qty - lot.soldFromTaxable);
-      lot.soldFromTaxable += take; need -= take; costFromLots += (lot.price * take) + (lot.addedBasisPerShare || 0) * take;
+      lot.soldFromTaxable += take; need -= take; costFromLots += lot.price * take;
+      // carried-over wash losses sit on the replacement shares only; those are taken first, each at its own amount
+      let rest = take;
+      while (rest > 1e-9 && lot.carried && lot.carried.length) {
+        const c = lot.carried[0], k = Math.min(rest, c.qty);
+        costFromLots += c.perShare * k; c.qty -= k; rest -= k;
+        if (c.qty <= 1e-9) lot.carried.shift();
+      }
       consumed.push({ lot, take });
     }
     const unmatchedShares = need > 1e-9 ? need : 0;
@@ -115,11 +164,10 @@ export function analyze(trades) {
       for (const b of buys) {
         if (remaining <= 1e-9) break;
         if (b.sym !== s.sym || b.date < lo || b.date > hi) continue;
-        let avail = b.free;
-        const lotUsedAsSold = consumed.find((x) => x.lot === b);
-        if (lotUsedAsSold) avail -= lotUsedAsSold.take;
-        // shares of this buy already sold in an earlier sale (not this one) are not replacement shares
-        if (!b.ira) avail = Math.min(avail, b.qty - b.soldFromTaxable);
+        // A taxable buy can replace only shares still held (not sold, this sale included) that are not already
+        // carrying an earlier wash loss; an IRA buy is never sold here, so its unused count is all that matters.
+        const avail = b.ira ? b.free
+          : b.qty - b.soldFromTaxable - (b.carried || []).reduce((a, c) => a + c.qty, 0);
         if (avail <= 1e-9) continue;
         const use = Math.min(avail, remaining);
         b.free -= use; remaining -= use;
@@ -130,13 +178,15 @@ export function analyze(trades) {
       sale.disallowed = disallowed;
       sale.allowed = r2(loss - disallowed);
       if (matched > 0) {
+        // Each replacement takes its rounded share and the last takes what is left, so the shares sum to the
+        // disallowed loss exactly (100.01 over three buys is 33.34 + 33.34 + 33.33, not a phantom 100.02).
         let left = disallowed;
-        for (const rep of sale.replacements) {
-          const share = r2(disallowed * (rep.qty / matched));
+        sale.replacements.forEach((rep, i) => {
+          const share = i === sale.replacements.length - 1 ? left : r2(disallowed * (rep.qty / matched));
           rep.disallowedShare = share; left = r2(left - share);
           if (rep.ira) sale.permanent = r2(sale.permanent + share);
-          else { rep.buy.added += share; rep.buy.addedBasisPerShare = (rep.buy.addedBasisPerShare || 0) + share / rep.qty; rep.adjustedBasisPerShare = rep.buy.price + rep.buy.addedBasisPerShare; }
-        }
+          else { rep.buy.added += share; (rep.buy.carried ||= []).push({ qty: rep.qty, perShare: share / rep.qty }); rep.adjustedBasisPerShare = r2(rep.buy.price + share / rep.qty); }
+        });
       }
     }
     sales.push(sale);
@@ -178,11 +228,19 @@ export function sampleList() {
   ].join("\n");
 }
 
+// One CSV cell: quoted when it holds a comma, quote or newline, and prefixed with an apostrophe when it starts
+// like a spreadsheet formula (CSV injection), since a symbol comes straight from the uploaded file.
+const cell = (v) => {
+  let s = String(v);
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
+  return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+};
+
 export function reportCsv(r) {
   const rows = ["sale date,symbol,shares,proceeds,basis,gain or loss,wash sale disallowed (Form 8949 code W),loss you can claim,replacement purchases"];
   for (const s of r.sales) {
     const reps = s.replacements.map((x) => `${isoDate(x.date)} x${+x.qty.toFixed(4)}${x.ira ? " (IRA: loss permanently lost)" : ""}`).join("; ");
-    rows.push([isoDate(s.date), s.sym, s.qty, s.proceeds.toFixed(2), s.basis.toFixed(2), s.gain.toFixed(2), s.disallowed.toFixed(2), s.gain < 0 ? s.allowed.toFixed(2) : "", `"${reps}"`].join(","));
+    rows.push([isoDate(s.date), s.sym, s.qty, s.proceeds.toFixed(2), s.basis.toFixed(2), s.gain.toFixed(2), s.disallowed.toFixed(2), s.gain < 0 ? s.allowed.toFixed(2) : "", `"${reps}"`].map((v, i) => (i === 8 ? v : cell(v))).join(","));
   }
   return rows.join("\n") + "\n";
 }

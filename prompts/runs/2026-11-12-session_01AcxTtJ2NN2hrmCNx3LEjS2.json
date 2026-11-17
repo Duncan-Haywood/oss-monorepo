@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtJ2NN2hrmCNx3LEjS2",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T15:07:14Z",
+  "ended": "2026-11-12T16:25:51Z",
+  "wall_minutes": 109.2,
+  "tokens_in": 11950839,
+  "tokens_out": 42317,
+  "cost_usd": 4.2633,
+  "tool_calls": 97,
+  "task": "Explore: SAT lower bounds for round-robin carry-over (league-schedule-generator flagship open item: 12 teams 136 vs floor 120)",
+  "projects": [
+    "ventures/league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15168",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "partial",
+  "errors": [
+    "First version of eval/carryover-sat.py used a threading.Timer to interrupt the pysat solver; the solver holds the GIL so the limit never fired (runs went past 3000 s). Replaced with a child process killed at the limit; the child returns only true match variables so a large model cannot fill the pipe.",
+    "A `pkill -f '[h]ttp.server'` was refused by the hook because the pattern also appeared earlier in the same command line; the same call's heredoc never ran."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "league-schedule-generator next: says '12 teams 136 against 120' without saying 120 is the non-cyclic floor; Russell's (cyclic) n(n-1) is 132, so it took reading the README to know which bound was meant."
+    },
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "route printed '2493/40 runs toward the next review', which reads as a review long overdue but the router did not pick review; unclear what the counter means."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "Explore is free choice; I took an open research-shaped item from a flagship's next: list (a proof question no heuristic could answer) rather than a new idea, since sweeps are saturated and the flagship asked for exactly this.",
+      "did": "SAT encoding with python-sat (eval-only dependency, not vendored) plus a product change: the page now reports the proved least value.",
+      "result": "10 teams proved >= 90 (floor 80, best 94); 12 teams unanswered."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-a-sat-solver-proves-ten-teams-cannot-reach-the-carry-over-floor.md",
+    "ventures/league-schedule-generator/README.md#sat-bounds-10-teams-cannot-go-below-90-2026-11-12"
+  ],
+  "goal": "Answer or narrow the 12-team carry-over gap with an exact method.",
+  "notes": "Explore idea: exact SAT search for low non-cyclic carry-over round robins (eval/carryover-sat.py, CaDiCaL via python-sat). Matches the known 6-team least (42) and 8-team floor (48). 10 teams: UNSAT at 80/82/84/86/88 (0.9 s to 1,302 s), so least is 90-94; runs at 90 and 92 stopped unanswered after 69 and 98 min. 12 teams: no answer at 120 (~65 min), 134 (~70 min) or 160 (240 s); SAT at 170 gave 166. Page report now says when the floor is unreachable (PROVEN_LEAST). Local: run_venture_tests.py league-schedule-generator ok (231 s); Chromium check of the 10-team report line, no page errors. No agent doc in docs/reports: README section and flagships next: carry the state. Not checked against the published carry-over optimisation literature.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a8f59d21-658d-5762-8792-d7ee1cd0ba3b",
+    "transcripts": 1,
+    "first": "2026-11-12T15:07:14Z",
+    "last": "2026-11-12T16:56:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 102,
+        "input": 224,
+        "output": 42317,
+        "thinking": 10510,
+        "cache_read": 11819088,
+        "cache_write_5m": 0,
+        "cache_write_1h": 131527,
+        "api_equivalent_usd": 4.2633,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 102,
+      "input": 224,
+      "output": 42317,
+      "thinking": 10510,
+      "cache_read": 11819088,
+      "cache_write_5m": 0,
+      "cache_write_1h": 131527,
+      "api_equivalent_usd": 4.2633,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.989,
+    "tool_calls": 97,
+    "tools": {
+      "Bash": 79,
+      "Monitor": 6,
+      "Write": 4,
+      "TaskStop": 2,
+      "ToolSearch": 2,
+      "Edit": 2,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 109.2,
+      "active_minutes": 19.1,
+      "model_minutes": 10.31,
+      "tool_minutes": 8.8,
+      "waiting_on_human_minutes": 90.1,
+      "human_prompts": 13,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "researcher writing and validating a SAT encoding, running bounds, wiring the result into the page",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 234.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

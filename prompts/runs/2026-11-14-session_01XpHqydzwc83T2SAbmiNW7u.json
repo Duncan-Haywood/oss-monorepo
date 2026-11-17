@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqydzwc83T2SAbmiNW7u",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T11:38:58Z",
+  "ended": "2026-11-14T11:56:46Z",
+  "wall_minutes": 18.07,
+  "tokens_in": 8847300,
+  "tokens_out": 50640,
+  "cost_usd": 3.9541,
+  "tool_calls": 73,
+  "task": "Deepen flagship 6 shift-roster-builder: the open 'week 0 pay $30 open' item (allocate.py row 4)",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15836",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "First preflight failed: the new post's description was 206 characters (cap 160); shortened, site tests then passed 57/57.",
+    "A heredoc with JS template literals tripped the shell's rm safety check (no rm involved); wrote the file with the Write tool instead."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "pyenv.py printed /usr/bin/python3.13 after installing scipy/highspy, but a bare python3 on PATH is a different interpreter without numpy; the eval had to be run with the printed path explicitly (as documented, but easy to miss)."
+    },
+    {
+      "file": "ventures/shift-roster-builder/eval/end-to-end.mjs",
+      "issue": "For status 'improved' the printed 'gap' is how far the anneal was off (annealScore - best), not an open gap, so a proven week prints 'gap $2,099,784'; cost time checking for a reporting bug."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-shift-roster-the-gap-was-the-search.md",
+    "ventures/shift-roster-builder/README.md#re-solving-one-day-at-a-time-2026-11-14"
+  ],
+  "goal": null,
+  "notes": "HiGHS MILP of the priced clique model: 30,019,980.99 ($0.78 over LP); its roster valid and scores 30,019,981.35 vs posted 30,020,010.32, so the gap was search. dayReassign (Hungarian per day + jittered kicks, 2 s, only when unproven) takes week 0 gap $30.11 -> $7.04; 80/100-person weeks 1-5 fewer open hours on 4 of 5. LP rounding tried and dropped. Verification: day-lns.test.mjs 3 tests pass; run_venture_tests.py shift-roster-builder ok (186.3 s); platform/pages site tests 57/57 after the description fix; venture-preflight clean on rerun (exit 0).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "71779127-77f6-5108-943d-d15e49e52692",
+    "transcripts": 1,
+    "first": "2026-11-14T11:38:58Z",
+    "last": "2026-11-14T11:57:03Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 71,
+        "input": 136,
+        "output": 50640,
+        "thinking": 12212,
+        "cache_read": 8696999,
+        "cache_write_5m": 0,
+        "cache_write_1h": 150165,
+        "api_equivalent_usd": 3.9541,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 71,
+      "input": 136,
+      "output": 50640,
+      "thinking": 12212,
+      "cache_read": 8696999,
+      "cache_write_5m": 0,
+      "cache_write_1h": 150165,
+      "api_equivalent_usd": 3.9541,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 73,
+    "tools": {
+      "Bash": 68,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.07,
+      "active_minutes": 18.07,
+      "model_minutes": 8.03,
+      "tool_minutes": 10.04,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an OR engineer: export the model to HiGHS, diagnose the gap, write and test a Hungarian-based day LNS, benchmark",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 252.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

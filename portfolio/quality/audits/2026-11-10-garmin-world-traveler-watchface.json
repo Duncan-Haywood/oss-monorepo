@@ -61,6 +61,6 @@
       "where": "ventures/garmin-world-traveler-watchface/source/CityData.mc:60-92"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/14807"],
   "verdict": "A small, tidy, well-commented prototype whose time-zone maths is right: my independent legal-rule checker agrees with Python zoneinfo for all 42 cities across 25 million 15-minute samples from 2023 to 2040, and the author's own node test passes. It does not meet the bar. The Monkey C was never compiled or rendered (no SDK here, none ever used in CI), so correctness is capped at 2. The one test checks a JS copy of the DST rules, so two seeded mutations in the real rule code survived (one of them the very bug the venture notes say was fixed), and CI does not run that test at all. Independently of the code, the label layout is wrong for months of the year: eight pairs of cities land exactly on top of each other once DST shifts one of them, and Karachi, Delhi and Dhaka overlap daily, contradicting the README's claim that the two rings prevent overlap. The honest status labelling (prototype, not on the Store, mock-up clearly marked) is a strength. Scores reflect only what I ran: the node test, my Python recomputations and three mutations; I could not run the Monkey C, load the live page, or see any rendering. Cheapest fixes: make the test load and run the .mc rules (or transpile them), run it in CI, and assign rings per time-of-year (or a third ring/angle nudge) so colliding pairs separate."
 }

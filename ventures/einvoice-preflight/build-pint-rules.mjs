@@ -53,7 +53,9 @@ for (const [name, xslt] of Object.entries(sets)) {
 const pintVersion = process.argv[3] || "4.6.4";
 const pintJar = process.env.EINVOICE_PINT1_JAR || join(work, "pint.jar");
 if (!process.env.EINVOICE_PINT1_JAR) execFileSync("curl", ["-sSfL", "--retry", "4", "--retry-delay", "5", "-o", pintJar, `https://repo1.maven.org/maven2/com/helger/phive/rules/phive-rules-peppol-pint/${pintVersion}/phive-rules-peppol-pint-${pintVersion}.jar`], { stdio: "inherit" });
-execFileSync("unzip", ["-oq", pintJar, "external/schematron/pint-sg/1.4.1/*", "external/schematron/pint-aunz/1.1.3/*", "-d", work]);
+// Japan, Malaysia, the UAE and Oman joined on 2026-11-12 (they had fallen to the EU base too).
+const releases = ["pint-sg/1.4.1", "pint-aunz/1.1.3", "pint-jp/1.1.3", "pint-jp-ntr/1.1.3", "pint-jp-sb/1.1.3", "pint-my/1.3.1", "pint-ae/2026.5", "pint-om/1.0.1"];
+execFileSync("unzip", ["-oq", pintJar, ...releases.map((r) => `external/schematron/${r}/*`), "-d", work]);
 const s1 = join(work, "external/schematron/pint-sg/1.4.1/xslt");
 const a1 = join(work, "external/schematron/pint-aunz/1.1.3/xslt");
 const current = {
@@ -64,6 +66,25 @@ const current = {
   "pint1-aunz-sb-ubl": join(a1, "selfbilling/PINT-UBL-validation-preprocessed.xslt"),
   "pint1-aunz-sb-jur-ubl": join(a1, "selfbilling/PINT-jurisdiction-aligned-rules.xslt"),
 };
+const rel = (r, sub) => join(work, "external/schematron", r, sub);
+for (const [tag, r, dirs] of [
+  ["jp", "pint-jp/1.1.3", { "": "xslt" }],
+  ["jp-ntr", "pint-jp-ntr/1.1.3", { "": "xslt" }],
+  ["jp-sb", "pint-jp-sb/1.1.3", { "": "xslt" }],
+  ["my", "pint-my/1.3.1", { "": "xslt/billing", "-sb": "xslt/selfbilling" }],
+  ["ae", "pint-ae/2026.5", { "": "billing", "-sb": "selfbilling" }],
+  ["om", "pint-om/1.0.1", { "": "billing", "-sb": "selfbilling" }],
+]) {
+  for (const [suffix, sub] of Object.entries(dirs)) {
+    current[`pint1-${tag}${suffix}-ubl`] = join(rel(r, sub), "PINT-UBL-validation-preprocessed.xslt");
+    current[`pint1-${tag}${suffix}-jur-ubl`] = join(rel(r, sub), "PINT-jurisdiction-aligned-rules.xslt");
+  }
+}
+// Most releases ship the shared PINT-UBL stylesheet byte for byte (SG, A-NZ, JP, MY and
+// OM billing all do on 4.6.4). A stylesheet already compiled is not written twice: the
+// set is recorded with `sameAs`, and schematron-core.mjs lists the first file.
+const seen = new Map();
+const firstSix = new Set(["pint1-sg-ubl", "pint1-sg-jur-ubl", "pint1-aunz-ubl", "pint1-aunz-jur-ubl", "pint1-aunz-sb-ubl", "pint1-aunz-sb-jur-ubl"]);
 for (const [name, xslt] of Object.entries(current)) {
   if (!existsSync(xslt)) throw new Error(`Missing ${xslt}`);
   const rules = compileXslt(xslt);
@@ -71,8 +92,12 @@ for (const [name, xslt] of Object.entries(current)) {
   // Count check: every failed-assert in the stylesheet must come out as a check.
   const asserts = (readFileSync(xslt, "utf8").match(/<svrl:failed-assert\b/g) || []).length;
   if (checks !== asserts) throw new Error(`${name}: ${checks} checks read, ${asserts} failed-asserts in ${xslt}`);
-  writeFileSync(join(out, `${name}.json`), JSON.stringify(rules) + "\n");
-  manifest.sets[name] = { source: `OpenPeppol PINT via phive-rules-peppol-pint ${pintVersion} on Maven Central (Apache-2.0 wrapper; rules from OpenPeppol, licence per OpenPeppol/PINT)`, from: xslt.split("schematron/")[1], checks };
-  console.log(`${name}: ${checks} checks`);
+  const json = JSON.stringify(rules) + "\n";
+  const entry = { source: `OpenPeppol PINT via phive-rules-peppol-pint ${pintVersion} on Maven Central (Apache-2.0 wrapper; rules from OpenPeppol, licence per OpenPeppol/PINT)`, from: xslt.split("schematron/")[1], checks };
+  // The six sets that shipped first keep their own files; later ones point at the first copy.
+  if (seen.has(json) && !firstSix.has(name)) entry.sameAs = seen.get(json);
+  else { if (!seen.has(json)) seen.set(json, name); writeFileSync(join(out, `${name}.json`), json); }
+  manifest.sets[name] = entry;
+  console.log(`${name}: ${checks} checks${entry.sameAs ? ` (same as ${entry.sameAs})` : ""}`);
 }
 writeFileSync(manifestFile, JSON.stringify(manifest, null, 2) + "\n");

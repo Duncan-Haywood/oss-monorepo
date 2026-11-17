@@ -53,3 +53,9 @@ test("index links one hop to the court-reporter-transcript-calculator sibling", 
   );
   assert.match(html, /court reporter transcript calculator/i);
 });
+
+test("a blank Hours notice is refused, not read as 0 (which bills the full fee)", () => {
+  // Quality census 2026-11-15-8354: Number("") is 0, the 100% tier.
+  const html = page("index.html");
+  assert.match(html, /els\.hoursNotice\.value\.trim\(\) === ""/);
+});

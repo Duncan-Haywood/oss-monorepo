@@ -19,15 +19,24 @@ Why it seemed worth doing: the `eda` track's projects (`eda-sky130rung`, `eda-de
 cd research/eda-rankpayoff
 PYTHONPATH=src python3 -m unittest discover -s tests
 python3 experiments/build_data.py                                # optional: rebuilds data.json from the two sources
-PYTHONPATH=src python3 experiments/run.py && python3 experiments/figure.py   # about 2 minutes each, stdlib only
+PYTHONPATH=src python3 experiments/run.py && python3 experiments/figure.py   # under a minute each, stdlib only
 ```
 
 ## Results (`experiments/results.txt`, figure `experiments/scatter.svg`)
-- **Check against the source.** For area × latency the base screen (generic cells × cycles) gives P(best mapped) 0.636 at *k* = 1 and 0.970 at *k* = 3, and a mean ratio of 1.078: the figures `eda-latencyhalve` reports for the same screen, reproduced by independent code.
+- **Check against the source.** For area × latency the base screen (generic cells × cycles) gives P(best mapped) 0.636 at *k* = 1 and 0.970 at *k* = 3, and a mean ratio of 1.078: the figures `eda-latencyhalve` reports for the same screen, matched by this project's code, which uses the same sampling scheme and seed, so it is not an independent check (the exact hypergeometric values are 0.646 and 0.969, per quality audit round 61).
 - **Area × latency: agreement and payoff go together, loosely.** Across the 207 screens Spearman correlates with P(best at first mapping) at 0.60 (0.50 to 0.68), Kendall 0.59, top-5 overlap 0.70. All 200 re-weighted screens agree at 0.93 to 0.98 and put the best design first or second; the gap is in how often the first mapping is already the best (0.49 to 0.81).
 - **Latency alone: they do not.** Spearman against P(best at *k* = 1): −0.13 (−0.26 to 0.02); Kendall −0.04; top-5 overlap 0.43. Named screens: depth (0.931) and gate-type weights (0.936) rank as well as the fan-out model (0.937), but put the best design 5th and 6th while the fan-out model puts it 2nd (P at *k* = 3: 0.589, 0.504 against 0.948). Gate count ranks latency at only 0.551 yet puts the best design first (0.692 at *k* = 1, the best of the named screens).
 - **The measure that does predict is the one a loop cannot see.** The rank of the best design in the screen's order correlates at 0.90 (0.87 to 0.92) with P(best at *k* = 1) for latency, but that rank needs the mapped truth; it is the quantity being searched for. In the area × latency case it is nearly constant (1 for 204 of 207 screens), which is why it correlates at only 0.21 there.
 - **Practical reading.** When a screen is to pick *k* designs to map, report how often the top *k* contains the best on pools or held-out designs, not (only) Spearman. Where the objective is dominated by a smooth size term (area × latency here), Spearman is a fair guide; where the winner is decided at the extreme of a noisy quantity (latency), it is not.
+
+## Known gaps (quality audit round 61)
+
+From [`portfolio/quality/audits/2026-11-13-eda-rankpayoff.json`](../../portfolio/quality/audits/2026-11-13-eda-rankpayoff.json):
+
+- **Prior work.** Comparisons of predictors' rank correlation with their top-k payoff already exist in the neural-architecture-search literature (White et al., NeurIPS 2021; Ning et al., NeurIPS 2021; Abdelfattah et al., ICLR 2021), and information retrieval has top-weighted measures (AP correlation, rank-biased overlap, weighted Kendall tau). None is cited or tested here, so "a new question" is overstated; a top-weighted measure is the obvious baseline to add.
+- **The "does not predict" result holds at k = 1 only.** At k = 3 the cross-screen correlation is +0.221 (bootstrap 0.068 to 0.360). The figure plots k = 3 and its title now says what it shows.
+- **Ties.** `capture` and `best_rank` break ties by list index while Spearman averages ranks. On the latency "none (cycles)" screen (5 distinct values) this inflates cap1 from 0.058 to 0.150 under random tie order.
+- **Monte Carlo where an exact form exists.** Capture probabilities have a hypergeometric closed form; the largest Monte Carlo deviation is 0.011, and the headline holds with exact values (0.614 and -0.115).
 
 ## Limitations
 - One design family (lanes × bits of a MAC engine) from one generator and one ABC script, 40 points, and one winning design (p = 4, 4 bits) for both truths. "Best rank" and "P(best)" are therefore driven by where that one design falls, and the correlations across screens would differ on a family with a different structure. No claim beyond this family.

@@ -16,9 +16,11 @@
 //          held-out labelled series (TCPD_HELDOUT in consensus.mjs).
 //
 // Missing cells are carried forward from the last value in that column so every column keeps
-// the same indexes; a column whose first cell is missing is an error.
+// the same indexes; a column whose first cell is missing is an error. parseColumns lists those cells
+// per column (`missing`) so the update-rate check does not read a carried-forward cell as a repeat.
+import { updateRateChanges, updateRateLines } from './update-rate.mjs';
 import { makeCost, penaltyValue, robustSd, splitLine, numCell, pelt, localFitScale, ar1Rho, longRunSd } from './engine.mjs';
-import { consensus } from './consensus.mjs';
+import { consensus, mergeConsensus } from './consensus.mjs';
 
 function check(cols) {
   if (!Array.isArray(cols) || cols.length < 1) throw new Error('Give one or more columns.');
@@ -115,14 +117,16 @@ export function multiPelt(cols, { model = 'mean', penalty = 'bic', minSegment, f
 /**
  * Per-column consensus, merged across columns. Returns { changes: [{ index, label, columns, support, of }], perColumn }.
  * tier: 'every' keeps each column's every-setting changes (the default), 'most' adds half-or-more.
+ * runs: optional, one array of runSetting() results per column (the panels already run, e.g. on
+ * worker threads by consensus-threads.mjs runColumnPanelsThreaded); merged here exactly as consensus() would.
  */
-export function columnConsensus(cols, { names = null, labels = null, tolerance = null, tier = 'every', base = {} } = {}) {
+export function columnConsensus(cols, { names = null, labels = null, tolerance = null, tier = 'every', base = {}, runs = null } = {}) {
   const n = check(cols);
   const nm = names || cols.map((_, i) => `column ${i + 1}`);
   const tol = tolerance != null ? Number(tolerance) : Math.max(2, Math.round(n * 0.02));
   const keep = tier === 'most' ? (c) => c.tier !== 'few' : (c) => c.tier === 'all';
   const perColumn = cols.map((values, i) => {
-    const c = consensus({ ...base, values }, { tolerance: tol });
+    const c = runs && runs[i] ? mergeConsensus(runs[i], { tolerance: tol }) : consensus({ ...base, values }, { tolerance: tol });
     return { column: nm[i], changes: c.changes.filter(keep).map((x) => x.index).sort((a, z) => a - z) };
   });
   const all = [];
@@ -177,6 +181,7 @@ export function parseColumns(csv, columns = null, labelColumn = null) {
   if (li == null && width > vis.length && !vis.includes(0)) li = 0;
   if (!vis.length) throw new Error('No numeric column found.');
   let filled = 0;
+  const missing = vis.map(() => []);
   const cols = vis.map((c, k) => {
     let last = null;
     return body.map((r, i) => {
@@ -184,11 +189,12 @@ export function parseColumns(csv, columns = null, labelColumn = null) {
       if (Number.isFinite(v)) { last = v; return v; }
       if (last == null) throw new Error(`Column ${header ? `"${header[c]}"` : c} has no number in its first row${i ? 's' : ''}: trim the leading blank rows.`);
       filled++;
+      missing[k].push(i);
       return last;
     });
   });
   const labels = body.map((r, i) => (li == null ? String(i + 1) : (r[li] ?? String(i + 1))));
-  return { cols, names: vis.map((c) => (header ? header[c] : `column ${c}`)), labels, filled };
+  return { cols, names: vis.map((c) => (header ? header[c] : `column ${c}`)), labels, filled, missing };
 }
 
 /**
@@ -200,10 +206,10 @@ export function parseColumns(csv, columns = null, labelColumn = null) {
 export const JOINT_OVERCUT_EVERY = 50;
 export function jointOvercut(cuts, n) { return cuts > Math.max(3, n / JOINT_OVERCUT_EVERY); }
 
-/** Both ways on one input. input: { csv, columns, labelColumn } or { cols, names, labels }. */
+/** Both ways on one input. input: { csv, columns, labelColumn } or { cols, names, labels, filled }; columnRuns: per-column panel runs already done (columnConsensus runs). */
 export function analyzeMulti(input = {}) {
-  let { cols, names, labels } = input, filled = 0;
-  if (!cols) ({ cols, names, labels, filled } = parseColumns(input.csv, input.columns, input.labelColumn));
+  let { cols, names, labels, missing } = input, filled = input.filled || 0;
+  if (!cols) ({ cols, names, labels, filled, missing } = parseColumns(input.csv, input.columns, input.labelColumn));
   const n = check(cols);
   names = names || cols.map((_, i) => `column ${i + 1}`);
   labels = labels || Array.from({ length: n }, (_, i) => String(i + 1));
@@ -221,12 +227,70 @@ export function analyzeMulti(input = {}) {
     index: cp, label: labels[cp],
     shifts: cols.map((c, i) => ({ column: names[i], shift: meanOf(c, cp, segs[k + 2]) - meanOf(c, segs[k], cp), sds: (meanOf(c, cp, segs[k + 2]) - meanOf(c, segs[k], cp)) / j.sigmas[i] })),
   }));
-  const cc = columnConsensus(cols, { names, labels, tolerance: input.tolerance });
+  const cc = columnConsensus(cols, { names, labels, tolerance: input.tolerance, runs: input.columnRuns || null });
   const overcutWarning = jointOvercut(joint.length, n)
     ? `The one segmentation for all columns has ${joint.length} changes in ${n} points (more than one per ${JOINT_OVERCUT_EVERY}): it is probably cutting smooth, trending or autocorrelated columns into steps, as it did on all three labelled multi-column TCPD series (level: 95 to 132 cuts on 509 to 622 points). Read the column-by-column list instead.`
     : null;
   const flooredColumns = names.filter((_, i) => j.floored[i]);
-  return { n, columns: names, filled, model, penalty: j.penalty, floor, ar1, flooredColumns, joint, agreed: cc.changes, perColumn: cc.perColumn, tolerance: cc.tolerance, ...(overcutWarning ? { overcutWarning } : {}) };
+  const muted = mutedColumns(cols, names, j.sigmas);
+  const mutedWarning = muted.length ? mutedText(muted, ar1) : null;
+  const { updateRate, updateRateWarnings } = columnUpdateRates(cols, names, labels, missing);
+  return {
+    n, columns: names, filled, model, penalty: j.penalty, floor, ar1, flooredColumns, joint, agreed: cc.changes, perColumn: cc.perColumn, tolerance: cc.tolerance,
+    ...(overcutWarning ? { overcutWarning } : {}),
+    ...(mutedWarning ? { mutedColumns: muted, mutedWarning } : {}),
+    ...(updateRateWarnings.length ? { updateRate, updateRateWarnings } : {}),
+  };
+}
+
+/**
+ * Columns the joint fit cannot hear (2026-11-16, eval/beedance-multi.mjs): a column whose noise sd was raised by the
+ * floor or the AR(1) long-run correction to more than 3 times the column's own whole-series sd. (A column with no
+ * change has a plain noise sd close to its whole-series sd, so the plain sd is never flagged, and a floor of 2 on
+ * white noise lands near 2 times, the documented power cost of that option, so 3 leaves it unflagged:
+ * eval/muted-sim.mjs. The 3 was set after the bee run, not tuned on it.) Any split of such a column
+ * explains less than its noise allowance, so the joint fit reads nearly all its movement as noise and the
+ * segmentation comes from the other columns. On the five fresh bee dance sequences the AR(1) long-run sd raised a
+ * position column scaled to [0, 1] to 1.07-1.88 (rho near 1 on a smooth path) and the joint fit with AR(1) and a
+ * floor of 2 found 0 to 25 changes against 16 to 28 labelled. A description of what the fit did, not a tuned test.
+ * Returns [{ column, sigma, sd }].
+ */
+export const MUTED_RATIO = 3;
+export function mutedColumns(cols, names, sigmas) {
+  const out = [];
+  cols.forEach((c, i) => {
+    const n = c.length;
+    if (n < 3) return;
+    let m = 0; for (const v of c) m += v; m /= n;
+    let q = 0; for (const v of c) q += (v - m) ** 2;
+    const sd = Math.sqrt(q / (n - 1));
+    if (sigmas[i] > MUTED_RATIO * sd && sigmas[i] > robustSd(c) * (1 + 1e-9)) out.push({ column: names[i], sigma: sigmas[i], sd });
+  });
+  return out;
+}
+
+export function mutedText(muted, ar1) {
+  const list = muted.map((m) => `${m.column} (noise sd ${+m.sigma.toPrecision(3)} against a whole-series sd of ${+m.sd.toPrecision(3)})`).join(', ');
+  const one = muted.length === 1;
+  return `The one segmentation for all columns barely uses ${list}: ${one ? 'its' : 'their'} noise allowance was raised well past ${one ? 'its' : 'their'} whole spread, so a change in ${one ? 'it' : 'them'} has to be very large to clear the penalty and the segmentation comes mostly from the other columns${ar1 ? '. The AR(1) long-run sd grows without bound as a smooth column\'s lag-1 correlation nears 1; on five fresh labelled bee dance sequences AR(1) with a floor of 2 muted position columns this way and scored below the default on all five' : ''}. Read the column-by-column list${ar1 ? ', or drop the AR(1) correction' : ''}.`;
+}
+
+/**
+ * The update-rate check (update-rate.mjs) on each column alone: when the share of steps that repeat the
+ * previous value exactly changed. Carried-forward cells (missing[k], row indexes) are read as missing, so
+ * a gap is never a repeat. Only columns with a change are listed; each warning names its column.
+ */
+export function columnUpdateRates(cols, names, labels, missing = null) {
+  const updateRate = [], updateRateWarnings = [];
+  cols.forEach((c, k) => {
+    let v = c;
+    if (missing && missing[k] && missing[k].length) { v = c.slice(); for (const i of missing[k]) v[i] = NaN; }
+    const u = updateRateChanges(v);
+    if (!u.changes.length) return;
+    updateRate.push({ column: names[k], changes: u.changes, stretches: u.stretches });
+    updateRateWarnings.push(`${names[k]}: ${updateRateLines(u, labels)[0]}`);
+  });
+  return { updateRate, updateRateWarnings };
 }
 
 /** How each column's noise was set for the joint fit, as a clause (empty for the plain fit). */
@@ -252,6 +316,8 @@ export function multiText(r) {
     L.push(`  ${c.label}  ${moved.length ? moved.map((s) => `${s.column} ${s.shift >= 0 ? '+' : ''}${+s.shift.toPrecision(3)} (${s.sds.toFixed(1)} sd)`).join(', ') : 'every column moved under 1 noise sd'}`);
   }
   if (r.overcutWarning) L.push('', `Read with care: ${r.overcutWarning}`);
+  if (r.mutedWarning) L.push('', `Read with care: ${r.mutedWarning}`);
+  for (const w of r.updateRateWarnings || []) L.push('', `Read with care: ${w}`);
   L.push('', `(${r.model === 'mean' && r.floor ? 'The joint fit floors the noise of columns that look smooth or trending, but still assumes independent columns' : 'The joint fit over-cuts a smooth or trending column as the level model does on one column'}; the column-by-column list inherits the consensus default measured on held-out labelled series. Estimates, not advice.)`);
   return L.join('\n');
 }

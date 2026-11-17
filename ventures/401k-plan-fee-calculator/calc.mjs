@@ -22,7 +22,7 @@ export function parseBenchmarks(text) {
   String(text ?? "").split(/\r?\n/).forEach((raw, i) => {
     const line = raw.trim();
     if (!line || line.startsWith("#")) return;
-    const m = /^\$?([\d,]+)\s*(?:-\s*\$?([\d,]+)|(\+))\s*:\s*([\d.]+)\s*%?$/.exec(line);
+    const m = /^\$?(\d{1,3}(?:,\d{3})+|\d+)\s*(?:-\s*\$?(\d{1,3}(?:,\d{3})+|\d+)|(\+))\s*:\s*(\d+(?:\.\d+)?|\.\d+)\s*%?$/.exec(line);
     if (!m) return errors.push(`Benchmark line ${i + 1}: use "min-max: percent" or "min+: percent".`);
     const min = Number(m[1].replace(/,/g, ""));
     const max = m[3] ? Infinity : Number(m[2].replace(/,/g, ""));
@@ -93,7 +93,9 @@ export function plan(input) {
   // Participant projection: one person with the average balance, same gross return and contributions, at today's all-in
   // cost versus at the benchmark cost. Fees come out of return each year.
   const years = Math.min(50, Math.max(1, Math.round(num(input.years)) || 20));
-  const gross = num(input.grossReturn) || 6;
+  // Blank or unreadable means the 6% default; a typed 0 is a real (cautious) assumption, not a blank.
+  const grossIn = num(input.grossReturn);
+  const gross = String(input.grossReturn ?? "").trim() !== "" && Number.isFinite(grossIn) ? grossIn : 6;
   const contrib = num(input.annualContribution);
   const grow = (feePct) => {
     let bal = avgBalance;

@@ -23,6 +23,7 @@ import {
   FORM_FACTORS,
   TARGET_API_REQUIREMENT,
 } from './target-sdk-scan.mjs';
+import { pathToFileURL } from 'node:url';
 
 function readFilesAsRecords(paths, cwd) {
   return paths.map((p) => {
@@ -135,6 +136,6 @@ function main() {
   process.exit(result.report.meetsExisting ? 0 : 1);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main();
 }

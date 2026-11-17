@@ -1,0 +1,69 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVNm2HrauTrhDSrMkTn",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products...)",
+  "input_sha256": "0c205c8dd85c6aca752a84bcb7732da2c6108cc978592ce61cf06f10a91f1c08",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": "2026-11-14T13:45:00Z",
+  "ended": "2026-11-14T14:13:58Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "photo-editing (flagship row 5): read Sony ARW directly",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15870",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "ran a bare `promptctl route` first and drew the process track; spent ~10 min in process Critique before reading prompt.md's ideas-inbox and --task steps",
+      "fix": "re-routed with --task, which picked ventures"
+    },
+    {
+      "what": "first full suite run: 3 tests asserted the old behaviour (fake .arw not developed; messages naming only CR2)",
+      "fix": "updated the assertions to the intended new behaviour"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says prompt.md routes with promptctl route, but a bare `route` ignores the scheduled brief; prompt.md's --task line is what fits a scheduled run. A scheduled routine's runs keep drawing the wrong track (3 friction reports today)."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Every listed photo-editing next: item needed a file we do not hold; the buildable slice (a new raw format from public samples) was not in the list. Added 'Nikon NEF read directly' to next: so the next run has one."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "The bare route drew process, but the stored scheduled prompt is the ventures brief; prompt.md says to route with --task for a session's starting message.",
+      "did": "re-routed with --task and did ventures work",
+      "result": "a flagship slice landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-sony-raw-files-without-the-converter.md",
+    "ventures/photo-editing/eval/sony-arw-reader-2026-11-14.md"
+  ],
+  "goal": "photo-editing develops Sony ARW without Adobe's DNG Converter",
+  "notes": "New src/shootflow/arw.py: Sony compressed RAW (16-byte blocks + tone curve), uncompressed, lossless JPEG tiles of 2x2 cells; SR2 sub-IFD decryption for black/WB on older bodies; wired into parse_raw, colour gate (needs .dcp like CR2), camera_profiles, CLI --dcp FOLDER and the grade stage. Verified: tools/arw_libraw_check.py on 6 real ARWs (DSLR-A500, NEX-5N, NEX-7, A5000, A7 III, A7 IV lossless; drewnoakes/metadata-extractor-images via sparse git clone) against LibRaw 0.22.2/rawpy: 0 of 133.9 M sensels differ on both engines; WB, black, CFA equal on all six. End-to-end develop of A7 IV and A7 III with a placeholder profile ran in 9 s and rendered sane images. photo-editing suite: run_venture_tests.py photo-editing green after the assertion updates (1011 tests incl. photo-editing-ci.yml Python steps, 151 s). flagships.yaml next: rewritten (1946/2000).",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,0 +1,7 @@
+[Service]
+User=web
+NoNewPrivileges=yes
+ProtectSystem=strict
+ReadWritePaths=/var/lib/web
+Environment=PASSWORD=%d/pw ENABLE_TOKEN=true
+ExecStart=/opt/web/bin/web

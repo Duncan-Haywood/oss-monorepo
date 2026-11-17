@@ -1,0 +1,33 @@
+# eval/odd-orbit.py, CaDiCaL 1.5.3 via python-sat 1.9.dev22, 4-core cloud container, 2026-11-15
+# odd leagues n = 3k + 1 (k even), 3 games a night: one night H whose pairs take exactly one pair of
+# every orbit of g (three k-cycles, team 3k and the bye fixed); nights g^t H, t = 0 .. k - 1, and the
+# half-turn pairs plus {3k, bye} as the last round. Up to four runs shared the cores; times rough.
+# teams courts x times | k | sat | seconds | vars | earlier methods (eval/odd-night-sat.txt, eval/odd-cyclic.txt)
+
+New (no design before):
+19 3x9 | 6 | yes | 22.9  | 19587 | whole season >1800 s; cyclic: 0 of 51 patterns on 42 starters; odd-pack.py >1500 s
+25 4x9 | 8 | yes | 141.0 | 39488 | cyclic: 0 of 92 patterns on the patterned starter; whole season not run to the end
+31 5x9 | 10 | yes | 626.1 | 69313 | never tried before (no 31-team design at any slot count)
+
+37 6x9 | 12 | yes | 2783.4 | 111006 | never tried before (2026-11-16; up to four runs shared the cores)
+   tool (node eval/odd-cyclic-check.mjs 37:6:9): waits 701 -> 0, 1246 ms a build (was 5605)
+43 7x9 | 14 | stopped | ~2340 wall (38 CPU-min, sharing cores) | - | no answer when stopped (2026-11-16); tool waits 1073 over seeds 1-3
+43 7x9 | 14 | yes | 9849.4 | 166511 | 2026-11-17, --solver cd19, alone on one core (three odd-lns.py runs on the others); 377,525 clauses
+   tool (node eval/odd-cyclic-check.mjs 43:7:9): waits 1073 -> 0 (seeds 1-3), 2545 ms a build
+
+Found again (already stored by other methods; a check that the construction works):
+7 3x6  | 2 | yes | 0.0 | 2029  |
+13 3x6 | 4 | yes | 0.0 | 5816  | fully booked; whole season 3.4 s
+19 5x6 | 6 | yes | 0.2 | 13959 | whole season 65.7 s
+
+Not found (rules out this group only):
+13 2x9 | 4 | no  | 48.5 | 7666 | fully booked; the whole-season model found one (100 s)
+
+Through the tool (node eval/odd-cyclic-check.mjs 19:3:9 25:4:9 31:5:9, buildSchedule, seeds 1 to 3, waits summed):
+19 teams on 3 x 9: waits 171 -> 0, 435 ms a build
+25 teams on 4 x 9: waits 281 -> 0, 766 ms a build
+31 teams on 5 x 9: waits 499 -> 0, 1034 ms a build
+
+eval/odd-pack.py (any relabelling of one night, a SAT packing; same day): 19 on 3 x 9 with 1 and 3
+templates stopped by timeout at 1500 s with no answer; 25 on 4 x 9 with 1 template was stopped by hand
+after 27 min once odd-orbit.py had answered. Kept for sizes where no group fits.

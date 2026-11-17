@@ -265,7 +265,7 @@ export function checks({ income, expenses, mileage, exp, mil, inv }) {
 export function packCsv(rows) {
   const esc = (v) => {
     let s = String(v ?? "");
-    if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+    if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
     return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
   return rows.map((r) => r.map(esc).join(",")).join("\n") + "\n";

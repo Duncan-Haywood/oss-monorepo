@@ -119,6 +119,22 @@ test('clearing removes the saved bid', () => {
   assert.equal(storage.size(), 0);
 });
 
+// Red team 2026-11-16: `!storage || !spec?.key` -> `&&` and clearBid's
+// `return true` -> `false` both passed this suite. A spec with no key would
+// save under the key "undefined", shared with any other page on the origin.
+test('save and clear report what happened, and a key-less spec writes nothing', () => {
+  const storage = fakeStorage();
+  assert.equal(saveBid(storage, SPEC, { area: '48' }), true);
+  assert.equal(clearBid(storage, SPEC), true);
+  assert.equal(storage.size(), 0);
+  const { key, ...keyless } = SPEC;
+  assert.equal(saveBid(storage, keyless, { area: '48' }), false);
+  assert.equal(storage.size(), 0);
+  assert.equal(clearBid(storage, keyless), false);
+  assert.equal(saveBid(null, SPEC, { area: '48' }), false);
+  assert.equal(clearBid(null, SPEC), false);
+});
+
 test('storage that throws never takes the page down with it', () => {
   const storage = fakeStorage({ throws: true });
   assert.equal(saveBid(storage, SPEC, { area: '48' }), false);
@@ -495,4 +511,53 @@ test('the note names the box on screen, not the id in the markup', () => {
     overlongTermsNote({ proposalExclusions: long, paymentTerms: long, proposalNotes: long }),
     /^your not-included list, payment terms and notes are too long/,
   );
+});
+
+// Red team 2026-11-16 (second moving-bid run of the day). A typed row name is
+// cut to 80 UTF-16 code units; cutting through an emoji left half a surrogate
+// pair, and encodeURIComponent threw "URI malformed", so the share link and
+// the save both failed for the whole form.
+const NAMED_ROW_SPEC = {
+  ...ROW_SPEC,
+  rows: { ...ROW_SPEC.rows, fields: [...ROW_SPEC.rows.fields, { key: 'name', kind: 'text' }] },
+};
+
+test('a row name cut at the length limit never splits an emoji', () => {
+  const name = `${'a'.repeat(79)}😀 kitchen`;
+  const encoded = encodeBid(NAMED_ROW_SPEC, { areas: [{ type: 'other', squareFeet: '10', name }] });
+  assert.equal(decodeBid(NAMED_ROW_SPEC, encoded).areas[0].name, 'a'.repeat(79));
+  const whole = `${'a'.repeat(78)}😀 kitchen`;
+  const kept = decodeBid(NAMED_ROW_SPEC, encodeBid(NAMED_ROW_SPEC, { areas: [{ type: 'other', name: whole }] }));
+  assert.equal(kept.areas[0].name, `${'a'.repeat(78)}😀`);
+});
+
+test('a pasted name holding a stray surrogate still saves and shares', () => {
+  const values = { areas: [{ type: 'other', squareFeet: '10', name: 'Hall \uD83D west' }] };
+  const decoded = decodeBid(NAMED_ROW_SPEC, encodeBid(NAMED_ROW_SPEC, values));
+  assert.equal(decoded.areas[0].name, 'Hall � west');
+  const storage = fakeStorage();
+  assert.equal(saveBid(storage, NAMED_ROW_SPEC, values), true);
+  assert.equal(loadBid(storage, NAMED_ROW_SPEC).areas[0].name, 'Hall � west');
+});
+
+test('a row name keeps exactly 80 characters, from a form or from a link', () => {
+  const long = 'b'.repeat(81);
+  const encoded = encodeBid(NAMED_ROW_SPEC, { areas: [{ type: 'other', name: long }] });
+  assert.equal(decodeBid(NAMED_ROW_SPEC, encoded).areas[0].name, 'b'.repeat(80));
+  assert.equal(decodeBid(NAMED_ROW_SPEC, `areas=other:::${long}`).areas[0].name, 'b'.repeat(80));
+});
+
+test('a malformed extra row group is skipped, not trusted', () => {
+  const spec = { ...ROW_SPEC, extraRows: [null, { param: 7, fields: [] }, { param: 'shifts', fields: 'x' }] };
+  const values = { areas: [{ type: 'office', squareFeet: '1000', rate: '4000' }] };
+  assert.deepEqual(decodeBid(spec, encodeBid(spec, values)), values);
+});
+
+test('a spec without a key never reads storage, even a blob saved under "undefined"', () => {
+  const storage = fakeStorage();
+  const blob = JSON.stringify({ v: 1, values: { area: '48' } });
+  storage.setItem(undefined, blob);
+  storage.setItem('undefined', blob);
+  const keyless = { numbers: ['area'] };
+  assert.deepEqual(loadBid(storage, keyless), {});
 });

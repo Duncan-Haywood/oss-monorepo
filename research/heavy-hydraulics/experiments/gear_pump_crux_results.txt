@@ -1,0 +1,56 @@
+Milestone 6n: the Casappa (6k) and Danfoss (6m) break-even sweeps on one absolute efficiency axis
+(inputs: excavator_gear_pump_results.txt and excavator_gear_pump_danfoss_results.txt only; no simulation rerun)
+share = geometries (of 384) where a smaller fixed pump beats 3.986 L/h at S = 0.38, central setting
+
+per-size overall efficiency at 150 bar, 2100 r/min, inside the shared 20 bar flow range 55.81 to 157.35 L/min:
+  casappa: sizes 27, 34, 38, 43, 51, 56, 61, 73; eta_t(150) 0.713, 0.754, 0.757, 0.764, 0.777, 0.785, 0.753, 0.795
+    index 1 (median) 0.7605; index 2 (at Q20 85 L/min) 0.7593
+  danfoss: sizes 33, 38, 44, 48, 55, 63, 75; eta_t(150) 0.802, 0.862, 0.839, 0.751, 0.857, 0.832, 0.823
+    index 1 (median) 0.8320; index 2 (at Q20 85 L/min) 0.8485
+  piston pump (6g, 60 C, full stroke) 0.840; its share at S = 0.38 74.0%
+
+casappa: c sweep on both indices
+     c   share %   index 1   index 2
+  1.00      9.9   0.7605    0.7593
+  1.05     28.6   0.7985    0.7972
+  1.10     54.9   0.8366    0.8352
+  1.15     94.8   0.8746    0.8731
+  50% crossing: c 1.0907; index 1 0.8295; index 2 0.8281
+  share interpolated at index 1 = 0.840: 58.5% (piston point 74.0%, difference -15.5 points)
+
+danfoss: c sweep on both indices
+     c   share %   index 1   index 2
+  0.94     29.9   0.7821    0.7976
+  0.95     34.1   0.7904    0.8061
+  0.96     39.8   0.7987    0.8146
+  0.97     43.8   0.8070    0.8230
+  0.98     50.5   0.8154    0.8315
+  1.00     70.1   0.8320    0.8485
+  1.05     99.7   0.8736    0.8909
+  50% crossing: c 0.9793; index 1 0.8147; index 2 0.8309
+  share interpolated at index 1 = 0.840: 75.8% (piston point 74.0%, difference +1.8 points)
+
+danfoss, casappa idle: c sweep on both indices
+     c   share %   index 1   index 2
+  0.94     34.4   0.7821    0.7976
+  0.95     40.1   0.7904    0.8061
+  0.96     44.5   0.7987    0.8146
+  0.97     50.3   0.8070    0.8230
+  0.98     56.8   0.8154    0.8315
+  1.00     72.7   0.8320    0.8485
+  1.05     96.9   0.8736    0.8909
+  50% crossing: c 0.9695; index 1 0.8066; index 2 0.8226
+  share interpolated at index 1 = 0.840: 77.4% (piston point 74.0%, difference +3.4 points)
+
+summary
+  index 1 crossings: casappa 0.8295, danfoss 0.8147; gap -0.0147; mean 0.8221
+  index 2 crossings: casappa 0.8281, danfoss 0.8309; gap +0.0028
+  danfoss moving with casappa idle, index 1 crossing 0.8066; gap to casappa -0.0229
+  each maker's share at 0.840 vs piston 74.0%: casappa 58.5%, danfoss 75.8%
+
+Predictions (LOG.md 6n):
+  GX1 index-1 crossings differ by < 0.02: held (-0.0147)
+  GX2 mean index-1 crossing in 0.81-0.84: held (0.8221)
+  GX3 piston point within 10 points of each sweep at 0.840: refuted (casappa -15.5, danfoss +1.8)
+  GX4 index-2 crossings differ by < 0.02: held (+0.0028)
+  GX5 Casappa idle on Danfoss shrinks the index-1 gap: refuted (-0.0147 -> -0.0229)

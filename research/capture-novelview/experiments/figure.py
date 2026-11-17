@@ -15,13 +15,14 @@ TEXT = (HERE / "results.txt").read_text().splitlines()
 
 
 def main():
-    xs, ys = table(TEXT, "== A.", 0, [1, 2])
+    xs, ys = table(TEXT, "== A.", 0, [1, 2, 4])
     if len(xs) < 5:
         raise SystemExit("no rows parsed")
     write_lines(HERE, "baseline.svg", "Novel-view quality against the gap between source cameras",
                 "Line plot: PSNR of the synthesised midpoint view and of simply using the nearest camera, against the angle between the two source cameras",
                 "gap between the two source cameras (deg)", "PSNR against ray-traced truth (dB)",
-                [("nearest camera, no synthesis", xs, ys[0]), ("depth warp of both neighbours", xs, ys[1])], logx=True, logy=False)
+                [("nearest camera, no synthesis", xs, ys[0]), ("depth warp, holes left blank", xs, ys[1]),
+                 ("depth warp, holes filled from nearest camera", xs, ys[2])], logx=True, logy=False)
 
 
 if __name__ == "__main__":

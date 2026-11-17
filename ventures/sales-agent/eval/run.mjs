@@ -4,6 +4,7 @@
 import { readFileSync } from "node:fs";
 import { triage, CATEGORIES, stripQuoted } from "../engine.mjs";
 import { guess, train } from "../learn.mjs";
+import { pathToFileURL } from "node:url";
 
 const loadEval = (f) => readFileSync(new URL(`./${f}`, import.meta.url), "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
 /** The word model as shipped until 2026-11-11 (replies + heldout only): the model the recorded fresh-set guess numbers were measured with. */
@@ -36,7 +37,7 @@ export function score(rows, { fn = triage, today = "2026-10-21", useGuess = true
   return { n: rows.length, accuracy: right / rows.length, right, acted, actedRight, precision: acted ? actedRight / acted : null, guessed, guessRight, guessOverreach, subtypeAccuracy: sub ? subRight / sub : null, overreach, unsubMissed, misses, confusion };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const file = process.argv.find((a) => a.endsWith(".jsonl")) || new URL("./replies.jsonl", import.meta.url);
   const rows = readFileSync(file, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
   const s = score(rows);

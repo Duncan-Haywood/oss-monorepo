@@ -1,0 +1,114 @@
+{
+  "note": "The four off-final Graduale 1908 pieces (offfinal-report.md) whose GregoBase headers cite bracketed pages of the 'Proprium pro aliquibus locis' supplement. scan-check-verdicts.md (2026-11-13) said the scan lacks them; it does not: gradualesacrosan0000cath prints the supplement at leaf = bracketed page + 585 (running head of leaf 742 reads [157]), and these leaves were already downloaded for the shape checks (pages copied from liquescent-fresh-pages.json and quilisma-fresh-pages.json). Read with: node eval/scan-check.mjs --manifest eval/offfinal-supplement-pages.json --out eval/offfinal-supplement-report.md 3419's page [157] prints only the changed middle of the introit (sub honore ... Boni Consilii Matris) and sends the singer to 'Gaudeamus, 486' for the rest, so its ending is checked on pp. 486-487 (leaves 511-512, B. Mariae Virg. de Monte Carmelo, leaf = page + 25).",
+  "pieces": [
+    {
+      "name": "GregoBase 3402 (off-final ending, p. [167])",
+      "gabc": "corpus/gregobase-1908/3402.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 750",
+          "leaf": 750
+        },
+        {
+          "page": "leaf 751",
+          "leaf": 751
+        },
+        {
+          "page": "[167]",
+          "leaf": 752
+        },
+        {
+          "page": "leaf 753",
+          "leaf": 753
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3419 (middle, p. [157])",
+      "gabc": "corpus/gregobase-1908/3419.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "[157]",
+          "leaf": 742,
+          "staves": [
+            3,
+            4
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3419 (off-final ending, Gaudeamus pp. 486-487)",
+      "gabc": "corpus/gregobase-1908/3419.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "486",
+          "leaf": 511
+        },
+        {
+          "page": "487",
+          "leaf": 512
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3427 (off-final ending, p. [161])",
+      "gabc": "corpus/gregobase-1908/3427.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 744",
+          "leaf": 744
+        },
+        {
+          "page": "leaf 745",
+          "leaf": 745
+        },
+        {
+          "page": "[161]",
+          "leaf": 746
+        },
+        {
+          "page": "leaf 747",
+          "leaf": 747
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3451 (off-final ending, p. [161])",
+      "gabc": "corpus/gregobase-1908/3451.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 744",
+          "leaf": 744
+        },
+        {
+          "page": "leaf 745",
+          "leaf": 745
+        },
+        {
+          "page": "[161]",
+          "leaf": 746
+        },
+        {
+          "page": "leaf 747",
+          "leaf": 747
+        }
+      ]
+    }
+  ]
+}

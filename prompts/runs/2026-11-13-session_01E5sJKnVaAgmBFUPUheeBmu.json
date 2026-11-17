@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKnVaAgmBFUPUheeBmu",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T18:18:43Z",
+  "ended": "2026-11-13T19:05:37Z",
+  "wall_minutes": 47.53,
+  "tokens_in": 3796201,
+  "tokens_out": 18152,
+  "cost_usd": 1.813,
+  "tool_calls": 44,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15580",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "first timing run failed at import: a script outside cad/ puts its own dir on sys.path, not cwd; reran with PYTHONPATH",
+    "duplicate work: PR #15581 fixed P066 in parallel; no PR referenced P066 when this run started (list of open PRs checked), and both runs opened theirs within minutes"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/backlog/P066-open-tennis-cad-ci-timeout.json",
+      "issue": "says the fix waits for the owner (CODEOWNERS); two of its three suggested changes are in the venture's own tests and needed no control-plane review"
+    },
+    {
+      "file": "prompts/process/prompt-2.md",
+      "issue": "'search open PRs for its id first' misses a parallel run that has not pushed yet; two process runs took P066 within the same hour. A claim (draft PR on the first commit) earlier would have shown it; I spent 15 min timing before pushing"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "merged with a duplicate already on main instead of closing: measured that the two fixes stack (349 s -> 219 s)",
+      "did": "merged main, kept main's P066 result, added history",
+      "result": "landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-halving-a-cad-test-suite.md"
+  ],
+  "goal": null,
+  "notes": "Mode: Solve, P066 (only agent-owned open item besides blocked P056). open-tennis-robots cad suite, local 4 CPUs, python -m unittest discover -s tests: before 1627.3 s (Ran 80, OK), after 805.4 s (Ran 80, OK). Package builds start in setUpModule as subprocesses; clean sweeps asserted once from the fresh feeder manifest; cable_sweep poses/azimuths, shifted loop caught at all 7 poses (checked). promptctl validate and unittest discover -s prompts green after the record. CI cad-job wall time on the next open-tennis-robots PR is the metric to verify. CI: cad job on PR #15580 took 13.1 min (run 43489023074), was 19 min on #15557; everything else green. Before merging, main gained PR #15581 (another process run on P066: cache all_parts(Feeder), CI 6:40). Merged main and kept main's P066 status; the changes stack: same machine, main 349.1 s, main+this 218.7 s (80 OK).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4e99c1ef-4976-59df-97b3-3b563bd7c49f",
+    "transcripts": 1,
+    "first": "2026-11-13T18:18:43Z",
+    "last": "2026-11-13T19:06:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 79,
+        "output": 18152,
+        "thinking": 4651,
+        "cache_read": 3707611,
+        "cache_write_5m": 0,
+        "cache_write_1h": 88511,
+        "api_equivalent_usd": 1.813,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 79,
+      "output": 18152,
+      "thinking": 4651,
+      "cache_read": 3707611,
+      "cache_write_5m": 0,
+      "cache_write_1h": 88511,
+      "api_equivalent_usd": 1.813,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 44,
+    "tools": {
+      "Bash": 40,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 47.53,
+      "active_minutes": 47.53,
+      "model_minutes": 3.12,
+      "tool_minutes": 44.4,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "profile an 80-test CAD suite, restructure builds, rerun twice",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 165.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

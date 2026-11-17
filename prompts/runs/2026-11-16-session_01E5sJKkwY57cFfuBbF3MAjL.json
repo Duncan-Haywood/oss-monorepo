@@ -1,0 +1,65 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKkwY57cFfuBbF3MAjL",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T16:35:21Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Flagship row 1 ai-bookkeeper, receipts item (5): held-out test of PR #16491's total-first vote rules; also landed stalled PR #16491.",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": 16633,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "huggingface.co refused by the proxy (403), so the CORD photos named in the buildable note could not be fetched",
+      "fix": "used SROIE's 625 scans (raw GitHub clone) as the held-out multi-reading set instead"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ai-bookkeeper/README.md",
+      "issue": "'Reading the total first' said there was no held-out multi-reading set, but SROIE through the CLI --four-pass was already used as one in eval/guess-vote-2026-11-15.md; corrected with the held-out paragraph."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "buildable note pointed at CORD photos via huggingface.co without noting the host often 403s from cloud sessions; noted it in the rewrite."
+    }
+  ],
+  "deviations": [
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "why": "Merged another session's stalled ready PR #16491 (green, 9h unmoved, no blocker) before starting, as the doc allows; then built on it rather than taking a different item.",
+      "did": "merged #16491, then tested its rules held out",
+      "result": "found and fixed a held-out regression in its rule 2"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-a-held-out-test-finds-a-stray-zero.md",
+    "ventures/ai-bookkeeper/eval/receipt-total-first-heldout-2026-11-16.md"
+  ],
+  "goal": null,
+  "notes": "SROIE 625 held out, CLI --four-pass, tesseract 5.3.4: before #16491 521, with #16491 520 (SROIE 169 lost to the leading-zero rule), with the fix 521. SRD 196 re-read: 151 / 154 / 154; tax 132 / 133 / 133. Rule 1 never fires on SROIE. run_venture_tests.py ai-bookkeeper: 3275 tests pass (301 s). run_workflow_locally.py --for-changes: control-plane, checklist-coverage, conflict-markers, doc-refs, readme-live-links, agent-permission-harness, pages (6/6 run steps) pass; uses: steps not run; ventures-tests result in the PR body.",
+  "corrections": [],
+  "redteam": null
+}

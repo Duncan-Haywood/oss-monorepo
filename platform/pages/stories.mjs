@@ -28,8 +28,22 @@ const DEFAULT_ROOT = path.resolve(HERE, '..', '..');
 export const STORIES_PATH = 'stories/';
 const HEARTH = 'hearth-and-horizon';
 const SAINTS = 'saints-by-candlelight';
+
+/**
+ * The ventures whose pages are fiction, by slug, with the short name a
+ * breadcrumb shows. The site chrome (`injectChrome` in build.mjs) files their
+ * pages under Stories in the header and the trail, not under a tool category:
+ * until 2026-11-11 every story page marked "Tools" as the current section and
+ * led through "Learning & practice".
+ */
+export const STORY_VENTURES = Object.freeze({
+  [HEARTH]: 'Hearth & Horizon',
+  [SAINTS]: SHOW.title,
+});
 // How many of each shelf's newest pieces the page lists; the rest are one click away.
 const NEWEST = 6;
+// How many of each shelf's newest recorded pieces its "Listen" panel plays in place.
+export const LISTEN = 2;
 
 const TITLE = `Stories · ${SITE_NAME}`;
 // Under 160 characters: check.mjs holds descriptions to what a search result shows.
@@ -64,6 +78,7 @@ export function loadFiction(root = DEFAULT_ROOT) {
         meta: s.setting,
         published: s.published,
         minutes: storyAudio[s.slug] ? Math.round(storyAudio[s.slug].seconds / 60) : null,
+        audio: storyAudio[s.slug] ? `${HEARTH}/audio/${s.slug}.mp3` : null,
       })),
     };
   });
@@ -85,6 +100,7 @@ export function loadFiction(root = DEFAULT_ROOT) {
       meta: `Episode ${e.number}`,
       published: e.published,
       minutes: episodeAudio[e.slug] ? Math.round(episodeAudio[e.slug].seconds / 60) : null,
+      audio: episodeAudio[e.slug] ? `${SAINTS}/audio/${e.slug}.mp3` : null,
     })),
   });
   return shelves;
@@ -96,7 +112,7 @@ const STYLE = `
     --accent:#d2a8f0; --soft:#221b2b; } }
   * { box-sizing:border-box; }
   body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; }
-  .wrap { max-width:960px; margin:0 auto; padding:24px 16px 72px; --pf-hero-pull:24px; }
+  .wrap { max-width:1120px; margin:0 auto; padding:24px 16px 72px; --pf-hero-pull:24px; }
   a { color:var(--accent); }
   h1 { font-size:clamp(2rem,4.6vw,2.8rem); line-height:1.15; margin:.3em 0 .25em; }
   h2 { font-size:1.45rem; margin:0 0 .2em; letter-spacing:-.01em; }
@@ -107,33 +123,104 @@ const STYLE = `
   h2 a { color:var(--ink); text-decoration:none; }
   h2 a:hover, h2 a:focus-visible { color:var(--accent); text-decoration:underline; text-underline-offset:.18em; }
   .tagline { margin:0; color:var(--muted); font-weight:600; }
-  .shelf > p { max-width:68ch; }
+  .shelf > p, .shelf-intro > p { max-width:68ch; }
+  .shelf-intro > p.meta { max-width:none; }
+  /* "Listen": the shelf's newest recorded pieces, playable in place. Until
+     2026-11-16 the page promised audio in its lede, but none of the 24 newest
+     cards had any, and the shelf header's right ~40% was empty at 1,120 px.
+     Beside the intro on wide screens; under it, one piece only, on a phone. */
+  .listen { margin:.9em 0 0; padding:12px 14px; border:1px solid var(--line); border-radius:10px; background:var(--bg); }
+  .listen h3 { margin:0 0 .3em; font-size:.78rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+  .listen ol { list-style:none; margin:0; padding:0; display:grid; gap:12px; }
+  .listen a { font-weight:650; text-decoration:none; line-height:1.35; }
+  .listen a:hover, .listen a:focus-visible { text-decoration:underline; }
+  .listen .meta { margin:.1em 0 .35em; }
+  .listen audio { display:block; width:100%; height:40px; color-scheme:light dark; }
+  @media (max-width: 899px) { .listen li:nth-child(n+2) { display:none; } }
+  @media (min-width: 900px) {
+    .shelf-head.has-listen { display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:0 28px; align-items:start; }
+    .shelf-head .listen { margin-top:4px; }
+  }
   .meta { font-size:.84rem; color:var(--muted); }
   .meta a { color:inherit; }
   .items { list-style:none; margin:.8em 0 0; padding:0; display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap:10px; }
-  .items li { border:1px solid var(--line); border-radius:10px; padding:10px 12px; background:var(--soft); overflow-wrap:anywhere; }
-  .items a { font-weight:650; text-decoration:none; }
+  /* A card leads with what happens (the hook), not where and when: until
+     2026-11-16 the setting line ran 3 to 5 lines on a phone and the hook got
+     what was left. The setting keeps one line (full text in its title and on
+     the story page); setting, date and audio sit at the foot of the card, lined
+     up across a row of cards. The title link covers the card, so the whole card is the target. */
+  .items li { position:relative; display:flex; flex-direction:column; border:1px solid var(--line); border-radius:10px; padding:12px 14px;
+    background:var(--soft); overflow-wrap:anywhere; transition:border-color .15s; }
+  .items li:hover, .items li:focus-within { border-color:var(--accent); }
+  .items a { font-weight:650; text-decoration:none; line-height:1.35; }
+  .items a::after { content:""; position:absolute; inset:0; border-radius:inherit; }
   .items a:hover { text-decoration:underline; }
-  .items p { margin:.3em 0 0; font-size:.88rem; color:var(--muted); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  @supports selector(:has(*)) {
+    .items a:focus-visible { outline:none; }
+    .items li:has(a:focus-visible) { outline:2px solid var(--accent); outline-offset:2px; }
+  }
+  .items p { margin:.35em 0 0; font-size:.9rem; color:var(--ink); display:-webkit-box; -webkit-line-clamp:4; -webkit-box-orient:vertical; overflow:hidden; }
+  .items .where { margin:auto 0 0; padding-top:.6em; font-size:.8rem; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .items .when { margin:.2em 0 0; font-size:.8rem; color:var(--muted); display:flex; flex-wrap:wrap; gap:4px 10px; align-items:center; }
+  .items .audio { padding:0 8px; border-radius:999px; border:1px solid var(--line); background:var(--panel); color:var(--ink); }
+  @media (prefers-reduced-motion: reduce) { .items li { transition:none; } }
   .more { margin:.9em 0 0; }
   footer { margin-top:3em; font-size:.82rem; color:var(--muted); }
 `;
 
 const plural = (n, one, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+/** "2026-11-15" as "15 November 2026"; anything else unchanged. */
+export function longDate(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso));
+  if (!m || !MONTHS[+m[2] - 1]) return String(iso);
+  return `${+m[3]} ${MONTHS[+m[2] - 1]} ${m[1]}`;
+}
+
+/**
+ * A shelf's "Listen" panel: its LISTEN newest pieces that have audio, each with a player
+ * (`preload="none"`, so nothing downloads until a visitor presses play). Empty when the
+ * shelf has no recordings yet.
+ */
+export function renderListen(shelf, toRoot) {
+  const heard = shelf.items.filter((i) => i.audio).slice(0, LISTEN);
+  if (!heard.length) return '';
+  const id = `${shelf.id}-listen`;
+  return `<aside class="listen" aria-labelledby="${esc(id)}">
+<h3 id="${esc(id)}">Listen</h3>
+<ol>
+${heard
+  .map(
+    (i) => `<li><a href="${esc(toRoot + i.href)}">${esc(i.title)}</a>
+<p class="meta">About ${i.minutes} min · <time datetime="${esc(i.published)}">${esc(longDate(i.published))}</time></p>
+<audio controls preload="none" src="${esc(toRoot + i.audio)}" aria-label="${esc(`Listen to ${i.title}`)}"></audio></li>`,
+  )
+  .join('\n')}
+</ol>
+</aside>`;
+}
+
 function renderShelf(shelf, toRoot) {
   const items = shelf.items.slice(0, NEWEST);
+  const listen = renderListen(shelf, toRoot);
   return `<section class="shelf" id="${esc(shelf.id)}" aria-labelledby="${esc(shelf.id)}-h">
+<div class="shelf-head${listen ? ' has-listen' : ''}">
+<div class="shelf-intro">
 <h2 id="${esc(shelf.id)}-h"><a href="${esc(toRoot + shelf.href)}">${esc(shelf.title)}</a></h2>
 <p class="tagline">${esc(shelf.tagline)}</p>
 <p>${esc(shelf.description)}</p>
 <p class="meta">${esc(shelf.audience)} · ${plural(shelf.count, 'story', 'stories')}, ${shelf.withAudio} with audio · <a href="${esc(toRoot + shelf.feed)}">Podcast RSS feed</a></p>
+</div>
+${listen}
+</div>
 ${items.length ? `<ul class="items">
 ${items
   .map(
     (i) => `<li><a href="${esc(toRoot + i.href)}">${esc(i.title)}</a>
-<div class="meta">${esc(i.meta)} · <time datetime="${esc(i.published)}">${esc(i.published)}</time>${i.minutes ? ` · audio, about ${i.minutes} min` : ' · text'}</div>
-<p>${esc(i.summary)}</p></li>`,
+<p>${esc(i.summary)}</p>
+<div class="where" title="${esc(i.meta)}">${esc(i.meta)}</div>
+<div class="when"><time datetime="${esc(i.published)}">${esc(longDate(i.published))}</time>${i.minutes ? `<span class="audio">Audio, about ${i.minutes} min</span>` : ''}</div></li>`,
   )
   .join('\n')}
 </ul>` : '<p class="meta">Nothing on this shelf yet.</p>'}

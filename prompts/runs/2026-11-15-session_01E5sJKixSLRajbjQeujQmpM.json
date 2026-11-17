@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKixSLRajbjQeujQmpM",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T09:09:22Z",
+  "ended": "2026-11-15T09:42:03Z",
+  "wall_minutes": 33.06,
+  "tokens_in": 9343786,
+  "tokens_out": 31014,
+  "cost_usd": 3.4598,
+  "tool_calls": 84,
+  "task": "perf: league-schedule-generator test suite (slowest venture suite in venture_suite_times.json)",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16164",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First timing script used /usr/bin/time, which the container lacks; reran with bash time",
+      "cost_minutes": 1
+    },
+    {
+      "what": "Post description 162 characters (limit 160), caught by run_workflow_locally --for-changes",
+      "cost_minutes": 2
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both backlog perf items are still owner-gated (P063, P064); step 1 costs a read every run with nothing landable, as the 2026-11-09 runs reported."
+    },
+    {
+      "file": "platform/ci/run_venture_tests.py",
+      "issue": "--for-changes failed on platform/distribution/shorts.test.mjs (an unwired test this diff does not touch); it passed 10/10 when rerun alone, so it looks flaky under load and makes a local verdict read red."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-the-test-that-waited-for-an-array-to-break.md",
+    "docs/history/ci-perf-2026-11-15-league-tests-shared-tries.md"
+  ],
+  "goal": null,
+  "notes": "Metric: league-schedule-generator `node --test '*.test.mjs'` wall and user CPU, this 4-core container, nothing else running. Before (git archive of 16fa9763a in scratchpad): 278.9 s wall, 737.6 s user, 520 tests (1 failure only because the copy lacked sibling venture dirs). After (branch in place): 252.4 s wall, 667.5 s user, 520/520 pass. The two changed tests: carry-over-only season 54.4 s -> 18.0 s; 26-team gate 26.2 s -> 0.001 s (TAP duration_ms from the same runs). Mutation checks: among: Infinity in bestCarryOverRounds and maxTeams = 25 in carryOverFloorPriced each fail the new tests. Local run_workflow_locally --for-changes: ventures-tests league suite passed; shorts.test.mjs flake (passes alone); post front matter fixed and re-checked (check_post_frontmatter ok, check_md_links ok, check_post_links 0 broken); Pages build not run locally (its ${{ }} step skipped).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "68405640-17cb-5bf4-8b72-168b86a684cc",
+    "transcripts": 1,
+    "first": "2026-11-15T09:09:22Z",
+    "last": "2026-11-15T09:42:25Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 88,
+        "input": 187,
+        "output": 31014,
+        "thinking": 6854,
+        "cache_read": 9219235,
+        "cache_write_5m": 0,
+        "cache_write_1h": 124364,
+        "api_equivalent_usd": 3.4598,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 88,
+      "input": 187,
+      "output": 31014,
+      "thinking": 6854,
+      "cache_read": 9219235,
+      "cache_write_5m": 0,
+      "cache_write_1h": 124364,
+      "api_equivalent_usd": 3.4598,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 84,
+    "tools": {
+      "Bash": 75,
+      "Monitor": 3,
+      "ToolSearch": 2,
+      "Write": 2,
+      "ReadNotifications": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 33.06,
+      "active_minutes": 14.48,
+      "model_minutes": 8.49,
+      "tool_minutes": 5.99,
+      "waiting_on_human_minutes": 18.58,
+      "human_prompts": 10,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "profile a 520-test suite, two test rewrites with mutation checks, before/after timing, write-ups",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 86.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

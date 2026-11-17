@@ -1,0 +1,225 @@
+{
+ "date": "2026-11-15",
+ "subject": "research/chip-systolic-p32",
+ "stratum": "research",
+ "seed": "2026-11-15-census",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior computer-architecture researcher / ASIC designer who has built DNN accelerators (the kind who reviews for ISCA, MICRO or IEEE TCAD). They would check first that the RTL is bit-exact and cycle-exact against an independent reference (including saturation paths), that the cycle model matches the textbook output-stationary schedule (Kung 1982; SCALE-Sim's OS model, Samajdar et al. 2018), that the figure of merit is a defensible area-delay product (cells x cycles ignores clock period), and whether the setup can express what a systolic array is for (operand reuse against memory bandwidth) before believing a 'MAC engine wins' result",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Every number reproduces and recomputes. Full rerun in a scratch copy with the README's tool versions (Yosys 0.33, Icarus 12.0 present here): `cd <copy> && PYTHONPATH=src python3.13 experiments/run.py` took 9 m 04 s and `diff experiments/results.txt <committed>` is empty (byte-identical); `experiments/figure.py` regenerates best_design.svg byte-identically (cmp). Independent recompute (/tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/p32/tools/indep.py, imports nothing from the package): all 20 cycle counts derived from first principles (OS array: operand k reaches PE(r,c) at t=k+r+c, so K+R+C-2 compute + 1 write-back per pass, plus load and transfer; MAC engine: K MACs + 1 write-back per group of P) equal results.txt; all 20 cells x cycles/vec values and both ratios (1.2991 -> 1.30, 1.2786 -> 1.28) recompute; README numbers 0.7% (1-358488/360932=0.68%), 4x8 vs 2x8, 2x16 vs 1x4/2x8 all check. Independent bit-exactness (/tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/p32/tools/rtl_vs_loop.py): a pure-Python loop reference (explicit ReLU, floor shift, clip, not model.int_forward) against the generated RTL in Icarus for MAC P=32/16/8 and arrays 4x8, 2x16, 1x4 at both F=16 and F=32, on 8 test vectors plus 8 adversarial extreme vectors that force 11 and 21 hidden-clip events and 2 output saturations: all match, cycles 36/36/53/83/68/102 and 52/52/85/115/84/166. The tests cover P=32 and 4x8 only at F=16; this confirms F=32 too. Not 4: the F=32 best-design change rests on one synthesis run that the project's own follow-ups (chip-macp32cells, chip-p32netlist) show is a flow artefact, and the headline percentage is misstated (claims).",
+  "completeness": "README promises: 6 arrays and 4 MAC engines at F=16 and 32, all 20 RTL simulated against NumPy and the cycle formulas (results.txt has 20 rows, all True; rerun identical), MAC-engine RTL simulated (new here: yes, flow.simulate mac_lanes), tests 'about 1 min' (7 tests OK in 26 s), experiment 'about 15 min' (9 m 04 s), figure from results (figure.py parses results.txt, SVG identical), live page https://marisstella.app/research/chip-systolic-p32/ (HTTP 200, '7 tests', numbers 1.30x/1.28x match). Everything claimed exists and runs end to end; no stubs or TODOs. Next steps (weight-stationary, RAM weights) are listed as not done.",
+  "verification": "`cd research/chip-systolic-p32 && PYTHONPATH=src python3.13 -m unittest discover -s tests -v`: Ran 7 tests in 25.9 s, OK (with ResourceWarnings from unclosed files). Six seeded mutants via platform/ci/quality_mutate.py, 1 caught, 5 survived: dropping /R from the headline metric (experiments/run.py:35) survives because no test touches run.py; halving the parsed cell count (flow.py:83) survives because the only area test checks monotonicity; removing the hidden-layer clip in the systolic RTL (gen.py:110) survives because the test vectors never saturate a hidden unit; removing the output QMIN clamp in the MAC RTL (baseline_gen.py:91) and the -8 lower clip in the NumPy spec (model.py:66) both survive. Only the MAC group-loop bound (baseline_gen.py:97 < -> <=) is caught via the cycle check. The parent chip-systolic-hidewide gained flow.metric() and test_metric_divides_by_rows after its 2026-11-13 audit; this copy predates that fix and still has the untested inline metric.",
+  "craft": "Read src/chip_systolic_p32/{gen,baseline_gen,flow,model}.py, tests/test_systolic.py, experiments/run.py, experiments/figure.py (613 lines total). Clean small generators, an integer-exact spec, a testbench that checks both outputs and cycles, a figure parsed rather than retyped. Defects: widths() and _rom() duplicated verbatim in gen.py:11/22 and baseline_gen.py:9/19, and baseline_gen.py is byte-identical in 6 research projects (md5 count); stale copied docstrings (baseline_gen.py:3 'fan-in 8 ... 8 MAC cycles', baseline_gen.py:49 'Generated by chip_accel.gen', gen.py:18 'r + c + 6 compute', run.py:2 lists 'R = 1 with C = 4, 8, 16, and R = 2 with C = 8; MAC lanes P = 4, 8, 16', not this sweep); pyproject.toml:6-8 names the package chip-systolic-fanin with a 'Batch-size sweep' description; unclosed file handles (flow.py:45, 46, 74; run.py:17 rewrites the whole results file on every emit); no input validation (a P larger than H builds dead lanes whose ROM index silently wraps to nw bits and which synthesis then removes).",
+  "claims": "Checked each Results bullet against results.txt and an independent recompute: table values, 'all 20 simulated designs matched', P=32 = P=16 cycles (36, 52), cell counts 5637/6043 and 6894/6941, 0.7%, 4x8 behind 2x8, 2x16 behind: all backed. Limits and disclaimers are explicit and accurate (one seed, gate counts only, 0.7% not a trend, no fabricated chip). Problems: README:33 'beats the best array by 23% to 30%' mixes two directions; the MAC engine is 23.0% and 21.8% lower (or the array 29.9% and 27.9% higher), so neither end of '23% to 30%' is right for F=32. README:33 'the only change in a best design is P = 32 at F = 32' stands without a pointer to chip-macp32cells/chip-p32netlist, which found that ranking flips with the Yosys flow. The only citation (Kung 1982) is marked 'not read in full', and the nearest prior work is not cited. pyproject.toml describes another project.",
+  "fitness": "A researcher can build on the harness: the generators, the bit-exact Icarus check and the Yosys scoring reproduce exactly, and two follow-ups already did build on it (chip-macp32cells, chip-p32netlist, chip-systolic-abcrobust). As a result it is not new: nearest prior work is the output-stationary cycle model of SCALE-Sim (Samajdar et al., arXiv:1811.02883, 2018), the TPU v1 utilisation analysis (Jouppi et al., ISCA 2017) and the dataflow taxonomy of Eyeriss (Chen et al., ISCA 2016), none cited; that a small, skewed R=1..4 array with fill/drain overhead loses to a broadcast MAC engine on 16- and 4-neuron layers with no memory model is what those models predict. Sound within its stated limits (it says negative and stylised), but it is a one-knob extension (P to 32, R to 4) of a chain of near-identical projects rather than a publishable step.",
+  "domain": "Compared against standard accelerator-evaluation practice (SCALE-Sim/Timeloop-style cycle models, area-delay product with a real clock, memory-traffic accounting). Departures: weights are compiled into combinational ROM case statements and there is no SRAM or off-array traffic, so the operand reuse a systolic array exists for never enters the metric; the figure of merit is cells x cycles, ignoring the logic depth that results.txt already reports (43-52 vs 38-45 levels); recomputing with cells x cycles x depth widens the array/MAC gap to 1.47 (F=16) and 1.49 (F=32), so the negative result is robust but the metric is not the standard ADP; write-back reads all R*C accumulators in one cycle, where SCALE-Sim's OS model charges an R-cycle drain; generic-gate counts include flip-flops at unit weight. RTL method itself (bit-exact against an integer spec, cycle-exact against a formula) is what a practitioner does."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "cycle counts of all 20 designs (6 arrays, 4 MAC engines, F=16 and 32)",
+   "method": "first-principles output-stationary schedule (operand k at PE(r,c) at t=k+r+c, K+R+C-2 compute + 1 write-back per pass; Kung 1982) and broadcast MAC schedule (K + 1 per group of P), independent script importing nothing from the package",
+   "command": "python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/p32/tools/indep.py research/chip-systolic-p32/experiments/results.txt",
+   "expected": "F=16: 102,74,66,77,68,83,87,53,36,36; F=32: 166,106,82,109,84,115,151,85,52,52",
+   "observed": "identical, 0 mismatches",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "headline metric cells x cycles/vec for all 20 rows and best-array/best-MAC ratios",
+   "method": "hand arithmetic in the independent script from the cell counts and independently derived cycles",
+   "command": "python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/p32/tools/indep.py research/chip-systolic-p32/experiments/results.txt",
+   "expected": "1x4 F=16 2403*102=245106; P=8 3560*53=188680; ratios 1.2991, 1.2786",
+   "observed": "all 20 equal (4x8 F=32 476416.25 floored to 476416); ratios print 1.30 and 1.28",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "RTL outputs for MAC P=32/16/8 and arrays 4x8, 2x16, 1x4 at F=16 and F=32, including saturation",
+   "method": "independent pure-Python loop reference (explicit ReLU, floor shift, clip), 8 test vectors + 8 extreme vectors forcing 11/21 hidden-clip events and 2 output saturations, simulated in Icarus 12.0",
+   "command": "PYTHONDONTWRITEBYTECODE=1 python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/p32/tools/rtl_vs_loop.py research/chip-systolic-p32/src",
+   "expected": "RTL == loop reference for every design, cycles equal the formula",
+   "observed": "all 12 design x F runs True; loop ref == model.int_forward True",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "README numeric statements: 0.7% P=32 vs P=16 at F=32, 4x8 vs 2x8, 2x16 vs best",
+   "method": "hand arithmetic from results.txt",
+   "command": "python3 -c 'print(1-358488/360932)'",
+   "expected": "0.0068; 270580>268037, 476416>458345; 394944>245106, 586068>458345",
+   "observed": "0.0068 and all comparisons as stated",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiment reproduces committed results.txt and figure",
+   "method": "rerun in a scratch copy and diff/cmp",
+   "command": "cd <scratch copy> && PYTHONPATH=src python3.13 experiments/run.py && diff experiments/results.txt research/chip-systolic-p32/experiments/results.txt; python3.13 experiments/figure.py && cmp experiments/best_design.svg ...",
+   "expected": "no diff, about 15 min",
+   "observed": "no diff in 9 m 04 s; SVG byte-identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd research/chip-systolic-p32 && PYTHONPATH=src python3.13 -m unittest discover -s tests -v",
+   "expected": "OK, about 1 min",
+   "observed": "Ran 7 tests in 25.911s OK (ResourceWarnings: unclosed files)",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page",
+   "method": "HTTP fetch and text compare",
+   "command": "curl -sS -o page.html -w '%{http_code}' https://marisstella.app/research/chip-systolic-p32/",
+   "expected": "200 with the 1.30x/1.28x result",
+   "observed": "200, '7 tests', 1.30x and 1.28x, P=32 no extra cycles, links follow-ups",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:33 'the best MAC engine beats the best array by 23% to 30%'",
+   "method": "hand arithmetic from results.txt",
+   "command": "python3 -c 'print(1-188680/245106, 1-358488/458345, 245106/188680-1, 458345/358488-1)'",
+   "expected": "a range in one direction",
+   "observed": "MAC lower by 23.0%/21.8%, or array higher by 29.9%/27.9%; '23% to 30%' mixes them",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:33 'the only change in a best design is P = 32 at F = 32' and limits on it",
+   "method": "compare with README:40 and the follow-up projects' READMEs",
+   "command": "sed -n 1,3p research/chip-macp32cells/README.md",
+   "expected": "claim caveated or pointed to the follow-up",
+   "observed": "caveated at README:40 ('not a trend'), but no pointer to chip-macp32cells/chip-p32netlist, which show the sign flips with the flow",
+   "result": "partial"
+  },
+  {
+   "dimension": "craft",
+   "what": "package metadata and docstrings describe this project",
+   "method": "read",
+   "command": "sed -n 6,8p research/chip-systolic-p32/pyproject.toml; sed -n 1,3p research/chip-systolic-p32/experiments/run.py",
+   "expected": "chip-systolic-p32, P up to 32, R up to 4",
+   "observed": "name chip-systolic-fanin, 'Batch-size sweep'; run.py docstring lists the old arrays and P = 4, 8, 16",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "does the area-delay ranking survive including clock period (logic depth from results.txt)",
+   "method": "cells x cycles x depth / R, independent script",
+   "command": "python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/p32/tools/indep.py research/chip-systolic-p32/experiments/results.txt",
+   "expected": "same winner",
+   "observed": "same winners (1x4 vs P=8; 2x8 vs P=32), gap widens to 1.47 and 1.49",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "nearest prior work cited",
+   "method": "grep README for SCALE-Sim, TPU, Eyeriss, Timeloop",
+   "command": "grep -n 'SCALE\\|TPU\\|Eyeriss\\|Timeloop' research/chip-systolic-p32/README.md",
+   "expected": "cited and positioned",
+   "observed": "none; only Kung 1982, marked 'not read in full'",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "experiments/run.py:35",
+   "change": "m = s[\"cells\"] * cy // r -> m = s[\"cells\"] * cy (drop per-vector division)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -W ignore -m unittest discover -s tests"
+  },
+  {
+   "where": "src/chip_systolic_p32/gen.py:110",
+   "change": "remove hidden-layer 'if (v > QMAX) v = QMAX;' in the systolic RTL",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -W ignore -m unittest discover -s tests"
+  },
+  {
+   "where": "src/chip_systolic_p32/baseline_gen.py:91",
+   "change": "remove output 'if (v < QMIN) v = QMIN;' in the MAC-engine RTL",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -W ignore -m unittest discover -s tests"
+  },
+  {
+   "where": "src/chip_systolic_p32/model.py:66",
+   "change": "np.clip(..., -qmax - 1, qmax) -> np.clip(..., -qmax, qmax) in the integer spec",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -W ignore -m unittest discover -s tests"
+  },
+  {
+   "where": "src/chip_systolic_p32/flow.py:83",
+   "change": "\"cells\": cells -> \"cells\": cells // 2 (cell-count parse)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -W ignore -m unittest discover -s tests"
+  },
+  {
+   "where": "src/chip_systolic_p32/baseline_gen.py:97",
+   "change": "(grp + 1) * P < -> (grp + 1) * P <=",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -W ignore -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The headline metric, the cell-count parse and every saturation path are untested: 5 of 6 seeded mutants survive (drop /R in run.py:35, halve cells in flow.py:83, remove the hidden clip in gen.py:110, the output QMIN clamp in baseline_gen.py:91, or the -8 clip in model.py:66). The parent chip-systolic-hidewide got flow.metric() and test_metric_divides_by_rows after its audit; this copy was taken before that fix and never received it",
+   "where": "research/chip-systolic-p32/experiments/run.py:35",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "The comparison cannot express what a systolic array is for: weights are combinational ROM, there is no memory or traffic model, write-back is one parallel cycle (no OS drain), and the figure of merit omits clock period. The negative result follows from fill/drain on 16- and 4-neuron layers and is what SCALE-Sim / TPU v1 analyses predict; none of that prior work is cited and the only citation is 'not read in full'",
+   "where": "research/chip-systolic-p32/README.md:7",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "'beats the best array by 23% to 30%' mixes directions: MAC is 23.0%/21.8% lower, or the array 29.9%/27.9% higher; neither end is right at F=32",
+   "where": "research/chip-systolic-p32/README.md:33",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16065"
+  },
+  {
+   "severity": "low",
+   "what": "'the only change in a best design is P = 32 at F = 32' has no pointer to the follow-ups (chip-macp32cells, chip-p32netlist) that showed the P=32 vs P=16 ranking flips with the Yosys flow; README runtime 'about 15 min' measured 9 min",
+   "where": "research/chip-systolic-p32/README.md:33",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "pyproject names the package chip-systolic-fanin with a 'Batch-size sweep' description; run.py docstring lists the previous project's arrays and P = 4, 8, 16; copied docstrings say 'fan-in 8', 'r + c + 6 compute', 'Generated by chip_accel.gen'",
+   "where": "research/chip-systolic-p32/pyproject.toml:6",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "widths() and _rom() duplicated verbatim in gen.py and baseline_gen.py, baseline_gen.py byte-identical in 6 research projects; unclosed file handles (ResourceWarnings in the test run) at flow.py:45, 46, 74 and run.py:17",
+   "where": "research/chip-systolic-p32/src/chip_systolic_p32/flow.py:45",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16065"
+ ],
+ "verdict": "The numbers are right: a full rerun with Yosys 0.33 and Icarus 12.0 reproduces results.txt and the figure byte for byte (9 min), all 20 cycle counts equal the textbook output-stationary and broadcast-MAC schedules derived independently, all 20 cells x cycles values and both ratios recompute, and an independent loop reference matches the RTL bit for bit for P=32, 4x8 and 2x16 at F=32 as well as F=16, including adversarial vectors that drive every saturation path. It does not meet the bar: verification is weak exactly where the result lives (5 of 6 seeded mutants survive, including dropping /R from the headline metric, a defect fixed in the parent project after its audit but not in this copy), the headline '23% to 30%' mixes two directions, and the package metadata and docstrings describe other projects. As research it is a verified RTL harness, not a finding: with ROM weights, no memory, single-cycle write-back and cells x cycles as the merit, the 'MAC engine wins' result is what SCALE-Sim and the TPU v1 analysis predict, and neither is cited. Finished (everything claimed runs) but below the senior-architect bar."
+}

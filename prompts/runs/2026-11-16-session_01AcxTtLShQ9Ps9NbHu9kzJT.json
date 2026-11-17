@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtLShQ9Ps9NbHu9kzJT",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T18:06:39Z",
+  "ended": "2026-11-16T18:14:49Z",
+  "wall_minutes": 14.57,
+  "tokens_in": 7013808,
+  "tokens_out": 35386,
+  "cost_usd": 3.1455,
+  "tool_calls": 61,
+  "task": "shift-roster-builder flagship (allocate.py row 4): San Francisco and Emeryville fair workweek presets",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16657",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "The flagship's next: was at 2000 of 2000 characters with no buildable item named; picking a buildable item meant reading notice.mjs's comments to find which cities lacked presets."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Says data hosts often 403; sfbos.org, media.api.sf.gov and emeryville.org PDFs all answered 200 by direct curl, which earlier fair-workweek runs did not try for these cities. Guessing the HTML page URLs gave 404, so finding the PDFs by search first was what worked."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The flagship's next: items are mostly solver tuning or need real outside inputs (a manager, a live account). I took an item it did not list, two more city presets in the fair-workweek line it names.",
+      "did": "Added San Francisco and Emeryville presets from the cities' own ordinance, FAQ and pay sheet.",
+      "result": "Landed with 10 tests; the first presets built from primary text rather than search summaries."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-san-francisco-and-emeryville-predictability-pay.md",
+    "ventures/shift-roster-builder/README.md (section 'San Francisco and Emeryville')"
+  ],
+  "goal": "Deepen flagship 6 (shift-roster-builder): two more predictive-scheduling rule sets for the hub's change log, read from primary sources",
+  "notes": "Sources fetched in-session: sfbos.org o0117-15.pdf (3300G.4(c)-(e)), media.api.sf.gov FRERO_FAQs_8.8.25.pdf, emeryville.org predictability-pay-structure-reference-sheet-final.pdf and the official FWW employee notice. New fields: tiers, postDays, onCallPay, coverAbsenceDays; the hub stores coverFor/absenceAt on a direct cover. Verification: node --test notice-sf-emeryville.test.mjs 10/10 and notice.test.mjs 21/21 pass; run_venture_tests.py shift-roster-builder: ok, 719 tests in 262 s, 0 failed; venture-preflight.mjs shift-roster-builder: preflight clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0d161c1a-6789-5def-a160-a4b2c3c8065f",
+    "transcripts": 1,
+    "first": "2026-11-16T18:06:39Z",
+    "last": "2026-11-16T18:21:13Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 117,
+        "output": 35386,
+        "thinking": 8011,
+        "cache_read": 6881053,
+        "cache_write_5m": 0,
+        "cache_write_1h": 132638,
+        "api_equivalent_usd": 3.1455,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 117,
+      "output": 35386,
+      "thinking": 8011,
+      "cache_read": 6881053,
+      "cache_write_5m": 0,
+      "cache_write_1h": 132638,
+      "api_equivalent_usd": 3.1455,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 54,
+      "ToolSearch": 2,
+      "WebSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.57,
+      "active_minutes": 9.34,
+      "model_minutes": 7.29,
+      "tool_minutes": 2.05,
+      "waiting_on_human_minutes": 5.23,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "reading two ordinances and FAQs, a new tier model, hub change, 10 tests, docs and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 190.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtHiiUDZ2LPjpPETV9b",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T08:06:51Z",
+  "ended": "2026-11-12T08:22:50Z",
+  "wall_minutes": 16.16,
+  "tokens_in": 9626957,
+  "tokens_out": 53826,
+  "cost_usd": 4.225,
+  "tool_calls": 74,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15060",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Overwrote the new repair-ubl.mjs with the old one while measuring the baseline and had to re-apply a patch from a scratch copy; caught via git diff --stat before committing."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/einvoice-preflight/eval/phive-corpus.mjs",
+      "issue": "report.mjs silently reports schematron 'unavailable' when slimdom/fontoxpath are not installed; my first --rules run checked only built-in rules and finished suspiciously fast. The `npm i --no-save slimdom fontoxpath` step is in plain-node.mjs's header, not in the README section on running evals."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "The einvoice-preflight next: was already over the 2,000-character limit it states for itself (2,205 after my edit), so I also had to trim closed items."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-einvoice-repair-saudi-files.md",
+    "ventures/einvoice-preflight/README.md (Repair a UBL file, Saudi files and the seeded-fault table)"
+  ],
+  "goal": null,
+  "notes": "Flagship 5 einvoice-preflight. UBL repair now reaches the tax part on 19/19 ZATCA good cases (0 before). eval/repair-seeded.mjs, +7.00 seeds: ZATCA 42->257/258 restored, 0/258 repaired files with a new rule id (official ZATCA sets on the plain route); PINT A-NZ 140->270/270; PINT SG 27->158/164; repo clean UBL examples 147/147. Venture node suite: 1489 tests, 0 fail. Found: a same-currency BT-111 that differs from BT-110 passes all rules (17/17 seeds); queued in flagships next.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4a3a5f4a-1256-5259-b649-b82d52b0f49a",
+    "transcripts": 1,
+    "first": "2026-11-12T08:06:51Z",
+    "last": "2026-11-12T08:23:01Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 72,
+        "input": 139,
+        "output": 53826,
+        "thinking": 13188,
+        "cache_read": 9470085,
+        "cache_write_5m": 0,
+        "cache_write_1h": 156733,
+        "api_equivalent_usd": 4.225,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 72,
+      "input": 139,
+      "output": 53826,
+      "thinking": 13188,
+      "cache_read": 9470085,
+      "cache_write_5m": 0,
+      "cache_write_1h": 156733,
+      "api_equivalent_usd": 4.225,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 74,
+    "tools": {
+      "Bash": 71,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.16,
+      "active_minutes": 16.16,
+      "model_minutes": 10.13,
+      "tool_minutes": 6.03,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior engineer: read ZATCA rule texts, rewrite repair tax logic, build seeded-fault eval, measure on 3 corpora, tests and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 236.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -47,6 +47,15 @@
     .check input { width: auto; }
     @media (max-width: 720px) { body { padding: 16px; } }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 540px) { div.row3:has(#ai-provider) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 358px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
@@ -164,7 +173,7 @@
 
     for (const [k, c] of Object.entries(CADENCES)) { const o = el("option", "", c.label); o.value = k; $("#cadence").append(o); }
     try { $("#tz").value = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch { /* optional */ }
-    const nextMonday = () => { const d = new Date(); d.setDate(d.getDate() + ((8 - d.getDay()) % 7 || 7)); return d.toISOString().slice(0, 10); };
+    const nextMonday = () => { const d = new Date(); d.setDate(d.getDate() + ((8 - d.getDay()) % 7 || 7)); return new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10); };
     $("#start").value = nextMonday();
 
     const sender = () => Object.fromEntries(SENDER.map((k) => [k, $("#" + k).value.trim()]));

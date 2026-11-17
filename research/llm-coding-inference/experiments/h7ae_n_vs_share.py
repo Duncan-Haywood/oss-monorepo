@@ -30,6 +30,8 @@ import group_shift_reddit as R  # noqa: E402
 import h6r_rare_pilot as P  # noqa: E402
 import h7l_fixed_lambda as L  # noqa: E402
 from llmci import audit_design as A  # noqa: E402
+A.RARE_FALLBACK = None  # pinned: replays as committed (LOG.md 7aw)
+A.NEG_FLOOR = None  # pinned (LOG.md 7az): replays as committed
 
 SEED, MODEL = 20261110, "Qwen2.5-1.5B-Instruct"
 CELLS = ((500, 6683), (500, 3341), (500, 1667), (1000, 3341), (2000, 6683))
@@ -72,7 +74,7 @@ def main():
                 human = [human_all[j] for j in corpora[d]]; f = [f_all[j] for j in corpora[d]]
                 truth = sum(human) / N; npos += sum(human)
                 labels = {i: human[i] for i in pilots[d]}
-                plan = A.plan_audit(f, labels, N_audit, tau=tau, guard=guard, neg_guard=ng)
+                plan = A.plan_audit_pre7ar(f, labels, N_audit, tau=tau, guard=guard, neg_guard=ng, width_margin=None)
                 nc += plan["design"] == "cells"
                 for cell, t in zip(plan["cells"], plan["to_label"]):
                     for i in sb.sample([i for i in cell if i not in labels], t): labels[i] = human[i]

@@ -226,7 +226,7 @@ There were shadows now. Faint ones, long, laid out to the west. Three degrees of
 
 She flew the way she had told Daniel Achterberg to fly, when she was fourteen and he was fifteen and she had thought she knew everything: watch the next crest, not the one under you. Breathe on the downstroke. Don't fight the air; it's on your side.
 
-Halfway, in the trough of the ninth dune, the methane drizzle came on, the slow rain of Titan, big drops that drifted down past her visor so leisurely that she could have counted them, and the brown light went dimmer, and she flew lower. She passed over Crawler B in the eleventh corridor, a small hard light grinding along the dune foot, and heard Hamid on the channel say, "There she goes," and Tomasz say nothing at all, and then something under his breath, which she thought was a blessing and later found out was.
+Halfway, in the trough of the fourth dune, the methane drizzle came on, the slow rain of Titan, big drops that drifted down past her visor so leisurely that she could have counted them, and the brown light went dimmer, and she flew lower. She passed over Crawler B in the fifth corridor, a small hard light grinding along the dune foot, and heard Hamid on the channel say, "There she goes," and Tomasz say nothing at all, and then something under his breath, which she thought was a blessing and later found out was.
 
 At 11:52 she saw the lamps of Camp Nine.
 

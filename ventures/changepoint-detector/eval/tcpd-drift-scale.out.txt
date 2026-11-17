@@ -1,0 +1,86 @@
+
+TCPD shipped (31): mean F1 / cover / total cuts (margin 5; * = this detector, others TCPDBench published defaults)
+  * drift ML, scale per segment (primary)    0.756  0.661    285
+  * drift ML, scale per segment, min seg 5   0.749  0.654    175
+    binseg (published)                       0.714  0.671  
+    pelt (published)                         0.704  0.672  
+  * consensus: every setting                 0.702  0.633     59
+  * drift ML, Gaussian (shipped)             0.694  0.622    226
+    bocpd (published)                        0.673  0.616  
+    zero (published)                         0.663  0.568  
+  * level, following the over-cut warning    0.655  0.561    653
+  * drift ML, scale per segment, 2 log n     0.618  0.516    511
+
+TCPD held out (7): mean F1 / cover / total cuts (margin 5; * = this detector, others TCPDBench published defaults)
+    binseg (published)                       0.727  0.731  
+  * consensus: every setting                 0.711  0.742     25
+    bocpd (published)                        0.683  0.605  
+    zero (published)                         0.639  0.597  
+    pelt (published)                         0.636  0.639  
+  * drift ML, Gaussian (shipped)             0.527  0.576    180
+  * level, following the over-cut warning    0.497  0.394    233
+  * drift ML, scale per segment, min seg 5   0.479  0.400    138
+  * drift ML, scale per segment (primary)    0.464  0.390    173
+  * drift ML, scale per segment, 2 log n     0.352  0.247    348
+
+Paired F1, primary minus ..., shipped (31) (bootstrap over series, sign test):
+  drift Gaussian (shipped)     +0.062 [95% -0.001, 0.127]; better on 16, worse on 7, sign p 0.093
+  scale, min seg 5             +0.007 [95% -0.013, 0.030]; better on 6, worse on 4, sign p 0.754
+  scale, 2 log n               +0.138 [95% 0.075, 0.209]; better on 22, worse on 2, sign p 0.000
+  level following the warning  +0.101 [95% 0.026, 0.178]; better on 20, worse on 7, sign p 0.019
+  consensus every setting      +0.054 [95% -0.009, 0.119]; better on 16, worse on 9, sign p 0.230
+  zero                         +0.093 [95% -0.010, 0.185]; better on 22, worse on 6, sign p 0.004
+  binseg                       +0.042 [95% -0.042, 0.135]; better on 14, worse on 10, sign p 0.541
+
+Paired F1, primary minus ..., held out (7) (bootstrap over series, sign test):
+  drift Gaussian (shipped)     -0.064 [95% -0.176, 0.043]; better on 3, worse on 4, sign p 1.000
+  scale, min seg 5             -0.016 [95% -0.026, -0.005]; better on 0, worse on 4, sign p 0.125
+  scale, 2 log n               +0.112 [95% 0.049, 0.184]; better on 7, worse on 0, sign p 0.016
+  level following the warning  -0.033 [95% -0.144, 0.078]; better on 3, worse on 4, sign p 1.000
+  consensus every setting      -0.247 [95% -0.427, -0.066]; better on 2, worse on 5, sign p 0.453
+  zero                         -0.175 [95% -0.444, 0.025]; better on 4, worse on 3, sign p 1.000
+  binseg                       -0.264 [95% -0.524, -0.044]; better on 1, worse on 5, sign p 0.219
+
+Per series: cuts and F1 for level+warning / drift Gaussian / scale per segment, min seg 5 / scale per segment (primary); annotators' median count.
+  shipped (31)
+    bank                   n  581  warn   3 0.400  gauss  63 0.031  seg5  72 0.027  scale 170 0.012  annotators 0  zero 1.000
+    brent_spot             n  500  warn  13 0.577  gauss   4 0.773  seg5   4 0.386  scale   4 0.386  annotators 5  zero 0.315
+    businv                 n  330  warn  19 0.249  gauss   3 0.559  seg5   3 0.797  scale   3 0.797  annotators 3  zero 0.588
+    centralia              n   15  warn   3 1.000  gauss   3 1.000  seg5   0 0.763  scale   1 0.909  annotators 1  zero 0.763
+    children_per_woman     n  301  warn  65 0.216  gauss  19 0.571  seg5  13 0.425  scale  15 0.384  annotators 2  zero 0.507
+    co2_canada             n  215  warn   8 0.854  gauss  14 0.625  seg5   5 0.497  scale   6 0.724  annotators 5  zero 0.361
+    construction           n  319  warn   5 0.634  gauss   0 0.696  seg5   0 0.696  scale   0 0.696  annotators 1  zero 0.696
+    debt_ireland           n   21  warn   6 0.923  gauss   9 0.824  seg5   2 0.958  scale   5 1.000  annotators 2  zero 0.469
+    gdp_argentina          n   59  warn   4 0.889  gauss   4 0.720  seg5   1 0.889  scale   1 0.889  annotators 0  zero 0.824
+    gdp_croatia            n   24  warn   7 0.400  gauss   6 0.444  seg5   1 1.000  scale   1 1.000  annotators 1  zero 0.824
+    gdp_iran               n   58  warn   2 0.622  gauss   9 0.655  seg5   4 0.692  scale   4 0.735  annotators 2  zero 0.652
+    gdp_japan              n   58  warn   4 0.571  gauss   4 0.571  seg5   3 0.667  scale   3 0.667  annotators 0  zero 0.889
+    global_co2             n  104  warn  27 0.303  gauss   7 0.523  seg5   4 0.547  scale   4 0.547  annotators 0  zero 0.846
+    homeruns               n  118  warn   4 0.800  gauss   5 0.667  seg5   2 0.873  scale   2 0.873  annotators 1  zero 0.659
+    jfk_passengers         n  468  warn   4 0.490  gauss   0 0.723  seg5   1 0.868  scale   1 0.868  annotators 1  zero 0.723
+    lga_passengers         n  468  warn   5 0.526  gauss   1 0.693  seg5   1 0.693  scale   1 0.693  annotators 3  zero 0.535
+    nile                   n  100  warn   1 1.000  gauss   1 1.000  seg5   1 1.000  scale   1 1.000  annotators 1  zero 0.824
+    ozone                  n   54  warn   2 0.650  gauss   4 0.560  seg5   2 0.778  scale   2 0.778  annotators 1  zero 0.723
+    quality_control_1      n  313  warn   3 0.667  gauss   1 1.000  seg5   1 1.000  scale   1 1.000  annotators 1  zero 0.667
+    quality_control_2      n  283  warn   1 1.000  gauss   1 1.000  seg5   1 1.000  scale   1 1.000  annotators 1  zero 0.750
+    quality_control_3      n  366  warn   1 1.000  gauss   3 0.333  seg5   2 0.800  scale   2 0.800  annotators 1  zero 0.667
+    quality_control_4      n  500  warn   4 0.726  gauss   3 0.638  seg5   1 0.936  scale   1 0.936  annotators 1  zero 0.780
+    quality_control_5      n  325  warn   0 1.000  gauss   0 1.000  seg5   0 1.000  scale   0 1.000  annotators 0  zero 1.000
+    rail_lines             n   37  warn   1 0.846  gauss   5 0.800  seg5   4 0.889  scale   5 0.800  annotators 2  zero 0.537
+    seatbelts              n  192  warn   1 0.474  gauss   0 0.621  seg5   0 0.621  scale   0 0.621  annotators 2  zero 0.621
+    shanghai_license       n  205  warn  10 0.422  gauss   6 0.416  seg5   8 0.471  scale   8 0.471  annotators 1  zero 0.636
+    uk_coal_employ         n  105  warn   5 0.863  gauss  11 0.749  seg5   6 1.000  scale  10 0.842  annotators 5  zero 0.513
+    unemployment_nl        n  214  warn   9 0.776  gauss   9 0.930  seg5   6 0.851  scale   6 0.851  annotators 3  zero 0.566
+    us_population          n  816  warn 406 0.015  gauss   0 0.889  seg5   3 0.667  scale   3 0.667  annotators 0  zero 0.889
+    usd_isk                n  247  warn   9 0.632  gauss  10 0.749  seg5   5 0.609  scale   6 0.660  annotators 2  zero 0.489
+    well_log               n  675  warn  21 0.764  gauss  21 0.764  seg5  19 0.808  scale  18 0.832  annotators 9  zero 0.237
+  held out (7)
+    bitcoin                n  774  warn  74 0.349  gauss  52 0.407  seg5  24 0.556  scale  28 0.535  annotators 4  zero 0.450
+    iceland_tourism        n  199  warn   2 0.486  gauss   0 0.947  seg5   1 0.643  scale   1 0.643  annotators 0  zero 0.947
+    measles                n  991  warn  40 0.047  gauss  39 0.049  seg5  31 0.060  scale  31 0.060  annotators 0  zero 0.947
+    ratner_stock           n  600  warn  23 0.452  gauss  30 0.324  seg5   9 0.304  scale  10 0.283  annotators 2  zero 0.571
+    robocalls              n   52  warn   2 0.966  gauss   5 0.778  seg5   2 0.698  scale   2 0.698  annotators 2  zero 0.636
+    scanline_126007        n  481  warn  10 0.772  gauss  27 0.593  seg5  22 0.709  scale  26 0.678  annotators 1  zero 0.644
+    scanline_42049         n  481  warn  82 0.404  gauss  27 0.593  seg5  49 0.384  scale  75 0.348  annotators 7  zero 0.276
+
+Primary run time over all 38 series: 1537 ms (about 20 O(n^2) fits a series; machine-dependent).

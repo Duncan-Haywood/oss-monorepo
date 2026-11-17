@@ -134,3 +134,94 @@ def test_logit_recovers_coefficients_and_ignores_outside_domain():
     assert np.all(np.abs(b - [-0.5, 0.8]) < 4 * se)
     stat, df, p = survey.wald(b, cov, [1])
     assert df == 1 and p < 1e-6
+
+
+def test_equal_fertility_share_inverts_raised_share():
+    from cathdem import accounting
+    p = np.array([0.05, 0.2, 0.3, 0.6])
+    for rho in (0.8, 1.0, 1.15, 1.5):
+        R = accounting.raised_share(p, rho)
+        assert np.allclose(accounting.equal_fertility_share(R, rho), p)
+    # Hand case: p=0.25, rho=1.2 -> R = 0.3 / (0.3 + 0.75) = 2/7
+    assert math.isclose(float(accounting.raised_share(0.25, 1.2)), 2 / 7)
+    # Equal fertility leaves the share unchanged; higher Catholic fertility raises it.
+    assert np.allclose(accounting.raised_share(p, 1.0), p)
+    assert np.all(accounting.raised_share(p, 1.2) > p)
+
+
+def test_panel_agreement_counts_and_kappa():
+    from cathdem import panel
+    a = np.array([1, 1, 1, 0, 0, 0, 0, 0, np.nan, 1])
+    b = np.array([1, 1, 0, 1, 0, 0, 0, 0, 1, np.nan])
+    r = panel.agreement(a, b, np.ones(10))
+    assert r['n'] == 8
+    assert math.isclose(r['p1'], 3 / 8) and math.isclose(r['p2'], 3 / 8) and r['net'] == 0
+    assert math.isclose(r['gross'], 2 / 8) and math.isclose(r['stay'], 2 / 3)
+    pe = (3 / 8) ** 2 + (5 / 8) ** 2
+    assert math.isclose(r['kappa'], (6 / 8 - pe) / (1 - pe))
+
+
+def test_rake_hits_margins_and_keeps_total():
+    from cathdem import rake
+    rng = np.random.default_rng(3)
+    n = 2000
+    a = rng.integers(0, 3, n)
+    b = rng.integers(0, 2, n)
+    w = rng.uniform(0.5, 2.0, n)
+    ta = {0: 0.5, 1: 0.3, 2: 0.2}
+    tb = {0: 0.7, 1: 0.3}
+    r, gap, it = rake.rake(w, [a, b], [ta, tb])
+    assert gap < 1e-8 and math.isclose(r.sum(), w.sum())
+    for c, t in ((a, ta), (b, tb)):
+        m = rake.margins(c, r)
+        assert all(math.isclose(m[k], v, abs_tol=1e-8) for k, v in t.items())
+
+
+def test_rake_one_covariate_is_poststratification():
+    # With one covariate, raking is post-stratification: within-cell weights scale by target/actual share,
+    # so a cell mean outcome reweighted to the target gives the target-weighted mean of cell means.
+    from cathdem import rake
+    c = np.array([0] * 80 + [1] * 20)
+    y = np.array([1.0] * 40 + [0.0] * 40 + [1.0] * 2 + [0.0] * 18)  # cell means 0.5 and 0.1
+    r, gap, _ = rake.rake(np.ones(100), [c], [{0: 0.25, 1: 0.75}])
+    assert math.isclose((r * y).sum() / r.sum(), 0.25 * 0.5 + 0.75 * 0.1)
+    # The selection the covariate carries is removed exactly: target-group mean is matched when outcome depends
+    # only on the covariate.
+    assert rake.kish_deff(np.ones(10)) == 1.0 and rake.kish_deff(r) > 1.0
+
+
+def test_mother_nativity_from_parborn():
+    # gssrdoc codes: 0 both US-born, 1 mother yes / father no, 2 mother no / father yes, 3 mother yes / father DK,
+    # 4 mother no / father DK, 5 mother DK / father yes, 6 mother DK / father no, 7 both DK, 8 neither US-born.
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        'm5m', Path(__file__).parent / 'experiments' / 'm5m_mothers_nativity' / 'run.py')
+    m5m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m5m)
+    got = m5m.mother_nativity([0, 1, 2, 3, 4, 5, 6, 7, 8, np.nan])
+    assert list(got) == ['US mother', 'US mother', 'FB mother', 'US mother', 'FB mother', '', '', '', 'FB mother', '']
+
+
+def test_sibling_size_bias_recovers_mothers():
+    # Mothers with 1-6 children (below the top-code); each child is one respondent. Weighting children by 1/k must give
+    # back the mothers' Catholic share and the Catholic / other ratio of mean children (Preston 1976), and when the
+    # women's tables hold those true values the gap and both of its parts are zero.
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        'm5n', Path(__file__).resolve().parent / 'experiments' / 'm5n_siblings' / 'run.py')
+    m5n = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m5n)
+    mothers = [(1, 4)] * 30 + [(1, 2)] * 10 + [(0, 2)] * 60 + [(0, 1)] * 40 + [(0, 3)] * 20
+    X = np.array([c for c, k in mothers for _ in range(k)], float)
+    k = np.array([k for c, k in mothers for _ in range(k)], float)
+    w = np.ones(len(k))
+    s = np.ones(len(k), bool)
+    p_true = 40 / 160
+    rho_true = (140 / 40) / (220 / 120)
+    L = m5n.L
+    tab = {'P_m': np.full(L, p_true), 'rho_m': np.full(L, rho_true), 'SBw_C': np.zeros(L), 'SBw_N': np.zeros(L)}
+    out = m5n.children_side(w, k, X, s, tab, np.zeros(len(k), int))
+    assert math.isclose(out['M_mothers'], p_true)
+    assert math.isclose(out['rho_sib'], rho_true)
+    assert abs(out['gap M - f(P_m, rho_m)']) < 1e-12 and abs(out['ratio part']) < 1e-12
+    assert math.isclose(m5n.f(p_true, rho_true), X.mean())

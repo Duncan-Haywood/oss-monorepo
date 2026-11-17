@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtK8KL4pznAPfhnyrdi",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T13:07:12Z",
+  "ended": "2026-11-11T13:15:14Z",
+  "wall_minutes": 8.44,
+  "tokens_in": 7678651,
+  "tokens_out": 36535,
+  "cost_usd": 3.3394,
+  "tool_calls": 65,
+  "task": "Deepen flagship 2 (ai-bookkeeper), item (7): IRIS 1099 files against the IRS's own guidelines, and the 1099-MISC",
+  "projects": [
+    "ai-bookkeeper",
+    "irs-iris-1099-csv-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14792",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 12,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "irs-iris-1099-csv-check: first 2026 MISC threshold test used Box 12, which the legacy layout lacks",
+      "fix": "switched to Box 6"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ai-bookkeeper/taxforms.mjs",
+      "issue": "The 2026-11-10 note said irs.gov was blocked; today it answered with 200 and the TY2025 IRIS guidelines zip is public on irs.gov/filing/e-file-information-returns-with-iris. 'Blocked' notes go stale, so probe again before relying on one."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "It says irs.gov often 403s through the proxy, but www.irs.gov/pub/* returned 200 on every request this run."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-iris-guidelines-read-at-last.md"
+  ],
+  "goal": null,
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py ai-bookkeeper irs-iris-1099-csv-check -> 2 suites run, 0 failed (ai-bookkeeper 41.6s). Primary sources read: IRS TY2025 IRIS CSV Template Formatting PDFs for 1099-NEC and 1099-MISC; Instructions for Forms 1099-MISC and 1099-NEC Rev. December 2026. No agent doc: HISTORY.md and the flagships next: carry the handoff. venture-preflight.mjs ai-bookkeeper: preflight clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2833b122-3ee6-5814-a89e-b093210bbf11",
+    "transcripts": 1,
+    "first": "2026-11-11T13:07:12Z",
+    "last": "2026-11-11T13:15:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 63,
+        "input": 123,
+        "output": 36535,
+        "thinking": 6907,
+        "cache_read": 7541029,
+        "cache_write_5m": 0,
+        "cache_write_1h": 137499,
+        "api_equivalent_usd": 3.3394,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 63,
+      "input": 123,
+      "output": 36535,
+      "thinking": 6907,
+      "cache_read": 7541029,
+      "cache_write_5m": 0,
+      "cache_write_1h": 137499,
+      "api_equivalent_usd": 3.3394,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 65,
+    "tools": {
+      "Bash": 62,
+      "ToolSearch": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.44,
+      "active_minutes": 8.44,
+      "model_minutes": 6.41,
+      "tool_minutes": 2.03,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "read two IRS guideline PDFs and the 1099 instructions, fix the export, add the MISC form, tests and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 179.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

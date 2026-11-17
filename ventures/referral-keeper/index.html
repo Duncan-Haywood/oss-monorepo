@@ -112,7 +112,7 @@ PROGRAM_JSON='{"percent":25,"months":12,"holdDays":30,"minPayout":5000}' node se
     import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
     const $ = (id) => document.getElementById(id);
     const num = (id) => { const v = Number($(id).value); return Number.isFinite(v) ? v : 0; };
-    const nf = new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 });
+    const nf = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 });
     const f = (v) => nf.format(Math.round(v));
     let counted = false;
     function run() {

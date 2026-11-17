@@ -1,0 +1,42 @@
+  cafe seed 1: call-out exposure 92 h (old order) vs 100 h (column generation first)
+  cafe seed 1: score 1503758.95 -> 1503758.95, open 15 -> 15 h, optimal / improved, other roster, 1492 -> 301 ms
+  cafe seed 2: call-out exposure 100 h (old order) vs 100 h (column generation first)
+  cafe seed 2: score 1503758.95 -> 1503758.95, open 15 -> 15 h, optimal / improved, other roster, 1584 -> 291 ms
+  cafe seed 3: call-out exposure 140 h (old order) vs 100 h (column generation first)
+  cafe seed 3: score 1503758.95 -> 1503758.95, open 15 -> 15 h, optimal / improved, other roster, 1172 -> 187 ms
+  cafe seed 4: call-out exposure 116 h (old order) vs 100 h (column generation first)
+  cafe seed 4: score 1503758.95 -> 1503758.95, open 15 -> 15 h, optimal / improved, other roster, 1307 -> 213 ms
+  cafe seed 5: call-out exposure 132 h (old order) vs 100 h (column generation first)
+  cafe seed 5: score 1503758.95 -> 1503758.95, open 15 -> 15 h, optimal / improved, other roster, 1094 -> 195 ms
+  cafe seed 6: call-out exposure 100 h (old order) vs 100 h (column generation first)
+  cafe seed 6: score 1503758.95 -> 1503758.95, open 15 -> 15 h, optimal / improved, other roster, 1156 -> 189 ms
+  cafe seed 7: call-out exposure 100 h (old order) vs 100 h (column generation first)
+  cafe seed 7: score 1503758.95 -> 1503758.95, open 15 -> 15 h, optimal / improved, other roster, 1225 -> 186 ms
+  cafe seed 8: call-out exposure 108 h (old order) vs 100 h (column generation first)
+  cafe seed 8: score 1503758.95 -> 1503758.95, open 15 -> 15 h, optimal / improved, other roster, 1164 -> 193 ms
+  cafe seed 9: call-out exposure 116 h (old order) vs 100 h (column generation first)
+  cafe seed 9: score 1503758.95 -> 1503758.95, open 15 -> 15 h, optimal / improved, other roster, 1263 -> 187 ms
+  cafe seed 10: call-out exposure 100 h (old order) vs 100 h (column generation first)
+  cafe seed 10: score 1503758.95 -> 1503758.95, open 15 -> 15 h, optimal / improved, other roster, 1181 -> 185 ms
+  cafe seed 11: call-out exposure 108 h (old order) vs 100 h (column generation first)
+  cafe seed 11: score 1503758.95 -> 1503758.95, open 15 -> 15 h, optimal / improved, other roster, 1178 -> 182 ms
+  cafe seed 12: call-out exposure 108 h (old order) vs 100 h (column generation first)
+  cafe seed 12: score 1503758.95 -> 1503758.95, open 15 -> 15 h, optimal / improved, other roster, 1116 -> 187 ms
+cafe: 12 builds, proven 12 / 12, score worse 0, better 0, other roster 12, 14.9 s -> 2.5 s
+spare: 12 builds, proven 12 / 12, score worse 0, better 0, other roster 0, 2.2 s -> 2.2 s
+salon: 12 builds, proven 12 / 12, score worse 0, better 0, other roster 0, 0.2 s -> 0.2 s
+retail: 12 builds, proven 12 / 12, score worse 0, better 0, other roster 0, 0.3 s -> 0.3 s
+clinic: 12 builds, proven 12 / 12, score worse 0, better 0, other roster 0, 1.0 s -> 0.9 s
+  8x24 week 2 (36 copies): score 9303014.79 -> 9303014.79, open 93 -> 93 h, optimal / improved, other roster, 736 -> 108 ms
+  8x24 week 3 (35 copies): score 11703070.80 -> 11703070.80, open 117 -> 117 h, optimal / improved, other roster, 102 -> 74 ms
+8x24: 4 builds, proven 4 / 4, score worse 0, better 0, other roster 2, 2.4 s -> 0.4 s
+  10x28 week 0 (42 copies): score 11003601.08 -> 11003601.08, open 110 -> 110 h, optimal / improved, other roster, 1529 -> 117 ms
+10x28: 4 builds, proven 4 / 4, score worse 0, better 0, other roster 1, 3.1 s -> 0.5 s
+12x32: 4 builds, proven 4 / 4, score worse 0, better 0, other roster 0, 4.8 s -> 0.6 s
+14x36: 4 builds, proven 4 / 4, score worse 0, better 0, other roster 0, 3.8 s -> 1.1 s
+  16x40 week 2 (60 copies): score 10904484.40 -> 10904484.40, open 109 -> 109 h, optimal / improved, other roster, 717 -> 327 ms
+16x40: 3 builds, proven 3 / 3, score worse 0, better 0, other roster 1, 3.0 s -> 1.0 s
+18x44: 1 builds, proven 1 / 1, score worse 0, better 0, other roster 0, 0.8 s -> 0.6 s
+
+all: 80 fresh builds; proven 80 old order / 80 column generation first; score worse 0, better 0; open hours up 0, down 0; other roster 16; slower by >50 ms 0; 36.4 s -> 10.4 s
+call-out exposure on the 12 team weeks whose roster differs: 1320 h old order, 1200 h column generation first (higher on 1, lower on 7)

@@ -76,7 +76,13 @@ test("opening balances: format, symbols, missing date, bad and mixed dates", () 
 });
 
 test("date shapes", () => {
-  assert.equal(dateShape("2026-02-30"), "iso");
+  assert.equal(dateShape("2026-02-30"), "bad", "30 February is not a day QuickBooks will import");
+  assert.equal(dateShape("2028-02-29"), "iso");
+  assert.equal(dateShape("2027-02-29"), "bad");
+  assert.equal(dateShape("02/30/2026"), "bad");
+  assert.equal(dateShape("31/04/2026"), "bad");
+  assert.equal(dateShape("30/01/2026"), "dmy");
+  assert.equal(dateShape("01/31/2026"), "mdy");
   assert.equal(dateShape("2026-13-01"), "bad");
   assert.equal(dateShape("25/12/2026"), "dmy");
   assert.equal(dateShape("12/25/2026"), "mdy");

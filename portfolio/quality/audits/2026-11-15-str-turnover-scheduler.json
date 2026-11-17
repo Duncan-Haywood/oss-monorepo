@@ -1,0 +1,295 @@
+{
+ "date": "2026-11-15",
+ "subject": "ventures/str-turnover-scheduler",
+ "stratum": "venture",
+ "seed": "2026-11-15-census",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior STR operations / turnover-cleaning operations manager who dispatches a crew across 10 to 30 Airbnb, VRBO and Booking.com listings. They would check first that every real guest stay in the platform feeds becomes exactly one clean (no lost stays, no phantom cleans), that same-day turnovers are prioritised against the check-in time, and whether the crew number it gives is one they could staff to, before looking at exports or the fee margin",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran the shipped engine on its worked example and on probes (scripts in scratchpad sample.mjs, probes.mjs, exact.mjs). The arithmetic is right where I recomputed it by hand: Harbor Loft 2026-10-15 is placed after Main St Studio (Cleaner 1 ends 12:30, +20 min travel = 12:50, +2.5 h = 15:20, before the 16:00 check-in), which matches row 4. Paid hours 39.67 = (5x150 + 5x210 + 6x90 min = 2,340 min) + 40 min travel. Harbor Loft margin is 5 x $140 - 5 x 2.5 h x $25 = $387.50. The outputs a user acts on are wrong in three ways. (1) A double-booked stay gets its own checkout clean. In the example, Pine Cabin has two cleans on 2026-10-17 by two cleaners at the same unit: Cleaner 2 10:00-13:30 and Cleaner 1 12:50-16:20 LATE. That phantom clean causes the only late job and the headline '3 cleaners clear every deadline'. With the conflicting stay removed, it is 15 cleans, minCrew 2, 0 late, and fees $1,930 instead of $2,110. (2) An independent exact brute-force solver over 400 random one-day instances (4-6 jobs, 9-17 shift, 20 min travel) finds the greedy crew sweep reports one more cleaner than needed in 83 of them (21%) and never fewer. I checked one by hand: jobs P0 10-15 3h, P1 11-16 1h, P2 11-16 3h, P3 11-15 2.5h, P4 10-15 1.5h are cleared by 3 (C1 P0 10-13 then P1 13:20-14:20; C2 P4 10-11:30 then P3 11:50-14:20; C3 P2 11-14), but the tool says 4. (3) The blocked-entry regex drops real VRBO stays whose guest name contains 'hold' or 'owner' ('Reserved - Holden Smith' and 'Reserved - Ann Downer': kept 0, skipped 1).",
+  "completeness": "Checked each feature the README and page list. iCal parse with line unfolding works, and the listing-name hint line works. CSV input works. Blocked entries are skipped and identical stays deduped (1 and 1 in the example). Double booking is flagged. Same-day window warnings work, and 'no crew fixes this' fires on an impossible window. Travel time is applied (the test shows a 30 min gap). The crew sweep table renders, and so do the per-property margin table and all three exports: CSV, the per-cleaner text and an .ics with one VEVENT per assigned job. In headless Chromium, 'Load an example' renders stats, findings, sweep, schedule and margin tables with no page errors and no horizontal scroll at 375 px. The served page https://marisstella.app/str-turnover-scheduler/ returns HTTP 200 and matches the source apart from deploy chrome, and the served llms.txt and sitemap carry the marisstella.app host. Gaps: Booking.com feeds are claimed but their 'CLOSED - Not available' events are dropped as blocks. Nested double bookings are partly missed. No stubs or TODOs. Every feature listed exists and runs, so 3, with the Booking.com claim scored under claims.",
+  "verification": "`cd ventures/str-turnover-scheduler && node --test '*.test.mjs'`: 27 tests, 27 pass, 0.17 s (14 calc, 7 page, 6 usage). The README's root command `node --test 'ventures/str-turnover-scheduler/**/*.test.mjs'` also gives 27/27. Seven mutants via platform/ci/quality_mutate.py: 3 caught (conflict comparison :109, per-property labour x1.1 :245, BLOCKED check removed :76) and 4 survived. The survivors are travel charged even between jobs at the same property (:173), the urgency threshold moved from tomorrow's shift start to midnight (:170), travel pay dropped from the headline labour cost (:239), and the earliest-finish tie-break < to <= (:176, near-equivalent, weakest evidence). The tests pin the sample's minCrew = 3 (calc.test.mjs:107), which locks in the phantom-clean bug instead of catching it. No test compares the crew sweep with an exact answer or uses a real platform export.",
+  "craft": "Read calc.mjs (293 lines), index.html (191), calc.test.mjs, page.test.mjs and usage.mjs. The engine is compact and pure with no dependencies, the UI escapes output, and the usage counter is local with an opt-out. Defects: parseBookings keeps both sides of a conflict and buildJobs schedules both (calc.mjs:110, :139). The conflict check compares only with the previous kept stay, so A 1-10, B 2-3, C 4-5 reports A-B and misses A-C (calc.mjs:109). The shift field is parsed with parseFloat on '-', so '9am-5pm' gives a 9-5 shift: 13 overtime cleans and 'no crew size clears every deadline', and '9:30' gives 9 (index.html:156), although calc.mjs already has parseClock. Property names in the settings box are matched case-sensitively and a mismatch silently falls back to the defaults ('harbor loft, 4, 300' leaves Harbor Loft at 2.5 h / $120) (calc.mjs:127). CSV header detection takes the first column containing 'name', so a reservations export makes 'Guest name' the property (calc.mjs:89). The .ics DTSTAMP is floating, not UTC, and TEXT values are not escaped (SUMMARY:Clean Unit 4, Oak St) (calc.mjs:278). Per-property labour leaves out travel, so the margin table sums to $975 against the $991.67 headline (calc.mjs:245 vs :239).",
+  "claims": "Checked against files and runs. Disclaimer, not-affiliated, privacy and 'Not decided' lines are present (page.test.mjs asserts them; seen on the served page). 'Nothing uploaded' holds: no fetch/XHR/beacon in index.html or calc.mjs, and imports are local only. Usage events named on the page are the ones recorded. Related-tool links resolve to five existing ventures. Unbacked: README.md:3, VENTURE.yaml and index.html:55 say it finds 'the smallest crew that clears every deadline'. The greedy overstates in 21% of random one-day instances, and index.html:107 tells the user to 'treat a crew one larger as the safe side', the wrong direction for a sweep that only overstates. The example status line (index.html:181) teaches 'the crew table shows three are needed', a number caused by the phantom clean. index.html:55 and VENTURE.yaml promise Booking.com feeds, but vendor and forum examples of Booking.com exports show events summarised 'CLOSED - Not available', which this tool drops as blocks (probe: kept 0). VENTURE.yaml is honest that only synthetic feeds were tested, but that limit is not on the page.",
+  "fitness": "Walked a co-host's job: paste an Airbnb feed (realistic export with PRODID, UID, DESCRIPTION, 'Reserved' and 'Airbnb (Not available)') and a VRBO feed, set the crew and shift, and download the per-cleaner messages. Airbnb works: two pasted feeds without hint lines become 'Property 1' and 'Property 2', and blocks are skipped. VRBO stays are lost for guests named Holden, Holder or Downer. Booking.com stays may all be lost. A double booking adds a phantom clean that changes the crew advice. An operator also needs things it lacks: cleaner days off and availability, a preferred cleaner per property, travel from home to the first job (not counted), and any saved state (the property settings must be retyped every visit). For a 3-listing Airbnb-only host it gives a usable plan. For the stated buyer (co-hosts and cleaning companies across platforms) it gets wrong which stays exist in the first hour.",
+  "domain": "Compared with turnover-dispatch practice: one clean per actual departing guest, same-day turnovers first, check-in time as the hard deadline, crews sized on peak checkout days. The EDF ordering and same-day-first logic match practice, and the 'no crew size fixes this' window check is a good operator insight. Departures: a double booking is an availability error to resolve, not a second clean, and the tool books a cleaner for both stays. Block detection on substrings misreads guest names. The 'cleaning fee margin' takes the full fee as income, but Airbnb's split-fee host service fee (about 3%, or about 15% under host-only fees) is charged on the cleaning fee too, and the page does not say so. No inspection or laundry buffer between cleans. Sound idea, but a senior operations manager would not sign off on the crew number until double bookings and block detection are fixed."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Harbor Loft 2026-10-15 start/end after the Main St Studio clean with 20 min travel",
+   "method": "hand recomputation: 12:30 + 20 min = 12:50, + 150 min = 15:20 vs 16:00 check-in",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/str-turnover-scheduler/sample.mjs",
+   "expected": "12:50-15:20, on time",
+   "observed": "row 4: Cleaner 1, 12:50-15:20, same-day, not late",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Paid hours and per-property margin in the worked example",
+   "method": "hand recomputation from DEFAULT_PROPS: (5x150 + 5x210 + 6x90) min + 40 min travel; Harbor 5x$140 - 5x2.5x$25",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/str-turnover-scheduler/sample.mjs",
+   "expected": "39.67 h; Harbor margin $387.50",
+   "observed": "hours 39.666...; Harbor margin 387.5",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Number of cleans and crew needed for the worked example's real stays (one clean per actual departing guest)",
+   "method": "hand count of the sample feeds: Pine Cabin's conflicting 10-16..10-17 stay is a double booking, not a second departure; schedule by hand with 2 cleaners on 10-15 and 10-17",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/str-turnover-scheduler/probes.mjs (conflicting stay removed) vs node /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/str-turnover-scheduler/sample.mjs",
+   "expected": "15 cleans, 2 cleaners clear every deadline, fees $1,930",
+   "observed": "tool: 16 cleans incl. two at Pine Cabin on 10-17 by two cleaners, 1 LATE, minCrew 3, fees $2,110",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Crew sweep returns the smallest crew that clears every deadline",
+   "method": "independent exact brute-force solver (all assignments x all orders) on 400 random one-day instances; one counterexample checked by hand",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/str-turnover-scheduler/exact.mjs",
+   "expected": "greedy minCrew = exact minimum",
+   "observed": "greedy larger by one in 83/400 (21%), never smaller; e.g. 5 jobs clearable by 3, tool says 4",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "VRBO-style stays with guest names in SUMMARY are kept",
+   "method": "VRBO export convention 'Reserved - <guest>'; a stay is a stay whatever the guest is called",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/str-turnover-scheduler/probes.mjs",
+   "expected": "'Reserved - Holden Smith' and 'Reserved - Ann Downer' kept",
+   "observed": "both kept 0, skipped 1 as blocked; 'Reserved - Ann Lee' kept",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Nested double bookings all flagged",
+   "method": "hand: A 10-01..10-10 overlaps both B 10-02..10-03 and C 10-04..10-05",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/str-turnover-scheduler/probes.mjs",
+   "expected": "2 conflicts (A-B, A-C)",
+   "observed": "1 conflict (A-B)",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "27/27 pass in 0.17 s; README root command also 27/27",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Worked example renders in a browser with all tables and no errors",
+   "method": "headless Chromium via Playwright, files served by route interception",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/str-turnover-scheduler/pw.cjs",
+   "expected": "stats, findings, sweep, schedule, margin rendered; no page errors; no horizontal scroll at 375 px",
+   "observed": "all rendered; errors []; scrollWidth 375",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "Shift field accepts a natural '9am-5pm'",
+   "method": "Playwright: type into #shift and rebuild",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/str-turnover-scheduler/pw.cjs",
+   "expected": "9:00-17:00 shift, same result as '9-17'",
+   "observed": "13 past shift end, 'no crew size clears every deadline'",
+   "result": "fail"
+  },
+  {
+   "dimension": "craft",
+   "what": ".ics export conforms to RFC 5545",
+   "method": "RFC 5545 s.3.8.7.2 (DTSTAMP MUST be UTC) and s.3.3.11 (escape commas in TEXT)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/str-turnover-scheduler/probes.mjs",
+   "expected": "DTSTAMP:...Z; SUMMARY with '\\,'",
+   "observed": "DTSTAMP:20261013T110000 (floating); SUMMARY:Clean Unit 4, Oak St (Cleaner 1)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Nothing uploaded / runs in your browser'",
+   "method": "grep for network APIs and external scripts; page.test.mjs",
+   "command": "grep -n 'fetch(\\|XMLHttpRequest\\|sendBeacon' index.html calc.mjs",
+   "expected": "none",
+   "observed": "none; imports ./calc.mjs and ./usage.mjs only",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Booking.com feeds supported (index.html:55, VENTURE.yaml)",
+   "method": "third-party Booking.com iCal examples (iPRO import guide, MotoPress forum) show events summarised 'CLOSED - Not available'",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/str-turnover-scheduler/probes.mjs",
+   "expected": "Booking.com reservations kept",
+   "observed": "'CLOSED - Not available' skipped as a block (kept 0); only synthetic feeds were tested (VENTURE.yaml)",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served page and llms.txt use the live host",
+   "method": "curl the served files",
+   "command": "curl -sS https://marisstella.app/str-turnover-scheduler/llms.txt",
+   "expected": "HTTP 200, marisstella.app links",
+   "observed": "200; 'The tool' -> https://marisstella.app/str-turnover-scheduler/ (source file's github.io link is rewritten at deploy, source-only)",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "Margin table labour agrees with the headline labour",
+   "method": "sum of economics[].cost vs summary.cost",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/str-turnover-scheduler/probes.mjs",
+   "expected": "equal (or travel shown separately)",
+   "observed": "$975.00 vs $991.67; travel is in the headline only",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:173",
+   "change": "s.at !== null && s.at !== j.property ? o.travelMin : 0 -> s.at !== null ? o.travelMin : 0",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:109",
+   "change": "b.start < prev.end -> b.start < prev.end - 1",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:245",
+   "change": "labour per property x 1.1",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:170",
+   "change": "j.deadline < dayEnd + shiftStart -> j.deadline < dayEnd",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:76",
+   "change": "if (BLOCKED.test(summary)) -> if (false)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:176",
+   "change": "end < best.end -> end <= best.end (tie-break; near-equivalent)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:239",
+   "change": "payable drops travel time",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "A double-booked (conflicting) stay is kept and gets its own checkout clean, so the crew size, lateness and fee totals count a clean that cannot happen. The worked example's only late job and its '3 cleaners' answer come from this phantom clean (real answer: 15 cleans, 2 cleaners, $1,930 fees), and calc.test.mjs:107 pins the wrong minCrew = 3.",
+   "where": "ventures/str-turnover-scheduler/calc.mjs:110",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16065"
+  },
+  {
+   "severity": "medium",
+   "what": "The blocked-entry regex /not available|unavailable|blocked|closed|owner|hold/ matches substrings, so VRBO stays whose SUMMARY carries a guest name like Holden, Holder or Downer are silently dropped as blocks.",
+   "where": "ventures/str-turnover-scheduler/calc.mjs:10",
+   "category": "input-handling",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16065"
+  },
+  {
+   "severity": "medium",
+   "what": "Booking.com feeds are advertised, but Booking.com exports summarise events 'CLOSED - Not available' (per third-party import guides), which the tool drops as blocks. Only synthetic feeds were ever tested.",
+   "where": "ventures/str-turnover-scheduler/index.html:55",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "'The smallest crew that clears every deadline' is a greedy result that overstates by one cleaner in 21% of random one-day instances (exact solver). The page's advice to 'treat a crew one larger as the safe side' points the wrong way, because the sweep only ever overstates.",
+   "where": "ventures/str-turnover-scheduler/README.md:3",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16065"
+  },
+  {
+   "severity": "medium",
+   "what": "The shift field is parsed with parseFloat after splitting on '-': '9am-5pm' becomes a 9-to-5-o'clock-morning shift (13 overtime cleans, 'no crew size clears every deadline'), and '9:30' becomes 9. parseClock already exists in calc.mjs.",
+   "where": "ventures/str-turnover-scheduler/index.html:156",
+   "category": "input-handling",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16065"
+  },
+  {
+   "severity": "medium",
+   "what": "Core scheduling rules are untested: travel charged between jobs at the same property, the urgency threshold and travel pay in the labour headline all survive seeded mutation.",
+   "where": "ventures/str-turnover-scheduler/calc.mjs:173",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Conflict detection compares each stay only with the previous kept one, so a long stay overlapping two later short ones reports one double booking, not two.",
+   "where": "ventures/str-turnover-scheduler/calc.mjs:109",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16065"
+  },
+  {
+   "severity": "low",
+   "what": ".ics export: DTSTAMP is floating local time (RFC 5545 s.3.8.7.2 requires UTC), commas and semicolons in SUMMARY are not escaped, and lines are not folded at 75 octets.",
+   "where": "ventures/str-turnover-scheduler/calc.mjs:278",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Per-property labour in the margin table leaves out paid travel, so the table sums to $975.00 while the headline says $991.67 for the same schedule.",
+   "where": "ventures/str-turnover-scheduler/calc.mjs:245",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Property settings are matched to feed names case-sensitively, and a mismatch silently falls back to the default 2.5 h / $120 with no warning.",
+   "where": "ventures/str-turnover-scheduler/calc.mjs:127",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "CSV header detection takes the first column containing 'name', so a reservations export with 'Guest name' before 'Listing' makes each guest a property. Cancelled rows are also kept.",
+   "where": "ventures/str-turnover-scheduler/calc.mjs:89",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Not modelled and not named in the page's 'Not decided' list: cleaner days off or availability, a preferred cleaner per property, travel from home to the first job, and the platform host-service fee charged on the cleaning fee that the 'margin' treats as income.",
+   "where": "ventures/str-turnover-scheduler/index.html:108",
+   "category": "scope-gap",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16065"
+ ],
+ "verdict": "A compact, private, well-disclaimed turnover scheduler whose plumbing works end to end. iCal and CSV parse, the scheduling arithmetic recomputes by hand, all three exports download, the page renders cleanly in Chromium, and the 27 tests pass. It does not meet the bar. Its headline outputs, which stays exist and how many cleaners to staff, are wrong in ways an operations manager would hit at once. A double booking becomes a second, phantom clean, and in the page's own worked example that phantom alone turns the right answer of 2 cleaners into the advertised 3. Substring block detection drops VRBO guests named Holden or Downer, and Booking.com's 'CLOSED - Not available' reservations are discarded. The 'smallest crew' is a greedy upper bound that is one too high in 21% of random instances, and the page's 'add one for safety' advice points the wrong way. Four of seven seeded mutants survive, and one test pins the wrong crew number. Scores: correctness 2, completeness 3, verification 2, craft 2, claims 2, fitness 2, domain 2. Finished (completeness 3), not at the bar."
+}

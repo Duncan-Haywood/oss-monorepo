@@ -5,6 +5,7 @@
 //
 //   node bench.mjs            # prints the tables quoted in README "Verification"
 import { optimizeStock, exactStock, samplePlan, takeoff } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 function rng(seed) {
   let t = seed >>> 0;
@@ -67,7 +68,7 @@ export function houses(scales = [1, 2, 4]) {
   });
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const rows = smallInstances();
   console.log("Small instances (exact solver finishes): share where each method equals the exact cheapest order");
   console.log("prices        n   LP rounding   first fit decr.   shipped (exact used)    mean excess LP / FFD");

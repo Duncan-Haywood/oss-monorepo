@@ -11,6 +11,7 @@
 // Exit code: 0 no high findings, 1 at least one high finding, 2 bad input.
 import { readFileSync } from "node:fs";
 import { check, registerCsv, autoBook, yearSummary, massesFromLumpSum, money } from "./intentions.mjs";
+import { pathToFileURL } from "node:url";
 
 export const DISCLAIMER =
   "No warranty. Free and as-is. Not canonical, legal, tax, or financial advice; check your diocese's own rules and your pastor or chancery.";
@@ -69,7 +70,7 @@ export function run(argv, read = (p) => readFileSync(p, "utf8")) {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const r = run(process.argv.slice(2));
   console.log(r.out);
   process.exitCode = r.code;

@@ -1,0 +1,520 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKjxFhs1LaaRhmBxTbX",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T03:18:32Z",
+  "ended": "2026-11-14T03:19:04Z",
+  "wall_minutes": 6.01,
+  "tokens_in": 3281597,
+  "tokens_out": 20233,
+  "cost_usd": 1.728,
+  "tool_calls": 39,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15711",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 says fix open entries first, but all 10 open entries are control-plane workflow edits already sitting in owner-approval PRs (#15561, #15248, #15201, #14877, #14808, #14698, #14612, #14894, #12928); `redteam.py open` could mark entries with an open PR as 'awaiting owner' so runs do not re-read them each time."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 open list is entirely control-plane edits with PRs already awaiting owner approval; opening yet another workflow PR would duplicate them.",
+      "did": "Left the entries as they are and went straight to the campaigns.",
+      "result": "No duplicate control-plane PRs; time went to the target."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b (a guard that runs without a red-team run): the defect is a domain-physics assumption, not a lintable pattern.",
+      "did": "Added the guard as integrator-comparison tests in the venture suite, which ventures-tests runs on every PR touching the venture.",
+      "result": "Both new defect tests fail on the old engine and pass on the fixed one."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-redteam-slow-lift-flight-time.md"
+  ],
+  "goal": null,
+  "notes": "Target: ventures/elevator-traffic-analysis (landed 2026-11-13, #15700). 3 campaigns (engine.mjs x2, sim.mjs), suite ~2 s. Catch rate 18/24 = 75% before, 24/24 after (rerun). Real defects: slow-lift flight time (v < a^2/j) and null-floor TypeError, both patched with failing-first tests. Verification: node --test in the venture 29/29 pass; run_venture_tests.py elevator-traffic-analysis ok; old engine with new tests: 2 fail (tests 17, 18).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/elevator-traffic-analysis/engine.mjs",
+        "test": "node --test ventures/elevator-traffic-analysis/**/*.test.mjs  (in .)",
+        "seed": 689616228,
+        "commit": "e9a7e5500",
+        "sites": 226,
+        "baseline_seconds": 2.3,
+        "mutants": [
+          {
+            "file": "ventures/elevator-traffic-analysis/engine.mjs",
+            "line": 34,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "expressRise: 0,           // m of unserved floors passed above the lobby",
+            "after": "expressRise: 1,           // m of unserved floors passed above the lobby",
+            "line_text": "  expressRise: 0,           // m of unserved floors passed above the lobby",
+            "caught": true,
+            "seconds": 2.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/elevator-traffic-analysis/engine.mjs",
+            "line": 50,
+            "col": 63,
+            "operator": "div-to-times",
+            "before": "if (d >= (a * a * v + v * v * j) / (j * a)) return d / v + a / j + v / a + startDelay; // reaches rated speed",
+            "after": "if (d >= (a * a * v + v * v * j) / (j * a)) return d / v + a * j + v / a + startDelay; // reaches rated speed",
+            "line_text": "  if (d >= (a * a * v + v * v * j) / (j * a)) return d / v + a / j + v / a + startDelay; // reaches rated speed",
+            "caught": true,
+            "seconds": 2.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/elevator-traffic-analysis/engine.mjs",
+            "line": 58,
+            "col": 16,
+            "operator": "min-to-max",
+            "before": "const whole = Math.min(Math.floor(h), rises.length);",
+            "after": "const whole = Math.max(Math.floor(h), rises.length);",
+            "line_text": "  const whole = Math.min(Math.floor(h), rises.length);",
+            "caught": true,
+            "seconds": 2.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/elevator-traffic-analysis/engine.mjs",
+            "line": 61,
+            "col": 17,
+            "operator": "minus-to-plus",
+            "before": "const frac = h - whole;",
+            "after": "const frac = h + whole;",
+            "line_text": "  const frac = h - whole;",
+            "caught": true,
+            "seconds": 2.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/elevator-traffic-analysis/engine.mjs",
+            "line": 117,
+            "col": 14,
+            "operator": "div-to-times",
+            "before": "H -= (cum / U) ** P;",
+            "after": "H -= (cum * U) ** P;",
+            "line_text": "    H -= (cum / U) ** P;",
+            "caught": true,
+            "seconds": 3.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/elevator-traffic-analysis/engine.mjs",
+            "line": 131,
+            "col": 39,
+            "operator": "plus-to-minus",
+            "before": "const Ueff = pops.reduce((s, u) => s + u, 0); // eq 2",
+            "after": "const Ueff = pops.reduce((s, u) => s - u, 0); // eq 2",
+            "line_text": "  const Ueff = pops.reduce((s, u) => s + u, 0); // eq 2",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/elevator-traffic-analysis/engine.mjs",
+            "line": 160,
+            "col": 16,
+            "operator": "div-to-times",
+            "before": "tv: avgRise / x.speed,",
+            "after": "tv: avgRise * x.speed,",
+            "line_text": "    tv: avgRise / x.speed,",
+            "caught": false,
+            "seconds": 2.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "tv was untested; new test pins tv = avg rise / v."
+          },
+          {
+            "file": "ventures/elevator-traffic-analysis/engine.mjs",
+            "line": 188,
+            "col": 159,
+            "operator": "and-to-or",
+            "before": "rows.push({ lifts: L, ratedLoad: load, speed, persons: r.persons, rtt: r.rtt, interval: r.interval, pctPop: r.pctPop, meets: r.interval <= maxInterval && r.pctPop >= minPctPop });",
+            "after": "rows.push({ lifts: L, ratedLoad: load, speed, persons: r.persons, rtt: r.rtt, interval: r.interval, pctPop: r.pctPop, meets: r.interval <= maxInterval || r.pctPop >= minPctPop });",
+            "line_text": "        rows.push({ lifts: L, ratedLoad: load, speed, persons: r.persons, rtt: r.rtt, interval: r.interval, pctPop: r.pctPop, meets: r.interval <= maxInterval && r.pctPop >= minPctPop });",
+            "caught": true,
+            "seconds": 2.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/elevator-traffic-analysis/engine.mjs",
+        "test": "node --test ventures/elevator-traffic-analysis/**/*.test.mjs  (in .)",
+        "seed": 1013784111,
+        "commit": "e9a7e5500",
+        "sites": 226,
+        "baseline_seconds": 2.2,
+        "mutants": [
+          {
+            "file": "ventures/elevator-traffic-analysis/engine.mjs",
+            "line": 36,
+            "col": 92,
+            "operator": "const-plus-one",
+            "before": "floors: Array.from({ length: 12 }, (_, i) => ({ name: `L${i + 1}`, rise: 3.6, population: 90 })),",
+            "after": "floors: Array.from({ length: 12 }, (_, i) => ({ name: `L${i + 1}`, rise: 3.6, population: 91 })),",
+            "line_text": "  floors: Array.from({ length: 12 }, (_, i) => ({ name: `L${i + 1}`, rise: 3.6, population: 90 })),",
+            "caught": true,
+            "seconds": 2.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/elevator-traffic-analysis/engine.mjs",
+            "line": 50,
+            "col": 71,
+            "operator": "div-to-times",
+            "before": "if (d >= (a * a * v + v * v * j) / (j * a)) return d / v + a / j + v / a + startDelay; // reaches rated speed",
+            "after": "if (d >= (a * a * v + v * v * j) / (j * a)) return d / v + a / j + v * a + startDelay; // reaches rated speed",
+            "line_text": "  if (d >= (a * a * v + v * v * j) / (j * a)) return d / v + a / j + v / a + startDelay; // reaches rated speed",
+            "caught": true,
+            "seconds": 2.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/elevator-traffic-analysis/engine.mjs",
+            "line": 51,
+            "col": 53,
+            "operator": "const-plus-one",
+            "before": "if (d >= (2 * a ** 3) / (j * j)) return (a / j) * (1 + Math.sqrt(1 + (4 * d * j * j) / a ** 3)) + startDelay; // reaches a, not v",
+            "after": "if (d >= (2 * a ** 3) / (j * j)) return (a / j) * (2 + Math.sqrt(1 + (4 * d * j * j) / a ** 3)) + startDelay; // reaches a, not v",
+            "line_text": "  if (d >= (2 * a ** 3) / (j * j)) return (a / j) * (1 + Math.sqrt(1 + (4 * d * j * j) / a ** 3)) + startDelay; // reaches a, not v",
+            "caught": true,
+            "seconds": 2.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/elevator-traffic-analysis/engine.mjs",
+            "line": 51,
+            "col": 74,
+            "operator": "times-to-div",
+            "before": "if (d >= (2 * a ** 3) / (j * j)) return (a / j) * (1 + Math.sqrt(1 + (4 * d * j * j) / a ** 3)) + startDelay; // reaches a, not v",
+            "after": "if (d >= (2 * a ** 3) / (j * j)) return (a / j) * (1 + Math.sqrt(1 + (4 / d * j * j) / a ** 3)) + startDelay; // reaches a, not v",
+            "line_text": "  if (d >= (2 * a ** 3) / (j * j)) return (a / j) * (1 + Math.sqrt(1 + (4 * d * j * j) / a ** 3)) + startDelay; // reaches a, not v",
+            "caught": true,
+            "seconds": 2.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/elevator-traffic-analysis/engine.mjs",
+            "line": 60,
+            "col": 20,
+            "operator": "lt-to-le",
+            "before": "for (let i = 0; i < whole; i++) d += rises[i];",
+            "after": "for (let i = 0; i <= whole; i++) d += rises[i];",
+            "line_text": "  for (let i = 0; i < whole; i++) d += rises[i];",
+            "caught": true,
+            "seconds": 2.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/elevator-traffic-analysis/engine.mjs",
+            "line": 170,
+            "col": 34,
+            "operator": "ge-to-gt",
+            "before": "reachesSpeedBetweenStops: hop >= (x.acceleration ** 2 * x.speed + x.speed ** 2 * x.jerk) / (x.jerk * x.acceleration),",
+            "after": "reachesSpeedBetweenStops: hop > (x.acceleration ** 2 * x.speed + x.speed ** 2 * x.jerk) / (x.jerk * x.acceleration),",
+            "line_text": "    reachesSpeedBetweenStops: hop >= (x.acceleration ** 2 * x.speed + x.speed ** 2 * x.jerk) / (x.jerk * x.acceleration),",
+            "caught": false,
+            "seconds": 2.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Boundary of reachesSpeedBetweenStops untested; new test hits hop == threshold exactly (one 2 m floor, v=a=j=1). Line later rewritten to call ratedSpeedDistance (rerun ran before that)."
+          },
+          {
+            "file": "ventures/elevator-traffic-analysis/engine.mjs",
+            "line": 188,
+            "col": 171,
+            "operator": "ge-to-gt",
+            "before": "rows.push({ lifts: L, ratedLoad: load, speed, persons: r.persons, rtt: r.rtt, interval: r.interval, pctPop: r.pctPop, meets: r.interval <= maxInterval && r.pctPop >= minPctPop });",
+            "after": "rows.push({ lifts: L, ratedLoad: load, speed, persons: r.persons, rtt: r.rtt, interval: r.interval, pctPop: r.pctPop, meets: r.interval <= maxInterval && r.pctPop > minPctPop });",
+            "line_text": "        rows.push({ lifts: L, ratedLoad: load, speed, persons: r.persons, rtt: r.rtt, interval: r.interval, pctPop: r.pctPop, meets: r.interval <= maxInterval && r.pctPop >= minPctPop });",
+            "caught": false,
+            "seconds": 2.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Target-boundary passes untested; new test sets maxInterval / minPctPop to a design's own value."
+          },
+          {
+            "file": "ventures/elevator-traffic-analysis/engine.mjs",
+            "line": 194,
+            "col": 97,
+            "operator": "le-to-lt",
+            "before": "const frontier = ok.filter((r) => !ok.some((o) => o !== r && o.lifts <= r.lifts && o.ratedLoad <= r.ratedLoad && o.speed <= r.speed && (o.lifts < r.lifts || o.ratedLoad < r.ratedLoad || o.speed < r.speed)));",
+            "after": "const frontier = ok.filter((r) => !ok.some((o) => o !== r && o.lifts <= r.lifts && o.ratedLoad < r.ratedLoad && o.speed <= r.speed && (o.lifts < r.lifts || o.ratedLoad < r.ratedLoad || o.speed < r.speed)));",
+            "line_text": "  const frontier = ok.filter((r) => !ok.some((o) => o !== r && o.lifts <= r.lifts && o.ratedLoad <= r.ratedLoad && o.speed <= r.speed && (o.lifts < r.lifts || o.ratedLoad < r.ratedLoad || o.speed < r.speed)));",
+            "caught": false,
+            "seconds": 2.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Dominance on equal load untested; new test: 3 vs 4 lifts of the same car, only 3 survives."
+          }
+        ]
+      },
+      {
+        "target": "ventures/elevator-traffic-analysis/sim.mjs",
+        "test": "node --test ventures/elevator-traffic-analysis/**/*.test.mjs  (in .)",
+        "seed": 956221280,
+        "commit": "e9a7e5500",
+        "sites": 201,
+        "baseline_seconds": 2.2,
+        "mutants": [
+          {
+            "file": "ventures/elevator-traffic-analysis/sim.mjs",
+            "line": 36,
+            "col": 41,
+            "operator": "const-plus-one",
+            "before": "const U = pops.reduce((s, u) => s + u, 0);",
+            "after": "const U = pops.reduce((s, u) => s + u, 1);",
+            "line_text": "  const U = pops.reduce((s, u) => s + u, 0);",
+            "caught": true,
+            "seconds": 2.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/elevator-traffic-analysis/sim.mjs",
+            "line": 77,
+            "col": 27,
+            "operator": "plus-to-minus",
+            "before": "t += flightTime(at, kin) + door; // express back to the lobby",
+            "after": "t += flightTime(at, kin) - door; // express back to the lobby",
+            "line_text": "  t += flightTime(at, kin) + door; // express back to the lobby",
+            "caught": true,
+            "seconds": 2.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/elevator-traffic-analysis/sim.mjs",
+            "line": 78,
+            "col": 74,
+            "operator": "minus-to-plus",
+            "before": "return { t, stops: stops.length, top: stops.length ? stops[stops.length - 1] + 1 : 0, arrive };",
+            "after": "return { t, stops: stops.length, top: stops.length ? stops[stops.length + 1] + 1 : 0, arrive };",
+            "line_text": "  return { t, stops: stops.length, top: stops.length ? stops[stops.length - 1] + 1 : 0, arrive };",
+            "caught": true,
+            "seconds": 2.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/elevator-traffic-analysis/sim.mjs",
+            "line": 104,
+            "col": 23,
+            "operator": "max-to-min",
+            "before": "const sd = Math.sqrt(Math.max(0, sumT2 / trips - mean * mean));",
+            "after": "const sd = Math.sqrt(Math.min(0, sumT2 / trips - mean * mean));",
+            "line_text": "  const sd = Math.sqrt(Math.max(0, sumT2 / trips - mean * mean));",
+            "caught": false,
+            "seconds": 2.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "sdRtt untested; new test checks sd > 1 s and seMean = sd/sqrt(n)."
+          },
+          {
+            "file": "ventures/elevator-traffic-analysis/sim.mjs",
+            "line": 115,
+            "col": 26,
+            "operator": "minus-to-plus",
+            "before": "gapPct: ((formula.rtt - mean) / mean) * 100,",
+            "after": "gapPct: ((formula.rtt + mean) / mean) * 100,",
+            "line_text": "    gapPct: ((formula.rtt - mean) / mean) * 100,",
+            "caught": true,
+            "seconds": 2.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/elevator-traffic-analysis/sim.mjs",
+            "line": 199,
+            "col": 71,
+            "operator": "div-to-times",
+            "before": "carriedPctPer5min: departures.length > 1 ? ((carried * 300) / span / s.U) * 100 : NaN,",
+            "after": "carriedPctPer5min: departures.length > 1 ? ((carried * 300) / span * s.U) * 100 : NaN,",
+            "line_text": "    carriedPctPer5min: departures.length > 1 ? ((carried * 300) / span / s.U) * 100 : NaN,",
+            "caught": true,
+            "seconds": 2.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/elevator-traffic-analysis/sim.mjs",
+            "line": 207,
+            "col": 34,
+            "operator": "plus-to-minus",
+            "before": "const top = to ?? Math.max(from + 1, upPeak(raw).pctPop * 1.25);",
+            "after": "const top = to ?? Math.max(from - 1, upPeak(raw).pctPop * 1.25);",
+            "line_text": "  const top = to ?? Math.max(from + 1, upPeak(raw).pctPop * 1.25);",
+            "caught": false,
+            "seconds": 2.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Default upper bound untested; new test: from=40 sweeps to 41."
+          },
+          {
+            "file": "ventures/elevator-traffic-analysis/sim.mjs",
+            "line": 210,
+            "col": 40,
+            "operator": "div-to-times",
+            "before": "const d = from + ((top - from) * i) / (steps - 1);",
+            "after": "const d = from + ((top - from) * i) * (steps - 1);",
+            "line_text": "    const d = from + ((top - from) * i) / (steps - 1);",
+            "caught": true,
+            "seconds": 2.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/elevator-traffic-analysis/engine.mjs",
+        "issue": "flightTime and reachesSpeedBetweenStops assumed v >= a^2/j. For a slow lift (0.5 m/s, a=j=1) the car reaches rated speed before full acceleration, so flight time was overstated (0.75 m: 3.00 s vs 2.914 s integrated), jumped at the regime boundary, and the 'reaches rated speed' flag said no for hops between 0.707 and 0.75 m. Fix: cap peak acceleration at sqrt(vj) in one shared ratedSpeedDistance helper. RTT effect about 0.4% on a 4-floor 0.5 m/s building; published bench rows (v >= 1.6) unchanged.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15711"
+      },
+      {
+        "file": "ventures/elevator-traffic-analysis/engine.mjs",
+        "issue": "normalise() on a loaded JSON file with a null or non-object floor threw a raw TypeError ('Cannot read properties of null'), shown verbatim on the page. Fix: refuse with 'floor N must have a rise and a population'.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15711"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6685b3b0-579f-5be7-8ed3-f683057d0f58",
+    "transcripts": 1,
+    "first": "2026-11-14T03:18:32Z",
+    "last": "2026-11-14T03:24:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 74,
+        "output": 20233,
+        "thinking": 4785,
+        "cache_read": 3196043,
+        "cache_write_5m": 0,
+        "cache_write_1h": 85480,
+        "api_equivalent_usd": 1.728,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 74,
+      "output": 20233,
+      "thinking": 4785,
+      "cache_read": 3196043,
+      "cache_write_5m": 0,
+      "cache_write_1h": 85480,
+      "api_equivalent_usd": 1.728,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 35,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.01,
+      "active_minutes": 6.01,
+      "model_minutes": 3.29,
+      "tool_minutes": 2.72,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "senior engineer: read a new kinematics engine, derive the slow-lift case, write 7 tests and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 173.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

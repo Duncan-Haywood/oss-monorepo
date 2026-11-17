@@ -1,0 +1,44 @@
+# Milestone 11c: several hubs and operators. 20000 NYC destinations within 10 km of 11a's hub.
+# Lambda 240/h for the city, v 20 m/s, R 50 m, r_t 250 m, h 60 s. Rates in conflicts per hour.
+# columns: same-hub terminal, same-hub en route, cross-hub terminal, cross-hub en route
+
+## Hub sites (m east, m north of 11a's hub) and flight shares
+A K=1: (0, 0) 1.00; service area 314.2 km2
+A K=2: (-401, -3158) 0.52; (1088, 1474) 0.48; service area 314.2 km2
+A K=4: (-1056, -2524) 0.38; (469, 598) 0.37; (1834, -6068) 0.11; (2519, 3278) 0.14; service area 314.2 km2
+A K=8: (-663, -2564) 0.20; (830, 1131) 0.28; (3444, -4065) 0.05; (2683, 3517) 0.12; (851, -7574) 0.05; (-4175, -1181) 0.01; (-1646, -4181) 0.09; (-573, -679) 0.21; service area 314.2 km2
+B M=2: (-401, -3158) 0.50; (1088, 1474) 0.50; service area 125.3 km2
+B M=4: (-1056, -2524) 0.25; (469, 598) 0.25; (1834, -6068) 0.25; (2519, 3278) 0.25; service area 188.9 km2
+
+## 1. Single layer: simulator vs closed form vs gas
+case    | sim: s_term s_enr  c_term c_enr | cf: s_term s_enr  c_term c_enr | sim/cf tot enr | enr/flight cross share | gas tot (cross) N | sim_enr/gas sim_cross_enr/gas_cross
+A K=1   |  207.29   96.49    0.00    0.00 |  206.55   93.09    0.00    0.00 | 1.014 1.037 |  0.4020  0.000 |   5.53 (  0.00) 19.46 |  17.46    n/a
+          counts {('same', 'term'): 51823, ('same', 'enr'): 24123, ('cross', 'term'): 0, ('cross', 'enr'): 0}
+A K=2   |   96.09   26.96    0.00    0.00 |   96.16   26.43    0.00    0.00 | 1.004 1.020 |  0.1123  0.000 |   2.45 (  0.00) 12.95 |  11.02    n/a
+          counts {('same', 'term'): 24023, ('same', 'enr'): 6739, ('cross', 'term'): 0, ('cross', 'enr'): 0}
+A K=4   |   58.10   12.66    0.00    0.00 |   58.75   12.46    0.00    0.00 | 0.994 1.016 |  0.0527  0.000 |   1.30 (  0.00)  9.42 |   9.77    n/a
+          counts {('same', 'term'): 14526, ('same', 'enr'): 3164, ('cross', 'term'): 0, ('cross', 'enr'): 0}
+A K=8   |   34.30    5.60    0.00    0.00 |   34.07    5.22    0.00    0.00 | 1.016 1.074 |  0.0233  0.000 |   0.71 (  0.00)  6.99 |   7.85    n/a
+          counts {('same', 'term'): 8574, ('same', 'enr'): 1400, ('cross', 'term'): 0, ('cross', 'enr'): 0}
+B M=2   |  115.18   68.76    0.00   25.94 |  116.67   69.02    0.00   24.37 | 0.999 1.014 |  0.3946  0.274 |  10.56 (  5.28) 16.99 |   8.96   4.91
+          counts {('same', 'term'): 28795, ('same', 'enr'): 17190, ('cross', 'term'): 0, ('cross', 'enr'): 6486}
+B M=4   |   62.86   48.06    0.00   22.09 |   62.33   47.45    0.00   20.78 | 1.019 1.028 |  0.2923  0.315 |   8.63 (  6.48) 18.87 |   8.13   3.41
+          counts {('same', 'term'): 15715, ('same', 'enr'): 12016, ('cross', 'term'): 0, ('cross', 'enr'): 5523}
+A: en-route per flight, K=8 / K=1 (sim): 0.058 (closed form 0.056)
+
+## 2. Layer rules: en-route and terminal conflicts per flight, simulator (closed form)
+case    | rule       | enr/flight (cf)       | term/flight (cf)      | cross share of enr | enr vs single
+A K=8   | single     | 0.0233 (0.0217) | 0.1429 (0.1419) |  0.000 | 1.000
+A K=8   | inout      | 0.0000 (0.0000) | 0.0639 (0.0620) |  0.000 | 0.001
+A K=8   | semi       | 0.0003 (0.0004) | 0.0546 (0.0530) |  0.000 | 0.012
+A K=8   | semi_inout | 0.0000 (0.0000) | 0.0312 (0.0311) |  0.000 | 0.000
+B M=2   | single     | 0.3946 (0.3891) | 0.4799 (0.4861) |  0.274 | 1.000
+B M=2   | inout      | 0.0903 (0.0860) | 0.1699 (0.1667) |  1.000 | 0.229
+B M=2   | semi       | 0.0314 (0.0293) | 0.1709 (0.1690) |  0.808 | 0.079
+B M=2   | semi_inout | 0.0135 (0.0138) | 0.0921 (0.0932) |  0.999 | 0.034
+B M=4   | single     | 0.2923 (0.2843) | 0.2619 (0.2597) |  0.315 | 1.000
+B M=4   | inout      | 0.0694 (0.0626) | 0.0854 (0.0833) |  1.000 | 0.237
+B M=4   | semi       | 0.0223 (0.0195) | 0.0781 (0.0781) |  0.975 | 0.076
+B M=4   | semi_inout | 0.0092 (0.0074) | 0.0531 (0.0549) |  1.000 | 0.032
+
+# runtime 42 s

@@ -9,6 +9,19 @@
 // 'sheet-csv-downloads'). Counting them into one key made the number
 // unreadable, and the sheet and linear tools answer different questions
 // about which half of the product people come back for.
+// Reading the `localStorage` global throws SecurityError when the visitor
+// blocks site data (Chrome's "block all cookies", Safari with cookies
+// blocked), and a default parameter is evaluated before any try in the body.
+// So the defaults below, and the page's calls, go through this instead of
+// naming the global: a blocked store reads as "no storage", never a crash.
+export function usageStorage() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export const EVENTS = [
   'runs', 'copies', 'compares', 'csv-downloads',
   'sheet-runs', 'sheet-copies', 'sheet-compares', 'sheet-csv-downloads',

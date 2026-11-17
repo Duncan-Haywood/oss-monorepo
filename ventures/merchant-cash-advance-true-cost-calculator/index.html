@@ -32,7 +32,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
     .pill.info { background: #e3e9ef; color: #1f4a5d; }
@@ -190,7 +190,7 @@
         if (r.alt) extra += `<h3>Versus a bank loan</h3><p>A ${money(r.funded)} loan at ${pct(r.input.altRate)} over ${r.alt.months} months: ${money2(r.alt.monthly)} a month, ${money(r.alt.cost)} total cost. Here: ${money(r.cost)}.</p>`;
       }
       $("#big").innerHTML = big.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
-      $("#report-findings").innerHTML = r.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity === "info" ? "info" : "medium"}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((x) => `<div class="finding"><h3><span class="pill ${x.severity === "info" ? "info" : "medium"}">${x.severity}</span>${esc(x.title)}</h3><p>${esc(x.detail)}</p></div>`).join("");
       $("#extra").innerHTML = extra;
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";

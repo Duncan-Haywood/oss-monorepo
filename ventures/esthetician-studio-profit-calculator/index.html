@@ -42,7 +42,7 @@
 <body>
   <header>
     <p class="note">ESTHETICIAN STUDIO CHAIR PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
-    <h1>What does one esthetician's chair really earn, and should you work it, employ or rent it out?</h1>
+    <h1>What does one esthetician's chair really earn?</h1>
     <p>Enter your facial, waxing and peel prices, chair minutes, supplies, no-show rate, rent and equipment. You get <strong>profit per treatment and per chair hour, the price each service needs for your target margin, break-even treatments per week, what no-shows cost, and what the same chair nets you working it yourself, employing an esthetician on commission, or renting it by the week</strong>.</p>
     <p class="note">Calculated in this browser tab. No account, no upload. The example is made up. Tips are left out on purpose. A planning estimate, not a contract or an estimate of record.</p>
   </header>
@@ -150,7 +150,7 @@
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const keys = ["facialQty", "facialPrice", "facialMin", "facialMat", "waxQty", "waxPrice", "waxMin", "waxMat", "peelQty", "peelPrice", "peelMin", "peelMat", "noShowPct", "chairHoursPerWeek", "ownerRate", "commissionPct", "payrollPct", "boothRentWeek", "rentPerMonth", "equipmentCost", "equipmentYears", "otherFixedMonth", "retailAttachPct", "retailPrice", "retailCost", "targetMarginPct"];
-    const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const usd = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
     let last = null;
 
     function read() {

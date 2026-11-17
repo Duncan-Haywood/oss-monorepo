@@ -1,0 +1,223 @@
+cell-fidelity milestone 5o, development (33 conditions seen by milestones 5b to 5n; 5b to 5l charged k/100 of each DFN@100 run's time, 5m's and 5n's six at their measured segments; r_kt charged 0.043 s per design, the median measured, on every design)
+
+Ai2020@0.25x: n 51; best design 34 on (U, r_kt) layer 7, U percentile 0.14, r_kt +0.42
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.254, kept 51, resumed 8; floor / union time 1.01
+  by floor, gap (time ratio): -0.5 0.0000 (0.254); -0.3 0.0000 (0.254); -0.2 0.0000 (0.254); -0.15 0.0000 (0.252); -0.1 0.0000 (0.252); 0.0 0.0000 (0.248)
+  cut to 3 layers then union: gap 0.0442, wall / all-DFN@100 0.209, kept 33, resumed 8
+  by layers, gap (time ratio, kept): L1 0.0570 (0.162, 9); L2 0.0481 (0.188, 22); L3 0.0442 (0.209, 33); L4 0.0119 (0.219, 37); L5 0.0119 (0.225, 40); L6 0.0119 (0.238, 43)
+  5n union 0.0000 (0.252); 5m ladder 0.0000 (0.216); 5k front L1 DFN@100 0.0570 (0.178), L2 0.0481 (0.420)
+Ai2020@0.275x: n 51; best design 24 on (U, r_kt) layer 4, U percentile 0.27, r_kt +0.65
+  salt floor r_kt >= -0.2 then union: gap 0.0016, wall / all-DFN@100 0.313, kept 50, resumed 8; floor / union time 0.99
+  by floor, gap (time ratio): -0.5 0.0016 (0.316); -0.3 0.0016 (0.316); -0.2 0.0016 (0.313); -0.15 0.0016 (0.306); -0.1 0.0016 (0.306); 0.0 0.0016 (0.303)
+  cut to 3 layers then union: gap 0.0309, wall / all-DFN@100 0.223, kept 27, resumed 8
+  by layers, gap (time ratio, kept): L1 0.0309 (0.153, 12); L2 0.0309 (0.197, 20); L3 0.0309 (0.223, 27); L4 0.0000 (0.250, 34); L5 0.0000 (0.259, 37); L6 0.0000 (0.279, 42)
+  5n union 0.0016 (0.315); 5m ladder 0.0000 (0.294); 5k front L1 DFN@100 0.0309 (0.230), L2 0.0309 (0.381)
+Ai2020@0.35x: n 59; best design 32 on (U, r_kt) layer 5, U percentile 0.22, r_kt +0.53
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.274, kept 54, resumed 8; floor / union time 0.96
+  by floor, gap (time ratio): -0.5 0.0000 (0.287); -0.3 0.0000 (0.276); -0.2 0.0000 (0.274); -0.15 0.0000 (0.274); -0.1 0.0000 (0.274); 0.0 0.0000 (0.268)
+  cut to 3 layers then union: gap 0.0206, wall / all-DFN@100 0.185, kept 29, resumed 7
+  by layers, gap (time ratio, kept): L1 0.0206 (0.137, 13); L2 0.0206 (0.164, 22); L3 0.0206 (0.185, 29); L4 0.0039 (0.208, 37); L5 0.0000 (0.226, 43); L6 0.0000 (0.255, 48)
+  5n union 0.0000 (0.286); 5m ladder 0.0039 (0.265); 5k front L1 DFN@100 0.0206 (0.217), L2 0.0206 (0.364)
+Ai2020@0.375x: n 62; best design 18 on (U, r_kt) layer 4, U percentile 0.27, r_kt +0.67
+  salt floor r_kt >= -0.2 then union: gap 0.0003, wall / all-DFN@100 0.189, kept 58, resumed 6; floor / union time 0.97
+  by floor, gap (time ratio): -0.5 0.0003 (0.192); -0.3 0.0003 (0.191); -0.2 0.0003 (0.189); -0.15 0.0003 (0.186); -0.1 0.0003 (0.186); 0.0 0.0003 (0.183)
+  cut to 3 layers then union: gap 0.0042, wall / all-DFN@100 0.168, kept 29, resumed 8
+  by layers, gap (time ratio, kept): L1 0.0268 (0.108, 11); L2 0.0268 (0.137, 19); L3 0.0042 (0.168, 29); L4 0.0000 (0.163, 35); L5 0.0003 (0.193, 44); L6 0.0003 (0.172, 49)
+  5n union 0.0003 (0.194); 5m ladder 0.0000 (0.194); 5k front L1 DFN@100 0.0268 (0.173), L2 0.0268 (0.301)
+Ai2020@0.3x: n 53; best design 3 on (U, r_kt) layer 4, U percentile 0.08, r_kt +0.69
+  salt floor r_kt >= -0.2 then union: gap 0.0032, wall / all-DFN@100 0.297, kept 51, resumed 8; floor / union time 0.99
+  by floor, gap (time ratio): -0.5 0.0032 (0.303); -0.3 0.0032 (0.300); -0.2 0.0032 (0.297); -0.15 0.0032 (0.294); -0.1 0.0032 (0.294); 0.0 0.0032 (0.290)
+  cut to 3 layers then union: gap 0.0087, wall / all-DFN@100 0.209, kept 26, resumed 8
+  by layers, gap (time ratio, kept): L1 0.0465 (0.137, 8); L2 0.0265 (0.176, 17); L3 0.0087 (0.209, 26); L4 0.0000 (0.224, 30); L5 0.0000 (0.240, 35); L6 0.0000 (0.258, 40)
+  5n union 0.0032 (0.301); 5m ladder 0.0271 (0.286); 5k front L1 DFN@100 0.0465 (0.148), L2 0.0265 (0.309)
+Ai2020@0.4375x: n 64; best design 23 on (U, r_kt) layer 7, U percentile 0.25, r_kt +0.43
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.243, kept 57, resumed 7; floor / union time 0.94
+  by floor, gap (time ratio): -0.5 0.0000 (0.253); -0.3 0.0000 (0.246); -0.2 0.0000 (0.243); -0.15 0.0000 (0.240); -0.1 0.0000 (0.238); 0.0 0.0000 (0.233)
+  cut to 3 layers then union: gap 0.0215, wall / all-DFN@100 0.157, kept 29, resumed 6
+  by layers, gap (time ratio, kept): L1 0.0296 (0.088, 8); L2 0.0296 (0.140, 18); L3 0.0215 (0.157, 29); L4 0.0130 (0.174, 36); L5 0.0130 (0.177, 42); L6 0.0130 (0.189, 47)
+  5n union 0.0000 (0.258); 5m ladder 0.0000 (0.254); 5k front L1 DFN@100 0.0296 (0.122), L2 0.0296 (0.272)
+Ai2020@0.5x: n 64; best design 5 on (U, r_kt) layer 6, U percentile 0.20, r_kt +0.47
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.206, kept 54, resumed 8; floor / union time 0.94
+  by floor, gap (time ratio): -0.5 0.0000 (0.215); -0.3 0.0000 (0.208); -0.2 0.0000 (0.206); -0.15 0.0000 (0.203); -0.1 0.0000 (0.201); 0.0 0.0000 (0.198)
+  cut to 3 layers then union: gap 0.0236, wall / all-DFN@100 0.143, kept 32, resumed 6
+  by layers, gap (time ratio, kept): L1 0.0455 (0.138, 12); L2 0.0217 (0.128, 22); L3 0.0236 (0.143, 32); L4 0.0236 (0.154, 39); L5 0.0236 (0.176, 44); L6 0.0000 (0.182, 48)
+  5n union 0.0000 (0.219); 5m ladder 0.0000 (0.192); 5k front L1 DFN@100 0.0455 (0.189), L2 0.0217 (0.347)
+Ai2020@0.625x: n 64; best design 3 on (U, r_kt) layer 1, U percentile 0.73, r_kt +0.51
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.174, kept 49, resumed 6; floor / union time 0.90
+  by floor, gap (time ratio): -0.5 0.0000 (0.181); -0.3 0.0000 (0.174); -0.2 0.0000 (0.174); -0.15 0.0000 (0.172); -0.1 0.0000 (0.171); 0.0 0.0000 (0.163)
+  cut to 3 layers then union: gap 0.0000, wall / all-DFN@100 0.164, kept 34, resumed 7
+  by layers, gap (time ratio, kept): L1 0.0000 (0.096, 10); L2 0.0000 (0.133, 24); L3 0.0000 (0.164, 34); L4 0.0000 (0.172, 41); L5 0.0000 (0.166, 45); L6 0.0000 (0.175, 50)
+  5n union 0.0000 (0.194); 5m ladder 0.0000 (0.195); 5k front L1 DFN@100 0.0000 (0.160), L2 0.0000 (0.379)
+Ai2020@0.75x: n 64; best design 51 on (U, r_kt) layer 4, U percentile 0.31, r_kt +0.39
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.166, kept 43, resumed 6; floor / union time 0.85
+  by floor, gap (time ratio): -0.5 0.0000 (0.180); -0.3 0.0000 (0.166); -0.2 0.0000 (0.166); -0.15 0.0000 (0.164); -0.1 0.0000 (0.159); 0.0 0.0000 (0.151)
+  cut to 3 layers then union: gap 0.0259, wall / all-DFN@100 0.147, kept 33, resumed 6
+  by layers, gap (time ratio, kept): L1 0.0345 (0.093, 9); L2 0.0259 (0.133, 22); L3 0.0259 (0.147, 33); L4 0.0000 (0.162, 41); L5 0.0000 (0.171, 47); L6 0.0000 (0.181, 53)
+  5n union 0.0000 (0.195); 5m ladder 0.0000 (0.196); 5k front L1 DFN@100 0.0345 (0.149), L2 0.0259 (0.356)
+Ai2020@1x: n 64; best design 45 on (U, r_kt) layer 3, U percentile 0.23, r_kt +0.23
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.154, kept 35, resumed 6; floor / union time 0.79
+  by floor, gap (time ratio): -0.5 0.0000 (0.163); -0.3 0.0000 (0.157); -0.2 0.0000 (0.154); -0.15 0.0000 (0.151); -0.1 0.0000 (0.145); 0.0 0.0000 (0.137)
+  cut to 3 layers then union: gap 0.0000, wall / all-DFN@100 0.144, kept 29, resumed 6
+  by layers, gap (time ratio, kept): L1 0.0586 (0.110, 11); L2 0.0549 (0.125, 19); L3 0.0000 (0.144, 29); L4 0.0000 (0.156, 37); L5 0.0000 (0.163, 42); L6 0.0000 (0.175, 49)
+  5n union 0.0000 (0.195); 5m ladder 0.0000 (0.195); 5k front L1 DFN@100 0.0586 (0.187), L2 0.0549 (0.311)
+Chen2020@0.5x: n 64; best design 3 on (U, r_kt) layer 3, U percentile 0.94, r_kt +0.37
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.203, kept 64, resumed 6; floor / union time 1.03
+  by floor, gap (time ratio): -0.5 0.0000 (0.203); -0.3 0.0000 (0.203); -0.2 0.0000 (0.203); -0.15 0.0000 (0.203); -0.1 0.0000 (0.203); 0.0 0.0000 (0.203)
+  cut to 3 layers then union: gap 0.0000, wall / all-DFN@100 0.168, kept 42, resumed 6
+  by layers, gap (time ratio, kept): L1 0.0413 (0.105, 14); L2 0.0248 (0.131, 28); L3 0.0000 (0.168, 42); L4 0.0000 (0.182, 51); L5 0.0000 (0.192, 57); L6 0.0000 (0.200, 62)
+  5n union 0.0000 (0.197); 5m ladder 0.0000 (0.197); 5k front L1 DFN@100 0.0413 (0.212), L2 0.0248 (0.426)
+Chen2020@1.5x: n 64; best design 31 on (U, r_kt) layer 1, U percentile 0.72, r_kt +0.08
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.152, kept 49, resumed 7; floor / union time 0.59
+  by floor, gap (time ratio): -0.5 0.0000 (0.203); -0.3 0.0000 (0.176); -0.2 0.0000 (0.152); -0.15 0.0000 (0.151); -0.1 0.0000 (0.143); 0.0 0.0000 (0.134)
+  cut to 3 layers then union: gap 0.0000, wall / all-DFN@100 0.230, kept 40, resumed 8
+  by layers, gap (time ratio, kept): L1 0.0000 (0.152, 15); L2 0.0000 (0.212, 30); L3 0.0000 (0.230, 40); L4 0.0000 (0.244, 50); L5 0.0000 (0.256, 57); L6 0.0000 (0.261, 61)
+  5n union 0.0000 (0.259); 5m ladder 0.0000 (0.176); 5k front L1 DFN@100 0.0000 (0.227), L2 0.0000 (0.463)
+Chen2020@1x: n 64; best design 11 on (U, r_kt) layer 1, U percentile 0.95, r_kt +0.09
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.197, kept 64, resumed 6; floor / union time 1.03
+  by floor, gap (time ratio): -0.5 0.0000 (0.197); -0.3 0.0000 (0.197); -0.2 0.0000 (0.197); -0.15 0.0000 (0.197); -0.1 0.0000 (0.182); 0.0 0.0000 (0.174)
+  cut to 3 layers then union: gap 0.0000, wall / all-DFN@100 0.165, kept 44, resumed 6
+  by layers, gap (time ratio, kept): L1 0.0000 (0.110, 13); L2 0.0000 (0.138, 31); L3 0.0000 (0.165, 44); L4 0.0000 (0.182, 54); L5 0.0000 (0.191, 60); L6 0.0000 (0.193, 62)
+  5n union 0.0000 (0.190); 5m ladder 0.0000 (0.195); 5k front L1 DFN@100 0.0000 (0.202), L2 0.0000 (0.483)
+Chen2020@2x: n 64; best design 5 on (U, r_kt) layer 1, U percentile 0.70, r_kt -0.04
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.107, kept 35, resumed 6; floor / union time 0.48
+  by floor, gap (time ratio): -0.5 0.0000 (0.191); -0.3 0.0000 (0.112); -0.2 0.0000 (0.107); -0.15 0.0000 (0.096); -0.1 0.0000 (0.090); 0.0 0.0932 (0.065)
+  cut to 3 layers then union: gap 0.0000, wall / all-DFN@100 0.192, kept 43, resumed 8
+  by layers, gap (time ratio, kept): L1 0.0000 (0.128, 13); L2 0.0000 (0.175, 31); L3 0.0000 (0.192, 43); L4 0.0000 (0.210, 54); L5 0.0000 (0.216, 58); L6 0.0000 (0.223, 62)
+  5n union 0.0000 (0.222); 5m ladder 0.0000 (0.165); 5k front L1 DFN@100 0.0000 (0.213), L2 0.0000 (0.473)
+Ecker2015@0.5x: n 64; best design 48 on (U, r_kt) layer 3, U percentile 0.94, r_kt +0.37
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.201, kept 64, resumed 6; floor / union time 1.01
+  by floor, gap (time ratio): -0.5 0.0000 (0.201); -0.3 0.0000 (0.201); -0.2 0.0000 (0.201); -0.15 0.0000 (0.201); -0.1 0.0000 (0.201); 0.0 0.0000 (0.201)
+  cut to 3 layers then union: gap 0.0000, wall / all-DFN@100 0.162, kept 40, resumed 6
+  by layers, gap (time ratio, kept): L1 0.0235 (0.109, 19); L2 0.0235 (0.144, 31); L3 0.0000 (0.162, 40); L4 0.0000 (0.181, 51); L5 0.0000 (0.193, 59); L6 0.0000 (0.198, 62)
+  5n union 0.0000 (0.199); 5m ladder 0.0000 (0.200); 5k front L1 DFN@100 0.0235 (0.285), L2 0.0235 (0.468)
+Ecker2015@0.75x: n 64; best design 26 on (U, r_kt) layer 2, U percentile 0.97, r_kt +0.20
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.226, kept 64, resumed 5; floor / union time 1.01
+  by floor, gap (time ratio): -0.5 0.0000 (0.226); -0.3 0.0000 (0.226); -0.2 0.0000 (0.226); -0.15 0.0000 (0.226); -0.1 0.0000 (0.226); 0.0 0.0000 (0.226)
+  cut to 3 layers then union: gap 0.0000, wall / all-DFN@100 0.174, kept 37, resumed 6
+  by layers, gap (time ratio, kept): L1 0.0391 (0.092, 15); L2 0.0000 (0.124, 28); L3 0.0000 (0.174, 37); L4 0.0000 (0.186, 47); L5 0.0000 (0.200, 53); L6 0.0000 (0.212, 58)
+  5n union 0.0000 (0.223); 5m ladder 0.0000 (0.244); 5k front L1 DFN@100 0.0391 (0.215), L2 0.0000 (0.416)
+Ecker2015@1.5x: n 64; best design 40 on (U, r_kt) layer 2, U percentile 0.53, r_kt +0.22
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.172, kept 64, resumed 5; floor / union time 1.01
+  by floor, gap (time ratio): -0.5 0.0000 (0.172); -0.3 0.0000 (0.172); -0.2 0.0000 (0.172); -0.15 0.0000 (0.172); -0.1 0.0000 (0.172); 0.0 0.0000 (0.159)
+  cut to 3 layers then union: gap 0.0000, wall / all-DFN@100 0.130, kept 38, resumed 5
+  by layers, gap (time ratio, kept): L1 0.0091 (0.083, 18); L2 0.0000 (0.116, 29); L3 0.0000 (0.130, 38); L4 0.0000 (0.146, 48); L5 0.0000 (0.156, 54); L6 0.0000 (0.162, 58)
+  5n union 0.0000 (0.170); 5m ladder 0.0000 (0.184); 5k front L1 DFN@100 0.0091 (0.270), L2 0.0000 (0.442)
+Ecker2015@1x: n 64; best design 14 on (U, r_kt) layer 3, U percentile 0.83, r_kt +0.23
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.179, kept 64, resumed 5; floor / union time 1.02
+  by floor, gap (time ratio): -0.5 0.0000 (0.179); -0.3 0.0000 (0.179); -0.2 0.0000 (0.179); -0.15 0.0000 (0.179); -0.1 0.0000 (0.179); 0.0 0.0000 (0.176)
+  cut to 3 layers then union: gap 0.0000, wall / all-DFN@100 0.141, kept 40, resumed 5
+  by layers, gap (time ratio, kept): L1 0.0225 (0.098, 15); L2 0.0211 (0.132, 27); L3 0.0000 (0.141, 40); L4 0.0000 (0.154, 49); L5 0.0000 (0.166, 56); L6 0.0000 (0.173, 60)
+  5n union 0.0000 (0.176); 5m ladder 0.0000 (0.192); 5k front L1 DFN@100 0.0225 (0.217), L2 0.0211 (0.411)
+Ecker2015@2x: n 64; best design 7 on (U, r_kt) layer 2, U percentile 0.31, r_kt +0.19
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.160, kept 64, resumed 4; floor / union time 1.01
+  by floor, gap (time ratio): -0.5 0.0000 (0.160); -0.3 0.0000 (0.160); -0.2 0.0000 (0.160); -0.15 0.0000 (0.160); -0.1 0.0000 (0.158); 0.0 0.0000 (0.123)
+  cut to 3 layers then union: gap 0.0000, wall / all-DFN@100 0.133, kept 46, resumed 4
+  by layers, gap (time ratio, kept): L1 0.0058 (0.081, 16); L2 0.0000 (0.113, 33); L3 0.0000 (0.133, 46); L4 0.0000 (0.144, 53); L5 0.0000 (0.154, 60); L6 0.0000 (0.159, 63)
+  5n union 0.0000 (0.158); 5m ladder 0.0000 (0.188); 5k front L1 DFN@100 0.0058 (0.252), L2 0.0000 (0.530)
+Marquis2019@1x: n 64; best design 40 on (U, r_kt) layer 2, U percentile 0.98, r_kt +0.33
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.172, kept 64, resumed 4; floor / union time 1.03
+  by floor, gap (time ratio): -0.5 0.0000 (0.172); -0.3 0.0000 (0.172); -0.2 0.0000 (0.172); -0.15 0.0000 (0.172); -0.1 0.0000 (0.172); 0.0 0.0000 (0.172)
+  cut to 3 layers then union: gap 0.0000, wall / all-DFN@100 0.142, kept 45, resumed 4
+  by layers, gap (time ratio, kept): L1 0.0305 (0.117, 17); L2 0.0000 (0.124, 33); L3 0.0000 (0.142, 45); L4 0.0000 (0.156, 54); L5 0.0000 (0.165, 60); L6 0.0000 (0.167, 61)
+  5n union 0.0000 (0.167); 5m ladder 0.0000 (0.202); 5k front L1 DFN@100 0.0305 (0.276), L2 0.0000 (0.524)
+Marquis2019@2x: n 64; best design 11 on (U, r_kt) layer 1, U percentile 0.73, r_kt +0.32
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.161, kept 61, resumed 4; floor / union time 1.00
+  by floor, gap (time ratio): -0.5 0.0000 (0.166); -0.3 0.0000 (0.164); -0.2 0.0000 (0.161); -0.15 0.0000 (0.159); -0.1 0.0000 (0.159); 0.0 0.0000 (0.148)
+  cut to 3 layers then union: gap 0.0000, wall / all-DFN@100 0.136, kept 45, resumed 4
+  by layers, gap (time ratio, kept): L1 0.0000 (0.093, 17); L2 0.0000 (0.113, 30); L3 0.0000 (0.136, 45); L4 0.0000 (0.149, 53); L5 0.0000 (0.163, 62); L6 0.0000 (0.166, 64)
+  5n union 0.0000 (0.161); 5m ladder 0.0000 (0.194); 5k front L1 DFN@100 0.0000 (0.272), L2 0.0000 (0.473)
+Mohtat2020@1x: n 64; best design 11 on (U, r_kt) layer 1, U percentile 1.00, r_kt +0.58
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.170, kept 64, resumed 4; floor / union time 1.03
+  by floor, gap (time ratio): -0.5 0.0000 (0.170); -0.3 0.0000 (0.170); -0.2 0.0000 (0.170); -0.15 0.0000 (0.170); -0.1 0.0000 (0.170); 0.0 0.0000 (0.170)
+  cut to 3 layers then union: gap 0.0000, wall / all-DFN@100 0.127, kept 38, resumed 4
+  by layers, gap (time ratio, kept): L1 0.0000 (0.094, 17); L2 0.0000 (0.105, 24); L3 0.0000 (0.127, 38); L4 0.0000 (0.159, 48); L5 0.0000 (0.160, 58); L6 0.0000 (0.168, 63)
+  5n union 0.0000 (0.165); 5m ladder 0.0000 (0.199); 5k front L1 DFN@100 0.0000 (0.262), L2 0.0000 (0.368)
+Mohtat2020@2x: n 64; best design 36 on (U, r_kt) layer 1, U percentile 1.00, r_kt +0.04
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.171, kept 64, resumed 4; floor / union time 1.03
+  by floor, gap (time ratio): -0.5 0.0000 (0.171); -0.3 0.0000 (0.171); -0.2 0.0000 (0.171); -0.15 0.0000 (0.171); -0.1 0.0000 (0.171); 0.0 0.0000 (0.171)
+  cut to 3 layers then union: gap 0.0000, wall / all-DFN@100 0.131, kept 40, resumed 4
+  by layers, gap (time ratio, kept): L1 0.0000 (0.098, 18); L2 0.0000 (0.113, 28); L3 0.0000 (0.131, 40); L4 0.0000 (0.149, 50); L5 0.0000 (0.157, 55); L6 0.0000 (0.168, 62)
+  5n union 0.0000 (0.166); 5m ladder 0.0000 (0.197); 5k front L1 DFN@100 0.0000 (0.290), L2 0.0000 (0.440)
+Mohtat2020@3x: n 64; best design 12 on (U, r_kt) layer 7, U percentile 0.59, r_kt +0.12
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.159, kept 61, resumed 4; floor / union time 0.99
+  by floor, gap (time ratio): -0.5 0.0000 (0.166); -0.3 0.0000 (0.161); -0.2 0.0000 (0.159); -0.15 0.0000 (0.159); -0.1 0.0000 (0.157); 0.0 0.0000 (0.152)
+  cut to 3 layers then union: gap 0.0471, wall / all-DFN@100 0.115, kept 34, resumed 4
+  by layers, gap (time ratio, kept): L1 0.0471 (0.086, 14); L2 0.0471 (0.104, 26); L3 0.0471 (0.115, 34); L4 0.0471 (0.129, 43); L5 0.0033 (0.145, 50); L6 0.0033 (0.154, 56)
+  5n union 0.0000 (0.161); 5m ladder 0.0000 (0.193); 5k front L1 DFN@100 0.0471 (0.224), L2 0.0471 (0.409)
+NCA_Kim2011@0.5x: n 64; best design 29 on (U, r_kt) layer 3, U percentile 0.22, r_kt +0.34
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.203, kept 58, resumed 8; floor / union time 0.91
+  by floor, gap (time ratio): -0.5 0.0000 (0.213); -0.3 0.0000 (0.205); -0.2 0.0000 (0.203); -0.15 0.0000 (0.198); -0.1 0.0000 (0.192); 0.0 0.0000 (0.179)
+  cut to 3 layers then union: gap 0.0000, wall / all-DFN@100 0.190, kept 41, resumed 8
+  by layers, gap (time ratio, kept): L1 0.0327 (0.133, 17); L2 0.0109 (0.153, 30); L3 0.0000 (0.190, 41); L4 0.0000 (0.209, 52); L5 0.0000 (0.217, 56); L6 0.0000 (0.223, 61)
+  5n union 0.0000 (0.223); 5m ladder 0.0000 (0.184); 5k front L1 DFN@100 0.0324 (0.265), L2 0.0109 (0.462)
+NCA_Kim2011@0.75x: n 64; best design 45 on (U, r_kt) layer 2, U percentile 0.48, r_kt +0.08
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.154, kept 36, resumed 8; floor / union time 0.69
+  by floor, gap (time ratio): -0.5 0.0000 (0.198); -0.3 0.0000 (0.167); -0.2 0.0000 (0.154); -0.15 0.0000 (0.154); -0.1 0.0000 (0.129); 0.0 0.0000 (0.110)
+  cut to 3 layers then union: gap 0.0000, wall / all-DFN@100 0.186, kept 41, resumed 8
+  by layers, gap (time ratio, kept): L1 0.0113 (0.142, 18); L2 0.0000 (0.163, 31); L3 0.0000 (0.186, 41); L4 0.0000 (0.200, 48); L5 0.0000 (0.214, 56); L6 0.0000 (0.225, 62)
+  5n union 0.0000 (0.225); 5m ladder 0.0000 (0.173); 5k front L1 DFN@100 0.0113 (0.269), L2 0.0000 (0.460)
+NCA_Kim2011@1.25x: n 64; best design 23 on (U, r_kt) layer 1, U percentile 0.22, r_kt -0.06
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.099, kept 11, resumed 8; floor / union time 0.41
+  by floor, gap (time ratio): -0.5 0.0000 (0.148); -0.3 0.0000 (0.121); -0.2 0.0000 (0.099); -0.15 0.0000 (0.069); -0.1 0.0000 (0.057); 0.0 0.0233 (0.032)
+  cut to 3 layers then union: gap 0.0000, wall / all-DFN@100 0.189, kept 43, resumed 8
+  by layers, gap (time ratio, kept): L1 0.0000 (0.124, 15); L2 0.0000 (0.152, 27); L3 0.0000 (0.189, 43); L4 0.0000 (0.211, 52); L5 0.0000 (0.230, 59); L6 0.0000 (0.237, 62)
+  5n union 0.0000 (0.239); 5m ladder 0.0000 (0.207); 5k front L1 DFN@100 0.0000 (0.207), L2 0.0000 (0.393)
+NCA_Kim2011@1x: n 64; best design 34 on (U, r_kt) layer 2, U percentile 0.17, r_kt +0.13
+  salt floor r_kt >= -0.2 then union: gap 0.0023, wall / all-DFN@100 0.112, kept 20, resumed 8; floor / union time 0.54
+  by floor, gap (time ratio): -0.5 0.0023 (0.169); -0.3 0.0023 (0.128); -0.2 0.0023 (0.112); -0.15 0.0023 (0.109); -0.1 0.0023 (0.105); 0.0 0.0023 (0.087)
+  cut to 3 layers then union: gap 0.0000, wall / all-DFN@100 0.167, kept 38, resumed 8
+  by layers, gap (time ratio, kept): L1 0.0023 (0.133, 16); L2 0.0000 (0.149, 26); L3 0.0000 (0.167, 38); L4 0.0023 (0.187, 50); L5 0.0023 (0.195, 55); L6 0.0023 (0.201, 58)
+  5n union 0.0023 (0.207); 5m ladder 0.0023 (0.166); 5k front L1 DFN@100 0.0023 (0.238), L2 0.0000 (0.395)
+OKane2022@1.25x: n 64; best design 52 on (U, r_kt) layer 1, U percentile 0.92, r_kt +0.03
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.204, kept 59, resumed 7; floor / union time 0.96
+  by floor, gap (time ratio): -0.5 0.0000 (0.214); -0.3 0.0000 (0.206); -0.2 0.0000 (0.204); -0.15 0.0000 (0.187); -0.1 0.0000 (0.167); 0.0 0.0000 (0.155)
+  cut to 3 layers then union: gap 0.0000, wall / all-DFN@100 0.179, kept 40, resumed 7
+  by layers, gap (time ratio, kept): L1 0.0000 (0.117, 15); L2 0.0000 (0.162, 30); L3 0.0000 (0.179, 40); L4 0.0000 (0.195, 51); L5 0.0000 (0.206, 58); L6 0.0000 (0.212, 62)
+  5n union 0.0000 (0.213); 5m ladder 0.0000 (0.199); 5k front L1 DFN@100 0.0000 (0.237), L2 0.0000 (0.475)
+OKane2022@1.5x: n 64; best design 47 on (U, r_kt) layer 1, U percentile 0.84, r_kt -0.06
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.159, kept 49, resumed 6; floor / union time 0.67
+  by floor, gap (time ratio): -0.5 0.0000 (0.201); -0.3 0.0000 (0.173); -0.2 0.0000 (0.159); -0.15 0.0000 (0.154); -0.1 0.0000 (0.150); 0.0 0.0372 (0.161)
+  cut to 3 layers then union: gap 0.0000, wall / all-DFN@100 0.206, kept 42, resumed 8
+  by layers, gap (time ratio, kept): L1 0.0000 (0.132, 16); L2 0.0000 (0.165, 29); L3 0.0000 (0.206, 42); L4 0.0000 (0.219, 50); L5 0.0000 (0.232, 59); L6 0.0000 (0.237, 63)
+  5n union 0.0000 (0.237); 5m ladder 0.0000 (0.189); 5k front L1 DFN@100 0.0000 (0.249), L2 0.0000 (0.463)
+OKane2022@1.75x: n 64; best design 24 on (U, r_kt) layer 2, U percentile 0.73, r_kt -0.08
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.131, kept 39, resumed 5; floor / union time 0.55
+  by floor, gap (time ratio): -0.5 0.0000 (0.215); -0.3 0.0000 (0.176); -0.2 0.0000 (0.131); -0.15 0.0000 (0.130); -0.1 0.0000 (0.135); 0.0 0.0571 (0.114)
+  cut to 3 layers then union: gap 0.0000, wall / all-DFN@100 0.204, kept 41, resumed 8
+  by layers, gap (time ratio, kept): L1 0.0016 (0.139, 14); L2 0.0000 (0.186, 31); L3 0.0000 (0.204, 41); L4 0.0000 (0.214, 48); L5 0.0000 (0.224, 54); L6 0.0000 (0.228, 57)
+  5n union 0.0000 (0.237); 5m ladder 0.0000 (0.195); 5k front L1 DFN@100 0.0016 (0.226), L2 0.0000 (0.497)
+OKane2022@1x: n 128; best design 12 on (U, r_kt) layer 2, U percentile 0.92, r_kt +0.07
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.159, kept 126, resumed 7; floor / union time 0.99
+  by floor, gap (time ratio): -0.5 0.0000 (0.162); -0.3 0.0000 (0.159); -0.2 0.0000 (0.159); -0.15 0.0000 (0.158); -0.1 0.0000 (0.146); 0.0 0.0000 (0.139)
+  cut to 3 layers then union: gap 0.0000, wall / all-DFN@100 0.109, kept 58, resumed 7
+  by layers, gap (time ratio, kept): L1 0.0101 (0.062, 17); L2 0.0000 (0.094, 39); L3 0.0000 (0.109, 58); L4 0.0000 (0.122, 75); L5 0.0000 (0.134, 90); L6 0.0000 (0.144, 103)
+  5n union 0.0000 (0.160); 5m ladder 0.0000 (0.150); 5k front L1 DFN@100 0.0101 (0.131), L2 0.0000 (0.318)
+OKane2022@2x: n 64; best design 5 on (U, r_kt) layer 1, U percentile 0.72, r_kt -0.04
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.150, kept 35, resumed 7; floor / union time 0.65
+  by floor, gap (time ratio): -0.5 0.0000 (0.200); -0.3 0.0000 (0.155); -0.2 0.0000 (0.150); -0.15 0.0000 (0.125); -0.1 0.0000 (0.118); 0.0 0.1072 (0.086)
+  cut to 3 layers then union: gap 0.0000, wall / all-DFN@100 0.204, kept 46, resumed 8
+  by layers, gap (time ratio, kept): L1 0.0000 (0.113, 14); L2 0.0000 (0.180, 32); L3 0.0000 (0.204, 46); L4 0.0000 (0.219, 55); L5 0.0000 (0.225, 59); L6 0.0000 (0.229, 62)
+  5n union 0.0000 (0.230); 5m ladder 0.0000 (0.186); 5k front L1 DFN@100 0.0000 (0.216), L2 0.0000 (0.498)
+
+Pooled over conditions (median, max, exact):
+  floor_gap: 0.0000, 0.0032, 29 of 33
+  floor_t_ratio: 0.1718, 0.3131, 0 of 33
+  floor_over_union_t: 0.9749, 1.0342, 0 of 33
+  gap: 0.0000, 0.0471, 24 of 33
+  t_ratio: 0.1667, 0.2298, 0 of 33
+  union_gap: 0.0000, 0.0032, 29 of 33
+  union_t_ratio: 0.2070, 0.3150, 0 of 33
+  ladder_gap: 0.0000, 0.0271, 30 of 33
+  ladder_t_ratio: 0.1950, 0.2942, 0 of 33
+  L1_gap: 0.0113, 0.0586, 11 of 33
+  L1_t_ratio: 0.1100, 0.1618, 0 of 33
+  L2_gap: 0.0000, 0.0549, 19 of 33
+  L2_t_ratio: 0.1381, 0.2120, 0 of 33
+  L3_gap: 0.0000, 0.0471, 24 of 33
+  L3_t_ratio: 0.1667, 0.2298, 0 of 33
+  L4_gap: 0.0000, 0.0471, 27 of 33
+  L4_t_ratio: 0.1823, 0.2498, 0 of 33
+  L5_gap: 0.0000, 0.0236, 27 of 33
+  L5_t_ratio: 0.1926, 0.2590, 0 of 33
+  L6_gap: 0.0000, 0.0130, 28 of 33
+  L6_t_ratio: 0.1981, 0.2788, 0 of 33

@@ -1,0 +1,51 @@
+cafe default: ALL 253 pairs of 23 person-days, 213 pairs open hours, 2218 h added in all, 19 s
+cafe default: single risk 164 h; 3 pairs of safe days played, 2 flagged (2 capped), 2 really open (10 h), flagged and open 2, missed 0, flagged hours 16, 19 s
+cafe priced 25: ALL 253 pairs of 23 person-days, 205 pairs open hours, 2023 h added in all, 18 s
+cafe priced 25: single risk 108 h; 45 pairs of safe days played, 45 flagged (22 capped), 26 really open (163 h), flagged and open 26, missed 0, flagged hours 360, 24 s
+cafe priced 25 pair 1: ALL 253 pairs of 23 person-days, 205 pairs open hours, 2023 h added in all, 17 s
+cafe priced 25 pair 1: single risk 108 h; 45 pairs of safe days played, 45 flagged (22 capped), 26 really open (163 h), flagged and open 26, missed 0, flagged hours 360, 21 s
+cafe priced 25 pair 5: ALL 253 pairs of 23 person-days, 201 pairs open hours, 2023 h added in all, 17 s
+cafe priced 25 pair 5: single risk 148 h; 10 pairs of safe days played, 8 flagged (4 capped), 4 really open (23 h), flagged and open 4, missed 0, flagged hours 64, 19 s
+cafe priced 25 pair 25: ALL 253 pairs of 23 person-days, 213 pairs open hours, 2218 h added in all, 19 s
+cafe priced 25 pair 25: single risk 164 h; 3 pairs of safe days played, 2 flagged (2 capped), 2 really open (10 h), flagged and open 2, missed 0, flagged hours 16, 19 s
+spare default: ALL 351 pairs of 27 person-days, 325 pairs open hours, 1775 h added in all, 36 s
+spare default: single risk 192 h; 0 pairs of safe days played, 0 flagged (0 capped), 0 really open (0 h), flagged and open 0, missed 0, flagged hours 0, 36 s
+spare priced 25: ALL 351 pairs of 27 person-days, 304 pairs open hours, 1751 h added in all, 31 s
+spare priced 25: single risk 167 h; 15 pairs of safe days played, 12 flagged (8 capped), 11 really open (36 h), flagged and open 9, missed 2, flagged hours 51, 33 s
+spare priced 25 pair 1: ALL 351 pairs of 27 person-days, 302 pairs open hours, 1367 h added in all, 29 s
+spare priced 25 pair 1: single risk 103 h; 91 pairs of safe days played, 58 flagged (42 capped), 55 really open (165 h), flagged and open 55, missed 0, flagged hours 404, 37 s
+spare priced 25 pair 5: ALL 351 pairs of 27 person-days, 311 pairs open hours, 1721 h added in all, 31 s
+spare priced 25 pair 5: single risk 167 h; 15 pairs of safe days played, 11 flagged (8 capped), 11 really open (36 h), flagged and open 9, missed 2, flagged hours 48, 32 s
+spare priced 25 pair 25: ALL 351 pairs of 27 person-days, 325 pairs open hours, 1775 h added in all, 31 s
+spare priced 25 pair 25: single risk 192 h; 0 pairs of safe days played, 0 flagged (0 capped), 0 really open (0 h), flagged and open 0, missed 0, flagged hours 0, 31 s
+salon default: ALL 120 pairs of 16 person-days, 109 pairs open hours, 872 h added in all, 7 s
+salon default: single risk 56 h; 15 pairs of safe days played, 6 flagged (0 capped), 4 really open (32 h), flagged and open 4, missed 0, flagged hours 48, 7 s
+salon priced 25: ALL 120 pairs of 16 person-days, 109 pairs open hours, 872 h added in all, 6 s
+salon priced 25: single risk 56 h; 15 pairs of safe days played, 6 flagged (0 capped), 4 really open (32 h), flagged and open 4, missed 0, flagged hours 48, 6 s
+salon priced 25 pair 1: ALL 120 pairs of 16 person-days, 109 pairs open hours, 872 h added in all, 6 s
+salon priced 25 pair 1: single risk 56 h; 15 pairs of safe days played, 6 flagged (0 capped), 4 really open (32 h), flagged and open 4, missed 0, flagged hours 48, 7 s
+salon priced 25 pair 5: ALL 120 pairs of 16 person-days, 109 pairs open hours, 872 h added in all, 6 s
+salon priced 25 pair 5: single risk 56 h; 15 pairs of safe days played, 6 flagged (0 capped), 4 really open (32 h), flagged and open 4, missed 0, flagged hours 48, 6 s
+salon priced 25 pair 25: ALL 120 pairs of 16 person-days, 109 pairs open hours, 872 h added in all, 6 s
+salon priced 25 pair 25: single risk 56 h; 15 pairs of safe days played, 6 flagged (0 capped), 4 really open (32 h), flagged and open 4, missed 0, flagged hours 48, 7 s
+retail default: ALL 136 pairs of 17 person-days, 51 pairs open hours, 342 h added in all, 4 s
+retail default: single risk 36 h; 78 pairs of safe days played, 30 flagged (6 capped), 12 really open (72 h), flagged and open 12, missed 0, flagged hours 180, 5 s
+retail priced 25: ALL 136 pairs of 17 person-days, 35 pairs open hours, 210 h added in all, 3 s
+retail priced 25: single risk 0 h; 136 pairs of safe days played, 55 flagged (5 capped), 35 really open (210 h), flagged and open 27, missed 8, flagged hours 360, 7 s
+retail priced 25 pair 1: ALL 136 pairs of 17 person-days, 35 pairs open hours, 210 h added in all, 3 s
+retail priced 25 pair 1: single risk 0 h; 136 pairs of safe days played, 55 flagged (5 capped), 35 really open (210 h), flagged and open 27, missed 8, flagged hours 360, 7 s
+retail priced 25 pair 5: ALL 136 pairs of 17 person-days, 30 pairs open hours, 195 h added in all, 3 s
+retail priced 25 pair 5: single risk 0 h; 136 pairs of safe days played, 51 flagged (2 capped), 30 really open (195 h), flagged and open 20, missed 10, flagged hours 324, 6 s
+retail priced 25 pair 25: ALL 136 pairs of 17 person-days, 65 pairs open hours, 450 h added in all, 5 s
+retail priced 25 pair 25: single risk 45 h; 66 pairs of safe days played, 27 flagged (6 capped), 12 really open (72 h), flagged and open 12, missed 0, flagged hours 162, 6 s
+clinic default: ALL 66 pairs of 12 person-days, 63 pairs open hours, 394 h added in all, 2 s
+clinic default: single risk 38 h; 15 pairs of safe days played, 15 flagged (0 capped), 12 really open (60 h), flagged and open 12, missed 0, flagged hours 79, 3 s
+clinic priced 25: ALL 66 pairs of 12 person-days, 63 pairs open hours, 394 h added in all, 2 s
+clinic priced 25: single risk 38 h; 15 pairs of safe days played, 15 flagged (0 capped), 12 really open (60 h), flagged and open 12, missed 0, flagged hours 79, 3 s
+clinic priced 25 pair 1: ALL 66 pairs of 12 person-days, 63 pairs open hours, 394 h added in all, 2 s
+clinic priced 25 pair 1: single risk 38 h; 15 pairs of safe days played, 15 flagged (0 capped), 12 really open (60 h), flagged and open 12, missed 0, flagged hours 79, 3 s
+clinic priced 25 pair 5: ALL 66 pairs of 12 person-days, 63 pairs open hours, 394 h added in all, 2 s
+clinic priced 25 pair 5: single risk 38 h; 15 pairs of safe days played, 15 flagged (0 capped), 12 really open (60 h), flagged and open 12, missed 0, flagged hours 79, 3 s
+clinic priced 25 pair 25: ALL 66 pairs of 12 person-days, 63 pairs open hours, 394 h added in all, 2 s
+clinic priced 25 pair 25: single risk 38 h; 15 pairs of safe days played, 15 flagged (0 capped), 12 really open (60 h), flagged and open 12, missed 0, flagged hours 79, 3 s
+ALL: 929 pairs, 506 flagged, 341 really open, precision 61.5%, recall 91.2%, missed 30

@@ -1,0 +1,8 @@
+PASS first check records the history as the baseline: First check: 1 change already in the history, recorded as the baseline, not alerted (d60).
+PASS after a reload, the second step is one new change: New change: |   orders changed from d140: level up from 13 to 16.9 (2.22 noise sd), Bayesian probability 100%; 30 points since (dated well back: it took more data to show).
+PASS checking again with no new rows reports nothing new
+PASS an unreachable link explains itself: Could not read the link (Failed to fetch). Many sites do not let a web page read their fil
+PASS after Forget, the rows read from the link are a fresh baseline: Watch: https://sheet.example.test/metric.csv (orders, 170 points) | First check: 2 changes already in the history, recorded as the baseline, not alerted (d60, d140).
+PASS the link's rows fill the data box
+PASS no page errors
+PASS watch_check counted locally: {"watch_check":4}

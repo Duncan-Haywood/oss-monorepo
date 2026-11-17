@@ -19,6 +19,21 @@ BASE = "https://example.test/site/"
 LD = re.compile(r'<script type="application/ld\+json">(.*?)</script>', re.S)
 
 
+_BARE = []
+
+
+def bare_build():
+    """One build with no base URL or site chrome, shared by the classes that only read it
+    (2026-11-16: two classes each built the same site, a fifth of this module's time)."""
+    if not _BARE:
+        tmp = tempfile.TemporaryDirectory()
+        unittest.addModuleCleanup(tmp.cleanup)
+        out = Path(tmp.name) / "research"
+        subprocess.run([sys.executable, str(BUILD), "--out", str(out)], check=True, capture_output=True, text=True)
+        _BARE.append(out)
+    return _BARE[0]
+
+
 def graph(html):
     nodes = []
     for block in LD.findall(html):
@@ -67,6 +82,24 @@ class ResearchPublishTest(unittest.TestCase):
         index = [n for n in graph((self.out / "index.html").read_text()) if n.get("@type") == "CollectionPage"][0]
         self.assertEqual(index["mainEntity"]["numberOfItems"], len(topics))
 
+    def test_dependency_tile_is_measured_not_typed(self):
+        # The tile said "0 runtime dependencies" while 462 of 1,080 projects imported numpy,
+        # matplotlib, scipy or others (2026-11-14). It must now be a count the build measured.
+        html = (self.out / "index.html").read_text()
+        m = re.search(r'<div class="stat"><b>([\d,]+)</b><span>need only the Python standard library</span>', html)
+        self.assertIsNotNone(m)
+        stdlib = int(m.group(1).replace(",", ""))
+        self.assertGreater(stdlib, 0)
+        self.assertLess(stdlib, len(self.projects))
+        self.assertNotIn("runtime dependencies", html)
+        sys.path.insert(0, str(BUILD.parent))
+        try:
+            import build
+        finally:
+            sys.path.pop(0)
+        self.assertIn("numpy", build.third_party_imports("cell-fidelity"))
+        self.assertNotIn("linefig", build.third_party_imports("workcell-twin"))
+
     def test_no_page_requests_fonts_from_a_third_party(self):
         for page in self.out.rglob("index.html"):
             self.assertNotIn("fonts.googleapis.com", page.read_text(), page)
@@ -86,6 +119,199 @@ class ResearchPublishTest(unittest.TestCase):
         self.assertNotIn('class="abstract"', html)
         # Generous: 825 projects came to about 1.1 MB once the abstracts left.
         self.assertLess(len(html), 2_000 * len(self.projects))
+
+
+class ResearchSiteChromeTest(unittest.TestCase):
+    """With the parent site's header (as platform/pages/build.mjs publishes it), a topic or project
+    page carries that header and its trail only: the page's own "← All projects | GitHub" bar used
+    to sit under it, 56 px repeating the trail's Research link (polish, 2026-11-15)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = tempfile.TemporaryDirectory()
+        tmp = Path(cls.tmp.name)
+        chrome = tmp / "chrome.json"
+        chrome.write_text(json.dumps({
+            "header": '<header class="pfs-test">site</header>',
+            "topic_header": '<header class="pfs-test">site › {{TOPIC}}</header>',
+            "project_header": '<header class="pfs-test">site › {{TOPIC}} › {{TITLE}}</header>',
+            "footer": "<p>links</p>", "style_file": "pf-site.css"}))
+        cls.out = tmp / "research"
+        subprocess.run([sys.executable, str(BUILD), "--out", str(cls.out), "--base-url", BASE,
+                        "--site-chrome", str(chrome)], check=True, capture_output=True, text=True)
+        cls.bare = bare_build()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+
+    def pages(self, root):
+        topics = [t / "index.html" for t in (root / "topics").iterdir()]
+        projects = [p / "index.html" for p in root.iterdir()
+                    if (p / "index.html").is_file() and p.name not in ("topics", "fonts")]
+        return topics, projects
+
+    def test_site_header_replaces_the_page_bar(self):
+        topics, projects = self.pages(self.out)
+        self.assertGreater(len(projects), 100)
+        for f in [self.out / "index.html", *topics, *projects]:
+            html = f.read_text()
+            self.assertEqual(html.count('<header class="pfs-test">'), 1, f)
+            self.assertNotIn('<header class="topbar">', html, f)
+
+    def test_standalone_project_bar_names_where_it_goes(self):
+        topics, projects = self.pages(self.bare)
+        for f in projects:
+            bar = re.search(r'<header class="topbar">(.*?)</header>', f.read_text(), re.S).group(1)
+            self.assertIn("← All research", bar, f)
+            self.assertIn(f"/tree/main/research/{f.parent.name}\"", bar, f)
+
+
+class ResearchIndexLengthTest(unittest.TestCase):
+    """The index stays a page a phone can scroll: logs and theme previews are capped,
+    and nothing they cap loses its link (2026-11-12: 44,050 px at 390 px wide)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.out = bare_build()
+
+    def test_logs_newest_cards_then_every_log_listed(self):
+        index = (self.out / "index.html").read_text()
+        logs = index[index.index('id="logs"'):index.index('id="projects"')]
+        cards = re.findall(r'<a class="feat [^"]*" href="([\w-]+)/#log">.*?<p>Latest: (\d{4}-\d{2}-\d{2})?', logs, re.S)
+        self.assertLessEqual(len(cards), 6)
+        dates = [d for _, d in cards if d]
+        self.assertEqual(dates, sorted(dates, reverse=True), "cards are the newest logs, newest first")
+        linked = set(re.findall(r'href="([\w-]+)/#log"', logs))
+        # A log is a LOG.md with at least one `## <date> · <title>` entry (build.read_log).
+        with_log = {p.name for p in (ROOT / "research").iterdir()
+                    if (p / "LOG.md").is_file() and (self.out / p.name).is_dir()
+                    and any(l.startswith("## ") for l in (p / "LOG.md").read_text().splitlines())}
+        self.assertEqual(linked, with_log, "every project with a LOG.md is linked from the index")
+        if len(with_log) > 6:
+            self.assertIn('<details class="log-more">', logs)
+
+    def test_phone_preview_is_undone_by_show_all(self):
+        index = (self.out / "index.html").read_text()
+        self.assertIn("main:not(.all) .theme .grid>.card:nth-child(n+2){display:none}", index)
+        self.assertIn("classList.add('all')", index)
+
+
+    def test_topic_pages_show_every_project_compactly(self):
+        """2026-11-12: research/topics/twins/ was 68,158 px at 390 px (164 cards, every lede in
+        full). Each card keeps its question, link and full result text in the page once; the
+        result is clamped until "Result and abstract" opens; the filter needs script to show."""
+        page = (self.out / "topics" / "twins" / "index.html").read_text()
+        cards = re.findall(r'<article class="proj" id="([\w-]+)">(.*?)</article>', page, re.S)
+        self.assertGreater(len(cards), 50)
+        for slug, body in cards:
+            self.assertIn(f'href="../../{slug}/"', body)
+            self.assertEqual(body.count('<p class="res">'), 1, slug)
+            self.assertIn("<details><summary>Result and abstract</summary>", body)
+        self.assertIn("-webkit-line-clamp:2", page)
+        self.assertIn(".proj:has(details[open]) .res{display:block", page)
+        self.assertIn('<form class="find" role="search" hidden', page)
+        self.assertIn(".find[hidden]{display:none}", page)
+
+    def test_empty_topic_filter_hands_its_words_to_the_index_search(self):
+        """A filter that matches nothing in its topic links to the index search with the same words,
+        and the index fills its search box from ?q= (the 2026-11-12 topic-pages report, item 3)."""
+        page = (self.out / "topics" / "twins" / "index.html").read_text()
+        self.assertIn('<p class="none" hidden>', page)
+        self.assertIn("'../../index.html' + (raw ? '?q=' + encodeURIComponent(raw) : '')", page)
+        index = (self.out / "index.html").read_text()
+        self.assertIn("new URLSearchParams(location.search).get('q')", index)
+
+
+    def test_no_page_shows_an_escaped_entity_or_raw_emphasis(self):
+        # Authors type &minus; and *word* in LOG.md and README ledes; the page must show
+        # "−" and italics, not "&minus;" or literal asterisks (1,075 did before 2026-11-14).
+        bad = re.compile(r"&amp;(#\d+|#x[0-9a-fA-F]+|[a-zA-Z][a-zA-Z0-9]*);")
+        hits = [f"{p.relative_to(self.out)}: {m.group(0)}" for p in sorted(self.out.rglob("*.html"))
+                for m in bad.finditer(p.read_text())]
+        self.assertEqual(hits[:5], [], f"{len(hits)} double-escaped entities")
+        page = (self.out / "abstention-scoring" / "index.html").read_text()
+        self.assertNotIn("Eliciting drift *variance*", page)
+
+
+class InlineMarkdownTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("research_homepage_build", BUILD)
+        cls.b = importlib.util.module_from_spec(spec)
+        sys.path.insert(0, str(BUILD.parent))
+        try:
+            spec.loader.exec_module(cls.b)
+        finally:
+            sys.path.remove(str(BUILD.parent))
+
+    def test_entities_survive_and_markup_is_escaped(self):
+        self.assertEqual(self.b.md_spans("r &lt; &minus;0.2 &#8722; <b>"), "r &lt; &minus;0.2 &#8722; &lt;b&gt;")
+        self.assertEqual(self.b.md_spans("AT&T & co"), "AT&amp;T &amp; co")
+
+    def test_emphasis_only_around_words(self):
+        self.assertEqual(self.b.md_spans("drift *variance* here"), "drift <em>variance</em> here")
+        self.assertEqual(self.b.md_spans("(η*=0.25) and 10*32*3"), "(η*=0.25) and 10*32*3")
+        self.assertEqual(self.b.md_spans("a *b and c* d"), "a <em>b and c</em> d")
+        self.assertEqual(self.b.md_spans("at **&mu;* = 0.855** (x)"), "at <strong>&mu;* = 0.855</strong> (x)")
+
+    def test_code_spans_keep_asterisks_and_links_are_opt_in(self):
+        self.assertEqual(self.b.md_spans("`a*b*c` *x*"), "<code>a*b*c</code> <em>x</em>")
+        self.assertEqual(self.b.md_spans("[t](https://e.x)"), "[t](https://e.x)")
+        self.assertEqual(self.b.inline_md("[t](https://e.x)"), '<a href="https://e.x">t</a>')
+
+
+class TitleIndexTest(unittest.TestCase):
+    """title_index (2026-11-16) replaced a scan of every other project per page; the
+    answers must match that scan on the real registry and on made-up clashes."""
+
+    @classmethod
+    def setUpClass(cls):
+        InlineMarkdownTest.setUpClass.__func__(cls)
+
+    def check(self, themes, without_index=False):
+        b = self.b
+        # The old answer: compare with every other project (each clipped title computed once here).
+        every = [(q["slug"], q["title"], b.title_tag(b.plain(q["title"]))) for t in themes for q in t["projects"]]
+        index = b.title_index(themes)
+        for t in themes:
+            for p in t["projects"]:
+                clip = b.title_tag(b.plain(p["title"]))
+                old = (any(s != p["slug"] and title == p["title"] for s, title, _ in every),
+                       any(s != p["slug"] and c == clip for s, _, c in every))
+                got = (b.shared_title(p, themes, index), b.clipped_title_taken(p, themes, index))
+                self.assertEqual(got, old, p["slug"])
+                if without_index:
+                    self.assertEqual((b.shared_title(p, themes), b.clipped_title_taken(p, themes)), old)
+
+    def test_matches_the_pairwise_scan_on_the_registry(self):
+        sys.path.insert(0, str(BUILD.parent))
+        try:
+            import registry
+            themes = registry.load(ROOT / "research")["themes"]
+        finally:
+            sys.path.remove(str(BUILD.parent))
+        self.check(themes)
+
+    def test_matches_the_pairwise_scan_on_clashes(self):
+        long = "Does a very long question title clip to the same forty-eight characters"
+        self.check([
+            {"projects": [{"slug": "a", "title": "Same"}, {"slug": "b", "title": "Same"},
+                          {"slug": "c", "title": long + " here?"}, {"slug": "d", "title": long + " there?"}]},
+            {"projects": [{"slug": "a", "title": "Same"}, {"slug": "e", "title": "<em>Alone</em> &amp; unique"}]},
+        ], without_index=True)
+
+
+class LogFormatTest(unittest.TestCase):
+    """A research LOG.md with no `## <date> · <title>` entry is silently dropped from its project page
+    and from the index (2026-11-12: research/marine-colregs fell out that way)."""
+
+    def test_every_log_has_an_entry(self):
+        empty = [p.parent.name for p in sorted((ROOT / "research").glob("*/LOG.md"))
+                 if not p.parent.name.startswith(("_", "."))
+                 and not any(l.startswith("## ") for l in p.read_text().splitlines())]
+        self.assertEqual(empty, [], "these LOG.md files need `## <date> · <title>` entry headings")
 
 
 if __name__ == "__main__":

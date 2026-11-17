@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- An air transfer between two airport stations of c_Estaciones (EA0001 to EA0100, Clave transporte 03), under an air permit (TPTA01).
+     Synthetic and unstamped: SAT's test RFC EKU9003173C9, made-up plates, permits and
+     policies. Expects no finding (cartaporte31.test.mjs); eval/cartaporte-mutations.mjs
+     plants defects in it and eval/cartaporte-xsd-diff.mjs mutates it against xmllint. -->
+<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/4" xmlns:cartaporte31="http://www.sat.gob.mx/CartaPorte31" Version="4.0" Serie="CP" Folio="3" Fecha="2026-11-10T07:00:00" SubTotal="0" Moneda="XXX" Total="0" TipoDeComprobante="T" Exportacion="01" LugarExpedicion="86000" NoCertificado="30001000000500003416" Sello="" Certificado="">
+  <cfdi:Emisor Rfc="EKU9003173C9" Nombre="ESCUELA KEMPER URGATE" RegimenFiscal="601"/>
+  <cfdi:Receptor Rfc="EKU9003173C9" Nombre="ESCUELA KEMPER URGATE" DomicilioFiscalReceptor="86000" RegimenFiscalReceptor="601" UsoCFDI="S01"/>
+  <cfdi:Conceptos>
+    <cfdi:Concepto ClaveProdServ="43211503" NoIdentificacion="LAP-14" Cantidad="40" ClaveUnidad="H87" Descripcion="Computadora portátil" ValorUnitario="0" Importe="0" ObjetoImp="01"/>
+  </cfdi:Conceptos>
+  <cfdi:Complemento>
+    <cartaporte31:CartaPorte Version="3.1" IdCCP="CCC3C4D5-6E7F-4A81-8B2C-3D4E5F6A7B8C" TranspInternac="No">
+      <cartaporte31:Ubicaciones>
+        <cartaporte31:Ubicacion TipoUbicacion="Origen" IDUbicacion="OR000020" RFCRemitenteDestinatario="EKU9003173C9" NumEstacion="EA0001" NombreEstacion="Estación de origen" TipoEstacion="01" FechaHoraSalidaLlegada="2026-11-10T09:00:00"/>
+        <cartaporte31:Ubicacion TipoUbicacion="Destino" IDUbicacion="DE000020" RFCRemitenteDestinatario="EKU9003173C9" NumEstacion="EA0100" NombreEstacion="Estación de destino" TipoEstacion="03" FechaHoraSalidaLlegada="2026-11-10T11:15:00"/>
+      </cartaporte31:Ubicaciones>
+      <cartaporte31:Mercancias PesoBrutoTotal="120" UnidadPeso="KGM" NumTotalMercancias="1">
+        <cartaporte31:Mercancia BienesTransp="43211503" Descripcion="Computadora portátil" Cantidad="40" ClaveUnidad="H87" PesoEnKg="120"/>
+        <cartaporte31:TransporteAereo PermSCT="TPTA01" NumPermisoSCT="AER-0001-2026" NumeroGuia="123456789012" CodigoTransportista="CA001"/>
+      </cartaporte31:Mercancias>
+    </cartaporte31:CartaPorte>
+  </cfdi:Complemento>
+</cfdi:Comprobante>

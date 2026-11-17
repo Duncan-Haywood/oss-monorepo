@@ -1,0 +1,255 @@
+{
+ "date": "2026-11-15",
+ "subject": "ventures/eu-platform-work-directive-checker",
+ "stratum": "venture",
+ "seed": "2026-11-15-efb6",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "an EU employment lawyer who advises delivery, ride-hailing and care platforms on Directive (EU) 2024/2831 transposition. They would check first: that the Article 2(1) definition of a digital labour platform is applied as four cumulative conditions (automated monitoring/decision-making is a necessary element, not a 'borderline' factor); that the Article 5 presumption is described as the final text has it (facts indicating control and direction per national law, collective agreements and CJEU case law, not the Commission draft's list of five criteria with a numeric threshold); that the Article 7 list of prohibited processing is complete; that Article 10(5) is stated (a decision to restrict, suspend or terminate the account must be taken by a human being, not merely be reviewable); and Article 5's carve-out for tax, criminal and social-security proceedings",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran the checker (calc.mjs compute) on five fact patterns (scratchpad fp.mjs plus node -e one-liners) and compared with the adopted Directive text (cited from the auditor's own knowledge; EUR-Lex 403 through the proxy). Pass: transposition date 2026-12-02 (Art. 29(1)); countdown 2026-11-15 -> 17 days, 2026-10-13 -> 50 days (hand count); the four scope questions match the four Art. 2(1)(a) limbs; emotion, private conversations, off-shift collection and biometric identification are each in Art. 7(1); written statement of reasons and human review match Art. 11. Fail: (1) the operator finding for automated suspension/closure (calc.mjs:103) says such decisions 'need a written statement of reasons ... and a right to human review. Build the notice and the review path', but Art. 10(5) requires any decision to restrict, suspend or terminate the contractual relationship or account to be taken by a human being: the tool tells a platform an automated deactivation is fine if reviewable; (2) calc.mjs:96 says Member States 'may limit [the presumption] in tax, criminal and social-security proceedings'; Art. 5 is the reverse: the presumption does not apply in those proceedings, and Member States may choose to apply it there; (3) a platform without automated monitoring or decision-making fails a cumulative limb of Art. 2(1)(a) and is not a digital labour platform, yet the tool calls it 'borderline' (calc.mjs:80,89) and still issues presumption, prohibited-processing and human-review findings (fact pattern A); (4) Art. 7(1)(d) (predicting the exercise of fundamental rights, e.g. collective action) and (e) (inferring racial or ethnic origin, migration status, political opinions, health, trade-union membership, sexual orientation, etc.) are absent from SYSTEMS (calc.mjs:33-39), so a platform doing either gets no prohibited-processing finding; (5) on 2026-12-02 itself the tool says the date 'has passed' (calc.mjs:109) although Art. 29 says 'by 2 December 2026'.",
+  "completeness": "Claimed features (README:3, index.html:52,88): scope reading - works; indicator count with plain reading - works; prohibited-processing points - works for 4 of the 6 Art. 7(1) categories; written reasons and human review - works (but see Art. 10(5)); transparency duties - one generic finding; days to 2 Dec 2026 - works; download summary and print - wired in index.html:166-167; usage counter with opt-out - usage.mjs and tests. No stubs or TODOs. The tool does everything it says at the depth it says; the gaps are in what the law requires, scored under domain.",
+  "verification": "`cd ventures/eu-platform-work-directive-checker && node --test '*.test.mjs'`: 24 tests, 24 pass, 0.11 s. Five mutants via platform/ci/quality_mutate.py: 2 caught (borderline rule widened to any single failed limb; strength 'arguable' band shrunk to <=2), 3 survived: transposition urgency threshold 120 -> 30 days (calc.mjs:109), biometric identification dropped from the prohibited list (calc.mjs:98), and borderline platforms no longer getting the algorithmic-management findings (calc.mjs:94). No test pins each Art. 7 category individually, the countdown severity, or the borderline branch's findings. Tests check the author's own reading; none checks a rule against a quoted article.",
+  "craft": "Read calc.mjs (129 lines), index.html, usage.mjs, all three test files. Pure functions, no I/O, escaped HTML output, small and readable; the page imports the same calc.mjs it tests. Defects: the header promises 'Bad input is rejected with a message, never clamped' (calc.mjs:4) but a missing or empty answer silently becomes 'no' (calc.mjs:51), so an API/MCP caller that omits `automated` gets 'borderline' rather than an error (fact pattern B); contradictory answers (automated = no, autoDecisions = yes) are accepted without a note (fact pattern A); sitemap.xml:3 has a relative <loc>./index.html</loc> that the Pages rewrite leaves unchanged (checked with build_pages_site.rewrite_base_urls), which the sitemap protocol rejects.",
+  "claims": "Backed: free/MIT (LICENSE), runs in browser and no network calls (page.test.mjs asserts no fetch/XHR/beacon), disclaimer and no-warranty footer (index.html:111), the 'written from memory, verify' caveat (README:11, index.html:53), 'indicators are a reading aid, not the legal test' on every in-scope result. Unbacked or wrong: FAQ 'What does the Directive say about algorithms?' (index.html:103) presents review as the safeguard for suspension and omits the Art. 10(5) human-decision rule; the tax/criminal/social-security sentence (calc.mjs:96) reverses Art. 5; the 'strong' reading 'Expect the presumption to apply in most Member States' (calc.mjs:70) is a prediction no file or source backs; the five indicators are the Commission proposal's Art. 4(2)(a)-(e) criteria (COM(2021) 762), dropped from the adopted text, and are not labelled as such. On the census question: the tool does NOT claim the draft's numeric '2 of 5' test is law (it says the triggering facts are national law and the count is a reading aid), but its 1/2-3/4+ bands are an uncited calibration of that obsolete list. llms.txt points at a github.io host in source but the deploy rewrite fixes it (source-only, verified locally; marisstella.app itself was not reachable through the proxy).",
+  "fitness": "Job walked through: an ops/legal lead at a delivery platform with automated deactivation, ratings and pay setting (the SAMPLE pattern, and variants). They get a correct 'in scope', a sensible presumption reading with the right caveats, and the deadline. They would act on the human-review finding and build a reviewable automated-deactivation flow that Art. 10(5) forbids, and a platform that infers trade-union activity or health from data gets no warning. A worker gets correct 'ask about it' prompts for 4 of the 6 prohibitions. Useful as a first orientation page; not something a platform should plan compliance on.",
+  "domain": "Compared with Directive (EU) 2024/2831 Arts 2, 5, 7-11, 17 and 29 (from the auditor's knowledge of the adopted text). Matches: scope limbs, rebuttable presumption shifting the burden, national-law triggering facts, transparency to self-employed persons, written reasons and review, deadline. Departs: Art. 10(5) human decision for restriction/suspension/termination missing; Art. 5 tax/criminal/social-security carve-out reversed; Art. 2(1)(a)(iv) treated as borderline not cumulative; Art. 7(1)(d)-(e) missing; Art. 8 data protection impact assessment, Art. 10 periodic human oversight (with representatives, at least every two years), Art. 11 two-week reply to a review request, Art. 12 health and safety (platform workers only) not modelled; the Art. 17 declaration duty is stated for all platforms but falls on platforms acting as employers; indicators taken from the withdrawn Commission draft."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Transposition date and countdown from 2026-11-15",
+   "method": "Directive (EU) 2024/2831 (OJ L, 11.11.2024), cited from the auditor's own knowledge of the adopted text: eur-lex.europa.eu returned 403 (CONNECT refused) through the session proxy, Art. 29(1) 'by 2 December 2026'; days counted by hand (15 Nov -> 2 Dec = 17)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/5f9329b4-576f-5419-8c40-f8402f398770/scratchpad/fp.mjs",
+   "expected": "2026-12-02, 17 days",
+   "observed": "2026-12-02, 17 days",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Scope test: the four limbs of the digital labour platform definition",
+   "method": "Directive (EU) 2024/2831 (OJ L, 11.11.2024), cited from the auditor's own knowledge of the adopted text: eur-lex.europa.eu returned 403 (CONNECT refused) through the session proxy, Art. 2(1)(a)(i)-(iv): at least partly at a distance via electronic means, at the request of a recipient, organisation of work performed by individuals for payment as a necessary and essential component, use of automated monitoring or decision-making systems (cumulative)",
+   "command": "node -e \"import('./calc.mjs').then(m=>console.log(JSON.stringify(m.compute({...m.SAMPLE, automated:'no'}).findings.map(f=>f.title),null,1)))\"",
+   "expected": "no automated systems = not a digital labour platform (cumulative limb fails)",
+   "observed": "'Borderline' finding, then presumption, prohibited-processing and human-review findings still issued",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Automated account suspension/closure: what the operator must do",
+   "method": "Directive (EU) 2024/2831 (OJ L, 11.11.2024), cited from the auditor's own knowledge of the adopted text: eur-lex.europa.eu returned 403 (CONNECT refused) through the session proxy, Art. 10(5): decisions to restrict, suspend or terminate the contractual relationship or account (or of equivalent detriment) are taken by a human being; Art. 11 reasons and review",
+   "command": "node -e \"import('./calc.mjs').then(m=>console.log(JSON.stringify(m.compute({...m.SAMPLE, role:'operator'}).findings.map(f=>f.title),null,1)))\"",
+   "expected": "a human must take the suspend/close decision; plus written reasons and review",
+   "observed": "'need a written statement of reasons, a human contact person and a right to human review. Build the notice and the review path' (no human-decision rule)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Presumption in tax, criminal and social-security proceedings",
+   "method": "Directive (EU) 2024/2831 (OJ L, 11.11.2024), cited from the auditor's own knowledge of the adopted text: eur-lex.europa.eu returned 403 (CONNECT refused) through the session proxy, Art. 5: the presumption does not apply to proceedings on tax, criminal and social-security matters; Member States may apply it there as a matter of national law",
+   "command": "node -e \"import('./calc.mjs').then(m=>console.log(JSON.stringify(m.compute({...m.SAMPLE, asOf:'2026-11-15'}).findings.map(f=>f.title),null,1)))\"",
+   "expected": "excluded by default; Member States may extend",
+   "observed": "'Member States may limit it in tax, criminal and social-security proceedings' (default reversed)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Prohibited processing list is complete",
+   "method": "Directive (EU) 2024/2831 (OJ L, 11.11.2024), cited from the auditor's own knowledge of the adopted text: eur-lex.europa.eu returned 403 (CONNECT refused) through the session proxy, Art. 7(1)(a)-(f): emotional/psychological state; private conversations; data while not offering/performing work; predicting exercise of fundamental rights (association, collective bargaining/action, information and consultation); inferring racial/ethnic origin, migration status, political opinions, religious beliefs, disability, health, trade-union membership, sex life or orientation; biometric identification",
+   "command": "node -e \"import('./calc.mjs').then(m=>console.log(m.SYSTEMS.map(s=>s.id)))\"",
+   "expected": "6 categories (a)-(f)",
+   "observed": "4: emotion, privateComms, offShift, biometricId; (d) and (e) missing",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Deadline day itself",
+   "method": "Directive (EU) 2024/2831 (OJ L, 11.11.2024), cited from the auditor's own knowledge of the adopted text: eur-lex.europa.eu returned 403 (CONNECT refused) through the session proxy, Art. 29(1) 'by 2 December 2026' (the last day, not past)",
+   "command": "node -e \"import('./calc.mjs').then(m=>console.log(JSON.stringify(m.compute({...m.SAMPLE, asOf:'2026-12-02'}).findings.map(f=>f.title),null,1)))\"",
+   "expected": "0 days left / last day",
+   "observed": "'The transposition date (2026-12-02) has passed'",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "Does the tool model the obsolete draft '2 of 5 criteria' test and claim it is the law?",
+   "method": "Commission proposal COM(2021) 762 Art. 4(2)(a)-(e) vs adopted Art. 5(1) 'facts indicating control and direction, according to national law, collective agreements or practice ... with consideration to the case-law of the Court of Justice'",
+   "command": "node -e \"import('./calc.mjs').then(m=>{for(let i=0;i<6;i++)console.log(i,m.strength(i).level)})\"",
+   "expected": "no numeric threshold presented as law; draft list labelled as such",
+   "observed": "no numeric threshold claimed as law (findings say reading aid, national law); but the five indicators are the draft's Art. 4(2) list, unlabelled, with uncited bands 1 weak / 2-3 arguable / 4+ strong 'expect the presumption to apply in most Member States'",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "cd ventures/eu-platform-work-directive-checker && node --test '*.test.mjs'",
+   "expected": "green",
+   "observed": "24 tests, 24 pass, 0.11 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "Missing answers rejected, as the header promises",
+   "method": "calc.mjs:4 'Bad input is rejected with a message, never clamped'",
+   "command": "node -e \"import('./calc.mjs').then(m=>console.log(m.compute({role:'operator',viaApp:'yes',onRequest:'yes',organisesWork:'yes'}).borderline))\"",
+   "expected": "an error naming the unanswered question",
+   "observed": "true (omitted 'automated' silently read as 'no')",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer, from-memory caveat, privacy claim",
+   "method": "read index.html:53,111-114, README:11; page.test.mjs network assertion",
+   "command": "cd ventures/eu-platform-work-directive-checker && node --test page.test.mjs",
+   "expected": "present and tested",
+   "observed": "present; page.test.mjs asserts no fetch/XHR/sendBeacon",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "FAQ statement on algorithms",
+   "method": "Directive (EU) 2024/2831 (OJ L, 11.11.2024), cited from the auditor's own knowledge of the adopted text: eur-lex.europa.eu returned 403 (CONNECT refused) through the session proxy, Arts 7, 9, 10(5), 11",
+   "command": "grep -n 'What does the Directive say about algorithms' -A1 ventures/eu-platform-work-directive-checker/index.html",
+   "expected": "mentions that suspension/termination decisions must be taken by a human",
+   "observed": "only 'written statement of reasons ... and must offer human review'",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Deployed llms.txt and sitemap URLs",
+   "method": "platform/ci/build_pages_site.py rewrite_base_urls run locally (marisstella.app blocked by the proxy)",
+   "command": "python3 -c \"import sys;sys.path.insert(0,'platform/ci');from build_pages_site import rewrite_base_urls as r;print(r(open('ventures/eu-platform-work-directive-checker/sitemap.xml').read(),'https://marisstella.app','x'))\"",
+   "expected": "absolute URLs after rewrite",
+   "observed": "llms.txt rewritten to marisstella.app (source-only); sitemap <loc>./index.html</loc> stays relative",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:80",
+   "change": "borderline = failed.length === 1 && failed[0].id === 'automated' -> failed.length <= 1",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:69",
+   "change": "if (count <= 3) -> if (count <= 2) (arguable band)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:109",
+   "change": "countdown high-severity threshold days <= 120 -> days <= 30",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:98",
+   "change": "biometricId excluded from the prohibited-processing findings",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:94",
+   "change": "if (inScope || borderline) -> if (inScope)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Operator finding for automated restriction/suspension/closure says it needs written reasons and human review and to 'build the notice and the review path'; Art. 10(5) requires such decisions to be taken by a human being. A platform following the tool keeps automated deactivation that the Directive forbids. The FAQ (index.html:103) repeats the omission.",
+   "where": "ventures/eu-platform-work-directive-checker/calc.mjs:103",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16234"
+  },
+  {
+   "severity": "medium",
+   "what": "Presumption finding says Member States 'may limit it in tax, criminal and social-security proceedings'; Art. 5 excludes those proceedings by default and lets Member States apply it there. Default reversed.",
+   "where": "ventures/eu-platform-work-directive-checker/calc.mjs:96",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16234"
+  },
+  {
+   "severity": "medium",
+   "what": "A platform with no automated monitoring or decision-making fails a cumulative limb of Art. 2(1)(a) but is reported 'borderline' and still gets presumption, prohibited-processing and human-review findings; contradictory answers (automated=no, autoDecisions=yes) are not flagged.",
+   "where": "ventures/eu-platform-work-directive-checker/calc.mjs:80",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Prohibited-processing list omits Art. 7(1)(d) (predicting exercise of fundamental rights such as collective action) and (e) (inferring racial/ethnic origin, migration status, political opinions, health, trade-union membership, sexual orientation, etc.), so those get no finding.",
+   "where": "ventures/eu-platform-work-directive-checker/calc.mjs:33",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "The five control indicators are the withdrawn Commission draft's Art. 4(2) criteria, not labelled as such, and the 1/2-3/4+ bands with 'expect the presumption to apply in most Member States' are an uncited calibration. (The tool does not claim a numeric threshold is the law.)",
+   "where": "ventures/eu-platform-work-directive-checker/calc.mjs:70",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Art. 8 DPIA, Art. 10 periodic human oversight, Art. 11 two-week reply deadline and Art. 12 health and safety are not modelled; the Art. 17 declaration duty is stated for all platforms though it falls on platforms that are employers.",
+   "where": "ventures/eu-platform-work-directive-checker/calc.mjs:105",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Three of five seeded mutants survive (countdown severity, dropping biometric identification, dropping findings for borderline platforms): no test pins each Art. 7 category or the countdown severity.",
+   "where": "ventures/eu-platform-work-directive-checker/calc.test.mjs:46",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Missing or empty answers silently become 'no' despite the header's 'never clamped' promise; an API caller omitting `automated` gets 'borderline' instead of an error.",
+   "where": "ventures/eu-platform-work-directive-checker/calc.mjs:51",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "On 2026-12-02 (the deadline day, 'by 2 December 2026') the tool says the transposition date 'has passed'.",
+   "where": "ventures/eu-platform-work-directive-checker/calc.mjs:109",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "sitemap.xml <loc>./index.html</loc> is relative and the Pages rewrite does not touch it (no placeholder host); the sitemap protocol requires absolute URLs. canonical link (index.html:10) is also relative.",
+   "where": "ventures/eu-platform-work-directive-checker/sitemap.xml:3",
+   "category": "repo-hygiene",
+   "origin": "build"
+  },
+  {
+   "severity": "low",
+   "what": "llms.txt links the tool at duncan-haywood.github.io; the deploy rewrite changes it to marisstella.app (verified locally), so this is not in what ships.",
+   "where": "ventures/eu-platform-work-directive-checker/llms.txt:9",
+   "category": "source-only",
+   "origin": "audit"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16234"
+ ],
+ "verdict": "A small, honest, well-disclaimed first-read page: scope limbs, deadline and countdown are right, the presumption is correctly described as rebuttable with national-law triggering facts, and it does not claim the Commission draft's numeric '2 of 5' test is law (though its five indicators are that draft list, unlabelled, with uncited strength bands). An EU employment lawyer would stop at the operator's algorithmic-management advice: it tells a platform automated suspension is acceptable with reasons and review, where Art. 10(5) requires a human decision; it reverses the Art. 5 tax/criminal/social-security carve-out; it treats the cumulative automation limb of Art. 2(1)(a) as 'borderline'; and it misses two of the six Art. 7 prohibitions. 24 tests pass but 3 of 5 seeded mutants survive. Finished (does what it claims) but below the bar: correctness, claims and verification 2, median 2. All rule statements cite the auditor's knowledge of the adopted text; EUR-Lex was unreachable from this session."
+}

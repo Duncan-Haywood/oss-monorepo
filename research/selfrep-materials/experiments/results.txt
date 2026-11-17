@@ -1,4 +1,64 @@
-Base parameters (ASSUMED): Params(s=0.1, r=0.8, phi=0.3, y_metal=0.7, m_loss=0.08, eol=0.0, e_print=8.0, e_shred=0.3, e_extrude=1.0, e_machine=2.0, furnace_eff=0.25)
+######## SOURCED part list (headline): printed masses from STL volumes x density x fill, fasteners per printer ########
+printed plastic per copy, solid PLA (fill 1.0, 1.24 g/cm3): 0.595 kg; at fill 0.5: 0.297 kg
+Base parameters (ASSUMED): Params(s=0.1, r=0.8, phi=0.3, y_metal=0.7, m_loss=0.08, eol=0.0, e_print=8.0, e_shred=0.3, e_extrude=1.0, e_machine=2.0, furnace_eff=0.25, bom='sourced', density=1.24, fill=1.0)
+Aluminium melt energy at 100% efficiency: 0.270 kWh/kg; at base efficiency: 1.081 kWh/kg
+
+== recycling OFF: imported kg per printer copy ==
+printer                      [lm8uu] total 5.825 kg | scrap lost 0.066 | energy 4.76 kWh
+    vitamins 5.164, filament (virgin) 0.661
+printer+cnc+laser            [lm8uu] total 5.957 kg | scrap lost 0.198 | energy 5.38 kWh
+    vitamins 4.855, filament (virgin) 0.661, MDF sheet 0.214, aluminium sheet 0.198, aluminium bar 0.029
+printer+cnc+laser+casting    [lm8uu] total 5.957 kg | scrap lost 0.198 | energy 5.38 kWh
+    vitamins 4.855, filament (virgin) 0.661, MDF sheet 0.214, aluminium sheet 0.198, aluminium bar 0.029
+printer+cnc+laser+casting    [brass] total 6.048 kg | scrap lost 0.250 | energy 5.62 kWh
+    vitamins 4.775, filament (virgin) 0.661, MDF sheet 0.214, aluminium sheet 0.198, brass/bronze ingot 0.171, aluminium bar 0.029
+
+== recycling ON: imported kg per printer copy ==
+printer                      [lm8uu] total 5.772 kg | scrap lost 0.013 | energy 4.83 kWh
+    vitamins 5.164, filament (virgin) 0.608
+printer+cnc+laser            [lm8uu] total 5.904 kg | scrap lost 0.146 | energy 5.45 kWh
+    vitamins 4.855, filament (virgin) 0.608, MDF sheet 0.214, aluminium sheet 0.198, aluminium bar 0.029
+printer+cnc+laser+casting    [lm8uu] total 5.842 kg | scrap lost 0.083 | energy 5.52 kWh
+    vitamins 4.855, filament (virgin) 0.608, MDF sheet 0.214, aluminium sheet 0.144, aluminium bar 0.021
+printer+cnc+laser+casting    [brass] total 5.933 kg | scrap lost 0.134 | energy 5.76 kWh
+    vitamins 4.775, filament (virgin) 0.608, MDF sheet 0.214, brass/bronze ingot 0.171, aluminium sheet 0.144, aluminium bar 0.021
+
+== energy split (recycling ON), kWh per copy ==
+printer                      [lm8uu] print 4.76, shred+extrude 0.07
+printer+cnc+laser            [lm8uu] print 4.76, shred+extrude 0.07, machine 0.62
+printer+cnc+laser+casting    [lm8uu] print 4.76, shred+extrude 0.07, melt Al 0.07, machine 0.62
+printer+cnc+laser+casting    [brass] print 4.76, shred+extrude 0.07, melt Al 0.07, machine 0.86
+
+== virgin filament (kg) vs recycled-share cap phi and scrap recovery r (printer alone, s=0.10) ==
+phi\r    0.00   0.40   0.80   1.00
+ 0.0   0.661  0.661  0.661  0.661
+ 0.1   0.661  0.635  0.608  0.595
+ 0.2   0.661  0.635  0.608  0.595
+ 0.3   0.661  0.635  0.608  0.595
+ 0.5   0.661  0.635  0.608  0.595
+ 1.0   0.661  0.635  0.608  0.595
+
+== end-of-life plastic: virgin filament (kg) per copy, printer alone, base r=0.8, s=0.10 ==
+eol = retired printed plastic per copy / this copy's printed mass; filament need F = 0.661 kg
+phi=0.3: eol=0.0: 0.608  eol=0.25: 0.489  eol=0.5: 0.463  eol=1.0: 0.463  eol=2.0: 0.463
+phi=0.5: eol=0.0: 0.608  eol=0.25: 0.489  eol=0.5: 0.370  eol=1.0: 0.330  eol=2.0: 0.330
+phi=0.8: eol=0.0: 0.608  eol=0.25: 0.489  eol=0.5: 0.370  eol=1.0: 0.132  eol=2.0: 0.132
+
+== Monte Carlo over process parameters (2000 draws, seed 0), shop = printer+cnc+laser+casting [lm8uu] ==
+vitamin share of imported mass: median 0.850 [5-95%: 0.822 to 0.878]
+total imported mass, recycling ON (kg): median 5.709 [5-95%: 5.532 to 5.907]
+total imported mass, recycling OFF (kg): median 5.833 [5-95%: 5.596 to 6.126]
+import reduction from recycling: median 0.021 [5-95%: 0.007 to 0.041]
+electric energy per copy (kWh): median 4.6 [5-95%: 2.4 to 8.0]
+largest non-vitamin import, number of draws: {'filament (virgin)': 1944, 'MDF sheet': 56}
+
+== vitamin mass (kg) per copy, by shop ==
+printer                      [lm8uu] 5.164
+printer+cnc+laser            [lm8uu] 4.855
+printer+cnc+laser+casting    [lm8uu] 4.855
+printer+cnc+laser+casting    [brass] 4.775
+######## PLACEHOLDER part list (selfrep-closure: 25 g per printed part, box-size fasteners), kept for comparison ########
+Base parameters (ASSUMED): Params(s=0.1, r=0.8, phi=0.3, y_metal=0.7, m_loss=0.08, eol=0.0, e_print=8.0, e_shred=0.3, e_extrude=1.0, e_machine=2.0, furnace_eff=0.25, bom='placeholder', density=1.24, fill=1.0)
 Aluminium melt energy at 100% efficiency: 0.270 kWh/kg; at base efficiency: 1.081 kWh/kg
 
 == recycling OFF: imported kg per printer copy ==

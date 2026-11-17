@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVNKCnCRpC4LHj8otgB",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled ventures brief: develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "5c3a0e5a42aefaf998a5b0c87684cc8565ea2d264e6bf25cce8a16f4154c3d13",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T02:04:13Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ids-model-check (flagship 12): IDS editor applicability conditions beyond the class",
+  "projects": [
+    "ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16777",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "The plain route (no --task) drew process for this scheduled ventures-worded prompt; route --task picked ventures, as an earlier record already noted. Scheduled prompts that never mention prompt.md still need the --task form to land on their own track."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "The gitignored eval corpus (eval/corpus, eval/IDS) fetched for the editor-open measurement must be deleted before preflight or it is copied into the built artifact; known from the friction table, cost nothing once read."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Took flagship row 9 (ids-model-check, BUILDABLE HERE: applicability facets) over row 1 (ai-bookkeeper): row 1's next item is one CORD receipt's misread digit, needs ~35 min of tesseract per scoring and risks fitting one photo; the IDS item is a user-facing capability the editor lacked.",
+      "did": "built the ids-model-check item",
+      "result": "landed; 83.5% of public IDS facets editable (was 82.0%), IDS-Audit-tool 21.5% (was 9.7%)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-ids-external-walls-only.md",
+    "ventures/ids-model-check/eval/applicability-rows-2026-11-17.md"
+  ],
+  "goal": "Let IDS authors narrow a specification to elements matching a property/attribute/classification, and tell them how many model objects each condition keeps.",
+  "notes": "Verification: node --test inventory.test.mjs editor.test.mjs 30/30; run_venture_tests.py ids-model-check 91 tests ok (1 skipped); Playwright on editor.html with samples/tiny-house.ifc: Narrow it -> Pset_WallCommon.IsExternal=true shows '2 of 3 match', applicability XML correct, no console errors; eval/editor-open.mjs before/after on 64 public IDS, 12 IDS-Audit-tool, 187 buildingSMART cases: all write back asking the same, audit errors unchanged. appMatchCount equals the checker's applicable on 11 conditions. venture-preflight.mjs ids-model-check: clean (exit 0).",
+  "corrections": [],
+  "redteam": null
+}

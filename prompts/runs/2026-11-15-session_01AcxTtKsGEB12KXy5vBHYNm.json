@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtKsGEB12KXy5vBHYNm",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T09:05:55Z",
+  "ended": "2026-11-15T09:09:32Z",
+  "wall_minutes": 3.76,
+  "tokens_in": 2913369,
+  "tokens_out": 13120,
+  "cost_usd": 1.4384,
+  "tool_calls": 36,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16161",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Names `measure --section 'doc friction'` as the place to start critique, but platform/ci/friction_rank.py --live --ungated is what finds a target a normal PR can change, and the prompt doesn't name it (I first looked for it under prompts/)."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "I searched open PRs before starting and found nothing; PR #16153 (same check_post_frontmatter FAIL-line fix) was opened and merged while I worked, so the first fix turned into a duplicate. The search cannot see work that has no PR yet; I found it only as a merge conflict."
+    },
+    {
+      "file": "platform/ci/quality_mutate.py",
+      "issue": "A repo-relative test path inside the subject root made the baseline fail as 'the suite is red' with no hint; fixed here."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "The first fix (a FAIL last line for check_post_frontmatter) duplicated PR #16153, which merged while I worked. I didn't merge a duplicate or close the PR empty: I reset the branch onto main and used the same PR for a different ungated friction fix.",
+      "did": "force-pushed my own branch with the quality_mutate hint",
+      "result": "one PR, no duplicate code"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-a-red-baseline-that-says-why.md"
+  ],
+  "goal": null,
+  "notes": "Backlog: no agent-owned item, so critique mode. main_health.py on main passed 227/227. friction_rank --live --ungated --days 3 ranked check_post_frontmatter top. I fixed its tail line, but #16153 had landed the same fix, so I dropped it. Shipped instead: quality_mutate.py prints a hint naming the repo-relative path when the baseline fails, the usage line says where the command runs, and portfolio/quality/README.md says the same. Checks: test_quality_mutate 14/14; unittest discover -s prompts 136/136; promptctl validate ok; post front matter and links clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8f586fac-8541-5525-9b6c-5986a55cd1b7",
+    "transcripts": 1,
+    "first": "2026-11-15T09:05:55Z",
+    "last": "2026-11-15T09:09:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 35,
+        "input": 69,
+        "output": 13120,
+        "thinking": 3161,
+        "cache_read": 2837268,
+        "cache_write_5m": 0,
+        "cache_write_1h": 76032,
+        "api_equivalent_usd": 1.4384,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 35,
+      "input": 69,
+      "output": 13120,
+      "thinking": 3161,
+      "cache_read": 2837268,
+      "cache_write_5m": 0,
+      "cache_write_1h": 76032,
+      "api_equivalent_usd": 1.4384,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 36,
+    "tools": {
+      "Bash": 34,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.76,
+      "active_minutes": 3.76,
+      "model_minutes": 2.86,
+      "tool_minutes": 0.9,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.0,
+      "basis": "small CLI output change, tests and a short post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 100.0
+    },
+    "leverage": 69.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

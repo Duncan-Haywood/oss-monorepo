@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVL6mrZ2RX92FbVEpZt",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo...)",
+  "input_sha256": "e1c1e41c32df6a83470ddc9f0fb5b93a9945772a5546800c2284944dcc52e083",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T20:02:24Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship shift-roster-builder: decide whether --from-sales should default to a half-life",
+  "projects": [
+    "ventures/shift-roster-builder"
+  ],
+  "pr": 14870,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "huggingface.co (and hf-mirror, ollama registry, modelscope) refused by the egress proxy in this session, so the router's start row (sales-agent local-model second reader) could not run"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "sales-agent BUILDABLE HERE note says huggingface.co answered 200 on 2026-11-11; in this session the proxy refused it (connect_rejected), so the note is per-session, not reliable"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "start row sales-agent needs a Hugging Face model download that the proxy blocked; took the next Deepen flagship without an open PR (shift-roster-builder)",
+      "did": "half-life auto default",
+      "result": "landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-let-the-shop-pick-its-own-half-life.md"
+  ],
+  "goal": null,
+  "notes": "eval/halflife-default.mjs on the two real bakery exports (SHA-256 checked): chosen-from-past-weeks weighting never clearly worse than plain in 12 settings, -7.4% mean; fixed hl2 clearly worse in 2 Korean settings. Shipped as --half-life auto (CLI default; page opt-in). New tests pass (node --test halflife-auto.test.mjs, 5/5); full venture suite via run_venture_tests.py, result in PR.",
+  "corrections": [],
+  "redteam": null
+}

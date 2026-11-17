@@ -11,7 +11,50 @@ import re
 from datetime import date
 from pathlib import Path
 
-INSTRUCTION = re.compile(r"\b(ignore|disregard|override|system message|you must|do not tell|send .* to|reveal)\b", re.I)
+INSTRUCTION = re.compile(
+    r"\b(ignore|disregard|override|system message|you must|do not (?:tell|mention|inform)|before using|send .* to|reveal)\b"
+    r"|<\s*important\s*>|~/\.ssh|\bid_rsa\b|\.cursor/mcp\.json",
+    re.I,
+)
+# Zero-width and bidirectional-control characters hide text from a human reviewer.
+HIDDEN = re.compile("[\u200b-\u200f\u202a-\u202e\u2060-\u2064\ufeff]")
+
+
+def text_fields(tool: dict) -> dict[str, str]:
+    """Every model-visible string of a tool, keyed by where it sits.
+
+    The top-level description and every string anywhere inside inputSchema
+    (property descriptions, titles, enum values, defaults): a payload hidden in
+    a parameter description reaches the model just as the tool description does.
+    """
+    fields = {"description": tool.get("description") if isinstance(tool.get("description"), str) else ""}
+
+    def walk(value, path):
+        if isinstance(value, str):
+            fields[path] = value
+        elif isinstance(value, dict):
+            for key in sorted(value):
+                walk(value[key], f"{path}.{key}")
+        elif isinstance(value, list):
+            for index, item in enumerate(value):
+                walk(item, f"{path}[{index}]")
+
+    walk(tool.get("inputSchema"), "inputSchema")
+    return fields
+
+
+def signals(text: str) -> set[str]:
+    found = {match.group(0).lower() for match in INSTRUCTION.finditer(text)}
+    if HIDDEN.search(text):
+        found.add("hidden-characters")
+    return found
+
+
+def new_signals(old: dict, new: dict) -> list[str]:
+    """Locations whose text gained an instruction signal it did not have before."""
+    old_fields, new_fields = text_fields(old), text_fields(new)
+    return [path for path, text in new_fields.items()
+            if signals(text) - signals(old_fields.get(path, ""))]
 
 
 def markdown(report: dict) -> str:
@@ -52,11 +95,12 @@ def load(path: str) -> dict:
 
 
 def classify(old: dict, new: dict) -> tuple[str, str]:
-    old_text = old.get("description", "")
-    new_text = new.get("description", "")
+    old_text = old.get("description") or ""
+    new_text = new.get("description") or ""
     description_changed = old_text != new_text
-    if description_changed and INSTRUCTION.search(new_text) and not INSTRUCTION.search(old_text):
-        return "instruction-bearing", "new description contains model-directed language"
+    flagged = new_signals(old, new)
+    if flagged:
+        return "instruction-bearing", f"newly contains model-directed language in: {', '.join(flagged)}"
     old_schema = json.dumps(old.get("inputSchema", {}), sort_keys=True)
     new_schema = json.dumps(new.get("inputSchema", {}), sort_keys=True)
     if old_schema != new_schema:
@@ -71,7 +115,12 @@ def compare(before: dict, after: dict) -> dict:
     old, new = before["tools"], after["tools"]
     changes = []
     for name in sorted(new.keys() - old.keys()):
-        changes.append({"kind": "tool_added", "severity": "review", "tool": name})
+        flagged = new_signals({}, new[name])
+        if flagged:
+            changes.append({"kind": "tool_added", "severity": "alert", "tool": name, "bucket": "instruction-bearing",
+                            "reason": f"contains model-directed language in: {', '.join(flagged)}"})
+        else:
+            changes.append({"kind": "tool_added", "severity": "review", "tool": name})
     for name in sorted(old.keys() - new.keys()):
         changes.append({"kind": "tool_removed", "severity": "alert", "tool": name})
     for name in sorted(old.keys() & new.keys()):
@@ -90,6 +139,7 @@ def main() -> int:
     parser.add_argument("--output", help="write the JSON evidence report to this path")
     parser.add_argument("--format", choices=("json", "markdown"), default="json")
     parser.add_argument("--usage-log", help="append one aggregate comparison event")
+    parser.add_argument("--fail-on-alert", action="store_true", help="exit 2 when any change is at alert severity (for CI)")
     args = parser.parse_args()
     try:
         report = compare(load(args.before), load(args.after))
@@ -103,6 +153,8 @@ def main() -> int:
     if args.usage_log:
         with Path(args.usage_log).open("a", encoding="utf-8") as stream:
             stream.write(json.dumps({"event": "manifest_compared", "day": date.today().isoformat(), "product": "mcp-supply-chain-watch"}) + "\n")
+    if args.fail_on_alert and any(change["severity"] == "alert" for change in report["changes"]):
+        return 2
     return 0
 
 

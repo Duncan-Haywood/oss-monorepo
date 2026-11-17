@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231d6fa5'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E%E2%86%93%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Voltage Drop Calculator — Wire Size for DC, Single and Three-Phase</title>
+  <meta name="description" content="Free voltage drop and wire size calculator. Enter the voltage, load and one-way run to see the drop for every AWG, kcmil or mm² size, the smallest that meets your target, the longest run each allows and the watts lost in the wire. Copper or aluminium, 12 V DC to 480 V three-phase.">
+  <meta property="og:title" content="Voltage Drop Calculator — free, private, in your browser">
+  <meta property="og:description" content="What size wire? The drop for every conductor size, the smallest within your target, and the power the wire wastes, from 12 V DC to 480 V three-phase.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Voltage Drop Calculator", "applicationCategory": "UtilitiesApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Voltage drop and wire size calculator for DC, single-phase and three-phase circuits: drop in volts and percent, the smallest AWG, kcmil or mm2 size within a target, the longest run and the most current each size allows, and the power wasted in the wire. Runs in your browser.", "featureList": "voltage drop, wire size, AWG, kcmil, mm2, copper, aluminium, 12 V DC, three-phase, power factor, parallel sets, ampacity floor, annual loss cost, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I calculate voltage drop?", "acceptedAnswer": {"@type": "Answer", "text": "For DC and single-phase AC, voltage drop = 2 x one-way length x current x the conductor's resistance per unit length; the 2 counts the out and return conductors. For three-phase, use 1.732 instead of 2 and the drop is line to line. Divide by the source voltage for the percentage."}}, {"@type": "Question", "name": "What voltage drop is acceptable?", "acceptedAnswer": {"@type": "Answer", "text": "A common design target is 3 percent on a branch circuit and 5 percent from the service to the farthest outlet, the figures in the informational notes of the US National Electrical Code. Low-voltage DC systems on boats and vehicles often use 3 percent for loads that matter and 10 percent for lighting and the like. Your code, the equipment maker and the job decide."}}, {"@type": "Question", "name": "What size wire do I need for 30 amps at 12 volts over 15 feet?", "acceptedAnswer": {"@type": "Answer", "text": "With stranded copper at 75 C and a 3 percent target, 4 AWG: it drops 0.28 V, 2.31 percent. 6 AWG drops 3.68 percent and 8 AWG 5.84 percent. The same 360 W at 120 V needs only 18 AWG for voltage drop, though building wiring has its own minimum sizes."}}, {"@type": "Question", "name": "Does this tool check ampacity?", "acceptedAnswer": {"@type": "Answer", "text": "No. Voltage drop and ampacity are separate checks and the wire must pass both. Ampacity comes from the table your code uses, with its temperature and bundling corrections. Enter the smallest size that table allows and the tool will not recommend anything smaller."}}, {"@type": "Question", "name": "Where do the resistance values come from?", "acceptedAnswer": {"@type": "Answer", "text": "They are computed, not copied: the conductor area from the AWG series, kcmil or the metric size, the resistivity of annealed copper or aluminium at 20 C, the temperature coefficient for the conductor temperature you choose, and about 2 percent extra for stranding. Published tables can be a few percent higher for some sizes, so you can type a resistance from your own table for the size you choose."}}, {"@type": "Question", "name": "Why is the run length one way?", "acceptedAnswer": {"@type": "Answer", "text": "Because that is what you measure on the drawing or with a tape: source to load. The formula doubles it for the return conductor on DC and single-phase circuits."}}, {"@type": "Question", "name": "Which conductor temperature should I use?", "acceptedAnswer": {"@type": "Answer", "text": "The temperature the conductor runs at under load. 75 C is a common choice for building wire sized at its 75 C rating; a lightly loaded conductor runs cooler and has less resistance. 20 C gives the lowest, optimistic drop."}}, {"@type": "Question", "name": "Is anything I enter uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f1d18; background: #f6f4ee; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #6b4e00; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #4a3600; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #4a3600; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #5a5446; }
+    .card { background: #fff; border: 1px solid #e2dccb; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #4a360010; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #8a7f63; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #6b4e00; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #efe8d6; color: #4a3600; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #efe9da; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #5a5446; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #efe9da; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #f8dcd6; color: #7a1f10; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #ebe7dc; color: #4a3600; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f8f4e8; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #4a3600; }
+    footer { margin-top: 28px; border-top: 1px solid #e2dccb; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .best td { background: #eef3e1; font-weight: 600; }
+    td.warn { background: #fdf0d5; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">VOLTAGE DROP CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What size wire keeps the voltage drop under your target?</h1>
+    <p>Type the voltage, the load and the one-way run. You get the <strong>drop for every conductor size</strong>, the <strong>smallest size within your target</strong>, the <strong>longest run</strong> and <strong>most current</strong> each size allows, and the <strong>watts the wire turns into heat</strong>. DC (12, 24, 48 V), single-phase and three-phase, copper or aluminium, AWG/kcmil or mm².</p>
+    <p class="note">Nothing you type leaves this browser tab. Arithmetic on your numbers, not electrical advice: voltage drop is one check, and ampacity, your code edition and the AHJ decide the wire.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>The circuit</h2>
+    <div class="grid">
+      <div><label for="preset">Quick pick (fills system and voltage)</label><select id="preset"><option value="">Choose…</option><option value="12dc">12 V DC</option><option value="24dc">24 V DC</option><option value="48dc">48 V DC</option><option value="120">120 V single-phase</option><option value="240">240 V single-phase</option><option value="230">230 V single-phase</option><option value="208">208 V three-phase</option><option value="400">400 V three-phase</option><option value="480">480 V three-phase</option></select></div>
+      <div><label for="system">System</label><select id="system"><option value="dc">DC</option><option value="ac1">Single-phase AC</option><option value="ac3">Three-phase AC</option></select></div>
+      <div><label for="volts">Source voltage, volts (line to line for three-phase)</label><input type="text" id="volts" inputmode="decimal" placeholder="12" autocomplete="off"></div>
+      <div><label for="load">Load</label><input type="text" id="load" inputmode="decimal" placeholder="30" autocomplete="off"></div>
+      <div><label for="loadUnit">Load unit</label><select id="loadUnit"><option value="A">amps</option><option value="W">watts</option></select></div>
+      <div><label for="length">One-way run length (source to load)</label><input type="text" id="length" inputmode="decimal" placeholder="15" autocomplete="off"></div>
+      <div><label for="lengthUnit">Length unit</label><select id="lengthUnit"><option value="ft">feet</option><option value="m">metres</option></select></div>
+      <div><label for="targetPct">Target maximum drop, %</label><input type="text" id="targetPct" inputmode="decimal" placeholder="3" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The conductor</h2>
+    <div class="grid">
+      <div><label for="material">Material</label><select id="material"><option value="cu">Copper</option><option value="al">Aluminium</option></select></div>
+      <div><label for="stranding">Construction</label><select id="stranding"><option value="stranded">Stranded</option><option value="solid">Solid</option></select></div>
+      <div><label for="tempC">Conductor temperature, degrees C</label><input type="text" id="tempC" inputmode="decimal" placeholder="75" autocomplete="off"></div>
+      <div><label for="sizeSystem">Size system</label><select id="sizeSystem"><option value="awg">AWG and kcmil</option><option value="mm2">mm² (metric)</option></select></div>
+      <div><label for="size">Size to check (optional)</label><select id="size"><option value="">None: just recommend</option></select></div>
+      <div><label for="minSize">Smallest size your ampacity table allows (optional)</label><select id="minSize"><option value="">Not entered</option></select></div>
+      <div><label for="sets">Parallel sets per conductor</label><input type="text" id="sets" inputmode="decimal" placeholder="1" autocomplete="off"></div>
+    </div>
+    <details><summary>AC details, your own table and the cost of losses</summary>
+    <div class="grid">
+      <div><label for="pf">Power factor (AC only)</label><input type="text" id="pf" inputmode="decimal" placeholder="1" autocomplete="off"></div>
+      <div><label for="reactance">Reactance per 1000 ft or per km (AC only, blank for 0)</label><input type="text" id="reactance" inputmode="decimal" placeholder="" autocomplete="off"></div>
+      <div><label for="rOverride">Resistance of the checked size from your table, per 1000 ft or per km</label><input type="text" id="rOverride" inputmode="decimal" placeholder="" autocomplete="off"></div>
+      <div><label for="hours">Hours per year at this load (for the cost of losses)</label><input type="text" id="hours" inputmode="decimal" placeholder="" autocomplete="off"></div>
+      <div><label for="price">Electricity price per kWh</label><input type="text" id="price" inputmode="decimal" placeholder="" autocomplete="off"></div>
+    </div>
+    </details>
+  </section>
+
+  <section class="card">
+    <button type="button" id="analyze">Calculate the drop</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Fill in the circuit, then click Calculate the drop.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="report-findings"></div>
+    <h3>Every size</h3>
+    <div class="scroll"><table id="size-table"><thead><tr><th>Size</th><th class="n">Resistance</th><th class="n">Drop, V</th><th class="n">Drop, %</th><th class="n">At load, V</th><th class="n">Wire loss, W</th><th class="n">Longest run</th><th class="n">Most current</th><th class="n" id="cost-head">Loss cost / yr</th></tr></thead><tbody></tbody></table></div>
+    <p class="note" id="table-note"></p>
+    <button type="button" id="download">Download CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p>Drop = 2 x one-way length x current x resistance per length for DC and single-phase AC, and 1.732 x length x current x resistance per length for three-phase (line to line). On AC the resistance is replaced by R x power factor + X x sin(angle) when you enter a reactance. Parallel sets divide both by the number of sets. Watts are turned into amps with the voltage (and the power factor and 1.732 on AC).</p>
+    <p>Resistance is computed, not copied from a table: the AWG area from the standard geometric series (0.46 in for 4/0 down to 0.005 in for 36 AWG), kcmil at 0.5067 mm² each, metric sizes at their nominal area; copper at 1.7241 x 10⁻⁸ ohm m and aluminium at 2.8264 x 10⁻⁸ ohm m at 20 C; times 1 + coefficient x (temperature - 20), with 0.00393 for copper and 0.00403 for aluminium; times 1.02 for stranding. The longest run and most current are the lengths and currents at which each size reaches your target. Wire loss is 2 (or 3) x current² x resistance x length.</p>
+    <p><strong>Not modelled:</strong> ampacity and its corrections, skin and proximity effect in large AC conductors, reactance unless you enter it, unbalanced or harmonic loads, motor starting dips, and the drop across breakers, fuses and terminals. Published resistance tables (and the maximum resistances of metric conductors) can be a few percent higher than the computed values for some sizes; type your table's figure for the size you check. <strong>Unverified:</strong> checked by hand arithmetic and unit tests only, not against a manufacturer's tool or a code table.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I calculate voltage drop?</h3>
+    <p>For DC and single-phase AC, voltage drop = 2 x one-way length x current x the conductor's resistance per unit length; the 2 counts the out and return conductors. For three-phase, use 1.732 instead of 2 and the drop is line to line. Divide by the source voltage for the percentage.</p>
+    <h3>What voltage drop is acceptable?</h3>
+    <p>A common design target is 3 percent on a branch circuit and 5 percent from the service to the farthest outlet, the figures in the informational notes of the US National Electrical Code. Low-voltage DC systems on boats and vehicles often use 3 percent for loads that matter and 10 percent for lighting and the like. Your code, the equipment maker and the job decide.</p>
+    <h3>What size wire do I need for 30 amps at 12 volts over 15 feet?</h3>
+    <p>With stranded copper at 75 C and a 3 percent target, 4 AWG: it drops 0.28 V, 2.31 percent. 6 AWG drops 3.68 percent and 8 AWG 5.84 percent. The same 360 W at 120 V needs only 18 AWG for voltage drop, though building wiring has its own minimum sizes.</p>
+    <h3>Does this tool check ampacity?</h3>
+    <p>No. Voltage drop and ampacity are separate checks and the wire must pass both. Ampacity comes from the table your code uses, with its temperature and bundling corrections. Enter the smallest size that table allows and the tool will not recommend anything smaller.</p>
+    <h3>Where do the resistance values come from?</h3>
+    <p>They are computed, not copied: the conductor area from the AWG series, kcmil or the metric size, the resistivity of annealed copper or aluminium at 20 C, the temperature coefficient for the conductor temperature you choose, and about 2 percent extra for stranding. Published tables can be a few percent higher for some sizes, so you can type a resistance from your own table for the size you choose.</p>
+    <h3>Why is the run length one way?</h3>
+    <p>Because that is what you measure on the drawing or with a tape: source to load. The formula doubles it for the return conductor on DC and single-phase circuits.</p>
+    <h3>Which conductor temperature should I use?</h3>
+    <p>The temperature the conductor runs at under load. 75 C is a common choice for building wire sized at its 75 C rating; a lightly loaded conductor runs cooler and has less resistance. 20 C gives the lowest, optimistic drop.</p>
+    <h3>Is anything I enter uploaded?</h3>
+    <p>No. Everything runs in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, electrical, legal or code-compliance advice, and it does not replace a qualified electrician, the code that applies to you or a plan review. Results are arithmetic on the numbers you enter. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any wire or cable manufacturer, code body or standards organisation, and no product is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>drop_calculated</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Sizing the service first? The <a href="../service-load-check/">service load check</a>. Solar strings? The <a href="../pv-string-sizer/">PV string sizer</a>. Pricing the job? The <a href="../ev-charger-bid-calculator/">EV charger bid calculator</a>. Guide: <a href="what-size-wire-for-12-volts.html">what size wire for 12 volts</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, reportCsv, sampleInput, SIZES, VOLTAGE_PRESETS } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const KEYS = ["system", "volts", "load", "loadUnit", "length", "lengthUnit", "material", "stranding", "tempC", "pf", "reactance", "sets", "targetPct", "sizeSystem", "size", "minSize", "rOverride", "hours", "price"];
+    const SELECTS = { system: "dc", loadUnit: "A", lengthUnit: "ft", material: "cu", stranding: "stranded", sizeSystem: "awg", size: "", minSize: "" };
+    const v = (n, d = 1) => (n === null || n === undefined ? "" : Number(n).toFixed(d));
+    let last = null;
+
+    function sizeOptions() {
+      const list = SIZES[$("#sizeSystem").value] || SIZES.awg;
+      for (const [id, blank] of [["size", "None: just recommend"], ["minSize", "Not entered"]]) {
+        const el = $("#" + id), keep = el.value;
+        el.innerHTML = `<option value="">${blank}</option>` + list.map((s) => `<option value="${esc(s.id)}">${esc(s.label)}</option>`).join("");
+        if (list.some((s) => s.id === keep)) el.value = keep;
+      }
+    }
+    function read() { return Object.fromEntries(KEYS.map((k) => [k, $("#" + k).value])); }
+    function fill(x) {
+      $("#sizeSystem").value = x.sizeSystem || "awg";
+      sizeOptions();
+      KEYS.forEach((k) => { $("#" + k).value = x[k] ?? SELECTS[k] ?? ""; });
+    }
+
+    function run() {
+      const a = analyze(read());
+      if (a.error) { status.textContent = a.error; report.hidden = true; return false; }
+      last = a;
+      const u = a.input.lengthUnit, rec = a.recommended, ch = a.chosen;
+      const tiles = [[rec ? rec.label : "None", `smallest within ${v(a.input.targetPct)} %`], [rec ? `${v(rec.dropPct, 2)} %` : "n/a", rec ? `${v(rec.dropV, 2)} V drop` : "drop"], [`${v(a.input.amps, 1)} A`, "load current"]];
+      if (ch) tiles.push([`${v(ch.dropPct, 2)} %`, `drop with ${ch.label}`]);
+      $("#big").innerHTML = tiles.map(([x, l]) => `<div><strong>${esc(x)}</strong>${esc(l)}</div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
+      const showCost = a.rows.some((r) => r.lossCost !== null || r.lossKwh !== null);
+      $("#cost-head").hidden = !showCost;
+      $("#size-table tbody").innerHTML = a.rows.map((r) => {
+        const cls = rec && r.id === rec.id ? "best" : "";
+        const cost = r.lossCost !== null ? v(r.lossCost, 2) : r.lossKwh !== null ? `${v(r.lossKwh, 0)} kWh` : "";
+        return `<tr class="${cls}"><td>${esc(r.label)}${r.allowed ? "" : " (below ampacity minimum)"}</td><td class="n">${v(r.rPerUnit, 4)}</td><td class="n">${v(r.dropV, 2)}</td><td class="n${r.meets ? "" : " warn"}">${v(r.dropPct, 2)}</td><td class="n">${v(r.loadV, 2)}</td><td class="n">${v(r.lossW, 1)}</td><td class="n">${v(r.maxLength, 0)} ${u}</td><td class="n">${v(r.maxAmps, 1)} A</td>${showCost ? `<td class="n">${cost}</td>` : ""}</tr>`;
+      }).join("");
+      $("#table-note").textContent = `Resistance in ${a.perUnitLabel} at ${v(a.input.tempC, 0)} C, computed. Longest run (one way) at this current, and most current over this run, within ${v(a.input.targetPct)} %. Shaded drops miss the target.`;
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+      return true;
+    }
+
+    sizeOptions();
+    $("#sizeSystem").addEventListener("change", sizeOptions);
+    $("#preset").addEventListener("change", (e) => {
+      const p = VOLTAGE_PRESETS.find((x) => x.id === e.target.value);
+      if (p) { $("#system").value = p.system; $("#volts").value = String(p.volts); }
+    });
+    $("#analyze").addEventListener("click", () => { if (run()) record("drop_calculated"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Example: 30 A at 12 V DC over a 15 ft run, the kind of feed a fridge, inverter or winch takes."; }
+    });
+    $("#clear-all").addEventListener("click", () => { fill({}); report.hidden = true; last = null; status.textContent = "Fill in the circuit, then click Calculate the drop."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "voltage-drop.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
