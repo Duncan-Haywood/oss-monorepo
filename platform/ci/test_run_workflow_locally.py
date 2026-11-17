@@ -2328,16 +2328,40 @@ class FailureCauses(unittest.TestCase):
     def test_output_without_either_gives_nothing(self):
         self.assertEqual(runner.failure_causes(["boom", "exit 1"]), [])
 
+    def test_each_cause_names_the_first_test_that_hit_it(self):
+        lines = ["    not ok 1 - inner adds",
+                 "      ---",
+                 f"      location: '{runner.REPO}/platform/pages/a.test.mjs:2:36'",
+                 "      error: |-",
+                 "        Expected values to be strictly equal:",
+                 "not ok 1 - outer",
+                 "  location: '/elsewhere/a.test.mjs:2:1'",
+                 "  error: '1 subtest failed'",
+                 "not ok 2 - second",
+                 "  error: |-",
+                 "    Expected values to be strictly equal:"]
+        # The parent's "1 subtest failed" repeats its child; it is no cause.
+        self.assertEqual(runner.failure_causes(lines),
+                         [(2, "Expected values to be strictly equal:")])
+        self.assertEqual(runner.failure_sites(lines), {
+            "Expected values to be strictly equal:":
+                "inner adds (platform/pages/a.test.mjs:2:36)"})
+        pytest = ["FAILED tests/test_a.py::test_x - AssertionError: 2 != 3"]
+        self.assertEqual(runner.failure_sites(pytest),
+                         {"2 != 3": "tests/test_a.py::test_x"})
+
     def test_report_prints_the_cause_above_the_tail(self):
         step = runner.Step("test", "Test the site builder", "node --test", ".")
         step.status, step.reason = "failed", "exit 1"
         step.causes = runner.failure_causes(self.TAP)
+        step.sites = runner.failure_sites(self.TAP)
         step.tail = ["# fail 4"]
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
             runner.report("portfolio-pages.yml", [step], [], False)
         text = out.getvalue()
         self.assertIn("4 error(s), 2 distinct", text)
+        self.assertIn("first in: builds the writing index", text)
         self.assertLess(text.index("3 x docs/posts/x.md"), text.index("# fail 4"))
 
     def test_named_paths_reads_relative_and_absolute_paths(self):
@@ -2406,6 +2430,7 @@ class FailureCauses(unittest.TestCase):
             runner.execute(step, 60)
         self.assertEqual(step.status, "failed")
         self.assertEqual(step.causes, [(2, "one shared cause")])
+        self.assertTrue(step.sites["one shared cause"].startswith(f"t1 ({path}:2:"))
 
 
 class PinnedTools(unittest.TestCase):
@@ -2493,3 +2518,34 @@ class PinnedTools(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PickSteps(unittest.TestCase):
+    """--step runs one step of a named workflow, and says what it left out."""
+
+    def test_matches_label_case_insensitively_and_lists_the_rest(self):
+        a = runner.Step("validate", "Supersede check", "true", ".")
+        b = runner.Step("validate", "Build", "true", ".")
+        picked, rest = runner.pick_steps([a, b], "supersede")
+        self.assertEqual(picked, [a])
+        self.assertEqual(rest, ["validate / Build"])
+
+    def test_step_needs_exactly_one_workflow(self):
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            self.assertEqual(runner.main(["--for-changes", "--step", "x"]), 2)
+            self.assertEqual(runner.main(["a", "b", "--step", "x"]), 2)
+        self.assertIn("--step needs exactly one workflow", err.getvalue())
+
+    def test_list_with_step_shows_only_the_picked_step(self):
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            self.assertEqual(runner.main(
+                ["portfolio-validate", "--list", "--step", "zzz-none"]), 2)
+            self.assertEqual(runner.main(
+                ["portfolio-validate", "--list", "--step", "supersede"]), 0)
+        self.assertIn("matches --step 'zzz-none'", err.getvalue())
+        runs = [l for l in out.getvalue().splitlines() if l.startswith("  [run")]
+        self.assertTrue(runs)
+        self.assertTrue(all("upersede" in l for l in runs), runs)
+        self.assertIn("not selected by --step", out.getvalue())
