@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVLC6b4AuQcud8AKmK3",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell, support revenue-generating products); merge when done",
+  "input_sha256": "707354335feaaa1513c3d3d4087906d147e8cd9ba6f5f2f912d2453fc6665198",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T00:18:18Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "perf: changepoint-detector PELT mean-cost loop",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": 16751,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py",
+      "why": "left the record's model field empty: the session's instructions forbid model identifiers in pushed artifacts",
+      "did": "model null",
+      "result": "record validates"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-one-loop-for-one-cost.md",
+    "docs/history/ci-perf-2026-11-17-changepoint-pelt-mean-loop.md"
+  ],
+  "goal": null,
+  "notes": "Metric: wall time of mean-cost PELT calls and the changepoint-detector suite. Before/after: 6,225 captured mean pelt calls replayed in one process, median of 5: 704 ms -> 543 ms (-23%), 0 mismatches (changepoints identical, cost ===). eval/drift-warning-null195-ar1.mjs alone via `time`: 24.8 s -> 20.6 s, cmp-identical to the committed .out.txt; null195 eval also cmp-identical. Suite `node --test *.test.mjs` back to back on a 4-core container: 189.3 s -> 184.5 s wall, 790/790 both; summed top-level durations 526.7 -> 510.3 s. run_venture_tests.py changepoint-detector: ok, 180.4 s, 791 tests. Also replayed 18,800 poisson and 20,000 other-model calls from engine.test.mjs: 0 mismatches. Poisson loop split tried: 1,112 -> 1,077 ms, noise, dropped.",
+  "corrections": [],
+  "redteam": null
+}
