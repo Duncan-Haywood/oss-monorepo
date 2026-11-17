@@ -148,6 +148,8 @@ python3 experiments/run_waveglider_era5_sites.py > experiments/results_waveglide
 python3 experiments/figure_waveglider_era5_map.py   # milestone 6x map
 PYTHONPATH=src python3 experiments/run_flip_map.py > experiments/results_flip_map.txt   # milestone 6z, under 1 s
 PYTHONPATH=src python3 experiments/figure_flip_map.py   # milestone 6z figure (experiments/waveglider_vs_solar_flip_map.svg)
+PYTHONPATH=src python3 experiments/run_clamp_sweep.py > experiments/results_clamp_sweep.txt   # milestone 6zzx (clamp half-width sweep, four worlds), about 20 min on 4 cores
+python3 experiments/figure_clamp_sweep.py   # milestone 6zzx figure (experiments/clamp_sweep.svg)
 PYTHONPATH=src python3 experiments/run_year_pack.py > experiments/results_year_pack.txt   # milestone 6zj (year-long pack, no port call), about 40 s
 python3 experiments/fetch_sun_years.py   # milestone 6zk data: NASA POWER 2015-2023 at the 25 transect points, under a minute
 PYTHONPATH=src python3 experiments/run_reserve_curve.py > experiments/results_reserve_curve.txt   # milestone 6zk (reserve curve, ten years), about 4 min
