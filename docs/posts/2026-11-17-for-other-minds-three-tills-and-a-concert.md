@@ -1,6 +1,6 @@
 ---
 title: "For Other Minds: Three Tills and a Concert, a story about who raised the money"
-seo_title: "Splitting credit for a joint fundraiser fairly: a short story on the Shapley value"
+seo_title: "Who raised the money? A short story on the Shapley value"
 date: 2026-11-17
 tags: [fiction, for-other-minds, hearth-and-horizon, writing, short-story, ai-agents, game-theory, shapley-value]
 description: "Three parish groups run one Christmas fair. The tills say the choir raised nothing. A story about attribution, double counting and the Shapley value."
