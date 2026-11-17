@@ -432,6 +432,9 @@ def _parse_cii(root: Any) -> dict[str, Any]:
     for key, parent, tag in (("payee_party", settlement, "PayeeTradeParty"), ("tax_representative", agreement, "SellerTaxRepresentativeTradeParty")):
         node = None if parent is None else parent.find(f"{{{RAM}}}{tag}")
         side = {k: v for k, v in _cii_party_identifiers(node).items() if k != "endpoint"}
+        if key == "tax_representative" and _cii_vat_id(node):
+            # BT-63, its VAT number (checks.py INV-022/023; cii.mjs, 2026-11-17).
+            side["vat_id"] = _cii_vat_id(node)
         if side:
             document[key] = side
     # BG-13 deliver-to: ShipToTradeParty's ID/GlobalID (BT-71) and legal id (cii.mjs).
@@ -492,6 +495,19 @@ def _cii_vat_id(party: Any) -> str | None:
     return None
 
 
+def _cii_line_scheme_ids(line: Any) -> list[dict[str, str]]:
+    # Every schemed ram:ID / GlobalID / URIID in the line: Peppol's COMMON id
+    # contexts reach them all (cii.mjs, endpoint.mjs inspectLineSchemedIds).
+    found: list[dict[str, str]] = []
+    for name in ("ID", "GlobalID", "URIID"):
+        for node in line.iter(f"{{{RAM}}}{name}"):
+            scheme = (node.get("schemeID") or "").strip()
+            value = (node.text or "").strip()
+            if scheme and value:
+                found.append({"id": value, "scheme": scheme})
+    return found
+
+
 def _parse_cii_line(line: Any) -> dict[str, Any]:
     agreement = line.find(f"{{{RAM}}}SpecifiedLineTradeAgreement")
     delivery = line.find(f"{{{RAM}}}SpecifiedLineTradeDelivery")
@@ -519,6 +535,7 @@ def _parse_cii_line(line: Any) -> dict[str, Any]:
         "charges": _line_allowance_charges(
             settlement, f"{{{RAM}}}SpecifiedTradeAllowanceCharge", f"{{{RAM}}}ChargeIndicator", f"{{{RAM}}}ActualAmount", True
         ),
+        **({"scheme_ids": ids} if (ids := _cii_line_scheme_ids(line)) else {}),
     }
 
 
@@ -651,6 +668,8 @@ def to_checker_invoice(document: dict[str, Any]) -> dict[str, Any]:
         reason = line.get("tax_reason") or header_reason
         if reason:
             mapped_line["tax_reason"] = reason
+        if line.get("scheme_ids"):
+            mapped_line["scheme_ids"] = line["scheme_ids"]
         lines.append(mapped_line)
 
     totals_src = document.get("totals") if isinstance(document.get("totals"), dict) else {}

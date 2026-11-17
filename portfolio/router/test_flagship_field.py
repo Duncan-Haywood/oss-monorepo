@@ -467,3 +467,27 @@ def test_items_split_only_outside_brackets():
                                  "(b) two [p; q]", "(c) three."]
     got = [c for c, _ in ff.park_candidates(v, 1000)]
     assert "(b) two [p; q]" in got and not any(c.endswith("inside)") and "(with" not in c for c in got)
+
+
+def test_make_room_keeps_the_heading_the_runs_text_continues():
+    # PR #16944: the run's NEW continued the clause before it ("synthetic
+    # control: CA rank 1"; "MA, AZ, OR ranks 6-13; covariates failed"), and
+    # --make-room parked that heading, leaving NEW under the wrong item.
+    head = "(9) synthetic control: CA rank 1 of 39 " + "h" * 150
+    mine = "MA, AZ, OR ranks 6-13; covariates failed " + "m" * 150
+    v = _full_row(9, 190)[:-1] + "; " + head + "; " + mine + "."
+    assert len(v) > ff.FLAGSHIP_NEXT_MAX
+    got, parked = ff.make_room(v, keep=(mine,))
+    assert parked and head in got and mine in got
+    assert got.index(head) + len(head) + 2 == got.index(mine)
+
+
+def test_park_candidates_skip_an_item_spanning_two_sentences():
+    # "...carry-forward. joint drift ... Open: (0) drift model" is one `; `
+    # item but two sentences; parking it would take the "Open:" label along.
+    two = "next a real carry-forward. Open: (0) drift model " + "d" * 150
+    v = _full_row(9, 190)[:-1] + "; " + two + "."
+    cands = [c for c, _ in ff.park_candidates(v, 100)]
+    assert cands and not any("carry-forward" in c for c in cands)
+    # a version number or file name is not a sentence break
+    assert not ff.SENTENCE.search("ships v1.2 and reads a.csv files")

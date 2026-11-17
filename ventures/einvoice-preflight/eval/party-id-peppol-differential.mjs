@@ -9,9 +9,9 @@
 // For each of the 15 schemes Peppol checks in these places, it draws ids
 // (check digits found by brute force against Peppol's own test, so the
 // generator shares no code with endpoint.mjs) and mutants of them, writes each
-// into one of twenty-two places (seller, buyer, payee, tax representative or
+// into one of twenty-eight places (seller, buyer, payee, tax representative or
 // deliver-to, identifier or legal registration, UBL or CII; plus UBL's
-// DeliveryLocation id, which no Peppol context reaches) of a shipped example file, then asks two questions of the same
+// DeliveryLocation id, which no Peppol context reaches, two CII line places and four UBL line places, one of them an item id no Peppol context reaches) of a shipped example file, then asks two questions of the same
 // XML text: does Peppol's rule fire on that element (the COMMON rules of
 // plain/peppol-ubl.json or plain/peppol-cii.json, evaluated with fontoxpath on
 // a slimdom DOM, as plain-schematron.mjs runs them), and does
@@ -210,6 +210,20 @@ const PLACES = [
   { syntax: "cii", party: "delivery_party", where: "party_ids", put: (s, v) => CII.replace("<ram:ApplicableHeaderTradeDelivery/>", `<ram:ApplicableHeaderTradeDelivery><ram:ShipToTradeParty><ram:ID schemeID="${s}">${esc(v)}</ram:ID><ram:Name>Warehouse 3</ram:Name></ram:ShipToTradeParty></ram:ApplicableHeaderTradeDelivery>`) },
   { syntax: "cii", party: "delivery_party", where: "party_ids", put: (s, v) => CII.replace("<ram:ApplicableHeaderTradeDelivery/>", `<ram:ApplicableHeaderTradeDelivery><ram:ShipToTradeParty><ram:GlobalID schemeID="${s}">${esc(v)}</ram:GlobalID><ram:Name>Warehouse 3</ram:Name></ram:ShipToTradeParty></ram:ApplicableHeaderTradeDelivery>`) },
   { syntax: "cii", party: "delivery_party", where: "legal_id", put: (s, v) => CII.replace("<ram:ApplicableHeaderTradeDelivery/>", `<ram:ApplicableHeaderTradeDelivery><ram:ShipToTradeParty><ram:Name>Warehouse 3</ram:Name><ram:SpecifiedLegalOrganization><ram:ID schemeID="${s}">${esc(v)}</ram:ID></ram:SpecifiedLegalOrganization></ram:ShipToTradeParty></ram:ApplicableHeaderTradeDelivery>`) },
+  // CII line-level ids (added 2026-11-17, later): the item standard id (BT-157,
+  // SpecifiedTradeProduct/GlobalID) under a COMMON scheme, e.g. a GTIN filed as 0088,
+  // and an Extended line ShipToTradeParty ID; Peppol's ram:GlobalID / ram:ID contexts
+  // reach both. Our path is /lines/0/scheme_ids.
+  { syntax: "cii", party: "lines/0", where: "scheme_ids", put: (s, v) => CII.replace("<ram:SpecifiedTradeProduct><ram:Name>", `<ram:SpecifiedTradeProduct><ram:GlobalID schemeID="${s}">${esc(v)}</ram:GlobalID><ram:Name>`) },
+  { syntax: "cii", party: "lines/0", where: "scheme_ids", put: (s, v) => CII.replace("</ram:SpecifiedLineTradeDelivery>", `<ram:ShipToTradeParty><ram:ID schemeID="${s}">${esc(v)}</ram:ID><ram:Name>Store 12</ram:Name></ram:ShipToTradeParty>$&`) },
+  // UBL line-level parties (added 2026-11-17): a CreditNoteLine's Delivery/DeliveryParty
+  // id and legal registration, and an Item's ManufacturerParty id. Peppol's
+  // PartyIdentification/ID and CompanyID contexts reach them; our path is /lines/0/scheme_ids.
+  // The item's StandardItemIdentification/ID is drawn too: no context reaches it.
+  { syntax: "ubl", party: "lines/0", where: "scheme_ids", put: (s, v) => UBL.replace('<cbc:LineExtensionAmount currencyID="EUR">200.00</cbc:LineExtensionAmount>\n    <cac:Item>', `<cbc:LineExtensionAmount currencyID="EUR">200.00</cbc:LineExtensionAmount><cac:Delivery><cac:DeliveryParty><cac:PartyIdentification><cbc:ID schemeID="${s}">${esc(v)}</cbc:ID></cac:PartyIdentification></cac:DeliveryParty></cac:Delivery>\n    <cac:Item>`) },
+  { syntax: "ubl", party: "lines/0", where: "scheme_ids", put: (s, v) => UBL.replace('<cbc:LineExtensionAmount currencyID="EUR">200.00</cbc:LineExtensionAmount>\n    <cac:Item>', `<cbc:LineExtensionAmount currencyID="EUR">200.00</cbc:LineExtensionAmount><cac:Delivery><cac:DeliveryParty><cac:PartyLegalEntity><cbc:RegistrationName>Store 12</cbc:RegistrationName><cbc:CompanyID schemeID="${s}">${esc(v)}</cbc:CompanyID></cac:PartyLegalEntity></cac:DeliveryParty></cac:Delivery>\n    <cac:Item>`) },
+  { syntax: "ubl", party: "lines/0", where: "scheme_ids", put: (s, v) => UBL.replace("</cac:ClassifiedTaxCategory>", `$&<cac:ManufacturerParty><cac:PartyIdentification><cbc:ID schemeID="${s}">${esc(v)}</cbc:ID></cac:PartyIdentification></cac:ManufacturerParty>`) },
+  { syntax: "ubl", party: "lines/0", where: "scheme_ids", put: (s, v) => UBL.replace("<cbc:Name>Consulting</cbc:Name>", `$&<cac:StandardItemIdentification><cbc:ID schemeID="${s}">${esc(v)}</cbc:ID></cac:StandardItemIdentification>`) },
 ];
 if (!CII.includes("<ram:ApplicableHeaderTradeDelivery/>")) throw new Error("cii template: expected an empty ApplicableHeaderTradeDelivery");
 

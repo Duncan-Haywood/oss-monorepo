@@ -6,7 +6,7 @@ import { headerAdjustmentNetDelta, inspectHeaderAdjustments } from "./adjustment
 import { inspectPaymentBic } from "./bic.mjs";
 import { inspectTaxBreakdown } from "./breakdown.mjs";
 import { inspectDocumentType } from "./document.mjs";
-import { inspectPartyEndpoint, inspectPartyIdentifiers } from "./endpoint.mjs";
+import { inspectPartyEndpoint, inspectPartyIdentifiers, inspectLineSchemedIds } from "./endpoint.mjs";
 import { inspectPaymentIban } from "./iban.mjs";
 import { inspectPaymentMeans } from "./means.mjs";
 import { inspectInvoicePeriod } from "./period.mjs";
@@ -16,7 +16,7 @@ import { inspectTaxExemption } from "./tax.mjs";
 import { inspectAccountingCurrencyTax } from "./taxcurrency.mjs";
 import { inspectLineExtension } from "./lineext.mjs";
 import { inspectPaymentTerms } from "./terms.mjs";
-import { inspectPartyVat } from "./vat.mjs";
+import { inspectNlVatShape, inspectPartyVat } from "./vat.mjs";
 import { acceptedLineNet, flatTaxTotal, isNegativeInvoice, summedLineNet, taxGroups, taxPercentOf } from "./linenet.mjs";
 import { parseDecimal } from "./numbers.mjs";
 
@@ -125,8 +125,14 @@ export function checkInvoice(invoice) {
       fail("INV-006", `${capitalize(partyName)} name is missing.`, `Add the ${partyName} name.`, `/${partyName}/name`);
     }
     if (party && typeof party === "object" && !Array.isArray(party)) {
-      for (const finding of inspectPartyVat(party, partyName)) {
+      const vatFindings = inspectPartyVat(party, partyName);
+      for (const finding of vatFindings) {
         fail(finding.rule, finding.message, finding.fix, finding.path);
+      }
+      if (!vatFindings.some((f) => f.path === `/${partyName}/vat_id`)) {
+        for (const finding of inspectNlVatShape(party, partyName)) {
+          fail(finding.rule, finding.message, finding.fix, finding.path, finding.severity);
+        }
       }
       for (const finding of inspectPartyEndpoint(party, partyName)) {
         fail(finding.rule, finding.message, finding.fix, finding.path, finding.severity);
@@ -143,6 +149,20 @@ export function checkInvoice(invoice) {
   for (const [key, label] of [["payee_party", "Payee"], ["tax_representative", "Tax representative"], ["delivery_party", "Deliver-to party"]]) {
     for (const finding of inspectPartyIdentifiers(invoice[key], key, label)) {
       fail(finding.rule, finding.message, finding.fix, finding.path, finding.severity);
+    }
+  }
+  // BT-63, the tax representative's VAT number (BR-56 requires one): read since
+  // 2026-11-17 and checked as the seller's is (INV-022/023, INV-064). Before,
+  // no reader kept it, so a mistyped one passed every built-in check.
+  const representative = invoice.tax_representative;
+  if (representative && typeof representative === "object" && !Array.isArray(representative)) {
+    const vatFindings = representative.vat_id === undefined || representative.vat_id === null || representative.vat_id === ""
+      ? [] : inspectPartyVat({ vat_id: representative.vat_id }, "tax_representative", "Tax representative");
+    for (const finding of vatFindings) fail(finding.rule, finding.message, finding.fix, finding.path);
+    if (!vatFindings.length) {
+      for (const finding of inspectNlVatShape(representative, "tax_representative", "Tax representative")) {
+        fail(finding.rule, finding.message, finding.fix, finding.path, finding.severity);
+      }
     }
   }
   for (const finding of inspectPaymentIban(invoice)) {
@@ -202,6 +222,9 @@ export function checkInvoice(invoice) {
     if (!line || typeof line !== "object" || Array.isArray(line)) {
       fail("INV-008", `Line ${n} is not an object.`, "Provide description, quantity, unit_price, and tax_percent.", `/lines/${index}`);
       return;
+    }
+    for (const finding of inspectLineSchemedIds(line, index)) {
+      fail(finding.rule, finding.message, finding.fix, finding.path, finding.severity);
     }
     if (typeof line.description !== "string" || !line.description.trim()) {
       fail("INV-008", `Line ${n} has no description.`, "Add a human-readable line description.", `/lines/${index}/description`);

@@ -76,7 +76,9 @@ export function loadFiction(root = DEFAULT_ROOT) {
       tagline: shelf.tagline,
       description: shelf.description,
       audience: shelf.audience,
-      href: `${HEARTH}/`,
+      // Its own section of the venture index: the three shelves share that page, and the first
+      // holds 300+ stories, so the bare index buried Little Lamps and For Other Minds below it.
+      href: `${HEARTH}/#${shelf.id}`,
       feed: `${HEARTH}/${feedPath(shelf.id)}`,
       cover: coverThumb(hearthRoot, `${HEARTH}/`, `covers/thumbs/${shelf.id}.webp`),
       count: mine.length,

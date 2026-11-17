@@ -740,7 +740,7 @@ export function venuesFromHosts(opp, hosts) {
  * of allocating and zeroing N * N cells each time (the allocation was most of the cost at 6 to 12 teams).
  */
 let coeStamp = new Uint32Array(0), coeCount = new Int32Array(0), coeGen = 0;
-function coeOf(opp, n, cyclic) {
+function coeOf(opp, n, cyclic, limit = Infinity) {
   const R = opp.length;
   const N = opp[0].length;
   if (coeStamp.length < N * N) { coeStamp = new Uint32Array(N * N); coeCount = new Int32Array(N * N); coeGen = 0; }
@@ -764,6 +764,10 @@ function coeOf(opp, n, cyclic) {
       if (stamp[idx] !== gen) { stamp[idx] = gen; c[idx] = 1; value += 1; }
       else { value += 2 * c[idx] + 1; c[idx]++; }
     }
+    // `limit` (the annealer's): every later team adds at least one per step between its n - 1
+    // games, so once even that much more passes the limit the move is rejected whatever the rest
+    // counts; the partial value returned is over the limit, which is all the caller reads
+    if (value + (n - 1 - k) * (n - 2) > limit) return value + (n - 1 - k) * (n - 2);
   }
   return value;
 }
@@ -899,7 +903,7 @@ function searchRounds(n, { seed = 1, effort = 1, cyclic = false, breakWeight = 0
   const iterations = N <= 6 ? 20000 : Math.max(2000, Math.round((effort * 4e7) / (N * N)));
   let T0 = Math.max(4, cur / (N * 4));
   if (N <= 2) return finish(bestOpp, n, cyclic, circleCoe, lb, 0, seed);
-  const coeCost = (o) => coeOf(o, n, cyclic);
+  const coeCost = (o, limit) => coeOf(o, n, cyclic, limit);
   ({ best, bestOpp } = anneal(opp, coeCost, { iterations, T0, rand, stopAt: lb }));
   if (breakWeight > 0) {
     // second pass: trade some carry-over for fewer home/away breaks, scored with a fast greedy
@@ -909,7 +913,7 @@ function searchRounds(n, { seed = 1, effort = 1, cyclic = false, breakWeight = 0
     // are not charged for breaks the greedy pass would add
     const mixed = hosts && carryHosts !== "seed"
       ? (o) => coeOf(o, n, cyclic) + breakWeight * Math.min(greedyBreaks(o, n), fixedHostBreaks(o, n, hosts))
-      : (o) => coeOf(o, n, cyclic) + breakWeight * greedyBreaks(o, n);
+      : (o, limit) => { const b = breakWeight * greedyBreaks(o, n); return coeOf(o, n, cyclic, limit - b) + b; };
     const start = bestOpp.map((o) => o.slice());
     const floorOpp = start.map((o) => o.slice());
     ({ bestOpp } = anneal(start, mixed, { iterations: Math.round(iterations / 2), T0: T0 / 2, rand, stopAt: -Infinity }));
@@ -1039,8 +1043,12 @@ export function lowCarryOverCappedRounds(n, { seed = 1, effort = 1, cyclic = fal
     if (keep && !flip && !fitsNow()) { undo(); continue; }
     if (odd ? !balanced(everyone) : (!keep || flip) && touched && !balanced(touched)) { undo(); continue; }
     const nb = keep && !flip && !odd ? curBreaks : breaksOf();
-    const nc = flip ? curCoe : coeOf(opp, n, cyclic);
-    if (nb > cap || !(nc <= curCoe || rand() < Math.exp((curCoe - nc) / T))) { undo(); continue; }
+    // over the cap the move is rejected before any draw, so its carry-over is never read; under it,
+    // the carry-over is counted only as far as the acceptance draw needs (see anneal)
+    if (nb > cap) { undo(); continue; }
+    let nc = curCoe;
+    if (!flip) { const u = rand.peek(); nc = coeOf(opp, n, cyclic, u > 0 ? curCoe - T * Math.log(u) + 1 : Infinity); }
+    if (!(nc <= curCoe || rand() < Math.exp((curCoe - nc) / T))) { undo(); continue; }
     curCoe = nc; curBreaks = nb;
     if (curCoe < best) { best = curCoe; bestOpp = opp.map((o) => o.slice()); bestVen = ven.map((x) => x.slice()); }
   }
@@ -1062,8 +1070,21 @@ export function lowCarryOverCappedRounds(n, { seed = 1, effort = 1, cyclic = fal
 
 // `blocks` splits the rounds into legs that must each stay a round robin of their own (a double
 // round robin played leg by leg); every move picks one block and stays inside it.
+//
+// A cost function may take a second argument, a limit: when the move's cost is sure to pass it, it
+// may stop counting and return any value over it. The limit comes from the draw the acceptance test
+// would make (rand.peek, mulberry32): a move costing v > cur is kept when rand() < exp((cur - v) / T),
+// that is v < cur - T ln(u), so past that, plus one for rounding, the move is rejected whatever its
+// exact cost. Such a move still draws u, as before, so the stream, every decision and the result
+// are the same as pricing every move in full.
 function anneal(opp, costOf, { iterations, T0, rand, stopAt, blocks = [[0, opp.length]] }) {
   const N = opp[0].length;
+  const peek = costOf.length >= 2 && rand.peek ? rand.peek : null;
+  const priced = (T) => {
+    if (!peek) return costOf(opp);
+    const u = peek();
+    return costOf(opp, u > 0 ? cur - T * Math.log(u) + 1 : Infinity);
+  };
   let cur = costOf(opp);
   let best = cur, bestOpp = opp.map((o) => o.slice());
   for (let it = 0; it < iterations && best > stopAt; it++) {
@@ -1079,12 +1100,12 @@ function anneal(opp, costOf, { iterations, T0, rand, stopAt, blocks = [[0, opp.l
       const S = teamSwapRounds(opp, a, b, r, lo, hi);
       if (S.length >= R) continue;
       swapTeamsIn(opp, S, a, b);
-      const v = costOf(opp);
+      const v = priced(T);
       if (v <= cur || rand() < Math.exp((cur - v) / T)) cur = v;
       else swapTeamsIn(opp, S, a, b);
     } else if (mv < 0.6) {
       [opp[r], opp[s]] = [opp[s], opp[r]];
-      const v = costOf(opp);
+      const v = priced(T);
       if (v <= cur || rand() < Math.exp((cur - v) / T)) cur = v;
       else [opp[r], opp[s]] = [opp[s], opp[r]];
     } else {
@@ -1093,7 +1114,7 @@ function anneal(opp, costOf, { iterations, T0, rand, stopAt, blocks = [[0, opp.l
       if (cyc.length === N) continue; // the whole round: same as a round swap
       const swap = () => { for (const x of cyc) { const a = opp[r][x]; opp[r][x] = opp[s][x]; opp[s][x] = a; } };
       swap();
-      const v = costOf(opp);
+      const v = priced(T);
       if (v <= cur || rand() < Math.exp((cur - v) / T)) cur = v;
       else swap();
     }

@@ -345,7 +345,7 @@ export function readSpec(f) {
   return {
     errors,
     spec: {
-      ...(gamesPerNight > 1 ? { gamesPerNight } : {}), rounds, teams: t.teams, double: Boolean(f.double), carryOver: Boolean(f.carryOver), carryOverPick: Object.hasOwn(CARRY_OVER_PICK, f.carryOverPick) ? CARRY_OVER_PICK[f.carryOverPick] : CARRY_OVER_PICK.balanced, ...(f.carryOverKeep ? { carryOverKeep: String(f.carryOverKeep) } : {}), start, weekdays: w.weekdays, skipDays: skip.days,
+      ...(gamesPerNight > 1 ? { gamesPerNight } : {}), rounds, ...(rounds && f.balanceSeeds ? { balanceSeeds: true } : {}), teams: t.teams, double: Boolean(f.double), carryOver: Boolean(f.carryOver), carryOverPick: Object.hasOwn(CARRY_OVER_PICK, f.carryOverPick) ? CARRY_OVER_PICK[f.carryOverPick] : CARRY_OVER_PICK.balanced, ...(f.carryOverKeep ? { carryOverKeep: String(f.carryOverKeep) } : {}), start, weekdays: w.weekdays, skipDays: skip.days,
       blackouts: b.blackouts, timeLimits: tl.limits, courtLimits: cl.limits, courtClosures: cc.closures, courts: courtNames, times: times.times, seed, minutes,
     },
   };
@@ -505,13 +505,17 @@ export function countBreaks(schedule) {
 
 export function mulberry32(seed) {
   let a = seed >>> 0;
-  return () => {
-    a = (a + 0x6d2b79f5) >>> 0;
-    let t = a;
+  const at = (x) => {
+    let t = x;
     t = Math.imul(t ^ (t >>> 15), t | 1);
     t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
+  const rand = () => { a = (a + 0x6d2b79f5) >>> 0; return at(a); };
+  // the value the next call will return, without drawing it (the annealer prices a move only as far
+  // as the draw it would make lets it be accepted)
+  rand.peek = () => at((a + 0x6d2b79f5) >>> 0);
+  return rand;
 }
 
 // ---------------------------------------------------------------- slot assignment
@@ -799,7 +803,7 @@ export function relabelPlan(plan, perm) {
  * The identity is the starting point, so the result is never worse than the plan as given.
  * Returns { plan, perm, summary: { displacedBefore, displacedAfter, lastDayBefore, lastDayAfter, evals } }.
  */
-export function fitPlanToBlackouts(plan, n, { start, weekdaySet, skipSet, isBlocked, capacityOn, seed = 1, evals } = {}) {
+export function fitPlanToBlackouts(plan, n, { start, weekdaySet, skipSet, isBlocked, capacityOn, seed = 1, evals, keep } = {}) {
   // a work budget, not a clock, so a share link rebuilds the same season: one evaluation costs about rounds^2 x matches
   const work = plan.length * plan.length * Math.max(1, Math.floor(n / 2));
   const budget = Number.isInteger(evals) && evals >= 0 ? evals : Math.max(300, Math.min(4000, 40 * n * n, Math.floor(8e6 / work)));
@@ -843,6 +847,8 @@ export function fitPlanToBlackouts(plan, n, { start, weekdaySet, skipSet, isBloc
     let pb = Math.floor(rand() * (n - 1));
     if (pb >= pa) pb++;
     [perm[pa], perm[pb]] = [perm[pb], perm[pa]];
+    // `keep(perm)` false: a swap that would undo something the organiser asked for (a balanced strength of schedule)
+    if (keep && !keep(perm)) { [perm[pa], perm[pb]] = [perm[pb], perm[pa]]; used++; continue; }
     const sc = score(perm);
     used++;
     if (better(sc, cur) || same(sc, cur)) {
@@ -857,6 +863,82 @@ export function fitPlanToBlackouts(plan, n, { start, weekdaySet, skipSet, isBloc
     perm: bestPerm,
     summary: { displacedBefore: s0[0], displacedAfter: best[0], lastDayBefore: s0[1], lastDayAfter: best[1], breaksBefore: s0[2], breaksAfter: best[2], evals: used },
   };
+}
+
+/**
+ * Strength of schedule against the list order, read as seeds (team 0 is the top seed). For each team:
+ * games played, the mean seed of its opponents, the mean an even share would give (the mean seed of
+ * every other team, so the top seed's target is a little weaker than the bottom seed's), and the gap.
+ * Seeds count from 1 in the output. Returns { teams: [{ games, opponentMean, target, gap }], worst }.
+ */
+export function seedStrength(plan, n) {
+  const sum = new Array(n).fill(0);
+  const games = new Array(n).fill(0);
+  for (const r of plan) for (const [a, b] of r.matches) { sum[a] += b; sum[b] += a; games[a]++; games[b]++; }
+  const S = (n * (n - 1)) / 2;
+  let worst = 0;
+  const teams = sum.map((s, t) => {
+    const target = (S - t) / (n - 1);
+    if (!games[t]) return { games: 0, opponentMean: null, target: target + 1, gap: 0 };
+    const gap = s / games[t] - target;
+    worst = Math.max(worst, Math.abs(gap));
+    return { games: games[t], opponentMean: s / games[t] + 1, target: target + 1, gap };
+  });
+  return { teams, worst };
+}
+
+/**
+ * A shorter season (the first k rounds of a round robin) with every team's opponents spread over the
+ * seeds. The circle method fixes one team and rotates the rest, so its first k rounds give the last
+ * team listed the top k seeds (20 teams, 10 rounds: the bottom seed's opponents average seed 5.5
+ * where an even share is 10.5). This searches team relabellings (which team takes which place in the
+ * plan) by seeded annealing on pair swaps, scoring the sum of fourth powers of each team's gap and
+ * keeping the least worst gap. A relabelling keeps every place's home/away sequence, breaks and
+ * carry-over, and nobody meets twice, so only who meets whom changes. The identity is the start, so
+ * the result is never worse. On every size small enough to try all relabellings (6, 8, 9 and 10
+ * teams) the search lands on the exact optimum (eval/seed-balance.txt).
+ * Returns { plan, perm, summary: { before, after, evals } } with gaps in seed places.
+ */
+export function balanceSeedStrength(plan, n, { seed = 1, evals } = {}) {
+  const opp = Array.from({ length: n }, () => []);
+  for (const r of plan) for (const [a, b] of r.matches) { opp[a].push(b); opp[b].push(a); }
+  const S = (n * (n - 1)) / 2;
+  const perm = Array.from({ length: n }, (_, i) => i);
+  const sum = new Array(n).fill(0);
+  const gapAt = (p) => (opp[p].length ? (sum[p] - (opp[p].length * (S - perm[p])) / (n - 1)) / opp[p].length : 0);
+  const score = () => {
+    let q = 0, w = 0;
+    for (let p = 0; p < n; p++) { const d = gapAt(p); q += d * d * d * d; w = Math.max(w, Math.abs(d)); }
+    return [w, q];
+  };
+  for (let p = 0; p < n; p++) for (const o of opp[p]) sum[p] += perm[o];
+  // a work budget, not a clock, so a share link rebuilds the same season: about 0.1 s at 64 teams
+  const budget = Number.isInteger(evals) && evals >= 0 ? evals : Math.min(200000, Math.max(20000, 3000 * n));
+  const s0 = score();
+  let cur = s0, best = s0, bestPerm = perm.slice();
+  const T0 = s0[1] / n + 1e-9;
+  const rand = mulberry32((seed >>> 0) * 2654435761 + 11);
+  // swap the teams at places a and b: every opponent of a sees perm[b] - perm[a] more, and the reverse
+  const swap = (a, b) => {
+    const d = perm[b] - perm[a];
+    for (const o of opp[a]) sum[o] += d;
+    for (const o of opp[b]) sum[o] -= d;
+    [perm[a], perm[b]] = [perm[b], perm[a]];
+  };
+  let used = 0;
+  for (; used < budget && n > 2; used++) {
+    const a = Math.floor(rand() * n);
+    let b = Math.floor(rand() * (n - 1));
+    if (b >= a) b++;
+    swap(a, b);
+    const s = score();
+    const T = T0 * (1 - used / budget) ** 3 + 1e-12;
+    if (s[1] <= cur[1] || rand() < Math.exp(-(s[1] - cur[1]) / T)) {
+      cur = s;
+      if (s[0] < best[0] - 1e-9 || (Math.abs(s[0] - best[0]) <= 1e-9 && s[1] < best[1])) { best = s; bestPerm = perm.slice(); }
+    } else swap(a, b);
+  }
+  return { plan: relabelPlan(plan, bestPerm), perm: bestPerm, summary: { before: s0[0], after: best[0], evals: used } };
 }
 
 /**
@@ -938,6 +1020,16 @@ export function buildSchedule(spec) {
     plan = plan.slice(0, spec.rounds);
     notices.push(`Shorter season: ${spec.rounds} of ${roundRobin(n, { double: Boolean(spec.double) }).length} rounds, so each team plays ${n % 2 ? `${spec.rounds - 1}-${spec.rounds}` : spec.rounds} game(s) and not every pair meets.`);
   }
+  // Balanced strength of schedule (2026-11-17): the teams are read as seeds in the order listed and
+  // given places in the shorter season so every team's opponents average close to an even share.
+  let seedBalance = null;
+  if (partial && spec.balanceSeeds && n >= 4) {
+    const bal = balanceSeedStrength(plan, n, { seed: spec.seed ?? 1, evals: spec.balanceSeedsEvals });
+    plan = bal.plan;
+    seedBalance = bal.summary;
+    const fmt = (x) => x.toFixed(1);
+    notices.push(`Even strength of schedule: reading the teams as seeds in the order listed, every team's opponents now average within ${fmt(bal.summary.after)} seed place(s) of an even share (the plain shorter season was ${fmt(bal.summary.before)} off).`);
+  }
   let waitFree = null;
   if (games > 1 && !spec.carryOver && !partial && spec.waitFree !== false && n >= 4) {
     // Rearrange the round robin so each night's games can sit back to back (nights.mjs). A double
@@ -964,7 +1056,7 @@ export function buildSchedule(spec) {
   let blackoutFit = null;
   const anyBlackout = blackSet.some((s) => s.size);
   if (anyBlackout && spec.blackoutFit !== false) {
-    const fit = fitPlanToBlackouts(plan, n, { start: spec.start, weekdaySet, skipSet, isBlocked, capacityOn, seed: spec.seed ?? 1, evals: spec.blackoutFitEvals });
+    const fit = fitPlanToBlackouts(plan, n, { start: spec.start, weekdaySet, skipSet, isBlocked, capacityOn, seed: spec.seed ?? 1, evals: spec.blackoutFitEvals, ...(seedBalance ? { keep: (perm) => seedStrength(relabelPlan(plan, perm), n).worst <= seedBalance.after + 1e-9 } : {}) });
     plan = fit.plan;
     blackoutFit = fit.summary;
     const f = fit.summary;
@@ -1034,6 +1126,7 @@ export function buildSchedule(spec) {
   if (carryOverSearch) schedule.carryOverSearch = carryOverSearch;
   if (waitFree) schedule.waitFree = waitFree;
   if (blackoutFit) schedule.blackoutFit = blackoutFit;
+  if (seedBalance) schedule.seedBalance = seedBalance;
   for (const e of validateSchedule(schedule).errors) if (e.includes("only plays at") || e.includes("only plays on") || e.includes("two games at")) notices.push(e.replace(/^Round \d+: |^Makeup \d+: /, ""));
   if (games > 1) {
     const w = nightWaits(schedule);
@@ -2995,7 +3088,7 @@ export function bracketText(bracket) {
 
 // ---------------------------------------------------------------- share link
 
-const SHARE_KEYS = ["teams", "double", "carryOver", "carryOverPick", "carryOverKeep", "start", "weekdays", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "seed", "minutes", "rounds", "gamesPerNight", "results", "playoff", "playoffDouble", "playoffThird", "pins", "rainouts", "withdrawals", "lateTeams", "finishBy", "officials", "grounds", "linked", "scoring", "duties", "sheetTitle", "sheetContact"];
+const SHARE_KEYS = ["teams", "double", "carryOver", "carryOverPick", "carryOverKeep", "start", "weekdays", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "seed", "minutes", "rounds", "balanceSeeds", "gamesPerNight", "results", "playoff", "playoffDouble", "playoffThird", "pins", "rainouts", "withdrawals", "lateTeams", "finishBy", "officials", "grounds", "linked", "scoring", "duties", "sheetTitle", "sheetContact"];
 
 /** Page fields -> URL-safe text for the `#` part of a link. The fragment is never sent to a server. */
 export function encodeFields(f) {
@@ -3022,7 +3115,7 @@ export function decodeFields(text) {
       skip: str(o.skip), blackouts: str(o.blackouts), timeLimits: str(o.timeLimits), courtLimits: str(o.courtLimits), courtClosures: str(o.courtClosures), courts: str(o.courts), times: str(o.times),
       seed: Number.isFinite(Number(o.seed)) ? Math.trunc(Number(o.seed)) : 1,
       minutes: Number.isFinite(Number(o.minutes)) ? Number(o.minutes) : 60,
-      rounds: o.rounds === undefined || o.rounds === "" ? "" : String(o.rounds).slice(0, 4),
+      rounds: o.rounds === undefined || o.rounds === "" ? "" : String(o.rounds).slice(0, 4), balanceSeeds: o.balanceSeeds === true,
       gamesPerNight: /^[1-4]$/.test(String(o.gamesPerNight ?? "")) ? String(o.gamesPerNight) : "",
       results: str(o.results), playoff: Number.isFinite(Number(o.playoff)) ? Math.trunc(Number(o.playoff)) : 0,
       playoffDouble: o.playoffDouble === true, playoffThird: o.playoffThird === true,

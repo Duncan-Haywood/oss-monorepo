@@ -93,6 +93,7 @@
       <div><label for="rounds">Rounds to play (blank = everyone plays everyone)</label><input id="rounds" inputmode="numeric" placeholder="e.g. 8 of 11"></div>
       <div><label for="seed">Shuffle seed (same seed, same schedule)</label><input id="seed" inputmode="numeric" value="1"></div>
     </div>
+    <div class="check"><input type="checkbox" id="balanceSeeds"><label for="balanceSeeds" style="display:inline;margin:0;font-weight:400">Shorter season: even out strength of schedule. List the teams best first (last season's table) and nobody gets all the top sides: with 20 teams over 10 rounds the bottom team would otherwise meet the top 10. Only applies when Rounds to play is less than a full round robin.</label></div>
     <fieldset style="border:0;padding:0;margin:12px 0 0">
       <legend style="font-weight:600">Play on</legend>
       <div class="days"><label class="inl" for="wd0"><input type="checkbox" id="wd0" value="Sun"> Sun</label><label class="inl" for="wd1"><input type="checkbox" id="wd1" value="Mon"> Mon</label><label class="inl" for="wd2"><input type="checkbox" id="wd2" value="Tue"> Tue</label><label class="inl" for="wd3"><input type="checkbox" id="wd3" value="Wed"> Wed</label><label class="inl" for="wd4"><input type="checkbox" id="wd4" value="Thu"> Thu</label><label class="inl" for="wd5"><input type="checkbox" id="wd5" value="Fri"> Fri</label><label class="inl" for="wd6"><input type="checkbox" id="wd6" value="Sat"> Sat</label></div>
@@ -417,7 +418,7 @@
       $("#start").value = f.start;
       $("#minutes").value = f.minutes;
       $("#seed").value = f.seed;
-      $("#rounds").value = f.rounds || "";
+      $("#rounds").value = f.rounds || ""; $("#balanceSeeds").checked = Boolean(f.balanceSeeds);
       $("#gamesPerNight").value = f.gamesPerNight || "1";
       for (let i = 0; i < 7; i++) $("#wd" + i).checked = f.weekdays.includes(WEEKDAYS[i]);
       $("#skip").value = f.skip;
@@ -451,7 +452,7 @@
       return {
         teams: $("#teams").value, double: $("#double").checked, carryOver: $("#carryOver").checked, carryOverPick: $("#carryOverPick").value, carryOverKeep: $("#carryOverKeep").value, start: $("#start").value, weekdays,
         skip: $("#skip").value, blackouts: $("#blackouts").value, timeLimits: $("#timeLimits").value, courtLimits: $("#courtLimits").value, courtClosures: $("#courtClosures").value, courts: $("#courts").value, times: $("#times").value,
-        seed: $("#seed").value, minutes: $("#minutes").value, rounds: $("#rounds").value, gamesPerNight: $("#gamesPerNight").value === "1" ? "" : $("#gamesPerNight").value,
+        seed: $("#seed").value, minutes: $("#minutes").value, rounds: $("#rounds").value, balanceSeeds: $("#balanceSeeds").checked, gamesPerNight: $("#gamesPerNight").value === "1" ? "" : $("#gamesPerNight").value,
         results: $("#results").value, playoff: $("#playoff").value, playoffDouble: $("#playoffDouble").checked, playoffThird: $("#playoffThird").checked, pins: $("#pins").value, rainouts: $("#rainouts").value, withdrawals: $("#withdrawals").value, lateTeams: $("#lateTeams").value, finishBy: $("#finishBy").value, officials: $("#officials").value, grounds: $("#grounds").value, linked: $("#linked").value, scoring: $("#scoring").value,
         duties: $("#duties").value, sheetTitle: $("#sheetTitle").value, sheetContact: $("#sheetContact").value,
       };
@@ -851,7 +852,7 @@
     });
     $("#clear-all").addEventListener("click", () => {
       for (const id of ["teams", "start", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "results", "pins", "rainouts", "withdrawals", "lateTeams", "finishBy", "officials", "grounds", "linked", "duties", "sheetTitle", "sheetContact"]) $("#" + id).value = "";
-      $("#playoff").value = "0"; $("#playoffDouble").checked = false; $("#playoffThird").checked = false; $("#double").checked = false; $("#carryOver").checked = false;
+      $("#playoff").value = "0"; $("#playoffDouble").checked = false; $("#playoffThird").checked = false; $("#double").checked = false; $("#carryOver").checked = false; $("#balanceSeeds").checked = false;
       $("#report").hidden = true; last = null; status.textContent = "Cleared.";
     });
     $("#team").addEventListener("change", showTeam);

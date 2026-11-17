@@ -264,22 +264,43 @@ def _balanced(text: str) -> bool:
     return depth == 0
 
 
+# A full stop inside an item joins two thoughts the `; ` split could not part
+# ("...carry-forward. joint drift ... Open: (0) drift model ..."): parking it
+# would take the next sentence's label ("Open:") with it, so it is not offered.
+SENTENCE = re.compile(r"[a-z0-9)\]]\. (?=[A-Za-z(])")
+
+
 def park_candidates(value: str, over: int, keep: tuple[str, ...] = ()) -> list[tuple[str, int]]:
     """(item, room it frees) for the `; `-separated items of `value`, last first,
     until together they free `over` characters. The history pointer that opens
     a row, the NEXT.md pointer and any item holding text in `keep` (the NEW of
     the run's own --replace) are never offered. Rows list their most
     useful items first ("Next, most valuable first: ..."), so the tail is the
-    usual place to cut, but which one to park stays the run's call."""
+    usual place to cut, but which one to park stays the run's call.
+
+    The item just before the run's own text is kept too: a run edits in
+    context, and that clause is often the heading its text continues. On
+    2026-11-17 (PR #16944) --make-room parked "control series: ... synthetic
+    control ...: CA rank 1 of 39" and left the run's "MA, AZ, OR ranks 6-13;
+    covariates ... failed" under the previous item's "its AR(1) term", so
+    the run needed a second --replace to restore the heading."""
     items = [i for i in split_items(value) if i]
+
+    def _body(item: str) -> str:
+        return ROW_NOTE.sub("", item.replace(PARK_POINTER, "")).strip().rstrip(". ")
+
+    def _mine(item: str) -> bool:
+        body = _body(item)
+        return any(k and (k in item or (body and body in k)) for k in keep)
+
+    held = {j - 1 for j, item in enumerate(items) if j and _mine(item)}
     out: list[tuple[str, int]] = []
     freed = 0
     for i, item in enumerate(reversed(items)):
-        first = i == len(items) - 1
-        body = ROW_NOTE.sub("", item.replace(PARK_POINTER, "")).strip().rstrip(". ")
-        mine = any(k and (k in item or body in k) for k in keep)
-        if (first or mine or not body or POINTER.match(body) or len(body) < 12
-                or not _balanced(body)):
+        j = len(items) - 1 - i
+        body = _body(item)
+        if (j == 0 or j in held or _mine(item) or not body or POINTER.match(body)
+                or len(body) < 12 or not _balanced(body) or SENTENCE.search(body)):
             continue
         gain = len(body) + 2
         out.append((body, gain))
