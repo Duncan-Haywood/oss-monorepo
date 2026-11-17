@@ -99,7 +99,7 @@ def _check_invoice(invoice: Any) -> list[dict[str, str]]:
                 fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
     # BG-10 payee and BG-11 tax representative: Peppol's PEPPOL-COMMON id
     # contexts match their ids as they do the seller's and buyer's (checks.mjs).
-    for key, label in (("payee_party", "Payee"), ("tax_representative", "Tax representative")):
+    for key, label in (("payee_party", "Payee"), ("tax_representative", "Tax representative"), ("delivery_party", "Deliver-to party")):
         for finding in inspect_party_identifiers(invoice.get(key), key, label):
             fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
     for finding in inspect_payment_iban(invoice):

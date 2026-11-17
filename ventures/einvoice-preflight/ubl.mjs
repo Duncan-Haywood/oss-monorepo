@@ -486,6 +486,18 @@ export function parseUblInvoice(source) {
   if (payee) invoice.payee_party = payee;
   const representative = sideParty(root, "TaxRepresentativeParty");
   if (representative) invoice.tax_representative = representative;
+  // cac:Delivery/cac:DeliveryParty: Peppol's PartyIdentification/ID and
+  // CompanyID contexts match its ids too (BT-71's DeliveryLocation/ID is not
+  // under PartyIdentification, so Peppol does not; added 2026-11-17).
+  const deliveryNode = root.children.filter((child) => child.name === "Delivery")
+    .flatMap((delivery) => delivery.children.filter((child) => child.name === "DeliveryParty"));
+  const deliverTo = deliveryNode.reduce((acc, node) => {
+    const ids = schemedIds(node);
+    if (ids.legal_id && !acc.legal_id) acc.legal_id = ids.legal_id;
+    if (ids.party_ids) acc.party_ids = [...(acc.party_ids || []), ...ids.party_ids];
+    return acc;
+  }, {});
+  if (Object.keys(deliverTo).length) invoice.delivery_party = deliverTo;
   const payment = payeePayment(root) || {};
   const termsDays = paymentTermsDays(root);
   if (termsDays) payment.terms_days = termsDays;

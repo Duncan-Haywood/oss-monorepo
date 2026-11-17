@@ -434,6 +434,12 @@ def _parse_cii(root: Any) -> dict[str, Any]:
         side = {k: v for k, v in _cii_party_identifiers(node).items() if k != "endpoint"}
         if side:
             document[key] = side
+    # BG-13 deliver-to: ShipToTradeParty's ID/GlobalID (BT-71) and legal id (cii.mjs).
+    delivery = None if transaction is None else transaction.find(f"{{{RAM}}}ApplicableHeaderTradeDelivery")
+    ship_to = None if delivery is None else delivery.find(f"{{{RAM}}}ShipToTradeParty")
+    side = {k: v for k, v in _cii_party_identifiers(ship_to).items() if k != "endpoint"}
+    if side:
+        document["delivery_party"] = side
 
     lines = [] if transaction is None else transaction.findall(f"{{{RAM}}}IncludedSupplyChainTradeLineItem")
     document["lines"] = [_parse_cii_line(line) for line in lines]
@@ -710,7 +716,7 @@ def to_checker_invoice(document: dict[str, Any]) -> dict[str, Any]:
         payment["terms_days"] = payment_src["terms_days"]
     if payment:
         invoice["payment"] = payment
-    for key in ("payee_party", "tax_representative"):
+    for key in ("payee_party", "tax_representative", "delivery_party"):
         if isinstance(document.get(key), dict):
             invoice[key] = document[key]
     return invoice

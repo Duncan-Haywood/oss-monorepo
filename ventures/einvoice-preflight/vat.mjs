@@ -425,11 +425,29 @@ function beOk(body) {
 // typo'd numbers valid. A preflight tool whose one job is catching a typo'd
 // VAT number before the invoice goes out cannot get its own arithmetic
 // backwards on the most common EU country in this list.
+//
+// Since 1 January 2020 a sole trader's btw-identificatienummer no longer
+// carries the BSN, and its check is ISO 7064 mod 97-10 over the whole number,
+// country code and B included (N=23, L=21, B=11), as an IBAN's is
+// (python-stdnum nl.btw: valid if either check passes; NL002455799B11 is its
+// example). Elfproef alone flagged every such number as a checksum typo, an
+// error on hundreds of thousands of Dutch sole traders' invoices (2026-11-17).
+// A suffix of 00 or a body of nine zeros is never issued (python-stdnum nl.btw
+// refuses both; Peppol's R056 pattern lets them through).
 function nlOk(body) {
+  if (body.slice(10) === "00" || body.slice(0, 9) === "000000000") return false;
   let total = 0;
   for (let i = 0; i < 8; i += 1) total += Number(body[i]) * (9 - i);
   total -= Number(body[8]);
-  return total % 11 === 0;
+  return total % 11 === 0 || nlMod97Ok(body);
+}
+
+function nlMod97Ok(body) {
+  if (!/^\d{9}B\d{2}$/.test(body)) return false;
+  const digits = `2321${body.slice(0, 9)}11${body.slice(10)}`;
+  let rest = 0;
+  for (const char of digits) rest = (rest * 10 + Number(char)) % 97;
+  return rest === 1;
 }
 
 function atOk(body) {
