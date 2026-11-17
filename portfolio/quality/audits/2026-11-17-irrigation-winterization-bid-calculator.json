@@ -197,7 +197,8 @@
    "what": "A cleared cost field is priced as 0 with no warning: number() converts '' to 0, so a blank hourly wage gives labor $0 and a $67.36 bid on the default house (true $178.68); same for burden, compressor, overhead.",
    "where": "ventures/irrigation-winterization-bid-calculator/calc.mjs:81",
    "category": "input-handling",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16925"
   },
   {
    "severity": "medium",
@@ -218,7 +219,8 @@
    "what": "Two seeded mutants survive: a backflow-only stop losing the minimum (calc.mjs:127) and the proposed-price hourly rate shown in the verdict line using on-site hours (calc.mjs:187).",
    "where": "ventures/irrigation-winterization-bid-calculator/calc.mjs:127",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16925"
   },
   {
    "severity": "low",
@@ -249,6 +251,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16925"],
  "verdict": "The arithmetic is right: five independent recomputations, including every dollar figure on the flat-per-zone comparison page, match calc.mjs to four decimals, and the default stop ($178.68, $17.87/zone) lands inside published market ranges. It does everything its pages claim (116 tests pass). It misses the bar on verification (2 of 5 non-equivalent seeded mutants survive) and sits at 2 on craft, fitness and domain: blank cost fields silently price at zero, travel is a full round trip per stop although blowouts are route work, and zone minutes are uncited constants that ignore compressor CFM, which Hunter's guidance says governs blowout time. Finished, not yet at the senior-contractor bar."
 }

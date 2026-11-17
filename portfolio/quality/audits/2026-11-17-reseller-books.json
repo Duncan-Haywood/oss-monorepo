@@ -194,7 +194,8 @@
    "what": "eBay profit and COGS are reported when only some items have a cost: the uncosted items count as free, the channel and total profit are overstated (117.44 instead of blank on a 137.44 net with one of two items costed) and Schedule C line 4 shows 20 as if complete, while the note beside it says profit was left blank. Etsy, Shopify, Poshmark and Whatnot adapters gate on allCosted; the eBay adapter gates on anyCosted.",
    "where": "ventures/reseller-books/books.mjs:115",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16925"
   },
   {
    "severity": "medium",
@@ -222,7 +223,8 @@
    "what": "Page FAQ and README say profit is shown for a channel only when every sale on it has a cost; false for eBay (see the high defect).",
    "where": "ventures/reseller-books/README.md:27",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16925"
   },
   {
    "severity": "low",
@@ -232,6 +234,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16925"],
  "verdict": "A well-shaped multi-marketplace ledger whose payout arithmetic is right: against the published Poshmark ($2.95 / 20% at $15) and Whatnot (8% + 2.9% + $0.30) schedules and hand-built eBay rows, fees, labels, ads, net payout and three-channel totals match to the cent, and every month, channel and total reconciles. A Schedule C preparer would stop at three things. eBay profit and cost of goods are shown when only some items are costed (117.44 profit with an uncosted item treated as free, and a line 4 figure presented as complete), contradicting the page's own rule. Line 2 takes eBay refunds net of the fee credit, so returns and fees are both misstated (51.84/22.56 for 60.00/14.40). The monthly profit column is blank whenever eBay, Etsy or Shopify is present. No real export has ever been read. 29 tests pass, but 4 of 5 seeded mutants in books.mjs survive and the engines' fee logic is guarded only by a copy-drift test. Does not meet the bar (correctness 2, verification 1, claims 2). Not finished (completeness 2). The high defect is a one-line fix: gate the eBay adapter on allCosted as the others do."
 }

@@ -158,7 +158,8 @@
    "what": "Rounding is applied after the floor/cap clamp and never re-checked, so the user's floor and cap do not hold: at the defaults (base 29, floor 0.35, charm) Pakistan is 9.99 (34.4% of base, below 10.15); 'nine' rounding at base 25 prices the US at 29 with cap 1 (a 16% premium on the reference market, shown as a -16% discount). The floor and cap are presented as guarantees on the page, in DEFAULTS and in the guide.",
    "where": "ventures/ppp-pricing-table-generator/ppp.mjs:109",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16925"
   },
   {
    "severity": "medium",
@@ -189,6 +190,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16925"],
  "verdict": "A small, honest, working PPP price-table generator whose arithmetic is right: an independent Python model reproduces the default table (US 28.99, DE 26.99, BR 15.99, IN 10.99), the revenue what-if (580.00 -> 703.95, +21.37%) and the break-even rule 1/(1-d)-1 exactly, and every README feature runs from the page and the CLI; the served engine is byte-identical to the source and the no-network claim holds. A SaaS pricing manager would stop at two things. The floor and cap are not enforced after rounding, so the default settings price Pakistan at 9.99 under a 10.15 floor and 'nine' rounding can charge the US above base. And the built-in price levels, compared with World Bank 2024 private-consumption price levels, are close on median (4.3 points) but undated and off by 25-60% for Egypt, Thailand, Peru and Mexico. 30 tests pass, but 3 of 6 seeded mutants survive. Does not meet the bar: correctness 2, claims 2, verification 2, median 2. Finished (completeness 3). Fixable in one session: re-check floor/cap after rounding, refresh and date the index table from WDI, fix the top tier under cap > 1, and test the floor with charm rounding."
 }
