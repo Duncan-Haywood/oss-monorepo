@@ -617,6 +617,29 @@ Misses with `barBurst`:
 
 tum as none 6; cog as nasal 5; sunc as voiceless vel stop 4; gonc as voiceless vel stop 2; fant as voiceless alv stop 2; fub (vowel only) as nasal 1; cub (vowel only) as nasal 1; bug (vowel only) as nasal 1; hud (vowel only) as nasal 1; mud (vowel only) as nasal 1; tum (vowel only) as nasal 1; sunc (vowel only) as nasal 1; ruc (vowel only) as nasal 1; fab as nasal 1; lob as nasal 1; fag as nasal 1; hud as voiceless alv stop 1; cog as voiced lab stop 1; fag as voiced lab stop 1; ruc as tap 1; fub as tap 1; cub as tap 1; rid as voiceless alv stop 1; fos as fricative f 1; rins as voiced alv stop 1
 
+## Y. Held out: a voiced stop's lead read as a nasal (twenty-first round)
+
+Voiced stops: *mog*, *fog*, *hog*, *tug*, *dug*, *lug*, *sob*, *cob*, *nub*, *pod*, *gud*, *gad*, *bed*, *beg*, *bid*, *rig*; nasal codas: *gom*, *hun*, *son*, *tun*; n-clusters: *ponc*, *runc*, *ront*, *hont*; voiceless stops: *dop*, *hut*, *bic*; others: *pof*, *mus*. Pulse-4 and pulse-2 notes at 102 BPM, each followed by a rest, G#2, A3, C4, C#4, D4, E4.
+
+| | default | `voicedLead` |
+|---|---|---|
+| voiced stop codas read exactly | 173 of 192 (90.1%) | 174 of 192 (90.6%) |
+| voiced stops read as a nasal | 10 | 9 |
+| nasal codas read exactly | 45 of 48 (93.8%) | 45 of 48 (93.8%) |
+| n-clusters read as their nasal | 42 of 48 (87.5%) | 42 of 48 (87.5%) |
+| nasal codas and n-clusters read as a voiced stop | 0 | 0 |
+| voiceless stop codas read exactly | 36 of 36 (100.0%) | 36 of 36 (100.0%) |
+| other syllables read exactly | 23 of 24 (95.8%) | 23 of 24 (95.8%) |
+| vowel-only control read as none | 335 of 348 (96.3%) | 335 of 348 (96.3%) |
+
+Misses, default (count over the twelve pitch and length cells):
+
+sob as nasal 3; hun as none 3; hog as nasal 2; hont as voiceless alv stop 2; mog as voiced lab stop 2; runc as voiceless vel stop 2; cob as nasal 2; ponc as voiceless vel stop 2; beg as voiceless vel stop 1; pof as fricative s 1; beg as voiced lab stop 1; mog as nasal 1; fog as voiced lab stop 1; hog as voiced lab stop 1; rig as voiced lab stop 1; mog (vowel only) as nasal 1; fog (vowel only) as nasal 1; hog (vowel only) as nasal 1; sob (vowel only) as nasal 1; cob (vowel only) as nasal 1; pod (vowel only) as nasal 1; gom (vowel only) as nasal 1; son (vowel only) as nasal 1; ponc (vowel only) as nasal 1; ront (vowel only) as nasal 1; hont (vowel only) as nasal 1; dop (vowel only) as nasal 1; pof (vowel only) as nasal 1; lug as voiceless vel stop 1; pod as nasal 1; fog as nasal 1; dug as voiceless vel stop 1
+
+Misses with `voicedLead`:
+
+sob as nasal 3; hun as none 3; hog as nasal 2; hont as voiceless alv stop 2; mog as voiced lab stop 2; runc as voiceless vel stop 2; ponc as voiceless vel stop 2; beg as voiceless vel stop 1; pof as fricative s 1; beg as voiced lab stop 1; mog as nasal 1; fog as voiced lab stop 1; hog as voiced lab stop 1; rig as voiced lab stop 1; mog (vowel only) as nasal 1; fog (vowel only) as nasal 1; hog (vowel only) as nasal 1; sob (vowel only) as nasal 1; cob (vowel only) as nasal 1; pod (vowel only) as nasal 1; gom (vowel only) as nasal 1; son (vowel only) as nasal 1; ponc (vowel only) as nasal 1; ront (vowel only) as nasal 1; hont (vowel only) as nasal 1; dop (vowel only) as nasal 1; pof (vowel only) as nasal 1; lug as voiceless vel stop 1; pod as nasal 1; fog as nasal 1; cob as nasal 1; dug as voiceless vel stop 1
+
 ## C. Closing consonants in the corpus
 
 146 GABC files, 9903 sung syllables; 3634 of 9903 (36.7%) close on a consonant, 266 on a cluster. First phone: s 938, n 720, m 649, t 448, r 420, l 168, k 145, d 75, b 28, p 25, f 15, g 3.

@@ -28,7 +28,7 @@ for (const pulses of [4, 2]) for (const midi of PITCH) {
     const trace = {};
     const got = readCoda(x, rate, vAt, tEnd, { ...opts, trace });
     const ok = Object.entries(want).every(([k, v]) => got[k] === v), t0 = vAt + 0.06;
-    console.log(`${s} midi ${midi} pulses ${pulses}: got ${got.cls}${got.place ? ' ' + got.place : ''} ${ok ? 'OK' : 'MISS'} (note end at +${(n.t1 - t0).toFixed(3)}s, tEnd +${(tEnd - t0).toFixed(3)})`);
+    console.log(`${s} midi ${midi} pulses ${pulses}: got ${got.cls}${got.place ? ' ' + got.place : ''}${got.rule ? " rule " + got.rule + " at +" + (got.at * 0.005).toFixed(3) + " " + got.ms + " ms" : ""} ${ok ? 'OK' : 'MISS'} (note end at +${(n.t1 - t0).toFixed(3)}s, tEnd +${(tEnd - t0).toFixed(3)})`);
     for (const c of trace.barCands || []) console.log(`  bar run +${c.t.toFixed(3)}..+${c.end.toFixed(3)} burst ${c.rel < 0 ? 'none' : '+' + c.rel.toFixed(3)} max rise ${c.maxDb.toFixed(1)}${c.hi ? ' / above ' + 'hz: ' + c.hi.maxDb.toFixed(1) + ' series ' + c.hi.series.join(',') + ' to +' + c.hi.to.toFixed(3) + ' tries ' + c.hi.tries.map((q) => `+${q.at.toFixed(3)} rise ${q.riseDb.toFixed(1)} late ${q.lateDb.toFixed(1)}`).join('; ') : ''}`);
     for (const c of trace.closures || []) console.log(`  closure +${c.t.toFixed(3)} ${c.ms} ms, search +${c.from.toFixed(3)}..+${c.to.toFixed(3)}, base ${c.baseDb.toFixed(1)} dB of vowel>600, max rise ${c.maxDb.toFixed(1)} dB, burst ${c.rel < 0 ? 'none' : '+' + c.rel.toFixed(3)}; tries ${c.tries.map((q) => `+${q.at.toFixed(3)} rise ${q.riseDb.toFixed(1)} late ${q.lateDb.toFixed(1)}`).join('; ') || '-'}`);
     if (verbose) {

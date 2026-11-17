@@ -1217,7 +1217,59 @@ cells the burst the reader finds has a 2.1-2.3 kHz centroid with 54-66% of its e
 on G2 and F3 read 33-44%. Where that energy comes from (the burst search's timing, or the vowel's release reaching
 into the 10 ms window) is the next thing to read, frame by frame, before any rule. Reader only; not listened to.
 
-#### No burst on C#4-E4 (2026-11-17, latest; registration held, now the default)
+#### A g's voice bar read as a nasal (2026-11-17, latest; failed its registration, opt-in)
+
+The round before left X's *cog* read as a nasal on 5 of its 12 cells, all on C#4-E4 or a G3 eighth. Read with
+`eval/burst-diag.mjs` (which now also prints the nasal rule that won and where its run starts), each of those cells
+had its closure and burst found, by the voice-bar rule (`barBurst`) or the closure rule. What beat it was a level- or
+step-rule "murmur" starting 7-8 frames earlier and running up to the closure or into it: /o/ darkening as the tongue
+rises for the g (F1 falling), then the voice bar's first frames. readCoda takes whichever candidate starts first, so
+the nasal won. No Latin coda puts a nasal before a voiced stop: the clusters are -nt, -nc, -ns and -nx, and their
+stops are voiceless.
+
+- **The rule** (`readCoda`'s `voicedLead`, opt-in; `--vlead bar2` in `eval/coda-check.mjs`): a nasal-rule run that
+  starts before the closure readCoda chose and ends at most 2 frames before it, or inside it, is that stop's lead
+  when the closure is one the voice-bar rule found and reads voiced (bar above -40 dB, as the stop's own voicing test).
+- **A first form, dropped**: on any closure that reads voiced (`--vlead 2`) it gained more (X 130 to 134 of 144,
+  V's velars 182 to 186) but lost 9 n-t and n-c clusters, among them the corpus's *mant*, *dant*, *hanc* and *BANT*
+  and N's *rens* and *fans*. An n's murmur runs into the t's silent closure and its tail makes the closure's later
+  half read voiced. Closures found by the voice-bar rule have its cluster guards (no closure with its own burst
+  within 8 frames after the run, no burst running into frication), so the rule kept only those.
+- **Development** (A-X, `--vlead bar2` against the default): K's others 206 to 207 of 220, N's 227 to 229 of 240
+  (voiced stops read as a nasal 6 to 4), R's third column 112 to 113, T's first and third columns 131 to 132 and 132
+  to 133, V's velars 182 to 183 and alveolars 58 to 59, X's voiced stops 130 to 133 of 144 (*cog* read as a nasal 5
+  to 3). Nothing was lost in any part. The corpus parts B, D, E, H, I and F and every vowel-only control were
+  identical.
+- **Pre-registered on a new part Y** (`eval/coda-check.mjs` header, twenty-first round, committed as 40910f4 before Y
+  ran): 16 voiced stop codas, most after /o/ or /u/, 4 nasal codas, 4 n-clusters, 3 voiceless stops and 2 others,
+  none sung before, at G#2, A3, C4, C#4, D4 and E4, 102 BPM.
+
+| Y | default | `voicedLead` | wanted |
+|---|---|---|---|
+| voiced stop codas read exactly (of 192) | 173 | 174 | 2 or more better: **fails** |
+| voiced stops read as a nasal | 10 | 9 | 2 or more fewer: **fails** |
+| nasal codas (of 48), n-clusters as their nasal (of 48), either read as a voiced stop | 45, 42, 0 | 45, 42, 0 | no fewer, no more: holds |
+| voiceless stops (of 36), others (of 24), vowel-only control (of 348) | 36, 23, 335 | 36, 23, 335 | identical: holds |
+
+The gain was tested, since the default read 10 of Y's voiced stops as a nasal. But the rule took back only 1 of them,
+so `voicedLead` stays opt-in and the default reader is unchanged. `voiced-lead.test.mjs` (2 tests) keeps X's *cog*
+on C#4: a nasal by default, a voiced velar stop with the rule. It also checks that the cell's nasals and n-clusters
+read the same either way.
+
+Why Y gave so little, read after the result (`node eval/burst-diag.mjs Y sob,hog,cob,mog 60,61,62`): most of Y's
+nasal misses (*hog* and *mog* on C#4, *cob*, *fog* and *hog* on D4 eighths) end on a closure the ordinary closure rule
+found, not the voice-bar rule, with the murmur ending 1-2 frames before it or overlapping it. That is exactly the case
+the dropped first form caught and the shipped form skips. On development the voice-bar rule's closures were most of
+the cases. On Y they were the minority. The next step is a cluster-safe test that a closure belongs to a voiced
+stop and not to an n-t: for instance, voicing held through the closure's last 20 ms up to the burst, as `barRel`
+already asks, applied to closure-rule closures as well.
+
+X's *tum* read as nothing (6 cells) is a different fault. Diffed against the vowel-only render, the sung m on D4 and
+E4 is there: about 7 dB under the /u/, a step held within 1 dB for 60 ms. But it is only 4-6 dB darker than an /u/
+that already has almost nothing above 1 kHz. The step rule asks for 7 dB darker, and the level rule asks for 15.
+Reader only; nothing in the synthesis changed. Not listened to.
+
+#### No burst on C#4-E4 (2026-11-17; registration held, now the default)
 
 The rounds before left voiced stop codas on C#4-E4 read as a nasal or as nothing (*bob*, *lag*, *pob*, *hag*), with
 no burst found at all. Read closure by closure (`eval/burst-diag.mjs`, which prints every closure readCoda finds, its

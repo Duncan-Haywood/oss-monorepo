@@ -244,7 +244,7 @@ export const LOCAL_REF = { from: 6, to: 24, cap: 20, nasal: false };
 // No frame in a closure is vowel-like, so the anchor holds through it. Opt-in (`closeAnchor: true`); it replaces
 // localRef on the closure rule only, the nasal rule is untouched.
 export const ANCHOR = { frames: 10, drop: 12 };
-export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = false, deepOpts = {}, localRef = LOCAL_REF, closeAnchor = false, barLead = false, compactVelar = false, voicelessLow = VOICELESS_LOW, barBurst = true, trace = null } = {}) {
+export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = false, deepOpts = {}, localRef = LOCAL_REF, closeAnchor = false, barLead = false, compactVelar = false, voicelessLow = VOICELESS_LOW, barBurst = true, voicedLead = false, trace = null } = {}) {
   const hop = Math.round(0.005 * rate), a = Math.round((vowelAt + 0.06) * rate), z = Math.round((tEnd - 0.02) * rate), zEnd = Math.round(tEnd * rate);
   const ref = [];
   for (let i = Math.round(vowelAt * rate); i < a; i += hop) ref.push(frameFeatures(x, i, rate));
@@ -517,8 +517,21 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
   // A voice bar read as a murmur (opt-in `barLead: N`): a level-rule run that a stop's closure, burst found,
   // starts inside of within N frames of the run's own start is that closure's voice bar
   const barOf = (r) => barLead !== false && stopRun && stopRun[0] >= r[0] && stopRun[0] <= r[1] && stopRun[0] - r[0] <= barLead;
+  // A voiced stop's lead read as a murmur (opt-in `voicedLead: N`, README "A g's voice bar read as a nasal"): on C#4-E4
+  // a dark vowel's last frames (/o/'s F1 falling into the closure) and the voice bar's first meet a nasal rule and run
+  // up to, or into, the closure readCoda chose for the stop. No Latin coda puts a nasal before a voiced stop (the
+  // clusters are -nt, -nc, -ns, -nx, whose stops are voiceless), so a run that ends at most N frames before the chosen
+  // closure, or inside it, is that stop's lead when the closure reads voiced (its bar above -40 dB, as below)
+  const VL = voicedLead === false ? null : typeof voicedLead === 'number' ? { gap: voicedLead, bar: false } : { gap: 2, bar: true, ...(voicedLead === true ? {} : voicedLead) };
+  const stopVoiced = (() => {
+    if (!VL || !stopRun || (VL.bar && !barRun)) return false;
+    const rel = relOf.get(stopRun), sg = fr.slice(stopRun[0], stopRun[1] + 1), shut = sg.filter((f) => a + f.t * rate + 0.02 * rate <= rel);
+    const inner = shut.length >= 2 ? shut.slice(Math.floor(shut.length / 2)) : shut.length ? shut : sg;
+    return median(inner.map((f) => f.loRel)) > -40;
+  })();
+  const leadOf = (r) => stopVoiced && r[0] < stopRun[0] && r[1] >= stopRun[0] - VL.gap;
   const nasRules = [['level', runs(nasal, 30).find((r) => (msOf(r) >= 45 || !next.some((k) => k >= r[1] && k - r[1] <= 3)) && !vowelAgain(r) && murmur(r) && !barOf(r))], ['step', step], ['near', near], ['pre', pre], ['deep', deep]]
-    .filter(([, r]) => r && !intoTap(r) && !(barRun && r[0] <= barRun[0] && barRun[0] - r[0] <= BB.lead)).sort((p, q) => p[1][0] - q[1][0]);
+    .filter(([, r]) => r && !intoTap(r) && !leadOf(r) && !(barRun && r[0] <= barRun[0] && barRun[0] - r[0] <= BB.lead)).sort((p, q) => p[1][0] - q[1][0]);
   const nas = nasRules[0]?.[1];
   const cands = [['closure', stopRun], ['fricative', fric], ['vfricative', vfric], ['nasal', nas], ['tap', tap]]
     .filter(([, r]) => r).sort((p, q) => p[1][0] - q[1][0]);
