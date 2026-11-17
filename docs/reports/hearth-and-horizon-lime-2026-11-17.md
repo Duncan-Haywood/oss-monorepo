@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [hearth-and-horizon]
+date: 2026-11-17
+---
 # Hearth & Horizon: "The Joint That Is Still Pink" (2026-11-17)
 
 Creative run, Hearth & Horizon shelf, BIBLE proposal *Lime that is still
