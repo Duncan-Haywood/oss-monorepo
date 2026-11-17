@@ -140,7 +140,7 @@ def main():
           ", ".join("k=%d %.4f" % (k, med(rows[n]["fk"][q] for n in idx)) for q, k in enumerate(KS[1:])) +
           "; free k: " + ", ".join("tau %g %.1f" % (t, med(rows[n]["kf"][q] for n in idx)) for q, t in enumerate(TAUS[1:])))
         P()
-        P("## M = %d: median F_k / F_1 by tau (tau 0 = 11ad's retained weight)" % m)
+        P("## M = %d: median F_k / F_1 by tau (tau 0 keeps B, the time legs spend inside the disc, so it is not 11ad's retained weight)" % m)
         P("tau   " + " ".join("   k=%-3d" % k for k in KS[1:] + (m,)) + "  free_k")
         fk_tau = {}
         for t in TAUS:
