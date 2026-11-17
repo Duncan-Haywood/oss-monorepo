@@ -101,7 +101,8 @@ export const COMPACT_VELAR = { c: 0.65, hz: 1650 };
 // readCoda's `voicelessLow` (README "A p's burst read as a k"): the share of a voiceless burst's energy above 1 kHz
 // under which it is labial; set midway between the voiceless labials' highest (0.79) and the velars' lowest (0.99)
 export const VOICELESS_LOW = 0.9;
-// readCoda's voice-bar burst (opt-in `barBurst: true`; README "No burst on C#4-E4"): on C#4-E4 a voiced stop's voice
+// readCoda's voice-bar burst (`barBurst`, the default since its registration held on part X, eval/coda-check.mjs
+// twentieth round; `barBurst: false` is the reader before; README "No burst on C#4-E4"): on C#4-E4 a voiced stop's voice
 // bar sits 19-23 dB under the vowel in all but only 4-7 dB under its band under 500 Hz (the bar and the vowel are both
 // little more than the fundamental there), so the closure rule (12 dB under 500 Hz) misses it and the nasal rule takes
 // it; and a b's burst (a 500 Hz band) stands under 12 dB over the bar's harmonics above 600 Hz, the bar fading 5-9 dB
@@ -243,7 +244,7 @@ export const LOCAL_REF = { from: 6, to: 24, cap: 20, nasal: false };
 // No frame in a closure is vowel-like, so the anchor holds through it. Opt-in (`closeAnchor: true`); it replaces
 // localRef on the closure rule only, the nasal rule is untouched.
 export const ANCHOR = { frames: 10, drop: 12 };
-export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = false, deepOpts = {}, localRef = LOCAL_REF, closeAnchor = false, barLead = false, compactVelar = false, voicelessLow = VOICELESS_LOW, barBurst = false, trace = null } = {}) {
+export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = false, deepOpts = {}, localRef = LOCAL_REF, closeAnchor = false, barLead = false, compactVelar = false, voicelessLow = VOICELESS_LOW, barBurst = true, trace = null } = {}) {
   const hop = Math.round(0.005 * rate), a = Math.round((vowelAt + 0.06) * rate), z = Math.round((tEnd - 0.02) * rate), zEnd = Math.round(tEnd * rate);
   const ref = [];
   for (let i = Math.round(vowelAt * rate); i < a; i += hop) ref.push(frameFeatures(x, i, rate));

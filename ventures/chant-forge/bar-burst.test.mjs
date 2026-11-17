@@ -1,4 +1,4 @@
-// No burst on C#4-E4 (onsets.mjs readCoda `barBurst`, opt-in; README "No burst on C#4-E4").
+// No burst on C#4-E4 (onsets.mjs readCoda `barBurst`, on by default; README "No burst on C#4-E4").
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { eventsToMidi } from './midi.mjs';
@@ -16,16 +16,16 @@ const m = parseMidi(mid), sec = (t) => tickToSeconds(t, m.division, m.tempos);
 const notes = m.notes.filter((n) => n.ch !== 9 && m.programs.get(n.ch)?.[0]?.[1] === 52).map((n) => ({ t0: sec(n.tick), t1: sec(n.end) })).sort((a, b) => a.t0 - b.t0);
 const read = (s, o) => { const j = U.indexOf(s), n = notes[j]; return readCoda(x, rate, n.t0 + 0.1, notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, o); };
 
-test('lag and bob on D#4: a voice bar the closure rule misses, read as a nasal and as nothing, read as their stops with barBurst', () => {
-  assert.equal(read('lag').cls, 'nasal');
-  assert.equal(read('bob').cls, 'none');
-  const g = read('lag', { barBurst: true }), b = read('bob', { barBurst: true });
+test('lag and bob on D#4: a voice bar the closure rule misses, read as a nasal and as nothing, read as their stops with barBurst (the default)', () => {
+  assert.equal(read('lag', { barBurst: false }).cls, 'nasal');
+  assert.equal(read('bob', { barBurst: false }).cls, 'none');
+  const g = read('lag'), b = read('bob');
   assert.deepEqual([g.cls, g.voiced, g.place], ['stop', true, 'vel']);
   assert.deepEqual([b.cls, b.voiced, b.place], ['stop', true, 'lab']);
 });
 
 test('barBurst leaves the nasal codas and the n-clusters of the same cell as they read', () => {
-  for (const s of ['bam', 'sun', 'tem', 'hon', 'dent', 'hens', 'sonc', 'tint']) assert.deepEqual(read(s, { barBurst: true }), read(s), s);
+  for (const s of ['bam', 'sun', 'tem', 'hon', 'dent', 'hens', 'sonc', 'tint']) assert.deepEqual(read(s), read(s, { barBurst: false }), s);
 });
 
 test('a trace reports each closure and its burst search, and changes nothing', () => {

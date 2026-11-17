@@ -374,6 +374,11 @@
 //    voiced stops as a nasal or nothing; if it reads fewer, barBurst stays opt-in, reported as untested. If all six
 //    hold and the gain is tested, barBurst becomes readCoda's default; otherwise it stays opt-in. In cells (README
 //    "A p's burst read as a k": a note's noise is seeded by its pitch and length), X's 8 high cells are the trials.
+//    Outcome (run 2026-11-17, after the registration above was committed as 89531e5): held. (1) voiced stop codas 102
+//    to 130 of 144; (2) C#4-E4 voiced stops read as a nasal or nothing 30 to 6 (the gain was tested: the default read
+//    30); (3) nasal codas 42 and 42 of 48, n-clusters 51 and 51 of 60, read as a stop 9 and 9;
+//    (4) voiceless 23 and 23 of 24, others 23 and 23, control 292 and 292 of 300; (5) the report rebuilt on the
+//    shipped code matches the A-W figures above; (6) holds by construction. barBurst is readCoda's default.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
@@ -417,9 +422,9 @@ const BARARG = args.includes('--bar') ? args[args.indexOf('--bar') + 1] : '';
 // --velar on: readCoda's compact velar burst before the low labial test (`compactVelar: true`, the eighteenth round)
 const VELARARG = args.includes('--velar') ? args[args.indexOf('--velar') + 1] : '';
 const VLOWARG = args.includes('--vlow') ? args[args.indexOf('--vlow') + 1] : '';
-// --barburst on: readCoda's voice-bar burst (`barBurst: true`, the twentieth round; README "No burst on C#4-E4")
+// --barburst off: readCoda without the voice-bar burst (`barBurst: false`, the reader before the twentieth round)
 const BBARG = args.includes('--barburst') ? args[args.indexOf('--barburst') + 1] : '';
-const RC = { ...RC0, ...(BBARG === 'on' ? { barBurst: true } : {}), ...(VLOWARG === 'off' ? { voicelessLow: false } : {}), ...(VELARARG === 'on' ? { compactVelar: true } : {}), ...(BARARG && BARARG !== 'off' ? { barLead: Number(BARARG) } : {}), ...PREOPTS, ...(PREARG === 'off' ? { preObstruent: false } : {}), ...(AGAINARG === 'off' ? { againGap: false } : {}), ...(VFRICARG === 'off' ? { vfricHi5: false } : {}), ...(DEEPARG === 'on' ? { deepMurmur: true } : {}), ...(LOCALARG === 'off' ? { localRef: false } : {}), ...(ANCHORARG === 'on' ? { closeAnchor: true } : {}) };
+const RC = { ...RC0, ...(BBARG === 'off' ? { barBurst: false } : {}), ...(VLOWARG === 'off' ? { voicelessLow: false } : {}), ...(VELARARG === 'on' ? { compactVelar: true } : {}), ...(BARARG && BARARG !== 'off' ? { barLead: Number(BARARG) } : {}), ...PREOPTS, ...(PREARG === 'off' ? { preObstruent: false } : {}), ...(AGAINARG === 'off' ? { againGap: false } : {}), ...(VFRICARG === 'off' ? { vfricHi5: false } : {}), ...(DEEPARG === 'on' ? { deepMurmur: true } : {}), ...(LOCALARG === 'off' ? { localRef: false } : {}), ...(ANCHORARG === 'on' ? { closeAnchor: true } : {}) };
 const rate = 44100, corpus = new URL('../corpus/', import.meta.url);
 const lines = [];
 const pct = (a, b) => `${a} of ${b} (${b ? ((100 * a) / b).toFixed(1) : '-'}%)`;
@@ -1190,11 +1195,11 @@ const row = (t, g) => `| ${t} | ${['def', 'bb'].map((m) => cell(`${g} ${m}`)).jo
 const cnt = (t, o) => `| ${t} | ${['def', 'bb'].map((m) => o[m] || 0).join(' | ')} |`;
 const list = (m) => HIDE.includes('X') ? '- hidden' : [...m].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join('; ') || 'none';
 lines.push('## X. Held out: no burst on C#4-E4 (twentieth round)', '', `Voiced stops: ${VD.map((s) => `*${s}*`).join(', ')}; nasal codas: ${NAS.map((s) => `*${s}*`).join(', ')}; n-clusters: ${CL.map((s) => `*${s}*`).join(', ')}; voiceless stops: ${VLS.map((s) => `*${s}*`).join(', ')}; others: ${NEG.map((s) => `*${s}*`).join(', ')}. Pulse-4 and pulse-2 notes at 106 BPM, each followed by a rest, A#2, G3, C#4, D4, D#4, E4.`, '',
-  '| | default | `barBurst` |', '|---|---|---|',
+  '| | before (`barBurst: false`) | `barBurst` (the default since this round) |', '|---|---|---|',
   row('voiced stop codas read exactly', 'voiced'), row('of them, on C#4-E4', 'voicedhi'), cnt('voiced stops on C#4-E4 read as a nasal or nothing', asNasNone),
   row('nasal codas read exactly', 'nasal'), row('n-clusters read as their nasal', 'cluster'), cnt('n-clusters read as a stop', clAsStop),
   row('voiceless stop codas read exactly', 'voiceless'), row('other syllables read exactly', 'other'), row('vowel-only control read as none', 'control'), '',
-  'Misses with the default (count over the twelve pitch and length cells):', '', list(xMiss), '',
+  'Misses before (count over the twelve pitch and length cells):', '', list(xMiss), '',
   'Misses with `barBurst`:', '', list(xMissB), '');
 }
 
