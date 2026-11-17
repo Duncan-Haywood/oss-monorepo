@@ -449,6 +449,48 @@ test("a date or duration property takes a range, written on its XSD base, checke
   assert.ok(reopen(onString).imp.state.specs[0].reqs[0].fixed);
 });
 
+test("a one-of on a date, date-time or duration is written on its XSD base and reopens as a row; one on xs:string stays on xs:string", () => {
+  const L = loadFor("IFC4");
+  const text = warrantyHouse();
+  const prop = (name, oneOf) => ({ ...blankReq(), kind: "property", set: "Pset_Warranty", name, mode: "oneOf", oneOf });
+  const spec = (cls, r, i) => ({ name: `one of ${i}`, optionality: "required", cls, withSub: false, also: [], predefinedType: "", reqs: [r] });
+  const specs = [
+    spec("IFCDOOR", prop("WarrantyStartDate", ["2024-05-01", "2025-01-01"]), 0),  // pass
+    spec("IFCDOOR", prop("WarrantyStartDate", ["2024-05-01Z"]), 1),               // compared as written: fail
+    spec("IFCDOOR", prop("WarrantyPeriod", ["P2Y"]), 2),                          // pass
+    spec("IFCDOOR", prop("WarrantyPeriod", ["P24M"]), 3),                         // as written: fail
+    spec("IFCWORKSCHEDULE", { ...blankReq(), kind: "attribute", name: "CreationDate", mode: "oneOf", oneOf: ["2024-05-01T09:00:00"] }, 4),
+    spec("IFCDOOR", { ...prop("WarrantyStartDate", ["2024-05-01"]), oneOfBase: "xs:string" }, 5), // an opened file's base: pass
+  ];
+  const xml = buildIds(stateToDoc({ title: "t", schema: "IFC4", specs }, L), L.S);
+  const bases = [...xml.matchAll(/<xs:restriction base="([^"]+)"><xs:enumeration/g)].map((m) => m[1]);
+  assert.deepEqual(bases, ["xs:date", "xs:date", "xs:duration", "xs:duration", "xs:dateTime", "xs:string"]);
+  assert.deepEqual(audit(xml).filter((i) => i.level === "error"), []);
+  // (4: the house has no work schedule, and a required specification needs one.)
+  assert.deepEqual(check(xml, text).specs.map((s) => s.status), ["pass", "fail", "pass", "fail", "fail", "pass"]);
+  // The same file on xs:string throughout (what the editor wrote before) checks the same.
+  const allString = xml.replace(/base="xs:(date|duration|dateTime)"/g, 'base="xs:string"');
+  assert.deepEqual(check(allString, text).specs.map((s) => s.status), check(xml, text).specs.map((s) => s.status));
+  // Reopened, every one is an editable row, written back byte for byte.
+  for (const x of [xml, allString]) {
+    const { imp, parsed, back } = reopen(x);
+    assert.equal(imp.kept, 0);
+    assert.equal(buildIds(stateToDoc(imp.state, L), L.S), x);
+    for (let i = 0; i < specs.length; i++) assert.deepEqual(said(back.specs[i]), said(parsed.specs[i]));
+  }
+  // Dropping oneOfBase (the page's "Write on xs:date") moves an opened row to the DataTypes base.
+  const { imp } = reopen(allString);
+  assert.equal(imp.state.specs[0].reqs[0].oneOfBase, "xs:string");
+  delete imp.state.specs[0].reqs[0].oneOfBase;
+  assert.match(buildIds(stateToDoc(imp.state, L), L.S), /<baseName><simpleValue>WarrantyStartDate<\/simpleValue><\/baseName><value><xs:restriction base="xs:date"><xs:enumeration value="2024-05-01"\/>/);
+  // A one-of on another base (xs:integer on a date) is still kept as written.
+  assert.ok(reopen(xml.replace('<xs:restriction base="xs:date"><xs:enumeration value="2024-05-01"/><xs:enumeration value="2025-01-01"/>', '<xs:restriction base="xs:integer"><xs:enumeration value="2024-05-01"/><xs:enumeration value="2025-01-01"/>')).imp.state.specs[0].reqs[0].fixed);
+  // A text property's one-of is unchanged: xs:string, no oneOfBase.
+  const fr = buildIds(stateToDoc({ title: "t", schema: "IFC4", specs: [spec("IFCDOOR", { ...blankReq(), kind: "property", set: "Pset_DoorCommon", name: "FireRating", mode: "oneOf", oneOf: ["EI30", "EI60"] }, 0)] }, L), L.S);
+  assert.match(fr, /<xs:restriction base="xs:string"><xs:enumeration value="EI30"\/>/);
+  assert.equal(reopen(fr).imp.state.specs[0].reqs[0].oneOfBase, undefined);
+});
+
 test("a standard property asked for presence with no dataType opens as a row and writes no dataType back", () => {
   const xml = `<?xml version="1.0"?><ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema"><info><title>t</title></info><specifications>
     <specification name="windows" ifcVersion="IFC4"><applicability minOccurs="1" maxOccurs="unbounded"><entity><name><simpleValue>IFCWINDOW</simpleValue></name></entity></applicability>

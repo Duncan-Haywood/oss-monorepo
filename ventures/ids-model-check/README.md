@@ -165,6 +165,15 @@ open. MIT licensed, no dependencies, nothing uploaded.
   failing doors. Presence-only standard properties with no dataType now open
   as rows: 86.4% of public facets editable (was 85.2%), 17 of 64 files fully
   editable (was 14). `eval/date-ranges-2026-11-17.md`.
+  **One of on dates and durations** (2026-11-17): a one-of row on those types
+  writes its list on the same base (`xs:date`, ...), not `xs:string`; an opened
+  list on either base opens as a row, and one on `xs:string` (what the editor
+  wrote before) keeps it, so earlier files write back byte for byte, with a
+  **Write on xs:date** button. Both checkers compare the listed values as text
+  whatever the base: 8 rows on 61 doors give the same failing doors on both
+  bases, 16 of 16 the same in IfcTester 0.9.0, and the row says that P24M does
+  not match P2Y. 13 of the 29 date lists in the IDS-Audit-tool valid files now
+  open as rows (28.1% editable, was 26.5%). `eval/date-oneof-2026-11-17.md`.
 - Exports: BCF 2.1 (one topic per failing element, selected by IfcGuid), CSV,
   JSON.
 - 22 MB Revit export (Schultz Residence, 424,819 entities): 1.4 s on the command
@@ -674,8 +683,9 @@ faster than IfcTester; its point is needing no install.
   untyped value rows 2026-11-17, `eval/untyped-values-2026-11-17.md`;
   exclusive bounds 2026-11-17, `eval/exclusive-bounds-2026-11-17.md`;
   date and duration ranges 2026-11-17, `eval/date-ranges-2026-11-17.md`;
-  the model's range on dates 2026-11-17, `eval/model-date-range-2026-11-17.md`):
-  `xs:date` one-of rows; a real IFC4 export with dates to try the range on;
+  the model's range on dates 2026-11-17, `eval/model-date-range-2026-11-17.md`;
+  one-of rows on dates 2026-11-17, `eval/date-oneof-2026-11-17.md`):
+  attribute rows in specifications with no class; a real IFC4 export with dates to try the range on;
   a subclass checkbox per class, not only the first;
   a "fix the dataType" hint built from the 21
   of 122 standard properties real exports write in another type.

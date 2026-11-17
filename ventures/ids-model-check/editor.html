@@ -284,6 +284,15 @@
         h += `<input style="width:14em;margin-top:6px" aria-label="add a value" placeholder="add a value, then Enter" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="oneOfAdd" data-change="1">`;
         if (!r.oneOf.length) h += ` <span class="warn">Tick or add at least one value.</span>`;
       }
+      // A one-of on a date, time or duration: written on the DataTypes base
+      // (xs:date...), or on xs:string as an opened file had it. Both this
+      // checker and IfcTester compare the listed values as written
+      // (eval/date-oneof-2026-11-17.md).
+      if (r.mode === "oneOf" && temporal) {
+        const tb = "xs:" + temporal, onString = r.oneOfBase === "xs:string";
+        const eg = temporal === "duration" ? "P24M does not match P2Y" : temporal === "date" ? "2024-05-01Z does not match 2024-05-01" : temporal === "time" ? "09:00:00Z does not match 09:00:00" : "2024-05-01T09:00:00Z does not match 2024-05-01T09:00:00";
+        h += `<p class="muted" style="margin:6px 0 0;font-size:0.86rem">${onString ? `This file writes the list on xs:string; IDS 1.0's DataTypes table gives this type ${tb}. Checkers read both the same way.` : `Written on ${tb}, the base IDS 1.0 gives this type.`} Each value is compared as written, here and in IfcTester: ${eg}, so list each form the model uses.${onString ? ` <button type="button" class="ghost small" data-act="oneof-base" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>Write on ${tb}</button>` : ""}</p>`;
+      }
     }
     if (offer && r.cardinality !== "prohibited") {
       const shown = offer.values.slice(0, 8).map(([v, n]) => `${v === "" ? "(empty)" : v} (${n})`).join(", ");
@@ -500,13 +509,13 @@
     if (k === "set") {
       target.custom = t.value === "__own" || t.value.startsWith("own:");
       target.set = t.value === "__own" ? "" : t.value.replace(/^own:/, "");
-      target.name = ""; target.dataType = ""; target.mode = "any"; target.oneOf = []; target.untyped = false;
+      target.name = ""; target.dataType = ""; target.mode = "any"; target.oneOf = []; delete target.oneOfBase; target.untyped = false;
       render();
       return;
     }
     if (k === "ownSet") { target.set = t.value.trim(); output(); return; }
     if (k === "ownName") {
-      target.name = t.value.trim(); target.mode = "any"; target.oneOf = []; target.equals = ""; target.untyped = false;
+      target.name = t.value.trim(); target.mode = "any"; target.oneOf = []; delete target.oneOfBase; target.equals = ""; target.untyped = false;
       // Filled in from the model when it has this property.
       const L = loaded[doc.schema];
       const m = inv && modelSets(inv, specClasses(L, s), []).find((x) => x.name === target.set);
@@ -539,9 +548,9 @@
       return;
     }
     if (k === "cls") { s.predefinedType = ""; for (const r of [...s.reqs, ...(s.app || [])]) if (r.kind === "property" && !r.custom) { r.set = ""; r.name = ""; } }
-    if (k === "kind") { target.name = ""; target.mode = "any"; target.oneOf = []; target.custom = false; target.set = ""; target.dataType = ""; }
-    if (k === "dataType") { target.mode = "any"; target.oneOf = []; }
-    if (k === "name" && t.dataset.r !== undefined) { target.mode = "any"; target.oneOf = []; target.equals = ""; }
+    if (k === "kind") { target.name = ""; target.mode = "any"; target.oneOf = []; delete target.oneOfBase; target.custom = false; target.set = ""; target.dataType = ""; }
+    if (k === "dataType") { target.mode = "any"; target.oneOf = []; delete target.oneOfBase; }
+    if (k === "name" && t.dataset.r !== undefined) { target.mode = "any"; target.oneOf = []; delete target.oneOfBase; target.equals = ""; }
     if (structural) render(); else output();
   }
   $("specs").addEventListener("input", (e) => { if (e.target.tagName === "INPUT" && e.target.type !== "checkbox" && !e.target.dataset.change) onField(e, false); });
@@ -592,6 +601,9 @@
       const t = q ? untypeRow(L, r, q.dataType) : null;
       if (t) { rows[+e.target.dataset.r] = t.row; record("editor_untyped"); if (t.dropped) alert(t.real ? "With no dataType, checkers read a real-number value differently, so the row now asks for any value (presence)." : "A range needs a dataType, so the row now asks for any value. Set a value again if you need one."); }
     }
+    // An opened date, time or duration one-of moved from xs:string to its
+    // DataTypes base (same values, same verdicts).
+    if (a === "oneof-base") { delete rows[+e.target.dataset.r].oneOfBase; record("editor_oneof_base"); }
     // A date range rewritten as the pattern of the same dates (datePattern),
     // which IfcTester and this checker read the same way.
     if (a === "date-pattern") {
