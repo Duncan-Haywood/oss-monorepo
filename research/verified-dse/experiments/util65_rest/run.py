@@ -35,6 +35,11 @@ DONE141 = M141.complete([json.loads(l) for l in OLD.read_text().splitlines()])
 REST = [d for d in M141.ORDER if d not in set(DONE141)]
 
 
+def task(a):
+    """Milestone 141's task, wrapped here so the pool can pickle it (the loaded module is not importable by name)."""
+    return M141.task(a)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--openroad", required=True)
@@ -60,7 +65,7 @@ def main():
     tasks = [t for t in tasks if (t[0], t[2], tuple(t[1])) not in done]
     print(f"{len(REST)} designs, {len(tasks)} points to run", flush=True)
     with Pool(a.jobs) as pool, open(TABLE, "a") as fh:
-        for i, r in enumerate(pool.imap_unordered(M141.task, tasks, chunksize=1)):
+        for i, r in enumerate(pool.imap_unordered(task, tasks, chunksize=1)):
             fh.write(json.dumps(r) + "\n")
             fh.flush()
             if i % 50 == 0:

@@ -92,8 +92,8 @@ def summary(name, ds, c40, c65, d40, d65, seed):
 
 
 def main(dst):
-    out = ["# Milestone 142: milestone 141's unrun designs at 65% placement utilisation, run to completion (flow run, descriptive "
-           "addition)", "", f"theta = {score.THETA}; milestone 141's seed-141 order over {len(run.ORDER)} designs", ""]
+    out = ["# Milestone 142: milestone 141's unrun designs at 65% placement utilisation, resumed (flow run, descriptive addition)",
+           "", f"theta = {score.THETA}; milestone 141's seed-141 order over {len(run.ORDER)} designs", ""]
     old, new = rows65()
     first, rest = analysed(old, new)
     out.append(f"milestone 141's analysed designs: {len(first)}; new complete designs (ORDER prefix past them): {len(rest)} of "
