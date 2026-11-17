@@ -64,6 +64,9 @@ export const KERNELS = {
   uniform: (u) => (Math.abs(u) <= 1 ? 0.5 : 0),
 };
 
+// Own-property lookup, so a name like "constructor" is not a kernel.
+const kernelOf = (name) => (Object.hasOwn(KERNELS, name) ? KERNELS[name] : null);
+
 export const DEFAULTS = { cutoff: 0, p: 1, kernel: "triangular", vce: "nn", nnMatch: 3, alpha: 0.05 };
 
 // ---------- CSV ----------
@@ -349,7 +352,7 @@ export function rdEstimate({ x, y, d = null, cutoff = 0, h, b = null, p = 1, ker
   if (!(h > 0)) throw new Error("The bandwidth h must be positive.");
   const bb = b ?? h;
   const q = p + 1;
-  const kern = KERNELS[kernel];
+  const kern = kernelOf(kernel);
   if (!kern) throw new Error(`Unknown kernel ${kernel}; use triangular, epanechnikov or uniform.`);
   const ys = d ? [y, d] : [y];
   // Only observations within max(h, b) of the cutoff carry weight; the
@@ -481,7 +484,7 @@ function mseBandwidth(sides, cutoff, c0, order, nu, m, kern, J, n) {
  * 0.75-1.06 times rdbwselect's mserd h (README, "How close").
  */
 export function selectBandwidth({ x, y, cutoff = 0, p = 1, kernel = "triangular", nnMatch = 3 }) {
-  const kern = KERNELS[kernel];
+  const kern = kernelOf(kernel);
   if (!kern) throw new Error(`Unknown kernel ${kernel}; use triangular, epanechnikov or uniform.`);
   const q = p + 1;
   const n = x.length;
@@ -497,7 +500,7 @@ export function selectBandwidth({ x, y, cutoff = 0, p = 1, kernel = "triangular"
   const spread = Math.min(sd(x), iqr > 0 ? iqr / 1.349 : Infinity);
   const range = Math.max(cutoff - sorted[0], sorted[n - 1] - cutoff);
   const cap = (v) => (Number.isFinite(v) ? Math.min(Math.max(v, range * 1e-6), range) : range);
-  const c0 = cap(KCONST[kernel] * spread * Math.pow(n, -1 / 5));
+  const c0 = cap((Object.hasOwn(KCONST, kernel) ? KCONST[kernel] : KCONST.triangular) * spread * Math.pow(n, -1 / 5));
   const J = nnMatch;
   const est = (bw, order, k) => sides.map((S) => {
     const reach = Math.max(...S.x.map((v) => Math.abs(v - cutoff)));
@@ -519,7 +522,7 @@ export function selectBandwidth({ x, y, cutoff = 0, p = 1, kernel = "triangular"
 // ---------- the whole analysis ----------
 
 function sideLines(x, y, c, h, p, kernel) {
-  const kern = KERNELS[kernel];
+  const kern = kernelOf(kernel);
   const out = {};
   for (const [name, test] of [["left", (v) => v < c], ["right", (v) => v >= c]]) {
     const xs = [], ys = [];
@@ -621,7 +624,7 @@ export function analyze(input = {}) {
   const o = { ...DEFAULTS, ...Object.fromEntries(Object.entries(input).filter(([, v]) => v !== undefined && v !== null && v !== "")) };
   const p = Number(o.p);
   if (![0, 1, 2, 3, 4].includes(p)) throw new Error("The polynomial order p must be 0, 1, 2, 3 or 4.");
-  if (!KERNELS[o.kernel]) throw new Error("kernel must be triangular, epanechnikov or uniform.");
+  if (!kernelOf(o.kernel)) throw new Error("kernel must be triangular, epanechnikov or uniform.");
   if (!["nn", "hc0", "hc1", "hc2", "hc3"].includes(o.vce)) throw new Error("vce must be nn, hc0, hc1, hc2 or hc3.");
   const alpha = Number(o.alpha);
   if (!(alpha > 0 && alpha < 1)) throw new Error("alpha must be between 0 and 1.");
