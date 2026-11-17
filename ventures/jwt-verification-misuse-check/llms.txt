@@ -2,7 +2,7 @@
 
 > Paste your JavaScript, Python, Go or Java code and find JWT verification misuse: jwt.decode where verify is needed, verify_signature False, alg none, unpinned algorithms, ignoreExpiration, hard-coded or weak secrets. Free, runs in your browser, nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free and open source (MIT). A heuristic pattern scan of the code you paste, not a security audit: a clean result does not mean the code verifies tokens correctly, and missing audience or issuer checks are not looked for.
 
 ## Pages
 

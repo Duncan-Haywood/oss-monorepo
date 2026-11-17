@@ -171,7 +171,10 @@ KEYWORD_ARG = re.compile(r"^([A-Za-z_]\w*)\s*=(?!=)\s*(.*)$")
 USER_KEY = re.compile(
     r"\b(?:req|request|ctx|event)\s*[.\[]|\bheaders?\b|\b(?:params|query|body)\b"
 )
-GO_METHOD_CHECK = re.compile(r"\.Method\b")
+# A keyfunc that checks token.Method: a type assertion (token.Method.(*jwt.SigningMethodHMAC)),
+# token.Method.Alg(), or a comparison with a jwt.SigningMethod*. A bare `.Method` also matched
+# net/http's r.Method and switched the rule off for the whole file (quality audit 2026-11-17).
+GO_METHOD_CHECK = re.compile(r"\.Method\s*(?:\.\s*\(|\.\s*Alg\s*\(|[!=]=\s*jwt\.SigningMethod)")
 
 WEAK_LITERALS = frozenset(
     {

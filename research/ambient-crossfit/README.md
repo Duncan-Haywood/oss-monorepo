@@ -2,6 +2,8 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-drclip`, whose first next step was "cross-fitted outcome models combined with a cap". Produced with AI assistance. **Stylised, simulated results only**: every distribution is chosen by me and nothing is a claim about a real user, device or product. **Negative result**: cross-fitting changed little where capping already worked and did not rescue the uninformed-prior case.
 
+> **Audit warning (2026-11-17).** `fit_map` (`src/ambient_crossfit/core.py:52`) takes plain Newton steps with no line search and does not check that it converged. In the uninformed-prior runs and the unclipped informed-prior run at &epsilon; = 0.002 it diverges and returns weights hundreds of units from the prior mean (biased fit, &epsilon; = 0.02, 100 h: `[-369, -69, -173, -554]`). A converged optimiser scores those fits about 9 to 12.5 utility/h, not &minus;13 to &minus;96 or 0.26/1.53. So the uninformed-prior result and the "collapse" headline below are optimiser artefacts until `fit_map` gets backtracking and the runs are redone. The finite-cap informed-prior cells recompute independently. Details: [`portfolio/quality/audits/2026-11-17-ambient-crossfit.json`](../../portfolio/quality/audits/2026-11-17-ambient-crossfit.json). Sibling `ambient-*` projects share this `fit_map`.
+
 **Live page:** https://marisstella.app/research/ambient-crossfit/
 
 ## Motivation
@@ -30,7 +32,7 @@ Same world, seeds, fit hour (100), &epsilon; &isin; {0.002, 0.005, 0.02}, two pr
 cd research/ambient-crossfit
 pip install numpy pytest
 PYTHONPATH=src python3 -m pytest -q tests       # 5 tests
-PYTHONPATH=src python3 experiments/run.py       # several minutes, writes experiments/results.txt
+PYTHONPATH=src python3 experiments/run.py       # about 1.5 minutes, writes experiments/results.txt
 ```
 
 ## Results (from `experiments/results.txt`; held-out utility per hour, mean over 20 seeds; oracle 12.71, full-information fit 12.72)
@@ -56,6 +58,9 @@ The `biased`, `clip10`, `random_matched` columns and every `plug` column reprodu
 - Two folds assigned by position only; no repeated splits, more folds, or cap chosen by validation (the other half of the `ambient-drclip` next step is still open).
 - Clipping makes the estimator biased by design; bias not measured. No self-normalisation.
 - `random_matched` and `full` use labels a deployed assistant never sees.
+
+## Known gaps
+See the audit warning at the top: make `fit_map` a damped Newton with a convergence check, then rerun every row. Tests pass 5 of 5, but seeded mutants survived 4 of 6 times (audit file above).
 
 ## Next steps
 

@@ -124,10 +124,22 @@ test("checkOutputChange skips an output already marked sensitive", () => {
   assert.equal(findings.length, 0);
 });
 
+test("checkOutputChange skips an output Terraform marks sensitive (after_sensitive: true)", () => {
+  // The shape terraform show -json writes for `output "u" { sensitive = true }`.
+  const findings = checkOutputChange("u", {
+    before: null,
+    after: "postgres://a:pw@db:5432/x",
+    before_sensitive: false,
+    after_sensitive: true,
+  });
+  assert.equal(findings.length, 0);
+});
+
 test("checkOutputChange flags an unmarked output", () => {
   const findings = checkOutputChange("connection_url", {
     after: "postgres://app:hunter2@db.internal:5432/main",
-    sensitive: false,
+    before_sensitive: false,
+    after_sensitive: false,
   });
   assert.equal(findings.length, 1);
   assert.equal(findings[0].code, "url-embedded-credentials");
@@ -153,7 +165,7 @@ test("checkPlan aggregates resource and output findings", () => {
         },
       ],
       output_changes: {
-        db_url: { after: "postgres://app:hunter2@db.internal/main", sensitive: false },
+        db_url: { after: "postgres://app:hunter2@db.internal/main", before_sensitive: false, after_sensitive: false },
       },
     }),
   );

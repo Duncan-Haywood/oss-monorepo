@@ -194,7 +194,7 @@ node cli.mjs check plan.json --json</pre>
         },
       ],
       output_changes: {
-        connection_url: { after: "postgres://app:hunter2@db.internal.example:5432/main", sensitive: false },
+        connection_url: { after: "postgres://app:hunter2@db.internal.example:5432/main", before_sensitive: false, after_sensitive: false },
       },
     }, null, 2);
 

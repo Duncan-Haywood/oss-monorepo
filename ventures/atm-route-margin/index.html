@@ -141,7 +141,7 @@ function updateVisit(count = false) {
     el('profit').textContent = money(r.netProfit);
     el('rateLine').textContent = r.effectiveHourlyRate === null
       ? 'no refill/drive time entered'
-      : `about ${money(r.effectiveHourlyRate)}/hr after all costs across ${r.laborHours.toFixed(2)} hrs this month`;
+      : `about ${money(r.effectiveHourlyRate)}/hr for your time after every other cost, across ${r.laborHours.toFixed(2)} hrs this month`;
     el('surchargeOut').textContent = money(r.grossSurcharge);
     el('commissionOut').textContent = money(r.commissionAmount);
     el('processingOut').textContent = money(r.processingCost);
