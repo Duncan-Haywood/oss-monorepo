@@ -82,7 +82,11 @@ export function synthFit(y, donors, k) {
 // The test. y: the treated series; donors: { name: series }; k: date index. Returns the fit, the gap after the date,
 // each donor's placebo ratio, the rank-based p, and a fit warning when the treated series is matched worse before
 // the date than most donors are (the placebo distribution then says little: Abadie et al. 2010, section 4.3).
-export function synthControlTest(y, donors, k, { minBefore = 5, minAfter = 2, fitWarnQuantile = 0.8 } = {}) {
+// placeboPool 'without' (the pre-registered default): each placebo is fitted against the other donors, the treated
+// unit left out, so it has one donor fewer than the treated fit. 'with': the treated unit is moved into each placebo's
+// pool (Abadie et al. 2010: "shifting California to the donor pool"), so every unit is fitted against the same number
+// of others and the ranks are exchangeable when nothing happened (README "A synthetic control", the diagnostic).
+export function synthControlTest(y, donors, k, { minBefore = 5, minAfter = 2, fitWarnQuantile = 0.8, placeboPool = 'without' } = {}) {
   const names = Object.keys(donors);
   const n = y.length;
   if (names.length < 4) throw new Error(`a synthetic control needs at least 4 donor series (got ${names.length})`);
@@ -93,6 +97,7 @@ export function synthControlTest(y, donors, k, { minBefore = 5, minAfter = 2, fi
   const fit = synthFit(y, series, k);
   const placebos = names.map((s, j) => {
     const others = series.filter((_, i) => i !== j);
+    if (placeboPool === 'with') others.push(y);
     const f = synthFit(series[j], others, k);
     return { name: s, preRmspe: f.preRmspe, postRmspe: f.postRmspe, ratio: f.ratio };
   });

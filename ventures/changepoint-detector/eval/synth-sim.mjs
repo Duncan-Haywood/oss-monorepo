@@ -5,6 +5,7 @@
 // to unit 0 from k on. Cell E1 puts the treated unit's loadings outside the donors' range (no convex combination can
 // match it), the case the fit warning is for.
 //   SC_SEED_BASE=11000 SC_SHARD=0/4 node eval/synth-sim.mjs 100 > part0.json
+// SC_POOL=with moves the treated unit into each placebo's pool (the README's post-hoc check; default 'without').
 // Each line of output is one JSON row per panel: { cell, rep, p, rank, effect, fitWarning }.
 import { synthControlTest } from '../synth-control.mjs';
 
@@ -60,7 +61,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       if (r % sn !== si) continue;
       const rows = panel(cell, base + 1000 * ci + r);
       const donors = Object.fromEntries(rows.slice(1).map((d, j) => [`d${j}`, d]));
-      const res = synthControlTest(rows[0], donors, cell.k);
+      const res = synthControlTest(rows[0], donors, cell.k, { placeboPool: process.env.SC_POOL ?? 'without' });
       console.log(JSON.stringify({ cell: name, rep: r, p: res.p, rank: res.rank, effect: res.effectAverage, fitWarning: res.fitWarning, pre: res.preRmspe }));
     }
   });

@@ -731,4 +731,4 @@ year (Orzechowski and Walker compile state tax-paid sales; the fiscal year ends 
 - **Cite (the policies tested):** Abadie, A., Diamond, A. and Hainmueller, J. (2010). Synthetic control methods for
   comparative case studies: estimating the effect of California's tobacco control program. *J. Am. Stat. Assoc.*
   105(490), 493-505. doi:10.1198/jasa.2009.ap08746 (California's Proposition 99 and its 38-state donor pool).
-- **Used by:** `eval/known-date-control-step-real.mjs`, `known-date-control.test.mjs`.
+- **Used by:** `eval/known-date-control-step-real.mjs`, `known-date-control.test.mjs`, `eval/synth-real.mjs`, `eval/synth-real-diag.mjs`, `synth-control.test.mjs`.

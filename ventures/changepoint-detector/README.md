@@ -5807,3 +5807,48 @@ wander, and a state against a national average on annual data usually does not: 
 years are 124-372 points and the guard reads rho on enough data; a synthetic control (weights fitted on the
 before-period, Abadie et al. 2010) instead of a plain mean; and, for programmes rather than one-off price changes, a
 test of the effect's path (the slope change) with the placebo warning, since that is where the real effect sat.
+
+### A synthetic control: Proposition 99's published gap, but California ranks third (2026-11-17, pre-registered; not shipped)
+
+The step-alone round ended asking for "a synthetic control (weights fitted on the before-period, Abadie et al. 2010)
+instead of a plain mean". `synthControlTest(y, donors, k)` in `synth-control.mjs` builds one: weights at least zero and
+summing to one, fitted so a mix of donor series tracks the treated series over every point before your date
+(accelerated projected gradient on the simplex), and the gap after the date is the estimate. The test is Abadie,
+Diamond and Hainmueller's (2010) in-space placebo: each donor is fitted the same way as if it were treated, and the
+treated series' ratio of after-date to before-date root mean squared gap is ranked among them, p = rank / (donors + 1).
+It matches on the outcome only, no covariates. A fit warning says when the treated series is matched worse before the
+date than 80% of the donors are.
+
+Pre-registration `eval/synth-prereg-2026-11-17.md`, committed after an exploratory run (seed base 11000,
+`eval/synth-explore.out.txt`) and before the confirmatory run (fresh base 13000, 400 panels a cell,
+`eval/synth-confirm.out.txt`) and before any real state was fitted (`node eval/synth-real.mjs`,
+`eval/synth-real.out.txt`):
+
+SIM_TABLE_HERE
+
+**The estimate replicates the paper.** California's synthetic control is Utah 0.391, Montana 0.227, Nevada 0.207,
+Connecticut 0.109, New Hampshire 0.043 and Colorado 0.024 (the paper's, with covariates: Utah 0.394, Nevada 0.234,
+Montana 0.199, Colorado 0.164, Connecticut 0.069). Before 1989 the gap is 1.66 packs a head (root mean square); after,
+it opens to -8.4 packs in 1989, -17.5 in 1993 and -26.5 in 2000, an average of -19.5 over 1989-2000. The paper reports
+"about 26 packs" by 2000 and about 20 on average. With the window cut at 1988, fake dates 1980 and 1984 give p 0.46 and
+0.28, and none of the nine placebo states is found.
+
+**The test does not.** California's ratio (12.4) ranks 3rd of 39, p 0.077, against the paper's 1st, p 0.026. Massachusetts
+(rank 8 of 39, gap -15.7), Arizona (18 of 36, -8.1) and Oregon (11 of 28, -15.6) all have negative gaps and none is
+near p 0.10, so T1 and T2-T4 fail and `--synth-control` is not offered (the CLI wiring written in this session was taken
+out; the module stays for reproducing these tables, `synth-control.test.mjs`).
+
+**Why California ranks third** (after the run, not pre-registered; `node eval/synth-real-diag.mjs`,
+`eval/synth-real-diag.out.txt`). The two states above it are Missouri (ratio 26.5) and Virginia (16.9), whose
+before-period fits are almost exact (RMSPE 0.41 and 0.86 packs against California's 1.66): a ratio divides by the
+before-gap, so a donor that a mix of other states tracks to under a pack gets a large ratio from a modest later gap
+(Missouri's after-gap is 10.9 packs, California's 20.5). Matching on all 19 before-years and no covariates fits the
+middle of the donor cloud too well; the paper's covariate-and-three-lags match leaves those placebos looser. The
+paper's own filters do not rescue it here: keeping placebos with before MSPE at most 20, 5 or 2 times California's
+leaves it 3rd of 35, 31 and 20 (p 0.086, 0.097, 0.150).
+
+**What a reader can use now.** For a single treated unit with a long before-period and a donor pool, this module gives
+the published-quality estimate of the gap (`node -e` with `synthControlTest`), but its p should not be read as a test
+when some donors fit almost exactly. **Next** (fresh pre-registration): a statistic that does not divide by a tiny
+before-gap (the after-gap alone, or the ratio with the before-gap floored at the donors' median), checked in simulation
+against cells where some donors are near-copies of others; monthly series; and the effect's path as the statistic.

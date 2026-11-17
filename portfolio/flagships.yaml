@@ -187,16 +187,15 @@ flagships:
       non-sticky), test it on fresh labelled data; update-rate check: date a
       documented collection change. Stale feeds: clumped LR shipped; next a real
       documented carry-forward. joint drift (measured, not offered) and its 2x
-      penalty on fresh multi-column labelled data; TSSB/HAS/UTSA (README): count,
-      shape checks failed; next phase-tolerant shapes, 5th set. Open: (0) drift
-      model: t-walk increments, biweight on fresh data, why it absorbs seat belts
-      and quality control 4, its AR(1) term; (1) slopes: logs fail, 2 hinges ship
-      (refuse short sticky series), given date: --known-date on CLI, page, engine;
-      in-time placebos ship beside it (README "In-time placebos": 0-4% false
-      warnings); control series: step-only rule calibrated in sims, but 11 of 13
-      annual state tobacco ratios refused as wanders (README "The step alone"): next
-      monthly state series, a synthetic control, a slope-path test. More open items:
-      NEXT.md.
+      penalty on fresh multi-column labelled data. Open: (0) drift model: t-walk
+      increments, biweight on fresh data, why it absorbs seat belts and quality
+      control 4, its AR(1) term; (1) slopes: logs fail, 2 hinges ship (refuse short
+      sticky series), given date: --known-date on CLI, page, engine; control series:
+      step-only rule calibrated in sims, but 11 of 13 annual state tobacco ratios
+      refused as wanders (README "The step alone"): synthetic control (README "A
+      synthetic control"): CA -26.5 packs at 2000 as published, rank 3 of 39 (MO, VA
+      fit too well): next a ratio robust to tiny before-gaps, monthly series. More
+      open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     why: >-
