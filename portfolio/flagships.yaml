@@ -479,9 +479,7 @@ flagships:
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
       (eval/ifcxml-xbim-2026-11-16.md); cross-check more public models from
       opensourceBIM/IFC-files and buildingSMART's Sample-Test-Files with
-      eval/crosscheck_ifctester.py; the IDS editor (editor.html; README): "Write
-      dataType" for the 21 of 122 standard properties real exports write in another
-      type (typeRow, eval/untyped-values-2026-11-17.md); a tolerance hint on
+      eval/crosscheck_ifctester.py; the IDS editor (editor.html; README): a tolerance hint on
       exclusive bounds (eval/exclusive-bounds-2026-11-17.md); more real exports
       through eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
@@ -506,8 +504,9 @@ flagships:
       a no-dataType value row; attribute values and classification codes 2026-11-17
       (eval/model-attr-codes-2026-11-17.md: 242 of 242 offers pass; 143 of 210
       Uniformat elements in Schultz have an empty code, Require a code); a range for
-      numeric attributes; a dataType-mismatch hint; GitHub Action and ci-cli.mjs
-      2026-11-17 (eval/ci-action-2026-11-17.md: 8 pairs on 4 real exports in 7.5 s,
-      9 of 9 annotations on the element's line; next: parse each model once for all
-      its IDS, a run on a GitHub runner and a team's repo); heap use on a 200 MB
-      model; a BIM coordinator's real IDS and model (needs a person).
+      numeric attributes; a dataType-mismatch hint, Accept any data type 2026-11-17
+      (eval/model-any-type-2026-11-17.md); GitHub Action and ci-cli.mjs 2026-11-17
+      (eval/ci-action-2026-11-17.md: 8 pairs on 4 real exports in 7.5 s, 9 of 9
+      annotations on the element's line; next: parse each model once for all its
+      IDS, a run on a GitHub runner and a team's repo); heap use on a 200 MB model;
+      a BIM coordinator's real IDS and model (needs a person).

@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { parseIds } from "./ids.mjs";
 import { auditIds } from "./audit.mjs";
 import { resources, check } from "./node.mjs";
-import { classesWithSets, setsFor, propertiesOf, subclasses, predefinedTypes, buildIds, entityFacet, xsBase, PARTOF_RELATIONS, importIds, stateToDoc, idsSchema, specClassNames, commonSets, commonAttributes, sameAttributeType, commonPredefinedTypes, parseClassList, valueChoices, attributeValueKind, modelAttributes, modelValueOffer, typeRow, appMatchCount } from "./editor.mjs";
+import { classesWithSets, setsFor, propertiesOf, subclasses, predefinedTypes, buildIds, entityFacet, xsBase, PARTOF_RELATIONS, importIds, stateToDoc, idsSchema, specClassNames, commonSets, commonAttributes, sameAttributeType, commonPredefinedTypes, parseClassList, valueChoices, attributeValueKind, modelAttributes, modelValueOffer, typeRow, appMatchCount, untypeRow, blankReq, blankSpec } from "./editor.mjs";
 import { Model } from "./ids.mjs";
 import { modelInventory } from "./inventory.mjs";
 
@@ -369,4 +369,31 @@ test("a property value with no dataType opens as a row that keeps no dataType; t
   const a = check(written, text).specs[0], b = check(typed, text).specs[0];
   assert.deepEqual([a.applicable, b.applicable], [0, 2]);
   assert.ok(!auditIds(parseIds(typed), { schemas: { IFC4: R.schemas.IFC4 }, typeMap: R.typeMap, psets: R.psets }).some((i) => i.code === "value-no-datatype" && /IsExternal|FireRating/.test(i.message)));
+});
+
+test("untypeRow: a standard property the model writes in another type is checked with no dataType", () => {
+  const L = loadFor("IFC2X3");
+  const row = { ...blankReq(), set: "Pset_WallCommon", name: "Reference" };
+  // Not offered when the model writes the template's type, or for own sets.
+  assert.equal(untypeRow(L, row, "IFCIDENTIFIER"), null);
+  assert.equal(untypeRow(L, { ...row, custom: true }, "IFCLABEL"), null);
+  assert.equal(untypeRow(L, row, null), null);
+  const u = untypeRow(L, { ...row, mode: "equals", equals: "W-01" }, "IFCLABEL");
+  assert.deepEqual([u.row.untyped, u.row.dataType, u.row.mode, u.row.equals, u.dropped, u.real], [true, "", "equals", "W-01", false, false]);
+  // Written with no dataType; presence only audits clean, a value warns.
+  const spec = (r) => ({ ...blankSpec(), name: "s", cls: "IFCWALL", withSub: false, reqs: [r] });
+  const xml = (r) => buildIds(stateToDoc({ title: "t", schema: "IFC2X3", specs: [spec(r)] }, L), L.S);
+  const pres = untypeRow(L, row, "IFCLABEL").row;
+  assert.ok(!/dataType=/.test(xml(pres)));
+  assert.deepEqual(audit(xml(pres), "IFC2X3").filter((i) => i.level !== "info").map((i) => i.code), []);
+  assert.deepEqual(audit(xml(u.row), "IFC2X3").map((i) => i.code).filter((c) => c === "value-no-datatype"), ["value-no-datatype"]);
+  // typeRow turns it back into the template's row.
+  const back = typeRow(L, u.row);
+  assert.deepEqual([back.row.untyped, back.row.mode, back.row.equals, back.dropped], [false, "equals", "W-01", false]);
+  // A real number keeps only presence (checkers read the value apart); so does a range.
+  const h = { ...blankReq(), set: "Pset_RailingCommon", name: "Height", mode: "range", min: "0.9", max: "1.2" };
+  const uh = untypeRow(L, h, "IFCREAL");
+  assert.deepEqual([uh.row.mode, uh.row.min, uh.dropped, uh.real], ["any", "", true, true]);
+  const n = untypeRow(L, { ...blankReq(), set: "Pset_StairCommon", name: "NumberOfRiser", mode: "equals", equals: "17" }, "IFCINTEGER");
+  assert.deepEqual([n.row.mode, n.row.equals, n.dropped], ["equals", "17", false]);
 });
