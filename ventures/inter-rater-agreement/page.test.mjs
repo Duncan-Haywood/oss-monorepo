@@ -145,3 +145,8 @@ test("links its sibling, the item response theory tool", () => {
   const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
   assert.match(html, /href="\.\.\/item-response-theory\/"/);
 });
+
+test("links its sibling, the method comparison tool", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /href="\.\.\/method-comparison\/"/);
+});

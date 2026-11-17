@@ -714,6 +714,7 @@ ventures/meta-analysis/usage.mjs
 ventures/meta-catalog-csv-check/usage.mjs
 ventures/metal-roof-bid-calculator/usage.mjs
 ventures/meter-keeper/usage.mjs
+ventures/method-comparison/usage.mjs
 ventures/microgreens-tray-planner/usage.mjs
 ventures/midterm-rental-calculator/usage.mjs
 ventures/mileage-deduction-calculator/usage.mjs
