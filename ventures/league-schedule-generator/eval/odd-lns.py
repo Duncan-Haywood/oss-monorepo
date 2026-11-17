@@ -299,6 +299,7 @@ def main():
     ap.add_argument("--save", help="write the state here after every accepted step")
     ap.add_argument("--resume", help="start from a state file written by --save")
     ap.add_argument("--also", default="", help="nights always freed with the bad one, comma-separated (e.g. the short last night, 13 at 41 teams, whose slack can take awkward pairs)")
+    ap.add_argument("--sideways-after", type=int, default=6, help="failed repairs in a row before a sideways step (as many good nights, pairs re-dealt) is tried")
     ap.add_argument("--resume-check", type=float, default=180, help="seconds to re-check a resumed night with no stored layout")
     args = ap.parse_args()
     n, courts, times = args.n, args.courts, args.times
@@ -338,7 +339,7 @@ def main():
         rest = [t for t in range(len(nights)) if t not in freed]
         freed += rng.sample(rest, m - len(freed))
         cur = sum(status[t] for t in freed)
-        sideways = fails >= 6
+        sideways = fails >= args.sideways_after
         need = cur if sideways else cur + 1
         new = repair(n, courts, times, rounds, nights, freed, need, args.step, rng)
         if not new:
