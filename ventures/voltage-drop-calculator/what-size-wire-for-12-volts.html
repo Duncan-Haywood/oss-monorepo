@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231d6fa5'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E%E2%86%93%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>What Size Wire for 12 Volts? 30 Amps over 15 Feet, Worked</title>
+  <meta name="description" content="Why a 30 A load on a 12 V system needs 4 AWG over a 15 ft run when the same 360 W at 120 V needs a hair-thin wire for voltage drop. The voltage drop arithmetic, step by step, with a free calculator.">
+  <meta property="og:title" content="What size wire for 12 volts? A worked example">
+  <meta property="og:description" content="30 A at 12 V over 15 ft: 10 AWG loses 9.3 % of the voltage, 4 AWG loses 2.3 %. The arithmetic, step by step.">
+  <link rel="canonical" href="./what-size-wire-for-12-volts.html">
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f1d18; background: #f6f4ee; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    a { color: #6b4e00; }
+    h1 { font-size: clamp(1.7rem, 4.4vw, 2.5rem); line-height: 1.1; color: #4a3600; }
+    h2 { font-size: 1.2rem; margin-top: 28px; color: #4a3600; }
+    p, li { line-height: 1.6; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e2dccb; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .scroll { overflow-x: auto; }
+    .cta { display: inline-block; background: #6b4e00; color: #fff; padding: 11px 16px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    footer, .note { font-size: .86rem; color: #5a5446; }
+    footer { margin-top: 32px; border-top: 1px solid #e2dccb; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+<main>
+  <p class="note"><a href="index.html">Voltage Drop Calculator</a> · Guide</p>
+  <h1>What size wire for 12 volts?</h1>
+  <p>A 30 amp load, a fridge compressor, an inverter or a winch, sits 15 feet from a 12 V battery. The wire that would be generous on a 120 V circuit is far too thin here. The reason is one line of arithmetic.</p>
+
+  <h2>The formula</h2>
+  <p>On a DC circuit the current goes out on one conductor and back on the other, so the wire length is twice the run. The voltage lost in the wire is:</p>
+  <p><strong>drop = 2 x one-way length x current x resistance per length</strong></p>
+  <p>Stranded copper at 75 C has, by the method the calculator uses (area from the AWG series, copper's resistivity, its temperature coefficient and 2 % for stranding), about 1.239 ohm per 1000 ft at 10 AWG and 0.308 ohm per 1000 ft at 4 AWG.</p>
+
+  <h2>The numbers</h2>
+  <p>10 AWG: 2 x 15 ft x 30 A x 0.001239 ohm/ft = 1.12 V. On 12 V that is 9.29 %: the load sees 10.88 V, and 33.5 W turns into heat in the wire.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Size</th><th class="n">Drop</th><th class="n">Drop %</th><th class="n">At the load</th><th class="n">Wire loss</th><th class="n">Longest run at 3 %</th></tr></thead>
+    <tbody>
+      <tr><td>10 AWG</td><td class="n">1.12 V</td><td class="n">9.29 %</td><td class="n">10.88 V</td><td class="n">33.5 W</td><td class="n">4.8 ft</td></tr>
+      <tr><td>8 AWG</td><td class="n">0.70 V</td><td class="n">5.84 %</td><td class="n">11.30 V</td><td class="n">21.0 W</td><td class="n">7.7 ft</td></tr>
+      <tr><td>6 AWG</td><td class="n">0.44 V</td><td class="n">3.68 %</td><td class="n">11.56 V</td><td class="n">13.2 W</td><td class="n">12.2 ft</td></tr>
+      <tr><td>4 AWG</td><td class="n">0.28 V</td><td class="n">2.31 %</td><td class="n">11.72 V</td><td class="n">8.3 W</td><td class="n">19.5 ft</td></tr>
+    </tbody>
+  </table></div>
+  <p>With a 3 % target, <strong>4 AWG</strong> is the smallest size that works. 6 AWG misses by a little; whether 3.68 % is acceptable depends on the load and the standard you follow (lighting is often allowed more than a motor or electronics).</p>
+
+  <h2>Why 12 V is so demanding</h2>
+  <p>The same 360 W at 120 V draws 3 A, a tenth of the current. The drop in volts is a tenth too, and as a share of a voltage ten times higher it is a hundredth. Run the same 15 ft at 120 V and even 18 AWG drops only 0.59 %. At 24 V the 360 W draws 15 A and 10 AWG is enough; at 48 V, 7.5 A, and 16 AWG passes the drop test. Doubling the system voltage quarters the copper needed for the same percentage drop.</p>
+
+  <h2>Voltage drop is only half the answer</h2>
+  <p>The conductor must also carry the current without overheating, which is the ampacity table's job (with its corrections for temperature, bundling and insulation). The size you install is the larger of the two. The calculator takes the smallest size your ampacity table allows and never recommends below it. It also does not include the drop in fuses, breakers, switches and crimped terminals, which on a 12 V system can be a noticeable share of the total.</p>
+
+  <p><a class="cta" href="index.html">Try your own circuit</a></p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This guide and the calculator are provided free and as-is, without warranty of any kind. They are not engineering, electrical, legal or code-compliance advice, and they do not replace a qualified electrician, the code that applies to you or a plan review. The resistance values are computed from conductor geometry and published material constants, not copied from a code table, and can differ from a table by a few percent. You are responsible for verifying any result before relying on it.</p>
+  <p><strong>Independent.</strong> Not affiliated with any wire or cable manufacturer, code body or standards organisation.</p>
+  <p class="support">Free and open source under the MIT licence — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is optional.</p>
+</footer>
+</body>
+</html>
