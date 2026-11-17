@@ -243,7 +243,12 @@
     } else if (r.kind === "attribute") {
       const attrs = commonAttributes(L.S, specBases(spec));
       h += `<div><label for="${id("name")}">Attribute</label><select id="${id("name")}" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="name">${opt("", "choose", r.name)}${attrs.map((a) => opt(a, a, r.name)).join("")}</select></div>`;
-      ({ kind: valueKind, enumVals, temporal = null } = attributeValueKind(L.S, specBases(spec), r.name));
+      let derivedOn;
+      ({ kind: valueKind, enumVals, temporal = null, derivedOn } = attributeValueKind(L.S, specBases(spec), r.name));
+      // No class: a subclass that derives the attribute (editor.mjs
+      // attributeOccurrences) fails any check of it, as IDS's test case says.
+      if (derivedOn && derivedOn.length) note = `${r.name} is derived on ${derivedOn.map((c) => (L.S.entities[c] ? L.S.entities[c].name : c)).join(", ")}, so ${derivedOn.length > 1 ? "those objects" : "its objects"} never hold a value for it: they fail it as a requirement (when another facet selects them) and are left out by it as applicability. Name a class to say which objects you mean.`;
+      if (valueKind === "number" && r.numBase === "xs:integer") note = `${note ? note + " " : ""}Written on xs:integer, as the file had it: whole numbers only. ${r.name} holds a number, and a checker compares 27 with 27.0 the same way on either base.`;
       // The values the opened model's objects of these classes hold for it.
       if (inv && spec.cls && r.name) {
         const ma = modelAttributes(inv, specClasses(L, spec));
@@ -568,13 +573,13 @@
     if (k === "set") {
       target.custom = t.value === "__own" || t.value.startsWith("own:");
       target.set = t.value === "__own" ? "" : t.value.replace(/^own:/, "");
-      target.name = ""; target.dataType = ""; target.mode = "any"; target.oneOf = []; delete target.oneOfBase; target.untyped = false; delete target.fileType;
+      target.name = ""; target.dataType = ""; target.mode = "any"; target.oneOf = []; delete target.oneOfBase; delete target.numBase; target.untyped = false; delete target.fileType;
       render();
       return;
     }
     if (k === "ownSet") { target.set = t.value.trim(); output(); return; }
     if (k === "ownName") {
-      target.name = t.value.trim(); target.mode = "any"; target.oneOf = []; delete target.oneOfBase; target.equals = ""; target.untyped = false;
+      target.name = t.value.trim(); target.mode = "any"; target.oneOf = []; delete target.oneOfBase; delete target.numBase; target.equals = ""; target.untyped = false;
       // Filled in from the model when it has this property.
       const L = loaded[doc.schema];
       const m = inv && modelSets(inv, specClasses(L, s), []).find((x) => x.name === target.set);
@@ -607,9 +612,9 @@
       return;
     }
     if (k === "cls") { s.predefinedType = ""; for (const r of [...s.reqs, ...(s.app || [])]) if (r.kind === "property" && !r.custom) { r.set = ""; r.name = ""; } }
-    if (k === "kind") { target.name = ""; target.mode = "any"; target.oneOf = []; delete target.oneOfBase; target.custom = false; target.set = ""; target.dataType = ""; }
-    if (k === "dataType") { target.mode = "any"; target.oneOf = []; delete target.oneOfBase; }
-    if (k === "name" && t.dataset.r !== undefined) { target.mode = "any"; target.oneOf = []; delete target.oneOfBase; target.equals = ""; }
+    if (k === "kind") { target.name = ""; target.mode = "any"; target.oneOf = []; delete target.oneOfBase; delete target.numBase; target.custom = false; target.set = ""; target.dataType = ""; }
+    if (k === "dataType") { target.mode = "any"; target.oneOf = []; delete target.oneOfBase; delete target.numBase; }
+    if (k === "name" && t.dataset.r !== undefined) { target.mode = "any"; target.oneOf = []; delete target.oneOfBase; delete target.numBase; target.equals = ""; }
     if (structural) render(); else output();
   }
   $("specs").addEventListener("input", (e) => { if (e.target.tagName === "INPUT" && e.target.type !== "checkbox" && !e.target.dataset.change) onField(e, false); });

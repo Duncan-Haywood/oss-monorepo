@@ -197,6 +197,15 @@ open. MIT licensed, no dependencies, nothing uploaded.
   on only 22 of 324 lists typed to 6 digits, which the row warns about. 109
   of the 129 numeric lists in the IDS-Audit-tool valid files now open as rows
   (89.2% editable, was 75.9%). `eval/number-oneof-2026-11-17.md`.
+  **Numbers with no class named** (2026-11-17): an attribute stored as a
+  number on one class and derived on a subclass (CoordinateSpaceDimension,
+  Precision) opens as a number row that names the subclass, whose objects
+  never hold a value. A file's `xs:integer` on an IfcCountMeasure (a NUMBER:
+  BarCount, CountValue) is kept as written. A value on an attribute that is
+  a list on every class (TexCoordsList, DayComponent) stays held, and the
+  audit warns that every object it checks fails. 117 of 129 numeric lists
+  open (was 109); the 12 left are those lists; IDS-Audit-tool valid files
+  90.7% editable. `eval/no-class-numbers-2026-11-17.md`.
   **Specifications written for several IFC versions** (2026-11-17): a file
   whose specifications all say `IFC2X3 IFC4` (the Dutch NL-BIM Basis ILS and
   RVB BIM Norm, BASIX) opens in the schema where most facets are editable,
@@ -755,7 +764,7 @@ faster than IfcTester; its point is needing no install.
   the file's own dataType on a standard property 2026-11-17,
   `eval/template-type-2026-11-17.md`): a "did you mean" for a property the
   template lacks (Portugal's `Lenght` for Length, 8 facets);
-  the 20 numeric lists on non-element attributes in no-class specifications; a real IFC4 export with dates to try the range on;
+  a real IFC4 export with dates to try the range on;
   a subclass checkbox per class, not only the first;
   a "fix the dataType" hint built from the 21
   of 122 standard properties real exports write in another type.
