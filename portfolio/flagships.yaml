@@ -196,9 +196,11 @@ flagships:
       control 4, its AR(1) term; (2) synthetic control (README "A floored ratio"):
       CA rank 1 of 39; MA, AZ, OR ranks 6-13; covariates (README "Matched on
       covariates") failed; multi-start V (README "Several starts for V") failed too:
-      no V fits Oregon (15.8+ vs 5.5 packs), 3 late lags miss its 1970s; next lags
-      spread over the before-period, or monthly series, then CLI. More open items:
-      NEXT.md.
+      no V fits Oregon; covariate balance of the outcome fit (covariateBalance,
+      eval/synth-balance-real.out.txt) 2026-11-17: CA 1.66 sd richer than its
+      synthetic, MA balanced yet 6th; next a sim where a covariate drives the
+      outcome (does the 0.25 flag find biased gaps?), lags over the before-period,
+      then CLI. More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     why: >-
@@ -206,8 +208,10 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History: README and git (latest: INV-041 endpoint ids as OpenPeppol's
-      PEPPOL-COMMON rules check them, 0 of 21,264 off
+      History: README and git (latest: R056-2 on payee, deliver-to and line VAT
+      numbers, references and no-break spaces, 3,149 to 0, Saxon-checked
+      (eval/nl-vat-r056-2-payee-refs-2026-11-17.md); INV-041 endpoint ids as
+      OpenPeppol's PEPPOL-COMMON rules check them, 0 of 21,264 off
       (eval/endpoint-peppol-differential-2026-11-17.md); Peppol's warning-level
       IT/NL id formats as INV-061 warnings, 0 of 23,999 off
       (eval/endpoint-peppol-warnings-2026-11-17.md); INV-062/063: the same rules on
@@ -231,12 +235,13 @@ flagships:
       passes Mustang; open: a real business's PINT file. A run that lands a slice
       replaces its item here. More open items: NEXT.md.
     buildable: >-
-      R056-2 landed (BT-63 read, INV-064;
-      eval/nl-vat-r056-2-differential-2026-11-17.md): open, R056-2 on a payee or
-      deliver-to PartyTaxScheme and a trailing no-break space the readers' trim()
-      drops. Party ids everywhere Peppol's COMMON contexts reach landed 2026-11-17
-      (UBL line parties: eval/ubl-line-ids-peppol-differential-2026-11-17.md). No
-      network.
+      R056-2's full reach landed 2026-11-17 (payee, deliver-to, line and second VAT
+      schemes; character references; trailing no-break space; oracle checked with
+      Saxon, eval/nl-vat-r056-2-payee-refs-2026-11-17.md). Next:
+      plain-schematron.mjs runs every rule set on fontoxpath, whose normalize-space
+      strips U+00A0 where XPath and Saxon do not: rewrite to a spec normalize-space
+      and cross-check with Saxon (Maven Central answers) on files with U+00A0 in
+      tested fields. No network beyond Maven.
   - venture: shift-roster-builder
     inputs_only: >-
       a live deploy with real punches, a real payroll template, a manager's
@@ -472,10 +477,10 @@ flagships:
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
       (eval/ifcxml-xbim-2026-11-16.md); an allow list for GlobalIds shared across
       federated models on purpose (eval/federated-globalids-2026-11-17.md, 'Not
-      done': the Simple-Scene 'origin' markers); the IDS editor (editor.html;
-      README): "Use the model's range" for dates, xs:date one-of rows
-      (eval/date-ranges-2026-11-17.md); more real exports through
-      eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
+      done': the Simple-Scene 'origin' markers); the IDS editor (editor.html):
+      attribute rows in specifications with no class (16 IDS-Audit-tool date lists
+      stay kept, eval/date-oneof-2026-11-17.md; date one-of rows landed); more real
+      exports through eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked"). Next, most

@@ -3,13 +3,15 @@
 // That paragraph is the first thing a visitor reads and what a search snippet or an
 // assistant quotes. On 2026-11-16 five ran 121 to 179 words (where-to-sell-calculator
 // was 552 px tall on a phone, with the first input at 1,391 px); a cross-link list or a
-// <details> below the lede holds the rest. `hero-lede.test.mjs` keeps every page under
+// <details> below the lede holds the rest. On 2026-11-17 the budget went from 120 to 100
+// words after 23 ledes of 101 to 120 were split at a sentence into a lede and a second
+// paragraph (no words cut). `hero-lede.test.mjs` keeps every page under
 // HERO_LEDE_MAX_WORDS. Run `node platform/pages/hero-lede.mjs [n]` for the longest n.
 import { readdirSync, readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export const HERO_LEDE_MAX_WORDS = 120;
+export const HERO_LEDE_MAX_WORDS = 100;
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
 /** Word count of the first <p> after the page's first </h1>, skipping other tags between them; null when there is none. */

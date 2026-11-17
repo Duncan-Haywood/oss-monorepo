@@ -250,7 +250,7 @@
     }
     h += `</div>`;
     // The values the opened model holds for this property (inventory.mjs).
-    const offer = modelValueOffer(mprop, valueKind, enumVals);
+    const offer = modelValueOffer(mprop, valueKind, enumVals, temporal);
     offers.set(key, offer);
     if (valueKind && r.cardinality !== "prohibited") {
       const modes = [["any", "any value"], ["equals", "exactly"]];
@@ -284,6 +284,15 @@
         h += `<input style="width:14em;margin-top:6px" aria-label="add a value" placeholder="add a value, then Enter" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="oneOfAdd" data-change="1">`;
         if (!r.oneOf.length) h += ` <span class="warn">Tick or add at least one value.</span>`;
       }
+      // A one-of on a date, time or duration: written on the DataTypes base
+      // (xs:date...), or on xs:string as an opened file had it. Both this
+      // checker and IfcTester compare the listed values as written
+      // (eval/date-oneof-2026-11-17.md).
+      if (r.mode === "oneOf" && temporal) {
+        const tb = "xs:" + temporal, onString = r.oneOfBase === "xs:string";
+        const eg = temporal === "duration" ? "P24M does not match P2Y" : temporal === "date" ? "2024-05-01Z does not match 2024-05-01" : temporal === "time" ? "09:00:00Z does not match 09:00:00" : "2024-05-01T09:00:00Z does not match 2024-05-01T09:00:00";
+        h += `<p class="muted" style="margin:6px 0 0;font-size:0.86rem">${onString ? `This file writes the list on xs:string; IDS 1.0's DataTypes table gives this type ${tb}. Checkers read both the same way.` : `Written on ${tb}, the base IDS 1.0 gives this type.`} Each value is compared as written, here and in IfcTester: ${eg}, so list each form the model uses.${onString ? ` <button type="button" class="ghost small" data-act="oneof-base" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>Write on ${tb}</button>` : ""}</p>`;
+      }
     }
     if (offer && r.cardinality !== "prohibited") {
       const shown = offer.values.slice(0, 8).map(([v, n]) => `${v === "" ? "(empty)" : v} (${n})`).join(", ");
@@ -291,11 +300,18 @@
       let mv = `In the model: ${nVals}${offer.values.length ? ": " + shown + (offer.values.length > 8 ? ", ..." : "") : ""}.`;
       const n12 = (x) => String(Number(x.toPrecision(12)));
       if (offer.min !== null && offer.max !== null) mv += ` They range from ${n12(offer.min)} to ${n12(offer.max)} (${r.kind === "property" ? "SI units" : "as the model writes them"})${offer.rangeMin !== n12(offer.min) || offer.rangeMax !== n12(offer.max) ? `; as written, ${offer.min} to ${offer.max}, and IDS ranges take no rounding tolerance, so the model's range is ${offer.rangeMin} to ${offer.rangeMax}` : ""}.`;
+      // Dates, times and durations: the earliest and latest, as the model
+      // writes them (a range of exactly those passes every object with one).
+      if (offer.tmin !== null && offer.tmax !== null) mv += ` They run from ${offer.tmin} to ${offer.tmax}.`;
+      else if (temporal && mprop && mprop.tkind === "mixed") mv += ` Not every value is ${temporal === "duration" ? "an ISO duration" : temporal === "time" ? "an ISO time" : temporal === "dateTime" ? "an ISO date-time" : "an ISO date"} in one form, so no range passes them all.`;
       if (offer.outside.length) mv += ` It also writes ${offer.outside.slice(0, 5).map(([v, n]) => `${v} (${n})`).join(", ")}${offer.outside.length > 5 ? ", ..." : ""}, which the standard does not list; a one-of check fails those objects.`;
       const use = offer.oneOf && !(r.mode === "oneOf" && r.oneOf.length === offer.oneOf.length && offer.oneOf.every((v) => r.oneOf.includes(v))) ? "Allow exactly these values"
         : offer.min !== null && offer.max !== null && valueKind === "number" && !(r.mode === "range" && r.min === offer.rangeMin && r.max === offer.rangeMax && !r.minEx && !r.maxEx) ? "Use the model's range" : "";
+      // A temporal row gets the range as well as (not instead of) the values.
+      const useT = offer.tmin !== null && offer.tmax !== null && temporal && !(r.mode === "range" && r.min === offer.tmin && r.max === offer.tmax && !r.minEx && !r.maxEx)
+        ? ` <button type="button" class="ghost small" data-act="model-range" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>Use the model's range</button>` : "";
       const any = codeless.has(key) ? ` <button type="button" class="ghost small" data-act="model-coded" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>Require a code</button>` : "";
-      h += `<p class="muted" style="margin:6px 0 0;font-size:0.86rem">${esc(mv)}${use ? ` <button type="button" class="ghost small" data-act="model-values" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>${use}</button>` : ""}${any}</p>`;
+      h += `<p class="muted" style="margin:6px 0 0;font-size:0.86rem">${esc(mv)}${use ? ` <button type="button" class="ghost small" data-act="model-values" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>${use}</button>` : ""}${useT}${any}</p>`;
     }
     // TRUE or False on a boolean with no dataType: IDS 1.0's test cases write
     // booleans true/false with a dataType; without one this checker matches no
@@ -493,13 +509,13 @@
     if (k === "set") {
       target.custom = t.value === "__own" || t.value.startsWith("own:");
       target.set = t.value === "__own" ? "" : t.value.replace(/^own:/, "");
-      target.name = ""; target.dataType = ""; target.mode = "any"; target.oneOf = []; target.untyped = false;
+      target.name = ""; target.dataType = ""; target.mode = "any"; target.oneOf = []; delete target.oneOfBase; target.untyped = false;
       render();
       return;
     }
     if (k === "ownSet") { target.set = t.value.trim(); output(); return; }
     if (k === "ownName") {
-      target.name = t.value.trim(); target.mode = "any"; target.oneOf = []; target.equals = ""; target.untyped = false;
+      target.name = t.value.trim(); target.mode = "any"; target.oneOf = []; delete target.oneOfBase; target.equals = ""; target.untyped = false;
       // Filled in from the model when it has this property.
       const L = loaded[doc.schema];
       const m = inv && modelSets(inv, specClasses(L, s), []).find((x) => x.name === target.set);
@@ -532,9 +548,9 @@
       return;
     }
     if (k === "cls") { s.predefinedType = ""; for (const r of [...s.reqs, ...(s.app || [])]) if (r.kind === "property" && !r.custom) { r.set = ""; r.name = ""; } }
-    if (k === "kind") { target.name = ""; target.mode = "any"; target.oneOf = []; target.custom = false; target.set = ""; target.dataType = ""; }
-    if (k === "dataType") { target.mode = "any"; target.oneOf = []; }
-    if (k === "name" && t.dataset.r !== undefined) { target.mode = "any"; target.oneOf = []; target.equals = ""; }
+    if (k === "kind") { target.name = ""; target.mode = "any"; target.oneOf = []; delete target.oneOfBase; target.custom = false; target.set = ""; target.dataType = ""; }
+    if (k === "dataType") { target.mode = "any"; target.oneOf = []; delete target.oneOfBase; }
+    if (k === "name" && t.dataset.r !== undefined) { target.mode = "any"; target.oneOf = []; delete target.oneOfBase; target.equals = ""; }
     if (structural) render(); else output();
   }
   $("specs").addEventListener("input", (e) => { if (e.target.tagName === "INPUT" && e.target.type !== "checkbox" && !e.target.dataset.change) onField(e, false); });
@@ -564,6 +580,11 @@
       else if (o && o.rangeMin !== null && o.rangeMax !== null) { r.mode = "range"; r.min = o.rangeMin; r.max = o.rangeMax; r.minEx = false; r.maxEx = false; }
       record("editor_model_values");
     }
+    // A date, time or duration row set to the model's earliest and latest.
+    if (a === "model-range") {
+      const r = rows[+e.target.dataset.r], o = offers.get(okey);
+      if (o && o.tmin !== null && o.tmax !== null) { r.mode = "range"; r.min = o.tmin; r.max = o.tmax; r.minEx = false; r.maxEx = false; record("editor_model_range"); }
+    }
     // An opened row with no dataType given the template's (or the model's).
     if (a === "type-row") {
       const L = loaded[doc.schema], s = doc.specs[si], r = rows[+e.target.dataset.r];
@@ -580,6 +601,9 @@
       const t = q ? untypeRow(L, r, q.dataType) : null;
       if (t) { rows[+e.target.dataset.r] = t.row; record("editor_untyped"); if (t.dropped) alert(t.real ? "With no dataType, checkers read a real-number value differently, so the row now asks for any value (presence)." : "A range needs a dataType, so the row now asks for any value. Set a value again if you need one."); }
     }
+    // An opened date, time or duration one-of moved from xs:string to its
+    // DataTypes base (same values, same verdicts).
+    if (a === "oneof-base") { delete rows[+e.target.dataset.r].oneOfBase; record("editor_oneof_base"); }
     // A date range rewritten as the pattern of the same dates (datePattern),
     // which IfcTester and this checker read the same way.
     if (a === "date-pattern") {

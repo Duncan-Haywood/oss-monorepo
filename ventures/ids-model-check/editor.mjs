@@ -197,7 +197,12 @@ function valueXml(v, base) {
     for (const k of R_BOUNDS) if (v.r[k] !== undefined && v.r[k] !== null) parts.push(`<xs:${k} value="${escAttr(v.r[k])}"/>`);
     if (v.r.base) base = "xs:" + v.r.base;
     if (!parts.length) return `<xs:restriction base="${base}"/>`;
-  } else if (v.oneOf && v.oneOf.length) for (const x of v.oneOf) parts.push(`<xs:enumeration value="${escAttr(x)}"/>`);
+  } else if (v.oneOf && v.oneOf.length) {
+    // A one-of on a date, time or duration is written on that XSD base (or on
+    // xs:string, as an opened file had it: `oneOfBase`).
+    if (v.base) base = v.base;
+    for (const x of v.oneOf) parts.push(`<xs:enumeration value="${escAttr(x)}"/>`);
+  }
   else if (v.pattern) parts.push(`<xs:pattern value="${escAttr(v.pattern)}"/>`);
   else {
     // A range on a date, time or duration is written on that XSD base.
@@ -477,7 +482,7 @@ export function modelSets(inv, classes, standardSets = []) {
 // Value tallies (inventory.mjs) merged across classes. A class's list holds
 // its MAX_LISTED commonest values; one that lists fewer than it holds
 // (`distinct`) leaves the merged list incomplete.
-const blankTally = () => ({ count: 0, empty: 0, vals: new Map(), distinct: 0, more: false, min: null, max: null });
+const blankTally = () => ({ count: 0, empty: 0, vals: new Map(), distinct: 0, more: false, min: null, max: null, tkind: null, tmin: null, tmax: null });
 function mergeTally(q, p) {
   q.count += p.count;
   q.empty += p.empty || 0;
@@ -486,10 +491,19 @@ function mergeTally(q, p) {
   if (p.more || (p.distinct || 0) > (p.values || []).length) q.more = true;
   if (p.min !== null && p.min !== undefined) q.min = q.min === null ? p.min : Math.min(q.min, p.min);
   if (p.max !== null && p.max !== undefined) q.max = q.max === null ? p.max : Math.max(q.max, p.max);
+  // Temporal ranges: one form across every class, else "mixed".
+  if (p.tkind && q.tkind !== "mixed") {
+    if (p.tkind === "mixed" || (q.tkind && q.tkind !== p.tkind)) { q.tkind = "mixed"; q.tmin = q.tmax = null; }
+    else {
+      q.tkind = p.tkind;
+      if (q.tmin === null || temporalKey(p.tmin) < temporalKey(q.tmin)) q.tmin = p.tmin;
+      if (q.tmax === null || temporalKey(p.tmax) > temporalKey(q.tmax)) q.tmax = p.tmax;
+    }
+  }
 }
 function tallyOut(q) {
   const values = [...q.vals.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
-  return { count: q.count, empty: q.empty, values, distinct: Math.max(q.distinct, values.length), more: q.more, min: q.min, max: q.max };
+  return { count: q.count, empty: q.empty, values, distinct: Math.max(q.distinct, values.length), more: q.more, min: q.min, max: q.max, tkind: q.tkind, tmin: q.tmin, tmax: q.tmax };
 }
 function mergeBy(inv, classes, field, key) {
   if (!inv) return [];
@@ -529,8 +543,13 @@ export const modelCodes = (inv, classes) => mergeBy(inv, classes, "codes", "syst
 //     oneOf: the values a "one of" restriction should list to pass the model
 //     as it is (null when the list is incomplete or the kind is not text),
 //     empty: objects that carry it with no value (an empty attribute, a
-//     classification with no code), which any value check fails }
-export function modelValueOffer(mp, kind, enumVals = null) {
+//     classification with no code), which any value check fails,
+//     tmin, tmax: for a row of temporal type (temporalType(): "date",
+//     "dateTime", "time", "duration"), the earliest and latest value when
+//     every value the model holds has that form, else null; a range between
+//     them, inclusive, passes every object that carries a value (IDS
+//     compares temporal bounds exactly, so no rounding outward is needed) }
+export function modelValueOffer(mp, kind, enumVals = null, temporal = null) {
   if (!mp || !mp.values || !mp.values.length || !kind) return null;
   const isNum = (v) => v.trim() !== "" && Number.isFinite(Number(v));
   const fits = kind === "number" ? (v) => isNum(v) : kind === "bool" ? (v) => v === "true" || v === "false" : () => true;
@@ -541,7 +560,15 @@ export function modelValueOffer(mp, kind, enumVals = null) {
   const oneOf = kind === "text" && complete && !outside.length && values.length ? values.map(([v]) => v).sort() : null;
   const num = kind === "number" && typeof mp.min === "number" && typeof mp.max === "number";
   return { values, outside, complete, min: num ? mp.min : null, max: num ? mp.max : null,
-    rangeMin: num ? outwardBound(mp.min, -1) : null, rangeMax: num ? outwardBound(mp.max, 1) : null, oneOf, empty: mp.empty || 0 };
+    rangeMin: num ? outwardBound(mp.min, -1) : null, rangeMax: num ? outwardBound(mp.max, 1) : null, oneOf, empty: mp.empty || 0,
+    ...modelTemporalRange(mp, temporal) };
+}
+
+// { tmin, tmax } of a value tally for a row of temporal form `temporal`, or
+// nulls when the model holds anything else in it.
+function modelTemporalRange(mp, temporal) {
+  const ok = temporal && mp.tkind === temporal && typeof mp.tmin === "string" && typeof mp.tmax === "string";
+  return { tmin: ok ? mp.tmin : null, tmax: ok ? mp.tmax : null };
 }
 
 // How many of the model's objects an applicability row lets through, from the
@@ -656,12 +683,19 @@ export function valueChoices(L, cls, r) {
 // A range row's value: inclusive bounds unless the row says a bound is
 // exclusive ("more than" / "less than"), as IDS's restriction test cases write them.
 const rangeValue = (r, temporal) => ({ min: r.min, max: r.max, ...(r.minEx ? { minEx: true } : {}), ...(r.maxEx ? { maxEx: true } : {}), ...(temporal ? { base: "xs:" + temporal } : {}) });
+// A one-of row's value. On a date, time or duration (IFCDATE, IFCDATETIME,
+// IFCTIME, IFCDURATION) the enumeration takes the XSD base IDS 1.0's DataTypes
+// table gives that type (xs:date, ...), as it does for a range; a row opened
+// from a file that wrote it on xs:string keeps that (`oneOfBase`), so the file
+// is written back as it was.
+const oneOfValue = (r, temporal) => ({ oneOf: r.oneOf, ...(temporal ? { base: r.oneOfBase || "xs:" + temporal } : {}) });
 function reqFacet(L, r, classes = []) {
   if (r.fixed) return r.fixed;
   const p = r.kind !== "property" ? null : r.untyped ? { dataType: null, untyped: true } : r.custom ? { dataType: r.dataType && L.S.types[r.dataType] ? r.dataType : null } : propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name);
+  const temporal = r.mode !== "oneOf" && r.mode !== "range" ? null : r.kind === "property" ? temporalType(p && p.dataType) : r.kind === "attribute" ? attributeValueKind(L.S, classes, r.name).temporal || null : null;
   const value = r.cardinality === "prohibited" || (p && !p.dataType && !p.untyped) ? null
     : r.mode === "equals" ? { equals: r.equals } : r.mode === "true" || r.mode === "false" ? { equals: r.mode }
-    : r.mode === "oneOf" ? { oneOf: r.oneOf } : r.mode === "range" ? rangeValue(r, r.kind === "property" ? temporalType(p && p.dataType) : r.kind === "attribute" ? attributeValueKind(L.S, classes, r.name).temporal : null) : r.mode === "pattern" ? { pattern: r.pattern } : null;
+    : r.mode === "oneOf" ? oneOfValue(r, temporal) : r.mode === "range" ? rangeValue(r, temporal) : r.mode === "pattern" ? { pattern: r.pattern } : null;
   const base = r.kind === "attribute" && value ? attributeValueKind(L.S, classes, r.name).base : undefined;
   return { kind: r.kind, set: r.set, name: r.name, dataType: p ? p.dataType : null, value, base, cardinality: r.cardinality, system: r.system, relation: r.relation, entity: r.entity };
 }
@@ -812,6 +846,9 @@ function editableRow(L, classes, f) {
   } else if (en) {
     if (!ch.modes.includes("oneOf") || (ch.enumVals && !en.every((x) => ch.enumVals.includes(x)))) return null;
     r.mode = "oneOf"; r.oneOf = [...en];
+    // A date, time or duration one-of: on its DataTypes base, or on xs:string
+    // (the editor wrote that before 2026-11-17; kept so it writes back the same).
+    if (ch.temporal && v.r.base === "string") r.oneOfBase = "xs:string";
   } else if (v.r.pattern.length === 1 && !v.r.enumeration.length && R_BOUNDS.every((k) => v.r[k] === undefined)) {
     if (!ch.modes.includes("pattern")) return null;
     r.mode = "pattern"; r.pattern = v.r.pattern[0];

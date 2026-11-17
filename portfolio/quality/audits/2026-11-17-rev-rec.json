@@ -1,0 +1,260 @@
+{
+ "date": "2026-11-17",
+ "subject": "ventures/rev-rec",
+ "stratum": "venture",
+ "seed": "2026-11-17-fe49",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a CPA / revenue accountant at a SaaS company applying ASC 606 (IFRS 15); first checks: is the ratable day count right for real Stripe period timestamps, does a refund or downgrade reduce the contract liability rather than revenue, are invoices captured when the right to consideration arises (not only when paid, and not lost when paid late), are setup fees and bundles allocated on relative standalone selling price, are modifications treated prospectively, and do already-exported journal months stay closed",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Core ratable arithmetic is exact on midnight periods, recomputed by hand (`node /tmp/claude-0/audit-revrec/run.mjs`): $1,200 annual Jan 1 2026 to Jan 1 2027 gives Jan 1200x31/365 = 101.92, Feb 28/365 = 92.05, Apr 98.63, Dec 101.91 (largest-remainder cent), sum exact; $2,900 annual from Oct 15 gives Oct 17/365 = 135.07, closing deferred 2,764.93, Nov 238.36; a mid-term upgrade billed as Stripe proration lines (-1200x184/365, +2400x184/365 on Jul 1) recognises 1,209.86 over Jul-Dec (Jul 203.84), matching ASC 606-10-25-13(a) prospective treatment. Wrong outputs: (1) a prorated refund of the unused 320/365 of that $1,200 plan, credit note Feb 15 (-1,052.05), gives Feb revenue -960.00, Feb closing deferred 1,006.03 on a contract with 147.95 net billed, and 1,006.03 of revenue Mar-Dec from a cancelled customer; ASC 606 expects Feb revenue 46.03 (Feb 1-14), deferred 0, nothing after (`node /tmp/claude-0/audit-revrec/recompute.mjs`). (2) Incremental sync filters on created[gte] lastSync-3d, so an invoice paid more than about 3 days after creation (net-30, dunning retries) is never fetched (`node /tmp/claude-0/audit-revrec/sync.mjs`: invoice created Oct 1, paid Oct 25, five syncs, state.lines []). (3) Stripe period timestamps carry the subscription's time of day; Jan 15 14:00 to Feb 15 14:00 spreads over 32 days (Jan 53.13 / Feb 46.87, vs 17/31 = 54.84 day convention) and an annual one over 366 days, putting 49.18 into Jan 2027 including the end day. (4) Zero-decimal currencies: JPY 120000 shows as ¥1,200 and journals 1200.00 (`node /tmp/claude-0/audit-revrec/misc.mjs`).",
+  "completeness": "Claimed features run: browser demo parses a pasted export (headers any order, parentheses negatives, CRLF, skipped-row reasons), sample data, schedule table with future rows, tiles, journal CSV download; server: Basic/Bearer auth with timing-safe compare, dashboard, /v1/schedule, /v1/journal.csv with ?through, POST /v1/sync, GET-only Stripe client with pagination and truncated-line fetch, one-currency filter with skipped count, atomic state file; render.yaml, Dockerfile, docker-compose, fly.toml present. No stubs or TODOs. The README's 'lists your paid invoices ... every few hours' works only for invoices paid within ~3 days of creation after the first sync (see correctness). Served copy: `node platform/pages/served-copy.mjs rev-rec` reports no placeholder origin; the page's clone line names Duncan-Haywood/fp-monorepo, which `git ls-remote` resolves to the current HEAD (a renamed-repo redirect), so not dead.",
+  "verification": "`cd ventures/rev-rec && node --test '*.test.mjs'`: 40 tests, 40 pass, 0.37 s. Seven seeded mutants via platform/ci/quality_mutate.py: 4 caught (roll-forward formula, paid_at billing date, credit-note inclusive tax, backlog boundary), 3 SURVIVED: day count ceil -> floor (revrec.mjs:16), remainder sort reversed (revrec.mjs:22), sync overlap 3 days -> 12 hours (server.mjs:26). Tests use midnight timestamps only, the one credit-note test refunds an already fully recognised line (so closing 0 is trivially right), and no test models a late-paid invoice, a refund of unearned revenue, or a zero-decimal currency.",
+  "craft": "Read revrec.mjs (91 lines), stripe.mjs (59), server.mjs (93), csv.mjs (77), page.mjs (24), index.html script, all tests. Good: pure functions in integer minor units, zero dependencies, escaped HTML, CSP, timing-safe auth, key never echoed in errors (tested). Defects: no Stripe-Version header (stripe.mjs:27), so field shapes follow the account's default API version while the code reads tax_amounts[].inclusive, which newer versions replace with taxes[].tax_behavior (own knowledge of the 2025-03-31 changelog, not fetched); the `l.taxes` fallback at stripe.mjs:10 still reads `.inclusive`; sync keyed on created date (server.mjs:26) with no re-read of open invoices; amount scaling hard-codes /100 (revrec.mjs:60,89) and x100 (csv.mjs:51); blank amount cell becomes a 0 line rather than a skipped row (csv.mjs:44); 300-character one-liners (revrec.mjs:61, stripe.mjs:20) hard to review.",
+  "claims": "Backed: free/MIT; GET-only key (stripe.test.mjs asserts every call is GET); 'tested to the cent' for rounding (spread sums exact); balanced journal (dr 3,415.89 = cr 3,415.89 in run.mjs case); honest-limits list (straight-line only, one currency, credit notes in issue month, billed when paid); no-advice and no-warranty disclaimer in page footer, FAQ, dashboard and llms.txt; usage counts local with opt-out (usage.mjs). Not backed or misleading: README 'credit notes ... so the deferred balance they touch is unchanged' is presented as a limit of timing but hides that a refunded annual plan keeps producing revenue for its remaining months; page and README pitch against a spreadsheet where 'refunds drift' while refunds here are wrong by the full unearned amount per month; 'spread evenly per UTC day across [start, end)' (README, revrec.mjs:3) is off by one day for non-midnight periods; 'lists your paid invoices and credit notes every few hours' misses late-paid invoices.",
+  "fitness": "Job walked: a revenue accountant closes November for a small Stripe SaaS with monthly and annual plans, a few refunds and some invoiced (net-30) customers. They get a correct schedule for plans paid at once and never refunded, and a CSV that balances. They would have to rebuild in a spreadsheet: every refunded/downgraded annual plan (revenue and deferred wrong until the original term ends), every net-30 invoice paid after the 3-day window (silently missing), and closed months, because a late payment or proration rewrites past months' recognised revenue and the journal has no period lock. The billing entry debits Accounts receivable on the paid date, so AR never clears unless the user renames the account to cash/Stripe clearing. Usable as a first draft, not as the close.",
+  "domain": "Compared with ASC 606 (606-10-25-13 modifications, 606-10-32-28 to 32-41 allocation on relative SSP, 606-10-55-50 to 55-53 nonrefundable upfront fees, 606-10-45-1 to 45-4 contract liability/asset, 606-10-32-10 refund liabilities). Matches: ratable straight-line over the service period for stand-ready SaaS; prospective treatment of Stripe proration lines. Departs: refunds/credits reduce revenue at issue instead of the contract liability; billings and the liability are recognised on cash receipt, not when the right to consideration is unconditional, and services delivered on unpaid invoices earn nothing (no contract asset/receivable); setup/implementation fees are recognised on their date (606-10-55-51: a non-distinct setup fee is recognised over the service period); bundles use Stripe's list-price discount allocation, not relative SSP (hand: $1,200 subscription + $300 setup with SSPs 1,200/500 allocates 1,058.82/441.18; tool 1,200/300 with the 300 upfront); RPO tile counts only invoiced amounts (disclosed as 'already invoiced'). Disclosed limits cover multi-element and usage; refunds, setup fees and cash-basis billing are not disclosed as departures from ASC 606."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "$1,200 annual Jan 1 2026 - Jan 1 2027, monthly recognition",
+   "method": "hand: 1200 x days-in-month / 365 (ASC 606 ratable, stand-ready SaaS), largest-remainder rounding",
+   "command": "node /tmp/claude-0/audit-revrec/run.mjs",
+   "expected": "Jan 101.92, Feb 92.05, Apr 98.63, Dec ~101.91, sum 1,200.00",
+   "observed": "101.92, 92.05, 98.63, 101.91, sum exact",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "$2,900 annual from Oct 15 2026 (page headline example), Oct and Nov",
+   "method": "hand: 2900 x 17/365 and x 30/365",
+   "command": "node /tmp/claude-0/audit-revrec/run.mjs",
+   "expected": "Oct 135.07, closing 2,764.93, Nov 238.36",
+   "observed": "Oct 135.07, closing 2,764.93, Nov 238.36",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Contract modification: $1,200 annual upgraded to $2,400 on Jul 1 via Stripe proration lines",
+   "method": "ASC 606-10-25-13(a) prospective: remaining 604.93 deferred + net new 604.93 over 184 days; Jul 31/184",
+   "command": "node /tmp/claude-0/audit-revrec/run.mjs",
+   "expected": "Jul-Dec 1,209.86, Jul 203.84, Dec closing 0",
+   "observed": "1,209.86, 203.84, 0",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Prorated refund of unused 320/365 of a $1,200 annual plan, credit note Feb 15",
+   "method": "ASC 606: refund of unearned consideration reduces the contract liability (Dr Deferred revenue, Cr Cash/AR); Feb revenue = 1200 x 14/365",
+   "command": "node /tmp/claude-0/audit-revrec/recompute.mjs",
+   "expected": "Feb revenue 46.03, Feb closing deferred 0.00, Mar-Dec revenue 0.00",
+   "observed": "Feb revenue -960.00, Feb closing deferred 1,006.03, Mar-Dec revenue 1,006.03",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Invoice created Oct 1, paid Oct 25 (net-30), syncs every 6 days after the first",
+   "method": "fake Stripe that honours created[gte] and status=paid, through the shipped sync() and createStripe()",
+   "command": "node /tmp/claude-0/audit-revrec/sync.mjs",
+   "expected": "line il_late in state after payment",
+   "observed": "state.lines [] after five syncs",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Monthly $100 period Jan 15 14:00 - Feb 15 14:00 UTC (Stripe-style timestamps)",
+   "method": "hand: day convention [start, end) = 31 days, Jan 17/31; time-proportional 394h/744h",
+   "command": "node /tmp/claude-0/audit-revrec/run.mjs",
+   "expected": "Jan 54.84 (day) or 52.96 (time); annual Jan 15 14:00 ends Jan 14 2027 (Jan 2027 = 14/365 x 1200 = 46.03)",
+   "observed": "Jan 53.13 / Feb 46.87 over 32 days; annual over 366 days, Jan 2027 49.18",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Zero-decimal currency (JPY) amount 120000 = ¥120,000",
+   "method": "Stripe currency docs: JPY amounts are in whole yen",
+   "command": "node /tmp/claude-0/audit-revrec/misc.mjs",
+   "expected": "¥120,000 and journal 120000",
+   "observed": "¥1,200 and journal 1200.00",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "Setup fee and bundle allocation on relative SSP",
+   "method": "ASC 606-10-32-31 and 55-51 by hand: $1,200 sub + $300 setup, SSPs 1,200 / 500",
+   "command": "node /tmp/claude-0/audit-revrec/run.mjs",
+   "expected": "setup not distinct: 300 spread with the subscription; or if distinct: 1,058.82 / 441.18",
+   "observed": "setup 300.00 recognised in full on its date; no SSP allocation",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Journal entries balance",
+   "method": "sum debits and credits of the journal for the refund case",
+   "command": "node /tmp/claude-0/audit-revrec/run.mjs",
+   "expected": "debits = credits",
+   "observed": "3,415.89 = 3,415.89",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Server only issues GET requests; key not leaked on error",
+   "method": "read stripe.mjs and tests",
+   "command": "cd ventures/rev-rec && node --test stripe.test.mjs server.test.mjs",
+   "expected": "pass",
+   "observed": "pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer, privacy line, served origins",
+   "method": "read index.html footer, dashboard note, llms.txt; served-copy",
+   "command": "node platform/pages/served-copy.mjs rev-rec",
+   "expected": "no-advice disclaimer, local-only usage, marisstella.app origins",
+   "observed": "all present; no placeholder origin left",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "cd ventures/rev-rec && node --test '*.test.mjs'",
+   "expected": "pass",
+   "observed": "40/40 pass, 0.37 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Billing entry account when billing is recognised on the paid date",
+   "method": "double-entry practice: cash received settles AR; debit Cash/Stripe clearing",
+   "command": "node /tmp/claude-0/audit-revrec/run.mjs",
+   "expected": "Dr Cash (or clearing), or Dr AR at invoice finalisation with a separate receipt",
+   "observed": "Dr Accounts receivable at paid date (default account name), AR never cleared",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "revrec.mjs:16",
+   "change": "Math.ceil((line.end - start) / DAY) -> Math.floor((line.end - start) / DAY)",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "revrec.mjs:22",
+   "change": "sort((a, b) => b.r - a.r) -> sort((a, b) => a.r - b.r)",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "revrec.mjs:43",
+   "change": "deferred = opening + bi - ri; -> deferred = opening + bi - ri + (bi < 0 ? ri : 0);",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "stripe.mjs:12",
+   "change": "inv.status_transitions?.paid_at || inv.created -> inv.created",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "stripe.mjs:20",
+   "change": "- incl) -> )",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "server.mjs:26",
+   "change": "st.lastSyncAt - 3 * 86400000 -> st.lastSyncAt - 0.5 * 86400000",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "revrec.mjs:52",
+   "change": "r.month > cur && r.recognized !== 0 -> r.month >= cur && r.recognized !== 0",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Credit notes are booked as one-day negative revenue lines and the original line keeps spreading, so a refund of the unearned part of an annual plan drives the issue month's revenue negative and the refunded customer keeps generating revenue until the original term ends: $1,200 annual, 320/365 refunded Feb 15 gives Feb revenue -960.00, Feb deferred 1,006.03 and 1,006.03 of Mar-Dec revenue (ASC 606: Feb 46.03, deferred 0, nothing after). The README describes the mechanics but not this consequence.",
+   "where": "ventures/rev-rec/stripe.mjs:20",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17001"
+  },
+  {
+   "severity": "high",
+   "what": "Incremental sync asks Stripe for status=paid invoices created since lastSync - 3 days, so after the first sync any invoice paid more than ~3 days after it was created (net-30 terms, dunning retries) is never fetched; billings and revenue are silently understated with no warning.",
+   "where": "ventures/rev-rec/server.mjs:26",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Day count floors the start to midnight but ceils the end, so Stripe periods with a time of day (the normal case) get one extra day: a monthly period is spread over 32 days and an annual over 366, recognising part of the revenue on the day after service ends (crossing a month or fiscal-year boundary). Contradicts the documented [start, end).",
+   "where": "ventures/rev-rec/revrec.mjs:16",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Setup/implementation fees and other one-off lines are recognised in full on their date and bundles take Stripe's list-price discount split; ASC 606-10-55-51 spreads non-distinct upfront fees over the service period and 606-10-32-31 allocates on relative SSP. Only 'multi-element' is disclosed as out of scope; setup fees are not mentioned.",
+   "where": "ventures/rev-rec/revrec.mjs:16",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "The schedule is recomputed from all lines each request with no period lock: a late payment or a proration billed on a later invoice rewrites recognised revenue in months whose journal was already exported, and the billing entry debits Accounts receivable on the paid date so AR never clears.",
+   "where": "ventures/rev-rec/revrec.mjs:64",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "No Stripe-Version header is sent, so field shapes follow the account default; inclusive tax is read from tax_amounts[].inclusive (and the `taxes` fallback also reads `.inclusive`), which newer API versions express as taxes[].tax_behavior, so tax-inclusive (VAT) revenue would be overstated on those accounts (own knowledge of the 2025-03-31 changelog, not fetched).",
+   "where": "ventures/rev-rec/stripe.mjs:10",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Amounts are always divided by 100 for display and journal (and the CSV path multiplies by 100), so zero-decimal currencies are off by 100x: JPY 120000 shows ¥1,200 and journals 1200.00.",
+   "where": "ventures/rev-rec/revrec.mjs:60",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests use midnight periods only and refund only fully recognised lines; mutants to the day count, the remainder sort and the sync overlap window all survive.",
+   "where": "ventures/rev-rec/revrec.test.mjs:43",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "A blank amount cell in the pasted CSV becomes a 0.00 line instead of a skipped row (Number('') is 0).",
+   "where": "ventures/rev-rec/csv.mjs:44",
+   "category": "input-handling",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17001"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17001"],
+ "verdict": "Rev Rec gets the core ratable arithmetic right: annual and mid-month plans and Stripe proration upgrades recompute to the cent by hand, and the journal balances. It does not meet the bar for a revenue accountant. A refund of an unearned annual plan drives the issue month's revenue negative and keeps recognising the refunded amount for the rest of the term (Feb -960.00 and 1,006.03 Mar-Dec where ASC 606 gives 46.03 and nothing). Incremental sync never fetches an invoice paid more than about 3 days after it was created. Periods with a time of day get one extra day. Zero-decimal currencies are off by 100x. Setup fees and bundles skip SSP allocation, and closed months can be rewritten. Three of seven seeded mutants survive. Fix the credit-note treatment (reduce the remaining deferred schedule of the credited line) and the sync window before anything else."
+}

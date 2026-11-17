@@ -6027,3 +6027,47 @@ spread over the whole before-period (every fifth year, or the before-period's me
 crosses the pool's is matched on its path; or drop the predictor search and add covariates as a check on the
 outcome-only fit's weights (Abadie 2021, section 7: report the covariate balance of the outcome fit). Until then the
 outcome-only fit with the floored ratio is the one to use (California 1st of 39).
+
+### Covariate balance of the outcome-only fit: California is matched on sales, not on income (2026-11-17, a diagnostic; not pre-registered, changes no p)
+
+The multi-start round ended recommending the outcome-only fit and, as the alternative to more predictor searches,
+"add covariates as a check on the outcome-only fit's weights (Abadie 2021, section 7)". `covariateBalance(r,
+covariates)` in `synth-control.mjs` does that. It takes a `synthControlTest` result and any per-unit covariates, and
+for each one prints the treated value, the synthetic control's (the fit's donor weights applied to the donors' values),
+the plain donor average, and both gaps divided by the covariate's spread over all units (a standardised difference,
+flagged past 0.25, the usual matching rule of thumb, Stuart 2010). It also puts the treated fit among the placebos:
+every donor's own synthetic control (now kept on `r.placebos[i].donorWeights`) is scored the same way, and
+"placebos matched better" is the share closer on that covariate than the treated fit is. It is a description of the
+fit, not a test, and no p moves.
+
+Run on the four real tax rises with the covariate round's definitions plus the before-period mean of packs per head
+(`node eval/synth-balance-real.mjs`, `eval/synth-balance-real.out.txt`; standardised gaps, synthetic vs treated):
+
+| State, date | ln income | price per pack | packs, three lags | packs, before mean | floored p |
+|---|---|---|---|---|---|
+| California 1989 | **+1.66** (89% of placebos better) | **-0.33** (34%) | +0.01, -0.00, -0.08 | -0.00 | 0.026 |
+| Massachusetts 1993 | +0.13 | -0.05 | -0.17, -0.01, -0.02 | -0.00 | 0.154 |
+| Arizona 1995 | +0.17 | **-0.67** (60%) | -0.24, +0.15, -0.10 | -0.00 | 0.361 |
+| Oregon 1997 | **+0.39** (26%) | **+0.97** (81%) | **-0.33**, +0.03, -0.10 | -0.00 | 0.214 |
+
+**What it shows.** Matching every before-year of sales balances the sales lags and the before mean almost exactly, as it
+must. It does not balance income: California's synthetic control (Utah, Montana, Nevada, Connecticut) is 1.66 standard
+deviations poorer than California, worse than 89% of the placebos' own fits, and the plain donor average is no closer
+(1.73). The price gap is small in cents (2.3 cents a pack) but past the flag. So the published gap of about 20 packs a
+head rests on the assumption that income does not move cigarette sales differently in California and in its poorer
+synthetic control after 1989; a reader should say so when quoting it. **Massachusetts is the useful negative:** its
+outcome-only fit balances all six covariates (no gap past 0.13) and it still ranks 6th of 39 (p 0.154), so the earlier
+rounds' hope that covariates would rescue it is not supported: its weak rank is not an imbalance the covariates
+measure. Oregon's synthetic control is cheaper than Oregon by 13 cents a pack before 1997 (0.97 sd, worse than 81% of
+placebos), which is consistent with the covariate round's finding that no predictor weighting fits it.
+
+**Limits.** The paper's 15-24 population share and beer consumption are still missing (no documented source reached),
+the 0.25 flag is a convention, not a calibrated bar, and four states cannot say whether imbalance predicts a biased gap;
+a simulation where a covariate drives the outcome after the date would. **Next:** that simulation (does the flag pick
+out the panels whose gap is biased?), then print the balance table with the synthetic-control result once the CLI
+offers one.
+
+Sources: Abadie, A. (2021), "Using synthetic controls: feasibility, data requirements, and methodological aspects",
+Journal of Economic Literature 59(2), 391-425, doi:10.1257/jel.20191450; Abadie, A., Diamond, A. and Hainmueller, J.
+(2010), JASA 105(490), 493-505, doi:10.1198/jasa.2009.ap08746; Stuart, E. A. (2010), "Matching methods for causal
+inference: a review and a look forward", Statistical Science 25(1), 1-21, doi:10.1214/09-STS313.
