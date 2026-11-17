@@ -46,3 +46,12 @@ test("errors exit non-zero with a readable message", () => {
   assert.throws(() => parseArgs(["--ties"]), /needs a value/);
   assert.deepEqual(parseArgs(["d.csv", "--ties=breslow", "--json"]), { json: true, help: false, curve: false, file: "d.csv", ties: "breslow" });
 });
+
+test("--strata fits a stratified model and says so", () => {
+  const r = cli([here("./data/leukemia.csv"), "--group", "treatment", "--covariates", "logWBC", "--strata", "sex"]);
+  assert.equal(r.status, 0, r.stdout);
+  assert.match(r.stdout, /Stratified log-rank \(Mantel 1966\): chi-square 9\.70/);
+  assert.match(r.stdout, /stratified by sex: 2 strata/);
+  assert.match(r.stdout, /treatment=placebo vs 6-MP\s+0\.9981/);
+  assert.match(HELP, /--strata A,B/);
+});

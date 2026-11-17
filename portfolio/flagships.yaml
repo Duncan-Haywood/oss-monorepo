@@ -122,12 +122,11 @@ flagships:
     buildable: >-
       Receipts, item (5): SRD photos (eval/srd-fetch.mjs) and CORD photos
       (eval/cord_images.py) read by `apt-get install tesseract-ocr` and
-      eval/srd-cli.mjs. CLI `--four-pass`: SRD totals 155 of 196, tax 135 of 185
-      (eval/change-ocr-2026-11-17.md); CORD train shard 0 photos (new dev set,
-      eval/cord-train-photos-2026-11-17.md): totals 115 to 122 of 196; validation 70
-      of 98 (overfit: 70% vs 59% unseen); test 55 of 95, tax 16 of 41. Next: train
-      shards 1-3 (600 photos) as dev set; 49 of 81 train misses OCR-bound (try a
-      bottom-third crop reading). CORD test stays held out.
+      eval/srd-cli.mjs. CORD train, all 4 shards read
+      (eval/cord-train-shards-2026-11-17.md): CLI 362 of 583 (shards 1-3), page 357;
+      test 56 of 95 (held out). 148 of 221 train misses OCR-bound; a bottom-crop
+      reading found 5 of 149 (dropped). Next: a second engine or model reading for
+      OCR-bound photos; one-digit misreads with no check (train-569, -644).
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
@@ -267,8 +266,14 @@ flagships:
       would post; a real 7shifts account through --import-7shifts (README "Reading
       7shifts directly"); a real When I Work account or response through
       --import-wheniwork (README "Reading When I Work directly"); Homebase (docs
-      need an account); a real Square account via --import-square (README "Reading
-      Square's schedule"). More open items: NEXT.md.
+      need an account); a real Deputy install via --import-deputy (README "Reading
+      Deputy directly"). More open items: NEXT.md.
+    buildable: >-
+      Deputy staff and wages from its API (no account needed to build):
+      resource/Employee and EmployeeAgreement field names are in the MIT
+      communityds/deputy-api-wrapper models (git clone works; api.github.com does
+      not), see eval/deputy-api-format-2026-11-17.md; mirror import-7shifts.mjs's
+      staff reader. Homebase stays account-gated.
   - venture: photo-editing
     hosts: [https://raw.pixls.us/, https://github.com/]
     why: >-
@@ -473,9 +478,7 @@ flagships:
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
       (eval/ifcxml-xbim-2026-11-16.md); cross-check more public models from
       opensourceBIM/IFC-files and buildingSMART's Sample-Test-Files with
-      eval/crosscheck_ifctester.py; the IDS editor (editor.html; README): "Write
-      dataType" for the 21 of 122 standard properties real exports write in another
-      type (typeRow, eval/untyped-values-2026-11-17.md); a tolerance hint on
+      eval/crosscheck_ifctester.py; the IDS editor (editor.html; README): a tolerance hint on
       exclusive bounds (eval/exclusive-bounds-2026-11-17.md); more real exports
       through eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
@@ -500,8 +503,10 @@ flagships:
       a no-dataType value row; attribute values and classification codes 2026-11-17
       (eval/model-attr-codes-2026-11-17.md: 242 of 242 offers pass; 143 of 210
       Uniformat elements in Schultz have an empty code, Require a code); a range for
-      numeric attributes; a dataType-mismatch hint; GitHub Action and ci-cli.mjs
-      2026-11-17 (eval/ci-action-2026-11-17.md: 8 pairs on 4 real exports in 7.5 s,
-      9 of 9 annotations on the element's line; next: parse each model once for all
-      its IDS, a run on a GitHub runner and a team's repo); heap use on a 200 MB
-      model; a BIM coordinator's real IDS and model (needs a person).
+      numeric attributes; a dataType-mismatch hint, Accept any data type 2026-11-17
+      (eval/model-any-type-2026-11-17.md); GitHub Action and ci-cli.mjs 2026-11-17
+      (eval/ci-action-2026-11-17.md: 8 pairs on 4 real exports in 7.5 s, 9 of 9
+      annotations on the element's line; parsed once per model and failures capped
+      per spec 2026-11-17, eval/ci-scale-2026-11-17.md; next: a run on a GitHub
+      runner and a team's repo); heap use on a 200 MB model; a BIM coordinator's
+      real IDS and model (needs a person).

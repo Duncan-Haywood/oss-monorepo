@@ -40,6 +40,27 @@ class ClobberedCalls(unittest.TestCase):
     def test_case_differs_hides_nothing(self):
         self.assertEqual(clobbered_calls(PAGE.replace('id="reset"', 'id="Reset"').replace("CALL", "form.reset()")), [])
 
+    def test_a_call_in_an_inline_handler_counts(self):
+        # `onclick="this.form.reset()"` never reaches a <script>, and threw just the same.
+        html = '<form>\n<input id="reset">\n<button type="button" onclick="this.form.reset()">R</button>\n</form>\n'
+        self.assertEqual(clobbered_calls(html), [("reset", 2)])
+        html = "<form>\n<input id='reset'>\n<button type='button' onclick='HTMLFormElement.prototype.reset.call(this.form)'>R</button>\n</form>\n"
+        self.assertEqual(clobbered_calls(html), [])
+
+    def test_a_control_joined_by_the_form_attribute_hides_the_method(self):
+        # A control outside the <form> with form="f" is one of its elements, so it clobbers too.
+        html = '<form id="f"><input id="a"></form>\n<button form="f" id="reset">R</button>\n<script>f.reset();</script>\n'
+        self.assertEqual(clobbered_calls(html), [("reset", 2)])
+
+    def test_a_form_attribute_naming_no_form_hides_nothing(self):
+        html = '<form id="f"><input id="a"></form>\n<button form="g" id="reset">R</button>\n<script>f.reset();</script>\n'
+        self.assertEqual(clobbered_calls(html), [])
+
+    def test_a_data_attribute_is_not_a_name(self):
+        # `data-name="reset"` ends in "name" after a word boundary, but names nothing.
+        html = '<form><input id="rate" data-name="reset" aria-id="submit"></form>\n<script>form.reset(); form.submit();</script>\n'
+        self.assertEqual(clobbered_calls(html), [])
+
 
 class Tree(unittest.TestCase):
     def test_tree_and_exit_code(self):
@@ -60,6 +81,9 @@ class Tree(unittest.TestCase):
             self.assertEqual(check_tree(d), [], "a test file is not the page")
             (v / "app.mjs").write_text("const form = document.querySelector('#form');\nform.reset();\n")
             self.assertEqual(len(check_tree(d)), 1)
+
+    def test_main_defaults_to_the_ventures_tree(self):
+        self.assertEqual(main(["x"]), 0)
 
     def test_repo_is_clean(self):
         self.assertEqual(check_tree(Path(__file__).resolve().parents[2] / "ventures"), [])

@@ -17,6 +17,7 @@ Free and open source (MIT). Results are statistical estimates from the data you 
 
 - How long until the event, per group: median with confidence interval, restricted mean survival time.
 - Do the groups' curves differ: log-rank, Gehan-Breslow or Tarone-Ware test.
+- Adjusting for a variable without estimating it (or one that fails the proportional-hazards check): stratified Cox model and stratified log-rank test (`--strata sex`).
 - By how much, adjusting for covariates: Cox hazard ratios (Efron or Breslow ties), likelihood-ratio, Wald and score tests, Schoenfeld proportional-hazards check, Harrell's C.
 
 ## Source
