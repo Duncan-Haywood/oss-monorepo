@@ -541,6 +541,31 @@
 //    not the registered shape: 18 of the default's 21 are a cluster onset before -um (*brum* 6, *glum* 5, *stum* 4,
 //    *flum* 3), which the slow form does not touch, and all 15 vowel-only misses are one cell, A#3 quarters, every /u/
 //    syllable read as a nasal by the level rule (README).
+// Twenty-sixth round (2026-11-17): a vowel's release read as a nasal (onsets.mjs readCoda `levelFade`, LEVEL_FADE; README
+//    "A /u/ release read as a nasal"). c's 15 vowel-only misses (every /u/ syllable on A#3 quarters) were read frame by
+//    frame (eval/dark-nasal-diag.mjs c): the vowel swells 12 dB over the reference through the note, then fades after
+//    it, and the fade passes the level rule (5-25 dB under, 15 dB darker above 1 kHz than under 500 Hz) for 40 ms just
+//    before the window ends. A guard on the run's own tilt against the vowel before it (dark 6 or 3 dB) took back all 15
+//    and J's 15 but lost 60 or more sung nasals (a dark-vowel m is no darker than its vowel), and a guard on a falling
+//    level lost 34 right reads for every 34 wrong ones it took back; both dropped. eval/level-tail-sweep.mjs (K-c) found
+//    the separator: every vowel-only level-rule nasal of c (A#3) and W (E3 eighths) starts 5-6 frames from the read
+//    window's last frame, the earliest right one 7. The rule: a level-rule run that starts within `tail: 6` frames of
+//    the window's last frame is thrown out (opt-in `levelFade: true`; `--fade on`). Chosen on that sweep, not tuned.
+//    Development (A-c, `--fade on` against the default): J's control 453 to 468 of 468, its others 332 to 333; L's others
+//    117 to 118; W's control 338 to 352 of 360, its others 32 to 33; c's control 369 to 384 of 384; lost: one O *lum*
+//    read as none (O's others 227 to 226). Every nasal row of every part identical. Z's 13 (C#4 eighths) and T's 4
+//    vowel-only misses start 14-19 frames out and are not touched. Pre-registered here and committed before part d was
+//    run with anything. Part d is new: 12 nasal codas after /u/ or /o/ (*rom trun crum plun grun snum drum prom clun
+//    slom tron bron*), 5 voiced stops (*clud trub prog grod blog*), 4 nasals after a bright vowel (*hem tin dim cram*),
+//    4 n-clusters (*pont tont cont tanc*), 3 voiceless stops (*lup cup rop*) and 4 others (*rus tul su lo*), none sung
+//    in any other part, at D#3, E3, A3, A#3, B3 and C#4, 92 BPM (in no other part), pulse-4 and pulse-2 notes, sung and
+//    vowel-only. Against the default (d's first column), `levelFade` (its second): (1) the vowel-only control read as
+//    none (of 384): at least 3 more; (2) nasals after /u/ or /o/ (of 144), after a bright vowel (of 48) and n-clusters
+//    as their nasal (of 48): no fewer in any; (3) voiced stops (of 60), voiceless stops (of 36) and others (of 48) read
+//    exactly: no fewer in total, and no more stop, other or vowel-only cell read as a nasal; (4) A-c as above, re-run
+//    on the shipped code. The gain is tested only if the default misses 3 or more of d's vowel-only cells; if fewer,
+//    `levelFade` stays opt-in, reported as untested. If all four hold and the gain is tested, `levelFade` becomes
+//    readCoda's default; otherwise it stays opt-in (`--fade on`).
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
