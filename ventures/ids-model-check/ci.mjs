@@ -91,7 +91,7 @@ export function junitXml(runs, { maxFailures = 50 } = {}) {
 // GitHub workflow commands: properties escape %, CR, LF, ':' and ','; the
 // message escapes %, CR and LF.
 const escData = (s) => String(s).replace(/%/g, "%25").replace(/\r/g, "%0D").replace(/\n/g, "%0A");
-const escProp = (s) => escData(s).replace(/:/g, "%3A").replace(/,/g, "%2C");
+const escProp = (s) => escData(s).replace(/[:,]/g, (c) => (c === ":" ? "%3A" : "%2C"));
 
 // The 1-based line of "#id=" in a STEP file, so an annotation lands on the
 // failing element. Returns a Map id -> line for the ids asked for.
@@ -190,7 +190,7 @@ export function globToRegex(glob) {
     else if (c === "{") {
       const end = g.indexOf("}", i);
       if (end < 0) { re += "\\{"; }
-      else { re += "(?:" + g.slice(i + 1, end).split(",").map((p) => p.replace(/[.+^$()|[\]\\]/g, "\\$&").replace(/\*/g, "[^/]*").replace(/\?/g, "[^/]")).join("|") + ")"; i = end; }
+      else { re += "(?:" + g.slice(i + 1, end).split(/,/).map((p) => p.replace(/[.+^$()|[\]\\]/g, "\\$&").replace(/\*/g, "[^/]*").replace(/\?/g, "[^/]")).join("|") + ")"; i = end; }
     } else re += c.replace(/[.+^$()|[\]\\]/g, "\\$&");
     i++;
   }
