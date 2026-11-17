@@ -416,8 +416,9 @@ export function attributeValueKind(S, classes, name) {
   // classes but IFCSIUNITNAME on IFCSIUNIT, so it stays free text).
   if (!cs.length && name) {
     const occ = attributeOccurrences(S).get(name);
-    if (!occ || occ.types.size !== 1 || occ.mixed) return { kind: "text", enumVals: null, base: "xs:string" };
-    cs = [occ.first];
+    if (!occ || occ.types.size !== 1 || occ.mixed || !occ.editable) return { kind: "text", enumVals: null, base: "xs:string" };
+    const k = attributeValueKind(S, [occ.firstEditable], name);
+    return occ.derivedOn.length ? { ...k, derivedOn: [...occ.derivedOn] } : k;
   }
   const a = name && S.entities[cs[0]] && sameAttributeType(S, cs, name) && S.attrs(cs[0]).find((x) => x.name === name);
   if (!a) return { kind: "text", enumVals: null, base: "xs:string" };
@@ -455,9 +456,16 @@ function attributeOccurrences(S) {
     const ok = new Set(editableAttributes(S, cls));
     for (const a of S.attrs(cls)) {
       let o = m.get(a.name);
-      if (!o) m.set(a.name, (o = { types: new Set(), editable: false, mixed: false, first: cls }));
+      if (!o) m.set(a.name, (o = { types: new Set(), editable: false, mixed: false, firstEditable: null, derivedOn: [] }));
       o.types.add(a.type);
-      if (ok.has(a.name)) o.editable = true; else o.mixed = true;
+      // A subclass that redeclares the attribute as derived, in the same type
+      // (CoordinateSpaceDimension and Precision on
+      // IfcGeometricRepresentationSubContext): its objects always fail a
+      // value check (IDS's derived-attributes test case) but the attribute is
+      // still the same number everywhere it is stored, so it stays typed.
+      if (ok.has(a.name)) { o.editable = true; o.firstEditable = o.firstEditable || cls; }
+      else if (a.derived && !a.aggregate) o.derivedOn.push(cls);
+      else o.mixed = true;
     }
   }
   occCache.set(S, m);
@@ -733,7 +741,7 @@ export function valueChoices(L, cls, r) {
   } else if (r.kind === "attribute") {
     let base;
     ({ kind, enumVals, temporal = null, base } = attributeValueKind(L.S, classes, r.name));
-    integer = base === "xs:integer";
+    integer = base === "xs:integer" || (kind === "number" && r.numBase === "xs:integer");
   } else if (r.kind === "partOf") kind = null;
   const modes = [];
   if (kind) {
@@ -777,7 +785,8 @@ function reqFacet(L, r, classes = []) {
   const value = r.cardinality === "prohibited" || (p && !p.dataType && !p.untyped) ? null
     : r.mode === "equals" ? { equals: r.equals } : r.mode === "true" || r.mode === "false" ? { equals: r.mode }
     : r.mode === "oneOf" ? oneOfValue(r, temporal) : r.mode === "range" ? rangeValue(r, temporal) : r.mode === "pattern" ? { pattern: r.pattern } : null;
-  const base = r.kind === "attribute" && value ? attributeValueKind(L.S, classes, r.name).base : undefined;
+  const k = r.kind === "attribute" && value ? attributeValueKind(L.S, classes, r.name) : null;
+  const base = k ? (k.kind === "number" && r.numBase) || k.base : undefined;
   return { kind: r.kind, set: r.set, name: r.name, dataType: p ? p.dataType : null, value, base, cardinality: r.cardinality, system: r.system, relation: r.relation, entity: r.entity };
 }
 
@@ -978,8 +987,14 @@ function editableRow(L, classes, f) {
     if (!r.entity) return null;
     return r;
   }
-  const ch = valueChoices(L, classes, r);
   const v = f.value;
+  // A number attribute of an EXPRESS NUMBER type (IfcCountMeasure in IFC2X3
+  // and IFC4: BarCount, CountValue) the file restricts on xs:integer: the row
+  // keeps that base and asks for whole numbers, so it writes back the same.
+  // A checker reads each value against the attribute's own type, so 27 on
+  // xs:integer and 27 on xs:double ask for the same thing.
+  if (f.kind === "attribute" && v && v.r && v.r.base === "integer" && attributeValueKind(L.S, classes, r.name).base === "xs:double") r.numBase = "xs:integer";
+  const ch = valueChoices(L, classes, r);
   if (!v || !v.present) return r;
   if (r.cardinality === "prohibited" || !ch.kind) return null;
   const s = simpleOf(v), en = onlyEnum(v);

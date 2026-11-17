@@ -473,8 +473,7 @@ flagships:
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
-      (eval/ifcxml-xbim-2026-11-16.md); the 20 numeric lists on non-element
-      attributes in no-class specs; more real exports through
+      (eval/ifcxml-xbim-2026-11-16.md); more real exports through
       eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
     next: >-
@@ -502,4 +501,7 @@ flagships:
       (eval/template-type-2026-11-17.md: 16 rows in 7 public files, Use the
       template's type, 14 pset-datatype errors to 0). 'did you mean' rows 2026-11-17
       (eval/name-suggestion-2026-11-17.md: 17 rows in 7 public files, name errors 31
-      to 14). More open items: NEXT.md.
+      to 14); no-class numbers 2026-11-17 (eval/no-class-numbers-2026-11-17.md:
+      derived-on-subclass and xs:integer-on-NUMBER rows, list attributes an audit
+      warning; 117 of 129 audit-tool numeric lists open, was 109). More open items:
+      NEXT.md.
