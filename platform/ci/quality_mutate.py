@@ -25,7 +25,9 @@ Then it:
 2. replaces `--old` (which must occur exactly once in the file, or name
    `--occurrence`) with `--new` in the copy, and runs the command again;
 3. prints a `mutations` row for the audit file and exits 0 when the tests
-   caught the bug, 1 when it survived (a timeout counts as caught, and says so).
+   caught the bug, 1 when it survived (a timeout counts as caught, and says so;
+   the mutant run times out at 4x the baseline's time plus 30 s, so a test
+   that hangs on the mutant is not waited out for the full --timeout).
 
 The command runs in the subject root (or `--cwd`). One that starts with
 `cd <path> &&`, the shape audit files record as `test_cmd`, runs through bash
@@ -38,11 +40,13 @@ so a stale `.pyc` cannot run the mutant or hide it (round 45).
 from __future__ import annotations
 
 import argparse
+import contextlib
 import hashlib
 import json
 import os
 import re
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -145,19 +149,42 @@ def repo_relative_args(cmd: list[str], cwd: Path) -> list[tuple[str, str]]:
     return out
 
 
-def run(cmd: list[str], cwd: Path, timeout: int) -> tuple[str, float, str]:
-    """Run `cmd`; return ('pass'|'fail'|'timeout', seconds, output tail)."""
+def run(cmd: list[str], cwd: Path, timeout: float) -> tuple[str, float, str]:
+    """Run `cmd`; return ('pass'|'fail'|'timeout', seconds, output tail).
+
+    The command gets its own process group and a timeout kills the whole group:
+    `subprocess.run` kills only the direct child, so when a `bash -c` wrapper
+    (a `cd ... &&` command) timed out, the hung `node --test` under it was
+    orphaned and kept running, holding its CPU and any port it had bound."""
     env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
     start = time.monotonic()
     argv = ["bash", "-c", " ".join(cmd)] if is_shell(cmd) else cmd
+    p = subprocess.Popen(argv, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                         text=True, errors="replace", start_new_session=True)
     try:
-        p = subprocess.run(argv, cwd=cwd, env=env, capture_output=True, text=True,
-                           timeout=timeout, errors="replace")
-    except subprocess.TimeoutExpired as e:
-        out = (e.stdout or "") if isinstance(e.stdout, str) else ""
-        return "timeout", time.monotonic() - start, out[-1500:]
-    out = (p.stdout or "") + (p.stderr or "")
-    return ("pass" if p.returncode == 0 else "fail"), time.monotonic() - start, out[-1500:]
+        out, _ = p.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        with contextlib.suppress(ProcessLookupError, PermissionError):
+            os.killpg(p.pid, signal.SIGKILL)
+        try:
+            out, _ = p.communicate(timeout=10)
+        except subprocess.TimeoutExpired:
+            out = ""
+        return "timeout", time.monotonic() - start, (out or "")[-1500:]
+    return ("pass" if p.returncode == 0 else "fail"), time.monotonic() - start, (out or "")[-1500:]
+
+
+def mutant_timeout(baseline_secs: float | None, cap: int) -> float:
+    """How long the mutant run may take. A suite that passed in `baseline_secs`
+    and runs much longer on the mutant has hung on it (a server test with no
+    `t.after` close never exits once an assertion fails), and a hang counts as
+    caught, so waiting out the full --timeout only costs time: on 2026-11-17 a
+    link-keeper mutant sat out 900 s (run-record doc_friction on
+    portfolio/quality/README.md). Allow 4x the baseline plus 30 s, never more
+    than `cap`, and `cap` itself when no baseline ran."""
+    if baseline_secs is None:
+        return cap
+    return min(cap, 4 * baseline_secs + 30)
 
 
 # A runner that found no tests still exits 0 under node (`# tests 0`) and
@@ -191,7 +218,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--occurrence", type=int, default=None, help="which match of --old, 1-based")
     ap.add_argument("--root", default=None, help="directory copied for real (default: first two path parts)")
     ap.add_argument("--cwd", default=None, help="repo-relative directory to run the tests in (default: --root)")
-    ap.add_argument("--timeout", type=int, default=TIMEOUT)
+    ap.add_argument("--timeout", type=int, default=TIMEOUT,
+                    help="cap in seconds per run; the mutant run gets 4x the baseline + 30 s, "
+                         "up to this cap, since a hang there counts as caught")
     ap.add_argument("--no-baseline", action="store_true", help="skip the unmutated run (only if you just ran it)")
     ap.add_argument("--keep", action="store_true", help="keep the shadow tree and print its path")
     ap.add_argument("--json", action="store_true", help="print only the mutations row")
@@ -232,8 +261,10 @@ def main(argv: list[str] | None = None) -> int:
         # (run-record doc_friction, 2026-11-12).
         from_top = starts_with_cd(cmd) and not args.cwd
         shadow_cwd = tmp / "repo" if from_top else tmp / "repo" / cwd
+        baseline_secs = None
         if not args.no_baseline:
             state, secs, tail = run(cmd, shadow_cwd, args.timeout)
+            baseline_secs = secs
             say(f"baseline (unmutated copy): {state} in {secs:.1f} s")
             if state == "pass" and ran_no_tests(tail):
                 print(tail, file=sys.stderr)
@@ -251,13 +282,17 @@ def main(argv: list[str] | None = None) -> int:
                       "grade one. Fix or narrow the test command first.", file=sys.stderr)
                 return 2
         (tmp / "repo" / rel).write_text(mutated, encoding="utf-8")
-        state, secs, tail = run(cmd, shadow_cwd, args.timeout)
+        limit = mutant_timeout(baseline_secs, args.timeout)
+        state, secs, tail = run(cmd, shadow_cwd, limit)
         caught = state != "pass"
         row = {"where": f"{rel.relative_to(root).as_posix()}:{line}",
                "change": f"{args.old} -> {args.new}", "caught": caught,
                "test_cmd": " ".join(cmd)}
         if state == "timeout":
-            row["note"] = f"tests timed out after {args.timeout} s on the mutant"
+            row["note"] = (f"tests timed out after {limit:.0f} s on the mutant (the unmutated "
+                           f"suite took {baseline_secs:.1f} s): a hang, counted as caught"
+                           if baseline_secs is not None else
+                           f"tests timed out after {limit:.0f} s on the mutant")
         if not args.json:
             print(f"mutant at {rel}:{line}: tests {state} in {secs:.1f} s -> "
                   f"{'CAUGHT' if caught else 'SURVIVED'}")
