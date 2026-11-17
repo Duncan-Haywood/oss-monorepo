@@ -786,11 +786,11 @@ def noise_aware(
     the mosaic it reads texture as noise on detailed frames and lost up to 5 dB on held-out tiles. Without
     ``directional_out`` the CFA's own directional demosaic runs (X-Trans here, ``bayer_demosaic`` on a 2 x 2
     pattern) at its defaults. Both inputs
-    keep each sensel's own value, so the blend does too (the luma ramp moves a sensel by
-    ``(a_l - a) * Y(D - B)``, and D and B agree on every sensel's own colour, so not there either... only
-    within the blend's range: see ``blend``). ``luma_ramp``: ``True`` (default) takes the CFA's
-    ``LUMA_RAMPS`` for luma, a pair sets one, ``None``/``False`` blends luma on the colour ramp as before
-    2026-11-17. It applies only with ``per_block``.
+    keep each sensel's own value, so the one-ramp blend does too. ``luma_ramp``: ``True`` (default) takes the
+    CFA's ``LUMA_RAMPS`` for luma, a pair sets one, ``None``/``False`` blends luma on the colour ramp as before
+    2026-11-17. It applies only with ``per_block``. The luma ramp moves every channel of a pixel by the same
+    ``(a_l - a) * Y(D - B)``, so a sensel's own channel is no longer its raw value; putting it back was
+    measured and gave back most of the luma gain (eval/noise-aware-luma-ramp-2026-11-17.md).
     """
 
     ramp = RAMPS[6 if len(pat) == 36 else 2]

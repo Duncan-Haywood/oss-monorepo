@@ -4,7 +4,8 @@
 Pinned: the noise estimate tracks the noise drawn on a flat field, an overstated NoiseProfile is read and
 scaled down (``profile_ratio``, ``guard_profile``), sensels keep their own values, a
 flat noisy field leans to bilinear and a sharp clean edge to directional, the blend lies between its
-two inputs, and the weights follow the documented ramp.
+two inputs, the weights follow the documented ramp, and a second luma ramp takes luma from one blend
+and colour difference from the other.
 """
 
 from __future__ import annotations
@@ -89,7 +90,7 @@ class NoiseAwareTests(unittest.TestCase):
         truth = self.rng.uniform(0.1, 0.8, size=(72, 72, 3))
         c = _mosaic(truth, XE1_PATTERN)
         b, d = _bilinear(c, XE1_PATTERN), directional(c, XE1_PATTERN)
-        out = noise_aware(c, XE1_PATTERN, bilinear=b, directional_out=d, q_low=0.0, q_high=1e6)
+        out = noise_aware(c, XE1_PATTERN, bilinear=b, directional_out=d, q_low=0.0, q_high=1e6, luma_ramp=False)
         cm = colour_map(XE1_PATTERN, 72, 72)
         own = np.take_along_axis(out, cm[..., None].astype(np.int64), axis=2)[..., 0]
         np.testing.assert_allclose(own, c, atol=1e-9)
@@ -97,7 +98,7 @@ class NoiseAwareTests(unittest.TestCase):
 
     def test_bayer_uses_its_own_demosaic_and_ramp(self):
         from shootflow.bayer_demosaic import directional as bayer
-        from shootflow.xtrans_demosaic import RAMPS, noise_aware
+        from shootflow.xtrans_demosaic import LUMA_RAMPS, RAMPS, noise_aware
 
         np = self.np
         pat = (0, 1, 1, 2)
@@ -105,8 +106,39 @@ class NoiseAwareTests(unittest.TestCase):
         c = _mosaic(truth, pat) + self.rng.normal(size=(96, 96)) * 0.01
         b, d = _bilinear(c, pat), bayer(c, pat)
         a = noise_aware(c, pat, noise=(0.0, 1e-4))
-        e = noise_aware(c, pat, bilinear=b, directional_out=d, noise=(0.0, 1e-4), q_low=RAMPS[2][0], q_high=RAMPS[2][1])
+        e = noise_aware(c, pat, bilinear=b, directional_out=d, noise=(0.0, 1e-4), q_low=RAMPS[2][0], q_high=RAMPS[2][1],
+                        luma_ramp=LUMA_RAMPS[2])
         np.testing.assert_allclose(a, e, atol=1e-12)
+
+    def test_luma_ramp_takes_luma_from_one_blend_and_colour_from_the_other(self):
+        """eval/noise-aware-luma-ramp-2026-11-17.md: with ``luma_ramp`` the output's Rec. 709 luma is the
+        luma-ramp blend's and its R-G, B-G are the colour-ramp blend's; luma lies between the inputs' luma;
+        both ramps at 1 (a clean frame) give the directional result; ``noise_aware`` uses LUMA_RAMPS by default."""
+
+        from shootflow.xtrans_demosaic import LUMA_RAMPS, LUMA_WEIGHTS, RAMPS, blend, directional, frame_measures, noise_aware
+
+        np = self.np
+        b = self.rng.uniform(0.1, 0.8, size=(72, 72, 3))
+        d = self.rng.uniform(0.1, 0.8, size=(72, 72, 3))
+        q = self.rng.uniform(0.0, 3.0, size=(3, 3))
+        colour, luma = blend(b, d, q, 0.4, 2.0), blend(b, d, q, 0.8, 2.0)
+        out = blend(b, d, q, 0.4, 2.0, luma_ramp=(0.8, 2.0))
+        np.testing.assert_allclose(out @ LUMA_WEIGHTS, luma @ LUMA_WEIGHTS, atol=1e-12)
+        diff = lambda a: np.stack([a[..., 0] - a[..., 1], a[..., 2] - a[..., 1]], -1)  # noqa: E731
+        np.testing.assert_allclose(diff(out), diff(colour), atol=1e-12)
+        y = out @ LUMA_WEIGHTS
+        self.assertTrue(np.all(y >= np.minimum(b @ LUMA_WEIGHTS, d @ LUMA_WEIGHTS) - 1e-12))
+        self.assertTrue(np.all(y <= np.maximum(b @ LUMA_WEIGHTS, d @ LUMA_WEIGHTS) + 1e-12))
+        np.testing.assert_allclose(blend(b, d, np.full((3, 3), 5.0), 0.4, 2.0, luma_ramp=(0.8, 2.0)), d, atol=1e-12)
+        truth, c = self._flat(0.01)
+        bb, dd = _bilinear(c, XE1_PATTERN), directional(c, XE1_PATTERN)
+        qb = frame_measures(c, XE1_PATTERN, bb, dd, blocks=True)["q_blocks"]
+        np.testing.assert_allclose(
+            noise_aware(c, XE1_PATTERN, bilinear=bb, directional_out=dd),
+            blend(bb, dd, qb, *RAMPS[6], luma_ramp=LUMA_RAMPS[6]), atol=1e-12)
+        err = lambda a: float(np.mean(((a - truth)[6:-6, 6:-6] @ LUMA_WEIGHTS) ** 2))  # noqa: E731
+        self.assertLessEqual(err(noise_aware(c, XE1_PATTERN, bilinear=bb, directional_out=dd)),
+                             err(noise_aware(c, XE1_PATTERN, bilinear=bb, directional_out=dd, luma_ramp=False)) + 1e-15)
 
     def test_blend_ramp(self):
         from shootflow.xtrans_demosaic import blend
