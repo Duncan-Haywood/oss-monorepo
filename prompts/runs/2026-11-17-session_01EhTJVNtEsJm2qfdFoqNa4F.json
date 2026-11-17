@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVNtEsJm2qfdFoqNa4F",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell, support revenue-generating products); merge when done",
+  "input_sha256": "8e865a5d3fb7abbe88c8f6feebc14a6e00111a6047c4a948d8cee3cc025ee6fa",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T20:11:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "perf: profile chant-forge's slowest test file (ep-queue.test.mjs) and remove repeat work",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": 17051,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both perf backlog items (P063, P064) are still owner-gated workflow edits; item 1 of 'Where to look' is a no-op for every run until the owner acts."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-17-chant-forge-analyze-shared-k-weighting.md",
+    "docs/posts/2026-11-17-one-filter-four-readings.md"
+  ],
+  "goal": null,
+  "notes": "Metric: chant-forge analyze() and test time. analyze on a 3 min stereo 44.1 kHz signal: before 1.88/1.64 s, after 1.23/1.39 s (scratch bench, 3rd of 3 warm calls, two alternating runs, identical sha256 of JSON output 971796f0cc40726a). ep-queue.test.mjs alone: 18.1/18.2 s before, 14.6/14.7 s after (node --test, git stash for before). Suite summed per file 105.6 -> 100.4 s (suite_file_times.py); suite wall 41.6/42.2 -> 40.8/39.8 s (run_venture_tests.py chant-forge, 4 jobs, alternating; bounded by sing.test.mjs at 15 s). Profile: node --cpu-prof, kWeightedEnergy 5.6 of 19.0 s self, 4.0 s under analyze across four readings. Verification: master.test.mjs 14/14, mutation (1e-7 scale of shared sums) fails the new test; run_venture_tests.py chant-forge 0 failed. Pool reading: ci_profile --runs 600: 594.6 job-min, node --test in touched ventures 57.4 min.",
+  "corrections": [],
+  "redteam": null
+}
