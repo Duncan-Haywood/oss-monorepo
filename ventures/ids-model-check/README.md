@@ -197,6 +197,14 @@ open. MIT licensed, no dependencies, nothing uploaded.
   on only 22 of 324 lists typed to 6 digits, which the row warns about. 109
   of the 129 numeric lists in the IDS-Audit-tool valid files now open as rows
   (89.2% editable, was 75.9%). `eval/number-oneof-2026-11-17.md`.
+  **Specifications written for several IFC versions** (2026-11-17): a file
+  whose specifications all say `IFC2X3 IFC4` (the Dutch NL-BIM Basis ILS and
+  RVB BIM Norm, BASIX) opens in the schema where most facets are editable,
+  not the first named, and the page audits each specification in every
+  schema it names, as the CLI does. On the 18 public files with such
+  specifications, errors the page raised and the CLI did not went from 18 to
+  0; BASIX opens fully editable in IFC4X3 (29 of 29, was 19); 90.1% of public
+  facets editable (was 89.2%). `eval/multi-version-2026-11-17.md`.
 - Exports: BCF 2.1 (one topic per failing element, selected by IfcGuid), CSV,
   JSON.
 - 22 MB Revit export (Schultz Residence, 424,819 entities): 1.4 s on the command
@@ -725,10 +733,13 @@ faster than IfcTester; its point is needing no install.
   the model's range on dates 2026-11-17, `eval/model-date-range-2026-11-17.md`;
   one-of rows on dates 2026-11-17, `eval/date-oneof-2026-11-17.md`;
   specifications with no class 2026-11-17, `eval/no-class-specs-2026-11-17.md`;
-  one-of rows on numbers 2026-11-17, `eval/number-oneof-2026-11-17.md`):
-  the 20 numeric lists on non-element attributes in no-class specifications;
-  132 kept property requirements in public files'
-  class specifications (`node eval/kept-facets.mjs` tallies why); a real IFC4 export with dates to try the range on;
+  one-of rows on numbers 2026-11-17, `eval/number-oneof-2026-11-17.md`;
+  several IFC versions 2026-11-17, `eval/multi-version-2026-11-17.md`):
+  a standard property whose dataType is not the template's (about 30 of the
+  116 kept property requirements in public files' class specifications,
+  `eval/multi-version-2026-11-17.md` "Why the other 116 are kept") as a row
+  that keeps the file's type with a "use the template's type" fix;
+  the 20 numeric lists on non-element attributes in no-class specifications; a real IFC4 export with dates to try the range on;
   a subclass checkbox per class, not only the first;
   a "fix the dataType" hint built from the 21
   of 122 standard properties real exports write in another type.

@@ -475,12 +475,13 @@ flagships:
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
-      (eval/ifcxml-xbim-2026-11-16.md); the IDS editor (editor.html): the 20 numeric
-      lists on non-element attributes in no-class specs still kept (number one-of
-      rows landed 2026-11-17, eval/number-oneof-2026-11-17.md: IfcTester matches
-      listed numbers exactly, offers list exact values); the 132 kept property
-      requirements in public files (node eval/kept-facets.mjs); more real exports
-      through eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
+      (eval/ifcxml-xbim-2026-11-16.md); the IDS editor (editor.html): a standard
+      property whose dataType is not the template's (about 30 of the 116 kept
+      property requirements in public files, eval/multi-version-2026-11-17.md 'Why
+      the other 116 are kept') as a row keeping the file's type, with a
+      use-the-template's-type fix; the 20 numeric lists on non-element attributes in
+      no-class specs; more real exports through eval/model-inventory.mjs and
+      eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked"). Next, most
@@ -500,4 +501,7 @@ flagships:
       2026-11-17 (eval/federated-globalids-2026-11-17.md; allow list and followers,
       eval/federation-allow-2026-11-17.md: Simple-Scene 35 to 23); number one-of
       rows 2026-11-17 (eval/number-oneof-2026-11-17.md: 663 of 663 offers pass,
-      IfcTester 646). More open items: NEXT.md.
+      IfcTester 646); several IFC versions per spec 2026-11-17
+      (eval/multi-version-2026-11-17.md: opened in the schema that edits most, page
+      audit in every named schema, false page errors 18 to 0 on 18 public files).
+      More open items: NEXT.md.

@@ -94,7 +94,7 @@
   import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
   import { Schema, parseIds } from "./ids.mjs";
   import { auditIds } from "./audit.mjs";
-  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, idsSchema, facetXml, editableAttributes, modelSets, valueTypes, ownSetName, specBases, specClassNames, commonSets, commonAttributes, attributeValueKind, commonPredefinedTypes, parseClassList, modelValueOffer, modelAttributes, modelCodes, appMatchCount, reqComplete, typeRow, untypeRow, temporalType, TEMPORAL_EXAMPLE, datePattern, modelSubclassesLeftOut, modelSpec, valueChoices, numberValueProblem } from "./editor.mjs";
+  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, idsSchema, idsSchemaChoices, auditSchemaIds, schemaIdsOf, facetXml, editableAttributes, modelSets, valueTypes, ownSetName, specBases, specClassNames, commonSets, commonAttributes, attributeValueKind, commonPredefinedTypes, parseClassList, modelValueOffer, modelAttributes, modelCodes, appMatchCount, reqComplete, typeRow, untypeRow, temporalType, TEMPORAL_EXAMPLE, datePattern, modelSubclassesLeftOut, modelSpec, valueChoices, numberValueProblem } from "./editor.mjs";
   import { temporalKind } from "./temporal.mjs";
   import { isZip, unzipModel, inflateRawStream } from "./zip.mjs";
 
@@ -420,7 +420,7 @@
       : `<p class="warn" style="font-size:0.88rem">Pick a class, or narrow it with a property or attribute below: IDS needs at least one applicability condition.</p>`;
     if (s.cls && known) h += `<p class="muted" style="font-size:0.88rem">${nSets} standard set(s) apply to ${also.length ? `every one of ${esc(bases.join(", "))}` : esc(L.S.entities[s.cls] ? L.S.entities[s.cls].name : s.cls)}.${subs.length ? ` <label style="display:inline;color:var(--fg)"><input type="checkbox" data-s="${si}" data-k="withSub"${s.withSub ? " checked" : ""}> and its ${subs.length} subclass(es): ${esc(subs.slice(0, 6).join(", "))}${subs.length > 6 ? ", ..." : ""}</label>` : ""}</p>`;
     h += `<div class="grid"><div><label for="s-${si}-desc">Why it is needed (optional)</label><input id="s-${si}-desc" data-s="${si}" data-k="description" value="${esc(s.description)}"></div><div><label for="s-${si}-ins">Instructions for the modeller (optional)</label><input id="s-${si}-ins" data-s="${si}" data-k="instructions" value="${esc(s.instructions)}"></div></div>`;
-    if (s.ifcVersion) h += `<p class="muted" style="font-size:0.88rem">This specification keeps its own ifcVersion, ${esc(s.ifcVersion.join(" "))}; it is audited against ${esc(doc.schema)}.</p>`;
+    if (s.ifcVersion) h += `<p class="muted" style="font-size:0.88rem">This specification keeps its own ifcVersion, ${esc(s.ifcVersion.join(" "))}; it is audited against ${esc(schemaIdsOf(s.ifcVersion).join(" and ") || doc.schema)}${schemaIdsOf(s.ifcVersion).length > 1 ? ", and valid when any of them has what it asks" : ""}; the page offers ${esc(doc.schema)}'s classes and sets.</p>`;
     if (s.fixedApp && s.fixedApp.length) { h += `<p class="muted" style="font-size:0.88rem;margin-bottom:0">It also applies only to elements matching:</p>`; s.fixedApp.forEach((f, i) => { h += keptHtml(L, f, false, "del-app", si, i); }); }
     // Conditions beyond the class: the specification is about only the
     // elements that also match these (IDS applicability facets).
@@ -440,7 +440,11 @@
     xml = buildIds(toIdsDoc(L), L.S);
     $("xml").textContent = xml;
     let issues;
-    try { issues = auditIds(parseIds(xml), { schemas: { [doc.schema]: L.S }, typeMap, psets: { [doc.schema]: L.psets } }); }
+    // Each specification is audited in every schema its ifcVersion names, as
+    // the CLI does (render() loads them); an "IFC2X3 IFC4" specification is
+    // valid when either has what it asks.
+    const ids = auditSchemaIds(doc).filter((id) => loaded[id]);
+    try { issues = auditIds(parseIds(xml), { schemas: Object.fromEntries(ids.map((id) => [id, loaded[id].S])), typeMap, psets: Object.fromEntries(ids.map((id) => [id, loaded[id].psets])) }); }
     catch (e) { $("audit").innerHTML = `<span class="err">Could not read the IDS back: ${esc(e.message)}</span>`; return; }
     const errors = issues.filter((x) => x.level === "error");
     let h = `<p><span class="tag ${errors.length ? "err" : "ok"}">${errors.length ? "INVALID" : "VALID"}</span> ${doc.specs.length} specification(s)${issues.length ? `, ${errors.length} error(s), ${issues.length - errors.length} warning(s)` : ", no problems found"}</p>`;
@@ -451,6 +455,7 @@
 
   async function render() {
     const L = await load(doc.schema);
+    await Promise.all(auditSchemaIds(doc).map(load));
     $("doc-title").value = doc.title;
     $("doc-desc").value = doc.description || "";
     $("doc-schema").value = doc.schema;
@@ -653,14 +658,16 @@
   async function openIds(name, text) {
     let parsed;
     try { parsed = parseIds(text); } catch (e) { $("open-status").innerHTML = `<span class="err">Could not read ${esc(name)}: ${esc(e.message)}</span>`; return; }
-    const id = idsSchema(parsed);
-    await load(id);
+    await Promise.all([idsSchema(parsed), ...idsSchemaChoices(parsed)].map(load));
     const r = importIds(parsed, (x) => loaded[x]);
+    const id = r.state.schema;
     if (doc.specs.length && JSON.stringify(doc) !== JSON.stringify(starter()) && !confirm(`Replace the draft with ${name}?`)) return;
     doc = r.state;
     if (!doc.title) doc.title = name.replace(/\.(ids|xml)$/i, "");
     const total = r.rows + r.kept;
     let msg = `Opened ${esc(name)}: ${parsed.specs.length} specification(s) for ${esc(id)}. ${r.rows} of ${total} facet(s) are editable here`;
+    // Every specification names several schemas: say which one the page edits in and why.
+    if (r.schemaRows) msg = `Opened ${esc(name)}: ${parsed.specs.length} specification(s), each written for ${esc(Object.keys(r.schemaRows).join(" and "))}; the page edits in ${esc(id)}, where the most facets are editable (${Object.entries(r.schemaRows).map(([k, v]) => `${esc(k)} ${v}`).join(", ")}), and audits each in every schema it names. ${r.rows} of ${total} facet(s) are editable here`;
     msg += r.kept ? `; ${r.kept} are kept as written (shown as XML, written back unchanged, removable), because the page's controls would change them (a pattern on a class name, a range with two lower bounds, a non-standard Pset_ name...).` : ".";
     if (r.dropped) msg += ` <span class="warn">${r.dropped} requirement(s) of prohibited specification(s) (${esc(r.droppedIn.join(", "))}) are not kept: IDS 1.0 cannot evaluate them, so move the condition into the applicability.</span>`;
     $("open-status").innerHTML = msg;
