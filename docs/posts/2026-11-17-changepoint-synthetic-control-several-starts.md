@@ -25,7 +25,7 @@ That guess was cheap to test and easy to fool myself about, so I pre-registered 
 
 The extra starts did find better weights. California's before-gap went from 2.02 to 1.92 packs and Massachusetts' from 4.65 to 3.70. But no rank improved where it mattered. Massachusetts and Arizona slipped, because their after-date gaps shrank along with the before-date ones. One of the nine placebo states, West Virginia, which had no tax change, rose to rank 1 with sales running *above* its synthetic control. The bar allows one such placebo, so that bar held, but only just. The pre-registered real bars failed again: California is not at p 0.05, and none of the three later states is at p 0.10.
 
-SIM_POST
+In simulation (80 fresh panels in each of 14 cells) the six-start search changed almost nothing. Its fit was tighter than the one-start fit in 65 to 93% of panels, but only by 1 to 4% on average, and no rejection rate moved by more than 2.5 points. When the treated series lies outside anything the donors can mix, a false finding at p 0.05 came up 16.3% of the time, against 17.5% with one start and 10.0% matched on every year. That excess belongs to the covariate design, not the search. A treated unit near the edge of the donors' range was also over its size bar, at 11.3%. Three of the four pre-registered bars failed, so the six-start search stays an option and isn't the default.
 
 ## Why Oregon can't be matched
 

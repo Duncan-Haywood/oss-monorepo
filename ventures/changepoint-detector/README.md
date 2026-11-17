@@ -5970,7 +5970,7 @@ its p 0.05 (7.0% there) is the one to read. **Next** (fresh pre-registration): a
 predictor plus equal weights), with the paper's 15-24 share and beer covariates if a source can be found; monthly
 series.
 
-### Several starts for V: tighter fits, the same ranks; Oregon's covariates cannot fit it (2026-11-17, pre-registered; fails the real bars)
+### Several starts for V: tighter fits, the same ranks; Oregon's covariates cannot fit it (2026-11-17, pre-registered; fails three bars)
 
 The covariate round ended with a diagnosis: Oregon's V stopped one simplex step from its start, so "a multi-start V
 search (one start per predictor plus equal weights)" might find the close match its predictors suggested.
@@ -5987,7 +5987,9 @@ starts changed.
 
 | Bar (pre-registered, multi-start covariate fit, floored ratio) | Confirmatory (80 panels a cell) / real | |
 |---|---|---|
-SIM_ROWS
+| 1. size, N1-N7: p <= 0.05 at most 8%, p <= 0.10 at most 16% | 0-6.3% and 3.8-10.0% in N1-N6; **N7 11.3% and 17.5%** (one start on the same panels: 8.8%, 18.8%; outcome: 8.8%, 15.0%) | **fails** |
+| 2. treated outside the donors' range (E1): p <= 0.05 at most 8% | **16.3%** (one start 17.5%, outcome 10.0%; fit warning 99%) | **fails** |
+| 3. power: no cell more than 10 points below the outcome fit | P1 53.8 vs 62.5; P2 18.8 vs 15.0; P3 28.8 vs 23.8; P4 26.3 vs 21.3; P5 58.8 vs 58.8; P6 43.8 vs 36.3 | holds |
 | 4a. T1 California 1989: p <= 0.05, average gap -30 to -10, gap at 2000 below 0 | **rank 2 of 39, p 0.051** (unchanged); gap -17.6 average, -24.0 at 2000 | **fails** |
 | 4b. T2-T4 MA 1993, AZ 1995, OR 1997: 2 of 3 at p <= 0.10, negative gap | **0 of 3**: MA rank 4, p 0.103 (one start: 3rd, 0.077); AZ rank 8, p 0.222 (5th); OR rank 19 of 28, p 0.679, fit warning (21st) | **fails** |
 | 4c. in-time placebos (1980, 1984 in a window cut at 1988): neither p <= 0.05 | p 0.077, 0.385 | holds |
@@ -6012,11 +6014,16 @@ donors' mean: 118) to 97 in 1994 (donors: 105), from 40 packs above the pool to 
 California, whose before-period runs close to its donors throughout. For a unit whose path crosses the pool's, a few
 lags cannot stand in for the whole before-period; the outcome-only fit matches every year and does.
 
-SIM_PARA
+**In simulation the extra starts change almost nothing.** The multi-start treated fit is tighter than the one-start
+fit in 65-93% of panels, but mean before RMSPE falls only 1-4% per cell, and rejection rates move by at most 2.5 points
+either way. E1 stays where the one-start fit left it (16.3% against 17.5%), so the excess there is the covariate
+design, not the search. N7, a treated unit near the corner of the donors' range, is over its size bar for every
+covariate fit (11.3% multi, 8.8% one start at p 0.05; both over 16% at p 0.10); at 80 panels a cell its standard
+error is about 3 points, so this says the corner case is loose, not how loose.
 
-**Decision, as pre-registered.** DECISION_TEXT **Next** (fresh pre-registration, if covariates are tried again): lags
+**Decision, as pre-registered.** Bar 3 holds, bars 1, 2 and 4 fail, so `vSearch: 'multi'` stays an option (default `'single'`), documented with
+these tables, and the outcome-only fit stays the default and the recommended one. **Next** (fresh pre-registration, if covariates are tried again): lags
 spread over the whole before-period (every fifth year, or the before-period's mean and slope), so a unit whose level
 crosses the pool's is matched on its path; or drop the predictor search and add covariates as a check on the
-outcome-only fit's weights (Abadie 2021, section 7: report the covariate balance of the outcome fit). The outcome-only
-fit with the floored ratio is the one to use; its CLI wiring is the next product step once Massachusetts-like loose fits
-have a bar it can meet.
+outcome-only fit's weights (Abadie 2021, section 7: report the covariate balance of the outcome fit). Until then the
+outcome-only fit with the floored ratio is the one to use (California 1st of 39).
