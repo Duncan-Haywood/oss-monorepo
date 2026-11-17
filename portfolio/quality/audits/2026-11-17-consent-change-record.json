@@ -1,0 +1,269 @@
+{
+ "date": "2026-11-17",
+ "subject": "ventures/consent-change-record",
+ "stratum": "venture",
+ "drawn_by": "census",
+ "seed": "2026-11-17-21f8",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a privacy engineer / DPO who runs GDPR and ePrivacy (Art. 5(3)) cookie-consent audits, in the CNIL style: what is read or written on the terminal before consent and after a refusal",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Hand-built traces run through the shipped code (/tmp/claude-0/-home-user-oss-monorepo/1378d21e-81f5-5682-8b00-29e4997707f2/scratchpad/ccr/indep.mjs, `node indep.mjs`). Count semantics are right: a pixel 3 before / 1 after gives removed 2, unchanged 1, added 0 (C1), and repeated beacons collapse to one persisting row in the HAR tool. Three outputs are wrong against what a consent auditor (and HAR 1.2) would expect: (C2) the JSON comparator keys requests on the full URL including the query, so a GA4 /g/collect beacon that fires on both sides with a rotating _p cache-buster reports added 1, removed 1, unchanged 0 instead of unchanged 1; the sibling HAR tool already strips queries for exactly this reason (har-diff.mjs:39). (H1) the HAR tool's cookie diff reads only response.cookies (Set-Cookie); a _ga written by JavaScript and sent in request.cookies of later requests (HAR 1.2 request.cookies) gives addedCookieCount 0. (H2) the HAR tool is presence-only: a Facebook pixel 3 before / 1 after gives removed 0, persisting 1, the very case the vs-by-eye page says the product catches. Also: a site of 'https://shop.example' vs 'https://shop.example/' is rejected as a different site (C3); cdn.shop.example is marked third-party for a www.shop.example page (H4, exact-host rather than same-site).",
+  "completeness": "`node --test *.test.mjs test/*.test.mjs tool/*.test.mjs` in the subject: 56/56 pass in 0.24 s. Claimed features checked: JSON before/after compare (works), Download report (code path present: Blob of reportAsText), refusal of cross-site pairs (works), HAR before/after diff with tracker grouping, persisting third-party list and JSON export (works on hand HARs), opt-out local count honouring DNT/GPC (usage.mjs:20). Gaps: the JSON 'trace export' has no capture path: no browser or tool emits that schema and neither README nor page says how to produce one, so the main tool needs hand-typed JSON; the report text never lists unchanged requests although vs-cookiebot.html says it reports 'which fire regardless'. served-copy.mjs: no placeholder origin left.",
+  "verification": "56 tests pass. 5 hand-seeded mutants via quality_mutate.py: 3 caught (count Math.min->max, tracker suffix dot boundary, persisting de-dup), 2 survived: dropping .toUpperCase() on the JSON request method (calc.mjs:8, so 'post' and 'POST' become different requests) and dropping the hostname from the HAR cookie key (har-diff.mjs:65, so a first-party 'sid' and a third-party 'sid' merge). No test covers rotating query strings in the JSON comparator or request.cookies in HAR input.",
+  "craft": "Read calc.mjs (81 lines), tool/har-diff.mjs (163), tool/trackers.mjs (64), usage.mjs, tool/index.html script. Pure functions, HTML escaped on every innerHTML sink in tool/index.html (escapeHtml), stale report cleared on error. Defects: two independent diff engines with opposite semantics (calc.mjs counts occurrences and keys on the full URL; har-diff.mjs is presence-only and keys on origin+path); storage keys print with a leading space ('  -  _ga', keyFor at calc.mjs:17 with empty method); report headings hard-code 'ADDED AFTER CONSENT' even when sequence is 'after-reject-all' (C4b); HAR addedRequestCount is not de-duplicated (4 GA beacons -> 4) while persistingRequestCount is, so the headline counts mix units.",
+  "claims": "Disclaimer (no warranty, not legal or compliance advice, verify) on index.html footer, tool/index.html:158, README and both vs pages; 'not a compliance badge' is repeated and honest; no-upload claim backed (no fetch/sendBeacon in calc.mjs, usage.mjs only writes localStorage). Cookiebot statements (CMP from Usercentrics, scheduled scanner, cookie declaration, auto-blocking, IAB TCF, page-count tiers) match Cookiebot's public product description as I know it, no price is invented (tested), and a not-affiliated line is present, but no source link backs them. Unbacked: vs-cookiebot.html:57 says the tool reports 'which fire regardless' (the JSON report lists only added/removed); vs-comparing-the-traces-by-eye.html:78 frames the counting advantage over 'two DevTools exports', but the DevTools (HAR) tool is presence-only (H2); llms.txt:5 says 'Results are estimates from the numbers typed in', template text that does not describe a trace diff.",
+  "fitness": "Walked a DPO's job: capture a HAR on first load, click Reject all, capture again, ask 'what kept firing and what was written despite refusal'. The HAR tool answers the request half usefully (persisting third-party list, known trackers first, query-rotation tolerant). It cannot answer the cookie half for the most common trackers (_ga, _fbp, _gcl_au are set by JS, invisible to response.cookies) and has no localStorage at all; the JSON tool has the storage field but no way to capture it. An auditor would still need DevTools Application panel or a crawler for the evidence they file.",
+  "domain": "Compared with ePrivacy Art. 5(3) and CNIL cookie guidance (Deliberation 2020-091 and its 2020 recommendations): the finding that matters is any non-essential read/write before consent or after refusal, of cookies and other storage. The tool frames the job right (observation, not compliance; the persisting list after a refusal is the right signal) but departs in where the evidence comes from: cookies only from Set-Cookie, no request.cookies or document.cookie, no first/third-party by registrable domain (eTLD+1), no IAB TCF v2.2 TC string or GPP/consent-mode signal inspection, and a 32-domain tracker list (misses licdn.com, sc-static.net, hs-scripts.com, run H5)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "JSON compare, pixel fires 3 times before and once after",
+   "method": "hand count of occurrences (multiset difference)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/1378d21e-81f5-5682-8b00-29e4997707f2/scratchpad/ccr/indep.mjs (C1)",
+   "expected": "removed 2, unchanged 1, added 0",
+   "observed": "removed 2, unchanged 1, added 0",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "JSON compare, GA4 /g/collect beacon on both sides with only the _p cache-buster different",
+   "method": "HAR/tracker practice: query strings rotate per hit; same endpoint should read as unchanged (the subject's own har-diff.mjs:39 rule)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/1378d21e-81f5-5682-8b00-29e4997707f2/scratchpad/ccr/indep.mjs (C2)",
+   "expected": "added 0, removed 0, unchanged 1",
+   "observed": "added 1, removed 1, unchanged 0",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "HAR diff, _ga set by JavaScript and sent in request.cookies only after consent",
+   "method": "HAR 1.2 spec: request.cookies lists cookies sent; response.cookies only Set-Cookie",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/1378d21e-81f5-5682-8b00-29e4997707f2/scratchpad/ccr/indep.mjs (H1)",
+   "expected": "1 added cookie (_ga)",
+   "observed": "addedCookieCount 0",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "HAR diff, Facebook pixel fires 3 times before and once after",
+   "method": "hand count; the product's own vs-by-eye page says a 3->1 drop must be reported",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/1378d21e-81f5-5682-8b00-29e4997707f2/scratchpad/ccr/indep.mjs (H2)",
+   "expected": "2 firings stopped reported",
+   "observed": "removed 0, persisting 1",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "tracker classification of common hosts",
+   "method": "vendor tag hosts known from GA4, Meta, LinkedIn Insight, Snap, HubSpot docs",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/1378d21e-81f5-5682-8b00-29e4997707f2/scratchpad/ccr/indep.mjs (H5)",
+   "expected": "GA/GTM/doubleclick/facebook/hotjar known; licdn.com, sc-static.net, hs-scripts.com known",
+   "observed": "first group known; snap.licdn.com, sc-static.net, js.hs-scripts.com unclassified (still shown, as disclosed)",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "first-party detection for a same-site subdomain",
+   "method": "same-site by registrable domain (eTLD+1), as browsers define third-party cookies",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/1378d21e-81f5-5682-8b00-29e4997707f2/scratchpad/ccr/indep.mjs (H4)",
+   "expected": "cdn.shop.example first-party for www.shop.example",
+   "observed": "thirdParty true",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "all tests",
+   "method": "run",
+   "command": "node --test *.test.mjs test/*.test.mjs tool/*.test.mjs",
+   "expected": "pass",
+   "observed": "56/56 pass, 0.24 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "a capture path for the JSON trace schema the main tool takes",
+   "method": "README, index.html, explainer page read",
+   "command": "grep -n -i 'capture\\|export' README.md index.html",
+   "expected": "instructions or an exporter for the trace JSON",
+   "observed": "none; only hand-typed JSON, HAR route is the sibling tool",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "vs-cookiebot: tool reports 'which fire regardless'",
+   "method": "compare with reportAsText output",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/1378d21e-81f5-5682-8b00-29e4997707f2/scratchpad/ccr/indep.mjs (C4c)",
+   "expected": "report lists unchanged requests",
+   "observed": "report lists only added/removed",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Cookiebot facts (CMP by Usercentrics, scheduled scan, auto-blocking, TCF, page-count tiers, no invented price) and not-affiliated line",
+   "method": "Cookiebot public product description; vs-cookiebot.test.mjs",
+   "command": "node --test vs-cookiebot.test.mjs",
+   "expected": "factual, no price, disclaimer",
+   "observed": "factual as far as known, no price, disclaimer present; no source link cited",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer and no-upload claim",
+   "method": "grep pages and code for disclaimer and network calls",
+   "command": "grep -n -i 'no warranty' index.html tool/index.html; grep -n 'fetch\\|sendBeacon' calc.mjs usage.mjs tool/*.mjs",
+   "expected": "disclaimer on every tool page, no network",
+   "observed": "present on both, no network calls",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "llms.txt summary line",
+   "method": "read",
+   "command": "sed -n 5p llms.txt",
+   "expected": "describes a trace diff",
+   "observed": "'Results are estimates from the numbers typed in' (calculator boilerplate)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "served llms.txt and sitemap origins",
+   "method": "node platform/pages/served-copy.mjs consent-change-record",
+   "command": "node platform/pages/served-copy.mjs consent-change-record",
+   "expected": "no placeholder origin",
+   "observed": "none left (source github.io links are rewritten at deploy)",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "report labels for a reject sequence and storage key formatting",
+   "method": "run reportAsText",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/1378d21e-81f5-5682-8b00-29e4997707f2/scratchpad/ccr/indep.mjs (C4, C4b)",
+   "expected": "neutral 'after' heading; '  - _ga'",
+   "observed": "'ADDED AFTER CONSENT' for after-reject-all; '  -  _ga' (double space)",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:8",
+   "change": "String(request?.method || 'GET').toUpperCase() -> String(request?.method || 'GET')",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs test/*.test.mjs tool/*.test.mjs"
+  },
+  {
+   "where": "tool/har-diff.mjs:65",
+   "change": "return `${row.hostname ?? \"(unknown host)\"}::${row.name}`; -> return `${row.name}`;",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs test/*.test.mjs tool/*.test.mjs"
+  },
+  {
+   "where": "tool/trackers.mjs:53",
+   "change": "lower.endsWith(`.${suffix}`) -> lower.endsWith(suffix)",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs test/*.test.mjs tool/*.test.mjs"
+  },
+  {
+   "where": "calc.mjs:52",
+   "change": "Math.min(beforeCount, afterCount) -> Math.max(beforeCount, afterCount)",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs test/*.test.mjs tool/*.test.mjs"
+  },
+  {
+   "where": "tool/har-diff.mjs:78",
+   "change": "if (!beforeKeys.has(key) || seen.has(key)) return false; -> if (!beforeKeys.has(key)) return false;",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs test/*.test.mjs tool/*.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "HAR cookie diff reads only response.cookies (Set-Cookie). Cookies written by JavaScript (_ga, _fbp, _gcl_au), the usual pre-consent/after-refusal finding, never appear, yet the summary tile reads 'Cookies still set: 0' / 'Cookies appeared: 0'. HAR 1.2 request.cookies carries them and is ignored.",
+   "where": "ventures/consent-change-record/tool/har-diff.mjs:54",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "JSON comparator keys requests on the full URL with query, so a tracker beacon with a rotating cache-buster that fires on both sides is reported as one removed and one added, never unchanged; the sibling HAR tool strips the query for this reason.",
+   "where": "ventures/consent-change-record/calc.mjs:17",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "HAR tool is presence-only: a tracker firing 3 times before and once after shows removed 0, persisting 1, the exact case vs-comparing-the-traces-by-eye.html says the product catches for 'two DevTools exports'.",
+   "where": "ventures/consent-change-record/tool/har-diff.mjs:83",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "The JSON trace schema the main tool takes has no capture path: no browser exports it and the README/page give no way to produce one, so the headline tool runs on hand-typed JSON.",
+   "where": "ventures/consent-change-record/README.md:9",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "vs-cookiebot.html says the tool reports 'which fire regardless'; reportAsText lists only added and removed, never unchanged.",
+   "where": "ventures/consent-change-record/vs-cookiebot.html:57",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Two seeded mutants survived: method case-normalisation (calc.mjs:8) and hostname in the HAR cookie key (har-diff.mjs:65) are untested.",
+   "where": "ventures/consent-change-record/tool/har-diff.mjs:65",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "First/third-party decided by exact hostname, not registrable domain: cdn.shop.example is third-party for www.shop.example.",
+   "where": "ventures/consent-change-record/tool/har-diff.mjs:134",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Site check compares raw strings: 'https://shop.example' and 'https://shop.example/' are refused as different sites.",
+   "where": "ventures/consent-change-record/calc.mjs:63",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Report headings hard-code 'ADDED/REMOVED AFTER CONSENT' even for an after-reject sequence; storage keys print with a leading space from keyFor's empty method.",
+   "where": "ventures/consent-change-record/calc.mjs:80",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "llms.txt says 'Results are estimates from the numbers typed in', calculator boilerplate that does not describe a trace diff.",
+   "where": "ventures/consent-change-record/llms.txt:5",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "Tracker list (32 suffixes) misses common tag hosts: licdn.com (LinkedIn Insight), sc-static.net (Snap), hs-scripts.com (HubSpot); disclosed as non-exhaustive and still shown as unclassified.",
+   "where": "ventures/consent-change-record/tool/trackers.mjs:7",
+   "category": "source-data",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "Does not meet the bar. An honest, local, well-disclaimed observation tool whose framing a DPO would accept (evidence, not a compliance badge; persisting third-party requests after a refusal is the right signal), and whose occurrence counting in the JSON comparator is right on hand inputs (3 before / 1 after -> 2 removed). But the evidence it collects misses what a consent audit turns on: the HAR tool sees only Set-Cookie cookies, so JS-set _ga/_fbp never appear (H1), the JSON comparator splits every cache-busted beacon into removed+added (C2), the HAR tool is presence-only despite the page's counting claim (H2), and the main tool's input format has no capture path. 56/56 tests pass, 2 of 5 seeded mutants survive. Re-run: node /tmp/claude-0/-home-user-oss-monorepo/1378d21e-81f5-5682-8b00-29e4997707f2/scratchpad/ccr/indep.mjs."
+}
