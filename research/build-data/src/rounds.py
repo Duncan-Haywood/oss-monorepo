@@ -52,6 +52,9 @@ Y-3 permits, rows a deployment on D = 1 January Y holds: tgt_loss is the q0.9 pi
 tgt_closs the censored loss on all of them (open ones with their window at D). target_sel_summary picks, per cell,
 the candidate source rule with the lowest tgt_loss (and, as a second selector, tgt_closs) and scores the pick on
 the test year against each fixed rule and the per-cell oracle. The target's rows are never trained on.
+Session 100: with CPIN_ROWS_DIR=DIR every cpin variant also writes DIR/<held>_<Y>_<variant>.npz: the q0.9
+predictions per seed on the completed test rows and on each target cohort Y-k (with labels, open flags, IPCW
+weights), so src/tfol_boot.py can resample rows and say how often the pick flips (paired bootstrap).
 Session 95: with --status-dir every cpin variant is also scored on the "live" test rows: completed test-year
 rows whose status is not dead (test_loss_live), and reports its mean q0.9 prediction on completed test rows.
 Session 92: every _nc variant is also scored on a selection set a deployment has on D, the same for every
@@ -294,6 +297,8 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
     # session 95: CPIN_TAUS=0.9 fits the tail model only (q0.5 is 85% of an SF fit's time and no prediction used it)
     taus = tuple(float(x) for x in os.environ.get("CPIN_TAUS", "").split(",") if x) or taus
     sel_loss, loss_live = {t: [] for t in taus}, {t: [] for t in taus}
+    rows_dir = os.environ.get("CPIN_ROWS_DIR")  # session 100: save q0.9 predictions per row and seed here
+    test_rows = []
     out, loss, preds, closs_te = {}, {t: [] for t in taus}, {}, {t: [] for t in taus}
     for s in range(seeds):
         r = {}
@@ -311,6 +316,8 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
                     d_k["loss"].setdefault(str(t), []).append(None if pin_k is None else float(pin_k.mean()))
                     d_k["ipcw"].setdefault(str(t), []).append(
                         None if pin_k is None else float((d_k["w"] * pin_k).sum() / d_k["w"].sum()))
+                    if rows_dir and t == 0.9:  # session 100: per-row predictions, for a paired bootstrap
+                        d_k.setdefault("pred", []).append(pk.astype(np.float32))
                 tgt["loss"].setdefault(str(t), []).append(
                     float(boosted.pin(ytg[~otg], pt[~otg], t).mean()) if (~otg).any() else None)
                 tgt["closs"].setdefault(str(t), []).append(float(cpin.closs(ytg, pt, otg, t).mean()))
@@ -321,6 +328,8 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
             print(f"  {held} {Y} {variant} seed {s} tau {t}: {r[t]} rounds, {time.time() - t0:.0f} s", flush=True)
             if score:
                 loss[t].append(float(boosted.pin(te.y.to_numpy(float), pr[done_te], t).mean()))
+                if rows_dir and t == 0.9:  # session 100
+                    test_rows.append(pr[done_te].astype(np.float32))
                 if live is not None:
                     loss_live[t].append(float(boosted.pin(te.y.to_numpy(float)[live], pr[done_te][live], t).mean()))
                 if has_open:
@@ -353,6 +362,13 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
                                      loss={t: float(np.mean(v)) for t, v in d_k["loss"].items()},
                                      ipcw={t: float(np.mean(v)) for t, v in d_k["ipcw"].items()})
                         for k, d_k in tk.items()}
+    if rows_dir:  # session 100: one .npz per cell and variant; rows are in frame order, the same for every variant
+        arrs = dict(test_y=te.y.to_numpy(np.float32), test_pred=np.array(test_rows))
+        for k, d_k in (tk.items() if tgt is not None else ()):
+            arrs.update({f"k{k}_y": d_k["y"].astype(np.float32), f"k{k}_open": d_k["o"], f"k{k}_w": d_k["w"],
+                         f"k{k}_pred": np.array(d_k.get("pred", []))})
+        os.makedirs(rows_dir, exist_ok=True)
+        np.savez_compressed(os.path.join(rows_dir, f"{held}_{Y}_{variant}.npz"), **arrs)
     if thresholds is not None:
         res["stale_threshold_days"] = thresholds
     if nc:

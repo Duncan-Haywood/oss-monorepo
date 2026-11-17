@@ -1,5 +1,21 @@
 # build-data log
 
+## Session 100, 2026-11-17: out of sample and resampled: does the oldest-cohort selector hold on test years 2019 and 2020, and how often would its pick flip? (pre-registered; outcome below)
+
+Why: session 99's selector (score each candidate source rule on the target city's own Y-6 permits completed by D = 1 January Y, keep the lowest q0.9 pinball) matched the per-cell oracle in 4 of 4 cells, but those cells (Y = 2021, 2022) are the ones sessions 92 to 98 found the four rules on, and a coin picks 4 of 4 one time in 16. Its "Next" named two checks: more cells (test years 2019 and 2020, Y-6 = 2013 and 2014) and a paired bootstrap of the Y-6 score over the target's rows.
+- Method: `rounds.py` with `CPIN_ROWS_DIR=DIR` writes, per cell and variant, the q0.9 predictions per seed on the completed test rows and on each target cohort (`DIR/<held>_<Y>_<variant>.npz`, outside git). `src/tfol_boot.py RESULTS ROWS_DIR` picks by k6_loss per cell, scores the pick on the test year, checks the rows against the JSON's means, and resamples rows (B = 2,000, iid over permits, seed 100) to report how often the pick and its side (3-year cut against a 5-year rule) would change, on the Y-6 score and on the test year.
+Design (fixed before any model run): session 99's design unchanged (cascade2 class; candidates nc3, nc5, nc5_stamp, nc5_stamp_len; q0.9 only; 3 seeds; one process per cell at 1 thread; `CPIN_TARGET_SEL=1`); H = sf, seattle; Y = 2019, 2020 (new, out of sample) and 2021, 2022 (session 99's cells, refit to save the rows); fresh pull 2026-11-17. Outputs `results/rounds_score_oos_i2c.json` and `results/rounds_score_oos_i2c_boot.json`. Primary selector k6_loss, as session 99.
+Predictions (q0.9 = cascade2's mean pinball loss over 3 seeds on completed test rows, days):
+- (R0, check) The 2021 and 2022 refits' test q0.9 and k6_loss equal session 99's within 0.05 days (`results/rounds_score_tfol_i2c.json`), and the saved rows reproduce every JSON mean within 0.001.
+- (R1) The city split of sessions 92 to 99 holds out of sample: on Y = 2019 and 2020 the oracle is nc3 in both SF cells and a 5-year rule in both Seattle cells.
+- (R2) k6_loss picks nc3 in both new SF cells and a 5-year rule in both new Seattle cells.
+- (R3) k6_loss's mean test q0.9 over the 4 new cells is lower than every fixed candidate's.
+- (R4) k6_loss's mean regret against the per-cell oracle over the 4 new cells is at most 1.0 day.
+- (R5) In all 8 cells, at least 80% of row resamples keep the k6 pick on the same side (3-year or 5-year).
+Refuted if any part fails. Risks named in advance: test year 2020 is the first COVID year and 2019's training years end in 2017, so the sources hold fewer rows and less follow-up; the Y-6 cohorts 2013 and 2014 have the most follow-up of any so far, which helps the score; Seattle's Y-6 margins in session 99 were 0.8 and 0.9 days, so R5 may fail there; R1 can fail on its own (the city split was seen only on 2021 and 2022), which would make R2 moot as stated.
+
+Outcome: pending (this entry is committed before any model run).
+
 ## Session 99, 2026-11-16: the target city's own six-year-old permits pick the right source rule in all 4 city-years: scored on its Y-6 permits completed by D, the selector picks the 3-year cut in SF and the 5-year cut in Seattle (the per-cell oracle each time, regret 0, mean test q0.9 71.12 days against the best fixed rule's 72.27); the Y-5 cohort gets 3 of 4 (regret 0.99) and IPCW on the Y-3 rows narrows the gap but never crosses it; F0, F1, F2, F3, F5 held, F4 refuted
 
 Why: session 98 found the two scores a deployment can compute on its own Y-3 permits biased in opposite directions: the rows completed by D are cut at about three years of follow-up, so they reward the 3-year cut's shorter tail in both cities (right in SF, 5.46 and 3.95 days of regret in Seattle); the censored loss rewards the longest tail everywhere. Its "Next" named two fixes: score on older target cohorts, whose completed rows are truncated only past six years, and reweight the Y-3 completed rows by the inverse chance of being seen by D (IPCW).
