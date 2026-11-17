@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%2333406b'/%3E%3Cpath%20d='M9%2022h3v-6H9zM15%2022h3V11h-3zM21%2022h3V8h-3z'%20fill='%23fff'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cronbach's Alpha Calculator with McDonald's Omega and Item Analysis</title>
+  <meta name="description" content="Free Cronbach's alpha calculator for questionnaire and survey scales. Paste one row per respondent and get alpha with its Feldt confidence interval, McDonald's omega with a BCa bootstrap interval, Guttman's lambda-2 and lambda-6, corrected item-total correlations, alpha if item deleted, reverse-keyed item checks and the Spearman-Brown projection. Checked against pingouin and factor_analyzer. Nothing is uploaded.">
+  <meta property="og:title" content="Is my scale reliable? Alpha, omega and an item analysis in your browser">
+  <meta property="og:description" content="Cronbach's alpha with a confidence interval, McDonald's omega, Guttman's lambdas and an item-by-item analysis on your own survey data, with nothing uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Scale Reliability: Cronbach's Alpha, McDonald's Omega and Item Analysis", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Internal-consistency reliability for a questionnaire scale: Cronbach's alpha with the Feldt interval, McDonald's omega from a one-factor model with a BCa bootstrap interval, Guttman's lambda-2 and lambda-6, and an item analysis. Runs in the browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
+    {"@type": "Question", "name": "What is a good Cronbach's alpha?", "acceptedAnswer": {"@type": "Answer", "text": "Common rules of thumb call 0.7 acceptable for research comparing groups, 0.8 good, and 0.9 or more what decisions about one person need. They are conventions, not laws. A very high alpha (above about 0.95) often means items that ask the same thing in different words, which makes a scale longer without making it better."}},
+    {"@type": "Question", "name": "Alpha or omega?", "acceptedAnswer": {"@type": "Answer", "text": "Alpha equals the reliability of the total score only when every item measures the common trait equally strongly (tau-equivalence). When the items differ, alpha is a lower bound and omega, which lets each item have its own loading, is closer to the truth. Report both: when they agree the choice does not matter, and when they differ the gap tells you the items are unequal."}},
+    {"@type": "Question", "name": "Does a high alpha mean my scale measures one thing?", "acceptedAnswer": {"@type": "Answer", "text": "No. Alpha rises with the number of items and with any correlation among them, so two unrelated clusters of items can still give a high alpha. Look at the eigenvalues and the one-factor residuals this page reports, or fit a factor model, to judge whether the scale is unidimensional."}},
+    {"@type": "Question", "name": "Should I drop the item that raises alpha if deleted?", "acceptedAnswer": {"@type": "Answer", "text": "Not on that number alone. Removing an item that covers part of the construct can raise alpha and lower validity. Drop an item when its content is off-target, its wording is confusing, or it is reverse-keyed and was not reversed, and confirm the change on new data, because choosing items on the same sample inflates the result."}},
+    {"@type": "Question", "name": "What do I do with reverse-keyed items?", "acceptedAnswer": {"@type": "Answer", "text": "Items worded in the opposite direction (\"I rarely feel calm\" next to \"I often feel calm\") must be reversed before computing reliability, or alpha falls and can go negative. List them under reverse-keyed items and give the scale's lowest and highest possible answers; the page recodes each answer as minimum plus maximum minus the answer, and warns about items that correlate negatively with the rest."}}
+  ]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1e27; background: #f2f3f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #33406b; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #232c4d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #232c4d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4b4f5c; }
+    .card { background: #fff; border: 1px solid #d5d8e3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #232c4d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6d7390; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #33406b; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3e6f1; color: #232c4d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e5e7ef; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4b4f5c; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.flag td { background: #fdf0d5; }
+    footer { margin-top: 28px; border-top: 1px solid #d5d8e3; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 170px; padding: 9px 10px; border: 1px solid #6d7390; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .summary li { margin: 4px 0; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    pre { background: #f4f5f9; border: 1px solid #dfe2ec; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 5px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CRONBACH'S ALPHA · MCDONALD'S OMEGA · GUTTMAN'S LAMBDAS · ITEM ANALYSIS · CONFIDENCE INTERVALS · NOTHING UPLOADED</p>
+    <h1>Is my questionnaire scale reliable, and which items pull it down?</h1>
+    <p>Paste a survey or test: one row per respondent, one column per item. You get <strong>Cronbach's alpha</strong> with its confidence interval, <strong>McDonald's omega</strong> from a one-factor model (closer to the truth when items are unequal), <strong>Guttman's lambda-2 and lambda-6</strong>, and an <strong>item analysis</strong>: corrected item-total correlations, alpha and omega if each item is deleted, loadings, and a check for reverse-keyed items. Then the standard error of measurement and how many items a target reliability would take.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Statistical estimates from the answers you supply, not advice. Not legal, tax, or financial advice, and not medical or psychological advice: a reliability coefficient says nothing about any one person.</p>
+  </header>
+<main>
+  <section class="card">
+    <h2>Your answers</h2>
+    <label for="csv">CSV: a header row of item names, then one row per respondent</label>
+    <textarea id="csv" spellcheck="false" placeholder="q1,q2,q3,q4,q5&#10;4,5,4,2,4&#10;3,3,4,3,3&#10;..."></textarea>
+    <label for="file">Or open a CSV file (read in this tab, never uploaded)</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv">
+    <p class="note" id="data-status"></p>
+    <div class="grid">
+      <div><label for="items">Items (blank: every numeric column)</label><input id="items" placeholder="q1,q2,q3"></div>
+      <div><label for="reverse">Reverse-keyed items</label><input id="reverse" placeholder="q3,q7"></div>
+      <div><label for="scale-min">Lowest possible answer</label><input id="scale-min" type="number" step="any" placeholder="lowest seen"></div>
+      <div><label for="scale-max">Highest possible answer</label><input id="scale-max" type="number" step="any" placeholder="highest seen"></div>
+      <div><label for="missing">Codes meaning missing</label><input id="missing" placeholder="e.g. 7,9 or 99"></div>
+      <div><label for="confidence">Interval level</label><select id="confidence"><option value="0.95">95%</option><option value="0.9">90%</option><option value="0.99">99%</option></select></div>
+      <div><label for="bootstrap">Bootstrap resamples</label><select id="bootstrap"><option value="1000">1,000 (default)</option><option value="2000">2,000</option><option value="300">300 (faster)</option><option value="0">None (Feldt interval only)</option></select></div>
+    </div>
+    <button type="button" id="analyze">Compute reliability</button>
+    <button type="button" class="secondary" id="example">Load example: PHQ-9, NHANES 2017-2018</button>
+    <button type="button" class="secondary" id="download" disabled>Download report (JSON)</button>
+    <p class="note">Blanks, NA and the missing codes count as missing, and a respondent with any missing item is left out. Columns named like an identifier (id, respondent, timestamp, ...) and text columns are skipped unless you list them as items.</p>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <ul class="summary" id="summary"></ul>
+    <div id="warnings"></div>
+    <h3>Coefficients</h3>
+    <div class="scroll"><table id="coef"></table></div>
+    <h3>Items</h3>
+    <div class="legend"><span><i class="swatch" style="background:#33406b"></i>corrected item-total correlation</span><span><i class="swatch" style="background:#c0712f"></i>standardised loading</span></div>
+    <div id="chart"></div>
+    <div class="scroll"><table id="item-table"></table></div>
+    <p class="note" id="extra"></p>
+  </section>
+
+  <section class="card">
+    <h2>How honest are the intervals?</h2>
+    <p id="coverage-text">In 300 simulated studies per setting (6 items, one common factor, normal answers; <code>eval/coverage.mjs</code>), each interval was scored against the true reliability of the total score.</p>
+    <div class="scroll"><table id="coverage-table"></table></div>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p><strong>Alpha</strong> (Cronbach 1951) is <em>k</em>/(<em>k</em>&minus;1) &middot; (1 &minus; sum of item variances / variance of the total), from the item covariance matrix of complete respondents. Its interval is Feldt, Woodruff &amp; Salih's (1987): (1 &minus; alpha) follows an F distribution with <em>n</em>&minus;1 and (<em>n</em>&minus;1)(<em>k</em>&minus;1) degrees of freedom. <strong>Standardised alpha</strong> uses the mean inter-item correlation instead, and is the alpha of the sum of z-scored items.</p>
+    <p><strong>Guttman's lambda-2</strong> adds the squared covariances to lambda-1 and is never below alpha; <strong>lambda-6</strong> uses each item's error variance given all the others, 1/[C<sup>&minus;1</sup>]<sub>ii</sub> (Guttman 1945). Both are lower bounds to reliability under the classical model (Sijtsma 2009).</p>
+    <p><strong>Omega</strong> (McDonald 1999) fits one common factor to the item covariance matrix by unweighted least squares (minimum residual: principal axes iterated to convergence, from squared multiple correlations) and reports (&Sigma;&lambda;)&sup2; / ((&Sigma;&lambda;)&sup2; + &Sigma;&psi;). The standardised omega fits the correlation matrix instead. Its interval is the bias-corrected and accelerated bootstrap (Efron 1987) over respondents, which Kelley &amp; Pornprasertmanit (2016) recommend; the acceleration comes from the jackknife. The same resamples give a BCa interval for alpha. The <strong>Spearman-Brown</strong> projection (Spearman 1910; Brown 1910) gives the number of similar items a target reliability needs.</p>
+    <p><strong>Checked against other software</strong> on the bundled answers (<code>eval/reference.py</code>, <code>eval/reference.json</code>): alpha and its Feldt interval match pingouin 0.7.0 and scipy to 1e-9; standardised loadings match factor_analyzer 0.5.1's minres fit to 1e-5; omega matches a scipy least-squares fit to 1e-7; lambda-2, lambda-6, standardised alpha, item-rest correlations and alpha if deleted match numpy to 1e-10.</p>
+    <pre>@article{cronbach1951coefficient, author = {Cronbach, Lee J.}, title = {Coefficient alpha and the internal structure of tests}, journal = {Psychometrika}, volume = {16}, number = {3}, pages = {297--334}, year = {1951}, doi = {10.1007/BF02310555}}
+@article{guttman1945basis, author = {Guttman, Louis}, title = {A basis for analyzing test-retest reliability}, journal = {Psychometrika}, volume = {10}, number = {4}, pages = {255--282}, year = {1945}, doi = {10.1007/BF02288892}}
+@book{mcdonald1999test, author = {McDonald, Roderick P.}, title = {Test Theory: A Unified Treatment}, publisher = {Lawrence Erlbaum}, address = {Mahwah, NJ}, year = {1999}, doi = {10.4324/9781410601087}}
+@article{feldt1987statistical, author = {Feldt, Leonard S. and Woodruff, David J. and Salih, Fathi A.}, title = {Statistical inference for coefficient alpha}, journal = {Applied Psychological Measurement}, volume = {11}, number = {1}, pages = {93--103}, year = {1987}, doi = {10.1177/014662168701100107}}
+@article{kelley2016confidence, author = {Kelley, Ken and Pornprasertmanit, Sunthud}, title = {Confidence intervals for population reliability coefficients: Evaluation of methods, recommendations, and software for composite measures}, journal = {Psychological Methods}, volume = {21}, number = {1}, pages = {69--92}, year = {2016}, doi = {10.1037/a0040086}}
+@article{efron1987better, author = {Efron, Bradley}, title = {Better bootstrap confidence intervals}, journal = {Journal of the American Statistical Association}, volume = {82}, number = {397}, pages = {171--185}, year = {1987}, doi = {10.1080/01621459.1987.10478410}}
+@article{sijtsma2009use, author = {Sijtsma, Klaas}, title = {On the use, the misuse, and the very limited usefulness of {Cronbach's} alpha}, journal = {Psychometrika}, volume = {74}, number = {1}, pages = {107--120}, year = {2009}, doi = {10.1007/s11336-008-9101-0}}
+@article{spearman1910correlation, author = {Spearman, Charles}, title = {Correlation calculated from faulty data}, journal = {British Journal of Psychology}, volume = {3}, number = {3}, pages = {271--295}, year = {1910}, doi = {10.1111/j.2044-8295.1910.tb00206.x}}
+@misc{nhanes2017dpq, author = {{National Center for Health Statistics}}, title = {National Health and Nutrition Examination Survey 2017-2018: Mental Health - Depression Screener (DPQ\_J)}, year = {2020}, url = {https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2017/DataFiles/DPQ_J.htm}}</pre>
+  </section>
+
+  <section class="card">
+    <h2>Limits</h2>
+    <ul>
+      <li><strong>Reliable is not valid.</strong> A scale can measure something very consistently and still not measure what its name says. Reliability is necessary for validity, not proof of it.</li>
+      <li><strong>One factor.</strong> Alpha and this omega assume the items share one common factor. For a scale with subscales, compute each subscale separately; a hierarchical omega needs a multi-factor model that is not here.</li>
+      <li><strong>Listwise deletion.</strong> Respondents with any missing item are left out. If missingness is common or related to the trait, the estimate describes the respondents who answered everything.</li>
+      <li><strong>Ordinal answers.</strong> Coefficients come from Pearson covariances of the item scores, as the total score is computed. Ordinal (polychoric) alpha and omega describe a hypothetical continuous score instead and are not computed.</li>
+      <li>Not modelled: the greatest lower bound, test-retest and inter-rater reliability (see the <a href="../inter-rater-agreement/">inter-rater agreement tool</a>), correlated errors, item response theory, and survey weights.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What is a good Cronbach's alpha?</h3>
+    <p>Common rules of thumb call 0.7 acceptable for research comparing groups, 0.8 good, and 0.9 or more what decisions about one person need. They are conventions, not laws. A very high alpha (above about 0.95) often means items that ask the same thing in different words, which makes a scale longer without making it better.</p>
+    <h3>Alpha or omega?</h3>
+    <p>Alpha equals the reliability of the total score only when every item measures the common trait equally strongly (tau-equivalence). When the items differ, alpha is a lower bound and omega, which lets each item have its own loading, is closer to the truth. Report both: when they agree the choice does not matter, and when they differ the gap tells you the items are unequal.</p>
+    <h3>Does a high alpha mean my scale measures one thing?</h3>
+    <p>No. Alpha rises with the number of items and with any correlation among them, so two unrelated clusters of items can still give a high alpha. Look at the eigenvalues and the one-factor residuals this page reports, or fit a factor model, to judge whether the scale is unidimensional.</p>
+    <h3>Should I drop the item that raises alpha if deleted?</h3>
+    <p>Not on that number alone. Removing an item that covers part of the construct can raise alpha and lower validity. Drop an item when its content is off-target, its wording is confusing, or it is reverse-keyed and was not reversed, and confirm the change on new data, because choosing items on the same sample inflates the result.</p>
+    <h3>What do I do with reverse-keyed items?</h3>
+    <p>Items worded in the opposite direction ("I rarely feel calm" next to "I often feel calm") must be reversed before computing reliability, or alpha falls and can go negative. List them under reverse-keyed items and give the scale's lowest and highest possible answers; the page recodes each answer as minimum plus maximum minus the answer, and warns about items that correlate negatively with the rest.</p>
+  </section>
+</main>
+
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, it is not medical advice or a clinical assessment, and it does not replace a qualified psychometrician or statistician. Results are statistical estimates from the answers you enter; they say nothing about any individual respondent. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, the National Center for Health Statistics, the PHQ-9's authors or Pfizer, the authors of pingouin or factor_analyzer, or any software vendor. The example data are public-use NHANES answers (a US government work); the PHQ-9 is used only as published survey data, and its total here is not a screening result.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs answers.csv --reverse q3,q7 --scale-min 1 --scale-max 5 --missing 99</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/scale-reliability" rel="noopener">source</a>.</p>
+    <p>More research algorithms on your own data: <a href="../inter-rater-agreement/">inter-rater agreement</a> when several people rate the same cases, <a href="../meta-analysis/">meta-analysis</a> to pool reliability or effect sizes across studies, <a href="../hdbscan-clustering/">HDBSCAN clustering</a> to find groups of respondents, and <a href="../fdr-multiple-testing/">false discovery rate control</a> when you test many items at once.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, fmt } from "./engine.mjs";
+    import { PHQ9_CSV } from "./example-data.mjs";
+    import { COVERAGE } from "./coverage-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    let last = null;
+
+    function chart(items) {
+      const rowH = 26, left = 170, width = 640, right = 20, top = 22;
+      const h = top + items.length * rowH + 24;
+      const x = (v) => left + ((Math.max(-1, Math.min(1, v)) + 1) / 2) * (width - left - right);
+      let s = `<svg viewBox="0 0 ${width} ${h}" role="img" aria-label="Corrected item-total correlation and standardised loading for each item">`;
+      for (const t of [-1, -0.5, 0, 0.5, 1]) s += `<line x1="${x(t)}" x2="${x(t)}" y1="${top - 6}" y2="${h - 20}" stroke="${t === 0 ? "#6d7390" : "#e5e7ef"}"/><text x="${x(t)}" y="${h - 6}" font-size="11" text-anchor="middle" fill="#4b4f5c">${t}</text>`;
+      items.forEach((it, i) => {
+        const y = top + i * rowH;
+        s += `<text x="${left - 8}" y="${y + 14}" font-size="12" text-anchor="end" fill="#1b1e27">${esc(it.name.length > 24 ? it.name.slice(0, 23) + "…" : it.name)}${it.reversed ? " (R)" : ""}</text>`;
+        const a = x(0), b = x(it.itemRest);
+        s += `<rect x="${Math.min(a, b)}" y="${y + 3}" width="${Math.abs(b - a)}" height="9" fill="${it.itemRest < 0 ? "#b3261e" : "#33406b"}"/>`;
+        const c = x(it.standardizedLoading);
+        s += `<rect x="${Math.min(a, c)}" y="${y + 13}" width="${Math.abs(c - a)}" height="9" fill="#c0712f"/>`;
+      });
+      return s + "</svg>";
+    }
+
+    function render(r) {
+      const cl = `${Math.round(r.input.confidence * 100)}%`;
+      $("#summary").innerHTML = r.summary.map((t) => `<li>${esc(t)}</li>`).join("");
+      $("#warnings").innerHTML = r.warnings.map((w) => `<p class="warn">${esc(w)}</p>`).join("");
+      const bo = (b) => (b ? `${fmt(b.lower)} to ${fmt(b.upper)}` : "-");
+      $("#coef").innerHTML = `<tr><th>Coefficient</th><th class="n">Value</th><th>${cl} interval</th><th>Reads as</th></tr>`
+        + `<tr><td>Cronbach's alpha</td><td class="n">${fmt(r.alpha.value)}</td><td>${fmt(r.alpha.lower)} to ${fmt(r.alpha.upper)} (Feldt); ${bo(r.alpha.bootstrap)} (BCa)</td><td>reliability if every item loads equally</td></tr>`
+        + `<tr><td>McDonald's omega</td><td class="n">${fmt(r.omega.value)}</td><td>${bo(r.omega.bootstrap)} (BCa)</td><td>reliability under one common factor, unequal loadings allowed</td></tr>`
+        + `<tr><td>Guttman's lambda-2</td><td class="n">${fmt(r.lambda2)}</td><td>-</td><td>a lower bound, never below alpha</td></tr>`
+        + `<tr><td>Guttman's lambda-6</td><td class="n">${fmt(r.lambda6)}</td><td>-</td><td>a lower bound from each item's predictability</td></tr>`
+        + `<tr><td>Standardised alpha</td><td class="n">${fmt(r.standardizedAlpha)}</td><td>-</td><td>alpha of z-scored items; mean inter-item r ${fmt(r.meanInterItemCorrelation)}</td></tr>`
+        + `<tr><td>Standardised omega</td><td class="n">${fmt(r.omega.standardized)}</td><td>-</td><td>one-factor residual (RMSR) ${fmt(r.omega.standardizedRmsr)}</td></tr>`;
+      $("#chart").innerHTML = chart(r.items);
+      $("#item-table").innerHTML = `<tr><th>Item</th><th class="n">Mean</th><th class="n">SD</th><th class="n">Item-rest r</th><th class="n">Alpha if deleted</th><th class="n">Omega if deleted</th><th class="n">Loading (std)</th><th class="n">Missing</th></tr>`
+        + r.items.map((it) => `<tr${it.itemRest < 0.2 || (it.alphaIfDeleted !== null && it.alphaIfDeleted > r.alpha.value + 0.005) ? ' class="flag"' : ""}><td>${esc(it.name)}${it.reversed ? " (reversed)" : ""}</td><td class="n">${fmt(it.mean, 2)}</td><td class="n">${fmt(it.sd, 2)}</td><td class="n">${fmt(it.itemRest)}</td><td class="n">${fmt(it.alphaIfDeleted)}</td><td class="n">${fmt(it.omegaIfDeleted)}</td><td class="n">${fmt(it.standardizedLoading)}</td><td class="n">${it.missing}</td></tr>`).join("");
+      $("#extra").textContent = `${r.k} items, ${r.n} complete respondents of ${r.rows}. Total score: mean ${fmt(r.totalScore.mean, 2)}, SD ${fmt(r.totalScore.sd, 2)}, standard error of measurement ${fmt(r.totalScore.sem, 2)}. Eigenvalues of the correlation matrix: ${r.eigenvalues.map((v) => fmt(v, 2)).join(", ")}. Spearman-Brown: ${r.spearmanBrown.map((t) => `${t.target} needs about ${t.items ?? "-"} items`).join("; ")}.${r.input.skipped.length ? ` Skipped: ${r.input.skipped.map((s) => `${s.name} (${s.reason})`).join(", ")}.` : ""} Highlighted rows: item-rest r below 0.2, or alpha rises when the item is deleted.`;
+      $("#results").hidden = false;
+    }
+
+    function runAnalysis() {
+      try {
+        const r = analyze({
+          csv: $("#csv").value,
+          items: $("#items").value,
+          reverse: $("#reverse").value,
+          scaleMin: $("#scale-min").value === "" ? null : Number($("#scale-min").value),
+          scaleMax: $("#scale-max").value === "" ? null : Number($("#scale-max").value),
+          missing: $("#missing").value,
+          confidence: Number($("#confidence").value),
+          bootstrap: Number($("#bootstrap").value),
+        });
+        last = r;
+        render(r);
+        $("#download").disabled = false;
+        return true;
+      } catch (e) {
+        $("#results").hidden = false;
+        $("#summary").innerHTML = "";
+        $("#warnings").innerHTML = `<p class="warn">${esc(e.message)}</p>`;
+        $("#coef").innerHTML = ""; $("#item-table").innerHTML = ""; $("#chart").innerHTML = ""; $("#extra").textContent = "";
+        return false;
+      }
+    }
+
+    function coverage() {
+      const pct = (v) => `${Math.round(v * 100)}%`;
+      $("#coverage-table").innerHTML = `<tr><th>Items</th><th class="n">n</th><th class="n">True reliability</th><th class="n">Mean alpha</th><th class="n">Mean omega</th><th class="n">Feldt (alpha)</th><th class="n">BCa (alpha)</th><th class="n">BCa (omega)</th></tr>`
+        + COVERAGE.map((c) => `<tr><td>${c.design === "congeneric" ? "unequal loadings" : "equal loadings"}</td><td class="n">${c.n}</td><td class="n">${fmt(c.reliability)}</td><td class="n">${fmt(c.meanAlpha)}</td><td class="n">${fmt(c.meanOmega)}</td><td class="n">${pct(c.coverage.feldt)}</td><td class="n">${pct(c.coverage.alphaBca)}</td><td class="n">${pct(c.coverage.omegaBca)}</td></tr>`).join("");
+    }
+    coverage();
+
+    $("#analyze").addEventListener("click", () => { if (runAnalysis()) record("analysis_run"); });
+    $("#example").addEventListener("click", () => {
+      $("#csv").value = PHQ9_CSV;
+      $("#items").value = ""; $("#reverse").value = ""; $("#scale-min").value = "0"; $("#scale-max").value = "3"; $("#missing").value = "";
+      if (runAnalysis()) { record("example_loaded"); $("#data-status").textContent = "Example: 1,500 adults' answers to the nine PHQ-9 depression-screener items (0 = not at all to 3 = nearly every day), NHANES 2017-2018, a US government public-use file. Unweighted, so it describes these respondents, not the US population."; }
+    });
+    $("#file").addEventListener("change", async (event) => {
+      const f = event.target.files && event.target.files[0];
+      if (!f) return;
+      $("#csv").value = await f.text();
+      $("#data-status").textContent = `Loaded ${f.name} (${f.size.toLocaleString()} bytes), in this tab only.`;
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([JSON.stringify(last, null, 2)], { type: "application/json" }));
+      a.download = "scale-reliability-report.json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

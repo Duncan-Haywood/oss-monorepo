@@ -1,0 +1,70 @@
+[
+ {
+  "design": "tau-equivalent",
+  "n": 50,
+  "k": 6,
+  "reps": 10,
+  "bootstrap": 200,
+  "reliability": 0.7714285714285715,
+  "populationAlpha": 0.771428571428571,
+  "meanAlpha": 0.7615729325862626,
+  "meanOmega": 0.7706437844404987,
+  "coverage": {
+   "feldt": 0.9,
+   "alphaBca": 1,
+   "omegaBca": 1,
+   "omegaPct": 1
+  }
+ },
+ {
+  "design": "tau-equivalent",
+  "n": 200,
+  "k": 6,
+  "reps": 10,
+  "bootstrap": 200,
+  "reliability": 0.7714285714285715,
+  "populationAlpha": 0.771428571428571,
+  "meanAlpha": 0.7600084282956958,
+  "meanOmega": 0.7616718409750816,
+  "coverage": {
+   "feldt": 1,
+   "alphaBca": 0.9,
+   "omegaBca": 0.9,
+   "omegaPct": 0.9
+  }
+ },
+ {
+  "design": "congeneric",
+  "n": 50,
+  "k": 6,
+  "reps": 10,
+  "bootstrap": 200,
+  "reliability": 0.7831762146482958,
+  "populationAlpha": 0.7649021029731689,
+  "meanAlpha": 0.7235665491989283,
+  "meanOmega": 0.7503223170227553,
+  "coverage": {
+   "feldt": 0.9,
+   "alphaBca": 0.8,
+   "omegaBca": 0.9,
+   "omegaPct": 0.9
+  }
+ },
+ {
+  "design": "congeneric",
+  "n": 200,
+  "k": 6,
+  "reps": 10,
+  "bootstrap": 200,
+  "reliability": 0.7831762146482958,
+  "populationAlpha": 0.7649021029731689,
+  "meanAlpha": 0.7553462302481744,
+  "meanOmega": 0.778054295263118,
+  "coverage": {
+   "feldt": 0.8,
+   "alphaBca": 0.9,
+   "omegaBca": 0.9,
+   "omegaPct": 0.9
+  }
+ }
+]
