@@ -164,11 +164,18 @@ export function checkResourceChange(resourceChange) {
   return findings;
 }
 
-/** Checks `output_changes` the same way -- outputs are `sensitive` as a whole, not per-path. */
+/**
+ * Checks `output_changes` the same way. Terraform's plan JSON marks an output
+ * sensitive with `before_sensitive` / `after_sensitive` set to `true` on the
+ * change (internal/command/jsonplan/plan.go); there is no `sensitive` key on
+ * output_changes. A bare `sensitive: true` is still honoured for hand-written
+ * input. Quality audit 2026-11-17: reading only `sensitive` flagged every
+ * correctly declared `sensitive = true` output.
+ */
 export function checkOutputChange(name, outputChange) {
   const findings = [];
   for (const side of ["before", "after"]) {
-    if (outputChange.sensitive) continue;
+    if (outputChange.sensitive === true || outputChange[`${side}_sensitive`] === true) continue;
     walkStrings(outputChange[side], [], undefined, (text, path) => {
       for (const hit of matchPatterns(text)) {
         findings.push({
