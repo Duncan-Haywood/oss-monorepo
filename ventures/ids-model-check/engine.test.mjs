@@ -383,3 +383,37 @@ test("specifications with no entity facet: the argument-free prefilter selects e
   }
   assert.equal(checked, 78);
 });
+
+test("an entity facet's unnamed subclasses are counted as not checked, the verdict unchanged", () => {
+  // Revit's IFC2X3 exports write most walls as IfcWallStandardCase; IDS has no
+  // inheritance, so IFCWALL takes only the IfcWall (eval/corpus-crosscheck-2026-11-17.md).
+  const model = ifc("IFC2X3", [
+    "#1=IFCWALL('1hqIFTRjfV6AWq_bMtnZwI',$,'W1',$,$,$,$,$);",
+    "#2=IFCWALLSTANDARDCASE('2hqIFTRjfV6AWq_bMtnZwI',$,'W2',$,$,$,$,$);",
+    "#3=IFCWALLSTANDARDCASE('3hqIFTRjfV6AWq_bMtnZwI',$,$,$,$,$,$,$);",
+    "#4=IFCSLAB('4hqIFTRjfV6AWq_bMtnZwI',$,'S',$,$,$,$,$,$);",
+  ]);
+  const req = `<attribute><name><simpleValue>Name</simpleValue></name></attribute>`;
+  const s = check(ids(spec(ent("IFCWALL"), req)), model).specs[0];
+  assert.equal(s.status, "pass");
+  assert.equal(s.applicable, 1);
+  assert.deepEqual(s.skippedSubclasses, [{ type: "IFCWALLSTANDARDCASE", via: "IFCWALL", count: 2 }]);
+  assert.match(s.hint, /not checked: 2 element\(s\).*2 IFCWALLSTANDARDCASE \(a subclass of IFCWALL\)/);
+  // The other applicability facets still apply: only W2 has a Name.
+  const named = `<attribute><name><simpleValue>Name</simpleValue></name><value><simpleValue>W2</simpleValue></value></attribute>`;
+  const s2 = check(ids(spec(ent("IFCWALL") + named, "", 'minOccurs="0" maxOccurs="unbounded"')), model).specs[0];
+  assert.deepEqual(s2.skippedSubclasses, [{ type: "IFCWALLSTANDARDCASE", via: "IFCWALL", count: 1 }]);
+  // Naming both classes leaves nothing out; an unrelated class gets no hint.
+  const both = `<entity><name><xs:restriction base="xs:string"><xs:enumeration value="IFCWALL"/><xs:enumeration value="IFCWALLSTANDARDCASE"/></xs:restriction></name></entity>`;
+  assert.equal(check(ids(spec(both, req)), model).specs[0].hint, undefined);
+  assert.equal(check(ids(spec(ent("IFCSLAB"), req)), model).specs[0].hint, undefined);
+});
+
+test("a prohibited specification with requirements stays invalid and says how many elements match", () => {
+  const model = ifc("IFC4", ["#1=IFCBUILDINGELEMENTPROXY('1hqIFTRjfV6AWq_bMtnZwI',$,'P',$,$,$,$,$,$);"]);
+  const req = `<attribute cardinality="prohibited"><name><simpleValue>GlobalId</simpleValue></name></attribute>`;
+  const s = check(ids(spec(ent("IFCBUILDINGELEMENTPROXY"), req, 'minOccurs="0" maxOccurs="0"')), model).specs[0];
+  assert.equal(s.status, "invalid");
+  assert.equal(s.matching, 1);
+  assert.match(s.note, /1 element\(s\) in this model match its applicability and would fail it/);
+});

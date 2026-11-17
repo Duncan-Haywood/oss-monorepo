@@ -897,6 +897,40 @@ function applies(spec, model, ctx) {
   return pool.filter(keep);
 }
 
+// IDS has no inheritance (user manual, entity facet, "Inheritance"):
+// IFCWALL does not take an IfcWallStandardCase. Revit's IFC2X3 exports write
+// most walls that way, so a specification naming IFCWALL can pass on 4 walls
+// while 101 were never looked at (eval/corpus-crosscheck-2026-11-17.md).
+// Returns, per class, the elements an entity facet leaves out only because
+// it names an ancestor of their class and not the class itself: every other
+// applicability facet, and the facet's predefined type, would take them.
+// The verdict does not change; the report says what was not checked.
+export function skippedSubclasses(spec, model, ctx) {
+  const ent = spec.applicability.find((f) => f.kind === "entity");
+  if (!ent || !ent.name.present) return [];
+  const S = model.schema;
+  const anyName = Object.assign(Object.create(EntityFacet.prototype), ent, { name: { matchString: () => true } });
+  const others = spec.applicability.filter((f) => f !== ent);
+  const out = [];
+  for (const [type, list] of model.byType) {
+    if (ent.name.matchString(type)) continue;
+    let via = null;
+    for (let t = S.entities[type] && S.entities[type].super; t && !via; t = S.entities[t] && S.entities[t].super) if (ent.name.matchString(t)) via = t;
+    if (!via) continue;
+    let count = 0;
+    for (const e of list) if (!ent.test(e, model, ctx).ok && anyName.test(e, model, ctx).ok && others.every((f) => f.test(e, model, ctx).ok)) count++;
+    if (count) out.push({ type, via, count });
+  }
+  return out.sort((a, b) => b.count - a.count || (a.type < b.type ? -1 : 1));
+}
+
+export function skippedNote(skipped) {
+  if (!skipped.length) return null;
+  const total = skipped.reduce((n, x) => n + x.count, 0);
+  const list = skipped.slice(0, 4).map((x) => `${x.count.toLocaleString("en-US")} ${x.type} (a subclass of ${x.via})`).join(", ") + (skipped.length > 4 ? `, and ${skipped.length - 4} more class(es)` : "");
+  return `not checked: ${total.toLocaleString("en-US")} element(s) of subclasses the entity facet does not name: ${list}. IDS entity names do not include subclasses; add these class names to the entity facet to check them`;
+}
+
 function prefilter(f, model) {
   const m = model;
   switch (f.kind) {
@@ -972,11 +1006,22 @@ export function checkIds(idsText, ifcText, opts = {}) {
       s.status = "invalid";
       s.invalid = errors.map((x) => x.message);
       s.note = "invalid IDS, not checked: " + s.invalid.join("; ");
+      // A prohibited specification with requirements is invalid (buildingSMART's
+      // ids/invalid-prohibited_specifications_invalid_if_requirements_are_specified),
+      // but its intent is plain: nothing may match. Say how many elements do, so
+      // the report does not read as a clean model (eval/corpus-crosscheck-2026-11-17.md).
+      if (mine.some((x) => x.code === "prohibited-requirements")) {
+        const n = applies(spec, model, ctx).length;
+        s.matching = n;
+        s.note += `; ${n.toLocaleString("en-US")} element(s) in this model match its applicability${n ? " and would fail it once the requirements are removed" : ""}`;
+      }
       specs.push(s);
       continue;
     }
     const hits = applies(spec, model, ctx);
     s.applicable = hits.length;
+    const skipped = skippedSubclasses(spec, model, ctx);
+    if (skipped.length) { s.skippedSubclasses = skipped; s.hint = skippedNote(skipped); }
     if (spec.optionality === "prohibited") {
       if (hits.length) {
         s.status = "fail";
