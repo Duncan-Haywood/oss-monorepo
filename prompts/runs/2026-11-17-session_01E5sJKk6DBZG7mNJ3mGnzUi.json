@@ -48,7 +48,7 @@
     "docs/posts/2026-11-17-two-posts-one-page-title.md"
   ],
   "goal": null,
-  "notes": "Critique mode: backlog had only owner rows. Picked doc friction from PR #16945/#16408 records (duplicate <title> found only by the full pages build). Verified the Python page-title builder against writing.mjs over all 5,594 posts (0 mismatches after mirroring unquoteYamlScalar); 0 duplicates on main; unittest test_check_post_frontmatter 39 OK; main_health otherwise 256/257 green. Backlog ids touched: none.",
+  "notes": "Critique mode: backlog had only owner rows. Picked doc friction from PR #16945/#16408 records (duplicate <title> found only by the full pages build). Verified the Python page-title builder against writing.mjs over all 5,594 posts (0 mismatches after mirroring unquoteYamlScalar); 0 duplicates on main; unittest test_check_post_frontmatter 39 OK; main_health otherwise 256/257 green. Backlog ids touched: none. CI runners queued; run_workflow_locally --for-changes: 9 workflows, all run: steps passed (portfolio-pages 12/12, portfolio-validate 100/100, prompts-ci 2/2, control-plane-guard 2/2); prompts unittest 136 OK; promptctl validate ok.",
   "corrections": [],
   "redteam": null,
   "usage": {
