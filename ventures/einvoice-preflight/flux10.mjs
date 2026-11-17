@@ -18,6 +18,7 @@
 //
 // It reads a file; it is not a platform, does not send anything to the PPF, and is not tax advice.
 import { parseXmlTree } from "./ubl.mjs";
+import { frenchXmlValueFindings } from "./xmlvalues.mjs";
 
 const local = (name) => String(name).replace(/^.*:/, "");
 const kid = (node, name) => node?.children?.find((c) => local(c.name) === name);
@@ -58,6 +59,9 @@ export function readFlux10(source) {
   const pr = kid(root, "PaymentsReport");
   const rep = tr || pr;
   return {
+    // INV-065 (2026-11-17): a number or date holding a no-break space or another space XML
+    // does not trim (frenchXmlValueFindings in xmlvalues.mjs says which leaves count).
+    xmlValues: frenchXmlValueFindings(tree, "flux10"),
     id: text(kid(doc, "Id")),
     name: text(kid(doc, "Name")),
     createdAt: text(path(doc, "IssueDateTime", "DateTimeString")),
@@ -149,6 +153,7 @@ const cents = (x) => Math.round(x * 100);
 
 export function flux10Findings(rep) {
   const out = [];
+  out.push(...(rep.xmlValues || []));
   const kinds = flux10Kinds(rep);
   out.push({ rule: "FR-F10-100", severity: "information", source: "flux10", fix: "",
     message: `France e-reporting (Flux 10) ${rep.typeCode === "RE" ? "corrective (RE)" : rep.typeCode === "IN" ? "initial (IN)" : `type ${rep.typeCode || "(none)"}`} transmission ${rep.id || "(no id)"}: ${kinds.join(" and ") || "no invoices, transactions or payments"}, period ${day(rep.period.start)} to ${day(rep.period.end)}, declarant ${rep.issuer?.id || "(none)"}${rep.issuer?.role === "SE" ? " (seller)" : rep.issuer?.role === "BY" ? " (buyer)" : ""}.` });
