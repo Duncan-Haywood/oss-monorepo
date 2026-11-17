@@ -2,6 +2,22 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-17 · Milestone 7w: tune at 45 ms, beyond the slower identification; where does tuning slower stop paying? (predictions written and committed before `experiments/m7w_slow45/run.py` was run at full budget; outcome below)
+
+- Why: milestone 7v's second next step. 7u found tuning at 39.1 ms (the slower identification) beats the 36 ms midpoint tune in all 16 cells; 7v found the gain is the slow floor of the training plants, not the width of the draw, and that widening downward buys nothing at the fast end. If the rule is "train on plants no faster than the slow end", the question left is how far past the slow end it keeps paying. 7u's first warning sign is the certificate under the inherited 15 ms law (20 of 24, against 7t's 23).
+- Plan (`experiments/m7w_slow45/run.py`): 7u's two arms exactly (`7l` and lever-aware objectives, closure `src_li` solved exactly, 45° tilt limit, A_P cap, wide kp box, integrator feed-forward, margin constraint, TWR 2, 3200 CMA-ES evaluations, 6 seeds × 2 starts × 2 geometries) with only the tuning lag changed to 45 ms D<sup>0</sup>: training plants 45 ms × U(1, 2) (45-90 ms), certificate corners 45 and 90 ms. 45 ms is not sourced; it is 7u's stress value (15% beyond the slower identification), chosen on purpose as a floor above the identified range to bracket where slower stops paying. Held-out exactly as 7u and 7v (seed 9999, 64 episodes, four capped conditions, margin test, unpatched plant draw and corners) under the same five laws. Designs scored: the 24 new ones (`lag45`), 7u's 24 (`lag39`) and 7t's 24 (`lag36`).
+- Looked at before writing these: a smoke run (64 evaluations, 2 seeds, 8 episodes on seed 4242, not the held-out seed) to check the script runs and the certificate corners move to 45/90 ms. The smoke designs are unconverged and say nothing about the questions.
+- Predictions (L2-45 = diverged flights at lever 2, 45°, cap, summed over 6 seeds, of 384; `lag39` counts in brackets, order 7l `above`, 7l `below`, lever-aware `above`, lever-aware `below`):
+  - W1 (prior 60%): slower costs at the fast end: at 33 ms `lag45` crashes on more L2-45 flights than `lag39` (80, 107, 37, 46) in at least 3 of 4 arm-geometries.
+  - W2 (prior 50%): slower still pays at the slow identification: at 39.1 ms `lag45`'s L2-45 is at most `lag39`'s (150, 167, 72, 73) in at least 3 of 4.
+  - W3 (prior 60%): tuning at the stress value pays at the stress value: at 45 ms `lag45` crashes on fewer L2-45 flights than `lag39` (215, 225, 149, 141) in at least 3 of 4.
+  - W4 (prior 50%): the identified-range certificate starts to go: at most 21 of 24 `lag45` designs pass the margin test under all three identified laws (`lag39` 24 of 24).
+  - W5 (prior 70%): at 45 ms at least 22 of 24 `lag45` designs pass the margin test (`lag39` 15, `lagrand` 8).
+  - W6 (prior 60%): the fast end of the certificate goes further: under the inherited 15 ms law at most 17 of 24 `lag45` designs pass (`lag39` 20).
+  - W7 (prior 65%): 7i's finding survives a fifth time: at 39.1 ms the lever-aware `lag45` crashes on fewer L2-45 flights than `7l lag45` in both geometries and is at least 5% heavier in both.
+- Reading fixed in advance: W1 held with W2 refuted says 39.1 ms is at or past the knee: tune at the slow identification, not beyond it. W2 held says slower keeps paying inside the identified range and the knee lies beyond 39.1 ms; a 52 ms tune is the next bracket. W1 refuted with W2 held says the error is one-sided across this whole span and the tuning lag should be the slowest a margin certificate still covers.
+- Analysis: counts per set, geometry, law and condition; margin validity; mass, propeller, kp. Post hoc only: Mann-Whitney U per cell, `lag45` against `lag39`. Six seeds, one held-out set.
+
 ## 2026-11-17 · Milestone 7v: train across the identified lag (33-39.1 ms) instead of at its slow end; is 7u's gain the slow value or the width? (predictions written and committed before `experiments/m7v_lag_rand/run.py` was run at full budget; outcome below)
 
 - Why: milestone 7u's first next step. 7u found that tuning at 39.1 ms (the slower of two identifications) beats 7t's 36 ms midpoint tune in all 16 law × arm-geometry cells and keeps the certificate across 33-39.1 ms, but loses the certificate on 4 of 6 lever-aware `above` designs under the inherited 15 ms law. It left open whether the gain comes from the slow value or from conservatism the search finds by other routes.
