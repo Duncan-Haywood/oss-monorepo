@@ -260,3 +260,48 @@ test("parseStep: every prefix of a STEP file ends (a cut-off enum once looped fo
   assert.ok(r.entities.has(1));
   assert.ok(parseStep("DATA;\n#1=IFCWALL(#);\n#2=IFCWALL('x');").entities.has(2), "'#' with no number is one bad entity, not a loop");
 });
+
+// Lazy arguments, 2026-11-17 (eval/heap-200mb-2026-11-17.md).
+test("parseStep reads arguments on first use, with the same values as an eager read", () => {
+  const t = readFileSync(new URL("samples/tiny-house.ifc", import.meta.url), "utf8");
+  const lazy = parseStep(t);
+  const eager = parseStep(t, { eager: true });
+  assert.equal(lazy.entities.size, eager.entities.size);
+  for (const [id, e] of eager.entities) {
+    const l = lazy.entities.get(id);
+    assert.equal(l.type, e.type);
+    assert.deepEqual(l.args, e.args, `#${id}`);
+  }
+  assert.equal(JSON.stringify(lazy.entities.get(1)), JSON.stringify(eager.entities.get(1)));
+});
+
+test("parseStep: a lazy record skips ';' inside strings and comments, and a bad record reports when read", () => {
+  const r = parseStep("DATA;\n#1=IFCWALL('a;b''c;',/* ; ' */ 2);\n#2=IFCWALL(#);\n#3=IFCWALL('x');\nENDSEC;\n");
+  assert.deepEqual(r.entities.get(1).args, ["a;b'c;", 2]);
+  assert.deepEqual(r.entities.get(3).args, ["x"]);
+  assert.deepEqual(r.errors, []);
+  assert.deepEqual(r.entities.get(2).args, []);
+  assert.ok(/#2: '#' with no number/.test(r.errors[0]), r.errors.join("; "));
+  r.entities.get(2).args;
+  assert.equal(r.errors.length, 1, "an error is recorded once");
+});
+
+test("federate: entity numbers shift past the previous file's, references inside strings do not", async () => {
+  const { federate } = await import("./eval/federate.mjs");
+  const a = "ISO-10303-21;\nHEADER;\nFILE_SCHEMA(('IFC4'));\nENDSEC;\nDATA;\n#1=IFCWALL('#1',#2);\n#2=IFCY();\nENDSEC;\nEND-ISO-10303-21;\n";
+  let out = "";
+  const r = federate([a, a], (s) => { out += s; });
+  assert.equal(r.entities, 4);
+  const m = parseStep(out);
+  assert.deepEqual(m.entities.get(3).args, ["#1", { ref: 4 }]);
+  assert.equal(m.entities.get(4).type, "IFCY");
+});
+
+test("parseStep: types the policy does not keep are read again on each use, with the same values", () => {
+  const r = parseStep("DATA;\n#1=IFCCARTESIANPOINT((0.,1.,2.));\n#2=IFCWALL('g');\nENDSEC;\n");
+  r.policy.keep = (t) => t !== "IFCCARTESIANPOINT";
+  const a = r.entities.get(1).args;
+  assert.deepEqual(a, [[0, 1, 2]]);
+  assert.notEqual(r.entities.get(1).args, a, "not kept");
+  assert.equal(r.entities.get(2).args, r.entities.get(2).args, "kept");
+});

@@ -503,7 +503,6 @@ flagships:
       numeric attributes; a dataType-mismatch hint, Accept any data type 2026-11-17
       (eval/model-any-type-2026-11-17.md); GitHub Action and ci-cli.mjs 2026-11-17
       (eval/ci-action-2026-11-17.md: 8 pairs on 4 real exports in 7.5 s, 9 of 9
-      annotations on the element's line; parsed once per model and failures capped
-      per spec 2026-11-17, eval/ci-scale-2026-11-17.md; next: a run on a GitHub
-      runner and a team's repo); heap use on a 200 MB model; a BIM coordinator's
-      real IDS and model (needs a person).
+      annotations on the element's line); heap 2026-11-17
+      (eval/heap-200mb-2026-11-17.md: 219 MB model 2.5 to 1.0 GB; next:
+      no-entity-facet IDS 4.7 GB, lazy ifcXML). More open items: NEXT.md.

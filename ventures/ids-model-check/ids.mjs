@@ -96,6 +96,15 @@ export class Model {
     const sj = schemas[this.schemaId];
     if (!sj) throw new Error(`IFC schema ${raw || "(none)"} is not supported (IFC2X3, IFC4, IFC4X3)`);
     this.schema = sj instanceof Schema ? sj : new Schema(sj);
+    if (p.policy) {
+      const keep = new Map();
+      const S = this.schema;
+      p.policy.keep = (t) => {
+        let k = keep.get(t);
+        if (k === undefined) keep.set(t, (k = !S.isA(t, "IFCREPRESENTATIONITEM")));
+        return k;
+      };
+    }
     this.byType = new Map();
     for (const e of this.entities.values()) {
       let l = this.byType.get(e.type);
