@@ -1,4 +1,4 @@
-# Turn a Payoneer currency statement into a Xero or QuickBooks journal with the FX gain or loss
+# Turn a Payoneer currency statement into a Xero or QuickBooks journal
 
 > Free Payoneer to QuickBooks and Xero journal converter for multi-currency balances: values every row in your base currency at your rates, tracks average cost, books realised FX gain or loss separately, proves the running balance, and downloads a balanced month-split journal. Runs in your browser; nothing is uploaded.
 

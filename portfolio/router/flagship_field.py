@@ -437,6 +437,20 @@ def stray_separators(text: str) -> list[str]:
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Run the CLI. A write attempt (--set/--replace/--park/--make-room) that
+    fails ends with one NOT WRITTEN line, so a refusal is not mistaken for a
+    write (doc_friction 2026-11-16 and 2026-11-17: a refusal's park
+    suggestions read as output, and two runs only saw nothing had changed by
+    re-reading the row)."""
+    argv = sys.argv[1:] if argv is None else argv
+    rc = _main(argv)
+    writes = {"--set", "--replace", "--park", "--make-room"}
+    if rc != 0 and any(a.split("=", 1)[0] in writes for a in argv):
+        print(f"NOT WRITTEN: exit {rc}, no file was changed", file=sys.stderr)
+    return rc
+
+
+def _main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("venture", nargs="?")
     ap.add_argument("--field", default="next")
@@ -548,10 +562,6 @@ def main(argv: list[str] | None = None) -> int:
         out = set_value(text, args.venture, args.field, new, mine)
     except (KeyError, ValueError) as e:
         print(e, file=sys.stderr)
-        # Said last, so a refusal followed by a page of park hints still ends
-        # on what happened (doc_friction 2026-11-17: "--replace without
-        # --make-room silently printed park suggestions and did not write").
-        print(f"NOT WRITTEN: {args.file.name} is unchanged", file=sys.stderr)
         return 1
     args.file.write_text(out)
     n = len(" ".join(new.split()))

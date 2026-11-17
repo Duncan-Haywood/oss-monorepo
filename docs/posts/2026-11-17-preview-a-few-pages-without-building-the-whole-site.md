@@ -42,11 +42,3 @@ the end:
 So `check.mjs` would fail it and the deploy must never see it. An unknown slug
 throws instead of quietly building an empty site, which is what a typo would
 otherwise give you.
-
-## A smaller fix in the same change
-
-`portfolio/router/flagship_field.py` refuses a `--replace` that would push a
-flagship's `next:` past its 2,000-character cap and then prints a page of
-suggestions for which items to park. One run read that as a silent no-op.
-The refusal now ends on one line, `NOT WRITTEN: flagships.yaml is unchanged`,
-so the last thing on screen says what happened.

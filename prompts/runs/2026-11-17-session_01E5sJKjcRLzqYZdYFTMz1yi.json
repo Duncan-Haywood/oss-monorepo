@@ -41,6 +41,10 @@
     {
       "file": "prompts/process/prompt-1.md",
       "issue": "Backlog held only owner rows again; friction_rank.py --live --ungated --days 3 found the target quickly, and its top rows (photo-editing buildable, heavy-hydraulics HOSTS) were already handled or self-correcting."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "Searched open PRs before starting; PR #16811 (same flagship_field NOT WRITTEN fix from the same doc_friction row) opened and merged during this run, so that half of the work was dropped at merge."
     }
   ],
   "deviations": [],
@@ -48,7 +52,7 @@
     "docs/posts/2026-11-17-preview-a-few-pages-without-building-the-whole-site.md"
   ],
   "goal": null,
-  "notes": "Critique mode (no agent-owned backlog item). Shipped build.mjs --only=slug[,slug] (preview build, cards off) and flagship_field.py NOT WRITTEN line. Measured on this container: --only two ventures 28 s (88 s with share cards), full build 2m15s. Verification: main_health.py 250/250 before the change; node --test build-only.test.mjs 3/3; pytest portfolio/router/test_flagship_field.py 42 passed; run_workflow_locally.py --for-changes 9/9 selected workflows passed, DONE exit 0 (agent-cross-review and Pages deploy jobs CI-only). No backlog ids touched; friction rows from friction_rank.py: platform/pages/README.md (#12) and portfolio/router/flagship_field.py.",
+  "notes": "Critique mode (no agent-owned backlog item). Shipped build.mjs --only=slug[,slug] (preview build, cards off). A flagship_field.py NOT WRITTEN line was also written, but PR #16811 landed the same fix first, so main's version was kept at the merge. Measured on this container: --only two ventures 28 s (88 s with share cards), full build 2m15s. Verification: main_health.py 250/250 before the change; node --test build-only.test.mjs 3/3; run_workflow_locally.py --for-changes 9/9 selected workflows passed, DONE exit 0 (agent-cross-review and Pages deploy jobs CI-only). No backlog ids touched; friction rows from friction_rank.py: platform/pages/README.md (#12) and portfolio/router/flagship_field.py.",
   "corrections": [],
   "redteam": null,
   "usage": {

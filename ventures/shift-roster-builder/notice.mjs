@@ -102,6 +102,22 @@
 // summary table also lists 1.25x, attached to a 10-hour rule, so 1.5x is the reading most sources give). No de
 // minimis grace turned up, so none is applied. Sources disagree on when enforcement began (2023-09-01, 2024-01-01,
 // later postponed): check the city's current notice.
+//
+// Los Angeles County, the Fair Workweek Ordinance (County Code Title 8 Chapter 8.102, in force 2025-07-01 for retail
+// employers with 300 or more employees worldwide, in the county's unincorporated areas only; README "Los Angeles
+// County"), read from the county's own documents fetched from this session (file.lacounty.gov): the ordinance as sent
+// to the Board on 2024-04-09 (supdocs 189905) and the amendment to 8.102.080 adopted 2025-11-18 (supdocs 208681).
+// 8.102.060.A: posted 14 days before the work period. 8.102.080.A.1: 1 h of pay for each change to a date, time or
+// location that loses no time or adds more than 15 minutes. A.2 as amended: half the regular rate for the time not
+// worked when the employer cuts scheduled work time by at least 15 minutes (minCutMin: under 15 owes nothing) or an
+// on-call shift is not called in; there is no 24-hour tier, so the half applies across the whole 14 days.
+// 8.102.080.B.2: hours an employee accepts because another scheduled employee is absent owe nothing, once the
+// employer has said acceptance is voluntary and may be declined and documented the request and the consent. Unlike
+// Seattle's, it is not limited to a written offer to the whole team, so a one-to-one cover ask is exempt too
+// (coverAccept). 8.102.100: a shift starting under 10 h after the last one needs written consent and pays time and a
+// half for each hour of it inside the 10 h, not the whole shift as the City of Los Angeles does. Not modelled: B.3
+// (hours accepted from the 72-hour offer to current staff before hiring, 8.102.070), B.6 (hours already paid at
+// overtime under Labor Code 510) and coverage.
 import { fromLocal } from "./timeclock.mjs";
 
 export const MAX_CHANGES = 1500;
@@ -114,6 +130,10 @@ export const MAX_CHANGES = 1500;
 //   time added stays within minExtendMin (Oregon ORS 653.455(3)(a): 30 min).
 // standby: 1 where the rule set has a voluntary standby-list exception (Oregon ORS 653.432, 653.455(3)(j)).
 // cancelWindowH / cancelFraction: lost hours inside this many hours of the shift are paid at this fraction.
+// minCutMin: time taken away of less than this many minutes owes nothing (Los Angeles County 8.102.080.A.2 as amended
+//   2025: a cut of "at least 15 minutes" owes).
+// coverAccept: 1 where any hours accepted to cover another employee's absence are exempt, a one-to-one ask as much as a
+//   team offer (Los Angeles County 8.102.080.B.2), given the voluntariness notice and documented consent.
 // cancelElseHours: hours of pay for lost hours outside that window but inside the notice window (Chicago: 1).
 // restHours / restMult: hours worked less than restHours after the previous shift ended are paid at restMult.
 // restWhole: 1 where restMult applies to the whole later shift, not only its hours inside the rest window (the City
@@ -157,20 +177,21 @@ export const FWW_PRESETS = {
   "san-francisco": { label: "San Francisco Formula Retail Employee Rights", noticeDays: 7, postDays: 14, addHours: 1, minMoveMin: 0, minExtendMin: 0, minEdgeMin: 0, cancelWindowH: 168, cancelFraction: 0, cancelElseHours: 1, restHours: 0, restMult: 1, massOffer: 0, standby: 0, tiers: SF_TIERS, onCallPay: { windowH: 24, overH: 4, small: 2, big: 4 }, coverAbsenceDays: 7 },
   emeryville: { label: "Emeryville Fair Workweek", noticeDays: 14, addHours: 1, minMoveMin: 10, minExtendMin: 10, minEdgeMin: 10, edgeEach: 1, cancelWindowH: 336, cancelFraction: 0, cancelElseHours: 1, restHours: 11, restMult: 1.5, restAcross: 1, massOffer: 0, standby: 0, tiers: EMERYVILLE_TIERS },
   berkeley: { label: "Berkeley Fair Workweek", noticeDays: 14, addHours: 1, minMoveMin: 0, minExtendMin: 10, extendEach: 1, minEdgeMin: 0, cancelWindowH: 336, cancelFraction: 0, cancelElseHours: 1, restHours: 11, restMult: 1.5, massOffer: 0, standby: 0, tiers: BERKELEY_TIERS, pairDates: 1 },
+  "los-angeles-county": { label: "Los Angeles County Fair Workweek (unincorporated areas)", noticeDays: 14, addHours: 1, minMoveMin: 0, minExtendMin: 15, minEdgeMin: 0, minCutMin: 15, cancelWindowH: 336, cancelFraction: 0.5, cancelElseHours: 0, restHours: 10, restMult: 1.5, massOffer: 1, coverAccept: 1, standby: 0 },
   evanston: { label: "Evanston Fair Workweek", noticeDays: 14, addHours: 1, minMoveMin: 0, minExtendMin: 0, minEdgeMin: 0, cancelWindowH: 336, cancelFraction: 0, cancelElseHours: 1, restHours: 11, restMult: 1.5, massOffer: 0, standby: 0, tiers: EMERYVILLE_TIERS },
   custom: { label: "Custom rule set", noticeDays: 14, addHours: 1, minMoveMin: 0, minExtendMin: 0, minEdgeMin: 0, cancelWindowH: 336, cancelFraction: 0.5, cancelElseHours: 0, restHours: 10, restMult: 1.5, massOffer: 0, standby: 0 },
 };
-const ENV_FIELDS = { FWW_NOTICE_DAYS: "noticeDays", FWW_ADD_HOURS: "addHours", FWW_MIN_MOVE_MIN: "minMoveMin", FWW_MIN_EXTEND_MIN: "minExtendMin", FWW_CANCEL_WINDOW_HOURS: "cancelWindowH", FWW_CANCEL_FRACTION: "cancelFraction", FWW_CANCEL_ELSE_HOURS: "cancelElseHours", FWW_REST_HOURS: "restHours", FWW_REST_MULT: "restMult", FWW_MASS_OFFER: "massOffer", FWW_MIN_EDGE_MIN: "minEdgeMin", FWW_STANDBY: "standby", FWW_REST_FLAT: "restFlat", FWW_REST_WHOLE_SHIFT: "restWhole", FWW_REST_ACROSS_DAYS: "restAcross", FWW_NOTICE_FROM_WEEK: "noticeFromWeek", FWW_EDGE_EACH: "edgeEach", FWW_EXTEND_EACH: "extendEach", FWW_PAIR_DATES: "pairDates" };
-const FLAGS = new Set(["massOffer", "standby", "restWhole", "restAcross", "noticeFromWeek", "edgeEach", "extendEach", "pairDates"]);
-export const PRESET_NAMES = "seattle, oregon, chicago, philadelphia, los-angeles, new-york-city, san-francisco, emeryville, berkeley, evanston or custom";
+const ENV_FIELDS = { FWW_NOTICE_DAYS: "noticeDays", FWW_ADD_HOURS: "addHours", FWW_MIN_MOVE_MIN: "minMoveMin", FWW_MIN_EXTEND_MIN: "minExtendMin", FWW_CANCEL_WINDOW_HOURS: "cancelWindowH", FWW_CANCEL_FRACTION: "cancelFraction", FWW_CANCEL_ELSE_HOURS: "cancelElseHours", FWW_REST_HOURS: "restHours", FWW_REST_MULT: "restMult", FWW_MASS_OFFER: "massOffer", FWW_MIN_EDGE_MIN: "minEdgeMin", FWW_STANDBY: "standby", FWW_REST_FLAT: "restFlat", FWW_REST_WHOLE_SHIFT: "restWhole", FWW_REST_ACROSS_DAYS: "restAcross", FWW_NOTICE_FROM_WEEK: "noticeFromWeek", FWW_EDGE_EACH: "edgeEach", FWW_EXTEND_EACH: "extendEach", FWW_PAIR_DATES: "pairDates", FWW_MIN_CUT_MIN: "minCutMin", FWW_COVER_ACCEPT: "coverAccept" };
+const FLAGS = new Set(["massOffer", "standby", "restWhole", "restAcross", "noticeFromWeek", "edgeEach", "extendEach", "pairDates", "coverAccept"]);
+export const PRESET_NAMES = "seattle, oregon, chicago, philadelphia, los-angeles, los-angeles-county, new-york-city, san-francisco, emeryville, berkeley, evanston or custom";
 
 // The rule set from the environment, or null when FAIR_WORKWEEK is unset (the change log is still kept).
 export function readNoticeEnv(env = {}) {
   const raw = String(env.FAIR_WORKWEEK ?? "").trim().toLowerCase().replace(/[\s_]+/g, "-");
   if (!raw || raw === "0" || raw === "off") return null;
-  const name = { or: "oregon", wa: "seattle", "seattle-wa": "seattle", il: "chicago", "chicago-il": "chicago", philly: "philadelphia", phl: "philadelphia", "philadelphia-pa": "philadelphia", la: "los-angeles", "los-angeles-city": "los-angeles", "los-angeles-ca": "los-angeles", losangeles: "los-angeles", nyc: "new-york-city", "new-york": "new-york-city", ny: "new-york-city", "nyc-fast-food": "new-york-city", "new-york-city-ny": "new-york-city", sf: "san-francisco", sanfrancisco: "san-francisco", "san-francisco-ca": "san-francisco", "sf-formula-retail": "san-francisco", "emeryville-ca": "emeryville", "berkeley-ca": "berkeley", "city-of-berkeley": "berkeley", "evanston-il": "evanston", "city-of-evanston": "evanston" }[raw] || raw;
+  const name = { or: "oregon", wa: "seattle", "seattle-wa": "seattle", il: "chicago", "chicago-il": "chicago", philly: "philadelphia", phl: "philadelphia", "philadelphia-pa": "philadelphia", la: "los-angeles", "los-angeles-city": "los-angeles", "los-angeles-ca": "los-angeles", losangeles: "los-angeles", nyc: "new-york-city", "new-york": "new-york-city", ny: "new-york-city", "nyc-fast-food": "new-york-city", "new-york-city-ny": "new-york-city", sf: "san-francisco", sanfrancisco: "san-francisco", "san-francisco-ca": "san-francisco", "sf-formula-retail": "san-francisco", "emeryville-ca": "emeryville", "berkeley-ca": "berkeley", "city-of-berkeley": "berkeley", "evanston-il": "evanston", "city-of-evanston": "evanston", "la-county": "los-angeles-county", lacounty: "los-angeles-county", "county-of-los-angeles": "los-angeles-county", "los-angeles-county-ca": "los-angeles-county", "unincorporated-los-angeles-county": "los-angeles-county" }[raw] || raw;
   if (!Object.hasOwn(FWW_PRESETS, name)) return { error: `FAIR_WORKWEEK "${String(env.FAIR_WORKWEEK).slice(0, 40)}" is not one of ${PRESET_NAMES}.` };
-  const r = { name, restFlat: 0, restWhole: 0, restAcross: 0, noticeFromWeek: 0, edgeEach: 0, extendEach: 0, pairDates: 0, flat: null, tiers: null, onCallPay: null, coverAbsenceDays: 0, ...FWW_PRESETS[name], notes: [], overrides: [] };
+  const r = { name, restFlat: 0, restWhole: 0, restAcross: 0, noticeFromWeek: 0, edgeEach: 0, extendEach: 0, pairDates: 0, minCutMin: 0, coverAccept: 0, flat: null, tiers: null, onCallPay: null, coverAbsenceDays: 0, ...FWW_PRESETS[name], notes: [], overrides: [] };
   for (const [k, f] of Object.entries(ENV_FIELDS)) {
     if (env[k] === undefined || String(env[k]).trim() === "") continue;
     const v = Number(String(env[k]).trim());
@@ -251,6 +272,7 @@ export function priceChange(e, rules, { tz = "UTC", wage = null } = {}) {
     const absenceH = (Math.min(...starts) - e.absenceAt) / H;
     if (absenceH < rules.coverAbsenceDays * 24) { out.why = `Covering ${e.coverFor}'s absence, reported ${absenceH >= 48 ? `${r2(absenceH / 24)} days` : `${r2(absenceH)} h`} before the shift (under ${rules.coverAbsenceDays} days): exempt. Keep the call-out record.`; return out; }
   }
+  if (rules.coverAccept && e.coverFor && lost <= 0) { out.why = `Accepted to cover ${e.coverFor}'s absence: exempt, provided the employee was told taking the hours is voluntary and may be declined, and the request and the consent were documented in advance (LA County Code 8.102.080.B.2). Keep both.`; return out; }
   const standbyFirst = rules.standby && e.standbyOpen > 0;
   if (e.massOffer && rules.massOffer && lost <= 0 && !standbyFirst) { out.why = `Taken from the written offer to the whole team after ${e.coverFor || "a colleague"}'s absence: exempt for those hours. Keep the offer and the acceptance.`; return out; }
   let hoursOfPay = 0;
@@ -258,6 +280,7 @@ export function priceChange(e, rules, { tz = "UTC", wage = null } = {}) {
   // A shift moved to another day is a date change: no minute threshold applies to it.
   const sameDay = !(e.from && e.to) || e.from.day === e.to.day;
   if (e.kind === "moved" && sameDay && rules.minEdgeMin > 0 && ds <= rules.minEdgeMin && de <= rules.minEdgeMin && (rules.edgeEach || -lost * 60 <= rules.minExtendMin)) { out.why = `Start or end changed by ${Math.max(ds, de)} min: at or under the ${rules.minEdgeMin} min threshold, hours lost included.`; return out; }
+  if (lost > 0 && rules.minCutMin > 0 && Math.round(lost * 60) < rules.minCutMin) { out.why = `${Math.round(lost * 60)} min taken away: under the ${rules.minCutMin} min a cut must reach to owe pay.`; return out; }
   if (lost > 0) {
     if (out.noticeH < rules.cancelWindowH) { hoursOfPay = rules.cancelFraction * lost; out.why = `${e.kind === "cancelled" ? "Cancelled" : "Shortened"} inside ${fmtH(rules.cancelWindowH)}: ${rules.cancelFraction} x ${r2(lost)} h not worked.`; }
     else { hoursOfPay = rules.cancelElseHours; out.why = `${e.kind === "cancelled" ? "Cancelled" : "Shortened"} with under ${rules.noticeDays} days' notice: ${rules.cancelElseHours} h of pay.`; }

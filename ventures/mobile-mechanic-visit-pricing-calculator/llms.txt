@@ -1,4 +1,4 @@
-# What to charge a mobile mechanic visit: trip charge, price per job and what small stops really cost
+# What to charge a mobile mechanic visit: a trip charge plus a price per job
 
 > Free pricing calculator for mobile mechanics: drive time, minutes per job, materials, fixed costs and the income you want become a trip charge plus a per-job rate, with a table by stop size. Private, runs in your browser.
 

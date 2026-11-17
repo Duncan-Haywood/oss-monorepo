@@ -1,4 +1,4 @@
-# The 20%-of-value rule can bid you past your own break-even before you've paid for a dump run.
+# The 20%-of-value rule can bid you past your own break-even.
 
 > Free calculator for storage-unit auction bidders: prices the buyer's premium, realistic resale recovery, resale fees, dump and labor cost, and holding cost, then reports the bid a target margin supports, the break-even bid, and what a flat percent-of-value rule of thumb would have told you to bid instead.
 

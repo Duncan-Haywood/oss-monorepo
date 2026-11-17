@@ -1,4 +1,4 @@
-# What does a swim lesson earn after you pay for the pool, and which class size pays the hour best?
+# What does a swim lesson earn after you pay for the pool?
 
 > Free swim lesson calculator: enter private, semi-private and group lesson prices, class sizes, pool rental per hour, instructor pay and cancellations, and see profit per lesson and per pool hour, the price for your target margin, break-even swimmers per class and what empty pool hours cost. Runs in your browser.
 
