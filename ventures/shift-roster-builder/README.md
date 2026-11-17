@@ -291,6 +291,51 @@ opening balance; a July leave year; the trim keeping the balances identical; the
 when off, the page, a recorded and a removed use, an opening balance, the CSV and its formula guard). Not claimed: not
 tried on a live team or against any state's rule text; a manager's view of the policy wording is the next thing to get.
 
+## Evanston (2026-11-17, later)
+
+`FAIR_WORKWEEK=evanston` (or `evanston-il`) prices changes under Evanston, Illinois's Fair Workweek Ordinance
+(24-O-23, City Code Title 3 Chapter 34), the last of the commonly listed fair-workweek jurisdictions without a preset.
+**Read from search summaries only**: the city's Fair Workweek page, Municode and the ordinance PDF on CivicWeb were all
+refused by this session's network, so the numbers come from summaries of the city page and of law-firm alerts (Jackson
+Lewis, Littler, Fox Rothschild, Epstein Becker Green). The changes page says so.
+
+| | Evanston, as the summaries agree |
+|---|---|
+| Posted | 14 days before the first scheduled shift |
+| Under 14 days, more than 24 h | 1 h of pay per changed shift |
+| Under 24 h, hours cut or shift cancelled | 4 h or the length of the scheduled shift, whichever is less (Emeryville's reading) |
+| Under 24 h, any other change | 1 h |
+| Free | nothing found: no de minimis minutes in any summary, so none applied |
+| Exempt | employee-requested and mutually agreed changes, events outside the employer's control (the hub's "Employee asked" mark) |
+| Hours volunteered from a team offer | priced: "agreeing to work additional hours does not exempt" the employer |
+| Rest | hours starting under 11 h after the previous shift, worked with written consent, at time and a half |
+
+No new pricer code: the preset reuses Emeryville's notice tiers with no grace and Berkeley's rest reading (after any
+previous shift; `FWW_REST_ACROSS_DAYS=1` to count only a prior day's). Readings to check against the ordinance text:
+
+- **Where notice is counted to.** The city page says schedules are posted 14 days before the first scheduled shift,
+  and one alert counts change notice to the first shift of the workweek. The preset counts to each changed shift, like
+  Chicago; `FWW_NOTICE_FROM_WEEK=1` counts to the week's first day instead (which also moves the 24-hour tier).
+- **A move to another date** stays a cancellation plus an addition (two changes); `FWW_PAIR_DATES=1` makes it one.
+- **The rest multiplier.** Most summaries give 1.5x; one table lists 1.25x beside a 10-hour rule. `FWW_REST_MULT`
+  overrides it.
+- **Enforcement date.** Summaries give 2023-09-01, 2024-01-01 and a later postponement. Check the city's notice.
+
+Coverage (the industries listed, employer size, two hours a week in Evanston), the right to decline, the offer of
+hours to part-timers and the good-faith estimate at hire are not modelled. What it changes, at $18 an hour
+(`eval/evanston-compare.mjs`, `eval/evanston-compare-2026-11-17.md`):
+
+| Change | evanston | berkeley | emeryville | chicago | seattle |
+|---|---:|---:|---:|---:|---:|
+| 1 h cut off Monday's 8 h shift, Sunday 23:00 | $72.00 | $18.00 | $72.00 | $9.00 | $9.00 |
+| Tuesday's 4 h shift cancelled, Monday 20:00 | $72.00 | $72.00 | $72.00 | $36.00 | $36.00 |
+| 5 min added to Wednesday's end, Tuesday 22:00 | $18.00 | $0.00 | $0.00 | $0.00 | $18.00 |
+| Thursday's 8 h shift cancelled 3 days ahead | $18.00 | $18.00 | $18.00 | $18.00 | $72.00 |
+| **Total** | **$180.00** | **$108.00** | **$162.00** | **$63.00** | **$135.00** |
+
+Tests: `notice-evanston.test.mjs` (names, both tiers, the shift-length cap against Berkeley's, no grace against
+Emeryville's, the team offer, date moves, rest, the changes page).
+
 ## Berkeley (2026-11-17)
 
 `FAIR_WORKWEEK=berkeley` prices changes under Berkeley's Fair Workweek Ordinance (Berkeley Municipal Code Chapter 13.102,

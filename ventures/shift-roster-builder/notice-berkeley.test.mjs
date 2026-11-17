@@ -18,7 +18,7 @@ test("Berkeley is read by name and alias, with 14 days and an 11 h rest", () => 
   assert.equal(readNoticeEnv({ FAIR_WORKWEEK: "Berkeley CA" }).name, "berkeley");
   assert.equal(readNoticeEnv({ FAIR_WORKWEEK: "berkeley-ca" }).name, "berkeley");
   assert.equal(BK.noticeDays, 14); assert.equal(BK.restHours, 11); assert.equal(BK.restMult, 1.5);
-  assert.match(readNoticeEnv({ FAIR_WORKWEEK: "oakland" }).error, /emeryville, berkeley or custom/);
+  assert.match(readNoticeEnv({ FAIR_WORKWEEK: "oakland" }).error, /emeryville, berkeley, evanston or custom/);
 });
 
 test("FAQ 12a: under 14 days and 24 h or more, 1 h for any change", () => {

@@ -89,6 +89,19 @@
 // shift at time and a half (FAQ 23: close at midnight, open at 8, 3 h at 1.5x). The notice and FAQ say "the previous
 // shift", not "the previous day's", so a same-day split shift with a short gap counts too; FWW_REST_ACROSS_DAYS=1
 // turns that off if the code's definition of a shift says otherwise.
+//
+// Evanston, Illinois, the Fair Workweek Ordinance (24-O-23, City Code Title 3 Chapter 34; README "Evanston"), from
+// search summaries of the city's Fair Workweek page and of law-firm alerts (Jackson Lewis, Littler, Fox Rothschild,
+// Epstein Becker Green), 2026-11-17. The city's site, Municode and the ordinance PDF on CivicWeb were all refused by
+// this session's network, so none of the primary text was read. What the summaries agree on: 14 days' notice; under
+// 14 days and more than 24 h, 1 h of pay per changed shift; under 24 h, hours cut or a shift cancelled pay "four
+// hours or the length of the scheduled shift, whichever is less" (Emeryville's cutShiftCap reading, not Berkeley's
+// hours-taken-away one), any other change 1 h; exempt: employee-requested changes, mutually agreed changes and events
+// outside the employer's control; agreeing to extra hours does not waive the pay, so no team-offer exception; rest:
+// hours starting under 11 h after the previous shift ended, worked with written consent, at time and a half (one
+// summary table also lists 1.25x, attached to a 10-hour rule, so 1.5x is the reading most sources give). No de
+// minimis grace turned up, so none is applied. Sources disagree on when enforcement began (2023-09-01, 2024-01-01,
+// later postponed): check the city's current notice.
 import { fromLocal } from "./timeclock.mjs";
 
 export const MAX_CHANGES = 1500;
@@ -144,17 +157,18 @@ export const FWW_PRESETS = {
   "san-francisco": { label: "San Francisco Formula Retail Employee Rights", noticeDays: 7, postDays: 14, addHours: 1, minMoveMin: 0, minExtendMin: 0, minEdgeMin: 0, cancelWindowH: 168, cancelFraction: 0, cancelElseHours: 1, restHours: 0, restMult: 1, massOffer: 0, standby: 0, tiers: SF_TIERS, onCallPay: { windowH: 24, overH: 4, small: 2, big: 4 }, coverAbsenceDays: 7 },
   emeryville: { label: "Emeryville Fair Workweek", noticeDays: 14, addHours: 1, minMoveMin: 10, minExtendMin: 10, minEdgeMin: 10, edgeEach: 1, cancelWindowH: 336, cancelFraction: 0, cancelElseHours: 1, restHours: 11, restMult: 1.5, restAcross: 1, massOffer: 0, standby: 0, tiers: EMERYVILLE_TIERS },
   berkeley: { label: "Berkeley Fair Workweek", noticeDays: 14, addHours: 1, minMoveMin: 0, minExtendMin: 10, extendEach: 1, minEdgeMin: 0, cancelWindowH: 336, cancelFraction: 0, cancelElseHours: 1, restHours: 11, restMult: 1.5, massOffer: 0, standby: 0, tiers: BERKELEY_TIERS, pairDates: 1 },
+  evanston: { label: "Evanston Fair Workweek", noticeDays: 14, addHours: 1, minMoveMin: 0, minExtendMin: 0, minEdgeMin: 0, cancelWindowH: 336, cancelFraction: 0, cancelElseHours: 1, restHours: 11, restMult: 1.5, massOffer: 0, standby: 0, tiers: EMERYVILLE_TIERS },
   custom: { label: "Custom rule set", noticeDays: 14, addHours: 1, minMoveMin: 0, minExtendMin: 0, minEdgeMin: 0, cancelWindowH: 336, cancelFraction: 0.5, cancelElseHours: 0, restHours: 10, restMult: 1.5, massOffer: 0, standby: 0 },
 };
 const ENV_FIELDS = { FWW_NOTICE_DAYS: "noticeDays", FWW_ADD_HOURS: "addHours", FWW_MIN_MOVE_MIN: "minMoveMin", FWW_MIN_EXTEND_MIN: "minExtendMin", FWW_CANCEL_WINDOW_HOURS: "cancelWindowH", FWW_CANCEL_FRACTION: "cancelFraction", FWW_CANCEL_ELSE_HOURS: "cancelElseHours", FWW_REST_HOURS: "restHours", FWW_REST_MULT: "restMult", FWW_MASS_OFFER: "massOffer", FWW_MIN_EDGE_MIN: "minEdgeMin", FWW_STANDBY: "standby", FWW_REST_FLAT: "restFlat", FWW_REST_WHOLE_SHIFT: "restWhole", FWW_REST_ACROSS_DAYS: "restAcross", FWW_NOTICE_FROM_WEEK: "noticeFromWeek", FWW_EDGE_EACH: "edgeEach", FWW_EXTEND_EACH: "extendEach", FWW_PAIR_DATES: "pairDates" };
 const FLAGS = new Set(["massOffer", "standby", "restWhole", "restAcross", "noticeFromWeek", "edgeEach", "extendEach", "pairDates"]);
-export const PRESET_NAMES = "seattle, oregon, chicago, philadelphia, los-angeles, new-york-city, san-francisco, emeryville, berkeley or custom";
+export const PRESET_NAMES = "seattle, oregon, chicago, philadelphia, los-angeles, new-york-city, san-francisco, emeryville, berkeley, evanston or custom";
 
 // The rule set from the environment, or null when FAIR_WORKWEEK is unset (the change log is still kept).
 export function readNoticeEnv(env = {}) {
   const raw = String(env.FAIR_WORKWEEK ?? "").trim().toLowerCase().replace(/[\s_]+/g, "-");
   if (!raw || raw === "0" || raw === "off") return null;
-  const name = { or: "oregon", wa: "seattle", "seattle-wa": "seattle", il: "chicago", "chicago-il": "chicago", philly: "philadelphia", phl: "philadelphia", "philadelphia-pa": "philadelphia", la: "los-angeles", "los-angeles-city": "los-angeles", "los-angeles-ca": "los-angeles", losangeles: "los-angeles", nyc: "new-york-city", "new-york": "new-york-city", ny: "new-york-city", "nyc-fast-food": "new-york-city", "new-york-city-ny": "new-york-city", sf: "san-francisco", sanfrancisco: "san-francisco", "san-francisco-ca": "san-francisco", "sf-formula-retail": "san-francisco", "emeryville-ca": "emeryville", "berkeley-ca": "berkeley", "city-of-berkeley": "berkeley" }[raw] || raw;
+  const name = { or: "oregon", wa: "seattle", "seattle-wa": "seattle", il: "chicago", "chicago-il": "chicago", philly: "philadelphia", phl: "philadelphia", "philadelphia-pa": "philadelphia", la: "los-angeles", "los-angeles-city": "los-angeles", "los-angeles-ca": "los-angeles", losangeles: "los-angeles", nyc: "new-york-city", "new-york": "new-york-city", ny: "new-york-city", "nyc-fast-food": "new-york-city", "new-york-city-ny": "new-york-city", sf: "san-francisco", sanfrancisco: "san-francisco", "san-francisco-ca": "san-francisco", "sf-formula-retail": "san-francisco", "emeryville-ca": "emeryville", "berkeley-ca": "berkeley", "city-of-berkeley": "berkeley", "evanston-il": "evanston", "city-of-evanston": "evanston" }[raw] || raw;
   if (!Object.hasOwn(FWW_PRESETS, name)) return { error: `FAIR_WORKWEEK "${String(env.FAIR_WORKWEEK).slice(0, 40)}" is not one of ${PRESET_NAMES}.` };
   const r = { name, restFlat: 0, restWhole: 0, restAcross: 0, noticeFromWeek: 0, edgeEach: 0, extendEach: 0, pairDates: 0, flat: null, tiers: null, onCallPay: null, coverAbsenceDays: 0, ...FWW_PRESETS[name], notes: [], overrides: [] };
   for (const [k, f] of Object.entries(ENV_FIELDS)) {
