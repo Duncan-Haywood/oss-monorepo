@@ -74,3 +74,17 @@ test("sample periods follow Stripe's billing anchor: each end is the anchor day,
     prevEnd = e;
   }
 });
+
+test("a lone CR ends a row without eating the next row's first character (red team 2026-11-17)", () => {
+  assert.deepEqual(parseCsv("a,b\rxy,2\r"), [["a", "b"], ["xy", "2"]]);
+});
+
+test("every skip reason names its file line, header being line 1 (red team 2026-11-17)", () => {
+  const r = linesFromCsv("amount,date,period start,period end\nabc,2026-01-01,2026-01-01,\n5,2026-01-01,nope,\n5,2026-01-01,2026-03-01,2026-02-01\n");
+  assert.deepEqual(r.skipped.map((s) => s.line), [2, 3, 4]);
+});
+
+test("zero-decimal amounts are not multiplied by 100 (red team 2026-11-17)", () => {
+  const r = linesFromCsv("id,date,period start,amount,currency\na,2026-01-01,2026-01-01,1200,JPY\nb,2026-01-01,2026-01-01,1200,usd\nc,2026-01-01,2026-01-01,1.5,kwd\n");
+  assert.deepEqual(r.lines.map((l) => l.amount), [1200, 120000, 1500]);
+});

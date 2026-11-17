@@ -43,3 +43,8 @@ test("Ended At wins over an earlier Canceled At column, and Created over Start D
   const b = subsFromCsv("id,Amount,Interval,Status,Start Date,Created\nsub_1,100,month,active,2026-02-01,2026-01-01");
   assert.equal(b.subs[0].created, Date.UTC(2026, 0, 1));
 });
+
+test("a JPY export is not multiplied by 100 (red team 2026-11-17)", () => {
+  const { subs } = subsFromCsv("id,amount,interval,created,currency\na,5000,month,2026-01-01,jpy\nb,50,month,2026-01-01,usd\n");
+  assert.deepEqual(subs.map((s) => s.mrr), [5000, 5000]);
+});

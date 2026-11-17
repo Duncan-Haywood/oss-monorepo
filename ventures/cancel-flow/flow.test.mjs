@@ -124,3 +124,11 @@ test("money formatting reads Stripe zero-decimal amounts as whole units", () => 
   assert.equal(formatMoney(4900, "usd"), "$49.00");
   for (const c of ["jpy", "krw", "bif", "djf", "gnf", "kmf", "mga", "pyg", "rwf", "ugx", "vuv", "xaf", "xof", "xpf"]) assert.match(formatMoney(5000, c), /5,000/, c);
 });
+
+test("the /admin page's money() also reads zero-decimal currencies as whole units (red team 2026-11-17)", async () => {
+  const { renderAdminPage } = await import("./admin.mjs");
+  const src = renderAdminPage().match(/const money=.*?};/)[0];
+  const money = new Function(`${src} return money;`)();
+  assert.equal(money(5000, "jpy"), "¥5,000");
+  assert.equal(money(5000, "usd"), "$50.00");
+});
