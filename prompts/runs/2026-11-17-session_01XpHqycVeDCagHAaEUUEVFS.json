@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqycVeDCagHAaEUUEVFS",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T15:39:38Z",
+  "ended": "2026-11-17T16:19:37Z",
+  "wall_minutes": 40.15,
+  "tokens_in": 7921464,
+  "tokens_out": 42098,
+  "cost_usd": 3.6025,
+  "tool_calls": 78,
+  "task": "perf: league-schedule-generator annealer prices rejected moves only as far as the acceptance draw needs",
+  "projects": [
+    "ventures/league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16993",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first suite 'after' run (239 s) overlapped hash and benchmark runs on the same 4 cores",
+      "fix": "re-ran the suite on a quiet machine and used an alternated base/new A/B on one file for the headline number"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Whole-suite wall time, one run each, cannot resolve a ~8% change in a 4-file-parallel suite (222 vs 231 s on the same code family); the prompt's 'take the after number the same way as the before' could say to alternate base/new copies on the affected file instead."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-stop-counting-once-the-dice-say-no.md",
+    "docs/history/ci-perf-2026-11-17-league-priced-early.md"
+  ],
+  "goal": null,
+  "notes": "Metric: wall time of league-schedule-generator search-heavy tests. floor-priced.test.mjs alone, base and new venture copies alternated, nothing else running: 119.9/113.1 s -> 110.0/103.4 s (-8.4%). Weighted tries bench (9,12,14 teams x i=0-2), 3 alternated rounds: 28.7 -> 26.8 s mean (-6.6%); capped tries (i=8,9): 6.53 -> 5.79 s (-11%). Whole suite one run each: 222.4 s before, 230.8 s after (noise; see history doc). Identity: SHA-256 over 214 searches 5f30311dce3cc145 on both. League suite 564/564 pass locally (node --test --test-reporter=tap *.test.mjs). Post front matter, links and similarity checks clean. Rejected variants: touched-teams-first order (slower), rotation start (no gain).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "46c3342c-83d5-5039-be30-8b328ba86c77",
+    "transcripts": 1,
+    "first": "2026-11-17T15:39:38Z",
+    "last": "2026-11-17T16:19:47Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 72,
+        "input": 140,
+        "output": 42098,
+        "thinking": 10169,
+        "cache_read": 7770595,
+        "cache_write_5m": 0,
+        "cache_write_1h": 150729,
+        "api_equivalent_usd": 3.6025,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 72,
+      "input": 140,
+      "output": 42098,
+      "thinking": 10169,
+      "cache_read": 7770595,
+      "cache_write_5m": 0,
+      "cache_write_1h": 150729,
+      "api_equivalent_usd": 3.6025,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 78,
+    "tools": {
+      "Bash": 72,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 40.15,
+      "active_minutes": 40.15,
+      "model_minutes": 7.15,
+      "tool_minutes": 33.0,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "profiling, a byte-identical early-exit change with hash verification, A/B benchmarks and write-ups for a senior engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 166.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
