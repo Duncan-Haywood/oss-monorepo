@@ -34,6 +34,19 @@ Full tables: [`experiments/m1_subgroups/`](experiments/m1_subgroups) (`t1` compo
 fertility, `t3` retention, `t4` practice, belief and politics by subgroup). Plan and hypotheses:
 [`PROPOSAL.md`](PROPOSAL.md). Research log: [`LOG.md`](LOG.md).
 
+## Were the mothers more Catholic while raising their children? Partly, and partly a survey artefact (milestone 5b, 2026-11-17)
+
+Mostly closed, but not mostly by switching. m5n left the mothers of US-born adults 3.5 to 5 points more Catholic than US-born
+GSS mothers interviewed at 45+. Rebuilding the women's side from mothers interviewed at 25-44, the ages they were
+raising children, the gap for adults born 1965-99 to two US-born parents falls from **+4.8 points [+2.3, +7.1] to +1.1
+[-1.7, +4.0]**: the same cohorts are 3.7 points [2.1, 5.4] more Catholic at 25-44 than at 45+. But the same women also
+report a Catholic upbringing 2.4 points [0.7, 4.2] more often when interviewed young, so they are not simply the same
+women before they left. Split post hoc, about 1.5 points is women leaving the Church after child-rearing and 2.2 points
+is a cohort's raised-Catholic share differing by survey year and age (recall, attrition or the 2021-24 web waves). 3 of 4
+predictions are supported; the "not a different population" check is refuted. Older respondents' mothers (born before
+about 1936) are not seen at 25-44 in the GSS and are not tested. Code `experiments/m5o_lifecourse/run.py`, tables `t43`,
+`t44`, details in `LOG.md`.
+
 ## Did Catholic mothers have more children than surveys show? Siblings say no (milestone 5b, 2026-11-17)
 
 No. The missing Catholics are mothers, not extra children. m5m left adults born 1925-64 to two US-born parents with

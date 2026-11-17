@@ -1,0 +1,196 @@
+
+t43_mothers_by_age_band.csv (percent or points; counts unweighted, coverage 0/1, filled weight and gap left as fractions)
+                 group                quantity      est     lo     hi
+both US-born 1925-1964                       n 3188.000    NaN    NaN
+both US-born 1925-1964               M_mothers   24.375 23.051 25.796
+both US-born 1925-1964       filled weight 45+    0.095  0.086  0.104
+both US-born 1925-1964                P_m(45+)   20.837 19.949 21.614
+both US-born 1925-1964                R16(45+)   20.476 19.599 21.251
+both US-born 1925-1964    M_mothers - P_m(45+)    3.538  2.072  5.272
+both US-born 1925-1964     filled weight 25-44    0.958  0.950  0.966
+both US-born 1925-1964              P_m(25-44)   26.416 23.103 29.948
+both US-born 1925-1964              R16(25-44)   27.980 24.391 31.757
+both US-born 1925-1964  M_mothers - P_m(25-44)   -2.041 -5.723  1.718
+both US-born 1925-1964     filled weight 35-49    0.821  0.810  0.833
+both US-born 1925-1964              P_m(35-49)   24.060 21.190 26.939
+both US-born 1925-1964              R16(35-49)   23.946 20.672 26.746
+both US-born 1925-1964  M_mothers - P_m(35-49)    0.315 -3.030  3.539
+both US-born 1925-1964   P_m(25-44) - P_m(45+)    5.579  2.080  9.196
+both US-born 1925-1964   R16(25-44) - R16(45+)    7.505  3.668 11.552
+both US-born 1925-1964 gap left fraction 25-44   -0.577 -2.285  0.477
+both US-born 1925-1964   P_m(35-49) - P_m(45+)    3.223  0.400  6.254
+both US-born 1925-1964   R16(35-49) - R16(45+)    3.471  0.567  6.415
+both US-born 1925-1964 gap left fraction 35-49    0.089 -1.161  0.891
+both US-born 1965-1999                       n 1440.000    NaN    NaN
+both US-born 1965-1999               M_mothers   27.714 25.117 30.006
+both US-born 1965-1999       filled weight 45+    0.000  0.000  0.000
+both US-born 1965-1999                P_m(45+)   22.945 22.138 23.798
+both US-born 1965-1999                R16(45+)   26.932 26.120 27.834
+both US-born 1965-1999    M_mothers - P_m(45+)    4.769  2.302  7.083
+both US-born 1965-1999     filled weight 25-44    0.000  0.000  0.000
+both US-born 1965-1999              P_m(25-44)   26.653 25.091 28.232
+both US-born 1965-1999              R16(25-44)   29.380 27.812 30.964
+both US-born 1965-1999  M_mothers - P_m(25-44)    1.062 -1.700  3.963
+both US-born 1965-1999     filled weight 35-49    0.000  0.000  0.000
+both US-born 1965-1999              P_m(35-49)   25.781 24.469 27.099
+both US-born 1965-1999              R16(35-49)   28.411 27.175 29.679
+both US-born 1965-1999  M_mothers - P_m(35-49)    1.934 -0.908  4.556
+both US-born 1965-1999   P_m(25-44) - P_m(45+)    3.707  2.050  5.401
+both US-born 1965-1999   R16(25-44) - R16(45+)    2.448  0.687  4.187
+both US-born 1965-1999 gap left fraction 25-44    0.223 -0.707  0.616
+both US-born 1965-1999   P_m(35-49) - P_m(45+)    2.835  1.521  4.167
+both US-born 1965-1999   R16(35-49) - R16(45+)    1.479  0.183  2.859
+both US-born 1965-1999 gap left fraction 35-49    0.405 -0.343  0.733
+   US mother 1925-1964                       n 3309.000    NaN    NaN
+   US mother 1925-1964               M_mothers   24.821 23.465 26.228
+   US mother 1925-1964       filled weight 45+    0.097  0.088  0.106
+   US mother 1925-1964                P_m(45+)   20.808 19.926 21.591
+   US mother 1925-1964                R16(45+)   20.445 19.560 21.237
+   US mother 1925-1964    M_mothers - P_m(45+)    4.013  2.561  5.691
+   US mother 1925-1964     filled weight 25-44    0.959  0.951  0.966
+   US mother 1925-1964              P_m(25-44)   26.416 23.103 29.948
+   US mother 1925-1964              R16(25-44)   27.980 24.391 31.757
+   US mother 1925-1964  M_mothers - P_m(25-44)   -1.595 -5.292  2.327
+   US mother 1925-1964     filled weight 35-49    0.825  0.815  0.837
+   US mother 1925-1964              P_m(35-49)   24.057 21.185 26.939
+   US mother 1925-1964              R16(35-49)   23.943 20.665 26.748
+   US mother 1925-1964  M_mothers - P_m(35-49)    0.764 -2.601  4.044
+   US mother 1925-1964   P_m(25-44) - P_m(45+)    5.608  2.112  9.218
+   US mother 1925-1964   R16(25-44) - R16(45+)    7.535  3.684 11.581
+   US mother 1925-1964 gap left fraction 25-44   -0.398 -1.618  0.522
+   US mother 1925-1964   P_m(35-49) - P_m(45+)    3.249  0.412  6.273
+   US mother 1925-1964   R16(35-49) - R16(45+)    3.498  0.599  6.447
+   US mother 1925-1964 gap left fraction 35-49    0.190 -0.791  0.904
+   US mother 1965-1999                       n 1481.000    NaN    NaN
+   US mother 1965-1999               M_mothers   28.211 25.673 30.426
+   US mother 1965-1999       filled weight 45+    0.000  0.000  0.000
+   US mother 1965-1999                P_m(45+)   22.942 22.134 23.795
+   US mother 1965-1999                R16(45+)   26.947 26.141 27.842
+   US mother 1965-1999    M_mothers - P_m(45+)    5.269  2.719  7.670
+   US mother 1965-1999     filled weight 25-44    0.000  0.000  0.000
+   US mother 1965-1999              P_m(25-44)   26.649 25.095 28.223
+   US mother 1965-1999              R16(25-44)   29.384 27.822 30.963
+   US mother 1965-1999  M_mothers - P_m(25-44)    1.562 -1.213  4.446
+   US mother 1965-1999     filled weight 35-49    0.000  0.000  0.000
+   US mother 1965-1999              P_m(35-49)   25.781 24.472 27.094
+   US mother 1965-1999              R16(35-49)   28.422 27.190 29.687
+   US mother 1965-1999  M_mothers - P_m(35-49)    2.430 -0.307  4.998
+   US mother 1965-1999   P_m(25-44) - P_m(45+)    3.707  2.058  5.393
+   US mother 1965-1999   R16(25-44) - R16(45+)    2.437  0.683  4.183
+   US mother 1965-1999 gap left fraction 25-44    0.296 -0.413  0.646
+   US mother 1965-1999   P_m(35-49) - P_m(45+)    2.839  1.529  4.172
+   US mother 1965-1999   R16(35-49) - R16(45+)    1.475  0.177  2.853
+   US mother 1965-1999 gap left fraction 35-49    0.461 -0.093  0.754
+
+t44_within_cohort_age.csv (percent or points; counts unweighted, coverage 0/1, filled weight and gap left as fractions)
+      group              quantity    est      lo     hi
+window 1930           covered 45+  1.000     NaN    NaN
+window 1930              P_m(45+) 22.174  20.658 23.615
+window 1930              R16(45+) 22.153  20.699 23.508
+window 1930         covered 25-44  0.000     NaN    NaN
+window 1930            P_m(25-44) 23.639  14.706 32.346
+window 1930            R16(25-44) 18.977   9.901 28.337
+window 1930         covered 35-49  0.000     NaN    NaN
+window 1930            P_m(35-49) 21.678  17.629 25.674
+window 1930            R16(35-49) 21.631  17.019 25.720
+window 1930 P_m(25-44) - P_m(45+)  1.465  -7.325 10.684
+window 1930 R16(25-44) - R16(45+) -3.176 -12.474  6.077
+window 1935           covered 45+  1.000     NaN    NaN
+window 1935              P_m(45+) 22.389  20.926 23.682
+window 1935              R16(45+) 22.860  21.456 24.241
+window 1935         covered 25-44  0.000     NaN    NaN
+window 1935            P_m(25-44) 26.085  22.398 29.843
+window 1935            R16(25-44) 27.100  23.045 31.661
+window 1935         covered 35-49  1.000     NaN    NaN
+window 1935            P_m(35-49) 24.995  22.431 27.706
+window 1935            R16(35-49) 25.132  22.599 27.917
+window 1935 P_m(25-44) - P_m(45+)  3.696  -0.300  7.723
+window 1935 R16(25-44) - R16(45+)  4.240   0.032  8.995
+window 1940           covered 45+  1.000     NaN    NaN
+window 1940              P_m(45+) 22.962  21.718 24.324
+window 1940              R16(45+) 23.892  22.694 25.228
+window 1940         covered 25-44  1.000     NaN    NaN
+window 1940            P_m(25-44) 27.626  24.532 30.447
+window 1940            R16(25-44) 28.392  25.214 31.111
+window 1940         covered 35-49  1.000     NaN    NaN
+window 1940            P_m(35-49) 26.173  23.699 28.508
+window 1940            R16(35-49) 26.600  24.132 28.628
+window 1940 P_m(25-44) - P_m(45+)  4.663   1.455  7.843
+window 1940 R16(25-44) - R16(45+)  4.500   1.106  7.538
+window 1945           covered 45+  1.000     NaN    NaN
+window 1945              P_m(45+) 23.963  22.592 25.291
+window 1945              R16(45+) 27.224  25.726 28.547
+window 1945         covered 25-44  1.000     NaN    NaN
+window 1945            P_m(25-44) 27.685  25.604 29.883
+window 1945            R16(25-44) 30.183  28.177 32.601
+window 1945         covered 35-49  1.000     NaN    NaN
+window 1945            P_m(35-49) 27.122  25.279 29.253
+window 1945            R16(35-49) 29.409  27.627 31.487
+window 1945 P_m(25-44) - P_m(45+)  3.722   1.329  6.495
+window 1945 R16(25-44) - R16(45+)  2.959   0.372  5.725
+window 1950           covered 45+  1.000     NaN    NaN
+window 1950              P_m(45+) 23.654  22.342 24.994
+window 1950              R16(45+) 29.723  28.328 31.253
+window 1950         covered 25-44  1.000     NaN    NaN
+window 1950            P_m(25-44) 24.911  23.402 26.477
+window 1950            R16(25-44) 29.278  27.719 30.918
+window 1950         covered 35-49  1.000     NaN    NaN
+window 1950            P_m(35-49) 24.985  23.448 26.724
+window 1950            R16(35-49) 29.985  28.359 31.782
+window 1950 P_m(25-44) - P_m(45+)  1.256  -0.702  3.299
+window 1950 R16(25-44) - R16(45+) -0.445  -2.779  1.864
+window 1955           covered 45+  1.000     NaN    NaN
+window 1955              P_m(45+) 22.244  20.804 23.773
+window 1955              R16(45+) 29.162  27.548 30.857
+window 1955         covered 25-44  1.000     NaN    NaN
+window 1955            P_m(25-44) 25.760  24.293 26.976
+window 1955            R16(25-44) 29.824  28.566 31.146
+window 1955         covered 35-49  1.000     NaN    NaN
+window 1955            P_m(35-49) 24.849  23.334 26.278
+window 1955            R16(35-49) 29.617  27.914 31.188
+window 1955 P_m(25-44) - P_m(45+)  3.517   1.540  5.414
+window 1955 R16(25-44) - R16(45+)  0.661  -1.512  2.749
+window 1960           covered 45+  1.000     NaN    NaN
+window 1960              P_m(45+) 21.647  20.009 23.295
+window 1960              R16(45+) 29.408  27.622 31.120
+window 1960         covered 25-44  1.000     NaN    NaN
+window 1960            P_m(25-44) 26.939  25.553 28.253
+window 1960            R16(25-44) 31.731  30.440 33.133
+window 1960         covered 35-49  1.000     NaN    NaN
+window 1960            P_m(35-49) 26.714  24.928 28.399
+window 1960            R16(35-49) 30.963  29.143 32.746
+window 1960 P_m(25-44) - P_m(45+)  5.291   2.933  7.291
+window 1960 R16(25-44) - R16(45+)  2.323   0.089  4.610
+window 1965           covered 45+  1.000     NaN    NaN
+window 1965              P_m(45+) 22.552  20.520 24.790
+window 1965              R16(45+) 32.616  30.190 35.151
+window 1965         covered 25-44  1.000     NaN    NaN
+window 1965            P_m(25-44) 23.923  22.275 25.635
+window 1965            R16(25-44) 29.987  28.554 31.724
+window 1965         covered 35-49  1.000     NaN    NaN
+window 1965            P_m(35-49) 25.199  23.253 27.469
+window 1965            R16(35-49) 31.364  29.332 33.676
+window 1965 P_m(25-44) - P_m(45+)  1.371  -1.270  4.143
+window 1965 R16(25-44) - R16(45+) -2.629  -5.219  0.426
+window 1970           covered 45+  1.000     NaN    NaN
+window 1970              P_m(45+) 23.163  20.443 25.797
+window 1970              R16(45+) 32.011  29.213 35.161
+window 1970         covered 25-44  1.000     NaN    NaN
+window 1970            P_m(25-44) 21.265  19.724 22.928
+window 1970            R16(25-44) 27.898  26.183 29.635
+window 1970         covered 35-49  1.000     NaN    NaN
+window 1970            P_m(35-49) 22.382  20.385 24.718
+window 1970            R16(35-49) 30.217  28.105 32.439
+window 1970 P_m(25-44) - P_m(45+) -1.898  -4.854  1.452
+window 1970 R16(25-44) - R16(45+) -4.113  -7.430 -0.731
+window 1975           covered 45+  0.000     NaN    NaN
+window 1975              P_m(45+) 16.915  13.139 21.376
+window 1975              R16(45+) 27.641  23.214 32.832
+window 1975         covered 25-44  1.000     NaN    NaN
+window 1975            P_m(25-44) 19.094  17.576 20.830
+window 1975            R16(25-44) 27.046  25.217 29.215
+window 1975         covered 35-49  1.000     NaN    NaN
+window 1975            P_m(35-49) 17.580  15.493 19.580
+window 1975            R16(35-49) 27.777  25.344 30.125
+window 1975 P_m(25-44) - P_m(45+)  2.178  -2.366  6.667
+window 1975 R16(25-44) - R16(45+) -0.595  -5.528  4.271
