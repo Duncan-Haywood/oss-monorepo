@@ -923,6 +923,20 @@ function atRate(ps, texts) {
   return out;
 }
 
+// A whole-unit total that ends in 00 and one more digit ("Total 6.008", "Total 31.508") is a
+// last 0 that OCR read as 8, 6, 9 or 3, or the amount before rounding ("Before Rounding 110,003"
+// over a total of 110,000, CORD train-400): 8 of CORD's 972 labelled totals end that way,
+// against 604 that end in 000. Taken as the amount with that digit a 0 when some reading prints that
+// amount on any line (an item line's "6.000", another reading's total), so a real 6,008 that
+// no reading shows as 6,000 stands (CORD train shards 1-3, eval/cord-train-shards-2026-11-17.md).
+function zeroLastDigit(cents, texts) {
+  if (!(cents > 0) || cents % 100 || !texts.some((x) => wholeStyle(x))) return null;
+  const u = cents / 100, d = u % 10;
+  if (u < 1000 || d === 0 || Math.floor(u / 10) % 100 !== 0) return null;
+  const z = (u - d) * 100;
+  return texts.some((x) => wholeStyle(x) && x.split(/\r?\n/).some((l) => amountsIn(l, "whole").includes(z))) ? z : null;
+}
+
 // One receipt read by OCR more than once (two page-segmentation modes, or two
 // engines): the first reading is the default; a field the readings disagree on
 // takes the reading the receipt's own arithmetic confirms. A total confirmed by
@@ -951,6 +965,13 @@ export function parseReceiptPasses(texts, opts = {}) {
   if (fixed !== null) {
     out.notes = [...out.notes.filter((n) => !/total|items add/i.test(n)), `OCR readings read the total as ${[...new Set(ps.filter((p) => p.totalLine && p.cents > 0).map((p) => (p.cents / 100).toFixed(2)))].join(" and ")}, which no check confirms; took ${(fixed / 100).toFixed(2)}, which the receipt's own sums give (one digit from a total line): check the total`];
     Object.assign(out, { cents: fixed, totalLine: null, itemsOk: false });
+  }
+  const zero = ps.length >= 3 ? zeroLastDigit(out.cents, texts.filter((t) => String(t ?? "").trim()).map((t) => cleanOcr(String(t)))) : null;
+  if (zero !== null) {
+    out.notes = [...out.notes.filter((n) => !/total|items add/i.test(n)), `the total read as ${out.cents / 100} ends in 00${(out.cents / 100) % 10}, which a whole-unit slip rarely prints; took ${zero / 100}, which the readings also print: check the total`];
+    // the read total line with that last digit a 0, so the page's settled text reads it back
+    const line = out.totalLine && /\d(?=\D*$)/.test(out.totalLine) ? out.totalLine.replace(/\d(?=\D*$)/, "0") : null;
+    Object.assign(out, { cents: zero, itemsOk: false, totalLine: line });
   }
   const tax = voteTax(ps, out, pick, ps.length >= 3 ? texts.filter((t) => String(t ?? "").trim()).map((t) => cleanOcr(String(t))) : []);
   if (tax !== out.taxCents) {

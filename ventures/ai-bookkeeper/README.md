@@ -2912,6 +2912,20 @@ SRD 155 to 156; CORD text train 749 to 761 and test 92 to 93; SROIE unchanged. D
 [`eval/cord-train-photos-2026-11-17.md`](eval/cord-train-photos-2026-11-17.md).
 Tests: `cord-train-photos.test.mjs`.
 
+### CORD train shards 1-3: 600 more unseen photos (2026-11-17)
+
+The other three CORD train shards, read for the first time, score 356 of 583 totals (61.1%)
+through the CLI, in line with shard 0 and test: the unseen-photo rate holds near 60%. Two
+changes, written from their misses only: a whole-unit total ending in `00` and one digit
+(`Total 6.008`) is the amount ending `000` when a reading prints it (8 of CORD's 972 totals end
+that way, 604 in `000`); and the page writes a rupiah total with no line of its own as
+`Total 110,000`, not `Total 110000.00`, which the slip read back as another amount. Train photos
+356 to 362 (CLI) and 341 to 357 (page); validation page 67 to 70; held-out test, scored once,
+55 to 56 (CLI) and 53 to 55 (page); CORD text unchanged. A fifth reading of the bottom half of
+the photo found the total on 5 of 149 OCR-bound misses, so it was dropped. Details:
+[`eval/cord-train-shards-2026-11-17.md`](eval/cord-train-shards-2026-11-17.md).
+Tests: `cord-train-shards.test.mjs`.
+
 ### A change line read as HANGE, a stray TL, a total under its subtotal (2026-11-17)
 
 SRD 1022 read 7.07 for 37.37. Three narrow fixes, each needed: the change line is also found
