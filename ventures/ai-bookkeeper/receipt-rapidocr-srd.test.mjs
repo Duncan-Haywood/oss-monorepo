@@ -34,3 +34,14 @@ test("no shift when the total read already closes, or when the sum is a printed 
   // an earlier Total above a printed gratuity: the last total line stands
   assert.equal(parseReceipt("Subtotal  50.05\n5.46\nTax\n55.51\nTotal  9.01\nGratuity 18.00%  64.52\nTotal\nBalance Due  64.52").cents, 6452);
 });
+
+test("a printed gratuity between tax and total is part of the total, not a misread digit", () => {
+  // the shape of SRD 1149 as the page's RapidOCR reads it (eval/rapidocr-web-srd-2026-11-17.md):
+  // subtotal plus tax is 4.29, one digit from 5.29, and used to replace the right total
+  const p = parseReceipt("1No Beverage  0.00\n1 Milk Shake  3.99\nSubTotal  3.99\nTax  0.30\nGratuity  1.00\nTotal  5.29");
+  assert.equal(p.cents, 529);
+  assert.equal(p.tipCents, 100);
+  // a real misread still corrects: no gratuity line, two checks one digit from the total
+  const q = parseReceipt("1No Beverage  0.00\n1 Milk Shake  3.99\nSubTotal  3.99\nTax  0.30\nTotal  5.29");
+  assert.equal(q.cents, 429);
+});
