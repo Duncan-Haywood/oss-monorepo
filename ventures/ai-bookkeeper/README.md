@@ -2996,6 +2996,22 @@ photos (SRD) 186 to 188 of 196, tax 163 to 161. The five-reading mode now matche
 RapidOCR alone on totals in every set and keeps most of the four readings' tax gain. Details:
 [`eval/lead-vote-2026-11-17.md`](eval/lead-vote-2026-11-17.md). Tests: `receipt-lead-vote.test.mjs`.
 
+### The page keeps a rupiah tax the readings agree on; a total subtotal plus PAJAK gives stands (2026-11-17)
+
+CORD train shard 0 (200 photos the RapidOCR rules and the lead rule never saw) through RapidOCR
+and tesseract's four readings showed two faults. The page wrote the tax the five readings agreed
+on as `Tax 8728.00`, which a rupiah slip does not read back as 8,728, so it dropped the tax
+silently: on every CORD photo set the page's tax was exactly RapidOCR's alone. It now writes
+`Tax 8,728` on such a slip. Page tax: shards 1-3 177 to **205** of 267, validation 36 to **41**
+of 47, held-out test 28 to **31** of 41 (two of the three wrong, as the CLI's are), shard 0 63 to
+69 of 85. And a real total of 17,001 (subtotal 15,455 plus `PAJAK 10% 1,546`) was "fixed" to the
+17,000 paid by card under it, because `pajak` and `ppn` were not tax words for the arithmetic
+check; they are now, and the zero-last-digit fix stands aside when the receipt's sums give the
+total. Totals: shard 0 175 to 177, shards 1-3 542 to 543. US photos (SRD) and CORD's text do not
+move; the `voteTax` guard of the SRD run moves nothing on CORD. Details:
+[`eval/cord-shard0-lead-2026-11-17.md`](eval/cord-shard0-lead-2026-11-17.md). Tests:
+`receipt-shard0.test.mjs`.
+
 ### CORD train shards 1-3: 600 more unseen photos (2026-11-17)
 
 The other three CORD train shards, read for the first time, score 356 of 583 totals (61.1%)

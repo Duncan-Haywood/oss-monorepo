@@ -275,18 +275,17 @@ function settleTax(settled, readings, lead = false) {
   if (t.length < 2 || !settled.text) return settled;
   const both = parseReceiptPasses(t, { lead }), now = parseReceipt(settled.text);
   if (both.taxCents === null || both.taxCents === now.taxCents || now.cents !== both.cents) return settled;
-  const line = `Tax ${(both.taxCents / 100).toFixed(2)}`;
   const lines = settled.text.split("\n");
-  let at = now.taxLine ? lines.findLastIndex((l) => l.trim() === now.taxLine.trim()) : -1;
-  let out;
-  if (at >= 0) out = [...lines.slice(0, at), line, ...lines.slice(at + 1)];
-  else {
-    at = now.totalLine ? lines.findLastIndex((l) => l.trim() === now.totalLine.trim()) : -1;
-    out = at >= 0 ? [...lines.slice(0, at), line, ...lines.slice(at)] : [...lines, line];
-  }
-  const text = out.join("\n");
-  const back = parseReceipt(text);
-  if (back.taxCents !== both.taxCents || back.cents !== now.cents) return settled;
+  const taxAt = now.taxLine ? lines.findLastIndex((l) => l.trim() === now.taxLine.trim()) : -1;
+  const totalAt = now.totalLine ? lines.findLastIndex((l) => l.trim() === now.totalLine.trim()) : -1;
+  const put = (line) => (taxAt >= 0 ? [...lines.slice(0, taxAt), line, ...lines.slice(taxAt + 1)] : totalAt >= 0 ? [...lines.slice(0, totalAt), line, ...lines.slice(totalAt)] : [...lines, line]).join("\n");
+  const reads = (x) => { const b = parseReceipt(x); return b.taxCents === both.taxCents && b.cents === now.cents; };
+  let text = put(`Tax ${(both.taxCents / 100).toFixed(2)}`);
+  // on a whole-unit slip (rupiah) "Tax 8728.00" does not read back as 8,728: write it in the
+  // slip's own style, as settleTotals does a total. The page kept none of the 7 taxes the
+  // other readings added on CORD train shard 0 before this (eval/cord-shard0-lead-2026-11-17.md)
+  if (!reads(text) && both.taxCents >= 100 && both.taxCents % 100 === 0) text = put(`Tax ${(both.taxCents / 100).toLocaleString("en-US")}`);
+  if (!reads(text)) return settled;
   return { ...settled, text, taxNote: `tax read as ${now.taxCents === null ? "none" : (now.taxCents / 100).toFixed(2)} first; kept ${(both.taxCents / 100).toFixed(2)}, which the other readings or the receipt's own sums support: check it` };
 }
 
