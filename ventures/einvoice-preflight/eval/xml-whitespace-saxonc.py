@@ -68,15 +68,27 @@ for row in rows:
     truth = delta(row, "saxonc")
     if truth != (frozenset(), frozenset()):
         tally["saxonc changed"] += 1
-    if any(x.startswith("#ERROR") for x in truth[0]):
-        # Saxon stops on the file (a value no rule can cast); the plain route skips those
-        # rules instead. Counted apart: whether the plain route still flags something.
-        tally["saxonc aborts"] += 1
-        if not delta(row, "plainFixed")[0]:
-            tally["aborts, plain route adds no finding"] += 1
+    aborts = any(x.startswith("#ERROR") for x in truth[0])
+    plain_cast = "#ERROR cast" in delta(row, "plainFixed")[0]
+    if aborts or plain_cast:
+        # Saxon stops on the whole file (a value a rule cannot cast). Before 2026-11-17 the
+        # plain route only listed those rules as skipped; now run() adds XML-VALUE-01 at the
+        # fields unreadableValues() names (castFields). Counted apart from rule ids.
+        tally["saxonc aborts"] += aborts
+        if aborts and not delta(row, "plainBefore")[0] - {"#ERROR cast"}:
+            tally["aborts, plain route raised no rule before"] += 1
+        if aborts and plain_cast and row.get("castFields", 0) > 0:
+            tally["aborts, XML-VALUE-01 names the field"] += 1
+        elif aborts and plain_cast:
+            tally["aborts, XML-VALUE-01 with no field"] += 1
+        elif aborts:
+            tally["aborts the plain route does not see"] += 1
             aborts_silent[(row["field"], row["variant"])] += 1
+        else:
+            tally["plain cast failure, Saxon ran"] += 1
         continue
-    for key, label in (("plainBefore", "before"), ("plainFixed", "after"), ("saxonjs", "saxon-js")):
+    keys = (("plainBefore", "before"), ("plainFixed", "after")) + ((("saxonjs", "saxon-js"),) if "saxonjs" in row else ())
+    for key, label in keys:
         got = delta(row, key)
         if got != truth:
             tally[f"{label} differs"] += 1
@@ -95,6 +107,6 @@ print("raised by SaxonC, missed by the plain route before:", dict(missed_before.
 print("raised by SaxonC, missed after:", dict(missed_after.most_common()))
 print("raised after, not by SaxonC:", dict(extra_after.most_common()))
 print("Saxon-JS vs SaxonC, rule ids that differ:", dict(sjs_off.most_common()))
-print("aborts the plain route adds nothing for (field, variant):", dict(aborts_silent.most_common(12)))
+print("aborts the plain route does not see (field, variant):", dict(aborts_silent.most_common(12)))
 for e in examples:
     print("\t".join(map(str, e)))

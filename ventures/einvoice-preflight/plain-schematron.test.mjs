@@ -99,6 +99,28 @@ test("a no-break space is a character, not whitespace, as Saxon reads it", { ski
   assert.deepEqual([...old], [], "fontoxpath's own normalize-space and \\s take U+00A0");
 });
 
+test("a number or date with a no-break space is XML-VALUE-01, where Saxon stops on the file", { skip }, async () => {
+  const xml = read("peppol-credit-note.xml");
+  const clean = await runPlain(xml);
+  assert.ok(!clean.findings.some((f) => f.rule === "XML-VALUE-01"));
+  assert.ok(!("castFailed" in clean));
+  const cases = [
+    [xml.replace(/(<cbc:PayableAmount[^>]*>)/, "$1\u00A0"), "/CreditNote[1]/LegalMonetaryTotal[1]/PayableAmount[1]"],
+    [xml.replace(/(<cbc:PayableAmount[^>]*>[^<]+)/, "$1&#160;"), "/CreditNote[1]/LegalMonetaryTotal[1]/PayableAmount[1]"],
+    [xml.replace(/(<cbc:Percent>[^<]+)/, "$1\u202F"), "/CreditNote[1]/TaxTotal[1]/TaxSubtotal[1]/TaxCategory[1]/Percent[1]"],
+  ];
+  for (const [mutant, path] of cases) {
+    const r = await runPlain(mutant);
+    const f = r.findings.filter((x) => x.rule === "XML-VALUE-01");
+    assert.deepEqual(f.map((x) => [x.path, x.severity, x.source]), [[path, "fatal", "en16931-schematron"]], path);
+    assert.match(f[0].message, /U\+(00A0|202F)/);
+    assert.ok(!("castFailed" in r));
+  }
+  // A name with a no-break space is text, not a cast: nothing to report.
+  const name = await runPlain(xml.replace(/(<cbc:RegistrationName>[^<]+)/, "$1\u00A0"));
+  assert.ok(!name.findings.some((x) => x.rule === "XML-VALUE-01"));
+});
+
 // ---- the compiler -------------------------------------------------------------------
 const compileReady = (() => { try { createRequire(import.meta.url)("slimdom"); return true; } catch { return false; } })();
 

@@ -4,7 +4,7 @@
 // its \s in replace()/tokenize() also take U+00A0, so before 2026-11-17 the plain route
 // passed values every Saxon-based validator rejects. plain-schematron.mjs now rewrites
 // them (xmlWhitespaceRewrite); this measures both.
-//   node eval/xml-whitespace-crosscheck.mjs [--out DIR] [per-file] [seed] [dir ...]
+//   node eval/xml-whitespace-crosscheck.mjs [--out DIR] [--no-saxon-js] [per-file] [seed] [dir ...]
 // --out writes every mutant and its baseline with what each engine raised to DIR
 // (manifest.jsonl) for eval/xml-whitespace-saxonc.py, which re-runs them on SaxonC-HE:
 // Saxon-JS 2.x reads \s in a regex as JavaScript does (U+00A0 included), so it is the
@@ -21,10 +21,13 @@ import { createRequire } from "node:module";
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync, appendFileSync } from "node:fs";
 import { join } from "node:path";
 import { FILES, ADDONS, detectSyntax, matchingAddons, matchingProfile, parseSvrl } from "../schematron-core.mjs";
-import { createPlainRunner, PLAIN_ADDON_FILES } from "../plain-schematron.mjs";
+import { createPlainRunner, PLAIN_ADDON_FILES, unreadableValues } from "../plain-schematron.mjs";
 import { SEF_DIR } from "../schematron.mjs";
 
 const args = process.argv.slice(2);
+const sjsAt = args.indexOf("--no-saxon-js");
+const useSaxonJs = sjsAt < 0;
+if (!useSaxonJs) args.splice(sjsAt, 1);
 const outAt = args.indexOf("--out");
 const outDir = outAt >= 0 ? args.splice(outAt, 2)[1] : null;
 if (outDir) { mkdirSync(outDir, { recursive: true }); writeFileSync(join(outDir, "manifest.jsonl"), ""); }
@@ -59,6 +62,7 @@ const sets = (xml, syntax) => {
 };
 const saxonIds = (xml, s) => {
   const ids = new Set();
+  if (!useSaxonJs) return ids;
   // A dynamic error (an uncastable value in a rule) is its own outcome, not a pass.
   for (const [, sef] of s) {
     try {
@@ -67,10 +71,18 @@ const saxonIds = (xml, s) => {
   }
   return ids;
 };
+// "#ERROR cast": a rule could not cast a value, which the plain route's run() reports as
+// XML-VALUE-01 at the fields unreadableValues() names (castFields).
+let castFields = 0;
 const plainIds = (runner, xml, s) => {
   const doc = parseXmlDocument(xml);
   const ids = new Set();
-  for (const [rules] of s) for (const f of runner.runRules(rules, doc)) ids.add((f.text.match(/^\[([^\]]+)\]/) || [])[1] || f.rule);
+  for (const [rules] of s) {
+    const out = runner.runRules(rules, doc);
+    if (out.castFailed) ids.add("#ERROR cast");
+    for (const f of out) ids.add((f.text.match(/^\[([^\]]+)\]/) || [])[1] || f.rule);
+  }
+  if (ids.has("#ERROR cast")) castFields = unreadableValues(fontoxpath.evaluateXPathToNodes("//*[not(*)] | //@*", doc, null, null, {})).length;
   return ids;
 };
 const delta = (now, base) => [...now].filter((x) => !base.has(x)).sort().join(" ") + " / -" + [...base].filter((x) => !now.has(x)).sort().join(" -");
@@ -102,7 +114,7 @@ for (const dir of dirs) {
     const sx0 = saxonIds(xml, s), pf0 = plainIds(fixed, xml, s), pb0 = plainIds(before, xml, s);
     const sef = s.map(([, p]) => p.split("/").pop().replace(".sef.json", ""));
     const baseFile = written;
-    record(xml, { source: name, base: null, sets: sef, saxonjs: list(sx0), plainFixed: list(pf0), plainBefore: list(pb0) });
+    record(xml, { source: name, base: null, sets: sef, ...(useSaxonJs ? { saxonjs: list(sx0) } : {}), plainFixed: list(pf0), plainBefore: list(pb0) });
     const fields = [...xml.matchAll(FIELD)].filter((m) => m[4].trim() && !/EmbeddedDocument|AttachmentBinaryObject/.test(m[2]));
     for (let k = fields.length - 1; k > 0; k--) { const j = Math.floor(rand() * (k + 1)); [fields[k], fields[j]] = [fields[j], fields[k]]; }
     for (const m of fields.slice(0, perFile)) {
@@ -112,8 +124,9 @@ for (const dir of dirs) {
         const at = m.index + m[0].length - `</${m[1] ?? ""}${m[2]}>`.length - m[4].length;
         const mutant = xml.slice(0, at) + text + xml.slice(at + m[4].length);
         tally.mutants++;
+        castFields = 0;
         const sxIds = saxonIds(mutant, s), pfIds = plainIds(fixed, mutant, s), pbIds = plainIds(before, mutant, s);
-        record(mutant, { source: name, base: baseFile, field: m[2], variant, sets: sef, saxonjs: list(sxIds), plainFixed: list(pfIds), plainBefore: list(pbIds) });
+        record(mutant, { source: name, base: baseFile, field: m[2], variant, sets: sef, ...(useSaxonJs ? { saxonjs: list(sxIds) } : {}), plainFixed: list(pfIds), plainBefore: list(pbIds), castFields });
         const sx = delta(sxIds, sx0);
         const pf = delta(pfIds, pf0);
         const pb = delta(pbIds, pb0);

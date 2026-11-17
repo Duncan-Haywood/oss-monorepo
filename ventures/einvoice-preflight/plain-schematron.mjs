@@ -198,6 +198,28 @@ function locate(node) {
   return `/${parts.join("/")}`;
 }
 
+const CAST_ERROR = /FORG0001|FOCA0002/;
+// Unicode space separators, U+0085, U+FEFF and zero-width spaces: what JavaScript's trim()
+// or \s takes (or a copy-paste leaves) and XML does not count as whitespace.
+const NON_XML_SPACE = /[\u0085\u00A0\u1680\u2000-\u200B\u2028\u2029\u202F\u205F\u3000\uFEFF]/;
+const CASTABLE = /^(?:[+-]?(?:\d+(?:\.\d*)?|\.\d+)|\d{4}-\d{2}-\d{2}|\d{8}|true|false)$/;
+const NAMES = { "\u00A0": "no-break space (U+00A0)", "\u202F": "narrow no-break space (U+202F)", "\uFEFF": "zero-width no-break space (U+FEFF)", "\u200B": "zero-width space (U+200B)", "\u3000": "ideographic space (U+3000)" };
+const spaceName = (v) => { const c = v.match(NON_XML_SPACE)?.[0] ?? ""; return NAMES[c] ?? `non-XML space (U+${c.codePointAt(0)?.toString(16).toUpperCase().padStart(4, "0")})`; };
+const visibleSpaces = (v) => v.replace(new RegExp(NON_XML_SPACE.source, "g"), (c) => `[U+${c.codePointAt(0).toString(16).toUpperCase().padStart(4, "0")}]`);
+// Leaf values that are a number, date or boolean once JavaScript trims them but not once
+// XML does: the values a rule's cast fails on.
+export function unreadableValues(nodes) {
+  const out = [];
+  for (const n of nodes) {
+    const value = n.nodeType === 2 ? n.value : n.textContent;
+    if (!value || !NON_XML_SPACE.test(value)) continue;
+    const js = value.trim();
+    const xml = value.replace(/^[ \t\n\r]+|[ \t\n\r]+$/g, "");
+    if (CASTABLE.test(js) && !CASTABLE.test(xml)) out.push({ path: locate(n), value });
+  }
+  return out;
+}
+
 // One registration per fontoxpath module (Node's and the page's bundle are separate copies).
 const registered = new WeakSet();
 function registerXmlWhitespace(fontoxpath) {
@@ -241,7 +263,8 @@ export function createPlainRunner({ fontoxpath, parseXml, xmlWhitespace = true }
         let nodes;
         try {
           nodes = evaluateXPathToNodes(select, doc, null, null, xpath);
-        } catch {
+        } catch (e) {
+          if (CAST_ERROR.test(String(e?.message))) out.castFailed = true;
           for (const check of rule.checks) if (!out.skipped.includes(check.id)) out.skipped.push(check.id);
           continue;
         }
@@ -253,8 +276,10 @@ export function createPlainRunner({ fontoxpath, parseXml, xmlWhitespace = true }
             let ok;
             try {
               ok = holds(check.test, node, check.xq);
-            } catch {
-              // an engine limit (not a pass): name the rule so the caller can say it was not checked
+            } catch (e) {
+              // an engine limit (not a pass): name the rule so the caller can say it was not checked.
+              // A value no rule can cast is not an engine limit: Saxon stops on it too (see below).
+              if (CAST_ERROR.test(String(e?.message))) out.castFailed = true;
               if (!out.skipped.includes(check.id)) out.skipped.push(check.id);
               continue;
             }
@@ -291,21 +316,47 @@ export function createPlainRunner({ fontoxpath, parseXml, xmlWhitespace = true }
 
   // load(file) -> compiled rule set (parsed JSON) or null when that set is not shipped.
   // opts.profile ("france") adds the add-on that profile names (schematron-core.mjs).
+  // A value with a no-break space (or another non-XML space) around a number or date cannot
+  // be cast: Saxon, and so every Java validator (Peppol access points, KoSIT), stops on the
+  // whole file with FORG0001, and fontoxpath throws on each rule that casts it. Rules that
+  // throw are listed as skipped, which read as "not checked here" while the receiver
+  // rejects the file. When a cast failed, name the field(s) as one fatal finding.
   async function run(xml, load, opts = {}) {
+    const result = await runSets(xml, load, opts);
+    if (!result.castFailed) return result;
+    const { castFailed, ...rest } = result;
+    let doc;
+    try { doc = parseXml(xml.replace(/^\uFEFF/, "")); } catch { return rest; }
+    const fields = unreadableValues(evaluateXPathToNodes("//*[not(*)] | //@*", doc, null, null, {}));
+    const where = fields.length ? fields : [{ path: "/", value: "" }];
+    const extra = where.map(({ path, value }) => ({
+      rule: "XML-VALUE-01",
+      message: value
+        ? `"${visibleSpaces(value)}" holds a ${spaceName(value)}, so it is not a valid number or date in XML. The official validators (Saxon) stop on the whole file here (FORG0001) and report no rule.`
+        : "A value in this file cannot be read as the number or date a rule expects, so the official validators (Saxon) stop on the whole file (FORG0001) and report no rule.",
+      fix: "Write the value with no space characters other than an ordinary space, tab or line break at its ends (no no-break space, U+00A0, or similar). Spreadsheets and copied text often add one.",
+      path,
+      severity: "fatal",
+      source: castFailed,
+    }));
+    return { ...rest, findings: [...extra, ...rest.findings] };
+  }
+
+  async function runSets(xml, load, opts = {}) {
     const syntax = detectSyntax(xml);
     if (syntax === "cdar") {
       // A French life-cycle message (CDAR) is not an invoice: FNFE-MPE's BR-FR-CDV set alone.
       const rules = await load(CDAR_FILE);
       if (!rules) return { status: "unavailable", syntax, findings: [], sets: [] };
       const raw = runRules(rules, parseXml(xml.replace(/^\uFEFF/, "")));
-      return { status: "ok", syntax, findings: raw.map((x) => toFinding(x, "cdar-fr-schematron")), sets: ["cdar-fr"], skipped: raw.skipped };
+      return { status: "ok", syntax, findings: raw.map((x) => toFinding(x, "cdar-fr-schematron")), sets: ["cdar-fr"], skipped: raw.skipped, ...(raw.castFailed ? { castFailed: "cdar-fr-schematron" } : {}) };
     }
     if (syntax === "flux10") {
       // A French e-reporting file (Flux 10) is not an invoice: FNFE-MPE's Flux 10 set alone.
       const rules = await load(FLUX10_FILE);
       if (!rules) return { status: "unavailable", syntax, findings: [], sets: [] };
       const raw = runRules(rules, parseXml(xml.replace(/^\uFEFF/, "")));
-      return { status: "ok", syntax, findings: raw.map((x) => toFinding(x, "flux10-fr-schematron")), sets: ["flux10-fr"], skipped: raw.skipped };
+      return { status: "ok", syntax, findings: raw.map((x) => toFinding(x, "flux10-fr-schematron")), sets: ["flux10-fr"], skipped: raw.skipped, ...(raw.castFailed ? { castFailed: "flux10-fr-schematron" } : {}) };
     }
     const profile = syntax && matchingProfile(xml, syntax);
     if (profile) {
@@ -317,14 +368,16 @@ export function createPlainRunner({ fontoxpath, parseXml, xmlWhitespace = true }
       const findings = [];
       const skipped = [];
       const seen = new Set();
+      let castFailed = false;
       for (const rules of sets) {
         const raw = runRules(rules, doc);
         skipped.push(...raw.skipped);
+        castFailed ||= raw.castFailed;
         for (const f of raw.map((x) => toFinding(x, profile[1].source))) {
           if (!seen.has(`${f.rule}|${f.path}`)) { seen.add(`${f.rule}|${f.path}`); findings.push(f); }
         }
       }
-      return { status: "ok", syntax, findings, sets: [profile[0]], skipped };
+      return { status: "ok", syntax, findings, sets: [profile[0]], skipped, ...(castFailed ? { castFailed: profile[1].source } : {}) };
     }
     // A national add-on built on an older EN 16931 release (CIUS-RO on 1.3.8) gets that
     // release as its base, as its own validator runs it; a copy without that file falls
@@ -344,6 +397,8 @@ export function createPlainRunner({ fontoxpath, parseXml, xmlWhitespace = true }
     const baseRaw = runRules(base, doc);
     const findings = baseRaw.map((f) => toFinding(f, extended ? extended[1].source : "en16931-schematron"));
     const skipped = [...baseRaw.skipped];
+    const baseSource = extended ? extended[1].source : "en16931-schematron";
+    let castFailed = baseRaw.castFailed ? baseSource : null;
     const sets = [baseName];
     const seen = new Set(findings.map((f) => `${f.rule}|${f.path}`));
     for (const [name, addon] of matchingAddons(xml, syntax, opts)) {
@@ -354,11 +409,12 @@ export function createPlainRunner({ fontoxpath, parseXml, xmlWhitespace = true }
       if (name === "cius-hr") for (const f of findings) if (Object.hasOwn(HR_REQUIRED, f.rule)) f.fix = HR_REQUIRED[f.rule];
       const raw = runRules(rules, doc);
       skipped.push(...raw.skipped);
+      if (raw.castFailed) castFailed ||= addon.source;
       for (const f of raw.map((x) => toFinding(x, addon.source))) {
         if (!seen.has(`${f.rule}|${f.path}`)) findings.push(f);
       }
     }
-    return { status: "ok", syntax, findings, sets, skipped };
+    return { status: "ok", syntax, findings, sets, skipped, ...(castFailed ? { castFailed } : {}) };
   }
 
   return { run, runRules };
