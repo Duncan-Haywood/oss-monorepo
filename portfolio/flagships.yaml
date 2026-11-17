@@ -240,10 +240,10 @@ flagships:
       History: README, eval/*. Hub, clock (PINs, geofence), PAY_RULES (NV, 13 meal
       states), leave accrual (LEAVE_ACCRUAL), fair-workweek log and pay
       (FAIR_WORKWEEK; team-offer exception, on-call shifts, Oregon's standby list,
-      PHL, LA, NYC, SF, Emeryville presets; next a real site's changes): next live
-      deploy, real punches at a site. Exact side: branch-and-price and column
-      generation prove 20-80 person weeks; the exact check is on by default at every
-      size. Forecast side (--from-sales, eight real files,
+      PHL, LA, NYC, SF, Emeryville, Berkeley presets; next a real site's changes):
+      next live deploy, real punches at a site. Exact side: branch-and-price and
+      column generation prove 20-80 person weeks; the exact check is on by default
+      at every size. Forecast side (--from-sales, eight real files,
       eval/real-pos-exports.mjs): backtest, closure score, half-life auto, priced
       cut, tickets, labour standard, shut-door work, multi-file pastes. Posted
       weeks: reissues hold started and posted shifts; a whole week at the Deputy
