@@ -428,6 +428,12 @@ def _parse_cii(root: Any) -> dict[str, Any]:
             country=_text(party, f"{{{RAM}}}PostalTradeAddress", f"{{{RAM}}}CountryID"),
         )
         document[key].update(_cii_party_identifiers(party))
+    # BG-10 payee and BG-11 tax representative: only their schemed ids (cii.mjs).
+    for key, parent, tag in (("payee_party", settlement, "PayeeTradeParty"), ("tax_representative", agreement, "SellerTaxRepresentativeTradeParty")):
+        node = None if parent is None else parent.find(f"{{{RAM}}}{tag}")
+        side = {k: v for k, v in _cii_party_identifiers(node).items() if k != "endpoint"}
+        if side:
+            document[key] = side
 
     lines = [] if transaction is None else transaction.findall(f"{{{RAM}}}IncludedSupplyChainTradeLineItem")
     document["lines"] = [_parse_cii_line(line) for line in lines]
@@ -704,6 +710,9 @@ def to_checker_invoice(document: dict[str, Any]) -> dict[str, Any]:
         payment["terms_days"] = payment_src["terms_days"]
     if payment:
         invoice["payment"] = payment
+    for key in ("payee_party", "tax_representative"):
+        if isinstance(document.get(key), dict):
+            invoice[key] = document[key]
     return invoice
 
 

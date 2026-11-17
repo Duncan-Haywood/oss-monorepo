@@ -920,6 +920,7 @@ export function voteTax(ps, out, pick, texts = []) {
     if (t === null || (out.cents !== null && t > out.cents * 0.22)) return;
     const v = votes.get(t) ?? { score: closes(t) ? 2 : 0, first: p === pick ? -1 : i };
     v.score += 1;
+    v.n = (v.n ?? 0) + 1;
     votes.set(t, v);
   });
   let win = null;
@@ -937,8 +938,14 @@ export function voteTax(ps, out, pick, texts = []) {
   // is the rounding, not a misread digit, so the read tax stands
   const rounded = t !== null && out.cents !== null && t >= 10000 && t % 100 === 0 && out.cents % 100 === 0 && subs.some((s) => s % 100 === 0 && Math.abs(out.cents - s - t) === 100);
   // a tax one digit away from the settled total less a subtotal ("Tax: 8.21" where
-  // 42.16 less 38.95 is 3.21) was misread: the receipt's own arithmetic wins
-  if (t !== null && out.cents !== null && !rounded && !closes(t)) {
+  // 42.16 less 38.95 is 3.21) was misread: the receipt's own arithmetic wins.
+  // Not when three or more readings read the same tax and a service charge or gratuity is
+  // printed: then the gap holds more than the tax (SRD 1027: 42.75 less a 3.30 discount plus
+  // tax 1.86 is 41.31, plus a 3.00 gratuity 44.31; 44.31 less 42.75 is 1.56, one digit from
+  // the 1.86 all five readings give; eval/rapidocr-web-lead-srd-2026-11-17.md). With no such
+  // line, readings agreeing is no proof: tesseract repeats a misread digit across readings
+  const agreed = win && win.t === t && win.n >= 3 && svcs.length > 0;
+  if (t !== null && out.cents !== null && !rounded && !closes(t) && !agreed) {
     const near = [...new Set(subs.map((s) => out.cents - s))].filter((d) => d > 0 && oneDigitApart(d, t));
     if (near.length === 1) return near[0];
     // two subtotals one digit apart ("$28.48" in three readings, "$28.47" in one): the

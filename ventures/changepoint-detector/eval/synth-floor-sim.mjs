@@ -26,6 +26,7 @@ export function seedOf(base, cellIndex, rep) {
   return (x ^ (x >>> 16)) >>> 0 || 1;
 }
 
+if (process.argv[1]?.endsWith('synth-floor-sim.mjs')) {
 const reps = Number(process.argv[2] ?? 100);
 const base = Number(process.env.SC_SEED_BASE ?? 21000);
 const [si, sn] = (process.env.SC_SHARD ?? '0/1').split('/').map(Number);
@@ -41,4 +42,5 @@ for (const name of only) {
     const t = res.tests;
     console.log(JSON.stringify({ cell: name, rep: r, pRatio: t.ratio.p, pFloored: t.floored.p, pPost: t.post.p, effect: res.effectAverage, fitWarning: res.fitWarning, pre: res.preRmspe, floor: res.floor }));
   }
+}
 }

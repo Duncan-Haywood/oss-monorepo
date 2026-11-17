@@ -9,8 +9,8 @@
 // For each of the 15 schemes Peppol checks in these places, it draws ids
 // (check digits found by brute force against Peppol's own test, so the
 // generator shares no code with endpoint.mjs) and mutants of them, writes each
-// into one of eight places (seller or buyer, identifier or legal registration,
-// UBL or CII) of a shipped example file, then asks two questions of the same
+// into one of sixteen places (seller, buyer, payee or tax representative,
+// identifier or legal registration, UBL or CII) of a shipped example file, then asks two questions of the same
 // XML text: does Peppol's rule fire on that element (the COMMON rules of
 // plain/peppol-ubl.json or plain/peppol-cii.json, evaluated with fontoxpath on
 // a slimdom DOM, as plain-schematron.mjs runs them), and does
@@ -187,6 +187,17 @@ const PLACES = [
   { syntax: "cii", party: "customer", where: "party_ids", put: (s, v) => CII.replace("<ram:Name>Acheteur SARL</ram:Name>", `<ram:GlobalID schemeID="${s}">${esc(v)}</ram:GlobalID>$&`) },
   { syntax: "cii", party: "supplier", where: "legal_id", put: (s, v) => CII.replace("<ram:Name>Supplier GmbH</ram:Name>", `$&<ram:SpecifiedLegalOrganization><ram:ID schemeID="${s}">${esc(v)}</ram:ID></ram:SpecifiedLegalOrganization>`) },
   { syntax: "cii", party: "customer", where: "legal_id", put: (s, v) => CII.replace("<ram:Name>Acheteur SARL</ram:Name>", `$&<ram:SpecifiedLegalOrganization><ram:ID schemeID="${s}">${esc(v)}</ram:ID></ram:SpecifiedLegalOrganization>`) },
+  // BG-10 payee (BT-60 identifier, BT-61 legal registration) and BG-11 tax
+  // representative: Peppol's contexts match these elements wherever they sit
+  // (added 2026-11-17).
+  { syntax: "ubl", party: "payee_party", where: "party_ids", put: (s, v) => UBL.replace("</cac:AccountingCustomerParty>", `$&<cac:PayeeParty><cac:PartyIdentification><cbc:ID schemeID="${s}">${esc(v)}</cbc:ID></cac:PartyIdentification><cac:PartyName><cbc:Name>Factor AB</cbc:Name></cac:PartyName></cac:PayeeParty>`) },
+  { syntax: "ubl", party: "payee_party", where: "legal_id", put: (s, v) => UBL.replace("</cac:AccountingCustomerParty>", `$&<cac:PayeeParty><cac:PartyName><cbc:Name>Factor AB</cbc:Name></cac:PartyName><cac:PartyLegalEntity><cbc:CompanyID schemeID="${s}">${esc(v)}</cbc:CompanyID></cac:PartyLegalEntity></cac:PayeeParty>`) },
+  { syntax: "ubl", party: "tax_representative", where: "party_ids", put: (s, v) => UBL.replace("</cac:AccountingCustomerParty>", `$&<cac:TaxRepresentativeParty><cac:PartyIdentification><cbc:ID schemeID="${s}">${esc(v)}</cbc:ID></cac:PartyIdentification><cac:PartyName><cbc:Name>Fiscal Rep BV</cbc:Name></cac:PartyName><cac:PostalAddress><cac:Country><cbc:IdentificationCode>NL</cbc:IdentificationCode></cac:Country></cac:PostalAddress><cac:PartyTaxScheme><cbc:CompanyID>NL123456789B01</cbc:CompanyID><cac:TaxScheme><cbc:ID>VAT</cbc:ID></cac:TaxScheme></cac:PartyTaxScheme></cac:TaxRepresentativeParty>`) },
+  { syntax: "ubl", party: "tax_representative", where: "legal_id", put: (s, v) => UBL.replace("</cac:AccountingCustomerParty>", `$&<cac:TaxRepresentativeParty><cac:PartyName><cbc:Name>Fiscal Rep BV</cbc:Name></cac:PartyName><cac:PartyLegalEntity><cbc:RegistrationName>Fiscal Rep BV</cbc:RegistrationName><cbc:CompanyID schemeID="${s}">${esc(v)}</cbc:CompanyID></cac:PartyLegalEntity></cac:TaxRepresentativeParty>`) },
+  { syntax: "cii", party: "payee_party", where: "party_ids", put: (s, v) => CII.replace("<ram:InvoiceCurrencyCode>EUR</ram:InvoiceCurrencyCode>", `$&<ram:PayeeTradeParty><ram:GlobalID schemeID="${s}">${esc(v)}</ram:GlobalID><ram:Name>Factor AB</ram:Name></ram:PayeeTradeParty>`) },
+  { syntax: "cii", party: "payee_party", where: "legal_id", put: (s, v) => CII.replace("<ram:InvoiceCurrencyCode>EUR</ram:InvoiceCurrencyCode>", `$&<ram:PayeeTradeParty><ram:Name>Factor AB</ram:Name><ram:SpecifiedLegalOrganization><ram:ID schemeID="${s}">${esc(v)}</ram:ID></ram:SpecifiedLegalOrganization></ram:PayeeTradeParty>`) },
+  { syntax: "cii", party: "tax_representative", where: "party_ids", put: (s, v) => CII.replace("</ram:BuyerTradeParty>", `$&<ram:SellerTaxRepresentativeTradeParty><ram:GlobalID schemeID="${s}">${esc(v)}</ram:GlobalID><ram:Name>Fiscal Rep BV</ram:Name><ram:SpecifiedTaxRegistration><ram:ID schemeID="VA">NL123456789B01</ram:ID></ram:SpecifiedTaxRegistration></ram:SellerTaxRepresentativeTradeParty>`) },
+  { syntax: "cii", party: "tax_representative", where: "legal_id", put: (s, v) => CII.replace("</ram:BuyerTradeParty>", `$&<ram:SellerTaxRepresentativeTradeParty><ram:Name>Fiscal Rep BV</ram:Name><ram:SpecifiedLegalOrganization><ram:ID schemeID="${s}">${esc(v)}</ram:ID></ram:SpecifiedLegalOrganization></ram:SellerTaxRepresentativeTradeParty>`) },
 ];
 
 // The templates must be clean on both sides, or a finding could come from elsewhere.

@@ -23,6 +23,9 @@ inputs:
   fail-on-audit-warnings:
     description: '"true" also fails the step when the IDS audit warns that a specification is valid but probably does not check what was meant (an entity facet naming an abstract class such as IFCBUILDINGELEMENT selects nothing; a value no enumeration member can equal). Off by default: a warning annotation on the specification''s line in the IDS file either way.'
     default: 'false'
+  fail-on-duplicate-globalids:
+    description: '"true" also fails the step when two elements of a model share a GlobalId (IFC requires them unique; BCF viewpoints and model diffs find elements by it). Off by default: a warning annotation on the model either way.'
+    default: 'false'
   junit:
     description: Path for a JUnit XML report (empty for none).
     default: ids-report.xml
@@ -60,6 +63,9 @@ outputs:
   audit-warnings:
     description: IDS audit warnings, counted once per IDS file and specification however many models it was checked against.
     value: ${{ steps.check.outputs.audit-warnings }}
+  duplicate-globalids:
+    description: GlobalIds shared by more than one element, counted once per model however many IDS files it was checked against.
+    value: ${{ steps.check.outputs.duplicate-globalids }}
 runs:
   using: composite
   steps:
@@ -76,6 +82,7 @@ runs:
         IDS_MAX_FAILURES: ${{ inputs.max-failures }}
         IDS_FAIL_ON_UNCHECKED: ${{ inputs.fail-on-unchecked }}
         IDS_FAIL_ON_AUDIT: ${{ inputs.fail-on-audit-warnings }}
+        IDS_FAIL_ON_DUPLICATES: ${{ inputs.fail-on-duplicate-globalids }}
       run: |
         major=$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo 0)
         if [ "$major" -lt 18 ]; then echo "::error title=IDS model check::needs Node 18 or newer (add actions/setup-node before this step)"; exit 2; fi
@@ -85,4 +92,5 @@ runs:
         [ -n "$IDS_JSON" ] && set -- "$@" --json "$IDS_JSON"
         [ "$IDS_FAIL_ON_UNCHECKED" = "true" ] && set -- "$@" --fail-on-unchecked
         [ "$IDS_FAIL_ON_AUDIT" = "true" ] && set -- "$@" --fail-on-audit-warnings
+        [ "$IDS_FAIL_ON_DUPLICATES" = "true" ] && set -- "$@" --fail-on-duplicate-globalids
         node "$GITHUB_ACTION_PATH/ci-cli.mjs" "$@"

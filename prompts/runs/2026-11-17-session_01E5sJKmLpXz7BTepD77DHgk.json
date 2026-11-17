@@ -1,0 +1,308 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKmLpXz7BTepD77DHgk",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T14:13:09Z",
+  "ended": "2026-11-17T14:13:32Z",
+  "wall_minutes": 6.25,
+  "tokens_in": 3801520,
+  "tokens_out": 23596,
+  "cost_usd": 1.9919,
+  "tool_calls": 40,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16963",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 lists 11 open entries, all control-plane follow-ups needing owner approval; a red-team run can do nothing with them, yet must read and judge each one. A filter for entries an ordinary session can patch would save time."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 asks to fix open entries first; all 11 are control-plane (workflows, prompts/) needing their own owner-approved PRs.",
+      "did": "Left them untouched and went straight to the campaign.",
+      "result": "Run time went to the target, where 4 real defects were found and fixed."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-red-teaming-the-exact-test-calculator.md"
+  ],
+  "goal": null,
+  "notes": "Target: ventures/contingency-table-tests/engine.mjs (merged same day, #16955). Guard added: fuzz test in engine.test.mjs (300 random inputs, fails on NaN/undefined in summary or report); verified it fails on the pre-fix engine. Verification: node --test in the venture, 54 pass 0 fail; check_post_frontmatter, check_post_links, post_similarity clean.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/contingency-table-tests/engine.mjs",
+        "test": "node --test ventures/contingency-table-tests/**/*.test.mjs  (in .)",
+        "seed": 285181657,
+        "commit": "09fff047f",
+        "sites": 1480,
+        "baseline_seconds": 9.2,
+        "mutants": [
+          {
+            "file": "ventures/contingency-table-tests/engine.mjs",
+            "line": 270,
+            "col": 117,
+            "operator": "plus-to-minus",
+            "before": "x = (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1);",
+            "after": "x = (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q - d[3]) * q + 1);",
+            "line_text": "    x = (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1);",
+            "caught": true,
+            "seconds": 9.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/contingency-table-tests/engine.mjs",
+            "line": 273,
+            "col": 31,
+            "operator": "times-to-div",
+            "before": "x = -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1);",
+            "after": "x = -(((((c[0] * q + c[1]) / q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1);",
+            "line_text": "    x = -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1);",
+            "caught": false,
+            "seconds": 9.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "normppf's upper-tail branch (p > 0.97575) runs only for confidence above 95.15%; no test asked for a 99% interval. Guard: normppf(0.995), normppf(0.999)."
+          },
+          {
+            "file": "ventures/contingency-table-tests/engine.mjs",
+            "line": 338,
+            "col": 23,
+            "operator": "const-plus-one",
+            "before": "const lim = d[ix] * (1 + 1e-7);",
+            "after": "const lim = d[ix] * (2 + 1e-7);",
+            "line_text": "  const lim = d[ix] * (1 + 1e-7);",
+            "caught": true,
+            "seconds": 10.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/contingency-table-tests/engine.mjs",
+            "line": 374,
+            "col": 23,
+            "operator": "const-plus-one",
+            "before": "const left = i === 0 ? -Infinity : vals[i - 1], right = i === G ? -Infinity : vals[i + 1];",
+            "after": "const left = i === 1 ? -Infinity : vals[i - 1], right = i === G ? -Infinity : vals[i + 1];",
+            "line_text": "    const left = i === 0 ? -Infinity : vals[i - 1], right = i === G ? -Infinity : vals[i + 1];",
+            "caught": false,
+            "seconds": 9.6,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Treating grid point 1 as having no left neighbour only adds a candidate peak to refine; the grid maximum is always a peak and is refined first, and best is a max over candidates, so the p-value cannot fall."
+          },
+          {
+            "file": "ventures/contingency-table-tests/engine.mjs",
+            "line": 434,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "for (let s = 0; s <= n1 + n2; s++) {",
+            "after": "for (let s = 1; s <= n1 + n2; s++) {",
+            "line_text": "  for (let s = 0; s <= n1 + n2; s++) {",
+            "caught": false,
+            "seconds": 9.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Skipping s = 0 leaves P[0][0] undefined, so the all-zero-events table drops out of every Boschloo region and [[0,5],[0,7]] reads p = 0. Guard: a no-events table must give p = 1 for all exact tests."
+          },
+          {
+            "file": "ventures/contingency-table-tests/engine.mjs",
+            "line": 446,
+            "col": 13,
+            "operator": "const-plus-one",
+            "before": "if (n1 === 0 || n2 === 0) return { statistic: NaN, p: NaN };",
+            "after": "if (n1 === 1 || n2 === 0) return { statistic: NaN, p: NaN };",
+            "line_text": "  if (n1 === 0 || n2 === 0) return { statistic: NaN, p: NaN };",
+            "caught": true,
+            "seconds": 9.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/contingency-table-tests/engine.mjs",
+            "line": 505,
+            "col": 32,
+            "operator": "minus-to-plus",
+            "before": "const lo = Math.max(0, left - suffix[i + 1]), hi = Math.min(caps[i], left);",
+            "after": "const lo = Math.max(0, left + suffix[i + 1]), hi = Math.min(caps[i], left);",
+            "line_text": "    const lo = Math.max(0, left - suffix[i + 1]), hi = Math.min(caps[i], left);",
+            "caught": true,
+            "seconds": 2.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/contingency-table-tests/engine.mjs",
+            "line": 676,
+            "col": 35,
+            "operator": "div-to-times",
+            "before": "phi: den > 0 ? (a * d - b * c) / den : NaN,",
+            "after": "phi: den > 0 ? (a * d - b * c) * den : NaN,",
+            "line_text": "    phi: den > 0 ? (a * d - b * c) / den : NaN,",
+            "caught": false,
+            "seconds": 9.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "phi was never checked against a value. Guard: phi = 0.5 on [[30,10],[10,30]] and phi^2 = chi2/n."
+          },
+          {
+            "file": "ventures/contingency-table-tests/engine.mjs",
+            "line": 844,
+            "col": 43,
+            "operator": "and-to-or",
+            "before": "if (si < 0 && opts.stratum === undefined && free.length) si = free.shift();",
+            "after": "if (si < 0 && opts.stratum === undefined || free.length) si = free.shift();",
+            "line_text": "  if (si < 0 && opts.stratum === undefined && free.length) si = free.shift();",
+            "caught": true,
+            "seconds": 9.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/contingency-table-tests/engine.mjs",
+            "line": 980,
+            "col": 70,
+            "operator": "or-to-and",
+            "before": "x.residuals.forEach((row, i) => row.forEach((v, j) => { if (!best || Math.abs(v) > Math.abs(best.v)) best = { v, i, j }; }));",
+            "after": "x.residuals.forEach((row, i) => row.forEach((v, j) => { if (!best && Math.abs(v) > Math.abs(best.v)) best = { v, i, j }; }));",
+            "line_text": "    x.residuals.forEach((row, i) => row.forEach((v, j) => { if (!best || Math.abs(v) > Math.abs(best.v)) best = { v, i, j }; }));",
+            "caught": true,
+            "seconds": 9.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/contingency-table-tests/engine.mjs",
+        "issue": "fisherRxCMonteCarlo shuffled one label per subject per sample (O(n x samples)) on the page's main thread: a 3x3 table of n=18,000 froze 13 s. Replaced by sequential hypergeometric cell draws (chop-down from the mode): 32 ms; 18 million in 0.3 s.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16963"
+      },
+      {
+        "file": "ventures/contingency-table-tests/engine.mjs",
+        "issue": "analyze() with paired data and alternative less/greater silently returned the two-sided McNemar p-value (the page offers that combination). Now warns in the summary and reports alternative two-sided.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16963"
+      },
+      {
+        "file": "ventures/contingency-table-tests/engine.mjs",
+        "issue": "A 2x2 with an empty row printed 'Group 1: NaN%' and 'Risk difference NaN points' (Boschloo p NaN beside Barnard p 1). Now refused with a message naming the empty group.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16963"
+      },
+      {
+        "file": "ventures/contingency-table-tests/engine.mjs",
+        "issue": "Stratified summary called an infinite Mantel-Haenszel odds ratio 'the strata confound the pooled table' (|log(crude/Infinity)| > log 1.25). Comparison now skipped when the common OR is 0 or infinite.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16963"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9899f3d4-d9e0-53f8-bd48-c24a9de3871b",
+    "transcripts": 1,
+    "first": "2026-11-17T14:13:09Z",
+    "last": "2026-11-17T14:19:24Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 77,
+        "output": 23596,
+        "thinking": 6745,
+        "cache_read": 3704088,
+        "cache_write_5m": 0,
+        "cache_write_1h": 97355,
+        "api_equivalent_usd": 1.9919,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 77,
+      "output": 23596,
+      "thinking": 6745,
+      "cache_read": 3704088,
+      "cache_write_5m": 0,
+      "cache_write_1h": 97355,
+      "api_equivalent_usd": 1.9919,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 40,
+    "tools": {
+      "Bash": 37,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.25,
+      "active_minutes": 6.25,
+      "model_minutes": 3.8,
+      "tool_minutes": 2.45,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior statistician-engineer: mutation triage, 4 defect fixes incl. a new sampler, tests and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 301.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

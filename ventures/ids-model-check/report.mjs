@@ -7,6 +7,12 @@ export function textReport(r, { maxFailures = 10 } = {}) {
   const invalid = r.specs.filter((s) => s.status === "invalid").length;
   out.push(`${r.pass ? "PASS" : "FAIL"}: ${passed} of ${r.specs.length} specifications pass${invalid ? `; ${invalid} invalid (the IDS needs fixing; see below)` : ""}`);
   if (r.parseErrors.length) out.push(`note: ${r.parseErrors.length} line(s) could not be read, e.g. ${r.parseErrors[0]}`);
+  const dups = r.duplicateGlobalIds || [];
+  if (dups.length) {
+    out.push(`model warning: ${dups.length} GlobalId(s) are shared by more than one element (IFC requires them unique; BCF viewpoints and model diffs find elements by GlobalId):`);
+    for (const d of dups.slice(0, maxFailures)) out.push(`  ${d.globalId}: ${d.elements.map((e) => `#${e.id} ${e.type}${e.name ? ` "${e.name}"` : ""}`).join(", ")}`);
+    if (dups.length > maxFailures) out.push(`  ... and ${dups.length - maxFailures} more`);
+  }
   for (const s of r.specs) {
     out.push("");
     out.push(`[${s.status.toUpperCase()}] ${s.name} (${s.optionality})`);
@@ -35,6 +41,11 @@ export function csvReport(r) {
   for (const s of r.specs) {
     if (!s.failed.length) rows.push([s.name, s.status, "", "", "", "", s.note || ""]);
     for (const f of s.failed) rows.push([s.name, "fail", "#" + f.id, f.type, f.globalId, f.name, f.reasons.join("; ")]);
+  }
+  // Model findings, after the specifications: one row per element that shares
+  // its GlobalId, so a filter on global_id shows the whole group.
+  for (const d of r.duplicateGlobalIds || []) {
+    for (const e of d.elements) rows.push(["(model) duplicate GlobalId", "duplicate", "#" + e.id, e.type, d.globalId, e.name, `GlobalId shared by ${d.elements.length} elements (${d.elements.map((x) => "#" + x.id).join(", ")}); IFC requires it unique`]);
   }
   return rows.map((row) => row.map(csvCell).join(",")).join("\n") + "\n";
 }

@@ -50,7 +50,9 @@ fixed, when the model is re-exported".
 - `architect2.ifc`: one wall renamed with a new GlobalId (`...0L` to `...0a`).
 - `construction2.ifc`: one column given a new GlobalId (`...2z` to `...2a`),
   which is **also the GlobalId of a slab** in both files: the revision adds a
-  duplicate GlobalId (the files already had 1 to 3).
+  duplicate GlobalId (the original files have none: a regex over the text
+  finds a repeated 22-character string, but it is a property name;
+  `duplicate-globalids-2026-11-17.md`).
 
 Each revision pair was checked against 67 IDS files (the three in `samples/`
 and the 64 parseable public ones `eval/fetch-audit-corpus.sh` fetches; one of
@@ -97,8 +99,8 @@ or resolved issue whose element did not change):
   GlobalId pushed a collision suffix onto the slab, so the widget reported the
   unchanged slab as both new and resolved in several IDS files. Adding the class to the key fixed it (the counts
   above). Two elements of one class sharing a GlobalId would still share a key
-  and get an order-dependent suffix; the checker does not yet report duplicate
-  GlobalIds as such.
+  and get an order-dependent suffix. Since `duplicate-globalids-2026-11-17.md`
+  the checker reports duplicate GlobalIds as such, in every output.
 - **Size:** 200 to 415 KB and 336 to 565 issues per IDS file on these
   models, so a project with one to three IDS files writes a report under about
   1.3 MB.

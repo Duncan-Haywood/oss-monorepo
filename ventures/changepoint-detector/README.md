@@ -5913,3 +5913,59 @@ stays out of the CLI and the module stays a library function. **Next** (fresh pr
 have before-gaps of 3.0 to 5.5 packs, worse than 55-78% of the donors', so they are matched loosely, not over-fitted:
 covariates (income, price, the 15-24 share) or monthly series would give the fit something more to go on; and the
 effect's path (a slope change) as the statistic.
+
+### Matched on covariates: looser fits, California second (2026-11-17, pre-registered; fails two bars, not the default)
+
+The floored-ratio round asked for covariates, so Massachusetts, Arizona and Oregon, matched loosely on their own
+sales, would have more to go on. `synthControlTest(y, donors, k, { predictors })` now fits the way the paper does:
+each unit gets a few predictors, each divided by its spread over all units; for diagonal weights V on those predictors
+the donor weights W(V) minimise the V-weighted predictor gap on the simplex (`simplexLeastSquaresRows`, FISTA on the
+few rows), and V is chosen (softmax, Nelder-Mead from equal weights, at most 160 evaluations) to minimise the
+before-date gap in the outcome, Synth's "data-driven" V. Every placebo goes through the same search. The real
+predictors are ln per capita personal income (BEA SAINC1, `data/us-personal-income-per-capita.csv`) and the average
+retail price per pack (CDC, `data/us-cigarette-retail-price.csv`), each averaged over the nine years before the date,
+and packs per head 14, 9 and 1 years before it (1975, 1980 and 1988 for California). **The paper's 15-24 population
+share and beer consumption are left out**: neither had a reachable, documented source this session, so this is the
+paper's design less two of its seven predictors.
+
+Pre-registration `eval/synth-cov-prereg-2026-11-17.md`, committed after an exploratory run (hashed base 31000, 50
+panels a cell, `eval/synth-cov-explore.out.txt`) and before the confirmatory run (base 33000, 200 panels a cell,
+`eval/synth-cov-confirm.out.txt`) and before any real state was fitted with covariates (`node eval/synth-cov-real.mjs`,
+`eval/synth-cov-real.out.txt`). Simulated covariates are each unit's two factor loadings measured with N(0, 0.15)
+noise, plus the same three lags.
+
+| Bar (pre-registered, covariate fit, floored ratio) | Confirmatory (200 panels a cell) / real | |
+|---|---|---|
+| 1. size, N1-N7: p <= 0.05 at most 7%, p <= 0.10 at most 15% | 1.0-5.5%; 4.5-14.0% | holds |
+| 2. treated outside the donors' range (E1): p <= 0.05 at most 8% | **17.5%** (the outcome fit on the same panels: 9.0%; fit warning 99%) | **fails** |
+| 3. power: no cell more than 10 points below the outcome fit | P1 50.0 vs 55.0; P2 16.5 vs 15.5; P3 32.0 vs 36.0; P4 29.0 vs 27.5; P5 52.5 vs 48.0; P6 52.0 vs 50.5 | holds |
+| 4a. T1 California 1989: p <= 0.05, average gap -30 to -10, gap at 2000 below 0 | **rank 2 of 39, p 0.051**; gap -17.4 average, -23.9 at 2000 | **fails** |
+| 4b. T2-T4 MA 1993, AZ 1995, OR 1997: 2 of 3 at p <= 0.10, negative gap | **1 of 3**: MA rank 3, p 0.077 (from 6th); AZ rank 5, p 0.139 (from 13th); OR rank 21 of 28, p 0.750, fit warning (from 6th) | **fails** |
+| 4c. in-time placebos (1980, 1984 in a window cut at 1988): neither p <= 0.05 | p 0.077, 0.436 | holds |
+| 4d. nine placebo states at 1989: at most 1 of 9 p <= 0.05 | 0 of 9 (West Virginia closest, p 0.105) | holds |
+
+**What the covariates do.** California's synthetic control becomes Utah 0.405, Colorado 0.352, Nevada 0.221 and New
+Hampshire 0.015, close to the paper's (Utah 0.394, Nevada 0.234, Montana 0.199, Colorado 0.164, Connecticut 0.069),
+with V almost all on price (0.61) and the 1980 lag (0.22); the gap after 1989 is -17.4 packs on average and -23.9 by
+2000, against the paper's "about 26". But the fit before 1989 loosens (RMSPE 2.02 against 1.66 packs), the donors'
+fits loosen more, so the floor rises from 2.15 to 3.63 packs, and California's floored statistic (18.4 / 3.63 = 5.1)
+falls just behind one donor: rank 2, p 0.051. With the paper's unfloored ratio it ranks 1st (p 0.026), the paper's
+result. Massachusetts moves from 6th to 3rd (p 0.077, a gap of -14.0 packs) and Arizona from 13th to 5th, so for the
+two loosely fitted states the covariates help, as the last round guessed. Oregon is the failure: its fit is far worse
+(19.6 packs before 1997, against 5.5 matched on its own sales), a fit warning fires and it ranks 21st.
+
+**Why Oregon fails** (after the run, not pre-registered). Oregon's predictors sit inside the donors' range (its price
+above 32 of 38 donors, its income above 24), so a close match exists; the search did not find it. Its V ended at
+0.149, 0.405, 0.149, 0.149, 0.149, one simplex step from the start: the before-gap is piecewise flat in V (W jumps
+between donor sets), and Nelder-Mead from one start stalls. Georgia's V (the same values) and Montana's (equal fifths)
+show the same stall among the placebos. Synth's practice of several starts, one per predictor and a regression-based
+one, would likely fix it, but that is a new method and needs a fresh pre-registration. E1's 17.5% is the other cost:
+when no mix of donors can match the treated unit, a looser fit lets its after-gap look larger than the placebos'.
+
+**Decision, as pre-registered.** Bars 1 and 3 hold, 2 and 4 fail, so the `predictors` option stays in the module as a
+library function, not calibrated, and the outcome-only fit stays the default and the recommended one. On the same
+fresh panels the shipped outcome fit gave 2.5% at p 0.05 in N1 and 17.0% at p 0.10 in N6, the near-copy cell (the last
+round's 400 panels: 14.0%, at its cap), so the shipped default's p 0.10 is loose when donors come in near-copy pairs;
+its p 0.05 (7.0% there) is the one to read. **Next** (fresh pre-registration): a multi-start V search (one start per
+predictor plus equal weights), with the paper's 15-24 share and beer covariates if a source can be found; monthly
+series.

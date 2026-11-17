@@ -301,9 +301,8 @@ function inspectOneIdentifier(entry, label, what, path) {
   return [];
 }
 
-export function inspectPartyIdentifiers(party, partyName) {
+export function inspectPartyIdentifiers(party, partyName, label = partyName.charAt(0).toUpperCase() + partyName.slice(1)) {
   if (!party || typeof party !== "object" || Array.isArray(party)) return [];
-  const label = partyName.charAt(0).toUpperCase() + partyName.slice(1);
   const findings = [];
   findings.push(...inspectOneIdentifier(party.legal_id, label, ID_PLACES.legal_id, `/${partyName}/legal_id`));
   if (Array.isArray(party.party_ids)) {

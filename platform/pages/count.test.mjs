@@ -32,6 +32,7 @@ test('UNGROUPED_COUNT finds the counts the site writes, not years or form number
 test('ungroupedCounts reads visible text, title and description, not scripts', async () => {
   const { ungroupedCounts } = await import('./count.mjs');
   const html = `<title>All 1338 tools | Site</title><meta name="description" content="1073 research projects">
-<body><p>Search 1,338 tools</p><script>var x = "9999 tools";</script><!-- 4444 posts --><span>All<span>3591</span></span></body>`;
+<body><p>Search 1,338 tools</p><script>var x = "9999 tools";</script><!-- 4444 posts --><span>All<span>3591</span></span>
+<td><code>71949322</code></td><td>post: description</td></body>`;
   assert.deepEqual(ungroupedCounts(html), ['All 1338', '1073 research projects', 'All 3591']);
 });

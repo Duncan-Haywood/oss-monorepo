@@ -35,11 +35,12 @@ export function panel(cell, seed) {
   const { g, u } = rng(seed);
   const { units, k, m, idio } = cell, n = k + m;
   const F = [0, 0].map(() => { const f = [g() / 0.6]; for (let t = 1; t < n; t++) f.push(0.8 * f[t - 1] + g()); return f; });
-  const rows = [];
+  const rows = [], lams = [];
   for (let i = 0; i < units; i++) {
     let lam = [0.5 + u(), 0.5 + u()];
     if (cell.edge && i === 0) lam = [2.0, 2.0];
     if (cell.lam0 && i === 0) lam = cell.lam0.slice(); // a treated unit inside the hull but near its corner
+    lams.push(lam);
     const a = 2 * g();
     const y = []; let e = 0, w = 0;
     for (let t = 0; t < n; t++) {
@@ -55,6 +56,7 @@ export function panel(cell, seed) {
     const start = units - 2 * cell.copies;
     for (let j = 0; j < cell.copies; j++) rows[start + 2 * j + 1] = rows[start + 2 * j].map((v) => v + cell.copySd * g());
   }
+  rows.lam = lams; // each unit's factor loadings (eval/synth-cov-sim.mjs builds noisy covariates from them)
   return rows;
 }
 

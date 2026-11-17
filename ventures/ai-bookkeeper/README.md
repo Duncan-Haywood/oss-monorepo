@@ -2956,6 +2956,18 @@ because no check counted the gratuity. A gratuity line above the total now adds 
 CORD and SROIE text unchanged. Details:
 [`eval/rapidocr-web-srd-2026-11-17.md`](eval/rapidocr-web-srd-2026-11-17.md).
 
+### The page with its own RapidOCR port leading (2026-11-17)
+
+Re-scored with the page's JavaScript port (not Python RapidOCR) as the lead reading, on all 196 SRD
+photos: **190 totals right**, wrong with no warning 1, the same as the port alone and one more than
+the vote without the lead rule. Of the two taxes the lead cost, one (1027) was a parser fault: four
+readings agreed on a Hawaii GET of 1.86, but a discount and a gratuity sat between subtotal and
+total, and the "one digit from total less subtotal" fix swapped in 1.56. That fix now stands aside
+when three readings agree and a gratuity or service line is printed. Tax with the lead 165 to 166.
+The other (1009) is a lead that read no total line; left, still flagged. CORD photo sets not
+re-scored (huggingface.co refused). Details:
+[`eval/rapidocr-web-lead-srd-2026-11-17.md`](eval/rapidocr-web-lead-srd-2026-11-17.md).
+
 ### RapidOCR and tesseract together (2026-11-17)
 
 `--rapidocr --four-pass` reads the photo with RapidOCR first, then with tesseract's four

@@ -159,6 +159,17 @@ open. MIT licensed, no dependencies, nothing uploaded.
   JSON.
 - 22 MB Revit export (Schultz Residence, 424,819 entities): 1.4 s on the command
   line.
+- **Duplicate GlobalIds** (2026-11-17): IFC requires every GlobalId to be
+  unique (IfcRoot rule UR1), and BCF viewpoints and model diffs find elements
+  by it. Two elements sharing one are reported as a model finding in every
+  output: on the page, in the text report, CSV, BCF (a topic each), and in CI
+  (an annotation on the element's line, the job summary, a GitLab issue per
+  GlobalId; `--fail-on-duplicate-globalids` to fail on them). It does not
+  change the IDS verdict. On 163 public files it found 3, the same groups as
+  IfcOpenShell on all 133 files IfcOpenShell opens. One of them is HHS Office
+  `construction2.ifc`, where a column has a slab's GlobalId. It also found a
+  STEP reader fault, now fixed: `\S\'` (an escaped "§") ended a string early.
+  `eval/duplicate-globalids-2026-11-17.md`.
 
 ## Why someone would use it
 

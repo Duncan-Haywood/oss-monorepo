@@ -66,7 +66,11 @@ export function bcfZip(report, { modelName = "model.ifc", author = "ids-model-ch
   const projectId = uuid();
   files.push({ name: "project.bcfp", data: `<?xml version="1.0" encoding="UTF-8"?>\n<ProjectExtension><Project ProjectId="${projectId}"><Name>${xml(report.title || "IDS check")}</Name></Project><ExtensionSchema></ExtensionSchema></ProjectExtension>\n` });
   let n = 0;
-  for (const s of report.specs) {
+  // Duplicate GlobalIds come first, as their own topics: a topic selecting one
+  // of those GlobalIds selects every element holding it, so the viewer shows
+  // the clash, and the topics after them that select it are ambiguous.
+  const dupSpec = { name: "Duplicate GlobalId", failed: (report.duplicateGlobalIds || []).map((d) => ({ globalId: d.globalId, type: d.elements.map((e) => e.type).join(" + "), name: null, reasons: [`${d.globalId} is held by ${d.elements.length} elements: ${d.elements.map((e) => `#${e.id} ${e.type}${e.name ? ` "${e.name}"` : ""}`).join(", ")}. IFC requires every GlobalId to be unique (IfcRoot rule UR1).`] })) };
+  for (const s of [...(dupSpec.failed.length ? [dupSpec] : []), ...report.specs]) {
     const failures = s.failed.length ? s.failed : s.status === "fail" || s.status === "invalid" ? [{ id: null, type: null, globalId: null, name: null, reasons: [s.note || "specification failed"] }] : [];
     for (const f of failures) {
       if (n >= maxTopics) break;
