@@ -1,0 +1,124 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtH4yc58MZk2nHYyQBk",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T07:06:03Z",
+  "ended": "2026-11-17T08:31:41Z",
+  "wall_minutes": 85.78,
+  "tokens_in": 2808819,
+  "tokens_out": 18714,
+  "cost_usd": 2.2279,
+  "tool_calls": 33,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16854",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py torch took about 2 minutes (download.pytorch.org reachable); the 18-25 min warning was stale for this run, no cost."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-diloco-compression-gain-needs-long-inner-loops-lowcomm.md",
+    "research/lowcomm-training/LOG.md (Milestone 6ab)"
+  ],
+  "goal": null,
+  "notes": "Milestone 6ab of lowcomm-training: clean-last-sync recipe at H = 16, rand-k keep 1/2, 1/4, 1/8 plus unc, 4 seeds, 16 runs x 20 min on 4 cores. 12/12 reproduction checks bit-exact. H6ab-i, ii, iv, v held; iii refuted: at H = 16 keep 1/4 ties uncompressed (-0.0004, se 0.0035), keep 1/8 costs +0.014 (3.9 se). Local checks: tests 13 passed, build.py ok, research_live_links, check_md_links, programme_check, post front matter/links/similarity ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "762e7538-4fbf-5bd2-811f-73e574560af8",
+    "transcripts": 1,
+    "first": "2026-11-17T07:06:03Z",
+    "last": "2026-11-17T08:31:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 31,
+        "input": 61,
+        "output": 18714,
+        "thinking": 2505,
+        "cache_read": 2643171,
+        "cache_write_5m": 0,
+        "cache_write_1h": 165587,
+        "api_equivalent_usd": 2.2279,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 31,
+      "input": 61,
+      "output": 18714,
+      "thinking": 2505,
+      "cache_read": 2643171,
+      "cache_write_5m": 0,
+      "cache_write_1h": 165587,
+      "api_equivalent_usd": 2.2279,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.941,
+    "tool_calls": 33,
+    "tools": {
+      "Bash": 29,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 85.78,
+      "active_minutes": 5.07,
+      "model_minutes": 3.53,
+      "tool_minutes": 1.55,
+      "waiting_on_human_minutes": 80.7,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design, 16-run CPU experiment, analysis and write-up of one pre-registered milestone",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 269.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

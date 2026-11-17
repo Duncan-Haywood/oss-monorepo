@@ -14,6 +14,8 @@ export function knownDateResult({ csv, column = null, labelColumn = null, date, 
   // calibrated: false when only the random-walk cut let the series through. Round 5's size held on series the line
   // checks pass (0.7-4.9% in every sticky cell), but no-change series passed only by the cut were flagged 17 times in
   // 26 (eval/known-date-cut-admitted.out.txt): a spurious step is what makes the cut large. Their p is shown, not trusted.
+  // Round 6 (README "Round 6") tried a bootstrap conditioned on the cut: calibrated (4.9% of 306 no-change series) but
+  // blind (2.6% of 156 real steps), so it is not offered; the warning quotes both numbers.
   return { date: String(date), scale: log ? 'log' : 'level', firstAfter: labels[k], lastBefore: labels[k - 1] ?? null, ...h, ...(h.refused ? {} : { calibrated: !h.admittedByCut }) };
 }
 
@@ -26,7 +28,7 @@ export function knownDateText(h) {
   lines.push(`  Slope: ${r3(h.slopeBefore)} per step before, change ${r3(h.slopeChange)} (95% range ${r3(h.slopeChangeRange95[0])} to ${r3(h.slopeChangeRange95[1])}), p ${p4(h.pSlope)}`);
   lines.push(`  Effect against the old line: ${r3(h.effectAverage)} on average after the date, ${r3(h.effectAtEnd)} at the last point`);
   lines.push(`  Noise: AR(1) rho ${h.rho.toFixed(2)}${h.gated ? `; the residuals about a plain line are sticky (rho ${h.lineRho.toFixed(2)} > 0.5), so the p is the larger of two bootstraps, at rho ${h.rhoGen.map((v) => v.toFixed(2)).join(' and ')} (the second a 90% upper bound)` : ''}`);
-  if (h.admittedByCut) lines.push(`  NOT A CALIBRATED TEST HERE: a plain line's residuals look like a wander (rho ${h.rhoLine.toFixed(2)}), and the series was let through only because the step and slope change cut that more than 99% of random walks cut at this date (${h.cutBar.toFixed(2)}). On simulated no-change series let through this way, 17 of 26 got p <= 0.05, so read the p-values above as a description, not as evidence of a change.`);
+  if (h.admittedByCut) lines.push(`  NOT A CALIBRATED TEST HERE: a plain line's residuals look like a wander (rho ${h.rhoLine.toFixed(2)}), and the series was let through only because the step and slope change cut that more than 99% of random walks cut at this date (${h.cutBar.toFixed(2)}). On simulated series let through this way (round 6, eval/known-date-conditional-replicate.out.txt), p came out at or under 0.05 for 237 of 306 with no change (77%) and 142 of 156 with a real step (91%): it cannot tell them apart, and a bootstrap conditioned on the same guard flagged 4.9% and 2.6%, so it cannot either. Read the step and its range as a description, not as evidence of a change.`);
   lines.push('  (Segmented regression with AR(1) noise and a parametric bootstrap; at p 0.05 it flagged 1.0-5.8% of simulated no-change lines of 40-120 points, eval/known-date-sim-round5.out.txt. A small p says the line before the date does not carry on through it; it does not say what caused the change. A control series the change should not touch is the best check.)');
   return lines.join('\n');
 }

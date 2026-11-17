@@ -1,0 +1,65 @@
+name: kriging-interpolation
+description: >-
+  Free browser tool, CLI and agent call that fills in a map from scattered
+  readings (soil samples, wells, rain gauges, sensors; x/y or
+  longitude/latitude): the empirical semivariogram, a spherical,
+  exponential or Gaussian model fitted by Cressie's weighted least squares,
+  an ordinary kriging map with a standard-error map, and a closed-form
+  leave-one-out check against inverse distance weighting and the nearest
+  reading. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-17 on an explore run as a research-algorithm tool: no
+# venture README mentioned kriging or variograms (searched all venture and
+# research READMEs; research/cell-fidelity uses co-kriging inside Bayesian
+# optimisation, not as a tool). gaussian-process-regression is one-
+# dimensional curves; this is two-dimensional maps with variograms.
+# Implemented from Matheron 1963, Cressie & Hawkins 1980, Cressie 1985,
+# Dubrule 1983, Shepard 1968 and Gneiting 2013; no third-party code was
+# ported. Example data: ERA5 (CC BY 4.0) already in the repository
+# (data/SOURCE.md).
+#
+# First visitor: searches such as "kriging online", "kriging calculator",
+# "variogram fitting tool", "ordinary kriging excel alternative", "kriging
+# vs IDW", "interpolate soil sample map". Volume not measured with an
+# external tool.
+#
+# Alternatives: R gstat, Python PyKrige and scikit-gstat (need code), QGIS
+# and ArcGIS Geostatistical Analyst (install, licence), Surfer (paid).
+# Differentiators here: no install, the leave-one-out comparison with
+# inverse distance in words, lon/lat on the sphere handled, a standard-
+# error map.
+#
+# Liability: a statistical estimate, not engineering, surveying or
+# environmental advice; the page says a regulator or standard may require a
+# different method. Data never leave the browser (tests assert no network
+# calls).
+
+hypotheses:
+  - claim: >-
+      Field scientists, agronomists, students and consultants with a few
+      dozen to a few hundred sample points will use a no-install kriging
+      tool that says in words whether kriging beats inverse distance on
+      their data.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports an estimate that differs from gstat or PyKrige with the same variogram, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/kriging-interpolation/
+  analytics: null

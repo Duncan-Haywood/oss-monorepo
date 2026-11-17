@@ -31,6 +31,7 @@ each step's `working-directory`, and reports which passed.
     python3 platform/ci/run_workflow_locally.py --for-changes
     python3 platform/ci/run_workflow_locally.py --tree
     python3 platform/ci/run_workflow_locally.py portfolio-validate.yml
+    python3 platform/ci/run_workflow_locally.py doc-refs-ci prompts-ci   # several, in turn
     python3 platform/ci/run_workflow_locally.py --list portfolio-pages.yml
 
 Under an agent harness a run still going after 100 s detaches and prints
@@ -2547,8 +2548,12 @@ def main(argv=None) -> int:
 def _main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("workflow", nargs="?",
-                    help="file name under .github/workflows/")
+    # Several names run one after another (friction 2026-11-16/17: "Takes one
+    # workflow per call", and a re-run of three voided workflows needed three
+    # invocations because --only was refused without a sweep).
+    ap.add_argument("workflow", nargs="*",
+                    help="file name(s) under .github/workflows/ (.yml "
+                         "optional); several run in turn, one verdict each")
     ap.add_argument("--for-changes", metavar="BASE", nargs="?", const="origin/main",
                     help="run every workflow the current diff against BASE "
                          "would start (default base origin/main)")
@@ -2565,7 +2570,8 @@ def _main(argv=None) -> int:
     ap.add_argument("--only", metavar="NAMES",
                     help="with --for-changes or --tree: run only these of the "
                          "selected workflows (comma-separated file names, "
-                         ".yml optional), e.g. --only doc-refs-ci,prompts-ci")
+                         ".yml optional), e.g. --only doc-refs-ci,prompts-ci; "
+                         "on its own: run these workflows by name")
     ap.add_argument("--force", action="store_true",
                     help="allow a workflow that is not verification-only")
     ap.add_argument("--timeout", type=int, default=900,
@@ -2603,22 +2609,57 @@ def _main(argv=None) -> int:
         args.for_changes = LOCAL_BASE["ref"] = "origin/main"
         return run_for_changes(args)
 
-    if args.only:
-        print("--only narrows a sweep: pass it with --for-changes or --tree",
-              file=sys.stderr)
+    if args.only and args.workflow:
+        print("name workflows or pass --only, not both (--only alone runs "
+              "the named workflows; with --for-changes or --tree it narrows "
+              "the sweep)", file=sys.stderr)
         return 2
+    names = sorted(only_names(args.only)) if args.only else list(args.workflow)
 
-    if not args.workflow:
+    if not names:
         print("name a workflow, --for-changes to select by diff, or --tree "
               "to sweep the whole checkout", file=sys.stderr)
         return 2
 
-    name = os.path.basename(args.workflow)
-    path = os.path.join(WORKFLOWS, name)
-    if not os.path.isfile(path):
-        print(f"no such workflow: .github/workflows/{name}", file=sys.stderr)
+    names = [workflow_file(n) for n in names]
+    missing = [n for n in names if not os.path.isfile(os.path.join(WORKFLOWS, n))]
+    if missing:
+        for n in missing:
+            print(f"no such workflow: .github/workflows/{n}", file=sys.stderr)
         return 2
+    if len(names) == 1:
+        return _run_one(names[0], args)
+    codes = []
+    for name in names:
+        codes.append((name, _run_one(name, args)))
+        print(flush=True)
+    return combine_named(codes)
 
+
+def workflow_file(name: str) -> str:
+    """`doc-refs-ci` or `.github/workflows/doc-refs-ci.yml` as `doc-refs-ci.yml`."""
+    name = os.path.basename(name.strip())
+    return name if name.endswith((".yml", ".yaml")) else name + ".yml"
+
+
+def combine_named(codes) -> int:
+    """One exit for several by-name runs: 0 only when every one passed.
+
+    A usage refusal (2) wins, then a failure (1), then the largest other
+    code; a summary line per workflow saves scrolling back for verdicts."""
+    print("Summary of the named workflows:")
+    for name, code in codes:
+        print(f"  exit {code}  {name}")
+    values = [c for _, c in codes]
+    for worst in (2, 1):
+        if worst in values:
+            return worst
+    return max(values)
+
+
+def _run_one(name: str, args) -> int:
+    """Run one workflow by name: the single-workflow path of `_main`."""
+    path = os.path.join(WORKFLOWS, name)
     workflow = load_workflow(path)
     only = None
     if name not in VERIFICATION_ONLY and not args.force:

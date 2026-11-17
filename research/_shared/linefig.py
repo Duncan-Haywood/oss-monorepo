@@ -77,7 +77,7 @@ def svg_lines(title, alt, xlabel, ylabel, series, logx=False, logy=False, hline=
     fx = math.log10 if logx else (lambda v: v)
     fy = math.log10 if logy else (lambda v: v)
     xs_all = [fx(x) for _, xs, _ in series for x in xs] + [fx(v) for v in vlines if v > 0 or not logx]
-    ys_all = [fy(y) for _, _, ys in series for y in ys if (y > 0 or not logy)] + ([fy(hline)] if hline else [])
+    ys_all = [fy(y) for _, _, ys in series for y in ys if (y > 0 or not logy)] + ([fy(hline)] if hline is not None and (hline > 0 or not logy) else [])
     x0, x1 = min(xs_all), max(xs_all)
     y0, y1 = min(ys_all), max(ys_all)
     if not logy:
@@ -113,7 +113,7 @@ def svg_lines(title, alt, xlabel, ylabel, series, logx=False, logy=False, hline=
         o.append(f'<text x="{px(v):.1f}" y="{H-B+16}" text-anchor="middle" {f} font-size="11">{v:g}</text>')
     o.append(f'<text x="{(L+W-R)/2}" y="{H-12}" text-anchor="middle" {f} font-size="12">{xlabel}</text>')
     o.append(f'<text x="14" y="{(T+H-B)/2}" text-anchor="middle" {f} font-size="12" transform="rotate(-90 14 {(T+H-B)/2})">{ylabel}</text>')
-    if hline:
+    if hline is not None and (hline > 0 or not logy):
         o.append(f'<line x1="{L}" x2="{W-R}" y1="{py(hline):.1f}" y2="{py(hline):.1f}" stroke="#555" stroke-dasharray="4 3"/>')
     for v in vlines:
         if v > 0 or not logx:

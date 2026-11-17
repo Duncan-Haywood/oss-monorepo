@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { detectSyntax, plainOnlySets } from "./schematron-core.mjs";
-import { cdarFindings, cdarJourneys, looksLikeCdar, readCdar, statusName } from "./cdar.mjs";
+import { cdarFindings, cdarGapFindings, cdarJourneys, looksLikeCdar, readCdar, statusName } from "./cdar.mjs";
 import { preflightDocuments } from "./report.mjs";
 
 const require = createRequire(import.meta.url);
@@ -62,6 +62,23 @@ test("paired with its invoice: type, date and seller SIREN compared (FR-CDV-101.
   })();
 });
 
+test("gaps in the official set (FR-CDV-105..107): FNFE's examples raise none, broken copies do", () => {
+  for (const name of NAMES) assert.deepEqual(cdarGapFindings(readCdar(msgFile(name))).map((f) => f.rule), [], name);
+  const gaps = (xml) => cdarGapFindings(readCdar(xml)).map((f) => f.rule);
+  const ok = msgFile(APPROVED);
+  // no creation date-time (BR-FR-CDV-04 cannot fire), or 30 February in it
+  assert.deepEqual(gaps(ok.replace(/(<rsm:ExchangedDocument>[\s\S]*?)<ram:IssueDateTime>[\s\S]*?<\/ram:IssueDateTime>/, "$1")), ["FR-CDV-105"]);
+  assert.deepEqual(gaps(ok.replace(/(<rsm:ExchangedDocument>[\s\S]*?format="204">)\d{8}/, "$120250230")), ["FR-CDV-105"]);
+  // no invoice number (BR-FR-CDV-10 cannot fire)
+  assert.deepEqual(gaps(ok.replace(/<ram:IssuerAssignedID>[^<]*<\/ram:IssuerAssignedID>/, "")), ["FR-CDV-106"]);
+  // two references, the second 501: the first may then drop its invoice date under BR-FR-CDV-11
+  const ref = ok.match(/<ram:ReferenceReferencedDocument>[\s\S]*?<\/ram:ReferenceReferencedDocument>/)[0];
+  const multi = ok.replace(ref, ref.replace(/<ram:FormattedIssueDateTime>[\s\S]*?<\/ram:FormattedIssueDateTime>/, "") + ref.replace(/(<ram:ProcessConditionCode>)\d+/, "$1501"));
+  assert.deepEqual(gaps(multi), ["FR-CDV-107"]);
+  // without a 501 elsewhere a missing date is BR-FR-CDV-11's to report, not ours
+  assert.deepEqual(gaps(ok.replace(/<ram:FormattedIssueDateTime>[\s\S]*?<\/ram:FormattedIssueDateTime>/, "")), []);
+});
+
 test("journey: the batch's statuses for one invoice in time order", () => {
   const msgs = NAMES.map((file) => ({ file, msg: readCdar(msgFile(file)) }));
   const j = cdarJourneys(msgs).find((x) => x.invoiceId === "F202500003");
@@ -98,6 +115,13 @@ test("FNFE's examples pass every BR-FR-CDV rule; broken copies fail the rule FNF
   const ok = msgFile(APPROVED);
   assert.ok((await ids(ok.replace("<ram:ProcessConditionCode>205", "<ram:ProcessConditionCode>213"))).includes("BR-FR-CDV-15_MDT-113"), "213 without a reason");
   assert.ok((await ids(ok.replace("urn.cpro.gouv.fr:1p0:CDV:invoice", "urn:cen.eu:en16931:2017"))).includes("BR-FR-CDV-02_MDT-3"));
+  // Second round (eval/cdar-crosscheck-2026-11-17.md): ids Saxon raised on the same copies.
+  assert.ok((await ids(ok.replace("<ram:ProcessConditionCode>205", "<ram:ProcessConditionCode>221").replace("</ram:ReferenceReferencedDocument>", "<ram:SpecifiedDocumentStatus><ram:SequenceNumeric>1</ram:SequenceNumeric><ram:ReasonCode>PAS_UN_MOTIF</ram:ReasonCode></ram:SpecifiedDocumentStatus></ram:ReferenceReferencedDocument>"))).includes("BR-FR-CDV-CL-09_MDT-113_221"));
+  assert.ok((await ids(ok.replace("</ram:ReferenceReferencedDocument>", "<ram:SpecifiedDocumentStatus><ram:SequenceNumeric>1</ram:SequenceNumeric><ram:RequestedActionCode>XXX</ram:RequestedActionCode></ram:SpecifiedDocumentStatus></ram:ReferenceReferencedDocument>"))).includes("BR-FR-CDV-CL-10_MDT-121"));
+  assert.ok((await ids(ok.replace(/<ram:FormattedIssueDateTime>[\s\S]*?<\/ram:FormattedIssueDateTime>/, ""))).includes("BR-FR-CDV-11_MDG-35"));
+  // Dead rules: no BR-FR-CDV id on a message missing its invoice number or creation date-time.
+  assert.deepEqual(await ids(ok.replace(/<ram:IssuerAssignedID>[^<]*<\/ram:IssuerAssignedID>/, "")), []);
+  assert.deepEqual(await ids(ok.replace(/(<rsm:ExchangedDocument>[\s\S]*?)<ram:IssueDateTime>[\s\S]*?<\/ram:IssueDateTime>/, "$1")), []);
 });
 
 test("preflight with official rules: a reasonless 213 is caught by BR-FR-CDV on the plain route", { skip }, async () => {
