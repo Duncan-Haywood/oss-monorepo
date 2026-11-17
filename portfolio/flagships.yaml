@@ -469,9 +469,10 @@ flagships:
       opensourceBIM/IFC-files and buildingSMART's Sample-Test-Files with
       eval/crosscheck_ifctester.py; the IDS editor (editor.html; README): a property
       value with no dataType in the applicability (39 kept facets,
-      eval/applicability-rows-2026-11-17.md); a range for numeric attributes
-      (OverallHeight; xs:double base, eval/model-attr-codes-2026-11-17.md); more
-      real exports through eval/model-inventory.mjs.
+      eval/applicability-rows-2026-11-17.md); exclusive bounds on an opened range
+      (numeric attribute ranges 2026-11-17, eval/model-attr-ranges-2026-11-17.md);
+      more real exports through eval/model-inventory.mjs and
+      eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked"). Next, most
