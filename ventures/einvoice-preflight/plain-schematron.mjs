@@ -151,7 +151,7 @@ export function createPlainRunner({ fontoxpath, parseXml }) {
             if (ok) continue;
             const slack = slackTest(check.test);
             if (slack && safely(() => holds(slack, node, check.xq))) continue;
-            out.push({ rule: check.id, flag: check.flag, text: check.text, path: locate(node) });
+            out.push({ rule: check.id, flag: check.flag, text: check.text, ...(check.en ? { en: check.en } : {}), path: locate(node) });
           }
         }
       }
@@ -166,7 +166,17 @@ export function createPlainRunner({ fontoxpath, parseXml }) {
     // FNFE's Flux 10 messages open "[G1.14] : doit ..." and end "| Source : Annexe 7 v1.8 G1.14".
     if (source === "flux10-fr-schematron") message = message.replace(/^:\s*/, "").replace(/\s*\|\s*Source\s*:[^|]*$/, "");
     if (source === "cius-ro-schematron" && message.includes("#")) message = message.slice(message.indexOf("#") + 1).trim();
-    return { rule: f.rule || withId?.[1] || "SCH", message, fix: plainFix(f.rule || withId?.[1] || "SCH"), path: f.path, severity: f.flag, source };
+    // The French BR-FR rules carry an English translation (br-fr-en.mjs): show it, keep FNFE's text.
+    // Both lose their rule-code prefix ("[BR-FR-01/BT-1] :", "BR-FR-02/BT-1 :") and the
+    // "current value" clause, which the compiled set always leaves empty (no value-of).
+    let french;
+    if (f.en || /^(cius-fr|cdar-fr)-schematron$/.test(source)) {
+      const tidy = (t) => t.replace(/^\[[^\]]+\]\s*[-:,]*\s*/, "").replace(/^(?:\w{1,20} : )?\[?BR-FR[^:]{0,40}:\s*/, "").replace(/\s*(?:Current value|Valeur actuelle)\s*:\s*""\.?/g, "").trim();
+      french = tidy(f.text);
+      message = f.en ? tidy(f.en) : french;
+      if (!f.en) french = undefined;
+    }
+    return { rule: f.rule || withId?.[1] || "SCH", message, ...(french ? { message_fr: french } : {}), fix: plainFix(f.rule || withId?.[1] || "SCH"), path: f.path, severity: f.flag, source };
   };
 
   // load(file) -> compiled rule set (parsed JSON) or null when that set is not shipped.

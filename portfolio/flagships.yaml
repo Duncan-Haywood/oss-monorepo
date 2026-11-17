@@ -204,26 +204,26 @@ flagships:
     next: >-
       History: README and git (latest: France Flux 10 e-reporting, PPF Annexe 7
       controls 147/147 vs Saxon (eval/flux10-crosscheck-2026-11-17.md); open: a real
-      Flux 10 file, a PPF rejection; BR-FR 264/264 vs Saxon; CDAR (BR-FR-CDV)
-      780/780 vs Saxon (eval/cdar-crosscheck-*); Extended-CTC-FR and Factur-X
-      EXTENDED bases 175/175 vs Saxon (eval/extended-base-crosscheck-2026-11-17.md);
-      open: a real PA extended file, CDAR _WARNING set (37/43 rules hit, 6 dead:
-      FR-CDV-105..107 cover them), English BR-FR text, a real PA rejection or
-      status; VERI*FACTU (README): open: a production SIF's records and replies).
-      Open: a real HU report with NAV's businessValidationMessages or
-      SCHEMA_VIOLATION text; HU: open: a real chain with NAV's replies; a real
-      business's signed Facturae or FACe rejection (eval/facturae-gob-*); ZATCA: a
-      real KSA note; SdI: open: a real FatturaPA rejection with its file; HR: a real
-      HR invoice, cash accounting; CIUS-PT: which validator does AT run (AA/RED
-      codes)?; FA(3) KOR/ZAL/ROZ totals landed (README): open: a real KSeF
-      rejection, a business's real KOR/ZAL file; repair keeps PDF/A (veraPDF
-      155/155), PDF/A-3b writer passes Mustang; open: a real business's PINT file;
-      open: RO_CIUS on a real ANAF file; NLCIUS on a real Dutch file; India's INV-01
-      check on a real IRP payload; mandate texts: IL, ES, NRS, SRO 1852, Jordan
-      open; SK landed (README): open: a real SK file; Mexico CFDI 4.0 landed: open:
-      SAT's CP error matrix to map MX-070..080 to CP codes (omawww blocked), a real
-      payroll or export file, a PAC rejection compared. A run that lands a slice
-      replaces its item here. More open items: NEXT.md.
+      Flux 10 file, a PPF rejection; BR-FR 264/264 vs Saxon, all 384 BR-FR/CDV
+      messages in English (br-fr-error-codes.html); CDAR (BR-FR-CDV) 780/780 vs
+      Saxon (eval/cdar-crosscheck-*); Extended-CTC-FR and Factur-X EXTENDED bases
+      175/175 vs Saxon (eval/extended-base-crosscheck-2026-11-17.md); open: a real
+      PA extended file, CDAR _WARNING set (37/43 rules hit, 6 dead: FR-CDV-105..107
+      cover them), a real PA rejection or status; VERI*FACTU (README): open: a
+      production SIF's records and replies). Open: a real HU report with NAV's
+      businessValidationMessages or SCHEMA_VIOLATION text; HU: open: a real chain
+      with NAV's replies; a real business's signed Facturae or FACe rejection
+      (eval/facturae-gob-*); ZATCA: a real KSA note; SdI: open: a real FatturaPA
+      rejection with its file; HR: a real HR invoice, cash accounting; CIUS-PT:
+      which validator does AT run (AA/RED codes)?; FA(3) KOR/ZAL/ROZ totals landed
+      (README): open: a real KSeF rejection, a business's real KOR/ZAL file; repair
+      keeps PDF/A (veraPDF 155/155), PDF/A-3b writer passes Mustang; open: a real
+      business's PINT file; open: RO_CIUS on a real ANAF file; NLCIUS on a real
+      Dutch file; India's INV-01 check on a real IRP payload; mandate texts: IL, ES,
+      NRS, SRO 1852, Jordan open; SK landed (README): open: a real SK file; Mexico
+      CFDI 4.0 landed: open: SAT's CP error matrix to map MX-070..080 to CP codes
+      (omawww blocked), a real payroll or export file, a PAC rejection compared. A
+      run that lands a slice replaces its item here. More open items: NEXT.md.
   - venture: shift-roster-builder
     inputs_only: >-
       a live deploy with real punches, a real payroll template, a manager's
