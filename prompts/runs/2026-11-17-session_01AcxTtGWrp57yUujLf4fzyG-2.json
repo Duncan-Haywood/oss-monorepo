@@ -17,7 +17,7 @@
   "tokens_out": 60833,
   "cost_usd": 6.2617,
   "tool_calls": 132,
-  "task": "explore: a second, neural OCR engine (PP-OCRv4 via RapidOCR/ONNX) for ai-bookkeeper receipt photos",
+  "task": "explore: mix RapidOCR (PP-OCRv4) with tesseract's four readings for ai-bookkeeper receipt photos",
   "projects": [
     "ai-bookkeeper"
   ],
@@ -29,7 +29,7 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 3,
+  "tests_added": 1,
   "outcome": "success",
   "errors": [
     {
@@ -37,15 +37,29 @@
       "fix": "waited on the output file count instead"
     }
   ],
-  "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
+  "integrity_issues": [
+    "CORD test scored for the RapidOCR+tesseract combination twice (own row script, then PR #16823's); both 80, no choice made from either; recorded in the eval note"
+  ],
+  "doc_friction": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "Explore runs don't run portfolio/router/claim_check.py or search open PRs by venture; a parallel ventures session (PR #16823) landed `--rapidocr` on ai-bookkeeper while this run built the same engine, found only at merge time as a conflict. A step 'check open/merged PRs on the venture you touch' would have caught it in the first minutes."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Duplicate work found at merge (PR #16823 landed RapidOCR first). Consolidated rather than closing: dropped this branch's own script, re-read all 1,000 photos with #16823's rapidocr_rows.py, kept only the new part (lead reading / --rapidocr --four-pass).",
+      "did": "merged main, rewrote eval note and post around the mix",
+      "result": "totals level, taxes up on every set (test 28->32, SRD 142->162)"
+    }
+  ],
   "writeups": [
-    "docs/posts/2026-11-17-second-ocr-engine-receipts-59-to-84.md",
+    "docs/posts/2026-11-17-rapidocr-reads-totals-tesseract-finds-taxes.md",
     "ventures/ai-bookkeeper/eval/second-ocr-engine-2026-11-17.md"
   ],
   "goal": "explore idea: measure whether a second local OCR engine removes the OCR-bound ceiling the previous run found",
-  "notes": "Idea: second OCR engine. The previous run (PR #16822) found 148 of 221 CORD train misses OCR-bound under tesseract. PP-OCRv4 through rapidocr_onnxruntime 1.4.4 (Apache-2.0, models in the wheel, no runtime download) plus tools/rapidocr_receipt.py (box->line assembly) and RECEIPT_OCR_LEAD in ocr.mjs (lead reading before tesseract passes). Order chosen on train only (alone 509/173 tax, lead+four 508/202, four+last 490/196). Totals tesseract four -> lead+four: train 362->508/583, val 70->84/98, test (scored once) 56->80/95, SRD 156->180/196; tax test 16->32/41, SRD 135->161/185. No parser rule changed. Verification: run_venture_tests ai-bookkeeper ok (3301 tests); python3 tools/test_rapidocr_receipt.py ok; post checks clean. Graduates to the ventures track: next is PP-OCR in the page via onnxruntime-web.",
+  "notes": "Idea: a second OCR engine for receipt photos, then mixing it with tesseract. A parallel session landed `--rapidocr` (PR #16823) first; this PR consolidates onto it and adds the lead reading: receiptPassesFromFile({lead}) / RECEIPT_OCR_LEAD and `--rapidocr --four-pass`. Order chosen on CORD train shards 1-3 only (rapid first 510 vs last 493). With #16823's rows script: rapid alone vs rapid+four totals train 515/510, val 83/86, SRD 180/181, test 80/80; tax train 172->203, val 36->40, SRD 142->162, test 28->32. Verification: run_venture_tests ai-bookkeeper ok; post checks clean. Next: RapidOCR in the page via onnxruntime-web.",
   "corrections": [],
   "redteam": null,
   "usage": {

@@ -2912,25 +2912,19 @@ SRD 155 to 156; CORD text train 749 to 761 and test 92 to 93; SROIE unchanged. D
 [`eval/cord-train-photos-2026-11-17.md`](eval/cord-train-photos-2026-11-17.md).
 Tests: `cord-train-photos.test.mjs`.
 
-### A second OCR engine (2026-11-17)
+### RapidOCR and tesseract together (2026-11-17)
 
-tesseract's text did not contain the total on 148 of 221 missed CORD train photos, so no
-parsing rule could reach them. PP-OCRv4 (PaddleOCR's Apache-2.0 models, run locally through
-RapidOCR and ONNX Runtime, with the models inside the pip wheel) reads them far better.
-`tools/rapidocr_receipt.py` prints its text in the parser's shape. Set `RECEIPT_OCR_LEAD` to
-it and `--four-pass` reads the photo with PP-OCR first, then tesseract four times, and all
-five readings vote:
+`--rapidocr --four-pass` reads the photo with RapidOCR first, then with tesseract's four
+readings, and all five vote (`RECEIPT_OCR_LEAD` does the same with any OCR command):
 
 ```
-python3 -m venv v && v/bin/pip install rapidocr_onnxruntime==1.4.4
-RECEIPT_OCR_LEAD="v/bin/python tools/rapidocr_receipt.py" node cli.mjs --books b.json receipts photo.jpg --four-pass
+RAPIDOCR_PYTHON=v/bin/python node cli.mjs --books b.json receipts photo.jpg --rapidocr --four-pass
 ```
 
-Totals right, tesseract's four readings against PP-OCR plus those four: held-out CORD test
-photos, scored once, 56 to 80 of 95 (58.9% to 84.2%); US receipt photos (SRD) 156 to 180 of
-196 (79.6% to 91.8%); CORD train 362 to 508 of 583 and validation 70 to 84 of 98. Tax: test 16
-to 32 of 41, SRD 135 to 161 of 185. No parser rule was changed. The page still uses
-tesseract.js. Details:
+Against `--rapidocr` alone, totals stay about level and taxes go up. Held-out CORD test:
+totals 80 and 80 of 95, tax 28 to 32 of 41. US receipt photos (SRD): 180 to 181 of 196, tax
+142 to 162 of 185. CORD train shards 1-3 (where the order was chosen): 515 to 510 of 583, tax
+172 to 203 of 267. Against tesseract's four alone, test totals go from 56 to 80. Details:
 [`eval/second-ocr-engine-2026-11-17.md`](eval/second-ocr-engine-2026-11-17.md).
 
 ### CORD train shards 1-3: 600 more unseen photos (2026-11-17)
