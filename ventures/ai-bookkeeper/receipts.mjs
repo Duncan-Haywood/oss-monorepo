@@ -420,6 +420,13 @@ function taxColumn(l, prev, comma) {
   if (!taxWord(l) && !header(prev)) return null;
   if (/sub\s*-?\s*total|change|cash|tip/i.test(l)) return null;
   const a = amountsIn(l.replace(PCT_RE, " "), comma);
+  // net, rate and gross with the tax amount lost ("34.17 20.00% 41.00" under "Sales-VAT VAT
+  // Rate VAT Amt Total"): the gross less the net, when the net at that rate makes it
+  const rate = l.match(/(\d{1,2}(?:[.,]\d{1,2})?)\s*%/);
+  if (a.length === 2 && rate) {
+    const [n, g] = a, r = Number(rate[1].replace(",", ".")) / 100;
+    return r > 0 && r <= 0.3 && n > 0 && g > n && Math.abs(Math.round(n * r) - (g - n)) <= 1 ? g - n : null;
+  }
   if (a.length < 3) return null;
   const [n, t, g] = a.slice(-3);
   return n > 0 && t > 0 && n + t === g && t * 2 < n ? t : null;

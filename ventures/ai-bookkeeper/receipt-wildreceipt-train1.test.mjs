@@ -24,6 +24,8 @@ test("a net / tax / gross row reads its middle amount as the tax", () => {
   assert.equal(parseReceipt("HOTEL\nROOM 635.00\nNet.Amt  VAT  Amount\nVATABL  566.96  68.04  635.00\nTOTAL 635.00").taxCents, 6804);
   assert.equal(parseReceipt("TABAC\nTOTAL  6,60\nCODE  HTVA  TVA  TTC\nA21,00%  5,45  1,15  6,60").taxCents, 115);
   assert.equal(parseReceipt("PUB\nGrand Total EUR  105.00\n[V.A.T Analysis]\n9.00%  96.33  8.67  105.00").taxCents, 867);
+  // net, rate and gross with the tax amount lost: the gross less the net
+  assert.equal(parseReceipt("CAFE\nTOTAL:  41.00\nSales-VAT  VAT Rate  VAT Amt  Total\n34.17  20.00%  41.00").taxCents, 683);
   // three amounts that do not add are not a tax row
   assert.equal(parseReceipt("PUB\nTOTAL 20.00\nNet  VAT  Gross\n20.00%  1.50  2.50  3.00").taxCents, null);
 });
