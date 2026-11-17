@@ -138,8 +138,9 @@ export const LIP_SHUT = { fall: 12, span: 2, settle: 0, rise: null, dark: 8, lo:
 // under the vowel and holds within `hold` dB for 30 ms. A vowel's fade at the note's end falls 1-3 dB per 10 ms.
 export const LIP_HOLD = { fall: 12, span: 3, drop: 3, lo: -20, hold: 2, minMs: 45 };
 // A vowel's fade read as a murmur (`levelFade`, opt-in; README "A /u/ fade read as a nasal"): a level-rule run whose
-// own tilt (above 1 kHz against under 500 Hz, median) is less than `dark` dB darker than the vowel's 25-45 ms before it.
-export const LEVEL_FADE = { dark: 6 };
+// level falls all through its first `frames` 5 ms frames (no frame more than `slack` dB over the one before) by `fall`
+// dB or more. A murmur holds its level; a release keeps falling.
+export const LEVEL_FADE = { fall: 8, slack: 1, frames: 7 };
 export const DEEP = { lo: -35, hi: -12, minMs: 60, silent: -50, gap: 5, tilt: 15, peak: true };
 const db = (a, b) => 10 * Math.log10((a + 1e-20) / (b + 1e-20));
 const median = (v) => { const s = [...v].sort((p, q) => p - q); return s.length ? s[Math.floor(s.length / 2)] : NaN; };
@@ -628,17 +629,18 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
     if (yes && trace) (trace.leads = trace.leads || []).push({ before: stopRun[0] - r[0], len: r[1] - r[0] + 1, bar: !!barRun });
     return yes;
   };
-  // A fade read as a murmur (opt-in `levelFade`; LEVEL_FADE above): a level-rule run no darker in itself than the vowel
-  // 25-45 ms before it is that vowel fading, not a nasal
+  // A fade read as a murmur (opt-in `levelFade`; LEVEL_FADE above): a level-rule run whose level falls all through its
+  // first LF.frames frames (no frame more than LF.slack dB over the one before), by LF.fall dB or more, is the vowel's
+  // release, not a nasal: a murmur holds its level
   const LF = levelFade ? { ...LEVEL_FADE, ...(levelFade === true ? {} : levelFade) } : null;
   const fadeOf = (r) => {
-    if (r[0] < 9) return null;
-    const before = median(fr.slice(r[0] - 9, r[0] - 4).map(tiltOf)), own = median(fr.slice(r[0], r[1] + 1).map(tiltOf));
-    return own - before;
+    const lv = fr.slice(r[0], Math.min(r[1] + 1, r[0] + LF.frames)).map((f) => f.lvl);
+    for (let i = 1; i < lv.length; i++) if (lv[i] > lv[i - 1] + LF.slack) return false;
+    return lv[0] - lv[lv.length - 1] >= LF.fall;
   };
   const levelRun = runs(nasal, 30).find((r) => (msOf(r) >= 45 || !next.some((k) => k >= r[1] && k - r[1] <= 3)) && !vowelAgain(r) && murmur(r) && !barOf(r));
-  if (trace && levelRun) trace.level = { at: levelRun[0], t: fr[levelRun[0]].t, ms: msOf(levelRun), dTilt: fadeOf(levelRun) };
-  const levelKept = levelRun && LF && fadeOf(levelRun) !== null && fadeOf(levelRun) > -LF.dark ? null : levelRun;
+  if (trace && levelRun) trace.level = { at: levelRun[0], t: fr[levelRun[0]].t, ms: msOf(levelRun), lv: fr.slice(levelRun[0], Math.min(levelRun[1] + 1, levelRun[0] + 7)).map((f) => +f.lvl.toFixed(1)), toEnd: levelRun[1] === fr.length - 1 };
+  const levelKept = levelRun && LF && fadeOf(levelRun) ? null : levelRun;
   const nasRules = [['level', levelKept], ['step', step], ['near', near], ['pre', pre], ['deep', deep], ['shut', shut], ['hold', lhold]]
     .filter(([name, r]) => r && !intoTap(r) && !(name !== 'deep' && leadOf(r)) && !(barRun && r[0] <= barRun[0] && barRun[0] - r[0] <= BB.lead)).sort((p, q) => p[1][0] - q[1][0]);
   const nas = nasRules[0]?.[1];
