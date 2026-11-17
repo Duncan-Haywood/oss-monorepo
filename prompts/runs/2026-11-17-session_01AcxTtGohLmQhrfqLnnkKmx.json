@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtGohLmQhrfqLnnkKmx",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T04:06:51Z",
+  "ended": "2026-11-17T05:31:04Z",
+  "wall_minutes": 84.45,
+  "tokens_in": 6489072,
+  "tokens_out": 29940,
+  "cost_usd": 2.8735,
+  "tool_calls": 58,
+  "task": "build-data session 100: out-of-sample test (2019, 2020) and row bootstrap of session 99's Y-6 selector",
+  "projects": [
+    "research/build-data"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16809",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "First background launch of permits.py pull (chained with pyenv and status_pull in one backgrounded shell) never started; relaunched on its own."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Chaining several '( ... ) &' jobs inside one run_in_background command silently dropped one of them (the permits pull); one background command per long job is safer, worth a line next to the wait_for.py advice."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-build-data-selector-fails-out-of-sample.md",
+    "research/build-data/LOG.md (session 100, pre-registered, with Next)"
+  ],
+  "goal": null,
+  "notes": "Pre-registered R0-R5 (commit 74d901bd4) before any model run. 32 fits (2 held cities x 4 test years x 4 rules, 3 seeds, q0.9) on a fresh pull with row counts identical to sessions 95-99. R0 (refits equal session 99 to the digit) and R5 (bootstrap stability >= 96% in all 8 cells) held; R1-R4 refuted: on 2019/2020 the 5-year cut wins in all 4 cells incl. SF, the Y-6 selector picks nc3 in all 4 (regret 2.15). Negative result: session 99's 4/4 was year-specific; fixed 5-year cut is the default again (8-cell mean 78.16 vs selector 78.61). Local checks: build-data tests 161 passed 2 skipped; _homepage/build.py ok; research_live_links ok; check_md_links ok; post front matter, links and similarity ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d51d4a44-5a3f-5171-bbcb-ba3a42af660c",
+    "transcripts": 1,
+    "first": "2026-11-17T04:06:51Z",
+    "last": "2026-11-17T05:31:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 56,
+        "input": 108,
+        "output": 29940,
+        "thinking": 5769,
+        "cache_read": 6363771,
+        "cache_write_5m": 0,
+        "cache_write_1h": 125193,
+        "api_equivalent_usd": 2.8735,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 56,
+      "input": 108,
+      "output": 29940,
+      "thinking": 5769,
+      "cache_read": 6363771,
+      "cache_write_5m": 0,
+      "cache_write_1h": 125193,
+      "api_equivalent_usd": 2.8735,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 54,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 84.45,
+      "active_minutes": 84.45,
+      "model_minutes": 5.74,
+      "tool_minutes": 78.71,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a researcher would need about a day to write the pre-registration, the per-row saving and the bootstrap tool, run 32 fits and write up the result",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 348.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
