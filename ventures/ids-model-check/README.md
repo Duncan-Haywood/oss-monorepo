@@ -65,6 +65,16 @@ open. MIT licensed, no dependencies, nothing uploaded.
   specifications in 11 public files, 81.1% of the public files' facets editable
   (was 79.4%), every file still writing back the same and none made invalid
   against `ids.xsd`. `eval/several-classes-2026-11-17.md`.
+  **A model's values** (2026-11-17): with a model open, each property row
+  says what values the model holds ("In the model: 3 different values: REI 60
+  (12), ...") and offers them: **Allow exactly these values** writes a one-of
+  list, **Use the model's range** a range. Ranges are rounded outward because
+  IDS ranges take no tolerance and Revit writes 0.254 m as
+  0.25399999999999995: on four real exports, 364 of 752 ranges taken from the
+  values as displayed fail their own model; all 1,014 requirements built from
+  the offers pass. "One of" now works on any text property or attribute (82.0%
+  of the public files' facets editable, was 81.1%).
+  `eval/model-values-2026-11-17.md`.
 - Exports: BCF 2.1 (one topic per failing element, selected by IfcGuid), CSV,
   JSON.
 - 22 MB Revit export (Schultz Residence, 424,819 entities): 1.4 s on the command
@@ -360,10 +370,12 @@ faster than IfcTester; its point is needing no install.
 
 - The editor (own sets and a loaded model's classes and sets landed
   2026-11-16, `eval/model-inventory-2026-11-16.md`; several classes per
-  specification 2026-11-17, `eval/several-classes-2026-11-17.md`):
+  specification 2026-11-17, `eval/several-classes-2026-11-17.md`; a model's
+  property values 2026-11-17):
   property/attribute facets in the applicability (85 kept facets on the
-  public files); a subclass checkbox per class, not only the first; offer the values a model uses for a property
-  (its labels as an enumeration); a "fix the dataType" hint built from the 21
+  public files); a subclass checkbox per class, not only the first; a model's
+  values for an attribute (Name, ObjectType) and a classification's codes, as
+  for properties (2026-11-17, `eval/model-values-2026-11-17.md`); a "fix the dataType" hint built from the 21
   of 122 standard properties real exports write in another type.
 - More real models through the IfcTester cross-check (an MEP model, an IFC4X3
   infrastructure model).
