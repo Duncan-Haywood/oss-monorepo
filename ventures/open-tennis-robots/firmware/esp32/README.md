@@ -1713,3 +1713,50 @@ it on (both constants) once a real wheel's tach and command log across a speed c
 
 **Not known.** All simulated. Tests: `test_slow_wheel_is_watched_through_the_next_speed_change`,
 `test_a_stop_still_ends_the_watch_through_changes` (tests/test_host.py).
+
+## The jittery tach through a speed change (2026-11-17)
+
+**The item.** "The fit floor on held-out builds" found the 3 us tach-jitter plant the one plant where watching through
+the speed change (`LOOP_THROUGH_CHANGE`) did worse: 8 of 324 wheels more than 2% off against 3 with the hold. Was it
+the change, or chance?
+
+**Two predictions.** If the change is the cause, the misses cluster on wheels whose loop fit ran on periods through the
+next shot's speed change, and stay there on other seeds. If it is chance, they land where they did with the hold: the
+through mode sends the next speeds sooner, so every later tach edge draws a different jitter sample from the
+simulator's random stream, and other seeds move the count either way. A third candidate came from reading the code:
+the tach keeps 128 periods (`PERIOD_RING`) and a snapshot taken through a speed-up might outrun it, losing the ball's
+revolutions while the tick log still counts from the stroke's first edge. That one is out: on the worst build the
+longest snapshot was 103 periods, in both modes.
+
+**The run.** `tests/through_jitter_cause.py` tags each launched wheel by how its loop fit was made ("crossed": the
+targets changed before the verdict; "watched": a slow wheel watched past its verdict; "plain") and runs the held-out
+builds (three launchers, two lags, the 3 us plant, the slow drill at 3.0 s) on seeds 7 to 12, hold and through: 72
+drills, 3,888 wheels, none aborted (eval/through-jitter-cause-2026-11-17.txt, rows in the .jsonl beside it).
+
+**Chance.** Wheels more than 2% off, hold / through, per seed:
+
+| seed | 7 (held-out) | 8 | 9 | 10 | 11 | 12 | all |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| off by > 2% | 3 / 8 | 7 / 7 | 5 / 5 | 5 / 8 | 8 / 4 | 7 / 6 | 35 / 38 |
+
+Paired wheel by wheel (same seed, build, shot and wheel), the through mode's error is 0.02 points *smaller* on average
+(1,944 pairs). Seed 7 was the through mode's worst draw of the six.
+
+**Where the misses are.** The same class in both modes: the fast partner wheel of a slow shot (2,500 rpm and up, a
+shot whose other wheel was watched past its verdict). It misses by over 2% 5.1% of the time with the hold and 5.5%
+through, sd 1.00% in both, with no bias (-0.05%). A fast shot's wheels whose targets changed before the verdict
+miss 0.3% / 0.5% of the time (sd 0.60% / 0.62%). The slow wheels themselves: 0 of 360 under 1,000 rpm over 2% in either mode,
+sd 0.45% hold, 0.40% through.
+
+| fit | band | hold: off > 2%, sd | through: off > 2%, sd |
+| --- | --- | --- | --- |
+| crossed (fast shot) | >= 2,500 | 2 of 648, 0.60% | 3 of 648, 0.62% |
+| watched (slow shot) | < 1,000 | 0 of 360, 0.45% | 0 of 360, 0.40% |
+| watched (slow shot) | >= 2,500 | 32 of 632, 1.00% | 35 of 639, 1.00% |
+
+**What changes.** No code: the through mode stays opt-in for the reason it was (a real wheel across a 5x speed change),
+not for jitter. The one-build spin error of 2.16% was this draw too; the spin fit was not rerun over the six seeds.
+The jitter noise worth chasing is the slow shot's fast wheel, whatever the mode: sd 1.0% where a fast shot's wheels
+have 0.6%. Next: whether the board's LOOP_UNSURE flag marks those wheels, and whether the Pi's fit should weight them down.
+
+**Not known.** All simulated; the jitter is the simulator's Gaussian 3 us per edge.
