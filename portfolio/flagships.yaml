@@ -362,8 +362,9 @@ flagships:
       floors, frontier picker, blackout fit, WebAssembly step: README 2026-11-11 to
       2026-11-15 sections; 2026-11-17 shorter seasons with even strength of
       schedule, eval/seed-balance.txt; TeamSnap and SportsEngine import files,
-      eval/platform-templates-2026-11-17.md; calendar ids per fixture and subscribe
-      feeds, eval/ics-stable-uids.txt). 2026-11-15: 3-game nights
+      eval/platform-templates-2026-11-17.md; calendar ids per fixture,
+      eval/ics-stable-uids.txt; bowling seasons, lane pairs rotated evenly: 30 of 36
+      at the bound, 6 misses SAT-feasible, eval/bowling-lanes.txt). 3-game nights
       (eval/three-game-nights.txt): SAT session designs (session-designs.mjs) take
       every even 10-48 teams on 6 slots, 16 of 19 sizes on 9, to 0 waits; 8 on 2x6,
       12 on 2x9 UNSAT. Odd leagues (eval/odd-night-sat.py, odd-designs.mjs): 11-25
@@ -375,14 +376,8 @@ flagships:
       3 k-cycles); even 40, 46 on 3 sessions 0 waits (eval/session-orbit.py). 29 on
       5x9, 35 on 6x9: 0 waits (odd-lns.py). 41 on 7x9 0 waits (last night UNSAT
       alone, eval/lns-bad-night.py; re-dealt with the short night). 43 on 7x9 0
-      waits (odd-orbit.py, 9,849 s). Next, most valuable first: 47 on 8x9 (13 of 16;
-      LNS stalled: 5 runs from 13, 0 climbs, night 2 UNKNOWN at 1 h; next: a new
-      model, orbit or symmetry-broken night); 49 on 8x9 (orbit ~11 h est.; 4 solvers
-      x 2 h no answer, a turn-fixed night never lays out when fully booked,
-      eval/odd-orbit-sym.txt; next: a split or resumable search, or window shapes
-      fixed first); the rest of the 20-team gap (40 to 44 still ~444-550: four-round
-      re-deals or a longer run, now ~4x cheaper; or a starter family climbed with
-      the floor as its score). More open items: NEXT.md.
+      waits (odd-orbit.py, 9,849 s). Next, most valuable first: bowling's 6 misses
+      (eval/bowling-lane-sat.txt). More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
