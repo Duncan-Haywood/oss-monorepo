@@ -38,12 +38,9 @@ _loop_fit = LC._loop_fit
 
 
 def _tagging_loop_fit(self, snap, ticks, edges0, targets, speeds, dips, flags):
-    # revolutions the tach's ring had already overwritten when the fit took its periods: the tick log counts edges
-    # from edges0, the periods start that many edges later, so every tick lands that many revolutions early
-    cut = []
-    for k in (0, 1):
-        last = max((c for c, _, _ in ticks[k]), default=edges0[k]) - edges0[k]
-        cut.append(max(0, last - len(snap[k])) if targets[k] > 0 else 0)
+    # a snapshot as long as the tach's ring (controller.PERIOD_RING) may have lost its oldest periods, the ball's: the
+    # tick log still counts edges from edges0, so every tick then lands that many revolutions early
+    cut = [len(snap[k]) if targets[k] > 0 else 0 for k in (0, 1)]
     self._cuts.append(cut)
     return _loop_fit(self, snap, ticks, edges0, targets, speeds, dips, flags)
 
