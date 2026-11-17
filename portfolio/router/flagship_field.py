@@ -64,6 +64,16 @@ it was over: three runs on 2026-11-16 overran it by 14 to 47 characters and
 had to guess how much to cut. Both refusals now give the overrun, the
 landed clauses to cut and, with one --replace, the longest NEW that fits;
 reading or writing either field prints how many characters are left.
+
+Even so the rows never left the cap: --make-room parked only until the row
+fitted, so the next run found it at 1,990+ again and paid the same refusal
+or park. On 2026-11-17 11 of 12 rows sat at 1,814 to 1,999 characters and
+`friction_rank.py --live --ungated --days 3` ranked "next: at the cap" first,
+18 sessions in three days, after a "by-design" verdict. So a park now goes
+down to FLAGSHIP_NEXT_TARGET (1,700), leaving room for the next few runs'
+edits, and a `--replace`/`--set` on `next:` that would pass the cap parks by
+itself (as --make-room did) instead of refusing; `--no-make-room` keeps the
+refusal. `--trim` parks a row that is over the target down to it now.
 """
 from __future__ import annotations
 
@@ -81,6 +91,9 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from validate import FLAGSHIP_BUILDABLE_MAX, FLAGSHIP_NEXT_MAX, FLAGSHIPS_PATH  # noqa: E402
 
+# Where a park leaves `next:`: room under the cap for the next runs' edits,
+# so a row is not refused or parked again on every landing (see the docstring).
+FLAGSHIP_NEXT_TARGET = 1700
 INDENT = " " * 6
 WIDTH = 84
 # A word ending in a hyphen at the end of a folded line, continued on the next.
@@ -220,6 +233,37 @@ def landed_hint(value: str, over: int = 0) -> str:
     return "\n".join([head + ":"] + rows)
 
 
+def split_items(value: str) -> list[str]:
+    """The `; `-separated items of `value`, splitting only outside brackets.
+
+    A plain split broke items at a "; " inside "(...)": the first --trim of
+    the real rows (2026-11-17) offered "the Nexus 5X carries ForwardMatrix)"
+    and "--baritones, ... (TTBB" as items, which would have parked half an
+    item and left an unclosed bracket in `next:`."""
+    out, depth, start = [], 0, 0
+    v = " ".join(value.split())
+    for i, ch in enumerate(v):
+        if ch in "([{":
+            depth += 1
+        elif ch in ")]}":
+            depth = max(depth - 1, 0)
+        elif ch == ";" and depth == 0 and v.startswith("; ", i):
+            out.append(v[start:i])
+            start = i + 2
+    out.append(v[start:])
+    return out
+
+
+def _balanced(text: str) -> bool:
+    depth = 0
+    for ch in text:
+        depth += ch in "([{"
+        depth -= ch in ")]}"
+        if depth < 0:
+            return False
+    return depth == 0
+
+
 def park_candidates(value: str, over: int, keep: tuple[str, ...] = ()) -> list[tuple[str, int]]:
     """(item, room it frees) for the `; `-separated items of `value`, last first,
     until together they free `over` characters. The history pointer that opens
@@ -227,14 +271,15 @@ def park_candidates(value: str, over: int, keep: tuple[str, ...] = ()) -> list[t
     the run's own --replace) are never offered. Rows list their most
     useful items first ("Next, most valuable first: ..."), so the tail is the
     usual place to cut, but which one to park stays the run's call."""
-    items = [i for i in " ".join(value.split()).split("; ") if i]
+    items = [i for i in split_items(value) if i]
     out: list[tuple[str, int]] = []
     freed = 0
     for i, item in enumerate(reversed(items)):
         first = i == len(items) - 1
         body = ROW_NOTE.sub("", item.replace(PARK_POINTER, "")).strip().rstrip(". ")
         mine = any(k and (k in item or body in k) for k in keep)
-        if first or mine or not body or POINTER.match(body) or len(body) < 12:
+        if (first or mine or not body or POINTER.match(body) or len(body) < 12
+                or not _balanced(body)):
             continue
         gain = len(body) + 2
         out.append((body, gain))
@@ -352,17 +397,20 @@ def park_text(existing: str | None, venture: str, items: list[str], day: str) ->
     return body + add
 
 
-def make_room(value: str, keep: tuple[str, ...] = ()) -> tuple[str, list[str]]:
-    """(`value` with items parked from the end until it and the NEXT.md pointer
-    fit under the cap, the items parked). Unchanged when it already fits.
-    Raises ValueError when the parkable items cannot free enough."""
+def make_room(value: str, keep: tuple[str, ...] = (),
+              trigger: int = FLAGSHIP_NEXT_MAX) -> tuple[str, list[str]]:
+    """(`value` with items parked from the end, the items parked). Unchanged
+    when it is at most `trigger` characters; otherwise items go until it and
+    the NEXT.md pointer fit under FLAGSHIP_NEXT_TARGET, or, when the parkable
+    items cannot free that much, under the cap. Raises ValueError when even
+    the cap cannot be reached."""
     value = " ".join(value.split())
-    if len(value) <= FLAGSHIP_NEXT_MAX:
+    if len(value) <= trigger:
         return value, []
     parked: list[str] = []
     for _ in range(50):
         room = 0 if PARK_POINTER in value else len(PARK_POINTER) + 1
-        over = len(value) + room - FLAGSHIP_NEXT_MAX
+        over = len(value) + room - FLAGSHIP_NEXT_TARGET
         if over <= 0:
             return value, parked
         cands = [c for c, _ in park_candidates(value, over, keep)]
@@ -370,6 +418,8 @@ def make_room(value: str, keep: tuple[str, ...] = ()) -> tuple[str, list[str]]:
             break
         value = remove_items(value, cands)
         parked += cands
+    if len(value) <= FLAGSHIP_NEXT_MAX:
+        return value, parked
     raise ValueError(f"--make-room: parking every item it may move still leaves `next:` at "
                      f"{len(value)} of {FLAGSHIP_NEXT_MAX} characters; shorten the new text")
 
@@ -444,7 +494,7 @@ def main(argv: list[str] | None = None) -> int:
     re-reading the row)."""
     argv = sys.argv[1:] if argv is None else argv
     rc = _main(argv)
-    writes = {"--set", "--replace", "--park", "--make-room"}
+    writes = {"--set", "--replace", "--park", "--make-room", "--trim"}
     if rc != 0 and any(a.split("=", 1)[0] in writes for a in argv):
         print(f"NOT WRITTEN: exit {rc}, no file was changed", file=sys.stderr)
     return rc
@@ -466,6 +516,11 @@ def _main(argv: list[str]) -> int:
     ap.add_argument("--make-room", action="store_true",
                     help="when `next:` would pass the cap, park items from the end of the row "
                          "(never your own NEW text) until it and the NEXT.md pointer fit")
+    ap.add_argument("--no-make-room", action="store_true",
+                    help="refuse a `next:` edit over the cap instead of parking by itself")
+    ap.add_argument("--trim", action="store_true",
+                    help=f"park items from the end of `next:` until it is at most "
+                         f"{FLAGSHIP_NEXT_TARGET} characters (no other edit needed)")
     ap.add_argument("--file", type=Path, default=FLAGSHIPS_PATH)
     ap.add_argument("--ventures-dir", type=Path, default=REPO_ROOT / "ventures", help=argparse.SUPPRESS)
     args = ap.parse_args(argv)
@@ -487,6 +542,13 @@ def _main(argv: list[str]) -> int:
     try:
         current = read_value(text, args.venture, args.field)
         mine = tuple(" ".join(rep.split()) for _, rep in args.replace or [])
+        # A `next:` edit that would pass the cap parks by itself unless told
+        # not to (FLAGSHIP_NEXT_TARGET, docstring); a fitting edit is unchanged.
+        if (args.field == "next" and current is not None and not args.no_make_room
+                and (args.set is not None or args.replace)):
+            args.make_room = True
+        if args.trim:
+            args.make_room = True
         if args.landed:
             if current is None:
                 print(f"{args.venture} has no `{args.field}:`", file=sys.stderr)
@@ -515,7 +577,8 @@ def _main(argv: list[str]) -> int:
             if parks:
                 new = remove_items(new, parks)
             if args.make_room:
-                new, auto = make_room(new, mine)
+                new, auto = make_room(new, mine,
+                                      FLAGSHIP_NEXT_TARGET if args.trim else FLAGSHIP_NEXT_MAX)
                 for item in auto:
                     print(f"--make-room parked ({len(item) + 2} chars): {item}", file=sys.stderr)
                 parks += auto
@@ -524,8 +587,7 @@ def _main(argv: list[str]) -> int:
                 new = " ".join(new.split())
                 out = set_value(text, args.venture, "next", new, mine)
                 args.file.write_text(out)
-                print(f"wrote {args.venture}.next: {len(new)} of {FLAGSHIP_NEXT_MAX} characters "
-                      "(fits; nothing parked)")
+                print(f"wrote {args.venture}.next: {len(new)}{cap_note('next', len(new))}")
                 return 0
             args.park = parks
             new = with_pointer(new)
@@ -538,7 +600,7 @@ def _main(argv: list[str]) -> int:
             args.file.write_text(out)
             dest.write_text(parked)
             print(f"parked {len(args.park)} item(s) in {dest.relative_to(dest.parents[2])}; "
-                  f"wrote {args.venture}.next: {len(new)} of {FLAGSHIP_NEXT_MAX} characters")
+                  f"wrote {args.venture}.next: {len(new)}{cap_note('next', len(new))}")
             if PARK_POINTER not in new:
                 print(f"note: no room for the pointer {PARK_POINTER!r}; park one more item "
                       "or shorten one so readers know NEXT.md exists", file=sys.stderr)

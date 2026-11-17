@@ -20,3 +20,7 @@
 - A real low- and high-ISO pair of one static scene, for this mode as for the X-Trans SNR 25 column.
 - A noise model for raws without a profile (the optical-black area, ISO).
 - The noise-free oracle gain (+0.06-0.12 dB from averaging the two demosaics) is untouched.
+- (2026-11-17) a tungsten-lit colour chart to say which colour model is closer (the 70D frame, 4,700 K and green-tinted, is where they part most; the Nexus 5X carries ForwardMatrix)
+- (2026-11-17) a phone DNG with its own JPEG of the frame (corrected corners)
+- (2026-11-17) a real DNG with opcode flag bit 1 set
+- (2026-11-17) the DJI Phantom 4 DNG's vignette lift against DJI's own render (eval/opcode-quality-flag-*)
