@@ -728,6 +728,8 @@ class Step:
         # (count, message) for each distinct error a failed step printed; see
         # failure_causes.
         self.causes = []
+        # {cause: first test that failed with it}; see failure_sites.
+        self.sites = {}
         # Repository paths a failed step's output names; see named_paths.
         self.paths = set()
         # env: entries to add for this step. Populated only from `vars.`
@@ -1428,8 +1430,18 @@ def isolated_git_global(tmp: str, environ=os.environ) -> str:
 # over-long description, and 172 tests failed on that one error (measured by
 # seeding the fault, process run 2026-11-12). Grouped, the cause is one line.
 TAP_ERROR = re.compile(r"^\s+error:\s*(.*)$")
-PYTEST_FAILED = re.compile(r"^(?:FAILED|ERROR) \S+ - (.+)$")
+PYTEST_FAILED = re.compile(r"^(?:FAILED|ERROR) (\S+) - (.+)$")
 CAUSES_SHOWN = 3
+# Why each cause names the first test that hit it. A cause alone read
+# "1 x Expected values to be strictly equal", which says what but not where:
+# finding the test meant rerunning the 211 s platform/pages suite (doc
+# friction, run record 2026-11-17, session_01XpHqyfctr). Node's TAP gives the
+# test's name on its `not ok` line and its file:line in `location:`; pytest's
+# summary line starts with the test id. A parent test's own error, "1
+# subtest failed", repeats its child's and is not a cause.
+TAP_NOT_OK = re.compile(r"^\s*not ok \d+ - (.*)$")
+TAP_LOCATION = re.compile(r"^\s+location:\s*'?(.*?)'?$")
+SUBTESTS_FAILED = re.compile(r"^\d+ subtests? failed$")
 
 
 def _clean_cause(text: str) -> str:
@@ -1439,6 +1451,42 @@ def _clean_cause(text: str) -> str:
     return re.sub(r"^(?:\w*Error|Error): ", "", text).strip()
 
 
+def _scan_failures(lines, root: str = REPO):
+    """({cause: count}, {cause: first test that hit it}) for failure_causes
+    and failure_sites; insertion order is first appearance."""
+    counts: dict[str, int] = {}
+    sites: dict[str, str] = {}
+    test = where = ""
+    prefix = root.rstrip("/") + "/"
+    for i, line in enumerate(lines):
+        m = TAP_NOT_OK.match(line)
+        if m:
+            test, where = m.group(1).strip(), ""
+            continue
+        m = TAP_LOCATION.match(line)
+        if m and test:
+            where = m.group(1)
+            where = where[len(prefix):] if where.startswith(prefix) else where
+            continue
+        m = TAP_ERROR.match(line)
+        if m:
+            value = m.group(1).strip()
+            if value in ("|", "|-", ">", ">-", ""):
+                value = next((n for n in lines[i + 1:i + 3] if n.strip()), "")
+            site = f"{test} ({where})" if test and where else test
+        else:
+            m = PYTEST_FAILED.match(line)
+            if not m:
+                continue
+            site, value = m.group(1), m.group(2)
+        cause = _clean_cause(value)[:240]
+        if cause and not SUBTESTS_FAILED.match(cause):
+            counts[cause] = counts.get(cause, 0) + 1
+            if site:
+                sites.setdefault(cause, site[:200])
+    return counts, sites
+
+
 def failure_causes(lines) -> list[tuple[int, str]]:
     """Distinct error messages in a step's output, most frequent first.
 
@@ -1446,23 +1494,14 @@ def failure_causes(lines) -> list[tuple[int, str]]:
     block) and pytest's `FAILED test - message` summary lines. Empty when the
     output has neither, so other tools' reports are unchanged.
     """
-    counts: dict[str, int] = {}
-    for i, line in enumerate(lines):
-        m = TAP_ERROR.match(line)
-        if m:
-            value = m.group(1).strip()
-            if value in ("|", "|-", ">", ">-", ""):
-                value = next((n for n in lines[i + 1:i + 3] if n.strip()), "")
-        else:
-            m = PYTEST_FAILED.match(line)
-            if not m:
-                continue
-            value = m.group(1)
-        cause = _clean_cause(value)[:240]
-        if cause:
-            counts[cause] = counts.get(cause, 0) + 1
+    counts, _ = _scan_failures(lines)
     # Stable sort: ties keep the order the errors first appeared in.
     return [(n, c) for c, n in sorted(counts.items(), key=lambda kv: -kv[1])]
+
+
+def failure_sites(lines) -> dict[str, str]:
+    """{cause: the first test that failed with it, as "name (file:line)"}."""
+    return _scan_failures(lines)[1]
 
 
 # Why a sweep names the changed file several failed steps share. One post
@@ -1578,12 +1617,14 @@ def execute(step: Step, timeout: int) -> None:
                            if x).strip().splitlines()
         step.tail = output[-12:]
         step.causes = failure_causes(output)
+        step.sites = failure_sites(output)
         step.paths = named_paths(output)
         return
     step.seconds = time.monotonic() - start
     output = (done.stdout + done.stderr).strip().splitlines()
     step.tail = output[-12:]
     step.causes = failure_causes(output) if done.returncode else []
+    step.sites = failure_sites(output) if done.returncode else {}
     step.paths = named_paths(output) if done.returncode else set()
     if done.returncode == 0:
         step.status = "ok"
@@ -1883,6 +1924,8 @@ def report(name, steps, uses_skipped, forced) -> int:
                   "the most frequent:")
             for n, cause in step.causes[:CAUSES_SHOWN]:
                 print(f"          {n} x {cause}")
+                if cause in step.sites:
+                    print(f"              first in: {step.sites[cause]}")
             print("        A count this size is often one cause in your diff "
                   "that many tests share, not the environment.")
         for line in step.tail:
@@ -2615,6 +2658,13 @@ def _main(argv=None) -> int:
                          "selected workflows (comma-separated file names, "
                          ".yml optional), e.g. --only doc-refs-ci,prompts-ci; "
                          "on its own: run these workflows by name")
+    # Friction 2026-11-17 (session_01XpHqybgdy): checking one supersede-check
+    # step meant a full portfolio-validate run past the 100 s handoff (~5 min).
+    ap.add_argument("--step", metavar="TEXT",
+                    help="with one named workflow: run only the steps whose "
+                         "'job / step name' contains TEXT (case-insensitive). "
+                         "Setup steps it skips (npm ci, pip install) are not "
+                         "run either, so include them in TEXT if it needs them")
     ap.add_argument("--force", action="store_true",
                     help="allow a workflow that is not verification-only")
     ap.add_argument("--timeout", type=int, default=900,
@@ -2630,6 +2680,12 @@ def _main(argv=None) -> int:
                          "HANDOFF_S); the default under an agent harness is "
                          "to detach after 100 s and print the log path")
     args = ap.parse_args(argv)
+
+    if args.step and (args.tree or args.for_changes or args.only
+                      or len(args.workflow) != 1):
+        print("--step needs exactly one workflow named, e.g. "
+              "portfolio-validate --step supersede", file=sys.stderr)
+        return 2
 
     if args.tree:
         if args.workflow or args.for_changes:
@@ -2679,6 +2735,16 @@ def _main(argv=None) -> int:
     return combine_named(codes)
 
 
+def pick_steps(steps, text: str):
+    """(steps whose label contains text, labels of the rest), case-insensitive.
+
+    The rest are reported as skipped, so a one-step run never reads as the
+    whole workflow passing."""
+    want = text.casefold()
+    picked = [s for s in steps if want in s.label.casefold()]
+    return picked, [s.label for s in steps if s not in picked]
+
+
 def workflow_file(name: str) -> str:
     """`doc-refs-ci` or `.github/workflows/doc-refs-ci.yml` as `doc-refs-ci.yml`."""
     name = os.path.basename(name.strip())
@@ -2722,6 +2788,15 @@ def _run_one(name: str, args) -> int:
             print(f"  [held  ] {name} / {job}: {why}; --force runs it too")
 
     steps, uses_skipped = collect(workflow, only=only)
+    if getattr(args, "step", None):
+        steps, unpicked = pick_steps(steps, args.step)
+        if not steps:
+            print(f"no step of {name} matches --step {args.step!r}; its steps:",
+                  file=sys.stderr)
+            for label in unpicked:
+                print(f"  {label}", file=sys.stderr)
+            return 2
+        uses_skipped += [f"{label}: not selected by --step" for label in unpicked]
 
     if args.list:
         for step in steps:
