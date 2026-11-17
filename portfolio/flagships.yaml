@@ -186,21 +186,16 @@ flagships:
       real shop's series through --suggest); (a) ar1 + floor 2 failed on 5 fresh bee
       dances (0.244 vs 0.337, README; muted note ships); ar1 alone led (0.353): a
       6th set, a season and a trend term per column (README "Wide sets in print");
-      (b) sticky series on a drifting level: four repeat treatments failed the
-      frozen-juice bar; 3 log n led on all TCPD post hoc (0.754 vs 0.697 on the 34
-      non-sticky), test it on fresh labelled data; update-rate check: date a
-      documented collection change. Stale feeds: clumped LR shipped; next a real
-      documented carry-forward. joint drift (measured, not offered) and its 2x
-      penalty on fresh multi-column labelled data. Open: (0) drift model: t-walk
-      increments, biweight on fresh data, why it absorbs seat belts and quality
-      control 4, its AR(1) term; (2) synthetic control (README "A floored ratio"):
-      CA rank 1 of 39; MA, AZ, OR ranks 6-13; covariates (README "Matched on
-      covariates") failed; multi-start V (README "Several starts for V") failed too:
-      no V fits Oregon; covariate balance of the outcome fit (covariateBalance,
-      eval/synth-balance-real.out.txt) 2026-11-17: CA 1.66 sd richer than its
-      synthetic, MA balanced yet 6th; next a sim where a covariate drives the
-      outcome (does the 0.25 flag find biased gaps?), lags over the before-period,
-      then CLI. More open items: NEXT.md.
+      update-rate check: date a documented collection change. Stale feeds: clumped
+      LR shipped; next a real documented carry-forward. joint drift (measured, not
+      offered) and its 2x penalty on fresh multi-column labelled data. Open: (0)
+      drift model: t-walk increments, biweight on fresh data, why it absorbs seat
+      belts and quality control 4, its AR(1) term; covariate balance of the outcome
+      fit (covariateBalance, eval/synth-balance-real.out.txt) 2026-11-17: CA 1.66 sd
+      richer than its synthetic, MA balanced yet 6th; covariate-shock sim (README
+      "Which imbalance biases the gap"): 0.25 flag fires on 84% of null fits;
+      placeboWarning (>=80% matched better) holds every false find; next CLI table,
+      2-covariate cell. More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     why: >-

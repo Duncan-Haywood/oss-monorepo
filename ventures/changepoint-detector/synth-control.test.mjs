@@ -134,6 +134,8 @@ test('covariate balance (README "Covariate balance"): synthetic value is the fit
   assert.ok(Math.abs(b[1].donorMean - names.reduce((s, n) => s + cov.donors[n][1], 0) / names.length) < 1e-12);
   assert.ok(Math.abs(b[0].stdGap) < 0.25 && !b[0].imbalanced, `before mean gap ${b[0].stdGap}`); // matched by the outcome fit
   for (const c of b) assert.ok(c.placeboShare >= 0 && c.placeboShare <= 1);
+  for (const c of b) assert.equal(c.placeboWarning, c.placeboShare >= 0.8 - 1e-12);
+  assert.ok(covariateBalance(r, cov, { placeboQuantile: 0 }).every((c) => c.placeboWarning));
   assert.throws(() => covariateBalance(r, { treated: [1], donors: {} }), /same count of finite numbers/);
   assert.throws(() => covariateBalance({}, cov), /synthControlTest result/);
 });
