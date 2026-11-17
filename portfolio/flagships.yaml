@@ -475,10 +475,8 @@ flagships:
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
-      (eval/ifcxml-xbim-2026-11-16.md); the IDS editor (editor.html): a 'did you
-      mean' for a property the template lacks (Portugal's Lenght for Length, 8
-      public facets, eval/template-type-2026-11-17.md); the 20 numeric lists on
-      non-element attributes in no-class specs; more real exports through
+      (eval/ifcxml-xbim-2026-11-16.md); the 20 numeric lists on non-element
+      attributes in no-class specs; more real exports through
       eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
     next: >-
@@ -504,4 +502,6 @@ flagships:
       audit in every named schema, false page errors 18 to 0 on 18 public files); a
       standard property in the file's own dataType 2026-11-17
       (eval/template-type-2026-11-17.md: 16 rows in 7 public files, Use the
-      template's type, 14 pset-datatype errors to 0). More open items: NEXT.md.
+      template's type, 14 pset-datatype errors to 0). 'did you mean' rows 2026-11-17
+      (eval/name-suggestion-2026-11-17.md: 17 rows in 7 public files, name errors 31
+      to 14). More open items: NEXT.md.
