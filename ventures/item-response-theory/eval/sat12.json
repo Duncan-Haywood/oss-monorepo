@@ -1,0 +1,299 @@
+{
+ "source": "mirt SAT12 via eval/sat12.py",
+ "original": {
+  "model": "2pl",
+  "n": 600,
+  "lr": 309.3239602807771,
+  "lrDf": 31,
+  "marginalReliability": 0.8358168746326449,
+  "flaggedItems": [
+   {
+    "item": "Item.9",
+    "flags": [
+     "very easy"
+    ],
+    "a": 0.5322536007661682,
+    "b": -4.0265562610496515,
+    "itemRest": 0.10293956597234641
+   },
+   {
+    "item": "Item.12",
+    "flags": [
+     "weak slope: tells strong and weak apart poorly"
+    ],
+    "a": 0.15773723986979069,
+    "b": 2.1007856902155906,
+    "itemRest": 0.050556590227075385
+   },
+   {
+    "item": "Item.21",
+    "flags": [
+     "very easy"
+    ],
+    "a": 0.6495477854290764,
+    "b": -3.939157792806421,
+    "itemRest": 0.12714082632952756
+   },
+   {
+    "item": "Item.30",
+    "flags": [
+     "weak slope: tells strong and weak apart poorly"
+    ],
+    "a": 0.3786264706968112,
+    "b": 0.6090025848261804,
+    "itemRest": 0.1305137482399968
+   },
+   {
+    "item": "Item.32",
+    "flags": [
+     "weak slope: tells strong and weak apart poorly",
+     "very hard"
+    ],
+    "a": 0.11545160133526652,
+    "b": 14.185478662642685,
+    "itemRest": 0.01917629040612194
+   }
+  ],
+  "distractorFlags": [
+   {
+    "item": "Item.12",
+    "key": "4",
+    "flagged": [
+     "3"
+    ],
+    "strongest": "3",
+    "options": [
+     {
+      "answer": "(blank)",
+      "keyed": false,
+      "share": 0.008333333333333333,
+      "meanRest": 17.173456140350876
+     },
+     {
+      "answer": "1",
+      "keyed": false,
+      "share": 0.07166666666666667,
+      "meanRest": 16.90542635658915
+     },
+     {
+      "answer": "2",
+      "keyed": false,
+      "share": 0.08166666666666667,
+      "meanRest": 16.34013605442177
+     },
+     {
+      "answer": "3",
+      "keyed": false,
+      "share": 0.21833333333333332,
+      "meanRest": 18.459832788077065
+     },
+     {
+      "answer": "4",
+      "keyed": true,
+      "share": 0.415,
+      "meanRest": 18.278945108193135
+     },
+     {
+      "answer": "5",
+      "keyed": false,
+      "share": 0.205,
+      "meanRest": 17.246651180797524
+     }
+    ]
+   },
+   {
+    "item": "Item.32",
+    "key": "5",
+    "flagged": [
+     "3"
+    ],
+    "strongest": "3",
+    "options": [
+     {
+      "answer": "(blank)",
+      "keyed": false,
+      "share": 0.011666666666666667,
+      "meanRest": 13.234841770843902
+     },
+     {
+      "answer": "1",
+      "keyed": false,
+      "share": 0.125,
+      "meanRest": 17.55333333333333
+     },
+     {
+      "answer": "2",
+      "keyed": false,
+      "share": 0.18333333333333332,
+      "meanRest": 16.177575757575756
+     },
+     {
+      "answer": "3",
+      "keyed": false,
+      "share": 0.44333333333333336,
+      "meanRest": 19.20277479412818
+     },
+     {
+      "answer": "4",
+      "keyed": false,
+      "share": 0.075,
+      "meanRest": 16.986487867177523
+     },
+     {
+      "answer": "5",
+      "keyed": true,
+      "share": 0.16166666666666665,
+      "meanRest": 18.51294387170676
+     }
+    ]
+   }
+  ],
+  "item32": {
+   "item": "Item.32",
+   "a": 0.11545160133526652,
+   "aSE": 0.12101823253606442,
+   "b": 14.185478662642685,
+   "bSE": 14.80725986313125,
+   "d": -1.637736227309353,
+   "pCorrect": 0.163575042158516,
+   "itemRest": 0.01917629040612194,
+   "answered": 593,
+   "sx2": null,
+   "sx2df": null,
+   "sx2p": null,
+   "flags": [
+    "weak slope: tells strong and weak apart poorly",
+    "very hard"
+   ]
+  }
+ },
+ "rescoredItem32To": "3",
+ "rescored": {
+  "model": "2pl",
+  "n": 600,
+  "lr": 291.99793639741256,
+  "lrDf": 31,
+  "marginalReliability": 0.8370295629589696,
+  "flaggedItems": [
+   {
+    "item": "Item.9",
+    "flags": [
+     "very easy"
+    ],
+    "a": 0.520189976713528,
+    "b": -4.111632085472045,
+    "itemRest": 0.09838926693666965
+   },
+   {
+    "item": "Item.11",
+    "flags": [
+     "very easy"
+    ],
+    "a": 1.7300178890046063,
+    "b": -3.0311240189222,
+    "itemRest": 0.13213463171329998
+   },
+   {
+    "item": "Item.12",
+    "flags": [
+     "weak slope: tells strong and weak apart poorly"
+    ],
+    "a": 0.15212210877942575,
+    "b": 2.1773536275017005,
+    "itemRest": 0.04187256524672906
+   },
+   {
+    "item": "Item.21",
+    "flags": [
+     "very easy"
+    ],
+    "a": 0.6447750912198175,
+    "b": -3.965141116465834,
+    "itemRest": 0.12241840126176022
+   },
+   {
+    "item": "Item.30",
+    "flags": [
+     "weak slope: tells strong and weak apart poorly"
+    ],
+    "a": 0.3764965261100926,
+    "b": 0.612345550686093,
+    "itemRest": 0.12733539278763192
+   },
+   {
+    "item": "Item.32",
+    "flags": [
+     "weak slope: tells strong and weak apart poorly"
+    ],
+    "a": 0.46724353048551254,
+    "b": 0.47029470231599063,
+    "itemRest": 0.1788493856376722
+   }
+  ],
+  "distractorFlags": [
+   {
+    "item": "Item.12",
+    "key": "4",
+    "flagged": [
+     "3"
+    ],
+    "strongest": "3",
+    "options": [
+     {
+      "answer": "(blank)",
+      "keyed": false,
+      "share": 0.008333333333333333,
+      "meanRest": 17.373456140350875
+     },
+     {
+      "answer": "1",
+      "keyed": false,
+      "share": 0.07166666666666667,
+      "meanRest": 17.02170542635659
+     },
+     {
+      "answer": "2",
+      "keyed": false,
+      "share": 0.08166666666666667,
+      "meanRest": 16.768707482993197
+     },
+     {
+      "answer": "3",
+      "keyed": false,
+      "share": 0.21833333333333332,
+      "meanRest": 18.765430752453653
+     },
+     {
+      "answer": "4",
+      "keyed": true,
+      "share": 0.415,
+      "meanRest": 18.5238655306236
+     },
+     {
+      "answer": "5",
+      "keyed": false,
+      "share": 0.205,
+      "meanRest": 17.5805845915602
+     }
+    ]
+   }
+  ],
+  "item32": {
+   "item": "Item.32",
+   "a": 0.46724353048551254,
+   "aSE": 0.0993265958317588,
+   "b": 0.47029470231599063,
+   "bSE": 0.2073885135049335,
+   "d": -0.2197421570787566,
+   "pCorrect": 0.448566610455312,
+   "itemRest": 0.1788493856376722,
+   "answered": 593,
+   "sx2": null,
+   "sx2df": null,
+   "sx2p": null,
+   "flags": [
+    "weak slope: tells strong and weak apart poorly"
+   ]
+  }
+ }
+}
