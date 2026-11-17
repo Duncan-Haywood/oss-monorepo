@@ -204,5 +204,81 @@ def bench():
     LD._run(LD._todo(path, B._load(HERE / "balance.jsonl")), path, TO)
 
 
+
+def fresh_kappas(cal, cond):
+    """The kappa per form for a fresh pool, from the full-seen calibration in dev.json (fixed in the plan)."""
+    c = cal[pset(cond)]
+    return dict(phys=KAPPA, med=c["med"], err=c["err"],
+                line=max(0.0, min(KMAX, c["line_a"] + c["line_s"] * crate(cond))))
+
+
+def verdicts(C):
+    """H172 to H176, fixed in the plan (../../LOG.md, 5zg) after dev and before any fresh run."""
+    e = {c: C[c]["err"] for c in C}
+    lg = [e[c] for c in LGM50 if c in e]
+    ctl = [e[c] for c in CONTROLS if c in e]
+    w_med, w_phys = max(v["med"] for v in e.values()), max(v["phys"] for v in e.values())
+    return dict(H172=S.verdict(all(v["med"] < v["phys"] for v in lg), not any(v["med"] < v["phys"] for v in lg)),
+                H173=S.verdict(all(v["med"] <= 0.07 for v in lg), any(v["med"] > 0.10 for v in lg)),
+                H174=S.verdict(all(v["med"] <= v["phys"] + 0.01 for v in ctl), any(v["med"] > v["phys"] + 0.03 for v in ctl)),
+                H175=S.verdict(w_med < w_phys and w_med <= 0.08, w_med >= w_phys),
+                H176=S.verdict(all(v["line"] < v["med"] for v in lg), all(v["line"] > v["med"] for v in lg)))
+
+
+def report():
+    cal = json.loads((HERE / "dev.json").read_text())["calibration"]
+    bal, ocp = SF._bal(HERE)
+    last = {}
+    for f in B._load(HERE / "bench.jsonl"):   # readers keep the last record per design (memory kills are retried)
+        last[(f["cond"], f["j"])] = f
+    C, R = {}, {}
+    for c in CONDITIONS:
+        rows, dropped = [], 0
+        for (cc, j), f in sorted(last.items()):
+            if cc != c:
+                continue
+            if not AS._full(f) or len(f.get("q_ch", [])) < K:
+                dropped += 1
+                continue
+            r = design(CN._b(bal, ocp, (c, j)), f)
+            r["j"] = j
+            rows.append(r)
+        if not rows:
+            continue
+        ks = fresh_kappas(cal, c)
+        sgn = {}
+        for fm, x in ks.items():
+            v = [log_err(p, r["l_true"]) for r in rows for p in [KP.forecast(r["t"], r["lost"], x)] if p]
+            sgn[fm] = statistics.median(v)
+        wins = sum((err_at(r, ks["med"]) or 9) < (err_at(r, KAPPA) or 9) for r in rows)
+        kst = sorted(r["k_star"] for r in rows)
+        q = lambda p: kst[min(len(kst) - 1, int(p * len(kst)))]
+        C[c] = dict(n=len(rows), dropped=dropped, kappa=ks, err=score(rows, ks), sgn=sgn, wins_med=wins,
+                    k_star=statistics.median(kst), k_star_q25=q(0.25), k_star_q75=q(0.75),
+                    rho_med=spearman([KP.forecast(r["t"], r["lost"], ks["med"]) or 0 for r in rows],
+                                     [r["l_true"] for r in rows]))
+        R[c] = [_strip(r) | {f"l_{fm}": KP.forecast(r["t"], r["lost"], x) for fm, x in ks.items()} for r in rows]
+    V = verdicts(C)
+    L = ["cell-fidelity milestone 5zg: 5zd's eta-window law with kappa per parameter set, calibrated on the set's 160",
+         "seen 100-cycle designs (5zb to 5zf): phys = 25.3 /V; med = median oracle kappa*; err = least pooled error;",
+         f"line = kappa* a line in the C-rate. DFN (SEI + plating) to cycle 100, fresh Sobol designs (seed {SOBOL_SEED});",
+         "median |ln(L_pred(99) / L_DFN(99))|; kappa in /V; k* = the fresh pool's own oracle median [q25, q75];",
+         "wins = designs where med beats phys; rho = Spearman(med forecast, true loss)", "",
+         f"{'condition':22s}{'n':>3s}{'drop':>5s}{'k_med':>7s}{'k_line':>7s}{'k*':>7s}{'[q25':>6s}{'q75]':>6s}"
+         + "".join(f"{f:>7s}" for f in FORMS) + f"{'sgn phys':>9s}{'sgn med':>8s}{'wins':>5s}{'rho':>7s}"]
+    for c, d in C.items():
+        L.append(f"{c:22s}{d['n']:3d}{d['dropped']:5d}{d['kappa']['med']:7.1f}{d['kappa']['line']:7.1f}{d['k_star']:7.1f}"
+                 f"{d['k_star_q25']:6.1f}{d['k_star_q75']:6.1f}" + "".join(f"{d['err'][f]:7.3f}" for f in FORMS)
+                 + f"{d['sgn']['phys']:+9.3f}{d['sgn']['med']:+8.3f}{d['wins_med']:5d}{d['rho_med']:7.3f}")
+    L += ["", f"H172 (med below phys on both LG M50 pools): {V['H172']}",
+          f"H173 (med at most 0.07 on both LG M50 pools): {V['H173']}",
+          f"H174 (med at most phys + 0.01 on both controls): {V['H174']}",
+          f"H175 (med's worst pool below phys's worst and at most 0.08): {V['H175']}",
+          f"H176 (line below med on both LG M50 pools): {V['H176']}"]
+    (HERE / "results.txt").write_text("\n".join(L) + "\n")
+    (HERE / "summary.json").write_text(json.dumps(dict(conditions=C, verdicts=V, rows=R), indent=1) + "\n")
+    print("\n".join(L))
+
+
 if __name__ == "__main__":
-    {"dev": dev, "tables": tables, "bench": bench}[sys.argv[1] if len(sys.argv) > 1 else "dev"]()
+    {"dev": dev, "tables": tables, "bench": bench, "report": report}[sys.argv[1] if len(sys.argv) > 1 else "report"]()
