@@ -1625,7 +1625,7 @@ test('categories route each slug shape somewhere sensible', () => {
 });
 
 test('every category names a distinct share-card file and accent colour', () => {
-  assert.equal(ALL_CATEGORIES.length, 16, 'the fifteen named sections plus the catch-all');
+  assert.equal(ALL_CATEGORIES.length, 17, 'the sixteen named sections (personal-tax joined 2026-11-17) plus the catch-all');
   const files = ALL_CATEGORIES.map((category) => socialCardFileFor(category.id));
   assert.equal(new Set(files).size, files.length, 'no two categories share a card file');
   const accents = ALL_CATEGORIES.map((category) => category.accent);
@@ -1702,6 +1702,21 @@ test('tools that belong to a named category are not left in the catch-all', () =
 // and `which-job-first` are read by the same contractor deciding whether and
 // what to bid as `contractor-bid-readiness`, already in "Getting paid & job
 // margin" — none of their slugs start with a trade-bid keyword.
+// US personal tax, pay and retirement tools have their own section (2026-11-17). They had been parked
+// for offline-bundle room in services, backoffice, solo-earner and food-service, so a retiree's
+// withdrawal-order planner had "Restaurant, bar & food truck pricing" as its breadcrumb.
+test('household tax and retirement tools file under personal-tax, business-side tax stays in backoffice', () => {
+  for (const slug of ['rmd-calculator', 'nanny-tax-calculator', 'retirement-withdrawal-sequencer',
+    'social-security-claiming-age-calculator', 'fers-retirement-planner', 'qcd-calculator', 'rsu-withholding-gap-calculator']) {
+    assert.equal(categoryFor(slug).id, 'personal-tax', slug);
+  }
+  for (const slug of ['self-employment-tax-calculator', 'quarterly-estimated-tax-calendar', 'solo-401k-contribution-calculator',
+    'rd-tax-credit-calculator', 'payroll-tax-deposit-penalty-calculator', 'us-freelancer-tax-set-aside-calculator']) {
+    assert.equal(categoryFor(slug).id, 'backoffice', slug);
+  }
+  assert.equal(categoryFor('uk-take-home-pay-calculator').id, 'uk-tax');
+});
+
 test('a contractor pre-bid tool and a statement-reconciliation tool are not left in the catch-all either', () => {
   assert.equal(categoryFor('equipment-lease-buyout-calculator').id, 'backoffice');
   assert.equal(categoryFor('card-processing-fee-audit').id, 'backoffice');
