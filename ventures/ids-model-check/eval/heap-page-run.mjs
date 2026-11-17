@@ -1,8 +1,11 @@
 // Loads the page from a checker directory, checks a model with the starter IDS
 // under a V8 heap cap, and prints the outcome; eval/heap-200mb-2026-11-17.md.
-// node page-run.cjs <venture dir> <model> <heapMB>
-const { chromium } = require("playwright");
-const http = require("http"), fs = require("fs"), path = require("path");
+//   node eval/heap-page-run.mjs <venture dir>/ <model> <heapMB>
+import { createRequire } from "node:module";
+import http from "node:http";
+import fs from "node:fs";
+import path from "node:path";
+const { chromium } = createRequire(import.meta.url)("playwright");
 const [dir, model, heap] = process.argv.slice(2);
 const types = { ".html": "text/html", ".mjs": "text/javascript", ".js": "text/javascript", ".json": "application/json", ".xml": "application/xml" };
 const srv = http.createServer((req, res) => {
