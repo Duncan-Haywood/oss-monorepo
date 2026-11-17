@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKjTPsos6ww2ycqgcKz",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T00:19:01Z",
+  "ended": "2026-11-17T01:01:40Z",
+  "wall_minutes": 57.81,
+  "tokens_in": 16260343,
+  "tokens_out": 62906,
+  "cost_usd": 6.1298,
+  "tool_calls": 101,
+  "task": "chant-forge flagship: no burst found on C#4-E4 voiced codas",
+  "projects": [
+    "ventures/chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16753",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [
+    "89531e5d2",
+    "0af8c4683"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "First edit of the burst baseline was applied by a first-occurrence string replace to readOnset's identical line instead of readCoda's; caught by reading the diff, reverted before any measurement.",
+    "Ran platform/ci/run_venture_tests.py from the venture directory (path not found); re-ran from the repo root."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/chant-forge/eval/coda-check.mjs",
+      "issue": "A full run takes about 9 minutes and there is no per-part diff tool; I wrote a throwaway section differ to compare two reports. A committed 'compare two report files by section' script would save each reader round 10+ minutes."
+    },
+    {
+      "file": "ventures/chant-forge/README.md",
+      "issue": "The fault notes say 'no burst found' but the true cause on most cells was that no closure was found before the burst (the closure found was post-release silence); eval/vstop-diag.mjs printed 'stop closure at -1' which reads like the burst search failing. burst-diag.mjs now prints each closure and its search."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-a-voice-bar-that-sounds-like-a-hum.md",
+    "ventures/chant-forge/README.md (No burst on C#4-E4)"
+  ],
+  "goal": null,
+  "notes": "Diagnosed with a new eval/burst-diag.mjs and a readCoda `trace` option. Two faults on C#4-E4: the voice bar is only 4-7 dB under the vowel below 500 Hz so the closure rule missed it (nasal rule read it), and b's 500 Hz burst stood 2-9 dB over the bar above 600 Hz. barBurst: 2 kHz burst retry against a running baseline, plus a voiced dark run ended by a held-bar burst as a closure, with cluster guards (no burst-into-frication; no following closure with its own burst within 8 frames). Development A-W: voiced stops +5 to +11 per part, 2 read-exactly cells lost (H 3438 ab place, one F nasal). Pre-registered part X committed as 89531e5 before running; held: voiced stops 102->130 of 144, high-note nasal/none 30->6, nasals/clusters/others/control identical. barBurst now default; default-off report was byte-identical to main's before the flip. Full coda-check and venture tests run locally (see PR). Not listened to. Venture preflight clean (node platform/pages/venture-preflight.mjs chant-forge, exit 0).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1860af98-8cbc-51e8-bd10-ed2b618a3eff",
+    "transcripts": 1,
+    "first": "2026-11-17T00:19:01Z",
+    "last": "2026-11-17T01:16:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 99,
+        "input": 191,
+        "output": 62906,
+        "thinking": 18804,
+        "cache_read": 16052604,
+        "cache_write_5m": 0,
+        "cache_write_1h": 207548,
+        "api_equivalent_usd": 6.1298,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 99,
+      "input": 191,
+      "output": 62906,
+      "thinking": 18804,
+      "cache_read": 16052604,
+      "cache_write_5m": 0,
+      "cache_write_1h": 207548,
+      "api_equivalent_usd": 6.1298,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 101,
+    "tools": {
+      "Bash": 96,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 57.81,
+      "active_minutes": 57.81,
+      "model_minutes": 15.62,
+      "tool_minutes": 42.19,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a DSP engineer diagnosing a cue-based reader fault, writing a rule, running and pre-registering a held-out evaluation: about 1.5 days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 195.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
