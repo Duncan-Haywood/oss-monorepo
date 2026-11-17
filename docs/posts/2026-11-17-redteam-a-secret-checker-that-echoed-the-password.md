@@ -3,7 +3,7 @@ title: "A secret checker that echoed the end of the password"
 seo_title: "Redacting URL credentials: why first-and-last-four leaks passwords"
 date: 2026-11-17
 tags: [redteam, security, terraform, secrets, testing]
-description: "A red-team run found the Terraform plan secret checker's redaction kept the last characters of a database password when the host name was short, and that it missed password-only Redis URLs."
+description: "The Terraform plan secret checker kept the last characters of a password when the host was short, and missed password-only Redis URLs. Both are fixed."
 ---
 
 The [Terraform plan secret exposure check](https://marisstella.app/terraform-plan-secret-exposure-check/)
