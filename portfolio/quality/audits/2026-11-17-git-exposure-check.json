@@ -1,0 +1,260 @@
+{
+ "date": "2026-11-17",
+ "subject": "ventures/git-exposure-check",
+ "stratum": "venture",
+ "seed": "2026-11-17-1461",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a web application penetration tester who reports source-control exposure (OWASP WSTG-CONF-04 'Review Old Backup and Unreferenced Files', .git exposure) on engagements and bug-bounty triage; first checks: does it detect real git-written HEAD/config in every form (symbolic, detached SHA-1, SHA-256, CRLF), does it reject catch-all 200 pages, how it handles redirects (http->https, apex->www) and partial failures, and whether the exit code is safe as a CI gate",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Built real repositories with git 2.43 (SHA-1 on main, SHA-1 detached, SHA-256 detached via --object-format=sha256) and served their .git trees from a local fixture server (/tmp/claude-0/-home-user-oss-monorepo/28cabc82-884b-5f5d-b359-081413dc958d/scratchpad/git-exposure-check/server.mjs), plus constructed soft-404, 403, 302, CRLF, hanging and redirecting hosts; ran the real CLI against each (/tmp/claude-0/-home-user-oss-monorepo/28cabc82-884b-5f5d-b359-081413dc958d/scratchpad/git-exposure-check/drive.sh). Correct: all three git-written repos -> git-directory-exposed exit 1; CRLF HEAD -> git-head-exposed; generic and Express-style soft-404 -> clean; 403/302 -> clean; CLI --json round-trips through buildReport (browser path). Wrong: (1) a host that 301s to its canonical origin where .git IS exposed (curl -L returns 'ref: refs/heads/main') is reported 'does not appear to be publicly exposed', exit 0; (2) a soft-404 page that contains '[core]' is flagged as an exposed config; (3) HEAD timeout + config 404 exits 0 despite README's 'both probes completed'. 6 of 9 recomputed cases pass; the misses are in the first-hour cases (redirects) a tester hits.",
+  "completeness": "Claimed features checked: two GET probes relative to the base URL (works), body classification for symbolic/detached SHA-1/SHA-256 HEAD and [core] config (works), three finding levels (all reproduced), no redirect following (as documented in probe.mjs), 8 KB body cap (mutant caught), --json and --timeout (work), browser viewer of pasted JSON (round-trip works), local usage counter with opt-out (tests). Not as claimed: exit code 0 'when both probes completed' (one failed probe still exits 0). The CLI must be copied by hand from the repo (three files); no package or single-file download, though the page says so honestly.",
+  "verification": "`node --test '*.test.mjs'` in the subject root: 66/66 pass in 0.26 s, including probe.test.mjs against a real local HTTP server. 5 seeded mutants with quality_mutate.py: detached-SHA 64-hex branch removed CAUGHT, incomplete && -> || CAUGHT, body cap 8192 -> 16 CAUGHT, HEAD_SYMBOLIC_RE anchors removed SURVIVED, config status === 200 -> < 400 SURVIVED. The two survivors are the soft-404 defences the tool is built around; analyze.test.mjs:126 pins the partial-failure exit-0 behaviour that README contradicts.",
+  "craft": "Read analyze.mjs (159 lines, pure, shared by CLI and page), probe.mjs (134 lines, node:http/https, capped body read, no redirect following), check.mjs (108 lines), index.html module script (escapes all rendered fields), test files. Clean separation and one classification module. Defects: unanchored CONFIG_CORE_RE (analyze.mjs:52); the 'close' handler duplicates the 'end' result and resolves ok:true for a socket reset mid-body (probe.mjs:102); text output gives no hint when both probes were 3xx (check.mjs:45).",
+  "claims": "Backed: two GET requests only, nothing through the portfolio (probe.mjs makes one request per path; no other I/O); no redirect followed (probe.mjs:4); never fetches index/objects (only two paths in probe.mjs:39-40); 64-hex SHA-256 support (fixture det256 detected); disclaimer, no-warranty and authorised-use text on every page; local usage events with opt-out and DNT/GPC (usage.test.mjs). Not backed: README.md:50 exit-0-only-when-both-completed (headhang case exits 0); 'essentially never'/'no generic error page would happen to produce' (gitdocs soft-404 flagged); llms.txt:5 calculator boilerplate 'estimates from the numbers typed in'. served-copy.mjs shows deployed llms.txt/sitemap on marisstella.app (source github.io/example.invalid are source-only, not filed).",
+  "fitness": "Walked the job as a developer gating a deploy and as a tester triaging a scope list: `node check.mjs http://example.com/` against an https-only host returns two 301s and 'does not appear to be publicly exposed', exit 0, with no prompt to re-run against the Location. A tester learns to pass the final origin; a developer wiring it into CI does not, and gets a green gate. On the canonical origin it is a correct, fast, dependency-free two-request check, and the browser report is clear. Getting the CLI means copying three files from the repo.",
+  "domain": "Compared against how a pentester checks WSTG-CONF-04 .git exposure: request /.git/HEAD and /.git/config on the final origin, match git content anchored to line starts and exclude HTML, note directory listing, and follow (or at least report) redirects. The anchored HEAD match and the HEAD+config corroboration are sound and match practice; SHA-256 detached HEAD is handled, which many scanners miss. Departures: no redirect handling or warning; config matched by unanchored substring with no HTML exclusion; a .git file (worktree/submodule 'gitdir:' pointer) and /.git/ directory listing are out of scope and not mentioned."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Real SHA-1 repo created by git 2.43 (`git init -b main` + one commit), .git served statically",
+   "method": "git's on-disk format as written by git itself: HEAD = 'ref: refs/heads/main\\n', config opens with '[core]' (gitrepository-layout(5))",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/28cabc82-884b-5f5d-b359-081413dc958d/scratchpad/git-exposure-check/server.mjs /tmp/claude-0/-home-user-oss-monorepo/28cabc82-884b-5f5d-b359-081413dc958d/scratchpad/git-exposure-check/fx (background), then bash /tmp/claude-0/-home-user-oss-monorepo/28cabc82-884b-5f5d-b359-081413dc958d/scratchpad/git-exposure-check/drive.sh",
+   "expected": "git-directory-exposed, exit 1",
+   "observed": "sha1 exit=1, 'The .git directory is publicly readable'",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Real SHA-1 detached HEAD (`git checkout --detach`): HEAD is a bare 40-hex SHA + newline",
+   "method": "git-written fixture, od -c /tmp/claude-0/-home-user-oss-monorepo/28cabc82-884b-5f5d-b359-081413dc958d/scratchpad/git-exposure-check/fx/det/.git/HEAD shows 40 hex + \\n",
+   "command": "bash /tmp/claude-0/-home-user-oss-monorepo/28cabc82-884b-5f5d-b359-081413dc958d/scratchpad/git-exposure-check/drive.sh",
+   "expected": "git-directory-exposed, exit 1",
+   "observed": "det exit=1, 'The .git directory is publicly readable'",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Real SHA-256 repo (`git init --object-format=sha256`) with detached HEAD (64 hex)",
+   "method": "git-written fixture; round-trip of the CLI --json output through analyze.buildReport (the browser path)",
+   "command": "node check.mjs http://127.0.0.1:18471/det256/ --json > /tmp/claude-0/-home-user-oss-monorepo/28cabc82-884b-5f5d-b359-081413dc958d/scratchpad/git-exposure-check/det256.json && node /tmp/claude-0/-home-user-oss-monorepo/28cabc82-884b-5f5d-b359-081413dc958d/scratchpad/git-exposure-check/roundtrip.mjs /tmp/claude-0/-home-user-oss-monorepo/28cabc82-884b-5f5d-b359-081413dc958d/scratchpad/git-exposure-check/det256.json",
+   "expected": "64-char HEAD, git-directory-exposed, ok false",
+   "observed": "len 64, ids ['git-directory-exposed'], ok false",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "HEAD served with CRLF line ending ('ref: refs/heads/main\\r\\n'), config 404",
+   "method": "constructed case (Windows-style checkout copied to webroot)",
+   "command": "bash /tmp/claude-0/-home-user-oss-monorepo/28cabc82-884b-5f5d-b359-081413dc958d/scratchpad/git-exposure-check/drive.sh",
+   "expected": "git-head-exposed",
+   "observed": "crlf exit=1, '.git/HEAD is publicly readable'",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Soft-404: every path 200 with generic 'page not found' HTML; and Express-style 200 'Cannot GET /x/.git/HEAD'",
+   "method": "constructed soft-404 servers",
+   "command": "bash /tmp/claude-0/-home-user-oss-monorepo/28cabc82-884b-5f5d-b359-081413dc958d/scratchpad/git-exposure-check/drive.sh",
+   "expected": "no finding, exit 0",
+   "observed": "soft exit=0 none; express exit=0 none",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Soft-404 SPA whose catch-all index.html is a git tutorial containing '[core]' in a <pre> block (HEAD and config return the identical HTML body)",
+   "method": "constructed soft-404: a 200 HTML page identical on both paths is by definition not a git file",
+   "command": "bash /tmp/claude-0/-home-user-oss-monorepo/28cabc82-884b-5f5d-b359-081413dc958d/scratchpad/git-exposure-check/drive.sh",
+   "expected": "no finding, exit 0",
+   "observed": "gitdocs exit=1, '[DANGER] .git/config is publicly readable' (false positive: CONFIG_CORE_RE is an unanchored substring match)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Host that 301s every path to the canonical host (http->https / apex->www pattern), where the canonical host really exposes .git",
+   "method": "curl -sL on the same URL returns 'ref: refs/heads/main'",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/28cabc82-884b-5f5d-b359-081413dc958d/scratchpad/git-exposure-check/redir.mjs (background); node check.mjs http://127.0.0.1:18472/; curl -sL http://127.0.0.1:18472/.git/HEAD",
+   "expected": "an exposure finding, or at least a 'redirected, re-run against <Location>' warning and non-zero exit",
+   "observed": "'The .git directory does not appear to be publicly exposed', exit 0; curl -L shows ref: refs/heads/main",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "HEAD probe times out, config returns 404",
+   "method": "README.md:50 'Exit code 0 when both probes completed and no exposure finding is present'",
+   "command": "node check.mjs http://127.0.0.1:18471/headhang/ --timeout 1500; echo $?",
+   "expected": "exit 1 (one probe did not complete)",
+   "observed": "'does not appear to be publicly exposed', exit 0",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "403 and 302-to-login on both paths",
+   "method": "constructed protected servers",
+   "command": "bash /tmp/claude-0/-home-user-oss-monorepo/28cabc82-884b-5f5d-b359-081413dc958d/scratchpad/git-exposure-check/drive.sh",
+   "expected": "no finding, exit 0",
+   "observed": "forbid exit=0, redirect exit=0",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run in subject root",
+   "command": "node --test '*.test.mjs'",
+   "expected": "green",
+   "observed": "66/66 pass in 0.26 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Seeded mutants in core logic",
+   "method": "platform/ci/quality_mutate.py, 5 mutants (see mutations)",
+   "command": "python3 platform/ci/quality_mutate.py ventures/git-exposure-check/analyze.mjs --old ... -- node --test '*.test.mjs'",
+   "expected": "all caught",
+   "observed": "3 caught, 2 survived (HEAD regex anchors removed; config status === 200 -> < 400)",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "'A generic error page ... essentially never happens to produce either shape' / 'content no generic error page would happen to produce'",
+   "method": "gitdocs soft-404 case above",
+   "command": "bash /tmp/claude-0/-home-user-oss-monorepo/28cabc82-884b-5f5d-b359-081413dc958d/scratchpad/git-exposure-check/drive.sh",
+   "expected": "no false positive on a soft-404",
+   "observed": "soft-404 containing '[core]' flagged danger",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "llms.txt and sitemap URLs on the served copy",
+   "method": "deploy rewrite",
+   "command": "node platform/pages/served-copy.mjs git-exposure-check",
+   "expected": "marisstella.app origin, no placeholder",
+   "observed": "no placeholder or retired origin left (source github.io / example.invalid are rewritten; source-only, not filed)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "llms.txt disclaimer line",
+   "method": "read served llms.txt (/tmp/served-copy/git-exposure-check/llms.txt:5)",
+   "command": "sed -n 5p /tmp/served-copy/git-exposure-check/llms.txt",
+   "expected": "a disclaimer describing this tool (not security advice, no warranty)",
+   "observed": "'Results are estimates from the numbers typed in, not legal, tax, financial or professional advice' (calculator boilerplate; there are no numbers typed in)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer, no-warranty, authorised-use notice and local usage tracking on the page",
+   "method": "read index.html:270-290 and usage.mjs; page.test.mjs and usage.test.mjs",
+   "command": "node --test '*.test.mjs'",
+   "expected": "present, local-only, DNT/GPC, opt-out",
+   "observed": "present; recordUsage local only (index.html:226); tests pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Browser viewer renders a CLI --json payload",
+   "method": "roundtrip of real CLI JSON through buildReport (same function index.html:218 calls)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/28cabc82-884b-5f5d-b359-081413dc958d/scratchpad/git-exposure-check/roundtrip.mjs /tmp/claude-0/-home-user-oss-monorepo/28cabc82-884b-5f5d-b359-081413dc958d/scratchpad/git-exposure-check/det256.json",
+   "expected": "finding rendered from pasted JSON",
+   "observed": "git-directory-exposed",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "analyze.mjs:48",
+   "change": "HEAD_DETACHED_RE /^(?:[0-9a-f]{40}|[0-9a-f]{64})$/i -> /^(?:[0-9a-f]{40})$/i",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "analyze.mjs:44",
+   "change": "HEAD_SYMBOLIC_RE /^ref:\\s+refs\\/\\S+$/ -> /ref:\\s+refs\\/\\S+/ (anchors removed: the soft-404 defence for HEAD)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "analyze.mjs:98",
+   "change": "config.ok && config.status === 200 -> config.ok && config.status < 400",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "analyze.mjs:93",
+   "change": "!head.ok && !config.ok -> !head.ok || !config.ok",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "probe.mjs:32",
+   "change": "BODY_CAP_BYTES 8192 -> 16",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Redirects are never followed and never flagged: a 3xx on both probes is reported 'The .git directory does not appear to be publicly exposed' with exit 0. Passing http:// for an https site, or the apex for a www site (the commonest way a user types a URL), gives a clean verdict on a host whose canonical origin really exposes .git (curl -L returns 'ref: refs/heads/main'). As a CI gate this passes green.",
+   "where": "ventures/git-exposure-check/check.mjs:45",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16990"
+  },
+  {
+   "severity": "medium",
+   "what": "CONFIG_CORE_RE is an unanchored substring match, so a soft-404 catch-all page that merely contains the text '[core]' (a git tutorial or docs SPA) is flagged '.git/config is publicly readable', the exact false-positive class the tool advertises it rejects. HEAD and config returning the same HTML body is itself a soft-404 signal the code does not use. Fix: match /^\\s*\\[core\\]\\s*$/m and reject bodies that start with '<'.",
+   "where": "ventures/git-exposure-check/analyze.mjs:52",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "README promises exit 0 only 'when both probes completed', but when one probe times out or errors and the other returns 404 the report is ok:true and the CLI exits 0 with 'does not appear to be publicly exposed'. analyze.test.mjs:126 pins this behaviour, so the test encodes the contradiction.",
+   "where": "ventures/git-exposure-check/analyze.mjs:156",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests do not pin the soft-404 defences: removing the ^...$ anchors from HEAD_SYMBOLIC_RE, or widening config status === 200 to < 400, leaves all 66 tests green (2 of 5 mutants survived). No test feeds an HTML page that contains 'ref: refs/heads/' or '[core]'.",
+   "where": "ventures/git-exposure-check/analyze.test.mjs:36",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Pages claim a generic error page 'essentially never' / 'no generic error page would happen to' produce either shape; the [core] substring check makes that untrue for any catch-all page mentioning git config.",
+   "where": "ventures/git-exposure-check/how-to-tell-a-real-exposed-git-directory-from-a-soft-404.html:82",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "llms.txt carries calculator boilerplate 'Results are estimates from the numbers typed in, not legal, tax, financial or professional advice'; this tool takes no numbers and its disclaimer elsewhere is 'not security advice'. Served copy has the same line.",
+   "where": "ventures/git-exposure-check/llms.txt:5",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "A response whose socket closes before 'end' (connection reset mid-body) resolves ok:true with a partial body via the 'close' handler, so an aborted read is classified as a completed one; the two finish() blocks are also duplicated.",
+   "where": "ventures/git-exposure-check/probe.mjs:102",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16990"],
+ "verdict": "A small, clean, dependency-free two-request checker whose core classification is right on real git-written repositories: SHA-1, SHA-1 detached and SHA-256 detached .git trees served from a local server are all detected, and generic soft-404 pages are rejected. It misses the bar on correctness, claims and verification. The first thing a pentester tries, the apex or http:// URL of a site that redirects, returns 'does not appear to be publicly exposed' and exit 0 while curl -L shows 'ref: refs/heads/main' (re-run: node /tmp/claude-0/-home-user-oss-monorepo/28cabc82-884b-5f5d-b359-081413dc958d/scratchpad/git-exposure-check/redir.mjs & then node check.mjs http://127.0.0.1:18472/). A soft-404 page that contains '[core]' is flagged as exposed, contradicting the pages' 'essentially never' claim; one failed probe still exits 0 against README's promise; and the two mutants that remove the soft-404 defences survive all 66 tests. Fixes are small: report 3xx with the Location and exit non-zero, anchor the config match, exit 1 on any failed probe, add HTML-containing negative tests."
+}

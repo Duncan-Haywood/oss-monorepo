@@ -1,0 +1,156 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtJgwbKuP6km6xAQ39F",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T16:07:16Z",
+  "ended": "2026-11-17T16:33:29Z",
+  "wall_minutes": 26.61,
+  "tokens_in": 9979170,
+  "tokens_out": 108234,
+  "cost_usd": 6.3375,
+  "tool_calls": 130,
+  "task": "quality census: first audits of four never-audited subjects",
+  "projects": [
+    "ventures/crop-insurance-coverage-calculator",
+    "ventures/git-exposure-check",
+    "ventures/shopify-a11y-evidence",
+    "research/free-f32shadow"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16990",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First Agent brief went out with SUBJECT_PATH/STRATUM placeholders unfilled; corrected with SendMessage before the agent started work",
+      "impact": "none"
+    },
+    {
+      "what": "A pkill -f of the scratch fixture servers was blocked by the bracket hook because the path appeared twice in one command line, so that whole Bash call (test append + README edit) did not run; redone in a separate call",
+      "impact": "one wasted call"
+    },
+    {
+      "what": "seo_title duplicated the earlier census post of the same day; check_post_frontmatter caught it locally",
+      "impact": "one extra commit"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "Step 1 says run `sample`; `sample` then prints that today's mode is census. The track prompt does not mention modes at all, so a run following only the prompt would run a sample round as an unrecorded deviation."
+    },
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "Census post naming is not specified (only sample rounds get `quality-audit-round-<n>` and fix sessions `quality-fix-*`); census posts copy `quality-census-<slug>` by example, and two census posts on the same day share the obvious seo_title pattern 'Quality census <date>: N first audits', which the site build rejects as a duplicate <title>."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/quality/README.md",
+      "why": "census table suggests `census --n 6`; ran --n 4 to keep the round to four parallel auditors within one session's budget and leave time for fixes",
+      "did": "audited 4 subjects",
+      "result": "all four audited with validated files and three high/medium defects fixed in the same PR"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-quality-census-a-redirect-that-passed-the-gate.md"
+  ],
+  "goal": null,
+  "notes": "Mode census (quality_audit.py mode). Seed 2026-11-17-1461. Subjects: ventures/crop-insurance-coverage-calculator, ventures/git-exposure-check, ventures/shopify-a11y-evidence, research/free-f32shadow. Meeting the bar: 0 of 4 (census, not in the sampled share; sampled share unchanged at 33 of 306); finished 4 of 4. Seeded mutations caught 10 of 23. Fix PR: #16990 (this PR) fixes git-exposure-check redirect-as-safe (high), shopify-a11y-evidence record date from export timestamp (high), crop-insurance best-level and RP cap tests (2 medium untested-core; flipped-sort mutant now caught), free-f32shadow '100x unit roundoff' overclaim and stale timings. Spot-checks I re-ran myself: crop indemnityFor RP 200/80/4/120/5 -> 200 and 200/80/4/100/9 -> 480; git-exposure-check redirect fixture -> 'not exposed' exit 0 before the fix, warning exit 1 after. Local checks: run_workflow_locally --for-changes all passed except the duplicate seo_title (fixed; check_post_frontmatter ok on 5606 posts); the stale-dist check.mjs also listed a daily-brief duplicate title unrelated to this diff. Remaining open defects recorded in each subject's README Known gaps / Limitations. No owner action needed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "28cabc82-884b-5f5d-b359-081413dc958d",
+    "transcripts": 5,
+    "first": "2026-11-17T16:07:16Z",
+    "last": "2026-11-17T16:33:52Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 125,
+        "input": 249,
+        "output": 108234,
+        "thinking": 27291,
+        "cache_read": 9586646,
+        "cache_write_5m": 294563,
+        "cache_write_1h": 97712,
+        "api_equivalent_usd": 6.3375,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 125,
+      "input": 249,
+      "output": 108234,
+      "thinking": 27291,
+      "cache_read": 9586646,
+      "cache_write_5m": 294563,
+      "cache_write_1h": 97712,
+      "api_equivalent_usd": 6.3375,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.961,
+    "tool_calls": 130,
+    "tools": {
+      "Bash": 116,
+      "Agent": 4,
+      "SubagentHandback": 4,
+      "Read": 2,
+      "SendMessage": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 26.61,
+      "active_minutes": 23.33,
+      "model_minutes": 6.07,
+      "tool_minutes": 17.26,
+      "waiting_on_human_minutes": 3.28,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 16.27
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "four first audits of a senior reviewer's depth (~2 h each) plus three fixes with tests and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 157.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

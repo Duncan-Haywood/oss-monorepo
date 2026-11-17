@@ -141,3 +141,24 @@ test('a missing probe object does not throw', () => {
   // matching buildReport's own `p.ok !== false` default (see probeSummary).
   assert.equal(report.findings.length, 0);
 });
+
+test('a redirect on both probes is flagged and fails the gate, not reported as protected', () => {
+  const r = buildReport('http://example.com/', {
+    head: probeResult({ status: 301, url: 'http://example.com/.git/HEAD', bodySample: '' }),
+    config: probeResult({ status: 301, url: 'http://example.com/.git/config', bodySample: '' }),
+  });
+  assert.equal(r.findings.length, 1);
+  assert.equal(r.findings[0].id, 'redirect-not-followed');
+  assert.equal(r.findings[0].severity, 'warning');
+  assert.equal(r.dangerCount, 0);
+  assert.equal(r.ok, false);
+});
+
+test('a 404 alongside a 200 HTML page is still protected (no redirect warning)', () => {
+  const r = buildReport('https://example.com/', {
+    head: probeResult(),
+    config: probeResult({ status: 200, url: 'https://example.com/.git/config', bodySample: '<html>hi</html>' }),
+  });
+  assert.equal(r.findings.length, 0);
+  assert.equal(r.ok, true);
+});

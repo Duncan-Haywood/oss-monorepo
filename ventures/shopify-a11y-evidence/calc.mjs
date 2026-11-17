@@ -45,8 +45,18 @@ function itemLine(item) {
   return `- [${item.impact}] ${item.id}: ${item.help} (${nodes})${wcagLabel(item)}${url}`;
 }
 
-export function buildReport(input, date = new Date().toISOString().slice(0, 10)) {
+// The day the scan ran, from axe-core's own `timestamp` (an ISO string in every
+// results export), so "Checked:" records when the page was tested, not when
+// the record was generated (quality audit 2026-11-17). Falls back to today.
+export function scanDate(input) {
+  const t = input && typeof input === "object" ? input.timestamp : undefined;
+  if (typeof t === "string" && /^\d{4}-\d{2}-\d{2}/.test(t)) return t.slice(0, 10);
+  return new Date().toISOString().slice(0, 10);
+}
+
+export function buildReport(input, date) {
   if (!input || typeof input !== "object") throw new Error("Paste a valid axe-core JSON object.");
+  date = date || scanDate(input);
   const items = asItems(input.violations, "Review this violation manually.");
   const reviewItems = asItems(input.incomplete, "Review this result manually.");
   const passes = Array.isArray(input.passes) ? input.passes : [];

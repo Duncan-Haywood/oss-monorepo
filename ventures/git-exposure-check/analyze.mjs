@@ -141,8 +141,27 @@ export function buildReport(target, probe) {
       });
     }
     // else: neither response matched real git content -- protected (a 403,
-    // a 404, a redirect, or a "soft 404" page that answers every path with
-    // 200 but generic content). No finding.
+    // a 404, or a "soft 404" page that answers every path with 200 but
+    // generic content). No finding.
+
+    // A redirect is not evidence of protection: the probe does not follow it,
+    // and an http->https or apex->www hop commonly lands on the real .git
+    // file (quality audit 2026-11-17). Flag it so a CI gate does not pass green.
+    if (findings.length === 0) {
+      const redirected = [head, config].filter((r) => r.ok && r.status >= 300 && r.status < 400);
+      if (redirected.length) {
+        findings.push({
+          id: 'redirect-not-followed',
+          severity: 'warning',
+          title: 'A probe was redirected, so exposure is unverified',
+          detail:
+            `${redirected.map((r) => `${r.url} answered ${r.status}`).join('; ')}. This check does not ` +
+            'follow redirects, so it cannot say what the redirect target serves. Re-run it against the ' +
+            'final URL (for example the https:// or www. address the Location header names).',
+          evidenceUrl: redirected[0].url,
+        });
+      }
+    }
   }
 
   const dangerCount = findings.filter((f) => f.severity === 'danger').length;
@@ -153,7 +172,7 @@ export function buildReport(target, probe) {
     config,
     findings,
     dangerCount,
-    ok: !incomplete && dangerCount === 0,
+    ok: !incomplete && findings.length === 0,
     incomplete,
   };
 }

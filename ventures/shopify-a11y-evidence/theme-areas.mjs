@@ -112,7 +112,7 @@ function impactWeight(impact) {
  * selector/HTML heuristic, not a theme-file guarantee and not a
  * compliance determination.
  */
-export function groupByThemeArea(input, date = new Date().toISOString().slice(0, 10)) {
+export function groupByThemeArea(input, date) {
   const report = buildReport(input, date);
   const violations = Array.isArray(input?.violations) ? input.violations : [];
   const buckets = new Map();
