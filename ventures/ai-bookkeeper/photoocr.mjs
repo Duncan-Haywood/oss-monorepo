@@ -187,11 +187,18 @@ function settleTotals(readings) {
   const money = (c) => c === null ? "none" : (c / 100).toFixed(2);
   // the winning reading's own total line, or, when its total came from the
   // arithmetic and no line printed it (a cash line less change), a plain one
-  const line = both.totalLine ?? `Total ${money(both.cents)}`;
+  // a whole-unit total (rupiah) with no line of its own is written with thousands
+  // separators and no decimals when "Total 110000.00" would not read back on that slip
+  // (not a total under 100 units: a digit kept from a damaged amount, receipts.mjs tinyWhole)
+  // (CORD train shards 1-3, eval/cord-train-shards-2026-11-17.md)
   const lines = first.split("\n");
   const at = one.totalLine ? lines.findLastIndex((l) => l.trim() === one.totalLine.trim()) : -1;
-  const swapped = at >= 0 ? [...lines.slice(0, at), line, ...lines.slice(at + 1)] : [...lines, line];
-  const text = swapped.join("\n");
+  const put = (line) => (at >= 0 ? [...lines.slice(0, at), line, ...lines.slice(at + 1)] : [...lines, line]).join("\n");
+  let text = put(both.totalLine ?? `Total ${money(both.cents)}`);
+  if (!both.totalLine && both.cents >= 10000 && both.cents % 100 === 0 && parseReceipt(text).cents !== both.cents) {
+    const whole = put(`Total ${(both.cents / 100).toLocaleString("en-US")}`);
+    if (parseReceipt(whole).cents === both.cents) text = whole;
+  }
   if (parseReceipt(text).cents !== both.cents) return { note: `the two readings disagree on the total (${money(one.cents)} and ${money(both.cents)}): check it`, text: first };
   const said = t.length === 2 ? `${money(one.cents)} once and ${money(both.cents)} once` : `${money(one.cents)} first and ${money(both.cents)} in ${t.map((x) => parseReceipt(x).cents).filter((c) => c === both.cents).length} of ${t.length} readings`;
   return { text, note: `total read as ${said}; kept ${money(both.cents)}, which the receipt's own arithmetic${t.length > 2 ? " and the other readings" : ""} confirm${t.length > 2 ? "" : "s"}: check it` };
