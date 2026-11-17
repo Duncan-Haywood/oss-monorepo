@@ -230,10 +230,9 @@ flagships:
       replaces its item here. More open items: NEXT.md.
     buildable: >-
       R056-2 on the tax representative's VAT number (a warning; seller/buyer already
-      fail INV-022/023); UBL line-level Delivery/DeliveryParty ids, which UBL's open
-      PartyIdentification context reaches (payee, tax representative, deliver-to and
-      CII line ids landed 2026-11-17:
-      eval/line-ids-peppol-differential-2026-11-17.md). No network.
+      fail INV-022/023; read its PartyTaxScheme/CompanyID in both readers). Party
+      ids everywhere Peppol's COMMON contexts reach landed 2026-11-17 (UBL line
+      parties: eval/ubl-line-ids-peppol-differential-2026-11-17.md). No network.
   - venture: shift-roster-builder
     inputs_only: >-
       a live deploy with real punches, a real payroll template, a manager's
