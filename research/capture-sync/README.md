@@ -30,6 +30,14 @@ A research programme ([`PROPOSAL.md`](PROPOSAL.md), [`LOG.md`](LOG.md)) on **aud
 
 ![Predicted against observed miss rate per cell, real phones](experiments/threshold/libriwasn_pred_vs_obs.png)
 
+**Step 3g (2026-11-17): can the gate tell a repeating sound from the right answer? A second-peak ratio can; PSR could not.** Step 3f's 242,000 windows replayed bit for bit (720 of 720 failure cells, 240 of 240 gate cells), now with the second-peak ratio of each correlation (the highest value more than a frame from the peak, over the peak) as the confidence instead of, or multiplied into, the peak-to-sidelobe ratio (PSR). Results at -10 dB, 2 s windows, gamma 0.25, devices 3 m apart, gate calibrated on independent noise and tested on one shared source:
+
+- **The looped door recordings stop getting through.** PSR passed 19% and 20% wrong among accepted windows (keeping 79% and 72%). The margin (1 minus the second-peak ratio) passes 1.1% and 0.0% (keeping 56% and 51%); PSR times margin 2.1% and 0.4%. Calibrated on the rig's own shared noise, the margin keeps 57-60% of door windows (4.2% and 1.7% wrong) where PSR kept 7-9% (12.8% and 3.0% wrong).
+- **It costs nothing elsewhere.** The margin gate keeps more of all shared windows than PSR (69% and 68% against 63% and 60%), and wrong-and-accepted windows fall from 1.4-1.5% of all -10 dB windows to 0.0-0.1%.
+- **It does not fix impulsive noise heard by one device only.** With independent typing, neighbours or munching at each device, the 2% bound still holds for only 4-5 of 10 noise types whichever score is used. There the wrong peak has no close rival: PSR ranks typing failures *above* successes (AUROC 0.25), and the margin is near chance (0.55).
+
+![Wrong among accepted by noise type: PSR against the second-peak margin](experiments/gate/noiseperiod_gate.png)
+
 **Step 3f (2026-11-17): what if both devices hear the same noise, as in a real room? Then it is signal, until the devices are more than a frame of sound travel apart.** Step 3c's windows replayed exactly, plus 180,000 windows where one noise source is heard by both devices through its own impulse responses, at a path difference set by geometry (devices 3, 10 or 30 m apart, talker and noise source placed at random around them). Errors are scored against the clock, which is what a camera rig needs:
 
 - **Every common sound lands within D / c of the clock offset** (triangle inequality), so at 30 fps a lock on shared noise cannot cost a frame while the devices are under 11.4 m apart (5.7 m at 60 fps).
@@ -92,6 +100,9 @@ python experiments/gate/noiselevel_figure.py
 OMP_NUM_THREADS=1 python experiments/gate/noiseshared.py collect ~/ms-snsd /tmp/windows_f.npz --procs 4   # step 3f, ~25 min
 python experiments/gate/noiseshared.py score /tmp/windows_f.npz   # noiseshared_results.txt, noiseshared_summary.json
 python experiments/gate/noiseshared_figure.py
+OMP_NUM_THREADS=1 python experiments/gate/noiseperiod.py collect ~/ms-snsd /tmp/windows_g.npz --procs 4   # step 3g, ~25 min (step 3f's windows plus the second-peak ratio)
+python experiments/gate/noiseperiod.py score /tmp/windows_g.npz   # noiseperiod_results.txt, noiseperiod_summary.json
+python experiments/gate/noiseperiod_figure.py
 ```
 
 ## Results (from [`experiments/real-devices/results.txt`](experiments/real-devices/results.txt))
@@ -353,6 +364,36 @@ Predictions: (a) replay held; (b) `ms` orders levels at AUROC 0.90 for 7 of 9 ty
 
 **Limits of step 3e.** Everything in step 3c's limits (simulated rooms, one speech corpus, noise independent per device). The tracker is a simplified minimum-statistics estimator with fixed smoothing and no bias compensation; Martin's full tracker, or a speech-presence-based one, might rank steady-but-coloured noise better, but cannot change the impulsive case, where the noise's bursts look like speech to any single-channel level estimate (an interpretation, not tested here). Context is 4 s; noise that changes kind within it is not modelled.
 
+## Step 3g: a second-peak ratio as the confidence (`experiments/gate/noiseperiod.py`)
+
+**Question.** PSR compares the peak with the *average* sidelobe, so a single rival peak of nearly the same height, which a sound repeating inside the search range produces, barely moves it. Does the ratio of the runner-up to the winner (the second-peak ratio, `spr`) catch what PSR passes? Plan and seven predictions in `LOG.md`, written before the run.
+
+**Method.** Step 3f's windows replayed bit for bit: `noiseshared.run_chunk` runs unchanged with its `gcc` swapped for `sync.gcc_peaks`, which returns the same delay and PSR plus `spr`, the highest correlation value more than one 30 fps frame (533 samples) from the peak divided by the peak. A content-only flag, `per` (`gate.self_periodicity`: the most a window's own band-limited autocorrelation repeats at lags of a frame to 1.5 s), is recorded beside it. Three confidences go through step 3f's gates (Mondrian on `snr_hat`, LTT at alpha 1%, delta 0.1, calibrate sessions 0-4, test 5-9, labels against the clock): `psr`, `margin` = 1 - spr, and `prod` = psr &times; margin. T3 calibrates on independent noise of the type, T3s on shared noise at the tested separation, and T3i is T3 tested on independent -10 dB windows.
+
+**Results** ([`experiments/gate/noiseperiod_results.txt`](experiments/gate/noiseperiod_results.txt); gamma 0.25, -10 dB, 2 s windows):
+
+| | 0.2 s room | 0.8 s room |
+|---|---|---|
+| replay of step 3f: raw failure cells / PSR gate cells | 720 of 720 / 240 of 240 (both rooms) | |
+| AUROC for failure, ShuttingDoor shared at 3 m: psr / margin / prod | 0.73 / 0.91 / 0.91 | 0.71 / 0.91 / 0.91 |
+| T3 shared 3 m, ShuttingDoor, wrong among accepted (kept): psr / margin / prod | 18.8% (79%) / 1.1% (56%) / 2.1% (56%) | 19.8% (72%) / 0.0% (51%) / 0.4% (53%) |
+| T3 shared 3 m, types at or under 2%: psr / margin / prod | 9 / 9 / 9 of 10 | 9 / 10 / 10 of 10 |
+| T3 shared 3 m, mean kept: psr / margin / prod | 63% / 69% / 65% | 60% / 68% / 55% |
+| T3 shared 3 m, wrong and accepted, share of all windows: psr / margin / prod | 1.50% / 0.10% / 0.14% | 1.42% / 0.00% / 0.02% |
+| T3s shared 3 m, ShuttingDoor: psr / margin / prod | 12.8% (9%) / 4.2% (57%) / 2.3% (52%) | 3.0% (7%) / 1.7% (60%) / 1.7% (58%) |
+| T3s shared 3 m, types at or under 2%: psr / margin / prod | 9 / 9 / 9 of 10 | 9 / 10 / 10 of 10 |
+| T3i independent, types at or under 2%: psr / margin / prod | 4 / 3 / 5 of 10 | 4 / 4 / 5 of 10 |
+| AUROC, Typing independent: psr / margin | 0.25 / 0.56 | 0.25 / 0.55 |
+| windows with `per` above 0.8: ShuttingDoor shared / no noise | 4% / 0% | 3% / 0% |
+
+The miss in the drier room is Typing for the margin (2.02% among 20% kept) and ShuttingDoor for the product (2.13%); both are on the line rather than through it. Under independent noise the margin's AUROC beats PSR's for every impulsive type (Munching 0.76 against 0.54, Typing 0.56 against 0.25), but from a low base: a keystroke on each device gives a sharp wrong peak with no close rival, so neither score sees it.
+
+Predictions: (a) replay held; (b) margin AUROC at least 0.90 for the door and above PSR's held (0.91 against 0.71-0.73); (c) T3s at 3 m, product at or under 2% for 10 of 10 failed in the drier room (9, door at 2.3%) and held in the wetter one, and it kept far more door windows (52-58% against 7-9%), held; (d) T3 at 3 m, product 10 of 10 failed in the drier room (9, door at 2.1%) and held in the wetter one, kept within 5 points held (65% against 63%, 55% against 60%); (e) two more types under T3i failed (one more); (f) exploratory, `per` above 0.8 for 30% of door windows failed (3-4%; a guess, not tested: a 2 s window holds one or two slams, so a loop with a 0.5-1.5 s period rarely repeats inside it, while the correlation searches a 5 s stretch of the other device); (g) exploratory, margin above PSR in AUROC for the three impulsive types held (6 of 6 cells).
+
+**Post hoc.** The product used step 3's PSR grid (2 to 400) unchanged; since margin is below 1, products under 2 are refused outright, which is why it keeps only 14% of AirConditioner windows in the wetter room where the margin alone keeps 95%. The margin on its own grid is the better gate here, but it was not the pre-registered primary score.
+
+**Limits of step 3g.** The repeating sound is the corpus's own looped files, not a measured machine or a steady door; the exclusion zone is fixed at one frame; the impulsive independent case remains open, and needs a score that sees the wrong peak itself (agreement of two weightings, or a peak's consistency across sub-windows) rather than its rival.
+
 ## Step 3f: noise heard by both devices (`experiments/gate/noiseshared.py`)
 
 **Question.** Steps 3c-3e gave each device its own noise recording. In a room both hear one air conditioner, one crowd, one door, and the correlation can lock onto that sound at its own lag. When is that lag wrong, and does the gate notice? Plan and eight predictions in `LOG.md`, written before the run.
@@ -431,7 +472,7 @@ The pattern holds for every weighting: at 2 and 4 s, PHAT agrees in 3 of 12 cell
 
 - Why the threshold model overpredicts long windows on real phones (step 2b): keep per-window outputs, regress predicted against observed failure on window SNR, speech activity and L, and try a nonstationary (segment-wise) version of the true-lag peak variance.
 - Babble shared between devices (one crowd heard by both), and why PHAT wins in babble: a whitening that adapts to the noise spectrum, not a fixed gamma.
-- A mix of shared and independent noise (step 3f tested each alone), and real repeating sounds, where step 3f's looped door recordings gave several equal peaks; a confidence other than PSR (second-peak ratio, agreement of two weightings) for impulsive noise, which no level or class feature tamed in steps 3c to 3e; then the overlap subsets (two talkers at once) and the Paderborn time-varying-SRO set.
+- A mix of shared and independent noise (step 3f tested each alone), and real repeating sounds, where step 3f's looped door recordings gave several equal peaks; a confidence for impulsive noise heard by one device only, which neither level and class features (steps 3c to 3e) nor the second-peak ratio (step 3g) tamed: agreement of two weightings, or a peak's consistency across sub-windows; then the overlap subsets (two talkers at once) and the Paderborn time-varying-SRO set.
 - Baselines on equal windows: a Kammerl et al. (2014) style fingerprint sync and `paderwasn`'s online tracker.
 - Real ambient noise (licensed recordings) shared between devices, then owner camera clips with a clapper reference.
 
