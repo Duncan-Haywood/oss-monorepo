@@ -75,3 +75,267 @@ F7 2.5mm seed 1 fast EA 150: DC 0.5867 folds 8 E -1.24647482e-03 steps 158 conv 
 F7 2.5mm seed 0 fast EA 273: DC 0.6026 folds 8 E -1.21844620e-03 steps 22 conv True lam None 47s
 F7 2.5mm seed 1 fast EA 273: DC 0.6027 folds 8 E -1.21958114e-03 steps 17 conv True lam None 32s
 F7 2.5mm seed 2 fast EA 150: DC 0.5977 folds 9 E -1.22632078e-03 steps 179 conv True lam None 369s
+F7 2.5mm seed 0 fast EA 495: DC 0.6159 folds 8 E -1.19618633e-03 steps 21 conv True lam None 41s
+F7 2.5mm seed 1 fast EA 495: DC 0.6149 folds 8 E -1.19700175e-03 steps 18 conv True lam None 35s
+F7 2.5mm seed 2 fast EA 273: DC 0.6144 folds 9 E -1.20011874e-03 steps 17 conv True lam None 34s
+F7 2.5mm seed 0 kes EA 150: DC 0.6677 folds 8 E -1.07276152e-03 steps 88 conv True lam None 178s
+F7 2.5mm seed 0 fast EA 900: DC 0.6262 folds 8 E -1.17785848e-03 steps 18 conv True lam None 36s
+F7 2.5mm seed 1 fast EA 900: DC 0.6261 folds 8 E -1.17806536e-03 steps 18 conv True lam None 35s
+F7 2.5mm seed 0 kes EA 273: DC 0.6841 folds 8 E -1.04760998e-03 steps 16 conv True lam None 30s
+F7 2.5mm seed 2 fast EA 495: DC 0.6280 folds 9 E -1.17805635e-03 steps 19 conv True lam None 36s
+F7 2.5mm seed 0 fast EA 1636: DC 0.6356 folds 8 E -1.16195520e-03 steps 18 conv True lam None 35s
+F7 2.5mm seed 1 fast EA 1636: DC 0.6350 folds 8 E -1.16145152e-03 steps 20 conv True lam None 39s
+F7 2.5mm seed 0 kes EA 495: DC 0.6970 folds 8 E -1.02700914e-03 steps 18 conv True lam None 34s
+F7 2.5mm seed 2 fast EA 900: DC 0.6388 folds 9 E -1.15960774e-03 steps 20 conv True lam None 37s
+F7 2.5mm seed 0 kes EA 900: DC 0.7068 folds 8 E -1.01057531e-03 steps 17 conv True lam None 32s
+F7 2.5mm seed 0 fast EA 2973: DC 0.6455 folds 8 E -1.14672833e-03 steps 29 conv True lam 1.4034401192178968e-08 59s
+F7 2.5mm seed 1 fast EA 2973: DC 0.6442 folds 8 E -1.14542226e-03 steps 20 conv True lam 1.053937601758105e-08 40s
+F7 2.5mm seed 2 fast EA 1636: DC 0.6477 folds 9 E -1.14349359e-03 steps 23 conv True lam None 44s
+F7 2.5mm seed 0 kes EA 1636: DC 0.7148 folds 8 E -9.97064126e-04 steps 16 conv True lam None 30s
+F7 2.5mm seed 0 kes EA 2973: DC 0.7220 folds 8 E -9.84827141e-04 steps 17 conv True lam 2.629809425704272e-08 34s
+F7 2.5mm seed 2 fast EA 2973: DC 0.6572 folds 9 E -1.12804781e-03 steps 34 conv True lam 1.1291955411765298e-08 67s
+F8 2.5mm seed 2 fast EA 150: DC 0.6169 folds 8 E -1.67647307e-03 steps 91 conv True lam None 175s
+F8 2.5mm seed 2 fast EA 299: DC 0.6386 folds 8 E -1.62818041e-03 steps 17 conv True lam None 32s
+F8 2.5mm seed 0 fast EA 150: DC 0.6169 folds 8 E -1.67647307e-03 steps 145 conv True lam None 275s
+F8 2.5mm seed 2 fast EA 598: DC 0.6553 folds 8 E -1.58807892e-03 steps 18 conv True lam None 34s
+F8 2.5mm seed 0 fast EA 299: DC 0.6386 folds 8 E -1.62818041e-03 steps 17 conv True lam None 32s
+F8 2.5mm seed 0 kes EA 150: DC 0.3245 folds 8 E -2.48427373e-03 steps 121 conv True lam None 234s
+F8 2.5mm seed 0 fast EA 598: DC 0.6553 folds 8 E -1.58807892e-03 steps 18 conv True lam None 35s
+F8 2.5mm seed 2 fast EA 1193: DC 0.6677 folds 8 E -1.55590088e-03 steps 20 conv True lam None 40s
+F8 2.5mm seed 1 fast EA 150: DC 0.6032 folds 7 E -1.69830007e-03 steps 187 conv True lam None 362s
+F8 2.5mm seed 0 kes EA 299: DC 0.3346 folds 8 E -2.44837053e-03 steps 23 conv True lam None 44s
+F8 2.5mm seed 0 fast EA 1193: DC 0.6677 folds 8 E -1.55590088e-03 steps 20 conv True lam None 38s
+F8 2.5mm seed 2 fast EA 2381: DC 0.6776 folds 8 E -1.52932236e-03 steps 23 conv True lam 1.8409949477514785e-08 45s
+F8 2.5mm seed 1 fast EA 299: DC 0.6255 folds 7 E -1.64801988e-03 steps 25 conv True lam None 48s
+F8 2.5mm seed 0 kes EA 598: DC 0.3420 folds 8 E -2.41886740e-03 steps 23 conv True lam None 48s
+F8 2.5mm seed 0 fast EA 2381: DC 0.6776 folds 8 E -1.52932236e-03 steps 23 conv True lam 1.840994947664455e-08 46s
+F8 2.5mm seed 1 fast EA 598: DC 0.6429 folds 7 E -1.60630634e-03 steps 20 conv True lam None 37s
+F8 2.5mm seed 1 fast EA 1193: DC 0.6558 folds 7 E -1.57267674e-03 steps 18 conv True lam None 34s
+F8 2.5mm seed 0 kes EA 1193: DC 0.3466 folds 8 E -2.39451320e-03 steps 37 conv True lam None 80s
+F8 2.5mm seed 0 kes EA 2381: DC 0.3495 folds 8 E -2.37353502e-03 steps 20 conv True lam 7.279165701149821e-08 42s
+F8 2.5mm seed 1 fast EA 2381: DC 0.6670 folds 7 E -1.54492958e-03 steps 30 conv True lam 7.353768168488574e-09 59s
+F2 2.5mm seed 1 fast EA 150: DC 0.3099 folds 8 E -8.28604589e-04 steps 123 conv True lam None 245s
+F2 2.5mm seed 1 fast EA 280: DC 0.3139 folds 8 E -8.21395058e-04 steps 26 conv True lam None 53s
+F2 2.5mm seed 1 fast EA 524: DC 0.3167 folds 8 E -8.15018441e-04 steps 20 conv True lam None 41s
+F2 2.5mm seed 1 fast EA 978: DC 0.3186 folds 8 E -8.09135736e-04 steps 18 conv True lam None 40s
+F2 2.5mm seed 0 fast EA 150: DC 0.3191 folds 9 E -8.33741850e-04 steps 225 conv True lam None 440s
+F2 2.5mm seed 1 fast EA 1827: DC 0.3218 folds 8 E -8.03267090e-04 steps 30 conv True lam 3.064502894096964e-08 70s
+F2 2.5mm seed 0 fast EA 280: DC 0.3243 folds 9 E -8.26037420e-04 steps 29 conv True lam None 59s
+F2 2.5mm seed 0 fast EA 524: DC 0.3278 folds 9 E -8.19181990e-04 steps 21 conv True lam None 45s
+F2 2.5mm seed 0 kes EA 150: DC 0.1825 folds 12 E -9.86053382e-04 steps 192 conv True lam None 426s
+F2 2.5mm seed 0 fast EA 978: DC 0.3301 folds 9 E -8.12738615e-04 steps 29 conv True lam None 63s
+F2 2.5mm seed 0 kes EA 280: DC 0.1854 folds 12 E -9.81681439e-04 steps 25 conv True lam None 56s
+F2 2.5mm seed 0 fast EA 1827: DC 0.3327 folds 9 E -8.06432435e-04 steps 18 conv True lam 3.61911540791936e-08 39s
+F2 2.5mm seed 0 kes EA 524: DC 0.1882 folds 12 E -9.77161098e-04 steps 33 conv True lam None 80s
+F2 2.5mm seed 0 kes EA 978: DC 0.1924 folds 12 E -9.71936196e-04 steps 27 conv True lam None 61s
+F5 2.5mm seed 0 fast EA 150: DC 0.4341 folds 10 E -1.56413394e-03 steps 166 conv True lam None 306s
+F5 2.5mm seed 0 fast EA 280: DC 0.4466 folds 10 E -1.54173043e-03 steps 25 conv True lam None 45s
+F2 2.5mm seed 0 kes EA 1827: DC 0.1980 folds 12 E -9.65548806e-04 steps 41 conv True lam 1.5251355173926714e-08 88s
+F5 2.5mm seed 0 fast EA 523: DC 0.4573 folds 10 E -1.52248120e-03 steps 29 conv True lam None 56s
+F2 2.5mm seed 2 fast EA 150: DC 0.3322 folds 10 E -8.28343402e-04 steps 395 conv True lam None 767s
+F2 2.5mm seed 2 fast EA 280: DC 0.3382 folds 10 E -8.20282696e-04 steps 21 conv True lam None 40s
+F5 2.5mm seed 0 fast EA 977: DC 0.4673 folds 10 E -1.50492745e-03 steps 34 conv True lam None 64s
+F2 2.5mm seed 2 fast EA 524: DC 0.3433 folds 10 E -8.13014129e-04 steps 18 conv True lam None 35s
+F5 2.5mm seed 1 fast EA 150: DC 0.4229 folds 9 E -1.58364699e-03 steps 206 conv True lam None 379s
+F2 2.5mm seed 2 fast EA 978: DC 0.3452 folds 10 E -8.06124718e-04 steps 21 conv True lam None 44s
+F5 2.5mm seed 0 fast EA 1824: DC 0.4766 folds 10 E -1.48725629e-03 steps 37 conv True lam -3.841858151243104e-07 72s
+F5 2.5mm seed 1 fast EA 280: DC 0.4355 folds 9 E -1.56084357e-03 steps 17 conv True lam None 30s
+F2 2.5mm seed 2 fast EA 1827: DC 0.3484 folds 10 E -7.99303586e-04 steps 17 conv True lam 3.455671179335517e-08 35s
+F5 2.5mm seed 1 fast EA 523: DC 0.4459 folds 9 E -1.54107438e-03 steps 21 conv True lam None 38s
+F5 2.5mm seed 1 fast EA 977: DC 0.4567 folds 9 E -1.52297389e-03 steps 38 conv True lam None 71s
+F5 2.5mm seed 2 fast EA 150: DC 0.4232 folds 9 E -1.58367629e-03 steps 201 conv True lam None 357s
+F5 2.5mm seed 1 fast EA 1824: DC 0.4659 folds 9 E -1.50498240e-03 steps 34 conv True lam 4.366969965247626e-08 66s
+F5 2.5mm seed 2 fast EA 280: DC 0.4355 folds 9 E -1.56090594e-03 steps 18 conv True lam None 32s
+F5 2.5mm seed 2 fast EA 523: DC 0.4463 folds 9 E -1.54118063e-03 steps 20 conv True lam None 36s
+F6 2.5mm seed 0 fast EA 150: DC 0.5690 folds 8 E -1.14879066e-03 steps 133 conv True lam None 240s
+F5 2.5mm seed 0 kes EA 150: DC 0.2269 folds 9 E -1.96786810e-03 steps 154 conv True lam None 285s
+F5 2.5mm seed 2 fast EA 977: DC 0.4556 folds 9 E -1.52313400e-03 steps 24 conv True lam None 46s
+F6 2.5mm seed 0 fast EA 275: DC 0.5837 folds 8 E -1.12770117e-03 steps 16 conv True lam None 29s
+F6 2.5mm seed 0 fast EA 505: DC 0.5950 folds 8 E -1.11012596e-03 steps 17 conv True lam None 31s
+F5 2.5mm seed 0 kes EA 280: DC 0.2296 folds 9 E -1.95436733e-03 steps 30 conv True lam None 58s
+F5 2.5mm seed 2 fast EA 1824: DC 0.4648 folds 9 E -1.50515081e-03 steps 29 conv True lam 4.2699198505919896e-08 58s
+F6 2.5mm seed 0 fast EA 928: DC 0.6044 folds 8 E -1.09506352e-03 steps 19 conv True lam None 34s
+F5 2.5mm seed 0 kes EA 523: DC 0.2316 folds 9 E -1.94288750e-03 steps 25 conv True lam None 48s
+F6 2.5mm seed 1 fast EA 150: DC 0.5578 folds 7 E -1.15419703e-03 steps 117 conv True lam None 209s
+F6 2.5mm seed 0 fast EA 1703: DC 0.6145 folds 8 E -1.08100210e-03 steps 20 conv True lam 8.448857783553515e-09 36s
+F5 2.5mm seed 0 kes EA 977: DC 0.2335 folds 9 E -1.93229731e-03 steps 19 conv True lam None 37s
+F6 2.5mm seed 1 fast EA 275: DC 0.5727 folds 7 E -1.13214943e-03 steps 31 conv True lam None 53s
+F5 2.5mm seed 0 kes EA 1824: DC 0.2355 folds 9 E -1.92168427e-03 steps 20 conv True lam 6.159429669261354e-08 40s
+F6 2.5mm seed 0 kes EA 150: DC 0.6185 folds 7 E -1.04605446e-03 steps 116 conv True lam None 203s
+F6 2.5mm seed 1 fast EA 505: DC 0.5821 folds 7 E -1.11424627e-03 steps 97 conv True lam None 168s
+F6 2.5mm seed 0 kes EA 275: DC 0.6336 folds 7 E -1.02516997e-03 steps 19 conv True lam None 34s
+F6 2.5mm seed 2 fast EA 150: DC 0.5579 folds 7 E -1.15651505e-03 steps 165 conv True lam None 288s
+F6 2.5mm seed 0 kes EA 505: DC 0.6455 folds 7 E -1.00794948e-03 steps 16 conv True lam None 28s
+F6 2.5mm seed 1 fast EA 928: DC 0.5910 folds 7 E -1.09956179e-03 steps 31 conv True lam None 55s
+F6 2.5mm seed 2 fast EA 275: DC 0.5730 folds 7 E -1.13453580e-03 steps 28 conv True lam None 47s
+F3 2.5mm seed 0 fast EA 150: DC 0.3639 folds 10 E -2.72851221e-03 steps 130 conv True lam None 226s
+F6 2.5mm seed 0 kes EA 928: DC 0.6551 folds 7 E -9.93572880e-04 steps 25 conv True lam None 44s
+F3 2.5mm seed 0 fast EA 265: DC 0.3750 folds 10 E -2.69709546e-03 steps 29 conv True lam None 52s
+F6 2.5mm seed 0 kes EA 1703: DC 0.6635 folds 7 E -9.80804113e-04 steps 33 conv True lam 1.2787020115184954e-08 61s
+F3 2.5mm seed 0 fast EA 470: DC 0.3837 folds 10 E -2.66971081e-03 steps 22 conv True lam None 40s
+F6 2.5mm seed 1 fast EA 1703: DC 0.6009 folds 7 E -1.08631592e-03 steps 69 conv True lam 1.2878833865102397e-08 126s
+F3 2.5mm seed 0 fast EA 831: DC 0.3921 folds 10 E -2.64490520e-03 steps 24 conv True lam 3.1322489649279786e-08 43s
+F6 2.5mm seed 2 fast EA 505: DC 0.5836 folds 7 E -1.11720147e-03 steps 152 conv True lam None 268s
+F6 2.5mm seed 2 fast EA 928: DC 0.5935 folds 7 E -1.10172259e-03 steps 28 conv True lam None 53s
+F3 2.5mm seed 2 fast EA 150: DC 0.3477 folds 8 E -2.74696471e-03 steps 154 conv True lam None 284s
+F3 2.5mm seed 2 fast EA 265: DC 0.3577 folds 8 E -2.71484392e-03 steps 20 conv True lam None 36s
+F6 2.5mm seed 2 fast EA 1703: DC 0.6026 folds 7 E -1.08756669e-03 steps 79 conv True lam 5.983976548107346e-09 147s
+F3 2.5mm seed 2 fast EA 470: DC 0.3662 folds 8 E -2.68722845e-03 steps 27 conv True lam None 49s
+F3 2.5mm seed 0 kes EA 150: DC 0.1967 folds 10 E -3.29788131e-03 steps 193 conv True lam None 356s
+F3 2.5mm seed 2 fast EA 831: DC 0.3737 folds 8 E -2.66245501e-03 steps 27 conv True lam 3.572788333054737e-08 49s
+F9 3.75mm seed 0 fast EA 150: DC 0.7027 folds 7 E -2.04041201e-03 steps 108 conv True lam None 67s
+F9 3.75mm seed 0 fast EA 300: DC 0.7241 folds 7 E -1.97811970e-03 steps 11 conv True lam None 7s
+F9 3.75mm seed 0 fast EA 599: DC 0.7405 folds 9 E -1.92502265e-03 steps 13 conv True lam None 8s
+F3 2.5mm seed 0 kes EA 265: DC 0.2000 folds 10 E -3.27816121e-03 steps 31 conv True lam None 59s
+F9 3.75mm seed 0 fast EA 1198: DC 0.7532 folds 7 E -1.88190398e-03 steps 15 conv True lam None 9s
+F9 3.75mm seed 0 fast EA 2394: DC 0.7630 folds 7 E -1.84624905e-03 steps 17 conv True lam None 11s
+F3 2.5mm seed 1 fast EA 150: DC 0.3568 folds 9 E -2.65027236e-03 steps 276 conv True lam None 501s
+F9 3.75mm seed 0 fast EA 4785: DC 0.7715 folds 7 E -1.81354318e-03 steps 24 conv True lam 4.339683592502942e-08 15s
+F3 2.5mm seed 0 kes EA 470: DC 0.2015 folds 10 E -3.26130278e-03 steps 21 conv True lam None 43s
+F1 3.75mm seed 0 fast EA 150: DC 0.3357 folds 9 E -1.34049016e-03 steps 96 conv True lam None 67s
+F3 2.5mm seed 1 fast EA 265: DC 0.3671 folds 9 E -2.60806951e-03 steps 18 conv True lam None 33s
+F3 2.5mm seed 0 kes EA 831: DC 0.2029 folds 10 E -3.24639524e-03 steps 16 conv True lam 2.0063899412800233e-07 34s
+F4 3.75mm seed 0 fast EA 150: DC 0.4416 folds 9 E -1.42722458e-03 steps 88 conv True lam None 56s
+F1 3.75mm seed 0 fast EA 299: DC 0.3388 folds 9 E -1.32658983e-03 steps 59 conv True lam None 44s
+F3 2.5mm seed 1 fast EA 470: DC 0.3765 folds 9 E -2.56636411e-03 steps 17 conv True lam None 31s
+F1 3.75mm seed 0 fast EA 597: DC 0.3415 folds 9 E -1.31367865e-03 steps 21 conv True lam None 15s
+F4 3.75mm seed 0 fast EA 285: DC 0.4539 folds 9 E -1.40289746e-03 steps 26 conv True lam None 17s
+F1 3.75mm seed 0 fast EA 1190: DC 0.3450 folds 9 E -1.30142353e-03 steps 17 conv True lam None 12s
+F4 3.75mm seed 0 fast EA 543: DC 0.4623 folds 9 E -1.38197873e-03 steps 31 conv True lam None 21s
+F1 3.75mm seed 0 fast EA 2374: DC 0.3505 folds 9 E -1.28832039e-03 steps 17 conv True lam None 13s
+F3 2.5mm seed 1 fast EA 831: DC 0.3842 folds 9 E -2.52248618e-03 steps 20 conv True lam 6.540383119944206e-08 38s
+F4 3.75mm seed 0 fast EA 1034: DC 0.4691 folds 9 E -1.36296058e-03 steps 22 conv True lam None 15s
+F1 3.75mm seed 0 fast EA 4735: DC 0.3589 folds 9 E -1.27302108e-03 steps 21 conv True lam 4.573702373472265e-08 15s
+F4 3.75mm seed 0 fast EA 1967: DC 0.4733 folds 9 E -1.34493136e-03 steps 24 conv True lam None 17s
+F7 3.75mm seed 0 fast EA 150: DC 0.5583 folds 7 E -1.31159356e-03 steps 149 conv True lam None 91s
+F4 3.75mm seed 0 fast EA 3744: DC 0.4777 folds 9 E -1.32645050e-03 steps 19 conv True lam 7.032565980821238e-08 14s
+F7 3.75mm seed 0 fast EA 273: DC 0.5735 folds 7 E -1.28312709e-03 steps 18 conv True lam None 11s
+F7 3.75mm seed 0 fast EA 495: DC 0.5866 folds 7 E -1.25904334e-03 steps 18 conv True lam None 11s
+F7 3.75mm seed 0 fast EA 900: DC 0.5969 folds 7 E -1.23817885e-03 steps 19 conv True lam None 12s
+F2 3.75mm seed 0 fast EA 150: DC 0.3146 folds 10 E -8.50711552e-04 steps 107 conv True lam None 74s
+F7 3.75mm seed 0 fast EA 1636: DC 0.6067 folds 7 E -1.21900923e-03 steps 23 conv True lam None 15s
+F5 3.75mm seed 0 fast EA 150: DC 0.4106 folds 9 E -1.63625315e-03 steps 81 conv True lam None 51s
+F2 3.75mm seed 0 fast EA 280: DC 0.3179 folds 10 E -8.43939582e-04 steps 21 conv True lam None 15s
+F7 3.75mm seed 0 fast EA 2973: DC 0.6163 folds 7 E -1.20005746e-03 steps 22 conv True lam -2.610719574777063e-07 15s
+F5 3.75mm seed 0 fast EA 280: DC 0.4217 folds 9 E -1.61253370e-03 steps 24 conv True lam None 15s
+F8 3.75mm seed 0 fast EA 150: DC 0.6178 folds 9 E -1.71109010e-03 steps 178 conv True lam None 112s
+F5 3.75mm seed 0 fast EA 523: DC 0.4298 folds 9 E -1.59154863e-03 steps 17 conv True lam None 11s
+F2 3.75mm seed 0 fast EA 524: DC 0.3222 folds 10 E -8.37204343e-04 steps 28 conv True lam None 21s
+F8 3.75mm seed 0 fast EA 299: DC 0.6396 folds 9 E -1.66269359e-03 steps 26 conv True lam None 17s
+F2 3.75mm seed 0 fast EA 978: DC 0.3283 folds 10 E -8.29848846e-04 steps 18 conv True lam None 13s
+F5 3.75mm seed 0 fast EA 977: DC 0.4338 folds 9 E -1.57280289e-03 steps 32 conv True lam None 24s
+F8 3.75mm seed 0 fast EA 598: DC 0.6559 folds 10 E -1.62189947e-03 steps 26 conv True lam None 16s
+F2 3.75mm seed 0 fast EA 1827: DC 0.3367 folds 10 E -8.21183593e-04 steps 22 conv True lam 6.367801736097045e-08 16s
+F5 3.75mm seed 0 fast EA 1824: DC 0.4387 folds 9 E -1.55440860e-03 steps 17 conv True lam 1.52578602260121e-07 12s
+F8 3.75mm seed 0 fast EA 1193: DC 0.6689 folds 9 E -1.58768098e-03 steps 33 conv True lam None 21s
+F6 3.75mm seed 0 fast EA 150: DC 0.5425 folds 7 E -1.20294473e-03 steps 144 conv True lam None 90s
+F8 3.75mm seed 0 fast EA 2381: DC 0.6799 folds 9 E -1.55677260e-03 steps 40 conv True lam 9.398565767369572e-08 28s
+F6 3.75mm seed 0 fast EA 275: DC 0.5562 folds 7 E -1.18065826e-03 steps 24 conv True lam None 15s
+F3 3.75mm seed 0 fast EA 150: DC 0.3425 folds 9 E -2.83860987e-03 steps 93 conv True lam None 57s
+F6 3.75mm seed 0 fast EA 505: DC 0.5680 folds 7 E -1.16166328e-03 steps 19 conv True lam None 12s
+F3 3.75mm seed 0 fast EA 265: DC 0.3527 folds 9 E -2.80476189e-03 steps 25 conv True lam None 16s
+F6 3.75mm seed 0 fast EA 928: DC 0.5786 folds 7 E -1.14444529e-03 steps 20 conv True lam None 12s
+F3 3.75mm seed 0 fast EA 470: DC 0.3599 folds 9 E -2.77444650e-03 steps 17 conv True lam None 11s
+F6 3.75mm seed 0 fast EA 1703: DC 0.5880 folds 7 E -1.12758401e-03 steps 25 conv True lam 1.0162922820933432e-07 17s
+F3 3.75mm seed 0 fast EA 831: DC 0.3656 folds 9 E -2.74656037e-03 steps 35 conv True lam 4.2298367732704333e-07 25s
+Milestone 4a: triangle-FEM Cusick DC, uncalibrated, against Petrak et al. (2021) Table 3.
+
+Inputs (all from the paper; isotropic geometric means):
+fabric  W g/m2   B_fast uNm  B_kes uNm   G N/m   EA N/m   Kd_meas
+F1        135.2       2.92       1.09    23.0     4735  0.222
+F2         83.7       1.52       0.53    16.0     1827  0.227
+F3        286.1       6.96       2.67    27.0      831  0.285
+F4        161.8       5.44       2.28    33.0     3744  0.319
+F5        178.7       5.50       2.07    24.0     1824  0.348
+F6        159.8       9.20      12.00    24.0     1703  0.403
+F7        178.1      10.80      15.37    38.0     2973  0.442
+F8        253.4      18.18       5.24    60.0     2381  0.548
+F9        366.8      46.97      18.21    67.0     4785  0.647
+
+End states (FAST inputs, 2.5 mm, seeds 0-2): DC, folds, energy J, steps, converged, lam_min
+F1 seed 0: DC 0.3921 folds 10 E -1.22160630e-03 steps(last)  22 allconv True lam 2.2612288710173897e-08
+F1 seed 1: DC 0.3677 folds  8 E -1.23517499e-03 steps(last)  23 allconv True lam 2.0193767050642214e-08
+F1 seed 2: DC 0.3679 folds  8 E -1.23628879e-03 steps(last)  23 allconv True lam 1.9262880795653494e-08
+F2 seed 0: DC 0.3327 folds  9 E -8.06432435e-04 steps(last)  18 allconv True lam 3.61911540791936e-08
+F2 seed 1: DC 0.3218 folds  8 E -8.03267090e-04 steps(last)  30 allconv True lam 3.064502894096964e-08
+F2 seed 2: DC 0.3484 folds 10 E -7.99303586e-04 steps(last)  17 allconv True lam 3.455671179335517e-08
+F3 seed 0: DC 0.3921 folds 10 E -2.64490520e-03 steps(last)  24 allconv True lam 3.1322489649279786e-08
+F3 seed 1: DC 0.3842 folds  9 E -2.52248618e-03 steps(last)  20 allconv True lam 6.540383119944206e-08
+F3 seed 2: DC 0.3737 folds  8 E -2.66245501e-03 steps(last)  27 allconv True lam 3.572788333054737e-08
+F4 seed 0: DC 0.5058 folds  9 E -1.28225173e-03 steps(last)  26 allconv True lam 2.760303977666445e-08
+F4 seed 1: DC 0.5201 folds 10 E -1.26368219e-03 steps(last)  35 allconv True lam 1.8700339189423564e-08
+F4 seed 2: DC 0.4939 folds  8 E -1.28930012e-03 steps(last)  34 allconv True lam 2.0223802076785376e-08
+F5 seed 0: DC 0.4766 folds 10 E -1.48725629e-03 steps(last)  37 allconv True lam -3.841858151243104e-07
+F5 seed 1: DC 0.4659 folds  9 E -1.50498240e-03 steps(last)  34 allconv True lam 4.366969965247626e-08
+F5 seed 2: DC 0.4648 folds  9 E -1.50515081e-03 steps(last)  29 allconv True lam 4.2699198505919896e-08
+F6 seed 0: DC 0.6145 folds  8 E -1.08100210e-03 steps(last)  20 allconv True lam 8.448857783553515e-09
+F6 seed 1: DC 0.6009 folds  7 E -1.08631592e-03 steps(last)  69 allconv True lam 1.2878833865102397e-08
+F6 seed 2: DC 0.6026 folds  7 E -1.08756669e-03 steps(last)  79 allconv True lam 5.983976548107346e-09
+F7 seed 0: DC 0.6455 folds  8 E -1.14672833e-03 steps(last)  29 allconv True lam 1.4034401192178968e-08
+F7 seed 1: DC 0.6442 folds  8 E -1.14542226e-03 steps(last)  20 allconv True lam 1.053937601758105e-08
+F7 seed 2: DC 0.6572 folds  9 E -1.12804781e-03 steps(last)  34 allconv True lam 1.1291955411765298e-08
+F8 seed 0: DC 0.6776 folds  8 E -1.52932236e-03 steps(last)  23 allconv True lam 1.840994947664455e-08
+F8 seed 1: DC 0.6670 folds  7 E -1.54492958e-03 steps(last)  30 allconv True lam 7.353768168488574e-09
+F8 seed 2: DC 0.6776 folds  8 E -1.52932236e-03 steps(last)  23 allconv True lam 1.8409949477514785e-08
+F9 seed 0: DC 0.7893 folds  8 E -1.69689953e-03 steps(last)  24 allconv True lam 9.127797950264648e-09
+F9 seed 1: DC 0.7773 folds  7 E -1.74145661e-03 steps(last)  38 allconv True lam 6.176278508633829e-09
+F9 seed 2: DC 0.7773 folds  7 E -1.74145661e-03 steps(last)  38 allconv True lam 6.17627850089181e-09
+
+Per fabric: measured, lowest-energy seed DC [seed interval], seed mean, error of the lowest
+F1: Kd 0.222  sim 0.3679 [0.3677, 0.3921]  mean 0.3759  err +0.1459
+F2: Kd 0.227  sim 0.3327 [0.3218, 0.3484]  mean 0.3343  err +0.1057
+F3: Kd 0.285  sim 0.3737 [0.3737, 0.3921]  mean 0.3834  err +0.0887
+F4: Kd 0.319  sim 0.4939 [0.4939, 0.5201]  mean 0.5066  err +0.1749
+F5: Kd 0.348  sim 0.4648 [0.4648, 0.4766]  mean 0.4691  err +0.1168
+F6: Kd 0.403  sim 0.6026 [0.6009, 0.6145]  mean 0.6060  err +0.1996
+F7: Kd 0.442  sim 0.6455 [0.6442, 0.6572]  mean 0.6490  err +0.2035
+F8: Kd 0.548  sim 0.6670 [0.6670, 0.6776]  mean 0.6741  err +0.1190
+F9: Kd 0.647  sim 0.7773 [0.7773, 0.7893]  mean 0.7813  err +0.1303
+
+Scores against measured Kd (n = 9):
+FEM 2.5 mm lowest-energy (registered) : r +0.965  rho +0.967  bias +0.1427  RMSE 0.1479  max|e| 0.2035
+FEM 2.5 mm seed mean                  : r +0.964  rho +0.967  bias +0.1487  RMSE 0.1537  max|e| 0.2070
+FEM 2.5 mm seed 0                     : r +0.966  rho +0.967  bias +0.1539  RMSE 0.1585  max|e| 0.2115
+FEM 3.75 mm seed 0                    : r +0.975  rho +0.967  bias +0.1325  RMSE 0.1367  max|e| 0.1850
+FEM 2.5 mm seed 0, KES bending        : r +0.666  rho +0.800  bias +0.0042  RMSE 0.1522  max|e| 0.2800
+Optitex FAST 0.2 (paper, Table 6)    : r +0.878  rho +0.833  bias -0.2518  RMSE 0.2739  max|e| 0.4440
+Optitex FAST 0.4 (paper, Table 6)    : r +0.853  rho +0.833  bias +0.0056  RMSE 0.0788  max|e| 0.1490
+Optitex FAST 0.6 (paper, Table 6)    : r +0.894  rho +0.900  bias +0.1758  RMSE 0.1861  max|e| 0.2700
+Optitex FAST 0.8 (paper, Table 6)    : r +0.911  rho +0.917  bias +0.2097  RMSE 0.2174  max|e| 0.3080
+Optitex KES 0.2  (paper, Table 6)    : r +0.942  rho +0.917  bias -0.1131  RMSE 0.1268  max|e| 0.2200
+Optitex KES 0.4  (paper, Table 6)    : r +0.924  rho +0.917  bias -0.1021  RMSE 0.1188  max|e| 0.2250
+Optitex KES 0.6  (paper, Table 6)    : r +0.933  rho +0.917  bias +0.0438  RMSE 0.0670  max|e| 0.1460
+Optitex KES 0.8  (paper, Table 6)    : r +0.939  rho +0.933  bias +0.0660  RMSE 0.0827  max|e| 0.1720
+
+Mesh check (seed 0): DC 3.75 mm, 2.5 mm, change
+F1: 0.3589 0.3921 -0.0332 (folds 9 -> 10)
+F2: 0.3367 0.3327 +0.0040 (folds 10 -> 9)
+F3: 0.3656 0.3921 -0.0266 (folds 9 -> 10)
+F4: 0.4777 0.5058 -0.0280 (folds 9 -> 9)
+F5: 0.4387 0.4766 -0.0379 (folds 9 -> 10)
+F6: 0.5880 0.6145 -0.0265 (folds 7 -> 8)
+F7: 0.6163 0.6455 -0.0292 (folds 7 -> 8)
+F8: 0.6799 0.6776 +0.0022 (folds 9 -> 8)
+F9: 0.7715 0.7893 -0.0178 (folds 7 -> 8)
+
+Input check (seed 0, 2.5 mm): DC with FAST bending, with KES bending, change
+F1: 0.3921 0.2108 -0.1812
+F2: 0.3327 0.1980 -0.1348
+F3: 0.3921 0.2029 -0.1892
+F4: 0.5058 0.2861 -0.2197
+F5: 0.4766 0.2355 -0.2411
+F6: 0.6145 0.6635 +0.0490
+F7: 0.6455 0.7220 +0.0765
+F8: 0.6776 0.3495 -0.3282
+F9: 0.7893 0.6108 -0.1785
+
+Predictions:
+  M1 every 2.5 mm stage converges: held
+  M2 Spearman >= 0.80: held
+  M3 Pearson >= 0.86: held
+  M4 (acceptance) RMSE <= 0.08: REFUTED
+  M5 |bias| <= 0.05: REFUTED
+  M6 mesh change < 0.02 on >= 7 of 9 (3 of 9): REFUTED
+  M7 KES bending lowers DC on all 7 others (7 of 7) and raises RMSE: REFUTED
+  (Optitex RMSE over its eight columns: 0.067 to 0.274, median 0.123)
+EXIT 0

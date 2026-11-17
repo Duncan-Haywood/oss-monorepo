@@ -48,6 +48,11 @@ before any other KES-bending result (`--extra`: KES bending, seeds 1 and 2, 2.5 
   K2  ... and |bias| <= 0.03, Pearson r >= 0.90.
   K3  ... and its RMSE is below every one of the paper's eight Optitex columns.
 These are not blind (three of nine fabrics were seen) and are scored apart from M1 to M7.
+Added after the report of M1 to M7 was read (`--verify 0.485`: seed 0, 2.5 mm, FAST bending x 0.485,
+the one factor that the post hoc log-B interpolation fits to all nine fabrics):
+  V1  The solved DC has RMSE <= 0.06 against the measured DC (interpolated: 0.050 leave-one-out).
+  V2  It is within 0.03 of the interpolated DC at that factor on at least 7 of 9 fabrics.
+In-sample calibration, not a blind test: the factor was fitted to the same nine measurements.
 Acceptance for the milestone is M4: an uncalibrated top tier within 0.08 of measured drape on nine
 fabrics is what H3 (does calibration change a choice) needs as its starting point.
 """
@@ -93,7 +98,10 @@ class FabricDisc(m3.Disc):
     """3a's Cusick specimen with one of Petrak et al.'s fabrics instead of a `hanger-kes` one."""
 
     def __init__(self, code, ea, a, bsrc="fast"):
-        B = (fabrics.b_fast if bsrc == "fast" else fabrics.b_kes)(code) / fem.GF_CM2_PER_CM
+        if bsrc.startswith("x"):                        # post hoc check: a factor on FAST bending
+            B = float(bsrc[1:]) * fabrics.b_fast(code) / fem.GF_CM2_PER_CM
+        else:
+            B = (fabrics.b_fast if bsrc == "fast" else fabrics.b_kes)(code) / fem.GF_CM2_PER_CM
         W = fabrics.weight(code) / 10.0                 # g/m^2 -> mg/cm^2
         cut = cusick.R_SPEC + 0.5 * a
         P, T = fem.lattice(a, (-cut - a, cut + a), (-cut - a, cut + a))
@@ -116,7 +124,9 @@ def mm(a):
     return f"{a * 1000:g}"
 
 
-def jobs(quick, extra=False):
+def jobs(quick, extra=False, verify=None):
+    if verify:
+        return [(c, MAIN, 0, f"x{verify}") for c in fabrics.CODES]
     if extra:
         return [(c, MAIN, s, "kes") for s in (1, 2) for c in fabrics.CODES]
     if quick:
@@ -182,6 +192,38 @@ def scores(sim, meas):
 
 def fmt(s):
     return f"r {s['r']:+.3f}  rho {s['rho']:+.3f}  bias {s['bias']:+.4f}  RMSE {s['rmse']:.4f}  max|e| {s['maxerr']:.4f}"
+
+
+def dc_at(f, b0, d0, b1, d1):
+    """DC at bending factor f (on FAST B), linear in log B through the two solved points."""
+    x0, x1 = math.log(b0), math.log(b1)
+    return d0 + (d1 - d0) * (math.log(f) - x0) / (x1 - x0)
+
+
+def posthoc_factor(seed0, kes):
+    """Post hoc, not registered: per fabric the factor on FAST bending that matches the measured DC,
+    by log-linear interpolation of the seed-0 DC between FAST B (factor 1) and KES B (factor
+    b_kes / b_fast); then one shared factor fitted on eight fabrics (least squares on a grid) and used
+    to predict the ninth (leave-one-out)."""
+    pts = {}
+    for c, rf, rk in zip(fabrics.CODES, seed0, kes):
+        pts[c] = (1.0, rf["dc"], fabrics.b_kes(c) / fabrics.b_fast(c), rk["dc"])
+    need = {}
+    for c, (b0, d0, b1, d1) in pts.items():
+        x0, x1 = math.log(b0), math.log(b1)
+        need[c] = math.exp(x0 + (fabrics.kd(c) - d0) * (x1 - x0) / (d1 - d0)) if d1 != d0 else float("nan")
+    grid = np.exp(np.linspace(math.log(0.05), math.log(2.0), 2001))
+
+    def fit(codes):
+        sse = [sum((dc_at(f, *pts[c]) - fabrics.kd(c)) ** 2 for c in codes) for f in grid]
+        return float(grid[int(np.argmin(sse))])
+
+    f_all = fit(fabrics.CODES)
+    loo = {}
+    for c in fabrics.CODES:
+        f = fit([d for d in fabrics.CODES if d != c])
+        loo[c] = (f, dc_at(f, *pts[c]))
+    return need, f_all, loo
 
 
 def report():
@@ -264,6 +306,58 @@ def report():
         low = [d < 0 for c, d in zip(fabrics.CODES, kesd) if c not in ("F6", "F7")]
         pred.append((f"M7 KES bending lowers DC on all 7 others ({sum(low)} of 7) and raises RMSE",
                      all(low) and s_kes["rmse"] > s_seed0["rmse"]))
+    post = None
+    if all(kes) and all(seed0):
+        need, f_all, loo = posthoc_factor(seed0, kes)
+        pl = [loo[c][1] for c in fabrics.CODES]
+        s_loo = scores(pl, meas)
+        L += ["", "Post hoc (not registered; seed 0, DC linear in log B between the FAST and KES solves):",
+              "factor on FAST bending that matches each fabric's measured DC (KES/FAST ratio beside it)"]
+        for c in fabrics.CODES:
+            L.append(f"{c}: needs x{need[c]:.3f}  (KES/FAST {fabrics.b_kes(c) / fabrics.b_fast(c):.3f})  "
+                     f"LOO factor {loo[c][0]:.3f} -> DC {loo[c][1]:.4f} vs Kd {fabrics.kd(c):.3f}")
+        L.append(f"one factor fitted on all nine: x{f_all:.3f}")
+        L.append(f"leave-one-out, one shared factor           : {fmt(s_loo)}")
+        post = dict(need=need, f_all=f_all, loo={c: list(v) for c, v in loo.items()}, loo_scores=s_loo)
+        vk = sorted({k[3] for k in ends if k[3].startswith("x")})
+        for b in vk:
+            vr = [ends.get((c, MAIN, 0, b)) for c in fabrics.CODES]
+            if not all(vr):
+                continue
+            f = float(b[1:])
+            pts = {c: (1.0, rf["dc"], fabrics.b_kes(c) / fabrics.b_fast(c), rk["dc"])
+                   for c, rf, rk in zip(fabrics.CODES, seed0, kes)}
+            L += ["", f"V1-V2 (post hoc check, solved): seed 0, 2.5 mm, FAST bending x{f:g}: "
+                  "measured, solved DC, interpolated DC, error"]
+            near = 0
+            for c, r in zip(fabrics.CODES, vr):
+                ip = dc_at(f, *pts[c])
+                near += abs(r["dc"] - ip) <= 0.03
+                L.append(f"{c}: Kd {fabrics.kd(c):.3f}  solved {r['dc']:.4f} (folds {r['folds']}, allconv "
+                         f"{r['allconv']})  interp {ip:.4f}  err {r['dc'] - fabrics.kd(c):+.4f}")
+            s_v = scores([r["dc"] for r in vr], meas)
+            L.append(f"FEM 2.5 mm seed 0, FAST bending x{f:g}   : {fmt(s_v)}")
+            post[f"verify_{b}"] = dict(dc={c: r["dc"] for c, r in zip(fabrics.CODES, vr)}, scores=s_v, near=near)
+            post["_vpred"] = [(f"V1 solved RMSE <= 0.06 at x{f:g}", s_v["rmse"] <= 0.06),
+                              (f"V2 within 0.03 of the interpolation on >= 7 of 9 ({near} of 9)", near >= 7)]
+    kes3 = [[ends.get((c, MAIN, s, "kes")) for s in SEEDS] for c in fabrics.CODES]
+    s_k3, klow = None, []
+    if all(all(rs) for rs in kes3):
+        L += ["", "K1-K3 (KES bending, 2.5 mm, seeds 0-2): measured, lowest-energy DC [interval], error"]
+        for c, rs in zip(fabrics.CODES, kes3):
+            cv = [r for r in rs if r["conv"]] or rs
+            b = min(cv, key=lambda r: r["energy"])
+            klow.append(b["dc"])
+            L.append(f"{c}: Kd {fabrics.kd(c):.3f}  sim {b['dc']:.4f} [{min(r['dc'] for r in rs):.4f}, "
+                     f"{max(r['dc'] for r in rs):.4f}] folds {b['folds']} err {b['dc'] - fabrics.kd(c):+.4f}"
+                     f"  allconv {all(x['conv'] for x in rs)}")
+        s_k3 = scores(klow, meas)
+        L.append(f"FEM 2.5 mm KES bending, lowest of 3    : {fmt(s_k3)}")
+        pred += [("K1 KES RMSE <= 0.05", s_k3["rmse"] <= 0.05),
+                 ("K2 KES |bias| <= 0.03 and r >= 0.90", abs(s_k3["bias"]) <= 0.03 and s_k3["r"] >= 0.90),
+                 ("K3 KES RMSE below all eight Optitex columns", s_k3["rmse"] < rm_[0])]
+    if post and "_vpred" in post:
+        pred += post.pop("_vpred")
     L += ["", "Predictions:"] + [f"  {n}: {'held' if ok else 'REFUTED'}" for n, ok in pred]
     L.append(f"  (Optitex RMSE over its eight columns: {rm_[0]:.3f} to {rm_[-1]:.3f}, median "
              f"{0.5 * (rm_[3] + rm_[4]):.3f})")
@@ -271,8 +365,10 @@ def report():
     js = dict(ends={f"{k[0]}_{mm(k[1])}_{k[2]}_{k[3]}": v for k, v in ends.items()},
               lowest=dict(zip(fabrics.CODES, lowest)), interval=dict(zip(fabrics.CODES, zip(lo, hi))),
               means=dict(zip(fabrics.CODES, means)), measured=dict(zip(fabrics.CODES, meas)),
-              scores=dict(main=s_main, mean=s_mean, seed0=s_seed0, coarse=s_coarse, kes=s_kes,
+              scores=dict(main=s_main, mean=s_mean, seed0=s_seed0, coarse=s_coarse, kes=s_kes, kes3=s_k3,
                           optitex=opt), mesh=dict(zip(fabrics.CODES, mesh)), kes_change=dict(zip(fabrics.CODES, kesd)),
+              kes_lowest=dict(zip(fabrics.CODES, klow)),
+              posthoc=post,
               optitex={k: list(v) for k, v in OPTITEX.items()},
               predictions={n: bool(ok) for n, ok in pred})
     (HERE / "results.json").write_text(json.dumps(js, indent=1) + "\n")
@@ -284,6 +380,7 @@ def main():
     ap.add_argument("--phase", choices=("solve", "report"), default="solve")
     ap.add_argument("--quick", action="store_true")
     ap.add_argument("--extra", action="store_true", help="K1-K3: KES bending, seeds 1 and 2")
+    ap.add_argument("--verify", help="V1-V2: seed 0 with FAST bending times this factor (post hoc)")
     ap.add_argument("--procs", type=int, default=4)
     a = ap.parse_args()
     global CACHE
@@ -291,7 +388,7 @@ def main():
         CACHE = HERE / "cache_quick"
     CACHE.mkdir(exist_ok=True)
     if a.phase == "solve":
-        js = jobs(a.quick, a.extra)
+        js = jobs(a.quick, a.extra, a.verify)
         # longest first: the stiffest, finest chains
         js.sort(key=lambda j: (-1 / j[1], -fabrics.ea_secant(j[0])))
         with mp.Pool(a.procs) as pool:
