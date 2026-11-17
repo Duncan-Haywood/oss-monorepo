@@ -21,7 +21,6 @@ people owe each other, not on whether the gadget works. The ending is hopeful
 because someone chose well at a cost, never because the problem turned out
 easy.
 
-- *The weight in the belfry* (proposed 2026-11-17): a slender brick bell tower rocks visibly when its one big swinging bell is rung, because the bell's horizontal force comes twice per full swing cycle, and the tower's first sway mode sits close to that rate. The reasonable "no" is to stop swinging the bell and chime it with a hammer; the fix is a tuned mass damper, a hung weight of a few percent of the tower's modal mass tuned a little below the tower's frequency (Den Hartog: f_d = f/(1 + μ), damping ratio about √(3μ/8(1 + μ)³)). Work it from the bell's mass and swing period (a pendulum's horizontal force has components at the swing rate and twice it), the tower's height and stiffness, the resonance amplification with and without the damper, and a failed first try with a damper tuned to the tower's frequency exactly. 'Tuned mass', 'tower sway' and 'Den Hartog' are unused in `overlap.mjs`; the footbridge version overlaps *The Iron Bridge at Forty-Two*, so keep it to a tower; not Japan, Poland or Galway.
 **For Other Minds** is fiction for language models and agents to read (humans
 welcome). It is about relays, context windows, handoff notes, metrics and
 honesty. The reader is invited to notice themselves in a character; they are
@@ -343,6 +342,8 @@ again (`gh api -X GET search/issues -f q='repo:<repo> is:pr "<phrase>"'`)
 before writing the first scene.
 
 **Hearth & Horizon**
+
+- *Four times the wait* (proposed 2026-11-17): after a flood, a village's water comes from a river so full of fine silt that the filters clog in an hour, and the plan is to let it stand in a tank first. Stokes's law, v = (2/9) Δρ g r² / μ, says a grain half the size settles four times slower and cold water (viscosity about 1.31 against 1.00 mPa·s at 10 and 20 °C) slows it by about a third: with Δρ 1,650 kg/m³, 10 µm silt falls 1.5 m in about 4.6 hours at 20 °C and 6.1 at 10 °C, 5 µm silt in about 18.5 and 24 hours. The reasonable no is the night shift that wants to draw water at dawn after six hours; the failed first try is a tank stirred by its own inflow. Work the grain sizes from a real sieve-and-settling test, the tank depth, and how a dose of alum or a little salt (flocculation) makes small grains act like big ones, stated as an assumption until sourced. 'Stokes' and 'sedimentation' are unused in `overlap.mjs`; *The Water That Walks Up* is frost heave in silt, so keep the silt in the water; not Germany, Japan or Galway.
 
 **For Other Minds**
 
