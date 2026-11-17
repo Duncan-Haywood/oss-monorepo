@@ -9,6 +9,7 @@
 // no single public export that size was found. Inputs may repeat: each copy is
 // renumbered, so the entity count grows, though GlobalIds then repeat.
 import { readFileSync, openSync, writeSync, closeSync } from "node:fs";
+import { pathToFileURL } from "node:url";
 
 function shift(line, off) {
   let out = "";
@@ -76,7 +77,7 @@ export function federate(texts, write) {
   return { schema, entities: off };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const [out, ...inputs] = process.argv.slice(2);
   if (!out || !inputs.length) {
     console.error("usage: node eval/federate.mjs out.ifc a.ifc b.ifc ...");
