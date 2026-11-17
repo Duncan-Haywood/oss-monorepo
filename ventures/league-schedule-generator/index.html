@@ -230,6 +230,15 @@
     <button type="button" id="dl-team-sheets">Download team sheets to print (.html)</button>
     <button type="button" class="secondary" id="dl-duties" hidden>Download team duty rota (text)</button>
     <p id="duty-line" class="note" role="status"></p>
+    <h3 style="margin-top:18px">Import into TeamSnap or SportsEngine</h3>
+    <p class="note">If your league already runs registration and team messaging on TeamSnap or SportsEngine, load this season there in one upload instead of typing every game. The files follow each platform's own published import template. Names must match the platform exactly.</p>
+    <p><label for="platformLocation">Location name on the platform</label> <input id="platformLocation" style="width:14em" placeholder="Riverside Rec Center"> <span class="note">(blank: each court is the location)</span></p>
+    <p><label for="teamSnapDivision">TeamSnap division</label> <input id="teamSnapDivision" style="width:12em" placeholder="Adult Coed">
+    <label for="teamSnapArrival">Arrive (minutes before)</label> <input id="teamSnapArrival" style="width:5em" inputmode="numeric" placeholder="30"></p>
+    <button type="button" class="secondary" id="dl-teamsnap">Download TeamSnap schedule import (.csv)</button>
+    <p><label for="sportsEngineIds">SportsEngine HQ team IDs, one per line (<code>Hawks = 2270996_271208</code>; HQ lists them on its template's Team/Division ID tab)</label><br><textarea id="sportsEngineIds" rows="3" style="width:100%"></textarea></p>
+    <button type="button" class="secondary" id="dl-sportsengine">Download SportsEngine schedule upload (.csv)</button>
+    <p id="platform-line" class="note" role="status"></p>
   </section>
 
   <section class="card" id="pack-card" aria-labelledby="h-pack" hidden>
@@ -388,7 +397,7 @@
   </footer>
 
   <script type="module">
-    import { tieBreakNotes, doubleEliminationBracket, blackoutsFromCsv, parseTeams, readSpec, buildSchedule, applyRainouts, changeNotices, applyPinnedMatches, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseLinkedTeams, separateLinkedTeams, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, forfeitReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, scheduleCalendarCsv, seasonGridCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, oneDayTimetable, oneDayText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
+    import { tieBreakNotes, doubleEliminationBracket, blackoutsFromCsv, parseTeams, readSpec, buildSchedule, applyRainouts, changeNotices, applyPinnedMatches, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseLinkedTeams, separateLinkedTeams, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, forfeitReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, scheduleCalendarCsv, teamSnapCsv, sportsEngineCsv, seasonGridCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, oneDayTimetable, oneDayText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
     import { printPackHtml } from "./printpack.mjs";
     import { singleAsDivisions, parseDivisionDuties, assignDivisionDuties, validateDivisionDuties, divisionsTeamSheetsHtml, divisionsDutiesText } from "./divisions.mjs";
     import { carryOverTry, carryOverSummary, combineCarryOverTries, splitCarryOverTries, carryOverCandidatesText, carryOverDistinct, carryOverKeepText, carryOverKeepIndex, CARRY_OVER_GAP, CARRY_OVER_SQUEEZE, carryOverSqueeze, CARRY_OVER_POLISH, carryOverPolish, CARRY_OVER_FLOOR_PRICED, carryOverFloorPriced, carryOverPure } from "./carryover.mjs";
@@ -444,6 +453,7 @@
       $("#duties").value = f.duties || "";
       $("#sheetTitle").value = f.sheetTitle || "";
       $("#sheetContact").value = f.sheetContact || "";
+      for (const id of ["platformLocation", "teamSnapDivision", "teamSnapArrival", "sportsEngineIds"]) $("#" + id).value = f[id] || "";
     }
 
     function readFields() {
@@ -455,6 +465,7 @@
         seed: $("#seed").value, minutes: $("#minutes").value, rounds: $("#rounds").value, balanceSeeds: $("#balanceSeeds").checked, gamesPerNight: $("#gamesPerNight").value === "1" ? "" : $("#gamesPerNight").value,
         results: $("#results").value, playoff: $("#playoff").value, playoffDouble: $("#playoffDouble").checked, playoffThird: $("#playoffThird").checked, pins: $("#pins").value, rainouts: $("#rainouts").value, withdrawals: $("#withdrawals").value, lateTeams: $("#lateTeams").value, finishBy: $("#finishBy").value, officials: $("#officials").value, grounds: $("#grounds").value, linked: $("#linked").value, scoring: $("#scoring").value,
         duties: $("#duties").value, sheetTitle: $("#sheetTitle").value, sheetContact: $("#sheetContact").value,
+        platformLocation: $("#platformLocation").value, teamSnapDivision: $("#teamSnapDivision").value, teamSnapArrival: $("#teamSnapArrival").value, sportsEngineIds: $("#sportsEngineIds").value,
       };
     }
 
@@ -851,7 +862,7 @@
       window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
     });
     $("#clear-all").addEventListener("click", () => {
-      for (const id of ["teams", "start", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "results", "pins", "rainouts", "withdrawals", "lateTeams", "finishBy", "officials", "grounds", "linked", "duties", "sheetTitle", "sheetContact"]) $("#" + id).value = "";
+      for (const id of ["teams", "start", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "results", "pins", "rainouts", "withdrawals", "lateTeams", "finishBy", "officials", "grounds", "linked", "duties", "sheetTitle", "sheetContact", "platformLocation", "teamSnapDivision", "teamSnapArrival", "sportsEngineIds"]) $("#" + id).value = "";
       $("#playoff").value = "0"; $("#playoffDouble").checked = false; $("#playoffThird").checked = false; $("#double").checked = false; $("#carryOver").checked = false; $("#balanceSeeds").checked = false;
       $("#report").hidden = true; last = null; status.textContent = "Cleared.";
     });
@@ -859,6 +870,19 @@
     $("#dl-csv").addEventListener("click", () => { if (!last) return; download("league-schedule.csv", scheduleCsv(last.s), "text/csv"); record("csv_downloaded"); });
     $("#dl-grid").addEventListener("click", () => { if (!last) return; download("league-season-grid.csv", seasonGridCsv(last.s), "text/csv"); record("csv_downloaded"); });
     $("#dl-gcal").addEventListener("click", () => { if (!last) return; download("league-calendar.csv", scheduleCalendarCsv(last.s), "text/csv"); record("csv_downloaded"); });
+    function platformExport(name, r) {
+      const line = $("#platform-line");
+      line.textContent = r.errors.length ? `Downloaded, but the platform will refuse it until this is fixed: ${r.errors.join(" ")}` : `Downloaded. ${r.warnings.join(" ")}`;
+      download(name, r.csv, "text/csv"); record("csv_downloaded");
+    }
+    $("#dl-teamsnap").addEventListener("click", () => {
+      if (!last) return;
+      platformExport("teamsnap-schedule-import.csv", teamSnapCsv(last.s, { division: $("#teamSnapDivision").value, location: $("#platformLocation").value, arrival: $("#teamSnapArrival").value.trim() || null }));
+    });
+    $("#dl-sportsengine").addEventListener("click", () => {
+      if (!last) return;
+      platformExport("sportsengine-schedule-upload.csv", sportsEngineCsv(last.s, { ids: $("#sportsEngineIds").value, location: $("#platformLocation").value }));
+    });
     $("#dl-standings").addEventListener("click", () => {
       if (!last) return;
       if (!last.table) { status.textContent = "Type some results first, then the standings can be downloaded."; return; }

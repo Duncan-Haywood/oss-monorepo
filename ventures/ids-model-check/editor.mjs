@@ -376,9 +376,13 @@ export function modelSpec(S, cls, invClasses) {
 }
 
 // Standard sets every one of `classes` can carry.
+// A specification with no class applies to every object the other
+// applicability facets select (IDS 1.0), so any standard set may be named:
+// every set a template gives to some class.
 export function commonSets(L, classes) {
   const cs = classes.filter(Boolean);
-  if (!cs.length || !cs.every((c) => knownClass(L, c))) return [];
+  if (!cs.length) return anySets(L.psets);
+  if (!cs.every((c) => knownClass(L, c))) return [];
   let out = setsFor(L.psets, L.S, cs[0], L.tm);
   for (const c of cs.slice(1)) { const s = new Set(setsFor(L.psets, L.S, c, L.tm)); out = out.filter((x) => s.has(x)); }
   return out;
@@ -389,7 +393,8 @@ export function commonSets(L, classes) {
 // a beam); sameAttributeType() says when one enumeration can be offered.
 export function commonAttributes(S, classes) {
   const cs = classes.filter(Boolean);
-  if (cs.length <= 1) return editableAttributes(S, cs[0]);
+  if (!cs.length) return anyAttributes(S);
+  if (cs.length === 1) return editableAttributes(S, cs[0]);
   return editableAttributes(S, cs[0]).filter((n) => cs.every((c) => editableAttributes(S, c).includes(n)));
 }
 const attrType = (S, c, n) => (S.entities[c] ? (S.attrs(c).find((a) => a.name === n) || {}).type : undefined);
@@ -403,7 +408,16 @@ export const sameAttributeType = (S, classes, n) => classes.filter(Boolean).ever
 // bounds restriction on a measure attribute). Classes that type the attribute
 // differently, or an attribute the schema does not know, stay free text.
 export function attributeValueKind(S, classes, name) {
-  const cs = (Array.isArray(classes) ? classes : [classes]).filter(Boolean);
+  let cs = (Array.isArray(classes) ? classes : [classes]).filter(Boolean);
+  // No class: the attribute on every class that has it, typed only when
+  // every one of them gives it the same single, stored type (Version is
+  // IFCLABEL on all three classes that have it; Name is a label on most
+  // classes but IFCSIUNITNAME on IFCSIUNIT, so it stays free text).
+  if (!cs.length && name) {
+    const occ = attributeOccurrences(S).get(name);
+    if (!occ || occ.types.size !== 1 || occ.mixed) return { kind: "text", enumVals: null, base: "xs:string" };
+    cs = [occ.first];
+  }
   const a = name && S.entities[cs[0]] && sameAttributeType(S, cs, name) && S.attrs(cs[0]).find((x) => x.name === name);
   if (!a) return { kind: "text", enumVals: null, base: "xs:string" };
   const t = S.types[a.type];
@@ -426,6 +440,39 @@ export function commonPredefinedTypes(S, classes) {
 
 // Splits what an author typed for "also applies to" into class names.
 export const parseClassList = (text) => [...new Set(String(text || "").toUpperCase().split(/[\s,;]+/).filter(Boolean))];
+
+// For a specification with no class (an applicability of attributes or
+// properties alone, as buildingSMART's IDS-Audit-tool RichFileAttribute files
+// write it): every attribute the page could edit on some class, and how each
+// is typed across all the classes that have it. Cached per schema.
+const occCache = new WeakMap();
+function attributeOccurrences(S) {
+  let m = occCache.get(S);
+  if (m) return m;
+  m = new Map();
+  for (const cls of Object.keys(S.entities)) {
+    const ok = new Set(editableAttributes(S, cls));
+    for (const a of S.attrs(cls)) {
+      let o = m.get(a.name);
+      if (!o) m.set(a.name, (o = { types: new Set(), editable: false, mixed: false, first: cls }));
+      o.types.add(a.type);
+      if (ok.has(a.name)) o.editable = true; else o.mixed = true;
+    }
+  }
+  occCache.set(S, m);
+  return m;
+}
+// The four IfcRoot names most specifications use first, then the rest A to Z.
+const ROOT_ATTRS = ["Name", "Description", "ObjectType", "Tag"];
+export function anyAttributes(S) {
+  const m = attributeOccurrences(S);
+  const rest = [...m].filter(([n, o]) => o.editable && !ROOT_ATTRS.includes(n)).map(([n]) => n).sort();
+  return [...ROOT_ATTRS.filter((n) => m.has(n)), ...rest];
+}
+export function anySets(psets) {
+  return Object.keys(psets || {}).filter((n) => psets[n].classes && psets[n].classes.length)
+    .sort((a, b) => (a.startsWith("Qto_") - b.startsWith("Qto_")) || a.localeCompare(b));
+}
 
 // Attributes the page offers for a class: stored, single, comparable by value.
 export function editableAttributes(S, cls) {

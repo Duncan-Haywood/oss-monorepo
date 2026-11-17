@@ -564,3 +564,51 @@ test("Add a specification from the model's class list names the model's own subc
   assert.deepEqual(modelSpec(S, "IFCSLAB", inv).also, []);
   assert.deepEqual(modelSpec(S, "IFCWALL", [{ cls: "IFCWALL", count: 4 }]).also, []);
 });
+
+test("a specification with no class: its attribute and property facets open as rows and write back the same", () => {
+  // As buildingSMART's IDS-Audit-tool RichFileAttribute_Ifc4.ids writes it:
+  // applicability is an attribute alone, so any class with Version is checked.
+  const xml = `<?xml version="1.0" encoding="utf-8"?>
+<ids:ids xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ids="http://standards.buildingsmart.org/IDS">
+<ids:info><ids:title>No class</ids:title></ids:info>
+<ids:specifications>
+<ids:specification ifcVersion="IFC4" name="Version exhibit">
+<ids:applicability minOccurs="0" maxOccurs="unbounded"><ids:attribute><ids:name><ids:simpleValue>Version</ids:simpleValue></ids:name></ids:attribute></ids:applicability>
+<ids:requirements><ids:attribute cardinality="required"><ids:name><ids:simpleValue>Version</ids:simpleValue></ids:name><ids:value><xs:restriction base="xs:string"><xs:enumeration value="innovation"/><xs:enumeration value="collaboration"/></xs:restriction></ids:value></ids:attribute></ids:requirements>
+</ids:specification>
+<ids:specification ifcVersion="IFC4" name="Anything external has a fire rating">
+<ids:applicability minOccurs="1" maxOccurs="unbounded"><ids:property dataType="IFCBOOLEAN"><ids:propertySet><ids:simpleValue>Pset_WallCommon</ids:simpleValue></ids:propertySet><ids:baseName><ids:simpleValue>IsExternal</ids:simpleValue></ids:baseName><ids:value><ids:simpleValue>true</ids:simpleValue></ids:value></ids:property></ids:applicability>
+<ids:requirements><ids:property dataType="IFCLABEL" cardinality="required"><ids:propertySet><ids:simpleValue>Pset_WallCommon</ids:simpleValue></ids:propertySet><ids:baseName><ids:simpleValue>FireRating</ids:simpleValue></ids:baseName></ids:property>
+<ids:attribute cardinality="required"><ids:name><ids:simpleValue>OverallHeight</ids:simpleValue></ids:name><ids:value><xs:restriction base="xs:double"><xs:minInclusive value="2"/></xs:restriction></ids:value></ids:attribute></ids:requirements>
+</ids:specification>
+</ids:specifications></ids:ids>`;
+  const parsed = parseIds(xml);
+  const loadFor = (id) => ({ S: R.schemas[id], psets: R.psets[id], tm: null });
+  const { state, kept, rows } = importIds(parsed, loadFor);
+  assert.equal(kept, 0);
+  assert.equal(rows, 5);
+  assert.equal(state.specs[0].cls, "");
+  assert.equal(state.specs[0].reqs[0].mode, "oneOf");
+  assert.equal(state.specs[1].reqs[1].mode, "range");
+  const back = parseIds(buildIds(stateToDoc(state, loadFor("IFC4")), S4));
+  const desc = (p) => p.specs.map((s) => [...s.applicability, ...s.requirements].map((f) => `${f.kind} ${f.cardinality} ${f.dataType || ""} ${f.describe()}`).sort()); // ids.xsd's facet order
+  assert.deepEqual(desc(back), desc(parsed));
+});
+
+test("with no class, every standard set and every attribute some class has is offered, typed only when every class types it the same", () => {
+  const L = { S: S4, psets: R.psets.IFC4 };
+  const sets = commonSets(L, []);
+  assert.ok(sets.includes("Pset_WallCommon") && sets.includes("Pset_DoorCommon") && sets.includes("Qto_WallBaseQuantities"));
+  const attrs = commonAttributes(S4, []);
+  assert.deepEqual(attrs.slice(0, 4), ["Name", "Description", "ObjectType", "Tag"]);
+  assert.ok(attrs.includes("Version") && attrs.includes("OverallHeight"));
+  assert.ok(!attrs.includes("FontFamily"), "a list on IFCTEXTSTYLEFONTMODEL: not comparable as one value");
+  // OverallHeight is IFCPOSITIVELENGTHMEASURE wherever it occurs: a number.
+  assert.equal(attributeValueKind(S4, [], "OverallHeight").kind, "number");
+  assert.equal(attributeValueKind(S4, [], "OverallHeight").base, "xs:double");
+  // Name is IFCSIUNITNAME on IFCSIUNIT, a label elsewhere: free text.
+  assert.deepEqual(attributeValueKind(S4, [], "Name"), { kind: "text", enumVals: null, base: "xs:string" });
+  // A class still narrows the lists as before.
+  assert.ok(commonAttributes(S4, ["IFCWALL"]).length < attrs.length);
+  assert.ok(!commonSets(L, ["IFCWALL"]).includes("Pset_DoorCommon"));
+});

@@ -208,9 +208,9 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History: README and git (latest: R056-2 on payee, deliver-to and line VAT
-      numbers, references and no-break spaces, 3,149 to 0, Saxon-checked
-      (eval/nl-vat-r056-2-payee-refs-2026-11-17.md); INV-041 endpoint ids as
+      History: README and git (latest: the browser's official rules read whitespace
+      as Saxon does, 161 of 528 to 0 vs SaxonC-HE, XML-VALUE-01 on 160 of 160 Saxon
+      aborts (eval/xml-whitespace-crosscheck-2026-11-17.md); INV-041 endpoint ids as
       OpenPeppol's PEPPOL-COMMON rules check them, 0 of 21,264 off
       (eval/endpoint-peppol-differential-2026-11-17.md); Peppol's warning-level
       IT/NL id formats as INV-061 warnings, 0 of 23,999 off
@@ -235,13 +235,13 @@ flagships:
       passes Mustang; open: a real business's PINT file. A run that lands a slice
       replaces its item here. More open items: NEXT.md.
     buildable: >-
-      R056-2's full reach landed 2026-11-17 (payee, deliver-to, line and second VAT
-      schemes; character references; trailing no-break space; oracle checked with
-      Saxon, eval/nl-vat-r056-2-payee-refs-2026-11-17.md). Next:
-      plain-schematron.mjs runs every rule set on fontoxpath, whose normalize-space
-      strips U+00A0 where XPath and Saxon do not: rewrite to a spec normalize-space
-      and cross-check with Saxon (Maven Central answers) on files with U+00A0 in
-      tested fields. No network beyond Maven.
+      The browser's official rules read whitespace as Saxon does and name values
+      Saxon cannot cast (XML-VALUE-01) since 2026-11-17 (SaxonC-HE via pip saxonche,
+      eval/xml-whitespace-crosscheck-2026-11-17.md). Next: the built-in readers
+      (ubl.mjs, cii.mjs) read an amount with a literal U+00A0 through Number(),
+      which trims it, so with the official rules off nothing is said: add an INV
+      rule at the field; then cross-check PINT and ZATCA sets the same way (SchXslt
+      compiles their .sch). No network beyond PyPI and Maven.
   - venture: shift-roster-builder
     inputs_only: >-
       a live deploy with real punches, a real payroll template, a manager's
@@ -364,7 +364,8 @@ flagships:
       rainouts, standings, officials, duty rota, team sheets; carry-over and break
       floors, frontier picker, blackout fit, WebAssembly step: README 2026-11-11 to
       2026-11-15 sections; 2026-11-17 shorter seasons with even strength of
-      schedule, eval/seed-balance.txt). 2026-11-15: 3-game nights
+      schedule, eval/seed-balance.txt; TeamSnap and SportsEngine import files,
+      eval/platform-templates-2026-11-17.md). 2026-11-15: 3-game nights
       (eval/three-game-nights.txt): SAT session designs (session-designs.mjs) take
       every even 10-48 teams on 6 slots, 16 of 19 sizes on 9, to 0 waits; 8 on 2x6,
       12 on 2x9 UNSAT. Odd leagues (eval/odd-night-sat.py, odd-designs.mjs): 11-25
@@ -475,10 +476,11 @@ flagships:
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
-      (eval/ifcxml-xbim-2026-11-16.md); the IDS editor (editor.html): attribute rows
-      in specifications with no class (16 IDS-Audit-tool date lists stay kept,
-      eval/date-oneof-2026-11-17.md; date one-of rows landed); more real exports
-      through eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
+      (eval/ifcxml-xbim-2026-11-16.md); the IDS editor (editor.html): a one-of row
+      on numbers (166 IDS-Audit-tool lists kept; no-class specs landed 2026-11-17,
+      eval/no-class-specs-2026-11-17.md); the 132 kept property requirements in
+      public files (node eval/kept-facets.mjs); more real exports through
+      eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked"). Next, most

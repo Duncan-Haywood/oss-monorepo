@@ -174,6 +174,16 @@ open. MIT licensed, no dependencies, nothing uploaded.
   bases, 16 of 16 the same in IfcTester 0.9.0, and the row says that P24M does
   not match P2Y. 13 of the 29 date lists in the IDS-Audit-tool valid files now
   open as rows (28.1% editable, was 26.5%). `eval/date-oneof-2026-11-17.md`.
+  **Specifications with no class** (2026-11-17): IDS lets a specification
+  select objects by an attribute or property alone ("anything with a Version",
+  "anything where Pset_WallCommon.IsExternal is true"). Such a specification now
+  offers every standard set and every attribute some class has (468 in IFC4),
+  typed only when every class that has the attribute types it the same
+  (OverallHeight is a length everywhere, so it gets a range; Name is
+  IFCSIUNITNAME on IFCSIUNIT, so it stays text), and opened ones edit as rows:
+  IDS-Audit-tool valid files 75.9% of facets editable (was 28.1%), public
+  files 89.2% (was 86.4%), every file still written back asking the same.
+  `eval/no-class-specs-2026-11-17.md`.
 - Exports: BCF 2.1 (one topic per failing element, selected by IfcGuid), CSV,
   JSON.
 - 22 MB Revit export (Schultz Residence, 424,819 entities): 1.4 s on the command
@@ -700,8 +710,11 @@ faster than IfcTester; its point is needing no install.
   exclusive bounds 2026-11-17, `eval/exclusive-bounds-2026-11-17.md`;
   date and duration ranges 2026-11-17, `eval/date-ranges-2026-11-17.md`;
   the model's range on dates 2026-11-17, `eval/model-date-range-2026-11-17.md`;
-  one-of rows on dates 2026-11-17, `eval/date-oneof-2026-11-17.md`):
-  attribute rows in specifications with no class; a real IFC4 export with dates to try the range on;
+  one-of rows on dates 2026-11-17, `eval/date-oneof-2026-11-17.md`;
+  specifications with no class 2026-11-17, `eval/no-class-specs-2026-11-17.md`):
+  a one-of row on numbers (166 single-value numeric lists in the IDS-Audit-tool
+  files stay kept); 132 kept property requirements in public files'
+  class specifications (`node eval/kept-facets.mjs` tallies why); a real IFC4 export with dates to try the range on;
   a subclass checkbox per class, not only the first;
   a "fix the dataType" hint built from the 21
   of 122 standard properties real exports write in another type.

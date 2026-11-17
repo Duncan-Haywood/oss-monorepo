@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqybsNPkAiVQvqUfYcC5",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T17:39:17Z",
+  "ended": "2026-11-17T17:48:33Z",
+  "wall_minutes": 9.58,
+  "tokens_in": 8487087,
+  "tokens_out": 35095,
+  "cost_usd": 3.5139,
+  "tool_calls": 75,
+  "task": "league-schedule-generator: TeamSnap and SportsEngine schedule import files",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17016",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "Claimed einvoice-preflight's normalize-space item (PR #17014) one minute after another session claimed it (PR #17012); closed mine as superseded (empty claim commit only)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "The assigned flagship row (league-schedule-generator) lists only combinatorics items (47 teams on 8x9 courts, carry-over gaps at 40-44 teams) whose user value is marginal; nothing in next: asked whether real leagues need them, so the run had to find a user-facing item itself."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "'Claim now, then claim_check' still races: two sessions opened PRs on the same einvoice item 1 minute apart; claim_check only caught it after the push."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The allocated row's next: items (47 on 8x9 three-game nights, ~11 h solver runs; 20-team carry-over gap) are research-grade solver work with little value to a real league; a feature that lets leagues on TeamSnap/SportsEngine (the incumbents the README names) use the fair schedule serves users directly.",
+      "did": "Built TeamSnap and SportsEngine import exports for the same flagship, columns copied from the platforms' published templates; added a pointer to the landed list in flagships.yaml next: without dropping the open items.",
+      "result": "Landed with 7 tests and a browser check; unverified against a real platform account."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Briefly tried einvoice-preflight's buildable item instead of the allocated row before seeing PR #17012 had claimed it.",
+      "did": "Closed PR #17014 as superseded and returned to the allocated flagship.",
+      "result": "About 10 minutes lost; no duplicate work landed."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-league-schedule-into-teamsnap-and-sportsengine.md",
+    "ventures/league-schedule-generator/eval/platform-templates-2026-11-17.md"
+  ],
+  "goal": null,
+  "notes": "Templates downloaded 2026-11-17 (TeamSnap org schedule import CSV, SportsEngine Schedule Upload Template.csv); header rows pinned in platform-import.test.mjs, hashes in the eval note. Verification: run_venture_tests.py league-schedule-generator (see PR), Playwright check of both downloads on the example league with no page errors, venture-preflight.mjs. Results: run_venture_tests.py league-schedule-generator: ok, 576 tests, 0 failed (215 s); venture-preflight: 'preflight clean for league-schedule-generator'; Playwright: both files downloaded, no page errors.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ee0347d2-3fbc-5386-accd-c1466c2a34fd",
+    "transcripts": 1,
+    "first": "2026-11-17T17:39:17Z",
+    "last": "2026-11-17T17:48:52Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 136,
+        "output": 35095,
+        "thinking": 5988,
+        "cache_read": 8344116,
+        "cache_write_5m": 0,
+        "cache_write_1h": 142835,
+        "api_equivalent_usd": 3.5139,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 136,
+      "output": 35095,
+      "thinking": 5988,
+      "cache_read": 8344116,
+      "cache_write_5m": 0,
+      "cache_write_1h": 142835,
+      "api_equivalent_usd": 3.5139,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 61,
+      "WebFetch": 5,
+      "ToolSearch": 3,
+      "mcp__github__create_pull_request": 2,
+      "WebSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.58,
+      "active_minutes": 9.58,
+      "model_minutes": 5.71,
+      "tool_minutes": 3.87,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "read two platform templates, write and test two CSV exporters plus UI, docs and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 170.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
