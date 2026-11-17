@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtJsSNb8jvZxUVqmr8N",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T08:06:04Z",
+  "ended": "2026-11-17T08:24:05Z",
+  "wall_minutes": 18.31,
+  "tokens_in": 6896500,
+  "tokens_out": 43152,
+  "cost_usd": 3.4796,
+  "tool_calls": 54,
+  "task": "grid-linopf: log the elastic QP's penalty on the two stalling development cases (theory step's Next 1) and test acceptance on it (Next 3)",
+  "projects": [
+    "research/grid-linopf",
+    "research/infra-dcopf"
+  ],
+  "pr": 16869,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "run_elastic.py --P: summary() crashed on a PF-failed case's empty last state (JSON was already written); fixed and re-ran --summary"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "none material; pick_track.py's programme summary and Next steps pointed straight at a runnable step"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/infra-dcopf/LOG.md (own plan)",
+      "why": "added a --diag after-the-run diagnostic not in the plan, to read why case73 API's violation is flat",
+      "did": "declared in the outcome entry as after-the-run",
+      "result": "explained the stall: setpoints on bounds, lines on margins"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-two-grid-repair-stalls-two-different-causes.md",
+    "research/grid-linopf/theory.md (new section)",
+    "research/infra-dcopf/LOG.md",
+    "research/grid-linopf/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Pre-registered S1-S4, V1, V2 committed before running. Arm T reproduction gate PASS. S1, S2, V1 refuted; S3, S4, V2 held. case73 API stall = near-stationary l1 voltage violation (withdraws the morning's Q7 correction); case118 API = merit (max) vs QP (sum). Local checks: infra-dcopf tests 71 passed 1 skipped; build.py ok; research_live_links ok; check_md_links ok; post front matter/links/similarity ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a7ce208d-77a2-5670-8ba6-cb151a227892",
+    "transcripts": 1,
+    "first": "2026-11-17T08:06:04Z",
+    "last": "2026-11-17T08:24:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 51,
+        "input": 100,
+        "output": 43152,
+        "thinking": 12256,
+        "cache_read": 6737831,
+        "cache_write_5m": 0,
+        "cache_write_1h": 158569,
+        "api_equivalent_usd": 3.4796,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 51,
+      "input": 100,
+      "output": 43152,
+      "thinking": 12256,
+      "cache_read": 6737831,
+      "cache_write_5m": 0,
+      "cache_write_1h": 158569,
+      "api_equivalent_usd": 3.4796,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 50,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.31,
+      "active_minutes": 18.31,
+      "model_minutes": 7.87,
+      "tool_minutes": 10.44,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "experiment design, instrumenting the SLP loop, two runs and analysis for a PhD-level researcher",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 344.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
