@@ -137,6 +137,9 @@ export const LIP_SHUT = { fall: 12, span: 2, settle: 0, rise: null, dark: 8, lo:
 // after the lips' blip the band above 1 kHz falls `fall` dB within `span` hops, and the level settles `drop` dB or more
 // under the vowel and holds within `hold` dB for 30 ms. A vowel's fade at the note's end falls 1-3 dB per 10 ms.
 export const LIP_HOLD = { fall: 12, span: 3, drop: 3, lo: -20, hold: 2, minMs: 45 };
+// A vowel's fade read as a murmur (`levelFade`, opt-in; README "A /u/ fade read as a nasal"): a level-rule run whose
+// own tilt (above 1 kHz against under 500 Hz, median) is less than `dark` dB darker than the vowel's 25-45 ms before it.
+export const LEVEL_FADE = { dark: 6 };
 export const DEEP = { lo: -35, hi: -12, minMs: 60, silent: -50, gap: 5, tilt: 15, peak: true };
 const db = (a, b) => 10 * Math.log10((a + 1e-20) / (b + 1e-20));
 const median = (v) => { const s = [...v].sort((p, q) => p - q); return s.length ? s[Math.floor(s.length / 2)] : NaN; };
@@ -264,7 +267,7 @@ export const LOCAL_REF = { from: 6, to: 24, cap: 20, nasal: false };
 // No frame in a closure is vowel-like, so the anchor holds through it. Opt-in (`closeAnchor: true`); it replaces
 // localRef on the closure rule only, the nasal rule is untouched.
 export const ANCHOR = { frames: 10, drop: 12 };
-export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = false, deepOpts = {}, localRef = LOCAL_REF, closeAnchor = false, barLead = false, compactVelar = false, voicelessLow = VOICELESS_LOW, barBurst = true, voicedLead = VOICED_LEAD, lipShut = true, lipHold = false, trace = null } = {}) {
+export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = false, deepOpts = {}, localRef = LOCAL_REF, closeAnchor = false, barLead = false, compactVelar = false, voicelessLow = VOICELESS_LOW, barBurst = true, voicedLead = VOICED_LEAD, lipShut = true, lipHold = false, levelFade = false, trace = null } = {}) {
   const hop = Math.round(0.005 * rate), a = Math.round((vowelAt + 0.06) * rate), z = Math.round((tEnd - 0.02) * rate), zEnd = Math.round(tEnd * rate);
   const ref = [];
   for (let i = Math.round(vowelAt * rate); i < a; i += hop) ref.push(frameFeatures(x, i, rate));
@@ -625,7 +628,18 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
     if (yes && trace) (trace.leads = trace.leads || []).push({ before: stopRun[0] - r[0], len: r[1] - r[0] + 1, bar: !!barRun });
     return yes;
   };
-  const nasRules = [['level', runs(nasal, 30).find((r) => (msOf(r) >= 45 || !next.some((k) => k >= r[1] && k - r[1] <= 3)) && !vowelAgain(r) && murmur(r) && !barOf(r))], ['step', step], ['near', near], ['pre', pre], ['deep', deep], ['shut', shut], ['hold', lhold]]
+  // A fade read as a murmur (opt-in `levelFade`; LEVEL_FADE above): a level-rule run no darker in itself than the vowel
+  // 25-45 ms before it is that vowel fading, not a nasal
+  const LF = levelFade ? { ...LEVEL_FADE, ...(levelFade === true ? {} : levelFade) } : null;
+  const fadeOf = (r) => {
+    if (r[0] < 9) return null;
+    const before = median(fr.slice(r[0] - 9, r[0] - 4).map(tiltOf)), own = median(fr.slice(r[0], r[1] + 1).map(tiltOf));
+    return own - before;
+  };
+  const levelRun = runs(nasal, 30).find((r) => (msOf(r) >= 45 || !next.some((k) => k >= r[1] && k - r[1] <= 3)) && !vowelAgain(r) && murmur(r) && !barOf(r));
+  if (trace && levelRun) trace.level = { at: levelRun[0], t: fr[levelRun[0]].t, ms: msOf(levelRun), dTilt: fadeOf(levelRun) };
+  const levelKept = levelRun && LF && fadeOf(levelRun) !== null && fadeOf(levelRun) > -LF.dark ? null : levelRun;
+  const nasRules = [['level', levelKept], ['step', step], ['near', near], ['pre', pre], ['deep', deep], ['shut', shut], ['hold', lhold]]
     .filter(([name, r]) => r && !intoTap(r) && !(name !== 'deep' && leadOf(r)) && !(barRun && r[0] <= barRun[0] && barRun[0] - r[0] <= BB.lead)).sort((p, q) => p[1][0] - q[1][0]);
   const nas = nasRules[0]?.[1];
   const cands = [['closure', stopRun], ['fricative', fric], ['vfricative', vfric], ['nasal', nas], ['tap', tap]]
