@@ -501,7 +501,7 @@ export function separableCosts(c, n) {
 /** Constrained equal awards: min(claim, lambda) with the awards summing to E. */
 export function cea(claims, E) {
   let lo = 0;
-  let hi = Math.max(...claims, 0);
+  let hi = claims.reduce((a, b) => Math.max(a, b), 0);
   for (let k = 0; k < 200; k++) {
     const mid = (lo + hi) / 2;
     const s = claims.reduce((a, d) => a + Math.min(d, mid), 0);
@@ -678,7 +678,7 @@ export function analyze(input = {}) {
     const n = names.length;
     if (n < 2) return { error: "Give at least two members, one per line: name, how far along the shared road (or pipe, runway) they need it." };
     if (n > LIMITS.linePlayers) return { error: `up to ${LIMITS.linePlayers} members` };
-    const far = Math.max(...reach);
+    const far = reach.reduce((a, b) => Math.max(a, b), 0);
     if (!(far > 0)) return { error: "every reach is 0, so there is nothing to share" };
     const total = input.total !== undefined && input.total !== null && input.total !== "" ? Number(input.total) : far;
     if (!(total >= 0)) return { error: "the total cost must be a number of at least 0" };
@@ -774,7 +774,7 @@ export function analyze(input = {}) {
     let nuCheck = null;
     if (n <= LIMITS.nucleolusPlayers) {
       const nu = nucleolus(negV, n);
-      if (!nu.error) nuCheck = Math.max(...nu.x.map((a, i) => Math.abs(-a - methods[0].x[i])));
+      if (!nu.error) nuCheck = nu.x.reduce((m, a, i) => Math.max(m, Math.abs(-a - methods[0].x[i])), 0);
     }
     for (const m of methods) {
       const ck = coreCheck(negV, n, m.x.map((a) => -a));
