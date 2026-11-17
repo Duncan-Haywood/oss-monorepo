@@ -1,5 +1,20 @@
 # build-data log
 
+## Session 100, 2026-11-17: does the Y-6 target selector survive new cells? (pre-registered; outcome below)
+
+Why: session 99 found that scoring the four candidate source rules on the held city's own permits issued six years before D and completed by D picks the per-cell oracle in all 4 city-years (SF and Seattle, 2021 and 2022), but called 4 of 4 suggestive, not a test, and named "more cells: Austin held out, and test years 2019 and 2020" as its second next step. This run adds six cells the selector has never seen and no earlier session tuned the candidate rules on.
+- Method: unchanged `rounds.py` with `CPIN_TARGET_SEL=1`, plus `CPIN_TGT_KS=3,5,6,8` (the Y-8 cohort as a secondary selector, session 99's third next step in its simplest form). `rounds.py x --summarise-rep FILE` (`replicate_summary`) scores every selector on the new cells, on Austin, and pooled with session 99's four cells (`results/rounds_score_tfol_i2c.json`).
+Design (fixed before any model run): cascade2 class; candidates nc3, nc5, nc5_stamp, nc5_stamp_len (session 98's `TSEL`); new cells SF and Seattle at Y = 2019 and 2020 (sources: the other two of SF, Seattle, Austin) and Austin held out at Y = 2021 and 2022 (sources SF and Seattle); 3 seeds; q0.9 only; fresh pull 2026-11-17; one process per cell at 1 thread; output `results/rounds_score_rep_i2c.json`. Primary selector k6_loss, as in session 99.
+Predictions (q0.9 = cascade2's mean pinball loss over 3 seeds on completed test rows, days; oracle = the candidate with the lowest test q0.9 in that cell):
+- (H1, the city split) In the new cells the oracle is nc3 in both SF years and a 5-year rule (nc5, stamp or stamp_len) in both Seattle years.
+- (H2) k6_loss picks the oracle in at least 3 of the 4 new SF/Seattle cells.
+- (H3) k6_loss's mean regret over the 4 new SF/Seattle cells is at most 1.0 day.
+- (H4) k6_loss's mean test q0.9 over the 4 new SF/Seattle cells is at most every fixed candidate's.
+- (H5) Austin held out: k6_loss's mean regret over its 2 cells is at most 1.0 day.
+- (H6, pooled) Over all 10 cells (4 new, 2 Austin, 4 from session 99), k6_loss picks the oracle in at least 8 and its mean regret is below k3_loss's and below every fixed candidate's.
+Secondary, no pass mark: k8_loss against k6_loss on the 6 new cells.
+Refuted if any part fails. Risks named in advance: 2020 is the COVID year (permits issued then ran long), so the test year itself may not follow the city split (H1) even if the selector does; for Y = 2019 the Y-6 and Y-8 cohorts are 2013 and 2011, and Seattle's older cohorts may be thin; for Y = 2021 and 2022 the 3-year cut has been chosen on those years (sessions 92 to 97), while 2019, 2020 and Austin-as-target were never looked at, so these cells are the cleaner test.
+
 ## Session 99, 2026-11-16: the target city's own six-year-old permits pick the right source rule in all 4 city-years: scored on its Y-6 permits completed by D, the selector picks the 3-year cut in SF and the 5-year cut in Seattle (the per-cell oracle each time, regret 0, mean test q0.9 71.12 days against the best fixed rule's 72.27); the Y-5 cohort gets 3 of 4 (regret 0.99) and IPCW on the Y-3 rows narrows the gap but never crosses it; F0, F1, F2, F3, F5 held, F4 refuted
 
 Why: session 98 found the two scores a deployment can compute on its own Y-3 permits biased in opposite directions: the rows completed by D are cut at about three years of follow-up, so they reward the 3-year cut's shorter tail in both cities (right in SF, 5.46 and 3.95 days of regret in Seattle); the censored loss rewards the longest tail everywhere. Its "Next" named two fixes: score on older target cohorts, whose completed rows are truncated only past six years, and reweight the Y-3 completed rows by the inverse chance of being seen by D (IPCW).
