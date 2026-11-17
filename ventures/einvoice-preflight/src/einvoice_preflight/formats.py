@@ -432,6 +432,9 @@ def _parse_cii(root: Any) -> dict[str, Any]:
     for key, parent, tag in (("payee_party", settlement, "PayeeTradeParty"), ("tax_representative", agreement, "SellerTaxRepresentativeTradeParty")):
         node = None if parent is None else parent.find(f"{{{RAM}}}{tag}")
         side = {k: v for k, v in _cii_party_identifiers(node).items() if k != "endpoint"}
+        if key == "tax_representative" and _cii_vat_id(node):
+            # BT-63, its VAT number (checks.py INV-022/023; cii.mjs, 2026-11-17).
+            side["vat_id"] = _cii_vat_id(node)
         if side:
             document[key] = side
     # BG-13 deliver-to: ShipToTradeParty's ID/GlobalID (BT-71) and legal id (cii.mjs).

@@ -949,9 +949,10 @@ export function looksLikeCompleteVat(value) {
   return kind === "checksum" || kind === "format";
 }
 
-function evaluate(country, body, path, partyName, requireKnown) {
+const labelOf = (partyName) => partyName.charAt(0).toUpperCase() + partyName.slice(1);
+
+function evaluate(country, body, path, partyName, requireKnown, label = labelOf(partyName)) {
   const kind = classify(country, body);
-  const label = partyName.charAt(0).toUpperCase() + partyName.slice(1);
   if (kind === "unknown") {
     if (!requireKnown) return [];
     return [finding(
@@ -980,8 +981,7 @@ function evaluate(country, body, path, partyName, requireKnown) {
   return [];
 }
 
-function checkExplicit(value, path, partyName) {
-  const label = partyName.charAt(0).toUpperCase() + partyName.slice(1);
+function checkExplicit(value, path, partyName, label = labelOf(partyName)) {
   if (typeof value !== "string" || !value.trim()) {
     return [finding(
       "INV-022",
@@ -999,7 +999,7 @@ function checkExplicit(value, path, partyName) {
       path,
     )];
   }
-  return evaluate(compact.slice(0, 2), compact.slice(2), path, partyName, true);
+  return evaluate(compact.slice(0, 2), compact.slice(2), path, partyName, true, label);
 }
 
 function checkComplete(value, path, partyName) {
@@ -1008,13 +1008,15 @@ function checkComplete(value, path, partyName) {
   return evaluate(compact.slice(0, 2), compact.slice(2), path, partyName, false);
 }
 
-export function inspectPartyVat(party, partyName) {
+// `label` names the party in messages when its JSON key does not read as words
+// ("Tax representative" for tax_representative, BG-11).
+export function inspectPartyVat(party, partyName, label = labelOf(partyName)) {
   if (!party || typeof party !== "object" || Array.isArray(party)) return [];
   const findings = [];
   const checked = new Set();
   const vatId = party.vat_id;
   if (vatId !== undefined && vatId !== null && vatId !== "") {
-    findings.push(...checkExplicit(vatId, `/${partyName}/vat_id`, partyName));
+    findings.push(...checkExplicit(vatId, `/${partyName}/vat_id`, partyName, label));
     const compact = normalizeVat(vatId);
     if (compact) checked.add(compact);
   }
@@ -1024,4 +1026,30 @@ export function inspectPartyVat(party, partyName) {
     findings.push(...checkComplete(identifier, `/${partyName}/id`, partyName));
   }
   return findings;
+}
+
+// INV-064: OpenPeppol's PEPPOL-COMMON-R056-2 (BIS 3.0.22, a warning) reads every
+// VAT number (UBL PartyTaxScheme/CompanyID under TaxScheme VAT, CII
+// SpecifiedTaxRegistration/ID schemeID VA) that starts with "NL" after
+// normalize-space and asks for exactly NL, nine digits, B and two digits.
+// normalizeVat strips spaces, dots and hyphens before INV-022/023, so
+// "NL 123456782 B01" or "NL123456782.B01" passed here and drew Peppol's warning
+// at the network. Only XML whitespace is trimmed, as normalize-space does; a
+// value INV-022/023 already reports is left to them. A warning, as Peppol's is.
+// eval/nl-vat-r056-2-differential.mjs runs Peppol's own assertion on the same files.
+const XML_SPACE = /^[ \t\r\n]+|[ \t\r\n]+$/g;
+
+export function inspectNlVatShape(party, partyName, label = labelOf(partyName)) {
+  if (!party || typeof party !== "object" || Array.isArray(party)) return [];
+  const value = party.vat_id;
+  if (typeof value !== "string") return [];
+  const text = value.replace(XML_SPACE, "");
+  if (!text.startsWith("NL") || /^NL[0-9]{9}B[0-9]{2}$/.test(text)) return [];
+  return [{
+    rule: "INV-064",
+    message: `${label} Dutch VAT number is not written as NL, nine digits, B and two digits; Peppol warns on it (PEPPOL-COMMON-R056-2).`,
+    fix: "Write the Dutch VAT number with no spaces, dots or hyphens, for example NL123456789B12.",
+    path: `/${partyName}/vat_id`,
+    severity: "warning",
+  }];
 }

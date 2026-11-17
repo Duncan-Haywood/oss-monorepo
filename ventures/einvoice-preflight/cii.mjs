@@ -355,8 +355,13 @@ export function parseCiiInvoice(source) {
   };
   const payee = sideParty(firstChild(settlement, "PayeeTradeParty"));
   if (payee) invoice.payee_party = payee;
-  const representative = sideParty(firstChild(agreement, "SellerTaxRepresentativeTradeParty"));
-  if (representative) invoice.tax_representative = representative;
+  // BG-11 also carries BT-63, its VAT number (INV-022/023/064; read since 2026-11-17).
+  const representativeNode = firstChild(agreement, "SellerTaxRepresentativeTradeParty");
+  const representativeVat = ciiVatId(representativeNode);
+  const representative = sideParty(representativeNode);
+  if (representative || representativeVat) {
+    invoice.tax_representative = { ...(representative || {}), ...(representativeVat ? { vat_id: representativeVat } : {}) };
+  }
   // BG-13 deliver-to: ShipToTradeParty's ID and GlobalID (BT-71, the delivery
   // location id) and any legal registration; Peppol's `ram:ID | ram:GlobalID`
   // contexts match them as they do the seller's (added 2026-11-17).

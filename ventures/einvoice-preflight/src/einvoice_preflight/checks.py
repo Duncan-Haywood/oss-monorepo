@@ -102,6 +102,14 @@ def _check_invoice(invoice: Any) -> list[dict[str, str]]:
     for key, label in (("payee_party", "Payee"), ("tax_representative", "Tax representative"), ("delivery_party", "Deliver-to party")):
         for finding in inspect_party_identifiers(invoice.get(key), key, label):
             fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
+    # BT-63, the tax representative's VAT number: INV-022/023 as for the seller
+    # (checks.mjs, 2026-11-17). INV-064, R056-2's shape warning, stays silent here
+    # as INV-061 does: the CLI has no warning severity.
+    representative = invoice.get("tax_representative")
+    if isinstance(representative, dict) and representative.get("vat_id") not in (None, ""):
+        for finding in inspect_party_vat({"vat_id": representative["vat_id"]}, "tax_representative"):
+            message = finding["message"].replace("Tax_Representative", "Tax representative", 1)
+            fail(finding["rule"], message, finding["fix"], finding["path"])
     for finding in inspect_payment_iban(invoice):
         fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
     for finding in inspect_payment_means(invoice):

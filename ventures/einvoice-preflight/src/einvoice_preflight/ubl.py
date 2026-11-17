@@ -78,16 +78,8 @@ def _party_identifier(party: ElementTree.Element) -> str:
     )
 
 
-def _party(element: ElementTree.Element) -> dict[str, Any]:
-    party = next(iter(_children(element, "Party")), element)
-    identifier = _party_identifier(party)
-    # XRechnung carries the legal name in PartyLegalEntity/RegistrationName and
-    # may omit PartyName entirely, so that is a source for the name, not a
-    # reason to refuse the document.
-    name = _nested_text(party, "PartyName", "Name") or _nested_text(
-        party, "PartyLegalEntity", "RegistrationName"
-    ) or _text(party, "Name")
-    mapped: dict[str, Any] = {"id": identifier, "name": name}
+def _party_vat_id(party: ElementTree.Element) -> str:
+    """BT-31/BT-48/BT-63: the first VAT-scheme PartyTaxScheme/CompanyID."""
     vat_id = ""
     for scheme in _children(party, "PartyTaxScheme"):
         # A national tax number uses TaxScheme/ID "FC"; only VAT (or an
@@ -103,6 +95,20 @@ def _party(element: ElementTree.Element) -> dict[str, Any]:
             continue
         if vat_id:
             break
+    return vat_id
+
+
+def _party(element: ElementTree.Element) -> dict[str, Any]:
+    party = next(iter(_children(element, "Party")), element)
+    identifier = _party_identifier(party)
+    # XRechnung carries the legal name in PartyLegalEntity/RegistrationName and
+    # may omit PartyName entirely, so that is a source for the name, not a
+    # reason to refuse the document.
+    name = _nested_text(party, "PartyName", "Name") or _nested_text(
+        party, "PartyLegalEntity", "RegistrationName"
+    ) or _text(party, "Name")
+    mapped: dict[str, Any] = {"id": identifier, "name": name}
+    vat_id = _party_vat_id(party)
     if vat_id:
         mapped["vat_id"] = vat_id
     legal_id = _legal_id(party)
@@ -302,6 +308,11 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
         ids = _party_ids(node)
         if ids:
             side["party_ids"] = ids
+        if key == "tax_representative":
+            # BT-63, its VAT number (checks.py INV-022/023; ubl.mjs, 2026-11-17).
+            vat_id = _party_vat_id(node)
+            if vat_id:
+                side["vat_id"] = vat_id
         if side:
             invoice[key] = side
     # cac:Delivery/cac:DeliveryParty: Peppol's PartyIdentification/ID and

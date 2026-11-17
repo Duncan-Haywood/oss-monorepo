@@ -133,15 +133,8 @@ function sideParty(root, name) {
   return Object.keys(ids).length ? ids : undefined;
 }
 
-function party(node) {
-  const partyNode = descendants(node, "Party")[0] || node;
-  // XRechnung carries the legal name in PartyLegalEntity/RegistrationName and
-  // may omit PartyName entirely, so that is a source for the name, not a
-  // reason to refuse the document. Also matches the Python reader.
-  const name = nestedText(partyNode, "PartyName", "Name")
-    || nestedText(partyNode, "PartyLegalEntity", "RegistrationName")
-    || textOf(partyNode, "Name", false);
-  const mapped = { id: partyIdentifier(partyNode), name };
+// BT-31/BT-48/BT-63: the first VAT-scheme PartyTaxScheme/CompanyID of a party.
+function partyVatId(partyNode) {
   for (const scheme of descendants(partyNode, "PartyTaxScheme")) {
     // A national tax number travels in the same element with TaxScheme/ID "FC"
     // (or similar); only a VAT scheme -- or an unlabelled one whose number starts
@@ -153,11 +146,22 @@ function party(node) {
     if (schemeId && schemeId !== "VAT") continue;
     const vatId = textOf(scheme, "CompanyID", false);
     if (!schemeId && vatId && !/^[A-Za-z]{2}/.test(vatId.trim())) continue;
-    if (vatId) {
-      mapped.vat_id = vatId;
-      break;
-    }
+    if (vatId) return vatId;
   }
+  return "";
+}
+
+function party(node) {
+  const partyNode = descendants(node, "Party")[0] || node;
+  // XRechnung carries the legal name in PartyLegalEntity/RegistrationName and
+  // may omit PartyName entirely, so that is a source for the name, not a
+  // reason to refuse the document. Also matches the Python reader.
+  const name = nestedText(partyNode, "PartyName", "Name")
+    || nestedText(partyNode, "PartyLegalEntity", "RegistrationName")
+    || textOf(partyNode, "Name", false);
+  const mapped = { id: partyIdentifier(partyNode), name };
+  const vatId = partyVatId(partyNode);
+  if (vatId) mapped.vat_id = vatId;
   const addressNode = descendants(partyNode, "PostalAddress")[0];
   if (addressNode) {
     const street = textOf(addressNode, "StreetName", false);
@@ -484,8 +488,13 @@ export function parseUblInvoice(source) {
   };
   const payee = sideParty(root, "PayeeParty");
   if (payee) invoice.payee_party = payee;
+  // BG-11 also carries BT-63, its VAT number (INV-022/023/064; read since 2026-11-17).
+  const representativeNode = root.children.find((child) => child.name === "TaxRepresentativeParty");
+  const representativeVat = representativeNode ? partyVatId(representativeNode) : "";
   const representative = sideParty(root, "TaxRepresentativeParty");
-  if (representative) invoice.tax_representative = representative;
+  if (representative || representativeVat) {
+    invoice.tax_representative = { ...(representative || {}), ...(representativeVat ? { vat_id: representativeVat } : {}) };
+  }
   // cac:Delivery/cac:DeliveryParty: Peppol's PartyIdentification/ID and
   // CompanyID contexts match its ids too (BT-71's DeliveryLocation/ID is not
   // under PartyIdentification, so Peppol does not; added 2026-11-17).
