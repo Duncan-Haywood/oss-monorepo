@@ -37,6 +37,7 @@ repository").
     python3 platform/ci/owner_held_prs.py --json     # for scripts
     python3 platform/ci/owner_held_prs.py --grep promptctl   # is my fix already held?
     python3 platform/ci/owner_held_prs.py --redteam  # which open red-team entries a held PR fixes
+    python3 platform/ci/owner_held_prs.py --friction --days 7  # gated files runs complain about, and their held PRs
 
 `--redteam` exists because on 2026-11-15 three red-team runs each re-checked all
 12 entries `prompts/redteam.py open` lists, by hand, and found every one already
@@ -44,6 +45,18 @@ fixed in a PR waiting on the owner (doc_friction in their run records). It
 matches each entry to held PRs by the PRs it names and the file and identifier
 names it mentions (check_x.py, current_approvers) found in a PR's added lines,
 and flags entries with no held PR, which are the ones a red-team run can fix.
+
+`--friction` exists because most doc friction lands on owner-gated files: on
+2026-11-17, 16 of the 25 files `promptctl.py measure` ranked top were under
+`prompts/`, `CLAUDE.md` or `.github/`, and the fix for one of them often
+already exists. The creative track prompt still says to pick a shelf from
+`git log`, which a shallow clone cannot answer. Runs kept reporting that
+through 2026-11-17, two days after `creative_due.py` (PR #16136) answered it
+in a tool the prompt does not name. It ranks the owned files by distinct
+sessions that reported friction on them in the last `--days`, and lists the
+held PRs that change each one. A file with reports and no held PR is a fix
+nobody has opened. A file with several is one review that would silence the
+most runs.
 
 It reads the GitHub REST API with GITHUB_TOKEN when set, and without a token
 otherwise. A cloud session's proxy authenticates the request, so it needs no
@@ -335,12 +348,60 @@ def load_redteam_open() -> list[dict]:
     return mod.open_defects([(p.name, json.loads(p.read_text())) for p in runs])
 
 
+def friction_by_owned_file(entries, rules, today: dt.date, days: int) -> list[dict]:
+    """Owned files ranked by distinct sessions reporting friction on them within `days`.
+
+    `entries` are friction_rank.load() tuples (date, session, file, issue, when)."""
+    since = (today - dt.timedelta(days=days)).isoformat()
+    by: dict[str, dict] = {}
+    for date, session, file, issue, when in entries:
+        if date <= since or not cpg.owners_for(file, rules):
+            continue
+        row = by.setdefault(file, {"file": file, "sessions": set(), "latest": ("", "")})
+        row["sessions"].add(session)
+        if when >= row["latest"][0]:
+            row["latest"] = (when, issue)
+    out = [{"file": r["file"], "sessions": len(r["sessions"]), "latest_when": r["latest"][0],
+            "latest": r["latest"][1]} for r in by.values()]
+    out.sort(key=lambda r: (-r["sessions"], r["file"]))
+    return out
+
+
+def attach_held(ranked: list[dict], rows: list[dict]) -> list[dict]:
+    """Add `prs`: the held PRs whose owned files include each ranked file."""
+    for r in ranked:
+        r["prs"] = [h["number"] for h in rows if r["file"] in h["owned"]]
+    return ranked
+
+
+def render_friction(ranked: list[dict], days: int, top: int = 25) -> str:
+    if not ranked:
+        return f"No doc friction on owner-gated files in the last {days} day(s).\n"
+    lines = [f"Owner-gated files by doc friction, last {days} day(s) (distinct sessions), "
+             "with the held PRs that change each:", "",
+             "| sessions | file | held PRs | latest report |", "|---|---|---|---|"]
+    for r in ranked[:top]:
+        prs = ", ".join(f"#{n}" for n in r["prs"]) or "none open"
+        text = r["latest"].replace("|", "/").replace("\n", " ")
+        text = text if len(text) <= 140 else text[:139] + "…"
+        lines.append(f"| {r['sessions']} | `{r['file']}` | {prs} | {r['latest_when'][:10]}: {text} |")
+    none = sum(1 for r in ranked if not r["prs"])
+    lines += ["", f"{len(ranked)} owned file(s) drew friction; {none} have no held PR "
+              "(read the reports with `promptctl.py measure --section 'doc friction'`; some are by design)."]
+    if len(ranked) > top:
+        lines.append(f"(+{len(ranked) - top} more not shown)")
+    return "\n".join(lines) + "\n"
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--json", action="store_true", help="print rows as JSON")
     ap.add_argument("--grep", help="keep PRs whose title or owned files contain this text")
     ap.add_argument("--redteam", action="store_true",
                     help="match each open red-team entry to the held PR that carries its fix")
+    ap.add_argument("--friction", action="store_true",
+                    help="rank owned files by recent doc friction, with the held PRs that change each")
+    ap.add_argument("--days", type=int, default=7, help="with --friction: how far back to count (default 7)")
     args = ap.parse_args(argv)
     rules = cpg.parse_codeowners(cpg.CODEOWNERS.read_text())
     try:
@@ -356,6 +417,12 @@ def main(argv: list[str] | None = None) -> int:
     if args.redteam:
         matched = match_redteam(load_redteam_open(), rows)
         print(json.dumps(matched, indent=2) if args.json else render_redteam(matched), end="\n" if args.json else "")
+        return 0
+    if args.friction:
+        import friction_rank
+        ranked = attach_held(friction_by_owned_file(friction_rank.load(), rules,
+                                                    dt.datetime.now(dt.timezone.utc).date(), args.days), rows)
+        print(json.dumps(ranked, indent=2) if args.json else render_friction(ranked, args.days), end="\n" if args.json else "")
         return 0
     for r in rows:
         r.pop("added", None)
