@@ -639,7 +639,7 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
     return lv[0] - lv[lv.length - 1] >= LF.fall;
   };
   const levelRun = runs(nasal, 30).find((r) => (msOf(r) >= 45 || !next.some((k) => k >= r[1] && k - r[1] <= 3)) && !vowelAgain(r) && murmur(r) && !barOf(r));
-  if (trace && levelRun) trace.level = { at: levelRun[0], t: fr[levelRun[0]].t, ms: msOf(levelRun), lv: fr.slice(levelRun[0], Math.min(levelRun[1] + 1, levelRun[0] + 7)).map((f) => +f.lvl.toFixed(1)), toEnd: levelRun[1] === fr.length - 1 };
+  if (trace && levelRun) trace.level = { at: levelRun[0], t: fr[levelRun[0]].t, ms: msOf(levelRun), lv: fr.slice(levelRun[0], Math.min(levelRun[1] + 1, levelRun[0] + 7)).map((f) => +f.lvl.toFixed(1)), toEnd: levelRun[1] === fr.length - 1, left: fr.length - 1 - levelRun[0], endLeft: fr.length - 1 - levelRun[1] };
   const levelKept = levelRun && LF && fadeOf(levelRun) ? null : levelRun;
   const nasRules = [['level', levelKept], ['step', step], ['near', near], ['pre', pre], ['deep', deep], ['shut', shut], ['hold', lhold]]
     .filter(([name, r]) => r && !intoTap(r) && !(name !== 'deep' && leadOf(r)) && !(barRun && r[0] <= barRun[0] && barRun[0] - r[0] <= BB.lead)).sort((p, q) => p[1][0] - q[1][0]);
