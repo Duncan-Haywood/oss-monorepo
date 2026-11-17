@@ -15,6 +15,7 @@
 
 import { roundHalfUpToCents } from "./checks.mjs";
 import { parseXmlTree } from "./ubl.mjs";
+import { xmlValueFindings } from "./xmlvalues.mjs";
 import { checkFacturaeSchema, tableForNamespace, FACTURAE_VERSIONS } from "./facturae-xsd.mjs";
 import { inspectPartyVat } from "./vat.mjs";
 import { checkFacturaeSignature } from "./facturae-signature.mjs";
@@ -347,6 +348,8 @@ export function checkFacturae(source, { today = madridToday() } = {}) {
         "Make SchemaVersion and the namespace name the same version; hubs read the version from both.", "/Facturae/FileHeader/SchemaVersion"));
     }
   }
+  // INV-065 (2026-11-17): a number or date with a no-break space (xmlvalues.mjs).
+  findings.push(...xmlValueFindings({ children: [root] }));
   if (findings.some((f) => f.rule === "ES-022")) return { findings, skipped, version };
 
   const header = child(root, "FileHeader");

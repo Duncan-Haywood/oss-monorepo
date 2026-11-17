@@ -661,6 +661,7 @@
         if (step.ops.length) err = commit(step.ops, "command_op");
         log(`${err ? `<span class="miss">Could not: ${esc(err)}</span>` : esc(step.did)} <span class="words">“${esc(step.words)}”</span> <span class="engine">${engine}</span>`);
       }
+      for (const no of out.result.declined || []) log(`<span class="miss">Left alone (you said no):</span> <span class="words">“${esc(no.words)}”</span>`);
       for (const miss of out.result.unmatched) log(`<span class="miss">Not understood:</span> <span class="words">“${esc(miss)}”</span> <span class="engine">Try one of the examples, or add a model below.</span>`);
     }
 

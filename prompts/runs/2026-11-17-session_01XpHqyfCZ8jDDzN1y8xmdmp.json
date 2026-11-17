@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqyfCZ8jDDzN1y8xmdmp",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T19:39:00Z",
+  "ended": "2026-11-17T20:00:46Z",
+  "wall_minutes": 21.97,
+  "tokens_in": 9411683,
+  "tokens_out": 106787,
+  "cost_usd": 6.4413,
+  "tool_calls": 123,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17046",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/quality_audit.py",
+      "issue": "`sample` printed the full sample draw (and a round number) before saying today's mode is census; `census --n 4` drew four research subjects, so the round has no venture or platform subject. Not wrong, but a reader of the census post sees no products."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "run_workflow_locally.py --for-changes detached after 100 s and the site-builder test step ran for over 10 minutes; a quality-only diff (audit JSON, research READMEs, a post) still triggers the full Pages build."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Step 5 asks for a quality-audit-round-<n> post, which is for sample rounds; today's mode was census, so the post is named quality-census-* like earlier census posts (README, 'Five modes').",
+      "did": "docs/posts/2026-11-17-quality-census-the-policy-that-never-trained.md",
+      "result": "front-matter check ok"
+    },
+    {
+      "file": "portfolio/quality/README.md",
+      "why": "census --n 6 is the default; ran --n 4 to keep four parallel auditors plus coordinator spot-checks within one session.",
+      "did": "4 subjects audited, each spot-checked",
+      "result": "4 audit files, validate 0 problems"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-quality-census-the-policy-that-never-trained.md"
+  ],
+  "goal": null,
+  "notes": "Mode census (date-seeded draw), seed 2026-11-17-5eee; subjects research/robofab-selfparts, research/chip-abc-order, research/codesign-sar, research/runlength-twin. Share meeting the bar: 0 of 4 (census, outside the sampled share, which stays 33/306). Seeded mutations caught 4 of 19. Fix PR: #17046 (pinned-value tests for runlength-twin and robofab-selfparts that catch 5 previously surviving mutants; chip-abc-order negative equivalence test catching dropped -verify and score() raising on parse failure; codesign-sar headline caveat in README, research index and homepage summary). Coordinator spot-checks: reran robofab independent brute force (384/384/120, 720/720/120 match), runlength recompute (3177/12110, MC coverage 0.6851), counted codesign-sar default-policy evaluations in results.json (2247/2418) and reran the grid policy (test J 0.8624). Tests: robofab 11 passed, chip-abc-order 5, codesign-sar 8, runlength-twin 15; research homepage build ok; check_md_links ok; quality_audit validate 0 problems; PR check runs green.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "54e0196a-1219-579a-a627-217f41425513",
+    "transcripts": 5,
+    "first": "2026-11-17T19:39:00Z",
+    "last": "2026-11-17T20:00:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 118,
+        "input": 236,
+        "output": 106787,
+        "thinking": 33798,
+        "cache_read": 8973754,
+        "cache_write_5m": 330543,
+        "cache_write_1h": 107150,
+        "api_equivalent_usd": 6.4413,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 118,
+      "input": 236,
+      "output": 106787,
+      "thinking": 33798,
+      "cache_read": 8973754,
+      "cache_write_5m": 330543,
+      "cache_write_1h": 107150,
+      "api_equivalent_usd": 6.4413,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.953,
+    "tool_calls": 123,
+    "tools": {
+      "Bash": 111,
+      "Agent": 4,
+      "SubagentHandback": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.97,
+      "active_minutes": 17.79,
+      "model_minutes": 4.03,
+      "tool_minutes": 13.76,
+      "waiting_on_human_minutes": 4.18,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 20.42
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "four first audits of research projects with independent recomputation (about 3 h each) plus fixes, tests and the post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 217.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

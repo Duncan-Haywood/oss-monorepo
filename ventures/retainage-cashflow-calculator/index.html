@@ -147,7 +147,7 @@
     NUMBER_FIELD_IDS.forEach(id=>$(id).addEventListener('input',()=>calculate()));
     $('remember').addEventListener('change',rememberDraft);
     TEXT_FIELD_IDS.forEach(id=>['input','change'].forEach(evt=>$(id).addEventListener(evt,()=>{refreshDraft();rememberDraft();if(location.hash||location.search)history.replaceState(null,'',`${location.pathname}#${encodeInputs(currentInputs())}`);})));
-    $('copy').addEventListener('click',async()=>{await navigator.clipboard.writeText($('draft').value);count('retainage-cashflow:draft-copies');$('copyStatus').textContent='Draft copied.';});
+    $('copy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('draft').value);}catch{$('draft').select();$('copyStatus').textContent='Copy was blocked; the draft is selected, so copy it by hand.';return;}count('retainage-cashflow:draft-copies');$('copyStatus').textContent='Draft copied.';});
     $('download').addEventListener('click',()=>{
       const content=worksheetSummary({projectName:$('project').value,payerName:$('payer').value,invoiceReference:$('invoice').value,dueDate:$('due').value,values:result.values,result,scenarios:delayScenarios(result.values),release,partialRelease:lastPartialRelease,rateRows:compareRetainageRates(result.values)});
       const link=document.createElement('a');

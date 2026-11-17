@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readWav, analyze, integratedLufs, truePeak, suggestGain, kWeight, kWeightedEnergy } from './master.mjs';
+import { readWav, analyze, integratedLufs, truePeak, suggestGain, kWeight, kWeightedEnergy, maxWindowLoudness, loudnessRange } from './master.mjs';
 import { run } from './master-cli.mjs';
 
 function wav(chs, rate, bits = 16) {
@@ -208,4 +208,22 @@ test('momentary and short-term max: a 1 kHz tone reads its level, a short burst 
   for (let i = 0; i < z.length; i++) z[i] = 0.5 * Math.sin(Math.PI * i / 2 + Math.PI / 4);
   const tp = 20 * Math.log10(truePeakAnnex2(z));
   assert.ok(tp <= -5.8 && tp >= -6.4, String(tp));
+});
+
+// analyze() computes the K-weighted running sums once per channel and hands them to
+// the four loudness readings; each reading computing its own must give the same doubles.
+test('analyze shares one K-weighting pass: every loudness figure equals the standalone reading', () => {
+  let seed = 7;
+  const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648) * 2 - 1;
+  for (const [rate, secs, chans] of [[48000, 7.3, 2], [44100, 4.1, 1], [22050, 3.2, 2], [48000, 0.3, 2]]) {
+    const n = Math.round(rate * secs);
+    const ch = Array.from({ length: chans }, (_, c) => Float64Array.from({ length: n }, (_, i) => 0.4 * Math.sin(2 * Math.PI * (220 + 110 * c) * i / rate) * (1 + Math.sin(i / rate)) / 2 + 0.05 * rnd()));
+    const a = analyze({ rate, channels: ch });
+    assert.equal(Object.is(a.lufs, integratedLufs(ch, rate).lufs), true, `${rate}/${secs}: integrated`);
+    assert.equal(Object.is(a.maxMomentaryLufs, maxWindowLoudness(ch, rate, 0.4)), true, `${rate}/${secs}: momentary`);
+    assert.equal(Object.is(a.maxShortTermLufs, maxWindowLoudness(ch, rate, 3)), true, `${rate}/${secs}: short-term`);
+    assert.equal(Object.is(a.loudnessRange, loudnessRange(ch, rate).lra), true, `${rate}/${secs}: range`);
+    const cum = ch.map((c) => kWeightedEnergy(c, rate));
+    assert.deepEqual(loudnessRange(ch, rate, { tailSeconds: 1, cum }), loudnessRange(ch, rate, { tailSeconds: 1 }), 'a tail pad ignores the shared sums');
+  }
 });

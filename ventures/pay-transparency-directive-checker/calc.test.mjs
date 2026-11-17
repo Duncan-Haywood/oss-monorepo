@@ -65,3 +65,13 @@ test("summary and csv render", () => {
   assert.match(summaryText(r), /not legal advice/);
   assert.match(gapCsv(r), /^category,women_avg,men_avg,gap_percent/);
 });
+
+// Red team 2026-11-17: a semicolon table from a comma-decimal locale (the Directive's own users) split "3200,50" into
+// 3200 and 50 and read men's pay as 50: a -6300% gap, no error.
+test("a semicolon pay table reads decimal commas and dot thousands", () => {
+  const t = parsePayTable("Category;Women;Men\nEngineers;3200,50;3400,00\nSales;52.000;61.000\nSupport;3.820,25;3.890\nOps;3.5;4\n");
+  assert.deepEqual(t.errors, []);
+  assert.deepEqual(t.rows.map((r) => [r.category, r.women, r.men]), [["Engineers", 3200.5, 3400], ["Sales", 52000, 61000], ["Support", 3820.25, 3890], ["Ops", 3.5, 4]]);
+  assert.equal(t.rows[0].gap, 5.9);
+  assert.deepEqual(parsePayTable("Sales,52000,61000").rows.map((r) => r.men), [61000]);
+});

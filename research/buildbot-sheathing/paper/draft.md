@@ -673,6 +673,24 @@ the rise set one wrist joint, which costs 0.203 mm unless the compensator plans 
 lift-off does change is the stance: at 12 of 35 poses the leaned stance balances only above 3.7 to
 11.8 N of press, so it cannot be used with a tool that lifts off.
 
+Leaning less fixes that (milestone 41). Re-leaned to the furthest-forward lean that still stands
+at zero press, each of the 12 stances moves its centre of mass back 9.9 to 39.1 mm and then
+balances over the whole of 0 to 50 N. The window's width is the rigid-body figure
+(m + m_tool) g × sole length / grip height to the printed digit, so a stance that stands at zero
+press and still takes 50 N exists only below a grip height of 1.225 m on the G1 and 1.883 m on the
+H1; the G1 at its 1.2 m poses keeps 1.6 N above the press window. Rebuilt on the re-leaned poses,
+the braked spec leaves the G1 0.011 mm and the H1 0.019 mm at a 5 N drag, but one H1 pose loses
+its balance controller and the G1's worst no-hose stack falls from 0.9160 to 0.9030.
+
+That loss is the stance, not the controller (milestone 42). The new pose set flips four of the
+G1's six held leg-joint sides (both hip rolls and both ankle rolls), so a two-by-two of leans and
+sides separates them: at the G1's worst pose the lean costs 1.30 points, the sides 0.00 and the
+interaction 0.00. At every pose where both side choices have a solution they give the same stack,
+because a side sets which way a joint is held and the stack counts only the loose ones. The sides
+still decide feasibility: with the old ones the re-leaned G1 at (1.2 m, +0.15 m) has no solution.
+Compared in one torque convention, the re-lean costs the H1 0.09 to 0.29 points per pose, and the
+G1 0.31 to 1.30 points at four poses while gaining 0.60 to 0.79 at two.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every

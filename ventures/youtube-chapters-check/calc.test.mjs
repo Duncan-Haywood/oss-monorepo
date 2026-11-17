@@ -120,3 +120,18 @@ test("findingsCsv escapes and decodeBuffer handles BOMs", () => {
   assert.equal(decodeBuffer(new Uint8Array([0xef, 0xbb, 0xbf, 0x30]).buffer), "0");
   assert.equal(decodeBuffer(new Uint8Array([0xff, 0xfe, 0x30, 0x00]).buffer), "0");
 });
+
+test("non-drop 23.976 and 29.97 timecodes count nominal frames per labelled second (SMPTE ST 12-1)", () => {
+  // 01:00:00:00 at 29.97 NDF is 108,000 frames x 1001/30000 = 3603.6 s, not 3600.
+  assert.ok(Math.abs(parseTimestamp("01:00:00:00", 29.97) - 3603.6) < 1e-6);
+  assert.ok(Math.abs(parseTimestamp("00:30:00:00", 23.976) - 1801.8) < 1e-6);
+  assert.ok(Math.abs(parseTimestamp("00:00:10:15", 29.97) - 315 * 1001 / 30000) < 1e-6);
+  assert.equal(parseTimestamp("00:00:10:15", 30), 10.5);
+  assert.equal(parseTimestamp("01:00:00;00", 29.97), 3600); // drop-frame labels track wall time
+});
+
+test("repair names every line it leaves out because the time is impossible", () => {
+  const r = repair(sampleBrokenFile());
+  assert.ok(!/everyone gets wrong/.test(r.text));
+  assert.ok(r.changes.some((c) => /line 6/.test(c) && /everyone gets wrong/.test(c)), r.changes.join(" | "));
+});

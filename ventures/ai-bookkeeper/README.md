@@ -3030,6 +3030,37 @@ list before moving to the train shard, so the test gain is not perfectly clean (
 which rules that touches). Details: [`eval/wildreceipt-2026-11-17.md`](eval/wildreceipt-2026-11-17.md).
 Tests: `receipt-wildreceipt.test.mjs`.
 
+### WildReceipt train shard 1: tax in state lines, VAT tables and "includes GST" (2026-11-17)
+
+WildReceipt's second train shard (633 photos, unread until now) was the development set. Its
+unread taxes fell into four shapes, now read: Target's state tax line glued to its code
+(`T=CTTAX 6.3500%on $117.15 $7.44`, `NJTAX`, `FLTAX`); a net / tax / gross row (`566.96 68.04
+635.00` under `Net.Amt VAT Amount`, or `34.17 20.00% 41.00` with the tax amount lost, read as
+gross less net when the rate makes it); `TOTAL INCLUDES GST OF 0.26` and `GST INCLUDED IN
+TOTAL` as tax lines; and `TVA8%`, `IGIC7%`, `20.600TAX`, `TAXAMT`. `cleanOcr` no longer turns
+`USS12.50` (US$ with the $ read as S) or `ECS161.04` into 5512.50 or 5161.04. Development shard: CLI tax 262 to 273 of 335,
+RapidOCR alone 235 to 256, totals unchanged. Held-out test, scored once: CLI tax 204 to 207 of
+272 and totals 359 to 360 of 405; page tax 202 to 205, totals 358 to 359 (RapidOCR alone: no
+right answer went wrong). The test gain is small; the largest group is one chain's layout. SRD's US photos and CORD's text
+do not move.
+Details: [`eval/wildreceipt-train1-2026-11-17.md`](eval/wildreceipt-train1-2026-11-17.md).
+Tests: `receipt-wildreceipt-train1.test.mjs`.
+
+### Four tax shapes left from WildReceipt shard 1: HTVA, TUA, VAT in a subtotal, 0.00 (2026-11-17)
+
+The four tax misses that [`eval/wildreceipt-train1-2026-11-17.md`](eval/wildreceipt-train1-2026-11-17.md)
+left open, each now read: `Total HTVA 69.06` (French net before VAT) is a subtotal, not the
+total, so two TVA lines at 10% and 20% add onto it to make 78.30; a `HT TIC TUA` header (TVA and
+TTC bent by OCR) heads a net / rate / gross row, read in either decimal mark
+(`LOCAL 412.50 20% 495,00`, tax 82.50); `Subtotal(12%VAT) Php32.14` is the VAT inside the total
+when the total split at 12% gives it (else it stays a subtotal); and a `0.00` tax on a `0.00`
+slip is kept. The OCR readings of those photos could not be re-scored here (huggingface.co is
+refused from this session), so each fix is held by a test written in the photo's shape, and the
+text corpora that are reachable confirm nothing else moved: CORD validation, train and test
+text and SROIE's 626 receipts score exactly as before. Details:
+[`eval/wildreceipt-tax-shapes-2026-11-17.md`](eval/wildreceipt-tax-shapes-2026-11-17.md).
+Tests: `receipt-wildreceipt-train1.test.mjs`.
+
 ### CORD train shards 1-3: 600 more unseen photos (2026-11-17)
 
 The other three CORD train shards, read for the first time, score 356 of 583 totals (61.1%)

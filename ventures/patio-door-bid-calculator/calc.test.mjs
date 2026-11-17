@@ -332,3 +332,15 @@ test('customer-facing summary omits wages and names the panels and extras', () =
   assert.doesNotMatch(text, /48/);
   assert.doesNotMatch(text, /wage/i);
 });
+
+test('restored fields equal to their kit suggestion are not frozen as hand-entered', async () => {
+  const { restoredOverrides } = await import('./calc.mjs');
+  // A first visit saves the vinyl 6-ft defaults: nothing there is a shop override.
+  const saved = { config: 'two-6', frame: 'vinyl', glazing: 'dual', install: 'retrofit', access: 'ground',
+    hoursSet: 4.5, unitCost: 980, unitCostMultiplier: 1, hoursAccess: 0 };
+  assert.deepEqual(restoredOverrides(saved).filter((id) => !['config', 'frame', 'glazing', 'install', 'access'].includes(id)), []);
+  // A tuned unit cost is kept as an override.
+  assert.ok(restoredOverrides({ ...saved, unitCost: 1111 }).includes('unitCost'));
+  // Defaults come from the page's current selects when the saved values lack them.
+  assert.deepEqual(restoredOverrides({ hoursAccess: 1.8 }, { config: 'two-6', frame: 'vinyl', glazing: 'dual', install: 'retrofit', access: 'balcony' }), []);
+});

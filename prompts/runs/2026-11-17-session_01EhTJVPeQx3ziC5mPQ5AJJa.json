@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVPeQx3ziC5mPQ5AJJa",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (routed by prompt.md to creative)",
+  "input_sha256": "81d7579b525db91e534914e3d6aafc1aca973a80c84d7dd0408e3bb2ff430e94",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T21:17:27Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 17062,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "Next-up candidate 'inrush current' from overlap.mjs --unused is listed as unused for the subject word, but Six Times for a Second (DONE.md) is a motor-starting-current story; the unused check matches words, so a drafted proposal had to be dropped after a --titles check on 'breaker'."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "The scheduled prompt asks for revenue-generating product work; prompt.md's weighted router drew the creative track (owner-configured 10% share), so this run followed the route rather than overriding it.",
+      "did": "followed the creative route",
+      "result": "one finished Hearth & Horizon story plus post"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon (shelf hearth-and-horizon, drawn by creative_due.py). Piece: twice-as-long-a-quarter-the-load (BIBLE proposal 'Twice as long, a quarter the load'; Euler buckling, EN 1993 curve c, lacing at thirds; ~6,000 words, text only: audio dirs at 577 MB of the 400 MB cap). New Next-up proposal 'The line on the ceiling' (thermal bridge, dew point 12.0 C, 80% surface RH below 15.4 C). Checks: node --test in ventures/hearth-and-horizon 19/19 pass; check_post_frontmatter, check_post_links, post_similarity clean; run_workflow_locally --for-changes: ventures-tests, portfolio-validate 99/99, pages, page-integrity, link-contrast, readme-live-links, sibling-links all passed their run: steps (uses: steps not run).",
+  "corrections": [],
+  "redteam": null
+}

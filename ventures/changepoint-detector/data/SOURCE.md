@@ -748,3 +748,11 @@ code) and DC, calendar years 1970-2019.
 - **Licence:** a U.S. federal government work, public domain in the United States. Attribution: U.S. Bureau of
   Economic Analysis.
 - **Used by:** `eval/synth-cov-real.mjs` (a covariate of the synthetic control, README "Matched on covariates").
+
+# Proposition 99 covariates for the CLI's synthetic control
+
+`prop99-covariates-1989.csv`: one row per state, the `--covariates` file of README "A synthetic control from the
+command line". Derived, not retrieved: written by `node eval/prop99-covariates.mjs` from
+`us-personal-income-per-capita.csv`, `us-cigarette-retail-price.csv` and `us-cigarette-packs-per-capita.csv` (ln
+income and price averaged over 1980-1988, packs per head in 1975, 1980 and 1988, and the 1970-1988 mean of packs per
+head). Same sources, licences and attribution as those files.

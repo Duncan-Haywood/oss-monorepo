@@ -19,8 +19,17 @@ const NUMERIC = [
   "passHolders", "passPrice", "passFlatVisits", "targetMarginPct",
 ];
 
+const REQUIRED = [
+  "flatPrice", "flatMin", "flatMat", "tunePrice", "tuneMin", "tuneMat", "ovhPrice", "ovhMin", "ovhMat",
+  "techRate", "burdenPct", "toolYears", "busyMonths", "benchHrsPerWeek", "targetMarginPct",
+];
+
 export function readInput(input) {
-  const f = (k, d = 0) => (input[k] === undefined || input[k] === "" ? d : num(input[k]));
+  const blank = (k) => input[k] === undefined || String(input[k]).trim() === "";
+  const f = (k, d = 0) => (blank(k) ? d : num(input[k]));
+  // A cleared price, minutes or pay field must not silently become a value the page never showed.
+  const missing = REQUIRED.find((k) => blank(k)) ?? (!blank("passHolders") && num(input.passHolders) > 0 && blank("passFlatVisits") ? "passFlatVisits" : null);
+  if (missing) return { error: `Enter the ${missing}: it has no value.` };
   const v = {
     flatQty: f("flatQty"), flatPrice: f("flatPrice", 30), flatMin: f("flatMin", 15), flatMat: f("flatMat", 6),
     tuneQty: f("tuneQty"), tunePrice: f("tunePrice", 55), tuneMin: f("tuneMin", 30), tuneMat: f("tuneMat", 5),
@@ -106,14 +115,24 @@ export function plan(input) {
   for (const l of active) {
     if (l.price < l.targetPrice) advice.push(`${l.label} at ${usd(l.price)} earns ${l.marginPct}% after labor and materials. For a ${v.targetMarginPct}% margin it would need ${usd(l.targetPrice)}.`);
   }
-  if (res.profit < 0) {
-    const perJob = res.jobs > 0 ? res.contribution / res.jobs : 0;
-    advice.push(res.contribution > 0 && perJob > 0
-      ? `You lose ${usd(-res.profit)} at this volume. Fixed costs of ${usd(res.fixed.total)} need about ${Math.ceil(res.fixed.total / res.contribution * res.jobs)} paid jobs at this mix to break even, against the ${res.jobs} you entered.`
-      : `You lose ${usd(-res.profit)}: the services do not cover their own labor and materials, so more volume makes it worse. Raise a price first.`);
-  } else if (res.contribution > 0) {
-    const be = Math.ceil((res.fixed.total / res.contribution) * res.jobs);
-    advice.push(`Break-even is about ${be} paid jobs at this mix; you plan ${res.jobs}, a cushion of ${Math.max(0, res.jobs - be)}.`);
+  // Care plans are paid up front, so their contribution is presold: break-even counts only the jobs still to sell against what is left.
+  const jobContribution = res.contribution - res.pass.contribution;
+  const perJob = res.jobs > 0 ? jobContribution / res.jobs : 0;
+  const uncovered = res.fixed.total - res.pass.contribution;
+  const plansNote = res.pass.contribution > 0 ? `, after the ${usd(res.pass.contribution)} the care plans bring in` : "";
+  if (res.jobs === 0) {
+    advice.push(uncovered > 0
+      ? `With no jobs entered, the care plans alone leave ${usd(uncovered)} of fixed cost uncovered. Enter the jobs you expect to see how many cover it.`
+      : `The care plans alone cover the ${usd(res.fixed.total)} of fixed cost.`);
+  } else if (perJob <= 0) {
+    advice.push(`You ${res.profit < 0 ? `lose ${usd(-res.profit)}` : "make money only from the care plans"}: the services do not cover their own labor and materials, so more volume makes it worse. Raise a price first.`);
+  } else if (uncovered <= 0) {
+    advice.push(`The care plans alone cover the ${usd(res.fixed.total)} of fixed cost; every paid job adds to profit.`);
+  } else {
+    const be = Math.ceil(uncovered / perJob);
+    advice.push(res.profit < 0
+      ? `You lose ${usd(-res.profit)} at this volume. Fixed costs of ${usd(res.fixed.total)}${plansNote} need about ${be} paid jobs at this mix to break even, against the ${res.jobs} you entered.`
+      : `Break-even is about ${be} paid jobs at this mix${plansNote}; you plan ${res.jobs}, a cushion of ${Math.max(0, res.jobs - be)}.`);
   }
   if (v.passHolders > 0) {
     advice.push(`Care plans: ${v.passHolders} holders at ${usd(v.passPrice)} come to ${usd(res.pass.revenue)}. If each member comes in ${v.passFlatVisits} times, a plan earns ${usd(res.pass.perVisit)} a visit against a flat fix that costs you ${usd(res.lines[0].cost)}. ${v.passFlatVisits > res.pass.breakEvenVisits ? `It loses money past ${res.pass.breakEvenVisits} visits.` : `It stays profitable up to ${res.pass.breakEvenVisits} visits.`}`);

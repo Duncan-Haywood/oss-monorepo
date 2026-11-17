@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { parseIds } from "./ids.mjs";
 import { auditIds } from "./audit.mjs";
 import { resources, check } from "./node.mjs";
-import { modelSubclassesLeftOut, modelSpec, classesWithSets, setsFor, propertiesOf, subclasses, predefinedTypes, buildIds, entityFacet, xsBase, PARTOF_RELATIONS, importIds, stateToDoc, idsSchema, specClassNames, commonSets, commonAttributes, sameAttributeType, commonPredefinedTypes, parseClassList, valueChoices, attributeValueKind, modelAttributes, modelValueOffer, typeRow, appMatchCount, untypeRow, blankReq, blankSpec, temporalType, modelSets, datePattern } from "./editor.mjs";
+import { modelSubclassesLeftOut, modelSpec, classesWithSets, setsFor, propertiesOf, subclasses, predefinedTypes, buildIds, entityFacet, xsBase, PARTOF_RELATIONS, importIds, stateToDoc, idsSchema, idsSchemaChoices, auditSchemaIds, schemaIdsOf, importIdsAs, specClassNames, commonSets, commonAttributes, sameAttributeType, commonPredefinedTypes, parseClassList, valueChoices, attributeValueKind, modelAttributes, modelValueOffer, typeRow, appMatchCount, untypeRow, templateTypeRow, fileTypeRefused, fileTypeOf, blankReq, blankSpec, temporalType, modelSets, datePattern, numberValueProblem, NUMBER_ONEOF_MAX } from "./editor.mjs";
 import { Model } from "./ids.mjs";
 import { modelInventory } from "./inventory.mjs";
 
@@ -611,4 +611,164 @@ test("with no class, every standard set and every attribute some class has is of
   // A class still narrows the lists as before.
   assert.ok(commonAttributes(S4, ["IFCWALL"]).length < attrs.length);
   assert.ok(!commonSets(L, ["IFCWALL"]).includes("Pset_DoorCommon"));
+});
+
+test("a one-of on numbers: offered, checked with IDS's tolerance on reals and exactly on integers, and reopened as a row", () => {
+  const L = loadFor("IFC4");
+  const door = valueChoices(L, ["IFCDOOR"], { kind: "attribute", name: "OverallHeight" });
+  assert.ok(door.modes.includes("oneOf"));
+  assert.equal(door.integer, false);
+  const stair = valueChoices(L, ["IFCSTAIRFLIGHT"], { kind: "attribute", name: "NumberOfRisers" });
+  assert.ok(stair.modes.includes("oneOf"));
+  assert.equal(stair.integer, true);
+  assert.ok(valueChoices(L, ["IFCWALL"], { ...blankReq(), kind: "property", set: "Pset_WallCommon", name: "ThermalTransmittance" }).modes.includes("oneOf"));
+  // Literals as IDS reads them; the audit's rules.
+  assert.equal(numberValueProblem("42.3"), null);
+  assert.equal(numberValueProblem("1e-3"), null);
+  assert.match(numberValueProblem("2,1"), /not a number/);
+  assert.match(numberValueProblem("NaN"), /not a number/);
+  assert.match(numberValueProblem("3.0", true), /digits only \(3\)/);
+  assert.match(numberValueProblem("2.5", true), /not an integer/);
+  assert.equal(numberValueProblem("-12", true), null);
+
+  // The sample house's door is 2100 high (millimetres, attributes as written).
+  const text = readFileSync(new URL("samples/tiny-house.ifc", import.meta.url), "utf8");
+  const inv = modelInventory(new Model(text, R.schemas), R.measureUnits);
+  const o = modelValueOffer(modelAttributes(inv, ["IFCDOOR"]).find((x) => x.name === "OverallHeight"), "number", null);
+  assert.deepEqual(o.oneOf, ["2100"]);
+  const row = (name, oneOf) => ({ ...blankReq(), kind: "attribute", name, mode: "oneOf", oneOf });
+  const spec = (cls, r, i) => ({ name: `one of ${i}`, optionality: "optional", cls, withSub: false, also: [], predefinedType: "", reqs: [r] });
+  const specs = [
+    spec("IFCDOOR", row("OverallHeight", ["2100", "2400"]), 0),  // pass
+    spec("IFCDOOR", row("OverallHeight", ["2100.001"]), 1),      // within a millionth of 2100 (2100 x 1e-6 + 1e-6): pass
+    spec("IFCDOOR", row("OverallHeight", ["2.1", "2.4"]), 2),    // metres on a millimetre model: fail
+    spec("IFCSTAIRFLIGHT", row("NumberOfRisers", ["12", "14"]), 3),
+  ];
+  const xml = buildIds(stateToDoc({ title: "t", schema: "IFC4", specs }, L), L.S);
+  assert.match(xml, /<name><simpleValue>OverallHeight<\/simpleValue><\/name><value><xs:restriction base="xs:double"><xs:enumeration value="2100"\/><xs:enumeration value="2400"\/>/);
+  assert.match(xml, /<name><simpleValue>NumberOfRisers<\/simpleValue><\/name><value><xs:restriction base="xs:integer"><xs:enumeration value="12"\/>/);
+  assert.deepEqual(audit(xml).filter((i) => i.level === "error"), []);
+  assert.deepEqual(check(xml, text).specs.map((s) => s.status), ["pass", "pass", "fail", "pass"]);
+  // Reopened: every one an editable row, written back byte for byte.
+  const { imp, parsed, back } = reopen(xml);
+  assert.equal(imp.kept, 0);
+  assert.equal(buildIds(stateToDoc(imp.state, L), L.S), xml);
+  for (let i = 0; i < specs.length; i++) assert.deepEqual(said(back.specs[i]), said(parsed.specs[i]));
+  // A list the row could not write (a comma, an integer with a point) is kept as written.
+  assert.ok(reopen(xml.replace('<xs:enumeration value="2400"/>', '<xs:enumeration value="2,4"/>')).imp.state.specs[0].reqs[0].fixed);
+  assert.ok(reopen(xml.replace('<xs:enumeration value="12"/>', '<xs:enumeration value="12.0"/>')).imp.state.specs[3].reqs[0].fixed);
+
+  // A short list of a model's numbers is offered as a one-of, sorted by value; a long one is not.
+  // It names each value as the model holds it (`exact`), not at the 12 digits
+  // the tally shows: IfcTester 0.9.0 compares a listed number exactly.
+  const mp = (vals, exact = [...vals].sort((x, y) => x - y)) => ({ count: vals.length, values: vals.map((v) => [v, 1]), distinct: vals.length, more: false, min: Math.min(...vals.map(Number)), max: Math.max(...vals.map(Number)), exact });
+  assert.deepEqual(modelValueOffer(mp(["10", "9.5", "100"]), "number").oneOf, ["9.5", "10", "100"]);
+  assert.deepEqual(modelValueOffer(mp(["2.8", "2.80000000012"], ["2.799999999886494", "2.8", "2.8000000001193297"]), "number").oneOf, ["2.799999999886494", "2.8", "2.8000000001193297"]);
+  assert.equal(modelValueOffer(mp(["1", "2"], null), "number").oneOf, null, "no exact list, no offer");
+  assert.equal(modelValueOffer(mp(Array.from({ length: NUMBER_ONEOF_MAX + 1 }, (_, i) => String(i))), "number").oneOf, null);
+
+  // typeRow: a list of numbers on a property with no dataType keeps its values when typed.
+  const untyped = { ...blankReq(), kind: "property", set: "Pset_WallCommon", name: "ThermalTransmittance", untyped: true, mode: "oneOf", oneOf: ["0.25", "0.3"] };
+  assert.deepEqual([typeRow(L, untyped).row.mode, typeRow(L, untyped).row.oneOf, typeRow(L, untyped).dropped], ["oneOf", ["0.25", "0.3"], false]);
+  assert.equal(typeRow(L, { ...untyped, oneOf: ["0,25"] }).dropped, true);
+});
+
+test("an IDS whose specifications all name IFC2X3 and IFC4 opens in the schema that edits most, and is audited in both", () => {
+  const spec = (v, name, set, prop, dt) => `<ids:specification ifcVersion="${v}" name="${name}">
+<ids:applicability minOccurs="1" maxOccurs="unbounded"><ids:entity><ids:name><ids:simpleValue>IFCSPACE</ids:simpleValue></ids:name></ids:entity></ids:applicability>
+<ids:requirements><ids:property dataType="${dt}" cardinality="required"><ids:propertySet><ids:simpleValue>${set}</ids:simpleValue></ids:propertySet><ids:baseName><ids:simpleValue>${prop}</ids:simpleValue></ids:baseName></ids:property></ids:requirements>
+</ids:specification>`;
+  const doc = (...specs) => `<?xml version="1.0" encoding="UTF-8"?>
+<ids:ids xmlns:ids="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema"><ids:info><ids:title>NL-style</ids:title></ids:info><ids:specifications>
+${specs.join("\n")}
+</ids:specifications></ids:ids>`;
+  const loadFor = (id) => ({ S: R.schemas[id], psets: R.psets[id], tm: id === "IFC2X3" ? R.typeMap : null });
+  // Qto_SpaceBaseQuantities is an IFC4 set IFC2X3's templates lack (as in the
+  // Dutch NL-BIM Basis ILS files, written for "IFC2X3 IFC4").
+  const xml = doc(spec("IFC2X3 IFC4", "Spaces have a net floor area", "Qto_SpaceBaseQuantities", "NetFloorArea", "IFCAREAMEASURE"),
+    spec("IFC2X3 IFC4", "Spaces have a name", "Pset_SpaceCommon", "Reference", "IFCIDENTIFIER"));
+  const parsed = parseIds(xml);
+  assert.deepEqual(schemaIdsOf(["IFC2X3", "IFC4X3_ADD2"]), ["IFC2X3", "IFC4X3"]);
+  assert.equal(idsSchema(parsed), "IFC2X3", "the first named, as before");
+  assert.deepEqual(idsSchemaChoices(parsed), ["IFC2X3", "IFC4"]);
+  const old = importIdsAs(parsed, loadFor, "IFC2X3");
+  assert.equal(old.state.specs[0].reqs[0].fixed !== undefined, true, "IFC2X3 holds the IFC4 quantity set as written");
+  const imp = importIds(parsed, loadFor);
+  assert.equal(imp.state.schema, "IFC4");
+  assert.ok(imp.rows > old.rows);
+  assert.deepEqual(Object.keys(imp.schemaRows).sort(), ["IFC2X3", "IFC4"]);
+  assert.equal(imp.state.specs[0].reqs[0].set, "Qto_SpaceBaseQuantities");
+  assert.deepEqual(imp.state.specs[0].ifcVersion, ["IFC2X3", "IFC4"], "each specification keeps its versions");
+  // Written back, it asks the same and names the same versions.
+  const L = loadFor("IFC4");
+  const back = parseIds(buildIds(stateToDoc(imp.state, L), L.S));
+  assert.deepEqual(back.specs.map((s) => s.ifcVersion), parsed.specs.map((s) => s.ifcVersion));
+  // The page audits in every schema a specification names, in the CLI's order,
+  // so the IFC4 set is no error; IFC2X3 alone calls it a custom Pset.
+  assert.deepEqual(auditSchemaIds(imp.state), ["IFC2X3", "IFC4"]);
+  const errs = (ids) => auditIds(back, { schemas: Object.fromEntries(ids.map((id) => [id, R.schemas[id]])), typeMap: R.typeMap, psets: R.psets }).filter((x) => x.level === "error").map((x) => x.code);
+  assert.deepEqual(errs(["IFC2X3"]), ["pset-custom"]);
+  assert.deepEqual(errs(auditSchemaIds(imp.state)), []);
+  assert.deepEqual(errs(auditSchemaIds(imp.state)), auditIds(parsed, R).filter((x) => x.level === "error").map((x) => x.code), "the CLI's audit");
+  // Specifications with no schema in common keep the usual pick.
+  const mixed = parseIds(doc(spec("IFC2X3", "a", "Pset_SpaceCommon", "Reference", "IFCIDENTIFIER"), spec("IFC4", "b", "Pset_SpaceCommon", "Reference", "IFCIDENTIFIER"), spec("IFC4", "c", "Pset_SpaceCommon", "Reference", "IFCIDENTIFIER")));
+  assert.deepEqual(idsSchemaChoices(mixed), []);
+  assert.equal(importIds(mixed, loadFor).state.schema, "IFC4");
+  assert.equal(importIds(mixed, loadFor).schemaRows, undefined);
+  assert.deepEqual(auditSchemaIds(importIds(mixed, loadFor).state), ["IFC2X3", "IFC4"]);
+});
+
+test("a standard property in a dataType the template refuses opens as a row keeping it, and Use the template's type fixes the audit error", () => {
+  const prop = (set, name, dt, value = "") => `<property dataType="${dt}"><propertySet><simpleValue>${set}</simpleValue></propertySet><baseName><simpleValue>${name}</simpleValue></baseName>${value}</property>`;
+  // As the public files write them: DfE's SerialNumber as IFCTEXT with a
+  // pattern (template IFCIDENTIFIER), Spain's GrossFloorArea as IFCREAL.
+  const xml = `<?xml version="1.0"?><ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema"><info><title>t</title></info><specifications>
+    <specification name="assets" ifcVersion="IFC4"><applicability minOccurs="1" maxOccurs="unbounded"><entity><name><simpleValue>IFCPUMP</simpleValue></name></entity></applicability>
+      <requirements>${prop("Pset_ManufacturerOccurrence", "SerialNumber", "IFCTEXT", `<value><xs:restriction base="xs:string"><xs:pattern value="[A-Z0-9]+"/></xs:restriction></value>`)}</requirements></specification>
+    <specification name="spaces" ifcVersion="IFC4"><applicability minOccurs="1" maxOccurs="unbounded"><entity><name><simpleValue>IFCSPACE</simpleValue></name></entity></applicability>
+      <requirements>${prop("Qto_SpaceBaseQuantities", "GrossFloorArea", "IFCREAL", `<value><xs:restriction base="xs:double"><xs:minInclusive value="2"/></xs:restriction></value>`)}</requirements></specification></specifications></ids>`;
+  const { imp, parsed, back } = reopen(xml);
+  const L = loadFor("IFC4");
+  const [sn, gfa] = imp.state.specs.map((s) => s.reqs[0]);
+  assert.ok(!sn.fixed && !gfa.fixed, "both open as rows");
+  assert.deepEqual([sn.fileType, sn.mode, sn.pattern], ["IFCTEXT", "pattern", "[A-Z0-9]+"]);
+  assert.deepEqual([gfa.fileType, gfa.mode, gfa.min], ["IFCREAL", "range", "2"]);
+  assert.deepEqual(back.specs.map(said), parsed.specs.map(said), "written back as the file had it");
+  assert.ok(fileTypeRefused(L, sn) && fileTypeRefused(L, gfa));
+  const codes = (st) => auditIds(parseIds(buildIds(stateToDoc(st, L), L.S)), R).filter((x) => x.code === "pset-datatype").length;
+  assert.equal(codes(imp.state), 2);
+  // The row offers the file's type's values: a range on IFCREAL, a pattern on IFCTEXT.
+  assert.ok(valueChoices(L, "IFCSPACE", gfa).modes.includes("range"));
+  assert.ok(valueChoices(L, "IFCPUMP", sn).modes.includes("pattern"));
+  // The fix: the template's type, the value carried over, no audit error.
+  const t1 = templateTypeRow(L, sn), t2 = templateTypeRow(L, gfa);
+  assert.deepEqual([t1.dataType, t1.dropped, t1.row.mode, t1.row.fileType], ["IFCIDENTIFIER", false, "pattern", undefined]);
+  assert.deepEqual([t2.dataType, t2.dropped, t2.row.mode, t2.row.min], ["IFCAREAMEASURE", false, "range", "2"]);
+  const fixed = { ...imp.state, specs: [{ ...imp.state.specs[0], reqs: [t1.row] }, { ...imp.state.specs[1], reqs: [t2.row] }] };
+  assert.equal(codes(fixed), 0);
+  const out = buildIds(stateToDoc(fixed, L), L.S);
+  assert.match(out, /<property dataType="IFCIDENTIFIER">/);
+  assert.match(out, /<property dataType="IFCAREAMEASURE">/);
+});
+
+test("Use the template's type drops a value the template's type cannot hold, and keeps true/false on a boolean", () => {
+  const L = loadFor("IFC4");
+  const row = (o) => ({ ...blankReq(), set: "Pset_SpaceCommon", name: "IsExternal", fileType: "IFCLABEL", ...o });
+  // OpenAEC writes IsExternal as IFCLABEL.
+  assert.equal(fileTypeOf(L, "Pset_SpaceCommon", "IsExternal", "IFCLABEL"), "IFCLABEL");
+  assert.equal(fileTypeOf(L, "Pset_SpaceCommon", "IsExternal", "IFCBOOLEAN"), null, "the template's own type is no file type");
+  assert.equal(fileTypeOf(L, "Pset_SpaceCommon", "IsExternal", "IFCNOSUCHTYPE"), null);
+  const t = templateTypeRow(L, row({ mode: "equals", equals: "TRUE" }));
+  assert.deepEqual([t.dataType, t.row.mode, t.dropped], ["IFCBOOLEAN", "true", false]);
+  const d = templateTypeRow(L, row({ mode: "equals", equals: "outside" }));
+  assert.deepEqual([d.row.mode, d.row.equals, d.dropped], ["any", "", true]);
+  // A text value moved to a number type is dropped; a number moved to another number type stays.
+  const area = { ...blankReq(), set: "Qto_SpaceBaseQuantities", name: "GrossFloorArea" };
+  assert.equal(templateTypeRow(L, { ...area, fileType: "IFCLABEL", mode: "equals", equals: "big" }).dropped, true);
+  assert.equal(templateTypeRow(L, { ...area, fileType: "IFCREAL", mode: "oneOf", oneOf: ["10", "12.5"] }).dropped, false);
+  // Not a file-type row: no fix.
+  assert.equal(templateTypeRow(L, area), null);
+  // Changing the row to no dataType drops the file type.
+  const u = untypeRow(L, { ...area, fileType: "IFCREAL" }, "IFCREAL");
+  assert.ok(u && u.row.untyped && u.row.fileType === undefined);
 });

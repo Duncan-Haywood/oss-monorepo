@@ -199,7 +199,8 @@
       memory = { answered: r.answered, pending: r.pending };
       $("#say").value = "";
       p = r.profile; write(); render(); recordUsage("wardrobe_guide");
-      $("#heard").textContent = (r.heard.length ? "Heard: " + r.heard.map(h => `${h.field} = ${Array.isArray(h.value) ? h.value.join("+") : h.value} (from "${h.from}")`).join("; ") + ". " : "Nothing recognised. ") + (r.asks.length ? "Next question: " + r.asks[0] + (r.asks.length > 1 ? " (then " + (r.asks.length - 1) + " more; say several at once if you like)" : "") : "Check each answer below.");
+      $("#heard").textContent = (r.heard.length ? "Heard: " + r.heard.map(h => `${h.field} = ${Array.isArray(h.value) ? h.value.join("+") : h.value} (from "${h.from}"${h.kept ? ", kept as it was" : ""})`).join("; ") + ". " : r.declined.length ? "" : "Nothing recognised. ")
+        + (r.declined.length ? "Turned down: " + r.declined.map(x => `${x.field} ${x.value} (from "${x.from}")`).join("; ") + ". " : "") + (r.asks.length ? "Next question: " + r.asks[0] + (r.asks.length > 1 ? " (then " + (r.asks.length - 1) + " more; say several at once if you like)" : "") : "Check each answer below.");
     });
     write(); render();
     document.querySelectorAll("section select, section input:not([data-key]), #occasions input").forEach(el => el.addEventListener("change", () => { read(); render(); recordUsage("wardrobe_plan"); }));

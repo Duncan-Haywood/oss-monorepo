@@ -1816,3 +1816,120 @@ revolution leaves in the loop fit's drop.
 
 **Not known.** All simulated, with Gaussian per-edge jitter; a real tach's misses may be lumpier (a missed edge, a
 noisy interrupt), and there marks could carry more of the error than here.
+
+## The spin error was there without the jitter (2026-11-17, last)
+
+**The item.** "Unsure marks on the noisy wheels" ended on lowering every reading's noise under the 3 us tach jitter:
+with every reading replaced by the simulator's true drop, the jittery plant's spin error fell from 0.57% to 0.03%.
+But the same run's other two plants draw no random numbers at all, and their spin error was 0.58% (first-order) and
+0.53% (ESC 50 ms told). So the jitter was never what set the floor.
+
+**Where it sits.** The same oracle on every plant, from the run's saved rows (no rerun; seeds 7, 8, 13, 14;
+`tests/reading_floor.py --oracle`, eval/reading-floor-oracle-2026-11-17.txt):
+
+| plant | as read | every reading true | calibration drill true | slow drill true | reading sd |
+| --- | --- | --- | --- | --- | --- |
+| first-order 8k | 0.58% | 0.02% | 0.46% | 0.15% | 0.32% |
+| tach 3 us 10k | 0.57% | 0.03% | 0.59% | 0.18% | 0.72% |
+| ESC 50 ms told | 0.53% | 0.03% | 0.50% | 0.06% | 0.27% |
+
+On every plant the readings carry the error, and the held-out slow drill's readings carry most of it (its spin shots
+are where the fit learns spin). On the noise-free plants the readings have no bias (mean 0.9993 and 0.9999 of the true
+drop) and no trend with speed: a 0.27-0.32% scatter, the same from 1,000 to 9,000 rpm. The jitter widens a reading's
+scatter 2.3 times and leaves the spin error where it was.
+
+**Is it the 1 us timer?** The simulator times each tach edge to a whole microsecond, as `ticks_us` does on the ESP32.
+`tests/reading_floor.py` reruns the noise-free builds (three launchers, two lags, both plants, calibration plus the
+slow drill) with the edges timed exactly (float microseconds) and nothing else changed. The prediction was written into
+the script before it ran: if the timer is the floor, the reading sd falls by more than half; if it stays within a
+quarter, the floor is the drop fit's model against the simulator's physics. The shipped half reproduced the earlier
+run's readings exactly. Raw: eval/reading-floor-2026-11-17.txt and the .jsonl beside it.
+
+| plant | edges | reading sd | spin mean (worst) | spin, true drops |
+| --- | --- | --- | --- | --- |
+| first-order 8k | 1 us timer | 0.32% | 0.58% (1.56) | 0.02% |
+| first-order 8k | exact | 0.31% | 0.50% (1.01) | 0.02% |
+| ESC 50 ms told | 1 us timer | 0.27% | 0.53% (1.47) | 0.03% |
+| ESC 50 ms told | exact | 0.24% | 0.32% (0.62) | 0.03% |
+
+**Not the timer.** The readings' scatter moved 3% and 11%, inside the quarter: the 1 us timer is not what limits a
+reading. By speed band the sd went 0.34 to 0.33% (1,000-2,000 rpm), 0.30 to 0.26% (2,000-4,500) and stayed 0.28% above
+4,500. The spin fit did move more than the scatter did (0.58 to 0.50%, 0.53 to 0.32%) because it leans on a handful of
+slow-drill readings, so a small change in those few shows up large; on 12 builds a plant that is a spread of 0.1-0.2
+points, and the rule was set on the readings, not the fit.
+
+**What it leaves.** A noise-free reading still misses its true drop by about 0.3%, and that is between the loop fit's
+model (a ball's moment inside a revolution, then the loop's recovery from its logged commands) and what the simulator
+does: 1 ms Euler steps of the wheel, the ball's whole take at one step's end, the command applied a step at a time.
+Part of that is the simulator's own coarseness, which a real wheel does not have, and part may be the model's. Lowering
+"every reading's noise" on the board cannot win a floor the board's timer does not set, so that item is closed. The
+next test is a simulator run at finer steps (0.1 ms; about ten times the run time): if the scatter falls, the floor was
+the simulator's, and a real tach's log decides whether there is anything to fix; if not, the drop model has a missing
+term worth finding. No firmware changes.
+
+**Not known.** All simulated. A real ESP32's interrupt latency adds its own jitter to every edge, which this run left
+out on purpose.
+
+
+## Not the simulator's step either: the fit's ball-moment grid (2026-11-17, later)
+
+**The item.** "The spin error was there without the jitter" left a 0.3% scatter between a noise-free reading and the
+simulator's true drop, and asked whether a simulator at 0.1 ms steps would remove it (the floor was the simulator's)
+or not (the drop model was missing a term).
+
+**0.1 ms steps.** `tests/reading_floor.py` gained two modes that integrate the ESC lag, the wheel and its revolutions
+in ten Euler steps a millisecond, each tach edge timed inside its sub-step, with the 1 us timer and with exact edges.
+The firmware still ticks, and the ball's take still lands, once a millisecond: only the plant is finer. A build took
+7% longer, not ten times, because the firmware's own work dominates. Same 24 builds (eval/reading-floor-fine-2026-11-17.txt):
+
+| plant | edges, steps | reading sd | spin mean (worst) |
+| --- | --- | --- | --- |
+| first-order 8k | 1 us, 1 ms | 0.32% | 0.58% (1.56) |
+| first-order 8k | 1 us, 0.1 ms | 0.31% | 0.26% (0.62) |
+| first-order 8k | exact, 0.1 ms | 0.31% | 0.41% (1.44) |
+| ESC 50 ms told | 1 us, 1 ms | 0.27% | 0.53% (1.47) |
+| ESC 50 ms told | 1 us, 0.1 ms | 0.27% | 0.20% (0.40) |
+| ESC 50 ms told | exact, 0.1 ms | 0.25% | 0.30% (1.17) |
+
+The readings' scatter did not move, in any speed band. The spin fit moved both ways, as it does when a handful of
+slow-drill readings shift; the rule was set on the readings. So it is not the simulator.
+
+**Not a missing term either.** On the first-order plant the loop fit's model *is* the simulator's physics: a
+first-order lag on the logged commands, a step drop at t0, each revolution's mean speed. What is left is how the fit
+searches it. `tests/fit_grid_floor.py` keeps every board loop fit's inputs from the same 12 builds and refits them
+offline. The prediction, written before a one-build pilot: if the search sets the floor, the finest search scatters
+under 0.15%; within a quarter of the shipped one, it does not. 755 wheels at 1,000 rpm and up
+(eval/fit-grid-floor-2026-11-17.txt):
+
+| search | first-order sd | ESC 50 ms sd | steps a wheel (at most) |
+| --- | --- | --- | --- |
+| shipped: t0 on 3 nested 9-point grids, tau 5 golden steps | 0.32% | 0.27% | 36 |
+| tau 15 golden steps | 0.31% | 0.27% | 66 |
+| t0 4 levels | 0.12% | 0.13% | 48 |
+| t0 5 levels | 0.10% | 0.11% | 60 |
+| t0 6 levels and tau 15 golden steps | 0.07% | 0.07% | 132 |
+| **polish** (one solve at the parabola's vertex) | 0.15% | 0.15% | 36 |
+| polish and 4 levels | 0.11% | 0.11% | 48 |
+
+The ball's moment was the floor. Each grid level spans a quarter of the one before, so the third's step is 1/64 of a
+revolution, about 0.19 ms at 5,000 rpm; one level more cut the scatter by more than half. The lag's search did
+nothing until t0 was fine.
+
+**Shipped: polish on.** `drop_from_commands_steps(polish=True)` is now the default: after each tau's last grid it
+takes the grid's best t0 and its two neighbours, solves once at their parabola's vertex and keeps that if its misses
+are smaller. It adds no step (one solve beside the step's nine), so the record comes back as soon as before. The
+shipped builds rerun end to end with it (eval/reading-floor-polish-2026-11-17.txt):
+
+| plant | reading sd | speed err | spin mean (worst) |
+| --- | --- | --- | --- |
+| first-order 8k, before | 0.32% | 0.07% | 0.58% (1.56) |
+| first-order 8k, polish | 0.16% | 0.07% | 0.31% (0.58) |
+| ESC 50 ms told, before | 0.27% | 0.02% | 0.53% (1.47) |
+| ESC 50 ms told, polish | 0.15% | 0.02% | 0.34% (0.72) |
+
+A fourth level would take the readings to 0.11% for 12 more steps a wheel (0.12 s more per wheel at the 10 ms
+update), which delays every re-plan; not worth it before a real board says how long a step takes.
+
+**Not known.** All simulated, one seed, two plants. The jittery tach plant was not rerun: its 0.72% scatter is the
+jitter's, and a finer t0 should not touch that. A real wheel's drop is not a step at an instant (the ball is in the
+wheels for a few milliseconds), which this model and this simulator both leave out.

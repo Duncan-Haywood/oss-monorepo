@@ -542,6 +542,29 @@ Quasi-static rise, no recoil transient simulated; the holding threshold is unsou
 
 ![Lowest press each leaned stance balances at, and how close the loose joints come to the holding threshold on the re-press](experiments/m40_liftoff/figure.png)
 
+**Milestone 41: can every stance stand when the nose lifts?** Yes, by leaning less, but near the top of the wall
+only just. Each of milestone 40's 12 press-dependent poses was re-leaned to the furthest-forward lean that still stands
+at zero press: the centre of mass moves back 10–39 mm and every one then balances over the whole 0–50 N (H156 held;
+H157, "at most 20 mm", refuted). The window's width is exactly (m + m_tool) g × sole length / grip height, so the
+ceiling is a formula: a zero-press stance that still takes a 50 N press exists only below a **1.225 m** grip on the
+G1 and **1.883 m** on the H1, and the G1 at 1.2 m keeps **1.6 N** to spare. With milestone 38's setup rebuilt on the
+new poses, the braked spec holds (G1 **0.011 mm**, H1 0.019 mm at a 5 N drag; H159 held), one H1 pose loses its
+controller (H158 refuted), and the G1's worst no-hose stack falls **1.3 points**, 0.9160 to 0.9030 (H160 refuted).
+Statics; the lean's and the controller's side choice's shares of that loss are not separated.
+
+![Press range each stance balances, before and after re-leaning to stand at zero press, against the rigid-body width](experiments/m41_stance0/figure.png)
+
+**Milestone 42: is that 1.3-point loss the stance or the controller?** The stance. Re-leaning flipped four of the
+G1's six held leg-joint sides (both hip rolls, both ankle rolls), so a 2 × 2 (leans × sides) separates them: at the
+G1's worst pose the lean costs **1.30 points** and the sides **0.00**, with no interaction (H161–H163 held), and at
+every pose where both side choices solve they give the same stack to the printed digit, because a side says which way
+a joint is held, not whether. The flip still matters: with the old sides one re-leaned G1 pose has no controller
+solution (H164 refuted). A post hoc check also corrects milestone 41's per-pose figures, which compared stacks from
+two torque conventions: like for like, the re-lean costs the H1 **0.09–0.29 points** per pose (not 0.1–0.9), and the
+G1 loses 0.31–1.30 at four poses and gains 0.60–0.79 at two. Statics, 'hold-min' torques without the leg preload.
+
+![The no-hose clean-sheet stack at each re-leaned pose in the four lean × sides cells: the sides never move a bar](experiments/m42_sides/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).

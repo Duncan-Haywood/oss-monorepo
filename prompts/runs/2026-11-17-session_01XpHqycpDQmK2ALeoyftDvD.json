@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqycpDQmK2ALeoyftDvD",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T20:38:19Z",
+  "ended": "2026-11-17T20:45:55Z",
+  "wall_minutes": 7.81,
+  "tokens_in": 2866803,
+  "tokens_out": 39106,
+  "cost_usd": 2.1395,
+  "tool_calls": 31,
+  "task": "Hearth & Horizon story from the BIBLE.md proposal 'Four times the wait'",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17058",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "'pick the project that has gone longest without a new piece' via git log -15 is unreliable on a shallow clone (Saints by Candlelight showed only an unrelated commit); README points to platform/ci/creative_due.py, which the sub-prompt does not mention."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The claim-before-drafting rule needs a commit to open a PR; I pushed a stub story file. A sentence saying what the claim commit should contain would save a decision."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Saints by Candlelight was due by the shallow git log, but PR #17054 was already writing its next episode, and the podcast option needs audio while the cap is exceeded",
+      "did": "Wrote the open Hearth & Horizon proposal (headline shelf) instead, and added a new proposal so Next up is not empty",
+      "result": "Story landed text only"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-hearth-and-horizon-four-times-the-wait.md"
+  ],
+  "goal": null,
+  "notes": "Creative track, Hearth & Horizon, slug four-times-the-wait (5,363 words, text only: audio folders at 577 MB, over the 400 MB cap). Numbers in the closing note were computed in Python (Stokes speeds at 10 and 20 C, bottle-test sample times, tank fall times, weekdays for 2-7 March 2058, Easter 2058). Checks: node --test in the venture 19/19 pass; check_post_frontmatter ok after shortening seo_title; check_post_links 0 broken; post_similarity 0 pairs >= 0.25. New Next up proposal: Euler buckling of a 48.3x4 mm scaffold tube (numbers computed). No agent doc: nothing the next run needs beyond BIBLE.md.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "dab51619-0bb2-5c3e-9b25-cefec8779b7f",
+    "transcripts": 1,
+    "first": "2026-11-17T20:38:19Z",
+    "last": "2026-11-17T20:46:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 30,
+        "input": 58,
+        "output": 39106,
+        "thinking": 18467,
+        "cache_read": 2766255,
+        "cache_write_5m": 0,
+        "cache_write_1h": 100490,
+        "api_equivalent_usd": 2.1395,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 30,
+      "input": 58,
+      "output": 39106,
+      "thinking": 18467,
+      "cache_read": 2766255,
+      "cache_write_5m": 0,
+      "cache_write_1h": 100490,
+      "api_equivalent_usd": 2.1395,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.965,
+    "tool_calls": 31,
+    "tools": {
+      "Bash": 27,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.81,
+      "active_minutes": 7.81,
+      "model_minutes": 7.27,
+      "tool_minutes": 0.54,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a short-story writer researching and drafting a 5,400-word technical story with a worked numeric note",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 467.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

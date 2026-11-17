@@ -609,7 +609,34 @@ Open: the same class at 47 on 8 x 9 (41 on 7 x 9 closed, next sections) (3 spare
 a night, no group of order k), and the fully booked 49 on 8 x 9 (43 on 7 x 9 closed 2026-11-17 by
 `eval/odd-orbit.py`, the section after next).
 
-### 47 teams on 8 x 9: five more runs from 13 of 16, no climb (2026-11-17, latest)
+### 49 teams on 8 x 9: a turn-fixed night does not lay out, and two hours of four solvers (2026-11-17, latest)
+
+The open fully booked size, 49 teams on 8 courts x 9 slots, was estimated at about 11 hours for
+`eval/odd-orbit.py` on one core. This run tried to cut that and did not. Both results are negative,
+and both are written down so the next run skips them (`eval/odd-orbit-sym.txt`).
+
+- **A second symmetry: no layout on a fully booked night.** `eval/odd-orbit-sym.py` adds to the
+  orbit model that the night's set of pairs is also fixed by turning the three cycles (A to B to C to
+  A, same position). That commutes with g and moves every full orbit, so the solver picks one pair
+  per class of three orbits. The pairs alone always exist (`eval/odd-orbit-sym-pairs.py`, SAT at 13
+  and 19). With the layout, every fully booked size tried was UNSAT: 13 on 3 x 6 in 0.5 s, 19 on
+  3 x 9 in 82 s, and 25 on 4 x 9 gave no answer in 11 minutes against 141 s without the symmetry.
+  With a court to spare it is SAT (13 and 19 on 4 x 9; 7 on 3 x 6). Fixing only some kinds of orbit
+  (`--only`) was UNSAT at 13 or no faster at 19 (39 s against 34 s). 49 on 8 x 9 is fully booked, so
+  this is not a route there. Two other symmetries fail on paper: swapping A and B pointwise maps an
+  orbit onto itself with no fixed pair, and any turn whose cube is a power of g other than the
+  identity puts two pairs of one orbit in the night.
+- **The plain model with four solvers at once, two hours each: no answer.** CaDiCaL 1.9, CaDiCaL
+  1.5.3, MapleChrono, and CaDiCaL 1.9 with totalizer instead of sequential-counter cardinalities,
+  one per core, all stopped at 6,600 to 7,000 s. That fits the ~4x-a-size trend (43 on 7 x 9 took
+  9,849 s alone).
+
+What is left for 49: one run of `eval/odd-orbit.py 49 --courts 8 --times 9 --solver cd19` of about 11 hours
+on its own core (a session's background limit is 2 hours, so it needs a resumable or split search),
+or a model that fixes the window shapes and team positions first. The tool still builds 49 on 8 x 9
+with waits.
+
+### 47 teams on 8 x 9: five more runs from 13 of 16, no climb (2026-11-17, later)
 
 The next step the section below asked for, run as written plus one new setting: three resumes of
 `eval/odd-lns.py` from the stored 13-of-16 state, side by side on four cores, 6,000 s each, and

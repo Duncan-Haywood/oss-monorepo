@@ -1,0 +1,64 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtLgohrqjpzArmqCFqi",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T20:18:44Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "quality census (mode drawn by quality_audit.py mode), seed 2026-11-17-9f4b",
+  "projects": [
+    "ventures/youtube-chapters-check",
+    "research/society-cheapcue",
+    "research/hanger-print",
+    "research/tilt-twin",
+    "ventures/security-deposit-return-calculator",
+    "ventures/bike-shop-repair-profit-calculator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17049",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "The track prompt describes only a sample round and its round-N post; `sample` printed that today's mode is census, so the actual procedure came from portfolio/quality/README.md 'Five modes'. The prompt could say 'run `quality_audit.py mode` first'."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The stop hook asks to commit uncommitted changes while parallel auditors are mid-edit in the shared tree; committing their half-done files would have been wrong, so the hook fired three times with nothing to do."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Mode draw said census, not sample; followed the README's census procedure (census --n 6) and named the post for the census instead of quality-audit-round-74.",
+      "did": "census of six never-audited subjects",
+      "result": "six first audits, coverage 423 -> 429 subjects"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-quality-census-a-full-month-that-cost-more-than-rent.md"
+  ],
+  "goal": null,
+  "notes": "Seed 2026-11-17-9f4b (census). Subjects: ventures/youtube-chapters-check, research/society-cheapcue, research/hanger-print, research/tilt-twin, ventures/security-deposit-return-calculator, ventures/bike-shop-repair-profit-calculator. Share meeting the bar: 0 of 6 (census, not in sampled share; sampled share unchanged at 33 of 306). Finished 4 of 6. Seeded mutants caught 12 of 30. 48 defects, 5 high; 12 fixed in this PR (fix PR #17049), highs fixed: deposit proration (1850.08 for a full 31-day month at 1850), cheapcue welfare headline. Spot-checks rerun by the parent session: deposit proration old 1850.08 / 1014.56 vs new 1850 / 1014.52; bike break-even 533 and idle-labor profit 8148.11 by hand; youtube 01:00:00:00 at 29.97 NDF = 3603.6 s; tilt-twin independent quadrature 23.28 / 22.9 at 0.5 / 1.5 theta*; hanger STL min footprints 235.8..358.3 mm; cheapcue robot-robot decomposition 0.045 -> -0.135. Also edited research/README.md tilt-twin bullet (0% -> 2.8% coverage) and society-cheapcue project.json summary and lede. Local checks: quality_audit.py validate (454 files, 0 problems), research homepage build ok, check_md_links ok, check_post_frontmatter ok, each touched suite green (bike 30, deposit 68, youtube 32, tilt 10, hanger 12, cheapcue 7); run_workflow_locally --for-changes result recorded below.",
+  "corrections": [],
+  "redteam": null
+}

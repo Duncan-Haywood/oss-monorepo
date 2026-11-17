@@ -57,7 +57,7 @@ const DATE_RES = [
   /\b(\d{1,2} (?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?,? (?:\d{4}|\d{2}))(?!\d)/i,
 ];
 const TOTAL_RE = /\b(grand\s+total|total\s+(?:due|paid|charged|amount)|totaldue|amount\s+(?:due|paid|charged)|balance\s+due|order\s+total|grandtotal|gesamt(?:betrag)?|summe|totale|totaal|total|netto|jumlah|ukupno|razem|celkem|toplam|due|(?<=\bqty\W{0,3}\d{1,3}\W{0,3})amount|(?<!\b(?:tax|gst|vat|sst)\b.*)tl)\b/i;
-const NOT_TOTAL_RE = /accepted\s+total|total\s+tender|total\s+includ\w*\s+(?:gst|tax|vat)\s*@|total[^a-z]*(?:sales\s*)?\(?[^a-z]*(?:excl|before\s+(?:gst|tax))|total\s*-?\s*(?:gst|tax|vat)\b|total\s+includ(?:es|ed|ing)\b[^a-z]*\d*\s*%|(?:gst|tax|vat)\b[^a-z]*\d*\s*%?\s*includ(?:es|ed)?\s+in\s+(?:the\s+)?total|sub\s*-?total|zwischensumme|sous-total|total\s+(?:savings|disc\w*|items?|qty|aty|oty|qt|quantity|pcs|tax|points|sv|gv|ev|qu)\b|discount\s+total|total\s+(?:\w+\s+)?sav(?:ed|ings?)\b|total\s+sales\s+disc|total\s+includ\w*\b[^0-9]*\b(?:gst|tax|vat)\b[^0-9]*\bof\b|total\s+h\.?t\.?(?![a-z])|hors\s+tax|\bsin\s+(?:iva|impuestos)\b|\bsans\s+tva\b|\bohne\s+(?:mwst|ust)\b|tax\s*\/\s*fees?\s+total|total\s+(?:county|state|city|local)\s*tax|\bnetto\b[^a-z\d]*(?:\(\d\)\s*)?(?:eur\b|€)?[^a-z\d]*\d+,\d{2}(?!\d)|\d\s*%\s*netto|\bch\s+ange\b|tax\s+total|before\s+tax|tip\b|change\b|cash\b|kemba/i;
+const NOT_TOTAL_RE = /accepted\s+total|total\s+tender|total\s+includ\w*\s+(?:gst|tax|vat)\s*@|total[^a-z]*(?:sales\s*)?\(?[^a-z]*(?:excl|before\s+(?:gst|tax))|total\s*-?\s*(?:gst|tax|vat)\b|total\s+includ(?:es|ed|ing)\b[^a-z]*\d*\s*%|(?:gst|tax|vat)\b[^a-z]*\d*\s*%?\s*includ(?:es|ed)?\s+in\s+(?:the\s+)?total|sub\s*-?total|zwischensumme|sous-total|total\s+(?:savings|disc\w*|items?|qty|aty|oty|qt|quantity|pcs|tax|points|sv|gv|ev|qu)\b|discount\s+total|total\s+(?:\w+\s+)?sav(?:ed|in[g9]s?)\b|(?:gst|tax|vat)\b[^a-z]*\binc\w*ded\s+in\s+(?:the\s+)?total|total\s+sales\s+disc|total\s+includ\w*\b[^0-9]*\b(?:gst|tax|vat)\b[^0-9]*\bof\b|total\s+h\.?t\.?(?:v\.?a\.?)?(?![a-z])|hors\s+tax|\bsin\s+(?:iva|impuestos)\b|\bsans\s+tva\b|\bohne\s+(?:mwst|ust)\b|tax\s*\/\s*fees?\s+total|total\s+(?:county|state|city|local)\s*tax|\bnetto\b[^a-z\d]*(?:\(\d\)\s*)?(?:eur\b|€)?[^a-z\d]*\d+,\d{2}(?!\d)|\d\s*%\s*netto|\bch\s+ange\b|tax\s+total|before\s+tax|tip\b|change\b|cash\b|kemba/i;
 const FUZZY_TOTAL_RE = /^\W*(?:grand\s*)?t[aeo]t[aeo]?[ail1](?![a-z])/i;
 const TAX_RE = /\b(sales\s+tax|tax|vat|gst|hst|pst|tva|mwst|iva|btw|ppn|pb\s*1|pajak|p\.\s*rest(?:o|oran)?)\b/i;
 // "Tax Total" is the tax, not the total; "Dasar Pengenaan Pajak" (DPP) is the taxable base
@@ -335,8 +335,13 @@ export function splitDecimal(line) {
 // that several OCR readings of one photo can check a tax against them.
 // "PB1" (Indonesia's restaurant tax) as OCR prints it on a photo: "PBI", "PBl", "PB]", "PB!";
 // "P Resto", "P-Resto" with the dot lost (CORD photos, eval/cord-photos-four-pass-2026-11-16.md)
-const TAX_LINE_RE = /\b(?:(?:sales\s+t[ae]x|tax(?:es)?|t[ae]x|vat|gst|hst|pst|tva|mwst|iva|btw|ppn|pb\s*1|pajak|p[.\s-]\s*rest(?:o|oran)?|txtl|get)\b|pb\s*[il\]!|](?![\w])|(?<![a-z])(?:tax|vat|gst|hst|pst|mwst|iva|btw)(?=\d)|(?:sales|total|govt)\s*(?:tax|gst|vat)\b)/i;
+// WildReceipt train shard 1 (eval/wildreceipt-train1-2026-11-17.md): Target's state tax
+// line glued to its two-letter code ("T=CTTAX 6.3500%on $117.15 $7.44", "T=NJTAX7.0000%",
+// "=C0TAX2.9000%"), French "TVA8%", the Canary Islands' "IGIC7%", a rate's digits before the
+// word ("20.600TAX 0.98", "7GST") and "TAXAMT".
+const TAX_LINE_RE = /\b(?:(?:sales\s+t[ae]x|tax(?:es)?|t[ae]x|vat|gst|hst|pst|tva|mwst|iva|btw|ppn|pb\s*1|pajak|p[.\s-]\s*rest(?:o|oran)?|txtl|get)\b|pb\s*[il\]!|](?![\w])|(?<![a-z])(?:tax|vat|gst|hst|pst|mwst|iva|btw|tva|igic)(?=\d)|(?:sales|total|govt)\s*(?:tax|gst|vat)\b|\bigic\b|(?<![a-z])[a-z][a-z0]tax(?=\s*\d)|(?<=\d)(?:tax|gst|vat)\b|\btax(?:i?amt|amount)\b)/i;
 const NOT_TAX_LINE_RE = /taxable|w\/\s*tax|with\s+tax|excl|before\s+(?:gst|tax)|(?:tax|gst|vat)\s*(?:id\b|invoice|no\b|reg|#)|sub\s*-?\s*total|\bsbt|summary|dasar\s+pengenaan|\bdpp\b/i;
+const HT_SUB_RE = /total\s+h\.?t\.?(?:v\.?a\.?)?(?![a-z])|\bhtva\b(?![^\d]*\btva\b)|hors\s+tax/i;
 const PCT_RE = /\(?\d{1,2}(?:[.,]\d{1,4})?\s*%\)?/g;
 const SUB_RE = /sub\s*[-.]?\s*total|\bsbtl?\b|\bsubttl\b|\bsub\s*\/\s*tt\s*[l1i\]|]|before\s+(?:gst|tax)|\bnet\b/i;
 // "Tax" with its first letter misread by OCR on a receipt photo: "[ax 0.30", "fax 1: 1.36",
@@ -403,21 +408,71 @@ function looseTax(lines, cents, subtotals) {
   return null;
 }
 
+// "TOTAL INCLUDES GST OF 0.26", "Totalincludes GSTof: $7.68", "GST INCLUDED IN TOTAL $1.37":
+// the amount is the tax inside the total (NOT_TOTAL_RE keeps them from being the total).
+const INCLUDED_TAX_RE = /total\s*includ\w*\s*(?:gst|tax|vat)\s*of\b|(?:gst|tax|vat)\s*includ\w*\s*in\s*(?:the\s*)?total/i;
+// A tax table row: net, tax and gross with net + tax = gross and the tax under half the net,
+// on a line with a tax word or under a header of tax words with no amount of its own
+// ("Net.Amt VAT Amount", "CODE HTVA TVA TTC", "[V.A.T Analysis]").
+function taxColumn(l, prev, comma) {
+  if (comma === "whole") return null;
+  const taxWord = (x) => TAX_LINE_RE.test(x) && !/taxable|(?:tax|gst|vat)\s*(?:id\b|invoice|no\b|reg|#)/i.test(x);
+  // "HT TIC TUA": a French net / gross / tax header with TVA (and TTC) bent by OCR
+  const bentTva = (x) => /\bt[uv]a\b/i.test(x) && /\bht\b/i.test(x) && /\bt[it1l]c\b/i.test(x);
+  const header = (x) => (taxWord(x) || /\bv\.a\.t\b/i.test(x) || bentTva(x)) && !/\d/.test(x);
+  if (!taxWord(l) && !header(prev)) return null;
+  if (/sub\s*-?\s*total|change|cash|tip/i.test(l)) return null;
+  let a = amountsIn(l.replace(PCT_RE, " "), comma);
+  // a row OCR read in both decimal styles ("LOCAL 412.50 20% 495,00"): every two-decimal
+  // amount in order, either mark
+  const mixed = [...l.replace(PCT_RE, " ").matchAll(/(?<![\d.,])(\d{1,6})[.,](\d{2})(?![\d]|[.,]\d)/g)].map((m) => Number(m[1]) * 100 + Number(m[2]));
+  if (/\d\.\d{2}(?!\d)/.test(l) && /\d,\d{2}(?!\d)/.test(l) && mixed.length > a.length) a = mixed;
+  // net, rate and gross with the tax amount lost ("34.17 20.00% 41.00" under "Sales-VAT VAT
+  // Rate VAT Amt Total"): the gross less the net, when the net at that rate makes it
+  const rate = l.match(/(\d{1,2}(?:[.,]\d{1,2})?)\s*%/);
+  if (a.length === 2 && rate) {
+    const [n, g] = a, r = Number(rate[1].replace(",", ".")) / 100;
+    return r > 0 && r <= 0.3 && n > 0 && g > n && Math.abs(Math.round(n * r) - (g - n)) <= 1 ? g - n : null;
+  }
+  if (a.length < 3) return null;
+  const [n, t, g] = a.slice(-3);
+  return n > 0 && t > 0 && n + t === g && t * 2 < n ? t : null;
+}
+
 export function readTax(lines, comma, cents) {
   const amt = (l) => { const a = amountsIn(l, comma); return a.length ? a[a.length - 1] : null; };
   const cands = [], subtotals = [];
   let note = null;
-  lines.forEach((l) => {
+  lines.forEach((l, i) => {
+    // "Subtotal(12%VAT) Php32.14" (Philippine VAT): the line's amount is the VAT inside the
+    // total when the total split at that rate gives it; the subtotal is the rest
+    const inSub = SUB_RE.test(l) && cents ? l.match(/(\d{1,2}(?:\.\d{1,2})?)\s*%\s*(?:vat|gst|tax)\b/i) : null;
+    if (inSub) {
+      const v = amt(l.replace(PCT_RE, " ")), r = Number(inSub[1]) / 100;
+      if (v !== null && v > 0 && r > 0 && r <= 0.3 && Math.abs(Math.round(cents * r / (1 + r)) - v) <= 1) {
+        subtotals.push(cents - v);
+        cands.push({ v, total: false, lost: null, line: l });
+        return;
+      }
+    }
     if (SUB_RE.test(l) && !/w\/\s*tax|with\s+tax/i.test(l) && !TOTAL_RE.test(l.replace(/sub\s*-?\s*total/i, ""))) { const v = amt(l); if (v !== null && v > 0) subtotals.push(v); }
-    if (!TAX_LINE_RE.test(l) || NOT_TAX_LINE_RE.test(l)) return;
-    if (TOTAL_RE.test(l) && !TAX_TOTAL_RE.test(l) && !/total\s+taxes/i.test(l)) return;
+    // "Total HTVA 69.06", "Total HT 41.67": the French net before tax is a subtotal
+    else if (HT_SUB_RE.test(l)) { const v = amt(l); if (v !== null && v > 0) subtotals.push(v); }
+    // a net / tax / gross row ("VATABL 566.96 68.04 635.00", "A21,00% 5,45 1,15 6,60" under
+    // "CODE HTVA TVA TTC"): the middle amount is the tax when the first two make the third
+    const col = taxColumn(l, lines[i - 1] ?? "", comma);
+    if (col !== null && (cents === null || col < cents)) { cands.push({ v: col, total: /total/i.test(l), lost: null, line: l }); return; }
+    const included = INCLUDED_TAX_RE.test(l);
+    if ((!TAX_LINE_RE.test(l) && !included) || NOT_TAX_LINE_RE.test(l)) return;
+    if (TOTAL_RE.test(l) && !TAX_TOTAL_RE.test(l) && !/total\s+taxes/i.test(l) && !included) return;
     const bare = l.replace(PCT_RE, " ");
     let v = amt(bare), lost = null;
     if (v === null && comma === false) {
       const m = bare.match(/(?<![\d.,:])(\d{1,3})\s?[,:]\s?(\d{2})(?![\d:])[^\d]*$/) ?? bare.match(/(?<![\d.,])\.(\d{2})(?!\d)[^\d]*$/);
       if (m) { v = m.length === 3 ? Number(m[1]) * 100 + Number(m[2]) : Number(m[1]); lost = m[0].trim(); }
     }
-    if (v === null || (cents !== null && v >= cents)) return;
+    // a tax of 0.00 on a receipt whose total is 0.00 (a voided or free slip) is still the tax
+    if (v === null || (cents !== null && v >= cents && !(v === 0 && cents === 0))) return;
     // on a whole-unit slip a tax under 1% of the total is digits OCR lost ("TAX 5.45" on a
     // 172,000 receipt is 15,455) or noise (a stray "3"); a yen receipt's "Tax ¥22" on ¥300 stays
     if (comma === "whole" && v > 0 && cents !== null && v * 100 < cents) return;

@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVKjf7QG9QJQhK5FurX",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo ... merge when done)",
+  "input_sha256": "3f292b268e63b0d72b6982886f7530a713ccb708bab3de8d9cc166b1c9e89c6c",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T19:16:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "einvoice-preflight: cross-check PINT and ZATCA rule sets against SaxonC-HE (flagship 5 buildable item)",
+  "projects": [
+    "ventures/einvoice-preflight"
+  ],
+  "pr": 17033,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "einvoice-preflight's buildable said PINT/ZATCA need SchXslt to compile their .sch; they are XSLT already (from the phive jars), so SaxonC runs them directly. Rewritten."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "The allocator sent this run to open-tennis-robots (row 6). Its buildable item is a further simulated-noise reduction in wheel-speed firmware (0.57% spin error, already near the jitter floor), and three earlier runs left it for the brief's revenue focus; einvoice-preflight (row 3, B2B compliance) had a buildable item no open PR held.",
+      "did": "took einvoice-preflight's PINT/ZATCA Saxon cross-check",
+      "result": "found and fixed 18 Oman PINT rules that never ran; PINT/ZATCA rule ids match SaxonC bar one label"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-eighteen-oman-e-invoice-rules-that-never-ran.md",
+    "ventures/einvoice-preflight/eval/pint-zatca-whitespace-2026-11-17.md"
+  ],
+  "goal": "deepen flagship 5 (einvoice-preflight)",
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py einvoice-preflight -> ok (2699 tests, 16 skipped needing build-schematron.mjs). node --test plain-prolog.test.mjs xmlvalues.test.mjs -> 13 pass; python -m unittest tests.test_xml_values -> OK. Cross-check: 182 phive test files (phax/phive-rules 80cf1e5), 2268 mutants, SaxonC-HE 13.1: rule ids differ on 80 copies with rules as shipped (76 Oman), 4 after (BR-NG-08-GST-SG label). Rebuilt plain rules with build-pint-rules.mjs and build-zatca-rules.mjs from the Maven jars: only pint1-om-jur-ubl.json and pint1-om-sb-jur-ubl.json changed. open-tennis-robots row was left as is (its buildable is genuinely buildable; it was a priority call, not a blocker).",
+  "corrections": [],
+  "redteam": null
+}
