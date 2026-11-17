@@ -7,17 +7,19 @@
   "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T05:06:28Z",
   "ended": "2026-11-17T05:07:03Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 9.76,
+  "tokens_in": 3197065,
+  "tokens_out": 14090,
+  "cost_usd": 1.4976,
+  "tool_calls": 39,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16826",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +28,25 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
-  "errors": [],
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First post draft failed the front-matter check (description 166 > 160 chars, tag 'red-team' vs the established 'redteam'); caught by run_workflow_locally --for-changes, fixed before merge."
+    }
+  ],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 lists 10 open entries, all control-plane fixes awaiting owner approval; a run cannot act on any of them, so reading the list costs time each run without effect. A filter (redteam.py open --actionable) that hides control-plane entries would help."
+    }
+  ],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-11-17-a-capacity-of-three-hundred-million.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Target ventures/stable-matching/engine.mjs (landed today, #16814). Campaign 10 mutants: 7 caught; 2 equivalent (Uint8Array truthy flag 1->2; loop bound reading past typed-array end), 1 gap (checkStability j>=0 -> j>=1) guarded by a new test, caught_after_fix true. Real defects: huge capacity seat expansion (300M -> 'Invalid array length', 20M -> 12.7 s/700 MB) fixed by clamping seats to min(cap, list length), differential vs old engine on 3000 random instances: 0 mismatches; identical side labels clobbering pair objects, now rejected. Searched for the same seat-expansion pattern: only tutoring-group-schedule-optimizer matched the grep and uses flow edge capacities, not expansion. Step 4b: no new automated guard this run (the defect class, user-typed sizes driving allocations, does not reduce to a cheap lint without many false positives). Local checks: run_workflow_locally --for-changes, all failures traced to the post front matter and the unfilled record, rerun after fixes.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -199,6 +212,81 @@
         "issue": "Two sides with the same [header] label (e.g. [s] and [s]) built pair/blocking objects as {[A.label]:..., [B.label]:...}, so the programme overwrote the applicant and the page's blocking-pair table showed 'c + c'. Fixed: parseInstance rejects identical labels with a clear error; test 'two sides with the same header label are told apart'.",
         "patched": true
       }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d8fda904-a9e3-50ba-b53d-81f51718b113",
+    "transcripts": 1,
+    "first": "2026-11-17T05:06:28Z",
+    "last": "2026-11-17T05:16:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 85,
+        "output": 14090,
+        "thinking": 2762,
+        "cache_read": 3123127,
+        "cache_write_5m": 0,
+        "cache_write_1h": 73853,
+        "api_equivalent_usd": 1.4976,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 85,
+      "output": 14090,
+      "thinking": 2762,
+      "cache_read": 3123127,
+      "cache_write_5m": 0,
+      "cache_write_1h": 73853,
+      "api_equivalent_usd": 1.4976,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 35,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.76,
+      "active_minutes": 6.27,
+      "model_minutes": 3.26,
+      "tool_minutes": 3.01,
+      "waiting_on_human_minutes": 3.49,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "senior engineer: mutation triage, two boundary bugs with tests and a differential check, short post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 267.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
     ]
   }
 }

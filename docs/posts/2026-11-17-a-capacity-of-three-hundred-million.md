@@ -2,8 +2,8 @@
 title: "A capacity of three hundred million: red-teaming a stable matching tool"
 seo_title: "Stable matching tool red team: seat expansion and huge capacities"
 date: 2026-11-17
-tags: [red-team, stable-matching, testing, mutation-testing]
-description: "Ten seeded faults and an attacker's read of the new stable matching tool found two real bugs: a typed capacity that crashed the page and two sides with the same name."
+tags: [redteam, stable-matching, testing, mutation-testing]
+description: "Ten seeded faults and an attacker's read of the new stable matching tool found two real bugs: a typed capacity that froze the page and same-named sides."
 ---
 
 The [stable matching tool](https://marisstella.app/stable-matching/) landed
