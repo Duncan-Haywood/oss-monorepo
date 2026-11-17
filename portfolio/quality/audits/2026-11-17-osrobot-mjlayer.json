@@ -1,0 +1,201 @@
+{
+ "date": "2026-11-17",
+ "subject": "research/osrobot-mjlayer",
+ "stratum": "research",
+ "seed": "2026-11-17-e4eb",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a soft-tissue contact biomechanics engineer (indentation of bonded soft layers, AFM/clinical indentation; Hayes 1972, Dimitriadis 2002, Garcia 2018, Long 2011) who also knows collaborative-robot contact limits (ISO/TS 15066 Annex A); first checks: are the bottom-effect coefficients transcribed and applied with the right chi, is the model used inside its validated chi and delta/R range, is a large-strain/large-indentation correction needed at 30 % strain, and do the input trial forces still stand",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran `python3 experiments/run.py` in a scratch copy: results.txt byte-identical to the committed one. Independent script (does not import run.py): `python3 -I /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/mjlayer/indep.py`. (1) Derived the bonded nu=0.5 coefficients from Dimitriadis et al. 2002's general alpha0/beta0 expressions: 1.1329, 1.2834, 0.7695, -0.0975, matching run.py's DIMITRIADIS incl. the negative 4th term; Garcia (1.133, 1.497, 1.469, 0.755) matches Dal Fabbro et al. arXiv 2406.17157 eq. 12a in the PDF text (pdftotext of the downloaded PDF), eq. 9a also matches. (2) Budget R=4 mm, E=4 kPa, h=5 mm by hand formula: 0.0509 N vs results.txt 0.05. (3) Depth at 53.3 N, R=4, E=10, h=15 by my own Newton solver: 52.75/45.86 mm vs 52.7/45.9. (4) Sweep ranges: trial/budget ratio 1.34..1047 (README 1.3 to 1000), max Garcia-Dimitriadis gap 38.9% (README about 40%), depth>h in 160 of 216 model-force cells (README 'most cells'). Arithmetic and transcription right. Not 4: the model is evaluated far outside its validated range (see domain) and the trial forces it compares against are stale upstream numbers.",
+  "completeness": "README claims checked: 6 tests (`python3 -m unittest discover -s tests`: Ran 6 tests, OK); run.py writes results.txt (reproduced identically); figure.py writes budget.svg (reproduced byte-identically after providing research/_shared/linefig.py beside the scratch copy); live page https://marisstella.app/research/osrobot-mjlayer/ returns 200. Next-step item (compliant-face MuJoCo run) was taken up by research/osrobot-mjsoft. Nothing claimed as done is missing; no TODOs.",
+  "verification": "`cd research/osrobot-mjlayer && python3 -m unittest discover -s tests`: 6 pass in 0.001 s. Four seeded mutants via quality_mutate.py: Dimitriadis 4th coefficient sign flipped SURVIVED; 30% depth limit 0.3 -> 0.1 SURVIVED (headline budget cut ~5x, every test green); Garcia 4th coefficient 0.755 -> 7.55 SURVIVED; Hertz prefactor (1-nu^2) -> (1-nu) CAUGHT. Tests check only qualitative properties (monotonicity, Hertz limit, self-inversion); none pins a single published number or a results.txt value, and the trial-force test hard-codes 53.3 > 5x budget, a margin so loose that most bugs keep it true.",
+  "craft": "Read experiments/run.py (65 lines), figure.py, tests/test_layer.py. Small, clear, stdlib, constants commented with sources, functions pure. Minor: depth() returns inf silently above 10 h (documented in the header line); figure.py plots only the Dimitriadis model though the text reports both; figure.py depends on research/_shared/linefig.py via a sys.path insert (fine in-repo). A senior Python reviewer would accept it.",
+  "claims": "Backed: headline ranges (0.05-9.4 N, 1.3-1000x, ~40%% agreement, ~3x from tip size) all reproduce from results.txt and my script; coefficient sources match the cited PDF; 'not a safety case' and AI-assistance disclosure present. Not backed: Limitations line 38 says 'the budget (chi ~ 0.3 to 0.6) is inside the range the source studies' - the budget cells span chi = 0.245..0.949, and the cited source validates the corrections by FEA only for 0 < chi < 0.4 (Dal Fabbro et al. sec. 4.1.3) and Hertz/LIC up to delta/R = 1, while 21 of 36 budget cells have chi > 0.4 and 6 have delta/R > 1. The trial forces 12.6/20.2/53.3 N and 'kinematic lips have stiffness 75,000 N/m' (README:14) come from osrobot-mjpress, which reuses the osrobot-mjface model that carries a 2026-11-13 correction (solref units: face is 22,500 N/m, worst peak at b=1000 ~204 N); this README does not mention it. The headline range '0.05 to 9.4 N' mixes the Dimitriadis minimum with the Garcia maximum without saying so (minor).",
+  "fitness": "A researcher can build on it and one did (osrobot-mjsoft takes its next step). But as research it is one closed-form evaluation of two published AFM bottom-effect polynomials on a 36-cell grid; no FE check, no large-indentation correction, no nonlinear material, not part of any programme in research/PROGRAMMES.md, so it sits well below the PhD/programme bar in research/CLAUDE.md. Nearest prior work: Dimitriadis et al. 2002 and Garcia & Garcia 2018 (the corrections), Dal Fabbro et al. 2024 (FEA validation, used), Long et al. 2011 (neo-Hookean thin-layer indentation at large strain, not cited), ISO/TS 15066 Annex A and the Mainz pain-onset study behind it (Melia et al. 2015), and robot-assisted feeding work (e.g. Gallenberger et al. 2019; Bhattacharjee et al. 2020) for practical bite-transfer force levels, none compared. The qualitative conclusion (newton-scale cap) is sound and robust; the method is not new.",
+  "domain": "Against contact-mechanics practice: the polynomials are used for a sphere at delta/R up to 1.5 without the large-indentation (Kontomaris/Muller) or Sneddon correction that the cited source itself says is needed as delta/R approaches 1; at chi up to 0.95, more than twice the FEA-validated 0.4; with linear elasticity at 30 %% compressive strain where hyperelastic stiffening (Long et al. 2011) matters; and with a flat bonded rigid substrate for a lip that has teeth and an air cavity behind it. The 30 %% depth limit is the author's choice and is not an injury or pain criterion; an ISO/TS 15066 practitioner would ask for pressure/pain thresholds instead. Limits are stated, but the range claim is wrong, so the method is not one a reviewer would sign off as-is."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Dimitriadis bonded nu=0.5 coefficients incl. 4th-order sign",
+   "method": "derived from Dimitriadis et al. 2002 general alpha0/beta0 expressions; and Dal Fabbro et al. arXiv 2406.17157 eq. 9a read from the PDF",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/mjlayer/indep.py",
+   "expected": "1.1329, 1.2834, 0.7695, -0.0975 (derived); eq 9a 1.133, 1.283, 0.769, -0.0975",
+   "observed": "run.py DIMITRIADIS = (1.133, 1.283, 0.769, -0.0975)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Garcia bonded coefficients",
+   "method": "Dal Fabbro et al. eq. 12a, pdftotext of arXiv 2406.17157",
+   "command": "curl -o p.pdf https://arxiv.org/pdf/2406.17157 && pdftotext -layout p.pdf - | grep 1.497",
+   "expected": "1 + 1.133chi + 1.497chi^2 + 1.469chi^3 + 0.755chi^4",
+   "observed": "run.py GARCIA = (1.133, 1.497, 1.469, 0.755)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Force budget R=4 mm, E=4 kPa, h=5 mm (Dimitriadis)",
+   "method": "own implementation of F = 16/9 E sqrt(R) d^1.5 * poly(chi) at d = 0.3h",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/mjlayer/indep.py",
+   "expected": "0.0509 N",
+   "observed": "results.txt '4 4 5 0.05 0.06'",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Depth at 53.3 N, R=4 mm, E=10 kPa, h=15 mm",
+   "method": "own Newton solver, independent of run.py's bisection",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/mjlayer/indep.py",
+   "expected": "52.75 / 45.86 mm",
+   "observed": "results.txt '4 10 15 53.30 52.7 45.9'",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Sweep summary: trial/budget ratio range, model gap, depth>h count",
+   "method": "own sweep over the 36 budget and 108 depth cells",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/mjlayer/indep.py",
+   "expected": "ratio 1.34..1047, gap 38.9%, depth>h 160/216",
+   "observed": "README: 1.3 to 1000 times, about 40 %, 'in most cells'",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "run.py and figure.py reproduce committed outputs",
+   "method": "scratch copy, diff against committed files",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/mjlayer/copy && python3 experiments/run.py && diff experiments/results.txt <committed>; python3 experiments/figure.py && diff -q experiments/budget.svg <committed>",
+   "expected": "identical",
+   "observed": "identical (SAME, SVGSAME)",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "cd research/osrobot-mjlayer && python3 -m unittest discover -s tests",
+   "expected": "6 tests pass",
+   "observed": "Ran 6 tests, OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:38 'the budget (chi ~ 0.3 to 0.6) is inside the range the source studies'",
+   "method": "chi = sqrt(0.3 R/h) over the grid vs Dal Fabbro et al. sec 4.1.3 (FEA validated 0 < chi < 0.4) and sec 4.1.2 (delta/R up to 1)",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/mjlayer/indep.py",
+   "expected": "budget chi within the source's range",
+   "observed": "chi 0.245..0.949, 21/36 cells chi > 0.4, delta/R 0.10..1.50 with 6/36 > 1",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Trial forces 12.6/20.2/53.3 N and 'kinematic lips 75,000 N/m' (README:11,14)",
+   "method": "compared with the 2026-11-13 correction in research/osrobot-mjface/README.md (solref units; face is 22,500 N/m; worst b=1000 peak ~204 N), which osrobot-mjpress reuses",
+   "command": "sed -n 5,8p research/osrobot-mjface/README.md; grep -n 75,000 research/osrobot-mjpress/README.md",
+   "expected": "inputs current or the correction noted",
+   "observed": "no mention; numbers predate the correction",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Live page and disclaimers",
+   "method": "HTTP GET; README text",
+   "command": "curl -o /dev/null -w '%{http_code}' https://marisstella.app/research/osrobot-mjlayer/",
+   "expected": "200, 'not a safety case', AI-assistance note",
+   "observed": "200; both present",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Large-indentation regime at the budget",
+   "method": "Dal Fabbro et al. sec 2.2-2.3: Hertz needs delta << R, LIC needed toward delta/R = 1",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/mjlayer/indep.py",
+   "expected": "delta/R << 1 or an LIC applied",
+   "observed": "delta/R up to 1.5, no LIC",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "experiments/run.py:14",
+   "change": "0.769, -0.0975 -> 0.769, 0.0975",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "experiments/run.py:21",
+   "change": "D_OVER_H_MAX = 0.3 -> D_OVER_H_MAX = 0.1",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "experiments/run.py:15",
+   "change": "GARCIA = (1.133, 1.497, 1.469, 0.755) -> GARCIA = (1.133, 1.497, 1.469, 7.55)",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "experiments/run.py:30",
+   "change": "(3 * (1 - nu * nu)) -> (3 * (1 - nu))",
+   "caught": true,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "README says the budget (chi ~ 0.3 to 0.6) is inside the range the source studies; the grid's budget cells span chi 0.245 to 0.949 and the cited source validates the corrections only for chi < 0.4 (21 of 36 cells beyond), with delta/R up to 1.5 (6 cells beyond the source's delta/R = 1).",
+   "where": "research/osrobot-mjlayer/README.md:38",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "No large-indentation correction (Kontomaris/Muller) or Sneddon sphere model although delta/R reaches 1.5 at the budget; the cited paper says Hertz needs delta << R and pairs the bottom-effect correction with an LIC for large indentation. Linear elasticity at 30 % strain, no hyperelastic check (Long et al. 2011).",
+   "where": "research/osrobot-mjlayer/experiments/run.py:28",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Trial forces (53.3/20.2/12.6 N) and the 75,000 N/m lip stiffness come from osrobot-mjpress, built on the osrobot-mjface model whose 2026-11-13 correction (MuJoCo solref read per kg: face 22,500 N/m, worst b=1000 peak ~204 N) changes them; this README does not note it. The conclusion's direction survives (forces exceed the budget by more), the ratios do not.",
+   "where": "research/osrobot-mjlayer/README.md:11",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests pin no number: sign flip of a coefficient, a 10x Garcia coefficient and a 3x change in the 30 % depth limit all leave the 6 tests green; no test compares to a published coefficient set or to results.txt.",
+   "where": "research/osrobot-mjlayer/tests/test_layer.py:27",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Headline range '0.05 to 9.4 N' takes the minimum from Dimitriadis and the maximum from Garcia without saying so (Dimitriadis max is 8.67 N).",
+   "where": "research/osrobot-mjlayer/README.md:10",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Single closed-form evaluation outside any research programme; no FE cross-check, prior work on large-strain thin-layer indentation and on feeding-robot contact forces not compared; below the research/CLAUDE.md PhD/programme bar.",
+   "where": "research/osrobot-mjlayer/README.md:1",
+   "category": "research-design",
+   "origin": "design"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A genuine but small research note, not a stub: two published bottom-effect polynomials for a sphere on a bonded incompressible layer, evaluated on a 36-cell grid to give a 'force budget' at 30 % depth. Every number reproduces, the coefficients match the cited PDF and an independent derivation from Dimitriadis 2002, and the qualitative message (a newton-scale force cap, not 65 N) is robust. It misses the bar on verification (3 of 4 seeded mutants survive; no test pins a number) and claims: the README states the budget sits inside the source's validated range when most cells (chi up to 0.95, delta/R up to 1.5) are beyond it, and the upstream trial forces it compares against predate the osrobot-mjface solref correction. A contact-mechanics reviewer would also ask for a large-indentation correction and a hyperelastic or FE check. Median 2; finished (completeness 3) but not expert-grade."
+}
