@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVPnFF8mHPfsoBogdNN",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T03:05:09Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ids-model-check: GitHub Action, JUnit and CI annotations (flagship 12 item 'a GitHub Action wrapper')",
+  "projects": [
+    "ventures/ids-model-check"
+  ],
+  "pr": 16789,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 13,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "issue": "Flagship rows whose remaining items are all solver tuning (shift-roster-builder) are still marked Deepen; allocate.py has no signal for diminishing returns."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "The allocator's pick, shift-roster-builder, offered only solver-tuning micro-items or items needing accounts on hosts the proxy blocks (developer.deputy.com, api.getsling.com answered 403); took ids-model-check's buildable GitHub Action item instead, a distribution feature for a B2B niche.",
+      "did": "Built action.yml + ci-cli.mjs + ci.mjs",
+      "result": "Landed with 13 tests and a real-model eval"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-ids-check-on-every-commit-github-action.md",
+    "ventures/ids-model-check/eval/ci-action-2026-11-17.md"
+  ],
+  "goal": null,
+  "notes": "Checks run here: python3 platform/ci/run_venture_tests.py ids-model-check -> ok (105 tests, 1 pre-existing skip needing fetched test cases). Real-model eval: 4 opensourceBIM exports (76 MB) x 2 starter IDS, 8 pairs in 7.3-7.7 s, 9 of 9 line-numbered annotations on the element's own line, JUnit valid per xmllint. The composite step's bash was run under bash -e with runner env vars; not yet on a GitHub-hosted runner. Real files caught 4 bugs (500-cap count, symlinks skipped, line numbers on zips, brace commas), all fixed and tested. node platform/pages/venture-preflight.mjs ids-model-check: see PR.",
+  "corrections": [],
+  "redteam": null
+}
