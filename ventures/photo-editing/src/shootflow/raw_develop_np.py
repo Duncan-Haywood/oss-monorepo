@@ -275,8 +275,19 @@ def _noise_aware_plane(plane, pat, hi, plane_noise):
 
         d = directional(plane, pat, scale=hi)
     b = np.empty((h, w, 3), dtype=np.float64)
-    _bilinear(plane, w, h, pat, (1.0, 1.0, 1.0), 1e9, None, None, None, None, sink=b, threads=1)
-    return _clip(noise_aware(plane, pat, bilinear=b, directional_out=d, noise=plane_noise), hi)
+    # Bands on every thread (``_run_bands``: no byte changes with the count); the blend is written over the
+    # bilinear image band by band and clipped in place, so no further full-frame (h, w, 3) array is made
+    # (eval/noise-aware-full-frame-cost-2026-11-17.md).
+    _bilinear(plane, w, h, pat, (1.0, 1.0, 1.0), 1e9, None, None, None, None, sink=b)
+    out = noise_aware(plane, pat, bilinear=b, directional_out=d, noise=plane_noise, out=b)
+    del d
+
+    def clip(y0, y1):
+        o = out[y0:y1]
+        o[...] = _clip(o, hi)
+
+    _run_bands(clip, h)
+    return out
 
 
 def _directional(norm, w, h, pat, mults, hi, demosaic="directional", noise=None, notes=None, guard=True):
@@ -286,8 +297,7 @@ def _directional(norm, w, h, pat, mults, hi, demosaic="directional", noise=None,
 
     from shootflow.xtrans_demosaic import colour_map
 
-    gains = np.asarray(mults, dtype=np.float64)[colour_map(pat, h, w)]
-    plane = np.asarray(norm).reshape(h, w) * gains
+    plane = np.asarray(norm).reshape(h, w) * np.asarray(mults, dtype=np.float64)[colour_map(pat, h, w)]
     if demosaic == "noise-aware":
         # The directional result blended toward bilinear block by block where it adds less detail than the
         # sensor's own noise (``noise``: (shot, read) on the 0..1 normalised scale, a DNG NoiseProfile;

@@ -1464,9 +1464,17 @@ the noise from the frame** (`--no-noise-from-frame` gives the old fallback to di
 real frames from the public sample set: all 52 files without a profile that develop (ARW, CR2, NEF, ORF, RW2,
 SRW, RAF, PEF and DNG; four Bayer phases and two X-Trans) took the frame-read model, and the one DNG with a
 profile kept it. With no truth on those frames the check is behavioural: at ISO 50-200 the blend moves a median
-1.5% of pixel values (PSNR 58 dB against directional), at ISO 800-6400 a median 23% (48 dB). It costs about
+1.5% of pixel values (PSNR 58 dB against directional), at ISO 800-6400 a median 23% (48 dB). It cost about
 0.5 s per megapixel and up to 6.4 GB on a 36 MP frame, which is why the default demosaic (`auto`) stays
 directional. `tools/noise_fallback_real.py`, `eval/noise-fallback-real-2026-11-17.md`.
+
+**Since late on 2026-11-17 it costs a third of that, with the same output bytes.** The guard's residual, the
+per-block detail, the blend and the final clip run in bands of rows on every core instead of as whole-frame
+float64 arrays, and the blend writes over the bilinear image. On the 14 largest public sample raws (12-36 MP,
+Bayer and X-Trans) the noise-aware develop is a median 2.2x faster (1.7-2.8x), its extra time over directional
+fell from 0.49 to 0.16 s per megapixel (8.6 s in all on a 36 MP D810, was 21.6 s), and the memory it adds fell
+41% (2.9 GB on the D810, was 5.1 GB). All 14 outputs are byte-identical to before. `auto` still picks
+directional. `tools/noise_aware_cost.py`, `eval/noise-aware-full-frame-cost-2026-11-17.md`.
 
 **A higher scale was tried and did not ship (2026-11-17, evening).** The frame-read model is scaled to 0.8 of
 what patch PCA reads, which keeps 41-71% of the true model's gain on noisy tiles. A scale picked on tune

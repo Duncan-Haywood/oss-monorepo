@@ -292,8 +292,8 @@ flagships:
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
       eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`; its CIFF CRWs all read).
       Bayer trees parked: a range guard passes 6 fresh cameras, misses K-1 II/A7
-      III; no fresh frames left (eval/bayer-boosted-guard-*). Noise-aware: a
-      tune-only scale over 0.8 fails held tiles (eval/noise-scale-per-frame-*);
+      III; no fresh frames left (eval/bayer-boosted-guard-*). Noise-aware: 2.2x
+      faster, same bytes (eval/noise-aware-full-frame-cost-*); scale over 0.8 fails;
       next: a card floor (sweep --card) on real multi-frame raw.pixls.us sets. DNG
       1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
     next: >-
