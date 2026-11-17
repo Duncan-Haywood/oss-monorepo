@@ -53,10 +53,25 @@ class T(unittest.TestCase):
         self.assertIn("missing no.png", out)
 
     def test_default_root_is_ventures_dir(self):
+        self.assertEqual(c.ROOT, Path(__file__).resolve().parents[2])
+        self.assertTrue((c.ROOT / "ventures").is_dir())
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
             c.main([])
-        self.assertRegex(out.getvalue(), r"\d+ pages, \d+ missing")
+        m = __import__("re").search(r"(\d+) pages, \d+ missing", out.getvalue())
+        self.assertTrue(m and int(m.group(1)) > 100, out.getvalue()[-200:])
+
+    def test_no_pages_is_a_failure_not_a_pass(self):
+        # A wrong --root (or a moved tree) scans nothing; that must not read as clean.
+        code, out = self.main_on({"readme.txt": "x"})
+        self.assertEqual(code, 2)
+        self.assertIn("no .html pages", out)
+
+    def test_help_names_the_check(self):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), self.assertRaises(SystemExit):
+            c.main(["--help"])
+        self.assertIn("Fail if a venture page points at a local", out.getvalue())
 
 
 if __name__ == "__main__":

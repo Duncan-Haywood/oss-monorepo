@@ -114,8 +114,11 @@ export async function moveAudioToCdn({ outDir, base, repoRoot, repo = process.en
   }
   if (!target.size) return result;
 
-  // A quoted, parenthesised or attribute-valued reference ending in .mp3.
-  const REF = /(["'(=\s])([^"'()\s<>]*?\.mp3)(?=[?#]?[^"'()\s<>]*["')\s<>])/g;
+  // A quoted, parenthesised or attribute-valued reference ending in .mp3,
+  // optionally followed by a query or fragment. Only those: `one.mp3.vtt` or
+  // `one.mp3-notes.html` name another file, and rewriting their `.mp3` prefix
+  // broke the link and counted the MP3 as linked (red team, 2026-11-17).
+  const REF = /(["'(=\s])([^"'()\s<>]*?\.mp3)(?=(?:[?#][^"'()\s<>]*)?["')\s<>])/g;
   const texts = files.filter((f) => TEXT_EXTS.has(path.extname(f)));
   const unreferenced = new Set(target.keys());
   // At most READ_LIMIT files open at once: the site has more text files

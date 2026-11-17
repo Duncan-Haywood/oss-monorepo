@@ -139,6 +139,7 @@ TAG_LOOK_TABLE_DATA = 50982
 TAG_HUE_SAT_MAP_ENCODING = 51107
 TAG_LOOK_TABLE_ENCODING = 51108
 TAG_NOISE_PROFILE = 51041
+TAG_CFA_PLANE_COLOR = 50710
 TAG_BASELINE_EXPOSURE_OFFSET = 51109
 # DNG 1.6: a third calibration illuminant and custom illuminant data.
 TAG_ILLUMINANT_3 = 52529
@@ -2039,7 +2040,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     demosaic = _demosaic_method(settings.demosaic, pat, np_engine is not None, w, h, notes)
     noise = None
     if demosaic == "noise-aware":
-        noise = noise_profile(ifd, ifd0)
+        noise = noise_profile_planes(ifd, ifd0)
         if noise is None:
             notes.append("noise-aware demosaic needs the file's NoiseProfile (DNG): used the directional one")
             demosaic = "directional"
@@ -2137,7 +2138,10 @@ DEMOSAICS = ("auto", "bilinear", "directional", "learned", "noise-aware")
 def noise_profile(ifd, ifd0=None) -> tuple[float, float] | None:
     """The DNG NoiseProfile (tag 51041) as one (shot, read) pair, variance = shot * x + read for a signal x
     normalised to 0..1 (black 0, white 1): the mean over the colour planes when it gives one pair per plane.
-    None when the file has none or it is malformed (a non-positive read term, an odd count)."""
+    None when the file has none or it is malformed: an odd count, or a pair outside the DNG 1.7.1.0 rule
+    "each S_i term must be positive (S_i > 0), and each O_i term must be non-negative (O_i >= 0)". A read
+    term of exactly 0 is legal and common: 14 of the 83 CFA DNG profiles checked on raw.pixls.us write one
+    (Samsung, OnePlus, Xiaomi, LG, asus); until 2026-11-16 they were refused (eval/noise-profile-real-dngs-2026-11-16.md)."""
 
     for d in (ifd, ifd0):
         if d is None:
@@ -2146,9 +2150,36 @@ def noise_profile(ifd, ifd0=None) -> tuple[float, float] | None:
         if not v or len(v) % 2:
             continue
         pairs = [(float(v[i]), float(v[i + 1])) for i in range(0, len(v), 2)]
-        if any(sh < 0 or rd <= 0 for sh, rd in pairs):
+        if any(not sh > 0 or not rd >= 0 for sh, rd in pairs):
             continue
         return sum(p[0] for p in pairs) / len(pairs), sum(p[1] for p in pairs) / len(pairs)
+    return None
+
+
+def noise_profile_planes(ifd, ifd0=None) -> list[tuple[float, float]] | None:
+    """The DNG NoiseProfile as one (shot, read) pair per colour, R, G, B (``noise_profile``'s rules). DNG 1.7.1.0
+    gives either one pair for every plane or one per CFA plane, in the order of CFAPlaneColor (tag 50710,
+    default 0, 1, 2); a single pair is repeated. Ten of 83 real CFA DNGs write pairs that differ between
+    planes (six Google Pixels, a Lightroom D80, two Xiaomis, an asus; eval/noise-profile-real-dngs-2026-11-16.md).
+    None when there is no usable profile, or its planes do not name R, G and B once each."""
+
+    for d in (ifd, ifd0):
+        if d is None:
+            continue
+        v = d.get(TAG_NOISE_PROFILE)
+        if not v or len(v) % 2:
+            continue
+        pairs = [(float(v[i]), float(v[i + 1])) for i in range(0, len(v), 2)]
+        if any(not sh > 0 or not rd >= 0 for sh, rd in pairs):
+            continue
+        if len(pairs) == 1:
+            return pairs * 3
+        plane_colours = d.get(TAG_CFA_PLANE_COLOR) or (ifd.get(TAG_CFA_PLANE_COLOR) if ifd is not None else None)
+        colours = [int(x) for x in (plane_colours or (0, 1, 2))]
+        if len(colours) != len(pairs) or sorted(colours) != [0, 1, 2]:
+            return None
+        by_colour = dict(zip(colours, pairs))
+        return [by_colour[0], by_colour[1], by_colour[2]]
     return None
 
 
@@ -2210,7 +2241,7 @@ def _develop_numpy(eng, raw, settings, ifd, ifd0, notes, wb, ev, black, white, c
 
     black_ = kw.pop("black_")
     trim = kw.pop("trim")
-    pixels, ow, oh, clipped = eng.render(black=black_, **kw)
+    pixels, ow, oh, clipped = eng.render(black=black_, notes=notes, **kw)
     linear_raw, w, h, spp = kw["linear_raw"], kw["w"], kw["h"], kw["spp"]
     pixels, report_w, report_h = _trim_and_crop(
         pixels, ow, oh, trim, ifd, settings, linear_raw, notes, lambda p, _w, cx, cy, cw, ch: eng.crop(p, cx, cy, cw, ch)

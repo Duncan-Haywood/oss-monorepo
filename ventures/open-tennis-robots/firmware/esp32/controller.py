@@ -867,6 +867,16 @@ class BrakeGuard:
 LOOP_LOW_RPM = 1500
 # The ready gate holds for at least this many revolutions of the slowest wheel (SteadyGate; same README section).
 GATE_HOLD_REVS = 6
+# A ball's recovery (2026-11-17, firmware/esp32/README.md "A ball charged the integrator"): from a stroke's start until
+# the wheel has dropped and climbed back to its target (or LOOP_BALL_MS passes), the loop's integrator sees its error
+# clamped to +-LOOP_BALL_BAND of the target. None turns it off.
+LOOP_BALL_BAND = 0.005
+LOOP_BALL_MS = 3000
+BALL_DROP_SEEN = 0.03         # the wheel reads this far under target: the ball has hit it
+# Braking to a slow target (2026-11-17, same README section): LOOP_RAMP_HOLD freezes the integrator while SpinupRamp is
+# still lowering the target; LOOP_I_FF_MAX bounds it to that share of the feedforward (None: only i_max).
+LOOP_RAMP_HOLD = True
+LOOP_I_FF_MAX = 0.35
 
 
 class WheelLoop:
@@ -888,24 +898,65 @@ class WheelLoop:
     from about 66 degrees at 3,500 rpm to -48 at 510 rpm (a 0.2 s wheel behind a 30 ms ESC), and a ~510 rpm wheel
     swung 460-564 rpm and never passed the ready gate. Scaling the gains with the speed keeps the crossover a fixed
     share of the delay. 0 turns it off.
+
+    A ball is a known kick, not an offset to learn (2026-11-17, README "A ball charged the integrator"). A ball takes
+    up to ~40% of a slow wheel's speed, and the tach shows that drop late, so the integrator used to charge through the
+    whole recovery: on a 0.8 s wheel at 526 rpm it reached +0.022 (about 200 rpm of command), the wheel overshot to
+    625 rpm, and discharging it carried the wheel 3.6% under its target, where it crept back for about 2 s. `ball()`,
+    called by the board as each stroke starts, holds the integrator to +-`ball_band` of the target from then until the
+    wheel has read `BALL_DROP_SEEN` under target and come back to it (or `ball_ms` passes: an empty pocket; or the
+    target changes); feedforward
+    and the proportional term do the recovery. None turns it off.
+
+    Braking did the same (same README section): the ramp lowers the target faster than a slow wheel slows, and the
+    integrator absorbed that tracking error until it cancelled the whole feedforward (-0.164 against 0.058 at 526 rpm),
+    so the wheel coasted to about 90 rpm before it could recover. With `ramp_hold` the integrator holds while the board
+    says the ramp is still lowering the target (`ramping`), and `i_ff_max` keeps it within that share of the
+    feedforward: enough for a wheel 22% off `rpm_full` (29%), not enough to switch the wheel off.
     """
 
-    def __init__(self, rpm_full, kp=2e-4, ki=6e-7, i_max=0.3, low_rpm=LOOP_LOW_RPM):
+    def __init__(self, rpm_full, kp=2e-4, ki=6e-7, i_max=0.3, low_rpm=LOOP_LOW_RPM, ball_band=-1.0, ball_ms=None, ramp_hold=None, i_ff_max=-1.0):
         self.ff = 1.0 / rpm_full
         self.kp, self.ki, self.i_max = kp, ki, i_max
         self.low = low_rpm
+        self.band = LOOP_BALL_BAND if ball_band == -1.0 else ball_band
+        self.ball_ms = LOOP_BALL_MS if ball_ms is None else ball_ms
+        self.ramp_hold = LOOP_RAMP_HOLD if ramp_hold is None else ramp_hold
+        self.i_ff = LOOP_I_FF_MAX if i_ff_max == -1.0 else i_ff_max
+        self.recover = 0              # 0 none, 1 armed (stroke under way), 2 the wheel is below target after its ball
+        self.recover_ms = 0
+        self.recover_target = 0
         self.i = 0.0
 
-    def update(self, target, measured, dt_ms):
+    def ball(self):
+        """A stroke has started: a ball is about to take momentum from the wheel. Until the wheel has dropped and
+        climbed back to its target, its integrator only trims (README "A ball charged the integrator")."""
+        if self.band is not None:
+            self.recover, self.recover_ms, self.recover_target = 1, 0, None
+
+    def update(self, target, measured, dt_ms, ramping=False):
         if target <= 0:
             self.i = 0.0
             return 0.0
         g = target / self.low if self.low and target < self.low else 1.0
         kp, ki = self.kp * g, self.ki * g
         err = target - measured
+        if self.recover:
+            if self.recover_target is None:
+                self.recover_target = target
+            self.recover_ms += dt_ms
+            if target != self.recover_target:
+                self.recover = 0          # new speeds: spinning to them is the integrator's work again
+            elif self.recover == 1 and err > BALL_DROP_SEEN * target:
+                self.recover = 2
+            elif (self.recover == 2 and err <= 0) or self.recover_ms >= self.ball_ms:
+                self.recover = 0
+        lim = min(self.i_max, self.i_ff * target * self.ff) if self.i_ff is not None else self.i_max
+        self.i = _clamp(self.i, -lim, lim)
         raw = target * self.ff + kp * err + self.i
-        if 0.0 < raw < 1.0 or (raw >= 1.0 and err < 0) or (raw <= 0.0 and err > 0):
-            self.i = _clamp(self.i + ki * err * dt_ms, -self.i_max, self.i_max)
+        if (0.0 < raw < 1.0 or (raw >= 1.0 and err < 0) or (raw <= 0.0 and err > 0)) and not (ramping and self.ramp_hold):
+            e = _clamp(err, -self.band * target, self.band * target) if self.recover else err
+            self.i = _clamp(self.i + ki * e * dt_ms, -lim, lim)
         return _clamp(target * self.ff + kp * err + self.i, 0.0, 1.0)
 
 

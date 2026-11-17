@@ -487,7 +487,7 @@ export class AttributeFacet {
 
 const fmt = (v) => (v && v.enum ? "." + v.enum + "." : JSON.stringify(v));
 
-const QUANTITY_MEASURE = {
+export const QUANTITY_MEASURE = {
   IFCQUANTITYLENGTH: ["LengthValue", "IFCLENGTHMEASURE"],
   IFCQUANTITYAREA: ["AreaValue", "IFCAREAMEASURE"],
   IFCQUANTITYVOLUME: ["VolumeValue", "IFCVOLUMEMEASURE"],
@@ -500,7 +500,7 @@ const QUANTITY_MEASURE = {
 // Property sets of an element by name: {name -> {props: Map(name -> propEntity), entity}}
 // Type psets are inherited and an occurrence's pset of the same name overrides
 // per property.
-function psetsOf(model, e) {
+export function psetsOf(model, e) {
   const out = new Map();
   const add = (pset) => {
     const name = model.attr(pset, "Name");
@@ -646,7 +646,7 @@ export class PropertyFacet {
 }
 
 // Classification references of an element: [{system, codes: [..], ref}]
-function classificationsOf(model, e) {
+export function classificationsOf(model, e) {
   const own = (id) => {
     const out = [];
     for (const c of model.classRels.get(id) || []) out.push(...describeClassification(model, c));
@@ -694,7 +694,7 @@ export class ClassificationFacet {
 }
 
 // Names and categories of every material an element uses.
-function materialNames(model, e) {
+export function materialNames(model, e) {
   let rels = model.matRels.get(e.id);
   if (!rels || !rels.length) {
     const ty = model.typeOf.get(e.id);
@@ -808,11 +808,17 @@ function readFacets(node) {
 
 // -------------------------------------------------------------------- IDS ----
 
+// The <info> children of IDS 1.0, in the order ids.xsd fixes.
+export const INFO_FIELDS = ["title", "copyright", "version", "description", "author", "date", "purpose", "milestone"];
+
 export function parseIds(text) {
   const root = parseXml(text);
   if (root.local !== "ids") throw new Error(`not an IDS file: root element is <${root.name}>`);
   const info = kid(root, "info");
   const title = info && kid(info, "title") ? kid(info, "title").text.trim() : null;
+  // Every info field IDS 1.0 has, as written (the editor carries them through).
+  const infoFields = {};
+  for (const k of INFO_FIELDS) { const n = info && kid(info, k); if (n && n.text.trim() !== "") infoFields[k] = n.text.trim(); }
   const specs = [];
   for (const s of kids(kid(root, "specifications"), "specification")) {
     const app = kid(s, "applicability");
@@ -834,7 +840,7 @@ export function parseIds(text) {
       requirementsDescription: req && req.attrs.description,
     });
   }
-  return { title, specs };
+  return { title, info: infoFields, specs };
 }
 
 function versionMatches(spec, model) {

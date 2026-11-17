@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23733a2a'/%3E%3Ctext%20x='16'%20y='22'%20font-size='13'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E3.1%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CVSS Vector Check — Does This Advisory's Score Match Its Vector?</title>
+  <meta name="description" content="Free CVSS v3.1 and v3.0 checker: paste a vector to get base, temporal and environmental scores with every metric explained, compare two vectors metric by metric, or paste a whole scanner report or NVD JSON to flag scores and severity labels that do not match their own vectors. Runs in your browser.">
+  <meta property="og:title" content="CVSS Vector Check — free, private, in your browser">
+  <meta property="og:description" content="Why is one advisory 9.8 and another 7.5 for the same bug? Which stated scores in this report do not match their vectors? CVSS v3.1 and v3.0, checked against an independent implementation.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "CVSS Vector Check", "applicationCategory": "SecurityApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Scores CVSS v3.1 and v3.0 vector strings (base, temporal, environmental), explains every metric, compares two vectors metric by metric, and audits pasted scanner reports or NVD and OSV JSON for stated scores and severity labels that do not match their vectors. Runs in your browser.", "featureList": "CVSS v3.1 and v3.0 base, temporal and environmental scores, metric-by-metric explanation, vector validation, two-vector comparison with the effect of each difference, single-metric sensitivity table, audit of pasted text, CSV or JSON for mismatched stated scores and labels, CSV download, command-line version"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why do two advisories give the same vulnerability different CVSS scores?", "acceptedAnswer": {"@type": "Answer", "text": "Because they scored different vectors. A CVSS score is a function of its eight base metrics, so two different scores mean at least one metric differs: often Attack Complexity, Privileges Required or User Interaction. Paste both vectors into the compare box to see which metrics differ and how much each one moves the score on its own."}}, {"@type": "Question", "name": "How do I check that a CVSS score matches its vector string?", "acceptedAnswer": {"@type": "Answer", "text": "Recompute it. Paste the vector to get its base score, or paste a whole report, CSV or NVD JSON into the audit box: every CVSS:3.x vector is rescored and compared with the score and severity label written next to it. When a stated score is really the temporal or environmental score, or the other CVSS version's score, the tool says so."}}, {"@type": "Question", "name": "What is the difference between CVSS 3.0 and 3.1 scores?", "acceptedAnswer": {"@type": "Answer", "text": "Base and temporal scores are the same under both versions for every one of the 259,200 base and temporal vectors, checked exhaustively here. Environmental scores can differ by 0.1 when the modified scope is Changed, because v3.1 changed the Modified Impact formula; in a random sample of 200,000 full vectors, 6.3% differed and 0.3% moved to a different severity band."}}, {"@type": "Question", "name": "Why is my CVSS 3.0 temporal score 0.1 higher in another calculator?", "acceptedAnswer": {"@type": "Answer", "text": "Probably floating-point rounding. CVSS 3.0 rounds up to one decimal, and a calculator that computes Math.ceil(x * 10) / 10 turns 5.0 x 0.92, which is 4.6, into 4.7 because the computer stores it as 4.6000000000000005. Of the 259,200 v3.0 base and temporal vectors, that naive rounding gets 228 temporal scores wrong and no base scores. CVSS 3.1 redefined Roundup to fix this."}}, {"@type": "Question", "name": "Does this tool score CVSS 4.0 or CVSS 2?", "acceptedAnswer": {"@type": "Answer", "text": "No. It scores CVSS v3.0 and v3.1 vectors, and says so when you paste a v4.0 or v2 vector instead of guessing a score for it."}}, {"@type": "Question", "name": "Is anything I paste uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The scoring runs in this browser tab. There are no accounts, cookies or analytics vendors, and the command-line version makes no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #24191a; background: #f7f4f2; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #8a3b24; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #4a2318; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #4a2318; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    code { font: 0.92em ui-monospace, Menlo, Consolas, monospace; background: #efe8e4; padding: 1px 4px; border-radius: 4px; word-break: break-all; }
+    .note, footer { font-size: .86rem; color: #5d4b46; }
+    .card { background: #fff; border: 1px solid #e4d9d4; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #4a231810; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #8f7b74; border-radius: 7px; font: 14px ui-monospace, Menlo, Consolas, monospace; background: #fff; color: inherit; }
+    textarea { min-height: 10em; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #8a3b24; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #efe8e4; color: #4a2318; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: .92rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #efe8e4; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #5d4b46; }
+    .scroll { overflow-x: auto; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f4eeeb; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #4a2318; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 6px; }
+    .pill.mismatch, .pill.invalid { background: #f8dcd6; color: #7a1f10; }
+    .pill.explained { background: #fdf0d5; color: #6e5410; }
+    .pill.ok { background: #dcefe3; color: #1d5233; }
+    .bad { color: #7a1f10; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #e4d9d4; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CVSS VECTOR CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Does this advisory's CVSS score match its own vector?</h1>
+    <p>Paste a <strong>CVSS v3.1 or v3.0 vector</strong> to get its base, temporal and environmental scores with every metric spelled out. Add a second vector to see <strong>exactly which metrics two advisories disagree on</strong> and how much each one moves the score. Or paste a whole scanner report, CSV or NVD JSON: every vector is rescored and <strong>stated scores and severity labels that do not match</strong> are flagged, with the likely reason.</p>
+    <p class="note">Scores agree with an independent implementation on all 259,200 base and temporal vectors of each version and on 200,000 random environmental vectors (see the README). Nothing you paste leaves this tab.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>1. A vector, and optionally a second to compare</h2>
+    <label for="vector">CVSS vector</label>
+    <input id="vector" spellcheck="false" autocomplete="off" placeholder="CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H">
+    <label for="compare">Compare with (optional)</label>
+    <input id="compare" spellcheck="false" autocomplete="off" placeholder="CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:H/I:H/A:H">
+    <p class="note">For example the NVD's vector against the vendor's, or your environmental rescoring against the published base.</p>
+    <p>
+      <button type="button" id="run">Score</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p id="form-status" class="note" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="card" id="report" hidden>
+    <h2>Scores</h2>
+    <div class="big" id="totals"></div>
+    <div id="metrics"></div>
+    <div id="findings"></div>
+    <div id="diff"></div>
+    <h3>What one change would do</h3>
+    <p class="note">The base score with a single base metric set to each other value. Rows that move the severity band are marked.</p>
+    <div class="scroll"><table><thead><tr><th>Metric</th><th>Set to</th><th>Base</th><th>Change</th><th>Severity</th></tr></thead><tbody id="sens"></tbody></table></div>
+  </section>
+
+  <section class="card">
+    <h2>2. Audit a report</h2>
+    <label for="text">Report text, CSV or JSON</label>
+    <textarea id="text" spellcheck="false" placeholder="Paste scanner output, an advisory list, a CSV, or NVD / OSV JSON"></textarea>
+    <p class="note">In JSON, a vector is paired with a <code>baseScore</code>, <code>score</code> or <code>cvss_score</code> and a <code>baseSeverity</code> or <code>severity</code> in the same object. In text, with the nearest score and the severity word on the same line.</p>
+    <p>
+      <button type="button" id="audit">Audit</button>
+      <button type="button" class="secondary" id="csv" disabled>Download CSV</button>
+    </p>
+    <p id="audit-status" class="note" role="status" aria-live="polite"></p>
+    <div class="scroll" id="audit-wrap" hidden><table><thead><tr><th>Where</th><th>Vector</th><th>Stated</th><th>Rescored</th><th>Result</th></tr></thead><tbody id="audit-rows"></tbody></table></div>
+  </section>
+
+  <section class="card">
+    <h2>From the command line</h2>
+    <p>The same engine, no dependencies, no network: <code>node cli.mjs 'CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H'</code> scores and explains a vector; <code>--diff '&lt;vector&gt;'</code> compares two; <code>node cli.mjs --audit report.json --strict</code> rescores every vector in a file (or <code>-</code> for stdin) and exits 1 on a mismatch, for a CI step over generated advisories. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cvss-vector-check">Source and README</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why do two advisories give the same vulnerability different CVSS scores?</h3>
+    <p>Because they scored different vectors. A CVSS score is a function of its eight base metrics, so two different scores mean at least one metric differs: often Attack Complexity, Privileges Required or User Interaction. Paste both vectors into the compare box to see which metrics differ and how much each one moves the score on its own.</p>
+    <h3>How do I check that a CVSS score matches its vector string?</h3>
+    <p>Recompute it. Paste the vector to get its base score, or paste a whole report, CSV or NVD JSON into the audit box: every CVSS:3.x vector is rescored and compared with the score and severity label written next to it. When a stated score is really the temporal or environmental score, or the other CVSS version's score, the tool says so.</p>
+    <h3>What is the difference between CVSS 3.0 and 3.1 scores?</h3>
+    <p>Base and temporal scores are the same under both versions for every one of the 259,200 base and temporal vectors, checked exhaustively here. Environmental scores can differ by 0.1 when the modified scope is Changed, because v3.1 changed the Modified Impact formula; in a random sample of 200,000 full vectors, 6.3% differed and 0.3% moved to a different severity band.</p>
+    <h3>Why is my CVSS 3.0 temporal score 0.1 higher in another calculator?</h3>
+    <p>Probably floating-point rounding. CVSS 3.0 rounds up to one decimal, and a calculator that computes Math.ceil(x * 10) / 10 turns 5.0 x 0.92, which is 4.6, into 4.7 because the computer stores it as 4.6000000000000005. Of the 259,200 v3.0 base and temporal vectors, that naive rounding gets 228 temporal scores wrong and no base scores. CVSS 3.1 redefined Roundup to fix this.</p>
+    <h3>Does this tool score CVSS 4.0 or CVSS 2?</h3>
+    <p>No. It scores CVSS v3.0 and v3.1 vectors, and says so when you paste a v4.0 or v2 vector instead of guessing a score for it.</p>
+    <h3>Is anything I paste uploaded?</h3>
+    <p>No. The scoring runs in this browser tab. There are no accounts, cookies or analytics vendors, and the command-line version makes no network calls.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, security or professional advice, and a CVSS score measures technical severity, not the risk a vulnerability poses to you. Scores come from this tool's own implementation of the published CVSS v3.0 and v3.1 formulas. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with or endorsed by FIRST (the Forum of Incident Response and Security Teams), NIST, the NVD, MITRE or any other vendor. CVSS is owned and managed by FIRST.Org, Inc.; the formulas here follow its published v3.0 and v3.1 specification documents.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>vector_scored</code>, <code>example_loaded</code>, <code>vectors_compared</code>, <code>report_audited</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Triaging a scanner report? The <a href="../npm-audit-triage/">npm audit triage</a>, <a href="../pip-audit-triage/">pip-audit triage</a> and <a href="../cargo-audit-triage/">cargo audit triage</a> tools sort findings by what reaches your code. Guide: <a href="cvss-3-0-vs-3-1-score-differences.html">CVSS 3.0 vs 3.1: when the scores differ</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { explain, sensitivity, diffVectors, audit, auditCsv, EXAMPLE } from "./cvss.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const f1 = (n) => (n == null ? "–" : Number(n).toFixed(1));
+    const status = $("#form-status");
+    let lastAudit = null;
+
+    function run() {
+      const v = $("#vector").value.trim();
+      if (!v) { status.textContent = "Paste a CVSS v3 vector first."; $("#report").hidden = true; return; }
+      const x = explain(v);
+      if (!x.valid) { status.textContent = x.errors.join(" "); $("#report").hidden = true; return; }
+      const s = x.scores;
+      status.textContent = `Scored as CVSS ${x.version}.`;
+      const tiles = [["Base · " + s.baseSeverity, s.base], ["Impact", s.impact], ["Exploitability", s.exploitability]];
+      if (x.hasTemporal) tiles.push(["Temporal · " + s.temporalSeverity, s.temporal]);
+      if (x.hasEnvironmental) tiles.push(["Environmental · " + s.environmentalSeverity, s.environmental]);
+      $("#totals").innerHTML = tiles.map(([k, n]) => `<div><strong>${f1(n)}</strong>${esc(k)}</div>`).join("");
+      $("#metrics").innerHTML = `<p class="note">Canonical vector: <code>${esc(x.vector)}</code></p><div class="scroll"><table><thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody>` +
+        x.metrics.filter((m) => m.group === "base" || m.given).map((m) => `<tr><td>${esc(m.name)} (<code>${esc(m.key)}</code>)</td><td>${esc(m.words)}</td></tr>`).join("") + "</tbody></table></div>";
+      $("#findings").innerHTML = x.findings.length ? "<h3>Notes</h3><ul>" + x.findings.map((g) => `<li>${esc(g.message)}</li>`).join("") + "</ul>" : "";
+      const c = $("#compare").value.trim();
+      if (c) {
+        const d = diffVectors(v, c);
+        $("#diff").innerHTML = !d.valid ? `<h3>Comparison</h3><p class="bad">${esc(d.errors.join(" "))}</p>` :
+          `<h3>Comparison: ${f1(d.a.scores.base)} → ${f1(d.b.scores.base)} (${d.baseDelta >= 0 ? "+" : ""}${f1(d.baseDelta)})</h3>` +
+          (d.same ? "<p>The two vectors are the same.</p>" : `<div class="scroll"><table><thead><tr><th>Metric</th><th>First</th><th>Second</th><th>That change alone</th></tr></thead><tbody>` +
+          d.differences.map((m) => `<tr><td>${esc(m.name)}</td><td>${esc(m.aWords)}</td><td>${esc(m.bWords)}</td><td>${f1(m.alone.base)} (${m.baseDelta >= 0 ? "+" : ""}${f1(m.baseDelta)})</td></tr>`).join("") + "</tbody></table></div>") +
+          d.notes.map((n) => `<p class="note">${esc(n)}</p>`).join("");
+        if (d.valid) record("vectors_compared");
+      } else $("#diff").innerHTML = "";
+      const sens = sensitivity(v);
+      $("#sens").innerHTML = sens.rows.map((r) => `<tr><td>${esc(r.name)}</td><td>${esc(r.words)}</td><td>${f1(r.base)}</td><td>${r.delta >= 0 ? "+" : ""}${f1(r.delta)}</td><td>${r.crossesBand ? `<strong>${esc(r.severity)}</strong>` : esc(r.severity)}</td></tr>`).join("");
+      $("#report").hidden = false;
+      record("vector_scored");
+    }
+
+    function runAudit() {
+      const text = $("#text").value;
+      const st = $("#audit-status");
+      if (!text.trim()) { st.textContent = "Paste a report first."; return; }
+      lastAudit = audit(text);
+      const t = lastAudit.totals;
+      st.textContent = t.vectors ? `${t.vectors} vector${t.vectors === 1 ? "" : "s"} found (${lastAudit.format}), ${t.withStatedScore} with a stated score: ${t.ok} ok, ${t.mismatch} mismatched, ${t.explained} explained, ${t.invalid} invalid.` : "No CVSS:3.0 or CVSS:3.1 vectors found.";
+      $("#audit-rows").innerHTML = lastAudit.rows.map((r) => `<tr><td>${esc(r.where)}</td><td><code>${esc(r.vector)}</code></td><td>${f1(r.stated)}${r.statedSeverity ? " " + esc(r.statedSeverity) : ""}</td><td>${r.valid ? `${f1(r.base)} ${esc(r.severity)}` : "–"}</td><td><span class="pill ${esc(r.status)}">${esc(r.status)}</span>${esc(r.problems.join(" "))}</td></tr>`).join("");
+      $("#audit-wrap").hidden = !t.vectors;
+      $("#csv").disabled = !t.vectors;
+      record("report_audited");
+    }
+
+    $("#run").addEventListener("click", run);
+    for (const id of ["vector", "compare"]) $("#" + id).addEventListener("keydown", (ev) => { if (ev.key === "Enter") run(); });
+    $("#audit").addEventListener("click", runAudit);
+    $("#example").addEventListener("click", () => {
+      $("#vector").value = EXAMPLE.vector; $("#compare").value = EXAMPLE.compare; $("#text").value = EXAMPLE.text;
+      record("example_loaded");
+      run();
+      runAudit();
+    });
+    $("#clear").addEventListener("click", () => {
+      for (const id of ["vector", "compare", "text"]) $("#" + id).value = "";
+      $("#report").hidden = true; $("#audit-wrap").hidden = true; $("#csv").disabled = true;
+      status.textContent = ""; $("#audit-status").textContent = ""; lastAudit = null;
+    });
+    $("#csv").addEventListener("click", () => {
+      if (!lastAudit) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([auditCsv(lastAudit)], { type: "text/csv" }));
+      a.download = "cvss-audit.csv";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

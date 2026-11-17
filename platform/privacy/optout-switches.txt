@@ -292,6 +292,7 @@ ventures/csv-to-sepa-pain008/usage.mjs
 ventures/csv-to-sql-generator/usage.mjs
 ventures/custom-farm-rate-calculator/usage.mjs
 ventures/customer-lifetime-value-predictor/usage.mjs
+ventures/cvss-vector-check/usage.mjs
 ventures/cyclehound/usage.mjs
 ventures/dac7-seller-reporting-checker/usage.mjs
 ventures/daily-prep-quantity-optimizer/usage.mjs

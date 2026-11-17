@@ -35,7 +35,7 @@ zero dependencies, one JSON file on a disk you own.
 - **Labor budget from a script (2026-11-08):** `node cli.mjs --budget 2400 staff.txt shifts.txt` compares payroll with a weekly dollar budget and, when over, lists the drops (from `trimOptions`) that close the gap, safe ones first; tested in `cli.test.mjs` on a hand-built week and the sample week.
 - **Time clock and timesheets (2026-11-15, on unless `TIME_CLOCK=0`):** staff clock in and out on the team page (the server's clock, shown in your `TIMEZONE`); `/admin/timesheet` shows hours worked beside the published week, flags late starts, early finishes, time past the shift's end, shifts with no punch and missing clock-outs, lets you add a missed punch (marked as yours) and downloads a CSV for payroll. Since 2026-11-16, optional per-person clock PINs and an optional site geofence (section "Clock PINs and a site geofence"); without them it is an honour system. Also since 2026-11-16, paid sick leave (or PTO) earned per hour worked at the rate and caps you set, off until `LEAVE_ACCRUAL` is set (section "Paid sick leave from the time clock"). Details in "Time clock and timesheets" below.
 - **Oregon's voluntary standby list (2026-11-16, with `FAIR_WORKWEEK=oregon`):** staff join it in writing on their page and leave any time; a call-out can be offered to the list first, and the hours someone on it accepts owe no predictability pay (ORS 653.432). The Oregon preset was checked against the statute's text: start or end changes of 30 minutes or less are free, a separate added shift always owes the hour. Section "Oregon's voluntary standby list" below.
-- **Schedule changes and notice pay (2026-11-16, the log always on, pricing off until `FAIR_WORKWEEK` is set):** every change to a posted week is logged with the moment it was made and who asked for it (a week published again, an approved trade or pick-up, a call-out given to someone); `/admin/changes` prices each under Seattle's, Oregon's, Chicago's, Philadelphia's, Los Angeles's, New York City's, San Francisco's or Emeryville's predictive-scheduling numbers (or your own), flags shifts posted under 14 days ahead and short rests, and downloads a CSV. Section "Schedule changes and fair-workweek pay" below.
+- **Schedule changes and notice pay (2026-11-16, the log always on, pricing off until `FAIR_WORKWEEK` is set):** every change to a posted week is logged with the moment it was made and who asked for it (a week published again, an approved trade or pick-up, a call-out given to someone); `/admin/changes` prices each under Seattle's, Oregon's, Chicago's, Philadelphia's, Los Angeles's, New York City's, San Francisco's, Emeryville's or Berkeley's predictive-scheduling numbers (or your own), flags shifts posted under 14 days ahead and short rests, and downloads a CSV. Section "Schedule changes and fair-workweek pay" below.
 - **Overtime, meal periods and rounding (2026-11-15 later, `PAY_RULES`):** the timesheet turns punches into regular, 1.5x and 2x hours under federal, California, Alaska or Colorado rules, flags California meal breaks that came late or not at all (with the extra hour owed), rounds punches to 5, 6 or 15 minutes if you ask (never under California rules) and estimates gross pay at each person's wage. Since 2026-11-15 also Nevada (daily overtime by the 24-hour workday for staff under 1.5x the minimum wage) and meal-period flags for 13 more states (section "Nevada, and meal periods in 13 more states").
 - **Call-outs from a script (2026-11-07):** `node cli.mjs --cover "Tue 17:00" --json staff.txt shifts.txt` prints who can take the shift outright, who is blocked and why, and the hand-over chains as JSON (tested in `cli.test.mjs`).
 - **Call-outs:** the staff page has a "Cannot make a shift?" form. Your manager sees the request in `/admin` with who could cover it without moving anyone else, cheapest first (overtime flagged), from the same `coverOptions` as the browser tool. It only asks: nothing changes until you edit and publish again (which clears the list). **Give to (2026-10-29):** each candidate has a one-click **Give to Ana** button; it moves the shift on the published schedule, keeps both people's hours in step, and drops that call-out and any trade request on the shift (`applyCover`, `/admin/cover`; tested in `server.test.mjs`, not on a live team).
@@ -260,6 +260,47 @@ opening balance; a July leave year; the trim keeping the balances identical; the
 when off, the page, a recorded and a removed use, an opening balance, the CSV and its formula guard). Not claimed: not
 tried on a live team or against any state's rule text; a manager's view of the policy wording is the next thing to get.
 
+## Berkeley (2026-11-17)
+
+`FAIR_WORKWEEK=berkeley` prices changes under Berkeley's Fair Workweek Ordinance (Berkeley Municipal Code Chapter 13.102,
+operational 2024-01-12). Read from the city's own documents, fetched from this session on berkeleyca.gov: the official
+employee notice of January 2024 and the city's FAQ revised 2024-08-23. The code's own text (berkeley.municipal.codes)
+returned 403, so it was not read; the changes page says the numbers come from the notice and FAQ.
+
+| | Berkeley | Emeryville, for contrast |
+|---|---|---|
+| Posted | 14 days ahead | 14 days ahead |
+| Under 14 days, 24 h or more | 1 h of pay for any change (FAQ 12a) | 1 h |
+| Under 24 h, hours cut or shift cancelled | the lesser of the hours taken away and 4 h (FAQ 12b; FAQ 14: cut 15 min early, 0.25 h) | the lesser of the scheduled shift's hours and 4 h |
+| Under 24 h, added or moved | 1 h (FAQ 12c) | 1 h |
+| Shift moved to another date | one change, 1 h | logged as a cancellation and an addition, 1 h each |
+| Free | starting up to 10 min early and finishing up to 10 min late (FAQ 17), each end on its own | 10 min or less added or taken at each end |
+| Swaps and cover employees arrange | exempt (FAQ 15) | exempt |
+| Hours volunteered from a team offer | priced: the notice says pay is owed "when employees voluntarily agree to such changes" | priced |
+| Rest | time and a half on hours worked under 11 h after the end of the previous shift (FAQ 23) | the same, after the previous day's shift |
+
+Three small additions to the pricer, open to any preset or `custom`:
+
+- `cutLostCap` on a notice tier: hours taken away pay the lesser of those hours and the cap. Emeryville's
+  `cutShiftCap` caps the scheduled shift's length instead, which is why taking 1 hour off an 8-hour shift the evening
+  before owes 4 hours there and 1 hour here. A shift both moved and shortened under 24 h owes the greater of the cut's
+  pay and the move's 1 h; the FAQ does not say whether the two stack, and this reading never pays more than one of them.
+- `extendEach` (`FWW_EXTEND_EACH=1`): the added-time grace applies to the start and the end separately (10 min early
+  and 10 min late is still free), not to their sum. The grace covers time added, not time cut: 10 minutes off the end
+  under 24 h is a cut and owes 0.17 h.
+- `pairDates` (`FWW_PAIR_DATES=1`): a cancellation and an addition for the same person, logged in the same moment by
+  the same cause, are one change of date. New York City already paired them; the pairing now also works when the staff
+  list has no wage (the pair is one change to price, not two).
+
+Readings to check against BMC 13.102 before relying on them. The notice and FAQ say rest is counted after "the previous
+shift", not "the previous day's", so a same-day split shift with a 4-hour gap puts its whole second piece inside the
+11-hour window; `FWW_REST_ACROSS_DAYS=1` turns that off if the code's definition of a shift says otherwise. The FAQ's
+"up to 30 minutes after the end to finish serving a customer" is a stay on the day, not a change to the posted
+schedule, so it is not modelled. Coverage (10 or more employees in Berkeley and 56 or 100 worldwide by industry,
+franchisees included), the right to decline, the offer of hours to part-timers and the good-faith estimate at hire are
+not modelled either. Tests: `notice-berkeley.test.mjs` (the FAQ's examples 12a-c, 14, 17 and 23, the date move, the
+team offer, the split-shift reading and the changes page).
+
 ## San Francisco and Emeryville (2026-11-16, later)
 
 Two more presets for the hub's change log: `FAIR_WORKWEEK=san-francisco` (or `sf`) for San Francisco's Formula Retail
@@ -408,8 +449,8 @@ a moment you type. The hub is where the changes really happen, days apart, so it
   employee-asked and the added shift as not, because the manager picked the person. The first publish of a week is kept
   as its posting time. The manager can flip any entry between "Employee asked" and not. The last 1,500 changes are kept
   (Seattle asks for three years of records, so the page says to download the CSV with each payroll).
-- **The rule sets (`FAIR_WORKWEEK=seattle|oregon|chicago|philadelphia|los-angeles|new-york-city|san-francisco|emeryville|custom`;
-  the later ones since 2026-11-16 later, see "San Francisco and Emeryville", "Philadelphia and Los Angeles" and "New York City fast food" above):** read from the City of Seattle's Office of Labor
+- **The rule sets (`FAIR_WORKWEEK=seattle|oregon|chicago|philadelphia|los-angeles|new-york-city|san-francisco|emeryville|berkeley|custom`;
+  the later ones since 2026-11-16 later, see "Berkeley", "San Francisco and Emeryville", "Philadelphia and Los Angeles" and "New York City fast food" above):** read from the City of Seattle's Office of Labor
   Standards "Secure Scheduling" page and Oregon BOLI's "Predictive scheduling" page on 2026-11-16, and for Chicago from
   search summaries of the city's Fair Workweek notice and rules on chicago.gov and the ordinance's table as quoted by the
   National Law Review (the chicago.gov pages returned 403 or 404 here, so Chicago is the least checked of the three):
@@ -3683,3 +3724,36 @@ matching; an infinite deadline changes nothing).
 
 Not claimed: generated weeks, one cloud machine, two builds at a time; no gain in open hours or pay, only that the repair no
 longer eats the pay floor's time. Next: time-bound the pay polish after a repair gain, or leave it (under 50 ms here).
+
+## The pay polish stops at the budget's end (2026-11-16 later)
+
+"The repair stops at the budget's end" left seven of 48 fresh builds reaching the pay floor 22-48 ms past the 20 s budget.
+On each the cover walk or the repair had stopped on time, but then found a gain, and the pay polish that follows any gain
+(`polishPay`, max(20,000, copies x 1,000) single moves and swaps) was untimed. Timed alone on 60-70 person weeks (230-267
+copies) one polish takes 28-47 ms.
+
+**What landed:** `polishPay` takes a `deadline`, read every 1,024 moves; past it the polish returns what it has. Every move it
+kept lowered the score and left no covered shift open, so stopping early never adds open hours. Under a time budget the polish
+after a cover walk gets that walk's deadline, and the polish after a repair gain the budget's end. `payPolishDeadline: false`
+keeps the untimed polish.
+
+**Pre-registered** (`eval/polish-deadline-prereg.md`, committed before the run): seeds 66-77, 60 x 168 and 70 x 196, weeks
+0-1, each built twice, new and `payPolishDeadline: false` (`sh eval/polish-deadline-ab.sh`, scored by
+`eval/polish-deadline-summary.py`, `eval/polish-deadline-ab.out.txt`).
+
+| 48 fresh weeks | old | new |
+|---|---|---|
+| reached the pay floor more than 20 ms past the budget | 8 (25-44 ms; 7 after a repair gain, 1 after a walk) | **0** |
+| latest arrival at the pay floor | 20,044 ms | 20,002 ms |
+| open hours, all 48 | 11,818 | 11,815 (three weeks -1: timing noise, not claimed) |
+| final pay on the 45 weeks with equal open hours | 1,030,595.21 | 1,030,592.06 (lower on 1 week, higher on none) |
+| mean build / slowest | 22.04 s / 28.1 s | 22.01 s / 28.1 s |
+| proven | 4 | 5 |
+
+All four clauses passed (late builds at least halved, open hours not more than 2 higher, pay not more than 0.1% higher, mean
+build time not higher), so it is on by default. With this, every stage before the pay floor stops on the clock: the walk, the
+repair and the polish after each. Tests: `stage-overrun.test.mjs` (a polish past its deadline stops within 1,024 moves with a
+valid roster no worse than its start; an infinite deadline changes nothing).
+
+Not claimed: generated weeks, one cloud machine, two builds at a time; the open-hours, pay and proof differences are within the
+builds' timing noise. What it buys is the 25-44 ms the pay floor no longer loses, nothing larger.

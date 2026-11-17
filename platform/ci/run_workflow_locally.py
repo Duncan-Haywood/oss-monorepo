@@ -1453,6 +1453,10 @@ def shared_changed_paths(failed, changed) -> list:
     return sorted(shared, key=lambda kv: -len(kv[1]))
 
 
+def _decode(data) -> str:
+    return data.decode("utf-8", "replace") if isinstance(data, bytes) else data
+
+
 def execute(step: Step, timeout: int) -> None:
     if step.status == "skipped":
         return
@@ -1480,10 +1484,20 @@ def execute(step: Step, timeout: int) -> None:
             step.run, shell=True, cwd=cwd, capture_output=True,
             text=True, timeout=timeout, executable=SHELL, env=env,
         )
-    except subprocess.TimeoutExpired:
+    except subprocess.TimeoutExpired as e:
         step.status = "failed"
         step.reason = f"timed out after {timeout}s"
         step.seconds = time.monotonic() - start
+        # Keep what the step printed before the cut. It was dropped, so a
+        # timed-out build read as FAIL (or UNRUN) with no output at all and
+        # the reader could not tell a slow step from a broken one, nor which
+        # test it was on (two doc-friction reports, 2026-11-16, portfolio-pages
+        # 'Build the site'). TimeoutExpired carries bytes even with text=True.
+        output = "\n".join(_decode(x) for x in (e.stdout, e.stderr)
+                           if x).strip().splitlines()
+        step.tail = output[-12:]
+        step.causes = failure_causes(output)
+        step.paths = named_paths(output)
         return
     step.seconds = time.monotonic() - start
     output = (done.stdout + done.stderr).strip().splitlines()
@@ -1797,7 +1811,11 @@ def report(name, steps, uses_skipped, forced) -> int:
     for step in unrun:
         print(f"UNRUN   {step.label}: {step.reason}")
         print(f"        $ {step.run.splitlines()[0]}")
-        if step.missing_kind == "after-skip":
+        # A budget cut mid-step keeps its partial output (see execute): the
+        # last lines say whether it was slow or stuck, and on what.
+        if step.missing_kind in ("after-skip", "budget"):
+            if step.missing_kind == "budget" and step.tail:
+                print("        last output before the cut:")
             for line in step.tail:
                 print(f"        {line}")
     if unrun:
