@@ -1,4 +1,4 @@
-# Is your boarding barn making money? Monthly profit, break-even occupancy and the board price you need
+# Is your boarding barn making money, and what board price do you need?
 
 > Free profit calculator for horse boarding barns: stalls, occupancy, board price, feed, bedding, your own care time and fixed costs become monthly profit, break-even occupancy and the board price you need. Private, runs in your browser.
 

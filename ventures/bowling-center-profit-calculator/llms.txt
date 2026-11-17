@@ -1,4 +1,4 @@
-# What share of its lane-hours does a bowling center need to sell to break even, and how much cash does the ramp-up eat?
+# What share of its lane-hours does a bowling center need to sell to break even?
 
 > Free bowling center profit calculator: lanes, peak and off-peak lane-hour prices, utilization, leagues, parties and events, food and drink, staffing, rent and a loan become monthly profit, break-even lane utilization, the price change that hits a target margin, the ramp-up cash reserve and payback.
 
