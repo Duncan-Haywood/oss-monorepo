@@ -249,8 +249,8 @@ const tidy = (raw) => cleanOcr(String(raw || "")).split(/\r?\n/).map((l) => l.tr
 // total (the receipt's own arithmetic confirms it), that reading's total line
 // replaces the first reading's, and the result is checked to read that total.
 // `note` says what changed, for the status line.
-export function settleReadings(readings) {
-  const out = settleTax(settleTotals(readings), readings);
+export function settleReadings(readings, { lead = false } = {}) {
+  const out = settleTax(settleTotals(readings, lead), readings, lead);
   const guess = out.text ? guessedTotal(out.text) : null;
   return guess ? { ...out, note: out.note ? `${out.note}; ${guess}` : guess } : out;
 }
@@ -270,10 +270,10 @@ export function guessedTotal(text) {
 // on (receipts.mjs voteTax) goes into it as a line: the first reading's own tax line is
 // swapped for it, or a "Tax" line goes in just above the total line. Left alone when
 // the text would not then read that tax (README, "Tax on receipt photos").
-function settleTax(settled, readings) {
+function settleTax(settled, readings, lead = false) {
   const t = readings.map(tidy).filter(Boolean);
   if (t.length < 2 || !settled.text) return settled;
-  const both = parseReceiptPasses(t), now = parseReceipt(settled.text);
+  const both = parseReceiptPasses(t, { lead }), now = parseReceipt(settled.text);
   if (both.taxCents === null || both.taxCents === now.taxCents || now.cents !== both.cents) return settled;
   const line = `Tax ${(both.taxCents / 100).toFixed(2)}`;
   const lines = settled.text.split("\n");
@@ -290,12 +290,15 @@ function settleTax(settled, readings) {
   return { ...settled, text, taxNote: `tax read as ${now.taxCents === null ? "none" : (now.taxCents / 100).toFixed(2)} first; kept ${(both.taxCents / 100).toFixed(2)}, which the other readings or the receipt's own sums support: check it` };
 }
 
-function settleTotals(readings) {
+function settleTotals(readings, lead = false) {
   const t = readings.map(tidy).filter(Boolean);
   if (t.length < 2) return { text: t[0] ?? "", note: null };
-  const one = parseReceipt(t[0]), both = parseReceiptPasses(t);
+  const one = parseReceipt(t[0]), both = parseReceiptPasses(t, { lead });
   // a merchant only another reading found goes on top, where the reader looks for it
   const first = !one.merchant && both.merchant ? `${both.merchant}\n${t[0]}` : t[0];
+  // the lead reading's total kept over an unconfirmed majority (receipts.mjs `lead`) still warns
+  const kept = both.cents !== null && both.cents === one.cents ? both.notes.find((n) => /from the first engine's reading/.test(n)) : null;
+  if (kept) return { text: first, note: kept.replace(/^OCR readings/, "the readings") };
   if (both.cents === null || both.cents === one.cents) return { text: first, note: null };
   const money = (c) => c === null ? "none" : (c / 100).toFixed(2);
   // the winning reading's own total line, or, when its total came from the
@@ -343,6 +346,7 @@ export async function readPhotos(files, { loadEngine: load = loadEngine, loadRap
     for (const [i, f] of images.entries()) {
       onProgress({ status: "reading", index: i, total: images.length, name: f.name });
       const readings = [];
+      let led = false;
       // one photo the reader cannot open is skipped; the others are still read
       // RapidOCR reads in its worker while tesseract reads in its own, then leads the vote
       const rapidText = lead ? lead.read(f).then((t) => t, () => null) : null;
@@ -366,11 +370,11 @@ export async function readPhotos(files, { loadEngine: load = loadEngine, loadRap
         // RapidOCR's reading leads the vote; a photo it cannot read keeps tesseract's
         if (lead) {
           const t = await rapidText;
-          if (t && t.trim()) { readings.unshift(t); readingsDone++; rapidRead++; }
+          if (t && tidy(t)) { readings.unshift(t); readingsDone++; rapidRead++; led = true; }
         }
       }
       catch (e) { skipped.push({ name: f.name, why: `could not be read (${String(e?.message ?? e).replace(/^Error: /, "")})` }); continue; }
-      const { text, note, taxNote } = settleReadings(readings);
+      const { text, note, taxNote } = settleReadings(readings, { lead: led });
       if (text) { blocks.push(text); if (note) notes.push({ name: f.name, note }); if (taxNote) notes.push({ name: f.name, note: taxNote }); }
       else skipped.push({ name: f.name, why: "no text found in the photo" });
     }
