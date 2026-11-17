@@ -284,10 +284,10 @@ flagships:
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
       eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`; its CIFF CRWs all read).
       Bayer trees parked: a range guard passes 6 fresh cameras, misses K-1 II/A7
-      III; no fresh frames left (eval/bayer-boosted-guard-*). Noise-aware: patch-PCA
-      frame noise loses 0 held tiles on both layouts (eval/*noise-pca-*); next: the
-      auto fallback. DNG 1.7.1.0 spec PDF: URL in
-      eval/opcode-spec-audit-2026-11-12.md.
+      III; no fresh frames left (eval/bayer-boosted-guard-*). Noise-aware: frame
+      noise is the default fallback since 2026-11-17 (eval/noise-fallback-real-*);
+      next: win back noisy-tile gain with a scale picked on tune rows only. DNG
+      1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
