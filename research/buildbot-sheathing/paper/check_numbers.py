@@ -47,6 +47,8 @@ M42 = E + "m42_sides/results.txt"
 M42P = E + "m42_sides/posthoc.txt"
 M43 = E + "m43_specstack/results.txt"
 M43P = E + "m43_specstack/posthoc.txt"
+M44 = E + "m44_legpreload/results.txt"
+M44P = E + "m44_legpreload/posthoc.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -197,6 +199,12 @@ CHECKS = [
     (M43P, "  h1 [1.4, -0.15] | zero | 50 | ok | 0.0333", "the stance allows 0.033 and 0.095 N m"),
     (M43P, "  h1 [1.6, 0.0] | zero | 50 | ok | 0.0946", "the stance allows 0.033 and 0.095 N m"),
     (M43, "  h1 [1.6, 0.15] | 0.9677 | 0.9655 | -0.22 | -0.22 | +7.80 | yes", "those lose 0.09 to 0.22 points"),
+    (M44, "  h1 [1.4, -0.15] | 0.0333 | 0.0300", "(0.030 and 0.085 N m)"),
+    (M44, "  h1 [1.6, 0.0] | 0.0946 | 0.0851", "(0.030 and 0.085 N m)"),
+    (M44, "  h1 [1.6, 0.0] | braked | 0.00 | 0.0000 | 0.9668", "do not move between no preload and 0.085 N m"),
+    (M44, "    5.0 | 0.172 | 0.019 (0.019) | 0.172 at [1.4, -0.15]", "worst becomes 0.172 mm, against 0.019 mm"),
+    (M44P, "  0.90 |  0.0 | [1.4, -0.15] | 0.0300 | 0.172 (phi 0) | 6 of 6 | 1/0/0/0", "a joint in the controller's hold set flips"),
+    (M44P, "  0.90 |  0.0 | [1.6, 0.0] | 0.0851 | 0.003 (phi 0)", "the residual is 0.003 mm"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),
