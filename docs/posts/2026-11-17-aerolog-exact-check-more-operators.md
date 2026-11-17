@@ -47,7 +47,10 @@ halves disagreed with it by up to 1.3%. I predicted at most 0.1% and wrote
 that this had held at eight operators. It had not: 11aa saw the same 1.8%
 spread, and a 32-point check there found the 8-point rule converged, because
 the two shifted 4-point grids err in opposite directions. I misread the log
-when writing the prediction, and the committed text stays as it was.
+when writing the prediction, and the committed text stays as it was. A
+32-point check run afterwards on the worst 12-operator layout puts the
+8-point total within 0.06% of converged, a quarter of the formula's 0.15%
+bias.
 
 **What a planner can take from it:** the 12- and 16-operator results now rest
 on the simulator's expectation, not only on a formula fitted to it. The cheap
