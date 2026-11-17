@@ -57,9 +57,9 @@ self.onmessage = async (ev) => {
     if (inventory) {
       const id = schemaOf(ifc);
       if (!id) throw new Error("the model's schema (FILE_SCHEMA, or the ifcXML namespace) is not IFC2X3, IFC4 or IFC4X3");
-      const schemas = await loadSchemas([id]);
+      const [schemas, measureUnits] = await Promise.all([loadSchemas([id]), json("measure-units.json")]);
       const model = new Model(ifc, schemas);
-      const inv = modelInventory(model);
+      const inv = modelInventory(model, measureUnits);
       inv.parseErrors = model.parseErrors.length;
       inv.seconds = (performance.now() - t0) / 1000;
       self.postMessage({ inventory: inv });

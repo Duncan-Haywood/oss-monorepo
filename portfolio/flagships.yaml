@@ -432,23 +432,23 @@ flagships:
       (to listen), scan-checked corpus, 2,129 notes read by eye, hymns, song
       sections, breakdown, riser; --a-cappella first verse and a range-checked
       --key-lift N, eval/key-lift-check.md; per-section singer guidance in --cues;
-      2026-11-16 latest: voicelessLow (p's burst read as k) held on held-out W, p as
-      k 18 to 0, now default; next: no burst on C#4-E4, L's cum). Open checks that
-      need a person: listen to the studio page, --sing, the options (--stretch,
-      --halftime, --fills, --limit pumping, stems, sections, breakdown, riser, the a
-      cappella verse and whether the key lift sounds like a lift); --lrc in a real
-      player and --markers/--stems in a DAW; --cues (and its section lines),
-      RECORDING-GUIDE.md and the E2-E4 range with real singers; the release kit
-      against a distributor's real form; the Te Deum/3427/3912/3775 fixes
-      (eval/scan-check-verdicts.md). master-cli passed EBU Tech 3341/3342 from their
-      text; open: the EBU's WAVs (403), Apple/Amazon/Tidal levels. scan.mjs reads
-      rhombi, quilismas, liquescents, lines at true thickness; tilted pages, curled
-      staves straightened (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
-      (eval/broken-stroke-check.md); next: worn pages (new GABC needed), mottled
-      squares, one-step cephalici read (eval/one-step-cephalicus-check.md), 10 of 84
-      tuning misses left, 3408's strokes, 3464's cephalicus; --split-voices (by
-      phrase or at a word, --split-words, eval/word-split-report.md) and --overlap
-      (both sections sing the seam note at a direct tenor/bass swap,
+      2026-11-17 latest: barBurst (C#4-E4 voice bar read as a nasal) held on
+      held-out X, voiced stops 102 to 130 of 144, now default; next: X's cog, tum,
+      L's cum). Open checks that need a person: listen to the studio page, --sing,
+      the options (--stretch, --halftime, --fills, --limit pumping, stems, sections,
+      breakdown, riser, the a cappella verse and whether the key lift sounds like a
+      lift); --lrc in a real player and --markers/--stems in a DAW; --cues (and its
+      section lines), RECORDING-GUIDE.md and the E2-E4 range with real singers; the
+      release kit against a distributor's real form; the Te Deum/3427/3912/3775
+      fixes (eval/scan-check-verdicts.md). master-cli passed EBU Tech 3341/3342 from
+      their text; open: the EBU's WAVs (403), Apple/Amazon/Tidal levels. scan.mjs
+      reads rhombi, quilismas, liquescents, lines at true thickness; tilted pages,
+      curled staves straightened (eval/staff-curl-check.md); 3506/3679 fixed
+      2026-11-15 (eval/broken-stroke-check.md); next: worn pages (new GABC needed),
+      mottled squares, one-step cephalici read (eval/one-step-cephalicus-check.md),
+      10 of 84 tuning misses left, 3408's strokes, 3464's cephalicus; --split-voices
+      (by phrase or at a word, --split-words, eval/word-split-report.md) and
+      --overlap (both sections sing the seam note at a direct tenor/bass swap,
       eval/overlap-report.md) need a singer's check of the ranges, of a mid-phrase
       handoff against a whole phrase and of a one-note overlap against a clean
       handoff; --baritones, --entrance-cost N and --second-tenors (TTBB; README)
@@ -470,16 +470,18 @@ flagships:
       eval/crosscheck_ifctester.py; the IDS editor (editor.html; opens an IDS and a
       model; several classes per spec 2026-11-17,
       eval/several-classes-2026-11-17.md): applicability facets beyond the class, a
-      model's values for a property; more real exports through
+      model's values for an attribute or a classification's codes (as for
+      properties, eval/model-values-2026-11-17.md); more real exports through
       eval/model-inventory.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked"). Next, most
       valuable first: (audit 2026-11-16: 26 of 27 invalid-* files INVALID, 0 of 307
       valid; Pset_/Qto_ template audit 2026-11-16: 5 of 5 IDS-Audit-tool pset files,
-      faults in 21 of 64 public IDS, eval/audit-corpus.mjs); several classes per
-      spec 2026-11-17 (eval/several-classes-2026-11-17.md: 81.1% of public facets
-      editable); ifcXML and .ifczip read 2026-11-16
+      faults in 21 of 64 public IDS, eval/audit-corpus.mjs); a model's property
+      values 2026-11-17 (eval/model-values-2026-11-17.md: one-of or range from the
+      model, ranges rounded outward, 1,014 of 1,014 pass their model; 82.0% of
+      public facets editable); ifcXML and .ifczip read 2026-11-16
       (eval/ifcxml-xbim-2026-11-16.md); IDS editor 2026-11-16 (203,433 offered specs
       audit clean, 15,102 valid in ids.xsd; found voids/fills token pair and
       classification-system gaps, eval/editor-2026-11-16.md); an MEP and an IFC4X3
@@ -487,8 +489,8 @@ flagships:
       eval/editor-open-2026-11-16.md; opens a model and offers its classes and sets,
       own sets editable, 79.4% of public facets editable,
       eval/model-inventory-2026-11-16.md: 4 real exports, 347 of 395 class-set pairs
-      own sets, 21 of 122 standard props in a non-template dataType): several
-      classes per spec, applicability property/attribute facets (85); offer a
-      model's values for a property; a dataType-mismatch hint; a GitHub Action
-      wrapper; heap use on a 200 MB model; a BIM coordinator's real IDS and model
-      (needs a person).
+      own sets, 21 of 122 standard props in a non-template dataType): applicability
+      property/attribute facets (85); a model's values for attributes and
+      classification codes; a dataType-mismatch hint; a GitHub Action wrapper; heap
+      use on a 200 MB model; a BIM coordinator's real IDS and model (needs a
+      person).
