@@ -2092,6 +2092,15 @@ class ChangedPaths(unittest.TestCase):
             fh.write("edited")
         self.assertEqual(runner.changed_paths("main", repo=self.repo), ["base.txt"])
 
+    def test_a_new_file_not_yet_added_is_counted_and_an_ignored_one_is_not(self):
+        self.sh("checkout", "-q", "-b", "work")
+        for name, text in (("new-post.md", "post"), (".gitignore", "*.log\n"),
+                           ("scratch.log", "noise")):
+            with open(os.path.join(self.repo, name), "w") as fh:
+                fh.write(text)
+        self.assertEqual(sorted(runner.changed_paths("main", repo=self.repo)),
+                         [".gitignore", "new-post.md"])
+
     def test_no_shared_commit_stops_instead_of_diffing_everything(self):
         self.sh("checkout", "-q", "--orphan", "other")
         self.commit("unrelated.txt")
@@ -2251,6 +2260,18 @@ class FailureCauses(unittest.TestCase):
         pairs = [("a.yml", step), ("b.yml", step)]
         self.assertEqual([p for p, _ in runner.shared_changed_paths(
             pairs, [post, "ventures/a/README.md", "ventures/b/README.md"])], [post])
+
+    def test_a_bare_name_many_tracked_files_share_names_none_of_them(self):
+        step = runner.Step("j", "s", "true", ".")
+        step.status, step.paths = "failed", {"2026-11-16-x.md", "index.html"}
+        post, page = "docs/posts/2026-11-16-x.md", "ventures/a/site/index.html"
+        pairs = [("a.yml", step), ("b.yml", step)]
+        self.assertEqual([p for p, _ in runner.shared_changed_paths(
+            pairs, [post, page], tree_counts={"index.html": 412})], [post])
+        # Named in full, the page still counts.
+        step.paths = {page}
+        self.assertEqual([p for p, _ in runner.shared_changed_paths(
+            pairs, [post, page], tree_counts={"index.html": 412})], [page])
 
     def test_a_changed_path_two_failed_steps_name_is_shared(self):
         def failed(job, paths):

@@ -1,4 +1,4 @@
-// The parts K, N, T, U, V and W of eval/coda-check.mjs (their BPM, pitches and syllables), shared by
+// The parts K, N, T, U, V, W, X and Y of eval/coda-check.mjs (their BPM, pitches and syllables), shared by
 // eval/vstop-diag.mjs and eval/place-sweep.mjs.
 export const PARTS = {
   K: { bpm: 104, pitches: [47, 53, 57, 59, 62], all: ['fons', 'dens', 'pons', 'mons', 'gens', 'hinc', 'runt', 'bunt', 'tent', 'cant', 'frons', 'sanct', 'lunt', 'quent', 'ep', 'ip', 'op', 'ec', 'ic', 'oc', 'eb', 'ib', 'ob', 'ef', 'of', 'ot', 'ux', 'ix', 'ox', 'im', 'om', 'on', 'in', 'e', 'i', 'u'] },
@@ -7,4 +7,6 @@ export const PARTS = {
   V: { bpm: 114, pitches: [43, 53, 55, 57, 59, 62], all: ['dog', 'bag', 'tog', 'gig', 'vag', 'nig', 'sog', 'leg', 'hug', 'cag', 'dac', 'roc', 'puc', 'nac', 'tuc', 'lic', 'gob', 'dab', 'rub', 'lap', 'rup', 'sep', 'fip', 'mop', 'dap', 'nid', 'led', 'sud', 'rad', 'tod', 'gum', 'ron', 'lis', 'tas', 'mu'] },
   N: { bpm: 108, pitches: [42, 49, 54, 58, 63, 64], all: ['dant', 'lent', 'sint', 'gunt', 'hunc', 'rens', 'tens', 'fans', 'font', 'vint', 'nab', 'ped', 'lud', 'gab', 'rud', 'tob', 'vig', 'cod', 'pet', 'lac', 'sup', 'rot', 'tac', 'dum', 'ven', 'nam', 'pes', 'vos', 'ma', 'ne'] },
   W: { bpm: 122, pitches: [45, 52, 56, 58, 59, 61], all: ['tep', 'cap', 'nup', 'bip', 'hop', 'vep', 'lop', 'gap', 'rip', 'hup', 'tic', 'mac', 'sec', 'voc', 'ric', 'hac', 'buc', 'nec', 'pab', 'teb', 'nog', 'tig', 'rug', 'dob', 'mug', 'fed', 'nut', 'hos', 'pum', 'fu'] },
+  X: { bpm: 106, pitches: [46, 55, 61, 62, 63, 64], all: ['lob', 'fub', 'nib', 'peb', 'fab', 'cub', 'fag', 'cog', 'bug', 'hud', 'rid', 'mud', 'fen', 'gim', 'lan', 'tum', 'lens', 'sunc', 'fant', 'gonc', 'rins', 'nep', 'ruc', 'sol', 'fos'] },
+  Y: { bpm: 102, pitches: [44, 57, 60, 61, 62, 64], all: ['mog', 'fog', 'hog', 'tug', 'dug', 'lug', 'sob', 'cob', 'nub', 'pod', 'gud', 'gad', 'bed', 'beg', 'bid', 'rig', 'gom', 'hun', 'son', 'tun', 'ponc', 'runc', 'ront', 'hont', 'dop', 'hut', 'bic', 'pof', 'mus'] },
 };

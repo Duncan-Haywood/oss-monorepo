@@ -89,6 +89,11 @@ export function parseDateValue(text) {
   return { day: dayNumber(y, mo, d), sec: h * 3600 + mi * 60 + Math.min(s, 59), date: false, utc: m[7] === "Z" };
 }
 
+/** A date typed into a form field or CLI flag: 2026-01-05, 2026-01-05 09:00, 2026-01-05T09:00:00 or 20260105T090000. */
+export function parseFieldDate(text) {
+  return parseDateValue(String(text).trim().replace(/[-:\s]/g, (c) => (c === " " ? "T" : "")).replace(/T(\d{4})$/, "T$100"));
+}
+
 /** "2026-01-05 09:00" style rendering of a wall time. */
 export function formatWall(day, sec, dateOnly = false) {
   const { y, m, d } = civil(day);
@@ -273,7 +278,7 @@ export function parseInput(text, { dtstart = "", tzid = "" } = {}) {
     }
   }
   if (!out.dtstart && dtstart) {
-    const v = parseDateValue(String(dtstart).replace(/[-:\s]/g, (c) => (c === " " ? "T" : "")).replace(/T(\d{4})$/, "T$100"));
+    const v = parseFieldDate(dtstart);
     if (v) out.dtstart = v;
     else findings.push(finding("error", "bad-dtstart", `Start ${dtstart} is not a date or date-time`, "Use 2026-01-05 or 2026-01-05 09:00."));
   }
@@ -851,8 +856,8 @@ export function analyze(input = {}) {
   for (const r of usable) findings.push(...ruleFindings(r, p));
   let after = null;
   if (o.after) {
-    after = parseDateValue(String(o.after).replace(/[-:]/g, "").replace(" ", "T"));
-    if (!after) findings.push(finding("error", "bad-after", `"Show from" ${o.after} is not a date`, "Use 2027-01-01."));
+    after = parseFieldDate(o.after);
+    if (!after) findings.push(finding("error", "bad-after", `"Show from" ${o.after} is not a date`, "Use 2027-01-01 or 2027-01-01 09:00."));
   }
   const exp = expand(p, { limit: Number(o.limit) || 25, after, dtstartMode: o.dtstartMode });
   findings.push(...zoneFindings(exp, parsed.dtstart));

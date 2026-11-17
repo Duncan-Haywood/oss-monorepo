@@ -53,7 +53,7 @@ FLAGSHIP_REAUDIT_DAYS = 7
 # the owner, 2026-11-10: "more detail in it ... detailed metrics on quality and correctness".
 DETAIL_FROM = "2026-11-11"
 CHECK_RESULTS = ("pass", "fail", "partial")
-DRAWN_BY = ("sample", "census", "fix")  # how the subject was chosen; only "sample" feeds the unbiased share
+DRAWN_BY = ("sample", "census", "fix", "reaudit")  # how the subject was chosen; only "sample" feeds the unbiased share
 FILE_RE = re.compile(r"^(\d{4}-\d{2}-\d{2})-[a-z0-9][a-z0-9._-]*\.json$")
 
 
@@ -426,17 +426,17 @@ def mode_note(date: str, audits: list[dict]) -> str | None:
     """A first line for `sample` when today's mode is not `sample`, else None.
 
     The track prompt (prompts/quality/prompt-0.md, step 1) says run `sample`;
-    the README's "Four modes" says run `mode` first. Ten quality runs in five
+    the README's "Five modes" says run `mode` first. Ten quality runs in five
     days reported the two procedures (friction_rank.py, 2026-11-10..14), and
     the prompt is owner-held, so the tool that runs first says it.
     """
     sys.path.insert(0, str(Path(__file__).parent))
     import quality_metrics as qm
-    m = qm.mode_for(date, None, qm.last_reflection(), len(qm.queue(audits, "high")))
+    m = qm.mode_for(date, None, qm.last_reflection(), len(qm.queue(audits, "high")), len(qm.reaudit_due(audits)))
     if m["mode"] == "sample":
         return None
     return (f"NOTE: today's mode is `{m['mode']}`, not sample ({m['why']}): {qm.MODES[m['mode']]}. "
-            "portfolio/quality/README.md, \"Four modes\", says how; a sample round today is a deviation to record.")
+            "portfolio/quality/README.md, \"Five modes\", says how; a sample round today is a deviation to record.")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -479,6 +479,10 @@ def main(argv: list[str] | None = None) -> int:
     mo = sub.add_parser("mode", help="which mode today's quality session runs")
     mo.add_argument("--date", default=dt.date.today().isoformat())
     mo.add_argument("--seed", default=None)
+    ra = sub.add_parser("reaudit", help="subjects with a recorded fix that no later audit has checked, highs first")
+    ra.add_argument("--limit", type=int, default=15)
+    ra.add_argument("--seed", default=None, help="default: today's date plus a random tail, so parallel sessions spread out")
+    ra.add_argument("--no-prs", action="store_true", help="skip the open-PR search that puts subjects in flight last")
     args = ap.parse_args(argv)
 
     if args.cmd == "sample":
@@ -521,10 +525,12 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "census" and not args.seed:
         # The date alone gave every census session on a day the same draw (doc_friction, 2026-11-15T07:08).
         args.seed = claim_seed(dt.date.today().isoformat())
+    if args.cmd == "reaudit" and not args.seed:
+        args.seed = claim_seed(dt.date.today().isoformat())
     if args.cmd == "queue":
         # Two fix sessions took the same top row the same minute (doc_friction, 2026-11-16T16:41).
         args.seed = None if args.oldest_first else (args.seed or claim_seed(dt.date.today().isoformat()))
-    if args.cmd in ("metrics", "coverage", "census", "queue", "mode"):
+    if args.cmd in ("metrics", "coverage", "census", "queue", "mode", "reaudit"):
         sys.path.insert(0, str(Path(__file__).parent))
         import quality_metrics
         return quality_metrics.main_metrics(args, audits, population(), meets_bar, wilson)

@@ -22,7 +22,7 @@ const rows = [];
 for (const f of files) {
   let inv;
   const t0 = performance.now();
-  try { inv = modelInventory(new Model((await readModel(f)).text, R.schemas)); } catch (e) { tot.failed++; rows.push(`| ${f.split("/").slice(-2).join("/")} | failed: ${e.message.slice(0, 60)} |`); continue; }
+  try { inv = modelInventory(new Model((await readModel(f)).text, R.schemas), R.measureUnits); } catch (e) { tot.failed++; rows.push(`| ${f.split("/").slice(-2).join("/")} | failed: ${e.message.slice(0, 60)} |`); continue; }
   const ms = performance.now() - t0;
   tot.models++;
   const S = R.schemas[inv.schema], ps = R.psets[inv.schema], tm = inv.schema === "IFC2X3" ? R.typeMap : null;

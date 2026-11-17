@@ -109,7 +109,7 @@ flagships:
       real merchant's payout export, a real 1099-K; (4) loans: LendingClub rounds
       payments up (99.97% of 445k, README), `--round up`; open: a lender's full
       table, a supplier's terms letter; (5) receipts OCR (page SROIE 84.6%, US
-      79.6%, tax 74.6%; CLI 78.6%, tax 71.9%; CORD photos 67.3%/55.8%, tax 16/41;
+      79.6%, tax 74.6%; CLI 78.6%, tax 71.9%; CORD photos 70.4%/55.8%, tax 16/41;
       open: OCR-bound); (6) payroll (README): two journal layouts read; open: a real
       Gusto or ADP export; (7) IRIS NEC and MISC rents files on IRS TY2025
       guidelines (HISTORY): open: a real upload, TY2026 template; (8) `salestax
@@ -122,12 +122,12 @@ flagships:
       2,000 characters.
     buildable: >-
       Receipts, item (5): SRD photos (eval/srd-fetch.mjs) and CORD photos
-      (eval/cord_images.py; huggingface.co answered 2026-11-16 late) read by
-      `apt-get install tesseract-ocr` and eval/srd-cli.mjs. CLI `--four-pass`: SRD
-      totals 153 of 196, tax 134 of 185; CORD validation totals 66 of 98, tax 25 of
-      47; test 53 of 95, tax 16 of 41 (eval/cord-tax-split-2026-11-16.md: 21 tax
-      misses sorted, total split at 10%). Next, from validation: a service charge in
-      the tax vote; the 5 wrong totals with a tax line. CORD test stays held out.
+      (eval/cord_images.py) read by `apt-get install tesseract-ocr` and
+      eval/srd-cli.mjs. CLI `--four-pass`: SRD totals 155 of 196, tax 135 of 185
+      (eval/change-ocr-2026-11-17.md); CORD validation totals 69 of 98, tax 27 of 47
+      (change lines, sums across readings: eval/cord-wrong-totals-2026-11-17.md;
+      service-charge vote: no change there); test 53 of 95, tax 16 of 41. Next:
+      validation-61's 8,260 for 8,250; test-14 on photos. CORD test stays held out.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
@@ -239,10 +239,10 @@ flagships:
       History: README, eval/*. Hub, clock (PINs, geofence), PAY_RULES (NV, 13 meal
       states), leave accrual (LEAVE_ACCRUAL), fair-workweek log and pay
       (FAIR_WORKWEEK; team-offer exception, on-call shifts, Oregon's standby list,
-      PHL, LA, NYC, SF, Emeryville presets; next a real site's changes): next live
-      deploy, real punches at a site. Exact side: branch-and-price and column
-      generation prove 20-80 person weeks; the exact check is on by default at every
-      size. Forecast side (--from-sales, eight real files,
+      PHL, LA, NYC, SF, Emeryville, Berkeley presets; next a real site's changes):
+      next live deploy, real punches at a site. Exact side: branch-and-price and
+      column generation prove 20-80 person weeks; the exact check is on by default
+      at every size. Forecast side (--from-sales, eight real files,
       eval/real-pos-exports.mjs): backtest, closure score, half-life auto, priced
       cut, tickets, labour standard, shut-door work, multi-file pastes. Posted
       weeks: reissues hold started and posted shifts; a whole week at the Deputy
@@ -253,16 +253,15 @@ flagships:
       a flow bound"); 2 s reserve at 300+ copies (4 s worse, 1.2 s ties); day sweeps
       LP-guided, by the open-hours LP when the pay floor is skipped (README "A guide
       when the pay floor is skipped"); pay floor tries past a spent budget, 4 s
-      (README "The pay floor once the budget is spent"); walk, repair and pay polish
-      stop at the budget (README "The pay polish stops at the budget's end"); re-run
-      the keep-usual-shifts sweep on real dated leave records; a manager's read on
-      whether the steadier plan is the one they would post; a real 7shifts account
-      through --import-7shifts (README "Reading 7shifts directly"); a real When I
-      Work account or response through --import-wheniwork (README "Reading When I
-      Work directly"); Homebase (docs need an account); a real Square account via
-      --import-square (README "Reading Square's schedule"); --cover-price moves two
-      shifts together (README "Moving two shifts together"). More open items:
-      NEXT.md.
+      (README "The pay floor once the budget is spent"); day sweeps keep 2 s past a
+      spent budget (2 of 11 open hours late; repeat ladders none, README "The day
+      sweeps past a spent budget"); re-run the keep-usual-shifts sweep on real dated
+      leave records; a manager's read on whether the steadier plan is the one they
+      would post; a real 7shifts account through --import-7shifts (README "Reading
+      7shifts directly"); a real When I Work account or response through
+      --import-wheniwork (README "Reading When I Work directly"); Homebase (docs
+      need an account); a real Square account via --import-square (README "Reading
+      Square's schedule"). More open items: NEXT.md.
   - venture: photo-editing
     hosts: [https://raw.pixls.us/, https://github.com/]
     why: >-
@@ -364,25 +363,26 @@ flagships:
       on 6x9 0 waits (eval/odd-orbit.py, 3 k-cycles); even 40, 46 on 3 sessions 0
       waits (eval/session-orbit.py). 29 on 5x9, 35 on 6x9: 0 waits (odd-lns.py). 41
       on 7x9 0 waits (last night UNSAT alone, eval/lns-bad-night.py; re-dealt with
-      the short night). Next, most valuable first: 47 on 8x9 (odd-lns.py
-      --save/--resume, --also); the rest of the 20-team gap (40 to 44 still
-      ~444-550: four-round re-deals or a longer run, now ~4x cheaper; or a starter
-      family climbed with the floor as its score); 30 teams in the page (README
-      "Half the table": 104 s with the symmetric step, 2x 28 teams; next: keep
-      tables in the module, copy-in/out now as large as the step; 29 adds nothing);
-      the walk's last heavy tail (22 teams: 20 of 280 walks out of budget either
-      way, eval/walk-guide.txt); home-and-away breaks exact since 2026-11-13
-      (pairLeastBreaks, eval/pair-exact.txt): a floor-priced home-and-away timetable
-      search on it, and its cost at 18-20 teams (26-76 s, PAIR_EXACT_NODES) cut; 12
-      teams 124-132 open (132 by eval/window-refill.c): below 132, or 124-130 ruled
-      out. More open items: NEXT.md.
+      the short night). 43 on 7x9 0 waits (odd-orbit.py, 9,849 s). Next, most
+      valuable first: 47 on 8x9 (5 of 16 nights: --resume
+      eval/lns-states/47-8x9.json, --also 15); 49 on 8x9 (orbit, ~11 h est.); the
+      rest of the 20-team gap (40 to 44 still ~444-550: four-round re-deals or a
+      longer run, now ~4x cheaper; or a starter family climbed with the floor as its
+      score); 30 teams in the page (README "Half the table": 104 s with the
+      symmetric step, 2x 28 teams; next: keep tables in the module, copy-in/out now
+      as large as the step; 29 adds nothing); the walk's last heavy tail (22 teams:
+      20 of 280 walks out of budget either way, eval/walk-guide.txt); home-and-away
+      breaks exact since 2026-11-13 (pairLeastBreaks, eval/pair-exact.txt): a
+      floor-priced home-and-away timetable search on it, and its cost at 18-20 teams
+      (26-76 s, PAIR_EXACT_NODES) cut. More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "Checked
-      before a calibration drill". Next: set MIN_FIT_RPM (1,000; no floor looked as
-      good) on held-out builds; why a 0.8 s wheel braking to 526 rpm settles 3-4%
-      low under the scaled gains (costs ~2 s a shot); does the hold make shots late?
+      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "A ball
+      charged the integrator". Next: set MIN_FIT_RPM (1,000; no floor looked as
+      good) on held-out builds; does the hold make shots late? Ball hold (README "A
+      ball charged the integrator"): measure WHEEL_RPM_FULL error's cost on 0.2 s
+      wheels; an ESC with its own speed loop.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -431,18 +431,19 @@ flagships:
       (to listen), scan-checked corpus, 2,129 notes read by eye, hymns, song
       sections, breakdown, riser; --a-cappella first verse and a range-checked
       --key-lift N, eval/key-lift-check.md; per-section singer guidance in --cues;
-      2026-11-16 latest: voicelessLow (p's burst read as k) held on held-out W, p as
-      k 18 to 0, now default; next: no burst on C#4-E4, L's cum). Open checks that
-      need a person: listen to the studio page, --sing, the options (--stretch,
-      --halftime, --fills, --limit pumping, stems, sections, breakdown, riser, the a
-      cappella verse and whether the key lift sounds like a lift); --lrc in a real
-      player and --markers/--stems in a DAW; --cues (and its section lines),
-      RECORDING-GUIDE.md and the E2-E4 range with real singers; the release kit
-      against a distributor's real form; the Te Deum/3427/3912/3775 fixes
-      (eval/scan-check-verdicts.md). master-cli passed EBU Tech 3341/3342 from their
-      text; open: the EBU's WAVs (403), Apple/Amazon/Tidal levels. scan.mjs reads
-      rhombi, quilismas, liquescents, lines at true thickness; tilted pages, curled
-      staves straightened (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
+      2026-11-17 latest: voicedLead (a voiced stop's lead read as a nasal) failed on
+      held-out Y, 173 to 174 of 192, opt-in; next: a cluster-safe voiced-closure
+      test, X's tum, L's cum). Open checks that need a person: listen to the studio
+      page, --sing, the options (--stretch, --halftime, --fills, --limit pumping,
+      stems, sections, breakdown, riser, the a cappella verse and whether the key
+      lift sounds like a lift); --lrc in a real player and --markers/--stems in a
+      DAW; --cues (and its section lines), RECORDING-GUIDE.md and the E2-E4 range
+      with real singers; the release kit against a distributor's real form; the Te
+      Deum/3427/3912/3775 fixes (eval/scan-check-verdicts.md). master-cli passed EBU
+      Tech 3341/3342 from their text; open: the EBU's WAVs (403), Apple/Amazon/Tidal
+      levels. scan.mjs reads rhombi, quilismas, liquescents, lines at true
+      thickness; tilted pages, curled staves straightened
+      (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
       (eval/broken-stroke-check.md); next: worn pages (new GABC needed), mottled
       squares, one-step cephalici read (eval/one-step-cephalicus-check.md), 10 of 84
       tuning misses left, 3408's strokes, 3464's cephalicus; --split-voices (by
@@ -466,19 +467,21 @@ flagships:
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
       (eval/ifcxml-xbim-2026-11-16.md); cross-check more public models from
       opensourceBIM/IFC-files and buildingSMART's Sample-Test-Files with
-      eval/crosscheck_ifctester.py; the IDS editor (editor.html; opens an IDS and a
-      model; several classes per spec 2026-11-17,
-      eval/several-classes-2026-11-17.md): applicability facets beyond the class, a
-      model's values for a property; more real exports through
-      eval/model-inventory.mjs.
+      eval/crosscheck_ifctester.py; the IDS editor (editor.html; README): a property
+      value with no dataType in the applicability (39 kept facets,
+      eval/applicability-rows-2026-11-17.md); exclusive bounds on an opened range
+      (numeric attribute ranges 2026-11-17, eval/model-attr-ranges-2026-11-17.md);
+      more real exports through eval/model-inventory.mjs and
+      eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked"). Next, most
       valuable first: (audit 2026-11-16: 26 of 27 invalid-* files INVALID, 0 of 307
       valid; Pset_/Qto_ template audit 2026-11-16: 5 of 5 IDS-Audit-tool pset files,
-      faults in 21 of 64 public IDS, eval/audit-corpus.mjs); several classes per
-      spec 2026-11-17 (eval/several-classes-2026-11-17.md: 81.1% of public facets
-      editable); ifcXML and .ifczip read 2026-11-16
+      faults in 21 of 64 public IDS, eval/audit-corpus.mjs); a model's property
+      values 2026-11-17 (eval/model-values-2026-11-17.md: one-of or range from the
+      model, ranges rounded outward, 1,014 of 1,014 pass their model; 82.0% of
+      public facets editable); ifcXML and .ifczip read 2026-11-16
       (eval/ifcxml-xbim-2026-11-16.md); IDS editor 2026-11-16 (203,433 offered specs
       audit clean, 15,102 valid in ids.xsd; found voids/fills token pair and
       classification-system gaps, eval/editor-2026-11-16.md); an MEP and an IFC4X3
@@ -486,8 +489,12 @@ flagships:
       eval/editor-open-2026-11-16.md; opens a model and offers its classes and sets,
       own sets editable, 79.4% of public facets editable,
       eval/model-inventory-2026-11-16.md: 4 real exports, 347 of 395 class-set pairs
-      own sets, 21 of 122 standard props in a non-template dataType): several
-      classes per spec, applicability property/attribute facets (85); offer a
-      model's values for a property; a dataType-mismatch hint; a GitHub Action
-      wrapper; heap use on a 200 MB model; a BIM coordinator's real IDS and model
-      (needs a person).
+      own sets, 21 of 122 standard props in a non-template dataType): applicability
+      rows 2026-11-17 (eval/applicability-rows-2026-11-17.md: counts equal the
+      checker's applicable; 83.5% of public facets editable, IDS-Audit-tool 21.5%);
+      a no-dataType value row; attribute values and classification codes 2026-11-17
+      (eval/model-attr-codes-2026-11-17.md: 242 of 242 offers pass; 143 of 210
+      Uniformat elements in Schultz have an empty code, Require a code); a range for
+      numeric attributes; a dataType-mismatch hint; a GitHub Action wrapper; heap
+      use on a 200 MB model; a BIM coordinator's real IDS and model (needs a
+      person).

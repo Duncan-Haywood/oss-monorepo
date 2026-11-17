@@ -84,10 +84,17 @@ def solver_profit_bruteforce(p: Params, n: int = 4000) -> float:
 
 
 def collusion_threshold_stake(p: Params) -> float:
-    """Smallest stake with s <= m(lam S + h) + m(phi J - k)/(1-phi)^+ : beyond it
-    a bribing solver cannot push the cheat rate to 1 (Result 1)."""
+    """Smallest stake beyond which a bribing solver cannot push the cheat rate to 1 (Result 1).
+
+    Two conditions must both hold. Bribing all m verifiers must cost more than the saving,
+    s <= m(lam S + h) + m(phi J - k)/(1-phi)^+, and checking must pay at all when the solver always
+    cheats, (1-phi)(lam S + h) > k - phi J. Below the second stake the verifiers stay silent unbribed
+    and the solver cheats every task for free, whatever m is, so the threshold is the larger of the two
+    and falls as 1/m only until it meets the second (quality audit 2026-11-13, verifier-bribery)."""
     bonus = max(0.0, p.m * (p.phi * p.J - p.k) / (1 - p.phi))
-    return max(0.0, ((p.s - bonus) / p.m - p.h) / p.lam)
+    bribe = ((p.s - bonus) / p.m - p.h) / p.lam
+    checking_pays = ((p.k - p.phi * p.J) / (1 - p.phi) - p.h) / p.lam
+    return max(0.0, bribe, checking_pays)
 
 
 def simulate_verifier_choice(p: Params, x: float, b: float, tasks: int = 200_000, seed: int = 0):

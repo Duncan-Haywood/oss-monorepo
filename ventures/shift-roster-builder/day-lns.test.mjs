@@ -166,3 +166,32 @@ test("with the pay floor skipped, the open-hours LP guides the pass, keeps every
   }
   assert.ok(guided >= 1, "no week ran the open-hours guide");
 });
+
+// Where the pass gains (`optimality.dayLNS.gains`, README "The day sweeps past a spent budget"): each gain is logged with its
+// time and phase, the gains add up to what the pass saved, and repeated guide ladders (`dayGuideRepeat`, off) keep that sum and
+// never end above where the pass started.
+test("dayLNS logs its gains in order, summing to what it saved; repeated ladders keep the sum and never end worse", () => {
+  let logged = 0;
+  for (let seed = 1; seed < 9; seed++) {
+    const { staff, slots } = seededWeek(seed * 104729, 8, 24, { mins: true, soft: seed % 2 === 0 });
+    for (const extra of [{}, { dayGuideRepeat: true }]) {
+      const r = buildRoster(staff, slots, { exact: true, scoreCG: false, exactMs: 1, exactNodes: 1, cliqueFloor: true, scoreFloor: true, dayLNSMs: 200, seed, ...extra });
+      const d = r.optimality.dayLNS;
+      if (!d) continue;
+      assert.ok(Number.isFinite(d.startedAt) && d.startedAt >= 0);
+      assert.ok(d.ladders >= (d.guide.length ? 1 : 0) && d.ladders <= (extra.dayGuideRepeat ? 8 : 1), `seed ${seed}: ${d.ladders} ladders`);
+      let t = -1, sum = 0;
+      for (const [ms, phase, g] of d.gains) {
+        assert.ok(ms >= t, `seed ${seed}: gains out of order`); t = ms;
+        assert.ok(["sweep", "guide", "guide2", "kick"].includes(phase));
+        assert.ok(g > 0); sum += g;
+      }
+      // The pass keeps its roster only when it is valid, so the logged gains bound what it saved from above.
+      assert.ok(d.before - d.after <= sum + 1e-6, `seed ${seed}: saved ${d.before - d.after} > logged ${sum}`);
+      if (d.after < d.before - 1e-9) assert.ok(Math.abs(d.before - d.after - sum) < 1e-6, `seed ${seed}: saved ${d.before - d.after}, logged ${sum}`);
+      assert.ok(d.after <= d.before + 1e-6);
+      if (d.gains.length) logged++;
+    }
+  }
+  assert.ok(logged >= 1, "no week logged a gain");
+});

@@ -1,0 +1,70 @@
+Milestone 7t: retuned at lag 36 ms (D^0) on closure src_li; 7r's retuned designs (15 ms, D^1.5) alongside. Held-out 64 episodes, seed 9999; dead = diverged flights summed over seeds (per seed); cap on.
+
+[above, 7l src_li [src_li]] D 0.112 m; L 0.107 m; mass 1.133 kg (1.162, 1.060, 1.190, 1.086, 1.095, 1.208); pos kp 30.79
+         train 36 ms D^0 (lag  36.0 ms; margin 0/6): 45_1_cap 359; 20_2_cap 364; 45_2_cap 380; 20_3_cap 383  | 45_2 [64, 63, 64, 64, 63, 62]; J45_1 median -44.627
+            id 33 ms D^0 (lag  33.0 ms; margin 0/6): 45_1_cap 324; 20_2_cap 334; 45_2_cap 370; 20_3_cap 377  | 45_2 [62, 59, 64, 63, 62, 60]; J45_1 median -39.832
+          id 39.1 ms D^0 (lag  39.1 ms; margin 0/6): 45_1_cap 378; 20_2_cap 379; 45_2_cap 384; 20_3_cap 384  | 45_2 [64, 64, 64, 64, 64, 64]; J45_1 median -47.661
+             36 ms D^1.5 (lag  29.7 ms; margin 0/6): 45_1_cap 275; 20_2_cap 285; 45_2_cap 339; 20_3_cap 357  | 45_2 [44, 58, 64, 57, 60, 56]; J45_1 median -34.598
+   inherited 15 ms D^1.5 (lag  12.4 ms; margin 6/6): 45_1_cap   3; 20_2_cap  47; 45_2_cap 106; 20_3_cap 194  | 45_2 [13, 23, 17, 20, 20, 13]; J45_1 median -1.607
+
+[above, aware src_li [src_li]] D 0.106 m; L 0.116 m; mass 1.289 kg (1.163, 1.177, 1.241, 1.498, 1.291, 1.364); pos kp 26.77
+         train 36 ms D^0 (lag  36.0 ms; margin 0/6): 45_1_cap 353; 20_2_cap 362; 45_2_cap 374; 20_3_cap 379  | 45_2 [62, 64, 64, 64, 56, 64]; J45_1 median -46.724
+            id 33 ms D^0 (lag  33.0 ms; margin 0/6): 45_1_cap 326; 20_2_cap 335; 45_2_cap 359; 20_3_cap 369  | 45_2 [59, 62, 63, 64, 48, 63]; J45_1 median -42.469
+          id 39.1 ms D^0 (lag  39.1 ms; margin 0/6): 45_1_cap 369; 20_2_cap 373; 45_2_cap 380; 20_3_cap 381  | 45_2 [64, 64, 64, 64, 60, 64]; J45_1 median -47.872
+             36 ms D^1.5 (lag  27.6 ms; margin 0/6): 45_1_cap 247; 20_2_cap 261; 45_2_cap 302; 20_3_cap 319  | 45_2 [51, 54, 53, 48, 43, 53]; J45_1 median -32.522
+   inherited 15 ms D^1.5 (lag  11.5 ms; margin 6/6): 45_1_cap   0; 20_2_cap  25; 45_2_cap  54; 20_3_cap 115  | 45_2 [13, 13, 9, 3, 7, 9]; J45_1 median -1.543
+
+[above, 7l lag36] D 0.121 m; L 0.110 m; mass 1.240 kg (1.326, 1.197, 1.227, 1.224, 1.230, 1.238); pos kp 25.26; rejected 0.10 of training candidates
+         train 36 ms D^0 (lag  36.0 ms; margin 6/6): 45_1_cap  30; 20_2_cap  93; 45_2_cap 149; 20_3_cap 239  | 45_2 [13, 33, 30, 26, 31, 16]; J45_1 median -4.606
+            id 33 ms D^0 (lag  33.0 ms; margin 6/6): 45_1_cap   9; 20_2_cap  65; 45_2_cap 108; 20_3_cap 220  | 45_2 [9, 24, 20, 17, 23, 15]; J45_1 median -2.064
+          id 39.1 ms D^0 (lag  39.1 ms; margin 6/6): 45_1_cap  57; 20_2_cap 139; 45_2_cap 198; 20_3_cap 260  | 45_2 [24, 40, 36, 38, 36, 24]; J45_1 median -9.260
+             36 ms D^1.5 (lag  33.5 ms; margin 5/6): 45_1_cap  38; 20_2_cap  83; 45_2_cap 117; 20_3_cap 216  | 45_2 [6, 22, 47, 19, 9, 14]; J45_1 median -2.366
+   inherited 15 ms D^1.5 (lag  14.0 ms; margin 6/6): 45_1_cap   0; 20_2_cap  21; 45_2_cap  29; 20_3_cap 117  | 45_2 [1, 5, 9, 5, 5, 4]; J45_1 median -1.632
+
+[above, aware lag36] D 0.117 m; L 0.125 m; mass 1.419 kg (1.343, 1.448, 1.321, 1.575, 1.381, 1.443); pos kp 23.69; rejected 0.11 of training candidates
+         train 36 ms D^0 (lag  36.0 ms; margin 6/6): 45_1_cap   7; 20_2_cap  47; 45_2_cap  63; 20_3_cap 158  | 45_2 [20, 12, 11, 13, 4, 3]; J45_1 median -1.976
+            id 33 ms D^0 (lag  33.0 ms; margin 5/6): 45_1_cap   2; 20_2_cap  28; 45_2_cap  53; 20_3_cap 126  | 45_2 [18, 9, 9, 9, 5, 3]; J45_1 median -1.782
+          id 39.1 ms D^0 (lag  39.1 ms; margin 5/6): 45_1_cap  21; 20_2_cap  72; 45_2_cap  93; 20_3_cap 194  | 45_2 [28, 13, 15, 17, 12, 8]; J45_1 median -2.100
+             36 ms D^1.5 (lag  32.0 ms; margin 5/6): 45_1_cap  24; 20_2_cap  48; 45_2_cap  63; 20_3_cap 128  | 45_2 [8, 7, 7, 38, 1, 2]; J45_1 median -1.726
+   inherited 15 ms D^1.5 (lag  13.3 ms; margin 5/6): 45_1_cap   0; 20_2_cap   6; 45_2_cap   8; 20_3_cap  76  | 45_2 [1, 1, 2, 2, 1, 1]; J45_1 median -1.695
+
+[below, 7l src_li [src_li]] D 0.115 m; L 0.109 m; mass 0.989 kg (1.014, 0.942, 1.039, 0.965, 0.935, 1.038); pos kp 30.98
+         train 36 ms D^0 (lag  36.0 ms; margin 0/6): 45_1_cap 370; 20_2_cap 378; 45_2_cap 383; 20_3_cap 384  | 45_2 [64, 64, 64, 64, 63, 64]; J45_1 median -45.184
+            id 33 ms D^0 (lag  33.0 ms; margin 0/6): 45_1_cap 348; 20_2_cap 365; 45_2_cap 378; 20_3_cap 382  | 45_2 [63, 63, 63, 63, 63, 63]; J45_1 median -41.553
+          id 39.1 ms D^0 (lag  39.1 ms; margin 0/6): 45_1_cap 383; 20_2_cap 383; 45_2_cap 384; 20_3_cap 384  | 45_2 [64, 64, 64, 64, 64, 64]; J45_1 median -47.313
+             36 ms D^1.5 (lag  31.1 ms; margin 0/6): 45_1_cap 314; 20_2_cap 351; 45_2_cap 366; 20_3_cap 378  | 45_2 [64, 64, 59, 54, 62, 63]; J45_1 median -40.071
+   inherited 15 ms D^1.5 (lag  13.0 ms; margin 6/6): 45_1_cap   5; 20_2_cap  80; 45_2_cap 131; 20_3_cap 256  | 45_2 [22, 22, 22, 22, 21, 22]; J45_1 median -1.807
+
+[below, aware src_li [src_li]] D 0.107 m; L 0.117 m; mass 1.224 kg (1.136, 1.023, 1.256, 1.411, 1.256, 1.264); pos kp 27.09
+         train 36 ms D^0 (lag  36.0 ms; margin 0/6): 45_1_cap 360; 20_2_cap 370; 45_2_cap 376; 20_3_cap 383  | 45_2 [64, 62, 64, 63, 59, 64]; J45_1 median -47.288
+            id 33 ms D^0 (lag  33.0 ms; margin 0/6): 45_1_cap 337; 20_2_cap 354; 45_2_cap 367; 20_3_cap 378  | 45_2 [64, 59, 64, 61, 55, 64]; J45_1 median -43.240
+          id 39.1 ms D^0 (lag  39.1 ms; margin 0/6): 45_1_cap 373; 20_2_cap 379; 45_2_cap 382; 20_3_cap 382  | 45_2 [64, 63, 64, 64, 63, 64]; J45_1 median -48.415
+             36 ms D^1.5 (lag  28.0 ms; margin 0/6): 45_1_cap 283; 20_2_cap 303; 45_2_cap 321; 20_3_cap 350  | 45_2 [62, 54, 58, 39, 49, 59]; J45_1 median -34.689
+   inherited 15 ms D^1.5 (lag  11.7 ms; margin 6/6): 45_1_cap   2; 20_2_cap  40; 45_2_cap  64; 20_3_cap 150  | 45_2 [14, 17, 8, 4, 11, 10]; J45_1 median -1.516
+
+[below, 7l lag36] D 0.124 m; L 0.123 m; mass 1.050 kg (1.182, 0.934, 1.104, 0.933, 1.003, 1.145); pos kp 24.59; rejected 0.09 of training candidates
+         train 36 ms D^0 (lag  36.0 ms; margin 6/6): 45_1_cap  17; 20_2_cap 130; 45_2_cap 161; 20_3_cap 278  | 45_2 [22, 37, 17, 33, 26, 26]; J45_1 median -2.857
+            id 33 ms D^0 (lag  33.0 ms; margin 6/6): 45_1_cap   7; 20_2_cap  90; 45_2_cap 124; 20_3_cap 263  | 45_2 [18, 29, 12, 28, 19, 18]; J45_1 median -2.208
+          id 39.1 ms D^0 (lag  39.1 ms; margin 5/6): 45_1_cap  41; 20_2_cap 169; 45_2_cap 195; 20_3_cap 294  | 45_2 [30, 43, 22, 34, 34, 32]; J45_1 median -4.579
+             36 ms D^1.5 (lag  34.7 ms; margin 6/6): 45_1_cap  20; 20_2_cap 117; 45_2_cap 145; 20_3_cap 270  | 45_2 [28, 41, 10, 27, 18, 21]; J45_1 median -2.587
+   inherited 15 ms D^1.5 (lag  14.5 ms; margin 6/6): 45_1_cap   0; 20_2_cap  54; 45_2_cap  59; 20_3_cap 203  | 45_2 [7, 15, 6, 13, 10, 8]; J45_1 median -1.565
+
+[below, aware lag36] D 0.111 m; L 0.125 m; mass 1.338 kg (1.180, 1.279, 1.327, 1.458, 1.381, 1.405); pos kp 21.26; rejected 0.09 of training candidates
+         train 36 ms D^0 (lag  36.0 ms; margin 6/6): 45_1_cap   6; 20_2_cap  57; 45_2_cap  82; 20_3_cap 192  | 45_2 [20, 12, 6, 13, 20, 11]; J45_1 median -1.977
+            id 33 ms D^0 (lag  33.0 ms; margin 6/6): 45_1_cap   1; 20_2_cap  44; 45_2_cap  56; 20_3_cap 155  | 45_2 [13, 9, 6, 9, 11, 8]; J45_1 median -1.659
+          id 39.1 ms D^0 (lag  39.1 ms; margin 5/6): 45_1_cap  25; 20_2_cap  95; 45_2_cap 117; 20_3_cap 225  | 45_2 [30, 10, 10, 20, 27, 20]; J45_1 median -3.711
+             36 ms D^1.5 (lag  29.5 ms; margin 6/6): 45_1_cap   2; 20_2_cap  39; 45_2_cap  48; 20_3_cap 126  | 45_2 [13, 8, 4, 5, 12, 6]; J45_1 median -1.657
+   inherited 15 ms D^1.5 (lag  12.3 ms; margin 6/6): 45_1_cap   0; 20_2_cap  15; 45_2_cap  15; 20_3_cap  88  | 45_2 [4, 4, 2, 1, 2, 2]; J45_1 median -1.610
+
+Spearman rho, mass against dead_45_2_cap per design, over the 24 designs of each pair of sets per geometry:
+     src_li        train 36 ms D^0: above +0.42, below +0.19
+     src_li           id 33 ms D^0: above +0.40, below +0.18
+     src_li         id 39.1 ms D^0: above +0.41, below +0.48
+     src_li            36 ms D^1.5: above -0.51, below -0.51
+     src_li  inherited 15 ms D^1.5: above -0.86, below -0.77
+      lag36        train 36 ms D^0: above -0.78, below -0.80
+      lag36           id 33 ms D^0: above -0.72, below -0.85
+      lag36         id 39.1 ms D^0: above -0.85, below -0.78
+      lag36            36 ms D^1.5: above -0.50, below -0.75
+      lag36  inherited 15 ms D^1.5: above -0.77, below -0.94
+wall time 6387 s (training 6110 s)

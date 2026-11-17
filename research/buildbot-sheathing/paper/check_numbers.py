@@ -36,6 +36,7 @@ M33 = E + "m33_compensate/results.txt"
 M34 = E + "m34_windup/results.txt"
 M35 = E + "m35_hose/results.txt"
 M36 = E + "m36_wrist_ft/results.txt"
+M37 = E + "m37_preload/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -139,6 +140,12 @@ CHECKS = [
     (M36, "g1  20.0 | y +2.344 | +0.000 / -0.290 / -0.293", "from 2.344 mm to 0.293 mm"),
     (M36, "g1  20.0 | ft300            |   1.64", "loses 1.64 points instead of 91.55"),
     (M36, "g1   5.0 | y +0.060 z +0.170 | y -0.100", "0.060 and 0.100 mm at 5 N"),
+    (M37, "g1   5.0  0.2 | 1.378 (0.606)", "leaves the G1 1.378 mm at a 5 N drag"),
+    (M37, "g1  20.0 | m 0, g 0 |  56.48", "loses 56.48 points over 0 to 20 N"),
+    (M37, "total | hold 161 / leg 3 / waist 6 / arm 5", "161 of the 175 mispredicted"),
+    (M37, "/ 0.830 (0.549) / 0.830 (0.282)", "(0.830 mm at 5 N, 1.64 points"),
+    (M37, "g1  20.0 | m 0.1, g 0 |   1.64", "1.64 points\nover 0 to 20 N)"),
+    (M37, "g1  0.10 | 14 (lost ['[1.0, 0.15]']) | 49.11 | 1.66", "for 1.66% more leg torque and one of 15 G1 poses"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),

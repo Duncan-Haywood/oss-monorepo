@@ -180,3 +180,37 @@ test("expand() honours limit and reports truncation", () => {
   assert.equal(e.occurrences.length, 5);
   assert.equal(e.truncated, true);
 });
+
+test("'show from' takes a time in the forms the start field and the date list use", () => {
+  // Hourly from 09:00: from 12:00 skips 09, 10 and 11. The listed dates read "2026-01-01 12:00",
+  // so pasting one back into "Show from" has to work (it used to say "is not a date").
+  const text = "DTSTART:20260101T090000\nRRULE:FREQ=HOURLY;COUNT=48";
+  for (const after of ["2026-01-01 12:00", "2026-01-01T12:00", "2026-01-01 12:00:00", "20260101T120000"]) {
+    const r = analyze({ text, after, limit: 3 });
+    assert.ok(!r.findings.some((f) => f.code === "bad-after"), after);
+    assert.deepEqual(r.occurrences.map((o) => o.date), ["2026-01-01 12:00", "2026-01-01 13:00", "2026-01-01 14:00"], after);
+    assert.equal(r.skippedBefore, 3, after);
+  }
+  assert.ok(codes(text, { after: "2026-01-01 25:00" }).includes("bad-after"));
+  assert.ok(codes(text, { after: "2026-02-31" }).includes("bad-after"));
+});
+
+test("DTSTART outside the rule: the finding names the rule's own first date", () => {
+  const f = analyze({ text: "DTSTART:20260101T090000\nRRULE:FREQ=WEEKLY;BYDAY=TU;COUNT=3" }).findings.find((x) => x.code === "dtstart-not-in-rule");
+  assert.match(f.detail ?? f.message ?? JSON.stringify(f), /start at 2026-01-06 09:00\./);
+});
+
+test("mixed BYDAY: the finding states the 50-year window the intersect search used", () => {
+  // MO with 1TU: no Monday is also the month's first Tuesday, so dateutil's reading gives nothing.
+  const f = analyze({ text: "DTSTART:20260105T090000\nRRULE:FREQ=MONTHLY;BYDAY=MO,1TU;COUNT=5" }).findings.find((x) => x.code === "mixed-byday");
+  assert.ok(f);
+  assert.match(JSON.stringify(f), /no dates in the next 50 years/);
+});
+
+test("a zoned rule with no clock-change occurrences gets no DST finding", () => {
+  const r = analyze({ text: "DTSTART;TZID=America/New_York:20260105T090000\nRRULE:FREQ=WEEKLY;COUNT=3" });
+  assert.equal(r.tz, "America/New_York");
+  assert.ok(!r.findings.some((f) => f.code === "dst-gap" || f.code === "dst-overlap"));
+  const g = analyze({ text: "DTSTART;TZID=America/New_York:20260306T023000\nRRULE:FREQ=DAILY;COUNT=4" }).findings.find((f) => f.code === "dst-gap");
+  assert.match(JSON.stringify(g), /1 listed occurrence falls/);
+});

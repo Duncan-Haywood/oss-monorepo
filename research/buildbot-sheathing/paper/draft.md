@@ -636,6 +636,16 @@ is a property of the sharp threshold model, so it bounds the brittleness of mode
 compensation rather than measuring it; the cure is to keep held joints away from the threshold.
 A 2.4 N error (the sensor's pre-2017 noise) leaves 1.326 mm, worse than no sensor.
 
+A preload is that cure for the legs (milestone 37). Here the controller plans once from the
+measured force and the robot settles under the true one by the smallest change of contact forces
+that balances it, a stricter model than re-solving under the true force. Without a preload it
+leaves the G1 1.378 mm at a 5 N drag and loses 56.48 points over 0 to 20 N, because the balance
+controller holds its chosen joints exactly at the threshold: 161 of the 175 mispredicted
+joint-pose cases are those joints. Commanding every leg joint at least 0.1 N m clear of the
+threshold removes all of them and gives back the re-solved figures (0.830 mm at 5 N, 1.64 points
+over 0 to 20 N), for 1.66% more leg torque and one of 15 G1 poses. The 0.3 to 0.8 mm that remains
+comes from waist and arm joints, which the ground reaction cannot reach.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every

@@ -1207,6 +1207,29 @@ sign claim: on blind designs the clipped ladder finds a better routed
 point than equal-cost random routing, by about 2.5 points of regret on
 average.
 
+\textbf{Where the ladder's losses sit (milestone 139; replay).}
+Milestone 138's four losses were all at the tight clock, three of them
+just above theta. We tested that reading, with six predictions committed
+before the table existed (\texttt{experiments/\allowbreak{}tight\_\allowbreak{}theta/\allowbreak{}}), on the 99
+ladder-branch cells that did not suggest it: milestones 119 to 125's
+seen cells (which tuned only the guards, never SWC), the 42 cells of
+milestones 125, 132 and 133 and milestone 137's 12. The clock half is
+refuted: SWC fails (loses to random by more than a point) on 14 of 51
+tight cells and 11 of 48 relaxed ones (one-sided Fisher p = 0.39), and
+on the 42 designs with both clocks on the ladder branch the tight cell
+is the worse one on 19 and the better one on 23 (sign p = 0.64). The
+ratio half holds: failing cells have lower routing-cost ratios than the
+rest (AUC 0.67, permutation p = 0.006), and 16 of the 25 failures have
+routed/r2 at most 4. That band does not favour random routing, though.
+It also holds SWC's largest wins, and over its 45 cells the two tie on
+the mean (6.20\% against 6.03\%), while above 4 SWC has 2.65\% against
+4.44\% for random. A guard that routes randomly at the tight clock up to
+a ratio of 4 has 4.01\% against 4.21\% for SWC (better on 12 designs,
+worse on 11; design-bootstrap interval -1.25 to +0.78 points), and
+raising theta at both clocks to 5 or more is worse than SWC. The
+ladder's edge grows with the routing-cost ratio; near theta it is a coin
+flip with high variance, and theta = 3 is kept.
+
 \hypertarget{limitations-and-threats}{%
 \subsection{5 Limitations and threats}\label{limitations-and-threats}}
 
@@ -1310,10 +1333,11 @@ and page limit still need checking against the call for papers.
   Milestones 137 and 138 ran the confirmatory sets: over 58 blind
   designs SWC beats equal-cost random routing on 42 and loses on 13
   (sign p = 0.0001), with a design-level mean difference of -2.47 points
-  (95\% interval -3.87 to -1.06). What remains open is whether its
-  tight-clock losses near theta (milestone 138, post hoc) are a pattern,
-  and the 15 designs of milestone 138's run order the flow did not
-  reach.
+  (95\% interval -3.87 to -1.06). Milestone 139 found the losses cluster
+  near theta at both clocks, not at the tight clock, and that no raised
+  threshold helps. What remains open is a pre-route signal that
+  separates the near-theta wins from the near-theta losses, and the 15
+  designs of milestone 138's run order the flow did not reach.
 \end{enumerate}
 
 The headline is split by cost. On small designs, where a routed point

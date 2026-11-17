@@ -1,0 +1,162 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKmuQ7UxKP3mKrQuDEZ",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T00:18:08Z",
+  "ended": "2026-11-17T00:31:34Z",
+  "wall_minutes": 13.89,
+  "tokens_in": 10084844,
+  "tokens_out": 57720,
+  "cost_usd": 4.3483,
+  "tool_calls": 84,
+  "task": "quality track, reflect mode (forced: no reflection since 2026-11-10)",
+  "projects": [
+    "portfolio/quality",
+    "platform/ci",
+    "research/verifier-bribery",
+    "PRODUCT_PLAYBOOK.md"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16755",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "Steps 1-5 describe only a sample round; today's mode (reflect) comes from quality_audit.py sample's NOTE line and the README. The NOTE made it cheap, but the owner-held prompt still reads as if every session samples."
+    },
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "'a later round re-audits' (Fix forward) had no mechanism: the 90-day skip in sample/census and the fix mode's 'not this one' meant no re-audit happened after 2026-11-10. Fixed in this PR with a reaudit mode."
+    },
+    {
+      "file": "platform/ci/quality_metrics.py",
+      "issue": "Reflection 1's verification metric 'audits with a surviving mutation' saturated at 193 of 196 once structured audits seeded ~6 mutants each, and was compared across the instrument change. Per-mutant kill rate added."
+    },
+    {
+      "file": "portfolio/quality/reflections/2026-11-10-where-quality-drops-off.md",
+      "issue": "Its build-side fixes (pinned-number test, pre-merge mutation, claims pass, spec sources, shared parser) had no owner or PR and none shipped; only the audit-tooling ones did. A reflection should ship or file each fix."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Ran reflect mode, not a sample round, as quality_audit.py mode directed; the round post of step 5 became a reflection post.",
+      "did": "reflection + docs/posts/2026-11-17-quality-reflection-the-fix-loop-is-open.md",
+      "result": "shipped with tooling fixes"
+    },
+    {
+      "file": "portfolio/quality/README.md",
+      "why": "A reflection is about process, but its spot-check found an open high (verifier-bribery's threshold) that the blanket rule counted as fixed, with a false headline on a live research page; fixed it in the same PR.",
+      "did": "function, paper Result 1, README, a pinned test, a dated correction on the 2026-10-24 post; reverting the fix fails the test",
+      "result": "8 of 8 verifier-bribery tests pass"
+    },
+    {
+      "file": "portfolio/quality/README.md",
+      "why": "The research equivalent of the definition-of-done lines belongs in research/CLAUDE.md, which is owner-held; left as a still-to-do in the reflection instead of a control-plane PR, so this PR is not held.",
+      "did": "PRODUCT_PLAYBOOK.md section 7 only",
+      "result": null
+    }
+  ],
+  "writeups": [
+    "portfolio/quality/reflections/2026-11-17-the-fix-loop-is-open.md",
+    "docs/posts/2026-11-17-quality-reflection-the-fix-loop-is-open.md"
+  ],
+  "goal": "measure and improve the quality process (owner, 2026-11-10: reflections on where quality drops off, with process fixes)",
+  "notes": "Mode reflect (sample's draw 2026-11-17-a915 not used). Corpus: 382 audit files, 357 subjects. Sampled share meeting the bar 33 of 306 (Wilson 8%-15%); by instrument prose 26/151 (17%) vs structured 8/160 (5%, 3%-10%). Per-mutant kill 548/1162 (47%); ventures 342/647, research 206/515. Fixes: 201 marked fixed_by, 1313 assumed by the blanket rule, 843 open (after this PR's mark-fixed: 202/1307/848); 2 subjects ever re-audited after a fix, 248 await one, 74 with a README listing the audit as open. Spot-check: 8 random high blanket-fixed defects (seed 20261117) all addressed in code or copy; the vet calculator audit has >=3 of 7 'fixed' defects still open; verifier-bribery and gig-driver highs open and listed in README Known gaps. Fix PRs: this PR (verifier-bribery high, fixed_by set). Shipped: reaudit command+mode (census 0.30->0.20, reaudit 0.10), mutation_kill, fix_confirmation, bar_by_instrument, documented_open; PRODUCT_PLAYBOOK definition-of-done lines. Local checks: pytest test_quality_metrics/test_quality_audit/test_quality_mark_fixed 59 passed; seeded mutation in fix_confirmation caught; verifier-bribery unittest 8 OK and quality_mutate of the fix caught; quality_audit.py validate 0 problems; check_md_links ok after one fix; check_code_refs exit 0; research/_homepage/build.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "38469385-c3f2-5e48-8e51-cded8f66ba22",
+    "transcripts": 1,
+    "first": "2026-11-17T00:18:08Z",
+    "last": "2026-11-17T00:32:01Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 81,
+        "input": 152,
+        "output": 57720,
+        "thinking": 15117,
+        "cache_read": 9933872,
+        "cache_write_5m": 0,
+        "cache_write_1h": 150820,
+        "api_equivalent_usd": 4.3483,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 81,
+      "input": 152,
+      "output": 57720,
+      "thinking": 15117,
+      "cache_read": 9933872,
+      "cache_write_5m": 0,
+      "cache_write_1h": 150820,
+      "api_equivalent_usd": 4.3483,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 84,
+    "tools": {
+      "Bash": 78,
+      "Write": 2,
+      "ToolSearch": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.89,
+      "active_minutes": 13.89,
+      "model_minutes": 12.49,
+      "tool_minutes": 1.4,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a quality analyst reading 382 audit files, writing the analysis scripts, tooling change with tests, and a research-model correction",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 230.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

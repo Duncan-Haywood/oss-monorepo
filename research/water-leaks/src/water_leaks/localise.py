@@ -337,6 +337,41 @@ def shape_timed(states, k, alarm, window=30, fit_days=30, force=None, half=True)
     return pick, info
 
 
+def shape_chosen(states, k, window=30, fit_days=30, score="slope", span=14):
+    """Step 24: among atoms active on day k with onset in [k - window, k], fit each atom's daily
+    flow over [k - fit_days + 1, k] (0 where inactive) with `shape_fit`. If any fits as a ramp,
+    return the ramp with the largest score, ties by the larger flow on day k: score="slope" the
+    fitted slope b, "level" its fitted level on day k, b (n - tau), "ls" the least-squares slope
+    over the last `span` days (as `steepest_dated`). Otherwise the candidate with the latest
+    onset (ties by flow). Falls back to `latest_onset` when no atom qualifies. Also returns
+    {atom: (shape, tau day, amplitude)}."""
+    st = states[k]
+    cand = [j for j in st if window is None or st[j][1] >= k - window]
+    if not cand:
+        return latest_onset(st), {}
+    d0 = max(0, k - fit_days + 1)
+    n = k + 1 - d0
+    info = {}
+    for j in cand:
+        f = [states[d][j][0] if j in states[d] else 0.0 for d in range(d0, k + 1)]
+        shape, tau, amp, _ = shape_fit(f)
+        info[j] = (shape, d0 + tau, amp)
+    ramps = [j for j in cand if info[j][0] == "ramp"]
+    if not ramps:
+        return max(cand, key=lambda j: (st[j][1], st[j][0], -j)), info
+    if score == "slope":
+        val = {j: info[j][2] for j in ramps}
+    elif score == "level":
+        val = {j: info[j][2] * (k + 1 - info[j][1]) for j in ramps}
+    else:
+        days = np.arange(max(0, k - span + 1), k + 1)
+        xc = days - days.mean()
+        den = float(xc @ xc) or 1.0
+        val = {j: float(xc @ np.array([states[d][j][0] if j in states[d] else 0.0 for d in days])) / den
+               for j in ramps}
+    return max(ramps, key=lambda j: (val[j], st[j][0], -j)), info
+
+
 def _one_shape(f, shape):
     f = np.asarray(f, dtype=float)
     n = len(f)

@@ -183,7 +183,8 @@
       "what": "The 'collusion-proof stake' S_c ignores the region where checking is never worthwhile even unbribed (k-phiJ >= (1-phi)(lam S+h)); there the solver cheats every task for free above S_c. With the paper's own s=1, lam=k=.5: m=4 at S=0.6 > S_c=0.5 and m=8 at S=0.5 > S_c=0.25 both give profit s at x=1. The headline 'falls as 1/m' (README, paper, live page) is false once S_c drops below (k-phiJ)/((1-phi)lam) - h/lam; the true threshold is the max of the two.",
       "where": "research/verifier-bribery/src/verifier_bribery/model.py:90",
       "category": "logic-error",
-      "origin": "implementation"
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16755"
     },
     {
       "severity": "medium",
@@ -222,7 +223,8 @@
     }
   ],
   "fix_prs": [
-    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15464"
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15464",
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/16755"
   ],
   "verdict": "A short, clean stylised note whose bribe-floor formula and no-jackpot tables recompute exactly by hand, but its headline does not hold: the 'collusion-proof stake that falls as 1/m' is wrong whenever the inspection-game cheat rate is already 1, and in the paper's own parameters m=4 and m=8 solvers cheat every task above S_c. The solver's profit also drops the (1-phi) real-cheat probability the verifier side uses, so profits with planted faults (0.526 vs 0.500 by Monte Carlo) and Result 3's 'm/(1-phi)' are off. Tests miss both (2 of 5 mutants survive; the brute force shares the profit function). Prior work on collusion in redundant verification is not cited and the jackpot result restates Truebit's design rationale. Does not meet the bar; finished in the small sense that everything listed runs."
 }

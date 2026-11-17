@@ -31,4 +31,5 @@ const atPayFloor = preFloor.length ? preFloor[preFloor.length - 1][1] : null;
 console.log(JSON.stringify({ seed: SEED, P, S, week, extra, open: Math.floor(r.score / 100000 + 1e-9), score: Number(r.score.toFixed(2)), gap: Number((o.gap ?? 0).toFixed(2)), status: o.status,
   skip: o.scoreFloorSkip ?? null, atPayFloor, spentBy: atPayFloor !== null ? atPayFloor - BUDGET : null, crossed, timeline: tl,
   coverRepair: o.coverRepair ?? null, cg: o.scoreCG ? { ms: o.scoreCG.ms, shareMs: o.scoreCG.shareMs, maxLpMs: o.scoreCG.maxLpMs, maxPricingMs: o.scoreCG.maxPricingMs, stoppedMidRound: o.scoreCG.stoppedMidRound } : null,
-  clique: o.cliqueFloor ? { ms: o.cliqueFloor.ms } : null, ms: Date.now() - t0 }));
+  clique: o.cliqueFloor ? { ms: o.cliqueFloor.ms } : null,
+  dayLNS: o.dayLNS ? { before: Number(o.dayLNS.before.toFixed(2)), after: Number(o.dayLNS.after.toFixed(2)), kicks: o.dayLNS.kicks, ms: o.dayLNS.ms, startedAt: o.dayLNS.startedAt, ladders: o.dayLNS.ladders, guideFrom: o.dayLNS.guideFrom, gains: (o.dayLNS.gains || []).map(([t, k, d]) => [t, k, Number(d.toFixed(2))]) } : null, ms: Date.now() - t0 }));

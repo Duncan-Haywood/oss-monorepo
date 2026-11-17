@@ -67,6 +67,21 @@ def synthesise(sources, dst_angle, depth_noise=0.0, seed=0):
     return out, have
 
 
+def fill_holes(out, have, fallback):
+    """Fill pixels neither source reached with the nearest camera's own pixels (the simplest DIBR hole fill).
+
+    A depth-image-based renderer never shows a hole as a flat colour; the cheapest real fallback is the
+    nearest source image itself, so a hole costs no more than cutting to that camera would there.
+    """
+    return np.where(have[..., None], out, fallback)
+
+
+def hole_fraction(have, sky):
+    """Share of the target's surface pixels (non-sky) that neither source reached."""
+    surface = ~sky
+    return float((~have & surface).sum() / surface.sum()) if surface.any() else 0.0
+
+
 def psnr(a, b, mask=None):
     m = np.ones(a.shape[:2], bool) if mask is None else mask
     if not m.any():

@@ -1335,7 +1335,19 @@ def changed_paths(base: str, repo: str = REPO) -> list[str]:
     if done.returncode != 0:
         raise SystemExit(f"run_workflow_locally: git diff against {base} failed:\n"
                          f"{done.stderr.strip()}")
-    return [line for line in done.stdout.splitlines() if line.strip()]
+    paths = [line for line in done.stdout.splitlines() if line.strip()]
+    # New files the session has not yet `git add`ed. `git diff` never lists
+    # them, so a new, uncommitted post was missing from the diff: it selected
+    # no workflow of its own and could not be the COMMON CAUSE. On a polish
+    # run (2026-11-17) the post's 169-character description failed four
+    # Pages steps while COMMON CAUSE named the run's one-line index.html
+    # edit; seeded again here, same result, until this line.
+    new = git("ls-files", "--others", "--exclude-standard")
+    if new.returncode == 0:
+        seen = set(paths)
+        paths += [p for p in new.stdout.splitlines()
+                  if p.strip() and p not in seen]
+    return paths
 
 
 _RUNNER_FILES: dict[str, str] = {}
@@ -1436,12 +1448,37 @@ def named_paths(lines, root: str = REPO) -> set:
     return found
 
 
-def shared_changed_paths(failed, changed) -> list:
+def tree_basename_counts(repo: str = REPO) -> dict[str, int]:
+    """{file name: how many tracked files carry it}, or {} if git cannot say."""
+    done = subprocess.run(["git", "ls-files", "-z"], cwd=repo,
+                          capture_output=True, text=True)
+    counts: dict[str, int] = {}
+    if done.returncode == 0:
+        for path in done.stdout.split("\0"):
+            if path:
+                base = os.path.basename(path)
+                counts[base] = counts.get(base, 0) + 1
+    return counts
+
+
+def shared_changed_paths(failed, changed, tree_counts=None) -> list:
     """[(path, [labels])] for each changed path named by two or more failed
-    steps, most-named first. `failed` holds (workflow, step) pairs."""
+    steps, most-named first. `failed` holds (workflow, step) pairs.
+
+    A bare file name stands for a changed path only when no other file in the
+    diff or the tracked tree has that name. `index.html` is the name of
+    hundreds of pages, so a step that printed it said nothing about which one;
+    counted, it put a polish run's one-line index.html edit next to the real
+    cause, an over-long post description (seeded 2026-11-17: 2 of 4 failed
+    steps 'named' it, neither about that page). `tree_counts` is
+    tree_basename_counts(), passed in by tests."""
+    if tree_counts is None:
+        tree_counts = tree_basename_counts() if failed else {}
     names: dict[str, list[str]] = {}
     for path in set(changed):
         names.setdefault(os.path.basename(path), []).append(path)
+    names = {base: ps for base, ps in names.items()
+             if tree_counts.get(base, 0) <= 1}
     seen: dict[str, list[str]] = {}
     for name, step in failed:
         hits = {p for p in changed if p in step.paths}

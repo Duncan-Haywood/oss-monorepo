@@ -487,6 +487,20 @@ model, not a measurement; statics only.
 
 ![Residual along the wall with and without a wrist F/T sensor, the floor set by joints at the friction threshold, and the stack points lost](experiments/m36_wrist_ft/figure.png)
 
+**Milestone 37: does a held-joint preload remove the sensor's floor?** Here the controller plans once from the measured
+wrench and the robot then settles under the true load, a stricter error model than milestone 36's. Without a preload
+that leaves the G1 **1.38 mm** at a 5 N drag and costs **56.5 points** over 0–20 N, because the balance controller holds
+its chosen leg joints exactly at the friction threshold: 92% of the mispredicted joints are those (H136 held).
+Commanding every leg joint at least **0.1 N m** clear of the threshold removes every one of them and gives back milestone
+36's figures: **0.83 mm** at 5 N and **1.64 points** over 0–20 N, for 1.7% more leg torque and one of 15 G1 poses lost
+(H138 refuted). It does not reach the target of 0.1 mm (H137 refuted): what is left comes from waist and arm joints at the
+threshold, which no choice of ground reaction can move. A hedged compensator (a quarter gap near the threshold) does not
+halve the error (H140 refuted), and the pre-2017 FT 300 still leaves 1.35 mm (H139 held). The rule: hold leg joints a
+margin clear of the threshold; the arms need a different preload (a two-handed squeeze) or less backlash. The settle
+model and the 0.2 N m threshold are modelled, not measured; statics only.
+
+![Worst residual along the wall against the preload margin for two sensors, and the hedged compensator](experiments/m37_preload/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
