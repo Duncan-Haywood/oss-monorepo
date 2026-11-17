@@ -29,7 +29,13 @@ sending the next speeds straight after each release). A shot is late by how far 
 release plus the interval; the report gives, per hold and interval, the mean and worst lateness, how many shots were
 over 0.25 s late, and the whole drill's span.
 
-    PYTHONPATH=src:tests:firmware/esp32 python3 tests/min_fit_heldout.py [--raw out.jsonl] [--quick]
+THROUGH (added after the first run, which found the hold making the shot after a slow one late): `--through` adds
+the same drills with controller.LOOP_THROUGH_CHANGE and host.LOOP_THROUGH_CHANGE on (the board's slow-wheel watch
+goes on through the next shot's speed change, and the Pi sends the next speeds straight after the release). Its rows
+are labelled hold "thru". It has no tuned value, so these builds are not its design set; the decision rule above was
+settled by the first run and is not re-run on these rows.
+
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/min_fit_heldout.py [--raw out.jsonl] [--quick] [--through]
 
 One process per case on every core; about 15 minutes on four. `--raw` appends each case as it finishes and a rerun
 skips the cases already there. The physics is the simulator's assumption, not a real wheel.
@@ -41,7 +47,7 @@ import statistics
 import sys
 
 import min_fit_rpm_sweep as m
-from feeder_sim import SimFeeder
+from feeder_sim import SimFeeder, controller
 from tennisbots import host, launcher
 
 LAUNCHERS = ((0.78, 0.42), (0.88, 0.55), (0.83, 0.28))
@@ -53,6 +59,7 @@ SEED = 7
 TARGETS = (540, 640, 740, 860, 960, 1080, 1180, 1320, 1450)
 FLOORS = (500.0, 750.0, 1000.0)
 SHIPPED_HOLD = host.HOLD_RPM
+THROUGH = -1.0                 # a case's hold value for "LOOP_THROUGH_CHANGE on" (the Pi keeps HOLD_RPM for the last stop)
 INTERVALS = (3.0, 2.0)
 
 
@@ -98,7 +105,8 @@ def case(args):
     pname, plant = PLANTS[pi]
     se, sp = LAUNCHERS[li]
     true = launcher.WheelLauncher(speed_efficiency=se, spin_efficiency=sp)
-    host.HOLD_RPM = hold
+    controller.LOOP_THROUGH_CHANGE = host.LOOP_THROUGH_CHANGE = hold == THROUGH
+    host.HOLD_RPM = SHIPPED_HOLD if hold == THROUGH else hold
     res, wheels = run(true, tau, heldout_drill(interval), plant)
     if not res.ok:
         return args, {"aborted": res.aborted}
@@ -125,6 +133,8 @@ def main():
             for li in range(len(LAUNCHERS)):
                 grid.append(("fit", pi, tau, li, SHIPPED_HOLD, 3.0))
                 grid += [("late", pi, tau, li, h, iv) for h, iv in ((0.0, 3.0), (SHIPPED_HOLD, 2.0), (0.0, 2.0))]
+                if "--through" in sys.argv:
+                    grid += [("fit", pi, tau, li, THROUGH, 3.0), ("late", pi, tau, li, THROUGH, 2.0)]
     raw = sys.argv[sys.argv.index("--raw") + 1] if "--raw" in sys.argv else None
     done = {}
     if raw:
@@ -144,7 +154,8 @@ def main():
                 with open(raw, "a") as f:
                     f.write(json.dumps([list(a), r]) + "\n")
     rows = [(g, done[tuple(g)]) for g in grid]
-    fit = [(g, r) for g, r in rows if g[0] == "fit"]
+    lab = lambda h: "thru" if h == THROUGH else f"{h:.0f}"
+    fit = [(g, r) for g, r in rows if g[0] == "fit" and g[4] != THROUGH]
 
     print("Part 1. Record drop / true drop per launched wheel, held-out slow drill, shipped hold, 3.0 s interval")
     print(f"{'plant':15} {'rpm band':>11} | {'wheels':>6} {'>2% off':>7} {'min':>6} {'max':>6}")
@@ -184,24 +195,46 @@ def main():
               f" (d) the floor aborts nothing (same drills feed every floor). -> floor "
               f"{'500' if a and b and c else '1,000'}")
 
+    thru = [(g, r) for g, r in rows if g[0] == "fit" and g[4] == THROUGH]
+    if thru:
+        print("\nThrough the speed change (LOOP_THROUGH_CHANGE), same drills: record drop / true drop, and the fit at"
+              " the shipped floor against the shipped hold's")
+        for pi in plants:
+            for name, src in (("shipped hold", fit), ("through", thru)):
+                ok = [r for g, r in src if g[1] == pi and "aborted" not in r]
+                rat = [q for r in ok for rpm, q in r["ratios"]]
+                slow = [q for r in ok for rpm, q in r["ratios"] if rpm < 1000]
+                e = [r["fit1000"] for r in ok]
+                e5 = [r["fit500"] for r in ok]
+                if not ok:
+                    print(f"{PLANTS[pi][0]:15} {name:12} | all aborted")
+                    continue
+                print(f"{PLANTS[pi][0]:15} {name:12} | drills {len(ok)} | >2% off {sum(abs(q - 1) > 0.02 for q in rat)}"
+                      f" of {len(rat)}, range {min(rat):.3f}-{max(rat):.3f}; under 1,000 rpm range {min(slow):.3f}-"
+                      f"{max(slow):.3f} | spin err floor 1,000 {100 * statistics.fmean(x[1] for x in e):.2f} / "
+                      f"{100 * max(x[1] for x in e):.2f}%, floor 500 {100 * statistics.fmean(x[1] for x in e5):.2f} / "
+                      f"{100 * max(x[1] for x in e5):.2f}% | speed err {100 * statistics.fmean(x[0] for x in e):.2f}%")
+
     print("\nPart 3. Lateness, held-out slow drill: release after (previous release + interval)")
     print(f"{'plant':15} {'interval':>8} {'hold':>6} | {'drills':>6} {'abort':>5} | {'late mean s':>11} {'worst':>6} "
           f"{'>0.25 s':>8} | {'span mean s':>11}")
     for pi in plants:
         for iv in INTERVALS:
-            for h in (0.0, SHIPPED_HOLD):
+            for h in (0.0, SHIPPED_HOLD, THROUGH):
                 rs_ = [r for g, r in rows if g[1] == pi and g[4] == h and g[5] == iv]
                 ok = [r for r in rs_ if "aborted" not in r]
                 late = [x for r in ok for x in r["late"]]
-                if not ok:
-                    print(f"{PLANTS[pi][0]:15} {iv:8.1f} {h:6.0f} | {len(rs_):6d} {len(rs_) - len(ok):5d} | all aborted")
+                if not rs_:
                     continue
-                print(f"{PLANTS[pi][0]:15} {iv:8.1f} {h:6.0f} | {len(rs_):6d} {len(rs_) - len(ok):5d} | "
+                if not ok:
+                    print(f"{PLANTS[pi][0]:15} {iv:8.1f} {lab(h):>6} | {len(rs_):6d} {len(rs_) - len(ok):5d} | all aborted")
+                    continue
+                print(f"{PLANTS[pi][0]:15} {iv:8.1f} {lab(h):>6} | {len(rs_):6d} {len(rs_) - len(ok):5d} | "
                       f"{statistics.fmean(late):11.3f} {max(late):6.2f} {sum(x > 0.25 for x in late):4d}/{len(late):<3d} | "
                       f"{statistics.fmean(r['span'] for r in ok):11.1f}")
     for g, r in rows:
         if g[0] == "late" and "aborted" in r:
-            print(f"aborted: {PLANTS[g[1]][0]} lag {g[2]} launcher {LAUNCHERS[g[3]]} hold {g[4]:.0f} interval {g[5]}: "
+            print(f"aborted: {PLANTS[g[1]][0]} lag {g[2]} launcher {LAUNCHERS[g[3]]} hold {lab(g[4])} interval {g[5]}: "
                   f"{r['aborted']}")
 
 
