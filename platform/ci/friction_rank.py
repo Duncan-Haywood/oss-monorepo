@@ -77,6 +77,7 @@ import re
 import subprocess
 import urllib.request
 import sys
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -199,22 +200,58 @@ def revs(root=ROOT, run=subprocess.run):
 DEEPEN_MAX_DAYS = 21  # a full fetch is ~5 GB; `--days 0` must not ask for it
 
 
-def deepen(since, root=ROOT, run=subprocess.run, timeout=180, today=None):
+LOCK_WAIT_S = 240  # promptctl measure's 14-day fetch takes 70 s to 3 min
+
+
+def wait_unlocked(root=ROOT, limit=LOCK_WAIT_S, sleep=time.sleep, clock=time.monotonic):
+    """Wait while another fetch holds .git/shallow.lock; True once it is free."""
+    lock = Path(root) / ".git" / "shallow.lock"
+    end = clock() + limit
+    while lock.exists():
+        if clock() >= end:
+            return False
+        sleep(2)
+    return True
+
+
+def deepen(since, root=ROOT, run=subprocess.run, timeout=180, today=None,
+           sleep=time.sleep, clock=time.monotonic):
     """Fetch main back to a day before `since` (at most DEEPEN_MAX_DAYS ago)
-    into a shallow clone. Best effort: a failure (offline, a parallel fetch
-    holding shallow.lock) leaves the clone as it was and the output's shallow
-    note still applies."""
+    into a shallow clone. Best effort: a failure (offline, a timeout) leaves
+    the clone as it was, says why on stderr, and the output's shallow note
+    still applies.
+
+    A parallel fetch holds git's shallow.lock, and a fetch that meets it fails
+    at once. Before 2026-11-17 that failure was silent: a process run that
+    started `promptctl.py measure` in the background and this tool beside it
+    got every cluster marked "touched-since unknown" and --live hid 26
+    clusters instead of 48 (rerun once the lock was gone), and an earlier run
+    that day reported the same symptom. So it waits for the lock first and
+    retries once if a fetch still lost the race."""
     today = today or dt.datetime.now(dt.timezone.utc).date()
     day = max(dt.date.fromisoformat(utc(since)[:10]) - dt.timedelta(days=1),
               today - dt.timedelta(days=DEEPEN_MAX_DAYS)).isoformat()
     print(f"(shallow clone: fetching main since {day} to date the reports, "
           "about 40 s; --no-fetch skips)", file=sys.stderr)
-    try:
-        done = run(["git", "-C", str(root), "fetch", "-q", f"--shallow-since={day}", "origin", "main"],
-                   capture_output=True, text=True, timeout=timeout)
-    except (OSError, subprocess.SubprocessError):
-        return False
-    return done.returncode == 0
+    why = ""
+    for _ in range(2):
+        if not wait_unlocked(root, sleep=sleep, clock=clock):
+            why = f"another fetch held .git/shallow.lock for over {LOCK_WAIT_S} s"
+            break
+        try:
+            done = run(["git", "-C", str(root), "fetch", "-q", f"--shallow-since={day}", "origin", "main"],
+                       capture_output=True, text=True, timeout=timeout)
+        except (OSError, subprocess.SubprocessError) as e:
+            why = type(e).__name__
+            break
+        if done.returncode == 0:
+            return True
+        why = ((done.stderr or "").strip().splitlines() or [f"git exit {done.returncode}"])[-1]
+        if "lock" not in why:
+            break
+    print(f"(fetch failed: {why}; touched-since stays unknown for older reports, "
+          "so --live hides less than it should: rerun when the fetch can finish)", file=sys.stderr)
+    return False
 
 
 def changes(since, rev="HEAD", root=ROOT, run=subprocess.run):
