@@ -172,13 +172,14 @@ def weak_texture_sigma2(p: np.ndarray, d: int, iters: int = 6, step: int = 1, D:
 
 def pca_bins(c: np.ndarray, period: int, d: int = 4, stride: int = 2, bins: int = 8,
              mosaic: bool = False, pat=None, texture: str | None = None,
-             shifts: tuple = ((0, 0),)) -> tuple[np.ndarray, np.ndarray]:
+             shifts: tuple = ((0, 0),), info: dict | None = None) -> tuple[np.ndarray, np.ndarray]:
     """Per brightness bin of the mosaic's patches: (median level, sigma^2). ``mosaic``: d x d patches of the
     mosaic (``mosaic_patches``) instead of a subplane's. ``texture`` (mosaic only): "grad" (same-colour
     differences one period apart), "colour" (each sensel against its colour's mean in the patch) or "near"
     (differences of touching same-colour sensels, ``_near_matrix``); by default "near" on X-Trans
     (eval/xtrans-noise-pca-12-2026-11-17.md: 0 of 248 held tiles lose over 0.1 dB to directional, was 17),
-    "grad" on Bayer."""
+    "grad" on Bayer. ``info``, when given, receives "kept" and "patches": how many binned patches the
+    weak-texture test kept, of how many (a frame whose spread is mostly noise keeps nearly all)."""
 
     c = np.asarray(c, dtype=np.float64)
     p = mosaic_patches(c, period, d, shifts=shifts) if mosaic else subplane_patches(c, period, d, stride)
@@ -196,14 +197,18 @@ def pca_bins(c: np.ndarray, period: int, d: int = 4, stride: int = 2, bins: int 
     bins = max(1, min(bins, p.shape[0] // (4 * d * d)))
     edges = np.quantile(lv, np.linspace(0, 1, bins + 1))
     xs, ys = [], []
+    kept = total = 0
     for i in range(bins):
         sel = (lv >= edges[i]) & (lv <= edges[i + 1])
         if sel.sum() < d * d + 2:
             continue
-        s2, _ = weak_texture_sigma2(p[sel], d, step=step, D=D, dof=dof)
+        s2, k = weak_texture_sigma2(p[sel], d, step=step, D=D, dof=dof)
+        kept, total = kept + k, total + int(sel.sum())
         if s2 == s2:
             xs.append(float(np.median(lv[sel])))
             ys.append(s2)
+    if info is not None:
+        info["kept"], info["patches"] = kept, total
     return np.asarray(xs), np.asarray(ys)
 
 
@@ -223,12 +228,43 @@ def fit_line(x: np.ndarray, y: np.ndarray) -> tuple[float, float]:
 
 
 def estimate_noise_pca(c: np.ndarray, pat, d: int = 6, stride: int = 2, mosaic: bool = True,
-                       texture: str | None = None, shifts: tuple = ((0, 0),)) -> tuple[float, float]:
+                       texture: str | None = None, shifts: tuple = ((0, 0),),
+                       info: dict | None = None) -> tuple[float, float]:
     """The (shot, read) model of the mosaic ``c`` from patch PCA on weak-texture patches. The default, 6 x 6
     patches of the mosaic itself, read closest to the truth on the tune tiles
     (eval/noise-pca-estimator-2026-11-17.md; tools/noise_estimator_accuracy.py); on X-Trans with the "near"
-    texture test (touching same-colour sensels; eval/xtrans-noise-pca-12-2026-11-17.md)."""
+    texture test (touching same-colour sensels; eval/xtrans-noise-pca-12-2026-11-17.md). ``info``: as ``pca_bins``."""
 
     period = 6 if len(pat) == 36 else 2
     return fit_line(*pca_bins(c, period, d, stride, mosaic=mosaic, pat=pat, texture=texture,
-                             shifts=shifts))
+                             shifts=shifts, info=info))
+
+
+def bin_mosaic(c: np.ndarray, period: int) -> np.ndarray:
+    """The mosaic at half size, each sensel the mean of four same-colour sensels one CFA period apart (offsets
+    0 and ``period`` in each direction), so the colour layout is unchanged. Independent noise loses half its
+    sigma; a scene's coarser texture keeps its amplitude."""
+
+    c = np.asarray(c, dtype=np.float64)
+    k = 2 * period
+    h, w = (c.shape[0] // k) * k, (c.shape[1] // k) * k
+    t = c[:h, :w].reshape(h // k, 2, period, w // k, 2, period).mean(axis=(1, 4))
+    return t.reshape(h // 2, w // 2)
+
+
+def sigma18(model: tuple[float, float]) -> float:
+    return math.sqrt(max(model[0] * 0.18 + model[1], 0.0))
+
+
+def whiteness(c: np.ndarray, pat, full: tuple[float, float] | None = None) -> float | None:
+    """How white the noise the patch-PCA estimate reads is: its sigma at 18% grey on ``bin_mosaic(c)`` over the
+    same on ``c`` (``full``, when already estimated). White noise gives 0.5; a reading that is really the
+    scene's own fine texture, which binning does not average away, gives nearer 1. None when either is 0.
+    The binned plane needs about 480 x 480 sensels: on a 480 x 480 frame white noise reads 0.39, not 0.5
+    (eval/noise-scale-per-frame-2026-11-17.md)."""
+
+    period = 6 if len(pat) == 36 else 2
+    a = sigma18(full if full is not None else estimate_noise_pca(c, pat))
+    b = sigma18(estimate_noise_pca(bin_mosaic(c, period), pat))
+    return b / a if a > 0 and b > 0 else None
+

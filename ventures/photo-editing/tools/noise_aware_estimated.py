@@ -114,6 +114,63 @@ def arms_for(c, pat, b, d, true_model, scales=SCALES, pcts=None, pca=False, pca_
     return out
 
 
+def features(c, pat) -> dict:
+    """What the frame alone says about its own noise, for a scale picked per frame (``adapt``): sigma at 18%
+    grey of the patch-PCA model (``pca18``) and of the block-spread model (``spread18``), both on ``c``'s
+    scale, their ratio, and the share of patches PCA's weak-texture test kept (``kept``, free with the estimate), and ``noise_pca.whiteness`` (``white``: 0.5 for white noise, nearer 1 when
+    the reading is texture). Texture inflates block spread far more than it inflates PCA's small eigenvalues,
+    so ``ratio`` near 1 says the frame's spread is mostly noise and a high ratio says it is mostly texture."""
+
+    from shootflow.noise_pca import estimate_noise_pca
+    from shootflow.xtrans_demosaic import estimate_noise
+
+    def s18(m):
+        return math.sqrt(max(m[0] * 0.18 + m[1], 0.0))
+
+    from shootflow.noise_pca import whiteness
+
+    info: dict = {}
+    m = estimate_noise_pca(c, pat, info=info)
+    p, q = s18(m), s18(estimate_noise(c, pat))
+    kept = info["kept"] / info["patches"] if info.get("patches") else None
+    w = whiteness(c, pat, full=m)
+    return {"pca18": round(p, 6), "spread18": round(q, 6), "ratio": round(q / p, 4) if p > 0 else None,
+            "kept": round(kept, 4) if kept is not None else None, "white": round(w, 4) if w is not None else None}
+
+
+def card_floor(path: str) -> dict:
+    """The lowest patch-PCA sigma at 18% grey over every tile of one file at one SNR and scenario, from
+    ``sweep --features-only`` rows: the tiles of a file stand in for the frames of one card shot on one body at
+    one ISO, which share the sensor's noise and not the scene's texture."""
+
+    out: dict = {}
+    for line in open(path):
+        f = json.loads(line)
+        if "feat" not in f or not f["feat"].get("pca18"):
+            continue
+        k = (f["file"], f["snr"], f["scenario"])
+        out[k] = min(out.get(k, math.inf), f["feat"]["pca18"])
+    return out
+
+
+def card_arms(c, pat, b, d, true_model, floor: float, scales=SCALES) -> dict:
+    """``card@s``: this frame's patch-PCA model rescaled so its sigma at 18% grey is s times ``floor`` (the
+    card's lowest reading, ``card_floor``), then ``guard_profile``. ``pcaguard@0.8`` (what ships) and the oracle
+    alongside."""
+
+    from shootflow.noise_pca import estimate_noise_pca, sigma18
+    from shootflow.xtrans_demosaic import guard_profile, noise_aware
+
+    out = {"D": d, "true": noise_aware(c, pat, bilinear=b, directional_out=d, noise=true_model)}
+    est = np.array(estimate_noise_pca(c, pat))
+    own = sigma18(tuple(est))
+    for name, f in [("pcaguard@0.8", est * 0.64)] + [
+            (f"card@{s:g}", est * ((s * floor / own) ** 2 if own > 0 else 0.0)) for s in scales]:
+        g, _ = guard_profile(c, pat, tuple(f))
+        out[name] = noise_aware(c, pat, bilinear=b, directional_out=d, noise=g)
+    return out
+
+
 def sweep(argv) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("files", nargs="+")
@@ -129,11 +186,15 @@ def sweep(argv) -> int:
     ap.add_argument("--pca", action="store_true", help="arms D, true, ship, pca@s, pcaguard@s only")
     ap.add_argument("--pca-texture", choices=("grad", "colour", "near"),
                     help="arms D, true, pcaT@s, pcaTguard@s only: patch PCA with this texture test")
+    ap.add_argument("--card", help="``--features-only`` rows: arms D, true, pcaguard@0.8 and card@s only (``card_arms``)")
+    ap.add_argument("--features-only", action="store_true",
+                    help="rows of ``features`` per noisy tile, no demosaic (``adapt --feats``: the same draws)")
     args = ap.parse_args(argv)
     snrs = args.snr or [200.0, 60.0, 25.0, 12.0]
     pcts = [float(x) for x in args.pcts.split(",")] if args.pcts else None
     scales = tuple(float(x) for x in args.scales.split(",")) if args.scales else SCALES
     scenarios = args.scenario or ["equal", "wb"]
+    card = card_floor(args.card) if args.card else None
 
     import rawpy
 
@@ -171,15 +232,23 @@ def sweep(argv) -> int:
                     else:
                         c, raw_model = draw(clean, pat, gains, snr, ((1.0, 1.0),) * 3, seed)
                         model, _ = carries(raw_model, gains)
+                    if args.features_only:
+                        print(json.dumps({"file": name, "tile": [ty, tx], "snr": snr, "scenario": sc,
+                                          "feat": features(c, pat)}), flush=True)
+                        continue
                     b = chk.ours_bilinear(c, pat)
                     d = directional(c, pat)
                     cps, lps = {}, {}
-                    for arm, arr in arms_for(c, pat, b, d, model, scales, pcts, args.pca, args.pca_texture).items():
+                    feat = features(c, pat) if args.pca else None
+                    arms = (card_arms(c, pat, b, d, model, card[(name, snr, sc)], scales) if card else
+                            arms_for(c, pat, b, d, model, scales, pcts, args.pca, args.pca_texture))
+                    for arm, arr in arms.items():
                         s = chk.scores(arr, truth)
                         cps[arm], lps[arm] = s["cpsnr"], s["lpsnr"]
                     print(json.dumps({
                         "layout": "bayer" if args.bayer else "xtrans", "file": name, "split": split_of(name),
                         "tile": [ty, tx], "snr": snr, "scenario": sc, "cpsnr": cps, "lpsnr": lps,
+                        **({"feat": feat} if feat else {}),
                         "s": round(time.perf_counter() - t0, 2),
                     }), flush=True)
     return 0
@@ -305,6 +374,113 @@ def bucket(argv) -> int:
     return 0
 
 
+def adapt(argv) -> int:
+    """Fit a per-frame scale on tune rows only: ``s_hi`` where the frame's own ``feat`` says its spread is mostly
+    noise (``ratio`` or ``white`` at or under ``t``, or ``kept`` at or over ``t``), ``s_lo`` elsewhere, each arm the
+    ``pcaguard@s`` of a ``sweep --pca`` row. The rule kept is the best tune mean of luma + colour gain over D among
+    those with no tune row worse than D by over ``--max-worse`` dB in either metric; held rows are scored once,
+    after the pick."""
+
+    ap = argparse.ArgumentParser()
+    ap.add_argument("rows", nargs="+")
+    ap.add_argument("--max-worse", type=finite_nonneg, default=0.1)
+    ap.add_argument("--family", default="pcaguard")
+    ap.add_argument("--grain", help="tools/noise_estimator_accuracy.py --clean rows: held luma by bucket")
+    ap.add_argument("--feats", action="append", default=[], help="``sweep --features-only`` rows: replace each row's feat")
+    ap.add_argument("--json")
+    args = ap.parse_args(argv)
+    rows = [json.loads(line) for p in args.rows for line in open(p) if line.strip()]
+    key = lambda r: (r["file"], tuple(r["tile"]), r["snr"], r["scenario"])  # noqa: E731
+    extra = {key(f): f["feat"] for p in args.feats for f in map(json.loads, filter(str.strip, open(p))) if "feat" in f}
+    for r in rows:
+        if "cpsnr" in r and key(r) in extra:
+            r["feat"] = {**r.get("feat", {}), **extra[key(r)]}
+    rows = [r for r in rows if "cpsnr" in r and r.get("feat")]
+    out = []
+    for layout in sorted({r["layout"] for r in rows}):
+        lr = [r for r in rows if r["layout"] == layout]
+        tune = [r for r in lr if r["split"] == "tune"]
+        held = [r for r in lr if r["split"] == "held"]
+        scales = sorted(float(a.split("@")[1]) for a in lr[0]["cpsnr"] if a.startswith(args.family + "@"))
+
+        def arm(s):
+            return f"{args.family}@{s:g}"
+
+        def high(r, rule):
+            feat, t = rule[0], rule[1]
+            if feat == "const":
+                return False
+            v = r["feat"].get(feat)
+            return v is not None and (v >= t if feat == "kept" else v <= t)
+
+        def per_row(rs, rule):
+            """(luma, colour) gains over D of each row under ``rule`` = (feature, t, s_lo, s_hi)."""
+            lg, cg = [], []
+            for r in rs:
+                a = arm(rule[3] if high(r, rule) else rule[2])
+                lg.append(r["lpsnr"][a] - r["lpsnr"]["D"])
+                cg.append(r["cpsnr"][a] - r["cpsnr"]["D"])
+            return np.array(lg), np.array(cg)
+
+        rules = [("const", 0.0, s, s) for s in scales]
+        for feat in ("ratio", "kept", "white"):
+            vals = np.array([r["feat"][feat] for r in tune if r["feat"].get(feat) is not None])
+            if vals.size == 0:
+                continue
+            for t in sorted(set(np.round(np.quantile(vals, np.linspace(0.05, 0.95, 19)), 4))):
+                for lo in scales:
+                    for hi in scales:
+                        if hi > lo:
+                            rules.append((feat, float(t), lo, hi))
+        scored = []
+        for rule in rules:
+            lg, cg = per_row(tune, rule)
+            if min(lg.min(), cg.min()) >= -args.max_worse:
+                scored.append(((lg + cg).mean(), rule))
+        if not scored:
+            print(f"## {layout}: no rule keeps every tune row within {args.max_worse} dB of D")
+            continue
+        best_const = max((x for x in scored if x[1][0] == "const"), key=lambda x: x[0], default=None)
+        best = max(scored, key=lambda x: x[0])
+        print(f"## {layout}: {len(tune)} tune / {len(held)} held rows; {len(scored)} of {len(rules)} rules safe on tune")
+        picks = [("pick", best[1])] + ([("const", best_const[1])] if best_const else [])
+        picks += [(f"{args.family}@0.8", ("const", 0.0, 0.8, 0.8))] if 0.8 in scales else []
+        for label, rule in picks:
+            for setname, rs in (("tune", tune), ("held", held)):
+                lg, cg = per_row(rs, rule)
+                tl, tc = gains(rs, "l", "true"), gains(rs, "c", "true")
+                rec = {"layout": layout, "label": label, "rule": list(rule), "set": setname,
+                       "luma": summary(lg), "colour": summary(cg),
+                       "true_luma": round(float(tl.mean()), 3), "true_colour": round(float(tc.mean()), 3),
+                       "high_share": round(float(np.mean([high(r, rule) for r in rs])), 3) if rs else None}
+                if args.grain and setname == "held":
+                    grain = {}
+                    for line in open(args.grain):
+                        g = json.loads(line)
+                        if "haar2" in g:
+                            grain[(g["file"], tuple(g["tile"]))] = g["haar2"] / 1000.0
+                    for lo_b, hi_b, lab in BUCKETS:
+                        sub = [r for r in rs if (r["file"], tuple(r["tile"])) in grain
+                               and lo_b <= (0.18 / r["snr"]) / grain[(r["file"], tuple(r["tile"]))] < hi_b]
+                        if sub:
+                            sl, sc_ = per_row(sub, rule)
+                            rec[f"bucket {lab}"] = {"n": len(sub), "luma": round(float(sl.mean()), 3),
+                                                    "true_luma": round(float(gains(sub, "l", "true").mean()), 3),
+                                                    "worst": round(float(min(sl.min(), sc_.min())), 2),
+                                                    "worse_0.1": int(((sl < -0.1) | (sc_ < -0.1)).sum())}
+                out.append(rec)
+                print(f"{label:14s} {str(rule):34s} {setname}: luma {rec['luma']} colour {rec['colour']} "
+                      f"(true {rec['true_luma']:+.3f} / {rec['true_colour']:+.3f})")
+                for k, v in rec.items():
+                    if k.startswith("bucket"):
+                        print(f"{'':16s}{k}: {v}")
+    if args.json:
+        with open(args.json, "w") as f:
+            for rec in out:
+                f.write(json.dumps(rec) + "\n")
+    return 0
+
+
 if __name__ == "__main__":
     cmd, rest = sys.argv[1], sys.argv[2:]
-    sys.exit({"sweep": sweep, "fit": fit, "bucket": bucket}[cmd](rest))
+    sys.exit({"sweep": sweep, "fit": fit, "bucket": bucket, "adapt": adapt}[cmd](rest))

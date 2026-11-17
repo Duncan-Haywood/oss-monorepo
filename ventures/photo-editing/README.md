@@ -1462,6 +1462,14 @@ profile kept it. With no truth on those frames the check is behavioural: at ISO 
 0.5 s per megapixel and up to 6.4 GB on a 36 MP frame, which is why the default demosaic (`auto`) stays
 directional. `tools/noise_fallback_real.py`, `eval/noise-fallback-real-2026-11-17.md`.
 
+**A higher scale was tried and did not ship (2026-11-17, evening).** The frame-read model is scaled to 0.8 of
+what patch PCA reads, which keeps 41-71% of the true model's gain on noisy tiles. A scale picked on tune
+rows only, constant or switched per frame by three frame statistics (block spread over PCA, patches the texture
+test keeps, and how much the reading drops when the mosaic is binned), always climbs to 1.25 and loses up to
+2.51 dB on held tiles. Even 0.9 loses 0.21 dB. Every loss at 0.9-1.1 is on one fine-grained crop that the
+frame statistics cannot tell from noise, so 0.8 stays. `tools/noise_aware_estimated.py adapt`,
+`eval/noise-scale-per-frame-2026-11-17.md`.
+
 ## A directional demosaic for Bayer files (2026-11-15)
 
 Nearly every camera has a Bayer sensor, and until now every Bayer file the developer read (DNG, CR2,

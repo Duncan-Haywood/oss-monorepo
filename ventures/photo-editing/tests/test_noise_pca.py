@@ -110,6 +110,38 @@ class NoisePcaTests(unittest.TestCase):
         self.assertGreaterEqual(shot, 0.0)
         self.assertGreaterEqual(read, 0.0)
 
+    def test_info_counts_the_patches_the_texture_test_keeps(self):
+        from shootflow.noise_pca import estimate_noise_pca
+
+        info: dict = {}
+        m = estimate_noise_pca(self._noisy(self.smooth), BAYER, info=info)
+        self.assertEqual(len(m), 2)
+        self.assertGreater(info["patches"], 0)
+        self.assertLessEqual(info["kept"], info["patches"])
+        self.assertGreater(info["kept"] / info["patches"], 0.5)  # a smooth noisy field keeps most patches
+
+    def test_binned_mosaic_keeps_the_layout_and_halves_white_noise(self):
+        from shootflow.noise_pca import bin_mosaic
+
+        np = self.np
+        c = np.zeros((48, 48))
+        c[0::2, 0::2], c[1::2, 1::2] = 1.0, 3.0  # R at (0, 0), B at (1, 1): layout must survive binning
+        b = bin_mosaic(c, 2)
+        self.assertEqual(b.shape, (24, 24))
+        self.assertTrue((b[0::2, 0::2] == 1.0).all() and (b[1::2, 1::2] == 3.0).all())
+        n = self.rng.normal(size=(480, 480))
+        self.assertAlmostEqual(float(bin_mosaic(n, 2).std()), 0.5, delta=0.02)
+        self.assertEqual(bin_mosaic(np.zeros((36, 36)), 6).shape, (18, 18))
+
+    def test_whiteness_is_one_half_on_white_noise(self):
+        from shootflow.noise_pca import whiteness
+
+        # 960 x 960: on a 480 x 480 tile the binned plane (240 x 240) is too small and reads 0.39
+        # (eval/noise-scale-per-frame-2026-11-17.md)
+        n = self.rng.normal(size=(960, 960)) * 0.01 + 0.3
+        self.assertAlmostEqual(whiteness(n, BAYER), 0.5, delta=0.05)
+        self.assertIsNone(whiteness(self.np.full((96, 96), 0.3), BAYER))  # no noise read: no ratio
+
 
 if __name__ == "__main__":
     unittest.main()

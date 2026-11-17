@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtLZF3EBVNen3kVG5FK",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T17:10:04Z",
+  "ended": "2026-11-17T17:33:35Z",
+  "wall_minutes": 23.94,
+  "tokens_in": 7940627,
+  "tokens_out": 47367,
+  "cost_usd": 3.5869,
+  "tool_calls": 70,
+  "task": "Deepen (flagship 7) photo-editing: win back noisy-tile gain with a noise scale picked on tune rows only",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17005",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "partial",
+  "errors": [
+    "A pkill -f with the bracketed pattern repeated elsewhere in the command line was refused by the hook; split into two calls.",
+    "The first full sweep launched with an empty path list (bayer-abs.txt was never written because the earlier command was blocked); relaunched.",
+    "adapt --feats crashed on skipped rows (no tile key); fixed."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/photo-editing/eval/noise-pca-estimator-2026-11-17.md",
+      "issue": "The Reproduce find line keeps metadata .txt files out only by luck of the sparse checkout; added ! -name '*.txt' in the new note's recipe."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "The buildable item 'win back noisy-tile gain with a scale picked on tune rows only' was framed as a tuning step; the measurement shows the tune rows cannot see the failing case, so it was not buildable as stated."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The flagship item's measurement came out negative: no tune-only scale above 0.8 survives held tiles.",
+      "did": "Shipped the tooling, the rows and a written negative result instead of a default change; kept frame_noise at 0.8; rewrote buildable and NEXT.md to the card-floor idea.",
+      "result": "No product default changed; the next run starts from measured rows and a named failing case."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-photo-editing-one-tile-decides-the-noise-scale.md",
+    "ventures/photo-editing/eval/noise-scale-per-frame-2026-11-17.md"
+  ],
+  "goal": "Deepen a flagship (photo-editing noise-aware demosaic without a NoiseProfile)",
+  "notes": "Bayer only (X-Trans not re-run). 456 rows; pcaguard@0.8 reproduces the earlier note on 456 of 456 rows. Tests: tests/test_noise_pca.py + tests/test_demosaic_noise_aware.py 32 passed (python3.13, numpy 2.5.3). portfolio/router/validate.py: all valid. run_venture_tests.py photo-editing: ok (1295 tests, 250.6 s, 9 skipped). venture-preflight.mjs photo-editing: clean, exit 0.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4d30915d-babb-5258-bc19-efa9ba7c238b",
+    "transcripts": 1,
+    "first": "2026-11-17T17:10:04Z",
+    "last": "2026-11-17T17:34:00Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 68,
+        "input": 127,
+        "output": 47367,
+        "thinking": 9433,
+        "cache_read": 7805761,
+        "cache_write_5m": 0,
+        "cache_write_1h": 134739,
+        "api_equivalent_usd": 3.5869,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 68,
+      "input": 127,
+      "output": 47367,
+      "thinking": 9433,
+      "cache_read": 7805761,
+      "cache_write_5m": 0,
+      "cache_write_1h": 134739,
+      "api_equivalent_usd": 3.5869,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 70,
+    "tools": {
+      "Bash": 66,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.94,
+      "active_minutes": 23.94,
+      "model_minutes": 9.14,
+      "tool_minutes": 14.8,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an imaging engineer designing features, three sweeps and a write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 167.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
