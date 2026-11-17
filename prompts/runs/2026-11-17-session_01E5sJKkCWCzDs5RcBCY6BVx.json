@@ -7,14 +7,16 @@
   "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T22:18:10Z",
   "ended": "2026-11-17T22:25:15Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 15.47,
+  "tokens_in": 7874909,
+  "tokens_out": 26922,
+  "cost_usd": 2.9993,
+  "tool_calls": 70,
   "task": "polish: household money section for 31 household tools filed in business sections, plus the carried-over retirement-slug check",
   "projects": [
     "platform/pages"
@@ -29,7 +31,9 @@
   "review_findings": null,
   "tests_added": 2,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "Edited a docs/reports file while the full platform/pages suite ran, which tripped the cache-name determinism test once; re-run passed."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -47,7 +51,84 @@
     "docs/reports/polish-2026-11-17-household-section.md"
   ],
   "goal": null,
-  "notes": "categoryFor over all 1,396 ventures dirs before/after: exactly 32 lines differ (31 -> household: 12 from backoffice, 4 services, 15 solo-earner; charity-bunching-planner solo-earner -> personal-tax). Targeted tests (household, personal-tax, section count, catch-all, icon; build.test.mjs + home.test.mjs): 15 pass, 0 fail. Full build/check.mjs and the full platform/pages test suite: see the follow-up commit.",
+  "notes": "categoryFor over all 1,396 ventures dirs before/after: exactly 32 lines differ (31 -> household: 12 from backoffice, 4 services, 15 solo-earner; charity-bunching-planner solo-earner -> personal-tax). node platform/pages/build.mjs + check.mjs: 'looks publishable: 1390 products, 50 category pages, 11247 pages, no dead links.' /c/household/ at 390 px: scrollWidth 390, one h1, 31 tools; medical-bill-error-checker breadcrumb 'Home > Household money, home & health bills'. node --test 'platform/pages/*.test.mjs': 1797 tests, 1796 pass, 1 fail: 'an identical build produces an identical cache name', which itself reported that docs/reports/polish-2026-11-17-household-section.md changed mid-suite (I added its front matter during the run); re-run alone: 1 pass, 0 fail.",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "16263c39-f4c7-5af0-89ab-dd342363a94c",
+    "transcripts": 1,
+    "first": "2026-11-17T22:18:10Z",
+    "last": "2026-11-17T22:33:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 70,
+        "input": 141,
+        "output": 26922,
+        "thinking": 4537,
+        "cache_read": 7761266,
+        "cache_write_5m": 0,
+        "cache_write_1h": 113502,
+        "api_equivalent_usd": 2.9993,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 70,
+      "input": 141,
+      "output": 26922,
+      "thinking": 4537,
+      "cache_read": 7761266,
+      "cache_write_5m": 0,
+      "cache_write_1h": 113502,
+      "api_equivalent_usd": 2.9993,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 70,
+    "tools": {
+      "Bash": 65,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Monitor": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.47,
+      "active_minutes": 11.45,
+      "model_minutes": 4.5,
+      "tool_minutes": 6.95,
+      "waiting_on_human_minutes": 4.03,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "an engineer auditing ~200 tools' audiences, moving 32 into a new section, tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 133.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
