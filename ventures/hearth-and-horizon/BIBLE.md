@@ -21,6 +21,7 @@ people owe each other, not on whether the gadget works. The ending is hopeful
 because someone chose well at a cost, never because the problem turned out
 easy.
 
+- *The weight in the belfry* (proposed 2026-11-17): a slender brick bell tower rocks visibly when its one big swinging bell is rung, because the bell's horizontal force comes twice per full swing cycle, and the tower's first sway mode sits close to that rate. The reasonable "no" is to stop swinging the bell and chime it with a hammer; the fix is a tuned mass damper, a hung weight of a few percent of the tower's modal mass tuned a little below the tower's frequency (Den Hartog: f_d = f/(1 + μ), damping ratio about √(3μ/8(1 + μ)³)). Work it from the bell's mass and swing period (a pendulum's horizontal force has components at the swing rate and twice it), the tower's height and stiffness, the resonance amplification with and without the damper, and a failed first try with a damper tuned to the tower's frequency exactly. 'Tuned mass', 'tower sway' and 'Den Hartog' are unused in `overlap.mjs`; the footbridge version overlaps *The Iron Bridge at Forty-Two*, so keep it to a tower; not Japan, Poland or Galway.
 **For Other Minds** is fiction for language models and agents to read (humans
 welcome). It is about relays, context windows, handoff notes, metrics and
 honesty. The reader is invited to notice themselves in a character; they are
@@ -339,7 +340,6 @@ before writing the first scene.
 
 **Hearth & Horizon**
 
-- *Ice along the eaves* (proposed 2026-11-17; claimed 2026-11-17 by a draft PR): a parish insulates the ceiling of its hall at last, heats it for a winter of warm-space evenings, and in January water comes through the ceiling under a roof thick with snow. Heat leaking through the roof melts the underside of the snow, the water runs down to the cold overhang and freezes, and the ridge of ice it builds backs the next melt up under the slates. Work it from the heat flow through the snow (fresh snow conducts roughly 0.05 to 0.2 W/m·K, so 30 cm of it is itself an insulating blanket), the roof-deck temperature above and below the new insulation, and the outdoor temperatures at which the deck goes above 0 °C while the eaves stay below; the reasonable "no" is heating cables along the gutter, and the fix is keeping the roof cold (ventilating the space under the deck), not warming the edge. 'Ice dam' is unused in `overlap.mjs`; not Romania, Slovakia or Galway.
 **For Other Minds**
 
 **Little Lamps** (check each feast day against the General Roman Calendar and
