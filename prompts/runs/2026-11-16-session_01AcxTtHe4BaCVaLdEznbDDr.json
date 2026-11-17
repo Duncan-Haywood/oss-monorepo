@@ -30,7 +30,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 0,
   "review_findings": null,
   "tests_added": 1,
   "outcome": "success",
@@ -45,7 +45,14 @@
       "issue": "The data pull for build-data (permits.py pull + status_pull.py, ~14 min) and its exact cell launch line live only in LOG.md entries; a short 'rerun a rounds.py cell' recipe in the project README would save reading three log entries."
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Merged with two red checks (coverage, validate/test_checklist_coverage) that fail identically on main since PR #16739 (platform/ci/*.test.mjs missing from verify-and-merge.md); the fix is open as PR #16742 and touches a CODEOWNERS path, so it was not duplicated here.",
+      "did": "Confirmed main fails the same check locally, confirmed every other check green (homepage, build, test, validate, check, conflict-markers, duplicate-symbols, control-plane), merged.",
+      "result": "Merged; the two checks stay red until PR #16742 lands."
+    }
+  ],
   "writeups": [
     "docs/posts/2026-11-17-build-data-six-year-old-permits-pick-the-rule.md",
     "research/build-data/LOG.md (session 99)"
