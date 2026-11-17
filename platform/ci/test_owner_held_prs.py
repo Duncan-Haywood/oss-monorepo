@@ -200,5 +200,43 @@ class GitMain(unittest.TestCase):
         self.assertIsNone(main.blob("vendor/sub"))
 
 
+class Friction(unittest.TestCase):
+    ENTRIES = [
+        ("2026-11-16", "s1", "prompt.md", "step 0 is stale", "2026-11-16T10:00"),
+        ("2026-11-17", "s2", "prompt.md", "step 0 | still stale", "2026-11-17T09:00"),
+        ("2026-11-17", "s2", "prompt.md", "same session again", "2026-11-17T08:00"),
+        ("2026-11-17", "s3", "prompts/promptctl.py", "route drew research", "2026-11-17T07:00"),
+        ("2026-11-17", "s4", "ventures/x/README.md", "unowned", "2026-11-17T07:00"),
+        ("2026-11-17", "s5", "prompts/runs/r.json", "unowned by the later rule", "2026-11-17T07:00"),
+        ("2026-11-01", "s6", "prompts/promptctl.py", "too old", "2026-11-01T07:00"),
+    ]
+
+    def ranked(self, days=7):
+        return ohp.friction_by_owned_file(self.ENTRIES, RULES, dt.date(2026, 11, 17), days)
+
+    def test_counts_distinct_sessions_on_owned_files_in_the_window(self):
+        r = self.ranked()
+        self.assertEqual([(x["file"], x["sessions"]) for x in r], [("prompt.md", 2), ("prompts/promptctl.py", 1)])
+        self.assertEqual(r[0]["latest"], "step 0 | still stale")
+
+    def test_window_drops_older_reports(self):
+        self.assertEqual([x["file"] for x in self.ranked(days=1)], ["prompt.md", "prompts/promptctl.py"])
+        self.assertEqual(self.ranked(days=1)[0]["sessions"], 1)
+
+    def test_attaches_held_prs_and_flags_files_with_none(self):
+        rows = ohp.held(PRS, FILES.__getitem__, RULES, MAIN)
+        r = ohp.attach_held(self.ranked(), rows)
+        self.assertEqual(r[0]["prs"], [1, 3])
+        self.assertEqual(r[1]["prs"], [2])
+        out = ohp.render_friction(ohp.attach_held(self.ranked(), rows[:1]), 7)
+        self.assertIn("| 2 | `prompt.md` | #1 |", out)
+        self.assertIn("none open", out)
+        self.assertIn("1 have no held PR", out)
+        self.assertNotIn("step 0 | still", out)  # a pipe would split the table cell
+
+    def test_empty(self):
+        self.assertIn("No doc friction", ohp.render_friction([], 3))
+
+
 if __name__ == "__main__":
     unittest.main()
