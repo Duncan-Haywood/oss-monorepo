@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqyeV24SvBpXNoiCuzHh",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T16:39:17Z",
+  "ended": "2026-11-17T17:01:02Z",
+  "wall_minutes": 21.93,
+  "tokens_in": 4799932,
+  "tokens_out": 28517,
+  "cost_usd": 2.4508,
+  "tool_calls": 45,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16999",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/heavy-hydraulics/paper/manuscript.md",
+      "issue": "test_paper_tex failed on main before this run: 7h wrote 'misses by up to 0.035', a rounded number check_numbers.py could not trace to a results file (0.0349); fixed here. 7h's run evidently merged without running the full project test suite."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "wait_for.py --marker EXIT was needed for a script whose stdout is redirected to a results file; the default DONE marker hint is easy to miss, cost one extra wait call."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-one-gear-pump-rule-for-every-idle-setting.md",
+    "research/heavy-hydraulics/LOG.md (7i entry)"
+  ],
+  "goal": null,
+  "notes": "Milestone 7i of heavy-hydraulics (7h's Next q). Predictions registered and pushed (commit before results) as PR #16999 claim. One rule fitted over 22 idle conditions with H*kW_o and H*P_LS: leave-one-condition-and-family-out RMS 0.0056 (setting-blind 0.0163), half-speed block 0.0059, share extremes 0.0057. 6 of 7 predictions held (SI6 one-number price difference refuted, +22%). Checks: project tests 141 passed 4 skipped (python3.13); build.py ok; research_live_links ok; check_md_links ok; post front matter/links/similarity ok; cite_check ok; paper check_numbers 0 missing. No agent doc in docs/reports: LOG.md Next carries the handoff.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9b803cd0-8f25-5116-ab58-fa925a135db4",
+    "transcripts": 1,
+    "first": "2026-11-17T16:39:17Z",
+    "last": "2026-11-17T17:01:13Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 45,
+        "input": 89,
+        "output": 28517,
+        "thinking": 6011,
+        "cache_read": 4681874,
+        "cache_write_5m": 0,
+        "cache_write_1h": 117969,
+        "api_equivalent_usd": 2.4508,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 45,
+      "input": 89,
+      "output": 28517,
+      "thinking": 6011,
+      "cache_read": 4681874,
+      "cache_write_5m": 0,
+      "cache_write_1h": 117969,
+      "api_equivalent_usd": 2.4508,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 45,
+    "tools": {
+      "Bash": 42,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.93,
+      "active_minutes": 21.93,
+      "model_minutes": 4.72,
+      "tool_minutes": 17.21,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design, run and write up one pre-registered robustness experiment on an existing pipeline",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 244.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
