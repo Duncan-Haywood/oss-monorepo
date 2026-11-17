@@ -24,7 +24,7 @@ Here California ranks third, p 0.077. I wrote the pass bar down before running a
 
 The two states above California are Missouri and Virginia, and neither changed anything in 1989. Both are tracked almost exactly by a mix of other states before 1989, to 0.4 and 0.9 packs. The statistic divides by that before-gap, so a modest later drift of 11 to 14 packs gives them ratios of 26 and 17, against California's 12. Matching on every before-year with no covariates fits the middle of the donor pool very closely. The paper's covariate match is looser, and that is enough to change the rank. The paper's own fix, dropping placebos that fit much worse than California, can only drop states with poor fits, so it doesn't help here. California stays third under every cut.
 
-The simulations passed (`eval/synth-confirm.out.txt` in the repository has the table). In factor-model panels where any unit could be the treated one, the test rejected at its nominal rate. That's expected: a permutation test is exact when units are exchangeable. Real states aren't. A few donors are almost linear mixes of the others, and the ratio rewards that.
+The simulations passed their bars (`eval/synth-confirm.out.txt` in the repository). In factor-model panels where any unit could be the treated one, the test rejected 3.3 to 5.5% of no-change panels at p 0.05, against an exact 2.6%. A re-run on fresh seeds gave 2.5 to 3.0%. A 2 standard deviation step was found 35% of the time. That's expected: a permutation test is exact when units are exchangeable. Real states aren't. A few donors are almost linear mixes of the others, and the ratio rewards that.
 
 ## What to take from it
 

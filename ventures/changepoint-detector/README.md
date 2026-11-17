@@ -5824,7 +5824,21 @@ Pre-registration `eval/synth-prereg-2026-11-17.md`, committed after an explorato
 `eval/synth-confirm.out.txt`) and before any real state was fitted (`node eval/synth-real.mjs`,
 `eval/synth-real.out.txt`):
 
-SIM_TABLE_HERE
+| Bar (pre-registered) | Confirmatory (400 panels a cell) | |
+|---|---|---|
+| 1. size, p <= 0.05 at most 6% and p <= 0.10 at most 14%, five no-change cells (exact: 2.6% and 10.3% with 38 donors, 5.0% and 10.0% with 19) | 5.5, 4.3, 5.0, 4.8, 3.3%; 9.0, 8.5, 9.3, 9.0, 10.0% | holds |
+| 2. treated outside the donors' range (E1): p <= 0.05 at most 6%, fit warning at least 90% | 1.3%; 99.5% | holds |
+| 3. power, p <= 0.05: a 2 sd step (P1) at least 28%; the same step with every unit wandering (P3) at least 18% | 34.8%; 22.8% (an effect growing to 3 sd in sticky noise, P2: 11.8%; short series, P4: 6.8%) | holds |
+| 4a. T1 California 1989: p <= 0.05, average gap -30 to -10 packs, gap at 2000 below 0 | gap -19.5 average, -26.5 at 2000; **rank 3 of 39, p 0.077** | **fails** |
+| 4b. T2-T4 Massachusetts 1993, Arizona 1995, Oregon 1997: 2 of 3 at p <= 0.10 with a negative gap | **0 of 3** (p 0.21, 0.50, 0.39; gaps -15.7, -8.1, -15.6) | **fails** |
+| 4c. in-time placebos, California cut at 1988, fake dates 1980 and 1984: neither p <= 0.05 | p 0.46, 0.28 | holds |
+| 4d. nine placebo states at 1989: at most 1 of 9 p <= 0.05 | 0 of 9 (Virginia closest, rank 2 of 38, p 0.053) | holds |
+
+N1's 5.5% is twice its exact level. A post-hoc re-run on fresh seeds (base 15000, `eval/synth-pool-without.out.txt`)
+gives 2.5% and 3.0% in N1 and N2, and the paper's placebo pool (the treated unit moved into each placebo's pool,
+`placeboPool: 'with'`, `eval/synth-pool-with.out.txt`) gives the same, so the excess is not the pool. It looks
+seed-specific: `eval/synth-sim.mjs` seeds a xorshift generator with consecutive integers and no scrambling, which can
+correlate neighbouring panels. A later round should hash its seeds.
 
 **The estimate replicates the paper.** California's synthetic control is Utah 0.391, Montana 0.227, Nevada 0.207,
 Connecticut 0.109, New Hampshire 0.043 and Colorado 0.024 (the paper's, with covariates: Utah 0.394, Nevada 0.234,
@@ -5845,7 +5859,8 @@ before-gap, so a donor that a mix of other states tracks to under a pack gets a 
 (Missouri's after-gap is 10.9 packs, California's 20.5). Matching on all 19 before-years and no covariates fits the
 middle of the donor cloud too well; the paper's covariate-and-three-lags match leaves those placebos looser. The
 paper's own filters do not rescue it here: keeping placebos with before MSPE at most 20, 5 or 2 times California's
-leaves it 3rd of 35, 31 and 20 (p 0.086, 0.097, 0.150).
+leaves it 3rd of 35, 31 and 20 (p 0.086, 0.097, 0.150), and with California moved into each placebo's pool, as the
+paper does, it is still 3rd of 39, behind Missouri and Virginia again.
 
 **What a reader can use now.** For a single treated unit with a long before-period and a donor pool, this module gives
 the published-quality estimate of the gap (`node -e` with `synthControlTest`), but its p should not be read as a test
