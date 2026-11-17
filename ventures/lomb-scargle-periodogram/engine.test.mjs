@@ -212,3 +212,13 @@ test("outputs: the periodogram CSV, the text report, formula-safe cells, and cit
   assert.equal(csvCell("-1+CMD|' /C calc'!A0"), "'-1+CMD|' /C calc'!A0");
   assert.ok(PAPERS.length >= 5 && PAPERS.every((p) => p.implemented && p.deviations && p.url));
 });
+
+test("array input: a missing time or value is an error, never a zero (red team 2026-11-17)", () => {
+  const t = Array.from({ length: 20 }, (_, i) => i), y = t.map((i) => Math.sin(i));
+  assert.ok(analyze({ t, y }));
+  assert.ok(analyze({ t: t.map(String), y }));
+  for (const v of [null, "", false]) {
+    assert.throws(() => analyze({ t, y: y.map((u, i) => (i === 4 ? v : u)) }), /Row 5 has a missing or bad number/, `y ${v}`);
+    assert.throws(() => analyze({ t: t.map((u, i) => (i === 4 ? v : u)), y }), /Row 5 has a missing or bad number/, `t ${v}`);
+  }
+});
