@@ -1,5 +1,16 @@
 # buildbot-sheathing research log
 
+## 2026-11-17 · Milestone 42 planned: is the G1's 1.3-point loss the lean or the controller's new sides?
+
+- **Why.** Milestone 41 re-leaned 12 poses to stand at zero press and rebuilt milestone 38's setup on the new pose set. The G1's worst-pose no-hose stack ('braked') fell from 0.9160 to 0.9030, but two things changed at once: the six re-leaned G1 poses, and the 'hold-min' controller's chosen sides (`choose_signs` picks them by the worst LP margin over the whole pose set, so a new pose set can flip them). The H1's sides did not change and its re-leaned poses lost 0.1–0.9 points. A designer adopting the zero-press stance needs to know whether the cost is the stance (unavoidable) or the side choice (a controller setting that can be kept).
+- **Model.** A 2 × 2 on the G1, no hose, 'braked' waist, everything else as milestone 41: leans {milestone 32's, re-leaned} × sides {milestone 38's, milestone 41's}. Two cells exist (0.9160 and 0.9030 at the worst pose); the two crossed cells are computed by re-running milestone 38's `torques` with the other set's sides (milestone 41's run is imported, so the poses, plans and stack code are the same objects). Per pose and at the worst pose: the lean's effect at fixed sides, the sides' effect at fixed lean, and the interaction. Which leg joints flipped is printed. The H1 is run the same way as a check (its sides did not change, so its crossed cells must equal its own).
+- **Disclosed before registering.** Only milestone 41's published numbers are known; no crossed cell has been computed. If the old sides have no 'hold-min' solution at a re-leaned pose (or the new sides at an old pose), that pose drops from the cell and is printed.
+- **Hypotheses, registered before the run.**
+  - **H161 (the lean is most of it).** With milestone 38's sides kept, the re-lean alone costs the G1's worst pose at least 0.65 points (half of the 1.30). Refuted if less.
+  - **H162 (the sides alone are cheap).** On milestone 32's leans, swapping to milestone 41's sides moves the G1's worst-pose stack by at most 0.5 points. Refuted if more.
+  - **H163 (no large interaction).** At the G1's worst pose, |both − lean only − sides only| is at most 0.3 points. Refuted if more.
+  - **H164 (the old sides still hold).** Milestone 38's G1 sides keep a 'hold-min' solution at all six re-leaned G1 poses. Refuted if any loses it.
+
 ## 2026-11-17 · Milestone 41 result: every leaned stance can be re-leaned to stand at zero press and still reach 50 N, and the 0.01–0.02 mm spec holds; but the G1 at 1.2 m keeps only 1.6 N above the window, one H1 pose loses its controller, and the G1's worst stack drops 1.3 points; H156 and H159 held, H157, H158 and H160 refuted
 
 `src/buildbot_sheathing/stance0.py` (new: the bisection on the lean, the window test, the rigid-body window width), `experiments/m41_stance0/` (run, results, figure, post hoc ceiling; runs milestone 38's import twice, with milestone 32's leans and with the re-leans, so every plan, side choice and calibration is recomputed), `tests/test_stance0.py` (4 tests), `reproduce.py` (m41 listed), `paper/draft.md` (section 5.11 paragraph), `paper/check_numbers.py`, README, PROPOSAL and project card.
