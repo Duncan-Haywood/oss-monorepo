@@ -112,15 +112,16 @@ def main(done):
         P()
         P("## M = %d (24 layouts)" % m)
         P("  Z     sigma  q     s_m   h*_aw  k_used  seg  spacer  mix_share  aw/mand  naive/aw  caut/aw  h*_naive  h*_caut  "
-          "aw/F1")
+          "aw/F1  naive/mand  caut/mand")
         for c in conditions():
             R = [res[k]["cond"][c] for k in idx]
             P("  %-5.2f %-5.2f  %-4.2f  %-4.1f  %5.2f  %5.1f   %2d   %2d     %6.4f    %6.4f   %6.4f    %6.4f   %6.2f    %6.2f   "
-              "%6.4f" % (c[0], c[1], c[2], c[3], med(r["aware"][0] for r in R), med(r["used"] for r in R),
+              "%6.4f   %6.4f      %6.4f" % (c[0], c[1], c[2], c[3], med(r["aware"][0] for r in R), med(r["used"] for r in R),
                          sum(r["seg"] for r in R), sum(r["spacer"] for r in R), med(r["aware"][4] / r["aware"][3] for r in R),
                          med(r["aware"][3] / r["mandate"][1] for r in R), med(r["naive"][2] / r["aware"][3] for r in R),
                          med(r["cautious"][2] / r["aware"][3] for r in R), med(r["naive"][0] for r in R),
-                         med(r["cautious"][0] for r in R), med(r["aware"][3] / res[k]["F1"] for r, k in zip(R, idx))))
+                         med(r["cautious"][0] for r in R), med(r["aware"][3] / res[k]["F1"] for r, k in zip(R, idx)),
+                         med(r["naive"][2] / r["mandate"][1] for r in R), med(r["cautious"][2] / r["mandate"][1] for r in R)))
         c0 = (Z_MAIN, 1.0, 0.5, 0.0)
         R = [res[k]["cond"][c0] for k in idx]
         dev = max(max(abs(r["aware"][3] / r["mandate"][1] - 1), abs(r["naive"][2] / r["mandate"][1] - 1)) for r in R)

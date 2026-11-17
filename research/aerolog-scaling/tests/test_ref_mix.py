@@ -106,3 +106,20 @@ def test_incremental_descent_matches_reference():
             s0 = tuple(int(x) for x in rng.integers(0, 5, m))
             a, b = P.descend(s0), P.descend_ref(s0)
             assert abs(P.score(a) - P.score(b)) <= 1e-9 * P.score(b)
+
+
+def test_posthoc_masked_search_respects_the_mask():
+    spec2 = importlib.util.spec_from_file_location("ref_mix_posthoc_test", os.path.join(HERE, "ref_mix_posthoc.py"))
+    ph = importlib.util.module_from_spec(spec2)
+    spec2.loader.exec_module(ph)
+    W, X, V = _WXV(7, 9)
+    cls = rm.classes(7, 0.5, 4)
+    P = rm.Problem(W, X, V, cls, 8.0, 7.62, 1.0, 5.0, 3)
+    allowed = np.zeros((7, 3), dtype=bool)
+    allowed[cls, :2] = True
+    allowed[~cls, 1:] = True
+    lab, f = ph.masked_search(P, allowed, 0)
+    assert all(allowed[i, a] for i, a in enumerate(lab)) and rm.segregated(lab, cls)
+    best = min(P.score(l) for l in __import__("itertools").product(range(3), repeat=7)
+               if all(allowed[i, a] for i, a in enumerate(l)))
+    assert abs(f - best) <= 1e-9 * best
