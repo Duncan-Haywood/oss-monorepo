@@ -576,6 +576,17 @@ H166–H168 held, H165 and H169 refuted. Statics, zero hose force, exact sensor.
 
 ![The no-hose clean-sheet stack at each re-leaned pose, spec plan against 'hold-min' torques, before and after the re-lean](experiments/m43_specstack/figure.png)
 
+**Milestone 44: can a smaller leg preload rescue the H1's two dropped poses?** One of them. Preloading each leg to 0.9
+of what the stance allows (0.030 and 0.085 N m instead of 0.1) gives both poses a spec plan, and the clean-sheet stack
+does not move at all between 0 and 0.085 N m (0.9715 and 0.9668, 0.08 and 0.27 points under the old lean). But with a
+0.2 N sensor error the worst residual along the wall becomes **0.172 mm** (0.241 mm at 20 N of hose drag), against
+0.019 mm on the other poses. Post hoc, all of it is at (1.4 m, −0.15 m), where a joint in the controller's hold set
+flips under the sensor error and the leg preload cannot reach it; at (1.6 m, 0) the residual is 0.003 mm. So the
+zero-press stance keeps a spec-grade plan at 4 of the H1's 6 re-leaned poses. H170, H172 and H173 held, H171 and H174
+refuted. Statics.
+
+![The H1's worst residual along the wall: 0.010 to 0.032 mm on the other poses, 0.17 to 0.24 mm on the re-planned ones](experiments/m44_legpreload/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).

@@ -428,6 +428,11 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    re-planned leg preload and squeeze the re-lean raises the G1's worst no-hose stack 0.97 points (braked, 0.9160 to
    0.9257; stock +1.76), so milestones 41–42's 1.3-point loss is the 'hold-min' convention's; the H1 keeps a spec plan at
    only 3 of 6 re-leaned poses, two because the stance allows only 0.033 and 0.095 N m of leg preload at 50 N.
+44. **A per-pose leg preload** (done 2026-11-17, `experiments/m44_legpreload/`): preloading each leg to 0.9 of what the
+   stance allows (0.030 and 0.085 N m) gives both dropped H1 poses a spec plan at no clean-sheet cost (the stack does not
+   move between 0 and 0.085 N m; −0.08 and −0.27 points against the old lean), but the worst residual along the wall
+   becomes 0.172 mm (0.241 at 20 N drag) against the spec's 0.019: (1.6 m, 0) is rescued (0.003 mm), (1.4 m, −0.15 m) is
+   not, because the joint that flips there is a hold-set joint the leg preload does not reach.
 
 ## Target venue
 
