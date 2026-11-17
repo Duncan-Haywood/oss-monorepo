@@ -1,9 +1,9 @@
 {
- "generated_for": "2026-11-16",
- "data_through": "2026-11-16",
+ "generated_for": "2026-11-17",
+ "data_through": "2026-11-17",
  "latest_day": {
-  "day": "2026-11-16",
-  "page_loads": 7
+  "day": "2026-11-17",
+  "page_loads": 46
  },
  "weeks": [
   {
@@ -53,13 +53,13 @@
   {
    "week": "2026-W47",
    "monday": "2026-11-16",
-   "days": 1,
-   "page_loads": 7,
-   "tool_loads": 7,
-   "tools": 4,
-   "top_tool": "open-house-plans",
+   "days": 2,
+   "page_loads": 181,
+   "tool_loads": 167,
+   "tools": 46,
+   "top_tool": "quick-pick-survey",
    "feedback": 0,
-   "crawler_beacons": 14026
+   "crawler_beacons": 30544
   }
  ]
 }
