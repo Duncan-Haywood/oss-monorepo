@@ -20,6 +20,9 @@ function loadProviders(file) {
   if (!file) return merged;
   let over;
   try { over = JSON.parse(readFileSync(file, "utf8")); } catch (e) { fail(`could not read --prices ${file}: ${e.message}`); }
+  const isObj = (x) => x !== null && typeof x === "object" && !Array.isArray(x);
+  if (!isObj(over)) fail(`--prices ${file} must be a JSON object of provider overrides, keyed by provider`);
+  for (const [k, v] of Object.entries(over)) if (!isObj(v)) fail(`--prices ${file}: "${k}" must be an object of rate fields`);
   for (const [k, v] of Object.entries(over)) merged[k] = { ...(merged[k] || { label: k, url: "", baseUsd: 0, storagePerMin: 0, includedStorageMin: 0, deliveryPerMin: 0, includedDeliveryMin: 0, encodePerMin: 0 }), ...v };
   return merged;
 }
@@ -41,6 +44,12 @@ const num = (k, d) => {
   if (!Number.isFinite(n) || n < 0) fail(`--${k} needs a non-negative number, got "${opt[k]}"`);
   return n;
 };
+// --months: a whole number of months, 1 or more (0 crashed with exit 1, read as a tripped gate; red team 2026-11-17).
+const monthsOpt = () => {
+  const m = num("months", 12);
+  if (!Number.isInteger(m) || m < 1) fail(`--months needs a whole number of months, 1 or more, got "${opt.months}"`);
+  return m;
+};
 const n0 = (n) => n.toLocaleString("en-US");
 
 if (cmd === "providers") {
@@ -51,14 +60,14 @@ if (cmd === "providers") {
   const providers = loadProviders(opt.prices);
   const stored = num("stored-min"), watched = num("watched-min"), up = num("uploaded-min", 0);
   const rows = compare(stored, watched, up, providers);
-  const proj = project(stored, watched, up, num("growth", 0), num("months", 12), providers);
+  const proj = project(stored, watched, up, num("growth", 0), monthsOpt(), providers);
   const s = summarize(rows, { budget: opt.budget === undefined ? null : num("budget"), provider: opt.provider || null });
   if (s.status === "error" && s.errors === 1 && !s.overBudget) fail(s.text);
   if (opt.json) console.log(JSON.stringify({ storedMin: stored, watchedMin: watched, uploadedMin: up, rows, projection: proj, summary: s }, null, 2));
   else {
     console.log(`${n0(stored)} min stored, ${n0(watched)} min watched and ${n0(up)} min uploaded a month\n`);
     for (const r of rows) console.log(`${r.label.padEnd(68)} ${fmt(r.monthly).padStart(12)}/mo  ${fmt(r.annual).padStart(14)}/yr${r.extraVsCheapest ? `  (+${fmt(r.extraVsCheapest)})` : ""}`);
-    console.log(`\n${num("months", 12)}-month spend at ${num("growth", 0)}%/mo growth (${n0(stored)} -> ${n0(proj.endStored)} min stored, ${n0(proj.endDelivered)} min watched a month at the end):`);
+    console.log(`\n${monthsOpt()}-month spend at ${num("growth", 0)}%/mo growth (${n0(stored)} -> ${n0(proj.endStored)} min stored, ${n0(proj.endDelivered)} min watched a month at the end):`);
     for (const t of proj.totals) console.log(`${t.label.padEnd(68)} ${fmt(t.total).padStart(14)}`);
     console.log(`\n${s.text}\n${PRICES_AS_OF}. Not a quote.`);
   }
