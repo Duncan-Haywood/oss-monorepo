@@ -452,9 +452,10 @@ flagships:
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
       (eval/ifcxml-xbim-2026-11-16.md); cross-check more public models from
       opensourceBIM/IFC-files with eval/crosscheck_ifctester.py (buildingSMART's
-      Simple-Scene set done 2026-11-17); the IDS editor (editor.html; README): a
-      tolerance hint on exclusive bounds (eval/exclusive-bounds-2026-11-17.md); more
-      real exports through eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
+      Simple-Scene set done 2026-11-17); the IDS editor (editor.html; README): "Use
+      the model's range" for dates, xs:date one-of rows
+      (eval/date-ranges-2026-11-17.md); more real exports through
+      eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked"). Next, most
@@ -478,4 +479,7 @@ flagships:
       (eval/model-attr-codes-2026-11-17.md: 242 of 242 offers pass; 143 of 210
       Uniformat elements in Schultz have an empty code, Require a code); a range for
       numeric attributes; a dataType-mismatch hint, Accept any data type 2026-11-17
-      (eval/model-any-type-2026-11-17.md). More open items: NEXT.md.
+      (eval/model-any-type-2026-11-17.md); date and duration ranges 2026-11-17
+      (eval/date-ranges-2026-11-17.md: IfcTester 0.9.0 fails every object on a date
+      range, Write as a pattern agrees 10 of 10; 86.4% of public facets editable).
+      More open items: NEXT.md.

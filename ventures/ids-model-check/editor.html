@@ -78,7 +78,7 @@
   <pre id="xml" aria-label="IDS XML"></pre>
 
   <h2>How it works</h2>
-  <p>Already have an IDS? <strong>Open an IDS file</strong> reads it in. Everything the page's controls can hold without changing it becomes an editable row; anything else (a pattern on a class name, a range with two lower or two upper bounds, a non-standard Pset_ name) is kept as written: shown as its XML, written back unchanged, and removable. Opened and written back, 64 of 64 IDS files from public repositories (85.2% of their facets editable, a project's own property sets, conditions in the applicability and exclusive bounds included) and all 187 of buildingSMART's passing test cases ask for the same thing as before, and none stops validating against ids.xsd. The one change: requirements on a prohibited specification, which IDS 1.0 cannot evaluate, are dropped and named when you open the file.</p>
+  <p>Already have an IDS? <strong>Open an IDS file</strong> reads it in. Everything the page's controls can hold without changing it becomes an editable row; anything else (a pattern on a class name, a range with two lower or two upper bounds, a non-standard Pset_ name) is kept as written: shown as its XML, written back unchanged, and removable. Opened and written back, 64 of 64 IDS files from public repositories (86.4% of their facets editable, a project's own property sets, conditions in the applicability, exclusive bounds and date ranges included) and all 187 of buildingSMART's passing test cases ask for the same thing as before, and none stops validating against ids.xsd. The one change: requirements on a prohibited specification, which IDS 1.0 cannot evaluate, are dropped and named when you open the file.</p>
   <p><strong>Open a model to write for</strong> reads an IFC model (.ifc, .ifcxml or .ifczip) in a background thread of this tab, with the checker's own reader, and lists what it already carries: each class with how many of it, the property and quantity sets on them (standard or the project's own, with the data type the model writes each property in) and the classification systems in use. The editor then offers those first: the model's classes in the class list, and, on each requirement, the sets the model's objects of that class carry, with how many carry them. A set of the project's own (Acme_Wall, not a Pset_ or Qto_ set) becomes a row you can edit: its name, the property and a data type from the IFC schema, filled in from the model when it has the property. The model is not uploaded or kept: close the tab and it is gone.</p>
   <p><strong>Narrow it</strong> limits a specification to the elements that also match a condition: a property value (only walls whose Pset_WallCommon.IsExternal is true), an attribute (PredefinedType SOLIDWALL), a classification system, a material or a place. IDS calls these the applicability; an element that does not match is not checked at all, so "external walls must have a fire rating" does not fail internal walls. With a model open, each condition says how many of the class's objects it keeps, counted the way the checker counts them, and warns when it keeps none.</p>
   <p>The class list is every non-abstract class in the IFC schema you pick that can carry at least one standard set; the set list is the sets whose templates apply to that class, its ancestors, or the occurrence a type object is for (Pset_WallCommon on IFCWALL, IFCWALLSTANDARDCASE and IFCWALLTYPE); the property list and data types are the template's. IDS matches exact classes, so a specification on IFCWALL misses IFCWALLSTANDARDCASE unless both are listed: tick <em>and its subclasses</em> to list them. A property whose template gives no single data type (a bounded value, a table, a list or a reference) is checked for presence only.</p>
@@ -94,7 +94,8 @@
   import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
   import { Schema, parseIds } from "./ids.mjs";
   import { auditIds } from "./audit.mjs";
-  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, idsSchema, facetXml, editableAttributes, modelSets, valueTypes, ownSetName, specBases, specClassNames, commonSets, commonAttributes, attributeValueKind, commonPredefinedTypes, parseClassList, modelValueOffer, modelAttributes, modelCodes, appMatchCount, reqComplete, typeRow, untypeRow } from "./editor.mjs";
+  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, idsSchema, facetXml, editableAttributes, modelSets, valueTypes, ownSetName, specBases, specClassNames, commonSets, commonAttributes, attributeValueKind, commonPredefinedTypes, parseClassList, modelValueOffer, modelAttributes, modelCodes, appMatchCount, reqComplete, typeRow, untypeRow, temporalType, TEMPORAL_EXAMPLE, datePattern } from "./editor.mjs";
+  import { temporalKind } from "./temporal.mjs";
   import { isZip, unzipModel, inflateRawStream } from "./zip.mjs";
 
   const $ = (id) => document.getElementById(id);
@@ -138,7 +139,7 @@
     let h = `<div class="req"><div class="grid">`;
     h += `<div><label for="${id("kind")}">${app ? "Only elements with" : "Requirement"}</label><select id="${id("kind")}" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="kind">${[["property", "a property or quantity"], ["attribute", "an attribute (Name, Description...)"], ["classification", "a classification"], ["material", "a material"], ["partOf", "a place (storey, group...)"]].map(([v, l]) => opt(v, l, r.kind)).join("")}</select></div>`;
     if (!app) h += `<div><label for="${id("card")}">How</label><select id="${id("card")}" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="cardinality">${[["required", "must have"], ["optional", "if present, must match"], ["prohibited", "must not have"]].map(([v, l]) => opt(v, l, r.cardinality)).join("")}</select></div>`;
-    let valueKind = "text", enumVals = null, note = "", mprop = null, typeBtn = "", anyBtn = false, realWarn = false;
+    let valueKind = "text", temporal = null, enumVals = null, note = "", mprop = null, typeBtn = "", anyBtn = false, realWarn = false;
     codeless.delete(key);
     if (r.kind === "property") {
       // With several classes, only the standard sets every one can carry.
@@ -168,6 +169,7 @@
         else {
           const prim = L.S.prim(dt);
           valueKind = prim === "double" || prim === "integer" ? "number" : prim === "boolean" || prim === "logical" ? "bool" : "text";
+          temporal = temporalType(dt);
           note = `dataType ${dt}.`;
         }
         if (r.set && !ownSetName(r.set)) note = `${r.set} uses the Pset_/Qto_ prefix buildingSMART reserves for its standard sets; the audit will reject a name the standard does not have. ` + note;
@@ -200,6 +202,7 @@
             const prim = L.S.prim(p.dataType);
             valueKind = prim === "double" || prim === "integer" ? "number" : prim === "boolean" || prim === "logical" ? "bool" : "text";
             enumVals = p.enum;
+            temporal = temporalType(p.dataType);
             note = `dataType ${p.dataType}${p.dataTypes.length > 1 ? ` (the template also allows ${p.dataTypes.slice(1).join(", ")})` : ""}.`;
           }
           const q = mset && mset.props.find((x) => x.name === r.name);
@@ -208,13 +211,13 @@
           // The model writes another type: offer the row with no dataType
           // (untypeRow), which checks the property whatever type it holds.
           if (q && q.dataType && untypeRow(L, r, q.dataType)) { note += ` A check with no dataType passes them whatever type they hold, and the audit accepts it${r.mode && r.mode !== "any" ? " (with a warning when a value is asked)" : ""}.`; anyBtn = true; }
-          else if (inv && spec.cls && ofN) note += ` None of the model's ${ofN} ${spec.cls} object(s) has it yet.`;
+          else if (!q && inv && spec.cls && ofN) note += ` None of the model's ${ofN} ${spec.cls} object(s) has it yet.`;
         } else valueKind = null;
       }
     } else if (r.kind === "attribute") {
       const attrs = commonAttributes(L.S, specBases(spec));
       h += `<div><label for="${id("name")}">Attribute</label><select id="${id("name")}" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="name">${opt("", "choose", r.name)}${attrs.map((a) => opt(a, a, r.name)).join("")}</select></div>`;
-      ({ kind: valueKind, enumVals } = attributeValueKind(L.S, specBases(spec), r.name));
+      ({ kind: valueKind, enumVals, temporal = null } = attributeValueKind(L.S, specBases(spec), r.name));
       // The values the opened model's objects of these classes hold for it.
       if (inv && spec.cls && r.name) {
         const ma = modelAttributes(inv, specClasses(L, spec));
@@ -252,14 +255,24 @@
     if (valueKind && r.cardinality !== "prohibited") {
       const modes = [["any", "any value"], ["equals", "exactly"]];
       if (enumVals || valueKind === "text") modes.push(["oneOf", "one of"]);
-      if (valueKind === "number") modes.push(["range", "between"]);
+      if (valueKind === "number" || temporal) modes.push(["range", temporal === "duration" ? "between (durations)" : temporal ? "between (dates)" : "between"]);
       if (valueKind === "text" && !enumVals) modes.push(["pattern", "matching a pattern"]);
       if (valueKind === "bool") modes.splice(1, 1, ["true", "true"], ["false", "false"]);
       h += `<div class="row" style="margin-top:8px"><label for="${id("mode")}" style="display:inline">Value</label><select id="${id("mode")}" style="width:auto" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="mode">${modes.map(([v, l]) => opt(v, l, r.mode)).join("")}</select>`;
       const inM = (v) => { const x = offer && offer.values.find(([y]) => y === v); return x ? ` (${x[1]} in model)` : ""; };
       if (r.mode === "equals") h += enumVals ? `<select style="width:auto" aria-label="value" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="equals">${opt("", "choose", r.equals)}${enumVals.map((v) => opt(v, v + inM(v), r.equals)).join("")}</select>` : `<input style="width:14em" aria-label="value" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="equals" value="${esc(r.equals)}"${offer ? ` list="${id("vals")}" autocomplete="off"` : ""}>${offer ? `<datalist id="${id("vals")}">${offer.values.map(([v, n]) => `<option value="${esc(v)}">${n} in model</option>`).join("")}</datalist>` : ""}`;
       // Each bound inclusive (at least / at most) or exclusive (more than / less than: xs:minExclusive, xs:maxExclusive).
-      if (r.mode === "range") h += `<select style="width:auto" aria-label="lower bound" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="minEx">${opt("", "at least", r.minEx ? "1" : "")}${opt("1", "more than", r.minEx ? "1" : "")}</select> <input style="width:8em" aria-label="minimum" placeholder="min" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="min" value="${esc(r.min)}"> and <select style="width:auto" aria-label="upper bound" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="maxEx">${opt("", "at most", r.maxEx ? "1" : "")}${opt("1", "less than", r.maxEx ? "1" : "")}</select> <input style="width:8em" aria-label="maximum" placeholder="max" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="max" value="${esc(r.max)}"> <span class="muted">${r.kind === "attribute" ? "as the model writes it, in the model's own units (this checker does not convert attributes)" : "SI units (metres, square metres...)"}</span>`;
+      if (r.mode === "range") h += `<select style="width:auto" aria-label="lower bound" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="minEx">${opt("", "at least", r.minEx ? "1" : "")}${opt("1", "more than", r.minEx ? "1" : "")}</select> <input style="width:8em" aria-label="minimum" placeholder="${temporal ? TEMPORAL_EXAMPLE[temporal][0] : "min"}" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="min" value="${esc(r.min)}"> and <select style="width:auto" aria-label="upper bound" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="maxEx">${opt("", "at most", r.maxEx ? "1" : "")}${opt("1", "less than", r.maxEx ? "1" : "")}</select> <input style="width:8em" aria-label="maximum" placeholder="${temporal ? TEMPORAL_EXAMPLE[temporal][1] : "max"}" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="max" value="${esc(r.max)}"> <span class="muted">${temporal ? TEMPORAL_UNIT[temporal] : r.kind === "attribute" ? "as the model writes it, in the model's own units (this checker does not convert attributes)" : "SI units (metres, square metres...)"}</span>`;
+      if (r.mode === "range") {
+        const w = rangeWarning(r, temporal);
+        if (w) h += `<p class="${w.warn ? "warn" : "muted"}" style="margin:6px 0 0;font-size:0.86rem">${esc(w.text)}</p>`;
+        // IfcTester 0.9.0 reads range bounds only as numbers, so it fails every
+        // object on a date or duration range (eval/date-ranges-2026-11-17.md).
+        if (temporal && !(w && w.warn)) {
+          const dp = temporal === "date" ? datePattern(r.min, r.max, r.minEx, r.maxEx) : null;
+          h += `<p class="warn" style="margin:6px 0 0;font-size:0.86rem">IDS 1.0 allows a ${temporal === "duration" ? "duration" : "date"} range and this checker reads it as one, but IfcOpenShell's IfcTester (0.9.0) compares range bounds only as numbers, so it fails every object on it. ${dp ? "If the file will be checked with IfcTester, write the same dates as a pattern, which both read the same way." : temporal === "duration" ? "If the file will be checked with IfcTester, ask for exact values (one of) instead." : "If the file will be checked with IfcTester, ask for a pattern on the date instead."}${dp ? ` <button type="button" class="ghost small" data-act="date-pattern" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>Write as a pattern</button>` : ""}</p>`;
+        }
+      }
       if (r.mode === "pattern") h += `<input style="width:14em" aria-label="pattern" placeholder="[A-Z]{2}-[0-9]+" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="pattern" value="${esc(r.pattern)}">`;
       h += `</div>`;
       if (r.mode === "oneOf" && enumVals) h += `<div class="enum">${enumVals.map((v) => `<label><input type="checkbox" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="oneOf" value="${esc(v)}"${r.oneOf.includes(v) ? " checked" : ""}> ${esc(v)}${esc(inM(v))}</label>`).join("")}</div>`;
@@ -306,6 +319,34 @@
     return h;
   }
 
+  // What a date, time or duration range row's bounds are written as.
+  const TEMPORAL_UNIT = {
+    date: "ISO dates, 2024-01-31 (xs:date)",
+    dateTime: "ISO date-times, 2024-01-31T08:00:00 (xs:dateTime)",
+    time: "times of day, 07:30:00 (xs:time)",
+    duration: "ISO 8601 durations: P2Y two years, P6M six months, PT30M thirty minutes (xs:duration)",
+  };
+  // A range row's bounds: a date bound in the wrong form never matches
+  // (ids.mjs compares a date only with a date), and IDS ranges take no
+  // rounding tolerance, so an exclusive bound is met or missed exactly
+  // (ImplementersDocumentation/tolerance.md, tolerance/*_exclusive cases).
+  function rangeWarning(r, temporal) {
+    const set = [["min", r.min], ["max", r.max]].filter(([, v]) => v !== "" && v != null);
+    if (temporal) {
+      const bad = set.filter(([, v]) => temporalKind(String(v)) !== temporal);
+      if (bad.length) return { warn: true, text: `${bad.map(([k, v]) => `${k === "min" ? "The lower" : "The upper"} bound ${v}`).join(" and ")} is not ${temporal === "duration" ? "an ISO 8601 duration" : `an ISO ${temporal === "dateTime" ? "date-time" : temporal}`} (${TEMPORAL_EXAMPLE[temporal].join(", ")}), so no value can match it.` };
+      if (temporal === "duration" && set.some(([, v]) => /\d[YM]/.test(String(v).split("T")[0]))) return { warn: false, text: "Years and months have no fixed length; this checker counts a year as 365.2425 days and a month as a twelfth of that, so P1M and P30D compare as nearly equal." };
+      return null;
+    }
+    if (set.some(([, v]) => !Number.isFinite(Number(v)))) return { warn: true, text: "A bound that is not a number never matches a number." };
+    if (r.minEx || r.maxEx) {
+      const lt = r.maxEx && set.some(([k]) => k === "max");
+      const b = lt ? `less than ${r.max}` : `more than ${r.min}`;
+      const inside = lt ? `${r.max} minus a millionth` : `${r.min} plus a millionth`;
+      return { warn: false, text: `IDS ranges take no rounding tolerance, unlike "exactly": "${b}" is compared exactly, so a value written as ${inside} passes it, though "exactly" would call that value equal to the bound; and a converted unit can land either side (0.254 m reads as 0.25399999999999995). Leave a margin if a value that rounds to the bound must not pass.` };
+    }
+    return null;
+  }
   // The exact classes a specification names (IDS matches exact classes).
   const specClasses = (L, s) => specClassNames(L.S, s);
   // An opened property value with no dataType (kept that way, typeRow adds one).
@@ -526,6 +567,13 @@
       const q = m && m.props.find((x) => x.name === r.name);
       const t = q ? untypeRow(L, r, q.dataType) : null;
       if (t) { rows[+e.target.dataset.r] = t.row; record("editor_untyped"); if (t.dropped) alert(t.real ? "With no dataType, checkers read a real-number value differently, so the row now asks for any value (presence)." : "A range needs a dataType, so the row now asks for any value. Set a value again if you need one."); }
+    }
+    // A date range rewritten as the pattern of the same dates (datePattern),
+    // which IfcTester and this checker read the same way.
+    if (a === "date-pattern") {
+      const r = rows[+e.target.dataset.r];
+      const dp = datePattern(r.min, r.max, r.minEx, r.maxEx);
+      if (dp) { r.mode = "pattern"; r.pattern = dp; record("editor_date_pattern"); }
     }
     // A classification that must carry some code, not only the system.
     if (a === "model-coded") {
