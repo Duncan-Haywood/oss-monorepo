@@ -1,5 +1,13 @@
 # Research log
 
+## 2026-11-17 · A margin-backoff rule for an empty margin-shifted set: outcome. Development 32 of 34 (case73 API clean at round 8, +0.96 %), none lost; held-out it fires on 1 of 19 and changes no verdict
+- Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-17); numbers in `research/infra-dcopf/experiments/results_backoff.txt`. B1, B2, B4, B5, B6 held; B3, B7 refuted.
+- Rule B fires on case73 API and case24 API (margins halved once). case73 API finishes for the first time; case24 API finishes two rounds sooner at +0.17 % instead of +0.71 %. case240 TYP and SAD stay empty at an eighth of the margins, so the rule declines and their frozen finishes stand.
+- Held-out it fires only on case588 API: same round (19), cost +0.66 % instead of +0.87 %. The two-solver panel prevented PIPS-only firings on case179 SAD and case793 API. The check costs up to 57 minutes on a 1,354-bus case, so it is a stall diagnostic, not a per-case step.
+
+## 2026-11-17 · A margin-backoff rule for an empty margin-shifted set (plan)
+- Plan, rule B (a two-solver check of the margin-shifted AC OPF before round 1; on an empty set, halve every margin up to three times) and predictions B1 to B7: `research/infra-dcopf/LOG.md` (2026-11-17); script `research/infra-dcopf/experiments/run_backoff.py`. Frozen on the 34 development cases, scored on the held-out 24.
+
 ## 2026-11-17 · Do the two development stalls come from the repair's own safety margins? Outcome. case73 API: its margin-shifted AC OPF has no solution on PIPS or IPOPT; case118 API: it solves; zero margins finish neither and lose 5 to 21 finishers
 - Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-17); numbers in `research/infra-dcopf/experiments/results_margin.txt`. A1, M2, Z3 held; M1, M3, Z1, Z2, Z4 refuted. Reproduction gate passed on all 34 cases.
 - case73 API's AC optimum sits on its voltage bounds (all 14 generator buses at the ceiling, 7 PQ buses at the floor) and 10 branch ends at their rating; pulling in thermal and voltage bounds together leaves no AC point (each alone is solvable, +0.41 % and +1.99 %). The repair stalls because it aims at an empty set.
