@@ -32,4 +32,4 @@ console.log(JSON.stringify({ seed: SEED, P, S, week, extra, open: Math.floor(r.s
   skip: o.scoreFloorSkip ?? null, atPayFloor, spentBy: atPayFloor !== null ? atPayFloor - BUDGET : null, crossed, timeline: tl,
   coverRepair: o.coverRepair ?? null, cg: o.scoreCG ? { ms: o.scoreCG.ms, shareMs: o.scoreCG.shareMs, maxLpMs: o.scoreCG.maxLpMs, maxPricingMs: o.scoreCG.maxPricingMs, stoppedMidRound: o.scoreCG.stoppedMidRound } : null,
   clique: o.cliqueFloor ? { ms: o.cliqueFloor.ms } : null,
-  dayLNS: o.dayLNS ? { before: Number(o.dayLNS.before.toFixed(2)), after: Number(o.dayLNS.after.toFixed(2)), kicks: o.dayLNS.kicks, ms: o.dayLNS.ms, startedAt: o.dayLNS.startedAt, guideFrom: o.dayLNS.guideFrom, gains: (o.dayLNS.gains || []).map(([t, k, d]) => [t, k, Number(d.toFixed(2))]) } : null, ms: Date.now() - t0 }));
+  dayLNS: o.dayLNS ? { before: Number(o.dayLNS.before.toFixed(2)), after: Number(o.dayLNS.after.toFixed(2)), kicks: o.dayLNS.kicks, ms: o.dayLNS.ms, startedAt: o.dayLNS.startedAt, ladders: o.dayLNS.ladders, guideFrom: o.dayLNS.guideFrom, gains: (o.dayLNS.gains || []).map(([t, k, d]) => [t, k, Number(d.toFixed(2))]) } : null, ms: Date.now() - t0 }));
