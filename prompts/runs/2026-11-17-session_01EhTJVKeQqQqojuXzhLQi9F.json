@@ -1,0 +1,63 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVKeQqQqojuXzhLQi9F",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (scheduled routine prompt)",
+  "input_sha256": "4207abd77e9a8607d5ea627a8aa7754abc9fab62bb68e0f6eb3a480afbda5e64",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T02:02:42Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 9) league-schedule-generator: 47 on 8x9 (allocate.py row 6), plus the fully booked 43 on 7x9",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16730",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "Container restarted ~15 min in; background SAT runs lost, resumed from --save states in the scratchpad",
+    "First launch failed: python-sat import missing for the interpreter until reinstalled with python3 -m pip"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/league-schedule-generator/eval/odd-lns.py",
+      "issue": "--resume re-checks every unlaid night at 180 s by default, so a resumed 47-team run spent ~40 min before its first step; --resume-check 60 is the better default for states saved by this script"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Background runs launched with plain nohup & died with the container restart; setsid nohup plus periodic commits of the --save state to the branch is what survives"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "The row's top item (47 on 8x9) is a multi-session search; I also ran the fully booked 43 on 7x9 (same family that orbit solved at 19-37) on the fourth core so the session would close a size",
+      "did": "43 on 7x9 by odd-orbit.py --solver cd19 alone on one core",
+      "result": "SAT in 9,849 s; 1,073 waits to 0 through the tool"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-a-43-team-league-every-court-every-slot.md",
+    "ventures/league-schedule-generator/README.md (sections '43 teams on 7 x 9' and '47 teams on 8 x 9')"
+  ],
+  "goal": null,
+  "notes": "43 on 7x9 wait-free (odd-orbit.py, 166,511 vars, 9,849 s; stored as design 35; doubleheader + lns-state tests pass). 47 on 8x9: best 5 of 16 nights, state in eval/lns-states/47-8x9.json; lns-state.test.mjs generalised to check every saved state. Venture test suite run with run_venture_tests.py (see PR body).",
+  "corrections": [],
+  "redteam": null
+}
