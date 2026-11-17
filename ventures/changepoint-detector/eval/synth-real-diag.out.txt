@@ -1,0 +1,7 @@
+California: before RMSPE 1.66, after 20.53, ratio 12.36, rank 3 of 39
+Top 8 placebo ratios: MO 26.52 (before 0.41, after 10.89); VA 16.87 (before 0.86, after 14.49); TX 8.16 (before 1.91, after 15.59); OK 8.12 (before 1.96, after 15.93); LA 7.13 (before 0.98, after 7.02); NE 7.07 (before 0.89, after 6.29); RI 7.05 (before 3.79, after 26.76); SD 7.01 (before 1.04, after 7.32)
+placebos with before MSPE <= 20x California's: 34; California's rank 3 of 35, p 0.086
+placebos with before MSPE <= 5x California's: 30; California's rank 3 of 31, p 0.097
+placebos with before MSPE <= 2x California's: 19; California's rank 3 of 20, p 0.150
+after-date RMSPE alone (not the test): California's rank 4 of 39; top: KY 40.01, RI 26.76, IN 20.69, VT 16.62
+With California in each placebo's pool (the paper's placebos): California's rank 3 of 39, p 0.077; top: MO 26.53 (before 0.41); VA 16.88 (before 0.86); NE 10.14 (before 0.83); TX 8.16 (before 1.91)

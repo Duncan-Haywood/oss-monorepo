@@ -1,0 +1,70 @@
+## T1 California, Proposition 99 (date 1989)
+T1 Proposition 99 (+25c, 1 Jan 1989): CA 1989, 1970-2000, 38 donors
+  weights: UT 0.391, MT 0.227, NV 0.207, CT 0.109, NH 0.043, CO 0.024
+  before RMSPE 1.66 packs (worse than 32% of the donors' own fits); after RMSPE 20.53; ratio 12.36
+  gap after the date: -19.46 packs on average, -26.52 at the end; rank 3 of 39, p 0.077
+  gap by year: 1970 5.6, 1971 1.2, 1972 -1.1, 1973 -0.0, 1974 0.2, 1975 0.3, 1976 -0.4, 1977 -0.5, 1978 0.1, 1979 -1.0, 1980 -0.0, 1981 -1.1, 1982 -1.1, 1983 -0.2, 1984 1.4, 1985 -0.4, 1986 0.0, 1987 -3.0, 1988 -1.9, 1989 -8.4, 1990 -9.2, 1991 -12.7, 1992 -13.7, 1993 -17.5, 1994 -22.0, 1995 -22.8, 1996 -23.9, 1997 -26.1, 1998 -23.2, 1999 -27.4, 2000 -26.5
+T1 (p <= 0.05, average gap -30 to -10 packs, gap at 2000 below 0): NOT MET
+## T2-T4 other tax rises (each state against the donors still clean through its window)
+T2 Question 1 (+25c, 1 Jan 1993): MA 1993, 1970-2000, 38 donors
+  weights: CT 0.570, DE 0.128, OH 0.121, UT 0.090, RI 0.058, NV 0.032
+  before RMSPE 2.97 packs (worse than 55% of the donors' own fits); after RMSPE 17.22; ratio 5.81
+  gap after the date: -15.71 packs on average, -24.06 at the end; rank 8 of 39, p 0.205
+T3 Proposition 200 (+40c, 1 Dec 1994): AZ 1995, 1970-2002, 35 donors
+  weights: NM 0.263, NV 0.261, UT 0.252, GA 0.138, TX 0.087
+  before RMSPE 3.98 packs (worse than 74% of the donors' own fits); after RMSPE 8.81; ratio 2.22
+  gap after the date: -8.10 packs on average, -9.28 at the end; rank 18 of 36, p 0.500
+T4 Measure 44 (+30c, 1 Feb 1997): OR 1997, 1970-2004, 27 donors
+  weights: UT 0.436, NH 0.335, WI 0.110, ID 0.091, NC 0.028
+  before RMSPE 5.53 packs (worse than 78% of the donors' own fits); after RMSPE 16.30; ratio 2.95
+  gap after the date: -15.64 packs on average, -25.33 at the end; rank 11 of 28, p 0.393
+T2-T4: 0 of 3 with p <= 0.10 and a negative average gap (bar at least 2): NOT MET
+## I in-time placebos: California with the window cut at 1988
+I1: CA 1980, 1970-1988, fake date 1980, 38 donors
+  weights: CT 0.330, UT 0.329, NV 0.286, WV 0.054
+  before RMSPE 0.84 packs (worse than 39% of the donors' own fits); after RMSPE 4.70; ratio 5.60
+  gap after the date: -3.25 packs on average, -9.15 at the end; rank 18 of 39, p 0.462
+I2: CA 1984, 1970-1988, fake date 1984, 38 donors
+  weights: UT 0.364, NV 0.304, CT 0.302, WV 0.030
+  before RMSPE 0.80 packs (worse than 21% of the donors' own fits); after RMSPE 5.52; ratio 6.89
+  gap after the date: -4.08 packs on average, -7.99 at the end; rank 11 of 39, p 0.282
+I: 0 of 2 with p <= 0.05 (bar 0): MET
+## Q placebo states (state tax per pack changed by at most 2 cents FY1985-FY1995), date 1989, 1970-2000, the other 37 donors
+Q AL: AL 1989, 1970-2000, 37 donors
+  weights: AR 0.628, SC 0.190, UT 0.182
+  before RMSPE 1.87 packs (worse than 38% of the donors' own fits); after RMSPE 4.52; ratio 2.42
+  gap after the date: 3.37 packs on average, 6.63 at the end; rank 25 of 38, p 0.658
+Q GA: GA 1989, 1970-2000, 37 donors
+  weights: AR 0.433, OH 0.154, DE 0.137, AL 0.113, SC 0.076, TN 0.059, +1 more
+  before RMSPE 1.69 packs (worse than 32% of the donors' own fits); after RMSPE 10.76; ratio 6.35
+  gap after the date: -9.57 packs on average, -18.30 at the end; rank 10 of 38, p 0.263
+Q KY: KY 1989, 1970-2000, 37 donors
+  weights: VT 0.544, NH 0.456
+  before RMSPE 16.88 packs (worse than 95% of the donors' own fits, FIT WARNING); after RMSPE 40.01; ratio 2.37
+  gap after the date: 39.34 packs on average, 40.65 at the end; rank 25 of 38, p 0.658
+Q MS: MS 1989, 1970-2000, 37 donors
+  weights: AL 0.338, SC 0.208, NM 0.137, TN 0.111, OK 0.088, CO 0.065, +2 more
+  before RMSPE 1.74 packs (worse than 35% of the donors' own fits); after RMSPE 5.27; ratio 3.03
+  gap after the date: 4.64 packs on average, 5.52 at the end; rank 21 of 38, p 0.553
+Q MT: MT 1989, 1970-2000, 37 donors
+  weights: UT 0.281, CO 0.252, ND 0.215, NH 0.094, NM 0.088, ID 0.070
+  before RMSPE 2.13 packs (worse than 46% of the donors' own fits); after RMSPE 7.24; ratio 3.40
+  gap after the date: 6.46 packs on average, 6.81 at the end; rank 18 of 38, p 0.474
+Q SC: SC 1989, 1970-2000, 37 donors
+  weights: AL 0.406, GA 0.209, MS 0.162, KY 0.107, TN 0.059, IN 0.030, +1 more
+  before RMSPE 1.18 packs (worse than 16% of the donors' own fits); after RMSPE 6.07; ratio 5.15
+  gap after the date: 0.71 packs on average, 0.86 at the end; rank 15 of 38, p 0.395
+Q TN: TN 1989, 1970-2000, 37 donors
+  weights: AR 0.681, ME 0.161, AL 0.158
+  before RMSPE 4.68 packs (worse than 84% of the donors' own fits, FIT WARNING); after RMSPE 10.98; ratio 2.35
+  gap after the date: 10.10 packs on average, 12.47 at the end; rank 28 of 38, p 0.737
+Q VA: VA 1989, 1970-2000, 37 donors
+  weights: KY 0.203, AL 0.177, GA 0.161, IN 0.151, PA 0.113, WV 0.071, +5 more
+  before RMSPE 0.86 packs (worse than 3% of the donors' own fits); after RMSPE 14.49; ratio 16.87
+  gap after the date: -13.90 packs on average, -14.43 at the end; rank 2 of 38, p 0.053
+Q WV: WV 1989, 1970-2000, 37 donors
+  weights: IN 0.288, CT 0.230, UT 0.206, AL 0.144, IA 0.089, NH 0.023, +1 more
+  before RMSPE 2.52 packs (worse than 59% of the donors' own fits); after RMSPE 14.16; ratio 5.61
+  gap after the date: 12.08 packs on average, 19.97 at the end; rank 14 of 38, p 0.368
+Q: 0 of 9 with p <= 0.05 (bar at most 1): MET
+[{"tag":"T1 Proposition 99 (+25c, 1 Jan 1989)","state":"CA","date":1989,"last":2000,"donors":38,"p":0.07692307692307693,"rank":3,"effectAverage":-19.457579217815884,"effectAtEnd":-26.518991661060646,"preRmspe":1.661071760669567,"fitWarning":false},{"tag":"T2 Question 1 (+25c, 1 Jan 1993)","state":"MA","date":1993,"last":2000,"donors":38,"p":0.20512820512820512,"rank":8,"effectAverage":-15.710066081625396,"effectAtEnd":-24.0617570082822,"preRmspe":2.9661876209324123,"fitWarning":false},{"tag":"T3 Proposition 200 (+40c, 1 Dec 1994)","state":"AZ","date":1995,"last":2002,"donors":35,"p":0.5,"rank":18,"effectAverage":-8.096177780826608,"effectAtEnd":-9.277364359173234,"preRmspe":3.9777257956195675,"fitWarning":false},{"tag":"T4 Measure 44 (+30c, 1 Feb 1997)","state":"OR","date":1997,"last":2004,"donors":27,"p":0.39285714285714285,"rank":11,"effectAverage":-15.644208504284155,"effectAtEnd":-25.33288032198689,"preRmspe":5.532455699323034,"fitWarning":false},{"tag":"I1","state":"CA","date":1980,"last":2000,"donors":38,"p":0.46153846153846156,"rank":18,"effectAverage":-3.2458925519401354,"effectAtEnd":-9.1527385732917,"preRmspe":0.8403118407912068,"fitWarning":false},{"tag":"I2","state":"CA","date":1984,"last":2000,"donors":38,"p":0.28205128205128205,"rank":11,"effectAverage":-4.08044335968304,"effectAtEnd":-7.986733862838506,"preRmspe":0.8016847896023405,"fitWarning":false},{"tag":"Q AL","state":"AL","date":1989,"last":2000,"donors":37,"p":0.6578947368421053,"rank":25,"effectAverage":3.3676424917591348,"effectAtEnd":6.634151268658087,"preRmspe":1.8689000823812845,"fitWarning":false},{"tag":"Q GA","state":"GA","date":1989,"last":2000,"donors":37,"p":0.2631578947368421,"rank":10,"effectAverage":-9.566825507307339,"effectAtEnd":-18.29993833966543,"preRmspe":1.6939324573642522,"fitWarning":false},{"tag":"Q KY","state":"KY","date":1989,"last":2000,"donors":37,"p":0.6578947368421053,"rank":25,"effectAverage":39.33851408635815,"effectAtEnd":40.64665726437231,"preRmspe":16.875890952004035,"fitWarning":true},{"tag":"Q MS","state":"MS","date":1989,"last":2000,"donors":37,"p":0.5526315789473685,"rank":21,"effectAverage":4.639622141250475,"effectAtEnd":5.518375906685378,"preRmspe":1.7413907263152195,"fitWarning":false},{"tag":"Q MT","state":"MT","date":1989,"last":2000,"donors":37,"p":0.47368421052631576,"rank":18,"effectAverage":6.460671151566678,"effectAtEnd":6.807347334223209,"preRmspe":2.1335752833781556,"fitWarning":false},{"tag":"Q SC","state":"SC","date":1989,"last":2000,"donors":37,"p":0.39473684210526316,"rank":15,"effectAverage":0.7148385589567935,"effectAtEnd":0.8554432304516411,"preRmspe":1.1784791559004384,"fitWarning":false},{"tag":"Q TN","state":"TN","date":1989,"last":2000,"donors":37,"p":0.7368421052631579,"rank":28,"effectAverage":10.100372735259398,"effectAtEnd":12.465201580774803,"preRmspe":4.679102007970887,"fitWarning":true},{"tag":"Q VA","state":"VA","date":1989,"last":2000,"donors":37,"p":0.05263157894736842,"rank":2,"effectAverage":-13.899302842153688,"effectAtEnd":-14.42750763891452,"preRmspe":0.8588621132386546,"fitWarning":false},{"tag":"Q WV","state":"WV","date":1989,"last":2000,"donors":37,"p":0.3684210526315789,"rank":14,"effectAverage":12.082801629567344,"effectAtEnd":19.97270824755762,"preRmspe":2.5237900388916006,"fitWarning":false}]

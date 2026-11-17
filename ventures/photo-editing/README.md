@@ -1371,7 +1371,7 @@ unchanged.
 directional result toward bilinear block by block (24 x 24). Each block's weight comes from how far
 directional departs from bilinear there, against the noise the sensor has at that brightness. The noise
 comes from the DNG's own NoiseProfile tag, which phones and converted DNGs write. Without the tag the
-file develops as directional, and the notes say so. On 25 held-out sample files (scenes from 41 bodies,
+file develops as directional, and the notes say so (or, with `--noise-from-frame`, from the frame: below). On 25 held-out sample files (scenes from 41 bodies,
 noise drawn at three levels), colour PSNR rises +0.43 dB on X-Trans and +0.31 dB on Bayer over the
 directional default on average, +0.93 / +0.68 dB at SNR 12, and no tile is worse by more than 0.01 dB.
 That beats the best single blend weight per frame chosen with the truth in hand (+0.41 / +0.26). The
@@ -1410,6 +1410,28 @@ On 24 real DNGs only a Pixel 4 XL's green plane read differently from the old ch
 keeps the one-gain carry it was tuned with: a per-colour noise model in the blend gained 0.01-0.05 dB colour and
 lost 0.05-0.07 dB luma. Still opt-in, still synthetic noise. `tools/noise_aware_planes.py`,
 `eval/noise-aware-planes-luma-2026-11-16.md`.
+
+**Since 2026-11-17 luma has its own ramp.** The blend's ramp had been fitted on colour, and one ramp re-fitted
+on luma only traded colour for luma. Now the output keeps the colour difference (R-G, B-G) of the colour ramp
+and takes its luma from a second, later ramp that leans further to bilinear (`LUMA_RAMPS`: Bayer q 0.8-1.5,
+X-Trans 0.8-2.0, fitted on 21 tune files). On 25 held-out files luma over directional rises from +0.76 to
++0.99 dB (Bayer) and +1.12 to +1.28 dB (X-Trans), RGB PSNR from +0.35 to +0.48 and +0.51 to +0.61 dB, and no
+tile is worse than directional by more than 0.08 dB. The Bayer ramp was chosen with a rule added after seeing
+held-out results (the note says how). Sensels no longer keep their raw value under the luma shift; putting it
+back gave back most of the gain. `noise_aware(luma_ramp=False)` gives the old blend.
+`tools/noise_aware_ramp_refit.py`, `eval/noise-aware-luma-ramp-2026-11-17.md`.
+
+**Since 2026-11-17 a raw with no NoiseProfile can use the blend too, opt-in: `--noise-from-frame`.** Every raw
+read directly (ARW, NEF, CR2, RW2, RAF and the rest) and many DNGs carry no profile, so `--demosaic noise-aware`
+fell back to directional on them. With the flag, the noise model is read from the frame itself
+(`xtrans_demosaic.frame_noise`: the in-frame estimate, sigma scaled by 0.8, then the profile guard). On held-out
+tiles whose noise is at least as loud as their finest detail, it keeps 80-94% of the true model's luma gain:
++0.79 to +1.72 dB (Bayer) and +0.99 to +1.94 dB (X-Trans) over directional, against +0.84 to +1.94 and +1.09 to
++2.42. On clean, finely textured tiles the estimate reads texture as noise, and it is 0.3 dB below directional
+on average, down to -4 to -6 dB on single tiles. No in-frame estimator tried (lower percentiles, a wavelet
+residual, a two-scale reading that cancels self-similar texture) removed that tail, so the flag is meant for
+high-ISO frames and is not the default fallback. About 2-5x the directional demosaic's time.
+`tools/noise_aware_estimated.py`, `tools/noise_estimator_accuracy.py`, `eval/noise-aware-estimated-2026-11-17.md`.
 
 ## A directional demosaic for Bayer files (2026-11-15)
 

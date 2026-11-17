@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   SYSTEMS, PRESETS, DEFAULTS, buildLine, parseCargo, parseRotation, orientations, resolveContainer,
   packPass, bestPack, planLoad, verifyPacking, palletise, compareOptions, viewRects, loadingOrder,
-  mulberry32, balanceReport, stopReport, lineFits, suggestRestarts, reportCsv, planReportHtml, sampleCargo, toMm, fromMm, MAX_UNITS,
+  mulberry32, palletContainer, balanceReport, stopReport, lineFits, suggestRestarts, reportCsv, planReportHtml, sampleCargo, toMm, fromMm, MAX_UNITS,
 } from "./calc.mjs";
 
 const M = SYSTEMS.metric, IMP = SYSTEMS.imperial;
@@ -530,4 +530,19 @@ testSplit("splitCells keeps a quoted thousands comma, reads tabs, and treats a m
   assertSplit.deepEqual(splitCellsForTest("Item\t1,200\t800"), ["Item", "1,200", "800"]);
   assertSplit.deepEqual(splitCellsForTest('17" rims,"say ""hi""",5'), ['17" rims', 'say "hi"', "5"]);
   assertSplit.deepEqual(splitCellsForTest("a, b ,c"), ["a", "b", "c"]);
+});
+
+// ----- speed-ups keep the answers ------------------------------------------
+
+test("the dead-corner memo changes no placement: 24 mixed loads match the pre-memo packer's output", async () => {
+  // The hash was taken from the packer before corners remembered the sizes that
+  // can never go there (2026-11-17); a speed-up must reproduce it exactly.
+  const { createHash } = await import("node:crypto");
+  const rng = mulberry32(20261117), out = [];
+  for (let k = 0; k < 24; k++) {
+    const n = 1 + Math.floor(rng() * 4), ls = [];
+    for (let j = 0; j < n; j++) ls.push(buildLine({ name: "r" + j, l: 10 + Math.floor(rng() * 90), w: 10 + Math.floor(rng() * 70), h: 10 + Math.floor(rng() * 70), weight: 1 + Math.floor(rng() * 300), qty: 1 + Math.floor(rng() * 40), rotation: ["upright", "any", "fixed"][Math.floor(rng() * 3)], maxLayers: rng() < 0.4 ? 1 + Math.floor(rng() * 4) : "", maxTop: rng() < 0.4 ? Math.floor(rng() * 200) : "" }, M).line);
+    out.push(planLoad(ls, k % 3 === 0 ? palletContainer() : PRESETS[k % PRESETS.length], { restarts: 12, seed: k }).containers.map((x) => x.placements));
+  }
+  assert.equal(createHash("sha256").update(JSON.stringify(out)).digest("hex"), "69eff7e5589c59a72014207eb164849f9b8f6c0154fa34604e74faf521a31e8e");
 });

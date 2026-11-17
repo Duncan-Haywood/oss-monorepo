@@ -10,7 +10,7 @@ from .adjustment import header_adjustment_net_delta, inspect_header_adjustments
 from .bic import inspect_payment_bic
 from .breakdown import inspect_tax_breakdown
 from .document import inspect_document_type
-from .endpoint import inspect_party_endpoint
+from .endpoint import inspect_party_endpoint, inspect_party_identifiers
 from .linenet import accepted_line_net, flat_tax_total, is_negative_invoice, expected_line_net, summed_line_net, tax_groups, tax_percent_of
 from .iban import inspect_payment_iban
 from .means import inspect_payment_means
@@ -94,6 +94,8 @@ def _check_invoice(invoice: Any) -> list[dict[str, str]]:
             for finding in inspect_party_vat(party, party_name):
                 fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
             for finding in inspect_party_endpoint(party, party_name):
+                fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
+            for finding in inspect_party_identifiers(party, party_name):
                 fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
     for finding in inspect_payment_iban(invoice):
         fail(finding["rule"], finding["message"], finding["fix"], finding["path"])

@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { check, parseModel, parseIds, readModel } from "./node.mjs";
-import { junitXml, annotations, stepSummary, tally, severity, failCount, stepLines, globToRegex, patterns, pairUp } from "./ci.mjs";
+import { junitXml, annotations, codeQuality, cqHash, stepSummary, tally, severity, failCount, notChecked, stepLines, auditFindings, idsSpecLines, globToRegex, patterns, pairUp } from "./ci.mjs";
 import { parseXml } from "./xml.mjs";
 
 const here = new URL(".", import.meta.url).pathname;
@@ -224,4 +224,252 @@ test("maxFailed keeps the first N failing elements and the exact count", () => {
   assert.ok(seen > 0, "the sample has a spec with more than one failing element");
   const q = check(file("samples/quantities-and-naming.ids.xml"), ifc, { maxFailed: 1 });
   assert.match(stepSummary([{ model: "m", ids: "i", report: q }], { maxFailures: 1 }), /and 3 more \(see the JUnit, JSON or BCF report\)/);
+});
+
+// IDS has no inheritance: a facet naming IFCWALL leaves IfcWallStandardCase
+// unchecked (ids.mjs skippedSubclasses). CI says so in every output, and fails
+// on it only under --fail-on-unchecked (eval/ci-unchecked-2026-11-17.md).
+const subModel = ["ISO-10303-21;", "HEADER;", "FILE_DESCRIPTION((''),'2;1');", "FILE_NAME('m.ifc','',(''),(''),'','','');", "FILE_SCHEMA(('IFC2X3'));", "ENDSEC;", "DATA;",
+  "#1=IFCWALL('1hqIFTRjfV6AWq_bMtnZwI',$,'W1',$,$,$,$,$);",
+  "#2=IFCWALLSTANDARDCASE('2hqIFTRjfV6AWq_bMtnZwI',$,'W2',$,$,$,$,$);",
+  "#3=IFCWALLSTANDARDCASE('3hqIFTRjfV6AWq_bMtnZwI',$,$,$,$,$,$,$);",
+  "ENDSEC;", "END-ISO-10303-21;", ""].join("\n");
+const subIds = (cls) => `<?xml version="1.0"?><ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema"><info><title>walls</title></info><specifications><specification name="Walls are named" ifcVersion="IFC2X3"><applicability minOccurs="0" maxOccurs="unbounded"><entity><name><simpleValue>${cls}</simpleValue></name></entity></applicability><requirements><attribute><name><simpleValue>Name</simpleValue></name></attribute></requirements></specification></specifications></ids>`;
+
+test("unnamed subclasses: counted, in JUnit, annotations and the summary, the verdict unchanged", () => {
+  const r = { model: "m.ifc", ids: "w.ids", report: check(subIds("IFCWALL"), subModel) };
+  const s = r.report.specs[0];
+  assert.equal(s.status, "pass");
+  assert.equal(notChecked(s), 2);
+  const t = tally([r]);
+  assert.equal(t.ok, true);
+  assert.equal(t.elementsNotChecked, 2);
+  assert.equal(t.uncheckedSpecs, 1);
+  const doc = parseXml(junitXml([r]));
+  const tc = doc.children[0].children.find((c) => c.local === "testcase");
+  assert.ok(!tc.children.some((k) => k.local === "failure"), "a pass stays a pass");
+  assert.match(junitXml([r]), /<system-out>warning: not checked: 2 element\(s\).*IFCWALLSTANDARDCASE \(a subclass of IFCWALL\)/);
+  const a = annotations([r]);
+  assert.equal(a.length, 1);
+  assert.match(a[0], /^::warning file=w\.ids,title=IDS%3A Walls are named%3A 2 element\(s\) not checked::/);
+  assert.match(annotations([r], { failOnUnchecked: true })[0], /^::error /);
+  const md = stepSummary([r]);
+  assert.match(md, /## IDS model check: PASS/);
+  assert.match(md, /\*\*Not checked:\*\* 2 element\(s\) in 1 specification check/);
+  assert.match(md, /\| PASS \| 1 of 1 \| 0 \| 2 \|/);
+  assert.match(md, /- \*\*Walls are named\*\*: 2 IFCWALLSTANDARDCASE \(a subclass of IFCWALL\)/);
+  assert.match(stepSummary([r], { failOnUnchecked: true }), /## IDS model check: FAIL/);
+  // Naming the subclass leaves nothing out: no warning anywhere.
+  const r2 = { model: "m.ifc", ids: "w.ids", report: check(subIds("IFCWALLSTANDARDCASE"), subModel) };
+  assert.equal(tally([r2]).elementsNotChecked, 0);
+  // ...and the unnamed wall the IFCWALL facet never saw is now found.
+  assert.equal(r2.report.specs[0].applicable, 2);
+  assert.match(annotations([r2]).join("\n"), /1 of 2 element\(s\) fail .*#3 IFCWALLSTANDARDCASE/);
+  assert.doesNotMatch(junitXml([r2]) + stepSummary([r2]), /not checked:|Not checked:\*\*/);
+});
+
+test("unnamed subclasses with no element of the named class: the JUnit skip says why", () => {
+  const only = subModel.replace(/^#1=IFCWALL\(.*\n/m, "");
+  const r = { model: "m.ifc", ids: "w.ids", report: check(subIds("IFCWALL"), only) };
+  assert.equal(r.report.specs[0].applicable, 0);
+  assert.match(junitXml([r]), /<skipped message="no element of the named class\(es\) matches the applicability; not checked: 2 element/);
+});
+
+test("ci-cli: --fail-on-unchecked turns the warning into a failing build, and GITHUB_OUTPUT counts it", () => {
+  const dir = mkdtempSync(join(tmpdir(), "ids-unchecked-"));
+  writeFileSync(join(dir, "m.ifc"), subModel);
+  writeFileSync(join(dir, "w.ids"), subIds("IFCWALL"));
+  writeFileSync(join(dir, "out.txt"), "");
+  const env = { ...process.env, GITHUB_ACTIONS: "true", GITHUB_OUTPUT: join(dir, "out.txt"), GITHUB_STEP_SUMMARY: join(dir, "sum.md") };
+  const cli = (extra) => spawnSync(process.execPath, [join(here, "ci-cli.mjs"), "--root", dir, "--models", "*.ifc", "--ids", "*.ids", ...extra], { encoding: "utf8", env });
+  const a = cli([]);
+  assert.equal(a.status, 0, a.stderr);
+  assert.match(a.stdout, /warning: "Walls are named" \(m\.ifc vs w\.ids\): not checked: 2 element/);
+  assert.match(a.stdout, /PASS: 1 pair\(s\).*2 element\(s\) not checked/);
+  assert.match(a.stdout, /^::warning file=w\.ids,/m);
+  assert.match(readFileSync(join(dir, "out.txt"), "utf8"), /^not-checked=2$/m);
+  const b = cli(["--fail-on-unchecked"]);
+  assert.equal(b.status, 1, b.stderr);
+  assert.match(b.stdout, /^::error file=w\.ids,/m);
+  assert.match(b.stdout, /FAIL: 1 pair\(s\)/);
+  assert.match(readFileSync(join(dir, "out.txt"), "utf8"), /result=fail\n[^]*$/);
+  assert.equal(cli(["--fail-on-unchecked", "--fail-on", "never"]).status, 0);
+});
+
+// IDS audit warnings (class-abstract and the rest) belong to the IDS file:
+// annotated on the specification's line, once per file however many models,
+// failing the build only under --fail-on-audit-warnings
+// (eval/ci-audit-annotations-2026-11-17.md).
+const absIds = [
+  '<?xml version="1.0"?>',
+  "<!-- a <specification> in a comment is not one -->",
+  '<ids:ids xmlns:ids="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema">',
+  "  <ids:info><ids:title>abstract</ids:title></ids:info>",
+  "  <ids:specifications>",
+  '    <ids:specification name="Walls are named" ifcVersion="IFC2X3">',
+  '      <ids:applicability minOccurs="0" maxOccurs="unbounded"><ids:entity><ids:name><ids:simpleValue>IFCWALL</ids:simpleValue></ids:name></ids:entity></ids:applicability>',
+  "      <ids:requirements><ids:attribute><ids:name><ids:simpleValue>Name</ids:simpleValue></ids:name></ids:attribute></ids:requirements>",
+  "    </ids:specification>",
+  "    <ids:specification",
+  '        name="Elements have a material" ifcVersion="IFC2X3">',
+  '      <ids:applicability minOccurs="1" maxOccurs="unbounded"><ids:entity><ids:name><ids:simpleValue>IFCBUILDINGELEMENT</ids:simpleValue></ids:name></ids:entity></ids:applicability>',
+  "      <ids:requirements><ids:material/></ids:requirements>",
+  "    </ids:specification>",
+  "  </ids:specifications>",
+  "</ids:ids>", ""].join("\n");
+
+test("idsSpecLines: the line of each <specification> start tag, prefixes allowed, comments and <specifications> skipped", () => {
+  assert.deepEqual(idsSpecLines(absIds), [6, 10]);
+  assert.deepEqual(idsSpecLines(file("samples/coordination-basics.ids.xml")).length, parseIds(file("samples/coordination-basics.ids.xml")).specs.length);
+  assert.deepEqual(idsSpecLines("<ids><![CDATA[<specification>]]><specification/></ids>"), [1]);
+  assert.deepEqual(idsSpecLines(null), []);
+});
+
+test("IDS audit warnings: one annotation per IDS specification on its line, in JUnit and the summary, the verdict unchanged", () => {
+  const rep = () => check(absIds, subModel);
+  const runs = [{ model: "a.ifc", ids: "r.ids", report: rep() }, { model: "b.ifc", ids: "r.ids", report: rep() }];
+  assert.equal(runs[0].report.specs[0].auditWarnings, undefined);
+  assert.match(runs[0].report.specs[1].auditWarnings[0], /IFCBUILDINGELEMENT is abstract/);
+  const found = auditFindings(runs);
+  assert.equal(found.length, 1, "two models, one IDS: told once");
+  assert.equal(found[0].index, 1);
+  const t = tally(runs);
+  assert.equal(t.auditSpecs, 1);
+  assert.equal(t.auditWarnings, 1);
+  const idsLines = new Map([["r.ids", idsSpecLines(absIds)]]);
+  const a = annotations(runs, { idsLines }).filter((x) => /IDS audit/.test(x));
+  assert.equal(a.length, 1);
+  assert.match(a[0], /^::warning file=r\.ids,line=10,title=IDS audit%3A Elements have a material::IFCBUILDINGELEMENT is abstract/);
+  assert.match(annotations(runs, { idsLines, failOnAudit: true }).find((x) => /IDS audit/.test(x)), /^::error file=r\.ids,line=10,/);
+  // the unchecked-subclass annotation is per model, and now on the spec's line too
+  assert.equal(annotations(runs, { idsLines }).filter((x) => /not checked/.test(x) && /file=r\.ids,line=10,/.test(x)).length, 2);
+  assert.match(junitXml(runs), /IDS audit warning: IFCBUILDINGELEMENT is abstract/);
+  const md = stepSummary(runs);
+  assert.match(md, /\*\*IDS audit:\*\* 1 warning\(s\) on 1 specification\(s\)/);
+  assert.match(md, /r\.ids: IDS audit warnings on 1 specification\(s\)<\/summary>/);
+  assert.match(md, /- \*\*Elements have a material\*\*: IFCBUILDINGELEMENT is abstract/);
+  assert.match(stepSummary(runs, { failOnAudit: true }), /## IDS model check: FAIL/);
+  // the clean IDS gets none of it
+  const clean = [{ model: "m.ifc", ids: "w.ids", report: check(subIds("IFCWALLSTANDARDCASE"), subModel) }];
+  assert.equal(tally(clean).auditWarnings, 0);
+  assert.doesNotMatch(annotations(clean).join("\n") + stepSummary(clean) + junitXml(clean), /IDS audit/);
+});
+
+test("an invalid specification is annotated once per IDS file, on its line", () => {
+  const bad = subIds("IFCWALLL");
+  const runs = ["a.ifc", "b.ifc"].map((model) => ({ model, ids: "w.ids", report: check(bad, subModel) }));
+  assert.equal(runs[0].report.specs[0].status, "invalid");
+  const a = annotations(runs, { idsLines: new Map([["w.ids", idsSpecLines(bad)]]) }).filter((x) => /Invalid IDS/.test(x));
+  assert.equal(a.length, 1);
+  assert.match(a[0], /^::error file=w\.ids,line=1,title=Invalid IDS specification%3A Walls are named::/);
+});
+
+test("ci-cli: audit warnings annotated on the IDS line, counted in GITHUB_OUTPUT, failing only under --fail-on-audit-warnings", () => {
+  const dir = mkdtempSync(join(tmpdir(), "ids-audit-"));
+  writeFileSync(join(dir, "a.ifc"), subModel);
+  writeFileSync(join(dir, "b.ifc"), subModel);
+  writeFileSync(join(dir, "r.ids"), absIds.replace("<ids:material/>", '<ids:attribute><ids:name><ids:simpleValue>Name</ids:simpleValue></ids:name></ids:attribute>').replace('minOccurs="1" maxOccurs="unbounded"><ids:entity><ids:name><ids:simpleValue>IFCBUILDINGELEMENT', 'minOccurs="0" maxOccurs="unbounded"><ids:entity><ids:name><ids:simpleValue>IFCBUILDINGELEMENT'));
+  writeFileSync(join(dir, "out.txt"), "");
+  const env = { ...process.env, GITHUB_ACTIONS: "true", GITHUB_OUTPUT: join(dir, "out.txt"), GITHUB_STEP_SUMMARY: join(dir, "sum.md") };
+  const cli = (extra) => spawnSync(process.execPath, [join(here, "ci-cli.mjs"), "--root", dir, "--models", "*.ifc", "--ids", "*.ids", ...extra], { encoding: "utf8", env });
+  const a = cli([]);
+  assert.equal(a.status, 0, a.stdout + a.stderr);
+  assert.equal(a.stdout.match(/^::warning file=r\.ids,line=10,title=IDS audit/gm).length, 1);
+  assert.match(a.stdout, /IDS audit warning: "Elements have a material" \(r\.ids\): IFCBUILDINGELEMENT is abstract/);
+  assert.match(a.stdout, /PASS: 2 pair\(s\).*1 IDS audit warning\(s\)/);
+  assert.match(readFileSync(join(dir, "out.txt"), "utf8"), /^audit-warnings=1$/m);
+  assert.match(readFileSync(join(dir, "sum.md"), "utf8"), /\*\*IDS audit:\*\* 1 warning/);
+  const b = cli(["--fail-on-audit-warnings"]);
+  assert.equal(b.status, 1);
+  assert.match(b.stdout, /^::error file=r\.ids,line=10,title=IDS audit/m);
+  assert.match(b.stdout, /FAIL: 2 pair\(s\).*\(--fail-on-audit-warnings\)/);
+  assert.equal(cli(["--fail-on-audit-warnings", "--fail-on", "never"]).status, 0);
+});
+
+test("IDS audit annotations past maxAudit become one pointer to the job summary", () => {
+  const specs = Array.from({ length: 12 }, (_, i) => ({ name: `S${i}`, status: "pass", optionality: "required", applicable: 1, passed: 1, failed: [], auditWarnings: [`w${i}`] }));
+  const runs = [{ model: "m.ifc", ids: "x.ids", report: { title: "t", specs } }];
+  const a = annotations(runs);
+  assert.equal(a.length, 10);
+  assert.match(a[9], /^::warning file=x\.ids,title=IDS audit%3A 3 more specification\(s\) with warnings::.*job summary lists every/);
+  assert.equal((stepSummary(runs).match(/^- \*\*S\d+\*\*: w\d+$/gm) || []).length, 12);
+  assert.equal(annotations(runs, { maxAudit: 20 }).length, 12);
+});
+
+test("GitLab code quality: one issue per failing element on its STEP line, fingerprints keyed on GlobalId", () => {
+  const r = run();
+  const text = file("samples/tiny-house.ifc");
+  const allIds = r.report.specs.flatMap((s) => s.failed.map((f) => f.id));
+  const cq = codeQuality([r], { lines: new Map([[r.model, stepLines(text, allIds)]]) });
+  const elements = r.report.specs.filter((s) => s.status === "fail").reduce((n, s) => n + Math.max(1, s.failed.length), 0);
+  assert.equal(cq.length, elements);
+  for (const i of cq) {
+    assert.deepEqual(Object.keys(i).sort(), ["categories", "check_name", "description", "fingerprint", "location", "severity", "type"]);
+    assert.match(i.fingerprint, /^[0-9a-f]{32}$/);
+    assert.ok(["info", "minor", "major", "critical", "blocker"].includes(i.severity));
+    assert.ok(Number.isInteger(i.location.lines.begin) && i.location.lines.begin >= 1);
+  }
+  assert.equal(new Set(cq.map((i) => i.fingerprint)).size, cq.length, "fingerprints unique");
+  const wall = cq.find((i) => /1Lz5\$gbjv4GQ6_kuh4Wa3J/.test(i.description));
+  assert.equal(wall.location.path, "samples/tiny-house.ifc");
+  assert.equal(wall.location.lines.begin, 23);
+  assert.equal(wall.severity, "critical");
+  assert.equal(wall.check_name, "ids-required");
+  // every element issue sits on its own #id= line
+  const rows = text.split("\n");
+  for (const s of r.report.specs) for (const f of s.failed) {
+    const i = cq.find((x) => x.description.includes(`#${f.id} `) && x.description.includes(s.name));
+    assert.match(rows[i.location.lines.begin - 1], new RegExp(`^#${f.id}=`));
+  }
+  assert.ok(cq.some((i) => i.severity === "minor" && i.check_name === "ids-optional"), "the optional spec is minor");
+  // a re-export that renumbers every #id and shifts every line keeps the fingerprints
+  const moved = text.replace(/#(\d+)/g, (_, n) => `#${Number(n) + 1000}`).replace("DATA;", "DATA;\n\n");
+  const r2 = { ...r, report: check(file("samples/coordination-basics.ids.xml"), moved) };
+  const cq2 = codeQuality([r2], { lines: new Map([[r.model, stepLines(moved, r2.report.specs.flatMap((s) => s.failed.map((f) => f.id)))]]) });
+  assert.deepEqual(cq2.map((i) => i.fingerprint).sort(), cq.map((i) => i.fingerprint).sort());
+  assert.equal(cq2.find((i) => /1Lz5\$gbjv4GQ6_kuh4Wa3J/.test(i.description)).location.lines.begin, 25);
+  // the prefix GitLab needs when files were read under --root
+  assert.equal(codeQuality([r], { pathPrefix: "bim/" })[0].location.path.startsWith("bim/samples/"), true);
+  assert.equal(cqHash("a"), cqHash("a"));
+  assert.notEqual(cqHash("a"), cqHash("b"));
+});
+
+test("GitLab code quality: audit warnings once per IDS on the spec line, invalid and unreadable as blockers, the cap", () => {
+  const rep = () => check(absIds, subModel);
+  const runs = [{ model: "a.ifc", ids: "r.ids", report: rep() }, { model: "b.ifc", ids: "r.ids", report: rep() }];
+  const idsLines = new Map([["r.ids", idsSpecLines(absIds)]]);
+  const cq = codeQuality(runs, { idsLines });
+  const audit = cq.filter((i) => i.check_name === "ids-audit");
+  assert.equal(audit.length, 1);
+  assert.deepEqual(audit[0].location, { path: "r.ids", lines: { begin: 10 } });
+  assert.equal(audit[0].severity, "minor");
+  assert.equal(codeQuality(runs, { idsLines, failOnAudit: true }).find((i) => i.check_name === "ids-audit").severity, "major");
+  assert.equal(cq.filter((i) => i.check_name === "ids-not-checked" && i.location.lines.begin === 10).length, 2, "per model");
+  const bad = subIds("IFCWALLL");
+  const inv = codeQuality(["a.ifc", "b.ifc"].map((model) => ({ model, ids: "w.ids", report: check(bad, subModel) })), { idsLines: new Map([["w.ids", idsSpecLines(bad)]]) });
+  assert.equal(inv.filter((i) => i.check_name === "ids-invalid-specification").length, 1);
+  assert.equal(inv[0].severity, "blocker");
+  const err = codeQuality([{ model: "m.ifc", ids: "x.ids", error: "cannot read" }]);
+  assert.deepEqual([err[0].check_name, err[0].severity, err[0].location.path], ["ids-unreadable", "blocker", "m.ifc"]);
+  // past maxPerSpec failing elements, one "more" issue with the spec's own fingerprint
+  const failed = Array.from({ length: 5 }, (_, i) => ({ id: i + 1, type: "IFCWALL", globalId: `G${i}`, reasons: ["no name"] }));
+  const many = [{ model: "m.ifc", ids: "x.ids", report: { specs: [{ name: "S", status: "fail", optionality: "required", applicable: 900, failed, failedCount: 800 }] } }];
+  const capped = codeQuality(many, { maxPerSpec: 3 });
+  assert.equal(capped.length, 4);
+  assert.match(capped[3].description, /797 more element\(s\) fail \(800 of 900/);
+  many[0].report.specs[0].failedCount = 801;
+  assert.equal(codeQuality(many, { maxPerSpec: 3 })[3].fingerprint, capped[3].fingerprint, "a changed count stays one issue");
+});
+
+test("ci-cli: --gitlab-codequality writes the report with paths from the working directory", () => {
+  const dir = mkdtempSync(join(tmpdir(), "ids-gl-"));
+  mkdirSync(join(dir, "bim", "models"), { recursive: true });
+  copyFileSync(join(here, "samples/tiny-house.ifc"), join(dir, "bim", "models", "house.ifc"));
+  copyFileSync(join(here, "samples/coordination-basics.ids.xml"), join(dir, "bim", "req.ids"));
+  const r = spawnSync(process.execPath, [join(here, "ci-cli.mjs"), "--root", "bim", "--models", "models/*.ifc", "--ids", "*.ids", "--gitlab-codequality", "gl.json", "--fail-on", "never"], { encoding: "utf8", cwd: dir, env: { ...process.env, GITHUB_ACTIONS: "" } });
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+  const cq = JSON.parse(readFileSync(join(dir, "gl.json"), "utf8"));
+  assert.ok(cq.length > 1);
+  const wall = cq.find((i) => /1Lz5\$gbjv4GQ6_kuh4Wa3J/.test(i.description));
+  assert.deepEqual(wall.location, { path: "bim/models/house.ifc", lines: { begin: 23 } });
 });

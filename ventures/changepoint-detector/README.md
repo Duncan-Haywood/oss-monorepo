@@ -5807,3 +5807,109 @@ wander, and a state against a national average on annual data usually does not: 
 years are 124-372 points and the guard reads rho on enough data; a synthetic control (weights fitted on the
 before-period, Abadie et al. 2010) instead of a plain mean; and, for programmes rather than one-off price changes, a
 test of the effect's path (the slope change) with the placebo warning, since that is where the real effect sat.
+
+### A synthetic control: Proposition 99's published gap, but California ranks third (2026-11-17, pre-registered; not shipped)
+
+The step-alone round ended asking for "a synthetic control (weights fitted on the before-period, Abadie et al. 2010)
+instead of a plain mean". `synthControlTest(y, donors, k)` in `synth-control.mjs` builds one: weights at least zero and
+summing to one, fitted so a mix of donor series tracks the treated series over every point before your date
+(accelerated projected gradient on the simplex), and the gap after the date is the estimate. The test is Abadie,
+Diamond and Hainmueller's (2010) in-space placebo: each donor is fitted the same way as if it were treated, and the
+treated series' ratio of after-date to before-date root mean squared gap is ranked among them, p = rank / (donors + 1).
+It matches on the outcome only, no covariates. A fit warning says when the treated series is matched worse before the
+date than 80% of the donors are.
+
+Pre-registration `eval/synth-prereg-2026-11-17.md`, committed after an exploratory run (seed base 11000,
+`eval/synth-explore.out.txt`) and before the confirmatory run (fresh base 13000, 400 panels a cell,
+`eval/synth-confirm.out.txt`) and before any real state was fitted (`node eval/synth-real.mjs`,
+`eval/synth-real.out.txt`):
+
+| Bar (pre-registered) | Confirmatory (400 panels a cell) | |
+|---|---|---|
+| 1. size, p <= 0.05 at most 6% and p <= 0.10 at most 14%, five no-change cells (exact: 2.6% and 10.3% with 38 donors, 5.0% and 10.0% with 19) | 5.5, 4.3, 5.0, 4.8, 3.3%; 9.0, 8.5, 9.3, 9.0, 10.0% | holds |
+| 2. treated outside the donors' range (E1): p <= 0.05 at most 6%, fit warning at least 90% | 1.3%; 99.5% | holds |
+| 3. power, p <= 0.05: a 2 sd step (P1) at least 28%; the same step with every unit wandering (P3) at least 18% | 34.8%; 22.8% (an effect growing to 3 sd in sticky noise, P2: 11.8%; short series, P4: 6.8%) | holds |
+| 4a. T1 California 1989: p <= 0.05, average gap -30 to -10 packs, gap at 2000 below 0 | gap -19.5 average, -26.5 at 2000; **rank 3 of 39, p 0.077** | **fails** |
+| 4b. T2-T4 Massachusetts 1993, Arizona 1995, Oregon 1997: 2 of 3 at p <= 0.10 with a negative gap | **0 of 3** (p 0.21, 0.50, 0.39; gaps -15.7, -8.1, -15.6) | **fails** |
+| 4c. in-time placebos, California cut at 1988, fake dates 1980 and 1984: neither p <= 0.05 | p 0.46, 0.28 | holds |
+| 4d. nine placebo states at 1989: at most 1 of 9 p <= 0.05 | 0 of 9 (Virginia closest, rank 2 of 38, p 0.053) | holds |
+
+N1's 5.5% is twice its exact level. A post-hoc re-run on fresh seeds (base 15000, `eval/synth-pool-without.out.txt`)
+gives 2.5% and 3.0% in N1 and N2, and the paper's placebo pool (the treated unit moved into each placebo's pool,
+`placeboPool: 'with'`, `eval/synth-pool-with.out.txt`) gives the same, so the excess is not the pool. It looks
+seed-specific: `eval/synth-sim.mjs` seeds a xorshift generator with consecutive integers and no scrambling, which can
+correlate neighbouring panels. A later round should hash its seeds.
+
+**The estimate replicates the paper.** California's synthetic control is Utah 0.391, Montana 0.227, Nevada 0.207,
+Connecticut 0.109, New Hampshire 0.043 and Colorado 0.024 (the paper's, with covariates: Utah 0.394, Nevada 0.234,
+Montana 0.199, Colorado 0.164, Connecticut 0.069). Before 1989 the gap is 1.66 packs a head (root mean square); after,
+it opens to -8.4 packs in 1989, -17.5 in 1993 and -26.5 in 2000, an average of -19.5 over 1989-2000. The paper reports
+"about 26 packs" by 2000 and about 20 on average. With the window cut at 1988, fake dates 1980 and 1984 give p 0.46 and
+0.28, and none of the nine placebo states is found.
+
+**The test does not.** California's ratio (12.4) ranks 3rd of 39, p 0.077, against the paper's 1st, p 0.026. Massachusetts
+(rank 8 of 39, gap -15.7), Arizona (18 of 36, -8.1) and Oregon (11 of 28, -15.6) all have negative gaps and none is
+near p 0.10, so T1 and T2-T4 fail and `--synth-control` is not offered (the CLI wiring written in this session was taken
+out; the module stays for reproducing these tables, `synth-control.test.mjs`).
+
+**Why California ranks third** (after the run, not pre-registered; `node eval/synth-real-diag.mjs`,
+`eval/synth-real-diag.out.txt`). The two states above it are Missouri (ratio 26.5) and Virginia (16.9), whose
+before-period fits are almost exact (RMSPE 0.41 and 0.86 packs against California's 1.66): a ratio divides by the
+before-gap, so a donor that a mix of other states tracks to under a pack gets a large ratio from a modest later gap
+(Missouri's after-gap is 10.9 packs, California's 20.5). Matching on all 19 before-years and no covariates fits the
+middle of the donor cloud too well; the paper's covariate-and-three-lags match leaves those placebos looser. The
+paper's own filters do not rescue it here: keeping placebos with before MSPE at most 20, 5 or 2 times California's
+leaves it 3rd of 35, 31 and 20 (p 0.086, 0.097, 0.150), and with California moved into each placebo's pool, as the
+paper does, it is still 3rd of 39, behind Missouri and Virginia again.
+
+**What a reader can use now.** For a single treated unit with a long before-period and a donor pool, this module gives
+the published-quality estimate of the gap (`node -e` with `synthControlTest`), but its p should not be read as a test
+when some donors fit almost exactly. **Next** (fresh pre-registration): a statistic that does not divide by a tiny
+before-gap (the after-gap alone, or the ratio with the before-gap floored at the donors' median), checked in simulation
+against cells where some donors are near-copies of others; monthly series; and the effect's path as the statistic.
+
+### A floored ratio: California ranks first, as in the paper (2026-11-17, pre-registered; module default, CLI not shipped)
+
+The synthetic-control round above ranked California 3rd of 39 because Missouri and Virginia are fitted almost exactly
+before 1989 and the paper's statistic divides by that before-gap. `synthControlTest` now scores every placebo with
+three statistics from the same fits (`r.tests`): **floored**, the after-gap over the before-gap floored at the median
+before-gap of all units, treated and donors alike (`r.floor`); ratio, the paper's after-gap over before-gap; and post,
+the after-gap alone. The floor is one number computed symmetrically from every unit's fit, so when nothing happened
+and the treated unit is like the donors, the ranks stay exchangeable and the test stays exact.
+
+Pre-registration `eval/synth-floor-prereg-2026-11-17.md`, committed after an exploratory run (hashed seed base 21000,
+`eval/synth-floor-explore.out.txt`) and before the confirmatory run (base 23000, 400 panels a cell,
+`eval/synth-floor-confirm.out.txt`) and before the floored ratio was computed on any real state
+(`SC_STAT=floored node eval/synth-real.mjs`, `eval/synth-floor-real.out.txt`). Seeds are now hashed (splitmix32), as
+the last round asked. New cells: N6/P5 eight near-copy donor pairs; N7/P6 a treated unit inside the donors' range
+but near its corner.
+
+| Bar (pre-registered, floored statistic) | Confirmatory (400 panels a cell) | |
+|---|---|---|
+| 1. size, N1-N7: p <= 0.05 at most 6%, p <= 0.10 at most 14% | 2.3-5.3%; 6.8-14.0% (N6, the near copies, at the cap) | holds |
+| 2. treated outside the donors' range (E1): p <= 0.05 at most 6% | 5.8% (ratio 0.5%; p <= 0.10 16.5%, no bar; the fit warning fires on 100%) | holds |
+| 3. power, p <= 0.05: no cell below the ratio by more than 2 points; P1 and P6 at least 10 above | P1 56.5 vs 33.8%; P2 18.8 vs 12.0; P3 26.0 vs 20.0; P4 25.3 vs 6.8; P5 57.3 vs 41.8; P6 45.5 vs 18.8 | holds |
+| 4a. T1 California 1989: p <= 0.05, average gap -30 to -10, gap at 2000 below 0 | **rank 1 of 39, p 0.026**; gap -19.5 average, -26.5 at 2000 | holds |
+| 4b. T2-T4 MA 1993, AZ 1995, OR 1997: 2 of 3 at p <= 0.10, negative gap | 0 of 3 (p 0.154, 0.361, 0.214; ranks 6, 13, 6, up from 8, 18, 11) | **fails** |
+| 4c. in-time placebos (1980, 1984 in a window cut at 1988): neither p <= 0.05 | p 0.385, 0.359 | holds |
+| 4d. nine placebo states at 1989: at most 1 of 9 p <= 0.05 | 0 of 9 (Virginia now rank 5 of 38, p 0.132, from 2nd) | holds |
+
+The after-gap alone was ruled out in exploration (49% rejections in E1, 54.8% confirmatory: a series no mix of donors
+can match drifts away after any date). With the hashed seeds the paper's ratio holds its exact size in N1 (3.0%
+against 2.6% exact), consistent with the last round's 5.5% being a seed artefact (one run does not prove it).
+
+**What changed.** The floor on the real data is 2.15 packs (the median before-gap of the 39 states). California's
+before-gap, 1.66, is under it, so its statistic is 20.5 / 2.15 = 9.5; Missouri's (10.9 after, 0.41 before) drops from
+26.5 to 5.1 and Virginia's from 16.9 to 6.7, and California ranks 1st (the next are Oklahoma 7.4 and Texas 7.2), p 1/39 = 0.026, the paper's result without
+the paper's covariates. On simulated panels the floored ratio finds a 2 sd step 57% of the time against 34%, and a
+treated unit near the edge of the donors' range 46% against 19%. The cost is in E1, the case the fit warning is for:
+when no mix of donors can match the treated series, p <= 0.10 comes up 16.5% of the time against 3.5%, so read p
+only when the fit warning is off.
+
+**Decision, as pre-registered.** Bars 1-3 hold, so `synthControlTest`'s default statistic is now `'floored'`
+(`{ statistic: 'ratio' }` gives the paper's; the last round's scripts pass it and reproduce their tables). Bar 4b
+fails: Massachusetts, Arizona and Oregon have negative gaps of 8 to 16 packs, ranked 6th to 13th, so `--synth-control`
+stays out of the CLI and the module stays a library function. **Next** (fresh pre-registration): those three states
+have before-gaps of 3.0 to 5.5 packs, worse than 55-78% of the donors', so they are matched loosely, not over-fitted:
+covariates (income, price, the 15-24 share) or monthly series would give the fit something more to go on; and the
+effect's path (a slope change) as the statistic.

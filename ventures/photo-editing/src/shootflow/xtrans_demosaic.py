@@ -468,10 +468,10 @@ def _block_stat(a: np.ndarray, fn, block: int = BLOCK) -> np.ndarray:
     return fn(tiles)
 
 
-def _noise_model(level: np.ndarray, spread: np.ndarray) -> tuple[float, float]:
+def _noise_model(level: np.ndarray, spread: np.ndarray, pct: float = 15.0) -> tuple[float, float]:
     """Fit variance = g * level + r (shot and read noise) to the quietest blocks at each brightness: the
-    blocks are put in eight brightness bins and each bin's 15th percentile of ``spread`` squared is taken,
-    so texture (which only adds spread) mostly drops out."""
+    blocks are put in eight brightness bins and each bin's ``pct``th percentile (15th by default) of ``spread``
+    squared is taken, so texture (which only adds spread) mostly drops out."""
 
     lv, sp = level.ravel(), spread.ravel()
     if lv.size < 8:
@@ -482,7 +482,7 @@ def _noise_model(level: np.ndarray, spread: np.ndarray) -> tuple[float, float]:
         sel = (lv >= edges[i]) & (lv <= edges[i + 1])
         if sel.sum() >= 3:
             xs.append(float(np.median(lv[sel])))
-            ys.append(float(np.percentile(sp[sel], 15)) ** 2)
+            ys.append(float(np.percentile(sp[sel], pct)) ** 2)
     x, y = np.asarray(xs), np.asarray(ys)
     if x.size < 2 or np.ptp(x) == 0:
         return 0.0, float(np.mean(y)) if y.size else 0.0
@@ -557,13 +557,13 @@ def variance_map(c, pat, noise) -> np.ndarray:
     return p[cmap, 0] * np.clip(c, 0.0, None) + p[cmap, 1]
 
 
-def estimate_noise(c, pat) -> tuple[float, float]:
+def estimate_noise(c, pat, pct: float = 15.0) -> tuple[float, float]:
     """The sensor's (shot, read) model, variance = shot * level + read, fitted from the mosaic ``c`` alone: the
     quietest blocks' spread at each brightness (``_block_spread``, ``_noise_model``). Texture only adds to the
     spread, so on a detailed frame this reads high; on a smooth one it reads about 0.8 of the true sigma
     (eval/noise-profile-real-dngs-2026-11-16.md)."""
 
-    return _noise_model(*_block_spread(c, pat))
+    return _noise_model(*_block_spread(c, pat), pct=pct)
 
 
 # The profile guard (2026-11-16, eval/noise-profile-real-dngs-2026-11-16.md). Blocks are put in eight brightness
@@ -668,6 +668,28 @@ def guard_profile(c, pat, noise, *, cap: float = PROFILE_CAP):
     return (shot * f, read * f), ratio
 
 
+# A file with no NoiseProfile (every raw read directly: ARW, NEF, CR2, RW2, ...) can get its noise model from the
+# frame, opt-in (``DevelopSettings.noise_from_frame``; 2026-11-17, tools/noise_aware_estimated.py,
+# eval/noise-aware-estimated-2026-11-17.md): ``estimate_noise`` with sigma times FRAME_SCALE, then
+# ``guard_profile``. Texture only adds to the estimate, and an overstated model costs detail where an understated
+# one only moves the blend toward directional, so the estimate is scaled down. 0.8 is the largest scale whose
+# tune rows lost no more than 0.1 dB on frames whose noise is at least their finest texture's level; on
+# held-out noisy frames it keeps 80-94% of the true model's luma gain. On clean, finely textured frames texture
+# still reads as noise, which is why the mode is opt-in.
+FRAME_PCT = 15.0
+FRAME_SCALE = 0.8
+
+
+def frame_noise(c, pat, *, pct: float = FRAME_PCT, scale: float = FRAME_SCALE) -> tuple[float, float]:
+    """A (shot, read) noise model for the noise-aware blend read from the mosaic ``c`` alone, on ``c``'s scale:
+    ``estimate_noise`` at the ``pct``th block-spread percentile, sigma times ``scale``, through ``guard_profile``."""
+
+    shot, read = estimate_noise(c, pat, pct=pct)
+    f = scale * scale
+    used, _ = guard_profile(c, pat, (shot * f, read * f))
+    return float(used[0]), float(used[1])
+
+
 def frame_measures(
     c, pat, bilinear: np.ndarray, directional_out: np.ndarray, *, noise: tuple[float, float] | None = None,
     blocks: bool = False,
@@ -721,6 +743,14 @@ def frame_measures(
 # average over the directional default, no held-out tile worse by more than 0.01 dB, with the noise known.
 RAMPS = {6: (0.4, 2.0), 2: (0.4, 1.2)}
 
+# A second, later ramp for luma only (``blend(..., luma_ramp=)``): the output keeps ``RAMPS``' colour
+# difference (R-G, B-G) and takes its luma from this ramp, which leans further toward bilinear. Fitted on the
+# same 21 tune files with luma scored (tools/noise_aware_ramp_refit.py, eval/noise-aware-luma-ramp-2026-11-17.md):
+# on 25 held-out files luma +0.23 dB (Bayer) and +0.16 dB (X-Trans) over ``RAMPS`` alone, RGB PSNR +0.13 / +0.10,
+# no held-out tile worse than the directional default by more than 0.07 dB.
+LUMA_RAMPS = {6: (0.8, 2.0), 2: (0.8, 1.5)}
+LUMA_WEIGHTS = np.array([0.2126, 0.7152, 0.0722])  # Rec. 709; they sum to 1
+
 
 def _interp_matrix(n: int, nb: int) -> np.ndarray:
     """(n, nb) weights that interpolate nb block-centre values linearly to n pixel centres, held flat past
@@ -739,20 +769,36 @@ def _interp_matrix(n: int, nb: int) -> np.ndarray:
     return out
 
 
-def blend(bilinear: np.ndarray, directional_out: np.ndarray, q_blocks: np.ndarray, q_low: float, q_high: float) -> np.ndarray:
-    """``a * directional + (1 - a) * bilinear``, ``a`` per block from its ``q`` (0 at ``q_low``, 1 at ``q_high``,
-    linear between), spread to pixels by bilinear interpolation between block centres."""
-
+def _weights(q_blocks: np.ndarray, q_low: float, q_high: float, h: int, w: int) -> np.ndarray:
     ab = np.clip((np.asarray(q_blocks, dtype=np.float64) - q_low) / max(q_high - q_low, 1e-9), 0.0, 1.0)
+    return _interp_matrix(h, ab.shape[0]) @ ab @ _interp_matrix(w, ab.shape[1]).T  # (h, w)
+
+
+def blend(
+    bilinear: np.ndarray, directional_out: np.ndarray, q_blocks: np.ndarray, q_low: float, q_high: float,
+    luma_ramp: tuple[float, float] | None = None,
+) -> np.ndarray:
+    """``a * directional + (1 - a) * bilinear``, ``a`` per block from its ``q`` (0 at ``q_low``, 1 at ``q_high``,
+    linear between), spread to pixels by bilinear interpolation between block centres.
+
+    With ``luma_ramp`` (q_low, q_high) the result's luma (Rec. 709) comes from a second blend on that ramp and
+    its colour difference (R-G, B-G) from the first: the luma difference is added equally to R, G and B. Each
+    pixel then lies between its inputs' luma, and its R-G and B-G between theirs."""
+
     h, w = bilinear.shape[:2]
-    a = (_interp_matrix(h, ab.shape[0]) @ ab @ _interp_matrix(w, ab.shape[1]).T)[..., None]  # (h, w, 1)
-    return a * directional_out + (1.0 - a) * bilinear
+    a = _weights(q_blocks, q_low, q_high, h, w)[..., None]
+    out = a * directional_out + (1.0 - a) * bilinear
+    if luma_ramp is None:
+        return out
+    a_l = _weights(q_blocks, luma_ramp[0], luma_ramp[1], h, w)
+    dy = (np.asarray(directional_out, dtype=np.float64) - bilinear) @ LUMA_WEIGHTS  # luma of D - B
+    return out + ((a_l - a[..., 0]) * dy)[..., None]
 
 
 def noise_aware(
     c, pat, *, bilinear: np.ndarray | None = None, directional_out: np.ndarray | None = None,
     noise: tuple[float, float] | None = None, q_low: float | None = None, q_high: float | None = None,
-    per_block: bool = True,
+    per_block: bool = True, luma_ramp: tuple[float, float] | None | bool = True,
 ) -> np.ndarray:
     """Directional where it adds detail above the noise, bilinear where it adds mostly noise.
 
@@ -762,10 +808,18 @@ def noise_aware(
     the mosaic it reads texture as noise on detailed frames and lost up to 5 dB on held-out tiles. Without
     ``directional_out`` the CFA's own directional demosaic runs (X-Trans here, ``bayer_demosaic`` on a 2 x 2
     pattern) at its defaults. Both inputs
-    keep each sensel's own value, so the blend does too.
+    keep each sensel's own value, so the one-ramp blend does too. ``luma_ramp``: ``True`` (default) takes the
+    CFA's ``LUMA_RAMPS`` for luma, a pair sets one, ``None``/``False`` blends luma on the colour ramp as before
+    2026-11-17. It applies only with ``per_block``. The luma ramp moves every channel of a pixel by the same
+    ``(a_l - a) * Y(D - B)``, so a sensel's own channel is no longer its raw value; putting it back was
+    measured and gave back most of the luma gain (eval/noise-aware-luma-ramp-2026-11-17.md).
     """
 
     ramp = RAMPS[6 if len(pat) == 36 else 2]
+    if luma_ramp is True:
+        luma_ramp = LUMA_RAMPS[6 if len(pat) == 36 else 2]
+    elif luma_ramp is False:
+        luma_ramp = None
     q_low = ramp[0] if q_low is None else q_low
     q_high = ramp[1] if q_high is None else q_high
     c = np.asarray(c, dtype=np.float64)
@@ -786,4 +840,4 @@ def noise_aware(
     if not per_block:
         a = float(np.clip((m["q"] - q_low) / max(q_high - q_low, 1e-9), 0.0, 1.0))
         return a * directional_out + (1.0 - a) * bilinear
-    return blend(bilinear, directional_out, m["q_blocks"], q_low, q_high)
+    return blend(bilinear, directional_out, m["q_blocks"], q_low, q_high, luma_ramp=luma_ramp)

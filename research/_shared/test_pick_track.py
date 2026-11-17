@@ -75,6 +75,20 @@ class MilestonesTest(unittest.TestCase):
     def test_unknown_prefix_is_empty(self):
         self.assertEqual(pick_track.milestones("nosuchtrack"), ([], []))
 
+    def test_open_programme_demotes_the_milestone_line(self):
+        found = (["aerolog-a", "aerolog-sizing"], ["aerolog-sizing"])
+        [line] = pick_track.milestone_lines("aerolog", ["aerolog-scaling"], found, lambda s: [])
+        self.assertIn("advancing aerolog-scaling comes first", line)
+        self.assertIn("next free: aerolog-sizing", line)
+
+    def test_no_takeable_programme_keeps_the_plain_line(self):
+        found = (["x-a", "x-b"], ["x-b"])
+        [line] = pick_track.milestone_lines("x", [], found, lambda s: ["research/p/LOG.md"])
+        self.assertTrue(line.startswith("milestones: 1/2 on this checkout; next free: x-b"))
+        self.assertIn("named in research/p/LOG.md", line)
+        [line] = pick_track.milestone_lines("x", [], ([], []), lambda s: [])
+        self.assertIn("no list found", line)
+
 
 class NextStepsTest(unittest.TestCase):
     def test_reads_section_and_cuts(self):

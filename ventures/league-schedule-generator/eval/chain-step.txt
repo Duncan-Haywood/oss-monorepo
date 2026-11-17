@@ -1,0 +1,36 @@
+# README "A trial's steps kept in the module" (2026-11-17). floorTable's trials chain their steps in WebAssembly.
+# All runs on one shared 4-CPU cloud machine. Off = FLOOR_CHAIN=0 in the environment (every table stepped out to JS
+# as before), on = the default. Lists cached (--cache), so the times are the floor-priced step alone.
+#
+# 0. Why: a 30-team page run (guards lifted, seed 1) makes 11,360 trials, 216,167 steps (19 a trial), 1,118 commits
+#    and 245 walks: nine trials in ten are scored and dropped, yet every step's table went out of the module and back.
+#    Profile before (whole run incl. list): step 28 s, the module's copy-in/out 25 s, run's JS combine loop 15 s.
+#
+# 1. Three versions of the chain, on against off side by side (two processes, same seasons in every pair):
+#    v1  chain_i32 scatter/gather (input lookup and output lookup per entry)
+#        30-1  91.1 -> 78.2 s   28-1  42.3 -> 35.5 s   28-2  40.0 -> 33.7 s   26-1  21.9 -> 20.4 s
+#        profile: chain 20.3 s, step 32.8 s
+#    v2  sequential writes, one composite bit permutation read (LUTO) per entry
+#        30-1  94.6 -> 76.3 s   28-1  44.9 -> 36.5 s
+#        profile: chain 16.3 s
+#    v3  (committed) v2 in blocks of 64: low-six-bit part of the source place and unary cost looked up once
+#        30-1  93.8 -> 62.0 s   28-1  45.7 -> 30.2 s       seasons: 30-1 1152/82, 2542/64; 28-1 1252/72, 1250/70
+#        profile: chain 3.5 s, step 31.3 s (the step is now most of the time)
+#
+# 2. Exactness: floorTable with chain on and off (chain: false) over 280 trials at 9, 14, 20, 24, 27, 28 and 30 teams,
+#    a third of them committed and every seventh walked: same least, same walk results. orient.test.mjs repeats it.
+#
+# 3. 29 and 30 teams with v3, chain on, two processes at once (so slower than solo):
+#    teams-seed  floor-priced s  gap                     added
+#    30-1        62.0 (solo)     1110/84 .. 2542/68      1152/82, 2542/64 (beats 2542/68)
+#    30-2        105.1           1110/84 .. 2576/60      1164/82
+#    30-3        74.3            1110/84 .. 2718/58      1162/82, 2066/80 (mid-gap)
+#    29-1        80.7            3641/47 .. 4049/38      nothing
+#    29-2        75.9            1105/56 .. 3597/45      3597/44 (one break fewer)
+#    29-3        74.2            3659/50 .. 4063/44      nothing
+#    28-3        34.0            1300/70 .. 1418/62      1220/68, 1318/66 (same as before the chain)
+#    So 30 teams join the page (maxTeams 30, FLOOR_PRICED_MAX_MATCHES 15): seasons on 3 of 3 seeds at about what
+#    28 teams cost when they joined (47-64 s). 29 stays off (skip [29]): one season, one break better, on 1 of 3.
+#
+# Commands: node eval/floor-priced.mjs <teams> <seed> --page --max-teams 30 --cache <dir>   (FLOOR_CHAIN=0 for off)
+#           node --cpu-prof eval/floor-priced.mjs 30 1 --page --max-teams 30 --cache <dir>

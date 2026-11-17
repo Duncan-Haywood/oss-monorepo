@@ -535,6 +535,33 @@ Open: the same class at 47 on 8 x 9 (41 on 7 x 9 closed, next sections) (3 spare
 a night, no group of order k), and the fully booked 49 on 8 x 9 (43 on 7 x 9 closed 2026-11-17 by
 `eval/odd-orbit.py`, the section after next).
 
+### 47 teams on 8 x 9: five more runs from 13 of 16, no climb (2026-11-17, latest)
+
+The next step the section below asked for, run as written plus one new setting: three resumes of
+`eval/odd-lns.py` from the stored 13-of-16 state, side by side on four cores, 6,000 s each, and
+`eval/lns-bad-night.py` on the fourth (full logs at the end of `eval/odd-lns.txt`).
+
+| Seed | Settings | Steps | Sideways | Better | Failed repairs |
+|---|---|---|---|---|---|
+| 131 | `--also 15` | 23 | 4 | 0 | 18, all timeouts |
+| 132 | `--also 15 --sideways-after 2` | 28 | 11 | 0 | 18, all timeouts |
+| 133 | `--free 3` (new at 47) | 20 | 1 | 0 | 19, all timeouts |
+
+- **The search has stalled at 13.** With seeds 121 and 122 from the last session, five runs from 13
+  have found no climb in 26,870 core-seconds. The bad nights stay 2, 3 and 11. The sideways steps
+  re-deal their pairs without making any of them lay out.
+- **Night 2 alone is not proved impossible.** Its 69 matches (7,485 variables, 17,103 clauses)
+  came back UNKNOWN after 3,600 s with the one-night model. At 41 teams the last bad night was UNSAT
+  in 677 s, and that verdict pointed straight at a re-deal. Here a layout may exist, but the search's
+  300 s repairs never reach it. A longer budget (seed 92, 900 s) already did worse.
+- **Freeing three nights did not help.** `--free 3` made one sideways step in 6,208 s, the slowest
+  of the three. That matches 41 teams, where freeing three nights a step also stalled.
+
+The stored state is unchanged (13 of 16). Throwing more seeds at the same moves is unlikely to pay
+off. The next attempt should change the method: an orbit model like the one that closed 43 on 7 x 9
+(`eval/odd-orbit.py`, with the 4x-a-size cost) for the n = 6m + 5 family, or a one-night model with
+symmetry breaking so that night 2 returns SAT or UNSAT within an hour.
+
 ### 47 teams on 8 x 9: 5 to 13 of 16 nights, and why the repairs fail (2026-11-17, later)
 
 The state saved by the last run (5 of 16, "47 teams on 8 x 9: 5 of 16 nights" below) is now **13 of 16** wait-free nights,
@@ -2748,7 +2775,64 @@ tried. Tests: `blackout-fit.test.mjs` (relabelling keeps a round robin and moves
 its label; never worse than the plan as given; the same seed gives the same season; no blackouts means no
 change). The multi-division page gets the same fit in the next section.
 
-## Half the table: flipping every host (2026-11-16, latest)
+## A trial's steps kept in the module: 30 teams join the page (2026-11-17)
+
+The flagship row asked for 30 teams in the page's floor-priced step, and named the next thing to cut:
+the step's copy-in and copy-out, which had grown about as large as the step itself. Counted first
+(guards lifted locally, 30 teams, seed 1): one page run makes **11,360 trials of 19 steps each on
+average, and commits only 1,118 of them** (245 more are walked for their balanced least). Nine trials
+in ten are scored and thrown away, yet every one of their 216,167 steps sent its table out of the
+module into JS, sliced a copy, and sent it back in for the next step.
+
+**The change.** `floorTable`'s trial now hands its whole run of rounds to `chainLeast` (`orient.mjs`),
+which plans every step first and then runs them in the module back to back: between steps,
+`chain_i32` (`wasm/minplus.c`) moves the last step's output straight into the next step's input
+layout, and `chain_min` takes the least against the backward table there too. Only that one number
+comes back. The trial's tables and home masks are rebuilt in JS (the old path) only if the trial is
+committed or walked. Anything the module cannot take (a table too big, no WebAssembly, values that
+could leave int16) falls back to the old path before any state changes.
+
+The move between layouts went through three versions (`eval/chain-step.txt`):
+
+| Version | 30 teams, off -> on | 28 teams, off -> on | the move's own time |
+|---|---|---|---|
+| scatter and gather: two lookups per entry | 91.1 -> 78.2 s | 42.3 -> 35.5 s | 20.3 s |
+| sequential writes, one composite bit permutation read | 94.6 -> 76.3 s | 44.9 -> 36.5 s | 16.3 s |
+| the same in blocks of 64 (committed) | **93.8 -> 62.0 s** | **45.7 -> 30.2 s** | 3.5 s |
+
+The composite permutation works because both layouts are permutations of the same round's host bits:
+input bit `xPos[j]` is output bit `ys[j]`. For the symmetric step, the folded bit's place reads its
+complement, which in output terms is one xor with every kept bit. In blocks of 64, the low six bits'
+part of that place and of the unary costs is a 64-entry table, and the high bits add one constant per
+block. **About 34% off the page's floor-priced step at 28 and 30 teams, with the same seasons on every pair.**
+26 teams gained 7% with the first version (21.9 -> 20.4 s), since fewer of its steps take the symmetric step.
+
+**30 teams join the page; 29 does not** (two processes at once, so slower than solo):
+
+| Teams, seed | Floor-priced step | Gap | Added |
+|---|---|---|---|
+| 30, 1 | 62.0 s (solo) | 1110/84 .. 2542/68 | 1152/82, 2542/64 |
+| 30, 2 | 105.1 s | 1110/84 .. 2576/60 | 1164/82 |
+| 30, 3 | 74.3 s | 1110/84 .. 2718/58 | 1162/82, 2066/80 |
+| 29, 1 | 80.7 s | 3641/47 .. 4049/38 | nothing |
+| 29, 2 | 75.9 s | 1105/56 .. 3597/45 | 3597/44 |
+| 29, 3 | 74.2 s | 3659/50 .. 4063/44 | nothing |
+
+30 teams add seasons on 3 of 3 seeds, including one in the middle of the gap (2066/80 on seed 3) and
+one that beats a listed season outright (2542/64 against 2542/68), at about what 28 teams cost when
+they joined (47-64 s). So `carryOverFloorPriced` runs at up to 30 teams (`maxTeams` 30,
+`FLOOR_PRICED_MAX_MATCHES` 15). 29 teams added one season, one break better, on 1 of 3 seeds for
+75-80 s, so they are skipped (`skip: [29]`).
+
+- Tests: `orient.test.mjs` compares `floorTable` with and without the chain (`chain: false`) over
+  trials at 9 to 30 teams, a third of them committed and every seventh walked: same least, same walk.
+  `floor-priced.test.mjs` checks the new size gate (30 in; 29 and 31 out; `maxTeams: 28` still works).
+  `FLOOR_CHAIN=0` in the environment turns the chain off, for comparison.
+- Not claimed: times are from one shared cloud machine, not a phone or laptop browser. The step itself
+  (31 s of 62 at 30 teams) is now most of the time. Halving it again needs a different elimination,
+  not less copying.
+
+## Half the table: flipping every host (2026-11-16)
 
 The flagship row asked for 29 and 30 teams in the page's floor-priced step, profiling 30 first. With the
 size guards lifted locally (not committed), 30 teams took **128 s solo** (138 to 196 s three at once)

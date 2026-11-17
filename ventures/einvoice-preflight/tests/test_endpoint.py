@@ -237,3 +237,39 @@ class PeppolCommonRulesTest(unittest.TestCase):
         for scheme in ("0225", "0217", "0147", "0170", "0194", "0203", "0205", "9960", "AN", "AQ", "AS", "AU"):
             with self.subTest(scheme=scheme):
                 self.assertTrue(looks_like_known_scheme(scheme))
+
+
+class PartyIdentifierTests(unittest.TestCase):
+    """INV-062: Peppol's fatal id rules on legal_id and party_ids (endpoint.mjs, party-ids.test.mjs)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.cases = json.loads((Path(__file__).with_name("endpoint_peppol_cases.json")).read_text(encoding="utf-8"))
+
+    def test_endpoint_verdicts_hold_for_legal_id_and_party_ids(self):
+        from einvoice_preflight.endpoint import inspect_party_identifiers
+
+        for scheme, identifier in self.cases["valid"]:
+            with self.subTest(scheme=scheme, identifier=identifier):
+                party = {"legal_id": {"scheme": scheme, "id": identifier}, "party_ids": [{"scheme": scheme, "id": identifier}]}
+                self.assertEqual(inspect_party_identifiers(party, "supplier"), [])
+        for scheme, identifier in self.cases["invalid"]:
+            with self.subTest(scheme=scheme, identifier=identifier):
+                party = {"legal_id": {"scheme": scheme, "id": identifier}, "party_ids": [{"scheme": scheme, "id": identifier}]}
+                found = inspect_party_identifiers(party, "customer")
+                self.assertEqual([(f["rule"], f["path"]) for f in found],
+                                 [("INV-062", "/customer/legal_id/id"), ("INV-062", "/customer/party_ids/0/id")])
+                for f in found:
+                    self.assertNotIn(identifier, f["message"] + f["fix"])
+
+    def test_check_invoice_blocks_a_dotted_kbo_number(self):
+        invoice = _invoice()
+        invoice["supplier"]["legal_id"] = {"scheme": "0208", "id": "0403.170.701"}
+        self.assertIn(("INV-062", "/supplier/legal_id/id"), [(f["rule"], f["path"]) for f in check_invoice(invoice)])
+        invoice["supplier"]["legal_id"]["id"] = "0403170701"
+        self.assertNotIn("INV-062", [f["rule"] for f in check_invoice(invoice)])
+
+    def test_warning_schemes_stay_silent_in_python(self):
+        from einvoice_preflight.endpoint import inspect_party_identifiers
+
+        self.assertEqual(inspect_party_identifiers({"legal_id": {"scheme": "0106", "id": "1234567"}}, "customer"), [])

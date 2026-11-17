@@ -214,8 +214,8 @@ class T(unittest.TestCase):
         self.assertEqual(code, 1)  # exit 1 whatever the count: CI treats only 1 as "check failed"
         self.assertEqual(out.splitlines()[:-2], ["2026-10-24-y.md: missing `tags`", "z.md: no front matter"])
         self.assertTrue(out.splitlines()[-2].startswith("front matter:"))
-        # the last line names the first failure, so `| tail -1` shows it
-        self.assertEqual(out.splitlines()[-1], "FAIL: 2 problem(s); first: 2026-10-24-y.md: missing `tags`")
+        # the last line names every failure, so `| tail -1` shows them all
+        self.assertEqual(out.splitlines()[-1], "FAIL: 2 problem(s): 2026-10-24-y.md: missing `tags` | z.md: no front matter")
 
     def test_indented_line_is_not_a_field(self):
         # a nested/continued value must not satisfy a required key
@@ -305,7 +305,22 @@ class T(unittest.TestCase):
         self.assertIn("keep it to 160", out.getvalue())
         lines = out.getvalue().rstrip().splitlines()
         self.assertTrue(lines[-2].startswith("front matter:"))
-        self.assertTrue(lines[-1].startswith("FAIL: 1 problem(s); first: 2026-01-01-x.md: description"))
+        self.assertTrue(lines[-1].startswith("FAIL: 1 problem(s): 2026-01-01-x.md: description"))
+
+    def test_fail_line_names_a_second_field_problem(self):
+        # 2026-11-16: the FAIL line named only the first problem, and the
+        # second (seo_title length) surfaced only on a rerun.
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d) / "docs" / "posts").mkdir(parents=True)
+            bad = Path(d) / "2026-01-01-x.md"
+            bad.write_text("---\ntitle: x\ndate: 2026-01-01\ndescription: " + "y" * 200
+                           + "\nseo_title: " + "z" * 75 + "\ntags: [a]\n---\nbody\n")
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                self.assertEqual(main(["--root", d, str(bad)]), 1)
+        last = out.getvalue().rstrip().splitlines()[-1]
+        self.assertIn("description is 200", last)
+        self.assertIn("seo_title is 75", last)
 
 
 if __name__ == "__main__":

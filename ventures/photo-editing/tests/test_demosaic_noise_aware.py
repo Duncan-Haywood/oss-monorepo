@@ -4,7 +4,8 @@
 Pinned: the noise estimate tracks the noise drawn on a flat field, an overstated NoiseProfile is read and
 scaled down (``profile_ratio``, ``guard_profile``), sensels keep their own values, a
 flat noisy field leans to bilinear and a sharp clean edge to directional, the blend lies between its
-two inputs, and the weights follow the documented ramp.
+two inputs, the weights follow the documented ramp, and a second luma ramp takes luma from one blend
+and colour difference from the other.
 """
 
 from __future__ import annotations
@@ -60,6 +61,28 @@ class NoiseAwareTests(unittest.TestCase):
             m = frame_measures(c, XE1_PATTERN, _bilinear(c, XE1_PATTERN), directional(c, XE1_PATTERN))
             self.assertAlmostEqual(m["sigma"] / sigma, 1.0, delta=0.2)
 
+    def test_frame_noise_is_the_scaled_estimate_and_never_above_it(self):
+        from shootflow.xtrans_demosaic import FRAME_SCALE, estimate_noise, frame_noise
+
+        _, c = self._flat(0.01)
+        shot, read = estimate_noise(c, XE1_PATTERN)
+        fs, fr = frame_noise(c, XE1_PATTERN)
+        # sigma scaled by FRAME_SCALE (the guard only ever lowers it further)
+        self.assertLessEqual(fs, shot * FRAME_SCALE**2 + 1e-15)
+        self.assertLessEqual(fr, read * FRAME_SCALE**2 + 1e-15)
+        self.assertGreater(fs + fr, 0.0)
+        fs1, fr1 = frame_noise(c, XE1_PATTERN, scale=1.0)
+        self.assertGreater(fs1 + fr1, fs + fr)
+
+    def test_frame_noise_blend_beats_directional_on_a_flat_noisy_field(self):
+        from shootflow.xtrans_demosaic import directional, frame_noise, noise_aware
+
+        truth, c = self._flat(0.01)
+        b, d = _bilinear(c, XE1_PATTERN), directional(c, XE1_PATTERN)
+        out = noise_aware(c, XE1_PATTERN, bilinear=b, directional_out=d, noise=frame_noise(c, XE1_PATTERN))
+        err = lambda a: float(self.np.mean((a[6:-6, 6:-6] - truth[6:-6, 6:-6]) ** 2))  # noqa: E731
+        self.assertLess(err(out), err(d))
+
     def test_flat_noisy_field_leans_bilinear_and_scores_better(self):
         from shootflow.xtrans_demosaic import directional, noise_aware
 
@@ -89,7 +112,7 @@ class NoiseAwareTests(unittest.TestCase):
         truth = self.rng.uniform(0.1, 0.8, size=(72, 72, 3))
         c = _mosaic(truth, XE1_PATTERN)
         b, d = _bilinear(c, XE1_PATTERN), directional(c, XE1_PATTERN)
-        out = noise_aware(c, XE1_PATTERN, bilinear=b, directional_out=d, q_low=0.0, q_high=1e6)
+        out = noise_aware(c, XE1_PATTERN, bilinear=b, directional_out=d, q_low=0.0, q_high=1e6, luma_ramp=False)
         cm = colour_map(XE1_PATTERN, 72, 72)
         own = np.take_along_axis(out, cm[..., None].astype(np.int64), axis=2)[..., 0]
         np.testing.assert_allclose(own, c, atol=1e-9)
@@ -97,7 +120,7 @@ class NoiseAwareTests(unittest.TestCase):
 
     def test_bayer_uses_its_own_demosaic_and_ramp(self):
         from shootflow.bayer_demosaic import directional as bayer
-        from shootflow.xtrans_demosaic import RAMPS, noise_aware
+        from shootflow.xtrans_demosaic import LUMA_RAMPS, RAMPS, noise_aware
 
         np = self.np
         pat = (0, 1, 1, 2)
@@ -105,8 +128,39 @@ class NoiseAwareTests(unittest.TestCase):
         c = _mosaic(truth, pat) + self.rng.normal(size=(96, 96)) * 0.01
         b, d = _bilinear(c, pat), bayer(c, pat)
         a = noise_aware(c, pat, noise=(0.0, 1e-4))
-        e = noise_aware(c, pat, bilinear=b, directional_out=d, noise=(0.0, 1e-4), q_low=RAMPS[2][0], q_high=RAMPS[2][1])
+        e = noise_aware(c, pat, bilinear=b, directional_out=d, noise=(0.0, 1e-4), q_low=RAMPS[2][0], q_high=RAMPS[2][1],
+                        luma_ramp=LUMA_RAMPS[2])
         np.testing.assert_allclose(a, e, atol=1e-12)
+
+    def test_luma_ramp_takes_luma_from_one_blend_and_colour_from_the_other(self):
+        """eval/noise-aware-luma-ramp-2026-11-17.md: with ``luma_ramp`` the output's Rec. 709 luma is the
+        luma-ramp blend's and its R-G, B-G are the colour-ramp blend's; luma lies between the inputs' luma;
+        both ramps at 1 (a clean frame) give the directional result; ``noise_aware`` uses LUMA_RAMPS by default."""
+
+        from shootflow.xtrans_demosaic import LUMA_RAMPS, LUMA_WEIGHTS, RAMPS, blend, directional, frame_measures, noise_aware
+
+        np = self.np
+        b = self.rng.uniform(0.1, 0.8, size=(72, 72, 3))
+        d = self.rng.uniform(0.1, 0.8, size=(72, 72, 3))
+        q = self.rng.uniform(0.0, 3.0, size=(3, 3))
+        colour, luma = blend(b, d, q, 0.4, 2.0), blend(b, d, q, 0.8, 2.0)
+        out = blend(b, d, q, 0.4, 2.0, luma_ramp=(0.8, 2.0))
+        np.testing.assert_allclose(out @ LUMA_WEIGHTS, luma @ LUMA_WEIGHTS, atol=1e-12)
+        diff = lambda a: np.stack([a[..., 0] - a[..., 1], a[..., 2] - a[..., 1]], -1)  # noqa: E731
+        np.testing.assert_allclose(diff(out), diff(colour), atol=1e-12)
+        y = out @ LUMA_WEIGHTS
+        self.assertTrue(np.all(y >= np.minimum(b @ LUMA_WEIGHTS, d @ LUMA_WEIGHTS) - 1e-12))
+        self.assertTrue(np.all(y <= np.maximum(b @ LUMA_WEIGHTS, d @ LUMA_WEIGHTS) + 1e-12))
+        np.testing.assert_allclose(blend(b, d, np.full((3, 3), 5.0), 0.4, 2.0, luma_ramp=(0.8, 2.0)), d, atol=1e-12)
+        truth, c = self._flat(0.01)
+        bb, dd = _bilinear(c, XE1_PATTERN), directional(c, XE1_PATTERN)
+        qb = frame_measures(c, XE1_PATTERN, bb, dd, blocks=True)["q_blocks"]
+        np.testing.assert_allclose(
+            noise_aware(c, XE1_PATTERN, bilinear=bb, directional_out=dd),
+            blend(bb, dd, qb, *RAMPS[6], luma_ramp=LUMA_RAMPS[6]), atol=1e-12)
+        err = lambda a: float(np.mean(((a - truth)[6:-6, 6:-6] @ LUMA_WEIGHTS) ** 2))  # noqa: E731
+        self.assertLessEqual(err(noise_aware(c, XE1_PATTERN, bilinear=bb, directional_out=dd)),
+                             err(noise_aware(c, XE1_PATTERN, bilinear=bb, directional_out=dd, luma_ramp=False)) + 1e-15)
 
     def test_blend_ramp(self):
         from shootflow.xtrans_demosaic import blend
@@ -221,7 +275,8 @@ class ProfileGuardTests(unittest.TestCase):
 
 
 class DevelopNoiseAwareTests(unittest.TestCase):
-    """``--demosaic noise-aware`` in the developer: the DNG's NoiseProfile drives it; without one it falls back."""
+    """``--demosaic noise-aware`` in the developer: the DNG's NoiseProfile drives it; without one it falls back to
+    directional, or with ``noise_from_frame`` uses a model read from the frame (``frame_noise``)."""
 
     def _dng(self, noise_profile=None, seed=5, w=96, h=72, sigma=40.0):
         import random
@@ -273,7 +328,7 @@ class DevelopNoiseAwareTests(unittest.TestCase):
         self.assertIsNone(rd.noise_profile_planes({}))
 
     @unittest.skipUnless(has_numpy(), "numpy not installed")
-    def test_noise_aware_with_profile_differs_and_without_falls_back(self):
+    def test_noise_aware_with_profile_differs_without_falls_back_or_reads_the_frame(self):
         sigma = 40.0 / (4095 - 256)
         with_np = self._dng((1e-12, sigma * sigma))
         w, h, px, rep = self._develop(with_np, engine="numpy", demosaic="noise-aware")
@@ -283,9 +338,20 @@ class DevelopNoiseAwareTests(unittest.TestCase):
         self.assertNotEqual(list(px), list(dpx))  # a flat noisy field: blended toward bilinear
         _, _, fpx, frep = self._develop(self._dng(None), engine="numpy", demosaic="noise-aware")
         self.assertEqual(frep.demosaic, "directional")
-        self.assertTrue(any("NoiseProfile" in n for n in frep.notes), frep.notes)
+        self.assertTrue(any("NoiseProfile" in n and "--noise-from-frame" in n for n in frep.notes), frep.notes)
         _, _, dpx2, _ = self._develop(self._dng(None), engine="numpy", demosaic="directional")
         self.assertEqual(list(fpx), list(dpx2))
+        # Opt-in (2026-11-17): no profile, the model read from the frame.
+        _, _, epx, erep = self._develop(self._dng(None), engine="numpy", demosaic="noise-aware", noise_from_frame=True)
+        self.assertEqual(erep.demosaic, "noise-aware")
+        self.assertTrue(any("read from the frame" in n for n in erep.notes), erep.notes)
+        self.assertEqual(len(epx), len(dpx2))
+        self.assertNotEqual(list(epx), list(dpx2))  # the flat noisy field is blended toward bilinear here too
+        _, _, _, hfrep = self._develop(self._dng(None), engine="numpy", demosaic="noise-aware", half=True, noise_from_frame=True)
+        self.assertEqual(hfrep.demosaic, "noise-aware")
+        # A file with a profile ignores the flag: the profile drives the blend.
+        _, _, ppx, _ = self._develop(with_np, engine="numpy", demosaic="noise-aware", noise_from_frame=True)
+        self.assertEqual(list(ppx), list(px))
         _, _, hpx, hrep = self._develop(with_np, engine="numpy", demosaic="noise-aware", half=True)
         self.assertEqual(hrep.demosaic, "noise-aware")
         self.assertFalse(any("states" in n for n in rep.notes), rep.notes)  # an honest profile is not scaled

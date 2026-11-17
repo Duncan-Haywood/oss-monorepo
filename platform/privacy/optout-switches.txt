@@ -714,6 +714,7 @@ ventures/meta-analysis/usage.mjs
 ventures/meta-catalog-csv-check/usage.mjs
 ventures/metal-roof-bid-calculator/usage.mjs
 ventures/meter-keeper/usage.mjs
+ventures/method-comparison/usage.mjs
 ventures/microgreens-tray-planner/usage.mjs
 ventures/midterm-rental-calculator/usage.mjs
 ventures/mileage-deduction-calculator/usage.mjs
@@ -921,6 +922,7 @@ ventures/redirect-map-check/usage.mjs
 ventures/referral-keeper/usage.mjs
 ventures/referrer-permissions-policy-check/usage.mjs
 ventures/regex-redos-check/usage.mjs
+ventures/regression-discontinuity/usage.mjs
 ventures/release-notes-generator/usage.mjs
 ventures/renewal-rent-optimizer/usage.mjs
 ventures/rent-increase-notice-checker/usage.mjs

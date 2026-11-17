@@ -156,6 +156,18 @@ function party(node) {
     const scheme = (legalNode.attrs && legalNode.attrs.schemeID) ? legalNode.attrs.schemeID.trim() : "";
     mapped.legal_id = { id: legalNode.text.trim(), scheme };
   }
+  // BT-29/BT-46 with a scheme: Peppol checks each one against its scheme's
+  // PEPPOL-COMMON rule, so keep every PartyIdentification/ID that names one
+  // (endpoint.mjs, INV-062/INV-063).
+  const partyIds = [];
+  for (const identification of descendants(partyNode, "PartyIdentification")) {
+    for (const idNode of identification.children.filter((child) => child.name === "ID")) {
+      const scheme = idNode.attrs && idNode.attrs.schemeID ? idNode.attrs.schemeID.trim() : "";
+      const id = idNode.text.trim();
+      if (scheme && id) partyIds.push({ id, scheme });
+    }
+  }
+  if (partyIds.length) mapped.party_ids = partyIds;
   const endpointNode = descendants(partyNode, "EndpointID")[0];
   if (endpointNode) {
     const id = endpointNode.text.trim();

@@ -13,6 +13,28 @@ RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with
 checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (290 of 290,
 revised with milestones 4e–4s and 3b–3g) and a list of what a submission still needs.
 
+**Milestone 3j headline** (do the first-order verdicts of milestones 3g and 3i survive a real re-solve? each of the 57 TUM RGB-D
+natural-feature windows re-solved by bundle adjustment with the board's distortion, principal point or both pinned): **yes, and
+the distortion verdict is sharper.** Pinning the board's k<sub>1</sub>, k<sub>2</sub> doubles the median focal error (5.25% to
+10.5%; fr1/xyz 18%) and leaves f above the board's in 52 of 53 windows; the principal point alone is mildly worse (5.87%; it helps
+fr3/stf, 7.2% to 5.9%, and hurts both fr1 sequences); all four 10.7%. First order gets the size about right (median re-solved/predicted
+step 0.91, 1.01, 0.87) but the direction wrong in a quarter of the distortion re-solves (sign agreement 74%; on board windows 99%).
+Rule for a robot: in a short natural-feature window, do not import the board's distortion. Five of six predictions held.
+[Log](LOG.md).
+
+![TUM windows: first-order against re-solved focal step for each pin, and the focal error free and pinned](experiments/m3j_tumpin/tumpin.png)
+
+**Milestone 3i headline** (is the principal point what a short natural-feature window's focal length compensates? the
+board's (c<sub>x</sub>, c<sub>y</sub>) pinned, first order on the 57 TUM RGB-D windows and re-solved on milestone 3h's 149 board windows):
+**no.** On the TUM windows pinning the board's principal point raises the median focal error from 5.25% to 6.76% (with the
+distortion pinned too, 7.17%), and the step it makes is barely related to the error it should correct (Spearman &minus;0.22).
+The windows' principal points sit up to 33 px from the board's (fr1/xyz c<sub>y</sub>), but f hardly leans on them (correlation
+&minus;0.1 to &minus;0.3). On clean board windows the same pin, re-solved, does help (0.55% to 0.37%), and the first-order step
+matches the re-solve (ratio 1.02). With milestones 3f&ndash;3h this rules out, at first order, the board's static intrinsics as a fix; the rolling
+shutter, the motion and track bias remain. Three of seven predictions held.
+
+![Board windows: first-order against re-solved focal step with the principal point pinned; TUM windows: focal error before and after pinning](experiments/m3i_principal/principal.png)
+
 **Milestone 3h headline** (milestones 3f and 3g predicted to first order where a window's focal length moves when its
 lens distortion is pinned; is that prediction what the re-solve gives? checked on the real OpenCV stereo images, where the
 pinned bundle adjustment can be run, 149 windows of 4&ndash;8 views, 1043 pinned re-solves): **yes in direction, and in size
@@ -988,6 +1010,9 @@ python3 experiments/m3f_condk1/analyse.py    # seconds, no video needed; summary
 python3 experiments/m3g_condk12/analyse.py   # seconds, no video needed; summary.json, condk12.png
 OMP_NUM_THREADS=1 python3 experiments/m3h_linear/run.py   # ~2 min on 4 cores, board images in data/; results.json
 python3 experiments/m3h_linear/analyse.py    # seconds; summary.json, linear.png
+python3 experiments/m3i_principal/tum.py      # seconds, no video needed; tum_summary.json
+OMP_NUM_THREADS=1 python3 experiments/m3i_principal/run.py   # ~2 min on 4 cores; results.json
+python3 experiments/m3i_principal/analyse.py  # seconds; board_summary.json, principal.png
 python3 experiments/m1_real/run.py        # ~40 min on 4 cores; results.json
 python3 experiments/m1_real/analyse.py    # summary.json, selfcal_vs_zhang.png
 python3 experiments/m1_real/planarity.py  # ~3 min; planarity.json
@@ -1090,6 +1115,15 @@ python3 paper/check_numbers.py             # seconds; the draft's numbers agains
   `PROPOSAL.md`).
 
 ## Next steps
+
+After milestone 3j: the re-solve on the TUM video confirms 3g and 3i (board distortion pinned: 10.5% median error; principal
+point: 5.87%; free: 5.25%). The TUM video now downloads, so the remaining candidates for what a window's f compensates can be
+tested on it directly: a rolling-shutter term in the window model (which TUM camera has one needs a source first), track bias
+in the SIFT front end (re-track with a different detector and compare f), and longer windows.
+
+After milestone 3i: the principal point is ruled out too (pinned at the board's value it raises the TUM median error to
+6.76%, while helping clean board windows), so the next candidates sit outside the pinhole-plus-radial model: a rolling-shutter
+term (which of the TUM cameras has a rolling shutter needs a source before it is modelled), and track bias in the natural-feature front end. The re-solve on the TUM video (now milestone 3j) waits for the host.
 
 After milestone 3h: the first-order conditioning is a fair guide to the pinned re-solve (it overshoots by about a quarter
 at 5&ndash;10% steps), and shrinking 3g's steps by that still leaves fr1/xyz +10%, so the re-solve on the TUM video (now

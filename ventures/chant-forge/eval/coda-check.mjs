@@ -541,6 +541,38 @@
 //    not the registered shape: 18 of the default's 21 are a cluster onset before -um (*brum* 6, *glum* 5, *stum* 4,
 //    *flum* 3), which the slow form does not touch, and all 15 vowel-only misses are one cell, A#3 quarters, every /u/
 //    syllable read as a nasal by the level rule (README).
+// Twenty-sixth round (2026-11-17): a vowel's release read as a nasal (onsets.mjs readCoda `levelFade`, LEVEL_FADE; README
+//    "A /u/ release read as a nasal"). c's 15 vowel-only misses (every /u/ syllable on A#3 quarters) were read frame by
+//    frame (eval/dark-nasal-diag.mjs c): the vowel swells 12 dB over the reference through the note, then fades after
+//    it, and the fade passes the level rule (5-25 dB under, 15 dB darker above 1 kHz than under 500 Hz) for 40 ms just
+//    before the window ends. A guard on the run's own tilt against the vowel before it (dark 6 or 3 dB) took back all 15
+//    and J's 15 but lost 60 or more sung nasals (a dark-vowel m is no darker than its vowel), and a guard on a falling
+//    level lost 34 right reads for every 34 wrong ones it took back; both dropped. eval/level-tail-sweep.mjs (K-c) found
+//    the separator: every vowel-only level-rule nasal of c (A#3) and W (E3 eighths) starts 5-6 frames from the read
+//    window's last frame, the earliest right one 7. The rule: a level-rule run that starts within `tail: 6` frames of
+//    the window's last frame is thrown out (opt-in `levelFade: true`; `--fade on`). Chosen on that sweep, not tuned.
+//    Development (A-c, `--fade on` against the default): J's control 453 to 468 of 468, its others 332 to 333; L's others
+//    117 to 118; W's control 338 to 352 of 360, its others 32 to 33; c's control 369 to 384 of 384; lost: one O *lum*
+//    read as none (O's others 227 to 226). Every nasal row of every part identical. Z's 13 (C#4 eighths) and T's 4
+//    vowel-only misses start 14-19 frames out and are not touched. Pre-registered here and committed before part d was
+//    run with anything. Part d is new: 12 nasal codas after /u/ or /o/ (*rom trun crum plun grun snum drum prom clun
+//    slom tron bron*), 5 voiced stops (*clud trub prog grod blog*), 4 nasals after a bright vowel (*hem tin dim cram*),
+//    4 n-clusters (*pont tont cont tanc*), 3 voiceless stops (*lup cup rop*) and 4 others (*rus tul su lo*), none sung
+//    in any other part, at D#3, E3, A3, A#3, B3 and C#4, 92 BPM (in no other part), pulse-4 and pulse-2 notes, sung and
+//    vowel-only. Against the default (d's first column), `levelFade` (its second): (1) the vowel-only control read as
+//    none (of 384): at least 3 more; (2) nasals after /u/ or /o/ (of 144), after a bright vowel (of 48) and n-clusters
+//    as their nasal (of 48): no fewer in any; (3) voiced stops (of 60), voiceless stops (of 36) and others (of 48) read
+//    exactly: no fewer in total, and no more stop, other or vowel-only cell read as a nasal; (4) A-c as above, re-run
+//    on the shipped code. The gain is tested only if the default misses 3 or more of d's vowel-only cells; if fewer,
+//    `levelFade` stays opt-in, reported as untested. If all four hold and the gain is tested, `levelFade` becomes
+//    readCoda's default; otherwise it stays opt-in (`--fade on`).
+//    Outcome (run 2026-11-17, after the registration above was committed as 41e188357): untested. (1) the vowel-only
+//    control 384 and 384 of 384: the default missed none, so the gain was not tested; (2) nasals after /u/ or /o/ 136
+//    and 136 of 144, bright-vowel nasals 48 and 48, n-clusters as their nasal 47 and 47; (3) voiced stops 56 and 56 of
+//    60, voiceless 36 and 36, others 47 and 47, stops, others and vowel-only cells read as a nasal 1 and 1; (4) A-c
+//    rebuilt on the shipped code match the development figures above. `levelFade` stays opt-in. At 92 BPM on d's six
+//    pitches no vowel-only release reached the window's last 30 ms at the level rule's depth; a fair test needs cells
+//    chosen where it does (README).
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
@@ -552,7 +584,7 @@ const args = process.argv.slice(2);
 const outFile = args.includes('--out') ? args[args.indexOf('--out') + 1] : new URL('./coda-check-report.md', import.meta.url);
 // --parts ABDEHIFC (default all): which parts to run; --hide-misses F: print a part's score without its misses
 // (how a held-out set is scored before a round's changes without anyone reading what it gets wrong)
-const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJKLMNOPQRSTUVWXYZabcC';
+const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJKLMNOPQRSTUVWXYZabcdC';
 // --voice-bar off: the choir sung with the fixed voice-bar gain (sing.mjs `voiceBarLevel: false`, before 2026-11-16's thirteenth round)
 const VOICEBAR = !(args.includes('--voice-bar') && args[args.indexOf('--voice-bar') + 1] === 'off');
 // --wall on: the voice bar low-passed through the walls (sing.mjs `voiceBarWall: true`; tried in 2026-11-16's fourteenth round, off by default)
@@ -599,7 +631,11 @@ const SHUTARG = args.includes('--shut') ? args[args.indexOf('--shut') + 1] : '';
 // --hold fall=10,hold=3: other LIP_HOLD settings
 const HOLDARG = args.includes('--hold') ? args[args.indexOf('--hold') + 1] : '';
 const HOLDOPT = HOLDARG === 'on' ? { lipHold: true } : HOLDARG && HOLDARG !== 'off' ? { lipHold: Object.fromEntries(HOLDARG.split(',').map((kv) => { const [k, v] = kv.split('='); return [k, Number(v)]; })) } : {};
-const RC = { ...RC0, ...HOLDOPT, ...(SHUTARG === 'on' ? { lipShut: true } : SHUTARG === 'off' ? { lipShut: false } : SHUTARG ? { lipShut: Object.fromEntries(SHUTARG.split(',').map((kv) => { const [k, v] = kv.split('='); return [k, Number(v)]; })) } : {}), ...(VLEADARG === 'off' ? { voicedLead: false } : {}), ...(VLEADARG && VLEADARG !== 'off' ? { voicedLead: VLEADARG.startsWith('hold') ? { gap: Number(VLEADARG.slice(4)) || 2, hold: true } : VLEADARG.startsWith('bar') ? { gap: Number(VLEADARG.slice(3)) || 2, bar: true } : Number(VLEADARG) } : {}), ...(BBARG === 'off' ? { barBurst: false } : {}), ...(VLOWARG === 'off' ? { voicelessLow: false } : {}), ...(VELARARG === 'on' ? { compactVelar: true } : {}), ...(BARARG && BARARG !== 'off' ? { barLead: Number(BARARG) } : {}), ...PREOPTS, ...(PREARG === 'off' ? { preObstruent: false } : {}), ...(AGAINARG === 'off' ? { againGap: false } : {}), ...(VFRICARG === 'off' ? { vfricHi5: false } : {}), ...(DEEPARG === 'on' ? { deepMurmur: true } : {}), ...(LOCALARG === 'off' ? { localRef: false } : {}), ...(ANCHORARG === 'on' ? { closeAnchor: true } : {}) };
+// --fade on: readCoda's fade guard on the level rule (`levelFade: true`, the twenty-sixth round; README "A /u/ fade read as a nasal");
+// --fade dark=4: other LEVEL_FADE settings
+const FADEARG = args.includes('--fade') ? args[args.indexOf('--fade') + 1] : '';
+const FADEOPT = FADEARG === 'on' ? { levelFade: true } : FADEARG && FADEARG !== 'off' ? { levelFade: Object.fromEntries(FADEARG.split(',').map((kv) => { const [k, v] = kv.split('='); return [k, Number(v)]; })) } : {};
+const RC = { ...RC0, ...HOLDOPT, ...FADEOPT, ...(SHUTARG === 'on' ? { lipShut: true } : SHUTARG === 'off' ? { lipShut: false } : SHUTARG ? { lipShut: Object.fromEntries(SHUTARG.split(',').map((kv) => { const [k, v] = kv.split('='); return [k, Number(v)]; })) } : {}), ...(VLEADARG === 'off' ? { voicedLead: false } : {}), ...(VLEADARG && VLEADARG !== 'off' ? { voicedLead: VLEADARG.startsWith('hold') ? { gap: Number(VLEADARG.slice(4)) || 2, hold: true } : VLEADARG.startsWith('bar') ? { gap: Number(VLEADARG.slice(3)) || 2, bar: true } : Number(VLEADARG) } : {}), ...(BBARG === 'off' ? { barBurst: false } : {}), ...(VLOWARG === 'off' ? { voicelessLow: false } : {}), ...(VELARARG === 'on' ? { compactVelar: true } : {}), ...(BARARG && BARARG !== 'off' ? { barLead: Number(BARARG) } : {}), ...PREOPTS, ...(PREARG === 'off' ? { preObstruent: false } : {}), ...(AGAINARG === 'off' ? { againGap: false } : {}), ...(VFRICARG === 'off' ? { vfricHi5: false } : {}), ...(DEEPARG === 'on' ? { deepMurmur: true } : {}), ...(LOCALARG === 'off' ? { localRef: false } : {}), ...(ANCHORARG === 'on' ? { closeAnchor: true } : {}) };
 const rate = 44100, corpus = new URL('../corpus/', import.meta.url);
 const lines = [];
 const pct = (a, b) => `${a} of ${b} (${b ? ((100 * a) / b).toFixed(1) : '-'}%)`;
@@ -1592,6 +1628,46 @@ lines.push('## c. Held out: a dark-vowel m with a slow closure (twenty-fifth rou
   row('vowel-only control read as none', 'control'), cnt('stops, others and vowel-only control read as a nasal', asNas), '',
   'Misses, default (count over the twelve pitch and length cells):', '', list(miss.def), '',
   `Misses with ${slowName}:`, '', list(miss.slow), '');
+}
+
+// The twenty-sixth round's held-out set (levelFade, pre-registered in the header): none of its syllables sung before,
+// at 92 BPM and D#3, E3, A3, A#3, B3, C#4
+if (PARTS.includes('d')) {
+const DK = ['rom', 'trun', 'crum', 'plun', 'grun', 'snum', 'drum', 'prom', 'clun', 'slom', 'tron', 'bron'];
+const VD = ['clud', 'trub', 'prog', 'grod', 'blog'], BR = ['hem', 'tin', 'dim', 'cram'], CL = ['pont', 'tont', 'cont', 'tanc'], VLS = ['lup', 'cup', 'rop'], NEG = ['rus', 'tul', 'su', 'lo'];
+const SY = [...DK, ...VD, ...BR, ...CL, ...VLS, ...NEG], tally = {}, miss = { def: new Map(), fade: new Map() }, asNas = {};
+const bump = (k, ok) => { tally[k] = tally[k] || [0, 0]; tally[k][1]++; if (ok) tally[k][0]++; };
+const MODES = [['def', { ...RC, levelFade: false }], ['fade', { ...RC, levelFade: true }]];
+for (const pulses of [4, 2]) for (const midi of [51, 52, 57, 58, 59, 61]) {
+  const ev = []; for (const s of SY) ev.push({ type: 'note', midi, pulses, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
+  const mid = eventsToMidi(ev, { bpm: 92, title: 'held-out release read as a nasal' });
+  for (const sing of [true, 'vowels']) {
+    const { x, notes } = choir(mid, sing);
+    SY.forEach((s, j) => {
+      const n = notes[j], want = sing === true ? expectedRead(latinCoda(s)[0]) : { cls: 'none' };
+      const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
+      const grp = sing === true ? (DK.includes(s) ? 'dark' : VD.includes(s) ? 'voiced' : BR.includes(s) ? 'bright' : CL.includes(s) ? 'cluster' : VLS.includes(s) ? 'voiceless' : 'other') : 'control';
+      for (const [mode, o] of MODES) {
+        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        bump(`${grp} ${mode}`, ok);
+        if ((grp === 'voiced' || grp === 'voiceless' || grp === 'other' || grp === 'control') && got.cls === 'nasal') asNas[mode] = (asNas[mode] || 0) + 1;
+        if (!ok && !HIDE.includes('d')) { const key = `${grp === 'control' ? `${s} (vowel only)` : s} as ${label(got)}`; miss[mode].set(key, (miss[mode].get(key) || 0) + 1); }
+      }
+    });
+  }
+}
+const cell = (k) => pct(...(tally[k] || [0, 0]));
+const row = (t, g) => `| ${t} | ${MODES.map(([m]) => cell(`${g} ${m}`)).join(' | ')} |`;
+const cnt = (t, o) => `| ${t} | ${MODES.map(([m]) => o[m] || 0).join(' | ')} |`;
+const list = (m) => HIDE.includes('d') ? '- hidden' : [...m].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join('; ') || 'none';
+lines.push('## d. Held out: a release read as a nasal (twenty-sixth round)', '', `Nasals after /u/ or /o/: ${DK.map((s) => `*${s}*`).join(', ')}; voiced stops: ${VD.map((s) => `*${s}*`).join(', ')}; nasals after a bright vowel: ${BR.map((s) => `*${s}*`).join(', ')}; n-clusters: ${CL.map((s) => `*${s}*`).join(', ')}; voiceless stops: ${VLS.map((s) => `*${s}*`).join(', ')}; others: ${NEG.map((s) => `*${s}*`).join(', ')}. Pulse-4 and pulse-2 notes at 92 BPM, each followed by a rest, D#3, E3, A3, A#3, B3, C#4.`, '',
+  `| | default | \`levelFade: { tail: 6 }\` |`, '|---|---|---|',
+  row('nasals after /u/ or /o/ read exactly', 'dark'),
+  row('nasals after a bright vowel read exactly', 'bright'), row('n-clusters read as their nasal', 'cluster'),
+  row('voiced stop codas read exactly', 'voiced'), row('voiceless stop codas read exactly', 'voiceless'), row('other syllables read exactly', 'other'),
+  row('vowel-only control read as none', 'control'), cnt('stops, others and vowel-only control read as a nasal', asNas), '',
+  'Misses, default (count over the twelve pitch and length cells):', '', list(miss.def), '',
+  'Misses with `levelFade`:', '', list(miss.fade), '');
 }
 
 // ---- C ----

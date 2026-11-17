@@ -2945,6 +2945,17 @@ unseen for this rule); all 196, RapidOCR: 182 to 187; CORD text and SROIE text u
 Details: [`eval/rapidocr-srd-misses-2026-11-17.md`](eval/rapidocr-srd-misses-2026-11-17.md).
 Tests: `receipt-rapidocr-srd.test.mjs`.
 
+### The page's own RapidOCR on the US photos, and a printed gratuity (2026-11-17)
+
+The page's JavaScript port of RapidOCR, run in headless Chromium on all 196 SRD photos, slips
+rows on the same two photos as the Python engine and the row-shift rule fixes both; it reads 189
+totals right to Python's 187. With tesseract's four after it, the page gets 188. One of its misses
+was the parser's: `SubTotal 3.99 / Tax 0.30 / Gratuity 1.00 / Total 5.29` was "corrected" to 4.29
+because no check counted the gratuity. A gratuity line above the total now adds a check
+(subtotal plus tax and gratuity). The page: 188 to **189 of 196**, wrong with no warning 2 to 1;
+CORD and SROIE text unchanged. Details:
+[`eval/rapidocr-web-srd-2026-11-17.md`](eval/rapidocr-web-srd-2026-11-17.md).
+
 ### RapidOCR and tesseract together (2026-11-17)
 
 `--rapidocr --four-pass` reads the photo with RapidOCR first, then with tesseract's four
@@ -2959,6 +2970,19 @@ totals 80 and 80 of 95, tax 28 to 32 of 41. US receipt photos (SRD): 180 to 181 
 142 to 162 of 185. CORD train shards 1-3 (where the order was chosen): 515 to 510 of 583, tax
 172 to 203 of 267. Against tesseract's four alone, test totals go from 56 to 80. Details:
 [`eval/second-ocr-engine-2026-11-17.md`](eval/second-ocr-engine-2026-11-17.md).
+
+### RapidOCR's total kept over an unconfirmed tesseract majority (2026-11-17)
+
+With tesseract's four readings of the 600 CORD train photos made, the five-reading vote
+(`--rapidocr --four-pass`, and the page) read 526 of 583 totals, against 539 for RapidOCR alone:
+19 times three tesseract readings agreeing on the same misread digit outvoted RapidOCR's right
+total, with no check on the receipt confirming them. Now a total that outvotes the lead reading is
+taken only when the receipt's arithmetic confirms it; otherwise RapidOCR's total stays, with a
+"check the total" note on the CLI and the page. Train (where it was chosen) 526 to **542**, tax
+205 to 209 of 267; validation 87 and 87 of 98; held-out test 83 and 83 (the page 84 to 83); US
+photos (SRD) 186 to 188 of 196, tax 163 to 161. The five-reading mode now matches or beats
+RapidOCR alone on totals in every set and keeps most of the four readings' tax gain. Details:
+[`eval/lead-vote-2026-11-17.md`](eval/lead-vote-2026-11-17.md). Tests: `receipt-lead-vote.test.mjs`.
 
 ### CORD train shards 1-3: 600 more unseen photos (2026-11-17)
 
