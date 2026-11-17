@@ -169,7 +169,7 @@ files, `prompts/`) is under `.github/CODEOWNERS`, and a quality session's
 reflection does not open the control-plane PR it would need.
 
 **Shipped:** the two pre-merge checks go into
-[`PRODUCT_PLAYBOOK.md`](../../PRODUCT_PLAYBOOK.md) §7, "Definition of done",
+[`PRODUCT_PLAYBOOK.md`](../../../PRODUCT_PLAYBOOK.md) §7, "Definition of done",
 which is not owner-held. One is a "Spec sources" line plus one test pinned
 to a worked example from that source. The other is one seeded bug through
 `quality_mutate.py` before merge, with the test that kills it if it
