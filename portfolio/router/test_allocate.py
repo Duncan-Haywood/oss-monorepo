@@ -789,6 +789,21 @@ class FlagshipTests(unittest.TestCase):
                                         "https://archive.org/"])
         self.assertEqual(row_hosts(self.flag("plain", 1, "README.md, flagships.yaml, v1.40")), [])
 
+    def test_row_hosts_reads_the_hosts_a_named_script_fetches(self):
+        # friction 2026-11-17: the row named eval/cord_images.py, not huggingface.co
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d) / "books"
+            (root / "eval").mkdir(parents=True)
+            (root / "eval" / "cord_images.py").write_text(
+                "# Licence: https://creativecommons.org/licenses/by/4.0/\n"
+                "#   https://huggingface.co/datasets/x/resolve/abc/test.parquet\n"
+                "LOCAL = 'http://localhost:8000/'\n")
+            v = self.flag("books", 0, "x")
+            v.flagship_buildable = "CORD photos (eval/cord_images.py); eval/missing.py; ../../etc/passwd.sh"
+            self.assertEqual(row_hosts(v, ventures_dir=Path(d)), ["https://huggingface.co/"])
+            v.flagship_hosts = ["https://huggingface.co/x"]
+            self.assertEqual(row_hosts(v, ventures_dir=Path(d)), ["https://huggingface.co/x"])
+
     def test_venture_report_probes_the_row_hosts_only_when_asked(self):
         v = self.flag("deep", 0, "history")
         v.flagship_hosts = ["https://archive.org/", "https://github.com/"]

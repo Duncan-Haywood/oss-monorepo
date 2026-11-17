@@ -28,7 +28,8 @@
 #
 # `hosts: [<url>, ...]` (optional) lists the hosts those items need.
 # `allocate.py --venture <slug>` probes each one (and any host name the row's
-# prose names) and prints which answer from this session now. Write no
+# prose names, and the hosts the scripts `buildable:` names fetch from) and
+# prints which answer from this session now. Write no
 # "X answers 403" or "X serves files" in the prose: reachability changes
 # between sessions, and such notes went stale within a day (13 run reports,
 # 2026-11-13..15).
@@ -124,6 +125,7 @@ flagships:
       eval/rapidocr-web-2026-11-17.md). Next: RapidOCR's parser misses on shards 1-3
       (68; Rp57,000, cash taken as total); the page's RapidOCR in a Web Worker (it
       blocks the tab). CORD test stays held out.
+    hosts: [https://huggingface.co/, https://raw.githubusercontent.com/]
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
