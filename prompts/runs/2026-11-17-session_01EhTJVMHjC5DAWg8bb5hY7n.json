@@ -20,7 +20,7 @@
     "ventures/rrule-explainer",
     "ventures/au-redundancy-pay-calculator"
   ],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16808",
   "repo": "Duncan-Haywood/oss-monorepo",
   "commits": [],
   "lines_added": null,
