@@ -1,6 +1,6 @@
 ---
-kind: note
-topics: [polish, seo, design]
+kind: polish
+topics: [design, seo]
 date: 2026-11-17
 ---
 # Polish: long question h1s on a phone (2026-11-17)
