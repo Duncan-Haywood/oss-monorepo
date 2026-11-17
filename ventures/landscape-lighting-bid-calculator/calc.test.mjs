@@ -266,3 +266,11 @@ test('fixtures-only comparison row carries no new transformer and no soil or sod
   // By hand from the starting rates: 3,431.05 (it was 4,799.06 with a 310 transformer and 432 of sod repair).
   assert.equal(Math.round(fixtures.price * 100) / 100, 3431.05);
 });
+
+test('vs-aspire page does not claim transformer sizing or wire-gauge work the calculator lacks (quality audit 2026-11-17)', async () => {
+  const { readFileSync } = await import('node:fs');
+  const html = readFileSync(new URL('./vs-aspire.html', import.meta.url), 'utf8');
+  assert.doesNotMatch(html, /transformer sizing|wire gauge/);
+  const index = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.doesNotMatch(index, /cannot lose money/);
+});
