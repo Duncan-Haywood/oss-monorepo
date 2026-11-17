@@ -1,4 +1,4 @@
-# What will your GPU workload cost on each GPU cloud, and when is it cheaper to buy the card?
+# What will your GPU workload cost on each GPU cloud?
 
 > Enter the GPU, the busy GPU-hours per month and how much of the time it is really busy, and see what RunPod, Lambda, Vast.ai, CoreWeave, AWS, Google Cloud and Modal charge, the 12-month spend, and how many hours a month it takes before buying the card beats renting. Free, runs in your browser, nothing is uploaded.
 
