@@ -4,7 +4,8 @@
 // with one thing broken. Reports, per file and mutation, any rule id that fires on one
 // engine and not the other.
 //   node eval/cdar-crosscheck.mjs <France_RFE checkout> <cdar.sef.json>
-// Needs `npm i --no-save slimdom fontoxpath saxon-js xslt3`. Make the SEF file with:
+// Needs `npm i --no-save slimdom fontoxpath saxon-js xslt3` (installed elsewhere, point
+// NODE_PATH at that node_modules). Make the SEF file with:
 //   npx xslt3 -xsl:<checkout>/FNFE_RFE_INVOICE/CDAR/2xslt/BR-FR-CDV-Schematron-CDAR.xslt -export:cdar.sef.json -nogo -relocate:on
 import { readdirSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
