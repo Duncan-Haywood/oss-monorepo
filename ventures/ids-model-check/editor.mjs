@@ -529,7 +529,7 @@ export function modelSets(inv, classes, standardSets = []) {
 // Value tallies (inventory.mjs) merged across classes. A class's list holds
 // its MAX_LISTED commonest values; one that lists fewer than it holds
 // (`distinct`) leaves the merged list incomplete.
-const blankTally = () => ({ count: 0, empty: 0, vals: new Map(), distinct: 0, more: false, min: null, max: null, tkind: null, tmin: null, tmax: null });
+const blankTally = () => ({ count: 0, empty: 0, vals: new Map(), distinct: 0, more: false, min: null, max: null, exact: new Set(), exactNone: false, tkind: null, tmin: null, tmax: null });
 function mergeTally(q, p) {
   q.count += p.count;
   q.empty += p.empty || 0;
@@ -538,6 +538,9 @@ function mergeTally(q, p) {
   if (p.more || (p.distinct || 0) > (p.values || []).length) q.more = true;
   if (p.min !== null && p.min !== undefined) q.min = q.min === null ? p.min : Math.min(q.min, p.min);
   if (p.max !== null && p.max !== undefined) q.max = q.max === null ? p.max : Math.max(q.max, p.max);
+  // The exact numbers (inventory.mjs MAX_EXACT): unknown once any class's are.
+  if (p.exact === null || (p.min != null && !Array.isArray(p.exact))) q.exactNone = true;
+  else for (const x of p.exact || []) q.exact.add(x);
   // Temporal ranges: one form across every class, else "mixed".
   if (p.tkind && q.tkind !== "mixed") {
     if (p.tkind === "mixed" || (q.tkind && q.tkind !== p.tkind)) { q.tkind = "mixed"; q.tmin = q.tmax = null; }
@@ -550,7 +553,8 @@ function mergeTally(q, p) {
 }
 function tallyOut(q) {
   const values = [...q.vals.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
-  return { count: q.count, empty: q.empty, values, distinct: Math.max(q.distinct, values.length), more: q.more, min: q.min, max: q.max, tkind: q.tkind, tmin: q.tmin, tmax: q.tmax };
+  return { count: q.count, empty: q.empty, values, distinct: Math.max(q.distinct, values.length), more: q.more, min: q.min, max: q.max,
+    exact: q.exactNone ? null : [...q.exact].sort((a, b) => Number(a) - Number(b)), tkind: q.tkind, tmin: q.tmin, tmax: q.tmax };
 }
 function mergeBy(inv, classes, field, key) {
   if (!inv) return [];
@@ -588,7 +592,9 @@ export const modelCodes = (inv, classes) => mergeBy(inv, classes, "codes", "syst
 //     enumeration lacks (a check limited to it fails those objects),
 //     complete: every value the model holds is listed, min, max,
 //     oneOf: the values a "one of" restriction should list to pass the model
-//     as it is (null when the list is incomplete or the kind is not text),
+//     as it is (null when the list is incomplete, the kind is bool, or a
+//     number row holds more than NUMBER_ONEOF_MAX values at 12 digits or
+//     twice that exactly; a number list names the exact values, mp.exact),
 //     empty: objects that carry it with no value (an empty attribute, a
 //     classification with no code), which any value check fails,
 //     tmin, tmax: for a row of temporal type (temporalType(): "date",
@@ -596,6 +602,7 @@ export const modelCodes = (inv, classes) => mergeBy(inv, classes, "codes", "syst
 //     every value the model holds has that form, else null; a range between
 //     them, inclusive, passes every object that carries a value (IDS
 //     compares temporal bounds exactly, so no rounding outward is needed) }
+export const NUMBER_ONEOF_MAX = 12;
 export function modelValueOffer(mp, kind, enumVals = null, temporal = null) {
   if (!mp || !mp.values || !mp.values.length || !kind) return null;
   const isNum = (v) => v.trim() !== "" && Number.isFinite(Number(v));
@@ -604,7 +611,14 @@ export function modelValueOffer(mp, kind, enumVals = null, temporal = null) {
   const values = enumVals ? usable.filter(([v]) => enumVals.includes(v)) : usable;
   const outside = enumVals ? usable.filter(([v]) => !enumVals.includes(v)) : [];
   const complete = !mp.more && usable.length === mp.values.length && mp.values.length >= (mp.distinct || 0);
-  const oneOf = kind === "text" && complete && !outside.length && values.length ? values.map(([v]) => v).sort() : null;
+  // A number list is offered when it is short (a handful of standard sizes),
+  // naming every value exactly as the model holds it (`exact`: Revit's
+  // 2.8000000001193297 next to 2.8), so a checker comparing without IDS's
+  // tolerance (IfcTester 0.9.0) passes it too; a long one is a range's job.
+  const exact = kind === "number" && Array.isArray(mp.exact) && mp.exact.length <= 2 * NUMBER_ONEOF_MAX ? mp.exact : null;
+  const oneOf = !complete || outside.length || !values.length ? null
+    : kind === "text" ? values.map(([v]) => v).sort()
+    : kind === "number" && values.length <= NUMBER_ONEOF_MAX && exact ? [...exact] : null;
   const num = kind === "number" && typeof mp.min === "number" && typeof mp.max === "number";
   return { values, outside, complete, min: num ? mp.min : null, max: num ? mp.max : null,
     rangeMin: num ? outwardBound(mp.min, -1) : null, rangeMax: num ? outwardBound(mp.max, 1) : null, oneOf, empty: mp.empty || 0,
@@ -689,7 +703,7 @@ export function outwardBound(v, dir) {
 export function valueChoices(L, cls, r) {
   const classes = Array.isArray(cls) ? cls : [cls];
   cls = classes[0];
-  let kind = "text", enumVals = null, p = null, temporal = null;
+  let kind = "text", enumVals = null, p = null, temporal = null, integer = false;
   if (r.kind === "property" && r.untyped) {
     // A value with no dataType, as an opened file wrote it: IDS 1.0 allows it
     // and a checker compares the value with whatever type the model holds, so
@@ -701,6 +715,7 @@ export function valueChoices(L, cls, r) {
     const prim = dt ? L.S.prim(dt) : null;
     kind = !dt ? null : prim === "double" || prim === "integer" ? "number" : prim === "boolean" || prim === "logical" ? "bool" : "text";
     temporal = temporalType(dt);
+    integer = prim === "integer";
   } else if (r.kind === "property") {
     p = r.set ? propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name) : null;
     if (!p || !p.dataType) kind = null;
@@ -709,22 +724,37 @@ export function valueChoices(L, cls, r) {
       kind = prim === "double" || prim === "integer" ? "number" : prim === "boolean" || prim === "logical" ? "bool" : "text";
       enumVals = p.enum;
       temporal = temporalType(p.dataType);
+      integer = prim === "integer";
     }
   } else if (r.kind === "attribute") {
-    ({ kind, enumVals, temporal = null } = attributeValueKind(L.S, classes, r.name));
+    let base;
+    ({ kind, enumVals, temporal = null, base } = attributeValueKind(L.S, classes, r.name));
+    integer = base === "xs:integer";
   } else if (r.kind === "partOf") kind = null;
   const modes = [];
   if (kind) {
     modes.push("any", "equals");
-    // "one of" a standard's enumeration, or of values the author lists (text).
-    if (enumVals || kind === "text") modes.push("oneOf");
+    // "one of" a standard's enumeration, or of values the author lists (text
+    // or numbers: a cardinal point 1 to 9, a few standard thicknesses).
+    if (enumVals || kind === "text" || kind === "number") modes.push("oneOf");
     // A date, time or duration (IFCDATE, IFCDATETIME, IFCTIME, IFCDURATION)
     // takes a range too: "built after 2024-01-01", "a warranty of at least P2Y".
     if (kind === "number" || temporal) modes.push("range");
     if (kind === "text" && !enumVals) modes.push("pattern");
     if (kind === "bool") modes.splice(1, 1, "true", "false");
   }
-  return { kind, enumVals, modes, prop: p, temporal };
+  return { kind, enumVals, modes, prop: p, temporal, integer: kind === "number" && integer };
+}
+
+// Why a value listed on a number row cannot be written as it is, or null:
+// IDS reads an xs:double literal like 42.3 or 1e-3 (no thousands separator,
+// no unit) and an xs:integer one as digits only, as the audit checks them.
+// NaN and INF are valid xs:double but match no measured value, so the row
+// refuses them too.
+export function numberValueProblem(text, integer = false) {
+  const t = String(text);
+  if (integer) return /^[-+]?[0-9]+$/.test(t) ? null : /^[-+]?([0-9]+(\.[0-9]*)?|\.[0-9]+)([eE][-+]?[0-9]+)?$/.test(t) && Number.isInteger(Number(t)) ? `${t} is a whole number written with a point or exponent; an integer is written as digits only (${Number(t)})` : `${t} is not an integer`;
+  return /^[-+]?([0-9]+(\.[0-9]*)?|\.[0-9]+)([eE][-+]?[0-9]+)?$/.test(t) ? null : `${t} is not a number IDS can read (write it like 42.3, with a point and no thousands separator or unit)`;
 }
 
 // A range row's value: inclusive bounds unless the row says a bound is
@@ -756,9 +786,9 @@ const appFacet = (L, r, classes = []) => reqFacet(L, { ...r, cardinality: "requi
 // given the dataType the page would write: the template's for a standard
 // property, the model's for an own-set one (`modelType`, when it is a type the
 // page offers). The value carries over when it fits the type: TRUE/FALSE in
-// any case to true/false, numbers to equals or one of (a list of numbers
-// cannot be a one-of on a number row, so it becomes "any value" with
-// `dropped` set), an enumeration's members as they are. Returns
+// any case to true/false, numbers to equals or one of when every value is
+// written as IDS reads that number type (otherwise "any value" with `dropped`
+// set), an enumeration's members as they are. Returns
 // { row, dropped } or null when no type is known.
 export function typeRow(L, r, modelType = null) {
   if (r.kind !== "property" || !r.untyped) return null;
@@ -775,7 +805,7 @@ export function typeRow(L, r, modelType = null) {
   const vals = r.mode === "equals" ? [r.equals] : r.mode === "oneOf" ? r.oneOf : [];
   let keep = r.mode === "any" || !r.mode;
   if (kind === "bool" && vals.length === 1 && /^(true|false)$/i.test(vals[0])) { row.mode = vals[0].toLowerCase(); keep = true; }
-  else if (kind === "number" && r.mode === "equals" && vals[0].trim() !== "" && Number.isFinite(Number(vals[0]))) keep = true;
+  else if (kind === "number" && (r.mode === "equals" || r.mode === "oneOf") && vals.length && vals.every((v) => !numberValueProblem(v, prim === "integer"))) keep = true;
   else if (kind === "text" && (r.mode === "equals" || r.mode === "oneOf") && (!enumVals || vals.every((v) => enumVals.includes(v)))) keep = true;
   else if (kind === "text" && !enumVals && r.mode === "pattern") keep = true;
   if (!keep) { row.mode = "any"; row.equals = ""; row.oneOf = []; row.pattern = ""; }
@@ -892,6 +922,9 @@ function editableRow(L, classes, f) {
     else return null;
   } else if (en) {
     if (!ch.modes.includes("oneOf") || (ch.enumVals && !en.every((x) => ch.enumVals.includes(x)))) return null;
+    // A number one-of opens as a row only when every listed value is one the
+    // row would accept; otherwise the audit's fault is kept as written.
+    if (ch.kind === "number" && en.some((x) => numberValueProblem(x, ch.integer))) return null;
     r.mode = "oneOf"; r.oneOf = [...en];
     // A date, time or duration one-of: on its DataTypes base, or on xs:string
     // (the editor wrote that before 2026-11-17; kept so it writes back the same).

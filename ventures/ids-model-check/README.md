@@ -184,6 +184,19 @@ open. MIT licensed, no dependencies, nothing uploaded.
   IDS-Audit-tool valid files 75.9% of facets editable (was 28.1%), public
   files 89.2% (was 86.4%), every file still written back asking the same.
   `eval/no-class-specs-2026-11-17.md`.
+  **One of on numbers** (2026-11-17): number properties and attributes get a
+  one-of row ("door height 2100 or 2400", "12 or 14 risers") on `xs:double` or
+  `xs:integer`; each value must be a number IDS reads (`2,4` and `3.0` on an
+  integer are refused). With a model open, a row holding at most 12 values
+  offers **Allow exactly these values**, listing each value exactly as the
+  model holds it: IfcOpenShell's IfcTester 0.9.0 compares listed numbers
+  with no tolerance, so a list at 12 digits failed 20 of 25 Schultz Residence
+  windows there. On 4 real exports and the sample house, 663 offered lists
+  pass their model; IfcTester agrees on 646 (all 27 attribute lists; the 17
+  apart are feet, square feet or degrees it converts with its own table), and
+  on only 22 of 324 lists typed to 6 digits, which the row warns about. 109
+  of the 129 numeric lists in the IDS-Audit-tool valid files now open as rows
+  (89.2% editable, was 75.9%). `eval/number-oneof-2026-11-17.md`.
 - Exports: BCF 2.1 (one topic per failing element, selected by IfcGuid), CSV,
   JSON.
 - 22 MB Revit export (Schultz Residence, 424,819 entities): 1.4 s on the command
@@ -711,9 +724,10 @@ faster than IfcTester; its point is needing no install.
   date and duration ranges 2026-11-17, `eval/date-ranges-2026-11-17.md`;
   the model's range on dates 2026-11-17, `eval/model-date-range-2026-11-17.md`;
   one-of rows on dates 2026-11-17, `eval/date-oneof-2026-11-17.md`;
-  specifications with no class 2026-11-17, `eval/no-class-specs-2026-11-17.md`):
-  a one-of row on numbers (166 single-value numeric lists in the IDS-Audit-tool
-  files stay kept); 132 kept property requirements in public files'
+  specifications with no class 2026-11-17, `eval/no-class-specs-2026-11-17.md`;
+  one-of rows on numbers 2026-11-17, `eval/number-oneof-2026-11-17.md`):
+  the 20 numeric lists on non-element attributes in no-class specifications;
+  132 kept property requirements in public files'
   class specifications (`node eval/kept-facets.mjs` tallies why); a real IFC4 export with dates to try the range on;
   a subclass checkbox per class, not only the first;
   a "fix the dataType" hint built from the 21

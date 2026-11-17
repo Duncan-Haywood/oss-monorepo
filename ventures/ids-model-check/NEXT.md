@@ -13,3 +13,7 @@
 - (2026-11-17) a dataType-mismatch hint, Accept any data type 2026-11-17 (eval/model-any-type-2026-11-17.md)
 - (2026-11-17) a range for numeric attributes
 - (2026-11-17) attribute values and classification codes 2026-11-17 (eval/model-attr-codes-2026-11-17.md: 242 of 242 offers pass; 143 of 210 Uniformat elements in Schultz have an empty code, Require a code)
+- (2026-11-17) unchecked subclasses in CI and the editor 2026-11-17 (eval/ci-unchecked-2026-11-17.md: 21,405 elements in 165 of 2,028 checks)
+- (2026-11-17) GitLab Code Quality report keyed on GlobalId+class 2026-11-17 (eval/gitlab-codequality-2026-11-17.md: 18 of 18 real changes, 0 for a renumbering re-export)
+- (2026-11-17) a no-dataType value row
+- (2026-11-17) editor (opens an IDS, eval/editor-open-2026-11-16.md; opens a model and offers its classes and sets, own sets editable, 79.4% of public facets editable, eval/model-inventory-2026-11-16.md: 4 real exports, 347 of 395 class-set pairs own sets, 21 of 122 standard props in a non-template dataType): applicability rows 2026-11-17 (eval/applicability-rows-2026-11-17.md: counts equal the checker's applicable; 83.5% of public facets editable, IDS-Audit-tool 21.5%)
