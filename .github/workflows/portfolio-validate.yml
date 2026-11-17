@@ -237,6 +237,16 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_checklist_coverage
 
+      # Mixed content: an http:// script, image, stylesheet, base href or CSS
+      # url() on an https page. Until 2026-11-11 only agents running
+      # main_health.py by hand ran this, so a page could land with one.
+      - name: No plain-http loaders in venture pages
+        run: python3 platform/ci/check_insecure_refs.py
+
+      - name: Mixed-content check unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_insecure_refs
+
       - name: Check the measurement record in candidates.yaml is still readable
         run: python3 portfolio/pipeline/score_sensitivity.py
 
