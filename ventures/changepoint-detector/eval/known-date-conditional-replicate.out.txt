@@ -6,3 +6,15 @@ null   n  60 rho 0.90 date 50%: cut admitted 40 of 2146; p <= 0.05 round 5  67.5
 null   n  60 rho 0.95 date 50%: cut admitted 40 of 1442; p <= 0.05 round 5  72.5%, conditional   5.0%; under 99 admitted replicates: 0
 null   n 120 rho 0.90 date 50%: cut admitted 10 of 4000; p <= 0.05 round 5  60.0%, conditional   0.0%; under 99 admitted replicates: 0
 null   n 120 rho 0.95 date 50%: cut admitted 27 of 4000; p <= 0.05 round 5  70.4%, conditional   7.4%; under 99 admitted replicates: 0
+null   n  60 rho 0.90 date 80%: cut admitted 39 of 4000; p <= 0.05 round 5  76.9%, conditional   2.6%; under 99 admitted replicates: 0
+walk   n  40 rho 0.00 date 50%: cut admitted 24 of 4000; p <= 0.05 round 5  95.8%, conditional  12.5%; under 99 admitted replicates: 0
+walk   n  60 rho 0.00 date 50%: cut admitted 40 of 1253; p <= 0.05 round 5  92.5%, conditional   5.0%; under 99 admitted replicates: 0
+walk   n 120 rho 0.00 date 50%: cut admitted 40 of 3182; p <= 0.05 round 5  85.0%, conditional   7.5%; under 99 admitted replicates: 0
+## Power (step in innovation sds at the date)
+step   n  60 rho 0.90 date 50% step 2: cut admitted 40 of 1635; p <= 0.05 round 5  80.0%, conditional   2.5%; under 99 admitted replicates: 0
+step   n  60 rho 0.90 date 50% step 4: cut admitted 40 of 1407; p <= 0.05 round 5 100.0%, conditional   7.5%; under 99 admitted replicates: 0
+step   n 120 rho 0.90 date 50% step 2: cut admitted 19 of 4000; p <= 0.05 round 5  68.4%, conditional   0.0%; under 99 admitted replicates: 0
+step   n 120 rho 0.90 date 50% step 4: cut admitted 40 of 2632; p <= 0.05 round 5 100.0%, conditional   0.0%; under 99 admitted replicates: 0
+step   n  40 rho 0.80 date 50% step 3: cut admitted 17 of 4000; p <= 0.05 round 5 100.0%, conditional   0.0%; under 99 admitted replicates: 0
+all null and walk: 306 admitted; round 5 rejected  77.5%, conditional   4.9%, uncalibrated 0
+all step: 156 admitted; round 5 rejected  91.0%, conditional   2.6%, uncalibrated 0

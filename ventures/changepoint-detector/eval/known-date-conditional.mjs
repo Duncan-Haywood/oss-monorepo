@@ -1,4 +1,4 @@
-// Round 6 (eval/known-date-prereg-round6-2026-11-17.md): the bootstrap conditioned on the cut guard, scored only on the
+// Round 6 (README "Round 6"; exploratory, then replicated on fresh seed base 45000): the bootstrap conditioned on the cut guard, scored only on the
 // series the cut lets through. Screens up to SCREEN series per cell (a 1-replicate call reads the guard), keeps the
 // first CAP the cut admits, and runs round 5's test (`gated`) and round 6's (`gated` + cutConditional) on each.
 // node eval/known-date-conditional.mjs [screen] [cap] [reps]; KD_SEED_BASE sets the seeds (exploratory 41000).

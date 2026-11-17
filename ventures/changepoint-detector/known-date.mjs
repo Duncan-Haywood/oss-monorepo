@@ -235,12 +235,13 @@ export function knownDateTest(x, k, { period = 0, reps = 499, seed = 1, rhoMax =
   const pOf = (arr, v) => (1 + arr.filter((w) => w >= v).length) / (1 + arr.length);
   const q975 = (arr) => { const a = [...arr].sort((p, q) => p - q); return a[Math.min(a.length - 1, Math.floor(0.95 * a.length))]; };
   let p = 0, pStep = 0, pSlope = 0, qD = 0, qC = 0, m = Infinity; const pGen = [];
-  // cutConditional (round 6, eval/known-date-prereg-round6-2026-11-17.md): a series let through only by the cut is a
+  // cutConditional (round 6, README "Round 6"; exploratory, not pre-registered, not shipped): a series let through only by the cut is a
   // selected one, and an unconditional bootstrap ignores the selection (round 5 diagnosis: 17 of 26 no-change series
   // admitted this way got p <= 0.05). So each null replicate must pass the same way (line rho above the guard, the cut
   // above the walk bar, the change model's rho at or under the guard, the full GLS check), and the p is the share among
   // admitted replicates: a conditional test on the selection event (Lee, Sun, Sun and Taylor 2016 in spirit, by Monte
-  // Carlo). Draws stop at reps admitted or reps * maxDrawFactor tries; fewer than minAdmitted leaves it uncalibrated.
+  // Carlo). Calibrated but blind: 4.9% of 306 no-change series and 2.6% of 156 real steps flagged
+  // (eval/known-date-conditional-replicate.out.txt), so the shipped CLI and page leave it off. Draws stop at reps admitted or reps * maxDrawFactor tries; fewer than minAdmitted leaves it uncalibrated.
   const conditional = cutConditional && admittedByCut;
   // cutConditional 'sticky' conditions on less: only that the plain line's residuals are above the guard, so the size
   // of the cut stays evidence (the full event left no power: a 4 sd step at rho 0.9 was found 2.5% of the time).
