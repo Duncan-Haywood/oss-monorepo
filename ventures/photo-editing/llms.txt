@@ -28,7 +28,7 @@ Needs Python 3.10+ and `ffmpeg`. Run from `ventures/photo-editing/` in a clone:
 ## Behaviour that matters
 
 - Reruns skip finished work and never overwrite existing outputs. A failed job (unsupported file, timeout) is marked retryable and listed in `needs_review_ids`; the command exits 2. Rerun with `--retry-retryable` after a look.
-- Scores are measured from decoded frames: sharpness, exposure, contrast, motion, framing, tilt and sensor noise. Near-identical shots are grouped by perceptual hash so a burst contributes one frame. Which shot wins is technical, not taste.
+- Scores are measured from decoded frames: sharpness, exposure, contrast, motion, framing, tilt and sensor noise. Near-identical shots are grouped by perceptual hash so a burst contributes one frame; since 2026-11-17 the cull also matches 88% windows of each frame, so frames a few percent panned or zoomed apart stay in one burst (on pairs cut from 166 held-out real photos, pair recall 0.40 to 0.72, false merges 21 to 23 of 13,695 distinct pairs; pans over 8% and zooms over 8% are still mostly split). Which shot wins is technical, not taste.
 
 ## Raw formats it develops
 
