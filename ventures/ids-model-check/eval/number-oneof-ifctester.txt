@@ -1,0 +1,79 @@
+# python3 eval/crosscheck_ifctester.py OUT/<model>.ids <model> (ifcopenshell 0.9.0.post1, ifctester 0.9.0), IDS from: node eval/number-oneof.mjs --ids-out OUT samples/tiny-house.ifc <opensourceBIM/IFC-files cb96c50: HHS Office MEP, architect, construction; OpeningDesign.com Schultz_Residence>
+# (row kind, facet, same|DIFF) count
+('asWritten', 'attribute', 'same') 27
+('asWritten', 'property', 'DIFF') 17
+('asWritten', 'property', 'same') 619
+('display', 'attribute', 'DIFF') 9
+('display', 'property', 'DIFF') 293
+('display', 'property', 'same') 22
+('dropOne', 'attribute', 'same') 18
+('dropOne', 'property', 'DIFF') 25
+('dropOne', 'property', 'same') 247
+
+# every 'as written' row that differs
+  DIFF  IFCFLOWFITTING PSet_Revit_Dimensions.Angle 1: one of 1, as written: IfcTester fail (1381 applicable, 2 failing) | ours pass (1381 applicable, 0 failing)
+      failing only in IfcTester: [584407, 597822]
+  same  IFCFLOWFITTING PSet_Revit_Dimensions.Angle 1: one of 1, to 6 digits: IfcTester fail (1381 applicable, 2 failing) | ours fail (1381 applicable, 2 failing)
+  DIFF  IFCFLOWFITTING PSet_Revit_Dimensions.Angle 2: one of 1, as written: IfcTester fail (1381 applicable, 2 failing) | ours pass (1381 applicable, 0 failing)
+      failing only in IfcTester: [584407, 597822]
+  same  IFCFLOWFITTING PSet_Revit_Dimensions.Angle 2: one of 1, to 6 digits: IfcTester fail (1381 applicable, 2 failing) | ours fail (1381 applicable, 2 failing)
+--
+  DIFF  IFCFLOWFITTING PSet_Revit_Other.Angle 1: one of 2, as written: IfcTester fail (1381 applicable, 9 failing) | ours pass (1381 applicable, 0 failing)
+      failing only in IfcTester: [600900, 609315, 615371, 619923, 623408, 627660, 631883, 635488, 637489]
+  DIFF  IFCFLOWFITTING PSet_Revit_Other.Angle 1: one of 2, to 6 digits: IfcTester fail (1381 applicable, 9 failing) | ours fail (1381 applicable, 8 failing)
+--
+  DIFF  IFCFLOWFITTING PSet_Revit_Type_Constraints.Angle: one of 1, as written: IfcTester fail (1381 applicable, 308 failing) | ours pass (1381 applicable, 0 failing)
+      failing only in IfcTester: [3869, 4308, 4534, 4717, 4959, 8001, 8266, 8904, 8972, 9040]
+  DIFF  IFCFLOWFITTING PSet_Revit_Type_Constraints.Angle: one of 1, to 6 digits: IfcTester fail (1381 applicable, 308 failing) | ours pass (1381 applicable, 0 failing)
+--
+  DIFF  IFCFLOWTERMINAL PSet_Revit_Type_Photometrics.Tilt Angle: one of 1, as written: IfcTester fail (725 applicable, 410 failing) | ours pass (725 applicable, 0 failing)
+      failing only in IfcTester: [158640, 158700, 158729, 158758, 158787, 158816, 158845, 158874, 158903, 158932]
+  same  IFCFLOWTERMINAL PSet_Revit_Type_Photometrics.Tilt Angle: one of 1, to 6 digits: IfcTester fail (725 applicable, 410 failing) | ours fail (725 applicable, 410 failing)
+--
+  DIFF  IFCSLAB Pset_SlabCommon.PitchAngle: one of 3, as written: IfcTester fail (12 applicable, 3 failing) | ours pass (12 applicable, 0 failing)
+      failing only in IfcTester: [5485, 5523, 5557]
+  DIFF  IFCSLAB Pset_SlabCommon.PitchAngle: one of 2, without 0: IfcTester fail (12 applicable, 12 failing) | ours fail (12 applicable, 9 failing)
+--
+  DIFF  IFCOPENINGELEMENT BaseQuantities.Area: one of 20, as written: IfcTester fail (218 applicable, 49 failing) | ours pass (218 applicable, 0 failing)
+      failing only in IfcTester: [161071, 161088, 161105, 161122, 161207, 161224, 161450, 161467, 161484, 161501]
+  DIFF  IFCOPENINGELEMENT BaseQuantities.Area: one of 19, without 0.0706763837952: IfcTester fail (218 applicable, 49 failing) | ours pass (218 applicable, 0 failing)
+--
+  DIFF  IFCCOLUMN BaseQuantities.CrossSectionArea: one of 5, as written: IfcTester fail (257 applicable, 249 failing) | ours pass (257 applicable, 0 failing)
+      failing only in IfcTester: [82, 1847, 1897, 1947, 1997, 2047, 2097, 2147, 2197, 2247]
+  DIFF  IFCCOLUMN BaseQuantities.CrossSectionArea: one of 4, without 0.0706763837952: IfcTester fail (257 applicable, 249 failing) | ours pass (257 applicable, 0 failing)
+--
+  DIFF  IFCCOLUMN BaseQuantities.OuterSurfaceArea: one of 4, as written: IfcTester fail (257 applicable, 257 failing) | ours pass (257 applicable, 0 failing)
+      failing only in IfcTester: [82, 1847, 1897, 1947, 1997, 2047, 2097, 2147, 2197, 2247]
+  DIFF  IFCCOLUMN BaseQuantities.OuterSurfaceArea: one of 4, to 6 digits: IfcTester fail (257 applicable, 257 failing) | ours fail (257 applicable, 82 failing)
+--
+  DIFF  IFCWALL PSet_Revit_Dimensions.Area: one of 10, as written: IfcTester fail (12 applicable, 5 failing) | ours pass (12 applicable, 0 failing)
+      failing only in IfcTester: [1353, 1728, 1814, 3950, 16508]
+  DIFF  IFCWALL PSet_Revit_Dimensions.Area: one of 10, to 6 digits: IfcTester fail (12 applicable, 12 failing) | ours fail (12 applicable, 4 failing)
+--
+  DIFF  IFCWALL PSet_Revit_Dimensions.Volume: one of 10, as written: IfcTester fail (12 applicable, 4 failing) | ours pass (12 applicable, 0 failing)
+      failing only in IfcTester: [1353, 1814, 3950, 4355]
+  DIFF  IFCWALL PSet_Revit_Dimensions.Volume: one of 10, to 6 digits: IfcTester fail (12 applicable, 12 failing) | ours fail (12 applicable, 5 failing)
+--
+  DIFF  IFCOPENINGELEMENT PSet_Revit_Dimensions.Area: one of 3, as written: IfcTester fail (9 applicable, 3 failing) | ours pass (9 applicable, 0 failing)
+      failing only in IfcTester: [4634, 4652, 4670]
+  same  IFCOPENINGELEMENT PSet_Revit_Dimensions.Area: one of 3, to 6 digits: IfcTester fail (9 applicable, 9 failing) | ours fail (9 applicable, 9 failing)
+--
+  DIFF  IFCOPENINGELEMENT PSet_Revit_Dimensions.Volume: one of 3, as written: IfcTester fail (9 applicable, 6 failing) | ours pass (9 applicable, 0 failing)
+      failing only in IfcTester: [4634, 4652, 4670, 15954, 15972, 15990]
+  DIFF  IFCOPENINGELEMENT PSet_Revit_Dimensions.Volume: one of 3, to 6 digits: IfcTester fail (9 applicable, 9 failing) | ours pass (9 applicable, 0 failing)
+--
+  DIFF  IFCSLAB BaseQuantities.CrossArea: one of 8, as written: IfcTester fail (8 applicable, 5 failing) | ours pass (8 applicable, 0 failing)
+      failing only in IfcTester: [357, 4482, 4616, 27552, 51400]
+  DIFF  IFCSLAB BaseQuantities.CrossArea: one of 7, without 2.632: IfcTester fail (8 applicable, 5 failing) | ours pass (8 applicable, 0 failing)
+--
+  DIFF  IFCSLAB BaseQuantities.GorssVolume: one of 8, as written: IfcTester fail (8 applicable, 1 failing) | ours pass (8 applicable, 0 failing)
+      failing only in IfcTester: [27552]
+  DIFF  IFCSLAB BaseQuantities.GorssVolume: one of 7, without 0.07896: IfcTester fail (8 applicable, 1 failing) | ours pass (8 applicable, 0 failing)
+--
+  DIFF  IFCSLAB PSet_Revit_Dimensions.Area: one of 4, as written: IfcTester fail (8 applicable, 1 failing) | ours pass (8 applicable, 0 failing)
+      failing only in IfcTester: [4616]
+  same  IFCSLAB PSet_Revit_Dimensions.Area: one of 4, to 6 digits: IfcTester fail (8 applicable, 4 failing) | ours fail (8 applicable, 4 failing)
+--
+  DIFF  IFCSLAB PSet_Revit_Dimensions.Volume: one of 4, as written: IfcTester fail (8 applicable, 2 failing) | ours pass (8 applicable, 0 failing)
+      failing only in IfcTester: [4616, 15936]
+  DIFF  IFCSLAB PSet_Revit_Dimensions.Volume: one of 4, to 6 digits: IfcTester fail (8 applicable, 4 failing) | ours pass (8 applicable, 0 failing)

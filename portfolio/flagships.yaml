@@ -471,11 +471,12 @@ flagships:
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
-      (eval/ifcxml-xbim-2026-11-16.md); the IDS editor (editor.html): a one-of row
-      on numbers (166 IDS-Audit-tool lists kept; no-class specs landed 2026-11-17,
-      eval/no-class-specs-2026-11-17.md); the 132 kept property requirements in
-      public files (node eval/kept-facets.mjs); more real exports through
-      eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
+      (eval/ifcxml-xbim-2026-11-16.md); the IDS editor (editor.html): the 20 numeric
+      lists on non-element attributes in no-class specs still kept (number one-of
+      rows landed 2026-11-17, eval/number-oneof-2026-11-17.md: IfcTester matches
+      listed numbers exactly, offers list exact values); the 132 kept property
+      requirements in public files (node eval/kept-facets.mjs); more real exports
+      through eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked"). Next, most
@@ -490,18 +491,9 @@ flagships:
       classification-system gaps, eval/editor-2026-11-16.md); IFC 4.3 infra/HVAC
       cross-check 2026-11-17 (348 of 348, eval/infra-mep-crosscheck-*); 65 public
       IDS vs IfcTester 2026-11-17 (1,661 of 1,736 same; unchecked subclasses
-      reported, eval/corpus-crosscheck-*); editor (opens an IDS,
-      eval/editor-open-2026-11-16.md; opens a model and offers its classes and sets,
-      own sets editable, 79.4% of public facets editable,
-      eval/model-inventory-2026-11-16.md: 4 real exports, 347 of 395 class-set pairs
-      own sets, 21 of 122 standard props in a non-template dataType): applicability
-      rows 2026-11-17 (eval/applicability-rows-2026-11-17.md: counts equal the
-      checker's applicable; 83.5% of public facets editable, IDS-Audit-tool 21.5%);
-      a no-dataType value row; GitLab Code Quality report keyed on GlobalId+class
-      2026-11-17 (eval/gitlab-codequality-2026-11-17.md: 18 of 18 real changes, 0
-      for a renumbering re-export); duplicate GlobalIds in a model
+      reported, eval/corpus-crosscheck-*); duplicate GlobalIds in a model
       (eval/duplicate-globalids-2026-11-17.md) and across federated models in CI
       2026-11-17 (eval/federated-globalids-2026-11-17.md; allow list and followers,
-      eval/federation-allow-2026-11-17.md: Simple-Scene 35 to 23); unchecked
-      subclasses in CI and the editor 2026-11-17 (eval/ci-unchecked-2026-11-17.md:
-      21,405 elements in 165 of 2,028 checks). More open items: NEXT.md.
+      eval/federation-allow-2026-11-17.md: Simple-Scene 35 to 23); number one-of
+      rows 2026-11-17 (eval/number-oneof-2026-11-17.md: 663 of 663 offers pass,
+      IfcTester 646). More open items: NEXT.md.

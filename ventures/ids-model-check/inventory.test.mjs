@@ -126,7 +126,8 @@ test("the inventory lists each property's values as the checker reads them, meas
   const fire = modelValueOffer(prop("Pset_WallCommon", "FireRating"), "text", null);
   assert.deepEqual(fire.oneOf, ["60 min"]);
   const range = modelValueOffer(len, "number", null);
-  assert.deepEqual([range.min, range.max, range.rangeMin, range.rangeMax, range.oneOf], [6, 6, "6", "6", null]);
+  assert.deepEqual([range.min, range.max, range.rangeMin, range.rangeMax, range.oneOf], [6, 6, "6", "6", ["6"]], "a short list of numbers is offered as a one-of too");
+  assert.deepEqual(len.exact, ["6"], "the exact numbers held, for a one-of a checker without tolerance passes");
   const doc = { title: "From the model", schema: "IFC4", specs: [{ ...blankSpec(), name: "Walls", cls: "IFCWALL", withSub: false, reqs: [
     { ...blankReq(), set: "Pset_WallCommon", name: "FireRating", cardinality: "optional", mode: "oneOf", oneOf: fire.oneOf },
     { ...blankReq(), set: "Qto_WallBaseQuantities", name: "Length", cardinality: "optional", mode: "range", min: range.rangeMin, max: range.rangeMax },
@@ -384,4 +385,18 @@ test("the model's date range merges across classes, and a value of another form 
   // ...while the doors alone still have theirs.
   const d = modelSets(mixed, ["IFCDOOR"], []).find((s) => s.name === "Pset_Warranty").props.find((p) => p.name === "WarrantyStartDate");
   assert.equal(d.tkind, "date");
+});
+
+test("the inventory keeps each number exactly as held, beside its 12-digit tally, up to MAX_EXACT", async () => {
+  const { MAX_EXACT } = await import("./inventory.mjs");
+  const { modelAttributes } = await import("./editor.mjs");
+  // Door heights as unit round trips leave them: 2.4000000000000004 is 2.4 at 12 digits.
+  const doors = ["2.4", "2.4000000000000004", "2.8000000001193297"].map((h, i) => `#${900 + i}=IFCDOOR('0Door${i}xxxxxxxxxxxxxxx',$,'D${i}',$,$,$,$,$,${h},1.,$,$,$);`).join("\n");
+  const text = house.replace(/ENDSEC;\s*END-ISO/, doors + "\nENDSEC;\nEND-ISO");
+  assert.notEqual(text, house);
+  const inv = modelInventory(new Model(text, R.schemas));
+  const h = modelAttributes(inv, ["IFCDOOR"]).find((a) => a.name === "OverallHeight");
+  assert.ok(h.values.some(([v, n]) => v === "2.4" && n === 2), "2.4 and 2.4000000000000004 share a 12-digit tally");
+  for (const x of ["2.4", "2.4000000000000004", "2.8000000001193297"]) assert.ok(h.exact.includes(x), x);
+  assert.ok(MAX_EXACT >= 24);
 });
