@@ -170,7 +170,7 @@ test("ci-cli: globs, writes JUnit, BCF and GitHub outputs, and exits by --fail-o
 
 test("action.yml calls ci-cli.mjs with every input it declares", () => {
   const y = file("action.yml");
-  for (const k of ["models", "ids", "pairing", "fail-on", "junit", "bcf-dir", "json"]) assert.match(y, new RegExp(`^  ${k}:`, "m"), k);
+  for (const k of ["models", "ids", "pairing", "fail-on", "junit", "bcf-dir", "json", "max-failures"]) assert.match(y, new RegExp(`^  ${k}:`, "m"), k);
   assert.match(y, /\$GITHUB_ACTION_PATH\/ci-cli\.mjs/);
   // inputs reach the shell through env, never pasted into the script
   assert.doesNotMatch(y.split("run: |")[1], /\$\{\{\s*inputs\./);
@@ -204,4 +204,24 @@ test("ci-cli: a broken model or IDS fails only its own pairs", () => {
   assert.match(runs[2].error, /not supported/);
   // the two good pairs agree, so nothing from a.ifc's parse leaked into c.ifc's
   assert.deepEqual(runs[0].report.specs, runs[4].report.specs);
+});
+
+test("maxFailed keeps the first N failing elements and the exact count", () => {
+  const ifc = file("samples/tiny-house.ifc");
+  let seen = 0;
+  for (const ids of ["samples/coordination-basics.ids.xml", "samples/quantities-and-naming.ids.xml"].map(file)) {
+  const full = check(ids, ifc), capped = check(ids, ifc, { maxFailed: 1 });
+  for (const [i, s] of full.specs.entries()) {
+    const c = capped.specs[i];
+    assert.equal(c.status, s.status);
+    assert.equal(failCount(c), failCount(s), s.name);
+    assert.deepEqual(c.failed, s.failed.slice(0, 1));
+    if (s.optionality !== "prohibited" && s.failed.length > 1) { seen++; assert.equal(c.failedCount, s.failed.length); }
+    else assert.equal(c.failedCount, undefined);
+  }
+  assert.equal(tally([{ model: "m", ids: "i", report: capped }]).elementsFailed, tally([{ model: "m", ids: "i", report: full }]).elementsFailed);
+  }
+  assert.ok(seen > 0, "the sample has a spec with more than one failing element");
+  const q = check(file("samples/quantities-and-naming.ids.xml"), ifc, { maxFailed: 1 });
+  assert.match(stepSummary([{ model: "m", ids: "i", report: q }], { maxFailures: 1 }), /and 3 more \(see the JUnit, JSON or BCF report\)/);
 });

@@ -249,3 +249,14 @@ test("parseXml: a truncated file throws instead of looping forever", () => {
     assert.throws(() => parseXml(bad), /unterminated|no element name|unclosed|mismatched/, bad);
   }
 });
+
+test("parseStep: every prefix of a STEP file ends (a cut-off enum once looped forever)", async () => {
+  const { parseStep } = await import("./step.mjs");
+  const t = readFileSync(new URL("samples/tiny-house.ifc", import.meta.url), "utf8");
+  for (let n = 1; n < t.length; n++) { try { parseStep(t.slice(0, n)); } catch { /* "no DATA section" is fine */ } }
+  const cut = t.slice(0, t.indexOf(".LENGTHUNIT.") + 11);
+  const r = parseStep(cut);
+  assert.ok(r.errors.some((e) => /unterminated enumeration/.test(e)), r.errors.join("; "));
+  assert.ok(r.entities.has(1));
+  assert.ok(parseStep("DATA;\n#1=IFCWALL(#);\n#2=IFCWALL('x');").entities.has(2), "'#' with no number is one bad entity, not a loop");
+});

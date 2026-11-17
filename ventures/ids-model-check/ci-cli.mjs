@@ -5,14 +5,16 @@
 //   node ci-cli.mjs --models "models/**/*.ifc" --ids "requirements/*.ids"
 //       [--pairing all|name] [--junit report.xml] [--summary summary.md]
 //       [--bcf-dir bcf/] [--json results.json] [--annotations] [--fail-on error|warning|never]
-//       [--root DIR]
+//       [--root DIR] [--max-failures N]
 //
 // Globs are matched under --root (default: the current directory), skipping
 // .git and node_modules. Inside GitHub Actions (GITHUB_ACTIONS=true) it also
 // prints workflow annotations, appends the summary to GITHUB_STEP_SUMMARY and
 // writes counts to GITHUB_OUTPUT. Exit 0 when the build should pass, 1 when
 // it should fail (per --fail-on), 2 on a usage error or when no file matched.
-// Nothing leaves the machine.
+// Each specification's report keeps its first --max-failures failing elements
+// (default 1000; counts stay exact) so one spec matching every entity of a
+// large export cannot run Node out of memory. Nothing leaves the machine.
 import { readFileSync, writeFileSync, appendFileSync, mkdirSync, readdirSync, statSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 import { check, readModel, parseModel, parseIds } from "./node.mjs";
@@ -22,13 +24,15 @@ import { junitXml, annotations, stepSummary, tally, globToRegex, patterns, pairU
 const args = process.argv.slice(2);
 const opt = (n, d) => { const i = args.indexOf(n); return i >= 0 && args[i + 1] !== undefined ? args[i + 1] : d; };
 const flag = (n) => args.includes(n);
-const usage = () => { console.error('usage: node ci-cli.mjs --models "GLOB[,GLOB]" --ids "GLOB[,GLOB]" [--pairing all|name] [--junit FILE] [--summary FILE] [--bcf-dir DIR] [--json FILE] [--annotations] [--fail-on error|warning|never] [--root DIR]'); process.exit(2); };
+const usage = () => { console.error('usage: node ci-cli.mjs --models "GLOB[,GLOB]" --ids "GLOB[,GLOB]" [--pairing all|name] [--junit FILE] [--summary FILE] [--bcf-dir DIR] [--json FILE] [--annotations] [--fail-on error|warning|never] [--root DIR] [--max-failures N]'); process.exit(2); };
 if (flag("--help") || !opt("--models") || !opt("--ids")) usage();
 const failOn = opt("--fail-on", "error");
 if (!["error", "warning", "never"].includes(failOn)) usage();
 const pairing = opt("--pairing", "all");
 if (!["all", "name"].includes(pairing)) usage();
 const root = opt("--root", ".");
+const maxFailed = Number(opt("--max-failures", "1000"));
+if (!Number.isInteger(maxFailed) || maxFailed < 1) usage();
 const gha = process.env.GITHUB_ACTIONS === "true";
 
 function walk(dir, out = []) {
@@ -80,7 +84,7 @@ for (const { model, ids } of pairUp(models, idsFiles, pairing)) {
     } else t0 = null;
     if (current.error) throw new Error(current.error);
     const t1 = Date.now();
-    const report = check(idsOf(ids), current.parsed);
+    const report = check(idsOf(ids), current.parsed, { maxFailed });
     report.seconds = (Date.now() - (t0 ?? t1)) / 1000;
     const failedIds = report.specs.flatMap((s) => s.failed.slice(0, 1).map((f) => f.id));
     const known = lines.get(model) || new Map();
