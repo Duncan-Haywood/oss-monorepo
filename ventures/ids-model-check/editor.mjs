@@ -197,7 +197,12 @@ function valueXml(v, base) {
     for (const k of R_BOUNDS) if (v.r[k] !== undefined && v.r[k] !== null) parts.push(`<xs:${k} value="${escAttr(v.r[k])}"/>`);
     if (v.r.base) base = "xs:" + v.r.base;
     if (!parts.length) return `<xs:restriction base="${base}"/>`;
-  } else if (v.oneOf && v.oneOf.length) for (const x of v.oneOf) parts.push(`<xs:enumeration value="${escAttr(x)}"/>`);
+  } else if (v.oneOf && v.oneOf.length) {
+    // A one-of on a date, time or duration is written on that XSD base (or on
+    // xs:string, as an opened file had it: `oneOfBase`).
+    if (v.base) base = v.base;
+    for (const x of v.oneOf) parts.push(`<xs:enumeration value="${escAttr(x)}"/>`);
+  }
   else if (v.pattern) parts.push(`<xs:pattern value="${escAttr(v.pattern)}"/>`);
   else {
     // A range on a date, time or duration is written on that XSD base.
@@ -678,12 +683,19 @@ export function valueChoices(L, cls, r) {
 // A range row's value: inclusive bounds unless the row says a bound is
 // exclusive ("more than" / "less than"), as IDS's restriction test cases write them.
 const rangeValue = (r, temporal) => ({ min: r.min, max: r.max, ...(r.minEx ? { minEx: true } : {}), ...(r.maxEx ? { maxEx: true } : {}), ...(temporal ? { base: "xs:" + temporal } : {}) });
+// A one-of row's value. On a date, time or duration (IFCDATE, IFCDATETIME,
+// IFCTIME, IFCDURATION) the enumeration takes the XSD base IDS 1.0's DataTypes
+// table gives that type (xs:date, ...), as it does for a range; a row opened
+// from a file that wrote it on xs:string keeps that (`oneOfBase`), so the file
+// is written back as it was.
+const oneOfValue = (r, temporal) => ({ oneOf: r.oneOf, ...(temporal ? { base: r.oneOfBase || "xs:" + temporal } : {}) });
 function reqFacet(L, r, classes = []) {
   if (r.fixed) return r.fixed;
   const p = r.kind !== "property" ? null : r.untyped ? { dataType: null, untyped: true } : r.custom ? { dataType: r.dataType && L.S.types[r.dataType] ? r.dataType : null } : propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name);
+  const temporal = r.mode !== "oneOf" && r.mode !== "range" ? null : r.kind === "property" ? temporalType(p && p.dataType) : r.kind === "attribute" ? attributeValueKind(L.S, classes, r.name).temporal || null : null;
   const value = r.cardinality === "prohibited" || (p && !p.dataType && !p.untyped) ? null
     : r.mode === "equals" ? { equals: r.equals } : r.mode === "true" || r.mode === "false" ? { equals: r.mode }
-    : r.mode === "oneOf" ? { oneOf: r.oneOf } : r.mode === "range" ? rangeValue(r, r.kind === "property" ? temporalType(p && p.dataType) : r.kind === "attribute" ? attributeValueKind(L.S, classes, r.name).temporal : null) : r.mode === "pattern" ? { pattern: r.pattern } : null;
+    : r.mode === "oneOf" ? oneOfValue(r, temporal) : r.mode === "range" ? rangeValue(r, temporal) : r.mode === "pattern" ? { pattern: r.pattern } : null;
   const base = r.kind === "attribute" && value ? attributeValueKind(L.S, classes, r.name).base : undefined;
   return { kind: r.kind, set: r.set, name: r.name, dataType: p ? p.dataType : null, value, base, cardinality: r.cardinality, system: r.system, relation: r.relation, entity: r.entity };
 }
@@ -834,6 +846,9 @@ function editableRow(L, classes, f) {
   } else if (en) {
     if (!ch.modes.includes("oneOf") || (ch.enumVals && !en.every((x) => ch.enumVals.includes(x)))) return null;
     r.mode = "oneOf"; r.oneOf = [...en];
+    // A date, time or duration one-of: on its DataTypes base, or on xs:string
+    // (the editor wrote that before 2026-11-17; kept so it writes back the same).
+    if (ch.temporal && v.r.base === "string") r.oneOfBase = "xs:string";
   } else if (v.r.pattern.length === 1 && !v.r.enumeration.length && R_BOUNDS.every((k) => v.r[k] === undefined)) {
     if (!ch.modes.includes("pattern")) return null;
     r.mode = "pattern"; r.pattern = v.r.pattern[0];

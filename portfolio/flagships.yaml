@@ -475,10 +475,10 @@ flagships:
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
       (eval/ifcxml-xbim-2026-11-16.md); an allow list for GlobalIds shared across
       federated models on purpose (eval/federated-globalids-2026-11-17.md, 'Not
-      done': the Simple-Scene 'origin' markers); the IDS editor (editor.html;
-      README): xs:date one-of rows (eval/date-ranges-2026-11-17.md; the model's date
-      range landed, eval/model-date-range-2026-11-17.md); more real exports through
-      eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
+      done': the Simple-Scene 'origin' markers); the IDS editor (editor.html):
+      attribute rows in specifications with no class (16 IDS-Audit-tool date lists
+      stay kept, eval/date-oneof-2026-11-17.md; date one-of rows landed); more real
+      exports through eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked"). Next, most
