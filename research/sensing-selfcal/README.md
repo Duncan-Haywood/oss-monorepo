@@ -13,6 +13,19 @@ RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with
 checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (290 of 290,
 revised with milestones 4e–4s and 3b–3g) and a list of what a submission still needs.
 
+**Milestone 3l headline** (can a robot undo the rolling-shutter error with the gyro it already carries? milestone 3k's synthetic
+windows re-solved with a rolling-shutter term driven by per-keyframe gyro rates): **mostly, and one 1.2 s window measures the
+readout time itself.** With random hand-held rates of 0.3 rad/s per axis and a 1/30 s readout, the gyro term cuts the median focal
+shift from 4.17% to 1.14% (0.27&times;, just short of the pre-registered 0.25&times;), and to 0.71% with a free linear velocity per
+keyframe; noise-free, the full model recovers f to 1e-8, so what is left is pixel noise on a larger model, not bias. Left free, the
+readout comes back at 33.4 ms (median error 3.6%, sd 0.23 ms) at no cost in f, and on global-shutter data it stays within
+&plusmn;0.4 ms of zero in all 30 windows. A 1 or 5 &deg;/s gyro bias changes nothing. At 1 rad/s hand-held, where the plain solve
+diverged in 9 of 30 windows, the gyro solve converges in all 30 (median 1.0%). One trap: a constant pitch rate makes the readout
+and the focal length trade off (estimated readout 24 ms, 27% off), so a calibration manoeuvre should not be a steady tilt. Five of
+six predictions held. [Log](LOG.md).
+
+![Gyro-aided rolling-shutter solve: focal shift by model, and the readout time estimated from one window](experiments/m3l_gyro/gyro.png)
+
 **Milestone 3k headline** (could a rolling shutter be what a 1.2 s natural-feature window's focal length compensates? synthetic
 windows rendered through a rolling-shutter camera and solved with this project's global-shutter bundle adjustment): **it could, and
 the window's mean rotation rate cannot rule it out.** With random hand-held rates of 0.3 rad/s per axis and a 1/30 s readout the
@@ -1024,6 +1037,9 @@ python3 experiments/m3h_linear/analyse.py    # seconds; summary.json, linear.png
 python3 experiments/m3i_principal/tum.py      # seconds, no video needed; tum_summary.json
 OMP_NUM_THREADS=1 python3 experiments/m3i_principal/run.py   # ~2 min on 4 cores; results.json
 python3 experiments/m3i_principal/analyse.py  # seconds; board_summary.json, principal.png
+OMP_NUM_THREADS=1 python3 experiments/m3l_gyro/run.py 4   # under 20 min on 4 cores, no video; results.json
+python3 experiments/m3l_gyro/analyse.py        # seconds; summary.json, gyro.png
+python3 experiments/m3l_gyro/explore.py        # ~5 min; post hoc noise-off check, explore.json
 python3 experiments/m1_real/run.py        # ~40 min on 4 cores; results.json
 python3 experiments/m1_real/analyse.py    # summary.json, selfcal_vs_zhang.png
 python3 experiments/m1_real/planarity.py  # ~3 min; planarity.json
@@ -1127,6 +1143,14 @@ python3 paper/check_numbers.py             # seconds; the draft's numbers agains
 
 ## Next steps
 
+After milestone 3l: with a gyro, a rolling-shutter term in the window solve removes most of the shift (4.17% to 1.14%; 0.71%
+with a free linear velocity) and one hand-held window estimates the readout to 3.6% without a false shutter on global-shutter
+data. So the TUM test is now specified: when the TUM host answers, take each keyframe's angular velocity from the 100 Hz motion
+capture (rotated into the camera frame with TUM's mocap-to-camera calibration), solve the 57 windows with the readout free, and ask
+whether the readout comes back near a constant across windows and sequences and whether f's error falls. A readout near zero says
+the Kinect's error is not a shutter; a consistent nonzero one says it is, and gives the number no datasheet here supplied. Before
+that, synthetic: a wrong shutter model (vibration within a frame, a gyro time offset) and an outlier-laden SIFT front end.
+
 After milestone 3k: a rolling shutter is not ruled out (random 0.3 rad/s hand-held rates move a synthetic window's f a median
 4.2% at a 1/30 s readout), and the window's mean rate is the wrong predictor. When the TUM host answers: read each keyframe's
 angular velocity from the 100 Hz motion capture, find a source for the Kinect's and Xtion's readout times, and add a
@@ -1218,7 +1242,7 @@ whether any start beats the cold one on the Kinect.
 
 ## References
 
-Zhang (2000), *IEEE TPAMI* 22(11); Sturm et al. (2012), IROS, the TUM RGB-D benchmark, [doi:10.1109/IROS.2012.6385773](https://doi.org/10.1109/IROS.2012.6385773) (milestone 4j's data, CC BY 4.0); Duda and Frese (2018), BMVC, accurate detection and localization of checkerboard corners (`findChessboardCornersSB`); Efron and Stein (1981), *Ann. Statist.* 9(3), the jackknife estimate of variance; White (1980), *Econometrica* 48(4), the sandwich covariance; Sturm and Maybank (1999), CVPR; Triggs et al. (2000), bundle adjustment: a modern
+Zhang (2000), *IEEE TPAMI* 22(11); Karpenko, Jacobs, Baek and Levoy (2011), *Digital video stabilization and rolling shutter correction using gyroscopes*, Stanford CS tech report CSTR 2011-03 (gyro-driven shutter correction, readout estimated from video); Hedborg, Forss&eacute;n, Felsberg and Ringaby (2012), *Rolling shutter bundle adjustment*, CVPR; Oth, Furgale, Kneip and Siegwart (2013), *Rolling shutter camera calibration*, CVPR (readout estimated with a target) (milestone 3l; these three were not looked up from this session); Sturm et al. (2012), IROS, the TUM RGB-D benchmark, [doi:10.1109/IROS.2012.6385773](https://doi.org/10.1109/IROS.2012.6385773) (milestone 4j's data, CC BY 4.0); Duda and Frese (2018), BMVC, accurate detection and localization of checkerboard corners (`findChessboardCornersSB`); Efron and Stein (1981), *Ann. Statist.* 9(3), the jackknife estimate of variance; White (1980), *Econometrica* 48(4), the sandwich covariance; Sturm and Maybank (1999), CVPR; Triggs et al. (2000), bundle adjustment: a modern
 synthesis; Strobl and Hirzinger (2011), ICCV workshops; Nobre, Kasper and Heckman (2017),
 ICRA; the full list with notes is in [`PROPOSAL.md`](PROPOSAL.md). Earlier synthetic work in
 this repository: [`sensing-bafocal`](../sensing-bafocal/README.md),
