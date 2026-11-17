@@ -161,6 +161,31 @@ def main(dst):
             f"(5) sign agrees on at least two thirds of untied designs: {3 * nagree >= 2 * len(agree)} ({nagree} of {len(agree)})",
             f"(6) median tau-b 40% vs 65% below 0.8: {mtau < 0.8} ({mtau:.3f})",
             f"(7) interval of d65 - d40 contains zero: {clo <= 0 <= chi} ({clo:+.2f} to {chi:+.2f})"]
+    # Added after the run (post hoc, not predicted): at 65% some points of the 256-bit designs fail OpenROAD's pin placement
+    # (PPL-0024, the core perimeter is too short for the I/O pins), which removes the smallest netlists and selects the rest.
+    fails = {}
+    for r in r65:
+        if r["design"] in set(done) and r["status"] != "ok":
+            k = "pin placement (PPL-0024)" if "PPL-0024" in r.get("error", "") else "ABC"
+            fails.setdefault(r["design"], {}).setdefault(k, 0)
+            fails[r["design"]][k] += 1
+    usable = {d: 120 - sum(fails.get(d, {}).values()) for d in done}
+    thin = sorted(d for d in done if usable[d] < 90)
+    out += ["", "## Post hoc, added after the run: failed points and a sensitivity check", "",
+            "design | usable points | ABC failures | pin-placement failures"]
+    for d in done:
+        f = fails.get(d, {})
+        out.append(f"{d} | {usable[d]} | {f.get('ABC', 0)} | {f.get('pin placement (PPL-0024)', 0)}")
+    keep = [d for d in done if d not in thin]
+    sb, sw_, st, sp = sign({d: d65[d] for d in keep})
+    sch = [d65[d] - d40[d] for d in keep]
+    slo, shi = boot(sch)
+    out += ["", f"without the designs with fewer than 90 usable points at 65% ({', '.join(thin) or 'none'}): {len(keep)} designs; "
+            f"SWC better on {sb}, worse on {sw_}, tied on {st}; two-sided sign p = {sp:.4f}; mean regret SWC "
+            f"{lb.mean([c65[d] for d in keep], swc):.2f}%, random {lb.mean([c65[d] for d in keep], rand):.2f}%; "
+            f"d65 - d40 interval {slo:+.2f} to {shi:+.2f}"]
+    loss = sorted(d for d in done if d65[d] > 1e-9)
+    out.append(f"designs where SWC loses at 65%: {', '.join(loss)}")
     Path(dst).write_text("\n".join(out) + "\n")
     print("\n".join(out))
 
