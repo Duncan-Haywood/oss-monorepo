@@ -421,3 +421,29 @@ test("a whole-unit slip's unreadable tax is the total split at 10% when a subtot
   assert.equal(parseReceiptPasses([e, "CAFE", e, "CAFE"]).taxCents, null);
 });
 
+
+test("a printed tip or service charge counts in the tax vote's arithmetic", () => {
+  // ExpressExpense 1182 in shape: the first reading lost the resort tax (2.80), the second
+  // added both tax lines (3.60), which close to the final total only with the tip the third
+  // reading read; on a tie the first reading's 2.80 won
+  const a = "GRILL\nSub-total: 40.00\nSales Tax 7%: 2.80\nesort tax 2% '0,\nVoluntary 18% Tip: 720\nTotal 50.80";
+  const b = "GRILL\nSub-total: 40.00\nSales Tax 7%: 2.80\nResort Tax 2%: 0.80\nTotal 43.60\nVoluntary 18% Tip a\nTotal 50.80";
+  const c = "GRILL\nsub-total : 40.00\nResort tax 2%: xe\nVoluntary 18% Tip: 7.20\nTotal 50.80";
+  const p = parseReceiptPasses([a, b, c, "GRILL\nTotal! 50.80"]);
+  assert.equal(p.cents, 5080);
+  assert.equal(p.taxCents, 360);
+});
+
+test("an unreadable tax line is the total less the subtotal and the service charge", () => {
+  // CORD train-429 in shape: the TAX line's amount lost, a service charge printed
+  const a = "CAFE\nSUBTTL 216,000\nService Charge 17,280\nTAX\nTOTAL 256,608";
+  const p = parseReceiptPasses([a, "CAFE", a, "CAFE"]);
+  assert.equal(p.taxCents, 2332800);
+  assert.ok(p.notes.some((n) => /less the subtotal and the service charge/.test(n)));
+  // no tax word in any reading ("Others" may be anything): no tax is guessed
+  const d = "CAFE\nSub Total 243.000\nService 13.365\nOthers 25.637\nGRAND TOTAL 282.000";
+  assert.equal(parseReceiptPasses([d, "CAFE", d, "CAFE"]).taxCents, null);
+  // a suggested-tip table is not a service charge
+  const e = "CAFE\nSUBTOTAL 30.00\nTAX\nTOTAL 32.40\nSuggested tip 18% 5.40";
+  assert.equal(parseReceiptPasses([e, "CAFE", e, "CAFE"]).taxCents, 240);
+});
