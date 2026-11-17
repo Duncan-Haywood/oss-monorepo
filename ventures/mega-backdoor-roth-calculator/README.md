@@ -62,9 +62,11 @@ accumulated growth.
 - It does not calculate what you would owe on withdrawal, file anything,
   or replace a qualified tax preparer or financial advisor.
 
-IRS figures sourced 2026-09-24, cross-checking summaries of IRS Notice
-2024-80 (2025 limits) and Notice 2025-67 (2026 limits) — see
-`VENTURE.yaml` for the full sourcing note.
+IRS figures checked 2026-11-17 against the primary text of IRS Notice
+2025-67, which gives each 2026 limit next to the 2025 one it replaces — see
+`VENTURE.yaml` for the full sourcing note. That read also corrected the FAQ's
+IRA aside, which had given $7,000 and a $1,000 catch-up for 2026 (they are
+$7,500 and $1,100).
 
 ## No warranty
 
