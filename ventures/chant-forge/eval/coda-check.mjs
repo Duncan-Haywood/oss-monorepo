@@ -517,6 +517,8 @@
 //    nasal the same way unless an earlier frame now qualifies. Settings chosen on b and A, then run once on A-b.
 //    Development (A-b, `--shut span=4,settle=2,rise=4` against the default): B 159 to 160 of 162 (*tum*), I 140 to 141,
 //    F's nasals 206 to 207 of 215, K's others +1, N's +1, O's 227 to 229, X's nasal codas 47 to 48 and n-clusters +1,
+//    [part names corrected after c ran, figures unchanged: L's others +1 (*cum*), not K's; T's nasal codas 47 to 48
+//    (*fun*) and U's n-clusters +1 (*dent*), not X's; a's n-clusters +1 (*munc*)]
 //    Y's n-clusters 42 to 43, Z's nasal codas 46 to 47, b's nasals after /u/ or /o/ 133 to 137 of 144; lost: Y's voiced
 //    stops 173 to 172 (*sob* read as a nasal) and, in a's lipShut column, one *bu* read as a nasal. Every vowel-only
 //    control identical. Pre-registered here and committed before part c was run with anything. Part c is new: 12 nasal
@@ -531,6 +533,14 @@
 //    384): identical; (5) A-b as above, re-run on the shipped code. The gain is tested only if the default misses 3 or
 //    more of c's dark-vowel nasals; if fewer, the slow form stays opt-in, reported as untested. If all five hold and the
 //    gain is tested, the slow form becomes readCoda's default; otherwise it stays opt-in (`--shut span=4,settle=2,rise=4`).
+//    Outcome (run 2026-11-17, after the registration above was committed as a236e0f): failed. (1) nasals after /u/ or
+//    /o/ 123 to 125 of 144 (the gain was tested: the default missed 21; 3 wanted); (2) bright-vowel nasals 48 and 48 of
+//    48, n-clusters as their nasal 44 and 45 of 48; (3) voiced stops 60 and 60 of 60, voiceless 36 and 36, others 48 and
+//    48, stops, others and vowel-only cells read as a nasal 15 and 15; (4) control 369 and 369 of 384; (5) A-b rebuilt
+//    on the shipped code match the development figures above. The slow form stays opt-in. c's dark-vowel misses were
+//    not the registered shape: 18 of the default's 21 are a cluster onset before -um (*brum* 6, *glum* 5, *stum* 4,
+//    *flum* 3), which the slow form does not touch, and all 15 vowel-only misses are one cell, A#3 quarters, every /u/
+//    syllable read as a nasal by the level rule (README).
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';

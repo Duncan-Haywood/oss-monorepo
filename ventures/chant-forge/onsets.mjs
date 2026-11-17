@@ -127,6 +127,9 @@ export const BAR_BURST = { hz: 2000, lvl: 10, floor: -40, dark: 30, tail: 25, le
 // 4-6 dB darker than the vowel, which has almost nothing above 1 kHz to lose, so the level, step and near rules all
 // pass it by. What the closure does is drop the band above 1 kHz by `fall` dB or more within two hops, after a blip
 // up as the lips meet, while the vowel's own vibrato moves it 4-9 dB over the same span. See readCoda.
+// `span`, `settle` and `rise` (the twenty-fifth round, README "A dark-vowel m that closes slowly"; opt-in as
+// `lipShut: { span: 4, settle: 2, rise: 4 }`): the fall counted from any of `span` frames before, the hold looked for up
+// to `settle` frames after the fall, a late hold only when the band above 1 kHz climbs back no more than `rise` dB
 export const LIP_SHUT = { fall: 12, span: 2, settle: 0, rise: null, dark: 8, lo: -20, hi: 0, hold: 4, hiHold: 6, minMs: 45 };
 // A dark-vowel m that holds level (`lipHold`, opt-in; README "A dark-vowel m that holds level"): on D4-E4 after /u/
 // (part a's *bum*, *hum*, *fum*) the vowel's band above 1 kHz has already fallen 3-8 dB into the closure, so the m sits
