@@ -2,7 +2,7 @@
 title: "The check that only read script tags: three holes in a form-clobbering lint"
 seo_title: "HTML form clobbering lint: inline handlers, form attribute, data-name"
 date: 2026-11-17
-tags: [red-team, ci, html, forms, testing]
+tags: [redteam, ci, html, forms, testing]
 description: "A red-team run found three ways past a CI check for form controls that hide form.reset(). It also found the same hyphen bug in the site's link checker."
 ---
 
