@@ -29,8 +29,8 @@ Two parts, both free and MIT:
 | Your bookkeeper, by hand | Billable hours each month | One CSV |
 
 Honest limits: straight-line daily recognition only (no usage-based, milestone
-or multi-element rules), one currency per instance, credit notes reduce revenue
-when issued rather than rewriting the original months, invoices paid in a later
+or multi-element rules), one currency per instance, credit notes never rewrite
+months already past, invoices paid in a later
 month than they were issued are billed when paid. It is a working schedule, not
 audit-ready revenue accounting.
 
@@ -43,14 +43,38 @@ audit-ready revenue accounting.
 - **Net amounts:** line amount minus discounts, minus any tax that is included
   in the price. Tax added on top is not in the line amount to begin with.
 - **One-off charges** (no period) are recognised on their date.
-- **Credit notes** are negative lines recognised when issued, in both billings
-  and revenue, so the deferred balance they touch is unchanged.
+- **Credit notes** are negative billings. When a credit note line names the
+  invoice line it credits (Stripe's `invoice_line_item`; a `credits` column in
+  the CSV demo), it is spread from its issue date to the end of that line's
+  period, so a prorated refund reverses the unearned remainder and the
+  cancelled subscription stops earning (ASC 606 treats this as a contract
+  modification, prospectively). An unlinked credit note is recognised on its
+  issue date.
 - **Deferred revenue at month end** = billed to date minus recognised to date.
   A negative balance means revenue recognised before it was billed.
 - **Journal CSV:** per month, `Dr Accounts receivable / Cr Deferred revenue`
   for billings and `Dr Deferred revenue / Cr Subscription revenue` for
   recognition, dated month end. Account names: `ACCOUNT_RECEIVABLE`,
   `ACCOUNT_DEFERRED`, `ACCOUNT_REVENUE`. `?through=YYYY-MM` limits the range.
+
+## Known gaps
+
+From the first quality audit
+([`portfolio/quality/audits/2026-11-17-rev-rec.json`](../../portfolio/quality/audits/2026-11-17-rev-rec.json)):
+
+- **Late-paid invoices can be missed by incremental sync.** After the first
+  sync the server asks Stripe for paid invoices *created* since the last sync
+  minus three days, so an invoice paid more than about three days after it was
+  created (net-30 terms, dunning retries) is never fetched. Until this re-reads
+  open invoices or follows `invoice.paid` events, run a full resync each month.
+- **Periods with a time of day count one extra day** (32 for a month, 366 for
+  a year), pushing a sliver of revenue past the period end.
+- **Zero-decimal currencies** (JPY, KRW) are divided by 100.
+- **No period lock:** a late payment or proration rewrites months whose
+  journal was already exported, and the billing entry debits Accounts
+  receivable on the paid date, so AR never clears.
+- **No standalone-selling-price allocation** for bundles or setup fees.
+- No `Stripe-Version` header is pinned.
 
 ## Run it
 

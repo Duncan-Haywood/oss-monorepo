@@ -82,3 +82,16 @@ test("journalCsv: header, quoting and trailing newline", () => {
   const csv = journalCsv([{ date: "2026-01-31", memo: 'a,"b"', account: "X", debit: "1.00", credit: "" }]);
   assert.equal(csv, 'Date,Memo,Account,Debit,Credit\n2026-01-31,"a,""b""",X,1.00,\n');
 });
+
+test("a prorated refund linked to its line stops the schedule (ASC 606, quality audit 2026-11-17)", () => {
+  const D = (y, m, d) => Date.UTC(y, m - 1, d);
+  const cn = Math.round((120000 * 320) / 365);
+  const rows = schedule([
+    { id: "il_a", billedAt: D(2026, 1, 1), start: D(2026, 1, 1), end: D(2027, 1, 1), amount: 120000 },
+    { id: "cn:1", credits: "il_a", billedAt: D(2026, 2, 15), start: D(2026, 2, 15), end: D(2026, 2, 15), amount: -cn },
+  ], { asOf: D(2026, 3, 1) });
+  const f = (m) => rows.find((r) => r.month === m);
+  assert.equal(f("2026-02").recognized, 4603); // 1,200 x 14/365 for Feb 1-14
+  assert.equal(f("2026-02").closing, 0);
+  assert.equal(rows.filter((r) => r.month >= "2026-03").reduce((a, r) => a + r.recognized, 0), 0);
+});
