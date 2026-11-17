@@ -1,9 +1,9 @@
 ---
 title: "The MP3 link that ate its captions: red-teaming the audio CDN rewrite"
-seo_title: "Matching file links with a regex: anchor the end, not just the extension"
+seo_title: "Matching file links with a regex: anchor the end, not the extension"
 date: 2026-11-17
 tags: [testing, mutation-testing, javascript, redteam, regex, jsdelivr]
-description: "20 faults seeded into the pass that moves the site's MP3s to jsDelivr, 5 caught. Reading it as an attacker found a regex that rewrote one.mp3.vtt into a broken CDN link."
+description: "20 faults seeded into the pass that moves our MP3s to jsDelivr, 5 caught. It also found a regex that turned one.mp3.vtt into a broken CDN link."
 ---
 
 The site's audio (podcast episodes and two story shelves, 99 MP3s in git)

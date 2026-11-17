@@ -1,3 +1,9 @@
+---
+kind: note
+topics: [redteam]
+date: 2026-11-17
+tagged: auto
+---
 # Red team 2026-11-17: platform/pages/audio-cdn.mjs
 
 - Target: `platform/pages/audio-cdn.mjs` (changed 2026-11-16 in PR #16712), suite
