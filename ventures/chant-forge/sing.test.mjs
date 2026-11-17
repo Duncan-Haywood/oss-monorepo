@@ -529,7 +529,7 @@ test('closeAnchor (opt-in) closes a voice bar against the last vowel-like frames
   for (const s of ['eb', 'ib']) {
     const j = SY.indexOf(s), on = read(j, { localRef: false, closeAnchor: true });
     assert.deepEqual([on.cls, on.voiced, on.place], ['stop', true, 'lab'], `${s} with closeAnchor`);
-    assert.equal(read(j, { localRef: false }).cls, 'none', `${s}: the reference alone`);
+    assert.equal(read(j, { localRef: false, barBurst: false }).cls, 'none', `${s}: the reference alone`); // barBurst (README "No burst on C#4-E4") reads it even so
   }
   for (const s of ['ep', 'ec', 'ic']) assert.equal(read(SY.indexOf(s), { localRef: false, closeAnchor: true }).cls, 'stop', s);
 });

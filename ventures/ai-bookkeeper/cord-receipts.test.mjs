@@ -21,12 +21,13 @@ test("labels in rupiah style read as whole units", () => {
 // found by the subtotal-to-total arithmetic (written from SRD photo misses, CORD held
 // out) took tax test 37 -> 41, train 316 -> 322. 2026-11-16: misspelt "Subtotal" read
 // (Suototal, Subtota; written from SRD photos, CORD held out) took train tax 322 -> 323. 2026-11-16, later: a "10.000%" rate no longer read as a
-// 1.00 tax (under 1% of a whole-unit total) took train 323 -> 324 (train-203; train-397 now none).
+// 1.00 tax (under 1% of a whole-unit total) took train 323 -> 324 (train-203; train-397 now none). 2026-11-17: "Total Kembalian"
+// (the change) is not a total line (chosen on validation photos): validation 96 -> 97.
 test("CORD-v2 receipts: totals and tax read as in the README", () => {
   const t = score(load("test"));
   assert.deepEqual([t.total.right, t.total.labelled, t.tax.right, t.tax.labelled], [92, 95, 41, 41]);
   const v = score(load("validation"));
-  assert.deepEqual([v.total.right, v.total.labelled, v.tax.right, v.tax.labelled], [96, 98, 46, 47]);
+  assert.deepEqual([v.total.right, v.total.labelled, v.tax.right, v.tax.labelled], [97, 98, 46, 47]);
   const tr = score(load("train"));
   assert.deepEqual([tr.total.right, tr.total.labelled, tr.tax.right, tr.tax.labelled], [749, 779, 324, 352]);
 });

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { DEFAULTS, num, money, parseEmployees, creditFor, analyze } from "./calc.mjs";
+import { DEFAULTS, num, money, money2, parseEmployees, creditFor, analyze } from "./calc.mjs";
 
 const close = (a, b, eps = 1e-6) => assert.ok(Math.abs(a - b) < eps, `${a} != ${b}`);
 const O = DEFAULTS;
@@ -95,4 +95,30 @@ test("prior years are whole years and negative tips are rejected", () => {
   const { rows, skipped } = parseEmployees("A, 2.13, 1000, -500");
   assert.equal(rows.length, 0);
   assert.equal(skipped.length, 1);
+});
+
+// Red team 2026-11-17 (prompts/runs/2026-11-17-session_01EhTJVMkXzct1bcj7NuvuAD.json): four mutants
+// escaped because money2, the unnamed-row fallback, fractional rates and the 100% tax cap were untested.
+test("money2 shows cents, rounds half up and keeps the sign", () => {
+  assert.equal(money2(1489.455), "$1,489.46");
+  assert.equal(money2(0), "$0.00");
+  assert.equal(money2(-12.5), "-$12.50");
+  assert.equal(money2(-0.001), "$0.00", "a value that rounds to zero carries no minus sign");
+});
+
+test("a row with no name gets a numbered placeholder", () => {
+  const { rows } = parseEmployees(", 2.13, 100, 500\nAna, 2.13, 100, 500\n; 5.15; 10; 100");
+  assert.deepEqual(rows.map((r) => r.name), ["Employee 1", "Ana", "Employee 3"]);
+});
+
+test("rates below 1% still count (they are not rounded to zero)", () => {
+  const a = analyze({ ...DEFAULTS, employees: "A, 15, 100, 1000", ssRate: 0, medicareRate: 0.5, taxRate: 0.5 });
+  close(a.totals.credit, 5);
+  close(a.totals.afterTax, 5 * 0.995);
+});
+
+test("a tax rate above 100% is capped: the after-tax credit is never negative", () => {
+  const a = analyze({ ...DEFAULTS, taxRate: 150 });
+  assert.ok(a.totals.credit > 0);
+  assert.equal(a.totals.afterTax, 0);
 });

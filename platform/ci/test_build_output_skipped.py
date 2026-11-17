@@ -69,7 +69,9 @@ class BuildOutputSkipped(unittest.TestCase):
                 self.assertNotEqual(seen.returncode, 0,
                                     f"{check} passed a broken page; the test cannot tell it skips .next")
                 built = run_check(check, ".next/server/app")
-                self.assertEqual(built.returncode, 0,
+                # 2 is "no pages found" (test_checks_refuse_empty_root.py): the only page is
+                # build output, so a check that skipped it saw nothing; 1 would mean it read it.
+                self.assertIn(built.returncode, (0, 2),
                                  f"{check} read gitignored .next build output:\n{built.stdout}{built.stderr}")
 
 

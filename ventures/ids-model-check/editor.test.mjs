@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { parseIds } from "./ids.mjs";
 import { auditIds } from "./audit.mjs";
 import { resources, check } from "./node.mjs";
-import { classesWithSets, setsFor, propertiesOf, subclasses, predefinedTypes, buildIds, entityFacet, xsBase, PARTOF_RELATIONS, importIds, stateToDoc, idsSchema } from "./editor.mjs";
+import { classesWithSets, setsFor, propertiesOf, subclasses, predefinedTypes, buildIds, entityFacet, xsBase, PARTOF_RELATIONS, importIds, stateToDoc, idsSchema, specClassNames, commonSets, commonAttributes, sameAttributeType, commonPredefinedTypes, parseClassList, valueChoices } from "./editor.mjs";
 
 const R = resources();
 const S4 = R.schemas.IFC4;
@@ -198,4 +198,59 @@ test("the schema an IDS is opened for is the one most of its specifications name
   assert.equal(idsSchema(p([["IFC4X3_ADD2"]])), "IFC4X3");
   assert.equal(idsSchema(p([])), "IFC4");
   assert.equal(idsSchema(p([["IFC2X3"], ["IFC4"]])), "IFC4");
+});
+
+test("a specification can apply to several classes; the page offers what every one shares", () => {
+  const L = loadFor("IFC4");
+  // Sets: Pset_WallCommon is a wall's alone; Pset_EnvironmentalImpactIndicators applies to both.
+  const both = commonSets(L, ["IFCWALL", "IFCSLAB"]);
+  assert.ok(!both.includes("Pset_WallCommon") && !both.includes("Pset_SlabCommon"));
+  assert.ok(both.every((x) => setsFor(L.psets, L.S, "IFCWALL").includes(x) && setsFor(L.psets, L.S, "IFCSLAB").includes(x)));
+  assert.deepEqual(commonSets(L, ["IFCWALL", "IFCNOTACLASS"]), []);
+  // Attributes: PredefinedType is on both but of different enumerations, so no enumeration is offered.
+  assert.ok(commonAttributes(L.S, ["IFCWALL", "IFCSLAB"]).includes("PredefinedType"));
+  assert.equal(sameAttributeType(L.S, ["IFCWALL", "IFCSLAB"], "PredefinedType"), false);
+  assert.equal(valueChoices(L, ["IFCWALL", "IFCSLAB"], { kind: "attribute", name: "PredefinedType" }).enumVals, null);
+  assert.ok(valueChoices(L, ["IFCWALL"], { kind: "attribute", name: "PredefinedType" }).enumVals.includes("PARTITIONING"));
+  // Predefined types: only those every class allows (USERDEFINED, NOTDEFINED).
+  const pts = commonPredefinedTypes(L.S, ["IFCWALL", "IFCSLAB"]);
+  assert.ok(pts.includes("USERDEFINED") && !pts.includes("PARTITIONING") && !pts.includes("FLOOR"));
+  assert.deepEqual(parseClassList(" ifcslab, IFCBEAM;IFCBEAM  ifccolumn"), ["IFCSLAB", "IFCBEAM", "IFCCOLUMN"]);
+  // Written: the first class (with its subclasses when asked) then the rest, as one enumeration.
+  const names = specClassNames(L.S, { cls: "IFCWALL", withSub: true, also: ["IFCSLAB"] });
+  assert.deepEqual(names, ["IFCWALL", ...subclasses(L.S, "IFCWALL"), "IFCSLAB"]);
+  assert.deepEqual(specClassNames(L.S, { cls: "IFCWALL", withSub: false, also: ["IFCSLAB", "IFCWALL"] }), ["IFCWALL", "IFCSLAB"]);
+  const doc = stateToDoc({ title: "t", schema: "IFC4", specs: [{ name: "n", optionality: "required", cls: "IFCSLAB", withSub: false, also: ["IFCBEAM", "IFCCOLUMN"], predefinedType: "", reqs: [{ kind: "property", custom: true, set: "Acme_Common", name: "Code", dataType: "IFCLABEL", cardinality: "required", mode: "any" }] }] }, L);
+  const sp = parseIds(buildIds(doc, L.S)).specs[0];
+  assert.deepEqual(sp.applicability[0].name.r.enumeration, ["IFCSLAB", "IFCBEAM", "IFCCOLUMN"]);
+  assert.equal(sp.requirements[0].propertySet.simple, "Acme_Common");
+});
+
+test("an opened IDS naming several classes opens them as editable, and writes back what it asked", () => {
+  const enumOf = (cs) => `<xs:restriction base="xs:string">${cs.map((c) => `<xs:enumeration value="${c}"/>`).join("")}</xs:restriction>`;
+  const head = `<?xml version="1.0"?><ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema"><info><title>Several</title></info><specifications>`;
+  const xml = head + `
+    <specification name="structure" ifcVersion="IFC4"><applicability minOccurs="1" maxOccurs="unbounded"><entity><name>${enumOf(["IFCSLAB", "IFCCOLUMN", "IFCBEAM", "IFCWALL"])}</name></entity></applicability>
+      <requirements>
+        <property dataType="IFCLABEL"><propertySet><simpleValue>Acme_Common</simpleValue></propertySet><baseName><simpleValue>Phase</simpleValue></baseName></property>
+        <property dataType="IFCBOOLEAN"><propertySet><simpleValue>Pset_WallCommon</simpleValue></propertySet><baseName><simpleValue>IsExternal</simpleValue></baseName></property>
+        <attribute><name><simpleValue>PredefinedType</simpleValue></name></attribute>
+        <attribute><name><simpleValue>Name</simpleValue></name><value><xs:restriction base="xs:string"><xs:pattern value="S-[0-9]+"/></xs:restriction></value></attribute>
+      </requirements></specification>
+    <specification name="user-defined" ifcVersion="IFC4"><applicability minOccurs="0" maxOccurs="unbounded"><entity><name>${enumOf(["IFCSLAB", "IFCBEAM"])}</name><predefinedType><simpleValue>USERDEFINED</simpleValue></predefinedType></entity></applicability>
+      <requirements><attribute><name><simpleValue>ObjectType</simpleValue></name></attribute></requirements></specification>
+    <specification name="a misspelt class" ifcVersion="IFC4"><applicability minOccurs="1" maxOccurs="unbounded"><entity><name>${enumOf(["IFCSLAB", "IFCBEEM"])}</name></entity></applicability>
+      <requirements><attribute><name><simpleValue>Name</simpleValue></name></attribute></requirements></specification>
+  </specifications></ids>`;
+  const { parsed, imp, back } = reopen(xml);
+  const [st, ud, bad] = imp.state.specs;
+  assert.deepEqual([st.cls, st.withSub, st.also], ["IFCSLAB", false, ["IFCCOLUMN", "IFCBEAM", "IFCWALL"]]);
+  assert.equal(st.fixedApp.length, 0);
+  // The wall's own set is kept as written: not every class can carry it.
+  assert.deepEqual(st.reqs.map((r) => (r.fixed ? "kept" : r.kind + ":" + r.mode)), ["property:any", "kept", "attribute:any", "attribute:pattern"]);
+  assert.deepEqual([ud.cls, ud.also, ud.predefinedType], ["IFCSLAB", ["IFCBEAM"], "USERDEFINED"]);
+  // A name the schema lacks keeps the whole class list as written.
+  assert.equal(bad.cls, "");
+  assert.equal(bad.fixedApp[0].kind, "entity");
+  for (let i = 0; i < 3; i++) assert.deepEqual(said(back.specs[i]), said(parsed.specs[i]), parsed.specs[i].name);
 });

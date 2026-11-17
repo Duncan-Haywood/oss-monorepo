@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-16",
+  "generated": "2026-11-17",
   "shots": [
     {
       "slug": "wall-framing-takeoff",
@@ -16,22 +16,26 @@
     {
       "slug": "band-tour-profit-planner",
       "file": "band-tour-profit-planner.webp",
-      "caption": "Shows which tour dates lose money before you book the van"
+      "caption": "Shows which tour dates lose money before you book the van",
+      "hero": "band-tour-profit-planner-hero.webp"
     },
     {
       "slug": "league-schedule-generator",
       "file": "league-schedule-generator.webp",
-      "caption": "Builds a fair round-robin league schedule in a minute"
+      "caption": "Builds a fair round-robin league schedule in a minute",
+      "hero": "league-schedule-generator-hero.webp"
     },
     {
       "slug": "event-seating-chart-optimizer",
       "file": "event-seating-chart-optimizer.webp",
-      "caption": "Seats every guest with the most wishes met"
+      "caption": "Seats every guest with the most wishes met",
+      "hero": "event-seating-chart-optimizer-hero.webp"
     },
     {
       "slug": "invoice-maker",
       "file": "invoice-maker.webp",
-      "caption": "Makes invoices and ages what is still owed"
+      "caption": "Makes invoices and ages what is still owed",
+      "hero": "invoice-maker-hero.webp"
     },
     {
       "slug": "ebay-fee-calculator",
@@ -42,12 +46,14 @@
     {
       "slug": "incident-postmortem-timeline",
       "file": "incident-postmortem-timeline.webp",
-      "caption": "Measures detect-to-resolve times and drafts a blameless postmortem"
+      "caption": "Measures detect-to-resolve times and drafts a blameless postmortem",
+      "hero": "incident-postmortem-timeline-hero.webp"
     },
     {
       "slug": "greenhouse-bench-planner",
       "file": "greenhouse-bench-planner.webp",
-      "caption": "Plans sowing weeks against greenhouse bench space"
+      "caption": "Plans sowing weeks against greenhouse bench space",
+      "hero": "greenhouse-bench-planner-hero.webp"
     }
   ],
   "reel": {
