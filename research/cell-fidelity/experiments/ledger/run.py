@@ -47,8 +47,8 @@ AI = "Ai2020@0.45x"
 CONTROLS = ("Chen2020@1.5x", "OKane2022@1.5x", "NCA_Kim2011@0.875x")
 N_CONTROL = 2                       # first two of 5z's picks per control pool
 REFINE = 2                          # first two Ai2020 picks re-run on a doubled mesh with tight tolerances
-FINE_PTS = {"x_n": 40, "x_s": 40, "x_p": 40, "r_n": 60, "r_p": 60}   # PyBaMM 26.10 defaults are 20, 20, 20, 20, 20
-FINE_TOL = 1e-8                     # rtol and atol of the IDAKLU solver (defaults 1e-4 and 1e-6)
+FINE_PTS = {"x_n": 40, "x_s": 40, "x_p": 40, "r_n": 40, "r_p": 40}   # doubled; PyBaMM 26.10 defaults are 20 each (the planned r = 60 was killed for memory, 5zj outcome)
+FINE_CYCLES = 3                     # the planned 10 cycles at 1e-8 tolerances were killed for memory twice (5zj outcome)
 
 
 # ---------- pure helpers (stdlib; tested) ----------
@@ -78,11 +78,12 @@ def verdict(ok, bad):
     return "supported" if ok else ("refuted" if bad else "mixed")
 
 
-def verdicts(rows):
-    """rows: ledger_row dicts (cycle 10). Returns the H187 to H190 verdicts and the numbers they rest on."""
+def verdicts(rows, rows3=None):
+    """rows: ledger_row dicts (cycle 10; refined runs at their own last cycle); rows3: the same at cycle FINE_CYCLES. Returns the H187 to H190 verdicts and the numbers they rest on."""
     ai = {r["j"]: r for r in rows if r["cond"] == AI and r["variant"] == "both" and not r["fine"]}
     sei = {r["j"]: r for r in rows if r["cond"] == AI and r["variant"] == "sei" and not r["fine"]}
     fine = {r["j"]: r for r in rows if r["cond"] == AI and r["fine"]}
+    base3 = {r["j"]: r for r in (rows3 or []) if r["cond"] == AI and r["variant"] == "both" and not r["fine"]}
     ctl = [r for r in rows if r["cond"] in CONTROLS and r["variant"] == "both"]
     pv = [ai[j]["passed_vs_particles"] for j in ai]
     pb = [ai[j]["passed_vs_booked"] for j in ai]
@@ -90,7 +91,7 @@ def verdicts(rows):
                    bool(pb) and sum(x is not None and x <= 0.10 for x in pb) * 2 >= len(pb))
     sh = [sei[j]["lost_particles"] / ai[j]["lost_particles"] for j in sei if j in ai and ai[j]["lost_particles"]]
     h188 = verdict(bool(sh) and all(x >= 0.80 for x in sh), any(x < 0.50 for x in sh))
-    fc = [rel(fine[j]["lost_particles"], ai[j]["lost_particles"]) for j in fine if j in ai]
+    fc = [rel(fine[j]["lost_particles"], base3[j]["lost_particles"]) for j in fine if j in base3]
     h189 = verdict(bool(fc) and all(x < 0.05 for x in fc), any(x > 0.20 for x in fc))
     cg = [abs(1 - r["booked_share"]) for r in ctl if r["booked_share"] is not None]
     h190 = verdict(bool(cg) and all(x <= 0.05 for x in cg), any(x > 0.20 for x in cg))
@@ -116,11 +117,12 @@ def simulate(job):
     area = TR.area_parallel(pv)
     L_n = pv["Negative electrode thickness [m]"]
     out = dict(cond=c, j=j, x=list(map(float, x)), variant=variant, fine=fine, current_A=cur, ok=True, error=None)
-    exp = pybamm.Experiment([(f"Discharge at {cur:.6g} A until {vlo} V", f"Charge at {cur:.6g} A until {vhi} V")] * CYCLES)
+    ncy = FINE_CYCLES if fine else CYCLES
+    exp = pybamm.Experiment([(f"Discharge at {cur:.6g} A until {vlo} V", f"Charge at {cur:.6g} A until {vhi} V")] * ncy)
     model = pybamm.lithium_ion.DFN(VARIANTS[variant])
     kw = dict(parameter_values=pv, experiment=exp)
     if fine:
-        kw.update(var_pts=FINE_PTS, solver=pybamm.IDAKLUSolver(rtol=FINE_TOL, atol=FINE_TOL))
+        kw.update(var_pts=FINE_PTS)
     t0 = time.perf_counter()
     side_keys = ("X-averaged negative electrode SEI volumetric interfacial current density [A.m-3]",
                  "X-averaged negative electrode SEI on cracks volumetric interfacial current density [A.m-3]",
@@ -209,9 +211,11 @@ def bench():
 # ---------- report (stdlib) ----------
 
 def report():
-    runs = [r for r in B._load(HERE / "bench.jsonl") if r.get("ok") and r.get("ok_cycles", 0) >= CYCLES]
-    rows = [ledger_row(r) for r in runs]
-    V, N = verdicts(rows)
+    runs = [r for r in B._load(HERE / "bench.jsonl") if r.get("ok")
+            and r.get("ok_cycles", 0) >= (FINE_CYCLES if r.get("fine") else CYCLES)]
+    rows = [ledger_row(r, FINE_CYCLES if r.get("fine") else CYCLES) for r in runs]
+    rows3 = [ledger_row(r, FINE_CYCLES) for r in runs]
+    V, N = verdicts(rows, rows3)
     groups = {}
     for r in rows:
         groups.setdefault((r["cond"], r["variant"], r["fine"]), []).append(r)
@@ -234,7 +238,7 @@ def report():
     L += ["", f"H187 (the side reactions pass the charge that leaves the particles, within 10%, on every Ai2020 design;"
               f" so the booking variables under-count): {V['H187']}",
           f"H188 (SEI alone accounts for at least 80% of the Ai2020 particle loss on every design): {V['H188']}",
-          f"H189 (not numerical: a doubled mesh and 1e-8 tolerances change the Ai2020 particle loss by under 5%):"
+          f"H189 (not numerical: a doubled mesh changes the Ai2020 particle loss at cycle {FINE_CYCLES} by under 5%):"
           f" {V['H189']}",
           f"H190 (on the control sets the booked side reactions are within 5% of the particle loss): {V['H190']}"]
     (HERE / "results.txt").write_text("\n".join(L) + "\n")
@@ -242,8 +246,51 @@ def report():
     print("\n".join(L))
 
 
+# ---------- terms (stdlib; post hoc, on 5z's committed records and 5zi's committed pools) ----------
+
+def offsets(row):
+    """5z's per-design log changes (cycle 2 to 99) split against the separator-surface OCP term: the share of it the
+    intercalation overpotential, the film and c_e terms and the charge-profile shape (index - end - time) give back,
+    and the ratio of what is left (index - time) to the OCP term."""
+    ocp = row["d_ocp"]
+    shape = row["index"] - row["end"] - row["d_time"]
+    return dict(eta=-row["d_eta_int"] / ocp, other=-(row["d_film"] + row["d_ce"]) / ocp, shape=-shape / ocp,
+                left=(row["index"] - row["d_time"]) / ocp)
+
+
+def terms():
+    S = json.loads((EXP / "mechanism" / "summary.json").read_text())
+    P = json.loads((EXP / "lever" / "summary.json").read_text())["pools"]
+    med = statistics.median
+    L = ["cell-fidelity milestone 5zj (post hoc): what gives back the separator-surface OCP lever? 5z's committed DFN"
+         " records, cycle 2 against 99,", "as shares of the OCP term (medians over designs, [min, max]); left = the"
+         " time-integrated plating index's potential part / OCP term", "",
+         f"{'condition':20s}{'n':>3s}{'eta_int':>16s}{'film+c_e':>16s}{'shape':>16s}{'left':>16s}"]
+    out = {}
+    for c, rows in S["rows"].items():
+        o = [offsets(r) for r in rows]
+        d = {k: (med([x[k] for x in o]), min(x[k] for x in o), max(x[k] for x in o)) for k in o[0]}
+        out[c] = d
+        f = lambda k: f"{d[k][0]:6.2f} [{d[k][1]:4.2f},{d[k][2]:4.2f}]".replace("[-", "[-")
+        L.append(f"{c:20s}{len(o):3d}" + "".join(f"{f(k):>16s}" for k in ("eta", "other", "shape", "left")))
+    L += ["", "5zi's set medians of the lever-implied exponent, rescaled by this 'left' ratio (kappa_path x left), against"
+              " the oracle kappa*:", f"{'set':14s}{'kappa_path':>11s}{'x left':>8s}{'rescaled':>10s}{'kappa*':>8s}"]
+    sets = {"Ai2020": "Ai2020@0.45x", "Chen2020": "Chen2020@1.5x", "OKane2022": "OKane2022@1.5x",
+            "NCA_Kim2011": "NCA_Kim2011@0.875x"}
+    resc = {}
+    for st, c in sets.items():
+        kp = med([v["k_path"] for v in P.values() if v["set"] == st])
+        ks = med([v["k_star"] for v in P.values() if v["set"] == st])
+        lf = out[c]["left"][0]
+        resc[st] = dict(k_path=kp, left=lf, rescaled=kp * lf, k_star=ks)
+        L.append(f"{st:14s}{kp:11.1f}{lf:8.2f}{kp * lf:10.1f}{ks:8.1f}")
+    (HERE / "terms.txt").write_text("\n".join(L) + "\n")
+    (HERE / "terms.json").write_text(json.dumps(dict(conditions=out, rescaled=resc), indent=1) + "\n")
+    print("\n".join(L))
+
+
 if __name__ == "__main__":
     if len(sys.argv) > 2 and sys.argv[1] == "child":
         print(json.dumps(simulate(json.loads(sys.argv[2]))))
     else:
-        {"bench": bench, "report": report}[sys.argv[1] if len(sys.argv) > 1 else "report"]()
+        {"bench": bench, "report": report, "terms": terms}[sys.argv[1] if len(sys.argv) > 1 else "report"]()
