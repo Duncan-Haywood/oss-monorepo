@@ -1,0 +1,19 @@
+# CVSS Vector Check: does this advisory's CVSS score match its own vector?
+
+> Free CVSS v3.1 and v3.0 checker. Scores a vector string (base, temporal, environmental, with impact and exploitability sub-scores), names every metric, and flags malformed vectors (missing or repeated metrics, bad values, no CVSS:3.x prefix, v2 or v4 vectors). Compares two vectors metric by metric with the effect of each difference on its own, and lists what each single base-metric change would do to the score. Audits pasted text, CSV, or NVD / OSV / scanner JSON: every CVSS:3.x vector is rescored and the stated score and severity label beside it are checked, with the likely reason when a stated score is the temporal, environmental, other-version or naive-rounding score. Runs in the browser; nothing is uploaded. A zero-dependency CLI does the same, with --strict for CI.
+
+Free and open source (MIT). Scores agree with Red Hat's independent `cvss` Python package on all 259,200 base and temporal vectors of each version and on 200,000 random environmental vectors. It is not legal, security or professional advice; a CVSS score measures technical severity, not risk.
+
+## Pages
+
+- [The tool](https://marisstella.app/cvss-vector-check/)
+- [CVSS 3.0 vs 3.1: when do the scores actually differ?](https://marisstella.app/cvss-vector-check/cvss-3-0-vs-3-1-score-differences.html)
+
+## For agents
+
+- Engine: `cvss.mjs`. `analyze({ vector, compare, text })` returns `explain` (version, canonical `vector`, `metrics` with words, `scores` {base, temporal, environmental, severities, impact, exploitability}, `otherVersion` scores, `findings`), `sensitivity` (each single base-metric change), `diff` (`differences` with each one's effect alone, `baseDelta`, `notes`) and `audit` (`rows` with `stated`, `base`, `status` ok / mismatch / explained / invalid and `problems`; `totals`). Also `explain`, `diffVectors`, `sensitivity`, `audit`, `auditCsv`, `scoreMetrics`, `parseVector`. Callable through `node platform/agents/tools.mjs call cvss-vector-check analyze --input '{"vector":"CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"}'` or the repository's MCP server (`call_tool`).
+- CLI: `node ventures/cvss-vector-check/cli.mjs '<vector>' [--diff '<vector>'] [--json]` or `cli.mjs --audit <file | -> [--json] [--strict]`.
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cvss-vector-check): MIT licensed.
