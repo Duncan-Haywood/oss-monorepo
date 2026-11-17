@@ -6155,6 +6155,30 @@ p 0.05). A size-calibrated test with low power is usable if it says so, and the 
 exists. So the CLI prints the power record with every result ("a large p is not evidence of no effect"), and the fit
 and placebo warnings beside the p. The decision is a product call by this run, not a new pre-registered result.
 
+### A synthetic control on the page, with its balance table (2026-11-17)
+
+The CLI's synthetic control ran only from a terminal; the people it is for (an analyst asking whether a store,
+region or state really moved after a change, against the others that did not) mostly will not install Node. The page
+now has it. In "One column" mode, name the treated column in **Column**, the date in **Test a date you name**, and
+put `all` or a list of column names in **Compare with other columns at that date**; optionally paste a covariates
+table (the CLI's `--covariates` format: one row per unit, the column name first, a header naming the covariates).
+A new card, "Against a synthetic control", shows what `synthText` prints: the gap after the date, the weights, the
+before-fit with the fit warning, the floored placebo rank and p and the paper's ratio, the covariate balance table
+with a **Warning** cell where 80% or more of the placebos are matched better, the power caveat, a chart of the treated
+series against its synthetic with the date marked, and a CSV of treated, synthetic and gap per row.
+
+It runs in the page's existing worker job (`analyze-job.mjs`: `{ kind: 'one', opts, synth }` returns
+`result.synth`, or `result.synthError` with the one-column result left standing), so the panel never blocks the page.
+The view is `synth-view.mjs` (pure functions). **Load example: California's 1989 tobacco tax against 38 states**
+fills the boxes from `example-prop99.mjs`, a copy of `data/us-cigarette-packs-per-capita.csv` cut at 2000 and
+`data/prop99-covariates-1989.csv` with the 38-state donor pool of `synth-cli.test.mjs`; the page then shows the
+CLI's numbers exactly (rank 1 of 39, p 0.026; UT 0.391, MT 0.227, NV 0.207; gap -19.5 on average; the
+`ln income 1980-88` warning, 89% of placebos matched better). `synth-page.test.mjs` checks the copies match the data
+files, the worker job gives those numbers, a bad donor name reports an error without losing the one-column result,
+and the page is wired; a headless Chromium run of the example (2026-11-17) showed the card with no console errors
+and no horizontal scroll at 390 px. Counted as `synth_run` / `synth_balance_run` (local counters only). No new
+method or measurement: every number shown comes from the CLI's tested code.
+
 ### Two covariates: the warning carries the false finds, but does not always name the culprit (2026-11-17, pre-registered; one bar failed)
 
 The balance round asked for "a two-covariate cell (one that matters, one that does not) to check the warning names

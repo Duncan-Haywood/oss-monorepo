@@ -13,6 +13,7 @@
 import { COLOURS, FABRICS, GARMENTS } from "./catalogue.mjs";
 import { MOTIFS } from "./motifs.mjs";
 import { splitNegations } from "./negation.mjs";
+import { readQuestion, resolveReference } from "./refer.mjs";
 
 const WORD_NUMBERS = {
   zero: 0, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
@@ -83,16 +84,29 @@ const AREA_WORDS = [
 
 /** Split a sentence into clauses on "and", "then", commas, full stops. Quoted text is kept whole. */
 export function clauses(text) {
+  return clauseMarks(text).map(c => c.text);
+}
+
+/** Like `clauses`, with `question: true` on each clause that ended with "?". */
+export function clauseMarks(text) {
   const quoted = [];
   const masked = text.replace(/["“”'‘’]([^"“”'‘’]{1,60})["“”'‘’]/g, (_, q) => {
     quoted.push(q);
     return ` __q${quoted.length - 1}__ `;
   });
-  return wordsToNumbers(masked)
-    .split(/\s*(?:(?<!\d)\.|\.(?!\d)|[,;!?]+|\band then\b|\bthen\b|\band also\b|\balso\b|\band\b)\s*/i)
-    .map(c => c.trim())
-    .filter(Boolean)
-    .map(c => c.replace(/__q(\d+)__/g, (_, i) => `"${quoted[Number(i)]}"`));
+  const parts = wordsToNumbers(masked)
+    .split(/(\s*(?:(?<!\d)\.|\.(?!\d)|[,;!?]+|\band then\b|\bthen\b|\band also\b|\balso\b|\band\b)\s*)/i);
+  const out = [];
+  for (let i = 0; i < parts.length; i += 2) {
+    const t = (parts[i] ?? "").trim();
+    if (!t) continue;
+    out.push({
+      text: t.replace(/__q(\d+)__/g, (_, k) => `"${quoted[Number(k)]}"`),
+      question: (parts[i + 1] ?? "").includes("?"),
+      sep: (parts[i + 1] ?? "").trim().toLowerCase(),
+    });
+  }
+  return out;
 }
 
 function distanceCm(c) {
@@ -328,18 +342,47 @@ export function parseClause(raw, design) {
 
 /**
  * Parse a whole utterance. Returns
- *   { steps: [{ words, ops, ui, did }], unmatched: [words], declined: [{ words, cue }] }
+ *   { steps: [{ words, ops, ui, did, suggested? }], unmatched: [words], declined: [{ words, cue }], questions: [{ words, topic }] }
  * Negated words ("not black", "don't make it bigger", "no embroidery") are
  * cut out before parsing (`negation.mjs`) and listed in `declined`, never
- * applied.
+ * applied. Questions (`refer.mjs`) are either suggestions, tried and marked
+ * `suggested` ("isn't navy better?", "what about a hoodie"), or questions for
+ * information, listed in `questions` and never applied ("is embroidery more
+ * expensive?"). With `timeline` (designs oldest first, the present last),
+ * references to earlier versions are resolved: "go back to the cream", "the
+ * previous colour", "undo the last two", "back to the original".
  */
-export function parseCommand(text, design) {
+export function parseCommand(text, design, timeline = null) {
   const steps = [];
   const unmatched = [];
   const declined = [];
-  for (const clause of clauses(String(text || "").slice(0, 600))) {
+  const questions = [];
+  const line = Array.isArray(timeline) && timeline.length ? timeline : design ? [design] : null;
+  const marks = clauseMarks(String(text || "").slice(0, 600));
+  for (let k = 0; k < marks.length; k++) {
+    const { text: clause, question } = marks[k];
     if (/^(please|ok(?:ay)?|um+|uh+|so|now|yeah|yes|and|can you|could you|no|nope|nah|not that)$/i.test(clause)) continue;
-    let cleaned = clause.replace(/^(?:please|ok(?:ay)?|um+|uh+|so|now|yeah|can you|could you|i want(?: you)? to|i'd like(?: to)?|let's)\s+/i, "");
+    let cleaned = clause.replace(/^(?:please|ok(?:ay)?|um+|uh+|so|now|yeah|hmm+|well|i want(?: you)? to|i'd like(?: to)?|let's)\s+/i, "");
+    const q = readQuestion(cleaned, question);
+    if (q?.kind === "ask") {
+      // "which is cheaper, dtg or screen print?": the rest of the sentence up to its "?" belongs to the question.
+      let words = clause;
+      let end = k;
+      if (!question) {
+        let j = k;
+        while (j + 1 < marks.length && [",", "and", "or"].includes(marks[j].sep)) { j++; if (marks[j].question) break; }
+        if (j > k && marks[j].question) end = j;
+      }
+      for (let j = k + 1; j <= end; j++) words += `${marks[j - 1].sep === "," ? "," : ` ${marks[j - 1].sep}`} ${marks[j].text}`;
+      k = end;
+      questions.push({ words, topic: readQuestion(words, true)?.topic ?? q.topic });
+      continue;
+    }
+    const suggested = q?.kind === "suggest";
+    if (suggested) cleaned = q.body;
+    cleaned = cleaned.replace(/^(?:can you|could you|would you|will you)\s+(?:please\s+)?/i, "");
+    const ref = resolveReference(cleaned, line, parseClause);
+    if (ref) { steps.push({ words: clause, ...ref }); continue; }
     // Naming, writing text and "never mind" carry their own words: no negation cut.
     const ownWords = /\b(call it|name it|name the design|title it)\b|^(?:undo|never mind)/i.test(cleaned)
       || (/\b(add|write|put|print|say|spell|change|replace|edit)\b/i.test(cleaned) && (/["“”]/.test(cleaned) || /\b(text|words?|saying|caption|slogan)\b/i.test(cleaned)));
@@ -352,10 +395,10 @@ export function parseCommand(text, design) {
       cleaned = cleaned.replace(/^(?:but|instead|rather|just|only)\s+/i, "");
     }
     const r = parseClause(cleaned, design);
-    if (r) steps.push({ words: clause, ...r });
+    if (r) steps.push({ words: clause, ...r, ...(suggested ? { suggested: true, did: `Trying it (you asked): ${r.did ?? ""}`.trim() } : {}) });
     else unmatched.push(clause);
   }
-  return { steps, unmatched, declined };
+  return { steps, unmatched, declined, questions };
 }
 
 /** Example commands shown on the page and used by the tests and evals. */

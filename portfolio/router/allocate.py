@@ -228,7 +228,13 @@ def _load_yaml(path: Path) -> dict:
                   "Another interpreter is ~15x faster, e.g. /usr/bin/python3.13 or a venv with "
                   "`pip install pyyaml`.)", file=sys.stderr)
         loader = yaml.SafeLoader
-    return yaml.load(path.read_text(), Loader=loader) or {}
+    text = _FLAGSHIPS_TEXT if _FLAGSHIPS_TEXT is not None and path == FLAGSHIPS_PATH else path.read_text()
+    return yaml.load(text, Loader=loader) or {}
+
+
+# portfolio/flagships.yaml as origin/main has it, when that is newer than this checkout's copy
+# (use_main_flagships). None means read the file.
+_FLAGSHIPS_TEXT: Optional[str] = None
 
 
 def count_portfolio_mentions(
@@ -809,6 +815,73 @@ def deepen_to_window(days: int) -> bool:
         return False
     except (OSError, subprocess.SubprocessError):
         return False
+
+
+def refresh_tip(cwd: Path = REPO_ROOT, run=subprocess.run) -> bool:
+    """Fetch main when origin/main is not the remote's tip; True when it fetched.
+
+    Why: the flagship rows were read from the clone, and a clone is minutes to
+    hours old. Four sessions on 2026-11-16/17 claimed a `next:`/`buildable:`
+    item that had merged 1 to 2 minutes earlier (#16518, #16883, #17063 and a
+    service-charge item; doc_friction on this file): the table's open-PR column
+    is read live, the row text was not. ls-remote costs under a second, and the
+    fetch only the commits since the clone."""
+    def git(*args, timeout=20):
+        return run(["git", *args], capture_output=True, text=True, timeout=timeout, cwd=cwd)
+    try:
+        remote = git("ls-remote", "origin", "refs/heads/main").stdout.split()
+        local = git("rev-parse", "-q", "--verify", "origin/main").stdout.strip()
+        if not remote or remote[0] == local:
+            return False
+        return _shallow_fetch(["-q", "origin", "main"], cwd=cwd, timeout=FETCH_TIMEOUT_S).returncode == 0
+    except (OSError, subprocess.SubprocessError):
+        return False
+
+
+FLAGSHIPS_REL = "portfolio/flagships.yaml"
+
+
+def main_flagships(cwd: Path = REPO_ROOT, run=subprocess.run) -> tuple[Optional[str], str]:
+    """(origin/main's flagships.yaml text, note) when it is newer than this checkout's copy
+    and the session has not edited the file itself; (None, note) when the rows shown are
+    local though main's differ (the note says so); (None, "") when they agree.
+
+    A session that edits the file (a claim, a parked item) keeps its own copy: its PR
+    resolves the difference when it merges main."""
+    def git(*args):
+        done = run(["git", *args], capture_output=True, text=True, timeout=20, cwd=cwd)
+        return done.stdout if done.returncode == 0 else None
+    try:
+        theirs = git("show", f"origin/main:{FLAGSHIPS_REL}")
+        if theirs is None:
+            return None, ""
+        work = (Path(cwd) / FLAGSHIPS_REL)
+        mine = work.read_text() if work.is_file() else None
+        if mine == theirs:
+            return None, ""
+        stale = ("(portfolio/flagships.yaml differs on origin/main and this checkout {why}, so the rows "
+                 "below are this checkout's: `git merge origin/main` before taking an item.)")
+        if mine != git("show", f"HEAD:{FLAGSHIPS_REL}"):
+            return None, stale.format(why="has uncommitted edits to it")
+        base = (git("merge-base", "HEAD", "origin/main") or "").strip()
+        if not base or git("show", f"{base}:{FLAGSHIPS_REL}") != mine:
+            return None, stale.format(why="changed it too (or the shared base is outside this shallow clone)")
+        newer = (git("log", "--format=%s", f"{base}..origin/main", "--", FLAGSHIPS_REL) or "").splitlines()
+        latest = f"; newest: {newer[0][:120]}" if newer else ""
+        return theirs, (f"(flagship rows read from origin/main: {len(newer)} commit(s) to "
+                        f"portfolio/flagships.yaml landed after this checkout{latest})")
+    except (OSError, subprocess.SubprocessError, UnicodeDecodeError):
+        return None, ""
+
+
+def use_main_flagships(cwd: Path = REPO_ROOT) -> None:
+    """Refresh origin/main and read flagship rows from it when it is newer (main_flagships)."""
+    global _FLAGSHIPS_TEXT
+    refresh_tip(cwd)
+    text, note = main_flagships(cwd)
+    _FLAGSHIPS_TEXT = text
+    if note:
+        print(note, file=sys.stderr)
 
 
 def recent_commits(days: int = 7, deepen: bool = True) -> dict[str, int]:
@@ -1507,6 +1580,8 @@ def main(argv: Optional[list[str]] = None) -> int:
                         help="print one venture's row in full (untruncated flagship `next:`, open PRs, last landing)")
     args = parser.parse_args(argv)
 
+    if not args.no_deepen:
+        use_main_flagships()
     ventures = load_ventures()
     if not ventures:
         print("No ventures with a VENTURE.yaml found.", file=sys.stderr)
