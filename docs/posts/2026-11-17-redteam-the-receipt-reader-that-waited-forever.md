@@ -1,9 +1,9 @@
 ---
 title: "The receipt reader that could wait forever, and six faults its tests missed"
-seo_title: "Testing a Web Worker OCR driver: a lost message and canvas code with no tests"
+seo_title: "Testing a Web Worker OCR driver: a lost message and untested canvases"
 date: 2026-11-17
-tags: [redteam, ai-bookkeeper, ocr, web-worker, testing]
-description: "A red-team run on ai-bookkeeper's receipt-photo reader. The tests caught 3 of 10 seeded faults. It also found a race that could leave the page waiting forever on a worker that had died."
+tags: [redteam, ai-bookkeeper, ocr, web-workers, testing]
+description: "A red-team run on ai-bookkeeper's receipt-photo reader: tests caught 3 of 10 seeded faults, and a race could leave the page waiting on a dead worker."
 ---
 
 Earlier today [ai-bookkeeper](../../ventures/ai-bookkeeper/README.md)'s receipts page moved its
