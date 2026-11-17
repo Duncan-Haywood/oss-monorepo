@@ -26,7 +26,7 @@ Model. 11ai's (level_leak.py) unchanged except the gap's error sd, which now dep
  * h grid: 11ai's 5..41 m in 2 m steps plus every band count's widest spacing h_k = H / (2k - 1), k = 2..12
    (11ai's post hoc found the optimum sits there). H = 120 m, k = k_cap(H, h) band positions, empty bands allowed.
 Planners, all scored under the true pair-dependent F:
- * aware: knows the classes, searches labels and h on the true F (best of 100 descents, plus the two blind plans
+ * aware: knows the classes, searches labels and h on the true F (best of 200 descents, plus the two blind plans
    at that h as starts, so it is never worse than them at the same h);
  * naive: 11ai's planner at sigma (assumes every pair is same-class), h chosen on its own objective;
  * cautious: 11ai's planner with every pair at the mixed sd (sigma_eff = sqrt(sigma^2 + sigma_m^2 / 2)), h chosen on
@@ -137,7 +137,45 @@ class Problem:
         D = np.abs(lab[:, None] - lab[None, :])
         return float((self.Wm * self.pwm[D]).sum() + (self.Xm * self.pxm[D]).sum())
 
+    def _pair_table(self):
+        """G[i, j, a, b]: the cost i carries for pair (i, j) with i at position a and j at b (zero for j = i)."""
+        if getattr(self, "_G", None) is None:
+            S = lambda A: A + A.T
+            Cw = (S(self.Ws)[:, :, None] * self.pws + S(self.Xs)[:, :, None] * self.pxs
+                  + S(self.Wm)[:, :, None] * self.pwm + S(self.Xm)[:, :, None] * self.pxm)
+            ar = np.arange(self.k)
+            Dk = np.abs(ar[:, None] - ar[None, :])
+            below = (ar[None, :] < ar[:, None]).astype(float)        # [a, b]: j (at b) below i (at a)
+            G = Cw[:, :, Dk] + self.V[:, :, None, None] * below + self.V.T[:, :, None, None] * below.T
+            m = G.shape[0]
+            G[np.arange(m), np.arange(m)] = 0.0
+            self._G = G
+        return self._G
+
     def descend(self, labels):
+        """Best-improvement single-move descent over band positions (empty positions kept: spacers). Keeps the
+        table cost[i, a] (i's pair costs if moved to a) and updates it in O(m k) per move."""
+        G = self._pair_table()
+        lab = np.array(labels, dtype=int)
+        m = len(lab)
+        ar = np.arange(m)
+        cost = G[ar[:, None], ar[None, :], :, lab[None, :]].sum(axis=1)        # (m, k)
+        moves = 0
+        while True:
+            cur = cost[ar, lab]
+            d = cost - cur[:, None]
+            i, a = np.unravel_index(int(d.argmin()), d.shape)
+            if not d[i, a] < -1e-12 * max(1.0, abs(cur[i])):
+                return tuple(int(x) for x in lab)
+            b = lab[i]
+            cost += G[:, i, :, a] - G[:, i, :, b]
+            lab[i] = a
+            moves += 1
+            if moves % 64 == 0:                                               # refresh against float drift
+                cost = G[ar[:, None], ar[None, :], :, lab[None, :]].sum(axis=1)
+
+    def descend_ref(self, labels):
+        """The O(m^2 k) per move reference (11ai's descend generalised to pair classes)."""
         Ss, SXs, Sm, SXm = self.Ws + self.Ws.T, self.Xs + self.Xs.T, self.Wm + self.Wm.T, self.Xm + self.Xm.T
         V, k = self.V, self.k
         lab = np.array(labels, dtype=int)

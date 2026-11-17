@@ -93,3 +93,16 @@ def test_segregated_and_spacer():
 def test_hgrid_contains_band_count_spacings():
     g = rm.hgrid()
     assert any(abs(h - 120 / 9) < 1e-6 for h in g) and 13.0 in g and g == tuple(sorted(g))
+
+
+def test_incremental_descent_matches_reference():
+    for seed in range(6):
+        m = 9 + seed
+        W, X, V = _WXV(m, 20 + seed)
+        cls = rm.classes(m, 0.5, seed)
+        P = rm.Problem(W, X, V, cls, 9.0 + seed, 7.62, 1.0, 3.0, 5)
+        rng = np.random.default_rng(seed)
+        for _ in range(5):
+            s0 = tuple(int(x) for x in rng.integers(0, 5, m))
+            a, b = P.descend(s0), P.descend_ref(s0)
+            assert abs(P.score(a) - P.score(b)) <= 1e-9 * P.score(b)
