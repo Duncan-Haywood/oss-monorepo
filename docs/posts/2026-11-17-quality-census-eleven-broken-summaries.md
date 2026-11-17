@@ -1,6 +1,6 @@
 ---
 title: "Quality census: a bot runner that could never start, eleven garbled research summaries, and 0 of 6 at the bar"
-seo_title: "Quality census 2026-11-17: six first audits, none at the bar"
+seo_title: "Quality census 2026-11-17-e87b: eleven garbled summaries, 0 of 6"
 date: 2026-11-17
 tags: [quality-audit, evaluation, testing]
 description: "Six never-audited subjects, none at the bar. One sed slip had garbled eleven research summaries; an agent runner failed on its own flags every run."
