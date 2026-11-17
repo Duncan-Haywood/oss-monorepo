@@ -36,6 +36,7 @@ from feeder_sim import controller
 
 TAKES = (("halfsine", 6.0), ("front", 4.0), ("halfsine", 3.0))
 SEED, PLANT, LAG = 7, 0, 0.3
+PICK = (0.0, 2.0, 3.0, 4.0, 5.0, 6.0, 8.0)     # candidate contact times, ms (0: the step)
 
 
 def fits_for(row):
@@ -77,7 +78,7 @@ def case(args):
                 res = item[1]
             yield item
         sim = sims[-1]
-        if not kw and res is not None and sim.taken:
+        if "refine" not in kw and res is not None and sim.taken:     # the board's own fit (the survey passes refine=0)
             at, dws = sim.taken[-1]
             k = min((0, 1), key=lambda i: abs(at[i] - res[1]))
             if abs(at[k] - res[1]) < 0.05 * at[k]:
@@ -103,8 +104,25 @@ def score(rows):
         for name, kw in fits_for(x):
             f = result(x["periods"], [tuple(t) for t in x["ticks"]], kw)
             x["fits"][name] = None if f is None else f[0] / x["true"]
+    # the contact time picked from the fits' own misses: per wheel (lowest rms of that fit), and per build (lowest sum
+    # of squared rms over the build's wheels at 1,000 rpm and up), half-sine profile, from PICK candidates
+    for x in rows:
+        x["cand"] = {}
+        for ms in PICK:
+            f = result(x["periods"], [tuple(t) for t in x["ticks"]], {"take": controller.take_offsets(ms * 1000)})
+            x["cand"][ms] = None if f is None else (f[0] / x["true"], f[4])
+        ok = [ms for ms in PICK if x["cand"][ms] is not None]
+        x["fits"]["picked per wheel"] = x["cand"][min(ok, key=lambda ms: x["cand"][ms][1])][0] if ok else None
+    for b in {tuple(x["build"]) for x in rows}:
+        sub = [x for x in rows if tuple(x["build"]) == b and x["rpm"] >= u.FLOOR]
+        cost = {ms: sum(x["cand"][ms][1] ** 2 for x in sub if x["cand"][ms] is not None) for ms in PICK}
+        best = min(PICK, key=cost.get)
+        print(f"build {b} (take {sub[0]['take'][0]} {sub[0]['take'][1]} ms): picked {best} ms half-sine")
+        for x in rows:
+            if tuple(x["build"]) == b:
+                x["fits"]["picked per build"] = None if x["cand"][best] is None else x["cand"][best][0]
     rows = [x for x in rows if x["rpm"] >= u.FLOOR]
-    names = [n for n, _ in fits_for(rows[0])]
+    names = [n for n, _ in fits_for(rows[0])] + ["picked per wheel", "picked per build"]
     print(f"{len(rows)} wheel fits at {u.FLOOR:.0f} rpm and up; reading / true drop, mean and sd")
     print(f"{'take':16} {'fit':22} {'n':>4} {'mean':>7} {'sd':>6} {'sd >= 4,500 rpm':>15}")
     for shape, ms in TAKES:
