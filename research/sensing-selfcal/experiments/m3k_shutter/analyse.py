@@ -106,7 +106,10 @@ def main():
     for k, v in hyp.items():
         print(k, {kk: (round(vv, 4) if isinstance(vv, float) else vv) for kk, vv in v.items()})
     print(json.dumps(unscored, indent=1)[:2500])
-    figure(a, xb, yb, T, g, tr)
+    okb = np.array([j["rs"]["status"] > 0 and j["gs"]["status"] > 0 for j in B]) & (np.abs(yb) < 0.5)
+    S["unscored"]["part_b_plotted"] = int(okb.sum())
+    json.dump(S, open(os.path.join(HERE, "summary.json"), "w"), indent=1)
+    figure(a, xb[okb], yb[okb], T, g, tr)
 
 
 def figure(a, xb, yb, T, g, tr):
@@ -128,7 +131,7 @@ def figure(a, xb, yb, T, g, tr):
     lim = max(abs(xb).max(), abs(yb).max()) * 100
     ax[1].plot([-lim, lim], [-lim, lim], "k--", lw=0.8)
     ax[1].set_xlabel("g x t_r x mean keyframe pitch rate (%)"); ax[1].set_ylabel("focal shift (%)")
-    ax[1].set_title("B: hand-held random rates")
+    ax[1].set_title("B: hand-held random rates (converged, |shift| < 50%)", fontsize=10)
     for s, c in (("fr1_desk", "C0"), ("fr1_xyz", "C1"), ("fr3_stf", "C2")):
         ws = [w for w in T if w["seq"] == s]
         ax[2].scatter([w["implied_abs_e"] * 100 for w in ws], [w["abs_e"] * 100 for w in ws], s=12, color=c, label=s)
