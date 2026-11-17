@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVPrEraCtUpanuYtsRk",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (scheduled routine prompt)",
+  "input_sha256": "4207abd77e9a8607d5ea627a8aa7754abc9fab62bb68e0f6eb3a480afbda5e64",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T02:24:02Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 11): chant-forge, X's cog read as a nasal and tum read as nothing",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16775",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/chant-forge/eval/coda-check-report.md",
+      "issue": "The committed report predated a reader change: re-running the default reader moved part A's E2 *ad* from a miss to a read (178 to 179 of 180), unrelated to this round. The rebuilt report now carries it."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-chant-forge-a-rule-that-gained-on-development-and-failed-held-out.md"
+  ],
+  "goal": null,
+  "notes": "chant-forge twenty-first coda round. Diagnosed X's cog (C#4-E4) with eval/burst-diag.mjs (now prints the winning nasal rule and its run; parts X and Y added to eval/vstop-parts.mjs): closure and burst found, but a level/step nasal run (the /o/ darkening, then the voice bar) started 7-8 frames earlier and won. New opt-in readCoda `voicedLead` drops a nasal run ending at or inside a voice-bar-rule closure that reads voiced. Broad form (any voiced closure) lost 9 n-t/n-c clusters incl. corpus mant/dant/hanc, dropped. Development A-X with the bar form: +11 cells, 0 lost, X voiced 130 to 133 of 144. Pre-registered part Y (committed 40910f4 before Y ran): voiced 173 to 174 of 192, as nasal 10 to 9 (2 wanted): FAILED, stays opt-in; risks held. Post-hoc: Y's misses end on closure-rule closures. tum on D4-E4: m sung ~7 dB under /u/ but only 4-6 dB darker; step rule wants 7. Local checks: full eval/coda-check.mjs rebuilt (A-X identical to the default reader, plus Y); voiced-lead.test.mjs 2 of 2; run_venture_tests.py chant-forge and venture-preflight below.",
+  "corrections": [],
+  "redteam": null
+}

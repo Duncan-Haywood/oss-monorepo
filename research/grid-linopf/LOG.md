@@ -1,5 +1,18 @@
 # Research log
 
+## 2026-11-17 · What stalls the repair on case73 and case118 API: outcome. case73 API is a local infeasibility of the repair's controls (the l1 voltage violation is within 1.6 &times; 10<sup>&minus;5</sup> of stationary); case118 API is the acceptance test; acceptance on the penalty changes no verdict
+- Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-17); numbers in `research/infra-dcopf/experiments/results_elastic.txt`. S1, S2, V1 refuted; S3, S4, V2 held.
+- On case73 API from round 22 the elastic QP can lower the margin-shifted voltage violation by at most 8.8 &times; 10<sup>&minus;6</sup> at any box scale from 1 to 10<sup>&minus;3</sup>: two PQ buses sit up to 0.002 pu below V<sub>min</sub>, 14 of 33 setpoints are on their upper bound and the lines on their margins. Proposition 2 applies; the earlier Q7 reading (not stationary, because the step scales with the box) is withdrawn: the step moves along directions that leave the violation flat.
+- On case118 API every late elastic step lowers the QP's penalty (sum of overloads) and is rejected by the merit (worst overload). Accepting elastic rounds on the penalty instead finishes neither case and loses none of the 31 development finishers (one finishes a round later, +0.68 % instead of +0.34 %).
+
+## 2026-11-17 · Is case73 API's stall a stationary point of the elastic penalty? (plan)
+- Plan and predictions S1 to S4 (arm T, the elastic QP's own penalty logged per round with a box probe) and V1, V2 (arm P, acceptance on the penalty on elastic rounds): `research/infra-dcopf/LOG.md` (2026-11-17); script `research/infra-dcopf/experiments/run_elastic.py`.
+
+## 2026-11-17 · Milestone 7, theory half: a step-based convergence statement replacing H4. Halvings bounded by a logarithm (H* &le; 12); accepted rounds, 162 of 228 misses, have no a priori bound; case73 API's stall is not first-order stationarity
+- Statement and proofs: [`theory.md`](theory.md) (Proposition 1, Theorems 1 to 3, Proposition 2; assumptions A1 smooth power flow along the steps, A2 hard-QP feasibility). Plan, predictions Q1 to Q7 and outcome: `research/infra-dcopf/LOG.md` (2026-11-17); numbers in `research/infra-dcopf/experiments/results_theory.txt` (from the 2026-11-13 traces, no new solves).
+- **Q1 to Q4 held:** halvings never exceed H&#770;* (range 1 to 12, observed 0 to 5); the finishing step is inside the worst-case radius on only 4 of 31 finishers; steps shrink before the finish on 28 of 28. **Q5 to Q7 refuted:** round 1's curvature does not predict the path (15 of 39); the path-length bound is 24x loose (median); case73 API's elastic step scales with its box over a 250-fold halving, so Proposition 2's d = 0 hypothesis is not met, which corrects the 2026-11-13 "stationary point" reading.
+- Next: log the elastic penalty decrease on case73 and case118 API; a box tied to the violation (makes the accepted-round count a priori), held-out; acceptance on the elastic QP's own penalty.
+
 ## 2026-11-16 · The five unscored cases with a second-solver start: outcome. 13 of 24 with the reactive stage (was 12); J alone stays at 10
 - Plan and outcome: `research/infra-dcopf/LOG.md` (2026-11-16); numbers in `research/infra-dcopf/experiments/results_dc_rescue.txt`.
 - E1 (full-load power flow on at least 3 of 5) and E2 (J clean on at least 1) refuted: 2 of 5 and 0 of 5. case2000 API ends J one Q limit short and the IPOPT reactive stage makes it **fully feasible at +0.193 %**; case1951 API ends at one 104.5 % overload and its reactive stage hit the 45-minute limit. SNEM's warm-start angles were NaN (the x = 0 ties); with them fixed (declared variant) the continuation stalls at 75 to 84 % of load.

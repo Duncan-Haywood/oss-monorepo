@@ -108,9 +108,17 @@ def newton_svd(res):
     return float(sv[-1]), float(sv[0] / sv[-1]) if sv[-1] > 0 else float("inf")
 
 
-def traced_slp(ppc, pg_start, vg_start, rounds=30, margin=None, analytic=True, solver="clarabel"):
+def traced_slp(ppc, pg_start, vg_start, rounds=30, margin=None, analytic=True, solver="clarabel",
+               hook=None, accept=None):
     """vlin.slp's loop, step for step, with diagnostics. Returns (hist, trace): hist as vlin.slp
-    returns it; trace one dict per round."""
+    returns it; trace one dict per round.
+
+    hook (optional, diagnostic): called after each solved round as hook(ctx) with a dict holding the
+    round's lin, QP kwargs, boxes, solution, check result and trial power flow; whatever it returns
+    (a dict) is stored under the round's trace key "hook". It must not change the repair.
+    accept (optional, a method change; None = the frozen merit test): accept(ctx) -> bool decides
+    whether a not-clean trial replaces the base point, with ctx as for hook plus "phi_accept", the
+    frozen test's verdict."""
     margin = margin or vlin.MARGIN
     lay = vlin.Layout(ppc)
     g = ppc["gen"]
@@ -173,16 +181,24 @@ def traced_slp(ppc, pg_start, vg_start, rounds=30, margin=None, analytic=True, s
         brk = [{"fam": str(meta["fam"][i]), "r": float(side[j] * e[i] / meta["mu"][i])}
                for j, i in enumerate(idx)]
         phi_t = vlin.merit(c, base_mva)
-        accepted = (not c["clean"]) and (cur is None or phi_t < vlin.merit(cur, base_mva))
+        phi_acc = cur is None or phi_t < vlin.merit(cur, base_mva)
+        ctx = {"it": it, "lin": lin, "kw": kw, "qp": qp, "ptrust": pt, "vtrust": vtrust,
+               "ptrust_next": ptrust, "xp": xp, "xv": xv, "c": c, "cur": cur, "r1": r1, "m1": m1,
+               "meta": meta, "lay": lay, "margin": margin, "solver": solver, "phi_accept": bool(phi_acc)}
+        if not c["clean"] and accept is not None:
+            phi_acc = bool(accept(ctx))
+        accepted = (not c["clean"]) and phi_acc
         tr.update(status=hist[-1]["status"], qp=qp, dnorm=dnorm, dmax_p_pu=float(np.abs(dpu[:lay.ng]).max()),
                   dmax_v=float(np.abs(dpu[lay.ng:]).max()) if lay.nv else 0.0, rho=rho, kappa=kappa,
                   phi_trial=phi_t, accepted=bool(accepted), broken=brk,
                   rho_fam={f: float(rn[meta["use"] & (meta["fam"] == f)].max())
                            for f in FAMILIES if (meta["use"] & (meta["fam"] == f)).any()})
+        if hook is not None:
+            tr["hook"] = hook(ctx)
         trace.append(tr)
         if c["clean"]:
             break
-        if cur is None or phi_t < vlin.merit(cur, base_mva):
+        if accepted:
             pg, v, cur = xp.copy(), xv.copy(), c
         else:
             ptrust, vtrust = ptrust / 2, vtrust / 2

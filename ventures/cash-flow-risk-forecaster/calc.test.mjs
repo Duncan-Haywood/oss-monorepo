@@ -80,3 +80,10 @@ test("empty forecast is an error; outputs render", () => {
   assert.match(sweepCsv(r), /^week,from/);
   assert.match(summaryText(r), /Chance of dipping/);
 });
+
+test("a quoted description with a comma stays one field (redteam 2026-11-17)", () => {
+  const r = parseLines('2026-12-01,"Rent, unit 4",1200', "Bills");
+  assert.deepEqual(r.errors, []);
+  assert.equal(r.lines.length, 1);
+  assert.equal(r.lines[0].desc ?? r.lines[0].description ?? r.lines[0].name, "Rent, unit 4");
+});

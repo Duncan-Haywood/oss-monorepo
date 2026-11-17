@@ -1,20 +1,15 @@
 // Diagnostic (2026-11-16, fourteenth coda round): parts K's and N's voiced-stop codas read back frame by frame, levels
 // against the reference vowel, with the burst search's verdict per closure.
-//   node eval/vstop-diag.mjs [K|N|T|U|V] [ib,eb] [-v: frames of the misses] [-a: every cell] [--voice-bar off] [--bar N: readCoda's barLead] [--velar: compactVelar]
+//   node eval/vstop-diag.mjs [K|N|T|U|V|W] [ib,eb] [-v: frames of the misses] [-a: every cell] [--voice-bar off] [--bar N: readCoda's barLead] [--velar: compactVelar]
 import { eventsToMidi } from '../midi.mjs';
 import { renderMidi, parseMidi, tickToSeconds } from '../render.mjs';
 import { latinCoda } from '../sing.mjs';
 import { readCoda, expectedRead, frameFeatures } from '../onsets.mjs';
+import { PARTS } from './vstop-parts.mjs';
 const rate = 44100;
 const db = (a, b) => 10 * Math.log10((a + 1e-20) / (b + 1e-20));
 const part = process.argv[2] || 'K';
-const P = {
-  K: { bpm: 104, pitches: [47, 53, 57, 59, 62], all: ['fons', 'dens', 'pons', 'mons', 'gens', 'hinc', 'runt', 'bunt', 'tent', 'cant', 'frons', 'sanct', 'lunt', 'quent', 'ep', 'ip', 'op', 'ec', 'ic', 'oc', 'eb', 'ib', 'ob', 'ef', 'of', 'ot', 'ux', 'ix', 'ox', 'im', 'om', 'on', 'in', 'e', 'i', 'u'] },
-  T: { bpm: 118, pitches: [47, 54, 59, 62, 63, 64], all: ['lub', 'tag', 'pob', 'sug', 'cad', 'mub', 'fod', 'rib', 'vob', 'tid', 'hag', 'peg', 'fun', 'ram', 'lim', 'ben', 'lut', 'mic', 'hep', 'gos', 'rax', 'lunc', 'hel', 'fa'] },
-  U: { bpm: 110, pitches: [45, 50, 56, 58, 61, 63], all: ['dag', 'bob', 'mod', 'sig', 'lag', 'tib', 'ceb', 'nud', 'hod', 'fig', 'gub', 'pid', 'bam', 'sun', 'tem', 'hon', 'dent', 'hens', 'sonc', 'tint', 'dut', 'sic', 'gep', 'bos', 'lex', 'bel', 'mo', 'vit'] },
-  V: { bpm: 114, pitches: [43, 53, 55, 57, 59, 62], all: ['dog', 'bag', 'tog', 'gig', 'vag', 'nig', 'sog', 'leg', 'hug', 'cag', 'dac', 'roc', 'puc', 'nac', 'tuc', 'lic', 'gob', 'dab', 'rub', 'lap', 'rup', 'sep', 'fip', 'mop', 'dap', 'nid', 'led', 'sud', 'rad', 'tod', 'gum', 'ron', 'lis', 'tas', 'mu'] },
-  N: { bpm: 108, pitches: [42, 49, 54, 58, 63, 64], all: ['dant', 'lent', 'sint', 'gunt', 'hunc', 'rens', 'tens', 'fans', 'font', 'vint', 'nab', 'ped', 'lud', 'gab', 'rud', 'tob', 'vig', 'cod', 'pet', 'lac', 'sup', 'rot', 'tac', 'dum', 'ven', 'nam', 'pes', 'vos', 'ma', 'ne'] },
-}[part];
+const P = PARTS[part];
 const SY = ((process.argv[3] && !process.argv[3].startsWith('-') ? process.argv[3] : '') || (part === 'K' ? 'ib,eb,ob' : part === 'T' ? 'tag,pob,hag,vob' : part === 'U' ? 'bob,lag,dag' : 'nab,gab')).split(',');
 const verbose = process.argv.includes('-v'), every = process.argv.includes('-a');
 const barLead = process.argv.includes('--bar') ? Number(process.argv[process.argv.indexOf('--bar') + 1]) : false;

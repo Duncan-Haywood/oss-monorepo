@@ -28,6 +28,12 @@ for a ready PR, 24 h for a draft), with
     block of added lines is already in main's copy (owner_held_prs's rule), so
     the PR is probably superseded: run `portfolio/ledger/supersede_check.py`
     and close it;
+  * **landed**: a commit on main carries the PR's number in its subject
+    (`... (#N)`), so the work merged by another route (a squash push, an
+    adopting session) and the PR was left open. On 2026-11-17, #15748 sat
+    in this list for three days, green-then-conflicting, although 808d45a4b
+    had landed it on 2026-11-13; the file check above missed it because
+    later commits had rewritten those files. Close these with the commit;
   * **says wait**: the body names a reason to leave it ("not for merge",
     "parked", "waiting on the owner", "blocked", "do not merge"). Left open on
     purpose is not stalled, so these are listed apart and never as candidates.
@@ -95,7 +101,27 @@ def merge_word(mergeable) -> str:
     return {True: "clean", False: "conflicts"}.get(mergeable, "?")
 
 
-def classify(prs: list[dict], info_of, rules, now: dt.datetime, main=ohp.NoMain()) -> list[dict]:
+LANDED_RE = re.compile(r"\(#(\d+)\)\s*$")
+
+
+def landed_numbers(ref: str = "origin/main", since: str = "120 days ago") -> dict[int, str]:
+    """{PR number: short sha} for main commits whose subject ends `(#N)`, the
+    squash-merge form. A shallow clone sees only its fetched history; {} when
+    the ref is missing."""
+    import subprocess
+    done = subprocess.run(["git", "log", ref, f"--since={since}", "--format=%h %s"],
+                          cwd=cpg.REPO_ROOT, capture_output=True, text=True)
+    out: dict[int, str] = {}
+    for line in done.stdout.splitlines() if done.returncode == 0 else []:
+        sha, _, subject = line.partition(" ")
+        m = LANDED_RE.search(subject)
+        if m:
+            out.setdefault(int(m.group(1)), sha)  # newest first: keep the newest
+    return out
+
+
+def classify(prs: list[dict], info_of, rules, now: dt.datetime, main=ohp.NoMain(),
+             landed: dict[int, str] | None = None) -> list[dict]:
     """Rows for the same-repo open PRs that touch no owned path and whose head
     is older than its stall threshold, stalest first.
 
@@ -134,6 +160,7 @@ def classify(prs: list[dict], info_of, rules, now: dt.datetime, main=ohp.NoMain(
             "merge": merge_word(info.get("mergeable")),
             "files": len(files),
             "on_main": bool(files) and all(ohp.change_on_main(f, main) for f in files),
+            "landed": (landed or {}).get(pr["number"], ""),
             "says_wait": wait.group(0) if wait else "",
             "branch": (pr.get("head") or {}).get("ref", ""),
         })
@@ -160,10 +187,16 @@ def render(rows: list[dict]) -> str:
             title = r["title"].replace("|", "/")
             if r["draft"]:
                 title = "(draft) " + title
-            note = "already on main: supersede_check.py, then close" if r["on_main"] else ""
+            if r.get("landed"):
+                note = f"landed on main as {r['landed']}: close with that commit"
+            elif r["on_main"]:
+                note = "already on main: supersede_check.py, then close"
+            else:
+                note = ""
             merge = r.get("merge", "?")
             out.append(f"| #{r['number']} | {fmt_idle(r['idle_hours'])} | {r['checks']} | {merge} | {r['files']} | {title} | {note} |")
-        ready = [r for r in live if r["checks"] == "green" and r.get("merge") == "clean" and not r["draft"]]
+        ready = [r for r in live if r["checks"] == "green" and r.get("merge") == "clean" and not r["draft"]
+                 and not r.get("landed")]
         out += ["", f"Green and clean against main: {', '.join('#%d' % r['number'] for r in ready) or 'none'}. "
                 "A 'conflicts' row needs main merged into it first; its green checks ran on an older main."]
     if waiting:
@@ -201,7 +234,7 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         prs = ohp.pages(f"/repos/{repo}/pulls?state=open")
-        rows = classify(prs, info_of, rules, dt.datetime.now(dt.timezone.utc), ohp.GitMain())
+        rows = classify(prs, info_of, rules, dt.datetime.now(dt.timezone.utc), ohp.GitMain(), landed_numbers())
     except Exception as e:  # network, proxy, rate limit
         print(f"orphan_prs: could not read GitHub ({e}); list open PRs by hand", file=sys.stderr)
         return 2

@@ -378,3 +378,38 @@ def test_m11_recall_thins_ties_at_the_expected_rate():
         b = int(v.leader.sum())
         assert sd.rule_recall_dd(v, b, np.random.default_rng(2), 0.5, "adaptive", 0.75, rho).sum() == b
         assert sd.rule_recall_degree(v, b, np.random.default_rng(2), 1.0, recall=rho).sum() == b
+
+
+# ---- milestone 12 ----
+
+def test_m12_strata_cover_exactly_the_ties():
+    V = bcdj.load()[:3]
+    H = bcdj.tie_strata(V)
+    for v in V:
+        assert ((H[v.village] >= 0) == (v.A > 0)).all()
+        assert np.array_equal(H[v.village], H[v.village].T)
+        assert set(np.unique(H[v.village])) <= {-1, 0, 1, 2}
+
+
+def test_m12_constant_recall_matrix_matches_scalar():
+    v = _m9_village()
+    P = np.full(v.A.shape, 0.82)
+    for design, split in (("uniform", None), ("adaptive", 0.75)):
+        a = sd.survey_recall(v, 0.5, np.random.default_rng(4), design, split, 0.82)
+        c = sd.survey_recall(v, 0.5, np.random.default_rng(4), design, split, P)
+        assert all(np.array_equal(x, y) for x, y in zip(a, c))
+
+
+def test_m12_per_tie_recall_reports_only_recallable_ties():
+    v = _m9_village()
+    H = bcdj.tie_strata([v])[v.village]
+    P = np.where(H == 2, 1.0, 0.0)   # strong ties always reported, the rest never
+    s, est, seen = sd.survey_recall(v, 1.0, np.random.default_rng(0), recall=P)
+    assert np.array_equal(seen > 0, H == 2)
+    rates = np.array([0.3, 0.6, 0.9])
+    P = np.where(H >= 0, rates[np.maximum(H, 0)], 0.0)
+    got = np.zeros(3)
+    for seed in range(30):
+        _, _, seen = sd.survey_recall(v, 1.0, np.random.default_rng(seed), recall=P)
+        got += [seen[H == h].mean() for h in range(3)]
+    assert np.allclose(got / 30, 1 - (1 - rates) ** 2, atol=0.03)

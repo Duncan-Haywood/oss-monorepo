@@ -620,3 +620,77 @@ def test_steepest_dated_prefers_a_rising_recent_atom():
     # no candidate in the window: falls back to the latest onset
     assert localise.steepest_dated([{1: (6.0, 0)}] * 50, 49, window=10) == 1
     assert localise.steepest_dated([{}], 0) is None
+
+
+def test_shape_fit_tells_a_step_from_a_ramp():
+    from water_leaks import localise
+    step = [0.0] * 10 + [3.0] * 20
+    ramp = [0.0] * 10 + [0.5 * (i + 1) for i in range(20)]
+    s = localise.shape_fit(step)
+    r = localise.shape_fit(ramp)
+    assert s[0] == "step" and s[1] == 10 and abs(s[2] - 3.0) < 1e-9
+    assert r[0] == "ramp" and r[1] == 10 and abs(r[2] - 0.5) < 1e-9
+    assert localise.shape_fit([0.0] * 5)[0] == "step"   # all zero: tie goes to the step
+    # change times: a step at tau; a ramp at its half level on the last day
+    assert localise.change_time("step", 10, 30) == 10.0
+    assert localise.change_time("ramp", 10, 30) == 9 + 10.0
+    assert localise.change_time("ramp", 10, 30, half=False) == 10.0
+
+
+def test_shape_timed_picks_the_change_nearest_the_alarm():
+    from water_leaks import localise
+    # atom 2: a ramp starting day 10 (half level near day 19); atom 3: a step on day 25.
+    states = []
+    for d in range(30):
+        s = {}
+        if d >= 10:
+            s[2] = (0.3 * (d - 9), 10)
+        if d >= 25:
+            s[3] = (2.0, 25)
+        states.append(s)
+    pick, info = localise.shape_timed(states, 29, alarm=19.5)
+    assert pick == 2 and info[2][0] == "ramp" and info[3][0] == "step"
+    assert localise.shape_timed(states, 29, alarm=25.2)[0] == 3
+    # start-timed, the ramp's change is day 10, far from an alarm at 19.5: the step is nearer
+    assert localise.shape_timed(states, 29, alarm=19.5, half=False)[0] == 3
+    assert localise.shape_timed([{1: (6.0, 0)}] * 50, 49, alarm=49, window=10)[0] == 1
+
+
+def test_shape_chosen_prefers_the_steepest_ramp_else_the_newest():
+    from water_leaks import localise
+    # atom 2: slow ramp from day 5; atom 4: steeper ramp from day 15; atom 3: step on day 25.
+    states = []
+    for d in range(30):
+        s = {}
+        if d >= 5:
+            s[2] = (0.1 * (d - 4), 5)
+        if d >= 15:
+            s[4] = (0.4 * (d - 14), 15)
+        if d >= 25:
+            s[3] = (9.0, 25)
+        states.append(s)
+    pick, info = localise.shape_chosen(states, 29)
+    assert pick == 4 and info[3][0] == "step" and info[2][0] == "ramp"
+    assert abs(info[4][2] - 0.4) < 1e-9 and info[4][1] == 15
+    assert localise.shape_chosen(states, 29, score="level")[0] == 4
+    assert localise.shape_chosen(states, 29, score="ls")[0] == 4
+    # no ramps: the newest step
+    steps = [{1: (2.0, 3), 5: (1.0, 8)} if d >= 8 else {1: (2.0, 3)} for d in range(20)]
+    assert localise.shape_chosen(steps, 19)[0] == 5
+    # nothing dated in the window: latest onset of whatever is active
+    assert localise.shape_chosen([{1: (6.0, 0)}] * 50, 49, window=10)[0] == 1
+
+
+def test_injected_leak_shape_and_size():
+    """Step 25's emitter schedule: an incipient leak's coefficient is a quarter of full at mid-rise
+    (diameter linear in time, as BattLeDIM's published flows show), and an orifice of 15 mm at
+    Cd 0.75 leaks about 15 m3/h at 49 m of pressure (checked against an EPANET run, LOG.md)."""
+    from water_leaks import simulate
+    assert simulate.leak_shape(99, 100, 200, 300, "incipient") == 0.0
+    assert abs(simulate.leak_shape(150, 100, 200, 300, "incipient") - 0.25) < 1e-12
+    assert simulate.leak_shape(250, 100, 200, 300, "incipient") == 1.0
+    assert simulate.leak_shape(300, 100, 200, 300, "incipient") == 0.0
+    assert simulate.leak_shape(100, 100, 100, 300, "abrupt") == 1.0
+    c = simulate.emitter_coef(0.015)
+    assert abs(c - 2.1134) < 1e-3
+    assert 14.5 < c * np.sqrt(49.2) < 15.1

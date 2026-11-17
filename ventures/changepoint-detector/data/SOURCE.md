@@ -715,3 +715,20 @@ point). Values rounded to six decimals.
 - **Used by:** `eval/beedance-multi.mjs`, `eval/muted-sim.mjs`,
   `beedance-muted.test.mjs`. Sequence 6 is the dance TCPD calls
   `bee_waggle_6` (seen data); 1 to 5 are fresh.
+
+# US cigarette sales per head and state taxes, 1970-2019 (the tax burden on tobacco)
+
+`us-cigarette-packs-per-capita.csv`: packs of cigarettes sold per head in each of the 50 states and DC, by fiscal
+year (Orzechowski and Walker compile state tax-paid sales; the fiscal year ends 30 June in most states), 1970-2019.
+`us-cigarette-state-tax.csv`: the state excise tax per pack in dollars, same rows. One column per state (postal code).
+
+- **Retrieved:** 2026-11-17 from the CDC's "The Tax Burden on Tobacco, 1970-2019" dataset,
+  <https://data.cdc.gov/api/views/7nwe-3aj9/rows.csv?accessType=DOWNLOAD> (measures "Cigarette Consumption (Pack
+  Sales Per Capita)" and "State Tax per pack"), reshaped to one column per state; no values changed.
+- **Licence:** Open Data Commons Attribution License 1.0 (the dataset's stated licence on data.cdc.gov).
+  Attribution: Centers for Disease Control and Prevention, National Center for Chronic Disease Prevention and Health
+  Promotion, Office on Smoking and Health; Orzechowski and Walker, *The Tax Burden on Tobacco*.
+- **Cite (the policies tested):** Abadie, A., Diamond, A. and Hainmueller, J. (2010). Synthetic control methods for
+  comparative case studies: estimating the effect of California's tobacco control program. *J. Am. Stat. Assoc.*
+  105(490), 493-505. doi:10.1198/jasa.2009.ap08746 (California's Proposition 99 and its 38-state donor pool).
+- **Used by:** `eval/known-date-control-step-real.mjs`, `known-date-control.test.mjs`.

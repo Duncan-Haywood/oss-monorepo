@@ -61,7 +61,7 @@ test('runCheck: an unmodified sample plugin is not ok', () => {
   const root = makeFixture({
     'manifest.json': JSON.stringify({
       id: 'sample-plugin', name: 'Sample Plugin', version: '1.0.0', minAppVersion: '0.15.0',
-      description: 'This is a sample plugin.', author: 'Your Name',
+      description: 'This is a sample plugin.', author: 'Obsidian',
     }),
     'versions.json': JSON.stringify({ '1.0.0': '0.15.0' }),
     'main.js': 'export default class {}',

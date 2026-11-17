@@ -5,7 +5,7 @@ Track 20, robots on the residential building site (`PROJECTS.md`, milestone 3 an
 **Live page:** https://marisstella.app/research/buildbot-torquewall/
 
 **Headline.**
-- **The G1's wall is one joint: the waist pitch (50 N·m in the model).** Doubling only the waist limits lifts the heaviest payload with a feasible step from 4 kg to 6 kg, and at 4 kg the fastest step from 0.10 to 0.20 m/s. Doubling the arms, legs or ankles alone changes nothing; at 6 kg and above, only waist-containing sets help.
+- **At this carry pose (hands 0.3 m ahead, 0.6 m up, peak limits), the G1's wall is one joint: the waist pitch (50 N·m in the model).** Doubling only the waist limits lifts the heaviest payload with a feasible step from 4 kg to 6 kg, and at 4 kg the fastest step from 0.10 to 0.20 m/s. Doubling the arms, legs or ankles alone changes nothing; at 6 kg and above, only waist-containing sets help.
 - **Doubling every joint reaches 8 kg for the G1, quadrupling reaches 10 kg (0.17 m/s)**, so beyond 6 kg the waist alone is no longer enough and the next joints (left ankle pitch, then shoulder roll) bind.
 - **The H1 is not a one-joint story.** No single group lifts it from 14 kg to 18 kg; only scaling every joint does (18 and 23 kg at 0.07 m/s), and nothing reaches 30 kg at 4x. Its binding joints at stock limits are the hip pitch (14 to 18 kg) and the elbow (23 kg and up).
 - **No scaling raises the best speed above about 0.2 m/s**: speed is set by the prescribed single-support gait, which `buildbot-carryphase` already flagged.
@@ -19,7 +19,7 @@ Track 20, robots on the residential building site (`PROJECTS.md`, milestone 3 an
 
 | Input | Value | Source |
 |---|---|---|
-| Joint limits | G1 waist pitch/roll 50, ankles 50, hips 88-139, knee 139, arms 25 N·m; H1 hips 200, knee 300, ankle 40, arms 18-40 N·m | Menagerie model (a community approximation, not Unitree's validated figures) |
+| Joint limits | G1 waist yaw 88, waist pitch/roll 50, ankles 50, hips 88-139, knee 139, arms 25 (wrist pitch/yaw 5) N·m; H1 torso 200, hips 200, knee 300, ankle 40, arms 18-40 N·m | Menagerie model (a community approximation, not Unitree's validated figures) |
 | Scale factors | 1, 2, 4 | swept; no source for a better value |
 | Payloads | G1 0-10 kg, H1 0-30 kg | swept |
 
@@ -27,18 +27,20 @@ Track 20, robots on the residential building site (`PROJECTS.md`, milestone 3 an
 ```bash
 pip install mujoco numpy matplotlib pytest
 cd research/buildbot-torquewall
-python -m pytest -q tests        # 12 tests
+python -m pytest -q tests        # 13 tests
 python experiments/run.py        # 990 cases, a few minutes on 4 CPUs, deterministic; writes results.json, results.txt
 python experiments/figure.py
 ```
 
 ## Results (`experiments/results.txt`)
-Fastest feasible step by payload and scaled group for both robots, and which joint exceeds its limit first among torque-only failures at stock limits (G1: waist pitch in most cases at 4 kg and up, then left ankle pitch).
+Fastest feasible step by payload and scaled group for both robots, and which joint exceeds its limit first among cases over a torque limit at stock limits (some also fail the centre-of-pressure test) (G1: waist pitch in most cases at 4 kg and up, then left ankle pitch).
 
 ## Limitations
 - Everything in `buildbot-carryphase`'s limitations holds: prescribed gait, no double support or impact, point-mass load, no falls or energy.
 - Scaling a torque limit ignores that a stronger actuator is heavier (mass is not changed) and costlier; a real waist upgrade also changes the model's inertia.
 - Grid is coarse (9 step cases); speed differences of one cell are not findings.
+- Limits are the model's peak torques. A sustained carry is sized against the continuous rating, and [`buildbot-holdheat`](../buildbot-holdheat) finds no sustainable load at this pose for a continuous rating of 0.5 of peak or less ([quality audit](../../portfolio/quality/audits/2026-11-17-buildbot-torquewall.json)).
+- One carry pose. `buildbot-holdheat`'s pose search lowers the peak ratio and can move the binding joint off the waist at other holds, so "the waist is the wall" is a statement about this pose, and costing a waist upgrade needs the pose search first.
 - Payload steps (4, 6, 8, 10 kg) are coarse, so "6 kg" means "between 6 and 8 kg were not tested".
 
 ## Next steps

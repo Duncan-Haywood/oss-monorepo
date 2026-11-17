@@ -6,3 +6,8 @@
 
 - (2026-11-16) a real Ginfes, Betha or DSF reply
 - (2026-11-16) refresh the Bulgaria page when its draft passes
+- (2026-11-17) ABRASF NFS-e 2.00-2.04 landed (README): open: ISS retained on a real file, city provider schemas, 1.0x sets, DSF, 12 single-file 1.0x (Rio, BH, Curitiba,...) landed (README): open: a DSF 1.00/Abaco file
+- (2026-11-17) ISS: SP, Rio, Curitiba rates, Rio codes (ABR-026) landed: open: BH (hosts 403), a Rio rejection
+- (2026-11-17) national NFS-e landed: open: a national rejection compared
+- (2026-11-17) a real reform NF-e from a SEFAZ test environment, a real SEFAZ rejection for a cClassTrib
+- (2026-11-17) cCredPres rules and cClassTrib at IT 1.71 landed (README): RTC events (211110, 12 others incl. 112120, 110001) landed, 211120 (removed in v1.40) flagged (README): open: a real event

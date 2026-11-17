@@ -13,6 +13,7 @@ import textwrap
 import time
 import unittest
 from unittest import mock
+from unittest import mock
 
 import run_workflow_locally as runner
 import yaml
@@ -921,11 +922,55 @@ class AgainstThisRepository(unittest.TestCase):
         self.assertIn("[held  ] uitest-ci.yml / manual", out.getvalue())
         self.assertNotIn("manual /", out.getvalue().split("[held", 1)[0])
 
-    def test_only_needs_a_sweep(self):
+    def test_only_and_names_together_are_refused(self):
         err = io.StringIO()
         with contextlib.redirect_stderr(err):
             code = runner.main(["--only", "doc-refs-ci", "doc-refs-ci.yml"])
         self.assertEqual(code, 2)
+
+    def test_several_names_list_in_turn(self):
+        """Friction 2026-11-16/17: one workflow per call. Names (with or
+        without .yml) now run in turn, each with its own steps."""
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = runner.main(["--list", "doc-refs-ci", "uitest-ci.yml"])
+        self.assertEqual(code, 0)
+        self.assertIn("[held  ] uitest-ci.yml / manual", out.getvalue())
+        self.assertIn("exit 0  doc-refs-ci.yml", out.getvalue())
+
+    def test_only_alone_runs_the_named_workflows(self):
+        calls = []
+        with mock.patch.object(runner, "_run_one",
+                               side_effect=lambda n, a: calls.append(n) or 0):
+            self.assertEqual(runner.main(["--only", "uitest-ci,doc-refs-ci"]), 0)
+        self.assertEqual(calls, ["doc-refs-ci.yml", "uitest-ci.yml"])
+
+    def test_a_missing_name_is_refused_before_anything_runs(self):
+        err = io.StringIO()
+        with mock.patch.object(runner, "_run_one") as one, \
+                contextlib.redirect_stderr(err):
+            code = runner.main(["doc-refs-ci", "no-such-workflow"])
+        self.assertEqual(code, 2)
+        one.assert_not_called()
+        self.assertIn("no-such-workflow.yml", err.getvalue())
+
+
+class CombineNamed(unittest.TestCase):
+    def combine(self, *codes):
+        with contextlib.redirect_stdout(io.StringIO()):
+            return runner.combine_named([(f"w{i}.yml", c) for i, c in enumerate(codes)])
+
+    def test_all_pass_is_zero(self):
+        self.assertEqual(self.combine(0, 0), 0)
+
+    def test_a_failure_beats_no_verdict(self):
+        self.assertEqual(self.combine(4, 1, 0), 1)
+
+    def test_usage_error_wins(self):
+        self.assertEqual(self.combine(1, 2), 2)
+
+    def test_otherwise_the_largest(self):
+        self.assertEqual(self.combine(0, 4, 3), 4)
 
 
 class OnlyFilter(unittest.TestCase):
@@ -2092,6 +2137,15 @@ class ChangedPaths(unittest.TestCase):
             fh.write("edited")
         self.assertEqual(runner.changed_paths("main", repo=self.repo), ["base.txt"])
 
+    def test_a_new_file_not_yet_added_is_counted_and_an_ignored_one_is_not(self):
+        self.sh("checkout", "-q", "-b", "work")
+        for name, text in (("new-post.md", "post"), (".gitignore", "*.log\n"),
+                           ("scratch.log", "noise")):
+            with open(os.path.join(self.repo, name), "w") as fh:
+                fh.write(text)
+        self.assertEqual(sorted(runner.changed_paths("main", repo=self.repo)),
+                         [".gitignore", "new-post.md"])
+
     def test_no_shared_commit_stops_instead_of_diffing_everything(self):
         self.sh("checkout", "-q", "--orphan", "other")
         self.commit("unrelated.txt")
@@ -2251,6 +2305,18 @@ class FailureCauses(unittest.TestCase):
         pairs = [("a.yml", step), ("b.yml", step)]
         self.assertEqual([p for p, _ in runner.shared_changed_paths(
             pairs, [post, "ventures/a/README.md", "ventures/b/README.md"])], [post])
+
+    def test_a_bare_name_many_tracked_files_share_names_none_of_them(self):
+        step = runner.Step("j", "s", "true", ".")
+        step.status, step.paths = "failed", {"2026-11-16-x.md", "index.html"}
+        post, page = "docs/posts/2026-11-16-x.md", "ventures/a/site/index.html"
+        pairs = [("a.yml", step), ("b.yml", step)]
+        self.assertEqual([p for p, _ in runner.shared_changed_paths(
+            pairs, [post, page], tree_counts={"index.html": 412})], [post])
+        # Named in full, the page still counts.
+        step.paths = {page}
+        self.assertEqual([p for p, _ in runner.shared_changed_paths(
+            pairs, [post, page], tree_counts={"index.html": 412})], [page])
 
     def test_a_changed_path_two_failed_steps_name_is_shared(self):
         def failed(job, paths):

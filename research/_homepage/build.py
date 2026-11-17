@@ -106,7 +106,26 @@ def validate(data, ledes):
             for k in ("slug", "title", "summary"):
                 if not p.get(k):
                     errors.append(f"projects.json: research/{p.get('slug')} has no {k}")
+            errors += [f"research/{p.get('slug')}: {e}" for e in card_text_errors(p.get("summary", ""))]
     return errors
+
+
+# A sed replacement containing `&` expands each `&` to the matched text, which
+# turned "4&ndash;5" into "4<old phrase>ndash;5" in 11 summaries and pasted
+# 70 KB of other cards into one (quality audit 2026-11-17, ambient-startcount).
+BARE_ENTITY_RE = re.compile(r"(?<=[\w)%])(?:nbsp|ndash|mdash|minus|times|thinsp|plusmn|rsquo|radic|le|ge|lt|gt);(?=\S)")
+
+
+def card_text_errors(summary):
+    """Signs of a corrupted card summary: an HTML entity whose `&` was eaten,
+    or other cards' markup pasted in."""
+    errs = []
+    m = BARE_ENTITY_RE.search(summary)
+    if m:
+        errs.append(f"summary has an entity without its '&' near {summary[max(0, m.start() - 40):m.end() + 10]!r}")
+    if "<h2>" in summary:
+        errs.append(f"summary holds page markup ({len(summary)} characters)")
+    return errs
 
 
 # One page per theme at research/topics/<id>/: the level between the index and a project.
@@ -405,15 +424,31 @@ def text(s):
     return html.escape(plain(s).strip(), quote=True)
 
 
-def shared_title(p, themes):
+def title_index(themes):
+    """({title: slugs}, {clipped <title> text: slugs}) over every project in `themes`.
+
+    Built once per build and handed to each project page. Until 2026-11-16 each of the 1,080
+    pages re-clipped every other project's title to compare (1.16 M `plain` calls), about
+    half of a build; tests build the site four times
+    (docs/history/ci-perf-2026-11-16-research-title-index.md)."""
+    full, clipped = {}, {}
+    for t in themes:
+        for q in t["projects"]:
+            full.setdefault(q["title"], set()).add(q["slug"])
+            clipped.setdefault(title_tag(plain(q["title"])), set()).add(q["slug"])
+    return full, clipped
+
+
+def shared_title(p, themes, index=None):
     """Whether another project has the same title, so the page title needs the slug to be unique."""
-    return any(q["title"] == p["title"] and q["slug"] != p["slug"] for t in themes for q in t["projects"])
+    full, _ = index or title_index(themes)
+    return bool(full.get(p["title"], set()) - {p["slug"]})
 
 
-def clipped_title_taken(p, themes):
+def clipped_title_taken(p, themes, index=None):
     """True when another project's <title> clips to the same text as this one's."""
-    mine = title_tag(plain(p["title"]))
-    return any(title_tag(plain(q["title"])) == mine and q["slug"] != p["slug"] for t in themes for q in t["projects"])
+    _, clipped = index or title_index(themes)
+    return bool(clipped.get(title_tag(plain(p["title"])), set()) - {p["slug"]})
 
 
 def topic_chips(themes, current, root):
@@ -449,7 +484,7 @@ def more_in_topic(theme, i, ledes):
 
 
 def project_page(p, theme, lede, tests, tokens, theme_vars, tmpl, out, base_url=None, chrome=None,
-                 themes=(), index=0, ledes=None):
+                 themes=(), index=0, ledes=None, titles=None):
     slug = p["slug"]
     if not (RESEARCH / slug / "README.md").is_file():
         raise ValueError(f"research/{slug} has no README.md")
@@ -491,8 +526,8 @@ def project_page(p, theme, lede, tests, tokens, theme_vars, tmpl, out, base_url=
         "TOKENS": tokens, "THEME_VARS": theme_vars, "SLUG": slug, "TITLE": p["title"], "LEDE": lede, "SUMMARY": p["summary"],
         "DESC": html.escape(plain(p["summary"])[:240]), "THEME_ID": theme["id"], "THEME_NAME": theme["name"],
         "STATS": stats, "FIGURE": figure, "LOG": log_html(slug), "LINKS": links, "REPO_URL": REPO_URL, "REPO": REPO,
-        "TITLE_TEXT": text(p["title"]) + (f" (research/{slug})" if shared_title(p, themes) else ""),
-        "TITLE_TAG": html.escape(title_tag(plain(p["title"]))) + (f" (research/{slug})" if shared_title(p, themes) or clipped_title_taken(p, themes) else ""), "THEME_COUNT": str(len(theme["projects"])),
+        "TITLE_TEXT": text(p["title"]) + (f" (research/{slug})" if shared_title(p, themes, titles) else ""),
+        "TITLE_TAG": html.escape(title_tag(plain(p["title"]))) + (f" (research/{slug})" if shared_title(p, themes, titles) or clipped_title_taken(p, themes, titles) else ""), "THEME_COUNT": str(len(theme["projects"])),
         "PAGER": pager(theme, index), "MORE": more_in_topic(theme, index, ledes or {}),
         "TOPICS": topic_chips(themes, theme["id"], "../"),
     }.items():
@@ -734,11 +769,12 @@ def build(out, base_url=None, chrome=None):
     head = (HERE / "template.html").read_text()
     tokens = head[head.index("<style>") + len("<style>"):head.index("*{box-sizing")].strip()
     failures = []
+    titles = title_index(data["themes"])
     for t in data["themes"]:
         for i, p in enumerate(t["projects"]):
             try:
                 project_page(p, t, ledes[p["slug"]], tests[p["slug"]], tokens, theme_vars, tmpl, out, base_url, chrome,
-                             data["themes"], i, ledes)
+                             data["themes"], i, ledes, titles)
             except Exception as e:  # noqa: BLE001
                 failures.append(f"project page for research/{p['slug']}: {e}")
     # One page per topic: research/topics/<id>/index.html.

@@ -7,6 +7,7 @@ import { punch, addPunch, removePunch, onTheClock, timesheet, timesheetCsv, zone
 import { readPayEnv, payForTimesheet, MEAL_RULES } from "./payrules.mjs";
 import { readLeaveEnv, leaveBalances, addLeaveUse, removeLeaveUse, setLeaveOpening, leaveCsv } from "./leave.mjs";
 import { setPin, hasPin, checkPin, validPin, readGeofence, placeOf, GEO_SCRIPT } from "./clockguard.mjs";
+import { FIELDS, splitCsvLine, readTemplate, parseOverrides, parseIds, payrollRows, fillTemplate } from "./payroll-export.mjs";
 import { readNoticeEnv, diffAssignments, logChanges, markRequested, noticeReport, noticeCsv, slotLabel, teamOfferText, standbyNoticeText, standbyAskText, onCallShifts, MAX_CHANGES } from "./notice.mjs";
 
 const MAX_BODY = 64 * 1024, MAX_REPLIES = 200, MAX_CALLOUTS = 100, MAX_TRADES = 100, MAX_CLAIMS = 100, MAX_OFFS = 100;
@@ -326,7 +327,7 @@ ${claimBlock}
 ${offBlock}
 <h2>Availability replies (${state.replies.length})</h2>
 <form method="post" action="/admin/merge?key=${k}"><textarea name="replies" readonly>${replies}</textarea><button ${state.replies.length ? "" : "disabled"}>Merge into staff list</button></form>
-<p class="note">${p ? `Published ${esc(p.at)}: ${p.unfilled} open shift(s).` : "Nothing published yet."} Staff link: <code>/team?t=TEAM_TOKEN</code></p><p><a href="/admin/changes?key=${k}">Schedule changes and notice pay</a> (${(state.changeLog || []).length} change(s) logged)</p>${clockOn ? `<p><a href="/admin/timesheet?key=${k}">Timesheet: hours worked against the schedule</a> (${(state.punches || []).length} punch(es) recorded) · <a href="/admin/leave?key=${k}">Leave balances</a></p>` : ""}`);
+<p class="note">${p ? `Published ${esc(p.at)}: ${p.unfilled} open shift(s).` : "Nothing published yet."} Staff link: <code>/team?t=TEAM_TOKEN</code></p><p><a href="/admin/changes?key=${k}">Schedule changes and notice pay</a> (${(state.changeLog || []).length} change(s) logged)</p>${clockOn ? `<p><a href="/admin/timesheet?key=${k}">Timesheet: hours worked against the schedule</a> (${(state.punches || []).length} punch(es) recorded) · <a href="/admin/leave?key=${k}">Leave balances</a> · <a href="/admin/payroll?key=${k}">Payroll import file</a></p>` : ""}`);
 }
 
 // The manager's timesheet for a published week (the current one or one of the last 12): worked time beside the
@@ -374,12 +375,62 @@ function timesheetPage(state, key, tc, weekStart, note = "") {
   const recent = [...(state.punches || [])].sort((a, b) => b.at - a.at).slice(0, 30).map((x) => { const t = ts.local(x.at); return `<tr><td>${esc(x.person)}</td><td>${x.kind === "in" ? "in" : "out"}</td><td>${esc(t.date)} ${esc(t.time)}</td><td>${x.by === "manager" ? "manager" : "staff"}</td><td><form method="post" action="/admin/punch-remove?key=${k}"><input type="hidden" name="id" value="${x.id}"><input type="hidden" name="week" value="${esc(week.weekStart)}"><button>Remove</button></form></td></tr>`; }).join("");
   return page(`Timesheet, week of ${week.weekStart}`, `${note}${pick}<p class="note">Times are ${esc(ts.tz)} (set TIMEZONE to your site's zone, for example America/Chicago). Late and early flags allow ${ts.graceMin} min (TIME_GRACE_MIN). The pay estimate below applies the PAY_RULES you set; check it against your own state's rules before paying.</p>
 <table><thead><tr><th>Person</th><th>Worked h</th><th>Scheduled h</th><th>Difference</th><th>Check</th></tr></thead><tbody>${sum || `<tr><td colspan="5">No punches or shifts this week.</td></tr>`}</tbody></table>
-<p><a href="/admin/timesheet.csv?key=${k}&amp;week=${esc(week.weekStart)}">Download CSV for payroll</a> · ${tc.leave ? `<a href="/admin/leave?key=${k}">${esc(tc.leave.name || "Leave")} balances</a> · ` : ""}<a href="/admin?key=${k}">Back to admin</a></p>
+<p><a href="/admin/timesheet.csv?key=${k}&amp;week=${esc(week.weekStart)}">Download CSV for payroll</a> · <a href="/admin/payroll?key=${k}&amp;week=${esc(week.weekStart)}">Fill your payroll service's template</a> · ${tc.leave ? `<a href="/admin/leave?key=${k}">${esc(tc.leave.name || "Leave")} balances</a> · ` : ""}<a href="/admin?key=${k}">Back to admin</a></p>
 ${tc.pay ? payTable(payForTimesheet(ts, wagesOf(state), tc.pay), tc.pay) : ""}
 <h2>Every stretch worked</h2><table><thead><tr><th>Person</th><th>Date</th><th>In</th><th>Out</th><th>Hours</th><th>Scheduled shift</th><th>Flags</th></tr></thead><tbody>${det}</tbody></table>
 <h2>Add a missed punch</h2><form method="post" action="/admin/punch-add?key=${k}"><input type="hidden" name="week" value="${esc(week.weekStart)}"><label>Person<select name="name" required>${names.map((n) => `<option>${esc(n)}</option>`).join("")}</select></label><label>Date<input type="date" name="date" required></label><label>Time (HH:MM, ${esc(ts.tz)})<input name="time" required placeholder="09:00" maxlength="5"></label><button name="kind" value="in">Add clock-in</button><button name="kind" value="out">Add clock-out</button></form><p class="note">Added punches are marked "added by manager" here and in the CSV, so the record shows what was typed in later.</p>
 <h2>Latest punches</h2><table><thead><tr><th>Person</th><th></th><th>When</th><th>By</th><th></th></tr></thead><tbody>${recent}</tbody></table>
 ${pinSection(state, k, week.weekStart, names, tc)}`);
+}
+
+// The payroll provider's own template, filled from the week's timesheet (payroll-export.mjs). The manager saves the
+// template's header row, payroll IDs and any column fixes once; each week is then one download.
+const MAX_TEMPLATE = 4000, MAX_IDS = 16 * 1024, MAX_OVERRIDES = 4000;
+export function payrollFile(state, tc, week) {
+  const cfg = state.payrollTemplate || {};
+  if (!cfg.header) return { error: "No template saved yet." };
+  const ts = timesheet(state.punches, week, { tz: tc.tz, nowMs: tc.now, graceMin: tc.grace });
+  const pay = payForTimesheet(ts, wagesOf(state), tc.pay);
+  const rows = payrollRows(pay, { weekStart: week.weekStart, leaveUses: tc.leave && !tc.leave.error ? state.leaveUses || [] : [], ids: parseIds(cfg.ids) });
+  const ov = parseOverrides(cfg.overrides);
+  const out = fillTemplate(cfg.header, rows, { overrides: ov.map, zeros: cfg.zeros === "zero" ? "zero" : "blank" });
+  return out.error ? out : { ...out, rows, overrideErrors: ov.errors, open: ts.people.filter((x) => x.rows.some((r) => r.open) || x.missing.length).map((x) => x.name) };
+}
+function payrollPage(state, key, tc, weekStart, note = "") {
+  const k = esc(key), weeks = weeksOf(state), week = weeks.find((w) => w.weekStart === weekStart) || weeks[0];
+  const cfg = state.payrollTemplate || {};
+  const back = `<p><a href="/admin/timesheet?key=${k}${week ? `&amp;week=${esc(week.weekStart)}` : ""}">Timesheet</a> · <a href="/admin?key=${k}">Back to admin</a></p>`;
+  let preview = "";
+  if (!week) preview = `<p>Publish a week first: the file is filled from the timesheet of a published week.</p>`;
+  else if (cfg.header) {
+    const f = payrollFile(state, tc, week);
+    if (f.error) preview = `<p class="err">${esc(f.error)}</p>`;
+    else {
+      const pick = weeks.length > 1 ? `<form method="get" action="/admin/payroll"><input type="hidden" name="key" value="${k}"><label>Week<select name="week">${weeks.map((w) => `<option${w.weekStart === week.weekStart ? " selected" : ""}>${esc(w.weekStart)}</option>`).join("")}</select></label><button>Show</button></form>` : "";
+      const how = { name: "matched by name", guess: '<span class="err">guessed</span>: check it', "you chose": "you chose", "fixed value": "fixed value", "no match": '<span class="err">left empty</span>' };
+      const cols = f.columns.map((c) => `<tr><td><code>${esc(c.header)}</code></td><td>${c.value != null ? `"${esc(c.value)}"` : c.field ? esc(FIELDS[c.field].label) : ""}</td><td>${how[c.how] || ""}</td></tr>`).join("");
+      const lines = f.csv.trim().split(/\r?\n/);
+      const grid = lines.slice(0, 26).map((l, i) => `<tr>${splitCsvLine(l, f.sep).map((x) => (i ? `<td>${esc(x)}</td>` : `<th>${esc(x)}</th>`)).join("")}</tr>`).join("");
+      const warn = [...f.overrideErrors, ...f.warnings, ...(f.open.length ? [`Still on the clock or with an unpaired punch: ${f.open.join(", ")}. Their open stretch is not counted; fix it on the timesheet first.`] : [])];
+      preview = `<h2>Week of ${esc(week.weekStart)}</h2>${pick}${warn.length ? `<ul>${warn.map((w) => `<li class="err">${esc(w)}</li>`).join("")}</ul>` : `<p class="ok">Every column is filled or deliberately empty.</p>`}
+<p><a href="/admin/payroll.csv?key=${k}&amp;week=${esc(week.weekStart)}"><strong>Download the filled template</strong></a> (${f.rows.length} people)</p>
+<h3>How each column is filled</h3><table><thead><tr><th>Column in your template</th><th>Filled with</th><th>How</th></tr></thead><tbody>${cols}</tbody></table>
+<h3>The file</h3><div style="overflow-x:auto"><table>${grid}</table></div>${lines.length > 26 ? `<p class="note">First 25 rows shown.</p>` : ""}`;
+    }
+  }
+  const fields = Object.entries(FIELDS).map(([key, f]) => `<code>${esc(key)}</code> (${esc(f.label)})`).join(", ");
+  const pick = `<script>document.querySelectorAll("input[data-template]").forEach(function(i){i.addEventListener("change",function(){var f=i.files&&i.files[0];if(!f)return;f.slice(0,65536).text().then(function(t){var l=t.replace(/^\uFEFF/,"").split(/\r?\n/).filter(function(x){return x.trim()})[0]||"";document.getElementById("header").value=l})})})</script>`;
+  return page("Payroll import file", `${note}<p class="note">Your payroll service imports hours from a spreadsheet, and each service wants its own columns. Download the blank hours template from your payroll service (Gusto, ADP, Paychex, QuickBooks and others offer one on their run-payroll or import screen), choose it below or paste its first row, and save. Each week this page fills the same columns, in the same order, from the timesheet and the pay rules on this server. Nothing is sent to your payroll service from here: you download the file and upload it there yourself.</p>
+${preview}
+<h2>Your template</h2><form method="post" action="/admin/payroll-template?key=${k}"><input type="hidden" name="week" value="${week ? esc(week.weekStart) : ""}">
+<label>Blank template file (only its first row is read, in your browser)<input type="file" accept=".csv,.txt,text/csv" data-template></label>
+<label>Header row<textarea id="header" name="header" maxlength="${MAX_TEMPLATE}" style="min-height:4rem" placeholder="Employee ID,First Name,Last Name,Regular Hours,Overtime Hours">${esc(cfg.header || "")}</textarea></label>
+<label>Payroll IDs, one per line as <code>Name = ID</code> (as your payroll service shows them; leading zeros kept)<textarea name="ids" maxlength="${MAX_IDS}" placeholder="Ana Ruiz = 000123">${esc(cfg.ids || "")}</textarea></label>
+<label>Column fixes, one per line: <code>Column = field</code> to choose what fills a column, <code>Column = blank</code> to leave it empty, or <code>Column = "value"</code> for the same value on every row (a company code or batch ID)<textarea name="overrides" maxlength="${MAX_OVERRIDES}" style="min-height:5rem" placeholder='Co Code = "ABC"'>${esc(cfg.overrides || "")}</textarea></label>
+<label><input type="checkbox" name="zeros" value="zero" style="width:auto"${cfg.zeros === "zero" ? " checked" : ""}> Write 0.00 for zero hours (default: leave the cell empty)</label>
+<button>Save template</button></form>
+<p class="note">Fields: ${fields}. A column whose name is not recognised is left empty and listed above; a guessed column is marked so you can check it. The hours are the estimate from PAY_RULES (regular, 1.5x and 2x), leave hours are those recorded on the leave page inside the week, and the rate and gross come from the wages in the staff list. Check the file in your payroll service's preview before you submit payroll: tips, bonuses, differentials and local rules are not in it.</p>
+${back}${pick}`);
 }
 
 // Accrued leave from the time clock (leave.mjs): each person's balance, the uses the manager recorded, a form to record
@@ -441,25 +492,27 @@ function flatRule(r) {
   const band = (t, i) => (i === 0 ? `${r.noticeDays} to ${r2h(t.fromH / 24)} days` : t.fromH > 0 ? `${r2h(r.flat[i - 1].fromH / 24)} days to ${t.fromH} h` : `under ${r.flat[i - 1].fromH} h`);
   return `a change made inside that window${r.noticeFromWeek ? ", counted to 12:00 a.m. on the week's first day," : ""} owes a flat sum per change: ${r.flat.map((t, i) => `${band(t, i)}, ${$(t.add)} added or moved, ${$(t.cut)} hours taken away`).join("; ")}${r.minEdgeMin ? `; a start and an end each moved by ${r.minEdgeMin} min or less owe nothing` : ""}`;
 }
-// Hours of pay by notice tier in words (San Francisco, Emeryville).
+// Hours of pay by notice tier in words (San Francisco, Emeryville, Berkeley, Evanston).
 function tierRule(r) {
   const t = r.tiers, parts = t.map((x, i) => {
     const band = x.fromH > 0 ? `under ${r.noticeDays} days and ${x.fromH} h or more` : `under ${t[i - 1] ? t[i - 1].fromH : 24} h`;
-    const cut = x.cutShiftCap ? `hours taken away the lesser of the shift's hours and ${x.cutShiftCap} h` : x.cut !== x.add ? `hours taken away ${x.cut} h` : "";
+    const cut = x.cutLostCap ? `hours taken away the lesser of the hours taken away and ${x.cutLostCap} h` : x.cutShiftCap ? `hours taken away the lesser of the shift's hours and ${x.cutShiftCap} h` : x.cut !== x.add ? `hours taken away ${x.cut} h` : "";
     const size = x.overH != null ? ` (${x.over} h when more than ${x.overH} h change)` : "";
     return `${band}, ${x.add} h of pay per change${size}${cut ? `, ${cut}` : ""}`;
   });
   const oc = r.onCallPay ? `; an on-call shift not called in, or released under ${r.onCallPay.windowH} h ahead, ${r.onCallPay.small} h (${r.onCallPay.overH} h or shorter) or ${r.onCallPay.big} h` : "";
   const cover = r.coverAbsenceDays > 0 ? `; covering a colleague's absence reported under ${r.coverAbsenceDays} days ahead owes nothing` : "";
   const edge = r.minEdgeMin ? `; ${r.minEdgeMin} min or less added or taken at a start or end owes nothing` : "";
-  return `a change made inside that window owes ${parts.join("; ")}${edge}${oc}${cover}`;
+  const grace = !r.minEdgeMin && r.minExtendMin ? `; up to ${r.minExtendMin} min added ${r.extendEach ? "at the start and again at the end" : "to a shift"} owes nothing` : "";
+  const date = r.pairDates ? "; a shift moved to another day is one change" : "";
+  return `a change made inside that window owes ${parts.join("; ")}${edge}${grace}${date}${oc}${cover}`;
 }
 const restHead = (r) => (r.restMult > 1 ? `Extra pay (${r2h(r.restMult - 1)}x${r.restFlat > 0 ? ` + ${$(r.restFlat)}` : ""})` : `Owed (${$(r.restFlat || 0)} each)`);
 function changesPage(state, key, fww, rep, tz, note = "") {
   const k = esc(key), rules = fww && !fww.error ? fww : null;
   const how = fww && fww.error ? `<p class="err">${esc(fww.error)}</p>` : rules
-    ? `<p class="note">Rule set: <strong>${esc(rules.label)}</strong>${rules.overrides.length ? ` with ${esc(rules.overrides.join(", "))}` : ""}. Post ${rules.postDays || rules.noticeDays} days ahead${rules.postDays && rules.postDays !== rules.noticeDays ? ` (premiums start under ${rules.noticeDays} days)` : ""}; ${rules.flat ? flatRule(rules) : rules.tiers ? tierRule(rules) : `inside that window an added or moved shift owes ${rules.addHours} h of pay${rules.minMoveMin ? ` (moves of ${rules.minMoveMin} min or less excepted)` : ""}${rules.minExtendMin ? `, added time of ${rules.minExtendMin} min or less excepted` : ""}; hours taken away owe ${rules.cancelFraction} of the lost hours' pay${rules.cancelWindowH < rules.noticeDays * 24 ? ` inside ${rules.cancelWindowH} h of the shift and ${rules.cancelElseHours} h of pay before that` : ""}`}; ${restRule(rules)}. ${rules.notes.map(esc).join(" ")}</p>`
-    : `<p class="note">No rule set is chosen, so nothing is priced; the log below is kept anyway. Set FAIR_WORKWEEK to seattle, oregon, chicago, philadelphia, los-angeles, new-york-city, san-francisco or emeryville (or custom with FWW_NOTICE_DAYS, FWW_ADD_HOURS, FWW_CANCEL_FRACTION, FWW_CANCEL_WINDOW_HOURS, FWW_CANCEL_ELSE_HOURS, FWW_MIN_MOVE_MIN, FWW_MIN_EXTEND_MIN, FWW_REST_HOURS, FWW_REST_MULT, FWW_REST_FLAT, FWW_REST_WHOLE_SHIFT, FWW_REST_ACROSS_DAYS).</p>`;
+    ? `<p class="note">Rule set: <strong>${esc(rules.label)}</strong>${rules.overrides.length ? ` with ${esc(rules.overrides.join(", "))}` : ""}. Post ${rules.postDays || rules.noticeDays} days ahead${rules.postDays && rules.postDays !== rules.noticeDays ? ` (premiums start under ${rules.noticeDays} days)` : ""}; ${rules.flat ? flatRule(rules) : rules.tiers ? tierRule(rules) : `inside that window an added or moved shift owes ${rules.addHours} h of pay${rules.minMoveMin ? ` (moves of ${rules.minMoveMin} min or less excepted)` : ""}${rules.minExtendMin ? `, added time of ${rules.minExtendMin} min or less excepted` : ""}; hours taken away owe ${rules.cancelFraction} of the lost hours' pay${rules.minCutMin ? ` (cuts under ${rules.minCutMin} min excepted)` : ""}${rules.cancelWindowH < rules.noticeDays * 24 ? ` inside ${rules.cancelWindowH} h of the shift and ${rules.cancelElseHours} h of pay before that` : ""}${rules.coverAccept ? `; hours accepted to cover a colleague's absence owe nothing, team offer or one-to-one ask, once the voluntariness notice and consent are on record` : ""}`}; ${restRule(rules)}. ${rules.notes.map(esc).join(" ")}</p>`
+    : `<p class="note">No rule set is chosen, so nothing is priced; the log below is kept anyway. Set FAIR_WORKWEEK to seattle, oregon, chicago, philadelphia, los-angeles, los-angeles-county, new-york-city, san-francisco, emeryville, berkeley or evanston (or custom with FWW_NOTICE_DAYS, FWW_ADD_HOURS, FWW_CANCEL_FRACTION, FWW_CANCEL_WINDOW_HOURS, FWW_CANCEL_ELSE_HOURS, FWW_MIN_MOVE_MIN, FWW_MIN_EXTEND_MIN, FWW_REST_HOURS, FWW_REST_MULT, FWW_REST_FLAT, FWW_REST_WHOLE_SHIFT, FWW_REST_ACROSS_DAYS).</p>`;
   const when = (ms) => { try { return new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(ms)).replace(",", ""); } catch { return new Date(ms).toISOString(); } };
   const rows = rep.priced.map((p) => `<tr><td>${esc(when(p.at))}</td><td><strong>${esc(p.person)}</strong></td><td>${esc(p.kind)}: ${esc(slotLabel(p.from))}${p.from && p.to ? " to " : ""}${esc(slotLabel(p.to))}${p.weekStart ? `<br><span class="note">week of ${esc(p.weekStart)}</span>` : ""}</td><td>${esc(p.cause)}</td><td>${p.noticeH == null ? "" : p.noticeH >= 48 ? `${(p.noticeH / 24).toFixed(1)} days` : `${p.noticeH.toFixed(1)} h`}</td><td>${p.unpriced ? `<span class="err">${p.hoursOfPay} h of pay, no wage</span>` : p.premium ? `<strong>${esc($(p.premium))}</strong>` : ""}<br><span class="note">${esc(p.why)}</span></td><td><form method="post" action="/admin/change-mark?key=${k}"><input type="hidden" name="id" value="${p.id}">${p.requested ? `<button name="requested" value="0">Not requested</button>` : `<button name="requested" value="1">Employee asked</button>`}</form></td></tr>`).join("");
   const never = (rep.never || []).map((x) => `<tr><td><strong>${esc(x.person)}</strong></td><td>${esc(slotLabel(x.from))}</td><td>${x.lostH.toFixed(2)} h</td><td>${x.unpriced ? `<span class="err">${x.hoursOfPay} h of pay, no wage</span>` : esc($(x.premium || 0))}</td></tr>`).join("");
@@ -472,7 +525,7 @@ ${rules && never ? `<h2>On-call shifts never called in</h2><p class="note">Ended
 ${rules && late ? `<h2>Posted with less than ${rules.postDays || rules.noticeDays} days' notice</h2><ul>${late}</ul>` : ""}
 ${rules && rests ? `<h2>Short rests this week</h2><table><thead><tr><th>Person</th><th>Shifts</th><th>Rest</th><th>${rules.restWhole ? "Hours of the later shift" : "Hours inside the window"}</th><th>${restHead(rules)}</th></tr></thead><tbody>${rests}</tbody></table>` : ""}
 <h2>Changes, newest first</h2><table><thead><tr><th>When (${esc(tz)})</th><th>Person</th><th>Change</th><th>Cause</th><th>Notice</th><th>Premium</th><th></th></tr></thead><tbody>${rows || `<tr><td colspan="7">No changes yet. Publishing a week again, or approving a trade, pick-up or cover, logs one.</td></tr>`}</tbody></table>
-<p class="note">An estimate from the published rule set's main numbers, to check before payroll. Not modelled: which employers are covered, the emergency exceptions, the right to decline added hours, and the good-faith estimate at hire. Oregon's numbers, its standby list and the standby-first condition on its team offer are from ORS 653.432 and 653.455 as published by the Oregon Legislature; Seattle's and Chicago's team-offer exception and on-call pay come from summaries of their guidance, not the code's text. Philadelphia's and Los Angeles's numbers come from search summaries of the cities' FAQs, regulations and law-firm notes (their own sites were out of reach when they were added): check them against Phila. Code 9-4600 and LAMC 185 before relying on them.</p>`);
+<p class="note">An estimate from the published rule set's main numbers, to check before payroll. Not modelled: which employers are covered, the emergency exceptions, the right to decline added hours, and the good-faith estimate at hire. Oregon's numbers, its standby list and the standby-first condition on its team offer are from ORS 653.432 and 653.455 as published by the Oregon Legislature; Seattle's and Chicago's team-offer exception and on-call pay come from summaries of their guidance, not the code's text. Philadelphia's and Los Angeles's numbers come from search summaries of the cities' FAQs, regulations and law-firm notes (their own sites were out of reach when they were added): check them against Phila. Code 9-4600 and LAMC 185 before relying on them. Berkeley's are from the city's January 2024 notice and its FAQ of 2024-08-23, not the text of BMC 13.102. Evanston's come from search summaries of the city's Fair Workweek page and law-firm alerts, not the text of Ordinance 24-O-23 (City Code 3-34), which was out of reach when they were added: check them, and the city's enforcement date, before relying on them. Los Angeles County's are from the county's own text of Chapter 8.102 (2024) and the 2025 amendment to 8.102.080; they apply in unincorporated areas only, not in cities such as Los Angeles, Pasadena or Santa Monica.</p>`);
 }
 
 export function handler(state, save, env = globalThis.process?.env ?? {}, now = Date.now, fetchImpl = globalThis.fetch) {
@@ -683,6 +736,27 @@ export function handler(state, save, env = globalThis.process?.env ?? {}, now = 
       const c = tcNow();
       const tsw = timesheet(state.punches, w, { tz: c.tz, nowMs: c.now, graceMin: c.grace });
       return send(200, timesheetCsv(tsw, payForTimesheet(tsw, wagesOf(state), c.pay)), "text/csv; charset=utf-8", { "content-disposition": `attachment; filename="timesheet-${w.weekStart}.csv"` });
+    }
+    if (clockOn && req.method === "GET" && url.pathname === "/admin/payroll") {
+      const note = url.searchParams.get("note");
+      return send(200, payrollPage(state, adminKey, tcNow(), url.searchParams.get("week"), note ? `<p class="ok">${esc(note)}</p>` : ""));
+    }
+    if (clockOn && req.method === "GET" && url.pathname === "/admin/payroll.csv") {
+      const weeks = weeksOf(state), w = weeks.find((x) => x.weekStart === url.searchParams.get("week")) || weeks[0];
+      if (!w) return send(404, "no published week\n", "text/plain");
+      const f = payrollFile(state, tcNow(), w);
+      if (f.error) return send(404, f.error + "\n", "text/plain");
+      return send(200, f.csv, f.sep === "\t" ? "text/tab-separated-values; charset=utf-8" : "text/csv; charset=utf-8", { "content-disposition": `attachment; filename="payroll-${w.weekStart}.${f.sep === "\t" ? "txt" : "csv"}"` });
+    }
+    if (clockOn && req.method === "POST" && url.pathname === "/admin/payroll-template") {
+      const dest = `/admin/payroll?key=${encodeURIComponent(adminKey)}&week=${encodeURIComponent(String(form.get("week") || ""))}`;
+      const header = String(form.get("header") || "").replace(/^\uFEFF/, "").split(/\r?\n/).find((l) => l.trim() !== "") || "";
+      const ids = String(form.get("ids") || ""), overrides = String(form.get("overrides") || "");
+      if (header.length > MAX_TEMPLATE || ids.length > MAX_IDS || overrides.length > MAX_OVERRIDES) return back(dest, "Not saved: too long. Paste only the template's first row.");
+      if (header) { const t = readTemplate(header); if (t.error) return back(dest, "Not saved: " + t.error); }
+      state.payrollTemplate = { header: header.trim(), ids, overrides, zeros: form.get("zeros") === "zero" ? "zero" : "blank" };
+      save();
+      return back(dest, header ? "Template saved." : "Template cleared.");
     }
     const leaveHere = `/admin/leave?key=${encodeURIComponent(adminKey)}`;
     if (clockOn && req.method === "GET" && url.pathname === "/admin/leave") {

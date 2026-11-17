@@ -96,6 +96,15 @@ export class Model {
     const sj = schemas[this.schemaId];
     if (!sj) throw new Error(`IFC schema ${raw || "(none)"} is not supported (IFC2X3, IFC4, IFC4X3)`);
     this.schema = sj instanceof Schema ? sj : new Schema(sj);
+    if (p.policy) {
+      const keep = new Map();
+      const S = this.schema;
+      p.policy.keep = (t) => {
+        let k = keep.get(t);
+        if (k === undefined) keep.set(t, (k = !S.isA(t, "IFCREPRESENTATIONITEM")));
+        return k;
+      };
+    }
     this.byType = new Map();
     for (const e of this.entities.values()) {
       let l = this.byType.get(e.type);
@@ -409,6 +418,23 @@ function predefinedType(model, e) {
   return r === undefined ? null : r;
 }
 
+// The IFC2X3 type mapping table indexed by occurrence class, rows in the
+// table's order. Building Object.entries(typeMap) for every entity was over
+// half the time of an IDS applying to every entity (eval/no-entity-facet-2026-11-17.md).
+const TYPE_MAP_INDEX = new WeakMap();
+function typeMapByOcc(typeMap) {
+  let idx = TYPE_MAP_INDEX.get(typeMap);
+  if (idx) return idx;
+  idx = new Map();
+  for (const [idsName, [occ, tyName]] of Object.entries(typeMap)) {
+    let rows = idx.get(occ);
+    if (!rows) idx.set(occ, (rows = []));
+    rows.push([tyName, idsName]);
+  }
+  TYPE_MAP_INDEX.set(typeMap, idx);
+  return idx;
+}
+
 export class EntityFacet {
   constructor(node) {
     this.kind = "entity";
@@ -419,10 +445,9 @@ export class EntityFacet {
   names(model, e, typeMap) {
     const out = [e.type];
     if (model.schemaId === "IFC2X3" && typeMap) {
-      const ty = model.typeOf.get(e.id);
-      for (const [idsName, [occ, tyName]] of Object.entries(typeMap)) {
-        if (e.type === occ && ty && ty.type === tyName) out.push(idsName);
-      }
+      const rows = typeMapByOcc(typeMap).get(e.type);
+      const ty = rows && model.typeOf.get(e.id);
+      if (ty) for (const [tyName, idsName] of rows) if (ty.type === tyName) out.push(idsName);
     }
     return out;
   }
@@ -487,7 +512,7 @@ export class AttributeFacet {
 
 const fmt = (v) => (v && v.enum ? "." + v.enum + "." : JSON.stringify(v));
 
-const QUANTITY_MEASURE = {
+export const QUANTITY_MEASURE = {
   IFCQUANTITYLENGTH: ["LengthValue", "IFCLENGTHMEASURE"],
   IFCQUANTITYAREA: ["AreaValue", "IFCAREAMEASURE"],
   IFCQUANTITYVOLUME: ["VolumeValue", "IFCVOLUMEMEASURE"],
@@ -500,7 +525,7 @@ const QUANTITY_MEASURE = {
 // Property sets of an element by name: {name -> {props: Map(name -> propEntity), entity}}
 // Type psets are inherited and an occurrence's pset of the same name overrides
 // per property.
-function psetsOf(model, e) {
+export function psetsOf(model, e) {
   const out = new Map();
   const add = (pset) => {
     const name = model.attr(pset, "Name");
@@ -646,7 +671,7 @@ export class PropertyFacet {
 }
 
 // Classification references of an element: [{system, codes: [..], ref}]
-function classificationsOf(model, e) {
+export function classificationsOf(model, e) {
   const own = (id) => {
     const out = [];
     for (const c of model.classRels.get(id) || []) out.push(...describeClassification(model, c));
@@ -694,7 +719,7 @@ export class ClassificationFacet {
 }
 
 // Names and categories of every material an element uses.
-function materialNames(model, e) {
+export function materialNames(model, e) {
   let rels = model.matRels.get(e.id);
   if (!rels || !rels.length) {
     const ty = model.typeOf.get(e.id);
@@ -856,8 +881,93 @@ function applies(spec, model, ctx) {
       if (c) { pool = c; break; }
     }
   }
-  if (!pool) pool = [...model.entities.values()];
-  return pool.filter((e) => spec.applicability.every((f) => f.test(e, model, ctx).ok));
+  // A cheap test per facet that reads no arguments (the entity's type, or
+  // whether it appears in a relationship index) and is false only where the
+  // facet's own test fails. Without an entity facet the pool is every entity
+  // in the model (3.7 million on a 219 MB federated model, three quarters of
+  // them geometry), so these keep the full tests, which parse arguments, to the
+  // entities that can match (eval/no-entity-facet-2026-11-17.md).
+  const pre = spec.applicability.map((f) => prefilter(f, model)).filter(Boolean);
+  const keep = (e) => pre.every((p) => p(e)) && spec.applicability.every((f) => f.test(e, model, ctx).ok);
+  if (!pool) {
+    const out = [];
+    for (const e of model.entities.values()) if (keep(e)) out.push(e);
+    return out;
+  }
+  return pool.filter(keep);
+}
+
+// IDS has no inheritance (user manual, entity facet, "Inheritance"):
+// IFCWALL does not take an IfcWallStandardCase. Revit's IFC2X3 exports write
+// most walls that way, so a specification naming IFCWALL can pass on 4 walls
+// while 101 were never looked at (eval/corpus-crosscheck-2026-11-17.md).
+// Returns, per class, the elements an entity facet leaves out only because
+// it names an ancestor of their class and not the class itself: every other
+// applicability facet, and the facet's predefined type, would take them.
+// The verdict does not change; the report says what was not checked.
+export function skippedSubclasses(spec, model, ctx) {
+  const ent = spec.applicability.find((f) => f.kind === "entity");
+  if (!ent || !ent.name.present) return [];
+  const S = model.schema;
+  const anyName = Object.assign(Object.create(EntityFacet.prototype), ent, { name: { matchString: () => true } });
+  const others = spec.applicability.filter((f) => f !== ent);
+  const out = [];
+  for (const [type, list] of model.byType) {
+    if (ent.name.matchString(type)) continue;
+    let via = null;
+    for (let t = S.entities[type] && S.entities[type].super; t && !via; t = S.entities[t] && S.entities[t].super) if (ent.name.matchString(t)) via = t;
+    if (!via) continue;
+    let count = 0;
+    for (const e of list) if (!ent.test(e, model, ctx).ok && anyName.test(e, model, ctx).ok && others.every((f) => f.test(e, model, ctx).ok)) count++;
+    if (count) out.push({ type, via, count });
+  }
+  return out.sort((a, b) => b.count - a.count || (a.type < b.type ? -1 : 1));
+}
+
+export function skippedNote(skipped) {
+  if (!skipped.length) return null;
+  const total = skipped.reduce((n, x) => n + x.count, 0);
+  const list = skipped.slice(0, 4).map((x) => `${x.count.toLocaleString("en-US")} ${x.type} (a subclass of ${x.via})`).join(", ") + (skipped.length > 4 ? `, and ${skipped.length - 4} more class(es)` : "");
+  return `not checked: ${total.toLocaleString("en-US")} element(s) of subclasses the entity facet does not name: ${list}. IDS entity names do not include subclasses; add these class names to the entity facet to check them`;
+}
+
+function prefilter(f, model) {
+  const m = model;
+  switch (f.kind) {
+    case "attribute": {
+      // AttributeFacet.test fails when the type has no attribute by that name.
+      const byType = new Map();
+      return (e) => {
+        let ok = byType.get(e.type);
+        if (ok === undefined) byType.set(e.type, (ok = m.schema.attrs(e.type).some((a) => f.name.matchString(a.name))));
+        return ok;
+      };
+    }
+    case "property": {
+      // psetsOf's sources: the element's type, a type object's own sets, the
+      // property relationships, a material's properties.
+      const typeObj = new Map();
+      return (e) => {
+        if (m.typeOf.has(e.id) || m.psetRels.has(e.id) || m.materialProps.has(e.id)) return true;
+        let ok = typeObj.get(e.type);
+        if (ok === undefined) typeObj.set(e.type, (ok = m.schema.isA(e.type, "IFCTYPEOBJECT")));
+        return ok;
+      };
+    }
+    case "classification":
+      // classificationsOf: own associations, external references, the type's.
+      return (e) => m.classRels.has(e.id) || m.extRefs.has(e.id) || m.typeOf.has(e.id);
+    case "material":
+      // materialNames: own association or the type's.
+      return (e) => m.matRels.has(e.id) || m.typeOf.has(e.id);
+    case "partOf": {
+      // PartOfFacet.wholes takes its first step through these relationships.
+      const rels = (f.relation === VOIDS_FILLS ? ["IFCRELFILLSELEMENT", "IFCRELVOIDSELEMENT"] : f.relation ? [f.relation] : PARTOF_RELS).map((r) => m.parents[r]).filter(Boolean);
+      return (e) => rels.some((map) => map.has(e.id));
+    }
+    default:
+      return null;
+  }
 }
 
 function checkRequirement(f, e, model, ctx) {
@@ -896,30 +1006,66 @@ export function checkIds(idsText, ifcText, opts = {}) {
       s.status = "invalid";
       s.invalid = errors.map((x) => x.message);
       s.note = "invalid IDS, not checked: " + s.invalid.join("; ");
+      // A prohibited specification with requirements is invalid (buildingSMART's
+      // ids/invalid-prohibited_specifications_invalid_if_requirements_are_specified),
+      // but its intent is plain: nothing may match. Say how many elements do, so
+      // the report does not read as a clean model (eval/corpus-crosscheck-2026-11-17.md).
+      if (mine.some((x) => x.code === "prohibited-requirements")) {
+        const n = applies(spec, model, ctx).length;
+        s.matching = n;
+        s.note += `; ${n.toLocaleString("en-US")} element(s) in this model match its applicability${n ? " and would fail it once the requirements are removed" : ""}`;
+      }
       specs.push(s);
       continue;
     }
     const hits = applies(spec, model, ctx);
     s.applicable = hits.length;
+    const skipped = skippedSubclasses(spec, model, ctx);
+    if (skipped.length) { s.skippedSubclasses = skipped; s.hint = skippedNote(skipped); }
     if (spec.optionality === "prohibited") {
       if (hits.length) {
         s.status = "fail";
         s.note = `${hits.length} element(s) match a prohibited specification`;
-        s.failed = hits.slice(0, 500).map((e) => ({ id: e.id, type: e.type, globalId: globalId(model, e), name: nameOf(model, e), reasons: ["matches the applicability of a prohibited specification"] }));
+        s.failed = hits.slice(0, Math.min(500, opts.maxFailed ?? 500)).map((e) => ({ id: e.id, type: e.type, globalId: globalId(model, e), name: nameOf(model, e), reasons: ["matches the applicability of a prohibited specification"] }));
       }
       specs.push(s);
       continue;
     }
+    // opts.maxFailed keeps the first N failing elements of a spec and counts
+    // the rest in s.failedCount (set only when some were dropped). CI uses it:
+    // a spec with no entity facet applies to every entity, and on a 40 MB MEP
+    // export (665,224 entities) one such spec held ~440 MB of reasons.
+    const maxFailed = opts.maxFailed ?? Infinity;
+    let failing = 0;
+    // Where a requirement facet's prefilter is false the facet is absent, so
+    // its verdict follows from the cardinality alone, with no arguments read.
+    // An element is first judged that way, stopping at the first unmet
+    // requirement; the full tests run only to write the reasons of a failing
+    // element the report keeps. Specifications applying to every entity check
+    // millions of geometry items this way (eval/no-entity-facet-2026-11-17.md).
+    const reqPre = spec.requirements.map((f) => prefilter(f, model));
+    const meets = (e) => {
+      for (let k = 0; k < spec.requirements.length; k++) {
+        const f = spec.requirements[k];
+        const p = reqPre[k];
+        const pass = p && !p(e) ? f.cardinality === "prohibited" || f.cardinality === "optional" : checkRequirement(f, e, model, ctx).pass;
+        if (!pass) return false;
+      }
+      return true;
+    };
     for (const e of hits) {
+      if (meets(e)) { s.passed++; continue; }
+      if (failing >= maxFailed) { failing++; continue; }
       const reasons = [];
       for (const f of spec.requirements) {
         const r = checkRequirement(f, e, model, ctx);
         if (!r.pass) reasons.push(`${f.kind === "entity" ? "" : f.cardinality + " "}${f.describe()}: ${r.why || "not met"}`);
       }
-      if (reasons.length) s.failed.push({ id: e.id, type: e.type, globalId: globalId(model, e), name: nameOf(model, e), reasons });
+      if (reasons.length) { if (failing++ < maxFailed) s.failed.push({ id: e.id, type: e.type, globalId: globalId(model, e), name: nameOf(model, e), reasons }); }
       else s.passed++;
     }
-    if (s.failed.length) s.status = "fail";
+    if (failing > s.failed.length) s.failedCount = failing;
+    if (failing) s.status = "fail";
     else if (spec.optionality === "required" && hits.length === 0) {
       s.status = "fail";
       s.note = "required, but nothing in the model matches the applicability";

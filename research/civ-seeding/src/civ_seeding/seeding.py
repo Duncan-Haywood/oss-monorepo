@@ -438,14 +438,16 @@ def survey_design(v, f, rng, design: str = "uniform", split: float | None = None
 
 
 def survey_recall(v, f, rng, design: str = "uniform", split: float | None = None,
-                  recall: float = 0.85):
+                  recall: "float | np.ndarray" = 0.85):
     """A survey whose respondents forget ties (milestone 11). Each surveyed household i reports
     each true tie (i, j) independently with probability `recall` (R[i, j], drawn once per survey
     after stage 1); a tie is seen if a surveyed end reported it. uniform: k random households.
     adaptive: k1 random, then the k - k1 unsurveyed households named in the most stage-1 reports.
     Estimated degree: seen degree for surveyed households, reports by the random stage /
     (k1 / n) otherwise, with no correction for recall (a field team does not know it). f = 1 is
-    a census with recall error: a tie is seen with probability 1 - (1 - recall)^2."""
+    a census with recall error: a tie is seen with probability 1 - (1 - recall)^2.
+    `recall` may also be an n x n array of per-tie probabilities (milestone 12: recall by tie
+    strength); a constant array gives exactly the same draws as the scalar."""
     if design not in ("uniform", "adaptive"):
         raise ValueError(design)
     n = v.n

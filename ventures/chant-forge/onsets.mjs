@@ -98,8 +98,45 @@ export const VFRIC_HI5 = 12;
 // eval/coda-check.mjs K, N, T and U's stop codas read by eval/vstop-diag.mjs: labial bursts peaking at 1.5 kHz or
 // above held 0.58 or less, velars read as labial 0.68 or more at 1.9 kHz or above
 export const COMPACT_VELAR = { c: 0.65, hz: 1650 };
+// readCoda's `voicelessLow` (README "A p's burst read as a k"): the share of a voiceless burst's energy above 1 kHz
+// under which it is labial; set midway between the voiceless labials' highest (0.79) and the velars' lowest (0.99)
+export const VOICELESS_LOW = 0.9;
+// readCoda's voice-bar burst (`barBurst`, the default since its registration held on part X, eval/coda-check.mjs
+// twentieth round; `barBurst: false` is the reader before; README "No burst on C#4-E4"): on C#4-E4 a voiced stop's voice
+// bar sits 19-23 dB under the vowel in all but only 4-7 dB under its band under 500 Hz (the bar and the vowel are both
+// little more than the fundamental there), so the closure rule (12 dB under 500 Hz) misses it and the nasal rule takes
+// it; and a b's burst (a 500 Hz band) stands under 12 dB over the bar's harmonics above 600 Hz, the bar fading 5-9 dB
+// through the closure. So, when the 600 Hz search finds nothing, the burst is searched again above `hz`, rising
+// against the bar in the 10 ms before it. And a run `lvl` dB or more under the vowel, above `floor` (voiced: a
+// silent closure is under it), `dark` dB or more under it above 1 kHz, is a voiced closure when a burst follows it
+// within `tail` ms of its last frame, with the `holdMs` before the release still voiced and within `hold` dB of the
+// run's median, no burst-into-frication (a cluster's s), and no closure with a burst of its own starting within
+// `after` frames of its end (a cluster's n hands over to its stop's silent closure with one bright frame). A murmur
+// read by any nasal rule that starts at most `lead` frames before such a closure is that closure's voice bar.
+// Chosen on U's C#4 and D#4 cells (eval/burst-diag.mjs) and the development parts A-W of eval/coda-check.mjs.
+// voicedLead's hold form: the longest lead, in 5 ms frames, it drops before a closure (README "A voiced closure that holds to its burst")
+export const VOICED_HOLD_SPAN = 20;
+// readCoda's default voicedLead since the twenty-second round's registration held on part Z (`voicedLead: false` is the
+// reader before; `true` the bar form only)
+export const VOICED_LEAD = { hold: true };
+export const BAR_BURST = { hz: 2000, lvl: 10, floor: -40, dark: 30, tail: 25, lead: 4, hold: 6, holdMs: 20, after: 8 };
 // readCoda's deep murmur on a high short note before an obstruent (see its note; off by default, `deepMurmur: true`);
 // chosen on eval/coda-check.mjs J and N
+// A dark-vowel nasal's lip closure (`lipShut`, the default since its registration held on part a; `lipShut: false` is the
+// reader before; README "A dark-vowel m"): after /u/ on D4-E4 a final m is only
+// 4-6 dB darker than the vowel, which has almost nothing above 1 kHz to lose, so the level, step and near rules all
+// pass it by. What the closure does is drop the band above 1 kHz by `fall` dB or more within two hops, after a blip
+// up as the lips meet, while the vowel's own vibrato moves it 4-9 dB over the same span. See readCoda.
+// `span`, `settle` and `rise` (the twenty-fifth round, README "A dark-vowel m that closes slowly"; opt-in as
+// `lipShut: { span: 4, settle: 2, rise: 4 }`): the fall counted from any of `span` frames before, the hold looked for up
+// to `settle` frames after the fall, a late hold only when the band above 1 kHz climbs back no more than `rise` dB
+export const LIP_SHUT = { fall: 12, span: 2, settle: 0, rise: null, dark: 8, lo: -20, hi: 0, hold: 4, hiHold: 6, minMs: 45 };
+// A dark-vowel m that holds level (`lipHold`, opt-in; README "A dark-vowel m that holds level"): on D4-E4 after /u/
+// (part a's *bum*, *hum*, *fum*) the vowel's band above 1 kHz has already fallen 3-8 dB into the closure, so the m sits
+// no lower in that band than the vowel 25-45 ms before and lipShut's darkness test fails. What it does instead is hold:
+// after the lips' blip the band above 1 kHz falls `fall` dB within `span` hops, and the level settles `drop` dB or more
+// under the vowel and holds within `hold` dB for 30 ms. A vowel's fade at the note's end falls 1-3 dB per 10 ms.
+export const LIP_HOLD = { fall: 12, span: 3, drop: 3, lo: -20, hold: 2, minMs: 45 };
 export const DEEP = { lo: -35, hi: -12, minMs: 60, silent: -50, gap: 5, tilt: 15, peak: true };
 const db = (a, b) => 10 * Math.log10((a + 1e-20) / (b + 1e-20));
 const median = (v) => { const s = [...v].sort((p, q) => p - q); return s.length ? s[Math.floor(s.length / 2)] : NaN; };
@@ -227,7 +264,7 @@ export const LOCAL_REF = { from: 6, to: 24, cap: 20, nasal: false };
 // No frame in a closure is vowel-like, so the anchor holds through it. Opt-in (`closeAnchor: true`); it replaces
 // localRef on the closure rule only, the nasal rule is untouched.
 export const ANCHOR = { frames: 10, drop: 12 };
-export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = false, deepOpts = {}, localRef = LOCAL_REF, closeAnchor = false, barLead = false, compactVelar = false } = {}) {
+export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = false, deepOpts = {}, localRef = LOCAL_REF, closeAnchor = false, barLead = false, compactVelar = false, voicelessLow = VOICELESS_LOW, barBurst = true, voicedLead = VOICED_LEAD, lipShut = true, lipHold = false, trace = null } = {}) {
   const hop = Math.round(0.005 * rate), a = Math.round((vowelAt + 0.06) * rate), z = Math.round((tEnd - 0.02) * rate), zEnd = Math.round(tEnd * rate);
   const ref = [];
   for (let i = Math.round(vowelAt * rate); i < a; i += hop) ref.push(frameFeatures(x, i, rate));
@@ -300,31 +337,72 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
     if (side(p0 - 8, p0) && side(p1 + 1, p1 + 9)) tapRun = [p0, p1];
   }
   const floor = tapRun ? fr[tapRun[0]].lvl : null, dip = !!tapRun, s0 = tapRun?.[0], s1 = tapRun?.[1];
-  const vh = highpass(x, Math.round(vowelAt * rate) - Math.round(0.02 * rate), a, 600, rate);
-  let vMean = 0; for (let i = Math.round(0.02 * rate); i < vh.length; i++) vMean += vh[i] ** 2; vMean /= Math.max(1, vh.length - Math.round(0.02 * rate));
-  // a burst after the closure that starts at frame r[0]: the release time, or -1
-  const burstAfter = (r) => {
-    const from = a + Math.round((fr[r[0]].t + 0.015) * rate), to = Math.min(zEnd - Math.round(0.003 * rate), a + Math.round((fr[r[1]].t + 0.04) * rate));
+  const BB = barBurst ? { ...BAR_BURST, ...(barBurst === true ? {} : barBurst) } : null;
+  const vMeanOf = {};
+  const vMeanAt = (hz) => {
+    if (vMeanOf[hz] === undefined) {
+      const vh = highpass(x, Math.round(vowelAt * rate) - Math.round(0.02 * rate), a, hz, rate);
+      let m = 0; for (let i = Math.round(0.02 * rate); i < vh.length; i++) m += vh[i] ** 2; vMeanOf[hz] = m / Math.max(1, vh.length - Math.round(0.02 * rate));
+    }
+    return vMeanOf[hz];
+  };
+  // a burst after the closure that starts at frame r[0]: the release time, or -1. With `barBurst` a search above
+  // 600 Hz that finds none is run again above BB.hz, over the voice bar's second and third harmonics on a high note
+  const burstAfter = (r, why = null, tail = 0.04, fricOk = true) => {
+    const at = burstIn(r, why, tail, 600, fricOk);
+    return at >= 0 || !BB ? at : burstIn(r, why && (why.hi = {}), tail, BB.hz, fricOk);
+  };
+  const burstIn = (r, why, tail, hz, fricOk) => {
+    const vMean = vMeanAt(hz);
+    const from = a + Math.round((fr[r[0]].t + 0.015) * rate), to = Math.min(zEnd - Math.round(0.003 * rate), a + Math.round((fr[r[1]].t + tail) * rate));
     // nothing after tEnd is read: the next syllable's sound is not this one's burst decaying or not
-    const off = from - Math.round(0.02 * rate), hp = highpass(x, off, Math.min(to + Math.round(0.04 * rate), zEnd), 600, rate);
+    const off = from - Math.round(0.02 * rate), hp = highpass(x, off, Math.min(to + Math.round(0.04 * rate), zEnd), hz, rate);
     const w2 = Math.round(0.002 * rate), e2 = (i) => { let q = 0; for (let j = 0; j < w2; j++) q += (hp[i - off + j] || 0) ** 2; return q / w2; };
-    const base = e2(from) + vMean * 1e-6;
+    // the retry above BB.hz rises against the bar just before it, the mean of the 10 ms ending 2 ms earlier: the bar
+    // fades 5-9 dB through a closure on C#4-E4, and its energy up there comes in glottal pulses, so the closure's
+    // first 2 ms stood level with b's burst at its end
+    const base0 = e2(from) + vMean * 1e-6, bw = Math.round(0.01 * rate);
+    const baseAt = hz === 600 ? () => base0 : (i) => { let q = 0, nq = 0; for (let j = Math.max(off, i - w2 - bw); j < i - w2; j += w2) { q += e2(j); nq++; } return q / Math.max(1, nq) + vMean * 1e-6; };
+    const base = base0;
+    if (why) Object.assign(why, { from: (from - a) / rate, to: (to - a) / rate, baseDb: 10 * Math.log10(base / vMean), maxDb: -Infinity, tries: [] });
     for (let i = from; i < to; i += w2) {
-      const q = e2(i); if (!(q > base * 10 ** 1.2 && q > vMean * 1e-4)) continue;
+      const q = e2(i), bi = baseAt(i);
+      if (why) { why.maxDb = Math.max(why.maxDb, 10 * Math.log10(q / bi)); (why.series = why.series || []).push(Math.round(10 * Math.log10(q / bi))); }
+      if (!(q > bi * 10 ** 1.2 && q > vMean * 1e-4)) continue;
       let peak = q; for (let j = i; j < i + Math.round(0.01 * rate); j += w2) peak = Math.max(peak, e2(j));
       let late = 0, nl = 0; for (let j = i + Math.round(0.02 * rate); j < i + Math.round(0.03 * rate); j += w2) { late += e2(j); nl++; }
+      if (why) why.tries.push({ at: (i - a) / rate, riseDb: 10 * Math.log10(q / bi), lateDb: 10 * Math.log10(late / Math.max(1, nl) / peak) });
       if (late / Math.max(1, nl) < peak / 4) return i;
       // or the burst runs straight into frication (the k s of "lux", the p s of "ops"): noise above
       // 2.5 kHz from 10 to 30 ms after it, with the voices still off, is the cluster's fricative
       const after = [0.01, 0.02].map((d) => frameFeatures(x, i + Math.round(d * rate), rate));
-      if (i + Math.round(0.04 * rate) <= zEnd && after.every((f) => f.hiR > Math.max(0.5, 3 * vHi) && db(f.low, vLow) < -20)) return i;
+      if (fricOk && i + Math.round(0.04 * rate) <= zEnd && after.every((f) => f.hiR > Math.max(0.5, 3 * vHi) && db(f.low, vLow) < -20)) return i;
       return -1; // the energy came back and stayed: the next sound, not a burst
     }
     return -1;
   };
   // 30 ms, not an opening's 35: a coda on a short note is shortened to fit (codaPlan)
   const closures = runs(closed, 30).filter((r) => r[0] > 0);
-  const stopRun = closures.find((r) => burstAfter(r) >= 0);
+  // a voice bar the closure rule misses (`barBurst`): voiced, dark, and running up to a burst
+  // The burst must end a held bar: no burst-into-frication (a cluster's s after its n), and the 20 ms just before
+  // the release still voiced, within BB.hold dB of the run's median (a cluster's n fades into a silent closure)
+  const barRel = (r) => {
+    const rel = burstAfter(r, null, BB.tail / 1000, false);
+    if (rel < 0) return -1;
+    const f = frameFeatures(x, rel - Math.round(BB.holdMs / 1000 * rate), rate, BB.holdMs / 1000), l = db(f.tot, vTot) - 10 * Math.log10(BB.holdMs / 20), ml = median(fr.slice(r[0], r[1] + 1).map((q) => q.lvl));
+    return l > BB.floor && l >= ml - BB.hold ? rel : -1;
+  };
+  const barred = BB ? runs((f) => f.lvl < -BB.lvl && f.lvl > BB.floor && f.hiRel < -BB.dark && !noisy(f) && !vnoisy(f), 30)
+    // a cluster's n before its stop: the n hands over to the closure with one bright frame the retry can take for a
+    // burst, and the closure the closure rule reads after it has a burst of its own
+    .filter((r) => r[0] > 0 && !closures.some((c) => c[0] >= r[1] - 2 && c[0] - r[1] <= BB.after && burstAfter(c) >= 0) && barRel(r) >= 0) : [];
+  if (trace && BB) trace.barCands = runs((f) => f.lvl < -BB.lvl && f.lvl > BB.floor && f.hiRel < -BB.dark && !noisy(f) && !vnoisy(f), 30).map((r) => { const why = {}; const rel = burstAfter(r, why, BB.tail / 1000, false); return { held: rel >= 0 ? barRel(r) >= 0 : null, t: fr[r[0]].t, end: fr[r[1]].t, rel: rel < 0 ? -1 : (rel - a) / rate, ...why }; });
+  for (const r of barred) if (!closures.some((c) => c[0] <= r[0] && c[1] >= r[0])) closures.push(r);
+  closures.sort((p, q) => p[0] - q[0]);
+  const relMemo = new Map(), relOf = { get: (r) => { if (!relMemo.has(r)) relMemo.set(r, barred.includes(r) ? barRel(r) : burstAfter(r)); return relMemo.get(r); } };
+  const stopRun = closures.find((r) => relOf.get(r) >= 0);
+  const barRun = stopRun && barred.includes(stopRun) ? stopRun : null;
+  if (trace) trace.closures = closures.map((r) => { const why = {}; const rel = relOf.get(r); burstAfter(r, why, barred.includes(r) ? BB.tail / 1000 : 0.04); return { at: r[0], end: r[1], t: fr[r[0]].t, ms: msOf(r), rel: rel < 0 ? -1 : (rel - a) / rate, ...why }; });
   const fric = runs(noisy, 30)[0], vfric = runs(vnoisy, 30)[0], tap = dip && !fr.some((f) => noisy(f) || vnoisy(f)) ? [s0, s1] : null;
   // F1 falls as the mouth closes for an obstruent, so the vowel's last 30-45 ms before a closure or
   // a fricative look like a murmur. A nasal there counts only when it lasts 45 ms or more ("unt").
@@ -456,11 +534,99 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
     return null;
   };
   const deep = deepRun();
+  // A dark-vowel nasal's lip closure (`lipShut`, the default since the twenty-third round; README "A dark-vowel m"):
+  // Z's *lum* and *dun* and X's *tum* on D4-E4 read as nothing. Frame by frame (eval/dark-nasal-diag.mjs) the sung m there sits 2-17 dB under the reference
+  // and is dark in itself (tilt -39 to -50), but no darker than an /u/ that already had a tilt of -38 to -45, so the
+  // level rule's 15 dB and the step rule's 7 dB of darkness against the vowel both fail. Its entry is what marks it:
+  // the band above 1 kHz blips up as the lips meet, then falls 14-19 dB within two hops and holds within 1-4 dB. So a
+  // run counts when the band above 1 kHz has fallen SH.fall dB or more from either of the two frames before it, every
+  // frame sits SH.dark dB or more under that band in the vowel 25-45 ms before, SH.lo to SH.hi dB of that vowel's
+  // level, dark in itself (murmurTilt), its level and its upper band holding within SH.hold and SH.hiHold dB over its
+  // first 30 ms, SH.minMs long, and the vowel does not come back after it.
+  const SH = lipShut ? { ...LIP_SHUT, ...(lipShut === true ? {} : lipShut) } : null;
+  const shutRun = () => {
+    if (!SH) return null;
+    for (let k = 9; k < fr.length; k++) {
+      let top = -Infinity; for (let i = 1; i <= SH.span; i++) top = Math.max(top, fr[k - i].hiRel);
+      if (top - fr[k].hiRel < SH.fall) continue;
+      const pre = fr.slice(k - 9, k - 4), pl = median(pre.map((f) => f.lvl)), ph = median(pre.map((f) => f.hiRel));
+      const ok = (f) => f.hiRel <= ph - SH.dark && f.lvl - pl >= SH.lo && f.lvl - pl <= SH.hi && tiltOf(f) <= -murmurTilt;
+      let e = k; while (e < fr.length && ok(fr[e])) e++;
+      const r = [k, e - 1];
+      if (e === k || msOf(r) < SH.minMs) continue;
+      const spread = (v) => Math.max(...v) - Math.min(...v);
+      let steady = false, at = 0;
+      for (let s = 0; s <= SH.settle && !steady && k + s + 6 <= e; s++) {
+        const held = fr.slice(k + s, k + s + 6);
+        steady = spread(held.map((f) => f.lvl)) <= SH.hold && spread(held.map((f) => f.hiRel)) <= SH.hiHold;
+        at = s;
+      }
+      // the slow form: a hold that only starts `at` > 0 frames after the fall counts when the band above 1 kHz never
+      // climbs back more than SH.rise dB over its lowest point since the fall, up to the hold's end (a fading vowel's
+      // vibrato brings it back 6-10 dB; eval/coda-check.mjs A's /u/ on C4). A hold from the fall itself is the rule as before.
+      if (steady && at > 0 && SH.rise != null) {
+        let lo = Infinity;
+        for (const f of fr.slice(k, k + at + 6)) { lo = Math.min(lo, f.hiRel); if (f.hiRel - lo > SH.rise) { steady = false; break; } }
+      }
+      if (trace) (trace.shut = trace.shut || []).push({ k, t: fr[k].t, fall: top - fr[k].hiRel, ms: msOf(r), steady, again: vowelAgain(r), lv: fr.slice(k - 6, k + 10).map((f) => Math.round(f.lvl - pl)), hi: fr.slice(k - 6, k + 10).map((f) => Math.round(f.hiRel - ph)), tilt: fr.slice(k - 6, k + 10).map((f) => Math.round(tiltOf(f))) });
+      if (!steady) continue;
+      if (vowelAgain(r)) continue;
+      return r;
+    }
+    return null;
+  };
+  const shut = shutRun();
+  // A dark-vowel m that holds level (opt-in `lipHold`; LIP_HOLD above)
+  const LH = lipHold ? { ...LIP_HOLD, ...(lipHold === true ? {} : lipHold) } : null;
+  const holdRun = () => {
+    if (!LH) return null;
+    for (let k = 9; k < fr.length; k++) {
+      let top = -Infinity; for (let i = 1; i <= LH.span; i++) top = Math.max(top, fr[k - i].hiRel);
+      if (top - fr[k].hiRel < LH.fall) continue;
+      const pl = median(fr.slice(k - 9, k - 4).map((f) => f.lvl));
+      const ok = (f) => f.lvl - pl >= LH.lo && f.lvl - pl <= -LH.drop && tiltOf(f) <= -murmurTilt;
+      let e = k; while (e < fr.length && ok(fr[e])) e++;
+      const r = [k, e - 1];
+      if (e === k || msOf(r) < LH.minMs) continue;
+      const lv = fr.slice(k, k + 6).map((f) => f.lvl);
+      if (Math.max(...lv) - Math.min(...lv) > LH.hold) continue;
+      if (vowelAgain(r)) continue;
+      return r;
+    }
+    return null;
+  };
+  const lhold = holdRun();
   // A voice bar read as a murmur (opt-in `barLead: N`): a level-rule run that a stop's closure, burst found,
   // starts inside of within N frames of the run's own start is that closure's voice bar
   const barOf = (r) => barLead !== false && stopRun && stopRun[0] >= r[0] && stopRun[0] <= r[1] && stopRun[0] - r[0] <= barLead;
-  const nasRules = [['level', runs(nasal, 30).find((r) => (msOf(r) >= 45 || !next.some((k) => k >= r[1] && k - r[1] <= 3)) && !vowelAgain(r) && murmur(r) && !barOf(r))], ['step', step], ['near', near], ['pre', pre], ['deep', deep]]
-    .filter(([, r]) => r && !intoTap(r)).sort((p, q) => p[1][0] - q[1][0]);
+  // A voiced stop's lead read as a murmur (opt-in `voicedLead: N`, README "A g's voice bar read as a nasal"): on C#4-E4
+  // a dark vowel's last frames (/o/'s F1 falling into the closure) and the voice bar's first meet a nasal rule and run
+  // up to, or into, the closure readCoda chose for the stop. No Latin coda puts a nasal before a voiced stop (the
+  // clusters are -nt, -nc, -ns, -nx, whose stops are voiceless), so a run that ends at most N frames before the chosen
+  // closure, or inside it, is that stop's lead when the closure reads voiced (its bar above -40 dB, as below)
+  const VL = voicedLead === false ? null : typeof voicedLead === 'number' ? { gap: voicedLead, bar: false } : { gap: 2, bar: true, ...(voicedLead !== true && voicedLead.hold ? { span: VOICED_HOLD_SPAN } : {}), ...(voicedLead === true ? {} : voicedLead) };
+  // The hold form (`voicedLead: { hold: true }`, the twenty-second round, README "A voiced closure that holds to its
+  // burst"): a closure the ordinary closure rule found counts too when it passes the voice-bar rule's own release
+  // test (barRel: a burst that does not run into frication, and the 20 ms before it still voiced, above BB.floor and
+  // within BB.hold dB of the run's median). An n-t's closure is silent at its end and an n-s runs into frication; a
+  // voiced stop's bar runs up to its burst. And the run dropped must start at most VL.span frames (100 ms) before the
+  // closure: a voiced stop's lead (F1 falling, the bar's first frames) started 1-14 frames before it on A-Y, a final
+  // nasal held 37-55 frames before a release blip the closure rule took for one
+  // The opt-in deep rule's run is never a lead: it fires only on a murmur that runs into frication or a silent closure
+  const barHeld = (r) => !!BB && VL.hold && relOf.get(r) >= 0 && barRel(r) >= 0;
+  const stopVoiced = (() => {
+    if (!VL || !stopRun || (VL.bar && !barRun && !barHeld(stopRun))) return false;
+    const rel = relOf.get(stopRun), sg = fr.slice(stopRun[0], stopRun[1] + 1), shut = sg.filter((f) => a + f.t * rate + 0.02 * rate <= rel);
+    const inner = shut.length >= 2 ? shut.slice(Math.floor(shut.length / 2)) : shut.length ? shut : sg;
+    return median(inner.map((f) => f.loRel)) > -40;
+  })();
+  const leadOf = (r) => {
+    const yes = stopVoiced && r[0] < stopRun[0] && r[1] >= stopRun[0] - VL.gap && (VL.span === undefined || stopRun[0] - r[0] <= VL.span);
+    if (yes && trace) (trace.leads = trace.leads || []).push({ before: stopRun[0] - r[0], len: r[1] - r[0] + 1, bar: !!barRun });
+    return yes;
+  };
+  const nasRules = [['level', runs(nasal, 30).find((r) => (msOf(r) >= 45 || !next.some((k) => k >= r[1] && k - r[1] <= 3)) && !vowelAgain(r) && murmur(r) && !barOf(r))], ['step', step], ['near', near], ['pre', pre], ['deep', deep], ['shut', shut], ['hold', lhold]]
+    .filter(([name, r]) => r && !intoTap(r) && !(name !== 'deep' && leadOf(r)) && !(barRun && r[0] <= barRun[0] && barRun[0] - r[0] <= BB.lead)).sort((p, q) => p[1][0] - q[1][0]);
   const nas = nasRules[0]?.[1];
   const cands = [['closure', stopRun], ['fricative', fric], ['vfricative', vfric], ['nasal', nas], ['tap', tap]]
     .filter(([, r]) => r).sort((p, q) => p[1][0] - q[1][0]);
@@ -469,7 +635,7 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
   const seg = fr.slice(r[0], r[1] + 1);
   if (kind === 'closure') {
     // the voice bar is read before the burst: after a final stop the closure runs on into silence
-    const rel = burstAfter(r), shut = seg.filter((f) => a + f.t * rate + 0.02 * rate <= rel);
+    const rel = relOf.get(r), shut = seg.filter((f) => a + f.t * rate + 0.02 * rate <= rel);
     // read from the closure's later half: on a short closure the first frames' windows still reach back
     // into the vowel, which then reads as a voice bar (a 35 ms k s closure read -39 dB, voiced)
     const inner = shut.length >= 2 ? shut.slice(Math.floor(shut.length / 2)) : shut.length ? shut : seg;
@@ -480,8 +646,15 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
     // bar's harmonics under 1 kHz run on under a voiced g's burst, so the low test reads it as a b; a burst whose
     // 500 Hz band holds `c` or more of the 1-11 kHz energy, centred at `hz` or above, is velar whatever lies under it
     const cv = compactVelar === true ? COMPACT_VELAR : compactVelar;
-    const place = b.centroid > 3400 ? 'alv' : cv && b.compactAny >= cv.c && b.compactHz >= cv.hz ? 'vel' : b.hi1 < 0.5 * b.tot ? 'lab' : b.compactAny > 0.4 && b.compactHz >= 1500 ? 'vel' : 'lab';
-    return { cls: 'stop', voiced, place, bar, closureMs: msOf(r), centroid: b.centroid, compact: b.compact, peakHz: b.peakHz, hi1R: b.tot ? b.hi1 / b.tot : 0, compactAny: b.compactAny, compactHz: b.compactHz };
+    // A p's burst read as a k (`voicelessLow`, default since its registration held on part W; README "A p's burst
+    // read as a k"; `voicelessLow: false` is the reader before): sing.mjs's labial burst is
+    // noise through a wide band at 500 Hz, and one 8 ms draw of it holds 11-79% of its energy above 1 kHz (median 0.39
+    // on K, N, T, U and V), so "most of it under 1 kHz" misses a third of them. With no voice bar under it nothing else
+    // sounds low: every voiceless velar and alveolar burst there held 99% or more above 1 kHz. So a burst after a
+    // silent closure with `voicelessLow` or less of its energy above 1 kHz is labial; a voiced one keeps the 0.5 test
+    const vl = voicelessLow === true ? VOICELESS_LOW : voicelessLow, lowShare = vl && !voiced ? vl : 0.5;
+    const place = b.centroid > 3400 ? 'alv' : cv && b.compactAny >= cv.c && b.compactHz >= cv.hz ? 'vel' : b.hi1 < lowShare * b.tot ? 'lab' : b.compactAny > 0.4 && b.compactHz >= 1500 ? 'vel' : 'lab';
+    return { cls: 'stop', voiced, place, bar, closureMs: msOf(r), centroid: b.centroid, compact: b.compact, peakHz: b.peakHz, hi1R: b.tot ? b.hi1 / b.tot : 0, compactAny: b.compactAny, compactHz: b.compactHz, relAt: rel / rate };
   }
   if (kind === 'fricative') {
     const cen = seg.reduce((q, f) => q + f.centroid, 0) / seg.length, l = seg.reduce((q, f) => q + f.lvl, 0) / seg.length;

@@ -327,6 +327,16 @@ TICK_LOG = 240        # control ticks LaunchCheck keeps per wheel for it: a 0.9 
 # (host.hold_s). Only wheels under about 1,500 rpm are ever short; faster ones keep the verdict's snapshot.
 LOOP_AFTER_REVS = 8
 EXTEND_MS = 1200
+# Watching through the next shot's speed change (2026-11-17, README "The fit floor on held-out builds"; off by
+# default). The watch above ends when the targets change, because a speed change's pulses are not the ball's. But the
+# loop-command fit models the wheel as a lag of every command the board sent, and a speed change is only more
+# commands: the drop D stays separable from the command response W h_tau as long as the wheel follows its commands.
+# The Pi's hold for slow wheels (host.hold_s) made the shot after a slow one 0.6-0.9 s late on the simulator; with
+# this on, the board keeps logging a short wheel's periods and ticks through a change of speed (not a stop: a coast
+# down is the ESC's braking, which no command describes) and the Pi need not hold (host.LOOP_THROUGH_CHANGE). The
+# verdict and the parabola's snapshot still freeze at the change, as before. A real wheel that does not follow its
+# command as one lag over a 5x speed change (an ESC's own speed loop, current limit, belt slip) would bias the drop.
+LOOP_THROUGH_CHANGE = False
 # The ESC-lag survey (2026-11-16, README "The ESC lag surveyed on the board"): after each launched stroke's record, every
 # turning wheel's snapshot is refitted with the commands through each of these ESC lags (esc_lagged_ticks) and the fit's
 # squared residual rms is summed per lag over the balls; the least is the build's lag. The Pi reads the sums from the
@@ -432,6 +442,11 @@ def _anchor(periods, back=None, steps=2):
             break
         k -= 1
     return k
+
+
+def _stopped(was, now):
+    """True when a wheel turning in `was` has no target in `now` (a stop: the coast down is the ESC's braking)."""
+    return any(w > 0 and n <= 0 for w, n in zip(was, now))
 
 
 def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, taus=LOOP_TAU_GRID_US, refine=5, levels=3,
@@ -867,6 +882,16 @@ class BrakeGuard:
 LOOP_LOW_RPM = 1500
 # The ready gate holds for at least this many revolutions of the slowest wheel (SteadyGate; same README section).
 GATE_HOLD_REVS = 6
+# A ball's recovery (2026-11-17, firmware/esp32/README.md "A ball charged the integrator"): from a stroke's start until
+# the wheel has dropped and climbed back to its target (or LOOP_BALL_MS passes), the loop's integrator sees its error
+# clamped to +-LOOP_BALL_BAND of the target. None turns it off.
+LOOP_BALL_BAND = 0.005
+LOOP_BALL_MS = 3000
+BALL_DROP_SEEN = 0.03         # the wheel reads this far under target: the ball has hit it
+# Braking to a slow target (2026-11-17, same README section): LOOP_RAMP_HOLD freezes the integrator while SpinupRamp is
+# still lowering the target; LOOP_I_FF_MAX bounds it to that share of the feedforward (None: only i_max).
+LOOP_RAMP_HOLD = True
+LOOP_I_FF_MAX = 0.35
 
 
 class WheelLoop:
@@ -888,24 +913,65 @@ class WheelLoop:
     from about 66 degrees at 3,500 rpm to -48 at 510 rpm (a 0.2 s wheel behind a 30 ms ESC), and a ~510 rpm wheel
     swung 460-564 rpm and never passed the ready gate. Scaling the gains with the speed keeps the crossover a fixed
     share of the delay. 0 turns it off.
+
+    A ball is a known kick, not an offset to learn (2026-11-17, README "A ball charged the integrator"). A ball takes
+    up to ~40% of a slow wheel's speed, and the tach shows that drop late, so the integrator used to charge through the
+    whole recovery: on a 0.8 s wheel at 526 rpm it reached +0.022 (about 200 rpm of command), the wheel overshot to
+    625 rpm, and discharging it carried the wheel 3.6% under its target, where it crept back for about 2 s. `ball()`,
+    called by the board as each stroke starts, holds the integrator to +-`ball_band` of the target from then until the
+    wheel has read `BALL_DROP_SEEN` under target and come back to it (or `ball_ms` passes: an empty pocket; or the
+    target changes); feedforward
+    and the proportional term do the recovery. None turns it off.
+
+    Braking did the same (same README section): the ramp lowers the target faster than a slow wheel slows, and the
+    integrator absorbed that tracking error until it cancelled the whole feedforward (-0.164 against 0.058 at 526 rpm),
+    so the wheel coasted to about 90 rpm before it could recover. With `ramp_hold` the integrator holds while the board
+    says the ramp is still lowering the target (`ramping`), and `i_ff_max` keeps it within that share of the
+    feedforward: enough for a wheel 22% off `rpm_full` (29%), not enough to switch the wheel off.
     """
 
-    def __init__(self, rpm_full, kp=2e-4, ki=6e-7, i_max=0.3, low_rpm=LOOP_LOW_RPM):
+    def __init__(self, rpm_full, kp=2e-4, ki=6e-7, i_max=0.3, low_rpm=LOOP_LOW_RPM, ball_band=-1.0, ball_ms=None, ramp_hold=None, i_ff_max=-1.0):
         self.ff = 1.0 / rpm_full
         self.kp, self.ki, self.i_max = kp, ki, i_max
         self.low = low_rpm
+        self.band = LOOP_BALL_BAND if ball_band == -1.0 else ball_band
+        self.ball_ms = LOOP_BALL_MS if ball_ms is None else ball_ms
+        self.ramp_hold = LOOP_RAMP_HOLD if ramp_hold is None else ramp_hold
+        self.i_ff = LOOP_I_FF_MAX if i_ff_max == -1.0 else i_ff_max
+        self.recover = 0              # 0 none, 1 armed (stroke under way), 2 the wheel is below target after its ball
+        self.recover_ms = 0
+        self.recover_target = 0
         self.i = 0.0
 
-    def update(self, target, measured, dt_ms):
+    def ball(self):
+        """A stroke has started: a ball is about to take momentum from the wheel. Until the wheel has dropped and
+        climbed back to its target, its integrator only trims (README "A ball charged the integrator")."""
+        if self.band is not None:
+            self.recover, self.recover_ms, self.recover_target = 1, 0, None
+
+    def update(self, target, measured, dt_ms, ramping=False):
         if target <= 0:
             self.i = 0.0
             return 0.0
         g = target / self.low if self.low and target < self.low else 1.0
         kp, ki = self.kp * g, self.ki * g
         err = target - measured
+        if self.recover:
+            if self.recover_target is None:
+                self.recover_target = target
+            self.recover_ms += dt_ms
+            if target != self.recover_target:
+                self.recover = 0          # new speeds: spinning to them is the integrator's work again
+            elif self.recover == 1 and err > BALL_DROP_SEEN * target:
+                self.recover = 2
+            elif (self.recover == 2 and err <= 0) or self.recover_ms >= self.ball_ms:
+                self.recover = 0
+        lim = min(self.i_max, self.i_ff * target * self.ff) if self.i_ff is not None else self.i_max
+        self.i = _clamp(self.i, -lim, lim)
         raw = target * self.ff + kp * err + self.i
-        if 0.0 < raw < 1.0 or (raw >= 1.0 and err < 0) or (raw <= 0.0 and err > 0):
-            self.i = _clamp(self.i + ki * err * dt_ms, -self.i_max, self.i_max)
+        if (0.0 < raw < 1.0 or (raw >= 1.0 and err < 0) or (raw <= 0.0 and err > 0)) and not (ramping and self.ramp_hold):
+            e = _clamp(err, -self.band * target, self.band * target) if self.recover else err
+            self.i = _clamp(self.i + ki * e * dt_ms, -lim, lim)
         return _clamp(target * self.ff + kp * err + self.i, 0.0, 1.0)
 
 
@@ -1497,7 +1563,7 @@ class LaunchCheck:
             self._extend_tick(now_ms, targets, tachs, cmds, since)
         if self.targets is None:
             return None
-        if tachs is not None and cmds is not None and since is not None and self.snap is None:
+        if tachs is not None and cmds is not None and since is not None and (self.snap is None or LOOP_THROUGH_CHANGE):
             for i in (0, 1):
                 log = self.ticks[i]
                 log.append((tachs[i].edges, since[i], cmds[i]))
@@ -1528,7 +1594,7 @@ class LaunchCheck:
         th = self.threshold()
         self._snapshot(tachs)
         targets_now = targets
-        targets, low, fall, snap = self.targets, self.low, self.fall, self.snap
+        targets, low, fall, snap, frozen = self.targets, self.low, self.fall, self.snap, self.frozen
         self.cancel()
         if th is None:
             return None
@@ -1567,22 +1633,30 @@ class LaunchCheck:
         self.record = (self.seq, int(round(speeds[0])), int(round(speeds[1])), min(32767, drops[0]),
                        min(32767, drops[1]), flags)
         if went and snap is not None and self.edges0 is not None and ticks[0] and ticks[1]:
-            short = self._short(snap, targets, tachs, targets_now)
+            loop_snap = snap
+            if LOOP_THROUGH_CHANGE and tachs is not None and frozen:
+                # the loop fit takes the periods up to now, through the speed change the parabola's snapshot stopped at
+                loop_snap = [t.recent(t.edges - e0) if t.edges >= e0 else [] for t, e0 in zip(tachs, self.edges0)]
+            short = self._short(loop_snap, targets, tachs, targets_now, frozen)
             if short:
                 self.ext = {"short": short, "until": now_ms + EXTEND_MS, "tachs": tachs, "ticks": ticks,
-                            "fit": (snap, self.edges0, targets, speeds, dips, flags)}
+                            "fit": (loop_snap, self.edges0, targets, speeds, dips, flags)}
                 self.extended += len(short)
             else:
-                self.pending = self._loop_fit(snap, ticks, self.edges0, targets, speeds, dips, flags)
+                self.pending = self._loop_fit(loop_snap, ticks, self.edges0, targets, speeds, dips, flags)
             self.record = self.record[:5] + (flags | LOOP_PENDING,)
         return went
 
-    def _short(self, snap, targets, tachs, targets_now):
+    def _short(self, snap, targets, tachs, targets_now, frozen=False):
         """{wheel: edge count to reach} for the turning wheels whose snapshot holds fewer than LOOP_AFTER_REVS
-        revolutions after the loop fit's anchor, when they can still be watched on (the targets unchanged)."""
-        if tachs is None or self.frozen or LOOP_AFTER_REVS <= 0:
+        revolutions after the loop fit's anchor, when they can still be watched on (the targets unchanged, or with
+        LOOP_THROUGH_CHANGE changed to another speed, not a stop)."""
+        if tachs is None or LOOP_AFTER_REVS <= 0:
             return None
-        if targets_now is not None and (targets_now[0], targets_now[1]) != targets:
+        if not LOOP_THROUGH_CHANGE:
+            if frozen or (targets_now is not None and (targets_now[0], targets_now[1]) != targets):
+                return None
+        elif targets_now is not None and _stopped(targets, targets_now):
             return None
         short = {}
         for k in (0, 1):
@@ -1599,8 +1673,9 @@ class LaunchCheck:
         revolutions, the targets change or EXTEND_MS has passed."""
         ext = self.ext
         fit_targets = ext["fit"][2]
-        if targets is not None and (targets[0], targets[1]) != fit_targets:
-            self._extend_end()            # the periods after this are the next shot's speed change
+        if targets is not None and (targets[0], targets[1]) != fit_targets and (
+                not LOOP_THROUGH_CHANGE or _stopped(fit_targets, targets)):
+            self._extend_end()            # the periods after this are the next shot's speed change (or a coast down)
             return
         if tachs is not None and cmds is not None and since is not None:
             for i in (0, 1):

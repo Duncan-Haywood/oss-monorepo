@@ -50,7 +50,7 @@
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #15202b; background: #eef2f6; }
     body { max-width: 1080px; margin: 0 auto; padding: 32px 18px 64px; }
     header { max-width: 760px; margin-bottom: 24px; }
-    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; letter-spacing: -.04em; margin: 0 0 12px; }
+    h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: .98; letter-spacing: -.04em; margin: 0 0 12px; }
     p { line-height: 1.5; }
     .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #0b5f8a; margin: 0 0 6px; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .95fr); gap: 18px; align-items: start; }
@@ -223,7 +223,7 @@
   <p>Every rule this checker reports has an <code>INV-</code> code naming one specific defect and the field it was found in — <a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a> lists all of them with a fix for each. They are this tool's own identifiers, not EN 16931 <code>BR-</code> rules or a submission network's rejection codes.</p>
   <h3>When must German businesses issue e-invoices?</h3>
   <p>Receiving structured e-invoices has been mandatory since 1 January 2025; issuing is mandatory from 2027 (businesses above 800,000 euro prior-year turnover) and 2028 (everyone) for domestic B2B. See <a href="germany-e-invoice-mandate.html">the dates, the formats that count and a free XRechnung check</a>.</p>
-  <p>France: every business must receive e-invoices from 1 September 2026, and large and mid-size companies must issue them; the rest follow on 1 September 2027. See <a href="france-e-invoice-mandate.html">the French dates, formats and mentions</a>.</p>
+  <p>France: every business must receive e-invoices from 1 September 2026, and large and mid-size companies must issue them; the rest follow on 1 September 2027. See <a href="france-e-invoice-mandate.html">the French dates, formats and mentions</a>. Got a status back from a platform (200 Déposée, 213 Rejetée, 210 Refusée, 207 En litige)? Drop the CDAR status message in with the invoice: the status and reason are named, the message is compared with the invoice, and FNFE-MPE's BR-FR-CDV rules run in your browser. Sending B2C or cross-border sales to the PPF (e-reporting, Flux 10)? Drop the report file: its period and totals per rate are summed, the PPF's Annexe 7 controls run in your browser, and impossible dates, VAT that is not base x rate and wrong SIREN or VAT keys are flagged. BR-FR findings are reported in English with FNFE-MPE's French under them; every code is listed in <a href="br-fr-error-codes.html">BR-FR error codes in English</a>.</p>
   <p>All countries side by side: <a href="e-invoicing-mandates-by-country.html">e-invoicing mandates by country, with dates, formats and what this checker covers</a>.</p>
   <p>Slovakia: domestic B2B and B2G e-invoicing is reported to become mandatory on 1 January 2027 over Peppol; vendor sources only, said plainly. See <a href="slovakia-e-invoice-mandate.html">the Slovak dates and what this checker does not cover</a>.</p>
   <p>Hungary: every domestic B2B invoice is reported to NAV (Online Számla) but there is no general structured e-invoice mandate yet; vendor sources only, said plainly. Drop the NAV report itself (an <code>InvoiceData</code> XML or a <code>manageInvoice</code> request) and it is checked against NAV's schema, its published blocking rules and its warning arithmetic (product fee totals included), offline. See <a href="hungary-e-invoice-mandate.html">the Hungarian rules and what this checker does and does not cover</a>.</p>
@@ -325,7 +325,7 @@
     <p>Not sure which e-invoicing deadline applies to you? The <a href="../eu-einvoicing-mandate-checker/">EU e-invoicing mandate checker</a> shows receive and issue dates by country.</p>
     <label><input id="xrechnung" type="checkbox" style="width:auto"> Also apply the German XRechnung rules (BR-DE, Leitweg-ID check digits) &mdash; for invoices to German public bodies</label><br>
     <label><input id="peppol" type="checkbox" style="width:auto"> Also apply the Peppol BIS Billing 3.0 rules (business process, specification id, electronic addresses) &mdash; for invoices sent through a Peppol access point</label><br>
-    <label><input id="france" type="checkbox" style="width:auto"> Also apply the French rules (SIREN/SIRET check digits, late-penalty, 40&nbsp;&euro; recovery indemnity and early-payment-discount mentions) &mdash; for invoices to French buyers under the 2026 e-invoicing reform</label><br>
+    <label><input id="france" type="checkbox" style="width:auto"> Also apply the French rules (SIREN/SIRET check digits, late-penalty, 40&nbsp;&euro; recovery indemnity and early-payment-discount mentions; with &ldquo;official Schematron&rdquo; ticked, also FNFE-MPE&rsquo;s BR-FR rules, the checks French approved platforms run) &mdash; for invoices to French buyers under the 2026 e-invoicing reform</label><br>
     <label><input id="slovakia" type="checkbox" style="width:auto"> Also apply the Slovak rules (the Peppol rules plus the address, DIČ electronic address and payment account fields the Financial Administration's table requires) &mdash; for domestic Slovak invoices from 1 January 2027</label><br>
     <label><input id="official" type="checkbox" style="width:auto"> Also run the official EN 16931 Schematron (and the XRechnung / Peppol add-ons for the chosen profile) &mdash; XML invoices only; runs in your browser from the rules published with this page (the file stays on your machine); only a copy without those rules <strong>sends the file to the server this page is served from</strong></label><br>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
@@ -518,7 +518,7 @@
           return `<article><h3><code>${escapeHtml(report.file)}</code></h3>${envelope}<p class="pass">PASS — no supported defects found.</p></article>`;
         }
         const findings = report.errors.map((error) => (
-          `<div class="finding">${error.severity === "note" || error.severity === "warning" ? `<em>${error.severity}</em> ` : ""}<strong>${escapeHtml(error.rule)}</strong> at <code>${escapeHtml(error.path || "/")}</code><br>${escapeHtml(error.message)}<br><span class="fix">Fix: ${escapeHtml(error.fix)}</span></div>`
+          `<div class="finding">${error.severity === "note" || error.severity === "warning" ? `<em>${error.severity}</em> ` : ""}<strong>${escapeHtml(error.rule)}</strong> at <code>${escapeHtml(error.path || "/")}</code><br>${escapeHtml(error.message)}${error.message_fr ? `<br><span class="fix" lang="fr">FNFE-MPE text: ${escapeHtml(error.message_fr)}</span>` : ""}<br><span class="fix">Fix: ${escapeHtml(error.fix)}</span></div>`
         )).join("");
         return `<article><h3><code>${escapeHtml(report.file)}</code></h3>${envelope}${report.errors.some((error) => error.severity !== "note" && error.severity !== "warning") ? `<p class="fail">FAIL</p>` : `<p class="pass">PASS — notes and warnings only.</p>`}${findings}</article>`;
       });

@@ -789,6 +789,21 @@ class FlagshipTests(unittest.TestCase):
                                         "https://archive.org/"])
         self.assertEqual(row_hosts(self.flag("plain", 1, "README.md, flagships.yaml, v1.40")), [])
 
+    def test_row_hosts_reads_the_hosts_a_named_script_fetches(self):
+        # friction 2026-11-17: the row named eval/cord_images.py, not huggingface.co
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d) / "books"
+            (root / "eval").mkdir(parents=True)
+            (root / "eval" / "cord_images.py").write_text(
+                "# Licence: https://creativecommons.org/licenses/by/4.0/\n"
+                "#   https://huggingface.co/datasets/x/resolve/abc/test.parquet\n"
+                "LOCAL = 'http://localhost:8000/'\n")
+            v = self.flag("books", 0, "x")
+            v.flagship_buildable = "CORD photos (eval/cord_images.py); eval/missing.py; ../../etc/passwd.sh"
+            self.assertEqual(row_hosts(v, ventures_dir=Path(d)), ["https://huggingface.co/"])
+            v.flagship_hosts = ["https://huggingface.co/x"]
+            self.assertEqual(row_hosts(v, ventures_dir=Path(d)), ["https://huggingface.co/x"])
+
     def test_venture_report_probes_the_row_hosts_only_when_asked(self):
         v = self.flag("deep", 0, "history")
         v.flagship_hosts = ["https://archive.org/", "https://github.com/"]
@@ -858,6 +873,15 @@ class OpenPrClaimTest(unittest.TestCase):
         search.assert_not_called()
         self.assertEqual(got, [(16190, "shift-roster-builder: claim", "2026-11-15T10:58:20Z")])
 
+    def test_drops_prs_already_squashed_or_merged_on_main(self):
+        """#16521 showed as an OPEN PR while its squash commit sat on main (2026-11-17)."""
+        import allocate
+        prs = [(16521, "a: landed", "x"), (16522, "b: open", "x"), (16523, "c: merged", "x")]
+        subjects = ["a: thing (#16521)", "Merge pull request #16523 from x/y", "mentions (#16522) mid-line only"]
+        self.assertEqual(allocate.drop_landed(prs, subjects), [(16522, "b: open", "x")])
+        self.assertIsNone(allocate.drop_landed(None, subjects))
+        self.assertEqual(allocate.drop_landed(prs, []), prs)
+
     def test_falls_back_to_search_when_the_pulls_list_is_unreadable(self):
         from unittest import mock
         import allocate
@@ -920,6 +944,49 @@ class StartHereTests(unittest.TestCase):
                          start_here(queue, {}, now=now, session="abc"))
         # One free row: every session gets it.
         self.assertEqual(start_here(queue[:2], {}, now=now, session="abc"), (1, "v0"))
+
+
+class LeftRowsTests(unittest.TestCase):
+    def _runs(self, records):
+        d = tempfile.TemporaryDirectory()
+        self.addCleanup(d.cleanup)
+        for i, (date, rec) in enumerate(records):
+            Path(d.name, f"{date}-session_{i}.json").write_text(json.dumps(rec))
+        return Path(d.name)
+
+    def test_counts_departures_not_claim_races_or_old_records(self):
+        from datetime import datetime, timezone
+        from allocate import left_rows, left_note
+        now = datetime(2026, 11, 17, 12, 0, tzinfo=timezone.utc)
+        dev = lambda why, f="portfolio/router/allocate.py": {"file": f, "why": why}
+        runs = self._runs([
+            ("2026-11-17", {"projects": ["ids-model-check"], "deviations": [
+                dev("Start here named roster; nothing buildable, ids-model-check had an item")]}),
+            ("2026-11-16", {"projects": ["ventures/ids-model-check"], "deviations": [
+                dev("roster's next: is solver tuning", "prompts/ventures/prompt-2.md")]}),
+            # A claim race, an unrelated file, and a record too old are not departures.
+            ("2026-11-17", {"projects": ["bk"], "deviations": [
+                dev("roster was claimed by PR #1 a minute earlier")]}),
+            ("2026-11-17", {"projects": ["bk"], "deviations": [
+                dev("roster: skipped the post", "docs/posts")]}),
+            ("2026-11-14", {"projects": ["bk"], "deviations": [dev("roster had nothing")]}),
+            # Worked the row it names: not a departure.
+            ("2026-11-17", {"projects": ["roster"], "deviations": [dev("roster first, then bk")]}),
+            ("2026-11-17", "not a record"),
+        ])
+        left = left_rows(["roster", "ids-model-check", "bk"], runs, now=now)
+        self.assertEqual([(d, t) for d, t, _ in left["roster"]],
+                         [("2026-11-16", "ids-model-check"), ("2026-11-17", "ids-model-check")])
+        self.assertEqual(set(left), {"roster"})
+        note = left_note("roster", left)
+        self.assertIn("2 session(s)", note)
+        self.assertIn("ids-model-check (2)", note)
+        self.assertIn("nothing buildable", note)  # the newest reason
+        self.assertIsNone(left_note("bk", left))
+
+    def test_no_runs_dir_means_no_hint(self):
+        from allocate import left_rows
+        self.assertEqual(left_rows(["x"], Path("/nonexistent-runs-dir")), {})
 
 
 class VentureReportTests(unittest.TestCase):

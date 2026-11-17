@@ -382,6 +382,32 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    uniform over 0–5 N the worst pose loses 2.2 points, over 0–10 N 21 points. Take the hose off the tool, measure the
    tool's wrench, or keep the drag under a few newtons. Still open: the paper's headline for a tool-point spec, a wrist
    force-torque sensor, and the nailer's recoil.
+36. **A wrist force-torque sensor** (done 2026-11-16, `experiments/m36_wrist_ft/`): the compensator predicts from the
+   measured wrench (Robotiq FT 300, 0.1 N noise; its pre-2017 version, 1.2 N; ATI Mini45, 1/16 N resolution). It cuts the
+   G1's worst residual at a 20 N drag from 2.34 to 0.29 mm and the 0–20 N stack loss from 91.6 to 1.6 points, and k_t
+   misjudged by 25% leaves at most 0.4 mm. But any sensor error (0.01 N is enough) flips a held joint that sits at the
+   friction threshold, so a floor of 0.3–0.5 mm remains (0.82 mm at 5 N); the pre-2017 sensor is worse than none.
+   Still open: a held-joint preload against that floor, the paper's headline for a tool-point spec, and the nailer's
+   recoil.
+37. **A held-joint preload** (done 2026-11-17, `experiments/m37_preload/`): with the controller planning from the
+   measured force and the robot settling under the true one, 92% of the mispredicted joints are the balance
+   controller's own held joints, pinned exactly at the threshold; a 0.1 N m preload on every leg joint removes them and
+   brings the G1's 0–20 N stack loss from 56.5 points back to 1.6 (milestone 36's figure) for 1.7% more leg torque and
+   one of 15 poses. The 0.3–0.8 mm left is in the waist and arm joints, which the ground reaction cannot move; a hedged
+   compensator does not help. Still open: a two-handed squeeze to preload the arms, the paper's headline for a
+   tool-point spec, and the nailer's recoil.
+38. **A two-hand squeeze** (done 2026-11-17, `experiments/m38_squeeze/`): a force pair along the line between the grip
+   points has no net wrench, so it moves only the arm joints (to 1e-16 N m elsewhere). Chosen from the plan within
+   10 N it clears all 14 arm flips and, with milestone 37's leg preload and the FT 300, takes the 0–20 N stack loss
+   from 1.64 points to 0.05 (G1) and 2.19 to 0.02 (H1); the G1's worst residual at a 5 N drag falls from 0.83 to
+   0.49 mm. The 0.48–0.50 mm left is in the waist and the H1's torso. Side finding: the G1's wrist pitch carries more
+   than its 5 N m MJCF rating at 7 of 14 poses. Still open: the paper's headline for a tool-point spec, a grip that
+   changes the waist's share, and the nailer's recoil.
+39. **The waist's gap** (done 2026-11-17, `experiments/m39_waist/`): at milestone 38's 10 N squeeze and leg preload, a
+   braked waist takes the G1's worst residual at a 5 N drag from 0.485 to 0.012 mm and its 0–10 N stack loss from 5.80
+   to 0.04 points; a 1 arcmin waist gearbox gives 0.106 mm and 0.11 points. Locking waist roll and pitch, as on the base
+   G1, changes nothing: the yaw is the joint that flips. The pre-2017 sensor still leaves 0.87 mm. Still open: the
+   paper's headline for a tool-point spec, and the nailer's recoil.
 
 ## Target venue
 

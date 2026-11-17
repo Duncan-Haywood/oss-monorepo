@@ -11,7 +11,10 @@ open. MIT licensed, no dependencies, nothing uploaded.
   `870f9c4`, 2026-09-25; see "How it was checked").
 - **Same answers as IfcTester** on five real models and two IDS files, element by
   element, except where IfcTester 0.9.0.post1 disagrees with the XSD standard
-  and buildingSMART's suite (multiple `xs:pattern`s; below).
+  and buildingSMART's suite (multiple `xs:pattern`s; below); and on
+  buildingSMART's twelve IFC 4.3 and HVAC Simple-Scene models (bridge, road,
+  rail, earthworks, plumbing, ducts) with three IDS files, 348 of 348
+  specification results identical (`eval/infra-mep-crosscheck-2026-11-17.md`).
 - STEP `.ifc`, ifcXML (`.ifcxml`, both the IFC2X3 and IFC4 layouts) and `.ifczip`
   (either one zipped), read into the same entities: xBIM's ifcXML export of a
   Revit model agrees with its STEP file on 2,205 of 2,205 attribute values.
@@ -48,6 +51,105 @@ open. MIT licensed, no dependencies, nothing uploaded.
   same thing, spec by spec and facet by facet; none becomes invalid against
   `ids.xsd`; 75% of the public files' facets open as editable rows.
   `eval/editor-open-2026-11-16.md`.
+  **Writes for the model you have** (2026-11-16): open an IFC model in the
+  editor and it lists each class with its object count and the sets on them,
+  offers the sets the model's objects of a class carry first ("on 112 of 112"),
+  and lets you write a project's own set (Revit's `PSet_Revit_Dimensions`,
+  `Acme_Wall`) as an editable row with the data type the model uses. On four
+  real exports, 347 of 395 (class, set) pairs were own sets the editor could not
+  offer before, and 21 of 122 standard properties were written in a data type
+  the template does not give (the row says so). Own sets also open as editable
+  rows: 79.4% of the public IDS files' facets (was 75.0%), all still writing
+  back the same. `eval/model-inventory-2026-11-16.md`.
+  **Several classes per specification** (2026-11-17): "Also applies to"
+  takes more classes (`IFCSLAB, IFCBEAM`), written as one entity facet; the
+  page then offers only the standard sets, attributes and predefined types
+  every class shares. Opened files' class lists open as editable: 29
+  specifications in 11 public files, 81.1% of the public files' facets editable
+  (was 79.4%), every file still writing back the same and none made invalid
+  against `ids.xsd`. `eval/several-classes-2026-11-17.md`.
+  **A model's values** (2026-11-17): with a model open, each property row
+  says what values the model holds ("In the model: 3 different values: REI 60
+  (12), ...") and offers them: **Allow exactly these values** writes a one-of
+  list, **Use the model's range** a range. Ranges are rounded outward because
+  IDS ranges take no tolerance and Revit writes 0.254 m as
+  0.25399999999999995: on four real exports, 364 of 752 ranges taken from the
+  values as displayed fail their own model; all 1,014 requirements built from
+  the offers pass. "One of" now works on any text property or attribute (82.0%
+  of the public files' facets editable, was 81.1%).
+  `eval/model-values-2026-11-17.md`.
+  **Attribute values and classification codes** (2026-11-17): attribute rows
+  (Name, ObjectType, Tag, PredefinedType...) and classification rows offer
+  the values and codes the model holds the same way. On four real exports, 243
+  attribute rows offer a one-of list and all 242 with no empty value pass their
+  model. Schultz Residence (a Revit export) has 93 Uniformat references with an
+  empty code: 143 of its 210 Uniformat-classified elements (and 93 of 134 type
+  objects) carry the system but
+  no code, so an IDS that names only the system passes them. The row says so
+  and offers **Require a code** (a `.+` pattern), which fails exactly those.
+  `eval/model-attr-codes-2026-11-17.md`.
+  **Conditions beyond the class** (2026-11-17): **Narrow it** adds a row to
+  the applicability, so a specification can be about external walls only
+  (Pset_WallCommon.IsExternal = true), solid walls, or elements classified in
+  Uniclass: a property, attribute, classification, material or place, with the
+  model's values offered as on requirement rows. With a model open, each
+  condition says how many of the class's objects it keeps; that count is the
+  checker's own `applicable` figure on 11 tested conditions, and the page
+  says nothing rather than guess where the inventory cannot tell. Opened files'
+  applicability facets now open as rows where they write back unchanged: 83.5%
+  of the public files' facets editable (was 82.0%), 14 of 64 files fully
+  editable (was 10), IDS-Audit-tool valid files 21.5% (was 9.7%), all still
+  writing back the same. `eval/applicability-rows-2026-11-17.md`.
+  **Values with no dataType** (2026-11-17): a property value an opened file
+  wrote with no dataType opens as a row that keeps none (text modes, written
+  on xs:string), with **Write dataType ...** to add the template's type.
+  84.9% of the public files' facets editable (was 83.6%), 507 of 507
+  specifications still writing back the same. It matters: three published
+  IDS files ask `Pset_WallCommon.LoadBearing` = `TRUE` or `True` with no dataType, and on
+  the sample house that kind of condition keeps 0 walls in this checker and 2
+  in IfcTester 0.8.0; typed as IFCBOOLEAN `true`, both keep 2. The row and the
+  audit's warning now say so. `eval/untyped-values-2026-11-17.md`.
+  **Accept any data type** (2026-11-17): where the open model writes a
+  standard property in another type (Revit's `Reference` as IFCLABEL, not
+  IFC2X3's IFCIDENTIFIER), the row offers to drop the dataType, which checks
+  the property whatever type it holds and still audits clean (the model's
+  type would be a template error). On two real exports, 791 of 966 objects
+  failed such checks only for their type; with no dataType, only the 175
+  that lack the set, property or value fail, and IfcTester 0.8.0 agrees on
+  21 of 21. A real-number value with no dataType is read apart (this checker
+  converts mm to m, IfcTester does not), so those rows keep presence only.
+  `eval/model-any-type-2026-11-17.md`.
+  **A range for numeric attributes** (2026-11-17): OverallHeight, Elevation,
+  NumberOfRiser and other real or integer attributes get a **between** mode
+  and **Use the model's range**, written with an `xs:double` (or
+  `xs:integer`) base as IDS's own test cases write it; boolean attributes
+  (Sizeable) are asked true/false. On four real exports and the sample house,
+  27 of 27 numeric and 6 of 6 boolean requirements built from the model pass
+  it, and IfcTester gives the same verdict on all 33. Attributes are compared
+  in the model's own units (millimetres or feet in these exports), not SI, in
+  this checker and in IfcTester; the row says so.
+  `eval/model-attr-ranges-2026-11-17.md`.
+  **Exclusive bounds** (2026-11-17): each bound of a **between** row is
+  "at least" or "more than", "at most" or "less than", written as
+  `xs:minExclusive` / `xs:maxExclusive`, counted in a condition's model
+  matches and opened back as a row. 5 of the 6 exclusive-bound facets in
+  the public files (U-values "more than 0.5 and less than 2.1", a block
+  height "more than 0", a friction angle "less than 0.610866" radians) open
+  as rows (85.2% of facets editable, was 84.9%), 28 more in the IDS-Audit-tool
+  valid files (25.0%, was 21.5%), all still writing back the same. Eight
+  inclusive/exclusive ranges on the sample house's 2100 mm door: 8 of 8 the
+  same verdict in IfcTester 0.9.0. `eval/exclusive-bounds-2026-11-17.md`.
+  **Date, time and duration ranges** (2026-11-17): IFCDATE, IFCDATETIME,
+  IFCTIME and IFCDURATION properties and attributes get a **between** row
+  written on `xs:date`, `xs:dateTime`, `xs:time` or `xs:duration`, as IDS
+  1.0's DataTypes table gives them. IfcTester 0.9.0 casts range bounds to
+  float, so it fails every object on such a range (0 of 10 date ranges the
+  same as this checker on 61 doors); the row warns, and **Write as a
+  pattern** rewrites a date range as the XSD pattern of the same dates
+  (`datePattern`), which both checkers read the same way: 10 of 10, same
+  failing doors. Presence-only standard properties with no dataType now open
+  as rows: 86.4% of public facets editable (was 85.2%), 17 of 64 files fully
+  editable (was 14). `eval/date-ranges-2026-11-17.md`.
 - Exports: BCF 2.1 (one topic per failing element, selected by IfcGuid), CSV,
   JSON.
 - 22 MB Revit export (Schultz Residence, 424,819 entities): 1.4 s on the command
@@ -104,6 +206,100 @@ ifcXML (entity for entity, `iN` for `#N`) and `samples/tiny-house.ifczip` the
 
 No API key, account or server is involved, so there is nothing to configure.
 
+### On every commit: GitHub Action, JUnit and annotations (2026-11-17)
+
+A team that keeps its IFC exports and IDS files in a repository can check every
+model against every IDS on each push or pull request. `action.yml` is a
+composite action with no dependencies beyond the runner's Node (18+):
+
+```yaml
+# .github/workflows/ids.yml in your repository
+on: [push, pull_request]
+jobs:
+  ids:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Duncan-Haywood/oss-monorepo/ventures/ids-model-check@main
+        with:
+          models: "models/**/*.{ifc,ifczip,ifcxml}"
+          ids: "requirements/*.ids"
+          # pairing: name     # wall.ifc only against wall*.ids
+          # fail-on: warning  # also fail on optional specifications
+          # fail-on-unchecked: true  # also fail when IFCWALL left IfcWallStandardCase unchecked
+          bcf-dir: bcf        # one BCF 2.1 file per failing pair
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ids-report
+          path: |
+            ids-report.xml
+            bcf/
+```
+
+It writes a JUnit report (`ids-report.xml`, one test case per specification,
+read by GitHub test-report actions, GitLab, Jenkins and Azure DevOps), a job
+summary table, an annotation per failing specification placed on the first
+failing element's `#id=` line of a STEP model, and the outputs `result`,
+`passed`, `failed`, `warnings`, `invalid`, `elements-failed` and `not-checked`. Required and
+prohibited failures, invalid specifications and unreadable files fail the step;
+optional ones are warnings unless `fail-on: warning`; `fail-on: never` only
+reports. IDS has no inheritance, so a specification naming `IFCWALL` never
+looks at an `IfcWallStandardCase` (most walls in Revit's IFC2X3 exports); the
+verdict stands, and since 2026-11-17 every CI output says how many elements
+were left out (a warning annotation on the IDS file, the JUnit test case's
+`system-out`, a "Not checked" column and list in the job summary, the
+`not-checked` output). `fail-on-unchecked: true` (`--fail-on-unchecked`) fails
+the step on them instead (`eval/ci-unchecked-2026-11-17.md`). A glob that matches nothing exits 2 rather than passing an empty
+check. Pinning `@main` follows this repository; pin a commit SHA for a
+repeatable build, or copy the folder (it runs from its own directory).
+
+Outside GitHub the same entry point runs anywhere Node does (GitLab CI,
+Jenkins, a pre-commit hook):
+
+```
+node ci-cli.mjs --models "models/**/*.ifc" --ids "req/*.ids" --junit report.xml \
+  [--summary summary.md] [--bcf-dir bcf/] [--json results.json] [--annotations] \
+  [--pairing all|name] [--fail-on error|warning|never] [--fail-on-unchecked] \
+  [--root DIR] [--max-failures N]
+node cli.mjs model.ifc spec.ids --junit report.xml   # one pair
+```
+
+Measured on four real exports (`eval/ci-action-2026-11-17.md`): 4 models (76 MB)
+against the two starter IDS files, 8 pairs, in 7.3-7.7 s on Node 22; 16
+annotations, every one of the 9 with a line number on the failing element's own
+line; JUnit valid XML. GitHub shows at most ten error annotations per step, so
+the job summary and JUnit file carry the full list.
+
+Since 2026-11-17 (`eval/ci-scale-2026-11-17.md`) each model and each IDS is
+parsed once however many pairs it is in: the same 8 pairs take 4.3-4.8 s
+instead of 7.3-8.7 s, and 14 public IDS files against the four exports (56
+pairs) take 7.5-8.0 s instead of 48.6-48.9 s, with identical output. Each specification's report keeps
+its first 1,000 failing elements (`--max-failures` / `max-failures`; counts
+stay exact), because a public IDS whose specification has no entity facet
+applies to all 665,224 entities of the HHS MEP export and held ~440 MB of
+failure text per specification, so 16 public IDS files against the four
+exports ran Node out of memory; they now take 45 s at a 1.5 GB peak. A
+truncated IDS, ifcXML or STEP file used to loop forever (in the page as well);
+it now fails its own pairs with "unterminated ...".
+
+Since 2026-11-17 (`eval/heap-200mb-2026-11-17.md`) an entity's arguments are
+read when a check first needs them and geometry's are not kept: a 219 MB
+federated model of seven real exports is checked against the starter IDS
+files in 7.5-7.8 s at a 1,010 MB peak, where it took 12.3 s and 2.5 GB, with
+identical reports; the page now finishes it under a 1 GB heap, where the tab
+used to crash.
+
+Since 2026-11-17 (`eval/no-entity-facet-2026-11-17.md`) a specification that
+applies to every entity (no entity facet, or an entity name pattern matching
+any class, as 37 specifications in public IDS files do) skips what cannot
+match without reading arguments, judges requirements before writing failure
+text, and reads the IFC2X3 type mapping table from an index. The 68 public and
+starter IDS files take 13.3 s on the HHS MEP export, where they took 96.2 s,
+and 111 s on the 219 MB federated model, where they took 515 s. Every report
+is identical. The 4.7 GB peak that run showed was garbage not yet collected:
+with a 2 GB heap it finishes, before and after this change.
+
 ## How it was checked
 
 1. **buildingSMART's test suite.** `eval/fetch-testcases.sh` sparse-clones
@@ -151,6 +347,35 @@ No API key, account or server is involved, so there is nothing to configure.
    are alternatives, and buildingSMART's `regex_patterns_work_in_OR` cases
    expect that; IfcTester 0.9.0.post1 requires all of them to match, so it
    fails every wall there and this checker does not.
+
+   IFC 4.3 infrastructure and MEP (2026-11-17,
+   `eval/infra-mep-crosscheck-2026-11-17.md`): buildingSMART's ten IFC 4.3
+   Simple-Scene models (bridge, road, rail, earthworks, plumbing, electrical,
+   landscaping, HVAC) and its HVAC model in IFC4 and IFC2X3, with the two
+   starters and `samples/infrastructure-and-mep.ids.xml` (18 specifications:
+   predefined types from type objects, `partOf` through the bridge, road and
+   railway trees, millimetre quantities compared in metres). 348 of 348
+   results identical, element by element, with IfcTester 0.8.0; the verdicts
+   were also checked against the data with IfcOpenShell. The only differences
+   (3) are on the IFC2X3 copy: its air terminals and duct are `IfcFlowTerminal`
+   and `IfcFlowSegment` typed by `IfcAirTerminalType` and `IfcDuctSegmentType`;
+   this checker maps them to IFCAIRTERMINAL and IFCDUCTSEGMENT (buildingSMART's
+   type mapping table) and IfcTester 0.8.0 finds nothing applicable.
+   `infra.test.mjs` pins the counts on three committed models
+   (`samples/bsi-ifc43/`, CC BY 4.0).
+
+   Public IDS files on real exports (2026-11-17,
+   `eval/corpus-crosscheck-2026-11-17.md`): the 65 public IDS files on the four
+   `opensourceBIM/IFC-files` exports. IfcTester 0.9.0 could not open 12 of
+   them; on the other 53, 1,661 of 1,736 specification results identical. All
+   75 differences have one of three causes: IfcTester takes an IFC2X3
+   `IfcWallStandardCase` typed by an `IfcWallType` as `IFCWALL` (50; IDS has no
+   inheritance, so this checker does not), a prohibited specification with
+   requirements, which buildingSMART's suite calls invalid (16), and an untyped
+   `True` on a boolean (9; the audit warns). The run found that on the HHS
+   models, whose 112 standard-case walls have no type object, *both* checkers
+   skip them, so the report now counts what an entity facet leaves out (below,
+   "Entity facet").
 
 3. **The IDS audit** (`audit.mjs`, 2026-11-16). The same script prints a
    strict score: an `invalid-*` pair must come back INVALID (not merely not
@@ -256,7 +481,12 @@ No API key, account or server is involved, so there is nothing to configure.
    unit conversion, type inheritance and overrides, cardinality, the sample
    model's known gaps, CSV formula neutralising, and BCF zip structure (and an
    `unzip` round trip when it is installed). The suite test runs when
-   `eval/IDS` has been fetched.
+   `eval/IDS` has been fetched. With `eval/fetch-bcf-schemas.sh` run and
+   `xmllint` installed, every file of a sample BCF export is also validated
+   against buildingSMART's BCF 2.1 schemas (CC BY-ND, fetched, not
+   committed). That check found, on 2026-11-17, that every `markup.bcf` wrote
+   an empty `IfcProject=""` the schema rejects, and that a control character
+   in an IFC name made the markup unreadable XML; both are fixed.
 
 6. **ifcXML and `.ifczip` on real files** (2026-11-16,
    `eval/ifcxml-xbim-2026-11-16.md`). `eval/fetch-xbim-samples.sh` fetches the
@@ -283,7 +513,11 @@ faster than IfcTester; its point is needing no install.
 
 ## Model notes and choices
 
-- **Entity facet:** exact class, no subclasses; the predefined type is read from
+- **Entity facet:** exact class, no subclasses (the report counts, per
+  specification, the elements of subclasses the facet does not name that would
+  otherwise apply, e.g. "not checked: 101 IFCWALLSTANDARDCASE (a subclass of
+  IFCWALL)", without changing the verdict; a prohibited specification made
+  invalid by its requirements says how many elements match it); the predefined type is read from
   the type object first (`ElementType`/`ProcessType`/`ResourceType` when
   USERDEFINED), then the occurrence (`ObjectType` when USERDEFINED). An IDS may
   also name `USERDEFINED` itself.
@@ -328,27 +562,48 @@ faster than IfcTester; its point is needing no install.
 - ifcJSON is not read. ifcXML is checked on 9 real documents from about
   seven exporters, not on every tool's output; the ifcXML reader holds the whole
   XML tree in memory, a few times the heap of the same model as STEP.
-- The whole model is held in memory as text and objects: about 1 GB of heap for
-  a 200 MB model. Very large federated models may need the command line with
-  `--max-old-space-size`.
+- The model's text is held in memory with a small record per entity; an
+  entity's arguments are read when a check first needs them, and geometry's
+  are not kept (2026-11-17, `eval/heap-200mb-2026-11-17.md`). A 219 MB
+  federated model built from seven real exports peaks at about 1 GB with the
+  starter IDS files, where reading every argument up front took 2.5 GB, and
+  with all 68 public and starter IDS files it finishes under a 2 GB heap
+  (`eval/no-entity-facet-2026-11-17.md`; the 4.7 GB peak without a cap was
+  uncollected garbage), not under 1 GB. A requirement on
+  attribute values by a name pattern still reads every entity's values,
+  geometry included. Models well past 500 MB may need the command line with
+  `--max-old-space-size`. The ifcXML reader still reads everything up front.
 - The IDS audit does not validate the file against the IDS XML schema
   (cardinality attributes, element order); the IDS-Audit-tool does. Property
   set templates are checked for names, data types and applicable classes, not
   for predefined types (`IfcSlab/TRACKSLAB` sets are allowed on any slab) or
   property set template types (occurrence versus type driven).
-- Tested on five real models; every BIM authoring tool writes IFC a little
+- Tested on five real models (and 65 public IDS files on four of them); every BIM authoring tool writes IFC a little
   differently, so check surprising results and report them.
 
 ## Next steps
 
-- The editor (open an IDS landed 2026-11-16; what stays read-only on the 64
-  public files, `eval/editor-open-2026-11-16.md`): custom property sets as an
-  editable row (110 kept facets), several classes per specification and
-  property/attribute facets in the applicability (85); offer the classes and
-  property sets a loaded model actually has, with counts.
-- More real models through the IfcTester cross-check (an MEP model, an IFC4X3
-  infrastructure model).
-- A GitHub Action wrapper for checking models on every commit.
+- The editor (own sets and a loaded model's classes and sets landed
+  2026-11-16, `eval/model-inventory-2026-11-16.md`; several classes per
+  specification 2026-11-17, `eval/several-classes-2026-11-17.md`; a model's
+  property values 2026-11-17; attribute values and classification codes
+  2026-11-17, `eval/model-attr-codes-2026-11-17.md`;
+  applicability rows 2026-11-17, `eval/applicability-rows-2026-11-17.md`;
+  numeric attribute ranges 2026-11-17, `eval/model-attr-ranges-2026-11-17.md`;
+  untyped value rows 2026-11-17, `eval/untyped-values-2026-11-17.md`;
+  exclusive bounds 2026-11-17, `eval/exclusive-bounds-2026-11-17.md`;
+  date and duration ranges 2026-11-17, `eval/date-ranges-2026-11-17.md`):
+  "Use the model's range" for dates; `xs:date` one-of rows;
+  a subclass checkbox per class, not only the first;
+  a "fix the dataType" hint built from the 21
+  of 122 standard properties real exports write in another type.
+- More real models through the IfcTester cross-check: buildingSMART's IFC 4.3
+  infrastructure and HVAC samples agree 348 of 348 (2026-11-17); next, an
+  authoring tool's own IFC 4.3 export (Civil 3D, OpenRoads, Allplan Bridge)
+  and a Revit MEP export with systems and ports.
+- The GitHub Action (landed 2026-11-17; parse-once and failure cap 2026-11-17):
+  a run on GitHub's own runner; a team's real repository of exports running it;
+  a failure cap with a streamed "download all" in the browser page.
 
 ## Sources
 

@@ -7,12 +7,14 @@
 //
 // Dependencies are injected so Node (slimdom) and the page (DOMParser) share
 // this file: createPlainRunner({ fontoxpath, parseXml }).
-import { FILES, ADDONS, PROFILES, detectSyntax, matchingAddons, matchingProfile } from "./schematron-core.mjs";
+import { FILES, ADDONS, PROFILES, detectSyntax, matchingAddons, matchingExtendedBase, matchingProfile } from "./schematron-core.mjs";
 import { plainFix } from "./schematron-fixes.mjs";
 
 export const PLAIN_DIR = "plain/";
 const RULE_FILES = { ubl: "en16931-ubl.json", cii: "en16931-cii.json" };
-export const PLAIN_ADDON_FILES = { xrechnung: { ubl: "xrechnung-ubl.json", cii: "xrechnung-cii.json" }, peppol: { ubl: "peppol-ubl.json", cii: "peppol-cii.json" }, "cius-ro": { ubl: "cius-ro-ubl.json" }, "cius-pt": { ubl: "cius-pt-ubl.json" }, "cius-hr": { ubl: "cius-hr-ubl.json" }, nlcius: { ubl: "nlcius-ubl.json", cii: "nlcius-cii.json" } };
+export const CDAR_FILE = "cdar-fr.json";
+export const FLUX10_FILE = "flux10-fr.json";
+export const PLAIN_ADDON_FILES = { xrechnung: { ubl: "xrechnung-ubl.json", cii: "xrechnung-cii.json" }, peppol: { ubl: "peppol-ubl.json", cii: "peppol-cii.json" }, "cius-ro": { ubl: "cius-ro-ubl.json" }, "cius-pt": { ubl: "cius-pt-ubl.json" }, "cius-hr": { ubl: "cius-hr-ubl.json" }, nlcius: { ubl: "nlcius-ubl.json", cii: "nlcius-cii.json" }, "cius-fr": { ubl: "cius-fr-ubl.json", cii: "cius-fr-cii.json" } };
 
 // fontoxpath works on IEEE doubles, the rules are written for exact xs:decimal.
 // A money equation like `BasisAmount = round(a*100) div 100 + round(b*100) div 100`
@@ -149,7 +151,7 @@ export function createPlainRunner({ fontoxpath, parseXml }) {
             if (ok) continue;
             const slack = slackTest(check.test);
             if (slack && safely(() => holds(slack, node, check.xq))) continue;
-            out.push({ rule: check.id, flag: check.flag, text: check.text, path: locate(node) });
+            out.push({ rule: check.id, flag: check.flag, text: check.text, ...(check.en ? { en: check.en } : {}), path: locate(node) });
           }
         }
       }
@@ -161,13 +163,40 @@ export function createPlainRunner({ fontoxpath, parseXml }) {
     const withId = f.text.match(/^\[([^\]]+)\]-?\s*(.*)$/);
     // The Romanian rules carry "Romanian text #English text"; show the English.
     let message = withId ? withId[2] : f.text;
+    // FNFE's Flux 10 messages open "[G1.14] : doit ..." and end "| Source : Annexe 7 v1.8 G1.14".
+    if (source === "flux10-fr-schematron") message = message.replace(/^:\s*/, "").replace(/\s*\|\s*Source\s*:[^|]*$/, "");
     if (source === "cius-ro-schematron" && message.includes("#")) message = message.slice(message.indexOf("#") + 1).trim();
-    return { rule: f.rule || withId?.[1] || "SCH", message, fix: plainFix(f.rule || withId?.[1] || "SCH"), path: f.path, severity: f.flag, source };
+    // The French BR-FR rules carry an English translation (br-fr-en.mjs): show it, keep FNFE's text.
+    // Both lose their rule-code prefix ("[BR-FR-01/BT-1] :", "BR-FR-02/BT-1 :") and the
+    // "current value" clause, which the compiled set always leaves empty (no value-of).
+    let french;
+    if (f.en || /^(cius-fr|cdar-fr)-schematron$/.test(source)) {
+      const tidy = (t) => t.replace(/^\[[^\]]+\]\s*[-:,]*\s*/, "").replace(/^(?:\w{1,20} : )?\[?BR-FR[^:]{0,40}:\s*/, "").replace(/\s*(?:Current value|Valeur actuelle)\s*:\s*""\.?/g, "").trim();
+      french = tidy(f.text);
+      message = f.en ? tidy(f.en) : french;
+      if (!f.en) french = undefined;
+    }
+    return { rule: f.rule || withId?.[1] || "SCH", message, ...(french ? { message_fr: french } : {}), fix: plainFix(f.rule || withId?.[1] || "SCH"), path: f.path, severity: f.flag, source };
   };
 
   // load(file) -> compiled rule set (parsed JSON) or null when that set is not shipped.
-  async function run(xml, load) {
+  // opts.profile ("france") adds the add-on that profile names (schematron-core.mjs).
+  async function run(xml, load, opts = {}) {
     const syntax = detectSyntax(xml);
+    if (syntax === "cdar") {
+      // A French life-cycle message (CDAR) is not an invoice: FNFE-MPE's BR-FR-CDV set alone.
+      const rules = await load(CDAR_FILE);
+      if (!rules) return { status: "unavailable", syntax, findings: [], sets: [] };
+      const raw = runRules(rules, parseXml(xml.replace(/^\uFEFF/, "")));
+      return { status: "ok", syntax, findings: raw.map((x) => toFinding(x, "cdar-fr-schematron")), sets: ["cdar-fr"], skipped: raw.skipped };
+    }
+    if (syntax === "flux10") {
+      // A French e-reporting file (Flux 10) is not an invoice: FNFE-MPE's Flux 10 set alone.
+      const rules = await load(FLUX10_FILE);
+      if (!rules) return { status: "unavailable", syntax, findings: [], sets: [] };
+      const raw = runRules(rules, parseXml(xml.replace(/^\uFEFF/, "")));
+      return { status: "ok", syntax, findings: raw.map((x) => toFinding(x, "flux10-fr-schematron")), sets: ["flux10-fr"], skipped: raw.skipped };
+    }
     const profile = syntax && matchingProfile(xml, syntax);
     if (profile) {
       // PINT: its own sets stand in for the EN 16931 base and the BIS add-on. Any set
@@ -190,18 +219,24 @@ export function createPlainRunner({ fontoxpath, parseXml }) {
     // A national add-on built on an older EN 16931 release (CIUS-RO on 1.3.8) gets that
     // release as its base, as its own validator runs it; a copy without that file falls
     // back to the current base.
-    const pinned = syntax ? matchingAddons(xml, syntax).map(([, a]) => a.base?.[syntax]).find(Boolean) : null;
+    // An extended profile (Extended-CTC-FR, Factur-X EXTENDED) gets its own base; a copy
+    // without that file is unavailable rather than judged by the EN 16931 base, which
+    // rejects what the extension allows.
+    const extended = syntax ? matchingExtendedBase(xml, syntax) : null;
+    const pinned = extended ? [extended[1].files[syntax], extended[0]]
+      : syntax ? matchingAddons(xml, syntax).map(([, a]) => a.base?.[syntax]).find(Boolean) : null;
     let base = pinned ? await load(pinned[0]) : null;
+    if (extended && !base) return { status: "unavailable", syntax, findings: [], sets: [] };
     const baseName = base ? pinned[1] : "en16931";
     if (!base) base = syntax && (await load(RULE_FILES[syntax]));
     if (!base) return { status: "unavailable", syntax, findings: [], sets: [] };
     const doc = parseXml(xml);
     const baseRaw = runRules(base, doc);
-    const findings = baseRaw.map((f) => toFinding(f, "en16931-schematron"));
+    const findings = baseRaw.map((f) => toFinding(f, extended ? extended[1].source : "en16931-schematron"));
     const skipped = [...baseRaw.skipped];
     const sets = [baseName];
     const seen = new Set(findings.map((f) => `${f.rule}|${f.path}`));
-    for (const [name, addon] of matchingAddons(xml, syntax)) {
+    for (const [name, addon] of matchingAddons(xml, syntax, opts)) {
       const rules = await load(PLAIN_ADDON_FILES[name][syntax]);
       if (!rules) continue;
       sets.push(name);

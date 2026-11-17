@@ -5532,8 +5532,8 @@ F and both t statistics with a parametric bootstrap from the null fit. A 95% ran
 change uses the bootstrap's 97.5th percentile of |t|. The bar to ship (CLI `--known-date`, the page, the engine)
 was size within 2-8% at p 0.05 in every synthetic cell plus four real predictions. Rounds 1-3 were too eager in
 short sticky series; round 4 fixed that and became too cautious in one cell; **round 5 (below) met every bar and
-ships in the CLI** (`--known-date <label>`, with `--period` and `--log`; the page and the engine have not followed
-yet). Series that only the random-walk cut lets through are reported as not calibrated (round 5, "after the run").
+ships in the CLI** (`--known-date <label>`, with `--period` and `--log`; on the page and in `analyze({ knownDate })`
+since round 6). Series that only the random-walk cut lets through are reported as not calibrated (round 5, "after the run").
 
 | Round (pre-registration) | Generator rho; guard | Worst size cells (of series tested) | Random walks rejected (of all) | Real A-D |
 |---|---|---|---|---|
@@ -5635,7 +5635,175 @@ finds. The pre-registered rule is unchanged, but the CLI marks these results `ca
 that conditions on admission (simulate the null, apply the same guard, take the p among admitted replicates), and
 the page and engine wiring.
 
+### Round 6: a bootstrap conditioned on the cut is calibrated and blind (2026-11-17, exploratory then replicated; not shipped)
+
+Round 5's diagnosis left one question: a series the line checks would refuse, let through only because a step at the
+date cuts its stickiness more than random walks are cut, gets a p that ignores that selection. The textbook answer is
+to condition on it (selective inference; Lee, Sun, Sun and Taylor 2016 for the lasso): simulate the null, keep only the
+replicates the same guard lets through the same way, and take the p among those. `knownDateTest(..., { cutConditional:
+true })` does that by Monte Carlo (admission runs 2-4% of null draws, so it draws until 199 are admitted, up to 200
+times that many; 0.2-0.5 s a series). `eval/known-date-conditional.mjs` screens thousands of simulated series per cell,
+keeps the first 40 the cut admits, and scores round 5's test and the conditional one on the same series.
+
+Not pre-registered: the first run (seed base 41000, `eval/known-date-conditional-explore.out.txt`) was meant to pick
+settings, and it showed the idea cannot ship whatever the settings, so the same script was rerun unchanged on fresh
+seeds (base 45000, `node eval/known-date-conditional.mjs 4000 40 199`, `eval/known-date-conditional-replicate.out.txt`)
+to fix the numbers the CLI and page quote:
+
+| Series the cut lets through (fresh seeds) | admitted | round 5's p <= 0.05 | conditional p <= 0.05 |
+|---|---|---|---|
+| no change: AR(1) rho 0.8-0.95, n 40-120, and random walks (10 cells) | 306 | **77.5%** | 4.9% |
+| a real step of 2-4 innovation sd at the date (5 cells) | 156 | 91.0% | **2.6%** |
+
+Both rows matter. Round 5's p flags no-change series 77.5% of the time and real steps 91.0%: on this path it barely
+tells them apart, worse than the 17 of 26 the round-5 diagnosis saw. The conditional p is calibrated (4.9%, cells
+0-7.5%, walks 5.0-12.5%) but flags real steps less often than no-change series. The reason is the selection itself:
+what admits a series is a step at the date cutting its stickiness, and that is the same evidence the F test reads, so
+once you condition on it nothing is left to test. Two variants, scored on 25 series per cell
+(`eval/known-date-conditional-sticky-explore.out.txt`, `-walkgen-`, `-sticky-walkgen-`), did no better.
+Conditioning only on "sticky about a line" kept round 5's rates (60% no change, 92% step 4 at n 60). Adding a
+random-walk generator to the full conditioning took walks to 12% and power to 0.
+
+**What ships:** the test reaches the page ("Test a date you name") and `analyze({ knownDate: label | { date, reps,
+seed } })`, with round 5's settings and the CLI's fields plus `calibrated` and `significant` (never true on a
+cut-admitted series). The CLI and page warnings now quote 237 of 306 against 142 of 156. `cutConditional` and
+`cutWalkGen` stay in `known-date.mjs` as off-by-default options, for reproducing the table. Tests:
+`known-date-page.test.mjs`. **Next:** a test for this path needs evidence the guard does not use: a control series
+(the rear-seat passengers did this job for the seat-belt law), or several dates across series. A slower route is a
+likelihood ratio of "step at the date" against "random walk" that is scored on its own, not after the cut.
+
 **Use it.** `node cli.mjs data.csv --column deaths --known-date 1983-02 --period 12 --log` (the label is the first
 row after the change; `--json` for the fields: `step`, `stepRange95`, `pStep`, `slopeChange`, `pSlope`, `p`,
 `pTable`, `effectAverage`, `effectAtEnd`, `gated`, `rhoGen`, `calibrated`). Tests: `known-date.test.mjs`,
-`known-date-cli.test.mjs`.
+`known-date-cli.test.mjs`, `known-date-page.test.mjs`. On the page: type the label in "Test a date you name".
+
+### A control series: sharper and calibrated in simulation, but a placebo check on real data fails (2026-11-17, pre-registered; not shipped)
+
+Round 6 left one route for the sticky series the cut lets through: evidence the guard does not use, such as a control
+series the change should not touch (comparative interrupted time series; Lopez Bernal, Cummins and Gasparrini 2018,
+Int. J. Epidemiol. 47(6), 2082-2093). `knownDateTest(x, k, { control, controlMode: 'difference' })` runs round 5's test
+on the series minus the control (on logs, their ratio), so a trend change or a wander both share cancels. A second
+arm, the control as a regressor with a free coefficient (`controlMode: 'regress'`), was dropped after exploration: the
+control's own noise shrinks the coefficient (errors in variables), and with a shared slope change it flagged 18.0% of
+100 no-change pairs (`eval/known-date-control-explore-regress.out.txt`).
+
+Pre-registration `eval/known-date-prereg-control-2026-11-17.md`, committed before the confirmatory run (seed base
+67000, 400 pairs, 199 replicates; `eval/known-date-control-confirm.out.txt`, the treated series alone in
+`-confirm-plain.out.txt`) and before the real placebos (`node eval/known-date-control-real.mjs`,
+`eval/known-date-control-real.out.txt`):
+
+| Bar (pre-registered) | With the control (difference) | The treated series alone (round 5) | |
+|---|---|---|---|
+| 1. size 2-8% of tested, five cells: common AR(1) 0.5-0.9 or a common random walk, some with a shared step or slope change at the date | 4.0, 5.5, 7.8, 3.3, 4.8% | 11.5, 22.6, 20.0, 5.5, 9.3% | holds |
+| 2. at least 90% of pairs tested | 396-400 of 400 | 215-400 of 400 (the walks refused) | holds |
+| 3. power, a treated-only step of 2 sd, share of all pairs: at least 40, 35, 10% and above the series alone | 55.8, 52.3, 10.5% | 10.8, 19.8, 4.3% | holds |
+| 4a. seat belts, drivers minus rear-seat passengers, 1983-02 (seen in development) | step -0.277 (range -0.359 to -0.196), p 0.001; slope change -0.0002, p 0.95 | step -0.237, slope change +0.0066 | holds |
+| 4b. front minus rear (seen) | step -0.360, p 0.001; slope change p 0.86 | step -0.309 | holds |
+| 4c. **placebo**: drivers minus rear before the law, dates 1974-01, 1977-01, 1980-01; at most 1 of 3 with p <= 0.05 | **3 of 3** (joint p 0.018, 0.003, 0.002) | | **fails** |
+| 4d. placebo: male minus female lung deaths 1974-79, dates 1976-01, 1977-01; at most 1 of 2 | 1 of 2 (p 0.033, 0.116) | | holds |
+
+By its own rule nothing ships: the CLI, engine and page wiring written in this session was taken out, and `control`
+stays in `known-date.mjs` as an off-by-default option for reproducing the table (`known-date-control.test.mjs`).
+A control on another scale (cell S6, control = 2 x the common part, reported without a bar) was flagged 27.0% of the
+time: a difference only cancels what both series carry in the same units, which is why logs matter.
+
+**Why the placebo failed** (after the run, not pre-registered; `node eval/known-date-control-placebo-diag.mjs`,
+`eval/known-date-control-placebo-diag.out.txt`). Three things together. (i) 1974-01 was a poor placebo: the 1973-74
+fuel crisis is a real step in drivers, front and rear alike (each p 0.001 on its own), and the ratio still moved
+(slope change p 0.011). (ii) The drivers-to-rear ratio is almost free of short-run noise (rho -0.05 to -0.01 against
+0.27-0.52 for drivers alone), so the test is far sharper, and a slow bend in the ratio before 1983 that drivers alone
+hide in their noise is now enough to flag: at 1977-01 and 1980-01 drivers alone give p 0.81 and 0.83, drivers minus
+rear 0.003 and 0.002. (iii) The steps at the placebo dates are small and mostly not significant (p 0.68, 0.11, 0.055):
+the slope term carries the rejections. So the control did its job on noise and shared shocks, and exposed that a
+straight line is the wrong baseline for this ratio over 14 years. The seat-belt step itself is no weaker for it
+(a 24% fall in the ratio, range 18-30%), but a test whose placebos fire cannot be called calibrated here.
+
+**Next** (a fresh pre-registration, and real pairs not seen here): an in-time placebo check that ships beside the test
+(the same test at dates in the before-period; refuse or warn when they fire), or a step-only test with the control,
+since the steps passed every placebo (0 of 5 at p 0.05, real pairs 4c and 4d); and real pairs beyond road deaths, such as a policy that
+covered some regions and not others.
+
+### In-time placebos: a warning beside the test when the line before your date is not a line (2026-11-17, pre-registered; ships)
+
+The control round above ended asking for "an in-time placebo check that ships beside the test". This is it, for the
+shipped one-series test: `placeboCheck(x, k, { period })` in `known-date.mjs` runs the same test (round 5's settings,
+199 replicates) on the points before your date only, at up to three dates spread through that before-period (each with
+`8 + period` points on both sides), where the event you named cannot act. It **warns** when 2 or more of the tested
+placebo dates give joint p <= 0.05. It is a warning beside the result; it does not change the named-date p. This is
+the "falsification" check of the interrupted-time-series tutorials (Lopez Bernal, Cummins and Gasparrini 2017).
+
+Pre-registration `eval/known-date-prereg-placebo-2026-11-17.md`, committed after an exploratory run (seed base 81000,
+100 series, `eval/known-date-placebo-explore.out.txt`) and before the confirmatory run (fresh seed base 87000, 200
+series per cell, `eval/known-date-placebo-confirm.out.txt`; `KD_SEED_BASE=87000 KD_SHARD=i/4 node
+eval/known-date-placebo-sim.mjs 200 199`) and the real series (`node eval/known-date-placebo-real.mjs`,
+`eval/known-date-placebo-real.out.txt`):
+
+| Bar (pre-registered) | Confirmatory | |
+|---|---|---|
+| 1. false warnings at most 8% of tested, 14 straight-line cells (n 40-240, rho 0-0.8) and a real 2 sd step at the date | 0-4.0% (the step cell 1.0%) | holds |
+| 2. warnings: a quadratic bend of 8 sd, n 120, rho 0, at least 70%; an earlier 3 sd shock, n 240 / n 120, rho 0, at least 80% / 25% | 91.5%; 92.5% / 44.5% | holds |
+| 3. among the named-date test's false rejections (bends and earlier shocks, no change at the date), at least 25% warned | 677 of 1,830 (37.0%) | holds |
+| 4. drivers / rear-seat ratio before 1983-02 warns (seen); Nile before 1899 and Nottingham before 1935-01 and 1930-01 do not | ratio 3 of 3 fired, warns; Nile 0 of 3, Nottingham 0 of 3 twice | holds |
+
+**What it catches and what it cannot.** Where the before-period itself bends or carries an earlier shock, the warning
+comes up often (bends 15-91.5% at n 120, earlier shocks 8.5-92.5%; stickier noise hides more). Where the series bends
+mostly *after* the date (a quadratic with the date at the middle of 240 points), the named-date test fires 59-100% of
+the time with nothing at the date and the placebos warn only 3.5-19%: they see only the before-period. So no warning is
+not a clean bill; a control series or a look at the after-period is still the check for that.
+
+**Real series** (reported without a bar): drivers alone before the 1983 belt law, 1 of 3 (1973-05, the fuel crisis)
+and no warning; front-seat passengers 2 of 3 and rear-seat passengers 2 of 3 both warn, which agrees with the control
+round's reading that the joint test on those series partly reads a slope shared by all three. Australian cafe turnover
+before the July 2000 GST would warn (2 of 2), but the named date is refused (a wander) so no placebos are reported;
+quarterly cement is refused at every date.
+
+**Use it.** Nothing to switch on: `--known-date` prints an "In-time placebos" line (and a WARNING line when it fires);
+`--json` has `placebo: { dates: [{ label, p }], tested, fired, warn }`; `analyze({ knownDate })` has the same field
+(`knownDate: { date, placebo: false }` leaves it out), and the page adds a sentence to "Test a date you name". Tests:
+`known-date-placebo.test.mjs`.
+
+### The step alone, with a control series: calibrated in simulation, refused on real state pairs (2026-11-17, pre-registered; not shipped)
+
+The control round above failed only on its placebo dates, where the joint test read a slow bend in the drivers-to-rear
+ratio through its slope term; the step's own p fired at none of the five. So this round keeps the statistic and changes
+the decision: with a control, a **finding** is the step's p (`pStep`, in the model that still fits a slope change) at
+0.05 with the in-time placebos, run on the same difference, not warning. Pre-registration
+`eval/known-date-prereg-control-step-2026-11-17.md`, committed after an exploratory run (seed base 91000,
+`eval/known-date-control-step-explore.out.txt`) and before the confirmatory run (fresh base 97000, 400 pairs a cell,
+`eval/known-date-control-step-confirm.out.txt`) and before any real pair was tested. The real pairs are new to this
+tool: state cigarette tax rises (CDC's *Tax Burden on Tobacco*, 1970-2019, `data/us-cigarette-packs-per-capita.csv`),
+each state's packs per head against the mean of Abadie, Diamond and Hainmueller's (2010) 38 donor states, on logs.
+
+| Bar (pre-registered) | Confirmatory | |
+|---|---|---|
+| 1. step size 2-8% of tested, six no-change cells (n 31-120, shared slopes, steps and walks) | 4.3-6.8% (joint p 4.0-7.3%) | holds |
+| 2. findings at most 8% where only the treated series bends or turns (six cells, no step) | 0-5.3%; the date-at-80% bends: step p fired 44.0% and 41.0%, the placebos warned 176 of 176 and 160 of 164 | holds |
+| 3. power, findings as a share of all pairs: P1 55%, P2 50%, P3 20%, P5 30%, and the step above the joint p | 65.5, 60.8, 24.0, 40.0% (joint 51.3, 49.5, 14.0, 14.0%) | holds |
+| 4. placebos warn at most 8% in the no-change cells | 1.3-4.3% | holds |
+| 5a. California, Proposition 99, 1989: a fall found | **refused** (the log ratio about a line has rho 0.98; the cut at 1989 is 0.67 against a walk bar of 0.72) | **fails** |
+| 5b. Massachusetts 1993, Arizona 1995, Oregon 1997: 2 of 3 found | **0 of 3: all three refused** as wanders | **fails** |
+| 5c. nine placebo states (state tax unchanged FY1985-FY1995), 1989: at most 1 of 9 found | 1 of 9 (Tennessee, +8.9%, step p 0.007); 7 of the 9 refused | holds |
+
+By its own rule nothing ships, and `control` stays an off-by-default option of `known-date.mjs`. In simulation the rule
+does what it was built to do: as calibrated as the joint test, more powerful wherever the change is a step (a 2 sd step
+at n 40 found 24% of the time against 14%), and the bends that fool the step are the ones the placebos see. The real
+pairs failed for a reason the simulation did not contain.
+
+**Why the real pairs were refused** (after the run, not pre-registered; `node eval/known-date-control-step-real-diag.mjs`,
+`eval/known-date-control-step-real-diag.out.txt`). The simulated pairs share a wander that the difference removes
+exactly and leave AR(1) noise at rho 0.4; a real state's share of national cigarette sales wanders on its own
+(cross-border buying, smuggling, demographics). Across all 38 donor states against the other 37 over 1970-2000, the
+log ratio about a straight line has a median bias-corrected rho of 0.76, and 26 of 38 are above the guard's 0.7 for
+series under 100 points; about the before-and-after lines at 1989, 14 of 38 still are. On 31 annual points the guard
+cannot tell such a ratio from a random walk, and that is a correct refusal, not a fault to tune away. With the guard
+switched off (not a calibrated test), California's ratio shows a step of -5.6% (step p 0.051) and a slope change of
+-0.033 a year (p 0.002): Proposition 99's effect grows over the decade, as in Abadie et al.'s synthetic-control
+estimate, so even uncensored a step-only rule would set aside the part of the effect a tobacco programme produces.
+Massachusetts and Oregon stay above 0.7 about their own before-and-after lines; Arizona shows -6.9% (p 0.14).
+
+**What a reader can use now.** A control series and a named date make a sharp test only where the control removes the
+wander, and a state against a national average on annual data usually does not: check the ratio's own stickiness first
+(this tool's refusal says it for you). **Next** (fresh pre-registration): monthly or quarterly state series, where 31
+years are 124-372 points and the guard reads rho on enough data; a synthetic control (weights fitted on the
+before-period, Abadie et al. 2010) instead of a plain mean; and, for programmes rather than one-off price changes, a
+test of the effect's path (the slope change) with the placebo warning, since that is where the real effect sat.

@@ -1,53 +1,68 @@
 {
-  "generated": "2026-11-16",
+  "generated": "2026-11-17",
   "shots": [
     {
       "slug": "wall-framing-takeoff",
       "file": "wall-framing-takeoff.webp",
       "caption": "Draws every stud, header and cripple, then prices the lumber order",
-      "hero": "wall-framing-takeoff-hero.webp"
+      "hero": "wall-framing-takeoff-hero.webp",
+      "heroWide": "wall-framing-takeoff-hero-1200.webp"
     },
     {
       "slug": "container-load-planner",
       "file": "container-load-planner.webp",
       "caption": "Packs cartons and pallets into containers, drawn to scale",
-      "hero": "container-load-planner-hero.webp"
+      "hero": "container-load-planner-hero.webp",
+      "heroWide": "container-load-planner-hero-1200.webp"
     },
     {
       "slug": "band-tour-profit-planner",
       "file": "band-tour-profit-planner.webp",
-      "caption": "Shows which tour dates lose money before you book the van"
+      "caption": "Shows which tour dates lose money before you book the van",
+      "hero": "band-tour-profit-planner-hero.webp",
+      "heroWide": "band-tour-profit-planner-hero-1200.webp"
     },
     {
       "slug": "league-schedule-generator",
       "file": "league-schedule-generator.webp",
-      "caption": "Builds a fair round-robin league schedule in a minute"
+      "caption": "Builds a fair round-robin league schedule in a minute",
+      "hero": "league-schedule-generator-hero.webp",
+      "heroWide": "league-schedule-generator-hero-1200.webp"
     },
     {
       "slug": "event-seating-chart-optimizer",
       "file": "event-seating-chart-optimizer.webp",
-      "caption": "Seats every guest with the most wishes met"
+      "caption": "Seats every guest with the most wishes met",
+      "hero": "event-seating-chart-optimizer-hero.webp",
+      "heroWide": "event-seating-chart-optimizer-hero-1200.webp"
     },
     {
       "slug": "invoice-maker",
       "file": "invoice-maker.webp",
-      "caption": "Makes invoices and ages what is still owed"
+      "caption": "Makes invoices and ages what is still owed",
+      "hero": "invoice-maker-hero.webp",
+      "heroWide": "invoice-maker-hero-1200.webp"
     },
     {
       "slug": "ebay-fee-calculator",
       "file": "ebay-fee-calculator.webp",
       "caption": "Says what an eBay sale really leaves after fees",
-      "hero": "ebay-fee-calculator-hero.webp"
+      "hero": "ebay-fee-calculator-hero.webp",
+      "heroWide": "ebay-fee-calculator-hero-1200.webp"
     },
     {
       "slug": "incident-postmortem-timeline",
       "file": "incident-postmortem-timeline.webp",
-      "caption": "Measures detect-to-resolve times and drafts a blameless postmortem"
+      "caption": "Measures detect-to-resolve times and drafts a blameless postmortem",
+      "hero": "incident-postmortem-timeline-hero.webp",
+      "heroWide": "incident-postmortem-timeline-hero-1200.webp"
     },
     {
       "slug": "greenhouse-bench-planner",
       "file": "greenhouse-bench-planner.webp",
-      "caption": "Plans sowing weeks against greenhouse bench space"
+      "caption": "Plans sowing weeks against greenhouse bench space",
+      "hero": "greenhouse-bench-planner-hero.webp",
+      "heroWide": "greenhouse-bench-planner-hero-1200.webp"
     }
   ],
   "reel": {

@@ -27,15 +27,20 @@ export const PLANS = {
   1: { label: "Plan 1", threshold: 26065, rate: 0.09 },
   2: { label: "Plan 2", threshold: 28470, rate: 0.09 },
   4: { label: "Plan 4", threshold: 32745, rate: 0.09 },
-  5: { label: "Plan 5", threshold: 25000, rate: 0.09 },
+  5: { label: "Plan 5 (repayments from April 2026)", threshold: 25000, rate: 0.09 },
 };
 export const PGL = { threshold: 21000, rate: 0.06 };
+// Self Assessment counts unearned income (savings, dividends, property) for student loan only
+// when it is more than this (GOV.UK, "Tell HMRC about a student or postgraduate loan in your tax return").
+export const SL_UNEARNED_LIMIT = 2000;
+// Plan 5 repayments start in April 2026, so nothing is collected for 2025/26.
+export const PLAN5_FIRST_YEAR = "2026/27";
 export const POA_MIN_BILL = 1000;
 export const POA_PAYE_SHARE = 0.8;
 
 const r2 = (n) => Math.round(n * 100) / 100;
 const pos = (n) => (n > 0 ? n : 0);
-const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("GBP " + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 }));
+const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("GBP " + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\.\d$/, (m) => m + "0"));
 
 const FIELDS = [
   ["employment", "Employment pay (gross, with taxable benefits)"],
@@ -89,13 +94,23 @@ export function class4(profit) {
 }
 
 // The whole liability from a validated parse. `p` is the output of parse().
+// The property allowance and actual expenses (with the finance-cost credit) cannot be combined,
+// so both routes are worked out and the one with the lower bill is kept (ties go to the allowance).
 export function liability(p) {
+  if (!(p.rent > 0) || Math.min(ALLOWANCE, p.rent) < p.rentExpenses) return route(p, false);
+  const withAllowance = route(p, true);
+  if (!(p.mortgageInterest > 0)) return withAllowance;
+  const withExpenses = route(p, false);
+  return withExpenses.taxAndNic + withExpenses.slDue < withAllowance.taxAndNic + withAllowance.slDue ? withExpenses : withAllowance;
+}
+
+function route(p, useAllowance) {
   const tradingRelief = Math.max(p.tradingExpenses, Math.min(ALLOWANCE, p.tradingIncome));
   const tradingUsedAllowance = p.tradingIncome > 0 && ALLOWANCE >= p.tradingExpenses;
   const tradingRaw = p.tradingIncome - tradingRelief;
   const tradingProfit = pos(tradingRaw);
-  const propRelief = Math.max(p.rentExpenses, Math.min(ALLOWANCE, p.rent));
-  const propUsedAllowance = p.rent > 0 && ALLOWANCE >= p.rentExpenses;
+  const propRelief = useAllowance ? Math.min(ALLOWANCE, p.rent) : p.rentExpenses;
+  const propUsedAllowance = p.rent > 0 && useAllowance;
   const propProfit = pos(p.rent - propRelief);
   const nonSavings = p.employment + tradingProfit + propProfit;
   const totalIncome = nonSavings + p.interest + p.dividends;
@@ -127,13 +142,18 @@ export function liability(p) {
   const divTax = slice(tNS + tSav + divAllowUsed, tDiv - divAllowUsed, DIVIDEND_RATES, basicTop, addTop);
 
   const grossTax = nsTax.tax + savTax.tax + divTax.tax;
+  // Finance-cost credit: 20% of the lowest of finance costs, property profits and
+  // adjusted total income, which excludes savings and dividend income (GOV.UK,
+  // "Calculating tax relief for residential property finance costs").
   let credit = 0;
-  if (p.mortgageInterest > 0 && !propUsedAllowance && propProfit > 0) credit = r2(0.2 * Math.min(p.mortgageInterest, propProfit, pos(totalIncome - pensionGross - giftGross - allowance)));
+  if (p.mortgageInterest > 0 && !propUsedAllowance && propProfit > 0) credit = r2(0.2 * Math.min(p.mortgageInterest, propProfit, pos(nonSavings - pensionGross - giftGross - allowance)));
   const incomeTax = r2(pos(grossTax - credit));
   const class4Nic = class4(tradingProfit);
 
-  const slBase = pos(totalIncome);
-  const slDue = r2(pos(slBase - PLANS[p.plan].threshold) * PLANS[p.plan].rate + (p.pgl ? pos(slBase - PGL.threshold) * PGL.rate : 0));
+  const unearned = propProfit + p.interest + p.dividends;
+  const slBase = pos(p.employment + tradingProfit + (unearned > SL_UNEARNED_LIMIT ? unearned : 0));
+  const planRate = p.plan === "5" ? 0 : PLANS[p.plan].rate;
+  const slDue = r2(pos(slBase - PLANS[p.plan].threshold) * planRate + (p.pgl ? pos(slBase - PGL.threshold) * PGL.rate : 0));
   const slBalance = r2(pos(slDue - p.slPaid));
 
   const taxAndNic = r2(incomeTax + class4Nic);
@@ -142,6 +162,7 @@ export function liability(p) {
 
   return {
     tradingProfit, tradingUsedAllowance, tradingLoss: pos(-tradingRaw), propProfit, propUsedAllowance, nonSavings, totalIncome, pensionGross, giftGross, ani, allowance,
+    slBase, unearnedInSl: unearned > SL_UNEARNED_LIMIT,
     taxable, tNS, tSav, tDiv, startingUsed, psaUsed, psaBand, savZero, divAllowUsed, basicTop, addTop, nsTax, savTax, divTax,
     grossTax: r2(grossTax), credit, incomeTax, class4Nic, taxAndNic, slDue, slBalance, balanceTaxNic, total,
   };
@@ -196,6 +217,14 @@ export function compute(input) {
   if (p.dividends > 0) findings.push({ severity: "info", title: `Of ${money(p.dividends)} dividends, ${money(L.divAllowUsed)} falls inside the ${money(DIVIDEND_ALLOWANCE)} Dividend Allowance. The rest is taxed at 8.75%, 33.75% or 39.35%, on top of your other income.` });
   if (p.interest > 0) findings.push({ severity: "info", title: `Of ${money(p.interest)} savings interest, ${money(L.startingUsed)} falls in the 0% starting rate band and ${money(L.psaUsed)} in your Personal Savings Allowance of ${money(L.psaBand)}. Any more is taxed at your marginal rate.` });
   if (p.tradingIncome > 0 && L.tradingProfit > CLASS4.lower) findings.push({ severity: "info", title: `Class 4 National Insurance: ${money(L.class4Nic)}, 6% on profit between ${money(CLASS4.lower)} and ${money(CLASS4.upper)} and 2% above. Class 2 is no longer compulsory; profits over the Small Profits Threshold get your National Insurance record credited automatically.` });
+
+  if (p.plan === "5") findings.push({ severity: "info", title: `Plan 5 repayments start in April 2026, so no Plan 5 repayment is due for 2025/26. They begin with the ${PLAN5_FIRST_YEAR} tax year: 9% of income over ${money(PLANS[5].threshold)}.` });
+  if (p.plan !== "none" || p.pgl) {
+    const u = L.propProfit + p.interest + p.dividends;
+    if (u > 0) findings.push({ severity: "info", title: L.unearnedInSl
+      ? `Your unearned income (savings, dividends and property profit) of ${money(u)} is over ${money(SL_UNEARNED_LIMIT)}, so all of it counts towards student loan repayments.`
+      : `Your unearned income (savings, dividends and property profit) of ${money(u)} is ${money(SL_UNEARNED_LIMIT)} or less, so it is left out of the student loan calculation.` });
+  }
 
   const savings = [];
   for (const [label, kind, amt] of [["a further GBP 1,000 (net, GBP 1,250 gross) personal pension contribution", "pensionNet", 1000], ["a further GBP 1,000 Gift Aid donation (net)", "giftAidNet", 1000]]) {

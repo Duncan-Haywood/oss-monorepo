@@ -1,0 +1,82 @@
+# Milestone 36: a wrist force-torque sensor as the hose's remedy
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 35 (skipped: [['h1', 0.4, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+check: an exact sensor with k_t known leaves a joint error of 0.0e+00 rad (expect 0)
+
+## A. Residual after compensation from the sensor and one calibration (mm), worst pose, direction phi and signed axis of e: robot | H (N) | no sensor | |e| = 0 / 0.125 / 0.2 / 0.5 / 1 / 2.4 N  (y along the wall; z)
+  g1   0.0 | y +0.488 | +0.000 / +0.478 / +0.479 / +0.486 / +0.497 / -0.749   z -0.257 | +0.000 / -0.274 / -0.278 / +0.294 / +0.592 / +0.665
+  g1   5.0 | y +0.970 | +0.000 / +0.449 / +0.824 / +0.860 / +0.884 / +1.326   z +1.247 | +0.000 / -0.545 / -0.549 / -0.565 / -0.592 / +0.760
+  g1  10.0 | y +2.087 | +0.000 / -0.481 / -0.482 / +0.714 / -0.750 / +1.086   z +3.087 | +0.000 / +0.269 / +0.282 / +0.528 / -0.683 / -1.112
+  g1  20.0 | y +2.344 | +0.000 / -0.290 / -0.293 / -0.493 / +0.638 / -0.981   z +3.919 | +0.000 / +0.278 / +0.440 / +0.564 / +0.738 / -0.816
+  h1   0.0 | y -0.201 | +0.000 / -0.371 / -0.373 / -0.381 / -0.470 / -0.509   z -0.372 | +0.000 / +0.245 / +0.247 / +0.273 / +0.574 / +0.659
+  h1   5.0 | y +1.227 | +0.000 / +0.503 / +0.502 / +0.499 / +0.493 / -0.856   z -1.239 | +0.000 / -0.248 / -0.251 / -0.372 / +0.593 / -0.725
+  h1  10.0 | y +1.753 | +0.000 / -0.475 / -0.473 / -0.464 / +0.458 / -0.854   z -1.802 | +0.000 / +0.274 / +0.352 / +0.372 / +0.570 / +0.729
+  h1  20.0 | y +2.166 | +0.000 / +0.357 / -0.418 / -0.422 / +0.484 / -0.857   z -2.158 | +0.000 / +0.272 / -0.283 / +0.318 / +0.406 / -0.634
+  worst cases (G1, H 5): no sensor at {'z': 1.2, 'dy': 0.15, 'phi': 225, 'e': None}; |e| 0.2 at {'z': 1.0, 'dy': 0.15, 'phi': 45, 'e': [0.0, -0.2, 0.0]}; |e| 2.4 at {'z': 0.4, 'dy': 0.15, 'phi': 315, 'e': [2.4, 0.0, 0.0]}
+(section A: 1159 s, 24899 QP solves cached)
+
+## A2. Post hoc (added after section A's first rows, not registered): why the residual does not shrink with the sensor. G1, H 5 N, section A's worst direction for |e| 0.2 N; per |e|, the worst |y| over the six signed axes (mm) | joints mispredicted, wrong / spurious / missed (worst axis, summed over poses) | the flipped joints' |tau| distance from tau_f (N m, smallest and largest)
+  |e|  0.001 N | y -0.000 at [0.8, -0.15] | 0/0/0 | none
+  |e|  0.010 N | y -0.267 at [1.2, 0.0] | 0/1/0 | 0.0014-0.0014
+  |e|  0.050 N | y -0.160 at [1.2, 0.0] | 0/1/1 | 0.0014-0.0030
+  |e|  0.200 N | y +0.824 at [1.0, 0.15] | 0/1/1 | 0.0299-0.0547
+  |e|  2.400 N | y +0.744 at [1.0, 0.15] | 0/4/3 | 0.0014-0.2146
+
+## B. Exact sensor, k_t misjudged (the compensator's windup model at k_t (1 + eps)): worst |y| and |z| (mm): robot | H | eps +0.25 | eps -0.25
+  g1   0.0 | y +0.008 z +0.030 | y -0.013 z -0.050
+  g1   5.0 | y +0.060 z +0.170 | y -0.100 z -0.283
+  g1  10.0 | y -0.114 z +0.311 | y +0.190 z -0.519
+  g1  20.0 | y -0.236 z +0.472 | y +0.394 z -0.787
+  h1   0.0 | y +0.012 z -0.020 | y -0.020 z +0.034
+  h1   5.0 | y -0.061 z -0.120 | y +0.102 z +0.200
+  h1  10.0 | y -0.110 z -0.220 | y +0.183 z +0.367
+  h1  20.0 | y -0.202 z -0.350 | y +0.337 z +0.583
+
+## C. Stack loss (points) with H uniform over [0, H_max] in milestone 35's worst direction (its section D), k_t 1e4, against the matched stack with no hose; worst pose: robot | H_max | case | loss | at
+  g1   5.0 | none             |   2.17 | at [0.4, 0.15]  (milestone 35: 2.17)
+  g1   5.0 | ft300            |   1.10 | at [0.4, 0.15]
+  g1   5.0 | mini45           |   1.05 | at [0.4, 0.15]
+  g1   5.0 | ft300_pre2017    |  57.21 | at [0.6, -0.15]
+  g1   5.0 | exact, k_t +25%  |   0.04 | at [0.4, 0.0]
+  g1   5.0 | exact, k_t -25%  |   0.10 | at [0.6, -0.15]
+  g1  10.0 | none             |  20.66 | at [1.2, -0.15]  (milestone 35: 20.66)
+  g1  10.0 | ft300            |   6.57 | at [1.2, 0.0]
+  g1  10.0 | mini45           |   6.57 | at [1.2, 0.0]
+  g1  10.0 | ft300_pre2017    |  86.95 | at [0.4, 0.15]
+  g1  10.0 | exact, k_t +25%  |   0.08 | at [0.4, 0.0]
+  g1  10.0 | exact, k_t -25%  |   0.13 | at [0.4, 0.15]
+  g1  20.0 | none             |  91.55 | at [1.2, 0.15]  (milestone 35: 91.55)
+  g1  20.0 | ft300            |   1.64 | at [0.8, 0.0]
+  g1  20.0 | mini45           |   0.02 | at [1.2, 0.15]
+  g1  20.0 | ft300_pre2017    |  33.56 | at [1.2, 0.0]
+  g1  20.0 | exact, k_t +25%  |   0.43 | at [0.4, 0.0]
+  g1  20.0 | exact, k_t -25%  |   1.22 | at [0.4, -0.15]
+  h1   5.0 | none             |   4.39 | at [0.8, -0.15]  (milestone 35: 4.39)
+  h1   5.0 | ft300            |   0.02 | at [1.6, 0.0]
+  h1   5.0 | mini45           |   0.02 | at [0.6, 0.15]
+  h1   5.0 | ft300_pre2017    |  20.61 | at [1.4, -0.15]
+  h1   5.0 | exact, k_t +25%  |   0.02 | at [0.6, -0.15]
+  h1   5.0 | exact, k_t -25%  |   0.07 | at [0.4, 0.15]
+  h1  10.0 | none             |  34.28 | at [1.4, -0.15]  (milestone 35: 34.28)
+  h1  10.0 | ft300            |   6.92 | at [1.4, 0.0]
+  h1  10.0 | mini45           |   6.88 | at [1.4, 0.0]
+  h1  10.0 | ft300_pre2017    |  17.56 | at [1.4, -0.15]
+  h1  10.0 | exact, k_t +25%  |   0.06 | at [1.2, -0.15]
+  h1  10.0 | exact, k_t -25%  |   0.18 | at [0.4, 0.15]
+  h1  20.0 | none             |  67.81 | at [1.4, -0.15]  (milestone 35: 67.81)
+  h1  20.0 | ft300            |   2.18 | at [0.8, 0.0]
+  h1  20.0 | mini45           |   1.04 | at [0.4, 0.0]
+  h1  20.0 | ft300_pre2017    |  11.06 | at [1.4, -0.15]
+  h1  20.0 | exact, k_t +25%  |   0.23 | at [0.4, 0.15]
+  h1  20.0 | exact, k_t -25%  |   0.65 | at [0.4, 0.15]
+
+## D. Hypotheses (registered in LOG.md before this run)
+H132 (|e| 0.2 N, k_t known, 5 N drag: <= 0.1 mm along the wall): +0.824 mm -> refuted
+H133 (|e| 2.4 N, k_t known, 5 N drag: > 0.3 mm): +1.326 mm -> held
+H134 (exact sensor, k_t +-25%, 5 N drag: > 0.3 mm both ways): +25% +0.060, -25% -0.100 mm -> refuted
+H135 (FT 300 noise, k_t known, drag 0-20 N: <= 2 points): 1.64 points at [0.8, 0.0] -> held
+
+(run time 1451 s; python 3.13.18, numpy 2.5.3, mujoco 4.0.1)

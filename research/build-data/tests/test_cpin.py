@@ -193,6 +193,73 @@ class NeverCompleted(unittest.TestCase):
         self.assertFalse(p["G0"])  # no prior files in tmp
         self.assertFalse(p["G3"])  # regret 1.5 > 0.5
 
+    def test_target_follow_summary_scores_each_cohort(self):
+        """Session 99: each selector (cohort k, plain or IPCW) picks its own lowest score; F0 compares refits."""
+        import json, tempfile, os, rounds
+        def tk(l3, l6, i3):
+            mk = lambda x: dict(n=10, n_open=2, loss={"0.9": x}, ipcw={"0.9": x}, loss_per_seed={"0.9": [x] * 3},  # noqa: E731
+                                ipcw_per_seed={"0.9": [x] * 3})
+            d = {"3": mk(l3), "5": mk(l6), "6": mk(l6)}
+            d["3"]["ipcw"], d["3"]["ipcw_per_seed"] = {"0.9": i3}, {"0.9": [i3] * 3}
+            return d
+        R, P = {}, {}
+        for h in ("sf", "seattle"):
+            for Y in (2021, 2022):
+                se = h == "seattle"
+                for v, test, l3, l6, i3 in (("cpin_es3_nc3", 92 if se else 70, 10, 30 if se else 10, 30 if se else 5),
+                                            ("cpin_es3_nc5", 85 if se else 72, 20, 20, 20),
+                                            ("cpin_es3_nc5_stamp", 86 if se else 73, 21, 21, 21),
+                                            ("cpin_es3_nc5_stamp_len", 88 if se else 74, 22, 22, 22)):
+                    R[f"{h} {Y} {v}"] = dict(test_loss={"0.9": float(test)}, tgt_k=tk(l3, l6, i3),
+                                             test_loss_per_seed={"0.9": [float(test)] * 3})
+                    P[f"{h} {Y} {v}"] = dict(test_loss={"0.9": float(test)}, tgt_loss={"0.9": float(l3)})
+        with tempfile.TemporaryDirectory() as tmp:
+            path, pp = os.path.join(tmp, "r.json"), os.path.join(tmp, "p.json")
+            json.dump(R, open(path, "w")); json.dump(P, open(pp, "w"))
+            out = rounds.target_follow_summary(path, pp)
+        sf = [c for c in out["cells"] if c["held"] == "sf"]
+        se = [c for c in out["cells"] if c["held"] == "seattle"]
+        self.assertTrue(all(c["pick"]["k3_loss"] == "cpin_es3_nc3" for c in out["cells"]))
+        self.assertTrue(all(c["pick"]["k6_loss"] == "cpin_es3_nc3" for c in sf))
+        self.assertTrue(all(c["pick"]["k6_loss"] == "cpin_es3_nc5" for c in se))
+        self.assertTrue(all(c["pick"]["k3_ipcw"] == "cpin_es3_nc5" for c in se))
+        self.assertEqual(out["mean_regret"]["k6_loss"], 0.0)
+        self.assertAlmostEqual(out["mean_regret"]["k3_loss"], 3.5)  # (0 + 0 + 7 + 7) / 4
+        self.assertEqual(se[0]["nc5_minus_nc3"]["k6_loss"], -10.0)
+        p = out["predictions"]
+        self.assertTrue(all(p[k] for k in ("F0", "F1", "F2", "F3", "F4", "F5")))
+
+    def test_replicate_summary_pools_new_austin_and_old_cells(self):
+        """Session 100: selectors whose cohort is missing are skipped; hits, regret and H1-H6 over the cell sets."""
+        import json, tempfile, os, rounds
+        def tk(l3, l6, ks=("3", "5", "6", "8")):
+            mk = lambda x: dict(n=10, n_open=2, loss={"0.9": x}, ipcw={"0.9": x}, loss_per_seed={"0.9": [x] * 3},  # noqa: E731
+                                ipcw_per_seed={"0.9": [x] * 3})
+            return {k: mk(l3 if k == "3" else l6) for k in ks}
+        def put(R, h, Y, long_city, ks):
+            for v, test, l3, l6 in (("cpin_es3_nc3", 92 if long_city else 70, 10, 30 if long_city else 10),
+                                    ("cpin_es3_nc5", 85 if long_city else 72, 20, 20),
+                                    ("cpin_es3_nc5_stamp", 86 if long_city else 73, 21, 21),
+                                    ("cpin_es3_nc5_stamp_len", 88 if long_city else 74, 22, 22)):
+                R[f"{h} {Y} {v}"] = dict(test_loss={"0.9": float(test)}, tgt_k=tk(l3, l6, ks), n_test=5,
+                                         test_loss_per_seed={"0.9": [float(test)] * 3})
+        R, O = {}, {}
+        for h, Y in rounds.REP_NEW + rounds.REP_AUSTIN:
+            put(R, h, Y, h != "sf", ("3", "5", "6", "8"))
+        for h, Y in rounds.REP_OLD:
+            put(O, h, Y, h == "seattle", ("3", "5", "6"))
+        with tempfile.TemporaryDirectory() as tmp:
+            path, op = os.path.join(tmp, "r.json"), os.path.join(tmp, "o.json")
+            json.dump(R, open(path, "w")); json.dump(O, open(op, "w"))
+            out = rounds.replicate_summary(path, op)
+        self.assertIn("k8_loss", out["new"][0]["pick"])
+        self.assertNotIn("k8_loss", out["old"][0]["pick"])
+        self.assertNotIn("k8_loss", out["agg_all"]["hits"])  # absent in the old cells
+        self.assertEqual(out["agg_new"]["hits"]["k6_loss"], 4)
+        self.assertEqual(out["agg_new"]["hits"]["k3_loss"], 2)  # wrong in both Seattle cells
+        self.assertAlmostEqual(out["agg_all"]["mean_regret"]["k3_loss"], 7 * 6 / 10)
+        self.assertTrue(all(out["predictions"][k] for k in ("H1", "H2", "H3", "H4", "H5", "H6")))
+
     def test_q_threshold(self):
         """Session 93: the per-source cut is a quantile of builds completed by D only."""
         import datetime, rounds

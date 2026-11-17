@@ -281,6 +281,59 @@ class WheelLoopTest(unittest.TestCase):
         off = controller.WheelLoop(9000, low_rpm=0)
         self.assertAlmostEqual(off.update(750, 650, 10) - 750 / 9000, 2e-4 * 100 + 6e-7 * 100 * 10)
 
+    def test_ball_hold_keeps_the_drop_out_of_the_integrator(self):
+        # README "A ball charged the integrator": from the stroke until the wheel is back on target, the integrator
+        # only sees +-ball_band of the target; then it integrates as before
+        loop = controller.WheelLoop(9000, ball_band=0.01)
+        loop.update(3000, 2990, 10)
+        i0 = loop.i
+        loop.ball()
+        loop.update(3000, 3000, 10)                 # stroke under way, no drop yet
+        for _ in range(50):
+            loop.update(3000, 2000, 10)             # 33% low: counts as 1%
+        self.assertAlmostEqual(loop.i - i0, 50 * 6e-7 * 30 * 10)
+        self.assertEqual(loop.recover, 2)
+        loop.update(3000, 3001, 10)                 # back on target: the hold ends
+        self.assertEqual(loop.recover, 0)
+        i1 = loop.i
+        loop.update(3000, 2000, 10)
+        self.assertAlmostEqual(loop.i - i1, 6e-7 * 1000 * 10)
+
+    def test_ball_hold_times_out_and_can_be_off(self):
+        loop = controller.WheelLoop(9000, ball_band=0.0, ball_ms=3000)
+        loop.ball()
+        for _ in range(299):
+            loop.update(3000, 3000, 10)            # an empty pocket: no drop comes
+        self.assertEqual(loop.recover, 1)
+        loop.update(3000, 3000, 10)
+        self.assertEqual(loop.recover, 0)
+        off = controller.WheelLoop(9000, ball_band=None)
+        off.ball()
+        self.assertEqual(off.recover, 0)
+        moved = controller.WheelLoop(9000, ball_band=0.0)
+        moved.ball()
+        moved.update(3000, 2000, 10)
+        self.assertEqual(moved.recover, 2)
+        moved.update(4000, 2100, 10)               # the Pi sent the next shot's speeds: the hold ends
+        self.assertEqual(moved.recover, 0)
+
+    def test_braking_does_not_wind_the_integrator(self):
+        # README "A ball charged the integrator", braking: while the ramp lowers the target the integrator holds, and
+        # it never leaves +-LOOP_I_FF_MAX of the feedforward
+        loop = controller.WheelLoop(9000, ramp_hold=True, i_ff_max=0.35)
+        loop.update(3000, 2990, 10)
+        i0 = loop.i
+        for _ in range(100):
+            loop.update(2000, 2400, 10, True)        # ramping down: the wheel lags the falling target
+        self.assertEqual(loop.i, i0)
+        for _ in range(2000):
+            loop.update(526, 600, 10)                # arrived, the wheel still a little fast
+        self.assertAlmostEqual(loop.i, -0.35 * 526 / 9000)
+        free = controller.WheelLoop(9000, ramp_hold=False, i_ff_max=None)
+        for _ in range(100):
+            free.update(2000, 2400, 10, True)
+        self.assertLess(free.i, -0.01)
+
     def test_gate_needs_the_speed_held(self):
         gate = controller.SteadyGate()
         self.assertFalse(gate.update((3000, 2500), (3050, 2510), 100))
@@ -1229,6 +1282,50 @@ class PulseDropTest(unittest.TestCase):
         self.assertTrue(all(abs(x - 1) < 0.01 for x in ratios), ratios)
         self.assertTrue(all(n < 8 for n in got[0][1]), got[0][1])
         self.assertEqual(got[0][2], 0)
+
+    def test_slow_wheel_is_watched_through_the_next_speed_change(self):
+        """2026-11-17, firmware/esp32/README.md "The fit floor on held-out builds": the Pi's hold made the shot after a
+        slow one late. With LOOP_THROUGH_CHANGE the board watches the slow wheel on through the next shot's speed change
+        (the loop fit models the commands), so the Pi sends the next speeds straight away: the second shot releases
+        sooner and the slow wheel's drop still reads within 1%. Off by default on both sides."""
+        self.assertFalse(controller.LOOP_THROUGH_CHANGE)
+        self.assertFalse(host.LOOP_THROUGH_CHANGE)
+        spec = {"machine": {"y": 0.0, "height": 1.0}, "interval": 3.0,
+                "shots": [{"x": 9.0, "y": 0.0, "speed": 22, "topspin": 3000},
+                          {"x": 10.5, "y": 0.0, "speed": 26, "topspin": 0}]}
+        shots = host.plan_drill(spec)
+        got = {}
+        try:
+            for through in (False, True):
+                controller.LOOP_THROUGH_CHANGE = host.LOOP_THROUGH_CHANGE = through
+                sim = SimFeeder(balls=None)
+                truth = []
+                take = sim._take_momentum
+
+                def taken():
+                    before = sim.wheel[1]
+                    take()
+                    truth.append(1 - sim.wheel[1] / before)
+                sim._take_momentum = taken
+                res = host.run_drill(host.FeederLink(sim, sim.clock), shots, sim.sleep)
+                self.assertTrue(res.ok, res.aborted)
+                rec = res.launches[0]
+                got[through] = (res.shots[1].released_at - res.shots[0].released_at, rec["drop_bottom"] / truth[0],
+                                rec["loop_bottom"], sim.hw.launch.extended)
+        finally:
+            controller.LOOP_THROUGH_CHANGE = host.LOOP_THROUGH_CHANGE = False
+        held, thru = got[False], got[True]
+        self.assertLess(thru[0], held[0] - 0.5)
+        self.assertTrue(thru[2] and thru[3] >= 1, thru)
+        self.assertLess(abs(thru[1] - 1), 0.01, thru)
+
+    def test_a_stop_still_ends_the_watch_through_changes(self):
+        """A coast down is the ESC's braking, which no command describes: LOOP_THROUGH_CHANGE keeps watching through a
+        change of speed, never through a stop."""
+        self.assertTrue(controller._stopped((5000, 600), (0, 0)))
+        self.assertTrue(controller._stopped((5000, 600), (5000, 0)))
+        self.assertFalse(controller._stopped((5000, 600), (4000, 4000)))
+        self.assertFalse(controller._stopped((0, 600), (0, 4000)))
 
     def test_hold_matches_the_board(self):
         """The Pi's hold and the board's watch past the verdict count the same revolutions over the same time."""

@@ -89,7 +89,10 @@ TRIM = 0.25                        # fit_from_drops sets aside wheel readings th
 # still missed by up to 32%, and a 750 floor was no better than this one across the plants (spin worst 0.72 / 3.18 /
 # 2.29% against 0.52 / 4.16 / 2.15%), so it stays. With the board watching slow wheels past the verdict (README "Slow
 # wheels watched past the verdict") 500-750 rpm wheels read 0.992-1.009 of their drop and no floor gave the lower
-# worst spin error on three plants of four, but the means were mixed: a held-out sweep should decide it.
+# worst spin error on three plants of four, but the means were mixed: a held-out sweep should decide it. It did
+# (2026-11-17, README "The fit floor on held-out builds", tests/min_fit_heldout.py, rule committed before the run): 18
+# builds on launchers, lags, plants and slow targets none of the earlier sweeps used; pooled spin error 0.57% at 500
+# against 0.56% at 1,000, and the worst ESC build 2.33% against 1.47%, so it stays.
 MIN_FIT_RPM = 1000.0
 # The spin efficiency comes from the difference between a spin shot's two drops, a small part of each, so one wheel's
 # reading error moves it several times as far as it moves the speed fit, and the slowest wheels read worst. On the

@@ -35,6 +35,10 @@ M32 = E + "m32_grf_qp/results.txt"
 M33 = E + "m33_compensate/results.txt"
 M34 = E + "m34_windup/results.txt"
 M35 = E + "m35_hose/results.txt"
+M36 = E + "m36_wrist_ft/results.txt"
+M37 = E + "m37_preload/results.txt"
+M38 = E + "m38_squeeze/results.txt"
+M39 = E + "m39_waist/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -135,6 +139,32 @@ CHECKS = [
     (M35, "g1 rubber   0.0 | y +0.474", "leaves 0.474 mm"),
     (M35, "g1 rubber   5.0 (phi 90) | 2.17", "loses 2.17\npoints"),
     (M35, "g1 rubber  10.0 (phi 315) | 20.66", "20.66 points"),
+    (M36, "g1  20.0 | y +2.344 | +0.000 / -0.290 / -0.293", "from 2.344 mm to 0.293 mm"),
+    (M36, "g1  20.0 | ft300            |   1.64", "loses 1.64 points instead of 91.55"),
+    (M36, "g1   5.0 | y +0.060 z +0.170 | y -0.100", "0.060 and 0.100 mm at 5 N"),
+    (M37, "g1   5.0  0.2 | 1.378 (0.606)", "leaves the G1 1.378 mm at a 5 N drag"),
+    (M37, "g1  20.0 | m 0, g 0 |  56.48", "loses 56.48 points over 0 to 20 N"),
+    (M37, "total | hold 161 / leg 3 / waist 6 / arm 5", "161 of the 175 mispredicted"),
+    (M37, "/ 0.830 (0.549) / 0.830 (0.282)", "(0.830 mm at 5 N, 1.64 points"),
+    (M37, "g1  20.0 | m 0.1, g 0 |   1.64", "1.64 points\nover 0 to 20 N)"),
+    (M37, "g1  0.10 | 14 (lost ['[1.0, 0.15]']) | 49.11 | 1.66", "for 1.66% more leg torque and one of 15 G1 poses"),
+    (M38, "largest leg or waist torque 1.1e-16 N m", "(at most 1.1e-16 N m per newton elsewhere)"),
+    (M38, "total S  10.0 | hold 0 / leg 2 / waist 9 / arm 0", "removes all 14 mispredicted arm joints"),
+    (M38, "total S   0.0 | hold 0 / leg 1 / waist 7 / arm 14", "removes all 14 mispredicted arm joints"),
+    (M38, "g1   5.0  0.2 | 0.830 (0.549) / 0.485 (0.099)", "falls from 0.830 to 0.485 mm"),
+    (M38, "g1  20.0 | S 10 |   0.05", "0.05 points instead of 1.64"),
+    (M38, "g1  20.0 | S 0 |   1.64", "0.05 points instead of 1.64"),
+    (M38, "h1  20.0 | S 10 |   0.02", "(the H1 0.02 instead of 2.19)"),
+    (M38, "h1  20.0 | S 0 |   2.19", "(the H1 0.02 instead of 2.19)"),
+    (M39, "g1   5.0  0.2 | 0.485 (0.099) / 0.485 (0.099) / 0.106 (0.020) / 0.012 (0.027)", "from 0.485 to 0.012 mm"),
+    (M39, "g1  10.0 | stock     |   5.80", "10 N stack loss from 5.80 to 0.04 points"),
+    (M39, "g1  10.0 | braked    |   0.04", "10 N stack loss from 5.80 to 0.04 points"),
+    (M39, "g1  10.0 | precision |   0.11", "gives 0.106 mm\nand 0.11 points"),
+    (M39, "g1   5.0  2.4 | 1.350 (0.922) / 1.350 (0.922) / 0.968 (0.679) / 0.873 (0.477)", "still leaves 0.873 mm"),
+    (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
+    (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
+    (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),
+    (M36, "H133 (|e| 2.4 N, k_t known, 5 N drag: > 0.3 mm): +1.326", "leaves 1.326 mm"),
     (M34, "h1: 0.026 | 0.511 | 1.166", "(the H1 0.026 to\n1.166)"),
     (M34, "|   1.05 at 1.2 -0.15", "loses 1.05 points at 1e4"),
     (M34, "-> k_t >= 1.00e+04", "k_t ≥ 1.00e+04"),

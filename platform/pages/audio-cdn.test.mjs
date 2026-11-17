@@ -78,3 +78,65 @@ test('without git every file stays where it was', async () => {
   assert.deepEqual(result, { moved: 0, kept: 4, bytes: 0 });
   assert.equal(existsSync(path.join(out, 'shelf/audio/one.mp3')), true);
 });
+
+// Red team 2026-11-17: the escapes below each passed the suite as a mutant.
+
+test('a link to another file whose name starts with an MP3 name is left alone', async () => {
+  const { repo, out, first } = fixture();
+  put(out, 'shelf/notes.html', '<a href="audio/one.mp3.vtt">captions</a> <a href="audio/one.mp3-notes.html">notes</a> <a href="audio/one.mp3?t=5">5s</a>');
+  await moveAudioToCdn({ outDir: out, base: BASE, repoRoot: repo, repo: REPO });
+  const one = cdnUrl(REPO, first, 'ventures/shelf/audio/one.mp3');
+  assert.equal(readFileSync(path.join(out, 'shelf/notes.html'), 'utf8'),
+    `<a href="audio/one.mp3.vtt">captions</a> <a href="audio/one.mp3-notes.html">notes</a> <a href="${one}?t=5">5s</a>`);
+});
+
+test('jsDelivr serves GitHub files up to 20 MB: a file of exactly the limit moves, one byte more stays', async () => {
+  const LIMIT = 20 * 1024 * 1024; // literal on purpose: the export is what this pins
+  const repo = mkdtempSync(path.join(os.tmpdir(), 'audio-cdn-big-'));
+  const git = (...args) => execFileSync('git', ['-C', repo, ...args], { encoding: 'utf8' }).trim();
+  git('init', '-q');
+  git('config', 'user.email', 't@example.test');
+  git('config', 'user.name', 't');
+  const atLimit = Buffer.alloc(LIMIT, 1);
+  const over = Buffer.alloc(LIMIT + 1, 1);
+  put(repo, 'a/at.mp3', atLimit);
+  put(repo, 'a/over.mp3', over);
+  git('add', '.');
+  git('commit', '-qm', 'big');
+  const out = mkdtempSync(path.join(os.tmpdir(), 'audio-cdn-big-out-'));
+  put(out, 'a/at.mp3', atLimit);
+  put(out, 'a/over.mp3', over);
+  put(out, 'a/index.html', '<audio src="at.mp3"></audio><audio src="over.mp3"></audio>');
+  const result = await moveAudioToCdn({ outDir: out, base: BASE, repoRoot: repo, repo: REPO });
+  assert.deepEqual(result, { moved: 1, kept: 1, bytes: LIMIT });
+  assert.equal(existsSync(path.join(out, 'a/at.mp3')), false);
+  assert.equal(existsSync(path.join(out, 'a/over.mp3')), true);
+});
+
+test('the repo comes from GITHUB_REPOSITORY, and the portfolio repo without it', async () => {
+  const saved = process.env.GITHUB_REPOSITORY;
+  try {
+    for (const [env, want] of [['someone/fork', 'someone/fork'], [undefined, 'Duncan-Haywood/oss-monorepo']]) {
+      if (env === undefined) delete process.env.GITHUB_REPOSITORY;
+      else process.env.GITHUB_REPOSITORY = env;
+      const { repo, out, first } = fixture();
+      await moveAudioToCdn({ outDir: out, base: BASE, repoRoot: repo });
+      assert.equal(readFileSync(path.join(out, 'shelf/story.html'), 'utf8').match(/src="([^"]+)"/)[1],
+        cdnUrl(want, first, 'ventures/shelf/audio/one.mp3'));
+    }
+  } finally {
+    if (saved === undefined) delete process.env.GITHUB_REPOSITORY;
+    else process.env.GITHUB_REPOSITORY = saved;
+  }
+});
+
+test('an MP3 whose name git log quotes is never pinned to an undefined commit', () => {
+  const { repo } = fixture();
+  // core.quotePath=false still quotes '"' and '\\' in `git log` output, so
+  // this path is missing from the last-touched map.
+  put(repo, 'shelf/audio/odd"name.mp3', 'ID3-odd');
+  execFileSync('git', ['-C', repo, 'add', '.']);
+  execFileSync('git', ['-C', repo, 'commit', '-qm', 'odd']);
+  const map = committedAudio(repo);
+  for (const { path: p, commit } of map.values()) assert.match(commit, /^[0-9a-f]{40}$/, p);
+});

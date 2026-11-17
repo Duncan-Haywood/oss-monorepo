@@ -1,0 +1,213 @@
+{
+ "date": "2026-11-17",
+ "subject": "research/simdesign-shellaspect",
+ "stratum": "research",
+ "seed": "2026-11-17-d24f",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a structural-stability researcher (thin-walled beams / lateral-torsional buckling, finite-element verification); first checks: that the closed form is the right comparator for the boundary conditions the solid model actually imposes (clamp warping restraint, load height, pre-buckling deflection), that FE numbers reproduce, and that the explanation offered for the residual gap is tested rather than guessed",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "The numbers are right. Re-ran the FE engine for l = 24, 48, 96 (`/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/simdesign-shellaspect/fe_rerun.py`): 9686.543, 2270.813, 548.921 N, identical to experiments/scan.txt to 3 decimals. Closed form recomputed without importing the subject (`/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/simdesign-shellaspect/closed_indep.py`): the Timoshenko-Gere coefficient re-derived by shooting theta'' + g^2(1-s)^2 theta = 0 gives 4.01260 (code uses 4.013), exact Saint-Venant series J = 17.9720 vs the code's Roark 0.63 approximation 17.9733 (+0.007%), so P_cr = 8459.5 / 2114.9 / 528.72 / 132.18 N vs the table's 8460.6 / 2115.2 / 528.8 / 132.2 (all within 0.014%). Independent sanity of the same FE engine against textbook cases at l = 96: axial cantilever 286.99 N vs Euler pi^2 E Iy / (4 l^2) = 285.58 N (+0.49%); end moment 19812 vs pi/(2l) sqrt(EIyGJ) = 19870 N mm (-0.29%). README arithmetic (excess x l/w = 0.43, 0.44, 0.46, 0.50) checks by hand.",
+  "completeness": "Claimed and checked: the four-length scan (3 of 4 rows re-run, all identical; the 192 mm row not re-run, ~3 min, its closed form recomputed); 'l/w = 3 row reproduces simdesign-shellorder's 12x4x2 value (9686.5 N) exactly' passes (research/simdesign-shellorder/experiments/scan.txt level 1 = 9686.543); 'model code copied unchanged' passes (`diff` of the two eigbuckle.py files: identical); '2 tests, about 1 min' observed 2 passed in 89 s; scan 'about 6 min' consistent with the 354 s recorded in scan.txt. No stubs or TODOs. Limitations and next steps are listed and nothing claimed as done is missing.",
+  "verification": "`cd research/simdesign-shellaspect && /usr/bin/python3.13 -m pytest -q tests`: 2 passed, 486 warnings, 89 s. The two tests check only that the ratio falls from l/w 3 to 6 and stays > 0.9, and that the closed form scales as 1/l^2; no test pins an FE or closed-form value against a reference. Four mutants via platform/ci/quality_mutate.py: 3 survived (Timoshenko-Gere coefficient 4.013 -> 3.5 at eigbuckle.py:87; J correction 0.63 -> 0 at :81; every critical load x1.1 at :74), 1 caught (shear traction doubled at :42, which pushes the ratio below 0.9). A 13% error in the comparator or a 10% error in every FE result passes.",
+  "craft": "Read eigbuckle.py (92 lines), scan.py, test_scan.py, pyproject.toml. Clear, short, units stated, the geometric stiffness form grad(v)_ij sigma_jk grad(u)_ik is the standard one and the shift-invert eigs is sound. Defects: eigbuckle.py is a verbatim copy of simdesign-shellorder's engine (diff identical) and its closed forms re-copy simdesign-webbuckle/ltb.py, so a fix must be made three times; `v.value[...]` at eigbuckle.py:47 raises 486 skfem DeprecationWarnings per test run; scan.py:23 writes scan.txt without a context manager; tests import by sys.path insertion rather than the declared package; pytest is not in pyproject.toml. Acceptable research code, not reviewer-clean.",
+  "claims": "Every number in the README table traces to experiments/scan.txt, and research/README.md:567 and research/_homepage/projects.json:2497 quote the same percentages (pass). AI-assistance, 'stylised, preliminary', 'nothing was made or tested' and a Limitations section are present (README:3, :32-33). The attribution to shear deformation / clamp warping is explicitly labelled untested and 'a consistency check, not a demonstration' (README:28). The served page https://marisstella.app/research/simdesign-shellaspect/ returns 200 and carries the summary with 'preliminary'. One soft overreach: README:30 says the 2.1% gap at l/w = 24 'probably includes some mesh error'; an independent warping model (domain) accounts for all of it, so 'probably' is not backed. Citations (Timoshenko & Gere 1961; Gustafsson & McBain JOSS 2020) are real.",
+  "fitness": "Could a researcher build on it? Yes as a reproducible data point: the scan re-runs bit-identically and the code is small. But the question it asks (why does the 3D solid exceed the slender-beam formula?) has a textbook answer it did not try: the clamp restrains warping, and Timoshenko & Gere (sec. 6.4) and Trahair (Flexural-Torsional Buckling of Structures, 1993) give the cantilever result with a warping parameter. Nearest prior work: classical LTB of narrow rectangular cantilevers (Timoshenko & Gere 1961; Hodges & Peters 1975 on pre-buckling deflection) and the many solid-vs-beam LTB verification studies; this scan is a verification exercise with no novelty claim, which the README fairly admits. One cross-section, so whether the gap is ~w/l or set by Cw/J cannot be told apart.",
+  "domain": "Compared with the warping-restrained cantilever (Vlasov Cw = b^3 w^3 / 144 for a thin rectangle, theta = theta' = 0 at the clamp), solved independently by a 1D Hermite Rayleigh-Ritz (`/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/simdesign-shellaspect/warping_fe.py`): predicted gamma_w / 4.0126 = 1.220, 1.101, 1.044, 1.021 at l/w = 3, 6, 12, 24, against the FE's 1.145, 1.074, 1.038, 1.021. At l/w >= 12 clamp warping restraint alone accounts for the whole gap (and its ~1/l scaling: K = pi sqrt(E Cw / (G J l^2)) is proportional to 1/l), and under end moment (where warping barely matters) the FE already matches the closed form to 0.3% at l/w = 12. So the README's 'could be the fixed cross-section mesh' and 'probably includes some mesh error' run against the standard theory; the right comparator was available. Not discussed either: the pre-buckling in-plane deflection effect, 1/sqrt((1-Iy/Iz)(1-GJ/EIz)) = 1.077 for this 4:1 section (Kirby & Nethercot; Trahair), which linear eigenbuckling omits and a reviewer would expect named as a limit of both models. A stability researcher would accept the numbers and reject the interpretation."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Timoshenko-Gere cantilever tip-load coefficient and closed-form loads at l = 24..192 mm",
+   "method": "ODE theta'' + g^2 (1-s)^2 theta = 0, theta(0)=0, theta'(1)=0 solved by shooting; exact Saint-Venant J series (Timoshenko & Goodier); no subject import",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/simdesign-shellaspect/closed_indep.py",
+   "expected": "gamma 4.013 (T&G); P_cr matching README 8460.6/2115.2/528.8/132.2 N",
+   "observed": "gamma 4.01260; P_cr 8459.497/2114.874/528.719/132.180 N (within 0.014%); J Roark vs exact +0.007%",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "FE engine against Euler buckling of an axially loaded cantilever, l = 96",
+   "method": "textbook Euler cantilever P = pi^2 E Iy / (4 l^2), computed in the script, not from closed_forms",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/simdesign-shellaspect/fe_rerun.py",
+   "expected": "285.58 N (within ~1%)",
+   "observed": "286.989 N, ratio 1.00494",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "FE engine against cantilever end-moment LTB, l = 96",
+   "method": "pi/(2l) sqrt(E Iy G J) (Timoshenko & Gere), J recomputed independently agrees to 0.007%",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/simdesign-shellaspect/fe_rerun.py",
+   "expected": "19870 N mm (within ~1%)",
+   "observed": "19812.5 N mm, ratio 0.99709",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Scan rows l = 24, 48, 96 reproduce scan.txt",
+   "method": "re-run of the shipped engine with the scan's mesh rule (nx = l/2, 4x2)",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/simdesign-shellaspect/fe_rerun.py",
+   "expected": "9686.543, 2270.813, 548.921 N",
+   "observed": "9686.543, 2270.813, 548.921 N",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Is the residual gap mesh error (README:30) or clamp warping restraint?",
+   "method": "independent 1D Hermite Rayleigh-Ritz of the warping-restrained cantilever (Vlasov Cw = b^3 w^3/144; Timoshenko & Gere sec 6.4, Trahair 1993)",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/simdesign-shellaspect/warping_fe.py",
+   "expected": "if warping explains the gap: predicted ratio near FE 1.038 (l/w 12) and 1.021 (l/w 24)",
+   "observed": "predicted 1.044 and 1.021 (Cw=0 control 4.0174 vs 4.0126); short bars over-predicted (1.220, 1.101 vs 1.145, 1.074)",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "Pre-buckling deflection effect named as a limit",
+   "method": "Kirby & Nethercot / Trahair factor 1/sqrt((1-Iy/Iz)(1-GJ/EIz))",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/simdesign-shellaspect/closed_indep.py",
+   "expected": "discussed in Limitations for a 4:1 section",
+   "observed": "factor 1.0774; not mentioned in README",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "cd research/simdesign-shellaspect && /usr/bin/python3.13 -m pytest -q tests",
+   "expected": "pass, ~1 min (README:16)",
+   "observed": "2 passed, 486 warnings in 89.29 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "'model code copied unchanged' and 'l/w = 3 row reproduces shellorder's 12x4x2 value exactly'",
+   "method": "diff and read of the sibling project's scan.txt",
+   "command": "diff research/simdesign-shellorder/src/*/eigbuckle.py research/simdesign-shellaspect/src/simdesign_shellaspect/eigbuckle.py; sed -n 3p research/simdesign-shellorder/experiments/scan.txt",
+   "expected": "identical; 9686.543",
+   "observed": "identical; '1 12 4 2 9686.543 8460.649 1.14489 43'",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README table and research index percentages match scan.txt",
+   "method": "read scan.txt, README:21-26, research/README.md:567, projects.json:2497",
+   "command": "cat research/simdesign-shellaspect/experiments/scan.txt; grep -n shellaspect research/README.md",
+   "expected": "14.5%, 7.4%, 3.8%, 2.1%",
+   "observed": "ratios 1.14489, 1.07359, 1.03807, 1.02067 in all three places",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served page live with preliminary caveat",
+   "method": "HTTP fetch of the deployed page",
+   "command": "curl -s https://marisstella.app/research/simdesign-shellaspect/ | grep -c preliminary",
+   "expected": "200 and caveat present",
+   "observed": "200; 'preliminary scan of one steel bar cross-section' present",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'the 2.1% gap probably includes some mesh error' (README:30)",
+   "method": "compare with the independent warping-restrained prediction",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/simdesign-shellaspect/warping_fe.py",
+   "expected": "a gap not explained by theory",
+   "observed": "warping theory predicts 2.1% at l/w = 24, the whole gap",
+   "result": "partial"
+  },
+  {
+   "dimension": "craft",
+   "what": "Warnings in the test run",
+   "method": "pytest output",
+   "command": "cd research/simdesign-shellaspect && /usr/bin/python3.13 -m pytest -q tests",
+   "expected": "clean",
+   "observed": "486 skfem DeprecationWarnings from v.value at eigbuckle.py:47",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "research/simdesign-shellaspect/src/simdesign_shellaspect/eigbuckle.py:87",
+   "change": "return 4.013 * _sqrt_eigj -> return 3.5 * _sqrt_eigj",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "research/simdesign-shellaspect/src/simdesign_shellaspect/eigbuckle.py:81",
+   "change": "(1 - 0.63 * b / w) -> (1 - 0.0 * b / w)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "research/simdesign-shellaspect/src/simdesign_shellaspect/eigbuckle.py:42",
+   "change": "t = [z, 1.0 / (w * b) + z, z] -> t = [z, 2.0 / (w * b) + z, z]",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "research/simdesign-shellaspect/src/simdesign_shellaspect/eigbuckle.py:74",
+   "change": "return np.sort(1.0 / mu.real) -> return np.sort(1.0 / mu.real) * 1.1",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The comparator ignores the warping restraint the clamped solid imposes; an independent warping-restrained cantilever model (Timoshenko & Gere sec 6.4 / Trahair, Vlasov Cw = b^3 w^3/144) predicts FE/closed 1.044 and 1.021 at l/w 12 and 24 vs the FE's 1.038 and 1.021, so the README's mesh-error explanation of the residual gap and its ~w/l drift is contradicted by standard theory that was not tried",
+   "where": "research/simdesign-shellaspect/README.md:30",
+   "category": "research-design",
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"
+  },
+  {
+   "severity": "medium",
+   "what": "No test pins any number: the T&G coefficient (4.013 -> 3.5), the J correction (0.63 -> 0) and a 10% scale on every FE critical load all leave both tests green",
+   "where": "research/simdesign-shellaspect/tests/test_scan.py:6",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"
+  },
+  {
+   "severity": "low",
+   "what": "Pre-buckling in-plane deflection effect (factor 1.077 for this 4:1 section, Kirby & Nethercot / Trahair) omitted by both models and not named in Limitations",
+   "where": "research/simdesign-shellaspect/README.md:33",
+   "category": "scope-gap",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"
+  },
+  {
+   "severity": "low",
+   "what": "Engine is a verbatim copy of simdesign-shellorder/eigbuckle.py and its closed forms re-copy simdesign-webbuckle/ltb.py; fixes must be made in three places",
+   "where": "research/simdesign-shellaspect/src/simdesign_shellaspect/eigbuckle.py:1",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "v.value[...] in the traction form emits 486 skfem DeprecationWarnings per test run",
+   "where": "research/simdesign-shellaspect/src/simdesign_shellaspect/eigbuckle.py:47",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "pytest used by the documented reproduction is not declared in pyproject.toml (no test extra)",
+   "where": "research/simdesign-shellaspect/pyproject.toml:10",
+   "category": "repo-hygiene",
+   "origin": "build"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"],
+ "verdict": "A small, honest, fully reproducible scan: three of four FE rows re-run bit-identically, the closed form re-derives to 0.014% from an independent ODE and the exact torsion series, and the same engine matches Euler and end-moment cantilever buckling within 0.5%. It misses the bar on verification (two tests, three of four seeded bugs survive, including a 13% error in the comparator and a 10% error in every FE load) and on method: the gap it sets out to explain is predicted, at l/w >= 12 to within 0.6 percentage points, by the textbook warping-restrained cantilever, which the README does not try and instead leans toward mesh error. A stability researcher would trust the numbers and rewrite the interpretation."
+}

@@ -133,8 +133,10 @@ test("the hero uses a still's close crop when it has one, publishes it, and fall
   const html = renderHeroArt(showcase.shots, (slug) => slug, ['a', 'b']);
   assert.match(html, /src="showcase\/a-hero\.webp" width="600" height="375"/);
   assert.match(html, /src="showcase\/b\.webp" width="960" height="600"/);
-  // The gallery further down keeps the full still.
-  assert.doesNotMatch(renderShowcaseSection(showcase), /a-hero\.webp/);
+  // The gallery further down uses the crop too, and the full still where there is none.
+  const gallery = renderShowcaseSection(showcase);
+  assert.match(gallery, /src="showcase\/a-hero\.webp" width="600" height="375"/);
+  assert.match(gallery, /src="showcase\/b\.webp" width="960" height="600"/);
   const out = mkdtempSync(path.join(os.tmpdir(), 'showcase-hero-out-'));
   assert.equal(await copyShowcase(out, showcase, dir), 3);
   assert.deepEqual((await fs.readdir(path.join(out, SHOWCASE_DIR))).sort(), ['a-hero.webp', 'a.webp', 'b.webp']);
@@ -146,5 +148,43 @@ test('every preferred hero tool has a close crop on disk (polish-2026-11-16-hero
     const hero = manifest.shots.find((s) => s.slug === slug)?.hero;
     return !hero || !existsSync(new URL(`./showcase/${hero}`, import.meta.url));
   });
+  assert.deepEqual(missing, []);
+});
+
+test('every gallery still has a close crop on disk (polish-2026-11-17-gallery-crops.md)', async () => {
+  // The gallery's cards are 280 to 440 px wide; a full 1,280 px still drops its
+  // text to about 3 px there. A new SHOTS entry needs a `hero` selector too.
+  const manifest = JSON.parse(await fs.readFile(new URL('./showcase/manifest.json', import.meta.url), 'utf8'));
+  const missing = manifest.shots
+    .filter((s) => !s.hero || !existsSync(new URL(`./showcase/${s.hero}`, import.meta.url)))
+    .map((s) => s.slug);
+  assert.deepEqual(missing, []);
+});
+
+test('a crop with a 1,200 px twin gets a srcset, and a missing twin drops out (polish-2026-11-17-hero-srcset.md)', async () => {
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'showcase-wide-'));
+  for (const f of ['a.webp', 'a-hero.webp', 'a-hero-1200.webp', 'b.webp', 'b-hero.webp']) writeFileSync(path.join(dir, f), 'x');
+  writeFileSync(path.join(dir, 'manifest.json'), JSON.stringify({
+    shots: [
+      { slug: 'a', file: 'a.webp', caption: 'A', hero: 'a-hero.webp', heroWide: 'a-hero-1200.webp' },
+      { slug: 'b', file: 'b.webp', caption: 'B', hero: 'b-hero.webp', heroWide: 'b-hero-1200-never-captured.webp' },
+    ],
+  }));
+  const showcase = loadShowcase(['a', 'b'], dir);
+  assert.equal('heroWide' in showcase.shots[1], false);
+  const gallery = renderShowcaseSection(showcase);
+  assert.match(gallery, /src="showcase\/a-hero\.webp" srcset="showcase\/a-hero\.webp 600w, showcase\/a-hero-1200\.webp 1200w" sizes="[^"]+" width="600" height="375"/);
+  assert.match(gallery, /src="showcase\/b-hero\.webp" width="600" height="375"/);
+  assert.match(renderHeroArt(showcase.shots, (s) => s, ['a', 'b']), /a-hero-1200\.webp 1200w" sizes="300px"/);
+  const out = mkdtempSync(path.join(os.tmpdir(), 'showcase-wide-out-'));
+  assert.equal(await copyShowcase(out, showcase, dir), 5);
+});
+
+test('every gallery crop has its 1,200 px twin on disk (polish-2026-11-17-hero-srcset.md)', async () => {
+  // A 290 px card on a 3x phone wants 870 px; the 600 px crop alone is soft there.
+  const manifest = JSON.parse(await fs.readFile(new URL('./showcase/manifest.json', import.meta.url), 'utf8'));
+  const missing = manifest.shots
+    .filter((s) => s.hero && (!s.heroWide || !existsSync(new URL(`./showcase/${s.heroWide}`, import.meta.url))))
+    .map((s) => s.slug);
   assert.deepEqual(missing, []);
 });

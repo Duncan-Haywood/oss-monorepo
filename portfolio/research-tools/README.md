@@ -98,6 +98,12 @@ for the browser-extension, iOS and Android packagers.
 | [`extreme-value-analysis`](../../ventures/extreme-value-analysis/) | Coles 2001; Jenkinson 1955; Pickands 1975; Davison & Smith 1990; Hosking, Wallis & Wood 1985; Hosking 1990 | How big is the 100-year flood, gust or load, how much higher could it plausibly be, is the tail heavy or bounded, and has the level drifted over the record? |
 | [`dynamic-time-warping`](../../ventures/dynamic-time-warping/) | Sakoe & Chiba 1978; Itakura 1975; Giorgino 2009; Tormene, Giorgino, Quaglini & Stefanelli 2009; Müller 2007 | How alike are these two series once timing can stretch, where does one run ahead of the other and is that gap timing or level, and where in a long series does this short pattern recur? |
 | [`meta-analysis`](../../ventures/meta-analysis/) | DerSimonian & Laird 1986; Viechtbauer 2005; Paule & Mandel 1982; Knapp & Hartung 2003; Higgins & Thompson 2002; Viechtbauer 2007; Riley, Higgins & Deeks 2011; Egger et al. 1997; Hedges 1981 | What do these studies say together, how much do they disagree, where would the next study land, and does a study-level variable explain the differences? |
+| [`cost-sharing-calculator`](../../ventures/cost-sharing-calculator/) | Shapley 1953; Schmeidler 1969; Maschler, Peleg & Shapley 1979; Young, Okada & Hashimoto 1982; Littlechild & Owen 1973; Aumann & Maschler 1985; O'Neill 1982 | Who should pay what for something we share, would any subgroup pay less on its own, how should neighbours split a private road, and how do you divide an estate that cannot pay every claim? |
+| [`stable-matching`](../../ventures/stable-matching/) | Gale & Shapley 1962; McVitie & Wilson 1971; Gusfield & Irving 1989; Irving, Leather & Gusfield 1987; Gusfield 1987; Roth 1982, 1984, 1986; Dubins & Freedman 1981 | Who should be matched with whom so no pair would rather have each other, how many stable answers are there and which is fairest to both sides, and is the matching I made by hand stable? |
+| [`kriging-interpolation`](../../ventures/kriging-interpolation/) | Matheron 1963; Krige 1951; Cressie & Hawkins 1980; Cressie 1985; Dubrule 1983; Shepard 1968; Gneiting 2013 | What is the value between my sample points and how sure is it, what are my data's nugget, sill and range, does kriging beat inverse distance here, and which readings disagree with their neighbours? |
+| [`scale-reliability`](../../ventures/scale-reliability/) | Cronbach 1951; Guttman 1945; McDonald 1999; Feldt, Woodruff & Salih 1987; Kelley & Pornprasertmanit 2016; Efron 1987; Sijtsma 2009; Spearman 1910; Brown 1910 | Is my questionnaire scale reliable, with what interval, does omega tell a different story from alpha, which items pull it down, and did I forget to reverse one? |
+| [`item-response-theory`](../../ventures/item-response-theory/) | Bock & Aitkin 1981; Birnbaum 1968; Rasch 1960; Orlando & Thissen 2000; Lord & Wingersky 1984; Bock & Mislevy 1982; Thissen et al. 1995 | Which questions on my test work, how hard is each and how well does it separate strong from weak, does a question misfit, is a key wrong, and where is the test precise? |
+| [`difference-in-differences`](../../ventures/difference-in-differences/) | Callaway & Sant'Anna 2021; Goodman-Bacon 2021; Card & Krueger 1994 | Did a change adopted at different times move the outcome, by how much at each time since adoption, were the adopters already drifting apart before, and how much of the usual two-way fixed effects estimate compares late adopters with units already treated? |
 
 The site files them under "Research algorithms & ML"
 (`platform/pages/build.mjs`, `research-algorithms`). Add a row here and the
@@ -105,7 +111,7 @@ slug there when a tool lands.
 
 ## Candidates
 
-Next papers to implement, each a job someone has: augmented synthetic
+Next papers to implement, each a job someone has: covariates by the doubly robust estimator (Sant'Anna & Zhao 2020), the imputation estimator (Borusyak, Jaravel & Spiess 2024) and HonestDiD sensitivity bounds (Rambachan & Roth 2023) as modes of `difference-in-differences`; augmented synthetic
 control (Ben-Michael, Feller & Rothstein 2021) as a bias-corrected mode for
 `synthetic-control`; several input columns
 with automatic relevance determination, and a forecast-calibrated mean, as
@@ -120,4 +126,6 @@ predicting the cluster of new rows (McInnes & Healy's approximate_predict) and t
 multivariate DTW, DTW barycentre averaging (Petitjean, Ketterlin & Gançarski 2011) and LB_Keogh-pruned search (Keogh & Ratanamahatana 2005) as modes of `dynamic-time-warping`;
 trigonometric seasonals, a stochastic cycle, regressors with intervention dummies (the seat-belt law as a level dummy, Harvey & Durbin 1986) and simulation smoothing (Durbin & Koopman 2002) as modes of `kalman-smoother`;
 historical and censored floods (Stedinger & Cohn 1986), covariates beyond the year in the GEV parameters, and the point-process likelihood (Smith 1989) as modes of `extreme-value-analysis`;
+the kernel and the tau-value, Monte Carlo Shapley sampling past 14 members (Castro, Gómez & Tejada 2009), and the airport game's closed-form nucleolus (Littlechild 1974) as modes of `cost-sharing-calculator`;
+ties in the lists with weak and super-stability (Irving 1994), stable roommates for one-sided pairing (Irving 1985), the rotation poset for egalitarian matchings past the listing limit (Irving, Leather & Gusfield 1987), and couples (Roth & Peranson 1999) as modes of `stable-matching`;
 trim-and-fill (Duval & Tweedie 2000), subgroup tests on a categorical column, Mantel-Haenszel pooling for sparse tables, and multilevel models for several effects per study as modes of `meta-analysis`.

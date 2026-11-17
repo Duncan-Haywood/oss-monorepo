@@ -625,6 +625,42 @@ hose alone leaves 0.474 mm. With the tension uniform over 0 to 5 N the worst G1 
 points of the 12-bit stack, over 0 to 10 N 20.66 points. A hose has to come off the tool, be
 measured at the wrist, or drag lightly.
 
+Measuring the wrench at the wrist (milestone 36) lets the compensator predict from the measured
+load. With a 0.2 N error (twice the Robotiq FT 300's listed 0.1 N noise) and k_t known, the G1's
+worst residual along the wall falls from 2.344 mm to 0.293 mm at a 20 N drag, and with the drag
+uniform over 0 to 20 N the worst pose loses 1.64 points instead of 91.55. A stiffness misjudged by
+25% leaves 0.060 and 0.100 mm at 5 N. The residual has a floor, though: at 5 N the same sensor
+leaves 0.824 mm, and an error of 0.01 N already leaves 0.267 mm, because a held joint within
+0.0014 to 0.05 N m of the holding threshold is predicted on the wrong side of its gap. That floor
+is a property of the sharp threshold model, so it bounds the brittleness of model-based backlash
+compensation rather than measuring it; the cure is to keep held joints away from the threshold.
+A 2.4 N error (the sensor's pre-2017 noise) leaves 1.326 mm, worse than no sensor.
+
+A preload is that cure for the legs (milestone 37). Here the controller plans once from the
+measured force and the robot settles under the true one by the smallest change of contact forces
+that balances it, a stricter model than re-solving under the true force. Without a preload it
+leaves the G1 1.378 mm at a 5 N drag and loses 56.48 points over 0 to 20 N, because the balance
+controller holds its chosen joints exactly at the threshold: 161 of the 175 mispredicted
+joint-pose cases are those joints. Commanding every leg joint at least 0.1 N m clear of the
+threshold removes all of them and gives back the re-solved figures (0.830 mm at 5 N, 1.64 points
+over 0 to 20 N), for 1.66% more leg torque and one of 15 G1 poses. The 0.3 to 0.8 mm that remains
+comes from waist and arm joints, which the ground reaction cannot reach.
+
+The arms take a different preload (milestone 38). A squeeze between the two hands along the line
+joining the grip points has no net force or moment, so it changes only the arm joints' torques
+(at most 1.1e-16 N m per newton elsewhere). Chosen by the controller from its plan within 10 N,
+it removes all 14 mispredicted arm joints; with the leg preload and the FT 300 the G1's worst
+residual at a 5 N drag falls from 0.830 to 0.485 mm, and over 0 to 20 N the worst pose loses
+0.05 points instead of 1.64 (the H1 0.02 instead of 2.19). The floor that remains comes from the
+waist, which only the tool's wrench loads. Holding the nailer, the G1's wrist pitch already
+exceeds its 5 N m rating in the model at 7 of 14 poses.
+
+That floor is the waist's own backlash (milestone 39). With the squeeze and the leg preload, a
+braked waist takes the G1's worst residual at a 5 N drag from 0.485 to 0.012 mm and its 0 to
+10 N stack loss from 5.80 to 0.04 points; a waist gearbox with 1 arcmin of backlash gives 0.106 mm
+and 0.11 points. Making only the waist roll and pitch rigid, as on the base G1, leaves 0.485 mm:
+the joint that flips is the yaw. With the pre-2017 sensor a braked waist still leaves 0.873 mm.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every

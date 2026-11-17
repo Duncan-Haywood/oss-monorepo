@@ -10,8 +10,29 @@ field robot to accept or reject the update.
 
 **Paper draft (milestone 7):** [`paper/draft.md`](paper/draft.md) pulls milestones 1–6b into one
 RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with every quoted number
-checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (288 of 288,
-revised with milestones 4e–4s and 3b–3f) and a list of what a submission still needs.
+checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (290 of 290,
+revised with milestones 4e–4s and 3b–3g) and a list of what a submission still needs.
+
+**Milestone 3h headline** (milestones 3f and 3g predicted to first order where a window's focal length moves when its
+lens distortion is pinned; is that prediction what the re-solve gives? checked on the real OpenCV stereo images, where the
+pinned bundle adjustment can be run, 149 windows of 4&ndash;8 views, 1043 pinned re-solves): **yes in direction, and in size
+up to a few percent, but it overshoots large steps.** The re-solved step is 0.97 of the predicted one at the board's
+distortion (sign agreed in 99% of windows), 0.85 at 2&ndash;5% of f and 0.74 at 5&ndash;10%; the narrowed error bar is real (re-solved
+sd ratio 0.976 against 0.962 predicted). Shrinking milestone 3g's TUM steps by that overshoot (post hoc) still leaves the
+board prior worse than none (median 7.1% against 5.25%; fr1/xyz +10%), and even on clean board windows pinning the
+board's distortion moves f slightly away from Zhang's (0.55% to 0.65%). Four of five predictions held.
+
+![First-order predicted against re-solved focal-length step when k1 and k2 are pinned, and their ratio by step size](experiments/m3h_linear/linear.png)
+
+**Milestone 3g headline** (does pinning *both* distortion terms at a past board calibration fix natural-feature
+self-calibration's focal error? first-order conditioning of the same 57 TUM RGB-D window solves on k<sub>1</sub> and
+k<sub>2</sub> together, using the full covariances milestone 3b stored): **no; it is worse than pinning one term, which was
+worse than pinning none.** The median focal error rises from 5.25% to 8.72% (fr1/xyz +12.9%), every sequence's f is pushed
+up, and the conditional error bar shrinks by about 40%, so five pooled windows are confidently wrong (rms z 3.07 against
+1.10). Milestone 3f's rule "pin the prior whole" does not survive; leave distortion free in short windows and pool. One of
+five predictions held; the re-solve (milestone 3h) waits for the TUM host.
+
+![Focal error before and after conditioning on the board's k1 alone and on k1 and k2 together](experiments/m3g_condk12/condk12.png)
 
 **Milestone 3f headline** (if a robot already knows its lens distortion from a past calibration, does pinning k<sub>1</sub> fix
 natural-feature self-calibration's focal error? first-order conditioning of milestone 3c's 57 stored TUM RGB-D window solves):
@@ -964,6 +985,9 @@ python3 experiments/m3d_pool/pool.py         # seconds; summary.json, pool.png
 OMP_NUM_THREADS=1 python3 experiments/m3e_axis/run.py <tum dir> 4   # ~10 min; results.json
 python3 experiments/m3e_axis/analyse.py      # seconds; summary.json, axis.png
 python3 experiments/m3f_condk1/analyse.py    # seconds, no video needed; summary.json, condk1.png
+python3 experiments/m3g_condk12/analyse.py   # seconds, no video needed; summary.json, condk12.png
+OMP_NUM_THREADS=1 python3 experiments/m3h_linear/run.py   # ~2 min on 4 cores, board images in data/; results.json
+python3 experiments/m3h_linear/analyse.py    # seconds; summary.json, linear.png
 python3 experiments/m1_real/run.py        # ~40 min on 4 cores; results.json
 python3 experiments/m1_real/analyse.py    # summary.json, selfcal_vs_zhang.png
 python3 experiments/m1_real/planarity.py  # ~3 min; planarity.json
@@ -1066,6 +1090,15 @@ python3 paper/check_numbers.py             # seconds; the draft's numbers agains
   `PROPOSAL.md`).
 
 ## Next steps
+
+After milestone 3h: the first-order conditioning is a fair guide to the pinned re-solve (it overshoots by about a quarter
+at 5&ndash;10% steps), and shrinking 3g's steps by that still leaves fr1/xyz +10%, so the re-solve on the TUM video (now
+milestone 3i) is a confirmation rather than the open question; the open question is what f compensates in a short
+natural-feature window, with a principal-point prior and a rolling-shutter term the next candidates.
+
+After milestone 3g: pinning both k<sub>1</sub> and k<sub>2</sub> is worse at first order (median 8.72%, fr1/xyz +12.9%), so
+the re-solve (now milestone 3h, needs the TUM video) asks whether the linearisation misleads or the windows and the board
+really disagree; a principal-point or rolling-shutter term in the window model is the next candidate for what f compensates.
 
 After milestone 3f: pinning k<sub>1</sub> alone at the prior calibration makes the Kinect's windows worse (+12.4% on fr1/xyz),
 so the next step (3g) re-solves every window with k<sub>1</sub> and k<sub>2</sub> both pinned, and with the distortion curve pinned,

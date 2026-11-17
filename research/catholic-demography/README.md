@@ -34,6 +34,35 @@ Full tables: [`experiments/m1_subgroups/`](experiments/m1_subgroups) (`t1` compo
 fertility, `t3` retention, `t4` practice, belief and politics by subgroup). Plan and hypotheses:
 [`PROPOSAL.md`](PROPOSAL.md). Research log: [`LOG.md`](LOG.md).
 
+## Were the mothers more Catholic while raising their children? Partly, and partly a survey artefact (milestone 5b, 2026-11-17)
+
+Mostly closed, but not mostly by switching. m5n left the mothers of US-born adults 3.5 to 5 points more Catholic than US-born
+GSS mothers interviewed at 45+. Rebuilding the women's side from mothers interviewed at 25-44, the ages they were
+raising children, the gap for adults born 1965-99 to two US-born parents falls from **+4.8 points [+2.3, +7.1] to +1.1
+[-1.7, +4.0]**: the same cohorts are 3.7 points [2.1, 5.4] more Catholic at 25-44 than at 45+. But the same women also
+report a Catholic upbringing 2.4 points [0.7, 4.2] more often when interviewed young, so they are not simply the same
+women before they left. Split post hoc, about 1.5 points is women leaving the Church after child-rearing and 2.2 points
+is a cohort's raised-Catholic share differing by survey year and age (recall, attrition or the 2021-24 web waves). 3 of 4
+predictions are supported; the "not a different population" check is refuted. Older respondents' mothers (born before
+about 1936) are not seen at 25-44 in the GSS and are not tested. Code `experiments/m5o_lifecourse/run.py`, tables `t43`,
+`t44`, details in `LOG.md`.
+
+## Did Catholic mothers have more children than surveys show? Siblings say no (milestone 5b, 2026-11-17)
+
+No. The missing Catholics are mothers, not extra children. m5m left adults born 1925-64 to two US-born parents with
+mothers 3.4 points more Catholic than the fertility model predicts. Every GSS respondent reports how many brothers and
+sisters they had, so the family each child came from can be measured from the child's side, and weighting children by
+1/(siblings + 1) recovers their mothers (Preston 1976). Children of Catholic mothers come from families no bigger,
+relative to what GSS Catholic women report, than children of other mothers (difference -0.06 children [-0.22, +0.09],
+sizes capped at 7 on both sides because `sibs` is top-coded at 6+). Among the mothers themselves, 24.4% were Catholic
+against 20.8% of GSS mothers of their cohorts (**+3.5 points [+2.1, +5.3]**), and the Catholic / other fertility ratio is
+1.10 by children's reports and 1.09 by women's. So 97% of the gap is the mothers' Catholic share and 3% [-25, +28]
+fertility. 3 of 5 predictions are refuted. Across all US-born adults born 1925-64, those raised Catholic come from
+families 1.07 [1.06, 1.08] times as large (by the same inversion), far from the 1.27 needed. Rerun with that sibling-based
+ratio, m5h's fertility channel falls to 0.13 points of the 1990s Catholic share (from 1.17) and -0.05 of the 1990-99 to
+2010-18 change, so H4 (immigration, not fertility) is stronger. Code `experiments/m5n_siblings/run.py`, tables `t39` to
+`t42`, details in `LOG.md`.
+
 ## Do immigrant mothers explain the model's missing Catholics? (milestone 5b, 2026-11-14)
 
 Only for older immigrant families, and fixing them exposes a gap among US-born ones. The m5h model gave every US-born adult's mother

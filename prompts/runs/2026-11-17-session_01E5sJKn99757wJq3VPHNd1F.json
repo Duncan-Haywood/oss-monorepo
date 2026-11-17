@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKn99757wJq3VPHNd1F",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T02:19:07Z",
+  "ended": "2026-11-17T02:43:08Z",
+  "wall_minutes": 24.24,
+  "tokens_in": 7616756,
+  "tokens_out": 38212,
+  "cost_usd": 3.3982,
+  "tool_calls": 63,
+  "task": "civ-seeding milestone 12: recall by tie strength (capture-recapture stratified) and the seeding advice under strength-dependent recall",
+  "projects": [
+    "research/civ-seeding"
+  ],
+  "pr": 16784,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "Planned sanity bar missed: milestone 11 rows re-drawn moved up to 0.53 point (bar about 0.4), because randomised rules share a scoring stream that lengthens with each added rule; disclosed in LOG/README/post"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Drew track 20, whose only programmes were OFFLINE (build-data) or claimed by an open draft PR (buildbot-sheathing, #16769); had to hand-scan PROGRAMMES.md and recent commits/PRs to find an unclaimed programme. A 'next unclaimed programme' fallback would save the scan."
+    },
+    {
+      "file": "research/civ-seeding/experiments/m6_uncertainty/run.py",
+      "issue": "EXTRA_RANDOMISED rules share one scoring stream, so each new milestone re-draws earlier rows by ~0.5 point; harness noise is now the same size as effects being tested. Logged as the programme's next step."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-survey-respondents-forget-weak-ties-and-the-seeding-advice-holds.md",
+    "research/civ-seeding/LOG.md (milestone 12 plan and outcome)"
+  ],
+  "goal": null,
+  "notes": "Routed research (draw). Security queue empty, ideas/requests empty. Part A (2 s): three-question recall 0.606/0.805/0.942 by s6 stratum 0/1/2+; stratified 0.812 vs pooled 0.836 (H25, H26 held). Part B (987 s, 4 cores): survey rule 2.2% under measured uneven recall (H27 held), census dd 0.9% vs 1.8% matched (H28 refuted, opposite direction), stress H29 held. Checks: civ-seeding tests 75 passed; research/_homepage/build.py ok; research_live_links --write; check_md_links ok; post front matter/links/similarity ok. Data: BCDJ datav4.0 from public GitHub mirror via sparse clone (worked through proxy).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d204b79d-bb18-56b3-8df8-fd46eb9f52f3",
+    "transcripts": 1,
+    "first": "2026-11-17T02:19:07Z",
+    "last": "2026-11-17T02:43:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 115,
+        "output": 38212,
+        "thinking": 7854,
+        "cache_read": 7474312,
+        "cache_write_5m": 0,
+        "cache_write_1h": 142329,
+        "api_equivalent_usd": 3.3982,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 115,
+      "output": 38212,
+      "thinking": 7854,
+      "cache_read": 7474312,
+      "cache_write_5m": 0,
+      "cache_write_1h": 142329,
+      "api_equivalent_usd": 3.3982,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 63,
+    "tools": {
+      "Bash": 55,
+      "Write": 3,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 24.24,
+      "active_minutes": 24.24,
+      "model_minutes": 7.04,
+      "tool_minutes": 17.2,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "data acquisition, stratified capture-recapture analysis, harness extension, 17-min bootstrap run, write-up for a research assistant",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 294.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

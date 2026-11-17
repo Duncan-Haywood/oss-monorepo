@@ -31,6 +31,7 @@ each step's `working-directory`, and reports which passed.
     python3 platform/ci/run_workflow_locally.py --for-changes
     python3 platform/ci/run_workflow_locally.py --tree
     python3 platform/ci/run_workflow_locally.py portfolio-validate.yml
+    python3 platform/ci/run_workflow_locally.py doc-refs-ci prompts-ci   # several, in turn
     python3 platform/ci/run_workflow_locally.py --list portfolio-pages.yml
 
 Under an agent harness a run still going after 100 s detaches and prints
@@ -1335,7 +1336,19 @@ def changed_paths(base: str, repo: str = REPO) -> list[str]:
     if done.returncode != 0:
         raise SystemExit(f"run_workflow_locally: git diff against {base} failed:\n"
                          f"{done.stderr.strip()}")
-    return [line for line in done.stdout.splitlines() if line.strip()]
+    paths = [line for line in done.stdout.splitlines() if line.strip()]
+    # New files the session has not yet `git add`ed. `git diff` never lists
+    # them, so a new, uncommitted post was missing from the diff: it selected
+    # no workflow of its own and could not be the COMMON CAUSE. On a polish
+    # run (2026-11-17) the post's 169-character description failed four
+    # Pages steps while COMMON CAUSE named the run's one-line index.html
+    # edit; seeded again here, same result, until this line.
+    new = git("ls-files", "--others", "--exclude-standard")
+    if new.returncode == 0:
+        seen = set(paths)
+        paths += [p for p in new.stdout.splitlines()
+                  if p.strip() and p not in seen]
+    return paths
 
 
 _RUNNER_FILES: dict[str, str] = {}
@@ -1436,12 +1449,37 @@ def named_paths(lines, root: str = REPO) -> set:
     return found
 
 
-def shared_changed_paths(failed, changed) -> list:
+def tree_basename_counts(repo: str = REPO) -> dict[str, int]:
+    """{file name: how many tracked files carry it}, or {} if git cannot say."""
+    done = subprocess.run(["git", "ls-files", "-z"], cwd=repo,
+                          capture_output=True, text=True)
+    counts: dict[str, int] = {}
+    if done.returncode == 0:
+        for path in done.stdout.split("\0"):
+            if path:
+                base = os.path.basename(path)
+                counts[base] = counts.get(base, 0) + 1
+    return counts
+
+
+def shared_changed_paths(failed, changed, tree_counts=None) -> list:
     """[(path, [labels])] for each changed path named by two or more failed
-    steps, most-named first. `failed` holds (workflow, step) pairs."""
+    steps, most-named first. `failed` holds (workflow, step) pairs.
+
+    A bare file name stands for a changed path only when no other file in the
+    diff or the tracked tree has that name. `index.html` is the name of
+    hundreds of pages, so a step that printed it said nothing about which one;
+    counted, it put a polish run's one-line index.html edit next to the real
+    cause, an over-long post description (seeded 2026-11-17: 2 of 4 failed
+    steps 'named' it, neither about that page). `tree_counts` is
+    tree_basename_counts(), passed in by tests."""
+    if tree_counts is None:
+        tree_counts = tree_basename_counts() if failed else {}
     names: dict[str, list[str]] = {}
     for path in set(changed):
         names.setdefault(os.path.basename(path), []).append(path)
+    names = {base: ps for base, ps in names.items()
+             if tree_counts.get(base, 0) <= 1}
     seen: dict[str, list[str]] = {}
     for name, step in failed:
         hits = {p for p in changed if p in step.paths}
@@ -2510,8 +2548,12 @@ def main(argv=None) -> int:
 def _main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("workflow", nargs="?",
-                    help="file name under .github/workflows/")
+    # Several names run one after another (friction 2026-11-16/17: "Takes one
+    # workflow per call", and a re-run of three voided workflows needed three
+    # invocations because --only was refused without a sweep).
+    ap.add_argument("workflow", nargs="*",
+                    help="file name(s) under .github/workflows/ (.yml "
+                         "optional); several run in turn, one verdict each")
     ap.add_argument("--for-changes", metavar="BASE", nargs="?", const="origin/main",
                     help="run every workflow the current diff against BASE "
                          "would start (default base origin/main)")
@@ -2528,7 +2570,8 @@ def _main(argv=None) -> int:
     ap.add_argument("--only", metavar="NAMES",
                     help="with --for-changes or --tree: run only these of the "
                          "selected workflows (comma-separated file names, "
-                         ".yml optional), e.g. --only doc-refs-ci,prompts-ci")
+                         ".yml optional), e.g. --only doc-refs-ci,prompts-ci; "
+                         "on its own: run these workflows by name")
     ap.add_argument("--force", action="store_true",
                     help="allow a workflow that is not verification-only")
     ap.add_argument("--timeout", type=int, default=900,
@@ -2566,22 +2609,57 @@ def _main(argv=None) -> int:
         args.for_changes = LOCAL_BASE["ref"] = "origin/main"
         return run_for_changes(args)
 
-    if args.only:
-        print("--only narrows a sweep: pass it with --for-changes or --tree",
-              file=sys.stderr)
+    if args.only and args.workflow:
+        print("name workflows or pass --only, not both (--only alone runs "
+              "the named workflows; with --for-changes or --tree it narrows "
+              "the sweep)", file=sys.stderr)
         return 2
+    names = sorted(only_names(args.only)) if args.only else list(args.workflow)
 
-    if not args.workflow:
+    if not names:
         print("name a workflow, --for-changes to select by diff, or --tree "
               "to sweep the whole checkout", file=sys.stderr)
         return 2
 
-    name = os.path.basename(args.workflow)
-    path = os.path.join(WORKFLOWS, name)
-    if not os.path.isfile(path):
-        print(f"no such workflow: .github/workflows/{name}", file=sys.stderr)
+    names = [workflow_file(n) for n in names]
+    missing = [n for n in names if not os.path.isfile(os.path.join(WORKFLOWS, n))]
+    if missing:
+        for n in missing:
+            print(f"no such workflow: .github/workflows/{n}", file=sys.stderr)
         return 2
+    if len(names) == 1:
+        return _run_one(names[0], args)
+    codes = []
+    for name in names:
+        codes.append((name, _run_one(name, args)))
+        print(flush=True)
+    return combine_named(codes)
 
+
+def workflow_file(name: str) -> str:
+    """`doc-refs-ci` or `.github/workflows/doc-refs-ci.yml` as `doc-refs-ci.yml`."""
+    name = os.path.basename(name.strip())
+    return name if name.endswith((".yml", ".yaml")) else name + ".yml"
+
+
+def combine_named(codes) -> int:
+    """One exit for several by-name runs: 0 only when every one passed.
+
+    A usage refusal (2) wins, then a failure (1), then the largest other
+    code; a summary line per workflow saves scrolling back for verdicts."""
+    print("Summary of the named workflows:")
+    for name, code in codes:
+        print(f"  exit {code}  {name}")
+    values = [c for _, c in codes]
+    for worst in (2, 1):
+        if worst in values:
+            return worst
+    return max(values)
+
+
+def _run_one(name: str, args) -> int:
+    """Run one workflow by name: the single-workflow path of `_main`."""
+    path = os.path.join(WORKFLOWS, name)
     workflow = load_workflow(path)
     only = None
     if name not in VERIFICATION_ONLY and not args.force:

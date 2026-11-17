@@ -474,6 +474,58 @@ floor friction swept.
 
 ![Nose windup and the matched compensator's residual against the hose's horizontal tension, and the stack points lost when the tension is unknown](experiments/m35_hose/figure.png)
 
+**Milestone 36: does a wrist force-torque sensor fix the hose?** The compensator now predicts each joint's load from the
+measured wrench instead of a no-hose model. With a Robotiq FT 300's listed noise (0.1 N, so 0.2 N at 2σ) the G1's worst
+residual along the wall at a 20 N drag falls from **2.34 to 0.29 mm**, and with the drag anywhere in 0–20 N the worst
+pose loses **1.6 points** instead of 91.6 (H135 held). Misjudging the joints' stiffness by 25% costs little (0.06–0.10 mm
+at 5 N; H134 refuted). But the residual does not fall below about **0.3–0.5 mm** whatever the sensor: at a 5 N drag a
+0.01 N error already leaves 0.27 mm and 0.2 N leaves **0.82 mm** (H132 refuted), because a held joint sitting within
+0.0014–0.05 N m of the 0.2 N m holding threshold gets predicted on the wrong side of its gap. The pre-2017 FT 300
+(1.2 N noise) is worse than no sensor (H133 held). The rule: measure the wrench for the windup, and keep held joints away
+from the threshold (a preload) before trusting model-based backlash compensation. The sharp threshold is milestone 30's
+model, not a measurement; statics only.
+
+![Residual along the wall with and without a wrist F/T sensor, the floor set by joints at the friction threshold, and the stack points lost](experiments/m36_wrist_ft/figure.png)
+
+**Milestone 37: does a held-joint preload remove the sensor's floor?** Here the controller plans once from the measured
+wrench and the robot then settles under the true load, a stricter error model than milestone 36's. Without a preload
+that leaves the G1 **1.38 mm** at a 5 N drag and costs **56.5 points** over 0–20 N, because the balance controller holds
+its chosen leg joints exactly at the friction threshold: 92% of the mispredicted joints are those (H136 held).
+Commanding every leg joint at least **0.1 N m** clear of the threshold removes every one of them and gives back milestone
+36's figures: **0.83 mm** at 5 N and **1.64 points** over 0–20 N, for 1.7% more leg torque and one of 15 G1 poses lost
+(H138 refuted). It does not reach the target of 0.1 mm (H137 refuted): what is left comes from waist and arm joints at the
+threshold, which no choice of ground reaction can move. A hedged compensator (a quarter gap near the threshold) does not
+halve the error (H140 refuted), and the pre-2017 FT 300 still leaves 1.35 mm (H139 held). The rule: hold leg joints a
+margin clear of the threshold; the arms need a different preload (a two-handed squeeze) or less backlash. The settle
+model and the 0.2 N m threshold are modelled, not measured; statics only.
+
+![Worst residual along the wall against the preload margin for two sensors, and the hedged compensator](experiments/m37_preload/figure.png)
+
+**Milestone 38: can a two-hand squeeze preload the arms?** A force pair along the line between the two grip points
+pushes the hands together (or apart) without changing the tool's wrench, so it moves only the arm joints: the base,
+legs and waist see at most 1e-16 N m per newton (H141 held). Chosen by the controller from its plan, a squeeze of up to
+**10 N** clears all 14 arm flips (H143 held). With milestone 37's leg preload and the FT 300, the G1's worst residual at a
+5 N drag falls from 0.83 to **0.49 mm** (H144 held) and at 20 N from 0.29 to 0.01 mm, and the 0–20 N stack loss from
+**1.64 to 0.05 points** (H1: 2.19 to 0.02). The G1's arm margin at 20 N is 0.07 N m at its worst pose, not the 0.1
+registered (H142 refuted). What is left, up to **0.50 mm**, is in the waist (the H1's torso), which no squeeze or ground
+reaction can move (H145 held). With the pre-2017 sensor the squeeze makes some cells worse. Side finding: holding the
+3.4 kg nailer, the G1's right wrist pitch already exceeds its 5 N m model rating at 7 of 14 poses, so the squeeze is
+not allowed to push any joint further past its limit. Grip force is swept (no hand publishes one), the squeeze is an
+ideal force pair, statics only.
+
+![Worst residual along the wall against the squeeze bound for two sensors, and which joints still flip](experiments/m38_squeeze/figure.png)
+
+**Milestone 39: what does the waist's backlash cost, and does a brake fix it?** Milestone 38 left up to 0.50 mm in the
+waist joints, whose torque only the tool's load sets. With its 10 N squeeze, milestone 37's leg preload and the FT 300,
+a **braked waist** (no gap) takes the G1's worst residual at a 5 N hose drag from 0.485 to **0.012 mm** (H146 held) and
+its 0–10 N stack loss from 5.80 to **0.04 points**; the H1 at 5 N goes from 0.501 to 0.019 mm. A **1 arcmin** waist
+gearbox gives 0.106 mm and 0.11 points (H148 held). Locking waist roll and pitch, as on the base G1 (one waist joint,
+unitree.com/g1), **changes nothing**: the joint that flips is the yaw (H147 held). With the pre-2017 sensor a braked
+waist still leaves 0.87 mm (H150 held). All five registered hypotheses held. The brake is ideal and locks at the posed
+angle (poses not re-solved); waist backlash is swept, not published; statics only.
+
+![Worst residual along the wall for each waist case and two sensors, and the clean-sheet loss over a drag range](experiments/m39_waist/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).

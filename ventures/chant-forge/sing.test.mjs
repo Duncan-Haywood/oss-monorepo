@@ -284,14 +284,16 @@ test('a short final -um is read against the vowel just before it: five beating v
     for (const sing of [true, 'vowels']) {
       const x = renderMidi(mid, { stems: true, sing }).stems.choir.channels[0];
       SY.forEach((s, j) => {
-        const read = (nearVowel) => readCoda(x, rate, sec(notes[j].tick) + 0.05, sec(notes[j].end) + 0.2, { nearVowel }).cls;
-        if (sing === true && s.endsWith('m')) { score.all++; if (read(true) === 'nasal') score.near++; if (read(false) === 'nasal') score.off++; }
-        else assert.equal(read(true), 'none', `${s} on ${midi}, ${P} pulses (${sing})`);
+        // both arms without the later lip-closure rule (README "A dark-vowel m"), which reads most of the same cells
+        // (31 of 32 with or without NEAR): this test measures NEAR's own share; `dflt` is the default reader
+        const read = (nearVowel, lipShut = false) => readCoda(x, rate, sec(notes[j].tick) + 0.05, sec(notes[j].end) + 0.2, { nearVowel, lipShut }).cls;
+        if (sing === true && s.endsWith('m')) { score.all++; if (read(true) === 'nasal') score.near++; if (read(false) === 'nasal') score.off++; if (read(true, true) === 'nasal') score.dflt = (score.dflt || 0) + 1; }
+        else assert.equal(read(true, true), 'none', `${s} on ${midi}, ${P} pulses (${sing})`);
       });
     }
   }
-  // measured 27 of 32 with it, 23 without (2026-11-15)
-  assert.ok(score.near >= score.off + 3 && score.near >= 0.8 * score.all, JSON.stringify(score));
+  // measured 27 of 32 with it, 23 without (2026-11-15); the default with lipShut 31 (2026-11-17)
+  assert.ok(score.near >= score.off + 3 && score.near >= 0.8 * score.all && score.dflt >= score.near, JSON.stringify(score));
 });
 
 test('high /i/ and /u/ keep their level: F1 raised to 1.1 x f0 (tuneF1)', () => {
@@ -410,12 +412,14 @@ test('the n of a cluster (-unt, -ens, nunc) reads as its murmur, not as the stop
     const notes = m.notes.filter((n) => n.ch === 0).sort((a, b) => a.tick - b.tick);
     const x = renderMidi(mid, { stems: true, sing: true }).stems.choir.channels[0];
     [...POS, ...NEG].forEach((s, j) => {
-      const read = (preObstruent) => readCoda(x, rate, sec(notes[j].tick) + 0.1, Math.min(sec(notes[j].end) + 0.25, sec(notes[j + 1]?.tick ?? 1e9)), { preObstruent }).cls;
-      if (POS.includes(s)) { score.all++; if (read(true) === 'nasal') score.on++; if (read(false) === 'nasal') score.off++; }
+      // both arms without the later lip-closure rule (README "A dark-vowel m"): this test measures PRE's own share
+      const read = (preObstruent, lipShut = false) => readCoda(x, rate, sec(notes[j].tick) + 0.1, Math.min(sec(notes[j].end) + 0.25, sec(notes[j + 1]?.tick ?? 1e9)), { preObstruent, lipShut }).cls;
+      if (POS.includes(s)) { score.all++; if (read(true) === 'nasal') score.on++; if (read(false) === 'nasal') score.off++; if (read(true, true) === 'nasal') score.dflt = (score.dflt || 0) + 1; }
       else if (read(true) === 'nasal') assert.equal(read(false), 'nasal', `${s} on ${midi}: the rule added a nasal`);
+      else assert.notEqual(read(true, true), 'nasal', `${s} on ${midi}: the lip-closure rule added a nasal`);
     });
   }
-  assert.ok(score.on >= score.off + 4 && score.on >= 13, JSON.stringify(score));
+  assert.ok(score.on >= score.off + 4 && score.on >= 13 && score.dflt >= score.on, JSON.stringify(score));
 });
 
 test('a cluster murmur on C4 is not thrown out by the obstruent after it (nunc, tunc, mens)', () => {
@@ -529,7 +533,7 @@ test('closeAnchor (opt-in) closes a voice bar against the last vowel-like frames
   for (const s of ['eb', 'ib']) {
     const j = SY.indexOf(s), on = read(j, { localRef: false, closeAnchor: true });
     assert.deepEqual([on.cls, on.voiced, on.place], ['stop', true, 'lab'], `${s} with closeAnchor`);
-    assert.equal(read(j, { localRef: false }).cls, 'none', `${s}: the reference alone`);
+    assert.equal(read(j, { localRef: false, barBurst: false }).cls, 'none', `${s}: the reference alone`); // barBurst (README "No burst on C#4-E4") reads it even so
   }
   for (const s of ['ep', 'ec', 'ic']) assert.equal(read(SY.indexOf(s), { localRef: false, closeAnchor: true }).cls, 'stop', s);
 });

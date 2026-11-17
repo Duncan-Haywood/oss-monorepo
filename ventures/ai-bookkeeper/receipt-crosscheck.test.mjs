@@ -421,3 +421,123 @@ test("a whole-unit slip's unreadable tax is the total split at 10% when a subtot
   assert.equal(parseReceiptPasses([e, "CAFE", e, "CAFE"]).taxCents, null);
 });
 
+
+test("a printed tip or service charge counts in the tax vote's arithmetic", () => {
+  // ExpressExpense 1182 in shape: the first reading lost the resort tax (2.80), the second
+  // added both tax lines (3.60), which close to the final total only with the tip the third
+  // reading read; on a tie the first reading's 2.80 won
+  const a = "GRILL\nSub-total: 40.00\nSales Tax 7%: 2.80\nesort tax 2% '0,\nVoluntary 18% Tip: 720\nTotal 50.80";
+  const b = "GRILL\nSub-total: 40.00\nSales Tax 7%: 2.80\nResort Tax 2%: 0.80\nTotal 43.60\nVoluntary 18% Tip a\nTotal 50.80";
+  const c = "GRILL\nsub-total : 40.00\nResort tax 2%: xe\nVoluntary 18% Tip: 7.20\nTotal 50.80";
+  const p = parseReceiptPasses([a, b, c, "GRILL\nTotal! 50.80"]);
+  assert.equal(p.cents, 5080);
+  assert.equal(p.taxCents, 360);
+});
+
+test("an unreadable tax line is the total less the subtotal and the service charge", () => {
+  // CORD train-429 in shape: the TAX line's amount lost, a service charge printed
+  const a = "CAFE\nSUBTTL 216,000\nService Charge 17,280\nTAX\nTOTAL 256,608";
+  const p = parseReceiptPasses([a, "CAFE", a, "CAFE"]);
+  assert.equal(p.taxCents, 2332800);
+  assert.ok(p.notes.some((n) => /less the subtotal and the service charge/.test(n)));
+  // no tax word in any reading ("Others" may be anything): no tax is guessed
+  const d = "CAFE\nSub Total 243.000\nService 13.365\nOthers 25.637\nGRAND TOTAL 282.000";
+  assert.equal(parseReceiptPasses([d, "CAFE", d, "CAFE"]).taxCents, null);
+  // a suggested-tip table is not a service charge
+  const e = "CAFE\nSUBTOTAL 30.00\nTAX\nTOTAL 32.40\nSuggested tip 18% 5.40";
+  assert.equal(parseReceiptPasses([e, "CAFE", e, "CAFE"]).taxCents, 240);
+});
+
+test("change and quantity lines are not the total, misread or not", () => {
+  // CORD validation-70 and -61 in shape: "Total Qty" read "Total aty", "Total Kembalian" (change)
+  const a = "RESTO\nSUBTOTAL 103,000\nService 7,725\nPB1 11,073\nTOTAL 121,798\nTotal item 3 Total aty 3";
+  assert.equal(parseReceipt(a).cents, 12179800);
+  const b = "WARUNG\nSub Total 7,500\nPajak Resto (10%) 750\nTotal Bayar 8,250\nUang Bayar 10,000\nTotal Kembalian 1,750";
+  assert.equal(parseReceipt(b).cents, 825000);
+});
+
+test("a total in doubt is the receipt's own sum one digit from a total line", () => {
+  // CORD validation-87 in shape: the readings' total lines disagree (73,000 and 23,000);
+  // cash 30,000 less change 1,000 in two readings makes 29,000, one digit from 23,000
+  const a = "KEDAI\nTotal: 73,000\nCash: 30,000\nCHANGE: 1,000";
+  const b = "KEDAI\nTotal: 23,000\nCash: 30,000\nCHANGE : 1,000";
+  const p = parseReceiptPasses([a, "KEDAI", b, "KEDAI"]);
+  assert.equal(p.cents, 2900000);
+  assert.ok(p.notes.some((n) => /receipt's own sums give/.test(n)));
+  // validation-85 in shape: one total line (13,000) below a subtotal read twice (13,636);
+  // one reading's cash less change makes 15,000, and the tax follows from the total
+  const c = "KOPI\nSubTotal: 13,636\nTotal: 13,000\ncash: 20,000";
+  const d = "KOPI\nSubTotal: 13,636\ncash: 20,000\nChange: 5,000";
+  const q = parseReceiptPasses([c, c, "KOPI", d]);
+  assert.equal(q.cents, 1500000);
+  assert.equal(q.taxCents, 136400);
+});
+
+test("a total every reading agrees on stands against a short cash line", () => {
+  // CORD train-81 and test-14 in shape: cash less change below the total (another tender,
+  // a misprint) is no reason to doubt a total every reading prints
+  const a = "TOKO\nTOTAL 36,000\nCASH 35,000\nCHANGE 0";
+  assert.equal(parseReceiptPasses([a, a, a]).cents, 3600000);
+  // a total line that starts with 0 lost a digit, so it is no reference (validation-33)
+  const b = "TOKO\nTOTAL 57,500";
+  const c = "TOKO\nTOTAL 07,900\nCASH 7,500\nCHANGE 0", d = "TOKO\nTOTAL 97,900\nCASH 7,500\nCHANGE 0";
+  assert.equal(parseReceiptPasses([b, d, "TOKO", c]).cents, 5750000);
+});
+
+test("a change line OCR read without its C still closes cash less change", () => {
+  // SRD 1022 in shape: "HANGE 62.63"
+  const a = parseReceipt("CAFE\n10/29/2018\nTOTAL: 37.37\nCASH: 100.00\nHANGE 62.63");
+  assert.ok(a.checks.some(([v, w]) => v === 3737 && w === "cash less change"));
+  // a bare "ange" is not the change line: "Orange Crush" read as "'ange Crsh" (SRD 1002)
+  const c = parseReceipt("CAFE\n10/29/2018\nTotal 17.00\nCash 20.00\nange Crsh 1.99");
+  assert.ok(!c.checks.some(([, w]) => w === "cash less change"));
+});
+
+test("a bare TL after a tax word is OCR noise, not a total line", () => {
+  // SRD 1022's grey reading: "Tax (8.75%): 44 Of tl Bit." took 8.75 as the total
+  const r = parseReceipt("CAFE\n10/29/2018\nSUBTOTAL: 29.88\nTax (8.75%): 3.01 tl\nTOTAL: 32.89");
+  assert.equal(r.cents, 3289);
+  assert.equal(r.taxCents, 301);
+  // "TL 12.50" alone is still a total line
+  assert.equal(parseReceipt("CAFE\n10/29/2018\nCOFFEE 12.50\nTL 12.50").cents, 1250);
+});
+
+test("a total line under its own reading's subtotal loses its total-line vote when cash less change is above it", () => {
+  // SRD 1022 in shape: one reading's "TOTAL: 7.07" sits under its "SUBTOTAL: 29.88"; another
+  // reading prints 37.37 with no total word, a third's cash less change makes 37.37
+  const a = "CAFE\n10/29/2018\nWEEKDAY DINNER 29.88\nTax 3.01\nPep yh 37.37";
+  const b = "CAFE\n10/29/2018\nSUBTOTAL: 29.88\nTOTAL: 7.07";
+  const d = "CAFE\nCASH: 100.00\nHANGE 62.63";
+  assert.equal(parseReceiptPasses([a, b, "CAFE\n29.88", d]).cents, 3737);
+  // with no cash less change above the subtotal the total line keeps its point (CORD
+  // validation-61 and -78: the rule alone traded one wrong total for another)
+  assert.equal(parseReceiptPasses([a, b, "CAFE\n29.88", "CAFE"]).cents, 707);
+});
+
+test("RECEIPT_OCR_LEAD reads the photo with a second engine first, and its failure is dropped", async () => {
+  const { receiptPassesFromFile } = await import("./ocr.mjs");
+  const calls = [];
+  const run = (cmd, args) => {
+    calls.push([cmd, ...args].join(" "));
+    if (cmd === "pp") return { status: 0, stdout: "KEDAI MAJU\nTotal 31.000" };
+    return { status: 0, stdout: args.includes("4") ? "KEDAI MAJU\nTotal 34.000" : "KEDAI MAJU\nTotal 31.000" };
+  };
+  const t = receiptPassesFromFile("slip.jpg", { run, env: { RECEIPT_OCR_LEAD: "pp read {file}" } });
+  assert.equal(t.length, 3);
+  assert.equal(calls[0], "pp read slip.jpg");
+  assert.match(t[0], /31\.000/);
+  // a lead engine that fails, or prints nothing, leaves tesseract's readings
+  const bad = (cmd, args) => (cmd === "pp" ? { status: 1, stdout: "" } : run(cmd, args));
+  assert.equal(receiptPassesFromFile("slip.jpg", { run: bad, env: { RECEIPT_OCR_LEAD: "pp {file}" } }).length, 2);
+  // a lead function (cli.mjs --rapidocr --four-pass passes receiptTextRapid) leads the same way
+  calls.length = 0;
+  const viaFn = receiptPassesFromFile("slip.jpg", { run, env: {}, lead: (p) => `KEDAI MAJU\nTotal 31.000\n${p}` });
+  assert.equal(viaFn.length, 3);
+  assert.match(viaFn[0], /slip\.jpg/);
+  assert.equal(receiptPassesFromFile("slip.jpg", { run, env: {}, lead: () => { throw new Error("no python"); } }).length, 2);
+  // a PDF is not given to the lead engine (pdftotext reads it, once)
+  calls.length = 0;
+  const pdf = (cmd, args) => { calls.push(cmd); return { status: 0, stdout: "KEDAI MAJU\nTotal 31.000" }; };
+  assert.equal(receiptPassesFromFile("slip.pdf", { run: pdf, env: { RECEIPT_OCR_LEAD: "pp {file}" } }).length, 1);
+  assert.deepEqual(calls, ["pdftotext"]);
+});

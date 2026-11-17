@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Compare this checker with IfcOpenShell's IfcTester on real models.
 
-    pip install ifctester ifcopenshell
+    pip install ifcopenshell==0.9.0.post1 ifctester==0.9.0
+    (install a matching pair: ifctester 0.8.0 crashes with ifcopenshell
+    0.9.0.post1 ("no attribute 'wrapped_data'"); 0.9.0 with 0.9.0.post1 runs,
+    eval/exclusive-bounds-2026-11-17.md and eval/corpus-crosscheck-2026-11-17.md)
     python3 eval/crosscheck_ifctester.py SPEC.ids MODEL.ifc [MODEL.ifc ...]
 
 For each model and specification, prints IfcTester's verdict and failing

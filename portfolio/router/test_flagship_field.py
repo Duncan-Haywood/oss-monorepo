@@ -248,8 +248,8 @@ def test_replace_and_park_in_one_call(tmp_path):
     longer = "(3) item 3 landed (README); next a much longer follow-up " + "z" * 150
     old = "(3) item 3 " + "w" * 183
     base = ["b", "--file", str(f), "--ventures-dir", str(tmp_path / "ventures")]
-    # alone, the longer wording is refused and nothing is written
-    assert ff.main(base + ["--replace", old, longer]) == 1
+    # with --no-make-room, the longer wording is refused and nothing is written
+    assert ff.main(base + ["--replace", old, longer, "--no-make-room"]) == 1
     assert f.read_text() == doc
     item9 = "(9) item 9 " + "w" * 183
     assert ff.main(base + ["--replace", old, longer, "--park", item9]) == 0
@@ -397,3 +397,73 @@ def test_buildable_read_shows_cap(tmp_path, capsys):
     f.write_text(DOC)
     assert ff.main(["a", "--field", "buildable", "--file", str(f)]) == 0
     assert f"-- 15 of {ff.FLAGSHIP_BUILDABLE_MAX} characters" in capsys.readouterr().err
+
+
+def test_cli_refused_write_says_not_written(tmp_path, capsys):
+    doc = DOC.replace("    next: >-\n      Only b.\n", "".join(ff.wrap("next", _full_row(10, 195))))
+    f = tmp_path / "flagships.yaml"
+    f.write_text(doc)
+    old = "(3) item 3 " + "w" * 183
+    assert ff.main(["b", "--file", str(f), "--replace", old, old + " " + "z" * 300]) == 1
+    assert "NOT WRITTEN" in capsys.readouterr().err and f.read_text() == doc
+    # a read or a --check that fails is not a write attempt
+    assert ff.main(["nosuch", "--file", str(f), "--field", "next"]) == 1
+    assert "NOT WRITTEN" not in capsys.readouterr().err
+
+
+def test_make_room_parks_down_to_the_target_not_just_the_cap():
+    # Rows parked only to the cap were full again for the next run (18
+    # sessions in 3 days, friction_rank.py 2026-11-17); a park leaves headroom.
+    v = _full_row(11, 190)
+    got, parked = ff.make_room(v)
+    assert len(ff.with_pointer(got)) <= ff.FLAGSHIP_NEXT_TARGET
+    # a row under the cap is left alone unless the trigger is the target
+    row = _full_row(10, 185)
+    assert ff.FLAGSHIP_NEXT_TARGET < len(row) <= ff.FLAGSHIP_NEXT_MAX
+    assert ff.make_room(row) == (row, [])
+    got, parked = ff.make_room(row, trigger=ff.FLAGSHIP_NEXT_TARGET)
+    assert parked and len(ff.with_pointer(got)) <= ff.FLAGSHIP_NEXT_TARGET
+
+
+def test_make_room_settles_for_the_cap_when_the_target_is_out_of_reach():
+    mine = "(1) item 1 " + "m" * 1750
+    v = f"History: README. Next: {mine}; (2) a short tail item"
+    got, parked = ff.make_room(v + "q" * 300, keep=(mine,))
+    assert ff.FLAGSHIP_NEXT_TARGET < len(got) <= ff.FLAGSHIP_NEXT_MAX and parked
+
+
+def test_replace_over_the_cap_parks_by_itself(tmp_path, capsys):
+    row = _full_row(10, 195)
+    doc = DOC.replace("    next: >-\n      Only b.\n", "".join(ff.wrap("next", row)))
+    f = tmp_path / "flagships.yaml"
+    f.write_text(doc)
+    (tmp_path / "ventures" / "b").mkdir(parents=True)
+    old = "(3) item 3 " + "w" * 183
+    longer = "(3) item 3 landed (README); next a much longer follow-up " + "z" * 150
+    base = ["b", "--file", str(f), "--ventures-dir", str(tmp_path / "ventures")]
+    assert ff.main(base + ["--replace", old, longer]) == 0
+    got = ff.read_value(f.read_text(), "b", "next")
+    assert longer in got and len(got) <= ff.FLAGSHIP_NEXT_TARGET
+    assert "--make-room parked" in capsys.readouterr().err
+    assert (tmp_path / "ventures" / "b" / "NEXT.md").exists()
+
+
+def test_trim_parks_a_full_row_to_the_target(tmp_path):
+    row = _full_row(10, 185)
+    doc = DOC.replace("    next: >-\n      Only b.\n", "".join(ff.wrap("next", row)))
+    f = tmp_path / "flagships.yaml"
+    f.write_text(doc)
+    (tmp_path / "ventures" / "b").mkdir(parents=True)
+    base = ["b", "--file", str(f), "--ventures-dir", str(tmp_path / "ventures")]
+    assert ff.main(base + ["--trim"]) == 0
+    got = ff.read_value(f.read_text(), "b", "next")
+    assert len(got) <= ff.FLAGSHIP_NEXT_TARGET and got.endswith(ff.PARK_POINTER)
+    assert ff.read_value(f.read_text(), "a", "next") == ff.read_value(doc, "a", "next")
+
+
+def test_items_split_only_outside_brackets():
+    v = "History: README. Next: (a) one (with x; y inside); (b) two [p; q]; (c) three."
+    assert ff.split_items(v) == ["History: README. Next: (a) one (with x; y inside)",
+                                 "(b) two [p; q]", "(c) three."]
+    got = [c for c, _ in ff.park_candidates(v, 1000)]
+    assert "(b) two [p; q]" in got and not any(c.endswith("inside)") and "(with" not in c for c in got)

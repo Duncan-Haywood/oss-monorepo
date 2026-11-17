@@ -185,7 +185,9 @@ export function analyze(sharedIn, jobsIn, bidsIn) {
   const { jobs, warnings: jw } = cleanJobs(jobsIn);
   const { bids, warnings: bw } = cleanBids(bidsIn);
   const warnings = [...jw, ...bw];
-  if (sh.workingCapital <= 0) warnings.push("Enter your working capital (current assets minus current liabilities); the limits depend on it.");
+  const rawWc = Number(sharedIn?.workingCapital);
+  if (Number.isFinite(rawWc) && rawWc < 0) warnings.push("Working capital is negative; multiples of it give no bonding capacity. A surety will look for an equity injection or subordinated debt first.");
+  else if (sh.workingCapital <= 0) warnings.push("Enter your working capital (current assets minus current liabilities); the limits depend on it.");
   if (!bids.length) warnings.push("Enter at least one bid with a direct cost.");
   if (sh.workingCapital <= 0 || !bids.length) return { ok: false, warnings };
 

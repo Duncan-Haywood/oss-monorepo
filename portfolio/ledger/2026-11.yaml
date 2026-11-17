@@ -148,3 +148,20 @@ entries:
         headless Chromium at 1200 and 390 px with no console errors. Not yet
         tried on a real school's timetable or the ITC 2011 archive.
     mrr_end: 0
+  - venture: cash-application-matcher
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore run (free choice): started ventures/cash-application-matcher, a
+        browser page and Node CLI that proposes which open invoices each bank
+        receipt pays: remittance invoice numbers, payer names (truncation,
+        suffixes, abbreviations), a bounded subset search over the customer's
+        open invoices with 2/10 net 30 discounts and a bank-charge limit, FIFO
+        ties, short-pays and late discounts flagged for review. On a seeded
+        synthetic benchmark (1,606 generated receipts, not real statements)
+        High proposals were 99.8% exact, Medium 97.3%, Review 63.5%; every
+        High/Medium miss was an equal-amount swap. 23 tests, three seeded bugs
+        caught; driven in headless Chromium at 1200 and 390 px with no console
+        errors. Not yet run on a real company's AR and bank exports.
+    mrr_end: 0

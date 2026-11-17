@@ -19,6 +19,7 @@ import { NILE_CSV } from './example-data.mjs';
 import { slopeBreaks } from './slope-breaks.mjs';
 import { hingeTest } from './hinge-test.mjs';
 import { twoHingeTest } from './two-hinge.mjs';
+import { knownDateTest, placeboCheck } from './known-date.mjs';
 
 import { groupRamps } from './ramps.mjs';
 import { updateRateChanges, updateRateLines } from './update-rate.mjs';
@@ -1639,6 +1640,8 @@ export function pelt(x, { model = 'mean', penalty = 'bic', minSegment = 2, sigma
   // prune test against F(t - 1) is dropped as it is reached, so R is walked once per step, not twice. The same starts are
   // scored in the same order against the same values, so the same changepoints
   // (docs/history/ci-perf-2026-11-11-pelt-inner-loop.md, ci-perf-2026-11-11-median-select-pelt-one-pass.md).
+  // The 'mean' cost runs in its own loop, peltMeanLoop, with nothing else in its body: about 23% faster per call on the 195-point
+  // trend fits, the same bits (docs/history/ci-perf-2026-11-17-changepoint-pelt-mean-loop.md).
   let R = new Int32Array(n + 1), V = new Float64Array(n + 1), r = 1;
   V[0] = -Infinity; // a new start is kept unconditionally, as before
   let S1 = null, S2 = null, s2 = 0;
@@ -1654,6 +1657,7 @@ export function pelt(x, { model = 'mean', penalty = 'bic', minSegment = 2, sigma
     for (let i = 0; i < n; i++) { P1[i + 1] = P1[i] + x[i]; PE[i + 1] = PE[i] + (exposure ? exposure[i] : 1); }
   }
   let prev = Infinity; // F at the previous step, the bound the stored values are pruned against
+  if (mean) return peltMeanLoop(n, minSeg, beta, F, last, R, V, S1, S2, s2);
   for (let t = minSeg; t <= n; t++) {
     let best = Infinity;
     let arg = -1;
@@ -1666,16 +1670,45 @@ export function pelt(x, { model = 'mean', penalty = 'bic', minSegment = 2, sigma
       R[k] = s;
       if (t - s < minSeg) { V[k++] = -Infinity; continue; }
       let c;
-      if (mean) {
-        const m = t - s;
-        const a = S1[t] - S1[s];
-        c = Math.max(0, S2[t] - S2[s] - (a * a) / m) / s2;
-      } else if (poisson) {
+      if (poisson) {
         const m = PE[t] - PE[s];
         const a = P1[t] - P1[s];
         c = a > 0 && m > 0 ? 2 * (a - a * Math.log(a / m)) : 0;
       } else c = cost(s, t);
       const v = F[s] + c + beta;
+      V[k++] = v;
+      if (v < best) { best = v; arg = s; }
+    }
+    F[t] = best;
+    last[t] = arg;
+    if (Number.isFinite(best)) { R[k] = t; V[k++] = -Infinity; }
+    r = k;
+    prev = best;
+  }
+  const cps = [];
+  for (let t = n; last[t] > 0; t = last[t]) cps.push(last[t]);
+  cps.reverse();
+  return { changepoints: cps, cost: F[n], penalty: beta };
+}
+
+// PELT's step loop for the 'mean' cost alone: the same starts, the same pruning, the same cost expression in the same order as
+// the general loop's mean branch, so the same F, the same changepoints and the same cost to the bit.
+function peltMeanLoop(n, minSeg, beta, F, last, R, V, S1, S2, s2) {
+  let r = 1, prev = Infinity;
+  for (let t = minSeg; t <= n; t++) {
+    let best = Infinity;
+    let arg = -1;
+    let k = 0;
+    const St1 = S1[t], St2 = S2[t];
+    for (let i = 0; i < r; i++) {
+      const vi = V[i];
+      if (!(vi - beta <= prev)) continue;
+      const s = R[i];
+      R[k] = s;
+      const m = t - s;
+      if (m < minSeg) { V[k++] = -Infinity; continue; }
+      const a = St1 - S1[s];
+      const v = F[s] + Math.max(0, St2 - S2[s] - (a * a) / m) / s2 + beta;
       V[k++] = v;
       if (v < best) { best = v; arg = s; }
     }
@@ -2449,6 +2482,7 @@ export function analyze(input = {}) {
     ...(o.slopeBreaks ? { slopeBreaks: slopeBreakReport(values, labels, o.slopeBreaks) } : {}),
     ...(o.hingeTest ? { hingeTest: hingeTestReport(values, labels, o.hingeTest, { log: !!o.log }) } : {}),
     ...(o.twoHingeTest ? { twoHingeTest: twoHingeTestReport(values, labels, o.twoHingeTest, { log: !!o.log }) } : {}),
+    ...(o.knownDate != null && o.knownDate !== '' && o.knownDate !== false ? { knownDate: knownDateReport(values, labels, o.knownDate, { log: !!o.log, period: Number(o.period) || 0 }) } : {}),
     pelt: { penalty: round(p.penalty), minSegment, changepoints: changes, segments },
     bocpd: {
       hazardLambda: Number(o.hazardLambda) || 100,
@@ -2507,6 +2541,44 @@ export function hingeTestReport(values, labels, opt, { log = false } = {}) {
     slopeBefore: Number(h.slopeBefore.toPrecision(4)), slopeAfter: Number(h.slopeAfter.toPrecision(4)), significant: h.p <= 0.05, note,
     ...(h.admittedByCut ? { admittedByCut: true, rhoLine: Number(h.rhoLine.toFixed(3)), rhoHinge: Number(h.rhoHinge.toFixed(3)), cutBar: Number(h.cutBar.toFixed(3)) } : {}),
   };
+}
+
+/**
+ * A step and a change of slope at a date the user names (known-date.mjs; README "A date you name", round 5 ships):
+ * segmented regression with AR(1) noise and a parametric bootstrap, the CLI's `--known-date` settings. `opt` is the
+ * label of the first row after the change, or { date, reps, seed }. `values` are already logged when `log` is on.
+ * A series let through only by the random-walk cut comes back `calibrated: false`: round 6 (README, "Round 6") found
+ * that neither round 5's p nor a bootstrap conditioned on the cut tells a real step from noise on those series.
+ */
+export function knownDateReport(values, labels, opt, { log = false, period = 0 } = {}) {
+  const o = typeof opt === 'object' && opt ? opt : { date: opt };
+  const date = String(o.date ?? '').trim();
+  const k = labels.findIndex((l) => String(l) === date);
+  if (k < 0) throw new Error(`Known date ${date}: no row has that label (labels run ${labels[0]} to ${labels[labels.length - 1]}; give the first row after the change).`);
+  const h = knownDateTest(values, k, { period, reps: Number(o.reps) || 499, seed: Number(o.seed) || 1, rhoGenMethod: 'gated', gateRho: 0.5 });
+  const scale = log ? 'log' : 'levels';
+  const note = 'Segmented regression at the date you named: a line before it, a step and a change of slope at it, AR(1) noise, p-values from a parametric bootstrap (pre-registered over five rounds; at p 0.05 it flagged 1.0-5.8% of simulated no-change lines of 40-120 points). A small p says the line before the date does not carry on through it, not what caused the change; a control series the change should not touch is the best check.';
+  const base = { date, firstAfter: labels[k] ?? String(k), lastBefore: k > 0 ? labels[k - 1] ?? String(k - 1) : null, scale, note };
+  if (h.refused) return { refused: true, reason: h.reason, ...base };
+  const r3 = (v) => Number(Number(v).toPrecision(3)), r4 = (v) => Number(v.toFixed(4));
+  return {
+    refused: false, ...base, k, period: h.period, reps: h.reps,
+    step: r3(h.step), stepRange95: h.stepRange95.map(r3), pStep: r4(h.pStep),
+    slopeBefore: r3(h.slopeBefore), slopeChange: r3(h.slopeChange), slopeChangeRange95: h.slopeChangeRange95.map(r3), pSlope: r4(h.pSlope),
+    p: r4(h.p), pTable: r4(h.pTable), effectAverage: r3(h.effectAverage), effectAtEnd: r3(h.effectAtEnd),
+    rho: Number(h.rho.toFixed(3)), gated: !!h.gated, rhoGen: h.rhoGen.map((v) => Number(v.toFixed(3))),
+    calibrated: !h.admittedByCut, significant: !h.admittedByCut && h.p <= 0.05,
+    ...(h.admittedByCut ? { admittedByCut: true, rhoLine: Number(h.rhoLine.toFixed(3)), cutBar: Number(h.cutBar.toFixed(3)) } : {}),
+    ...(o.placebo === false ? {} : { placebo: placeboFields(values, k, labels, period, Number(o.seed) || 1, Math.min(199, Number(o.reps) || 499)) }),
+  };
+}
+
+// In-time placebos beside the named-date test (README "In-time placebos", eval/known-date-prereg-placebo-2026-11-17.md):
+// the same test on the before-period only, at up to three dates; `warn` when 2 or more give p <= 0.05. Off with
+// knownDate: { placebo: false }.
+function placeboFields(values, k, labels, period, seed, reps) {
+  const pc = placeboCheck(values, k, { period, seed, reps });
+  return { dates: pc.dates.map((d) => (d.refused ? { label: labels[d.k] ?? String(d.k), refused: true } : { label: labels[d.k] ?? String(d.k), refused: false, p: Number(d.p.toFixed(4)) })), tested: pc.tested, fired: pc.fired, warn: pc.warn };
 }
 
 /**

@@ -145,6 +145,89 @@ test("BCF export is a valid zip with one topic per failing element", () => {
   assert.equal(dv.getUint16(eocd + 10, true), 2 + failing * 2);
 });
 
+// Reads back a stored zip written by zipStore: { name: text }.
+async function bcfFiles(zip) {
+  const { zipEntries } = await import("./zip.mjs");
+  const out = {};
+  for (const e of zipEntries(zip)) {
+    const start = e.offset + 30 + (zip[e.offset + 26] | (zip[e.offset + 27] << 8)) + (zip[e.offset + 28] | (zip[e.offset + 29] << 8));
+    out[e.name] = new TextDecoder().decode(zip.subarray(start, start + e.csize));
+  }
+  return out;
+}
+const oneFail = (extra = {}) => ({ title: "t", specs: [{ name: "s", status: "fail", note: null, failed: [{ id: 1, type: "IFCWALL", globalId: "1Lz5$gbjv4GQ6_kuh4Wa3J", name: "w", reasons: ["r"] }], ...extra }] });
+
+test("BCF markup never carries an IfcProject attribute BCF 2.1's schema rejects", async () => {
+  // markup.xsd types IfcProject as IfcGuid: exactly 22 characters, so the
+  // empty value once written made every markup.bcf fail schema validation.
+  const files = await bcfFiles(bcfZip(oneFail(), { date: "2026-01-01T00:00:00Z" }));
+  const markups = Object.entries(files).filter(([n]) => n.endsWith("/markup.bcf"));
+  assert.equal(markups.length, 1);
+  for (const [, x] of markups) {
+    for (const m of x.matchAll(/(IfcProject|IfcSpatialStructureElement)="([^"]*)"/g)) assert.match(m[2], /^[0-9A-Za-z_$]{22}$/, m[0]);
+  }
+});
+
+test("BCF text drops characters XML 1.0 cannot hold, so the markup still parses", async () => {
+  const r = oneFail();
+  r.specs[0].name = "bell\u0007 spec\uD800";
+  r.specs[0].failed[0].name = "wall\u0001";
+  r.specs[0].failed[0].reasons = ["tab\tand\nnewline stay", "nul\u0000gone"];
+  const files = await bcfFiles(bcfZip(r, { date: "2026-01-01T00:00:00Z" }));
+  const [x] = Object.entries(files).filter(([n]) => n.endsWith("/markup.bcf")).map(([, v]) => v);
+  assert.doesNotMatch(x, /[\u0000-\u0008\u000b\u000c\u000e-\u001f]|[\ud800-\udfff]/);
+  assert.match(x, /<Title>bell spec: IFCWALL wall<\/Title>/);
+  assert.match(x, /<Description>tab\tand\nnewline stay\nnulgone<\/Description>/);
+  assert.equal(parseXml(x).local, "Markup");
+});
+
+test("BCF: a failed specification with no element and no note still says why", async () => {
+  for (const note of [null, ""]) {
+    const files = await bcfFiles(bcfZip({ specs: [{ name: "Project named", status: "fail", note, failed: [] }] }, { date: "2026-01-01T00:00:00Z" }));
+    const x = Object.entries(files).find(([n]) => n.endsWith("/markup.bcf"))[1];
+    assert.match(x, /<Description>specification failed<\/Description>/);
+    assert.doesNotMatch(x, /Viewpoints/);
+  }
+  const noted = await bcfFiles(bcfZip({ specs: [{ name: "p", status: "invalid", note: "bad IDS", failed: [] }] }, { date: "2026-01-01T00:00:00Z" }));
+  assert.match(Object.values(noted).join(""), /<Description>bad IDS<\/Description>/);
+});
+
+test("BCF guids are version-4 UUIDs on every randomness source", async () => {
+  const saved = Object.getOwnPropertyDescriptor(globalThis, "crypto");
+  const random = Math.random;
+  const guids = async () => Object.keys(await bcfFiles(bcfZip(oneFail(), { date: "2026-01-01T00:00:00Z" }))).filter((n) => n.endsWith("/markup.bcf")).map((n) => n.split("/")[0]);
+  try {
+    // getRandomValues only (a browser page served over plain http has no randomUUID)
+    Object.defineProperty(globalThis, "crypto", { value: { getRandomValues: (b) => { b.forEach((_, i) => (b[i] = i * 17)); return b; } }, configurable: true });
+    assert.deepEqual(await guids(), ["00112233-4455-4677-8899-aabbccddeeff"]);
+    // no crypto at all: Math.random fills every byte
+    Object.defineProperty(globalThis, "crypto", { value: undefined, configurable: true });
+    Math.random = () => 0.5;
+    assert.deepEqual(await guids(), ["80808080-8080-4080-8080-808080808080"]);
+  } finally {
+    Math.random = random;
+    Object.defineProperty(globalThis, "crypto", saved);
+  }
+});
+
+const BCF_XSD = new URL("./eval/bcf-xsd/", import.meta.url).pathname;
+const hasXmllint = () => { try { execFileSync("xmllint", ["--version"], { stdio: "ignore" }); return true; } catch { return false; } };
+test("BCF export validates against buildingSMART's BCF 2.1 schemas (run eval/fetch-bcf-schemas.sh first)", { skip: !existsSync(BCF_XSD + "markup.xsd") || !hasXmllint() }, async () => {
+  const r = check(file("./samples/coordination-basics.ids.xml"), file("./samples/tiny-house.ifc"));
+  r.specs.push({ name: "spec-level\u0007", status: "fail", note: "", failed: [] });
+  const files = await bcfFiles(bcfZip(r, { modelName: "tiny-house.ifc" }));
+  const dir = mkdtempSync(join(tmpdir(), "bcf-"));
+  const xsd = { "markup.bcf": "markup.xsd", "viewpoint.bcfv": "visinfo.xsd", "project.bcfp": "project.xsd", "bcf.version": "version.xsd" };
+  let n = 0;
+  for (const [name, text] of Object.entries(files)) {
+    const path = join(dir, name.replace("/", "_"));
+    writeFileSync(path, text);
+    execFileSync("xmllint", ["--noout", "--schema", BCF_XSD + xsd[name.split("/").pop()], path], { stdio: "pipe" });
+    n++;
+  }
+  assert.ok(n >= 6, `${n} files validated`);
+});
+
 test("zipStore output is readable by unzip when it is installed", { skip: !hasUnzip() }, () => {
   const dir = mkdtempSync(join(tmpdir(), "zip-"));
   writeFileSync(dir + "/t.zip", zipStore([{ name: "a.txt", data: "hello" }, { name: "b/c.txt", data: "wörld" }]));
@@ -238,4 +321,187 @@ test("bounded properties: a range ignores the set point, and a missing bound is 
   assert.equal(check(p(`<simpleValue>1</simpleValue>`), model("IFCREAL(1.)", "$", "$")).pass, true, "lower bound only");
   assert.equal(check(p(`<simpleValue>5</simpleValue>`), model("$", "IFCREAL(5.)", "$")).pass, true, "upper bound only");
   assert.equal(check(range, model("IFCREAL(1.)", "$", "$")).pass, false, "a range needs both bounds");
+});
+
+test("parseXml: comments and processing instructions inside an element leave its text alone", () => {
+  const x = parseXml(`<?xml version="1.0"?><a><b>one<?pi data here?>two<!-- c -->three</b></a>`);
+  assert.equal(x.children[0].text, "onetwothree");
+});
+
+test("parseXml: a truncated file throws instead of looping forever", () => {
+  const whole = '<?xml version="1.0"?><!-- c --><ids xmlns="x"><info><title><![CDATA[t]]></title></info><specifications/></ids>';
+  assert.equal(parseXml(whole).local, "ids");
+  // every prefix of a well-formed file must end, and every proper prefix must throw
+  for (let n = 1; n < whole.length; n++) assert.throws(() => parseXml(whole.slice(0, n)), undefined, `prefix of ${n}`);
+  for (const bad of ["<ids><not closed", "<!-- open", "<?xml", "<![CDATA[x", "<!DOCTYPE", "<ids></ids", "<ids>< </ids>"]) {
+    assert.throws(() => parseXml(bad), /unterminated|no element name|unclosed|mismatched/, bad);
+  }
+});
+
+test("parseStep: every prefix of a STEP file ends (a cut-off enum once looped forever)", async () => {
+  const { parseStep } = await import("./step.mjs");
+  const t = readFileSync(new URL("samples/tiny-house.ifc", import.meta.url), "utf8");
+  for (let n = 1; n < t.length; n++) { try { parseStep(t.slice(0, n)); } catch { /* "no DATA section" is fine */ } }
+  const cut = t.slice(0, t.indexOf(".LENGTHUNIT.") + 11);
+  const r = parseStep(cut);
+  assert.ok(r.errors.some((e) => /unterminated enumeration/.test(e)), r.errors.join("; "));
+  assert.ok(r.entities.has(1));
+  assert.ok(parseStep("DATA;\n#1=IFCWALL(#);\n#2=IFCWALL('x');").entities.has(2), "'#' with no number is one bad entity, not a loop");
+});
+
+// Lazy arguments, 2026-11-17 (eval/heap-200mb-2026-11-17.md).
+test("parseStep reads arguments on first use, with the same values as an eager read", () => {
+  const t = readFileSync(new URL("samples/tiny-house.ifc", import.meta.url), "utf8");
+  const lazy = parseStep(t);
+  const eager = parseStep(t, { eager: true });
+  assert.equal(lazy.entities.size, eager.entities.size);
+  for (const [id, e] of eager.entities) {
+    const l = lazy.entities.get(id);
+    assert.equal(l.type, e.type);
+    assert.deepEqual(l.args, e.args, `#${id}`);
+  }
+  assert.equal(JSON.stringify(lazy.entities.get(1)), JSON.stringify(eager.entities.get(1)));
+});
+
+test("parseStep: a lazy record skips ';' inside strings and comments, and a bad record reports when read", () => {
+  const r = parseStep("DATA;\n#1=IFCWALL('a;b''c;',/* ; ' */ 2);\n#2=IFCWALL(#);\n#3=IFCWALL('x');\nENDSEC;\n");
+  assert.deepEqual(r.entities.get(1).args, ["a;b'c;", 2]);
+  assert.deepEqual(r.entities.get(3).args, ["x"]);
+  assert.deepEqual(r.errors, []);
+  assert.deepEqual(r.entities.get(2).args, []);
+  assert.ok(/#2: '#' with no number/.test(r.errors[0]), r.errors.join("; "));
+  r.entities.get(2).args;
+  assert.equal(r.errors.length, 1, "an error is recorded once");
+});
+
+test("federate: entity numbers shift past the previous file's, references inside strings do not", async () => {
+  const { federate } = await import("./eval/federate.mjs");
+  const a = "ISO-10303-21;\nHEADER;\nFILE_SCHEMA(('IFC4'));\nENDSEC;\nDATA;\n#1=IFCWALL('#1',#2);\n#2=IFCY();\nENDSEC;\nEND-ISO-10303-21;\n";
+  let out = "";
+  const r = federate([a, a], (s) => { out += s; });
+  assert.equal(r.entities, 4);
+  const m = parseStep(out);
+  assert.deepEqual(m.entities.get(3).args, ["#1", { ref: 4 }]);
+  assert.equal(m.entities.get(4).type, "IFCY");
+});
+
+test("parseStep: types the policy does not keep are read again on each use, with the same values", () => {
+  const r = parseStep("DATA;\n#1=IFCCARTESIANPOINT((0.,1.,2.));\n#2=IFCWALL('g');\nENDSEC;\n");
+  r.policy.keep = (t) => t !== "IFCCARTESIANPOINT";
+  const a = r.entities.get(1).args;
+  assert.deepEqual(a, [[0, 1, 2]]);
+  assert.notEqual(r.entities.get(1).args, a, "not kept");
+  assert.equal(r.entities.get(2).args, r.entities.get(2).args, "kept");
+});
+
+test("specifications with no entity facet: the argument-free prefilter selects exactly what the full tests select", async () => {
+  // eval/no-entity-facet-2026-11-17.md. Brute force: every entity, full tests only.
+  const { parseIds } = await import("./ids.mjs");
+  const { parseModel } = await import("./node.mjs");
+  // The sample, and a wall whose set, material and classification all come
+  // through its type (a material carrying its own property set too).
+  const typed = parseModel(ifc("IFC4", [
+    "#10=IFCWALL('0aaaaaaaaaaaaaaaaaaaaa',$,'w',$,$,$,$,$,$);",
+    "#11=IFCWALLTYPE('1aaaaaaaaaaaaaaaaaaaaa',$,'wt',$,$,(#12),$,$,$,.STANDARD.);",
+    "#12=IFCPROPERTYSET('2aaaaaaaaaaaaaaaaaaaaa',$,'Pset_WallCommon',$,(#13));",
+    "#13=IFCPROPERTYSINGLEVALUE('IsExternal',$,IFCBOOLEAN(.T.),$);",
+    "#14=IFCRELDEFINESBYTYPE('3aaaaaaaaaaaaaaaaaaaaa',$,$,$,(#10),#11);",
+    "#15=IFCMATERIAL('Concrete',$,$);",
+    "#16=IFCRELASSOCIATESMATERIAL('4aaaaaaaaaaaaaaaaaaaaa',$,$,$,(#11),#15);",
+    "#17=IFCCLASSIFICATION($,$,$,'Uniclass',$,$,$);",
+    "#18=IFCCLASSIFICATIONREFERENCE($,'Ss_20',$,#17,$,$);",
+    "#19=IFCRELASSOCIATESCLASSIFICATION('5aaaaaaaaaaaaaaaaaaaaa',$,$,$,(#11),#18);",
+    "#20=IFCMATERIALPROPERTIES('Pset_MaterialCommon',$,(#21),#15);",
+    "#21=IFCPROPERTYSINGLEVALUE('Porosity',$,IFCNORMALISEDRATIOMEASURE(0.1),$);",
+  ]));
+  const prop = (ps, bn = "") => `<property><propertySet><simpleValue>${ps}</simpleValue></propertySet>${bn && `<baseName><simpleValue>${bn}</simpleValue></baseName>`}</property>`;
+  const facets = [
+    `<attribute><name><simpleValue>GlobalId</simpleValue></name></attribute>`,
+    `<attribute><name><simpleValue>Name</simpleValue></name></attribute>`,
+    `<attribute><name><xs:restriction base="xs:string"><xs:pattern value=".*"/></xs:restriction></name></attribute>`,
+    prop("Pset_WallCommon"),
+    prop("Pset_WallCommon", "IsExternal"),
+    `<property><propertySet><xs:restriction base="xs:string"><xs:pattern value=".*"/></xs:restriction></propertySet><baseName><xs:restriction base="xs:string"><xs:pattern value=".*"/></xs:restriction></baseName></property>`,
+    `<classification/>`,
+    `<material/>`,
+    `<partOf/>`,
+    `<partOf relation="IFCRELCONTAINEDINSPATIALSTRUCTURE"/>`,
+    `<partOf relation="IFCRELAGGREGATES"/>`,
+    `<partOf relation="IFCRELVOIDSELEMENT IFCRELFILLSELEMENT"/>`,
+  ];
+  let some = 0;
+  for (const model of [parseModel(file("samples/tiny-house.ifc")), typed]) for (const f of facets.concat(prop("Pset_MaterialCommon"))) {
+    // Prohibited: the report lists every applicable entity, in model order.
+    const text = ids(spec(f, ent("IFCWALL"), 'minOccurs="0" maxOccurs="0"'));
+    const sp = parseIds(text).specs[0];
+    const brute = [...model.entities.values()].filter((e) => sp.applicability.every((x) => x.test(e, model, { typeMap: null }).ok)).map((e) => e.id);
+    const r = check(text, model, { audit: false, maxFailed: 1e9 });
+    assert.equal(r.specs[0].applicable, brute.length, f);
+    assert.deepEqual(r.specs[0].failed.map((x) => x.id), brute.slice(0, 500), f);
+    if (brute.length) some++;
+  }
+  assert.ok(some >= 16, `only ${some} facets matched anything in the sample`);
+
+  // Requirements on every entity (an entity facet whose name is a pattern
+  // matching anything, as public IDS files write it), each cardinality: the
+  // report equals one built from the full tests alone.
+  const anyEnt = `<entity><name><xs:restriction base="xs:string"><xs:pattern value="IFC.*"/></xs:restriction></name></entity>`;
+  const req = (f, card) => f.replace(/^<(\w+)/, `<$1 cardinality="${card}"`);
+  let checked = 0;
+  for (const model of [parseModel(file("samples/tiny-house.ifc")), typed]) for (const f of facets.concat(prop("Pset_MaterialCommon"))) for (const card of ["required", "optional", "prohibited"]) {
+    const text = ids(spec(anyEnt, req(f, card)));
+    const sp = parseIds(text).specs[0];
+    const ctx = { typeMap: null };
+    let passed = 0;
+    const failed = [];
+    for (const e of model.entities.values()) {
+      const [rf] = sp.requirements;
+      const r = rf.test(e, model, ctx);
+      const pass = rf.cardinality === "prohibited" ? !r.ok : rf.cardinality === "optional" ? r.ok || !!r.absent : r.ok;
+      if (pass) passed++;
+      else failed.push(e.id);
+    }
+    for (const maxFailed of [1e9, 3]) {
+      const got = check(text, model, { audit: false, maxFailed }).specs[0];
+      assert.equal(got.passed, passed, `${card} ${f}`);
+      assert.equal(got.failedCount ?? got.failed.length, failed.length, `${card} ${f}`);
+      assert.deepEqual(got.failed.map((x) => x.id), failed.slice(0, maxFailed), `${card} ${f}`);
+    }
+    checked++;
+  }
+  assert.equal(checked, 78);
+});
+
+test("an entity facet's unnamed subclasses are counted as not checked, the verdict unchanged", () => {
+  // Revit's IFC2X3 exports write most walls as IfcWallStandardCase; IDS has no
+  // inheritance, so IFCWALL takes only the IfcWall (eval/corpus-crosscheck-2026-11-17.md).
+  const model = ifc("IFC2X3", [
+    "#1=IFCWALL('1hqIFTRjfV6AWq_bMtnZwI',$,'W1',$,$,$,$,$);",
+    "#2=IFCWALLSTANDARDCASE('2hqIFTRjfV6AWq_bMtnZwI',$,'W2',$,$,$,$,$);",
+    "#3=IFCWALLSTANDARDCASE('3hqIFTRjfV6AWq_bMtnZwI',$,$,$,$,$,$,$);",
+    "#4=IFCSLAB('4hqIFTRjfV6AWq_bMtnZwI',$,'S',$,$,$,$,$,$);",
+  ]);
+  const req = `<attribute><name><simpleValue>Name</simpleValue></name></attribute>`;
+  const s = check(ids(spec(ent("IFCWALL"), req)), model).specs[0];
+  assert.equal(s.status, "pass");
+  assert.equal(s.applicable, 1);
+  assert.deepEqual(s.skippedSubclasses, [{ type: "IFCWALLSTANDARDCASE", via: "IFCWALL", count: 2 }]);
+  assert.match(s.hint, /not checked: 2 element\(s\).*2 IFCWALLSTANDARDCASE \(a subclass of IFCWALL\)/);
+  // The other applicability facets still apply: only W2 has a Name.
+  const named = `<attribute><name><simpleValue>Name</simpleValue></name><value><simpleValue>W2</simpleValue></value></attribute>`;
+  const s2 = check(ids(spec(ent("IFCWALL") + named, "", 'minOccurs="0" maxOccurs="unbounded"')), model).specs[0];
+  assert.deepEqual(s2.skippedSubclasses, [{ type: "IFCWALLSTANDARDCASE", via: "IFCWALL", count: 1 }]);
+  // Naming both classes leaves nothing out; an unrelated class gets no hint.
+  const both = `<entity><name><xs:restriction base="xs:string"><xs:enumeration value="IFCWALL"/><xs:enumeration value="IFCWALLSTANDARDCASE"/></xs:restriction></name></entity>`;
+  assert.equal(check(ids(spec(both, req)), model).specs[0].hint, undefined);
+  assert.equal(check(ids(spec(ent("IFCSLAB"), req)), model).specs[0].hint, undefined);
+});
+
+test("a prohibited specification with requirements stays invalid and says how many elements match", () => {
+  const model = ifc("IFC4", ["#1=IFCBUILDINGELEMENTPROXY('1hqIFTRjfV6AWq_bMtnZwI',$,'P',$,$,$,$,$,$);"]);
+  const req = `<attribute cardinality="prohibited"><name><simpleValue>GlobalId</simpleValue></name></attribute>`;
+  const s = check(ids(spec(ent("IFCBUILDINGELEMENTPROXY"), req, 'minOccurs="0" maxOccurs="0"')), model).specs[0];
+  assert.equal(s.status, "invalid");
+  assert.equal(s.matching, 1);
+  assert.match(s.note, /1 element\(s\) in this model match its applicability and would fail it/);
 });

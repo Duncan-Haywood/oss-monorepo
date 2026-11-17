@@ -1,0 +1,238 @@
+{
+ "date": "2026-11-17",
+ "subject": "ventures/docker-base-image-pin-check",
+ "stratum": "venture",
+ "seed": "2026-11-17-4dba",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior DevSecOps / container platform engineer who owns base-image policy for a fleet of Dockerfiles (the person who would wire --fail-on-risk into CI, and whose reference tool is Renovate's docker pinDigests); first checks: does it parse image references the way distribution/reference does (registry ports, tag+digest, digest validity), does it see every external image a build pulls (FROM with ARG defaults, COPY --from=<image>, RUN --mount from=<image>), and does a CI gate built on it ever pass an unpinned build",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Source the author did not write: the distribution/reference grammar (name/tag/digest productions from reference.go's doc comment) plus the OCI rule that a sha256 digest is exactly 64 lowercase hex, encoded independently by the auditor in refgrammar.py; and the BuildKit Dockerfile reference (moby/buildkit frontend/dockerfile/docs/reference.md, fetched from raw.githubusercontent.com: 'Understand how ARG and FROM interact' line 694, 'COPY [--from=<image|stage|context>]' line 1927, RUN --mount 'from' = 'Build stage, context, or image name' line 897). `python3 -I refgrammar.py`: 12 valid references (Docker Hub short names, docker.io/library, registry:port with and without tag, ghcr/gcr/mcr, tag+digest) -> 0 mismatches between check.classify_from and the grammar oracle. Hand-written Dockerfiles run through `check.py --format json` and `--fail-on-risk`: multi-stage, scratch, --platform=$BUILDPLATFORM split over continuation lines all right (p1, p9). Wrong: `ARG NODE_VERSION=18` / `FROM node:${NODE_VERSION}-alpine` (the reference's own documented pattern) produces no finding, prints 'Scanned 1 Dockerfile(s); no FROM lines found to classify.' and exits 0 under --fail-on-risk (p3; same for `ARG BASE=node:18`/`FROM ${BASE}`, p2) although the ARG default resolves to a mutable tag; `COPY --from=nginx:latest` and `RUN --mount=...,from=golang:1.22` are not seen, and the verdict says 'Every base image reference is pinned to a content digest.' (p4; also on the live page via headless Chrome); a truncated 40-hex sha256 digest is classed pinned (Docker rejects it as an invalid reference); `FROM node:18@sha256:abc` prints the remediation `docker buildx imagetools inspect node:18:latest`, which is not a valid reference. The core FROM classification is exact; the wrong verdicts come from what it skips or does not validate.",
+  "completeness": "Every feature the README claims was run: CLI text and JSON output, --fail-on-risk exit 2 (p1, p5, p9, p10) and 0 (p2, p3, p4, p7, p8); discovery of Dockerfile, Dockerfile.*, *.dockerfile skipping .git/node_modules (Containerfile not in the claim and not found, p8); stage, scratch and variable skips; continuation lines with comments; case-insensitive stage names. Browser page driven in headless Chrome over CDP against a local http.server (page.mjs): 'Load worked example' + Check renders '1 mutable base image reference found, 1 already pinned to a digest.' with the node:18 row and its imagetools command; pasted probes render. Usage opt-out button present. No TODOs, stubs or dead internal links found (index links to how-to, vs-hadolint, vs-reading pages, all present on disk). Served copy check passes.",
+  "verification": "`python3 -m unittest test_check`: 49 tests OK in 0.011 s. `node --test '*.test.mjs'`: 61 tests, 61 pass, 0 fail, 0.19 s; classify.test.mjs includes a parity test shelling out to check.py. Six mutants via platform/ci/quality_mutate.py: 5 caught (stage-name case-folding in check.py and classify.mjs, registry-port tag split, digest length {32,} -> {1,}, remediation ':latest' default), 1 survived (check.py:180 blank lines inside a continuation no longer skipped: the llms.txt claim 'blank lines inside the continuation are skipped' has no Python test). The tests pin the ARG-default skip as intended behaviour (test_check.py:168, classify.test.mjs:139), so they would not catch the false negative above. Strong suite for a tool this size.",
+  "craft": "Read check.py (320 lines), classify.mjs (178), the page script (index.html:121-280), test_check.py and classify.test.mjs headers. Clean, documented, stdlib-only; the duplicated Python/JS engine is held together by a parity test, which is the right mitigation. Defects: remediation_command builds '<name>:latest' from a name that already carries a tag when the digest is malformed (check.py:161, classify.mjs:87); _DIGEST_RE accepts any length >= 32 and lowercases before matching, so uppercase hex and truncated sha256 pass (check.py:93,148); the backslash continuation ignores a '# escape=`' parser directive (check.py:183), harmless for FROM lines in practice; render_text's empty-result message conflates 'no FROM lines' with 'all FROM lines skipped' (check.py:262).",
+  "claims": "Checked: Hadolint DL3006 'Always tag the version of an image explicitly' and DL3007 'Using latest is prone to errors ... Pin the version explicitly to a release tag' quoted on vs-hadolint.html match hadolint's README rule table (fetched, lines 489-490), and neither requires a digest (pass). 'Docker's own base-image guidance ... recommend[s] pinning' matches docker/docs build best-practices.md lines 230-242 (pass). No-network claim: grep of check.py/classify.mjs for fetch/urllib/socket finds none; page made no network request beyond its own files during the CDP run (pass). Disclaimer, no-warranty and 'not a security audit' on page footer (index.html:113), README and FAQ (pass). The variable skip is disclosed in README, FAQ and llms.txt (pass). Partial: the runtime messages 'no FROM lines found to classify' and 'Every base image reference is pinned' are false on p3/p4 (counted under correctness). llms.txt's source URL is the github.io origin, rewritten at deploy (served-copy: no placeholder or retired origin), not filed. Minor: JSON-LD says 'mutable tag or branch'.",
+  "fitness": "Job walked: a platform engineer adding `check.py --fail-on-risk` as a CI gate across a repo's Dockerfiles. On plain `FROM image:tag` files it does the job well and the remediation command is the right one (Docker's best-practices page uses the same imagetools/digest workflow). But the gate passes the two commonest ways real repos pull unpinned images it does not see: a version build-arg in FROM (the pattern Docker's reference and many official images use) and `COPY --from=<image>` for tool binaries; the text output even says there were no FROM lines. Nearest tools: Renovate's docker manager with pinDigests (resolves ARG defaults and COPY --from, and also keeps digests updated), hadolint (no digest rule, as the page says), Docker Scout policies. Usable as a quick first pass, not as the CI gate the README suggests.",
+  "domain": "Against the BuildKit Dockerfile reference and distribution/reference: reference parsing matches the grammar for every valid form tried (pass); stage/scratch semantics and forward-reference ordering right (alias added after classifying) (pass); ARG-before-FROM defaults are part of the documented FROM semantics and are not resolved (departs); COPY --from and RUN --mount from=<image> pull external images and are ignored (departs); digest validity not checked against algorithm length (departs, low); Containerfile (Podman/Buildah) not discovered (scope); the advice to drop the tag (`node@sha256:<digest> # 18`) differs from Docker's own example of tag+digest (`alpine:3.21@sha256:...`), though both are valid. A container security reviewer would accept the classifier and reject it as a gate until ARG defaults and COPY --from are handled or loudly reported."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Classification of 12 valid image references (short names, docker.io/library, registry:port with/without tag, ghcr/gcr/mcr, digest, tag+digest)",
+   "method": "distribution/reference grammar + OCI sha256 = 64 lowercase hex, encoded independently by the auditor (refgrammar.py)",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/docker-base-image-pin-check/refgrammar.py",
+   "expected": "mutable for every tag/no-tag form, pinned for digest forms; 0 mismatches",
+   "observed": "mismatches on valid refs: 0",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "ARG default used in FROM: `ARG NODE_VERSION=18` / `FROM node:${NODE_VERSION}-alpine`",
+   "method": "BuildKit Dockerfile reference 'Understand how ARG and FROM interact' (reference.md:694): FROM uses ARGs declared before it; the default resolves to node:18-alpine, a mutable tag",
+   "command": "python3 ventures/docker-base-image-pin-check/check.py --fail-on-risk /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/docker-base-image-pin-check/fx/p3; echo $?",
+   "expected": "a mutable finding (or at least a reported unresolved line) and exit 2",
+   "observed": "'Scanned 1 Dockerfile(s); no FROM lines found to classify.' exit 0; page: 'No FROM lines found to classify.'",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "External image pulled by COPY --from and RUN --mount from=",
+   "method": "BuildKit reference: 'COPY [--from=<image|stage|context>]' (reference.md:1927); RUN --mount from = 'Build stage, context, or image name' (reference.md:897)",
+   "command": "python3 ventures/docker-base-image-pin-check/check.py --fail-on-risk /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/docker-base-image-pin-check/fx/p4; echo $?",
+   "expected": "nginx:latest and golang:1.22 reported as unpinned images (or the verdict limited to FROM lines)",
+   "observed": "'0 mutable ... 1 already pinned' / 'Every base image reference is pinned to a content digest.' exit 0",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Truncated sha256 digest (40 hex) and uppercase SHA256 digest",
+   "method": "OCI image-spec: sha256 encoded portion must match [a-f0-9]{64}; Docker rejects otherwise ('invalid reference format')",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/docker-base-image-pin-check/refgrammar.py",
+   "expected": "not pinned (invalid)",
+   "observed": "tool=pinned for both",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Multi-stage, scratch, --platform=$BUILDPLATFORM split across continuation lines, stage reference",
+   "method": "hand-checked against the BuildKit reference FROM syntax: `FROM [--platform=<platform>] <image>[:<tag>] [AS <name>]`",
+   "command": "python3 ventures/docker-base-image-pin-check/check.py --format json /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/docker-base-image-pin-check/fx/p9",
+   "expected": "golang:1.22 mutable at line 1; FROM b skipped as stage",
+   "observed": "1 mutable golang 1.22, remediation 'docker buildx imagetools inspect golang:1.22'; stage skipped",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Remediation command for a malformed digest `FROM node:18@sha256:abc`",
+   "method": "distribution/reference: `node:18:latest` is not a valid reference",
+   "command": "python3 ventures/docker-base-image-pin-check/check.py --format json /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/docker-base-image-pin-check/fx/p5",
+   "expected": "docker buildx imagetools inspect node:18",
+   "observed": "docker buildx imagetools inspect node:18:latest (also on the page)",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Browser page: worked example and pasted probes",
+   "method": "headless Chrome over CDP against python3 -m http.server in the venture dir",
+   "command": "cd ventures/docker-base-image-pin-check && python3 -m http.server 8767 & google-chrome --headless=new --remote-debugging-port=9333 & node /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/docker-base-image-pin-check/page.mjs",
+   "expected": "example renders one mutable and one pinned row with the imagetools command",
+   "observed": "'1 mutable base image reference found, 1 already pinned to a digest.' with node:18 MUTABLE row and its command",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Discovery of Dockerfile variants",
+   "method": "README claim: Dockerfile, Dockerfile.*, *.dockerfile; Containerfile (Podman/Buildah default) not claimed",
+   "command": "python3 ventures/docker-base-image-pin-check/check.py /tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/docker-base-image-pin-check/fx/p8",
+   "expected": "claimed names found; Containerfile would be a bonus",
+   "observed": "claimed names found in p1-p10; Containerfile not scanned ('No Dockerfile ... found')",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "Python and Node test suites",
+   "method": "run",
+   "command": "cd ventures/docker-base-image-pin-check && python3 -m unittest test_check && node --test '*.test.mjs'",
+   "expected": "pass",
+   "observed": "Ran 49 tests OK; node 61 tests, 61 pass, 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Hadolint DL3006/DL3007 wording and 'no digest rule' on vs-hadolint.html",
+   "method": "hadolint README rule table, fetched from raw.githubusercontent.com/hadolint/hadolint/master/README.md",
+   "command": "grep -n 'DL3006\\|DL3007\\|digest' hadolint-README.md",
+   "expected": "same wording; no digest-requiring rule",
+   "observed": "lines 489-490 match the page's quotes; no rule mentions digest",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Docker recommends pinning base images to a digest",
+   "method": "docker/docs content/manuals/build/building/best-practices.md, fetched",
+   "command": "grep -n -i digest best-practices.md",
+   "expected": "digest pinning recommended",
+   "observed": "lines 235-242: 'pin the image version to a specific digest ... even if a publisher replaces the tag'",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer, no-warranty, not-a-security-audit",
+   "method": "read page footer, FAQ, README",
+   "command": "grep -n 'No warranty\\|not a security audit' ventures/docker-base-image-pin-check/index.html ventures/docker-base-image-pin-check/README.md",
+   "expected": "present",
+   "observed": "index.html:105,113; README 'What it is not' and 'Disclaimers'",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served llms.txt, sitemap, canonicals",
+   "method": "platform/pages/served-copy.mjs (deploy rewrite)",
+   "command": "node platform/pages/served-copy.mjs docker-base-image-pin-check",
+   "expected": "no placeholder or retired origin",
+   "observed": "no placeholder or retired origin left in llms.txt, sitemap.xml, robots.txt or canonicals; live page HTTP 200",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "check.py:138",
+   "change": "if ref.lower() in stage_names: -> if ref in stage_names:",
+   "caught": true,
+   "test_cmd": "python3 -m unittest test_check"
+  },
+  {
+   "where": "check.py:127",
+   "change": "if \":\" in tail: -> if \":\" in ref:",
+   "caught": true,
+   "test_cmd": "python3 -m unittest test_check"
+  },
+  {
+   "where": "classify.mjs:24",
+   "change": "[0-9a-f]{32,}$/; -> [0-9a-f]{1,}$/;",
+   "caught": true,
+   "test_cmd": "node --test classify.test.mjs"
+  },
+  {
+   "where": "check.py:161",
+   "change": "ref = f\"{name}:{tag}\" if tag else f\"{name}:latest\" -> ref = f\"{name}:{tag}\" if tag else name",
+   "caught": true,
+   "test_cmd": "python3 -m unittest test_check"
+  },
+  {
+   "where": "check.py:180",
+   "change": "elif not stripped or stripped.startswith(\"#\"): -> elif stripped.startswith(\"#\"):",
+   "caught": false,
+   "test_cmd": "python3 -m unittest test_check"
+  },
+  {
+   "where": "classify.mjs:134",
+   "change": "if (alias) stageNames.add(alias.toLowerCase()); -> if (alias) stageNames.add(alias);",
+   "caught": true,
+   "test_cmd": "node --test classify.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "A FROM line using a build arg (`ARG NODE_VERSION=18` / `FROM node:${NODE_VERSION}-alpine`, the pattern Docker's own reference documents) is dropped silently: no finding, the CLI prints 'no FROM lines found to classify' (page: 'No FROM lines found to classify.') and --fail-on-risk exits 0, so a CI gate passes an unpinned base image. The ARG default is in the same file; at minimum the line should be reported as unresolved and counted, and a tag-position variable (`node:${V}`) cannot be a digest pin.",
+   "where": "ventures/docker-base-image-pin-check/check.py:142",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Only FROM is scanned: `COPY --from=nginx:latest` and `RUN --mount=...,from=golang:1.22` pull external images by mutable tag, yet the verdict reads 'Every base image reference is pinned to a content digest.' and --fail-on-risk exits 0. Renovate's pinDigests handles COPY --from.",
+   "where": "ventures/docker-base-image-pin-check/check.py:198",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "The empty-result message 'no FROM lines found to classify' is printed when FROM lines exist but were all skipped (variable), which states something false about the file.",
+   "where": "ventures/docker-base-image-pin-check/check.py:262",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Digest validation accepts any length >= 32 and uppercase hex (it lowercases first), so a truncated 40-hex sha256 or `@SHA256:ABC...` is reported pinned although Docker rejects both as invalid references.",
+   "where": "ventures/docker-base-image-pin-check/check.py:93",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "For a malformed digest on a tagged image (`node:18@sha256:abc`) the remediation is `docker buildx imagetools inspect node:18:latest`, an invalid reference; the name keeps its tag and ':latest' is appended. Same in classify.mjs:87.",
+   "where": "ventures/docker-base-image-pin-check/check.py:161",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Blank lines inside a backslash continuation are claimed skipped (llms.txt) but no Python test covers it: removing the blank-line skip at check.py:180 leaves all 49 tests green.",
+   "where": "ventures/docker-base-image-pin-check/test_check.py:1",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Containerfile (the Podman/Buildah default name) is not discovered, and a '# escape=`' parser directive is ignored when joining continuation lines.",
+   "where": "ventures/docker-base-image-pin-check/check.py:235",
+   "category": "scope-gap",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A tidy, honest, well-tested single-purpose checker whose core classifier is exact and whose gate has holes. Against the distribution/reference grammar (auditor's own encoding) the FROM classification matched on all 12 valid reference forms, including registry ports and tag+digest; Hadolint DL3006/DL3007 and Docker's digest-pinning guidance are quoted correctly; disclaimers are present; 110 tests pass and 5 of 6 seeded mutants were caught. But the commonest real-world unpinned patterns pass the --fail-on-risk gate: a FROM built from an ARG default (`FROM node:${NODE_VERSION}-alpine`) yields 'no FROM lines found to classify' and exit 0, and `COPY --from=nginx:latest` is invisible while the verdict says every base image is pinned. Smaller: truncated or uppercase digests count as pinned, and a malformed digest gets an invalid remediation command. Does not meet the bar (correctness 2; median 3); finished (completeness 3). Fixable in one session: resolve pre-FROM ARG defaults (or report variable lines as unresolved and fail the gate on them), scan COPY --from and RUN --mount from=, require 64 lowercase hex for sha256, and fix the empty-result message."
+}

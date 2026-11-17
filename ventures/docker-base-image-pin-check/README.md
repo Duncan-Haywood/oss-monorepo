@@ -118,3 +118,11 @@ graduation of an already-obvious, low-risk dev-tool idea, following
 CLI/checker shape over another `<trade>-bid-calculator`. No external user
 contact has happened yet — that is the next, non-code step (see
 `kill_criteria` in `VENTURE.yaml`).
+
+## Known gaps
+
+From the [2026-11-17 census quality audit](../../portfolio/quality/audits/2026-11-17-docker-base-image-pin-check.json), not yet fixed:
+
+- A `FROM` built from a build argument (`ARG NODE_VERSION=18` then `FROM node:${NODE_VERSION}-alpine`) is classified `variable` and dropped from the report: the CLI says "no FROM lines found to classify" and `--fail-on-risk` exits 0. Resolving `ARG` defaults, or at least reporting the line as unresolved, is the fix.
+- `COPY --from=<image>` and `RUN --mount=...,from=<image>` pull images too and are not checked.
+- A digest is accepted after lower-casing and without checking its length, so a truncated digest counts as pinned; the suggested lookup for a tagged image with no tag shown can print `name:tag:latest`.

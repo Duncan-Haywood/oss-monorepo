@@ -39,7 +39,8 @@ export const MANIFEST_RECOMMENDED_FIELDS = ['authorUrl', 'fundingUrl', 'isDeskto
 export const SAMPLE_PLUGIN_DEFAULTS = {
   id: 'sample-plugin',
   name: 'Sample Plugin',
-  author: 'Your Name',
+  description: 'Demonstrates some of the capabilities of the Obsidian API.',
+  author: 'Obsidian',
 };
 
 /**
@@ -124,7 +125,7 @@ export function checkVersionsEntry(manifestData, versionsData) {
   return { status: 'missing', version };
 }
 
-const UNSAFE_DOM_ASSIGNMENT = /\.\s*(?:innerHTML|outerHTML)\s*=(?!=)/;
+const UNSAFE_DOM_ASSIGNMENT = /\.\s*(?:innerHTML|outerHTML)\s*\+?=(?!=)/;
 const UNSAFE_DOM_CALL = /\.\s*insertAdjacentHTML\s*\(/;
 const GLOBAL_LISTENER = /\b(?:document|window)\.addEventListener\s*\(/;
 const CONSOLE_LOG = /\bconsole\.log\s*\(/;
@@ -135,10 +136,10 @@ const CONSOLE_LOG = /\bconsole\.log\s*\(/;
  * scanner in this portfolio makes. */
 function stripCommentsAndStrings(line) {
   return line
-    .replace(/\/\/.*$/, '')
     .replace(/`(?:\\.|[^`\\])*`/g, '``')
     .replace(/"(?:\\.|[^"\\])*"/g, '""')
-    .replace(/'(?:\\.|[^'\\])*'/g, "''");
+    .replace(/'(?:\\.|[^'\\])*'/g, "''")
+    .replace(/\/\/.*$/, '');
 }
 
 function scanLines(files, pattern) {

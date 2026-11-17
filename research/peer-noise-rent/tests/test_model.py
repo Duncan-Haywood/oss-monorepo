@@ -66,6 +66,7 @@ class T(unittest.TestCase):
         s1 = math.sqrt(plugin_stats(alt, big)[1] * big)
         s0 = math.sqrt(plugin_stats(null, big)[1] * big)
         n = math.ceil(sample_size(m, s1, s0, .05, .05))
+        self.assertEqual(n, 115)  # E4's g=0.5 row; pins sd0/sd1 roles and the one-sided alpha (audit 2026-11-17)
         cut = phi_inv(.95) * s0 / math.sqrt(n)
         rng = random.Random(3)
         pw = sum(score_plugin(sample_pairs(alt, n, rng)) > cut for _ in range(4000)) / 4000

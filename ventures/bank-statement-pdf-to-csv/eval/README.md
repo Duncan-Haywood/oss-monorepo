@@ -163,3 +163,16 @@ the ICICI sample (100 of 100 rows matching).
   are the next public set.
 - Whether the Xero and QuickBooks layouts import cleanly (written from their
   public import help).
+
+## Round 3: scanned statements (2026-11-17)
+
+`node eval/scans.mjs [--n 36] [--seed 11]` draws made-up statements in three
+layouts, degrades them like a scan and reads them back through the page's OCR
+route (`pageImages`, tesseract 5 word boxes, `linesFromWords`, `parseStatement`
+with and without `{ ocr: true }`). A quarter lose one row from the picture with
+the balances left as printed, so the right answer is a reported break, not a
+balanced statement. Output for seed 11: `scans-2026-11-17.txt`; the table and
+what it does and does not show are in the venture README, "Scanned statements
+and photos". A first run had a generator bug (overdrawn balances drawn without
+the minus), which made one UK statement unreadable; fixed before the committed
+run.

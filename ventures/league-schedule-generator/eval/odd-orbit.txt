@@ -12,6 +12,8 @@ New (no design before):
 37 6x9 | 12 | yes | 2783.4 | 111006 | never tried before (2026-11-16; up to four runs shared the cores)
    tool (node eval/odd-cyclic-check.mjs 37:6:9): waits 701 -> 0, 1246 ms a build (was 5605)
 43 7x9 | 14 | stopped | ~2340 wall (38 CPU-min, sharing cores) | - | no answer when stopped (2026-11-16); tool waits 1073 over seeds 1-3
+43 7x9 | 14 | yes | 9849.4 | 166511 | 2026-11-17, --solver cd19, alone on one core (three odd-lns.py runs on the others); 377,525 clauses
+   tool (node eval/odd-cyclic-check.mjs 43:7:9): waits 1073 -> 0 (seeds 1-3), 2545 ms a build
 
 Found again (already stored by other methods; a check that the construction works):
 7 3x6  | 2 | yes | 0.0 | 2029  |
