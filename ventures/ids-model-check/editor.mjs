@@ -340,6 +340,24 @@ export function specClassNames(S, spec) {
   return [...new Set([...first, ...(spec.also || []).filter(Boolean)])];
 }
 
+// Classes in a loaded model (inv.classes: [{ cls, count }]) that are a
+// subclass of a class the specification names but are not named themselves:
+// IDS has no inheritance, so a facet naming IFCWALL never looks at the
+// model's IFCWALLSTANDARDCASE objects (most walls in Revit's IFC2X3 exports;
+// eval/corpus-crosscheck-2026-11-17.md). [{ cls, count, via }], most first.
+export function modelSubclassesLeftOut(S, spec, invClasses) {
+  const named = new Set(specClassNames(S, spec));
+  const bases = specBases(spec).filter((c) => S.entities[c]);
+  const out = [];
+  for (const { cls, count } of invClasses || []) {
+    if (!count || named.has(cls) || !S.entities[cls]) continue;
+    const up = ancestors(S, cls);
+    const via = bases.find((b) => up.includes(b));
+    if (via) out.push({ cls, count, via });
+  }
+  return out.sort((x, y) => y.count - x.count || (x.cls < y.cls ? -1 : 1));
+}
+
 // Standard sets every one of `classes` can carry.
 export function commonSets(L, classes) {
   const cs = classes.filter(Boolean);

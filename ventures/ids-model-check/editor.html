@@ -94,7 +94,7 @@
   import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
   import { Schema, parseIds } from "./ids.mjs";
   import { auditIds } from "./audit.mjs";
-  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, idsSchema, facetXml, editableAttributes, modelSets, valueTypes, ownSetName, specBases, specClassNames, commonSets, commonAttributes, attributeValueKind, commonPredefinedTypes, parseClassList, modelValueOffer, modelAttributes, modelCodes, appMatchCount, reqComplete, typeRow, untypeRow, temporalType, TEMPORAL_EXAMPLE, datePattern } from "./editor.mjs";
+  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, idsSchema, facetXml, editableAttributes, modelSets, valueTypes, ownSetName, specBases, specClassNames, commonSets, commonAttributes, attributeValueKind, commonPredefinedTypes, parseClassList, modelValueOffer, modelAttributes, modelCodes, appMatchCount, reqComplete, typeRow, untypeRow, temporalType, TEMPORAL_EXAMPLE, datePattern, modelSubclassesLeftOut } from "./editor.mjs";
   import { temporalKind } from "./temporal.mjs";
   import { isZip, unzipModel, inflateRawStream } from "./zip.mjs";
 
@@ -369,6 +369,13 @@
     if (s.cls && !known) h += `<p class="warn">${esc(s.cls)} is not a ${esc(doc.schema)} class.</p>`;
     if (unknownAlso.length) h += `<p class="warn">${esc(unknownAlso.join(", "))} ${unknownAlso.length > 1 ? "are not" : "is not a"} ${esc(doc.schema)} class${unknownAlso.length > 1 ? "es" : ""}.</p>`;
     if (inv && s.cls) { const n = inv.classes.filter((c) => specClasses(L, s).includes(c.cls)).reduce((a, c) => a + c.count, 0); h += `<p class="${n ? "muted" : "warn"}" style="font-size:0.88rem;margin-bottom:0">${n ? `The model has ${n} object(s) this applies to.` : `The model has no ${esc(s.cls)}${s.withSub ? " or subclass" : ""} objects: a required specification would fail on it.`}</p>`; }
+    if (inv && s.cls && inv.schema === doc.schema) {
+      const left = modelSubclassesLeftOut(L.S, s, inv.classes);
+      if (left.length) {
+        const n = left.reduce((a, x) => a + x.count, 0);
+        h += `<p class="warn" style="font-size:0.88rem;margin-bottom:0">The model also has ${n.toLocaleString()} object(s) of ${esc(left.length === 1 ? left[0].cls : left.map((x) => `${x.cls} (${x.count.toLocaleString()})`).join(", "))}, a subclass of ${esc([...new Set(left.map((x) => x.via))].join(", "))}. IDS class names do not include subclasses, so this specification would not check them. <button type="button" class="ghost small" data-act="add-subs" data-s="${si}">Add ${left.length === 1 ? "it" : "them"}</button></p>`;
+      }
+    }
     if (s.cls && known) h += `<p class="muted" style="font-size:0.88rem">${nSets} standard set(s) apply to ${also.length ? `every one of ${esc(bases.join(", "))}` : esc(L.S.entities[s.cls] ? L.S.entities[s.cls].name : s.cls)}.${subs.length ? ` <label style="display:inline;color:var(--fg)"><input type="checkbox" data-s="${si}" data-k="withSub"${s.withSub ? " checked" : ""}> and its ${subs.length} subclass(es): ${esc(subs.slice(0, 6).join(", "))}${subs.length > 6 ? ", ..." : ""}</label>` : ""}</p>`;
     h += `<div class="grid"><div><label for="s-${si}-desc">Why it is needed (optional)</label><input id="s-${si}-desc" data-s="${si}" data-k="description" value="${esc(s.description)}"></div><div><label for="s-${si}-ins">Instructions for the modeller (optional)</label><input id="s-${si}-ins" data-s="${si}" data-k="instructions" value="${esc(s.instructions)}"></div></div>`;
     if (s.ifcVersion) h += `<p class="muted" style="font-size:0.88rem">This specification keeps its own ifcVersion, ${esc(s.ifcVersion.join(" "))}; it is audited against ${esc(doc.schema)}.</p>`;
@@ -541,6 +548,12 @@
     if (a === "del-req") doc.specs[si].reqs.splice(+e.target.dataset.r, 1);
     if (a === "del-spec") doc.specs.splice(si, 1);
     if (a === "del-app") doc.specs[si].fixedApp.splice(+e.target.dataset.r, 1);
+    if (a === "add-subs") {
+      const sp = doc.specs[si];
+      const left = inv ? modelSubclassesLeftOut(loaded[doc.schema].S, sp, inv.classes) : [];
+      sp.also = [...new Set([...(sp.also || []), ...left.map((x) => x.cls)])];
+      record("editor_subclasses_added");
+    }
     if (a === "add-app") { (doc.specs[si].app ||= []).push(blankReq()); record("editor_condition_added"); }
     if (a === "del-app-row") doc.specs[si].app.splice(+e.target.dataset.r, 1);
     const rows = e.target.dataset.w === "app" ? doc.specs[si].app : doc.specs[si].reqs;

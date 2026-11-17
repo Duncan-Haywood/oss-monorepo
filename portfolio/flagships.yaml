@@ -456,10 +456,10 @@ flagships:
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
-      (eval/ifcxml-xbim-2026-11-16.md); the subclass 'not checked' warning in CI
-      outputs (JUnit, annotations) and an editor offer of IFCWALLSTANDARDCASE beside
-      IFCWALL (eval/corpus-crosscheck-2026-11-17.md); the IDS editor (editor.html;
-      README): "Use the model's range" for dates, xs:date one-of rows
+      (eval/ifcxml-xbim-2026-11-16.md); an audit rule for an entity facet naming an
+      abstract class with no concrete one (IFC2X3 IFCBUILDINGELEMENT in RVB BIM
+      Norm: applies to nothing, eval/ci-unchecked-2026-11-17.md); the IDS editor
+      (editor.html; README): "Use the model's range" for dates, xs:date one-of rows
       (eval/date-ranges-2026-11-17.md); more real exports through
       eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
@@ -483,11 +483,6 @@ flagships:
       own sets, 21 of 122 standard props in a non-template dataType): applicability
       rows 2026-11-17 (eval/applicability-rows-2026-11-17.md: counts equal the
       checker's applicable; 83.5% of public facets editable, IDS-Audit-tool 21.5%);
-      a no-dataType value row; attribute values and classification codes 2026-11-17
-      (eval/model-attr-codes-2026-11-17.md: 242 of 242 offers pass; 143 of 210
-      Uniformat elements in Schultz have an empty code, Require a code); a range for
-      numeric attributes; a dataType-mismatch hint, Accept any data type 2026-11-17
-      (eval/model-any-type-2026-11-17.md); date and duration ranges 2026-11-17
-      (eval/date-ranges-2026-11-17.md: IfcTester 0.9.0 fails every object on a date
-      range, Write as a pattern agrees 10 of 10; 86.4% of public facets editable).
+      a no-dataType value row; unchecked subclasses in CI and the editor 2026-11-17
+      (eval/ci-unchecked-2026-11-17.md: 21,405 elements in 165 of 2,028 checks).
       More open items: NEXT.md.

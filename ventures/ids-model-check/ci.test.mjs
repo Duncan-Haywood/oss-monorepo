@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { check, parseModel, parseIds, readModel } from "./node.mjs";
-import { junitXml, annotations, stepSummary, tally, severity, failCount, stepLines, globToRegex, patterns, pairUp } from "./ci.mjs";
+import { junitXml, annotations, stepSummary, tally, severity, failCount, notChecked, stepLines, globToRegex, patterns, pairUp } from "./ci.mjs";
 import { parseXml } from "./xml.mjs";
 
 const here = new URL(".", import.meta.url).pathname;
@@ -224,4 +224,74 @@ test("maxFailed keeps the first N failing elements and the exact count", () => {
   assert.ok(seen > 0, "the sample has a spec with more than one failing element");
   const q = check(file("samples/quantities-and-naming.ids.xml"), ifc, { maxFailed: 1 });
   assert.match(stepSummary([{ model: "m", ids: "i", report: q }], { maxFailures: 1 }), /and 3 more \(see the JUnit, JSON or BCF report\)/);
+});
+
+// IDS has no inheritance: a facet naming IFCWALL leaves IfcWallStandardCase
+// unchecked (ids.mjs skippedSubclasses). CI says so in every output, and fails
+// on it only under --fail-on-unchecked (eval/ci-unchecked-2026-11-17.md).
+const subModel = ["ISO-10303-21;", "HEADER;", "FILE_DESCRIPTION((''),'2;1');", "FILE_NAME('m.ifc','',(''),(''),'','','');", "FILE_SCHEMA(('IFC2X3'));", "ENDSEC;", "DATA;",
+  "#1=IFCWALL('1hqIFTRjfV6AWq_bMtnZwI',$,'W1',$,$,$,$,$);",
+  "#2=IFCWALLSTANDARDCASE('2hqIFTRjfV6AWq_bMtnZwI',$,'W2',$,$,$,$,$);",
+  "#3=IFCWALLSTANDARDCASE('3hqIFTRjfV6AWq_bMtnZwI',$,$,$,$,$,$,$);",
+  "ENDSEC;", "END-ISO-10303-21;", ""].join("\n");
+const subIds = (cls) => `<?xml version="1.0"?><ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema"><info><title>walls</title></info><specifications><specification name="Walls are named" ifcVersion="IFC2X3"><applicability minOccurs="0" maxOccurs="unbounded"><entity><name><simpleValue>${cls}</simpleValue></name></entity></applicability><requirements><attribute><name><simpleValue>Name</simpleValue></name></attribute></requirements></specification></specifications></ids>`;
+
+test("unnamed subclasses: counted, in JUnit, annotations and the summary, the verdict unchanged", () => {
+  const r = { model: "m.ifc", ids: "w.ids", report: check(subIds("IFCWALL"), subModel) };
+  const s = r.report.specs[0];
+  assert.equal(s.status, "pass");
+  assert.equal(notChecked(s), 2);
+  const t = tally([r]);
+  assert.equal(t.ok, true);
+  assert.equal(t.elementsNotChecked, 2);
+  assert.equal(t.uncheckedSpecs, 1);
+  const doc = parseXml(junitXml([r]));
+  const tc = doc.children[0].children.find((c) => c.local === "testcase");
+  assert.ok(!tc.children.some((k) => k.local === "failure"), "a pass stays a pass");
+  assert.match(junitXml([r]), /<system-out>warning: not checked: 2 element\(s\).*IFCWALLSTANDARDCASE \(a subclass of IFCWALL\)/);
+  const a = annotations([r]);
+  assert.equal(a.length, 1);
+  assert.match(a[0], /^::warning file=w\.ids,title=IDS%3A Walls are named%3A 2 element\(s\) not checked::/);
+  assert.match(annotations([r], { failOnUnchecked: true })[0], /^::error /);
+  const md = stepSummary([r]);
+  assert.match(md, /## IDS model check: PASS/);
+  assert.match(md, /\*\*Not checked:\*\* 2 element\(s\) in 1 specification check/);
+  assert.match(md, /\| PASS \| 1 of 1 \| 0 \| 2 \|/);
+  assert.match(md, /- \*\*Walls are named\*\*: 2 IFCWALLSTANDARDCASE \(a subclass of IFCWALL\)/);
+  assert.match(stepSummary([r], { failOnUnchecked: true }), /## IDS model check: FAIL/);
+  // Naming the subclass leaves nothing out: no warning anywhere.
+  const r2 = { model: "m.ifc", ids: "w.ids", report: check(subIds("IFCWALLSTANDARDCASE"), subModel) };
+  assert.equal(tally([r2]).elementsNotChecked, 0);
+  // ...and the unnamed wall the IFCWALL facet never saw is now found.
+  assert.equal(r2.report.specs[0].applicable, 2);
+  assert.match(annotations([r2]).join("\n"), /1 of 2 element\(s\) fail .*#3 IFCWALLSTANDARDCASE/);
+  assert.doesNotMatch(junitXml([r2]) + stepSummary([r2]), /not checked:|Not checked:\*\*/);
+});
+
+test("unnamed subclasses with no element of the named class: the JUnit skip says why", () => {
+  const only = subModel.replace(/^#1=IFCWALL\(.*\n/m, "");
+  const r = { model: "m.ifc", ids: "w.ids", report: check(subIds("IFCWALL"), only) };
+  assert.equal(r.report.specs[0].applicable, 0);
+  assert.match(junitXml([r]), /<skipped message="no element of the named class\(es\) matches the applicability; not checked: 2 element/);
+});
+
+test("ci-cli: --fail-on-unchecked turns the warning into a failing build, and GITHUB_OUTPUT counts it", () => {
+  const dir = mkdtempSync(join(tmpdir(), "ids-unchecked-"));
+  writeFileSync(join(dir, "m.ifc"), subModel);
+  writeFileSync(join(dir, "w.ids"), subIds("IFCWALL"));
+  writeFileSync(join(dir, "out.txt"), "");
+  const env = { ...process.env, GITHUB_ACTIONS: "true", GITHUB_OUTPUT: join(dir, "out.txt"), GITHUB_STEP_SUMMARY: join(dir, "sum.md") };
+  const cli = (extra) => spawnSync(process.execPath, [join(here, "ci-cli.mjs"), "--root", dir, "--models", "*.ifc", "--ids", "*.ids", ...extra], { encoding: "utf8", env });
+  const a = cli([]);
+  assert.equal(a.status, 0, a.stderr);
+  assert.match(a.stdout, /warning: "Walls are named" \(m\.ifc vs w\.ids\): not checked: 2 element/);
+  assert.match(a.stdout, /PASS: 1 pair\(s\).*2 element\(s\) not checked/);
+  assert.match(a.stdout, /^::warning file=w\.ids,/m);
+  assert.match(readFileSync(join(dir, "out.txt"), "utf8"), /^not-checked=2$/m);
+  const b = cli(["--fail-on-unchecked"]);
+  assert.equal(b.status, 1, b.stderr);
+  assert.match(b.stdout, /^::error file=w\.ids,/m);
+  assert.match(b.stdout, /FAIL: 1 pair\(s\)/);
+  assert.match(readFileSync(join(dir, "out.txt"), "utf8"), /result=fail\n[^]*$/);
+  assert.equal(cli(["--fail-on-unchecked", "--fail-on", "never"]).status, 0);
 });
