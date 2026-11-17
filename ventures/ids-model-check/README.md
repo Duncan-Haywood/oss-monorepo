@@ -97,6 +97,15 @@ open. MIT licensed, no dependencies, nothing uploaded.
   of the public files' facets editable (was 82.0%), 14 of 64 files fully
   editable (was 10), IDS-Audit-tool valid files 21.5% (was 9.7%), all still
   writing back the same. `eval/applicability-rows-2026-11-17.md`.
+  **Values with no dataType** (2026-11-17): a property value an opened file
+  wrote with no dataType opens as a row that keeps none (text modes, written
+  on xs:string), with **Write dataType ...** to add the template's type.
+  84.9% of the public files' facets editable (was 83.6%), 507 of 507
+  specifications still writing back the same. It matters: three published
+  IDS files ask `Pset_WallCommon.LoadBearing` = `TRUE` or `True` with no dataType, and on
+  the sample house that kind of condition keeps 0 walls in this checker and 2
+  in IfcTester 0.8.0; typed as IFCBOOLEAN `true`, both keep 2. The row and the
+  audit's warning now say so. `eval/untyped-values-2026-11-17.md`.
   **A range for numeric attributes** (2026-11-17): OverallHeight, Elevation,
   NumberOfRiser and other real or integer attributes get a **between** mode
   and **Use the model's range**, written with an `xs:double` (or
@@ -464,9 +473,9 @@ faster than IfcTester; its point is needing no install.
   property values 2026-11-17; attribute values and classification codes
   2026-11-17, `eval/model-attr-codes-2026-11-17.md`;
   applicability rows 2026-11-17, `eval/applicability-rows-2026-11-17.md`;
-  numeric attribute ranges 2026-11-17, `eval/model-attr-ranges-2026-11-17.md`):
-  a value row for a property with no dataType (39 of the 63 applicability
-  facets still kept on the public files); a subclass checkbox per class, not only the first;
+  numeric attribute ranges 2026-11-17, `eval/model-attr-ranges-2026-11-17.md`;
+  untyped value rows 2026-11-17, `eval/untyped-values-2026-11-17.md`):
+  a subclass checkbox per class, not only the first;
   exclusive bounds on an opened range; a "fix the dataType" hint built from the 21
   of 122 standard properties real exports write in another type.
 - More real models through the IfcTester cross-check (an MEP model, an IFC4X3

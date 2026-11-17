@@ -241,7 +241,7 @@ export function entityFacet(S, cls, { withSubclasses = false, predefinedType = n
 // requirement rows with a value "mode". stateToDoc() turns it into the shape
 // buildIds() writes; importIds() turns an opened IDS file into it.
 
-export const blankReq = () => ({ kind: "property", set: "", name: "", custom: false, dataType: "", cardinality: "required", mode: "any", equals: "", oneOf: [], min: "", max: "", pattern: "", system: "", relation: "IFCRELCONTAINEDINSPATIALSTRUCTURE", entity: "IFCBUILDINGSTOREY" });
+export const blankReq = () => ({ kind: "property", set: "", name: "", custom: false, untyped: false, dataType: "", cardinality: "required", mode: "any", equals: "", oneOf: [], min: "", max: "", pattern: "", system: "", relation: "IFCRELCONTAINEDINSPATIALSTRUCTURE", entity: "IFCBUILDINGSTOREY" });
 export const blankSpec = () => ({ name: "", description: "", instructions: "", optionality: "required", cls: "", also: [], withSub: true, predefinedType: "", reqs: [blankReq()], app: [] });
 
 // ------------------------------------------------- several classes per spec --
@@ -500,7 +500,12 @@ export function valueChoices(L, cls, r) {
   const classes = Array.isArray(cls) ? cls : [cls];
   cls = classes[0];
   let kind = "text", enumVals = null, p = null;
-  if (r.kind === "property" && r.custom) {
+  if (r.kind === "property" && r.untyped) {
+    // A value with no dataType, as an opened file wrote it: IDS 1.0 allows it
+    // and a checker compares the value with whatever type the model holds, so
+    // the page offers the text modes and writes no dataType (typeRow adds one).
+    p = r.custom ? { name: r.name, dataType: null, dataTypes: [], enum: null } : (r.set ? propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name) : null) || null;
+  } else if (r.kind === "property" && r.custom) {
     const dt = r.dataType && L.S.types[r.dataType] ? r.dataType : null;
     p = { name: r.name, dataType: dt, dataTypes: dt ? [dt] : [], enum: null };
     const prim = dt ? L.S.prim(dt) : null;
@@ -530,8 +535,8 @@ export function valueChoices(L, cls, r) {
 
 function reqFacet(L, r, classes = []) {
   if (r.fixed) return r.fixed;
-  const p = r.kind !== "property" ? null : r.custom ? { dataType: r.dataType && L.S.types[r.dataType] ? r.dataType : null } : propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name);
-  const value = r.cardinality === "prohibited" || (p && !p.dataType) ? null
+  const p = r.kind !== "property" ? null : r.untyped ? { dataType: null, untyped: true } : r.custom ? { dataType: r.dataType && L.S.types[r.dataType] ? r.dataType : null } : propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name);
+  const value = r.cardinality === "prohibited" || (p && !p.dataType && !p.untyped) ? null
     : r.mode === "equals" ? { equals: r.equals } : r.mode === "true" || r.mode === "false" ? { equals: r.mode }
     : r.mode === "oneOf" ? { oneOf: r.oneOf } : r.mode === "range" ? { min: r.min, max: r.max } : r.mode === "pattern" ? { pattern: r.pattern } : null;
   const base = r.kind === "attribute" && value ? attributeValueKind(L.S, classes, r.name).base : undefined;
@@ -542,6 +547,36 @@ function reqFacet(L, r, classes = []) {
 // cardinality (IDS 1.0 applicability facets have none; an object either
 // matches the facet or the specification does not apply to it).
 const appFacet = (L, r, classes = []) => reqFacet(L, { ...r, cardinality: "required" }, classes);
+
+// A property row with no dataType (`untyped`, as an opened file had it)
+// given the dataType the page would write: the template's for a standard
+// property, the model's for an own-set one (`modelType`, when it is a type the
+// page offers). The value carries over when it fits the type: TRUE/FALSE in
+// any case to true/false, numbers to equals or one of (a list of numbers
+// cannot be a one-of on a number row, so it becomes "any value" with
+// `dropped` set), an enumeration's members as they are. Returns
+// { row, dropped } or null when no type is known.
+export function typeRow(L, r, modelType = null) {
+  if (r.kind !== "property" || !r.untyped) return null;
+  let dt = null, enumVals = null;
+  if (r.custom) dt = modelType && valueTypes(L.S).includes(modelType) ? modelType : null;
+  else {
+    const p = r.set ? propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name) : null;
+    if (p) { dt = p.dataType; enumVals = p.enum; }
+  }
+  if (!dt) return null;
+  const row = { ...r, untyped: false, dataType: r.custom ? dt : r.dataType };
+  const prim = L.S.prim(dt);
+  const kind = prim === "double" || prim === "integer" ? "number" : prim === "boolean" || prim === "logical" ? "bool" : "text";
+  const vals = r.mode === "equals" ? [r.equals] : r.mode === "oneOf" ? r.oneOf : [];
+  let keep = r.mode === "any" || !r.mode;
+  if (kind === "bool" && vals.length === 1 && /^(true|false)$/i.test(vals[0])) { row.mode = vals[0].toLowerCase(); keep = true; }
+  else if (kind === "number" && r.mode === "equals" && vals[0].trim() !== "" && Number.isFinite(Number(vals[0]))) keep = true;
+  else if (kind === "text" && (r.mode === "equals" || r.mode === "oneOf") && (!enumVals || vals.every((v) => enumVals.includes(v)))) keep = true;
+  else if (kind === "text" && !enumVals && r.mode === "pattern") keep = true;
+  if (!keep) { row.mode = "any"; row.equals = ""; row.oneOf = []; row.pattern = ""; }
+  return { row, dropped: !keep };
+}
 
 export const reqComplete = (r) => r.fixed || (r.kind === "property" ? r.set && r.name : r.kind === "attribute" ? r.name : r.kind === "partOf" ? r.entity : true);
 
@@ -596,6 +631,8 @@ function editableRow(L, classes, f) {
       if (!ownSetName(r.set) || (f.dataType && !valueTypes(L.S).includes(f.dataType))) return null;
       r.custom = true; r.dataType = f.dataType || "";
     }
+    // A value with no dataType stays without one (valueChoices, typeRow).
+    if (!f.dataType && f.value && f.value.present) r.untyped = true;
   } else if (f.kind === "attribute") {
     r.name = simpleOf(f.name);
     if (!r.name || !commonAttributes(L.S, classes).includes(r.name)) return null;

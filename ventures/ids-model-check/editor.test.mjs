@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { parseIds } from "./ids.mjs";
 import { auditIds } from "./audit.mjs";
 import { resources, check } from "./node.mjs";
-import { classesWithSets, setsFor, propertiesOf, subclasses, predefinedTypes, buildIds, entityFacet, xsBase, PARTOF_RELATIONS, importIds, stateToDoc, idsSchema, specClassNames, commonSets, commonAttributes, sameAttributeType, commonPredefinedTypes, parseClassList, valueChoices, attributeValueKind, modelAttributes, modelValueOffer } from "./editor.mjs";
+import { classesWithSets, setsFor, propertiesOf, subclasses, predefinedTypes, buildIds, entityFacet, xsBase, PARTOF_RELATIONS, importIds, stateToDoc, idsSchema, specClassNames, commonSets, commonAttributes, sameAttributeType, commonPredefinedTypes, parseClassList, valueChoices, attributeValueKind, modelAttributes, modelValueOffer, typeRow } from "./editor.mjs";
 import { Model } from "./ids.mjs";
 import { modelInventory } from "./inventory.mjs";
 
@@ -293,4 +293,52 @@ test("a numeric attribute gets a range from the model, written as xs:double, tha
   // A range written on xs:string (as some tools do) is kept as written, not rewritten to xs:double.
   const asString = xml.replace('base="xs:double"', 'base="xs:string"');
   assert.equal(reopen(asString).imp.state.specs[0].reqs[0].fixed.kind, "attribute");
+});
+
+test("a property value with no dataType opens as a row that keeps no dataType; typeRow writes the template's", () => {
+  const L = loadFor("IFC4");
+  const text = readFileSync(new URL("./samples/tiny-house.ifc", import.meta.url), "utf8");
+  const prop = (set, name, value, dt = "") => `<property${dt ? ` dataType="${dt}"` : ""}><propertySet><simpleValue>${set}</simpleValue></propertySet><baseName><simpleValue>${name}</simpleValue></baseName><value>${value}</value></property>`;
+  const sv = (v) => `<simpleValue>${v}</simpleValue>`;
+  const spec = (app, req) => `<specification name="s" ifcVersion="IFC4"><applicability minOccurs="1" maxOccurs="unbounded"><entity><name><simpleValue>IFCWALL</simpleValue></name></entity>${app}</applicability><requirements>${req}</requirements></specification>`;
+  const doc = (...specs) => `<?xml version="1.0" encoding="UTF-8"?><ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema"><info><title>t</title></info><specifications>${specs.join("")}</specifications></ids>`;
+  const xml = doc(
+    spec(prop("Pset_WallCommon", "IsExternal", sv("TRUE")), prop("Pset_WallCommon", "FireRating", sv("60 min"))),
+    spec("", prop("Acme_Wall", "Zone", `<xs:restriction base="xs:string"><xs:enumeration value="A"/><xs:enumeration value="B"/></xs:restriction>`)),
+  );
+  const { imp, parsed, back } = reopen(xml);
+  const [s0, s1] = imp.state.specs;
+  assert.deepEqual([...s0.app, ...s0.reqs, ...s1.reqs].map((r) => (r.fixed ? "kept" : `${r.set}.${r.name} untyped=${r.untyped} ${r.mode}`)),
+    ["Pset_WallCommon.IsExternal untyped=true equals", "Pset_WallCommon.FireRating untyped=true equals", "Acme_Wall.Zone untyped=true oneOf"]);
+  assert.equal(imp.kept, 0);
+  assert.deepEqual(said(back.specs[0]), said(parsed.specs[0]));
+  assert.deepEqual(said(back.specs[1]), said(parsed.specs[1]));
+  const written = buildIds(stateToDoc(imp.state, L), L.S);
+  assert.ok(!/dataType=/.test(written), "no dataType is added on the way back");
+  // Untyped rows are offered text modes (no range, no enumeration list).
+  assert.deepEqual(valueChoices(L, ["IFCWALL"], s0.app[0]).modes, ["any", "equals", "oneOf", "pattern"]);
+
+  // typeRow: TRUE becomes the boolean true, a label keeps its text.
+  const t1 = typeRow(L, s0.app[0]), t2 = typeRow(L, s0.reqs[0]);
+  assert.deepEqual([t1.row.untyped, t1.row.mode, t1.dropped], [false, "true", false]);
+  assert.deepEqual([t2.row.mode, t2.row.equals, t2.dropped], ["equals", "60 min", false]);
+  // An own set takes the model's type only when the page offers it.
+  assert.equal(typeRow(L, s1.reqs[0]), null);
+  assert.equal(typeRow(L, s1.reqs[0], "IFCWALLTYPEENUM"), null);
+  const t3 = typeRow(L, s1.reqs[0], "IFCLABEL");
+  assert.deepEqual([t3.row.dataType, t3.row.mode, t3.row.oneOf], ["IFCLABEL", "oneOf", ["A", "B"]]);
+  // A list on a number type cannot stay a one-of: any value, flagged.
+  const t4 = typeRow(L, s1.reqs[0], "IFCLENGTHMEASURE");
+  assert.deepEqual([t4.row.mode, t4.row.oneOf, t4.dropped], ["any", [], true]);
+
+  // Typed, the condition means what its author meant: xs:boolean is written
+  // true/false, so the untyped TRUE kept none of the sample's walls (the
+  // specification checked nothing and, being required, failed) and the typed
+  // true keeps the 2 external ones.
+  s0.app[0] = t1.row; s0.reqs[0] = t2.row;
+  const typed = buildIds(stateToDoc(imp.state, L), L.S);
+  assert.match(typed, /<property dataType="IFCBOOLEAN"><propertySet><simpleValue>Pset_WallCommon<\/simpleValue><\/propertySet><baseName><simpleValue>IsExternal<\/simpleValue><\/baseName><value><simpleValue>true<\/simpleValue>/);
+  const a = check(written, text).specs[0], b = check(typed, text).specs[0];
+  assert.deepEqual([a.applicable, b.applicable], [0, 2]);
+  assert.ok(!auditIds(parseIds(typed), { schemas: { IFC4: R.schemas.IFC4 }, typeMap: R.typeMap, psets: R.psets }).some((i) => i.code === "value-no-datatype" && /IsExternal|FireRating/.test(i.message)));
 });
