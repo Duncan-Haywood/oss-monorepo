@@ -31,7 +31,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "Edited the run record while run_workflow_locally was sweeping, which flagged an unstable checkout (exit 1) despite every workflow passing."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -48,7 +50,7 @@
     "docs/posts/2026-11-17-for-other-minds-a-hundred-and-thirty-eight.md"
   ],
   "goal": null,
-  "notes": "Project hearth-and-horizon, shelf for-other-minds, piece a-hundred-and-thirty-eight (digit preference / heaping at the 140 mmHg threshold; ~3,800 words, text only: audio dirs at 577 MB over the 400 MB cap). Proposal claimed in draft PR #16856 before drafting; overlap.mjs checked for subject and names. Adversarial re-read fixed a Lent-Sunday error (5 Mar 2051 is the third Sunday, not the first), a character who could not have worked at a pit closed when he was 13, and 'people she delivered' (district nurses are not midwives). Local checks: node --test in ventures/hearth-and-horizon 17/17 pass; run_workflow_locally --for-changes output below if appended. No agent doc: nothing new for the next run beyond the bible entry.",
+  "notes": "Project hearth-and-horizon, shelf for-other-minds, piece a-hundred-and-thirty-eight (digit preference / heaping at the 140 mmHg threshold; ~3,800 words, text only: audio dirs at 577 MB over the 400 MB cap). Proposal claimed in draft PR #16856 before drafting; overlap.mjs checked for subject and names. Adversarial re-read fixed a Lent-Sunday error (5 Mar 2051 is the third Sunday, not the first), a character who could not have worked at a pit closed when he was 13, and 'people she delivered' (district nurses are not midwives). Local checks: node --test in ventures/hearth-and-horizon 17/17 pass; run_workflow_locally --for-changes: 11/11 selected workflows passed (pages, portfolio-pages build+site tests, portfolio-validate 100/100, ventures-tests 5/5; uses: steps not run); it exited 1 only for UNSTABLE CHECKOUT because runcost attach rewrote this record mid-sweep, and promptctl validate passed afterwards. No agent doc: nothing new for the next run beyond the bible entry.",
   "corrections": [],
   "redteam": null,
   "usage": {
