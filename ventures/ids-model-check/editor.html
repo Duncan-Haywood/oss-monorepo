@@ -94,7 +94,7 @@
   import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
   import { Schema, parseIds } from "./ids.mjs";
   import { auditIds } from "./audit.mjs";
-  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, idsSchema, facetXml, editableAttributes, modelSets, valueTypes, ownSetName, specBases, specClassNames, commonSets, commonAttributes, attributeValueKind, commonPredefinedTypes, parseClassList, modelValueOffer, modelAttributes, modelCodes, appMatchCount, reqComplete, typeRow, untypeRow, temporalType, TEMPORAL_EXAMPLE, datePattern, modelSubclassesLeftOut } from "./editor.mjs";
+  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, idsSchema, facetXml, editableAttributes, modelSets, valueTypes, ownSetName, specBases, specClassNames, commonSets, commonAttributes, attributeValueKind, commonPredefinedTypes, parseClassList, modelValueOffer, modelAttributes, modelCodes, appMatchCount, reqComplete, typeRow, untypeRow, temporalType, TEMPORAL_EXAMPLE, datePattern, modelSubclassesLeftOut, modelSpec } from "./editor.mjs";
   import { temporalKind } from "./temporal.mjs";
   import { isZip, unzipModel, inflateRawStream } from "./zip.mjs";
 
@@ -474,8 +474,7 @@
     if (a === "model-spec") {
       const cls = e.target.dataset.cls;
       const L = loaded[doc.schema];
-      const nice = L.S.entities[cls] ? L.S.entities[cls].name.replace(/^Ifc/, "") : cls;
-      doc.specs.push({ ...blankSpec(), name: `${nice} requirements`, cls, withSub: false });
+      doc.specs.push(modelSpec(L.S, cls, inv.classes));
       record("editor_spec_added");
       await render();
       const n = document.getElementById(`s-${doc.specs.length - 1}-name`);

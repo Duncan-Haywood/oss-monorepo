@@ -129,7 +129,7 @@ export function checkInvoice(invoice) {
         fail(finding.rule, finding.message, finding.fix, finding.path);
       }
       for (const finding of inspectPartyEndpoint(party, partyName)) {
-        fail(finding.rule, finding.message, finding.fix, finding.path);
+        fail(finding.rule, finding.message, finding.fix, finding.path, finding.severity);
       }
     }
   }

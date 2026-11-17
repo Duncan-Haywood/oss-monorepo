@@ -99,6 +99,11 @@ def inspect_party_endpoint(party: dict[str, Any], party_name: str) -> list[dict[
     return findings
 
 
+# INV-061 (endpoint.mjs, 2026-11-17) is a warning for OpenPeppol's warning-level
+# formats (0201, 0210, 0211, 0106, 0190, 9944, 0217). The Python checks have no
+# warning severity, so it stays silent here rather than fail a file Peppol passes.
+
+
 def inspect_party_endpoints(invoice: dict[str, Any]) -> list[dict[str, str]]:
     """Return endpoint observations for supplier and customer when present."""
     if not isinstance(invoice, dict):

@@ -198,6 +198,13 @@ function totalChecks(lines, comma, at, bare) {
     else if (/\bround(?:ing)?\b/i.test(l) && !TOTAL_RE.test(l)) { const m = l.match(/(-|\()\s*(?:rm\s*)?\d*[.,]\d{2}/i); if (Math.abs(v) <= 10) rounds.push(m ? -v : v); }
   });
   for (const s of subs) for (const t of taxes) if (t > 0 && t < s) for (const r of rounds) checks.push([s + t + r, "subtotal plus tax"]);
+  // a gratuity printed between the tax and the total is part of it: "SubTotal 3.99 / Tax 0.30
+  // / Gratuity 1.00 / Total 5.29" (SRD 1149, eval/rapidocr-web-srd-2026-11-17.md); without
+  // this check subtotal plus tax (4.29) sat one digit from the printed 5.29 and the items
+  // agreed, so the right total was "corrected" to 4.29. Only a gratuity line above the total
+  // line, with no "suggested" wording (a tip table under the total is not in it)
+  const grats = lines.flatMap((l, i) => (i < at && TIP_RE.test(l) && !TOTAL_RE.test(l) && !/suggest/i.test(l) && amt(i) !== null && amt(i) > 0 ? [amt(i)] : []));
+  for (const s of subs) for (const t of taxes) if (t > 0 && t < s) for (const g of grats) if (g < s) checks.push([s + t + g, "subtotal plus tax and gratuity"]);
   // the items added up, with and without the tax
   const items = parseItems(lines, comma);
   if (items.length >= 2) {

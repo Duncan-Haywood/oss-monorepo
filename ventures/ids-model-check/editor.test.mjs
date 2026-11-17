@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { parseIds } from "./ids.mjs";
 import { auditIds } from "./audit.mjs";
 import { resources, check } from "./node.mjs";
-import { modelSubclassesLeftOut, classesWithSets, setsFor, propertiesOf, subclasses, predefinedTypes, buildIds, entityFacet, xsBase, PARTOF_RELATIONS, importIds, stateToDoc, idsSchema, specClassNames, commonSets, commonAttributes, sameAttributeType, commonPredefinedTypes, parseClassList, valueChoices, attributeValueKind, modelAttributes, modelValueOffer, typeRow, appMatchCount, untypeRow, blankReq, blankSpec, temporalType, modelSets, datePattern } from "./editor.mjs";
+import { modelSubclassesLeftOut, modelSpec, classesWithSets, setsFor, propertiesOf, subclasses, predefinedTypes, buildIds, entityFacet, xsBase, PARTOF_RELATIONS, importIds, stateToDoc, idsSchema, specClassNames, commonSets, commonAttributes, sameAttributeType, commonPredefinedTypes, parseClassList, valueChoices, attributeValueKind, modelAttributes, modelValueOffer, typeRow, appMatchCount, untypeRow, blankReq, blankSpec, temporalType, modelSets, datePattern } from "./editor.mjs";
 import { Model } from "./ids.mjs";
 import { modelInventory } from "./inventory.mjs";
 
@@ -506,4 +506,19 @@ test("modelSubclassesLeftOut: the model's subclass objects a specification would
   const be = modelSubclassesLeftOut(S, { ...spec, cls: "IFCBUILDINGELEMENT" }, inv);
   assert.deepEqual(be.map((x) => x.cls), ["IFCWALLSTANDARDCASE", "IFCSLAB", "IFCWALL"]);
   assert.deepEqual(modelSubclassesLeftOut(S, { ...spec, cls: "IFCSLAB" }, inv), []);
+});
+
+test("Add a specification from the model's class list names the model's own subclasses of the class", () => {
+  // Schultz Residence counts (eval/corpus-crosscheck-2026-11-17.md): 4 IfcWall, 101 IfcWallStandardCase.
+  const S = R.schemas.IFC2X3;
+  const inv = [{ cls: "IFCWALL", count: 4 }, { cls: "IFCWALLSTANDARDCASE", count: 101 }, { cls: "IFCSLAB", count: 9 }];
+  const w = modelSpec(S, "IFCWALL", inv);
+  assert.equal(w.name, "Wall requirements");
+  assert.deepEqual(w.also, ["IFCWALLSTANDARDCASE"]);
+  assert.equal(w.withSub, false);
+  assert.deepEqual(modelSubclassesLeftOut(S, w, inv), [], "no warning on the new specification");
+  assert.deepEqual(specClassNames(S, w), ["IFCWALL", "IFCWALLSTANDARDCASE"]);
+  // a class with no subclass objects in the model gets none, and the schema's others are not added
+  assert.deepEqual(modelSpec(S, "IFCSLAB", inv).also, []);
+  assert.deepEqual(modelSpec(S, "IFCWALL", [{ cls: "IFCWALL", count: 4 }]).also, []);
 });
