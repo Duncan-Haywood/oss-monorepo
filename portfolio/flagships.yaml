@@ -229,11 +229,11 @@ flagships:
       passes Mustang; open: a real business's PINT file. A run that lands a slice
       replaces its item here. More open items: NEXT.md.
     buildable: >-
-      CII line-level GlobalIDs (BT-157) that Peppol's ram:GlobalID context reaches
-      under a COMMON scheme (payee, tax representative, deliver-to landed
-      2026-11-17: eval/delivery-party-ids-peppol-differential-2026-11-17.md); R056-2
-      on the tax representative's VAT number (a warning; seller/buyer already fail
-      INV-022/023). No network.
+      R056-2 on the tax representative's VAT number (a warning; seller/buyer already
+      fail INV-022/023); UBL line-level Delivery/DeliveryParty ids, which UBL's open
+      PartyIdentification context reaches (payee, tax representative, deliver-to and
+      CII line ids landed 2026-11-17:
+      eval/line-ids-peppol-differential-2026-11-17.md). No network.
   - venture: shift-roster-builder
     inputs_only: >-
       a live deploy with real punches, a real payroll template, a manager's

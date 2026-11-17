@@ -10,7 +10,7 @@ from .adjustment import header_adjustment_net_delta, inspect_header_adjustments
 from .bic import inspect_payment_bic
 from .breakdown import inspect_tax_breakdown
 from .document import inspect_document_type
-from .endpoint import inspect_party_endpoint, inspect_party_identifiers
+from .endpoint import inspect_line_schemed_ids, inspect_party_endpoint, inspect_party_identifiers
 from .linenet import accepted_line_net, flat_tax_total, is_negative_invoice, expected_line_net, summed_line_net, tax_groups, tax_percent_of
 from .iban import inspect_payment_iban
 from .means import inspect_payment_means
@@ -137,6 +137,8 @@ def _check_invoice(invoice: Any) -> list[dict[str, str]]:
         if not isinstance(line, dict):
             fail("INV-008", f"Line {index} is not an object.", "Provide description, quantity, unit_price, and tax_percent.", f"/lines/{index - 1}")
             continue
+        for finding in inspect_line_schemed_ids(line, index - 1):
+            fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
         if not isinstance(line.get("description"), str) or not line.get("description", "").strip():
             fail("INV-008", f"Line {index} has no description.", "Add a human-readable line description.", f"/lines/{index - 1}/description")
         quantity, price, tax = _number(line.get("quantity")), _number(line.get("unit_price")), tax_percent_of(line)
