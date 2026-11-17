@@ -540,6 +540,8 @@ function genOpts(opts) {
  *     first WEEKLY period starting at DTSTART for BYSETPOS)
  * Returns { occurrences: [{ w, day, sec, source, utc?, offset?, zone? }], truncated, skipped, gaveUp, tz }.
  */
+const END_OF_9999 = dayNumber(10000, 1, 1) * 86400;
+
 export function expand(parsed, opts = {}) {
   const limit = Math.min(Math.max(1, opts.limit ?? 25), 5000);
   const start = parsed.dtstart;
@@ -563,6 +565,7 @@ export function expand(parsed, opts = {}) {
   let dtPending = rfc;
   let skipped = 0;
   let truncated = false;
+  let pastYear9999 = false;
   while (true) {
     let best = Infinity;
     let src = null;
@@ -570,6 +573,12 @@ export function expand(parsed, opts = {}) {
     for (const s of streams) if (s.head !== null && s.head < best) (best = s.head), (src = "rule");
     if (ri < rdates.length && rdates[ri] < best) (best = rdates[ri]), (src = "rdate");
     if (best === Infinity) break;
+    // iCalendar years have four digits (RFC 5545 3.3.4), and Intl and Date
+    // throw near year 275760: nothing past 9999-12-31 is listed.
+    if (best >= END_OF_9999) {
+      pastYear9999 = true;
+      break;
+    }
     // A recurrence set has no duplicates: advance every source sitting on `best`.
     if (dtPending && best === dtW) dtPending = false;
     for (const s of streams) while (s.head !== null && s.head === best) s.head = s.next();
@@ -599,7 +608,7 @@ export function expand(parsed, opts = {}) {
     occurrences.push(o);
   }
   const infos = streams.map((s) => s.info).filter(Boolean);
-  return { occurrences, truncated, skipped, gaveUp: infos.find((i) => i.searched === null) ?? null, ended: infos, tz: tz && zoneOk ? tz : null };
+  return { occurrences, truncated, skipped, pastYear9999, gaveUp: infos.find((i) => i.searched === null) ?? null, ended: infos, tz: tz && zoneOk ? tz : null };
 }
 
 function makeStream(rule, start, tz, zoneOk, opts) {
@@ -618,7 +627,10 @@ function makeStream(rule, start, tz, zoneOk, opts) {
     const w = it.value.w;
     if (until) {
       if (until.wall !== undefined && w > until.wall) return null;
-      if (until.instant !== undefined) {
+      // No UTC offset exceeds 26 hours, so only a wall time within 26 hours of
+      // UNTIL needs the (slow) zone lookup; a SECONDLY rule makes millions.
+      if (until.instant !== undefined && w + 93600 > until.instant) {
+        if (w - 93600 > until.instant) return null;
         const d = Math.floor(w / 86400);
         if (wallToInstant(d, w - d * 86400, tz).t > until.instant) return null;
       }
@@ -861,6 +873,11 @@ export function analyze(input = {}) {
   }
   const exp = expand(p, { limit: Number(o.limit) || 25, after, dtstartMode: o.dtstartMode });
   findings.push(...zoneFindings(exp, parsed.dtstart));
+  if (exp.gaveUp) {
+    const f = rules.find((r) => FREQ_RANK[r.freq] < FREQ_RANK.DAILY)?.freq ?? "sub-daily";
+    findings.push(finding("warning", "search-stopped", "The search stopped before the list was complete", `A ${f.toLowerCase()} rule is stepped through one unit at a time, and this page stops after ${exp.gaveUp.steps.toLocaleString("en-US")} steps. More dates may follow the ones listed${o.after ? ', including from "Show from" on' : ""}. Set "Show from" or DTSTART closer together to see them.`));
+  }
+  if (exp.pastYear9999) findings.push(finding("info", "past-year-9999", "Later dates fall after the year 9999", "iCalendar writes years with four digits (RFC 5545 3.3.4), so no calendar can hold them. The list stops at 9999-12-31."));
   const occurrences = exp.occurrences.map((x) => ({
     date: formatWall(x.day, x.sec, parsed.dtstart.date),
     weekday: DAY_NAMES[weekday(x.day)],
@@ -876,6 +893,7 @@ export function analyze(input = {}) {
     skippedBefore: exp.skipped,
     findings: sortFindings(findings),
     truncated: exp.truncated,
+    searchStopped: Boolean(exp.gaveUp),
     tz: exp.tz,
     dtstart: formatWall(parsed.dtstart.day, parsed.dtstart.sec, parsed.dtstart.date),
     allDay: parsed.dtstart.date,
