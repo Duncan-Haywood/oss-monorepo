@@ -76,8 +76,10 @@ so the same random draws make the same accept/reject decisions.
   searches): `0e128af3...7404` for the old file and for the new.
 - The 367-search hash above (n = 3 to 22, cyclic, break weights 0 / 3 / 20,
   tries single and double): `70114586...070b` before and after.
-- `python3 platform/ci/run_venture_tests.py league-schedule-generator`: see
-  the run record's notes for the pass line and wall time.
+- `python3 platform/ci/run_venture_tests.py league-schedule-generator`:
+  `ok league-schedule-generator (204.2s, 561 tests)`, 0 failed (alone, this
+  container; not comparable with the 626.8 s pool figure, which shares four
+  cores with other suites).
 
 ## Numbers (this container, 4 cores, nothing else running, two alternating runs)
 
