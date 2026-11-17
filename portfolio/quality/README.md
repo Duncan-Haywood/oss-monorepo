@@ -20,18 +20,19 @@ every score (so a reader can check it).
 Posts go in `docs/posts/` tagged `quality-audit`; the blog files them under
 the topic "Quality audits" (`platform/pages/writing.mjs`, `TOPICS`).
 
-## Four modes
+## Five modes
 
 The owner, 2026-11-10: "direct a lot more work to quality audits. more detail
 in it. and also reflections on what parts of the process seem to make the
 quality drop off and suggested fixes to the process. ongoing thing full repo
 quality reviews. detailed metrics on quality and correctness."
 
-A quality session runs one of four modes. `python3
+A quality session runs one of five modes. `python3
 platform/ci/quality_audit.py mode` picks it: `reflect` whenever no reflection
 has been written for seven days, otherwise a draw seeded by the date (sample
-35%, census 30%, fix 25%, reflect 10%; `fix` doubles while high-severity
-defects are open). Software decides the routine; the session's time goes to
+35%, census 20%, fix 25%, reaudit 10%, reflect 10%; `fix` doubles while
+high-severity defects are open, and `reaudit` drops out when no fix awaits a
+re-check). Software decides the routine; the session's time goes to
 the audit.
 
 | mode | what it does | command |
@@ -39,6 +40,7 @@ the audit.
 | `sample` | the stratified random round below: the unbiased share meeting the bar | `sample` |
 | `census` | the full-repository sweep: never-audited subjects first, so every venture, research project and platform directory gets a first audit | `census --n 6` |
 | `fix` | work the open-defect queue: fix, add the test that would have caught it, record the PR in the audit's `fix_prs`; a later round re-audits the subject in a new file. `queue` flags rows whose subject has commits since the audit: check those first, since a fix may have landed unrecorded (PR #14329 did). It also marks rows an open PR's title already names ("open PR naming it"): a fix PR reaches `fix_prs` only at merge, so take another row or extend that PR. Subjects come in a per-session shuffled order (seed printed; `--oldest-first` for the fixed one), so parallel fix sessions start on different rows | `queue --severity high` |
+| `reaudit` | confirm recorded fixes: take a subject whose latest audit lists a fix PR and that no later audit has checked (fixed highs first), re-check *every* earlier defect against the code as it is now, and write a new audit file with `"drawn_by": "reaudit"` that says which defects the fix closed. Added 2026-11-17: no subject had been re-audited after a fix since 2026-11-10, 248 awaited one, and 1,313 defects counted as fixed only because their audit listed some fix PR ([reflection 2](reflections/2026-11-17-the-fix-loop-is-open.md)) | `reaudit` |
 | `reflect` | read the corpus and the process, write `reflections/<date>-<slug>.md`: where quality drops, why, and process fixes with the metric each should move | `metrics --md` |
 
 `sample` prints a NOTE first when today's mode is another one. The track
@@ -46,8 +48,8 @@ prompt's step 5 (the `quality-audit-round-<n>` post) is for a sample round; a
 fix session names its post for the fix instead (`2026-11-14-quality-fix-*`).
 
 Census audits use stratum `venture`, `research` or `platform` like sampled
-ones, and the full rubric, and set `"drawn_by": "census"` (a fix-mode
-re-audit sets `"fix"`). They are not uniform draws, so `summary` shows them in
+ones, and the full rubric, and set `"drawn_by": "census"` (a re-audit that
+checks a fix sets `"reaudit"`; older fix-mode files use `"fix"`). They are not uniform draws, so `summary` shows them in
 the per-stratum rows but leaves them out of the sampled share and its
 interval, which stays an estimate from `sample` rounds alone; the
 `metrics` coverage table tracks the sweep (159 of 2,423 subjects audited by

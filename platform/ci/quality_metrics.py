@@ -367,6 +367,107 @@ def unmarked_fixes(audits: list[dict], severity: str = "medium") -> list[dict]:
     return out
 
 
+OPEN_RX = re.compile(r"known gaps?|not yet fixed|still open|unfixed|open defects", re.I)
+
+
+def documented_open(a: dict, root: Path = ROOT) -> bool:
+    """Whether the subject's README names this audit file next to "known gaps" or "not yet fixed": the round's PR
+    wrote the defects down as open, and listing that PR in `fix_prs` then counted them all as fixed. On
+    2026-11-17, 56 of 186 such latest audits read this way, 49 high defects among them; gig-driver-net-pay-
+    calculator's missing depreciation and verifier-bribery's threshold were two (reflection 2)."""
+    readme = root / a.get("subject", "") / "README.md"
+    try:
+        text = readme.read_text(errors="ignore")
+    except OSError:
+        return False
+    return a.get("_file", "") in text and bool(OPEN_RX.search(text))
+
+
+def reaudit_due(audits: list[dict], seed: str | None = None, root: Path = ROOT) -> list[dict]:
+    """Subjects whose latest audit records a fix (a `fix_prs` entry or a defect's `fixed_by`) that no later audit
+    has checked: the "a later round re-audits" step of the fix loop. Nothing scheduled it before 2026-11-17, and
+    sample and census skip a subject audited in the last 90 days, so 250 audits with fix PRs had no re-audit
+    (reflection 2, portfolio/quality/reflections/2026-11-17-the-fix-loop-is-open.md). Subjects whose recorded
+    fixes include a high-severity defect come first, then the oldest audit; with `seed`, subjects are shuffled
+    within those two groups so parallel sessions spread out (as `queue` does). Subjects whose README still lists the
+    audit's defects as open (`documented_open`) and that hold a high go first of all."""
+    latest: dict[str, dict] = {}
+    for a in sorted(audits, key=lambda x: (x.get("date", ""), x["_file"])):
+        latest[a["subject"]] = a
+    out = []
+    for a in latest.values():
+        ds = a.get("defects") or []
+        if a.get("status") != "audited" or not (a.get("fix_prs") or any(d.get("fixed_by") for d in ds)):
+            continue
+        fixed = [d for d in ds if defect_fixed(a, d)]
+        out.append({"subject": a["subject"], "audit": a["_file"], "date": a.get("date", ""),
+                    "fix_prs": list(a.get("fix_prs") or []), "defects": len(ds), "fixed": len(fixed),
+                    "explicit": sum(bool(d.get("fixed_by")) for d in ds),
+                    "high_fixed": sum(d.get("severity") == "high" for d in fixed),
+                    "documented_open": documented_open(a, root)})
+    rank = {}
+    if seed is not None:
+        rng = random.Random(int(hashlib.sha256(seed.encode()).hexdigest()[:16], 16))
+        subjects = sorted(r["subject"] for r in out)
+        rng.shuffle(subjects)
+        rank = {s: i for i, s in enumerate(subjects)}
+    out.sort(key=lambda r: (not (r["documented_open"] and r["high_fixed"]), r["high_fixed"] == 0,
+                            rank.get(r["subject"], 0), r["date"], r["subject"]))
+    return out
+
+
+def mutation_kill(audits: list[dict]) -> dict:
+    """Per-mutation outcome over structured `mutations` rows. The per-audit share ("at least one survived")
+    saturates once auditors seed several mutants each: 193 of 196 structured audits had a survivor on 2026-11-17,
+    at about six mutants an audit, so it can no longer move. The kill rate per mutant can."""
+    rows = [m for a in audits if a.get("status") == "audited" for m in (a.get("mutations") or [])]
+    killed = sum(bool(m.get("caught")) for m in rows)
+    n_audits = sum(bool(a.get("mutations")) for a in audits if a.get("status") == "audited")
+    return {"mutants": len(rows), "killed": killed, "audits": n_audits,
+            "kill_rate": round(killed / len(rows), 3) if rows else None,
+            "per_audit": round(len(rows) / n_audits, 1) if n_audits else None}
+
+
+def fix_confirmation(audits: list[dict]) -> dict:
+    """How defects come to count as fixed in the latest audits: marked one by one (`fixed_by`), or assumed because
+    the audit lists a fix PR and no defect is marked (`defect_fixed`'s older reading), and how many of the
+    subjects with a recorded fix a later audit has re-checked."""
+    latest: dict[str, dict] = {}
+    for a in sorted(audits, key=lambda x: (x.get("date", ""), x["_file"])):
+        latest[a["subject"]] = a
+    explicit = assumed = open_ = 0
+    for a in latest.values():
+        ds = a.get("defects") or []
+        any_marked = any(d.get("fixed_by") for d in ds)
+        for d in ds:
+            if d.get("fixed_by"):
+                explicit += 1
+            elif not any_marked and a.get("fix_prs"):
+                assumed += 1
+            else:
+                open_ += 1
+    by_subject: dict[str, list[dict]] = defaultdict(list)
+    for a in sorted(audits, key=lambda x: (x.get("date", ""), x["_file"])):
+        if a.get("status") == "audited":
+            by_subject[a["subject"]].append(a)
+    rechecked = sum(any(x.get("fix_prs") for x in seq[:-1]) for seq in by_subject.values() if len(seq) > 1)
+    due = reaudit_due(audits)
+    return {"explicit": explicit, "assumed": assumed, "open": open_,
+            "rechecked_after_fix": rechecked, "awaiting_recheck": len(due),
+            "documented_open": sum(r["documented_open"] for r in due)}
+
+
+def bar_by_instrument(audits: list[dict], meets_bar) -> dict:
+    """The sampled share meeting the bar, split by whether the audit carries structured `mutations` (required from
+    2026-11-11). The two halves were measured differently, so a drop across the boundary is not by itself a fall
+    in the work's quality."""
+    out = {}
+    for label, structured in (("prose", False), ("structured", True)):
+        xs = [a for a in audits if a.get("status") == "audited" and a.get("stratum") in ("venture", "research", "platform")
+              and a.get("drawn_by", "sample") == "sample" and bool(a.get("mutations")) == structured]
+        out[label] = {"n": len(xs), "meets_bar": sum(meets_bar(a["scores"]) for a in xs)}
+    return out
+
 def _git(args: list[str], root: Path = ROOT) -> str:
     import subprocess
     try:
@@ -542,9 +643,12 @@ MODES = {
     "sample": "the stratified random round (quality_audit.py sample): the unbiased share meeting the bar",
     "census": "the full-repository sweep (census): never-audited subjects first",
     "fix": "fix the open-defect queue (queue), with a regression test per fix; a later round re-audits (not this one)",
+    "reaudit": "re-audit a subject whose recorded fix no later audit has checked (reaudit), in a new audit file",
     "reflect": "read the corpus (metrics) and the process, write a reflection with process fixes",
 }
-MODE_WEIGHTS = {"sample": 0.35, "census": 0.30, "fix": 0.25, "reflect": 0.10}
+# reaudit took 0.10 from census on 2026-11-17 (reflection 2): no subject had been re-audited after a fix since
+# 2026-11-10, so no recorded fix had been confirmed. It drops out of the draw when nothing awaits a re-check.
+MODE_WEIGHTS = {"sample": 0.35, "census": 0.20, "fix": 0.25, "reaudit": 0.10, "reflect": 0.10}
 REFLECT_EVERY_DAYS = 7
 
 
@@ -555,7 +659,8 @@ def last_reflection(directory: Path = REFLECTIONS) -> str | None:
     return max(dates) if dates else None
 
 
-def mode_for(date: str, seed: str | None = None, last_reflect: str | None = None, open_high: int = 0) -> dict:
+def mode_for(date: str, seed: str | None = None, last_reflect: str | None = None, open_high: int = 0,
+             reaudit_waiting: int | None = None) -> dict:
     """Software for the routine: which mode today's quality session runs. A reflection is forced when none has been
     written for a week; otherwise a seeded draw by MODE_WEIGHTS, with `fix` doubled while high defects are open."""
     day = dt.date.fromisoformat(date)
@@ -564,6 +669,8 @@ def mode_for(date: str, seed: str | None = None, last_reflect: str | None = None
     weights = dict(MODE_WEIGHTS)
     if open_high:
         weights["fix"] *= 2
+    if reaudit_waiting == 0:
+        del weights["reaudit"]
     rng = random.Random(int(hashlib.sha256((seed or date).encode()).hexdigest()[:16], 16))
     pick = rng.random() * sum(weights.values())
     for mode, w in weights.items():
@@ -638,9 +745,11 @@ def metrics(audits: list[dict], pop: dict[str, list[str]], today: dt.date, meets
         "mutations": {"survived": muts["survived"], "caught": muts["caught"], "unknown": muts["unknown"],
                       "survival_rate": round(muts["survived"] / known, 3) if known else None,
                       "ci": [round(lo, 3), round(hi, 3)]},
+        "mutation_kill": mutation_kill(audits),
         "fixes": {"audits_with_defects": len(with_defects),
                   "audits_with_fix_prs": sum(bool(a.get("fix_prs")) for a in with_defects),
-                  "open_high_in_latest": high_open},
+                  "open_high_in_latest": high_open, **fix_confirmation(audits)},
+        "bar_by_instrument": bar_by_instrument(audits, meets_bar),
         "persistence": persistence(audits),
         "agreement": agreement(audits, meets_bar),
         "evidence": {"median_chars": statistics.median(e["chars"] for e in ev) if ev else None,
@@ -679,9 +788,18 @@ def render_md(m: dict) -> str:
     L += ["", f"**Seeded mutations.** In {mu['survived'] + mu['caught']} audits that report the outcome, at least one seeded "
           f"bug in core logic survived the subject's own tests in {mu['survived']} ({100 * (mu['survival_rate'] or 0):.0f}%, Wilson 95% "
           f"{100 * mu['ci'][0]:.0f}% to {100 * mu['ci'][1]:.0f}%); {mu['unknown']} audits do not say."]
+    mk = m.get("mutation_kill") or {}
+    if mk.get("mutants"):
+        L.append(f"Per mutant (structured rows, all audits): {mk['killed']} of {mk['mutants']} seeded bugs failed a test "
+                 f"({100 * mk['kill_rate']:.0f}% killed) over {mk['audits']} audits, {mk['per_audit']} an audit. The per-audit "
+                 "share above saturates at several mutants an audit; the kill rate is the one that can move.")
     fx, ps = m["fixes"], m["persistence"]
     L += ["", f"**Fixes.** {fx['audits_with_fix_prs']} of {fx['audits_with_defects']} audits with defects list a fix PR; "
           f"{fx['open_high_in_latest']} high-severity defects are open in the latest audits.",
+          f"Of the latest audits' defects, {fx['explicit']} are marked fixed one by one (`fixed_by`), {fx['assumed']} are "
+          f"assumed fixed because their audit lists a fix PR and marks none, and {fx['open']} are open. "
+          f"{fx['rechecked_after_fix']} subjects have been re-audited after a recorded fix; {fx['awaiting_recheck']} await one "
+          f"(`quality_audit.py reaudit`), {fx['documented_open']} of them with a README that still lists the audit's defects as open.",
           f"Of {ps['earlier_defects']} defects in an audit that was later repeated, {ps['reappeared']} "
           f"({100 * (ps['share'] or 0):.0f}%) reappear in the next audit of the same subject "
           f"({ps['subjects_reaudited']} subjects re-audited)."]
@@ -703,6 +821,13 @@ def render_md(m: dict) -> str:
     for st in ("venture", "research", "platform"):
         c = cv[st]
         L.append(f"| {st} | {c['population']} | {c['audited_ever']} | {c['audited_recently']} |")
+    bi = m.get("bar_by_instrument") or {}
+    if bi:
+        L += ["", "**Sampled share by instrument.** Audits before 2026-11-11 are prose; after it they carry structured "
+              "checks and mutations. A change across the boundary is partly the instrument.", "",
+              "| instrument | sampled audits | meets bar |", "|---|---|---|"]
+        for k, v in bi.items():
+            L.append(f"| {k} | {v['n']} | {v['meets_bar']} ({pct(v['meets_bar'], v['n'])}) |")
     L += ["", "| week | audited | meets bar |", "|---|---|---|"]
     for w, v in m["weeks"].items():
         L.append(f"| {w} | {v['n']} | {v['meets_bar']} |")
@@ -781,5 +906,22 @@ def main_metrics(args, audits, pop, meets_bar, wilson) -> int:
                   " fixed (portfolio/quality/README.md, 'Fix forward')")
     elif args.cmd == "mode":
         open_high = len(queue(audits, "high"))
-        print(json.dumps(mode_for(args.date, args.seed, last_reflection(), open_high), indent=1))
+        print(json.dumps(mode_for(args.date, args.seed, last_reflection(), open_high, len(reaudit_due(audits))), indent=1))
+    elif args.cmd == "reaudit":
+        prs = None if getattr(args, "no_prs", False) else open_pr_titles()
+        rows = reaudit_due(audits, args.seed)
+        if prs:  # subjects an open PR already names go last
+            rows.sort(key=lambda r: bool(prs_naming(r["subject"], prs)))
+        print(f"seed {args.seed}  (--seed {args.seed} repeats this order)")
+        for r in rows[: args.limit]:
+            print(f"  {r['subject']}  audit {r['audit']}  {r['fixed']} of {r['defects']} defects counted fixed"
+                  f" ({r['explicit']} marked, {r['high_fixed']} high)  fix PRs: {', '.join(str(p) for p in r['fix_prs'][:3])}")
+            if r["documented_open"]:
+                print("      its README lists this audit under known gaps / not yet fixed: the fix PR may only have"
+                      " written the defects down")
+            for n, t in prs_naming(r["subject"], prs or [])[:2]:
+                print(f"      open PR naming it: #{n} {t[:80]}")
+        print(f"{len(rows)} subjects have a recorded fix no later audit has checked. Re-audit one in a new file with"
+              ' "drawn_by": "reaudit": check every earlier defect (fixed or not) against the code as it is now and say'
+              " which the fix closed (portfolio/quality/README.md, \"Five modes\").")
     return 0

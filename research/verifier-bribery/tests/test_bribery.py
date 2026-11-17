@@ -39,6 +39,19 @@ class T(unittest.TestCase):
         s1 = collusion_threshold_stake(Params(s=4, m=1)); s4 = collusion_threshold_stake(Params(s=4, m=4))
         self.assertAlmostEqual(s1 / s4, 4, 6)
 
+    def test_threshold_is_never_below_the_stake_at_which_checking_pays(self):
+        # The audit's counterexample (2026-11-13): s=1, lam=k=.5, m=4. The bribe condition alone gives 0.5,
+        # but below S=1.0 checking does not pay even unbribed, so the solver keeps the whole saving there.
+        p = Params(m=4)
+        self.assertAlmostEqual(collusion_threshold_stake(p), 1.0, 9)
+        for S in (0.6, 0.9):
+            q = Params(m=4, S=S)
+            self.assertAlmostEqual(solver_profit_closed_form(q), q.s, 9)
+            self.assertAlmostEqual(solver_profit_bruteforce(q), q.s, 6)
+        above = Params(m=4, S=1.05)
+        self.assertLess(solver_profit_closed_form(above), above.s - 0.01)
+        self.assertEqual(collusion_threshold_stake(Params(m=8)), collusion_threshold_stake(Params(m=4)))
+
     def test_monte_carlo_matches_payoffs(self):
         p = Params(S=4, lam=.5, k=.5, h=.2, phi=.1, J=3)
         x, b = .4, 1.3
