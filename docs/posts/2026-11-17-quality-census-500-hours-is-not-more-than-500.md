@@ -1,9 +1,9 @@
 ---
 title: "Quality census: 500 hours is not \"more than 500\", and 0 of 6 subjects at the bar"
-seo_title: "Quality census 2026-11-17 (seed a396): six first audits, none at the bar"
+seo_title: "Quality census 2026-11-17: six first audits, none at the bar"
 date: 2026-11-17
 tags: [quality-audit, evaluation, testing]
-description: "Six never-audited subjects, all finished, none at the bar. Worst: a tax tool treated exactly 500 rental hours as material participation and deducted a $60,000 loss."
+description: "Six never-audited subjects, all finished, none at the bar. Worst: a tax tool counted exactly 500 rental hours as material participation."
 ---
 
 The method and rubric are in [`portfolio/quality/README.md`](../../portfolio/quality/README.md). The date-seeded mode draw put this session in `census` mode, seed `2026-11-17-a396`. Census mode sweeps subjects nobody has audited yet. Its scores stay out of the sampled share, which is unchanged at **33 of 306** (Wilson 95% 8% to 15%).
