@@ -1,0 +1,26 @@
+Milestone 7w, post hoc (not predicted): per-seed Mann-Whitney U (two-sided) on L2-45 counts, lag45 against lag39, per arm,
+  inherited 15 ms D^1.5    7l above: lag45 26 vs lag39 26, p = 0.572
+  inherited 15 ms D^1.5    7l below: lag45 46 vs lag39 60, p = 0.420
+  inherited 15 ms D^1.5 aware above: lag45 6 vs lag39 8, p = 0.652
+  inherited 15 ms D^1.5 aware below: lag45 8 vs lag39 13, p = 0.191
+  inherited 15 ms D^1.5 sign test: lag45 fewer in 3, more in 0 of 4, two-sided p = 0.250
+           id 33 ms D^0    7l above: lag45 75 vs lag39 80, p = 0.470
+           id 33 ms D^0    7l below: lag45 77 vs lag39 107, p = 0.296
+           id 33 ms D^0 aware above: lag45 27 vs lag39 37, p = 0.416
+           id 33 ms D^0 aware below: lag45 34 vs lag39 46, p = 0.194
+           id 33 ms D^0 sign test: lag45 fewer in 4, more in 0 of 4, two-sided p = 0.125
+          mid 36 ms D^0    7l above: lag45 88 vs lag39 109, p = 0.377
+          mid 36 ms D^0    7l below: lag45 98 vs lag39 132, p = 0.127
+          mid 36 ms D^0 aware above: lag45 38 vs lag39 61, p = 0.052
+          mid 36 ms D^0 aware below: lag45 39 vs lag39 59, p = 0.076
+          mid 36 ms D^0 sign test: lag45 fewer in 4, more in 0 of 4, two-sided p = 0.125
+         id 39.1 ms D^0    7l above: lag45 123 vs lag39 150, p = 0.374
+         id 39.1 ms D^0    7l below: lag45 108 vs lag39 167, p = 0.065
+         id 39.1 ms D^0 aware above: lag45 52 vs lag39 72, p = 0.258
+         id 39.1 ms D^0 aware below: lag45 46 vs lag39 73, p = 0.258
+         id 39.1 ms D^0 sign test: lag45 fewer in 4, more in 0 of 4, two-sided p = 0.125
+       stress 45 ms D^0    7l above: lag45 183 vs lag39 215, p = 0.421
+       stress 45 ms D^0    7l below: lag45 169 vs lag39 225, p = 0.108
+       stress 45 ms D^0 aware above: lag45 100 vs lag39 149, p = 0.054
+       stress 45 ms D^0 aware below: lag45 86 vs lag39 141, p = 0.045
+       stress 45 ms D^0 sign test: lag45 fewer in 4, more in 0 of 4, two-sided p = 0.125
