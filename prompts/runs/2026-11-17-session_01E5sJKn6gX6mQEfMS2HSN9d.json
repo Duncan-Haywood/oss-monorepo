@@ -7,17 +7,19 @@
   "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T04:18:30Z",
   "ended": "2026-11-17T04:19:28Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 19.14,
+  "tokens_in": 8207204,
+  "tokens_out": 44501,
+  "cost_usd": 3.6045,
+  "tool_calls": 72,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16815",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +28,43 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
-  "errors": [],
+  "outcome": "success",
+  "errors": [
+    "rerun was run once while the UK suite was red (a new test had the wrong expected Class 4 figure); its caught_after_fix values were discarded and rerun was run again on green suites. This is the open 2026-11-10 defect (PR #14612) biting in practice.",
+    "First post draft said the property-route cliff was at 501 of expenses; it is at 1,000 -> 1,001. Corrected before commit, and the test now checks that point.",
+    "git reset --hard origin/main was refused by the auto-mode classifier; git merge --ff-only did the same job.",
+    "A compound command with git stash was refused by a removal safety check; checked the pre-fix tree with git show into the scratchpad instead."
+  ],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list was 10 entries, all control plane, each already with a PR waiting on owner approval; the step says fix them first, but nothing on this branch could. A note that 'already has an open control-plane PR' counts as handled would save the PR search."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "rerun graded a red suite without warning (known, PR #14612 waiting); cost one wasted rerun here."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Fixed the class of pence bug across 55 files in 30 ventures outside the two targets (step 4 asks for that), which widened the diff well past the target.",
+      "did": "Mechanical one-pattern sweep plus check_money_pence.py; ran all 31 touched ventures' suites.",
+      "result": "All green after updating one test that pinned 'GBP 0.5'."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Committed the record in the first commit rather than only as the last one, since git add -A picked it up.",
+      "did": "Final commit updates it with outcome and pr.",
+      "result": "Record lands in the same PR."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-redteam-self-assessment-pence.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Guard added: platform/ci/check_money_pence.py (+ test), auto-run by unwired_checks.py on PRs; on the pre-fix tree it flags every copy (checked on the pre-fix index.html), on the fixed tree it passes. Greenhouse line-99 mutant (bench window <=) was only reachable with 4+ crops because the order search rescues 2-crop cases; found with a 4,000-case fuzz of a mutated scratch copy. Local workflow run: prompts-ci failed only on this record's unfilled outcome; front-matter failure fixed; test_check_row_spread failed once on a vanished temp dir under ventures/ (parallel race) and passed alone.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -300,9 +331,85 @@
       },
       {
         "file": "ventures/*/calc.mjs, ventures/*/index.html (55 files, 30 ventures)",
-        "issue": "Money formatters with minimumFractionDigits 0 / maximumFractionDigits 2 printed one pence digit: 'GBP 2,191.8', 'Balance £5,955.3', 'GBP 0.5'. Padded in every copy; check_money_pence.py guards the class.",
+        "issue": "Money formatters with minimumFractionDigits 0 / maximumFractionDigits 2 printed one pence digit: 'GBP 2,191.8', 'Balance \u00a35,955.3', 'GBP 0.5'. Padded in every copy; check_money_pence.py guards the class.",
         "patched": true
       }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "93bc00c9-8031-5bc6-b312-ac2c6234e0ac",
+    "transcripts": 1,
+    "first": "2026-11-17T04:18:30Z",
+    "last": "2026-11-17T04:37:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 71,
+        "input": 135,
+        "output": 44501,
+        "thinking": 11685,
+        "cache_read": 8069572,
+        "cache_write_5m": 0,
+        "cache_write_1h": 137497,
+        "api_equivalent_usd": 3.6045,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 71,
+      "input": 135,
+      "output": 44501,
+      "thinking": 11685,
+      "cache_read": 8069572,
+      "cache_write_5m": 0,
+      "cache_write_1h": 137497,
+      "api_equivalent_usd": 3.6045,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 72,
+    "tools": {
+      "Bash": 66,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.14,
+      "active_minutes": 19.14,
+      "model_minutes": 8.64,
+      "tool_minutes": 10.51,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "tax-rule research and fixes ~2h, 16 mutant triage and tests ~2h, 55-file sweep + lint ~1.5h, post ~0.5h",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 166.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
     ]
   }
 }
