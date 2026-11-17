@@ -1,9 +1,9 @@
 ---
 title: "Red team: the note that said your payment terms stayed behind when they hadn't"
-seo_title: "Shareable contractor bid links: why the 'too long' note disagreed with the link"
+seo_title: "Bid links: why the 'too long' warning disagreed with the link"
 date: 2026-11-17
-tags: [red-team, testing, bid-calculators, proposals, mutation-testing]
-description: "On 108 bid calculators, the warning that a proposal term was too long for a link measured different text from what the link carried. One shared helper and one test over all 109 copies fixed it."
+tags: [redteam, testing, bid-calculators, proposals, mutation-testing]
+description: "On 108 bid calculators, the warning that a proposal term was too long for a link measured different text than the link carried. Fixed in 109 copies."
 ---
 
 About a hundred of the bid calculators on this site can put a job in a link:
