@@ -1,4 +1,4 @@
-"""Milestone 11af driver: band positions chosen with vertical-transit costs charged, 12 and 16 operators, on cf_D+
+"""Milestone 11ag driver: band positions chosen with vertical-transit costs charged, 12 and 16 operators, on cf_D+
 en-route weights (predictions in band_cost.py's docstring). Needs numpy.
 
     OMP_NUM_THREADS=1 BAND_CACHE=band.pkl python3 band_cost_run.py > band_cost_results.txt   # ~70 min, 4 cores
@@ -23,7 +23,7 @@ def _load(name, fname):
     return mod
 
 
-bc = _load("hub_airspace_band_cost_11af", "band_cost.py")
+bc = _load("hub_airspace_band_cost_11ag", "band_cost.py")
 kw = _load("hub_airspace_split_kway_11af", "split_kway.py")
 ssr = _load("hub_airspace_split_scale_run_11af", "split_scale_run.py")
 rl = ssr.rl
@@ -105,7 +105,7 @@ def main():
                     pickle.dump(done, open(cache + ".tmp", "wb"))
                     os.replace(cache + ".tmp", cache)
     P = print
-    P("# Milestone 11af: altitude bands charged for vertical transit (band_cost.py); W = cf_D+ en-route, V = tau*A + B")
+    P("# Milestone 11ag (independent implementation of 11af): altitude bands charged for vertical transit (band_cost.py); W = cf_D+ en-route, V = tau*A + B")
     P("# semi inside each band, R = 50 m, Lambda = %d/h; same 48 layouts as 11ac/11ad; tau per layer in s; best of 200 "
       "descents over band positions" % rl.LAM)
     chk = {}

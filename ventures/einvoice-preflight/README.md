@@ -90,6 +90,63 @@ capture the party legal identifier and the invoice and payment-terms notes.
 Off by default, JS only, and an offline observation, not a certified
 platform's validator or legal advice. Findings never echo the number.
 
+**France: the BR-FR rules the approved platforms run (2026-11-17).** With the
+French profile and "official Schematron" both ticked (`?profile=france&schematron=1`),
+a file also goes through FNFE-MPE's BR-FR Schematron 1.4.0.04 (AFNOR XP Z12-012,
+the "Flux 2" controls, github.com/fnfempe/France_RFE commit `97ba0f3`, Apache-2.0):
+175 UBL and 171 CII checks covering the invoice number format and length (BR-FR-01/02),
+dates, the French document types and billing modes (BT-23: B1, S1, M1 ...), SIREN and
+SIRET coherence, the VAT rates France has, the electronic addresses, and the
+multi-vendor and sub-line rules (BR-FR-MV-*, BR-FR-BD-*). One file per syntax serves
+EN 16931, Extended-CTC-FR and Factur-X (the copies are byte-identical; `build-fr-rules.mjs`
+checks). A French EN 16931 file names plain `urn:cen.eu:en16931:2017`, so the set runs
+when the French profile is asked for; an Extended-CTC-FR file (`urn.cpro.gouv.fr`) gets
+it without. It runs in the browser on the plain route, like the other national add-ons;
+messages are FNFE's, in French. **Measured** (`eval/br-fr-crosscheck.mjs`,
+`eval/br-fr-crosscheck-2026-11-17.md`) against Saxon-JS running FNFE's own compiled
+XSLT: on FNFE's 26 example invoices (UBL and CII, EN 16931 and Extended-CTC-FR), each
+as published and broken ten ways (invoice number with a space or 36 characters, a
+Peppol BT-23, 30 February, type code 999, notes removed, a 21% rate, SIREN scheme
+swapped, a line net +10, line status codes removed), **264 of 264** runs give the same
+rule ids on both engines, with 0 rules left unevaluated; the 26 published files pass
+every rule. Three compiler fixes made that possible, all in `plain-compile.mjs` and
+pinned by `plain-schematron.test.mjs`: a `let $custom:x` inside an `xsl:function`
+(fontoxpath has no prefixed let; one such let had broken the whole prolog, so every
+check calling a BR-FR function was skipped) is renamed; a pattern's `<let>` is visible
+to later patterns, as the ISO skeleton's top-level variable (`$invoiceID`, read by
+BR-FR-MV-02..14); and a rule `<let>` read inside a predicate is bound with XPath
+`let ... return` at the rule's context node instead of being pasted in as text, where
+`../../cbc:DocumentCurrencyCode` read the wrong element (BR-FR-MV-03, -05). Rebuilding
+the other sets with the fixed compiler: the EU base, XRechnung, Peppol, NLCIUS, CIUS-HR
+and CIUS-RO compile byte-identical; ZATCA's BR-KSA-F-13 changed, and was wrong before
+(its `$is-supplier` asked the ID element instead of the party, so a seller's ids were
+checked against the buyer's scheme list; `zatca.test.mjs` pins it). CIUS-PT and PINT
+were not rebuilt (Maven Central answered 429). Not done: FNFE's Extended-CTC-FR and
+Factur-X EXTENDED base sets (the EN 16931 base still runs under an extended file and
+may warn on its extensions), the CDAR life-cycle messages and Flux 10 e-reporting
+schematron, English text for the BR-FR messages, and a real platform's rejection
+compared.
+
+**France: life-cycle status messages (CDAR, new 2026-11-17).** Under the French reform every
+invoice travels with statuses ("CDV": 200 Déposée, 202 Reçue, 205 Approuvée, 207 En litige,
+210 Refusée, 212 Encaissée, 213 Rejetée ...), sent between the platforms (PA), the seller, the
+buyer and the PPF as a UN/CEFACT D22B `CrossDomainAcknowledgementAndResponse` (CDAR). Drop one
+in and `cdar.mjs` names the status and its reason (`FR-CDV-100`); drop it with the invoice it
+answers (matched on MDT-87 = BT-1) and the message's invoice type, date and seller SIREN are
+compared with the invoice's (`FR-CDV-101` MDT-91 vs BT-3, `-102` MDT-100 vs BT-2, `-103` MDT-129
+vs BT-30); several statuses for one invoice are listed in time order (`FR-CDV-104`). With the
+official rules on, FNFE-MPE's BR-FR-CDV Schematron 1.4.0.04 (43 checks, `plain/cdar-fr.json`,
+built by `build-fr-rules.mjs` from the same France_RFE commit) runs on the plain route, in the
+browser too; a CDAR never gets the EN 16931 base. **Measured** (`eval/cdar-crosscheck.mjs`,
+`eval/cdar-crosscheck-2026-11-17.md`) against Saxon-JS running FNFE's own compiled XSLT: FNFE's
+59 example messages, each as published and broken up to fourteen ways, **780 of 780** runs give
+the same rule ids on both engines, 0 rules left unevaluated, and the 59 published messages pass.
+Two things found in FNFE's set: no rule checks the message id, its creation date or the
+referenced invoice number for format (a space or 30 February passes both engines), and statuses
+206 and 208 are named both ways round, so the tool labels neither. Status labels are FNFE's own;
+the English glosses are this tool's. Limits: 17 of the 43 rule ids were reached by the
+mutations; no real platform's message compared; Flux 10 e-reporting not done.
+
 **Poland: KSeF FA(3) (new, 2026-10-24).** An XML file whose root is `Faktura` in the `crd.gov.pl/wzor/` namespace is read by `fa3.mjs` with its own rules `PL-001`..`PL-011`: NIP check digit for seller and buyer (weights 6 5 7 2 3 4 5 6 7, mod 11), tax-rate code list, `P_8B x P_9A = P_11` per line, each `P_13_n` against the lines at that rate, `P_14_n` against net x rate, `P_15` against all totals, duplicate line numbers, and the PLN tax (`P_14_nW`) on foreign-currency invoices. Element names, rate codes and what each total means were read from the published schema (`schemat_FA(3)_v1-0E.xsd`, namespace `http://crd.gov.pl/wzor/2025/06/25/13775/`, taken from the `ksef-client-ts` npm package because crd.gov.pl was unreachable from the build host); `examples/fa3-invoice.xml` validates against it with `xmllint`, and the defect file fails the XSD on its unknown rate code only (the other faults are arithmetic that a schema cannot see). Sums are checked only on `RodzajFaktury` VAT or UPR; advance, settlement and correcting invoices skip them and say so in `skipped`. Not done: the KSeF-side business rules, and any real invoice: no genuine FA(3) file was available, so the rules are measured on one hand-made example and its planted-defect twin (`fa3.test.mjs`, 6 tests). The 1-grosz tolerance is an assumption. **Schema gate (2026-10-25, `PL-012`..`PL-017`).** `build-fa3-schema.mjs` reads `schemat_FA(3)_v1-0E.xsd` and its three base files into `fa3-xsd-data.mjs` (content models with occurrence counts, attributes, and length, pattern, range, digit and code-list facets; it throws on any XSD construct it does not model, and the one union, `TNrREGON`, is read as two patterns). `fa3-xsd.mjs` runs a file against it before the arithmetic rules: `PL-012` an element the schema does not allow there or one too many, `PL-013` elements out of sequence, `PL-014` a required element missing, `PL-015` a value outside its pattern, length, date, digits or code list (every enumeration is enforced here, because v1-0E is the schema in force; the generic PL-015 for a bad tax rate yields to the more specific `PL-004`), `PL-016` a missing or non-fixed attribute (`kodSystemowy="FA (3)"`, `wersjaSchemy="1-0E"`), `PL-017` a cut-off file (the other checks are then skipped and named). Messages never echo the value. **Measured against xmllint on the real XSD** (`eval/fa3-xsd-diff.mjs`; xmllint needs the remote import pointed at the local `bazowe/` copy): from two xmllint-valid seeds (`examples/fa3-invoice.xml`, and `fa3-invoice-rich.xml` with an EU buyer, exemption branch, payment, footer and registers), 3 x 1,620 seeded mutations (an element deleted, duplicated, swapped with its neighbour, an unknown element added, a value emptied, lengthened by 1,100 characters, given a euro sign, made text or negative, or a date cut to year-month): 4,860 of 4,860 verdicts agree with xmllint. **Branch seeds (2026-11-06).** `examples/fa3-correction.xml` (RodzajFaktury KOR: reason, type, two corrected-invoice blocks, one by KSeF number and one outside KSeF, period) and `examples/fa3-settlement.xml` (ROZ: a partial advance, an advance-invoice reference, a `Zalacznik` data block) are made-up, xmllint-valid on the real XSD, and joined the differential: 4 seeds, 6,520 mutations in 10 kinds (652 each) (an element deleted, duplicated, swapped, unknown, emptied, lengthened, euro, text, negative, short date), 6,520 of 6,520 verdicts agree with xmllint. The official CIRF/KSeF client templates (13 distinct files, `eval/ksef-official-templates.mjs`) hold no correction, advance or settlement file, so these seeds are hand-built from the XSD and no real one has been tried. **Transport seed (2026-11-08).** `examples/fa3-transport.xml` (made up, xmllint-valid on the real XSD) adds a `WarunkiTransakcji` block with two `Transport` entries (one by `RodzajTransportu` with carrier, cargo, times and a three-country route, one by the `TransportInny` / `LadunekInny` choice branch). With it as a fifth seed, 6,550 mutations in 10 kinds (655 each, `--per 1300`): 6,550 of 6,550 verdicts agree with xmllint. Limits: the seeds cover the blocks they contain (the transport block is now seeded; other choice branches are mutated only if present); no real KSeF file; the namespace is not checked; KSeF's own business rules beyond the XSD are not modelled.
 
 **Poland: what KSeF checks on receipt, beyond the XSD (new, 2026-11-14).** The Ministry of Finance lists the checks KSeF runs on every file it receives ("Weryfikacja faktury", CIRFMF/ksef-docs `faktury/weryfikacja-faktury.md`, 09.04.2026). `fa3.mjs` now runs those a file can show, as `PL-018`..`PL-022`: **PL-018** encoding (a UTF-8 byte-order mark, a prolog naming another encoding, bytes that are not UTF-8, a UTF-16 file) and any processing instruction; **PL-019** the code points KSeF refuses (U+007F-0084, U+0086-009F, U+FDD0-FDEF, the plane-end noncharacters) and those XML 1.0 forbids outright (this repo's parser had accepted U+0001 or U+FFFE silently), counted with the first code point and line, with an encoding fix when the text looks double-encoded; **PL-020** the 1,000,000-byte cap, 3,000,000 with a `Zalacznik` (which also gets a non-blocking note: batch session only, after enabling attachments in e-Urząd Skarbowy); **PL-021** an issue date `P_1` after today in Poland (Europe/Warsaw); **PL-022** two files in one batch with the same seller NIP, `RodzajFaktury` and `P_2` (KSeF's error 440). `PL-002` now also covers Podmiot3 and PodmiotUpowazniony NIPs and Podmiot3's internal id `IDWew`, both its NIP part (the document's wording) and its own last digit (weights 1,3,... mod 10, which is what the Ministry's C# client `IdentifierValidators.IsValidInternalId` checks); those messages say KSeF checks them in production only. `report.mjs` passes the file's bytes, not decoded text, since `TextDecoder` drops a BOM. *Measured* (`eval/ksef-acceptance.mjs`, `eval/ksef-acceptance-2026-11-14.md`) against the Ministry's own pre-send validator in `ksef-client-csharp` d628369, read from its source (the C# was not run): **1,112,064 of 1,112,064** code points get the same verdict; 2,000 ids generated by the Ministry's algorithm pass and **90,000 of 90,000** single-digit changes to their tail are refused; the **8 of 8** file-level cases in its `ValidationHelperTests.cs` (U+007F, its mojibake template naming U+009B, BOM as text and bytes, no BOM, ISO-8859-2 and UTF-8 prologs, a processing instruction) agree; 31 of 31 boundary probes agree. On the Ministry's 14 templates read as bytes, nothing new on the 10 clean ones, the PL-020 note on the attachment template, and PL-019 on the one the Ministry ships as a negative case. The page's Polish guide was stale (it said the XSD was not run, though it has been since 2026-10-25) and now lists these checks. Tests: `fa3.test.mjs` (+8). Not done: a real file refused by KSeF with these codes; duplicates against KSeF's own store; session and batch limits.

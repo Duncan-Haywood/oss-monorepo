@@ -1,4 +1,5 @@
-"""Milestone 11af: charge altitude bands for the climbs and descents through them, so the number of layer groups is
+"""Milestone 11ag (committed as "11af"; a sibling run landed its own 11af, vertical_transit.py, first, so this independent
+implementation of the same step is 11ag; the text below is as committed): charge altitude bands for the climbs and descents through them, so the number of layer groups is
 chosen rather than assumed (12 and 16 operators).
 
 Why. 11ad's and 11ae's "Next". 11ad found the best four-group partition leaves under a tenth of the en-route conflict

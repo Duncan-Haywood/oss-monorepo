@@ -1,9 +1,9 @@
 ---
-title: "Counting the climb: extra altitude bands buy drone operators far less than they seemed to"
-seo_title: "Drone altitude bands: the cost of climbing through traffic"
+title: "Two independent codes agree: climbing through drone altitude bands eats most of what extra bands buy"
+seo_title: "Drone altitude bands and climb conflicts: a second implementation"
 date: 2026-11-17
 tags: [research, uav, airspace, operations-research]
-description: "Charging each drone for climbing through occupied bands, the best four bands leave 29% of conflicts, not 8%, and adding more bands barely helps."
+description: "A second implementation of the drone band-climb charge agrees on its size; planning on en-route conflicts first loses 2 to 5%, not 0.3%."
 ---
 
 `aerolog-scaling` asks how drone delivery operators sharing a city should be
@@ -14,7 +14,11 @@ assigned to a high band climbs through every band below it at its hub, and
 descends through them again at the customer's address. While it does, it can
 meet traffic cruising in those bands.
 
-**Today's step (11af)** counts those transits. A drone spends a time tau in
+Two runs took that step at the same time, without seeing each other's code.
+The first to merge is milestone 11af. This post is about the second, 11ag. It
+built the same transit charge separately and then compared the two.
+
+**This step (11ag)** counts those transits. A drone spends a time tau in
 each layer it passes through. It conflicts with any cruising drone that comes
 within 50 m of it in that time. For drones launched at random times this has
 a closed form computed from the destination lists: a cruising leg's launch
@@ -44,6 +48,16 @@ Seven of nine predictions held. Two did not:
 - I expected that grouping on en-route conflicts and stacking afterwards
   would lose at most 3%. It loses about 5%, and 12% at 20 s per layer.
 
+**Against 11af.** The two codes agree on how big the charge is. 11af's
+per-band term at its 3.05 s per layer, doubled to this step's measure, is
+about 0.23 of the cross-operator en-route weight. Here it is about 0.24 at
+3 s. They seemed to disagree on planning: 11af found the en-route plan within
+0.3 to 0.5% of the optimum. That figure divides by totals that include each
+operator's own transits through its own traffic at its hub. That cost is the
+same whatever the plan, and it is about as large as the whole single-band
+cost. On the part of the cost a plan can change, and with 11af's own
+objective and tau, the loss is a median 1.9% (12 operators) and 3.5% (16).
+
 **What a planner can take from it:** climbs and descents are not a rounding
 error. Most of what layering buys is gained by four bands. Transit cost
 belongs in the plan itself, not in an ordering step afterwards. Put the
@@ -56,4 +70,4 @@ Limits: transit time per layer is swept (2 to 20 s), not sourced; transits
 meet only cruising traffic; no fixed ceiling on the number of bands; one city,
 straight legs, no avoidance or wind, 2014 ride-hail pickups standing in for
 deliveries. Results and code:
-[`research/aerolog-scaling`](../../research/aerolog-scaling/), milestone 11af.
+[`research/aerolog-scaling`](../../research/aerolog-scaling/), milestone 11ag (and 11af).

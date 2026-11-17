@@ -1,0 +1,46 @@
+s0 us: off 22/23 flagged; on 23/23 perfect (1 repairs)
+s1 split: off 21/22 flagged; on 22/22 perfect (1 repairs)
+s2 uk: off 17/17 perfect; on 17/17 perfect (0 repairs)
+s3 us (row lost): off 24/26 flagged; on 25/26 flagged (1 repairs)
+s4 split (row lost): off 26/26 perfect; on 26/26 perfect (0 repairs)
+s5 uk (row lost): off 11/11 perfect; on 11/11 perfect (0 repairs)
+s6 us: off 35/35 perfect; on 35/35 perfect (0 repairs)
+s7 split: off 16/16 perfect; on 16/16 perfect (0 repairs)
+s8 uk: off 25/27 flagged; on 26/27 flagged (1 repairs)
+s9 us (row lost): off 28/29 flagged; on 28/29 flagged (0 repairs)
+s10 split: off 21/22 flagged; on 21/22 flagged (0 repairs)
+s11 uk: off 11/11 perfect; on 11/11 perfect (0 repairs)
+s12 us: off 28/29 flagged; on 28/29 flagged (0 repairs)
+s13 split: off 26/26 perfect; on 26/26 perfect (0 repairs)
+s14 uk: off 21/21 perfect; on 21/21 perfect (0 repairs)
+s15 us (row lost): off 12/14 flagged; on 13/14 flagged (1 repairs)
+s16 split (row lost): off 15/15 perfect; on 15/15 perfect (0 repairs)
+s17 uk: off 13/13 perfect; on 13/13 perfect (0 repairs)
+s18 us: off 12/12 perfect; on 12/12 perfect (0 repairs)
+s19 split (row lost): off 26/26 perfect; on 26/26 perfect (0 repairs)
+s20 uk (row lost): off 12/12 perfect; on 12/12 perfect (0 repairs)
+s21 us: off 26/27 flagged; on 26/27 flagged (0 repairs)
+s22 split (row lost): off 32/32 perfect; on 32/32 perfect (0 repairs)
+s23 uk (row lost): off 29/31 flagged; on 30/31 flagged (1 repairs)
+s24 us: off 27/27 perfect; on 27/27 perfect (0 repairs)
+s25 split: off 33/33 perfect; on 33/33 perfect (0 repairs)
+s26 uk: off 24/25 flagged; on 25/25 perfect (1 repairs)
+s27 us: off 34/35 flagged; on 35/35 perfect (1 repairs)
+s28 split: off 24/26 flagged; on 24/26 flagged (0 repairs)
+s29 uk: off 33/34 flagged; on 34/34 perfect (1 repairs)
+s30 us: off 31/33 flagged; on 31/33 flagged (0 repairs)
+s31 split (row lost): off 29/29 perfect; on 29/29 perfect (0 repairs)
+s32 uk: off 35/35 perfect; on 35/35 perfect (0 repairs)
+s33 us: off 19/19 perfect; on 19/19 perfect (0 repairs)
+s34 split: off 23/23 perfect; on 23/23 perfect (0 repairs)
+s35 uk: off 12/12 perfect; on 12/12 perfect (0 repairs)
+36 statements (seed 11): 25 intact, 11 with one row lost from the picture
+| | repair off | repair on |
+|---|---|---|
+| rows right (day and signed amount) | 833 of 854 (97.5%) | 842 of 854 (98.6%) |
+| intact statements read perfectly (of 25) | 14 | 19 |
+| intact, imperfect, and the page says so | 11 | 6 |
+| intact, imperfect and silent | 0 | 0 |
+| row-lost statements the page flags (of 11) | 11 | 11 |
+| row-lost statements passed as proved (silent) | 0 | 0 |
+| figures repaired | 0 | 9 |

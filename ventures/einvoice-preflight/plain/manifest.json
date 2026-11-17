@@ -224,6 +224,24 @@
       "source": "HR-CIUS 2025 + HR extension (Porezna uprava HRUBLSchematron 13.03.2026, phive 1.0.4) via phive-rules-eracun 4.6.4 on Maven Central; reproduced with the source named, per porezna.gov.hr",
       "from": "HR-CIUS-EXT-EN16931-UBL.xslt",
       "checks": 73
+    },
+    "cius-fr-ubl": {
+      "source": "FNFE-MPE BR-FR (XP Z12-012) 1.4.0.04, github.com/fnfempe/France_RFE (Apache-2.0)",
+      "commit": "97ba0f3d4ef2abed5780e9490d5c3a2be832ab1d",
+      "from": "BR-FR-Flux2-Schematron-UBL.sch",
+      "checks": 175
+    },
+    "cius-fr-cii": {
+      "source": "FNFE-MPE BR-FR (XP Z12-012) 1.4.0.04, github.com/fnfempe/France_RFE (Apache-2.0)",
+      "commit": "97ba0f3d4ef2abed5780e9490d5c3a2be832ab1d",
+      "from": "BR-FR-Flux2-Schematron-CII.sch",
+      "checks": 171
+    },
+    "cdar-fr": {
+      "source": "FNFE-MPE BR-FR-CDV (CDAR life-cycle statuses) 1.4.0.04, github.com/fnfempe/France_RFE (Apache-2.0)",
+      "commit": "97ba0f3d4ef2abed5780e9490d5c3a2be832ab1d",
+      "from": "BR-FR-CDV-Schematron-CDAR.sch",
+      "checks": 43
     }
   },
   "fontoxpath": "3.34.0"

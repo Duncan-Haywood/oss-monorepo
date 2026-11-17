@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVN1ioFokNFWvdWF6Gr",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production; merge when done",
+  "input_sha256": "f382104870bf339efa61e07b515480e471e7b7614443cfb9c39653800d356e96",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T06:14:22Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "bank-statement-pdf-to-csv: scanned statements and photos read by OCR on the page, misreads corrected from the running balance",
+  "projects": [
+    "ventures/bank-statement-pdf-to-csv"
+  ],
+  "pr": 16838,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 16,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ai-bookkeeper/README.md",
+      "issue": "The scanned-statement OCR and balance repair existed only in ai-bookkeeper's CLI, 'not yet on the web page'; nothing pointed the statement converter at it. Ported with a misread gate the original lacks (the ungated repair absorbs a lost row whose amount is within two digit edits)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "promptctl route drew the research track, but the scheduled routine's own brief asks for revenue-generating products; a product run follows the brief.",
+      "did": "venture work instead",
+      "result": "OCR for scanned statements shipped on a converter in a paid category"
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "allocate.py picked open-tennis-robots (row 6, firmware tach jitter), no revenue path; the remaining buildable flagship items are mostly blocked on real inputs. Took bank-statement-pdf-to-csv, whose market (paid per-page statement converters) is directly what the brief describes, and whose biggest gap (no OCR) was buildable here.",
+      "did": "deepened a non-flagship venture",
+      "result": "merged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-a-scanned-bank-statement-checks-its-own-ocr.md"
+  ],
+  "goal": null,
+  "notes": "Verification: node --test ventures/bank-statement-pdf-to-csv (78 pass); run_venture_tests.py bank-statement-pdf-to-csv ok; post front matter/links/similarity ok; eval/scans.mjs 36 scans (eval/scans-2026-11-17.txt): rows right 97.5->98.6%, intact perfect 14->19 of 25, 0 silent, 11/11 row-lost flagged. Page driven in Playwright Chromium with tesseract.js 5.1.1 served from npm packages via route interception: 0 requests before the OCR click, only the 4 engine files after, 3 intact scans proved, 3 lost-row scans flagged. Follow-up for ai-bookkeeper: its repairByBalance has no misread gate. Next for this venture: a real scanned statement; non-English OCR models (the page loads eng only).",
+  "corrections": [],
+  "redteam": null
+}

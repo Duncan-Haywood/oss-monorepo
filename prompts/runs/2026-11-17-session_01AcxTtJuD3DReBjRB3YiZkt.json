@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtJuD3DReBjRB3YiZkt",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T06:07:08Z",
+  "ended": "2026-11-17T06:14:43Z",
+  "wall_minutes": 9.76,
+  "tokens_in": 5202407,
+  "tokens_out": 23945,
+  "cost_usd": 2.2808,
+  "tool_calls": 59,
+  "task": "Critique: repeated doc_friction, local Pages build copies git-ignored files into dist so check.mjs fails locally only",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16841",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/build.mjs",
+      "issue": "copyTree copied git-ignored local files (ids-model-check eval/corpus, csshound target/) into dist, so check.mjs failed locally only; reported by 4 sessions 2026-11-16/17 against run_workflow_locally.py and venture-preflight.mjs. Fixed in this PR."
+    },
+    {
+      "file": "platform/ci/friction_rank.py",
+      "issue": "--live --ungated --days 3 still listed rows already fixed on main (audio-cdn EMFILE, shift-roster-builder inputs_only); each needed a grep of the source to rule out."
+    },
+    {
+      "file": "Monitor tool",
+      "issue": "Calling Monitor before loading its schema via ToolSearch fails; wait_for.py was the simpler wait."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-the-local-build-now-ships-what-ci-ships.md"
+  ],
+  "goal": null,
+  "notes": "Backlog: only owner/blocked rows (no ids touched). Security queue empty; IDEAS.md and website requests empty. main_health: 254/254 green. Verification: baseline full build (1m50s) on a clean tree, then seeded ventures/ids-model-check/eval/corpus/{sample.csproj,sample.ids} and ventures/csshound/target/debug/build.html and rebuilt with the change: 'Left out 2 git-ignored local-only path(s)', check.mjs 'looks publishable: 1382 products, 10961 pages, no dead links' exit 0, diff -rq baseline vs new differs only in version.json (so the shed-designer generated pages, ignored by a root ventures/ rule, still ship). New tests: node --test --test-name-pattern='localOnly|copyTree' build.test.mjs 3/3 pass; full node --test build.test.mjs 318/318 pass. venture-preflight.mjs's local-only demotion is now mostly redundant for fresh builds but still useful with --skip-build; left as is.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d9b4629e-a764-5999-8e01-928b057b746a",
+    "transcripts": 1,
+    "first": "2026-11-17T06:07:08Z",
+    "last": "2026-11-17T06:16:54Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 54,
+        "input": 104,
+        "output": 23945,
+        "thinking": 6674,
+        "cache_read": 5104733,
+        "cache_write_5m": 0,
+        "cache_write_1h": 97570,
+        "api_equivalent_usd": 2.2808,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 54,
+      "input": 104,
+      "output": 23945,
+      "thinking": 6674,
+      "cache_read": 5104733,
+      "cache_write_5m": 0,
+      "cache_write_1h": 97570,
+      "api_equivalent_usd": 2.2808,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 59,
+    "tools": {
+      "Bash": 51,
+      "Edit": 4,
+      "Monitor": 1,
+      "ToolSearch": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.76,
+      "active_minutes": 9.76,
+      "model_minutes": 5.32,
+      "tool_minutes": 4.43,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "diagnose build copy path, write skip + tests, two full site builds and diff",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 131.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

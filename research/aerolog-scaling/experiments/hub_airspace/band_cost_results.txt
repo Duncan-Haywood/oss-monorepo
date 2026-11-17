@@ -1,4 +1,4 @@
-# Milestone 11af: altitude bands charged for vertical transit (band_cost.py); W = cf_D+ en-route, V = tau*A + B
+# Milestone 11ag (independent implementation of 11af): altitude bands charged for vertical transit (band_cost.py); W = cf_D+ en-route, V = tau*A + B
 # semi inside each band, R = 50 m, Lambda = 240/h; same 48 layouts as 11ac/11ad; tau per layer in s; best of 200 descents over band positions
 
 ## M = 12: transit size and F_k / F_1 (F_1 = all en-route weight, no transit)

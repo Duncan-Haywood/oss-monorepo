@@ -175,7 +175,7 @@ test("PDF: encrypted, not-a-PDF and no-text files are named, not guessed at", as
   assert.match(junk.findings[0].title, /not a PDF/);
   const blank = await parseStatementPdf(buildStatementPdf("", {}), inflate);
   assert.match(blank.findings[0].title, /No text in this PDF/);
-  assert.match(blank.findings[0].detail, /does not do OCR/);
+  assert.match(blank.findings[0].detail, /Read the scan \(OCR\)/);
 });
 
 test("PDF: a composite font with no ToUnicode is reported as unreadable", async () => {
