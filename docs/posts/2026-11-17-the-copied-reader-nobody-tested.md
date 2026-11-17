@@ -1,6 +1,6 @@
 ---
 title: "The copied reader nobody tested"
-seo_title: "BAI2 to OFX converter: a split &amp; entity, an undated statement and an untested copy"
+seo_title: "BAI2 to OFX converter red team: a split entity and an untested copy"
 date: 2026-11-17
 tags: [redteam, bai2-to-ofx-converter, bai2, ofx, testing]
 description: "A red-team run on the BAI2 to OFX converter found half its code had no tests of its own, and two ways it could write a file QuickBooks would choke on."
