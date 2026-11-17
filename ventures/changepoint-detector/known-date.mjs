@@ -190,7 +190,7 @@ function fTail2(f, m) { return Math.pow(1 + 2 * f / m, -m / 2); }
  * x: the series (evenly spaced). k: index of the first point after the change. Options: period (seasonal dummies),
  * reps (bootstrap), seed, rhoMax (guard), rhoCap. Returns { refused, reason } or the estimates and p-values.
  */
-export function knownDateTest(x, k, { period = 0, reps = 499, seed = 1, rhoMax = 0.9, rhoCap = 0.95, minSide = 8, rhoGenMethod = 'matched', genCap = 0.95, guard = 'cut', gateRho = 0.5, cutConditional = false, maxDrawFactor = 200, minAdmitted = 99 } = {}) {
+export function knownDateTest(x, k, { period = 0, reps = 499, seed = 1, rhoMax = 0.9, rhoCap = 0.95, minSide = 8, rhoGenMethod = 'matched', genCap = 0.95, guard = 'cut', gateRho = 0.5, cutConditional = false, cutWalkGen = false, maxDrawFactor = 200, minAdmitted = 99 } = {}) {
   x = Array.from(x, Number);
   const n = x.length;
   period = period > 1 ? Math.round(period) : 0;
@@ -248,12 +248,17 @@ export function knownDateTest(x, k, { period = 0, reps = 499, seed = 1, rhoMax =
     const rC = corrected(lag1(ols(z, X1).e), n);
     return rC <= rhoMax && rL - rC > cutBar;
   };
+  // cutWalkGen: a third generator, a random walk (rho 1), so the conditional p is the largest over AR(1) at the point
+  // rho, at the upper bound, and a unit root. F and the guard ignore scale and the line, so the walk's start and step
+  // size do not matter. Exploratory run (eval/known-date-conditional-explore.out.txt): walks admitted by the cut were
+  // still rejected 11-18% with the AR(1) generators alone, because a walk is stickier than any rho 0.95 null.
+  if (conditional && cutWalkGen) gens.push(1);
   let draws = 0, admittedReps = Infinity;
   gens.forEach((rhoGen, gi) => {
     const r = mulberry(seed + 7919 * gi), fs = [], tds = [], tcs = [];
     const tries = conditional ? reps * maxDrawFactor : reps;
     for (let b = 0; b < tries && fs.length < reps; b++) {
-      const z = new Float64Array(n); let u = gauss(r) * sdInnov / Math.sqrt(Math.max(1e-9, 1 - rhoGen * rhoGen));
+      const z = new Float64Array(n); let u = rhoGen >= 1 ? 0 : gauss(r) * sdInnov / Math.sqrt(Math.max(1e-9, 1 - rhoGen * rhoGen));
       for (let t = 0; t < n; t++) { if (t) u = rhoGen * u + gauss(r) * sdInnov; z[t] = mean0[t] + u; }
       if (conditional) { draws++; if (!admits(z)) continue; }
       const s = stats(z, X1, rhoCap);

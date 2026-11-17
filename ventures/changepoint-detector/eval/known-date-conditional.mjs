@@ -8,6 +8,7 @@ const gauss = (r) => Math.sqrt(-2 * Math.log(1 - r())) * Math.cos(2 * Math.PI * 
 const SCREEN = Number(process.argv[2]) || 3000, CAP = Number(process.argv[3]) || 60, REPS = Number(process.argv[4]) || 199;
 const BASE = Number(process.env.KD_SEED_BASE) || 41000;
 const OPT = { rhoGenMethod: 'gated', genCap: 0.95, guard: 'cut' };
+const COND = { cutConditional: true, ...(process.env.KD_WALKGEN ? { cutWalkGen: true } : {}) };
 function series(n, rho, r, k, step, walk) {
   const x = []; let u = walk ? 0 : gauss(r) / Math.sqrt(1 - rho * rho);
   for (let t = 0; t < n; t++) { if (t) u = (walk ? 1 : rho) * u + gauss(r); x.push(0.05 * t + u + (t >= k ? step : 0)); }
@@ -24,7 +25,7 @@ function cell(kind, n, rho, frac, step = 0, walk = false) {
     if (g.refused || !g.admittedByCut) continue;
     admitted++;
     const a = knownDateTest(x, k, { reps: REPS, seed: BASE + s + 1, ...OPT });
-    const b = knownDateTest(x, k, { reps: REPS, seed: BASE + s + 1, ...OPT, cutConditional: true });
+    const b = knownDateTest(x, k, { reps: REPS, seed: BASE + s + 1, ...OPT, ...COND });
     if (a.p <= 0.05) old++;
     if (!b.calibratedConditional) uncal++;
     if (b.p <= 0.05) neu++;
@@ -33,7 +34,7 @@ function cell(kind, n, rho, frac, step = 0, walk = false) {
   if (process.env.KD_JSON) console.log(JSON.stringify({ kind, n, rho, frac, step, walk, screened, admitted, old, neu, uncal }));
   console.log(`${kind.padEnd(6)} n ${String(n).padStart(3)} rho ${rho.toFixed(2)} date ${Math.round(frac * 100)}%${step ? ` step ${step}` : ''}: cut admitted ${admitted} of ${screened}; p <= 0.05 round 5 ${pc(old, admitted)}%, conditional ${pc(neu, admitted)}%; under ${99} admitted replicates: ${uncal}`);
 }
-console.log(`# round 6, seed base ${BASE}, screen ${SCREEN}, cap ${CAP}, ${REPS} replicates; only series the cut admits are scored`);
+console.log(`# round 6${COND.cutWalkGen ? ' (with the walk generator)' : ''}, seed base ${BASE}, screen ${SCREEN}, cap ${CAP}, ${REPS} replicates; only series the cut admits are scored`);
 console.log('## Size (null: line + AR(1), and random walks)');
 for (const [n, rho, frac] of [[40, 0.9, 0.5], [60, 0.8, 0.5], [60, 0.9, 0.5], [60, 0.95, 0.5], [120, 0.9, 0.5], [120, 0.95, 0.5], [60, 0.9, 0.8]]) cell('null', n, rho, frac);
 for (const n of [40, 60, 120]) cell('walk', n, 0, 0.5, 0, true);
