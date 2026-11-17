@@ -77,3 +77,18 @@ test("the guide's tables and worked example are recomputed from the engine", asy
   assert.match(html, /No warranty/);
   assert.match(html, /FAQPage/);
 });
+
+test("page copy states the tie thresholds the statute and calc.mjs use (Sch 45 paras 37, 38)", () => {
+  // 2026-11-17 red-team run: the engine and this copy said "90 or more" and "more UK days than";
+  // the statute says more than 90, and a draw for the most days still gives a country tie.
+  for (const name of ["index.html", "uk-statutory-residence-test-ties-table.html"]) {
+    const html = page(name);
+    assert.doesNotMatch(html, /90 or more days|90\+ (UK )?days/i, name);
+    assert.doesNotMatch(html, /more (UK )?days (in the UK )?than (in )?any other/i, name);
+  }
+  assert.match(page("uk-statutory-residence-test-ties-table.html"), /more than 90 days in the UK/);
+  assert.match(page("uk-statutory-residence-test-ties-table.html"), /a draw for the most counts/);
+  const calc = page("calc.mjs");
+  assert.match(calc, /ctx\.prev1 > 90 \|\| ctx\.prev2 > 90/);
+  assert.match(calc, /days >= ctx\.mostElsewhere/);
+});
