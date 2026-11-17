@@ -1,6 +1,6 @@
 ---
 title: "The recurrence rule that ran past the year 9999"
-seo_title: "RRULE tester edge cases: huge INTERVAL, SECONDLY rules and a silent search cap"
+seo_title: "RRULE tester edge cases: huge INTERVAL and a silent search cap"
 date: 2026-11-17
 tags: [redteam, rrule-explainer, icalendar, testing]
 description: "A red-team run fed the RRULE Explainer hostile rules. Three answers were wrong or missing: a crash, a 53-second freeze and a false 'No dates'."
