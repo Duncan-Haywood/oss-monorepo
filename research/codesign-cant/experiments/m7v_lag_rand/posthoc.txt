@@ -1,0 +1,26 @@
+Milestone 7v, post hoc (not predicted): per-seed Mann-Whitney U (two-sided) on L2-45 counts, lagrand against lag39, per arm,
+  inherited 15 ms D^1.5    7l above: lagrand 34 vs lag39 26, p = 0.361
+  inherited 15 ms D^1.5    7l below: lagrand 54 vs lag39 60, p = 0.687
+  inherited 15 ms D^1.5 aware above: lagrand 10 vs lag39 8, p = 0.445
+  inherited 15 ms D^1.5 aware below: lagrand 14 vs lag39 13, p = 0.933
+  inherited 15 ms D^1.5 sign test: lagrand fewer in 1, more in 3 of 4, two-sided p = 0.625
+           id 33 ms D^0    7l above: lagrand 101 vs lag39 80, p = 0.077
+           id 33 ms D^0    7l below: lagrand 112 vs lag39 107, p = 0.748
+           id 33 ms D^0 aware above: lagrand 61 vs lag39 37, p = 0.089
+           id 33 ms D^0 aware below: lagrand 53 vs lag39 46, p = 0.373
+           id 33 ms D^0 sign test: lagrand fewer in 0, more in 4 of 4, two-sided p = 0.125
+          mid 36 ms D^0    7l above: lagrand 144 vs lag39 109, p = 0.180
+          mid 36 ms D^0    7l below: lagrand 129 vs lag39 132, p = 0.936
+          mid 36 ms D^0 aware above: lagrand 90 vs lag39 61, p = 0.077
+          mid 36 ms D^0 aware below: lagrand 60 vs lag39 59, p = 0.936
+          mid 36 ms D^0 sign test: lagrand fewer in 1, more in 3 of 4, two-sided p = 0.625
+         id 39.1 ms D^0    7l above: lagrand 191 vs lag39 150, p = 0.127
+         id 39.1 ms D^0    7l below: lagrand 177 vs lag39 167, p = 0.688
+         id 39.1 ms D^0 aware above: lagrand 132 vs lag39 72, p = 0.054
+         id 39.1 ms D^0 aware below: lagrand 90 vs lag39 73, p = 0.259
+         id 39.1 ms D^0 sign test: lagrand fewer in 0, more in 4 of 4, two-sided p = 0.125
+       stress 45 ms D^0    7l above: lagrand 231 vs lag39 215, p = 0.335
+       stress 45 ms D^0    7l below: lagrand 227 vs lag39 225, p = 0.872
+       stress 45 ms D^0 aware above: lagrand 205 vs lag39 149, p = 0.045
+       stress 45 ms D^0 aware below: lagrand 162 vs lag39 141, p = 0.335
+       stress 45 ms D^0 sign test: lagrand fewer in 0, more in 4 of 4, two-sided p = 0.125
