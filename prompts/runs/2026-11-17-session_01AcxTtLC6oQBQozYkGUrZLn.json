@@ -1,0 +1,64 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtLC6oQBQozYkGUrZLn",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T13:16:12Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "quality census, 4 never-audited subjects",
+  "projects": [
+    "research/simdesign-filletfloor",
+    "research/marine-path",
+    "ventures/charity-bunching-planner",
+    "ventures/water-heater-bid-calculator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16945",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "first push blocked by the post front-matter hook: description 212 chars > 160; shortened"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "census --n default is 6; I drew 4 to keep four parallel auditors' output reviewable. Nothing says how many a session should take."
+    },
+    {
+      "file": "portfolio/quality/audits/*.json",
+      "issue": "auditors' check commands point at /tmp or scratchpad scripts that vanish with the container, so a later reader cannot rerun them; the README does not ask for the scripts to be kept anywhere durable."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/quality/README.md",
+      "why": "census --n 4 instead of 6: four parallel audits plus spot-checks and fixes fit one session without rushing the recomputations",
+      "did": "audited 4, spot-checked a recomputation from each",
+      "result": "all four validated; fixes landed for two ventures"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-quality-census-feasible-designs-over-the-limit.md"
+  ],
+  "goal": null,
+  "notes": "mode=census (seeded draw; 9 high defects open). seed 2026-11-17-7c9d. Subjects: research/simdesign-filletfloor, research/marine-path, ventures/charity-bunching-planner, ventures/water-heater-bid-calculator. Meeting the bar: 0 of 4 (census, not in the sampled share, which stays 33/306, Wilson 8-15%). All 4 finished. Seeded mutants caught 8 of 22. Spot-checks run by me: water-heater default price 1035.40 (calc + hand); charity hand case A gain 616 (tool matches); marine-path closed-form LOS offset 1.8869/3.7738/7.5477 and sway-frozen rms 2.316->0.099; filletfloor peak_check of 20 peak-measure designs 113-146 MPa vs 100 limit. Fix PR: #16945 (water-heater $0-heater warning + scope wording + like-for-like baseline; charity example 32,200/22% + README brute-force wording; marine-path Limitations sentence) with tests: water-heater 133/133, charity 31/31. Large defects in research READMEs 'Known gaps'. Local run_workflow_locally --for-changes: agent-permission-harness 5/5 run steps; pages.yml see PR body.",
+  "corrections": [],
+  "redteam": null
+}

@@ -3,7 +3,7 @@ title: "Quality census: every \"feasible\" bracket over its stress limit, and 0 
 seo_title: "Quality census 2026-11-17: four first audits, none at the bar"
 date: 2026-11-17
 tags: [quality-audit, evaluation, testing]
-description: "Four subjects nobody had audited before. None meets the bar, and all four are finished. The worst finding: every design a shape-optimisation study called feasible checks at 113 to 146 MPa against a 100 MPa limit."
+description: "Four first audits, none at the bar. Worst: every design a shape-optimisation study called feasible checks at 113 to 146 MPa against a 100 MPa limit."
 ---
 
 The method and rubric are in [`portfolio/quality/README.md`](../../portfolio/quality/README.md). The date-seeded mode draw put this session in `census` mode, with seed `2026-11-17-7c9d`. Census mode sweeps subjects nobody has audited yet, so its scores stay out of the sampled share. That share is unchanged at **33 of 306** (Wilson 95% interval 8% to 15%).
