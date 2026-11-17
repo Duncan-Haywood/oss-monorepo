@@ -1,6 +1,6 @@
 ---
 title: "Quality census: a .git check that called a redirect safe, and 0 of 4 subjects at the bar"
-seo_title: "Quality census 2026-11-17: four first audits, none at the bar"
+seo_title: "Quality census: a redirect called safe, none of four at the bar"
 date: 2026-11-17
 tags: [quality-audit, evaluation, testing]
 description: "Four never-audited subjects, none at the bar, all finished. Worst: a .git exposure gate exited 0 on a redirect that led to the real file."
