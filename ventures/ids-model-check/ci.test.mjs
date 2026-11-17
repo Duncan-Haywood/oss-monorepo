@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { check, parseModel, parseIds, readModel } from "./node.mjs";
-import { junitXml, annotations, stepSummary, tally, severity, failCount, notChecked, stepLines, auditFindings, idsSpecLines, globToRegex, patterns, pairUp } from "./ci.mjs";
+import { junitXml, annotations, codeQuality, cqHash, stepSummary, tally, severity, failCount, notChecked, stepLines, auditFindings, idsSpecLines, globToRegex, patterns, pairUp } from "./ci.mjs";
 import { parseXml } from "./xml.mjs";
 
 const here = new URL(".", import.meta.url).pathname;
@@ -394,4 +394,82 @@ test("IDS audit annotations past maxAudit become one pointer to the job summary"
   assert.match(a[9], /^::warning file=x\.ids,title=IDS audit%3A 3 more specification\(s\) with warnings::.*job summary lists every/);
   assert.equal((stepSummary(runs).match(/^- \*\*S\d+\*\*: w\d+$/gm) || []).length, 12);
   assert.equal(annotations(runs, { maxAudit: 20 }).length, 12);
+});
+
+test("GitLab code quality: one issue per failing element on its STEP line, fingerprints keyed on GlobalId", () => {
+  const r = run();
+  const text = file("samples/tiny-house.ifc");
+  const allIds = r.report.specs.flatMap((s) => s.failed.map((f) => f.id));
+  const cq = codeQuality([r], { lines: new Map([[r.model, stepLines(text, allIds)]]) });
+  const elements = r.report.specs.filter((s) => s.status === "fail").reduce((n, s) => n + Math.max(1, s.failed.length), 0);
+  assert.equal(cq.length, elements);
+  for (const i of cq) {
+    assert.deepEqual(Object.keys(i).sort(), ["categories", "check_name", "description", "fingerprint", "location", "severity", "type"]);
+    assert.match(i.fingerprint, /^[0-9a-f]{32}$/);
+    assert.ok(["info", "minor", "major", "critical", "blocker"].includes(i.severity));
+    assert.ok(Number.isInteger(i.location.lines.begin) && i.location.lines.begin >= 1);
+  }
+  assert.equal(new Set(cq.map((i) => i.fingerprint)).size, cq.length, "fingerprints unique");
+  const wall = cq.find((i) => /1Lz5\$gbjv4GQ6_kuh4Wa3J/.test(i.description));
+  assert.equal(wall.location.path, "samples/tiny-house.ifc");
+  assert.equal(wall.location.lines.begin, 23);
+  assert.equal(wall.severity, "critical");
+  assert.equal(wall.check_name, "ids-required");
+  // every element issue sits on its own #id= line
+  const rows = text.split("\n");
+  for (const s of r.report.specs) for (const f of s.failed) {
+    const i = cq.find((x) => x.description.includes(`#${f.id} `) && x.description.includes(s.name));
+    assert.match(rows[i.location.lines.begin - 1], new RegExp(`^#${f.id}=`));
+  }
+  assert.ok(cq.some((i) => i.severity === "minor" && i.check_name === "ids-optional"), "the optional spec is minor");
+  // a re-export that renumbers every #id and shifts every line keeps the fingerprints
+  const moved = text.replace(/#(\d+)/g, (_, n) => `#${Number(n) + 1000}`).replace("DATA;", "DATA;\n\n");
+  const r2 = { ...r, report: check(file("samples/coordination-basics.ids.xml"), moved) };
+  const cq2 = codeQuality([r2], { lines: new Map([[r.model, stepLines(moved, r2.report.specs.flatMap((s) => s.failed.map((f) => f.id)))]]) });
+  assert.deepEqual(cq2.map((i) => i.fingerprint).sort(), cq.map((i) => i.fingerprint).sort());
+  assert.equal(cq2.find((i) => /1Lz5\$gbjv4GQ6_kuh4Wa3J/.test(i.description)).location.lines.begin, 25);
+  // the prefix GitLab needs when files were read under --root
+  assert.equal(codeQuality([r], { pathPrefix: "bim/" })[0].location.path.startsWith("bim/samples/"), true);
+  assert.equal(cqHash("a"), cqHash("a"));
+  assert.notEqual(cqHash("a"), cqHash("b"));
+});
+
+test("GitLab code quality: audit warnings once per IDS on the spec line, invalid and unreadable as blockers, the cap", () => {
+  const rep = () => check(absIds, subModel);
+  const runs = [{ model: "a.ifc", ids: "r.ids", report: rep() }, { model: "b.ifc", ids: "r.ids", report: rep() }];
+  const idsLines = new Map([["r.ids", idsSpecLines(absIds)]]);
+  const cq = codeQuality(runs, { idsLines });
+  const audit = cq.filter((i) => i.check_name === "ids-audit");
+  assert.equal(audit.length, 1);
+  assert.deepEqual(audit[0].location, { path: "r.ids", lines: { begin: 10 } });
+  assert.equal(audit[0].severity, "minor");
+  assert.equal(codeQuality(runs, { idsLines, failOnAudit: true }).find((i) => i.check_name === "ids-audit").severity, "major");
+  assert.equal(cq.filter((i) => i.check_name === "ids-not-checked" && i.location.lines.begin === 10).length, 2, "per model");
+  const bad = subIds("IFCWALLL");
+  const inv = codeQuality(["a.ifc", "b.ifc"].map((model) => ({ model, ids: "w.ids", report: check(bad, subModel) })), { idsLines: new Map([["w.ids", idsSpecLines(bad)]]) });
+  assert.equal(inv.filter((i) => i.check_name === "ids-invalid-specification").length, 1);
+  assert.equal(inv[0].severity, "blocker");
+  const err = codeQuality([{ model: "m.ifc", ids: "x.ids", error: "cannot read" }]);
+  assert.deepEqual([err[0].check_name, err[0].severity, err[0].location.path], ["ids-unreadable", "blocker", "m.ifc"]);
+  // past maxPerSpec failing elements, one "more" issue with the spec's own fingerprint
+  const failed = Array.from({ length: 5 }, (_, i) => ({ id: i + 1, type: "IFCWALL", globalId: `G${i}`, reasons: ["no name"] }));
+  const many = [{ model: "m.ifc", ids: "x.ids", report: { specs: [{ name: "S", status: "fail", optionality: "required", applicable: 900, failed, failedCount: 800 }] } }];
+  const capped = codeQuality(many, { maxPerSpec: 3 });
+  assert.equal(capped.length, 4);
+  assert.match(capped[3].description, /797 more element\(s\) fail \(800 of 900/);
+  many[0].report.specs[0].failedCount = 801;
+  assert.equal(codeQuality(many, { maxPerSpec: 3 })[3].fingerprint, capped[3].fingerprint, "a changed count stays one issue");
+});
+
+test("ci-cli: --gitlab-codequality writes the report with paths from the working directory", () => {
+  const dir = mkdtempSync(join(tmpdir(), "ids-gl-"));
+  mkdirSync(join(dir, "bim", "models"), { recursive: true });
+  copyFileSync(join(here, "samples/tiny-house.ifc"), join(dir, "bim", "models", "house.ifc"));
+  copyFileSync(join(here, "samples/coordination-basics.ids.xml"), join(dir, "bim", "req.ids"));
+  const r = spawnSync(process.execPath, [join(here, "ci-cli.mjs"), "--root", "bim", "--models", "models/*.ifc", "--ids", "*.ids", "--gitlab-codequality", "gl.json", "--fail-on", "never"], { encoding: "utf8", cwd: dir, env: { ...process.env, GITHUB_ACTIONS: "" } });
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+  const cq = JSON.parse(readFileSync(join(dir, "gl.json"), "utf8"));
+  assert.ok(cq.length > 1);
+  const wall = cq.find((i) => /1Lz5\$gbjv4GQ6_kuh4Wa3J/.test(i.description));
+  assert.deepEqual(wall.location, { path: "bim/models/house.ifc", lines: { begin: 23 } });
 });
