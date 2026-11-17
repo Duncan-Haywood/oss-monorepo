@@ -41,3 +41,26 @@ test('a wander both series share: the step is lost in it alone and found with th
   assert.equal(h.refused, false);
   assert.ok(h.p <= 0.05 && Math.abs(h.step - 3) < 1.2);
 });
+
+// The step alone with a control (README "The step alone, with a control series", pre-registered; failed on real pairs):
+// California's packs per head against the 38 donor states' mean is refused as a wander, the reason nothing shipped.
+test('state tobacco pairs: Proposition 99 against the donor mean is refused, Mississippi is tested', () => {
+  const [hd, ...rs] = readFileSync(new URL('./data/us-cigarette-packs-per-capita.csv', import.meta.url), 'utf8').trim().split('\n');
+  const head = hd.split(','), data = rs.map((l) => l.split(',').map(Number)).filter((r) => r[0] <= 2000);
+  const excluded = new Set('AK AZ FL HI MD MA MI NJ NY OR WA DC CA'.split(' '));
+  const donors = head.slice(1).filter((s) => !excluded.has(s));
+  assert.equal(donors.length, 38);
+  assert.equal(data.length, 31);
+  const pair = (s) => {
+    const ds = donors.filter((d) => d !== s);
+    return [data.map((r) => Math.log(r[head.indexOf(s)])), data.map((r) => Math.log(ds.reduce((a, d) => a + r[head.indexOf(d)], 0) / ds.length))];
+  };
+  const [ca, caCtl] = pair('CA');
+  const h = knownDateTest(ca, 19, { reps: 99, rhoGenMethod: 'gated', control: caCtl });
+  assert.equal(h.refused, true);
+  assert.match(h.reason, /random walks/);
+  const [ms, msCtl] = pair('MS');
+  const m = knownDateTest(ms, 19, { reps: 99, rhoGenMethod: 'gated', control: msCtl });
+  assert.equal(m.refused, false);
+  assert.ok(m.pStep > 0.05);
+});
