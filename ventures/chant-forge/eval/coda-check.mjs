@@ -468,6 +468,12 @@
 //    above, re-run on the shipped code. The gain is tested only if the default misses 3 or more of a's dark-vowel
 //    nasals; if fewer, lipShut stays opt-in, reported as untested. If all five hold and the gain is tested, lipShut
 //    becomes readCoda's default; otherwise it stays opt-in.
+//    Outcome (run 2026-11-17, after the registration above was committed as b88e9d9): held. (1) nasals after /u/ or /o/
+//    116 to 121 of 144 (the gain was tested: the default missed 28); (2) bright-vowel nasals 48 and 48 of 48, n-clusters
+//    as their nasal 42 and 43 of 48; (3) voiced stops 54 and 54 of 60, voiceless 36 and 36, others 44 and 44, stops,
+//    others and vowel-only cells read as a nasal 3 and 3; (4) control 384 and 384 of 384; (5) the report rebuilt on the
+//    shipped code matches the `--shut on` development figures above in every part. lipShut is readCoda's default
+//    (`--shut off` is the reader before).
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';

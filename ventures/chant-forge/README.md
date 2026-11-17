@@ -1262,7 +1262,11 @@ lip-closure rule with it and by default), and checks that the cell's vowel-only 
 stops and n-clusters do not move. One check moved: `bar-burst.test.mjs` reads U's *bob* on D#4 with the voice-bar rule
 off (the reader of two rounds ago), where the new rule now reads the bar's entry as a nasal; with the voice-bar rule on,
 as by default, *bob* is still its voiced labial stop (the voice-bar rule's closure takes the run as the stop's lead). The
-test now pins that older reader with `lipShut: false` as well.
+test now pins that older reader with `lipShut: false` as well. Two margin tests in `sing.test.mjs` moved the same way:
+NEAR's (short final *-um*) and PRE's (cluster n) contribution is measured with and without the rule, and `lipShut` now
+reads most of those cells either way (*-um* 31 of 32 with or without NEAR, 27 before; clusters 15 of 15). Both now
+measure their rule's share with `lipShut: false` in both arms, check that the default reads at least as many, and check
+that no vowel-only take or obstruent coda reads as a nasal with it.
 
 The gain is real but partial: a's misses with the rule are still *bum* and *hum* (5 cells each), *fum*, *mun*, *gun*
 and *vum* (3 each), all read as nothing. The rule took back the cells where the closure is a clean step; the rest are
