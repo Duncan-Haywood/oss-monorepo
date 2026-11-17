@@ -360,7 +360,13 @@ This repo currently contains the first testable core utilities:
   RAW+JPEG pairs (same folder and stem) count as one shot: the JPEG is scored, the RAW is listed as a companion, one sidecar covers both (2026-11-04, made-up files only).
   is the standalone culling pass: it scores each still (JPEG, PNG, TIFF, or a
   RAW file's embedded preview), groups near-identical frames by dHash (Hamming
-  distance 8 or less, single linkage), keeps the best frame per group as the
+  distance 8 or less, single linkage, or, since 2026-11-17, a crop-tolerant match:
+  frames up to 24 apart also group when two of their 88% windows on a 5 x 5 grid
+  are within 6 and at least 5 closer than the whole frames, so a burst the
+  camera panned or zoomed a few percent through stays one group; on burst-like
+  pairs cut from 166 held-out real photos, pair recall 0.40 to 0.72 for 2 more
+  false merges in 13,695 pairs of distinct photos,
+  `eval/cull-crop-grouping-2026-11-17.md`), keeps the best frame per group as the
   keeper, and rejects blurred, badly exposed or (with `SHOOTFLOW_FACE_DETECTOR`)
   closed-eye frames. It writes `cull_report.json` and `cull_report.html`, and
   with `--write-xmp` a Lightroom/Bridge sidecar per photo (keeper 4 stars,

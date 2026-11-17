@@ -12,6 +12,8 @@ from shootflow.frame_analysis import (
     FRAME_HEIGHT,
     FRAME_WIDTH,
     analyze_media,
+    crop_dhashes,
+    crop_distance,
     dhash_hex,
     framing_from_frame,
     hamming_distance,
@@ -201,6 +203,63 @@ class MetricsFromFramesTests(unittest.TestCase):
         reversed_gradient = bytes(255 - v for v in gradient)
         self.assertEqual(hamming_distance(dhash_hex(gradient), dhash_hex(brighter)), 0)
         self.assertGreater(hamming_distance(dhash_hex(gradient), dhash_hex(reversed_gradient)), 40)
+
+
+def _scene(seed: int):
+    """A smooth random scene, f(u, v) for u, v in 0..1, made of a few sinusoids."""
+
+    rng = random.Random(seed)
+    waves = [
+        (rng.uniform(1, 6), rng.uniform(1, 6), rng.uniform(0, 2 * math.pi), rng.uniform(20, 60))
+        for _ in range(6)
+    ]
+
+    def value(u: float, v: float) -> float:
+        return 128 + sum(a * math.sin(2 * math.pi * (fx * u + fy * v) + ph) for fx, fy, ph, a in waves) / 3
+
+    return value
+
+
+def _view(scene, x0: float, y0: float, size: float) -> bytes:
+    """Render the window [x0, x0 + size] x [y0, y0 + size] of a scene to a frame."""
+
+    out = bytearray(SIZE)
+    for y in range(FRAME_HEIGHT):
+        v = y0 + size * (y + 0.5) / FRAME_HEIGHT
+        for x in range(FRAME_WIDTH):
+            out[y * FRAME_WIDTH + x] = max(0, min(255, int(scene(x0 + size * (x + 0.5) / FRAME_WIDTH, v))))
+    return bytes(out)
+
+
+def _ints(hashes: tuple[str, ...]) -> tuple[int, ...]:
+    return tuple(int(h, 16) for h in hashes)
+
+
+class CropHashTests(unittest.TestCase):
+    def test_nine_windows_and_metrics_carry_them(self) -> None:
+        frame = _view(_scene(1), 0.0, 0.0, 1.0)
+        crops = crop_dhashes(frame)
+        self.assertEqual(len(crops), 25)
+        self.assertTrue(all(len(h) == 16 for h in crops))
+        self.assertEqual(metrics_from_frames([frame]).dhash_crops, crops)
+
+    def test_identical_frames_have_zero_crop_distance(self) -> None:
+        crops = _ints(crop_dhashes(_view(_scene(2), 0.0, 0.0, 1.0)))
+        self.assertEqual(crop_distance(crops, crops), 0)
+
+    def test_a_pan_matches_in_the_windows_not_the_whole_frame(self) -> None:
+        scene = _scene(3)
+        left, right = _view(scene, 0.0, 0.0, 0.92), _view(scene, 0.04, 0.02, 0.92)
+        whole = hamming_distance(dhash_hex(left), dhash_hex(right))
+        shifted = crop_distance(_ints(crop_dhashes(left)), _ints(crop_dhashes(right)))
+        self.assertGreater(whole, 8)
+        self.assertLessEqual(shifted, 4)
+        self.assertLess(shifted, whole)
+
+    def test_missing_crops_never_match(self) -> None:
+        crops = _ints(crop_dhashes(_view(_scene(4), 0.0, 0.0, 1.0)))
+        self.assertEqual(crop_distance((), crops), 64)
+        self.assertEqual(crop_distance(crops, crops[:4]), 64)
 
 
 class NearDuplicateGroupingTests(unittest.TestCase):

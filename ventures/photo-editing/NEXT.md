@@ -28,7 +28,10 @@
 
 ## From the cull showcase (2026-11-17, eval/cull-showcase-2026-11-17.md)
 
-- A 4% reframe of a frame formed its own group (a 3% one grouped). Near-duplicates shown as separate groups cost the
-  photographer a look each; try a second hash or a crop-tolerant distance, scored on the same known bursts.
+- (2026-11-17) Crop-tolerant grouping shipped (eval/cull-crop-grouping-2026-11-17.md): held-out burst-pair recall
+  0.40 to 0.72. The showcase's 4% corner reframe still splits (whole 13, windows 7, rule needs 6): zooms are matched
+  by equal-size windows only. Open: a scaled window set for zooms of 4-10% (zoom-C 0.10 at 0.43); pans of 8-10%
+  (0.05-0.30); single-linkage chaining measured on a real shoot; sunsets and dark-ground horizons are where the
+  distinct-photo false merges sit.
 - A copy at 30% brightness (exposure 0.28) stayed an alternate; it lost its group, so harmless, but the reject line
   for exposure may sit too low.
