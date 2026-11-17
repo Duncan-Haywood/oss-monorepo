@@ -1,0 +1,123 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqydra5Gj2Z2GBUwKmVy",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T18:39:36Z",
+  "ended": "2026-11-17T18:45:28Z",
+  "wall_minutes": 6.01,
+  "tokens_in": 4027758,
+  "tokens_out": 25750,
+  "cost_usd": 2.162,
+  "tool_calls": 39,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17028",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/cell-fidelity/",
+      "issue": "Project tests import numpy in 7 modules; the bare system python3 lacks numpy and pytest, so a quick local `unittest discover` shows 7 import errors unrelated to the change (CI runs the full suite). Known quirk, cost a minute."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-short-battery-simulations-cannot-read-the-plating-exponent.md",
+    "research/cell-fidelity/LOG.md (5zm plan and outcome)"
+  ],
+  "goal": null,
+  "notes": "Milestone 5zm of cell-fidelity, pre-registered (plan committed first). No new simulation; stdlib on 5zk's committed records. Reproduces 5zl exactly (tested). H200, H202 refuted; H201, H203 inconclusive. Practical finding: fitting the law's line over 30-50 cycles at the physical exponent cuts cycle-99 error to ~2% on LG M50. Local checks: tests/test_horizon10.py 6 OK; build.py ok; research_live_links ok; check_md_links ok; post front matter/links/similarity ok; cite_check ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e2e607a9-8386-54f8-8f20-258ff14d7b55",
+    "transcripts": 1,
+    "first": "2026-11-17T18:39:36Z",
+    "last": "2026-11-17T18:45:37Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 38,
+        "input": 74,
+        "output": 25750,
+        "thinking": 5610,
+        "cache_read": 3919840,
+        "cache_write_5m": 0,
+        "cache_write_1h": 107844,
+        "api_equivalent_usd": 2.162,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 38,
+      "input": 74,
+      "output": 25750,
+      "thinking": 5610,
+      "cache_read": 3919840,
+      "cache_write_5m": 0,
+      "cache_write_1h": 107844,
+      "api_equivalent_usd": 2.162,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 37,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.01,
+      "active_minutes": 6.01,
+      "model_minutes": 4.15,
+      "tool_minutes": 1.86,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design, code and analyse a pre-registered horizon test on existing simulation records, plus write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 277.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
