@@ -74,7 +74,9 @@ export function receiptPassesFromFile(path, opts = {}) {
   let first = null;
   if (read && image) try { const t = read(path); first = String(t ?? "").trim() ? t : null; } catch {}
   const rest = tesseractPasses(path, opts);
-  return first ? [first, ...rest] : rest;
+  if (!first) return rest;
+  // marked so the vote knows the first reading is the lead (receipts.mjs parseReceiptPasses `lead`)
+  return Object.defineProperty([first, ...rest], "lead", { value: true });
 }
 
 function tesseractPasses(path, { run = spawnSync, env = process.env, grow = 0 } = {}) {
