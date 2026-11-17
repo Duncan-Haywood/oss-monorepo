@@ -46,15 +46,25 @@ function requestKey(row) {
   }
 }
 
-/** Cookie names set via Set-Cookie in HAR responses, one row per (hostname, cookie name). */
+/** Cookie names seen in HAR responses (Set-Cookie) or requests (sent by the browser), one row per (hostname, cookie name). */
 function cookieRows(har) {
   const rows = [];
+  const seen = new Set();
   for (const entry of entriesOf(har)) {
     const hostname = hostnameOf(entry.request?.url);
-    const cookies = entry.response?.cookies;
-    if (!Array.isArray(cookies)) continue;
+    // response.cookies are Set-Cookie headers; request.cookies (HAR 1.2) are
+    // what the browser sent, which is the only place cookies written by
+    // JavaScript (_ga, _fbp, _gcl_au) show up in a HAR.
+    const cookies = [
+      ...(Array.isArray(entry.response?.cookies) ? entry.response.cookies : []),
+      ...(Array.isArray(entry.request?.cookies) ? entry.request.cookies : []),
+    ];
     for (const cookie of cookies) {
       if (!cookie?.name) continue;
+      // A browser sends the same cookie on every request to a host: one row each.
+      const key = `${hostname ?? "(unknown host)"}::${cookie.name}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
       rows.push({ hostname, name: cookie.name });
     }
   }

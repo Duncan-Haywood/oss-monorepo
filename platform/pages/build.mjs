@@ -515,7 +515,7 @@ function shipsDeployableApp(slug) {
 }
 
 // Tools that implement a published paper (portfolio/research-tools/README.md).
-export const RESEARCH_ALGORITHM_SLUGS = ['changepoint-detector', 'cost-sharing-calculator', 'conformal-prediction-intervals', 'matrix-profile-explorer', 'survival-analysis', 'fdr-multiple-testing', 'synthetic-control', 'stl-decomposition', 'fuzzy-dedupe', 'spc-control-charts', 'isolation-forest', 'gaussian-process-regression', 'wasserstein-distance', 'ranked-ballot-counter', 'assembly-line-balancer', 'job-shop-scheduler', 'robust-pca', 'lomb-scargle-periodogram', 'mann-kendall-trend', 'inter-rater-agreement', 'probability-calibration', 'hdbscan-clustering', 'kalman-smoother', 'extreme-value-analysis', 'meta-analysis', 'dynamic-time-warping'];
+export const RESEARCH_ALGORITHM_SLUGS = ['changepoint-detector', 'cost-sharing-calculator', 'conformal-prediction-intervals', 'matrix-profile-explorer', 'survival-analysis', 'fdr-multiple-testing', 'synthetic-control', 'stl-decomposition', 'fuzzy-dedupe', 'spc-control-charts', 'isolation-forest', 'gaussian-process-regression', 'wasserstein-distance', 'ranked-ballot-counter', 'assembly-line-balancer', 'job-shop-scheduler', 'robust-pca', 'lomb-scargle-periodogram', 'mann-kendall-trend', 'inter-rater-agreement', 'probability-calibration', 'hdbscan-clustering', 'kalman-smoother', 'extreme-value-analysis', 'meta-analysis', 'dynamic-time-warping', 'stable-matching'];
 
 const CATEGORY_RULES = [
   {
@@ -12620,6 +12620,8 @@ export async function buildSite({
   // false skips drawing share cards (tags are still written): fixture builds
   // in the tests that read markup only (setCardDrawing in share.mjs).
   cards = true,
+  // Slugs to build, for a preview only (--only=a,b): see onlySurfaces.
+  only = null,
 } = {}) {
   const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
   setCardDrawing(cards);
@@ -12627,7 +12629,7 @@ export async function buildSite({
   SITE_FEEDBACK_URL = normaliseCounterUrl(feedbackUrl);
   const pending = {};
   try {
-    return await buildSiteInner({ venturesDir, outDir, base, log, disableWorker, audioCdn, pending });
+    return await buildSiteInner({ venturesDir, outDir, base, log, disableWorker, audioCdn, pending, only });
   } finally {
     // The research builder runs beside the JS passes; when one of those throws,
     // wait for it to stop writing into outDir before the caller cleans up.
@@ -12638,7 +12640,26 @@ export async function buildSite({
   }
 }
 
-async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, audioCdn, pending = {} }) {
+// A preview build of a few ventures (`build.mjs --only=slug[,slug]`). Polish
+// runs measuring a page edit in the site chrome had only the full build, 5 to
+// 12 min, once before and once after (run records 2026-11-16, two sessions:
+// "no way to rebuild only a few venture pages"). The hub, sitemap and search
+// then list only these slugs, and links to a venture left out are repointed
+// at the repository, so the output is for looking at those pages, never for
+// deploying or for check.mjs. An unknown slug throws, so a typo is not an
+// empty site.
+export function onlySurfaces(discovered, only) {
+  if (!only || only.length === 0) return discovered;
+  const known = new Set(discovered.map((s) => s.slug));
+  const missing = only.filter((slug) => !known.has(slug));
+  if (missing.length > 0) {
+    throw new Error(`--only: no published venture named ${missing.join(', ')}`);
+  }
+  const keep = new Set(only);
+  return discovered.filter((s) => keep.has(s.slug));
+}
+
+async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, audioCdn, pending = {}, only = null }) {
 
   await fs.rm(outDir, { recursive: true, force: true });
   await fs.mkdir(outDir, { recursive: true });
@@ -12650,7 +12671,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   researchBuild.catch(() => {});
 
   generateVenturePages(venturesDir);
-  const discovered = await discoverSurfaces(venturesDir);
+  const discovered = onlySurfaces(await discoverSurfaces(venturesDir), only);
   const launched = await loadLaunchDates();
   const surfaces = [];
   const repairs = [];
@@ -12718,7 +12739,9 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // deliverable), so the specific files a venture's own page offers as a
   // download have to be published here instead, ahead of `repairLinks`, or
   // the CTA's link 404s for every visitor against this private repository.
+  const discoveredSlugs = new Set(discovered.map((s) => s.slug));
   for (const [slug, files] of Object.entries(DOWNLOADABLE_CLI_FILES)) {
+    if (!discoveredSlugs.has(slug)) continue; // left out by --only
     for (const name of files) {
       const from = path.join(venturesDir, slug, name);
       const to = path.join(outDir, slug, name);
@@ -13196,7 +13219,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   return {
     outDir, baseUrl: base, surfaces, repairs, wrapped, rated, saved, shared, described,
     highlighted, narrowed, embedded, sponsored, noscripted, offline, comparisons, shareCards, audio, retitled,
-    preloads,
+    preloads, only: only && only.length > 0 ? only : null,
   };
 }
 
@@ -13295,6 +13318,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   process.on('exit', releaseLock);
   for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, () => { releaseLock(); process.exit(130); });
 
+  const cliOnly = process.argv.find((a) => a.startsWith('--only='))?.slice('--only='.length)
+    .split(',').map((x) => x.trim()).filter(Boolean) ?? null;
   const result = await buildSite({
     baseUrl: argBase || process.env.PAGES_BASE_URL || DEFAULT_BASE_URL,
     outDir: cliOutDir,
@@ -13306,6 +13331,10 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       ?? process.env.PAGES_FEEDBACK_URL
       ?? JSON.parse(await fs.readFile(path.join(REPO_ROOT, 'platform', 'edge', 'site.json'), 'utf8')).url,
     audioCdn: process.argv.includes('--audio-cdn'),
+    only: cliOnly,
+    // A preview is for looking at pages; the share-card PNGs (thousands, for
+    // posts and research too) are its slowest part and no page shows them.
+    cards: !cliOnly,
     log: console.log,
   });
 
@@ -13326,4 +13355,9 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   console.log(`Added a JavaScript-needed notice to ${result.noscripted.length} page(s).`);
   console.log(`Drew ${result.shareCards.cards.length} page share card(s); completed share tags on ${result.shareCards.changed.length} page(s).`);
   console.log(`Module preload: ${result.preloads.links} link(s) on ${result.preloads.pages} page(s); deepest import chain ${result.preloads.deepest}.`);
+  if (result.only) {
+    console.log(`\nPREVIEW ONLY (--only=${result.only.join(',')}): the hub, sitemap and search list just these, `
+      + 'links to other ventures point at the repository and no share cards were drawn; '
+      + 'look at the pages, but do not deploy it or run check.mjs on it.');
+  }
 }

@@ -12,18 +12,17 @@ read as none. A cluster is scored on its first phone (*nunc* on its /n/).
 
 | pitch | singing: read exactly as written | vowel-only control: read as no consonant |
 |---|---|---|
-| E2 | 29 of 30 (96.7%) | 30 of 30 (100.0%) |
+| E2 | 30 of 30 (100.0%) | 30 of 30 (100.0%) |
 | A2 | 30 of 30 (100.0%) | 30 of 30 (100.0%) |
 | D3 | 29 of 30 (96.7%) | 30 of 30 (100.0%) |
 | G3 | 30 of 30 (100.0%) | 30 of 30 (100.0%) |
 | C4 | 30 of 30 (100.0%) | 30 of 30 (100.0%) |
 | E4 | 30 of 30 (100.0%) | 30 of 30 (100.0%) |
 
-All pitches: 178 of 180 (98.9%) read exactly (class, voicing, place); 178 of 180 (98.9%) by class alone. The vowel-only choir on the same syllables reads as no consonant 180 of 180 (100.0%).
+All pitches: 179 of 180 (99.4%) read exactly (class, voicing, place); 179 of 180 (99.4%) by class alone. The vowel-only choir on the same syllables reads as no consonant 180 of 180 (100.0%).
 
 Misses:
 
-- E2 *ad* (voiced alv stop) read as nasal
 - D3 *ap* (voiceless lab stop) read as nasal
 
 Vowel-only control, read as a consonant:
@@ -341,7 +340,7 @@ Clusters: *unt*, *ant*, *ent*, *int*, *sunt*, *nunc*, *tunc*, *ens*, *mens*, *an
 | | with the cluster rule | without (`preObstruent: false`) |
 |---|---|---|
 | cluster syllables read exactly (on their nasal) | 128 of 132 (97.0%) | 99 of 132 (75.0%) |
-| other syllables read exactly | 331 of 336 (98.5%) | 331 of 336 (98.5%) |
+| other syllables read exactly | 332 of 336 (98.8%) | 332 of 336 (98.8%) |
 | vowel-only control read as none | 453 of 468 (96.8%) | 453 of 468 (96.8%) |
 
 Cluster misses with the rule:
@@ -358,8 +357,8 @@ Clusters: *fons*, *dens*, *pons*, *mons*, *gens*, *hinc*, *runt*, *bunt*, *tent*
 | | with the obstruent gap | without (`againGap: false`) |
 |---|---|---|
 | cluster syllables read exactly (on their nasal) | 132 of 140 (94.3%) | 126 of 140 (90.0%) |
-| other syllables read exactly | 206 of 220 (93.6%) | 206 of 220 (93.6%) |
-| other syllables read as a nasal | 7 | 7 |
+| other syllables read exactly | 208 of 220 (94.5%) | 208 of 220 (94.5%) |
+| other syllables read as a nasal | 5 | 5 |
 | vowel-only control read as none | 343 of 360 (95.3%) | 343 of 360 (95.3%) |
 
 Cluster misses with the rule:
@@ -375,7 +374,7 @@ Cluster misses with the rule:
 
 Other and vowel-only misses with the rule (count over the ten pitch and length cells):
 
-ef as fricative s 3; ob as nasal 2; eb as voiced vel stop 1; ib as voiced vel stop 1; fons (vowel only) as nasal 1; pons (vowel only) as nasal 1; mons (vowel only) as nasal 1; frons (vowel only) as nasal 1; op (vowel only) as nasal 1; oc (vowel only) as nasal 1; ob (vowel only) as nasal 1; of (vowel only) as nasal 1; ot (vowel only) as nasal 1; ox (vowel only) as nasal 1; om (vowel only) as nasal 1; on (vowel only) as nasal 1; u as nasal 1; runt (vowel only) as nasal 1; bunt (vowel only) as nasal 1; lunt (vowel only) as nasal 1; ux (vowel only) as nasal 1; u (vowel only) as nasal 1; op as nasal 1; oc as nasal 1; of as nasal 1; ix as tap 1; ox as nasal 1; ib as voiceless lab stop 1
+ef as fricative s 3; eb as voiced vel stop 1; ib as voiced vel stop 1; fons (vowel only) as nasal 1; pons (vowel only) as nasal 1; mons (vowel only) as nasal 1; frons (vowel only) as nasal 1; op (vowel only) as nasal 1; oc (vowel only) as nasal 1; ob (vowel only) as nasal 1; of (vowel only) as nasal 1; ot (vowel only) as nasal 1; ox (vowel only) as nasal 1; om (vowel only) as nasal 1; on (vowel only) as nasal 1; u as nasal 1; runt (vowel only) as nasal 1; bunt (vowel only) as nasal 1; lunt (vowel only) as nasal 1; ux (vowel only) as nasal 1; u (vowel only) as nasal 1; op as nasal 1; oc as nasal 1; of as nasal 1; ix as tap 1; ox as nasal 1; ib as voiceless lab stop 1
 
 ## L. Held out: syllables on /i/ (tenth round, pre-registered)
 
@@ -400,7 +399,7 @@ With /i/: *id*, *il*, *ir*, *if*, *ist*, *ins*, *li*, *di*, *ri*, *mi*; others: 
 | | with the noise-above-5-kHz test | without (`vfricHi5: false`) |
 |---|---|---|
 | /i/ syllables read exactly | 109 of 120 (90.8%) | 65 of 120 (54.2%) |
-| other syllables read exactly | 109 of 120 (90.8%) | 109 of 120 (90.8%) |
+| other syllables read exactly | 110 of 120 (91.7%) | 110 of 120 (91.7%) |
 | z codas read as a voiced fricative | 24 of 24 (100.0%) | 24 of 24 (100.0%) |
 | v codas read as a voiced fricative | 23 of 24 (95.8%) | 23 of 24 (95.8%) |
 | vowel-only control read as none | 288 of 288 (100.0%) | 228 of 288 (79.2%) |
@@ -408,7 +407,7 @@ With /i/: *id*, *il*, *ir*, *if*, *ist*, *ins*, *li*, *di*, *ri*, *mi*; others: 
 
 Misses with the rule (count over the twelve pitch and length cells):
 
-if as fricative s 7; uf as fricative s 4; og as voiced lab stop 2; ir as none 2; ur as none 2; ag as voiced lab stop 1; iv as none 1; ins as voiced lab stop 1; or as none 1; il as nasal 1; og as nasal 1
+if as fricative s 7; uf as fricative s 4; og as voiced lab stop 2; ir as none 2; ur as none 2; ag as voiced lab stop 1; iv as none 1; ins as voiced lab stop 1; or as none 1; il as nasal 1
 
 ## N. Deep murmurs (eleventh round; held out for the first registration, a development set for the second)
 
@@ -418,13 +417,13 @@ Clusters: *dant*, *lent*, *sint*, *gunt*, *hunc*, *rens*, *tens*, *fans*, *font*
 |---|---|---|
 | cluster syllables read exactly (on their nasal) | 118 of 120 (98.3%) | 115 of 120 (95.8%) |
 | of them, eighth notes on D#4 and E4 | 20 of 20 (100.0%) | 20 of 20 (100.0%) |
-| other syllables read exactly | 227 of 240 (94.6%) | 227 of 240 (94.6%) |
-| voiced stops read as a nasal | 6 | 6 |
+| other syllables read exactly | 230 of 240 (95.8%) | 230 of 240 (95.8%) |
+| voiced stops read as a nasal | 3 | 3 |
 | vowel-only control read as none | 360 of 360 (100.0%) | 360 of 360 (100.0%) |
 
 Misses with the rule (count over the twelve pitch and length cells):
 
-dum as none 3; nab as nasal 2; gab as nasal 2; tob as nasal 2; hunc as voiceless vel stop 1; vint as voiceless alv stop 1; vig as none 1; tob as voiceless lab stop 1; vig as voiced lab stop 1; vig as fricative f 1
+dum as none 3; nab as nasal 1; gab as nasal 1; tob as nasal 1; hunc as voiceless vel stop 1; vint as voiceless alv stop 1; vig as none 1; tob as voiceless lab stop 1; vig as voiced lab stop 1; vig as fricative f 1
 
 ## O. Held-out deep murmurs, second registration (eleventh round)
 
@@ -464,14 +463,14 @@ Voiced stops: *tub*, *mab*, *cib*, *reb*, *sed*, *quod*, *pud*, *lod*, *ug*, *fu
 
 | | voice bar VOICE_BAR_DB under the vowel | fixed gain (`--voice-bar off`) |
 |---|---|---|
-| voiced-stop codas read exactly | 112 of 120 (93.3%) | 105 of 120 (87.5%) |
+| voiced-stop codas read exactly | 113 of 120 (94.2%) | 107 of 120 (89.2%) |
 | voiced-stop codas read as nothing | 2 | 2 |
 | other syllables read exactly | 76 of 80 (95.0%) | 76 of 80 (95.0%) |
 | vowel-only control read as none | 200 of 200 (100.0%) | 200 of 200 (100.0%) |
 
 Misses (count over the ten pitch and length cells):
 
-rum as none 4; tub as voiceless lab stop 1; ug as voiceless vel stop 1; pud as voiceless alv stop 1; mab as nasal 1; sub as voiceless lab stop 1; quod as none 1; lod as none 1; quod as nasal 1
+rum as none 4; tub as voiceless lab stop 1; ug as voiceless vel stop 1; pud as voiceless alv stop 1; sub as voiceless lab stop 1; quod as none 1; lod as none 1; quod as nasal 1
 
 ## R. Held out: closures against the vowel before them (fourteenth round)
 
@@ -479,9 +478,9 @@ Voiced stops: *rog*, *sib*, *teg*, *vad*, *pug*, *hob*, *ned*, *dib*, *meg*, *no
 
 | | the reader (localRef) | `localRef: false` (before) | voice bar wall on |
 |---|---|---|---|
-| voiced-stop codas read exactly | 114 of 120 (95.0%) | 112 of 120 (93.3%) | 112 of 120 (93.3%) |
+| voiced-stop codas read exactly | 114 of 120 (95.0%) | 112 of 120 (93.3%) | 117 of 120 (97.5%) |
 | voiced-stop codas read as nothing | 0 | 2 | 0 |
-| voiced-stop codas read as a nasal | 4 | 4 | 6 |
+| voiced-stop codas read as a nasal | 4 | 4 | 1 |
 | nasal codas read exactly | 48 of 48 (100.0%) | 48 of 48 (100.0%) | 48 of 48 (100.0%) |
 | other syllables read exactly | 72 of 72 (100.0%) | 72 of 72 (100.0%) | 72 of 72 (100.0%) |
 | vowel-only control read as none | 238 of 240 (99.2%) | 238 of 240 (99.2%) | 238 of 240 (99.2%) |
@@ -511,20 +510,20 @@ Voiced stops: *lub*, *tag*, *pob*, *sug*, *cad*, *mub*, *fod*, *rib*, *vob*, *ti
 
 | | default (`localRef`, no wall) | `closeAnchor` | coda wall | `closeAnchor` + coda wall |
 |---|---|---|---|---|
-| voiced-stop codas read exactly | 131 of 144 (91.0%) | 134 of 144 (93.1%) | 132 of 144 (91.7%) | 133 of 144 (92.4%) |
+| voiced-stop codas read exactly | 133 of 144 (92.4%) | 135 of 144 (93.8%) | 135 of 144 (93.8%) | 136 of 144 (94.4%) |
 | voiced-stop codas read as nothing | 2 | 0 | 1 | 0 |
-| voiced-stop codas read as a nasal | 5 | 3 | 6 | 6 |
+| voiced-stop codas read as a nasal | 3 | 2 | 2 | 2 |
 | nasal codas read exactly | 45 of 48 (93.8%) | 45 of 48 (93.8%) | 45 of 48 (93.8%) | 45 of 48 (93.8%) |
 | other syllables read exactly | 93 of 96 (96.9%) | 93 of 96 (96.9%) | 93 of 96 (96.9%) | 93 of 96 (96.9%) |
 | vowel-only control read as none | 284 of 288 (98.6%) | 284 of 288 (98.6%) | 284 of 288 (98.6%) | 284 of 288 (98.6%) |
 
 Misses with the default (count over the twelve pitch and length cells):
 
-tag as voiced lab stop 2; hag as voiced lab stop 2; fun as none 2; lunc as voiceless vel stop 2; vob as nasal 2; fa as voiced lab stop 1; pob (vowel only) as nasal 1; fod (vowel only) as nasal 1; vob (vowel only) as nasal 1; gos (vowel only) as nasal 1; lim as none 1; pob as nasal 1; hag as none 1; tag as nasal 1; tag as voiceless vel stop 1; cad as nasal 1; fod as none 1; tid as voiceless alv stop 1
+tag as voiced lab stop 2; hag as voiced lab stop 2; fun as none 2; lunc as voiceless vel stop 2; fa as voiced lab stop 1; pob (vowel only) as nasal 1; fod (vowel only) as nasal 1; vob (vowel only) as nasal 1; gos (vowel only) as nasal 1; lim as none 1; pob as nasal 1; hag as none 1; vob as nasal 1; tag as voiceless vel stop 1; cad as nasal 1; fod as none 1; tid as voiceless alv stop 1
 
 Misses with `closeAnchor` + coda wall:
 
-hag as nasal 2; hag as voiced lab stop 2; fun as none 2; lunc as voiceless vel stop 2; vob as nasal 2; fa as voiced lab stop 1; tag as voiced lab stop 1; pob (vowel only) as nasal 1; fod (vowel only) as nasal 1; vob (vowel only) as nasal 1; gos (vowel only) as nasal 1; lim as none 1; lub as nasal 1; pob as nasal 1; tag as voiceless vel stop 1; tid as voiceless alv stop 1
+hag as voiced lab stop 3; fun as none 2; lunc as voiceless vel stop 2; fa as voiced lab stop 1; tag as voiced lab stop 1; pob (vowel only) as nasal 1; fod (vowel only) as nasal 1; vob (vowel only) as nasal 1; gos (vowel only) as nasal 1; lim as none 1; pob as nasal 1; vob as nasal 1; tag as voiceless vel stop 1; tid as voiceless alv stop 1
 
 ## U. Held out: a voice bar read as a murmur (seventeenth round)
 
@@ -554,21 +553,21 @@ Velar: *dog*, *bag*, *tog*, *gig*, *vag*, *nig*, *sog*, *leg*, *hug*, *cag*, *da
 
 | | default | `compactVelar` |
 |---|---|---|
-| velar codas read exactly | 182 of 192 (94.8%) | 185 of 192 (96.4%) |
-| velar codas read as a labial stop | 4 | 1 |
-| labial codas read exactly | 101 of 108 (93.5%) | 98 of 108 (90.7%) |
+| velar codas read exactly | 186 of 192 (96.9%) | 190 of 192 (99.0%) |
+| velar codas read as a labial stop | 5 | 1 |
+| labial codas read exactly | 103 of 108 (95.4%) | 100 of 108 (92.6%) |
 | labial codas read as a velar stop | 2 | 5 |
-| alveolar codas read exactly | 58 of 60 (96.7%) | 58 of 60 (96.7%) |
+| alveolar codas read exactly | 59 of 60 (98.3%) | 59 of 60 (98.3%) |
 | other syllables read exactly | 59 of 60 (98.3%) | 59 of 60 (98.3%) |
 | vowel-only control read as none | 420 of 420 (100.0%) | 420 of 420 (100.0%) |
 
 Misses with the default (count over the twelve pitch and length cells):
 
-dog as voiced lab stop 2; rub as voiceless lab stop 2; dab as nasal 2; tog as nasal 2; rad as nasal 1; bag as nasal 1; vag as nasal 1; rub as voiced vel stop 1; lap as nasal 1; dog as nasal 1; tog as voiced lab stop 1; sog as voiced lab stop 1; tod as nasal 1; roc as nasal 1; gob as voiced vel stop 1; gum as none 1
+dog as voiced lab stop 3; rub as voiceless lab stop 2; rub as voiced vel stop 1; lap as nasal 1; tog as voiced lab stop 1; sog as voiced lab stop 1; tod as nasal 1; roc as nasal 1; gob as voiced vel stop 1; gum as none 1
 
 Misses with `compactVelar`:
 
-rub as voiceless lab stop 2; dab as nasal 2; tog as nasal 2; rad as nasal 1; dog as voiced lab stop 1; bag as nasal 1; vag as nasal 1; rub as voiced vel stop 1; lap as nasal 1; dog as nasal 1; tod as nasal 1; roc as nasal 1; gob as voiced vel stop 1; rup as voiceless vel stop 1; fip as voiceless vel stop 1; mop as voiceless vel stop 1; gum as none 1
+rub as voiceless lab stop 2; dog as voiced lab stop 1; rub as voiced vel stop 1; lap as nasal 1; tod as nasal 1; roc as nasal 1; gob as voiced vel stop 1; rup as voiceless vel stop 1; fip as voiceless vel stop 1; mop as voiceless vel stop 1; gum as none 1
 
 ## W. Held out: a p's burst read as a k (nineteenth round)
 
@@ -580,18 +579,18 @@ Voiceless labial: *tep*, *cap*, *nup*, *bip*, *hop*, *vep*, *lop*, *gap*, *rip*,
 | voiceless labials read as a velar stop | 18 | 0 |
 | voiceless velar codas read exactly | 95 of 96 (99.0%) | 95 of 96 (99.0%) |
 | voiceless velars read as a labial stop | 0 | 0 |
-| voiced stop codas read exactly | 76 of 84 (90.5%) | 76 of 84 (90.5%) |
+| voiced stop codas read exactly | 78 of 84 (92.9%) | 78 of 84 (92.9%) |
 | alveolar codas read exactly | 23 of 24 (95.8%) | 23 of 24 (95.8%) |
 | other syllables read exactly | 32 of 36 (88.9%) | 32 of 36 (88.9%) |
 | vowel-only control read as none | 338 of 360 (93.9%) | 338 of 360 (93.9%) |
 
 Misses before (count over the twelve pitch and length cells):
 
-tep as voiceless vel stop 2; nup as voiceless vel stop 2; bip as voiceless vel stop 2; hop as voiceless vel stop 2; vep as voiceless vel stop 2; gap as voiceless vel stop 2; rip as voiceless vel stop 2; hup as voiceless vel stop 2; teb as voiced vel stop 2; dob as nasal 2; fu as nasal 2; nup (vowel only) as nasal 2; hup (vowel only) as nasal 2; buc (vowel only) as nasal 2; rug (vowel only) as nasal 2; mug (vowel only) as nasal 2; nut (vowel only) as nasal 2; pum (vowel only) as nasal 2; fu (vowel only) as nasal 2; cap as voiceless vel stop 1; lop as voiceless vel stop 1; pab as voiceless lab stop 1; nog as voiced lab stop 1; mug as voiced lab stop 1; fu as voiced lab stop 1; hop (vowel only) as nasal 1; lop (vowel only) as nasal 1; voc (vowel only) as nasal 1; nog (vowel only) as nasal 1; dob (vowel only) as nasal 1; hos (vowel only) as nasal 1; hop as nasal 1; pum as none 1; mac as nasal 1; fed as voiceless alv stop 1; nog as nasal 1
+tep as voiceless vel stop 2; nup as voiceless vel stop 2; bip as voiceless vel stop 2; hop as voiceless vel stop 2; vep as voiceless vel stop 2; gap as voiceless vel stop 2; rip as voiceless vel stop 2; hup as voiceless vel stop 2; teb as voiced vel stop 2; fu as nasal 2; nup (vowel only) as nasal 2; hup (vowel only) as nasal 2; buc (vowel only) as nasal 2; rug (vowel only) as nasal 2; mug (vowel only) as nasal 2; nut (vowel only) as nasal 2; pum (vowel only) as nasal 2; fu (vowel only) as nasal 2; cap as voiceless vel stop 1; lop as voiceless vel stop 1; pab as voiceless lab stop 1; nog as voiced lab stop 1; dob as nasal 1; mug as voiced lab stop 1; fu as voiced lab stop 1; hop (vowel only) as nasal 1; lop (vowel only) as nasal 1; voc (vowel only) as nasal 1; nog (vowel only) as nasal 1; dob (vowel only) as nasal 1; hos (vowel only) as nasal 1; hop as nasal 1; pum as none 1; mac as nasal 1; fed as voiceless alv stop 1
 
 Misses with `voicelessLow`:
 
-teb as voiced vel stop 2; dob as nasal 2; fu as nasal 2; nup (vowel only) as nasal 2; hup (vowel only) as nasal 2; buc (vowel only) as nasal 2; rug (vowel only) as nasal 2; mug (vowel only) as nasal 2; nut (vowel only) as nasal 2; pum (vowel only) as nasal 2; fu (vowel only) as nasal 2; pab as voiceless lab stop 1; nog as voiced lab stop 1; mug as voiced lab stop 1; fu as voiced lab stop 1; hop (vowel only) as nasal 1; lop (vowel only) as nasal 1; voc (vowel only) as nasal 1; nog (vowel only) as nasal 1; dob (vowel only) as nasal 1; hos (vowel only) as nasal 1; hop as nasal 1; pum as none 1; mac as nasal 1; fed as voiceless alv stop 1; nog as nasal 1
+teb as voiced vel stop 2; fu as nasal 2; nup (vowel only) as nasal 2; hup (vowel only) as nasal 2; buc (vowel only) as nasal 2; rug (vowel only) as nasal 2; mug (vowel only) as nasal 2; nut (vowel only) as nasal 2; pum (vowel only) as nasal 2; fu (vowel only) as nasal 2; pab as voiceless lab stop 1; nog as voiced lab stop 1; dob as nasal 1; mug as voiced lab stop 1; fu as voiced lab stop 1; hop (vowel only) as nasal 1; lop (vowel only) as nasal 1; voc (vowel only) as nasal 1; nog (vowel only) as nasal 1; dob (vowel only) as nasal 1; hos (vowel only) as nasal 1; hop as nasal 1; pum as none 1; mac as nasal 1; fed as voiceless alv stop 1
 
 ## X. Held out: no burst on C#4-E4 (twentieth round)
 
@@ -599,9 +598,9 @@ Voiced stops: *lob*, *fub*, *nib*, *peb*, *fab*, *cub*, *fag*, *cog*, *bug*, *hu
 
 | | before (`barBurst: false`) | `barBurst` (the default since this round) |
 |---|---|---|
-| voiced stop codas read exactly | 102 of 144 (70.8%) | 130 of 144 (90.3%) |
-| of them, on C#4-E4 | 60 of 96 (62.5%) | 84 of 96 (87.5%) |
-| voiced stops on C#4-E4 read as a nasal or nothing | 30 | 6 |
+| voiced stop codas read exactly | 102 of 144 (70.8%) | 134 of 144 (93.1%) |
+| of them, on C#4-E4 | 60 of 96 (62.5%) | 86 of 96 (89.6%) |
+| voiced stops on C#4-E4 read as a nasal or nothing | 30 | 3 |
 | nasal codas read exactly | 42 of 48 (87.5%) | 42 of 48 (87.5%) |
 | n-clusters read as their nasal | 51 of 60 (85.0%) | 51 of 60 (85.0%) |
 | n-clusters read as a stop | 9 | 9 |
@@ -615,7 +614,7 @@ fab as nasal 6; tum as none 6; lob as nasal 5; cog as nasal 5; sunc as voiceless
 
 Misses with `barBurst`:
 
-tum as none 6; cog as nasal 5; sunc as voiceless vel stop 4; gonc as voiceless vel stop 2; fant as voiceless alv stop 2; fub (vowel only) as nasal 1; cub (vowel only) as nasal 1; bug (vowel only) as nasal 1; hud (vowel only) as nasal 1; mud (vowel only) as nasal 1; tum (vowel only) as nasal 1; sunc (vowel only) as nasal 1; ruc (vowel only) as nasal 1; fab as nasal 1; lob as nasal 1; fag as nasal 1; hud as voiceless alv stop 1; cog as voiced lab stop 1; fag as voiced lab stop 1; ruc as tap 1; fub as tap 1; cub as tap 1; rid as voiceless alv stop 1; fos as fricative f 1; rins as voiced alv stop 1
+tum as none 6; sunc as voiceless vel stop 4; cog as voiced lab stop 2; gonc as voiceless vel stop 2; fant as voiceless alv stop 2; fub (vowel only) as nasal 1; cub (vowel only) as nasal 1; bug (vowel only) as nasal 1; hud (vowel only) as nasal 1; mud (vowel only) as nasal 1; tum (vowel only) as nasal 1; sunc (vowel only) as nasal 1; ruc (vowel only) as nasal 1; lob as nasal 1; fag as nasal 1; hud as voiceless alv stop 1; fag as voiced lab stop 1; ruc as tap 1; fub as tap 1; cub as tap 1; rid as voiceless alv stop 1; cog as nasal 1; fos as fricative f 1; rins as voiced alv stop 1
 
 ## Y. Held out: a voiced stop's lead read as a nasal (twenty-first round)
 
@@ -639,6 +638,33 @@ sob as nasal 3; hun as none 3; hog as nasal 2; hont as voiceless alv stop 2; mog
 Misses with `voicedLead`:
 
 sob as nasal 3; hun as none 3; hog as nasal 2; hont as voiceless alv stop 2; mog as voiced lab stop 2; runc as voiceless vel stop 2; ponc as voiceless vel stop 2; beg as voiceless vel stop 1; pof as fricative s 1; beg as voiced lab stop 1; mog as nasal 1; fog as voiced lab stop 1; hog as voiced lab stop 1; rig as voiced lab stop 1; mog (vowel only) as nasal 1; fog (vowel only) as nasal 1; hog (vowel only) as nasal 1; sob (vowel only) as nasal 1; cob (vowel only) as nasal 1; pod (vowel only) as nasal 1; gom (vowel only) as nasal 1; son (vowel only) as nasal 1; ponc (vowel only) as nasal 1; ront (vowel only) as nasal 1; hont (vowel only) as nasal 1; dop (vowel only) as nasal 1; pof (vowel only) as nasal 1; lug as voiceless vel stop 1; pod as nasal 1; fog as nasal 1; cob as nasal 1; dug as voiceless vel stop 1
+
+## Z. Held out: a voiced closure that holds to its burst (twenty-second round)
+
+Voiced stops: *log*, *pog*, *gog*, *mob*, *rod*, *vod*, *cug*, *hub*, *cud*, *bub*, *fud*, *lib*, *heg*, *rab*, *neb*, *sid*; nasal codas: *lum*, *bon*, *com*, *dun*; n-clusters: *bont*, *lonc*, *dunt*, *sant*, *hunt*, *conc*; voiceless stops: *bot*, *luc*, *pap*; others: *rol*, *hus*. Pulse-4 and pulse-2 notes at 98 BPM, each followed by a rest, A2, F#3, B3, C#4, D#4, E4.
+
+| | default | `voicedLead` (bar form) | `voicedLead: { hold: true }` |
+|---|---|---|---|
+| voiced stop codas read exactly | 171 of 192 (89.1%) | 172 of 192 (89.6%) | 177 of 192 (92.2%) |
+| voiced stops read as a nasal | 9 | 8 | 2 |
+| nasal codas read exactly | 42 of 48 (87.5%) | 42 of 48 (87.5%) | 42 of 48 (87.5%) |
+| n-clusters read as their nasal | 68 of 72 (94.4%) | 68 of 72 (94.4%) | 68 of 72 (94.4%) |
+| nasal codas and n-clusters read as a stop | 3 | 3 | 3 |
+| voiceless stop codas read exactly | 36 of 36 (100.0%) | 36 of 36 (100.0%) | 36 of 36 (100.0%) |
+| other syllables read exactly | 24 of 24 (100.0%) | 24 of 24 (100.0%) | 24 of 24 (100.0%) |
+| vowel-only control read as none | 359 of 372 (96.5%) | 359 of 372 (96.5%) | 359 of 372 (96.5%) |
+
+Misses, default (count over the twelve pitch and length cells):
+
+lum as none 4; mob as nasal 3; pog as nasal 2; dunt as voiceless alv stop 2; log as nasal 2; gog as nasal 2; dun as none 2; neb as voiced vel stop 2; pog as voiced lab stop 1; heg as voiced lab stop 1; cug as voiced lab stop 1; hub as none 1; log as voiced lab stop 1; hunt as voiceless alv stop 1; mob as voiced vel stop 1; hub as voiced vel stop 1; bub as voiced vel stop 1; bub as voiceless lab stop 1; rab as voiced vel stop 1; log (vowel only) as nasal 1; pog (vowel only) as nasal 1; gog (vowel only) as nasal 1; mob (vowel only) as nasal 1; rod (vowel only) as nasal 1; vod (vowel only) as nasal 1; bon (vowel only) as nasal 1; com (vowel only) as nasal 1; bont (vowel only) as nasal 1; lonc (vowel only) as nasal 1; conc (vowel only) as nasal 1; bot (vowel only) as nasal 1; rol (vowel only) as nasal 1; lonc as tap 1
+
+Misses, bar form:
+
+lum as none 4; pog as nasal 2; dunt as voiceless alv stop 2; log as nasal 2; gog as nasal 2; mob as nasal 2; dun as none 2; neb as voiced vel stop 2; pog as voiced lab stop 1; heg as voiced lab stop 1; cug as voiced lab stop 1; hub as none 1; log as voiced lab stop 1; hunt as voiceless alv stop 1; mob as voiced vel stop 1; hub as voiced vel stop 1; bub as voiced vel stop 1; bub as voiceless lab stop 1; rab as voiced vel stop 1; log (vowel only) as nasal 1; pog (vowel only) as nasal 1; gog (vowel only) as nasal 1; mob (vowel only) as nasal 1; rod (vowel only) as nasal 1; vod (vowel only) as nasal 1; bon (vowel only) as nasal 1; com (vowel only) as nasal 1; bont (vowel only) as nasal 1; lonc (vowel only) as nasal 1; conc (vowel only) as nasal 1; bot (vowel only) as nasal 1; rol (vowel only) as nasal 1; lonc as tap 1
+
+Misses, hold form:
+
+lum as none 4; dunt as voiceless alv stop 2; log as nasal 2; dun as none 2; neb as voiced vel stop 2; pog as voiced lab stop 1; heg as voiced lab stop 1; gog as voiced lab stop 1; cug as voiced lab stop 1; hub as none 1; log as voiced lab stop 1; hunt as voiceless alv stop 1; mob as voiced vel stop 1; hub as voiced vel stop 1; bub as voiced vel stop 1; bub as voiceless lab stop 1; rab as voiced vel stop 1; log (vowel only) as nasal 1; pog (vowel only) as nasal 1; gog (vowel only) as nasal 1; mob (vowel only) as nasal 1; rod (vowel only) as nasal 1; vod (vowel only) as nasal 1; bon (vowel only) as nasal 1; com (vowel only) as nasal 1; bont (vowel only) as nasal 1; lonc (vowel only) as nasal 1; conc (vowel only) as nasal 1; bot (vowel only) as nasal 1; rol (vowel only) as nasal 1; lonc as tap 1
 
 ## C. Closing consonants in the corpus
 

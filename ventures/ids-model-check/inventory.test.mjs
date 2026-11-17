@@ -297,10 +297,11 @@ test("an opened IDS's applicability facets beyond the class open as editable row
   const loadFor = (id) => ({ S: R.schemas[id], psets: R.psets[id], tm: R.typeMap });
   const imp = importIds(parsed, loadFor);
   const [s] = imp.state.specs;
-  assert.deepEqual(s.app.map((r) => `${r.kind}:${r.mode}`), ["classification:any", "attribute:equals", "property:true", "property:any"]);
+  assert.deepEqual(s.app.map((r) => `${r.kind}:${r.mode}`), ["classification:any", "attribute:equals", "property:true", "property:any", "property:range"]);
   assert.ok(s.app[3].custom, "a project's own set");
-  // The exclusive bound has no control on the page: kept as written.
-  assert.deepEqual(s.fixedApp.map((f) => f.kind), ["property"]);
+  // An exclusive bound is a range row with "more than" since 2026-11-17 (it was kept as written).
+  assert.deepEqual([s.app[4].min, s.app[4].minEx, s.app[4].max, s.app[4].maxEx], ["3", true, "", false]);
+  assert.deepEqual(s.fixedApp, []);
   const back = parseIds(buildIds(stateToDoc(imp.state, loadFor("IFC4")), S4));
   const said = (sp) => sp.applicability.map((f) => `${f.kind} ${f.dataType || ""} ${f.describe()}`).sort();
   assert.deepEqual(said(back.specs[0]), said(parsed.specs[0]));

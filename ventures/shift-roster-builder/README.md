@@ -291,6 +291,59 @@ opening balance; a July leave year; the trim keeping the balances identical; the
 when off, the page, a recorded and a removed use, an opening balance, the CSV and its formula guard). Not claimed: not
 tried on a live team or against any state's rule text; a manager's view of the policy wording is the next thing to get.
 
+## Los Angeles County (2026-11-17, latest)
+
+`FAIR_WORKWEEK=los-angeles-county` (or `la-county`, `county-of-los-angeles`) prices changes under the Los Angeles County
+Fair Workweek Ordinance (County Code Title 8, Chapter 8.102), in force since 2025-07-01 for retail employers with 300 or
+more employees worldwide, and only in the county's **unincorporated areas** (East LA, Altadena, Marina del Rey and the
+like); the City of Los Angeles keeps its own preset (`los-angeles`). **Read from the county's own text**, fetched from
+this session on file.lacounty.gov: the ordinance as sent to the Board of Supervisors on 2024-04-09 (supdocs 189905) and
+the amendment to 8.102.080 adopted 2025-11-18 (supdocs 208681).
+
+| | Los Angeles County, from the ordinance text |
+|---|---|
+| Posted | 14 days before the work period (8.102.060.A) |
+| A change to a date, time or location with no lost time, or adding more than 15 min | 1 h of pay per change (8.102.080.A.1) |
+| Work time cut by at least 15 min, a cancelled shift, an on-call shift not called in | half the regular rate for the time not worked, anywhere inside the 14 days (A.2 as amended 2025) |
+| Free | added time of 15 min or less; time taken away under 15 min |
+| Exempt | employee-initiated changes (B.1); hours accepted to cover another employee's absence (B.2), with the voluntariness notice and documented consent |
+| Rest | a shift starting under 10 h after the last one: written consent and time and a half for each hour of it inside the 10 h (8.102.100) |
+
+Two new rule fields, usable in any rule set:
+
+- `minCutMin` (`FWW_MIN_CUT_MIN`): time taken away under this many minutes owes nothing. The 2025 amendment folded the
+  old "subtracting hours", "start or end time ... loss of more than fifteen minutes", "changing the date" and
+  "cancelling" items into one: the employer "reduces the Retail Employee's work time ... by at least 15 minutes". So 15
+  minutes owes and 14 does not; the original text had said "more than fifteen".
+- `coverAccept` (`FWW_COVER_ACCEPT=1`): hours accepted to cover a colleague's absence owe nothing whether they came from
+  the written team offer or a one-to-one ask. Seattle's and Oregon's exception needs the group offer (`massOffer`); the
+  county's B.2 does not, but it needs the employer to have said taking the hours is voluntary and may be declined, and
+  to have documented the request and the consent. The changes page says so on each exempt line. The hub's plain
+  "Give to" cover cannot see whether that was done: if it was not, the hours were also given without the consent
+  8.102.060.C requires, and the "Employee asked" mark does not help; the deployer turns the exception off with
+  `FWW_COVER_ACCEPT=0`.
+
+How it differs from the city next door: no team-offer exception in the city (its FAQ prices volunteers), a short rest paid
+on the whole later shift in the city but only on the hours inside 10 h in the county, and no minute floor on cuts in the
+city. What it changes, at $18 an hour (`eval/la-county-compare.mjs`, `eval/la-county-compare-2026-11-17.md`):
+
+| Change | los-angeles-county | los-angeles | seattle | chicago | berkeley |
+|---|---:|---:|---:|---:|---:|
+| Monday's 8 h shift cancelled 10 days ahead | $72.00 | $72.00 | $72.00 | $18.00 | $18.00 |
+| 1 h cut off Tuesday's 8 h shift, Monday 23:00 | $9.00 | $9.00 | $9.00 | $9.00 | $18.00 |
+| 10 min cut off Wednesday's end, 3 days ahead | $0.00 | $1.50 | $1.50 | $18.00 | $18.00 |
+| Ben asked one-to-one to cover Ana's Thursday call-out | $0.00 | $18.00 | $18.00 | $18.00 | $18.00 |
+| Close Fri 24:00, open Sat 08:00 (8 h rest) | $18.00 | $72.00 | $18.00 | $9.00 | $27.00 |
+| **Total** | **$99.00** | **$172.50** | **$118.50** | **$72.00** | **$99.00** |
+
+Not modelled: who is covered (retail and grocery NAICS codes, 300 employees, two hours a week in an unincorporated
+area); B.3, hours accepted from the 72-hour offer to current staff before hiring (8.102.070), which the hub has no
+form for; B.4 and B.5 (discipline, operations compromised by law); B.6, extra hours already paid at overtime under
+Labor Code 510; the good-faith estimate (8.102.040) and the record keeping (8.102.130). Tests:
+`notice-la-county.test.mjs` (names and the city kept apart, the 14-day half with no 24-hour tier, the 15-minute floor at
+14 and 15 minutes, 1 h moves and adds, cover exempt one-to-one and by team offer and priced by the city and Seattle,
+on-call, rest on the inside hours only, the two env fields, the changes page).
+
 ## Evanston (2026-11-17, later)
 
 `FAIR_WORKWEEK=evanston` (or `evanston-il`) prices changes under Evanston, Illinois's Fair Workweek Ordinance

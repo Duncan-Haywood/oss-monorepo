@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%232f3e78'/%3E%3Ccircle%20cx='10'%20cy='10'%20r='4'%20fill='%23fff'/%3E%3Ccircle%20cx='10'%20cy='22'%20r='4'%20fill='%23fff'/%3E%3Ccircle%20cx='22'%20cy='10'%20r='4'%20fill='%23f2a93b'/%3E%3Ccircle%20cx='22'%20cy='22'%20r='4'%20fill='%23f2a93b'/%3E%3Cpath%20d='M13%2011L19%2021M13%2021L19%2011'%20stroke='%23fff'%20stroke-width='2'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Stable Matching Tool — Gale-Shapley deferred acceptance, every stable matching, free online</title>
+  <meta name="description" content="Free stable matching tool. Paste both sides' ranked lists (applicants and programmes, students and schools, mentees and mentors) and get the Gale-Shapley deferred acceptance matching with capacities, either side proposing, every stable matching with the egalitarian and minimum-regret ones, and the blocking pairs in a matching you already have. Runs in your browser.">
+  <meta property="og:title" content="Who should be matched with whom? Gale-Shapley stable matching, every stable matching and a blocking-pair check, in your browser">
+  <meta property="og:description" content="Deferred acceptance with capacities and either side proposing, every stable matching listed, and a check of any matching you already have. Checked against the Python matching package on 250 instances and a brute-force search on 1,000.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Stable matching tool: deferred acceptance and every stable matching", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Matches applicants to programmes, students to schools, mentees to mentors or volunteers to shifts from both sides' ranked lists by deferred acceptance (Gale & Shapley 1962), with capacities and either side proposing, lists every stable matching (McVitie & Wilson 1971), picks the egalitarian, minimum-regret and balanced ones, and finds the blocking pairs in a matching you already have. Runs in your browser.", "featureList": "Gale-Shapley algorithm, deferred acceptance, stable marriage problem, hospitals residents problem, college admissions problem, residency match simulator, school choice, mentor matching, stable matching checker, blocking pairs, all stable matchings, egalitarian stable matching, minimum regret stable matching, rural hospitals theorem, CSV download", "citation": ["https://doi.org/10.1080/00029890.1962.11989827", "https://doi.org/10.1145/362619.362631", "https://doi.org/10.1086/261272", "https://doi.org/10.2307/1913160", "https://doi.org/10.1287/moor.7.4.617", "https://doi.org/10.1080/00029890.1981.11995301", "https://doi.org/10.1145/28869.28871", "https://doi.org/10.1137/0216010", "https://doi.org/10.1257/aer.89.4.748"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a stable matching?", "acceptedAnswer": {"@type": "Answer", "text": "A matching of applicants to places is stable when no applicant and place would both rather have each other than what they got. If such a pair exists (a blocking pair), they have a reason to break the match and go round it, which is how matching markets unravel. Gale and Shapley (1962) proved a stable matching always exists and gave deferred acceptance, the algorithm that finds one."}}, {"@type": "Question", "name": "Which side should propose?", "acceptedAnswer": {"@type": "Answer", "text": "The proposing side gets its best stable outcome: when applicants propose, every applicant gets the best partner it has in any stable matching, and every programme gets its worst. The proposing side can also never gain by ranking dishonestly (Roth 1982; Dubins and Freedman 1981), but the receiving side sometimes can, and no stable rule protects both. So choose the proposing side for whoever most needs to be able to rank honestly, usually the applicants."}}, {"@type": "Question", "name": "Is this how the medical residency match works?", "acceptedAnswer": {"@type": "Answer", "text": "The US National Resident Matching Program has used an applicant-proposing version of deferred acceptance since 1998, designed by Roth and Peranson (1999), with extra rules for couples who must match near each other. This tool does not handle couples or those extra rules, and it is not affiliated with any matching programme. Use it to understand, teach or run a small match of your own."}}, {"@type": "Question", "name": "Why are the same people left out in every stable matching?", "acceptedAnswer": {"@type": "Answer", "text": "The rural hospitals theorem (Roth 1986) says every stable matching places the same applicants, fills each programme to the same number, and gives an under-filled programme exactly the same people. So no stable rule can help an applicant left out or a programme left short; only changing the lists (or the number of places) can. The tool checks this on every result."}}, {"@type": "Question", "name": "What do egalitarian, minimum regret and balanced mean?", "acceptedAnswer": {"@type": "Answer", "text": "When there are several stable matchings the tool lists them all and picks three compromises between the two sides. Egalitarian has the smallest total rank over everyone on both sides (Irving, Leather and Gusfield 1987). Minimum regret makes the worst-off person as well off as possible (Gusfield 1987). Balanced makes the two sides' total ranks as close as possible. Rank 1 means first choice."}}, {"@type": "Question", "name": "Can I check a matching I already made by hand?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Paste it in the check box as one line per applicant, such as ana: city, with a dash for no place. The tool lists every blocking pair and says why each pair would rather be together, plus any placement the lists do not allow or any programme given more people than it has places."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Every matching is computed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b2140; background: #f2f3f8; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2f3e78; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f2a5a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f2a5a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4d5470; }
+    .card { background: #fff; border: 1px solid #d6d9e8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f2a5a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6d7391; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2f3e78; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e7f3; color: #1f2a5a; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e7e9f2; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4d5470; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d6d9e8; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 200px; padding: 9px 10px; border: 1px solid #6d7391; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    textarea#check { min-height: 90px; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .summary { font-size: 1.02rem; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    .ok { color: #2a6b3f; font-weight: 600; }
+    .bad { color: #a8322a; font-weight: 600; }
+    pre { background: #f4f5fa; border: 1px solid #dde0ec; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">STABLE MATCHING · GALE-SHAPLEY · DEFERRED ACCEPTANCE · CAPACITIES · EVERY STABLE MATCHING · BLOCKING PAIRS · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Who should be matched with whom, so nobody wants to swap?</h1>
+    <p>Residents and hospitals, students and schools, mentees and mentors, volunteers and shifts, reviewers and papers: both sides rank each other, and you need a matching that holds. This tool runs <strong>deferred acceptance</strong> (Gale &amp; Shapley 1962) with capacities and either side proposing, lists <strong>every stable matching</strong> (McVitie &amp; Wilson 1971) with the fairest compromises between the two sides, and finds the <strong>blocking pairs</strong> in a matching you already have.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Arithmetic on the lists you give, not legal or professional advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Both sides' lists</h2>
+    <label for="prefs">Two sections, each opened by a [header] naming the side. One line per member: its name, a colon, then its ranking, best first (">" or "," between names). Capacities go on the second side after the name: city (2).</label>
+    <textarea id="prefs" spellcheck="false"></textarea>
+    <label for="file">Or open a text file from this device</label>
+    <input id="file" type="file" accept=".txt,.csv,text/plain">
+    <div class="grid">
+      <div><label for="proposer">Which side proposes</label><select id="proposer"><option value="A">The first side (best for them)</option><option value="B">The second side (best for them)</option></select></div>
+      <div><label for="limit">Stop listing stable matchings after</label><input id="limit" type="number" min="1" max="5000" step="1" value="5000"></div>
+    </div>
+    <label for="check">Optional: a matching to check, one line per member of the first side ("ana: city", "-" for no place)</label>
+    <textarea id="check" spellcheck="false" placeholder="ana: mercy&#10;ben: city"></textarea>
+    <div>
+      <button type="button" class="secondary" id="ex-residency">Example: 12 residents, 4 programmes (made up)</button>
+      <button type="button" class="secondary" id="ex-small">Example: 4 applicants, 5 stable matchings (made up)</button>
+      <button type="button" class="secondary" id="ex-cyclic">Example: the cyclic 3 x 3</button>
+    </div>
+    <button type="button" id="analyze">Match</button>
+    <span class="note" id="status"></span>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="summary" id="summary"></p>
+    <div id="notes"></div>
+    <h3>Who goes where</h3>
+    <div class="scroll"><table id="table"></table></div>
+    <h3>Every stable matching, by how well each side does</h3>
+    <p class="note" id="legend">Each dot is one stable matching. Left is better for the first side, lower is better for the second (total rank, 1 = first choice).</p>
+    <div id="chart"></div>
+    <div id="check-box" hidden>
+      <h3>Your matching</h3>
+      <div id="check-out"></div>
+    </div>
+    <button type="button" class="secondary" id="download">Download the matchings (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>Example: the cyclic 3 x 3, where the side that proposes wins</h2>
+    <p>Three men and three women whose lists go round in a circle: x likes A best, A likes y best, y likes B best, and so on. Gale and Shapley (1962) used an instance of this kind to show a market can have more than one stable matching. Load it: there are three. When the men propose each gets his first choice and each woman her third; when the women propose it is the reverse; and the middle one gives everyone their second choice. All three are stable, so stability alone does not say which is fair. That choice, between the two sides, is what the egalitarian, minimum-regret and balanced picks make explicit.</p>
+  </section>
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What is a stable matching?</h3>
+    <p>A matching of applicants to places is stable when no applicant and place would both rather have each other than what they got. If such a pair exists (a blocking pair), they have a reason to break the match and go round it, which is how matching markets unravel. Gale and Shapley (1962) proved a stable matching always exists and gave deferred acceptance, the algorithm that finds one.</p>
+    <h3>Which side should propose?</h3>
+    <p>The proposing side gets its best stable outcome: when applicants propose, every applicant gets the best partner it has in any stable matching, and every programme gets its worst. The proposing side can also never gain by ranking dishonestly (Roth 1982; Dubins and Freedman 1981), but the receiving side sometimes can, and no stable rule protects both. So choose the proposing side for whoever most needs to be able to rank honestly, usually the applicants.</p>
+    <h3>Is this how the medical residency match works?</h3>
+    <p>The US National Resident Matching Program has used an applicant-proposing version of deferred acceptance since 1998, designed by Roth and Peranson (1999), with extra rules for couples who must match near each other. This tool does not handle couples or those extra rules, and it is not affiliated with any matching programme. Use it to understand, teach or run a small match of your own.</p>
+    <h3>Why are the same people left out in every stable matching?</h3>
+    <p>The rural hospitals theorem (Roth 1986) says every stable matching places the same applicants, fills each programme to the same number, and gives an under-filled programme exactly the same people. So no stable rule can help an applicant left out or a programme left short; only changing the lists (or the number of places) can. The tool checks this on every result.</p>
+    <h3>What do egalitarian, minimum regret and balanced mean?</h3>
+    <p>When there are several stable matchings the tool lists them all and picks three compromises between the two sides. Egalitarian has the smallest total rank over everyone on both sides (Irving, Leather and Gusfield 1987). Minimum regret makes the worst-off person as well off as possible (Gusfield 1987). Balanced makes the two sides&#x27; total ranks as close as possible. Rank 1 means first choice.</p>
+    <h3>Can I check a matching I already made by hand?</h3>
+    <p>Yes. Paste it in the check box as one line per applicant, such as ana: city, with a dash for no place. The tool lists every blocking pair and says why each pair would rather be together, plus any placement the lists do not allow or any programme given more people than it has places.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Every matching is computed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p><strong>Deferred acceptance</strong> (Gale &amp; Shapley 1962). Each free member of the proposing side asks the next one on its list; each receiver holds its best offers up to its capacity and turns down the rest. Nothing is final until nobody free has anyone left to ask. A pair can match only if each lists the other; a one-sided listing is dropped with a note.</p>
+    <p><strong>Every stable matching</strong> (McVitie &amp; Wilson 1971). Each programme with <code>c</code> places becomes <code>c</code> seats that every applicant ranks one after another, which has the same stable matchings (Gusfield &amp; Irving 1989). From the applicant-optimal matching, the search frees one applicant at a time, lets its partner accept only someone she prefers, and continues the proposals; when that chain ends with the partner taking a better offer, the result is another stable matching and the search continues from it. A chain that would displace an earlier applicant, run someone off their list, or fill a seat that was empty is abandoned. The listing stops at the limit you set (at most 5,000) and says when it did.</p>
+    <p><strong>Choosing among them.</strong> Egalitarian: smallest total rank (Irving, Leather &amp; Gusfield 1987). Minimum regret: smallest worst rank (Gusfield 1987). Balanced: the two sides' totals as close as possible. All three are picked from the full listing, so they are exact only when it finished.</p>
+    <p><strong>Checked</strong> against the Python <code>matching</code> package 1.4.3 (Wilde, Knight &amp; Gillard 2020) on 250 random instances of up to 30 applicants and 12 programmes, both sides proposing, with exact agreement; and against a brute-force search over every possible matching on 1,000 small random instances, with exactly the same set of stable matchings each time. Implemented from the papers; no third-party code was ported.</p>
+<pre>@article{gale1962college, author={Gale, David and Shapley, Lloyd S.}, title={College Admissions and the Stability of Marriage}, journal={The American Mathematical Monthly}, volume={69}, number={1}, pages={9--15}, year={1962}, doi={10.1080/00029890.1962.11989827}}
+@article{mcvitie1971stable, author={McVitie, D. G. and Wilson, L. B.}, title={The stable marriage problem}, journal={Communications of the ACM}, volume={14}, number={7}, pages={486--490}, year={1971}, doi={10.1145/362619.362631}}
+@article{roth1984evolution, author={Roth, Alvin E.}, title={The Evolution of the Labor Market for Medical Interns and Residents: A Case Study in Game Theory}, journal={Journal of Political Economy}, volume={92}, number={6}, pages={991--1016}, year={1984}, doi={10.1086/261272}}
+@article{roth1986allocation, author={Roth, Alvin E.}, title={On the Allocation of Residents to Rural Hospitals: A General Property of Two-Sided Matching Markets}, journal={Econometrica}, volume={54}, number={2}, pages={425--427}, year={1986}, doi={10.2307/1913160}}
+@article{roth1982economics, author={Roth, Alvin E.}, title={The Economics of Matching: Stability and Incentives}, journal={Mathematics of Operations Research}, volume={7}, number={4}, pages={617--628}, year={1982}, doi={10.1287/moor.7.4.617}}
+@article{dubins1981machiavelli, author={Dubins, Lester E. and Freedman, David A.}, title={Machiavelli and the Gale-Shapley Algorithm}, journal={The American Mathematical Monthly}, volume={88}, number={7}, pages={485--494}, year={1981}, doi={10.1080/00029890.1981.11995301}}
+@article{irving1987efficient, author={Irving, Robert W. and Leather, Paul and Gusfield, Dan}, title={An efficient algorithm for the ``optimal'' stable marriage}, journal={Journal of the ACM}, volume={34}, number={3}, pages={532--543}, year={1987}, doi={10.1145/28869.28871}}
+@article{gusfield1987three, author={Gusfield, Dan}, title={Three Fast Algorithms for Four Problems in Stable Marriage}, journal={SIAM Journal on Computing}, volume={16}, number={1}, pages={111--128}, year={1987}, doi={10.1137/0216010}}
+@book{gusfield1989stable, author={Gusfield, Dan and Irving, Robert W.}, title={The Stable Marriage Problem: Structure and Algorithms}, publisher={MIT Press}, year={1989}}
+@article{roth1999redesign, author={Roth, Alvin E. and Peranson, Elliott}, title={The Redesign of the Matching Market for American Physicians: Some Engineering Aspects of Economic Design}, journal={American Economic Review}, volume={89}, number={4}, pages={748--780}, year={1999}, doi={10.1257/aer.89.4.748}}</pre>
+    <p class="note">Limits: up to 2,000 members in all; the listing of stable matchings stops at 5,000. Strict rankings only (no ties), the second side may have several places, the first side one each. Couples, quotas, ties and many-to-many matching are not handled. A stable matching is one definition of a good outcome; a real admissions, hiring or placement process has rules of its own.</p>
+  </section>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or professional advice, and it does not replace the rules of a real admissions, hiring or placement process. Results are arithmetic on the lists you enter; a law, contract or programme rule may require a different outcome. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, any matching programme, or any software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs prefs.txt --proposer A --check mine.txt</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/stable-matching" rel="noopener">source</a>.</p>
+    <p>More research algorithms on your own data: the <a href="../cost-sharing-calculator/">fair cost sharing calculator</a> splits a shared cost by the Shapley value, and the <a href="../ranked-ballot-counter/">ranked ballot counter</a> counts a ranked-choice election.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, toCsv, fmt } from "./engine.mjs";
+    import { EXAMPLES } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    let last = null;
+    function inputs() {
+      return { text: $("#prefs").value, proposer: $("#proposer").value, limit: Number($("#limit").value) || 5000, check: $("#check").value };
+    }
+    function chart(r) {
+      const S = r.stableMatchings;
+      if (!S) return "";
+      const W = 900, H = 340, L = 70, B = 50, T = 20, R = 20;
+      const xs = S.points.map((p) => p.sumA), ys = S.points.map((p) => p.sumB);
+      const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+      const sx = (v) => L + (x1 === x0 ? 0.5 : (v - x0) / (x1 - x0)) * (W - L - R);
+      const sy = (v) => T + (y1 === y0 ? 0.5 : 1 - (v - y0) / (y1 - y0)) * (H - T - B);
+      let out = `<line x1="${L}" y1="${H - B}" x2="${W - R}" y2="${H - B}" stroke="#9aa0b8"/><line x1="${L}" y1="${T}" x2="${L}" y2="${H - B}" stroke="#9aa0b8"/>`;
+      out += `<text x="${(L + W - R) / 2}" y="${H - 12}" font-size="13" text-anchor="middle" fill="#4d5470">${esc(r.sides.A.label)}: total rank (${fmt(x0, 0)} to ${fmt(x1, 0)}; left is better)</text>`;
+      out += `<text x="16" y="${(T + H - B) / 2}" font-size="13" text-anchor="middle" fill="#4d5470" transform="rotate(-90 16 ${(T + H - B) / 2})">${esc(r.sides.B.label)}: total rank (${fmt(y0, 0)} to ${fmt(y1, 0)})</text>`;
+      const shown = S.points.slice(0, 2000);
+      for (const p of shown) out += `<circle cx="${sx(p.sumA).toFixed(1)}" cy="${sy(p.sumB).toFixed(1)}" r="5" fill="#2f3e78" fill-opacity=".55"><title>${esc(r.sides.A.label)} ${p.sumA}, ${esc(r.sides.B.label)} ${p.sumB}, worst rank ${p.regret}</title></circle>`;
+      const mark = (m, label, color, dy) => { out += `<circle cx="${sx(m.sumA).toFixed(1)}" cy="${sy(m.sumB).toFixed(1)}" r="8" fill="none" stroke="${color}" stroke-width="2.5"/><text x="${(sx(m.sumA) + 11).toFixed(1)}" y="${(sy(m.sumB) + dy).toFixed(1)}" font-size="12" fill="${color}">${esc(label)}</text>`; };
+      mark(r.optimalA, `${r.sides.A.label}-optimal`, "#a8322a", 4);
+      mark(r.optimalB, `${r.sides.B.label}-optimal`, "#2a6b3f", 4);
+      mark(S.egalitarian, "egalitarian", "#b26b00", -10);
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Each stable matching plotted by the total rank of each side">${out}</svg>`;
+    }
+    function show(r) {
+      last = r;
+      $("#results").hidden = false;
+      $("#summary").textContent = r.summary;
+      $("#notes").innerHTML = r.warnings.map((n) => `<p class="warn">${esc(n)}</p>`).join("");
+      const cols = [[`${r.proposerLabel} proposing`, r.matching], [`${r.sides.A.label}-optimal`, r.optimalA], [`${r.sides.B.label}-optimal`, r.optimalB]];
+      if (r.stableMatchings) cols.push(["Egalitarian", r.stableMatchings.egalitarian], ["Minimum regret", r.stableMatchings.minimumRegret], ["Balanced", r.stableMatchings.balanced]);
+      const names = Object.keys(r.matching.assignment);
+      const cell = (m, i) => { const p = m.assignment[names[i]]; return p == null ? '<span class="note">none</span>' : `${esc(p)} <span class="note">(${m.rankA[i]})</span>`; };
+      $("#table").innerHTML = `<tr><th>${esc(r.sides.A.label)}</th>${cols.map(([n]) => `<th>${esc(n)}</th>`).join("")}</tr>` +
+        names.map((n, i) => `<tr><td>${esc(n)}</td>${cols.map(([, m]) => `<td>${cell(m, i)}</td>`).join("")}</tr>`).join("") +
+        `<tr><td class="note">Total rank, ${esc(r.sides.A.label)} / ${esc(r.sides.B.label)}</td>${cols.map(([, m]) => `<td class="note">${m.sumA} / ${m.sumB}</td>`).join("")}</tr>`;
+      $("#chart").innerHTML = chart(r);
+      $("#check-box").hidden = !r.check;
+      if (r.check) {
+        const c = r.check;
+        $("#check-out").innerHTML = (c.stable ? '<p class="ok">Stable: no pair would rather have each other.</p>' : '<p class="bad">Not stable.</p>') +
+          c.problems.map((p) => `<p class="warn">${esc(p)}</p>`).join("") +
+          (c.blocking.length ? `<table><tr><th>Blocking pair</th><th>Why</th></tr>${c.blocking.slice(0, 200).map((b) => `<tr><td>${esc(b[r.sides.A.label])} + ${esc(b[r.sides.B.label])}</td><td>${esc(b.why)}</td></tr>`).join("")}</table>` : "");
+      }
+    }
+    function run() {
+      const t0 = performance.now();
+      const r = analyze(inputs());
+      if (r.error) {
+        $("#status").textContent = r.error;
+        $("#results").hidden = true;
+        return;
+      }
+      $("#status").textContent = `Done in ${Math.round(performance.now() - t0)} ms.`;
+      show(r);
+      record("analysis_run");
+    }
+    function loadExample(key, quiet = false) {
+      const ex = EXAMPLES[key];
+      $("#prefs").value = ex.text;
+      $("#proposer").value = ex.proposer || "A";
+      $("#check").value = "";
+      $("#status").textContent = ex.label;
+      if (quiet) {
+        const r = analyze(inputs());
+        if (!r.error) show(r);
+        return;
+      }
+      record("example_loaded");
+      run();
+    }
+    $("#analyze").addEventListener("click", run);
+    $("#ex-residency").addEventListener("click", () => loadExample("residency"));
+    $("#ex-small").addEventListener("click", () => loadExample("small"));
+    $("#ex-cyclic").addEventListener("click", () => loadExample("cyclic"));
+    $("#file").addEventListener("change", async (e) => {
+      const f = e.target.files?.[0];
+      if (f) { $("#prefs").value = await f.text(); run(); }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "stable-matching.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    const syncOpt = () => { $("#optout").textContent = usageOptedOut() ? "Turn usage counting back on" : "Turn usage counting off"; };
+    $("#optout").addEventListener("click", () => { setUsageOptOut(!usageOptedOut()); syncOpt(); });
+    syncOpt();
+    loadExample("residency", true);
+  </script>
+</body>
+</html>

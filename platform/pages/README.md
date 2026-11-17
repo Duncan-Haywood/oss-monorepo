@@ -8,8 +8,16 @@ that lists and searches them.
 node platform/pages/build.mjs                    # build into platform/pages/dist
 node platform/pages/check.mjs                    # check that artifact (--dist=DIR for another)
 node platform/pages/served-copy.mjs <slug>      # one product as the deploy writes it, in under a second
+node platform/pages/build.mjs --only=<slug>[,<slug>] --out=DIR   # preview: those pages in full site chrome, ~30 s
 cd platform/pages && node --test "*.test.mjs"   # what CI runs
 ```
+
+`--only` is for looking at a page edit (screenshots before and after) without
+two full builds: 28 s for two ventures against 2 min 15 s for the full build
+on the same container (2026-11-17; two polish runs on 2026-11-16 saw 5 to 12
+min per full build). The hub, sitemap and search then list only those slugs,
+links to other ventures point at the repository and no share cards are drawn,
+so never deploy it or run `check.mjs` on it; it says so when it finishes.
 
 The site's experiments live in the lab (`lab/`, built by `lab.mjs`); its charter, roadmap and log are in [`LAB.md`](LAB.md).
 

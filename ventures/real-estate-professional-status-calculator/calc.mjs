@@ -71,7 +71,7 @@ function lossesByYear(o) {
 // Status of the loss, and what it is worth, with and without REPS.
 export function analyze(o) {
   const h = hoursTest(o.reHours, o.otherHours);
-  const materially = nz(o.rentalHours) >= 500;
+  const materially = nz(o.rentalHours) > 500;
   const nonPassive = h.pass && materially;
   const rate = nz(o.marginalRatePct) / 100;
   const disc = nz(o.discountPct) / 100;
