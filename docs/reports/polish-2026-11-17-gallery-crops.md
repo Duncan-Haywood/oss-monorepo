@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [design, performance]
+date: 2026-11-17
+---
 # Polish: the "See it working" gallery shows close crops
 
 Date: 2026-11-17. Track: polish/0. Picked item 2 of "Still weakest" in
