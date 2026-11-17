@@ -403,8 +403,9 @@ stored rows instead of annealing.
 - **37 teams on 6 x 9 is fully booked** (54 matches in 54 slots; n = 3k + 1, k = 12), so it went to
   `eval/odd-orbit.py`, the turned-night construction of the next section: SAT in 2,783 s (111,006
   variables; 31 teams took 626 s), waits over seeds 1 to 3 701 to 0, 1,246 ms a build. 43 on 7 x 9
-  (k = 14) ran the same script alongside and was stopped after 39 minutes with no answer; it keeps
-  1,073 waits over three seeds (`eval/odd-orbit.txt`).
+  (k = 14) ran the same script alongside and was stopped after 39 minutes with no answer; a later run
+  given the time answered SAT in 9,849 s, so it is wait-free now (1,073 waits to 0; section "43 teams
+  on 7 x 9" below, `eval/odd-orbit.txt`).
 - **49 teams on 9 courts x 9** is already wait-free without a design (spare courts), so its design was
   not stored. On the least courts, 8, it is fully booked (n = 3k + 1, k = 16), the turned-night case.
 
@@ -445,8 +446,8 @@ stored-designs test re-checks the solver's rows for all 24 designs. (`odd-night-
 
 29 on 5 x 9 (3k + 2; no group of order k can work, proved in the next section) was solved by a
 neighbourhood search instead (two sections down). 37 on 6 x 9
-was solved by the same script on 2026-11-16 (2,783 s, section above); 43 on 7 x 9 and 49 on 8 x 9 are
-the next fully booked sizes.
+was solved by the same script on 2026-11-16 (2,783 s, section above) and 43 on 7 x 9 on 2026-11-17
+(9,849 s); 49 on 8 x 9 is the next fully booked size.
 
 ### 29 teams on 5 x 9: why one turned night cannot work, and what was tried (2026-11-16)
 
@@ -531,9 +532,55 @@ gained `--append` (keep the stored designs, add new ones), since the earlier sol
 kept in the tree; a plain run with no files rewrites the file unchanged.
 
 Open: the same class at 47 on 8 x 9 (41 on 7 x 9 closed, next sections) (3 spare slots
-a night, no group of order k), and the fully booked 43 on 7 x 9 and 49 on 8 x 9, by the same script.
+a night, no group of order k), and the fully booked 49 on 8 x 9 (43 on 7 x 9 closed 2026-11-17 by
+`eval/odd-orbit.py`, the section after next).
 
-### 41 teams on 7 x 9: the last night, and a season with no waits (2026-11-16, latest)
+### 43 teams on 7 x 9: one fully booked night, turned fourteen times (2026-11-17)
+
+**43 teams on 7 courts x 9 slots now plays three back-to-back games a night for every team, every
+night.** Through the tool, seeds 1 to 3 (`node eval/odd-cyclic-check.mjs 43:7:9`): **1,073 waits to
+0**, 2.5 s a build. It is the fifth size of the fully booked n = 6m + 1 family after 19, 25, 31 and
+37: three rounds of 22 pairs is 63 real matches a night in exactly 63 slots, so every court is busy in
+every slot and every team plays rows r, r + 1, r + 2.
+
+- **Nothing new in the method, only the time.** `eval/odd-orbit.py` (three 14-cycles, team 42 and the
+  bye fixed; one night that takes one pair from each of the 66 full orbits, turned 14 times, plus the
+  half-turn pairs as the last round) was stopped after 39 minutes on 2026-11-16. Run alone on a core
+  with CaDiCaL 1.9 (`--solver cd19`), it answered SAT in **9,849 s** (166,511 variables, 377,525
+  clauses). The solve times so far grow about 4x a size: 23 s, 141 s, 626 s, 2,783 s, 9,849 s.
+- **Stored and checked.** The season was re-checked whole by `odd-night-sat.check` before it printed,
+  appended with `node eval/write-odd-designs.mjs --append eval/odd-designs/43-7x9.json` (35 designs),
+  and `doubleheader.test.mjs`'s stored-designs test re-checks its rows like the others.
+
+At 9 slots on the least courts every odd league from 11 to 45 teams is now wait-free except 47 (8 x 9,
+n = 3k + 2, the neighbourhood search: best state 5 of 16 nights, `eval/lns-states/47-8x9.json`, next
+section) and 49 (8 x 9, fully booked; at the 4x trend the orbit model needs about 11 hours on a core).
+
+### 47 teams on 8 x 9: 5 of 16 nights, saved for the next run (2026-11-17)
+
+47 teams on 8 x 9 (69 matches a night in 72 slots, 15 nights of three rounds and a short night of two)
+is the next size of the 29, 35, 41 class. `eval/odd-lns.py` ran on it for the first time this session
+(container restarted once; `--save` kept the states). Best state: **5 of 16 nights**, stored as
+`eval/lns-states/47-8x9.json`; `lns-state.test.mjs` now checks every file in `eval/lns-states/`
+(round robin, and each stored night wait-free on its own courts x slots), not only the 41-team one.
+
+| Run | Good nights over time | End |
+|---|---|---|
+| seeds 1, 3 (fresh, 300 s steps) | 1 at 300 s, 2 at ~500 s | restarted with the container |
+| seed 2 (fresh) | 1 at 300 s; 3, 4, 5 at 5,169, 6,024, 6,123 s | 5 of 16 at 9,166 s |
+| seed 11 (resumed from seed 1 at 2) | 3 at 3,650 s | 3 of 16 at 9,067 s |
+| seed 13 (resumed from seed 3 at 2) | 4 at 4,476 s, 5 at 5,370 s | 5 of 16 at 9,012 s |
+| seeds 31, 41, 51, 61 (resumed at 5; 51, 61 with `--also 15`) | 5 at 661 s (60 s re-checks); no step accepted | lost to a second container restart (31: ~1.3 h in) |
+
+The climb is slower than 41 teams' (1 to 7 good nights in about 4,200 to 5,500 s there, 1 to 5 in
+5,000 to 6,000 s here), and a resume spends up to 180 s re-checking every unlaid night before its
+first step (`--resume-check 60` cut that for the later resumes). Next:
+`python3 eval/odd-lns.py 47 --courts 8 --times 9 --seed S --step 300 --limit 14000 --resume-check 60
+--resume eval/lns-states/47-8x9.json --save /tmp/47.json`, four seeds on four cores, and the short last
+night (night 15) freed with the bad one once few bad nights are left (`--also 15`), the move that
+closed 41.
+
+### 41 teams on 7 x 9: the last night, and a season with no waits (2026-11-16)
 
 The 13-of-14 state below is finished: **41 teams on 7 courts x 9 slots now plays three back-to-back
 games a night for every team, every night.** Through the tool, seeds 1 to 3: 752 waits to 0, and a

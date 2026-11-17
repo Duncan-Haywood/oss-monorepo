@@ -8,3 +8,4 @@
 - (2026-11-16) printed sheets on a real printer and paper
 - (2026-11-16) 18 and 24 teams: 318 and 570 are the least starters (eval/starter-exhaust.txt), so lower needs non-starter moves
 - (2026-11-16) a real league's travel and blackout list
+- (2026-11-17) 12 teams 124-132 open (132 by eval/window-refill.c): below 132, or 124-130 ruled out
