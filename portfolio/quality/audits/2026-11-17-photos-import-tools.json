@@ -1,0 +1,307 @@
+{
+ "date": "2026-11-17",
+ "subject": "ventures/photos-import-tools",
+ "stratum": "venture",
+ "seed": "2026-11-17-7528",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a digital asset manager / photo-library technician who ingests camera cards into Apple Photos for working photographers, checking first: that 'imported' means the bytes are actually in the library (not a filename match), that an interrupted or timed-out import never re-sends with duplicate detection off, that nothing reports complete while files were skipped, and that card verification covers every file the camera writes before the card is reformatted",
+ "scores": {
+  "correctness": 1,
+  "completeness": 2,
+  "verification": 2,
+  "craft": 2,
+  "claims": 1,
+  "fitness": 2,
+  "domain": 1
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "SD offload SHA-256 recorded in the manifest for a 200 kB random .ARW",
+   "method": "another tool: coreutils sha256sum on the source file",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/photos-import-tools/probes3.py  (rsync absent in the container; rsync_copy stubbed with shutil.copytree, verify_and_manifest is the shipped code)",
+   "expected": "manifest sha256 == sha256sum",
+   "observed": "H1 6408654280183471... == 6408654280183471..., equal True",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Same-size corruption (one byte flipped in the dest copy)",
+   "method": "hand: size check cannot see it, hash check must (README claim); expected per the hash definition",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/photos-import-tools/probes3.py",
+   "expected": "size mode: no error; hash mode: 'Hash mismatch'",
+   "observed": "H3 size-mode errors []; hash-mode ['Hash mismatch: DCIM/100MSDCF/DSC00001.ARW']",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Retry backoff and iCloud wait schedule",
+   "method": "hand from the stated rule min(2**min(a,6),120) and sum(min(2**a,30), a=1..6)",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/photos-import-tools/probes.py",
+   "expected": "2,4,8,16,32,64,64,64 s; 90 s total iCloud wait",
+   "observed": "P6 [2,4,8,16,32,64,64,64]; P7 90",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "New card photo DSC00002.JPG whose basename already exists in the Photos library from an older shoot (Sony/Canon counters roll over at 9999)",
+   "method": "practice: a filename is not identity; the file must be sent to Photos (or matched by content/date) before it counts as imported",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/photos-import-tools/probes2.py  (R1: real main() init+run, osascript mocked, fake Photos.sqlite holding DSC00002.JPG)",
+   "expected": "3 files sent to Photos, or DSC00002 flagged for review",
+   "observed": "R1 files sent ['DSC00001','DSC00003']; exit 0; 'Complete: total=3 imported=3' -- DSC00002 marked imported without ever being imported (bulk_preflight runs on every run, not only with --photos-preflight)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Crash / watchdog kill while a file is mid-import, then resume",
+   "method": "Photos AppleScript dictionary: 'import ... skip check duplicates true' disables Photos' own duplicate detection; a file whose import may already have landed must be retried with it on",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/photos-import-tools/probes2.py  (R4) and python3 -I /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/photos-import-tools/probes.py (P2)",
+   "expected": "skip check duplicates false on the retry",
+   "observed": "R4 'import {POSIX file \".../IMG_5.JPG\"} skip check duplicates true' (recover_importing resets to 'pending', and 'pending' means duplicate check off)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Photos.app timeout, then the worker restarts (watchdog restart or manual re-run)",
+   "method": "same rule: a timeout may have imported the file (the README says so)",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/photos-import-tools/probes.py (P3)",
+   "expected": "status uncertain / duplicate check on",
+   "observed": "P3 reset_failed_transient_to_pending -> 'pending' -> duplicate_check False; nothing in the code ever sets 'uncertain' after a timeout (only init --uncertain-count)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Automation permission not granted: osascript returns -1743 'Not authorized to send Apple events to Photos' for every import",
+   "method": "Apple AppleScript error numbers: -1743 errAEEventNotPermitted is a global privacy setting, not a property of a file",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/photos-import-tools/probes2.py (R2)",
+   "expected": "non-zero exit telling the user to grant Automation access; files stay pending",
+   "observed": "R2 exit 0, 'Complete: ... imported=0 ... skipped_permanent=4'",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Error classifier on real AppleScript messages",
+   "method": "Apple error numbers: -1712 errAETimeout, -1728 errAENoSuchObject, -1743 not permitted",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/photos-import-tools/probes.py (P4)",
+   "expected": "-1712 timeout/transient; -1743 permission",
+   "observed": "P4 -1712 photos_timeout; -1728 'osascript_busy' (it is no-such-object); -1743 permanent when the text is 'execution error: Not authorized', but transient osascript_busy when prefixed 'osascript error:'",
+   "result": "partial"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Test suite and CLI commands run",
+   "method": "run",
+   "command": "python3 -m unittest discover -s tests (ventures/photos-import-tools); probes call main() for init, run, status, verify",
+   "expected": "green; every documented command runs",
+   "observed": "Ran 93 tests in 1.26 s, OK; init/run/status/verify all execute",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "--attempts flag ('retries for transient failures', README) changes the retry budget",
+   "method": "read + run: parse_args then grep for self.attempts use",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/photos-import-tools/probes.py (P5); grep -n self.attempts resumable_photos_import.py",
+   "expected": "--attempts 1 caps retries at 1",
+   "observed": "stored at resumable_photos_import.py:502, never read; MAX_TRANSIENT_ATTEMPTS = 8 hard-coded (line 58)",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "'status' is a read-only progress check ('Check progress ... at any time', README)",
+   "method": "run status while another process holds a claim",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/photos-import-tools/probes2.py (R3)",
+   "expected": "manifest unchanged",
+   "observed": "R3 'Recovered 1 interrupted file(s) to pending.' -- status resets a live worker's in-flight rows",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Sony A7R V card: verification covers every file the camera writes",
+   "method": "Sony A7R V writes HEIF stills as .HIF; card spec in sd_offload.py targets this camera",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/photos-import-tools/probes3.py (H2)",
+   "expected": ".HIF in the manifest",
+   "observed": "H2 manifest lists only DSC00001.ARW; DSC00002.HIF copied but never verified; errors [] -> exit 0 'safe to eject'",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Page FAQ 'Will it import the same photo twice? The manifest stops files it has already imported from being sent again ... safe after Ctrl-C or a Photos.app timeout'",
+   "method": "compare against R4/P3",
+   "command": "sed -n 41,43p site/index.html",
+   "expected": "backed",
+   "observed": "timeout or kill then restart re-sends with duplicate check off; 'uncertain' is never set by a timeout",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Page: 'verify ... exits 1 if any is missing ... before you retire a source copy'",
+   "method": "read verify_manifest + R1",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/photos-import-tools/probes2.py",
+   "expected": "verify proves the file is in Photos",
+   "observed": "verify only re-reads the source files; a file falsely marked imported (R1) passes verify and its source can be retired",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer, privacy ('no network calls, no telemetry'), served llms.txt",
+   "method": "grep imports; node platform/pages/served-copy.mjs photos-import-tools",
+   "command": "grep -nE '^import|^from' *.py; node platform/pages/served-copy.mjs photos-import-tools",
+   "expected": "stdlib only, no network; disclaimer on page and README; clean served llms.txt",
+   "observed": "stdlib only (no socket/urllib); disclaimer in README and page; served copy: no placeholder or retired origin. Live host returned 000 through the proxy.",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Watchdog stall threshold vs the worker's own allowed batch time",
+   "method": "hand: osascript timeout = timeout*batch + 60 = 180*10+60 = 1860 s (JPEG), 600*3+60 = 1860 s (RAW), vs --stall-seconds 900",
+   "command": "grep -n 'stall-seconds\\|raw-timeout\\|batch-size' photos_import_watchdog.py",
+   "expected": "stall > worker timeout",
+   "observed": "900 < 1860: a slow but healthy batch is killed mid-import, which then hits the duplicate-check-off resume path",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "resumable_photos_import.py:654",
+   "change": "duplicate_check = any(item.status != \"pending\" ...) -> all(...)",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "resumable_photos_import.py:866",
+   "change": "skip_duplicate_check = \"false\" if duplicate_check else \"true\" -> \"true\" (duplicate check never on)",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "sd_offload.py:257",
+   "change": "if source_hash != dest_hash: -> if False:",
+   "caught": true,
+   "test_cmd": "timeout 60 python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "resumable_photos_import.py:425",
+   "change": "index < confirmed_imported_count -> <=",
+   "caught": true,
+   "test_cmd": "timeout 60 python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "photos_import_watchdog.py:73",
+   "change": "drop failed from has_remaining_work",
+   "caught": true,
+   "test_cmd": "timeout 60 python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "resumable_photos_import.py:466",
+   "change": "remove the ambiguous-basename skip in bulk_preflight_pending",
+   "caught": true,
+   "test_cmd": "timeout 60 python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Basename-only match against the whole Photos library marks a new file 'imported' without importing it whenever any older library asset shares its name (camera counters roll over); runs automatically at the start of every run and every 10 batches and after any per-item error, and the run then reports Complete. ambiguous_names only guards collisions inside the manifest.",
+   "where": "ventures/photos-import-tools/resumable_photos_import.py:455",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "high",
+   "what": "Resume after a crash, watchdog kill or timeout re-imports with Photos duplicate detection disabled: recover_importing and reset_failed_transient_to_pending set 'pending', and 'pending' means 'skip check duplicates true'. The page promises the opposite.",
+   "where": "ventures/photos-import-tools/resumable_photos_import.py:257",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "high",
+   "what": "Page FAQ claims no double imports and safety after Ctrl-C/timeout, and that verify gates retiring a source copy; neither is backed (verify never checks the library; timeouts never produce 'uncertain').",
+   "where": "ventures/photos-import-tools/site/index.html:41",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Automation permission denied (-1743) is classified per-file permanent: every file becomes skipped_permanent and run exits 0 'Complete'; with an 'osascript error:' prefix the same message is classified transient osascript_busy because transient patterns are checked first.",
+   "where": "ventures/photos-import-tools/photos_import_errors.py:51",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Watchdog default stall 900 s is below the worker's own osascript timeout (1860 s for 10x180 s JPEG and 3x600 s RAW), so healthy slow batches are killed mid-import.",
+   "where": "ventures/photos-import-tools/photos_import_watchdog.py:483",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "--attempts is accepted, documented and passed by the watchdog but never used; retry limit is the hard-coded 8.",
+   "where": "ventures/photos-import-tools/resumable_photos_import.py:502",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "'status' calls recover_interrupted and resets a live worker's 'importing' rows to pending (then counted as interrupted).",
+   "where": "ventures/photos-import-tools/resumable_photos_import.py:1176",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Offload verification only covers MEDIA_EXTENSIONS; Sony .HIF (HEIF) stills from the A7R V card it targets are copied but never verified, and the run exits 0.",
+   "where": "ventures/photos-import-tools/sd_offload.py:20",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "A successful batch osascript (rc 0) marks every file in it imported without checking the list of media items Photos returns.",
+   "where": "ventures/photos-import-tools/resumable_photos_import.py:657",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "No test asserts that a non-pending retry is sent with duplicate checking on: both duplicate-check mutants survive.",
+   "where": "ventures/photos-import-tools/tests/test_resumable_photos_import.py:306",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "requirements.txt declares tenacity, which no file imports; is_retryable_status and ErrorAction.RETRY_SPLIT_BATCH are dead; read_summary in the watchdog copies ImportState.summary.",
+   "where": "ventures/photos-import-tools/requirements.txt:1",
+   "category": "repo-hygiene",
+   "origin": "build"
+  },
+  {
+   "severity": "low",
+   "what": "Hard-coded /Users/duncan defaults and two personal card mount points (/Volumes/Untitled 1) in shipped CLIs.",
+   "where": "ventures/photos-import-tools/resumable_photos_import.py:1133",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "-1728 (errAENoSuchObject) is labelled osascript_busy.",
+   "where": "ventures/photos-import-tools/photos_import_errors.py:46",
+   "category": "domain-rule",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A carefully hardened resumable importer whose robustness work (atomic status files, crash-safe claims, card-unmount and wrong-disk checks, hash verification that matches sha256sum and catches a flipped byte) is real, but whose central promise, that a photo is either in Photos once or still flagged, does not hold. Run end to end with osascript mocked, a new DSC00002.JPG whose name already exists anywhere in the library is marked imported without being sent and the run reports 'Complete imported=3' (the library preflight runs on every run, not only with --photos-preflight); a file killed mid-import or timed out is re-sent after restart with 'skip check duplicates true'; denied Automation permission ends in exit 0 'Complete' with every file skipped; the watchdog's 900 s stall limit is below the worker's 1860 s batch timeout; --attempts does nothing; status mutates the manifest; Sony .HIF files are never verified. 93 tests pass in 1.3 s and caught 4 of 6 seeded bugs, but both duplicate-check mutants survive. The page's 'will not import twice' and 'verify before you retire a source copy' claims are not backed. Does not meet the bar (correctness 1, claims 1); not finished (completeness 2). Fixable in one or two sessions: recover to 'uncertain' and keep duplicate checking on for any attempts>0, make library preflight opt-in or content/date-aware, treat -1743 as a fatal run error, raise the stall default above the batch timeout, wire --attempts, make status read-only, add .hif.",
+ "evidence": {
+  "correctness": "Ran python3 -I /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/photos-import-tools/probes.py, python3 -I /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/photos-import-tools/probes2.py, python3 -I /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/photos-import-tools/probes3.py. Pass: SHA-256 equals coreutils sha256sum; one flipped byte caught by --verify hash and not by size; backoff 2..64 s and 90 s iCloud wait match the stated rules; offload exit codes 0/1/2. Fail: R1 library basename collision marks DSC00002.JPG imported without sending it and reports Complete imported=3; R4 crash-resume sends 'skip check duplicates true'; P3 timeout+restart likewise; R2 -1743 permission denied ends exit 0 Complete with 4 skipped_permanent.",
+  "completeness": "Ran python3 -m unittest discover -s tests: 93 tests OK in 1.26 s. init/run/status/verify/preflight/skip-uncertain, watchdog and offload all exist and run. Gaps: --attempts never read (line 502 vs MAX_TRANSIENT_ATTEMPTS=8); status mutates the manifest (R3); 'uncertain after a timeout' described in README/page is never set by code; .HIF not verified (H2).",
+  "verification": "93 tests green; 6 mutations via platform/ci/quality_mutate.py, 4 caught (hash compare, confirmed-count boundary, watchdog remaining-work, ambiguous-name guard), 2 survived: duplicate_check any->all and forcing skip check duplicates true. Nothing tests that a retried or recovered file keeps Photos duplicate detection on, the defect that matters most here.",
+  "craft": "Read resumable_photos_import.py (1,270 lines), photos_import_watchdog.py, photos_import_errors.py, sd_offload.py, atomic_io.py. Good: atomic writes, BEGIN IMMEDIATE claim, guarded OSError paths. Weak: comment essays longer than the code, read_summary duplicated from ImportState.summary, dead is_retryable_status/RETRY_SPLIT_BATCH, unused tenacity dependency, hard-coded /Users/duncan paths and personal card specs.",
+  "claims": "Checked site/index.html and README against the probes. Backed: hash verification, atomic status files, non-zero exit when nothing offloaded, no network/telemetry (stdlib imports only), disclaimer on page and README, served llms.txt clean (served-copy.mjs). Not backed: 'will it import the same photo twice? ... safe after Ctrl-C or a Photos.app timeout' (R4, P3), and verify as the gate before retiring a source copy (it never checks the library, R1).",
+  "fitness": "Walked the job of a photographer ingesting a 2026 card into a library holding earlier shoots: init, run (mocked osascript), verify. Files sharing a name with old library assets are silently dropped while the run says Complete and verify passes, so deleting the source after verify loses photos; a watchdog stall kill (900 s < 1860 s batch timeout) leads to duplicates. Usable only on an empty library with no interruptions.",
+  "domain": "Compared to DAM ingest practice (identity by content hash or capture date+name, verify presence in the destination library before purging sources, never disable duplicate detection on an uncertain retry) and Apple's AppleScript error numbers (-1712, -1728, -1743). Departs on all three: filename identity against the whole library, duplicate check off on resume, permission errors treated per file. Card offload side (rsync --partial without --ignore-existing, SHA-256 option, wrong-disk check) is sound."
+ }
+}
