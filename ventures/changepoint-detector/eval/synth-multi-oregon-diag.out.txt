@@ -1,0 +1,6 @@
+Oregon 1997, 27 donors, before-period 1970-1996 (27 years)
+outcome-only fit (every before year): before RMSPE 5.53
+corners (ln income, price, packs 1983, 1988, 1996): 12.90, 28.80, 20.30, 19.74, 23.19
+4000 random V: best 15.82 (V 0.231 0.050 0.003 0.483 0.233), 1% 16.24, 10% 17.55, median 19.46, worst 21.63
+Oregon's predictors vs the donors' range: ln income 9.89 (above 19 of 27); price 1.76 (above 24 of 27); packs 1983 124.60 (above 11 of 27); packs 1988 108.20 (above 11 of 27); packs 1996 94.30 (above 10 of 27)
+Oregon packs vs the donor mean: 1970 157/118, 1973 155/132, 1976 157/141, 1979 151/138, 1982 135/137, 1985 119/124, 1988 108/114, 1991 100/106, 1994 97/105

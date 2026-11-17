@@ -5969,3 +5969,54 @@ round's 400 panels: 14.0%, at its cap), so the shipped default's p 0.10 is loose
 its p 0.05 (7.0% there) is the one to read. **Next** (fresh pre-registration): a multi-start V search (one start per
 predictor plus equal weights), with the paper's 15-24 share and beer covariates if a source can be found; monthly
 series.
+
+### Several starts for V: tighter fits, the same ranks; Oregon's covariates cannot fit it (2026-11-17, pre-registered; fails the real bars)
+
+The covariate round ended with a diagnosis: Oregon's V stopped one simplex step from its start, so "a multi-start V
+search (one start per predictor plus equal weights)" might find the close match its predictors suggested.
+`synthControlTest(y, donors, k, { predictors, vSearch: 'multi' })` now runs Nelder-Mead from equal weights and then
+from each predictor's corner (theta_m = 3, v_m about 0.83), each with its own 160-evaluation budget, and keeps the
+best before-gap any start reached. The first start is the one-start search, evaluation for evaluation, so no fit can
+come out looser (`synth-control.test.mjs` checks the treated fit and every placebo). It costs about six times as much.
+
+Pre-registration `eval/synth-multi-prereg-2026-11-17.md`, committed after an exploratory run (hashed base 41000, 20
+panels a cell, `eval/synth-multi-explore.out.txt`) and before the confirmatory run (base 43000, 80 panels a cell,
+`eval/synth-multi-confirm.out.txt`) and before any real state was fitted with it (`node eval/synth-multi-real.mjs`,
+`eval/synth-multi-real.out.txt`). The method, cells, predictors and real windows are the covariate round's; only the
+starts changed.
+
+| Bar (pre-registered, multi-start covariate fit, floored ratio) | Confirmatory (80 panels a cell) / real | |
+|---|---|---|
+SIM_ROWS
+| 4a. T1 California 1989: p <= 0.05, average gap -30 to -10, gap at 2000 below 0 | **rank 2 of 39, p 0.051** (unchanged); gap -17.6 average, -24.0 at 2000 | **fails** |
+| 4b. T2-T4 MA 1993, AZ 1995, OR 1997: 2 of 3 at p <= 0.10, negative gap | **0 of 3**: MA rank 4, p 0.103 (one start: 3rd, 0.077); AZ rank 8, p 0.222 (5th); OR rank 19 of 28, p 0.679, fit warning (21st) | **fails** |
+| 4c. in-time placebos (1980, 1984 in a window cut at 1988): neither p <= 0.05 | p 0.077, 0.385 | holds |
+| 4d. nine placebo states at 1989: at most 1 of 9 p <= 0.05 | 1 of 9: **West Virginia rank 1 of 38, p 0.026** (one start: 4th, p 0.105) | holds, at the bar |
+
+**What the extra starts do.** They find a better V in most fits, but not a much better one. California's before-gap
+goes from 2.02 to 1.92 packs with V moved almost wholly onto the 1975 and 1980 lags (0.81, 0.19) from price (0.61);
+its synthetic control stays Utah, Colorado and Nevada, the gap and the rank do not move, and the floor drops from 3.63
+to 3.40. Massachusetts tightens from 4.65 to 3.70 packs but its after-gap shrinks with it (14.0 to 13.0 packs), so it
+slips from 3rd to 4th. Arizona tightens from 4.95 to 4.72 and slips from 5th to 8th. A tighter V-search fit is
+a closer copy of the treated unit's own before-period; for these states it also follows less of what came after.
+West Virginia, a placebo state with no tax change, moves from 4th to 1st with a positive gap of 17 packs (sales above
+its synthetic control): the one Q placebo the bar allows.
+
+**Why Oregon still fails** (after the run, not pre-registered; `node eval/synth-multi-oregon-diag.mjs`,
+`eval/synth-multi-oregon-diag.out.txt`). The multi-start search took Oregon's before-gap from 19.6 to 17.5 packs.
+4,000 V drawn uniformly on the simplex do no better than 15.8, and the best corner (all weight on ln income, which the
+softmax search can only approach) gives 12.9. The outcome-only fit gives 5.5. So the stall the last round saw was
+real but cost little: no V on these five predictors fits Oregon. Its sales fell from 157 packs a head in 1970 (the
+donors' mean: 118) to 97 in 1994 (donors: 105), from 40 packs above the pool to below it, and predictors read in
+1983, 1988 and 1996 say nothing about the 1970s, where most of the before-gap is. The paper's lags were chosen for
+California, whose before-period runs close to its donors throughout. For a unit whose path crosses the pool's, a few
+lags cannot stand in for the whole before-period; the outcome-only fit matches every year and does.
+
+SIM_PARA
+
+**Decision, as pre-registered.** DECISION_TEXT **Next** (fresh pre-registration, if covariates are tried again): lags
+spread over the whole before-period (every fifth year, or the before-period's mean and slope), so a unit whose level
+crosses the pool's is matched on its path; or drop the predictor search and add covariates as a check on the
+outcome-only fit's weights (Abadie 2021, section 7: report the covariate balance of the outcome fit). The outcome-only
+fit with the floored ratio is the one to use; its CLI wiring is the next product step once Massachusetts-like loose fits
+have a bar it can meet.
