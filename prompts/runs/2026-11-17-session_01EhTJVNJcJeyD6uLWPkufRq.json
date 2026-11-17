@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVNJcJeyD6uLWPkufRq",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production...",
+  "input_sha256": "092e46eb9d8638c5efcc1ff25cbcb95a8b2b99c8bce88bb174072c1351bbf410",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T06:13:33Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 16837,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "The router drew the research track while the scheduled prompt asks for revenue-generating products; the run followed the user's prompt and allocate.py (einvoice-preflight) instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Routed to research, but the stored scheduled prompt is explicitly venture work (develop, deploy, market, sell products); a higher layer (the user's prompt) wins.",
+      "did": "Took allocate.py's flagship pick, einvoice-preflight, and an item it could build with no outside input: France's BR-FR rules from FNFE-MPE's public repo.",
+      "result": "Landed: BR-FR on the plain route, 264/264 agreement with Saxon on FNFE's examples."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "einvoice-preflight: FNFE-MPE BR-FR Schematron 1.4.0.04 (fnfempe/France_RFE 97ba0f3, Apache-2.0) compiled to plain/cius-fr-{ubl,cii}.json (175/171 checks), add-on cius-fr routed by BT-24 urn.cpro.gouv.fr or profile=france, plumbed through plain-node, official-browser, official.mjs and report.mjs. Three compiler fixes in plain-compile.mjs (prefixed let in xsl:function renamed; pattern lets visible to later patterns as ISO skeleton globals; rule lets read in predicates bound with let...return). Verification: eval/br-fr-crosscheck.mjs vs Saxon-JS on FNFE's own XSLT: 264/264 same rule ids, 0 skipped (eval/br-fr-crosscheck-2026-11-17.md). Rebuild with fixed compiler: en16931/xrechnung/peppol/1.3.8, nlcius, cius-hr, cius-ro byte-identical; zatca-ksa-ubl BR-KSA-F-13 changed (was wrong; zatca.test.mjs fails on the old file, passes on the new). PT and PINT not rebuilt (Maven 429). run_venture_tests.py einvoice-preflight: ok, 2591 tests, 0 failed. Post: docs/posts/2026-11-17-frances-br-fr-rules-in-the-browser.md.",
+  "corrections": [],
+  "redteam": null
+}

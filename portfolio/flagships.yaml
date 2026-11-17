@@ -202,33 +202,32 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History: README and git (latest: VERI*FACTU: AEAT's 247 error codes mapped,
-      VF-029..047, AEAT reply read, rate lists 1124/1127 from the validation
-      document as quoted, eval/verifactu-*-2026-11-15.md, 143/203; IGIC rules,
-      eval/verifactu-igic-*; open: a production SIF's records and replies, doc
-      v1.2.x). Open: a real HU report with NAV's businessValidationMessages or
-      SCHEMA_VIOLATION text; HU: open: a real chain with NAV's replies; a real
-      business's signed Facturae or FACe rejection (eval/facturae-gob-*); ZATCA: a
-      real KSA note; SdI: open: a real FatturaPA rejection with its file; HR: a real
-      HR invoice, cash accounting; CIUS-PT: which validator does AT run (AA/RED
-      codes)?; FA(3) KOR/ZAL/ROZ totals landed (README): open: a real KSeF
-      rejection, a business's real KOR/ZAL file; repair keeps PDF/A (veraPDF
-      155/155), PDF/A-3b writer passes Mustang; open: a real business's PINT file;
-      open: RO_CIUS on a real ANAF file; NLCIUS on a real Dutch file; India's INV-01
-      check on a real IRP payload; mandate texts: IL, ES, NRS, SRO 1852, Jordan
-      open; SK landed (README): open: a real SK file; Mexico CFDI 4.0 landed: open:
-      SAT's CP error matrix to map MX-070..080 to CP codes (omawww blocked), a real
-      payroll or export file, a PAC rejection compared; cCredPres rules and
-      cClassTrib at IT 1.71 landed (README): RTC events (211110, 12 others incl.
-      112120, 110001) landed, 211120 (removed in v1.40) flagged (README): open: a
-      real event; a real reform NF-e from a SEFAZ test environment, a real SEFAZ
-      rejection for a cClassTrib; national NFS-e landed: open: a national rejection
-      compared; ISS: SP, Rio, Curitiba rates, Rio codes (ABR-026) landed: open: BH
-      (hosts 403), a Rio rejection; ABRASF NFS-e 2.00-2.04 landed (README): open:
-      ISS retained on a real file, city provider schemas, 1.0x sets, DSF, 12
-      single-file 1.0x (Rio, BH, Curitiba,...) landed (README): open: a DSF
-      1.00/Abaco file. A run that lands a slice replaces its item here. More open
-      items: NEXT.md.
+      History: README and git (latest: France BR-FR (FNFE 1.4.0.04) on the plain
+      route, 264/264 vs Saxon (eval/br-fr-crosscheck-2026-11-17.md); open: FNFE's
+      Extended-CTC-FR base sets, CDAR, English BR-FR text, a real PA rejection;
+      VERI*FACTU (README): open: a production SIF's records and replies). Open: a
+      real HU report with NAV's businessValidationMessages or SCHEMA_VIOLATION text;
+      HU: open: a real chain with NAV's replies; a real business's signed Facturae
+      or FACe rejection (eval/facturae-gob-*); ZATCA: a real KSA note; SdI: open: a
+      real FatturaPA rejection with its file; HR: a real HR invoice, cash
+      accounting; CIUS-PT: which validator does AT run (AA/RED codes)?; FA(3)
+      KOR/ZAL/ROZ totals landed (README): open: a real KSeF rejection, a business's
+      real KOR/ZAL file; repair keeps PDF/A (veraPDF 155/155), PDF/A-3b writer
+      passes Mustang; open: a real business's PINT file; open: RO_CIUS on a real
+      ANAF file; NLCIUS on a real Dutch file; India's INV-01 check on a real IRP
+      payload; mandate texts: IL, ES, NRS, SRO 1852, Jordan open; SK landed
+      (README): open: a real SK file; Mexico CFDI 4.0 landed: open: SAT's CP error
+      matrix to map MX-070..080 to CP codes (omawww blocked), a real payroll or
+      export file, a PAC rejection compared; cCredPres rules and cClassTrib at IT
+      1.71 landed (README): RTC events (211110, 12 others incl. 112120, 110001)
+      landed, 211120 (removed in v1.40) flagged (README): open: a real event; a real
+      reform NF-e from a SEFAZ test environment, a real SEFAZ rejection for a
+      cClassTrib; national NFS-e landed: open: a national rejection compared; ISS:
+      SP, Rio, Curitiba rates, Rio codes (ABR-026) landed: open: BH (hosts 403), a
+      Rio rejection; ABRASF NFS-e 2.00-2.04 landed (README): open: ISS retained on a
+      real file, city provider schemas, 1.0x sets, DSF, 12 single-file 1.0x (Rio,
+      BH, Curitiba,...) landed (README): open: a DSF 1.00/Abaco file. A run that
+      lands a slice replaces its item here. More open items: NEXT.md.
   - venture: shift-roster-builder
     inputs_only: >-
       a live deploy with real punches, a real payroll template, a manager's
