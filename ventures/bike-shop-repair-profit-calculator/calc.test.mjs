@@ -102,3 +102,28 @@ test("csv has a header and one row per volume", () => {
   assert.equal(lines.length, 6);
   assert.match(lines[0], /^volume_pct,/);
 });
+
+test("break-even counts prepaid care plans as presold, not as more jobs (audit 2026-11-17)", () => {
+  // (25,750 fixed - 4,500.80 care-plan contribution) / (47,118.40 / 1,180 jobs) = 532.15 -> 533
+  assert.match(plan(sampleInput()).advice.join(" "), /Break-even is about 533 paid jobs/);
+  const loss = plan({ ...sampleInput(), rentPerMonth: "9000" });
+  // (750 + 54,000 + 4,000 - 4,500.80) / 39.9308 = 1,358.6 -> 1,359
+  assert.match(loss.advice.join(" "), /about 1359 paid jobs/);
+  const plansOnly = plan({ ...sampleInput(), flatQty: "0", tuneQty: "0", ovhQty: "0" });
+  assert.doesNotMatch(plansOnly.advice.join(" "), /do not cover their own labor/);
+  assert.match(plansOnly.advice.join(" "), /care plans alone leave \$21,249\.20/);
+  const covered = plan({ ...sampleInput(), flatQty: "0", tuneQty: "0", ovhQty: "0", rentPerMonth: "0", otherFixed: "0", toolCost: "0" });
+  assert.doesNotMatch(covered.advice.join(" "), /about 0 paid jobs/);
+  assert.match(covered.advice.join(" "), /care plans alone cover/);
+});
+
+test("a blank price, minutes or pay field is an error, not a hidden default (audit 2026-11-17)", () => {
+  for (const k of ["flatPrice", "tunePrice", "tuneMin", "ovhMat", "techRate", "burdenPct", "benchHrsPerWeek", "busyMonths", "toolYears", "targetMarginPct"]) {
+    assert.match(plan({ ...sampleInput(), [k]: "" }).error ?? "", /Enter/, k);
+  }
+  // blank counts and optional costs still mean zero
+  assert.equal(plan({ ...sampleInput(), flatQty: "", toolCost: "", otherFixed: "" }).error, null);
+  // visits per member only matter when there are members
+  assert.equal(plan({ ...sampleInput(), passHolders: "0", passFlatVisits: "" }).error, null);
+  assert.match(plan({ ...sampleInput(), passFlatVisits: "" }).error ?? "", /Enter/);
+});

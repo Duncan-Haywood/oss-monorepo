@@ -20,6 +20,12 @@ To run the tests (Node 20 or newer):
 node --test ventures/youtube-chapters-check/
 ```
 
+## Known gaps
+
+- DaVinci Resolve's marker EDL export is not parsed yet (titles come out as EDL event lines, and the
+  01:00:00:00 timeline start needs a 3600 s shift); Premiere and Audacity exports work. See
+  [the 2026-11-17 audit](../../portfolio/quality/audits/2026-11-17-youtube-chapters-check.json).
+
 ## Files
 
 - `index.html`: the tool's page.

@@ -41,6 +41,16 @@ class Model(unittest.TestCase):
         ref = solve(0.3, 0.0, 0.0, 0.2, 3.0, 3.0)
         self.assertAlmostEqual(yield_all(0.3)["cU"], ref["cU"], places=3)
 
+    def test_robot_loss_is_robot_robot_collisions(self):
+        # Audit 2026-11-17: the reader fleet's extra robot cost comes from robots colliding with each other
+        # (both play gQ = 1), not from meetings with people, where robot cost falls.
+        Y, Z = yield_all(0.3), reader(0.3, 0.0, 9.0)
+        self.assertLess(Z["cR_people"], Y["cR_people"])
+        self.assertAlmostEqual(Z["crowd"] - Y["crowd"], 0.045, delta=0.002)
+        Zd = reader(0.3, 0.0, 9.0, rr=1.0)  # robots recognise each other and both yield, as under yield-all
+        self.assertAlmostEqual(Zd["crowd"] - Y["crowd"], -0.135, delta=0.002)
+        self.assertAlmostEqual(Zd["cU"], Z["cU"], places=9)
+
 
 if __name__ == "__main__":
     unittest.main()

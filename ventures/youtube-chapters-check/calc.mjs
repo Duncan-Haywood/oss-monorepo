@@ -30,8 +30,14 @@ export function parseTimestamp(str, fps = 30) {
   const frac = m[2] ? Number("0." + m[2]) : 0;
   if (parts.length === 4) {
     const [h, mi, s, f] = parts;
-    if (mi > 59 || s > 59 || f >= Math.max(1, Math.round(fps))) return null;
-    return h * 3600 + mi * 60 + s + f / fps;
+    const nominal = Math.max(1, Math.round(fps));
+    if (mi > 59 || s > 59 || f >= nominal) return null;
+    // Non-drop timecode at 23.976/29.97/59.94 counts `nominal` frames per labelled second, so real time is
+    // frames x 1001/(nominal x 1000) (SMPTE ST 12-1): 01:00:00:00 at 29.97 is 3603.6 s. Drop-frame (";")
+    // labels already track wall time, and integer rates need no correction.
+    if (Number.isInteger(fps) || m[1].includes(";")) return h * 3600 + mi * 60 + s + f / fps;
+    const rate = Math.abs(fps - nominal * 1000 / 1001) < 0.01 ? nominal * 1000 / 1001 : fps;
+    return ((h * 3600 + mi * 60 + s) * nominal + f) / rate;
   }
   if (parts.some((p, i) => i > 0 && p > 59)) return null;
   const [a, b, c] = parts.length === 3 ? parts : [0, parts[0], parts[1]];
@@ -169,6 +175,7 @@ export function repair(text, opts = {}) {
   const parsed = parseChapters(text, { fps });
   const changes = [];
   let chapters = parsed.chapters.map((c) => ({ ...c, seconds: c.seconds - offset }));
+  for (const b of parsed.bad) changes.push(`Left out line ${b.line} ("${b.text.slice(0, 60)}"): its time is impossible. Correct it and check again.`);
   if (offset) changes.push(`Shifted every time by ${offset}s.`);
   const dropped = chapters.filter((c) => c.seconds < 0);
   if (dropped.length) { changes.push(`Dropped ${plural(dropped.length, "chapter")} that fell before 0:00 after the shift.`); chapters = chapters.filter((c) => c.seconds >= 0); }

@@ -30,8 +30,14 @@ def equilibrium(r, gS, gQ, cU, cN, e=0.0, bs=8.0, iters=600, **kw):
     return D
 
 
-def summary(r, gS, gQ, cU, cN, e=0.0, **kw):
-    """Mean cost per encounter by group (signalling cost included) and the share of signals that are urgent."""
+def summary(r, gS, gQ, cU, cN, e=0.0, rr=None, **kw):
+    """Mean cost per encounter by group (signalling cost included) and the share of signals that are urgent.
+
+    Robot-robot meetings: by default both robots play gQ against each other (as in society-fakeurgency), so a
+    reader fleet with gQ = 1 collides with itself every time (cost k). `rr` overrides that per-robot cost, e.g.
+    rr = d for robots that recognise each other and both yield as under yield-all. People never see robot-robot
+    meetings, so `rr` changes only the robot and crowd costs. `cR_people` is the robot cost from meetings with
+    people alone."""
     p = {**DEF, **kw}
     u, k, w, d = p["u"], p["k"], p["w"], p["d"]
     D = equilibrium(r, gS, gQ, cU, cN, e, **kw)
@@ -44,9 +50,9 @@ def summary(r, gS, gQ, cU, cN, e=0.0, **kw):
         return g * (pp * k) + (1 - g) * (pp * w + (1 - pp) * d)
     tot = sum(D[t]["share"] * (sx * vs(gsig, D[t]["p"]) + (1 - sx) * vs(gnos, D[t]["p"]))
               for t, sx in (("U", sU), ("N", sN)))
-    cR = (1 - r) * tot + r * vs(gQ, gQ)
+    cR = (1 - r) * tot + r * (vs(gQ, gQ) if rr is None else rr)
     sig = u * sU + (1 - u) * sN
-    return dict(cU=cu, cN=cn, cR=cR, crowd=(1 - r) * (u * cu + (1 - u) * cn) + r * cR, sU=sU, sN=sN,
+    return dict(cU=cu, cN=cn, cR=cR, cR_people=tot, crowd=(1 - r) * (u * cu + (1 - u) * cn) + r * cR, sU=sU, sN=sN,
                 precision=(u * sU / sig if sig > 1e-12 else float("nan")))
 
 
@@ -55,5 +61,5 @@ def yield_all(r, e=0.0, **kw):
     return summary(r, 0.0, 0.0, 9.0, 9.0, e, **kw)
 
 
-def reader(r, cU, cN, e=0.0, **kw):
-    return summary(r, 0.0, 1.0, cU, cN, e, **kw)
+def reader(r, cU, cN, e=0.0, rr=None, **kw):
+    return summary(r, 0.0, 1.0, cU, cN, e, rr=rr, **kw)
