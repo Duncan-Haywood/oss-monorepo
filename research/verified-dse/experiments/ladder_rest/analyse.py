@@ -131,7 +131,7 @@ def main(dst):
     allc = old + new
     out += ["", f"## Milestone 138's set, {len(oldd)} + {len(newd)} = {len(full)} designs", "",
             f"mean regret SWC {lb.mean(allc, swc):.2f}%, random {lb.mean(allc, rand):.2f}%; design level: SWC better on {fb}, "
-            f"worse on {fw}, tied on {ft}; two-sided sign p = {fp:.4f}"]
+            f"worse on {fw}, tied on {ft}; two-sided sign p = {fp:.6f}"]
     pooled = m138.prior_designs()
     n_old = len(pooled)
     assert not set(pooled) & set(full)
@@ -161,7 +161,7 @@ def main(dst):
             f"(2) SWC below random on mean regret: {m_s < m_r} ({m_s:.2f}% against {m_r:.2f}%)",
             f"(3) PRIMARY: SWC better on more new designs: {b > w} ({b} better, {w} worse); (3b) sign p < 0.05: {b > w and p < 0.05} "
             f"(p = {p:.4f})",
-            f"(4) milestone 138's full set, sign p < 0.05, SWC better on more: {fb > fw and fp < 0.05} ({fb} to {fw}, p = {fp:.4f})",
+            f"(4) milestone 138's full set, sign p < 0.05, SWC better on more: {fb > fw and fp < 0.05} ({fb} to {fw}, p = {fp:.6f})",
             f"(5) pooled normal 95% interval below zero: {ihi < 0} ({ilo:+.2f} to {ihi:+.2f})",
             f"(6) lower SWC - random above ratio 4 than in (3, 4]: {p6}",
             f"(7) SWC fails on at most a quarter of the new cells: {4 * len(bad) <= len(new)} ({len(bad)} of {len(new)})"]
