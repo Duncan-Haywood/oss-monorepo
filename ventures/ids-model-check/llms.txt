@@ -19,6 +19,7 @@
 
 - Facets: entity (with predefined type), attribute, property (and quantities, material properties, predefined property sets), classification (with parent references), material (layers, profiles, constituents, lists), partOf (aggregates, groups, containment, nests, and IDS 1.0's "IFCRELVOIDSELEMENT IFCRELFILLSELEMENT": an element in an opening of another).
 - Restrictions: enumeration, pattern (XSD, anchored), min/max inclusive/exclusive, length, minLength, maxLength.
+- Large models (2026-11-17): STEP arguments are read when a check first needs them and geometry's are not kept; a 219 MB federated model of seven real exports checks against the starter IDS files at a 1.0 GB peak (was 2.5 GB), identical reports, and the page finishes it under a 1 GB heap (eval/heap-200mb-2026-11-17.md).
 - Model input: STEP; ifcXML in both the IFC2X3 (ifcXML2) and IFC4 layouts, read into the same entities as STEP (xBIM's ifcXML export of 4walls1floorSite agrees with its STEP file on 2,205 of 2,205 attribute values); .ifczip with deflate, stored and zip64 entries.
 - IDS 1e-6 float tolerance; values converted to SI from project or property units; IFC2X3 occurrence classes via the type mapping table.
 

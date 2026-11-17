@@ -13,6 +13,7 @@ import { budapestToday, checkNavInvoice, looksLikeNavInvoice } from "./hungary-n
 import { checkNavChains } from "./hungary-nav-chain.mjs";
 import { looksLikeVerifactu, readVerifactu, verifactuReport } from "./verifactu.mjs";
 import { looksLikeAeatResponse, readAeatResponse, responseEnvelope, responseFindings } from "./verifactu-response.mjs";
+import { cdarEnvelope, cdarFindings, cdarJourneys, looksLikeCdar, readCdar, statusName } from "./cdar.mjs";
 import { looksLikeSdiReceipt, pairReceipt, readSdiReceipt, receiptEnvelope, receiptFindings } from "./sdi-receipt.mjs";
 import { checkFa3, fa3DuplicateKey, looksLikeFa3 } from "./fa3.mjs";
 import { checkCfdi, looksLikeCfdi } from "./cfdi.mjs";
@@ -103,6 +104,26 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
     } catch { /* reported in the loop */ }
   }
   const navChain = navInputs.length > 1 ? checkNavChains(navInputs.map((o) => ({ name: o.name || "invoice.json", source: o.source }))) : null;
+  // French CDAR status messages: the batch's invoices (to compare each status with its invoice)
+  // and every status per invoice number, read once on the first CDAR file.
+  let cdarBatchCache;
+  const cdarBatch = async () => {
+    if (cdarBatchCache) return cdarBatchCache;
+    const invoices = [];
+    const messages = [];
+    for (const o of inputs) {
+      const s = o.source ?? "";
+      if ((typeof s === "string" ? s.length : s.length) > maxBytes || looksLikePdf(o.name || "", s)) continue;
+      const t = typeof s === "string" ? s : new TextDecoder().decode(s);
+      if (looksLikeCdar(t)) {
+        try { messages.push({ file: o.name || "status.xml", msg: readCdar(t) }); } catch { /* reported in the loop */ }
+      } else if (looksLikeXml(o.name || "", t) || looksLikeCii(t)) {
+        try { invoices.push({ name: o.name || "invoice.xml", invoice: (await inspectInvoiceSource(o.name || "invoice.xml", s)).invoice }); } catch { /* not an invoice this reader takes */ }
+      }
+    }
+    cdarBatchCache = { invoices, journeys: cdarJourneys(messages) };
+    return cdarBatchCache;
+  };
   for (const input of inputs) {
     const name = input.name || "invoice.json";
     const source = input.source ?? "";
@@ -157,6 +178,30 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
           pair = { name: found.input.name, by: found.by, digest: found.digest, format, findings };
         }
         reports.push({ file: name, errors: receiptFindings(receipt, pair), envelope: receiptEnvelope(receipt, pair), receipt: { type: receipt.type, identificativoSdI: receipt.identificativoSdI, fileName: receipt.fileName, codes: receipt.errors.map((e) => e.code), ...(receipt.outcome ? { outcome: receipt.outcome } : {}), ...(pair ? { pairedWith: pair.name, pairedBy: pair.by } : {}) } });
+        continue;
+      }
+      if (!looksLikePdf(name, source) && looksLikeCdar(peek)) {
+        // France's life-cycle status message (CDAR, "CDV" 200-228): the status named, compared
+        // with its invoice when that is in the batch, and FNFE-MPE's BR-FR-CDV rules on the plain route.
+        const batch = await cdarBatch();
+        const msg = readCdar(peek);
+        const { findings, pairs } = cdarFindings(msg, batch.invoices);
+        for (const ref of msg.refs) {
+          const journey = batch.journeys.find((j) => j.invoiceId === ref.invoiceId);
+          if (journey && journey.steps.length > 1) {
+            findings.push({ rule: "FR-CDV-104", message: `Statuses in this batch for invoice ${ref.invoiceId}, in time order: ${journey.steps.map((st) => `${st.at || "(no time)"} ${statusName(st.status)} [${st.file}]`).join(" -> ")}.`, fix: "", severity: "information", source: "cdar" });
+          }
+        }
+        let schematronStatus;
+        if (schematron) {
+          try {
+            const { runPlain } = await import("./plain-node.mjs");
+            const plain = await runPlain(peek, { profile });
+            schematronStatus = plain.status;
+            if (plain.status === "ok") findings.push(...plain.findings);
+          } catch { schematronStatus = "unavailable"; }
+        }
+        reports.push({ file: name, errors: findings, envelope: cdarEnvelope(msg, pairs), cdar: { id: msg.id, statusAt: msg.statusAt, refs: msg.refs.map((r) => ({ invoiceId: r.invoiceId, status: r.status, reasons: r.reasons.map((x) => x.code) })), ...(pairs.length ? { pairedWith: pairs.map((x) => x.name) } : {}) }, ...(schematronStatus ? { schematron: schematronStatus } : {}) });
         continue;
       }
       if (!looksLikePdf(name, source) && looksLikeFatturaPa(peek)) {

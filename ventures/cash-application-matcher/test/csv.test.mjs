@@ -48,3 +48,11 @@ test('bank debits and credit memos are dropped; missing columns are reported', (
   assert.equal(i.invoices.length, 0);
   assert.ok(i.warnings.length >= 1);
 });
+
+test('red team 2026-11-17: old Mac CR-only line endings keep every character', () => {
+  assert.deepEqual(parseCsv('a,b\rcd,ef\r'), [['a', 'b'], ['cd', 'ef']]);
+});
+
+test('red team 2026-11-17: compact YYYYMMDD dates (bank exports) read month and day in order', () => {
+  assert.equal(fmtDate(parseDate('20260315')), '2026-03-15');
+});

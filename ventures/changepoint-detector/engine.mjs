@@ -19,6 +19,7 @@ import { NILE_CSV } from './example-data.mjs';
 import { slopeBreaks } from './slope-breaks.mjs';
 import { hingeTest } from './hinge-test.mjs';
 import { twoHingeTest } from './two-hinge.mjs';
+import { knownDateTest } from './known-date.mjs';
 
 import { groupRamps } from './ramps.mjs';
 import { updateRateChanges, updateRateLines } from './update-rate.mjs';
@@ -2481,6 +2482,7 @@ export function analyze(input = {}) {
     ...(o.slopeBreaks ? { slopeBreaks: slopeBreakReport(values, labels, o.slopeBreaks) } : {}),
     ...(o.hingeTest ? { hingeTest: hingeTestReport(values, labels, o.hingeTest, { log: !!o.log }) } : {}),
     ...(o.twoHingeTest ? { twoHingeTest: twoHingeTestReport(values, labels, o.twoHingeTest, { log: !!o.log }) } : {}),
+    ...(o.knownDate != null && o.knownDate !== '' && o.knownDate !== false ? { knownDate: knownDateReport(values, labels, o.knownDate, { log: !!o.log, period: Number(o.period) || 0 }) } : {}),
     pelt: { penalty: round(p.penalty), minSegment, changepoints: changes, segments },
     bocpd: {
       hazardLambda: Number(o.hazardLambda) || 100,
@@ -2538,6 +2540,35 @@ export function hingeTestReport(values, labels, opt, { log = false } = {}) {
     p: Number(h.p.toFixed(4)), reps: h.reps, rho: Number(h.rho.toFixed(3)),
     slopeBefore: Number(h.slopeBefore.toPrecision(4)), slopeAfter: Number(h.slopeAfter.toPrecision(4)), significant: h.p <= 0.05, note,
     ...(h.admittedByCut ? { admittedByCut: true, rhoLine: Number(h.rhoLine.toFixed(3)), rhoHinge: Number(h.rhoHinge.toFixed(3)), cutBar: Number(h.cutBar.toFixed(3)) } : {}),
+  };
+}
+
+/**
+ * A step and a change of slope at a date the user names (known-date.mjs; README "A date you name", round 5 ships):
+ * segmented regression with AR(1) noise and a parametric bootstrap, the CLI's `--known-date` settings. `opt` is the
+ * label of the first row after the change, or { date, reps, seed }. `values` are already logged when `log` is on.
+ * A series let through only by the random-walk cut comes back `calibrated: false`: round 6 (README, "Round 6") found
+ * that neither round 5's p nor a bootstrap conditioned on the cut tells a real step from noise on those series.
+ */
+export function knownDateReport(values, labels, opt, { log = false, period = 0 } = {}) {
+  const o = typeof opt === 'object' && opt ? opt : { date: opt };
+  const date = String(o.date ?? '').trim();
+  const k = labels.findIndex((l) => String(l) === date);
+  if (k < 0) throw new Error(`Known date ${date}: no row has that label (labels run ${labels[0]} to ${labels[labels.length - 1]}; give the first row after the change).`);
+  const h = knownDateTest(values, k, { period, reps: Number(o.reps) || 499, seed: Number(o.seed) || 1, rhoGenMethod: 'gated', gateRho: 0.5 });
+  const scale = log ? 'log' : 'levels';
+  const note = 'Segmented regression at the date you named: a line before it, a step and a change of slope at it, AR(1) noise, p-values from a parametric bootstrap (pre-registered over five rounds; at p 0.05 it flagged 1.0-5.8% of simulated no-change lines of 40-120 points). A small p says the line before the date does not carry on through it, not what caused the change; a control series the change should not touch is the best check.';
+  const base = { date, firstAfter: labels[k] ?? String(k), lastBefore: k > 0 ? labels[k - 1] ?? String(k - 1) : null, scale, note };
+  if (h.refused) return { refused: true, reason: h.reason, ...base };
+  const r3 = (v) => Number(Number(v).toPrecision(3)), r4 = (v) => Number(v.toFixed(4));
+  return {
+    refused: false, ...base, k, period: h.period, reps: h.reps,
+    step: r3(h.step), stepRange95: h.stepRange95.map(r3), pStep: r4(h.pStep),
+    slopeBefore: r3(h.slopeBefore), slopeChange: r3(h.slopeChange), slopeChangeRange95: h.slopeChangeRange95.map(r3), pSlope: r4(h.pSlope),
+    p: r4(h.p), pTable: r4(h.pTable), effectAverage: r3(h.effectAverage), effectAtEnd: r3(h.effectAtEnd),
+    rho: Number(h.rho.toFixed(3)), gated: !!h.gated, rhoGen: h.rhoGen.map((v) => Number(v.toFixed(3))),
+    calibrated: !h.admittedByCut, significant: !h.admittedByCut && h.p <= 0.05,
+    ...(h.admittedByCut ? { admittedByCut: true, rhoLine: Number(h.rhoLine.toFixed(3)), cutBar: Number(h.cutBar.toFixed(3)) } : {}),
   };
 }
 

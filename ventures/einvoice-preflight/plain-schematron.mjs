@@ -7,11 +7,12 @@
 //
 // Dependencies are injected so Node (slimdom) and the page (DOMParser) share
 // this file: createPlainRunner({ fontoxpath, parseXml }).
-import { FILES, ADDONS, PROFILES, detectSyntax, matchingAddons, matchingProfile } from "./schematron-core.mjs";
+import { FILES, ADDONS, PROFILES, detectSyntax, matchingAddons, matchingExtendedBase, matchingProfile } from "./schematron-core.mjs";
 import { plainFix } from "./schematron-fixes.mjs";
 
 export const PLAIN_DIR = "plain/";
 const RULE_FILES = { ubl: "en16931-ubl.json", cii: "en16931-cii.json" };
+export const CDAR_FILE = "cdar-fr.json";
 export const PLAIN_ADDON_FILES = { xrechnung: { ubl: "xrechnung-ubl.json", cii: "xrechnung-cii.json" }, peppol: { ubl: "peppol-ubl.json", cii: "peppol-cii.json" }, "cius-ro": { ubl: "cius-ro-ubl.json" }, "cius-pt": { ubl: "cius-pt-ubl.json" }, "cius-hr": { ubl: "cius-hr-ubl.json" }, nlcius: { ubl: "nlcius-ubl.json", cii: "nlcius-cii.json" }, "cius-fr": { ubl: "cius-fr-ubl.json", cii: "cius-fr-cii.json" } };
 
 // fontoxpath works on IEEE doubles, the rules are written for exact xs:decimal.
@@ -169,6 +170,13 @@ export function createPlainRunner({ fontoxpath, parseXml }) {
   // opts.profile ("france") adds the add-on that profile names (schematron-core.mjs).
   async function run(xml, load, opts = {}) {
     const syntax = detectSyntax(xml);
+    if (syntax === "cdar") {
+      // A French life-cycle message (CDAR) is not an invoice: FNFE-MPE's BR-FR-CDV set alone.
+      const rules = await load(CDAR_FILE);
+      if (!rules) return { status: "unavailable", syntax, findings: [], sets: [] };
+      const raw = runRules(rules, parseXml(xml.replace(/^\uFEFF/, "")));
+      return { status: "ok", syntax, findings: raw.map((x) => toFinding(x, "cdar-fr-schematron")), sets: ["cdar-fr"], skipped: raw.skipped };
+    }
     const profile = syntax && matchingProfile(xml, syntax);
     if (profile) {
       // PINT: its own sets stand in for the EN 16931 base and the BIS add-on. Any set
@@ -191,14 +199,20 @@ export function createPlainRunner({ fontoxpath, parseXml }) {
     // A national add-on built on an older EN 16931 release (CIUS-RO on 1.3.8) gets that
     // release as its base, as its own validator runs it; a copy without that file falls
     // back to the current base.
-    const pinned = syntax ? matchingAddons(xml, syntax).map(([, a]) => a.base?.[syntax]).find(Boolean) : null;
+    // An extended profile (Extended-CTC-FR, Factur-X EXTENDED) gets its own base; a copy
+    // without that file is unavailable rather than judged by the EN 16931 base, which
+    // rejects what the extension allows.
+    const extended = syntax ? matchingExtendedBase(xml, syntax) : null;
+    const pinned = extended ? [extended[1].files[syntax], extended[0]]
+      : syntax ? matchingAddons(xml, syntax).map(([, a]) => a.base?.[syntax]).find(Boolean) : null;
     let base = pinned ? await load(pinned[0]) : null;
+    if (extended && !base) return { status: "unavailable", syntax, findings: [], sets: [] };
     const baseName = base ? pinned[1] : "en16931";
     if (!base) base = syntax && (await load(RULE_FILES[syntax]));
     if (!base) return { status: "unavailable", syntax, findings: [], sets: [] };
     const doc = parseXml(xml);
     const baseRaw = runRules(base, doc);
-    const findings = baseRaw.map((f) => toFinding(f, "en16931-schematron"));
+    const findings = baseRaw.map((f) => toFinding(f, extended ? extended[1].source : "en16931-schematron"));
     const skipped = [...baseRaw.skipped];
     const sets = [baseName];
     const seen = new Set(findings.map((f) => `${f.rule}|${f.path}`));

@@ -5,6 +5,7 @@
 // `loadEngine` is injectable so the tests can run without a network.
 import { cleanOcr } from "./cleanocr.mjs";
 import { parseReceipt, parseReceiptPasses } from "./receipts.mjs";
+import { RAPID_URLS, createRapidOcr, rapidRows, bgrFromRgba } from "./rapidocr-web.mjs";
 
 const CDN = "https://cdn.jsdelivr.net/npm";
 export const OCR_URLS = {
@@ -70,6 +71,46 @@ export async function loadEngine(onProgress = () => {}) {
     },
     close: () => worker.terminate(),
   };
+}
+
+// RapidOCR (PaddleOCR's PP-OCRv4 models through ONNX Runtime Web; rapidocr-web.mjs), the
+// engine the CLI's `receipts --rapidocr` runs. Its reading goes first and tesseract's four
+// vote after it, as `--rapidocr --four-pass` does: on SRD's 195 labelled US photos the page's
+// settled total goes from tesseract's alone to RapidOCR first (eval/rapidocr-web-2026-11-17.md).
+// The runtime and the models (about 16 MB) come from jsDelivr when the first photo is read
+// with it. `fetchBytes` is injectable for tests.
+export async function loadRapidEngine({ fetchBytes = defaultFetchBytes } = {}) {
+  if (!globalThis.ort) await loadScript(RAPID_URLS.ort);
+  const ort = globalThis.ort;
+  ort.env.wasm.wasmPaths = RAPID_URLS.wasm;
+  // threads need a cross-origin-isolated page, which a static page is not
+  ort.env.wasm.numThreads = globalThis.crossOriginIsolated ? Math.min(4, navigator.hardwareConcurrency || 1) : 1;
+  const [det, cls, rec, keys] = await Promise.all([
+    fetchBytes(RAPID_URLS.det), fetchBytes(RAPID_URLS.cls), fetchBytes(RAPID_URLS.rec),
+    fetchBytes(RAPID_URLS.keys).then((b) => new TextDecoder().decode(b)),
+  ]);
+  const engine = createRapidOcr({ ort, models: { det, cls, rec }, keys });
+  await engine.open();
+  return {
+    // the photo as the browser draws it (EXIF orientation applied), read into rows of text
+    read: async (file) => {
+      const bmp = await createImageBitmap(file);
+      const c = document.createElement("canvas");
+      c.width = bmp.width; c.height = bmp.height;
+      const g = c.getContext("2d", { willReadFrequently: true });
+      g.drawImage(bmp, 0, 0);
+      bmp.close?.();
+      const d = g.getImageData(0, 0, c.width, c.height).data;
+      return rapidRows(await engine.read(bgrFromRgba(d, c.width, c.height)));
+    },
+    close: () => engine.close(),
+  };
+}
+
+async function defaultFetchBytes(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`could not download the RapidOCR reader (${r.status})`);
+  return new Uint8Array(await r.arrayBuffer());
 }
 
 // A grey copy of the photo drawn on a canvas with its long side at `side` pixels,
@@ -208,13 +249,22 @@ function settleTotals(readings) {
 // Photos that are not images, or that read as empty, come back in `skipped`.
 // Each photo is read once per mode in `passes` and the readings settled
 // (settleReadings); `notes` lists, per photo, where the readings disagreed.
-export async function readPhotos(files, { loadEngine: load = loadEngine, onProgress = () => {}, passes = null } = {}) {
+// `rapid` (default on) reads each photo with RapidOCR first (loadRapidEngine); when that
+// reader cannot be loaded (offline, an old browser) the photos are read with tesseract alone
+// and `rapidError` says why. `rapid: false` is tesseract alone.
+export async function readPhotos(files, { loadEngine: load = loadEngine, loadRapid = loadRapidEngine, rapid = true, onProgress = () => {}, passes = null } = {}) {
   const list = [...files];
   const images = list.filter((f) => IMAGE_TYPES.test(f.type || ""));
   const skipped = list.filter((f) => !images.includes(f)).map((f) => ({ name: f.name, why: "not a PNG, JPEG, WebP, BMP or GIF image" }));
   if (!images.length) return { text: "", read: 0, skipped, notes: [] };
+  let lead = null, rapidError = null;
+  if (rapid) {
+    onProgress({ status: "loading rapidocr" });
+    try { lead = await loadRapid(); } catch (e) { rapidError = String(e?.message ?? e).replace(/^Error: /, ""); }
+  }
   const engine = await load(onProgress);
   const blocks = [], notes = [];
+  let rapidRead = 0;
   let readingsDone = 0, shaded = 0;
   try {
     for (const [i, f] of images.entries()) {
@@ -238,12 +288,17 @@ export async function readPhotos(files, { loadEngine: load = loadEngine, onProgr
           readingsDone++;
         }
         readings.unshift(...first);
+        // RapidOCR's reading leads the vote; a photo it cannot read keeps tesseract's
+        if (lead) {
+          try { const t = await lead.read(f); if (t && t.trim()) { readings.unshift(t); readingsDone++; rapidRead++; } }
+          catch { /* tesseract's readings stand */ }
+        }
       }
       catch (e) { skipped.push({ name: f.name, why: `could not be read (${String(e?.message ?? e).replace(/^Error: /, "")})` }); continue; }
       const { text, note, taxNote } = settleReadings(readings);
       if (text) { blocks.push(text); if (note) notes.push({ name: f.name, note }); if (taxNote) notes.push({ name: f.name, note: taxNote }); }
       else skipped.push({ name: f.name, why: "no text found in the photo" });
     }
-  } finally { await engine.close?.(); }
-  return { text: blocks.join("\n---\n"), read: blocks.length, readings: readingsDone, shaded, skipped, notes };
+  } finally { await engine.close?.(); await lead?.close?.(); }
+  return { text: blocks.join("\n---\n"), read: blocks.length, readings: readingsDone, shaded, skipped, notes, rapid: rapidRead, rapidError };
 }

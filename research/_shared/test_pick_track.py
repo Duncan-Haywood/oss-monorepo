@@ -672,3 +672,42 @@ class StaleHostsTest(unittest.TestCase):
         import stale_hosts
         (self.root / "empty").mkdir()
         self.assertEqual(stale_hosts.recheck_lines("empty", answers=lambda u: True, root=self.root), [])
+
+
+class TrackFallbackTest(unittest.TestCase):
+    """track_fallback_lines: a track whose programmes are all untakeable names one elsewhere."""
+
+    def lines(self, progs_here, down=None, claimed=lambda s: [], unreachable=lambda s: [], t=20,
+              all_progs=("build-data", "buildbot-sheathing", "house-x", "society-y")):
+        ranked = lambda slugs, show=3: [f"    {s}" for s in slugs[:show]]
+        with mock.patch.object(pick_track, "is_blocked", lambda s: False):
+            return pick_track.track_fallback_lines(t, progs_here, down or {}, all_progs=list(all_progs),
+                                                   claimed=claimed, unreachable=unreachable, contention=ranked)
+
+    def test_takeable_programme_prints_nothing(self):
+        self.assertEqual(self.lines(["build-data", "buildbot-sheathing"], down={"build-data": ["h"]}), [])
+
+    def test_offline_and_claimed_names_one_elsewhere(self):
+        out = self.lines(["build-data", "buildbot-sheathing"], down={"build-data": ["https://h"]},
+                         claimed=lambda s: ["#16769 research/buildbot-sheathing: draft"] if s == "buildbot-sheathing" else [])
+        self.assertIn("build-data: OFFLINE", out[0])
+        self.assertIn("buildbot-sheathing: claimed by #16769", out[0])
+        # track 20 (buildbot) is a focus track, so only focus programmes are offered
+        self.assertEqual(out[1:], ["    house-x"])
+
+    def test_non_focus_track_offers_any(self):
+        out = self.lines(["society-y"], claimed=lambda s: ["#1 t"] if s == "society-y" else [], t=17)
+        self.assertEqual(out[1:], ["    build-data", "    buildbot-sheathing", "    house-x"])
+
+    def test_skips_unreachable_elsewhere(self):
+        out = self.lines(["buildbot-sheathing"], claimed=lambda s: ["#1 t"] if s == "buildbot-sheathing" else [],
+                         unreachable=lambda s: ["h"] if s == "build-data" else [])
+        self.assertNotIn("    build-data", out)
+
+    def test_nothing_left_says_open_one(self):
+        out = self.lines(["buildbot-sheathing"], claimed=lambda s: ["#1 t"], all_progs=("buildbot-sheathing",))
+        self.assertEqual(len(out), 1)
+        self.assertIn("open a new programme", out[0])
+
+    def test_no_programmes_for_track_prints_nothing(self):
+        self.assertEqual(self.lines([]), [])
