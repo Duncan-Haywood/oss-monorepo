@@ -205,6 +205,16 @@ open. MIT licensed, no dependencies, nothing uploaded.
   specifications, errors the page raised and the CLI did not went from 18 to
   0; BASIX opens fully editable in IFC4X3 (29 of 29, was 19); 90.1% of public
   facets editable (was 89.2%). `eval/multi-version-2026-11-17.md`.
+  **A standard property in the file's own dataType** (2026-11-17): an opened
+  Pset_/Qto_ property written in a type the page would not write for it
+  (DfE's SerialNumber as IFCTEXT, template IFCIDENTIFIER; Spain's
+  GrossFloorArea as IFCREAL) opens as a row that keeps that type and writes the
+  file back unchanged. When the templates refuse it, the row says a model that
+  follows the standard can never pass and offers **Use the template's type**,
+  which carries the value over when it fits. 16 rows in 7 public files: all 16
+  refused, all values carried over, the files' 14 `pset-datatype` errors go to
+  0 in the page and the CLI, still valid against ids.xsd; 90.8% of public facets
+  editable (was 90.0%). `eval/template-type-2026-11-17.md`.
 - Exports: BCF 2.1 (one topic per failing element, selected by IfcGuid), CSV,
   JSON.
 - 22 MB Revit export (Schultz Residence, 424,819 entities): 1.4 s on the command
@@ -734,11 +744,10 @@ faster than IfcTester; its point is needing no install.
   one-of rows on dates 2026-11-17, `eval/date-oneof-2026-11-17.md`;
   specifications with no class 2026-11-17, `eval/no-class-specs-2026-11-17.md`;
   one-of rows on numbers 2026-11-17, `eval/number-oneof-2026-11-17.md`;
-  several IFC versions 2026-11-17, `eval/multi-version-2026-11-17.md`):
-  a standard property whose dataType is not the template's (about 30 of the
-  116 kept property requirements in public files' class specifications,
-  `eval/multi-version-2026-11-17.md` "Why the other 116 are kept") as a row
-  that keeps the file's type with a "use the template's type" fix;
+  several IFC versions 2026-11-17, `eval/multi-version-2026-11-17.md`;
+  the file's own dataType on a standard property 2026-11-17,
+  `eval/template-type-2026-11-17.md`): a "did you mean" for a property the
+  template lacks (Portugal's `Lenght` for Length, 8 facets);
   the 20 numeric lists on non-element attributes in no-class specifications; a real IFC4 export with dates to try the range on;
   a subclass checkbox per class, not only the first;
   a "fix the dataType" hint built from the 21
