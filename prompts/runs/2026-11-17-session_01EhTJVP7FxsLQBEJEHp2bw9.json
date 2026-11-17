@@ -54,7 +54,7 @@
     "docs/posts/2026-11-17-fill-your-payroll-template-not-ours.md"
   ],
   "goal": null,
-  "notes": "Template-driven payroll export for the team hub (payroll-export.mjs, hub routes /admin/payroll, /admin/payroll.csv, /admin/payroll-template). Local checks: node --test payroll-export.test.mjs 5/5; server, payrules, timeclock, hub-worker, leave tests 54/54. Full run_venture_tests.py and venture-preflight results are added in the PR body.",
+  "notes": "Template-driven payroll export for the team hub (payroll-export.mjs, hub routes /admin/payroll, /admin/payroll.csv, /admin/payroll-template). Local checks: node --test payroll-export.test.mjs 5/5; server, payrules, timeclock, hub-worker, leave tests 54/54. run_venture_tests.py shift-roster-builder: ok, 743 tests, 0 failed (292.9 s). venture-preflight.mjs shift-roster-builder: clean.",
   "corrections": [],
   "redteam": null
 }
