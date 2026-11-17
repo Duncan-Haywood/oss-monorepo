@@ -382,6 +382,13 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    uniform over 0–5 N the worst pose loses 2.2 points, over 0–10 N 21 points. Take the hose off the tool, measure the
    tool's wrench, or keep the drag under a few newtons. Still open: the paper's headline for a tool-point spec, a wrist
    force-torque sensor, and the nailer's recoil.
+36. **A wrist force-torque sensor** (done 2026-11-16, `experiments/m36_wrist_ft/`): the compensator predicts from the
+   measured wrench (Robotiq FT 300, 0.1 N noise; its pre-2017 version, 1.2 N; ATI Mini45, 1/16 N resolution). It cuts the
+   G1's worst residual at a 20 N drag from 2.34 to 0.29 mm and the 0–20 N stack loss from 91.6 to 1.6 points, and k_t
+   misjudged by 25% leaves at most 0.4 mm. But any sensor error (0.01 N is enough) flips a held joint that sits at the
+   friction threshold, so a floor of 0.3–0.5 mm remains (0.82 mm at 5 N); the pre-2017 sensor is worse than none.
+   Still open: a held-joint preload against that floor, the paper's headline for a tool-point spec, and the nailer's
+   recoil.
 
 ## Target venue
 

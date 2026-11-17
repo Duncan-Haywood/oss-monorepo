@@ -40,6 +40,12 @@ FLAG = re.compile(r"^--(max|min|threshold|fail-under)([-_][\w-]*)?$")
 
 def offending_flags(source, filename="<string>"):
     """Yield (line, flag) for each add_argument(--threshold..., type=float)."""
+    # A hit needs the attribute `add_argument` and the name `float`, and
+    # identifiers are spelled out in the source. 155 of 9,081 tracked files
+    # carry both; parsing and walking the rest took about 14 s of every run
+    # (docs/history/ci-perf-2026-11-16-research-title-index.md).
+    if "add_argument" not in source or "float" not in source:
+        return
     try:
         tree = ast.parse(source, filename=filename)
     except SyntaxError:
