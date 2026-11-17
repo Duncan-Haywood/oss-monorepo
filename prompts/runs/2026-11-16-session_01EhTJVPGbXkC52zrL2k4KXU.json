@@ -47,7 +47,7 @@
     "docs/reports/redteam-2026-11-17-audio-cdn.md"
   ],
   "goal": null,
-  "notes": "node --test platform/pages/audio-cdn.test.mjs: pass 8 fail 0 (1.8 s); without the regex fix the new prefix-link test fails (1 of 8). redteam.py rerun: all 10 gaps caught_after_fix true. Guard added: the four tests run in portfolio-pages.yml (node --test \"*.test.mjs\").",
+  "notes": "node --test platform/pages/audio-cdn.test.mjs: pass 8 fail 0 (1.8 s); without the regex fix the new prefix-link test fails (1 of 8). redteam.py rerun: all 10 gaps caught_after_fix true. Guard added: the four tests run in portfolio-pages.yml (node --test \"*.test.mjs\"). run_workflow_locally --for-changes: 120 steps ok incl. 'Test the site builder' (217.9 s) and 'Build the site'; only FAILs are checklist-coverage (verify-and-merge.md lacks platform/ci/*.test.mjs, red on main since PR #16739, fixed by open control-plane PR #16742, not this diff). Held: secret/deploy jobs.",
   "corrections": [],
   "redteam": {
     "campaigns": [
