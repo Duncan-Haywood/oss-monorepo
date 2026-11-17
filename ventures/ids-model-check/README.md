@@ -116,6 +116,16 @@ open. MIT licensed, no dependencies, nothing uploaded.
   in the model's own units (millimetres or feet in these exports), not SI, in
   this checker and in IfcTester; the row says so.
   `eval/model-attr-ranges-2026-11-17.md`.
+  **Exclusive bounds** (2026-11-17): each bound of a **between** row is
+  "at least" or "more than", "at most" or "less than", written as
+  `xs:minExclusive` / `xs:maxExclusive`, counted in a condition's model
+  matches and opened back as a row. 5 of the 6 exclusive-bound facets in
+  the public files (U-values "more than 0.5 and less than 2.1", a block
+  height "more than 0", a friction angle "less than 0.610866" radians) open
+  as rows (85.2% of facets editable, was 84.9%), 28 more in the IDS-Audit-tool
+  valid files (25.0%, was 21.5%), all still writing back the same. Eight
+  inclusive/exclusive ranges on the sample house's 2100 mm door: 8 of 8 the
+  same verdict in IfcTester 0.9.0. `eval/exclusive-bounds-2026-11-17.md`.
 - Exports: BCF 2.1 (one topic per failing element, selected by IfcGuid), CSV,
   JSON.
 - 22 MB Revit export (Schultz Residence, 424,819 entities): 1.4 s on the command
@@ -474,9 +484,10 @@ faster than IfcTester; its point is needing no install.
   2026-11-17, `eval/model-attr-codes-2026-11-17.md`;
   applicability rows 2026-11-17, `eval/applicability-rows-2026-11-17.md`;
   numeric attribute ranges 2026-11-17, `eval/model-attr-ranges-2026-11-17.md`;
-  untyped value rows 2026-11-17, `eval/untyped-values-2026-11-17.md`):
+  untyped value rows 2026-11-17, `eval/untyped-values-2026-11-17.md`;
+  exclusive bounds 2026-11-17, `eval/exclusive-bounds-2026-11-17.md`):
   a subclass checkbox per class, not only the first;
-  exclusive bounds on an opened range; a "fix the dataType" hint built from the 21
+  a "fix the dataType" hint built from the 21
   of 122 standard properties real exports write in another type.
 - More real models through the IfcTester cross-check (an MEP model, an IFC4X3
   infrastructure model).

@@ -231,6 +231,12 @@ flagships:
       1.00/Abaco file. A run that lands a slice replaces its item here. More open
       items: NEXT.md.
   - venture: shift-roster-builder
+    inputs_only: >-
+      a live deploy with real punches, a real payroll template, a manager's
+      read, real 7shifts, When I Work, Square or Homebase accounts, dated
+      leave records or a site's week of changes; what is left without them is
+      solver tuning past 300 copies that four runs (2026-11-16 to 17) judged
+      too marginal for a run
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
       youth labour rules, state overtime presets, roles) with a self-host
@@ -470,10 +476,9 @@ flagships:
       opensourceBIM/IFC-files and buildingSMART's Sample-Test-Files with
       eval/crosscheck_ifctester.py; the IDS editor (editor.html; README): "Write
       dataType" for the 21 of 122 standard properties real exports write in another
-      type (typeRow, eval/untyped-values-2026-11-17.md); exclusive bounds on an
-      opened range (numeric attribute ranges 2026-11-17,
-      eval/model-attr-ranges-2026-11-17.md); more real exports through
-      eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
+      type (typeRow, eval/untyped-values-2026-11-17.md); a tolerance hint on
+      exclusive bounds (eval/exclusive-bounds-2026-11-17.md); more real exports
+      through eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked"). Next, most
