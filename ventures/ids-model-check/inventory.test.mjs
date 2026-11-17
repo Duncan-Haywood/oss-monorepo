@@ -86,7 +86,8 @@ test("an opened IDS with a project's own set becomes an editable row and writes 
   const reqs = r.state.specs[0].reqs;
   assert.deepEqual(reqs.slice(0, 3).map((x) => [x.custom, x.set, x.name, x.dataType, x.mode]), [[true, "Acme_Wall", "FireCompartment", "IFCLABEL", "equals"], [true, "Acme_Wall", "Cover", "IFCLENGTHMEASURE", "range"], [true, "Acme_Wall", "Note", "", "any"]]);
   assert.ok(reqs[3].fixed, "a misspelt Pset_ name stays as written (the audit flags it)");
-  assert.ok(reqs[4].fixed, "a value with no dataType stays as written");
+  assert.deepEqual([reqs[4].fixed, reqs[4].untyped, reqs[4].dataType, reqs[4].mode, reqs[4].equals], [undefined, true, "", "equals", "X"], "a value with no dataType is a row that keeps no dataType");
+  assert.ok(!buildIds(stateToDoc(r.state, L4), S4).includes('<property dataType=""'));
   const back = parseIds(buildIds(stateToDoc(r.state, L4), S4));
   assert.deepEqual(back.specs[0].requirements.map((f) => f.describe()).sort(), parsed.specs[0].requirements.map((f) => f.describe()).sort());
 });

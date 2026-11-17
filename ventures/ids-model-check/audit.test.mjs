@@ -176,3 +176,10 @@ test("standard sets: in IFC2X3 an occurrence can carry its type's set through th
   // Still invalid where no type of the class has the set.
   assert.deepEqual(codes(spec(ent("IFCSLAB"), req, { version: "IFC2X3" })), ["pset-class"]);
 });
+
+test("a standard boolean written TRUE with no dataType: the warning says checkers disagree on it", () => {
+  const m = messages(spec(ent("IFCWALL"), sprop("Pset_WallCommon", "LoadBearing", null, "TRUE")));
+  assert.match(m, /LoadBearing has a value but no dataType.*IFCBOOLEAN\. TRUE is not how IDS writes a boolean \(true\): with no dataType, checkers disagree/);
+  assert.doesNotMatch(messages(spec(ent("IFCWALL"), sprop("Pset_WallCommon", "LoadBearing", null, "true"))), /checkers disagree/);
+  assert.doesNotMatch(messages(spec(ent("IFCWALL"), sprop("Pset_WallCommon", "Reference", null, "TRUE"))), /checkers disagree/);
+});

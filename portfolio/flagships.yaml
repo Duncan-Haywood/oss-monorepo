@@ -468,12 +468,12 @@ flagships:
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
       (eval/ifcxml-xbim-2026-11-16.md); cross-check more public models from
       opensourceBIM/IFC-files and buildingSMART's Sample-Test-Files with
-      eval/crosscheck_ifctester.py; the IDS editor (editor.html; README): a property
-      value with no dataType in the applicability (39 kept facets,
-      eval/applicability-rows-2026-11-17.md); exclusive bounds on an opened range
-      (numeric attribute ranges 2026-11-17, eval/model-attr-ranges-2026-11-17.md);
-      more real exports through eval/model-inventory.mjs and
-      eval/model-attr-ranges.mjs.
+      eval/crosscheck_ifctester.py; the IDS editor (editor.html; README): "Write
+      dataType" for the 21 of 122 standard properties real exports write in another
+      type (typeRow, eval/untyped-values-2026-11-17.md); exclusive bounds on an
+      opened range (numeric attribute ranges 2026-11-17,
+      eval/model-attr-ranges-2026-11-17.md); more real exports through
+      eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked"). Next, most

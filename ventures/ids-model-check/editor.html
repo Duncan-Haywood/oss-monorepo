@@ -94,7 +94,7 @@
   import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
   import { Schema, parseIds } from "./ids.mjs";
   import { auditIds } from "./audit.mjs";
-  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, idsSchema, facetXml, editableAttributes, modelSets, valueTypes, ownSetName, specBases, specClassNames, commonSets, commonAttributes, attributeValueKind, commonPredefinedTypes, parseClassList, modelValueOffer, modelAttributes, modelCodes, appMatchCount, reqComplete } from "./editor.mjs";
+  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, idsSchema, facetXml, editableAttributes, modelSets, valueTypes, ownSetName, specBases, specClassNames, commonSets, commonAttributes, attributeValueKind, commonPredefinedTypes, parseClassList, modelValueOffer, modelAttributes, modelCodes, appMatchCount, reqComplete, typeRow } from "./editor.mjs";
   import { isZip, unzipModel, inflateRawStream } from "./zip.mjs";
 
   const $ = (id) => document.getElementById(id);
@@ -138,7 +138,7 @@
     let h = `<div class="req"><div class="grid">`;
     h += `<div><label for="${id("kind")}">${app ? "Only elements with" : "Requirement"}</label><select id="${id("kind")}" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="kind">${[["property", "a property or quantity"], ["attribute", "an attribute (Name, Description...)"], ["classification", "a classification"], ["material", "a material"], ["partOf", "a place (storey, group...)"]].map(([v, l]) => opt(v, l, r.kind)).join("")}</select></div>`;
     if (!app) h += `<div><label for="${id("card")}">How</label><select id="${id("card")}" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="cardinality">${[["required", "must have"], ["optional", "if present, must match"], ["prohibited", "must not have"]].map(([v, l]) => opt(v, l, r.cardinality)).join("")}</select></div>`;
-    let valueKind = "text", enumVals = null, note = "", mprop = null;
+    let valueKind = "text", enumVals = null, note = "", mprop = null, typeBtn = "";
     codeless.delete(key);
     if (r.kind === "property") {
       // With several classes, only the standard sets every one can carry.
@@ -161,9 +161,10 @@
         const mp = mset ? mset.props : [];
         h += `<div><label for="${id("own")}">Set name</label><input id="${id("own")}" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="ownSet" value="${esc(r.set)}" placeholder="Acme_Wall"></div>`;
         h += `<div><label for="${id("name")}">Property</label><input id="${id("name")}" list="${id("props")}" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="ownName" data-change="1" value="${esc(r.name)}" placeholder="FireCompartment" autocomplete="off"><datalist id="${id("props")}">${mp.map((p) => `<option value="${esc(p.name)}">${esc(p.dataType || "")}</option>`).join("")}</datalist></div>`;
-        h += `<div><label for="${id("dt")}">Data type</label><select id="${id("dt")}" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="dataType">${opt("", "any (presence only)", r.dataType)}${valueTypes(L.S).map((t) => opt(t, t, r.dataType)).join("")}</select></div>`;
+        h += `<div><label for="${id("dt")}">Data type</label><select id="${id("dt")}" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="dataType">${r.untyped ? opt("__none", "none, as the file wrote it", "__none") : ""}${opt("", "any (presence only)", r.untyped ? "__none" : r.dataType)}${valueTypes(L.S).map((t) => opt(t, t, r.dataType)).join("")}</select></div>`;
         const dt = r.dataType && L.S.types[r.dataType] ? r.dataType : null;
-        if (!dt) { valueKind = null; note = "Pick a data type to ask for a value; without one the property is checked for presence."; }
+        if (r.untyped) { valueKind = "text"; note = UNTYPED_NOTE; }
+        else if (!dt) { valueKind = null; note = "Pick a data type to ask for a value; without one the property is checked for presence."; }
         else {
           const prim = L.S.prim(dt);
           valueKind = prim === "double" || prim === "integer" ? "number" : prim === "boolean" || prim === "logical" ? "bool" : "text";
@@ -173,13 +174,20 @@
         const mp1 = mp.find((p) => p.name === r.name);
         mprop = mp1 || null;
         if (mp1) note += ` The model has it on ${mp1.count} of ${ofN}${mp1.dataType ? `, as ${mp1.dataType}` : ""}.`;
+        if (r.untyped && mp1 && mp1.dataType && valueTypes(L.S).includes(mp1.dataType)) typeBtn = `Write dataType ${mp1.dataType}`;
         else if (mset && r.name) note += ` None of the model's ${esc(spec.cls)} objects has ${r.name} in ${r.set}.`;
       } else {
         const props = r.set ? propertiesOf(L.psets, L.S, r.set) : [];
         const pcount = (n) => { const q = mset && mset.props.find((x) => x.name === n); return q ? `, ${q.count} in model` : ""; };
         h += `<div><label for="${id("name")}">Property</label><select id="${id("name")}" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="name">${opt("", props.length ? "choose a property" : "-", r.name)}${props.map((p) => opt(p.name, p.name + (p.dataType ? ` (${p.dataType.replace(/^IFC/, "").toLowerCase()}${pcount(p.name)})` : pcount(p.name) ? ` (${pcount(p.name).slice(2)})` : ""), r.name)).join("")}</select></div>`;
         const p = props.find((x) => x.name === r.name);
-        if (p) {
+        if (p && r.untyped) {
+          valueKind = "text"; note = UNTYPED_NOTE + (p.dataType ? ` The template gives ${p.dataType}.` : "");
+          if (p.dataType) typeBtn = `Write dataType ${p.dataType}`;
+          const q = mset && mset.props.find((x) => x.name === r.name);
+          mprop = q || null;
+          if (q) note += ` The model has it on ${q.count} of ${ofN}${q.dataType ? `, as ${q.dataType}` : ""}.`;
+        } else if (p) {
           if (!p.dataType) { valueKind = null; note = "The standard gives no single data type for this property (a bounded value, table, list or reference), so it is checked for presence only."; }
           else {
             const prim = L.S.prim(p.dataType);
@@ -265,11 +273,21 @@
       const any = codeless.has(key) ? ` <button type="button" class="ghost small" data-act="model-coded" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>Require a code</button>` : "";
       h += `<p class="muted" style="margin:6px 0 0;font-size:0.86rem">${esc(mv)}${use ? ` <button type="button" class="ghost small" data-act="model-values" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>${use}</button>` : ""}${any}</p>`;
     }
-    if (note) h += `<p class="muted" style="margin:6px 0 0;font-size:0.86rem">${esc(note)}</p>`;
+    // TRUE or False on a boolean with no dataType: IDS 1.0's test cases write
+    // booleans true/false with a dataType; without one this checker matches no
+    // object and IfcTester 0.8.0 matches the true ones (README, 2026-11-17).
+    const boolType = r.untyped && typeBtn && ["boolean", "logical"].includes(L.S.prim(typeBtn.replace("Write dataType ", "")));
+    const vals = r.mode === "equals" ? [r.equals] : [];
+    const caps = vals.filter((v) => /^(true|false)$/i.test(v) && v !== v.toLowerCase());
+    if (boolType && caps.length) h += `<p class="warn" style="margin:6px 0 0;font-size:0.86rem">${esc(caps.join(", "))} is not how IDS writes a boolean (true or false). With no dataType, tools disagree: this checker matches no object with it, IfcTester matches the ones that hold it. ${esc(typeBtn)} turns it into ${esc(vals.map((v) => v.toLowerCase()).join(", "))}, which both read the same way.</p>`;
+    if (note) h += `<p class="muted" style="margin:6px 0 0;font-size:0.86rem">${esc(note)}${typeBtn ? ` <button type="button" class="ghost small" data-act="type-row" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>${esc(typeBtn)}</button>` : ""}</p>`;
     // How many of the model's objects of these classes the condition keeps.
     if (app && inv && spec.cls) {
       const ofN = inv.classes.filter((c) => specClasses(L, spec).includes(c.cls)).reduce((t, c) => t + c.count, 0);
-      const n = ofN && reqComplete(r) ? appMatchCount(mprop, offer, r, valueKind || "text") : null;
+      // An untyped value is compared with the model's own type: counted here
+      // only when the model writes the property as text.
+      const textual = !r.untyped || !mprop || !mprop.dataType || !["double", "integer", "boolean", "logical"].includes(L.S.prim(mprop.dataType));
+      const n = ofN && reqComplete(r) && textual ? appMatchCount(mprop, offer, r, valueKind || "text") : null;
       if (n !== null) h += `<p class="${n ? "muted" : "warn"}" style="margin:6px 0 0;font-size:0.86rem">${n ? `${n} of the model's ${ofN} object(s) of this class match this condition, so the specification checks ${n === ofN ? "all of them" : "those " + n}.` : `None of the model's ${ofN} object(s) of this class match this condition: the specification would check nothing${spec.optionality === "required" ? " and, being required, fail" : ""}.`}</p>`;
     }
     h += `<button type="button" class="ghost small" data-act="${app ? "del-app-row" : "del-req"}" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} style="margin-top:6px">${app ? "Remove condition" : "Remove requirement"}</button></div>`;
@@ -278,6 +296,8 @@
 
   // The exact classes a specification names (IDS matches exact classes).
   const specClasses = (L, s) => specClassNames(L.S, s);
+  // An opened property value with no dataType (kept that way, typeRow adds one).
+  const UNTYPED_NOTE = "No dataType, as the opened file wrote it: the value is compared with whatever type the model holds, so TRUE may not match a true boolean and 3 may not match 3.0. IDS 1.0 expects a dataType and the audit warns.";
   function specHtml(L, s, si) {
     const known = !!(L.S.entities[s.cls] || (L.tm && L.tm[s.cls]));
     const subs = L.S.entities[s.cls] ? subclasses(L.S, s.cls) : [];
@@ -414,13 +434,13 @@
     if (k === "set") {
       target.custom = t.value === "__own" || t.value.startsWith("own:");
       target.set = t.value === "__own" ? "" : t.value.replace(/^own:/, "");
-      target.name = ""; target.dataType = ""; target.mode = "any"; target.oneOf = [];
+      target.name = ""; target.dataType = ""; target.mode = "any"; target.oneOf = []; target.untyped = false;
       render();
       return;
     }
     if (k === "ownSet") { target.set = t.value.trim(); output(); return; }
     if (k === "ownName") {
-      target.name = t.value.trim(); target.mode = "any"; target.oneOf = []; target.equals = "";
+      target.name = t.value.trim(); target.mode = "any"; target.oneOf = []; target.equals = ""; target.untyped = false;
       // Filled in from the model when it has this property.
       const L = loaded[doc.schema];
       const m = inv && modelSets(inv, specClasses(L, s), []).find((x) => x.name === target.set);
@@ -435,6 +455,9 @@
       render();
       return;
     }
+    // "none, as the file wrote it" keeps an opened row's value with no dataType.
+    if (k === "dataType" && t.value === "__none") { render(); return; }
+    if (k === "dataType" || k === "kind" || (k === "name" && t.dataset.r !== undefined)) target.untyped = false;
     if (k === "oneOf") target.oneOf = t.checked ? [...target.oneOf, t.value] : target.oneOf.filter((v) => v !== t.value);
     else if (t.type === "checkbox") target[k] = t.checked;
     else target[k] = k === "cls" || k === "entity" ? t.value.trim().toUpperCase() : t.value;
@@ -474,6 +497,14 @@
       if (o && o.oneOf) { r.mode = "oneOf"; r.oneOf = [...o.oneOf]; }
       else if (o && o.rangeMin !== null && o.rangeMax !== null) { r.mode = "range"; r.min = o.rangeMin; r.max = o.rangeMax; }
       record("editor_model_values");
+    }
+    // An opened row with no dataType given the template's (or the model's).
+    if (a === "type-row") {
+      const L = loaded[doc.schema], s = doc.specs[si], r = rows[+e.target.dataset.r];
+      const m = r.custom && inv ? modelSets(inv, specClasses(L, s), []).find((x) => x.name === r.set) : null;
+      const q = m && m.props.find((x) => x.name === r.name);
+      const t = typeRow(L, r, q ? q.dataType : null);
+      if (t) { rows[+e.target.dataset.r] = t.row; record("editor_typed"); if (t.dropped) alert("The value did not fit that data type, so the row now asks for any value. Set the value again."); }
     }
     // A classification that must carry some code, not only the system.
     if (a === "model-coded") {
