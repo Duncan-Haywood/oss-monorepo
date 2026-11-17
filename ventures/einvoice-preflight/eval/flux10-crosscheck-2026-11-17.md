@@ -7,7 +7,7 @@ codes; github.com/fnfempe/France_RFE commit 97ba0f3, `FNFE_RFE_INVOICE/Flux10/Fl
 Apache-2.0) on the plain route, compiled by `build-fr-rules.mjs` into `plain/flux10-fr.json`.
 
 **How it was checked.** FNFE publishes no Flux 10 example, so this repo's three made-up files
-(`examples/flux10-b2c-transactions.xml`, `-international-invoices.xml`, `-payments.xml`; each valid
+(`fixtures/flux10/b2c-transactions.xml`, `international-invoices.xml`, `payments.xml`; each valid
 against FNFE's copy of the PPF XSD, `Flux10/xsd/ereporting.xsd`, with `xmllint --schema`) were each
 run as written and broken by up to 95 mutations (each applied where it changes the file) (`eval/flux10-crosscheck.mjs`). Each run went through the
 plain set (fontoxpath 3.34.0) and through Saxon-JS 2.7 running FNFE's own compiled

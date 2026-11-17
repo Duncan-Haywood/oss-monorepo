@@ -199,7 +199,7 @@ only). With the official rules on, FNFE-MPE's Flux 10 Schematron (the PPF's Anne
 `build-fr-rules.mjs` from the same France_RFE commit) runs on the plain route, in the browser too.
 **Measured** (`eval/flux10-crosscheck.mjs`, `eval/flux10-crosscheck-2026-11-17.md`) against
 Saxon-JS running FNFE's own compiled `Flux10.xslt`: FNFE publishes no Flux 10 example, so three
-made-up files (`examples/flux10-*.xml`, valid against FNFE's copy of the XSD with xmllint), each as
+made-up files (`fixtures/flux10/*.xml`, valid against FNFE's copy of the XSD with xmllint), each as
 written and broken by up to 95 mutations: **147 of 147** runs fire the same multiset of control
 codes on both engines, all 36 codes reached, 0 checks skipped; 25 runs that neither engine flags
 are caught by FR-F10-101..107. Tests: `flux10.test.mjs` (8). Limits: no real platform's Flux 10

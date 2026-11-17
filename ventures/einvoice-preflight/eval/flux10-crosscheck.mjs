@@ -138,7 +138,7 @@ set("inv-period-backwards", first(/(<MonetaryTotal>)/, "<InvoicePeriod><StartDat
 set("inv-line-period-backwards", first(/(<\/BilledQuantity>)/, "$1<InvoicePeriod><StartDate>2026-10-01</StartDate><EndDate>20261001</EndDate></InvoicePeriod>"));
 set("inv-line-delivery-lower", first(/(<\/BilledQuantity>)/, "$1<Delivery><Location><CountryId>de</CountryId></Location></Delivery>"));
 
-const seeds = ["flux10-b2c-transactions.xml", "flux10-international-invoices.xml", "flux10-payments.xml"];
+const seeds = ["b2c-transactions.xml", "international-invoices.xml", "payments.xml"];
 const plainIds = (xml) => {
   const out = runner.runRules(rules, parseXmlDocument(xml));
   return { ids: out.map((f) => f.rule).sort(), skipped: out.skipped };
@@ -154,7 +154,7 @@ const disagreements = [];
 const perMutation = {};
 const idsSeen = new Set();
 for (const file of seeds) {
-  const base = readFileSync(new URL(`../examples/${file}`, import.meta.url), "utf8");
+  const base = readFileSync(new URL(`../fixtures/flux10/${file}`, import.meta.url), "utf8");
   const cases = [["original", base], ...MUTATIONS.map(([name, f]) => [name, f(base)]).filter(([, x]) => x !== base)];
   for (const [name, xml] of cases) {
     const p = plainIds(xml);

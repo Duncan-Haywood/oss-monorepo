@@ -1,6 +1,6 @@
 // France's e-reporting file (Flux 10): the reader and gap checks (flux10.mjs), routing, the
 // report, and FNFE-MPE's Flux 10 controls (plain/flux10-fr.json) on this repo's three made-up
-// files (examples/flux10-*.xml, valid against the PPF's XSD with xmllint) and broken copies.
+// files (fixtures/flux10/*.xml, valid against the PPF's XSD with xmllint) and broken copies.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
@@ -14,7 +14,7 @@ let ready = existsSync(new URL("./plain/flux10-fr.json", import.meta.url));
 try { require.resolve("slimdom"); require.resolve("fontoxpath"); } catch { ready = false; }
 const skip = !ready && "needs `npm i --no-save slimdom fontoxpath` and plain/flux10-fr.json";
 
-const example = (name) => readFileSync(new URL(`./examples/flux10-${name}.xml`, import.meta.url), "utf8");
+const example = (name) => readFileSync(new URL(`./fixtures/flux10/${name}.xml`, import.meta.url), "utf8");
 const B2C = example("b2c-transactions");
 const INTL = example("international-invoices");
 const PAY = example("payments");

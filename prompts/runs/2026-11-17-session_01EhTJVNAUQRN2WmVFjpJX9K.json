@@ -25,7 +25,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 8,
   "outcome": "success",
@@ -43,7 +43,7 @@
     "ventures/einvoice-preflight/eval/flux10-crosscheck-2026-11-17.md"
   ],
   "goal": null,
-  "notes": "Yielded 'English BR-FR text' to PR #16881 (claimed 13 s earlier) and took the flagship's 'Flux 10 e-reporting not done' item. Added flux10.mjs (reader, FR-F10-100..107 gap checks), detection ahead of UBL (a Flux 10 transactions report holds <Invoice> elements), plain/flux10-fr.json (FNFE France_RFE 97ba0f3 Flux10.sch, 150 checks, 36 PPF control codes, ids taken from the [G..] prefix), report and page wiring, three made-up example files valid against FNFE's XSD copy (xmllint). eval/flux10-crosscheck.mjs vs Saxon-JS on FNFE's Flux10.xslt: 147/147 runs same multiset of control codes, all 36 codes reached, 0 skipped; 25 runs neither engine flags are caught by FR-F10-101..107 (impossible dates, VAT not base x rate incl. 20% with 0.00 VAT, SIREN/VAT keys, dates outside period). Rebuilding the other FR sets with build-fr-rules.mjs left them byte-identical. Browser smoke test (Playwright, local http.server): page reads a Flux 10 file and runs the official controls in the browser; it found a summary bug (forEach index used as a sign) that is fixed and now tested. Venture suite: python3 platform/ci/run_venture_tests.py einvoice-preflight -> ok, 2611 tests, 16 skipped (before the summary fix and the +1 assertion; flux10.test.mjs rerun after: 8/8).",
+  "notes": "Yielded 'English BR-FR text' to PR #16881 (claimed 13 s earlier) and took the flagship's 'Flux 10 e-reporting not done' item. Added flux10.mjs (reader, FR-F10-100..107 gap checks), detection ahead of UBL (a Flux 10 transactions report holds <Invoice> elements), plain/flux10-fr.json (FNFE France_RFE 97ba0f3 Flux10.sch, 150 checks, 36 PPF control codes, ids taken from the [G..] prefix), report and page wiring, three made-up example files valid against FNFE's XSD copy (xmllint). eval/flux10-crosscheck.mjs vs Saxon-JS on FNFE's Flux10.xslt: 147/147 runs same multiset of control codes, all 36 codes reached, 0 skipped; 25 runs neither engine flags are caught by FR-F10-101..107 (impossible dates, VAT not base x rate incl. 20% with 0.00 VAT, SIREN/VAT keys, dates outside period). Rebuilding the other FR sets with build-fr-rules.mjs left them byte-identical. Browser smoke test (Playwright, local http.server): page reads a Flux 10 file and runs the official controls in the browser; it found a summary bug (forEach index used as a sign) that is fixed and now tested. Venture suite: python3 platform/ci/run_venture_tests.py einvoice-preflight -> ok, 2611 tests, 16 skipped (before the summary fix and the +1 assertion; flux10.test.mjs rerun after: 8/8). CI's 'examples' job ran every examples/* file through the Python invoice CLI and failed on the Flux 10 files (not invoices); rather than edit the control-plane workflow, the three files moved to fixtures/flux10/. After the move: CLI loop over examples/ clean locally, venture suite ok (2611), crosscheck still 147/147, venture-preflight clean.",
   "corrections": [],
   "redteam": null
 }
