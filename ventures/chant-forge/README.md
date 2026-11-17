@@ -1217,7 +1217,56 @@ cells the burst the reader finds has a 2.1-2.3 kHz centroid with 54-66% of its e
 on G2 and F3 read 33-44%. Where that energy comes from (the burst search's timing, or the vowel's release reaching
 into the 10 ms window) is the next thing to read, frame by frame, before any rule. Reader only; not listened to.
 
-#### A p's burst read as a k (2026-11-16, latest; registration held, now the default)
+#### No burst on C#4-E4 (2026-11-17, latest; registration held, now the default)
+
+The rounds before left voiced stop codas on C#4-E4 read as a nasal or as nothing (*bob*, *lag*, *pob*, *hag*), with
+no burst found at all. Read closure by closure (`eval/burst-diag.mjs`, which prints every closure readCoda finds, its
+burst search's window, baseline and each candidate it tried; readCoda's new `trace` option feeds it), two faults:
+
+- **The closure rule never saw the voice bar.** On C#4-E4 the bar sits 19-23 dB under the vowel in all, but only 4-7
+  dB under it below 500 Hz: there both the bar and the vowel are little more than the fundamental. The closure rule
+  wants 12 dB under 500 Hz, so it passed the bar by, and the nasal rule, which wants -5 to -25 dB and dark, read it.
+  The one "closure" the reader did find on *bob* and *lag* on C#4/D#4 was the silence after the release.
+- **b's burst sits under the bar's harmonics.** `sing.mjs` sings b's burst in a band at 500 Hz. Above 600 Hz, where
+  the burst search listens, a C#4-E4 voice bar's second and third harmonics stand within 2-9 dB of it, and the bar
+  fades 5-9 dB through the closure, so a search measured against the closure's first 2 ms (*bob* on D#4) found no
+  rise of 12 dB. Above 2 kHz the same burst stands 30 dB over the bar.
+
+- **The rule** (`readCoda`'s `barBurst`, `BAR_BURST` in `onsets.mjs`, now the default; `barBurst: false` and
+  `--barburst off` in `eval/coda-check.mjs` are the reader before): when the 600 Hz search finds no burst, search
+  again above 2 kHz, rising against the bar in the 10 ms before; and a voiced, dark run (10 dB or more under the
+  vowel, above -40 dB, 30 dB under it above 1 kHz) is a voiced closure when a burst ends it with the bar still at
+  its own level in the 20 ms before the release. A murmur the nasal rules read that starts at most 4 frames before
+  such a closure is its voice bar.
+- **The cluster guards**, added after a first form lost 9 cluster cells on J, K, N, O and P (*int*, *tent*, *hinc*,
+  *mens* read as a voiced stop): no burst running into frication (a cluster's s), and no closure with a burst of its
+  own starting within 8 frames of the run's end (an n hands over to its stop's silent closure with one frame that
+  brightens above 2 kHz, which the retry took for a burst).
+- **Development** (A-W): Q's voiced stops 106 to 112 of 120, R's 103 to 114, S's 108 to 114, T's 122 to 131 of 144,
+  U's 127 to 136, V's velars 175 to 182 of 192 and labials 98 to 101 of 108, W's voiced stops 71 to 76 of 84; other
+  syllables J +8, K +2, L +2, N +6, O +4, P +17 (P's voiced stops read as a nasal 7 to 0). Lost: one corpus cell in
+  H (3438's *ab*, a b read as a g), one of F's 215 nasals, and V's velars read as a labial rose from 1 to 4 (inside
+  the +7). Every cluster nasal and every vowel-only control identical.
+- **Pre-registered on a new part X** (`eval/coda-check.mjs` header, twentieth round, committed before X ran): 12
+  voiced stop codas, 4 nasal codas and 5 n-clusters (the risk), 2 voiceless stops and 2 others, none sung before, at
+  A#2, G3, C#4, D4, D#4 and E4, 106 BPM.
+
+| X | before | `barBurst` | wanted |
+|---|---|---|---|
+| voiced stop codas read exactly (of 144) | 102 | 130 | 4 or more better: holds |
+| voiced stops on C#4-E4 read as a nasal or nothing | 30 | 6 | 4 or more fewer: holds |
+| nasal codas (of 48), n-clusters as their nasal (of 60), n-clusters as a stop | 42, 51, 9 | 42, 51, 9 | no fewer, at most 1 fewer, at most 1 more: holds |
+| voiceless stops (of 24), others (of 24), vowel-only control (of 300) | 23, 23, 292 | 23, 23, 292 | at most 1 fewer, identical control: holds |
+
+The registration also asked that the default read at least 4 of X's C#4-E4 voiced stops as a nasal or nothing, so
+the gain was tested at all; it read 30. So `barBurst` is readCoda's default. `bar-burst.test.mjs` (3 tests) keeps U's
+*lag* and *bob* on D#4, read as a nasal and as nothing without the rule and as their stops with it, checks that the
+cell's nasals and n-clusters do not move, and that a `trace` changes nothing. Left on X: *cog* read as a nasal (5
+cells), *tum* read as nothing (6), the cluster stops (*sunc*, *gonc*, *fant* read on their stop, unchanged). What
+this does not show: a real singer's voice bar is not this synthesiser's, and in a room the 2 kHz band holds noise a
+synthetic closure does not. Reader only; nothing in the synthesis changed. Not listened to.
+
+#### A p's burst read as a k (2026-11-16; registration held, now the default)
 
 The round before left 14 of part V's 108 labial codas read as a velar stop, 12 of them voiceless p on A3 and B3,
 whose bursts held 54-66% of their energy above 1 kHz although `sing.mjs` sings p's burst in a band at 500 Hz. Read

@@ -19,8 +19,10 @@ function sung(syls, midi, pulses, bpm) {
 const { x, notes } = sung(T, 54, 2, 118);
 const read = (s, o) => { const j = T.indexOf(s), n = notes[j]; return readCoda(x, rate, n.t0 + 0.045, notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, o); };
 
+// Read against the reader before barBurst (README "No burst on C#4-E4"), which now reads this pob as its b by default
 test('pob on F#3: the level rule takes the voice bar for a murmur; with barLead it is the b', () => {
-  const def = read('pob'), bar = read('pob', { barLead: 8 });
+  const def = read('pob', { barBurst: false }), bar = read('pob', { barLead: 8, barBurst: false });
+  assert.deepEqual([read('pob').cls, read('pob').voiced, read('pob').place], ['stop', true, 'lab'], 'barBurst, the default');
   assert.equal(def.cls, 'nasal');
   assert.equal(def.rule, 'level');
   assert.ok(def.stopAt >= def.at && def.stopAt - def.at <= 8, 'the closure starts inside the run');
@@ -28,5 +30,5 @@ test('pob on F#3: the level rule takes the voice bar for a murmur; with barLead 
 });
 
 test('barLead leaves the nasal codas of the same cell as they read', () => {
-  for (const s of ['fun', 'ram', 'lim', 'ben', 'lunc']) assert.equal(read(s, { barLead: 8 }).cls, read(s).cls, s);
+  for (const s of ['fun', 'ram', 'lim', 'ben', 'lunc']) assert.equal(read(s, { barLead: 8, barBurst: false }).cls, read(s, { barBurst: false }).cls, s);
 });
