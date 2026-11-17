@@ -4107,6 +4107,10 @@ function buildRosterOnce(staff, slots, options = {}) {
       const guideFrom = o.dayGuide === false ? null : priced?.xs ? "scoreFloor" : clique?.xs && o.dayGuideOpen !== false ? "cliqueFloor" : null;
       const guide = guideFrom === "scoreFloor" ? priced.xs : guideFrom === "cliqueFloor" ? clique.xs : null;
       let own = dayReassign(ctx, best.owner, { rounds: 30, deadline }), sc = scoreOwner(ctx, own).total, kicks = 0;
+      // Where in its window the pass gains (2026-11-17, README "The day sweeps past a spent budget"): each gain as [ms since the
+      // pass started, phase ("sweep", "guide", "kick"), score saved]. The first sweeps' gain is logged at their end.
+      const gains = [];
+      if (sc < before - 1e-9) gains.push([Date.now() - t0, "sweep", before - sc]);
       // LP-guided descent (2026-11-14, README "Steering the day sweeps with the pay floor's LP"): when the pay floor ran, sweep
       // every day with each person-shift's cost lowered by lam x the average wage x its value in that LP's solution, for lam from
       // 8 down to 0.12, each followed by exact sweeps on the true score; keep a roster only when it scores less. The LP holds
@@ -4124,7 +4128,7 @@ function buildRosterOnce(staff, slots, options = {}) {
           const q = dayReassign(ctx, g, { rounds: 30, deadline });
           const qs = scoreOwner(ctx, q).total;
           guideLog.push([lam, qs]);
-          if (qs < sc - 1e-9) { own = q; sc = qs; }
+          if (qs < sc - 1e-9) { gains.push([Date.now() - t0, "guide", sc - qs]); own = q; sc = qs; }
         }
       }
       while (Date.now() < deadline && days.length) {
@@ -4132,11 +4136,11 @@ function buildRosterOnce(staff, slots, options = {}) {
         const kicked = dayReassign(ctx, own, { rounds: 1, jitter: Math.max(0.5, ctx.avgWage / 3), rng, only: days[Math.floor(rng() * days.length)], deadline });
         const q = dayReassign(ctx, kicked, { rounds: 30, deadline });
         const qs = scoreOwner(ctx, q).total;
-        if (qs < sc - 1e-9) { own = q; sc = qs; }
+        if (qs < sc - 1e-9) { gains.push([Date.now() - t0, "kick", sc - qs]); own = q; sc = qs; }
       }
       if (sc < best.score - 1e-9 && ownerValid(ctx, own)) best = { owner: own, score: sc };
       if (ex.rootBound >= best.score - o.exactTolerance - 1e-9) ex.proven = true;
-      dayLNS = { before, after: best.score, kicks, ms: Date.now() - t0, guide: guideLog, guideFrom };
+      dayLNS = { before, after: best.score, kicks, ms: Date.now() - t0, guide: guideLog, guideFrom, gains, startedAt: t0 - tStart };
       mark("dayLNS");
     }
     const gap = ex.proven ? annealScore - best.score : best.score - Math.min(ex.rootBound, best.score);
