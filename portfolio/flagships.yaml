@@ -267,8 +267,14 @@ flagships:
       would post; a real 7shifts account through --import-7shifts (README "Reading
       7shifts directly"); a real When I Work account or response through
       --import-wheniwork (README "Reading When I Work directly"); Homebase (docs
-      need an account); a real Square account via --import-square (README "Reading
-      Square's schedule"). More open items: NEXT.md.
+      need an account); a real Deputy install via --import-deputy (README "Reading
+      Deputy directly"). More open items: NEXT.md.
+    buildable: >-
+      Deputy staff and wages from its API (no account needed to build):
+      resource/Employee and EmployeeAgreement field names are in the MIT
+      communityds/deputy-api-wrapper models (git clone works; api.github.com does
+      not), see eval/deputy-api-format-2026-11-17.md; mirror import-7shifts.mjs's
+      staff reader. Homebase stays account-gated.
   - venture: photo-editing
     hosts: [https://raw.pixls.us/, https://github.com/]
     why: >-
