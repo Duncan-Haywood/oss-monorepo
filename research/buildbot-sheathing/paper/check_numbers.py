@@ -38,6 +38,7 @@ M35 = E + "m35_hose/results.txt"
 M36 = E + "m36_wrist_ft/results.txt"
 M37 = E + "m37_preload/results.txt"
 M38 = E + "m38_squeeze/results.txt"
+M39 = E + "m39_waist/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -155,6 +156,11 @@ CHECKS = [
     (M38, "g1  20.0 | S 0 |   1.64", "0.05 points instead of 1.64"),
     (M38, "h1  20.0 | S 10 |   0.02", "(the H1 0.02 instead of 2.19)"),
     (M38, "h1  20.0 | S 0 |   2.19", "(the H1 0.02 instead of 2.19)"),
+    (M39, "g1   5.0  0.2 | 0.485 (0.099) / 0.485 (0.099) / 0.106 (0.020) / 0.012 (0.027)", "from 0.485 to 0.012 mm"),
+    (M39, "g1  10.0 | stock     |   5.80", "10 N stack loss from 5.80 to 0.04 points"),
+    (M39, "g1  10.0 | braked    |   0.04", "10 N stack loss from 5.80 to 0.04 points"),
+    (M39, "g1  10.0 | precision |   0.11", "gives 0.106 mm\nand 0.11 points"),
+    (M39, "g1   5.0  2.4 | 1.350 (0.922) / 1.350 (0.922) / 0.968 (0.679) / 0.873 (0.477)", "still leaves 0.873 mm"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),
