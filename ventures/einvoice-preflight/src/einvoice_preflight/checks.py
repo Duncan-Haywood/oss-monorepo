@@ -5,6 +5,7 @@ from decimal import Decimal, ROUND_HALF_UP, localcontext
 from typing import Any
 
 from .numbers import parse_decimal
+from .xmlvalues import inspect_xml_values
 
 from .adjustment import header_adjustment_net_delta, inspect_header_adjustments
 from .bic import inspect_payment_bic
@@ -110,6 +111,10 @@ def _check_invoice(invoice: Any) -> list[dict[str, str]]:
         for finding in inspect_party_vat({"vat_id": representative["vat_id"]}, "tax_representative"):
             message = finding["message"].replace("Tax_Representative", "Tax representative", 1)
             fail(finding["rule"], message, finding["fix"], finding["path"])
+    # INV-065 (2026-11-17): a value the reader trimmed a no-break space from
+    # (xmlvalues.py; checks.mjs runs the same check).
+    for finding in inspect_xml_values(invoice):
+        fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
     for finding in inspect_payment_iban(invoice):
         fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
     for finding in inspect_payment_means(invoice):

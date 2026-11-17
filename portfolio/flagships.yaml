@@ -230,13 +230,13 @@ flagships:
       passes Mustang; open: a real business's PINT file. A run that lands a slice
       replaces its item here. More open items: NEXT.md.
     buildable: >-
-      The browser's official rules read whitespace as Saxon does and name values
-      Saxon cannot cast (XML-VALUE-01) since 2026-11-17 (SaxonC-HE via pip saxonche,
-      eval/xml-whitespace-crosscheck-2026-11-17.md). Next: the built-in readers
-      (ubl.mjs, cii.mjs) read an amount with a literal U+00A0 through Number(),
-      which trims it, so with the official rules off nothing is said: add an INV
-      rule at the field; then cross-check PINT and ZATCA sets the same way (SchXslt
-      compiles their .sch). No network beyond PyPI and Maven.
+      Built-in checks report a number or date holding a no-break or other non-XML
+      space (INV-065, browser and CLI) since 2026-11-17: 13,920 of 13,920 copies
+      named, agreeing with SaxonC-HE (eval/nbsp-amounts-2026-11-17.md). Next:
+      cross-check the PINT and ZATCA sets against SaxonC as
+      eval/xml-whitespace-crosscheck.mjs does (SchXslt compiles their .sch); the
+      other readers (FatturaPA, FA(3), Facturae, NAV, ISDOC) trim with String.trim()
+      too: the same leaf scan there. No network beyond PyPI and Maven.
   - venture: shift-roster-builder
     inputs_only: >-
       a live deploy with real punches, a real payroll template, a manager's
