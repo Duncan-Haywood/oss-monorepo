@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 40,
   "outcome": "success",
@@ -43,6 +43,10 @@
     {
       "what": "Local CI (run_workflow_locally --for-changes) caught three things in the new venture: Math.max(...array) spreads (check_row_spread), no inbound sibling link (siblings.mjs, budget 0), and a CSV export without a formula-injection guard (check_csv_formula_guard).",
       "fix": "reduce() instead of spreads; ranked-ballot-counter's footer links the tool (both group-decision tools) with a page.test assertion; csvCell guard plus a test. Re-run: all triggered workflows pass."
+    },
+    {
+      "what": "GitHub CI portfolio-validate failed: platform/privacy/optout-switches.txt lacked the new usage.mjs (the local run_workflow_locally pass of portfolio-validate did not reach that step).",
+      "fix": "python3 platform/ci/sync_tree_counts.py added the line; optout-persistence tests 20/20."
     }
   ],
   "integrity_issues": [],
