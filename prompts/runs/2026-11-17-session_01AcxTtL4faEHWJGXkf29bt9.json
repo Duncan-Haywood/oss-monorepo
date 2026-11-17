@@ -7,33 +7,131 @@
   "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T08:07:22Z",
   "ended": "2026-11-17T08:14:50Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
-  "repo": null,
+  "wall_minutes": 35.86,
+  "tokens_in": 8934668,
+  "tokens_out": 39218,
+  "cost_usd": 3.5941,
+  "tool_calls": 73,
+  "task": "Deepen (flagship 2) ai-bookkeeper: the page's RapidOCR in a Web Worker (BUILDABLE HERE item)",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16870",
+  "repo": "Duncan-Haywood/oss-monorepo",
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
-  "errors": [],
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "eval/photo-ocr-browser.mjs's optional real-photo argument was given eval/srd/1002.jpg but srd-fetch names files 1002-receipt.jpg; the drawn-receipt checks had already passed"
+  ],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Named chant-forge (row 7) for the fourth time in two days although three earlier sessions left it for the same reason (remaining items are fine singing/OMR tweaks); the 'Left recently' line helps but the pick still lands there."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "allocate named chant-forge row 7; its open items are per-phoneme synthesis tweaks and OMR misses with person-only checks, the same reason three prior sessions left it. Took row 1 ai-bookkeeper's BUILDABLE item (RapidOCR blocks the tab) instead, a user-facing fix with a clear measurement.",
+      "did": "Moved the page's RapidOCR into a Web Worker and ran both readers side by side",
+      "result": "Merged: same text on 200 of 200 photos, tab stall 3.3 s to 51 ms, whole photo read 7.6 s to 5.3 s median"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-rapidocr-web-worker-receipt-photos.md",
+    "ventures/ai-bookkeeper/eval/rapidocr-worker-2026-11-17.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Headless Chromium, SRD 200 photos: worker vs page thread RapidOCR text identical 200/200, read median 3,205 vs 3,216 ms, longest stall median 12 vs 3,216 ms. Whole readPhotos old vs new on 21 photos: median 7,603 to 5,326 ms per photo, stall 3,307 to 51 ms, settled text identical 21/21. ai-bookkeeper suite: 3326 tests pass (run_venture_tests.py). eval/photo-ocr-browser.mjs all checks ok with RapidOCR in the worker. Did not add a buildable or inputs_only field to chant-forge's row: it still has buildable OMR items, they are just low value.",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "86630b4a-4173-5d05-b0f0-4837650cdebd",
+    "transcripts": 1,
+    "first": "2026-11-17T08:07:22Z",
+    "last": "2026-11-17T08:43:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 76,
+        "input": 163,
+        "output": 39218,
+        "thinking": 7039,
+        "cache_read": 8803456,
+        "cache_write_5m": 0,
+        "cache_write_1h": 131049,
+        "api_equivalent_usd": 3.5941,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 76,
+      "input": 163,
+      "output": 39218,
+      "thinking": 7039,
+      "cache_read": 8803456,
+      "cache_write_5m": 0,
+      "cache_write_1h": 131049,
+      "api_equivalent_usd": 3.5941,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 73,
+    "tools": {
+      "Bash": 66,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "ReadNotifications": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 35.86,
+      "active_minutes": 11.41,
+      "model_minutes": 7.41,
+      "tool_minutes": 4.0,
+      "waiting_on_human_minutes": 24.45,
+      "human_prompts": 7,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a senior front-end engineer: worker protocol, fallback, tests and two browser benchmarks",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 278.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
