@@ -358,6 +358,18 @@ export function modelSubclassesLeftOut(S, spec, invClasses) {
   return out.sort((x, y) => y.count - x.count || (x.cls < y.cls ? -1 : 1));
 }
 
+// The specification "Add a specification" starts from a class in the open
+// model's list: the class, plus the model's own objects of its subclasses
+// (IFCWALL with the model's IFCWALLSTANDARDCASE), so the new specification
+// does not open with a "would not check" warning to click away. Only classes
+// the model has: the schema's other subclasses stay behind the checkbox.
+export function modelSpec(S, cls, invClasses) {
+  const nice = S.entities[cls] ? S.entities[cls].name.replace(/^Ifc/, "") : cls;
+  const spec = { ...blankSpec(), name: `${nice} requirements`, cls, withSub: false };
+  spec.also = modelSubclassesLeftOut(S, spec, invClasses).map((x) => x.cls);
+  return spec;
+}
+
 // Standard sets every one of `classes` can carry.
 export function commonSets(L, classes) {
   const cs = classes.filter(Boolean);
