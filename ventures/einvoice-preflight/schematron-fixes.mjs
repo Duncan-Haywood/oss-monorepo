@@ -460,6 +460,11 @@ Object.assign(FIXES, {
 });
 
 const FAMILIES = [
+  // Factur-X 1.09.2 EXTENDED's structure and code-list checks (facturx-extended-cii.json): the
+  // message says only "Value of '@schemeID' is not allowed" or "Element 'ram:X' must occur
+  // exactly 1 times"; the path says where. Code lists move between releases (the Leitweg
+  // scheme 9958 became 0204), so older ZUGFeRD 2.0/2.1 samples fail them.
+  [/^FX-SCH-A-/, "Factur-X EXTENDED (1.09.2): at the path shown, either a code is not on the current Factur-X code list (a retired scheme such as 9958, now 0204 for a Leitweg-ID, an old unit or allowance reason code) or an element occurs more or fewer times than the profile allows. Use a code from the current list, or add or remove the element, and re-run the check."],
   [/^BR-RO-DT/, "Romania (RO e-Factura): write the date as YYYY-MM-DD, for example 2026-03-31, with no time or time zone."],
   [/^BR-RO-L\d/, "Romania (RO e-Factura) caps this text field at the length in the message (ANAF rejects longer values than the EN 16931 standard allows). Shorten it."],
   [/^BR-RO-A\d/, "Romania (RO e-Factura) caps how many times this group may repeat. Merge or drop the extra entries."],

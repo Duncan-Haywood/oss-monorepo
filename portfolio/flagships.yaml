@@ -190,12 +190,12 @@ flagships:
       shape checks failed; next phase-tolerant shapes, 5th set. Open: (0) drift
       model: t-walk increments, biweight on fresh data, why it absorbs seat belts
       and quality control 4, its AR(1) term; (1) slopes: logs fail, 2 hinges ship
-      (refuse short sticky series), given date: --known-date ships (round 5); next a
-      bootstrap conditioned on the cut guard (cut-only admits 17/26 false), page,
-      engine; step/bend bootstrap tests (README "Step or bend, as two tests") fail:
-      walks called bend, use the cut guard; nulls rho low; a real step inside a
-      cycle, a cycle check not tied to rho, real documented ramps and close steps;
-      More open items: NEXT.md.
+      (refuse short sticky series), given date: --known-date on CLI, page, engine;
+      cut-guard conditioning calibrated but blind (round 6), next a control series;
+      step/bend bootstrap tests (README "Step or bend, as two tests") fail: walks
+      called bend, use the cut guard; nulls rho low; a real step inside a cycle, a
+      cycle check not tied to rho, real documented ramps and close steps; More open
+      items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     why: >-
@@ -205,12 +205,14 @@ flagships:
     next: >-
       History: README and git (latest: France BR-FR (FNFE 1.4.0.04) on the plain
       route, 264/264 vs Saxon (eval/br-fr-crosscheck-2026-11-17.md); CDAR
-      (BR-FR-CDV) 780/780 vs Saxon (eval/cdar-crosscheck-*); open: Extended-CTC-FR
-      base sets, CDAR _WARNING set (37/43 rules hit, 6 dead: FR-CDV-105..107 cover
-      them), English BR-FR text, a real PA rejection or status; VERI*FACTU (README):
-      open: a production SIF's records and replies). Open: a real HU report with
-      NAV's businessValidationMessages or SCHEMA_VIOLATION text; HU: open: a real
-      chain with NAV's replies; a real business's signed Facturae or FACe rejection
+      (BR-FR-CDV) 780/780 vs Saxon (eval/cdar-crosscheck-*); Extended-CTC-FR and
+      Factur-X EXTENDED bases 175/175 vs Saxon
+      (eval/extended-base-crosscheck-2026-11-17.md); open: a real PA extended file,
+      CDAR _WARNING set (37/43 rules hit, 6 dead: FR-CDV-105..107 cover them),
+      English BR-FR text, a real PA rejection or status; VERI*FACTU (README): open:
+      a production SIF's records and replies). Open: a real HU report with NAV's
+      businessValidationMessages or SCHEMA_VIOLATION text; HU: open: a real chain
+      with NAV's replies; a real business's signed Facturae or FACe rejection
       (eval/facturae-gob-*); ZATCA: a real KSA note; SdI: open: a real FatturaPA
       rejection with its file; HR: a real HR invoice, cash accounting; CIUS-PT:
       which validator does AT run (AA/RED codes)?; FA(3) KOR/ZAL/ROZ totals landed

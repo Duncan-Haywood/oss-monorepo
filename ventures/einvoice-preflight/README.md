@@ -121,11 +121,38 @@ the other sets with the fixed compiler: the EU base, XRechnung, Peppol, NLCIUS, 
 and CIUS-RO compile byte-identical; ZATCA's BR-KSA-F-13 changed, and was wrong before
 (its `$is-supplier` asked the ID element instead of the party, so a seller's ids were
 checked against the buyer's scheme list; `zatca.test.mjs` pins it). CIUS-PT and PINT
-were not rebuilt (Maven Central answered 429). Not done: FNFE's Extended-CTC-FR and
-Factur-X EXTENDED base sets (the EN 16931 base still runs under an extended file and
-may warn on its extensions), the CDAR life-cycle messages and Flux 10 e-reporting
+were not rebuilt (Maven Central answered 429). Extended files get their own base since
+2026-11-17 (next section). Not done: the CDAR life-cycle messages and Flux 10 e-reporting
 schematron, English text for the BR-FR messages, and a real platform's rejection
 compared.
+
+**Extended-CTC-FR and Factur-X EXTENDED: their own base sets (new, 2026-11-17).** An
+extended invoice may carry what EN 16931 forbids (several sellers on one multi-vendor
+invoice, GROUP lines with sub-lines, line allowances that change the sums), and until now
+the EN 16931 base judged it anyway: every one of FNFE's 15 extended examples failed, with 4
+to 16 findings each (fatal BR-CO-10, BR-22/23, BR-26/27, BR-CO-04, BR-S-10, UBL-SR-48,
+CII-SR-439 ...). Now a file whose BT-24 names Extended-CTC-FR
+(`urn.cpro.gouv.fr:1p0:extended-ctc-fr`) gets FNFE-MPE's EXTENDED-CTC-FR base (UBL 953 checks,
+CII 773, derived from EN 16931 1.3.16), and one naming Factur-X or ZUGFeRD EXTENDED
+(`urn:factur-x.eu:1p0:extended`, `urn:zugferd.de:2p0:extended`) gets Factur-X 1.09.2 EXTENDED
+(CII, 1,464 checks), in place of the EU base (`EXTENDED_BASES` in `schematron-core.mjs`;
+`plain/extended-ctc-fr-*.json`, `plain/facturx-extended-cii.json`, built by `build-fr-rules.mjs`
+from the same France_RFE commit). BR-FR still runs after the French base. The Factur-X set's
+210 code-list lookups read a side file (`document('FACTUR-X_EXTENDED_codedb.xml')`) that
+fontoxpath cannot open; the build inlines its 53 lists. A copy of the page without an
+extended base file says "unavailable" rather than giving the EU base's verdict, and the
+Saxon route hands such a file to the plain route. **Measured** (`eval/extended-base-crosscheck.mjs`,
+`eval/extended-base-crosscheck-2026-11-17.md`): FNFE's 15 extended examples (UBL, CII and
+Factur-X; multi-vendor, sub-line, self-billed) pass, and with each broken up to eleven ways
+(type code, currency, unit, country, VAT category, line net, tax total, seller name ...)
+the plain route and Saxon-JS running FNFE's compiled XSLT give the same rule ids on **175 of
+175** runs, 43 distinct ids, 0 checks unevaluated. On 13 real EXTENDED files from the ZUGFeRD
+corpus (intarsys, symtrax, Mustang; `eval/extended-real-files.mjs`) the false fatal BR-CO-12
+and BR-S-08 on four are gone, plain = Saxon on 13 of 13, and what remains is code-list
+drift since ZUGFeRD 2.0/2.1 that the EU base also caught (the Leitweg scheme 9958, now 0204;
+old allowance reason and unit codes). Not done: a real French platform's extended file or
+rejection; per-list messages for the Factur-X code-list checks (FX-SCH-A-*: the finding's
+path and a generic fix say where and what); the Factur-X EN 16931 and BASIC WL sets.
 
 **France: life-cycle status messages (CDAR, new 2026-11-17).** Under the French reform every
 invoice travels with statuses ("CDV": 200 Déposée, 202 Reçue, 205 Approuvée, 207 En litige,
