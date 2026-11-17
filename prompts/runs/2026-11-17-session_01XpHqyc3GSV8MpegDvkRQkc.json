@@ -7,14 +7,16 @@
   "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T02:39:07Z",
   "ended": "2026-11-17T02:55:47Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 35.81,
+  "tokens_in": 15032565,
+  "tokens_out": 98007,
+  "cost_usd": 6.6165,
+  "tool_calls": 97,
   "task": "Explore: build a cooperative-game cost-sharing tool (Shapley value, nucleolus, core) as a research-algorithm venture",
   "projects": [
     "cost-sharing-calculator"
@@ -27,7 +29,7 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 38,
+  "tests_added": 40,
   "outcome": "success",
   "errors": [
     {
@@ -37,6 +39,10 @@
     {
       "what": "Two test expectations were wrong (a group priced at 30 vs a split at 24 is correctly flagged; 'A,x' alone reads as a header).",
       "fix": "Corrected the tests, not the engine."
+    },
+    {
+      "what": "Local CI (run_workflow_locally --for-changes) caught three things in the new venture: Math.max(...array) spreads (check_row_spread), no inbound sibling link (siblings.mjs, budget 0), and a CSV export without a formula-injection guard (check_csv_formula_guard).",
+      "fix": "reduce() instead of spreads; ranked-ballot-counter's footer links the tool (both group-decision tools) with a page.test assertion; csvCell guard plus a test. Re-run: all triggered workflows pass."
     }
   ],
   "integrity_issues": [],
@@ -44,6 +50,14 @@
     {
       "file": "portfolio/research-tools/README.md",
       "issue": "'ships a real public dataset as its example' has no guidance for methods whose natural inputs (coalition prices, road distances) have no public dataset; used the Mishnah's claims as the real example and labelled the other two as made up."
+    },
+    {
+      "file": "portfolio/research-tools/README.md",
+      "issue": "The definition-of-done table does not mention three gates every new tool hits (inbound sibling link, CSV formula guard, no array spreads into Math.min/max); each cost a CI round trip. Listing them, or a scaffold that ships them, would save the next new-tool run."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "The first --for-changes run was voided because I edited a page while it ran (it says so clearly); running it with --foreground after the last edit avoids that."
     }
   ],
   "deviations": [
@@ -58,7 +72,84 @@
     "docs/posts/2026-11-17-who-pays-for-the-shared-road-shapley-nucleolus-and-the-talmud.md"
   ],
   "goal": null,
-  "notes": "Explore idea: cooperative game theory as a research-algorithm tool (ventures/cost-sharing-calculator); no venture README mentioned Shapley/nucleolus/core (1,387 searched). Shapley (exact, 14 members), nucleolus by Maschler-Peleg-Shapley sequential LPs solved through their duals with a hand-written two-phase simplex (10 members, 10-45 ms), SCRB/ENSC, core check naming the most-overcharged subgroup; road mode (Littlechild & Owen closed form, any size, prefix core check); claims mode (Talmud rule = nucleolus, random arrival = Shapley). Verified vs independent scipy HiGHS reference on 40 games (<=5e-12), Mishnah's three estates, glove game, textbook LP. DOIs checked against Crossref. Chromium at 1200/390 px: no console errors, no external requests. Local checks: run_venture_tests 38/38 pass; run_workflow_locally --for-changes output recorded below when finished.",
+  "notes": "Explore idea: cooperative game theory as a research-algorithm tool (ventures/cost-sharing-calculator); no venture README mentioned Shapley/nucleolus/core (1,387 searched). Shapley (exact, 14 members), nucleolus by Maschler-Peleg-Shapley sequential LPs solved through their duals with a hand-written two-phase simplex (10 members, 10-45 ms), SCRB/ENSC, core check naming the most-overcharged subgroup; road mode (Littlechild & Owen closed form, any size, prefix core check); claims mode (Talmud rule = nucleolus, random arrival = Shapley). Verified vs independent scipy HiGHS reference on 40 games (<=5e-12), Mishnah's three estates, glove game, textbook LP. DOIs checked against Crossref. Chromium at 1200/390 px: no console errors, no external requests. Local checks: run_venture_tests cost-sharing-calculator 39/39 and ranked-ballot-counter 37/37 pass; run_workflow_locally --for-changes after fixes: every triggered workflow passes (control-plane, prompts-ci, checklist, conflict-markers, doc-refs, duplicate-symbols, link-contrast, readme-live-links, sibling-links 2/2, page-integrity, agent-permission-harness, pages 6/6, ventures-tests 5/5, portfolio-validate 99/99, portfolio-pages 12/12; uses: steps not run locally).",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "370fbafb-8a05-50de-97cc-bc03b7cf95ac",
+    "transcripts": 1,
+    "first": "2026-11-17T02:39:07Z",
+    "last": "2026-11-17T03:14:55Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 94,
+        "input": 183,
+        "output": 98007,
+        "thinking": 17077,
+        "cache_read": 14820954,
+        "cache_write_5m": 0,
+        "cache_write_1h": 211428,
+        "api_equivalent_usd": 6.6165,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 94,
+      "input": 183,
+      "output": 98007,
+      "thinking": 17077,
+      "cache_read": 14820954,
+      "cache_write_5m": 0,
+      "cache_write_1h": 211428,
+      "api_equivalent_usd": 6.6165,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 97,
+    "tools": {
+      "Bash": 87,
+      "Write": 3,
+      "Read": 2,
+      "ToolSearch": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 35.81,
+      "active_minutes": 35.81,
+      "model_minutes": 14.41,
+      "tool_minutes": 21.4,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 40.0,
+      "basis": "estimate: a developer implementing Shapley, a nucleolus LP pipeline with its own simplex, three modes, a page, CLI, independent Python reference and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 4000.0
+    },
+    "leverage": 604.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
