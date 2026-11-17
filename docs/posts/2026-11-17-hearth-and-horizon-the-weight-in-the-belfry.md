@@ -1,6 +1,6 @@
 ---
 title: "Hearth & Horizon: The Weight in the Belfry, a story about the tune hidden inside a swinging bell"
-seo_title: "Why a swinging bell can rock its tower: the third harmonic, in a short story"
+seo_title: "Why a swinging bell can rock its tower: a short story on harmonics"
 date: 2026-11-17
 tags: [fiction, hearth-and-horizon, writing, short-story, physics, engineering, bells]
 description: "A new 3.3-tonne bell rocks a brick tower a centimetre each way. Its push has a part at three times its swing, and the textbook damper is the wrong one."

@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [hearth-and-horizon]
+date: 2026-11-17
+---
 # Hearth & Horizon: "The Weight in the Belfry" (agent notes, 2026-11-17)
 
 Story: `ventures/hearth-and-horizon/stories/the-weight-in-the-belfry.md`
