@@ -1,0 +1,7 @@
+DFE-EducationEstates__InformationModelAssurance__Grouped_Stage_4_4_08_	2	2	0	2	0
+DFE-EducationEstates__InformationModelAssurance__Grouped_Stage_5_5_08_	4	4	0	4	0
+I-Sokolov__RDFApps__IDSChecker_CHEK_CHEK_Ascoli_Piceno.ids	1	1	0	1	0
+I-Sokolov__RDFApps__IDSChecker_CHEK_CHEK_GAIA.ids	2	2	0	2	0
+OpenAEC-Foundation__OpenAEC-BIM-validator__ids-bestanden_RVB_BIM_Norm_	2	1	0	1	0
+OpenAEC-Foundation__open-3d-viewer__assets_ids_RVB_BIM_Norm_v1.1.ids	2	1	0	1	0
+buildingSMARTSpain__ids-mei-edificacion__ids_MEIE01-BSSP-ZZZ-ZZZ-EIR-M	3	3	0	3	0

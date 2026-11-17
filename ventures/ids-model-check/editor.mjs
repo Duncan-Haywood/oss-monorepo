@@ -718,6 +718,9 @@ export function valueChoices(L, cls, r) {
     integer = prim === "integer";
   } else if (r.kind === "property") {
     p = r.set ? propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name) : null;
+    // A standard property in the dataType the opened file gave it, not the
+    // template's (fileTypeOf): the row offers that type's values and keeps it.
+    if (p && r.fileType) p = fileTypeProp(L, p, r.fileType);
     if (!p || !p.dataType) kind = null;
     else {
       const prim = L.S.prim(p.dataType);
@@ -768,7 +771,7 @@ const rangeValue = (r, temporal) => ({ min: r.min, max: r.max, ...(r.minEx ? { m
 const oneOfValue = (r, temporal) => ({ oneOf: r.oneOf, ...(temporal ? { base: r.oneOfBase || "xs:" + temporal } : {}) });
 function reqFacet(L, r, classes = []) {
   if (r.fixed) return r.fixed;
-  const p = r.kind !== "property" ? null : r.untyped ? { dataType: null, untyped: true } : r.custom ? { dataType: r.dataType && L.S.types[r.dataType] ? r.dataType : null } : propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name);
+  const p = r.kind !== "property" ? null : r.untyped ? { dataType: null, untyped: true } : r.custom ? { dataType: r.dataType && L.S.types[r.dataType] ? r.dataType : null } : r.fileType ? { dataType: r.fileType } : propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name);
   const temporal = r.mode !== "oneOf" && r.mode !== "range" ? null : r.kind === "property" ? temporalType(p && p.dataType) : r.kind === "attribute" ? attributeValueKind(L.S, classes, r.name).temporal || null : null;
   const value = r.cardinality === "prohibited" || (p && !p.dataType && !p.untyped) ? null
     : r.mode === "equals" ? { equals: r.equals } : r.mode === "true" || r.mode === "false" ? { equals: r.mode }
@@ -800,16 +803,75 @@ export function typeRow(L, r, modelType = null) {
   }
   if (!dt) return null;
   const row = { ...r, untyped: false, dataType: r.custom ? dt : r.dataType };
+  return carryValue(L, r, row, null, dt, enumVals);
+}
+
+// A row's value moved from data type `from` (null: no dataType) to `dt`, with
+// `enumVals` the enumeration the new type offers. It carries over when it fits
+// the new type: TRUE/FALSE in any case to true/false, numbers to equals or one
+// of (and a range's bounds) when each is written as IDS reads that number
+// type, text values when the enumeration has them, a pattern when there is no
+// enumeration, a date range to the same kind of date. Otherwise the row asks
+// for any value and `dropped` is set. Returns { row, dropped }.
+function carryValue(L, r, row, from, dt, enumVals) {
   const prim = L.S.prim(dt);
   const kind = prim === "double" || prim === "integer" ? "number" : prim === "boolean" || prim === "logical" ? "bool" : "text";
-  const vals = r.mode === "equals" ? [r.equals] : r.mode === "oneOf" ? r.oneOf : [];
+  const vals = r.mode === "equals" ? [r.equals] : r.mode === "oneOf" ? r.oneOf : r.mode === "true" || r.mode === "false" ? [r.mode] : [];
+  const temporal = temporalType(dt);
   let keep = r.mode === "any" || !r.mode;
   if (kind === "bool" && vals.length === 1 && /^(true|false)$/i.test(vals[0])) { row.mode = vals[0].toLowerCase(); keep = true; }
   else if (kind === "number" && (r.mode === "equals" || r.mode === "oneOf") && vals.length && vals.every((v) => !numberValueProblem(v, prim === "integer"))) keep = true;
+  else if (kind === "number" && r.mode === "range" && !temporalType(from) && [r.min, r.max].every((v) => v === "" || v === undefined || !numberValueProblem(v, prim === "integer"))) keep = true;
+  else if (kind === "text" && temporal && r.mode === "range" && temporalType(from) === temporal) keep = true;
+  else if (kind === "text" && (r.mode === "true" || r.mode === "false") && !enumVals) { row.mode = "equals"; row.equals = r.mode; keep = true; }
   else if (kind === "text" && (r.mode === "equals" || r.mode === "oneOf") && (!enumVals || vals.every((v) => enumVals.includes(v)))) keep = true;
   else if (kind === "text" && !enumVals && r.mode === "pattern") keep = true;
-  if (!keep) { row.mode = "any"; row.equals = ""; row.oneOf = []; row.pattern = ""; }
+  // A date one-of keeps an xs:string base only on a date type that had it.
+  if (row.oneOfBase && (!temporal || temporalType(from) !== temporal)) delete row.oneOfBase;
+  if (!keep) { row.mode = "any"; row.equals = ""; row.oneOf = []; row.pattern = ""; row.min = ""; row.max = ""; row.minEx = false; row.maxEx = false; delete row.oneOfBase; }
   return { row, dropped: !keep };
+}
+
+// The template's property as a row with the file's dataType (`fileType`)
+// sees it: that one type, and the template's enumeration only while the file's
+// type holds text.
+function fileTypeProp(L, p, fileType) {
+  const prim = L.S.prim(fileType);
+  const text = !["double", "integer", "boolean", "logical"].includes(prim);
+  return { ...p, dataType: fileType, dataTypes: [fileType], enum: text ? p.enum : null };
+}
+
+// The dataType an opened file gave a standard property when it is not the one
+// the page writes for it (the template's first), and the schema knows it:
+// Pset_ManufacturerOccurrence.SerialNumber as IFCTEXT (template IFCIDENTIFIER),
+// Spain's Qto_SpaceBaseQuantities.NetFloorArea as IFCREAL. The row keeps it,
+// so the file is written back as it was; when the templates do not allow it
+// the audit's pset-datatype error stands and templateTypeRow offers the fix.
+export function fileTypeOf(L, set, name, dataType) {
+  if (!dataType || !set || !name || !L.S.types[dataType]) return null;
+  const p = propertiesOf(L.psets, L.S, set).find((x) => x.name === name);
+  return p && p.dataType !== dataType ? dataType : null;
+}
+
+// Whether a fileType row's type is one the templates refuse (the audit's
+// pset-datatype error), rather than one they also allow.
+export function fileTypeRefused(L, r) {
+  if (!r || r.kind !== "property" || !r.fileType || r.custom || r.untyped) return false;
+  const p = propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name);
+  return !!(p && p.dataTypes.length && !p.dataTypes.includes(r.fileType));
+}
+
+// "Use the template's type": a row kept in the file's dataType (fileType)
+// moved to the template's, the value carried over as carryValue says.
+// Returns { row, dropped, dataType } or null when the row has no file type or
+// the template gives no single type.
+export function templateTypeRow(L, r) {
+  if (r.kind !== "property" || !r.fileType || r.custom || r.untyped || r.fixed) return null;
+  const p = propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name);
+  if (!p || !p.dataType) return null;
+  const row = { ...r };
+  delete row.fileType;
+  return { ...carryValue(L, r, row, r.fileType, p.dataType, p.enum), dataType: p.dataType };
 }
 
 // The other way: a standard-set row whose model writes the property in a
@@ -829,6 +891,7 @@ export function untypeRow(L, r, modelType) {
   const p = propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name);
   if (!p || !p.dataTypes.length || p.dataTypes.includes(String(modelType).toUpperCase())) return null;
   const row = { ...r, untyped: true, dataType: "" };
+  delete row.fileType;
   // A real number written with no dataType is where checkers part: this one
   // reads Revit's IFCPOSITIVELENGTHMEASURE(29.99999999999999) mm as 0.03 m
   // and matches "0.03", IfcTester 0.8.0 does not
@@ -899,6 +962,9 @@ function editableRow(L, classes, f) {
     // dataType would narrow it (Rotterdam's permit checks, bim2sim's window
     // ThermalTransmittance).
     if (!f.dataType && (!r.custom || (f.value && f.value.present))) r.untyped = true;
+    // A standard property in a dataType the page would not write for it: the
+    // row keeps the file's (templateTypeRow offers the template's).
+    if (!r.custom && f.dataType) { const ft = fileTypeOf(L, r.set, r.name, f.dataType); if (ft) r.fileType = ft; }
   } else if (f.kind === "attribute") {
     r.name = simpleOf(f.name);
     if (!r.name || !commonAttributes(L.S, classes).includes(r.name)) return null;

@@ -1,0 +1,7 @@
+public IDS files (eval/real-ids-files.txt): 63 opened, 1 unreadable; 63 of 63 write back asking the same (495 of 495 specifications); audit errors changed on 0
+  facets editable in the page 1803, held as written 182 (90.8% editable); files with every facet editable 23 of 63; prohibited-spec requirements not written 3
+IDS-Audit-tool ValidFiles: 12 opened; 12 of 12 write back asking the same (288 of 288 specifications); audit errors changed on 0
+  facets editable in the page 721, held as written 87 (89.2% editable); files with every facet editable 3 of 12; prohibited-spec requirements not written 0
+buildingSMART test cases (pass-*): 187 opened; 187 of 187 write back asking the same (187 of 187 specifications); audit errors changed on 0
+  facets editable in the page 320, held as written 54 (85.6% editable); files with every facet editable 133 of 187; prohibited-spec requirements not written 0
+0.6 s

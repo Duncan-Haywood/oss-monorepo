@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { parseIds } from "./ids.mjs";
 import { auditIds } from "./audit.mjs";
 import { resources, check } from "./node.mjs";
-import { modelSubclassesLeftOut, modelSpec, classesWithSets, setsFor, propertiesOf, subclasses, predefinedTypes, buildIds, entityFacet, xsBase, PARTOF_RELATIONS, importIds, stateToDoc, idsSchema, idsSchemaChoices, auditSchemaIds, schemaIdsOf, importIdsAs, specClassNames, commonSets, commonAttributes, sameAttributeType, commonPredefinedTypes, parseClassList, valueChoices, attributeValueKind, modelAttributes, modelValueOffer, typeRow, appMatchCount, untypeRow, blankReq, blankSpec, temporalType, modelSets, datePattern, numberValueProblem, NUMBER_ONEOF_MAX } from "./editor.mjs";
+import { modelSubclassesLeftOut, modelSpec, classesWithSets, setsFor, propertiesOf, subclasses, predefinedTypes, buildIds, entityFacet, xsBase, PARTOF_RELATIONS, importIds, stateToDoc, idsSchema, idsSchemaChoices, auditSchemaIds, schemaIdsOf, importIdsAs, specClassNames, commonSets, commonAttributes, sameAttributeType, commonPredefinedTypes, parseClassList, valueChoices, attributeValueKind, modelAttributes, modelValueOffer, typeRow, appMatchCount, untypeRow, templateTypeRow, fileTypeRefused, fileTypeOf, blankReq, blankSpec, temporalType, modelSets, datePattern, numberValueProblem, NUMBER_ONEOF_MAX } from "./editor.mjs";
 import { Model } from "./ids.mjs";
 import { modelInventory } from "./inventory.mjs";
 
@@ -716,4 +716,59 @@ ${specs.join("\n")}
   assert.equal(importIds(mixed, loadFor).state.schema, "IFC4");
   assert.equal(importIds(mixed, loadFor).schemaRows, undefined);
   assert.deepEqual(auditSchemaIds(importIds(mixed, loadFor).state), ["IFC2X3", "IFC4"]);
+});
+
+test("a standard property in a dataType the template refuses opens as a row keeping it, and Use the template's type fixes the audit error", () => {
+  const prop = (set, name, dt, value = "") => `<property dataType="${dt}"><propertySet><simpleValue>${set}</simpleValue></propertySet><baseName><simpleValue>${name}</simpleValue></baseName>${value}</property>`;
+  // As the public files write them: DfE's SerialNumber as IFCTEXT with a
+  // pattern (template IFCIDENTIFIER), Spain's GrossFloorArea as IFCREAL.
+  const xml = `<?xml version="1.0"?><ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema"><info><title>t</title></info><specifications>
+    <specification name="assets" ifcVersion="IFC4"><applicability minOccurs="1" maxOccurs="unbounded"><entity><name><simpleValue>IFCPUMP</simpleValue></name></entity></applicability>
+      <requirements>${prop("Pset_ManufacturerOccurrence", "SerialNumber", "IFCTEXT", `<value><xs:restriction base="xs:string"><xs:pattern value="[A-Z0-9]+"/></xs:restriction></value>`)}</requirements></specification>
+    <specification name="spaces" ifcVersion="IFC4"><applicability minOccurs="1" maxOccurs="unbounded"><entity><name><simpleValue>IFCSPACE</simpleValue></name></entity></applicability>
+      <requirements>${prop("Qto_SpaceBaseQuantities", "GrossFloorArea", "IFCREAL", `<value><xs:restriction base="xs:double"><xs:minInclusive value="2"/></xs:restriction></value>`)}</requirements></specification></specifications></ids>`;
+  const { imp, parsed, back } = reopen(xml);
+  const L = loadFor("IFC4");
+  const [sn, gfa] = imp.state.specs.map((s) => s.reqs[0]);
+  assert.ok(!sn.fixed && !gfa.fixed, "both open as rows");
+  assert.deepEqual([sn.fileType, sn.mode, sn.pattern], ["IFCTEXT", "pattern", "[A-Z0-9]+"]);
+  assert.deepEqual([gfa.fileType, gfa.mode, gfa.min], ["IFCREAL", "range", "2"]);
+  assert.deepEqual(back.specs.map(said), parsed.specs.map(said), "written back as the file had it");
+  assert.ok(fileTypeRefused(L, sn) && fileTypeRefused(L, gfa));
+  const codes = (st) => auditIds(parseIds(buildIds(stateToDoc(st, L), L.S)), R).filter((x) => x.code === "pset-datatype").length;
+  assert.equal(codes(imp.state), 2);
+  // The row offers the file's type's values: a range on IFCREAL, a pattern on IFCTEXT.
+  assert.ok(valueChoices(L, "IFCSPACE", gfa).modes.includes("range"));
+  assert.ok(valueChoices(L, "IFCPUMP", sn).modes.includes("pattern"));
+  // The fix: the template's type, the value carried over, no audit error.
+  const t1 = templateTypeRow(L, sn), t2 = templateTypeRow(L, gfa);
+  assert.deepEqual([t1.dataType, t1.dropped, t1.row.mode, t1.row.fileType], ["IFCIDENTIFIER", false, "pattern", undefined]);
+  assert.deepEqual([t2.dataType, t2.dropped, t2.row.mode, t2.row.min], ["IFCAREAMEASURE", false, "range", "2"]);
+  const fixed = { ...imp.state, specs: [{ ...imp.state.specs[0], reqs: [t1.row] }, { ...imp.state.specs[1], reqs: [t2.row] }] };
+  assert.equal(codes(fixed), 0);
+  const out = buildIds(stateToDoc(fixed, L), L.S);
+  assert.match(out, /<property dataType="IFCIDENTIFIER">/);
+  assert.match(out, /<property dataType="IFCAREAMEASURE">/);
+});
+
+test("Use the template's type drops a value the template's type cannot hold, and keeps true/false on a boolean", () => {
+  const L = loadFor("IFC4");
+  const row = (o) => ({ ...blankReq(), set: "Pset_SpaceCommon", name: "IsExternal", fileType: "IFCLABEL", ...o });
+  // OpenAEC writes IsExternal as IFCLABEL.
+  assert.equal(fileTypeOf(L, "Pset_SpaceCommon", "IsExternal", "IFCLABEL"), "IFCLABEL");
+  assert.equal(fileTypeOf(L, "Pset_SpaceCommon", "IsExternal", "IFCBOOLEAN"), null, "the template's own type is no file type");
+  assert.equal(fileTypeOf(L, "Pset_SpaceCommon", "IsExternal", "IFCNOSUCHTYPE"), null);
+  const t = templateTypeRow(L, row({ mode: "equals", equals: "TRUE" }));
+  assert.deepEqual([t.dataType, t.row.mode, t.dropped], ["IFCBOOLEAN", "true", false]);
+  const d = templateTypeRow(L, row({ mode: "equals", equals: "outside" }));
+  assert.deepEqual([d.row.mode, d.row.equals, d.dropped], ["any", "", true]);
+  // A text value moved to a number type is dropped; a number moved to another number type stays.
+  const area = { ...blankReq(), set: "Qto_SpaceBaseQuantities", name: "GrossFloorArea" };
+  assert.equal(templateTypeRow(L, { ...area, fileType: "IFCLABEL", mode: "equals", equals: "big" }).dropped, true);
+  assert.equal(templateTypeRow(L, { ...area, fileType: "IFCREAL", mode: "oneOf", oneOf: ["10", "12.5"] }).dropped, false);
+  // Not a file-type row: no fix.
+  assert.equal(templateTypeRow(L, area), null);
+  // Changing the row to no dataType drops the file type.
+  const u = untypeRow(L, { ...area, fileType: "IFCREAL" }, "IFCREAL");
+  assert.ok(u && u.row.untyped && u.row.fileType === undefined);
 });

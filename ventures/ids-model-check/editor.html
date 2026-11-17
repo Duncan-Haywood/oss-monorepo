@@ -94,7 +94,7 @@
   import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
   import { Schema, parseIds } from "./ids.mjs";
   import { auditIds } from "./audit.mjs";
-  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, idsSchema, idsSchemaChoices, auditSchemaIds, schemaIdsOf, facetXml, editableAttributes, modelSets, valueTypes, ownSetName, specBases, specClassNames, commonSets, commonAttributes, attributeValueKind, commonPredefinedTypes, parseClassList, modelValueOffer, modelAttributes, modelCodes, appMatchCount, reqComplete, typeRow, untypeRow, temporalType, TEMPORAL_EXAMPLE, datePattern, modelSubclassesLeftOut, modelSpec, valueChoices, numberValueProblem } from "./editor.mjs";
+  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, idsSchema, idsSchemaChoices, auditSchemaIds, schemaIdsOf, facetXml, editableAttributes, modelSets, valueTypes, ownSetName, specBases, specClassNames, commonSets, commonAttributes, attributeValueKind, commonPredefinedTypes, parseClassList, modelValueOffer, modelAttributes, modelCodes, appMatchCount, reqComplete, typeRow, untypeRow, templateTypeRow, fileTypeRefused, temporalType, TEMPORAL_EXAMPLE, datePattern, modelSubclassesLeftOut, modelSpec, valueChoices, numberValueProblem } from "./editor.mjs";
   import { temporalKind } from "./temporal.mjs";
   import { isZip, unzipModel, inflateRawStream } from "./zip.mjs";
 
@@ -139,7 +139,7 @@
     let h = `<div class="req"><div class="grid">`;
     h += `<div><label for="${id("kind")}">${app ? "Only elements with" : "Requirement"}</label><select id="${id("kind")}" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="kind">${[["property", "a property or quantity"], ["attribute", "an attribute (Name, Description...)"], ["classification", "a classification"], ["material", "a material"], ["partOf", "a place (storey, group...)"]].map(([v, l]) => opt(v, l, r.kind)).join("")}</select></div>`;
     if (!app) h += `<div><label for="${id("card")}">How</label><select id="${id("card")}" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="cardinality">${[["required", "must have"], ["optional", "if present, must match"], ["prohibited", "must not have"]].map(([v, l]) => opt(v, l, r.cardinality)).join("")}</select></div>`;
-    let valueKind = "text", temporal = null, enumVals = null, note = "", mprop = null, typeBtn = "", anyBtn = false, realWarn = false;
+    let valueKind = "text", temporal = null, enumVals = null, note = "", mprop = null, typeBtn = "", tplBtn = "", anyBtn = false, realWarn = false;
     codeless.delete(key);
     if (r.kind === "property") {
       // With several classes, only the standard sets every one can carry.
@@ -196,6 +196,20 @@
             else realWarn = true;
             note += " With no dataType a real number is read apart by checkers (this one converts units, IfcTester does not), so check it for presence only.";
           }
+        } else if (p && r.fileType) {
+          // An opened row in the dataType the file gave it, not the template's
+          // (editor.mjs fileTypeOf): kept, so the file is written back as it was.
+          const prim = L.S.prim(r.fileType);
+          valueKind = prim === "double" || prim === "integer" ? "number" : prim === "boolean" || prim === "logical" ? "bool" : "text";
+          enumVals = valueKind === "text" ? p.enum : null;
+          temporal = temporalType(r.fileType);
+          if (fileTypeRefused(L, r)) {
+            note = `dataType ${r.fileType}, as the file wrote it. The ${doc.schema} template gives ${p.dataTypes.join(" or ")}, so a model that follows the standard can never pass this check (the audit's pset-datatype error).`;
+            if (p.dataType) tplBtn = `Use the template's type (${p.dataType})`;
+          } else note = `dataType ${r.fileType}, as the file wrote it; the template allows it${p.dataType ? ` (the page writes ${p.dataType} for a new row)` : ""}.`;
+          const q = mset && mset.props.find((x) => x.name === r.name);
+          mprop = q || null;
+          if (q) note += ` The model has it on ${q.count} of ${ofN}${q.dataType ? `, as ${q.dataType}` : ""}.`;
         } else if (p) {
           if (!p.dataType) { valueKind = null; note = "The standard gives no single data type for this property (a bounded value, table, list or reference), so it is checked for presence only."; }
           else {
@@ -340,7 +354,7 @@
     const vals = r.mode === "equals" ? [r.equals] : [];
     const caps = vals.filter((v) => /^(true|false)$/i.test(v) && v !== v.toLowerCase());
     if (boolType && caps.length) h += `<p class="warn" style="margin:6px 0 0;font-size:0.86rem">${esc(caps.join(", "))} is not how IDS writes a boolean (true or false). With no dataType, tools disagree: this checker matches no object with it, IfcTester matches the ones that hold it. ${esc(typeBtn)} turns it into ${esc(vals.map((v) => v.toLowerCase()).join(", "))}, which both read the same way.</p>`;
-    if (note) h += `<p class="muted" style="margin:6px 0 0;font-size:0.86rem">${esc(note)}${typeBtn ? ` <button type="button" class="ghost small" data-act="type-row" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>${esc(typeBtn)}</button>` : ""}${anyBtn ? ` <button type="button" class="ghost small" data-act="untype-row" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>Accept any data type</button>` : ""}</p>`;
+    if (note) h += `<p class="muted" style="margin:6px 0 0;font-size:0.86rem">${esc(note)}${typeBtn ? ` <button type="button" class="ghost small" data-act="type-row" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>${esc(typeBtn)}</button>` : ""}${tplBtn ? ` <button type="button" class="ghost small" data-act="template-type" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>${esc(tplBtn)}</button>` : ""}${anyBtn ? ` <button type="button" class="ghost small" data-act="untype-row" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>Accept any data type</button>` : ""}</p>`;
     if (realWarn) h += `<p class="warn" style="margin:6px 0 0;font-size:0.86rem">This value has no dataType and the model holds a real number: tools disagree on whether it matches. Ask for any value, or ${esc(typeBtn || "write a dataType")}.</p>`;
     // How many of the model's objects of these classes the condition keeps.
     if (app && inv && spec.cls) {
@@ -540,7 +554,7 @@
     if (k === "set") {
       target.custom = t.value === "__own" || t.value.startsWith("own:");
       target.set = t.value === "__own" ? "" : t.value.replace(/^own:/, "");
-      target.name = ""; target.dataType = ""; target.mode = "any"; target.oneOf = []; delete target.oneOfBase; target.untyped = false;
+      target.name = ""; target.dataType = ""; target.mode = "any"; target.oneOf = []; delete target.oneOfBase; target.untyped = false; delete target.fileType;
       render();
       return;
     }
@@ -563,7 +577,7 @@
     }
     // "none, as the file wrote it" keeps an opened row's value with no dataType.
     if (k === "dataType" && t.value === "__none") { render(); return; }
-    if (k === "dataType" || k === "kind" || (k === "name" && t.dataset.r !== undefined)) target.untyped = false;
+    if (k === "dataType" || k === "kind" || (k === "name" && t.dataset.r !== undefined)) { target.untyped = false; delete target.fileType; }
     if (k === "oneOf") target.oneOf = t.checked ? [...target.oneOf, t.value] : target.oneOf.filter((v) => v !== t.value);
     else if (t.type === "checkbox") target[k] = t.checked;
     else if (k === "minEx" || k === "maxEx") target[k] = t.value === "1";
@@ -632,6 +646,12 @@
       const q = m && m.props.find((x) => x.name === r.name);
       const t = q ? untypeRow(L, r, q.dataType) : null;
       if (t) { rows[+e.target.dataset.r] = t.row; record("editor_untyped"); if (t.dropped) alert(t.real ? "With no dataType, checkers read a real-number value differently, so the row now asks for any value (presence)." : "A range needs a dataType, so the row now asks for any value. Set a value again if you need one."); }
+    }
+    // An opened standard row in a dataType the template refuses, moved to the template's.
+    if (a === "template-type") {
+      const L = loaded[doc.schema], r = rows[+e.target.dataset.r];
+      const t = templateTypeRow(L, r);
+      if (t) { rows[+e.target.dataset.r] = t.row; record("editor_template_type"); if (t.dropped) alert(`The value did not fit ${t.dataType}, so the row now asks for any value. Set the value again.`); }
     }
     // An opened date, time or duration one-of moved from xs:string to its
     // DataTypes base (same values, same verdicts).
