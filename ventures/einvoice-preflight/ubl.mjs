@@ -154,8 +154,33 @@ function sideParty(root, name) {
   return Object.keys(ids).length ? ids : undefined;
 }
 
+// An element's text as an XML processor reads it: character references
+// (`&#160;`, `&#x42;`) and the five predefined entities decoded, then only XML
+// whitespace (space, tab, CR, LF) trimmed, as normalize-space does at the ends.
+// parseXmlTree keeps text raw and several callers decode it themselves, so this
+// is used where a value is checked character by character (VAT numbers): before
+// 2026-11-17 `NL123456782&#66;01` (a valid number, B written as a reference)
+// was a blocking INV-022, and String.trim() dropped a trailing no-break space
+// that Peppol's normalize-space keeps (and warns on, R056-2).
+const XML_REF = /&(#x[0-9a-fA-F]+|#[0-9]+|amp|lt|gt|quot|apos);/g;
+const NAMED_REF = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'" };
+export function xmlValue(node) {
+  const raw = node && typeof node.text === "string" ? node.text : "";
+  const decoded = raw.replace(XML_REF, (whole, ref) => {
+    if (ref[0] !== "#") return NAMED_REF[ref];
+    const code = ref[1] === "x" ? parseInt(ref.slice(2), 16) : Number(ref.slice(1));
+    return code > 0 && code <= 0x10ffff ? String.fromCodePoint(code) : whole;
+  });
+  return decoded.replace(/^[ \t\r\n]+|[ \t\r\n]+$/g, "");
+}
+
 // BT-31/BT-48/BT-63: the first VAT-scheme PartyTaxScheme/CompanyID of a party.
 function partyVatId(partyNode) {
+  const node = partyVatNode(partyNode);
+  return node ? xmlValue(node) : "";
+}
+
+function partyVatNode(partyNode) {
   for (const scheme of descendants(partyNode, "PartyTaxScheme")) {
     // A national tax number travels in the same element with TaxScheme/ID "FC"
     // (or similar); only a VAT scheme -- or an unlabelled one whose number starts
@@ -165,11 +190,65 @@ function partyVatId(partyNode) {
     // "VAT", so that is not a VAT number either (ANAF's own examples, 2026-11-11).
     const schemeId = nestedText(scheme, "TaxScheme", "ID").toUpperCase();
     if (schemeId && schemeId !== "VAT") continue;
-    const vatId = textOf(scheme, "CompanyID", false);
+    const node = descendants(scheme, "CompanyID")[0];
+    const vatId = node ? xmlValue(node) : "";
     if (!schemeId && vatId && !/^[A-Za-z]{2}/.test(vatId.trim())) continue;
-    if (vatId) return vatId;
+    if (vatId.trim()) return node;
   }
-  return "";
+  return null;
+}
+
+// Every VAT number PEPPOL-COMMON-R056-2 reads that no party's vat_id holds:
+// its context is `cac:PartyTaxScheme[normalize-space(cac:TaxScheme/cbc:ID) =
+// 'VAT']/cbc:CompanyID` anywhere in the document, so it reaches the payee's
+// (BG-10) and the deliver-to party's (cac:Delivery/cac:DeliveryParty)
+// PartyTaxScheme, a line's parties, and a second VAT scheme on the seller,
+// none of which EN 16931 defines a VAT number for (added 2026-11-17;
+// eval/nl-vat-r056-2-differential.mjs). `primary` holds the CompanyID nodes
+// already read as BT-31/BT-48/BT-63.
+const UBL_PARTY_KEYS = {
+  AccountingSupplierParty: ["supplier", "Seller"],
+  AccountingCustomerParty: ["customer", "Buyer"],
+  TaxRepresentativeParty: ["tax_representative", "Tax representative"],
+  PayeeParty: ["payee_party", "Payee"],
+  DeliveryParty: ["delivery_party", "Deliver-to party"],
+};
+function ublVatRegistrations(root, primary) {
+  const found = [];
+  const walk = (node, ancestors) => {
+    if (node.name === "PartyTaxScheme") {
+      const schemeNode = node.children.find((child) => child.name === "TaxScheme");
+      const idNode = schemeNode && schemeNode.children.find((child) => child.name === "ID");
+      if (idNode && xmlValue(idNode).replace(/[ \t\r\n]+/g, " ") === "VAT") {
+        for (const company of node.children.filter((child) => child.name === "CompanyID")) {
+          if (primary.has(company)) continue;
+          found.push({ ...registrationPlace(ancestors, UBL_PARTY_KEYS, /^(Invoice|CreditNote|DebitNote)Line$/, /Party$/), value: xmlValue(company) });
+        }
+      }
+      return;
+    }
+    for (const child of node.children) walk(child, [...ancestors, node]);
+  };
+  walk(root, []);
+  return found;
+}
+
+// Names the party a registration belongs to: the nearest ancestor that is a
+// party, and the line it sits on, if any ("Line 2 deliver-to party").
+export function registrationPlace(ancestors, keys, lineName, partyName) {
+  let party = null;
+  for (let i = ancestors.length - 1; i >= 0 && !party; i -= 1) {
+    const name = ancestors[i].name;
+    if (keys[name]) party = keys[name];
+    else if (partyName.test(name) && name !== "Party") party = [name, name.replace(/([a-z])([A-Z])/g, "$1 $2").toLowerCase()];
+  }
+  party = party || ["document", "A"];
+  const lineIndex = ancestors.findIndex((node) => lineName.test(node.name));
+  if (lineIndex < 0) return { party: party[0], label: party[1] };
+  const line = ancestors[lineIndex];
+  const parent = ancestors[lineIndex - 1];
+  const number = parent ? parent.children.filter((child) => child.name === line.name).indexOf(line) + 1 : 1;
+  return { party: party[0], line: number, label: `Line ${number} ${party[1].charAt(0).toLowerCase()}${party[1].slice(1)}` };
 }
 
 function party(node) {
@@ -517,6 +596,12 @@ export function parseUblInvoice(source) {
   if (representative || representativeVat) {
     invoice.tax_representative = { ...(representative || {}), ...(representativeVat ? { vat_id: representativeVat } : {}) };
   }
+  // R056-2 reaches every VAT PartyTaxScheme, not only BT-31/48/63's (see
+  // ublVatRegistrations): the rest are kept for INV-064.
+  const primary = new Set([supplier, customer].map((node) => partyVatNode(descendants(node, "Party")[0] || node)));
+  if (representativeNode) primary.add(partyVatNode(representativeNode));
+  const registrations = ublVatRegistrations(root, primary);
+  if (registrations.length) invoice.vat_registrations = registrations;
   // cac:Delivery/cac:DeliveryParty: Peppol's PartyIdentification/ID and
   // CompanyID contexts match its ids too (BT-71's DeliveryLocation/ID is not
   // under PartyIdentification, so Peppol does not; added 2026-11-17).
