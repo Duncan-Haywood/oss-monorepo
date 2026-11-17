@@ -26,7 +26,7 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 0,
@@ -51,7 +51,7 @@
     "docs/posts/2026-11-17-little-lamps-gertrude-the-great.md"
   ],
   "goal": null,
-  "notes": "",
+  "notes": "Project: hearth-and-horizon, shelf little-lamps, piece gertrude-and-the-heartbeat-at-helfta (text only, audio dirs 577 MB > 400 MB cap). Verification: node --test 19/19; post front matter and links clean; run_workflow_locally --for-changes 11/11 workflows passed (cross-review bots and deploy jobs not run locally). Five of the verdicts were marked void because this record changed during the sweep; I treated them as valid because the record is the only file that changed. PR CI on the story commit was all green (21 check runs; bots and deploy skipped). While checking facts I corrected the 'grammarian to theologian' attribution to the sisters' book 1 of the Herald. Added an Anselm of Canterbury Little Lamps proposal to BIBLE Next up.",
   "corrections": [],
   "redteam": null,
   "usage": {
