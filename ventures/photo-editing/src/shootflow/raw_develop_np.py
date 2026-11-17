@@ -140,7 +140,7 @@ def _encode(r, g, b, hi, m, curve, lut_size, look):
     r = np.where(r > hi, hi, np.where(r < 0, 0.0, r))
     g = np.where(g > hi, hi, np.where(g < 0, 0.0, g))
     b = np.where(b > hi, hi, np.where(b < 0, 0.0, b))
-    lut = np.asarray(curve, dtype=np.uint16)
+    lut = np.asarray(curve, dtype=np.float64)
     out = np.empty(r.shape + (3,), dtype=np.uint16)
     planes = []
     for i in range(3):
@@ -151,12 +151,16 @@ def _encode(r, g, b, hi, m, curve, lut_size, look):
         planes = list(apply_look(look, *planes))
     for i in range(3):
         v = planes[i]
-        idx = (v * (lut_size - 1) + 0.5).astype(np.int64)
-        np.clip(idx, 0, lut_size - 1, out=idx)
-        enc = lut[idx]
+        # Linear interpolation between table entries, rounded once, as raw_develop's ``encode``
+        # does it (same float64 operations in the same order, so both paths give the same bytes).
+        t = np.clip(v, 0.0, 1.0) * (lut_size - 1)
+        idx = t.astype(np.int64)
+        np.clip(idx, 0, lut_size - 2, out=idx)
+        lo = lut[idx]
+        enc = np.floor(lo + (t - idx) * (lut[idx + 1] - lo) + 0.5)
         enc[v <= 0] = 0
         enc[v >= 1] = 65535
-        out[..., i] = enc
+        out[..., i] = enc.astype(np.uint16)
     return out
 
 

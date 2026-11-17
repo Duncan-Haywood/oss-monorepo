@@ -1,0 +1,9 @@
+{"table": "4096 nearest (old)", "max_err": 103.822, "levels": 4096, "off_share": 0.9102166544891672}
+{"table": "4096 interpolated", "max_err": 1.0661, "levels": 65536, "off_share": 0.00403674979816251}
+{"table": "16384 interpolated", "max_err": 0.2219, "levels": 65536, "off_share": 0.00025459998727000066}
+{"table": "65536 interpolated", "max_err": 0.0341, "levels": 65536, "off_share": 1.5249999237500038e-05}
+{"file": "LG Nexus 5X.dng", "size": "4016x3008", "ref_levels": [62971, 64172, 65536], "new": {"max_diff": 1, "off_share": 0.000481, "levels": [62971, 64172, 65536]}, "old": {"max_diff": 104, "off_share": 0.936813, "levels": [3864, 4094, 4096]}}
+{"file": "Leica T (Typ 701).dng", "size": "4928x3264", "ref_levels": [59197, 55695, 65528], "new": {"max_diff": 1, "off_share": 0.000663, "levels": [59201, 55696, 65528]}, "old": {"max_diff": 104, "off_share": 0.9533, "levels": [4084, 4025, 4096]}}
+{"file": "DJI Phantom 4 (1).dng", "size": "3992x2992", "ref_levels": [55948, 55688, 55918], "new": {"max_diff": 1, "off_share": 9.3e-05, "levels": [55948, 55688, 55917]}, "old": {"max_diff": 44, "off_share": 0.805341, "levels": [4042, 4053, 4050]}}
+{"file": "Leica X VARIO (Typ 107).dng", "size": "3264x4928", "ref_levels": [60789, 60165, 59373], "new": {"max_diff": 1, "off_share": 0.000178, "levels": [60796, 60164, 59373]}, "old": {"max_diff": 102, "off_share": 0.94629, "levels": [4096, 4088, 4096]}}
+{"file": "Pentax QS1.dng", "size": "4000x3000", "ref_levels": [45814, 46248, 45018], "new": {"max_diff": 1, "off_share": 0.001445, "levels": [45816, 46246, 45014]}, "old": {"max_diff": 104, "off_share": 0.962029, "levels": [2329, 2349, 2239]}}
