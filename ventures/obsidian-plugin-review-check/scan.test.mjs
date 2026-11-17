@@ -67,9 +67,9 @@ test('parseVersions: a valid map parses cleanly', () => {
 });
 
 test('detectSamplePluginDefaults: flags every leftover placeholder value', () => {
-  const found = detectSamplePluginDefaults({ id: 'sample-plugin', name: 'Sample Plugin', author: 'Your Name' });
-  assert.equal(found.length, 3);
-  assert.deepEqual(found.map((f) => f.field).sort(), ['author', 'id', 'name']);
+  const found = detectSamplePluginDefaults({ id: 'sample-plugin', name: 'Sample Plugin', description: 'Demonstrates some of the capabilities of the Obsidian API.', author: 'Obsidian' });
+  assert.equal(found.length, 4);
+  assert.deepEqual(found.map((f) => f.field).sort(), ['author', 'description', 'id', 'name']);
 });
 
 test('detectSamplePluginDefaults: a customized manifest flags nothing', () => {
@@ -82,7 +82,9 @@ test('detectSamplePluginDefaults: no manifest data is not an error', () => {
 });
 
 test('SAMPLE_PLUGIN_DEFAULTS matches the documented obsidian-sample-plugin template values', () => {
-  assert.deepEqual(SAMPLE_PLUGIN_DEFAULTS, { id: 'sample-plugin', name: 'Sample Plugin', author: 'Your Name' });
+  // The template's manifest.json at obsidianmd/obsidian-sample-plugin master (f8667ce): author has
+  // been "Obsidian" since 2020-10-28 ("Licat" before); it never shipped "Your Name" (quality audit 2026-11-17).
+  assert.deepEqual(SAMPLE_PLUGIN_DEFAULTS, { id: 'sample-plugin', name: 'Sample Plugin', description: 'Demonstrates some of the capabilities of the Obsidian API.', author: 'Obsidian' });
 });
 
 test('checkVersionsEntry: present when the manifest version has a matching key', () => {
@@ -207,4 +209,10 @@ test('buildReport: a missing versions.json entry blocks ok', () => {
   });
   assert.equal(report.ok, false);
   assert.equal(report.versionsEntry.status, 'missing');
+});
+
+test('unsafe DOM: += and an assignment after a URL string are flagged (quality audit 2026-11-17)', () => {
+  const files = [{ path: 'src/a.ts', content: "el.innerHTML += item;\nconst u = 'https://x.y'; el.innerHTML = u;\n// el.innerHTML = 'in a comment';" }];
+  const lines = detectUnsafeDom(files).map((f) => f.line).sort();
+  assert.deepEqual(lines, [1, 2]);
 });

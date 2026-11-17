@@ -655,6 +655,12 @@ residual at a 5 N drag falls from 0.830 to 0.485 mm, and over 0 to 20 N the wors
 waist, which only the tool's wrench loads. Holding the nailer, the G1's wrist pitch already
 exceeds its 5 N m rating in the model at 7 of 14 poses.
 
+That floor is the waist's own backlash (milestone 39). With the squeeze and the leg preload, a
+braked waist takes the G1's worst residual at a 5 N drag from 0.485 to 0.012 mm and its 0 to
+10 N stack loss from 5.80 to 0.04 points; a waist gearbox with 1 arcmin of backlash gives 0.106 mm
+and 0.11 points. Making only the waist roll and pitch rigid, as on the base G1, leaves 0.485 mm:
+the joint that flips is the yaw. With the pre-2017 sensor a braked waist still leaves 0.873 mm.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every

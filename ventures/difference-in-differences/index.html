@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23573f86'/%3E%3Ctext%20x='16'%20y='22'%20font-size='14'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EDiD%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Difference-in-Differences Calculator Online: Staggered DiD, Event Study, Bacon Decomposition</title>
+  <meta name="description" content="Free difference-in-differences tool for policies or changes adopted at different times. Upload a panel CSV and get Callaway and Sant'Anna group-time effects, an event-study plot with a simultaneous band, a pre-trends test, the two-way fixed effects estimate and its Goodman-Bacon decomposition. Matches R's did and fixest. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Difference-in-differences in your browser, built for staggered adoption">
+  <meta property="og:description" content="Group-time effects, event study, pre-trends test and a Goodman-Bacon decomposition that shows when the usual two-way fixed effects regression compares treated units with already-treated ones. Free and private.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Difference-in-differences with staggered adoption", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Upload a long panel CSV (one row per unit and period) with the period each unit was first treated, and get Callaway and Sant'Anna group-time average treatment effects, simple, event-time and cohort aggregations with standard errors, an event-study plot with a simultaneous confidence band, a Wald pre-test of parallel trends, the two-way fixed effects estimate with clustered standard errors and its Goodman-Bacon decomposition. Runs in your browser.", "featureList": "difference-in-differences calculator, staggered difference-in-differences, Callaway Sant'Anna estimator online, event study plot, parallel trends test, Goodman-Bacon decomposition, two-way fixed effects bias, not-yet-treated controls, anticipation, cluster-robust standard errors, CSV download", "citation": ["https://doi.org/10.1016/j.jeconom.2020.12.001", "https://doi.org/10.1016/j.jeconom.2021.03.014", "https://www.jstor.org/stable/2118030", "https://doi.org/10.3368/jhr.48.3.821"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does difference-in-differences answer?", "acceptedAnswer": {"@type": "Answer", "text": "Whether units that adopted a policy or change (states, stores, schools, customers) moved differently afterwards from units that had not, beyond the trend both groups shared. The effect is the change in the treated group minus the change in the comparison group over the same periods."}}, {"@type": "Question", "name": "What is wrong with the usual two-way fixed effects regression?", "acceptedAnswer": {"@type": "Answer", "text": "When units are treated at different times, the regression of the outcome on a treatment dummy with unit and period effects is a weighted average of every two-group, two-period comparison, including comparisons that use already-treated units as controls. If the effect grows or fades over time, those comparisons subtract part of the effect, and the regression can even get the sign wrong. The Goodman-Bacon decomposition on this page shows how much weight those comparisons carry in your data."}}, {"@type": "Question", "name": "What does the Callaway and Sant'Anna estimator do instead?", "acceptedAnswer": {"@type": "Answer", "text": "It estimates a separate effect for every cohort (the units first treated in the same period) in every period, each from a clean comparison with never-treated or not-yet-treated units, and only then averages them with weights you can see: overall, by time since treatment (the event study) or by cohort."}}, {"@type": "Question", "name": "What data do I need?", "acceptedAnswer": {"@type": "Answer", "text": "A long, balanced panel: one row per unit and period, a numeric period column, the outcome, and either the first period each unit was treated (0 or blank for never) or a 0/1 treatment column that switches on and stays on. Units missing a period are dropped. Several periods before treatment make the pre-trends check meaningful."}}, {"@type": "Question", "name": "How do I check parallel trends?", "acceptedAnswer": {"@type": "Answer", "text": "Look at the pre-treatment points of the event study: if the treated cohorts were already drifting away from the comparison group before treatment, the estimates left of zero will not hover around zero. The joint Wald pre-test summarises them. Passing it does not prove parallel trends, and a small sample can pass it by having little power."}}, {"@type": "Question", "name": "Why does the tool warn about one-unit cohorts?", "acceptedAnswer": {"@type": "Answer", "text": "With one unit in a cohort there is no way to estimate how much that unit moves around by chance, so the standard errors of its estimates reflect only the comparison group and are too small. The pre-test is not reported in that case. Setting the minimum cohort size to 2 leaves such cohorts out."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analysed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #211c2c; background: #f4f2f7; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #573f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #36265a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #36265a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #574f63; }
+    .card { background: #fff; border: 1px solid #ddd7e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #36265a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #7d7290; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #573f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #ebe6f3; color: #36265a; }
+    button:disabled { opacity: .6; cursor: default; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #eeeaf3; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #574f63; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #ddd7e6; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #7d7290; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; }
+    .summary { font-size: 1.02rem; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    .legend { font-size: .82rem; color: #574f63; margin: 4px 0 0; }
+    .sw { display: inline-block; width: 14px; height: 3px; vertical-align: middle; margin: 0 4px 0 10px; }
+    pre { background: #f6f4f9; border: 1px solid #e4dfec; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">DIFFERENCE-IN-DIFFERENCES · STAGGERED ADOPTION · CALLAWAY &amp; SANT'ANNA · GOODMAN-BACON · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Did the change move the outcome, when units adopted it at different times?</h1>
+    <p>States pass a law in different years, stores get a new layout in different months, schools adopt a programme one cohort at a time. Upload a panel of every unit over time with the period each was first treated. You get a <strong>clean effect for every cohort and period</strong> (Callaway &amp; Sant'Anna), an <strong>event-study plot</strong> with pointwise and simultaneous bands, a <strong>pre-trends test</strong>, the familiar <strong>two-way fixed effects</strong> estimate, and its <strong>Goodman-Bacon decomposition</strong>, which shows how much of that estimate comes from comparing late adopters with units already treated.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Statistical output from data you supply, not advice. Not legal, tax, or financial advice, and not medical or policy advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your panel</h2>
+    <label for="csv">Long-format CSV with a header row: one row per unit and period (for example <code>state,year,outcome,first_treated</code>)</label>
+    <textarea id="csv" spellcheck="false" placeholder="state,year,sales,first_treated&#10;Ohio,2015,120.2,2018&#10;Iowa,2015,98.5,0&#10;..."></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.txt,text/csv">
+    <button type="button" class="secondary" id="load-example">Load example: castle-doctrine laws and state homicide rates, 2000-2010</button>
+    <p class="note" id="data-status">Paste a panel or load the example.</p>
+
+    <div class="grid">
+      <div><label for="unit">Unit column</label><select id="unit"></select></div>
+      <div><label for="time">Time column (numbers)</label><select id="time"></select></div>
+      <div><label for="outcome">Outcome column</label><select id="outcome"></select></div>
+      <div><label for="mode">Treatment is given as</label><select id="mode"><option value="cohort" selected>First treated period (0 or blank = never)</option><option value="treatment">A 0/1 column that stays on</option></select></div>
+      <div><label for="tcol">Treatment column</label><select id="tcol"></select></div>
+      <div><label for="control">Comparison group</label><select id="control"><option value="never" selected>Never-treated units</option><option value="notyet">Never and not-yet-treated units</option></select></div>
+      <div><label for="base">Pre-treatment comparisons</label><select id="base"><option value="varying" selected>Each period vs the one before</option><option value="universal">All vs the last untreated period</option></select></div>
+      <div><label for="anticipation">Anticipation (periods)</label><input id="anticipation" type="number" min="0" step="1" value="0" inputmode="numeric"></div>
+      <div><label for="mincohort">Minimum cohort size</label><select id="mincohort"><option value="1" selected>Keep every cohort</option><option value="2">Drop one-unit cohorts</option><option value="5">Drop cohorts under 5 units</option></select></div>
+    </div>
+    <button type="button" id="analyze">Estimate</button>
+    <p id="status" class="note" role="status"></p>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="summary" id="summary"></p>
+    <div id="warnings"></div>
+    <div class="charts">
+      <div>
+        <h3>Event study</h3>
+        <div id="event-chart" role="img" aria-label="Estimated effect by periods since treatment, with pointwise 95% intervals and a wider simultaneous band"></div>
+        <p class="legend"><span class="sw" style="background:#573f86"></span>estimate and 95% interval <span class="sw" style="background:#d8cfe8;height:8px"></span>simultaneous band</p>
+      </div>
+      <div>
+        <h3>Average outcome by cohort</h3>
+        <div id="path-chart" role="img" aria-label="Average outcome of each cohort and of the never-treated units over time"></div>
+        <p class="legend" id="path-legend"></p>
+      </div>
+    </div>
+    <h3>Overall effect</h3>
+    <div class="scroll"><table id="overall-table"><thead><tr><th>Aggregation</th><th class="n">Estimate</th><th class="n">SE</th><th class="n">95% CI</th></tr></thead><tbody></tbody></table></div>
+    <div class="charts">
+      <div>
+        <h3>By cohort</h3>
+        <div class="scroll"><table id="group-table"><thead><tr><th>First treated</th><th class="n">Units</th><th class="n">Effect</th><th class="n">SE</th></tr></thead><tbody></tbody></table></div>
+      </div>
+      <div>
+        <h3>What the two-way fixed effects regression averages</h3>
+        <div class="scroll"><table id="bacon-table"><thead><tr><th>Comparison</th><th class="n">Weight</th><th class="n">Average 2x2</th></tr></thead><tbody></tbody></table></div>
+        <div id="bacon-chart" role="img" aria-label="Each two-group comparison inside the two-way fixed effects estimate, by its weight and its estimate"></div>
+        <p class="legend"><span class="sw" style="background:#573f86"></span>vs never treated <span class="sw" style="background:#2f8a6c"></span>earlier vs later <span class="sw" style="background:#c4572f"></span>later vs already treated</p>
+      </div>
+    </div>
+    <h3>Every group-time effect</h3>
+    <div class="scroll"><table id="attgt-table"><thead><tr><th>Cohort</th><th class="n">Period</th><th class="n">Since treatment</th><th class="n">ATT</th><th class="n">SE</th><th class="n">Treated</th><th class="n">Controls</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" class="secondary" id="download">Download the event study and group-time effects (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p>Units first treated in period <em>g</em> form cohort <em>g</em>. For each cohort and period <em>t</em>, the <strong>group-time effect</strong> ATT(<em>g</em>,<em>t</em>) is the change in the cohort's average outcome from a base period to <em>t</em>, minus the same change for the comparison group (Callaway &amp; Sant'Anna 2021). After treatment the base is the last period before it (moved earlier by the anticipation window); before treatment it is the previous period, or the same last untreated period with the universal option. The comparison group is either units never treated in the data, or those plus units not yet treated by <em>t</em>. Each estimate is a 2x2 difference-in-differences in the sense of Card &amp; Krueger (1994), made only between units it is fair to compare.</p>
+    <p>Standard errors come from each estimate's <strong>influence function</strong>, clustered by unit. The <strong>overall</strong> effect averages post-treatment ATT(<em>g</em>,<em>t</em>) with weights proportional to cohort size; the <strong>event study</strong> averages those with the same time since treatment; the <strong>cohort</strong> effects average each cohort's post-treatment periods. Their standard errors include the extra term for estimating the cohort shares, as in the paper. The simultaneous band uses a multiplier bootstrap (Mammen weights, 999 draws, fixed seed) for the critical value of the largest standardised deviation across event times. The <strong>pre-test</strong> is a Wald test that every pre-treatment ATT(<em>g</em>,<em>t</em>) is zero; when their covariance is singular, as R's <code>did</code> also finds, the test uses the pre-treatment event-time averages instead and says so.</p>
+    <p>The <strong>two-way fixed effects</strong> estimate regresses the outcome on the treatment dummy with unit and period effects, with unit-clustered standard errors (the small-sample factor of R's <code>fixest</code>). Goodman-Bacon (2021) showed that in a balanced panel it equals a weighted average of every 2x2 comparison: each cohort against never-treated units, earlier against later cohorts before the later ones start, and later cohorts against <strong>already-treated</strong> ones. The weights grow with group size and with how close to the middle of the panel treatment starts. The page lists every comparison and checks that the weights sum to one and rebuild the coefficient.</p>
+    <p>Verified by tests in the source against <strong>csdid 0.4.5</strong> (MIT), a Python port of R's <code>did</code> package by the method's authors, and <strong>pyfixest 0.70.0</strong> (MIT): on the castle-doctrine example and a simulated panel, every ATT(<em>g</em>,<em>t</em>), standard error, aggregation and pre-test statistic agrees within 1e-9, for never-treated and not-yet-treated comparisons and both base-period choices, and the two-way fixed effects coefficient and clustered standard error agree within 1e-9. Planted-effect panels recover the planted effect exactly, and the decomposition rebuilds the regression coefficient on 25 random panels.</p>
+    <h3>Limits</h3>
+    <ul>
+      <li><strong>Parallel trends, unconditionally.</strong> Without covariates, the comparison group must be on the same path the treated cohorts would have followed. Covariate-adjusted (doubly robust) estimation is not offered yet.</li>
+      <li><strong>Treatment stays on.</strong> Units that switch treatment off are refused; designs with reversals need other estimators.</li>
+      <li><strong>Balanced panels.</strong> Units missing a period are dropped, with a note.</li>
+      <li><strong>Small cohorts.</strong> A one-unit cohort's standard errors are too small, because its own noise cannot be estimated; inference with few treated or few control units is rough.</li>
+      <li><strong>No spillovers.</strong> Comparison units must not be affected by the treated units' change.</li>
+    </ul>
+    <h3>BibTeX</h3>
+    <pre>@article{callaway2021difference,
+  author  = {Callaway, Brantly and Sant'Anna, Pedro H. C.},
+  title   = {Difference-in-Differences with Multiple Time Periods},
+  journal = {Journal of Econometrics},
+  volume  = {225}, number = {2}, pages = {200--230}, year = {2021},
+  doi     = {10.1016/j.jeconom.2020.12.001}
+}
+@article{goodmanbacon2021difference,
+  author  = {Goodman-Bacon, Andrew},
+  title   = {Difference-in-Differences with Variation in Treatment Timing},
+  journal = {Journal of Econometrics},
+  volume  = {225}, number = {2}, pages = {254--277}, year = {2021},
+  doi     = {10.1016/j.jeconom.2021.03.014}
+}
+@article{card1994minimum,
+  author  = {Card, David and Krueger, Alan B.},
+  title   = {Minimum Wages and Employment: A Case Study of the Fast-Food Industry in {New Jersey} and {Pennsylvania}},
+  journal = {American Economic Review},
+  volume  = {84}, number = {4}, pages = {772--793}, year = {1994}
+}
+@article{cheng2013castle,
+  author  = {Cheng, Cheng and Hoekstra, Mark},
+  title   = {Does Strengthening Self-Defense Law Deter Crime or Escalate Violence? Evidence from Expansions to Castle Doctrine},
+  journal = {Journal of Human Resources},
+  volume  = {48}, number = {3}, pages = {821--854}, year = {2013},
+  doi     = {10.3368/jhr.48.3.821}
+}</pre>
+    <p class="note">Example data: log homicides per 100,000 people for the 50 US states, 2000-2010, from the FBI Uniform Crime Reports, with the first full year each state's castle-doctrine law was in force, as compiled by Cheng &amp; Hoekstra (2013) and redistributed in the MIT-licensed <code>causaldata</code> Python package; provenance in <code>data/SOURCE.md</code>. States are numbered as in that file. The example uses no covariates, weights or region-by-year effects, so it is a teaching example, not a replication of the paper.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What does difference-in-differences answer?</h3>
+    <p>Whether units that adopted a policy or change (states, stores, schools, customers) moved differently afterwards from units that had not, beyond the trend both groups shared. The effect is the change in the treated group minus the change in the comparison group over the same periods.</p>
+    <h3>What is wrong with the usual two-way fixed effects regression?</h3>
+    <p>When units are treated at different times, the regression of the outcome on a treatment dummy with unit and period effects is a weighted average of every two-group, two-period comparison, including comparisons that use already-treated units as controls. If the effect grows or fades over time, those comparisons subtract part of the effect, and the regression can even get the sign wrong. The Goodman-Bacon decomposition on this page shows how much weight those comparisons carry in your data.</p>
+    <h3>What does the Callaway and Sant'Anna estimator do instead?</h3>
+    <p>It estimates a separate effect for every cohort (the units first treated in the same period) in every period, each from a clean comparison with never-treated or not-yet-treated units, and only then averages them with weights you can see: overall, by time since treatment (the event study) or by cohort.</p>
+    <h3>What data do I need?</h3>
+    <p>A long, balanced panel: one row per unit and period, a numeric period column, the outcome, and either the first period each unit was treated (0 or blank for never) or a 0/1 treatment column that switches on and stays on. Units missing a period are dropped. Several periods before treatment make the pre-trends check meaningful.</p>
+    <h3>How do I check parallel trends?</h3>
+    <p>Look at the pre-treatment points of the event study: if the treated cohorts were already drifting away from the comparison group before treatment, the estimates left of zero will not hover around zero. The joint Wald pre-test summarises them. Passing it does not prove parallel trends, and a small sample can pass it by having little power.</p>
+    <h3>Why does the tool warn about one-unit cohorts?</h3>
+    <p>With one unit in a cohort there is no way to estimate how much that unit moves around by chance, so the standard errors of its estimates reflect only the comparison group and are too small. The pre-test is not reported in that case. Setting the minimum cohort size to 2 leaves such cohorts out.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The file is read and analysed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+</main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician or economist. Results are statistical estimates from the data you enter; they do not establish what caused any outcome, and they are not medical or policy advice. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, the did, csdid, fixest or pyfixest projects, or any software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs panel.csv --unit state --time year --outcome y --cohort first_treated</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/difference-in-differences" rel="noopener">source</a>.</p>
+    <p>More causal and research tools on your own data: <a href="../synthetic-control/">synthetic control</a> for a single treated unit, the <a href="../changepoint-detector/">changepoint detector</a> for when a series changed, <a href="../meta-analysis/">meta-analysis</a> to pool studies, and <a href="../fdr-multiple-testing/">multiple testing correction</a> for many results at once.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, parseCsv } from "./engine.mjs";
+    import { EXAMPLE_CSV, EXAMPLE_SPEC } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const fmt = (x, d = 3) => (Number.isFinite(x) ? Number(x.toFixed(d)).toLocaleString("en-US", { maximumFractionDigits: d }) : "n/a");
+    const COLORS = ["#573f86", "#2f8a6c", "#c4572f", "#2b6cb0", "#b5862a", "#8e3b74", "#4f7a28", "#a33b3b"];
+    let parsed = null;
+    let last = null;
+
+    const opts = (list) => list.map((c) => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+    const isNum = (col) => parsed.records.slice(0, 300).filter((r) => r[col] !== "").every((r) => Number.isFinite(Number(String(r[col]).replace(/,/g, ""))));
+
+    function refreshColumns() {
+      const text = $("#csv").value;
+      if (!text.trim()) { parsed = null; $("#data-status").textContent = "Paste a panel or load the example."; return; }
+      try { parsed = parseCsv(text); } catch (e) { parsed = null; $("#data-status").textContent = e.message; return; }
+      const h = parsed.header;
+      const numeric = h.filter(isNum);
+      const textCols = h.filter((c) => !numeric.includes(c));
+      const pick = (re, pool, fallback) => pool.find((c) => re.test(c)) || fallback;
+      const prev = { u: $("#unit").value, t: $("#time").value, y: $("#outcome").value, d: $("#tcol").value };
+      $("#unit").innerHTML = opts(h);
+      $("#time").innerHTML = opts(numeric);
+      $("#outcome").innerHTML = opts(numeric);
+      $("#tcol").innerHTML = opts(h);
+      $("#unit").value = h.includes(prev.u) ? prev.u : pick(/^(unit|state|country|region|city|store|school|id|name|county)$/i, h, textCols[0] || h[0]);
+      $("#time").value = numeric.includes(prev.t) ? prev.t : pick(/^(year|time|period|date|month|week|quarter|t)$/i, numeric, numeric[0] || "");
+      $("#tcol").value = h.includes(prev.d) ? prev.d : pick(/(first.?treat|cohort|^g$|adopt|effyear|start)/i, h, pick(/^(treat|treated|post|d)$/i, h, h[h.length - 1]));
+      $("#mode").value = /^(treat|treated|post|d)$/i.test($("#tcol").value) ? "treatment" : "cohort";
+      $("#outcome").value = numeric.includes(prev.y) ? prev.y : numeric.find((c) => ![$("#time").value, $("#unit").value, $("#tcol").value].includes(c)) || "";
+      const nUnits = new Set(parsed.records.map((r) => r[$("#unit").value])).size;
+      $("#data-status").textContent = `${parsed.records.length} rows, ${h.length} columns, ${nUnits} units.`;
+    }
+    $("#csv").addEventListener("input", refreshColumns);
+    $("#file").addEventListener("change", async (event) => {
+      const f = event.target.files && event.target.files[0];
+      if (!f) return;
+      $("#csv").value = await f.text();
+      refreshColumns();
+    });
+
+    function inputs() {
+      const mode = $("#mode").value;
+      return {
+        csv: $("#csv").value, unit: $("#unit").value, time: $("#time").value, outcome: $("#outcome").value,
+        cohort: mode === "cohort" ? $("#tcol").value : null, treatment: mode === "treatment" ? $("#tcol").value : null,
+        control: $("#control").value, base: $("#base").value, anticipation: Number($("#anticipation").value) || 0, minCohort: Number($("#mincohort").value) || 1,
+      };
+    }
+
+    function frame(W, H, L, R, T, B, lo, hi, xs) {
+      const y = (v) => T + (1 - (v - lo) / (hi - lo)) * (H - T - B);
+      let g = "";
+      for (let i = 0; i <= 5; i++) {
+        const v = lo + ((hi - lo) * i) / 5;
+        g += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="#f0edf5"/><text x="${L - 6}" y="${y(v) + 4}" font-size="11" text-anchor="end" fill="#574f63">${esc(fmt(v, Math.abs(hi - lo) < 1 ? 3 : Math.abs(hi - lo) < 10 ? 2 : 0))}</text>`;
+      }
+      if (lo < 0 && hi > 0) g += `<line x1="${L}" x2="${W - R}" y1="${y(0)}" y2="${y(0)}" stroke="#8d839c"/>`;
+      return { y, g };
+    }
+    const range = (vals) => { let lo = Math.min(...vals), hi = Math.max(...vals); if (lo === hi) { lo -= 1; hi += 1; } const p = (hi - lo) * 0.06; return [lo - p, hi + p]; };
+
+    function eventChart(el, rows) {
+      const W = 480, H = 300, L = 58, R = 12, T = 12, B = 40;
+      const vals = rows.flatMap((r) => [r.lo, r.hi, r.ulo ?? r.lo, r.uhi ?? r.hi, 0]).filter(Number.isFinite);
+      const [lo, hi] = range(vals);
+      const es = rows.map((r) => r.e);
+      const e0 = Math.min(...es), e1 = Math.max(...es);
+      const x = (e) => L + ((e - e0 + 0.5) / (e1 - e0 + 1)) * (W - L - R);
+      const { y, g: grid } = frame(W, H, L, R, T, B, lo, hi);
+      let g = grid;
+      g += `<line x1="${x(-0.5)}" x2="${x(-0.5)}" y1="${T}" y2="${H - B}" stroke="#8d839c" stroke-dasharray="4 3"/>`;
+      for (const r of rows) {
+        if (Number.isFinite(r.ulo)) g += `<rect x="${x(r.e) - 7}" y="${y(r.uhi)}" width="14" height="${Math.max(1, y(r.ulo) - y(r.uhi))}" fill="#d8cfe8"/>`;
+        if (!r.reference) g += `<line x1="${x(r.e)}" x2="${x(r.e)}" y1="${y(r.hi)}" y2="${y(r.lo)}" stroke="${r.e < 0 ? "#8d839c" : "#573f86"}" stroke-width="2"/>`;
+        g += `<circle cx="${x(r.e)}" cy="${y(r.att)}" r="4" fill="${r.reference ? "#fff" : r.e < 0 ? "#8d839c" : "#573f86"}" stroke="#573f86"/>`;
+      }
+      const step = Math.max(1, Math.ceil(rows.length / 12));
+      rows.forEach((r, i) => { if (i % step === 0) g += `<text x="${x(r.e)}" y="${H - 22}" font-size="11" text-anchor="middle" fill="#574f63">${r.e}</text>`; });
+      g += `<text x="${(L + W - R) / 2}" y="${H - 6}" font-size="11" text-anchor="middle" fill="#574f63">periods since treatment</text>`;
+      el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${g}</svg>`;
+    }
+
+    function pathChart(el, r) {
+      const W = 480, H = 300, L = 58, R = 12, T = 12, B = 36;
+      const times = r.periods;
+      const [lo, hi] = range(r.paths.flatMap((p) => p.mean));
+      const x = (t) => L + ((t - times[0]) / (times[times.length - 1] - times[0] || 1)) * (W - L - R);
+      const { y, g: grid } = frame(W, H, L, R, T, B, lo, hi);
+      let g = grid;
+      const step = Math.max(1, Math.ceil(times.length / 8));
+      times.forEach((t, i) => { if (i % step === 0) g += `<text x="${x(t)}" y="${H - 14}" font-size="11" text-anchor="middle" fill="#574f63">${esc(t)}</text>`; });
+      r.paths.forEach((p, k) => {
+        const color = p.g === 0 ? "#211c2c" : COLORS[k % COLORS.length];
+        g += `<polyline fill="none" stroke="${color}" stroke-width="${p.g === 0 ? 2.6 : 1.6}"${p.g === 0 ? ' stroke-dasharray="6 3"' : ""} points="${p.mean.map((v, i) => `${x(times[i]).toFixed(1)},${y(v).toFixed(1)}`).join(" ")}"/>`;
+        if (p.g !== 0) g += `<circle cx="${x(p.g)}" cy="${y(p.mean[times.indexOf(p.g)])}" r="3.5" fill="${color}"/>`;
+      });
+      el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${g}</svg>`;
+      $("#path-legend").innerHTML = r.paths.map((p, k) => `<span class="sw" style="background:${p.g === 0 ? "#211c2c" : COLORS[k % COLORS.length]}"></span>${p.g === 0 ? "never treated" : `first treated ${esc(p.g)}`} (${p.units})`).join(" ") + " · dots mark each cohort's first treated period";
+    }
+
+    function baconChart(el, comps) {
+      if (!comps.length) { el.innerHTML = ""; return; }
+      const W = 480, H = 240, L = 58, R = 12, T = 12, B = 36;
+      const [lo, hi] = range(comps.map((c) => c.estimate).concat(0));
+      const wmax = Math.max(...comps.map((c) => c.weight)) * 1.08;
+      const x = (w) => L + (w / wmax) * (W - L - R);
+      const { y, g: grid } = frame(W, H, L, R, T, B, lo, hi);
+      let g = grid;
+      const col = { "treated vs never treated": "#573f86", "earlier vs later treated": "#2f8a6c", "later vs already treated": "#c4572f" };
+      for (const c of comps) g += `<circle cx="${x(c.weight)}" cy="${y(c.estimate)}" r="4.5" fill="${col[c.type]}" fill-opacity=".8"><title>${esc(c.type)}: ${esc(c.treated)} vs ${esc(c.control)}, weight ${fmt(c.weight)}, estimate ${fmt(c.estimate)}</title></circle>`;
+      g += `<text x="${(L + W - R) / 2}" y="${H - 8}" font-size="11" text-anchor="middle" fill="#574f63">weight in the regression</text>`;
+      el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${g}</svg>`;
+    }
+
+    function render(r) {
+      $("#results").hidden = false;
+      $("#summary").textContent = r.summary;
+      $("#warnings").innerHTML = r.notes.map((n) => `<p class="warn">${esc(n)}</p>`).join("");
+      eventChart($("#event-chart"), r.eventStudy);
+      pathChart($("#path-chart"), r);
+      const row = (name, x) => (x ? `<tr><td>${name}</td><td class="n">${fmt(x.att)}</td><td class="n">${fmt(x.se)}</td><td class="n">${fmt(x.lo)} to ${fmt(x.hi)}</td></tr>` : "");
+      $("#overall-table").querySelector("tbody").innerHTML = row("All post-treatment cells, weighted by cohort size", r.overall) + row("Average of the event study (0 and later)", r.dynamicAverage) + row("Average of the cohort effects", r.groupAverage) + row("Two-way fixed effects regression", r.twfe && { att: r.twfe.beta, se: r.twfe.se, lo: r.twfe.lo, hi: r.twfe.hi }) + (r.pretest ? `<tr><td colspan="4" class="note">Pre-test (${esc(r.pretest.level)}): chi-square ${fmt(r.pretest.statistic, 2)} on ${r.pretest.df} df, p = ${fmt(r.pretest.pValue)}</td></tr>` : "");
+      $("#group-table").querySelector("tbody").innerHTML = r.groups.map((g) => `<tr><td>${esc(g.g)}</td><td class="n">${g.units}</td><td class="n">${fmt(g.att)}</td><td class="n">${fmt(g.se)}</td></tr>`).join("");
+      $("#bacon-table").querySelector("tbody").innerHTML = r.bacon ? r.bacon.byType.map((b) => `<tr><td>${esc(b.type)} (${b.comparisons})</td><td class="n">${(100 * b.weight).toFixed(1)}%</td><td class="n">${fmt(b.estimate)}</td></tr>`).join("") : `<tr><td colspan="3" class="note">No timing variation to decompose.</td></tr>`;
+      baconChart($("#bacon-chart"), r.bacon ? r.bacon.components : []);
+      $("#attgt-table").querySelector("tbody").innerHTML = r.attgt.map((c) => `<tr><td>${esc(c.g)}</td><td class="n">${esc(c.t)}</td><td class="n">${c.e}</td><td class="n">${fmt(c.att)}</td><td class="n">${fmt(c.se)}</td><td class="n">${c.nTreated}</td><td class="n">${c.nControl}</td></tr>`).join("");
+    }
+
+    function runAnalysis() {
+      $("#status").textContent = "";
+      try {
+        last = analyze(inputs());
+        render(last);
+        $("#status").textContent = `Done: ${last.units} units, ${last.cohorts.length} cohorts, ${last.attgt.length} group-time effects.`;
+        return true;
+      } catch (e) {
+        $("#results").hidden = true;
+        $("#status").textContent = e.message;
+        return false;
+      }
+    }
+    $("#analyze").addEventListener("click", () => {
+      $("#analyze").disabled = true;
+      $("#status").textContent = "Estimating every group-time effect and the bootstrap band...";
+      setTimeout(() => { if (runAnalysis()) record("analysis_run"); $("#analyze").disabled = false; }, 20);
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#csv").value = EXAMPLE_CSV;
+      refreshColumns();
+      $("#unit").value = EXAMPLE_SPEC.unit;
+      $("#time").value = EXAMPLE_SPEC.time;
+      $("#outcome").value = EXAMPLE_SPEC.outcome;
+      $("#mode").value = "cohort";
+      $("#tcol").value = EXAMPLE_SPEC.cohort;
+      if (runAnalysis()) { record("example_loaded"); $("#data-status").textContent = "Example: log homicide rate in the 50 US states, 2000-2010; 21 states first had a castle-doctrine law in force for a full year between 2006 and 2010. Try 'Drop one-unit cohorts' to see the pre-test."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const f = (v) => (Number.isFinite(v) ? v : "");
+      const lines = ["kind,cohort,period,event_time,att,se,ci_low,ci_high,band_low,band_high",
+        ...last.eventStudy.map((e) => ["event", "", "", e.e, f(e.att), f(e.se), f(e.lo), f(e.hi), f(e.ulo), f(e.uhi)].join(",")),
+        ...last.attgt.map((c) => ["group-time", c.g, c.t, c.e, f(c.att), f(c.se), "", "", "", ""].join(","))];
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([lines.join("\n") + "\n"], { type: "text/csv" }));
+      a.download = "difference-in-differences.csv";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

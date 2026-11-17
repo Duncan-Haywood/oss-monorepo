@@ -147,3 +147,69 @@ test("loadEngine sets the threshold method on every reading, back to Otsu when a
     assert.deepEqual(set, [{ tessedit_pageseg_mode: "6", thresholding_method: "0" }, { tessedit_pageseg_mode: "6", thresholding_method: "2" }, { tessedit_pageseg_mode: "4", thresholding_method: "0" }]);
   } finally { globalThis.Tesseract = had; }
 });
+
+// 2026-11-17 red team: the lines around a swapped tax or total line are all kept
+test("the tax and total swaps keep the first reading's other lines, above and below", async () => {
+  const { settleReadings: settle } = await import("./photoocr.mjs");
+  // a tax line read wrong is replaced in place; the merchant above and the footer below stay
+  const tax = settle(["Diner\nBurger 13.50\nTAX: 0.68\nTotal 14.36\nThank you", "Diner\nBurger 13.50\nTAX: 0.86\nTotal 14.36", "Burger 13.50\nTAX: 0.86\nTotal 14.36"]);
+  assert.equal(tax.text, "Diner\nBurger 13.50\nTax 0.86\nTotal 14.36\nThank you");
+  // a total line read wrong is replaced in place, and the line after it stays
+  const total = settle(["Diner\nSubtotal 13.50\nTotal 14.63\nThank you", "Diner\nSubtotal 13.50\nTax 0.86\nTotal 14.36", "Subtotal 13.50\nTax 0.86\nTotal 14.36"]);
+  assert.equal(total.text, "Diner\nSubtotal 13.50\nTax 0.86\nTotal 14.36\nThank you");
+});
+
+test("lightSpread: no pixels, or one even grey, is 0", async () => {
+  const { lightSpread } = await import("./photoocr.mjs");
+  assert.equal(lightSpread(new Uint8Array(0)), 0);
+  assert.equal(lightSpread(new Uint8Array(16).fill(200)), 0);
+  assert.ok(Math.abs(lightSpread(Uint8Array.from([50, 150])) - 0.5) < 1e-9);
+});
+
+// a browser stand-in: createImageBitmap gives a photo of the given size, a canvas records
+// what was drawn on it, and tesseract echoes back what it was handed
+function fakeBrowser({ width, height }) {
+  const drawn = [];
+  const canvas = () => {
+    const c = { width: 0, height: 0 };
+    c.getContext = () => ({
+      drawImage: (...a) => drawn.push({ canvas: c, args: a.slice(1) }),
+      getImageData: (x, y, w, h) => ({ data: new Uint8ClampedArray(w * h * 4).fill(128) }),
+    });
+    return c;
+  };
+  const saved = { document: globalThis.document, createImageBitmap: globalThis.createImageBitmap, Tesseract: globalThis.Tesseract };
+  globalThis.document = { createElement: () => canvas() };
+  globalThis.createImageBitmap = async () => ({ width, height, close() {} });
+  globalThis.Tesseract = { createWorker: async () => ({ setParameters: async () => {}, recognize: async (img) => ({ data: { text: img === "photo" ? "photo" : `copy ${img.width}x${img.height}` } }), terminate: async () => {} }) };
+  return { drawn, restore: () => Object.assign(globalThis, saved) };
+}
+
+test("loadEngine: the grey copy's long side is the size asked for, and a shrunk copy says so", async () => {
+  const { loadEngine } = await import("./photoocr.mjs");
+  let b = fakeBrowser({ width: 1000, height: 750 });
+  try {
+    const e = await loadEngine();
+    assert.equal(await e.recognize("photo", { psm: "6", grow: 2000 }), "copy 2000x1500");
+    assert.deepEqual(b.drawn.at(-1).args, [0, 0, 2000, 1500]);
+  } finally { b.restore(); }
+  b = fakeBrowser({ width: 3000, height: 4000 });
+  try {
+    const e = await loadEngine();
+    assert.deepEqual(await e.recognize("photo", { psm: "6", grow: 2000 }), { text: "copy 1500x2000", shrunk: true });
+    // a photo already 2,000 on its long side is not read again
+    const same = fakeBrowser({ width: 2000, height: 1000 });
+    try { assert.equal(await (await loadEngine()).recognize("photo", { grow: 2000 }), null); } finally { same.restore(); }
+  } finally { b.restore(); }
+});
+
+test("loadEngine: shading draws the whole photo onto the 32 x 32 thumbnail", async () => {
+  const { loadEngine, SHADE_SIDE } = await import("./photoocr.mjs");
+  const b = fakeBrowser({ width: 1200, height: 1600 });
+  try {
+    const e = await loadEngine();
+    assert.equal(await e.shading("photo"), 0);
+    assert.deepEqual(b.drawn.at(-1).args, [0, 0, SHADE_SIDE, SHADE_SIDE]);
+    assert.equal(b.drawn.at(-1).canvas.width, SHADE_SIDE);
+  } finally { b.restore(); }
+});

@@ -71,6 +71,8 @@ EXPERIMENTS = {
                     17, []),
     "m38_squeeze": ("numpy, scipy, mujoco, Menagerie G1/H1; reads m11 profiles.json, m6b, m27, m35 and m37 results.json",
                     20, []),
+    "m39_waist": ("numpy, scipy, mujoco, Menagerie G1/H1; imports m38_squeeze/run.py and reads its inputs and results.json",
+                  15, []),
 }
 QUICK = [n for n, (needs, mins, _) in EXPERIMENTS.items()
          if mins <= 2 and "mujoco" not in needs and "drake" not in needs]

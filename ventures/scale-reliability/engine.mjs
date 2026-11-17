@@ -479,7 +479,8 @@ export function analyze(input) {
   const opts = { ...DEFAULTS, ...input };
   const confidence = Number(opts.confidence);
   if (!(confidence > 0.5 && confidence < 1)) throw new Error("confidence must be between 0.5 and 1, e.g. 0.95");
-  const reps = Math.max(0, Math.floor(Number(opts.bootstrap) || 0));
+  const reps = opts.bootstrap === null || opts.bootstrap === "" ? 0 : Math.floor(Number(opts.bootstrap));
+  if (!(reps >= 0 && reps <= 20000)) throw new Error("bootstrap must be a whole number from 0 (off) to 20000");
   const d = prepare(opts);
   const n = d.X.length, k = d.items.length;
   if (n < 3) throw new Error(`only ${n} respondent${n === 1 ? "" : "s"} answered every item; need at least 3 (rows with a blank are left out)`);

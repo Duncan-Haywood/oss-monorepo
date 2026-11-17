@@ -28,6 +28,9 @@ _KNOWN_SCHEMES = frozenset({
     "9939", "9940", "9941", "9942", "9943", "9944", "9945", "9946", "9947",
     "9948", "9950", "9951", "9952", "9953", "9955", "9956", "9957", "9958",
     "EM",
+    # In EN 16931's BR-CL-25 EAS list (plain/en16931-ubl.json), added 2026-11-17;
+    # 0225 is the French reform's directory address, 0217 the KVK establishment number.
+    "0147", "0170", "0194", "0203", "0205", "0217", "0225", "9960", "AN", "AQ", "AS", "AU",
 })
 
 
@@ -90,7 +93,7 @@ def inspect_party_endpoint(party: dict[str, Any], party_name: str) -> list[dict[
         findings.append(_finding(
             "INV-041",
             f"{party_name.title()} electronic address does not match the published {scheme} shape.",
-            f"Correct the {scheme} identifier. This is a format typo check, not a directory lookup.",
+            f"Correct the {scheme} identifier{_shape_hint(scheme)}. This is a format typo check, not a directory lookup.",
             f"{path}/id",
         ))
     return findings
@@ -108,21 +111,92 @@ def inspect_party_endpoints(invoice: dict[str, Any]) -> list[dict[str, str]]:
     return findings
 
 
+# Checksummed and fixed-format schemes follow OpenPeppol's fatal PEPPOL-COMMON
+# rules exactly (R040 GLN, R041 0192, R042 0184, R043 0208, R049 0007, R050 0151,
+# R052 0096, R053 0198); mirrors endpoint.mjs and its differential,
+# eval/endpoint-peppol-differential.mjs.
+def _all_digits(value: str, length: int) -> bool:
+    return len(value) == length and value.isascii() and value.isdigit()
+
+
+def _gln_ok(identifier: str) -> bool:
+    if not _all_digits(identifier, 13):
+        return False
+    total = sum(int(digit) * (1 if index % 2 == 0 else 3) for index, digit in enumerate(identifier[:12]))
+    return (10 - (total % 10)) % 10 == int(identifier[12])
+
+
+def _mod11_no(identifier: str) -> bool:
+    if not _all_digits(identifier, 9) or int(identifier) == 0:
+        return False
+    total = sum(int(identifier[7 - i]) * ((i % 6) + 2) for i in range(8))
+    return (11 - (total % 11)) % 11 == int(identifier[8])
+
+
+def _mod97_be(identifier: str) -> bool:
+    if not _all_digits(identifier, 10):
+        return False
+    return int(identifier[8:]) == 97 - (int(identifier[:8]) % 97)
+
+
+def _luhn_se(identifier: str) -> bool:
+    if not _all_digits(identifier, 10):
+        return False
+    total = 0
+    for pos in range(1, 10):
+        digit = int(identifier[9 - pos])
+        total += (digit * 2) % 10 + (digit * 2) // 10 if pos % 2 == 1 else digit
+    return (10 - (total % 10)) % 10 == int(identifier[9])
+
+
+def _abn_ok(identifier: str) -> bool:
+    if not _all_digits(identifier, 11):
+        return False
+    weights = (10, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19)
+    total = sum((int(d) - (1 if i == 0 else 0)) * w for i, (d, w) in enumerate(zip(identifier, weights)))
+    return total % 89 == 0
+
+
+def _dk8(identifier: str) -> bool:
+    return _all_digits(identifier, 8) or (identifier.startswith("DK") and _all_digits(identifier[2:], 8))
+
+
+_SCHEME_CHECKS = {
+    "0088": _gln_ok,
+    "0192": _mod11_no,
+    "0184": _dk8,
+    "0096": lambda value: _all_digits(value, 10),
+    "0198": lambda value: value.startswith("DK") and _all_digits(value[2:], 8),
+    "0208": _mod97_be,
+    "0007": _luhn_se,
+    "0151": _abn_ok,
+}
+
+_SCHEME_SHAPES = {
+    "0088": "13 digits with a GS1 check digit",
+    "0192": "9 digits with a mod-11 check digit, no spaces or MVA",
+    "0184": "8 digits, optionally after DK",
+    "0096": "10 digits",
+    "0198": "DK followed by 8 digits",
+    "0208": "10 digits (the KBO/BCE number with its leading 0), no dots or BE prefix; the last two digits are 97 minus the first eight mod 97",
+    "0007": "10 digits, no hyphen; the last is a Luhn check digit",
+    "0151": "11 digits, no spaces; the ABN checksum must hold",
+}
+
+
+def _shape_hint(scheme: str) -> str:
+    shape = _SCHEME_SHAPES.get(scheme)
+    return f" ({shape})" if shape else ""
+
+
 def _scheme_id_ok(scheme: str, identifier: str) -> bool:
-    if scheme == "0088":
-        return _gln_ok(identifier)
+    check = _SCHEME_CHECKS.get(scheme)
+    if check is not None:
+        return check(identifier)
     if scheme == "EM":
         return _email_ok(identifier)
-    if scheme == "0007":
-        return _digits(identifier, 10)
-    if scheme == "0184":
-        return _digits(identifier, 8)
     if scheme == "0190":
         return _digits(identifier, 20)
-    if scheme == "0192":
-        return _digits(identifier, 9)
-    if scheme == "0208":
-        return _digits(identifier, 10)
     if scheme == "0212":
         compact = "".join(ch for ch in identifier if ch.isalnum())
         return len(compact) in {8, 9} and compact[:-1].isdigit()
@@ -133,15 +207,6 @@ def _scheme_id_ok(scheme: str, identifier: str) -> bool:
 def _digits(identifier: str, length: int) -> bool:
     compact = "".join(ch for ch in identifier if ch.isdigit())
     return len(compact) == length
-
-
-def _gln_ok(identifier: str) -> bool:
-    digits = "".join(ch for ch in identifier if ch.isdigit())
-    if len(digits) != 13:
-        return False
-    total = sum(int(digit) * (1 if index % 2 == 0 else 3) for index, digit in enumerate(digits[:12]))
-    check = (10 - (total % 10)) % 10
-    return check == int(digits[12])
 
 
 def _email_ok(identifier: str) -> bool:

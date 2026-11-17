@@ -55,3 +55,67 @@ def run_year(inp, pressure_nodes, flow_links, level_tanks, steps=YEAR_STEPS):
     finally:
         en.ENclose()
     return P, F, L
+
+
+EN_EMITTER = 3
+CD = 0.75          # orifice discharge coefficient assumed for injected leaks (step 25)
+G = 9.81
+
+
+def emitter_coef(diameter_m):
+    """EPANET emitter coefficient (CMH per m^0.5) of an orifice of this diameter: Q = C sqrt(p)
+    with C = Cd pi d^2 / 4 sqrt(2 g) x 3600."""
+    return CD * np.pi * diameter_m ** 2 / 4 * np.sqrt(2 * G) * 3600.0
+
+
+def leak_shape(i, start, peak, end, kind):
+    """Fraction of the full emitter coefficient at 5-minute index i. Abrupt: 1 on [start, end).
+    Incipient: the diameter grows linearly from start to peak, so the area (and coefficient) as
+    ((i - start) / (peak - start))^2, then 1 until end."""
+    if i < start or i >= end:
+        return 0.0
+    if kind == "incipient" and i < peak:
+        return ((i - start) / max(1, peak - start)) ** 2
+    return 1.0
+
+
+def run_injected(inp, pressure_nodes, leaks, steps=YEAR_STEPS):
+    """Step 25: `run_year` with emitters switched on at junctions. leaks = [(node, C, start, peak,
+    end, kind)] with times as 5-minute indices; each coefficient is set before every hydraulic
+    solve from `leak_shape` at that time. Returns pressures at the sensors [steps, p] and at the
+    leak nodes [steps, len(leaks)], both every 5 minutes."""
+    from wntr.epanet import toolkit
+
+    d = tempfile.mkdtemp(prefix="ltown-inj-")
+    en = toolkit.ENepanet()
+    en.ENopen(str(inp), os.path.join(d, "x.rpt"), os.path.join(d, "x.bin"))
+    try:
+        en.ENsettimeparam(EN_DURATION, (steps - 1) * STEP_S)
+        pn = [en.ENgetnodeindex(n) for n in pressure_nodes]
+        ln = [en.ENgetnodeindex(lk[0]) for lk in leaks]
+        P = np.full((steps, len(pn)), np.nan)
+        PL = np.full((steps, len(ln)), np.nan)
+
+        def set_at(t):
+            i = t // STEP_S
+            for j, (_, c, s, pk, e, kind) in zip(ln, leaks):
+                en.ENsetnodevalue(j, EN_EMITTER, c * leak_shape(i, s, pk, e, kind))
+
+        en.ENopenH()
+        en.ENinitH(0)
+        t = 0
+        set_at(0)
+        while True:
+            t = en.ENrunH()
+            if t % STEP_S == 0 and t // STEP_S < steps:
+                i = t // STEP_S
+                P[i] = [en.ENgetnodevalue(j, EN_PRESSURE) for j in pn]
+                PL[i] = [en.ENgetnodevalue(j, EN_PRESSURE) for j in ln]
+            dt = en.ENnextH()
+            if dt <= 0:
+                break
+            set_at(t + dt)
+        en.ENcloseH()
+    finally:
+        en.ENclose()
+    return P, PL

@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKig4MQEak3LShV5Qgo",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T09:18:21Z",
+  "ended": "2026-11-17T09:24:24Z",
+  "wall_minutes": 6.23,
+  "tokens_in": 4218933,
+  "tokens_out": 33254,
+  "cost_usd": 2.4215,
+  "tool_calls": 40,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16888",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Two of my own unit-test expectations were wrong on first run (forgot the bus also drains the pack); fixed the tests, not the code."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/marine-hull/LOG.md",
+      "issue": "The 'Wave Glider payload budget' item sat in every 'Next' list from 6zj to 6zzz (about 20 milestones) while runs took the first item each time; pick_track's draw has no way to surface a long-deferred item."
+    },
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Milestone naming past 6zzz has no convention; I used 6zzza."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/marine-hull/LOG.md",
+      "why": "6zzz's first 'Next' was a k-aware clamp variant (another 80-minute in-sample tweak in a long chain); I took the last item, the Wave Glider payload budget open since 6zj, because it addresses a caveat attached to the programme's headline Wave Glider comparisons.",
+      "did": "Pre-registered W1 to W9, ran 300 point-years in 8 s.",
+      "result": "Six of nine held; W8 refuted outright (the Wave Glider keeps its high-latitude lead even on payload-on km)."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-marine-hull-wave-glider-payload-power.md",
+    "research/marine-hull/LOG.md (6zzza entry)"
+  ],
+  "goal": null,
+  "notes": "Local checks: tests/test_waveglider_payload.py, test_year_pack.py, test_reserve_curve.py OK; research/_homepage/build.py ok; check_md_links, check_post_links, check_post_frontmatter, research_live_links clean; cite_check ok (1 DOI from cache). No agent doc in docs/reports: LOG.md's Next list carries the handoff.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "13c6b42f-c1be-58db-91af-fc1a54bcae59",
+    "transcripts": 1,
+    "first": "2026-11-17T09:18:21Z",
+    "last": "2026-11-17T09:24:35Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 39,
+        "input": 78,
+        "output": 33254,
+        "thinking": 10453,
+        "cache_read": 4101892,
+        "cache_write_5m": 0,
+        "cache_write_1h": 116963,
+        "api_equivalent_usd": 2.4215,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 39,
+      "input": 78,
+      "output": 33254,
+      "thinking": 10453,
+      "cache_read": 4101892,
+      "cache_write_5m": 0,
+      "cache_write_1h": 116963,
+      "api_equivalent_usd": 2.4215,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 40,
+    "tools": {
+      "Bash": 37,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.23,
+      "active_minutes": 6.23,
+      "model_minutes": 5.5,
+      "tool_minutes": 0.73,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "sourcing SV3 specs already done; writing and pre-registering a 300-mission energy model, tests and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 247.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

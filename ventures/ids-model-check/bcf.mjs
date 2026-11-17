@@ -45,7 +45,10 @@ export function zipStore(files) {
   return out;
 }
 
-const xml = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+// XML 1.0 forbids most C0 controls even as character references, and an IFC
+// name can carry one (STEP's \X\07); one such byte made the whole markup
+// file unreadable, so they are dropped. Lone surrogates likewise.
+const xml = (s) => String(s ?? "").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\ufffe\uffff]|[\ud800-\udbff](?![\udc00-\udfff])|(?<![\ud800-\udbff])[\udc00-\udfff]/g, "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 function uuid() {
   const c = globalThis.crypto;
@@ -76,7 +79,7 @@ export function bcfZip(report, { modelName = "model.ifc", author = "ids-model-ch
         name: `${tid}/markup.bcf`,
         data: `<?xml version="1.0" encoding="UTF-8"?>
 <Markup>
-  <Header><File IfcProject="" isExternal="true"><Filename>${xml(modelName)}</Filename><Date>${xml(date)}</Date></File></Header>
+  <Header><File isExternal="true"><Filename>${xml(modelName)}</Filename><Date>${xml(date)}</Date></File></Header>
   <Topic Guid="${tid}" TopicType="Issue" TopicStatus="Open">
     <Title>${xml(title.slice(0, 250))}</Title>
     <Labels>IDS</Labels>

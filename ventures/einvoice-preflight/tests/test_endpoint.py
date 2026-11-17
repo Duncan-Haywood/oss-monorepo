@@ -76,7 +76,7 @@ class EndpointChecksumTest(unittest.TestCase):
             {"scheme": "0088", "id": "0614141000005"},
             {"scheme": "EM", "id": "ap@customer.example"},
             {"scheme": "0192", "id": "981276957"},
-            {"scheme": "0208", "id": "0123456789"},
+            {"scheme": "0208", "id": "0123456749"},
             {"scheme": "0184", "id": "12345678"},
             {"scheme": "0007", "id": "5566778899"},
             {"scheme": "9930", "id": "DE136695976"},
@@ -204,3 +204,36 @@ class EndpointInvoiceIntegrationTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PeppolCommonRulesTest(unittest.TestCase):
+    """2026-11-17: the checksummed schemes follow OpenPeppol's PEPPOL-COMMON rules.
+
+    Same cases as endpoint.test.mjs (tests/endpoint_peppol_cases.json).
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        import json
+        from pathlib import Path
+
+        cls.cases = json.loads((Path(__file__).with_name("endpoint_peppol_cases.json")).read_text(encoding="utf-8"))
+
+    def test_peppol_valid_ids_pass(self):
+        for scheme, identifier in self.cases["valid"]:
+            with self.subTest(scheme=scheme, id=identifier):
+                self.assertEqual(inspect_party_endpoint({"endpoint": {"scheme": scheme, "id": identifier}}, "customer"), [])
+
+    def test_peppol_invalid_ids_are_inv_041(self):
+        for scheme, identifier in self.cases["invalid"]:
+            with self.subTest(scheme=scheme, id=identifier):
+                findings = inspect_party_endpoint({"endpoint": {"scheme": scheme, "id": identifier}}, "supplier")
+                self.assertEqual([item["rule"] for item in findings], ["INV-041"])
+                self.assertNotIn(identifier, findings[0]["message"])
+                self.assertNotIn(identifier, findings[0]["fix"])
+                self.assertIn("digits", findings[0]["fix"])
+
+    def test_br_cl_25_codes_are_known(self):
+        for scheme in ("0225", "0217", "0147", "0170", "0194", "0203", "0205", "9960", "AN", "AQ", "AS", "AU"):
+            with self.subTest(scheme=scheme):
+                self.assertTrue(looks_like_known_scheme(scheme))

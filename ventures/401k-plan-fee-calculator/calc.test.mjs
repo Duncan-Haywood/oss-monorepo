@@ -106,3 +106,9 @@ test("a typed 0% gross return is used, blank means the 6% default", () => {
   assert.equal(plan({ ...sampleInput(), grossReturn: undefined }).gross, 6);
   assert.equal(plan({ ...sampleInput(), grossReturn: "abc" }).gross, 6);
 });
+
+test("a quoted spreadsheet balance like \"$12,500\" stays one field (redteam 2026-11-17)", () => {
+  const r = parseFunds('"Target 2050, Inst",\"$12,500\",0.12');
+  assert.deepEqual(r.errors, []);
+  assert.deepEqual(r.funds.map((f) => [f.name, f.balance, f.er]), [["Target 2050, Inst", 12500, 0.12]]);
+});

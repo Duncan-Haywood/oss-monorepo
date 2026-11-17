@@ -1,0 +1,240 @@
+{
+ "date": "2026-11-17",
+ "subject": "ventures/ad-slot-sell-through-planner",
+ "stratum": "venture",
+ "seed": "2026-11-17-e4eb",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a newsletter/podcast sponsorship sales or ad-ops manager who plans flat-fee slot inventory each issue (IAB usage: sell-through = sold units / available units; revenue left on the table = unsold units x rate card), paces bookings against a pickup curve and moves the rate card; first checks: sell-through and unsold-value arithmetic, whether the price advice agrees with how full the inventory is, and the pacing projection",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran calc.mjs on the page's own example and on synthetic histories (`node /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/adslot/run.mjs`, `node /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/adslot/r2.mjs`, `node /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/adslot/r3.mjs`) and recomputed by hand from the stated formulas: example sell-through 18/27 = 66.7%, booked $7,300 of $11,550 capacity ($4,250 unsold), recent-4 5/12 = 0.4167 vs prior-4 10/12 = 0.8333; OLS log-log slope with two price levels = (mean ln-rate at 550 - mean at 450)/(ln550-ln450) = (-1.0986+0.6827)/0.2007 = -2.0725 (tool -2.0725); +10% scenario 0.41667*1.1^-2.0725 = 0.3420, $507.84/run (tool identical); pacing at 5 days out interpolates 0.8->0.92 to 0.86, projects 2/0.86 = 2.33 of 4, expected-now 0.8*4*0.86 = 2.752, so 'behind' (tool identical); sold-out anchor 1.15*(f)^-1.2 = 1 at f = 1.1235, grid gives 113 (tool 113). Every number recomputes; the defect is in what the numbers are used to say (domain).",
+  "completeness": "Every feature the README and page list runs end to end in calc.mjs and is wired in index.html: summarize/trend, fitElasticity with censoring and fallback, priceScenarios, recommend (+/-25% cap), pacing, lastMinute, packages, diagnose, opt-out. Gaps: the page says 'Replace [the booking curve] with your own history' but there is no input for it (pacing() accepts a curve; index.html never passes one); an unspaced comma CSV with a 3-digit price ('Mar 3,3,2,400') is rejected because the thousands-separator lookahead eats ',400'. Tab-pasted spreadsheet rows and the spaced placeholder format work.",
+  "verification": "`node --test` in the subject root: 28 tests, 28 pass (calc, page, usage). Four seeded mutants via quality_mutate.py: pacing tolerance 0.5->1.5 SURVIVED, diagnose 'close to sold out' threshold 0.9->0.97 SURVIVED, sold-out excess demand 1.15->1.05 SURVIVED, censoring filter < -> <= CAUGHT. 3 of 4 survived: the thresholds that drive the advice a user acts on are not pinned.",
+  "craft": "Read calc.mjs (188 lines, pure functions, no deps), index.html inline module, usage.mjs, all three test files. Clean, small, escapes labels before innerHTML, guards localStorage. Defects: parseHistory's comma regex (calc.mjs:38) is a heuristic that misreads standard unquoted CSV with 3-digit fields and reports the wrong error ('need label, slots offered...'); a European '1.200,50' price silently becomes 1.2; recommend's grid accumulates f += 0.01 in floating point (harmless here). Footer typo 'an qualified advisor' (index.html:120).",
+  "claims": "Checked: 'Entirely client-side; nothing is uploaded' (backed: page.test.mjs network test, no fetch in code); 'never moves more than 25%' (backed, calc.mjs:122); sold-out and empty runs left out of the fit (backed, calc.mjs:79); '15% excess demand' labelled (backed, calc.mjs:7); disclaimer and no-warranty footer present; usage events plan_run/example_loaded local-only with DNT/GPC honoured (backed, usage.mjs). Not backed: 'Replace it [booking curve] with your own history' (no UI); FAQ 'sell-through above about 90% usually means you are underpriced' is contradicted by the tool's own recommendation, which tells a 97%-sold seller to lower price. llms.txt source links github.io but served-copy.mjs shows the deployed llms.txt points at marisstella.app (source-only, not a defect).",
+  "fitness": "Walked the job as the sales manager: paste 10 runs at $400, 29/30 sold, recent 11/12. The page says 'You are close to sold out ... test a higher price' and, on the same screen, 'Model says lower the price: About $372 per slot'. With the assumed elasticity -1.2 (< -1) any recent run that is not 100% full is told to cut price to the sell-out point, so the headline recommendation is an artifact of the default constant, not the data. Sell-through, unsold value, pacing and package math are usable; the raise/hold/lower call, which the README sells as the main outcome, cannot be relied on without a fitted response.",
+  "domain": "Compared against revenue-management practice for fixed perishable inventory: a constant-elasticity curve has no interior optimum (revenue per run is monotone in price for e != -1), so recommend() always lands on either the sell-out price (e < -1) or the +25% cap (e > -1); a practitioner would not let an assumed elasticity pick the direction. The fit pools runs across time without controlling for the falling trend it diagnoses (example: price rises coincide with the decline, fitted e = -2.07 from two price levels, no uncertainty shown) while the trend finding itself says 'check lead time before touching price'. Multiplicative pickup pacing and the IAB-style sell-through/unsold-value definitions are standard and correct. No CPM view, slot position (pre/mid-roll, primary/secondary), or make-goods, all disclosed."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Example history: sell-through, booked revenue, capacity, unsold value",
+   "method": "hand sum of the 9 example rows from index.html:133 using the IAB sell-through definition (sold/available)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/adslot/run.mjs",
+   "expected": "0.6667, $7,300, $11,550, $4,250",
+   "observed": "0.6667, 7300, 11550, 4250",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Recent-vs-prior trend on the example",
+   "method": "hand: last 4 runs 5/12, runs 2-5 10/12",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/adslot/run.mjs",
+   "expected": "recent 0.4167, prior 0.8333, trend -0.4167",
+   "observed": "0.41667, 0.83333, -0.41667",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Fitted elasticity on the example (6 uncensored runs, prices 450 and 550)",
+   "method": "hand OLS: with two x-levels the slope is the difference of group means of ln(rate) over ln(550/450)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/adslot/run.mjs",
+   "expected": "-2.0725",
+   "observed": "-2.072491",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "+10% price scenario on the example",
+   "method": "hand: 0.41667 * 1.1^-2.0725, times 3 slots x $495",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/adslot/run.mjs",
+   "expected": "rate 0.3420, $507.84 per run",
+   "observed": "0.3420, 507.84",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Pacing 4 slots, 2 sold, 5 days out, typical final 80%",
+   "method": "hand linear interpolation of the stated curve (7d 80%, 3d 92%) and multiplicative pickup",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/adslot/run.mjs",
+   "expected": "share 0.86, projected 2.326, expected-now 2.752, behind",
+   "observed": "0.86, 2.3256, 2.752, behind",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Sold-out anchor recommendation at $100, e -1.2",
+   "method": "hand: 1.15*f^-1.2 = 1 gives f = 1.15^(1/1.2) = 1.1235; revenue falls above it",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/adslot/run.mjs",
+   "expected": "raise to about $112-113",
+   "observed": "raise to $113",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Near-sold-out seller (29/30 sold, recent 11/12, flat $400) gets consistent advice",
+   "method": "walk the diagnose() output the page renders",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/adslot/r3.mjs",
+   "expected": "no 'lower the price' while the page says 'close to sold out ... test a higher price'",
+   "observed": "both findings shown: 'You are close to sold out ... test a higher price' and 'Model says lower the price: About $372'",
+   "result": "fail"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Flat-price 87% sold history with assumed elasticity",
+   "method": "walk recommend() on 26/30 sold at $400",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/adslot/r2.mjs",
+   "expected": "hold or 'not enough price variation to say'",
+   "observed": "lower to $344 on an assumed response",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Unquoted comma CSV export with 3-digit price",
+   "method": "paste 'Mar 3,3,2,400' (standard spreadsheet CSV)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/adslot/r2.mjs",
+   "expected": "one row, price 400",
+   "observed": "0 rows, error 'need label, slots offered, slots sold, price'",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Tab-pasted spreadsheet row",
+   "method": "paste 'Mar 3\\t3\\t2\\t400'",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/adslot/r2.mjs",
+   "expected": "one row, price 400",
+   "observed": "one row, price 400",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Replace [the booking curve] with your own history' (index.html:92)",
+   "method": "search index.html for a curve input; pacing() call at index.html:150",
+   "command": "grep -n 'curve' ventures/ad-slot-sell-through-planner/index.html",
+   "expected": "an input that feeds pacing({curve})",
+   "observed": "only the note; pacing is called without curve",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Nothing uploaded / no network",
+   "method": "page.test.mjs network test plus reading index.html and calc.mjs",
+   "command": "node --test",
+   "expected": "no fetch/XHR/beacon",
+   "observed": "none; test passes",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "llms.txt and sitemap URLs on the served copy",
+   "method": "deploy rewrite",
+   "command": "node platform/pages/served-copy.mjs ad-slot-sell-through-planner",
+   "expected": "marisstella.app origin",
+   "observed": "no placeholder or retired origin left; tool link https://marisstella.app/ad-slot-sell-through-planner/",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer and usage tracking on the page",
+   "method": "read footer index.html:119-125 and usage.mjs",
+   "command": "node --test",
+   "expected": "no-warranty/not-advice text, local usage events, opt-out, DNT/GPC",
+   "observed": "present; plan_run and example_loaded recorded locally; opt-out persists",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run in subject root",
+   "command": "node --test",
+   "expected": "green",
+   "observed": "28/28 pass",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:151",
+   "change": "soldNow >= expectedNow + 0.5 -> soldNow >= expectedNow + 1.5",
+   "caught": false,
+   "test_cmd": "node --test"
+  },
+  {
+   "where": "calc.mjs:178",
+   "change": "summary.rate >= 0.9) -> summary.rate >= 0.97)",
+   "caught": false,
+   "test_cmd": "node --test"
+  },
+  {
+   "where": "calc.mjs:98",
+   "change": "anchorRate >= 0.999 ? SOLD_OUT_DEMAND -> anchorRate >= 0.999 ? 1.05",
+   "caught": false,
+   "test_cmd": "node --test"
+  },
+  {
+   "where": "calc.mjs:79",
+   "change": "r.sold > 0 && r.sold < r.offered -> r.sold > 0 && r.sold <= r.offered",
+   "caught": true,
+   "test_cmd": "node --test"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "With the assumed elasticity -1.2 (< -1) recommend() tells any seller whose recent runs are not 100% full to cut price to the sell-out point; a 97%-sold, flat-price history gets 'You are close to sold out ... test a higher price' and 'Model says lower the price: About $372' on the same screen. The direction is an artifact of the default constant, not the data.",
+   "where": "ventures/ad-slot-sell-through-planner/calc.mjs:184",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16902"
+  },
+  {
+   "severity": "medium",
+   "what": "Constant-elasticity revenue has no interior optimum, so recommend() always returns the sell-out price or the +25% cap; the fit pools runs across time without separating price from the falling trend it reports, and shows no uncertainty for a slope from two price levels.",
+   "where": "ventures/ad-slot-sell-through-planner/calc.mjs:114",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Unquoted comma CSV with a 3-digit field ('Mar 3,3,2,400', the usual spreadsheet export) is rejected: the thousands-separator lookahead treats ',400' as part of the previous number, and the error blames missing columns.",
+   "where": "ventures/ad-slot-sell-through-planner/calc.mjs:38",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Page tells the user to replace the booking curve with their own history, but there is no input; pacing() is always called with the default curve.",
+   "where": "ventures/ad-slot-sell-through-planner/index.html:92",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16902"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests leave the advice thresholds unpinned: pacing tolerance, the 90% 'close to sold out' finding and the 1.15 sold-out excess demand can all change with every test green (3 of 4 mutants survived).",
+   "where": "ventures/ad-slot-sell-through-planner/calc.test.mjs:80",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Footer typo 'does not replace an qualified advisor'.",
+   "where": "ventures/ad-slot-sell-through-planner/index.html:120",
+   "category": "other",
+   "origin": "audit",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16902"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16902"],
+ "verdict": "Small, clean, honest-in-intent tool whose arithmetic is right: six outputs (sell-through, unsold value, trend, fitted slope, a price scenario, pacing) recompute exactly by hand. It misses the bar on claims and verification, and on domain: the raise/hold/lower call the README sells as the main outcome is driven by the assumed elasticity being below -1, so a 97%-sold seller is told on one screen both to test a higher price and to lower it to $372 (run the r3.mjs command in checks). Three of four seeded mutants in the advice thresholds survived, the page promises a custom booking curve it has no input for, and plain comma CSV with 3-digit prices is rejected. Sell-through, unsold-revenue and pacing views are usable today; the price recommendation should be suppressed on an assumed response."
+}

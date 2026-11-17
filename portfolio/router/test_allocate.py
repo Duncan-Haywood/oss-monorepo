@@ -873,6 +873,15 @@ class OpenPrClaimTest(unittest.TestCase):
         search.assert_not_called()
         self.assertEqual(got, [(16190, "shift-roster-builder: claim", "2026-11-15T10:58:20Z")])
 
+    def test_drops_prs_already_squashed_or_merged_on_main(self):
+        """#16521 showed as an OPEN PR while its squash commit sat on main (2026-11-17)."""
+        import allocate
+        prs = [(16521, "a: landed", "x"), (16522, "b: open", "x"), (16523, "c: merged", "x")]
+        subjects = ["a: thing (#16521)", "Merge pull request #16523 from x/y", "mentions (#16522) mid-line only"]
+        self.assertEqual(allocate.drop_landed(prs, subjects), [(16522, "b: open", "x")])
+        self.assertIsNone(allocate.drop_landed(None, subjects))
+        self.assertEqual(allocate.drop_landed(prs, []), prs)
+
     def test_falls_back_to_search_when_the_pulls_list_is_unreadable(self):
         from unittest import mock
         import allocate

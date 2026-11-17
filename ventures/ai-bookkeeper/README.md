@@ -2912,6 +2912,39 @@ SRD 155 to 156; CORD text train 749 to 761 and test 92 to 93; SROIE unchanged. D
 [`eval/cord-train-photos-2026-11-17.md`](eval/cord-train-photos-2026-11-17.md).
 Tests: `cord-train-photos.test.mjs`.
 
+### RapidOCR's parser misses on CORD train photos (2026-11-17)
+
+With RapidOCR reading the photo, 45 of the 68 missed totals on CORD train shards 1-3 had the
+right digits in the reading: the parser lost them. Rules written from those misses only, for
+whole-unit (rupiah) slips: `Change:5,000` reads through its colon and `Pay Cash 50.000
+Change:5,000` on one line splits into cash and change; `DU1,241,790` is a DUE line; `IDR` reads
+like `Rp`; `Total Qty` read as `OTY`, `Discount total` and `Ch ange Due` are not totals; a
+misspelt total word (`Tatai`, `Tota.......`) is a fallback when no real total line was read;
+when no check confirms the total, cash less change or subtotal plus tax that the slip also
+prints on a line of its own is taken (exactly one such amount, never under a subtotal); a stray
+digit after a total (`TOTAL 127,500 4`) is dropped. Train 515 to 539 of 583; validation 83 to
+85; US photos (SRD) 180 to 182; held-out CORD test, scored once, 80 to 83 (RapidOCR then
+tesseract's four: 80 to 83; the page 81 to 84; tesseract's four alone 56 to 58); CORD text
+train 761 to 767, test 93 to 94; SROIE text unchanged. No total went from right to wrong in any
+set; two taxes did, each after its total became right. Details:
+[`eval/rapidocr-parser-misses-2026-11-17.md`](eval/rapidocr-parser-misses-2026-11-17.md).
+Tests: `receipt-rapidocr-misses.test.mjs`.
+
+### RapidOCR's parser misses on US receipt photos (2026-11-17)
+
+The same exercise on the SRD US photos, choosing on the even-index half and holding out the odd.
+On a tilted photo RapidOCR boxes the word column and the amount column separately, and the rows
+can slip by one: `Subtotal $5.50 / Tax $86.65 / Total: $6.93 / ... $93.58`. When no check
+confirms the total read, the amount one row off the total line is taken if subtotal plus tax,
+read at the same offset, gives it to the cent (and exactly one amount does); the receipt says so.
+Also `TOTALDUE` is a total line, and a Paris phone number after `Tl:` (`01.48.28.44.81`) is not
+an amount. Choose half 90 to 95 of 99 (RapidOCR then tesseract's four: 91 to 94; the page 92 to
+95, wrong with no warning 5 to 2); held-out half 92 of 97, unchanged (it was scored once at 91,
+the loss fixed by limiting the rule to the line the total was read from, so it is no longer
+unseen for this rule); all 196, RapidOCR: 182 to 187; CORD text and SROIE text unchanged.
+Details: [`eval/rapidocr-srd-misses-2026-11-17.md`](eval/rapidocr-srd-misses-2026-11-17.md).
+Tests: `receipt-rapidocr-srd.test.mjs`.
+
 ### RapidOCR and tesseract together (2026-11-17)
 
 `--rapidocr --four-pass` reads the photo with RapidOCR first, then with tesseract's four

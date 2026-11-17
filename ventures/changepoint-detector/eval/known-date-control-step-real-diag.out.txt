@@ -1,0 +1,9 @@
+## (1) Every donor state against the other 37, 1970-2000, log ratio (bias-corrected lag-1 rho)
+NE 0.18/0.15  MS 0.19/0.16  UT 0.26/0.20  TN 0.26/-0.25  SC 0.27/0.22  IA 0.32/0.27  MN 0.34/-0.05  ID 0.38/0.29  NM 0.55/0.22  LA 0.64/0.70  WY 0.65/0.61  WI 0.67/0.57  NV 0.71/0.69  ND 0.72/0.66  CO 0.73/0.71  SD 0.74/0.85  NC 0.74/0.70  WV 0.75/0.12  AL 0.76/0.56  DE 0.77/0.92  KS 0.77/0.47  RI 0.79/0.28  AR 0.80/0.35  KY 0.81/0.86  VT 0.81/0.73  VA 0.84/0.75  PA 0.84/0.58  MO 0.87/0.89  ME 0.87/0.29  IL 0.87/0.26  GA 0.90/0.69  OH 0.91/1.04  MT 0.94/0.73  IN 0.94/0.72  CT 0.95/0.95  OK 0.95/0.94  NH 0.95/0.55  TX 0.99/0.94
+about a line: median 0.76, 26 of 38 above the guard's 0.7
+about the before-and-after lines at 1989: median 0.58, 14 of 38 above 0.7
+## (2) Tax rises with the guard off (rhoMax 0.99, guard none): NOT calibrated
+T1 CA 1989: step -0.057 (-5.6%) [-0.115, 0.000] step p 0.051; slope change -0.0325 p 0.002; GLS rho 0.30, rho about the lines 0.36
+T2 MA 1993: refused (the residuals about the fitted before-and-after lines have lag-1 autocorrelation 0.77 (bias-corrected), above 0.7: too close to a unit root (a wander) for a level test)
+T3 AZ 1995: step -0.071 (-6.9%) [-0.180, 0.037] step p 0.143; slope change -0.0229 p 0.090; GLS rho 0.46, rho about the lines 0.52
+T4 OR 1997: refused (the residuals about the fitted before-and-after lines have lag-1 autocorrelation 0.90 (bias-corrected), above 0.7: too close to a unit root (a wander) for a level test)

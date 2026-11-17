@@ -13,6 +13,7 @@ import { plainFix } from "./schematron-fixes.mjs";
 export const PLAIN_DIR = "plain/";
 const RULE_FILES = { ubl: "en16931-ubl.json", cii: "en16931-cii.json" };
 export const CDAR_FILE = "cdar-fr.json";
+export const FLUX10_FILE = "flux10-fr.json";
 export const PLAIN_ADDON_FILES = { xrechnung: { ubl: "xrechnung-ubl.json", cii: "xrechnung-cii.json" }, peppol: { ubl: "peppol-ubl.json", cii: "peppol-cii.json" }, "cius-ro": { ubl: "cius-ro-ubl.json" }, "cius-pt": { ubl: "cius-pt-ubl.json" }, "cius-hr": { ubl: "cius-hr-ubl.json" }, nlcius: { ubl: "nlcius-ubl.json", cii: "nlcius-cii.json" }, "cius-fr": { ubl: "cius-fr-ubl.json", cii: "cius-fr-cii.json" } };
 
 // fontoxpath works on IEEE doubles, the rules are written for exact xs:decimal.
@@ -150,7 +151,7 @@ export function createPlainRunner({ fontoxpath, parseXml }) {
             if (ok) continue;
             const slack = slackTest(check.test);
             if (slack && safely(() => holds(slack, node, check.xq))) continue;
-            out.push({ rule: check.id, flag: check.flag, text: check.text, path: locate(node) });
+            out.push({ rule: check.id, flag: check.flag, text: check.text, ...(check.en ? { en: check.en } : {}), path: locate(node) });
           }
         }
       }
@@ -162,8 +163,20 @@ export function createPlainRunner({ fontoxpath, parseXml }) {
     const withId = f.text.match(/^\[([^\]]+)\]-?\s*(.*)$/);
     // The Romanian rules carry "Romanian text #English text"; show the English.
     let message = withId ? withId[2] : f.text;
+    // FNFE's Flux 10 messages open "[G1.14] : doit ..." and end "| Source : Annexe 7 v1.8 G1.14".
+    if (source === "flux10-fr-schematron") message = message.replace(/^:\s*/, "").replace(/\s*\|\s*Source\s*:[^|]*$/, "");
     if (source === "cius-ro-schematron" && message.includes("#")) message = message.slice(message.indexOf("#") + 1).trim();
-    return { rule: f.rule || withId?.[1] || "SCH", message, fix: plainFix(f.rule || withId?.[1] || "SCH"), path: f.path, severity: f.flag, source };
+    // The French BR-FR rules carry an English translation (br-fr-en.mjs): show it, keep FNFE's text.
+    // Both lose their rule-code prefix ("[BR-FR-01/BT-1] :", "BR-FR-02/BT-1 :") and the
+    // "current value" clause, which the compiled set always leaves empty (no value-of).
+    let french;
+    if (f.en || /^(cius-fr|cdar-fr)-schematron$/.test(source)) {
+      const tidy = (t) => t.replace(/^\[[^\]]+\]\s*[-:,]*\s*/, "").replace(/^(?:\w{1,20} : )?\[?BR-FR[^:]{0,40}:\s*/, "").replace(/\s*(?:Current value|Valeur actuelle)\s*:\s*""\.?/g, "").trim();
+      french = tidy(f.text);
+      message = f.en ? tidy(f.en) : french;
+      if (!f.en) french = undefined;
+    }
+    return { rule: f.rule || withId?.[1] || "SCH", message, ...(french ? { message_fr: french } : {}), fix: plainFix(f.rule || withId?.[1] || "SCH"), path: f.path, severity: f.flag, source };
   };
 
   // load(file) -> compiled rule set (parsed JSON) or null when that set is not shipped.
@@ -176,6 +189,13 @@ export function createPlainRunner({ fontoxpath, parseXml }) {
       if (!rules) return { status: "unavailable", syntax, findings: [], sets: [] };
       const raw = runRules(rules, parseXml(xml.replace(/^\uFEFF/, "")));
       return { status: "ok", syntax, findings: raw.map((x) => toFinding(x, "cdar-fr-schematron")), sets: ["cdar-fr"], skipped: raw.skipped };
+    }
+    if (syntax === "flux10") {
+      // A French e-reporting file (Flux 10) is not an invoice: FNFE-MPE's Flux 10 set alone.
+      const rules = await load(FLUX10_FILE);
+      if (!rules) return { status: "unavailable", syntax, findings: [], sets: [] };
+      const raw = runRules(rules, parseXml(xml.replace(/^\uFEFF/, "")));
+      return { status: "ok", syntax, findings: raw.map((x) => toFinding(x, "flux10-fr-schematron")), sets: ["flux10-fr"], skipped: raw.skipped };
     }
     const profile = syntax && matchingProfile(xml, syntax);
     if (profile) {

@@ -145,6 +145,89 @@ test("BCF export is a valid zip with one topic per failing element", () => {
   assert.equal(dv.getUint16(eocd + 10, true), 2 + failing * 2);
 });
 
+// Reads back a stored zip written by zipStore: { name: text }.
+async function bcfFiles(zip) {
+  const { zipEntries } = await import("./zip.mjs");
+  const out = {};
+  for (const e of zipEntries(zip)) {
+    const start = e.offset + 30 + (zip[e.offset + 26] | (zip[e.offset + 27] << 8)) + (zip[e.offset + 28] | (zip[e.offset + 29] << 8));
+    out[e.name] = new TextDecoder().decode(zip.subarray(start, start + e.csize));
+  }
+  return out;
+}
+const oneFail = (extra = {}) => ({ title: "t", specs: [{ name: "s", status: "fail", note: null, failed: [{ id: 1, type: "IFCWALL", globalId: "1Lz5$gbjv4GQ6_kuh4Wa3J", name: "w", reasons: ["r"] }], ...extra }] });
+
+test("BCF markup never carries an IfcProject attribute BCF 2.1's schema rejects", async () => {
+  // markup.xsd types IfcProject as IfcGuid: exactly 22 characters, so the
+  // empty value once written made every markup.bcf fail schema validation.
+  const files = await bcfFiles(bcfZip(oneFail(), { date: "2026-01-01T00:00:00Z" }));
+  const markups = Object.entries(files).filter(([n]) => n.endsWith("/markup.bcf"));
+  assert.equal(markups.length, 1);
+  for (const [, x] of markups) {
+    for (const m of x.matchAll(/(IfcProject|IfcSpatialStructureElement)="([^"]*)"/g)) assert.match(m[2], /^[0-9A-Za-z_$]{22}$/, m[0]);
+  }
+});
+
+test("BCF text drops characters XML 1.0 cannot hold, so the markup still parses", async () => {
+  const r = oneFail();
+  r.specs[0].name = "bell\u0007 spec\uD800";
+  r.specs[0].failed[0].name = "wall\u0001";
+  r.specs[0].failed[0].reasons = ["tab\tand\nnewline stay", "nul\u0000gone"];
+  const files = await bcfFiles(bcfZip(r, { date: "2026-01-01T00:00:00Z" }));
+  const [x] = Object.entries(files).filter(([n]) => n.endsWith("/markup.bcf")).map(([, v]) => v);
+  assert.doesNotMatch(x, /[\u0000-\u0008\u000b\u000c\u000e-\u001f]|[\ud800-\udfff]/);
+  assert.match(x, /<Title>bell spec: IFCWALL wall<\/Title>/);
+  assert.match(x, /<Description>tab\tand\nnewline stay\nnulgone<\/Description>/);
+  assert.equal(parseXml(x).local, "Markup");
+});
+
+test("BCF: a failed specification with no element and no note still says why", async () => {
+  for (const note of [null, ""]) {
+    const files = await bcfFiles(bcfZip({ specs: [{ name: "Project named", status: "fail", note, failed: [] }] }, { date: "2026-01-01T00:00:00Z" }));
+    const x = Object.entries(files).find(([n]) => n.endsWith("/markup.bcf"))[1];
+    assert.match(x, /<Description>specification failed<\/Description>/);
+    assert.doesNotMatch(x, /Viewpoints/);
+  }
+  const noted = await bcfFiles(bcfZip({ specs: [{ name: "p", status: "invalid", note: "bad IDS", failed: [] }] }, { date: "2026-01-01T00:00:00Z" }));
+  assert.match(Object.values(noted).join(""), /<Description>bad IDS<\/Description>/);
+});
+
+test("BCF guids are version-4 UUIDs on every randomness source", async () => {
+  const saved = Object.getOwnPropertyDescriptor(globalThis, "crypto");
+  const random = Math.random;
+  const guids = async () => Object.keys(await bcfFiles(bcfZip(oneFail(), { date: "2026-01-01T00:00:00Z" }))).filter((n) => n.endsWith("/markup.bcf")).map((n) => n.split("/")[0]);
+  try {
+    // getRandomValues only (a browser page served over plain http has no randomUUID)
+    Object.defineProperty(globalThis, "crypto", { value: { getRandomValues: (b) => { b.forEach((_, i) => (b[i] = i * 17)); return b; } }, configurable: true });
+    assert.deepEqual(await guids(), ["00112233-4455-4677-8899-aabbccddeeff"]);
+    // no crypto at all: Math.random fills every byte
+    Object.defineProperty(globalThis, "crypto", { value: undefined, configurable: true });
+    Math.random = () => 0.5;
+    assert.deepEqual(await guids(), ["80808080-8080-4080-8080-808080808080"]);
+  } finally {
+    Math.random = random;
+    Object.defineProperty(globalThis, "crypto", saved);
+  }
+});
+
+const BCF_XSD = new URL("./eval/bcf-xsd/", import.meta.url).pathname;
+const hasXmllint = () => { try { execFileSync("xmllint", ["--version"], { stdio: "ignore" }); return true; } catch { return false; } };
+test("BCF export validates against buildingSMART's BCF 2.1 schemas (run eval/fetch-bcf-schemas.sh first)", { skip: !existsSync(BCF_XSD + "markup.xsd") || !hasXmllint() }, async () => {
+  const r = check(file("./samples/coordination-basics.ids.xml"), file("./samples/tiny-house.ifc"));
+  r.specs.push({ name: "spec-level\u0007", status: "fail", note: "", failed: [] });
+  const files = await bcfFiles(bcfZip(r, { modelName: "tiny-house.ifc" }));
+  const dir = mkdtempSync(join(tmpdir(), "bcf-"));
+  const xsd = { "markup.bcf": "markup.xsd", "viewpoint.bcfv": "visinfo.xsd", "project.bcfp": "project.xsd", "bcf.version": "version.xsd" };
+  let n = 0;
+  for (const [name, text] of Object.entries(files)) {
+    const path = join(dir, name.replace("/", "_"));
+    writeFileSync(path, text);
+    execFileSync("xmllint", ["--noout", "--schema", BCF_XSD + xsd[name.split("/").pop()], path], { stdio: "pipe" });
+    n++;
+  }
+  assert.ok(n >= 6, `${n} files validated`);
+});
+
 test("zipStore output is readable by unzip when it is installed", { skip: !hasUnzip() }, () => {
   const dir = mkdtempSync(join(tmpdir(), "zip-"));
   writeFileSync(dir + "/t.zip", zipStore([{ name: "a.txt", data: "hello" }, { name: "b/c.txt", data: "wörld" }]));
@@ -238,6 +321,11 @@ test("bounded properties: a range ignores the set point, and a missing bound is 
   assert.equal(check(p(`<simpleValue>1</simpleValue>`), model("IFCREAL(1.)", "$", "$")).pass, true, "lower bound only");
   assert.equal(check(p(`<simpleValue>5</simpleValue>`), model("$", "IFCREAL(5.)", "$")).pass, true, "upper bound only");
   assert.equal(check(range, model("IFCREAL(1.)", "$", "$")).pass, false, "a range needs both bounds");
+});
+
+test("parseXml: comments and processing instructions inside an element leave its text alone", () => {
+  const x = parseXml(`<?xml version="1.0"?><a><b>one<?pi data here?>two<!-- c -->three</b></a>`);
+  assert.equal(x.children[0].text, "onetwothree");
 });
 
 test("parseXml: a truncated file throws instead of looping forever", () => {
@@ -382,4 +470,38 @@ test("specifications with no entity facet: the argument-free prefilter selects e
     checked++;
   }
   assert.equal(checked, 78);
+});
+
+test("an entity facet's unnamed subclasses are counted as not checked, the verdict unchanged", () => {
+  // Revit's IFC2X3 exports write most walls as IfcWallStandardCase; IDS has no
+  // inheritance, so IFCWALL takes only the IfcWall (eval/corpus-crosscheck-2026-11-17.md).
+  const model = ifc("IFC2X3", [
+    "#1=IFCWALL('1hqIFTRjfV6AWq_bMtnZwI',$,'W1',$,$,$,$,$);",
+    "#2=IFCWALLSTANDARDCASE('2hqIFTRjfV6AWq_bMtnZwI',$,'W2',$,$,$,$,$);",
+    "#3=IFCWALLSTANDARDCASE('3hqIFTRjfV6AWq_bMtnZwI',$,$,$,$,$,$,$);",
+    "#4=IFCSLAB('4hqIFTRjfV6AWq_bMtnZwI',$,'S',$,$,$,$,$,$);",
+  ]);
+  const req = `<attribute><name><simpleValue>Name</simpleValue></name></attribute>`;
+  const s = check(ids(spec(ent("IFCWALL"), req)), model).specs[0];
+  assert.equal(s.status, "pass");
+  assert.equal(s.applicable, 1);
+  assert.deepEqual(s.skippedSubclasses, [{ type: "IFCWALLSTANDARDCASE", via: "IFCWALL", count: 2 }]);
+  assert.match(s.hint, /not checked: 2 element\(s\).*2 IFCWALLSTANDARDCASE \(a subclass of IFCWALL\)/);
+  // The other applicability facets still apply: only W2 has a Name.
+  const named = `<attribute><name><simpleValue>Name</simpleValue></name><value><simpleValue>W2</simpleValue></value></attribute>`;
+  const s2 = check(ids(spec(ent("IFCWALL") + named, "", 'minOccurs="0" maxOccurs="unbounded"')), model).specs[0];
+  assert.deepEqual(s2.skippedSubclasses, [{ type: "IFCWALLSTANDARDCASE", via: "IFCWALL", count: 1 }]);
+  // Naming both classes leaves nothing out; an unrelated class gets no hint.
+  const both = `<entity><name><xs:restriction base="xs:string"><xs:enumeration value="IFCWALL"/><xs:enumeration value="IFCWALLSTANDARDCASE"/></xs:restriction></name></entity>`;
+  assert.equal(check(ids(spec(both, req)), model).specs[0].hint, undefined);
+  assert.equal(check(ids(spec(ent("IFCSLAB"), req)), model).specs[0].hint, undefined);
+});
+
+test("a prohibited specification with requirements stays invalid and says how many elements match", () => {
+  const model = ifc("IFC4", ["#1=IFCBUILDINGELEMENTPROXY('1hqIFTRjfV6AWq_bMtnZwI',$,'P',$,$,$,$,$,$);"]);
+  const req = `<attribute cardinality="prohibited"><name><simpleValue>GlobalId</simpleValue></name></attribute>`;
+  const s = check(ids(spec(ent("IFCBUILDINGELEMENTPROXY"), req, 'minOccurs="0" maxOccurs="0"')), model).specs[0];
+  assert.equal(s.status, "invalid");
+  assert.equal(s.matching, 1);
+  assert.match(s.note, /1 element\(s\) in this model match its applicability and would fail it/);
 });

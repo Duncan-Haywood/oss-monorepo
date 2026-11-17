@@ -123,8 +123,25 @@ and CIUS-RO compile byte-identical; ZATCA's BR-KSA-F-13 changed, and was wrong b
 checked against the buyer's scheme list; `zatca.test.mjs` pins it). CIUS-PT and PINT
 were not rebuilt (Maven Central answered 429). Extended files get their own base since
 2026-11-17 (next section). Not done: the CDAR life-cycle messages and Flux 10 e-reporting
-schematron, English text for the BR-FR messages, and a real platform's rejection
-compared.
+schematron and a real platform's rejection compared (English text landed, next section).
+
+**BR-FR in English (new, 2026-11-17).** FNFE-MPE publishes the BR-FR and BR-FR-CDV messages in
+French only, so a seller outside France who got `BR-FR-08/BT-23` back from a platform had a French
+sentence to decode. Every one of the 384 distinct messages in the three compiled sets
+(`plain/cius-fr-ubl.json`, `plain/cius-fr-cii.json`, `plain/cdar-fr.json`) now has an English
+translation made for this tool, kept in `plain/br-fr-en.json` keyed by FNFE's exact French text.
+`br-fr-en.mjs` writes it into each check as `en` (and `build-fr-rules.mjs` calls it on a rebuild, so
+a new FNFE release shows which messages lack English). A finding's `message` is the English and
+`message_fr` keeps FNFE's French; the page prints the French under the English. Both drop the rule
+code prefix and the empty `Valeur actuelle : ""` slot (the compiled set has no value-of, so it was
+always empty). Tests (`br-fr-en.test.mjs`): every check has its table entry, no stale entries,
+each translation keeps its `[code]`, every BT/BG/EXT-FR-FE/MDT id and every quoted status or
+reason code of the French, and no French phrase is left in the English. All 195 rule codes, English
+beside French, are listed on `br-fr-error-codes.html`, written by `build-br-fr-codes-page.mjs`
+from the same files (`br-fr-codes-page.test.mjs` fails when it drifts). **Not checked:** the
+translation was made by machine-assisted translation and read in part, not by a sworn translator;
+the French remains the reference, and the page says so. Source glitches (stray quotes, `"/>"`,
+"ans" for "dans") are kept or read for their evident meaning.
 
 **Extended-CTC-FR and Factur-X EXTENDED: their own base sets (new, 2026-11-17).** An
 extended invoice may carry what EN 16931 forbids (several sellers on one multi-vendor
@@ -180,7 +197,31 @@ no invoice number (MDT-87) or no creation date-time (MDT-8) passes the whole set
 MDT-78/MDT-100 dates), `FR-CDV-106` no invoice number, `FR-CDV-107` a reference without its
 invoice date let through by BR-FR-CDV-11 because another reference in the message is 501. They
 raise nothing on FNFE's 59 messages and catch all 177 mutated runs neither engine flags. Limits:
-the _WARNING copy not run; no real platform's message compared; Flux 10 e-reporting not done.
+the _WARNING copy not run; no real platform's message compared. Flux 10 e-reporting: next section.
+
+**France: e-reporting files (Flux 10) (new, 2026-11-17).** From 1 September 2026 a French
+business's approved platform (PA) also reports to the tax administration's platform (PPF) the sales
+that are not domestic B2B e-invoices: invoices to or from businesses abroad (10.1), B2C and other
+sales without an e-invoice, summed per day, category and VAT rate (10.3), and the payments received
+on them where VAT is due on payment (10.2, 10.4). Drop such a file (root `Report` >
+`ReportDocument`, the PPF's Flux 10 XSD) and `flux10.mjs` names its kind, declarant, period and
+totals per rate (`FR-F10-100`), and checks what the official controls do not: an impossible
+calendar date (`FR-F10-101`; the controls test the shape and the year only), VAT that is not base x
+rate (`FR-F10-102`, warning; half a cent per sale counted is allowed on daily aggregates), a day or
+payment outside the period (`FR-F10-103`, warning), a SIREN with a wrong Luhn key (`FR-F10-104`), a
+French VAT number with a wrong key or built on another SIREN (`FR-F10-105`), a rate given twice in a
+day (`FR-F10-106`, warning) and the sums of a non-EUR block (`FR-F10-107`; G1.53 is written for EUR
+only). With the official rules on, FNFE-MPE's Flux 10 Schematron (the PPF's Annexe 7 v1.8 controls,
+150 checks under 36 control codes such as G1.53 or G6.28, `plain/flux10-fr.json`, built by
+`build-fr-rules.mjs` from the same France_RFE commit) runs on the plain route, in the browser too.
+**Measured** (`eval/flux10-crosscheck.mjs`, `eval/flux10-crosscheck-2026-11-17.md`) against
+Saxon-JS running FNFE's own compiled `Flux10.xslt`: FNFE publishes no Flux 10 example, so three
+made-up files (`fixtures/flux10/*.xml`, valid against FNFE's copy of the XSD with xmllint), each as
+written and broken by up to 95 mutations: **147 of 147** runs fire the same multiset of control
+codes on both engines, all 36 codes reached, 0 checks skipped; 25 runs that neither engine flags
+are caught by FR-F10-101..107. Tests: `flux10.test.mjs` (8). Limits: no real platform's Flux 10
+file and no PPF rejection compared; the XSD is not enforced by the tool; the official messages are
+FNFE's, in French.
 
 **Poland: KSeF FA(3) (new, 2026-10-24).** An XML file whose root is `Faktura` in the `crd.gov.pl/wzor/` namespace is read by `fa3.mjs` with its own rules `PL-001`..`PL-011`: NIP check digit for seller and buyer (weights 6 5 7 2 3 4 5 6 7, mod 11), tax-rate code list, `P_8B x P_9A = P_11` per line, each `P_13_n` against the lines at that rate, `P_14_n` against net x rate, `P_15` against all totals, duplicate line numbers, and the PLN tax (`P_14_nW`) on foreign-currency invoices. Element names, rate codes and what each total means were read from the published schema (`schemat_FA(3)_v1-0E.xsd`, namespace `http://crd.gov.pl/wzor/2025/06/25/13775/`, taken from the `ksef-client-ts` npm package because crd.gov.pl was unreachable from the build host); `examples/fa3-invoice.xml` validates against it with `xmllint`, and the defect file fails the XSD on its unknown rate code only (the other faults are arithmetic that a schema cannot see). Sums are checked only on `RodzajFaktury` VAT or UPR; advance, settlement and correcting invoices skip them and say so in `skipped`. Not done: the KSeF-side business rules, and any real invoice: no genuine FA(3) file was available, so the rules are measured on one hand-made example and its planted-defect twin (`fa3.test.mjs`, 6 tests). The 1-grosz tolerance is an assumption. **Schema gate (2026-10-25, `PL-012`..`PL-017`).** `build-fa3-schema.mjs` reads `schemat_FA(3)_v1-0E.xsd` and its three base files into `fa3-xsd-data.mjs` (content models with occurrence counts, attributes, and length, pattern, range, digit and code-list facets; it throws on any XSD construct it does not model, and the one union, `TNrREGON`, is read as two patterns). `fa3-xsd.mjs` runs a file against it before the arithmetic rules: `PL-012` an element the schema does not allow there or one too many, `PL-013` elements out of sequence, `PL-014` a required element missing, `PL-015` a value outside its pattern, length, date, digits or code list (every enumeration is enforced here, because v1-0E is the schema in force; the generic PL-015 for a bad tax rate yields to the more specific `PL-004`), `PL-016` a missing or non-fixed attribute (`kodSystemowy="FA (3)"`, `wersjaSchemy="1-0E"`), `PL-017` a cut-off file (the other checks are then skipped and named). Messages never echo the value. **Measured against xmllint on the real XSD** (`eval/fa3-xsd-diff.mjs`; xmllint needs the remote import pointed at the local `bazowe/` copy): from two xmllint-valid seeds (`examples/fa3-invoice.xml`, and `fa3-invoice-rich.xml` with an EU buyer, exemption branch, payment, footer and registers), 3 x 1,620 seeded mutations (an element deleted, duplicated, swapped with its neighbour, an unknown element added, a value emptied, lengthened by 1,100 characters, given a euro sign, made text or negative, or a date cut to year-month): 4,860 of 4,860 verdicts agree with xmllint. **Branch seeds (2026-11-06).** `examples/fa3-correction.xml` (RodzajFaktury KOR: reason, type, two corrected-invoice blocks, one by KSeF number and one outside KSeF, period) and `examples/fa3-settlement.xml` (ROZ: a partial advance, an advance-invoice reference, a `Zalacznik` data block) are made-up, xmllint-valid on the real XSD, and joined the differential: 4 seeds, 6,520 mutations in 10 kinds (652 each) (an element deleted, duplicated, swapped, unknown, emptied, lengthened, euro, text, negative, short date), 6,520 of 6,520 verdicts agree with xmllint. The official CIRF/KSeF client templates (13 distinct files, `eval/ksef-official-templates.mjs`) hold no correction, advance or settlement file, so these seeds are hand-built from the XSD and no real one has been tried. **Transport seed (2026-11-08).** `examples/fa3-transport.xml` (made up, xmllint-valid on the real XSD) adds a `WarunkiTransakcji` block with two `Transport` entries (one by `RodzajTransportu` with carrier, cargo, times and a three-country route, one by the `TransportInny` / `LadunekInny` choice branch). With it as a fifth seed, 6,550 mutations in 10 kinds (655 each, `--per 1300`): 6,550 of 6,550 verdicts agree with xmllint. Limits: the seeds cover the blocks they contain (the transport block is now seeded; other choice branches are mutated only if present); no real KSeF file; the namespace is not checked; KSeF's own business rules beyond the XSD are not modelled.
 
@@ -2244,3 +2285,12 @@ The Slovakia page was written from vendor guides. It is now written from Act No.
 - The format is EN 16931 in UBL 2.1 or CII D16B, over OpenPeppol (the FS names it as the § 76a European delivery standard); 100 certified providers on the 12 November 2026 list. The vendor "1 July 2027 access-point limit" is not in the Act.
 
 **Slovak profile.** Tick "Also apply the Slovak rules", or call `POST /v1/validate?profile=slovakia`: the Peppol rules (PP-001..PP-005) plus six `SK-nnn` rules from the Financial Administration's field table "Transpozície štandardu Peppol BIS" v1.13 (29 October 2026), column "Povinná náležitosť faktúry podľa SK legislatívy": SK-001/SK-002 seller and buyer street, city and postcode (optional in EN 16931, § 74(1)(a)/(b)); SK-003 (warning) a Slovak party's electronic address not under scheme 0245 = DIČ; SK-004 a 0245 id that is not 10 digits; SK-005 (warning) no supplier payment account BT-84; SK-006 (warning) seller DIČ address vs SK VAT digits. Not checked: the conditional fields (IČO or IČ DPH "if assigned", tax point date), BT-33, and the tax data document. Tests: `slovakia-profile.test.mjs` (7), two more in `slovakia-e-invoice-mandate.test.mjs`. Hub row, `mandate-dates.json`, the `.ics` feed (127 milestones, 65 countries) and the 2027 deadlines page regenerated.
+
+## Electronic addresses checked as OpenPeppol checks them (2026-11-17)
+
+INV-041 (an endpoint that does not match its scheme's published shape) now runs OpenPeppol's own fatal PEPPOL-COMMON checks, reimplemented in `endpoint.mjs` and `endpoint.py`: the Belgian enterprise number 0208 (10 digits, last two are 97 minus the first eight mod 97; R043), the Norwegian organisation number 0192 (mod 11; R041), the Swedish organisation number 0007 (Luhn; R049), the Australian ABN 0151 (mod 89; R050), the Danish CVR, P and SE numbers 0184/0096/0198 (R042/R052/R053) and the GLN 0088 (digits only; R040). Before, 0208, 0192 and 0007 were digit counts after stripping every non-digit and 0151, 0096 and 0198 were unchecked, so a mistyped Belgian KBO number, the commonest Peppol address since Belgium's B2B mandate began on 2026-01-01, passed the preflight and bounced at the network. This matters most where the official Peppol set does not run: JSON input, and UBL or CII files that claim XRechnung or plain EN 16931 rather than Peppol. The fix text now names the scheme's shape ("10 digits ... no dots or BE prefix") and still never repeats the address.
+
+Measured with `eval/endpoint-peppol-differential.mjs` (`eval/endpoint-peppol-differential-2026-11-17.md`), which evaluates Peppol's assertions from `plain/peppol-ubl.json` with the bundled fontoxpath on 21,264 drawn ids and mutants: **13,645 disagreements before, 0 after** (seeds 7 and 11), all of them ids Peppol rejects that we passed. One difference is kept on purpose: Peppol's GLN test accepts any length, INV-041 asks for 13 digits.
+
+INV-039 also stops calling twelve EAS codes unpublished that EN 16931's BR-CL-25 list accepts (0147, 0170, 0194, 0203, 0205, 0217, 0225, 9960, AN, AQ, AS, AU); 0225 is the French reform directory's address scheme. Tests: `endpoint.test.mjs` (4 more) and `tests/test_endpoint.py` (3 more), sharing `tests/endpoint_peppol_cases.json`. Not done: Peppol's warning-level identifier rules (Italian, Dutch KVK/OIN), party identifiers other than the endpoint on JSON input, and any access point's verdict on a real address.
+

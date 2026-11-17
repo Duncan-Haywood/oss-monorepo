@@ -118,3 +118,12 @@ test("num strips currency formatting and rejects junk", () => {
   assert.equal(num("$1,250.50"), 1250.5);
   assert.ok(Number.isNaN(num("abc")));
 });
+
+test("an assumed price response never tells a near-sold-out seller to cut price (quality audit 2026-11-17)", () => {
+  const r = rows(Array.from({ length: 10 }, (_, i) => [3, i === 8 ? 2 : 3, 400]));
+  const s = summarize(r), fit = fitElasticity(r);
+  assert.equal(fit.source, "assumed");
+  const out = diagnose({ summary: s, fit, rec: recommend({ price: 400, slots: 3, anchorRate: s.recent, e: fit.e }), pace: null });
+  assert.ok(out.some((f) => /close to sold out/.test(f.title)));
+  assert.ok(!out.some((f) => /Model says/.test(f.title)), out.map((f) => f.title).join("; "));
+});
