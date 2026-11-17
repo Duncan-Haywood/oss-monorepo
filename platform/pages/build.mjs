@@ -526,6 +526,7 @@ const PERSONAL_TAX_SLUGS = new Set([
       'backdoor-roth-pro-rata-calculator',
       'bonus-take-home-gross-up-calculator',
       'charitable-deduction-calculator',
+      'charity-bunching-planner',
       'child-tax-credit-calculator',
       'coast-fire-calculator',
       'cobra-vs-marketplace-calculator',
@@ -572,6 +573,42 @@ const PERSONAL_TAX_SLUGS = new Set([
       'tax-lot-sale-optimizer',
       'trump-account-calculator',
       'wash-sale-checker',
+]);
+
+// The `household` section's members (CATEGORY_RULES, below): one household's home, loans, bills and
+// family money that is not a tax return. A Set so the rule is one lookup.
+const HOUSEHOLD_SLUGS = new Set([
+      'adu-payback-calculator',
+      'aid-award-letter-comparator',
+      'car-lease-deal-checker',
+      'card-bonus-planner',
+      'cd-treasury-ladder-planner',
+      'cheap-meal-plan-optimizer',
+      'estate-item-divider',
+      'estate-sale-net-proceeds-calculator',
+      'funeral-price-list-checker',
+      'heat-pump-vs-furnace-calculator',
+      'heloc-vs-cash-out-refinance-calculator',
+      'home-sale-net-proceeds-calculator',
+      'injury-settlement-net-proceeds-calculator',
+      'insurance-denial-appeal-builder',
+      'medical-bill-error-checker',
+      'mortgage-escrow-analysis-checker',
+      'mortgage-extra-payment-vs-invest-calculator',
+      'mortgage-points-break-even-calculator',
+      'property-tax-appeal-calculator',
+      'pslf-vs-refinance-calculator',
+      'rent-vs-buy-breakeven-calculator',
+      'roommate-rent-splitter',
+      'schengen-90-180-day-calculator',
+      'solar-payback-calculator',
+      'structured-settlement-buyout-calculator',
+      'student-loan-rap-ibr-standard-calculator',
+      'subscription-audit-from-statement',
+      'tenant-security-deposit-deadline-checker',
+      'texas-electricity-plan-checker',
+      'tfsa-over-contribution-checker',
+      'wedding-budget-allocator',
 ]);
 
 const CATEGORY_RULES = [
@@ -1538,7 +1575,7 @@ const CATEGORY_RULES = [
     test: (slug) =>
       // `school-timetable-builder` joined 2026-11-16 on its first commit: a school office turning lessons, teachers and rooms into a
       // clash-free week is the same organiser scheduling job as `league-schedule-generator` and `volunteer-shift-scheduler` here.
-      /^(youth-lineup-rotator|axe-throwing-bar-profit-calculator|tournament-pairing-manager|tailor-alterations-shop-profit-calculator|shoe-repair-shop-profit-calculator|phone-repair-shop-profit-calculator|barbershop-chair-profit-calculator|driving-school-profit-calculator|braiding-studio-profit-calculator|esthetician-studio-profit-calculator|lash-studio-profit-calculator|bail-bond-agency-exposure-calculator|school-timetable-builder|local-site-studio|review-reply-desk|bowling-center-profit-calculator|padel-club-profit-calculator|pet-boarding-daycare-profit-calculator|arcade-game-payback-calculator|self-serve-dog-wash-profit-calculator|coworking-space-profit-calculator|rv-boat-storage-lot-calculator|subscription-proration-calculator|patent-maintenance-fee-planner|sales-quota-capacity-planner|climbing-gym-profit-calculator|trampoline-park-profit-calculator|golf-simulator-bay-profit-calculator|mini-golf-course-profit-calculator|ebike-rental-fleet-profit-calculator|pilot-car-escort-run-profit-calculator|event-rental-inventory-payback-calculator|kids-birthday-party-package-profit-calculator|indoor-play-center-profit-calculator|lawn-aeration-overseeding-bid-calculator|party-bus-charter-profit-calculator|tent-rental-job-profit-calculator|courier-van-route-profit-calculator|laundromat-acquisition-offer-calculator|amusement-route-location-calculator|private-school-tuition-discount-calculator|mobile-oil-change-route-profit-calculator|boat-rental-fleet-profit-calculator|mobile-phlebotomy-route-profit-calculator|music-teacher-studio-profit-calculator|yoga-pilates-studio-class-profit-calculator|freelance-project-picker|swim-lesson-pool-rental-profit-calculator|home-inspection-business-profit-calculator|hydroseeding-job-bid-calculator|bike-shop-repair-profit-calculator|ski-snowboard-tune-shop-profit-calculator|fundraising-event-net-calculator|therapy-8-minute-rule-calculator|real-estate-photographer-shoot-profit-calculator|auto-detailing-service-menu-picker|saas-feature-packaging-optimizer|saas-tier-price-optimizer|pto-accrual-liability-calculator|wedding-flower-order-optimizer|project-staffing-margin-optimizer|appointment-no-show-analyzer|vending-machine-planogram-optimizer|capex-budget-prioritizer|childcare-enrollment-mix-optimizer|wedding-venue-date-pricing-optimizer|water-well-drilling-bid-calculator|sign-shop-job-pricing-calculator|medical-billing-pricing-calculator|ghostwriter-book-quote-calculator|sbir-budget-builder|speaker-fee-calculator|recipe-costing-calculator|pte-tax-election-calculator|appointment-no-show-cost-calculator|aba-authorization-tracker|h1b-weighted-lottery-odds-calculator|rent-increase-notice-checker|tenant-security-deposit-deadline-checker|pay-application-generator|lien-waiver-checker|injury-settlement-net-proceeds-calculator|employment-contract-checker|worker-classification-checker|freelance-contract-checker|freelance-proposal-maker|exemption-certificate-audit-check|insurance-commission-reconciler|mrr-waterfall-calculator|hoa-reserve-fund-calculator|pickleball-facility|property-management-profit|mobile-welding-job-price|sauna-cold-plunge-install-bid-calculator|good-faith-estimate|collision-shop-drp|escape-room-pricing|boutique-fitness-studio|waterfront-rental-season|car-wash-membership|law-firm-realization-rate-calculator|laundromat-machine-payback|ev-charging-site-roi|home-care-agency|childcare-center-break-even|booth-rent|commercial-photo-license|notary-trip|mobile-signing-agent|pool-route|pool-service-route|fishing-charter-trip-pricing|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|dog-grooming-profit|tattoo-piece-profit|massage-therapist-profit|dj-gig-profit|band-tour-profit|driving-instructor-lesson-pricing|wedding-photographer-profit|wedding-videographer-profit|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|embroidery-shop-quote|screen-print-job-quote|sports-official-game-fee|powder-coating-job-price|grease-trap-pumping-price|hoarding-cleanout-bid|bed-bug-heat-treatment-price|ppf-ceramic-coating-price|paintless-dent-repair-quote|water-damage-drying-estimate|laser-cutting-engraving-job-price|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|home-inspection-report-builder|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-budget-allocator|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate|client-rebooking|rental-fleet-size|event-seating-chart|league-schedule|volunteer-shift-scheduler|coffee-roaster-margin|house-cleaning-quote|str-turnover-crew|process-server-day|appraisal-assignment|translation-job|tax-season-client|interior-design-fee|nail-tech-booth-rent|birth-doula-package|pet-sitting-platform-fee|dog-grooming-price|farrier-visit|pet-waste-removal-route|private-pilot-training-cost|wedding-officiant-fee|cdl-school-payback|mobile-mechanic-visit|fishing-charter|horse-boarding-stall-profit|tutor-effective-hourly-rate|campground-site-profit|mobile-detailing-day-planner|fishing-crew-share-settlement|scrap-gold-buy-price|pawn-loan-profit|junk-car-buyer-offer|grape-grower-sell-vs-bottle|adjunct-course-offer-calculator|lash-studio-service-profit-calculator|optical-dispensary-margin-calculator|hearing-aid-dispensing-margin-calculator|provider-credentialing-delay-cost-calculator|independent-pharmacy-rx-margin-calculator|veterinary-wellness-plan-pricing-calculator|veterinary-dental-estimate-calculator|mobile-vet-house-call-fee-calculator|demand-charge-interval-analyzer|dental-patient-financing-fee-calculator|pool-opening-closing-price-calculator|private-chef-service-price-calculator)/.test(
+      /^(youth-lineup-rotator|axe-throwing-bar-profit-calculator|tournament-pairing-manager|tailor-alterations-shop-profit-calculator|shoe-repair-shop-profit-calculator|phone-repair-shop-profit-calculator|barbershop-chair-profit-calculator|driving-school-profit-calculator|braiding-studio-profit-calculator|esthetician-studio-profit-calculator|lash-studio-profit-calculator|bail-bond-agency-exposure-calculator|school-timetable-builder|local-site-studio|review-reply-desk|bowling-center-profit-calculator|padel-club-profit-calculator|pet-boarding-daycare-profit-calculator|arcade-game-payback-calculator|self-serve-dog-wash-profit-calculator|coworking-space-profit-calculator|rv-boat-storage-lot-calculator|subscription-proration-calculator|patent-maintenance-fee-planner|sales-quota-capacity-planner|climbing-gym-profit-calculator|trampoline-park-profit-calculator|golf-simulator-bay-profit-calculator|mini-golf-course-profit-calculator|ebike-rental-fleet-profit-calculator|pilot-car-escort-run-profit-calculator|event-rental-inventory-payback-calculator|kids-birthday-party-package-profit-calculator|indoor-play-center-profit-calculator|lawn-aeration-overseeding-bid-calculator|party-bus-charter-profit-calculator|tent-rental-job-profit-calculator|courier-van-route-profit-calculator|laundromat-acquisition-offer-calculator|amusement-route-location-calculator|private-school-tuition-discount-calculator|mobile-oil-change-route-profit-calculator|boat-rental-fleet-profit-calculator|mobile-phlebotomy-route-profit-calculator|music-teacher-studio-profit-calculator|yoga-pilates-studio-class-profit-calculator|freelance-project-picker|swim-lesson-pool-rental-profit-calculator|home-inspection-business-profit-calculator|hydroseeding-job-bid-calculator|bike-shop-repair-profit-calculator|ski-snowboard-tune-shop-profit-calculator|fundraising-event-net-calculator|therapy-8-minute-rule-calculator|real-estate-photographer-shoot-profit-calculator|auto-detailing-service-menu-picker|saas-feature-packaging-optimizer|saas-tier-price-optimizer|pto-accrual-liability-calculator|wedding-flower-order-optimizer|project-staffing-margin-optimizer|appointment-no-show-analyzer|vending-machine-planogram-optimizer|capex-budget-prioritizer|childcare-enrollment-mix-optimizer|wedding-venue-date-pricing-optimizer|water-well-drilling-bid-calculator|sign-shop-job-pricing-calculator|medical-billing-pricing-calculator|ghostwriter-book-quote-calculator|sbir-budget-builder|speaker-fee-calculator|recipe-costing-calculator|pte-tax-election-calculator|appointment-no-show-cost-calculator|aba-authorization-tracker|h1b-weighted-lottery-odds-calculator|rent-increase-notice-checker|pay-application-generator|lien-waiver-checker|employment-contract-checker|worker-classification-checker|freelance-contract-checker|freelance-proposal-maker|exemption-certificate-audit-check|insurance-commission-reconciler|mrr-waterfall-calculator|hoa-reserve-fund-calculator|pickleball-facility|property-management-profit|mobile-welding-job-price|sauna-cold-plunge-install-bid-calculator|good-faith-estimate|collision-shop-drp|escape-room-pricing|boutique-fitness-studio|waterfront-rental-season|car-wash-membership|law-firm-realization-rate-calculator|laundromat-machine-payback|ev-charging-site-roi|home-care-agency|childcare-center-break-even|booth-rent|commercial-photo-license|notary-trip|mobile-signing-agent|pool-route|pool-service-route|fishing-charter-trip-pricing|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|dog-grooming-profit|tattoo-piece-profit|massage-therapist-profit|dj-gig-profit|band-tour-profit|driving-instructor-lesson-pricing|wedding-photographer-profit|wedding-videographer-profit|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|embroidery-shop-quote|screen-print-job-quote|sports-official-game-fee|powder-coating-job-price|grease-trap-pumping-price|hoarding-cleanout-bid|bed-bug-heat-treatment-price|ppf-ceramic-coating-price|paintless-dent-repair-quote|water-damage-drying-estimate|laser-cutting-engraving-job-price|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|home-inspection-report-builder|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate|client-rebooking|rental-fleet-size|event-seating-chart|league-schedule|volunteer-shift-scheduler|coffee-roaster-margin|house-cleaning-quote|str-turnover-crew|process-server-day|appraisal-assignment|translation-job|tax-season-client|interior-design-fee|nail-tech-booth-rent|birth-doula-package|pet-sitting-platform-fee|dog-grooming-price|farrier-visit|pet-waste-removal-route|private-pilot-training-cost|wedding-officiant-fee|cdl-school-payback|mobile-mechanic-visit|fishing-charter|horse-boarding-stall-profit|tutor-effective-hourly-rate|campground-site-profit|mobile-detailing-day-planner|fishing-crew-share-settlement|scrap-gold-buy-price|pawn-loan-profit|junk-car-buyer-offer|grape-grower-sell-vs-bottle|adjunct-course-offer-calculator|lash-studio-service-profit-calculator|optical-dispensary-margin-calculator|hearing-aid-dispensing-margin-calculator|provider-credentialing-delay-cost-calculator|independent-pharmacy-rx-margin-calculator|veterinary-wellness-plan-pricing-calculator|veterinary-dental-estimate-calculator|mobile-vet-house-call-fee-calculator|demand-charge-interval-analyzer|dental-patient-financing-fee-calculator|pool-opening-closing-price-calculator|private-chef-service-price-calculator)/.test(
         slug,
       ),
   },
@@ -1922,6 +1959,21 @@ const CATEGORY_RULES = [
     test: (slug) => PERSONAL_TAX_SLUGS.has(slug),
   },
   {
+    // Household money, split out 2026-11-17, the same move as `personal-tax` above. A patient's
+    // medical bill and denial appeal, a tenant's deposit deadline, a homeowner's escrow statement,
+    // mortgage points, rent-vs-buy and a family's funeral quote were filed in `backoffice` (12),
+    // `services` (4) and `solo-earner` (15) for offline-bundle room, so their breadcrumb and
+    // `BreadcrumbList` JSON-LD said "Back-office money" or "Creator & solo earner income" to a
+    // reader who is neither. Exact list, placed before the business sections; the slugs were taken
+    // out of those rules. Landlord, investor and employer tools (rent rolls, house hacking, H-1B
+    // lottery odds, security-deposit math for landlords) stay where the owner of the books browses.
+    id: 'household',
+    title: 'Household money, home & health bills',
+    accent: '#6a3d1a',
+    blurb: 'Your own mortgage, rent, loans, utility and medical bills: escrow shortages, mortgage points, rent vs buy, student-loan plans, medical bill errors, insurance denial appeals, tenant deposit deadlines, funeral quotes, worked from your own numbers in your browser.',
+    test: (slug) => HOUSEHOLD_SLUGS.has(slug),
+  },
+  {
     // UK tax, pay and benefits, split out of `backoffice` 2026-10-17: 52 `uk-`
     // calculators had taken that category's offline bundle past its 4 MiB
     // gzipped bound (build.test.mjs), and a UK visitor looking for take-home
@@ -2215,8 +2267,6 @@ const CATEGORY_RULES = [
       || slug === 'uk-take-home-pay-calculator'
       // `uk-dividend-tax-calculator` joined 2026-10-13 on its first commit: UK personal-tax arithmetic for directors and investors, sibling of the capital-gains and sole-trader tools.
       || slug === 'uk-dividend-tax-calculator'
-      // `tfsa-over-contribution-checker` joined 2026-10-13 on its first commit: Canadian personal-tax room and penalty arithmetic, a sibling of the Canada GST/HST checker.
-      || slug === 'tfsa-over-contribution-checker'
       // `uk-statutory-sick-pay-calculator` joined 2026-10-13 on its first commit: UK employer payroll-compliance arithmetic, same back-office job.
       || slug === 'uk-statutory-sick-pay-calculator'
       // `au-redundancy-pay-calculator` joined 2026-10-13 on its first commit: employer termination-pay compliance arithmetic, same back-office job.
@@ -2254,10 +2304,6 @@ const CATEGORY_RULES = [
       // `us-substantial-presence-test-calculator` joined 2026-10-19 on its first commit: the inbound US
       // residency day count, the counterpart of the 330-day FEIE count above.
       || slug === 'us-substantial-presence-test-calculator'
-      // `cheap-meal-plan-optimizer` joined 2026-10-01 on its first commit: a household's food budget as a
-      // minimum-cost linear program -- a personal money decision rather than an operator pricing food, so it
-      // sits here and not under `food-service`, which is for people who sell food.
-      || slug === 'cheap-meal-plan-optimizer'
       // `self-employed-schedule-c-categorizer` is the same bank-file-to-tax-lines job for a sole proprietor's
       // Schedule C, and its page sits next to `1099k-reconciliation-worksheet` and the landlord version.
       || slug === 'self-employed-schedule-c-categorizer'
@@ -2596,7 +2642,7 @@ const CATEGORY_RULES = [
       // `texas-electricity-plan-checker` joined 2026-11-14 on its first commit: a household's own usage billed on
       // each retail plan's label terms, the same own-numbers utility-bill decision as `solar-payback-calculator`
       // and `heat-pump-vs-furnace-calculator`.
-      || /^(hard-money-loan-cost-calculator|nsa-idr-offer-calculator|adu-payback-calculator|wage-garnishment-limit|commercial-lease-effective-rent-calculator|ad-spend-saturation-optimizer|ad-incrementality-test-analyzer|freelance-retainer-vs-hourly-calculator|scope-creep-change-order-calculator|freelance-project-picker|like-kind-exchange|syndication-waterfall|med-spa-treatment-profit-calculator|fractional-executive-rate-calculator|grant-writer-proposal-price-calculator|chiropractor-new-patient-roi-calculator|google-play-earnings-report|amazon-ppc-search-term|whatnot-sales-report|youtube-revenue-rpm|meta-ads-fatigue|turo-earnings-report|substack-subscriber-export|ghost-members-export|app-store-sales-report|era-835-underpayment-finder|tiktok-shop-settlement|kdp-royalty-report|gig-driver-earnings-report|airbnb-earnings-report|cash-runway|invoice-payment-terms|early-pay-discount-picker|cam-|saas-seat|saas-renewal-planner|vendor-contract-clause-reader|saas-annual-plan|saas-efficiency-metrics-calculator|saas-cac-payback|stripe-churn-cohort|ebay-promoted-listings-roi|etsy-ads-roi|stripe-failed-payment|google-ads-wasted-spend|subscription-price|subscription-audit-from-statement|self-storage-rate-increase|renewal-rent-optimizer|quote-follow-up-timing|trial-conversion-timing-analyzer|str-nightly-rate-optimizer|booking-request-chooser|market-event-picker|consignment-markdown-planner|trade-show-roi-calculator|dog-grooming-day-planner|str-turnover-scheduler|midterm-rental-calculator|support-staffing-planner|lot-split-calculator|csa-share-pricing-calculator|seller-net-sheet|property-tax-appeal-calculator|medical-bill-error-checker|insurance-denial-appeal-builder|mortgage-escrow-analysis-checker|travel-nurse-contract-comparison-calculator|appointment-deposit|appointment-no-show|appointment-overbooking|service-hourly-yield-analyzer|equipment-lease-buyout|equipment-lease-vs-buy|fleet-repair-or-replace-planner|card-processing-fee-audit|card-surcharge|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|cannabis-280e-tax-calculator|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|qbi-deduction-calculator|employee-cost-calculator|workers-comp-premium-calculator|s-corp-reasonable-compensation-calculator|tip-pool-compliance-calculator|section-174a-catchup-calculator|rd-tax-credit-calculator|bonus-depreciation-calculator|business-vehicle-depreciation-calculator|excess-business-loss-calculator|qsbs-exclusion-calculator|exempt-salary-threshold-checker|solo-401k-contribution-calculator|sep-ira-vs-solo-401k-calculator|mileage-deduction-method-calculator|mileage-log|home-office-deduction-calculator|str-tax-loophole-calculator|self-employment-tax-calculator|physician-wrvu-compensation-calculator|dental-associate-pay-calculator|solar-payback-calculator|heat-pump-vs-furnace-calculator|texas-electricity-plan-checker|cash-balance-plan-calculator|safe-dilution-calculator|cost-segregation-study-calculator|agent-brokerage-split-calculator|rental-dscr-calculator|commercial-property-cap-rate-calculator|rental-rent-optimizer|contractor-wip-schedule|landlord-repair-or-replace-planner|brrrr-calculator|self-employed-health-insurance-deduction-calculator|physician-wrvu-contract-calculator|veterinarian-associate-pay-calculator|pslf-vs-refinance-calculator|startup-option-value-calculator|van-westendorp-pricing-analyzer|sales-commission-plan-comparison-calculator|locum-tenens-vs-employed-calculator|fix-and-flip-deal-analyzer|merchant-cash-advance-true-cost-calculator|business-loan-offer-comparator|usage-based-pricing-simulator|startup-exit-waterfall-calculator|augusta-rule-calculator|gabor-granger-price-analyzer|insurance-agency-book-valuation-calculator|ab-test-significance-calculator|investor-update-builder|online-business-valuation-calculator|customer-lifetime-value-predictor|icp-lens|sales-seasonality-forecaster|price-elasticity-estimator|seasonal-buy-quantity-optimizer|donor-retention-analyzer|donor-acknowledgment-letter-generator|private-practice-payer-mix-calculator|market-garden-bed-planner|cottage-food-pricing-calculator|payroll-tax-deposit-penalty-calculator|family-child-care-time-space-calculator)/.test(slug),
+      || /^(hard-money-loan-cost-calculator|nsa-idr-offer-calculator|wage-garnishment-limit|commercial-lease-effective-rent-calculator|ad-spend-saturation-optimizer|ad-incrementality-test-analyzer|freelance-retainer-vs-hourly-calculator|scope-creep-change-order-calculator|freelance-project-picker|like-kind-exchange|syndication-waterfall|med-spa-treatment-profit-calculator|fractional-executive-rate-calculator|grant-writer-proposal-price-calculator|chiropractor-new-patient-roi-calculator|google-play-earnings-report|amazon-ppc-search-term|whatnot-sales-report|youtube-revenue-rpm|meta-ads-fatigue|turo-earnings-report|substack-subscriber-export|ghost-members-export|app-store-sales-report|era-835-underpayment-finder|tiktok-shop-settlement|kdp-royalty-report|gig-driver-earnings-report|airbnb-earnings-report|cash-runway|invoice-payment-terms|early-pay-discount-picker|cam-|saas-seat|saas-renewal-planner|vendor-contract-clause-reader|saas-annual-plan|saas-efficiency-metrics-calculator|saas-cac-payback|stripe-churn-cohort|ebay-promoted-listings-roi|etsy-ads-roi|stripe-failed-payment|google-ads-wasted-spend|subscription-price|self-storage-rate-increase|renewal-rent-optimizer|quote-follow-up-timing|trial-conversion-timing-analyzer|str-nightly-rate-optimizer|booking-request-chooser|market-event-picker|consignment-markdown-planner|trade-show-roi-calculator|dog-grooming-day-planner|str-turnover-scheduler|midterm-rental-calculator|support-staffing-planner|lot-split-calculator|csa-share-pricing-calculator|seller-net-sheet|travel-nurse-contract-comparison-calculator|appointment-deposit|appointment-no-show|appointment-overbooking|service-hourly-yield-analyzer|equipment-lease-buyout|equipment-lease-vs-buy|fleet-repair-or-replace-planner|card-processing-fee-audit|card-surcharge|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|cannabis-280e-tax-calculator|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|qbi-deduction-calculator|employee-cost-calculator|workers-comp-premium-calculator|s-corp-reasonable-compensation-calculator|tip-pool-compliance-calculator|section-174a-catchup-calculator|rd-tax-credit-calculator|bonus-depreciation-calculator|business-vehicle-depreciation-calculator|excess-business-loss-calculator|qsbs-exclusion-calculator|exempt-salary-threshold-checker|solo-401k-contribution-calculator|sep-ira-vs-solo-401k-calculator|mileage-deduction-method-calculator|mileage-log|home-office-deduction-calculator|str-tax-loophole-calculator|self-employment-tax-calculator|physician-wrvu-compensation-calculator|dental-associate-pay-calculator|cash-balance-plan-calculator|safe-dilution-calculator|cost-segregation-study-calculator|agent-brokerage-split-calculator|rental-dscr-calculator|commercial-property-cap-rate-calculator|rental-rent-optimizer|contractor-wip-schedule|landlord-repair-or-replace-planner|brrrr-calculator|self-employed-health-insurance-deduction-calculator|physician-wrvu-contract-calculator|veterinarian-associate-pay-calculator|startup-option-value-calculator|van-westendorp-pricing-analyzer|sales-commission-plan-comparison-calculator|locum-tenens-vs-employed-calculator|fix-and-flip-deal-analyzer|merchant-cash-advance-true-cost-calculator|business-loan-offer-comparator|usage-based-pricing-simulator|startup-exit-waterfall-calculator|augusta-rule-calculator|gabor-granger-price-analyzer|insurance-agency-book-valuation-calculator|ab-test-significance-calculator|investor-update-builder|online-business-valuation-calculator|customer-lifetime-value-predictor|icp-lens|sales-seasonality-forecaster|price-elasticity-estimator|seasonal-buy-quantity-optimizer|donor-retention-analyzer|donor-acknowledgment-letter-generator|private-practice-payer-mix-calculator|market-garden-bed-planner|cottage-food-pricing-calculator|payroll-tax-deposit-penalty-calculator|family-child-care-time-space-calculator)/.test(slug),
   },
   {
     id: 'ci',
@@ -3770,8 +3816,7 @@ const CATEGORY_RULES = [
         // bound; a self-employed filer's vehicle deduction and a freelancer's proposal are one person earning from their own work.
         'mileage-deduction-calculator',
         'proposal-maker',
-        // Joined 2026-10-18 to bring the catch-all back under its bound: one person comparing their own aid letters / turning their own meeting notes into actions.
-        'aid-award-letter-comparator',
+        // Joined 2026-10-18 to bring the catch-all back under its bound: one person turning their own meeting notes into actions.
         'meeting-action-items',
         // `wholesale-real-estate-offer-calculator`: one wholesaler pricing their own assignment deal; left the catch-all 2026-10-16.
         'wholesale-real-estate-offer-calculator',
@@ -3779,8 +3824,6 @@ const CATEGORY_RULES = [
         'clergy-housing-allowance-calculator',
         // `retreat-profit-pricing-calculator` joined 2026-10-09 on its first commit: one teacher or coach costing and pricing their own event.
         'retreat-profit-pricing-calculator',
-        // `card-bonus-planner` joined 2026-10-09 on its first commit. Back-office is over its 3 MB offline bound on main; one person scheduling their own sign-up bonuses is an individual earning from their own spending, not a business back office.
-        'card-bonus-planner',
         // `greenhouse-bench-planner` joined 2026-10-07 on its first commit. Back-office was at its 3 MB offline bound; a
         // grower selling transplants on fixed dates is one person pricing their own season's space.
         // `contract-vs-fte-rate-calculator` joined 2026-10-08 on its first commit: one person working out what a contract rate must be to match a salary.
@@ -3792,36 +3835,10 @@ const CATEGORY_RULES = [
         'cell-tower-lease-buyout-calculator',
         // `401k-plan-fee-calculator` joined 2026-10-10 on its first commit: filed here because `backoffice` is at its 3 MB gzipped offline bound; one plan sponsor sizing their own retirement plan's cost, beside the other retirement planners.
         '401k-plan-fee-calculator',
-        // `mortgage-extra-payment-vs-invest-calculator` joined 2026-10-08 on its first commit: one homeowner deciding what to do with their own spare cash against their own loan, beside the other single-person money-decision tools.
-        'mortgage-extra-payment-vs-invest-calculator',
         // `covered-call-wheel-calculator` joined 2026-10-08 on its first commit: one investor ranking option quotes on their own holding, beside the other single-person investing and income-timing tools.
         'covered-call-wheel-calculator',
-        // `rent-vs-buy-breakeven-calculator` joined 2026-10-08 on its first commit: one household deciding whether to buy, beside the home-sale and mortgage tools.
-        'rent-vs-buy-breakeven-calculator',
-        // `car-lease-deal-checker` joined 2026-10-11 on its first commit: one shopper checking their own lease quote, beside the other single-household money-decision tools.
-        'car-lease-deal-checker',
-        // `home-sale-net-proceeds-calculator` joined 2026-10-11 on its first commit: one seller's net sheet and tax estimate, beside the other single-household money-decision tools.
-        'home-sale-net-proceeds-calculator',
-        // `roommate-rent-splitter` joined 2026-10-11 on its first commit: roommates dividing their own rent, beside the other single-household money-decision tools.
-        'roommate-rent-splitter',
-        // `estate-item-divider` joined 2026-11-13 on its first commit: heirs dividing their own family's belongings, beside the roommate rent splitter (same fairness family).
-        'estate-item-divider',
-        // `funeral-price-list-checker` joined 2026-10-12 on its first commit: one family checking their own funeral quote line by line, beside the other single-household money-decision tools.
-        'funeral-price-list-checker',
-        // `cd-treasury-ladder-planner` joined 2026-10-08 on its first commit: one saver laddering their own cash, beside the other single-person investing and income-timing tools.
-        'cd-treasury-ladder-planner',
-        // `student-loan-rap-ibr-standard-calculator` joined 2026-10-08 on its first commit: one borrower choosing between repayment plans on their own federal loans, beside the other single-person money-decision tools.
-        'student-loan-rap-ibr-standard-calculator',
-        // `charity-bunching-planner` joined 2026-10-08 on its first commit: one donor timing gifts into a donor-advised fund, beside the other single-person tax and income-timing tools.
-        'charity-bunching-planner',
-        // `structured-settlement-buyout-calculator` joined 2026-10-08 on its first commit: one payee weighing a factoring company's cash offer for settlement payments, beside the buyout tools.
-        'structured-settlement-buyout-calculator',
         // `film-tax-credit-net-value-calculator` joined 2026-10-08 on its first commit: one producer turning their own production's incentive into net cash, the catch-all being at its bound.
         'film-tax-credit-net-value-calculator',
-        // `mortgage-points-break-even-calculator` joined 2026-10-08 on its first commit: one buyer weighing points on their own loan estimate, beside the other lump-sum-for-income decisions.
-        'mortgage-points-break-even-calculator',
-        // `heloc-vs-cash-out-refinance-calculator` joined 2026-10-08 on its first commit: one homeowner pricing their own two ways to borrow against equity, beside the mortgage points tool.
-        'heloc-vs-cash-out-refinance-calculator',
         // `oil-gas-mineral-rights-offer-calculator` joined 2026-10-08 on its first commit: one owner weighing a buyout of their own royalty income, beside the tower-lease tool.
         'oil-gas-mineral-rights-offer-calculator',
         // `tax-lien-certificate-yield-calculator` joined 2026-10-08: the catch-all hit its bound of 5 when it graduated; one investor working out the yield on their own certificate.
@@ -3888,8 +3905,6 @@ const CATEGORY_RULES = [
         'uk-sole-trader-vs-limited-company-calculator',
         // `uk-mtd-income-tax-checker` joined 2026-10-13 on its first commit: UK sole traders and landlords checking their Making Tax Digital start date, the same solo earner.
         'uk-mtd-income-tax-checker',
-        // `schengen-90-180-day-calculator` joined 2026-10-13 on its first commit: remote workers and nomads tracking Schengen days, the same solo earner.
-        'schengen-90-180-day-calculator',
         'cat-adjuster-fee-calculator',
         'ad-slot-sell-through-planner',
         'candle-batch-cost-calculator',
@@ -4836,6 +4851,14 @@ const CATEGORY_PAGE_COPY = {
     intro:
       'Each tool works one household tax, pay or retirement question with the IRS or SSA figures it names, shows the arithmetic, and says which tax year it assumes. Nothing you type leaves your browser.',
     audience: 'US employees, retirees, investors and families doing their own numbers',
+  },
+  household: {
+    title: 'Free household money calculators: home, loans, medical bills',
+    description:
+      'Free household money tools: mortgage points and escrow, rent vs buy, student-loan plans, medical bill errors, insurance denial appeals and deposit deadlines.',
+    intro:
+      'Each tool works one household money question from your own figures (a loan estimate, an escrow statement, an itemized bill, a lease) and shows the arithmetic and the rule it applies. Nothing you type leaves your browser.',
+    audience: 'Homeowners, renters, borrowers, patients and families checking their own bills and decisions',
   },
   'uk-tax': {
     title: 'Free UK tax, pay and benefits calculators',
