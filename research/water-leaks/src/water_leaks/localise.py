@@ -291,3 +291,61 @@ def steepest_dated(states, k, window=30, span=14):
         return float(xc @ f) / den
 
     return max(cand, key=lambda j: (slope(j), st[j][0], -j))
+
+
+def shape_fit(f):
+    """Step 23: fit a one-change step or ramp to a daily flow series f (index 0 = first day).
+
+    Both models are 0 before a change day tau; a step is a >= 0 from tau on, a ramp is
+    b (d - tau + 1), b >= 0. Each tau and amplitude is fitted by least squares. Returns
+    (shape, tau, amplitude, sse) for the better one, shape "step" or "ramp", ties to the step."""
+    a, b = _one_shape(f, "step"), _one_shape(f, "ramp")
+    return b if b[3] < a[3] - 1e-12 else a
+
+
+def change_time(shape, tau, n, half=True):
+    """Step 23: the change time, in days from the series start, of a `shape_fit` result on a
+    series of length n. A step's is tau; a ramp's (half=True) is the day it reaches half its
+    fitted level on the last day, tau - 1 + (n - tau) / 2; with half=False it is tau."""
+    if shape == "step" or not half:
+        return float(tau)
+    return tau - 1 + (n - tau) / 2
+
+
+def shape_timed(states, k, alarm, window=30, fit_days=30, force=None, half=True):
+    """Step 23: among atoms active on day k with onset in [k - window, k], fit each atom's daily
+    flow over [k - fit_days + 1, k] (0 where inactive) with `shape_fit` (force="step"/"ramp":
+    one shape only), time its change with `change_time`, and return the atom whose change time
+    is nearest `alarm` (a fractional day), ties by the larger flow on day k. Falls back to
+    `latest_onset` when no atom qualifies. Also returns {atom: (shape, change day)}."""
+    st = states[k]
+    cand = [j for j in st if window is None or st[j][1] >= k - window]
+    if not cand:
+        return latest_onset(st), {}
+    d0 = max(0, k - fit_days + 1)
+    days = range(d0, k + 1)
+    n = k + 1 - d0
+    info = {}
+    for j in cand:
+        f = [states[d][j][0] if j in states[d] else 0.0 for d in days]
+        if force is None:
+            shape, tau, _, _ = shape_fit(f)
+        else:
+            shape, tau, _, _ = _one_shape(f, force)
+        info[j] = (shape, d0 + change_time(shape, tau, n, half))
+    pick = min(cand, key=lambda j: (abs(info[j][1] - alarm), -st[j][0], j))
+    return pick, info
+
+
+def _one_shape(f, shape):
+    f = np.asarray(f, dtype=float)
+    n = len(f)
+    best = None
+    for tau in range(n):
+        g = np.zeros(n)
+        g[tau:] = 1.0 if shape == "step" else np.arange(1, n - tau + 1)
+        amp = max(0.0, float(g @ f) / float(g @ g))
+        sse = float(np.sum((f - amp * g) ** 2))
+        if best is None or sse < best[3] - 1e-12:
+            best = (shape, tau, amp, sse)
+    return best

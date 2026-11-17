@@ -474,6 +474,19 @@ floor friction swept.
 
 ![Nose windup and the matched compensator's residual against the hose's horizontal tension, and the stack points lost when the tension is unknown](experiments/m35_hose/figure.png)
 
+**Milestone 36: does a wrist force-torque sensor fix the hose?** The compensator now predicts each joint's load from the
+measured wrench instead of a no-hose model. With a Robotiq FT 300's listed noise (0.1 N, so 0.2 N at 2σ) the G1's worst
+residual along the wall at a 20 N drag falls from **2.34 to 0.29 mm**, and with the drag anywhere in 0–20 N the worst
+pose loses **1.6 points** instead of 91.6 (H135 held). Misjudging the joints' stiffness by 25% costs little (0.06–0.10 mm
+at 5 N; H134 refuted). But the residual does not fall below about **0.3–0.5 mm** whatever the sensor: at a 5 N drag a
+0.01 N error already leaves 0.27 mm and 0.2 N leaves **0.82 mm** (H132 refuted), because a held joint sitting within
+0.0014–0.05 N m of the 0.2 N m holding threshold gets predicted on the wrong side of its gap. The pre-2017 FT 300
+(1.2 N noise) is worse than no sensor (H133 held). The rule: measure the wrench for the windup, and keep held joints away
+from the threshold (a preload) before trusting model-based backlash compensation. The sharp threshold is milestone 30's
+model, not a measurement; statics only.
+
+![Residual along the wall with and without a wrist F/T sensor, the floor set by joints at the friction threshold, and the stack points lost](experiments/m36_wrist_ft/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
