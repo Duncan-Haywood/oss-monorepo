@@ -861,9 +861,11 @@ export function analyze(input = {}) {
 }
 
 export function csvCell(c) {
-  const s = String(c);
-  const guarded = /^[=+\-@\t\r]/.test(s) && !/^[+-]?(\d|\.\d)/.test(s) ? `'${s}` : s;
-  return /[",\n]/.test(guarded) ? `"${guarded.replace(/"/g, '""')}"` : guarded;
+  let s = c == null ? "" : String(c);
+  // CSV formula injection: column names are typed by the visitor, so a leading
+  // = + - @ (or tab/CR) would run as a formula in a spreadsheet. Plain numbers stay numbers.
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
 /** One row per pair: both readings, mean, difference, and each fit's prediction and residual. */
