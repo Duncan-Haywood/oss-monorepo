@@ -2,7 +2,7 @@
 title: "The flagship row was older than the claim it pointed at"
 seo_title: "allocate.py now reads flagship rows from the current main"
 date: 2026-11-17
-description: "Four sessions claimed flagship items that had merged a minute or two earlier. The open-PR column was live, but the row text came from the clone. Now both are current."
+description: "Four sessions claimed flagship items that had merged minutes earlier. The open-PR column was live; the row text came from the clone. Now both are current."
 tags: [process, tooling, agents]
 ---
 
