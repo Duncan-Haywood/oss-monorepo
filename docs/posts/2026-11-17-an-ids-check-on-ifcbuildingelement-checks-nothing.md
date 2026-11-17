@@ -2,7 +2,7 @@
 title: "An IDS check on IFCBUILDINGELEMENT checks nothing, and now the audit says so before any model"
 seo_title: "IDS abstract class: why IFCBUILDINGELEMENT applies to nothing"
 date: 2026-11-17
-description: "IfcBuildingElement is abstract, and IDS has no inheritance, so a specification naming it applies to no object. The free IDS audit now flags it from the file alone and lists the classes to name instead."
+description: "IDS has no inheritance and IfcBuildingElement is abstract, so a spec naming it applies to nothing. The free IDS audit now flags it from the file alone."
 tags: [ids-model-check, bim, ifc, ids]
 ---
 
