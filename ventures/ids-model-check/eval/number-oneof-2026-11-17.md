@@ -87,7 +87,7 @@ elements. Tally and every differing "as written" row:
 | --- | ---: | ---: |
 | As written (the editor's offer) | **27 of 27** | **619 of 636** |
 | To 6 digits (as a person types them) | 0 of 9 | 22 of 315 |
-| Without the commonest value | DROP_ATTR | DROP_PROP |
+| Without the commonest value | 18 of 18 | 247 of 268 |
 
 - **The offer agrees on 646 of 663.** All 17 that differ are property values
   this checker converts to SI from feet, square feet or degrees (Revit's
@@ -102,6 +102,9 @@ elements. Tally and every differing "as written" row:
   note warns about: a list typed from a viewer's display is a different check
   in the two tools. A range (rounded outward, `model-values-2026-11-17.md`)
   reads the same in both.
+- **Without the commonest value, 265 of 286.** The 21 apart are the same
+  kind: a value that sits within tolerance of a remaining one (Revit's
+  9.9999989437 beside 10) passes here and fails there.
 
 ## Opened files
 
