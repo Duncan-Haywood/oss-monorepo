@@ -230,13 +230,14 @@ flagships:
       passes Mustang; open: a real business's PINT file. A run that lands a slice
       replaces its item here. More open items: NEXT.md.
     buildable: >-
-      Built-in checks report a number or date holding a no-break or other non-XML
-      space (INV-065, browser and CLI) since 2026-11-17: 13,920 of 13,920 copies
-      named, agreeing with SaxonC-HE (eval/nbsp-amounts-2026-11-17.md). Next:
-      cross-check the PINT and ZATCA sets against SaxonC as
-      eval/xml-whitespace-crosscheck.mjs does (SchXslt compiles their .sch); the
-      other readers (FatturaPA, FA(3), Facturae, NAV, ISDOC) trim with String.trim()
-      too: the same leaf scan there. No network beyond PyPI and Maven.
+      INV-065 (a number, date or boolean holding a no-break or other non-XML space)
+      in every XML reader since 2026-11-17: UBL/CII 13,920 of 13,920 copies
+      (eval/nbsp-amounts-2026-11-17.md), FatturaPA, FA(3), Facturae, NAV, ISDOC
+      10,005 of 10,005 (eval/nbsp-other-formats-2026-11-17.md), all agreeing with
+      SaxonC-HE. Next: cross-check the PINT and ZATCA sets against SaxonC as
+      eval/xml-whitespace-crosscheck.mjs does (SchXslt compiles their .sch);
+      xs:dateTime leaves (FA(3), NAV timestamps) are outside INV-065's CASTABLE. No
+      network beyond PyPI and Maven.
   - venture: shift-roster-builder
     inputs_only: >-
       a live deploy with real punches, a real payroll template, a manager's
