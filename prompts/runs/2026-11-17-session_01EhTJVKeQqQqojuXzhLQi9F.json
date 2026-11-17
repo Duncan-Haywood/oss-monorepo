@@ -7,14 +7,16 @@
   "input_sha256": "4207abd77e9a8607d5ea627a8aa7754abc9fab62bb68e0f6eb3a480afbda5e64",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T22:55:52Z",
   "ended": "2026-11-17T02:02:42Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 201.67,
+  "tokens_in": 15594479,
+  "tokens_out": 38027,
+  "cost_usd": 5.0036,
+  "tool_calls": 101,
   "task": "Deepen (flagship 9) league-schedule-generator: 47 on 8x9 (allocate.py row 6), plus the fully booked 43 on 7x9",
   "projects": [
     "league-schedule-generator"
@@ -30,7 +32,7 @@
   "tests_added": 0,
   "outcome": "success",
   "errors": [
-    "Container restarted ~15 min in; background SAT runs lost, resumed from --save states in the scratchpad",
+    "Container restarted twice (~15 min in, and ~3.5 h in); background SAT runs and a test run lost each time, resumed from --save states / rerun",
     "First launch failed: python-sat import missing for the interpreter until reinstalled with python3 -m pip"
   ],
   "integrity_issues": [],
@@ -57,7 +59,84 @@
     "ventures/league-schedule-generator/README.md (sections '43 teams on 7 x 9' and '47 teams on 8 x 9')"
   ],
   "goal": null,
-  "notes": "43 on 7x9 wait-free (odd-orbit.py, 166,511 vars, 9,849 s; stored as design 35; doubleheader + lns-state tests pass). 47 on 8x9: best 5 of 16 nights, state in eval/lns-states/47-8x9.json; lns-state.test.mjs generalised to check every saved state. Venture test suite run with run_venture_tests.py (see PR body).",
+  "notes": "43 on 7x9 wait-free (odd-orbit.py, 166,511 vars, 9,849 s; stored as design 35; doubleheader + lns-state tests pass). 47 on 8x9: best 5 of 16 nights, state in eval/lns-states/47-8x9.json; lns-state.test.mjs generalised to check every saved state. run_venture_tests.py league-schedule-generator: ok, 561 tests, 0 failed. Resumed 47 runs (seeds 31/41/51/61 from 5 of 16) accepted no step before the second restart.",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3c596f1a-1cd0-5b10-a49b-8ef3fdc1a48e",
+    "transcripts": 1,
+    "first": "2026-11-16T22:55:52Z",
+    "last": "2026-11-17T02:17:33Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 122,
+        "input": 286,
+        "output": 38027,
+        "thinking": 10202,
+        "cache_read": 15450206,
+        "cache_write_5m": 0,
+        "cache_write_1h": 143987,
+        "api_equivalent_usd": 5.0036,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 122,
+      "input": 286,
+      "output": 38027,
+      "thinking": 10202,
+      "cache_read": 15450206,
+      "cache_write_5m": 0,
+      "cache_write_1h": 143987,
+      "api_equivalent_usd": 5.0036,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.991,
+    "tool_calls": 101,
+    "tools": {
+      "Bash": 83,
+      "Monitor": 10,
+      "ToolSearch": 3,
+      "TaskStop": 3,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 201.67,
+      "active_minutes": 15.2,
+      "model_minutes": 9.53,
+      "tool_minutes": 5.66,
+      "waiting_on_human_minutes": 186.47,
+      "human_prompts": 33,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "running and babysitting multi-hour SAT searches, storing a design, docs and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 119.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
