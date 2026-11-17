@@ -6127,3 +6127,59 @@ the three small-gap warnings. Not adopted: not pre-registered.
 shocks need not be steps. The 80% cut was chosen from the exploratory run (50 a cell) before the confirmatory one.
 **Next:** print the balance table, with the warning, from the CLI once it offers a synthetic control; a two-covariate
 cell (one that matters, one that does not) to check the warning names the right one.
+
+### A synthetic control from the command line, with its balance table (2026-11-17)
+
+The balance rounds ended "print the balance table, with the warning, from the CLI once it offers a synthetic control".
+It now does:
+
+```
+node cli.mjs data/us-cigarette-packs-per-capita.csv --window 1970:2000 --column CA --known-date 1989 \
+  --donors AL,AR,CO,CT,DE,GA,IA,ID,IL,IN,KS,KY,LA,ME,MN,MO,MS,MT,NC,ND,NE,NH,NM,NV,OH,OK,PA,RI,SC,SD,TN,TX,UT,VA,VT,WI,WV,WY \
+  --covariates data/prop99-covariates-1989.csv
+```
+
+`--donors` (a list, or `all` for every other numeric column) turns `--known-date` into a synthetic control on a wide
+CSV, one column per unit, with the shipped defaults (outcome-only fit, floored ratio). `--window from:to` cuts the rows;
+`--log` takes logs; a blank in any used column is refused, not carried forward. `--covariates` takes a file with one
+row per unit (the column's name, then one number per covariate, a header naming them; `data/prop99-covariates-1989.csv`
+is written by `node eval/prop99-covariates.mjs` with the balance round's definitions). The text gives the weights,
+the before-gap and how many placebos fit better (with the fit warning), the gap after the date, the floored rank and p
+and the paper's ratio rank, and the balance table with `WARNING` on each covariate where 80% or more of the placebos
+are matched better. The run above prints exactly the recorded numbers: UT 0.391, MT 0.227, NV 0.207; gap -19.5 on
+average, -26.5 at 2000; rank 1 of 39, p 0.026 (ratio: 3rd); ln income 1.66 sd, 89%, `WARNING` (`synth-cli.test.mjs`).
+
+**Why it ships now, against the floored-ratio round's "stays out of the CLI".** That round held the CLI back because
+three of four real tax rises were not found (bar 4b, a power bar on real data); size held in every round (2.3-5.3% at
+p 0.05). A size-calibrated test with low power is usable if it says so, and the balance diagnostic it lacked then now
+exists. So the CLI prints the power record with every result ("a large p is not evidence of no effect"), and the fit
+and placebo warnings beside the p. The decision is a product call by this run, not a new pre-registered result.
+
+### Two covariates: the warning carries the false finds, but does not always name the culprit (2026-11-17, pre-registered; one bar failed)
+
+The balance round asked for "a two-covariate cell (one that matters, one that does not) to check the warning names
+the right one". `eval/synth-two-cov-sim.mjs` (pre-registration `eval/synth-two-cov-prereg-2026-11-17.md`, committed
+after an exploratory run at base 51000 and before the confirmatory run): the same N1 panels, each unit with Z, which
+moves every unit by beta x Z from the date on, and W, which moves nothing; no true effect, so every gap is bias.
+Confirmatory, base 53000, 400 panels a cell (`eval/synth-two-cov-confirm.out.txt`):
+
+| cell | Z warns | W warns | p <= 0.05: Z warned / W alone / neither | mean abs. bias: Z warned / W alone / neither |
+|---|---|---|---|---|
+| C1 beta 0.5, independent | 21.5% | 19.5% | 14.0% (86) / 0.0% (58) / 1.2% (256) | 0.912 / **0.532** / 0.418 |
+| C2 beta 0.5, corr 0.7 | 22.8% | 22.3% | 14.3% (91) / 0.0% (43) / 0.8% (266) | 1.030 / 0.422 / 0.444 |
+| C3 beta 1.0, independent | 18.3% | 20.8% | 12.3% (73) / 0.0% (69) / 0.0% (258) | 1.878 / 0.831 / 0.683 |
+
+Bars: (1) W's warning fires in 10-30% of C1 and C3: 19.5%, 20.8%, holds. (2) Z-warned bias at least 1.5x the
+neither group's (2.2x, 2.7x, holds) and W-alone at most 1.25x (C3 1.22x holds; **C1 1.27x fails**). (3) In C3, Z-warned
+p <= 0.05 share at least 5 points above neither (+12.3) and W-alone at most 2 above (+0.0): holds. (4) In C2, Z-warned
+bias above W-alone's (1.03 vs 0.42): holds.
+
+**What it says.** Every false finding sat in a panel warned on the covariate that mattered: 12-14% of those reach
+p <= 0.05 with no effect, against none of the 170 warned only on the harmless one and 0-1.2% of the unwarned. So a
+`WARNING` row still marks the result to distrust. But the bias in panels warned only on W is a little above the
+unwarned (1.22-1.27x), past the pre-registered cap in C1: a treated unit matched worse than the placebos on one
+covariate tends to be matched a little worse on others too (a post-hoc reading, not tested). With correlated
+covariates (C2) the two warnings fire together on half their panels (11.5 of 22-23%). **As pre-registered for a
+failed bar 2,** the CLI's warning text now says the warned covariate need not be the one that moved the outcome, and
+that correlated covariates share warnings. **Next:** the balance table on the page; covariates with shocks that are
+not steps (a slope from the date).

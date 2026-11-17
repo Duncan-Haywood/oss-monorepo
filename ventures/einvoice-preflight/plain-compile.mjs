@@ -125,6 +125,24 @@ const BIGMOD = 'declare function u:bigmod($digits as xs:string, $m as xs:integer
 // two decimals, half-to-even, and the rules compare two such strings; '#.00' drops a zero integer part.
 const FMT = 'declare function u:fmt($n as item()*, $pic as xs:string) as xs:string { if (empty($n)) then "NaN" else let $x := xs:double($n) return if ($x != $x) then "NaN" else let $c := xs:integer(round-half-to-even(abs($x) * 100)) return concat(if ($x < 0 and $c > 0) then "-" else "", if ($c idiv 100 > 0 or starts-with($pic, "0")) then string($c idiv 100) else "", ".", format-integer($c mod 100, "00")) };';
 const rewriteFormatNumber = (test) => test.replace(/(?<![\w:.-])format-number\(/g, "u:fmt(");
+// fontoxpath 3.34 has neither adjust-date-to-timezone nor adjust-dateTime-to-timezone, so a
+// rule calling one was always skipped ("not checked"): Oman's IBR-171-OM, an issue date
+// in the future by Oman time (2026-11-17). Calls are renamed to these XQuery copies of
+// F&O 3.1 sections 10.7.1-2 (an empty $tz drops the zone without moving the clock).
+const TZ = [
+  "declare function u:tz-string($tz as xs:dayTimeDuration) as xs:string { let $m := xs:integer($tz div xs:dayTimeDuration('PT1M')) let $a := abs($m) return concat(if ($m < 0) then '-' else '+', substring(string(100 + $a idiv 60), 2), ':', substring(string(100 + $a mod 60), 2)) };",
+  "declare function u:adjust-dateTime-to-timezone($v as xs:dateTime?, $tz as xs:dayTimeDuration?) as xs:dateTime? { if (empty($v)) then () else let $local := xs:dateTime(replace(string($v), '(Z|[+\\-]\\d\\d:\\d\\d)$', '')) return if (empty($tz)) then $local else let $src := timezone-from-dateTime($v) let $shifted := if (empty($src)) then $local else $local + ($tz - $src) return xs:dateTime(concat(string($shifted), u:tz-string($tz))) };",
+  "declare function u:adjust-date-to-timezone($v as xs:date?, $tz as xs:dayTimeDuration?) as xs:date? { if (empty($v)) then () else let $d := replace(string($v), '(Z|[+\\-]\\d\\d:\\d\\d)$', '') return if (empty($tz)) then xs:date($d) else let $dt := u:adjust-dateTime-to-timezone(xs:dateTime(concat($d, 'T00:00:00', substring-after(string($v), $d))), $tz) return xs:date(concat(substring(string($dt), 1, 10), u:tz-string($tz))) };",
+].join("\n");
+const TZ_CALL = /(?<![\w.\-:$])(?:fn:)?(adjust-date(?:Time)?-to-timezone)(?=\s*\()/g;
+export const rewriteTimezone = (text) => text.replace(TZ_CALL, "u:$1");
+
+// current() is XSLT's, not XPath's; fontoxpath does not know it. In a Schematron assert it
+// is the rule's context node, so the test is bound to it with a let (Oman's
+// ALIGNED-IBRP-S-08-OM reads the subtotal's rate inside a predicate over the lines).
+const CURRENT_CALL = /(?<![\w.\-:$])(?:fn:)?current\s*\(\s*\)/g;
+export const rewriteCurrent = (test) => (test.search(CURRENT_CALL) >= 0 ? `let $schematron-current := . return (${test.replace(CURRENT_CALL, "$schematron-current")})` : test);
+
 function rewriteBigMod(test) {
   let out = "";
   let rest = test;
@@ -247,7 +265,7 @@ export function compileSchematron(file) {
           kind: a.localName,
           id: a.getAttribute("id") || "",
           flag: a.getAttribute("flag") || r.getAttribute("flag") || "fatal",
-          test: rewriteFormatNumber(rewriteBigMod(bindInPredicates(a.getAttribute("test"), rawLets, inPattern))),
+          test: rewriteCurrent(rewriteTimezone(rewriteFormatNumber(rewriteBigMod(bindInPredicates(a.getAttribute("test"), rawLets, inPattern))))),
           text: clean(a.textContent),
         }));
         for (const e of elements(r)) {
@@ -259,12 +277,22 @@ export function compileSchematron(file) {
   });
 
   // Function bodies may read global lets ($XR-IBAN-REGEX) and do the same big-integer mod 97.
-  const declared = functions.map((f) => rewriteBigMod(substitute(xqueryFunction(f), resolvedGlobals)));
+  // A function's own parameters and variables shadow a global of the same name: Oman's
+  // PINT set has a global $lines and u:vatBase($cat, $lines, ...), and pasting the global
+  // into the parameter list broke the whole prolog, so every rule that read it was skipped
+  // (2026-11-17, eval/pint-zatca-whitespace-2026-11-17.md).
+  const declared = functions.map((f) => {
+    const local = new Set(elements(f).filter((e) => is(e, XSL, "param")).map((e) => e.getAttribute("name")));
+    const walk = (n) => { for (const e of elements(n)) { if (is(e, XSL, "variable")) local.add(e.getAttribute("name")); walk(e); } };
+    walk(f);
+    return rewriteTimezone(rewriteBigMod(substitute(xqueryFunction(f), resolvedGlobals.filter(([name]) => !local.has(name)))));
+  });
   const usesBigMod = [...declared, ...out.flatMap((p) => p.rules.flatMap((r) => r.checks.map((c) => c.test)))].some((t) => t.includes("u:bigmod("));
   const usesFmt = out.some((p) => p.rules.some((r) => r.checks.some((c) => c.test.includes("u:fmt("))));
-  const prolog = [...declared, ...(usesBigMod ? [BIGMOD] : []), ...(usesFmt ? [FMT] : [])].join("\n");
-  const prefixes = new Set([...functions.map((f) => f.getAttribute("name").split(":")[0]), ...(usesBigMod || usesFmt ? ["u"] : [])]);
-  if (usesFmt && !ns.u) ns.u = "urn:einvoice-preflight:util"; // prolog namespace for the helper above
+  const usesTz = [...declared, ...out.flatMap((p) => p.rules.flatMap((r) => r.checks.map((c) => c.test)))].some((t) => /\bu:adjust-date(?:Time)?-to-timezone\(/.test(t));
+  const prolog = [...declared, ...(usesBigMod ? [BIGMOD] : []), ...(usesFmt ? [FMT] : []), ...(usesTz ? [TZ] : [])].join("\n");
+  const prefixes = new Set([...functions.map((f) => f.getAttribute("name").split(":")[0]), ...(usesBigMod || usesFmt || usesTz ? ["u"] : [])]);
+  if ((usesFmt || usesTz) && !ns.u) ns.u = "urn:einvoice-preflight:util"; // prolog namespace for the helpers above
   const usesFunction = new RegExp(`(?<![\\w.-])(?:${[...prefixes].join("|")}):[A-Za-z]`);
   for (const p of out) for (const r of p.rules) for (const c of r.checks) if (prolog && usesFunction.test(c.test)) c.xq = true;
   const declarations = [...prefixes].map((p) => `declare namespace ${p} = "${ns[p]}";`).join("\n");
