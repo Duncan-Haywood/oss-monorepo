@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 139 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 140 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -161,6 +161,12 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   where the ladder fails (15.64% against 16.63%) and gives up 0.97 where it is perfect. Four of six predictions refuted; the
   probe-guard search for this rule closes here:
   [`experiments/delay_check/`](experiments/delay_check/results.txt).
+- **Milestone 138's set run to completion: the clipped ladder beats equal-cost random routing on 34 of 40 blind designs, and on
+  55 of 73 over every blind set with the mean's interval clear of zero (milestone 140, flow run, all seven predictions held).**
+  The 15 designs milestone 138's time limit cut, resumed with the same run.py: SWC 2.23% mean regret against 6.25%, better on
+  13, worse on 2 (sign p = 0.0074). Over 73 blind designs: 55 better, 15 worse (p = 0.000002), design-level mean -2.79 points
+  (95% interval -3.98 to -1.59). Above a routing-cost ratio of 6 it wins 18 of 19 cells:
+  [`experiments/ladder_rest/`](experiments/ladder_rest/results.txt).
 - **The clipped ladder's losses sit near the switch threshold, not at the tight clock, and a raised threshold buys nothing
   (milestone 139, replay, pre-registered).** Milestone 138's post-hoc reading tested on the 99 earlier ladder-branch cells that
   did not suggest it. Clock: refuted (failure rate 14/51 tight against 11/48 relaxed, Fisher p = 0.39; paired by design 19

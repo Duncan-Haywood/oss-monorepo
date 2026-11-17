@@ -643,6 +643,7 @@ ventures/kitchen-tile-backsplash-bid-calculator/usage.mjs
 ventures/klaviyo-profile-csv-check/usage.mjs
 ventures/ko-fi-payout-to-journal/usage.mjs
 ventures/kombucha-brewery-profit-calculator/usage.mjs
+ventures/kriging-interpolation/usage.mjs
 ventures/lambda-memory-rightsizer/usage.mjs
 ventures/lambda-vs-fargate-cost-breakeven/usage.mjs
 ventures/land-survey-bid-calculator/usage.mjs

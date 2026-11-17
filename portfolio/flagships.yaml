@@ -124,8 +124,10 @@ flagships:
       (eval/cord_images.py); tesseract via apt, RapidOCR via pip. CORD train shards
       1-3: tesseract four 362 of 583, `--rapidocr` 515, `--rapidocr --four-pass` 510
       with tax 172 to 203 of 267 (eval/second-ocr-engine-2026-11-17.md); test 80 of
-      95. Next: RapidOCR's parser misses on shards 1-3 (68; Rp57,000, cash taken as
-      total); ONNX Runtime Web for the page. CORD test stays held out.
+      95. RapidOCR runs on the page (rapidocr-web.mjs, ONNX Runtime Web;
+      eval/rapidocr-web-2026-11-17.md). Next: RapidOCR's parser misses on shards 1-3
+      (68; Rp57,000, cash taken as total); the page's RapidOCR in a Web Worker (it
+      blocks the tab). CORD test stays held out.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
@@ -204,28 +206,28 @@ flagships:
       History: README and git (latest: France BR-FR (FNFE 1.4.0.04) on the plain
       route, 264/264 vs Saxon (eval/br-fr-crosscheck-2026-11-17.md); CDAR
       (BR-FR-CDV) 780/780 vs Saxon (eval/cdar-crosscheck-*); open: Extended-CTC-FR
-      base sets, CDAR multi-ref/212 rules (17/43 hit), English BR-FR text, a real PA
-      rejection or status; VERI*FACTU (README): open: a production SIF's records and
-      replies). Open: a real HU report with NAV's businessValidationMessages or
-      SCHEMA_VIOLATION text; HU: open: a real chain with NAV's replies; a real
-      business's signed Facturae or FACe rejection (eval/facturae-gob-*); ZATCA: a
-      real KSA note; SdI: open: a real FatturaPA rejection with its file; HR: a real
-      HR invoice, cash accounting; CIUS-PT: which validator does AT run (AA/RED
-      codes)?; FA(3) KOR/ZAL/ROZ totals landed (README): open: a real KSeF
-      rejection, a business's real KOR/ZAL file; repair keeps PDF/A (veraPDF
-      155/155), PDF/A-3b writer passes Mustang; open: a real business's PINT file;
-      open: RO_CIUS on a real ANAF file; NLCIUS on a real Dutch file; India's INV-01
-      check on a real IRP payload; mandate texts: IL, ES, NRS, SRO 1852, Jordan
-      open; SK landed (README): open: a real SK file; Mexico CFDI 4.0 landed: open:
-      SAT's CP error matrix to map MX-070..080 to CP codes (omawww blocked), a real
-      payroll or export file, a PAC rejection compared; cCredPres rules and
-      cClassTrib at IT 1.71 landed (README): RTC events (211110, 12 others incl.
-      112120, 110001) landed, 211120 (removed in v1.40) flagged (README): open: a
-      real event; a real reform NF-e from a SEFAZ test environment, a real SEFAZ
-      rejection for a cClassTrib; national NFS-e landed: open: a national rejection
-      compared; ISS: SP, Rio, Curitiba rates, Rio codes (ABR-026) landed: open: BH
-      (hosts 403), a Rio rejection. A run that lands a slice replaces its item here.
-      More open items: NEXT.md.
+      base sets, CDAR _WARNING set (37/43 rules hit, 6 dead: FR-CDV-105..107 cover
+      them), English BR-FR text, a real PA rejection or status; VERI*FACTU (README):
+      open: a production SIF's records and replies). Open: a real HU report with
+      NAV's businessValidationMessages or SCHEMA_VIOLATION text; HU: open: a real
+      chain with NAV's replies; a real business's signed Facturae or FACe rejection
+      (eval/facturae-gob-*); ZATCA: a real KSA note; SdI: open: a real FatturaPA
+      rejection with its file; HR: a real HR invoice, cash accounting; CIUS-PT:
+      which validator does AT run (AA/RED codes)?; FA(3) KOR/ZAL/ROZ totals landed
+      (README): open: a real KSeF rejection, a business's real KOR/ZAL file; repair
+      keeps PDF/A (veraPDF 155/155), PDF/A-3b writer passes Mustang; open: a real
+      business's PINT file; open: RO_CIUS on a real ANAF file; NLCIUS on a real
+      Dutch file; India's INV-01 check on a real IRP payload; mandate texts: IL, ES,
+      NRS, SRO 1852, Jordan open; SK landed (README): open: a real SK file; Mexico
+      CFDI 4.0 landed: open: SAT's CP error matrix to map MX-070..080 to CP codes
+      (omawww blocked), a real payroll or export file, a PAC rejection compared;
+      cCredPres rules and cClassTrib at IT 1.71 landed (README): RTC events (211110,
+      12 others incl. 112120, 110001) landed, 211120 (removed in v1.40) flagged
+      (README): open: a real event; a real reform NF-e from a SEFAZ test
+      environment, a real SEFAZ rejection for a cClassTrib; national NFS-e landed:
+      open: a national rejection compared; ISS: SP, Rio, Curitiba rates, Rio codes
+      (ABR-026) landed: open: BH (hosts 403), a Rio rejection. A run that lands a
+      slice replaces its item here. More open items: NEXT.md.
   - venture: shift-roster-builder
     inputs_only: >-
       a live deploy with real punches, a real payroll template, a manager's

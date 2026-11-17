@@ -2975,9 +2975,36 @@ failed idea: 49 of 81 CORD train misses had the total in no tesseract reading, a
 the bottom third or five image variants (normalised, colour channels, a local threshold)
 recovered at most 3 of them. Nothing was tuned on these photos, so every set but train is
 unseen. Mixing RapidOCR with tesseract's four readings in the vote lowered totals (170 on
-train), so it is a separate mode for now; the page still uses tesseract.js. About 3.6 s a
+train), so it is a separate mode for now. (Since 2026-11-17 the page runs RapidOCR too: "RapidOCR on the page" below.) About 3.6 s a
 photo on one core. Details:
 [`eval/rapidocr-2026-11-17.md`](eval/rapidocr-2026-11-17.md). Tests: `rapidocr.test.mjs`.
+
+### RapidOCR on the page (2026-11-17)
+
+The receipts card's "Receipt photos" control now reads each photo with RapidOCR first, in the
+browser, then with tesseract.js four times, and all five readings vote, as
+`receipts --rapidocr --four-pass` does. `rapidocr-web.mjs` is a JavaScript port of
+rapidocr-onnxruntime 1.4.4's pipeline (detection post-processing, crops, the 180-degree
+classifier, CTC decoding) run through ONNX Runtime Web 1.20.1; the models (PaddleOCR PP-OCRv4,
+Apache-2.0, npm `@gutenye/ocr-models@1.4.2`, outputs equal to the wheel's) and the runtime,
+about 16 MB, come from jsDelivr the first time a photo is read with the box ticked. Nothing is
+uploaded. Untick "also read with RapidOCR" for tesseract alone; if RapidOCR cannot load, the
+page falls back to tesseract and says why.
+
+On SRD's 196 US receipt photos, what the page puts in the receipts box:
+
+| page readers | totals right | tax right of 185 |
+|---|---|---|
+| tesseract four (before) | 155 | 135 |
+| **RapidOCR first, then tesseract four (now)** | **184** | **166** |
+
+In headless Chromium the port's text matches the Python engine's on 170 of 199 photos and on
+98.5% of lines. Two pieces had to be exact to get there: pyclipper's round-join unclip and
+OpenCV's fixed-point linear resize. Caveats: tesseract's column was made with tesseract 5.3.4,
+not tesseract.js; RapidOCR takes about 4 s a photo on one WASM thread and blocks the tab while
+it reads (next: a Web Worker); CORD photos were not re-read (huggingface.co refused the
+session's proxy). Details: [`eval/rapidocr-web-2026-11-17.md`](eval/rapidocr-web-2026-11-17.md).
+Tests: `rapidocr-web.test.mjs`; the page end to end: `eval/photo-ocr-browser.mjs`.
 
 ## Budget against actual
 
