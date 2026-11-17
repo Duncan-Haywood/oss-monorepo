@@ -25,14 +25,15 @@ test("inputs have labels and nothing in the page or the code can send the file a
 test("the module scripts import only local files", () => {
   const html = page("index.html");
   const imports = [...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]);
-  assert.deepEqual(imports.sort(), ["./calc.mjs", "./inflate-browser.mjs", "./usage.mjs"]);
+  assert.deepEqual(imports.sort(), ["./calc.mjs", "./inflate-browser.mjs", "./ocr.mjs", "./usage.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
 });
 
-test("page states its limits plainly: no OCR, no real customer statements tested, layouts from memory", () => {
+test("page states its limits plainly: OCR is opt-in and checked, no real customer statements tested, layouts from memory", () => {
   const html = page("index.html");
   assert.match(html, /Not checked/);
-  assert.match(html, /No OCR/);
+  assert.match(html, /Only the reader is downloaded; your statement is read inside this tab/);
+  assert.match(html, /A row lost from the scan is never covered up/);
   assert.match(html, /None is a real customer.s statement/);
   assert.match(html, /written from memory of their public import help/);
 });
@@ -50,7 +51,7 @@ test("robots and sitemap let crawlers find the page", () => {
 
 test("usage events named on the page are the ones the code records", () => {
   const html = page("index.html");
-  for (const e of ["statement_read", "example_loaded", "csv_downloaded"]) {
+  for (const e of ["statement_read", "scan_read", "example_loaded", "csv_downloaded"]) {
     assert.match(html, new RegExp(`record\\("${e}"\\)`));
     assert.match(html, new RegExp(`<code>${e}</code>`));
   }

@@ -2912,6 +2912,21 @@ SRD 155 to 156; CORD text train 749 to 761 and test 92 to 93; SROIE unchanged. D
 [`eval/cord-train-photos-2026-11-17.md`](eval/cord-train-photos-2026-11-17.md).
 Tests: `cord-train-photos.test.mjs`.
 
+### RapidOCR and tesseract together (2026-11-17)
+
+`--rapidocr --four-pass` reads the photo with RapidOCR first, then with tesseract's four
+readings, and all five vote (`RECEIPT_OCR_LEAD` does the same with any OCR command):
+
+```
+RAPIDOCR_PYTHON=v/bin/python node cli.mjs --books b.json receipts photo.jpg --rapidocr --four-pass
+```
+
+Against `--rapidocr` alone, totals stay about level and taxes go up. Held-out CORD test:
+totals 80 and 80 of 95, tax 28 to 32 of 41. US receipt photos (SRD): 180 to 181 of 196, tax
+142 to 162 of 185. CORD train shards 1-3 (where the order was chosen): 515 to 510 of 583, tax
+172 to 203 of 267. Against tesseract's four alone, test totals go from 56 to 80. Details:
+[`eval/second-ocr-engine-2026-11-17.md`](eval/second-ocr-engine-2026-11-17.md).
+
 ### CORD train shards 1-3: 600 more unseen photos (2026-11-17)
 
 The other three CORD train shards, read for the first time, score 356 of 583 totals (61.1%)

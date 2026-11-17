@@ -64,6 +64,60 @@ function substitute(text, lets) {
   return out;
 }
 
+// True when `$name` occurs inside a predicate ([...]) of `test`, outside string literals.
+export function usedInPredicate(test, name) {
+  const ref = new RegExp(`^\\$${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w.-])`);
+  let depth = 0;
+  let quote = "";
+  for (let i = 0; i < test.length; i++) {
+    const c = test[i];
+    if (quote) { if (c === quote) quote = ""; continue; }
+    if (c === "'" || c === '"') quote = c;
+    else if (c === "[") depth++;
+    else if (c === "]") depth--;
+    else if (c === "$" && depth > 0 && ref.test(test.slice(i))) return true;
+  }
+  return false;
+}
+
+// A rule <let> is evaluated once, at the rule's context node. Pasting its text into the
+// test is the same thing only where the test reads it at that node: inside a predicate
+// the context is another node, and a relative value (FNFE-MPE's BR-FR-MV-03
+// `$invcurrency` = ../../cbc:DocumentCurrencyCode, read inside TaxAmount[...]) then
+// reads the wrong element (and BR-FR-MV-05 reads $grouplineID inside a predicate of
+// another let, $sumsubline). When the test, or a rule let it uses, reads a rule let
+// inside a predicate, every rule let the test needs is bound with an XPath 3.1
+// `let ... return` at the context node, in declaration order, as XSLT evaluates them.
+// Otherwise the text is substituted as before, so sets that never read a rule let inside
+// a predicate compile to the same text.
+//   rawLets: [name, value] of the rule's own lets, as written (unsubstituted);
+//   outer: the pattern and schema lets, already resolved.
+function bindInPredicates(test, rawLets, outer) {
+  const refs = (text, name) => new RegExp(`\\$${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w.-])`).test(text);
+  // the rule lets this test needs, transitively (a later let shadows an earlier one)
+  const need = new Set();
+  const visit = (text, before) => {
+    for (let i = before - 1; i >= 0; i--) {
+      const [name, value] = rawLets[i];
+      if (need.has(i) || !refs(text, name) || rawLets.slice(i + 1, before).some(([n]) => n === name)) continue;
+      need.add(i);
+      visit(value, i);
+    }
+  };
+  visit(test, rawLets.length);
+  const used = [...need].sort((a, b) => a - b);
+  const inPredicate = used.some((i) => usedInPredicate(test, rawLets[i][0]) || used.some((j) => j > i && usedInPredicate(rawLets[j][1], rawLets[i][0])));
+  if (!inPredicate) {
+    const inRule = [...outer];
+    for (const [name, value] of rawLets) inRule.push([name, substitute(value, inRule)]);
+    return substitute(test, inRule);
+  }
+  const names = new Set(used.map((i) => rawLets[i][0]));
+  const keep = outer.filter(([n]) => !names.has(n)); // a rule let shadows a same-named outer one
+  const chain = used.map((i) => `let $${rawLets[i][0]} := (${substitute(rawLets[i][1], keep)}) return `).join("");
+  return `${chain}(${substitute(test, keep)})`;
+}
+
 // IBAN mod-97 checks (DE-R-019/020) cast a 24-digit string to xs:integer, which
 // fontoxpath keeps in a double. Run them as a digit-by-digit remainder instead.
 const BIGMOD = 'declare function u:bigmod($digits as xs:string, $m as xs:integer) as xs:integer { fold-left(string-to-codepoints($digits), 0, function($acc, $c) { ($acc * 10 + $c - 48) mod $m }) };';
@@ -125,7 +179,14 @@ function xqueryFunction(fn) {
   };
   const as = fn.getAttribute("as");
   const stmts = elements(fn).filter((e) => !is(e, XSL, "param"));
-  return `declare function ${name}(${params.join(", ")})${as ? ` as ${as}` : ""} { ${body(stmts)} };`;
+  let decl = `declare function ${name}(${params.join(", ")})${as ? ` as ${as}` : ""} { ${body(stmts)} };`;
+  // fontoxpath does not implement a `let` whose variable has a prefix ("let expressions
+  // with namespace usage"), and one such let breaks the whole prolog. FNFE-MPE's BR-FR
+  // functions declare `$custom:eas-codes` and the like: rename them to `$custom_eas-codes`
+  // inside that function (they are local; nothing outside can name them).
+  const prefixed = new Set([...decl.matchAll(/\blet \$([\w.-]+:[\w.-]+)/g)].map((m) => m[1]));
+  for (const v of prefixed) decl = decl.replace(new RegExp(`\\$${v.replace(/[.-]/g, "\\$&")}(?![\\w.-])`, "g"), `$${v.replace(":", "_")}`);
+  return decl;
 }
 
 // file -> { ns, prolog, patterns } ; `prefixFor` finds the namespace URI of u: in the prolog.
@@ -167,19 +228,26 @@ export function compileSchematron(file) {
   for (const [name, value] of globalLets) resolvedGlobals.push([name, substitute(value, resolvedGlobals)]);
   const rootedGlobals = resolvedGlobals.map(([name, value]) => [name, fromRoot(value)]);
 
+  // The ISO skeleton writes a pattern's <let> as a top-level xsl:variable, so a later
+  // pattern can read it (FNFE-MPE's BR-FR-MV-02..14 read BR-FR-MV-01's $invoiceID, and
+  // FNFE's own XSLT has it at the top level). Earlier patterns' lets are in scope here
+  // too, behind the pattern's own; with no clash this changes nothing for other sets.
+  const earlier = [];
   const out = patterns.map((p) => {
-    const inPattern = [...rootedGlobals];
+    const inPattern = [...rootedGlobals, ...earlier];
+    for (const [name, value] of p.lets) earlier.push([name, fromRoot(substitute(value, [...rootedGlobals, ...earlier]))]);
     for (const [name, value] of p.lets) inPattern.push([name, fromRoot(substitute(value, inPattern))]);
     return {
       id: p.id,
       rules: p.rules.map((r) => {
         const inRule = [...inPattern];
         for (const l of elements(r).filter((e) => is(e, SCH, "let"))) inRule.push([l.getAttribute("name"), substitute(l.getAttribute("value"), inRule)]);
+        const rawLets = elements(r).filter((e) => is(e, SCH, "let")).map((l) => [l.getAttribute("name"), l.getAttribute("value")]);
         const checks = elements(r).filter((e) => is(e, SCH, "assert") || is(e, SCH, "report")).map((a) => ({
           kind: a.localName,
           id: a.getAttribute("id") || "",
           flag: a.getAttribute("flag") || r.getAttribute("flag") || "fatal",
-          test: rewriteFormatNumber(rewriteBigMod(substitute(a.getAttribute("test"), inRule))),
+          test: rewriteFormatNumber(rewriteBigMod(bindInPredicates(a.getAttribute("test"), rawLets, inPattern))),
           text: clean(a.textContent),
         }));
         for (const e of elements(r)) {

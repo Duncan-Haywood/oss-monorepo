@@ -41,7 +41,7 @@ export async function loadPlainRunner({ base = "", fetchFn = globalThis.fetch, i
     }
     return cache.get(file);
   };
-  return (xml) => runner.run(xml, load);
+  return (xml, opts) => runner.run(xml, load, opts);
 }
 
 function defaultParse(xml) {
@@ -80,13 +80,13 @@ export async function loadBrowserRunner({ base = "", fetchFn = globalThis.fetch,
     return plainPromise;
   };
 
-  return async function run(xml) {
+  return async function run(xml, opts = {}) {
     const syntax = detectSyntax(xml);
-    const plainOnly = plainOnlySets(xml, syntax);
+    const plainOnly = plainOnlySets(xml, syntax, opts);
     if (plainOnly.length) {
       // Never the EU base alone in their place: the plain route, or "unavailable".
       const runPlain = await getPlain();
-      return runPlain ? runPlain(xml) : { status: "unavailable", syntax, findings: [], sets: [], plainOnly };
+      return runPlain ? runPlain(xml, opts) : { status: "unavailable", syntax, findings: [], sets: [], plainOnly };
     }
     if (!syntax || !has(FILES[syntax])) return { status: "unavailable", syntax, findings: [], sets: [] };
     const findings = await transform(FILES[syntax], xml, "en16931-schematron");
