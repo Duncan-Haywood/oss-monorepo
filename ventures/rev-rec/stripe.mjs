@@ -17,7 +17,7 @@ export function normalizeCreditNote(cn) {
   const out = [];
   for (const l of cn.lines?.data || []) {
     const incl = (l.tax_amounts || []).reduce((a, t) => a + (t.inclusive ? t.amount || 0 : 0), 0);
-    out.push({ id: `${cn.id}:${l.id}`, invoice: cn.invoice, billedAt: cn.created * 1000, start: cn.created * 1000, end: cn.created * 1000, amount: -((l.amount || 0) - (l.discount_amounts || []).reduce((a, d) => a + (d.amount || 0), 0) - incl), currency: cn.currency || "usd" });
+    out.push({ id: `${cn.id}:${l.id}`, invoice: cn.invoice, ...(l.invoice_line_item ? { credits: l.invoice_line_item } : {}), billedAt: cn.created * 1000, start: cn.created * 1000, end: cn.created * 1000, amount: -((l.amount || 0) - (l.discount_amounts || []).reduce((a, d) => a + (d.amount || 0), 0) - incl), currency: cn.currency || "usd" });
   }
   return out;
 }

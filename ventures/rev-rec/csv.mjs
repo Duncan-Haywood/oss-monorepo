@@ -22,6 +22,7 @@ const ALIASES = {
   start: ["period start", "service start", "start", "period start utc"],
   end: ["period end", "service end", "end", "period end utc"],
   currency: ["currency"],
+  credits: ["credits", "credits line", "invoice line item", "credited line"],
 };
 const toMs = (v) => {
   const x = String(v || "").trim();
@@ -40,6 +41,7 @@ export function linesFromCsv(text) {
   const lines = [], skipped = [];
   rows.slice(1).forEach((r, i) => {
     const get = (k) => (col[k] >= 0 ? (r[col[k]] ?? "").trim() : "");
+    if (!get("amount")) return skipped.push({ line: i + 2, why: "amount is blank" });
     const neg = /^\(.*\)$/.test(get("amount"));
     const raw = Number(get("amount").replace(/[$,£€()\s]/g, ""));
     const billedAt = toMs(get("billed")), start = toMs(get("start"));
@@ -48,7 +50,7 @@ export function linesFromCsv(text) {
     if (start === null) return skipped.push({ line: i + 2, why: "period start is not a date" });
     const end = toMs(get("end")) ?? start;
     if (end < start) return skipped.push({ line: i + 2, why: "period end is before period start" });
-    lines.push({ id: get("id") || `row${i + 2}`, billedAt, start, end, amount: Math.round((neg ? -raw : raw) * 100), currency: (get("currency") || "usd").toLowerCase() });
+    lines.push({ id: get("id") || `row${i + 2}`, billedAt, start, end, amount: Math.round((neg ? -raw : raw) * 100), currency: (get("currency") || "usd").toLowerCase(), ...(get("credits") ? { credits: get("credits") } : {}) });
   });
   return { lines, skipped, missing: [] };
 }

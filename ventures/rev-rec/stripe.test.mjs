@@ -47,3 +47,8 @@ test("an API error carries the status", async () => {
   const s = createStripe({ key: "rk_x", fetchImpl: async () => ({ ok: false, status: 401, json: async () => ({ error: { message: "bad key" } }) }) });
   await assert.rejects(() => s.listLines(), (e) => e.status === 401 && e.message === "bad key");
 });
+
+test("normalizeCreditNote keeps the credited invoice line id", () => {
+  const out = normalizeCreditNote({ id: "cn_2", invoice: "in_1", created: 1700100000, lines: { data: [{ id: "cnl_2", amount: 500, invoice_line_item: "il_9" }] } });
+  assert.equal(out[0].credits, "il_9");
+});
