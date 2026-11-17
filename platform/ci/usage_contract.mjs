@@ -30,7 +30,10 @@
 //     in-memory flag is the first thing a refactor would make "enough".
 //
 // The same checks, reading the stored counter directly, run on the 36 copies
-// of the usageAllowed()/recordEvent()/toggleUsage() design (checkEventModule).
+// of the usageAllowed()/recordEvent()/toggleUsage() design (checkEventModule),
+// and on the copies that take the store as a parameter,
+// recordUsage(storage, optedOut, event)/readOptOut/writeOptOut (checkParamModule,
+// added 2026-11-17: its first run found three copies that kept a stored array).
 //
 //   node platform/ci/usage_contract.mjs [ventures-dir]      exit 1 on a breach
 
@@ -299,6 +302,124 @@ export async function checkEventModule(mod, reload) {
   return problems;
 }
 
+// The third design (195 copies, 2026-11-17): recordUsage(storage, optedOut,
+// event), readOptOut(storage) and writeOptOut(storage, optedOut), with the
+// store passed in. Red-team origin: on 2026-11-17 four mutants in
+// mini-split-bid-calculator's copy escaped its suite (a stored opt-out ignored
+// unless Do Not Track was also on, a stored array kept, a blocked store read as
+// an opt-out, a throwing navigator read as one), and no check covered the
+// other 194. The contract finds the counter key by what recordUsage() writes.
+export async function checkParamModule(mod) {
+  const problems = [];
+  const fail = (msg) => problems.push(msg);
+  const { recordUsage, readOptOut, writeOptOut } = mod;
+  const parse = (storage, key) => {
+    try {
+      return JSON.parse(storage.store.get(key));
+    } catch {
+      return undefined;
+    }
+  };
+  const total = (v) => (isPlainObject(v) ? Object.values(v).filter((n) => typeof n === "number").reduce((a, b) => a + b, 0) : NaN);
+  const fresh = () => {
+    reset();
+    const s = fakeStorage();
+    // every call names the store; the global is blocked to prove nothing reads it instead
+    blockStorage();
+    return s;
+  };
+
+  // 1. counts land in one JSON object under one key, and a named event counts.
+  let storage = fresh();
+  recordUsage(storage);
+  recordUsage(storage);
+  const keys = [...storage.store.keys()];
+  const key = keys.find((k) => total(parse(storage, k)) === 2);
+  if (!key) {
+    fail(`recordUsage(storage) x2 wrote no JSON object counting 2 (store: ${JSON.stringify([...storage.store])})`);
+    reset();
+    return problems;
+  }
+  recordUsage(storage, false, "contract_a");
+  if (parse(storage, key)?.contract_a !== 1) fail(`recordUsage(storage, false, "contract_a") did not count contract_a (${storage.store.get(key)})`);
+
+  // 2. the caller's opt-out argument.
+  storage = fresh();
+  recordUsage(storage, true);
+  if (storage.store.has(key)) fail(`recordUsage(storage, true) still counted (${storage.store.get(key)})`);
+
+  // 3. valid JSON that is not a plain object: recordUsage recovers.
+  for (const raw of NOT_OBJECTS) {
+    storage = fresh();
+    storage.setItem(key, raw);
+    try {
+      recordUsage(storage);
+    } catch (err) {
+      fail(`stored ${raw}: recordUsage threw ${err && err.message}`);
+      continue;
+    }
+    if (total(parse(storage, key)) !== 1) fail(`stored ${raw}: recordUsage left ${storage.store.get(key)}, want a fresh object counting 1`);
+  }
+
+  // 4. browser privacy signals.
+  for (const [label, nav] of [["doNotTrack=\"1\"", { doNotTrack: "1" }], ["globalPrivacyControl", { globalPrivacyControl: true }]]) {
+    storage = fresh();
+    setNavigator(nav);
+    recordUsage(storage);
+    setNavigator({});
+    if (storage.store.has(key)) fail(`${label}: recordUsage still counted (${storage.store.get(key)})`);
+  }
+
+  // 5. the stored opt-out: clears counters, is read back, and is honored by
+  //    recordUsage on its own (no DNT, caller passes false); opting back in counts again.
+  storage = fresh();
+  recordUsage(storage);
+  writeOptOut(storage, true);
+  if (storage.store.has(key)) fail("writeOptOut(storage, true) left the counters in place");
+  if (readOptOut(storage) !== true) fail("after writeOptOut(storage, true), readOptOut(storage) is not true");
+  recordUsage(storage, false);
+  if (storage.store.has(key)) fail(`a stored opt-out was ignored: recordUsage(storage, false) counted (${storage.store.get(key)})`);
+  writeOptOut(storage, false);
+  if (readOptOut(storage) !== false) fail("after writeOptOut(storage, false), readOptOut(storage) is not false");
+  recordUsage(storage);
+  if (total(parse(storage, key)) !== 1) fail("after writeOptOut(storage, false), recordUsage did not count again");
+
+  // 6. blocked, missing or full storage never throws, and is never read as an opt-out.
+  const throwing = { getItem() { throw new Error("SecurityError"); }, setItem() { throw new Error("SecurityError"); }, removeItem() { throw new Error("SecurityError"); } };
+  fresh();
+  for (const [label, s] of [["a store whose calls throw", throwing], ["no store", null], ["a full store", fakeStorage({ throwOnSet: true })]]) {
+    if (label !== "a full store" && readOptOut(s) !== false) fail(`${label}: readOptOut is not false`);
+    for (const [name, call] of [["recordUsage", () => recordUsage(s)], ["readOptOut", () => readOptOut(s)], ["writeOptOut(true)", () => writeOptOut(s, true)], ["writeOptOut(false)", () => writeOptOut(s, false)]]) {
+      try {
+        call();
+      } catch (err) {
+        fail(`${label}: ${name} threw ${err && err.message}`);
+      }
+    }
+  }
+  // the defaults, with site data blocked
+  for (const [name, call] of [["recordUsage()", () => recordUsage()], ["readOptOut()", () => readOptOut()]]) {
+    try {
+      call();
+    } catch (err) {
+      fail(`blocked site data: ${name} threw ${err && err.message}`);
+    }
+  }
+
+  // 7. a navigator that throws on read does not stop counting.
+  storage = fresh();
+  Object.defineProperty(globalThis, "navigator", { configurable: true, get() { throw new Error("blocked"); } });
+  try {
+    recordUsage(storage);
+  } catch (err) {
+    fail(`a navigator that throws: recordUsage threw ${err && err.message}`);
+  }
+  setNavigator({});
+  if (total(parse(storage, key)) !== 1) fail("a navigator that throws on read stopped recordUsage from counting");
+  reset();
+  return problems;
+}
+
 export function usageFiles(root) {
   return readdirSync(root, { withFileTypes: true })
     .filter((d) => d.isDirectory())
@@ -312,6 +433,11 @@ export function usageFiles(root) {
 // usageAllowed()/recordEvent()/toggleUsage() is another design
 // (recordUsage(storage, ...), isOptedOut/getUsageSummary) and is out of scope.
 const isCounterShape = (mod) => typeof mod.record === "function" && typeof mod.readUsage === "function";
+// recordUsage(storage, optedOut, event) exactly: copies that take (event, ...) or a
+// navigator third are other designs, judged by their own suites.
+const isParamShape = (mod) =>
+  ["recordUsage", "readOptOut", "writeOptOut"].every((name) => typeof mod[name] === "function") &&
+  /^function recordUsage\(storage(\s*=\s*[\w.()]+)?,\s*opt(?:ed)?Out(\s*=\s*\w+)?,\s*event\b/.test(String(mod.recordUsage));
 const isEventShape = (mod) =>
   ["usageAllowed", "recordEvent", "toggleUsage"].every((name) => typeof mod[name] === "function");
 
@@ -331,7 +457,7 @@ export async function checkTree(root) {
       problems.push(`${file}: failed to import: ${err && err.message}`);
       continue;
     }
-    const check = isCounterShape(mod) ? checkModule : isEventShape(mod) ? checkEventModule : null;
+    const check = isCounterShape(mod) ? checkModule : isEventShape(mod) ? checkEventModule : isParamShape(mod) ? checkParamModule : null;
     if (!check) {
       skipped += 1;
       continue;
