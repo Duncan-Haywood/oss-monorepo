@@ -112,6 +112,21 @@ export function eventsToMidi(events, { bpm = 124, pulsesPerBeat = 2, title = 'ch
   const tracks = split
     ? [track(conductor), section('tenor', 0, tenors2 ? 'First tenors' : 'Tenors'), ...(tenors2 ? [section('tenor2', 6, 'Second tenors')] : []), ...(baritones ? [section('baritone', 5, 'Baritones')] : []), section('bass', 4, 'Basses')]
     : [track(conductor), track(choir)];
+  // --organum: the added vox organalis on its own choir track (channel 8), with the chant's lyrics,
+  // so the renderer sings it and --learn gives it rehearsal tracks like any section
+  if (events.some((e) => e.type === 'note' && e.organal !== undefined)) {
+    const tl = [[0, meta(0x03, [...new TextEncoder().encode('Organal voice')])], [0, [0xc7, 52]]];
+    let tt = 0;
+    for (const e of events) {
+      const len = Math.round(e.pulses * ticksPerPulse);
+      if (e.type === 'note' && e.organal !== undefined) {
+        if (e.syllable) tl.push([tt, meta(0x05, [...new TextEncoder().encode(e.syllable)])]);
+        tl.push([tt, [0x97, e.organal, velocity]], [tt + len, [0x87, e.organal, 0]]);
+      }
+      tt += len;
+    }
+    tracks.push(track(tl));
+  }
   if (drone && lastMidi !== null && end > 0) {
     const d = lastMidi - 12;
     tracks.push(track([[0, [0xc1, 19]], [0, [0x91, d, 60]], [end, [0x81, d, 0]]]));

@@ -154,6 +154,50 @@ Tests: `node --test ventures/chant-forge/chant-forge.test.mjs` (8 tests,
 passing 2026-11-03). On 2026-11-03 the example's output was also read back with
 an independent parser (Python `mido` 1.x): 3 tracks, 3.87 s, lyrics in order.
 
+## A second voice: `--organum` (2026-11-17)
+
+`--repeat 3` used to sing the same unison line three times. `--organum` makes the passes differ the way the
+chant's own tradition did: from the second pass on, a second voice sings under the chant in the *modified
+parallel organum* of the ninth-century *Musica enchiriadis*. Without `--repeat` it runs under the whole piece.
+`organum.mjs` applies three rules:
+
+1. **A fourth below.** The added voice (vox organalis) sings a fourth under the chant (vox principalis),
+   on a note the chant itself uses.
+2. **A boundary.** It never goes below the nearest chant note a whole tone or more under the final (C under
+   a D final, D under an F final). Where the fourth would go lower, it holds the boundary, so the interval narrows
+   to a third, a second or a unison as the line comes down to its final. That is the treatise's signature
+   sound. Where the fourth below is not a note the chant uses (E over B when the chant has only B flat, the
+   tritone the treatise forbids), it takes the third below, then the fifth, then the unison.
+3. **Occursus.** Every phrase ends with both voices on the same note.
+
+The voice goes on its own MIDI track, *Organal voice*, a choir program with the chant's lyrics, so
+`render-cli.mjs` plays it, `--sing` sings it and `--learn` writes its rehearsal tracks like any section.
+Pitch only: rhythm, syllables, bars, backing and cues are the chant's own. With `--key-lift` the lifted drop's
+organum moves up with it, boundary included. If the voice would go under E2 (or `--range`), the command
+stops and names the lowest `--final` that fits. `--split-voices` is refused with it (the split already
+divides the choir), and `--musicxml` warns that the score holds the chant line only. The studio page has a
+"Second voice" switch, which applies to the whole piece.
+
+```
+node cli.mjs corpus/dies-irae.gabc --repeat 3 --organum --final 50 --fit 8 --genre metal --sections --bpm 170 -o dies.mid
+organum on passes 2-3: 1226 notes (fourth 520, major third 216, second 192, unison 298), lowest A2
+```
+
+Dies irae's second pass, chant over organal voice (D3 final, boundary C3): *Di-es i-rae* F3/C3 E3/C3 F3/C3
+D3/C3, *di-es il-la* E3/C3 C3/C3 D3/C3 D3/D3. The voice sits on C while the line moves above it and joins it
+on the final. That is the treatise's own D-mode example.
+
+Measured over the whole corpus (`node eval/organum-corpus.mjs`, `eval/organum-corpus-report.md`): all 68
+files, each at its `--auto-final` key, 14,079 notes. The intervals: fourths 51.9%, major thirds 15.6%, minor
+thirds 4.4%, seconds 13.5%, unisons 14.6%. No semitones and no tritones. The organal voice stays inside
+E2-E4 in 68 of 68. `organum.test.mjs` (10 tests): the rules note by note, on five corpus pieces no interval
+wider than a fourth, every organal note in the chant's own scale and every phrase ending in unison, the chant
+line itself untouched, pass 1 plain and later passes voiced, the MIDI track the renderer and `--learn` find,
+the lift and the refusals. Without `--organum`, four sample commands give byte-identical MIDI and cue sheets
+to before. `eval/browser-e2e.mjs` checks the page's switch (127 checks, all pass). Nobody has listened to it.
+Whether a fourth below sounds medieval or muddy over a metal bass, and whether singers who learn the line
+in unison can hold the organal part, are questions for a person and a choir.
+
 ## Song sections (2026-11-13)
 
 `--sections` (with `--genre`) turns the one groove that ran under the whole chant into a song: intro, verses, builds,

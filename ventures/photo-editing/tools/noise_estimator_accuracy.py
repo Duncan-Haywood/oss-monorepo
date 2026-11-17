@@ -95,8 +95,29 @@ def two_scale_blocks(c: np.ndarray, period: int, block: int = 48) -> tuple[np.nd
     return lvl, np.sqrt(n2)
 
 
-def models(c, pat) -> dict:
+def xtrans_variants(c, pat) -> dict:
+    """The X-Trans patch variants of 2026-11-17 (eval/xtrans-noise-pca-12-2026-11-17.md): patch size, texture
+    test (``c`` each sensel against its colour's mean, ``g`` same-colour differences one period apart, ``n`` touching
+    same-colour sensels) and the
+    (3, 3) lattice (``h``)."""
+
+    from shootflow.noise_pca import XTRANS_SHIFTS, estimate_noise_pca
+
+    out = {}
+    for name, d, tex, sh in (("m6", 6, "colour", ((0, 0),)), ("m6h", 6, "colour", XTRANS_SHIFTS),
+                             ("m12g", 12, "grad", ((0, 0),)), ("m12c", 12, "colour", ((0, 0),)),
+                             ("m12gh", 12, "grad", XTRANS_SHIFTS), ("m12ch", 12, "colour", XTRANS_SHIFTS),
+                             ("m6n", 6, "near", ((0, 0),)), ("m6nh", 6, "near", XTRANS_SHIFTS),
+                             ("m12nh", 12, "near", XTRANS_SHIFTS)):
+        out[name] = estimate_noise_pca(c, pat, d=d, texture=tex, shifts=sh)
+    return out
+
+
+def models(c, pat, only: str | None = None) -> dict:
     from shootflow.xtrans_demosaic import _noise_model, estimate_noise
+
+    if only == "xtrans12":
+        return xtrans_variants(c, pat)
 
     out = {f"spread{p}": estimate_noise(c, pat, pct=p) for p in PCTS}
     lvl, sig = haar_blocks(c, 6 if len(pat) == 36 else 2)
@@ -148,7 +169,7 @@ def sweep(args) -> int:
                     sig = lambda m: [float(np.sqrt(max(m[0] * x + m[1], 0.0))) for x in LEVELS]  # noqa: E731
                     rec = {"layout": "bayer" if args.bayer else "xtrans", "file": name, "split": split_of(name),
                            "tile": [ty, tx], "snr": snr, "scenario": sc, "true": sig(model)}
-                    for k, m in models(c, pat).items():
+                    for k, m in models(c, pat, args.only).items():
                         rec[k] = sig(m)
                     print(json.dumps(rec), flush=True)
     return 0
@@ -222,5 +243,6 @@ if __name__ == "__main__":
     ap.add_argument("--summary", action="store_true")
     ap.add_argument("--clean", action="store_true")
     ap.add_argument("--binning", action="store_true")
+    ap.add_argument("--only", help="xtrans12: only the X-Trans patch variants (m6, m6h, m12g, m12c, m12gh, m12ch, m6n, m6nh, m12nh)")
     a = ap.parse_args()
     sys.exit(summary(a.files) if a.summary else clean(a) if a.clean else binning(a) if a.binning else sweep(a))

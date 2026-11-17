@@ -116,7 +116,9 @@ test("McNemar matches statsmodels", () => {
 test("published values from R's documentation (fisher.test, mantelhaen.test examples)", () => {
   assert.equal(fisherExact([[3, 1], [1, 3]], { alternative: "greater" }).p.toFixed(4), "0.2429");
   assert.equal(fisherExact([[2, 15], [10, 3]], { alternative: "less" }).p.toPrecision(4), "0.0004652");
-  assert.equal(fisherRxC([[1, 3, 10, 6], [2, 3, 10, 7], [1, 6, 14, 12], [0, 1, 9, 11]]).p.toFixed(4), "0.7827");
+  // no wall-clock cap here: on a loaded CI runner the default 6 s cap returned null (2026-11-17, PR 16965);
+  // the work budget still bounds it
+  assert.equal(fisherRxC([[1, 3, 10, 6], [2, 3, 10, 7], [1, 6, 14, 12], [0, 1, 9, 11]], { maxMs: Infinity }).p.toFixed(4), "0.7827");
   const rabbits = [[[0, 6], [0, 5]], [[3, 3], [0, 6]], [[6, 0], [2, 4]], [[5, 1], [6, 0]], [[2, 0], [5, 0]]];
   assert.equal(mantelHaenszel(rabbits).cmh.p.toFixed(3), "0.047");
   assert.equal(mantelHaenszel(rabbits).exact.p.toFixed(3), "0.040");
