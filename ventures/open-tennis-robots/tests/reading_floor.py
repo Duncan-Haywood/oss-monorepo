@@ -37,27 +37,60 @@ import min_fit_heldout as h
 import unsure_weight as u
 
 PLANTS = (0, 2)
-MODES = ("1 us timer", "exact edges")
+MODES = ("1 us timer", "exact edges", "0.1 ms steps", "0.1 ms, exact")
+FINE = 10        # sub-steps per millisecond in the "0.1 ms" modes
 SEED = 7
 
 
 def case(args):
     pi, tau, li, mode = args
-    if mode == MODES[1]:
-        feeder_sim.SimFeeder.run_ms = _make_exact()
+    if mode != MODES[0]:
+        feeder_sim.SimFeeder.run_ms = _make_run_ms(exact="exact" in mode, sub=FINE if "0.1 ms" in mode else 1)
     _, r = u.case((pi, tau, li, SEED))
     return args, r
 
 
-def _make_exact():
-    """SimFeeder.run_ms with the tach edge timed to the exact (float) microsecond: the shipped source with its one
-    `int(frac * 1000)` replaced, so the rest of the step stays the simulator's own."""
+_FINE_STEP = """\
+for s in range(SUB):                 # the shipped Euler step, SUB times per millisecond
+    if self.esc_tau:
+        self._drive[i] += (hw.esc_cmd[i] - self._drive[i]) * 0.001 / SUB / self.esc_tau
+    else:
+        self._drive[i] = hw.esc_cmd[i]
+    target = self.wheel_max * self._drive[i]
+    self.wheel[i] += (target - self.wheel[i]) * 0.001 / SUB / self.wheel_tau
+    before = self.rev[i]
+    self.rev[i] += self.wheel[i] / 60000.0 / SUB
+    if int(self.rev[i]) > int(before):
+        frac = (s + (int(self.rev[i]) - before) / (self.rev[i] - before)) / SUB
+        self.us = t0 + int(frac * 1000)
+        if self.tach_jitter_us:
+            self.us += int(round(self._rng.gauss(0.0, self.tach_jitter_us)))
+        tach._p(None)
+"""
+
+
+def _make_run_ms(exact=False, sub=1):
+    """SimFeeder.run_ms rebuilt from the shipped source with two optional changes, the rest of the step left as the
+    simulator's own: `exact` times each tach edge to the float microsecond (the shipped `int(frac * 1000)` dropped);
+    `sub` > 1 integrates the ESC lag, the wheel and its revolutions in `sub` Euler steps per millisecond, each edge
+    timed inside its sub-step. The firmware still ticks, and the ball's take still lands, once per millisecond (the
+    board's loop is 1 ms), so only the plant gets finer."""
     import inspect
     import textwrap
     src = textwrap.dedent(inspect.getsource(feeder_sim.SimFeeder.run_ms))
-    old = "self.us = t0 + int(frac * 1000)"
-    assert old in src, "feeder_sim's edge timing changed"
-    src = src.replace(old, "self.us = t0 + frac * 1000")
+    if sub > 1:
+        lines = src.split("\n")
+        a = next(n for n, ln in enumerate(lines) if ln.strip() == "if self.esc_tau:")
+        b = next(n for n, ln in enumerate(lines) if n > a and ln.strip() == "tach._p(None)")
+        assert "self.wheel[i] +=" in "\n".join(lines[a:b]) and lines[b + 1].strip() == "self.us = t0 + 1000", \
+            "feeder_sim's wheel step changed"
+        pad = lines[a][:len(lines[a]) - len(lines[a].lstrip())]
+        fine = [pad + ln if ln else ln for ln in _FINE_STEP.replace("SUB", str(sub)).rstrip("\n").split("\n")]
+        src = "\n".join(lines[:a] + fine + lines[b + 1:])
+    edge = "self.us = t0 + int(frac * 1000)"
+    assert src.count(edge) == 1, "feeder_sim's edge timing changed"
+    if exact:
+        src = src.replace(edge, "self.us = t0 + frac * 1000")
     ns = {}
     exec(compile(src, feeder_sim.__file__, "exec"), vars(feeder_sim), ns)
     return ns["run_ms"]
