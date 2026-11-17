@@ -71,6 +71,9 @@ def main(argv=None):
             bad += 1
             print(f"{p}: {msg}")
     print(f"{pages} pages with JSON-LD, {bad} problems")
+    if not pages:
+        print(f"no pages under {args.root}: wrong --root? A scan of nothing is not a pass.")
+        return 2
     return 1 if bad else 0
 
 

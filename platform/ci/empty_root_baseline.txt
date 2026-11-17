@@ -1,0 +1,33 @@
+# check_*.py files that exit 0 when --root points at an empty directory (a scan of
+# nothing reads as clean). A ratchet: test_checks_refuse_empty_root.py fails for a new
+# check not listed here, and for a listed one that now refuses (delete its line).
+check_aria_refs.py
+check_cli_entry.py
+check_column_shift.py
+check_control_labels.py
+check_duplicate_ids.py
+check_duplicate_meta.py
+check_html_is_html.py
+check_inline_scripts.py
+check_inpage_refs.py
+check_irs_table_figures.py
+check_js_dom_refs.py
+check_link_names.py
+check_local_fetch.py
+check_main_landmark.py
+check_markup_basics.py
+check_noindex_sitemap.py
+check_post_frontmatter.py
+check_pwa_assets.py
+check_share_decoders.py
+check_share_storage_contract.py
+check_share_text_encoding.py
+check_smooth_scroll.py
+check_social_proof.py
+check_start_here.py
+check_table_headers.py
+check_test_spawn_cwd.py
+check_thin_pages.py
+check_third_party_requests.py
+check_title_meta.py
+check_unreachable_exit.py
