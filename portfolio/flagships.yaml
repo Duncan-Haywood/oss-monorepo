@@ -464,10 +464,9 @@ flagships:
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
-      (eval/ifcxml-xbim-2026-11-16.md); audit warnings in a GitLab code-quality
-      report (CI annotates them on the IDS line since 2026-11-17,
-      eval/ci-audit-annotations-2026-11-17.md); the IDS editor (editor.html;
-      README): "Use the model's range" for dates, xs:date one-of rows
+      (eval/ifcxml-xbim-2026-11-16.md); duplicate GlobalIds as a finding (real HHS
+      exports repeat them; eval/gitlab-codequality-2026-11-17.md); the IDS editor
+      (editor.html; README): "Use the model's range" for dates, xs:date one-of rows
       (eval/date-ranges-2026-11-17.md); more real exports through
       eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
@@ -491,6 +490,8 @@ flagships:
       own sets, 21 of 122 standard props in a non-template dataType): applicability
       rows 2026-11-17 (eval/applicability-rows-2026-11-17.md: counts equal the
       checker's applicable; 83.5% of public facets editable, IDS-Audit-tool 21.5%);
-      a no-dataType value row; unchecked subclasses in CI and the editor 2026-11-17
-      (eval/ci-unchecked-2026-11-17.md: 21,405 elements in 165 of 2,028 checks).
-      More open items: NEXT.md.
+      a no-dataType value row; GitLab Code Quality report keyed on GlobalId+class
+      2026-11-17 (eval/gitlab-codequality-2026-11-17.md: 18 of 18 real changes, 0
+      for a renumbering re-export); unchecked subclasses in CI and the editor
+      2026-11-17 (eval/ci-unchecked-2026-11-17.md: 21,405 elements in 165 of 2,028
+      checks). More open items: NEXT.md.
