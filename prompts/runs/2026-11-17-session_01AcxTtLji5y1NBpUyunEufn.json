@@ -26,7 +26,7 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 5,
@@ -57,7 +57,7 @@
     "ventures/changepoint-detector/README.md sections 'A synthetic control from the command line' and 'Two covariates'"
   ],
   "goal": null,
-  "notes": "Two-covariate cell pre-registered (commit 6397cb033) before the confirmatory run (base 53000, 400 a cell): bars 1, 3, 4 hold; bar 2 fails in C1 (W-alone bias 1.27x vs cap 1.25x), so as pre-registered the CLI warning text says the warned covariate need not be the culprit. Verification: node --test synth-cli.test.mjs cli.test.mjs known-date-cli.test.mjs synth-control.test.mjs synth-bias.test.mjs: 27 pass 0 fail; full venture suite and venture-preflight: see PR summary.",
+  "notes": "Two-covariate cell pre-registered (commit 6397cb033) before the confirmatory run (base 53000, 400 a cell): bars 1, 3, 4 hold; bar 2 fails in C1 (W-alone bias 1.27x vs cap 1.25x), so as pre-registered the CLI warning text says the warned covariate need not be the culprit. Verification: node --test synth-cli.test.mjs cli.test.mjs known-date-cli.test.mjs synth-control.test.mjs synth-bias.test.mjs: 27 pass 0 fail; run_venture_tests.py changepoint-detector: 828 tests ok (254.5 s); venture-preflight: first run failed one platform/pages/sticky-fit.test.mjs case while the venture suite shared the CPU, passes alone (12 of 12) and the rerun was clean; PR CI all green.",
   "corrections": [],
   "redteam": null,
   "usage": {
