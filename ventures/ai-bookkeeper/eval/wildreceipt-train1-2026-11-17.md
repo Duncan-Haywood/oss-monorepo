@@ -76,8 +76,11 @@ Totals right; tax right / wrong / none; "unl." is a tax read where none is label
 | | tesseract four | 373; 208 / 26 / 101 | 373; **212** / 26 / 97 |
 | | five, lead (CLI) | 472; 262 / 22 / 51; unl. 70 | 472; **273 / 20 / 42**; unl. 70 |
 | | page | 471; 262 / 22 / 51 | 471; **273 / 20 / 42** |
-TEST_ROWS
-SRD_ROWS
+| **WildReceipt test (held out)**, 405 / 272 | RapidOCR | 358; 185 / 12 / 75; unl. 36 | **359; 187 / 12 / 73**; unl. 40 |
+| | tesseract four | 294; 154 / 27 / 91 | 294; 155 / 27 / 90 |
+| | five, lead (CLI) | 359; 204 / 16 / 52; unl. 50 | **360; 207 / 16 / 49**; unl. 53 |
+| | page | 358; 202 / 16 / 54; unl. 49 | **359; 205 / 16 / 51**; unl. 52 |
+| SRD US photos, 196 / 185 | RapidOCR; tesseract four; five, lead; page | 188; 152 / 9 / 24 &middot; 157; 135 &middot; 188; 164 / 9 / 12 &middot; 188; 164 | unchanged (no receipt changes in RapidOCR alone) |
 | CORD hand-corrected text | train / val / test | 767 / 97 / 94; tax 325 / 46 / 41 | unchanged |
 
 On the development shard every changed receipt was checked: RapidOCR alone changes 25 results,
@@ -85,7 +88,21 @@ On the development shard every changed receipt was checked: RapidOCR alone chang
 two-rate TVA slip whose tax is labelled null, and a Florida return); one total moved from one
 wrong answer to another (`Total: 11.21` read for 111.21).
 
-READ_PLAINLY
+Read plainly: on the development shard the CLI reads 11 more taxes of 335 and RapidOCR alone 21
+more; on the held-out test the CLI reads **3 more taxes of 272 (204 to 207) and 1 more total of
+405 (359 to 360)**, the page the same. Counted without listing ids, RapidOCR alone changes 9 test results: 2 taxes
+and 1 total to the label, 1 wrong tax to another wrong amount, 5 taxes read where none is
+labelled (4 new, 1 changed), and no right answer to a wrong one. That is a much
+smaller gain than on the shard the rules came from. A likely reason, not checked (checking
+would mean reading test receipts): the largest group (Target's `T=CTTAX` line, 7 receipts) is
+one chain's layout and helps only where that chain's receipts are, and the VAT-table and
+"includes GST" groups were 4 and 5 receipts of 633.
+Main's numbers here are exactly those the first WildReceipt run reported after its changes, so
+the OCR reproduces from run to run.
+
+"Tax read where none labelled" rose by 3 to 4 on the test. Those receipts were not read (that
+would spend the test set); on the development shard the same rise was two real tax lines the
+labels left blank.
 
 ## Integrity notes
 
@@ -115,4 +132,18 @@ The test set the same way (see [`wildreceipt-2026-11-17.md`](wildreceipt-2026-11
 
 ## Next
 
-NEXT_ITEMS
+Every WildReceipt photo has now been read (test, train shards 0 and 1). Left from shard 1's
+misses, none large on its own:
+
+- Two tax lines at two rates (`TVA10.00% 45.73) 4.57`, `TVA20.00% 23.33) 4.67`) where only
+  one is kept: the sum (9.24) makes `Total HTVA 69.06` the total `78.30`, but the "HTVA" total
+  is a not-total, so the sum check finds no subtotal.
+- `TVA` read as `TUA` (`HT TIC TUA` header, `LOCAL 412.50 20% 495,00`): a header word OCR
+  bends.
+- Tax inside a subtotal line (`Subtotal(12%VAT) Php32.14`, Philippine VAT), and `VAT5%: 668`
+  with the decimal point lost on a comma-free slip.
+- A tax of `0.00` on a receipt whose total is `0.00` is dropped (the tax must be under the
+  total).
+- The remaining total misses are mostly OCR-bound (digits lost, the total line split from its
+  amount). A fresh source is what would say more now: the train shards are spent as development
+  sets and the test set is spent by two runs' scoring.
