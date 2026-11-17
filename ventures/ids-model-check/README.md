@@ -170,6 +170,19 @@ open. MIT licensed, no dependencies, nothing uploaded.
   `construction2.ifc`, where a column has a slab's GlobalId. It also found a
   STEP reader fault, now fixed: `\S\'` (an escaped "§") ended a string early.
   `eval/duplicate-globalids-2026-11-17.md`.
+- **GlobalIds shared between models** (2026-11-17): when CI checks a
+  federated set (one export per discipline), it also compares the models.
+  A GlobalId held in two files is reported (text, annotation on the element's
+  line, job summary, GitLab issue `ifc-shared-globalid`, JSON, Action output
+  `shared-globalids`; `--fail-on-shared-globalids` to fail on them), and two
+  files that are one model twice (a revision left beside the current file, or
+  `.ifc` and `.ifczip` of the same model) are one finding. A project, site,
+  building, storey, space or grid shared on purpose is counted, not warned
+  about. On the HHS Office architect, MEP and structural exports it finds one
+  wall ("Basic Wall:STB 30.0:573321") in both the architect's and the
+  structural file; on buildingSMART's Simple-Scene, the house roof in
+  architecture and structure and two manholes in plumbing and electrical.
+  `eval/federated-globalids-2026-11-17.md`.
 
 ## Why someone would use it
 

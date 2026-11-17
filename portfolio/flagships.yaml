@@ -470,10 +470,10 @@ flagships:
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
-      (eval/ifcxml-xbim-2026-11-16.md); duplicate GlobalIds across federated models
-      (one discipline file's GlobalId in another;
-      eval/duplicate-globalids-2026-11-17.md, 'Not done'); the IDS editor
-      (editor.html; README): "Use the model's range" for dates, xs:date one-of rows
+      (eval/ifcxml-xbim-2026-11-16.md); an allow list for GlobalIds shared across
+      federated models on purpose (eval/federated-globalids-2026-11-17.md, 'Not
+      done': the Simple-Scene 'origin' markers); the IDS editor (editor.html;
+      README): "Use the model's range" for dates, xs:date one-of rows
       (eval/date-ranges-2026-11-17.md); more real exports through
       eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
@@ -499,9 +499,9 @@ flagships:
       checker's applicable; 83.5% of public facets editable, IDS-Audit-tool 21.5%);
       a no-dataType value row; GitLab Code Quality report keyed on GlobalId+class
       2026-11-17 (eval/gitlab-codequality-2026-11-17.md: 18 of 18 real changes, 0
-      for a renumbering re-export); duplicate GlobalIds as a model finding in every
-      output, plus a STEP \S\' reader fix 2026-11-17
-      (eval/duplicate-globalids-2026-11-17.md: 3 in 163 public files, same groups as
-      IfcOpenShell on 133 of 133); unchecked subclasses in CI and the editor
-      2026-11-17 (eval/ci-unchecked-2026-11-17.md: 21,405 elements in 165 of 2,028
-      checks). More open items: NEXT.md.
+      for a renumbering re-export); duplicate GlobalIds in a model
+      (eval/duplicate-globalids-2026-11-17.md) and across federated models in CI
+      2026-11-17 (eval/federated-globalids-2026-11-17.md: HHS architect+structural
+      share 1 wall; Simple-Scene roof, manholes); unchecked subclasses in CI and the
+      editor 2026-11-17 (eval/ci-unchecked-2026-11-17.md: 21,405 elements in 165 of
+      2,028 checks). More open items: NEXT.md.
