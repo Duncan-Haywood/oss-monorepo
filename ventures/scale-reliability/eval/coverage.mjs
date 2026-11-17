@@ -9,6 +9,10 @@ import { analyze, rng } from "../engine.mjs";
 
 const reps = Number(process.argv[2] || 300);
 const B = Number(process.argv[3] || 300);
+if (!(Number.isInteger(reps) && reps > 0 && Number.isInteger(B) && B > 0)) {
+  console.error("usage: node eval/coverage.mjs [reps=300] [bootstrap=300]");
+  process.exit(2);
+}
 const designs = {
   "tau-equivalent": [0.6, 0.6, 0.6, 0.6, 0.6, 0.6],
   congeneric: [0.2, 0.3, 0.4, 0.8, 0.85, 0.9],
