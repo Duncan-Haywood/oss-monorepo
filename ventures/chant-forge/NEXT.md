@@ -5,3 +5,5 @@
 ## Parked from flagships.yaml `next:`
 
 - (2026-11-16) a director on --sit-out N, the --musicxml parts and the --learn tracks
+- (2026-11-17) --baritones, --entrance-cost N and --second-tenors (TTBB; README) need the same check. Next: a real choir's range test
+- (2026-11-17) --split-voices (by phrase or at a word, --split-words, eval/word-split-report.md) and --overlap (both sections sing the seam note at a direct tenor/bass swap, eval/overlap-report.md) need a singer's check of the ranges, of a mid-phrase handoff against a whole phrase and of a one-note overlap against a clean handoff

@@ -1217,7 +1217,52 @@ cells the burst the reader finds has a 2.1-2.3 kHz centroid with 54-66% of its e
 on G2 and F3 read 33-44%. Where that energy comes from (the burst search's timing, or the vowel's release reaching
 into the 10 ms window) is the next thing to read, frame by frame, before any rule. Reader only; not listened to.
 
-#### A dark-vowel m (2026-11-17, latest; registration held, now the default)
+#### A dark-vowel m that holds level (2026-11-17, latest; failed its registration, opt-in)
+
+With `lipShut` as the default, part a's misses were still *bum*, *hum* and *fum* (D4-E4 quarters, C4 and D4 eighths),
+*mun*, *gun* and *vum*, all read as nothing. Read frame by frame (`eval/dark-nasal-diag.mjs a`, which now finds part a
+in `eval/vstop-parts.mjs`):
+
+- **The lips' blip is there.** The band above 1 kHz rises 3-15 dB over the vowel as the lips meet and falls 11-15 dB
+  within two or three 5 ms hops, as on Z's *lum*.
+- **But the vowel got there first.** The /u/'s own upper band had already fallen 3-8 dB over the 30 ms before the
+  closure, so the m sits no lower in that band than the vowel 25-45 ms before it, and `lipShut`'s darkness test (8 dB
+  under) fails. On D4 *hum* the m's upper band is -5 to -19 dB against a vowel at -2 to -8.
+- **What it does is hold.** Its level settles 4-11 dB under the vowel and stays within 1-2 dB for 30 ms and more (*hum*
+  on D4: -13, -14, -14, -15, -15, -15). A vowel fading at the note's end falls 1-3 dB per 10 ms.
+
+- **The rule** (`readCoda`'s `lipHold`, `LIP_HOLD` in `onsets.mjs`, opt-in; `--hold on` in `eval/coda-check.mjs`): a run
+  counts as a nasal when it is entered by a fall of 12 dB or more in the band above 1 kHz from any of the three frames
+  before it, every frame sits 3 to 20 dB under the vowel's level 25-45 ms before and is dark in itself (`murmurTilt`),
+  its level holds within 2 dB over its first 30 ms, it lasts 45 ms, and the vowel does not come back. Written from a's
+  D4 *bum*, *hum* and *fum* cells and its C4 and D4 eighths, then not tuned.
+- **Development** (A-a, `--hold on` against the default, `lipShut` on in both): +22 cells, none lost in any part. a's
+  nasals after /u/ or /o/ 121 to 128 of 144 and its n-clusters 43 to 44 of 48; H 131 to 132 of 134; I 140 to 141 of
+  142; F's nasals 206 to 208 of 215; N's others 231 to 233; O's 227 to 228; P's 233 to 235; V's 59 to 60 of 60; X's
+  nasal codas 43 to 45 of 48; Y's 46 to 47 and its n-clusters 42 to 43. Every vowel-only control identical.
+- **Pre-registered on a new part b** (`eval/coda-check.mjs` header, twenty-fourth round, committed as 87d1968 before b
+  ran): 12 nasal codas after /u/ or /o/, 5 voiced stops after them, 4 nasals after a bright vowel, 4 n-clusters, 3
+  voiceless stops and 4 others, none sung before, at C#3, A3, C#4, D4, D#4 and E4, 90 BPM.
+
+| b | default | `lipHold` | wanted |
+|---|---|---|---|
+| nasals after /u/ or /o/ read exactly (of 144) | 133 | 135 | 3 or more better: **fails** |
+| nasals after a bright vowel (of 48), n-clusters as their nasal (of 48) | 48, 47 | 48, 47 | no fewer: holds |
+| voiced stops (of 60), voiceless stops (of 36), others (of 48) | 57, 33, 47 | 57, 33, 47 | no fewer: holds |
+| stops, others and vowel-only cells read as a nasal | 3 | 3 | no more: holds |
+| vowel-only control (of 384) | 384 | 384 | identical: holds |
+
+So `lipHold` stays opt-in and the default reader did not change. The gain was tested (the default missed 11 of b's
+dark-vowel nasals) and the rule lost nothing anywhere, but it took back 2 of the 11 (*cun* on one cell, *vun* on one),
+one short of the bar. The registration's mistake was the same as the eighteenth round's: a's misses were mostly /u/
+before m on D4-E4, and the rate of that shape on a was taken for its rate on b. On b the default already reads the -om
+syllables, and what is left is *num* (3 cells), *mum*, *bun* (2 each), *run* and *cun* (1 each): an m or n after /u/
+7 of those 9 after a nasal or labial onset (*num*, *mum*, *bun*), which is the next thing to read frame by frame. `lip-hold.test.mjs` (2 tests)
+keeps a's *hum* and *bum* on D4 (nothing by default, a nasal by the level-hold rule with it) and checks that the cell's
+vowel-only takes still read as none and its stops and others do not move. Reader only; nothing in the synthesis
+changed. Not listened to.
+
+#### A dark-vowel m (2026-11-17; registration held, now the default)
 
 The round before left Z's *lum* (4 cells) and *dun* (2) and X's *tum* (6) read as nothing on C#4-E4: a final nasal after
 /u/, sung, but missed by every nasal rule. Read frame by frame (`eval/dark-nasal-diag.mjs`, which prints each frame's

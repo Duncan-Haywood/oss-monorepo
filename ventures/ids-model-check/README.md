@@ -271,6 +271,16 @@ files in 7.5-7.8 s at a 1,010 MB peak, where it took 12.3 s and 2.5 GB, with
 identical reports; the page now finishes it under a 1 GB heap, where the tab
 used to crash.
 
+Since 2026-11-17 (`eval/no-entity-facet-2026-11-17.md`) a specification that
+applies to every entity (no entity facet, or an entity name pattern matching
+any class, as 37 specifications in public IDS files do) skips what cannot
+match without reading arguments, judges requirements before writing failure
+text, and reads the IFC2X3 type mapping table from an index. The 68 public and
+starter IDS files take 13.3 s on the HHS MEP export, where they took 96.2 s,
+and 111 s on the 219 MB federated model, where they took 515 s. Every report
+is identical. The 4.7 GB peak that run showed was garbage not yet collected:
+with a 2 GB heap it finishes, before and after this change.
+
 ## How it was checked
 
 1. **buildingSMART's test suite.** `eval/fetch-testcases.sh` sparse-clones
@@ -515,11 +525,13 @@ faster than IfcTester; its point is needing no install.
   entity's arguments are read when a check first needs them, and geometry's
   are not kept (2026-11-17, `eval/heap-200mb-2026-11-17.md`). A 219 MB
   federated model built from seven real exports peaks at about 1 GB with the
-  starter IDS files, where reading every argument up front took 2.5 GB. A
-  specification with no entity facet still reads every entity, so many such
-  files raise the peak, and models well past 500 MB may need the command line
-  with `--max-old-space-size`. The ifcXML reader still reads everything up
-  front.
+  starter IDS files, where reading every argument up front took 2.5 GB, and
+  with all 68 public and starter IDS files it finishes under a 2 GB heap
+  (`eval/no-entity-facet-2026-11-17.md`; the 4.7 GB peak without a cap was
+  uncollected garbage), not under 1 GB. A requirement on
+  attribute values by a name pattern still reads every entity's values,
+  geometry included. Models well past 500 MB may need the command line with
+  `--max-old-space-size`. The ifcXML reader still reads everything up front.
 - The IDS audit does not validate the file against the IDS XML schema
   (cardinality attributes, element order); the IDS-Audit-tool does. Property
   set templates are checked for names, data types and applicable classes, not

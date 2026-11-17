@@ -3001,10 +3001,28 @@ On SRD's 196 US receipt photos, what the page puts in the receipts box:
 In headless Chromium the port's text matches the Python engine's on 170 of 199 photos and on
 98.5% of lines. Two pieces had to be exact to get there: pyclipper's round-join unclip and
 OpenCV's fixed-point linear resize. Caveats: tesseract's column was made with tesseract 5.3.4,
-not tesseract.js; RapidOCR takes about 4 s a photo on one WASM thread and blocks the tab while
-it reads (next: a Web Worker); CORD photos were not re-read (huggingface.co refused the
+not tesseract.js; RapidOCR takes about 4 s a photo on one WASM thread (since the same day it
+reads in a Web Worker: "RapidOCR in a Web Worker" below); CORD photos were not re-read (huggingface.co refused the
 session's proxy). Details: [`eval/rapidocr-web-2026-11-17.md`](eval/rapidocr-web-2026-11-17.md).
 Tests: `rapidocr-web.test.mjs`; the page end to end: `eval/photo-ocr-browser.mjs`.
+
+### RapidOCR in a Web Worker (2026-11-17)
+
+RapidOCR used to run on the page's own thread, so the tab froze for 3 to 4 seconds per photo.
+It now runs in a Web Worker (`rapidocr-worker.mjs`): the page draws the photo and hands over
+its pixels, and the worker runs ONNX Runtime Web and the rest of the pipeline. RapidOCR and
+tesseract.js (which has its own worker) now read each photo at the same time. In headless
+Chromium on SRD photos:
+
+| | text | ms per photo (whole read, median) | tab's longest stall (median) |
+|---|---|---|---|
+| before | | 7,603 | 3,307 ms |
+| **now** | identical (200 of 200 RapidOCR readings, 21 of 21 settled) | **5,326** | **51 ms** |
+
+A browser that cannot start a module worker falls back to the old path, and the status line
+says so. Details: [`eval/rapidocr-worker-2026-11-17.md`](eval/rapidocr-worker-2026-11-17.md).
+Tests: `rapidocr-worker.test.mjs`; in a browser: `eval/rapidocr-worker.mjs`,
+`eval/photo-read-timing.mjs`.
 
 ## Budget against actual
 

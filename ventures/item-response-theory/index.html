@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23234b5e'/%3E%3Cpath%20d='M4%2027C11%2027%2013%205%2028%205'%20stroke='%23f2c14e'%20stroke-width='3'%20fill='none'/%3E%3Cpath%20d='M4%2027C16%2027%2018%2010%2028%2010'%20stroke='%23fff'%20stroke-width='2'%20fill='none'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Item Response Theory Calculator — item difficulty, discrimination and fit for your test, free online (1PL, 2PL)</title>
+  <meta name="description" content="Free online item response theory (IRT) tool. Paste right/wrong or A-E answers with a key and get each question's difficulty and discrimination with standard errors (1PL/Rasch and 2PL), S-X2 item fit, a distractor check for miskeyed items, test information and ability scores. Runs in your browser.">
+  <meta property="og:title" content="Which test questions work? Item response theory in your browser">
+  <meta property="og:description" content="1PL and 2PL IRT by marginal maximum likelihood, S-X2 item fit, test information, EAP scores and a distractor check. Reproduces the R package ltm's published LSAT estimates to every printed digit.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Item response theory calculator: item difficulty, discrimination and fit", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Fits the one- and two-parameter logistic item response models to right/wrong test answers by marginal maximum likelihood (Bock and Aitkin 1981), with standard errors, S-X2 item fit (Orlando and Thissen 2000), test information, marginal reliability, EAP ability scores (Bock and Mislevy 1982), a summed-score conversion table (Lord and Wingersky 1984; Thissen et al. 1995) and a distractor table for multiple-choice answers scored against a key. Runs in your browser.", "featureList": "item response theory, IRT, Rasch model, 1PL, 2PL, two-parameter logistic, item difficulty, item discrimination, marginal maximum likelihood, EM algorithm, standard errors, S-X2 item fit, Orlando Thissen, item characteristic curve, test information function, standard error of measurement, marginal reliability, EAP ability score, summed score conversion table, distractor analysis, answer key check, item analysis, point-biserial, likelihood ratio test, AIC, BIC, CSV download", "citation": ["https://doi.org/10.1007/BF02293801", "https://doi.org/10.1177/01466216000241003", "https://doi.org/10.1177/014662168400800409", "https://doi.org/10.1177/014662168200600405", "https://doi.org/10.1177/014662169501900105", "https://doi.org/10.1007/BF02291262", "https://doi.org/10.18637/jss.v017.i05"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is item response theory?", "acceptedAnswer": {"@type": "Answer", "text": "Item response theory models the chance that a person gets a question right as a function of their ability and two properties of the question: its difficulty (the ability at which half of people get it right) and its discrimination (how sharply the chance rises around that point). Unlike a raw percent correct, the difficulty does not depend on how able this particular group happened to be, and each person's score comes with its own standard error."}}, {"@type": "Question", "name": "What is the difference between the 1PL (Rasch) and 2PL models?", "acceptedAnswer": {"@type": "Answer", "text": "The 1PL gives every item the same discrimination, so the number right carries all the information about ability; this is the Rasch model. The 2PL lets each item discriminate differently, so a sharp question counts for more. The tool fits both, reports a likelihood-ratio test of one against the other, and keeps the one with the lower BIC unless you choose."}}, {"@type": "Question", "name": "How do I find a miskeyed or bad question?", "acceptedAnswer": {"@type": "Answer", "text": "Give the raw answers (A to E or 1 to 5) and a row whose first cell is key. For each question the tool shows how many chose each answer and the average score on the rest of the test of the people who chose it. If a wrong answer is chosen by people who do better on the rest of the test than those who chose the key, the key or the wording deserves a look. A near-zero or negative discrimination points the same way."}}, {"@type": "Question", "name": "How many people do I need?", "acceptedAnswer": {"@type": "Answer", "text": "The tool refuses fewer than 20 and warns below 100. A 1PL is usable with a few hundred people; a 2PL usually needs several hundred for stable discriminations. The standard errors say how precise each estimate is on your data, so read them before acting on a small difference."}}, {"@type": "Question", "name": "What does S-X2 item fit mean?", "acceptedAnswer": {"@type": "Answer", "text": "S-X2 (Orlando and Thissen 2000) groups people by their total score and compares, for each group, the share who got the item right with the share the model predicts. A small p-value means the item does not behave as the model says, for example because guessing lifts the bottom of its curve or because it measures something else. It needs complete answers, so it is skipped when some are missing."}}, {"@type": "Question", "name": "What does the tool not do?", "acceptedAnswer": {"@type": "Answer", "text": "It fits right/wrong items only, on one ability, with a normal ability distribution. It does not fit the three-parameter guessing model, partial-credit or graded items, several dimensions, or differential item functioning between groups, and it does not equate test forms. It is a statistical estimate, not a substitute for a psychometrician's review of a high-stakes test."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Every number is computed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17262e; background: #eef3f4; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #234b5e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #163847; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #163847; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5b63; }
+    .card { background: #fff; border: 1px solid #d3dfe2; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #16384710; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #687a82; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #234b5e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e0eaec; color: #163847; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e3eaec; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5b63; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.flag { color: #8a3b12; font-size: .88rem; }
+    tr.key td { font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d3dfe2; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #687a82; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .summary p { margin: 4px 0; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    pre { background: #f2f6f7; border: 1px solid #d9e3e5; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">ITEM RESPONSE THEORY · RASCH / 1PL · 2PL · ITEM DIFFICULTY · DISCRIMINATION · S-X2 ITEM FIT · DISTRACTOR CHECK · TEST INFORMATION · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which questions on my test work, and how hard is each one really?</h1>
+    <p>Quizzes, exams, certification tests, screening questionnaires: paste who got what right (or their raw A&ndash;E answers and the key). The tool fits <strong>item response theory</strong> models, the one-parameter (Rasch) and two-parameter logistic, by <strong>marginal maximum likelihood</strong> (Bock &amp; Aitkin 1981). For every question it gives a <strong>difficulty</strong> and a <strong>discrimination</strong> with standard errors and a fit test, and a <strong>distractor table</strong> that shows when a wrong answer draws stronger students than the key.</p>
+    <p class="note">Nothing you enter leaves this browser tab. A statistical estimate from the answers you give, not a substitute for a psychometrician's review of a high-stakes test.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your answers</h2>
+    <label for="data">CSV or tab-separated, one row per person, one column per question. Cells 0/1 (or right/wrong), or raw answers with a row whose first cell is "key". A column headed id, name or student holds labels; one headed count holds how many people gave that row.</label>
+    <textarea id="data" spellcheck="false"></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <div class="grid">
+      <div><label for="model">Model</label><select id="model"><option value="auto">Both, keep the lower BIC</option><option value="1pl">1PL (Rasch): one shared slope</option><option value="2pl">2PL: a slope per question</option></select></div>
+      <div><label for="key">Answer key, if not a row (e.g. BDACAB or B,D,A)</label><input id="key" type="text" placeholder="leave blank for 0/1 data"></div>
+    </div>
+    <div>
+      <button type="button" class="secondary" id="ex-lsat">Example: LSAT Section 6, 1,000 examinees (real)</button>
+      <button type="button" class="secondary" id="ex-quiz">Example: 6-question quiz with a key (made up)</button>
+    </div>
+    <button type="button" id="analyze">Fit</button>
+    <span class="note" id="status"></span>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <div class="summary" id="summary"></div>
+    <div id="notes"></div>
+    <h3>Item parameters</h3>
+    <div class="scroll"><table id="items"></table></div>
+    <p class="note">a: discrimination (logistic metric; above about 1 is good, below 0.5 weak). b: difficulty, in standard deviations of ability (0 = average person). p right: share who got it right. Item-rest r: correlation with the score on the other questions. S-X2 p: item fit; small means the question does not behave as the model says.</p>
+    <h3>How the chance of a right answer rises with ability</h3>
+    <div id="icc"></div>
+    <p class="note">One curve per question (item characteristic curves). Where a curve crosses 50% is its difficulty; the steeper it climbs, the better it separates people either side of that point.</p>
+    <h3>Where the test measures precisely</h3>
+    <div id="info"></div>
+    <p class="note" id="info-note"></p>
+    <h3>Models</h3>
+    <div class="scroll"><table id="models"></table></div>
+    <div id="dist-box" hidden><h3>Answers to each question</h3><p class="note">Mean rest: the average number right on the other questions among people who chose that answer. When a wrong answer's mean rest beats the key's, check the key and the wording.</p><div class="scroll"><table id="dist"></table></div></div>
+    <div id="score-box" hidden><h3>Score conversion</h3><p class="note">Ability for each number right, for scoring paper tests without the full pattern (EAP, with posterior SD).</p><div class="scroll"><table id="scores"></table></div></div>
+    <button type="button" class="secondary" id="download">Download the item table (CSV)</button>
+    <button type="button" class="secondary" id="download-people">Download person scores (CSV)</button>
+    <button type="button" class="secondary" id="download-report">Download a report (Markdown)</button>
+  </section>
+
+  <section class="card">
+    <h2>Example: the LSAT, and a key that was wrong</h2>
+    <p>The real example is Section 6 of the Law School Admission Test: 1,000 examinees, 5 questions (Bock &amp; Lieberman 1970), the standard first data set in IRT textbooks. The tool reproduces the estimates the R package ltm publishes for it (Rizopoulos 2006) to every printed digit: a common slope of 0.7551 (standard error 0.0694), question 1's difficulty &minus;3.6153 (0.3266), and a log-likelihood of &minus;2466.938. The 2PL adds four slopes but raises the log-likelihood by only 0.28 (likelihood-ratio chi-square 0.57 on 4 df, p = 0.967), so the 1PL is kept. All five questions are easy for this group; the test measures most precisely at ability &minus;1.90, well below the average examinee, and its marginal reliability is 0.29.</p>
+    <p>The distractor table earns its keep on a second real test, SAT12 (600 grade-12 science students, 32 questions; shipped with the R package mirt, not with this page). Its documented key gives question 32 a discrimination of 0.12 and an item-rest correlation of 0.02. 44.3% chose answer 3, and they averaged 19.2 right on the other questions, against 18.5 for the 16.2% who chose the keyed answer 5. Rescored with 3 as the key, the question's discrimination rises to 0.47 and its item-rest correlation to 0.18. mirt's documentation reaches the same suspicion by a different model (the nominal response model): the key for question 32 "may be incorrect, and should be changed from 5 to 3".</p>
+  </section>
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What is item response theory?</h3>
+    <p>Item response theory models the chance that a person gets a question right as a function of their ability and two properties of the question: its difficulty (the ability at which half of people get it right) and its discrimination (how sharply the chance rises around that point). Unlike a raw percent correct, the difficulty does not depend on how able this particular group happened to be, and each person's score comes with its own standard error.</p>
+    <h3>What is the difference between the 1PL (Rasch) and 2PL models?</h3>
+    <p>The 1PL gives every item the same discrimination, so the number right carries all the information about ability; this is the Rasch model. The 2PL lets each item discriminate differently, so a sharp question counts for more. The tool fits both, reports a likelihood-ratio test of one against the other, and keeps the one with the lower BIC unless you choose.</p>
+    <h3>How do I find a miskeyed or bad question?</h3>
+    <p>Give the raw answers (A to E or 1 to 5) and a row whose first cell is key. For each question the tool shows how many chose each answer and the average score on the rest of the test of the people who chose it. If a wrong answer is chosen by people who do better on the rest of the test than those who chose the key, the key or the wording deserves a look. A near-zero or negative discrimination points the same way.</p>
+    <h3>How many people do I need?</h3>
+    <p>The tool refuses fewer than 20 and warns below 100. A 1PL is usable with a few hundred people; a 2PL usually needs several hundred for stable discriminations. The standard errors say how precise each estimate is on your data, so read them before acting on a small difference.</p>
+    <h3>What does S-X2 item fit mean?</h3>
+    <p>S-X2 (Orlando and Thissen 2000) groups people by their total score and compares, for each group, the share who got the item right with the share the model predicts. A small p-value means the item does not behave as the model says, for example because guessing lifts the bottom of its curve or because it measures something else. It needs complete answers, so it is skipped when some are missing.</p>
+    <h3>What does the tool not do?</h3>
+    <p>It fits right/wrong items only, on one ability, with a normal ability distribution. It does not fit the three-parameter guessing model, partial-credit or graded items, several dimensions, or differential item functioning between groups, and it does not equate test forms. It is a statistical estimate, not a substitute for a psychometrician's review of a high-stakes test.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Every number is computed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p><strong>Models</strong> (Birnbaum 1968; Rasch 1960). P(right | ability &theta;) = 1 / (1 + exp(&minus;a(&theta; &minus; b))), on the logistic metric (no 1.7 scaling constant). The 1PL shares one slope a across questions with ability N(0, 1); in the Rasch metric that is slope 1 and an ability standard deviation of a.</p>
+    <p><strong>Estimation</strong> (Bock &amp; Aitkin 1981). Marginal maximum likelihood by EM over 61 quadrature points on [&minus;6, 6] with normal weights: the E-step finds each response pattern's posterior over ability, the M-step solves each question's expected log-likelihood by Newton's method (the 1PL jointly, for its shared slope). Missing answers are treated as not presented. <strong>Standard errors</strong> come from the observed information, by central differences of the exact marginal score.</p>
+    <p><strong>Item fit</strong>: S-X2 (Orlando &amp; Thissen 2000), with the model's proportion right at each total score from the Lord &amp; Wingersky (1984) recursion and neighbouring score groups pooled until both expected counts reach 1. <strong>Scores</strong>: EAP ability and posterior SD for every person (Bock &amp; Mislevy 1982), and a number-right conversion table (Thissen et al. 1995). <strong>Test information</strong>: the sum of a&sup2;P(1 &minus; P), whose inverse square root is the standard error of measurement at each ability. <strong>Marginal reliability</strong>: the variance of the EAP scores over that variance plus the mean posterior variance.</p>
+    <p><strong>Checked</strong> against ltm's published LSAT output (Rizopoulos 2006: every estimate, standard error, log-likelihood, AIC, BIC and the likelihood-ratio test, to the printed digits), against the Python package girth on LSAT (within 0.0002) and on a simulated 15-question test (within 0.004), and on 60 simulated tests with a known truth: 95% intervals covered 95.1% of the true slopes and 95.5% of the true difficulties, and S-X2 flagged 5.1% of questions that fit at the 5% level. Implemented from the papers; no third-party code was ported.</p>
+<pre>@article{bock1981marginal, author={Bock, R. Darrell and Aitkin, Murray}, title={Marginal maximum likelihood estimation of item parameters: Application of an EM algorithm}, journal={Psychometrika}, volume={46}, number={4}, pages={443--459}, year={1981}, doi={10.1007/BF02293801}}
+@incollection{birnbaum1968some, author={Birnbaum, Allan}, title={Some latent trait models and their use in inferring an examinee's ability}, booktitle={Statistical Theories of Mental Test Scores}, editor={Lord, Frederic M. and Novick, Melvin R.}, publisher={Addison-Wesley}, pages={397--479}, year={1968}}
+@book{rasch1960probabilistic, author={Rasch, Georg}, title={Probabilistic Models for Some Intelligence and Attainment Tests}, publisher={Danish Institute for Educational Research}, year={1960}}
+@article{orlando2000likelihood, author={Orlando, Maria and Thissen, David}, title={Likelihood-based item-fit indices for dichotomous item response theory models}, journal={Applied Psychological Measurement}, volume={24}, number={1}, pages={50--64}, year={2000}, doi={10.1177/01466216000241003}}
+@article{lord1984comparison, author={Lord, Frederic M. and Wingersky, Marilyn S.}, title={Comparison of IRT true-score and equipercentile observed-score "equatings"}, journal={Applied Psychological Measurement}, volume={8}, number={4}, pages={453--461}, year={1984}, doi={10.1177/014662168400800409}}
+@article{bock1982adaptive, author={Bock, R. Darrell and Mislevy, Robert J.}, title={Adaptive EAP estimation of ability in a microcomputer environment}, journal={Applied Psychological Measurement}, volume={6}, number={4}, pages={431--444}, year={1982}, doi={10.1177/014662168200600405}}
+@article{thissen1995item, author={Thissen, David and Pommerich, Mary and Billeaud, Kathleen and Williams, Valerie S. L.}, title={Item response theory for scores on tests including polytomous items with ordered responses}, journal={Applied Psychological Measurement}, volume={19}, number={1}, pages={39--49}, year={1995}, doi={10.1177/014662169501900105}}
+@article{bock1970fitting, author={Bock, R. Darrell and Lieberman, Marcus}, title={Fitting a response model for n dichotomously scored items}, journal={Psychometrika}, volume={35}, number={2}, pages={179--197}, year={1970}, doi={10.1007/BF02291262}}
+@article{rizopoulos2006ltm, author={Rizopoulos, Dimitris}, title={ltm: An R package for latent variable modeling and item response theory analyses}, journal={Journal of Statistical Software}, volume={17}, number={5}, pages={1--25}, year={2006}, doi={10.18637/jss.v017.i05}}</pre>
+    <p class="note">Example data: LSAT Section 6 response-pattern counts from Bock &amp; Lieberman (1970), as distributed with the R package ltm. SAT12 is described from the R package mirt's documentation and is not redistributed here.</p>
+    <p class="note">Limits: 20 to 20,000 people, 2 to 100 right/wrong questions, one ability dimension, normal ability distribution, no guessing parameter.</p>
+  </section>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not psychometric, educational, legal or other professional advice, and its output is not a validated score report or a certification of a test. Results are a statistical estimate from the answers you enter; a testing standard, licensing body or contract may require a different method or a qualified psychometrician's review. You are responsible for reviewing and verifying its output before relying on it, above all before a decision about a person. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, the Law School Admission Council, the authors of ltm, mirt or girth, or any testing company or software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs answers.csv --model 2pl --items</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/item-response-theory" rel="noopener">source</a>.</p>
+    <p>More research algorithms on your own data: <a href="../scale-reliability/">scale reliability</a> gives Cronbach's alpha and McDonald's omega for the same answers, <a href="../inter-rater-agreement/">inter-rater agreement</a> measures how far graders agree, and <a href="../probability-calibration/">probability calibration</a> checks whether forecast probabilities mean what they say.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, summarize, itemCsv, peopleCsv, report } from "./engine.mjs";
+    import { EXAMPLES } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const f2 = (v) => (v == null || !Number.isFinite(v) ? "–" : v.toFixed(2));
+    const fp = (v) => (v == null ? "–" : v < 0.001 ? "<0.001" : v.toFixed(3));
+    const PALETTE = ["#234b5e", "#d1495b", "#edae49", "#00798c", "#66a182", "#8d6a9f", "#30638e", "#b5651d", "#5c946e", "#a23b72"];
+    let last = null;
+    const logistic = (z) => 1 / (1 + Math.exp(-z));
+    function axes(W, H, L, B, T, R, ylab, ymax) {
+      const sx = (x) => L + ((x + 4) / 8) * (W - L - R), sy = (y) => H - B - (y / ymax) * (H - T - B);
+      let out = `<line x1="${L}" y1="${H - B}" x2="${W - R}" y2="${H - B}" stroke="#9fb0b6"/><line x1="${L}" y1="${T}" x2="${L}" y2="${H - B}" stroke="#9fb0b6"/>`;
+      for (let t = -4; t <= 4; t += 2) out += `<text x="${sx(t)}" y="${H - B + 16}" font-size="12" text-anchor="middle" fill="#4a5b63">${t}</text>`;
+      out += `<text x="${(L + W - R) / 2}" y="${H - 6}" font-size="13" text-anchor="middle" fill="#4a5b63">ability (0 = average person, in standard deviations)</text>`;
+      out += `<text x="16" y="${(T + H - B) / 2}" font-size="13" text-anchor="middle" fill="#4a5b63" transform="rotate(-90 16 ${(T + H - B) / 2})">${ylab}</text>`;
+      return { sx, sy, out };
+    }
+    function iccSvg(r) {
+      const W = 900, H = 320, L = 60, B = 44, T = 12, R = 150;
+      const { sx, sy, out: base } = axes(W, H, L, B, T, R, "chance of a right answer", 1);
+      let out = base + `<line x1="${L}" y1="${sy(0.5)}" x2="${W - R}" y2="${sy(0.5)}" stroke="#e3eaec" stroke-dasharray="4 4"/>`;
+      out += `<text x="${L - 6}" y="${sy(1) + 4}" font-size="12" text-anchor="end" fill="#4a5b63">100%</text><text x="${L - 6}" y="${sy(0.5) + 4}" font-size="12" text-anchor="end" fill="#4a5b63">50%</text><text x="${L - 6}" y="${sy(0) + 4}" font-size="12" text-anchor="end" fill="#4a5b63">0%</text>`;
+      const shown = r.itemTable.slice(0, 40);
+      shown.forEach((it, j) => {
+        let d = "";
+        for (let k = 0; k <= 160; k++) { const t = -4 + k / 20; d += `${k ? "L" : "M"}${sx(t).toFixed(1)},${sy(logistic(it.a * t + it.d)).toFixed(1)}`; }
+        const c = PALETTE[j % PALETTE.length];
+        out += `<path d="${d}" fill="none" stroke="${c}" stroke-width="2"><title>${esc(it.item)}: a ${f2(it.a)}, b ${f2(it.b)}</title></path>`;
+        if (j < 16) out += `<text x="${W - R + 12}" y="${T + 12 + j * 16}" font-size="12" fill="${c}">${esc(it.item.slice(0, 18))}</text>`;
+      });
+      if (shown.length > 16) out += `<text x="${W - R + 12}" y="${T + 12 + 16 * 16}" font-size="12" fill="#4a5b63">+${shown.length - 16} more</text>`;
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Item characteristic curves">${out}</svg>`;
+    }
+    function infoSvg(r) {
+      const W = 900, H = 280, L = 60, B = 44, T = 12, R = 20, c = r.information.curve;
+      const ymax = c.reduce((m, p) => Math.max(m, p.info), 0) * 1.12;
+      const { sx, sy, out: base } = axes(W, H, L, B, T, R, "information", ymax);
+      let d = "";
+      c.forEach((p, k) => { d += `${k ? "L" : "M"}${sx(p.theta).toFixed(1)},${sy(p.info).toFixed(1)}`; });
+      let out = base + `<path d="${d}" fill="none" stroke="#234b5e" stroke-width="2.5"/>`;
+      out += `<text x="${L - 6}" y="${sy(ymax / 1.12) + 4}" font-size="12" text-anchor="end" fill="#4a5b63">${f2(ymax / 1.12)}</text>`;
+      out += `<circle cx="${sx(r.information.peakTheta)}" cy="${sy(r.information.peakInfo)}" r="4" fill="#d1495b"><title>peak at ${f2(r.information.peakTheta)}</title></circle>`;
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Test information function">${out}</svg>`;
+    }
+    function show(r) {
+      last = r;
+      $("#results").hidden = false;
+      $("#summary").innerHTML = summarize(r).map((l) => `<p>${esc(l)}</p>`).join("");
+      $("#notes").innerHTML = r.warnings.map((n) => `<p class="warn">${esc(n)}</p>`).join("");
+      $("#items").innerHTML = `<tr><th>Question</th><th class="n">a</th><th class="n">SE</th><th class="n">b</th><th class="n">SE</th><th class="n">p right</th><th class="n">Item-rest r</th><th class="n">S-X2 p</th><th>Look at</th></tr>` +
+        r.itemTable.map((i) => `<tr><td>${esc(i.item)}</td><td class="n">${f2(i.a)}</td><td class="n">${f2(i.aSE)}</td><td class="n">${f2(i.b)}</td><td class="n">${f2(i.bSE)}</td><td class="n">${f2(i.pCorrect)}</td><td class="n">${f2(i.itemRest)}</td><td class="n">${fp(i.sx2p)}</td><td class="flag">${esc(i.flags.join("; "))}</td></tr>`).join("");
+      $("#icc").innerHTML = iccSvg(r);
+      $("#info").innerHTML = infoSvg(r);
+      $("#info-note").textContent = `Test information peaks at ability ${f2(r.information.peakTheta)}, where the standard error of measurement is ${f2(r.information.peakSE)}. Marginal reliability ${f2(r.marginalReliability)}.`;
+      const fits = Object.entries(r.fits);
+      $("#models").innerHTML = `<tr><th>Model</th><th class="n">Log-likelihood</th><th class="n">Parameters</th><th class="n">AIC</th><th class="n">BIC</th><th class="n">EM iterations</th></tr>` +
+        fits.map(([k, s]) => `<tr><td>${k.toUpperCase()}${k === r.model ? " (used)" : ""}</td><td class="n">${s.logLik.toFixed(3)}</td><td class="n">${s.parameters}</td><td class="n">${s.aic.toFixed(2)}</td><td class="n">${s.bic.toFixed(2)}</td><td class="n">${s.iterations}</td></tr>`).join("") +
+        (r.comparison ? `<tr><td colspan="6">Likelihood-ratio test, 2PL against 1PL: chi-square ${f2(r.comparison.lr)} on ${r.comparison.df} df, p = ${fp(r.comparison.p)}</td></tr>` : "");
+      $("#dist-box").hidden = !r.distractors;
+      if (r.distractors) {
+        $("#dist").innerHTML = `<tr><th>Question</th><th>Answer</th><th class="n">Chose it</th><th class="n">Mean rest</th><th>Note</th></tr>` +
+          r.distractors.map((d) => d.options.map((o, k) => `<tr class="${o.keyed ? "key" : ""}"><td>${k ? "" : esc(d.item)}</td><td>${esc(o.answer)}${o.keyed ? " (key)" : ""}</td><td class="n">${(100 * o.share).toFixed(1)}%</td><td class="n">${f2(o.meanRest)}</td><td class="flag">${d.flagged.includes(o.answer) ? "stronger students than the key chose this" : ""}</td></tr>`).join("")).join("");
+      }
+      $("#score-box").hidden = !r.scoreTable;
+      if (r.scoreTable) $("#scores").innerHTML = `<tr><th class="n">Number right</th><th class="n">Ability (EAP)</th><th class="n">Posterior SD</th></tr>` + r.scoreTable.map((s) => `<tr><td class="n">${s.score}</td><td class="n">${f2(s.eap)}</td><td class="n">${f2(s.psd)}</td></tr>`).join("");
+    }
+    function inputs() { return { text: $("#data").value, model: $("#model").value, key: $("#key").value.trim() }; }
+    function compute() {
+      try { return analyze(inputs()); } catch (e) { return { error: e.message }; }
+    }
+    function run() {
+      const t0 = performance.now();
+      $("#status").textContent = "Working…";
+      setTimeout(() => {
+        const r = compute();
+        if (r.error) { $("#status").textContent = r.error; $("#results").hidden = true; return; }
+        $("#status").textContent = `Done in ${Math.round(performance.now() - t0)} ms.`;
+        show(r);
+        record("analysis_run");
+      }, 10);
+    }
+    function loadExample(key, quiet = false) {
+      const ex = EXAMPLES[key];
+      $("#data").value = ex.text;
+      $("#key").value = "";
+      $("#status").textContent = ex.label;
+      if (quiet) { const r = compute(); if (!r.error) show(r); return; }
+      record("example_loaded");
+      run();
+    }
+    $("#analyze").addEventListener("click", run);
+    $("#ex-lsat").addEventListener("click", () => loadExample("lsat"));
+    $("#ex-quiz").addEventListener("click", () => loadExample("quiz"));
+    $("#file").addEventListener("change", async (e) => {
+      const f = e.target.files?.[0];
+      if (f) { $("#data").value = await f.text(); run(); }
+    });
+    const save = (text, name, type = "text/csv") => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type }));
+      a.download = name;
+      a.click();
+      record("report_downloaded");
+    };
+    $("#download").addEventListener("click", () => { if (last) save(itemCsv(last), "irt-items.csv"); });
+    $("#download-people").addEventListener("click", () => { if (last) save(peopleCsv(last), "irt-person-scores.csv"); });
+    $("#download-report").addEventListener("click", () => { if (last) save(report(last), "irt-report.md", "text/markdown"); });
+    const syncOpt = () => { $("#optout").textContent = usageOptedOut() ? "Turn usage counting back on" : "Turn usage counting off"; };
+    $("#optout").addEventListener("click", () => { setUsageOptOut(!usageOptedOut()); syncOpt(); });
+    syncOpt();
+    loadExample("lsat", true);
+  </script>
+</body>
+</html>
