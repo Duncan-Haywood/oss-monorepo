@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKng9f7USGYRkqfZbky",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T02:19:08Z",
+  "ended": "2026-11-17T02:34:50Z",
+  "wall_minutes": 24.06,
+  "tokens_in": 6271579,
+  "tokens_out": 63092,
+  "cost_usd": 3.728,
+  "tool_calls": 52,
+  "task": "creative: Hearth & Horizon story from BIBLE.md 'Next up' (the digester that went sour)",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16783",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Says over 400 MB means text only, while saints-by-candlelight/PRODUCTION.md and docs/reports/2026-11-13-audio-cap-is-stale.md say the cap is stale since audio moved to jsDelivr; two layers disagree and the track prompt has not been updated. I followed the track prompt (text only)."
+    },
+    {
+      "file": "ventures/saints-by-candlelight/PRODUCTION.md",
+      "issue": "The only 'Next up' suggestion (Egeria in Holy Week) was already claimed by open PR #16781, so the overdue project had nothing unclaimed to take; the list needs more than one entry to survive parallel runs."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "The prompt says pick the project longest without a piece (Saints by Candlelight). Its only listed next episode was already being written in PR #16781, so I took the headline shelf's unclaimed proposal instead.",
+      "did": "Wrote the Hearth & Horizon proposal 'the digester that went sour'.",
+      "result": "Story landed; no duplicate."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-the-digester-that-went-sour.md"
+  ],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon (Hearth & Horizon shelf). Piece: the-digester-that-went-sour (about 4,800 words plus closing note), text only because audio dirs total 577 MB. Numbers come from a small day-by-day digester model written for the story (hydrolysis, acetoclastic methanogens with ADM1-style pH inhibition, charge-balance pH); the closing note gives every constant and the scenario results (lime alone, slurry alone, bicarbonate alone all fail; 4 m3 swap + 50 kg NaHCO3 recovers; charcoal ledger 138 kg saved vs 73 kg bought; slow path about 240 kg). Weekdays and Easter 2052 checked by script. Local checks: hearth-and-horizon node --test 17/17 pass; run_workflow_locally --for-changes: 11/11 selected workflows passed (pages 6/6, ventures-tests 5/5, portfolio-validate 100/100, portfolio-pages 12/12 run steps; uses: steps, cross-review and deploy jobs not run locally).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "58a1cbb6-91a8-5d53-a61c-534f45e0c4ec",
+    "transcripts": 1,
+    "first": "2026-11-17T02:19:08Z",
+    "last": "2026-11-17T02:43:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 51,
+        "input": 100,
+        "output": 63092,
+        "thinking": 31659,
+        "cache_read": 6116164,
+        "cache_write_5m": 0,
+        "cache_write_1h": 155315,
+        "api_equivalent_usd": 3.728,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 51,
+      "input": 100,
+      "output": 63092,
+      "thinking": 31659,
+      "cache_read": 6116164,
+      "cache_write_5m": 0,
+      "cache_write_1h": 155315,
+      "api_equivalent_usd": 3.728,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 48,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 24.06,
+      "active_minutes": 24.06,
+      "model_minutes": 12.03,
+      "tool_minutes": 12.04,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a science-fiction writer researching anaerobic digestion, building a small model and drafting a 5,000-word story with a checked note",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 268.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
