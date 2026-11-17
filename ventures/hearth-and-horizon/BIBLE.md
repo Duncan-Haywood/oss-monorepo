@@ -118,6 +118,7 @@ introduces a dated fact.
 | 2041 | A typhoon takes down the tower of the San Isidro church in Batangas; its bell is recast | *Slowest Bell* |
 | 2044 | Teddy and Remedios marry at Our Lady of Remedies, Malate | *Slowest Bell* |
 | 2049 | São Miguel do Brejo Alto (invented), Minas Gerais: parish erected 1799, 250th jubilee; the Matriz do Rosário's gallery closed 2031, reopened Sunday 12 Sep 2049 under engineer Patrícia Nogueira's 2048 rating (2.5 kN/m² on any part); joists replaced and notched over the beam in July 1989 by Mestre Firmino Rocha and Benedito Alves (b. 1970); parish assistant Tombo; feast Sunday 3 Oct 2049 | *The Gallery That Is Full for the First Time* |
+| 2052 | Saint Kizito Girls' Secondary School (invented), near Mityana, Uganda: 10 m³ fixed-dome digester built 2034 by Mzee Yowasi Kalyango (b. 1978); soured by matooke peels 4 to 15 March, recovered 21 to 27 March; assistant Muliro; Sisters' farm at Kakindu (invented) | *The Digester That Went Sour* |
 | 2060s | Saltwater flooding in the Mekong Delta resettles people inland | *NOTES.md* |
 | 2048 | Deanery of Upper Hafren (invented), mid-Wales: 14 parishes give £307,110 then £297,670 (−3.1%); plain mean of the 14 changes +5.8% ("the average parish is up 6%"); Abergarth's dairy closes April 2047 and its parish falls £151,200 to £133,600; Parish Support Fund grants £8,000 of £13,000 on Tue 28 Jan 2048; Canon Ignatius Nwosu, Mr Idris Vaughan (treasurer), Fr Shibu Thottam, Mrs Siân Meredith | *The Average Parish* |
 | 2049 | A week of cloud over Maewo, Vanuatu, takes a solar vaccine fridge above 8 C for 26 hours four days before a measles-rubella catch-up campaign; Penama's cold-chain assistant is called Chain | *The Cold Chain* |
@@ -333,8 +334,6 @@ again (`gh api -X GET search/issues -f q='repo:<repo> is:pr "<phrase>"'`)
 before writing the first scene.
 
 **Hearth & Horizon**
-
-- *Proposal* (2026-11-16): the digester that went sour. A mission school or parish farm in Uganda or Tanzania (invented), India or Peru (invented; not Argentina or Ghana, which the last two stories used) feeds a household biogas digester with the kitchen's waste to cook the boarders' porridge, and in the hungry season the kitchen staff are told to feed it more, because more feed should mean more gas. The gas falls and then stops; the slurry smells of vinegar. Work out before drafting, for one invented fixed-dome digester (volume, daily feed in kilograms of volatile solids, retention time), the organic loading rate against a published safe range for small mesophilic digesters, how the acids build when the methanogens are outpaced, the pH and the gas yield per kilogram of volatile solids at the right load, and the days to recover. Show a failed first fix (feeding it lime alone, which lifts the pH for a day without fixing the load) before the right one (stop feeding, add buffered water or manure from a healthy digester, then raise the feed slowly), sized by the same sums, and count the charcoal bought in the meantime. Nothing in it is engineering or safety advice, and the note says so (biogas is flammable and the gas in a digester's dome can asphyxiate). Overlap checked 2026-11-16: 'biogas' and 'anaerobic digester' unused.
 
 **For Other Minds**
 
