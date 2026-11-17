@@ -216,3 +216,21 @@ test("a pattern, a concrete class and a partOf on an abstract parent", () => {
   // A required entity requirement naming an abstract class is already a contradiction.
   assert.deepEqual(codes(spec(ent("IFCWALL"), ent("IFCBUILDINGELEMENT"))), ["entity-contradiction"]);
 });
+
+test("a required entity requirement naming only an abstract class fails every element (invalid)", () => {
+  // No entity facet in the applicability, so entity-contradiction cannot see it.
+  const r = audit(spec(prop("IFCLABEL"), ent("IFCBUILDINGELEMENT"), { version: "IFC2X3" }));
+  assert.deepEqual(r.map((x) => [x.level, x.code]), [["error", "class-abstract"]]);
+  assert.match(r[0].message, /every applicable element would fail; to require objects below it, name their classes \(IFCBEAM,/);
+  // IFCPROFILEDEF is abstract in IFC2X3 only: a warning naming that schema.
+  const p = audit(spec(prop("IFCLABEL"), ent("IFCPROFILEDEF"), { version: "IFC2X3 IFC4" }));
+  assert.deepEqual(p.map((x) => [x.level, x.code]), [["warning", "class-abstract"]]);
+  assert.match(p[0].message, /abstract in IFC2X3: .*IFC2X3 models would fail/);
+  // Optional, a concrete class, or an entity applicability (entity-contradiction's job): nothing new.
+  const opt = `<entity cardinality="optional"><name><simpleValue>IFCBUILDINGELEMENT</simpleValue></name></entity>`;
+  assert.deepEqual(audit(spec(prop("IFCLABEL"), opt, { version: "IFC2X3" })).filter((x) => x.code === "class-abstract"), []);
+  assert.deepEqual(audit(spec(prop("IFCLABEL"), ent("IFCWALL"))), []);
+  assert.deepEqual(codes(spec(ent("IFCWALL"), ent("IFCBUILDINGELEMENT"), { version: "IFC2X3" })), ["entity-contradiction"]);
+  // IFC2X3 type-mapping names are not dead.
+  assert.deepEqual(audit(spec(prop("IFCLABEL"), ent("IFCAIRTERMINAL"), { version: "IFC2X3" })).filter((x) => x.code === "class-abstract"), []);
+});
