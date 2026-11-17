@@ -121,3 +121,12 @@ layer against a real local HTTP server with no external network access
 (`probe.test.mjs`), the CLI's orchestration and argument parsing
 (`check.test.mjs`), the usage counter (`usage.test.mjs`), and the page's
 structure and disclaimers (`page.test.mjs`).
+
+## Known gaps
+
+Open after the [2026-11-17 quality audit](../../portfolio/quality/audits/2026-11-17-git-exposure-check.json); the defects that audit marks fixed are not listed.
+
+- The `.git/config` check matches `[core]` anywhere in the body, so a catch-all 200 page that quotes it would be flagged.
+- When one probe fails and the other returns a 404, the exit code is 0, while this README describes exit 0 as both probes completing.
+- The tests do not pin the soft-404 defences (the `^...$` anchors on the HEAD pattern, the `status === 200` requirement): both seeded mutants survived.
+- A connection reset mid-body is treated as a completed read.

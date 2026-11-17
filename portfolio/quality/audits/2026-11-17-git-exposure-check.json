@@ -209,7 +209,8 @@
    "what": "Redirects are never followed and never flagged: a 3xx on both probes is reported 'The .git directory does not appear to be publicly exposed' with exit 0. Passing http:// for an https site, or the apex for a www site (the commonest way a user types a URL), gives a clean verdict on a host whose canonical origin really exposes .git (curl -L returns 'ref: refs/heads/main'). As a CI gate this passes green.",
    "where": "ventures/git-exposure-check/check.mjs:45",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16990"
   },
   {
    "severity": "medium",
@@ -254,6 +255,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16990"],
  "verdict": "A small, clean, dependency-free two-request checker whose core classification is right on real git-written repositories: SHA-1, SHA-1 detached and SHA-256 detached .git trees served from a local server are all detected, and generic soft-404 pages are rejected. It misses the bar on correctness, claims and verification. The first thing a pentester tries, the apex or http:// URL of a site that redirects, returns 'does not appear to be publicly exposed' and exit 0 while curl -L shows 'ref: refs/heads/main' (re-run: node /tmp/claude-0/-home-user-oss-monorepo/28cabc82-884b-5f5d-b359-081413dc958d/scratchpad/git-exposure-check/redir.mjs & then node check.mjs http://127.0.0.1:18472/). A soft-404 page that contains '[core]' is flagged as exposed, contradicting the pages' 'essentially never' claim; one failed probe still exits 0 against README's promise; and the two mutants that remove the soft-404 defences survive all 66 tests. Fixes are small: report 3xx with the Location and exit non-zero, anchor the config match, exit 1 on any failed probe, add HTML-containing negative tests."
 }

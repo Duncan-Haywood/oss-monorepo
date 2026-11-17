@@ -46,6 +46,7 @@ Classical results, none reproduced from a specific paper: Lorenz (1963), "Determ
 - The "no statistical difference" results have limited power at 100 to 200 members; they exclude large biases, not small ones.
 - The `√steps` reading of the step-size trend rests on four step sizes.
 - Departure distance 1 is arbitrary (on Lorenz the attractor spans about 50); the log law makes the threshold shift every curve by a constant, but the equivalent δ₀ depends on it through the fitted intercept.
+- From the [2026-11-17 quality audit](../../portfolio/quality/audits/2026-11-17-free-f32shadow.json): the tests catch 1 of 6 seeded mutants (forcing float64 arithmetic in place of float32, which is the project's whole mechanism, passes them); the t=100 Benettin estimate keeps its start-up transient, which is why Lorenz reads 0.8995 against about 0.906 (the float32-vs-float64 comparison is unaffected); and the nearest prior work (Sauer, Grebogi and Yorke on shadowing times of numerical chaotic orbits; the reduced-precision weather and climate work of Düben, Palmer and Klöwer and colleagues) is not yet cited or compared, so "statistics survive" is a replication of known behaviour on two toy systems, not a new result.
 
 ## Next steps
 

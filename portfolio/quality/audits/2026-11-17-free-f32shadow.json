@@ -179,7 +179,8 @@
    "what": "Headline reading 'about 100 times the float32 unit roundoff, not 1 times: rounding errors added at every step, not one rounding of the start' compares an absolute distance with a relative roundoff. One rounding of a Lorenz state (|s|~25) is u*|s| = 1.5e-6 and one float32 RK4 step errs by a median 5.0e-7, so 5.6e-6 is ~4 state roundings or ~11 step errors.",
    "where": "research/free-f32shadow/README.md:13",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16990"
   },
   {
    "severity": "medium",
@@ -214,9 +215,10 @@
    "what": "Reproduce section timings drifted: '~3 s' tests run in 1.6 s and '~3 min' run.py in 75 s on numpy 2.5.3.",
    "where": "research/free-f32shadow/README.md:33",
    "category": "stale-docs",
-   "origin": "maintenance"
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16990"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16990"],
  "verdict": "Reproducible and numerically right where it computes: run.py reproduces results.txt byte-for-byte, an independent float32 integrator with a different operation order gives the same departure median (12.38 vs 12.32), the fit inversions and the Lorenz time-average identities check, and the float32 and float64 Lyapunov exponents agree (though both Benettin estimates sit ~2 se below a tangent-space reference). What fails is the interpretation and the guard rails: the headline '100 times the unit roundoff' compares an absolute distance with a relative unit (the equivalent error is about 4 state roundings, 11 one-step errors), only 1 of 6 seeded mutants is caught (including one that silently turns float32 arithmetic into float64), and the closest prior work on shadowing times and reduced-precision climate statistics is not cited, so the 'statistics survive' result is a replication rather than new. Does not meet the bar (verification 1, claims 2; median 2). Fixable in a session: reword README:13, add the prior work, add tests that pin dtype of intermediate products, stats and z."
 }
