@@ -5,6 +5,7 @@ from decimal import Decimal
 from xml.etree import ElementTree
 from typing import Any
 
+from .xmlvalues import unreadable_leaves
 from .numbers import parse_decimal
 
 
@@ -376,6 +377,9 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
     adjustments = _header_adjustments(root)
     if adjustments:
         invoice["adjustments"] = adjustments
+    unreadable = unreadable_leaves(root)
+    if unreadable:
+        invoice["xml_values"] = unreadable
     return invoice
 
 

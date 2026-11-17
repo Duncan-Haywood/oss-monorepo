@@ -408,6 +408,13 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    to 0.04 points; a 1 arcmin waist gearbox gives 0.106 mm and 0.11 points. Locking waist roll and pitch, as on the base
    G1, changes nothing: the yaw is the joint that flips. The pre-2017 sensor still leaves 0.87 mm. Still open: the
    paper's headline for a tool-point spec, and the nailer's recoil.
+40. **The recoil's lift-off** (done 2026-11-17, `experiments/m40_liftoff/`): the recoil, bracketed from published
+   measurements at 0.09–8.7 N s (nail momentum at chronograph speeds; Lowe et al. 2014's force plate), lifts the nose,
+   so each press rises again from zero. That rise sets none of the 56 loose nose-moving joints (36 change sign inside
+   the window), so milestone 39's 0.012 mm stands; a 20 N drag lets it set one wrist joint (0.203 mm for a compensator
+   that does not plan the rise). At 12 of 35 poses the leaned stance balances only above 3.7–11.8 N of press, so it
+   cannot be used with a tool that lifts off. Still open: the paper's headline for a tool-point spec, and a stance that
+   balances at zero press.
 
 ## Target venue
 

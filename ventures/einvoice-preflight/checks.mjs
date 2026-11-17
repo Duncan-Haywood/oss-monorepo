@@ -19,6 +19,7 @@ import { inspectPaymentTerms } from "./terms.mjs";
 import { inspectNlVatShape, inspectPartyVat } from "./vat.mjs";
 import { acceptedLineNet, flatTaxTotal, isNegativeInvoice, summedLineNet, taxGroups, taxPercentOf } from "./linenet.mjs";
 import { parseDecimal } from "./numbers.mjs";
+import { inspectXmlValues } from "./xmlvalues.mjs";
 
 // numbers.mjs: the same reading as the CLI (no 0x64, no 1e400).
 const parseNumber = parseDecimal;
@@ -177,6 +178,11 @@ export function checkInvoice(invoice) {
         fail(finding.rule, finding.message, finding.fix, `/vat_registrations/${index}/value`, finding.severity);
       }
     });
+  }
+  // INV-065 (2026-11-17): a value the reader trimmed a no-break space from;
+  // a receiver's validator cannot cast it (xmlvalues.mjs).
+  for (const finding of inspectXmlValues(invoice)) {
+    fail(finding.rule, finding.message, finding.fix, finding.path);
   }
   for (const finding of inspectPaymentIban(invoice)) {
     fail(finding.rule, finding.message, finding.fix, finding.path);
