@@ -1023,6 +1023,43 @@ def start_here(queue: list[dict], claims: Optional[dict[str, list]],
     return free[int(hashlib.sha256(session.encode()).hexdigest(), 16) % len(free)]
 
 
+def least_claimed(queue: list[dict], claims: Optional[dict[str, list]],
+                  now: Optional[datetime] = None, session: Optional[str] = None,
+                  spread: int = START_SPREAD) -> Optional[tuple[int, str, int, float]]:
+    """(row, venture, newest PR number, its age in hours) for when every Deepen
+    row has a fresh claim, else None.
+
+    Why: start_here names nothing once each Deepen row has a PR younger than
+    CLAIM_FRESH_HOURS, and with ~16 sessions an hour that is the usual state
+    by mid-day. Three sessions between 11:12 and 11:26 UTC on 2026-11-17 found
+    rows 1-8 all holding a 0-5 h old PR and read each PR's file list to find
+    an item nobody had taken (doc_friction on this file). A claim is one item,
+    not the whole row (claim_recipe names the item), so the row whose newest
+    claim is oldest is the least contested. Picked among the `spread` least
+    contested rows by session id, as start_here does."""
+    if claims is None:
+        return None
+    now = now or datetime.now(timezone.utc)
+    rows = []
+    for i, item in enumerate(queue, 1):
+        if not (item["flagship"] and item["task"].startswith("Deepen")):
+            continue
+        hits = claims.get(item["venture"], [])
+        ages = [(_age_hours(created, now), num) for num, _, created in hits]
+        fresh = [a for a in ages if a[0] < CLAIM_FRESH_HOURS]
+        if not fresh:
+            return None  # a free row exists: start_here names it
+        age, num = min(fresh)
+        rows.append((-age, i, item["venture"], num, age))
+    if not rows:
+        return None
+    rows.sort()
+    rows = rows[:spread]
+    pick = rows[0] if session is None else \
+        rows[int(hashlib.sha256(session.encode()).hexdigest(), 16) % len(rows)]
+    return pick[1], pick[2], pick[3], pick[4]
+
+
 RUNS_DIR = REPO_ROOT / "prompts" / "runs"
 LEFT_WINDOW_DAYS = 2
 # A deviation about a claim race says the row was taken, not that it was empty.
@@ -1316,6 +1353,20 @@ def print_table(ventures: list[Venture], queue: list[dict],
         if note:
             print(note)
         print(claim_recipe(first[1]))
+    else:
+        busy = least_claimed(queue, claims, session=sid)
+        if busy:
+            row, name, num, age = busy
+            print(
+                f"Start here: row {row}, {name}. Every Deepen flagship has a PR opened in the last "
+                f"{CLAIM_FRESH_HOURS} h, so this is "
+                + ("one of the least contested (picked by this session's id): " if sid else "the least contested: ")
+                + f"its newest is #{num}, {age:.0f} h old. A claim covers one item, not the row: "
+                f"take a `buildable:`/`next:` item that no open {name} PR title names "
+                f"(`allocate.py --venture {name}`), and check it with "
+                f"`python3 portfolio/router/claim_check.py {name} --item \"<item>\"`."
+            )
+            print(claim_recipe(name))
     print()
     print(
         f"{'#':<3}{'venture':<32}{'stage':<12}{'cap':>6}{'merit':>7}"
