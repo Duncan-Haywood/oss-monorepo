@@ -15,7 +15,7 @@
 // Nothing leaves the machine.
 import { readFileSync, writeFileSync, appendFileSync, mkdirSync, readdirSync, statSync } from "node:fs";
 import { join, relative, sep } from "node:path";
-import { check, readModel } from "./node.mjs";
+import { check, readModel, parseModel, parseIds } from "./node.mjs";
 import { bcfZip } from "./bcf.mjs";
 import { junitXml, annotations, stepSummary, tally, globToRegex, patterns, pairUp, stepLines } from "./ci.mjs";
 
@@ -51,19 +51,40 @@ if (!models.length || !idsFiles.length) {
   process.exit(2);
 }
 
+// Each model is read and parsed once and each IDS parsed once, however many
+// pairs they are in (pairUp yields a model's pairs together, so only one
+// parsed model is held at a time). The first pair of a model carries the read
+// and parse time in its report.seconds, so the JUnit times sum to the run.
 const runs = [];
 const lines = new Map();
-const idsText = new Map();
+const idsParsed = new Map();
+const idsOf = (ids) => {
+  if (!idsParsed.has(ids)) {
+    try { idsParsed.set(ids, { ids: parseIds(readFileSync(join(root, ids), "utf8")) }); } catch (e) { idsParsed.set(ids, { error: e.message }); }
+  }
+  const r = idsParsed.get(ids);
+  if (r.error) throw new Error(r.error);
+  return r.ids;
+};
+let current = { model: null };
 for (const { model, ids } of pairUp(models, idsFiles, pairing)) {
   try {
-    if (!idsText.has(ids)) idsText.set(ids, readFileSync(join(root, ids), "utf8"));
-    const t0 = Date.now();
-    const m = await readModel(join(root, model));
-    const report = check(idsText.get(ids), m.text);
-    report.seconds = (Date.now() - t0) / 1000;
+    let t0 = Date.now();
+    if (current.model !== model) {
+      current = { model };
+      try {
+        const m = await readModel(join(root, model));
+        current.text = /\.ifc$/i.test(model) ? m.text : null;
+        current.parsed = parseModel(m.text);
+      } catch (e) { current.error = e.message; }
+    } else t0 = null;
+    if (current.error) throw new Error(current.error);
+    const t1 = Date.now();
+    const report = check(idsOf(ids), current.parsed);
+    report.seconds = (Date.now() - (t0 ?? t1)) / 1000;
     const failedIds = report.specs.flatMap((s) => s.failed.slice(0, 1).map((f) => f.id));
     const known = lines.get(model) || new Map();
-    if (/\.ifc$/i.test(model)) for (const [k, v] of stepLines(m.text, failedIds.filter((id) => !known.has(id)))) known.set(k, v);
+    if (current.text) for (const [k, v] of stepLines(current.text, failedIds.filter((id) => !known.has(id)))) known.set(k, v);
     lines.set(model, known);
     runs.push({ model, ids, report });
   } catch (e) {

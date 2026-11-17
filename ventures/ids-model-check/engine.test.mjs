@@ -239,3 +239,13 @@ test("bounded properties: a range ignores the set point, and a missing bound is 
   assert.equal(check(p(`<simpleValue>5</simpleValue>`), model("$", "IFCREAL(5.)", "$")).pass, true, "upper bound only");
   assert.equal(check(range, model("IFCREAL(1.)", "$", "$")).pass, false, "a range needs both bounds");
 });
+
+test("parseXml: a truncated file throws instead of looping forever", () => {
+  const whole = '<?xml version="1.0"?><!-- c --><ids xmlns="x"><info><title><![CDATA[t]]></title></info><specifications/></ids>';
+  assert.equal(parseXml(whole).local, "ids");
+  // every prefix of a well-formed file must end, and every proper prefix must throw
+  for (let n = 1; n < whole.length; n++) assert.throws(() => parseXml(whole.slice(0, n)), undefined, `prefix of ${n}`);
+  for (const bad of ["<ids><not closed", "<!-- open", "<?xml", "<![CDATA[x", "<!DOCTYPE", "<ids></ids", "<ids>< </ids>"]) {
+    assert.throws(() => parseXml(bad), /unterminated|no element name|unclosed|mismatched/, bad);
+  }
+});

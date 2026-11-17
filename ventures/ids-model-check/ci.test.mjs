@@ -4,7 +4,7 @@ import { readFileSync, mkdtempSync, writeFileSync, mkdirSync, copyFileSync, exis
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
-import { check } from "./node.mjs";
+import { check, parseModel, parseIds, readModel } from "./node.mjs";
 import { junitXml, annotations, stepSummary, tally, severity, failCount, stepLines, globToRegex, patterns, pairUp } from "./ci.mjs";
 import { parseXml } from "./xml.mjs";
 
@@ -174,4 +174,34 @@ test("action.yml calls ci-cli.mjs with every input it declares", () => {
   assert.match(y, /\$GITHUB_ACTION_PATH\/ci-cli\.mjs/);
   // inputs reach the shell through env, never pasted into the script
   assert.doesNotMatch(y.split("run: |")[1], /\$\{\{\s*inputs\./);
+});
+
+test("a model parsed once gives the same report for each IDS as a fresh parse, in any order", async () => {
+  const idsFiles = ["samples/coordination-basics.ids.xml", "samples/quantities-and-naming.ids.xml"].map(file);
+  for (const m of ["samples/tiny-house.ifc", "samples/tiny-house.ifcxml", "samples/tiny-house.ifczip"]) {
+    const text = (await readModel(join(here, m))).text;
+    const parsed = parseModel(text);
+    const strip = (r) => JSON.stringify(r);
+    for (const order of [[0, 1, 0], [1, 0, 1]]) {
+      for (const i of order) assert.equal(strip(check(parseIds(idsFiles[i]), parsed)), strip(check(idsFiles[i], text)), `${m} IDS ${i}`);
+    }
+  }
+});
+
+test("ci-cli: a broken model or IDS fails only its own pairs", () => {
+  const dir = mkdtempSync(join(tmpdir(), "ids-ci-bad-"));
+  mkdirSync(join(dir, "m")); mkdirSync(join(dir, "r"));
+  copyFileSync(join(here, "samples/tiny-house.ifc"), join(dir, "m/a.ifc"));
+  writeFileSync(join(dir, "m/b.ifc"), "ISO-10303-21;\nHEADER;FILE_SCHEMA(('IFC9'));ENDSEC;\nDATA;\nENDSEC;\nEND-ISO-10303-21;\n");
+  copyFileSync(join(here, "samples/tiny-house.ifc"), join(dir, "m/c.ifc"));
+  copyFileSync(join(here, "samples/quantities-and-naming.ids.xml"), join(dir, "r/q.ids"));
+  writeFileSync(join(dir, "r/z.ids"), "<ids><not closed");
+  const r = spawnSync(process.execPath, [join(here, "ci-cli.mjs"), "--root", dir, "--models", "m/*.ifc", "--ids", "r/*.ids", "--json", join(dir, "o.json"), "--fail-on", "never"], { encoding: "utf8", env: { ...process.env, GITHUB_ACTIONS: "" } });
+  assert.equal(r.status, 0, r.stderr);
+  const runs = JSON.parse(readFileSync(join(dir, "o.json"), "utf8")).runs;
+  const key = (x) => `${x.model} ${x.ids} ${x.error ? "error" : "ran"}`;
+  assert.deepEqual(runs.map(key), ["m/a.ifc r/q.ids ran", "m/a.ifc r/z.ids error", "m/b.ifc r/q.ids error", "m/b.ifc r/z.ids error", "m/c.ifc r/q.ids ran", "m/c.ifc r/z.ids error"]);
+  assert.match(runs[2].error, /not supported/);
+  // the two good pairs agree, so nothing from a.ifc's parse leaked into c.ifc's
+  assert.deepEqual(runs[0].report.specs, runs[4].report.specs);
 });
