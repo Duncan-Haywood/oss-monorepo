@@ -28,7 +28,8 @@ Predictions (priors in brackets), written before any run:
   P6 cross: dark-over-only failures also outnumber km-short-only for AP k = 3 on hi8. [55%]
 
 Run (from research/marine-hull): PYTHONPATH=src python3 experiments/run_band_failure.py > experiments/results_band_failure.txt
-(stdlib, deterministic; each world in its own subprocess with up to 4 worker processes)
+(stdlib, deterministic; each world in its own subprocess with up to 4 worker processes; about 9 minutes on 4 cores)
+Post hoc, added after that run: PYTHONPATH=src python3 experiments/run_band_failure.py --posthoc >> experiments/results_band_failure.txt
 """
 import json
 import os
@@ -42,7 +43,6 @@ sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, "..", "src"))
 import run_clamp_exponent as ce  # noqa: E402
 
-ce.KS = (3,)  # corrections() builds only the k = 3 rules; inherited by the forked workers
 K = 3
 TAGS = ("AP", "AK", "A1", "C15")
 SETS = ce.SETS[K]
@@ -118,7 +118,13 @@ def analyse(tot, band, rs):
     return res
 
 
+def only_k3():
+    """corrections() reads ce.KS: build only the k = 3 rules (set in the world subprocess, inherited by its workers)."""
+    ce.KS = (K,)
+
+
 def run_world(world, procs=4):
+    only_k3()
     hi = ce.ls.high_amp_points()
     band = tuple(p for p in hi if ce.ka.in_band(p))
     pts = hi
@@ -158,7 +164,34 @@ def fm(x):
         "{:7.3f} [{:.3f}, {:.3f}]".format(*x)
 
 
+def posthoc(procs=4):
+    """Post hoc (added after the run above): per band point, five-year km and excess dark of B, AT_90 and AP k = 3
+    (mean over the 10 sets) on the real shape, nasa world, summed over both halves and the four packs."""
+    only_k3()
+    hi = ce.ls.high_amp_points()
+    ce.fy.prepare()
+    keys = [("nasa", c, p, yr) + ce.ls.REAL for p in hi for yr in ce.YEARS for c in ce.PACKS]
+    with Pool(procs) as pool_:
+        cells = dict(pool_.map(ce.score, keys, chunksize=4))
+    print("Post hoc, nasa world, real shape, ten years x four packs per point: km and excess dark (h)")
+    print("  point            lat  |  B km  B dark | AT_90 km  dark | AP k=3 km  dark | km share of B's hi8 total")
+    rows = {}
+    for p in hi:
+        t = ce.sb.total(cells, [(c, p, yr) + ce.ls.REAL for yr in ce.YEARS for c in ce.PACKS])
+        ap = [t[ce.rname("AP", s)] for s in SETS]
+        rows[p] = (t[BASE][0], t[BASE][1], t["AT_90"][0], t["AT_90"][1], st.mean(x[0] for x in ap),
+                   st.mean(x[1] for x in ap))
+    band_km = sum(rows[p][0] for p in hi if ce.ka.in_band(p))
+    for p, r in rows.items():
+        share = f"{r[0] / band_km:5.2f}" if ce.ka.in_band(p) else "  -  "
+        print(f"  {p:15s} {ce.yp.lat_of(p):+4.0f} | {r[0]:7.0f} {r[1]:6.0f} | {r[2]:7.0f} {r[3]:6.0f} | "
+              f"{r[4]:8.0f} {r[5]:6.0f} | {share}")
+
+
 def main():
+    if len(sys.argv) == 2 and sys.argv[1] == "--posthoc":
+        posthoc()
+        return
     if len(sys.argv) == 3 and sys.argv[1] == "--world":
         json.dump(run_world(sys.argv[2]), sys.stdout)
         return
