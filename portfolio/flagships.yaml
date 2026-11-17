@@ -230,13 +230,14 @@ flagships:
       passes Mustang; open: a real business's PINT file. A run that lands a slice
       replaces its item here. More open items: NEXT.md.
     buildable: >-
-      Built-in checks report a number or date holding a no-break or other non-XML
-      space (INV-065, browser and CLI) since 2026-11-17: 13,920 of 13,920 copies
-      named, agreeing with SaxonC-HE (eval/nbsp-amounts-2026-11-17.md). Next:
-      cross-check the PINT and ZATCA sets against SaxonC as
-      eval/xml-whitespace-crosscheck.mjs does (SchXslt compiles their .sch); the
-      other readers (FatturaPA, FA(3), Facturae, NAV, ISDOC) trim with String.trim()
-      too: the same leaf scan there. No network beyond PyPI and Maven.
+      Oman's PINT rules all run since 2026-11-17 (18 were skipped on every file;
+      prolog fix), and PINT/ZATCA match SaxonC-HE's rule ids on 2,268 whitespace
+      copies of 182 publisher examples bar one rule's label
+      (eval/pint-zatca-whitespace-2026-11-17.md). Next: CIUS-RO, CIUS-PT, CIUS-HR,
+      NLCIUS and the French plain-only sets against SaxonC the same way (SchXslt
+      compiles their .sch; eval/profile-whitespace-crosscheck.mjs takes
+      --xsl-roots); the readers' String.trim() leaf scan if PR 17032 has not landed.
+      No network beyond PyPI, Maven and GitHub.
   - venture: shift-roster-builder
     inputs_only: >-
       a live deploy with real punches, a real payroll template, a manager's
