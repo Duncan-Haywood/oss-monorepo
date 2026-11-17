@@ -1,7 +1,8 @@
 import { test } from 'node:test';
 import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
-import { simplexLeastSquares, projectSimplex, synthControlTest, synthInTimePlacebo } from './synth-control.mjs';
+import { simplexLeastSquares, simplexLeastSquaresRows, projectSimplex, synthControlTest, synthInTimePlacebo } from './synth-control.mjs';
+import { predictorsOf } from './eval/synth-cov-sim.mjs';
 import { panel, CELLS } from './eval/synth-sim.mjs';
 
 test('the simplex projection lands on the simplex and leaves a point already there', () => {
@@ -76,4 +77,28 @@ test('the floored ratio leaves a unit fitted worse than the median alone and cap
   assert.equal(r.floor, all[19]);
   for (const q of r.placebos) assert.ok(Math.abs(q.floored - q.postRmspe / Math.max(q.preRmspe, r.floor)) < 1e-12);
   assert.throws(() => synthControlTest(rows[0], Object.fromEntries(rows.slice(1).map((d, j) => [`d${j}`, d])), CELLS.N1.k, { statistic: 'max' }), /unknown statistic/);
+});
+
+test('the row-form solver recovers a mix of donors from a few predictors', () => {
+  const A = [[1, 2, 5, 0, 3], [2, 1, 3, 0, 1], [3, 0, 4, 1, 2]];
+  const b = A.map((r) => 0.3 * r[0] + 0.7 * r[2]);
+  const w = simplexLeastSquaresRows(A, b);
+  assert.ok(Math.abs(w.reduce((a, c) => a + c, 0) - 1) < 1e-9 && w.every((v) => v >= 0));
+  const fit = A.map((r) => r.reduce((s, v, j) => s + v * w[j], 0));
+  assert.ok(fit.every((v, i) => Math.abs(v - b[i]) < 1e-4), `fit ${fit} vs ${b}`); // stops on a 1e-10 relative change, as in every run
+});
+
+test('matched on covariates (README "Matched on covariates"): V on the simplex, the same placebo layout, a step found', () => {
+  const rows = panel(CELLS.P1, 777);
+  const px = predictorsOf(rows, CELLS.P1.k, 777);
+  const donors = Object.fromEntries(rows.slice(1).map((d, j) => [`d${j}`, d]));
+  const predictors = { treated: px[0], donors: Object.fromEntries(px.slice(1).map((a, j) => [`d${j}`, a])) };
+  const r = synthControlTest(rows[0], donors, CELLS.P1.k, { predictors });
+  assert.equal(r.v.length, 5);
+  assert.ok(Math.abs(r.v.reduce((a, b) => a + b, 0) - 1) < 1e-9);
+  assert.equal(r.placebos.length, 38);
+  assert.ok(r.effectAverage < -0.5 && r.effectAverage > -1.5, `effect ${r.effectAverage}`);
+  const again = synthControlTest(rows[0], donors, CELLS.P1.k, { predictors });
+  assert.equal(again.p, r.p); // deterministic
+  assert.throws(() => synthControlTest(rows[0], donors, CELLS.P1.k, { predictors: { treated: px[0], donors: {} } }), /same count of finite numbers/);
 });
