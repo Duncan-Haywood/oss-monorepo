@@ -1816,3 +1816,57 @@ revolution leaves in the loop fit's drop.
 
 **Not known.** All simulated, with Gaussian per-edge jitter; a real tach's misses may be lumpier (a missed edge, a
 noisy interrupt), and there marks could carry more of the error than here.
+
+## The spin error was there without the jitter (2026-11-17, last)
+
+**The item.** "Unsure marks on the noisy wheels" ended on lowering every reading's noise under the 3 us tach jitter:
+with every reading replaced by the simulator's true drop, the jittery plant's spin error fell from 0.57% to 0.03%.
+But the same run's other two plants draw no random numbers at all, and their spin error was 0.58% (first-order) and
+0.53% (ESC 50 ms told). So the jitter was never what set the floor.
+
+**Where it sits.** The same oracle on every plant, from the run's saved rows (no rerun; seeds 7, 8, 13, 14;
+`tests/reading_floor.py --oracle`, eval/reading-floor-oracle-2026-11-17.txt):
+
+| plant | as read | every reading true | calibration drill true | slow drill true | reading sd |
+| --- | --- | --- | --- | --- | --- |
+| first-order 8k | 0.58% | 0.02% | 0.46% | 0.15% | 0.32% |
+| tach 3 us 10k | 0.57% | 0.03% | 0.59% | 0.18% | 0.72% |
+| ESC 50 ms told | 0.53% | 0.03% | 0.50% | 0.06% | 0.27% |
+
+On every plant the readings carry the error, and the held-out slow drill's readings carry most of it (its spin shots
+are where the fit learns spin). On the noise-free plants the readings have no bias (mean 0.9993 and 0.9999 of the true
+drop) and no trend with speed: a 0.27-0.32% scatter, the same from 1,000 to 9,000 rpm. The jitter widens a reading's
+scatter 2.3 times and leaves the spin error where it was.
+
+**Is it the 1 us timer?** The simulator times each tach edge to a whole microsecond, as `ticks_us` does on the ESP32.
+`tests/reading_floor.py` reruns the noise-free builds (three launchers, two lags, both plants, calibration plus the
+slow drill) with the edges timed exactly (float microseconds) and nothing else changed. The prediction was written into
+the script before it ran: if the timer is the floor, the reading sd falls by more than half; if it stays within a
+quarter, the floor is the drop fit's model against the simulator's physics. The shipped half reproduced the earlier
+run's readings exactly. Raw: eval/reading-floor-2026-11-17.txt and the .jsonl beside it.
+
+| plant | edges | reading sd | spin mean (worst) | spin, true drops |
+| --- | --- | --- | --- | --- |
+| first-order 8k | 1 us timer | 0.32% | 0.58% (1.56) | 0.02% |
+| first-order 8k | exact | 0.31% | 0.50% (1.01) | 0.02% |
+| ESC 50 ms told | 1 us timer | 0.27% | 0.53% (1.47) | 0.03% |
+| ESC 50 ms told | exact | 0.24% | 0.32% (0.62) | 0.03% |
+
+**Not the timer.** The readings' scatter moved 3% and 11%, inside the quarter: the 1 us timer is not what limits a
+reading. By speed band the sd went 0.34 to 0.33% (1,000-2,000 rpm), 0.30 to 0.26% (2,000-4,500) and stayed 0.28% above
+4,500. The spin fit did move more than the scatter did (0.58 to 0.50%, 0.53 to 0.32%) because it leans on a handful of
+slow-drill readings, so a small change in those few shows up large; on 12 builds a plant that is a spread of 0.1-0.2
+points, and the rule was set on the readings, not the fit.
+
+**What it leaves.** A noise-free reading still misses its true drop by about 0.3%, and that is between the loop fit's
+model (a ball's moment inside a revolution, then the loop's recovery from its logged commands) and what the simulator
+does: 1 ms Euler steps of the wheel, the ball's whole take at one step's end, the command applied a step at a time.
+Part of that is the simulator's own coarseness, which a real wheel does not have, and part may be the model's. Lowering
+"every reading's noise" on the board cannot win a floor the board's timer does not set, so that item is closed. The
+next test is a simulator run at finer steps (0.1 ms; about ten times the run time): if the scatter falls, the floor was
+the simulator's, and a real tach's log decides whether there is anything to fix; if not, the drop model has a missing
+term worth finding. No firmware changes.
+
+**Not known.** All simulated. A real ESP32's interrupt latency adds its own jitter to every edge, which this run left
+out on purpose.
+
