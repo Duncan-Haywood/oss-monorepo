@@ -1411,6 +1411,16 @@ keeps the one-gain carry it was tuned with: a per-colour noise model in the blen
 lost 0.05-0.07 dB luma. Still opt-in, still synthetic noise. `tools/noise_aware_planes.py`,
 `eval/noise-aware-planes-luma-2026-11-16.md`.
 
+**Since 2026-11-17 luma has its own ramp.** The blend's ramp had been fitted on colour, and one ramp re-fitted
+on luma only traded colour for luma. Now the output keeps the colour difference (R-G, B-G) of the colour ramp
+and takes its luma from a second, later ramp that leans further to bilinear (`LUMA_RAMPS`: Bayer q 0.8-1.5,
+X-Trans 0.8-2.0, fitted on 21 tune files). On 25 held-out files luma over directional rises from +0.76 to
++0.99 dB (Bayer) and +1.12 to +1.28 dB (X-Trans), RGB PSNR from +0.35 to +0.48 and +0.51 to +0.61 dB, and no
+tile is worse than directional by more than 0.08 dB. The Bayer ramp was chosen with a rule added after seeing
+held-out results (the note says how). Sensels no longer keep their raw value under the luma shift; putting it
+back gave back most of the gain. `noise_aware(luma_ramp=False)` gives the old blend.
+`tools/noise_aware_ramp_refit.py`, `eval/noise-aware-luma-ramp-2026-11-17.md`.
+
 ## A directional demosaic for Bayer files (2026-11-15)
 
 Nearly every camera has a Bayer sensor, and until now every Bayer file the developer read (DNG, CR2,
