@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, showcase]
+topics: [design]
 date: 2026-11-17
 ---
 # Polish 2026-11-17: a real cull report on ShootFlow's page
