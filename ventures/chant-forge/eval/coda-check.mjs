@@ -403,6 +403,11 @@
 //    re-run on the shipped code. The gain is tested only if the default reads 2 or more of Y's voiced stops as a
 //    nasal; if fewer, voicedLead stays opt-in, reported as untested. If all five hold and the gain is tested,
 //    voicedLead becomes readCoda's default; otherwise it stays opt-in.
+//    Outcome (run 2026-11-17, after the registration above was committed as 40910f4): failed. (1) voiced stop codas 173
+//    to 174 of 192 (2 wanted); (2) read as a nasal 10 to 9 (the gain was tested: the default read 10); (3) nasal codas 45
+//    and 45 of 48, n-clusters 42 and 42 of 48, read as a voiced stop 0 and 0; (4) voiceless 36 and 36, others 23 and 23,
+//    control 335 and 335 of 348; (5) the report rebuilt on the shipped code matches the A-X figures above. voicedLead
+//    stays opt-in (`--vlead bar2`).
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
