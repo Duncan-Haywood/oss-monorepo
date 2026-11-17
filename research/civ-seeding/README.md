@@ -637,6 +637,28 @@ with forgetting surveys every household. The setup is otherwise milestone 10's j
   an overestimate); the BCDJ graph, itself a 12-question survey, is taken as the truth; no false
   ties are reported; three recall values.
 
+## Milestone 12: do respondents forget weak ties more, and does that hurt? (`experiments/m12_strength/`)
+
+Milestone 11 treated recall as one number. This step splits ties by a free strength proxy, the
+number of the six other survey questions (advice, decisions, medical help, kin, non-kin, temple
+company) that name the same pair, and re-runs capture&ndash;recapture within each group. Plan and
+hypotheses (H25&ndash;H29) logged before the run ([`LOG.md`](LOG.md), 2026-11-17).
+
+| ties named by the six other questions | share of model ties | three-question recall [95%] |
+|---|---|---|
+| none | 19.5% | 0.606 [0.564, 0.651] |
+| one | 41.1% | 0.805 |
+| two or more | 39.4% | 0.942 |
+
+The stratified recall is 0.812 [0.787, 0.839], against the pooled 0.836 (H25 and H26 held;
+[`strength.txt`](experiments/m12_strength/strength.txt)). Scoring with recall set per stratum
+([`verdicts.txt`](experiments/m12_strength/verdicts.txt)): the 3/4-random half survey loses a
+median 2.2% and beats perfect-recall census top degree in 98.4% of draws (H27 held); with weak-tie
+recall halved, census degree discount still beats it in every draw (H29 held). H28 was refuted in
+an unexpected direction: census degree discount scored 0.9% under the measured, uneven recall and
+1.8% under one uniform recall at the same mean. That gap was under twice the harness's re-draw
+noise, which milestone 13 measures.
+
 ## What this does and does not say
 
 It says the archived code and data, ported, give q<sub>N</sub> &asymp; 0.05 and a weakly
