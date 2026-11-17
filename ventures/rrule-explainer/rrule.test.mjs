@@ -316,3 +316,13 @@ test("a UTC UNTIL ends a zoned sub-daily rule on the right second, far from and 
   analyze({ text: "DTSTART;TZID=America/New_York:20260308T023000\nRRULE:FREQ=SECONDLY;UNTIL=99991231T235959Z", after: "9999-12-31" });
   assert.ok(Date.now() - t0 < 10000, `${Date.now() - t0} ms`);
 });
+
+// red team 2026-11-17: the short-month warning is about MONTHLY/YEARLY periods only; a DAILY or WEEKLY
+// rule that filters to the 31st is asking for exactly those days, and "years where January has no 31st"
+// would be wrong for it.
+test("DAILY and WEEKLY rules on the 31st get no skips-short-months warning", () => {
+  for (const f of ["DAILY", "WEEKLY"]) {
+    const r = analyze({ text: `DTSTART:20260131T090000\nRRULE:FREQ=${f};BYMONTHDAY=31;COUNT=5` });
+    assert.equal(r.findings.find((x) => x.code === "skips-short-months"), undefined, f);
+  }
+});
