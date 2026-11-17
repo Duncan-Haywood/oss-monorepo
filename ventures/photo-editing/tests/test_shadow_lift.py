@@ -40,7 +40,10 @@ class ShadowLiftTest(unittest.TestCase):
         new8, keep = slc.lift(new, 3)
         old8, _ = slc.lift(old, 3)
         self.assertGreater(float(keep.mean()), 0.99)
-        lost = lambda a: len(np.setdiff1d(np.unique(exact), np.unique(a[0, :, 0])))
+
+        def lost(a):
+            return len(np.setdiff1d(np.unique(exact), np.unique(a[0, :, 0])))
+
         self.assertEqual(lost(new8), 0)
         self.assertGreater(lost(old8), 10)
         self.assertLessEqual(int(np.abs(new8[0, :, 0].astype(int) - exact).max()), 1)
