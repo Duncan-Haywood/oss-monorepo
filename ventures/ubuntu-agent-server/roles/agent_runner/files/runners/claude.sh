@@ -39,5 +39,5 @@ fi
 
 claude -p "$(cat "$PROMPT_FILE")" \
   --permission-mode "$PERMISSION_MODE" \
-  --output-format stream-json \
+  --output-format stream-json --verbose \
   "${MODEL_ARGS[@]}"

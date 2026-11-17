@@ -17,7 +17,7 @@ def test_designs_are_unseen():
     run = _load("run")
     seen = set()
     for f in EXP.parent.glob("*/results*.jsonl"):
-        if f.parent.name == "ladder_confirm2":
+        if f.parent.name in ("ladder_confirm2", "ladder_rest"):  # ladder_rest holds milestone 140's rows of the same designs
             continue
         for line in f.read_text().splitlines():
             try:

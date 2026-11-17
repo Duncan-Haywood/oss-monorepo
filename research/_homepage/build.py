@@ -106,7 +106,26 @@ def validate(data, ledes):
             for k in ("slug", "title", "summary"):
                 if not p.get(k):
                     errors.append(f"projects.json: research/{p.get('slug')} has no {k}")
+            errors += [f"research/{p.get('slug')}: {e}" for e in card_text_errors(p.get("summary", ""))]
     return errors
+
+
+# A sed replacement containing `&` expands each `&` to the matched text, which
+# turned "4&ndash;5" into "4<old phrase>ndash;5" in 11 summaries and pasted
+# 70 KB of other cards into one (quality audit 2026-11-17, ambient-startcount).
+BARE_ENTITY_RE = re.compile(r"(?<=[\w)%])(?:nbsp|ndash|mdash|minus|times|thinsp|plusmn|rsquo|radic|le|ge|lt|gt);(?=\S)")
+
+
+def card_text_errors(summary):
+    """Signs of a corrupted card summary: an HTML entity whose `&` was eaten,
+    or other cards' markup pasted in."""
+    errs = []
+    m = BARE_ENTITY_RE.search(summary)
+    if m:
+        errs.append(f"summary has an entity without its '&' near {summary[max(0, m.start() - 40):m.end() + 10]!r}")
+    if "<h2>" in summary:
+        errs.append(f"summary holds page markup ({len(summary)} characters)")
+    return errs
 
 
 # One page per theme at research/topics/<id>/: the level between the index and a project.

@@ -39,3 +39,10 @@ def test_ties_go_to_earlier_start():
     f = (PRIOR, None, None, None, 0.1, -3.0)
     g = (PRIOR, None, None, None, 0.2, -3.0)
     assert best_of_first([f, g], 2) is f
+
+
+def test_best_of_first_reads_all_k_fits():
+    # quality audit 2026-11-17: `fits[1:k - 1]` (K-1 fits) left every test green
+    fits = [(None,) * 5 + (v,) for v in (-3.0, -2.0, -1.0)]
+    assert best_of_first(fits, 3)[5] == -1.0
+    assert best_of_first(fits, 2)[5] == -2.0

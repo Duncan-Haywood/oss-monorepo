@@ -77,10 +77,10 @@ gates feed the amount has 1.28\% regret on 12 blind cells against 5.33\%
 for a word-level guard and 3.95\% for random routing, and 2.25\% against
 3.94\% random over 36 blind cells (better in 17, worse in 1). Two
 confirmatory blind sets run at one clock per design, the second on
-128-bit right and 256-bit left shifters, bring the blind evidence to 58
-designs: the clipped ladder beats equal-cost random routing on 42 and
-loses on 13 (sign p = 0.0001), with a design-level mean difference of
--2.47 points (95\% interval -3.87 to -1.06).
+128-bit right and 256-bit left shifters, bring the blind evidence to 73
+designs: the clipped ladder beats equal-cost random routing on 55 and
+loses on 15 (sign p = 0.000002), with a design-level mean difference of
+-2.79 points (95\% interval -3.98 to -1.59).
 \end{abstract}
 \textbf{Draft for MLCAD (6 pages when typeset); not submitted.}
 Programme \texttt{verified-dse}, milestone 7. Written with AI assistance
@@ -1230,6 +1230,21 @@ raising theta at both clocks to 5 or more is worse than SWC. The
 ladder's edge grows with the routing-cost ratio; near theta it is a coin
 flip with high variance, and theta = 3 is kept.
 
+\textbf{The second set completed (milestone 140; flow run).} The 15
+designs of milestone 138's run order that its time limit cut were run
+afterwards with the same script, as a descriptive addition with seven
+predictions committed before the flow resumed
+(\texttt{experiments/\allowbreak{}ladder\_\allowbreak{}rest/\allowbreak{}}); milestone 138's analysed 25 are
+unchanged. SWC has 2.23\% mean regret against 6.25\% and is better on
+13, worse on 2 (sign p = 0.0074). Over all 40 designs of the set it is
+better on 34 and worse on 6 (p = 0.000008), and over the 73 blind
+designs of milestones 136 to 140 on 55 against 15 (p = 0.000002), with a
+design-level mean difference of -2.79 points (sd 5.21, normal 95\%
+interval -3.98 to -1.59). By milestone 139's ratio bands over the 40
+cells, SWC and random tie near theta ((3, 4{]}: 3.31\% against 3.63\%, 9
+cells) and SWC wins clearly above it ((4, 6{]}: 0.52\% against 5.01\%;
+above 6: 3.10\% against 8.52\%, 18 of 19 cells).
+
 \hypertarget{limitations-and-threats}{%
 \subsection{5 Limitations and threats}\label{limitations-and-threats}}
 
@@ -1330,14 +1345,14 @@ and page limit still need checking against the call for papers.
 \tightlist
 \item
   More blind families below the cost threshold and at other corners.
-  Milestones 137 and 138 ran the confirmatory sets: over 58 blind
-  designs SWC beats equal-cost random routing on 42 and loses on 13
-  (sign p = 0.0001), with a design-level mean difference of -2.47 points
-  (95\% interval -3.87 to -1.06). Milestone 139 found the losses cluster
-  near theta at both clocks, not at the tight clock, and that no raised
-  threshold helps. What remains open is a pre-route signal that
-  separates the near-theta wins from the near-theta losses, and the 15
-  designs of milestone 138's run order the flow did not reach.
+  Milestones 137, 138 and 140 ran the confirmatory sets: over 73 blind
+  designs SWC beats equal-cost random routing on 55 and loses on 15
+  (sign p = 0.000002), with a design-level mean difference of -2.79
+  points (95\% interval -3.98 to -1.59). Milestone 139 found the losses
+  cluster near theta at both clocks, not at the tight clock, and that no
+  raised threshold helps. What remains open is a pre-route signal that
+  separates the near-theta wins from the near-theta losses (milestone
+  140 ran the 15 designs milestone 138's flow did not reach).
 \end{enumerate}
 
 The headline is split by cost. On small designs, where a routed point
