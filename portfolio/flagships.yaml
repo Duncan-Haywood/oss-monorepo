@@ -232,14 +232,14 @@ flagships:
       passes Mustang; open: a real business's PINT file. A run that lands a slice
       replaces its item here. More open items: NEXT.md.
     buildable: >-
-      Every plain-only set but the French ones now matches SaxonC-HE's rule ids on
-      whitespace copies of the publishers' examples: PINT/ZATCA
-      (eval/pint-zatca-whitespace-2026-11-17.md), CIUS-RO/PT/HR and NLCIUS, 0 of
-      5,556 off (eval/cius-whitespace-2026-11-17.md). Next: the French plain-only
-      sets (CIUS-FR, EXTENDED-CTC-FR, CDAR, Flux 10) the same way once SchXslt
-      compiles their .sch; xs:dateTime leaves (FA(3), NAV timestamps) now in
-      CASTABLE: measure them as eval/nbsp-other-formats-2026-11-17.md does. No
-      network beyond PyPI, Maven and GitHub.
+      Every plain-only set now matches SaxonC-HE's rule ids on whitespace copies of
+      the publishers' examples: PINT/ZATCA, CIUS-RO/PT/HR, NLCIUS
+      (eval/cius-whitespace-2026-11-17.md) and the French sets (BR-FR,
+      EXTENDED-CTC-FR, Factur-X EXTENDED, CDAR, Flux 10), with INV-065 now in the
+      Flux 10 and CDAR readers (eval/french-whitespace-2026-11-17.md). Next:
+      xs:dateTime leaves (FA(3), NAV timestamps) now in CASTABLE: measure them as
+      eval/nbsp-other-formats-2026-11-17.md does. No network beyond PyPI, Maven and
+      GitHub.
   - venture: shift-roster-builder
     inputs_only: >-
       a live deploy with real punches, a real payroll template, a manager's
