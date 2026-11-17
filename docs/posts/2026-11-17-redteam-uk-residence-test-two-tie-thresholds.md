@@ -3,7 +3,7 @@ title: "Two tie thresholds the UK residence checker had wrong"
 seo_title: "UK Statutory Residence Test: the 90-day tie is more than 90 days"
 date: 2026-11-17
 tags: [redteam, uk-tax, statutory-residence-test, testing]
-description: "A red-team run checked the UK Statutory Residence Test checker against Finance Act 2013 Schedule 45. Two ties were off by one day, and its own tests had locked both mistakes in."
+description: "Checked against Finance Act 2013 Schedule 45, the UK residence checker had two ties off by one day, and its own tests had locked both in."
 ---
 
 The [UK Statutory Residence Test checker](https://marisstella.app/uk-statutory-residence-test-checker/)
