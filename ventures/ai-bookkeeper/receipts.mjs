@@ -755,15 +755,38 @@ const onTaxLines = (texts, t, also) => texts.filter((x) => {
   const ls = String(x).split(/\r?\n/), style = styleOf(x);
   return ls.some((l) => (TAX_RE.test(l) || TAX_LINE_RE.test(l)) && !NOT_TAX_RE.test(l) && (amountsIn(l, style).includes(t) || (also !== undefined && also !== style && amountsIn(l, also).includes(t))));
 }).length;
+// A printed service charge or gratuity sits between the subtotal and the total, so the
+// subtotal plus the tax alone does not make the total (CORD test-14: 238,000 + service
+// 17,850 + PB1 25,585 = 281,435; ExpressExpense 1022: 29.88 + 3.01 + service 4.48 = 37.37).
+// Every amount on a service or gratuity line, in any reading and in that reading's own
+// style, under 30% of the total; a suggested-tip table ("18% = 9.01") is not one charged,
+// but its amounts close the arithmetic only by chance (eval/service-charge-vote-2026-11-17.md).
+const SVC_LINE_RE = /\b(?:serv(?:ice)?|servi|svc|srv|s\s*\/\s*c|grat(?:uity)?|auto\s*grat|tip)\b/i;
+const NOT_SVC_LINE_RE = /suggest|guide|recommend|calculat|\bgst\b|\btax\b|pb\s*1|ppn|pajak/i;
+function serviceAmounts(texts, cents) {
+  if (cents === null) return [];
+  const got = new Set();
+  for (const x of texts) {
+    const style = styleOf(x);
+    for (const l of String(x).split(/\r?\n/)) {
+      if (!SVC_LINE_RE.test(l) || NOT_SVC_LINE_RE.test(l) || (TOTAL_RE.test(l) && !/\bservice\s+charge\b/i.test(l))) continue;
+      for (const a of amountsIn(l, style)) if (a > 0 && a < cents * 0.3) got.add(a);
+    }
+  }
+  return [...got];
+}
 export function voteTax(ps, out, pick, texts = []) {
   const subs = ps.flatMap((p) => p.subtotals ?? []);
+  const svcs = serviceAmounts(texts, out.cents);
+  // the subtotal plus this tax (and, when one is printed, a service charge) is the total
+  const closes = (t) => out.cents !== null && subs.some((s) => s + t === out.cents || svcs.some((c) => s + c + t === out.cents));
   const votes = new Map();
   ps.forEach((p, i) => {
     const t = p.taxCents;
     // over 22% of the settled total is not a tax (Hungary's 27% VAT is 21.3% of a total
     // that includes it); one reading's total can be misread, so this is not applied there
     if (t === null || (out.cents !== null && t > out.cents * 0.22)) return;
-    const v = votes.get(t) ?? { score: out.cents !== null && subs.some((s) => s + t === out.cents) ? 2 : 0, first: p === pick ? -1 : i };
+    const v = votes.get(t) ?? { score: closes(t) ? 2 : 0, first: p === pick ? -1 : i };
     v.score += 1;
     votes.set(t, v);
   });
@@ -773,7 +796,7 @@ export function voteTax(ps, out, pick, texts = []) {
   const t = win ? win.t : out.taxCents;
   // two tax lines (sales 2.80, resort 0.80) read in one reading that had no subtotal,
   // the subtotal read in another: their sum is the tax when it closes to the total
-  if (t !== null && out.cents !== null && !subs.some((s) => s + t === out.cents)) {
+  if (t !== null && out.cents !== null && !closes(t)) {
     const sums = [...new Set(ps.map((p) => p.taxSum).filter((x) => x != null && x !== t && subs.some((s) => s + x === out.cents)))];
     if (sums.length === 1) return sums[0];
   }
@@ -783,7 +806,7 @@ export function voteTax(ps, out, pick, texts = []) {
   const rounded = t !== null && out.cents !== null && t >= 10000 && t % 100 === 0 && out.cents % 100 === 0 && subs.some((s) => s % 100 === 0 && Math.abs(out.cents - s - t) === 100);
   // a tax one digit away from the settled total less a subtotal ("Tax: 8.21" where
   // 42.16 less 38.95 is 3.21) was misread: the receipt's own arithmetic wins
-  if (t !== null && out.cents !== null && !rounded && !subs.some((s) => s + t === out.cents)) {
+  if (t !== null && out.cents !== null && !rounded && !closes(t)) {
     const near = [...new Set(subs.map((s) => out.cents - s))].filter((d) => d > 0 && oneDigitApart(d, t));
     if (near.length === 1) return near[0];
     // two subtotals one digit apart ("$28.48" in three readings, "$28.47" in one): the
@@ -797,6 +820,12 @@ export function voteTax(ps, out, pick, texts = []) {
   if (t === null && out.cents !== null) {
     const d = [...new Set(subs.map((s) => out.cents - s))].filter((d) => d > 0 && d <= (out.cents - d) * 0.15);
     if (d.length === 1) return d[0];
+    // the same with a printed service charge between them (subtotal + service + tax), when
+    // some reading prints a tax line: CORD train-1 ("PB1" with its amount a line above) and
+    // -429; train-361 and -614 print "Service" and "Others" with no tax word, and are left
+    const ds = [...new Set(subs.flatMap((s) => svcs.map((c) => out.cents - s - c)))].filter((d) => d > 0 && d <= (out.cents - d) * 0.15);
+    const taxLine = texts.some((x) => String(x).split(/\r?\n/).some((l) => (TAX_LINE_RE.test(l) || TAX_RE.test(l)) && !NOT_TAX_LINE_RE.test(l)));
+    if (!d.length && ds.length === 1 && taxLine) { out.taxWhy = `no reading could read the tax line's amount: took ${(ds[0] / 100).toFixed(2)}, the total less the subtotal and the service charge, check the tax`; return ds[0]; }
     const split = splitAtRate(texts, out.cents);
     if (split) { out.taxWhy = split.note; return split.cents; }
   }

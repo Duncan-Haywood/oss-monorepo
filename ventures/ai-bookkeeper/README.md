@@ -2869,6 +2869,19 @@ note). SRD photos re-read through the CLI: 154 totals and 133 taxes, before and 
 [`eval/cord-tax-split-2026-11-16.md`](eval/cord-tax-split-2026-11-16.md).
 Tests: `receipt-crosscheck.test.mjs`.
 
+### A service charge in the tax vote (2026-11-17)
+
+A printed service charge or tip sits between the subtotal and the total, so "subtotal plus
+tax is the total" fails on those receipts. `voteTax` now reads every service, gratuity and tip
+amount in any reading and lets subtotal + service + tax close to the total, both in the vote
+and, when no reading has the tax's amount but one prints a tax line, as total less subtotal
+less service. Chosen on half the SRD photos and CORD train text: SRD CLI tax 133 to 134 right
+(wrong 12 to 11), page 134 to 135; the held-out SRD half unchanged; CORD train text 324 to
+326, validation and test text unchanged. CORD photos were not read this run (huggingface.co
+refused the download). Details:
+[`eval/service-charge-vote-2026-11-17.md`](eval/service-charge-vote-2026-11-17.md).
+Tests: `receipt-crosscheck.test.mjs`.
+
 ## Budget against actual
 
 `node cli.mjs --books books.json budget 6130 200` sets a monthly budget of $200
