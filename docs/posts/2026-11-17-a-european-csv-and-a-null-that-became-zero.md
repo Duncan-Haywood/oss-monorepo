@@ -3,7 +3,7 @@ title: "A European CSV, and a missing reading that became a zero"
 seo_title: "Red-teaming a Passing-Bablok and Bland-Altman tool"
 date: 2026-11-17
 tags: [redteam, method-comparison, passing-bablok, bland-altman, testing]
-description: "A red-team run on the new method comparison tool found that a semicolon CSV with decimal commas was silently misread, and that a null reading entered every fit as 0."
+description: "Red-teaming the method comparison tool: a semicolon CSV with decimal commas was silently misread, and a null reading entered every fit as 0."
 ---
 
 The [method comparison tool](https://marisstella.app/method-comparison/) shipped yesterday: paste the
