@@ -29,7 +29,7 @@ export const HYBRID_BANDS = [
 export const TAX_RATES = { "19": 0.19, "20": 0.2, "21": 0.21, "40": 0.4, "42": 0.42, "45": 0.45, "48": 0.48 };
 export const CAR_TYPES = { zev: "Fully electric (0 g/km)", hybrid: "Plug-in hybrid (1 to 50 g/km)", other: "Petrol, diesel or other (51 g/km and over)" };
 
-const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("GBP " + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 }));
+const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("GBP " + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\.\d$/, (m) => m + "0"));
 const r2 = (n) => Math.round(n * 100) / 100;
 const blank = (v) => v === undefined || v === null || v === "";
 

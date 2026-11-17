@@ -137,3 +137,96 @@ test("the finance-cost credit's income limit leaves out dividends and savings (q
   near(r.credit, 86, "credit");
   near(r.incomeTax, 1706.25, "income tax");
 });
+
+// Red-team 2026-11-17: guards for the three census-audit defects and the findings layer.
+const titles = (r) => r.findings.map((f) => f.title).join("\n");
+
+test("student loan leaves out unearned income of 2,000 or less (GOV.UK: only unearned income in excess of 2,000 counts)", () => {
+  // Audit case: 30,000 pay + 1,500 interest on Plan 2 -> (30,000 - 28,470) x 9% = 137.70.
+  near(run({ employment: 30000, interest: 1500, plan: "2" }).slDue, 137.7, "1,500 interest left out");
+  near(run({ employment: 30000, interest: 1000, dividends: 1000, rent: 0, plan: "2" }).slDue, 137.7, "exactly 2,000 left out");
+  // Property profit is unearned too: 3,000 rent less the 1,000 allowance = 2,000, left out.
+  near(run({ employment: 30000, rent: 3000, plan: "2" }).slDue, 137.7, "2,000 property profit left out");
+  // Over 2,000 the whole of it counts, as before.
+  near(run({ employment: 30000, interest: 2500, plan: "2" }).slDue, (32500 - 28470) * 0.09, "2,500 interest counted");
+  near(run({ employment: 30000, interest: 1500, pgl: "yes" }).slDue, (30000 - 21000) * 0.06, "postgraduate loan the same way");
+});
+
+test("Plan 5 collects nothing in 2025/26 (repayments start in April 2026)", () => {
+  const r = run({ employment: 40000, plan: "5" });
+  assert.deepEqual(r.errors, []);
+  assert.equal(r.slDue, 0);
+  assert.match(titles(r), /Plan 5 repayments start in April 2026/);
+  near(run({ employment: 40000, plan: "4" }).slDue, (40000 - 32745) * 0.09, "Plan 4");
+  near(run({ employment: 40000, plan: "1" }).slDue, (40000 - 26065) * 0.09, "Plan 1");
+});
+
+test("the property route with the lower bill wins, so a small expense figure no longer forfeits the mortgage credit", () => {
+  // Audit case: 30,000 pay, 10,000 rent, 500 expenses, 6,000 mortgage interest.
+  // Allowance route: profit 9,000, no credit -> 3,486 + 1,800 = 5,286.
+  // Expenses route: profit 9,500, credit 20% x 6,000 = 1,200 -> 3,486 + 1,900 - 1,200 = 4,186.
+  const r = run({ employment: 30000, rent: 10000, rentExpenses: 500, mortgageInterest: 6000 });
+  assert.equal(r.propUsedAllowance, false);
+  near(r.propProfit, 9500, "property profit");
+  near(r.credit, 1200, "credit");
+  near(r.incomeTax, 4186, "income tax");
+  // No cliff: at the old switch point (expenses 1,000 -> 1,001) the bill moved by 1,200; now by 20p.
+  const at = (e) => run({ employment: 30000, rent: 10000, rentExpenses: e, mortgageInterest: 6000 }).incomeTax;
+  assert.ok(Math.abs(at(1001) - at(1000)) < 1, `${at(1001)} vs ${at(1000)}`);
+  // Without mortgage interest the allowance still wins when it beats expenses.
+  const r3 = run({ employment: 30000, rent: 10000, rentExpenses: 500 });
+  assert.equal(r3.propUsedAllowance, true);
+  near(r3.propProfit, 9000, "allowance route");
+});
+
+test("the allowance-over-credit warning appears only when the allowance really is the better route", () => {
+  const warn = /property allowance/;
+  assert.doesNotMatch(titles(run({ employment: 30000, rent: 10000, rentExpenses: 500, mortgageInterest: 6000 })).replace(/trading allowance/g, ""), /cannot be combined/);
+  // Tiny mortgage interest: 20% x 100 = 20 credit is worth less than the 900 extra relief.
+  const r = run({ employment: 30000, rent: 10000, rentExpenses: 100, mortgageInterest: 100 });
+  assert.equal(r.propUsedAllowance, true);
+  assert.match(titles(r), warn);
+  assert.match(titles(r), /cannot be combined/);
+  // No rent, no warning.
+  assert.doesNotMatch(titles(run({ employment: 30000, mortgageInterest: 100 })), /cannot be combined/);
+});
+
+test("a refund is reported as a refund", () => {
+  const r = run({ employment: 20000, paye: 3000 });
+  near(r.total, -1514, "3,000 PAYE against 1,486 tax");
+  near(r.refund, 1514, "refund");
+  assert.equal(r.jan, 0);
+  assert.match(titles(r), /a refund of GBP 1,514/);
+  assert.equal(run({ employment: 20000, paye: 1486 }).refund, 0);
+});
+
+test("effective rate is a percentage of total income", () => {
+  near(run({ employment: 50000 }).effective, 7486 / 500, "7,486 on 50,000 is 14.97%");
+});
+
+test("the headline names the bill, and a sub-1,000 bill says no payments on account", () => {
+  const r = run({ employment: 20000, tradingIncome: 2000 });
+  // 1,000 profit after the trading allowance: 200 tax, no Class 4.
+  near(r.total, 1686, "PAYE is zero, so the whole 1,686 is due");
+  assert.match(titles(r), /Estimated 2025\/26 bill: GBP 1,686 to pay/);
+  const small = run({ employment: 20000, paye: 1486, tradingIncome: 1001 });
+  near(small.total, 0.2, "1 pound of profit, 20p tax");
+  assert.match(titles(small), /No payments on account are triggered/);
+  assert.doesNotMatch(titles(run({ employment: 20000, paye: 1486 })), /No payments on account/);
+});
+
+test("the Class 4 note appears only once profit passes the lower limit", () => {
+  assert.doesNotMatch(titles(run({ tradingIncome: 13570 })), /Class 4 National Insurance: GBP/);
+  assert.match(titles(run({ tradingIncome: 13571 })), /Class 4 National Insurance: GBP 0\.06/);
+});
+
+test("both what-ifs are priced on a 1,000 net outlay", () => {
+  const r = run({ employment: 60000 });
+  assert.deepEqual(r.savings.map((s) => s.cost), [1000, 1000]);
+  // Higher rate: 1,250 gross extends the basic band, saving 20% x 1,250 = 250 each.
+  for (const s of r.savings) near(s.delta, 250, s.label);
+});
+
+test("the headline names Class 4 National Insurance when there is any", () => {
+  assert.match(titles(run({ tradingIncome: 22000 })), /^Estimated 2025\/26 bill: .*Class 4 National Insurance GBP 505\.80/m);
+});
