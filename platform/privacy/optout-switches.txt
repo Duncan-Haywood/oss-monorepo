@@ -617,6 +617,7 @@ ventures/irrigation-winterization-bid-calculator/usage.mjs
 ventures/irs-iris-1099-csv-check/usage.mjs
 ventures/iso-exercise-amt-calculator/usage.mjs
 ventures/isolation-forest/usage.mjs
+ventures/item-response-theory/usage.mjs
 ventures/janitorial-bid-calculator/usage.mjs
 ventures/job-application-tracker/usage.mjs
 ventures/job-margin-variance/usage.mjs
