@@ -1,3 +1,8 @@
+---
+kind: analysis
+subjects: [rev-rec, link-keeper, persona-conversation-simulator, container-load-planner, free-sprtminimax, ambient-dshard]
+date: 2026-11-17
+---
 # Quality census 2026-11-17, seed 2026-11-17-fe49
 
 Six first audits (census mode), all in `portfolio/quality/audits/2026-11-17-*.json`:
