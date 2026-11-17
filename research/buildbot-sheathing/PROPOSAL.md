@@ -415,6 +415,11 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    that does not plan the rise). At 12 of 35 poses the leaned stance balances only above 3.7–11.8 N of press, so it
    cannot be used with a tool that lifts off. Still open: the paper's headline for a tool-point spec, and a stance that
    balances at zero press.
+41. **A stance that stands at zero press** (done 2026-11-17, `experiments/m41_stance0/`): all 12 poses that needed a
+   press can be re-leaned (9.9–39.1 mm back) to balance over 0–50 N; the window's width is (m + m_tool) g × sole / grip
+   height, so a zero-press stance reaching 50 N exists only below 1.225 m (G1) and 1.883 m (H1) grip height, and the G1
+   at 1.2 m keeps 1.6 N of margin. The braked spec holds (G1 0.011 mm, H1 0.019 mm at a 5 N drag); one H1 pose loses its
+   controller and the G1's worst no-hose stack falls 1.3 points (0.9160 to 0.9030).
 
 ## Target venue
 
