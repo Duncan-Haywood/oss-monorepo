@@ -124,6 +124,27 @@ function schemedIds(partyNode) {
   return mapped;
 }
 
+// Every schemed id inside a UBL line that Peppol's COMMON id contexts reach
+// (`cbc:EndpointID | cac:PartyIdentification/cbc:ID | cbc:CompanyID`, each
+// with a schemeID, no parent named): a line-level cac:Delivery/cac:DeliveryParty,
+// an OriginatorParty, an Item's ManufacturerParty. The item's own ids
+// (StandardItemIdentification/ID, a GTIN under 0160) sit outside those
+// contexts, so Peppol leaves them alone and so do we (added 2026-11-17).
+function lineSchemeIds(line) {
+  const found = [];
+  const keep = (node) => {
+    const scheme = node.attrs && node.attrs.schemeID ? String(node.attrs.schemeID).trim() : "";
+    const id = (node.text || "").trim();
+    if (scheme && id) found.push({ id, scheme });
+  };
+  for (const node of descendants(line, "EndpointID")) keep(node);
+  for (const identification of descendants(line, "PartyIdentification")) {
+    for (const node of identification.children.filter((child) => child.name === "ID")) keep(node);
+  }
+  for (const node of descendants(line, "CompanyID")) keep(node);
+  return found.length ? { scheme_ids: found } : {};
+}
+
 // BG-10 payee and BG-11 seller tax representative: only their schemed ids,
 // for INV-062/INV-063 (undefined when the file names none).
 function sideParty(root, name) {
@@ -427,6 +448,7 @@ export function parseUblInvoice(source) {
       ...(baseQuantity ? { price_base_quantity: asNumber(baseQuantity) } : {}),
       ...(adjustments.length ? { adjustments } : {}),
       ...taxCategoryFields(category),
+      ...lineSchemeIds(line),
     };
   });
 
