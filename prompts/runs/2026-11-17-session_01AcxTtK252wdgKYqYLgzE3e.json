@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtK252wdgKYqYLgzE3e",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T01:13:18Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "shift-roster-builder (flagship 6, allocate.py row 4): Berkeley Fair Workweek preset for the hub's change pricer",
+  "projects": [
+    "ventures/shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16764",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first draft of a test asserted 3.5 h for 9-17 moved to 12-17:30; the hours lost are 2.5",
+      "fixed": "corrected the test's arithmetic, code unchanged"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/shift-roster-builder/notice.mjs",
+      "issue": "pairDateChanges skipped pairing whenever premium was null (no wage in the staff list), so a date move was counted as two changes' hours of pay; fixed to count hoursOfPay too"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "a foreground sleep to wait on a background test run is blocked by a hook; the doc says to use run_in_background but not that the wait itself needs Monitor or a completion notice"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-berkeley-fair-workweek-quarter-hour.md",
+    "ventures/shift-roster-builder/README.md section 'Berkeley (2026-11-17)'"
+  ],
+  "goal": null,
+  "notes": "Sources fetched this session from berkeleyca.gov: the January 2024 official notice and the FAQ rev. 2024-08-23 (pdftotext). berkeley.municipal.codes and library.qcode.us returned 403, so BMC 13.102's text was not read; the changes page and README say so. New pricer fields: tier cutLostCap, rules extendEach and pairDates (env FWW_EXTEND_EACH, FWW_PAIR_DATES). Verification: node --test notice*.test.mjs hub-worker.test.mjs 47/47 pass; full venture suite and venture-preflight run in background, results appended below before merge.",
+  "corrections": [],
+  "redteam": null
+}
