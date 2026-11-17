@@ -578,6 +578,34 @@ export function typeRow(L, r, modelType = null) {
   return { row, dropped: !keep };
 }
 
+// The other way: a standard-set row whose model writes the property in a
+// data type the template does not give (`modelType`; Revit writes
+// Pset_*Common.Reference as IFCLABEL where IFC2X3 says IFCIDENTIFIER). A
+// requirement with the template's dataType fails every such object, and one
+// with the model's dataType is a template error in the audit. Without a
+// dataType the property is checked whatever type it holds. Returns
+// { row, dropped } with the row untyped (the text modes, written with no
+// dataType: presence only audits clean, a value draws the value-no-datatype
+// warning), or null when the row is not such a row. A text value carries
+// over; true/false becomes that literal; a range cannot (untyped rows offer
+// no range), nor can any value on a real-number model type (`real`), so
+// those become "any value" with `dropped` set. typeRow turns it back.
+export function untypeRow(L, r, modelType) {
+  if (r.kind !== "property" || r.custom || r.untyped || r.fixed || !r.set || !r.name || !modelType) return null;
+  const p = propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name);
+  if (!p || !p.dataTypes.length || p.dataTypes.includes(String(modelType).toUpperCase())) return null;
+  const row = { ...r, untyped: true, dataType: "" };
+  // A real number written with no dataType is where checkers part: this one
+  // reads Revit's IFCPOSITIVELENGTHMEASURE(29.99999999999999) mm as 0.03 m
+  // and matches "0.03", IfcTester 0.8.0 does not
+  // (eval/model-any-type-2026-11-17.md), so only presence carries over.
+  const real = (L.S.types[String(modelType).toUpperCase()] && L.S.prim(String(modelType).toUpperCase())) === "double";
+  let keep = !r.mode || r.mode === "any" || (!real && (r.mode === "equals" || r.mode === "oneOf" || r.mode === "pattern"));
+  if (!real && (r.mode === "true" || r.mode === "false")) { row.mode = "equals"; row.equals = r.mode; keep = true; }
+  if (!keep) { row.mode = "any"; row.equals = ""; row.oneOf = []; row.pattern = ""; row.min = ""; row.max = ""; }
+  return { row, dropped: !keep, real };
+}
+
 export const reqComplete = (r) => r.fixed || (r.kind === "property" ? r.set && r.name : r.kind === "attribute" ? r.name : r.kind === "partOf" ? r.entity : true);
 
 // The page state as the document buildIds() writes.
