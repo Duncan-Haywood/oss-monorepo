@@ -2,7 +2,7 @@
 title: "A re-saved IFC model is not 8,975 new failures: GitLab Code Quality keyed on GlobalId"
 seo_title: "IFC model checks in GitLab merge requests, keyed on GlobalId"
 date: 2026-11-17
-description: "ids-model-check now writes a GitLab Code Quality report. On real model revisions it showed the 18 real changes and nothing for a re-save that renumbered 665,224 entities."
+description: "ids-model-check writes a GitLab Code Quality report. On real revisions it showed the 18 real changes, and nothing for a re-save renumbering 665,224 entities."
 tags: [ids-model-check, bim, ifc, gitlab]
 ---
 
