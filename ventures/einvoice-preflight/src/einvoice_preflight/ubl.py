@@ -105,10 +105,58 @@ def _party(element: ElementTree.Element) -> dict[str, Any]:
             break
     if vat_id:
         mapped["vat_id"] = vat_id
+    legal_id = _legal_id(party)
+    if legal_id:
+        mapped["legal_id"] = legal_id
+    party_ids = _party_ids(party)
+    if party_ids:
+        mapped["party_ids"] = party_ids
     endpoint = _endpoint(party)
     if endpoint:
         mapped["endpoint"] = endpoint
     return mapped
+
+
+def _scheme_attr(element: ElementTree.Element) -> str:
+    for key, attr in element.attrib.items():
+        if key.rsplit("}", 1)[-1] == "schemeID":
+            return (attr or "").strip()
+    return ""
+
+
+def _legal_id(party: ElementTree.Element) -> dict[str, str] | None:
+    """BT-30/BT-47: the first PartyLegalEntity's CompanyID and its schemeID.
+
+    Mirrors ubl.mjs so the CLI's INV-062 (endpoint.py) reads an XML file the
+    way the page does, not only a JSON invoice.
+    """
+    for entity in party.iter():
+        if entity.tag.rsplit("}", 1)[-1] != "PartyLegalEntity":
+            continue
+        for node in entity.iter():
+            if node.tag.rsplit("}", 1)[-1] != "CompanyID":
+                continue
+            value = (node.text or "").strip()
+            if not value:
+                return None
+            return {"id": value, "scheme": _scheme_attr(node)}
+    return None
+
+
+def _party_ids(party: ElementTree.Element) -> list[dict[str, str]]:
+    """BT-29/BT-46: every PartyIdentification/ID that names a scheme (ubl.mjs)."""
+    found: list[dict[str, str]] = []
+    for identification in party.iter():
+        if identification.tag.rsplit("}", 1)[-1] != "PartyIdentification":
+            continue
+        for node in identification:
+            if node.tag.rsplit("}", 1)[-1] != "ID":
+                continue
+            scheme = _scheme_attr(node)
+            value = (node.text or "").strip()
+            if scheme and value:
+                found.append({"id": value, "scheme": scheme})
+    return found
 
 
 def _endpoint(party: ElementTree.Element) -> dict[str, str] | None:

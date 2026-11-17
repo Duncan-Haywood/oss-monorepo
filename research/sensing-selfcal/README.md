@@ -13,6 +13,17 @@ RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with
 checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (290 of 290,
 revised with milestones 4e–4s and 3b–3g) and a list of what a submission still needs.
 
+**Milestone 3k headline** (could a rolling shutter be what a 1.2 s natural-feature window's focal length compensates? synthetic
+windows rendered through a rolling-shutter camera and solved with this project's global-shutter bundle adjustment): **it could, and
+the window's mean rotation rate cannot rule it out.** With random hand-held rates of 0.3 rad/s per axis and a 1/30 s readout the
+focal length shifts a median 4.2% (TUM's observed error is 5.25%); 1% at 0.1 rad/s. Pitch and yaw both move f by about 1.3&times;
+the rotation during readout, amplified about 5&times; over a simple stretch model, with a sign set by each window's geometry
+(&minus;9% to +11% across seeds at 1 rad/s pitch), so the mean rate does not predict the shift (R<sup>2</sup> 0.03) and a mean-rate
+bound on the TUM windows (median 0.5%) is not a bound. The shift is 4&ndash;39 times the solver's own sd. Two of five predictions
+held. Settling it needs TUM's 100 Hz motion capture and a rolling-shutter term in the model. [Log](LOG.md).
+
+![Rolling shutter: focal shift by axis and rate, hand-held random rates, and the TUM mean-rate check](experiments/m3k_shutter/shutter.png)
+
 **Milestone 3j headline** (do the first-order verdicts of milestones 3g and 3i survive a real re-solve? each of the 57 TUM RGB-D
 natural-feature windows re-solved by bundle adjustment with the board's distortion, principal point or both pinned): **yes, and
 the distortion verdict is sharper.** Pinning the board's k<sub>1</sub>, k<sub>2</sub> doubles the median focal error (5.25% to
@@ -1115,6 +1126,12 @@ python3 paper/check_numbers.py             # seconds; the draft's numbers agains
   `PROPOSAL.md`).
 
 ## Next steps
+
+After milestone 3k: a rolling shutter is not ruled out (random 0.3 rad/s hand-held rates move a synthetic window's f a median
+4.2% at a 1/30 s readout), and the window's mean rate is the wrong predictor. When the TUM host answers: read each keyframe's
+angular velocity from the 100 Hz motion capture, find a source for the Kinect's and Xtion's readout times, and add a
+rolling-shutter term (known per-frame rate, readout free or fixed) to the window model; then the track-bias re-track and longer
+windows. fr3/stf, the slowest sequence with the largest error, is the case a rolling-shutter explanation has to survive.
 
 After milestone 3j: the re-solve on the TUM video confirms 3g and 3i (board distortion pinned: 10.5% median error; principal
 point: 5.87%; free: 5.25%). The TUM video now downloads, so the remaining candidates for what a window's f compensates can be

@@ -196,3 +196,20 @@ test('money() formats whole dollars with a thousands separator and no cents', ()
   assert.equal(money(0), '$0');
   assert.equal(money(2500000), '$2,500,000');
 });
+
+test('at 50% business use the flag says Section 179 is out and bonus is out only for listed property', () => {
+  const at50 = compareDepreciationPaths({ assetCost: 100000, businessUsePercent: 50, taxableIncomeBeforeDeduction: 500000, ratePercent: 21 });
+  const flag = at50.findings.find((f) => /50%/.test(f.title));
+  assert.match(flag.title, /Section 179 is not available/);
+  assert.doesNotMatch(flag.title, /bonus/i);
+  assert.match(flag.detail, /listed property/);
+});
+
+test('15- and 20-year property warns that land improvements are not Section 179 property', () => {
+  for (const recoveryYears of [15, 20]) {
+    const r = compareDepreciationPaths({ assetCost: 100000, recoveryYears, taxableIncomeBeforeDeduction: 500000, ratePercent: 21 });
+    assert.ok(r.findings.some((f) => /Land improvements/.test(f.detail)), `no land-improvement warning at ${recoveryYears} years`);
+  }
+  const seven = compareDepreciationPaths({ assetCost: 100000, recoveryYears: 7, taxableIncomeBeforeDeduction: 500000, ratePercent: 21 });
+  assert.ok(!seven.findings.some((f) => /Land improvements/.test(f.detail)));
+});

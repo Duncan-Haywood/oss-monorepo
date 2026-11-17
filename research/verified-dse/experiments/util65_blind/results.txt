@@ -1,0 +1,79 @@
+# Milestone 141: the one-clock blind designs at 65% placement utilisation against their 40% cells (flow run)
+
+theta = 3; run order seed 141 over 52 designs (milestone 137's 12, milestone 138's 40)
+
+complete designs (ORDER prefix): 20 of 52
+
+design | clock | routed/r2 40% | routed/r2 65% | tau-b routed 40 vs 65 | same best | random 40 | SWC 40 | random 65 | SWC 65 | d40 | d65
+rng6l | relaxed | 12.24 | 11.71 | 0.694 | True | 13.58 | 0.00 | 13.78 | 0.00 | -13.58 | -13.78
+gtc8l | tight | 5.10 | 7.49 | 0.084 | False | 4.98 | 0.00 | 10.53 | 0.00 | -4.98 | -10.53
+rng8r | tight | 5.49 | 7.64 | 0.865 | True | 7.72 | 0.00 | 10.50 | 0.00 | -7.72 | -10.50
+gtc24r | relaxed | 4.94 | 5.96 | 0.836 | True | 6.17 | 0.00 | 10.49 | 0.00 | -6.17 | -10.49
+clamp6r | relaxed | 4.93 | 6.67 | 0.869 | True | 7.53 | 0.00 | 9.55 | 0.00 | -7.53 | -9.55
+clamp3l | relaxed | 10.37 | 10.11 | 0.759 | False | 7.01 | 0.00 | 8.39 | 0.00 | -7.01 | -8.39
+clamp2r | tight | 4.14 | 5.90 | 0.735 | False | 5.03 | 0.00 | 8.14 | 0.00 | -5.03 | -8.14
+clamp2l | tight | 10.37 | 10.13 | 0.723 | True | 7.10 | 0.00 | 5.74 | 0.00 | -7.10 | -5.74
+csum6 | relaxed | 4.39 | 6.30 | 0.771 | True | 3.44 | 0.00 | 5.05 | 0.00 | -3.44 | -5.05
+csum3 | relaxed | 4.97 | 6.72 | 0.768 | False | 4.51 | 0.00 | 4.86 | 0.00 | -4.51 | -4.86
+dot4r | tight | 3.93 | 5.42 | 0.589 | False | 1.24 | 1.36 | 4.48 | 0.00 | +0.12 | -4.48
+dot6r | relaxed | 3.99 | 5.08 | 0.670 | False | 5.17 | 0.00 | 2.42 | 0.00 | -5.17 | -2.42
+gtc12r | relaxed | 3.84 | 4.47 | 0.769 | True | 1.41 | 0.00 | 2.38 | 0.00 | -1.41 | -2.38
+rng8l | tight | 12.42 | 11.73 | 0.742 | True | 15.08 | 9.24 | 9.88 | 7.52 | -5.84 | -2.36
+dot4l | tight | 8.08 | 9.72 | 0.491 | True | 1.02 | 0.03 | 6.69 | 4.38 | -0.99 | -2.31
+clamp4l | tight | 10.74 | 10.29 | 0.791 | True | 7.23 | 5.51 | 5.70 | 5.45 | -1.72 | -0.25
+csum8 | tight | 4.83 | 6.74 | 0.784 | False | 2.94 | 2.94 | 2.01 | 2.16 | +0.00 | +0.15
+div10l | relaxed | 8.56 | 8.06 | 0.667 | True | 14.90 | 13.44 | 8.26 | 9.34 | -1.46 | +1.07
+div12l | tight | 8.09 | 7.89 | 0.726 | False | 8.93 | 11.88 | 6.60 | 7.79 | +2.95 | +1.19
+div8l | tight | 9.34 | 8.75 | 0.678 | True | 9.05 | 6.92 | 7.21 | 13.83 | -2.12 | +6.62
+
+65%: mean regret SWC 2.52%, random 7.13%; SWC better on 16, worse on 4, tied on 0; two-sided sign p = 0.0118; design-bootstrap 95% interval of mean d65 -6.74 to -2.37
+40% (same designs): mean regret SWC 2.57%, random 6.70%; SWC better on 17, worse on 3, tied on 0; two-sided sign p = 0.0026
+SWC fails (loses by > 1 point): 1 designs at 40%, 3 at 65%
+median routed/r2: 5.29 at 40%, 7.56 at 65%; ladder branch at 65%: 20 of 20
+median tau-b of routed score, 40% vs 65%: 0.739 (range 0.084 to 0.869); same routed-best sequence on 12 of 20
+change d65 - d40: mean -0.47 points, design-bootstrap 95% interval -1.82 to +1.06
+sign of d agrees on 17 of 20 designs untied at both points
+
+## Ratio bands at 65% (milestone 139's)
+
+band | cells | SWC % | random % | SWC better | SWC worse
+(3, 4] | 0 | - | - | - | -
+(4, 6] | 5 | 0.00 | 5.58 | 5 | 0
+> 6 | 15 | 3.37 | 7.65 | 11 | 4
+
+## Predictions
+
+(1) median routed/r2 higher at 65%: True (7.56 against 5.29)
+(2) every 65% cell on the ladder branch: True (20 of 20; lowest 4.47)
+(3) PRIMARY: SWC better on more designs at 65% and sign p < 0.05: True (16 better, 4 worse, p = 0.0118)
+(4) SWC mean regret below random at 65%: True
+(5) sign agrees on at least two thirds of untied designs: True (17 of 20)
+(6) median tau-b 40% vs 65% below 0.8: True (0.739)
+(7) interval of d65 - d40 contains zero: True (-1.82 to +1.06)
+
+## Post hoc, added after the run: failed points and a sensitivity check
+
+design | usable points | ABC failures | pin-placement failures
+rng8l | 103 | 17 | 0
+csum8 | 103 | 17 | 0
+clamp6r | 103 | 17 | 0
+dot6r | 103 | 17 | 0
+div10l | 102 | 18 | 0
+csum3 | 103 | 17 | 0
+clamp3l | 103 | 17 | 0
+dot4r | 102 | 18 | 0
+csum6 | 103 | 17 | 0
+gtc8l | 21 | 17 | 82
+gtc12r | 103 | 17 | 0
+clamp2r | 103 | 17 | 0
+div12l | 103 | 17 | 0
+clamp2l | 103 | 17 | 0
+clamp4l | 103 | 17 | 0
+dot4l | 103 | 17 | 0
+rng6l | 103 | 17 | 0
+gtc24r | 103 | 17 | 0
+div8l | 103 | 17 | 0
+rng8r | 103 | 17 | 0
+
+without the designs with fewer than 90 usable points at 65% (gtc8l): 19 designs; SWC better on 15, worse on 4, tied on 0; two-sided sign p = 0.0192; mean regret SWC 2.66%, random 6.96%; d65 - d40 interval -1.44 to +1.31
+designs where SWC loses at 65%: csum8, div10l, div12l, div8l

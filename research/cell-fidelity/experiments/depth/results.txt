@@ -1,0 +1,23 @@
+cell-fidelity milestone 5zk: where through the negative electrode does the plating happen? DFN (SEI + plating) to cycle 100,
+5z's re-run designs; per-node plating integrated over each cycle; cycle 2 against 99 (medians over designs)
+
+condition             n  sep2 sep99  cen2 cen99  D_tot  D_sep  |gap| Msep mV  Mw mV  ratio ratio99
+Ai2020@0.45x          8 0.124 0.118 0.618 0.614 -1.762 -1.828  0.053    72.3   46.6  0.644   0.637
+Chen2020@1.5x        12 0.194 0.194 0.720 0.747 -1.225 -1.195  0.015    37.5   30.5  0.813   0.760
+OKane2022@1.5x       12 0.194 0.193 0.715 0.746 -1.183 -1.154  0.014    38.4   29.8  0.777   0.730
+NCA_Kim2011@0.875x    8 0.076 0.141 0.534 0.627 -4.421 -3.945  0.282   106.8  128.9  1.207   1.183
+
+(sep = separator-node share of the cycle's plating; cen = plating-weighted depth, 1 = separator side; D = log change of plating, cycle 2 to 99; M = end-of-charge OCP rise, sep node or plating-weighted; ratio = median Mw / median Msep, ratio99 with cycle-99 weights)
+
+set            kappa_path  ratio  kappa_w  kappa* within25%
+Ai2020               73.5  0.644     47.3    20.8        no
+Chen2020             33.0  0.813     26.8    52.3        no
+OKane2022            36.6  0.777     28.4    38.1        no
+NCA_Kim2011          22.6  1.207     27.3    23.0       yes
+
+reproduction against 5z (worst over 39 designs): booked plating at cycle 99 2.60e-07 relative; separator-node OCP 0.0000 mV; D_tot against 5z's booked log change 0.0014
+
+H191 (the separator node carries under half of the cycle-2 plating on all four sets): supported
+H192 (location explains 5z's NCA_Kim2011 index miss: |D_sep - D_tot| >= 0.2 there, <= 0.1 on LG M50): supported
+H193 (the lever read where the plating is puts kappa within 25% of kappa* on >= 3 of 4 sets, Ai2020 among them): refuted
+H194 (the re-runs reproduce 5z: plating 0.1%, OCP 0.1 mV, log change 0.02): supported

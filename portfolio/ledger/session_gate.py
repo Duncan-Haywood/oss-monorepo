@@ -33,16 +33,17 @@ issued by this script itself (read-only, no credential beyond the repo access
 the session already has) — see `refresh_origin_main`'s docstring for why that
 fetch turned out not to be optional.
 
-It also asks `platform/ci/pages_state.py` whether the published snapshot still
-matches `main`, because `portfolio/DIRECTION.md` ranks that refresh above all
-new work and nothing else in a generic session's opening minute says it. That
-read is best-effort and degrades to `unknown`, never to `current` — see
-`published_snapshot`.
+It also reads the deploy runs of `portfolio-pages.yml` to say whether the live
+site is built from the tip of `main`, because `portfolio/DIRECTION.md` ranks a
+stale site above all new work and nothing else in a generic session's opening
+minute says it. That read is best-effort and degrades to `unknown`, never to
+`current` — see `published_snapshot`.
 """
 
 from __future__ import annotations
 
 import argparse
+import calendar
 import json
 import re
 import subprocess
@@ -252,61 +253,140 @@ def refresh_origin_main(timeout: float = 20.0) -> bool:
     return result.returncode == 0
 
 
-def published_snapshot(timeout: float = 25.0) -> tuple[str, str]:
+# The workflow that builds and deploys the live site on every push to `main`
+# and every three hours (`portfolio/hosting/README.md`, "What is served now").
+DEPLOY_WORKFLOW = "portfolio-pages.yml"
+DEPLOY_RUNS_PATH = (
+    "repos/{owner}/{repo}/actions/workflows/" + DEPLOY_WORKFLOW + "/runs?branch=main&per_page=30"
+)
+MAIN_BRANCH_PATH = "repos/{owner}/{repo}/branches/main"
+# The schedule redeploys every three hours, so a last success older than two
+# schedule periods means deploys have stopped, not that one is queued.
+DEPLOY_MAX_AGE_HOURS = 6.0
+# Conclusions that mean the run itself went wrong. `cancelled` is not one:
+# the workflow's concurrency group cancels a pending run whenever a newer
+# merge queues behind it, which on a busy day is most push runs.
+FAILED_CONCLUSIONS = {"failure", "timed_out", "startup_failure"}
+
+
+def _parse_time(value) -> float | None:
+    try:
+        return float(calendar.timegm(time.strptime(str(value), "%Y-%m-%dT%H:%M:%SZ")))
+    except (TypeError, ValueError):
+        return None
+
+
+def deploy_freshness(runs: list[dict], head_sha: str | None, now: float | None = None) -> tuple[str, str]:
+    """Whether the live site is built from the tip of `main`, from the deploy runs.
+
+    `runs` is the `workflow_runs` list for `portfolio-pages.yml` on `main`,
+    newest first, as GitHub returns it. The states:
+
+    - `current`: the newest successful run was built from the tip.
+    - `deploying`: the tip is newer than the last deploy, but a run is queued
+      or in progress, the last deploy is recent and no run since has failed.
+      Every merge starts a run, so on a busy day this is the normal reading.
+    - `stale`: the newest finished run failed, or the last successful deploy
+      is older than `DEPLOY_MAX_AGE_HOURS`, or nothing is running to catch up.
+    - `unknown`: no tip to compare against, or no successful run in the page.
+    """
+    now = time.time() if now is None else now
+    if not head_sha:
+        return "unknown", "could not read the tip of `main` to compare against"
+    last_success = None
+    failed_since = None
+    in_flight = None
+    for run in runs:
+        if run.get("status") != "completed":
+            if in_flight is None:
+                in_flight = run
+            continue
+        conclusion = run.get("conclusion")
+        if conclusion == "success":
+            last_success = run
+            break
+        if conclusion in FAILED_CONCLUSIONS and failed_since is None:
+            failed_since = run
+    if last_success is None:
+        return "unknown", (
+            f"no successful `{DEPLOY_WORKFLOW}` run on `main` among the last {len(runs)}"
+        )
+    deployed = str(last_success.get("head_sha") or "")
+    when = last_success.get("updated_at") or "?"
+    built = f"last deploy built from {deployed[:8]} (run {last_success.get('id')}, finished {when})"
+    if failed_since is not None:
+        return "stale", (
+            f"{built}; run {failed_since.get('id')} on {str(failed_since.get('head_sha') or '')[:8]} "
+            f"since then ended `{failed_since.get('conclusion')}`"
+        )
+    finished = _parse_time(last_success.get("updated_at"))
+    age_hours = None if finished is None else (now - finished) / 3600
+    if age_hours is not None and age_hours > DEPLOY_MAX_AGE_HOURS:
+        return "stale", (
+            f"{built}, {age_hours:.1f} h ago: older than the three-hourly schedule allows, "
+            "so deploys have stopped (`vars.PAGES_ENABLED`? starved runners?)"
+        )
+    if deployed == head_sha:
+        return "current", f"{built}, which is the tip of `main`"
+    if in_flight is not None:
+        return "deploying", (
+            f"{built}; `main` is at {head_sha[:8]} and run {in_flight.get('id')} "
+            f"({in_flight.get('status')}) is catching up"
+        )
+    return "stale", f"{built}, but `main` is at {head_sha[:8]} and no deploy run is in flight"
+
+
+def published_snapshot() -> tuple[str, str]:
     """Whether the live site is serving what `main` contains.
 
-    `portfolio/DIRECTION.md`'s North star says, in its first numbered point,
-    that a stale published snapshot outranks new work: "`pages_state.py` says
-    whether the live snapshot matches `main`; if it says `stale`, that refresh
-    outranks new work." Until 2026-09-07 this gate — the one command a generic
-    scheduled session is told to run *first*, and the only place the fleet's
-    priorities get printed rather than written down — never asked the question.
-    A session could read a full PROCEED verdict, follow every line of it, and
-    spend the run building on top of a live site that had silently been behind
-    `main` since somebody else's merge.
+    `portfolio/DIRECTION.md`'s North star ranks a stale published site above
+    new work, and this gate is the one command a generic scheduled session
+    runs first, so it asks the question (since 2026-09-07).
 
-    That gap is the same shape this repository keeps rediscovering. `CLAUDE.md`
-    records it against `pages_state.py --require-current`, which exists because
-    "refresh the snapshot" had been prose in `CLAUDE.md` since 2026-09-05 and
-    the snapshot was found stale anyway on 2026-09-06 *by a session that had
-    read it*: "a reminder competes with everything else in a long file; an exit
-    code does not." The flag fixed the case where a session finished a merge and
-    remembered to check. This fixes the case where a session never merges
-    anything at all — it inherits a gap another session left, and nothing in its
-    run would ever mention it.
+    Until 2026-11-17 it asked `platform/ci/pages_state.py`, which reads the
+    `gh-pages` branch. That route was retired on 2026-10-20 when Pages moved
+    to Actions, and on 2026-10-30 the site moved to Cloudflare
+    (`portfolio/hosting/README.md` lists `pages_state.py`'s snapshot line as a
+    known-stale reader). So every gate run spent 3.8 s of its 4.2 s on seven
+    sequential API calls and then printed "THE PUBLISHED SNAPSHOT IS BEHIND
+    `main`" against a branch nothing deploys from any more. It now reads the
+    deploy runs of `portfolio-pages.yml` itself: two API calls, issued
+    concurrently (`docs/history/session-gate-perf-2026-11-17.md`).
 
-    Failure is never `current`. No token, no network, an unreadable `gh-pages`
-    tip, an exception inside `pages_state` — all of it returns `unknown` with
-    the reason, because "an absent measurement must not read as a healthy one"
-    is the rule `portfolio/ledger/infra_state.yaml` and `freshness()` itself
-    already follow, and it is the direction this gate can afford to be wrong in.
-    A spurious `unknown` costs a session one command; a spurious `current` costs
-    the live site.
+    Failure is never `current`. No token, no network, an unreadable run list:
+    all of it returns `unknown` with the reason. A spurious `unknown` costs a
+    session one look at the Actions tab; a spurious `current` costs the live
+    site.
     """
     sys.path.insert(0, str(REPO / "platform" / "ci"))
     try:
-        import pages_state
+        import ci_starvation
     except Exception as exc:  # pragma: no cover - import shape, not logic
-        return "unknown", f"could not load platform/ci/pages_state.py ({exc})"
+        return "unknown", f"could not load platform/ci/ci_starvation.py ({exc})"
 
     try:
-        token = pages_state.api_token()
+        token = ci_starvation.api_token()
         if not token:
             return (
                 "unknown",
-                "neither GH_TOKEN nor GITHUB_TOKEN is set, so the published "
-                "snapshot could not be read from here",
+                "neither GH_TOKEN nor GITHUB_TOKEN is set, so the deploy runs "
+                "could not be read from here",
             )
-        api = pages_state.http_api_for(pages_state.resolve_repo(None), token)
-        state = pages_state.collect(api)
-    except Exception as exc:
-        # Deliberately broad. This is an advisory line on a gate whose whole
-        # job is to run in two seconds at the top of every generic session; a
-        # network hiccup inside a reporting helper must not crash the reading
-        # the session actually came here for.
-        return "unknown", f"reading the published snapshot failed ({exc})"
+        api = ci_starvation.http_api_for(ci_starvation.resolve_repo(None), token)
+        from concurrent.futures import ThreadPoolExecutor
 
-    return state.get("snapshot", "unknown"), state.get("snapshot_reason", "")
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            runs_f = pool.submit(api, DEPLOY_RUNS_PATH)
+            head_f = pool.submit(api, MAIN_BRANCH_PATH)
+            runs = (runs_f.result() or {}).get("workflow_runs") or []
+            head = ((head_f.result() or {}).get("commit") or {}).get("sha")
+    except Exception as exc:
+        # Deliberately broad. This is an advisory line on a gate that runs at
+        # the top of every generic session; a network hiccup inside a
+        # reporting helper must not crash the reading the session came for.
+        return "unknown", f"reading the deploy runs failed ({exc})"
+
+    return deploy_freshness(runs, head)
 
 
 def history_span_hours(commit_timestamps: list[int]) -> float:
@@ -670,21 +750,20 @@ def report(
         # for real visitors rather than something worth doing next, and
         # DIRECTION.md ranks it above the work the verdict is about to name.
         reasons = [
-            "THE PUBLISHED SNAPSHOT IS BEHIND `main`. Since 2026-10-20 Pages "
-            "deploys from Actions (`portfolio-pages.yml`, on every site-input "
-            "merge and every three hours), not the `gh-pages` branch, so do "
-            "NOT run `publish-branch.sh`. Merging is the publish; check that "
-            "the latest `portfolio-pages.yml` run on `main` succeeded "
+            "THE PUBLISHED SNAPSHOT IS BEHIND `main`. The site deploys from "
+            "Actions (`portfolio-pages.yml`, on every merge and every three "
+            "hours), not the `gh-pages` branch, so do NOT run "
+            "`publish-branch.sh`. Look at the run named below "
             "(`python3 platform/ci/ci_starvation.py --run <id>` classifies a "
-            "red one) and say so in your reply if it did not. "
+            "red one), fix it if the failure is real, and say so in your reply. "
             f"Reason: {snap_reason}"
         ] + reasons
-    elif snap != "current":
+    elif snap not in ("current", "deploying"):
         reasons = reasons + [
             f"Published-snapshot state is `{snap}`, not a clean `current` — "
-            f"{snap_reason}. Treat that as unread, never as fine: run `python3 "
-            "platform/ci/pages_state.py` yourself before assuming the live site "
-            "serves what `main` contains."
+            f"{snap_reason}. Treat that as unread, never as fine: check the "
+            "latest `portfolio-pages.yml` run on `main` before assuming the "
+            "live site serves what `main` contains."
         ]
     if stale_streak >= STALE_PR_STREAK_THRESHOLD:
         reasons = reasons + [
@@ -740,6 +819,8 @@ def render(r: dict) -> str:
         + (
             ""
             if r.get("published_snapshot") == "current"
+            else "  (a deploy run is catching up to `main`)"
+            if r.get("published_snapshot") == "deploying"
             else "  <-- the live site is not known to match `main`"
         ),
         f"  break-even ..................... "
@@ -781,17 +862,24 @@ def main() -> int:
     parser.add_argument("--json", action="store_true", help="emit the reading as JSON")
     args = parser.parse_args()
 
-    fetched = refresh_origin_main()
-    burst = max_concurrent_sessions(commits_with_sessions())
-    cadence, cadence_reliable = sessions_per_hour()
-    r = report(
-        load_entries(),
-        cadence,
-        burst=burst,
-        cadence_reliable=cadence_reliable and fetched,
-        origin_fetched=fetched,
-        snapshot=published_snapshot(),
-    )
+    # The deploy reading is network-bound and independent of the git reads,
+    # so it runs beside them rather than after them.
+    from concurrent.futures import ThreadPoolExecutor
+
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        snapshot = pool.submit(published_snapshot)
+        fetched = refresh_origin_main()
+        burst = max_concurrent_sessions(commits_with_sessions())
+        cadence, cadence_reliable = sessions_per_hour()
+        entries = load_entries()
+        r = report(
+            entries,
+            cadence,
+            burst=burst,
+            cadence_reliable=cadence_reliable and fetched,
+            origin_fetched=fetched,
+            snapshot=snapshot.result(),
+        )
     print(json.dumps(r, indent=2) if args.json else render(r))
     return 0
 

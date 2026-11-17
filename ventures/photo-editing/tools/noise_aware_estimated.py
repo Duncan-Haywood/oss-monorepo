@@ -61,13 +61,26 @@ def plane_estimate(c, pat) -> np.ndarray:
     return out
 
 
-def arms_for(c, pat, b, d, true_model, scales=SCALES, pcts=None) -> dict:
+def arms_for(c, pat, b, d, true_model, scales=SCALES, pcts=None, pca=False) -> dict:
     """Every arm's output (h, w, 3) for one noisy plane ``c``. With ``pcts`` (spread percentiles), only the
-    ``fit`` and ``guard`` families, once per percentile, named ``fitP@s`` and ``guardP@s``."""
+    ``fit`` and ``guard`` families, once per percentile, named ``fitP@s`` and ``guardP@s``. With ``pca``, the
+    morning's ``frame_noise`` (``ship``: block spread, ``estimator="spread"``) and the patch-PCA estimate (``shootflow.noise_pca``) times s^2, bare
+    (``pca@s``) and through ``guard_profile`` (``pcaguard@s``)."""
 
-    from shootflow.xtrans_demosaic import estimate_noise, guard_profile, noise_aware
+    from shootflow.xtrans_demosaic import estimate_noise, frame_noise, guard_profile, noise_aware
 
     out = {"D": d, "true": noise_aware(c, pat, bilinear=b, directional_out=d, noise=true_model)}
+    if pca:
+        from shootflow.noise_pca import estimate_noise_pca
+
+        out["ship"] = noise_aware(c, pat, bilinear=b, directional_out=d, noise=frame_noise(c, pat, estimator="spread"))
+        est = np.array(estimate_noise_pca(c, pat))
+        for s in scales:
+            f = tuple(est * s * s)
+            out[f"pca@{s:g}"] = noise_aware(c, pat, bilinear=b, directional_out=d, noise=f)
+            g, _ = guard_profile(c, pat, f)
+            out[f"pcaguard@{s:g}"] = noise_aware(c, pat, bilinear=b, directional_out=d, noise=g)
+        return out
     if pcts:
         for p in pcts:
             fit = np.array(estimate_noise(c, pat, pct=p))
@@ -100,6 +113,7 @@ def sweep(argv) -> int:
     ap.add_argument("--scenario", action="append", default=None, choices=("equal", "wb"))
     ap.add_argument("--pcts", help="comma-separated spread percentiles: fitP@s and guardP@s arms only")
     ap.add_argument("--scales", help="comma-separated sigma scales (default: SCALES)")
+    ap.add_argument("--pca", action="store_true", help="arms D, true, ship, pca@s, pcaguard@s only")
     args = ap.parse_args(argv)
     snrs = args.snr or [200.0, 60.0, 25.0, 12.0]
     pcts = [float(x) for x in args.pcts.split(",")] if args.pcts else None
@@ -145,7 +159,7 @@ def sweep(argv) -> int:
                     b = chk.ours_bilinear(c, pat)
                     d = directional(c, pat)
                     cps, lps = {}, {}
-                    for arm, arr in arms_for(c, pat, b, d, model, scales, pcts).items():
+                    for arm, arr in arms_for(c, pat, b, d, model, scales, pcts, args.pca).items():
                         s = chk.scores(arr, truth)
                         cps[arm], lps[arm] = s["cpsnr"], s["lpsnr"]
                     print(json.dumps({
