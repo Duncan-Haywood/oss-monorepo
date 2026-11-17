@@ -1,0 +1,8 @@
+5zm post hoc (after the verdicts): set median of the pointwise ratio (plating-weighted rise) / (law's rise)
+from cycle 2 to k, times 25.3 (what kappa would be if the ratio were constant); and designs where B beats A
+
+set             k=10    k=20    k=30    k=50    k=99  B<A@10  B<A@20  B<A@30  B<A@50
+Ai2020          51.5    26.9    20.5    22.7    28.8    1/8     1/8     5/8     5/8 
+Chen2020       147.5   110.5    80.6    58.0    30.3    3/12    4/12    4/12    3/12
+OKane2022       62.8    79.3    78.6    51.2    28.8    7/12    3/12    2/12    2/12
+NCA_Kim2011     28.5    27.4    27.0    26.5    26.0    2/8     2/8     2/8     3/8 
