@@ -103,6 +103,13 @@ test("page cites the papers with BibTeX, states its limits, and its figures matc
   assert.ok(html.includes(`factor_analyzer ${ref.versions.factor_analyzer}`));
   assert.deepEqual(COVERAGE, JSON.parse(page("eval/coverage.json")));
   assert.ok(html.includes(`In ${COVERAGE[0].reps} simulated studies per setting`));
+  const cong = COVERAGE.filter((c) => c.design === "congeneric");
+  const pct = (v) => Math.round(v * 100);
+  assert.ok(html.includes(`Feldt interval covered it ${pct(cong[0].coverage.feldt)}% of the time at n = 50, ${pct(cong[1].coverage.feldt)}% at n = 200 and ${pct(cong[2].coverage.feldt)}% at n = 1000`));
+  const om = cong.map((c) => pct(c.coverage.omegaBca));
+  assert.ok(html.includes(`omega's BCa interval held ${Math.min(...om)} to ${Math.max(...om)}%`));
+  const eq = COVERAGE.filter((c) => c.design !== "congeneric").flatMap((c) => [c.coverage.feldt, c.coverage.alphaBca, c.coverage.omegaBca]).map(pct);
+  assert.ok(html.includes(`about ${Math.min(...eq)} to ${Math.max(...eq)}% of the time`), `${Math.min(...eq)} to ${Math.max(...eq)}`);
 });
 
 test("usage events named on the page are the ones the code records", () => {

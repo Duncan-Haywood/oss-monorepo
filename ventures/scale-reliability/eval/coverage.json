@@ -3,68 +3,102 @@
   "design": "tau-equivalent",
   "n": 50,
   "k": 6,
-  "reps": 10,
-  "bootstrap": 200,
+  "reps": 300,
+  "bootstrap": 300,
   "reliability": 0.7714285714285715,
   "populationAlpha": 0.771428571428571,
-  "meanAlpha": 0.7615729325862626,
-  "meanOmega": 0.7706437844404987,
+  "meanAlpha": 0.7618427790133517,
+  "meanOmega": 0.769255910314823,
   "coverage": {
-   "feldt": 0.9,
-   "alphaBca": 1,
-   "omegaBca": 1,
-   "omegaPct": 1
+   "feldt": 0.9466666666666667,
+   "alphaBca": 0.9366666666666666,
+   "omegaBca": 0.9333333333333333,
+   "omegaPct": 0.9266666666666666
   }
  },
  {
   "design": "tau-equivalent",
   "n": 200,
   "k": 6,
-  "reps": 10,
-  "bootstrap": 200,
+  "reps": 300,
+  "bootstrap": 300,
   "reliability": 0.7714285714285715,
   "populationAlpha": 0.771428571428571,
-  "meanAlpha": 0.7600084282956958,
-  "meanOmega": 0.7616718409750816,
+  "meanAlpha": 0.7656564304175816,
+  "meanOmega": 0.7674254418612161,
   "coverage": {
-   "feldt": 1,
-   "alphaBca": 0.9,
-   "omegaBca": 0.9,
-   "omegaPct": 0.9
+   "feldt": 0.9233333333333333,
+   "alphaBca": 0.91,
+   "omegaBca": 0.9066666666666666,
+   "omegaPct": 0.9133333333333333
+  }
+ },
+ {
+  "design": "tau-equivalent",
+  "n": 1000,
+  "k": 6,
+  "reps": 300,
+  "bootstrap": 300,
+  "reliability": 0.7714285714285715,
+  "populationAlpha": 0.771428571428571,
+  "meanAlpha": 0.771150316934075,
+  "meanOmega": 0.771482542663446,
+  "coverage": {
+   "feldt": 0.9533333333333334,
+   "alphaBca": 0.9366666666666666,
+   "omegaBca": 0.9366666666666666,
+   "omegaPct": 0.9433333333333334
   }
  },
  {
   "design": "congeneric",
   "n": 50,
   "k": 6,
-  "reps": 10,
-  "bootstrap": 200,
-  "reliability": 0.7831762146482958,
-  "populationAlpha": 0.7649021029731689,
-  "meanAlpha": 0.7235665491989283,
-  "meanOmega": 0.7503223170227553,
+  "reps": 300,
+  "bootstrap": 300,
+  "reliability": 0.7708873056994819,
+  "populationAlpha": 0.733678756476684,
+  "meanAlpha": 0.7218984273190496,
+  "meanOmega": 0.7673896829594399,
   "coverage": {
-   "feldt": 0.9,
-   "alphaBca": 0.8,
-   "omegaBca": 0.9,
-   "omegaPct": 0.9
+   "feldt": 0.9333333333333333,
+   "alphaBca": 0.88,
+   "omegaBca": 0.9466666666666667,
+   "omegaPct": 0.9566666666666667
   }
  },
  {
   "design": "congeneric",
   "n": 200,
   "k": 6,
-  "reps": 10,
-  "bootstrap": 200,
-  "reliability": 0.7831762146482958,
-  "populationAlpha": 0.7649021029731689,
-  "meanAlpha": 0.7553462302481744,
-  "meanOmega": 0.778054295263118,
+  "reps": 300,
+  "bootstrap": 300,
+  "reliability": 0.7708873056994819,
+  "populationAlpha": 0.733678756476684,
+  "meanAlpha": 0.7314456964528506,
+  "meanOmega": 0.7697970229666181,
   "coverage": {
-   "feldt": 0.8,
-   "alphaBca": 0.9,
-   "omegaBca": 0.9,
-   "omegaPct": 0.9
+   "feldt": 0.73,
+   "alphaBca": 0.68,
+   "omegaBca": 0.9266666666666666,
+   "omegaPct": 0.9266666666666666
+  }
+ },
+ {
+  "design": "congeneric",
+  "n": 1000,
+  "k": 6,
+  "reps": 300,
+  "bootstrap": 300,
+  "reliability": 0.7708873056994819,
+  "populationAlpha": 0.733678756476684,
+  "meanAlpha": 0.7332283526621834,
+  "meanOmega": 0.7709270806435268,
+  "coverage": {
+   "feldt": 0.11333333333333333,
+   "alphaBca": 0.11333333333333333,
+   "omegaBca": 0.9433333333333334,
+   "omegaPct": 0.9333333333333333
   }
  }
 ]
