@@ -345,6 +345,11 @@ export function parseCiiInvoice(source) {
   if (payee) invoice.payee_party = payee;
   const representative = sideParty(firstChild(agreement, "SellerTaxRepresentativeTradeParty"));
   if (representative) invoice.tax_representative = representative;
+  // BG-13 deliver-to: ShipToTradeParty's ID and GlobalID (BT-71, the delivery
+  // location id) and any legal registration; Peppol's `ram:ID | ram:GlobalID`
+  // contexts match them as they do the seller's (added 2026-11-17).
+  const deliverTo = sideParty(firstChild(firstChild(transaction, "ApplicableHeaderTradeDelivery"), "ShipToTradeParty"));
+  if (deliverTo) invoice.delivery_party = deliverTo;
   const due = isoDate(nestedText(settlement, "SpecifiedTradePaymentTerms", "DueDateDateTime", "DateTimeString")
     || nestedText(settlement, "DueDateDateTime", "DateTimeString"));
   if (due) invoice.due_date = due;

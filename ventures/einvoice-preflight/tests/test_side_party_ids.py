@@ -54,5 +54,32 @@ class SidePartyIds(unittest.TestCase):
         self.assertEqual(id_rules(check_invoice(invoice)), [("INV-062", "/payee_party/party_ids/0/id")])
 
 
+    def test_ubl_delivery_party(self):
+        xml = (ROOT / "examples" / "peppol-credit-note.xml").read_text(encoding="utf-8")
+        self.assertNotIn("delivery_party", parse_ubl_invoice(xml))
+        xml = xml.replace(
+            "</cac:AccountingCustomerParty>",
+            "</cac:AccountingCustomerParty>"
+            '<cac:Delivery><cac:DeliveryLocation><cbc:ID schemeID="0088">4012345000008</cbc:ID></cac:DeliveryLocation>'
+            '<cac:DeliveryParty><cac:PartyIdentification><cbc:ID schemeID="0088">4012345000008</cbc:ID></cac:PartyIdentification>'
+            '<cac:PartyName><cbc:Name>Warehouse 3</cbc:Name></cac:PartyName>'
+            '<cac:PartyLegalEntity><cbc:CompanyID schemeID="0007">5560360793</cbc:CompanyID></cac:PartyLegalEntity></cac:DeliveryParty></cac:Delivery>',
+        )
+        invoice = parse_ubl_invoice(xml)
+        self.assertEqual(invoice["delivery_party"], {"legal_id": {"id": "5560360793", "scheme": "0007"}, "party_ids": [{"id": "4012345000008", "scheme": "0088"}]})
+        self.assertEqual(id_rules(check_invoice(invoice)), [("INV-062", "/delivery_party/party_ids/0/id")])
+
+    def test_cii_ship_to_party(self):
+        xml = (ROOT / "examples" / "cii-invoice.xml").read_text(encoding="utf-8").replace(
+            "<ram:ApplicableHeaderTradeDelivery/>",
+            '<ram:ApplicableHeaderTradeDelivery><ram:ShipToTradeParty><ram:ID schemeID="0088">4012345000009</ram:ID>'
+            '<ram:Name>Warehouse 3</ram:Name><ram:SpecifiedLegalOrganization><ram:ID schemeID="0007">5560360794</ram:ID>'
+            "</ram:SpecifiedLegalOrganization></ram:ShipToTradeParty></ram:ApplicableHeaderTradeDelivery>",
+        )
+        invoice = parse_cii_invoice(xml)
+        self.assertEqual(invoice["delivery_party"], {"legal_id": {"id": "5560360794", "scheme": "0007"}, "party_ids": [{"id": "4012345000009", "scheme": "0088"}]})
+        self.assertEqual(id_rules(check_invoice(invoice)), [("INV-062", "/delivery_party/legal_id/id")])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -304,6 +304,19 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
             side["party_ids"] = ids
         if side:
             invoice[key] = side
+    # cac:Delivery/cac:DeliveryParty: Peppol's PartyIdentification/ID and
+    # CompanyID contexts reach its ids too (ubl.mjs).
+    deliver_to: dict[str, Any] = {}
+    for delivery in (child for child in root if child.tag.rsplit("}", 1)[-1] == "Delivery"):
+        for node in (child for child in delivery if child.tag.rsplit("}", 1)[-1] == "DeliveryParty"):
+            legal = _legal_id(node)
+            if legal and "legal_id" not in deliver_to:
+                deliver_to["legal_id"] = legal
+            ids = _party_ids(node)
+            if ids:
+                deliver_to["party_ids"] = deliver_to.get("party_ids", []) + ids
+    if deliver_to:
+        invoice["delivery_party"] = deliver_to
     payment = _payee_payment(root)
     terms_days = _payment_terms_days(root)
     if terms_days:

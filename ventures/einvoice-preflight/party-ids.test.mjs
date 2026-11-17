@@ -113,3 +113,34 @@ test("the payee and tax representative ids are read from CII too, and valid ones
   assert.deepEqual(idRules(checkInvoice(invoice)), [["INV-062", "/payee_party/party_ids/0/id", "error"]]);
   assert.equal(parseCiiInvoice(CII).payee_party, undefined);
 });
+
+test("the deliver-to party's ids meet the same Peppol rules (UBL DeliveryParty), DeliveryLocation's id does not", () => {
+  const xml = UBL.replace("</cac:AccountingCustomerParty>", '$&'
+    + '<cac:Delivery><cac:DeliveryLocation><cbc:ID schemeID="0088">4012345000008</cbc:ID></cac:DeliveryLocation>'
+    + '<cac:DeliveryParty><cac:PartyIdentification><cbc:ID schemeID="0088">4012345000008</cbc:ID></cac:PartyIdentification>'
+    + '<cac:PartyIdentification><cbc:ID schemeID="0088">4012345000009</cbc:ID></cac:PartyIdentification>'
+    + '<cac:PartyName><cbc:Name>Warehouse 3</cbc:Name></cac:PartyName>'
+    + '<cac:PartyLegalEntity><cbc:CompanyID schemeID="0106">1234567</cbc:CompanyID></cac:PartyLegalEntity></cac:DeliveryParty></cac:Delivery>');
+  const invoice = parseUblInvoice(xml);
+  assert.deepEqual(invoice.delivery_party, {
+    legal_id: { id: "1234567", scheme: "0106" },
+    party_ids: [{ id: "4012345000008", scheme: "0088" }, { id: "4012345000009", scheme: "0088" }],
+  });
+  const findings = checkInvoice(invoice);
+  assert.deepEqual(idRules(findings), [
+    ["INV-063", "/delivery_party/legal_id/id", "warning"],
+    ["INV-062", "/delivery_party/party_ids/0/id", "error"],
+  ]);
+  assert.match(findings.find((f) => f.path === "/delivery_party/party_ids/0/id").message, /^Deliver-to party /);
+  assert.equal(parseUblInvoice(UBL).delivery_party, undefined);
+});
+
+test("the deliver-to party's ids are read from CII ShipToTradeParty (BT-71's ID and GlobalID)", () => {
+  const xml = CII.replace("<ram:ApplicableHeaderTradeDelivery/>",
+    '<ram:ApplicableHeaderTradeDelivery><ram:ShipToTradeParty><ram:ID schemeID="0088">4012345000008</ram:ID>'
+    + '<ram:GlobalID schemeID="0088">4012345000009</ram:GlobalID><ram:Name>Warehouse 3</ram:Name></ram:ShipToTradeParty></ram:ApplicableHeaderTradeDelivery>');
+  const invoice = parseCiiInvoice(xml);
+  assert.deepEqual(invoice.delivery_party, { party_ids: [{ id: "4012345000008", scheme: "0088" }, { id: "4012345000009", scheme: "0088" }] });
+  assert.deepEqual(idRules(checkInvoice(invoice)), [["INV-062", "/delivery_party/party_ids/0/id", "error"]]);
+  assert.equal(parseCiiInvoice(CII).delivery_party, undefined);
+});
