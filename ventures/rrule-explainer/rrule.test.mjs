@@ -317,6 +317,47 @@ test("a UTC UNTIL ends a zoned sub-daily rule on the right second, far from and 
   assert.ok(Date.now() - t0 < 10000, `${Date.now() - t0} ms`);
 });
 
+// Red-team gaps, 2026-11-17 (second run): each assertion fails on a mutant
+// the suite let through (rrule.mjs RANGES.BYMINUTE signed, describe's six-time cap).
+test("BYMINUTE takes no sign: -5 is an error, not minute 55", () => {
+  assert.ok(parseRule("FREQ=DAILY;BYMINUTE=-5").findings.some((f) => f.code === "bad-value"));
+  assert.ok(!parseRule("FREQ=DAILY;BYMINUTE=5").findings.some((f) => f.code === "bad-value"));
+});
+
+test("describe lists up to six clock times, and falls back to hours past that", () => {
+  const p = parseInput("DTSTART:20260105T090000");
+  assert.match(describe(parseRule("FREQ=DAILY;BYHOUR=1,2,3,4,5,6").rule, p.dtstart), /^Every day at 01:00, 02:00, 03:00, 04:00, 05:00 and 06:00 /);
+  assert.match(describe(parseRule("FREQ=DAILY;BYHOUR=1,2,3,4,5,6,7").rule, p.dtstart), /^Every day in hours 1, 2, 3, 4, 5, 6 and 7 /);
+});
+
+// Red-team defect, 2026-11-17: a gap longer than the old 3-hour look-back
+// (Samoa skipped all of 30 Dec 2011) took the offset after the gap, so a
+// daily 12:00 rule put 30 Dec on the same instant as 29 Dec. RFC 5545 3.3.5:
+// a skipped wall time takes the offset in force before the gap.
+test("a whole skipped day takes the offset before the gap (Pacific/Apia, 30 Dec 2011)", () => {
+  for (const sec of [0, 9 * 3600, 12 * 3600, 23.5 * 3600]) {
+    const g = wallToInstant(dayNumber(2011, 12, 30), sec, "Pacific/Apia");
+    assert.equal(g.kind, "gap", String(sec));
+    assert.equal(g.offset, -10 * 3600, String(sec));
+  }
+  const r = analyze({ text: "DTSTART;TZID=Pacific/Apia:20111228T120000\nRRULE:FREQ=DAILY;COUNT=5" });
+  const utc = r.occurrences.map((o) => o.utc);
+  assert.equal(utc[2], "2011-12-30T22:00:00Z");
+  for (let i = 1; i < utc.length; i++) assert.ok(utc[i] >= utc[i - 1], `UTC goes backwards at ${r.occurrences[i].date}`);
+  // Short gaps are unchanged: New York's skipped 02:30 and Lord Howe's half-hour.
+  assert.equal(wallToInstant(dayNumber(2026, 3, 8), 2.5 * 3600, "America/New_York").offset, -5 * 3600);
+  assert.equal(wallToInstant(dayNumber(2026, 10, 4), 2.25 * 3600, "Australia/Lord_Howe").offset, 10.5 * 3600);
+});
+
+// Red-team gap, 2026-11-17: the look-back before a wall time must reach past
+// the zone's own offset. With a 12-hour look-back a zone at +14:00 read the
+// later offset only, so Apia's repeated 03:30 lost its earlier (first) reading.
+test("a repeated hour in a zone more than 12 h ahead of UTC is still an overlap (Pacific/Apia, 4 Apr 2021)", () => {
+  const ov = wallToInstant(dayNumber(2021, 4, 4), 3.5 * 3600, "Pacific/Apia");
+  assert.equal(ov.kind, "overlap");
+  assert.equal(ov.offset, 14 * 3600);
+});
+
 // red team 2026-11-17: the short-month warning is about MONTHLY/YEARLY periods only; a DAILY or WEEKLY
 // rule that filters to the 31st is asking for exactly those days, and "years where January has no 31st"
 // would be wrong for it.
