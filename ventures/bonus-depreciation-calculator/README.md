@@ -46,9 +46,11 @@ WCG's "Section 179 or Bonus Depreciation":
   179 election, or electing out of bonus depreciation entirely, to avoid
   creating a large NOL and instead preserve depreciation for a future,
   higher-income year.
-- **Property used 50% or less for business does not qualify for either
-  accelerated method** — it must use the slower, straight-line Alternative
-  Depreciation System (ADS) instead.
+- **Section 179 needs more than 50% business use** (IRS Pub. 946, ch. 2).
+  For listed property such as a passenger vehicle, 50% or less business use
+  also rules out bonus depreciation and requires the slower, straight-line
+  Alternative Depreciation System (ADS) (IRC 280F(b)(1)); other property
+  keeps bonus depreciation on its business-use share.
 
 ## Try it
 
