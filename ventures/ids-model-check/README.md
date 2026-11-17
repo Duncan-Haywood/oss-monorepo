@@ -356,6 +356,19 @@ with a 2 GB heap it finishes, before and after this change.
    `infra.test.mjs` pins the counts on three committed models
    (`samples/bsi-ifc43/`, CC BY 4.0).
 
+   Public IDS files on real exports (2026-11-17,
+   `eval/corpus-crosscheck-2026-11-17.md`): the 65 public IDS files on the four
+   `opensourceBIM/IFC-files` exports. IfcTester 0.9.0 could not open 12 of
+   them; on the other 53, 1,661 of 1,736 specification results identical. All
+   75 differences have one of three causes: IfcTester takes an IFC2X3
+   `IfcWallStandardCase` typed by an `IfcWallType` as `IFCWALL` (50; IDS has no
+   inheritance, so this checker does not), a prohibited specification with
+   requirements, which buildingSMART's suite calls invalid (16), and an untyped
+   `True` on a boolean (9; the audit warns). The run found that on the HHS
+   models, whose 112 standard-case walls have no type object, *both* checkers
+   skip them, so the report now counts what an entity facet leaves out (below,
+   "Entity facet").
+
 3. **The IDS audit** (`audit.mjs`, 2026-11-16). The same script prints a
    strict score: an `invalid-*` pair must come back INVALID (not merely not
    passing), and a `pass-*` or `fail-*` pair must come back exactly pass or
@@ -492,7 +505,11 @@ faster than IfcTester; its point is needing no install.
 
 ## Model notes and choices
 
-- **Entity facet:** exact class, no subclasses; the predefined type is read from
+- **Entity facet:** exact class, no subclasses (the report counts, per
+  specification, the elements of subclasses the facet does not name that would
+  otherwise apply, e.g. "not checked: 101 IFCWALLSTANDARDCASE (a subclass of
+  IFCWALL)", without changing the verdict; a prohibited specification made
+  invalid by its requirements says how many elements match it); the predefined type is read from
   the type object first (`ElementType`/`ProcessType`/`ResourceType` when
   USERDEFINED), then the occurrence (`ObjectType` when USERDEFINED). An IDS may
   also name `USERDEFINED` itself.
@@ -553,7 +570,7 @@ faster than IfcTester; its point is needing no install.
   set templates are checked for names, data types and applicable classes, not
   for predefined types (`IfcSlab/TRACKSLAB` sets are allowed on any slab) or
   property set template types (occurrence versus type driven).
-- Tested on five real models; every BIM authoring tool writes IFC a little
+- Tested on five real models (and 65 public IDS files on four of them); every BIM authoring tool writes IFC a little
   differently, so check surprising results and report them.
 
 ## Next steps
