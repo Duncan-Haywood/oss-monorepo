@@ -35,6 +35,7 @@ zero dependencies, one JSON file on a disk you own.
 - **Labor budget from a script (2026-11-08):** `node cli.mjs --budget 2400 staff.txt shifts.txt` compares payroll with a weekly dollar budget and, when over, lists the drops (from `trimOptions`) that close the gap, safe ones first; tested in `cli.test.mjs` on a hand-built week and the sample week.
 - **Time clock and timesheets (2026-11-15, on unless `TIME_CLOCK=0`):** staff clock in and out on the team page (the server's clock, shown in your `TIMEZONE`); `/admin/timesheet` shows hours worked beside the published week, flags late starts, early finishes, time past the shift's end, shifts with no punch and missing clock-outs, lets you add a missed punch (marked as yours) and downloads a CSV for payroll. Since 2026-11-16, optional per-person clock PINs and an optional site geofence (section "Clock PINs and a site geofence"); without them it is an honour system. Also since 2026-11-16, paid sick leave (or PTO) earned per hour worked at the rate and caps you set, off until `LEAVE_ACCRUAL` is set (section "Paid sick leave from the time clock"). Details in "Time clock and timesheets" below.
 - **Oregon's voluntary standby list (2026-11-16, with `FAIR_WORKWEEK=oregon`):** staff join it in writing on their page and leave any time; a call-out can be offered to the list first, and the hours someone on it accepts owe no predictability pay (ORS 653.432). The Oregon preset was checked against the statute's text: start or end changes of 30 minutes or less are free, a separate added shift always owes the hour. Section "Oregon's voluntary standby list" below.
+- **Your payroll service's own template, filled (2026-11-17, with the time clock on):** `/admin/payroll` takes the blank hours-import template from your payroll service (choose the file or paste its first row, once), matches each column by its name to the regular, 1.5x and 2x hours, leave hours, payroll ID, name, rate, gross or week dates, and each week downloads the same columns in the same order filled from the timesheet. Section "Fill your payroll service's template" below.
 - **Schedule changes and notice pay (2026-11-16, the log always on, pricing off until `FAIR_WORKWEEK` is set):** every change to a posted week is logged with the moment it was made and who asked for it (a week published again, an approved trade or pick-up, a call-out given to someone); `/admin/changes` prices each under Seattle's, Oregon's, Chicago's, Philadelphia's, Los Angeles's, New York City's, San Francisco's, Emeryville's or Berkeley's predictive-scheduling numbers (or your own), flags shifts posted under 14 days ahead and short rests, and downloads a CSV. Section "Schedule changes and fair-workweek pay" below.
 - **Overtime, meal periods and rounding (2026-11-15 later, `PAY_RULES`):** the timesheet turns punches into regular, 1.5x and 2x hours under federal, California, Alaska or Colorado rules, flags California meal breaks that came late or not at all (with the extra hour owed), rounds punches to 5, 6 or 15 minutes if you ask (never under California rules) and estimates gross pay at each person's wage. Since 2026-11-15 also Nevada (daily overtime by the 24-hour workday for staff under 1.5x the minimum wage) and meal-period flags for 13 more states (section "Nevada, and meal periods in 13 more states").
 - **Call-outs from a script (2026-11-07):** `node cli.mjs --cover "Tue 17:00" --json staff.txt shifts.txt` prints who can take the shift outright, who is blocked and why, and the hand-over chains as JSON (tested in `cli.test.mjs`).
@@ -89,6 +90,36 @@ has one, on the Node server and the free Cloudflare Worker alike (`timeclock.mjs
   4.40.0 `wrangler dev`, 2026-11-15, `TIMEZONE=America/Chicago`): a week published from a browser-built owner array, a
   clock-in shown as 09:01 Chicago time, the second clock-in refused, a clock-out, and the CSV and timesheet page served.
   Not claimed: no real team has used it, and it has not run on a live Cloudflare account.
+
+## Fill your payroll service's template (2026-11-17)
+
+The timesheet CSV is this tool's own layout, so every week a manager still copied its numbers into the hours-import
+file their payroll service wants: one more retyping step, and the one where overtime gets put in the wrong column.
+Each payroll service imports hours from a spreadsheet with its own columns, and their layouts change, so the hub does
+not ship a guessed layout per provider. The manager gives it the provider's blank template instead, and the template
+says what is wanted.
+
+- **Once:** on `/admin/payroll`, choose the blank template file (only its first row is read, in the browser) or paste
+  that row; add payroll IDs as `Name = ID` lines (leading zeros kept); save. Comma, tab and semicolon templates are
+  read, and the download keeps the template's separator.
+- **Matching:** each column name is normalised (case, punctuation, `#` read as "number") and matched to a field by
+  spelling (`Employee ID`, `File #`, `Reg Hours`, `O/T Hours`, `Double Time Hours`, `Sick Hours`, `PTO`, `Pay Rate`,
+  `Pay Period End` and so on, `payroll-export.mjs` `FIELDS`), then by a whole-word match inside a longer name, most
+  specific first (`Double Time 2x` is double time, not overtime). A generic word alone never makes a guess, and a
+  column named as a code, type or department is never guessed (`Hours 3 Code` and `Hours 3 Amount` stay empty). The
+  page shows how each column was filled, marks guesses, and lists the columns left empty.
+- **Fixes:** a `Column = field` line picks the field for a column, `Column = blank` empties it, and `Column = "value"`
+  puts the same value on every row (a company code or batch number).
+- **Numbers:** regular, overtime and double-time hours are the PAY_RULES estimate the timesheet page shows; leave hours
+  are the uses recorded on the leave page with a date inside the week; rate and gross come from the staff list's
+  wages. Zero hours are left empty unless the box is ticked. People still on the clock or with an unpaired punch are
+  named, because their open stretch is not counted.
+- **Warnings:** someone with overtime, double time or leave and no column for it; no column naming the employee; a
+  template column for IDs with people missing one; no hours column at all (an employee-import template by mistake).
+- **What was checked:** `payroll-export.test.mjs` fills hand-built templates (comma, tab; quoted names; a formula typed
+  as a name is defused) and runs the hub from saving a template to downloading a week from real punches. The column
+  spellings in the tests are ones seen in published hours-import layouts; no file has been uploaded to a real Gusto,
+  ADP, Paychex or QuickBooks account, so check the provider's import preview before you submit payroll.
 
 ## Overtime, meal periods and rounding (2026-11-15 later)
 
