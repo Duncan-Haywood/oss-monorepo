@@ -21,7 +21,7 @@
 // opt-out.
 
 import { verificationHead } from './site-verification.mjs';
-import { promises as fs, existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { promises as fs, existsSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { execFileSync, spawn } from 'node:child_process';
 import { loadLastChanged } from './lastmod.mjs';
 import { generateVenturePages } from './generated-pages.mjs';
@@ -5876,7 +5876,58 @@ export function copiesDir(name) {
   return !name.startsWith('.') || PUBLISHABLE_DOT_DIRS.has(name);
 }
 
-export async function copyTree(from, to, baseUrl) {
+/**
+ * Git-ignored, untracked paths under `dir` that a fresh checkout does not
+ * have, as absolute paths (a directory without its trailing `/`).
+ *
+ * The published site is built in CI from a fresh checkout, so a file git
+ * ignores (a fetched eval corpus, a cargo `target/`, a dataset download) is
+ * never in it. A local build copied them all the same, and `check.mjs` then
+ * failed on types like `.csproj` or `.ids` that CI never sees: four sessions
+ * on 2026-11-16/17 lost a local `run_workflow_locally.py` round to
+ * ids-model-check's eval/corpus and csshound's target/. Leaving them out makes
+ * the local artifact the one CI builds.
+ *
+ * `checkIgnoreOutput` is `git check-ignore -v --no-index --stdin` over
+ * `git ls-files --others --ignored --exclude-standard --directory`, both run
+ * at the repository root: lines `source:line:pattern<TAB>path`. A root
+ * `.gitignore` rule that names a `ventures/` path is a build output CI makes
+ * too (einvoice-preflight/browser/), so those stay, the same rule
+ * venture-preflight.mjs applies. Taken before the build generates anything,
+ * so what the build itself writes is copied as before.
+ */
+export function parseLocalOnly(checkIgnoreOutput, repoRoot) {
+  const paths = new Set();
+  for (const line of (checkIgnoreOutput || '').split('\n')) {
+    const tab = line.indexOf('\t');
+    if (tab < 0) continue;
+    const [source, , ...pattern] = line.slice(0, tab).split(':');
+    if (source === '.gitignore' && pattern.join(':').includes('ventures/')) continue;
+    const rel = line.slice(tab + 1).trim().replace(/\/$/, '');
+    if (rel) paths.add(path.join(repoRoot, rel));
+  }
+  return paths;
+}
+
+/** `parseLocalOnly` for the working tree holding `dir`; empty outside git or with PAGES_KEEP_IGNORED=1. */
+export function localOnlyPaths(dir) {
+  if (process.env.PAGES_KEEP_IGNORED === '1') return new Set();
+  try {
+    const git = (cwd, args, input = '') => execFileSync('git', args, {
+      cwd, encoding: 'utf8', input, maxBuffer: 1 << 26, stdio: ['pipe', 'pipe', 'ignore'],
+    });
+    const top = git(dir, ['rev-parse', '--show-toplevel']).trim();
+    const rel = path.relative(top, path.resolve(dir)) || '.';
+    const listed = git(top, ['ls-files', '--others', '--ignored', '--exclude-standard', '--directory', '--', rel]);
+    if (!listed.trim()) return new Set();
+    // Every listed path matches a rule, so check-ignore exits 0 here.
+    return parseLocalOnly(git(top, ['check-ignore', '-v', '--no-index', '--stdin'], listed), top);
+  } catch {
+    return new Set();
+  }
+}
+
+export async function copyTree(from, to, baseUrl, skip = null) {
   await fs.mkdir(to, { recursive: true });
   const entries = await fs.readdir(from, { withFileTypes: true });
   const copied = [];
@@ -5884,10 +5935,11 @@ export async function copyTree(from, to, baseUrl) {
   for (const entry of entries) {
     const src = path.join(from, entry.name);
     const dest = path.join(to, entry.name);
+    if (skip?.has(src)) continue;
 
     if (entry.isDirectory()) {
       if (!copiesDir(entry.name)) continue;
-      const nested = await copyTree(src, dest, baseUrl);
+      const nested = await copyTree(src, dest, baseUrl, skip);
       // A directory that held only CLI source leaves an empty shell behind.
       if (nested.length === 0) await fs.rm(dest, { recursive: true, force: true });
       copied.push(...nested);
@@ -12673,7 +12725,18 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   pending.research = researchBuild;
   researchBuild.catch(() => {});
 
+  // Listed before the generators run, and anything they rewrite is kept:
+  // only what was already on disk, and not the build's own output, is skipped.
+  const localOnly = localOnlyPaths(venturesDir);
+  const generatedFrom = Date.now() - 1000;
   generateVenturePages(venturesDir);
+  for (const p of localOnly) {
+    try { if (statSync(p).mtimeMs >= generatedFrom) localOnly.delete(p); } catch { localOnly.delete(p); }
+  }
+  if (localOnly.size) {
+    const shown = [...localOnly].slice(0, 3).map((p) => path.relative(REPO_ROOT, p)).join(', ');
+    log(`Left out ${localOnly.size} git-ignored local-only path(s) a fresh checkout lacks (${shown}${localOnly.size > 3 ? ', ...' : ''}); PAGES_KEEP_IGNORED=1 keeps them.`);
+  }
   const discovered = onlySurfaces(await discoverSurfaces(venturesDir), only);
   const launched = await loadLaunchDates();
   const surfaces = [];
@@ -12709,7 +12772,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // `docs/history/pages-build-perf-2026-11-11-parallel-copy.md`). Pass 2 below
   // runs its link repairs to completion before it writes any file another
   // surface could link to (see there).
-  await mapLimit(discovered, 16, (surface) => copyTree(surface.sourceDir, path.join(outDir, surface.slug), base));
+  await mapLimit(discovered, 16, (surface) => copyTree(surface.sourceDir, path.join(outDir, surface.slug), base, localOnly));
 
   // A handful of ventures (currently: ai-engineering-academy, tender-radar,
   // quote-margin-check, shopify-permission-drift, mcp-supply-chain-watch,
