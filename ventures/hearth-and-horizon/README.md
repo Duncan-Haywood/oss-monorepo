@@ -544,6 +544,7 @@ node --test                             # tests (also fail if output is stale)
 python3 render_audio.py <slug>         # then node generate.mjs
 python3 make_covers.py                  # redraw the podcast covers
 python3 shelf_stats.py                  # compare the two science fiction shelves (counts behind the 2026-10-24 blog post)
+node overlap.mjs --unused                # unused subjects from subjects.txt, for a new Next up proposal
 ```
 
 Choosing which creative project a run writes for? `python3
