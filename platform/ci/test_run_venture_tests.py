@@ -286,7 +286,7 @@ class Selection(unittest.TestCase):
         # 2026-11-11: CalledProcessError).
         with self.assertRaises(SystemExit) as cm:
             rvt.changed_slugs("refs/no/such-ref")
-        self.assertIn("git fetch --depth=40 origin main", str(cm.exception))
+        self.assertIn("fetch_ref.py main", str(cm.exception))
 
     def test_an_all_zero_base_means_every_venture(self):
         # A push that creates a branch reports `before` as forty zeros.

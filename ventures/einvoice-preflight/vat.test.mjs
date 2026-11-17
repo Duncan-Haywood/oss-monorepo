@@ -81,6 +81,15 @@ test("NL elfproef weighs the check digit at -1, not +1", () => {
   // example the Dutch tax authority format uses.
 });
 
+test("NL btw-id issued since 2020 passes on mod 97-10, not only the elfproef", () => {
+  // python-stdnum nl.btw's own example: a sole trader's number with no BSN in it.
+  assert.deepEqual(inspectPartyVat({ id: "S1", name: "A", vat_id: "NL002455799B11" }, "supplier"), []);
+  // One suffix digit off fails both checks.
+  assert.deepEqual(inspectPartyVat({ id: "S1", name: "A", vat_id: "NL002455799B12" }, "supplier").map((f) => f.rule), ["INV-023"]);
+  // A suffix of 00 is never issued, although it passes the elfproef.
+  assert.deepEqual(inspectPartyVat({ id: "S1", name: "A", vat_id: "NL123456782B00" }, "supplier").map((f) => f.rule), ["INV-023"]);
+});
+
 test("IE legacy letter-second-character shape rearranges before weighing", () => {
   // The 8-character Irish shape covers two different real numbers: the
   // common one is 7 digits plus a check letter (already covered by

@@ -301,6 +301,22 @@ function inspectOneIdentifier(entry, label, what, path) {
   return [];
 }
 
+// CII line ids (added 2026-11-17): Peppol's `ram:ID | ram:GlobalID | ram:URIID`
+// contexts name no parent, so an item's standard identifier (BT-157,
+// SpecifiedTradeProduct/GlobalID) filed under a COMMON scheme, typically a
+// GTIN under 0088 instead of 0160, meets the GLN rule (R040, a mod-10 test), so
+// a mistyped check digit bounces; INV-062 also keeps its 13-digit GLN length
+// test here, stricter than Peppol as on every 0088 id. cii.mjs keeps every schemed id in a line as `scheme_ids`; schemes
+// with no Peppol rule (0160 GTIN, VA...) are left alone here.
+export function inspectLineSchemedIds(line, index) {
+  if (!line || typeof line !== "object" || !Array.isArray(line.scheme_ids)) return [];
+  const findings = [];
+  line.scheme_ids.forEach((entry, j) => {
+    findings.push(...inspectOneIdentifier(entry, `Line ${index + 1}`, "identifier", `/lines/${index}/scheme_ids/${j}`));
+  });
+  return findings;
+}
+
 export function inspectPartyIdentifiers(party, partyName, label = partyName.charAt(0).toUpperCase() + partyName.slice(1)) {
   if (!party || typeof party !== "object" || Array.isArray(party)) return [];
   const findings = [];

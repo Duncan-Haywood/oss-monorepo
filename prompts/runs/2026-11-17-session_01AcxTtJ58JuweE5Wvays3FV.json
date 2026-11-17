@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtJ58JuweE5Wvays3FV",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T15:06:23Z",
+  "ended": "2026-11-17T15:22:47Z",
+  "wall_minutes": 19.61,
+  "tokens_in": 9389319,
+  "tokens_out": 30985,
+  "cost_usd": 3.518,
+  "tool_calls": 72,
+  "task": "Deepen (flagship 7) photo-editing: BUILDABLE HERE 'next: the auto fallback' for --demosaic noise-aware",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16974",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First real-raw run at 4 processes in parallel: a worker was OOM-killed (signal 9) on 36 MP frames and xargs stopped after 6 rows",
+      "fix": "Reran 2 at a time with a per-file wrapper; peak memory added to each row and reported as a finding (up to 6.4 GB on 36 MP)"
+    },
+    {
+      "what": "Raws read directly have no colour matrix, so develop() refuses them without a .dcp",
+      "fix": "The check tool injects the sRGB XYZ->RGB matrix as a stand-in (colour only; demosaic and noise reading unaffected), stated in the eval note"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says PY=$(python3 platform/ci/pyenv.py pytest numpy) finds an interpreter; here it printed /usr/bin/python3.13 while bare python3 lacked numpy, so the first tool run failed until python3.13 was used explicitly"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The default demosaic (auto) was not switched to noise-aware even though held-out quality allows it: the real-frame check showed 5.8x directional's time and up to 6.4 GB on 36 MP",
+      "did": "Made frame noise the default only inside --demosaic noise-aware (the flagship item), left auto as directional, and recorded cost-cutting as the next item",
+      "result": "Shipped; no behaviour change for users who do not ask for noise-aware"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-photo-editing-noise-aware-default-fallback.md",
+    "ventures/photo-editing/eval/noise-fallback-real-2026-11-17.md"
+  ],
+  "goal": "Deepen the photo-editing flagship",
+  "notes": "Verification: python3.13 platform/ci/run_venture_tests.py photo-editing -> ok (182.8s, 1292 tests, 9 skipped), 0 failed. tests/test_demosaic_noise_aware.py 21 passed after the change. Real-frame check (tools/noise_fallback_real.py) on 60 public sample raws: 53 develop, all 52 without a NoiseProfile used the frame model, 0 fell back; Nexus 5X DNG kept its profile. Post front-matter, links and similarity checks clean. No separate docs/reports agent doc: the eval note and NEXT.md carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1a363c0c-4fef-5f73-9ff8-6438e4e3158b",
+    "transcripts": 1,
+    "first": "2026-11-17T15:06:23Z",
+    "last": "2026-11-17T15:26:00Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 77,
+        "input": 158,
+        "output": 30985,
+        "thinking": 4628,
+        "cache_read": 9258407,
+        "cache_write_5m": 0,
+        "cache_write_1h": 130754,
+        "api_equivalent_usd": 3.518,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 77,
+      "input": 158,
+      "output": 30985,
+      "thinking": 4628,
+      "cache_read": 9258407,
+      "cache_write_5m": 0,
+      "cache_write_1h": 130754,
+      "api_equivalent_usd": 3.518,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 72,
+    "tools": {
+      "Bash": 64,
+      "Write": 3,
+      "ToolSearch": 2,
+      "Monitor": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.61,
+      "active_minutes": 11.62,
+      "model_minutes": 6.22,
+      "tool_minutes": 5.39,
+      "waiting_on_human_minutes": 7.99,
+      "human_prompts": 7,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer wiring the default, writing a whole-frame check across 9 raw readers, running and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 170.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { compare, normalizeOptions, parseSites, parseSeasons, audit, summarizeCompare, summarizeAudit, money, DEFAULT_SITES_CSV, MODELS } from "./engine.mjs";
+import { compare, normalizeOptions, parseSites, parseSeasons, audit, summarizeCompare, summarizeAudit, money, DEFAULT_SITES_CSV, MODELS, YEARS } from "./engine.mjs";
 
 const close = (a, b, e = 1e-9) => assert.ok(Math.abs(a - b) < e, `${a} vs ${b}`);
 const byId = (c, id) => c.models.find((m) => m.id === id);
@@ -157,4 +157,22 @@ test("parseSites and parseSeasons read a quoted $1,200 and refuse an unquoted on
   assert.equal(r.rows.length, 0);
   assert.match(r.errors[0], /^Line 1: .*thousands comma/);
   assert.match(parseSites("A,10,$1,200,0,0,2").errors[0], /thousands comma/);
+});
+
+// redteam 2026-11-17: the thousands-comma check reads the *next* field's
+// quoting, not the one after it. A quoted "200" after $1 is a separate value;
+// an unquoted 200 after $1 is the split amount even when a quoted field follows.
+test("the thousands-comma check looks at the quoting of the field right after the amount", () => {
+  const ok = parseSeasons('A,flat,$1,"200"');
+  assert.equal(ok.errors.length, 0, ok.errors.join("; "));
+  assert.match(parseSeasons('A,flat,$1,200,"40"').errors[0], /thousands comma/);
+});
+
+// redteam 2026-11-17: worstYear must be the lowest effective rate across years.
+test("worstYear is the minimum non-null effective rate over the years", () => {
+  const c = compare(parseSites(DEFAULT_SITES_CSV).sites, {});
+  for (const m of c.models) {
+    const vals = YEARS.map((y) => m.effective[y]).filter((v) => v !== null);
+    assert.equal(m.worstYear, vals.length ? Math.min(...vals) : null, m.id);
+  }
 });

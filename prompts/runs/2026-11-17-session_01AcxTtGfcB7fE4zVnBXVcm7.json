@@ -1,0 +1,261 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtGfcB7fE4zVnBXVcm7",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T15:07:30Z",
+  "ended": "2026-11-17T15:08:02Z",
+  "wall_minutes": 3.55,
+  "tokens_in": 2321545,
+  "tokens_out": 15104,
+  "cost_usd": 1.2706,
+  "tool_calls": 31,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16976",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 lists 11 open entries, every one a control-plane fix waiting for owner approval; a run cannot act on any of them, so reading the list cost time with no possible action. redteam.py open could mark control-plane entries as blocked-on-owner."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 says fix open defects first; all 11 are control-plane (workflows, prompts/) needing their own owner-approved PR.",
+      "did": "Left them open, seeded a fresh campaign.",
+      "result": "Run time went to two real statute defects instead."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-redteam-uk-residence-test-two-tie-thresholds.md"
+  ],
+  "goal": null,
+  "notes": "Target drawn at random: ventures/uk-statutory-residence-test-checker/calc.mjs. Hunted real bugs by checking every threshold against Sch 45 paras 5-14, 35, 37, 38 (legislation.gov.uk data.xml reachable via proxy). Guard added (4b): page.test.mjs test that fails if index/ties-table copy says \"90 or more\" / \"more days than any other\" or calc.mjs comparisons drift; it failed on the pre-fix copy. Local: run_venture_tests.py uk-statutory-residence-test-checker 39 pass; new tie tests fail on the old calc.mjs.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/uk-statutory-residence-test-checker/calc.mjs",
+        "test": "node --test ventures/uk-statutory-residence-test-checker/**/*.test.mjs  (in .)",
+        "seed": 88345378,
+        "commit": "0a375bb7d",
+        "sites": 204,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/uk-statutory-residence-test-checker/calc.mjs",
+            "line": 11,
+            "col": 35,
+            "operator": "and-to-or",
+            "before": "return dt.getUTCFullYear() === y && dt.getUTCMonth() === m - 1 && dt.getUTCDate() === d ? Math.floor(t / MS_DAY) : null;",
+            "after": "return dt.getUTCFullYear() === y || dt.getUTCMonth() === m - 1 && dt.getUTCDate() === d ? Math.floor(t / MS_DAY) : null;",
+            "line_text": "  return dt.getUTCFullYear() === y && dt.getUTCMonth() === m - 1 && dt.getUTCDate() === d ? Math.floor(t / MS_DAY) : null;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-statutory-residence-test-checker/calc.mjs",
+            "line": 16,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "return m ? toDay(+m[1], +m[2], +m[3]) : null;",
+            "after": "return m ? toDay(+m[1], +m[3], +m[3]) : null;",
+            "line_text": "  return m ? toDay(+m[1], +m[2], +m[3]) : null;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-statutory-residence-test-checker/calc.mjs",
+            "line": 75,
+            "col": 79,
+            "operator": "lt-to-le",
+            "before": "return v === \"\" || v === null || v === undefined || !Number.isFinite(n) || n < 0 ? 0 : Math.floor(n);",
+            "after": "return v === \"\" || v === null || v === undefined || !Number.isFinite(n) || n <= 0 ? 0 : Math.floor(n);",
+            "line_text": "  return v === \"\" || v === null || v === undefined || !Number.isFinite(n) || n < 0 ? 0 : Math.floor(n);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "num(): n < 0 -> n <= 0 only changes n == 0, where both branches return 0 (Math.floor(0) is 0; -0 prints as 0 and compares equal in every threshold)."
+          },
+          {
+            "file": "ventures/uk-statutory-residence-test-checker/calc.mjs",
+            "line": 88,
+            "col": 20,
+            "operator": "and-to-or",
+            "before": "const o1 = leaver && days < 16;",
+            "after": "const o1 = leaver || days < 16;",
+            "line_text": "  const o1 = leaver && days < 16;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-statutory-residence-test-checker/calc.mjs",
+            "line": 149,
+            "col": 22,
+            "operator": "min-to-max",
+            "before": "const exceptional = Math.min(num(input.exceptional), 60);",
+            "after": "const exceptional = Math.max(num(input.exceptional), 60);",
+            "line_text": "  const exceptional = Math.min(num(input.exceptional), 60);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-statutory-residence-test-checker/calc.mjs",
+            "line": 170,
+            "col": 27,
+            "operator": "const-plus-one",
+            "before": "while (d > 0 && at(d - 1)) d -= 1;",
+            "after": "while (d > 0 && at(d - 2)) d -= 1;",
+            "line_text": "    while (d > 0 && at(d - 1)) d -= 1;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-statutory-residence-test-checker/calc.mjs",
+            "line": 179,
+            "col": 32,
+            "operator": "le-to-lt",
+            "before": "if (edge && edge.min - days <= 10 && edge.needed < t.needed + 1 && edge.needed <= t.count) notices.push(`${edge.min - days} more day(s) would move you into the ${edge.min}-${Number.isFinite(edge.max) ? edge.max : \"+\"} band, where ${edge.needed} tie(s) make you resident.`);",
+            "after": "if (edge && edge.min - days < 10 && edge.needed < t.needed + 1 && edge.needed <= t.count) notices.push(`${edge.min - days} more day(s) would move you into the ${edge.min}-${Number.isFinite(edge.max) ? edge.max : \"+\"} band, where ${edge.needed} tie(s) make you resident.`);",
+            "line_text": "    if (edge && edge.min - days <= 10 && edge.needed < t.needed + 1 && edge.needed <= t.count) notices.push(`${edge.min - days} more day(s) would move you into the ${edge.min}-${Number.isFinite(edge.max) ? edge.max : \"+\"} band, where ${edge.needed} tie(s) make you resident.`);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test pinned the 10-day window of the next-band notice; added near-edge tests at 100, 110, 111 and 115 days (leaver, one tie)."
+          },
+          {
+            "file": "ventures/uk-statutory-residence-test-checker/calc.mjs",
+            "line": 179,
+            "col": 38,
+            "operator": "and-to-or",
+            "before": "if (edge && edge.min - days <= 10 && edge.needed < t.needed + 1 && edge.needed <= t.count) notices.push(`${edge.min - days} more day(s) would move you into the ${edge.min}-${Number.isFinite(edge.max) ? edge.max : \"+\"} band, where ${edge.needed} tie(s) make you resident.`);",
+            "after": "if (edge && edge.min - days <= 10 || edge.needed < t.needed + 1 && edge.needed <= t.count) notices.push(`${edge.min - days} more day(s) would move you into the ${edge.min}-${Number.isFinite(edge.max) ? edge.max : \"+\"} band, where ${edge.needed} tie(s) make you resident.`);",
+            "line_text": "    if (edge && edge.min - days <= 10 && edge.needed < t.needed + 1 && edge.needed <= t.count) notices.push(`${edge.min - days} more day(s) would move you into the ${edge.min}-${Number.isFinite(edge.max) ? edge.max : \"+\"} band, where ${edge.needed} tie(s) make you resident.`);",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test pinned the 10-day window of the next-band notice; added near-edge tests at 100, 110, 111 and 115 days (leaver, one tie)."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/uk-statutory-residence-test-checker/calc.mjs",
+        "issue": "90-day tie counted at exactly 90 days (ctx.prev1 >= 90); Finance Act 2013 Sch 45 para 37 says more than 90 days. A leaver or arriver with exactly 90 days in an earlier year got a phantom tie, which can flip the verdict to resident (e.g. an arriver at 60 days with family, accommodation and work ties). An existing test (prev1: 90 -> resident) encoded the wrong rule; the ties-table page said \"90 or more\".",
+        "patched": true
+      },
+      {
+        "file": "ventures/uk-statutory-residence-test-checker/calc.mjs",
+        "issue": "Country tie needed strictly more UK days than any other country (days > mostElsewhere); Sch 45 para 38(2) gives the tie when the UK draws for the greatest number of midnights. A leaver at a draw lost a tie and could be told not resident. An existing test asserted the wrong rule; the page and ties-table copy said \"more ... than\".",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "002be79a-835c-58b0-9f01-1456c2cec3f9",
+    "transcripts": 1,
+    "first": "2026-11-17T15:07:30Z",
+    "last": "2026-11-17T15:11:03Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 31,
+        "input": 62,
+        "output": 15104,
+        "thinking": 3492,
+        "cache_read": 2256873,
+        "cache_write_5m": 0,
+        "cache_write_1h": 64610,
+        "api_equivalent_usd": 1.2706,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 31,
+      "input": 62,
+      "output": 15104,
+      "thinking": 3492,
+      "cache_read": 2256873,
+      "cache_write_5m": 0,
+      "cache_write_1h": 64610,
+      "api_equivalent_usd": 1.2706,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 31,
+    "tools": {
+      "Bash": 29,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.55,
+      "active_minutes": 3.55,
+      "model_minutes": 2.88,
+      "tool_minutes": 0.67,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

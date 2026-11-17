@@ -1,5 +1,5 @@
 {
- "about": "Wall seconds per venture test suite, from run_venture_tests.py --write-times. Times taken with `jobs` suites in parallel on `cpus` cores, so they are relative, not a single-suite benchmark.",
+ "about": "Wall seconds per venture test suite, from run_venture_tests.py --write-times. Times taken with `jobs` suites in parallel on `cpus` cores, so they are relative, not a single-suite benchmark. `seconds` maps slug to wall seconds, slowest first; `failed` lists suites that failed in that run. Read it with `run_venture_tests.py --times N`; time one suite's files alone with `suite_file_times.py <slug>`.",
  "taken": "2026-11-17T06:13Z",
  "commit": "1cdd63196",
  "cpus": 4,

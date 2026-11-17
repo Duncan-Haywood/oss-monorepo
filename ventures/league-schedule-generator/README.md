@@ -188,6 +188,48 @@ MIT licence, see `LICENSE`.
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
 
+## A shorter season with an even strength of schedule (2026-11-17)
+
+"Rounds to play" cuts a round robin short: 20 teams with a ten-week season play the first
+10 of 19 rounds. Those were the circle method's first rounds, and the circle method fixes
+one team (the last listed) and rotates the rest, so that team met **teams 1 to 10**. With
+the teams listed best first, as the pool-play and seeding boxes already ask, the bottom
+seed got the ten strongest opponents (mean opponent seed 5.5 where an even share is 10.0),
+and the gap grows with the league: 30 teams over 12 rounds were 8.5 seed places off.
+
+Tick **"Shorter season: even out strength of schedule"** (`balanceSeeds: true` in a spec,
+carried by the share link) and `balanceSeedStrength` in `calc.mjs` gives teams their
+places in the shorter season so every team's opponents average close to the mean seed of
+every other team. It searches relabellings by seeded annealing on pair swaps (sum of
+fourth powers of each team's gap, keeping the least worst gap), with a fixed work budget
+so a share link rebuilds the same season. A relabelling moves teams, not patterns: every
+home/away sequence, break count and carry-over count is unchanged and no pair meets
+twice. Blackout fit, which also relabels, now only takes swaps that keep the balance
+(`fitPlanToBlackouts(..., { keep })`). `seedStrength(plan, n)` reports each team's
+opponent mean, its even share and the gap.
+
+How it was checked (`eval/seed-balance.mjs`, output `eval/seed-balance.txt`): worst
+team's gap in seed places, plain first-k rounds to balanced, with the exact optimum over
+all n! relabellings where that is small enough to enumerate:
+
+| teams x rounds | plain | balanced | exact optimum | breaks (both) | time |
+|---|---|---|---|---|---|
+| 8 x 5 | 1.03 | 0.34 | 0.34 | 4 | 16 ms |
+| 9 x 5 | 1.38 | 0.50 | 0.50 | 0 | 12 ms |
+| 10 x 6 | 1.50 | 0.11 | 0.11 | 4 | 19 ms |
+| 12 x 8 | 1.50 | 0.25 | - | 6 | 17 ms |
+| 20 x 10 | 4.50 | 0.56 | - | 8 | 48 ms |
+| 30 x 12 | 8.50 | 0.36 | - | 10 | 62 ms |
+| 64 x 20 | 21.50 | 0.54 | - | 18 | 232 ms |
+
+On all five sizes small enough to try every relabelling (6 x 3, 8 x 4, 8 x 5, 9 x 5 and
+10 x 6) the search finds the exact optimum. Tests: `seed-balance.test.mjs`. Not done:
+picking a different set of rounds as well as the relabelling. Tried while building this
+(annealing over which k of the n - 1 rounds to play): it did not lower the worst gap
+reliably and raised home/away breaks sharply (12 teams x 8: 6 to 34), so it was dropped.
+The seeds are only the list order: a league with no idea who is strong should leave the
+box off, and it changes nothing for a full round robin, where everyone meets everyone.
+
 ## Doubleheader nights: every team's games back to back (2026-11-15)
 
 Many rec leagues play two games a night (adult softball doubleheaders, volleyball and cornhole nights, darts with

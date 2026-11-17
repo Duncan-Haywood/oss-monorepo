@@ -229,6 +229,18 @@ function parseLine(line) {
   if (adjustments.length) mapped.adjustments = adjustments.map(({ kind, amount }) => ({ kind, amount }));
   const category = nestedText(tax, "CategoryCode");
   if (category) mapped.tax_category = category;
+  // Every schemed ram:ID / GlobalID / URIID in the line (BT-157 item id, and
+  // Extended's line-level parties): Peppol's COMMON id contexts reach them all
+  // (endpoint.mjs, inspectLineSchemedIds).
+  const schemeIds = [];
+  for (const name of ["ID", "GlobalID", "URIID"]) {
+    for (const node of descendants(line, name)) {
+      const scheme = node.attrs && node.attrs.schemeID ? String(node.attrs.schemeID).trim() : "";
+      const id = (node.text || "").trim();
+      if (scheme && id) schemeIds.push({ id, scheme });
+    }
+  }
+  if (schemeIds.length) mapped.scheme_ids = schemeIds;
   return mapped;
 }
 
@@ -343,8 +355,18 @@ export function parseCiiInvoice(source) {
   };
   const payee = sideParty(firstChild(settlement, "PayeeTradeParty"));
   if (payee) invoice.payee_party = payee;
-  const representative = sideParty(firstChild(agreement, "SellerTaxRepresentativeTradeParty"));
-  if (representative) invoice.tax_representative = representative;
+  // BG-11 also carries BT-63, its VAT number (INV-022/023/064; read since 2026-11-17).
+  const representativeNode = firstChild(agreement, "SellerTaxRepresentativeTradeParty");
+  const representativeVat = ciiVatId(representativeNode);
+  const representative = sideParty(representativeNode);
+  if (representative || representativeVat) {
+    invoice.tax_representative = { ...(representative || {}), ...(representativeVat ? { vat_id: representativeVat } : {}) };
+  }
+  // BG-13 deliver-to: ShipToTradeParty's ID and GlobalID (BT-71, the delivery
+  // location id) and any legal registration; Peppol's `ram:ID | ram:GlobalID`
+  // contexts match them as they do the seller's (added 2026-11-17).
+  const deliverTo = sideParty(firstChild(firstChild(transaction, "ApplicableHeaderTradeDelivery"), "ShipToTradeParty"));
+  if (deliverTo) invoice.delivery_party = deliverTo;
   const due = isoDate(nestedText(settlement, "SpecifiedTradePaymentTerms", "DueDateDateTime", "DateTimeString")
     || nestedText(settlement, "DueDateDateTime", "DateTimeString"));
   if (due) invoice.due_date = due;

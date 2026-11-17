@@ -194,8 +194,9 @@ class T(unittest.TestCase):
         self.assertEqual(problems("2026-10-25-x.md", GOOD.replace("2026-10-24", "2026-10-25"), today), [])
 
     def _run(self, posts, distinct=True):
-        if distinct:  # each post needs its own description or the duplicate check fires
-            posts = {n: t.replace('description: "' + 'D' * 60 + '"', f'description: "{n} ' + 'D' * 60 + '"') for n, t in posts.items()}
+        if distinct:  # each post needs its own description and title or the duplicate checks fire
+            posts = {n: t.replace('description: "' + 'D' * 60 + '"', f'description: "{n} ' + 'D' * 60 + '"')
+                     .replace('title: "T"', f'title: "T {n}"') for n, t in posts.items()}
         with tempfile.TemporaryDirectory() as d:
             (Path(d) / "docs" / "posts").mkdir(parents=True)
             for name, text in posts.items():
@@ -246,10 +247,12 @@ class T(unittest.TestCase):
             posts.mkdir(parents=True)
             for i in range(3):
                 (posts / f"2026-10-24-x{i}.md").write_text(
-                    GOOD.replace("[a, b]", "[benchmarks, ArduPilot]").replace('"DDD', f'"D{i}D'))
-            (posts / "2026-10-24-y.md").write_text(GOOD.replace("[a, b]", "[ardupilot]").replace('"DDD', '"YYY'))
+                    GOOD.replace("[a, b]", "[benchmarks, ArduPilot]").replace('"DDD', f'"D{i}D').replace('"T"', f'"T{i}"'))
+            (posts / "2026-10-24-y.md").write_text(
+                GOOD.replace("[a, b]", "[ardupilot]").replace('"DDD', '"YYY').replace('"T"', '"Y"'))
             new = posts / "2026-10-24-new.md"
-            new.write_text(GOOD.replace("[a, b]", "[benchmark, ardupilot, Benchmarks, fresh]").replace('"DDD', '"NNN'))
+            new.write_text(GOOD.replace("[a, b]", "[benchmark, ardupilot, Benchmarks, fresh]")
+                           .replace('"DDD', '"NNN').replace('"T"', '"N"'))
             out = io.StringIO()
             with contextlib.redirect_stdout(out):
                 self.assertEqual(main(["--root", d, str(new)]), 1)
@@ -321,6 +324,65 @@ class T(unittest.TestCase):
         last = out.getvalue().rstrip().splitlines()[-1]
         self.assertIn("description is 200", last)
         self.assertIn("seo_title is 75", last)
+
+    def _posts(self, d, posts):
+        root = Path(d) / "docs" / "posts"
+        root.mkdir(parents=True)
+        for name, (title, seo) in posts.items():
+            extra = f"seo_title: {seo}\n" if seo else ""
+            (root / name).write_text(f"---\ntitle: {title}\n{extra}date: {name[:10]}\n"
+                                     f"description: {name * 5}\ntags: [a]\n---\nbody\n")
+        return root
+
+    def test_two_posts_sharing_a_page_title_fail(self):
+        # 2026-11-17 (PR #16945): a seo_title copied from a same-day sibling
+        # post failed only the ~10-minute site build, as a duplicate <title>.
+        long_a = "A census of every agent run this week by track: " + "x" * 40
+        long_b = "A census of every agent run this week by track: " + "y" * 40
+        with tempfile.TemporaryDirectory() as d:
+            root = self._posts(d, {"2026-01-01-a.md": (long_a, None), "2026-01-02-b.md": (long_b, None),
+                                   "2026-01-03-c.md": ("Other", "Same short title"),
+                                   "2026-01-04-d.md": ("Another", "Same short title"),
+                                   "2026-01-05-e.md": ("Unrelated headline", None)})
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                self.assertEqual(main(["--root", d, str(root / "2026-01-02-b.md")]), 1)
+            self.assertIn('"A census of every agent run this week by track · Maris Stella Labs" on 2026-01-01-a.md, 2026-01-02-b.md',
+                          out.getvalue())
+            self.assertNotIn("Same short title", out.getvalue())
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                self.assertEqual(main(["--root", d, str(root / "2026-01-05-e.md")]), 0)
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                self.assertEqual(main(["--root", d]), 1)
+            self.assertIn('"Same short title · Maris Stella Labs" on 2026-01-03-c.md, 2026-01-04-d.md', out.getvalue())
+
+    def test_page_title_matches_writing_mjs(self):
+        import json, shutil, subprocess
+        from check_post_frontmatter import page_title
+        if not shutil.which("node"):
+            self.skipTest("node not installed")
+        cases = [("Short", None), ("x" * 60, None), ("A head that is long enough to keep: " + "t" * 50, None),
+                 ("Why does this run long enough to need a cut? " + "t" * 40, None), ("y" * 90, None),
+                 ("Anything", "A seo title"), ("Anything", "s" * 60)]
+        js = ("import { autoSeoTitle, postPageTitle, TITLE_BUDGET } from './platform/pages/writing.mjs';"
+              "const cases = JSON.parse(process.argv[1]);"
+              "console.log(JSON.stringify(cases.map(([t, s]) => postPageTitle(s || (t.length > TITLE_BUDGET ? autoSeoTitle(t) : undefined) || t))));")
+        done = subprocess.run(["node", "--input-type=module", "-e", js, json.dumps(cases)], cwd=ROOT,
+                              capture_output=True, text=True)
+        self.assertEqual(done.returncode, 0, done.stderr)
+        want = json.loads(done.stdout)
+        for (t, s), w in zip(cases, want):
+            text = f"---\ntitle: {t}\n" + (f"seo_title: {s}\n" if s else "") + "---\n"
+            self.assertEqual(page_title(text), w, (t, s))
+
+    def test_page_title_unquotes_like_writing_mjs(self):
+        # 22 of 5,594 posts on 2026-11-17 quote a title holding \" or ''; a
+        # plain strip left the backslashes in, so it disagreed with the page.
+        from check_post_frontmatter import page_title
+        self.assertEqual(page_title('---\ntitle: "Why \\"x\\" fails"\n---\n'), 'Why "x" fails · Maris Stella Labs')
+        self.assertEqual(page_title("---\ntitle: 'It''s here'\n---\n"), "It's here · Maris Stella Labs")
 
 
 if __name__ == "__main__":

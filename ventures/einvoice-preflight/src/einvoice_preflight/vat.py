@@ -386,6 +386,10 @@ def _be(body: str) -> bool:
 
 
 def _nl(body: str) -> bool:
+    # A suffix of 00 or a body of nine zeros is never issued (python-stdnum
+    # nl.btw refuses both; Peppol's R056 pattern lets them through).
+    if body[10:] == "00" or body[:9] == "000000000":
+        return False
     # Elfproef (11-proof): weights 9..2 on the first eight digits, then the
     # ninth (check) digit at weight -1, not +1. range(9, 0, -1) gave every
     # digit including the last a positive weight, which fails real valid
@@ -393,7 +397,16 @@ def _nl(body: str) -> bool:
     # typo'd ones the same way.
     total = sum(int(digit) * weight for digit, weight in zip(body[:8], range(9, 1, -1)))
     total -= int(body[8])
-    return total % 11 == 0
+    # Since 2020 a sole trader's btw-id carries no BSN and is checked with
+    # ISO 7064 mod 97-10 over "NL" + the number (N=23, L=21, B=11), as an
+    # IBAN is (python-stdnum nl.btw accepts either check; NL002455799B11).
+    return total % 11 == 0 or _nl_mod97(body)
+
+
+def _nl_mod97(body: str) -> bool:
+    if len(body) != 12 or not body[:9].isdigit() or body[9] != "B" or not body[10:].isdigit():
+        return False
+    return int("2321" + body[:9] + "11" + body[10:]) % 97 == 1
 
 
 def _at(body: str) -> bool:

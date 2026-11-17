@@ -11,3 +11,6 @@
 - (2026-11-17) 12 teams 124-132 open (132 by eval/window-refill.c): below 132, or 124-130 ruled out
 - (2026-11-17) home-and-away breaks exact since 2026-11-13 (pairLeastBreaks, eval/pair-exact.txt): a floor-priced home-and-away timetable search on it, and its cost at 18-20 teams (26-76 s, PAIR_EXACT_NODES) cut
 - (2026-11-17) the walk's last heavy tail (22 teams: 20 of 280 walks out of budget either way, eval/walk-guide.txt)
+- (2026-11-17) next is fewer trials, judged on seasons
+- (2026-11-17) a cheaper 30-team step: stopping refused trials early and exact window bounds measured, not kept (eval/trial-cutoff.txt; refusals miss by 1-5 breaks)
+- (2026-11-17) 30 teams in the page since 2026-11-17 (README "A trial's steps kept in the module": chained trials, 30 teams 62 s, 28 teams 30 s; 29 skipped, 1 of 3 seeds)

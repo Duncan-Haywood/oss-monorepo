@@ -103,5 +103,4 @@ IDS: the MODEL block lists the column and the slab.
 - No fix-up offered: a new GlobalId for the copy belongs in the authoring
   tool. Rewriting the file here would break the link to the native model.
 - Duplicates across federated models (two discipline files sharing a
-  GlobalId) are not checked. `ci-cli.mjs` takes models one at a time, and a
-  shared GlobalId across files is sometimes intended (a copy-monitored grid).
+  GlobalId): done 2026-11-17, `eval/federated-globalids-2026-11-17.md`.
