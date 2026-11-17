@@ -1,8 +1,8 @@
 ---
 title: "A bank charge bigger than the last invoice"
 date: 2026-11-17
-tags: [cash-application-matcher, red-team, accounts-receivable, software]
-description: The cash application matcher put a negative amount on an invoice when a small short-pay was larger than the last invoice the remittance named. Found by a red-team run, fixed, and guarded.
+tags: [cash-application-matcher, redteam, accounts-receivable, software]
+description: A short-pay bigger than the last named invoice gave it a negative application. Found by a red-team run, fixed and guarded.
 ---
 
 The [cash application matcher](../../ventures/cash-application-matcher/) landed today. It reads a bank export and an open-invoice list and proposes which invoices each payment pays. A red-team run went over it the same afternoon.
