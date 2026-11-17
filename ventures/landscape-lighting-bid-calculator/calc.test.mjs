@@ -251,3 +251,18 @@ test('the customer summary names the fixtures and omits wages', () => {
   assert.doesNotMatch(text, /burden/i);
   assert.match(text, /not an electrical design/i);
 });
+
+test('fixtures-only comparison row carries no new transformer and no soil or sod work (quality audit 2026-11-17)', () => {
+  const { label, ...p } = JOB_PRESETS[2];
+  const arch = {
+    ...p, ...suggestedExtraKit(), ...suggestedScopeKit(p.scope), ...suggestedSoilKit(p.soil),
+    ...suggestedTransformerKit(p.transformer),
+    hourlyWage: 32, burdenRate: 30, travelAndEquipment: 55, otherCost: 0, overheadRate: 15, targetMargin: 20,
+  };
+  assert.notEqual(arch.transformer, 'existing');
+  assert.notEqual(arch.soil, 'easy');
+  const fixtures = compareScope(arch).find((row) => row.scope === 'fixtures-only');
+  assert.equal(fixtures.xfmrMaterial, 0);
+  // By hand from the starting rates: 3,431.05 (it was 4,799.06 with a 310 transformer and 432 of sod repair).
+  assert.equal(Math.round(fixtures.price * 100) / 100, 3431.05);
+});

@@ -438,7 +438,8 @@ export function calculateBid(input) {
  * contractor can see when trench and transformer flip the cheap
  * $150 / light special. User-typed scope rates are not reused
  * here: the comparison is apples-to-apples on the starting
- * figures. Soil and transformer kits stay with the current job.
+ * figures. Soil and transformer kits stay with the current job,
+ * except on the fixtures-only row (existing transformer, no trench).
  */
 export function compareScope(input) {
   const soilKit = suggestedSoilKit(String(input.soil ?? 'easy'));
@@ -453,6 +454,13 @@ export function compareScope(input) {
       ...xfmrKit,
       ...extraKit,
       ...kit,
+      // Fixtures-only means what its label says: the existing transformer
+      // and no trench, so no new transformer and no soil or sod repair
+      // (quality audit 2026-11-17: the row was charged both).
+      ...(preset.id === 'fixtures-only'
+        ? { transformer: 'existing', ...suggestedTransformerKit('existing'),
+            ...suggestedSoilKit('easy') }
+        : {}),
     });
     return {
       scope: preset.id,
