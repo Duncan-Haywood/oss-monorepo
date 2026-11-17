@@ -37,6 +37,7 @@ M34 = E + "m34_windup/results.txt"
 M35 = E + "m35_hose/results.txt"
 M36 = E + "m36_wrist_ft/results.txt"
 M37 = E + "m37_preload/results.txt"
+M38 = E + "m38_squeeze/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -146,6 +147,14 @@ CHECKS = [
     (M37, "/ 0.830 (0.549) / 0.830 (0.282)", "(0.830 mm at 5 N, 1.64 points"),
     (M37, "g1  20.0 | m 0.1, g 0 |   1.64", "1.64 points\nover 0 to 20 N)"),
     (M37, "g1  0.10 | 14 (lost ['[1.0, 0.15]']) | 49.11 | 1.66", "for 1.66% more leg torque and one of 15 G1 poses"),
+    (M38, "largest leg or waist torque 1.1e-16 N m", "(at most 1.1e-16 N m per newton elsewhere)"),
+    (M38, "total S  10.0 | hold 0 / leg 2 / waist 9 / arm 0", "removes all 14 mispredicted arm joints"),
+    (M38, "total S   0.0 | hold 0 / leg 1 / waist 7 / arm 14", "removes all 14 mispredicted arm joints"),
+    (M38, "g1   5.0  0.2 | 0.830 (0.549) / 0.485 (0.099)", "falls from 0.830 to 0.485 mm"),
+    (M38, "g1  20.0 | S 10 |   0.05", "0.05 points instead of 1.64"),
+    (M38, "g1  20.0 | S 0 |   1.64", "0.05 points instead of 1.64"),
+    (M38, "h1  20.0 | S 10 |   0.02", "(the H1 0.02 instead of 2.19)"),
+    (M38, "h1  20.0 | S 0 |   2.19", "(the H1 0.02 instead of 2.19)"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),

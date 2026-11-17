@@ -396,6 +396,13 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    one of 15 poses. The 0.3–0.8 mm left is in the waist and arm joints, which the ground reaction cannot move; a hedged
    compensator does not help. Still open: a two-handed squeeze to preload the arms, the paper's headline for a
    tool-point spec, and the nailer's recoil.
+38. **A two-hand squeeze** (done 2026-11-17, `experiments/m38_squeeze/`): a force pair along the line between the grip
+   points has no net wrench, so it moves only the arm joints (to 1e-16 N m elsewhere). Chosen from the plan within
+   10 N it clears all 14 arm flips and, with milestone 37's leg preload and the FT 300, takes the 0–20 N stack loss
+   from 1.64 points to 0.05 (G1) and 2.19 to 0.02 (H1); the G1's worst residual at a 5 N drag falls from 0.83 to
+   0.49 mm. The 0.48–0.50 mm left is in the waist and the H1's torso. Side finding: the G1's wrist pitch carries more
+   than its 5 N m MJCF rating at 7 of 14 poses. Still open: the paper's headline for a tool-point spec, a grip that
+   changes the waist's share, and the nailer's recoil.
 
 ## Target venue
 
