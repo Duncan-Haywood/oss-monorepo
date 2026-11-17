@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { check, parseModel, parseIds, readModel } from "./node.mjs";
-import { junitXml, annotations, stepSummary, tally, severity, failCount, notChecked, stepLines, globToRegex, patterns, pairUp } from "./ci.mjs";
+import { junitXml, annotations, stepSummary, tally, severity, failCount, notChecked, stepLines, auditFindings, idsSpecLines, globToRegex, patterns, pairUp } from "./ci.mjs";
 import { parseXml } from "./xml.mjs";
 
 const here = new URL(".", import.meta.url).pathname;
@@ -294,4 +294,104 @@ test("ci-cli: --fail-on-unchecked turns the warning into a failing build, and GI
   assert.match(b.stdout, /FAIL: 1 pair\(s\)/);
   assert.match(readFileSync(join(dir, "out.txt"), "utf8"), /result=fail\n[^]*$/);
   assert.equal(cli(["--fail-on-unchecked", "--fail-on", "never"]).status, 0);
+});
+
+// IDS audit warnings (class-abstract and the rest) belong to the IDS file:
+// annotated on the specification's line, once per file however many models,
+// failing the build only under --fail-on-audit-warnings
+// (eval/ci-audit-annotations-2026-11-17.md).
+const absIds = [
+  '<?xml version="1.0"?>',
+  "<!-- a <specification> in a comment is not one -->",
+  '<ids:ids xmlns:ids="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema">',
+  "  <ids:info><ids:title>abstract</ids:title></ids:info>",
+  "  <ids:specifications>",
+  '    <ids:specification name="Walls are named" ifcVersion="IFC2X3">',
+  '      <ids:applicability minOccurs="0" maxOccurs="unbounded"><ids:entity><ids:name><ids:simpleValue>IFCWALL</ids:simpleValue></ids:name></ids:entity></ids:applicability>',
+  "      <ids:requirements><ids:attribute><ids:name><ids:simpleValue>Name</ids:simpleValue></ids:name></ids:attribute></ids:requirements>",
+  "    </ids:specification>",
+  "    <ids:specification",
+  '        name="Elements have a material" ifcVersion="IFC2X3">',
+  '      <ids:applicability minOccurs="1" maxOccurs="unbounded"><ids:entity><ids:name><ids:simpleValue>IFCBUILDINGELEMENT</ids:simpleValue></ids:name></ids:entity></ids:applicability>',
+  "      <ids:requirements><ids:material/></ids:requirements>",
+  "    </ids:specification>",
+  "  </ids:specifications>",
+  "</ids:ids>", ""].join("\n");
+
+test("idsSpecLines: the line of each <specification> start tag, prefixes allowed, comments and <specifications> skipped", () => {
+  assert.deepEqual(idsSpecLines(absIds), [6, 10]);
+  assert.deepEqual(idsSpecLines(file("samples/coordination-basics.ids.xml")).length, parseIds(file("samples/coordination-basics.ids.xml")).specs.length);
+  assert.deepEqual(idsSpecLines("<ids><![CDATA[<specification>]]><specification/></ids>"), [1]);
+  assert.deepEqual(idsSpecLines(null), []);
+});
+
+test("IDS audit warnings: one annotation per IDS specification on its line, in JUnit and the summary, the verdict unchanged", () => {
+  const rep = () => check(absIds, subModel);
+  const runs = [{ model: "a.ifc", ids: "r.ids", report: rep() }, { model: "b.ifc", ids: "r.ids", report: rep() }];
+  assert.equal(runs[0].report.specs[0].auditWarnings, undefined);
+  assert.match(runs[0].report.specs[1].auditWarnings[0], /IFCBUILDINGELEMENT is abstract/);
+  const found = auditFindings(runs);
+  assert.equal(found.length, 1, "two models, one IDS: told once");
+  assert.equal(found[0].index, 1);
+  const t = tally(runs);
+  assert.equal(t.auditSpecs, 1);
+  assert.equal(t.auditWarnings, 1);
+  const idsLines = new Map([["r.ids", idsSpecLines(absIds)]]);
+  const a = annotations(runs, { idsLines }).filter((x) => /IDS audit/.test(x));
+  assert.equal(a.length, 1);
+  assert.match(a[0], /^::warning file=r\.ids,line=10,title=IDS audit%3A Elements have a material::IFCBUILDINGELEMENT is abstract/);
+  assert.match(annotations(runs, { idsLines, failOnAudit: true }).find((x) => /IDS audit/.test(x)), /^::error file=r\.ids,line=10,/);
+  // the unchecked-subclass annotation is per model, and now on the spec's line too
+  assert.equal(annotations(runs, { idsLines }).filter((x) => /not checked/.test(x) && /file=r\.ids,line=10,/.test(x)).length, 2);
+  assert.match(junitXml(runs), /IDS audit warning: IFCBUILDINGELEMENT is abstract/);
+  const md = stepSummary(runs);
+  assert.match(md, /\*\*IDS audit:\*\* 1 warning\(s\) on 1 specification\(s\)/);
+  assert.match(md, /r\.ids: IDS audit warnings on 1 specification\(s\)<\/summary>/);
+  assert.match(md, /- \*\*Elements have a material\*\*: IFCBUILDINGELEMENT is abstract/);
+  assert.match(stepSummary(runs, { failOnAudit: true }), /## IDS model check: FAIL/);
+  // the clean IDS gets none of it
+  const clean = [{ model: "m.ifc", ids: "w.ids", report: check(subIds("IFCWALLSTANDARDCASE"), subModel) }];
+  assert.equal(tally(clean).auditWarnings, 0);
+  assert.doesNotMatch(annotations(clean).join("\n") + stepSummary(clean) + junitXml(clean), /IDS audit/);
+});
+
+test("an invalid specification is annotated once per IDS file, on its line", () => {
+  const bad = subIds("IFCWALLL");
+  const runs = ["a.ifc", "b.ifc"].map((model) => ({ model, ids: "w.ids", report: check(bad, subModel) }));
+  assert.equal(runs[0].report.specs[0].status, "invalid");
+  const a = annotations(runs, { idsLines: new Map([["w.ids", idsSpecLines(bad)]]) }).filter((x) => /Invalid IDS/.test(x));
+  assert.equal(a.length, 1);
+  assert.match(a[0], /^::error file=w\.ids,line=1,title=Invalid IDS specification%3A Walls are named::/);
+});
+
+test("ci-cli: audit warnings annotated on the IDS line, counted in GITHUB_OUTPUT, failing only under --fail-on-audit-warnings", () => {
+  const dir = mkdtempSync(join(tmpdir(), "ids-audit-"));
+  writeFileSync(join(dir, "a.ifc"), subModel);
+  writeFileSync(join(dir, "b.ifc"), subModel);
+  writeFileSync(join(dir, "r.ids"), absIds.replace("<ids:material/>", '<ids:attribute><ids:name><ids:simpleValue>Name</ids:simpleValue></ids:name></ids:attribute>').replace('minOccurs="1" maxOccurs="unbounded"><ids:entity><ids:name><ids:simpleValue>IFCBUILDINGELEMENT', 'minOccurs="0" maxOccurs="unbounded"><ids:entity><ids:name><ids:simpleValue>IFCBUILDINGELEMENT'));
+  writeFileSync(join(dir, "out.txt"), "");
+  const env = { ...process.env, GITHUB_ACTIONS: "true", GITHUB_OUTPUT: join(dir, "out.txt"), GITHUB_STEP_SUMMARY: join(dir, "sum.md") };
+  const cli = (extra) => spawnSync(process.execPath, [join(here, "ci-cli.mjs"), "--root", dir, "--models", "*.ifc", "--ids", "*.ids", ...extra], { encoding: "utf8", env });
+  const a = cli([]);
+  assert.equal(a.status, 0, a.stdout + a.stderr);
+  assert.equal(a.stdout.match(/^::warning file=r\.ids,line=10,title=IDS audit/gm).length, 1);
+  assert.match(a.stdout, /IDS audit warning: "Elements have a material" \(r\.ids\): IFCBUILDINGELEMENT is abstract/);
+  assert.match(a.stdout, /PASS: 2 pair\(s\).*1 IDS audit warning\(s\)/);
+  assert.match(readFileSync(join(dir, "out.txt"), "utf8"), /^audit-warnings=1$/m);
+  assert.match(readFileSync(join(dir, "sum.md"), "utf8"), /\*\*IDS audit:\*\* 1 warning/);
+  const b = cli(["--fail-on-audit-warnings"]);
+  assert.equal(b.status, 1);
+  assert.match(b.stdout, /^::error file=r\.ids,line=10,title=IDS audit/m);
+  assert.match(b.stdout, /FAIL: 2 pair\(s\).*\(--fail-on-audit-warnings\)/);
+  assert.equal(cli(["--fail-on-audit-warnings", "--fail-on", "never"]).status, 0);
+});
+
+test("IDS audit annotations past maxAudit become one pointer to the job summary", () => {
+  const specs = Array.from({ length: 12 }, (_, i) => ({ name: `S${i}`, status: "pass", optionality: "required", applicable: 1, passed: 1, failed: [], auditWarnings: [`w${i}`] }));
+  const runs = [{ model: "m.ifc", ids: "x.ids", report: { title: "t", specs } }];
+  const a = annotations(runs);
+  assert.equal(a.length, 10);
+  assert.match(a[9], /^::warning file=x\.ids,title=IDS audit%3A 3 more specification\(s\) with warnings::.*job summary lists every/);
+  assert.equal((stepSummary(runs).match(/^- \*\*S\d+\*\*: w\d+$/gm) || []).length, 12);
+  assert.equal(annotations(runs, { maxAudit: 20 }).length, 12);
 });
