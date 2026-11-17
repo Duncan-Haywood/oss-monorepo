@@ -669,7 +669,8 @@ def guard_profile(c, pat, noise, *, cap: float = PROFILE_CAP):
 
 
 # A file with no NoiseProfile (every raw read directly: ARW, NEF, CR2, RW2, ...) can get its noise model from the
-# frame, opt-in (``DevelopSettings.noise_from_frame``; tools/noise_aware_estimated.py). Since the afternoon of
+# frame (``DevelopSettings.noise_from_frame``, the default since the evening of 2026-11-17,
+# eval/noise-fallback-real-2026-11-17.md; tools/noise_aware_estimated.py). Since the afternoon of
 # 2026-11-17 the model comes from patch PCA on weak-texture mosaic patches (``noise_pca.estimate_noise_pca``,
 # eval/noise-pca-estimator-2026-11-17.md) with sigma times FRAME_SCALE, then ``guard_profile``. The block-spread
 # estimate it replaced (``estimator="spread"``, eval/noise-aware-estimated-2026-11-17.md) read fine texture as

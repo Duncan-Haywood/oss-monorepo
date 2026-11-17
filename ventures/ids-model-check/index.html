@@ -263,6 +263,12 @@
     if (invalid) h += `<p class="warn">${invalid} specification(s) in the IDS are invalid and were not checked: the IDS needs fixing, not the model. Each says why below.</p>`;
     h += `<p class="muted">${esc(r.title || state.idsName)} against ${esc(state.ifcName)}: a ${esc(r.schema)} model with ${r.entityCount.toLocaleString()} entities.</p>`;
     if (r.parseErrors.length) h += `<p class="warn">${r.parseErrors.length} line(s) of the model could not be read, e.g. ${esc(r.parseErrors[0])}</p>`;
+    const dups = r.duplicateGlobalIds || [];
+    if (dups.length) {
+      h += `<details class="spec" open><summary><span class="tag fail">MODEL</span><span><strong>${dups.length} duplicate GlobalId${dups.length > 1 ? "s" : ""}</strong> <span class="muted">not an IDS verdict: IFC requires every GlobalId to be unique</span></span></summary><div class="body"><p>BCF viewpoints, model comparisons and clash tools find elements by GlobalId, so a shared one points them at the wrong element or at both. It usually comes from copying elements in the authoring tool or merging two exports; re-export with new GlobalIds for the copies.</p><div class="tablewrap"><table><thead><tr><th>GlobalId</th><th>Elements holding it</th></tr></thead><tbody>`;
+      for (const d of dups.slice(0, 300)) h += `<tr><td><code>${esc(d.globalId)}</code></td><td>${d.elements.map((e) => `#${e.id} ${esc(e.type)}${e.name ? ` ${esc(e.name)}` : ""}`).join("<br>")}</td></tr>`;
+      h += `</tbody></table></div>${dups.length > 300 ? `<p class="muted">Showing 300 of ${dups.length}; the JSON and CSV downloads hold them all.</p>` : ""}</div></details>`;
+    }
     h += `<div class="row"><button class="ghost" id="dl-bcf">Download BCF issues</button><button class="ghost" id="dl-csv">Download CSV</button><button class="ghost" id="dl-json">Download JSON</button></div>`;
     for (const s of r.specs) {
       h += `<details class="spec"${s.status !== "pass" && r.specs.length < 12 ? " open" : ""}><summary><span class="tag ${s.status}">${s.status.toUpperCase()}</span><span><strong>${esc(s.name)}</strong> <span class="muted">${s.applicable} applicable${s.failed.length ? `, ${s.failed.length} failing` : ""} (${s.optionality})</span></span></summary><div class="body">`;

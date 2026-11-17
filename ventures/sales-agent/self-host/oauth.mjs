@@ -8,6 +8,13 @@ export const PROVIDERS = {
   microsoft: { auth: "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize", token: "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token", scope: "offline_access https://outlook.office.com/IMAP.AccessAsUser.All https://outlook.office.com/SMTP.Send", imap: "outlook.office365.com", smtp: "smtp.office365.com", extra: {} },
 };
 
+/** The provider key from OAUTH_PROVIDER (google by default), refused with the valid names when unknown. */
+export function providerOf(env) {
+  const p = env.OAUTH_PROVIDER || "google";
+  if (!Object.hasOwn(PROVIDERS, p)) throw new Error(`OAUTH_PROVIDER must be ${Object.keys(PROVIDERS).join(" or ")}`);
+  return p;
+}
+
 const endpoint = (p, which, env) => (env[which === "token" ? "OAUTH_TOKEN_URL" : "OAUTH_AUTH_URL"] || PROVIDERS[p][which]).replace("{tenant}", env.OAUTH_TENANT || "common");
 
 /** SASL XOAUTH2 initial response (base64 of "user=<u>\x01auth=Bearer <token>\x01\x01"). */
@@ -21,8 +28,7 @@ export const oauthWanted = (env) => !!(env.OAUTH_PROVIDER || env.OAUTH_REFRESH_T
  * expiry. Concurrent callers share one refresh. Errors carry the provider's words with every secret redacted.
  */
 export function tokenProvider(env, { fetchImpl = fetch, now = Date.now } = {}) {
-  const p = env.OAUTH_PROVIDER || "google";
-  if (!PROVIDERS[p]) throw new Error(`OAUTH_PROVIDER must be ${Object.keys(PROVIDERS).join(" or ")}`);
+  const p = providerOf(env);
   const missing = ["OAUTH_CLIENT_ID", "OAUTH_REFRESH_TOKEN"].filter((k) => !env[k]);
   if (missing.length) throw new Error(`OAuth needs ${missing.join(", ")}`);
   const redact = (s) => [env.OAUTH_CLIENT_SECRET, env.OAUTH_REFRESH_TOKEN, cache?.token].filter(Boolean).reduce((t, v) => t.split(v).join("***"), String(s));
@@ -48,14 +54,14 @@ export function tokenProvider(env, { fetchImpl = fetch, now = Date.now } = {}) {
 export const pkce = () => { const verifier = randomBytes(32).toString("base64url"); return { verifier, challenge: createHash("sha256").update(verifier).digest("base64url") }; };
 
 export function authUrl(env, { redirect, state, challenge }) {
-  const p = env.OAUTH_PROVIDER || "google", u = new URL(endpoint(p, "auth", env));
+  const p = providerOf(env), u = new URL(endpoint(p, "auth", env));
   const q = { client_id: env.OAUTH_CLIENT_ID, redirect_uri: redirect, response_type: "code", scope: PROVIDERS[p].scope, state, code_challenge: challenge, code_challenge_method: "S256", ...PROVIDERS[p].extra, ...(env.IMAP_USER ? { login_hint: env.IMAP_USER } : {}) };
   for (const [k, v] of Object.entries(q)) u.searchParams.set(k, v);
   return u.toString();
 }
 
 export async function exchangeCode(env, { code, redirect, verifier }, fetchImpl = fetch) {
-  const p = env.OAUTH_PROVIDER || "google";
+  const p = providerOf(env);
   const body = new URLSearchParams({ grant_type: "authorization_code", code, redirect_uri: redirect, client_id: env.OAUTH_CLIENT_ID, code_verifier: verifier, ...(env.OAUTH_CLIENT_SECRET ? { client_secret: env.OAUTH_CLIENT_SECRET } : {}) });
   const res = await fetchImpl(endpoint(p, "token", env), { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body });
   const j = await res.json().catch(() => ({}));

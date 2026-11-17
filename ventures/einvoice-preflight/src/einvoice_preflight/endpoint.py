@@ -249,11 +249,21 @@ def _inspect_one_identifier(entry: Any, label: str, what: str, path: str) -> lis
     )]
 
 
-def inspect_party_identifiers(party: Any, party_name: str) -> list[dict[str, str]]:
+def inspect_line_schemed_ids(line: Any, index: int) -> list[dict[str, str]]:
+    """INV-062 on a CII line's schemed ids (BT-157 and the like; endpoint.mjs)."""
+    if not isinstance(line, dict) or not isinstance(line.get("scheme_ids"), list):
+        return []
+    findings: list[dict[str, str]] = []
+    for j, entry in enumerate(line["scheme_ids"]):
+        findings.extend(_inspect_one_identifier(entry, f"Line {index + 1}", "identifier", f"/lines/{index}/scheme_ids/{j}"))
+    return findings
+
+
+def inspect_party_identifiers(party: Any, party_name: str, label: str | None = None) -> list[dict[str, str]]:
     """Return INV-062 observations for a party's legal_id and party_ids."""
     if not isinstance(party, dict):
         return []
-    label = party_name.title()
+    label = label or party_name.title()
     findings = _inspect_one_identifier(party.get("legal_id"), label, "legal registration identifier", f"/{party_name}/legal_id")
     party_ids = party.get("party_ids")
     if isinstance(party_ids, list):

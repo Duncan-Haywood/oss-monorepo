@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVPiZjn4qJYKHAfamUi",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo ... merge when done)",
+  "input_sha256": "3f292b268e63b0d72b6982886f7530a713ccb708bab3de8d9cc166b1c9e89c6c",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T13:56:56Z",
+  "ended": "2026-11-17T14:12:21Z",
+  "wall_minutes": 15.62,
+  "tokens_in": 6900239,
+  "tokens_out": 24840,
+  "cost_usd": 2.7395,
+  "tool_calls": 58,
+  "task": "Deepen (flagship 2) ai-bookkeeper, receipts item (5): re-score the page with its JS RapidOCR port as lead; SRD's 2 taxes lost with the lead",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": 16956,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first guard (three readings agree) broke cord-receipts.test.mjs 'Tax 8.21' repair",
+      "fix": "narrowed to agreement plus a printed gratuity/service line; full suite 0 failed"
+    }
+  ],
+  "integrity_issues": [
+    {
+      "issue": "the voteTax guard was chosen on SRD (all 196), so SRD is not a held-out check of it; CORD five-reading photo sets could not be re-scored (huggingface.co refused). Both stated in the eval note and post."
+    }
+  ],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "none blocking; allocate.py's BUILDABLE HERE note was accurate and the eval note's reproduce block worked verbatim (tesseract needed apt-get update first)"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-receipt-tax-five-readings-agreed-on.md",
+    "ventures/ai-bookkeeper/eval/rapidocr-web-lead-srd-2026-11-17.md"
+  ],
+  "goal": null,
+  "notes": "SRD 196: page with JS port as lead 190 totals (wrong silent 1), tax 165->166 after voteTax guard. Port alone reproduced 190/148 exactly. CORD text sets unchanged (767/97/94 totals; 324/46/41 tax). run_venture_tests.py ai-bookkeeper: 1 suite, 0 failed (3352 tests). Post checks: front matter, links, similarity clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "273b6ef3-2e72-5bbe-913e-f416019302e2",
+    "transcripts": 1,
+    "first": "2026-11-17T13:56:56Z",
+    "last": "2026-11-17T14:12:33Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 65,
+        "input": 150,
+        "output": 24840,
+        "thinking": 4549,
+        "cache_read": 6789571,
+        "cache_write_5m": 0,
+        "cache_write_1h": 110518,
+        "api_equivalent_usd": 2.7395,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 65,
+      "input": 150,
+      "output": 24840,
+      "thinking": 4549,
+      "cache_read": 6789571,
+      "cache_write_5m": 0,
+      "cache_write_1h": 110518,
+      "api_equivalent_usd": 2.7395,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 48,
+      "ToolSearch": 2,
+      "Monitor": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "Grep": 1,
+      "Read": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.62,
+      "active_minutes": 8.28,
+      "model_minutes": 4.69,
+      "tool_minutes": 3.59,
+      "waiting_on_human_minutes": 7.35,
+      "human_prompts": 14,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "OCR runs on 200 photos, diagnosis of two receipts, parser fix, test, eval note and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 219.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

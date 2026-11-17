@@ -97,15 +97,65 @@ function partyIdentifier(partyNode) {
     || nestedText(partyNode, "PartyTaxScheme", "CompanyID");
 }
 
-function party(node) {
-  const partyNode = descendants(node, "Party")[0] || node;
-  // XRechnung carries the legal name in PartyLegalEntity/RegistrationName and
-  // may omit PartyName entirely, so that is a source for the name, not a
-  // reason to refuse the document. Also matches the Python reader.
-  const name = nestedText(partyNode, "PartyName", "Name")
-    || nestedText(partyNode, "PartyLegalEntity", "RegistrationName")
-    || textOf(partyNode, "Name", false);
-  const mapped = { id: partyIdentifier(partyNode), name };
+// BT-30/BT-47 (legal_id) and BT-29/BT-46 with a scheme (party_ids), read the
+// same way for the seller, the buyer, the payee (BG-10: BT-60, BT-61) and the
+// tax representative (BG-11). Peppol's PEPPOL-COMMON contexts match
+// `cac:PartyIdentification/cbc:ID` and `cbc:CompanyID` wherever they sit, so
+// each one meets its scheme's rule (endpoint.mjs, INV-062/INV-063).
+function schemedIds(partyNode) {
+  const mapped = {};
+  const legalNode = descendants(partyNode, "PartyLegalEntity").flatMap((entity) => descendants(entity, "CompanyID"))[0];
+  if (legalNode && legalNode.text.trim()) {
+    const scheme = (legalNode.attrs && legalNode.attrs.schemeID) ? legalNode.attrs.schemeID.trim() : "";
+    mapped.legal_id = { id: legalNode.text.trim(), scheme };
+  }
+  // BT-29/BT-46 with a scheme: Peppol checks each one against its scheme's
+  // PEPPOL-COMMON rule, so keep every PartyIdentification/ID that names one
+  // (endpoint.mjs, INV-062/INV-063).
+  const partyIds = [];
+  for (const identification of descendants(partyNode, "PartyIdentification")) {
+    for (const idNode of identification.children.filter((child) => child.name === "ID")) {
+      const scheme = idNode.attrs && idNode.attrs.schemeID ? idNode.attrs.schemeID.trim() : "";
+      const id = idNode.text.trim();
+      if (scheme && id) partyIds.push({ id, scheme });
+    }
+  }
+  if (partyIds.length) mapped.party_ids = partyIds;
+  return mapped;
+}
+
+// Every schemed id inside a UBL line that Peppol's COMMON id contexts reach
+// (`cbc:EndpointID | cac:PartyIdentification/cbc:ID | cbc:CompanyID`, each
+// with a schemeID, no parent named): a line-level cac:Delivery/cac:DeliveryParty,
+// an OriginatorParty, an Item's ManufacturerParty. The item's own ids
+// (StandardItemIdentification/ID, a GTIN under 0160) sit outside those
+// contexts, so Peppol leaves them alone and so do we (added 2026-11-17).
+function lineSchemeIds(line) {
+  const found = [];
+  const keep = (node) => {
+    const scheme = node.attrs && node.attrs.schemeID ? String(node.attrs.schemeID).trim() : "";
+    const id = (node.text || "").trim();
+    if (scheme && id) found.push({ id, scheme });
+  };
+  for (const node of descendants(line, "EndpointID")) keep(node);
+  for (const identification of descendants(line, "PartyIdentification")) {
+    for (const node of identification.children.filter((child) => child.name === "ID")) keep(node);
+  }
+  for (const node of descendants(line, "CompanyID")) keep(node);
+  return found.length ? { scheme_ids: found } : {};
+}
+
+// BG-10 payee and BG-11 seller tax representative: only their schemed ids,
+// for INV-062/INV-063 (undefined when the file names none).
+function sideParty(root, name) {
+  const node = root.children.find((child) => child.name === name);
+  if (!node) return undefined;
+  const ids = schemedIds(node);
+  return Object.keys(ids).length ? ids : undefined;
+}
+
+// BT-31/BT-48/BT-63: the first VAT-scheme PartyTaxScheme/CompanyID of a party.
+function partyVatId(partyNode) {
   for (const scheme of descendants(partyNode, "PartyTaxScheme")) {
     // A national tax number travels in the same element with TaxScheme/ID "FC"
     // (or similar); only a VAT scheme -- or an unlabelled one whose number starts
@@ -117,11 +167,22 @@ function party(node) {
     if (schemeId && schemeId !== "VAT") continue;
     const vatId = textOf(scheme, "CompanyID", false);
     if (!schemeId && vatId && !/^[A-Za-z]{2}/.test(vatId.trim())) continue;
-    if (vatId) {
-      mapped.vat_id = vatId;
-      break;
-    }
+    if (vatId) return vatId;
   }
+  return "";
+}
+
+function party(node) {
+  const partyNode = descendants(node, "Party")[0] || node;
+  // XRechnung carries the legal name in PartyLegalEntity/RegistrationName and
+  // may omit PartyName entirely, so that is a source for the name, not a
+  // reason to refuse the document. Also matches the Python reader.
+  const name = nestedText(partyNode, "PartyName", "Name")
+    || nestedText(partyNode, "PartyLegalEntity", "RegistrationName")
+    || textOf(partyNode, "Name", false);
+  const mapped = { id: partyIdentifier(partyNode), name };
+  const vatId = partyVatId(partyNode);
+  if (vatId) mapped.vat_id = vatId;
   const addressNode = descendants(partyNode, "PostalAddress")[0];
   if (addressNode) {
     const street = textOf(addressNode, "StreetName", false);
@@ -151,23 +212,7 @@ function party(node) {
       break;
     }
   }
-  const legalNode = descendants(partyNode, "PartyLegalEntity").flatMap((entity) => descendants(entity, "CompanyID"))[0];
-  if (legalNode && legalNode.text.trim()) {
-    const scheme = (legalNode.attrs && legalNode.attrs.schemeID) ? legalNode.attrs.schemeID.trim() : "";
-    mapped.legal_id = { id: legalNode.text.trim(), scheme };
-  }
-  // BT-29/BT-46 with a scheme: Peppol checks each one against its scheme's
-  // PEPPOL-COMMON rule, so keep every PartyIdentification/ID that names one
-  // (endpoint.mjs, INV-062/INV-063).
-  const partyIds = [];
-  for (const identification of descendants(partyNode, "PartyIdentification")) {
-    for (const idNode of identification.children.filter((child) => child.name === "ID")) {
-      const scheme = idNode.attrs && idNode.attrs.schemeID ? idNode.attrs.schemeID.trim() : "";
-      const id = idNode.text.trim();
-      if (scheme && id) partyIds.push({ id, scheme });
-    }
-  }
-  if (partyIds.length) mapped.party_ids = partyIds;
+  Object.assign(mapped, schemedIds(partyNode));
   const endpointNode = descendants(partyNode, "EndpointID")[0];
   if (endpointNode) {
     const id = endpointNode.text.trim();
@@ -407,6 +452,7 @@ export function parseUblInvoice(source) {
       ...(baseQuantity ? { price_base_quantity: asNumber(baseQuantity) } : {}),
       ...(adjustments.length ? { adjustments } : {}),
       ...taxCategoryFields(category),
+      ...lineSchemeIds(line),
     };
   });
 
@@ -462,6 +508,27 @@ export function parseUblInvoice(source) {
       ...optionalMonetaryTotals(total),
     },
   };
+  const payee = sideParty(root, "PayeeParty");
+  if (payee) invoice.payee_party = payee;
+  // BG-11 also carries BT-63, its VAT number (INV-022/023/064; read since 2026-11-17).
+  const representativeNode = root.children.find((child) => child.name === "TaxRepresentativeParty");
+  const representativeVat = representativeNode ? partyVatId(representativeNode) : "";
+  const representative = sideParty(root, "TaxRepresentativeParty");
+  if (representative || representativeVat) {
+    invoice.tax_representative = { ...(representative || {}), ...(representativeVat ? { vat_id: representativeVat } : {}) };
+  }
+  // cac:Delivery/cac:DeliveryParty: Peppol's PartyIdentification/ID and
+  // CompanyID contexts match its ids too (BT-71's DeliveryLocation/ID is not
+  // under PartyIdentification, so Peppol does not; added 2026-11-17).
+  const deliveryNode = root.children.filter((child) => child.name === "Delivery")
+    .flatMap((delivery) => delivery.children.filter((child) => child.name === "DeliveryParty"));
+  const deliverTo = deliveryNode.reduce((acc, node) => {
+    const ids = schemedIds(node);
+    if (ids.legal_id && !acc.legal_id) acc.legal_id = ids.legal_id;
+    if (ids.party_ids) acc.party_ids = [...(acc.party_ids || []), ...ids.party_ids];
+    return acc;
+  }, {});
+  if (Object.keys(deliverTo).length) invoice.delivery_party = deliverTo;
   const payment = payeePayment(root) || {};
   const termsDays = paymentTermsDays(root);
   if (termsDays) payment.terms_days = termsDays;

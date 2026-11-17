@@ -2,7 +2,8 @@
 
 Pinned: on white noise the eigenvalue reading is the variance; on a smooth field with shot and read noise the
 fitted model reads the true sigma; on a field whose fine texture is the same in every colour, the estimate
-stays near the truth where the block-spread estimator (``estimate_noise``) reads high; X-Trans works too.
+stays near the truth where the block-spread estimator (``estimate_noise``) reads high; X-Trans works too, and
+reads texture with touching same-colour sensels by default (eval/xtrans-noise-pca-12-2026-11-17.md).
 """
 
 from __future__ import annotations
@@ -69,6 +70,38 @@ class NoisePcaTests(unittest.TestCase):
 
         est = self._sigma(estimate_noise_pca(self._noisy(self.smooth), XE1_PATTERN))
         self.assertAlmostEqual(est / self._sigma(self.model), 1.0, delta=0.2)
+
+    def test_near_rows_pair_touching_sensels_of_one_colour(self):
+        from shootflow.noise_pca import _near_matrix
+
+        d = 6
+        D = _near_matrix(XE1_PATTERN, d)
+        self.assertGreater(D.shape[0], 20)
+        for row in D:
+            i, j = (int(k) for k in self.np.flatnonzero(row))
+            (yi, xi), (yj, xj) = divmod(i, d), divmod(j, d)
+            self.assertLessEqual(max(abs(yi - yj), abs(xi - xj)), 1)
+            self.assertEqual(XE1_PATTERN[(yi % 6) * 6 + xi % 6], XE1_PATTERN[(yj % 6) * 6 + xj % 6])
+            self.assertEqual(row.sum(), 0.0)
+
+    def test_xtrans_lattice_shift_keeps_the_layout(self):
+        from shootflow.noise_pca import XTRANS_SHIFTS, mosaic_patches
+
+        a = self.np.asarray(XE1_PATTERN).reshape(6, 6)
+        for dy, dx in XTRANS_SHIFTS:
+            self.assertTrue((self.np.roll(a, (-dy, -dx), (0, 1)) == a).all())
+        tiled = self.np.tile(a, (8, 8)).astype(float)
+        p = mosaic_patches(tiled, 6, 6, shifts=XTRANS_SHIFTS)
+        self.assertTrue((p == p[0]).all())  # every patch, both lattices, has the same colour layout
+
+    def test_xtrans_default_is_the_near_test_and_texture_stays_bounded(self):
+        from shootflow.noise_pca import estimate_noise_pca
+
+        c = self._noisy(self.texture)
+        self.assertEqual(estimate_noise_pca(c, XE1_PATTERN), estimate_noise_pca(c, XE1_PATTERN, texture="near"))
+        est = self._sigma(estimate_noise_pca(c, XE1_PATTERN)) / self._sigma(self.model)
+        self.assertLess(est, 1.25)
+        self.assertGreater(est, 0.6)
 
     def test_tiny_frame_gives_a_model_not_an_error(self):
         from shootflow.noise_pca import estimate_noise_pca

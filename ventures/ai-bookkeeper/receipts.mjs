@@ -194,7 +194,10 @@ function totalChecks(lines, comma, at, bare) {
     // DPP (Dasar Pengenaan Pajak, the taxable base; OCR "DFP") is the subtotal; "TAX10%" is a
     // tax line with its rate glued on
     if (/sub\s*[-.]?\s*total|excl(?:uding|usive)?\b|before\s+(?:gst|tax)|\bnett?\s+total|\bd[pf]p\b/i.test(l) && !/\btotal\s+(?:gst|tax)\b/i.test(l)) subs.push(v);
-    else if (/\b(?:gst|sst|tax|service\s+charge)(?:\b|(?=\d))/i.test(l) && !/incl|excl|\bid\b|reg|summary|sales/i.test(l) && !(TOTAL_RE.test(l) && !TAX_TOTAL_RE.test(l))) taxes.push(v);
+    // Indonesia's tax words count too: "Subtotal 15.455 / PAJAK 10% 1.546 / Total 17,001" (CORD
+    // train-147, eval/cord-shard0-lead-2026-11-17.md); without PAJAK the sum was no check, and
+    // zeroLastDigit "fixed" the right 17,001 to the 17,000 paid by card under it
+    else if (/\b(?:gst|sst|tax|ppn|pajak|service\s+charge)(?:\b|(?=\d))/i.test(l) && !/incl|excl|\bid\b|reg|summary|sales/i.test(l) && !(TOTAL_RE.test(l) && !TAX_TOTAL_RE.test(l))) taxes.push(v);
     else if (/\bround(?:ing)?\b/i.test(l) && !TOTAL_RE.test(l)) { const m = l.match(/(-|\()\s*(?:rm\s*)?\d*[.,]\d{2}/i); if (Math.abs(v) <= 10) rounds.push(m ? -v : v); }
   });
   for (const s of subs) for (const t of taxes) if (t > 0 && t < s) for (const r of rounds) checks.push([s + t + r, "subtotal plus tax"]);
@@ -920,6 +923,7 @@ export function voteTax(ps, out, pick, texts = []) {
     if (t === null || (out.cents !== null && t > out.cents * 0.22)) return;
     const v = votes.get(t) ?? { score: closes(t) ? 2 : 0, first: p === pick ? -1 : i };
     v.score += 1;
+    v.n = (v.n ?? 0) + 1;
     votes.set(t, v);
   });
   let win = null;
@@ -937,8 +941,14 @@ export function voteTax(ps, out, pick, texts = []) {
   // is the rounding, not a misread digit, so the read tax stands
   const rounded = t !== null && out.cents !== null && t >= 10000 && t % 100 === 0 && out.cents % 100 === 0 && subs.some((s) => s % 100 === 0 && Math.abs(out.cents - s - t) === 100);
   // a tax one digit away from the settled total less a subtotal ("Tax: 8.21" where
-  // 42.16 less 38.95 is 3.21) was misread: the receipt's own arithmetic wins
-  if (t !== null && out.cents !== null && !rounded && !closes(t)) {
+  // 42.16 less 38.95 is 3.21) was misread: the receipt's own arithmetic wins.
+  // Not when three or more readings read the same tax and a service charge or gratuity is
+  // printed: then the gap holds more than the tax (SRD 1027: 42.75 less a 3.30 discount plus
+  // tax 1.86 is 41.31, plus a 3.00 gratuity 44.31; 44.31 less 42.75 is 1.56, one digit from
+  // the 1.86 all five readings give; eval/rapidocr-web-lead-srd-2026-11-17.md). With no such
+  // line, readings agreeing is no proof: tesseract repeats a misread digit across readings
+  const agreed = win && win.t === t && win.n >= 3 && svcs.length > 0;
+  if (t !== null && out.cents !== null && !rounded && !closes(t) && !agreed) {
     const near = [...new Set(subs.map((s) => out.cents - s))].filter((d) => d > 0 && oneDigitApart(d, t));
     if (near.length === 1) return near[0];
     // two subtotals one digit apart ("$28.48" in three readings, "$28.47" in one): the
@@ -1083,7 +1093,8 @@ export function parseReceiptPasses(texts, opts = {}) {
     out.notes = [...out.notes.filter((n) => !/total|items add/i.test(n)), `OCR readings read the total as ${[...new Set(ps.filter((p) => p.totalLine && p.cents > 0).map((p) => (p.cents / 100).toFixed(2)))].join(" and ")}, which no check confirms; took ${(fixed / 100).toFixed(2)}, which the receipt's own sums give (one digit from a total line): check the total`];
     Object.assign(out, { cents: fixed, totalLine: null, itemsOk: false });
   }
-  const zero = ps.length >= 3 ? zeroLastDigit(out.cents, texts.filter((t) => String(t ?? "").trim()).map((t) => cleanOcr(String(t)))) : null;
+  // a total the receipt's own sums give (subtotal plus tax, cash less change) is no misread
+  const zero = ps.length >= 3 && !support(out.cents) ? zeroLastDigit(out.cents, texts.filter((t) => String(t ?? "").trim()).map((t) => cleanOcr(String(t)))) : null;
   if (zero !== null) {
     out.notes = [...out.notes.filter((n) => !/total|items add/i.test(n)), `the total read as ${out.cents / 100} ends in 00${(out.cents / 100) % 10}, which a whole-unit slip rarely prints; took ${zero / 100}, which the readings also print: check the total`];
     // the read total line with that last digit a 0, so the page's settled text reads it back

@@ -21,6 +21,7 @@ people owe each other, not on whether the gadget works. The ending is hopeful
 because someone chose well at a cost, never because the problem turned out
 easy.
 
+- *The weight in the belfry* (proposed 2026-11-17): a slender brick bell tower rocks visibly when its one big swinging bell is rung, because the bell's horizontal force comes twice per full swing cycle, and the tower's first sway mode sits close to that rate. The reasonable "no" is to stop swinging the bell and chime it with a hammer; the fix is a tuned mass damper, a hung weight of a few percent of the tower's modal mass tuned a little below the tower's frequency (Den Hartog: f_d = f/(1 + μ), damping ratio about √(3μ/8(1 + μ)³)). Work it from the bell's mass and swing period (a pendulum's horizontal force has components at the swing rate and twice it), the tower's height and stiffness, the resonance amplification with and without the damper, and a failed first try with a damper tuned to the tower's frequency exactly. 'Tuned mass', 'tower sway' and 'Den Hartog' are unused in `overlap.mjs`; the footbridge version overlaps *The Iron Bridge at Forty-Two*, so keep it to a tower; not Japan, Poland or Galway.
 **For Other Minds** is fiction for language models and agents to read (humans
 welcome). It is about relays, context windows, handoff notes, metrics and
 honesty. The reader is invited to notice themselves in a character; they are
@@ -311,6 +312,10 @@ alike. *The Letter in the Wall* (For Other Minds, 2026) and *Ten Percent*
    fingers, including the speaker) as well as what the note computes; and
    when a quantity changes through a scene (a depth, a temperature), work
    it out again at the minute the character says it.
+   And when a scene names a Sunday Gospel, check the lectionary year
+   (Year A, B or C: the year the Advent begins in, plus one, mod 3 gives
+   1 A, 2 B, 0 C) and any feast that moves it; a 2026-11-17 draft gave a
+   Year B Sunday the Year C Gospel (Cana) before its re-read caught it.
 9. Render audio (`render_audio.py`), regenerate (`node generate.mjs`), and run
    `node --test`. Audio size is checked first (`prompts/creative/prompt-0.md`).
 
@@ -339,13 +344,12 @@ before writing the first scene.
 
 **Hearth & Horizon**
 
-- *Ice along the eaves* (proposed 2026-11-17): a parish insulates the ceiling of its hall at last, heats it for a winter of warm-space evenings, and in January water comes through the ceiling under a roof thick with snow. Heat leaking through the roof melts the underside of the snow, the water runs down to the cold overhang and freezes, and the ridge of ice it builds backs the next melt up under the slates. Work it from the heat flow through the snow (fresh snow conducts roughly 0.05 to 0.2 W/m·K, so 30 cm of it is itself an insulating blanket), the roof-deck temperature above and below the new insulation, and the outdoor temperatures at which the deck goes above 0 °C while the eaves stay below; the reasonable "no" is heating cables along the gutter, and the fix is keeping the roof cold (ventilating the space under the deck), not warming the edge. 'Ice dam' is unused in `overlap.mjs`; not Romania, Slovakia or Galway.
 **For Other Minds**
 
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
 
-- *Gertrude the Great of Helfta* (16 November, General Roman Calendar, optional memorial; proposed 2026-11-17): given to the nuns at Helfta in Saxony as a small child of about five, a clever, book-loving pupil who at about twenty-five, in her own account, turned from her books to prayer, and wrote of Christ's heart with a tenderness that made her loved for centuries. Her own *Legatus divinae pietatis* (*The Herald of Divine Love*, book 2 in her hand, the rest compiled by her sisters) is the source; tell her visions as what she wrote, not as events. Leave out the convent's quarrels and the siege of Helfta; check whether to call the house Benedictine or Cistercian (scholars still argue) and say so in the note. 'Helfta' and 'Gertrude the Great' are unused in `overlap.mjs`.
+- *Anselm of Canterbury* (21 April, General Roman Calendar, optional memorial; proposed 2026-11-17): a boy in the Alpine town of Aosta who, his biographer Eadmer says, dreamed as a small child that he climbed the mountain behind his home to God's court and was given the whitest bread to eat; later the gentle abbot of Bec in Normandy who taught by kindness (Eadmer's story of the abbot who beat his boys and was asked what kind of tree grows from a sapling hemmed in on every side) and became, unwillingly, Archbishop of Canterbury. The dream and the tree are from Eadmer's *Vita Anselmi*: tell them as what his friend wrote. His exiles and quarrels with two kings are one sentence or left out. 'Anselm' appears in the finished list only as a place name and a surname; 'Eadmer' is unused.
 - *Frances of Rome* (9 March, General Roman Calendar, optional memorial; proposed 2026-11-17): a Roman noblewoman married at about thirteen who ran a great household well, nursed the sick through plague and famine, and gathered the Oblates of Tor de' Specchi (1425), living with them as a widow. The tradition that her household interrupted her four times while she was saying Our Lady's Office and she came back to find the words written in gold is legend from her early life: tell it as such, as a story about cheerfully putting the book down when someone needs you. Her angel companion is from the same accounts; say so. Her son's death and the sack of Rome are one sentence or left out. 'Frances of Rome' appears once as a passing mention in a science fiction story; title her with her full name.
 
 ## What not to do

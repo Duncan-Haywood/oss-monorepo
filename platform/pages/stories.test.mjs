@@ -1,12 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { LISTEN, loadFiction, longDate, renderListen, renderStoriesPage, STORIES_PATH } from './stories.mjs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadAudio as loadStoryAudio } from '../../ventures/hearth-and-horizon/generate.mjs';
 import { loadAudio as loadEpisodeAudio } from '../../ventures/saints-by-candlelight/generate.mjs';
 import { SITE_NAV } from './site-nav.mjs';
+import { badSelectors, styleBlocks, unitlessLengths } from './css-lint.mjs';
 
 test('the Stories page is in the top navigation', () => {
   assert.ok(SITE_NAV.some((item) => item.id === 'stories' && item.href === STORIES_PATH));
@@ -150,4 +151,45 @@ test('the hero shows each shelf as its cover: small thumbnails the ventures ship
   // A shelf without a thumbnail keeps the chip row: no half-empty grid.
   const bare = shelves.map((s, i) => (i ? s : { ...s, cover: null }));
   assert.doesNotMatch(renderStoriesPage(bare), /pf-hero has-covers/);
+});
+
+// Red team 2026-11-17: five seeded faults in the page's stylesheet (`border:0` -> `border:1`,
+// `margin:.8em 0 0` -> `.8em 0 1`, `.shelf-intro > p` -> `>= p` ...) passed this suite. Each makes
+// the browser drop a declaration or a whole rule without a word.
+test('the page stylesheet has no declaration or selector a browser silently drops', () => {
+  const css = styleBlocks(renderStoriesPage(loadFiction()));
+  assert.ok(css.includes('.shelf-intro > p'), 'the page CSS was read');
+  assert.deepEqual(unitlessLengths(css), []);
+  assert.deepEqual(badSelectors(css), []);
+});
+
+test('a shelf links "All N" only when it holds more than the cards shown, else just opens it', () => {
+  const item = (n) => ({ title: `T${n}`, href: `demo/t${n}.html`, summary: 's', meta: 'm', published: `2026-10-${String(10 + n).padStart(2, '0')}`, minutes: null, audio: null });
+  const shelf = (count) => ({
+    id: 'demo', title: 'Demo', tagline: 't', description: 'd', audience: 'a', href: 'demo/', feed: 'demo/feed.xml',
+    count, withAudio: 0, items: Array.from({ length: count }, (_, i) => item(count - i)),
+  });
+  const more = (html) => /<p class="more"><a href="\.\.\/demo\/">([^<]*)<\/a><\/p>/.exec(html)[1];
+  assert.equal(more(renderStoriesPage([shelf(3)])), 'Open Demo →', 'three of three shown');
+  assert.equal(more(renderStoriesPage([shelf(6)])), 'Open Demo →', 'exactly the six shown: nothing more to see');
+  assert.equal(more(renderStoriesPage([shelf(7)])), 'All 7 on Demo →', 'one more than shown');
+});
+
+// Red team 2026-11-17: the three Hearth & Horizon shelves all linked `hearth-and-horizon/`, so
+// "All 70 on Little Lamps →" opened the venture index at its first shelf, 336 science-fiction
+// stories above Little Lamps. Each shelf now links to its own section of that index.
+test('each shelf links to its own section of the venture index, which exists', () => {
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..', 'ventures');
+  const shelves = loadFiction();
+  const html = renderStoriesPage(shelves);
+  for (const s of shelves) {
+    const [dir, anchor] = s.href.split('#');
+    const index = readFileSync(path.join(root, dir, 'index.html'), 'utf8');
+    if (dir === 'hearth-and-horizon/') {
+      assert.equal(anchor, s.id, `${s.id} links to its section, not the top of a page it shares`);
+      assert.match(index, new RegExp(`<section[^>]*\\bid="${s.id}"`), `${dir}index.html has a #${s.id} section`);
+    }
+    assert.ok(html.includes(`<p class="more"><a href="../${s.href}">`), s.id);
+  }
+  assert.equal(new Set(shelves.map((s) => s.href)).size, shelves.length, 'no two shelves share a link');
 });

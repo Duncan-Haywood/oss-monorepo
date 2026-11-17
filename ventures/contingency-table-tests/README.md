@@ -27,7 +27,7 @@ licensed, nothing uploaded.
 | Unconditional exact tests | Barnard 1945; Boschloo 1970 | p-values maximised over the unknown common risk, pooled or unpooled Wald ordering for Barnard |
 | Chi-square family | Pearson 1900; Yates 1934 | Pearson, Yates-corrected and likelihood-ratio G, expected counts, a small-count warning |
 | Effect sizes | Newcombe 1998; Katz et al. 1978; Woolf 1955 | risk difference (Newcombe hybrid score and Wald), risk ratio, sample odds ratio, phi, number needed to treat |
-| r x c exact | Freeman & Halton 1951; Mehta & Patel 1983 | Fisher-Freeman-Halton by a network algorithm, Monte Carlo past a work limit, Cramér's V, adjusted residuals (Haberman 1973) |
+| r x c exact | Freeman & Halton 1951; Mehta & Patel 1983 | Fisher-Freeman-Halton by a network algorithm, Monte Carlo past a work limit (random tables with fixed margins, one hypergeometric draw per cell, so the cost grows with the square root of n), Cramér's V, adjusted residuals (Haberman 1973) |
 | Strata | Mantel & Haenszel 1959; Robins, Breslow & Greenland 1986; Tarone 1985 | CMH test, common odds ratio with the RGB interval, Breslow-Day-Tarone homogeneity, exact stratified test and conditional MLE |
 | Paired | McNemar 1947 | chi-square with and without correction, exact binomial and mid-p, paired odds ratio with an exact interval |
 

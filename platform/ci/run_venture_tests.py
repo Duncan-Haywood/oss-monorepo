@@ -13,6 +13,7 @@ runner would report (docs/history/ci-local-first-2026-10-29.md).
     python3 platform/ci/run_venture_tests.py --slowest 30    # also end with the 30 slowest suites
     python3 platform/ci/run_venture_tests.py --write-times   # every venture, saving each suite's time
     python3 platform/ci/run_venture_tests.py --times 30      # the 30 slowest from that file, no run
+    python3 platform/ci/suite_file_times.py <slug>           # then its files, each timed alone
 
 Suite times live in platform/ci/venture_suite_times.json (TIMES_FILE), so a
 perf run can pick its target without a full run: perf runs timed suites by
@@ -71,6 +72,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 import inherited_keys
+import suite_file_times
 
 ROOT = Path(__file__).resolve().parents[2]
 VENTURES = ROOT / "ventures"
@@ -340,7 +342,7 @@ def changed_slugs(base_ref="origin/main"):
         raise SystemExit(
             f"run_venture_tests: no merge base between {base_ref} and HEAD "
             "(shallow clone, or the ref is missing/stale).\n"
-            "  Refresh it: git fetch --depth=40 origin main\n"
+            "  Refresh it: python3 platform/ci/fetch_ref.py main\n"
             "  Still none: git fetch --deepen=500 origin main, until "
             f"`git merge-base {base_ref} HEAD` answers.\n"
             "  Or name the ventures: run_venture_tests.py <slug> [<slug> ...]")
@@ -585,13 +587,22 @@ def failures(out, context=30):
     return "\n".join(red) if red else out[-3000:]
 
 
-def slowest_table(times, n):
+def slowest_table(times, n, passes=None):
     """The n slowest suites as a Markdown table. Perf runs re-timed suites by
     hand because no list of suite times existed (doc friction 2026-11-11);
-    `--slowest 30` over every venture makes that one command."""
+    `--slowest 30` over every venture makes that one command.
+
+    `passes(slug)` (suite_file_times.perf_history) adds how many ci-perf
+    write-ups name each suite: the top three had 16 to 25 passes by
+    2026-11-17 and the 10-20 s tier one or two, where a run found a 7x win in
+    minutes (perf run records 2026-11-16/17)."""
     rows = sorted(times.items(), key=lambda kv: (-kv[1], kv[0]))[:n]
-    return "\n".join(["| venture | seconds |", "|---|---:|",
-                      *(f"| {slug} | {secs:.1f} |" for slug, secs in rows)])
+    if passes is None:
+        return "\n".join(["| venture | seconds |", "|---|---:|",
+                          *(f"| {slug} | {secs:.1f} |" for slug, secs in rows)])
+    return "\n".join(["| venture | seconds | perf write-ups | latest |", "|---|---:|---:|---|",
+                      *(f"| {slug} | {secs:.1f} | {len(passes(slug))} | {passes(slug)[0][0] if passes(slug) else ''} |"
+                        for slug, secs in rows)])
 
 
 def load_times(path=None):
@@ -619,7 +630,9 @@ def write_times(times, failed, jobs, path=None, full=False):
     data = {
         "about": "Wall seconds per venture test suite, from run_venture_tests.py --write-times. "
                  "Times taken with `jobs` suites in parallel on `cpus` cores, so they are "
-                 "relative, not a single-suite benchmark.",
+                 "relative, not a single-suite benchmark. `seconds` maps slug to wall seconds, slowest first; "
+                 "`failed` lists suites that failed in that run. Read it with `run_venture_tests.py --times N`; "
+                 "time one suite's files alone with `suite_file_times.py <slug>`.",
         "taken": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%MZ"),
         "commit": commit, "cpus": os.cpu_count(), "jobs": jobs,
         "failed": sorted(set(failed) | kept_failed),
@@ -654,7 +667,10 @@ def main(argv):
             return 1
         print(f"{len(data['seconds'])} suites timed {data.get('taken')} at {data.get('commit')} "
               f"({data.get('jobs')} jobs on {data.get('cpus')} cores)")
-        print(slowest_table(data["seconds"], args.times))
+        print(slowest_table(data["seconds"], args.times, passes=functools.lru_cache(None)(
+            suite_file_times.perf_history)))
+        print("\nTimes are relative (suites ran in parallel). Which file is slow, timed alone: "
+              "python3 platform/ci/suite_file_times.py <slug>")
         return 0
 
     if args.since is not None and args.since.strip("0 "):

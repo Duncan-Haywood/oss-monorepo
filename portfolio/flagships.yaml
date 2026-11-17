@@ -111,20 +111,23 @@ flagships:
       payments up (99.97% of 445k, README), `--round up`; open: a lender's full
       table, a supplier's terms letter; (5) receipts OCR (five-reading vote keeps
       RapidOCR's total unless arithmetic confirms the majority, CORD train 542/583;
-      page SRD 189/196, SROIE 84.6%, US 79.6%, tax 74.6%; CLI 78.6%, tax 71.9%; CORD
-      photos val 71.4%, train 62.2%, test 57.9%, tax 16/41; open: OCR-bound); (6)
-      payroll (README): two journal layouts read; open: a real Gusto or ADP export;
-      (7) IRIS NEC and MISC rents files on IRS TY2025 guidelines (HISTORY): open: a
-      real upload, TY2026 template. A run that lands a slice replaces its item here;
-      keep this under 2,000 characters. More open items: NEXT.md.
+      page SRD 190/196 (port as lead), page CORD taxes kept (train 205/267), SROIE
+      84.6%, US 79.6%, tax 74.6%; CLI 78.6%, tax 71.9%; CORD photos val 71.4%, train
+      62.2%, test 57.9%, tax 16/41; open: OCR-bound); (6) payroll (README): two
+      journal layouts read; open: a real Gusto or ADP export; (7) IRIS NEC and MISC
+      rents files on IRS TY2025 guidelines (HISTORY): open: a real upload, TY2026
+      template. A run that lands a slice replaces its item here; keep this under
+      2,000 characters. More open items: NEXT.md.
     buildable: >-
       Receipts, item (5): SRD photos (eval/srd-fetch.mjs), CORD photos
       (eval/cord_images.py); tesseract via apt, RapidOCR via pip. CORD train shards
       1-3: `--rapidocr` 539 of 583; five readings, lead total kept unless arithmetic
       confirms the majority, 542 (test 83 of 95, SRD 188 of 196;
-      eval/lead-vote-2026-11-17.md). Next: re-score the page with its JS port as
-      lead (eval/rapidocr-browser.mjs); SRD's 2 taxes lost with the lead; train
-      shard 4 (200 unread photos) as a fresh check. CORD test stays held out.
+      eval/lead-vote-2026-11-17.md). Page with its JS port as lead: SRD 190/196, tax
+      166 (eval/rapidocr-web-lead-srd-2026-11-17.md). Next
+      (eval/cord-shard0-lead-2026-11-17.md): train-28 (items plus tax confirmed the
+      cash); 1009 (lead read no total line). All CORD photos are read; fresh ones
+      need a new source.
     hosts: [https://huggingface.co/, https://raw.githubusercontent.com/]
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
@@ -228,9 +231,12 @@ flagships:
       passes Mustang; open: a real business's PINT file. A run that lands a slice
       replaces its item here. More open items: NEXT.md.
     buildable: >-
-      PayeeParty and TaxRepresentativeParty ids, which Peppol's PEPPOL-COMMON
-      contexts also match (extend eval/party-id-peppol-differential.mjs's PLACES);
-      R056-2 (an NL VAT number in PartyTaxScheme, a warning). No network.
+      R056-2 landed (BT-63 read, INV-064;
+      eval/nl-vat-r056-2-differential-2026-11-17.md): open, R056-2 on a payee or
+      deliver-to PartyTaxScheme and a trailing no-break space the readers' trim()
+      drops. Party ids everywhere Peppol's COMMON contexts reach landed 2026-11-17
+      (UBL line parties: eval/ubl-line-ids-peppol-differential-2026-11-17.md). No
+      network.
   - venture: shift-roster-builder
     inputs_only: >-
       a live deploy with real punches, a real payroll template, a manager's
@@ -282,10 +288,10 @@ flagships:
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
       eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`; its CIFF CRWs all read).
       Bayer trees parked: a range guard passes 6 fresh cameras, misses K-1 II/A7
-      III; no fresh frames left (eval/bayer-boosted-guard-*). Noise-aware: patch-PCA
-      frame noise (eval/noise-pca-estimator-*); next: X-Trans 12 x 12 patches (17 of
-      248 held tiles lose), then the auto fallback. DNG 1.7.1.0 spec PDF: URL in
-      eval/opcode-spec-audit-2026-11-12.md.
+      III; no fresh frames left (eval/bayer-boosted-guard-*). Noise-aware: frame
+      noise is the default fallback since 2026-11-17 (eval/noise-fallback-real-*);
+      next: win back noisy-tile gain with a scale picked on tune rows only. DNG
+      1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
@@ -352,37 +358,35 @@ flagships:
       ventures/league-schedule-generator/README.md and eval/ (divisions, venues,
       rainouts, standings, officials, duty rota, team sheets; carry-over and break
       floors, frontier picker, blackout fit, WebAssembly step: README 2026-11-11 to
-      2026-11-15 sections). 2026-11-15: 3-game nights (eval/three-game-nights.txt):
-      SAT session designs (session-designs.mjs) take every even 10-48 teams on 6
-      slots, 16 of 19 sizes on 9, to 0 waits; 8 on 2x6, 12 on 2x9 UNSAT. Odd leagues
-      (eval/odd-night-sat.py, odd-designs.mjs): 11-25 teams 0 waits on 6 slots; on 9
-      slots 11, 13 teams on 2 courts, 17 on 3; proved impossible: 7, 9 on 2x6; 5, 7
-      on 1x9; 7 on 2x9. Night by night (eval/odd-cyclic.py): 21, 23 on 4x9, 27 on
-      7x6; every 3k of 27-63 on the least 9-slot courts 0 waits; fails at <=3 spare
-      slots (eval/odd-cyclic.txt). Fully booked: 19 on 3x9, 25 on 4x9, 31 on 5x9, 37
-      on 6x9 0 waits (eval/odd-orbit.py, 3 k-cycles); even 40, 46 on 3 sessions 0
-      waits (eval/session-orbit.py). 29 on 5x9, 35 on 6x9: 0 waits (odd-lns.py). 41
-      on 7x9 0 waits (last night UNSAT alone, eval/lns-bad-night.py; re-dealt with
-      the short night). 43 on 7x9 0 waits (odd-orbit.py, 9,849 s). Next, most
-      valuable first: 47 on 8x9 (13 of 16; LNS stalled: 5 runs from 13, 0 climbs,
-      night 2 UNKNOWN at 1 h; next: a new model, orbit or symmetry-broken night); 49
-      on 8x9 (orbit, ~11 h est.); the rest of the 20-team gap (40 to 44 still
-      ~444-550: four-round re-deals or a longer run, now ~4x cheaper; or a starter
-      family climbed with the floor as its score); 30 teams in the page since
-      2026-11-17 (README "A trial's steps kept in the module": chained trials, 30
-      teams 62 s, 28 teams 30 s; 29 skipped, 1 of 3 seeds); a cheaper 30-team step:
-      stopping refused trials early and exact window bounds measured, not kept
-      (eval/trial-cutoff.txt; refusals miss by 1-5 breaks); next is fewer trials,
-      judged on seasons. More open items: NEXT.md.
+      2026-11-15 sections; 2026-11-17 shorter seasons with even strength of
+      schedule, eval/seed-balance.txt). 2026-11-15: 3-game nights
+      (eval/three-game-nights.txt): SAT session designs (session-designs.mjs) take
+      every even 10-48 teams on 6 slots, 16 of 19 sizes on 9, to 0 waits; 8 on 2x6,
+      12 on 2x9 UNSAT. Odd leagues (eval/odd-night-sat.py, odd-designs.mjs): 11-25
+      teams 0 waits on 6 slots; on 9 slots 11, 13 teams on 2 courts, 17 on 3; proved
+      impossible: 7, 9 on 2x6; 5, 7 on 1x9; 7 on 2x9. Night by night
+      (eval/odd-cyclic.py): 21, 23 on 4x9, 27 on 7x6; every 3k of 27-63 on the least
+      9-slot courts 0 waits; fails at <=3 spare slots (eval/odd-cyclic.txt). Fully
+      booked: 19 on 3x9, 25 on 4x9, 31 on 5x9, 37 on 6x9 0 waits (eval/odd-orbit.py,
+      3 k-cycles); even 40, 46 on 3 sessions 0 waits (eval/session-orbit.py). 29 on
+      5x9, 35 on 6x9: 0 waits (odd-lns.py). 41 on 7x9 0 waits (last night UNSAT
+      alone, eval/lns-bad-night.py; re-dealt with the short night). 43 on 7x9 0
+      waits (odd-orbit.py, 9,849 s). Next, most valuable first: 47 on 8x9 (13 of 16;
+      LNS stalled: 5 runs from 13, 0 climbs, night 2 UNKNOWN at 1 h; next: a new
+      model, orbit or symmetry-broken night); 49 on 8x9 (orbit, ~11 h est.); the
+      rest of the 20-team gap (40 to 44 still ~444-550: four-round re-deals or a
+      longer run, now ~4x cheaper; or a starter family climbed with the floor as its
+      score). More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "The jittery
-      tach through a speed change" (six seeds: LOOP_THROUGH_CHANGE misses alike, 35
-      vs 38 wheels; the noisy class is a slow shot's fast wheel, sd 1.0%). Next:
-      does LOOP_UNSURE mark those wheels, and should the Pi's fit weight them down
-      (eval/through-jitter-cause-2026-11-17.jsonl); ball hold: measure
-      WHEEL_RPM_FULL error's cost on 0.2 s wheels; an ESC with its own speed loop.
+      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "Unsure marks
+      on the noisy wheels" (LOOP_UNSURE marks 41% of a slow shot's fast wheels, 16
+      of 23 misses; weighting them down in the fit failed held-out seeds: the 0.57%
+      jitter spin error is spread over every reading,
+      eval/unsure-weight-2026-11-17.txt). Next: lower every reading's noise under
+      tach jitter (the loop fit's drop); ball hold: measure WHEEL_RPM_FULL error's
+      cost on 0.2 s wheels; an ESC with its own speed loop.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -427,24 +431,25 @@ flagships:
       (to listen), scan-checked corpus, 2,129 notes read by eye, hymns, song
       sections, breakdown, riser; --a-cappella first verse and a range-checked
       --key-lift N, eval/key-lift-check.md; per-section singer guidance in --cues;
-      2026-11-17: lipShut (dark-vowel m) default; lipHold failed held-out b, opt-in;
-      a slow lip closure failed held-out c (123 to 125 of 144, 3 wanted), opt-in;
-      next: c's cluster-onset -um; levelFade (a release read as a nasal) opt-in,
-      untested on d). Open checks that need a person: listen to the studio page,
-      --sing, the options (--stretch, --halftime, --fills, --limit pumping, stems,
-      sections, breakdown, riser, the a cappella verse and whether the key lift
-      sounds like a lift); --lrc in a real player and --markers/--stems in a DAW;
-      --cues (and its section lines), RECORDING-GUIDE.md and the E2-E4 range with
-      real singers; the release kit against a distributor's real form; the Te
-      Deum/3427/3912/3775 fixes (eval/scan-check-verdicts.md). master-cli passed EBU
-      Tech 3341/3342 from their text; open: the EBU's WAVs (403), Apple/Amazon/Tidal
-      levels. scan.mjs reads rhombi, quilismas, liquescents, lines at true
-      thickness; tilted pages, curled staves straightened
-      (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
-      (eval/broken-stroke-check.md); next: worn pages (new GABC needed), mottled
-      squares, one-step cephalici read (eval/one-step-cephalicus-check.md), 10 of 84
-      tuning misses left, 3408's strokes, 3464's cephalicus. More open items:
-      NEXT.md.
+      2026-11-17 --organum, a Musica enchiriadis second voice on --repeat passes 2-N
+      (68 of 68 corpus files stay in E2-E4); 2026-11-17: lipShut (dark-vowel m)
+      default; lipHold failed held-out b, opt-in; a slow lip closure failed held-out
+      c (123 to 125 of 144, 3 wanted), opt-in; next: c's cluster-onset -um;
+      levelFade (a release read as a nasal) opt-in, untested on d). Open checks that
+      need a person: listen to the studio page, --sing, the options (--stretch,
+      --halftime, --fills, --limit pumping, stems, sections, breakdown, riser, the a
+      cappella verse and whether the key lift sounds like a lift, --organum over a
+      band); --lrc in a real player and --markers/--stems in a DAW; --cues (and its
+      section lines), RECORDING-GUIDE.md and the E2-E4 range with real singers; the
+      release kit against a distributor's real form; the Te Deum/3427/3912/3775
+      fixes (eval/scan-check-verdicts.md). master-cli passed EBU Tech 3341/3342 from
+      their text; open: the EBU's WAVs (403), Apple/Amazon/Tidal levels. scan.mjs
+      reads rhombi, quilismas, liquescents, lines at true thickness; tilted pages,
+      curled staves straightened (eval/staff-curl-check.md); 3506/3679 fixed
+      2026-11-15 (eval/broken-stroke-check.md); next: worn pages (new GABC needed),
+      mottled squares, one-step cephalici read (eval/one-step-cephalicus-check.md),
+      10 of 84 tuning misses left, 3408's strokes, 3464's cephalicus. More open
+      items: NEXT.md.
     buildable: >-
       Coda reader rounds on synthetic held-out parts, no outside input
       (eval/coda-check.mjs, eval/dark-nasal-diag.mjs; README "A dark-vowel m that
@@ -465,8 +470,9 @@ flagships:
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
-      (eval/ifcxml-xbim-2026-11-16.md); duplicate GlobalIds as a finding (real HHS
-      exports repeat them; eval/gitlab-codequality-2026-11-17.md); the IDS editor
+      (eval/ifcxml-xbim-2026-11-16.md); duplicate GlobalIds across federated models
+      (one discipline file's GlobalId in another;
+      eval/duplicate-globalids-2026-11-17.md, 'Not done'); the IDS editor
       (editor.html; README): "Use the model's range" for dates, xs:date one-of rows
       (eval/date-ranges-2026-11-17.md); more real exports through
       eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
@@ -493,6 +499,9 @@ flagships:
       checker's applicable; 83.5% of public facets editable, IDS-Audit-tool 21.5%);
       a no-dataType value row; GitLab Code Quality report keyed on GlobalId+class
       2026-11-17 (eval/gitlab-codequality-2026-11-17.md: 18 of 18 real changes, 0
-      for a renumbering re-export); unchecked subclasses in CI and the editor
+      for a renumbering re-export); duplicate GlobalIds as a model finding in every
+      output, plus a STEP \S\' reader fix 2026-11-17
+      (eval/duplicate-globalids-2026-11-17.md: 3 in 163 public files, same groups as
+      IfcOpenShell on 133 of 133); unchecked subclasses in CI and the editor
       2026-11-17 (eval/ci-unchecked-2026-11-17.md: 21,405 elements in 165 of 2,028
       checks). More open items: NEXT.md.

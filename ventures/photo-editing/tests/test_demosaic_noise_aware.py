@@ -282,9 +282,27 @@ class ProfileGuardTests(unittest.TestCase):
             self.assertAlmostEqual(used[2, 0] / over[2, 0], (PROFILE_CAP / r[2]) ** 2, places=9)
 
 
+class NoiseFromFrameFlagTests(unittest.TestCase):
+    """``shootflow develop --noise-from-frame`` is on by default since 2026-11-17; ``--no-noise-from-frame`` turns
+    the frame-read model off (eval/noise-fallback-real-2026-11-17.md)."""
+
+    def test_flag_default_on_and_negatable(self):
+        from shootflow.cli import _build_parser
+
+        p = _build_parser()
+        self.assertTrue(p.parse_args(["develop", "x.dng", "--out", "o"]).noise_from_frame)
+        self.assertTrue(p.parse_args(["develop", "x.dng", "--out", "o", "--noise-from-frame"]).noise_from_frame)
+        self.assertFalse(p.parse_args(["develop", "x.dng", "--out", "o", "--no-noise-from-frame"]).noise_from_frame)
+
+    def test_settings_default_on(self):
+        from shootflow.raw_develop import DevelopSettings
+
+        self.assertTrue(DevelopSettings().noise_from_frame)
+
+
 class DevelopNoiseAwareTests(unittest.TestCase):
-    """``--demosaic noise-aware`` in the developer: the DNG's NoiseProfile drives it; without one it falls back to
-    directional, or with ``noise_from_frame`` uses a model read from the frame (``frame_noise``)."""
+    """``--demosaic noise-aware`` in the developer: the DNG's NoiseProfile drives it; without one a model read from
+    the frame (``frame_noise``, the default), or with ``noise_from_frame=False`` the directional demosaic."""
 
     def _dng(self, noise_profile=None, seed=5, w=96, h=72, sigma=40.0):
         import random
@@ -344,22 +362,26 @@ class DevelopNoiseAwareTests(unittest.TestCase):
         _, _, dpx, drep = self._develop(with_np, engine="numpy", demosaic="directional")
         self.assertEqual(len(px), len(dpx))
         self.assertNotEqual(list(px), list(dpx))  # a flat noisy field: blended toward bilinear
-        _, _, fpx, frep = self._develop(self._dng(None), engine="numpy", demosaic="noise-aware")
-        self.assertEqual(frep.demosaic, "directional")
-        self.assertTrue(any("NoiseProfile" in n and "--noise-from-frame" in n for n in frep.notes), frep.notes)
+        # Default since 2026-11-17 evening: no profile, the model read from the frame.
         _, _, dpx2, _ = self._develop(self._dng(None), engine="numpy", demosaic="directional")
-        self.assertEqual(list(fpx), list(dpx2))
-        # Opt-in (2026-11-17): no profile, the model read from the frame.
-        _, _, epx, erep = self._develop(self._dng(None), engine="numpy", demosaic="noise-aware", noise_from_frame=True)
+        _, _, epx, erep = self._develop(self._dng(None), engine="numpy", demosaic="noise-aware")
         self.assertEqual(erep.demosaic, "noise-aware")
         self.assertTrue(any("read from the frame" in n for n in erep.notes), erep.notes)
         self.assertEqual(len(epx), len(dpx2))
         self.assertNotEqual(list(epx), list(dpx2))  # the flat noisy field is blended toward bilinear here too
-        _, _, _, hfrep = self._develop(self._dng(None), engine="numpy", demosaic="noise-aware", half=True, noise_from_frame=True)
+        _, _, xpx, _ = self._develop(self._dng(None), engine="numpy", demosaic="noise-aware", noise_from_frame=True)
+        self.assertEqual(list(xpx), list(epx))  # the explicit flag is the default
+        # Turned off: the old fallback to directional, said in the notes.
+        _, _, fpx, frep = self._develop(self._dng(None), engine="numpy", demosaic="noise-aware", noise_from_frame=False)
+        self.assertEqual(frep.demosaic, "directional")
+        self.assertTrue(any("NoiseProfile" in n and "--no-noise-from-frame" in n for n in frep.notes), frep.notes)
+        self.assertEqual(list(fpx), list(dpx2))
+        _, _, _, hfrep = self._develop(self._dng(None), engine="numpy", demosaic="noise-aware", half=True)
         self.assertEqual(hfrep.demosaic, "noise-aware")
-        # A file with a profile ignores the flag: the profile drives the blend.
-        _, _, ppx, _ = self._develop(with_np, engine="numpy", demosaic="noise-aware", noise_from_frame=True)
-        self.assertEqual(list(ppx), list(px))
+        # A file with a profile ignores the flag either way: the profile drives the blend.
+        for flag in (True, False):
+            _, _, ppx, _ = self._develop(with_np, engine="numpy", demosaic="noise-aware", noise_from_frame=flag)
+            self.assertEqual(list(ppx), list(px))
         _, _, hpx, hrep = self._develop(with_np, engine="numpy", demosaic="noise-aware", half=True)
         self.assertEqual(hrep.demosaic, "noise-aware")
         self.assertFalse(any("states" in n for n in rep.notes), rep.notes)  # an honest profile is not scaled

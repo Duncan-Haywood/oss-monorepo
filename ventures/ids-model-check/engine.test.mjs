@@ -374,6 +374,43 @@ test("parseStep: a lazy record skips ';' inside strings and comments, and a bad 
   assert.equal(r.errors.length, 1, "an error is recorded once");
 });
 
+// Red-team guards, 2026-11-17 (prompts/runs/2026-11-17-session_01XpHqyeCriEFhGAiBgntwUd.json).
+test("parseStep: a record holding a string is still read lazily (its error waits until args is read)", () => {
+  // recordEnd must close a plain string at its quote; treating every closing
+  // quote as escaped sends each such record down the eager fallback.
+  const r = parseStep("DATA;\n#1=IFCWALL('a');\n#2=IFCWALL('y',#);\n#3=IFCWALL('x');\nENDSEC;\n");
+  assert.deepEqual(r.errors, [], "nothing is read before args is asked for");
+  assert.deepEqual(r.entities.get(3).args, ["x"]);
+  assert.deepEqual(r.entities.get(2).args, []);
+  assert.equal(r.errors.length, 1);
+});
+
+test("parseStep: a binary value is read and the record goes on after it", () => {
+  for (const eager of [false, true]) {
+    const r = parseStep('DATA;\n#1=IFCBLOBTEXTURE("0FF",2.);\nENDSEC;\n', { eager });
+    assert.deepEqual(r.entities.get(1).args, [{ binary: "0FF" }, 2], `eager=${eager}`);
+    assert.deepEqual(r.errors, [], `eager=${eager}`);
+  }
+});
+
+test("parseStep (eager): '#n=X(' inside a string is not another entity", () => {
+  const r = parseStep("DATA;\n#1=IFCWALL('see #7=IFCDOOR(1)');\nENDSEC;\n", { eager: true });
+  assert.deepEqual([...r.entities.keys()], [1]);
+  assert.deepEqual(r.errors, []);
+});
+
+test("parseStep: a commented-out record and a string inside a complex instance are not entities", () => {
+  // Found 2026-11-17: the scan matched '#n=X(' anywhere in DATA, so a record
+  // a person commented out, or text inside a multi-type #5=(A()B()) instance
+  // it skipped, came back as a real IFCDOOR for the IDS checks to judge.
+  for (const eager of [false, true]) {
+    const r = parseStep("DATA;\n/* old: #9=IFCDOOR(1); */\n#5=(IFCA('#8=IFCDOOR(1)')IFCB());\n#1=IFCWALL('a');\nENDSEC;\n", { eager });
+    assert.deepEqual([...r.entities.keys()], [1], `eager=${eager}`);
+    assert.deepEqual(r.entities.get(1).args, ["a"], `eager=${eager}`);
+    assert.deepEqual(r.errors, [], `eager=${eager}`);
+  }
+});
+
 test("federate: entity numbers shift past the previous file's, references inside strings do not", async () => {
   const { federate } = await import("./eval/federate.mjs");
   const a = "ISO-10303-21;\nHEADER;\nFILE_SCHEMA(('IFC4'));\nENDSEC;\nDATA;\n#1=IFCWALL('#1',#2);\n#2=IFCY();\nENDSEC;\nEND-ISO-10303-21;\n";
@@ -504,4 +541,13 @@ test("a prohibited specification with requirements stays invalid and says how ma
   assert.equal(s.status, "invalid");
   assert.equal(s.matching, 1);
   assert.match(s.note, /1 element\(s\) in this model match its applicability and would fail it/);
+});
+
+test("STEP: an apostrophe after \\S\\ is the directive's character, not the closing quote", () => {
+  // xBIM's SpecicalSolidusEscape.ifc: '...\S\'' ends with "§" (39 + 128).
+  const m = parseStep(ifc("IFC4", ["#1=IFCGROUP('g',$,'ends in \\S\\'',$,$);", "#2=IFCGROUP('h',$,'a\\\\S\\',$,$);", "#3=IFCGROUP('i',$,'it''s',$,$);"]));
+  assert.deepEqual(m.errors, []);
+  assert.equal(m.entities.get(1).args[2], "ends in §");
+  assert.equal(m.entities.get(2).args[2], "a\\S\\", "an escaped backslash before S\\ is not a directive");
+  assert.equal(m.entities.get(3).args[2], "it's");
 });

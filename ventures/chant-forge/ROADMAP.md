@@ -240,7 +240,11 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
 8. **First release:** an EP of three to five tracks, then a steady cadence.
    2026-11-16: `ep-cli.mjs` builds the EP folder from a plan (`examples/first-ep.json`: four tracks, 11:40,
    all at -14 LUFS, cover drawn from Dies irae's opening, release check clean but for artist, p/c-lines and
-   ISRCs). Next: a listening pass on the folder; per-track variation for `--repeat`.
+   ISRCs). Next: a listening pass on the folder.
+   2026-11-17: variation for `--repeat`: `--organum` adds a Musica enchiriadis second voice (a fourth below,
+   held at a boundary under the final, unison at phrase ends) on every pass after the first (`organum.mjs`; README
+   "A second voice"). Corpus: 68 of 68 files stay in E2-E4, 51.9% fourths, no tritones or semitones. Next: a
+   listen; other per-pass changes (a pass at the octave, a pass a cappella) only if the listen asks for them.
    2026-11-16, later: the studio page's own "Build the release folder (ZIP)" button (`ep-core.mjs`,
    `release-core.mjs`; README "The same folder from the studio page"): a one-track single, byte-identical to
    `ep-cli.mjs`'s files but for the cover's compression (same pixels), 1.9 s in Chromium. Next: several tracks

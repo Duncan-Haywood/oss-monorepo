@@ -7,7 +7,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { unitlessLengths, styleBlocks } from './css-lint.mjs';
+import { badSelectors, unitlessLengths, styleBlocks } from './css-lint.mjs';
 import { SITE_HEADER_CSS, VENTURE_CHROME_CSS, renderSiteStyle } from './site-nav.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -42,6 +42,33 @@ test('leaves zero, units, unitless properties and function arguments alone', () 
   ]) assert.deepEqual(unitlessLengths(css), [], css);
 });
 
+test('a border or outline shorthand with a bare width is flagged too', () => {
+  assert.deepEqual(unitlessLengths('a{border:1}').map((h) => h.token), ['1']);
+  assert.deepEqual(unitlessLengths('a{border-top:2 solid red;outline:3 dotted}').map((h) => h.token), ['2', '3']);
+  assert.deepEqual(unitlessLengths('a{border:0;border:1px solid #000;outline:none;border-bottom:var(--b, 1px solid)}'), []);
+});
+
+test('flags a selector no browser can parse, which drops the whole rule', () => {
+  assert.deepEqual(badSelectors('.shelf > p, .shelf-intro >= p { max-width:68ch; }').map((h) => h.selector), ['.shelf > p, .shelf-intro >= p']);
+  for (const css of ['a < b{}', 'a = b{}', 'h2 - p{}', 'ul / li{}', 'a,,b{}', 'a, {}', '@media (min-width:9px){ .x >= .y { a:b } }']) {
+    assert.equal(badSelectors(css).length, 1, css);
+  }
+});
+
+test('leaves combinators, at-rule comparisons, attributes, arguments and strings alone', () => {
+  for (const css of [
+    '.a > p, .b + p, .c ~ p, .d p, * {a:b}',
+    '@media (width >= 600px) and (height < 900px) { a > b { c:d } }',
+    'li:nth-child(2n - 1), li:nth-of-type(3n + 2) {a:b}',
+    'a[href^="http"], a[title="x >= y"], input[type=checkbox] {a:b}',
+    ':is(a, b) > c:not(.d, .e) {a:b}',
+    '@keyframes k { from { a:b } 40% { a:c } to { a:d } }',
+    '.x::after { content:"{ a >= b }"; } .y::before { content:\'<\'; }',
+    '/* a >= b { } */ a{b:c}',
+    '.a { color:red; & > .b { c:d } }',
+  ]) assert.deepEqual(badSelectors(css), [], css);
+});
+
 test('reads the <style> blocks of a page', () => {
   const html = '<style>a{margin:0}</style><p style="x">t</p><style media="print">b{padding:3}</style>';
   assert.deepEqual(unitlessLengths(styleBlocks(html)).map((h) => h.token), ['3']);
@@ -51,6 +78,7 @@ test('the shared site chrome has no unitless lengths', () => {
   assert.deepEqual(unitlessLengths(SITE_HEADER_CSS), []);
   assert.deepEqual(unitlessLengths(VENTURE_CHROME_CSS), []);
   assert.deepEqual(unitlessLengths(renderSiteStyle()), []);
+  for (const css of [SITE_HEADER_CSS, VENTURE_CHROME_CSS, renderSiteStyle()]) assert.deepEqual(badSelectors(css), []);
 });
 
 // Every hand-written page and stylesheet in the tree, style attributes included. Clean on
@@ -67,8 +95,9 @@ function* pages(dir) {
   }
 }
 
-test('no page or stylesheet in the tree gives a length a bare number', () => {
+test('no page or stylesheet in the tree gives a length a bare number or a rule an unparseable selector', () => {
   const bad = [];
+  const badSel = [];
   let seen = 0;
   for (const top of ['ventures', 'research', 'platform', 'docs', 'portfolio']) {
     for (const file of pages(path.join(REPO, top))) {
@@ -77,10 +106,12 @@ test('no page or stylesheet in the tree gives a length a bare number', () => {
       const css = file.endsWith('.css') ? text : styleBlocks(text);
       const attrs = file.endsWith('.html') ? [...text.matchAll(/\sstyle="([^"]*)"/g)].map((m) => `;${m[1]}`).join('\n') : '';
       for (const h of unitlessLengths(`${css}\n${attrs}`)) bad.push(`${path.relative(REPO, file)}: ${h.prop}:${h.value}`);
+      for (const h of badSelectors(css)) badSel.push(`${path.relative(REPO, file)}: ${h.selector} (${h.why})`);
     }
   }
   assert.ok(seen > 1000, `only ${seen} pages found: is the walk broken?`);
   assert.deepEqual(bad.slice(0, 20), [], `${bad.length} unitless length(s); add px/em/% (only 0 may go bare)`);
+  assert.deepEqual(badSel.slice(0, 20), [], `${badSel.length} selector(s) the browser drops with their whole rule`);
 });
 
 // The walk above reads files on disk; the CSS that platform/pages modules write into every built
@@ -102,4 +133,22 @@ test('no CSS a platform/pages module emits gives a length a bare number', () => 
   }
   assert.ok(literals > 200, `only ${literals} template literals found: is the scan broken?`);
   assert.deepEqual(bad, [], 'add px/em/% (only 0 may go bare)');
+});
+
+// Selectors need real CSS, not every template literal (HTML and JS hold `<`, `=` and `{`). The
+// modules keep their stylesheets in constants named *_CSS or *STYLE*, so those are read. Red team
+// 2026-11-17: `.shelf-intro > p` -> `.shelf-intro >= p` in stories.mjs's STYLE passed every test.
+test('no stylesheet constant a platform/pages module emits has a selector the browser drops', () => {
+  const bad = [];
+  let sheets = 0;
+  for (const name of readdirSync(HERE).filter((f) => f.endsWith('.mjs') && !f.includes('.test.'))) {
+    const src = readFileSync(path.join(HERE, name), 'utf8');
+    for (const m of src.matchAll(/\bconst\s+([A-Z][A-Z0-9_]*(?:CSS|STYLE)[A-Z0-9_]*)\s*=\s*`((?:[^`\\]|\\.)*)`/g)) {
+      sheets++;
+      const css = m[2].replace(/\$\{[^}]*\}/g, 'X').replace(/<\/?style\b[^>]*>/gi, ' ');
+      for (const h of badSelectors(css)) bad.push(`${name} ${m[1]}: ${h.selector} (${h.why})`);
+    }
+  }
+  assert.ok(sheets > 25, `only ${sheets} stylesheet constants found: is the scan broken?`);
+  assert.deepEqual(bad, [], 'fix the selector: the whole rule is dropped');
 });

@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqygHP7kAqEBYH2FLvbp",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T14:39:29Z",
+  "ended": "2026-11-17T15:28:19Z",
+  "wall_minutes": 49.17,
+  "tokens_in": 9202770,
+  "tokens_out": 38309,
+  "cost_usd": 3.7187,
+  "tool_calls": 79,
+  "task": "ai-bookkeeper flagship row 1, receipts item (5): re-score CORD photo sets for the voteTax guard and read 'train shard 4' as a fresh check",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16968",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "Created a venv and downloaded six CORD parquet files (~2.3 GB) into ventures/ai-bookkeeper by mistake when a backgrounded `mkdir && cd` raced the next line; moved them to the scratchpad and removed the venv before any commit.",
+    "First apt-get install of tesseract-ocr failed (no package lists); apt-get update fixed it."
+  ],
+  "integrity_issues": [
+    "Shard 0 informed all three changes, so it is reported as a development set for them, not held out. CORD test scored once with the final code (before and after)."
+  ],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper's buildable item said 'train shard 4 (200 unread photos)', but CORD-v2 has four train shards (00000-00003) and all 800 photos had been read; the unread-by-today's-rules one was shard 0. Cost a few minutes of checking; replaced in this PR."
+    },
+    {
+      "file": "ventures/ai-bookkeeper/eval/lead-vote-2026-11-17.md",
+      "issue": "Says tesseract's four readings of 600 photos take about 100 minutes on 4 cores; in this container they took about 12 minutes, so the item looked costlier than it was."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The buildable item named a shard that does not exist",
+      "did": "Read shard 0 (the one the lead rule, RapidOCR parser rules and voteTax guard never saw) as the fresh check instead",
+      "result": "Found that the page dropped every rupiah tax the readings agreed on (fixed: train page tax 177 to 205) and a PAJAK arithmetic gap (+3 totals)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-receipt-page-dropped-rupiah-taxes.md",
+    "ventures/ai-bookkeeper/eval/cord-shard0-lead-2026-11-17.md"
+  ],
+  "goal": "Deepen flagship ai-bookkeeper: receipt photo OCR on the page",
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py ai-bookkeeper -> ok, 3353 tests; receipt-shard0.test.mjs both fail on main, pass here. Scores (totals; page tax): shard 0 175->177, 63->69/85; shards 1-3 542->543 CLI, page 540->541, page tax 177->205/267; validation page tax 36->41/47; test (held out) page tax 28->31/41 (wrong 1->3, same as CLI); SRD 188 and tax 162 unchanged; CORD text 767/97/94 unchanged. voteTax guard moves nothing on CORD (209/41/32 as before). venture-preflight run in background; result in PR.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8ab124d0-840a-5c75-9ac7-9ff1e1cb3ff0",
+    "transcripts": 1,
+    "first": "2026-11-17T14:39:29Z",
+    "last": "2026-11-17T15:28:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 76,
+        "input": 153,
+        "output": 38309,
+        "thinking": 8288,
+        "cache_read": 9060137,
+        "cache_write_5m": 0,
+        "cache_write_1h": 142480,
+        "api_equivalent_usd": 3.7187,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 76,
+      "input": 153,
+      "output": 38309,
+      "thinking": 8288,
+      "cache_read": 9060137,
+      "cache_write_5m": 0,
+      "cache_write_1h": 142480,
+      "api_equivalent_usd": 3.7187,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 79,
+    "tools": {
+      "Bash": 74,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 49.17,
+      "active_minutes": 18.68,
+      "model_minutes": 6.55,
+      "tool_minutes": 12.13,
+      "waiting_on_human_minutes": 30.49,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "an OCR engineer re-running 1,200 photos through two engines, diagnosing two faults and writing fixes, tests and write-ups",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 215.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

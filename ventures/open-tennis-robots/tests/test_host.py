@@ -1688,6 +1688,26 @@ class LoopFitUnsureTest(unittest.TestCase):
         self.assertIn("2 of 12 wheel readings marked unsure", two.note)
         self.assertAlmostEqual(two.speed_efficiency, 0.8, places=6)
 
+    def test_unsure_weight_scales_a_marked_reading(self):
+        # 2026-11-17, firmware/esp32/README.md "Unsure marks on the noisy wheels": a marked reading counts w times
+        from tennisbots import launcher
+        r_w = launcher.WheelLauncher().wheel_radius
+        recs = []
+        for top, bot in ((3000, 3000), (4500, 3000), (3000, 4500), (5000, 5000), (6000, 4000), (4000, 6000)):
+            def drop(w, sign):
+                k = launcher.BALL_KG * r_w ** 2 / (launcher.WHEEL_INERTIA_KGM2 * w)
+                return k * (0.8 * (top + bot) / 4 + sign * 0.5 * (top - bot) / 6)
+            recs.append({"launched": True, "rpm_top": top, "rpm_bottom": bot, "drop_top": drop(top, 1),
+                         "drop_bottom": drop(bot, -1), "fit_top": True, "fit_bottom": True})
+        recs[1] = dict(recs[1], drop_top=recs[1]["drop_top"] * 1.1, unsure_top=True)   # 10% high, inside TRIM
+        full = launcher.fit_from_drops(recs)
+        half = launcher.fit_from_drops(recs, unsure_weight=0.5)
+        none = launcher.fit_from_drops(recs, unsure_weight=0.0)
+        self.assertEqual(launcher.fit_from_drops(recs, unsure_weight=1.0), full)
+        self.assertGreater(abs(full.spin_efficiency - 0.5), abs(half.spin_efficiency - 0.5))
+        self.assertAlmostEqual(none.spin_efficiency, 0.5, places=6)    # set aside: the clean rows alone
+        self.assertAlmostEqual(none.speed_efficiency, 0.8, places=6)
+
 
 class RefitTest(unittest.TestCase):
     """2026-11-16, firmware/esp32/README.md "Re-planning a drill from its own shots": host.Refitter fits the launcher's

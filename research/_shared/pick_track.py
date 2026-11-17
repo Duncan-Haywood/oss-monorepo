@@ -858,7 +858,7 @@ if __name__ == "__main__":
     behind = commits_behind()
     if behind:
         print(f"WARNING: this checkout is {behind} commit(s) behind origin/main, so the lists below may "
-              "name projects that already landed. `git fetch --depth=40 origin main && git merge origin/main` first.")
+              "name projects that already landed. `python3 platform/ci/fetch_ref.py main && git merge origin/main` first.")
     if t != "free":
         print(f"track runs open a programme in this area or advance one (research/PROGRAMMES.md); "
               "the listed milestones are raw material, not separate projects")

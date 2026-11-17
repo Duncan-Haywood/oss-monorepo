@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVKUmA1x2coBtt5Q85P",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (owner's standing ventures brief).",
+  "input_sha256": "96b8dcee141c192cf0d3c5dca049bcda7e21033d35a006d95939179bf11dedc7",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T14:56:16Z",
+  "ended": "2026-11-17T15:08:59Z",
+  "wall_minutes": 13.01,
+  "tokens_in": 10718756,
+  "tokens_out": 38603,
+  "cost_usd": 4.2601,
+  "tool_calls": 85,
+  "task": "einvoice-preflight flagship: deliver-to party ids vs Peppol (buildable item); found and fixed Dutch post-2020 VAT checksum false errors",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16970",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says pytest runs need PYTHONPATH implicitly via run_venture_tests.py; running tests/test_vat.py directly fails on import without PYTHONPATH=src (cost one retry)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "The allocator's 'start here' named league-schedule-generator, whose next items are multi-hour combinatorial searches (47 teams on 8x9) with little user value; einvoice-preflight, also among the first six unclaimed Deepen rows, had a buildable item with direct compliance value.",
+      "did": "Took einvoice-preflight's buildable item instead.",
+      "result": "Landed it plus a real false-error fix for Dutch VAT numbers found on the way."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-dutch-sole-trader-vat-numbers-fail-the-elfproef.md",
+    "ventures/einvoice-preflight/eval/nl-vat-stdnum-differential-2026-11-17.md",
+    "ventures/einvoice-preflight/eval/delivery-party-ids-peppol-differential-2026-11-17.md"
+  ],
+  "goal": null,
+  "notes": "NL VAT: INV-023 used elfproef only; post-2020 sole-trader btw-ids use mod 97-10. vs python-stdnum 2.2 on 30,000 drawn numbers: 6,545 disagreements before (6,406 valid mod-97 numbers flagged), 0 after on seeds 7 and 11 (page and CLI). Deliver-to ids: party-id-peppol-differential 22 places, seed 7 1,508 of 9,521 disagreed before, 0 of 9,445 after; seed 11 0 of 9,379. run_venture_tests.py einvoice-preflight: 2,658 tests ok. run_workflow_locally --for-changes: see PR body.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "deceadd2-9f2d-5795-9ba7-34e0f2b662c9",
+    "transcripts": 1,
+    "first": "2026-11-17T14:56:16Z",
+    "last": "2026-11-17T15:09:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 81,
+        "input": 158,
+        "output": 38603,
+        "thinking": 9269,
+        "cache_read": 10546328,
+        "cache_write_5m": 0,
+        "cache_write_1h": 172270,
+        "api_equivalent_usd": 4.2601,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 81,
+      "input": 158,
+      "output": 38603,
+      "thinking": 9269,
+      "cache_read": 10546328,
+      "cache_write_5m": 0,
+      "cache_write_1h": 172270,
+      "api_equivalent_usd": 4.2601,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 85,
+    "tools": {
+      "Bash": 82,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.01,
+      "active_minutes": 13.01,
+      "model_minutes": 6.6,
+      "tool_minutes": 6.42,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a developer reading the Peppol COMMON contexts and stdnum, extending two readers in JS and Python, and running two differentials",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 140.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

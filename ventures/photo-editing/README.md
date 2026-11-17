@@ -1371,7 +1371,7 @@ unchanged.
 directional result toward bilinear block by block (24 x 24). Each block's weight comes from how far
 directional departs from bilinear there, against the noise the sensor has at that brightness. The noise
 comes from the DNG's own NoiseProfile tag, which phones and converted DNGs write. Without the tag the
-file develops as directional, and the notes say so (or, with `--noise-from-frame`, from the frame: below). On 25 held-out sample files (scenes from 41 bodies,
+noise is read from the frame itself (the default since 2026-11-17, below; `--no-noise-from-frame` develops such a file as directional, and the notes say so). On 25 held-out sample files (scenes from 41 bodies,
 noise drawn at three levels), colour PSNR rises +0.43 dB on X-Trans and +0.31 dB on Bayer over the
 directional default on average, +0.93 / +0.68 dB at SNR 12, and no tile is worse by more than 0.01 dB.
 That beats the best single blend weight per frame chosen with the truth in hand (+0.41 / +0.26). The
@@ -1444,6 +1444,23 @@ X-Trans, 17 of 248 tiles still lose over 0.1 dB (worst 1.48 dB, from 45 and 5.65
 opt-in. The 0.8 scale was picked after seeing held-out Bayer rows; on X-Trans the tune-only rule picked it.
 `frame_noise(..., estimator="spread")` gives the old model. `tools/noise_estimator_accuracy.py`,
 `tools/noise_aware_estimated.py sweep --pca`, `eval/noise-pca-estimator-2026-11-17.md`.
+
+**Since the evening of 2026-11-17 X-Trans files no longer lose detail to it either.** On X-Trans a colour's next
+copy is six sensels away, so the afternoon's texture test saw the scene at a six-sensel scale and kept textured
+patches; two-period (12 x 12) patches were worse, not better. The test now takes the differences of touching
+same-colour sensels (every X-Trans green touches another), reading texture at one sensel. On 248 held-out
+X-Trans tiles no tile is now worse than directional by over 0.1 dB (was 17, worst -0.04 dB against -1.48), and
+the mean luma gain rose from +0.45 to +0.53 dB. Bayer is unchanged. `estimate_noise_pca(..., texture="colour")`
+gives the afternoon's model. `eval/xtrans-noise-pca-12-2026-11-17.md`.
+
+**Since the night of 2026-11-17 it is the default: `--demosaic noise-aware` on a file with no NoiseProfile reads
+the noise from the frame** (`--no-noise-from-frame` gives the old fallback to directional). Checked on whole
+real frames from the public sample set: all 52 files without a profile that develop (ARW, CR2, NEF, ORF, RW2,
+SRW, RAF, PEF and DNG; four Bayer phases and two X-Trans) took the frame-read model, and the one DNG with a
+profile kept it. With no truth on those frames the check is behavioural: at ISO 50-200 the blend moves a median
+1.5% of pixel values (PSNR 58 dB against directional), at ISO 800-6400 a median 23% (48 dB). It costs about
+0.5 s per megapixel and up to 6.4 GB on a 36 MP frame, which is why the default demosaic (`auto`) stays
+directional. `tools/noise_fallback_real.py`, `eval/noise-fallback-real-2026-11-17.md`.
 
 ## A directional demosaic for Bayer files (2026-11-15)
 

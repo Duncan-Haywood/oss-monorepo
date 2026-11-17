@@ -31,7 +31,7 @@ export function recordUsage(storage = usageStorage(), optedOut = false, event = 
     let current = {};
     try {
       const loaded = JSON.parse(storage.getItem(STORAGE_KEY) || "{}");
-      if (loaded && typeof loaded === "object") current = loaded;
+      if (loaded && typeof loaded === "object" && !Array.isArray(loaded)) current = loaded;
     } catch {
       current = {};
     }

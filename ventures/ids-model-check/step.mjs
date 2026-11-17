@@ -14,6 +14,18 @@
 // separate Set of integer-looking tokens is not needed for IDS checks: the schema
 // says which attributes are integers).
 
+// An apostrophe right after a \S\ directive is the directive's character
+// (39 + 128 = 167, "§"), not a quote: ISO 10303-21 escapes the directive's
+// character, not the quote, so '...\S\'' is one string ending in "§"
+// (xBIM's SpecicalSolidusEscape.ifc). The "\S\" must not itself end an
+// escaped backslash ("\\S\" is a backslash, then "S\").
+function quotedBySolidusS(t, q) {
+  if (t.charCodeAt(q - 1) !== 92 || t.charCodeAt(q - 2) !== 83 || t.charCodeAt(q - 3) !== 92) return false;
+  let k = q - 4, n = 0;
+  while (k >= 0 && t.charCodeAt(k) === 92) { n++; k--; }
+  return n % 2 === 0;
+}
+
 export function decodeStepString(s) {
   let out = "";
   for (let i = 0; i < s.length; i++) {
@@ -78,6 +90,7 @@ class Reader {
       for (;;) {
         const q = t.indexOf("'", i);
         if (q < 0) throw new Error("unterminated string");
+        if (quotedBySolidusS(t, q)) { i = q + 1; continue; }
         if (t[q + 1] === "'") { i = q + 2; continue; }
         const raw = t.slice(this.p + 1, q);
         this.p = q + 1;
@@ -156,6 +169,7 @@ function recordEnd(t, p) {
       for (;;) {
         const q = t.indexOf("'", i + 1);
         if (q < 0) return -1;
+        if (quotedBySolidusS(t, q)) { i = q; continue; }
         if (t.charCodeAt(q + 1) === 39) { i = q + 1; continue; }
         i = q;
         break;
@@ -210,7 +224,12 @@ export function parseStep(text, opts = {}) {
   const dataStart = text.search(/\bDATA\s*;/);
   if (dataStart < 0) throw new Error("not a STEP file: no DATA section");
   const entities = new Map();
-  const re = /#(\d+)\s*=\s*([A-Za-z0-9_]+)\s*\(/g;
+  // A comment between records and a multi-type ("complex") instance
+  // #5=(IFCA(...)IFCB(...)) are stepped over whole: the scan once matched
+  // '#n=X(' inside them, so a record someone had commented out, or text in a
+  // complex instance's string, came back as an entity (red team 2026-11-17).
+  // Complex instances are not read (as before), only no longer mined.
+  const re = /\/\*|#(\d+)\s*=\s*(?:([A-Za-z0-9_]+)\s*)?\(/g;
   re.lastIndex = dataStart;
   const errors = [];
   const policy = { keep: () => true };
@@ -220,6 +239,18 @@ export function parseStep(text, opts = {}) {
   const types = new Map();
   let m;
   while ((m = re.exec(text))) {
+    if (m[1] === undefined) { // /* comment */
+      const e = text.indexOf("*/", re.lastIndex);
+      if (e < 0) break;
+      re.lastIndex = e + 2;
+      continue;
+    }
+    if (m[2] === undefined) { // complex instance: skip to its ";"
+      const end = recordEnd(text, re.lastIndex - 1);
+      if (end < 0) break;
+      re.lastIndex = end + 1;
+      continue;
+    }
     const id = Number(m[1]);
     let type = types.get(m[2]);
     if (type === undefined) types.set(m[2], (type = m[2].toUpperCase()));

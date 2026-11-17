@@ -1760,3 +1760,59 @@ The jitter noise worth chasing is the slow shot's fast wheel, whatever the mode:
 have 0.6%. Next: whether the board's LOOP_UNSURE flag marks those wheels, and whether the Pi's fit should weight them down.
 
 **Not known.** All simulated; the jitter is the simulator's Gaussian 3 us per edge.
+
+## Unsure marks on the noisy wheels (2026-11-17, later)
+
+**The item.** "The jittery tach through a speed change" found the noisiest readings in one class, the fast partner
+wheel of a slow spin shot: sd 1.0% of the true drop, where a fast shot's wheels have 0.6%. Does the board's
+`LOOP_UNSURE` mark (LAUNCH flags bits 6 / 7, the loop fit's own standard error over 1% of its drop) find those
+wheels, and should the Pi's launcher fit count a marked reading for less?
+
+**The run.** `tests/unsure_weight.py` runs the calibration drill and the held-out slow drill on min_fit_heldout's 18
+builds (three launchers, two wheel lags, three plants), hold mode, on seeds 7, 8, 13 and 14: 72 builds, none aborted.
+It logs every wheel's mark and the loop fit's standard error, and refits the launcher as the Pi does (floor 1,000
+rpm) with `launcher.fit_from_drops(unsure_weight=w)`, a new argument that counts a marked reading w times. The
+decision rule was committed with the script before it ran: pick the best of w = 0.5, 0.25, 0 on seeds 7 and 8, and
+ship it only if it beats w = 1 on seeds 13 and 14 on the mean spin error and on two plants of three, without making
+a plant's worst build 0.25 points worse or the speed 0.1 points worse. Raw: eval/unsure-weight-2026-11-17.txt and
+the .jsonl beside it.
+
+**The marks find the noisy wheels.** On the first-order and ESC 50 ms plants no wheel at 1,000 rpm or more was
+marked, as on 2026-11-16. On the 3 us jittery tach (1,632 wheels at the fit's floor or above):
+
+| class | wheels | marked | > 2% off | of those, marked | sd marked | sd unmarked |
+| --- | --- | --- | --- | --- | --- | --- |
+| calibration drill | 576 | 94 | 5 | 4 | 0.98% | 0.59% |
+| slow drill, fast shot | 452 | 19 | 2 | 1 | 0.81% | 0.57% |
+| slow drill, slow shot's fast wheel | 604 | 246 | 16 | 11 | 0.99% | 0.72% |
+
+So the noisy class is the marked class: 41% of the slow shot's fast wheels came marked against 4% of a fast shot's,
+and 16 of the 23 misses over 2% were marked (22% of wheels marked in all). A marked reading is over 2% off 4.5% of
+the time, an unmarked one 0.55%. The standard error tracks the true error: wheels with a standard error under 0.5%
+read 0.33% rms off, 0.5-1% read 0.73%, 1-2% read 0.98%.
+
+**But weighting them down does not help the fit.** Spin efficiency error, mean (worst build), all plants:
+
+| seeds | w = 1 (shipped) | 0.5 | 0.25 | 0 (set aside) |
+| --- | --- | --- | --- | --- |
+| 7, 8 (design) | 0.58% (1.60) | 0.57% (1.71) | 0.58% (1.79) | 0.58% (1.89) |
+| 13, 14 (held out) | 0.54% (1.75) | 0.55% (1.74) | 0.56% (1.73) | 0.59% (1.72) |
+
+The design seeds picked 0.5 by 0.01 points; on the held-out seeds it was 0.01 points worse, so the rule keeps 1.
+Only the jittery plant moves at all; the other two have no marks, and their simulator draws no random numbers, so
+their rows are the same on every seed.
+
+**Why: the fit's error is spread over every reading, not carried by the marked ones.** On the 24 jittery builds the
+spin error is 0.57% mean as read. With every reading replaced by the simulator's true drop it is 0.03%, so the
+readings' noise is nearly all of it. With only the marked readings made true it is 0.44%, and with only the 23
+readings over 2% off made true, 0.52%. Even a perfect correction of the marked readings wins 0.13 points; down-weighting
+them, which also throws away the signal they carry (their sd is about 1.4x the rest, an inverse-variance weight near
+0.5), wins nothing measurable. The marks stay what they were: a warning about the build (the note at 10% marked),
+not a filter.
+
+**What changes.** `fit_from_drops` takes `unsure_weight` (default 1, so nothing changes). Next on this thread is
+lowering every reading's noise rather than sorting readings: the remaining 0.57% is what 3 us of jitter on each
+revolution leaves in the loop fit's drop.
+
+**Not known.** All simulated, with Gaussian per-edge jitter; a real tach's misses may be lumpier (a missed edge, a
+noisy interrupt), and there marks could carry more of the error than here.

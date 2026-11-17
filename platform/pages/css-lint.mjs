@@ -24,6 +24,13 @@ const LENGTH_PROPS = new Set([
   'border-radius', 'border-width', 'outline-offset', 'outline-width',
   'font-size', 'letter-spacing', 'word-spacing', 'text-indent',
   'text-underline-offset', 'scroll-margin-top', 'scroll-padding-top',
+  // Shorthands that take a width among other parts: `border:1 solid` (or a seeded `border:0` ->
+  // `border:1`) is as invalid as `margin:1`, and the element keeps whatever border it had
+  // (red team 2026-11-17, stories.mjs: `.has-covers .jump a { border:0 }` -> `border:1` passed).
+  'border', 'border-top', 'border-right', 'border-bottom', 'border-left',
+  'border-block', 'border-inline', 'border-block-start', 'border-block-end', 'border-inline-start', 'border-inline-end',
+  'border-top-width', 'border-right-width', 'border-bottom-width', 'border-left-width',
+  'outline', 'column-rule', 'column-rule-width',
 ]);
 
 const stripComments = (css) => css.replace(/\/\*[\s\S]*?\*\//g, ' ');
@@ -80,7 +87,42 @@ export function unitlessLengths(css) {
   return found;
 }
 
-/** The <style> blocks of an HTML page, joined. */
+/**
+ * The <style> blocks of an HTML page, joined. Scripts are dropped first: a `"<style>"` string
+ * inside one (csshound builds a page that way) is not a stylesheet.
+ */
 export function styleBlocks(html) {
-  return [...String(html || '').matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)].map((m) => m[1]).join('\n');
+  return [...String(html || '').replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, ' ').matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)].map((m) => m[1]).join('\n');
+}
+
+// An invalid selector is the other silent drop: the browser throws away the whole rule, every
+// declaration in it. Red team 2026-11-17, stories.mjs: `.shelf > p, .shelf-intro > p` ->
+// `.shelf-intro >= p` passed every test, and the shelf text lost its 68ch measure. The faults
+// a slip (or a seeded mutant) makes in a selector are a comparison (`>=`, `<`, `=` outside an
+// attribute selector) or a lone `-` or `/` where a `+` or `*` combinator stood. Only style-rule
+// selectors are read: an at-rule prelude (`@media (width >= 600px)`) may compare legitimately,
+// and strings, [attribute] and (argument) contents (`:nth-child(2n - 1)`) are skipped.
+
+/**
+ * Style-rule selectors in `css` that no browser can parse, as [{ selector, why }] in source
+ * order; an empty list means clean. Plain string work like unitlessLengths.
+ */
+export function badSelectors(css) {
+  const found = [];
+  const text = stripComments(String(css || ''))
+    .replace(/"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'/g, '""');
+  // A selector runs from the last `{`, `}` or `;` to the `{` that opens its block.
+  for (const m of text.matchAll(/(?<=^|[{};])([^{};]*)\{/g)) {
+    const selector = m[1].trim();
+    if (!selector || selector.startsWith('@')) continue;
+    // Keyframe stops (from, to, 40%) are selectors only inside @keyframes, and never fail this.
+    let bare = selector;
+    for (let prev = ''; prev !== bare;) { prev = bare; bare = bare.replace(/\[[^[\]]*\]|\([^()]*\)/g, '_'); }
+    let why = null;
+    if (/>=|<|=/.test(bare)) why = 'a comparison is not a combinator';
+    else if (/(^|\s)[-/](\s|$)/.test(bare)) why = 'a lone - or / is not a combinator';
+    else if (/(^|,)\s*(,|$)/.test(bare)) why = 'an empty selector in the list';
+    if (why) found.push({ selector, why });
+  }
+  return found;
 }

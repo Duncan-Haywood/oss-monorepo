@@ -620,21 +620,47 @@ function mulberry32(seed) {
   };
 }
 
-/** Monte Carlo Fisher-Freeman-Halton p-value: shuffle column labels against row labels (both margins fixed). */
+/** One draw from the hypergeometric: successes in n draws without replacement from N items, K of them successes. */
+function hypergeometric(N, K, n, rnd) {
+  const lo = Math.max(0, n - (N - K)), hi = Math.min(n, K);
+  if (lo === hi) return lo;
+  // Inversion from the mode outward ("chop-down"): the expected cost is about one standard deviation, not N.
+  const m = Math.min(hi, Math.max(lo, Math.floor(((n + 1) * (K + 1)) / (N + 2))));
+  const pm = Math.exp(lchoose(K, m) + lchoose(N - K, n - m) - lchoose(N, n));
+  let u = rnd() - pm;
+  if (u <= 0) return m;
+  let up = m, pu = pm, dn = m, pd = pm;
+  while (up < hi || dn > lo) {
+    if (up < hi) { pu *= ((K - up) * (n - up)) / ((up + 1) * (N - K - n + up + 1)); up++; u -= pu; if (u <= 0) return up; }
+    if (dn > lo) { pd *= (dn * (N - K - n + dn)) / ((K - dn + 1) * (n - dn + 1)); dn--; u -= pd; if (u <= 0) return dn; }
+  }
+  return m;
+}
+
+/**
+ * Monte Carlo Fisher-Freeman-Halton p-value: random tables with both margins fixed. Each row takes its count
+ * from what is left of the column totals, one hypergeometric draw per cell, so the cost per table grows with
+ * r x c and the square root of n rather than with n (a 3 x 3 table of 18,000 took 13 s by shuffling labels; 2026-11-17).
+ */
 export function fisherRxCMonteCarlo(t, { samples = 20000, seed = 1 } = {}) {
   const { r, c, n } = margins(t);
-  const rowLab = [], colLab = [];
-  r.forEach((v, i) => { for (let k = 0; k < v; k++) rowLab.push(i); });
-  c.forEach((v, j) => { for (let k = 0; k < v; k++) colLab.push(j); });
   const score = (tab) => -tab.flat().reduce((s, v) => s + lfact(v), 0);
   const obs = score(t);
   const rnd = mulberry32(seed);
   let hits = 0;
   const tab = r.map(() => new Array(c.length).fill(0));
+  const colLeft = c.slice();
   for (let s = 0; s < samples; s++) {
-    for (let i = n - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); const tmp = colLab[i]; colLab[i] = colLab[j]; colLab[j] = tmp; }
-    for (const row of tab) row.fill(0);
-    for (let k = 0; k < n; k++) tab[rowLab[k]][colLab[k]]++;
+    for (let j = 0; j < c.length; j++) colLeft[j] = c[j];
+    let pool = n;
+    for (let i = 0; i < r.length; i++) {
+      let left = r[i], rest = pool;
+      for (let j = 0; j < c.length; j++) {
+        const x = j === c.length - 1 ? left : hypergeometric(rest, colLeft[j], left, rnd);
+        tab[i][j] = x; rest -= colLeft[j]; colLeft[j] -= x; left -= x;
+      }
+      pool -= r[i];
+    }
     if (score(tab) <= obs + 1e-7) hits++;
   }
   const p = (hits + 1) / (samples + 1);
@@ -918,8 +944,16 @@ export function analyze(input = {}) {
   colLabels = colLabels || table[0].map((_, j) => (C === 2 ? ["Event", "No event"][j] : `Category ${j + 1}`));
   if (mode === "paired" && (R !== 2 || C !== 2)) throw new Error("McNemar's test needs a 2x2 table of paired outcomes.");
   if (mode === "auto") mode = "independent";
+  if (mode !== "paired" && R === 2 && C === 2) {
+    const empty = table.findIndex((row) => row[0] + row[1] === 0);
+    if (empty >= 0) throw new Error(`${rowLabels[empty]} has no observations: comparing two groups needs counts in both rows.`);
+  }
   const out = { mode, alpha, confidence, alternative: o.alternative, rows: R, cols: C, n: table.flat().reduce((s, v) => s + v, 0), table, rowLabels, colLabels, warnings };
   if (mode === "paired") {
+    if (o.alternative !== "two-sided") {
+      warnings.push(`McNemar's test here is two-sided; the one-sided alternative ("${o.alternative}") was not applied. Halve the exact p-value only if the discordant pairs lean the way you predicted.`);
+      out.alternative = "two-sided";
+    }
     out.mcnemar = mcnemar(table, { confidence });
     out.summary = summarize(out);
     return out;
@@ -959,6 +993,7 @@ function summarize(r) {
     const m = r.mcnemar;
     lines.push(`McNemar's test on ${m.b + m.c} discordant pairs (${m.b} changed one way, ${m.c} the other): exact ${pIs(m.exactP)}, mid-${pIs(m.midP)} (exact ${sig(m.exactP)}, mid-p ${sig(m.midP)} at ${a}). Paired odds ratio ${fmt(m.oddsRatio)} (${Math.round(r.confidence * 100)}% CI ${fmt(m.ci[0])} to ${fmt(m.ci[1])}).`);
     if (m.b + m.c < 25) lines.push("With fewer than 25 discordant pairs, read the exact or mid-p value, not the chi-square.");
+    for (const w of r.warnings || []) lines.push(w);
     return lines.join(" ");
   }
   if (r.rows === 2 && r.cols === 2) {
@@ -985,7 +1020,9 @@ function summarize(r) {
     const s = r.stratified;
     const crude = r.rows === 2 && r.cols === 2 ? r.effects.oddsRatio.estimate : NaN;
     lines.push(`Across ${s.strata.length} strata: Mantel-Haenszel common odds ratio ${fmt(s.commonOR.estimate)} (${Math.round(r.confidence * 100)}% CI ${fmt(s.commonOR.ci[0])} to ${fmt(s.commonOR.ci[1])}), CMH ${pIs(s.cmh.p)}, exact conditional ${pIs(s.exact.p)}.`);
-    if (Number.isFinite(crude) && (crude - 1) * (s.commonOR.estimate - 1) < 0) lines.push(`The pooled table points the other way (crude odds ratio ${fmt(crude)}): Simpson's paradox: adjusted for the strata, the odds ratio falls on the other side of 1.`);
+    const adjustedFinite = Number.isFinite(s.commonOR.estimate) && s.commonOR.estimate > 0;
+    if (!adjustedFinite) { /* a zero or infinite common odds ratio: no ratio to compare the crude one with */ }
+    else if (Number.isFinite(crude) && (crude - 1) * (s.commonOR.estimate - 1) < 0) lines.push(`The pooled table points the other way (crude odds ratio ${fmt(crude)}): Simpson's paradox: adjusted for the strata, the odds ratio falls on the other side of 1.`);
     else if (Number.isFinite(crude) && Math.abs(Math.log(crude / s.commonOR.estimate)) > Math.log(1.25)) lines.push(`The crude odds ratio (${fmt(crude)}) differs from the adjusted one by more than 25%: the strata confound the pooled table.`);
     if (s.breslowDay.taroneP < a) lines.push(`Breslow-Day-Tarone ${pIs(s.breslowDay.taroneP)}: the strata do not share one odds ratio, so read the per-stratum odds ratios, not just the common one.`);
   }
