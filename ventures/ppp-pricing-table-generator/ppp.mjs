@@ -61,6 +61,24 @@ export function roundPrice(p, style) {
   return Math.max(0.99, Math.round(p - 0.99) + 0.99);
 }
 
+// Rounding runs after the floor/cap clamp, so it can push a price back outside
+// them (default table: Pakistan 9.99 under a 10.15 floor). Step one rounding
+// unit back inside; the floor wins when no rounded price fits both bounds.
+const ROUND_STEP = { none: 0.01, whole: 1, nine: 10, charm: 1 };
+export function roundWithin(raw, o) {
+  const step = ROUND_STEP[o.rounding] ?? 1;
+  const lo = o.base * o.floor - 1e-9;
+  const hi = o.base * o.cap + 1e-9;
+  let price = roundPrice(raw, o.rounding);
+  for (let i = 0; i < 100 && price < lo; i++) price = roundPrice(price + step, o.rounding);
+  for (let i = 0; i < 100 && price > hi; i++) {
+    const down = roundPrice(price - step, o.rounding);
+    if (down >= price || down < lo) break;
+    price = down;
+  }
+  return price;
+}
+
 export function parseIndexOverrides(text) {
   const out = {};
   const bad = [];
@@ -106,7 +124,7 @@ export function buildTable(opts = {}, overrides = {}, refCode = "US") {
     for (const r of rows) r.tier = order.indexOf(band(r)) + 1;
   }
   rows = rows.map((r) => {
-    const price = roundPrice(r.raw, o.rounding);
+    const price = roundWithin(r.raw, o);
     return { ...r, price, discount: 1 - price / o.base };
   });
   rows.sort((a, b) => b.price - a.price || b.index - a.index || a.name.localeCompare(b.name));
