@@ -1,0 +1,231 @@
+{
+ "date": "2026-11-17",
+ "subject": "research/capture-novelview",
+ "stratum": "research",
+ "seed": "2026-11-17-d24f",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a computer-vision / graphics researcher in image-based rendering and depth-image-based view synthesis (DIBR, free-viewpoint video); first checks: the warp geometry, how disocclusion holes are handled and whether the baseline is fair, the metric, and whether the camera-spacing question is placed against plenoptic-sampling and DIBR prior work",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 3,
+  "claims": 1,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "The machinery is right; the computed numbers reproduce exactly. (1) `cd /home/user/oss-monorepo/research/capture-novelview && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/capture-novelview/checks.py src`: my own ray-cylinder intersection for the centre pixel of the azimuth-0 camera gives axis depth 2.80292 m, render() gives 2.80292 (hand estimate (R-r)/cos(pitch) = 2.8045). (2) An independent pinhole reprojection (my own camera basis and K) of 4 source pixels from the 12.5-degree camera into the 20-degree camera lands on the same (row, col) as warp() in all 4 cases. (3) psnr() gives 20.0 dB for a constant 0.1 error and 40.0 dB for 0.01, as 10 log10(1/MSE) requires. (4) `PYTHONPATH=src python experiments/run.py` rewrote results.txt byte-identical in 1.1 s, and figure.py rewrote baseline.svg identical. Where the reported numbers go wrong is their labels: the 'hole fraction of non-sky target pixels' is computed over all pixels (run.py:25-30 sets sky to valid then takes 1 - have.mean()); the non-sky fraction is 0.7% / 11.2% / 19.1% at 15 / 45 / 90 degrees, not the 0.5% / 8.3% / 14.1% in the table (C4 in checks.py). Scored 3 for the outputs themselves; the interpretation failures are scored under claims and domain.",
+  "completeness": "Every method element the README lists exists and runs: analytic scene with ground, subject and bystander cylinders (scene.py), forward warp with z-buffer, crack closing, two-source blend, holes (synth.py), PSNR full and valid, nearest-camera baseline, tables A, B, C and the figure (run.py, figure.py; reproduced identically). 'pytest -q tests  # 7 tests': 7 passed in 0.63 s. Live page https://marisstella.app/research/capture-novelview/ returns 200. Next steps (stereo depth, hole filler, three cameras, real footage) are listed as not done, honestly. Small drift: run.py:3 says 'about 10 s' (README: about 3 s; observed 1.1 s), run.py:19 docstring says 'around azimuth 0 (+180 so they face the front)' while the code uses azimuth 20.",
+  "verification": "`cd /home/user/oss-monorepo/research/capture-novelview && PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests`: 7 passed in 0.63 s. Four mutants via platform/ci/quality_mutate.py, 1 caught, 3 survived: reversing the z-buffer so far points overwrite near (synth.py:34) SURVIVED; returning ray distance instead of optical-axis depth (scene.py:87) SURVIVED; dropping the ray renormalisation before scaling by depth (synth.py:24) SURVIVED; letting the crack filler fill any pixel with one valid neighbour (synth.py:49) was caught by test_synthesis_beats_nearest_camera_at_small_gap. The identity test (warp to the same pose) cannot see any depth-scale error, because scaling a point along its own ray reprojects to the same pixel; the other tests only check orderings (p(4) > p(30) > p(90), noisy < clean). No test checks a warp between two different poses against the ray-traced depth, and nothing tests run.py's hole-fraction or the baseline choice.",
+  "craft": "Read scene.py (89 lines), synth.py (75), run.py (60), figure.py (28), tests (59). Compact, vectorised, deterministic, readable numpy; figure numbers parsed from results.txt rather than retyped. Defects: a function-level import of pixel_rays (synth.py:16) next to a module-level import from the same module; synthesise() sorts sources by angular distance (synth.py:58) but every experiment places the two sources symmetrically, so the sort is a tie and source a always wins, and the README's 'take the nearer source first' never happens; the nearest-camera baseline likewise always picks camera b on the tie (run.py:31); stale docstrings in run.py:3 and :19; the hole-fraction denominator does not match its label (run.py:25-30). None of these change the geometry.",
+  "claims": "Checked against files and reruns. Pass: every table value in README:28-34 and :39 matches results.txt; '7 tests' matches; the 4/15/30/45 degree headline pairs (24.8 vs 23.6, 19.3 vs 23.1, 20.5 vs 21.3) match; 'within 0.9 dB at 15 degrees' (0.77) holds; the live page loads; the AI-assistance note is there. Fail: (a) the headline 'synthesis beats the nearest camera only up to about 30 degrees' and 'a bystander moves the useful gap to about 10 degrees' (README:3, :38, :40, research/README.md:737) are artefacts of painting holes sky blue: filling holes with the nearest camera's own pixels (one np.where) gives 28.18 vs 23.10 dB at 45 degrees and 26.64 vs 22.75 at 90 without a bystander, and 26.49 vs 21.30 at 15 degrees with one (`cd /home/user/oss-monorepo/research/capture-novelview && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/capture-novelview/checks3.py src` and checks3b.py), so by the project's own metric there is no crossover anywhere in the tested range; (b) 'hole fraction of non-sky target pixels' and '8% of the target is a hole' (README:12, :26, :3) are fractions of all pixels (non-sky: 11.2% at 45 degrees); (c) 'about 1.4 dB per percent at the start' (README:3) matches no slope in table B (0.42, 0.49, 0.71 dB per percent from 0 to 0.5, 1, 2%; 0.93 between 1 and 2%); (d) '10 degrees, i.e. 37 cameras' (README:40) is 36; (e) 'capture-kit says an owner cannot carry' 37 cameras is an inference, capture-kit never states it.",
+  "fitness": "For a researcher who wants to build on it: small, deterministic, reproducible in about 2 s, and the toy scene and oracle depth are disclosed. But the question it asks (how far apart can cameras be for depth-based view synthesis) is the one plenoptic sampling answers analytically (Chai, Tong, Chan and Shum 2000, SIGGRAPH: minimum camera sampling as a function of the scene's depth range) and that free-viewpoint video systems measured empirically (Zitnick et al. 2004, SIGGRAPH, layered depth interpolation between 8 cameras; Fehn 2004, DIBR with hole filling; MPEG FTV/VSRS view-synthesis evaluations by baseline). None is cited (README:7 cites Kanade 1997, NeRF and 3DGS only). The finding that disocclusion holes grow with baseline and with occluders is textbook DIBR, and the quantitative crossover does not survive the standard hole fallback. A researcher could reuse the renderer and harness, not the conclusion.",
+  "domain": "Against standard DIBR practice (Fehn 2004; MPEG VSRS): forward splatting with a z-buffer, crack closing and two-view blending are the usual pipeline and are implemented correctly (geometry checks pass). Departures: (1) holes are left as sky blue and scored, whereas every DIBR system fills them (background extrapolation, the other view, or inpainting); the comparison against an un-holed cut is therefore not like for like, and that choice alone produces the crossover; (2) blending is first-source-wins rather than angle- or visibility-weighted; (3) PSNR only, no SSIM/LPIPS, on one midpoint target and one azimuth, three seeds only for table B; (4) depth noise is i.i.d. per pixel (disclosed). The limitations section is candid about the toy scene; it does not mention the hole-handling choice as a driver of the headline."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Optical-axis depth of the subject cylinder at the centre pixel, camera at azimuth 0",
+   "method": "own ray-cylinder intersection with an independently built pinhole basis (x^2+z^2=0.25^2, camera (0,1.5,3) aimed at (0,0.9,0), f=96/tan 30)",
+   "command": "cd /home/user/oss-monorepo/research/capture-novelview && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/capture-novelview/checks.py src",
+   "expected": "2.80292 m (hand: (3-0.25)/cos(pitch) = 2.8045 for the exact axis ray)",
+   "observed": "render(0) z[64,96] = 2.80292",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "warp() places source pixels at the right target pixel between two different poses",
+   "method": "independent back-projection with own K and camera basis from the 12.5-degree camera, projection into the 20-degree camera, compared with warp() of a one-pixel image",
+   "command": "cd /home/user/oss-monorepo/research/capture-novelview && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/capture-novelview/checks.py src",
+   "expected": "(64,98) (50,92) (80,102) (40,97)",
+   "observed": "warp: (64,98) (50,92) (80,102) (40,97)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "PSNR formula",
+   "method": "closed form 10 log10(1/MSE) for images on [0,1]: constant 0.1 error -> 20 dB, 0.01 -> 40 dB",
+   "command": "cd /home/user/oss-monorepo/research/capture-novelview && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/capture-novelview/checks.py src",
+   "expected": "20.0 and 40.0",
+   "observed": "20.0 and 40.0",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Hole fraction is of non-sky target pixels, as README:12 and :26 say",
+   "method": "own count of (~have & ~sky) / (~sky) from the same synthesise() output",
+   "command": "cd /home/user/oss-monorepo/research/capture-novelview && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/capture-novelview/checks.py src",
+   "expected": "README: 0.5% / 8.3% / 14.1% at 15 / 45 / 90 deg of non-sky pixels",
+   "observed": "non-sky: 0.7% / 11.2% / 19.1%; 0.5 / 8.3 / 14.1% are fractions of all pixels (sky is 26.4%)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Headline crossover survives the standard DIBR hole fallback (fill holes from the nearest camera)",
+   "method": "np.where(have, synth, nearest) scored with the project's own psnr(); fallback per Fehn 2004 / VSRS practice of filling disocclusions from available views",
+   "command": "cd /home/user/oss-monorepo/research/capture-novelview && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/capture-novelview/checks3.py src",
+   "expected": "if the 30-40 degree crossover is a property of two-view synthesis, filled synthesis should fall below the nearest camera at 45 deg",
+   "observed": "45 deg: 28.18 vs 23.10 dB; 90 deg: 26.64 vs 22.75; with bystander (checks3b.py) 15 deg: 26.49 vs 21.30, 90 deg: 22.06 vs 18.59. No crossover in range",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Experiments reproduce the committed results and figure",
+   "method": "rerun run.py and figure.py, diff against committed copies",
+   "command": "cd /home/user/oss-monorepo/research/capture-novelview && PYTHONPATH=src /usr/bin/python3.13 experiments/run.py && /usr/bin/python3.13 experiments/figure.py && git diff --stat .",
+   "expected": "identical results.txt and baseline.svg",
+   "observed": "RESULTS_IDENTICAL, SVG_IDENTICAL, run 1.1 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite runs green",
+   "method": "README reproduce command",
+   "command": "cd /home/user/oss-monorepo/research/capture-novelview && PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests",
+   "expected": "7 tests pass",
+   "observed": "7 passed in 0.63s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Depth error costs about 1.4 dB per percent at the start' (README:3)",
+   "method": "slopes recomputed from results.txt table B",
+   "command": "cd /home/user/oss-monorepo/research/capture-novelview && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/capture-novelview/checks2.py src",
+   "expected": "about 1.4 dB/%",
+   "observed": "0.42 (0-0.5%), 0.49 (0-1%), 0.71 (0-2%), 0.93 (1-2%) dB/%",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'useful gap about 10 degrees, i.e. 37 cameras on a full ring' (README:40)",
+   "method": "360/10",
+   "command": "cd /home/user/oss-monorepo/research/capture-novelview && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/capture-novelview/checks2.py src",
+   "expected": "37",
+   "observed": "36",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Table A/B/C values and headline pairs in README match results.txt",
+   "method": "line-by-line comparison of README:3, :28-34, :39-40 with experiments/results.txt",
+   "command": "diff by eye of README.md and experiments/results.txt",
+   "expected": "same values",
+   "observed": "all match (to rounding); 'within 0.9 dB' is 0.77",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Live page exists",
+   "method": "HTTP GET",
+   "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/research/capture-novelview/",
+   "expected": "200",
+   "observed": "200",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Nearest prior work on camera spacing for view synthesis is cited",
+   "method": "README:7 compared with Chai et al. 2000 (plenoptic sampling), Zitnick et al. 2004, Fehn 2004 (DIBR), MPEG FTV/VSRS",
+   "command": "grep -n -i 'plenoptic\\|Chai\\|Zitnick\\|Fehn\\|DIBR' research/capture-novelview/README.md",
+   "expected": "at least plenoptic sampling cited",
+   "observed": "no matches; only Kanade 1997, NeRF, 3DGS",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/capture_novelview/synth.py:34",
+   "change": "order = np.argsort(-zz) -> order = np.argsort(zz) (z-buffer reversed: far overwrites near)",
+   "caught": false,
+   "test_cmd": "PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/capture_novelview/scene.py:87",
+   "change": "z = best * (d @ rot[2]) -> z = best * 1.0 (ray distance instead of axis depth)",
+   "caught": false,
+   "test_cmd": "PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/capture_novelview/synth.py:24",
+   "change": "cam = cam / cam[..., 2:3] -> cam = cam (no renormalisation before scaling by depth)",
+   "caught": false,
+   "test_cmd": "PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/capture_novelview/synth.py:49",
+   "change": "fill = (~valid) & (cnt >= 3) -> fill = (~valid) & (cnt >= 1)",
+   "caught": true,
+   "test_cmd": "PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "The headline result (synthesis beats cutting to the nearest camera only up to about 30 degrees; a bystander pulls the useful gap to about 10 degrees, 37 cameras) is an artefact of leaving disocclusion holes as sky blue and scoring them. Filling holes from the nearest camera, the standard DIBR fallback and one np.where, makes synthesis beat the cut at every tested gap: 28.18 vs 23.10 dB at 45 degrees, 26.64 vs 22.75 at 90; with the bystander 26.49 vs 21.30 at 15 degrees. The README presents the crossover as the limit of two-view synthesis.",
+   "where": "research/capture-novelview/README.md:3",
+   "category": "research-design",
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"
+  },
+  {
+   "severity": "medium",
+   "what": "Hole fraction is labelled 'of non-sky target pixels' but is computed over all pixels (sky marked valid, then 1 - have.mean()), understating holes by about a quarter: 8.3% reported at 45 degrees is 11.2% of non-sky pixels, 14.1% at 90 is 19.1%.",
+   "where": "research/capture-novelview/experiments/run.py:30",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests cannot catch geometry errors: reversing the z-buffer, using ray distance instead of axis depth, and dropping the ray renormalisation all leave 7/7 green. The identity-warp test is blind to depth scale; no test warps between two poses against ray-traced depth.",
+   "where": "research/capture-novelview/tests/test_novelview.py:19",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"
+  },
+  {
+   "severity": "medium",
+   "what": "Nearest prior work on exactly this question is not cited: plenoptic sampling (Chai, Tong, Chan, Shum 2000) gives the minimum camera spacing for depth-based rendering analytically; Zitnick et al. 2004 and Fehn 2004 / MPEG VSRS cover two-view DIBR with hole filling. Novelty of the ordering result is overstated by omission.",
+   "where": "research/capture-novelview/README.md:7",
+   "category": "research-design",
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"
+  },
+  {
+   "severity": "low",
+   "what": "'about 1.4 dB per percent at the start' matches no slope of table B (0.49 dB/% from 0 to 1%, 0.71 from 0 to 2%, 0.93 from 1 to 2%).",
+   "where": "research/capture-novelview/README.md:3",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"
+  },
+  {
+   "severity": "low",
+   "what": "'about 10 degrees, i.e. 37 cameras on a full ring' is 36 cameras; and capture-kit does not state that an owner cannot carry that many.",
+   "where": "research/capture-novelview/README.md:40",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"
+  },
+  {
+   "severity": "low",
+   "what": "synthesise() orders sources by angular distance, but every experiment is symmetric so the sort is a tie and source a always wins; the nearest-camera baseline likewise always picks b. README's 'take the nearer source first' never applies.",
+   "where": "research/capture-novelview/src/capture_novelview/synth.py:58",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Stale docstrings: run.py says 'about 10 s' (runs in 1.1 s; README says 3 s) and 'around azimuth 0 (+180 so they face the front)' while the code centres on azimuth 20.",
+   "where": "research/capture-novelview/experiments/run.py:19",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"],
+ "verdict": "A tidy, deterministic toy renderer whose geometry is right (axis depth, cross-pose reprojection and PSNR all match independent recomputation, and results.txt and the SVG reproduce byte-identical), but whose headline does not survive a fair baseline: the 30-40 degree crossover and the 'bystander pulls it to 10 degrees' finding exist only because disocclusion holes are scored as sky blue; filling them from the nearest camera, as any DIBR system does, beats the cut at every gap up to 90 degrees with and without the bystander. The hole fraction is mislabelled (all pixels, not non-sky), two derived numbers in the README are wrong, plenoptic sampling and DIBR prior work are uncited, and 3 of 4 seeded geometry mutants survive the tests. Does not meet the bar (verification 1, claims 1)."
+}
