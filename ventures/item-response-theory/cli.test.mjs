@@ -26,7 +26,7 @@ test("text output: headline, models and the item table", () => {
 test("--items, --people, --report, --json, --model, --key and stdin", () => {
   const items = run([LSAT, "--items", "--model", "2pl"]).out.split("\n");
   assert.equal(items[0], "item,a,a_se,b,b_se,p_correct,item_rest_r,sx2,sx2_df,sx2_p,flags");
-  assert.match(items[1], /^"item1",0\.826,/);
+  assert.match(items[1], /^item1,0\.826,/);
   assert.equal(run([LSAT, "--people"]).out.trim().split("\n").length, 31);
   assert.match(run([LSAT, "--report"]).out, /^# Item response theory report/);
   const j = JSON.parse(run([LSAT, "--json", "--no-se"]).out);

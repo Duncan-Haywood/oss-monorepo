@@ -147,7 +147,7 @@ export function parseResponses(text, opts = {}) {
   const lines = text.replace(/^﻿/, "").split(/\r?\n/).filter((l) => l.trim() !== "" && !/^\s*#/.test(l));
   const sep = lines[0].includes("\t") ? "\t" : lines[0].includes(";") && !lines[0].includes(",") ? ";" : ",";
   let rows = lines.map((l) => splitLine(l, sep));
-  const width = Math.max(...rows.map((r) => r.length));
+  const width = rows.reduce((m, r) => Math.max(m, r.length), 0);
   rows = rows.map((r) => (r.length < width ? r.concat(Array(width - r.length).fill("")) : r));
 
   // A header is a first row with a cell that is neither a response, a key
@@ -886,17 +886,24 @@ export function summarize(r) {
   return lines;
 }
 
+/** A CSV cell, quoted when needed, with a leading apostrophe on text that a spreadsheet would run as a formula. */
+export function csvCell(c) {
+  let s = String(c);
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`;
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
 const c3 = (v) => (v == null || !Number.isFinite(v) ? "" : v.toFixed(3));
 const cp = (v) => (v == null ? "" : v.toPrecision(4));
 
 export function itemCsv(r) {
   const head = "item,a,a_se,b,b_se,p_correct,item_rest_r,sx2,sx2_df,sx2_p,flags";
-  return [head, ...r.itemTable.map((i) => [JSON.stringify(i.item), c3(i.a), c3(i.aSE), c3(i.b), c3(i.bSE), c3(i.pCorrect), c3(i.itemRest), c3(i.sx2), i.sx2df ?? "", cp(i.sx2p), JSON.stringify(i.flags.join("; "))].join(","))].join("\n") + "\n";
+  return [head, ...r.itemTable.map((i) => [i.item, c3(i.a), c3(i.aSE), c3(i.b), c3(i.bSE), c3(i.pCorrect), c3(i.itemRest), c3(i.sx2), i.sx2df ?? "", cp(i.sx2p), i.flags.join("; ")].map(csvCell).join(","))].join("\n") + "\n";
 }
 
 export function peopleCsv(r) {
   const head = "id,weight,score,answered,eap,posterior_sd";
-  return [head, ...r.people.map((p) => [JSON.stringify(p.id), p.weight, p.score, p.answered, c3(p.eap), c3(p.psd)].join(","))].join("\n") + "\n";
+  return [head, ...r.people.map((p) => [p.id, p.weight, p.score, p.answered, c3(p.eap), c3(p.psd)].map(csvCell).join(","))].join("\n") + "\n";
 }
 
 export function report(r) {

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { analyze, parseResponses, compressPatterns, fitModel, summedScoreDistribution, marginalLogLik, chiSquareSurvival, testInformation, SAMPLE_TEXT, PAPERS, itemCsv, peopleCsv, report } from "./engine.mjs";
+import { analyze, parseResponses, compressPatterns, fitModel, summedScoreDistribution, marginalLogLik, chiSquareSurvival, testInformation, SAMPLE_TEXT, PAPERS, csvCell, itemCsv, peopleCsv, report } from "./engine.mjs";
 
 const file = (f) => readFileSync(new URL(`./${f}`, import.meta.url), "utf8");
 const LSAT = file("data/lsat6.csv");
@@ -182,5 +182,9 @@ test("outputs: CSVs, report and PAPERS", () => {
   const people = peopleCsv(r).trim().split("\n");
   assert.equal(people.length, 31);
   assert.match(report(r), /No warranty/);
+  const evil = analyze({ text: LSAT.replace("item1,", "=HYPERLINK(1),") });
+  assert.match(itemCsv(evil), /\n'=HYPERLINK\(1\),/);
+  assert.equal(csvCell("-3.5"), "-3.5");
+  assert.equal(csvCell('a,"b"'), '"a,""b"""');
   for (const p of PAPERS) { assert.ok(p.cite && p.implemented && p.deviations, p.key); if (p.doi) assert.match(p.doi, /^10\./); }
 });

@@ -180,7 +180,7 @@
     }
     function infoSvg(r) {
       const W = 900, H = 280, L = 60, B = 44, T = 12, R = 20, c = r.information.curve;
-      const ymax = Math.max(...c.map((p) => p.info)) * 1.12;
+      const ymax = c.reduce((m, p) => Math.max(m, p.info), 0) * 1.12;
       const { sx, sy, out: base } = axes(W, H, L, B, T, R, "information", ymax);
       let d = "";
       c.forEach((p, k) => { d += `${k ? "L" : "M"}${sx(p.theta).toFixed(1)},${sy(p.info).toFixed(1)}`; });
