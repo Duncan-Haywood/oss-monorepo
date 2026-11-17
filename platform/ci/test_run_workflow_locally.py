@@ -13,6 +13,7 @@ import textwrap
 import time
 import unittest
 from unittest import mock
+from unittest import mock
 
 import run_workflow_locally as runner
 import yaml
@@ -921,11 +922,55 @@ class AgainstThisRepository(unittest.TestCase):
         self.assertIn("[held  ] uitest-ci.yml / manual", out.getvalue())
         self.assertNotIn("manual /", out.getvalue().split("[held", 1)[0])
 
-    def test_only_needs_a_sweep(self):
+    def test_only_and_names_together_are_refused(self):
         err = io.StringIO()
         with contextlib.redirect_stderr(err):
             code = runner.main(["--only", "doc-refs-ci", "doc-refs-ci.yml"])
         self.assertEqual(code, 2)
+
+    def test_several_names_list_in_turn(self):
+        """Friction 2026-11-16/17: one workflow per call. Names (with or
+        without .yml) now run in turn, each with its own steps."""
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = runner.main(["--list", "doc-refs-ci", "uitest-ci.yml"])
+        self.assertEqual(code, 0)
+        self.assertIn("[held  ] uitest-ci.yml / manual", out.getvalue())
+        self.assertIn("exit 0  doc-refs-ci.yml", out.getvalue())
+
+    def test_only_alone_runs_the_named_workflows(self):
+        calls = []
+        with mock.patch.object(runner, "_run_one",
+                               side_effect=lambda n, a: calls.append(n) or 0):
+            self.assertEqual(runner.main(["--only", "uitest-ci,doc-refs-ci"]), 0)
+        self.assertEqual(calls, ["doc-refs-ci.yml", "uitest-ci.yml"])
+
+    def test_a_missing_name_is_refused_before_anything_runs(self):
+        err = io.StringIO()
+        with mock.patch.object(runner, "_run_one") as one, \
+                contextlib.redirect_stderr(err):
+            code = runner.main(["doc-refs-ci", "no-such-workflow"])
+        self.assertEqual(code, 2)
+        one.assert_not_called()
+        self.assertIn("no-such-workflow.yml", err.getvalue())
+
+
+class CombineNamed(unittest.TestCase):
+    def combine(self, *codes):
+        with contextlib.redirect_stdout(io.StringIO()):
+            return runner.combine_named([(f"w{i}.yml", c) for i, c in enumerate(codes)])
+
+    def test_all_pass_is_zero(self):
+        self.assertEqual(self.combine(0, 0), 0)
+
+    def test_a_failure_beats_no_verdict(self):
+        self.assertEqual(self.combine(4, 1, 0), 1)
+
+    def test_usage_error_wins(self):
+        self.assertEqual(self.combine(1, 2), 2)
+
+    def test_otherwise_the_largest(self):
+        self.assertEqual(self.combine(0, 4, 3), 4)
 
 
 class OnlyFilter(unittest.TestCase):
