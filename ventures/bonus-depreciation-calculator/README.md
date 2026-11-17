@@ -46,9 +46,11 @@ WCG's "Section 179 or Bonus Depreciation":
   179 election, or electing out of bonus depreciation entirely, to avoid
   creating a large NOL and instead preserve depreciation for a future,
   higher-income year.
-- **Property used 50% or less for business does not qualify for either
-  accelerated method** — it must use the slower, straight-line Alternative
-  Depreciation System (ADS) instead.
+- **Section 179 needs more than 50% business use** (IRS Pub. 946, ch. 2).
+  For listed property such as a passenger vehicle, 50% or less business use
+  also rules out bonus depreciation and requires the slower, straight-line
+  Alternative Depreciation System (ADS) (IRC 280F(b)(1)); other property
+  keeps bonus depreciation on its business-use share.
 
 ## Try it
 
@@ -82,6 +84,21 @@ All in [`calc.mjs`](calc.mjs), as pure functions with no dependencies:
 - No luxury-auto depreciation caps for passenger vehicles.
 - No net operating loss or Section 179 carryforward valuation in a future
   year.
+
+## Known gaps (quality census, 2026-11-17)
+
+From [the census audit](../../portfolio/quality/audits/2026-11-17-bonus-depreciation-calculator.json),
+not yet fixed:
+
+- **High:** when an asset costs more than the Section 179 limit, the Section
+  179 column ignores the rest of the basis. A preparer takes bonus or MACRS on
+  the remainder in the same year (IRC 168(k)(1)(A), Pub. 946 ch. 3): a
+  $3,000,000 asset in 2025 at 21% shows $525,000 where Section 179 plus bonus
+  on the remainder gives $630,000.
+- There is no acquisition-date input: 2025 property acquired before
+  January 20, 2025 gets 40% bonus, not 100%.
+- No mid-quarter convention warning; the MACRS rate test compares the output
+  with the code's own table.
 
 ## Disclaimers
 

@@ -16,3 +16,5 @@
 - (2026-11-17) cut-guard conditioning calibrated but blind (round 6), a control series was tried 2026-11-17 (README "A control series")
 - (2026-11-17) TSSB/HAS/UTSA (README): count, shape checks failed; next phase-tolerant shapes, 5th set.
 - (2026-11-17) in-time placebos ship beside it (README "In-time placebos": 0-4% false warnings)
+- (2026-11-17) control series: step-only rule calibrated in sims, but 11 of 13 annual state tobacco ratios refused as wanders (README "The step alone"): synthetic control (README "A floored ratio"): CA -26.5 packs at 2000, rank 1 of 39 with the floored ratio (default)
+- (2026-11-17) (1) slopes: logs fail, 2 hinges ship (refuse short sticky series), given date: --known-date on CLI, page, engine

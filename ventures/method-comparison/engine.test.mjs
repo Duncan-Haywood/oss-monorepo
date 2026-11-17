@@ -210,3 +210,67 @@ test("the CUSUM normalisation file backs the README's comparison", () => {
   assert.ok(c.rows.every((r) => r.falseAlarmPctOffLinePlusOne <= 1));
   assert.match(file("README.md"), /gave 2\.4%, 5\.5% and 8\.2% false alarms/);
 });
+
+// ---------------------------------------------------------------- red team 2026-11-17
+
+test("a semicolon CSV with decimal commas (Excel in most of Europe) reads the right numbers", () => {
+  // Before the fix, "4,1;4,3" split on the comma: the first row became a header and every
+  // value lost its decimals or its integer part, with no error.
+  const bare = parsePairs("4,1;4,3\n5,0;5,4\n5,6;5,8\n6,3;6,9\n7,1;7,4\n7,9;8,6\n");
+  assert.deepEqual([bare.x, bare.y, bare.skipped], [[4.1, 5, 5.6, 6.3, 7.1, 7.9], [4.3, 5.4, 5.8, 6.9, 7.4, 8.6], 0]);
+  const named = parsePairs("id;alt;neu\n1;4,1;4,3\n2;5,0;5,4\n3;5,6;5,8\n4;6,3;6,9\n5;7,1;7,4\n");
+  assert.deepEqual([named.xName, named.yName, named.x, named.y], ["alt", "neu", [4.1, 5, 5.6, 6.3, 7.1], [4.3, 5.4, 5.8, 6.9, 7.4]]);
+  // A comma file keeps the comma as the separator, and a stray ; in one header cell does not flip it.
+  assert.deepEqual(parsePairs("a;b,c\n1,2\n3,4").x, [1, 3]);
+  assert.deepEqual(parsePairs("a,b\n1.5,2\n3,4").x, [1.5, 3]);
+});
+
+test("a missing reading is an error, never a zero", () => {
+  const y = [1.1, 2.1, 2.9, 4.2, 5.1, 5.9];
+  for (const bad of [null, "", false, "n/a", [], undefined]) {
+    assert.throws(() => analyze({ x: [1, 2, 3, bad, 5, 6], y }), /Every reading must be a number/, String(bad));
+  }
+  assert.deepEqual(analyze({ x: ["1", "2", " 3", "4e0", "5", "6"], y }).x, [1, 2, 3, 4, 5, 6]);
+});
+
+test("decision levels may be one number or a list in a string, not only an array", () => {
+  const p = parsePairs(SAMPLE_TEXT);
+  assert.deepEqual(analyze({ x: p.x, y: p.y, decisionLevels: 10, bootstrap: 0 }).decision.map((d) => d.level), [10]);
+  assert.deepEqual(analyze({ x: p.x, y: p.y, decisionLevels: "10, 20", bootstrap: 0 }).decision.map((d) => d.level), [10, 20]);
+  assert.deepEqual(analyze({ x: p.x, y: p.y, decisionLevels: [10, null, ""], bootstrap: 0 }).decision.map((d) => d.level), [10]);
+  assert.deepEqual(analyze({ x: p.x, y: p.y, decisionLevels: "6,000; 12", bootstrap: 0 }).decision.map((d) => d.level), [6000, 12]);
+});
+
+test("Kendall's tie-corrected variance equals the exact permutation variance of S", () => {
+  // Independent of the formula: enumerate every permutation of y and take the variance of S.
+  const x = [1, 1, 2, 3, 3, 3, 4], y = [2, 5, 5, 1, 7, 7, 7];
+  const perms = (a) => (a.length <= 1 ? [a] : a.flatMap((v, i) => perms([...a.slice(0, i), ...a.slice(i + 1)]).map((p) => [v, ...p])));
+  const S = (yy) => { let s = 0; for (let i = 0; i < x.length; i++) for (let j = i + 1; j < x.length; j++) s += Math.sign(x[j] - x[i]) * Math.sign(yy[j] - yy[i]); return s; };
+  const all = perms(y).map(S);
+  const m = all.reduce((s, v) => s + v, 0) / all.length;
+  const varS = all.reduce((s, v) => s + (v - m) ** 2, 0) / all.length;
+  const kt = kendallTau(x, y);
+  assert.equal(kt.S, S(y));
+  close(kt.z, kt.S / Math.sqrt(varS), 1e-12, "z from the exact permutation variance");
+});
+
+test("Bland-Altman SD is the sample SD of the differences, exactly", () => {
+  const ba = blandAltman([1, 2, 3, 4, 5], [1, 2, 3, 4, 7]);
+  // differences 0,0,0,0,2: mean 0.4, sum of squares 3.2, SD sqrt(0.8).
+  close(ba.bias, 0.4, 1e-15, "bias");
+  close(ba.sd, Math.sqrt(0.8), 1e-15, "sd");
+});
+
+test("choosing only the y column keeps it, even when it is the first column", () => {
+  const p = parsePairs("a,b,c\n1,2,3\n4,5,6\n7,8,9", { y: "a" });
+  assert.deepEqual([p.xName, p.yName], ["b", "a"]);
+});
+
+test("CUSUM treats points on the line as on it, at any magnitude", () => {
+  // Readings typed to two decimals that lie on y = 3 + 1.1 x at 1e7 leave residuals of rounding noise (about 1e-9).
+  const x = [], y = [];
+  for (let i = 0; i < 40; i++) { const v = 1e7 + i * 1234.5; x.push(v); y.push(+(3 + 1.1 * v + (i % 4 === 0 ? 50 : i % 4 === 2 ? -50 : 0)).toFixed(2)); }
+  assert.ok(x.some((v, i) => i % 2 && y[i] - (3 + 1.1 * v) !== 0), "the test needs non-zero rounding residuals");
+  const c = cusumLinearity(x, y, 1.1, 3);
+  assert.deepEqual([c.above, c.below], [10, 10]);
+});

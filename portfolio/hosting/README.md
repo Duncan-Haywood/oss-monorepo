@@ -40,6 +40,8 @@ Read it for study; nothing in it is current instruction.
   `marisstella.app` instead (above).
 - **Readers that are known to be stale.** `pages_state.py`'s "source" and
   "snapshot" lines still describe the retired `gh-pages` branch route.
+  `session_gate.py`'s "published snapshot" row no longer uses them: since
+  2026-11-17 it reads `portfolio-pages.yml`'s deploy runs on `main`.
   `indexnow_state.py` reads `portfolio-pages.yml`'s deploy runs and is
   current. No session can fetch `github.io` (the egress proxy returns 403),
   so `github-pages-origin` in `portfolio/ledger/infra_state.yaml` stays

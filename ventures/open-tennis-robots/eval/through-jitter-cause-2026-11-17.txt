@@ -1,0 +1,24 @@
+Plant tach 3 us 10k, held-out slow drill at 3.0 s, seeds 7-12, 6 builds a seed
+
+Part 1. Record drop / true drop per launched wheel, by how its loop fit was made
+mode     fit            band | wheels >2% off   rate |err| mean     sd    bias
+hold     plain     1000-2500 |     16       0   0.0%      0.36%  0.38%  +0.12%
+hold     plain        >=2500 |     16       1   6.2%      0.70%  0.92%  -0.02%
+hold     crossed      >=2500 |    648       2   0.3%      0.48%  0.60%  -0.07%
+hold     watched       <1000 |    360       0   0.0%      0.35%  0.45%  -0.08%
+hold     watched   1000-2500 |    272       0   0.0%      0.30%  0.37%  -0.03%
+hold     watched      >=2500 |    632      32   5.1%      0.80%  1.00%  -0.05%
+through  plain     1000-2500 |      9       0   0.0%      0.33%  0.36%  +0.09%
+through  plain        >=2500 |      9       0   0.0%      0.91%  1.05%  +0.18%
+through  crossed      >=2500 |    648       3   0.5%      0.48%  0.62%  -0.02%
+through  watched       <1000 |    360       0   0.0%      0.29%  0.40%  -0.02%
+through  watched   1000-2500 |    279       0   0.0%      0.26%  0.32%  -0.04%
+through  watched      >=2500 |    639      35   5.5%      0.79%  1.00%  -0.05%
+
+Part 2. Wheels more than 2% off, per seed (hold / through)
+  seed   7:   3 /   8
+  seed   8:   7 /   7
+  seed   9:   5 /   5
+  seed  10:   5 /   8
+  seed  11:   8 /   4
+  seed  12:   7 /   6

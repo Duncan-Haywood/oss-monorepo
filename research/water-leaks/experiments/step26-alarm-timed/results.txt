@@ -1,0 +1,200 @@
+# water-leaks step 26: D1 (step 1, thresholds frozen from 2018) detects; step 24's R30 localises at the
+# alarm day (hour index div 24 + 1) on step 21's tracker (real leaks, D) and step 25's (injected, D_inj);
+# compared with R30 at the oracle half-peak day on the same leaks; rule 300 m along pipes
+
+## arm A: the real leaks (step 24's 32), alarms on the published pressures
+  2019 alarms reproduce step 1's alarms.tsv for both variants; false alarms over both years: D1-L 5, D1-F 3
+  D1-L, new 2019 leaks: detected 10 of 19
+    alarm day minus oracle day: median +4 (range -30 to +10); 2 early, 0 same day, 8 late
+    chance on the detected: expected 0.41
+    R30 at the oracle day     6 of 10 (P(chance >=) 7.1e-07); abrupt 5 of 8, incipient 1 of 2
+    R30 at the alarm day      2 of 10 (P(chance >=) 0.059); abrupt 2 of 8, incipient 0 of 2
+    T-D at the alarm day      2 of 10 (P(chance >=) 0.059); abrupt 2 of 8, incipient 0 of 2
+    paired, alarm against oracle day: alarm only 1, oracle only 5, P = 0.219
+    paired, R30 against T-D at the alarm day: R30 only 1, T-D only 1, P = 1.000
+    lost by the change of day 5 (alarm early 1, late 4); gained 1
+    end to end: detected and within 300 m 2 of 19
+  D1-L, 2018 leaks (the tuning year): detected 10 of 13
+    alarm day minus oracle day: median +1 (range -45 to +14); 4 early, 0 same day, 6 late
+    chance on the detected: expected 0.42
+    R30 at the oracle day     5 of 10 (P(chance >=) 2.5e-05); abrupt 3 of 5, incipient 2 of 5
+    R30 at the alarm day      1 of 10 (P(chance >=) 0.35); abrupt 0 of 5, incipient 1 of 5
+    T-D at the alarm day      2 of 10 (P(chance >=) 0.063); abrupt 2 of 5, incipient 0 of 5
+    paired, alarm against oracle day: alarm only 0, oracle only 4, P = 0.125
+    paired, R30 against T-D at the alarm day: R30 only 1, T-D only 2, P = 1.000
+    lost by the change of day 4 (alarm early 1, late 3); gained 0
+    end to end: detected and within 300 m 1 of 13
+  D1-F, new 2019 leaks: detected 13 of 19
+    alarm day minus oracle day: median +1 (range -49 to +6); 5 early, 1 same day, 7 late
+    chance on the detected: expected 0.57
+    R30 at the oracle day     5 of 13 (P(chance >=) 0.00015); abrupt 4 of 8, incipient 1 of 5
+    R30 at the alarm day      2 of 13 (P(chance >=) 0.11); abrupt 2 of 8, incipient 0 of 5
+    T-D at the alarm day      3 of 13 (P(chance >=) 0.017); abrupt 3 of 8, incipient 0 of 5
+    paired, alarm against oracle day: alarm only 0, oracle only 3, P = 0.250
+    paired, R30 against T-D at the alarm day: R30 only 0, T-D only 1, P = 1.000
+    lost by the change of day 3 (alarm early 1, late 2); gained 0
+    end to end: detected and within 300 m 2 of 19
+  D1-F, 2018 leaks (the tuning year): detected 9 of 13
+    alarm day minus oracle day: median +1 (range -48 to +15); 3 early, 0 same day, 6 late
+    chance on the detected: expected 0.38
+    R30 at the oracle day     5 of 9 (P(chance >=) 1.2e-05); abrupt 3 of 5, incipient 2 of 4
+    R30 at the alarm day      0 of 9 (P(chance >=) 1); abrupt 0 of 5, incipient 0 of 4
+    T-D at the alarm day      1 of 9 (P(chance >=) 0.32); abrupt 1 of 5, incipient 0 of 4
+    paired, alarm against oracle day: alarm only 0, oracle only 5, P = 0.062
+    paired, R30 against T-D at the alarm day: R30 only 0, T-D only 1, P = 1.000
+    lost by the change of day 5 (alarm early 1, late 4); gained 0
+    end to end: detected and within 300 m 0 of 13
+  LILA, new 2019 leaks: detected 14 of 19
+    alarm day minus oracle day: median +0 (range -49 to +11); 6 early, 1 same day, 7 late
+    chance on the detected: expected 0.59
+    R30 at the oracle day     6 of 14 (P(chance >=) 1.2e-05); abrupt 5 of 8, incipient 1 of 6
+    R30 at the alarm day      2 of 14 (P(chance >=) 0.12); abrupt 2 of 8, incipient 0 of 6
+    T-D at the alarm day      4 of 14 (P(chance >=) 0.0022); abrupt 3 of 8, incipient 1 of 6
+    paired, alarm against oracle day: alarm only 0, oracle only 4, P = 0.125
+    paired, R30 against T-D at the alarm day: R30 only 0, T-D only 2, P = 0.500
+    lost by the change of day 4 (alarm early 1, late 3); gained 0
+    end to end: detected and within 300 m 2 of 19
+
+## arm B: step 25's 64 injected leaks, alarms on the published-plus-injected pressures (published regressors)
+  D1-L: detected 30 of 64
+    alarm day minus oracle day: median -2 (range -43 to +21); 17 early, 1 same day, 12 late
+    chance on the detected: expected 1.00
+    R30 at the oracle day    15 of 30 (P(chance >=) 4.3e-15); abrupt 8 of 13, incipient 7 of 17
+    R30 at the alarm day      8 of 30 (P(chance >=) 4.2e-06); abrupt 3 of 13, incipient 5 of 17
+    T-D at the alarm day      7 of 30 (P(chance >=) 4.4e-05); abrupt 2 of 13, incipient 5 of 17
+    paired, alarm against oracle day: alarm only 2, oracle only 9, P = 0.065
+    paired, R30 against T-D at the alarm day: R30 only 2, T-D only 1, P = 1.000
+    lost by the change of day 9 (alarm early 4, late 5); gained 2
+    end to end: detected and within 300 m 8 of 64
+    false alarms over the 8 sets 30; R30's pick at one is within 300 m of a running leak for 16; real leaks detected over the 8 sets 157 (of 256)
+  D1-F: detected 31 of 64
+    alarm day minus oracle day: median -3 (range -63 to +8); 19 early, 1 same day, 11 late
+    chance on the detected: expected 0.97
+    R30 at the oracle day    14 of 31 (P(chance >=) 8.6e-14); abrupt 6 of 11, incipient 8 of 20
+    R30 at the alarm day     10 of 31 (P(chance >=) 1.7e-08); abrupt 5 of 11, incipient 5 of 20
+    T-D at the alarm day      9 of 31 (P(chance >=) 2.6e-07); abrupt 4 of 11, incipient 5 of 20
+    paired, alarm against oracle day: alarm only 1, oracle only 5, P = 0.219
+    paired, R30 against T-D at the alarm day: R30 only 3, T-D only 2, P = 1.000
+    lost by the change of day 5 (alarm early 3, late 2); gained 1
+    end to end: detected and within 300 m 10 of 64
+    false alarms over the 8 sets 27; R30's pick at one is within 300 m of a running leak for 15; real leaks detected over the 8 sets 132 (of 256)
+
+  arm id          kind       year | k_or | R30_or | k D1-L, R30, T-D | k D1-F, R30, T-D | k LILA, R30, T-D
+  A   p232        incipient  2018 |   33 |    102 |  35   102  1372 |  38  1225  1456 | -
+  A   p673        abrupt     2018 |   64 |    267 |  78  1811   267 |  79  1811   267 | -
+  A   p461        incipient  2018 |   68 |    154 | - | - | -
+  A   p427        incipient  2018 |  108 |   1062 |  63  1859  1027 |  60  1859  1655 | -
+  A   p628        incipient  2018 |  132 |    399 | 123  1696  1696 | 130   399  1576 | -
+  A   p538        abrupt     2018 |  138 |    218 | - | - | -
+  A   p866        abrupt     2018 |  152 |   2299 | 153   520  2299 | 153   520  2299 | -
+  A   p31         incipient  2018 |  204 |    666 | 186   666   666 | - | -
+  A   p183        abrupt     2018 |  219 |    128 | 222  2827   128 | 223  1133  1133 | -
+  A   p654        incipient  2018 |  238 |    171 | 207  1983  1983 | 207  1983  1983 | -
+  A   p810        incipient  2018 |  278 |    918 | - | - | -
+  A   p158        abrupt     2018 |  279 |     83 | 280   549   549 | 280   549   549 | -
+  A   p369        abrupt     2018 |  299 |    435 | 304   685   685 | 300   951   951 | -
+  A   p523        abrupt     2019 |  380 |     86 | 381   469    86 | 381   469    86 | 381   469    86
+  A   p827        abrupt     2019 |  389 |    229 | 395  2675  2675 | 395  2675  2675 | 395  2675  2675
+  A   p280        abrupt     2019 |  406 |   1254 | 411   381   381 | 410  2710  2710 | 412   381   381
+  A   p710        abrupt     2019 |  448 |    141 | 456   815   736 | - | 451   736   736
+  A   p514        abrupt     2019 |  457 |   1005 | - | 460  1005   650 | 466  1005  2506
+  A   p653        incipient  2019 |  462 |    227 | 432  1095  1095 | - | -
+  A   p331        abrupt     2019 |  475 |    277 | 478   277   277 | 478   277   277 | 481   277   277
+  A   p142        abrupt     2019 |  528 |    483 | 531   281   502 | 532   457   502 | -
+  A   p193        incipient  2019 |  551 |   2682 | - | 514  3256  3256 | -
+  A   p680        abrupt     2019 |  556 |    109 | 566  1011  1011 | 556   109   109 | 556   109   109
+  A   p277        incipient  2019 |  567 |   1602 | - | - | 528  1495  1495
+  A   p586        incipient  2019 |  595 |    193 | - | - | -
+  A   p800        incipient  2019 |  609 |   2271 | 598  2411  1299 | 598  2411  1299 | 601  2411    97
+  A   p721        incipient  2019 |  616 |   1140 | - | - | 584   559  1513
+  A   p426        abrupt     2019 |  663 |   1523 | 667  1687   590 | 668  1687   590 | 674   590   743
+  A   p123        incipient  2019 |  676 |    599 | - | 630  1925  2106 | -
+  A   p762        incipient  2019 |  686 |   2428 | - | - | 660  1010  1010
+  A   p455        incipient  2019 |  693 |    137 | - | 644  1309  1309 | 644  1309  1309
+  A   p879        incipient  2019 |  718 |   1741 | - | 704  3203  2427 | 698  3203  2427
+  B   s1:n574     abrupt     2019 |  380 |    180 | - | - | -
+  B   s1:n70      abrupt     2018 |   39 |    869 | - | - | -
+  B   s1:n153     incipient  2019 |  687 |    220 | 685   220   580 | 684   220   580 | -
+  B   s1:n404     incipient  2019 |  625 |   2148 | - | - | -
+  B   s1:n201     incipient  2019 |  602 |   1666 | - | - | -
+  B   s1:n440     abrupt     2019 |  475 |    880 | - | - | -
+  B   s1:n636     incipient  2018 |   37 |    102 |  35   976   102 |  37   102  1945 | -
+  B   s1:n256     incipient  2018 |  134 |   1796 | - | 121   493   990 | -
+  B   s2:n58      incipient  2018 |  212 |     57 | - | - | -
+  B   s2:n622     incipient  2018 |  321 |   1711 | - | 317  1107  1107 | -
+  B   s2:n300     abrupt     2018 |   80 |   2609 | - | - | -
+  B   s2:n569     abrupt     2019 |  596 |    205 | 597   531  1240 | 597   531  1240 | -
+  B   s2:n659     incipient  2018 |  171 |    102 | - | 169   102   102 | -
+  B   s2:n256     incipient  2019 |  485 |   1884 | 478  1884  1884 | 482  1884   832 | -
+  B   s2:n70      abrupt     2018 |  201 |    348 | 207   348   348 | 208   588   588 | -
+  B   s2:n515     abrupt     2018 |  324 |     45 | 328    45    45 | 332  1923  1923 | -
+  B   s3:n77      incipient  2018 |  108 |    653 |  78   869  1463 |  79   869  1463 | -
+  B   s3:n620     abrupt     2018 |  144 |    274 | 149   274  1573 | 145   274  1573 | -
+  B   s3:n48      incipient  2019 |  441 |   1017 | - | - | -
+  B   s3:n406     incipient  2018 |  286 |    780 | - | 223   567   567 | -
+  B   s3:n570     incipient  2019 |  511 |   1318 | - | - | -
+  B   s3:n429     abrupt     2019 |  649 |    318 | 655  1192  1192 | 655  1192  1192 | -
+  B   s3:n474     incipient  2018 |  257 |    170 | 255   170   170 | 255   170   170 | -
+  B   s3:n636     incipient  2019 |  513 |      0 | - | - | -
+  B   s4:n659     abrupt     2019 |  689 |   1389 | - | - | -
+  B   s4:n779     abrupt     2019 |  687 |    736 | - | - | -
+  B   s4:n409     incipient  2018 |   99 |    111 |  78  1222  1507 |  79  1222  1507 | -
+  B   s4:n382     abrupt     2018 |  217 |    392 | - | - | -
+  B   s4:n447     abrupt     2019 |  588 |    139 | 609  2100   738 | - | -
+  B   s4:n300     abrupt     2019 |  403 |    705 | - | - | -
+  B   s4:n415     incipient  2018 |  106 |   1075 |  63   806  1893 |  60   806   602 | -
+  B   s4:n570     incipient  2018 |  298 |    154 | - | - | -
+  B   s5:n25      incipient  2019 |  583 |   2100 | 550  1740  1740 | 534  2792  2792 | -
+  B   s5:n428     incipient  2018 |  363 |    266 | 343   266   266 | 339  2425  2425 | -
+  B   s5:n779     abrupt     2018 |  219 |    451 | 221  1508  1508 | 223    43    43 | -
+  B   s5:n49      incipient  2018 |   60 |   1363 |  20   161   161 |  23  1053   161 | -
+  B   s5:n81      abrupt     2019 |  729 |    240 | - | - | -
+  B   s5:n97      incipient  2019 |  548 |   1028 | - | - | -
+  B   s5:n202     incipient  2018 |  335 |   1327 | - | 323  1327  1327 | -
+  B   s5:n668     incipient  2018 |  164 |   2202 | 137  1093  2115 | - | -
+  B   s6:n429     abrupt     2019 |  399 |    318 | - | - | -
+  B   s6:n381     abrupt     2019 |  691 |   1759 | 698  1759  1177 | 693  1759   441 | -
+  B   s6:n469     incipient  2018 |  170 |      0 | - | - | -
+  B   s6:n574     abrupt     2019 |  497 |    272 | 502   814  2221 | - | -
+  B   s6:n516     incipient  2019 |  498 |   3317 | - | - | -
+  B   s6:n467     abrupt     2018 |  102 |    287 | 106  1171  1171 | 103   287    44 | -
+  B   s6:n634     incipient  2019 |  637 |    100 | 621   868   501 | - | -
+  B   s6:n71      incipient  2019 |  574 |   1473 | 551  2742   315 | - | -
+  B   s7:n516     abrupt     2019 |  461 |      0 | 470  1404  1404 | 462     0     0 | -
+  B   s7:n616     incipient  2019 |  438 |   1877 | - | - | -
+  B   s7:n50      incipient  2018 |  186 |   1570 | - | 171   638   638 | -
+  B   s7:n637     incipient  2018 |  234 |   1873 | - | - | -
+  B   s7:n425     incipient  2018 |   57 |    498 |  20   190   190 |  23  1082   190 | -
+  B   s7:n303     abrupt     2019 |  459 |   2872 | - | - | -
+  B   s7:n91      incipient  2018 |  358 |     93 | - | 357    93    93 | -
+  B   s7:n635     incipient  2018 |  141 |    787 | 137   787  1523 | 130  1337  1143 | -
+  B   s8:n97      abrupt     2018 |  248 |    111 | 249   111   205 | 249   111   205 | -
+  B   s8:n261     incipient  2018 |  163 |    418 | 136  1274  1274 | - | -
+  B   s8:n391     incipient  2018 |  100 |    812 | - | - | -
+  B   s8:n58      abrupt     2018 |   43 |     57 | - | - | -
+  B   s8:n720     incipient  2018 |  368 |     96 | 335  2045  2045 | 334  2045  2045 | -
+  B   s8:n201     abrupt     2019 |  621 |   1666 | - | - | -
+  B   s8:n453     abrupt     2018 |  333 |     91 | - | - | -
+  B   s8:n382     abrupt     2019 |  447 |    430 | 447   430   430 | 448  1221  1221 | -
+
+## pre-registered predictions (LOG.md, step 26 plan; detector D1-L)
+  (a) arm B: R30 at the alarm day >= 80% of R30 at the oracle day on the detected: 8 against 15 (bar 12.0): FAILED
+  (b) arm B: R30 at the alarm day beats chance at P < 0.001: P = 4.2e-06: HELD
+  (c) arm B: R30 more hits than T-D at the alarm day: 8 against 7: HELD
+  (d) arm B end to end: at least 15 of 64 detected and within 300 m: 8: FAILED
+  (e) arm A, new 2019: R30 at the alarm day at most one fewer than at the oracle day: 2 against 6: FAILED
+  (f) pooled: more than half of the leaks lost by the change of day were alarmed early: 5 of 14: FAILED
+
+## post hoc, no verdicts: R30 hits at the oracle day + delta (all leaks, detected or not)
+  delta  injected (of 64)  real (of 32)
+   -14         7               2
+    -7        14               5
+    -4        14               2
+    -2        11               6
+    -1        19              13
+    +0        25              15
+    +1        22              10
+    +2        21              11
+    +4        20               8
+    +7        17               6
+   +14        16               8

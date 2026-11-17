@@ -2775,7 +2775,91 @@ tried. Tests: `blackout-fit.test.mjs` (relabelling keeps a round robin and moves
 its label; never worse than the plan as given; the same seed gives the same season; no blackouts means no
 change). The multi-division page gets the same fit in the next section.
 
-## Half the table: flipping every host (2026-11-16, latest)
+## Stopping a refused trial early: measured, not kept (2026-11-17, latest)
+
+The flagship row asked for a cheaper 30-team floor-priced step: the step is 31 of the page's 62 s. One way to
+spend fewer steps is to stop a trial once it is sure to be refused. The search only needs to know whether a
+timetable's break floor is at most `maxBreaks + floor((line - carry-over) / over)`, so a trial could stop as
+soon as a lower bound on its floor passes that. Tried, measured, and left out of `main`, because it bought
+nothing the machine's noise does not hide (`eval/trial-cutoff.txt`; the code is `eval/trial-cutoff.patch.txt`).
+
+- **Two rounds alone never force a break in an even league.** The cheapest bound counts the odd cycles the
+  teams of two consecutive rounds form (each such cycle forces one break; checked by brute force on 400 random
+  pairs). On every pair of rounds of a 30-team starter it is 0. Breaks come from three rounds or more:
+  disjoint 3-round windows give 56 of that starter's 84, 5-round windows all 84.
+- **Refused moves miss by a break or two.** Of the trials that ran to the end, 1,044 were refused by one
+  break and 1,432 more by 2 to 5. A bound has to be within a break or two of exact to stop a trial early.
+  The pair bound plus the table so far stopped 7,211 of 11,307 trials, but near their end: 5.9% fewer steps,
+  and the floor-priced step took 55.5, 56.3 and 54.1 s against 60.4, 56.0 and 55.3 s without it.
+- **Exact windows cost more than they save.** Caching the exact least of every window of 4 or 6 unchanged
+  committed rounds gives a much tighter bound, but a commit every ten trials changes about three rounds, so
+  the windows are recomputed so often that the run takes 40,654 to 66,540 extra steps to save 21,000 to
+  29,000 (67.4 and 68.6 s).
+- **The step itself is near its limit.** A profile puts 28 of 54 s in the int16 step, which keeps one cycle
+  open at a time (tables of 2^(k+1) at most) and moves about 3.8 billion entries a second. A shuffle-free
+  inner loop gave the same tables at the same speed.
+
+So the next saving at 30 teams is fewer trials, not cheaper ones, and has to be judged on the seasons it
+finds. Same seasons, same code on the page; nothing changed for users.
+
+## A trial's steps kept in the module: 30 teams join the page (2026-11-17)
+
+The flagship row asked for 30 teams in the page's floor-priced step, and named the next thing to cut:
+the step's copy-in and copy-out, which had grown about as large as the step itself. Counted first
+(guards lifted locally, 30 teams, seed 1): one page run makes **11,360 trials of 19 steps each on
+average, and commits only 1,118 of them** (245 more are walked for their balanced least). Nine trials
+in ten are scored and thrown away, yet every one of their 216,167 steps sent its table out of the
+module into JS, sliced a copy, and sent it back in for the next step.
+
+**The change.** `floorTable`'s trial now hands its whole run of rounds to `chainLeast` (`orient.mjs`),
+which plans every step first and then runs them in the module back to back: between steps,
+`chain_i32` (`wasm/minplus.c`) moves the last step's output straight into the next step's input
+layout, and `chain_min` takes the least against the backward table there too. Only that one number
+comes back. The trial's tables and home masks are rebuilt in JS (the old path) only if the trial is
+committed or walked. Anything the module cannot take (a table too big, no WebAssembly, values that
+could leave int16) falls back to the old path before any state changes.
+
+The move between layouts went through three versions (`eval/chain-step.txt`):
+
+| Version | 30 teams, off -> on | 28 teams, off -> on | the move's own time |
+|---|---|---|---|
+| scatter and gather: two lookups per entry | 91.1 -> 78.2 s | 42.3 -> 35.5 s | 20.3 s |
+| sequential writes, one composite bit permutation read | 94.6 -> 76.3 s | 44.9 -> 36.5 s | 16.3 s |
+| the same in blocks of 64 (committed) | **93.8 -> 62.0 s** | **45.7 -> 30.2 s** | 3.5 s |
+
+The composite permutation works because both layouts are permutations of the same round's host bits:
+input bit `xPos[j]` is output bit `ys[j]`. For the symmetric step, the folded bit's place reads its
+complement, which in output terms is one xor with every kept bit. In blocks of 64, the low six bits'
+part of that place and of the unary costs is a 64-entry table, and the high bits add one constant per
+block. **About 34% off the page's floor-priced step at 28 and 30 teams, with the same seasons on every pair.**
+26 teams gained 7% with the first version (21.9 -> 20.4 s), since fewer of its steps take the symmetric step.
+
+**30 teams join the page; 29 does not** (two processes at once, so slower than solo):
+
+| Teams, seed | Floor-priced step | Gap | Added |
+|---|---|---|---|
+| 30, 1 | 62.0 s (solo) | 1110/84 .. 2542/68 | 1152/82, 2542/64 |
+| 30, 2 | 105.1 s | 1110/84 .. 2576/60 | 1164/82 |
+| 30, 3 | 74.3 s | 1110/84 .. 2718/58 | 1162/82, 2066/80 |
+| 29, 1 | 80.7 s | 3641/47 .. 4049/38 | nothing |
+| 29, 2 | 75.9 s | 1105/56 .. 3597/45 | 3597/44 |
+| 29, 3 | 74.2 s | 3659/50 .. 4063/44 | nothing |
+
+30 teams add seasons on 3 of 3 seeds, including one in the middle of the gap (2066/80 on seed 3) and
+one that beats a listed season outright (2542/64 against 2542/68), at about what 28 teams cost when
+they joined (47-64 s). So `carryOverFloorPriced` runs at up to 30 teams (`maxTeams` 30,
+`FLOOR_PRICED_MAX_MATCHES` 15). 29 teams added one season, one break better, on 1 of 3 seeds for
+75-80 s, so they are skipped (`skip: [29]`).
+
+- Tests: `orient.test.mjs` compares `floorTable` with and without the chain (`chain: false`) over
+  trials at 9 to 30 teams, a third of them committed and every seventh walked: same least, same walk.
+  `floor-priced.test.mjs` checks the new size gate (30 in; 29 and 31 out; `maxTeams: 28` still works).
+  `FLOOR_CHAIN=0` in the environment turns the chain off, for comparison.
+- Not claimed: times are from one shared cloud machine, not a phone or laptop browser. The step itself
+  (31 s of 62 at 30 teams) is now most of the time. Halving it again needs a different elimination,
+  not less copying.
+
+## Half the table: flipping every host (2026-11-16)
 
 The flagship row asked for 29 and 30 teams in the page's floor-priced step, profiling 30 first. With the
 size guards lifted locally (not committed), 30 teams took **128 s solo** (138 to 196 s three at once)

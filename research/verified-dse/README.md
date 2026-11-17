@@ -161,6 +161,12 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   where the ladder fails (15.64% against 16.63%) and gives up 0.97 where it is perfect. Four of six predictions refuted; the
   probe-guard search for this rule closes here:
   [`experiments/delay_check/`](experiments/delay_check/results.txt).
+- **At a second operating point, 65% placement utilisation, the clipped ladder still beats equal-cost random routing on 16 of 20
+  blind designs, with the same size of edge as at 40% (milestone 141, flow run, all seven predictions held).** Routing is dearer
+  (median routed/r2 7.56 against 5.29) and the routed ranking moves (median tau-b 0.74 against the 40% table), yet SWC has 2.52%
+  mean regret against 7.13% (sign p = 0.012); the change from 40% is -0.47 points (95% interval -1.82 to +1.06). Its losses are
+  the 256-bit dividers. One 256-bit design lost most points to pin placement at 65%; without it, 15 to 4:
+  [`experiments/util65_blind/`](experiments/util65_blind/results.txt).
 - **Milestone 138's set run to completion: the clipped ladder beats equal-cost random routing on 34 of 40 blind designs, and on
   55 of 73 over every blind set with the mean's interval clear of zero (milestone 140, flow run, all seven predictions held).**
   The 15 designs milestone 138's time limit cut, resumed with the same run.py: SWC 2.23% mean regret against 6.25%, better on

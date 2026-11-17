@@ -2352,12 +2352,12 @@ export function threeRoundDeals(opp, rs, cap = 20000) {
  * above the floor; the best few timetables seen within the cap are tried, and the season returned is
  * the one with the least carry-over among those whose balanced least is within the cap (else the
  * fewest breaks). `start` is a single round robin (carryOverTry, lowCarryOverRounds, a squeeze).
- * Up to 28 teams (14 matches a round, FLOOR_PRICED_MAX_MATCHES). `iterations` caps the moves; `timeMs` stops early. Seeded.
+ * Up to 30 teams (15 matches a round, FLOOR_PRICED_MAX_MATCHES; 28 until 2026-11-17). `iterations` caps the moves; `timeMs` stops early. Seeded.
  * Returns the shape squeezeSingleRounds does, plus { floor, leastProved, floorPriced: true }, or null
  * when no balanced choice was found for any kept timetable.
  */
 export function floorPricedSingleRounds(n, start, { seed = 1, maxBreaks, over = 60, iterations = 3000, timeMs = Infinity, keep = 6, deals = CARRY_OVER_DEALS, dealFloors = 3, balanced = true, balancedBudget = 50000 } = {}) {
-  if (!Number.isInteger(n) || n < 4 || n > 28) throw new Error("A floor-priced season needs 4 to 28 teams.");
+  if (!Number.isInteger(n) || n < 4 || n > 30) throw new Error("A floor-priced season needs 4 to 30 teams.");
   if (!Number.isInteger(maxBreaks) || maxBreaks < 0) throw new Error("maxBreaks must be a whole number of 0 or more.");
   const N = n % 2 === 0 ? n : n + 1, R = N - 1;
   if (!start || !Array.isArray(start.rounds) || start.rounds.length !== R) throw new Error("start must be a single round robin for this many teams.");
@@ -2524,7 +2524,10 @@ export const CARRY_OVER_DEALS = 0.15;
 
 /**
  * Seasons the page adds after the regrounded ones (README "Pricing the break floor"): for a single
- * round robin of 6 to `maxTeams` (28) teams (26 until 2026-11-15's balance-guided walk and start under
+ * round robin of 6 to `maxTeams` (30) teams but not `skip` (29) (28 until 2026-11-17, when a trial's steps
+ * stayed in the module and 30 teams went from 94 s to 62 s, adding seasons on 3 of 3 seeds, while 29
+ * added one on 1 of 3: README "A trial's steps kept in the module", eval/chain-step.txt;
+ * 26 until 2026-11-15's balance-guided walk and start under
  * the gap let 28 teams land seasons on every seed: README "Starting under the gap", eval/under-start.txt;
  * 25 until 2026-11-15, when the whole-break step went to
  * int16 SIMD and 26 teams went from 71 s to 34 s: README "Whole-break tables in int16", eval/int16-step.txt;
@@ -2539,10 +2542,10 @@ export const CARRY_OVER_DEALS = 0.15;
  * `results` and `seed` alone, so a share link that keeps one rebuilds it. [] for a home-and-away
  * season or when the frontier has no such gap.
  */
-export function carryOverFloorPriced(n, results, { seed = 1, count = CARRY_OVER_FLOOR_PRICED, minGap = 4, iterations = 3000, deals = CARRY_OVER_DEALS, balanced = true, maxTeams = 28, underStart = true } = {}) {
+export function carryOverFloorPriced(n, results, { seed = 1, count = CARRY_OVER_FLOOR_PRICED, minGap = 4, iterations = 3000, deals = CARRY_OVER_DEALS, balanced = true, maxTeams = 30, skip = [29], underStart = true } = {}) {
   const N = n % 2 === 0 ? n : n + 1, R = N - 1;
   const base = [...results].sort((a, b) => a.index - b.index);
-  if (n < 6 || n > maxTeams || !count || base.some((t) => t.rounds.length !== R)) return [];
+  if (n < 6 || n > maxTeams || skip.includes(n) || !count || base.some((t) => t.rounds.length !== R)) return [];
   const pts = base.map((t, i) => ({ i, coe: t.coe, breaks: t.breaks }));
   const front = pts.filter((x) => !pts.some((y) => y.coe <= x.coe && y.breaks <= x.breaks && (y.coe < x.coe || y.breaks < x.breaks)))
     .filter((x, k, a) => a.findIndex((y) => y.coe === x.coe && y.breaks === x.breaks) === k)

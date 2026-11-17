@@ -164,3 +164,17 @@ test("PAPERS carry DOIs and say what was implemented", () => {
   }
   assert.ok(PAPERS.some((p) => p.doi === "10.1073/pnas.2016191118"));
 });
+
+test("array input: a missing forecast or an unreadable outcome is an error, and yes/no outcomes count (red team 2026-11-17)", () => {
+  const p = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 0.15, 0.85];
+  const y = [0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1];
+  const base = analyze({ p, y });
+  // "yes" used to read as a non-event, so this table had no events at all.
+  const words = analyze({ p, y: y.map((v) => (v ? "yes" : "no")) });
+  assert.deepEqual(words.brier, base.brier);
+  assert.deepEqual(analyze({ p: p.map(String), y: y.map(Boolean) }).brier, base.brier);
+  const withP = (v) => { const q = [...p]; q[3] = v; return q; };
+  const withY = (v) => { const z = [...y]; z[3] = v; return z; };
+  for (const v of [null, "", false, "n/a"]) assert.throws(() => analyze({ p: withP(v), y }), /between 0 and 1/, `p ${v}`);
+  for (const v of [null, undefined, "", "maybe", 2]) assert.throws(() => analyze({ p, y: withY(v) }), /not readable as yes\/no/, `y ${v}`);
+});

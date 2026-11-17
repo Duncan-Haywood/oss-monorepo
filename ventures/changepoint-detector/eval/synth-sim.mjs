@@ -35,10 +35,12 @@ export function panel(cell, seed) {
   const { g, u } = rng(seed);
   const { units, k, m, idio } = cell, n = k + m;
   const F = [0, 0].map(() => { const f = [g() / 0.6]; for (let t = 1; t < n; t++) f.push(0.8 * f[t - 1] + g()); return f; });
-  const rows = [];
+  const rows = [], lams = [];
   for (let i = 0; i < units; i++) {
     let lam = [0.5 + u(), 0.5 + u()];
     if (cell.edge && i === 0) lam = [2.0, 2.0];
+    if (cell.lam0 && i === 0) lam = cell.lam0.slice(); // a treated unit inside the hull but near its corner
+    lams.push(lam);
     const a = 2 * g();
     const y = []; let e = 0, w = 0;
     for (let t = 0; t < n; t++) {
@@ -48,6 +50,13 @@ export function panel(cell, seed) {
     }
     rows.push(y);
   }
+  // copies: the last 2c rows become c near-copy pairs (row 2j+1 of the block = row 2j + N(0, copySd) each point), so
+  // some donors can be matched almost exactly before the date (README "A floored ratio")
+  if (cell.copies) {
+    const start = units - 2 * cell.copies;
+    for (let j = 0; j < cell.copies; j++) rows[start + 2 * j + 1] = rows[start + 2 * j].map((v) => v + cell.copySd * g());
+  }
+  rows.lam = lams; // each unit's factor loadings (eval/synth-cov-sim.mjs builds noisy covariates from them)
   return rows;
 }
 
@@ -62,7 +71,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       if (r % sn !== si) continue;
       const rows = panel(cell, base + 1000 * ci + r);
       const donors = Object.fromEntries(rows.slice(1).map((d, j) => [`d${j}`, d]));
-      const res = synthControlTest(rows[0], donors, cell.k, { placeboPool: process.env.SC_POOL ?? 'without' });
+      const res = synthControlTest(rows[0], donors, cell.k, { placeboPool: process.env.SC_POOL ?? 'without', statistic: 'ratio' });
       console.log(JSON.stringify({ cell: name, rep: r, p: res.p, rank: res.rank, effect: res.effectAverage, fitWarning: res.fitWarning, pre: res.preRmspe }));
     }
   });

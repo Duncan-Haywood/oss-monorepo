@@ -580,7 +580,9 @@ export function analyze(input = {}) {
   const o = { ...DEFAULTS, ...input };
   let series;
   if (Array.isArray(input.t) && Array.isArray(input.y)) {
-    series = { t: input.t.map(Number), y: input.y.map(Number), e: input.e ? input.e.map(Number) : input.t.map(() => 1), g: input.g ? input.g.map(String) : input.t.map(() => "all"), skipped: 0, columns: { time: "t", timeKind: "number", value: "y", error: input.e ? "e" : null, group: input.g ? "g" : null } };
+    // Number(null) and Number("") are 0: a missing reading must fail the check below, not become a zero.
+    const num = (v) => (typeof v === "number" ? v : typeof v === "string" && v.trim() !== "" ? Number(v) : NaN);
+    series = { t: input.t.map(num), y: input.y.map(num), e: input.e ? input.e.map(num) : input.t.map(() => 1), g: input.g ? input.g.map(String) : input.t.map(() => "all"), skipped: 0, columns: { time: "t", timeKind: "number", value: "y", error: input.e ? "e" : null, group: input.g ? "g" : null } };
   } else {
     series = readSeries(parseCsv(input.csv), o);
   }

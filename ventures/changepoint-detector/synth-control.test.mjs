@@ -1,7 +1,8 @@
 import { test } from 'node:test';
 import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
-import { simplexLeastSquares, projectSimplex, synthControlTest, synthInTimePlacebo } from './synth-control.mjs';
+import { simplexLeastSquares, simplexLeastSquaresRows, projectSimplex, synthControlTest, synthInTimePlacebo } from './synth-control.mjs';
+import { predictorsOf } from './eval/synth-cov-sim.mjs';
 import { panel, CELLS } from './eval/synth-sim.mjs';
 
 test('the simplex projection lands on the simplex and leaves a point already there', () => {
@@ -50,7 +51,7 @@ test('bad input is refused with a reason', () => {
   assert.throws(() => synthControlTest([1, 2, 3, 4, 5, 6, 7, 8], d, 2), /at least 5 before/);
 });
 
-test('California 1989 against the 38 donors: the published weights and gap, rank 3 of 39 (README "A synthetic control")', () => {
+test('California 1989 against the 38 donors: the published weights and gap; floored ratio rank 1 of 39, the paper\'s ratio rank 3 (README "A floored ratio")', () => {
   const [h, ...rows] = readFileSync(new URL('./data/us-cigarette-packs-per-capita.csv', import.meta.url), 'utf8').trim().split('\n');
   const head = h.split(','), data = rows.map((l) => l.split(',').map(Number));
   const col = (s) => data.slice(0, 31).map((r) => r[head.indexOf(s)]);
@@ -60,5 +61,44 @@ test('California 1989 against the 38 donors: the published weights and gap, rank
   assert.deepEqual(r.weights.slice(0, 4).map((w) => w.name), ['UT', 'MT', 'NV', 'CT']);
   assert.ok(Math.abs(r.effectAtEnd - -26.5) < 0.5, `gap at 2000 ${r.effectAtEnd}`);
   assert.ok(Math.abs(r.effectAverage - -19.5) < 0.5);
-  assert.equal(r.rank, 3);
+  assert.equal(r.statistic, 'floored');
+  assert.equal(r.rank, 1);
+  assert.ok(Math.abs(r.p - 1 / 39) < 1e-12);
+  assert.ok(Math.abs(r.floor - 2.15) < 0.01, `floor ${r.floor}`);
+  assert.equal(r.tests.ratio.rank, 3);
+  assert.equal(r.tests.post.rank, 4);
+  assert.equal(synthControlTest(col('CA'), donors, 19, { statistic: 'ratio' }).rank, 3);
+});
+
+test('the floored ratio leaves a unit fitted worse than the median alone and caps the rest at the median', () => {
+  const rows = panel(CELLS.N1, 31337);
+  const r = synthControlTest(rows[0], Object.fromEntries(rows.slice(1).map((d, j) => [`d${j}`, d])), CELLS.N1.k);
+  const all = [r.preRmspe, ...r.placebos.map((q) => q.preRmspe)].sort((a, b) => a - b);
+  assert.equal(r.floor, all[19]);
+  for (const q of r.placebos) assert.ok(Math.abs(q.floored - q.postRmspe / Math.max(q.preRmspe, r.floor)) < 1e-12);
+  assert.throws(() => synthControlTest(rows[0], Object.fromEntries(rows.slice(1).map((d, j) => [`d${j}`, d])), CELLS.N1.k, { statistic: 'max' }), /unknown statistic/);
+});
+
+test('the row-form solver recovers a mix of donors from a few predictors', () => {
+  const A = [[1, 2, 5, 0, 3], [2, 1, 3, 0, 1], [3, 0, 4, 1, 2]];
+  const b = A.map((r) => 0.3 * r[0] + 0.7 * r[2]);
+  const w = simplexLeastSquaresRows(A, b);
+  assert.ok(Math.abs(w.reduce((a, c) => a + c, 0) - 1) < 1e-9 && w.every((v) => v >= 0));
+  const fit = A.map((r) => r.reduce((s, v, j) => s + v * w[j], 0));
+  assert.ok(fit.every((v, i) => Math.abs(v - b[i]) < 1e-4), `fit ${fit} vs ${b}`); // stops on a 1e-10 relative change, as in every run
+});
+
+test('matched on covariates (README "Matched on covariates"): V on the simplex, the same placebo layout, a step found', () => {
+  const rows = panel(CELLS.P1, 777);
+  const px = predictorsOf(rows, CELLS.P1.k, 777);
+  const donors = Object.fromEntries(rows.slice(1).map((d, j) => [`d${j}`, d]));
+  const predictors = { treated: px[0], donors: Object.fromEntries(px.slice(1).map((a, j) => [`d${j}`, a])) };
+  const r = synthControlTest(rows[0], donors, CELLS.P1.k, { predictors });
+  assert.equal(r.v.length, 5);
+  assert.ok(Math.abs(r.v.reduce((a, b) => a + b, 0) - 1) < 1e-9);
+  assert.equal(r.placebos.length, 38);
+  assert.ok(r.effectAverage < -0.5 && r.effectAverage > -1.5, `effect ${r.effectAverage}`);
+  const again = synthControlTest(rows[0], donors, CELLS.P1.k, { predictors });
+  assert.equal(again.p, r.p); // deterministic
+  assert.throws(() => synthControlTest(rows[0], donors, CELLS.P1.k, { predictors: { treated: px[0], donors: {} } }), /same count of finite numbers/);
 });

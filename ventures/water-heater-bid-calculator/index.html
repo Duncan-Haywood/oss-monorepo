@@ -676,7 +676,7 @@
         panel_slots: 'Panel work to carry the new circuits',
       };
       const suggested = [
-        `Supply and install a ${size} ${result.heaterLabel.toLowerCase()} in the ${WHERE[result.location] ?? 'existing location'}`,
+        `${result.materials?.heaterHardware > 0 ? 'Supply and install' : 'Install the customer-supplied'} ${size} ${result.heaterLabel.toLowerCase()} in the ${WHERE[result.location] ?? 'existing location'}`,
         result.addons?.haulAway ? 'Remove and dispose of the existing water heater' : '',
         VENT[result.venting] ?? '',
         GAS[result.gasLine] ?? '',

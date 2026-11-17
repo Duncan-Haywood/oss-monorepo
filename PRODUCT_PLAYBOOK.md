@@ -584,6 +584,10 @@ Ship when every line is true:
       commit** with `python3 platform/ci/publish_surface.py --write`, and say
       in the PR what it can publish (`none` for a test-only workflow);
       `--check` fails until the snapshot names it, by design.
+- [ ] `node platform/pages/register-tool.mjs <slug>` (about 10 s, once the
+      page exists): adds the launch date and opt-out switch line, names
+      the missing sibling link and the CSV-guard and row-spread hits for
+      this slug; `--research` for a research-algorithm tool.
 - [ ] `node platform/pages/venture-preflight.mjs <slug>` is clean (add
       `--skip-build` for the one-minute pass). It runs the repository-wide
       gates a new venture trips in CI that its own tests cannot see:

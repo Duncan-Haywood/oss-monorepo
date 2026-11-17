@@ -314,5 +314,41 @@ class LogFormatTest(unittest.TestCase):
         self.assertEqual(empty, [], "these LOG.md files need `## <date> · <title>` entry headings")
 
 
+class ResearchTreeTest(unittest.TestCase):
+    """research_tree (2026-11-17) replaced 2,161 Path.rglob walks of research/ with one;
+    the three readers must see the same files the rglob calls saw."""
+
+    @classmethod
+    def setUpClass(cls):
+        InlineMarkdownTest.setUpClass.__func__(cls)
+
+    def test_matches_rglob_on_a_made_up_tree(self):
+        b = self.b
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for rel in ("alpha/src/pkg/core.py", "alpha/tests/test_core.py", "alpha/test_top.py",
+                        "alpha/__pycache__/core.cpython-311.py", "alpha/.hidden/secret.py",
+                        "alpha/data/notes.txt", "alpha/deep/a/b/c/leaf.py", "beta/run.py",
+                        "beta/test_x.PY", "_shared/linefig.py", "top.py", "README.md"):
+                f = root / rel
+                f.parent.mkdir(parents=True, exist_ok=True)
+                f.write_text("import numpy\nfrom pkg import x\ndef test_a():\n    pass\n")
+            (root / "empty").mkdir()
+            saved = b.RESEARCH, b._TREE, b._OWN
+            b.RESEARCH, b._TREE, b._OWN = root, None, None
+            try:
+                for slug in ("alpha", "beta", "_shared", "empty", "missing"):
+                    for pattern in ("*.py", "test*.py"):
+                        self.assertEqual(sorted(b.slug_files(slug, pattern)),
+                                         sorted(f for f in (root / slug).rglob(pattern) if f.is_file()),
+                                         (slug, pattern))
+                self.assertEqual(b.own_modules(),
+                                 {f.stem for f in root.rglob("*.py")} | {d.name for d in root.rglob("*") if d.is_dir()})
+                self.assertEqual(b.test_count("alpha"), 2)
+                self.assertEqual(b.third_party_imports("alpha"), {"numpy"})
+            finally:
+                b.RESEARCH, b._TREE, b._OWN = saved
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -460,6 +460,11 @@ export function calculateBid(input) {
   if (type.fuel === 'electric' && type.id !== 'tankless_electric' && electrical === 'none') {
     warnings.push('This is an electric heater with no electrical look on the ticket. Confirm the existing circuit is actually reusable.');
   }
+  if (!(money.heaterHardware > 0)) {
+    warnings.push(
+      'Heater hardware is $0, so this price is labor, parts and permit only: it does not include the water heater itself. Enter the unit cost, or bid the heater as customer-supplied.',
+    );
+  }
   if (type.family === 'tankless' && !addons.isolationValves) {
     warnings.push('Tankless service valves are how the next flush happens without cutting copper. The bid does not yet include them.');
   }
@@ -519,7 +524,8 @@ function baselinePrice(money) {
       overheadRate: money.overheadRate,
       targetMargin: money.targetMargin,
       permitFee: money.permitFee,
-      heaterHardware: 0,
+      // Same heater on both sides: the ratio compares the job, not the unit.
+      heaterHardware: money.heaterHardware,
       otherMaterials: 0,
       otherHours: 0,
       proposedPrice: '',

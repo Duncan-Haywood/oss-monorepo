@@ -32,8 +32,48 @@ export function severity(spec) {
 // stands; CI says so, and fails on it only when asked (--fail-on-unchecked).
 export const notChecked = (s) => (s.skippedSubclasses || []).reduce((n, x) => n + x.count, 0);
 
+// IDS audit warnings (audit.mjs, ids.mjs auditWarnings): the IDS is valid but a
+// specification is probably not what its author meant (an abstract class that
+// selects nothing, a value no enumeration member can equal, a non-standard
+// Pset_ property). They belong to the IDS file, not the model, so a file
+// checked against five models is told once: one entry per IDS file and
+// specification, in IDS order. The verdict stands; CI fails on them only when
+// asked (--fail-on-audit-warnings).
+export function auditFindings(runs) {
+  const seen = new Map();
+  for (const r of runs) {
+    if (r.error) continue;
+    r.report.specs.forEach((s, index) => {
+      const ws = s.auditWarnings || [];
+      if (!ws.length) return;
+      const k = `${r.ids}\u0000${index}`;
+      const e = seen.get(k) || { ids: r.ids, index, name: s.name, warnings: [] };
+      for (const w of ws) if (!e.warnings.includes(w)) e.warnings.push(w);
+      seen.set(k, e);
+    });
+  }
+  return [...seen.values()];
+}
+
+// The 1-based line of each <specification> start tag in an IDS file, in
+// document order (the order of report.specs), so an annotation about a
+// specification lands on it. Comments, CDATA and processing instructions are
+// skipped; a namespace prefix (<ids:specification>) is allowed.
+export function idsSpecLines(text) {
+  const out = [];
+  if (typeof text !== "string") return out;
+  const re = /<!--[^]*?-->|<!\[CDATA\[[^]*?\]\]>|<\?[^]*?\?>|<(?:[A-Za-z_][\w.-]*:)?specification(?=[\s/>])/g;
+  let line = 1, at = 0, m;
+  while ((m = re.exec(text))) {
+    for (let i = at; i < m.index; i++) if (text.charCodeAt(i) === 10) line++;
+    at = m.index;
+    if (m[0][1] !== "!" && m[0][1] !== "?") out.push(line);
+  }
+  return out;
+}
+
 export function tally(runs) {
-  const t = { pairs: runs.length, unreadable: 0, specs: 0, passed: 0, failed: 0, warnings: 0, invalid: 0, elementsFailed: 0, uncheckedSpecs: 0, elementsNotChecked: 0 };
+  const t = { pairs: runs.length, unreadable: 0, specs: 0, passed: 0, failed: 0, warnings: 0, invalid: 0, elementsFailed: 0, uncheckedSpecs: 0, elementsNotChecked: 0, auditSpecs: 0, auditWarnings: 0 };
   for (const r of runs) {
     if (r.error) { t.unreadable++; continue; }
     for (const s of r.report.specs) {
@@ -48,6 +88,7 @@ export function tally(runs) {
       if (nc) { t.uncheckedSpecs++; t.elementsNotChecked += nc; }
     }
   }
+  for (const a of auditFindings(runs)) { t.auditSpecs++; t.auditWarnings += a.warnings.length; }
   t.ok = t.unreadable === 0 && t.failed === 0 && t.invalid === 0;
   return t;
 }
@@ -66,7 +107,7 @@ export function junitXml(runs, { maxFailures = 50 } = {}) {
     const cases = [];
     let failures = 0, errors = 0, skipped = 0;
     for (const s of rep.specs) {
-      const warn = s.hint && notChecked(s) ? `warning: ${s.hint}` : "";
+      const warn = [...(s.hint && notChecked(s) ? [`warning: ${s.hint}`] : []), ...(s.auditWarnings || []).map((w) => `IDS audit warning: ${w}`)].join("\n");
       const out = warn ? `<system-out>${xmlEsc(warn)}</system-out>` : "";
       const head = `    <testcase classname="${xmlEsc(rep.title || r.ids)}" name="${xmlEsc(s.name)}" file="${xmlEsc(r.model)}">`;
       const props = `applies to ${s.applicable} element(s); ${s.applicable - failCount(s)} pass, ${failCount(s)} fail`;
@@ -130,21 +171,42 @@ export function stepLines(text, ids) {
 // errors and ten warnings per step, so per element would drown the rest),
 // placed on the first failing element's line when the model is STEP text.
 // lines: optional Map model -> Map id -> line.
-// A specification that left subclass elements unchecked gets its own
-// annotation on the IDS file (the fix is there: name the classes), a warning,
-// or an error under failOnUnchecked.
-export function annotations(runs, { lines = new Map(), failOnUnchecked = false } = {}) {
+// What the IDS author fixes goes on the IDS file, on the specification's line
+// when idsLines (Map ids -> idsSpecLines()) has it: an invalid specification
+// (once per IDS file, however many models), an IDS audit warning (once, all of
+// a specification's warnings in one annotation; an error under failOnAudit),
+// and a specification that left subclass elements unchecked (per model, its
+// counts are the model's; an error under failOnUnchecked).
+// GitHub drops a step's warnings past the tenth without saying so, and one
+// real IDS (Rotterdam's) has 19 specifications with audit warnings, so past
+// maxAudit the rest become one annotation pointing at the job summary, which
+// lists them all.
+export function annotations(runs, { lines = new Map(), idsLines = new Map(), failOnUnchecked = false, failOnAudit = false, maxAudit = 9 } = {}) {
   const out = [];
+  const at = (ids, index) => { const l = idsLines.get(ids)?.[index]; return `file=${escProp(ids)}${l ? `,line=${l}` : ""}`; };
+  const once = new Set();
+  const audits = auditFindings(runs);
+  for (const a of audits.slice(0, maxAudit)) {
+    const n = a.warnings.length;
+    out.push(`::${failOnAudit ? "error" : "warning"} ${at(a.ids, a.index)},title=${escProp(`IDS audit: ${a.name}${n > 1 ? ` (${n} warnings)` : ""}`)}::${escData(a.warnings.join("\n"))}`);
+  }
+  if (audits.length > maxAudit) {
+    const rest = audits.slice(maxAudit);
+    const files = [...new Set(rest.map((a) => a.ids))];
+    out.push(`::${failOnAudit ? "error" : "warning"} file=${escProp(rest[0].ids)},title=${escProp(`IDS audit: ${rest.length} more specification(s) with warnings`)}::${escData(`Not annotated here (GitHub shows ten warnings per step): ${rest.length} more specification(s) in ${files.join(", ")}. The job summary lists every IDS audit warning.`)}`);
+  }
   for (const r of runs) {
     if (r.error) { out.push(`::error file=${escProp(r.model)},title=${escProp("IDS check could not run")}::${escData(r.error)}`); continue; }
-    for (const s of r.report.specs) {
+    r.report.specs.forEach((s, index) => {
       const nc = notChecked(s);
-      if (nc && s.hint) out.push(`::${failOnUnchecked ? "error" : "warning"} file=${escProp(r.ids)},title=${escProp(`IDS: ${s.name}: ${nc.toLocaleString("en-US")} element(s) not checked`)}::${escData(`"${s.name}" vs ${r.model}: ${s.hint}`)}`);
+      if (nc && s.hint) out.push(`::${failOnUnchecked ? "error" : "warning"} ${at(r.ids, index)},title=${escProp(`IDS: ${s.name}: ${nc.toLocaleString("en-US")} element(s) not checked`)}::${escData(`"${s.name}" vs ${r.model}: ${s.hint}`)}`);
       const sev = severity(s);
-      if (sev === "pass") continue;
+      if (sev === "pass") return;
       if (s.status === "invalid") {
-        out.push(`::error file=${escProp(r.ids)},title=${escProp(`Invalid IDS specification: ${s.name}`)}::${escData(s.note || "The IDS needs fixing before this specification can be checked.")}`);
-        continue;
+        const msg = s.note || "The IDS needs fixing before this specification can be checked.";
+        const k = `${r.ids}\u0000${index}\u0000${msg}`;
+        if (!once.has(k)) { once.add(k); out.push(`::error ${at(r.ids, index)},title=${escProp(`Invalid IDS specification: ${s.name}`)}::${escData(msg)}`); }
+        return;
       }
       const first = s.failed[0];
       const line = first && lines.get(r.model)?.get(first.id);
@@ -153,19 +215,111 @@ export function annotations(runs, { lines = new Map(), failOnUnchecked = false }
         ? `${failCount(s)} of ${s.applicable} element(s) fail "${s.name}" (${r.ids}). First: ${failLine(first)}`
         : `"${s.name}" (${r.ids}): ${s.note || "fails"}`;
       out.push(`::${sev} ${where},title=${escProp(`IDS: ${s.name}`)}::${escData(msg)}`);
-    }
+    });
   }
   return out;
 }
 
+// GitLab Code Quality report (artifacts:reports:codequality): a JSON array of
+// issues, each { description, check_name, fingerprint, severity, location:
+// { path, lines: { begin } } }. GitLab shows them in the merge request widget
+// as new or resolved by comparing fingerprints with the target branch's report,
+// and inline on changed lines of the diff. So, unlike the GitHub annotations
+// (ten per step), there is one issue per failing element, keyed on its
+// GlobalId and class, not its #id or line: a re-export renumbers #ids and
+// moves lines, but the widget then still says which walls this merge request
+// broke or fixed. The class is in the key because real exports repeat
+// GlobalIds (HHS construction2.ifc gives a column the GlobalId of a slab), and
+// a shared key would shift a fingerprint suffix onto the wrong element.
+// The rest are the same findings the annotations make: audit warnings and
+// invalid specifications once per IDS file on the specification's line, not-
+// checked subclasses per model, an unreadable file. Past maxPerSpec failing
+// elements of one specification, one issue says how many more (its fingerprint
+// is the specification's, so a count that changes stays one issue).
+// Which elements get their own issue is chosen by GlobalId order, not model
+// order: a re-export can reorder the file (BIMserver's copy of the HHS MEP
+// model does), and taking the first N in file order would then report up to N
+// different elements as new and N as resolved. The default, 1,000, is every
+// element a report lists (--max-failures): a cap hides the elements past it,
+// and on the HHS revisions a cap of 50 hid every real change
+// (eval/gitlab-codequality-2026-11-17.md).
+// pathPrefix is prepended to every path: GitLab needs paths from the
+// repository root, and ci-cli.mjs may have read the files under --root.
+export function codeQuality(runs, { lines = new Map(), idsLines = new Map(), failOnUnchecked = false, failOnAudit = false, maxPerSpec = 1000, pathPrefix = "" } = {}) {
+  const out = [];
+  const seen = new Set();
+  const p = (path) => (pathPrefix ? `${pathPrefix.replace(/\/+$/, "")}/${path}` : path);
+  const push = (check_name, severity, description, path, line, key) => {
+    let fingerprint = cqHash([check_name, ...key].join("\u0000"));
+    // Two distinct findings must not share a fingerprint (GitLab would show one).
+    for (let n = 1; seen.has(fingerprint); n++) fingerprint = cqHash([check_name, ...key, n].join("\u0000"));
+    seen.add(fingerprint);
+    out.push({ type: "issue", check_name, description, categories: ["Bug Risk"], severity, fingerprint, location: { path: p(path), lines: { begin: line || 1 } } });
+  };
+  const specLine = (ids, index) => idsLines.get(ids)?.[index];
+  for (const a of auditFindings(runs)) {
+    for (const w of a.warnings) push("ids-audit", failOnAudit ? "major" : "minor", `IDS audit: "${a.name}": ${w}`, a.ids, specLine(a.ids, a.index), [a.ids, a.name, w]);
+  }
+  const once = new Set();
+  for (const r of runs) {
+    if (r.error) { push("ids-unreadable", "blocker", `IDS check could not run (${r.model} vs ${r.ids}): ${r.error}`, r.model, 1, [r.model, r.ids]); continue; }
+    r.report.specs.forEach((s, index) => {
+      const nc = notChecked(s);
+      if (nc && s.hint) push("ids-not-checked", failOnUnchecked ? "major" : "minor", `"${s.name}" vs ${r.model}: ${nc.toLocaleString("en-US")} element(s) not checked. ${s.hint}`, r.ids, specLine(r.ids, index), [r.ids, s.name, r.model]);
+      const sev = severity(s);
+      if (sev === "pass") return;
+      if (s.status === "invalid") {
+        const msg = s.note || "The IDS needs fixing before this specification can be checked.";
+        const k = `${r.ids}\u0000${index}\u0000${msg}`;
+        if (!once.has(k)) { once.add(k); push("ids-invalid-specification", "blocker", `Invalid IDS specification "${s.name}": ${msg}`, r.ids, specLine(r.ids, index), [r.ids, s.name, msg]); }
+        return;
+      }
+      const level = sev === "error" ? "critical" : "minor";
+      const name = sev === "error" ? (s.optionality === "prohibited" ? "ids-prohibited" : "ids-required") : "ids-optional";
+      const ln = lines.get(r.model);
+      if (!s.failed.length) { push(name, level, `"${s.name}" (${r.ids}): ${s.note || "fails"}`, r.model, 1, [r.model, r.ids, s.name]); return; }
+      for (const f of cqElements(s, maxPerSpec)) push(name, level, `"${s.name}" (${r.ids}): ${failLine(f)}`, r.model, ln?.get(f.id), [r.model, r.ids, s.name, f.globalId ? `${f.globalId} ${f.type}` : `#${f.id}`]);
+      const more = failCount(s) - Math.min(maxPerSpec, s.failed.length);
+      if (more > 0) push(name, level, `"${s.name}" (${r.ids}): ${more.toLocaleString("en-US")} more element(s) fail (${failCount(s).toLocaleString("en-US")} of ${s.applicable.toLocaleString("en-US")} in all; the JUnit, JSON or BCF report lists them).`, r.model, ln?.get(s.failed[0].id), [r.model, r.ids, s.name, "more"]);
+    });
+  }
+  return out;
+}
+
+// The failing elements of a specification that get their own GitLab issue:
+// the first max by GlobalId (then #id), so the pick does not depend on file
+// order. ci-cli.mjs asks stepLines() for the lines of exactly these.
+export function cqElements(s, max = 1000) {
+  const key = (f) => f.globalId || "";
+  return [...s.failed].sort((a, b) => (key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : a.id - b.id)).slice(0, max);
+}
+
+// A 128-bit hex fingerprint with no dependencies (ci.mjs does no I/O and
+// imports nothing): four 32-bit FNV-1a-style lanes with different seeds over
+// the UTF-16 code units, then mixed. Stable across runs and platforms, which is
+// all GitLab needs of it; not a security hash.
+export function cqHash(s) {
+  const h = [0x811c9dc5, 0x9e3779b9, 0x85ebca6b, 0xc2b2ae35];
+  for (let i = 0; i < s.length; i++) {
+    const c = s.charCodeAt(i);
+    for (let k = 0; k < 4; k++) h[k] = Math.imul(h[k] ^ c ^ (k << 8), 0x01000193 + 2 * k);
+  }
+  return h.map((x, k) => {
+    x ^= h[(k + 1) & 3] >>> 15; x = Math.imul(x, 0x2c1b3c6d); x ^= x >>> 12; x = Math.imul(x, 0x297a2d39); x ^= x >>> 15;
+    return (x >>> 0).toString(16).padStart(8, "0");
+  }).join("");
+}
+
 const mdCell = (s) => String(s ?? "").replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
 
-export function stepSummary(runs, { maxFailures = 5, failOnUnchecked = false } = {}) {
+export function stepSummary(runs, { maxFailures = 5, failOnUnchecked = false, failOnAudit = false } = {}) {
   const t = tally(runs);
-  const ok = t.ok && !(failOnUnchecked && t.elementsNotChecked);
+  const ok = t.ok && !(failOnUnchecked && t.elementsNotChecked) && !(failOnAudit && t.auditWarnings);
+  const audits = auditFindings(runs);
   const out = [`## IDS model check: ${ok ? "PASS" : "FAIL"}`, ""];
   out.push(`${t.pairs} model/IDS pair(s), ${t.specs} specification check(s): ${t.passed} pass, ${t.failed} fail, ${t.warnings} optional warning(s), ${t.invalid} invalid${t.unreadable ? `, ${t.unreadable} could not be read` : ""}.`, "");
   if (t.elementsNotChecked) out.push(`**Not checked:** ${t.elementsNotChecked.toLocaleString("en-US")} element(s) in ${t.uncheckedSpecs} specification check(s) belong to a subclass of a class the entity facet names (e.g. IFCWALLSTANDARDCASE under IFCWALL). IDS entity names do not include subclasses, so these elements were not checked${failOnUnchecked ? " and the build fails on them (--fail-on-unchecked)" : ""}. Add the class names to the entity facet to check them.`, "");
+  if (t.auditWarnings) out.push(`**IDS audit:** ${t.auditWarnings} warning(s) on ${t.auditSpecs} specification(s): the IDS is valid, but these specifications probably do not check what their author meant (details below)${failOnAudit ? "; the build fails on them (--fail-on-audit-warnings)" : ""}. The fix is in the IDS file.`, "");
   out.push("| Model | IDS | Result | Specifications passing | Failing elements | Not checked |", "|---|---|---|---|---|---|");
   for (const r of runs) {
     if (r.error) { out.push(`| ${mdCell(r.model)} | ${mdCell(r.ids)} | ERROR | - | ${mdCell(r.error)} | - |`); continue; }
@@ -173,7 +327,8 @@ export function stepSummary(runs, { maxFailures = 5, failOnUnchecked = false } =
     const pass = s.filter((x) => x.status === "pass").length;
     const bad = s.reduce((n, x) => n + failCount(x), 0);
     const nc = s.reduce((n, x) => n + notChecked(x), 0);
-    const res = tally([r]).ok && !(failOnUnchecked && nc) ? "PASS" : "FAIL";
+    const aw = s.some((x) => x.auditWarnings?.length);
+    const res = tally([r]).ok && !(failOnUnchecked && nc) && !(failOnAudit && aw) ? "PASS" : "FAIL";
     out.push(`| ${mdCell(r.model)} | ${mdCell(r.report.title || r.ids)} | ${res} | ${pass} of ${s.length} | ${bad} | ${nc} |`);
   }
   for (const r of runs) {
@@ -195,6 +350,13 @@ export function stepSummary(runs, { maxFailures = 5, failOnUnchecked = false } =
     if (!un.length) continue;
     out.push("", `<details><summary>${mdCell(r.model)} vs ${mdCell(r.ids)}: ${un.length} specification(s) with elements not checked</summary>`, "");
     for (const s of un) out.push(`- **${mdCell(s.name)}**: ${s.skippedSubclasses.map((x) => `${x.count} ${x.type} (a subclass of ${x.via})`).join(", ")}`);
+    out.push("", "</details>");
+  }
+  const byIds = new Map();
+  for (const a of audits) byIds.set(a.ids, [...(byIds.get(a.ids) || []), a]);
+  for (const [ids, list] of byIds) {
+    out.push("", `<details><summary>${mdCell(ids)}: IDS audit warnings on ${list.length} specification(s)</summary>`, "");
+    for (const a of list) for (const w of a.warnings) out.push(`- **${mdCell(a.name)}**: ${mdCell(w)}`);
     out.push("", "</details>");
   }
   out.push("", "Checked by [ids-model-check](https://marisstella.app/ids-model-check/) (MIT). Results are a check against the IDS as written, not a sign-off of the model.");

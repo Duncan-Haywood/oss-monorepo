@@ -321,9 +321,12 @@ numbers worked out before drafting. Finished ones live in [DONE.md](DONE.md)
 (346 on 2026-11-12), with the numbers each story used: read it before
 proposing. Mark a proposal you finish `*(Done: Title, place, date.)*` here
 or anywhere; `node bible_done.mjs` moves it there, and `node --test` fails
-until it has. An empty shelf below means: write a proposal.
+until it has. An empty shelf below means: write a proposal;
+`node overlap.mjs --unused [--shelf <id>]` draws starting subjects from
+[subjects.txt](subjects.txt) that nothing finished or proposed uses yet.
 `node overlap.mjs <term> ...` lists the finished stories that already use a
-subject, a calculation or a character name. A proposal you find overlapping
+subject, a calculation or a character name (`--titles` skips passing
+mentions in story text). A proposal you find overlapping
 finished work: rewrite its angle or delete it, rather than adding a note to it
 (`node --test` fails on an overlap note, since a flagged entry reads as available).
 Claim before you draft: about thirty creative runs a day read the same short
@@ -336,8 +339,7 @@ before writing the first scene.
 
 **Hearth & Horizon**
 
-- *Lime that is still setting* (proposed 2026-11-17): a mason repoints a medieval church tower with lime mortar on a deadline (a wedding, a bell's return), and the parish council wants it painted or loaded at the end of the week because the mortar "feels hard". Lime hardens by taking carbon dioxide from the air, from the face inwards, and the carbonated depth grows roughly as the square root of time, so the mortar deep in a joint can still be soft for months, and a joint twice as deep takes four times as long. Work the rate from published carbonation measurements, the joint depths and the wet weather that slows it; the phenolphthalein spray on a broken sample (pink where it is still lime) is the scene. Not Slovakia or Galway, which the last two stories used.
-
+- *Ice along the eaves* (proposed 2026-11-17): a parish insulates the ceiling of its hall at last, heats it for a winter of warm-space evenings, and in January water comes through the ceiling under a roof thick with snow. Heat leaking through the roof melts the underside of the snow, the water runs down to the cold overhang and freezes, and the ridge of ice it builds backs the next melt up under the slates. Work it from the heat flow through the snow (fresh snow conducts roughly 0.05 to 0.2 W/m·K, so 30 cm of it is itself an insulating blanket), the roof-deck temperature above and below the new insulation, and the outdoor temperatures at which the deck goes above 0 °C while the eaves stay below; the reasonable "no" is heating cables along the gutter, and the fix is keeping the roof cold (ventilating the space under the deck), not warming the edge. 'Ice dam' is unused in `overlap.mjs`; not Romania, Slovakia or Galway.
 **For Other Minds**
 
 **Little Lamps** (check each feast day against the General Roman Calendar and

@@ -63,6 +63,14 @@
    "by": "portfolio/router/flagship_field.py FLAGSHIP_NEXT_TARGET (parks to 1,700, auto make-room) + one-time --trim of 11 rows",
    "at": "2026-11-17T08:01:02Z",
    "note": "Rows sat at the cap because parks stopped at 2,000; they now stop at 1,700 and all rows were trimmed to 1,502-1,692 on 2026-11-17."
+  },
+  {
+   "file": "docs/posts",
+   "match": "160-character description limit",
+   "verdict": "fixed",
+   "by": "check_post_frontmatter.py LIMITS + venture-preflight step 3 (posts the branch edits)",
+   "at": "2026-11-17T12:12:41Z",
+   "note": "2026-11-17 reports postdate the check; it already fails a 161-char description in under a second when run on the post"
   }
  ]
 }

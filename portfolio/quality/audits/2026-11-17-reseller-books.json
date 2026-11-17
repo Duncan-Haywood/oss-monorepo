@@ -1,0 +1,239 @@
+{
+ "date": "2026-11-17",
+ "subject": "ventures/reseller-books",
+ "stratum": "venture",
+ "drawn_by": "census",
+ "seed": "2026-11-17-1d50",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "an enrolled agent / CPA who prepares Schedule C returns for multi-marketplace resellers (eBay, Poshmark, Whatnot, Etsy, Shopify), checking gross receipts against 1099-Ks, returns, fees and cost of goods under IRS Pub 334",
+ "scores": {
+  "correctness": 2,
+  "completeness": 2,
+  "verification": 1,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran buildBooks on hand-built files (scratchpad/reseller/run1.mjs, run2.mjs, run3.mjs). Recomputed against published fee schedules and hand arithmetic: Poshmark at 14.99/15.00/50.00 with no fee column gives fees 2.95+3.00+10.00=15.95 and payout 64.04 (Poshmark's $2.95 under $15 / 20% at $15+), observed 15.95 and 64.04; Whatnot 100.00 sale gives 8% commission + 2.9% + $0.30 processing = 11.20, payout 88.80, observed 11.20 / 88.80; eBay order 50+10 shipping with FVF 8.16+0.40, label 8.50, Promoted Listings 3.00 gives sales 60, fees -8.56, labels -8.50, ads -3.00, net 39.94, observed exactly; three-channel total net 192.78 and COGS 109 / profit 83.78 match hand sums; a fully refunded eBay order's cost is left out of COGS (returned item back in inventory, Pub 334 treatment). Failures: (1) eBay with costs for only some items reports profit 117.44 and Schedule C COGS 20 for a 137.44 net where the uncosted Lens is treated as free, while the note beside it says profit is 'left blank rather than overstated' (run3.mjs); (2) an eBay refund whose row carries the FVF credit puts 51.84 on Schedule C line 2 and 22.56 on line 10, where a preparer would put 60.00 (refunded to buyer) and 14.40 (fees net of credit) (run2.mjs; the eBay engine's own sample builds refund rows the same way); (3) the monthly profit column is null for every month containing eBay, Etsy or Shopify even when every sale is costed (eBay-only sample: channel profit 2,084.07, all four months null).",
+  "completeness": "Claims checked by running: five channel detection from header row (pass, incl. Whatnot not read as Poshmark); unrecognised files named (pass); reconcile sales+refunds+deductions=net per month/channel/total (pass on sample and my files); ads split from fees (pass); Shopify tax removal with Orders export (pass, test); Schedule C worksheet (renders, but line placement issue above); CSV and summary export (pass); 'one monthly profit and loss' (partial: month profit is always blank when eBay, Etsy or Shopify is present, books.mjs:121,162,233 set cogs: null); 'profit shown for a channel only when every sale has a cost' (fails for eBay, books.mjs:115-119). Column names are from memory, no real export ever read (stated in README/VENTURE.yaml). Dead block at books.mjs:297-299.",
+  "verification": "`node --test '*.test.mjs'` and `node --test` in ventures/reseller-books: 29/29 pass. Seeded 5 mutants in books.mjs with quality_mutate.py: 4 survived (Schedule C line 2 sign, Shopify refunded-tax share, month profit gate on partially costed months, take rate dropping ads); 1 caught (Poshmark/Whatnot fee zeroed, via the reconcile test). Two engine mutants (Poshmark threshold < -> <=, Whatnot processing on price only) were caught in the monorepo, but only by the byte-identity drift test; in a standalone copy of the venture (siblings absent) both pass 29/29, so the numeric fee logic is tested only in the source analyzers. No test covers partial eBay costs, which is how the high defect slipped.",
+  "craft": "Read books.mjs (485 lines), books.test.mjs, engines/ebay.mjs (normalize/classify/analyze), engines/whatnot.mjs and poshmark.mjs fee functions, index.html script. Good: pure functions, engines vendored with a drift test, reconciliation by construction, CSV quoting. Defects: per-channel profit gating is inconsistent (eBay uses anyCosted, Etsy/Shopify/items use allCosted); empty if block with a comment as body (books.mjs:297-299); channel profit left unrounded (2084.0699999999943 in the result object, rounded only at display); month cogs hard-coded null in three adapters rather than carried from engines that have per-item costs.",
+  "claims": "Backed: disclaimer and not-affiliated text on the page (index.html footer), 'nothing uploaded' (books.test.mjs:95 asserts no fetch/XMLHttpRequest/sendBeacon in page and engines), 'column names matched by alias from memory' stated on page and README, not-modelled list (inventory, 1099-K differences, facilitator tax) on page, served-copy.mjs shows no placeholder origin. Not backed: page FAQ 'Profit is only shown for a channel when every sale on it has a cost' and README 'shown for a channel only when every sale on it has a cost' are false for eBay (run3.mjs); 'one monthly profit and loss' delivers a monthly payout table whose profit column is blank whenever eBay, Etsy or Shopify is in the mix.",
+  "fitness": "Walked the job of a reseller handing year-end numbers to a preparer: drop exports, paste costs, copy the worksheet. On synthetic files it takes seconds and the payout totals are right. But the reseller cannot rely on it: no real export has ever been parsed (column aliases from memory), a partly costed eBay inventory silently inflates profit and gives a COGS figure the worksheet presents as complete, and the monthly profit view never fills for the most common channel (eBay). Useful as a fee/keep-rate comparison; not yet as books a preparer starts from.",
+  "domain": "Against IRS Pub 334 and Schedule C instructions: line 1 gross receipts include shipping charged (right for eBay/Etsy/Shopify) and exclude marketplace-facilitator tax (right for eBay, which ignores the tax column; Shopify includes tax unless the Orders export is given, and says so); line 4 from Part III line 42 is given as cost of items sold, with opening/closing inventory stated as not modelled (acceptable with that limit, though Part III needs them); postage placement left to the preparer (good practice). Departs: line 2 'Returns and allowances' is the refund net of the eBay fee credit, and line 10 carries the gross fees, so both lines misstate while their sum is right; partial eBay costs produce an understated COGS. Fee constants match published schedules: Poshmark $2.95 / 20% at $15, Whatnot 8% + 2.9% + $0.30 on the order total."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Poshmark fees and payout at 14.99, 15.00, 50.00 with no fee column",
+   "method": "Poshmark published US fee schedule ($2.95 under $15, 20% at $15 or more), hand arithmetic",
+   "command": "node scratchpad/reseller/run1.mjs",
+   "expected": "fees 15.95; payout 64.04",
+   "observed": "fees -15.95; net 64.04",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Whatnot fee on a 100.00 sale, no shipping or tax",
+   "method": "Whatnot published seller fees: 8% commission on sold price + 2.9% + $0.30 processing on order total",
+   "command": "node scratchpad/reseller/run1.mjs",
+   "expected": "fee 11.20; payout 88.80",
+   "observed": "fee -11.20; net 88.80",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "eBay waterfall: 50 item + 10 shipping, FVF 8.16 + 0.40, label 8.50, Promoted Listings 3.00, cost 20",
+   "method": "hand arithmetic on the row values (Schedule C line 1 includes shipping charged)",
+   "command": "node scratchpad/reseller/run1.mjs",
+   "expected": "sales 60; fees -8.56; labels -8.50; ads -3.00; net 39.94; profit 19.94",
+   "observed": "sales 60; fees -8.56; labels -8.5; ads -3; net 39.94; profit 19.94",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "three-channel totals and Schedule C rows (eBay + Poshmark + Whatnot, all costed)",
+   "method": "hand sum of the three channels above",
+   "command": "node scratchpad/reseller/run1.mjs",
+   "expected": "line 1 239.99; line 10 35.71; line 8 3.00; postage 8.50; net 192.78; COGS 109; profit 83.78",
+   "observed": "239.99; 35.71; 3; 8.5; 192.78; 109; 83.78",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "eBay with a cost for only one of two items (Camera 20 costed, Lens uncosted)",
+   "method": "tool's own stated rule plus Pub 334: COGS must cover every item sold; profit withheld when any sale is uncosted",
+   "command": "node scratchpad/reseller/run3.mjs",
+   "expected": "profit null, COGS null (worksheet 'Not computed')",
+   "observed": "profit 117.44, COGS 20 on line 4, note says profit left blank",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Schedule C line 2 and line 10 for a fully refunded 60.00 eBay order whose refund row credits the 8.16 FVF",
+   "method": "Schedule C instructions: line 2 is the amount refunded to customers; fee credits reduce line 10",
+   "command": "node scratchpad/reseller/run2.mjs",
+   "expected": "line 2 60.00; line 10 14.40",
+   "observed": "line 2 51.84; line 10 22.56",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "monthly profit for eBay-only sample with every item costed",
+   "method": "page claim 'one monthly profit and loss'",
+   "command": "node -e buildBooks([sampleFiles().files[0]],{costs}).months.map(m=>m.profit)",
+   "expected": "a profit per month",
+   "observed": "[null, null, null, null] while channel profit is 2,084.07",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd ventures/reseller-books && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "29/29 pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "engine fee mutants in a standalone copy (siblings absent, drift test skips)",
+   "method": "copy the venture to scratch, mutate engines/poshmark.mjs:17 and engines/whatnot.mjs:18, run tests",
+   "command": "cp -r ventures/reseller-books $S/rb && sed -i ... && node --test *.test.mjs",
+   "expected": "a numeric test fails",
+   "observed": "29/29 pass for both mutants",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "nothing uploaded",
+   "method": "books.test.mjs:95 network assertion over page and engines",
+   "command": "node --test books.test.mjs",
+   "expected": "test present and passing",
+   "observed": "present, passing",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer, not-affiliated text and not-modelled list on the page",
+   "method": "read index.html",
+   "command": "grep -n 'No warranty\\|Not modelled\\|Not affiliated' ventures/reseller-books/index.html",
+   "expected": "present",
+   "observed": "present",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "llms.txt, sitemap and canonical hosts as served",
+   "method": "deploy rewrite copy",
+   "command": "node platform/pages/served-copy.mjs reseller-books",
+   "expected": "no placeholder or retired origin",
+   "observed": "no placeholder or retired origin left",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'profit is only shown for a channel when every sale on it has a cost' (page FAQ, README)",
+   "method": "run with partial eBay costs",
+   "command": "node scratchpad/reseller/run3.mjs",
+   "expected": "eBay profit blank",
+   "observed": "eBay profit 117.44",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "books.mjs:392",
+   "change": "amount: neg(total.refunds) -> amount: r2(total.refunds)",
+   "caught": false,
+   "test_cmd": "sh -c node --test *.test.mjs"
+  },
+  {
+   "where": "books.mjs:200",
+   "change": "Math.max(0, -tx.refunds / tx.charged) -> Math.max(0, 0)",
+   "caught": false,
+   "test_cmd": "sh -c node --test *.test.mjs"
+  },
+  {
+   "where": "books.mjs:352",
+   "change": "row.costedChannels === row.channelsPresent && row.channelsPresent > 0 -> row.costedChannels > 0",
+   "caught": false,
+   "test_cmd": "sh -c node --test *.test.mjs"
+  },
+  {
+   "where": "books.mjs:365",
+   "change": "takeRate numerator drops c.ads",
+   "caught": false,
+   "test_cmd": "sh -c node --test *.test.mjs"
+  },
+  {
+   "where": "books.mjs:256",
+   "change": "out.platformFees = -s.fee; -> out.platformFees = 0;",
+   "caught": true,
+   "test_cmd": "sh -c node --test *.test.mjs"
+  },
+  {
+   "where": "engines/poshmark.mjs:17",
+   "change": "salePrice < COMMISSION_THRESHOLD -> salePrice <= COMMISSION_THRESHOLD (caught only by the byte-identity drift test; survives in a standalone copy)",
+   "caught": true,
+   "test_cmd": "sh -c node --test *.test.mjs"
+  },
+  {
+   "where": "engines/whatnot.mjs:18",
+   "change": "processing on (price + shipping + tax) -> on price only (caught only by the byte-identity drift test; survives in a standalone copy)",
+   "caught": true,
+   "test_cmd": "sh -c node --test *.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "eBay profit and COGS are reported when only some items have a cost: the uncosted items count as free, the channel and total profit are overstated (117.44 instead of blank on a 137.44 net with one of two items costed) and Schedule C line 4 shows 20 as if complete, while the note beside it says profit was left blank. Etsy, Shopify, Poshmark and Whatnot adapters gate on allCosted; the eBay adapter gates on anyCosted.",
+   "where": "ventures/reseller-books/books.mjs:115",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16925"
+  },
+  {
+   "severity": "medium",
+   "what": "Schedule C line 2 (returns and allowances) takes eBay refund rows at their net amount, which already includes the final value fee credit, and line 10 keeps the gross fees: a 60.00 refund with an 8.16 fee credit shows line 2 51.84 and line 10 22.56 instead of 60.00 and 14.40. Net income is unchanged, but both lines a preparer copies are wrong.",
+   "where": "ventures/reseller-books/books.mjs:105",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "The 'monthly profit and loss' never shows a monthly profit or cost of goods when eBay, Etsy or Shopify is present: their month rows set cogs to null even when every sale is costed (eBay-only sample: channel profit 2,084.07, every month blank).",
+   "where": "ventures/reseller-books/books.mjs:121",
+   "category": "scope-gap",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "4 of 5 seeded mutants in books.mjs survive (worksheet line 2 sign, Shopify refunded-tax share, month profit gate, take rate without ads); no test covers partial costs on eBay; engine fee logic is protected only by the byte-identity drift test, which skips when the venture is deployed alone.",
+   "where": "ventures/reseller-books/books.test.mjs:47",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Page FAQ and README say profit is shown for a channel only when every sale on it has a cost; false for eBay (see the high defect).",
+   "where": "ventures/reseller-books/README.md:27",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16925"
+  },
+  {
+   "severity": "low",
+   "what": "Empty if block whose body is only a comment, and channel profit stored unrounded (2084.0699999999943) unlike every other field.",
+   "where": "ventures/reseller-books/books.mjs:297",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16925"],
+ "verdict": "A well-shaped multi-marketplace ledger whose payout arithmetic is right: against the published Poshmark ($2.95 / 20% at $15) and Whatnot (8% + 2.9% + $0.30) schedules and hand-built eBay rows, fees, labels, ads, net payout and three-channel totals match to the cent, and every month, channel and total reconciles. A Schedule C preparer would stop at three things. eBay profit and cost of goods are shown when only some items are costed (117.44 profit with an uncosted item treated as free, and a line 4 figure presented as complete), contradicting the page's own rule. Line 2 takes eBay refunds net of the fee credit, so returns and fees are both misstated (51.84/22.56 for 60.00/14.40). The monthly profit column is blank whenever eBay, Etsy or Shopify is present. No real export has ever been read. 29 tests pass, but 4 of 5 seeded mutants in books.mjs survive and the engines' fee logic is guarded only by a copy-drift test. Does not meet the bar (correctness 2, verification 1, claims 2). Not finished (completeness 2). The high defect is a one-line fix: gate the eBay adapter on allCosted as the others do."
+}
