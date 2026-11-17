@@ -174,10 +174,12 @@ if __name__ == "__main__":
           + (f" (none at {[list(k) for k in lost]})" if lost else "")
           + f"; controller's chosen sides changed: {out['signs_changed']}")
 
+    GAP0 = M1.GAP * M1.AM                        # 5 arcmin, every joint (milestone 38's GAPR before any case)
+
     def gaps(n):
         names = M1.ROB[n][1]
         wi = [j for j in range(len(names)) if M1.kind(n, j) == "waist"]
-        return WA.case_gaps(names, wi, M1.GAPR, "braked")
+        return WA.case_gaps(names, wi, GAP0, "braked")
 
     S_STAR = 10.0
 
@@ -259,7 +261,7 @@ if __name__ == "__main__":
           f"{'held' if E['H158'] else 'refuted'}")
     g5, h5 = WB.get(("g1", 5.0)), WB.get(("h1", 5.0))
     E["H159"] = g5 is not None and h5 is not None and g5 <= 0.1 and h5 <= 0.1
-    print(f"H159 (braked, |e| 0.2 N, 5 N drag: worst residual at most 0.1 mm on both robots): G1 {g5}, H1 {h5} -> "
+    print(f"H159 (braked, |e| 0.2 N, 5 N drag: worst residual at most 0.1 mm on both robots): G1 {g5:.3f}, H1 {h5:.3f} -> "
           f"{'held' if E['H159'] else 'refuted'}")
     E["H160"] = max(drops.values()) <= 0.5
     print(f"H160 (the worst-pose no-hose stack loses at most 0.5 points): G1 {drops['g1']:+.2f}, H1 "

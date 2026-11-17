@@ -673,6 +673,15 @@ the rise set one wrist joint, which costs 0.203 mm unless the compensator plans 
 lift-off does change is the stance: at 12 of 35 poses the leaned stance balances only above 3.7 to
 11.8 N of press, so it cannot be used with a tool that lifts off.
 
+Leaning less fixes that (milestone 41). Re-leaned to the furthest-forward lean that still stands
+at zero press, each of the 12 stances moves its centre of mass back 9.9 to 39.1 mm and then
+balances over the whole of 0 to 50 N. The window's width is the rigid-body figure
+(m + m_tool) g × sole length / grip height to the printed digit, so a stance that stands at zero
+press and still takes 50 N exists only below a grip height of 1.225 m on the G1 and 1.883 m on the
+H1; the G1 at its 1.2 m poses keeps 1.6 N above the press window. Rebuilt on the re-leaned poses,
+the braked spec leaves the G1 0.011 mm and the H1 0.019 mm at a 5 N drag, but one H1 pose loses
+its balance controller and the G1's worst no-hose stack falls from 0.9160 to 0.9030.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every
