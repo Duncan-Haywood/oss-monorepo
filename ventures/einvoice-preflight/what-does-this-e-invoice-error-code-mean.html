@@ -78,7 +78,7 @@ footer p{margin:.6rem 0}
 <tr><td><code>INV-023</code></td><td>A VAT identifier fails that country's published checksum — almost always a transposed or dropped digit.</td><td>Correct the digits. This is a checksum test, not a registration lookup: it cannot tell you whether a well-formed number is actually registered.</td></tr>
 <tr><td><code>INV-039</code></td><td>A party's electronic address is present but is not an object carrying both a scheme and an id.</td><td>Provide <code>endpoint.scheme</code> (the EAS code) and <code>endpoint.id</code>, or omit the endpoint entirely.</td></tr>
 <tr><td><code>INV-040</code></td><td>A party's electronic address id is empty or is not text.</td><td>Provide the id as text, or omit the endpoint.</td></tr>
-<tr><td><code>INV-041</code></td><td>The electronic address does not match the published shape for the scheme it declares — for example a GLN whose check digit does not compute.</td><td>Correct the identifier. This is a format check, not a directory lookup.</td></tr>
+<tr><td><code>INV-041</code></td><td>The electronic address does not match the published shape for the scheme it declares — for example a GLN whose check digit does not compute, or a Belgian enterprise number (0208), Norwegian (0192) or Swedish (0007) organisation number or Australian ABN (0151) that fails the check OpenPeppol's PEPPOL-COMMON rules apply. Dots, spaces and a country prefix fail too, as they do on the Peppol network.</td><td>Correct the identifier. This is a format check, not a directory lookup.</td></tr>
 </tbody>
 </table>
 </div>

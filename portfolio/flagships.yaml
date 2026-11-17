@@ -203,7 +203,10 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History: README and git (latest: France Flux 10 e-reporting, PPF Annexe 7
+      History: README and git (latest: INV-041 endpoint ids as OpenPeppol's
+      PEPPOL-COMMON rules check them, 0 of 21,264 off
+      (eval/endpoint-peppol-differential-2026-11-17.md); open: Peppol's
+      warning-level IT/NL id rules; France Flux 10 e-reporting, PPF Annexe 7
       controls 147/147 vs Saxon (eval/flux10-crosscheck-2026-11-17.md); open: a real
       Flux 10 file, a PPF rejection; BR-FR 264/264 vs Saxon, all 384 BR-FR/CDV
       messages in English (br-fr-error-codes.html); CDAR (BR-FR-CDV) 780/780 vs
