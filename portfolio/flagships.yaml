@@ -430,17 +430,18 @@ flagships:
       --key-lift N, eval/key-lift-check.md; per-section singer guidance in --cues;
       2026-11-17: lipShut (dark-vowel m) default; lipHold failed held-out b, opt-in;
       a slow lip closure failed held-out c (123 to 125 of 144, 3 wanted), opt-in;
-      next: c's cluster-onset -um, A#3 /u/ fades read as nasals). Open checks that
-      need a person: listen to the studio page, --sing, the options (--stretch,
-      --halftime, --fills, --limit pumping, stems, sections, breakdown, riser, the a
-      cappella verse and whether the key lift sounds like a lift); --lrc in a real
-      player and --markers/--stems in a DAW; --cues (and its section lines),
-      RECORDING-GUIDE.md and the E2-E4 range with real singers; the release kit
-      against a distributor's real form; the Te Deum/3427/3912/3775 fixes
-      (eval/scan-check-verdicts.md). master-cli passed EBU Tech 3341/3342 from their
-      text; open: the EBU's WAVs (403), Apple/Amazon/Tidal levels. scan.mjs reads
-      rhombi, quilismas, liquescents, lines at true thickness; tilted pages, curled
-      staves straightened (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
+      next: c's cluster-onset -um; levelFade (a release read as a nasal) opt-in,
+      untested on d). Open checks that need a person: listen to the studio page,
+      --sing, the options (--stretch, --halftime, --fills, --limit pumping, stems,
+      sections, breakdown, riser, the a cappella verse and whether the key lift
+      sounds like a lift); --lrc in a real player and --markers/--stems in a DAW;
+      --cues (and its section lines), RECORDING-GUIDE.md and the E2-E4 range with
+      real singers; the release kit against a distributor's real form; the Te
+      Deum/3427/3912/3775 fixes (eval/scan-check-verdicts.md). master-cli passed EBU
+      Tech 3341/3342 from their text; open: the EBU's WAVs (403), Apple/Amazon/Tidal
+      levels. scan.mjs reads rhombi, quilismas, liquescents, lines at true
+      thickness; tilted pages, curled staves straightened
+      (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
       (eval/broken-stroke-check.md); next: worn pages (new GABC needed), mottled
       squares, one-step cephalici read (eval/one-step-cephalicus-check.md), 10 of 84
       tuning misses left, 3408's strokes, 3464's cephalicus. More open items:
@@ -449,9 +450,11 @@ flagships:
       Coda reader rounds on synthetic held-out parts, no outside input
       (eval/coda-check.mjs, eval/dark-nasal-diag.mjs; README "A dark-vowel m that
       closes slowly"): c's cluster-onset -um (brum, glum, stum, flum: 18 of 48 read
-      as nothing on A#3-E4); c's vowel-only /u/ on A#3 quarters read as a nasal by
-      the level rule (15 cells). OMR (scan.mjs) items in next: one-step cephalici,
-      10 of 84 tuning misses, 3408's strokes, 3464's cephalicus.
+      as nothing on A#3-E4); a held-out part for levelFade (opt-in; README "A /u/
+      release read as a nasal": d untested, 0 vowel-only misses), its cells picked
+      where a vowel-only release ends in the window's last 30 ms. OMR (scan.mjs)
+      items in next: one-step cephalici, 10 of 84 tuning misses, 3408's strokes,
+      3464's cephalicus.
   # Added 2026-11-16 (new venture, construction direction): buildingSMART IDS 1.0
   # checking of IFC models, in a browser tab or CI. Depth: a full IDS engine
   # scored on buildingSMART's 334 test pairs and cross-checked against IfcTester.
