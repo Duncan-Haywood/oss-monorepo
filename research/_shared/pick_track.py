@@ -557,6 +557,43 @@ def free_choice_lines(progs, contention=contention_lines):
           "is least likely to collide with a sibling run):"] + ranked if ranked else [])
 
 
+def track_fallback_lines(t, progs_here, down, all_progs=None, claimed=open_prs_for,
+                         unreachable=unreachable_hosts, contention=contention_lines, show=3):
+    """When no open programme of track `t` can be taken here (each is BLOCKED, OFFLINE
+    in this session or named by an open PR), the least contended takeable programme
+    elsewhere, so the run does not hand-scan PROGRAMMES.md. [] when one is takeable.
+
+    Friction 2026-11-17 (research/_shared/pick_track.py, two reports): a track-20 draw whose
+    programmes were build-data (OFFLINE) and buildbot-sheathing (draft PR #16769) only said
+    `--new` draws again; the run scanned PROGRAMMES.md and recent PRs by hand instead.
+    A focus track's fallback stays among the FOCUS programmes while one is takeable."""
+    if not progs_here:
+        return []
+    why = {}
+    for s in progs_here:
+        if is_blocked(s):
+            why[s] = "BLOCKED"
+        elif down.get(s):
+            why[s] = "OFFLINE"
+        elif claimed(s):
+            why[s] = f"claimed by {claimed(s)[0].split(' ', 1)[0]}"
+        else:
+            return []
+    if all_progs is None:
+        all_progs = [s for s, _ in programmes()]
+    rest = [s for s in all_progs if s not in progs_here and not is_blocked(s) and not claimed(s)]
+    rest = [s for s in rest if not unreachable(s)]
+    if t != "free" and PREFIX[t - 1] in FOCUS and any(is_focus(s) for s in rest):
+        rest = [s for s in rest if is_focus(s)]
+    head = ("  no programme for track " + str(t) + " can be taken here ("
+            + ", ".join(f"{s}: {w}" for s, w in why.items()) + ")")
+    if not rest:
+        return [head + "; none elsewhere either: open a new programme for this track (PROPOSAL.md + a "
+                "PROGRAMMES.md row), or `--new` draws again"]
+    return [head + "; least contended takeable programme(s) elsewhere (open PRs, then commits in 6 h, "
+            "then longest idle), or open a new one for this track:"] + contention(rest, show=show)
+
+
 def recent_landed(slug, n=3):
     """Newest commits on origin/main that touch research/<slug>, as 'age: subject' lines.
 
@@ -806,8 +843,8 @@ if __name__ == "__main__":
                   + ", ".join(programme_label(s, down.get(s)) for s in progs_here)
                   + "; advancing one is the default: read research/<slug>/PROPOSAL.md and its "
                   "newest LOG.md entries, and prefer its next step over a free milestone below")
-            if progs_here and all(is_blocked(s) or down.get(s) for s in progs_here):
-                print("  every open programme here is BLOCKED or OFFLINE in this session: `--new` draws again")
+            for line in track_fallback_lines(t, progs_here, down):
+                print(line)
             for s in progs_here:
                 if not is_blocked(s) and not down.get(s):
                     for line in newest_log_entries(s, n=2):
