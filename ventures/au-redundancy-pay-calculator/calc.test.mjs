@@ -58,3 +58,30 @@ test("annual leave day rate divides by the days worked per week", () => {
   const four = compute({ ...SAMPLE, daysPerWeek: "4" });
   assert.equal(four.leavePay * 4, five.leavePay * 5);
 });
+
+// red team 2026-11-17: escaped mutants and real defects.
+test("a one-employee employer is a valid input (small business, no redundancy)", () => {
+  const r = compute({ ...SAMPLE, employees: "1" });
+  assert.equal(r.errors.length, 0);
+  assert.equal(r.smallBusiness, true);
+  assert.equal(r.redundancy, 0);
+});
+test("summary money keeps cents and thousands separators", () => {
+  const r = compute({ ...SAMPLE, weeklyPay: "1234.56", leaveDays: "0" });
+  const s = summaryText(r);
+  assert.match(s, /weekly base pay A\$1,234\.56/);
+  assert.match(s, /Redundancy pay: 16 week\(s\) = A\$19,752\.96/);
+  assert.match(s, /Total \(before tax\): A\$25,925\.76/);
+});
+test("a typo in age, leave or worked notice is an error, not a silent 0", () => {
+  for (const [k, v] of [["age", "abc"], ["age", "-5"], ["age", "470"], ["leaveDays", "twelve"], ["leaveDays", "-3"], ["noticeWorkedWeeks", "x"]]) {
+    const r = compute({ ...SAMPLE, [k]: v });
+    assert.ok(r.errors.length > 0, `${k}=${v} should be rejected`);
+  }
+  assert.equal(compute({ ...SAMPLE, age: "" }).errors.length, 0, "blank age is allowed");
+  assert.equal(compute({ ...SAMPLE, age: "", leaveDays: "", noticeWorkedWeeks: "" }).leavePay, 0);
+});
+test("absurd pay and fractional headcounts are rejected", () => {
+  assert.ok(compute({ ...SAMPLE, weeklyPay: "1e400" }).errors.length > 0);
+  assert.ok(compute({ ...SAMPLE, employees: "2.5" }).errors.length > 0);
+});
