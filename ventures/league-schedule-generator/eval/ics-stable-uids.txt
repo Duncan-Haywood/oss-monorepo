@@ -1,0 +1,82 @@
+Single division (calc.mjs scheduleIcs): 9 sizes x single/double x 4 seeds, two random nights rained out, then the last team withdraws mid-season.
+Per team file, before -> after this change: events a player still sees after importing the first file and then the updated one that are a ghost (no match then) or a duplicate (the same match twice).
+ 4 single s1:  4 moved: 6 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 3 ghost + 6 duplicate -> 0 + 0
+ 4 single s2:  4 moved: 6 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 3 ghost + 6 duplicate -> 0 + 0
+ 4 single s3:  4 moved: 6 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 3 ghost + 6 duplicate -> 0 + 0
+ 4 single s4:  4 moved: 6 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 3 ghost + 6 duplicate -> 0 + 0
+ 4 double s1:  4 moved: 6 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 4 ghost + 6 duplicate -> 0 + 0
+ 4 double s2:  4 moved: 6 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 4 ghost + 2 duplicate -> 0 + 0
+ 4 double s3:  4 moved: 6 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 4 ghost + 2 duplicate -> 0 + 0
+ 4 double s4:  4 moved: 6 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 4 ghost + 4 duplicate -> 0 + 0
+ 5 single s1:  4 moved: 6 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 3 ghost + 2 duplicate -> 0 + 0
+ 5 single s2:  4 moved: 6 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 3 ghost + 4 duplicate -> 0 + 0
+ 5 single s3:  4 moved: 6 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 3 ghost + 4 duplicate -> 0 + 0
+ 5 single s4:  4 moved: 6 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 4 ghost + 6 duplicate -> 0 + 0
+ 5 double s1:  4 moved: 7 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 5 ghost + 4 duplicate -> 0 + 0
+ 5 double s2:  4 moved: 6 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 5 ghost + 6 duplicate -> 0 + 0
+ 5 double s3:  4 moved: 6 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 5 ghost + 6 duplicate -> 0 + 0
+ 5 double s4:  4 moved: 6 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 6 ghost + 6 duplicate -> 0 + 0
+ 6 single s1:  6 moved: 10 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 4 ghost + 10 duplicate -> 0 + 0
+ 6 single s2:  6 moved: 10 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 5 ghost + 10 duplicate -> 0 + 0
+ 6 single s3:  6 moved: 10 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 3 ghost + 8 duplicate -> 0 + 0
+ 6 single s4:  6 moved: 10 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 4 ghost + 8 duplicate -> 0 + 0
+ 6 double s1:  6 moved: 10 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 5 ghost + 16 duplicate -> 0 + 0
+ 6 double s2:  6 moved: 10 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 6 ghost + 12 duplicate -> 0 + 0
+ 6 double s3:  6 moved: 10 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 5 ghost + 14 duplicate -> 0 + 0
+ 6 double s4:  6 moved: 10 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 6 ghost + 18 duplicate -> 0 + 0
+ 7 single s1:  6 moved: 10 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 4 ghost + 8 duplicate -> 0 + 0
+ 7 single s2:  6 moved: 10 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 4 ghost + 6 duplicate -> 0 + 0
+ 7 single s3:  6 moved: 10 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 4 ghost + 6 duplicate -> 0 + 0
+ 7 single s4:  6 moved: 10 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 4 ghost + 4 duplicate -> 0 + 0
+ 7 double s1:  6 moved: 11 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 6 ghost + 18 duplicate -> 0 + 0
+ 7 double s2:  6 moved: 10 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 6 ghost + 12 duplicate -> 0 + 0
+ 7 double s3:  6 moved: 11 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 7 ghost + 16 duplicate -> 0 + 0
+ 7 double s4:  6 moved: 10 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 7 ghost + 16 duplicate -> 0 + 0
+ 8 single s1:  8 moved: 14 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 4 ghost + 20 duplicate -> 0 + 0
+ 8 single s2:  8 moved: 14 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 6 ghost + 18 duplicate -> 0 + 0
+ 8 single s3:  8 moved: 14 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 4 ghost + 14 duplicate -> 0 + 0
+ 8 single s4:  8 moved: 14 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 5 ghost + 14 duplicate -> 0 + 0
+ 8 double s1:  8 moved: 14 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 8 ghost + 24 duplicate -> 0 + 0
+ 8 double s2:  8 moved: 14 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 7 ghost + 18 duplicate -> 0 + 0
+ 8 double s3:  8 moved: 14 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 7 ghost + 16 duplicate -> 0 + 0
+ 8 double s4:  8 moved: 14 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 8 ghost + 24 duplicate -> 0 + 0
+10 single s1: 10 moved: 18 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 5 ghost + 18 duplicate -> 0 + 0
+10 single s2: 10 moved: 18 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 6 ghost + 24 duplicate -> 0 + 0
+10 single s3: 10 moved: 18 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 5 ghost + 20 duplicate -> 0 + 0
+10 single s4: 10 moved: 18 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 6 ghost + 18 duplicate -> 0 + 0
+10 double s1: 10 moved: 18 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 10 ghost + 34 duplicate -> 0 + 0
+10 double s2: 10 moved: 18 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 9 ghost + 38 duplicate -> 0 + 0
+10 double s3: 10 moved: 18 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 9 ghost + 34 duplicate -> 0 + 0
+10 double s4: 10 moved: 18 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 10 ghost + 42 duplicate -> 0 + 0
+12 single s1: 12 moved: 22 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 6 ghost + 26 duplicate -> 0 + 0
+12 single s2: 12 moved: 22 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 6 ghost + 20 duplicate -> 0 + 0
+12 single s3: 12 moved: 22 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 7 ghost + 46 duplicate -> 0 + 0
+12 single s4: 12 moved: 22 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 6 ghost + 32 duplicate -> 0 + 0
+12 double s1: 12 moved: 22 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 13 ghost + 64 duplicate -> 0 + 0
+12 double s2: 12 moved: 22 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 12 ghost + 64 duplicate -> 0 + 0
+12 double s3: 12 moved: 22 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 12 ghost + 76 duplicate -> 0 + 0
+12 double s4: 12 moved: 22 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 12 ghost + 62 duplicate -> 0 + 0
+14 single s1: 14 moved: 26 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 8 ghost + 40 duplicate -> 0 + 0
+14 single s2: 14 moved: 26 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 9 ghost + 54 duplicate -> 0 + 0
+14 single s3: 14 moved: 26 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 8 ghost + 58 duplicate -> 0 + 0
+14 single s4: 14 moved: 26 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 8 ghost + 58 duplicate -> 0 + 0
+14 double s1: 14 moved: 26 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 15 ghost + 92 duplicate -> 0 + 0
+14 double s2: 14 moved: 26 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 14 ghost + 84 duplicate -> 0 + 0
+14 double s3: 14 moved: 26 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 13 ghost + 82 duplicate -> 0 + 0
+14 double s4: 14 moved: 26 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 14 ghost + 100 duplicate -> 0 + 0
+16 single s1: 16 moved: 30 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 9 ghost + 56 duplicate -> 0 + 0
+16 single s2: 16 moved: 30 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 9 ghost + 66 duplicate -> 0 + 0
+16 single s3: 16 moved: 30 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 9 ghost + 56 duplicate -> 0 + 0
+16 single s4: 16 moved: 30 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 9 ghost + 58 duplicate -> 0 + 0
+16 double s1: 16 moved: 30 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 15 ghost + 110 duplicate -> 0 + 0
+16 double s2: 16 moved: 30 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 15 ghost + 102 duplicate -> 0 + 0
+16 double s3: 16 moved: 30 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 16 ghost + 90 duplicate -> 0 + 0
+16 double s4: 16 moved: 30 ghost + 0 duplicate -> 0 + 0; then a withdrawal: 16 ghost + 92 duplicate -> 0 + 0
+TOTAL: 584 team files, 640 matches moved. Rainouts: 1139 ghost + 0 duplicate -> 0 + 0. Withdrawal (its fixtures now sent as STATUS:CANCELLED): 512 ghost + 2222 duplicate -> 0 + 0. Files with a repeated UID: 0
+
+Multi-division example (divisions.mjs divisionsIcs, example-divisions.json): every third night rained out on its own.
+night 2026-10-06 rained out:  7 moved: 14 ghost + 22 duplicate -> 0 + 0
+night 2026-10-15 rained out:  7 moved: 14 ghost + 24 duplicate -> 0 + 0
+night 2026-10-27 rained out:  6 moved: 12 ghost + 20 duplicate -> 0 + 0
+night 2026-11-05 rained out:  6 moved: 12 ghost + 4 duplicate -> 0 + 0
+TOTAL: 80 team files, 26 matches moved: 52 ghost + 70 duplicate -> 0 + 0. Files with a repeated UID: 0
