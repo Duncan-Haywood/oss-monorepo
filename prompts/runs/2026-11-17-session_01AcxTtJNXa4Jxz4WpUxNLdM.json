@@ -62,7 +62,7 @@
     "ventures/einvoice-preflight/eval/french-whitespace-2026-11-17.md"
   ],
   "goal": null,
-  "notes": "Local verification: python3 platform/ci/run_venture_tests.py einvoice-preflight -> ok, 2717 tests, 0 failed (incl. Python steps); french-inv065.test.mjs 4/4; post front matter, links and similarity checks clean; portfolio/router/validate.py valid. node platform/pages/venture-preflight.mjs einvoice-preflight -> "preflight clean for einvoice-preflight", exit 0.",
+  "notes": "Local verification: python3 platform/ci/run_venture_tests.py einvoice-preflight -> ok, 2717 tests, 0 failed (incl. Python steps); french-inv065.test.mjs 4/4; post front matter, links and similarity checks clean; portfolio/router/validate.py valid. node platform/pages/venture-preflight.mjs einvoice-preflight -> 'preflight clean for einvoice-preflight', exit 0.",
   "corrections": [],
   "redteam": null,
   "usage": {
