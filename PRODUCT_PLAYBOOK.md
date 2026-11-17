@@ -553,6 +553,22 @@ Ship when every line is true:
       offline copy).
 - [ ] Discoverability checklist above is done.
 - [ ] The venture's tests and linter pass, and you ran the product itself.
+- [ ] **The rules come from a named source, and one test pins it.** The
+      README's "Spec sources" line names the professional who would sign the
+      tool off and the standard, publication or rate card its rules follow,
+      and at least one test checks a headline output against a worked
+      example from that source (or a hand calculation shown in the test),
+      not against the code's own output. In venture audits a departure
+      from the practitioner's rule (`domain-rule`) is the defect auditors
+      name most (126 since 2026-11-11), and 209 of 657 outputs they
+      recomputed from an outside source did not match
+      ([reflection 2](portfolio/quality/reflections/2026-11-17-the-fix-loop-is-open.md)).
+- [ ] **Seed one bug before you merge.** Change one comparison or constant
+      in the core calculation and check that a test fails:
+      `python3 platform/ci/quality_mutate.py <file> --old "<text>" --new "<text>" -- <test command>`
+      (it works on a private copy). If the mutant survives, add the test that
+      kills it. Only 342 of the 647 bugs auditors seeded in venture code
+      failed a test, so nearly half would have shipped unnoticed.
 - [ ] The §5b **no-warranty** clause is on every page the venture publishes,
       and any `vs-<competitor>.html` page carries the §5f **not-affiliated**
       disclaimer — `node platform/pages/clauses.mjs <slug>` checks both (the
