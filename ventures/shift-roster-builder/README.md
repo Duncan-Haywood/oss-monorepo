@@ -3683,3 +3683,36 @@ matching; an infinite deadline changes nothing).
 
 Not claimed: generated weeks, one cloud machine, two builds at a time; no gain in open hours or pay, only that the repair no
 longer eats the pay floor's time. Next: time-bound the pay polish after a repair gain, or leave it (under 50 ms here).
+
+## The pay polish stops at the budget's end (2026-11-16 later)
+
+"The repair stops at the budget's end" left seven of 48 fresh builds reaching the pay floor 22-48 ms past the 20 s budget.
+On each the cover walk or the repair had stopped on time, but then found a gain, and the pay polish that follows any gain
+(`polishPay`, max(20,000, copies x 1,000) single moves and swaps) was untimed. Timed alone on 60-70 person weeks (230-267
+copies) one polish takes 28-47 ms.
+
+**What landed:** `polishPay` takes a `deadline`, read every 1,024 moves; past it the polish returns what it has. Every move it
+kept lowered the score and left no covered shift open, so stopping early never adds open hours. Under a time budget the polish
+after a cover walk gets that walk's deadline, and the polish after a repair gain the budget's end. `payPolishDeadline: false`
+keeps the untimed polish.
+
+**Pre-registered** (`eval/polish-deadline-prereg.md`, committed before the run): seeds 66-77, 60 x 168 and 70 x 196, weeks
+0-1, each built twice, new and `payPolishDeadline: false` (`sh eval/polish-deadline-ab.sh`, scored by
+`eval/polish-deadline-summary.py`, `eval/polish-deadline-ab.out.txt`).
+
+| 48 fresh weeks | old | new |
+|---|---|---|
+| reached the pay floor more than 20 ms past the budget | 8 (25-44 ms; 7 after a repair gain, 1 after a walk) | **0** |
+| latest arrival at the pay floor | 20,044 ms | 20,002 ms |
+| open hours, all 48 | 11,818 | 11,815 (three weeks -1: timing noise, not claimed) |
+| final pay on the 45 weeks with equal open hours | 1,030,595.21 | 1,030,592.06 (lower on 1 week, higher on none) |
+| mean build / slowest | 22.04 s / 28.1 s | 22.01 s / 28.1 s |
+| proven | 4 | 5 |
+
+All four clauses passed (late builds at least halved, open hours not more than 2 higher, pay not more than 0.1% higher, mean
+build time not higher), so it is on by default. With this, every stage before the pay floor stops on the clock: the walk, the
+repair and the polish after each. Tests: `stage-overrun.test.mjs` (a polish past its deadline stops within 1,024 moves with a
+valid roster no worse than its start; an infinite deadline changes nothing).
+
+Not claimed: generated weeks, one cloud machine, two builds at a time; the open-hours, pay and proof differences are within the
+builds' timing noise. What it buys is the 25-44 ms the pay floor no longer loses, nothing larger.

@@ -253,16 +253,16 @@ flagships:
       a flow bound"); 2 s reserve at 300+ copies (4 s worse, 1.2 s ties); day sweeps
       LP-guided, by the open-hours LP when the pay floor is skipped (README "A guide
       when the pay floor is skipped"); pay floor tries past a spent budget, 4 s
-      (README "The pay floor once the budget is spent"); cover walk stops at the
-      budget (README "Where the time past the budget goes"); repair now stops at it
-      too; next the pay polish after it; re-run the keep-usual-shifts sweep on real
-      dated leave records; a manager's read on whether the steadier plan is the one
-      they would post; a real 7shifts account through --import-7shifts (README
-      "Reading 7shifts directly"); a real When I Work account or response through
-      --import-wheniwork (README "Reading When I Work directly"); Homebase (docs
-      need an account); a real Square account via --import-square (README "Reading
-      Square's schedule"); --cover-price moves two shifts together (README "Moving
-      two shifts together"). More open items: NEXT.md.
+      (README "The pay floor once the budget is spent"); walk, repair and pay polish
+      stop at the budget (README "The pay polish stops at the budget's end"); re-run
+      the keep-usual-shifts sweep on real dated leave records; a manager's read on
+      whether the steadier plan is the one they would post; a real 7shifts account
+      through --import-7shifts (README "Reading 7shifts directly"); a real When I
+      Work account or response through --import-wheniwork (README "Reading When I
+      Work directly"); Homebase (docs need an account); a real Square account via
+      --import-square (README "Reading Square's schedule"); --cover-price moves two
+      shifts together (README "Moving two shifts together"). More open items:
+      NEXT.md.
   - venture: photo-editing
     hosts: [https://raw.pixls.us/, https://github.com/]
     why: >-
@@ -274,9 +274,10 @@ flagships:
       eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`; its CIFF CRWs all read).
       Bayer trees parked: a range guard passes 6 fresh cameras, misses K-1 II/A7
       III; no fresh frames left (eval/bayer-boosted-guard-*). Noise-aware demosaic
-      (opt-in): profiles checked and guarded 2026-11-16
-      (eval/noise-profile-real-dngs-*); score its luma; per-plane profiles. DNG
-      1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
+      (opt-in): luma scored and guard per plane 2026-11-16
+      (eval/noise-aware-planes-luma-*); refit its ramps on luma
+      (tools/noise_aware_planes.py rows). DNG 1.7.1.0 spec PDF: URL in
+      eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
@@ -430,19 +431,18 @@ flagships:
       (to listen), scan-checked corpus, 2,129 notes read by eye, hymns, song
       sections, breakdown, riser; --a-cappella first verse and a range-checked
       --key-lift N, eval/key-lift-check.md; per-section singer guidance in --cues;
-      2026-11-16 latest: compactVelar (g's burst read as b) failed on held-out V,
-      175 to 176 of 192, +3 wanted; opt-in; next: p's burst read as k on A3-B3, no
-      burst on C#4-E4, L's cum). Open checks that need a person: listen to the
-      studio page, --sing, the options (--stretch, --halftime, --fills, --limit
-      pumping, stems, sections, breakdown, riser, the a cappella verse and whether
-      the key lift sounds like a lift); --lrc in a real player and --markers/--stems
-      in a DAW; --cues (and its section lines), RECORDING-GUIDE.md and the E2-E4
-      range with real singers; the release kit against a distributor's real form;
-      the Te Deum/3427/3912/3775 fixes (eval/scan-check-verdicts.md). master-cli
-      passed EBU Tech 3341/3342 from their text; open: the EBU's WAVs (403),
-      Apple/Amazon/Tidal levels. scan.mjs reads rhombi, quilismas, liquescents,
-      lines at true thickness; tilted pages, curled staves straightened
-      (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
+      2026-11-16 latest: voicelessLow (p's burst read as k) held on held-out W, p as
+      k 18 to 0, now default; next: no burst on C#4-E4, L's cum). Open checks that
+      need a person: listen to the studio page, --sing, the options (--stretch,
+      --halftime, --fills, --limit pumping, stems, sections, breakdown, riser, the a
+      cappella verse and whether the key lift sounds like a lift); --lrc in a real
+      player and --markers/--stems in a DAW; --cues (and its section lines),
+      RECORDING-GUIDE.md and the E2-E4 range with real singers; the release kit
+      against a distributor's real form; the Te Deum/3427/3912/3775 fixes
+      (eval/scan-check-verdicts.md). master-cli passed EBU Tech 3341/3342 from their
+      text; open: the EBU's WAVs (403), Apple/Amazon/Tidal levels. scan.mjs reads
+      rhombi, quilismas, liquescents, lines at true thickness; tilted pages, curled
+      staves straightened (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
       (eval/broken-stroke-check.md); next: worn pages (new GABC needed), mottled
       squares, one-step cephalici read (eval/one-step-cephalicus-check.md), 10 of 84
       tuning misses left, 3408's strokes, 3464's cephalicus; --split-voices (by
@@ -466,10 +466,10 @@ flagships:
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
       (eval/ifcxml-xbim-2026-11-16.md); cross-check more public models from
       opensourceBIM/IFC-files and buildingSMART's Sample-Test-Files with
-      eval/crosscheck_ifctester.py; the IDS editor (editor.html; opens an IDS,
-      eval/editor-open-2026-11-16.md): custom property-set rows, several classes per
-      spec, applicability facets beyond the class; offer the classes and sets a
-      dropped model has.
+      eval/crosscheck_ifctester.py; the IDS editor (editor.html; opens an IDS and a
+      model, eval/model-inventory-2026-11-16.md): several classes per spec,
+      applicability facets beyond the class, a model's values for a property; more
+      real exports through eval/model-inventory.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked"). Next, most
@@ -480,9 +480,11 @@ flagships:
       offered specs audit clean, 15,102 valid in ids.xsd; found voids/fills token
       pair and classification-system gaps, eval/editor-2026-11-16.md); an MEP and an
       IFC4X3 infrastructure model through the IfcTester cross-check; editor (opens
-      an IDS since 2026-11-16, eval/editor-open-2026-11-16.md: 64 of 64 public files
-      write back the same, 75% of facets editable): custom property sets as editable
-      rows (110 kept facets), several classes per spec, applicability
-      property/attribute facets (85); offer the classes and sets a loaded model has;
-      a GitHub Action wrapper; heap use on a 200 MB model; a BIM coordinator's real
-      IDS and model (needs a person).
+      an IDS, eval/editor-open-2026-11-16.md; opens a model and offers its classes
+      and sets, own sets editable, 79.4% of public facets editable,
+      eval/model-inventory-2026-11-16.md: 4 real exports, 347 of 395 class-set pairs
+      own sets, 21 of 122 standard props in a non-template dataType): several
+      classes per spec, applicability property/attribute facets (85); offer a
+      model's values for a property; a dataType-mismatch hint; a GitHub Action
+      wrapper; heap use on a 200 MB model; a BIM coordinator's real IDS and model
+      (needs a person).

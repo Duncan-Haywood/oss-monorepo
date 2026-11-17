@@ -65,6 +65,8 @@ EXPERIMENTS = {
                    12, []),
     "m35_hose": ("numpy, scipy, mujoco, Menagerie G1/H1; reads m11 profiles.json, m6b and m27 results.json",
                  9, []),
+    "m36_wrist_ft": ("numpy, scipy, mujoco, Menagerie G1/H1; reads m11 profiles.json, m6b, m27 and m35 results.json",
+                     35, []),
 }
 QUICK = [n for n, (needs, mins, _) in EXPERIMENTS.items()
          if mins <= 2 and "mujoco" not in needs and "drake" not in needs]

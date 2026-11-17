@@ -4,7 +4,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { parseStaff, parseShifts, buildRoster, _internals } from "./calc.mjs";
 
-const { buildContext, coverPass, coverRepair, scoreOwner, ownerValid } = _internals;
+const { buildContext, coverPass, coverRepair, polishPay, scoreOwner, ownerValid } = _internals;
 
 function week(seed, P, S) {
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
@@ -78,4 +78,26 @@ test("an infinite repair deadline changes nothing", () => {
   assert.deepEqual(a.owner, b.owner);
   assert.equal(a.open, b.open);
   assert.equal(b.late, false);
+});
+
+// The pay polish's deadline (README "The pay polish stops at the budget's end").
+test("a pay polish past its deadline stops within its first 1,024 moves and adds no open hours", () => {
+  const { staff, slots } = week(17, 20, 80);
+  const ctx = buildContext(staff, slots, {});
+  const start = coverPass(ctx, new Array(ctx.S).fill(-1), 3, 20000).owner;
+  const before = scoreOwner(ctx, start);
+  const t0 = Date.now();
+  const r = polishPay(ctx, start, 5, 1e9, { deadline: Date.now() - 1 });
+  assert.ok(Date.now() - t0 < 200, "stopped at once, not after 1e9 moves");
+  const after = scoreOwner(ctx, r);
+  assert.ok(ownerValid(ctx, r), "every hard rule holds");
+  assert.ok(after.unfilled <= before.unfilled + 1e-6);
+  assert.ok(after.total <= before.total + 1e-6);
+});
+
+test("an infinite polish deadline changes nothing", () => {
+  const { staff, slots } = week(19, 12, 50);
+  const ctx = buildContext(staff, slots, {});
+  const start = coverPass(ctx, new Array(ctx.S).fill(-1), 4, 5000).owner;
+  assert.deepEqual(polishPay(ctx, start, 8, 30000), polishPay(ctx, start, 8, 30000, { deadline: Infinity }));
 });

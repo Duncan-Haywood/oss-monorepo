@@ -91,6 +91,7 @@ DEAD_DROP = ("cpin_es3_nc5_clean", "cpin_es3_nc5_stamp", "cpin_es3_nc3_clean", "
 LONG_DAYS = 365  # session 97: "long" closures (Austin's dead median 140, p90 1,080 days; label_audit.json)
 LEN_SEED = 97  # session 97: rng seed of len_drop's matched sample, fixed before any run
 LEN_BINS = 10  # session 97: decile bins of the dead rows' labels
+TGT_KS = (3, 5, 6)  # session 99: target cohorts Y-k scored (completed by D, plain and IPCW-weighted)
 STALE_Q = 0.99  # session 93, cpin_es3_ncq: a source's threshold = this quantile of its builds completed by D
 
 
@@ -267,6 +268,14 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
         ytg, otg = cpin.censor(tg, D)
         ytg = np.where(np.isfinite(ytg), ytg, 0.0)  # never-completed rows are open at D (window), y unused
         tgt = dict(n=len(tg), n_open=int(otg.sum()), loss={}, closs={})
+        # session 99: older target cohorts (longer follow-up) and IPCW weights on each cohort's completed rows
+        tk = {}
+        for k in TGT_KS:
+            tkd = frames_all[held][frames_all[held].year == Y - k]
+            yk, ok = cpin.censor(tkd, D)
+            _, wk = transfer.ipcw_completed(tkd.assign(city=held), D)
+            tk[k] = dict(y=np.where(np.isfinite(yk), yk, 0.0), o=ok, w=wk, n=len(tkd), n_open=int(ok.sum()),
+                         X=transfer.feats(tkd), loss={}, ipcw={})
     has_open = bool(np.isinf(te_all.y.to_numpy(float)).any())
     if score and has_open:
         yta, ota = cpin.censor(te_all, pulled)
@@ -277,7 +286,8 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
         Xte = pd.concat([Xte, transfer.feats(sel)])
     n_sel_rows = len(sel) if nc else 0
     if tgt is not None:  # session 98: and the target's own Y-3 rows
-        Xte = pd.concat([Xte, transfer.feats(tg)])
+        Xte = pd.concat([Xte, transfer.feats(tg)] + [tk[k]["X"] for k in TGT_KS])
+        n_tg = len(tg)
     done_te = np.isfinite(te_all.y.to_numpy(float)) if has_open else np.ones(len(te), bool)
     live = ~te["dead"].to_numpy(bool) if "dead" in te else None  # session 95: among completed test rows
     taus = (0.5, 0.9)  # q0.1 is untouched by open permits and costs most rounds (300 in es3); skipped for time
@@ -291,7 +301,16 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
             t0 = time.time()
             pr, r[t] = cpin.fit_one(Xtr, ytr, otr, Xca, yca, oca, Xte, t, seed=s)
             if tgt is not None:
-                pt = pr[n_te + n_sel_rows:]
+                pt = pr[n_te + n_sel_rows:n_te + n_sel_rows + n_tg]
+                off = n_te + n_sel_rows + n_tg
+                for k in TGT_KS:  # session 99
+                    pk, d_k = pr[off:off + tk[k]["n"]], tk[k]
+                    off += d_k["n"]
+                    c_k = ~d_k["o"]
+                    pin_k = boosted.pin(d_k["y"][c_k], pk[c_k], t) if c_k.any() else None
+                    d_k["loss"].setdefault(str(t), []).append(None if pin_k is None else float(pin_k.mean()))
+                    d_k["ipcw"].setdefault(str(t), []).append(
+                        None if pin_k is None else float((d_k["w"] * pin_k).sum() / d_k["w"].sum()))
                 tgt["loss"].setdefault(str(t), []).append(
                     float(boosted.pin(ytg[~otg], pt[~otg], t).mean()) if (~otg).any() else None)
                 tgt["closs"].setdefault(str(t), []).append(float(cpin.closs(ytg, pt, otg, t).mean()))
@@ -329,6 +348,11 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
         res["tgt_loss_per_seed"], res["tgt_closs_per_seed"] = tgt["loss"], tgt["closs"]
         res["tgt_loss"] = {t: float(np.mean(v)) for t, v in tgt["loss"].items()}
         res["tgt_closs"] = {t: float(np.mean(v)) for t, v in tgt["closs"].items()}
+        res["tgt_k"] = {str(k): dict(n=d_k["n"], n_open=d_k["n_open"], loss_per_seed=d_k["loss"],
+                                     ipcw_per_seed=d_k["ipcw"],
+                                     loss={t: float(np.mean(v)) for t, v in d_k["loss"].items()},
+                                     ipcw={t: float(np.mean(v)) for t, v in d_k["ipcw"].items()})
+                        for k, d_k in tk.items()}
     if thresholds is not None:
         res["stale_threshold_days"] = thresholds
     if nc:
@@ -838,6 +862,62 @@ def target_sel_summary(path, res_dir, held=("sf", "seattle"), years=(2021, 2022)
                 mean_regret_closs=m([c["regret_closs"] for c in cells]), predictions=pred)
 
 
+TFOL_SELECTORS = ("k3_loss", "k3_ipcw", "k5_loss", "k5_ipcw", "k6_loss", "k6_ipcw")
+TFOL_PRIMARY = "k6_loss"  # session 99: fixed before any run
+
+
+def target_follow_summary(path, prior_path, held=("sf", "seattle"), years=(2021, 2022), cands=TSEL, tau="0.9"):
+    """Session 99: per cell, the candidate picked by each target score (the target's own Y-k permits, k = 3, 5, 6,
+    completed by D, plain or IPCW-weighted pinball), its test q0.9 against each fixed rule and the oracle; the
+    refits against session 98's (prior_path); predictions F0 to F5. Primary selector TFOL_PRIMARY."""
+    R, P = json.load(open(path)), json.load(open(prior_path))
+    cells = []
+    for h in held:
+        for Y in years:
+            rs = {v: R.get(f"{h} {Y} {v}") for v in cands}
+            if any(r is None or "tgt_k" not in r for r in rs.values()):
+                continue
+            test = {v: r["test_loss"][tau] for v, r in rs.items()}
+            oracle = min(test, key=test.get)
+            score = {sel: {v: r["tgt_k"][sel[1]][sel[3:]][tau] for v, r in rs.items()} for sel in TFOL_SELECTORS}
+            pick = {sel: min(sc, key=sc.get) for sel, sc in score.items()}
+            n_s = len(rs[cands[0]]["test_loss_per_seed"][tau])
+            seed_pick = {sel: [min(cands, key=lambda v: rs[v]["tgt_k"][sel[1]][sel[3:] + "_per_seed"][tau][s])
+                               for s in range(n_s)] for sel in TFOL_SELECTORS}
+            refit = {v: test[v] - P[f"{h} {Y} {v}"]["test_loss"][tau] for v in cands if f"{h} {Y} {v}" in P}
+            k3 = {v: rs[v]["tgt_k"]["3"]["loss"][tau] - P[f"{h} {Y} {v}"]["tgt_loss"][tau]
+                  for v in cands if f"{h} {Y} {v}" in P}
+            cells.append(dict(held=h, year=Y, test_q90=test, oracle=oracle, score=score, pick=pick,
+                              regret={sel: test[p] - test[oracle] for sel, p in pick.items()},
+                              pick_per_seed=seed_pick,
+                              nc5_minus_nc3={sel: sc["cpin_es3_nc5"] - sc["cpin_es3_nc3"] for sel, sc in score.items()},
+                              tgt_n={k: rs[cands[0]]["tgt_k"][k]["n"] for k in ("3", "5", "6")},
+                              tgt_n_open={k: rs[cands[0]]["tgt_k"][k]["n_open"] for k in ("3", "5", "6")},
+                              refit_minus_prior=refit, k3_minus_prior=k3))
+    full = len(cells) == len(held) * len(years)
+    m = lambda xs: float(np.mean(xs)) if xs else None  # noqa: E731
+    fixed_mean = {v: m([c["test_q90"][v] for c in cells]) for v in cands}
+    sel_mean = {sel: m([c["test_q90"][c["pick"][sel]] for c in cells]) for sel in TFOL_SELECTORS}
+    regret = {sel: m([c["regret"][sel] for c in cells]) for sel in TFOL_SELECTORS}
+    five = set(cands) - {"cpin_es3_nc3"}
+    sf = [c for c in cells if c["held"] == "sf"]
+    se = [c for c in cells if c["held"] == "seattle"]
+    P1 = TFOL_PRIMARY
+    pred = dict(
+        F0=full and all(abs(x) <= 0.05 for c in cells for d in (c["refit_minus_prior"], c["k3_minus_prior"])
+                        for x in d.values()) and all(len(c["refit_minus_prior"]) == len(cands) for c in cells),
+        F1=full and all(c["pick"][P1] == "cpin_es3_nc3" for c in sf) and all(c["pick"][P1] in five for c in se),
+        F2=full and all(sel_mean[P1] < x for x in fixed_mean.values()),
+        F3=full and all(c["nc5_minus_nc3"]["k6_loss"] < c["nc5_minus_nc3"]["k3_loss"] for c in se),
+        F4=full and any(c["pick"]["k3_ipcw"] in five for c in se),
+        F5=full and regret[P1] <= 1.0)
+    return dict(note="session 99: cascade2 transfer model, q0.9 mean pinball loss over 3 seeds (days); selector "
+                     "kK_loss = lowest q0.9 pinball on the target city's own Y-K permits completed by D = 1 January Y; "
+                     "kK_ipcw = the same, weighted by 1/G(y) (transfer.ipcw_completed on that cohort)",
+                primary=P1, cands=list(cands), cells=cells, fixed_mean=fixed_mean, selected_mean=sel_mean,
+                mean_regret=regret, predictions=pred)
+
+
 def stamp_summary(path, clean_path, sweep_path, held=("sf", "seattle"), years=(2021, 2022)):
     """Session 96: cpin_es3_nc5_stamp and cpin_es3_nc3_clean (this file) against session 95's cpin_es3_nc5 and
     cpin_es3_nc5_clean (clean_path) and session 92's cpin_es3_nc3 (sweep_path), all on feeds whose row counts
@@ -916,8 +996,17 @@ if __name__ == "__main__":
     ap.add_argument("--summarise-len", help="session 97: write results/<name>_summary.json from this file")
     ap.add_argument("--summarise-stamp", help="session 96: write results/<name>_summary.json from this file")
     ap.add_argument("--summarise-tsel", help="session 98: write results/<name>_summary.json from this file")
+    ap.add_argument("--summarise-tfol", help="session 99: write results/<name>_summary.json from this file")
     a = ap.parse_args()
     res_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
+    if a.summarise_tfol:
+        s = target_follow_summary(a.summarise_tfol, os.path.join(res_dir, "rounds_score_tsel_i2c.json"))
+        json.dump(s, open(a.summarise_tfol.replace(".json", "_summary.json"), "w"), indent=1)
+        print(json.dumps({k: s[k] for k in ("fixed_mean", "selected_mean", "mean_regret", "predictions")}, indent=1))
+        for c in s["cells"]:
+            print(c["held"], c["year"], c["oracle"], c["pick"], {k: round(v, 2) for k, v in c["nc5_minus_nc3"].items()},
+                  c["tgt_n"], c["tgt_n_open"], {k: round(v, 3) for k, v in c["refit_minus_prior"].items()})
+        sys.exit()
     if a.summarise_tsel:
         s = target_sel_summary(a.summarise_tsel, res_dir)
         json.dump(s, open(a.summarise_tsel.replace(".json", "_summary.json"), "w"), indent=1)
